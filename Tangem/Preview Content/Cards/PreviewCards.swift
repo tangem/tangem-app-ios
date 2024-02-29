@@ -9,24 +9,8 @@
 import TangemSdk
 
 extension Card {
-    private static var walletWithBackupUrl: URL {
-        Bundle.main.url(forResource: "walletWithBackup", withExtension: "json")!
-    }
-
-    private static var walletV2URL: URL {
-        Bundle.main.url(forResource: "walletV2", withExtension: "json")!
-    }
-
-    private static var twinURL: URL {
-        Bundle.main.url(forResource: "twinCard", withExtension: "json")!
-    }
-
-    private static var xrpNoteURL: URL {
-        Bundle.main.url(forResource: "xrpNote", withExtension: "json")!
-    }
-
     static var walletWithBackup: Card {
-        return decodeFromURL(walletWithBackupUrl)!
+        return decodeFromURL(walletWithBackupURL)!
     }
 
     static var walletV2: Card {
@@ -39,6 +23,42 @@ extension Card {
 
     static var xrpNote: Card {
         return decodeFromURL(xrpNoteURL)!
+    }
+
+    static var xlmBird: Card {
+        return decodeFromURL(xlmBirdURL)!
+    }
+
+    static var visa: Card {
+        return decodeFromURL(visaURL)!
+    }
+
+    private static var walletWithBackupURL: URL {
+        url(fileName: "walletWithBackup")
+    }
+
+    private static var walletV2URL: URL {
+        url(fileName: "walletV2")
+    }
+
+    private static var twinURL: URL {
+        url(fileName: "twinCard")
+    }
+
+    private static var xrpNoteURL: URL {
+        url(fileName: "xrpNote")
+    }
+
+    private static var xlmBirdURL: URL {
+        url(fileName: "xlmBird")
+    }
+
+    private static var visaURL: URL {
+        url(fileName: "visa")
+    }
+
+    private static func url(fileName: String) -> URL {
+        Bundle.main.url(forResource: fileName, withExtension: "json")!
     }
 
     private static func decodeFromURL(_ url: URL) -> Card? {

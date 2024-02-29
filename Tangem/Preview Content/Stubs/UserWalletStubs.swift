@@ -49,4 +49,24 @@ struct UserWalletStubs {
         artwork: nil,
         isHDWalletAllowed: false
     )
+
+    static var xlmBirdStub: UserWallet = .init(
+        userWalletId: Data.randomData(count: 32),
+        name: "XLM Bird",
+        card: .init(card: .xrpNote),
+        associatedCardIds: [],
+        walletData: .file(.init(blockchain: "XLM", token: nil)),
+        artwork: nil,
+        isHDWalletAllowed: false
+    )
+
+    static var visaStub: UserWallet = .init(
+        userWalletId: Data.randomData(count: 32),
+        name: "Tangem Visa",
+        card: .init(card: .visa),
+        associatedCardIds: [],
+        walletData: .file(.init(blockchain: "", token: nil)),
+        artwork: nil,
+        isHDWalletAllowed: false
+    )
 }

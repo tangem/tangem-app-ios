@@ -35,9 +35,9 @@ class CommonTangemApiService {
         AppLog.shared.debug("CommonTangemApiService deinit")
     }
 
-    private func request<D: Decodable>(for type: TangemApiTarget.TargetType) async throws -> D {
+    private func request<D: Decodable>(for type: TangemApiTarget.TargetType, decoder: JSONDecoder = .init()) async throws -> D {
         let target = TangemApiTarget(type: type, authData: authData)
-        return try await provider.asyncRequest(for: target).mapAPIResponse()
+        return try await provider.asyncRequest(for: target).mapAPIResponse(decoder: decoder)
     }
 }
 
@@ -48,14 +48,24 @@ extension CommonTangemApiService: TangemApiService {
         return _geoIpRegionCode ?? fallbackRegionCode
     }
 
-    func loadTokens(for key: String) -> AnyPublisher<UserTokenList, TangemAPIError> {
+    func loadTokens(for key: String) -> AnyPublisher<UserTokenList?, TangemAPIError> {
         let target = TangemApiTarget(type: .getUserWalletTokens(key: key), authData: authData)
 
         return provider
             .requestPublisher(target)
             .filterSuccessfulStatusCodes()
-            .map(UserTokenList.self)
+            .map(UserTokenList?.self)
             .mapTangemAPIError()
+            .catch { error -> AnyPublisher<UserTokenList?, TangemAPIError> in
+                if error.code == .notFound {
+                    return Just(nil)
+                        .setFailureType(to: TangemAPIError.self)
+                        .eraseToAnyPublisher()
+                }
+
+                return Fail(error: error)
+                    .eraseToAnyPublisher()
+            }
             .retry(3)
             .eraseToAnyPublisher()
     }
@@ -68,6 +78,18 @@ extension CommonTangemApiService: TangemApiService {
             .filterSuccessfulStatusCodes()
             .mapTangemAPIError()
             .mapToVoid()
+            .eraseToAnyPublisher()
+    }
+
+    func createAccount(networkId: String, publicKey: String) -> AnyPublisher<BlockchainAccountCreateResult, TangemAPIError> {
+        let parameters = BlockchainAccountCreateParameters(networkId: networkId, walletPublicKey: publicKey)
+        let target = TangemApiTarget(type: .createAccount(parameters), authData: authData)
+
+        return provider
+            .requestPublisher(target)
+            .filterSuccessfulStatusCodes()
+            .map(BlockchainAccountCreateResult.self)
+            .mapTangemAPIError()
             .eraseToAnyPublisher()
     }
 
@@ -87,7 +109,7 @@ extension CommonTangemApiService: TangemApiService {
 
                 return coinModels.compactMap { coinModel in
                     let items = coinModel.items.filter { item in
-                        item.contractAddress?.caseInsensitiveCompare(contractAddress) == .orderedSame
+                        item.token?.contractAddress.caseInsensitiveCompare(contractAddress) == .orderedSame
                     }
 
                     guard !items.isEmpty else {
@@ -177,12 +199,17 @@ extension CommonTangemApiService: TangemApiService {
         return try JSONDecoder().decode(ReferralProgramInfo.self, from: filteredResponse.data)
     }
 
-    func sales(locale: String, shops: String) async throws -> SalesDetails {
-        try await request(for: .sales(locale: locale, shops: shops))
+    func expressPromotion(request model: ExpressPromotion.Request) async throws -> ExpressPromotion.Response {
+        let decoder = JSONDecoder()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+        decoder.dateDecodingStrategy = .formatted(dateFormatter)
+
+        return try await request(for: .promotion(request: model), decoder: decoder)
     }
 
     func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters {
-        try await request(for: .promotion(programName: programName, timeout: timeout))
+        try await request(for: .promotion(request: .init(programName: programName)))
     }
 
     @discardableResult
@@ -231,13 +258,13 @@ extension CommonTangemApiService: TangemApiService {
 }
 
 private extension Response {
-    func mapAPIResponse<D: Decodable>() throws -> D {
+    func mapAPIResponse<D: Decodable>(decoder: JSONDecoder = .init()) throws -> D {
         let filteredResponse = try filterSuccessfulStatusCodes()
 
         if let baseError = try? filteredResponse.map(TangemBaseAPIError.self) {
             throw baseError.error
         }
 
-        return try filteredResponse.map(D.self)
+        return try filteredResponse.map(D.self, using: decoder)
     }
 }
