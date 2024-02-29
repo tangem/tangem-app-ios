@@ -239,6 +239,8 @@
 "express_provider_permission_needed" = "Требуется разрешение";
 "express_terms_of_use" = "Условиями использования";
 "express_token_list_empty_search" = "Токены не найдены. Пожалуйста, попробуйте другой запрос";
+"express_transaction_id" = "ID: %s";
+"express_transaction_id_copied" = "ID транзакции скопирован";
 "express_unknown_error" = "Произошла ошибка. Пожалуйста, попробуйте снова.";
 "feedback_preface_rate_negative" = "Расскажите, каких функций вам не хватает, и мы постараемся вам помочь.";
 "feedback_preface_scan_failed" = "Скажите, пожалуйста, какая у вас карта?";
