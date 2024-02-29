@@ -200,7 +200,12 @@ extension Set<Blockchain> {
 }
 
 extension Blockchain {
-    var feeDisplayName: String {
-        displayName + " (\(currencySymbol))"
+    func feeDisplayName(tokenId: String?, blockchainId: String) -> String? {
+        switch (tokenId, blockchainId) {
+        case ("arbitrum", "arbitrum-one"), ("optimism", "optimistic-ethereum"):
+            return displayName + " (\(currencySymbol))"
+        default:
+            return nil
+        }
     }
 }
