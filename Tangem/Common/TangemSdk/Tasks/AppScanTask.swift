@@ -45,7 +45,7 @@ final class AppScanTask: CardSessionRunnable {
 
     private var walletData: DefaultWalletData = .none
     private var primaryCard: PrimaryCard?
-    private var linkingCommand: StartPrimaryCardLinkingTask?
+    private var linkingCommand: StartPrimaryCardLinkingCommand?
 
     init(shouldAskForAccessCode: Bool = false) {
         self.shouldAskForAccessCode = shouldAskForAccessCode
@@ -197,7 +197,7 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func readPrimaryCard(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        linkingCommand = StartPrimaryCardLinkingTask()
+        linkingCommand = StartPrimaryCardLinkingCommand()
         linkingCommand!.run(in: session) { result in
             switch result {
             case .success(let primaryCard):
@@ -236,9 +236,8 @@ final class AppScanTask: CardSessionRunnable {
             let savedItems = tokenItemsRepository.getList().entries
 
             savedItems.forEach { item in
-                if let wallet = card.wallets.first(where: { $0.curve == item.blockchainNetwork.blockchain.curve }),
-                   let path = item.blockchainNetwork.derivationPath {
-                    derivations[wallet.curve, default: []].append(path)
+                if let wallet = card.wallets.first(where: { $0.curve == item.blockchainNetwork.blockchain.curve }) {
+                    derivations[wallet.curve, default: []].append(contentsOf: item.blockchainNetwork.derivationPaths())
                 }
             }
         }

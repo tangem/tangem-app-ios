@@ -16,10 +16,6 @@ extension Color {
         return Color("tangem_green")
     }
 
-    @nonobjc static var tangemGreen2: Color {
-        return Color("tangem_green2")
-    }
-
     // MARK: Complimentary
 
     @nonobjc static var tangemWarning: Color {
@@ -52,10 +48,6 @@ extension Color {
         return Color("tangem_gray_dark3")
     }
 
-    @nonobjc static var tangemGrayDark4: Color {
-        return Color("tangem_gray_dark4")
-    }
-
     @nonobjc static var tangemGrayDark5: Color {
         return Color("tangem_gray_dark5")
     }
@@ -72,14 +64,6 @@ extension Color {
 
     @nonobjc static var tangemGrayLight5: Color {
         return Color("tangem_gray_light5")
-    }
-
-    @nonobjc static var tangemGrayLight6: Color {
-        return Color("tangem_gray_light6")
-    }
-
-    @nonobjc static var tangemTextGray: Color {
-        return Color("tangem_text_gray")
     }
 
     @nonobjc static var tangemGrayLight7: Color {
@@ -115,30 +99,42 @@ extension Color {
     @nonobjc static var tangemBg: Color {
         return Color("tangem_bg")
     }
-
-    // MARK: Misc
-
-    @nonobjc static var underlyingCardBackground1: Color {
-        return Color("underlying-card-background1")
-    }
-
-    @nonobjc static var underlyingCardBackground2: Color {
-        return Color("underlying-card-background2")
-    }
 }
 
 extension UIColor {
-    // This is taken from the new palette
+    // DO NOT remove this
+    // This is a UIColor from the new palette, used in UITextField's accessory view
+    // There's no good way to convert SwiftUI dynamic Color to UIColor and retain the dark/light appearance
+    // 👇👇👇 ------------------------------------ 👇👇👇
     @nonobjc static var backgroundPrimary: UIColor {
         return UIColor(named: "BackgroundPrimary")!
     }
 
-    // DO NOT remove this
-    // This is a UIColor from the new palette, used in UITextField's accessory view
-    // There's no good way to convert SwiftUI dynamic Color to UIColor and retain the dark/light appearance
     @nonobjc static var inputAccessoryViewTintColor: UIColor {
         return UIColor(named: "ButtonPrimary")!
     }
+
+    @nonobjc static var textWarningColor: UIColor {
+        return UIColor(named: "TextWarning")!
+    }
+
+    @nonobjc static var textAccent: UIColor {
+        return UIColor(named: "TextAccent")!
+    }
+
+    @nonobjc static var textPrimary1: UIColor {
+        return UIColor(named: "TextPrimary1")!
+    }
+
+    @nonobjc static var textDisabled: UIColor {
+        return UIColor(named: "TextDisabled")!
+    }
+
+    @nonobjc static var iconInformative: UIColor {
+        return UIColor(named: "IconInformative")!
+    }
+
+    // ☝️☝️☝️ End of UIColors from the new palette ☝️☝️☝️
 
     // MARK: Background
 

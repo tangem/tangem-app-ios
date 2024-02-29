@@ -3,59 +3,52 @@
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2023 Tangem AG. All rights reserved.
+//  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import Combine
-import BlockchainSdk
 
 class UserWalletModelMock: UserWalletModel {
-    let emailData: [EmailCollectedData] = []
-    let backupInput: OnboardingInput? = nil
-    let twinInput: OnboardingInput? = nil
+    var isMultiWallet: Bool { true }
+    var tokensCount: Int? { 7 }
+    var config: UserWalletConfig { fatalError("UserWalletConfigMock doesn't exist") }
+    var userWalletId: UserWalletId { .init(value: Data()) }
+    var userWallet: UserWallet { fatalError("UserWalletMock doesn't exist") }
 
-    var cardHeaderImage: ImageType?
+    var walletModelsManager: WalletModelsManager { WalletModelsManagerMock() }
+
+    var userTokensManager: UserTokensManager { UserTokensManagerMock() }
+
+    var userTokenListManager: UserTokenListManager { UserTokenListManagerMock() }
+
+    var signer: TangemSigner { fatalError("TangemSignerMock doesn't exist") }
+
+    var updatePublisher: AnyPublisher<Void, Never> { Empty().eraseToAnyPublisher() }
+
+    var emailData: [EmailCollectedData] { [] }
+
+    var backupInput: OnboardingInput? { nil }
+
+    var twinInput: OnboardingInput? { nil }
+
+    var cardImagePublisher: AnyPublisher<CardImageResult, Never> { Empty().eraseToAnyPublisher() }
+
+    var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> { Empty().eraseToAnyPublisher() }
+
+    var userWalletNamePublisher: AnyPublisher<String, Never> { Empty().eraseToAnyPublisher() }
+
+    var totalBalancePublisher: AnyPublisher<LoadingValue<TotalBalance>, Never> { Empty().eraseToAnyPublisher() }
+
+    var cardsCount: Int { 3 }
 
     var isUserWalletLocked: Bool { false }
 
-    var signer: TangemSigner = .init(with: nil, sdk: .init())
+    var isTokensListEmpty: Bool { false }
 
-    var walletModelsManager: WalletModelsManager { WalletModelsManagerMock() }
-    var userTokenListManager: UserTokenListManager { UserTokenListManagerMock() }
-    var userTokensManager: UserTokensManager { UserTokensManagerMock() }
-
-    var isMultiWallet: Bool { false }
-
-    var tokensCount: Int? { 10 }
-
-    var cardsCount: Int { 1 }
-
-    var config: UserWalletConfig { UserWalletConfigFactory(userWallet.cardInfo()).makeConfig() }
-
-    var userWalletId: UserWalletId { .init(with: Data()) }
-
-    var userWallet: UserWallet {
-        UserWallet(
-            userWalletId: Data(),
-            name: "",
-            card: .init(card: .walletWithBackup),
-            associatedCardIds: [],
-            walletData: .none,
-            artwork: nil,
-            isHDWalletAllowed: false
-        )
-    }
-
-    var isWalletModelListEmpty: Bool { walletModelsManager.walletModels.isEmpty }
-
-    var updatePublisher: AnyPublisher<Void, Never> { .just }
-
-    var userWalletNamePublisher: AnyPublisher<String, Never> { .just(output: "") }
-
-    func initialUpdate() {}
     func updateWalletName(_ name: String) {}
 
-    func totalBalancePublisher() -> AnyPublisher<LoadingValue<TotalBalanceProvider.TotalBalance>, Never> {
-        .just(output: .loading)
-    }
+    func getAnalyticsContextData() -> AnalyticsContextData? { nil }
+
+    func validate() -> Bool { true }
 }

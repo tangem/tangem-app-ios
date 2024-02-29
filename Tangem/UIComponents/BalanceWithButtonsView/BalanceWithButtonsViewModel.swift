@@ -12,7 +12,7 @@ import Combine
 final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
     @Published var isLoadingFiatBalance = true
     @Published var isLoadingBalance = true
-    @Published var fiatBalance = NSAttributedString(string: "")
+    @Published var fiatBalance: AttributedString = .init(BalanceFormatter.defaultEmptyBalanceString)
     @Published var cryptoBalance = ""
 
     @Published var buttons: [ButtonWithIconInfo] = []
@@ -20,7 +20,6 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
     private weak var balanceProvider: BalanceProvider?
     private weak var buttonsProvider: ActionButtonsProvider?
 
-    private var fiatUpdatingTask: Task<Void, Never>?
     private var bag = Set<AnyCancellable>()
 
     init(balanceProvider: BalanceProvider?, buttonsProvider: ActionButtonsProvider?) {
@@ -57,39 +56,15 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
     }
 
     private func setupEmptyBalances() {
-        fiatBalance = .init(string: BalanceFormatter.defaultEmptyBalanceString)
+        fiatBalance = .init(BalanceFormatter.defaultEmptyBalanceString)
         cryptoBalance = BalanceFormatter.defaultEmptyBalanceString
     }
 
     private func updateBalances(for newBalance: BalanceInfo) {
         let formatter = BalanceFormatter()
 
-        cryptoBalance = formatter.formatCryptoBalance(newBalance.balance, currencyCode: newBalance.currencyCode)
-
-        fiatUpdatingTask?.cancel()
-        fiatUpdatingTask = Task { [weak self] in
-            let converter = BalanceConverter()
-
-            do {
-                let fiatBalance: Decimal?
-                if let currencyId = newBalance.currencyId {
-                    fiatBalance = try await converter.convertToFiat(value: newBalance.balance, from: currencyId)
-                } else {
-                    fiatBalance = nil
-                }
-                let formattedFiat = formatter.formatFiatBalance(fiatBalance)
-                let attributedFiatBalance = formatter.formatTotalBalanceForMain(fiatBalance: formattedFiat, formattingOptions: .defaultOptions)
-
-                await runOnMain {
-                    self?.fiatBalance = attributedFiatBalance
-                }
-            } catch {
-                AppLog.shared.debug("Failed to convert from crypto to fiat. Reason: \(error)")
-            }
-
-            await runOnMain {
-                self?.isLoadingFiatBalance = false
-            }
-        }
+        isLoadingFiatBalance = false
+        cryptoBalance = newBalance.balance
+        fiatBalance = formatter.formatAttributedTotalBalance(fiatBalance: newBalance.fiatBalance)
     }
 }

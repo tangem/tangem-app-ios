@@ -22,50 +22,10 @@
         <string>%li карт</string>
       </dict>
     </dict>
-    <key>main_learn_subtitle</key>
+    <key>manage_tokens_number_of_wallets_ios</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>Пройдите 3 урока и получите %li 1INCH токен на свой кошелек</string>
-        <key>few</key>
-        <string>Пройдите 3 урока и получите %li 1INCH токена на свой кошелек</string>
-        <key>many</key>
-        <string>Пройдите 3 урока и получите %li 1INCH токенов на свой кошелек</string>
-        <key>other</key>
-        <string>Пройдите 3 урока и получите %li 1INCH токенов на свой кошелек</string>
-      </dict>
-    </dict>
-    <key>main_warning_missing_derivation_description</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>Вам надо сгенерировать адрес для %li новой сети, используя вашу карту</string>
-        <key>few</key>
-        <string>Вам надо сгенерировать адреса для %li новых сетей, используя вашу карту</string>
-        <key>many</key>
-        <string>Вам надо сгенерировать адреса для %li новых сетей, используя вашу карту</string>
-        <key>other</key>
-        <string>Вам надо сгенерировать адреса для %li новых сетей, используя вашу карту</string>
-      </dict>
-    </dict>
-    <key>manage_tokens_number_of_wallets</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%li of %#@total_wallets@</string>
+      <string>%li из %#@total_wallets@</string>
       <key>total_wallets</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -73,9 +33,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li wallet</string>
+        <string>%li кошелька</string>
+        <key>few</key>
+        <string>%li кошельков</string>
+        <key>many</key>
+        <string>%li кошельков</string>
         <key>other</key>
-        <string>%li wallets</string>
+        <string>%li кошельков</string>
       </dict>
     </dict>
     <key>referral_number_of_wallets</key>
@@ -118,7 +82,7 @@
         <string>%li кошельков</string>
       </dict>
     </dict>
-    <key>token_count</key>
+    <key>warning_missing_derivation_message</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>%#@format@</string>
@@ -129,13 +93,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li токен</string>
+        <string>Используйте вашу карту, чтобы получить адрес для %li сети</string>
         <key>few</key>
-        <string>%li токена</string>
+        <string>Используйте вашу карту, чтобы получить адреса для %li сетей</string>
         <key>many</key>
-        <string>%li токенов</string>
+        <string>Используйте вашу карту, чтобы получить адреса для %li сетей</string>
         <key>other</key>
-        <string>%li токенов</string>
+        <string>Используйте вашу карту, чтобы получить адреса для %li сетей</string>
       </dict>
     </dict>
   </dict>

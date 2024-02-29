@@ -10,9 +10,8 @@ import Foundation
 
 enum WarningEvent: Equatable {
     case numberOfSignedHashesIncorrect
-    case multiWalletSignedHashes
     case rateApp
-    case failedToValidateCard
+    case failedToVerifyCard
     case testnetCard
     case demoCard
     case oldDeviceOldCard
@@ -25,6 +24,8 @@ enum WarningEvent: Equatable {
     case missingDerivation(numberOfNetworks: Int)
     case walletLocked
     case missingBackup
+    case supportedOnlySingleCurrencyWallet
+    case backupErrors
 }
 
 // For Notifications
@@ -33,108 +34,210 @@ extension WarningEvent: NotificationEvent {
         Localization.commonWarning
     }
 
-    // [REDACTED_TODO_COMMENT]
-    var title: String {
+    var title: NotificationView.Title {
         switch self {
-        case .multiWalletSignedHashes:
-            // We don't need any special symbol in Notifications
-            return Localization.warningImportantSecurityInfo("")
         case .rateApp:
-            return Localization.warningRateAppTitle
-        case .failedToValidateCard:
-            return Localization.warningFailedToVerifyCardTitle
+            return .string(Localization.warningRateAppTitle)
+        case .failedToVerifyCard:
+            return .string(Localization.warningFailedToVerifyCardTitle)
         case .systemDeprecationTemporary:
-            return Localization.warningSystemUpdateTitle
+            return .string(Localization.warningSystemUpdateTitle)
         case .systemDeprecationPermanent:
-            return Localization.warningSystemDeprecationTitle
-        case .testnetCard, .demoCard, .oldDeviceOldCard, .oldCard, .devCard, .lowSignatures, .numberOfSignedHashesIncorrect, .legacyDerivation:
-            return defaultTitle
+            return .string(Localization.warningSystemDeprecationTitle)
+        case .testnetCard:
+            return .string(Localization.warningTestnetCardTitle)
+        case .demoCard:
+            return .string(Localization.warningDemoModeTitle)
+        case .oldDeviceOldCard:
+            return .string(Localization.warningOldDeviceOldCardTitle)
+        case .oldCard:
+            return .string(Localization.warningOldCardTitle)
+        case .devCard:
+            return .string(Localization.warningDeveloperCardTitle)
+        case .lowSignatures:
+            return .string(Localization.warningLowSignaturesTitle)
+        case .numberOfSignedHashesIncorrect:
+            return .string(Localization.warningNumberOfSignedHashesIncorrectTitle)
+        case .legacyDerivation:
+            return .string(defaultTitle)
         case .missingDerivation:
-            return Localization.mainWarningMissingDerivationTitle
+            return .string(Localization.warningMissingDerivationTitle)
         case .walletLocked:
-            return Localization.commonUnlockNeeded
+            return .string(Localization.commonAccessDenied)
         case .missingBackup:
-            return Localization.mainNoBackupWarningTitle
+            return .string(Localization.warningNoBackupTitle)
+        case .supportedOnlySingleCurrencyWallet:
+            return .string(Localization.manageTokensWalletSupportOnlyOneNetworkTitle)
+        case .backupErrors:
+            return .string(Localization.warningBackupErrorsTitle)
         }
     }
 
     var description: String? {
         switch self {
         case .numberOfSignedHashesIncorrect:
-            return Localization.alertCardSignedTransactions
-        case .multiWalletSignedHashes:
-            return Localization.warningSignedTxPreviously
+            return Localization.warningNumberOfSignedHashesIncorrectMessage
         case .rateApp:
             return Localization.warningRateAppMessage
-        case .failedToValidateCard:
+        case .failedToVerifyCard:
             return Localization.warningFailedToVerifyCardMessage
         case .testnetCard:
             return Localization.warningTestnetCardMessage
         case .demoCard:
-            return Localization.alertDemoMessage
+            return Localization.warningDemoModeMessage
         case .oldDeviceOldCard:
-            return Localization.alertOldDeviceThisCard
+            return Localization.warningOldDeviceOldCardMessage
         case .oldCard:
-            return Localization.alertOldCard
+            return Localization.warningOldCardMessage
         case .devCard:
-            return Localization.alertDeveloperCard
+            return Localization.warningDeveloperCardMessage
         case .lowSignatures(let count):
-            return Localization.warningLowSignaturesFormat("\(count)")
+            return Localization.warningLowSignaturesMessage("\(count)")
         case .legacyDerivation:
-            return Localization.alertManageTokensAddressesMessage
+            return Localization.warningManageTokensLegacyDerivationMessage
         case .systemDeprecationTemporary:
             return Localization.warningSystemUpdateMessage
         case .systemDeprecationPermanent(let dateString):
             return String(format: Localization.warningSystemDeprecationWithDateMessage(dateString))
                 .replacingOccurrences(of: "..", with: ".")
         case .missingDerivation(let numberOfNetworks):
-            return Localization.mainWarningMissingDerivationDescription(numberOfNetworks)
+            return Localization.warningMissingDerivationMessage(numberOfNetworks)
         case .walletLocked:
-            return Localization.unlockWalletDescriptionShort(BiometricAuthorizationUtils.biometryType.name)
+            return Localization.warningAccessDeniedMessage(BiometricAuthorizationUtils.biometryType.name)
         case .missingBackup:
-            return Localization.mainNoBackupWarningSubtitle
+            return Localization.warningNoBackupMessage
+        case .supportedOnlySingleCurrencyWallet:
+            return nil
+        case .backupErrors:
+            return Localization.warningBackupErrorsMessage
         }
     }
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
         case .rateApp, .missingDerivation, .missingBackup:
-            return .white
+            return .primary
         default:
-            return .gray
+            return .secondary
         }
     }
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .multiWalletSignedHashes, .numberOfSignedHashesIncorrect, .failedToValidateCard, .testnetCard, .devCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent:
-            return .init(image: Assets.attentionRedFill.image)
-        case .rateApp, .oldDeviceOldCard, .oldCard, .systemDeprecationTemporary:
-            return .init(image: Assets.attention.image)
-        case .missingDerivation:
-            return .init(image: Assets.blueCircleWarning.image)
+        case .failedToVerifyCard, .devCard, .backupErrors:
+            return .init(iconType: .image(Assets.redCircleWarning.image))
+        case .numberOfSignedHashesIncorrect, .testnetCard, .oldDeviceOldCard, .oldCard, .lowSignatures, .systemDeprecationPermanent, .missingBackup, .supportedOnlySingleCurrencyWallet:
+            return .init(iconType: .image(Assets.attention.image))
+        case .demoCard, .legacyDerivation, .systemDeprecationTemporary, .missingDerivation:
+            return .init(iconType: .image(Assets.blueCircleWarning.image))
+        case .rateApp:
+            return .init(iconType: .image(Assets.star.image))
         case .walletLocked:
-            return .init(image: Assets.lock.image, color: Colors.Icon.primary1)
-        case .missingBackup:
-            return .init(image: Assets.attention.image)
+            return .init(iconType: .image(Assets.lock.image), color: Colors.Icon.primary1)
+        }
+    }
+
+    var severity: NotificationView.Severity {
+        switch self {
+        case .walletLocked,
+             .failedToVerifyCard,
+             .devCard,
+             .backupErrors:
+            return .critical
+        case .demoCard,
+             .legacyDerivation,
+             .systemDeprecationTemporary,
+             .missingDerivation,
+             .rateApp:
+            return .info
+        case .numberOfSignedHashesIncorrect,
+             .testnetCard,
+             .oldDeviceOldCard,
+             .oldCard,
+             .lowSignatures,
+             .systemDeprecationPermanent,
+             .missingBackup,
+             .supportedOnlySingleCurrencyWallet:
+            return .warning
         }
     }
 
     var isDismissable: Bool {
         switch self {
-        case .multiWalletSignedHashes, .failedToValidateCard, .testnetCard, .devCard, .oldDeviceOldCard, .oldCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent, .missingDerivation, .walletLocked, .missingBackup:
+        case .failedToVerifyCard, .testnetCard, .devCard, .oldDeviceOldCard, .oldCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent, .missingDerivation, .walletLocked, .missingBackup, .supportedOnlySingleCurrencyWallet, .backupErrors:
             return false
         case .rateApp, .numberOfSignedHashesIncorrect, .systemDeprecationTemporary:
             return true
         }
     }
 
-    var hasAction: Bool {
+    func style(tapAction: NotificationView.NotificationAction? = nil, buttonAction: NotificationView.NotificationButtonTapAction? = nil) -> NotificationView.Style {
         switch self {
-        case .multiWalletSignedHashes, .walletLocked:
-            return true
-        default:
-            return false
+        case .walletLocked:
+            guard let tapAction else {
+                break
+            }
+
+            return .tappable(action: tapAction)
+        case .missingBackup:
+            guard let buttonAction else {
+                break
+            }
+
+            return .withButtons([
+                NotificationView.NotificationButton(action: buttonAction, actionType: .backupCard, isWithLoader: false),
+            ])
+        case .missingDerivation:
+            guard let buttonAction else {
+                break
+            }
+
+            return .withButtons([
+                .init(action: buttonAction, actionType: .generateAddresses, isWithLoader: true),
+            ])
+        default: break
+        }
+        return .plain
+    }
+}
+
+// MARK: Analytics info
+
+extension WarningEvent {
+    var analyticsEvent: Analytics.Event? {
+        switch self {
+        case .numberOfSignedHashesIncorrect: return .mainNoticeCardSignedTransactions
+        case .rateApp: return nil
+        case .failedToVerifyCard: return .mainNoticeProductSampleCard
+        case .testnetCard: return .mainNoticeTestnetCard
+        case .demoCard: return .mainNoticeDemoCard
+        case .oldDeviceOldCard: return .mainNoticeOldCard
+        case .oldCard: return .mainNoticeOldCard
+        case .devCard: return .mainNoticeDevelopmentCard
+        case .lowSignatures: return nil
+        case .legacyDerivation: return nil
+        case .systemDeprecationTemporary: return nil
+        case .systemDeprecationPermanent: return nil
+        case .missingDerivation: return .mainNoticeMissingAddress
+        case .walletLocked: return .mainNoticeWalletUnlock
+        case .missingBackup: return .mainNoticeBackupYourWallet
+        case .supportedOnlySingleCurrencyWallet: return nil
+        case .backupErrors: return .mainNoticeBackupErrors
+        }
+    }
+
+    var analyticsParams: [Analytics.ParameterKey: String] {
+        [:]
+    }
+
+    /// Determine if analytics event should be sent only once and tracked by service
+    var isOneShotAnalyticsEvent: Bool {
+        switch self {
+        /// Missing derivation notification can be tracked multiple times because if user make changes for
+        /// one card on different devices the `Missing derivation` notification will be updated
+        /// and we need to track this update after PTR
+        case .missingDerivation: return false
+        default: return true
         }
     }
 }

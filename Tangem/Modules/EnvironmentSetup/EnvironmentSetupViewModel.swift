@@ -27,7 +27,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let featureStorage = FeatureStorage()
-    private unowned let coordinator: EnvironmentSetupRoutable
+    private weak var coordinator: EnvironmentSetupRoutable?
     private var bag: Set<AnyCancellable> = []
 
     init(coordinator: EnvironmentSetupRoutable) {
@@ -40,7 +40,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
         appSettingsTogglesViewModels = [
             DefaultToggleRowViewModel(
                 title: "Use testnet",
-                isOn: Binding<Bool>(
+                isOn: BindingValue<Bool>(
                     root: featureStorage,
                     default: false,
                     get: { $0.isTestnet },
@@ -48,8 +48,8 @@ final class EnvironmentSetupViewModel: ObservableObject {
                 )
             ),
             DefaultToggleRowViewModel(
-                title: "Use dev API",
-                isOn: Binding<Bool>(
+                title: "[Tangem] Use develop API",
+                isOn: BindingValue<Bool>(
                     root: featureStorage,
                     default: false,
                     get: { $0.useDevApi },
@@ -57,12 +57,30 @@ final class EnvironmentSetupViewModel: ObservableObject {
                 )
             ),
             DefaultToggleRowViewModel(
+                title: "[Express] Use develop API",
+                isOn: BindingValue<Bool>(
+                    root: featureStorage,
+                    default: false,
+                    get: { $0.useDevApiExpress },
+                    set: { $0.useDevApiExpress = $1 }
+                )
+            ),
+            DefaultToggleRowViewModel(
                 title: "Use fake tx history",
-                isOn: Binding<Bool>(
+                isOn: BindingValue<Bool>(
                     root: featureStorage,
                     default: false,
                     get: { $0.useFakeTxHistory },
                     set: { $0.useFakeTxHistory = $1 }
+                )
+            ),
+            DefaultToggleRowViewModel(
+                title: "Enable Performance Monitor",
+                isOn: BindingValue<Bool>(
+                    root: featureStorage,
+                    default: false,
+                    get: { $0.isPerformanceMonitorEnabled },
+                    set: { $0.isPerformanceMonitorEnabled = $1 }
                 )
             ),
         ]
@@ -71,7 +89,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
             FeatureStateRowViewModel(
                 feature: feature,
                 enabledByDefault: FeatureProvider.isAvailableForReleaseVersion(feature),
-                state: Binding<FeatureState>(
+                state: BindingValue<FeatureState>(
                     root: featureStorage,
                     default: .default,
                     get: { $0.availableFeatures[feature] ?? .default },
@@ -89,7 +107,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
 
         additionalSettingsViewModels = [
             DefaultRowViewModel(title: "Supported Blockchains") { [weak self] in
-                self?.coordinator.openSupportedBlockchainsPreferences()
+                self?.coordinator?.openSupportedBlockchainsPreferences()
             },
         ]
 
