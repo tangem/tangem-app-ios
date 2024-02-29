@@ -43,8 +43,11 @@ extension QRScanViewCoordinator: QRScanViewRoutable {
         }
     }
 
-    func openSettings() {}
+    func openSettings() {
+        UIApplication.openSystemSettings()
+    }
 
+    //!
     func present(_ actionSheet: ActionSheetBinder) {
         self.actionSheet = actionSheet
     }
