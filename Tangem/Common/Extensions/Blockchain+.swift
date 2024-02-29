@@ -198,3 +198,9 @@ extension Set<Blockchain> {
         return nil
     }
 }
+
+extension Blockchain {
+    var feeDisplayName: String {
+        displayName + " (\(currencySymbol))"
+    }
+}
