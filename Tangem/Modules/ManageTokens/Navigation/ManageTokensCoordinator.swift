@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import UIKit
 
 class ManageTokensCoordinator: CoordinatorObject {
     // MARK: - Dependencies
@@ -62,6 +63,7 @@ extension ManageTokensCoordinator: ManageTokensRoutable {
 
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.addCustomTokenCoordinator = nil
+            self?.dismiss()
         }
 
         let addCustomTokenCoordinator = AddCustomTokenCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
