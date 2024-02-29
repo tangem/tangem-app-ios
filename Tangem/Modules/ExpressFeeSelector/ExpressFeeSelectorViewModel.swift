@@ -21,7 +21,7 @@ final class ExpressFeeSelectorViewModel: ObservableObject, Identifiable {
 
     private let feeFormatter: FeeFormatter
     private let expressInteractor: ExpressInteractor
-    private unowned let coordinator: ExpressFeeSelectorRoutable
+    private weak var coordinator: ExpressFeeSelectorRoutable?
 
     private var bag: Set<AnyCancellable> = []
 
@@ -63,7 +63,7 @@ final class ExpressFeeSelectorViewModel: ObservableObject, Identifiable {
     }
 
     private func makeFeeRowViewModel(option: FeeOption, fee: Fee) -> FeeRowViewModel {
-        let tokenItem = expressInteractor.getSender().tokenItem
+        let tokenItem = expressInteractor.getSender().feeTokenItem
         let formatedFee = feeFormatter.format(fee: fee.amount.value, tokenItem: tokenItem)
 
         return FeeRowViewModel(
@@ -75,7 +75,7 @@ final class ExpressFeeSelectorViewModel: ObservableObject, Identifiable {
                 if newValue {
                     root.expressInteractor.updateFeeOption(option: option)
                     root.selectedFeeOption = option
-                    root.coordinator.closeExpressFeeSelector()
+                    root.coordinator?.closeExpressFeeSelector()
                 }
             })
         )

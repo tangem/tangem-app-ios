@@ -13,22 +13,28 @@ struct SendDestinationView: View {
     @ObservedObject var viewModel: SendDestinationViewModel
 
     var body: some View {
-        GroupedScrollView {
+        GroupedScrollView(spacing: 20) {
             if let addressViewModel = viewModel.addressViewModel {
                 SendDestinationTextView(viewModel: addressViewModel)
-                    .matchedGeometryEffect(id: SendViewNamespaceId.address, in: namespace)
+                    .setNamespace(namespace)
+                    .setContainerNamespaceId(SendViewNamespaceId.amountContainer.rawValue)
+                    .setTitleNamespaceId(SendViewNamespaceId.addressTitle.rawValue)
+                    .setIconNamespaceId(SendViewNamespaceId.addressIcon.rawValue)
+                    .setTextNamespaceId(SendViewNamespaceId.addressText.rawValue)
+                    .setClearButtonNamespaceId(SendViewNamespaceId.addressClearButton.rawValue)
             }
 
             if let additionalFieldViewModel = viewModel.additionalFieldViewModel {
                 SendDestinationTextView(viewModel: additionalFieldViewModel)
-                    .matchedGeometryEffect(id: SendViewNamespaceId.additionalField, in: namespace)
             }
 
-            if let suggestedDestinationViewModel = viewModel.suggestedDestinationViewModel {
+            if let suggestedDestinationViewModel = viewModel.suggestedDestinationViewModel, viewModel.showSuggestedDestinations {
                 SendSuggestedDestinationView(viewModel: suggestedDestinationViewModel)
+                    .transition(.opacity)
             }
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
+        .onAppear(perform: viewModel.onAppear)
     }
 }
 

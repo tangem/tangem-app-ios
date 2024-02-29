@@ -17,7 +17,7 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
 
     // Bottom fiat
     @Published private(set) var fiatAmountState: LoadableTextView.State
-    @Published private(set) var priceChangePercent: String?
+    @Published private(set) var priceChangeState: PriceChangeState?
 
     // Trailing
     @Published private(set) var tokenIconState: TokenIconState
@@ -32,7 +32,7 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
         titleState: TitleState,
         balanceState: BalanceState = .idle,
         fiatAmountState: LoadableTextView.State = .initialized,
-        priceChangePercent: String? = nil,
+        priceChangeState: PriceChangeState? = nil,
         tokenIconState: TokenIconState = .loading,
         symbolState: LoadableTextView.State = .loading,
         canChangeCurrency: Bool
@@ -40,7 +40,7 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
         self.titleState = titleState
         self.balanceState = balanceState
         self.fiatAmountState = fiatAmountState
-        self.priceChangePercent = priceChangePercent
+        self.priceChangeState = priceChangeState
         self.tokenIconState = tokenIconState
         self.symbolState = symbolState
         self.canChangeCurrency = canChangeCurrency
@@ -114,7 +114,7 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
               let expectAmount = quote?.expectAmount,
               let sourceCurrencyId,
               let destinationCurrencyId else {
-            priceChangePercent = nil
+            priceChangeState = nil
             return
         }
 
@@ -128,7 +128,7 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
 
             guard result.isHighPriceImpact else {
                 await runOnMain {
-                    viewModel.priceChangePercent = nil
+                    viewModel.priceChangeState = .info
                 }
                 return
             }
@@ -136,7 +136,7 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
             let percentFormatter = PercentFormatter()
             let formatted = percentFormatter.expressRatePercentFormat(value: -result.lossesInPercents)
             await runOnMain {
-                viewModel.priceChangePercent = formatted
+                viewModel.priceChangeState = .percent(formatted)
             }
         }
     }
@@ -151,6 +151,11 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
 }
 
 extension ExpressCurrencyViewModel {
+    enum PriceChangeState: Hashable {
+        case info
+        case percent(_ formatted: String)
+    }
+
     enum TitleState: Hashable {
         case text(String)
         case insufficientFunds

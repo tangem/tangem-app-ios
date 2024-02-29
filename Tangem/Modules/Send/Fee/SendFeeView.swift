@@ -16,26 +16,81 @@ struct SendFeeView: View {
     let bottomSpacing: CGFloat
 
     var body: some View {
-        GroupedScrollView {
+        GroupedScrollView(spacing: 20) {
             GroupedSection(viewModel.feeRowViewModels) {
-                FeeRowView(viewModel: $0)
+                if $0.isSelected.value {
+                    FeeRowView(viewModel: $0)
+                        .setNamespace(namespace)
+                        .setIconNamespaceId(SendViewNamespaceId.feeIcon.rawValue)
+                        .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
+                        .setSubtitleNamespaceId(SendViewNamespaceId.feeSubtitle.rawValue)
+                } else {
+                    if !viewModel.animatingAuxiliaryViewsOnAppear {
+                        FeeRowView(viewModel: $0)
+                            .transition(SendView.Constants.auxiliaryViewTransition)
+                    }
+                }
             } footer: {
-                DefaultFooterView(Localization.commonFeeSelectorFooter)
+                if !viewModel.animatingAuxiliaryViewsOnAppear {
+                    feeSelectorFooter
+                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                        .environment(\.openURL, OpenURLAction { url in
+                            viewModel.openFeeExplanation()
+                            return .handled
+                        })
+                        .transition(SendView.Constants.auxiliaryViewTransition)
+                }
             }
-            .separatorStyle(.minimum)
-            .backgroundColor(Colors.Background.action)
+            .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
 
-            GroupedSection(viewModel.subtractFromAmountModel) {
-                DefaultToggleRowView(viewModel: $0)
-            } footer: {
-                DefaultFooterView(viewModel.subtractFromAmountFooterText)
-                    .animation(.default)
+            if !viewModel.animatingAuxiliaryViewsOnAppear {
+                ForEach(viewModel.feeLevelsNotificationInputs) { input in
+                    NotificationView(input: input)
+                        .transition(SendView.Constants.auxiliaryViewTransition)
+                }
             }
-            .backgroundColor(Colors.Background.action)
+
+            if !viewModel.animatingAuxiliaryViewsOnAppear,
+               viewModel.showCustomFeeFields,
+               let customFeeModel = viewModel.customFeeModel,
+               let customFeeGasPriceModel = viewModel.customFeeGasPriceModel,
+               let customFeeGasLimitModel = viewModel.customFeeGasLimitModel {
+                Group {
+                    SendCustomFeeInputField(viewModel: customFeeModel)
+                    SendCustomFeeInputField(viewModel: customFeeGasPriceModel)
+                    SendCustomFeeInputField(viewModel: customFeeGasLimitModel)
+                }
+                .transition(SendView.Constants.auxiliaryViewTransition)
+
+                ForEach(viewModel.customFeeNotificationInputs) { input in
+                    NotificationView(input: input)
+                        .transition(SendView.Constants.auxiliaryViewTransition)
+                }
+            }
+
+            if !viewModel.animatingAuxiliaryViewsOnAppear {
+                GroupedSection(viewModel.subtractFromAmountModel) {
+                    DefaultToggleRowView(viewModel: $0)
+                } footer: {
+                    DefaultFooterView(viewModel.subtractFromAmountFooterText)
+                        .animation(.default, value: viewModel.subtractFromAmountFooterText)
+                }
+                .transition(SendView.Constants.auxiliaryViewTransition)
+
+                ForEach(viewModel.feeCoverageNotificationInputs) { input in
+                    NotificationView(input: input)
+                        .transition(SendView.Constants.auxiliaryViewTransition)
+                }
+            }
 
             Spacer(minLength: bottomSpacing)
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
+        .onAppear(perform: viewModel.onAppear)
+    }
+
+    private var feeSelectorFooter: some View {
+        Text(Localization.commonFeeSelectorFooter) + Text(" ") + Text("[\(Localization.commonReadMore)](\(viewModel.feeExplanationUrl.absoluteString))")
     }
 }
 
@@ -45,14 +100,16 @@ struct SendFeeView_Previews: PreviewProvider {
     static let tokenIconInfo = TokenIconInfo(
         name: "Tether",
         blockchainIconName: "ethereum.fill",
-        imageURL: TokenIconURLBuilder().iconURL(id: "tether"),
+        imageURL: IconURLBuilder().tokenIconURL(id: "tether"),
         isCustom: false,
         customTokenColor: nil
     )
 
     static let walletInfo = SendWalletInfo(
         walletName: "Wallet",
+        balanceValue: 12013,
         balance: "12013",
+        blockchain: .ethereum(testnet: false),
         currencyId: "tether",
         feeCurrencySymbol: "ETH",
         feeCurrencyId: "ethereum",
@@ -62,10 +119,12 @@ struct SendFeeView_Previews: PreviewProvider {
         cryptoCurrencyCode: "USDT",
         fiatIconURL: URL(string: "https://vectorflags.s3-us-west-2.amazonaws.com/flags/us-square-01.png")!,
         fiatCurrencyCode: "USD",
-        amountFractionDigits: 6
+        amountFractionDigits: 6,
+        feeFractionDigits: 6,
+        feeAmountType: .coin
     )
 
     static var previews: some View {
-        SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock(), walletInfo: walletInfo), bottomSpacing: 150)
+        SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock(), notificationManager: FakeSendNotificationManager(), walletInfo: walletInfo), bottomSpacing: 150)
     }
 }

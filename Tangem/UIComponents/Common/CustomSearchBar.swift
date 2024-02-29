@@ -10,60 +10,109 @@ import SwiftUI
 
 struct CustomSearchBar: View {
     @Binding var searchText: String
+    private let placeholder: String
 
-    var placeholder: String
+    @State private var isEditing: Bool = false
+    private var onEditingChanged: ((_ isEditing: Bool) -> Void)?
+
+    init(searchText: Binding<String>, placeholder: String) {
+        _searchText = searchText
+        self.placeholder = placeholder
+    }
 
     var body: some View {
-        HStack {
+        HStack(spacing: 10) {
+            searchBar
+
+            if isEditing {
+                cancelButton
+                    .transition(.move(edge: .trailing).combined(with: .opacity))
+            }
+        }
+        .animation(.easeInOut, value: isEditing)
+    }
+
+    private var searchBar: some View {
+        HStack(spacing: 4) {
             Assets.search.image
                 .renderingMode(.template)
                 .foregroundColor(Colors.Icon.informative)
-                .frame(size: .init(bothDimensions: 20))
+                .frame(width: 16, height: 16)
+                .padding(.all, 4)
 
-            TextField(placeholder, text: $searchText)
-                .foregroundColor(Colors.Text.primary1)
-                .font(Fonts.Regular.subheadline)
-                .frame(height: 20.0)
-                .overlay(
-                    Button(action: {
-                        searchText = ""
-                    }, label: {
-                        Assets.clear.image
-                            .renderingMode(.template)
-                            .frame(size: .init(bothDimensions: 16))
-                            .padding()
-                            .foregroundColor(Colors.Icon.informative)
-                    })
-                    .frame(size: .init(bothDimensions: 44))
-                    .hidden(searchText.isEmpty),
-                    alignment: .trailing
-                )
+            HStack(spacing: 4) {
+                TextField(placeholder, text: $searchText, onEditingChanged: { isEditing in
+                    self.isEditing = isEditing
+                    onEditingChanged?(isEditing)
+                })
+                .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                .autocorrectionDisabled()
+
+                clearButton
+            }
         }
-        .padding(.vertical, 13.0)
-        .padding(.horizontal, 12.0)
+        .padding(.vertical, 12)
+        .padding(.horizontal, 12)
         .background(
             RoundedRectangle(cornerRadius: 14)
-                .fill(Colors.Field.primary)
+                .fill(Colors.Field.focused)
         )
-        .padding(.horizontal, 16.0)
+    }
+
+    private var clearButton: some View {
+        Button {
+            searchText = ""
+        } label: {
+            Assets.clear.image
+                .renderingMode(.template)
+                .frame(width: 16, height: 16)
+                .foregroundColor(Colors.Icon.informative)
+                .padding(.all, 4)
+        }
+        .hidden(searchText.isEmpty)
+    }
+
+    private var cancelButton: some View {
+        Button {
+            searchText = ""
+            UIApplication.shared.endEditing()
+        } label: {
+            Text(Localization.commonCancel)
+                .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+        }
+    }
+}
+
+extension CustomSearchBar: Setupable {
+    func onEditingChanged(_ closure: ((_ isEditing: Bool) -> Void)?) -> Self {
+        map { $0.onEditingChanged = closure }
     }
 }
 
 struct CustomSearchBar_Previews: PreviewProvider {
+    @State private static var text: String = ""
+
     static var previews: some View {
-        CustomSearchBar(
-            searchText: .constant(""),
-            placeholder: Localization.commonSearch
-        )
-        .padding(.top, 20)
-        .padding(.bottom, max(UIApplication.safeAreaInsets.bottom, 20))
-        .background(Colors.Background.primary)
+        StatefulPreviewWrapper(text) { text in
+            CustomSearchBar(
+                searchText: text,
+                placeholder: Localization.commonSearch
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 20)
+            .padding(.bottom, max(UIApplication.safeAreaInsets.bottom, 20))
+            .background(Colors.Background.primary)
+        }
+        .previewLayout(.sizeThatFits)
         .preferredColorScheme(.light)
 
-        CustomSearchBar(
-            searchText: .constant(""),
-            placeholder: Localization.commonSearch
-        )
+        StatefulPreviewWrapper(text) { text in
+            CustomSearchBar(
+                searchText: text,
+                placeholder: Localization.commonSearch
+            )
+            .padding(.horizontal, 16)
+        }
         .previewLayout(.sizeThatFits)
         .preferredColorScheme(.dark)
     }
