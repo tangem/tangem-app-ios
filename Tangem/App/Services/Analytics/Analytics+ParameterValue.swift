@@ -12,6 +12,8 @@ extension Analytics {
     enum ParameterValue: String {
         case welcome
         case walletOnboarding = "wallet_onboarding"
+        case ok = "Ok"
+        case error = "Error"
         case on = "On"
         case off = "Off"
         case yes = "Yes"
@@ -30,10 +32,10 @@ extension Analytics {
 
         case main = "Main"
         case token = "Token"
+        case manageTokens = "Manage Tokens"
 
         case scanSourceWelcome = "Introduction"
         case scanSourceAuth = "Sign In"
-        case scanSourceMyWallets = "My Wallets"
         case scanSourceSettings = "Settings"
 
         case transactionSourceSend = "Send"
@@ -117,6 +119,15 @@ extension Analytics {
         case readPrimary = "read_primary"
         case addbackup = "add_backup"
         case proceedBackup = "proceed_backup"
+
+        // MARK: - Rate the app response
+
+        /// App store review (`RateAppResponse.positive`).
+        case appStoreReview = "Rate"
+        /// Feedback email (`RateAppResponse.negative`).
+        case feedbackEmail = "Feedback"
+        /// The review sheet dismissed w/o further interactions (`RateAppResponse.dismissed`).
+        case appRateSheetDismissed = "Close"
 
         static func toggleState(for boolean: Bool) -> ParameterValue {
             return boolean ? .on : .off

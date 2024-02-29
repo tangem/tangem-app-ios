@@ -12,35 +12,30 @@ import TangemSdk
 import BlockchainSdk
 
 final class SingleTokenNotificationManager {
+    @Injected(\.bannerPromotionService) private var bannerPromotionService: BannerPromotionService
     private let analyticsService: NotificationsAnalyticsService = .init()
 
     private let walletModel: WalletModel
     private let walletModelsManager: WalletModelsManager
-    private let swapPairService: SwapPairService?
+    private let expressDestinationService: ExpressDestinationService?
     private weak var delegate: NotificationTapDelegate?
 
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
 
-    private var expressPromotionBanner: NotificationViewInput?
     private var rentFeeNotification: NotificationViewInput?
     private var bag: Set<AnyCancellable> = []
     private var notificationsUpdateTask: Task<Void, Never>?
     private var promotionUpdateTask: Task<Void, Never>?
 
-    private var canShowTangemExpressPromotion: Bool {
-        guard swapPairService != nil else { return false }
-        return !AppSettings.shared.tangemExpressTokenPromotionDismissed && TangemExpressPromotionUtility().isPromotionRunning
-    }
-
     init(
         walletModel: WalletModel,
         walletModelsManager: WalletModelsManager,
-        swapPairService: SwapPairService?,
+        expressDestinationService: ExpressDestinationService?,
         contextDataProvider: AnalyticsContextDataProvider?
     ) {
         self.walletModel = walletModel
         self.walletModelsManager = walletModelsManager
-        self.swapPairService = swapPairService
+        self.expressDestinationService = expressDestinationService
 
         analyticsService.setup(with: self, contextDataProvider: contextDataProvider)
     }
@@ -64,13 +59,6 @@ final class SingleTokenNotificationManager {
                 case .idle, .noDerivation:
                     self?.setupLoadedStateNotifications()
                 }
-
-                if let self,
-                   !state.isLoading,
-                   canShowTangemExpressPromotion,
-                   !state.isBlockchainUnreachable {
-                    setupTangemExpressPromotionNotification()
-                }
             }
             .store(in: &bag)
     }
@@ -83,11 +71,14 @@ final class SingleTokenNotificationManager {
             events.append(.existentialDepositWarning(message: existentialWarning))
         }
 
-        if let sendBlockedReason = walletModel.sendBlockedReason {
+        if let sendingRestrictions = walletModel.sendingRestrictions {
             let isFeeCurrencyPurchaseAllowed = walletModelsManager.walletModels.contains {
                 $0.tokenItem == walletModel.feeTokenItem && $0.blockchainNetwork == walletModel.blockchainNetwork
             }
-            events.append(.event(for: sendBlockedReason, isFeeCurrencyPurchaseAllowed: isFeeCurrencyPurchaseAllowed))
+
+            if let event = TokenNotificationEvent.event(for: sendingRestrictions, isFeeCurrencyPurchaseAllowed: isFeeCurrencyPurchaseAllowed) {
+                events.append(event)
+            }
         }
 
         let inputs = events.map {
@@ -105,6 +96,7 @@ final class SingleTokenNotificationManager {
         notificationInputsSubject.send(inputs)
 
         setupRentFeeNotification()
+        setupTangemExpressPromotionNotification()
     }
 
     private func setupRentFeeNotification() {
@@ -135,48 +127,38 @@ final class SingleTokenNotificationManager {
     }
 
     private func setupTangemExpressPromotionNotification() {
-        if let expressPromotionBanner {
-            notificationInputsSubject.value.insert(expressPromotionBanner, at: 0)
-        }
-
         promotionUpdateTask?.cancel()
         promotionUpdateTask = Task { [weak self] in
-            guard
-                let self,
-                let swapPairService
-            else {
+            guard let self, let expressDestinationService, !Task.isCancelled else {
                 return
             }
 
-            if Task.isCancelled {
+            guard let promotion = await bannerPromotionService.activePromotion(place: .tokenDetails) else {
+                notificationInputsSubject.value.removeAll { $0.settings.event is BannerNotificationEvent }
                 return
             }
 
-            let canSwap = await swapPairService.canSwap()
-
-            let factory = NotificationsFactory()
-            let input = factory.buildNotificationInput(
-                for: .tangemExpressPromotion,
+            let input = BannerPromotionNotificationFactory().buildTokenBannerNotificationInput(
+                promotion: promotion,
                 buttonAction: { [weak self] id, actionType in
                     self?.delegate?.didTapNotificationButton(with: id, action: actionType)
                     self?.dismissNotification(with: id)
-                },
-                dismissAction: { [weak self] id in
+                }, dismissAction: { [weak self] id in
                     self?.dismissNotification(with: id)
                 }
             )
 
-            await runOnMain {
-                guard canSwap else {
-                    self.expressPromotionBanner = nil
-                    self.notificationInputsSubject.value.removeAll { $0.id == input.id }
-                    return
-                }
+            guard await expressDestinationService.canBeSwapped(wallet: walletModel) else {
+                notificationInputsSubject.value.removeAll { $0.id == input.id }
+                return
+            }
 
-                if self.expressPromotionBanner == nil, !self.notificationInputsSubject.value.contains(where: { $0.id == input.id }) {
-                    self.expressPromotionBanner = input
-                    self.notificationInputsSubject.value.insert(input, at: 0)
-                }
+            guard !notificationInputsSubject.value.contains(where: { $0.id == input.id }) else {
+                return
+            }
+
+            await runOnMain {
+                self.notificationInputsSubject.value.insert(input, at: 0)
             }
         }
     }
@@ -251,16 +233,14 @@ extension SingleTokenNotificationManager: NotificationManager {
             return
         }
 
-        guard let event = notification.settings.event as? TokenNotificationEvent else {
+        guard let event = notification.settings.event as? BannerNotificationEvent else {
             return
         }
 
         switch event {
-        case .tangemExpressPromotion:
+        case .changelly:
             Analytics.log(.swapPromoButtonClose)
-            AppSettings.shared.tangemExpressTokenPromotionDismissed = true
-        default:
-            break
+            bannerPromotionService.hide(promotion: .changelly, on: .tokenDetails)
         }
 
         notificationInputsSubject.value.removeAll(where: { $0.id == id })
