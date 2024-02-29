@@ -18,7 +18,6 @@ final class SendViewModel: ObservableObject {
     @Published var step: SendStep
     @Published var currentStepInvalid: Bool = false
     @Published var alert: AlertBinder?
-    @Published var showCameraDeniedAlert = false
 
     var title: String? {
         step.name
