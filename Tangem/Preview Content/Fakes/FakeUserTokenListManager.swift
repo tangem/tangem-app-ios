@@ -11,6 +11,16 @@ import Combine
 import struct BlockchainSdk.Token
 
 class FakeUserTokenListManager: UserTokenListManager {
+    var initialized: Bool {
+        _initialized.value
+    }
+
+    var initializedPublisher: AnyPublisher<Bool, Never> {
+        _initialized.eraseToAnyPublisher()
+    }
+
+    private let _initialized: CurrentValueSubject<Bool, Never>
+
     var userTokens: [StorageEntry] {
         let converter = StorageEntryConverter()
         return converter.convertToStorageEntries(userTokensListSubject.value.entries)
@@ -29,20 +39,39 @@ class FakeUserTokenListManager: UserTokenListManager {
         userTokensListSubject.eraseToAnyPublisher()
     }
 
-    var isInitialSyncPerformed: Bool {
-        initialSyncSubject.value
-    }
+    private let userTokensListSubject: CurrentValueSubject<StoredUserTokenList, Never>
 
-    var initialSyncPublisher: AnyPublisher<Bool, Never> {
-        initialSyncSubject.eraseToAnyPublisher()
-    }
+    init(
+        walletManagers: [FakeWalletManager],
+        isDelayed: Bool
+    ) {
+        let entries = walletManagers
+            .flatMap(\.walletModels)
+            .map { walletModel in
+                StoredUserTokenList.Entry(
+                    id: walletModel.tokenItem.id,
+                    name: walletModel.tokenItem.name,
+                    symbol: walletModel.tokenItem.currencySymbol,
+                    decimalCount: walletModel.tokenItem.blockchain.decimalCount,
+                    blockchainNetwork: walletModel.blockchainNetwork,
+                    contractAddress: walletModel.tokenItem.contractAddress
+                )
+            }
 
-    private let initialSyncSubject = CurrentValueSubject<Bool, Never>(false)
-    private let userTokensListSubject = CurrentValueSubject<StoredUserTokenList, Never>(.empty)
+        let userTokenList = StoredUserTokenList(
+            entries: entries,
+            grouping: .none,
+            sorting: .manual
+        )
 
-    init() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
-            self.initialSyncSubject.send(true)
+        userTokensListSubject = .init(isDelayed ? .empty : userTokenList)
+        _initialized = .init(!isDelayed)
+
+        if isDelayed {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 15.0) {
+                self._initialized.send(true)
+                self.userTokensListSubject.send(userTokenList)
+            }
         }
     }
 
@@ -55,7 +84,7 @@ class FakeUserTokenListManager: UserTokenListManager {
     func updateLocalRepositoryFromServer(_ completion: @escaping (Result<Void, Error>) -> Void) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
             let converter = StorageEntryConverter()
-            let blockchainNetwork = BlockchainNetwork(.ethereum(testnet: false))
+            let blockchainNetwork = BlockchainNetwork(.ethereum(testnet: false), derivationPath: nil)
             let tokens: [Token] = [
                 .sushiMock,
                 .shibaInuMock,

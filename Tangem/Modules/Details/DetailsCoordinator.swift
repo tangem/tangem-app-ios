@@ -11,6 +11,8 @@ import UIKit
 import TangemSdk
 
 class DetailsCoordinator: CoordinatorObject {
+    // MARK: - Dependencies
+
     var dismissAction: Action<Void>
     var popToRootAction: Action<PopToRootOptions>
 
@@ -47,6 +49,8 @@ class DetailsCoordinator: CoordinatorObject {
         detailsViewModel = DetailsViewModel(userWalletModel: options.userWalletModel, coordinator: self)
     }
 }
+
+// MARK: - Options
 
 extension DetailsCoordinator {
     struct Options {
@@ -87,8 +91,8 @@ extension DetailsCoordinator: DetailsRoutable {
         disclaimerViewModel = .init(url: url, style: .details)
     }
 
-    func openScanCardSettings(with userWalletId: Data, sdk: TangemSdk) {
-        scanCardSettingsViewModel = ScanCardSettingsViewModel(expectedUserWalletId: userWalletId, sdk: sdk, coordinator: self)
+    func openScanCardSettings(with sessionFilter: SessionFilter, sdk: TangemSdk) {
+        scanCardSettingsViewModel = ScanCardSettingsViewModel(sessionFilter: sessionFilter, sdk: sdk, coordinator: self)
     }
 
     func openAppSettings() {

@@ -6,8 +6,9 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import Combine
 import Foundation
+import Combine
+import CombineExt
 import BlockchainSdk
 
 class TotalBalanceProvider {
@@ -15,87 +16,128 @@ class TotalBalanceProvider {
 
     private let walletModelsManager: WalletModelsManager
     private let derivationManager: DerivationManager?
+
     private let totalBalanceSubject = CurrentValueSubject<LoadingValue<TotalBalance>, Never>(.loading)
-    private var refreshSubscription: AnyCancellable?
-    private var bag: Set<AnyCancellable> = .init()
+
+    private var walletModelsSubscription: AnyCancellable?
     private var updateSubscription: AnyCancellable?
 
-    init(walletModelsManager: WalletModelsManager, derivationManager: DerivationManager?) {
+    init(
+        walletModelsManager: WalletModelsManager,
+        derivationManager: DerivationManager?
+    ) {
         self.walletModelsManager = walletModelsManager
         self.derivationManager = derivationManager
+
         bind()
     }
 }
 
-// MARK: - TotalBalanceProviding
+// MARK: - TotalBalanceProviding protocol conformance
 
 extension TotalBalanceProvider: TotalBalanceProviding {
-    func totalBalancePublisher() -> AnyPublisher<LoadingValue<TotalBalance>, Never> {
+    var totalBalancePublisher: AnyPublisher<LoadingValue<TotalBalance>, Never> {
         totalBalanceSubject.eraseToAnyPublisher()
     }
 }
+
+// MARK: - Private implementation
 
 private extension TotalBalanceProvider {
     func bind() {
         let hasEntriesWithoutDerivationPublisher = derivationManager?.hasPendingDerivations ?? .just(output: false)
 
         // Subscription to handle token changes
-        walletModelsManager.walletModelsPublisher
+        walletModelsSubscription = walletModelsManager
+            .walletModelsPublisher
             .combineLatest(
                 AppSettings.shared.$selectedCurrencyCode.delay(for: 0.3, scheduler: DispatchQueue.main),
                 hasEntriesWithoutDerivationPublisher
             )
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] walletModels, currencyCode, hasEntriesWithoutDerivation in
-                self?.updateSubscription = nil
+            .withWeakCaptureOf(self)
+            .sink { balanceProvider, input in
+                let (walletModels, currencyCode, hasEntriesWithoutDerivation) = input
+
+                balanceProvider.updateSubscription = nil
 
                 if !walletModels.isEmpty {
-                    self?.subscribeToUpdates(walletModels, hasEntriesWithoutDerivation)
+                    balanceProvider.subscribeToUpdates(
+                        walletModels: walletModels,
+                        hasEntriesWithoutDerivation: hasEntriesWithoutDerivation
+                    )
                 }
 
-                let hasLoading = !walletModels.filter { $0.state.isLoading }.isEmpty
+                let hasLoadingWalletModels = walletModels.contains { $0.state.isLoading }
 
                 // We should wait for balance loading to complete
-                if hasLoading {
-                    self?.totalBalanceSubject.send(.loading)
+                if hasLoadingWalletModels {
+                    balanceProvider.totalBalanceSubject.send(.loading)
                     return
                 }
 
-                self?.updateTotalBalance(with: currencyCode, walletModels, hasEntriesWithoutDerivation)
+                balanceProvider.updateTotalBalance(
+                    withСurrencyCode: currencyCode,
+                    walletModels: walletModels,
+                    hasEntriesWithoutDerivation: hasEntriesWithoutDerivation
+                )
             }
-            .store(in: &bag)
     }
 
-    private func subscribeToUpdates(_ walletModels: [WalletModel], _ hasEntriesWithoutDerivation: Bool) {
+    func subscribeToUpdates(walletModels: [WalletModel], hasEntriesWithoutDerivation: Bool) {
         // Subscription to handle balance loading completion
 
-        updateSubscription = Publishers.MergeMany(walletModels.map { $0.walletDidChangePublisher })
-            .map { _ in (walletModels, hasEntriesWithoutDerivation) }
-            .debounce(for: 0.2, scheduler: DispatchQueue.main) // Hide skeleton with delay
+        updateSubscription = walletModels
+            .map(\.walletDidChangePublisher)
+            .merge()
+            .mapToValue((walletModels, hasEntriesWithoutDerivation))
             .filter { walletModels, _ in
                 // We can still have loading items
                 walletModels.allConforms { !$0.state.isLoading }
             }
-            .sink { [weak self] walletModels, hasEntriesWithoutDerivation in
-                self?.updateTotalBalance(with: AppSettings.shared.selectedCurrencyCode, walletModels, hasEntriesWithoutDerivation)
+            .withWeakCaptureOf(self)
+            .sink { balanceProvider, input in
+                let (walletModels, hasEntriesWithoutDerivation) = input
+                balanceProvider.updateTotalBalance(
+                    withСurrencyCode: AppSettings.shared.selectedCurrencyCode,
+                    walletModels: walletModels,
+                    hasEntriesWithoutDerivation: hasEntriesWithoutDerivation
+                )
             }
     }
 
-    func updateTotalBalance(with currencyCode: String, _ walletModels: [WalletModel], _ hasEntriesWithoutDerivation: Bool) {
-        guard !hasEntriesWithoutDerivation else {
+    func updateTotalBalance(
+        withСurrencyCode currencyCode: String,
+        walletModels: [WalletModel],
+        hasEntriesWithoutDerivation: Bool
+    ) {
+        if hasEntriesWithoutDerivation {
             totalBalanceSubject.send(.loaded(.init(balance: nil, currencyCode: currencyCode, hasError: false)))
             return
         }
 
-        let totalBalance = mapToTotalBalance(currencyCode: currencyCode, walletModels, hasEntriesWithoutDerivation)
+        let totalBalance = mapToTotalBalance(
+            currencyCode: currencyCode,
+            walletModels: walletModels,
+            hasEntriesWithoutDerivation: hasEntriesWithoutDerivation
+        )
         totalBalanceSubject.send(.loaded(totalBalance))
     }
 
-    func mapToTotalBalance(currencyCode: String, _ walletModels: [WalletModel], _ hasEntriesWithoutDerivation: Bool) -> TotalBalance {
+    func mapToTotalBalance(
+        currencyCode: String,
+        walletModels: [WalletModel],
+        hasEntriesWithoutDerivation: Bool
+    ) -> TotalBalance {
         var hasError = false
         var balance: Decimal?
+        var hasCryptoError = false
 
         for token in walletModels {
+            if case .failed = token.state {
+                hasCryptoError = true
+            }
+
             if !token.state.isSuccesfullyLoaded {
                 balance = nil
                 break
@@ -120,14 +162,37 @@ private extension TotalBalanceProvider {
             Analytics.logTopUpIfNeeded(balance: balance)
         }
 
+        Analytics.log(
+            .balanceLoaded,
+            params: [
+                .balance: mapToBalanceParameterValue(
+                    hasCryptoError: hasCryptoError,
+                    hasError: hasError,
+                    balance: balance
+                ),
+            ]
+        )
+
         return TotalBalance(balance: balance, currencyCode: currencyCode, hasError: hasError)
     }
-}
 
-extension TotalBalanceProvider {
-    struct TotalBalance {
-        let balance: Decimal?
-        let currencyCode: String
-        let hasError: Bool
+    private func mapToBalanceParameterValue(
+        hasCryptoError: Bool,
+        hasError: Bool,
+        balance: Decimal?
+    ) -> Analytics.ParameterValue {
+        if hasCryptoError {
+            return .blockchainError
+        }
+
+        if hasError {
+            return .customToken
+        }
+
+        if let balance {
+            return balance > .zero ? .full : .empty
+        }
+
+        return .noRate
     }
 }
