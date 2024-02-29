@@ -34,20 +34,21 @@ class TestnetBuyCryptoService {
                     return .anyFail(error: "Not enough funds on ETH wallet balance. You need to topup ETH wallet first")
                 }
 
-                guard let tx = try? walletModel.createTransaction(amountToSend: amountToSend, fee: fee, destinationAddress: destinationAddress) else {
+                guard let tx = try? walletModel.transactionCreator.createTransaction(amount: amountToSend, fee: fee, destinationAddress: destinationAddress) else {
                     return .anyFail(error: "Failed to create topup transaction for token. Try again later")
                 }
 
-                return walletModel.send(tx, signer: signer)
+                return walletModel.send(tx, signer: signer).mapToVoid().eraseToAnyPublisher()
             }
-            .sink { [unowned self] completion in
+            .sink { [weak self] completion in
+                guard let self else { return }
+
                 if case .failure(let error) = completion {
                     AppLog.shared.error(error)
                     AppPresenter.shared.showError(error)
                 } else {
                     AppPresenter.shared.show(AlertBuilder.makeSuccessAlertController(message: "Transaction signed and sent to testnet. Wait for a while and reload balance"))
                 }
-
                 bag.remove(subs)
                 subs = nil
             } receiveValue: { _ in }
