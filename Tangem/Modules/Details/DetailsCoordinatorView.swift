@@ -59,7 +59,7 @@ struct DetailsCoordinatorView: CoordinatorView {
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
             }
-            .sheet(item: $coordinator.supportChatViewModel) {
+            .fullScreenCover(item: $coordinator.supportChatViewModel) {
                 SupportChatView(viewModel: $0)
                     .edgesIgnoringSafeArea(.vertical)
             }
