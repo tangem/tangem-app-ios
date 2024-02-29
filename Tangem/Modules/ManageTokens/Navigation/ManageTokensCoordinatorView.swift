@@ -16,7 +16,6 @@ struct ManageTokensCoordinatorView: CoordinatorView {
         ZStack {
             if let model = coordinator.manageTokensViewModel {
                 ManageTokensView(viewModel: model)
-                    .onAppear(perform: model.onAppear)
 
                 sheets
             }
