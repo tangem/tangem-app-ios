@@ -16,5 +16,6 @@ class SendAmountViewModelInputMock: SendAmountViewModelInput {
         Just(nil).eraseToAnyPublisher()
     }
 
+    func setAmount(_ decimal: Decimal?) {}
     func didChangeFeeInclusion(_ isFeeIncluded: Bool) {}
 }
