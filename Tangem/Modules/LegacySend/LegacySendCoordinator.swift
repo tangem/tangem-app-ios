@@ -33,6 +33,7 @@ class LegacySendCoordinator: CoordinatorObject {
             sendViewModel = LegacySendViewModel(
                 amountToSend: options.amountToSend,
                 destination: destination,
+                tag: options.tag,
                 blockchainNetwork: options.blockchainNetwork,
                 cardViewModel: options.cardViewModel,
                 coordinator: self
@@ -52,6 +53,7 @@ extension LegacySendCoordinator {
     struct Options {
         let amountToSend: Amount
         let destination: String?
+        let tag: String?
         let blockchainNetwork: BlockchainNetwork
         let cardViewModel: CardViewModel
     }
