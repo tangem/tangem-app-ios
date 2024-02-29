@@ -11,9 +11,11 @@ import SwiftUI
 struct DecimalNumberTextField: View {
     @Binding private var decimalValue: DecimalValue?
     @State private var textFieldText: String = ""
+    @State private var size: CGSize = .zero
 
     private let placeholder: String = "0"
     private var decimalNumberFormatter: DecimalNumberFormatter
+    private var font: Font = Fonts.Regular.title1
     private var decimalSeparator: Character { decimalNumberFormatter.decimalSeparator }
     private var groupingSeparator: Character { decimalNumberFormatter.groupingSeparator }
 
@@ -25,18 +27,25 @@ struct DecimalNumberTextField: View {
         self.decimalNumberFormatter = decimalNumberFormatter
     }
 
-    private var textFieldProxyBinding: Binding<String> {
-        Binding<String>(
-            get: { decimalNumberFormatter.format(value: textFieldText) },
-            set: { updateValues(with: $0) }
-        )
+    var body: some View {
+        ZStack(alignment: .leading) {
+            Text(textFieldText.isEmpty ? placeholder : textFieldText)
+                .font(font)
+                .opacity(0)
+                .layoutPriority(1)
+                .readGeometry(\.frame.size, bindTo: $size)
+
+            textField
+                .frame(width: size.width)
+        }
+        .lineLimit(1)
     }
 
-    var body: some View {
-        TextField(placeholder, text: textFieldProxyBinding)
-            .style(Fonts.Regular.title1, color: Colors.Text.primary1)
+    private var textField: some View {
+        TextField(placeholder, text: $textFieldText)
+            .style(font, color: Colors.Text.primary1)
             .keyboardType(.decimalPad)
-            .tintCompat(Colors.Text.primary1)
+            .tint(Colors.Text.primary1)
             .onChange(of: decimalValue) { newDecimalValue in
                 switch newDecimalValue {
                 case .none, .internal:
@@ -47,6 +56,16 @@ struct DecimalNumberTextField: View {
                     // We have to update the private values
                     let formattedNewValue = decimalNumberFormatter.format(value: value)
                     updateValues(with: formattedNewValue)
+                }
+            }
+            .onChange(of: textFieldText) { newValue in
+                updateValues(with: newValue)
+            }
+            .onAppear {
+                if let value = _decimalValue.wrappedValue?.value {
+                    textFieldText = decimalNumberFormatter.format(value: value)
+                } else {
+                    textFieldText = ""
                 }
             }
     }
@@ -89,6 +108,10 @@ struct DecimalNumberTextField: View {
 extension DecimalNumberTextField: Setupable {
     func maximumFractionDigits(_ digits: Int) -> Self {
         map { $0.decimalNumberFormatter.update(maximumFractionDigits: digits) }
+    }
+
+    func font(_ font: Font) -> Self {
+        map { $0.font = font }
     }
 }
 

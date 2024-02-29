@@ -18,9 +18,14 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     // MARK: - Dependencies
 
     private let userWalletNotificationManager: NotificationManager
+    private let rateAppController: RateAppController
+
+    private let isPageSelectedSubject = PassthroughSubject<Bool, Never>()
 
     private var updateSubscription: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
+
+    private weak var delegate: SingleWalletMainContentDelegate?
 
     init(
         userWalletModel: UserWalletModel,
@@ -28,9 +33,13 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         exchangeUtility: ExchangeCryptoUtility,
         userWalletNotificationManager: NotificationManager,
         tokenNotificationManager: NotificationManager,
-        tokenRouter: SingleTokenRoutable
+        rateAppController: RateAppController,
+        tokenRouter: SingleTokenRoutable,
+        delegate: SingleWalletMainContentDelegate?
     ) {
         self.userWalletNotificationManager = userWalletNotificationManager
+        self.rateAppController = rateAppController
+        self.delegate = delegate
 
         super.init(
             userWalletModel: userWalletModel,
@@ -43,26 +52,33 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         bind()
     }
 
-    func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
-        guard updateSubscription == nil else {
-            return
-        }
-
-        isReloadingTransactionHistory = true
-        updateSubscription = walletModel.generalUpdate(silent: false)
-            .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] in
-                self?.isReloadingTransactionHistory = false
-                completionHandler()
-                self?.updateSubscription = nil
-            })
+    override func presentActionSheet(_ actionSheet: ActionSheetBinder) {
+        delegate?.present(actionSheet: actionSheet)
     }
 
     private func bind() {
-        userWalletNotificationManager.notificationPublisher
+        userWalletNotificationManager
+            .notificationPublisher
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
+
+        rateAppController.bind(
+            isPageSelectedPublisher: isPageSelectedSubject,
+            notificationsPublisher: $notificationInputs
+        )
+    }
+}
+
+// MARK: - MainViewPage protocol conformance
+
+extension SingleWalletMainContentViewModel: MainViewPage {
+    func onPageAppear() {
+        isPageSelectedSubject.send(true)
+    }
+
+    func onPageDisappear() {
+        isPageSelectedSubject.send(false)
     }
 }
