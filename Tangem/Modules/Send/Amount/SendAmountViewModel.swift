@@ -17,6 +17,7 @@ protocol SendAmountViewModelInput {
     var amountValue: Amount? { get }
     var amountError: AnyPublisher<Error?, Never> { get }
 
+    func setAmount(_ decimal: Decimal?)
     func didChangeFeeInclusion(_ isFeeIncluded: Bool)
 }
 
@@ -44,7 +45,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private let balanceValue: Decimal?
     private var bag: Set<AnyCancellable> = []
 
-    init(input: SendAmountViewModelInput, fiatCryptoAdapterOutput: SendFiatCryptoAdapterOutput, walletInfo: SendWalletInfo) {
+    init(input: SendAmountViewModelInput, walletInfo: SendWalletInfo) {
         self.input = input
         balanceValue = walletInfo.balanceValue
         walletName = walletInfo.walletName
@@ -64,7 +65,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             currencySymbol: walletInfo.cryptoCurrencyCode,
             decimals: walletInfo.amountFractionDigits,
             input: self,
-            output: fiatCryptoAdapterOutput
+            output: self
         )
 
         bind(from: input)
@@ -130,5 +131,11 @@ extension SendAmountViewModel: AuxiliaryViewAnimatable {
 extension SendAmountViewModel: SendFiatCryptoAdapterInput {
     var amountPublisher: AnyPublisher<DecimalNumberTextField.DecimalValue?, Never> {
         $amount.eraseToAnyPublisher()
+    }
+}
+
+extension SendAmountViewModel: SendFiatCryptoAdapterOutput {
+    func setAmount(_ decimal: Decimal?) {
+        input.setAmount(decimal)
     }
 }
