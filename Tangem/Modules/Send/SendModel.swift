@@ -50,6 +50,27 @@ class SendModel {
             .eraseToAnyPublisher()
     }
 
+    var totalExceedsBalance: Bool {
+        guard
+            let amount = amount.value,
+            let fee = fee.value
+        else {
+            return false
+        }
+
+        do {
+            try walletModel.transactionCreator.validate(amount: amount, fee: fee)
+            return false
+        } catch {
+            let validationError = error as? ValidationError
+            if case .totalExceedsBalance = validationError {
+                return true
+            } else {
+                return false
+            }
+        }
+    }
+
     // MARK: - Data
 
     private let amount = CurrentValueSubject<Amount?, Never>(nil)
@@ -123,14 +144,24 @@ class SendModel {
         bind()
     }
 
+    func subtractFeeFromAmount() {
+        guard
+            let amount = amount.value,
+            let fee = fee.value?.amount,
+            (amount - fee).value >= 0
+        else {
+            AppLog.shared.debug("Invalid amount and fee when subtracting")
+            return
+        }
+
+        _isFeeIncluded.value = true
+        self.amount.send(amount - fee)
+    }
+
     func useMaxAmount() {
         let amountType = walletModel.amountType
         if let amount = walletModel.wallet.amounts[amountType] {
             setAmount(amount)
-            if walletModel.tokenItem == walletModel.feeTokenItem {
-                #warning("[REDACTED_TODO_COMMENT]")
-                didChangeFeeInclusion(true)
-            }
         }
     }
 
@@ -199,12 +230,21 @@ class SendModel {
             }
             .store(in: &bag)
 
-        Publishers.CombineLatest3(_amount, fee, _isFeeIncluded)
+        _amount
             .removeDuplicates {
                 $0 == $1
             }
-            .sink { [weak self] amount, fee, isFeeIncluded in
-                self?.updateAndValidateAmount(amount, fee: fee, isFeeIncluded: isFeeIncluded)
+            .sink { [weak self] amount in
+                self?.updateAndValidateAmount(amount)
+            }
+            .store(in: &bag)
+
+        Publishers.CombineLatest(_amount, fee)
+            .removeDuplicates {
+                $0 == $1
+            }
+            .sink { [weak self] amount, fee in
+                self?.validateFee(amount: amount, fee: fee)
             }
             .store(in: &bag)
 
@@ -361,48 +401,45 @@ class SendModel {
         _amount.send(newAmount)
     }
 
-    private func updateAndValidateAmount(_ newAmount: Amount?, fee: Fee?, isFeeIncluded: Bool) {
+    private func updateAndValidateAmount(_ newAmount: Amount?) {
         let validatedAmount: Amount?
         let amountError: Error?
-        let feeError: Error?
 
         if let newAmount {
             do {
                 let amount: Amount
-                if let fee,
-                   isFeeIncluded {
-                    amount = newAmount - fee.amount
-                } else {
-                    amount = newAmount
-                }
-
-                if let fee {
-                    try walletModel.transactionCreator.validate(amount: amount, fee: fee)
-                } else {
-                    try walletModel.transactionCreator.validate(amount: amount)
-                }
+                amount = newAmount
+                try walletModel.transactionCreator.validate(amount: amount)
 
                 validatedAmount = amount
                 amountError = nil
-                feeError = nil
             } catch let validationError {
                 validatedAmount = nil
-                if fee != nil {
-                    amountError = nil
-                    feeError = validationError
-                } else {
-                    amountError = validationError
-                    feeError = nil
-                }
+                amountError = validationError
             }
         } else {
             validatedAmount = nil
             amountError = nil
-            feeError = nil
         }
 
         amount.send(validatedAmount)
         _amountError.send(amountError)
+    }
+
+    private func validateFee(amount: Amount?, fee: Fee?) {
+        let feeError: Error?
+
+        if let amount, let fee {
+            do {
+                try walletModel.transactionCreator.validate(amount: amount, fee: fee)
+                feeError = nil
+            } catch let validationError {
+                feeError = validationError
+            }
+        } else {
+            feeError = nil
+        }
+
         _feeError.send(feeError)
     }
 
