@@ -22,7 +22,7 @@ final class TokenSectionsAdapter {
         case group(by: BlockchainNetwork)
     }
 
-    enum SectionItem {
+    enum SectionItem: Equatable {
         /// `Default` means `coin/token with derivation`,  unlike `withoutDerivation` case.
         case `default`(WalletModel)
         case withoutDerivation(TokenSectionsAdapter.UserToken)
@@ -225,15 +225,11 @@ final class TokenSectionsAdapter {
     }
 
     private func compareWalletModels(_ lhs: WalletModel, _ rhs: WalletModel) -> Bool {
-        // For cases when both lhs and rhs values are nil we also maintain a stable order of such elements
-        switch (lhs.fiatValue, rhs.fiatValue) {
-        case (.some, .none):
-            return true
-        case (.none, .some), (.none, .none):
-            return false
-        case (.some(let lFiatValue), .some(let rFiatValue)):
-            return lFiatValue > rFiatValue
-        }
+        // Fiat balances that aren't loaded (e.g. due to network failures) fallback to zero
+        let lFiatValue = lhs.fiatValue ?? .zero
+        let rFiatValue = rhs.fiatValue ?? .zero
+
+        return lFiatValue > rFiatValue
     }
 
     private func updateCachedOrder(
@@ -260,13 +256,13 @@ final class TokenSectionsAdapter {
 
 // MARK: - Convenience extensions
 
-private extension TokenSectionsAdapter.SectionItem {
-    var blockchainNetwork: BlockchainNetwork {
+extension TokenSectionsAdapter.SectionItem {
+    var walletModel: WalletModel? {
         switch self {
         case .default(let walletModel):
-            return walletModel.blockchainNetwork
-        case .withoutDerivation(let userToken):
-            return userToken.blockchainNetwork
+            return walletModel
+        case .withoutDerivation:
+            return nil
         }
     }
 
@@ -280,9 +276,20 @@ private extension TokenSectionsAdapter.SectionItem {
     }
 }
 
+private extension TokenSectionsAdapter.SectionItem {
+    var blockchainNetwork: BlockchainNetwork {
+        switch self {
+        case .default(let walletModel):
+            return walletModel.blockchainNetwork
+        case .withoutDerivation(let userToken):
+            return userToken.blockchainNetwork
+        }
+    }
+}
+
 private extension TokenSectionsAdapter.Section {
     var fiatValue: Decimal {
-        return items.reduce(into: Decimal()) { partialResult, item in
+        return items.reduce(into: .zero) { partialResult, item in
             switch item {
             case .default(let walletModel):
                 if let fiatValue = walletModel.fiatValue {
