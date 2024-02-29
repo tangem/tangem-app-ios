@@ -706,7 +706,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                                 self?.cardInitializer?.shouldReset = true
                             }),
                             secondaryButton: .default(Text(Localization.chatButtonTitle), action: { [weak self] in
-                                self?.openSupportChat()
+                                self?.openSupport()
                             })
                         )
                     } else {
