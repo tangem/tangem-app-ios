@@ -309,13 +309,13 @@ private extension ExpressInteractor {
             return .restriction(.notEnoughAmountForFee(.idle), quote: quote)
 
         case .permissionRequired(let permissionRequired):
-            return await map(permissionRequired: permissionRequired)
+            return try await map(permissionRequired: permissionRequired)
 
         case .previewCEX(let previewCEX):
-            return await map(previewCEX: previewCEX)
+            return try await map(previewCEX: previewCEX)
 
         case .ready(let ready):
-            return await map(ready: ready)
+            return try await map(ready: ready)
         }
     }
 
@@ -358,8 +358,11 @@ private extension ExpressInteractor {
         return getSender().hasPendingTransactions
     }
 
-    func map(permissionRequired: ExpressManagerState.PermissionRequired) async -> State {
+    func map(permissionRequired: ExpressManagerState.PermissionRequired) async throws -> State {
         let fees = mapToFees(fee: permissionRequired.fee)
+        let amount = makeAmount(value: permissionRequired.quote.fromAmount)
+        let fee = try selectedFee(fees: fees)
+
         let permissionRequiredState = PermissionRequiredState(
             policy: permissionRequired.policy,
             data: permissionRequired.data,
@@ -367,68 +370,47 @@ private extension ExpressInteractor {
         )
         let correctState: State = .permissionRequired(permissionRequiredState, quote: permissionRequired.quote)
 
-        do {
-            let transactionValidator = getSender().transactionValidator
-            let amount = makeAmount(value: permissionRequired.quote.fromAmount)
-            let fee = try selectedFee(fees: fees)
-            try await transactionValidator.validate(amount: amount, fee: fee, destination: .generate)
-
-        } catch ValidationError.feeExceedsBalance {
-            return .restriction(.notEnoughAmountForFee(correctState), quote: permissionRequired.quote)
-
-        } catch let error as ValidationError {
-            return .restriction(.validationError(error), quote: permissionRequired.quote)
-
-        } catch {
-            return .restriction(.requiredRefresh(occurredError: error), quote: permissionRequired.quote)
-        }
-
-        return correctState
+        return await validate(amount: amount, fee: fee, correctState: correctState)
     }
 
-    func map(ready: ExpressManagerState.Ready) async -> State {
+    func map(ready: ExpressManagerState.Ready) async throws -> State {
         let fees = mapToFees(fee: ready.fee)
+        let fee = try selectedFee(fees: fees)
+        let amount = makeAmount(value: ready.quote.fromAmount)
+
         let readyToSwapState = ReadyToSwapState(data: ready.data, fees: fees)
         let correctState: State = .readyToSwap(readyToSwapState, quote: ready.quote)
 
-        do {
-            let transactionValidator = getSender().transactionValidator
-            let amount = makeAmount(value: ready.data.fromAmount)
-            let fee = try selectedFee(fees: fees)
-            try await transactionValidator.validate(amount: amount, fee: fee, destination: .generate)
-
-        } catch ValidationError.feeExceedsBalance {
-            return .restriction(.notEnoughAmountForFee(correctState), quote: ready.quote)
-
-        } catch let error as ValidationError {
-            return .restriction(.validationError(error), quote: ready.quote)
-
-        } catch {
-            return .restriction(.requiredRefresh(occurredError: error), quote: ready.quote)
-        }
-
-        return correctState
+        return await validate(amount: amount, fee: fee, correctState: correctState)
     }
 
-    func map(previewCEX: ExpressManagerState.PreviewCEX) async -> State {
+    func map(previewCEX: ExpressManagerState.PreviewCEX) async throws -> State {
         let fees = mapToFees(fee: previewCEX.fee)
-        let previewCEXState = PreviewCEXState(subtractFee: previewCEX.subtractFee, fees: fees)
+        let fee = try selectedFee(fees: fees)
+        let amount = makeAmount(value: previewCEX.quote.fromAmount)
+
+        let withdrawalSuggestionProvider = getSender().withdrawalSuggestionProvider
+        let suggestion = withdrawalSuggestionProvider?.withdrawalSuggestion(amount: amount, fee: fee.amount)
+
+        let previewCEXState = PreviewCEXState(subtractFee: previewCEX.subtractFee, fees: fees, suggestion: suggestion)
         let correctState: State = .previewCEX(previewCEXState, quote: previewCEX.quote)
 
+        return await validate(amount: amount, fee: fee, correctState: correctState)
+    }
+
+    func validate(amount: Amount, fee: Fee, correctState: State) async -> State {
         do {
             let transactionValidator = getSender().transactionValidator
-            let amount = makeAmount(value: previewCEX.quote.fromAmount)
-            let fee = try selectedFee(fees: fees)
             try await transactionValidator.validate(amount: amount, fee: fee, destination: .generate)
 
         } catch ValidationError.feeExceedsBalance {
-            return .restriction(.notEnoughAmountForFee(correctState), quote: previewCEX.quote)
+            return .restriction(.notEnoughAmountForFee(correctState), quote: correctState.quote)
 
         } catch let error as ValidationError {
-            return .restriction(.validationError(error), quote: previewCEX.quote)
+            return .restriction(.validationError(error), quote: correctState.quote)
 
         } catch {
-            return .restriction(.requiredRefresh(occurredError: error), quote: previewCEX.quote)
+            return .restriction(.requiredRefresh(occurredError: error), quote: correctState.quote)
         }
 
         return correctState
@@ -811,6 +793,7 @@ extension ExpressInteractor {
     struct PreviewCEXState {
         let subtractFee: Decimal
         let fees: [FeeOption: Fee]
+        let suggestion: WithdrawalSuggestion?
     }
 
     struct ReadyToSwapState {
