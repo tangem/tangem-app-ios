@@ -47,6 +47,8 @@ struct TangemApiTarget: TargetType {
             return "/promotion/award"
         case .resetAward:
             return "/private/manual-check/promotion-award"
+        case .createAccount:
+            return "/user-network-account"
         }
     }
 
@@ -56,7 +58,12 @@ struct TangemApiTarget: TargetType {
             return .get
         case .saveUserWalletTokens:
             return .put
-        case .participateInReferralProgram, .validateNewUserPromotionEligibility, .validateOldUserPromotionEligibility, .awardNewUser, .awardOldUser:
+        case .participateInReferralProgram,
+             .validateNewUserPromotionEligibility,
+             .validateOldUserPromotionEligibility,
+             .awardNewUser,
+             .awardOldUser,
+             .createAccount:
             return .post
         case .resetAward:
             return .delete
@@ -90,8 +97,8 @@ struct TangemApiTarget: TargetType {
             )
         case .participateInReferralProgram(let requestData):
             return .requestURLEncodable(requestData)
-        case .promotion(let programName, _):
-            return .requestParameters(parameters: ["programName": programName], encoding: URLEncoding.default)
+        case .promotion(let request):
+            return .requestURLEncodable(request)
         case .validateNewUserPromotionEligibility(let walletId, let code):
             return .requestParameters(parameters: [
                 "walletId": walletId,
@@ -118,6 +125,8 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(parameters: [
                 "cardId": cardId,
             ], encoding: URLEncoding.default)
+        case .createAccount(let parameters):
+            return .requestJSONEncodable(parameters)
         }
     }
 
@@ -137,9 +146,10 @@ extension TangemApiTarget {
         case saveUserWalletTokens(key: String, list: UserTokenList)
         case loadReferralProgramInfo(userWalletId: String, expectedAwardsLimit: Int)
         case participateInReferralProgram(userInfo: ReferralParticipationRequestBody)
+        case createAccount(_ parameters: BlockchainAccountCreateParameters)
 
         // Promotion
-        case promotion(programName: String, timeout: TimeInterval?)
+        case promotion(request: ExpressPromotion.Request)
         case validateNewUserPromotionEligibility(walletId: String, code: String)
         case validateOldUserPromotionEligibility(walletId: String, programName: String)
         case awardNewUser(walletId: String, address: String, code: String)
@@ -167,17 +177,6 @@ extension TangemApiTarget: CachePolicyProvider {
             return .reloadIgnoringLocalAndRemoteCacheData
         default:
             return .useProtocolCachePolicy
-        }
-    }
-}
-
-extension TangemApiTarget: TimeoutIntervalProvider {
-    var timeoutInterval: TimeInterval? {
-        switch type {
-        case .promotion(_, let timeout):
-            return timeout
-        default:
-            return nil
         }
     }
 }

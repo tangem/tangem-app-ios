@@ -173,7 +173,7 @@ class LegacySendViewModel: ObservableObject {
     private var lastClipboardChangeCount: Int?
     private var lastDestinationAddressSource: Analytics.DestinationAddressSource?
 
-    private unowned let coordinator: LegacySendRoutable
+    private weak var coordinator: LegacySendRoutable?
 
     init(
         amountToSend: Amount,
@@ -311,7 +311,7 @@ class LegacySendViewModel: ObservableObject {
                 let newAmount = Amount(with: amountToSend, value: newAmountValue)
 
                 do {
-                    try walletModel.transactionCreator.validate(amount: newAmount)
+                    try walletModel.transactionValidator.validate(amount: newAmount)
                     amountHint = nil
                     validatedAmount = newAmount
                 } catch {
@@ -360,8 +360,8 @@ class LegacySendViewModel: ObservableObject {
                 }
 
                 do {
-                    let tx = try walletModel.createTransaction(
-                        amountToSend: isFeeIncluded ? amount - selectedFee.amount : amount,
+                    let tx = try walletModel.transactionCreator.createTransaction(
+                        amount: isFeeIncluded ? amount - selectedFee.amount : amount,
                         fee: selectedFee,
                         destinationAddress: destination
                     )
@@ -437,7 +437,7 @@ class LegacySendViewModel: ObservableObject {
                 if memo.isEmpty { return }
 
                 switch blockchainNetwork.blockchain {
-                case .binance, .ton, .cosmos, .terraV1, .terraV2:
+                case .binance, .ton, .cosmos, .terraV1, .terraV2, .hedera, .algorand:
                     validatedMemo = memo
                 case .stellar:
                     if let memoId = UInt64(memo) {
@@ -555,9 +555,10 @@ class LegacySendViewModel: ObservableObject {
     }
 
     func validateWithdrawal(_ transaction: BlockchainSdk.Transaction, _ totalAmount: Amount) {
+        #warning("[REDACTED_TODO_COMMENT]")
         guard
             let validator = walletModel.withdrawalValidator,
-            let warning = validator.validate(transaction),
+            let warning = validator.validateWithdrawalWarning(amount: transaction.amount, fee: transaction.fee.amount),
             error == nil
         else {
             return
@@ -710,6 +711,14 @@ class LegacySendViewModel: ObservableObject {
             case .cosmos, .terraV1, .terraV2:
                 if let memo = validatedMemo {
                     tx.params = CosmosTransactionParams(memo: memo)
+                }
+            case .algorand:
+                if let nonce = validatedMemo {
+                    tx.params = AlgorandTransactionParams(nonce: nonce)
+                }
+            case .hedera:
+                if let memo = validatedMemo {
+                    tx.params = HederaTransactionParams(memo: memo)
                 }
             default:
                 break
@@ -964,11 +973,11 @@ extension LegacySendViewModel {
         )
 
         let recipient = cardViewModel.emailConfig?.recipient ?? EmailConfig.default.recipient
-        coordinator.openMail(with: emailDataCollector, recipient: recipient)
+        coordinator?.openMail(with: emailDataCollector, recipient: recipient)
     }
 
     func close() {
-        coordinator.closeModule()
+        coordinator?.closeModule()
     }
 
     func openQRScanner() {
@@ -985,7 +994,7 @@ extension LegacySendViewModel {
                 }
             )
 
-            coordinator.openQRScanner(with: binding)
+            coordinator?.openQRScanner(with: binding)
         }
     }
 }

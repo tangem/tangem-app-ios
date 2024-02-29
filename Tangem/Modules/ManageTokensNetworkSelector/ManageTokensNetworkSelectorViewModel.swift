@@ -35,7 +35,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     private var bag = Set<AnyCancellable>()
     private let alertBuilder = ManageTokensNetworkSelectorAlertBuilder()
-    private unowned let coordinator: ManageTokensNetworkSelectorRoutable
+    private weak var coordinator: ManageTokensNetworkSelectorRoutable?
 
     /// CoinId from parent data source embedded on selected UserWalletModel
     private let parentEmbeddedCoinId: String?
@@ -77,10 +77,12 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     func selectWalletActionDidTap() {
         Analytics.log(event: .manageTokensButtonChooseWallet, params: [:])
-        coordinator.openWalletSelector(with: dataSource)
+        coordinator?.openWalletSelector(with: dataSource)
     }
 
     func displayNonNativeNetworkAlert() {
+        Analytics.log(.manageTokensNoticeNonNativeNetworkClicked)
+
         let okButton = Alert.Button.default(Text(Localization.commonOk)) {}
 
         alert = AlertBinder(alert: Alert(
@@ -162,8 +164,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
         userTokensManager.update(
             itemsToRemove: pendingRemove,
-            itemsToAdd: pendingAdd,
-            derivationPath: nil
+            itemsToAdd: pendingAdd
         )
     }
 
@@ -243,8 +244,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     private func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool, tokenItem: TokenItem) {
         Analytics.log(event: .manageTokensSwitcherChanged, params: [
-            .state: Analytics.ParameterValue.toggleState(for: tokenIsSelected).rawValue,
             .token: tokenItem.currencySymbol,
+            .state: Analytics.ParameterValue.toggleState(for: tokenIsSelected).rawValue,
         ])
     }
 
@@ -289,7 +290,7 @@ private extension ManageTokensNetworkSelectorViewModel {
 
     func isAdded(_ tokenItem: TokenItem) -> Bool {
         if let userTokensManager = dataSource.selectedUserWalletModel?.userTokensManager {
-            return userTokensManager.contains(tokenItem, derivationPath: nil)
+            return userTokensManager.contains(tokenItem)
         }
 
         return parentEmbeddedCoinId == tokenItem.blockchain.coinId
@@ -300,7 +301,7 @@ private extension ManageTokensNetworkSelectorViewModel {
             return false
         }
 
-        return userTokensManager.canRemove(tokenItem, derivationPath: nil)
+        return userTokensManager.canRemove(tokenItem)
     }
 
     func isSelected(_ tokenItem: TokenItem) -> Bool {
@@ -356,22 +357,22 @@ private extension ManageTokensNetworkSelectorViewModel {
         if canRemove(tokenItem) {
             alert = alertBuilder.successCanRemoveAlertDeleteTokenIfNeeded(
                 tokenItem: tokenItem,
-                cancelAction: { [unowned self] in
-                    updateSelection(tokenItem)
+                cancelAction: { [weak self] in
+                    self?.updateSelection(tokenItem)
                 },
-                hideAction: { [unowned self] in
+                hideAction: { [weak self] in
                     do {
-                        try onSelect(isSelected, tokenItem)
+                        try self?.onSelect(isSelected, tokenItem)
                     } catch {
-                        displayAlertAndUpdateSelection(for: tokenItem, error: error as? LocalizedError)
+                        self?.displayAlertAndUpdateSelection(for: tokenItem, error: error as? LocalizedError)
                     }
                 }
             )
         } else {
             alert = alertBuilder.errorCanRemoveAlertDeleteTokenIfNeeded(
                 tokenItem: tokenItem,
-                dissmisAction: { [unowned self] item in
-                    updateSelection(item)
+                dissmisAction: { [weak self] item in
+                    self?.updateSelection(item)
                 }
             )
         }

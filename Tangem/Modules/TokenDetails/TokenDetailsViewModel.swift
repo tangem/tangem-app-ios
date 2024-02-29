@@ -20,39 +20,30 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
 
     private(set) var balanceWithButtonsModel: BalanceWithButtonsViewModel!
-    private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: tokenItem)
+    private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: walletModel.tokenItem)
 
-    private unowned let coordinator: TokenDetailsRoutable
+    private weak var coordinator: TokenDetailsRoutable?
     private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
 
     private var bag = Set<AnyCancellable>()
     private var notificatioChangeSubscription: AnyCancellable?
 
-    var tokenItem: TokenItem {
-        switch amountType {
-        case .token(let token):
-            return .token(token, blockchain)
-        default:
-            return .blockchain(blockchain)
-        }
-    }
-
     var iconUrl: URL? {
-        guard let id = tokenItem.id else {
+        guard let id = walletModel.tokenItem.id else {
             return nil
         }
 
-        return TokenIconURLBuilder().iconURL(id: id)
+        return IconURLBuilder().tokenIconURL(id: id)
     }
 
     var customTokenColor: Color? {
-        tokenItem.token?.customTokenColor
+        walletModel.tokenItem.token?.customTokenColor
     }
 
     var canHideToken: Bool { userWalletModel.isMultiWallet }
 
     init(
-        cardModel: CardViewModel,
+        userWalletModel: UserWalletModel,
         walletModel: WalletModel,
         exchangeUtility: ExchangeCryptoUtility,
         notificationManager: NotificationManager,
@@ -63,7 +54,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         self.coordinator = coordinator
         self.pendingExpressTransactionsManager = pendingExpressTransactionsManager
         super.init(
-            userWalletModel: cardModel,
+            userWalletModel: userWalletModel,
             walletModel: walletModel,
             exchangeUtility: exchangeUtility,
             notificationManager: notificationManager,
@@ -80,7 +71,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     }
 
     func onAppear() {
-        Analytics.log(event: .detailsScreenOpened, params: [Analytics.ParameterKey.token: tokenItem.currencySymbol])
+        Analytics.log(event: .detailsScreenOpened, params: [Analytics.ParameterKey.token: walletModel.tokenItem.currencySymbol])
     }
 
     override func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
@@ -101,7 +92,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
 extension TokenDetailsViewModel {
     func hideTokenButtonAction() {
-        if userWalletModel.userTokensManager.canRemove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath) {
+        if userWalletModel.userTokensManager.canRemove(walletModel.tokenItem) {
             showHideWarningAlert()
         } else {
             showUnableToHideAlert()
@@ -141,7 +132,7 @@ extension TokenDetailsViewModel {
             ]
         )
 
-        userWalletModel.userTokensManager.remove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath)
+        userWalletModel.userTokensManager.remove(walletModel.tokenItem)
         dismiss()
     }
 }
@@ -203,9 +194,9 @@ private extension TokenDetailsViewModel {
             return
         }
 
-        coordinator.openPendingExpressTransactionDetails(
+        coordinator?.openPendingExpressTransactionDetails(
             for: pendingTransaction,
-            tokenItem: tokenItem,
+            tokenItem: walletModel.tokenItem,
             pendingTransactionsManager: pendingExpressTransactionsManager
         )
     }
@@ -215,18 +206,18 @@ private extension TokenDetailsViewModel {
 
 private extension TokenDetailsViewModel {
     func dismiss() {
-        coordinator.dismiss()
+        coordinator?.dismiss()
     }
 
     func openFeeCurrency() {
-        guard let feeCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(
-            where: { $0.tokenItem == walletModel.feeTokenItem && $0.blockchainNetwork == walletModel.blockchainNetwork }
-        ) else {
+        guard let feeCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
+            $0.tokenItem == walletModel.feeTokenItem
+        }) else {
             assertionFailure("Fee currency '\(walletModel.feeTokenItem.name)' for currency '\(walletModel.tokenItem.name)' not found")
             return
         }
 
-        coordinator.openFeeCurrency(for: feeCurrencyWalletModel, userWalletModel: userWalletModel)
+        coordinator?.openFeeCurrency(for: feeCurrencyWalletModel, userWalletModel: userWalletModel)
     }
 }
 

@@ -58,14 +58,11 @@ struct IconView<Placeholder: View>: View {
     var body: some View {
         if forceKingfisher {
             kfImage
-        } else if #available(iOS 15.0, *) {
-            cachedAsyncImage
         } else {
-            kfImage
+            cachedAsyncImage
         }
     }
 
-    @available(iOS 15.0, *)
     var cachedAsyncImage: some View {
         CachedAsyncImage(url: url, scale: UIScreen.main.scale) { phase in
             switch phase {
@@ -155,7 +152,7 @@ private enum IconViewDefaults {
 struct IconView_Preview: PreviewProvider {
     static var previews: some View {
         IconView(
-            url: TokenIconURLBuilder().iconURL(id: "arbitrum-one", size: .small),
+            url: IconURLBuilder().tokenIconURL(id: "arbitrum-one", size: .small),
             size: CGSize(width: 40, height: 40)
         )
     }
