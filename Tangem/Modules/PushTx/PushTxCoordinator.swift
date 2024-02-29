@@ -38,7 +38,7 @@ class PushTxCoordinator: CoordinatorObject {
 
 extension PushTxCoordinator {
     struct Options {
-        let tx: BlockchainSdk.Transaction
+        let tx: PendingTransactionRecord
         let blockchainNetwork: BlockchainNetwork
         let cardModel: CardViewModel
     }
