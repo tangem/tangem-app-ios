@@ -856,6 +856,7 @@
 		DC01329E299A786700B95145 /* testnet_tokens.json in Resources */ = {isa = PBXBuildFile; fileRef = 5DE552F527B418B400D7ADCD /* testnet_tokens.json */; };
 		DC0132A0299A7B8E00B95145 /* notReferralMock.json in Resources */ = {isa = PBXBuildFile; fileRef = B0332D3229251A4A00553AD9 /* notReferralMock.json */; };
 		DC0132A1299A7B8E00B95145 /* referralMock.json in Resources */ = {isa = PBXBuildFile; fileRef = B0332D3329251A4A00553AD9 /* referralMock.json */; };
+		DC04693A2B8E6BE400C785D1 /* SellActionURLHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0469392B8E6BE400C785D1 /* SellActionURLHelper.swift */; };
 		DC0A57D72822A3C80031BECC /* InjectionKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A57D42822A3C80031BECC /* InjectionKey.swift */; };
 		DC0A57D82822A3C80031BECC /* InjectedValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A57D52822A3C80031BECC /* InjectedValues.swift */; };
 		DC0A57D92822A3C80031BECC /* InjectedWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A57D62822A3C80031BECC /* InjectedWrapper.swift */; };
@@ -2303,6 +2304,7 @@
 		DAF72F412B0F480A0006B44F /* SendFinishRoutable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendFinishRoutable.swift; sourceTree = "<group>"; };
 		DAF72F452B0F49800006B44F /* SendFinishViewModelInputMock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendFinishViewModelInputMock.swift; sourceTree = "<group>"; };
 		DAFD691527CDEB7F00B36C71 /* CombinedExchangeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CombinedExchangeService.swift; sourceTree = "<group>"; };
+		DC0469392B8E6BE400C785D1 /* SellActionURLHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SellActionURLHelper.swift; sourceTree = "<group>"; };
 		DC0A57D42822A3C80031BECC /* InjectionKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InjectionKey.swift; sourceTree = "<group>"; };
 		DC0A57D52822A3C80031BECC /* InjectedValues.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InjectedValues.swift; sourceTree = "<group>"; };
 		DC0A57D62822A3C80031BECC /* InjectedWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InjectedWrapper.swift; sourceTree = "<group>"; };
@@ -6581,6 +6583,7 @@
 				DC0DE2772B61709D00E7247F /* IncomingActionURLHelper.swift */,
 				DC0DE2792B6175B100E7247F /* IncomingActionConstants.swift */,
 				DC8B159E2B69616B00DBBE9E /* DismissSafariActionURLHelper.swift */,
+				DC0469392B8E6BE400C785D1 /* SellActionURLHelper.swift */,
 			);
 			path = IncomingActionManager;
 			sourceTree = "<group>";
@@ -8966,6 +8969,7 @@
 				5D9DCAEB25517FB50059799C /* CommonUserWalletRepository.swift in Sources */,
 				B67688F12B078F71006C94F7 /* MainBottomSheetOverlayView.swift in Sources */,
 				B0D1AC322906719300584E6C /* Analytics+Event.swift in Sources */,
+				DC04693A2B8E6BE400C785D1 /* SellActionURLHelper.swift in Sources */,
 				B05A645625E0F57B00F154B7 /* ScanTroublehootingView.swift in Sources */,
 				EF0295592A9DCDEE000B2142 /* SensitiveText.swift in Sources */,
 				DA8C67342B0B451F00E1C9B8 /* AmountSummaryViewData.swift in Sources */,
