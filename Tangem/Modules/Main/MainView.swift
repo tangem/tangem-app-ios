@@ -16,15 +16,14 @@ struct MainView: View {
         CardsInfoPagerView(
             data: viewModel.pages,
             selectedIndex: $viewModel.selectedCardIndex,
+            discoveryAnimationTrigger: viewModel.swipeDiscoveryAnimationTrigger,
             headerFactory: { info in
                 info.header
                     .contextMenu {
-                        Button(action: viewModel.didTapEditWallet, label: editButtonLabel)
+                        if !info.isLockedWallet {
+                            Button(action: weakify(viewModel, forFunction: MainViewModel.didTapEditWallet), label: editButtonLabel)
 
-                        if #available(iOS 15, *) {
-                            Button(role: .destructive, action: viewModel.didTapDeleteWallet, label: deleteButtonLabel)
-                        } else {
-                            Button(action: viewModel.didTapDeleteWallet, label: deleteButtonLabel)
+                            Button(role: .destructive, action: weakify(viewModel, forFunction: MainViewModel.didTapDeleteWallet), label: deleteButtonLabel)
                         }
                     }
             },
@@ -32,7 +31,10 @@ struct MainView: View {
                 info.body
             },
             bottomOverlayFactory: { info, didScrollToBottom in
-                info.makeBottomOverlay(didScrollToBottom: didScrollToBottom)
+                info.makeBottomOverlay(
+                    isMainBottomSheetEnabled: viewModel.isMainBottomSheetEnabled,
+                    didScrollToBottom: didScrollToBottom
+                )
             },
             onPullToRefresh: viewModel.onPullToRefresh(completionHandler:)
         )
@@ -40,6 +42,8 @@ struct MainView: View {
         .contentViewVerticalOffset(64.0)
         .horizontalScrollDisabled(viewModel.isHorizontalScrollDisabled)
         .onPageChange(viewModel.onPageChange(dueTo:))
+        .onAppear(perform: viewModel.onViewAppear)
+        .onDisappear(perform: viewModel.onViewDisappear)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
@@ -51,34 +55,23 @@ struct MainView: View {
             }
 
             ToolbarItem(placement: .navigationBarTrailing) {
-                HStack(spacing: 0) {
-                    detailsNavigationButton
-                }
-                .offset(x: 10)
+                detailsNavigationButton
             }
         })
-        .actionSheet(isPresented: $viewModel.showingDeleteConfirmation) {
-            ActionSheet(
-                title: Text(Localization.userWalletListDeletePrompt),
-                buttons: [
-                    .destructive(Text(Localization.commonDelete), action: viewModel.didConfirmWalletDeletion),
-                    .cancel(Text(Localization.commonCancel)),
-                ]
-            )
-        }
+        .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
         .bottomSheet(
             item: $viewModel.unlockWalletBottomSheetViewModel,
-            settings: .init(backgroundColor: Colors.Background.primary)
+            backgroundColor: Colors.Background.primary
         ) { model in
             UnlockUserWalletBottomSheetView(viewModel: model)
         }
-        .toast(isPresenting: $viewModel.showAddressCopiedToast, alert: {
+        .toast(isPresenting: $viewModel.showAddressCopiedToast) {
             AlertToast(type: .complete(Colors.Icon.accent), title: Localization.walletNotificationAddressCopied)
-        })
+        }
     }
 
     var detailsNavigationButton: some View {
-        Button(action: viewModel.openDetails) {
+        Button(action: weakify(viewModel, forFunction: MainViewModel.openDetails)) {
             NavbarDotsImage()
         }
         .buttonStyle(PlainButtonStyle())
@@ -107,7 +100,15 @@ struct MainView_Preview: PreviewProvider {
     static let viewModel: MainViewModel = {
         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
         let coordinator = MainCoordinator()
-        return .init(coordinator: coordinator, mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: coordinator))
+        let swipeDiscoveryHelper = WalletSwipeDiscoveryHelper()
+        let viewModel = MainViewModel(
+            coordinator: coordinator,
+            swipeDiscoveryHelper: swipeDiscoveryHelper,
+            mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: coordinator)
+        )
+        swipeDiscoveryHelper.delegate = viewModel
+
+        return viewModel
     }()
 
     static var previews: some View {

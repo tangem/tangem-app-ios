@@ -13,34 +13,15 @@ struct MultiWalletMainContentView: View {
 
     var body: some View {
         VStack(spacing: 14) {
-            if let settings = viewModel.missingDerivationNotificationSettings {
-                NotificationView(settings: settings, buttons: [
-                    .init(
-                        action: viewModel.didTapNotificationButton(with:action:),
-                        actionType: .generateAddresses
-                    ),
-                ])
-                .setButtonsLoadingState(to: viewModel.isScannerBusy)
-                .transition(.scaleOpacity)
-            }
-
-            if let settings = viewModel.missingBackupNotificationSettings {
-                NotificationView(settings: settings, buttons: [
-                    .init(
-                        action: viewModel.didTapNotificationButton(with:action:),
-                        actionType: .backupCard
-                    ),
-                ])
-            }
-
             ForEach(viewModel.notificationInputs) { input in
                 NotificationView(input: input)
-                    .transition(.scaleOpacity)
+                    .setButtonsLoadingState(to: viewModel.isScannerBusy)
+                    .transition(.notificationTransition)
             }
 
             ForEach(viewModel.tokensNotificationInputs) { input in
                 NotificationView(input: input)
-                    .transition(.scaleOpacity)
+                    .transition(.notificationTransition)
             }
 
             tokensContent
@@ -54,29 +35,30 @@ struct MultiWalletMainContentView: View {
                 .infinityFrame(axis: .horizontal)
             }
         }
-        .animation(.default, value: viewModel.missingDerivationNotificationSettings)
         .animation(.default, value: viewModel.notificationInputs)
         .animation(.default, value: viewModel.tokensNotificationInputs)
         .padding(.horizontal, 16)
-        .background(
-            Color.clear
-                .alert(item: $viewModel.error, content: { $0.alert })
-        )
+        .bindAlert($viewModel.error)
     }
 
+    @ViewBuilder
     private var tokensContent: some View {
-        Group {
-            if viewModel.isLoadingTokenList {
-                TokenListLoadingPlaceholderView()
+        if viewModel.isLoadingTokenList {
+            TokenListLoadingPlaceholderView()
+                .cornerRadiusContinuous(Constants.cornerRadius)
+        } else if viewModel.sections.isEmpty {
+            emptyList
+                .cornerRadiusContinuous(Constants.cornerRadius)
+        } else {
+            // Don't apply `.cornerRadiusContinuous` modifier to this view on iOS 16.0 and above,
+            // this will cause clipping of iOS context menu previews in `TokenItemView` view
+            if #available(iOS 16.0, *) {
+                tokensList
             } else {
-                if viewModel.sections.isEmpty {
-                    emptyList
-                } else {
-                    tokensList
-                }
+                tokensList
+                    .cornerRadiusContinuous(Constants.cornerRadius)
             }
         }
-        .cornerRadiusContinuous(14)
     }
 
     private var emptyList: some View {
@@ -97,46 +79,38 @@ struct MultiWalletMainContentView: View {
 
     private var tokensList: some View {
         LazyVStack(spacing: 0) {
-            ForEach(viewModel.sections) { section in
-                TokenSectionView(title: section.model.title)
+            ForEach(indexed: viewModel.sections.indexed()) { sectionIndex, section in
+                let cornerRadius = Constants.cornerRadius
+                let hasTitle = section.model.title != nil
 
-                ForEach(section.items) { item in
-                    TokenItemView(viewModel: item)
-                        .contextMenu {
-                            ForEach(viewModel.contextActions(for: item), id: \.self) { menuAction in
-                                contextMenuButton(for: menuAction, tokenItem: item)
-                            }
+                if #available(iOS 16.0, *) {
+                    let isFirstVisibleSection = hasTitle && sectionIndex == 0
+                    let topEdgeCornerRadius = isFirstVisibleSection ? cornerRadius : nil
+
+                    TokenSectionView(title: section.model.title, cornerRadius: topEdgeCornerRadius)
+                } else {
+                    TokenSectionView(title: section.model.title)
+                }
+
+                ForEach(indexed: section.items.indexed()) { itemIndex, item in
+                    if #available(iOS 16.0, *) {
+                        let isFirstItem = !hasTitle && sectionIndex == 0 && itemIndex == 0
+                        let isLastItem = sectionIndex == viewModel.sections.count - 1 && itemIndex == section.items.count - 1
+
+                        if isFirstItem {
+                            TokenItemView(viewModel: item, cornerRadius: cornerRadius, roundedCornersVerticalEdge: .topEdge)
+                        } else if isLastItem {
+                            TokenItemView(viewModel: item, cornerRadius: cornerRadius, roundedCornersVerticalEdge: .bottomEdge)
+                        } else {
+                            TokenItemView(viewModel: item, cornerRadius: cornerRadius, roundedCornersVerticalEdge: nil)
                         }
+                    } else {
+                        TokenItemView(viewModel: item, cornerRadius: cornerRadius)
+                    }
                 }
             }
         }
-        .background(Colors.Background.primary)
-    }
-
-    @ViewBuilder
-    private func contextMenuButton(for actionType: TokenActionType, tokenItem: TokenItemViewModel) -> some View {
-        let action = { viewModel.didTapContextAction(actionType, for: tokenItem) }
-        if #available(iOS 15, *), actionType.isDestructive {
-            Button(
-                role: .destructive,
-                action: action,
-                label: {
-                    labelForContextButton(with: actionType)
-                }
-            )
-        } else {
-            Button(action: action, label: {
-                labelForContextButton(with: actionType)
-            })
-        }
-    }
-
-    private func labelForContextButton(with action: TokenActionType) -> some View {
-        HStack {
-            Text(action.title)
-            action.icon.image
-                .renderingMode(.template)
-        }
+        .background(Colors.Background.primary.cornerRadiusContinuous(Constants.cornerRadius))
     }
 }
 
@@ -149,7 +123,10 @@ struct MultiWalletContentView_Preview: PreviewProvider {
         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
         InjectedValues[\.tangemApiService] = FakeTangemApiService()
 
-        let optionsManager = OrganizeTokensOptionsManagerStub()
+        let optionsManager = FakeOrganizeTokensOptionsManager(
+            initialGroupingOption: .none,
+            initialSortingOption: .dragAndDrop
+        )
         let tokenSectionsAdapter = TokenSectionsAdapter(
             userTokenListManager: userWalletModel.userTokenListManager,
             optionsProviding: optionsManager,
@@ -160,9 +137,11 @@ struct MultiWalletContentView_Preview: PreviewProvider {
             userWalletModel: userWalletModel,
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
             tokensNotificationManager: FakeUserWalletNotificationManager(),
-            coordinator: mainCoordinator,
+            rateAppController: RateAppControllerStub(),
             tokenSectionsAdapter: tokenSectionsAdapter,
-            tokenRouter: SingleTokenRoutableMock()
+            tokenRouter: SingleTokenRoutableMock(),
+            optionsEditing: optionsManager,
+            coordinator: mainCoordinator
         )
     }()
 
@@ -171,5 +150,13 @@ struct MultiWalletContentView_Preview: PreviewProvider {
             MultiWalletMainContentView(viewModel: viewModel)
         }
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+    }
+}
+
+// MARK: - Constants
+
+private extension MultiWalletMainContentView {
+    enum Constants {
+        static let cornerRadius: CGFloat = 14.0
     }
 }
