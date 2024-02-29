@@ -11,10 +11,6 @@ import UIKit
 import AVFoundation
 import SwiftUI
 
-protocol QRScannerViewDelegate2: AnyObject {
-    func userDidDenyCameraAccess()
-}
-
 struct QRScanView: View {
     @ObservedObject var viewModel: QRScanViewModel
 
@@ -154,7 +150,7 @@ struct QRScanView_Previews_Inline: PreviewProvider {
 struct QRScannerView: UIViewRepresentable {
     @Binding var code: String
 
-    weak var delegate: QRScannerViewDelegate2?
+    weak var delegate: QRScannerViewCoordinatorDelegate?
 
     @Environment(\.presentationMode) var presentationMode
 
@@ -173,9 +169,9 @@ struct QRScannerView: UIViewRepresentable {
     class Coordinator: NSObject, QRScannerViewDelegate {
         @Binding var code: String
         @Binding var presentationMode: PresentationMode
-        weak var delegate: QRScannerViewDelegate2?
+        weak var delegate: QRScannerViewCoordinatorDelegate?
 
-        init(code: Binding<String>, delegate: QRScannerViewDelegate2?, presentationMode: Binding<PresentationMode>) {
+        init(code: Binding<String>, delegate: QRScannerViewCoordinatorDelegate?, presentationMode: Binding<PresentationMode>) {
             _code = code
             _presentationMode = presentationMode
             self.delegate = delegate
@@ -211,6 +207,11 @@ protocol QRScannerViewDelegate: AnyObject {
     func qrScanningDidFail()
     func qrScanningSucceededWithCode(_ str: String?)
     func qrScanningDidStop()
+}
+
+/// Delegate callback for the QRScannerView.Coordinator
+protocol QRScannerViewCoordinatorDelegate: AnyObject {
+    func userDidDenyCameraAccess()
 }
 
 class UIQRScannerView: UIView {
