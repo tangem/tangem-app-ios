@@ -40,11 +40,19 @@ class FakeTangemApiService: TangemApiService {
         .anyFail(error: .init(code: .notFound))
     }
 
+    func createAccount(networkId: String, publicKey: String) -> AnyPublisher<BlockchainAccountCreateResult, TangemAPIError> {
+        .anyFail(error: .init(code: .notFound))
+    }
+
     func loadReferralProgramInfo(for userWalletId: String, expectedAwardsLimit: Int) async throws -> ReferralProgramInfo {
         throw "Not implemented"
     }
 
     func participateInReferralProgram(using token: AwardToken, for address: String, with userWalletId: String) async throws -> ReferralProgramInfo {
+        throw "Not implemented"
+    }
+
+    func expressPromotion(request: ExpressPromotion.Request) async throws -> ExpressPromotion.Response {
         throw "Not implemented"
     }
 

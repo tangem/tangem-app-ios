@@ -52,10 +52,6 @@ struct PendingExpressTxStatusBottomSheetView: View {
         .animation(animation, value: viewModel.currentStatusIndex)
         .animation(animation, value: viewModel.notificationViewInput)
         .animation(animation, value: viewModel.showGoToProviderHeaderButton)
-        // Can't move this sheet to coordinator because coordinator already presenting bottom sheet ViewController
-        .sheet(item: $viewModel.modalWebViewModel) {
-            WebViewContainer(viewModel: $0)
-        }
     }
 
     private var amountsView: some View {
@@ -77,9 +73,11 @@ struct PendingExpressTxStatusBottomSheetView: View {
                     fiatAmountTextState: viewModel.sourceFiatAmountTextState
                 )
 
-                Assets.approx.image
+                Assets.arrowRightMini.image
                     .renderingMode(.template)
-                    .foregroundColor(Colors.Text.tertiary)
+                    .resizable()
+                    .frame(size: .init(bothDimensions: 12))
+                    .foregroundColor(Colors.Icon.informative)
 
                 tokenInfo(
                     with: viewModel.destinationTokenIconInfo,
@@ -94,44 +92,40 @@ struct PendingExpressTxStatusBottomSheetView: View {
     private var providerView: some View {
         VStack(spacing: 12) {
             HStack {
-                exchangeByTitle
+                Text(Localization.expressProvider)
+                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
                 Spacer()
-            }
 
-            HStack(spacing: 12) {
-                IconView(
-                    url: viewModel.providerIconURL,
-                    size: iconSize
-                )
+                if let transactionID = viewModel.transactionID {
+                    Button {
+                        viewModel.copyTransactionID()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Assets.copy.image
+                                .resizable()
+                                .renderingMode(.template)
+                                .frame(width: 16, height: 16)
+                                .foregroundColor(Colors.Icon.informative)
 
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 4) {
-                        Text(viewModel.providerName)
-                            .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
-
-                        Text(viewModel.providerType)
-                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                            Text(Localization.expressTransactionId(transactionID))
+                                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        }
+                        .lineLimit(1)
                     }
-
-                    Text(Localization.expressFloatingRate)
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
                 }
-                Spacer()
             }
+
+            ProviderRowView(viewModel: viewModel.providerRowViewModel)
         }
         .defaultRoundedBackground(with: Colors.Background.action)
-    }
-
-    private var exchangeByTitle: some View {
-        Text(Localization.expressExchangeBy(viewModel.providerName))
-            .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
     }
 
     private var statusesView: some View {
         VStack(spacing: 14) {
             HStack(spacing: 10) {
-                exchangeByTitle
+                Text(Localization.expressExchangeBy(viewModel.providerRowViewModel.provider.name))
+                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
                 Spacer()
 
@@ -186,8 +180,7 @@ struct ExpressPendingTxStatusBottomSheetView_Preview: PreviewProvider {
     static var defaultViewModel: PendingExpressTxStatusBottomSheetViewModel = {
         let factory = PendingExpressTransactionFactory()
         let userWalletId = "21321"
-        let tokenItem = TokenItem.blockchain(.polygon(testnet: false))
-        let blockchainNetwork = BlockchainNetwork(.polygon(testnet: false))
+        let tokenItem = TokenItem.blockchain(.init(.polygon(testnet: false), derivationPath: nil))
         let record = ExpressPendingTransactionRecord(
             userWalletId: userWalletId,
             expressTransactionId: "1bd298ee-2e99-406e-a25f-a715bb87e806",
@@ -195,13 +188,11 @@ struct ExpressPendingTxStatusBottomSheetView_Preview: PreviewProvider {
             transactionHash: "13213124321",
             sourceTokenTxInfo: .init(
                 tokenItem: tokenItem,
-                blockchainNetwork: blockchainNetwork,
                 amountString: "10",
                 isCustom: true
             ),
             destinationTokenTxInfo: .init(
-                tokenItem: .token(.shibaInuMock, .ethereum(testnet: false)),
-                blockchainNetwork: .init(.ethereum(testnet: false)),
+                tokenItem: .token(.shibaInuMock, .init(.ethereum(testnet: false), derivationPath: nil)),
                 amountString: "1",
                 isCustom: false
             ),
@@ -224,9 +215,9 @@ struct ExpressPendingTxStatusBottomSheetView_Preview: PreviewProvider {
             currentTokenItem: tokenItem,
             pendingTransactionsManager: CommonPendingExpressTransactionsManager(
                 userWalletId: userWalletId,
-                blockchainNetwork: blockchainNetwork,
-                tokenItem: tokenItem
-            )
+                walletModel: .mockETH
+            ),
+            router: TokenDetailsCoordinator()
         )
     }()
 

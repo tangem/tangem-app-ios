@@ -8,18 +8,11 @@
 
 import Foundation
 import Combine
+import UIKit
 
 class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable {
-    var providerName: String {
-        pendingTransaction.transactionRecord.provider.name
-    }
-
-    var providerIconURL: URL? {
-        pendingTransaction.transactionRecord.provider.iconURL
-    }
-
-    var providerType: String {
-        pendingTransaction.transactionRecord.provider.type.rawValue.uppercased()
+    var transactionID: String? {
+        pendingTransaction.transactionRecord.externalTxId
     }
 
     var animationDuration: TimeInterval {
@@ -32,6 +25,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     let sourceAmountText: String
     let destinationAmountText: String
 
+    @Published var providerRowViewModel: ProviderRowViewModel
     @Published var sourceFiatAmountTextState: LoadableTextView.State = .loading
     @Published var destinationFiatAmountTextState: LoadableTextView.State = .loading
     @Published var statusesList: [PendingExpressTransactionStatusRow.StatusRowData] = []
@@ -39,10 +33,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     @Published var showGoToProviderHeaderButton = true
     @Published var notificationViewInput: NotificationViewInput? = nil
 
-    // Navigation
-    @Published var modalWebViewModel: WebViewContainerViewModel? = nil
-
-    private unowned let pendingTransactionsManager: PendingExpressTransactionsManager
+    private weak var pendingTransactionsManager: (any PendingExpressTransactionsManager)?
 
     private let pendingTransaction: PendingExpressTransaction
     private let currentTokenItem: TokenItem
@@ -52,15 +43,29 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
 
     private var subscription: AnyCancellable?
     private var notificationUpdateWorkItem: DispatchWorkItem?
+    private weak var router: PendingExpressTxStatusRoutable?
+    private var successToast: Toast<SuccessToast>?
 
     init(
         pendingTransaction: PendingExpressTransaction,
         currentTokenItem: TokenItem,
-        pendingTransactionsManager: PendingExpressTransactionsManager
+        pendingTransactionsManager: PendingExpressTransactionsManager,
+        router: PendingExpressTxStatusRoutable
     ) {
         self.pendingTransaction = pendingTransaction
         self.currentTokenItem = currentTokenItem
         self.pendingTransactionsManager = pendingTransactionsManager
+        self.router = router
+
+        let provider = pendingTransaction.transactionRecord.provider
+        providerRowViewModel = .init(
+            provider: .init(id: provider.id, iconURL: provider.iconURL, name: provider.name, type: provider.type.rawValue),
+            titleFormat: .name,
+            isDisabled: false,
+            badge: .none,
+            subtitles: [.text(Localization.expressFloatingRate)],
+            detailsType: .none
+        )
 
         let dateFormatter = DateFormatter()
         dateFormatter.doesRelativeDateFormatting = true
@@ -86,12 +91,12 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     }
 
     func onAppear() {
-        Analytics.log(event: .tokenChangeNowStatusScreenOpened, params: [.token: currentTokenItem.currencySymbol])
+        Analytics.log(event: .tokenSwapStatusScreenOpened, params: [.token: currentTokenItem.currencySymbol])
     }
 
     func openProviderFromStatusHeader() {
         Analytics.log(
-            event: .tokenChangeNowButtonGoToProvider,
+            event: .tokenButtonGoToProvider,
             params: [
                 .token: currentTokenItem.currencySymbol,
                 .place: Analytics.ParameterValue.status.rawValue,
@@ -99,6 +104,14 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         )
 
         openProvider()
+    }
+
+    func copyTransactionID() {
+        UIPasteboard.general.string = transactionID
+
+        let toastView = SuccessToast(text: Localization.expressTransactionIdCopied)
+        successToast = Toast(view: toastView)
+        successToast?.present(layout: .top(padding: 14), type: .temporary())
     }
 
     private func openProvider() {
@@ -109,11 +122,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
             return
         }
 
-        modalWebViewModel = WebViewContainerViewModel(
-            url: url,
-            title: providerName,
-            withCloseButton: true
-        )
+        router?.openPendingExpressTxStatus(at: url)
     }
 
     private func loadEmptyFiatRates() {
@@ -148,8 +157,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     }
 
     private func bind() {
-        subscription = pendingTransactionsManager.pendingTransactionsPublisher
-            .dropFirst()
+        subscription = pendingTransactionsManager?.pendingTransactionsPublisher
             .withWeakCaptureOf(self)
             .map { viewModel, pendingTransactions in
                 guard let first = pendingTransactions.first(where: { tx in
@@ -170,7 +178,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
                 }
 
                 if !pendingTx.transactionRecord.transactionStatus.isTransactionInProgress {
-                    viewModel.pendingTransactionsManager.hideTransaction(with: pendingTx.transactionRecord.expressTransactionId)
+                    viewModel.pendingTransactionsManager?.hideTransaction(with: pendingTx.transactionRecord.expressTransactionId)
                 }
 
                 viewModel.updateUI(with: pendingTx, delay: Constants.notificationAnimationDelay)
@@ -257,7 +265,7 @@ extension PendingExpressTxStatusBottomSheetViewModel {
 
         if let placeValue {
             Analytics.log(
-                event: .tokenChangeNowButtonGoToProvider,
+                event: .tokenButtonGoToProvider,
                 params: [
                     .token: currentTokenItem.currencySymbol,
                     .place: placeValue.rawValue,
