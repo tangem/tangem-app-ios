@@ -33,6 +33,7 @@ class OnboardingCoordinator: CoordinatorObject {
     @Published var accessCodeModel: OnboardingAccessCodeViewModel? = nil
     @Published var addressQrBottomSheetContentViewModel: AddressQrBottomSheetContentViewModel? = nil
     @Published var supportChatViewModel: SupportChatViewModel? = nil
+    @Published var mailViewModel: MailViewModel? = nil
 
     // MARK: - Helpers
 
@@ -94,7 +95,7 @@ extension OnboardingCoordinator {
 
 extension OnboardingCoordinator: OnboardingTopupRoutable {
     func openCryptoShop(at url: URL, action: @escaping () -> Void) {
-        safariHandle = safariManager.openURL(url) { [weak self] in
+        safariHandle = safariManager.openURL(url) { [weak self] _ in
             self?.safariHandle = nil
             action()
         }
@@ -138,6 +139,11 @@ extension OnboardingCoordinator: WalletOnboardingRoutable {
             self?.accessCodeModel = nil
             callback(code)
         })
+    }
+
+    func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType) {
+        let logsComposer = LogsComposer(infoProvider: dataCollector)
+        mailViewModel = .init(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
     }
 
     func openSupportChat(input: SupportChatInputModel) {
