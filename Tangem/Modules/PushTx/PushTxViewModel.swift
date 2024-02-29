@@ -240,8 +240,8 @@ class PushTxViewModel: ObservableObject {
                 var tx: BlockchainSdk.Transaction?
 
                 do {
-                    tx = try viewModel.walletModel.createTransaction(
-                        amountToSend: newAmount,
+                    tx = try viewModel.walletModel.transactionCreator.createTransaction(
+                        amount: newAmount,
                         fee: fee,
                         destinationAddress: viewModel.destination
                     )
