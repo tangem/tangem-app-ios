@@ -426,6 +426,7 @@
 "send_additional_field_already_included" = "Уже содержится в введенном адресе";
 "send_alert_button_request_support" = "Поддержка";
 "send_alert_fee_increased_title" = "Комиссия увеличилась";
+"send_alert_fee_too_low_text" = "Вы указали комиссию ниже рекомендуемой, это может привести к задержке исполнения вашей транзакции. Продолжить?";
 "send_alert_transaction_failed_text" = "Причина: %1$s\nКод: %2$s";
 "send_alert_transaction_failed_title" = "Транзакция не выполнена";
 "send_amount_label" = "Сумма";
