@@ -32,9 +32,6 @@ struct SendView: View {
                 }
 
                 NavHolder()
-                    .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
-
-                NavHolder()
                     .alert(item: $viewModel.alert) { $0.alert }
             }
         }
