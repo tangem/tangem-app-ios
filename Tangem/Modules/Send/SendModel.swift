@@ -64,15 +64,13 @@ class SendModel {
 
         do {
             try walletModel.transactionCreator.validate(amount: amount, fee: fee)
-            return false
         } catch {
             let validationError = error as? ValidationError
             if case .totalExceedsBalance = validationError {
                 return true
-            } else {
-                return false
             }
         }
+        return false
     }
 
     // MARK: - Data
