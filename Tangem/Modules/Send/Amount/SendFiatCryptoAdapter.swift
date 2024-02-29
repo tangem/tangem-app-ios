@@ -101,6 +101,7 @@ class SendFiatCryptoAdapter {
 
     private func bind() {
         _fiatCryptoValue
+            .dropFirst()
             .map(\.crypto)
             .sink { [weak self] crypto in
                 self?.output?.setAmount(crypto)
