@@ -22,7 +22,7 @@ class CommonPendingExpressTransactionAnalyticsTracker: PendingExpressTransaction
             return
         }
 
-        Analytics.log(event: .tokenChangeNowStatus, params: [
+        Analytics.log(event: .tokenSwapStatus, params: [
             .token: tokenSymbol,
             .status: statusToTrack.rawValue,
         ])

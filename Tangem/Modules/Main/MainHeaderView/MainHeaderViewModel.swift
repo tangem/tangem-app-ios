@@ -15,7 +15,7 @@ final class MainHeaderViewModel: ObservableObject {
     @Published private(set) var cardImage: ImageType?
     @Published private(set) var userWalletName: String = ""
     @Published private(set) var subtitleInfo: MainHeaderSubtitleInfo = .empty
-    @Published private(set) var balance: NSAttributedString = .init(string: BalanceFormatter.defaultEmptyBalanceString)
+    @Published private(set) var balance: AttributedString = .init(BalanceFormatter.defaultEmptyBalanceString)
     @Published var isLoadingFiatBalance: Bool = true
     @Published var isLoadingSubtitle: Bool = true
 
@@ -23,7 +23,7 @@ final class MainHeaderViewModel: ObservableObject {
         subtitleProvider.containsSensitiveInfo
     }
 
-    private let supplementInfoProvider: MainHeaderSupplementInfoProvider
+    private weak var supplementInfoProvider: MainHeaderSupplementInfoProvider?
     private let subtitleProvider: MainHeaderSubtitleProvider
     private let balanceProvider: MainHeaderBalanceProvider
 
@@ -45,12 +45,12 @@ final class MainHeaderViewModel: ObservableObject {
     }
 
     private func bind() {
-        supplementInfoProvider.userWalletNamePublisher
+        supplementInfoProvider?.userWalletNamePublisher
             .receive(on: DispatchQueue.main)
             .assign(to: \.userWalletName, on: self, ownership: .weak)
             .store(in: &bag)
 
-        supplementInfoProvider.cardHeaderImagePublisher
+        supplementInfoProvider?.cardHeaderImagePublisher
             .receive(on: DispatchQueue.main)
             .assign(to: \.cardImage, on: self, ownership: .weak)
             .store(in: &bag)
@@ -84,7 +84,7 @@ final class MainHeaderViewModel: ObservableObject {
                     AppLog.shared.debug("Failed to load total balance. Reason: \(error)")
                     isLoadingFiatBalance = false
 
-                    balance = NSAttributedString(string: BalanceFormatter.defaultEmptyBalanceString)
+                    balance = .init(BalanceFormatter.defaultEmptyBalanceString)
                 }
             }
             .store(in: &bag)

@@ -9,6 +9,8 @@
 // Configuration settings file format documentation can be found at:
 // https://help.apple.com/xcode/#/dev745c5c974
 
+#include "Common.xcconfig"
+
 // Config name
 ENVIRONMENT_NAME = Beta
 
