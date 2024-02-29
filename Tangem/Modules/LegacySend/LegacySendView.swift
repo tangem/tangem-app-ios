@@ -309,6 +309,7 @@ struct ExtractView_Previews: PreviewProvider {
                     value: 0.0
                 ),
                 destination: "Target",
+                tag: "Tag",
                 blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
                 cardViewModel: PreviewCard.ethereum.cardModel,
                 coordinator: LegacySendCoordinator()
