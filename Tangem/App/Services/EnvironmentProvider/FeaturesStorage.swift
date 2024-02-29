@@ -20,12 +20,18 @@ class FeatureStorage {
     @AppStorageCompat(FeatureStorageKeys.useDevApi)
     var useDevApi = false
 
+    @AppStorageCompat(FeatureStorageKeys.useDevApiExpress)
+    var useDevApiExpress = false
+
     // [REDACTED_TODO_COMMENT]
     @AppStorageCompat(FeatureStorageKeys.fakeTxHistory)
     var useFakeTxHistory = false
 
     @AppStorageCompat(FeatureStorageKeys.supportedBlockchainsIds)
     var supportedBlockchainsIds: [String] = []
+
+    @AppStorageCompat(FeatureStorageKeys.performanceMonitorEnabled)
+    var isPerformanceMonitorEnabled = false
 }
 
 // MARK: - Keys
@@ -34,6 +40,8 @@ private enum FeatureStorageKeys: String {
     case testnet
     case availableFeatures = "integrated_features"
     case useDevApi = "use_dev_api"
+    case useDevApiExpress = "use_dev_api_express"
     case fakeTxHistory = "fake_transaction_history"
     case supportedBlockchainsIds
+    case performanceMonitorEnabled = "performance_monitor_enabled"
 }

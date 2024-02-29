@@ -19,7 +19,7 @@ struct AppSettingsView: View {
         ZStack {
             Colors.Background.secondary.edgesIgnoringSafeArea(.all)
 
-            GroupedScrollView {
+            GroupedScrollView(spacing: 24) {
                 appCurrencySection
 
                 warningSection
@@ -27,7 +27,12 @@ struct AppSettingsView: View {
                 savingWalletSection
 
                 savingAccessCodesSection
+
+                sensitiveTextAvailabilitySection
+
+                themeSettingsSection
             }
+            .interContentPadding(8)
         }
         .alert(item: $viewModel.alert) { $0.alert }
         .navigationBarTitle(Text(Localization.appSettingsTitle), displayMode: .inline)
@@ -50,6 +55,10 @@ struct AppSettingsView: View {
     private var savingWalletSection: some View {
         GroupedSection(viewModel.savingWalletViewModel) {
             DefaultToggleRowView(viewModel: $0)
+                // Workaround for force rendering the view
+                // Will be update in [REDACTED_INFO]
+                // Use @Published from directly from the ViewModel
+                .id(viewModel.isSavingWallet)
         } footer: {
             DefaultFooterView(Localization.appSettingsSavedWalletFooter)
         }
@@ -58,8 +67,26 @@ struct AppSettingsView: View {
     private var savingAccessCodesSection: some View {
         GroupedSection(viewModel.savingAccessCodesViewModel) {
             DefaultToggleRowView(viewModel: $0)
+                // Workaround for force rendering the view
+                // Will be update in [REDACTED_INFO]
+                // Use @Published from directly from the ViewModel
+                .id(viewModel.isSavingAccessCodes)
         } footer: {
             DefaultFooterView(Localization.appSettingsSavedAccessCodesFooter)
+        }
+    }
+
+    private var sensitiveTextAvailabilitySection: some View {
+        GroupedSection(viewModel.sensitiveTextAvailabilityViewModel) {
+            DefaultToggleRowView(viewModel: $0)
+        } footer: {
+            DefaultFooterView(Localization.detailsRowDescriptionFlipToHide)
+        }
+    }
+
+    private var themeSettingsSection: some View {
+        GroupedSection(viewModel.themeSettingsViewModel) {
+            DefaultRowView(viewModel: $0)
         }
     }
 }
