@@ -148,7 +148,7 @@ class SendModel {
 
     func subtractFeeFromAmount() {
         guard
-            let amount = amount.value,
+            let amount = _amount.value,
             let fee = fee.value?.amount,
             (amount - fee).value >= 0
         else {
@@ -241,12 +241,12 @@ class SendModel {
             }
             .store(in: &bag)
 
-        Publishers.CombineLatest(_amount, fee)
+        Publishers.CombineLatest(amount, fee)
             .removeDuplicates {
                 $0 == $1
             }
             .sink { [weak self] amount, fee in
-                self?.validateFee(amount: amount, fee: fee)
+                self?.validateFee(fee, amount: amount)
             }
             .store(in: &bag)
 
@@ -428,7 +428,7 @@ class SendModel {
         _amountError.send(amountError)
     }
 
-    private func validateFee(amount: Amount?, fee: Fee?) {
+    private func validateFee(_ fee: Fee?, amount: Amount?) {
         let feeError: Error?
 
         if let amount, let fee {
