@@ -51,6 +51,10 @@ class LockedUserWallet: UserWalletModel {
         )
     }
 
+    var totalBalancePublisher: AnyPublisher<LoadingValue<TotalBalance>, Never> {
+        .just(output: .loaded(.init(balance: 0, currencyCode: "", hasError: false)))
+    }
+
     let backupInput: OnboardingInput? = nil
     let twinInput: OnboardingInput? = nil
 
@@ -69,8 +73,9 @@ class LockedUserWallet: UserWalletModel {
         // Renaming locked wallets is prohibited
     }
 
-    var totalBalancePublisher: AnyPublisher<LoadingValue<TotalBalance>, Never> {
-        .just(output: .loaded(.init(balance: 0, currencyCode: "", hasError: false)))
+    func validate() -> Bool {
+        // Nothing to validate for locked wallets
+        return true
     }
 }
 
