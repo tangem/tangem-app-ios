@@ -60,12 +60,14 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
         optionsProviding
             .groupingOption
             .map(\.isGrouped)
+            .receive(on: DispatchQueue.main)
             .assign(to: \.isGroupingEnabled, on: self, ownership: .weak)
             .store(in: &bag)
 
         optionsProviding
             .sortingOption
             .map(\.isSorted)
+            .receive(on: DispatchQueue.main)
             .assign(to: \.isSortByBalanceEnabled, on: self, ownership: .weak)
             .store(in: &bag)
 
@@ -73,6 +75,9 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
             .throttle(for: 1.0, scheduler: DispatchQueue.main, latest: false)
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
+                // The 'sort-by-balance' button only allows to enable balance sorting but not to disable it
+                if viewModel.isSortByBalanceEnabled { return }
+
                 Analytics.log(.organizeTokensButtonSortByBalance)
                 viewModel.optionsEditing.sort(
                     by: viewModel.isSortByBalanceEnabled ? .dragAndDrop : .byBalance

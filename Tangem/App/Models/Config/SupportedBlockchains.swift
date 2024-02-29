@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import TangemSdk
 
 typealias SupportedBlockchainsSet = Set<Blockchain>
 
@@ -57,9 +58,10 @@ struct SupportedBlockchains {
     /// Blockchains for test. They don't include in supported blockchains by default
     private func testableBlockchains() -> Set<Blockchain> {
         [
-            .telos(testnet: false),
-            .azero(curve: version == .v2 ? .ed25519_slip0010 : .ed25519, testnet: false),
-            .chia(testnet: false),
+            .areon(testnet: false),
+            .playa3ullGames,
+            .pulsechain(testnet: false),
+            .aurora(testnet: false),
         ]
     }
 
@@ -68,31 +70,31 @@ struct SupportedBlockchains {
             .ethereum(testnet: false),
             .ethereumClassic(testnet: false),
             .ethereumPoW(testnet: false),
-            .ethereumFair,
+            .disChain,
             .litecoin,
             .bitcoin(testnet: false),
-            .bitcoinCash(testnet: false),
+            .bitcoinCash,
             .cardano(extended: version == .v2),
             .xrp(curve: .secp256k1),
             .rsk,
             .binance(testnet: false),
             .tezos(curve: version == .v2 ? .ed25519_slip0010 : .secp256k1),
-            .stellar(curve: version == .v2 ? .ed25519_slip0010 : .ed25519, testnet: false),
+            .stellar(curve: ed25519Curve(for: version), testnet: false),
             .dogecoin,
             .bsc(testnet: false),
             .polygon(testnet: false),
             .avalanche(testnet: false),
-            .solana(curve: version == .v2 ? .ed25519_slip0010 : .ed25519, testnet: false),
-            .polkadot(curve: version == .v2 ? .ed25519_slip0010 : .ed25519, testnet: false),
-            .kusama(curve: version == .v2 ? .ed25519_slip0010 : .ed25519),
-            .azero(curve: version == .v2 ? .ed25519_slip0010 : .ed25519, testnet: false),
+            .solana(curve: ed25519Curve(for: version), testnet: false),
+            .polkadot(curve: ed25519Curve(for: version), testnet: false),
+            .kusama(curve: ed25519Curve(for: version)),
+            .azero(curve: ed25519Curve(for: version), testnet: false),
             .fantom(testnet: false),
             .tron(testnet: false),
             .arbitrum(testnet: false),
             .gnosis,
             .dash(testnet: false),
             .optimism(testnet: false),
-            .ton(curve: version == .v2 ? .ed25519_slip0010 : .ed25519, testnet: false),
+            .ton(curve: ed25519Curve(for: version), testnet: false),
             .kava(testnet: false),
             .kaspa,
             .ravencoin(testnet: false),
@@ -103,6 +105,15 @@ struct SupportedBlockchains {
             .octa,
             .chia(testnet: false),
             .ducatus,
+            .near(curve: ed25519Curve(for: version), testnet: false),
+            .telos(testnet: false),
+            .decimal(testnet: false),
+            .veChain(testnet: false),
+            .xdc(testnet: false),
+            .shibarium(testnet: false),
+            .algorand(curve: ed25519Curve(for: version), testnet: false),
+            .aptos(curve: ed25519Curve(for: version), testnet: false),
+            .hedera(curve: ed25519Curve(for: version), testnet: false),
         ]
     }
 
@@ -113,24 +124,42 @@ struct SupportedBlockchains {
             .ethereumClassic(testnet: true),
             .ethereumPoW(testnet: true),
             .binance(testnet: true),
-            .stellar(curve: version == .v2 ? .ed25519_slip0010 : .ed25519, testnet: true),
+            .stellar(curve: ed25519Curve(for: version), testnet: true),
             .bsc(testnet: true),
             .polygon(testnet: true),
             .avalanche(testnet: true),
-            .solana(curve: version == .v2 ? .ed25519_slip0010 : .ed25519, testnet: true),
+            .solana(curve: ed25519Curve(for: version), testnet: true),
             .fantom(testnet: true),
-            .polkadot(curve: version == .v2 ? .ed25519_slip0010 : .ed25519, testnet: true),
-            .azero(curve: version == .v2 ? .ed25519_slip0010 : .ed25519, testnet: true),
+            .polkadot(curve: ed25519Curve(for: version), testnet: true),
+            .azero(curve: ed25519Curve(for: version), testnet: true),
             .tron(testnet: true),
             .arbitrum(testnet: true),
             .optimism(testnet: true),
-            .ton(curve: version == .v2 ? .ed25519_slip0010 : .ed25519, testnet: true),
+            .ton(curve: ed25519Curve(for: version), testnet: true),
             .kava(testnet: true),
             .ravencoin(testnet: true),
             .cosmos(testnet: true),
             .octa,
             .chia(testnet: true),
+            .near(curve: ed25519Curve(for: version), testnet: true),
+            .telos(testnet: true),
+            .decimal(testnet: true),
+            .veChain(testnet: true),
+            .xdc(testnet: true),
+            .algorand(curve: ed25519Curve(for: version), testnet: true),
+            .shibarium(testnet: true),
+            .aptos(curve: ed25519Curve(for: version), testnet: true),
+            .hedera(curve: ed25519Curve(for: version), testnet: true),
         ]
+    }
+
+    private func ed25519Curve(for version: Version) -> EllipticCurve {
+        switch version {
+        case .v1:
+            return .ed25519
+        case .v2:
+            return .ed25519_slip0010
+        }
     }
 }
 

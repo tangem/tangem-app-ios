@@ -56,4 +56,31 @@ class IncomingActionsTests: XCTestCase {
             XCTAssertTrue(false)
         }
     }
+
+    func testSafariClose() {
+        let urlString1 = "tangem://redirect?action=dismissBrowser"
+        let urlString2 = "https://tangem.com/redirect?action=dismissBrowser"
+
+        let helper = DismissSafariActionURLHelper()
+        XCTAssertEqual(helper.buildURL(scheme: .universalLink).absoluteString, urlString1)
+        XCTAssertEqual(helper.buildURL(scheme: .redirectLink).absoluteString, urlString2)
+
+        let dismissURL1 = URL(string: urlString1)!
+        XCTAssertTrue(helper.parse(dismissURL1) == .dismissSafari(dismissURL1))
+
+        let dismissURL2 = URL(string: urlString2)!
+        XCTAssertTrue(helper.parse(dismissURL2) == .dismissSafari(dismissURL2))
+    }
+
+    func testSell() {
+        let helper = SellActionURLHelper()
+        XCTAssertEqual(helper.buildURL(scheme: .universalLink).absoluteString, "tangem://redirect_sell")
+        XCTAssertEqual(helper.buildURL(scheme: .redirectLink).absoluteString, "https://tangem.com/redirect_sell")
+
+        let dismissURL1 = URL(string: "tangem://redirect_sell?transaction=xxxx")!
+        XCTAssertTrue(helper.parse(dismissURL1) == .dismissSafari(dismissURL1))
+
+        let dismissURL2 = URL(string: "https://tangem.com/redirect_sell?transaction=xxxx")!
+        XCTAssertTrue(helper.parse(dismissURL2) == .dismissSafari(dismissURL2))
+    }
 }
