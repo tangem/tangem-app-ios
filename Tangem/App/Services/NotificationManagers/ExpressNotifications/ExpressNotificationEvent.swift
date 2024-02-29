@@ -24,7 +24,7 @@ enum ExpressNotificationEvent {
     case feeWillBeSubtractFromSendingAmount
     case existentialDepositWarning(blockchainName: String, amount: String)
     case dustAmount(minimumAmountText: String, minimumChangeText: String)
-    case withdrawalWarning(reduceAmount: Decimal, currencySymbol: String)
+    case withdrawalWarning(amount: Decimal, amountFormatted: String)
 }
 
 extension ExpressNotificationEvent: NotificationEvent {
@@ -91,8 +91,8 @@ extension ExpressNotificationEvent: NotificationEvent {
             return Localization.warningExistentialDepositMessage(blockchainName, amount)
         case .dustAmount(let minimumAmountText, let minimumChangeText):
             return Localization.warningExpressDustMessage(minimumAmountText, minimumChangeText)
-        case .withdrawalWarning(let amount, let symbol):
-            return Localization.sendNotificationHighFeeText("\(amount) \(symbol)")
+        case .withdrawalWarning(_, let amountFormatted):
+            return Localization.sendNotificationHighFeeText(amountFormatted)
         }
     }
 
@@ -163,8 +163,8 @@ extension ExpressNotificationEvent: NotificationEvent {
             return .refresh
         case .verificationRequired, .cexOperationFailed:
             return .goToProvider
-        case .withdrawalWarning(let amount, let currencySymbol):
-            return .reduceAmount(byAmount: amount, currencySymbol: currencySymbol)
+        case .withdrawalWarning(let amount, let amountFormatted):
+            return .reduceAmountTo(amount: amount, amountFormatted: amountFormatted)
         default:
             return nil
         }
