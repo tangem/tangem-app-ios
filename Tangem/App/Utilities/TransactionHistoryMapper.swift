@@ -9,8 +9,11 @@
 import BlockchainSdk
 
 struct TransactionHistoryMapper {
+    @Injected(\.smartContractMethodMapper) private var smartContractMethodMapper: SmartContractMethodMapper
+
     private let currencySymbol: String
-    private let walletAddress: String
+    private let walletAddresses: [String]
+    private let showSign: Bool
 
     private let balanceFormatter = BalanceFormatter()
     private let dateFormatter: DateFormatter = {
@@ -26,9 +29,18 @@ struct TransactionHistoryMapper {
         return formatter
     }()
 
-    init(currencySymbol: String, walletAddress: String) {
+    private let dateTimeFormatter: DateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .short
+        dateFormatter.timeStyle = .short
+        dateFormatter.doesRelativeDateFormatting = true
+        return dateFormatter
+    }()
+
+    init(currencySymbol: String, walletAddresses: [String], showSign: Bool) {
         self.currencySymbol = currencySymbol
-        self.walletAddress = walletAddress
+        self.walletAddresses = walletAddresses
+        self.showSign = showSign
     }
 
     func mapTransactionListItem(from records: [TransactionRecord]) -> [TransactionListItem] {
@@ -61,6 +73,45 @@ struct TransactionHistoryMapper {
             status: status(from: record)
         )
     }
+
+    func mapSuggestedRecord(_ record: TransactionRecord) -> SendSuggestedDestinationTransactionRecord? {
+        guard record.type == .transfer else {
+            return nil
+        }
+
+        let address: String
+        if record.isOutgoing {
+            switch record.destination {
+            case .single(let destination):
+                switch destination.address {
+                case .user(let string):
+                    address = string
+                case .contract:
+                    return nil
+                }
+            case .multiple:
+                return nil
+            }
+        } else {
+            switch record.source {
+            case .single(let source):
+                address = source.address
+            case .multiple:
+                return nil
+            }
+        }
+
+        let amountFormatted = transferAmount(from: record)
+        let dateFormatted = dateTimeFormatter.string(from: record.date ?? Date())
+        let description = "\(amountFormatted), \(dateFormatted)"
+
+        return SendSuggestedDestinationTransactionRecord(
+            address: address,
+            additionalField: nil,
+            isOutgoing: record.isOutgoing,
+            description: description
+        )
+    }
 }
 
 // MARK: - TransactionHistoryMapper
@@ -73,16 +124,16 @@ private extension TransactionHistoryMapper {
                 case .single(let source):
                     return source.amount
                 case .multiple(let sources):
-                    return sources.sum(for: walletAddress)
+                    return sources.sum(for: walletAddresses)
                 }
             }()
 
             let change: Decimal = {
                 switch record.destination {
                 case .single(let destination):
-                    return destination.address.string == walletAddress ? destination.amount : 0
+                    return walletAddresses.contains(destination.address.string) ? destination.amount : 0
                 case .multiple(let destinations):
-                    return destinations.sum(for: walletAddress)
+                    return destinations.sum(for: walletAddresses)
                 }
             }()
 
@@ -95,7 +146,7 @@ private extension TransactionHistoryMapper {
                 case .single(let destination):
                     return destination.amount
                 case .multiple(let destinations):
-                    return destinations.sum(for: walletAddress)
+                    return destinations.sum(for: walletAddresses)
                 }
             }()
 
@@ -121,7 +172,12 @@ private extension TransactionHistoryMapper {
         case .single(let source):
             return .user(source.address)
         case .multiple(let sources):
-            return .multiple(sources.map { $0.address })
+            let addresses = sources.map { $0.address }.unique()
+            if addresses.count == 1, let address = addresses.first {
+                return .user(address)
+            }
+
+            return .multiple(addresses)
         }
     }
 
@@ -135,7 +191,22 @@ private extension TransactionHistoryMapper {
                 return .contract(address)
             }
         case .multiple(let destinations):
-            return .multiple(destinations.map { $0.address.string })
+            let addresses = destinations.compactMap { destination -> String? in
+                let address = destination.address.string
+
+                // Remove a change output
+                if walletAddresses.contains(address) {
+                    return nil
+                }
+
+                return address
+            }
+
+            if addresses.count == 1, let address = addresses.first {
+                return .user(address)
+            }
+
+            return .multiple(addresses)
         }
     }
 
@@ -143,20 +214,21 @@ private extension TransactionHistoryMapper {
         switch record.type {
         case .transfer:
             return .transfer
-        case .swap, .unoswap:
-            return .swap
-        case .approve:
-            return .approval
-        case .deposit:
-            return .custom(name: "Deposit")
-        case .submit:
-            return .custom(name: "Submit")
-        case .supply:
-            return .custom(name: "Supply")
-        case .withdraw:
-            return .custom(name: "Withdraw")
-        case .custom(let id):
-            return .custom(name: id)
+        case .contractMethod(let id):
+            let name = smartContractMethodMapper.getName(for: id)
+
+            switch name {
+            case "transfer":
+                return .transfer
+            case "approve":
+                return .approve
+            case "swap":
+                return .swap
+            case .none:
+                return .unknownOperation
+            case .some(let name):
+                return .operation(name: name.capitalizingFirstLetter())
+            }
         }
     }
 
@@ -173,11 +245,11 @@ private extension TransactionHistoryMapper {
 
     func formatted(amount: Decimal, isOutgoing: Bool) -> String {
         let formatted = balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
-        if amount.isZero {
+        if amount.isZero || !showSign {
             return formatted
         }
 
-        let prefix = isOutgoing ? "-" : "+"
+        let prefix = isOutgoing ? AppConstants.minusSign : "+"
         return prefix + formatted
     }
 }
@@ -190,13 +262,19 @@ extension TransactionHistoryMapper {
 }
 
 private extension Array where Element == TransactionRecord.Destination {
-    func sum(for address: String) -> Decimal {
-        filter { $0.address.string == address }.reduce(0) { $0 + $1.amount }
+    func sum(for addresses: [String]) -> Decimal {
+        filter { destination in
+            addresses.contains(destination.address.string)
+        }
+        .reduce(0) { $0 + $1.amount }
     }
 }
 
 private extension Array where Element == TransactionRecord.Source {
-    func sum(for address: String) -> Decimal {
-        filter { $0.address == address }.reduce(0) { $0 + $1.amount }
+    func sum(for addresses: [String]) -> Decimal {
+        filter { source in
+            addresses.contains(source.address)
+        }
+        .reduce(0) { $0 + $1.amount }
     }
 }
