@@ -10,29 +10,55 @@ import Foundation
 import BlockchainSdk
 
 protocol MainUserWalletPageBuilderFactory {
-    func createPage(for model: UserWalletModel, lockedUserWalletDelegate: MainLockedUserWalletDelegate, multiWalletContentDelegate: MultiWalletContentDelegate?) -> MainUserWalletPageBuilder?
-    func createPages(from models: [UserWalletModel], lockedUserWalletDelegate: MainLockedUserWalletDelegate, multiWalletContentDelegate: MultiWalletContentDelegate?) -> [MainUserWalletPageBuilder]
+    func createPage(
+        for model: UserWalletModel,
+        lockedUserWalletDelegate: MainLockedUserWalletDelegate,
+        singleWalletContentDelegate: SingleWalletMainContentDelegate,
+        multiWalletContentDelegate: MultiWalletMainContentDelegate?
+    ) -> MainUserWalletPageBuilder?
+
+    func createPages(
+        from models: [UserWalletModel],
+        lockedUserWalletDelegate: MainLockedUserWalletDelegate,
+        singleWalletContentDelegate: SingleWalletMainContentDelegate,
+        multiWalletContentDelegate: MultiWalletMainContentDelegate?
+    ) -> [MainUserWalletPageBuilder]
 }
 
 struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory {
-    typealias MainContentRoutable = MultiWalletMainContentRoutable
-    let coordinator: MainContentRoutable
+    typealias MainContentRoutable = MultiWalletMainContentRoutable & VisaWalletRoutable & RateAppRoutable
+    weak var coordinator: MainContentRoutable?
 
-    func createPage(for model: UserWalletModel, lockedUserWalletDelegate: MainLockedUserWalletDelegate, multiWalletContentDelegate: MultiWalletContentDelegate?) -> MainUserWalletPageBuilder? {
+    func createPage(
+        for model: UserWalletModel,
+        lockedUserWalletDelegate: MainLockedUserWalletDelegate,
+        singleWalletContentDelegate: SingleWalletMainContentDelegate,
+        multiWalletContentDelegate: MultiWalletMainContentDelegate?
+    ) -> MainUserWalletPageBuilder? {
+        if model.config is VisaConfig {
+            return createVisaPage(userWalletModel: model, lockedUserWalletDelegate: lockedUserWalletDelegate)
+        }
+
         let id = model.userWalletId
-        let containsDefaultToken = (model.config.defaultBlockchains.first?.tokens.count ?? 0) > 0
+        let containsDefaultToken = model.config.hasDefaultToken
         let isMultiWalletPage = model.isMultiWallet || containsDefaultToken
-        let subtitleProvider = MainHeaderSubtitleProviderFactory().provider(for: model, isMultiWallet: isMultiWalletPage)
+
+        let providerFactory = model.config.makeMainHeaderProviderFactory()
+        let balanceProvider = providerFactory.makeHeaderBalanceProvider(for: model)
+        let subtitleProvider = providerFactory.makeHeaderSubtitleProvider(for: model, isMultiWallet: isMultiWalletPage)
+
         let headerModel = MainHeaderViewModel(
-            infoProvider: model,
+            isUserWalletLocked: model.isUserWalletLocked,
+            supplementInfoProvider: model,
             subtitleProvider: subtitleProvider,
-            balanceProvider: model
+            balanceProvider: balanceProvider
         )
 
         let signatureCountValidator = selectSignatureCountValidator(for: model)
         let userWalletNotificationManager = UserWalletNotificationManager(
             userWalletModel: model,
-            signatureCountValidator: signatureCountValidator
+            signatureCountValidator: signatureCountValidator,
+            contextDataProvider: model
         )
 
         if model.isUserWalletLocked {
@@ -47,18 +73,36 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             )
         }
 
+        let rateAppController = CommonRateAppController(
+            rateAppService: RateAppService(),
+            userWalletModel: model,
+            coordinator: coordinator
+        )
+
         let tokenRouter = SingleTokenRouter(userWalletModel: model, coordinator: coordinator)
 
         if isMultiWalletPage {
-            let sectionsAdapter = makeSectionsAdapter(for: model)
-            let multiWalletNotificationManager = MultiWalletNotificationManager(walletModelsManager: model.walletModelsManager)
+            let optionsManager = OrganizeTokensOptionsManager(
+                userTokensReorderer: model.userTokensManager
+            )
+            let sectionsAdapter = TokenSectionsAdapter(
+                userTokenListManager: model.userTokenListManager,
+                optionsProviding: optionsManager,
+                preservesLastSortedOrderOnSwitchToDragAndDrop: false
+            )
+            let multiWalletNotificationManager = MultiWalletNotificationManager(
+                walletModelsManager: model.walletModelsManager,
+                contextDataProvider: model
+            )
             let viewModel = MultiWalletMainContentViewModel(
                 userWalletModel: model,
                 userWalletNotificationManager: userWalletNotificationManager,
                 tokensNotificationManager: multiWalletNotificationManager,
-                coordinator: coordinator,
+                rateAppController: rateAppController,
                 tokenSectionsAdapter: sectionsAdapter,
-                tokenRouter: tokenRouter
+                tokenRouter: tokenRouter,
+                optionsEditing: optionsManager,
+                coordinator: coordinator
             )
             viewModel.delegate = multiWalletContentDelegate
             userWalletNotificationManager.setupManager(with: viewModel)
@@ -74,20 +118,27 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             return nil
         }
 
-        let singleWalletNotificationManager = SingleTokenNotificationManager(walletModel: walletModel, isNoteWallet: true)
+        let singleWalletNotificationManager = SingleTokenNotificationManager(
+            walletModel: walletModel,
+            walletModelsManager: model.walletModelsManager,
+            expressDestinationService: nil,
+            contextDataProvider: model
+        )
+
         let exchangeUtility = ExchangeCryptoUtility(
             blockchain: walletModel.blockchainNetwork.blockchain,
             address: walletModel.wallet.address,
             amountType: walletModel.amountType
         )
-
         let viewModel = SingleWalletMainContentViewModel(
             userWalletModel: model,
             walletModel: walletModel,
             exchangeUtility: exchangeUtility,
             userWalletNotificationManager: userWalletNotificationManager,
             tokenNotificationManager: singleWalletNotificationManager,
-            tokenRouter: tokenRouter
+            rateAppController: rateAppController,
+            tokenRouter: tokenRouter,
+            delegate: singleWalletContentDelegate
         )
         userWalletNotificationManager.setupManager()
         singleWalletNotificationManager.setupManager(with: viewModel)
@@ -99,24 +150,20 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         )
     }
 
-    func createPages(from models: [UserWalletModel], lockedUserWalletDelegate: MainLockedUserWalletDelegate, multiWalletContentDelegate: MultiWalletContentDelegate?) -> [MainUserWalletPageBuilder] {
+    func createPages(
+        from models: [UserWalletModel],
+        lockedUserWalletDelegate: MainLockedUserWalletDelegate,
+        singleWalletContentDelegate: SingleWalletMainContentDelegate,
+        multiWalletContentDelegate: MultiWalletMainContentDelegate?
+    ) -> [MainUserWalletPageBuilder] {
         return models.compactMap {
             createPage(
                 for: $0,
                 lockedUserWalletDelegate: lockedUserWalletDelegate,
+                singleWalletContentDelegate: singleWalletContentDelegate,
                 multiWalletContentDelegate: multiWalletContentDelegate
             )
         }
-    }
-
-    private func makeSectionsAdapter(for model: UserWalletModel) -> TokenSectionsAdapter {
-        let optionsManager = OrganizeTokensOptionsManager(userTokensReorderer: model.userTokensManager)
-
-        return TokenSectionsAdapter(
-            userTokenListManager: model.userTokenListManager,
-            optionsProviding: optionsManager,
-            preservesLastSortedOrderOnSwitchToDragAndDrop: false
-        )
     }
 
     private func selectSignatureCountValidator(for userWalletModel: UserWalletModel) -> SignatureCountValidator? {
@@ -125,5 +172,43 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         }
 
         return userWalletModel.walletModelsManager.walletModels.first?.signatureCountValidator
+    }
+
+    private func createVisaPage(userWalletModel: UserWalletModel, lockedUserWalletDelegate: MainLockedUserWalletDelegate?) -> MainUserWalletPageBuilder {
+        let id = userWalletModel.userWalletId
+        let isUserWalletLocked = userWalletModel.isUserWalletLocked
+
+        let visaWalletModel = VisaWalletModel(userWalletModel: userWalletModel)
+
+        let subtitleProvider = VisaWalletMainHeaderSubtitleProvider(isUserWalletLocked: isUserWalletLocked, dataSource: visaWalletModel)
+        let headerModel = MainHeaderViewModel(
+            isUserWalletLocked: userWalletModel.isUserWalletLocked,
+            supplementInfoProvider: userWalletModel,
+            subtitleProvider: subtitleProvider,
+            balanceProvider: visaWalletModel
+        )
+
+        let viewModel = VisaWalletMainContentViewModel(
+            visaWalletModel: visaWalletModel,
+            coordinator: coordinator
+        )
+
+        if isUserWalletLocked {
+            return .lockedWallet(
+                id: id,
+                headerModel: headerModel,
+                bodyModel: .init(
+                    userWalletModel: userWalletModel,
+                    isMultiWallet: false,
+                    lockedUserWalletDelegate: lockedUserWalletDelegate
+                )
+            )
+        }
+
+        return .visaWallet(
+            id: userWalletModel.userWalletId,
+            headerModel: headerModel,
+            bodyModel: viewModel
+        )
     }
 }

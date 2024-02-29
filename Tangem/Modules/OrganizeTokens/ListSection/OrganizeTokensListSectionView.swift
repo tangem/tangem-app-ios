@@ -10,6 +10,7 @@ import SwiftUI
 
 struct OrganizeTokensListSectionView: View {
     let title: String
+    var identifier: AnyHashable = 0 // Placeholder value when the view has no corresponding identifier from the VM
     let isDraggable: Bool
 
     var body: some View {
@@ -25,10 +26,23 @@ struct OrganizeTokensListSectionView: View {
                 Assets.OrganizeTokens.groupDragAndDropIcon
                     .image
                     .foregroundColor(Colors.Icon.informative)
+                    .overlay(
+                        OrganizeTokensDragAndDropGestureMarkView(context: .init(identifier: identifier))
+                            .frame(size: Constants.dragAndDropTapZoneSize)
+                    )
             }
         }
         .padding(.horizontal, 14.0)
-        .frame(height: 42.0)
+        .padding(.top, 14)
+        .padding(.bottom, 8)
+    }
+}
+
+// MARK: - Constants
+
+private extension OrganizeTokensListSectionView {
+    enum Constants {
+        static let dragAndDropTapZoneSize = CGSize(bothDimensions: 64.0)
     }
 }
 
