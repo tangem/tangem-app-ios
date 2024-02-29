@@ -45,6 +45,8 @@
 	<string>To Scan QR Code or take a photo for chat support</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Use Face ID to allow save your card in the app</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>To record video for chat support</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>To share with chat support</string>
 	<key>NSUserActivityTypes</key>
@@ -53,6 +55,8 @@
 	</array>
 	<key>SUITE_NAME</key>
 	<string>$(SUITE_NAME)</string>
+	<key>BSDK_SUITE_NAME</key>
+	<string>$(BSDK_SUITE_NAME)</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -89,7 +93,7 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIUserInterfaceStyle</key>
-	<string>$(UI_USER_INTERFACE_STYLE)</string>
+	<string>Automatic</string>
 	<key>com.apple.developer.nfc.readersession.iso7816.select-identifiers</key>
 	<array>
 		<string>A000000812010208</string>

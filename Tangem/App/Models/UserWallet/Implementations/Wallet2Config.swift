@@ -14,10 +14,12 @@ import BlockchainSdk
 struct Wallet2Config {
     let card: CardDTO
     private let isDemo: Bool
+    private let isRing: Bool
 
-    init(card: CardDTO, isDemo: Bool) {
+    init(card: CardDTO, isDemo: Bool, isRing: Bool) {
         self.card = card
         self.isDemo = isDemo
+        self.isRing = isRing
     }
 }
 
@@ -59,7 +61,7 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var canImportKeys: Bool {
-        card.settings.isKeysImportAllowed && FeatureProvider.isAvailable(.importSeedPhrase)
+        card.settings.isKeysImportAllowed
     }
 
     var supportedBlockchains: Set<Blockchain> {
@@ -130,22 +132,72 @@ extension Wallet2Config: UserWalletConfig {
         CardEmailDataFactory().makeEmailData(for: card, walletData: nil)
     }
 
-    var tangemSigner: TangemSigner {
-        let shouldSkipCardId = card.backupStatus?.isActive ?? false
-        let cardId = shouldSkipCardId ? nil : card.cardId
-        return .init(with: cardId, sdk: makeTangemSdk())
-    }
-
     var userWalletIdSeed: Data? {
         card.wallets.first?.publicKey
     }
 
     var productType: Analytics.ProductType {
-        .wallet2
+        if isRing {
+            return .ring
+        }
+
+        return .wallet2
     }
 
     var cardHeaderImage: ImageType? {
-        cardsCount == 2 ? Assets.Cards.wallet2Double : Assets.Cards.wallet2Triple
+        if isRing {
+            return nil
+        }
+        // Wallet 2.0 cards can't be used without backup, so min number of cards = 2
+        // and there can't be more than 3 cards.
+        switch card.batchId {
+        // Tron 37X cards
+        case "AF07":
+            return cardsCount == 2 ? Assets.Cards.tronDouble : Assets.Cards.tronTriple
+        // Kaspa cards
+        case "AF08":
+            return cardsCount == 2 ? Assets.Cards.kaspaDouble : Assets.Cards.kaspaTriple
+        // BAD Idea cards
+        case "AF09":
+            return cardsCount == 2 ? Assets.Cards.badIdeaDouble : Assets.Cards.badIdeaTriple
+        // Wallet white
+        case "AF15":
+            return cardsCount == 2 ? Assets.Cards.wallet2WhiteDouble : Assets.Cards.wallet2WhiteTriple
+        // Wallet traillant
+        case "AF16":
+            return cardsCount == 2 ? Assets.Cards.walletTraillantDouble : Assets.Cards.walletTraillantTriple
+        // Wallet avrora
+        case "AF18":
+            return cardsCount == 2 ? Assets.Cards.walletAvroraDouble : Assets.Cards.walletAvroraTriple
+        // Wallet JR
+        case "AF14":
+            return cardsCount == 2 ? Assets.Cards.jrDouble : Assets.Cards.jrTriple
+        // Wallet grim
+        case "AF13":
+            return cardsCount == 2 ? Assets.Cards.grimDouble : Assets.Cards.grimTriple
+        // Wallet satoshi friends
+        case "AF19":
+            return cardsCount == 2 ? Assets.Cards.satoshiFriendsDouble : Assets.Cards.satoshiFriendsTriple
+        // Tangem Wallet 2.0
+        default:
+            return cardsCount == 2 ? Assets.Cards.wallet2Double : Assets.Cards.wallet2Triple
+        }
+    }
+
+    var customOnboardingImage: ImageType? {
+        if isRing {
+            return Assets.ring
+        }
+
+        return nil
+    }
+
+    var customScanImage: ImageType? {
+        if isRing {
+            return Assets.ringShapeScan
+        }
+
+        return nil
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {

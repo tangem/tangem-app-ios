@@ -13,10 +13,27 @@ import BlockchainSdk
 typealias Quotes = [String: TokenQuote]
 
 protocol TokenQuotesRepository: AnyObject {
-    var pricesPublisher: AnyPublisher<Quotes, Never> { get }
+    var quotes: Quotes { get }
+    var quotesPublisher: AnyPublisher<Quotes, Never> { get }
 
-    func quote(for item: TokenItem) -> TokenQuote?
-    func loadQuotes(coinIds: [String]) -> AnyPublisher<[TokenQuote], Never>
+    func quote(for currencyId: String) async throws -> TokenQuote
+    /// Use it just for load and save quotes in the cache
+    /// For get updates make a subscribe to quotesPublisher
+    func loadQuotes(currencyIds: [String]) -> AnyPublisher<Void, Never>
+}
+
+extension TokenQuotesRepository {
+    func loadQuotes(currencyIds: [String]) async {
+        return await loadQuotes(currencyIds: currencyIds).async()
+    }
+
+    func quote(for item: TokenItem) -> TokenQuote? {
+        guard let id = item.currencyId else {
+            return nil
+        }
+
+        return quotes[id]
+    }
 }
 
 private struct TokenQuotesRepositoryKey: InjectionKey {
@@ -24,7 +41,7 @@ private struct TokenQuotesRepositoryKey: InjectionKey {
 }
 
 extension InjectedValues {
-    var tokenQuotesRepository: TokenQuotesRepository {
+    var quotesRepository: TokenQuotesRepository {
         get { Self[TokenQuotesRepositoryKey.self] }
         set { Self[TokenQuotesRepositoryKey.self] = newValue }
     }

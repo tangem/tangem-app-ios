@@ -17,8 +17,10 @@ protocol TangemApiService: AnyObject, Initializable {
     func loadRates(for coinIds: [String]) -> AnyPublisher<[String: Decimal], Error>
     func loadCurrencies() -> AnyPublisher<[CurrenciesResponse.Currency], Error>
 
-    func loadTokens(for key: String) -> AnyPublisher<UserTokenList, TangemAPIError>
+    func loadTokens(for key: String) -> AnyPublisher<UserTokenList?, TangemAPIError>
     func saveTokens(list: UserTokenList, for key: String) -> AnyPublisher<Void, TangemAPIError>
+
+    func createAccount(networkId: String, publicKey: String) -> AnyPublisher<BlockchainAccountCreateResult, TangemAPIError>
 
     func loadReferralProgramInfo(for userWalletId: String, expectedAwardsLimit: Int) async throws -> ReferralProgramInfo
     func participateInReferralProgram(
@@ -27,8 +29,7 @@ protocol TangemApiService: AnyObject, Initializable {
         with userWalletId: String
     ) async throws -> ReferralProgramInfo
 
-    func sales(locale: String, shops: String) async throws -> SalesDetails
-
+    func expressPromotion(request: ExpressPromotion.Request) async throws -> ExpressPromotion.Response
     func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters
 
     @discardableResult
