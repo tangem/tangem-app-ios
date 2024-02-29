@@ -38,7 +38,7 @@ struct QRScanView: View {
     @ViewBuilder
     private var cameraView: some View {
         if viewModel.hasCameraAccess {
-            QRScannerView(code: viewModel.code, coordinatorDelegate: viewModel)
+            QRScannerView(code: viewModel.code)
         } else {
             Color.black
         }
@@ -160,8 +160,6 @@ struct QRScanView_Previews_Inline: PreviewProvider {
 struct QRScannerView: UIViewRepresentable {
     @Binding var code: String
 
-    weak var coordinatorDelegate: QRScannerViewCoordinatorDelegate?
-
     @Environment(\.presentationMode) var presentationMode
 
     func makeUIView(context: Context) -> UIQRScannerView {
@@ -173,18 +171,16 @@ struct QRScannerView: UIViewRepresentable {
     func updateUIView(_ uiView: UIQRScannerView, context: Context) {}
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(code: $code, delegate: coordinatorDelegate, presentationMode: presentationMode)
+        Coordinator(code: $code, presentationMode: presentationMode)
     }
 
     class Coordinator: NSObject, QRScannerViewDelegate {
         @Binding var code: String
         @Binding var presentationMode: PresentationMode
-        weak var delegate: QRScannerViewCoordinatorDelegate?
 
-        init(code: Binding<String>, delegate: QRScannerViewCoordinatorDelegate?, presentationMode: Binding<PresentationMode>) {
+        init(code: Binding<String>, presentationMode: Binding<PresentationMode>) {
             _code = code
             _presentationMode = presentationMode
-            self.delegate = delegate
         }
 
         func qrScanningDidFail() {
@@ -204,24 +200,14 @@ struct QRScannerView: UIViewRepresentable {
         }
 
         func qrScanningDidStop() {}
-
-        func qrScanningRejectedAccess() {
-            delegate?.userDidDenyCameraAccess()
-        }
     }
 }
 
 /// Delegate callback for the QRScannerView.
 protocol QRScannerViewDelegate: AnyObject {
-    func qrScanningRejectedAccess()
     func qrScanningDidFail()
     func qrScanningSucceededWithCode(_ str: String?)
     func qrScanningDidStop()
-}
-
-/// Delegate callback for the QRScannerView.Coordinator
-protocol QRScannerViewCoordinatorDelegate: AnyObject {
-    func userDidDenyCameraAccess()
 }
 
 class UIQRScannerView: UIView {
@@ -306,10 +292,6 @@ extension UIQRScannerView {
         DispatchQueue.global(qos: .userInitiated).async {
             self.captureSession?.startRunning()
         }
-    }
-
-    func userDidDenyCameraAccess() {
-        delegate?.qrScanningRejectedAccess()
     }
 
     func scanningDidFail() {
