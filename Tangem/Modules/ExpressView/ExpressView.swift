@@ -71,7 +71,7 @@ struct ExpressView: View {
                 GroupedSection(viewModel.receiveCurrencyViewModel) {
                     ReceiveCurrencyView(viewModel: $0)
                         .didTapChangeCurrency(viewModel.userDidTapChangeDestinationButton)
-                        .didTapPriceChangePercent(viewModel.userDidTapPriceChangeInfoButton)
+                        .didTapNetworkFeeInfoButton(viewModel.userDidTapPriceChangeInfoButton)
                 }
                 .innerContentPadding(12)
             }
