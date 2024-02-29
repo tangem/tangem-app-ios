@@ -364,6 +364,10 @@ private extension Blockchain {
         case .veChain: return "vechain"
         case .xdc: return nil
         case .xrp: return "ripple"
+        case .areon: return nil
+        case .playa3ullGames: return nil
+        case .pulsechain: return nil
+        case .aurora: return nil
         }
     }
 
@@ -417,6 +421,10 @@ private extension Blockchain {
         case .veChain: return "vet"
         case .xdc: return nil
         case .xrp: return "xrp"
+        case .areon: return nil
+        case .playa3ullGames: return nil
+        case .pulsechain: return nil
+        case .aurora: return nil
         }
     }
 }
