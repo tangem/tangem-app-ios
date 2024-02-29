@@ -20,8 +20,8 @@ struct TransactionView: View {
                 .background(viewModel.iconBackgroundColor)
                 .cornerRadiusContinuous(20)
 
-            VStack(alignment: .leading, spacing: 5) {
-                HStack(spacing: 6) {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 8) {
                     Text(viewModel.name)
                         .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
 
@@ -32,8 +32,8 @@ struct TransactionView: View {
                     Spacer()
 
                     if let amount = viewModel.formattedAmount {
-                        Text(amount)
-                            .style(Fonts.Regular.subheadline, color: viewModel.amountTextColor)
+                        SensitiveText(amount)
+                            .style(Fonts.Regular.subheadline, color: viewModel.amountColor)
                     }
                 }
 
@@ -51,7 +51,7 @@ struct TransactionView: View {
             }
         }
         .padding(.horizontal, 14)
-        .padding(.vertical, 8)
+        .padding(.vertical, 6)
     }
 }
 
@@ -81,7 +81,7 @@ struct TransactionView_Previews: PreviewProvider {
             timeFormatted: "00:04",
             amount: "0 wxDAI",
             isOutgoing: true,
-            transactionType: .approval,
+            transactionType: .approve,
             status: .confirmed
         ),
         TransactionViewModel(
@@ -117,7 +117,7 @@ struct TransactionView_Previews: PreviewProvider {
             timeFormatted: "18:32",
             amount: "0.0012 ETH",
             isOutgoing: true,
-            transactionType: .approval,
+            transactionType: .approve,
             status: .confirmed
         ),
         TransactionViewModel(
@@ -126,17 +126,105 @@ struct TransactionView_Previews: PreviewProvider {
             timeFormatted: "18:32",
             amount: "0.0012 ETH",
             isOutgoing: true,
-            transactionType: .approval,
+            transactionType: .approve,
             status: .inProgress
         ),
     ]
 
+    static let figmaViewModels1: [TransactionViewModel] = [
+        TransactionViewModel(
+            hash: UUID().uuidString,
+            interactionAddress: .user("33BdfS...ga2B"),
+            timeFormatted: "10:45",
+            amount: "−0.500913 BTC",
+            isOutgoing: true,
+            transactionType: .operation(name: "Sending"),
+            status: .inProgress
+        ),
+        TransactionViewModel(
+            hash: UUID().uuidString,
+            interactionAddress: .contract("33BdfS...ga2B"),
+            timeFormatted: "10:45",
+            amount: "+0.500913 BTC",
+            isOutgoing: false,
+            transactionType: .swap,
+            status: .inProgress
+        ),
+        TransactionViewModel(
+            hash: UUID().uuidString,
+            interactionAddress: .contract("33BdfS...ga2B"),
+            timeFormatted: "10:45",
+            amount: "+0.500913 BTC",
+            isOutgoing: false,
+            transactionType: .approve,
+            status: .inProgress
+        ),
+        TransactionViewModel(
+            hash: UUID().uuidString,
+            interactionAddress: .contract("33BdfS...ga2B"),
+            timeFormatted: "10:45",
+            amount: "+0.500913 BTC",
+            isOutgoing: false,
+            transactionType: .swap,
+            status: .inProgress
+        ),
+    ]
+
+    static let figmaViewModels2: [TransactionViewModel] = [
+        TransactionViewModel(
+            hash: UUID().uuidString,
+            interactionAddress: .user("33BdfS...ga2B"),
+            timeFormatted: "10:45",
+            amount: "−0.500913 BTC",
+            isOutgoing: true,
+            transactionType: .operation(name: "Sending"),
+            status: .confirmed
+        ),
+        TransactionViewModel(
+            hash: UUID().uuidString,
+            interactionAddress: .contract("33BdfS...ga2B"),
+            timeFormatted: "10:45",
+            amount: "+0.500913 BTC",
+            isOutgoing: false,
+            transactionType: .approve,
+            status: .confirmed
+        ),
+        TransactionViewModel(
+            hash: UUID().uuidString,
+            interactionAddress: .contract("33BdfS...ga2B"),
+            timeFormatted: "10:45",
+            amount: "+0.500913 BTC",
+            isOutgoing: false,
+            transactionType: .swap,
+            status: .failed
+        ),
+    ]
+
     static var previews: some View {
-        VStack {
-            ForEach(previewViewModels) {
-                TransactionView(viewModel: $0)
+        Group {
+            VStack {
+                ForEach(previewViewModels) {
+                    TransactionView(viewModel: $0)
+                }
             }
+            .padding()
+            .previewDisplayName("previewViewModels")
+
+            VStack {
+                ForEach(figmaViewModels1) {
+                    TransactionView(viewModel: $0)
+                }
+            }
+            .padding()
+            .previewDisplayName("figmaViewModels1")
+
+            VStack {
+                ForEach(figmaViewModels2) {
+                    TransactionView(viewModel: $0)
+                }
+            }
+            .padding()
+            .previewDisplayName("figmaViewModels2")
         }
-        .padding()
     }
 }

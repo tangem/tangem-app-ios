@@ -27,6 +27,8 @@ enum WalletConnectV2Error: LocalizedError {
     case missingActiveUserWalletModel
     case userWalletRepositoryIsLocked
     case userWalletIsLocked
+    case pairClientError(String)
+    case symmetricKeyForTopicNotFound
 
     case unknown(String)
 
@@ -50,6 +52,8 @@ enum WalletConnectV2Error: LocalizedError {
         case .missingActiveUserWalletModel: return 8016
         case .userWalletRepositoryIsLocked: return 8017
         case .userWalletIsLocked: return 8018
+        case .pairClientError: return 8019
+        case .symmetricKeyForTopicNotFound: return 8020
 
         case .unknown: return 8999
         }
@@ -75,6 +79,8 @@ enum WalletConnectV2Error: LocalizedError {
             return Localization.walletConnectErrorTimeout
         case .unsupportedDApp:
             return Localization.walletConnectErrorUnsupportedDapp
+        case .pairClientError(let errorMessage):
+            return Localization.walletConnectPairingError(errorMessage)
         default:
             return Localization.walletConnectGenericErrorWithCode(code)
         }
@@ -83,7 +89,13 @@ enum WalletConnectV2Error: LocalizedError {
     init?(from string: String) {
         switch string {
         case "sessionForTopicNotFound": self = .sessionForTopicNotFound
-        default: return nil
+        default:
+            if string.contains("Symmetric key for topic"), string.contains("not found") {
+                self = .symmetricKeyForTopicNotFound
+                return
+            }
+
+            return nil
         }
     }
 }

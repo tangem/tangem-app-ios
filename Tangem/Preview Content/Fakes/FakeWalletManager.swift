@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import TangemVisa
 
 class FakeWalletManager: WalletManager {
     @Published var wallet: Wallet
@@ -30,12 +31,13 @@ class FakeWalletManager: WalletManager {
         cardTokens = wallet.amounts.compactMap { $0.key.token }
         walletModels = CommonWalletModelsFactory(derivationStyle: derivationStyle).makeWalletModels(from: self)
         bind()
+        updateWalletModels()
     }
 
     func scheduleSwitchFromLoadingState() {
         print("Scheduling switch from loading state")
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-            self.state = .loaded(self.wallet)
+            self.state = .loaded
         }
     }
 
@@ -92,10 +94,22 @@ class FakeWalletManager: WalletManager {
     private func nextState() -> WalletManagerState {
         switch state {
         case .initial: return .loading
-        case .loading: return .loaded(wallet)
+        case .loading: return .loaded
         case .loaded: return .failed("Some Wallet manager error")
         case .failed: return .loading
         }
+    }
+
+    private func updateWalletModels() {
+        let updatePublisher = walletModels
+            .map { $0.update(silent: true) }
+            .merge()
+
+        var updateSubscription: AnyCancellable?
+        updateSubscription = updatePublisher
+            .sink { _ in
+                withExtendedLifetime(updateSubscription) {}
+            }
     }
 }
 
@@ -127,6 +141,19 @@ extension FakeWalletManager {
     static let xrpManager: FakeWalletManager = {
         var wallet = Wallet.xrpWalletStub
         wallet.add(coinValue: 5828830)
+        return FakeWalletManager(wallet: wallet)
+    }()
+
+    static let xlmManager: FakeWalletManager = {
+        var wallet = Wallet.xlmWalletStub
+        wallet.add(coinValue: 390192)
+        return FakeWalletManager(wallet: wallet)
+    }()
+
+    static let visaWalletManager: FakeWalletManager = {
+        var wallet = Wallet.polygonWalletStub
+        wallet.add(coinValue: 0)
+        wallet.add(tokenValue: 354.123, for: VisaUtilities().visaToken)
         return FakeWalletManager(wallet: wallet)
     }()
 }
