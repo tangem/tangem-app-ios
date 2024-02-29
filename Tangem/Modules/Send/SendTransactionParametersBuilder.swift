@@ -42,11 +42,13 @@ struct SendTransactionParametersBuilder {
             return CosmosTransactionParams(memo: value)
         case .algorand:
             return AlgorandTransactionParams(nonce: value)
+        case .hedera:
+            return HederaTransactionParams(memo: value)
         case .bitcoin,
              .litecoin,
              .ethereum,
              .ethereumPoW,
-             .ethereumFair,
+             .disChain,
              .ethereumClassic,
              .rsk,
              .bitcoinCash,
@@ -79,7 +81,11 @@ struct SendTransactionParametersBuilder {
              .veChain,
              .xdc,
              .shibarium,
-             .aptos:
+             .aptos,
+             .areon,
+             .playa3ullGames,
+             .pulsechain,
+             .aurora:
             return nil
         }
     }
