@@ -57,7 +57,8 @@ class SendModel {
     private let fee = CurrentValueSubject<Fee?, Never>(nil)
 
     private var transactionParameters: TransactionParams?
-
+    private let _transactionCreationError = CurrentValueSubject<Error?, Never>(nil)
+    private let _withdrawalSuggestion = CurrentValueSubject<WithdrawalSuggestion?, Never>(nil)
     private let transaction = CurrentValueSubject<BlockchainSdk.Transaction?, Never>(nil)
 
     // MARK: - Raw data
@@ -86,6 +87,7 @@ class SendModel {
     private let _amountError = CurrentValueSubject<Error?, Never>(nil)
     private let _destinationError = CurrentValueSubject<Error?, Never>(nil)
     private let _destinationAdditionalFieldError = CurrentValueSubject<Error?, Never>(nil)
+    private let _feeError = CurrentValueSubject<Error?, Never>(nil)
 
     // MARK: - Private stuff
 
@@ -237,34 +239,51 @@ class SendModel {
             .removeDuplicates {
                 $0 == $1
             }
-            .map { [weak self] amount, destination, fee -> BlockchainSdk.Transaction? in
+            .map { [weak self] amount, destination, fee -> Result<BlockchainSdk.Transaction, Error> in
                 guard
                     let self,
                     let amount,
                     let destination,
                     let fee
                 else {
-                    return nil
+                    return .failure(ValidationError.invalidAmount)
                 }
 
-                #warning("[REDACTED_TODO_COMMENT]")
                 do {
-                    return try walletModel.transactionCreator.createTransaction(
+                    let transaction = try walletModel.transactionCreator.createTransaction(
                         amount: amount,
                         fee: fee,
                         destinationAddress: destination
                     )
+                    return .success(transaction)
                 } catch {
                     AppLog.shared.debug("Failed to create transaction")
-                    AppLog.shared.error(error)
-                    return nil
+                    return .failure(error)
                 }
             }
-            .sink { transaction in
-                self.transaction.send(transaction)
-                print("TX built", transaction != nil)
+            .sink { [weak self] result in
+                switch result {
+                case .success(let transaction):
+                    self?.transaction.send(transaction)
+                    self?._transactionCreationError.send(nil)
+                case .failure(let error):
+                    self?.transaction.send(nil)
+                    self?._transactionCreationError.send(error)
+                }
             }
             .store(in: &bag)
+
+        if let withdrawalValidator = walletModel.withdrawalValidator {
+            transaction
+                .map { transaction in
+                    guard let transaction else { return nil }
+                    return withdrawalValidator.withdrawalSuggestion(amount: transaction.amount, fee: transaction.fee.amount)
+                }
+                .sink { [weak self] in
+                    self?._withdrawalSuggestion.send($0)
+                }
+                .store(in: &bag)
+        }
     }
 
     @discardableResult
@@ -343,22 +362,48 @@ class SendModel {
     }
 
     private func updateAndValidateAmount(_ newAmount: Amount?, fee: Fee?, isFeeIncluded: Bool) {
-        let amount: Amount?
-        let error: Error?
+        let validatedAmount: Amount?
+        let amountError: Error?
+        let feeError: Error?
 
-        if let newAmount,
-           let fee,
-           isFeeIncluded {
-            amount = newAmount - fee.amount
+        if let newAmount {
+            do {
+                let amount: Amount
+                if let fee,
+                   isFeeIncluded {
+                    amount = newAmount - fee.amount
+                } else {
+                    amount = newAmount
+                }
+
+                if let fee {
+                    try walletModel.transactionCreator.validate(amount: amount, fee: fee)
+                } else {
+                    try walletModel.transactionCreator.validate(amount: amount)
+                }
+
+                validatedAmount = amount
+                amountError = nil
+                feeError = nil
+            } catch let validationError {
+                validatedAmount = nil
+                if fee != nil {
+                    amountError = nil
+                    feeError = validationError
+                } else {
+                    amountError = validationError
+                    feeError = nil
+                }
+            }
         } else {
-            amount = newAmount
+            validatedAmount = nil
+            amountError = nil
+            feeError = nil
         }
 
-        #warning("validate")
-        error = nil
-
-        self.amount.send(amount)
-        _amountError.send(error)
+        amount.send(validatedAmount)
+        _amountError.send(amountError)
+        _feeError.send(feeError)
     }
 
     // MARK: - Destination and memo
@@ -678,6 +723,14 @@ extension SendModel: SendFinishViewModelInput {
     }
 }
 
-extension SendModel: SendNotificationManagerInput {}
+extension SendModel: SendNotificationManagerInput {
+    var transactionCreationError: AnyPublisher<Error?, Never> {
+        _transactionCreationError.eraseToAnyPublisher()
+    }
+
+    var withdrawalSuggestion: AnyPublisher<WithdrawalSuggestion?, Never> {
+        _withdrawalSuggestion.eraseToAnyPublisher()
+    }
+}
 
 extension SendModel: SendFiatCryptoAdapterOutput {}
