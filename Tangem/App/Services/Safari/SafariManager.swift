@@ -58,9 +58,10 @@ class CommonSafariManager: SafariManager {
     }
 
     func openURL(_ url: URL, configuration: SafariConfiguration) {
-        _ = openURL(url, configuration: configuration, onDismiss: { _ in })
+        openURL(url, configuration: configuration) { _ in }
     }
 
+    @discardableResult
     func openURL(
         _ url: URL,
         configuration: SafariConfiguration,
