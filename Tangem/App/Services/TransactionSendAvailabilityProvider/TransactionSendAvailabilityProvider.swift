@@ -36,7 +36,7 @@ struct TransactionSendAvailabilityProvider {
                     feeAmountTypeCurrencySymbol: walletModel.feeTokenItem.currencySymbol,
                     feeAmountTypeIconName: walletModel.feeTokenItem.blockchain.iconNameFilled,
                     networkName: walletModel.tokenItem.networkName,
-                    currencyButtonTitle: walletModel.feeDisplayName
+                    currencyButtonTitle: walletModel.tokenItem.blockchain.feeDisplayName
                 )
             )
         }
