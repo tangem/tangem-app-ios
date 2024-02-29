@@ -18,6 +18,7 @@ final class ManageTokensViewModel: ObservableObject {
     @Published var alert: AlertBinder?
     @Published var isShowAddCustomToken: Bool = false
     @Published var tokenViewModels: [ManageTokensItemViewModel] = []
+    @Published var viewDidAppear: Bool = false
 
     // MARK: - Properties
 
@@ -25,7 +26,7 @@ final class ManageTokensViewModel: ObservableObject {
         loader.canFetchMore
     }
 
-    private unowned let coordinator: ManageTokensRoutable
+    private weak var coordinator: ManageTokensRoutable?
 
     private var dataSource: ManageTokensDataSource
     private lazy var loader = setupListDataLoader()
@@ -48,9 +49,19 @@ final class ManageTokensViewModel: ObservableObject {
         bind()
     }
 
-    func onAppear() {
+    func onBottomAppear() {
+        // Need for locked fetchMore process when bottom sheet not yet open
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.viewDidAppear = true
+        }
+
         Analytics.log(.manageTokensScreenOpened)
+    }
+
+    func onBottomDisappear() {
         loader.reset("")
+        fetch(with: "")
+        viewDidAppear = false
     }
 
     func fetchMore() {
@@ -58,7 +69,8 @@ final class ManageTokensViewModel: ObservableObject {
     }
 
     func addCustomTokenDidTapAction() {
-        coordinator.openAddCustomToken(dataSource: dataSource)
+        Analytics.log(.manageTokensButtonCustomToken)
+        coordinator?.openAddCustomToken(dataSource: dataSource)
     }
 }
 
@@ -92,9 +104,11 @@ private extension ManageTokensViewModel {
             .sink { [weak self] value in
                 if !value.isEmpty {
                     Analytics.log(.manageTokensSearched)
+
+                    // It is necessary to hide it under this condition for disable to eliminate the flickering of the animation
+                    self?.setNeedDisplayTokensListSkeletonView()
                 }
 
-                self?.setNeedDisplayTokensListSkeletonView()
                 self?.fetch(with: value)
             }
             .store(in: &bag)
@@ -163,7 +177,12 @@ private extension ManageTokensViewModel {
 
                 tokenViewModels = items.compactMap { self.mapToTokenViewModel(coinModel: $0) }
                 updateQuote(by: items.map { $0.id })
-                isShowAddCustomToken = tokenViewModels.isEmpty
+
+                isShowAddCustomToken = tokenViewModels.isEmpty && !dataSource.userWalletModels.contains(where: { $0.isMultiWallet })
+
+                if let searchValue = loader.lastSearchTextValue, !searchValue.isEmpty, items.isEmpty {
+                    Analytics.log(event: .manageTokensTokenIsNotFound, params: [.input: searchValue])
+                }
             })
             .store(in: &bag)
 
@@ -214,7 +233,7 @@ private extension ManageTokensViewModel {
             let event: Analytics.Event = action == .add ? .manageTokensButtonAdd : .manageTokensButtonEdit
             Analytics.log(event: event, params: [.token: coinModel.id])
 
-            coordinator.openTokenSelector(
+            coordinator?.openTokenSelector(
                 dataSource: dataSource,
                 coinId: coinModel.id,
                 tokenItems: coinModel.items.map { $0.tokenItem }
@@ -226,16 +245,19 @@ private extension ManageTokensViewModel {
         let countWalletPendingDerivation = pendingDerivationCountByWalletId.filter { $0.value > 0 }.count
 
         guard countWalletPendingDerivation > 0 else {
-            coordinator.hideGenerateAddressesWarning()
+            coordinator?.hideGenerateAddressesWarning()
             return
         }
 
         Analytics.log(
-            event: .manageTokensButtonGenerateAddresses,
-            params: [.cardsCount: String(countWalletPendingDerivation)]
+            event: .manageTokensButtonGetAddresses,
+            params: [
+                .walletCount: String(countWalletPendingDerivation),
+                .source: Analytics.ParameterValue.manageTokens.rawValue,
+            ]
         )
 
-        coordinator.showGenerateAddressesWarning(
+        coordinator?.showGenerateAddressesWarning(
             numberOfNetworks: pendingDerivationCountByWalletId.map(\.value).reduce(0, +),
             currentWalletNumber: pendingDerivationCountByWalletId.filter { $0.value > 0 }.count,
             totalWalletNumber: dataSource.userWalletModels.count,
