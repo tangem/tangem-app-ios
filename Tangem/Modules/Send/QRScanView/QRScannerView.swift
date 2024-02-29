@@ -21,7 +21,7 @@ struct QRScanView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            QRScannerView(code: viewModel.code, delegate: viewModel)
+            QRScannerView(code: viewModel.code, coordinatorDelegate: viewModel)
                 .overlay(viewfinder(screenSize: geometry.size))
                 .overlay(
                     Color.clear
@@ -150,7 +150,7 @@ struct QRScanView_Previews_Inline: PreviewProvider {
 struct QRScannerView: UIViewRepresentable {
     @Binding var code: String
 
-    weak var delegate: QRScannerViewCoordinatorDelegate?
+    weak var coordinatorDelegate: QRScannerViewCoordinatorDelegate?
 
     @Environment(\.presentationMode) var presentationMode
 
@@ -163,7 +163,7 @@ struct QRScannerView: UIViewRepresentable {
     func updateUIView(_ uiView: UIQRScannerView, context: Context) {}
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(code: $code, delegate: delegate, presentationMode: presentationMode)
+        Coordinator(code: $code, delegate: coordinatorDelegate, presentationMode: presentationMode)
     }
 
     class Coordinator: NSObject, QRScannerViewDelegate {
