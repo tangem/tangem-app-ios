@@ -12,7 +12,7 @@ import TangemSdk
 class BackupContextManager {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    private var userWalletModel: UserWalletModel
+    private let userWalletModel: UserWalletModel
 
     private var associatedCardIds: Set<String> = []
     private var hasBackupErrors: Bool = false
