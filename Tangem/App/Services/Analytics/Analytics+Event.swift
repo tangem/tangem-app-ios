@@ -224,6 +224,7 @@ extension Analytics {
         case mainNoticeWalletUnlockTapped = "[Main Screen] Notice - Wallet Unlock Tapped"
         case mainNoticeBackupYourWallet = "[Main Screen] Notice - Backup Your Wallet"
         case mainNoticeRateTheApp = "[Main Screen] Notice - Rate The App"
+        case mainNoticeBackupErrors = "[Main Screen] Notice - Backup Errors"
         case tokenNoticeNetworkUnreachable = "[Token] Notice - Network Unreachable"
         case tokenNoticeNotEnoughFee = "[Token] Notice - Not Enough Fee"
 
