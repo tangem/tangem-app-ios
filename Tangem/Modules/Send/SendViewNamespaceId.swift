@@ -9,8 +9,19 @@
 import Foundation
 
 enum SendViewNamespaceId: String {
-    case address
+    case addressContainer
+    case addressTitle
+    case addressIcon
+    case addressText
+    case addressClearButton
     case additionalField
-    case amount
-    case fee
+    case amountContainer
+    case amountTitle
+    case tokenIcon
+    case amountCryptoText
+    case amountFiatText
+    case feeContainer
+    case feeIcon
+    case feeTitle
+    case feeSubtitle
 }

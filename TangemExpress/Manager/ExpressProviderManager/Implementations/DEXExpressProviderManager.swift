@@ -83,16 +83,23 @@ private extension DEXExpressProviderManager {
             )
             try Task.checkCancellation()
 
-            // better make quote from data
+            // better to make the quote from the data
             let quoteData = ExpressQuote(fromAmount: data.fromAmount, expectAmount: data.toAmount, allowanceContract: quote.allowanceContract)
-            return .ready(.init(fee: fee, data: data, quote: quote))
+            return .ready(.init(fee: fee, data: data, quote: quoteData))
 
         } catch let error as ExpressAPIError {
-            if error.errorCode == .exchangeTooSmallAmountError, let minAmount = error.value?.amount {
-                return .restriction(.tooSmallAmount(minAmount), quote: .none)
+            guard let amount = error.value?.amount else {
+                return .error(error, quote: .none)
             }
 
-            return .error(error, quote: .none)
+            switch error.errorCode {
+            case .exchangeTooSmallAmountError:
+                return .restriction(.tooSmallAmount(amount), quote: .none)
+            case .exchangeTooBigAmountError:
+                return .restriction(.tooBigAmount(amount), quote: .none)
+            default:
+                return .error(error, quote: .none)
+            }
         } catch {
             return .error(error, quote: .none)
         }
@@ -108,8 +115,8 @@ private extension DEXExpressProviderManager {
                 return .restriction(.insufficientBalance(request.amount), quote: quote)
             }
 
-            // Check coin balance at least more then zero
-            guard try request.pair.source.availableForLoadFee() else {
+            // Check fee currency balance at least more then zero
+            guard request.pair.source.feeCurrencyHasPositiveBalance else {
                 return .restriction(.notEnoughBalanceForFee, quote: quote)
             }
 
@@ -150,7 +157,7 @@ private extension DEXExpressProviderManager {
 
         let contractAddress = request.pair.source.expressCurrency.contractAddress
         let data = try allowanceProvider.makeApproveData(spender: spender, amount: amount)
-        let fee = try await feeProvider.getFee(amount: 0, destination: request.pair.source.contractAddress, hexData: data)
+        let fee = try await feeProvider.getFee(amount: 0, destination: request.pair.source.expressCurrency.contractAddress, hexData: data)
         try Task.checkCancellation()
 
         // For approve use the fastest fee
