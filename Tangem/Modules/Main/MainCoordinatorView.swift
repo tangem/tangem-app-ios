@@ -31,12 +31,6 @@ struct MainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tokenDetailsCoordinator) {
                 TokenDetailsCoordinatorView(coordinator: $0)
             }
-            .navigation(item: $coordinator.swappingCoordinator) {
-                SwappingCoordinatorView(coordinator: $0)
-            }
-            .navigation(item: $coordinator.pushedWebViewModel) {
-                WebViewContainer(viewModel: $0)
-            }
     }
 
     @ViewBuilder
@@ -48,8 +42,14 @@ struct MainCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.legacySendCoordinator) {
                 LegacySendCoordinatorView(coordinator: $0)
             }
+            .sheet(item: $coordinator.sendCoordinator) {
+                SendCoordinatorView(coordinator: $0)
+            }
             .sheet(item: $coordinator.modalWebViewModel) {
                 WebViewContainer(viewModel: $0)
+            }
+            .iOS16UIKitSheet(item: $coordinator.expressCoordinator) {
+                ExpressCoordinatorView(coordinator: $0)
             }
             .sheet(item: $coordinator.modalOnboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)
@@ -64,23 +64,32 @@ struct MainCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.legacyTokenListCoordinator) {
                 LegacyTokenListCoordinatorView(coordinator: $0)
             }
-            .sheet(item: $coordinator.manageTokensCoordinator) {
-                ManageTokensCoordinatorView(coordinator: $0)
+            .sheet(item: $coordinator.visaTransactionDetailsViewModel) {
+                VisaTransactionDetailsView(viewModel: $0)
             }
 
         NavHolder()
             .bottomSheet(
                 item: $coordinator.warningBankCardViewModel,
-                sheetContent: {
-                    WarningBankCardView(viewModel: $0)
-                        .padding(.bottom, 10)
-                }
-            )
+                backgroundColor: Colors.Background.primary
+            ) {
+                WarningBankCardView(viewModel: $0)
+                    .padding(.bottom, 10)
+            }
             .bottomSheet(
                 item: $coordinator.receiveBottomSheetViewModel,
-                settings: .init(backgroundColor: Colors.Background.primary)
+                backgroundColor: Colors.Background.primary
             ) {
                 ReceiveBottomSheetView(viewModel: $0)
             }
+            .bottomSheet(
+                item: $coordinator.rateAppBottomSheetViewModel,
+                backgroundColor: Colors.Background.primary
+            ) { viewModel in
+                RateAppBottomSheetView(viewModel: viewModel)
+            }
+
+        NavHolder()
+            .requestAppStoreReviewCompat($coordinator.isAppStoreReviewRequested)
     }
 }

@@ -8,21 +8,24 @@
 
 import Foundation
 import Combine
+import SwiftUI
 import TangemSdk
 import BlockchainSdk
-import TangemSwapping
+import TangemExpress
 import CombineExt
 
 class SingleTokenBaseViewModel: NotificationTapDelegate {
+    @Injected(\.swapAvailabilityProvider) private var swapAvailabilityProvider: SwapAvailabilityProvider
+
     @Published var alert: AlertBinder? = nil
     @Published var transactionHistoryState: TransactionsListView.State = .loading
     @Published var isReloadingTransactionHistory: Bool = false
     @Published var actionButtons: [ButtonWithIconInfo] = []
-    @Published private(set) var tokenNotificationInputs: [NotificationViewInput] = []
+    @Published var tokenNotificationInputs: [NotificationViewInput] = []
+    @Published private(set) var pendingTransactionViews: [TransactionViewModel] = []
 
     lazy var testnetBuyCryptoService: TestnetBuyCryptoService = .init()
 
-    let swappingUtils = SwappingAvailableUtils()
     let exchangeUtility: ExchangeCryptoUtility
     let notificationManager: NotificationManager
 
@@ -33,23 +36,30 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     private let tokenRouter: SingleTokenRoutable
 
-    private var isSwapAvailable = false
-    private var transactionHistoryBag: AnyCancellable?
-    private var bag = Set<AnyCancellable>()
-
-    var canBuyCrypto: Bool { exchangeUtility.buyAvailable }
-
-    var canSend: Bool {
-        guard userWalletModel.config.hasFeature(.send) else {
-            return false
-        }
-
-        return walletModel.canSendTransaction
+    private var isSwapAvailable: Bool {
+        !walletModel.isCustom && swapAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem)
     }
+
+    private var percentFormatter = PercentFormatter()
+    private var transactionHistoryBag: AnyCancellable?
+    private var updateSubscription: AnyCancellable?
+    private var bag = Set<AnyCancellable>()
 
     var blockchainNetwork: BlockchainNetwork { walletModel.blockchainNetwork }
 
     var amountType: Amount.AmountType { walletModel.amountType }
+
+    var rateFormatted: String { walletModel.rateFormatted }
+
+    var priceChangeState: TokenPriceChangeView.State {
+        guard let change = walletModel.quote?.change else {
+            return .noData
+        }
+
+        let signType = ChangeSignType(from: change)
+        let percent = percentFormatter.percentFormat(value: change)
+        return .loaded(signType: signType, text: percent)
+    }
 
     var blockchain: Blockchain { blockchainNetwork.blockchain }
 
@@ -57,7 +67,16 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         amountType.token?.symbol ?? blockchainNetwork.blockchain.currencySymbol
     }
 
-    lazy var transactionHistoryMapper: TransactionHistoryMapper = .init(currencySymbol: currencySymbol, walletAddress: walletModel.defaultAddress)
+    var isMarketPriceAvailable: Bool {
+        if case .token(let token) = amountType {
+            return token.id != nil
+        } else {
+            return true
+        }
+    }
+
+    lazy var transactionHistoryMapper = TransactionHistoryMapper(currencySymbol: currencySymbol, walletAddresses: walletModel.wallet.addresses.map { $0.value }, showSign: true)
+    lazy var pendingTransactionRecordMapper = PendingTransactionRecordMapper(formatter: BalanceFormatter())
 
     init(
         userWalletModel: UserWalletModel,
@@ -75,13 +94,20 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         prepareSelf()
     }
 
-    func openExplorer() {
-        #warning("This will be changed after, for now there is no solution for tx history with multiple addresses")
-        guard let url = walletModel.exploreURL(for: 0, token: amountType.token) else {
-            return
-        }
+    func presentActionSheet(_ actionSheet: ActionSheetBinder) {
+        assertionFailure("Must be reimplemented")
+    }
 
-        openExplorer(at: url)
+    func openExplorer() {
+        let addresses = walletModel.wallet.addresses
+
+        if addresses.count == 1 {
+            openAddressExplorer(at: 0)
+        } else {
+            openAddressSelector(addresses) { [weak self] index in
+                self?.openAddressExplorer(at: index)
+            }
+        }
     }
 
     func openTransactionExplorer(transaction hash: String) {
@@ -93,30 +119,54 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     }
 
     func fetchMoreHistory() -> FetchMore? {
-        guard let transactionHistoryService = walletModel.transactionHistoryService,
-              transactionHistoryService.canFetchMore else {
+        // flag isReloadingTransactionHistory need for locked fetchMore requests update transaction history, when pullToRefresh is active
+        guard walletModel.canFetchHistory, !isReloadingTransactionHistory else {
             return nil
         }
 
         return FetchMore { [weak self] in
-            self?.loadHistory()
+            self?.performLoadHistory()
         }
     }
 
-    func reloadHistory() {
+    func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {
+        guard updateSubscription == nil else {
+            return
+        }
+
+        Analytics.log(.refreshed)
+
+        isReloadingTransactionHistory = true
+        updateSubscription = walletModel.generalUpdate(silent: false)
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] in
+                guard let self else {
+                    return
+                }
+
+                AppLog.shared.debug("♻️ \(self) loading state changed")
+                isReloadingTransactionHistory = false
+                updateSubscription = nil
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    completionHandler()
+                }
+            })
+    }
+
+    func onButtonReloadHistory() {
         Analytics.log(event: .buttonReload, params: [.token: currencySymbol])
 
         // We should reset transaction history to initial state here
-        walletModel.transactionHistoryService?.reset()
+        walletModel.clearHistory()
 
         DispatchQueue.main.async {
             self.isReloadingTransactionHistory = true
         }
 
-        loadHistory()
+        performLoadHistory()
     }
 
-    func loadHistory() {
+    private func performLoadHistory() {
         transactionHistoryBag = walletModel
             .updateTransactionsHistory()
             .receive(on: DispatchQueue.main)
@@ -135,9 +185,20 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         switch action {
         case .buyCrypto:
             openBuyCryptoIfPossible()
+        case .exchange:
+            Analytics.log(event: .swapPromoButtonExchangeNow, params: [.token: walletModel.tokenItem.currencySymbol])
+            openExchange()
         default:
             break
         }
+    }
+
+    private func openAddressExplorer(at index: Int) {
+        guard let url = walletModel.exploreURL(for: index, token: amountType.token) else {
+            return
+        }
+
+        openExplorer(at: url)
     }
 }
 
@@ -147,16 +208,20 @@ extension SingleTokenBaseViewModel {
     private func prepareSelf() {
         bind()
         setupActionButtons()
-        loadSwappingState()
         updateActionButtons()
-        loadHistory()
+        updatePendingTransactionView()
+        performLoadHistory()
     }
 
     private func setupActionButtons() {
+        guard TokenInteractionAvailabilityProvider(walletModel: walletModel).isActionButtonsAvailable() else {
+            return
+        }
+
         let listBuilder = TokenActionListBuilder()
-        let isSwapFeatureAvailable = FeatureProvider.isAvailable(.exchange)
         let canShowSwap = userWalletModel.config.hasFeature(.swapping)
-        availableActions = listBuilder.buildActionsForButtonsList(canShowSwap: canShowSwap && isSwapFeatureAvailable)
+        let canShowBuySell = userWalletModel.config.isFeatureVisible(.exchange)
+        availableActions = listBuilder.buildActionsForButtonsList(canShowBuySell: canShowBuySell, canShowSwap: canShowSwap)
     }
 
     private func bind() {
@@ -165,6 +230,7 @@ extension SingleTokenBaseViewModel {
             .sink { _ in } receiveValue: { [weak self] newState in
                 AppLog.shared.debug("Token details receive new wallet model state: \(newState)")
                 self?.updateActionButtons()
+                self?.updatePendingTransactionView()
             }
             .store(in: &bag)
 
@@ -179,8 +245,23 @@ extension SingleTokenBaseViewModel {
         notificationManager.notificationPublisher
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
+            // Fix for reappearing banner notifications.
+            // [REDACTED_TODO_COMMENT]
+            .debounce(for: 0.1, scheduler: DispatchQueue.main)
             .assign(to: \.tokenNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
+    }
+
+    private func updatePendingTransactionView() {
+        // Only if the transaction history isn't supported
+        guard !walletModel.isSupportedTransactionHistory else {
+            pendingTransactionViews = []
+            return
+        }
+
+        pendingTransactionViews = walletModel.pendingTransactions.map { transaction in
+            pendingTransactionRecordMapper.mapToTransactionViewModel(transaction)
+        }
     }
 
     private func updateActionButtons() {
@@ -219,37 +300,19 @@ extension SingleTokenBaseViewModel {
         }
     }
 
-    private func loadSwappingState() {
-        guard userWalletModel.config.isFeatureVisible(.swapping) else {
-            return
-        }
-
-        var swappingSubscription: AnyCancellable?
-        swappingSubscription = swappingUtils
-            .canSwapPublisher(amountType: amountType, blockchain: blockchain)
-            .receive(on: DispatchQueue.main)
-            .sink { completion in
-                AppLog.shared.debug("Load swapping availability state completion: \(completion)")
-                withExtendedLifetime(swappingSubscription) {}
-            } receiveValue: { [weak self] isSwapAvailable in
-                self?.isSwapAvailable = isSwapAvailable
-                self?.updateActionButtons()
-            }
-    }
-
     private func isButtonDisabled(with type: TokenActionType) -> Bool {
-        let canExchange = userWalletModel.config.isFeatureVisible(.exchange)
+        let isBlockchainUnreachable = walletModel.state.isBlockchainUnreachable
         switch type {
         case .buy:
-            return !(canExchange && exchangeUtility.buyAvailable)
+            return !exchangeUtility.buyAvailable
         case .send:
-            return !canSend
+            return sendIsDisabled()
         case .receive:
             return false
         case .exchange:
-            return !isSwapAvailable
+            return isBlockchainUnreachable || !isSwapAvailable
         case .sell:
-            return !(canExchange && exchangeUtility.sellAvailable)
+            return isBlockchainUnreachable || !exchangeUtility.sellAvailable
         case .copyAddress, .hide:
             return true
         }
@@ -260,9 +323,22 @@ extension SingleTokenBaseViewModel {
         case .buy: return openBuyCryptoIfPossible
         case .send: return openSend
         case .receive: return openReceive
-        case .exchange: return openExchange
+        case .exchange: return openExchangeAndLogAnalytics
         case .sell: return openSell
         case .copyAddress, .hide: return nil
+        }
+    }
+
+    private func sendIsDisabled() -> Bool {
+        guard userWalletModel.config.hasFeature(.send) else {
+            return true
+        }
+
+        switch walletModel.sendingRestrictions {
+        case .zeroWalletBalance, .cantSignLongTransactions, .zeroFeeCurrencyBalance:
+            return true
+        case .none, .hasPendingTransaction:
+            return false
         }
     }
 }
@@ -284,7 +360,21 @@ extension SingleTokenBaseViewModel {
     }
 
     func openSend() {
-        tokenRouter.openSend(walletModel: walletModel)
+        switch walletModel.sendingRestrictions {
+        case .hasPendingTransaction:
+            if let message = walletModel.sendingRestrictions?.description {
+                alert = .init(title: Localization.warningSendBlockedPendingTransactionsTitle, message: message)
+            }
+        case .cantSignLongTransactions, .zeroWalletBalance, .zeroFeeCurrencyBalance:
+            assertionFailure("Send Button have to be disabled")
+        case .none:
+            tokenRouter.openSend(walletModel: walletModel)
+        }
+    }
+
+    func openExchangeAndLogAnalytics() {
+        Analytics.log(event: .buttonExchange, params: [.token: walletModel.tokenItem.currencySymbol])
+        openExchange()
     }
 
     func openExchange() {
@@ -309,6 +399,24 @@ extension SingleTokenBaseViewModel {
         tokenRouter.openSendToSell(with: request, for: walletModel)
     }
 
+    func openAddressSelector(_ addresses: [BlockchainSdk.Address], callback: @escaping (Int) -> Void) {
+        if addresses.isEmpty {
+            return
+        }
+
+        let addressButtons: [Alert.Button] = addresses.enumerated().map { index, address in
+            .default(Text(address.localizedName)) {
+                callback(index)
+            }
+        }
+
+        let sheet = ActionSheet(
+            title: Text(Localization.tokenDetailsChooseAddress),
+            buttons: addressButtons + [.cancel(Text(Localization.commonCancel))]
+        )
+        presentActionSheet(ActionSheetBinder(sheet: sheet))
+    }
+
     func openExplorer(at url: URL) {
         tokenRouter.openExplorer(at: url, for: walletModel)
     }
@@ -316,4 +424,17 @@ extension SingleTokenBaseViewModel {
 
 extension SingleTokenBaseViewModel: ActionButtonsProvider {
     var buttonsPublisher: AnyPublisher<[ButtonWithIconInfo], Never> { $actionButtons.eraseToAnyPublisher() }
+}
+
+// MARK: - CustomStringConvertible protocol conformance
+
+extension SingleTokenBaseViewModel: CustomStringConvertible {
+    var description: String {
+        objectDescription(
+            self,
+            userInfo: [
+                "WalletModel": walletModel.description,
+            ]
+        )
+    }
 }

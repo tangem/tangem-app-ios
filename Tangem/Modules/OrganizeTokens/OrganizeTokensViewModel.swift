@@ -23,9 +23,9 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
 
     let id = UUID()
 
-    private unowned let coordinator: OrganizeTokensRoutable
+    private weak var coordinator: OrganizeTokensRoutable?
 
-    private let walletModelsManager: WalletModelsManager
+    private let userWalletModel: UserWalletModel
     private let tokenSectionsAdapter: TokenSectionsAdapter
     private let optionsProviding: OrganizeTokensOptionsProviding
     private let optionsEditing: OrganizeTokensOptionsEditing
@@ -46,26 +46,29 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
 
     init(
         coordinator: OrganizeTokensRoutable,
-        walletModelsManager: WalletModelsManager,
+        userWalletModel: UserWalletModel,
         tokenSectionsAdapter: TokenSectionsAdapter,
         optionsProviding: OrganizeTokensOptionsProviding,
         optionsEditing: OrganizeTokensOptionsEditing
     ) {
         self.coordinator = coordinator
-        self.walletModelsManager = walletModelsManager
+        self.userWalletModel = userWalletModel
         self.tokenSectionsAdapter = tokenSectionsAdapter
         self.optionsProviding = optionsProviding
         self.optionsEditing = optionsEditing
     }
 
-    func onViewAppear() {
+    func onViewWillAppear() {
         bind()
+    }
+
+    func onViewAppear() {
         reportScreenOpened()
     }
 
     func onCancelButtonTap() {
         Analytics.log(.organizeTokensButtonCancel)
-        coordinator.didTapCancelButton()
+        coordinator?.didTapCancelButton()
     }
 
     func onApplyButtonTap() {
@@ -75,29 +78,11 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
     private func bind() {
         if didBind { return }
 
-        let walletModelsPublisher = walletModelsManager
-            .walletModelsPublisher
-            .share(replay: 1)
-            .eraseToAnyPublisher()
-
-        let walletModelsDidChangePublisher = walletModelsPublisher
-            .receive(on: mappingQueue)
-            .flatMap { walletModels in
-                return walletModels
-                    .map(\.walletDidChangePublisher)
-                    .merge()
-            }
-            .debounce(for: 0.3, scheduler: DispatchQueue.main)
-            .withLatestFrom(walletModelsPublisher)
-            .eraseToAnyPublisher()
-
-        let aggregatedWalletModelsPublisher = [
-            walletModelsPublisher,
-            walletModelsDidChangePublisher,
-        ].merge()
+        let sourcePublisherFactory = TokenSectionsSourcePublisherFactory()
+        let tokenSectionsSourcePublisher = sourcePublisherFactory.makeSourcePublisher(for: userWalletModel)
 
         let organizedTokensSectionsPublisher = tokenSectionsAdapter
-            .organizedSections(from: aggregatedWalletModelsPublisher, on: mappingQueue)
+            .organizedSections(from: tokenSectionsSourcePublisher, on: mappingQueue)
             .share(replay: 1)
 
         let cache = dragAndDropActionsCache
@@ -157,7 +142,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, _ in
-                viewModel.coordinator.didTapSaveButton()
+                viewModel.coordinator?.didTapSaveButton()
             }
             .store(in: &bag)
 
@@ -287,9 +272,17 @@ extension OrganizeTokensViewModel {
                 return
             }
 
-            sections.swapAt(sourceIndexPath.section, destinationIndexPath.section)
+            let diff = sourceIndexPath.section > destinationIndexPath.section ? 0 : 1
+            sections.move(
+                fromOffsets: IndexSet(integer: sourceIndexPath.section),
+                toOffset: destinationIndexPath.section + diff
+            )
+
             dragAndDropActionsCache.addDragAndDropAction(isGroupingEnabled: isGroupingEnabled) { sectionsToMutate in
-                sectionsToMutate.swapAt(sourceIndexPath.section, destinationIndexPath.section)
+                try sectionsToMutate.tryMove(
+                    fromOffsets: IndexSet(integer: sourceIndexPath.section),
+                    toOffset: destinationIndexPath.section + diff
+                )
             }
         } else {
             guard sourceIndexPath.section == destinationIndexPath.section else {
@@ -297,9 +290,21 @@ extension OrganizeTokensViewModel {
                 return
             }
 
-            sections[sourceIndexPath.section].items.swapAt(sourceIndexPath.item, destinationIndexPath.item)
+            let diff = sourceIndexPath.item > destinationIndexPath.item ? 0 : 1
+            sections[sourceIndexPath.section].items.move(
+                fromOffsets: IndexSet(integer: sourceIndexPath.item),
+                toOffset: destinationIndexPath.item + diff
+            )
+
             dragAndDropActionsCache.addDragAndDropAction(isGroupingEnabled: isGroupingEnabled) { sectionsToMutate in
-                sectionsToMutate[sourceIndexPath.section].items.swapAt(sourceIndexPath.item, destinationIndexPath.item)
+                guard sectionsToMutate.indices.contains(sourceIndexPath.section) else {
+                    throw Error.sectionOffsetOutOfBound(offset: sourceIndexPath.section, count: sectionsToMutate.count)
+                }
+
+                try sectionsToMutate[sourceIndexPath.section].items.tryMove(
+                    fromOffsets: IndexSet(integer: sourceIndexPath.item),
+                    toOffset: destinationIndexPath.item + diff
+                )
             }
         }
     }
@@ -386,5 +391,13 @@ extension OrganizeTokensViewModel: OrganizeTokensDragAndDropControllerDataSource
         listViewIdentifierForItemAt indexPath: IndexPath
     ) -> AnyHashable {
         return section(at: indexPath)?.id ?? itemViewModel(at: indexPath).id.asAnyHashable
+    }
+}
+
+// MARK: - Auxiliary types
+
+extension OrganizeTokensViewModel {
+    enum Error: Swift.Error {
+        case sectionOffsetOutOfBound(offset: Int, count: Int)
     }
 }

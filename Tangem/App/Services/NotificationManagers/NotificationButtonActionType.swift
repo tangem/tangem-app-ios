@@ -12,6 +12,13 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     case generateAddresses
     case backupCard
     case buyCrypto(currencySymbol: String?)
+    case openFeeCurrency(currencySymbol: String)
+    case refresh
+    case refreshFee
+    case goToProvider
+    case exchange
+    case reduceAmountBy(amount: Decimal, amountFormatted: String)
+    case reduceAmountTo(amount: Decimal, amountFormatted: String)
 
     var id: Int { hashValue }
 
@@ -27,6 +34,18 @@ enum NotificationButtonActionType: Identifiable, Hashable {
                 return "Top up card"
             }
             return Localization.commonBuyCurrency(currencySymbol)
+        case .openFeeCurrency(let currencySymbol):
+            return Localization.commonBuyCurrency(currencySymbol)
+        case .refresh, .refreshFee:
+            return Localization.warningButtonRefresh
+        case .goToProvider:
+            return Localization.commonGoToProvider
+        case .exchange:
+            return Localization.tokenSwapPromotionButton
+        case .reduceAmountBy(_, let amountFormatted):
+            return Localization.sendNotificationReduceBy(amountFormatted)
+        case .reduceAmountTo(_, let amountFormatted):
+            return Localization.sendNotificationReduceTo(amountFormatted)
         }
     }
 
@@ -34,7 +53,9 @@ enum NotificationButtonActionType: Identifiable, Hashable {
         switch self {
         case .generateAddresses:
             return .trailing(Assets.tangemIcon)
-        case .backupCard, .buyCrypto:
+        case .exchange:
+            return .leading(Assets.exchangeMini)
+        case .backupCard, .buyCrypto, .openFeeCurrency, .refresh, .refreshFee, .goToProvider, .reduceAmountBy, .reduceAmountTo:
             return nil
         }
     }
@@ -43,8 +64,10 @@ enum NotificationButtonActionType: Identifiable, Hashable {
         switch self {
         case .generateAddresses:
             return .primary
-        case .backupCard, .buyCrypto:
+        case .backupCard, .buyCrypto, .openFeeCurrency, .refresh, .refreshFee, .goToProvider, .reduceAmountBy, .reduceAmountTo:
             return .secondary
+        case .exchange:
+            return .exchangePromotionWhite
         }
     }
 }

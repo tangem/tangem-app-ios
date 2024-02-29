@@ -115,7 +115,8 @@ struct LegacySendView: View {
                             .disabled(!viewModel.isFiatConvertingAvailable)
                         }
                         .padding(.top, 25.0)
-                        Separator()
+                        Separator(color: Color.tangemGrayLight5)
+                            .padding(.vertical, 4)
                         HStack {
                             Text(viewModel.amountHint?.message ?? " ")
                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
@@ -136,7 +137,7 @@ struct LegacySendView: View {
                     if viewModel.shouldShowNetworkBlock {
                         Group {
                             HStack {
-                                Text(Localization.sendNetworkFeeTitle)
+                                Text(Localization.commonNetworkFeeTitle)
                                     .font(Font.system(size: 14.0, weight: .medium, design: .default))
                                     .foregroundColor(Color.tangemGrayDark6)
                                 Spacer()
@@ -157,7 +158,7 @@ struct LegacySendView: View {
                             }
                             if viewModel.isNetworkFeeBlockOpen || viewModel.isSellingCrypto {
                                 VStack(spacing: 16.0) {
-                                    if viewModel.shoudShowFeeSelector {
+                                    if viewModel.shouldShowFeeSelector {
                                         PickerView(
                                             contents: [
                                                 Localization.sendFeePickerLow,
@@ -167,12 +168,13 @@ struct LegacySendView: View {
                                             selection: $viewModel.selectedFeeLevel
                                         )
                                     }
-                                    if viewModel.shoudShowFeeIncludeSelector {
+                                    if viewModel.shouldShowFeeIncludeSelector {
                                         Toggle(isOn: $viewModel.isFeeIncluded) {
                                             Text(Localization.sendFeeIncludeDescription)
                                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
                                                 .foregroundColor(Color.tangemGrayDark6)
-                                        }.tintCompat(Colors.Control.checked)
+                                        }
+                                        .tint(Colors.Control.checked)
                                     }
                                 }
                                 .padding(.vertical, 8.0)
@@ -195,7 +197,7 @@ struct LegacySendView: View {
                                 .foregroundColor(Color.tangemGrayDark6)
                         }
                         HStack {
-                            Text(Localization.sendFeeLabel)
+                            Text(Localization.commonFeeLabel)
                                 .font(Font.system(size: 14.0, weight: .medium, design: .default))
                                 .foregroundColor(Color.tangemGrayDark)
                             Spacer()
@@ -307,6 +309,7 @@ struct ExtractView_Previews: PreviewProvider {
                     value: 0.0
                 ),
                 destination: "Target",
+                tag: "Tag",
                 blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
                 cardViewModel: PreviewCard.ethereum.cardModel,
                 coordinator: LegacySendCoordinator()

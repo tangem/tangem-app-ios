@@ -10,75 +10,81 @@ import SwiftUI
 import Combine
 import TangemSdk
 import BlockchainSdk
-import TangemSwapping
+import TangemExpress
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
+    @Injected(\.expressPendingTransactionsRepository) private var expressPendingTxRepository: ExpressPendingTransactionRepository
+
     @Published private var balance: LoadingValue<BalanceInfo> = .loading
+    @Published var actionSheet: ActionSheetBinder?
+    @Published var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
 
     private(set) var balanceWithButtonsModel: BalanceWithButtonsViewModel!
-    private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: tokenItem)
+    private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: walletModel.tokenItem)
 
-    private unowned let coordinator: TokenDetailsRoutable
+    private weak var coordinator: TokenDetailsRoutable?
+    private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
+
     private var bag = Set<AnyCancellable>()
-    private var refreshCancellable: AnyCancellable?
-
-    var tokenItem: TokenItem {
-        switch amountType {
-        case .token(let token):
-            return .token(token, blockchain)
-        default:
-            return .blockchain(blockchain)
-        }
-    }
+    private var notificatioChangeSubscription: AnyCancellable?
 
     var iconUrl: URL? {
-        guard let id = tokenItem.id else {
+        guard let id = walletModel.tokenItem.id else {
             return nil
         }
 
-        return TokenIconURLBuilder().iconURL(id: id)
+        return IconURLBuilder().tokenIconURL(id: id)
     }
 
+    var customTokenColor: Color? {
+        walletModel.tokenItem.token?.customTokenColor
+    }
+
+    var canHideToken: Bool { userWalletModel.isMultiWallet }
+
     init(
-        cardModel: CardViewModel,
+        userWalletModel: UserWalletModel,
         walletModel: WalletModel,
         exchangeUtility: ExchangeCryptoUtility,
         notificationManager: NotificationManager,
+        pendingExpressTransactionsManager: PendingExpressTransactionsManager,
         coordinator: TokenDetailsRoutable,
         tokenRouter: SingleTokenRoutable
     ) {
         self.coordinator = coordinator
+        self.pendingExpressTransactionsManager = pendingExpressTransactionsManager
         super.init(
-            userWalletModel: cardModel,
+            userWalletModel: userWalletModel,
             walletModel: walletModel,
             exchangeUtility: exchangeUtility,
             notificationManager: notificationManager,
             tokenRouter: tokenRouter
         )
+        notificationManager.setupManager(with: self)
         balanceWithButtonsModel = .init(balanceProvider: self, buttonsProvider: self)
 
         prepareSelf()
     }
 
-    func onAppear() {
-        Analytics.log(.detailsScreenOpened)
-        // [REDACTED_TODO_COMMENT]
+    deinit {
+        print("TokenDetailsViewModel deinit")
     }
 
-    func onRefresh(_ done: @escaping () -> Void) {
-        Analytics.log(.refreshed)
+    func onAppear() {
+        Analytics.log(event: .detailsScreenOpened, params: [Analytics.ParameterKey.token: walletModel.tokenItem.currencySymbol])
+    }
 
-        refreshCancellable = walletModel
-            .update(silent: false)
-            .receive(on: DispatchQueue.main)
-            .sink { _ in
-                AppLog.shared.debug("♻️ Token wallet model loading state changed")
-                withAnimation(.default.delay(0.2)) {
-                    done()
-                }
-            } receiveValue: { _ in }
+    override func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
+        switch action {
+        case .openFeeCurrency:
+            openFeeCurrency()
+        default:
+            super.didTapNotificationButton(with: id, action: action)
+        }
+    }
 
-        reloadHistory()
+    override func presentActionSheet(_ actionSheet: ActionSheetBinder) {
+        self.actionSheet = actionSheet
     }
 }
 
@@ -86,7 +92,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
 extension TokenDetailsViewModel {
     func hideTokenButtonAction() {
-        if userWalletModel.userTokensManager.canRemove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath) {
+        if userWalletModel.userTokensManager.canRemove(walletModel.tokenItem) {
             showHideWarningAlert()
         } else {
             showUnableToHideAlert()
@@ -118,9 +124,15 @@ extension TokenDetailsViewModel {
     }
 
     private func hideToken() {
-        Analytics.log(event: .buttonRemoveToken, params: [Analytics.ParameterKey.token: currencySymbol])
+        Analytics.log(
+            event: .buttonRemoveToken,
+            params: [
+                Analytics.ParameterKey.token: currencySymbol,
+                Analytics.ParameterKey.source: Analytics.ParameterValue.token.rawValue,
+            ]
+        )
 
-        userWalletModel.userTokensManager.remove(walletModel.tokenItem, derivationPath: walletModel.blockchainNetwork.derivationPath)
+        userWalletModel.userTokensManager.remove(walletModel.tokenItem)
         dismiss()
     }
 }
@@ -129,6 +141,8 @@ extension TokenDetailsViewModel {
 
 private extension TokenDetailsViewModel {
     private func prepareSelf() {
+        updateBalance(walletModelState: walletModel.state)
+        tokenNotificationInputs = notificationManager.notificationInputs
         bind()
     }
 
@@ -140,24 +154,51 @@ private extension TokenDetailsViewModel {
                 self?.updateBalance(walletModelState: newState)
             }
             .store(in: &bag)
+
+        pendingExpressTransactionsManager.pendingTransactionsPublisher
+            .withWeakCaptureOf(self)
+            .map { viewModel, pendingTxs in
+                let factory = PendingExpressTransactionsConverter()
+
+                return factory.convertToTokenDetailsPendingTxInfo(
+                    pendingTxs,
+                    tapAction: weakify(viewModel, forFunction: TokenDetailsViewModel.didTapPendingExpressTransaction(with:))
+                )
+            }
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.pendingExpressTransactions, on: self, ownership: .weak)
+            .store(in: &bag)
     }
 
     private func updateBalance(walletModelState: WalletModel.State) {
         switch walletModelState {
         case .created, .loading:
             balance = .loading
-        case .idle:
+        case .idle, .noAccount:
             balance = .loaded(.init(
-                balance: walletModel.getDecimalBalance(for: amountType) ?? 0,
-                currencyId: walletModel.tokenItem.currencyId,
-                currencyCode: currencySymbol
+                balance: walletModel.balance,
+                fiatBalance: walletModel.fiatBalance
             ))
-        case .noAccount(let message), .failed(let message):
+        case .failed(let message):
             balance = .failedToLoad(error: message)
         case .noDerivation:
             // User can't reach this screen without derived keys
             balance = .failedToLoad(error: "")
         }
+    }
+
+    private func didTapPendingExpressTransaction(with id: String) {
+        guard
+            let pendingTransaction = pendingExpressTransactionsManager.pendingTransactions.first(where: { $0.transactionRecord.expressTransactionId == id })
+        else {
+            return
+        }
+
+        coordinator?.openPendingExpressTransactionDetails(
+            for: pendingTransaction,
+            tokenItem: walletModel.tokenItem,
+            pendingTransactionsManager: pendingExpressTransactionsManager
+        )
     }
 }
 
@@ -165,7 +206,18 @@ private extension TokenDetailsViewModel {
 
 private extension TokenDetailsViewModel {
     func dismiss() {
-        coordinator.dismiss()
+        coordinator?.dismiss()
+    }
+
+    func openFeeCurrency() {
+        guard let feeCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
+            $0.tokenItem == walletModel.feeTokenItem
+        }) else {
+            assertionFailure("Fee currency '\(walletModel.feeTokenItem.name)' for currency '\(walletModel.tokenItem.name)' not found")
+            return
+        }
+
+        coordinator?.openFeeCurrency(for: feeCurrencyWalletModel, userWalletModel: userWalletModel)
     }
 }
 

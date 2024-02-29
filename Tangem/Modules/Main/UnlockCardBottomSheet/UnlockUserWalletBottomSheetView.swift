@@ -18,19 +18,18 @@ struct UnlockUserWalletBottomSheetView: View {
                 .padding(.top, 46)
                 .padding(.bottom, 30)
 
-            Text(Localization.commonUnlockNeeded)
+            Text(Localization.commonAccessDenied)
                 .style(Fonts.Regular.title1, color: Colors.Text.primary1)
                 .padding(.bottom, 14)
 
             Text(Localization.unlockWalletDescriptionFull(BiometricAuthorizationUtils.biometryType.name))
                 .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
                 .multilineTextAlignment(.center)
-                .lineSpacing(3)
                 .padding(.bottom, 56)
                 .padding(.horizontal, 34)
 
             MainButton(
-                title: Localization.userWalletListUnlockAll(BiometricAuthorizationUtils.biometryType.name),
+                title: Localization.userWalletListUnlockAllWith(BiometricAuthorizationUtils.biometryType.name),
                 action: viewModel.unlockWithBiometry
             )
             .padding(.bottom, 10)
@@ -44,7 +43,7 @@ struct UnlockUserWalletBottomSheetView: View {
             )
         }
         .padding(.horizontal, 16)
-        .padding(.bottom, 10)
+        .padding(.bottom, 6)
         .alert(item: $viewModel.error) { $0.alert }
         .background(
             ScanTroubleshootingView(
@@ -90,9 +89,12 @@ struct UnlockUserWalletBottomSheetView_Previews: PreviewProvider {
                 }
 
                 NavHolder()
-                    .bottomSheet(item: state, settings: .init(backgroundColor: Colors.Background.primary)) { model in
+                    .bottomSheet(item: state, backgroundColor: Colors.Background.primary) { model in
                         UnlockUserWalletBottomSheetView(viewModel: model)
                     }
+            }
+            .onAppear {
+                state.wrappedValue = bottomSheetModel
             }
         })
     }
