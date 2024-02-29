@@ -32,11 +32,15 @@ class FakeTangemApiService: TangemApiService {
         .anyFail(error: "Not implemented")
     }
 
-    func loadTokens(for key: String) -> AnyPublisher<UserTokenList, TangemAPIError> {
+    func loadTokens(for key: String) -> AnyPublisher<UserTokenList?, TangemAPIError> {
         .anyFail(error: .init(code: .notFound))
     }
 
     func saveTokens(list: UserTokenList, for key: String) -> AnyPublisher<Void, TangemAPIError> {
+        .anyFail(error: .init(code: .notFound))
+    }
+
+    func createAccount(networkId: String, publicKey: String) -> AnyPublisher<BlockchainAccountCreateResult, TangemAPIError> {
         .anyFail(error: .init(code: .notFound))
     }
 
@@ -48,7 +52,7 @@ class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
-    func sales(locale: String, shops: String) async throws -> SalesDetails {
+    func expressPromotion(request: ExpressPromotion.Request) async throws -> ExpressPromotion.Response {
         throw "Not implemented"
     }
 
