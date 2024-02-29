@@ -7,14 +7,16 @@
 //
 
 import UIKit
-import AppsFlyerLib
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var loadingView: UIView?
 
+    var window: UIWindow? // Do not remove, this is needed by Sprinklr
+
     private lazy var servicesManager = ServicesManager()
 
+    #warning("[REDACTED_TODO_COMMENT]")
     func addLoadingView() {
         if let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) {
             let view = UIView(frame: window.bounds)
@@ -29,6 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 
+    #warning("[REDACTED_TODO_COMMENT]")
     func removeLoadingView() {
         loadingView?.removeFromSuperview()
         loadingView = nil
@@ -43,6 +46,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UINavigationBar.appearance().titleTextAttributes = [
             .foregroundColor: UIColor(Colors.Text.primary1),
         ]
+        UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = UIColor.textAccent
 
         servicesManager.initialize()
         return true
@@ -54,11 +58,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when a new scene session is being created.
         // Use this method to select a configuration to create the new scene with.
         return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
-    }
-
-    func applicationDidBecomeActive(_ application: UIApplication) {
-        guard AppEnvironment.current.isProduction else { return }
-
-        AppsFlyerLib.shared().start()
     }
 }
