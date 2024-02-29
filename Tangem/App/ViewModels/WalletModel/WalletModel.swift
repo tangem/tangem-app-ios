@@ -183,7 +183,7 @@ class WalletModel {
         var feeDisplayName = feeTokenItem.currencySymbol
         if tokenItem.id == "arbitrum",
            tokenItem.blockchain.networkId == "arbitrum-one" {
-            feeDisplayName = feeTokenItem.blockchain.displayName + " (\(feeTokenItem.blockchain.currencySymbol))"
+            feeDisplayName = feeTokenItem.blockchain.feeDisplayName
         }
         return feeDisplayName
     }
