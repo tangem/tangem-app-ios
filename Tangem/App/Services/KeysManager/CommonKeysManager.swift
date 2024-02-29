@@ -40,31 +40,27 @@ extension CommonKeysManager: KeysManager {
             blockcypherTokens: keys.blockcypherTokens,
             infuraProjectId: keys.infuraProjectId,
             nowNodesApiKey: keys.nowNodesApiKey,
-            getBlockApiKey: keys.getBlockApiKey,
+            getBlockCredentials: .init(keys.getBlockAccessTokens),
             kaspaSecondaryApiUrl: keys.kaspaSecondaryApiUrl,
             tronGridApiKey: keys.tronGridApiKey,
+            hederaArkhiaApiKey: keys.hederaArkhiaKey,
             tonCenterApiKeys: .init(mainnetApiKey: keys.tonCenterApiKey.mainnet, testnetApiKey: keys.tonCenterApiKey.testnet),
             fireAcademyApiKeys: .init(mainnetApiKey: keys.chiaFireAcademyApiKey, testnetApiKey: keys.chiaFireAcademyApiKey),
             chiaTangemApiKeys: .init(mainnetApiKey: keys.chiaTangemApiKey),
             // [REDACTED_TODO_COMMENT]
             quickNodeSolanaCredentials: .init(apiKey: keys.quiknodeApiKey, subdomain: keys.quiknodeSubdomain),
             quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
-            blockscoutCredentials: .init(login: "", password: ""), // used for saltpay tx history
-            defaultNetworkProviderConfiguration: .init(logger: .verbose, urlSessionConfiguration: .standart),
+            defaultNetworkProviderConfiguration: .init(logger: .verbose, urlSessionConfiguration: .standard),
             networkProviderConfigurations: [:]
         )
-    }
-
-    var shopifyShop: ShopifyShop {
-        keys.shopifyShop
     }
 
     var tangemComAuthorization: String? {
         keys.tangemComAuthorization
     }
 
-    var zendesk: ZendeskConfig {
-        keys.zendesk
+    var sprinklr: SprinklrConfig {
+        keys.sprinklr
     }
 
     var amplitudeApiKey: String {
@@ -79,8 +75,12 @@ extension CommonKeysManager: KeysManager {
         keys.infuraProjectId
     }
 
-    var swapReferrerAccount: SwapReferrerAccount? {
-        keys.swapReferrerAccount
+    var expressKeys: ExpressKeys {
+        keys.express
+    }
+
+    var devExpressKeys: ExpressKeys? {
+        keys.devExpress
     }
 
     var walletConnectProjectId: String {
@@ -99,6 +99,7 @@ extension CommonKeysManager {
         let infuraProjectId: String
         let nowNodesApiKey: String
         let getBlockApiKey: String
+        let getBlockAccessTokens: [String: [String: String]]
         let kaspaSecondaryApiUrl: String
         let tonCenterApiKey: TonCenterApiKeys
         let chiaFireAcademyApiKey: String
@@ -106,14 +107,15 @@ extension CommonKeysManager {
         let appsFlyer: AppsFlyerConfig
         let amplitudeApiKey: String
         let tronGridApiKey: String
+        let hederaArkhiaKey: String
         let quiknodeApiKey: String
         let quiknodeSubdomain: String
         let bscQuiknodeApiKey: String
         let bscQuiknodeSubdomain: String
-        let shopifyShop: ShopifyShop
         let tangemComAuthorization: String?
-        let zendesk: ZendeskConfig
-        let swapReferrerAccount: SwapReferrerAccount?
         let walletConnectProjectId: String
+        let sprinklr: SprinklrConfig
+        let express: ExpressKeys
+        let devExpress: ExpressKeys?
     }
 }

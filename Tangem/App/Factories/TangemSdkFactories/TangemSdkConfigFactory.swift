@@ -19,6 +19,7 @@ struct TangemSdkConfigFactory {
             "0030",
             "0031",
             "0035",
+            "DA88", // Dau cards
         ])
 
         config.filter.issuerFilter = .deny(["TTM BANK"])
@@ -27,6 +28,9 @@ struct TangemSdkConfigFactory {
         }
         config.allowUntrustedCards = true
         config.biometricsLocalizedReason = Localization.biometryTouchIdReason
+        config.style.colors.tint = Colors.Text.accent
+        config.style.colors.tintUIColor = UIColor.textAccent
+        config.style.colors.buttonColors.backgroundColor = Colors.Button.positive
 
         return config
     }

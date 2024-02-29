@@ -9,6 +9,8 @@
 // Configuration settings file format documentation can be found at:
 // https://help.apple.com/xcode/#/dev745c5c974
 
+#include "Common.xcconfig"
+
 // Config name
 ENVIRONMENT_NAME = Alpha
 
@@ -30,9 +32,6 @@ PRODUCT_NAME = Tangem $(ENVIRONMENT_NAME)
 
 // app icon
 ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon_$(ENVIRONMENT_NAME)
-
-// UIUserInterfaceStyle override
-UI_USER_INTERFACE_STYLE = Automatic
 
 // Additional swift compiler flags
 SWIFT_ACTIVE_COMPILATION_CONDITIONS = ALPHA ALPHA_OR_BETA
