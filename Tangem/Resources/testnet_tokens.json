@@ -614,6 +614,92 @@
                 }
             ]
         },
+        {
+            "id": "near",
+            "symbol": "NEAR",
+            "name": "NEAR Protocol",
+            "networks":
+            [
+                {
+                    "networkId": "near-protocol/test",
+                    "exchangeable": false
+                }
+            ]
+        },
+        {
+            "id": "decimal",
+            "symbol": "DEL",
+            "name": "Decimal",
+            "networks":
+            [
+                {
+                    "networkId": "decimal/test",
+                    "exchangeable": false
+                }
+            ]
+        },
+        {
+            "id": "vechain",
+            "symbol": "VET",
+            "name": "VeChain",
+            "networks":
+            [
+                {
+                    "networkId": "vechain/test",
+                    "exchangeable": false
+                }
+            ]
+        },
+        {
+            "id": "vethor-token",
+            "symbol": "VTHO",
+            "name": "VeThor",
+            "networks":
+            [
+                {
+                    "networkId": "vechain/test",
+                    "exchangeable": false,
+                    "contractAddress": "0x0000000000000000000000000000456e65726779",
+                    "decimalCount": 18
+                }
+            ]
+        },
+        {
+            "id": "algorand",
+            "symbol": "ALGO",
+            "name": "Algorand",
+            "networks":
+            [
+                {
+                    "networkId": "algorand/test",
+                    "exchangeable": false
+                }
+            ]
+        },
+        {
+            "id": "aptos",
+            "symbol": "APT",
+            "name": "Aptos",
+            "networks":
+            [
+                {
+                    "networkId": "aptos/test",
+                    "exchangeable": false
+                }
+            ]
+        },
+        {
+            "id": "hedera-hashgraph",
+            "symbol": "HBAR",
+            "name": "Hedera",
+            "networks":
+            [
+                {
+                    "networkId": "hedera-hashgraph/test",
+                    "exchangeable": false
+                }
+            ]
+        }
     ],
     "total": 0,
     "imageHost": "https://s3.eu-central-1.amazonaws.com/tangem.api/coins/"
