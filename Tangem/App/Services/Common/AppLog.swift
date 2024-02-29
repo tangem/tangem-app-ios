@@ -8,7 +8,8 @@
 
 import Foundation
 import TangemSdk
-import TangemSwapping
+import TangemExpress
+import TangemVisa
 
 class AppLog {
     static let shared = AppLog()
@@ -45,10 +46,13 @@ class AppLog {
 
     func logAppLaunch(_ currentLaunch: Int) {
         let dashSeparator = String(repeating: "-", count: 25)
-        let launchNumberMessage = "\(dashSeparator) New session. Current launch number: \(currentLaunch) \(dashSeparator)"
+        let sessionMessage = "\(dashSeparator) New session. Session id: \(AppConstants.sessionId) \(dashSeparator)"
+        let launchNumberMessage = "\(dashSeparator) Current launch number: \(currentLaunch) \(dashSeparator)"
         let deviceInfoMessage = "\(dashSeparator) \(DeviceInfoProvider.Subject.allCases.map { $0.description }.joined(separator: ", ")) \(dashSeparator)"
-        debug("\n\(launchNumberMessage)\n\(deviceInfoMessage)\n\n")
+        debug("\n\(sessionMessage)\n\(launchNumberMessage)\n\(deviceInfoMessage)\n\n")
     }
 }
 
-extension AppLog: SwappingLogger {}
+extension AppLog: Logger {}
+
+extension AppLog: VisaLogger {}
