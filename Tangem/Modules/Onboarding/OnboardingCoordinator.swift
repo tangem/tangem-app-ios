@@ -12,6 +12,10 @@ class OnboardingCoordinator: CoordinatorObject {
     var dismissAction: Action<OutputOptions>
     var popToRootAction: Action<PopToRootOptions>
 
+    // MARK: - Dependencies
+
+    @Injected(\.safariManager) private var safariManager: SafariManager
+
     // MARK: - Main view models
 
     @Published private(set) var singleCardViewModel: SingleCardOnboardingViewModel? = nil
@@ -20,22 +24,26 @@ class OnboardingCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
-    @Published var legacyMainCoordinator: LegacyMainCoordinator? = nil
     @Published var mainCoordinator: MainCoordinator? = nil
 
     // MARK: - Child view models
 
-    @Published var buyCryptoModel: WebViewContainerViewModel? = nil
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
     @Published var accessCodeModel: OnboardingAccessCodeViewModel? = nil
     @Published var addressQrBottomSheetContentViewModel: AddressQrBottomSheetContentViewModel? = nil
     @Published var supportChatViewModel: SupportChatViewModel? = nil
+    @Published var mailViewModel: MailViewModel? = nil
+
+    // MARK: - Helpers
 
     // For non-dismissable presentation
     var onDismissalAttempt: () -> Void = {}
 
+    // MARK: - Private
+
     private var options: OnboardingCoordinator.Options!
+    private var safariHandle: SafariHandle?
 
     required init(dismissAction: @escaping Action<OutputOptions>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -59,8 +67,12 @@ class OnboardingCoordinator: CoordinatorObject {
             onDismissalAttempt = model.backButtonAction
             walletViewModel = model
         }
+
+        Analytics.log(.onboardingStarted)
     }
 }
+
+// MARK: - Options
 
 extension OnboardingCoordinator {
     enum DestinationOnFinish {
@@ -79,20 +91,14 @@ extension OnboardingCoordinator {
     }
 }
 
+// MARK: - OnboardingTopupRoutable
+
 extension OnboardingCoordinator: OnboardingTopupRoutable {
-    func openCryptoShop(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
-        buyCryptoModel = .init(
-            url: url,
-            title: Localization.commonBuy,
-            addLoadingIndicator: true,
-            withCloseButton: true,
-            urlActions: [closeUrl: { [weak self] response in
-                DispatchQueue.main.async {
-                    action(response)
-                    self?.buyCryptoModel = nil
-                }
-            }]
-        )
+    func openCryptoShop(at url: URL, action: @escaping () -> Void) {
+        safariHandle = safariManager.openURL(url) { [weak self] _ in
+            self?.safariHandle = nil
+            action()
+        }
     }
 
     func openBankWarning(confirmCallback: @escaping () -> Void, declineCallback: @escaping () -> Void) {
@@ -125,12 +131,19 @@ extension OnboardingCoordinator: OnboardingTopupRoutable {
     }
 }
 
+// MARK: - WalletOnboardingRoutable
+
 extension OnboardingCoordinator: WalletOnboardingRoutable {
     func openAccessCodeView(callback: @escaping (String) -> Void) {
         accessCodeModel = .init(successHandler: { [weak self] code in
             self?.accessCodeModel = nil
             callback(code)
         })
+    }
+
+    func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType) {
+        let logsComposer = LogsComposer(infoProvider: dataCollector)
+        mailViewModel = .init(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
     }
 
     func openSupportChat(input: SupportChatInputModel) {
@@ -147,6 +160,8 @@ extension OnboardingCoordinator: WalletOnboardingRoutable {
         )
     }
 }
+
+// MARK: - OnboardingRoutable
 
 extension OnboardingCoordinator: OnboardingRoutable {
     func onboardingDidFinish(userWallet: CardViewModel?) {
@@ -170,17 +185,9 @@ extension OnboardingCoordinator: OnboardingRoutable {
     }
 
     private func openMain(with cardModel: CardViewModel) {
-        if FeatureProvider.isAvailable(.mainV2) {
-            let coordinator = MainCoordinator(popToRootAction: popToRootAction)
-            let options = MainCoordinator.Options(userWalletModel: cardModel)
-            coordinator.start(with: options)
-            mainCoordinator = coordinator
-            return
-        }
-
-        let coordinator = LegacyMainCoordinator(popToRootAction: popToRootAction)
-        let options = LegacyMainCoordinator.Options(cardModel: cardModel)
+        let coordinator = MainCoordinator(popToRootAction: popToRootAction)
+        let options = MainCoordinator.Options(userWalletModel: cardModel)
         coordinator.start(with: options)
-        legacyMainCoordinator = coordinator
+        mainCoordinator = coordinator
     }
 }
