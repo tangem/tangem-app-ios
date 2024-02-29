@@ -186,7 +186,7 @@ final class SendViewModel: ObservableObject {
             input: sendModel
         )
 
-        sendAmountViewModel = SendAmountViewModel(input: sendModel, fiatCryptoAdapterOutput: sendModel, walletInfo: walletInfo)
+        sendAmountViewModel = SendAmountViewModel(input: sendModel, walletInfo: walletInfo)
         sendDestinationViewModel = SendDestinationViewModel(input: sendModel)
         sendFeeViewModel = SendFeeViewModel(input: sendModel, notificationManager: notificationManager, walletInfo: walletInfo)
         sendSummaryViewModel = SendSummaryViewModel(input: sendModel, notificationManager: notificationManager, walletInfo: walletInfo)
