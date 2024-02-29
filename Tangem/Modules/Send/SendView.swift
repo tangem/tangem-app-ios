@@ -56,9 +56,6 @@ struct SendView: View {
     @ViewBuilder
     private var header: some View {
         VStack {
-            SheetDragHandler()
-                .padding(.bottom, 4)
-
             if let title = viewModel.title {
                 HStack {
                     Color.clear
@@ -86,6 +83,7 @@ struct SendView: View {
             }
         }
         .padding(.horizontal, 16)
+        .padding(.top, 12)
     }
 
     @ViewBuilder
@@ -125,8 +123,19 @@ struct SendView: View {
                     action: viewModel.next
                 )
             }
+
+            if viewModel.showContinueButton {
+                MainButton(
+                    title: Localization.commonContinue,
+                    style: .primary,
+                    size: .default,
+                    isDisabled: viewModel.currentStepInvalid,
+                    action: viewModel.continue
+                )
+            }
         }
         .padding(.horizontal)
+        .padding(.bottom, 14)
     }
 
     @ViewBuilder
@@ -186,6 +195,7 @@ struct SendView_Preview: PreviewProvider {
     static let viewModel = SendViewModel(
         walletName: card.userWalletName,
         walletModel: card.walletModelsManager.walletModels.first!,
+        userWalletModel: card,
         transactionSigner: TransactionSignerMock(),
         sendType: .send,
         emailDataProvider: CardViewModel.mock!,
