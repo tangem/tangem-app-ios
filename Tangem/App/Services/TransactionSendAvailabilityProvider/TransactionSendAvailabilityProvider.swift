@@ -69,6 +69,22 @@ extension TransactionSendAvailabilityProvider {
             let feeAmountTypeIconName: String
             let networkName: String
             let currencyButtonTitle: String
+
+            init(
+                transactionAmountTypeName: String,
+                feeAmountTypeName: String,
+                feeAmountTypeCurrencySymbol: String,
+                feeAmountTypeIconName: String,
+                networkName: String,
+                currencyButtonTitle: String? = nil
+            ) {
+                self.transactionAmountTypeName = transactionAmountTypeName
+                self.feeAmountTypeName = feeAmountTypeName
+                self.feeAmountTypeCurrencySymbol = feeAmountTypeCurrencySymbol
+                self.feeAmountTypeIconName = feeAmountTypeIconName
+                self.networkName = networkName
+                self.currencyButtonTitle = currencyButtonTitle ?? feeAmountTypeCurrencySymbol
+            }
         }
 
         var description: String? {
