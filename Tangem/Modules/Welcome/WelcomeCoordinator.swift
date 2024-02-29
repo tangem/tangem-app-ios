@@ -14,18 +14,19 @@ class WelcomeCoordinator: CoordinatorObject {
     var dismissAction: Action<Void>
     var popToRootAction: Action<PopToRootOptions>
 
+    // MARK: - Dependencies
+
+    @Injected(\.safariManager) private var safariManager: SafariManager
+
     // MARK: - Main view model
 
     @Published private(set) var welcomeViewModel: WelcomeViewModel? = nil
 
     // MARK: - Child coordinators
 
-    @Published var legacyMainCoordinator: LegacyMainCoordinator? = nil
     @Published var mainCoordinator: MainCoordinator? = nil
     @Published var pushedOnboardingCoordinator: OnboardingCoordinator? = nil
-    @Published var shopCoordinator: ShopCoordinator? = nil
     @Published var legacyTokenListCoordinator: LegacyTokenListCoordinator? = nil
-    @Published var manageTokensCoordinator: ManageTokensCoordinator? = nil
     @Published var promotionCoordinator: PromotionCoordinator? = nil
 
     // MARK: - Child view models
@@ -40,7 +41,6 @@ class WelcomeCoordinator: CoordinatorObject {
         // Only modals, because the modal presentation will not trigger onAppear/onDissapear events
         var publishers: [AnyPublisher<Bool, Never>] = []
         publishers.append($mailViewModel.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
-        publishers.append($shopCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($legacyTokenListCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($promotionCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
 
@@ -72,11 +72,15 @@ class WelcomeCoordinator: CoordinatorObject {
     }
 }
 
+// MARK: - Options
+
 extension WelcomeCoordinator {
     struct Options {
         let shouldScan: Bool
     }
 }
+
+// MARK: - WelcomeRoutable
 
 extension WelcomeCoordinator: WelcomeRoutable {
     func openOnboarding(with input: OnboardingInput) {
@@ -88,22 +92,13 @@ extension WelcomeCoordinator: WelcomeRoutable {
         let options = OnboardingCoordinator.Options(input: input, destination: .main)
         coordinator.start(with: options)
         pushedOnboardingCoordinator = coordinator
-        Analytics.log(.onboardingStarted)
     }
 
     func openMain(with cardModel: CardViewModel) {
-        if FeatureProvider.isAvailable(.mainV2) {
-            let coordinator = MainCoordinator(popToRootAction: popToRootAction)
-            let options = MainCoordinator.Options(userWalletModel: cardModel)
-            coordinator.start(with: options)
-            mainCoordinator = coordinator
-            return
-        }
-
-        let coordinator = LegacyMainCoordinator(popToRootAction: popToRootAction)
-        let options = LegacyMainCoordinator.Options(cardModel: cardModel)
+        let coordinator = MainCoordinator(popToRootAction: popToRootAction)
+        let options = MainCoordinator.Options(userWalletModel: cardModel)
         coordinator.start(with: options)
-        legacyMainCoordinator = coordinator
+        mainCoordinator = coordinator
     }
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {
@@ -124,15 +119,6 @@ extension WelcomeCoordinator: WelcomeRoutable {
     func openTokensList() {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.legacyTokenListCoordinator = nil
-            self?.manageTokensCoordinator = nil
-        }
-
-        if FeatureProvider.isAvailable(.manageTokens) {
-            let coordinator = ManageTokensCoordinator(dismissAction: dismissAction)
-            let options = ManageTokensCoordinator.Options()
-            coordinator.start(with: options)
-            manageTokensCoordinator = coordinator
-            return
         }
 
         let coordinator = LegacyTokenListCoordinator(dismissAction: dismissAction)
@@ -141,8 +127,7 @@ extension WelcomeCoordinator: WelcomeRoutable {
     }
 
     func openShop() {
-        let coordinator = ShopCoordinator()
-        coordinator.start()
-        shopCoordinator = coordinator
+        Analytics.log(.shopScreenOpened)
+        safariManager.openURL(AppConstants.webShopUrl)
     }
 }
