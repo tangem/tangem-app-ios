@@ -24,7 +24,7 @@ final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
     private let expressProviderFormatter: ExpressProviderFormatter
     private let expressRepository: ExpressRepository
     private let expressInteractor: ExpressInteractor
-    private unowned let coordinator: ExpressProvidersSelectorRoutable
+    private weak var coordinator: ExpressProvidersSelectorRoutable?
 
     private var stateSubscription: AnyCancellable?
 
@@ -81,11 +81,15 @@ final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
                     return unavailableProviderRowViewModel(provider: provider.provider)
                 }
 
-                if await provider.getState().isAvailableToShow {
-                    return await mapToProviderRowViewModel(provider: provider)
+                // If the provider `isSelected` we are forced to show it anyway
+                let isSelected = selectedProvider?.provider.id == provider.provider.id
+                let isAvailableToShow = await provider.getState().isAvailableToShow
+
+                guard isSelected || isAvailableToShow else {
+                    return nil
                 }
 
-                return nil
+                return await mapToProviderRowViewModel(provider: provider)
             }
 
         await runOnMain {
@@ -145,21 +149,21 @@ final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
         stateSubscription?.cancel()
         Analytics.log(event: .swapProviderChosen, params: [.provider: provider.provider.name])
         expressInteractor.updateProvider(provider: provider)
-        coordinator.closeExpressProvidersSelector()
+        coordinator?.closeExpressProvidersSelector()
     }
 
     func makePercentSubtitle(provider: ExpressAvailableProvider) async -> ProviderRowViewModel.Subtitle? {
-        // For best we don't add percent badge
-        guard !provider.isBest else {
+        // For selectedProvider we don't add percent badge
+        guard selectedProvider?.provider.id != provider.provider.id else {
             return nil
         }
 
         guard let quote = await provider.getState().quote,
-              let bestRate = await allProviders.first(where: { $0.isBest })?.getState().quote?.rate else {
+              let selectedRate = await selectedProvider?.getState().quote?.rate else {
             return nil
         }
 
-        let changePercent = quote.rate / bestRate - 1
+        let changePercent = quote.rate / selectedRate - 1
         let formatted = percentFormatter.expressRatePercentFormat(value: changePercent)
 
         return .percent(formatted, signType: ChangeSignType(from: changePercent))
