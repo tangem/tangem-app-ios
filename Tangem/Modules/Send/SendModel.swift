@@ -50,6 +50,10 @@ class SendModel {
             .eraseToAnyPublisher()
     }
 
+    var amountValue: Amount? {
+        amount.value
+    }
+
     var totalExceedsBalance: Bool {
         guard
             let amount = amount.value,
@@ -654,6 +658,10 @@ extension SendModel: SendDestinationViewModelInput {
 }
 
 extension SendModel: SendFeeViewModelInput {
+    var amountPublisher: AnyPublisher<Amount?, Never> {
+        amount.eraseToAnyPublisher()
+    }
+
     var selectedFeeOption: FeeOption {
         _selectedFeeOption.value
     }
@@ -719,8 +727,8 @@ extension SendModel: SendSummaryViewModelInput {
             .eraseToAnyPublisher()
     }
 
-    var amountPublisher: AnyPublisher<Amount?, Never> {
-        amount.eraseToAnyPublisher()
+    var rawAmountPublisher: AnyPublisher<Amount?, Never> {
+        _amount.eraseToAnyPublisher()
     }
 
     var feeValuePublisher: AnyPublisher<BlockchainSdk.Fee?, Never> {
@@ -745,8 +753,8 @@ extension SendModel: SendSummaryViewModelInput {
 }
 
 extension SendModel: SendFinishViewModelInput {
-    var amountValue: Amount? {
-        amount.value
+    var rawAmountValue: Amount? {
+        _amount.value
     }
 
     var destinationText: String? {
