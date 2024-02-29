@@ -82,9 +82,10 @@ final class SendViewModel: ObservableObject {
     private let sendType: SendType
     private let steps: [SendStep]
     private let walletModel: WalletModel
+    private let userWalletModel: UserWalletModel
     private let emailDataProvider: EmailDataProvider
     private let walletInfo: SendWalletInfo
-    private let notificationManager: SendNotificationManager
+    private let notificationManager: CommonSendNotificationManager
 
     private weak var coordinator: SendRoutable?
 
@@ -93,7 +94,7 @@ final class SendViewModel: ObservableObject {
     private var didReachSummaryScreen = false
 
     private var currentStepValid: AnyPublisher<Bool, Never> {
-        $step
+        let inputFieldsValid = $step
             .flatMap { [weak self] step -> AnyPublisher<Bool, Never> in
                 guard let self else {
                     return .just(output: true)
@@ -110,12 +111,24 @@ final class SendViewModel: ObservableObject {
                     return .just(output: true)
                 }
             }
+
+        let hasTransactionCreationError = Publishers.CombineLatest($step, sendModel.transactionCreationError)
+            .map { step, error in
+                guard let validationError = error as? ValidationError else { return false }
+                return validationError.step == step
+            }
+
+        return Publishers.CombineLatest(inputFieldsValid, hasTransactionCreationError)
+            .map { inputFieldsValid, hasTransactionCreationError in
+                inputFieldsValid && !hasTransactionCreationError
+            }
             .eraseToAnyPublisher()
     }
 
     init(
         walletName: String,
         walletModel: WalletModel,
+        userWalletModel: UserWalletModel,
         transactionSigner: TransactionSigner,
         sendType: SendType,
         emailDataProvider: EmailDataProvider,
@@ -124,9 +137,11 @@ final class SendViewModel: ObservableObject {
         self.coordinator = coordinator
         self.sendType = sendType
         self.walletModel = walletModel
+        self.userWalletModel = userWalletModel
         self.emailDataProvider = emailDataProvider
 
         let addressService = SendAddressServiceFactory(walletModel: walletModel).makeService()
+        #warning("[REDACTED_TODO_COMMENT]")
         sendModel = SendModel(walletModel: walletModel, transactionSigner: transactionSigner, addressService: addressService, sendType: sendType)
 
         let steps = sendType.steps
@@ -139,10 +154,13 @@ final class SendViewModel: ObservableObject {
         let tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
         let cryptoIconURL: URL?
         if let tokenId = walletModel.tokenItem.id {
-            cryptoIconURL = TokenIconURLBuilder().iconURL(id: tokenId)
+            cryptoIconURL = IconURLBuilder().tokenIconURL(id: tokenId)
         } else {
             cryptoIconURL = nil
         }
+
+        let fiatIconURL = IconURLBuilder().fiatIconURL(currencyCode: AppSettings.shared.selectedCurrencyCode)
+
         walletInfo = SendWalletInfo(
             walletName: walletName,
             balance: Localization.sendWalletBalanceFormat(walletModel.balance, walletModel.fiatBalance),
@@ -154,22 +172,25 @@ final class SendViewModel: ObservableObject {
             tokenIconInfo: tokenIconInfo,
             cryptoIconURL: cryptoIconURL,
             cryptoCurrencyCode: walletModel.tokenItem.currencySymbol,
-            fiatIconURL: URL(string: "https://vectorflags.s3-us-west-2.amazonaws.com/flags/us-square-01.png")!,
+            fiatIconURL: fiatIconURL,
             fiatCurrencyCode: AppSettings.shared.selectedCurrencyCode,
             amountFractionDigits: walletModel.tokenItem.decimalCount,
             feeFractionDigits: walletModel.feeTokenItem.decimalCount,
             feeAmountType: walletModel.feeTokenItem.amountType
         )
 
-        #warning("Fiat icon URL")
-
-        notificationManager = SendNotificationManager(input: sendModel)
+        notificationManager = CommonSendNotificationManager(
+            tokenItem: walletModel.tokenItem,
+            feeTokenItem: walletModel.feeTokenItem,
+            input: sendModel
+        )
 
         sendAmountViewModel = SendAmountViewModel(input: sendModel, walletInfo: walletInfo)
         sendDestinationViewModel = SendDestinationViewModel(input: sendModel)
         sendFeeViewModel = SendFeeViewModel(input: sendModel, notificationManager: notificationManager, walletInfo: walletInfo)
-        sendSummaryViewModel = SendSummaryViewModel(input: sendModel, walletInfo: walletInfo)
+        sendSummaryViewModel = SendSummaryViewModel(input: sendModel, notificationManager: notificationManager, walletInfo: walletInfo)
 
+        sendFeeViewModel.router = coordinator
         sendSummaryViewModel.router = self
 
         notificationManager.setupManager(with: self)
@@ -312,6 +333,20 @@ final class SendViewModel: ObservableObject {
         sendModel.setDestination(result.destination)
         sendModel.setAmount(result.amount)
     }
+
+    // [REDACTED_TODO_COMMENT]
+    private func openNetworkCurrency() {
+        guard
+            let networkCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
+                $0.tokenItem == .blockchain(walletModel.tokenItem.blockchainNetwork) && $0.blockchainNetwork == walletModel.blockchainNetwork
+            })
+        else {
+            assertionFailure("Network currency WalletModel not found")
+            return
+        }
+
+        coordinator?.openFeeCurrency(for: networkCurrencyWalletModel, userWalletModel: userWalletModel)
+    }
 }
 
 extension SendViewModel: SendSummaryRoutable {
@@ -355,10 +390,50 @@ extension SendViewModel: NotificationTapDelegate {
         switch action {
         case .refreshFee:
             sendModel.updateFees()
-                .sink()
-                .store(in: &bag)
+        case .openFeeCurrency:
+            openNetworkCurrency()
+        case .reduceAmountBy(let amount, _):
+            reduceAmountBy(amount)
+        case .reduceAmountTo(let amount, _):
+            reduceAmountTo(amount)
         default:
-            break
+            assertionFailure("Notification tap not handled")
+        }
+    }
+
+    private func reduceAmountBy(_ amount: Decimal) {
+        guard var newAmount = sendModel.amountValue else { return }
+
+        newAmount = newAmount - Amount(with: sendModel.blockchain, type: sendModel.amountType, value: amount)
+        if sendModel.isFeeIncluded, let feeValue = sendModel.feeValue?.amount {
+            newAmount = newAmount + feeValue
+        }
+
+        sendModel.setAmount(newAmount)
+    }
+
+    private func reduceAmountTo(_ amount: Decimal) {
+        var newAmount = amount
+
+        if sendModel.isFeeIncluded, let feeValue = sendModel.feeValue?.amount.value {
+            newAmount = newAmount + feeValue
+        }
+
+        sendModel.setAmount(Amount(with: sendModel.blockchain, type: sendModel.amountType, value: newAmount))
+    }
+}
+
+// MARK: - ValidationError
+
+private extension ValidationError {
+    var step: SendStep {
+        switch self {
+        case .invalidAmount, .balanceNotFound:
+            return .amount
+        case .amountExceedsBalance, .invalidFee, .feeExceedsBalance, .totalExceedsBalance, .withdrawalWarning, .reserve:
+            return .fee
+        case .dustAmount, .dustChange, .minimumBalance:
+            return .summary
         }
     }
 }
