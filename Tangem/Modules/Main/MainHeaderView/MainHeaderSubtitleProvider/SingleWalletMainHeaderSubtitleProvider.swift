@@ -62,8 +62,8 @@ class SingleWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
                 isLoadingSubject.send(false)
 
                 switch newState {
-                case .failed(let error):
-                    formatErrorMessage(with: error)
+                case .failed:
+                    formatErrorMessage()
                 case .idle, .noAccount:
                     formatBalanceMessage()
                 case .created, .loading, .noDerivation:
@@ -76,15 +76,15 @@ class SingleWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
         guard let dataSource else { return }
 
         let balance = dataSource.balance
-        subject.send(.init(message: balance, formattingOption: .default))
+        subject.send(.init(messages: [balance], formattingOption: .default))
     }
 
-    private func formatErrorMessage(with text: String) {
-        subject.send(.init(message: text, formattingOption: .error))
+    private func formatErrorMessage() {
+        subject.send(.init(messages: [BalanceFormatter.defaultEmptyBalanceString], formattingOption: .default))
     }
 
     private func displayLockedWalletMessage() {
-        subject.send(.init(message: Localization.commonLocked, formattingOption: .default))
+        subject.send(.init(messages: [Localization.commonLocked], formattingOption: .default))
     }
 }
 
