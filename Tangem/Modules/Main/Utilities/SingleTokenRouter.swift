@@ -21,14 +21,14 @@ protocol SingleTokenRoutable {
     func openExplorer(at url: URL, for walletModel: WalletModel)
 }
 
-class SingleTokenRouter: SingleTokenRoutable {
+final class SingleTokenRouter: SingleTokenRoutable {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.keysManager) private var keysManager: KeysManager
 
     private let userWalletModel: UserWalletModel
     private weak var coordinator: SingleTokenBaseRoutable?
 
-    init(userWalletModel: UserWalletModel, coordinator: SingleTokenBaseRoutable) {
+    init(userWalletModel: UserWalletModel, coordinator: SingleTokenBaseRoutable?) {
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
     }
