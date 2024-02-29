@@ -72,6 +72,10 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
                 .removeDuplicates()
                 .prefix(untilOutputFrom: controller.autoScrollStopSubject)
         }
+    // Fix for SwiftUI preview crashes due to unsafe handling of a recursive lock by the Swift TypeChecker
+    #if targetEnvironment(simulator)
+        .eraseToAnyPublisher()
+    #endif // targetEnvironment(simulator)
 
     var viewportSizeSubject: some Subject<CGSize, Never> { _viewportSizeSubject }
     private let _viewportSizeSubject = CurrentValueSubject<CGSize, Never>(.zero)
@@ -126,13 +130,6 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
         indexPath.flatMap { itemsFrames[$0] }
     }
 
-    /// - Warning: O(N) time complexity.
-    func indexPath(for location: CGPoint) -> IndexPath? {
-        return itemsFrames
-            .first { isIndexPathValid($0.key) && $0.value.contains(location) }
-            .map(\.key)
-    }
-
     func updatedDestinationIndexPath(
         source sourceIndexPath: IndexPath,
         currentDestination currentDestinationIndexPath: IndexPath,
@@ -147,32 +144,21 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
         }
 
         draggedItemFrame.origin.y += translationValue.height
-        let neighboringIndexPaths: [IndexPath]
 
         switch dataSource.controller(self, listViewKindForItemAt: sourceIndexPath) {
         case .cell:
-            neighboringIndexPaths = neighboringItemsIndexPaths(
+            return updatedDestinationIndexPath(
                 forItemAt: currentDestinationIndexPath,
+                draggedItemFrame: draggedItemFrame,
                 dataSource: dataSource
             )
         case .sectionHeader:
-            neighboringIndexPaths = neighboringSectionsIndexPaths(
+            return updatedDestinationIndexPath(
                 forSectionAt: currentDestinationIndexPath,
+                draggedItemFrame: draggedItemFrame,
                 dataSource: dataSource
             )
         }
-
-        return neighboringIndexPaths
-            .first { neighboringIndexPath in
-                guard let neighboringItemFrame = frame(forItemAt: neighboringIndexPath) else {
-                    return false
-                }
-
-                let intersection = draggedItemFrame.intersection(neighboringItemFrame)
-
-                return !intersection.isNull && intersection.height > neighboringItemFrame.height
-                    * destinationItemSelectionThresholdRatio
-            }
     }
 
     func startAutoScrolling(direction: OrganizeTokensDragAndDropControllerAutoScrollDirection) {
@@ -189,48 +175,96 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
         autoScrollStatus = .inactive
     }
 
-    private func neighboringItemsIndexPaths(
+    /// - Warning: O(N) time complexity.
+    private func updatedDestinationIndexPath(
         forItemAt indexPath: IndexPath,
+        draggedItemFrame: CGRect,
         dataSource: OrganizeTokensDragAndDropControllerDataSource
-    ) -> [IndexPath] {
-        var neighboringItemsIndexPaths: [IndexPath] = []
-
-        if indexPath.item > 0 {
-            neighboringItemsIndexPaths.append(
-                IndexPath(item: indexPath.item - 1, section: indexPath.section)
-            )
-        }
-
+    ) -> IndexPath? {
         let numberOfRowsInSection = dataSource.controller(self, numberOfRowsInSection: indexPath.section)
-        if indexPath.item < numberOfRowsInSection - 1 {
-            neighboringItemsIndexPaths.append(
-                IndexPath(item: indexPath.item + 1, section: indexPath.section)
-            )
+        var hasReachedTop = false
+        var hasReachedBottom = false
+
+        for offset in 1 ..< numberOfRowsInSection {
+            // Going in the upward direction from the current destination index path until OOB
+            if !hasReachedTop, indexPath.item - offset >= 0 {
+                let destinationIndexPathCandidate = IndexPath(item: indexPath.item - offset, section: indexPath.section)
+                if isDestinationIndexPathCandidateValid(destinationIndexPathCandidate, draggedItemFrame: draggedItemFrame) {
+                    return destinationIndexPathCandidate
+                }
+            } else {
+                hasReachedTop = true
+            }
+
+            // Going in the downward direction from the current destination index path until OOB
+            if !hasReachedBottom, indexPath.item + offset <= numberOfRowsInSection - 1 {
+                let destinationIndexPathCandidate = IndexPath(item: indexPath.item + offset, section: indexPath.section)
+                if isDestinationIndexPathCandidateValid(destinationIndexPathCandidate, draggedItemFrame: draggedItemFrame) {
+                    return destinationIndexPathCandidate
+                }
+            } else {
+                hasReachedBottom = true
+            }
+
+            if hasReachedTop, hasReachedBottom {
+                return nil
+            }
         }
 
-        return neighboringItemsIndexPaths
+        return nil
     }
 
-    private func neighboringSectionsIndexPaths(
+    /// - Warning: O(N) time complexity.
+    private func updatedDestinationIndexPath(
         forSectionAt indexPath: IndexPath,
+        draggedItemFrame: CGRect,
         dataSource: OrganizeTokensDragAndDropControllerDataSource
-    ) -> [IndexPath] {
-        var neighboringSectionsIndexPaths: [IndexPath] = []
-
-        if indexPath.section > 0 {
-            neighboringSectionsIndexPaths.append(
-                IndexPath(item: indexPath.item, section: indexPath.section - 1)
-            )
-        }
-
+    ) -> IndexPath? {
         let numberOfSections = dataSource.numberOfSections(for: self)
-        if indexPath.section < numberOfSections - 1 {
-            neighboringSectionsIndexPaths.append(
-                IndexPath(item: indexPath.item, section: indexPath.section + 1)
-            )
+        var hasReachedTop = false
+        var hasReachedBottom = false
+
+        for offset in 1 ..< numberOfSections {
+            // Going in the upward direction from the current destination index path until OOB
+            if !hasReachedTop, indexPath.section - offset >= 0 {
+                let destinationIndexPathCandidate = IndexPath(item: indexPath.item, section: indexPath.section - offset)
+                if isDestinationIndexPathCandidateValid(destinationIndexPathCandidate, draggedItemFrame: draggedItemFrame) {
+                    return destinationIndexPathCandidate
+                }
+            } else {
+                hasReachedTop = true
+            }
+
+            // Going in the downward direction from the current destination index path until OOB
+            if !hasReachedBottom, indexPath.section + offset <= numberOfSections - 1 {
+                let destinationIndexPathCandidate = IndexPath(item: indexPath.item, section: indexPath.section + offset)
+                if isDestinationIndexPathCandidateValid(destinationIndexPathCandidate, draggedItemFrame: draggedItemFrame) {
+                    return destinationIndexPathCandidate
+                }
+            } else {
+                hasReachedBottom = true
+            }
+
+            if hasReachedTop, hasReachedBottom {
+                return nil
+            }
         }
 
-        return neighboringSectionsIndexPaths
+        return nil
+    }
+
+    func isDestinationIndexPathCandidateValid(
+        _ destinationIndexPathCandidate: IndexPath,
+        draggedItemFrame: CGRect
+    ) -> Bool {
+        guard let candidateItemFrame = frame(forItemAt: destinationIndexPathCandidate) else {
+            return false
+        }
+
+        let intersection = draggedItemFrame.intersection(candidateItemFrame)
+        let ratio = destinationItemSelectionThresholdRatio
+
+        return !intersection.isNull && intersection.height > candidateItemFrame.height * ratio
     }
 
     // Maybe not so memory-efficient, but definitely safer than manual clearing of `itemsFrames` cache

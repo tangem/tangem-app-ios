@@ -16,42 +16,6 @@ extension View {
     }
 
     @ViewBuilder
-    func tintCompat(_ color: Color) -> some View {
-        if #available(iOS 15.0, *) {
-            self.tint(color)
-        } else {
-            self
-        }
-    }
-
-    @ViewBuilder
-    func toggleStyleCompat(_ color: Color) -> some View {
-        if #available(iOS 15.0, *) {
-            self.tint(color)
-        } else {
-            toggleStyle(SwitchToggleStyle(tint: color))
-        }
-    }
-
-    @ViewBuilder
-    func searchableCompat(text: Binding<String>) -> some View {
-        if #available(iOS 15.0, *) {
-            self.searchable(text: text, placement: .navigationBarDrawer(displayMode: .always))
-        } else {
-            self
-        }
-    }
-
-    @ViewBuilder
-    func interactiveDismissDisabledCompat() -> some View {
-        if #available(iOS 15, *) {
-            self.interactiveDismissDisabled()
-        } else {
-            self
-        }
-    }
-
-    @ViewBuilder
     func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
         if condition {
             transform(self)
@@ -70,11 +34,76 @@ extension View {
         opacity(shouldHide ? 0.0 : 1.0)
     }
 
-    @available(iOS, obsoleted: 15.0, message: "Delete when the minimum deployment target reaches 15.0")
-    func ios14FixedHeight(_ height: CGFloat) -> some View {
-        if #unavailable(iOS 15.0) {
-            return frame(height: height)
+    /// Two separate methods exist for iOS <16.0 and >=16.0 because they must be applied at the different levels
+    /// of the view hierarchy in order to work.
+    ///
+    /// This method must be used on the content view INSIDE `ScrollView`, otherwise it won't work.
+    /// See an example below:
+    /// ```
+    /// struct SomeView: View {
+    ///     [REDACTED_USERNAME] private var isScrollDisabled = false
+    ///
+    ///     var body: some View {
+    ///         ScrollView {
+    ///             LazyVStack() {
+    ///                 // Some scrollable content
+    ///             }
+    ///             .ios15AndBelowScrollDisabledCompat(isScrollDisabled)
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    @available(iOS, obsoleted: 16.0, message: "Replace with native 'scrollDisabled(_:)' when the minimum deployment target reaches 16.0")
+    @ViewBuilder
+    func ios15AndBelowScrollDisabledCompat(_ disabled: Bool) -> some View {
+        if #available(iOS 16.0, *) {
+            self
+        } else {
+            modifier(IOS15AndBelowScrollDisabledModifier(isDisabled: disabled))
         }
-        return self
+    }
+
+    /// Two separate methods exist for iOS <16.0 and >=16.0 because they must be applied at the different levels
+    /// of the view hierarchy in order to work.
+    ///
+    /// This method  must be used OUTSIDE of `ScrollView` (as well as the native `scrollDisabled(_:)`) , otherwise it won't work.
+    /// See an example below:
+    /// ```
+    /// struct SomeView: View {
+    ///     [REDACTED_USERNAME] private var isScrollDisabled = false
+    ///
+    ///     var body: some View {
+    ///         ScrollView {
+    ///             LazyVStack() {
+    ///                 // Some scrollable content
+    ///             }
+    ///         }
+    ///         .ios16AndAboveScrollDisabledCompat(isScrollDisabled)
+    ///     }
+    /// }
+    /// ```
+    @available(iOS, obsoleted: 16.0, message: "Replace with native 'scrollDisabled(_:)' when the minimum deployment target reaches 16.0")
+    @ViewBuilder
+    func ios16AndAboveScrollDisabledCompat(_ disabled: Bool) -> some View {
+        if #available(iOS 16.0, *) {
+            scrollDisabled(disabled)
+        } else {
+            self
+        }
+    }
+
+    @ViewBuilder
+    func matchedGeometryEffectOptional<ID>(id: ID?, in namespace: Namespace.ID?, properties: MatchedGeometryProperties = .frame, anchor: UnitPoint = .center, isSource: Bool = true) -> some View where ID: Hashable {
+        if let id, let namespace {
+            matchedGeometryEffect(id: id, in: namespace, properties: properties, anchor: anchor, isSource: isSource)
+        } else if id == nil, namespace == nil {
+            self
+        } else {
+            #if DEBUG
+            fatalError("You must set either both ID and namespace or neither")
+            #else
+            self
+            #endif
+        }
     }
 }
