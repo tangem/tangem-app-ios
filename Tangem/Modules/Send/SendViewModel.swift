@@ -308,7 +308,7 @@ final class SendViewModel: ObservableObject {
 
                 return
             }
-            
+
             didReachSummaryScreen = true
         }
 
