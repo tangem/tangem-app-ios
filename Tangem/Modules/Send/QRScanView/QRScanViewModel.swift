@@ -107,7 +107,7 @@ class QRScanViewModel: ObservableObject, Identifiable {
     }
 }
 
-extension QRScanViewModel: QRScannerViewDelegate2 {
+extension QRScanViewModel: QRScannerViewCoordinatorDelegate {
     func userDidDenyCameraAccess() {
         presentAccessDeniedAlert()
     }
