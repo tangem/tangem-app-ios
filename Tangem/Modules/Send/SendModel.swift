@@ -732,5 +732,3 @@ extension SendModel: SendNotificationManagerInput {
         _withdrawalSuggestion.eraseToAnyPublisher()
     }
 }
-
-extension SendModel: SendFiatCryptoAdapterOutput {}
