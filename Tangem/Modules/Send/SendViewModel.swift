@@ -291,8 +291,23 @@ final class SendViewModel: ObservableObject {
         coordinator?.openMail(with: emailDataCollector, recipient: recipient)
     }
 
-    private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation?) {
+    private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation?, checkCustomFee: Bool = true) {
         if case .summary = step {
+            if checkCustomFee, notificationManager.hasNotificationEvent(.customFeeTooLow) {
+                let continueButton = Alert.Button.default(Text(Localization.commonContinue)) { [weak self] in
+                    self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: false)
+                }
+
+                alert = AlertBuilder.makeAlert(
+                    title: "",
+                    message: Localization.sendAlertFeeTooLowText,
+                    primaryButton: continueButton,
+                    secondaryButton: .cancel()
+                )
+
+                return
+            }
+
             didReachSummaryScreen = true
         }
 
