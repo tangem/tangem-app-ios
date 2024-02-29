@@ -134,7 +134,3 @@ class QRScanViewModel: ObservableObject, Identifiable {
             .messageString
     }
 }
-
-extension QRScanViewModel: QRScannerViewCoordinatorDelegate {
-    func userDidDenyCameraAccess() {}
-}
