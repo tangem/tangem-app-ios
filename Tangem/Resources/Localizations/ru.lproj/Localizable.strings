@@ -529,6 +529,7 @@
 "swapping_high_price_impact" = "Сильные колебания цены!";
 "swapping_high_price_impact_description" = "Обмен этой суммы выбранных токенов может вызвать значительные колебания цены и уменьшить получаемую сумму.";
 "swapping_insufficient_funds" = "Недостаточно средств";
+"swapping_network_fee_warning_content" = "Сумма отправки будет уменьшена для покрытия выбранного уровня комиссии";
 "swapping_not_enough_funds_for_fee" = "Недостаточно средств для оплаты комиссии на вашем %1$@ кошельке для создания транзакции. Сначала пополните свой %2$@ кошелек.";
 "swapping_pending_transaction_subtitle" = "Транзакция в процессе…";
 "swapping_pending_transaction_title" = "Подождите";
