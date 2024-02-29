@@ -66,6 +66,11 @@ struct SendSummaryView: View {
                 .onTapGesture {
                     viewModel.didTapSummary(for: .fee)
                 }
+
+                ForEach(viewModel.notificationInputs) { input in
+                    NotificationView(input: input)
+                        .transition(SendView.Constants.auxiliaryViewTransition)
+                }
             }
 
             sendButton
@@ -128,6 +133,6 @@ struct SendSummaryView_Previews: PreviewProvider {
     )
 
     static var previews: some View {
-        SendSummaryView(namespace: namespace, viewModel: SendSummaryViewModel(input: SendSummaryViewModelInputMock(), walletInfo: walletInfo))
+        SendSummaryView(namespace: namespace, viewModel: SendSummaryViewModel(input: SendSummaryViewModelInputMock(), notificationManager: FakeSendNotificationManager(), walletInfo: walletInfo))
     }
 }
