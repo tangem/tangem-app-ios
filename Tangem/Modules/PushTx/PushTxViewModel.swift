@@ -12,7 +12,7 @@ import CombineExt
 import BlockchainSdk
 
 class PushTxViewModel: ObservableObject {
-    var destination: String { transaction.destinationAddress }
+    var destination: String { transaction.destination }
 
     var previousTotal: String {
         isFiatCalculation ?
@@ -74,7 +74,7 @@ class PushTxViewModel: ObservableObject {
 
     let cardViewModel: CardViewModel
     let blockchainNetwork: BlockchainNetwork
-    var transaction: BlockchainSdk.Transaction
+    var transaction: PendingTransactionRecord
 
     lazy var amountDecimal: String = "\(getFiat(for: amountToSend, roundingType: .defaultFiat(roundingMode: .down)) ?? 0)"
     lazy var amount: String = transaction.amount.description
@@ -87,10 +87,10 @@ class PushTxViewModel: ObservableObject {
     private var bag: Set<AnyCancellable> = []
     @Published private var newTransaction: BlockchainSdk.Transaction?
 
-    private unowned let coordinator: PushTxRoutable
+    private weak var coordinator: PushTxRoutable?
 
     init(
-        transaction: BlockchainSdk.Transaction,
+        transaction: PendingTransactionRecord,
         blockchainNetwork: BlockchainNetwork,
         cardViewModel: CardViewModel,
         coordinator: PushTxRoutable
@@ -124,7 +124,6 @@ class PushTxViewModel: ObservableObject {
     func send(_ callback: @escaping () -> Void) {
         guard
             let tx = newTransaction,
-            let previousTxHash = transaction.hash,
             let pusher = walletModel.transactionPusher
         else {
             return
@@ -132,11 +131,12 @@ class PushTxViewModel: ObservableObject {
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.addLoadingView()
-        pusher.pushTransaction(with: previousTxHash, newTransaction: tx, signer: cardViewModel.signer)
+        pusher.pushTransaction(with: transaction.hash, newTransaction: tx, signer: cardViewModel.signer)
             .delay(for: 0.5, scheduler: DispatchQueue.main)
-            .sink(receiveCompletion: { [unowned self] completion in
-                appDelegate.removeLoadingView()
+            .sink(receiveCompletion: { [weak self] completion in
+                guard let self else { return }
 
+                appDelegate.removeLoadingView()
                 if case .failure(let error) = completion {
                     if error.toTangemSdkError().isUserCancelled {
                         return
@@ -168,20 +168,22 @@ class PushTxViewModel: ObservableObject {
         bag.removeAll()
 
         $isFiatCalculation
-            .sink { [unowned self] isFiat in
-                fillPreviousTxInfo(isFiat: isFiat)
-                fillTotalBlock(tx: newTransaction, isFiat: isFiat)
-                updateFeeLabel(fee: selectedFee?.amount, isFiat: isFiat)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, isFiat in
+                viewModel.fillPreviousTxInfo(isFiat: isFiat)
+                viewModel.fillTotalBlock(tx: viewModel.newTransaction, isFiat: isFiat)
+                viewModel.updateFeeLabel(fee: viewModel.selectedFee?.amount, isFiat: isFiat)
             }
             .store(in: &bag)
 
         $selectedFeeLevel
-            .map { [unowned self] feeLevel in
-                guard fees.count > feeLevel else {
+            .withWeakCaptureOf(self)
+            .map { viewModel, feeLevel in
+                guard viewModel.fees.count > feeLevel else {
                     return nil
                 }
 
-                let fee = fees[feeLevel]
+                let fee = viewModel.fees[feeLevel]
                 return fee
             }
             .assign(to: \.selectedFee, on: self, ownership: .weak)
@@ -189,19 +191,21 @@ class PushTxViewModel: ObservableObject {
 
         $fees
             .dropFirst()
-            .map { [unowned self] values in
-                guard values.count > selectedFeeLevel else { return nil }
+            .withWeakCaptureOf(self)
+            .map { viewModel, values in
+                guard values.count > viewModel.selectedFeeLevel else { return nil }
 
-                return values[selectedFeeLevel]
+                return values[viewModel.selectedFeeLevel]
             }
             .assign(to: \.selectedFee, on: self, ownership: .weak)
             .store(in: &bag)
 
         $isFeeIncluded
             .dropFirst()
-            .map { [unowned self] isFeeIncluded in
-                updateAmount(isFeeIncluded: isFeeIncluded, selectedFee: selectedFee?.amount)
-                shouldAmountBlink = true
+            .withWeakCaptureOf(self)
+            .map { viewModel, isFeeIncluded in
+                viewModel.updateAmount(isFeeIncluded: isFeeIncluded, selectedFee: viewModel.selectedFee?.amount)
+                viewModel.shouldAmountBlink = true
             }
             .sink(receiveValue: { _ in })
             .store(in: &bag)
@@ -209,7 +213,9 @@ class PushTxViewModel: ObservableObject {
         $selectedFee
             .dropFirst()
             .combineLatest($isFeeIncluded)
-            .map { [unowned self] fee, isFeeIncluded -> (BlockchainSdk.Transaction?, Fee?) in
+            .withWeakCaptureOf(self)
+            .map { values -> (BlockchainSdk.Transaction?, Fee?) in
+                let (viewModel, (fee, isFeeIncluded)) = values
                 var errorMessage: String?
                 defer {
                     self.amountHint = errorMessage == nil ? nil : .init(isError: true, message: errorMessage!)
@@ -220,50 +226,52 @@ class PushTxViewModel: ObservableObject {
                     return (nil, fee)
                 }
 
-                guard fee.amount > transaction.fee.amount else {
+                guard fee.amount > viewModel.transaction.fee.amount else {
                     errorMessage = BlockchainSdkError.feeForPushTxNotEnough.localizedDescription
                     return (nil, fee)
                 }
 
-                let newAmount = isFeeIncluded ? transaction.amount + previousFeeAmount - fee.amount : transaction.amount
+                let newAmount = if isFeeIncluded {
+                    viewModel.transaction.amount + viewModel.previousFeeAmount - fee.amount
+                } else {
+                    viewModel.transaction.amount
+                }
 
                 var tx: BlockchainSdk.Transaction?
 
                 do {
-                    tx = try walletModel.createTransaction(
-                        amountToSend: newAmount,
+                    tx = try viewModel.walletModel.transactionCreator.createTransaction(
+                        amount: newAmount,
                         fee: fee,
-                        destinationAddress: destination
+                        destinationAddress: viewModel.destination
                     )
                 } catch {
                     errorMessage = error.localizedDescription
                 }
 
-                updateAmount(isFeeIncluded: isFeeIncluded, selectedFee: fee.amount)
+                viewModel.updateAmount(isFeeIncluded: isFeeIncluded, selectedFee: fee.amount)
                 return (tx, fee)
             }
-            .sink(receiveValue: { [unowned self] txFee in
+            .withWeakCaptureOf(self)
+            .sink(receiveValue: { viewModel, txFee in
                 let tx = txFee.0
                 let fee = txFee.1
-                newTransaction = tx
-                isSendEnabled = tx != nil
-                fillTotalBlock(tx: tx, isFiat: isFiatCalculation)
-                updateFeeLabel(fee: fee?.amount)
+                viewModel.newTransaction = tx
+                viewModel.isSendEnabled = tx != nil
+                viewModel.fillTotalBlock(tx: tx, isFiat: viewModel.isFiatCalculation)
+                viewModel.updateFeeLabel(fee: fee?.amount)
 
             })
             .store(in: &bag)
     }
 
     private func loadNewFees() {
-        guard
-            let pusher = walletModel.transactionPusher,
-            let txHash = transaction.hash
-        else {
+        guard let pusher = walletModel.transactionPusher else {
             return
         }
 
         isFeeLoading = true
-        pusher.getPushFee(for: txHash)
+        pusher.getPushFee(for: transaction.hash)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 self?.isFeeLoading = false
@@ -377,18 +385,18 @@ extension PushTxViewModel {
             walletModel: walletModel,
             fee: newTransaction?.fee.amount,
             pushingFee: selectedFee?.amount,
-            destination: transaction.destinationAddress,
-            source: transaction.sourceAddress,
+            destination: transaction.destination,
+            source: transaction.source,
             amount: transaction.amount,
-            pushingTxHash: transaction.hash ?? .unknown,
+            pushingTxHash: transaction.hash,
             lastError: error
         )
 
         let recipient = cardViewModel.emailConfig?.recipient ?? EmailConfig.default.recipient
-        coordinator.openMail(with: emailDataCollector, recipient: recipient)
+        coordinator?.openMail(with: emailDataCollector, recipient: recipient)
     }
 
     func dismiss() {
-        coordinator.dismiss()
+        coordinator?.dismiss()
     }
 }

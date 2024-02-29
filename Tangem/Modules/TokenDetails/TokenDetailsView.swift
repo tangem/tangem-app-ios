@@ -11,28 +11,15 @@ import SwiftUI
 struct TokenDetailsView: View {
     @ObservedObject var viewModel: TokenDetailsViewModel
 
-    @State private var contentOffset: CGPoint = .zero
+    @StateObject private var scrollState = TokenDetailsScrollState(
+        tokenIconSizeSettings: Constants.tokenIconSizeSettings,
+        headerTopPadding: Constants.headerTopPadding
+    )
 
-    private let tokenIconSizeSettings: IconViewSizeSettings = .tokenDetails
-    private let headerTopPadding: CGFloat = 14
-    private let coorditateSpaceName = "token_details_scroll_space"
-
-    private var toolbarIconOpacity: Double {
-        let iconSize = tokenIconSizeSettings.iconSize
-        let startAppearingOffset = headerTopPadding + iconSize.height
-
-        let fullAppearanceDistance = iconSize.height / 2
-        let fullAppearanceOffset = startAppearingOffset + fullAppearanceDistance
-
-        return clamp(
-            (contentOffset.y - startAppearingOffset) / (fullAppearanceOffset - startAppearingOffset),
-            min: 0,
-            max: 1
-        )
-    }
+    private let coorditateSpaceName = UUID()
 
     var body: some View {
-        RefreshableScrollView(onRefresh: viewModel.onRefresh) {
+        RefreshableScrollView(onRefresh: viewModel.onPullToRefresh(completionHandler:)) {
             VStack(spacing: 14) {
                 TokenDetailsHeaderView(viewModel: viewModel.tokenDetailsHeaderModel)
 
@@ -40,38 +27,68 @@ struct TokenDetailsView: View {
 
                 ForEach(viewModel.tokenNotificationInputs) { input in
                     NotificationView(input: input)
-                        .transition(.scaleOpacity)
+                        .transition(.notificationTransition)
                 }
+
+                if viewModel.isMarketPriceAvailable {
+                    MarketPriceView(
+                        currencySymbol: viewModel.currencySymbol,
+                        price: viewModel.rateFormatted,
+                        priceChangeState: viewModel.priceChangeState,
+                        tapAction: nil
+                    )
+                }
+
+                ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
+                    PendingExpressTransactionView(info: transactionInfo)
+                        .transition(.notificationTransition)
+                }
+
+                PendingTransactionsListView(
+                    items: viewModel.pendingTransactionViews,
+                    exploreTransactionAction: viewModel.openTransactionExplorer
+                )
 
                 TransactionsListView(
                     state: viewModel.transactionHistoryState,
                     exploreAction: viewModel.openExplorer,
                     exploreTransactionAction: viewModel.openTransactionExplorer,
-                    reloadButtonAction: viewModel.reloadHistory,
+                    reloadButtonAction: viewModel.onButtonReloadHistory,
                     isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
-                    buyButtonAction: viewModel.canBuyCrypto ? viewModel.openBuyCryptoIfPossible : nil,
                     fetchMore: viewModel.fetchMoreHistory()
                 )
                 .padding(.bottom, 40)
             }
-            .padding(.top, headerTopPadding)
+            .padding(.top, Constants.headerTopPadding)
             .readContentOffset(
                 inCoordinateSpace: .named(coorditateSpaceName),
-                bindTo: $contentOffset
+                bindTo: scrollState.contentOffsetSubject.asWriteOnlyBinding(.zero)
             )
         }
         .animation(.default, value: viewModel.tokenNotificationInputs)
+        .animation(.default, value: viewModel.pendingExpressTransactions)
         .padding(.horizontal, 16)
         .edgesIgnoringSafeArea(.bottom)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .ignoresSafeArea(.keyboard)
         .onAppear(perform: viewModel.onAppear)
+        .onAppear(perform: scrollState.onViewAppear)
         .alert(item: $viewModel.alert) { $0.alert }
+        .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
         .coordinateSpace(name: coorditateSpaceName)
         .toolbar(content: {
             ToolbarItem(placement: .principal) {
-                IconView(url: viewModel.iconUrl, sizeSettings: .tokenDetailsToolbar, forceKingfisher: true)
-                    .opacity(toolbarIconOpacity)
+                TokenIcon(
+                    tokenIconInfo: .init(
+                        name: "",
+                        blockchainIconName: nil,
+                        imageURL: viewModel.iconUrl,
+                        isCustom: false,
+                        customTokenColor: viewModel.customTokenColor
+                    ),
+                    size: IconViewSizeSettings.tokenDetailsToolbar.iconSize
+                )
+                .opacity(scrollState.toolbarIconOpacity)
             }
 
             ToolbarItem(placement: .navigationBarTrailing) { navbarTrailingButton }
@@ -81,15 +98,52 @@ struct TokenDetailsView: View {
 
     @ViewBuilder
     private var navbarTrailingButton: some View {
-        Menu {
-            if #available(iOS 15.0, *) {
+        if viewModel.canHideToken {
+            Menu {
                 Button(Localization.tokenDetailsHideToken, role: .destructive, action: viewModel.hideTokenButtonAction)
-            } else {
-                Button(Localization.tokenDetailsHideToken, action: viewModel.hideTokenButtonAction)
+            } label: {
+                NavbarDotsImage()
             }
-        } label: {
-            NavbarDotsImage()
-                .offset(x: 11)
         }
     }
+}
+
+// MARK: - Constants
+
+private extension TokenDetailsView {
+    enum Constants {
+        static let tokenIconSizeSettings: IconViewSizeSettings = .tokenDetails
+        static let headerTopPadding: CGFloat = 14.0
+    }
+}
+
+#Preview {
+    let userWalletModel = FakeUserWalletModel.wallet3Cards
+    let walletModel = userWalletModel.walletModelsManager.walletModels.first ?? .mockETH
+    let exchangeUtility = ExchangeCryptoUtility(
+        blockchain: walletModel.blockchainNetwork.blockchain,
+        address: walletModel.defaultAddress,
+        amountType: walletModel.tokenItem.amountType
+    )
+    let notifManager = SingleTokenNotificationManager(
+        walletModel: walletModel,
+        walletModelsManager: userWalletModel.walletModelsManager,
+        expressDestinationService: nil,
+        contextDataProvider: nil
+    )
+    let pendingTxsManager = CommonPendingExpressTransactionsManager(
+        userWalletId: userWalletModel.userWalletId.stringValue,
+        walletModel: walletModel
+    )
+    let coordinator = TokenDetailsCoordinator()
+
+    return TokenDetailsView(viewModel: .init(
+        userWalletModel: userWalletModel,
+        walletModel: walletModel,
+        exchangeUtility: exchangeUtility,
+        notificationManager: notifManager,
+        pendingExpressTransactionsManager: pendingTxsManager,
+        coordinator: coordinator,
+        tokenRouter: SingleTokenRouter(userWalletModel: userWalletModel, coordinator: coordinator)
+    ))
 }

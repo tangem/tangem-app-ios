@@ -10,14 +10,14 @@ import Foundation
 import SwiftUI
 
 struct SensitiveText: View {
-    @ObservedObject private var viewModel: SensitiveTextVisibilityService = .shared
+    @ObservedObject private var sensitiveTextVisibilityViewModel: SensitiveTextVisibilityViewModel = .shared
     private let textType: TextType
 
     init(_ text: String) {
         textType = .string(text)
     }
 
-    init(_ text: NSAttributedString) {
+    init(_ text: AttributedString) {
         textType = .attributed(text)
     }
 
@@ -28,11 +28,11 @@ struct SensitiveText: View {
     var body: some View {
         switch textType {
         case .string(let string):
-            Text(viewModel.isHidden ? Constants.maskedBalanceString : string)
+            Text(sensitiveTextVisibilityViewModel.isHidden ? Constants.maskedBalanceString : string)
         case .attributed(let string):
-            Text(viewModel.isHidden ? NSAttributedString(string: Constants.maskedBalanceString) : string)
+            Text(sensitiveTextVisibilityViewModel.isHidden ? AttributedString(Constants.maskedBalanceString) : string)
         case .builder(let builder, let sensitive):
-            Text(builder(viewModel.isHidden ? Constants.maskedBalanceString : sensitive))
+            Text(builder(sensitiveTextVisibilityViewModel.isHidden ? Constants.maskedBalanceString : sensitive))
         }
     }
 }
@@ -40,13 +40,13 @@ struct SensitiveText: View {
 extension SensitiveText {
     enum TextType {
         case string(String)
-        case attributed(NSAttributedString)
+        case attributed(AttributedString)
         case builder(builder: (String) -> String, sensitive: String)
     }
 }
 
 extension SensitiveText {
     enum Constants {
-        static let maskedBalanceString: String = "***"
+        static let maskedBalanceString: String = "\u{2217}\u{2217}\u{2217}"
     }
 }

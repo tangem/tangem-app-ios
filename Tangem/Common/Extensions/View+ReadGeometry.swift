@@ -9,6 +9,15 @@
 import SwiftUI
 
 struct GeometryInfo: Equatable {
+    static var zero: Self {
+        return GeometryInfo(
+            coordinateSpace: .local,
+            frame: .zero,
+            size: .zero,
+            safeAreaInsets: .init()
+        )
+    }
+
     let coordinateSpace: CoordinateSpace
     let frame: CGRect
     let size: CGSize
@@ -140,13 +149,7 @@ private struct GeometryInfoReaderPreferenceKey: PreferenceKey {
     typealias Value = TimeStampContainer
 
     static var defaultValue: Value {
-        let defaultValue = GeometryInfo(
-            coordinateSpace: .local,
-            frame: .zero,
-            size: .zero,
-            safeAreaInsets: .init()
-        )
-        return Value(timeStamp: .zero, throttleInterval: .zero, geometryInfo: defaultValue)
+        return Value(timeStamp: .zero, throttleInterval: .zero, geometryInfo: .zero)
     }
 
     static func reduce(value: inout Value, nextValue: () -> Value) {}
