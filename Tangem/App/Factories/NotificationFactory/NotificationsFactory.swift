@@ -73,12 +73,13 @@ struct NotificationsFactory {
 
     func buildNotificationInput(
         for event: SendNotificationEvent,
-        buttonAction: NotificationView.NotificationButtonTapAction? = nil
+        buttonAction: NotificationView.NotificationButtonTapAction?,
+        dismissAction: @escaping NotificationView.NotificationAction
     ) -> NotificationViewInput {
         return .init(
             style: sendNotificationStyle(for: event, action: buttonAction),
             severity: event.severity,
-            settings: .init(event: event, dismissAction: nil)
+            settings: .init(event: event, dismissAction: dismissAction)
         )
     }
 
