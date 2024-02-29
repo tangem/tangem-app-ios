@@ -35,15 +35,36 @@ class LockedUserWallet: UserWalletModel {
         return data
     }
 
+    var cardImagePublisher: AnyPublisher<CardImageResult, Never> {
+        let artwork: CardArtwork
+
+        if let artworkInfo = userWallet.artwork {
+            artwork = .artwork(artworkInfo)
+        } else {
+            artwork = .notLoaded
+        }
+
+        return cardImageProvider.loadImage(
+            cardId: userWallet.card.cardId,
+            cardPublicKey: userWallet.card.cardPublicKey,
+            artwork: artwork
+        )
+    }
+
+    var totalBalancePublisher: AnyPublisher<LoadingValue<TotalBalance>, Never> {
+        .just(output: .loaded(.init(balance: 0, currencyCode: "", hasError: false)))
+    }
+
     let backupInput: OnboardingInput? = nil
     let twinInput: OnboardingInput? = nil
 
     private(set) var userWallet: UserWallet
+    private let cardImageProvider = CardImageProvider()
 
     init(with userWallet: UserWallet) {
         self.userWallet = userWallet
         config = UserWalletConfigFactory(userWallet.cardInfo()).makeConfig()
-        signer = TangemSigner(with: userWallet.card.cardId, sdk: config.makeTangemSdk())
+        signer = TangemSigner(filter: .cardId(""), sdk: .init(), twinKey: nil)
     }
 
     func initialUpdate() {}
@@ -52,21 +73,38 @@ class LockedUserWallet: UserWalletModel {
         // Renaming locked wallets is prohibited
     }
 
-    func totalBalancePublisher() -> AnyPublisher<LoadingValue<TotalBalanceProvider.TotalBalance>, Never> {
-        .just(output: .loaded(.init(balance: 0, currencyCode: "", hasError: false)))
+    func validate() -> Bool {
+        // Nothing to validate for locked wallets
+        return true
     }
 }
 
-extension LockedUserWallet: MainHeaderInfoProvider {
+extension LockedUserWallet: MainHeaderSupplementInfoProvider {
     var isUserWalletLocked: Bool { true }
 
     var userWalletNamePublisher: AnyPublisher<String, Never> {
         .just(output: userWallet.name)
     }
 
-    var cardHeaderImage: ImageType? {
-        config.cardHeaderImage
+    var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> {
+        .just(output: config.cardHeaderImage)
     }
 
-    var isWalletModelListEmpty: Bool { false }
+    var isTokensListEmpty: Bool { false }
+}
+
+extension LockedUserWallet: AnalyticsContextDataProvider {
+    func getAnalyticsContextData() -> AnalyticsContextData? {
+        let cardInfo = userWallet.cardInfo()
+        let embeddedEntry = config.embeddedBlockchain
+        let baseCurrency = embeddedEntry?.tokens.first?.symbol ?? embeddedEntry?.blockchainNetwork.blockchain.currencySymbol
+
+        return AnalyticsContextData(
+            id: nil,
+            productType: config.productType,
+            batchId: cardInfo.card.batchId,
+            firmware: cardInfo.card.firmwareVersion.stringValue,
+            baseCurrency: baseCurrency
+        )
+    }
 }
