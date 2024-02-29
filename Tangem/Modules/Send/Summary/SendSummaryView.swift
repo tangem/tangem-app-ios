@@ -15,71 +15,91 @@ struct SendSummaryView: View {
 
     var body: some View {
         VStack {
-            GroupedScrollView {
+            GroupedScrollView(spacing: 14) {
                 GroupedSection(viewModel.walletSummaryViewModel) { viewModel in
                     SendWalletSummaryView(viewModel: viewModel)
                 }
                 .backgroundColor(Colors.Button.disabled)
 
-                Button {
-                    viewModel.didTapSummary(for: .destination)
-                } label: {
-                    GroupedSection(viewModel.destinationViewTypes) { type in
-                        switch type {
-                        case .address(let address):
-                            SendDestinationAddressSummaryView(address: address)
-                                .matchedGeometryEffect(id: SendViewNamespaceId.address, in: namespace)
-                        case .additionalField(let type, let value):
-                            if let name = type.name {
-                                DefaultTextWithTitleRowView(data: .init(title: name, text: value))
-                                    .matchedGeometryEffect(id: SendViewNamespaceId.additionalField, in: namespace)
-                            }
+                GroupedSection(viewModel.destinationViewTypes) { type in
+                    switch type {
+                    case .address(let address):
+                        SendDestinationAddressSummaryView(address: address)
+                            .setNamespace(namespace)
+                    case .additionalField(let type, let value):
+                        if let name = type.name {
+                            DefaultTextWithTitleRowView(data: .init(title: name, text: value))
                         }
                     }
-                    .backgroundColor(Colors.Background.action)
                 }
-                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
-                .disabled(!viewModel.canEditDestination)
+                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.addressContainer.rawValue, namespace: namespace)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    viewModel.didTapSummary(for: .destination)
+                }
 
-                Button {
+                GroupedSection(viewModel.amountSummaryViewData) {
+                    AmountSummaryView(data: $0)
+                        .setNamespace(namespace)
+                        .setTitleNamespaceId(SendViewNamespaceId.amountTitle.rawValue)
+                        .setIconNamespaceId(SendViewNamespaceId.tokenIcon.rawValue)
+                        .setAmountCryptoNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
+                        .setAmountFiatNamespaceId(SendViewNamespaceId.amountFiatText.rawValue)
+                }
+                .innerContentPadding(12)
+                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
+                .contentShape(Rectangle())
+                .onTapGesture {
                     viewModel.didTapSummary(for: .amount)
-                } label: {
-                    GroupedSection(viewModel.amountSummaryViewData) {
-                        AmountSummaryView(data: $0)
-                    }
-                    .interSectionPadding(12)
-                    .backgroundColor(Colors.Background.action)
                 }
-                .matchedGeometryEffect(id: SendViewNamespaceId.amount, in: namespace)
-                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
-                .disabled(!viewModel.canEditAmount)
 
-                Button {
-                    viewModel.didTapSummary(for: .fee)
-                } label: {
-                    GroupedSection(viewModel.feeSummaryViewData) { data in
-                        DefaultTextWithTitleRowView(data: data)
-                    }
-                    .backgroundColor(Colors.Background.action)
+                GroupedSection(viewModel.feeSummaryViewData) { data in
+                    DefaultTextWithTitleRowView(data: data)
+                        .setNamespace(namespace)
+                        .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
+                        .setTextNamespaceId(SendViewNamespaceId.feeSubtitle.rawValue)
+                        // To maintain cell animation from Summary to Fee screen
+                        .overlay(feeIcon.opacity(0), alignment: .topLeading)
                 }
-                .matchedGeometryEffect(id: SendViewNamespaceId.fee, in: namespace)
-                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .opacity.combined(with: .scale)))
+                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    viewModel.didTapSummary(for: .fee)
+                }
+
+                ForEach(viewModel.notificationInputs) { input in
+                    NotificationView(input: input)
+                        .transition(SendView.Constants.auxiliaryViewTransition)
+                }
             }
 
             sendButton
                 .padding(.horizontal, 16)
+                .padding(.bottom, 14)
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
+        .alert(item: $viewModel.alert) { $0.alert }
+        .onAppear(perform: viewModel.onAppear)
+        .onDisappear(perform: viewModel.onDisappear)
+        .presentation(modal: viewModel.isSending)
     }
 
     @ViewBuilder
     private var sendButton: some View {
         MainButton(
-            title: Localization.commonSend,
-            icon: .trailing(Assets.tangemIcon),
-            isLoading: viewModel.isSending,
+            title: viewModel.sendButtonText,
+            icon: viewModel.sendButtonIcon,
+            isDisabled: viewModel.isSending,
             action: viewModel.send
         )
+    }
+
+    @ViewBuilder
+    private var feeIcon: some View {
+        if let feeOptionIcon = viewModel.feeOptionIcon {
+            feeOptionIcon
+                .matchedGeometryEffect(id: SendViewNamespaceId.feeIcon.rawValue, in: namespace)
+        }
     }
 }
 
@@ -89,14 +109,16 @@ struct SendSummaryView_Previews: PreviewProvider {
     static let tokenIconInfo = TokenIconInfo(
         name: "Tether",
         blockchainIconName: "ethereum.fill",
-        imageURL: TokenIconURLBuilder().iconURL(id: "tether"),
+        imageURL: IconURLBuilder().tokenIconURL(id: "tether"),
         isCustom: false,
         customTokenColor: nil
     )
 
     static let walletInfo = SendWalletInfo(
         walletName: "Wallet",
+        balanceValue: 12013,
         balance: "12013",
+        blockchain: .ethereum(testnet: false),
         currencyId: "tether",
         feeCurrencySymbol: "ETH",
         feeCurrencyId: "ethereum",
@@ -106,10 +128,12 @@ struct SendSummaryView_Previews: PreviewProvider {
         cryptoCurrencyCode: "USDT",
         fiatIconURL: nil,
         fiatCurrencyCode: "USD",
-        amountFractionDigits: 6
+        amountFractionDigits: 6,
+        feeFractionDigits: 6,
+        feeAmountType: .coin
     )
 
     static var previews: some View {
-        SendSummaryView(namespace: namespace, viewModel: SendSummaryViewModel(input: SendSummaryViewModelInputMock(), walletInfo: walletInfo))
+        SendSummaryView(namespace: namespace, viewModel: SendSummaryViewModel(input: SendSummaryViewModelInputMock(), notificationManager: FakeSendNotificationManager(), walletInfo: walletInfo))
     }
 }

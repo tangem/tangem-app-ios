@@ -18,19 +18,16 @@ struct MainBottomSheetHeaderInputView: View {
     let allowsHitTestingForTextField: Bool
 
     var body: some View {
-        if #available(iOS 15.0, *) {
-            FocusableWrapperView(content: searchBar, isFocused: isTextFieldFocused)
-        } else {
-            searchBar
-        }
+        FocusableWrapperView(content: searchBar, isFocused: isTextFieldFocused)
     }
 
     @ViewBuilder
     private var searchBar: some View {
         CustomSearchBar(
             searchText: $searchText,
-            placeholder: Localization.commonSearch
+            placeholder: Localization.manageTokensSearchPlaceholder
         )
+        .padding(.horizontal, 16)
         .allowsHitTesting(allowsHitTestingForTextField)
         .padding(.top, Constants.verticalInset)
         .padding(.bottom, max(UIApplication.safeAreaInsets.bottom, Constants.verticalInset))
@@ -40,7 +37,6 @@ struct MainBottomSheetHeaderInputView: View {
 
 // MARK: - Auxiliary types
 
-@available(iOS 15.0, *)
 private extension MainBottomSheetHeaderInputView {
     private struct FocusableWrapperView<Content>: View where Content: View {
         private let content: Content
