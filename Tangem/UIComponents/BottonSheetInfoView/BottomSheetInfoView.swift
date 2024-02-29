@@ -55,7 +55,6 @@ public struct BottomSheetInfoView: View {
 
 // MARK: - Previews
 
-@available(iOS 15.0, *)
 struct BottomSheetInfoView_Previews: PreviewProvider {
     struct StatableContainer: View {
         @State private var item: BottomSheetInfoViewModel?
@@ -69,7 +68,7 @@ struct BottomSheetInfoView_Previews: PreviewProvider {
                 .offset(y: -200)
 
                 NavHolder()
-                    .bottomSheet(item: $item) {
+                    .bottomSheet(item: $item, backgroundColor: Colors.Background.tertiary) {
                         BottomSheetInfoView(viewModel: $0)
                     }
             }

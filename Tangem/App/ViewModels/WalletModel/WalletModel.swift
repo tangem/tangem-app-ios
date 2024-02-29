@@ -12,8 +12,8 @@ import CombineExt
 import BlockchainSdk
 
 class WalletModel {
-    @Injected(\.ratesRepository) private var ratesRepository: RatesRepository
-    @Injected(\.tokenQuotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
+    @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
+    @Injected(\.swapAvailabilityProvider) private var swapAvailabilityProvider: SwapAvailabilityProvider
 
     var walletModelId: WalletModel.Id {
         .init(blockchainNetwork: blockchainNetwork, amountType: amountType)
@@ -33,16 +33,31 @@ class WalletModel {
         transactionHistoryState()
     }
 
-    var shoudShowFeeSelector: Bool {
+    var isSupportedTransactionHistory: Bool {
+        _transactionHistoryService != nil
+    }
+
+    var shouldShowFeeSelector: Bool {
         walletManager.allowsFeeSelection
     }
 
     var tokenItem: TokenItem {
         switch amountType {
         case .coin, .reserve:
-            return .blockchain(wallet.blockchain)
+            return .blockchain(blockchainNetwork)
         case .token(let token):
-            return .token(token, wallet.blockchain)
+            return .token(token, blockchainNetwork)
+        }
+    }
+
+    var feeTokenItem: TokenItem {
+        switch blockchainNetwork.blockchain.feePaidCurrency {
+        case .coin:
+            return .blockchain(blockchainNetwork)
+        case .token(let value):
+            return .token(value, blockchainNetwork)
+        case .sameCurrency:
+            return tokenItem
         }
     }
 
@@ -73,7 +88,7 @@ class WalletModel {
     }
 
     var balance: String {
-        guard let balanceValue else { return "" }
+        guard let balanceValue else { return BalanceFormatter.defaultEmptyBalanceString }
 
         return formatter.formatCryptoBalance(balanceValue, currencyCode: tokenItem.currencySymbol)
     }
@@ -96,13 +111,15 @@ class WalletModel {
     }
 
     var rateFormatted: String {
-        guard let rate else { return "" }
+        guard let rate = quote?.price else {
+            return BalanceFormatter.defaultEmptyBalanceString
+        }
 
         return formatter.formatFiatBalance(rate, formattingOptions: .defaultFiatFormattingOptions)
     }
 
     var quote: TokenQuote? {
-        tokenQuotesRepository.quote(for: tokenItem)
+        quotesRepository.quote(for: tokenItem)
     }
 
     var hasPendingTransactions: Bool {
@@ -123,12 +140,16 @@ class WalletModel {
         wallet.blockchain.isTestnet
     }
 
-    var incomingPendingTransactions: [LegacyTransactionRecord] {
-        legacyTransactionMapper.mapToIncomingRecords(wallet.pendingIncomingTransactions)
+    var pendingTransactions: [PendingTransactionRecord] {
+        wallet.pendingTransactions.filter { !$0.isDummy }
     }
 
-    var outgoingPendingTransactions: [LegacyTransactionRecord] {
-        legacyTransactionMapper.mapToOutgoingRecords(wallet.pendingOutgoingTransactions)
+    var incomingPendingTransactions: [PendingTransactionRecord] {
+        wallet.pendingTransactions.filter { $0.isIncoming }
+    }
+
+    var outgoingPendingTransactions: [PendingTransactionRecord] {
+        wallet.pendingTransactions.filter { !$0.isIncoming }
     }
 
     var isEmptyIncludingPendingIncomingTxs: Bool {
@@ -157,40 +178,15 @@ class WalletModel {
         return Localization.addressQrCodeMessageFormat(currencyName, symbol, wallet.blockchain.displayName)
     }
 
-    var canSendTransaction: Bool {
-        guard AppUtils().canSignLongTransactions(network: blockchainNetwork) else {
-            return false
-        }
-
-        return wallet.canSend(amountType: amountType)
+    var sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions? {
+        TransactionSendAvailabilityProvider().sendingRestrictions(walletModel: self)
     }
 
-    var sendBlockedReason: SendBlockedReason? {
-        if !AppUtils().canSignLongTransactions(network: blockchainNetwork) {
-            return .cantSignLongTransactions
-        }
-
-        guard
-            let currentAmount = wallet.amounts[amountType],
-            let token = amountType.token
-        else {
-            return nil
-        }
-
-        if wallet.hasPendingTx, !wallet.hasPendingTx(for: amountType) { // has pending tx for fee
-            return .hasPendingCoinTx(symbol: blockchainNetwork.blockchain.currencySymbol)
-        }
-
-        // no fee
-        if !wallet.hasPendingTx, !canSendTransaction, !currentAmount.isZero {
-            return .notEnoughtFeeForTokenTx(
-                tokenName: token.name,
-                networkName: blockchainNetwork.blockchain.displayName,
-                coinSymbol: blockchainNetwork.blockchain.currencySymbol
-            )
-        }
-
-        return nil
+    var actionsUpdatePublisher: AnyPublisher<Void, Never> {
+        swapAvailabilityProvider
+            .tokenItemsAvailableToSwapPublisher
+            .mapToVoid()
+            .eraseToAnyPublisher()
     }
 
     var isDemo: Bool { demoBalance != nil }
@@ -202,7 +198,6 @@ class WalletModel {
     private let walletManager: WalletManager
     private let _transactionHistoryService: TransactionHistoryService?
     private var updateTimer: AnyCancellable?
-    private var txHistoryUpdateSubscription: AnyCancellable?
     private var updateWalletModelSubscription: AnyCancellable?
     private var bag = Set<AnyCancellable>()
     private var updatePublisher: PassthroughSubject<State, Never>?
@@ -210,20 +205,10 @@ class WalletModel {
     private var _walletDidChangePublisher: CurrentValueSubject<State, Never> = .init(.created)
     private var _state: CurrentValueSubject<State, Never> = .init(.created)
     private var _rate: CurrentValueSubject<Decimal?, Never> = .init(nil)
-
-    private var rate: Decimal? {
-        guard let currencyId = tokenItem.currencyId else {
-            return nil
-        }
-
-        return ratesRepository.rates[currencyId]
-    }
+    private var _localPendingTransactionSubject: PassthroughSubject<Void, Never> = .init()
 
     private let converter = BalanceConverter()
     private let formatter = BalanceFormatter()
-    private var legacyTransactionMapper: LegacyTransactionMapper {
-        LegacyTransactionMapper(formatter: formatter)
-    }
 
     deinit {
         AppLog.shared.debug("🗑 \(self) deinit")
@@ -244,24 +229,6 @@ class WalletModel {
     }
 
     func bind() {
-        AppSettings.shared
-            .$selectedCurrencyCode
-            .delay(for: 0.3, scheduler: DispatchQueue.main)
-            .dropFirst()
-            .receive(on: updateQueue)
-            .flatMap { [weak self] _ in
-                guard let self else {
-                    return Just(()).eraseToAnyPublisher()
-                }
-
-                return Publishers
-                    .CombineLatest(loadRates(), loadQuotes())
-                    .mapToVoid()
-                    .eraseToAnyPublisher()
-            }
-            .sink(receiveValue: {})
-            .store(in: &bag)
-
         walletManager.statePublisher
             .filter { !$0.isInitialState }
             .receive(on: updateQueue)
@@ -270,18 +237,18 @@ class WalletModel {
             }
             .store(in: &bag)
 
-        ratesRepository
-            .ratesPublisher
-            .compactMap { [tokenItem] rates -> Decimal? in
+        quotesRepository
+            .quotesPublisher
+            .compactMap { [tokenItem] quotes -> Decimal? in
                 guard let currencyId = tokenItem.currencyId else { return nil }
 
-                return rates[currencyId]
+                return quotes[currencyId]?.price
             }
             .removeDuplicates()
             .sink { [weak self] rate in
                 guard let self else { return }
 
-                AppLog.shared.debug("🔄 Rate updated for \(self)")
+                AppLog.shared.debug("🔄 Quotes updated for \(self)")
                 _rate.send(rate)
             }
             .store(in: &bag)
@@ -297,7 +264,9 @@ class WalletModel {
     // MARK: - Update wallet model
 
     func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never> {
-        Publishers
+        _transactionHistoryService?.clearHistory()
+
+        return Publishers
             .CombineLatest(update(silent: silent), updateTransactionsHistory())
             .mapToVoid()
             .eraseToAnyPublisher()
@@ -327,9 +296,9 @@ class WalletModel {
 
         updateWalletModelSubscription = walletManager
             .updatePublisher()
-            .combineLatest(loadRates(), loadQuotes())
+            .combineLatest(loadQuotes())
             .receive(on: updateQueue)
-            .sink { [weak self] newState, _, _ in
+            .sink { [weak self] newState, _ in
                 guard let self else { return }
 
                 AppLog.shared.debug("🔄 Finished common update for \(self)")
@@ -384,23 +353,7 @@ class WalletModel {
         }
     }
 
-    // MARK: - Load Rates
-
-    private func loadRates() -> AnyPublisher<Void, Never> {
-        guard let currencyId = tokenItem.currencyId else {
-            return .just(output: ())
-        }
-
-        AppLog.shared.debug("🔄 Start loading rates for \(self)")
-
-        return ratesRepository
-            .loadRates(coinIds: [currencyId])
-            .handleEvents(receiveOutput: { [weak self] _ in
-                AppLog.shared.debug("🔄 Finished loading rates for \(String(describing: self))")
-            })
-            .mapToVoid()
-            .eraseToAnyPublisher()
-    }
+    // MARK: - Load Quotes
 
     private func loadQuotes() -> AnyPublisher<Void, Never> {
         guard let currencyId = tokenItem.currencyId else {
@@ -409,8 +362,8 @@ class WalletModel {
 
         AppLog.shared.debug("🔄 Start loading quotes for \(self)")
 
-        return tokenQuotesRepository
-            .loadQuotes(coinIds: [currencyId])
+        return quotesRepository
+            .loadQuotes(currencyIds: [currencyId])
             .handleEvents(receiveOutput: { [weak self] _ in
                 AppLog.shared.debug("🔄 Finished loading quotes for \(String(describing: self))")
             })
@@ -428,32 +381,38 @@ class WalletModel {
             mode: .common
         )
         .autoconnect()
-        .sink { [weak self] _ in
+        .withWeakCaptureOf(self)
+        .flatMap { root, _ in
             AppLog.shared.debug("⏰ Updating timer alarm ‼️ \(String(describing: self)) will be updated")
-            self?.update(silent: false)
+            return root.generalUpdate(silent: false)
+        }
+        .sink { [weak self] in
             self?.updateTimer?.cancel()
         }
     }
 
-    func send(_ tx: Transaction, signer: TangemSigner) -> AnyPublisher<Void, Error> {
+    func send(_ tx: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, Error> {
         if isDemo {
-            return signer.sign(
-                hash: Data.randomData(count: 32),
-                walletPublicKey: wallet.publicKey
-            )
-            .mapToVoid()
-            .receive(on: DispatchQueue.main)
-            .eraseToAnyPublisher()
+            let hash = Data.randomData(count: 32)
+            return signer.sign(hash: hash, walletPublicKey: wallet.publicKey)
+                .map { _ in TransactionSendResult(hash: hash.hexString) }
+                .receive(on: DispatchQueue.main)
+                .eraseToAnyPublisher()
         }
 
         return walletManager.send(tx, signer: signer)
             .receive(on: RunLoop.main)
             .handleEvents(receiveOutput: { [weak self] _ in
+                // Force update transactions history to take a new pending transaction from the local storage
+                self?._localPendingTransactionSubject.send(())
                 self?.startUpdatingTimer()
             })
             .receive(on: DispatchQueue.main)
-            .mapToVoid()
             .eraseToAnyPublisher()
+    }
+
+    func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error> {
+        return walletManager.estimatedFee(amount: amount)
     }
 
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
@@ -463,10 +422,6 @@ class WalletModel {
         }
 
         return walletManager.getFee(amount: amount, destination: destination)
-    }
-
-    func createTransaction(amountToSend: Amount, fee: Fee, destinationAddress: String) throws -> Transaction {
-        try walletManager.createTransaction(amount: amountToSend, fee: fee, destinationAddress: destinationAddress)
     }
 }
 
@@ -506,49 +461,76 @@ extension WalletModel {
 
 extension WalletModel {
     func updateTransactionsHistory() -> AnyPublisher<Void, Never> {
-        guard let transactionHistoryService else {
+        guard let _transactionHistoryService else {
             AppLog.shared.debug("TransactionsHistory for \(self) not supported")
             return .just(output: ())
         }
 
-        return transactionHistoryService
-            .update()
-            .eraseToAnyPublisher()
+        AppLog.shared.debug("TransactionsHistory for \(self) start the updating")
+        return _transactionHistoryService.update()
     }
 
     private func transactionHistoryState() -> AnyPublisher<WalletModel.TransactionHistoryState, Never> {
-        guard let transactionHistoryService else {
+        guard let _transactionHistoryService else {
             return .just(output: .notSupported)
         }
 
-        return transactionHistoryService
-            .statePublisher
-            .map { [weak transactionHistoryService] state -> WalletModel.TransactionHistoryState in
-                switch state {
-                case .initial:
-                    return .notLoaded
-                case .loading:
-                    return .loading
-                case .loaded:
-                    return .loaded(items: transactionHistoryService?.items ?? [])
-                case .failedToLoad(let error):
-                    return .error(error)
-                }
+        return Publishers.Merge(
+            _localPendingTransactionSubject.withLatestFrom(_transactionHistoryService.statePublisher),
+            _transactionHistoryService.statePublisher
+        )
+        .map { [weak self] state -> WalletModel.TransactionHistoryState in
+            switch state {
+            case .initial:
+                return .notLoaded
+            case .loading:
+                return .loading
+            case .loaded:
+                var items = self?._transactionHistoryService?.items ?? []
+                self?.insertPendingTransactionRecordIfNeeded(into: &items)
+                return .loaded(items: items)
+            case .failedToLoad(let error):
+                return .error(error)
             }
-            .eraseToAnyPublisher()
+        }
+        .eraseToAnyPublisher()
+    }
+
+    private func insertPendingTransactionRecordIfNeeded(into items: inout [TransactionRecord]) {
+        guard !pendingTransactions.isEmpty else {
+            AppLog.shared.debug("\(self) has not local pending transactions")
+            return
+        }
+
+        AppLog.shared.debug("\(self) has pending local transactions \(pendingTransactions.map { $0.hash }). Try to insert it to transaction history")
+        let mapper = PendingTransactionRecordMapper(formatter: formatter)
+
+        pendingTransactions.forEach { pending in
+            if items.contains(where: { $0.hash == pending.hash }) {
+                AppLog.shared.debug("\(self) Transaction history already contains \(pending.hash)")
+            } else {
+                let record = mapper.mapToTransactionRecord(pending: pending)
+                AppLog.shared.debug("\(self) Inserted to transaction history \(record.hash)")
+                items.insert(record, at: 0)
+            }
+        }
     }
 }
 
 // MARK: - ExistentialDepositProvider
 
 extension WalletModel {
+    var existentialDeposit: Amount? {
+        existentialDepositProvider?.existentialDeposit
+    }
+
     var existentialDepositWarning: String? {
-        guard let existentialDepositProvider = walletManager as? ExistentialDepositProvider else {
+        guard let existentialDeposit = existentialDeposit else {
             return nil
         }
 
         let blockchainName = blockchainNetwork.blockchain.displayName
-        let existentialDepositAmount = existentialDepositProvider.existentialDeposit.string(roundingMode: .plain)
+        let existentialDepositAmount = existentialDeposit.string(roundingMode: .plain)
         return Localization.warningExistentialDepositMessage(blockchainName, existentialDepositAmount)
     }
 }
@@ -563,7 +545,7 @@ extension WalletModel {
 
         return rentProvider.rentAmount()
             .zip(rentProvider.minimalBalanceForRentExemption())
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .map { [weak self] rentAmount, minimalBalanceForRentExemption in
                 guard
                     let self = self,
@@ -573,7 +555,7 @@ extension WalletModel {
                     return nil
                 }
 
-                return Localization.solanaRentWarning(rentAmount.description, minimalBalanceForRentExemption.description)
+                return Localization.warningSolanaRentFeeMessage(rentAmount.description, minimalBalanceForRentExemption.description)
             }
             .replaceError(with: nil)
             .eraseToAnyPublisher()
@@ -619,15 +601,33 @@ extension WalletModel {
         walletManager as? EthereumTransactionProcessor
     }
 
-    var transactionHistoryService: TransactionHistoryService? {
-        _transactionHistoryService
-    }
-
     var signatureCountValidator: SignatureCountValidator? {
         walletManager as? SignatureCountValidator
     }
 
+    var addressResolver: AddressResolver? {
+        walletManager as? AddressResolver
+    }
+
     var hasRent: Bool {
         walletManager is RentProvider
+    }
+
+    var existentialDepositProvider: ExistentialDepositProvider? {
+        walletManager as? ExistentialDepositProvider
+    }
+
+    var transactionValidator: TransactionValidator {
+        walletManager
+    }
+}
+
+extension WalletModel: TransactionHistoryFetcher {
+    var canFetchHistory: Bool {
+        _transactionHistoryService?.canFetchHistory ?? false
+    }
+
+    func clearHistory() {
+        _transactionHistoryService?.clearHistory()
     }
 }

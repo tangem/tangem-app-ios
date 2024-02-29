@@ -76,7 +76,7 @@ class ReferralViewModel: ObservableObject {
         }
 
         do {
-            let address = try await userTokensManager.add(.token(token, blockchain), derivationPath: nil)
+            let address = try await userTokensManager.add(.token(token, .init(blockchain, derivationPath: nil)))
             isProcessingRequest = false
 
             let referralProgramInfo: ReferralProgramInfo? = try await runInTask { [weak self] in
@@ -170,6 +170,10 @@ extension ReferralViewModel {
     var numberOfWalletsBought: String {
         let count = referralProgramInfo?.referral?.walletsPurchased ?? 0
         return Localization.referralWalletsPurchasedCount(count)
+    }
+
+    var isExpectingAwards: Bool {
+        referralProgramInfo?.expectedAwards != nil
     }
 
     var hasExpectedAwards: Bool {

@@ -26,20 +26,40 @@ struct CommonWalletModelsFactory {
         return derivationPath == defaultDerivation
     }
 
-    private func makeTransactionHistoryService(tokenItem: TokenItem, address: String) -> TransactionHistoryService? {
-        if FeatureStorage().useFakeTxHistory {
+    private func makeTransactionHistoryService(tokenItem: TokenItem, addresses: [String]) -> TransactionHistoryService? {
+        if FeatureStorage().useFakeTxHistory, let address = addresses.first {
             return FakeTransactionHistoryService(blockchain: tokenItem.blockchain, address: address)
         }
 
-        let factory = TransactionHistoryFactoryProvider().factory
-        guard let provider = factory.makeProvider(for: tokenItem.blockchain) else {
+        if addresses.count == 1, let address = addresses.first {
+            let factory = TransactionHistoryFactoryProvider().factory
+
+            guard let provider = factory.makeProvider(for: tokenItem.blockchain) else {
+                return nil
+            }
+
+            return CommonTransactionHistoryService(
+                tokenItem: tokenItem,
+                address: address,
+                transactionHistoryProvider: provider
+            )
+        }
+
+        let multiAddressProviders: [String: TransactionHistoryProvider] = addresses.reduce(into: [:]) { result, address in
+            let factory = TransactionHistoryFactoryProvider().factory
+            if let provider = factory.makeProvider(for: tokenItem.blockchain) {
+                result[address] = provider
+            }
+        }
+
+        guard !multiAddressProviders.isEmpty else {
             return nil
         }
 
-        return CommonTransactionHistoryService(
+        return MutipleAddressTransactionHistoryService(
             tokenItem: tokenItem,
-            address: address,
-            transactionHistoryProvider: provider
+            addresses: addresses,
+            transactionHistoryProviders: multiAddressProviders.compactMapValues { $0 }
         )
     }
 }
@@ -57,12 +77,12 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
         let currentBlockchain = walletManager.wallet.blockchain
         let currentDerivation = walletManager.wallet.publicKey.derivationPath
         let isMainCoinCustom = !isDerivationDefault(blockchain: currentBlockchain, derivationPath: currentDerivation)
-        let transactionHistoryService = makeTransactionHistoryService(
-            tokenItem: .blockchain(currentBlockchain),
-            address: walletManager.wallet.address
-        )
-
+        let blockchainNetwork = BlockchainNetwork(currentBlockchain, derivationPath: currentDerivation)
         if types.contains(.coin) {
+            let transactionHistoryService = makeTransactionHistoryService(
+                tokenItem: .blockchain(blockchainNetwork),
+                addresses: walletManager.wallet.addresses.map { $0.value }
+            )
             let mainCoinModel = WalletModel(
                 walletManager: walletManager,
                 transactionHistoryService: transactionHistoryService,
@@ -77,8 +97,8 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
             if types.contains(amountType) {
                 let isTokenCustom = isMainCoinCustom || token.id == nil
                 let transactionHistoryService = makeTransactionHistoryService(
-                    tokenItem: .token(token, currentBlockchain),
-                    address: walletManager.wallet.address
+                    tokenItem: .token(token, blockchainNetwork),
+                    addresses: walletManager.wallet.addresses.map { $0.value }
                 )
                 let tokenModel = WalletModel(
                     walletManager: walletManager,
