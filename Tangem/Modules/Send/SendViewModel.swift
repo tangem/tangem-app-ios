@@ -293,6 +293,22 @@ final class SendViewModel: ObservableObject {
 
     private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation?) {
         if case .summary = step {
+            if sendModel.totalExceedsBalance {
+                let subtractButton = Alert.Button.default(Text(Localization.sendAlertFeeCoverageSubractText)) { [weak self] in
+                    self?.sendModel.subtractFeeFromAmount()
+                    self?.openStep(step, stepAnimation: stepAnimation)
+                }
+
+                alert = AlertBuilder.makeAlert(
+                    title: "",
+                    message: Localization.sendAlertFeeCoverageTitle,
+                    primaryButton: subtractButton,
+                    secondaryButton: .cancel()
+                )
+
+                return
+            }
+            
             didReachSummaryScreen = true
         }
 
@@ -430,9 +446,9 @@ private extension ValidationError {
         switch self {
         case .invalidAmount, .balanceNotFound:
             return .amount
-        case .amountExceedsBalance, .invalidFee, .feeExceedsBalance, .totalExceedsBalance, .withdrawalWarning, .reserve:
+        case .amountExceedsBalance, .invalidFee, .feeExceedsBalance, .withdrawalWarning, .reserve:
             return .fee
-        case .dustAmount, .dustChange, .minimumBalance:
+        case .dustAmount, .dustChange, .minimumBalance, .totalExceedsBalance:
             return .summary
         }
     }
