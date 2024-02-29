@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import SwiftUI
 import Combine
 import CombineExt
 
@@ -23,6 +24,10 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
 
     let iconURL: URL?
 
+    var customTokenColor: Color? {
+        tokenItem.token?.customTokenColor
+    }
+
     private let tokenItem: TokenItem
 
     private var currentIndex = 0
@@ -34,7 +39,7 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
 
     init(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo]) {
         self.tokenItem = tokenItem
-        iconURL = tokenItem.id != nil ? TokenIconURLBuilder().iconURL(id: tokenItem.id!) : nil
+        iconURL = tokenItem.id != nil ? IconURLBuilder().tokenIconURL(id: tokenItem.id!) : nil
         self.addressInfos = addressInfos
 
         networkWarningMessage = Localization.receiveBottomSheetWarningMessage(
@@ -43,14 +48,18 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
             tokenItem.networkName
         )
 
-        isUserUnderstandsAddressNetworkRequirements = AppSettings.shared.understandsAddressNetworkRequirements.contains(tokenItem.networkName)
+        isUserUnderstandsAddressNetworkRequirements = true
 
         bind()
     }
 
+    func onViewAppear() {
+        Analytics.log(.receiveScreenOpened)
+    }
+
     func headerForAddress(with info: ReceiveAddressInfo) -> String {
         Localization.receiveBottomSheetTitle(
-            addressInfos.count > 1 ? info.type.rawValue.capitalizingFirstLetter() : "",
+            addressInfos.count > 1 ? info.localizedName.capitalizingFirstLetter() : "",
             tokenItem.currencySymbol,
             tokenItem.networkName
         )

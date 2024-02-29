@@ -19,7 +19,9 @@ class TokenWithoutDerivationInfoProvider: TokenItemInfoProvider {
     let fiatBalance: String = BalanceFormatter.defaultEmptyBalanceString
     var quote: TokenQuote? { nil }
 
-    var tokenItemStatePublisher: AnyPublisher<TokenItemViewState, Never> { .just(output: .noDerivation) }
+    var tokenItemState: TokenItemViewState = .noDerivation
+    var tokenItemStatePublisher: AnyPublisher<TokenItemViewState, Never> { .just(output: tokenItemState) }
+    var actionsUpdatePublisher: AnyPublisher<Void, Never> { .just(output: ()) }
 
     init(id: Int, tokenItem: TokenItem) {
         self.id = id
