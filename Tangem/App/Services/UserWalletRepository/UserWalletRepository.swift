@@ -15,6 +15,7 @@ protocol UserWalletRepository: Initializable {
     var userWallets: [UserWallet] { get }
     var selectedModel: CardViewModel? { get }
     var selectedUserWalletId: Data? { get }
+    var selectedIndexUserWalletModel: Int? { get }
     var isEmpty: Bool { get }
     var count: Int { get }
     var isLocked: Bool { get }
@@ -32,11 +33,12 @@ protocol UserWalletRepository: Initializable {
     func contains(_ userWallet: UserWallet) -> Bool
     // use this method for updating. [REDACTED_TODO_COMMENT]
     func save(_ userWallet: UserWallet)
-    func delete(_ userWallet: UserWallet, logoutIfNeeded shouldAutoLogout: Bool)
+    func delete(_ userWalletId: UserWalletId, logoutIfNeeded shouldAutoLogout: Bool)
     func clearNonSelectedUserWallets()
     func initializeServices(for cardModel: CardViewModel, cardInfo: CardInfo)
     func initialClean()
     func setSaving(_ enabled: Bool)
+    func addOrScan(completion: @escaping (UserWalletRepositoryResult?) -> Void)
 }
 
 extension UserWalletRepository {
@@ -76,11 +78,13 @@ enum UserWalletRepositoryResult {
 
 enum UserWalletRepositoryEvent {
     case locked(reason: UserWalletRepositoryLockReason)
+    case biometryUnlocked
     case scan(isScanning: Bool)
     case inserted(userWallet: UserWallet)
     case updated(userWalletModel: UserWalletModel)
     case deleted(userWalletIds: [Data])
     case selected(userWallet: UserWallet, reason: UserWalletRepositorySelectionChangeReason)
+    case replaced(userWallet: UserWallet)
 }
 
 enum UserWalletRepositorySelectionChangeReason {
