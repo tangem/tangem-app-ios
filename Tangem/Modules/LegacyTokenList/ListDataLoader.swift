@@ -20,6 +20,10 @@ class ListDataLoader {
 
     @Published var items: [CoinModel] = []
 
+    var lastSearchTextValue: String? {
+        return lastSearchText
+    }
+
     // Tells if all items have been loaded. (Used to hide/show activity spinner)
     private(set) var canFetchMore = true
 

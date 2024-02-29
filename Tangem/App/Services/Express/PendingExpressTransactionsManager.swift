@@ -22,8 +22,7 @@ class CommonPendingExpressTransactionsManager {
     @Injected(\.pendingExpressTransactionAnalayticsTracker) private var pendingExpressTransactionAnalyticsTracker: PendingExpressTransactionAnalyticsTracker
 
     private let userWalletId: String
-    private let blockchainNetwork: BlockchainNetwork
-    private let tokenItem: TokenItem
+    private let walletModel: WalletModel
     private let expressAPIProvider: ExpressAPIProvider
 
     private let transactionsToUpdateStatusSubject = CurrentValueSubject<[ExpressPendingTransactionRecord], Never>([])
@@ -33,15 +32,11 @@ class CommonPendingExpressTransactionsManager {
     private var bag = Set<AnyCancellable>()
     private var updateTask: Task<Void, Never>?
     private var transactionsScheduledForUpdate: [PendingExpressTransaction] = []
+    private var tokenItem: TokenItem { walletModel.tokenItem }
 
-    init(
-        userWalletId: String,
-        blockchainNetwork: BlockchainNetwork,
-        tokenItem: TokenItem
-    ) {
+    init(userWalletId: String, walletModel: WalletModel) {
         self.userWalletId = userWalletId
-        self.blockchainNetwork = blockchainNetwork
-        self.tokenItem = tokenItem
+        self.walletModel = walletModel
         expressAPIProvider = ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, logger: AppLog.shared)
 
         bind()
@@ -110,8 +105,10 @@ class CommonPendingExpressTransactionsManager {
                 var transactionsToSchedule = [PendingExpressTransaction]()
                 var transactionsInProgress = [PendingExpressTransaction]()
                 var transactionsToUpdateInRepository = [ExpressPendingTransactionRecord]()
+
                 for pendingTransaction in pendingTransactionsToRequest {
                     let record = pendingTransaction.transactionRecord
+
                     guard record.transactionStatus.isTransactionInProgress else {
                         transactionsInProgress.append(pendingTransaction)
                         transactionsToSchedule.append(pendingTransaction)
@@ -133,6 +130,11 @@ class CommonPendingExpressTransactionsManager {
 
                     if record.transactionStatus != loadedPendingTransaction.transactionRecord.transactionStatus {
                         transactionsToUpdateInRepository.append(loadedPendingTransaction.transactionRecord)
+                    }
+
+                    // If transaction is done we have to update balance
+                    if loadedPendingTransaction.transactionRecord.transactionStatus.isDone {
+                        self?.walletModel.update(silent: true)
                     }
 
                     transactionsToSchedule.append(loadedPendingTransaction)
@@ -186,12 +188,10 @@ class CommonPendingExpressTransactionsManager {
                 return false
             }
 
-            let isSameBlockchain = record.sourceTokenTxInfo.blockchainNetwork == blockchainNetwork
-                || record.destinationTokenTxInfo.blockchainNetwork == blockchainNetwork
-            let isSameTokenItem = record.sourceTokenTxInfo.tokenItem == tokenItem
+            let isSame = record.sourceTokenTxInfo.tokenItem == tokenItem
                 || record.destinationTokenTxInfo.tokenItem == tokenItem
 
-            return isSameBlockchain && isSameTokenItem
+            return isSame
         }
     }
 

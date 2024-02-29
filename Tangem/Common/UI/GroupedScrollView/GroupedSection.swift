@@ -14,14 +14,15 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
     private let header: () -> Header
     private let footer: () -> Footer
 
-    private var verticalPadding: CGFloat = 12
-    private var horizontalPadding: CGFloat = 16
-    private var separatorPadding: CGFloat = 16
-    private var separatorStyle: SeparatorStyle = .single
+    private var horizontalPadding: CGFloat = 14
+    private var separatorStyle: SeparatorStyle = .minimum
     private var interItemSpacing: CGFloat = 0
-    private var interSectionPadding: CGFloat = 0
-    private var backgroundColor: Color = Colors.Background.primary
+    private var innerContentPadding: CGFloat = 0
+    private var backgroundColor: Color = Colors.Background.action
     private var contentAlignment: HorizontalAlignment = .leading
+
+    private var namespace: Namespace.ID?
+    private var backgroundNamespaceId: String?
 
     init(
         _ models: [Model],
@@ -65,14 +66,16 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
                         }
                     }
                 }
-                .padding(.vertical, interSectionPadding)
-                .background(backgroundColor)
-                .cornerRadius(12)
+                .padding(.vertical, innerContentPadding)
+                .background(
+                    backgroundColor
+                        .cornerRadiusContinuous(14)
+                        .matchedGeometryEffectOptional(id: backgroundNamespaceId, in: namespace)
+                )
 
                 footer()
                     .padding(.horizontal, horizontalPadding)
             }
-            .padding(.vertical, verticalPadding)
         }
     }
 
@@ -84,10 +87,10 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
             Colors.Stroke.primary
                 .frame(maxWidth: .infinity)
                 .frame(height: 1)
-                .padding(.leading, separatorPadding)
+                .padding(.leading, horizontalPadding)
         case .minimum:
             Separator(height: .minimal, color: Colors.Stroke.primary)
-                .padding(.leading, separatorPadding)
+                .padding(.leading, horizontalPadding)
         }
     }
 }
@@ -101,16 +104,8 @@ extension GroupedSection {
 }
 
 extension GroupedSection: Setupable {
-    func verticalPadding(_ padding: CGFloat) -> Self {
-        map { $0.verticalPadding = padding }
-    }
-
     func horizontalPadding(_ padding: CGFloat) -> Self {
         map { $0.horizontalPadding = padding }
-    }
-
-    func separatorPadding(_ padding: CGFloat) -> Self {
-        map { $0.separatorPadding = padding }
     }
 
     func separatorStyle(_ style: SeparatorStyle) -> Self {
@@ -121,12 +116,20 @@ extension GroupedSection: Setupable {
         map { $0.interItemSpacing = spacing }
     }
 
-    func interSectionPadding(_ spacing: CGFloat) -> Self {
-        map { $0.interSectionPadding = spacing }
+    func innerContentPadding(_ spacing: CGFloat) -> Self {
+        map { $0.innerContentPadding = spacing }
     }
 
     func backgroundColor(_ color: Color) -> Self {
-        map { $0.backgroundColor = color }
+        backgroundColor(color, id: nil, namespace: nil)
+    }
+
+    func backgroundColor(_ color: Color, id backgroundNamespaceId: String?, namespace: Namespace.ID?) -> Self {
+        map {
+            $0.backgroundColor = color
+            $0.namespace = namespace
+            $0.backgroundNamespaceId = backgroundNamespaceId
+        }
     }
 
     func contentAlignment(_ alignment: HorizontalAlignment) -> Self {
