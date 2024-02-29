@@ -77,7 +77,11 @@ struct TokenInteractionAvailabilityProvider {
              .algorand,
              .shibarium,
              .aptos,
-             .hedera:
+             .hedera,
+             .areon,
+             .playa3ullGames,
+             .pulsechain,
+             .aurora:
 
             // Checking that we have at least one valid (non-empty) address
             //

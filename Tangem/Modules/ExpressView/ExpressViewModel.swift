@@ -431,7 +431,7 @@ private extension ExpressViewModel {
             return
         }
 
-        let tokenItem = interactor.getSender().tokenItem
+        let tokenItem = interactor.getSender().feeTokenItem
         let formattedFee = feeFormatter.format(fee: fee, tokenItem: tokenItem)
 
         var action: (() -> Void)?
@@ -595,8 +595,8 @@ extension ExpressViewModel: NotificationTapDelegate {
         case .refresh:
             interactor.refresh(type: .full)
         case .openFeeCurrency:
-            openNetworkCurrency()
-        case .reduceAmount(let amount, _):
+            openFeeCurrency()
+        case .reduceAmountTo(let amount, _):
             guard let value = sendDecimalValue?.value else {
                 AppLog.shared.debug("[Express] Couldn't find sendDecimalValue")
                 return
@@ -608,18 +608,16 @@ extension ExpressViewModel: NotificationTapDelegate {
         }
     }
 
-    // [REDACTED_TODO_COMMENT]
-    private func openNetworkCurrency() {
-        guard
-            let networkCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
-                $0.tokenItem == initialWallet.tokenItem
-            })
-        else {
-            assertionFailure("Network currency WalletModel not found")
+    func openFeeCurrency() {
+        let walletModels = userWalletModel.walletModelsManager.walletModels
+        guard let feeCurrencyWalletModel = walletModels.first(where: {
+            $0.tokenItem == initialWallet.feeTokenItem
+        }) else {
+            assertionFailure("Fee currency '\(initialWallet.feeTokenItem.name)' for currency '\(initialWallet.tokenItem.name)' not found")
             return
         }
 
-        coordinator?.presentNetworkCurrency(for: networkCurrencyWalletModel, userWalletModel: userWalletModel)
+        coordinator?.presentFeeCurrency(for: feeCurrencyWalletModel, userWalletModel: userWalletModel)
     }
 }
 
