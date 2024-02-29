@@ -309,7 +309,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
 
         var expectedCurves = config.mandatoryCurves
-        // bls12381_G2_AUG is optional for wallets
+        /// Since the curve `bls12381_G2_AUG` was added later into first generation of wallets,, we cannot determine whether this curve is missing due to an error or because the user did not want to recreate the wallet. 
         if config is GenericConfig {
             expectedCurves.remove(.bls12381_G2_AUG)
         }
