@@ -239,6 +239,8 @@
 "express_provider_permission_needed" = "Permission Required";
 "express_terms_of_use" = "Terms of Use";
 "express_token_list_empty_search" = "No tokens found. Please try another request";
+"express_transaction_id" = "ID: %s";
+"express_transaction_id_copied" = "Transaction ID copied";
 "express_unknown_error" = "There was an error. Please try again.";
 "feedback_preface_rate_negative" = "Tell us what functions you are missing, and we will try to help you.";
 "feedback_preface_scan_failed" = "Please tell us what card do you have";
