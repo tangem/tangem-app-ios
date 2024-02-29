@@ -221,7 +221,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     lazy var importSeedPhraseModel: OnboardingSeedPhraseImportViewModel? = .init(
         inputProcessor: SeedPhraseInputProcessor()) { [weak self] mnemonic in
-            self?.createWalletOnPrimaryCard(using: mnemonic)
+            self?.createWalletOnPrimaryCard(using: mnemonic, walletCreationType: .seedImport(length: mnemonic.mnemonicComponents.count))
         }
 
     lazy var validationUserSeedPhraseModel: OnboardingSeedPhraseUserValidationViewModel? = {
@@ -243,8 +243,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                     return
                 }
 
-                self?.walletCreationType = .seedImport
-                self?.createWalletOnPrimaryCard(using: mnemonic)
+                self?.createWalletOnPrimaryCard(using: mnemonic, walletCreationType: .newSeed)
             }
         ))
     }()
@@ -303,14 +302,16 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     @Published private var previewBackupCardsAdded: Int = 0
     @Published private var previewBackupState: BackupService.State = .finalizingPrimaryCard
-    private var walletCreationType: WalletCreationType = .privateKey
 
     private let backupService: BackupService
+    private var cardInitializer: CardInitializable?
+    private var backupContextManager: BackupContextManager?
 
     // MARK: - Initializer
 
     override init(input: OnboardingInput, coordinator: OnboardingCoordinator) {
         backupService = input.backupService
+        cardInitializer = input.cardInitializer
 
         super.init(input: input, coordinator: coordinator)
 
@@ -323,6 +324,14 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
         if isFromMain {
             canDisplayCardImage = true
+        }
+
+        if let customOnboardingImage = input.cardInput.config?.customOnboardingImage {
+            self.customOnboardingImage = customOnboardingImage.image
+        }
+
+        if let cardModel {
+            backupContextManager = BackupContextManager(userWalletModel: cardModel)
         }
 
         bind()
@@ -412,7 +421,17 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     override func goToNextStep() {
         switch currentStep {
         case .createWallet, .createWalletSelector, .seedPhraseUserValidation, .seedPhraseImport:
-            goToStep(.backupIntro)
+            if let backupIntroStepIndex = steps.firstIndex(of: .backupIntro) {
+                let canSkipBackup = cardModel?.canSkipBackup ?? true
+                if canSkipBackup {
+                    goToStep(with: backupIntroStepIndex)
+                } else {
+                    goToStep(with: backupIntroStepIndex + 1)
+                }
+            } else {
+                // impossible case
+                super.goToNextStep()
+            }
         default:
             super.goToNextStep()
         }
@@ -544,6 +563,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     override func backButtonAction() {
         switch currentStep {
+        case .disclaimer:
+            back()
         case .seedPhraseIntro:
             goToStep(.createWalletSelector)
         case .seedPhraseGeneration, .seedPhraseImport:
@@ -611,7 +632,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             setupCardsSettings(animated: true, isContainerSetup: false)
         case .backupCards:
             if backupServiceState == .finished {
-                Analytics.log(event: .backupFinished, params: [.cardsCount: String(backupService.addedBackupCardsCount)])
                 goToNextStep()
             } else {
                 setupCardsSettings(animated: true, isContainerSetup: false)
@@ -626,7 +646,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
         isMainButtonBusy = true
 
-        createWalletOnPrimaryCard()
+        createWalletOnPrimaryCard(using: nil, walletCreationType: .privateKey)
     }
 
     private func readPrimaryCard() {
@@ -652,8 +672,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             )
     }
 
-    private func createWalletOnPrimaryCard(using mnemonic: Mnemonic? = nil) {
-        guard let cardInitializer = input.cardInitializer else { return }
+    private func createWalletOnPrimaryCard(using mnemonic: Mnemonic? = nil, walletCreationType: WalletCreationType) {
+        guard let cardInitializer else { return }
 
         AppSettings.shared.cardsStartedActivation.insert(input.cardInput.cardId)
 
@@ -664,15 +684,34 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             case .success(let cardInfo):
                 initializeUserWallet(from: cardInfo)
 
+                if let cardModel {
+                    backupContextManager = BackupContextManager(userWalletModel: cardModel)
+                }
+
                 if let primaryCard = cardInfo.primaryCard {
                     backupService.setPrimaryCard(primaryCard)
                 }
 
-                Analytics.log(.walletCreatedSuccessfully, params: [.creationType: walletCreationType.analyticsValue])
+                Analytics.log(event: .walletCreatedSuccessfully, params: walletCreationType.params)
                 processPrimaryCardScan()
             case .failure(let error):
                 if !error.toTangemSdkError().isUserCancelled {
                     AppLog.shared.error(error, params: [.action: .preparePrimary])
+
+                    if case TangemSdkError.walletAlreadyCreated = error {
+                        alert = AlertBuilder.makeAlert(
+                            title: Localization.onboardingActivationErrorTitle,
+                            message: Localization.onboardingActivationErrorMessage,
+                            primaryButton: .default(Text(Localization.warningButtonOk), action: { [weak self] in
+                                self?.cardInitializer?.shouldReset = true
+                            }),
+                            secondaryButton: .default(Text(Localization.chatButtonTitle), action: { [weak self] in
+                                self?.openSupport()
+                            })
+                        )
+                    } else {
+                        alert = error.alertBinder
+                    }
                 }
             }
 
@@ -708,8 +747,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
         stepPublisher =
             Deferred {
-                Future { [unowned self] promise in
-                    backupService.addBackupCard { result in
+                Future { [weak self] promise in
+                    self?.backupService.addBackupCard { result in
                         switch result {
                         case .success:
                             promise(.success(()))
@@ -721,6 +760,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             }
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
             .first()
+            .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 if case .failure(let error) = completion {
                     self?.processLinkingError(error)
@@ -738,15 +778,36 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     private func backupCard() {
         isMainButtonBusy = true
 
+        // Ring onboarding. Set custom image for first step
+        if let customOnboardingImage = input.cardInput.config?.customScanImage,
+           backupService.currentState == .finalizingPrimaryCard {
+            backupService.config.style.scanTagImage = .image(uiImage: customOnboardingImage.uiImage, verticalOffset: 0)
+        }
+
         stepPublisher =
             Deferred {
-                Future { [unowned self] promise in
+                Future { [weak self] promise in
+                    guard let self else { return }
+
                     backupService.proceedBackup { result in
+                        // Ring onboarding. Reset to defaults
+                        self.backupService.config.style.scanTagImage = .genericCard
+
                         switch result {
                         case .success(let updatedCard):
+                            self.backupContextManager?.onProceedBackup(updatedCard)
                             if updatedCard.cardId == self.backupService.primaryCard?.cardId {
                                 self.cardModel?.onBackupCreated(updatedCard)
+                                self.backupContextManager?.onCompleteBackup()
                             }
+
+                            if self.backupServiceState == .finished {
+                                Analytics.log(
+                                    event: .backupFinished,
+                                    params: [.cardsCount: String((updatedCard.backupStatus?.linkedCardsCount ?? 0) + 1)]
+                                )
+                            }
+
                             promise(.success(()))
                         case .failure(let error):
                             promise(.failure(error))
@@ -756,10 +817,15 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             }
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
             .first()
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 if case .failure(let error) = completion {
                     AppLog.shared.error(error, params: [.action: .proceedBackup])
                     self?.isMainButtonBusy = false
+
+                    if !error.toTangemSdkError().isUserCancelled {
+                        self?.alert = error.alertBinder
+                    }
                 }
                 self?.stepPublisher = nil
             } receiveValue: { [weak self] (_: Void, _: Notification) in
@@ -784,6 +850,12 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
            let tangemSdkError = error as? TangemSdkError,
            case .backupFailedNotEmptyWallets(let cardId) = tangemSdkError {
             requestResetCard(with: cardId)
+            return
+        }
+
+        let sdkError = error.toTangemSdkError()
+        if !sdkError.isUserCancelled {
+            alert = sdkError.alertBinder
         }
     }
 
@@ -804,12 +876,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         Analytics.log(.backupResetCardNotification, params: [.option: .reset])
         isMainButtonBusy = true
 
-        var interactor: CardResettable? = CardInteractor(
-            tangemSdk: TangemSdkDefaultFactory().makeTangemSdk(),
-            cardId: cardId
-        )
-
-        interactor?.resetCard { [weak self] result in
+        let interactor = CardInteractor(cardId: cardId)
+        interactor.resetCard { [weak self] result in
             switch result {
             case .failure(let error):
                 if error.isUserCancelled {
@@ -822,7 +890,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             }
 
             self?.isMainButtonBusy = false
-            interactor = nil // for retaining
+            withExtendedLifetime(interactor) {}
         }
     }
 }
@@ -840,14 +908,13 @@ extension WalletOnboardingViewModel {
         }
         let baseUrl = AppEnvironment.current.tangemComBaseUrl
         let url = baseUrl.appendingPathComponent("seed-phrase-\(websiteLanguageCode).html")
-        coordinator.openWebView(with: url)
+        coordinator?.openWebView(with: url)
         Analytics.log(.onboardingSeedButtonReadMore)
     }
 
     private func generateSeedPhrase() {
         do {
             try seedPhraseManager.generateSeedPhrase()
-            walletCreationType = .newSeed
             goToNextStep()
         } catch {
             alert = error.alertBinder
@@ -877,13 +944,19 @@ extension WalletOnboardingViewModel {
     enum WalletCreationType {
         case privateKey
         case newSeed
-        case seedImport
+        case seedImport(length: Int)
 
-        var analyticsValue: Analytics.ParameterValue {
+        var params: [Analytics.ParameterKey: String] {
             switch self {
-            case .privateKey: return .walletCreationTypePrivateKey
-            case .newSeed: return .walletCreationTypeNewSeed
-            case .seedImport: return .walletCreationTypeSeedImport
+            case .privateKey:
+                return [.creationType: Analytics.ParameterValue.walletCreationTypePrivateKey.rawValue]
+            case .newSeed:
+                return [.creationType: Analytics.ParameterValue.walletCreationTypeNewSeed.rawValue]
+            case .seedImport(let length):
+                return [
+                    .creationType: Analytics.ParameterValue.walletCreationTypeSeedImport.rawValue,
+                    .seedLength: "\(length)",
+                ]
             }
         }
     }
@@ -893,7 +966,7 @@ extension WalletOnboardingViewModel {
 
 extension WalletOnboardingViewModel {
     func openAccessCode() {
-        coordinator.openAccessCodeView(callback: saveAccessCode)
+        coordinator?.openAccessCodeView(callback: saveAccessCode)
     }
 }
 
