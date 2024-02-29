@@ -13,6 +13,7 @@ import PhotosUI
 class QRScanViewModel: ObservableObject, Identifiable {
     @Published var isFlashActive = false
     @Published var actionSheet: ActionSheetBinder?
+    @Published var hasCameraAccess = false
 
     let code: Binding<String>
     let text: String
@@ -24,24 +25,15 @@ class QRScanViewModel: ObservableObject, Identifiable {
         self.router = router
     }
 
-    func presentAccessDeniedAlert() {
-        let sheet = ActionSheet(
-            title: Text(Localization.qrScannerCameraDeniedTitle),
-            message: Text(Localization.qrScannerCameraDeniedText),
-            buttons: [
-                .default(Text(Localization.qrScannerCameraDeniedGalleryButton)) { [router] in
-                    router.openImagePicker()
-                },
-                .default(Text(Localization.qrScannerCameraDeniedSettingsButton)) { [router] in
-                    router.openSettings()
-                },
-                .cancel(Text(Localization.commonCancel)) { [router] in
-                    router.dismiss()
-                },
-            ]
-        )
-
-        actionSheet = ActionSheetBinder(sheet: sheet)
+    func onAppear() {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized:
+            hasCameraAccess = true
+        case .denied:
+            presentAccessDeniedAlert()
+        default:
+            requestCameraAccess()
+        }
     }
 
     func toggleFlash() {
@@ -89,6 +81,42 @@ class QRScanViewModel: ObservableObject, Identifiable {
         }
     }
 
+    private func requestCameraAccess() {
+        AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
+            guard let self else { return }
+
+            if granted {
+                DispatchQueue.main.async {
+                    self.hasCameraAccess = true
+                }
+            } else {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    self.presentAccessDeniedAlert()
+                }
+            }
+        }
+    }
+
+    private func presentAccessDeniedAlert() {
+        let sheet = ActionSheet(
+            title: Text(Localization.qrScannerCameraDeniedTitle),
+            message: Text(Localization.qrScannerCameraDeniedText),
+            buttons: [
+                .default(Text(Localization.qrScannerCameraDeniedGalleryButton)) { [router] in
+                    router.openImagePicker()
+                },
+                .default(Text(Localization.qrScannerCameraDeniedSettingsButton)) { [router] in
+                    router.openSettings()
+                },
+                .cancel(Text(Localization.commonCancel)) { [router] in
+                    router.dismiss()
+                },
+            ]
+        )
+
+        actionSheet = ActionSheetBinder(sheet: sheet)
+    }
+
     private func scanQRCode(from image: UIImage) -> String? {
         let options = [CIDetectorAccuracy: CIDetectorAccuracyHigh]
         guard
@@ -108,7 +136,5 @@ class QRScanViewModel: ObservableObject, Identifiable {
 }
 
 extension QRScanViewModel: QRScannerViewCoordinatorDelegate {
-    func userDidDenyCameraAccess() {
-        presentAccessDeniedAlert()
-    }
+    func userDidDenyCameraAccess() {}
 }
