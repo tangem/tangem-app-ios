@@ -596,7 +596,7 @@ extension ExpressViewModel: NotificationTapDelegate {
             interactor.refresh(type: .full)
         case .openFeeCurrency:
             openFeeCurrency()
-        case .reduceAmount(let amount, _):
+        case .reduceAmountTo(let amount, _):
             guard let value = sendDecimalValue?.value else {
                 AppLog.shared.debug("[Express] Couldn't find sendDecimalValue")
                 return
