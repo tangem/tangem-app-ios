@@ -11,6 +11,10 @@ import UIKit
 import AVFoundation
 import SwiftUI
 
+protocol QRScannerViewDelegate2: AnyObject {
+    func userDidRejectCameraAccess()
+}
+
 struct QRScanView: View {
     @ObservedObject var viewModel: QRScanViewModel
 
@@ -21,7 +25,7 @@ struct QRScanView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            QRScannerView(code: viewModel.code)
+            QRScannerView(code: viewModel.code, delegate: viewModel)
                 .overlay(viewfinder(screenSize: geometry.size))
                 .overlay(
                     Color.clear
@@ -30,6 +34,7 @@ struct QRScanView: View {
                 )
                 .overlay(topButtons(), alignment: .top)
         }
+        .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
         .ignoresSafeArea(edges: .bottom)
         .onAppear(perform: viewModel.onAppear)
     }
@@ -149,6 +154,8 @@ struct QRScanView_Previews_Inline: PreviewProvider {
 
 struct QRScannerView: UIViewRepresentable {
     @Binding var code: String
+    weak var delegate: QRScannerViewDelegate2?
+
     @Environment(\.presentationMode) var presentationMode
 
     func makeUIView(context: Context) -> UIQRScannerView {
@@ -160,22 +167,21 @@ struct QRScannerView: UIViewRepresentable {
     func updateUIView(_ uiView: UIQRScannerView, context: Context) {}
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(code: $code, presentationMode: presentationMode)
+        Coordinator(code: $code, delegate: delegate, presentationMode: presentationMode)
     }
 
     class Coordinator: NSObject, QRScannerViewDelegate {
         @Binding var code: String
         @Binding var presentationMode: PresentationMode
+        weak var delegate: QRScannerViewDelegate2?
 
-        init(code: Binding<String>, presentationMode: Binding<PresentationMode>) {
+        init(code: Binding<String>, delegate: QRScannerViewDelegate2?, presentationMode: Binding<PresentationMode>) {
             _code = code
             _presentationMode = presentationMode
+            self.delegate = delegate
         }
 
         func qrScanningDidFail() {
-            DispatchQueue.main.async {
-                self.presentationMode.dismiss()
-            }
         }
 
         func qrScanningSucceededWithCode(_ str: String?) {
@@ -189,11 +195,16 @@ struct QRScannerView: UIViewRepresentable {
         }
 
         func qrScanningDidStop() {}
+
+        func qrScanningRejectedAccess() {
+            delegate?.userDidRejectCameraAccess()
+        }
     }
 }
 
 /// Delegate callback for the QRScannerView.
 protocol QRScannerViewDelegate: AnyObject {
+    func qrScanningRejectedAccess()
     func qrScanningDidFail()
     func qrScanningSucceededWithCode(_ str: String?)
     func qrScanningDidStop()
@@ -252,7 +263,7 @@ extension UIQRScannerView {
                     if granted {
                         self?.initVideo()
                     } else {
-                        self?.scanningDidFail()
+                        self?.userDidRejectCameraAccess()
                     }
                 }
             })
@@ -294,6 +305,10 @@ extension UIQRScannerView {
         DispatchQueue.global(qos: .userInitiated).async {
             self.captureSession?.startRunning()
         }
+    }
+    
+    func userDidRejectCameraAccess() {
+        delegate?.qrScanningRejectedAccess()
     }
 
     func scanningDidFail() {
