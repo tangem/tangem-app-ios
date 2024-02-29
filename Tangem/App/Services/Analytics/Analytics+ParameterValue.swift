@@ -12,6 +12,8 @@ extension Analytics {
     enum ParameterValue: String {
         case welcome
         case walletOnboarding = "wallet_onboarding"
+        case ok = "Ok"
+        case error = "Error"
         case on = "On"
         case off = "Off"
         case yes = "Yes"
@@ -19,16 +21,22 @@ extension Analytics {
         case full = "Full"
         case null = "Null"
         case empty = "Empty"
+        case mainToken = "Main Token"
         case customToken = "Custom Token"
+        case noRate = "No Rate"
         case blockchainError = "Blockchain Error"
         case multicurrency = "Multicurrency"
         case accessCode = "Access Code"
         case longTap = "Long tap"
         case passcode = "Passcode"
+
+        case main = "Main"
+        case token = "Token"
+        case manageTokens = "Manage Tokens"
+
         case scanSourceWelcome = "Introduction"
-        case scanSourceMain = "Main"
         case scanSourceAuth = "Sign In"
-        case scanSourceMyWallets = "My Wallets"
+        case scanSourceSettings = "Settings"
 
         case transactionSourceSend = "Send"
         case transactionSourceSwap = "Swap"
@@ -40,13 +48,14 @@ extension Analytics {
         case transactionFeeMin = "Min"
         case transactionFeeNormal = "Normal"
         case transactionFeeMax = "Max"
+        case transactionFeeCustom = "Custom"
 
         case signInTypeCard = "Card"
         case signInTypeBiometrics = "Biometric"
 
-        case walletCreationTypePrivateKey = "Private key"
-        case walletCreationTypeNewSeed = "New seed"
-        case walletCreationTypeSeedImport = "Seed import"
+        case walletCreationTypePrivateKey = "Private Key"
+        case walletCreationTypeNewSeed = "New Seed"
+        case walletCreationTypeSeedImport = "Seed Import"
 
         case enabled = "Enabled"
         case disabled = "Disabled"
@@ -55,7 +64,7 @@ extension Analytics {
 
         case errorCode = "Error Code"
 
-        case oneTransactionApprove = "Transaction"
+        case oneTransactionApprove = "Current Transaction"
         case unlimitedApprove = "Unlimited"
 
         // destination address entered
@@ -67,7 +76,6 @@ extension Analytics {
         case fail = "Fail"
 
         // SelectedCurrency
-        case selectedCurrencyToken = "Token"
         case selectedCurrencyApp = "App Currency"
 
         // Client Type
@@ -76,6 +84,24 @@ extension Analytics {
 
         case sortTypeByBalance = "By Balance"
         case sortTypeManual = "Manually"
+
+        case balance = "Balance"
+
+        // MARK: - Express
+
+        case status = "Status"
+
+        // CEX statuses
+        case inProgress = "In Progress"
+        case done = "Done"
+        case kyc = "KYC"
+        case refunded = "Refunded"
+        case canceled = "Canceled"
+
+        // App theme
+        case system = "System"
+        case light = "Light"
+        case dark = "Dark"
 
         // MARK: - Actions
 
@@ -94,9 +120,14 @@ extension Analytics {
         case addbackup = "add_backup"
         case proceedBackup = "proceed_backup"
 
-        static func state(for balance: Decimal) -> ParameterValue {
-            return balance > 0 ? .full : .empty
-        }
+        // MARK: - Rate the app response
+
+        /// App store review (`RateAppResponse.positive`).
+        case appStoreReview = "Rate"
+        /// Feedback email (`RateAppResponse.negative`).
+        case feedbackEmail = "Feedback"
+        /// The review sheet dismissed w/o further interactions (`RateAppResponse.dismissed`).
+        case appRateSheetDismissed = "Close"
 
         static func toggleState(for boolean: Bool) -> ParameterValue {
             return boolean ? .on : .off
