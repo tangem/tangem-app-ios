@@ -178,13 +178,6 @@ class WalletModel {
         return Localization.addressQrCodeMessageFormat(currencyName, symbol, wallet.blockchain.displayName)
     }
 
-    var feeDisplayName: String {
-        feeTokenItem.blockchain.feeDisplayName(
-            tokenId: tokenItem.id,
-            blockchainId: tokenItem.blockchain.networkId
-        ) ?? feeTokenItem.currencySymbol
-    }
-
     var sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions? {
         TransactionSendAvailabilityProvider().sendingRestrictions(walletModel: self)
     }
