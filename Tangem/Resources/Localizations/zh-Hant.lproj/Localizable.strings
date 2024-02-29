@@ -126,6 +126,7 @@
 "common_start" = "開始";
 "common_submit" = "提交";
 "common_success" = "成功";
+"common_support" = "Support";
 "common_swap" = "交換";
 "common_terms_and_conditions" = "條款和條件";
 "common_transaction_failed" = "Transaction failed";
@@ -177,12 +178,12 @@
 "details_row_description_flip_to_hide" = "Flip your device screen down to quickly hide and show balances";
 "details_row_subtitle_signed_hashes_format" = "%@ hashes";
 "details_row_title_cid" = "卡號";
+"details_row_title_contact_to_support" = "Contact to Support";
 "details_row_title_create_backup" = "連結更多錢包";
 "details_row_title_create_backup_footer" = "您最多可以將三張卡同步到一個錢包中。只能做一次";
 "details_row_title_currency" = "App Currency";
 "details_row_title_flip_to_hide" = "Flip-to-Hide Balances";
 "details_row_title_issuer" = "發行人";
-"details_row_title_send_feedback" = "發送反饋";
 "details_row_title_signed_hashes" = "簽署";
 "details_security_management_warning" = "如果您忘記密碼，您將無法使用您的資金。無法恢復代碼";
 "details_title" = "更多";
@@ -195,7 +196,7 @@
 "express_by_provider" = "Provided by %@";
 "express_cex_fee_explanation" = "Additionally, the network fee for sending the exchanged funds back to your address is included in the rate";
 "express_cex_status_button_title" = "Status";
-"express_choose_providers_subtitle" = "Providers facilitate transactions, ensuring smooth and efficient token swaps";
+"express_choose_providers_subtitle" = "Tangem offers token swaps via 3rd-party providers according to each provider's terms";
 "express_choose_providers_title" = "Choose provider";
 "express_error_code" = "An error occurred. Code: %@";
 "express_estimated_amount" = "Estimated amount";
@@ -238,6 +239,8 @@
 "express_provider_permission_needed" = "Permission Required";
 "express_terms_of_use" = "Terms of Use";
 "express_token_list_empty_search" = "No tokens found. Please try another request";
+"express_transaction_id" = "ID: %s";
+"express_transaction_id_copied" = "Transaction ID copied";
 "express_unknown_error" = "There was an error. Please try again.";
 "feedback_preface_rate_negative" = "告訴我們您缺少哪些功能，我們會盡力幫助您";
 "feedback_preface_scan_failed" = "請告訴我們你有什麼卡";
@@ -424,7 +427,6 @@
 "scan_card_settings_message" = "掃描卡片以更改其設置。這些更改只會影響您掃描過的卡，不會影響綁定到您錢包的其他卡。";
 "scan_card_settings_title" = "準備好您的卡!";
 "send_additional_field_already_included" = "Already included in the entered address";
-"send_alert_button_request_support" = "Support";
 "send_alert_fee_increased_title" = "Fee is increased";
 "send_alert_transaction_failed_text" = "Reason: %1$s\nCode: %2$s";
 "send_alert_transaction_failed_title" = "The transaction is not completed";
@@ -466,8 +468,6 @@
 "send_notification_existential_deposit_title" = "Existential deposit";
 "send_notification_fee_too_high_text" = "The commission amount is %@ times the recommended amount. Make sure that the custom settings are correct.";
 "send_notification_fee_too_high_title" = "Custom fee is high";
-"send_notification_high_fee_accept" = "Reduce by %@";
-"send_notification_high_fee_ignore" = "No, send all";
 "send_notification_high_fee_text" = "The fee for transferring the entire balance is higher. To reduce the commission, you can leave %@.";
 "send_notification_high_fee_title" = "Fee is increased";
 "send_notification_invalid_amount_text" = "The included commission exceeds the transfer amount, leading to a negative value";
@@ -475,6 +475,8 @@
 "send_notification_invalid_minimum_amount_text" = "The minimum sending amount is %1$@. Please ensure that the remaining balance after sending will not be less than %1$@.";
 "send_notification_invalid_reserve_amount_text" = "Target account is not created. Please change the amount to send.";
 "send_notification_invalid_reserve_amount_title" = "The amount to send must be at least %@";
+"send_notification_reduce_by" = "Reduce by %@";
+"send_notification_reduce_to" = "Reduce to %@";
 "send_notification_transaction_delay_text" = "Kindly be aware that your transaction may experience delays under specific fee settings";
 "send_notification_transaction_delay_title" = "Transaction delays are possible";
 "send_notification_transaction_limit_text" = "Due to %1$@ limitations only %2$@ UTXOs can fit in a single transaction. This means you can only send %3$@ or less. You need to reduce the amount.";
