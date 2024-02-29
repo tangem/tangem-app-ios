@@ -18,39 +18,7 @@
         <string>%li cards</string>
       </dict>
     </dict>
-    <key>main_learn_subtitle</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>Complete three lessons and receive %li 1INCH token to your wallet</string>
-        <key>other</key>
-        <string>Complete three lessons and receive %li 1INCH tokens to your wallet</string>
-      </dict>
-    </dict>
-    <key>main_warning_missing_derivation_description</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>You need to generate address for %li new network using your card</string>
-        <key>other</key>
-        <string>You need to generate addresses for %li new networks using your card</string>
-      </dict>
-    </dict>
-    <key>manage_tokens_number_of_wallets</key>
+    <key>manage_tokens_number_of_wallets_ios</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>%li of %#@total_wallets@</string>
@@ -98,7 +66,7 @@
         <string>%li wallets</string>
       </dict>
     </dict>
-    <key>token_count</key>
+    <key>warning_missing_derivation_message</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>%#@format@</string>
@@ -109,9 +77,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li token</string>
+        <string>Use your card to get an address for %li network</string>
         <key>other</key>
-        <string>%li tokens</string>
+        <string>Use your card to get an addresses for %li networks</string>
       </dict>
     </dict>
   </dict>

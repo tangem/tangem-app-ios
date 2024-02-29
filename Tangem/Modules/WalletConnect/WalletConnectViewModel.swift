@@ -29,7 +29,7 @@ class WalletConnectViewModel: ObservableObject {
     private var pendingURI: WalletConnectRequestURI?
     private var scannedQRCode: CurrentValueSubject<String?, Never> = .init(nil)
 
-    private unowned let coordinator: WalletConnectRoutable
+    private weak var coordinator: WalletConnectRoutable?
 
     init(disabledLocalizedReason: String?, coordinator: WalletConnectRoutable) {
         self.disabledLocalizedReason = disabledLocalizedReason
@@ -93,6 +93,7 @@ class WalletConnectViewModel: ObservableObject {
     }
 
     private func openSession(with uri: WalletConnectRequestURI) {
+        Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.attemptingToOpenSession(url: uri.debugString))
         walletConnectService.openSession(with: uri)
     }
 
@@ -147,7 +148,7 @@ extension WalletConnectViewModel {
                 }
             )
 
-            coordinator.openQRScanner(with: binding)
+            coordinator?.openQRScanner(with: binding)
         }
     }
 }

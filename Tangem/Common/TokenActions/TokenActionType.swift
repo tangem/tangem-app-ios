@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum TokenActionType: CaseIterable {
+enum TokenActionType {
     case buy
     case send
     case receive
@@ -22,7 +22,7 @@ enum TokenActionType: CaseIterable {
         case .buy: return Localization.commonBuy
         case .send: return Localization.commonSend
         case .receive: return Localization.commonReceive
-        case .exchange: return Localization.commonExchange
+        case .exchange: return Localization.swappingSwapAction
         case .sell: return Localization.commonSell
         case .copyAddress: return Localization.commonCopyAddress
         case .hide: return Localization.tokenDetailsHideToken

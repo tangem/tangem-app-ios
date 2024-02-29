@@ -10,8 +10,6 @@ import SwiftUI
 import Combine
 
 class CardSettingsViewModel: ObservableObject {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-
     // MARK: ViewState
 
     @Published var hasSingleSecurityMode: Bool
@@ -46,7 +44,7 @@ class CardSettingsViewModel: ObservableObject {
 
     // MARK: Dependencies
 
-    private unowned let coordinator: CardSettingsRoutable
+    private weak var coordinator: CardSettingsRoutable?
     private let cardModel: CardViewModel
 
     private let recoveryInteractor: UserCodeRecovering
@@ -74,11 +72,6 @@ class CardSettingsViewModel: ObservableObject {
         bind()
         setupView()
     }
-
-    func didResetCard() {
-        deleteWallet(cardModel.userWallet)
-        navigateAwayAfterReset()
-    }
 }
 
 // MARK: - Private
@@ -101,8 +94,7 @@ private extension CardSettingsViewModel {
 
     func prepareTwinOnboarding() {
         if let twinInput = cardModel.twinInput {
-            let hasOtherCards = AppSettings.shared.saveUserWallets && userWalletRepository.models.count > 1
-            coordinator.openOnboarding(with: twinInput, hasOtherCards: hasOtherCards)
+            coordinator?.openOnboarding(with: twinInput)
         }
     }
 
@@ -149,30 +141,13 @@ private extension CardSettingsViewModel {
     }
 
     func setupAccessCodeRecoveryModel(enabled: Bool) {
-        if cardModel.canChangeAccessCodeRecoverySettings, FeatureProvider.isAvailable(.accessCodeRecoverySettings) {
+        if cardModel.canChangeAccessCodeRecoverySettings {
             accessCodeRecoverySection = DefaultRowViewModel(
                 title: Localization.cardSettingsAccessCodeRecoveryTitle,
                 detailsType: .text(enabled ? Localization.commonEnabled : Localization.commonDisabled),
                 action: openAccessCodeSettings
             )
         }
-    }
-
-    func deleteWallet(_ userWallet: UserWallet) {
-        userWalletRepository.delete(userWallet, logoutIfNeeded: false)
-    }
-
-    func navigateAwayAfterReset() {
-        if userWalletRepository.selectedModel == nil {
-            coordinator.popToRoot()
-        } else {
-            coordinator.dismiss()
-        }
-    }
-
-    func didResetCard(with userWallet: UserWallet) {
-        deleteWallet(userWallet)
-        navigateAwayAfterReset()
     }
 }
 
@@ -193,7 +168,7 @@ extension CardSettingsViewModel {
 
     func openSecurityMode() {
         Analytics.log(.buttonChangeSecurityMode)
-        coordinator.openSecurityMode(cardModel: cardModel)
+        coordinator?.openSecurityMode(cardModel: cardModel)
     }
 
     func openResetCard() {
@@ -207,14 +182,15 @@ extension CardSettingsViewModel {
         } else {
             let input = ResetToFactoryViewModel.Input(
                 cardInteractor: cardModel.cardInteractor,
-                hasBackupCards: cardModel.hasBackupCards
+                hasBackupCards: cardModel.hasBackupCards,
+                userWalletId: cardModel.userWalletId
             )
-            coordinator.openResetCardToFactoryWarning(with: input)
+            coordinator?.openResetCardToFactoryWarning(with: input)
         }
     }
 
     func openAccessCodeSettings() {
         Analytics.log(.cardSettingsButtonAccessCodeRecovery)
-        coordinator.openAccessCodeRecoverySettings(with: recoveryInteractor)
+        coordinator?.openAccessCodeRecoverySettings(with: recoveryInteractor)
     }
 }

@@ -11,62 +11,87 @@ import Combine
 import TangemSdk
 import BlockchainSdk
 
-struct CommonUserTokensManager {
+class CommonUserTokensManager {
+    @Injected(\.swapAvailabilityController) private var swapAvailabilityController: SwapAvailabilityController
+
     let derivationManager: DerivationManager?
 
+    private let userWalletId: UserWalletId
+    private let shouldLoadSwapAvailability: Bool
     private let userTokenListManager: UserTokenListManager
     private let walletModelsManager: WalletModelsManager
     private let derivationStyle: DerivationStyle?
     private weak var cardDerivableProvider: CardDerivableProvider?
+    private let existingCurves: [EllipticCurve]
+    private let longHashesSupported: Bool
+
+    private var bag: Set<AnyCancellable> = []
 
     init(
+        userWalletId: UserWalletId,
+        shouldLoadSwapAvailability: Bool,
         userTokenListManager: UserTokenListManager,
         walletModelsManager: WalletModelsManager,
         derivationStyle: DerivationStyle?,
         derivationManager: DerivationManager?,
-        cardDerivableProvider: CardDerivableProvider
+        cardDerivableProvider: CardDerivableProvider,
+        existingCurves: [EllipticCurve],
+        longHashesSupported: Bool
     ) {
+        self.userWalletId = userWalletId
+        self.shouldLoadSwapAvailability = shouldLoadSwapAvailability
         self.userTokenListManager = userTokenListManager
         self.walletModelsManager = walletModelsManager
         self.derivationStyle = derivationStyle
         self.derivationManager = derivationManager
         self.cardDerivableProvider = cardDerivableProvider
+        self.existingCurves = existingCurves
+        self.longHashesSupported = longHashesSupported
     }
 
-    private func makeBlockchainNetwork(for blockchain: Blockchain, derivationPath: DerivationPath?) -> BlockchainNetwork {
-        if let derivationPath = derivationPath {
-            return BlockchainNetwork(blockchain, derivationPath: derivationPath)
+    private func getBlockchainNetwork(for tokenItem: TokenItem) -> BlockchainNetwork {
+        if tokenItem.blockchainNetwork.derivationPath != nil {
+            return tokenItem.blockchainNetwork
         }
 
         if let derivationStyle {
-            let derivationPath = blockchain.derivationPath(for: derivationStyle)
-            return BlockchainNetwork(blockchain, derivationPath: derivationPath)
+            let derivationPath = tokenItem.blockchain.derivationPath(for: derivationStyle)
+            return BlockchainNetwork(tokenItem.blockchain, derivationPath: derivationPath)
         }
 
-        return BlockchainNetwork(blockchain, derivationPath: nil)
+        return tokenItem.blockchainNetwork
     }
 
-    private func addInternal(_ tokenItems: [TokenItem], derivationPath: DerivationPath?, shouldUpload: Bool) {
+    private func addInternal(_ tokenItems: [TokenItem], shouldUpload: Bool) {
         let entries = tokenItems.map { tokenItem in
-            let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
+            let blockchainNetwork = getBlockchainNetwork(for: tokenItem)
             return StorageEntry(blockchainNetwork: blockchainNetwork, token: tokenItem.token)
         }
 
         userTokenListManager.update(.append(entries), shouldUpload: shouldUpload)
     }
 
-    private func removeInternal(_ tokenItem: TokenItem, derivationPath: DerivationPath?, shouldUpload: Bool) {
-        guard canRemove(tokenItem, derivationPath: derivationPath) else {
+    private func removeInternal(_ tokenItem: TokenItem, shouldUpload: Bool) {
+        guard canRemove(tokenItem) else {
             return
         }
 
-        let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
+        let blockchainNetwork = getBlockchainNetwork(for: tokenItem)
 
         if let token = tokenItem.token {
             userTokenListManager.update(.removeToken(token, in: blockchainNetwork), shouldUpload: shouldUpload)
         } else {
             userTokenListManager.update(.removeBlockchain(blockchainNetwork), shouldUpload: shouldUpload)
         }
+    }
+
+    private func loadSwapAvailbilityStateIfNeeded(forceReload: Bool) {
+        guard shouldLoadSwapAvailability else { return }
+
+        let converter = StorageEntryConverter()
+        let nonCustomTokens = userTokenListManager.userTokensList.entries.filter { !$0.isCustom }
+        let tokenItems = converter.convertToTokenItem(nonCustomTokens)
+        swapAvailabilityController.loadSwapAvailability(for: tokenItems, forceReload: forceReload, userWalletId: userWalletId.stringValue)
     }
 }
 
@@ -80,11 +105,14 @@ extension CommonUserTokensManager: UserTokensManager {
             return
         }
 
-        derivationManager.deriveKeys(cardInteractor: interactor, completion: completion)
+        // Delay to update derivations in derivationManager
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            derivationManager.deriveKeys(cardInteractor: interactor, completion: completion)
+        }
     }
 
-    func contains(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool {
-        let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
+    func contains(_ tokenItem: TokenItem) -> Bool {
+        let blockchainNetwork = getBlockchainNetwork(for: tokenItem)
 
         guard let targetEntry = userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == blockchainNetwork }) else {
             return false
@@ -108,9 +136,21 @@ extension CommonUserTokensManager: UserTokensManager {
         return []
     }
 
-    func add(_ tokenItem: TokenItem, derivationPath: DerivationPath?) async throws -> String {
+    func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {
+        guard existingCurves.contains(tokenItem.blockchain.curve) else {
+            throw Error.failedSupportedCurve(blockchainDisplayName: tokenItem.blockchain.displayName)
+        }
+
+        if !longHashesSupported, tokenItem.blockchain.hasLongTransactions {
+            throw Error.failedSupportedLongHahesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
+        }
+
+        return
+    }
+
+    func add(_ tokenItem: TokenItem) async throws -> String {
         try await withCheckedThrowingContinuation { continuation in
-            add(tokenItem, derivationPath: derivationPath) { result in
+            add(tokenItem) { result in
                 continuation.resume(with: result)
             }
         }
@@ -118,7 +158,7 @@ extension CommonUserTokensManager: UserTokensManager {
         // wait for walletModelsManager to be updated
         try await Task.sleep(seconds: 0.1)
 
-        let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
+        let blockchainNetwork = getBlockchainNetwork(for: tokenItem)
         let walletModelId = WalletModel.Id(blockchainNetwork: blockchainNetwork, amountType: tokenItem.amountType)
 
         guard let walletModel = walletModelsManager.walletModels.first(where: { $0.id == walletModelId.id }) else {
@@ -128,17 +168,17 @@ extension CommonUserTokensManager: UserTokensManager {
         return walletModel.defaultAddress
     }
 
-    func add(_ tokenItems: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        addInternal(tokenItems, derivationPath: derivationPath, shouldUpload: true)
+    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+        addInternal(tokenItems, shouldUpload: true)
         deriveIfNeeded(completion: completion)
     }
 
-    func canRemove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) -> Bool {
+    func canRemove(_ tokenItem: TokenItem) -> Bool {
         guard tokenItem.isBlockchain else {
             return true
         }
 
-        let blockchainNetwork = makeBlockchainNetwork(for: tokenItem.blockchain, derivationPath: derivationPath)
+        let blockchainNetwork = getBlockchainNetwork(for: tokenItem)
 
         guard let entry = userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == blockchainNetwork }) else {
             return false
@@ -148,40 +188,31 @@ extension CommonUserTokensManager: UserTokensManager {
         return hasNoTokens
     }
 
-    func remove(_ tokenItem: TokenItem, derivationPath: DerivationPath?) {
-        removeInternal(tokenItem, derivationPath: derivationPath, shouldUpload: true)
+    func remove(_ tokenItem: TokenItem) {
+        removeInternal(tokenItem, shouldUpload: true)
     }
 
-    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        update(itemsToRemove: itemsToRemove, itemsToAdd: itemsToAdd, derivationPath: derivationPath)
+    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+        update(itemsToRemove: itemsToRemove, itemsToAdd: itemsToAdd)
         deriveIfNeeded(completion: completion)
     }
 
-    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], derivationPath: DerivationPath?) {
+    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) {
         itemsToRemove.forEach {
-            removeInternal($0, derivationPath: derivationPath, shouldUpload: false)
+            removeInternal($0, shouldUpload: false)
         }
 
-        addInternal(itemsToAdd, derivationPath: nil, shouldUpload: false)
+        addInternal(itemsToAdd, shouldUpload: false)
+        loadSwapAvailbilityStateIfNeeded(forceReload: true)
         userTokenListManager.upload()
     }
-}
 
-// MARK: - UserTokensSyncService protocol conformance
+    func sync(completion: @escaping () -> Void) {
+        userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
+            guard let self else { return }
 
-extension CommonUserTokensManager: UserTokensSyncService {
-    var isInitialSyncPerformed: Bool {
-        userTokenListManager.isInitialSyncPerformed
-    }
-
-    var initialSyncPublisher: AnyPublisher<Bool, Never> {
-        userTokenListManager.initialSyncPublisher
-            .eraseToAnyPublisher()
-    }
-
-    func updateUserTokens() {
-        userTokenListManager.updateLocalRepositoryFromServer { _ in
-            self.walletModelsManager.updateAll(silent: false, completion: {})
+            loadSwapAvailbilityStateIfNeeded(forceReload: true)
+            walletModelsManager.updateAll(silent: false, completion: completion)
         }
     }
 }
@@ -261,7 +292,20 @@ extension CommonUserTokensManager: UserTokensReordering {
 }
 
 extension CommonUserTokensManager {
-    enum Error: Swift.Error {
+    enum Error: Swift.Error, LocalizedError {
         case addressNotFound
+        case failedSupportedLongHahesTokens(blockchainDisplayName: String)
+        case failedSupportedCurve(blockchainDisplayName: String)
+
+        var errorDescription: String? {
+            switch self {
+            case .failedSupportedLongHahesTokens(let blockchainDisplayName):
+                return Localization.alertManageTokensUnsupportedMessage(blockchainDisplayName)
+            case .failedSupportedCurve(let blockchainDisplayName):
+                return Localization.alertManageTokensUnsupportedCurveMessage(blockchainDisplayName)
+            case .addressNotFound:
+                return nil
+            }
+        }
     }
 }

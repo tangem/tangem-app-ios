@@ -78,8 +78,7 @@ class LegacyTokenListViewModel: ObservableObject {
 
         userTokensManager.update(
             itemsToRemove: pendingRemove,
-            itemsToAdd: pendingAdd,
-            derivationPath: nil
+            itemsToAdd: pendingAdd
         ) { [weak self] result in
             DispatchQueue.main.async {
                 self?.isSaving = false
@@ -99,7 +98,7 @@ class LegacyTokenListViewModel: ObservableObject {
     }
 
     func tokenListDidSave() {
-        Analytics.log(.buttonSaveChanges)
+        Analytics.log(.manageTokensButtonSaveChanges)
         closeModule()
     }
 
@@ -133,7 +132,7 @@ extension LegacyTokenListViewModel {
 
     func openAddCustom() {
         if let settings = mode.settings, let userTokensManager = mode.userTokensManager {
-            Analytics.log(.buttonCustomToken)
+            Analytics.log(.manageTokensButtonCustomToken)
             coordinator.openAddCustom(settings: settings, userTokensManager: userTokensManager)
         }
     }
@@ -149,7 +148,7 @@ private extension LegacyTokenListViewModel {
             .removeDuplicates()
             .sink { [weak self] string in
                 if !string.isEmpty {
-                    Analytics.log(.tokenSearched)
+                    Analytics.log(.manageTokensSearched)
                 }
 
                 self?.loader.fetch(string)
@@ -186,7 +185,7 @@ private extension LegacyTokenListViewModel {
             return false
         }
 
-        return userTokensManager.contains(tokenItem, derivationPath: nil)
+        return userTokensManager.contains(tokenItem)
     }
 
     func canRemove(_ tokenItem: TokenItem) -> Bool {
@@ -194,7 +193,7 @@ private extension LegacyTokenListViewModel {
             return false
         }
 
-        return userTokensManager.canRemove(tokenItem, derivationPath: nil)
+        return userTokensManager.canRemove(tokenItem)
     }
 
     func isSelected(_ tokenItem: TokenItem) -> Bool {
@@ -215,13 +214,13 @@ private extension LegacyTokenListViewModel {
         }
 
         if selected,
-           case .token(_, let blockchain) = tokenItem,
-           case .solana = blockchain,
+           case .token(_, let blockchainNetwork) = tokenItem,
+           case .solana = blockchainNetwork.blockchain,
            !settings.longHashesSupported {
             displayAlertAndUpdateSelection(
                 for: tokenItem,
                 title: Localization.commonAttention,
-                message: Localization.alertManageTokensUnsupportedMessage
+                message: Localization.alertManageTokensUnsupportedMessage(blockchainNetwork.blockchain.displayName)
             )
 
             return
@@ -289,9 +288,9 @@ private extension LegacyTokenListViewModel {
     func mapToCoinViewModel(coinModel: CoinModel) -> LegacyCoinViewModel {
         let currencyItems = coinModel.items.enumerated().map { index, item in
             LegacyCoinItemViewModel(
-                tokenItem: item,
+                tokenItem: item.tokenItem,
                 isReadonly: isReadonlyMode,
-                isSelected: bindSelection(item),
+                isSelected: bindSelection(item.tokenItem),
                 isCopied: bindCopy(),
                 position: .init(with: index, total: coinModel.items.count)
             )
@@ -350,8 +349,8 @@ private extension LegacyTokenListViewModel {
             return false
         }
 
-        if case .token(_, let blockchain) = tokenItem,
-           case .solana = blockchain,
+        if case .token(_, let blockchainNetwork) = tokenItem,
+           case .solana = blockchainNetwork.blockchain,
            !settings.longHashesSupported {
             return false
         }
@@ -364,7 +363,7 @@ private extension LegacyTokenListViewModel {
     }
 
     func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool, tokenItem: TokenItem) {
-        Analytics.log(event: .tokenSwitcherChanged, params: [
+        Analytics.log(event: .manageTokensSwitcherChanged, params: [
             .state: Analytics.ParameterValue.toggleState(for: tokenIsSelected).rawValue,
             .token: tokenItem.currencySymbol,
         ])

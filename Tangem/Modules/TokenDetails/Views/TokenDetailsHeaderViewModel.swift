@@ -7,10 +7,12 @@
 //
 
 import Foundation
+import SwiftUI
 
 class TokenDetailsHeaderViewModel {
     let tokenName: String
-    let tokenIconModel: TokenIconViewModel
+    let imageURL: URL?
+    let customTokenColor: Color?
     var networkPrefix: String = ""
     var networkIconName: String?
     var networkSuffix: String?
@@ -19,7 +21,13 @@ class TokenDetailsHeaderViewModel {
 
     init(tokenItem: TokenItem) {
         self.tokenItem = tokenItem
-        tokenIconModel = .init(tokenItem: tokenItem)
+
+        if let id = tokenItem.id {
+            imageURL = IconURLBuilder().tokenIconURL(id: id)
+        } else {
+            imageURL = nil
+        }
+        customTokenColor = tokenItem.token?.customTokenColor
         tokenName = tokenItem.name
 
         prepare()
