@@ -16,7 +16,7 @@ struct SendAmountView: View {
     private let iconSize = CGSize(bothDimensions: 36)
 
     var body: some View {
-        GroupedScrollView {
+        GroupedScrollView(spacing: 14) {
             GroupedSection(viewModel) { viewModel in
                 VStack(spacing: 0) {
                     Text(viewModel.walletName)
@@ -100,7 +100,7 @@ struct SendAmountView_Previews: PreviewProvider {
     static let tokenIconInfo = TokenIconInfo(
         name: "Tether",
         blockchainIconName: "ethereum.fill",
-        imageURL: TokenIconURLBuilder().iconURL(id: "tether"),
+        imageURL: IconURLBuilder().tokenIconURL(id: "tether"),
         isCustom: false,
         customTokenColor: nil
     )
