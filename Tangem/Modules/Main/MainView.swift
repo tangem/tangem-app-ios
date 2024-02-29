@@ -21,13 +21,9 @@ struct MainView: View {
                 info.header
                     .contextMenu {
                         if !info.isLockedWallet {
-                            Button(action: viewModel.didTapEditWallet, label: editButtonLabel)
+                            Button(action: weakify(viewModel, forFunction: MainViewModel.didTapEditWallet), label: editButtonLabel)
 
-                            if #available(iOS 15, *) {
-                                Button(role: .destructive, action: viewModel.didTapDeleteWallet, label: deleteButtonLabel)
-                            } else {
-                                Button(action: viewModel.didTapDeleteWallet, label: deleteButtonLabel)
-                            }
+                            Button(role: .destructive, action: weakify(viewModel, forFunction: MainViewModel.didTapDeleteWallet), label: deleteButtonLabel)
                         }
                     }
             },
@@ -59,14 +55,7 @@ struct MainView: View {
             }
 
             ToolbarItem(placement: .navigationBarTrailing) {
-                HStack(spacing: 0) {
-                    if #unavailable(iOS 15) {
-                        // Offset didn't work for iOS 14 if there are no other view in toolbar
-                        Spacer()
-                            .frame(width: 10)
-                    }
-                    detailsNavigationButton
-                }
+                detailsNavigationButton
             }
         })
         .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
@@ -76,13 +65,13 @@ struct MainView: View {
         ) { model in
             UnlockUserWalletBottomSheetView(viewModel: model)
         }
-        .toast(isPresenting: $viewModel.showAddressCopiedToast, alert: {
+        .toast(isPresenting: $viewModel.showAddressCopiedToast) {
             AlertToast(type: .complete(Colors.Icon.accent), title: Localization.walletNotificationAddressCopied)
-        })
+        }
     }
 
     var detailsNavigationButton: some View {
-        Button(action: viewModel.openDetails) {
+        Button(action: weakify(viewModel, forFunction: MainViewModel.openDetails)) {
             NavbarDotsImage()
         }
         .buttonStyle(PlainButtonStyle())
