@@ -435,7 +435,7 @@ private extension ValidationError {
         switch self {
         case .invalidAmount, .balanceNotFound:
             return .amount
-        case .amountExceedsBalance, .invalidFee, .feeExceedsBalance, .withdrawalWarning, .reserve:
+        case .amountExceedsBalance, .invalidFee, .feeExceedsBalance, .maximumUTXO, .reserve:
             return .fee
         case .dustAmount, .dustChange, .minimumBalance, .totalExceedsBalance:
             return .summary
