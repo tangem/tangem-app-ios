@@ -135,7 +135,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
     var isFromMain: Bool = false
     private(set) var containerSize: CGSize = .zero
-    unowned let coordinator: Coordinator
+    weak var coordinator: Coordinator?
 
     var cardModel: CardViewModel?
 
@@ -360,17 +360,17 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
 extension OnboardingViewModel {
     func onboardingDidFinish() {
-        coordinator.onboardingDidFinish(userWallet: cardModel)
+        coordinator?.onboardingDidFinish(userWallet: cardModel)
     }
 
     func closeOnboarding() {
         // reset services before exit
         userWalletRepository.updateSelection()
-        coordinator.closeOnboarding()
+        coordinator?.closeOnboarding()
     }
 
-    func openSupportChat() {
-        Analytics.log(.onboardingButtonChat)
+    func openSupport() {
+        Analytics.log(.requestSupport)
 
         // Hide keyboard on set pin screen
         UIApplication.shared.endEditing()
@@ -380,9 +380,13 @@ extension OnboardingViewModel {
             userWalletEmailData: input.cardInput.emailData
         )
 
-        coordinator.openSupportChat(input: .init(
-            logsComposer: .init(infoProvider: dataCollector)
-        ))
+        let emailConfig = input.cardInput.config?.emailConfig ?? .default
+
+        coordinator?.openMail(
+            with: dataCollector,
+            recipient: emailConfig.recipient,
+            emailType: .appFeedback(subject: emailConfig.subject)
+        )
     }
 }
 

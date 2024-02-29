@@ -54,7 +54,7 @@ struct ProviderRowView: View {
                         )
                 }
 
-                Text(viewModel.provider.type)
+                Text(viewModel.provider.type.uppercased())
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
             }
 
@@ -151,9 +151,8 @@ struct ProviderRowViewModel_Preview: PreviewProvider {
         ]) {
             ProviderRowView(viewModel: $0)
         }
-        .separatorStyle(.minimum)
         .interItemSpacing(14)
-        .interSectionPadding(12)
+        .innerContentPadding(12)
         .padding()
         .background(Colors.Background.secondary)
     }
