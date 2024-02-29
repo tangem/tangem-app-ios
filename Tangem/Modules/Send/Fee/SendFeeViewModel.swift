@@ -35,6 +35,10 @@ protocol SendFeeViewModelInput {
 }
 
 class SendFeeViewModel: ObservableObject {
+    let feeExplanationUrl = TangemBlogUrlBuilder().url(post: .fee)
+
+    weak var router: SendFeeRoutable?
+
     @Published private(set) var selectedFeeOption: FeeOption
     @Published private(set) var feeRowViewModels: [FeeRowViewModel] = []
     @Published private(set) var showCustomFeeFields: Bool = false
@@ -49,9 +53,12 @@ class SendFeeViewModel: ObservableObject {
 
     @Published private var isFeeIncluded: Bool = false
 
+    @Published private(set) var feeLevelsNotificationInputs: [NotificationViewInput] = []
+    @Published private(set) var customFeeNotificationInputs: [NotificationViewInput] = []
+    @Published private(set) var feeCoverageNotificationInputs: [NotificationViewInput] = []
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
 
-    private let notificationManager: NotificationManager
+    private let notificationManager: SendNotificationManager
     private let input: SendFeeViewModelInput
     private let feeOptions: [FeeOption]
     private let walletInfo: SendWalletInfo
@@ -66,7 +73,7 @@ class SendFeeViewModel: ObservableObject {
         balanceConverter: balanceConverter
     )
 
-    init(input: SendFeeViewModelInput, notificationManager: NotificationManager, walletInfo: SendWalletInfo) {
+    init(input: SendFeeViewModelInput, notificationManager: SendNotificationManager, walletInfo: SendWalletInfo) {
         self.input = input
         self.notificationManager = notificationManager
         self.walletInfo = walletInfo
@@ -102,6 +109,10 @@ class SendFeeViewModel: ObservableObject {
                 animatingAuxiliaryViewsOnAppear = false
             }
         }
+    }
+
+    func openFeeExplanation() {
+        router?.openFeeExplanation(url: feeExplanationUrl)
     }
 
     private func createCustomFeeModels() {
@@ -178,12 +189,26 @@ class SendFeeViewModel: ObservableObject {
                 let amountFormatted = amount.string(with: feeDecimals)
                 return Localization.sendAmountSubstractFooter(amountFormatted)
             }
-            .assign(to: \.subtractFromAmountFooterText, on: self, ownership: .weak)
+            .sink { [weak self] newFooter in
+                withAnimation {
+                    self?.subtractFromAmountFooterText = newFooter
+                }
+            }
             .store(in: &bag)
 
-        notificationManager.notificationPublisher
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.notificationInputs, on: self, ownership: .weak)
+        notificationManager
+            .notificationPublisher(for: .feeLevels)
+            .assign(to: \.feeLevelsNotificationInputs, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        notificationManager
+            .notificationPublisher(for: .customFee)
+            .assign(to: \.customFeeNotificationInputs, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        notificationManager
+            .notificationPublisher(for: .feeIncluded)
+            .assign(to: \.feeCoverageNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
