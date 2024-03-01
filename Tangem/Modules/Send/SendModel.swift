@@ -725,7 +725,7 @@ extension SendModel: SendSummaryViewModelInput {
             .eraseToAnyPublisher()
     }
 
-    var rawAmountPublisher: AnyPublisher<Amount?, Never> {
+    var userInputAmountPublisher: AnyPublisher<Amount?, Never> {
         _amount.eraseToAnyPublisher()
     }
 
@@ -751,7 +751,7 @@ extension SendModel: SendSummaryViewModelInput {
 }
 
 extension SendModel: SendFinishViewModelInput {
-    var rawAmountValue: Amount? {
+    var userInputAmountValue: Amount? {
         _amount.value
     }
 
