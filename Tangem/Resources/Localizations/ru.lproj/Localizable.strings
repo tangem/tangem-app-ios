@@ -126,6 +126,7 @@
 "common_start" = "Начать";
 "common_submit" = "Отправить";
 "common_success" = "Успешно";
+"common_support" = "Поддержка";
 "common_swap" = "Обмен";
 "common_terms_and_conditions" = "условия участия";
 "common_transaction_failed" = "Ошибка транзакции";
@@ -177,12 +178,12 @@
 "details_row_description_flip_to_hide" = "Переверните экран вашего устройства вниз, чтобы быстро скрыть и отобразить балансы";
 "details_row_subtitle_signed_hashes_format" = "%@ хэшей";
 "details_row_title_cid" = "Номер карты";
+"details_row_title_contact_to_support" = "Обратиться в поддержку";
 "details_row_title_create_backup" = "Добавить еще карты";
 "details_row_title_create_backup_footer" = "Вы можете объединить до трех карт в одном кошельке. Это можно сделать только один раз.";
 "details_row_title_currency" = "Валюта приложения";
 "details_row_title_flip_to_hide" = "Скрывать балансы жестом переворота";
 "details_row_title_issuer" = "Эмитент";
-"details_row_title_send_feedback" = "Отправить отзыв";
 "details_row_title_signed_hashes" = "Подписано";
 "details_security_management_warning" = "Если вы забудете код, то потеряете доступ к своим средствам. Восстановление кода невозможно.";
 "details_title" = "Подробности";
@@ -238,6 +239,8 @@
 "express_provider_permission_needed" = "Требуется разрешение";
 "express_terms_of_use" = "Условиями использования";
 "express_token_list_empty_search" = "Токены не найдены. Пожалуйста, попробуйте другой запрос";
+"express_transaction_id" = "ID: %s";
+"express_transaction_id_copied" = "ID транзакции скопирован";
 "express_unknown_error" = "Произошла ошибка. Пожалуйста, попробуйте снова.";
 "feedback_preface_rate_negative" = "Расскажите, каких функций вам не хватает, и мы постараемся вам помочь.";
 "feedback_preface_scan_failed" = "Скажите, пожалуйста, какая у вас карта?";
@@ -424,7 +427,6 @@
 "scan_card_settings_message" = "Отсканируйте карту, чтобы изменить ее настройки. Изменения затронут только ту карту, которую вы отсканировали, и не повлияют на другие карты, привязанные к вашему кошельку.";
 "scan_card_settings_title" = "Приготовьте свою карту";
 "send_additional_field_already_included" = "Уже содержится в введенном адресе";
-"send_alert_button_request_support" = "Поддержка";
 "send_alert_fee_coverage_subract_text" = "Вычесть";
 "send_alert_fee_coverage_title" = "Недостаточно средств для покрытия комиссии сети. Вычесть комиссию из отправляемой сумму?";
 "send_alert_fee_increased_title" = "Комиссия увеличилась";
@@ -456,7 +458,7 @@
 "send_max_fee" = "Комиссия не превысит ";
 "send_max_fee_footer" = "Максимальная cумма комиссии";
 "send_memo_destination_tag_error" = "Numbers only for Destination Tag";
-"send_network_fee_warning_content" = "Сумма отправки будет уменьшена для покрытия выбранного уровня комиссии";
+"send_network_fee_warning_content" = "Сумма отправки будет уменьшена на %1$s для покрытия выбранного уровня комиссии.  Получателю будет отправлено %2$s.";
 "send_network_fee_warning_title" = "Покрытие сетевой комиссии";
 "send_notification_exceed_balance_text" = "Недостаточно средств для перевода, так как сумма комиссии и сумма перевода в совокупности больше имеющегося баланса";
 "send_notification_exceed_balance_title" = "Недостаточно средств";
@@ -527,6 +529,7 @@
 "swapping_high_price_impact" = "Сильные колебания цены!";
 "swapping_high_price_impact_description" = "Обмен этой суммы выбранных токенов может вызвать значительные колебания цены и уменьшить получаемую сумму.";
 "swapping_insufficient_funds" = "Недостаточно средств";
+"swapping_network_fee_warning_content" = "Сумма отправки будет уменьшена для покрытия выбранного уровня комиссии";
 "swapping_not_enough_funds_for_fee" = "Недостаточно средств для оплаты комиссии на вашем %1$@ кошельке для создания транзакции. Сначала пополните свой %2$@ кошелек.";
 "swapping_pending_transaction_subtitle" = "Транзакция в процессе…";
 "swapping_pending_transaction_title" = "Подождите";
@@ -648,6 +651,8 @@
 "wallet_notification_address_copied" = "Адрес скопирован в буфер обмена";
 "wallet_title" = "Tangem";
 "warning_access_denied_message" = "Используйте %@ или отсканируйте карту, чтобы разблокировать доступ к вашему кошельку";
+"warning_backup_errors_message" = "Пожалуйста, выведите все средства из этого кошелька, сбросьте его к заводским настройкам и создайте новый. Доступ к текущему кошельку будет утерян.";
+"warning_backup_errors_title" = "Ошибка активации";
 "warning_button_could_be_better" = "Можно лучше";
 "warning_button_learn_more" = "Узнать больше";
 "warning_button_like_it" = "Нравится";
