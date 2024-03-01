@@ -407,7 +407,7 @@ extension SendViewModel: NotificationTapDelegate {
     }
 
     private func reduceAmountBy(_ amount: Decimal) {
-        guard var newAmount = sendModel.amountValue else { return }
+        guard var newAmount = sendModel.validatedAmountValue else { return }
 
         newAmount = newAmount - Amount(with: walletModel.tokenItem.blockchain, type: walletModel.amountType, value: amount)
         if sendModel.isFeeIncluded, let feeValue = sendModel.feeValue?.amount {
