@@ -32,8 +32,9 @@ struct SendSummaryView: View {
                         }
                     }
                 }
-                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.addressContainer.rawValue, namespace: namespace)
+                .backgroundColor(viewModel.destinationBackground, id: SendViewNamespaceId.addressContainer.rawValue, namespace: namespace)
                 .contentShape(Rectangle())
+                .allowsHitTesting(viewModel.canEditDestination)
                 .onTapGesture {
                     viewModel.didTapSummary(for: .destination)
                 }
@@ -47,8 +48,9 @@ struct SendSummaryView: View {
                         .setAmountFiatNamespaceId(SendViewNamespaceId.amountFiatText.rawValue)
                 }
                 .innerContentPadding(12)
-                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
+                .backgroundColor(viewModel.amountBackground, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
                 .contentShape(Rectangle())
+                .allowsHitTesting(viewModel.canEditAmount)
                 .onTapGesture {
                     viewModel.didTapSummary(for: .amount)
                 }
@@ -116,6 +118,7 @@ struct SendSummaryView_Previews: PreviewProvider {
 
     static let walletInfo = SendWalletInfo(
         walletName: "Wallet",
+        balanceValue: 12013,
         balance: "12013",
         blockchain: .ethereum(testnet: false),
         currencyId: "tether",
