@@ -57,8 +57,6 @@ class CardViewModel: Identifiable, ObservableObject {
 
     let warningsService = WarningsService()
 
-    @Published private(set) var currentSecurityOption: SecurityModeOption = .longTap
-
     var signer: TangemSigner { _signer }
 
     var cardInteractor: CardInteractor {
@@ -166,30 +164,8 @@ class CardViewModel: Identifiable, ObservableObject {
     private var tangemSdk: TangemSdk?
     var config: UserWalletConfig
 
-    var availableSecurityOptions: [SecurityModeOption] {
-        var options: [SecurityModeOption] = []
-
-        if canSetLongTap || currentSecurityOption == .longTap {
-            options.append(.longTap)
-        }
-
-        if config.hasFeature(.accessCode) || currentSecurityOption == .accessCode {
-            options.append(.accessCode)
-        }
-
-        if config.hasFeature(.passcode) || currentSecurityOption == .passCode {
-            options.append(.passCode)
-        }
-
-        return options
-    }
-
     var hdWalletsSupported: Bool {
         config.hasFeature(.hdWallets)
-    }
-
-    var canSetLongTap: Bool {
-        config.hasFeature(.longTap)
     }
 
     var longHashesSupported: Bool {
@@ -282,7 +258,6 @@ class CardViewModel: Identifiable, ObservableObject {
         _signer = config.tangemSigner
         _userWalletNamePublisher = .init(cardInfo.name)
         _cardHeaderImagePublisher = .init(config.cardHeaderImage)
-        updateCurrentSecurityOption()
         appendPersistentBlockchains()
         bind()
 
@@ -333,91 +308,7 @@ class CardViewModel: Identifiable, ObservableObject {
         userTokenListManager.update(.append(persistentBlockchains), shouldUpload: true)
     }
 
-    // MARK: - Security
-
-    func changeSecurityOption(_ option: SecurityModeOption, completion: @escaping (Result<Void, Error>) -> Void) {
-        let tangemSdk = makeTangemSdk()
-        self.tangemSdk = tangemSdk
-        switch option {
-        case .accessCode:
-            tangemSdk.startSession(
-                with: SetUserCodeCommand(accessCode: nil),
-                cardId: cardId,
-                initialMessage: Message(header: nil, body: Localization.initialMessageChangeAccessCodeBody)
-            ) { [weak self] result in
-                guard let self = self else { return }
-
-                switch result {
-                case .success:
-                    onSecurityOptionChanged(isAccessCodeSet: true, isPasscodeSet: false)
-                    Analytics.log(.userCodeChanged)
-                    completion(.success(()))
-                case .failure(let error):
-                    AppLog.shared.error(
-                        error,
-                        params: [
-                            .newSecOption: .accessCode,
-                            .action: .changeSecOptions,
-                        ]
-                    )
-                    completion(.failure(error))
-                }
-            }
-        case .longTap:
-            tangemSdk.startSession(
-                with: SetUserCodeCommand.resetUserCodes,
-                cardId: cardId
-            ) { [weak self] result in
-                guard let self = self else { return }
-
-                switch result {
-                case .success:
-                    onSecurityOptionChanged(isAccessCodeSet: false, isPasscodeSet: false)
-                    completion(.success(()))
-                case .failure(let error):
-                    AppLog.shared.error(
-                        error,
-                        params: [
-                            .newSecOption: .longTap,
-                            .action: .changeSecOptions,
-                        ]
-                    )
-                    completion(.failure(error))
-                }
-            }
-        case .passCode:
-            tangemSdk.startSession(
-                with: SetUserCodeCommand(passcode: nil),
-                cardId: cardId,
-                initialMessage: Message(header: nil, body: Localization.initialMessageChangePasscodeBody)
-            ) { [weak self] result in
-                guard let self = self else { return }
-
-                switch result {
-                case .success:
-                    onSecurityOptionChanged(isAccessCodeSet: false, isPasscodeSet: true)
-                    completion(.success(()))
-                case .failure(let error):
-                    AppLog.shared.error(
-                        error,
-                        params: [
-                            .newSecOption: .passcode,
-                            .action: .changeSecOptions,
-                        ]
-                    )
-                    completion(.failure(error))
-                }
-            }
-        }
-    }
-
     // MARK: - Update
-
-    func onSecurityOptionChanged(isAccessCodeSet: Bool, isPasscodeSet: Bool) {
-        cardInfo.card.isAccessCodeSet = isAccessCodeSet
-        cardInfo.card.isPasscodeSet = isPasscodeSet
-        onUpdate()
-    }
 
     func onSigned(_ card: Card) {
         for updatedWallet in card.wallets {
@@ -458,19 +349,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private func updateModel() {
         AppLog.shared.debug("🔄 Updating Card view model")
-        updateCurrentSecurityOption()
-
         setupWarnings()
-    }
-
-    private func updateCurrentSecurityOption() {
-        if cardInfo.card.isAccessCodeSet {
-            currentSecurityOption = .accessCode
-        } else if cardInfo.card.isPasscodeSet ?? false {
-            currentSecurityOption = .passCode
-        } else {
-            currentSecurityOption = .longTap
-        }
     }
 
     private func bind() {
