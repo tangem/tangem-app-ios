@@ -295,7 +295,7 @@ final class SendViewModel: ObservableObject {
         if case .summary = step {
             if sendModel.totalExceedsBalance {
                 alert = makeSubtractFeeFromAmountAlert { [weak self] in
-                    self?.sendModel.subtractFeeFromAmount()
+                    self?.sendModel.includeFeeIntoAmount()
                     self?.openStep(step, stepAnimation: stepAnimation)
                 }
 
