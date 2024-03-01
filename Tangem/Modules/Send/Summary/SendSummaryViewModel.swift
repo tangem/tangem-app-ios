@@ -40,6 +40,14 @@ class SendSummaryViewModel: ObservableObject {
         isSending ? nil : .trailing(Assets.tangemIcon)
     }
 
+    var destinationBackground: Color {
+        sectionBackground(canEdit: canEditDestination)
+    }
+
+    var amountBackground: Color {
+        sectionBackground(canEdit: canEditAmount)
+    }
+
     @Published var isSendButtonDisabled = false
     @Published var isSending = false
     @Published var alert: AlertBinder?
@@ -171,5 +179,9 @@ class SendSummaryViewModel: ObservableObject {
             .hasNotifications(with: .critical)
             .assign(to: \.isSendButtonDisabled, on: self, ownership: .weak)
             .store(in: &bag)
+    }
+
+    private func sectionBackground(canEdit: Bool) -> Color {
+        canEdit ? Colors.Background.action : Colors.Button.disabled
     }
 }
