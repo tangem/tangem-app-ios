@@ -18,7 +18,6 @@ final class SendViewModel: ObservableObject {
     @Published var step: SendStep
     @Published var currentStepInvalid: Bool = false
     @Published var alert: AlertBinder?
-    @Published var showCameraDeniedAlert = false
 
     var title: String? {
         step.name
@@ -223,21 +222,17 @@ final class SendViewModel: ObservableObject {
     }
 
     func scanQRCode() {
-        if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
-            showCameraDeniedAlert = true
-        } else {
-            let binding = Binding<String>(
-                get: {
-                    ""
-                },
-                set: { [weak self] in
-                    self?.parseQRCode($0)
-                }
-            )
+        let binding = Binding<String>(
+            get: {
+                ""
+            },
+            set: { [weak self] in
+                self?.parseQRCode($0)
+            }
+        )
 
-            let networkName = walletModel.blockchainNetwork.blockchain.displayName
-            coordinator?.openQRScanner(with: binding, networkName: networkName)
-        }
+        let networkName = walletModel.blockchainNetwork.blockchain.displayName
+        coordinator?.openQRScanner(with: binding, networkName: networkName)
     }
 
     private func bind() {
