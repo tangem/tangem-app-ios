@@ -290,7 +290,7 @@ final class SendViewModel: ObservableObject {
     private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation?) {
         if case .summary = step {
             if sendModel.totalExceedsBalance {
-                alert = makeSubtractFeeFromAmountAlert { [weak self] in
+                alert = SendAlertBuilder.makeSubtractFeeFromAmountAlert { [weak self] in
                     self?.sendModel.includeFeeIntoAmount()
                     self?.openStep(step, stepAnimation: stepAnimation)
                 }
@@ -328,16 +328,6 @@ final class SendViewModel: ObservableObject {
 
         sendFinishViewModel.router = coordinator
         openStep(.finish(model: sendFinishViewModel), stepAnimation: nil)
-    }
-
-    private func makeSubtractFeeFromAmountAlert(subtractAction: @escaping () -> Void) -> AlertBinder {
-        let subtractButton = Alert.Button.default(Text(Localization.sendAlertFeeCoverageSubractText), action: subtractAction)
-        return AlertBuilder.makeAlert(
-            title: "",
-            message: Localization.sendAlertFeeCoverageTitle,
-            primaryButton: subtractButton,
-            secondaryButton: .cancel()
-        )
     }
 
     private func parseQRCode(_ code: String) {
