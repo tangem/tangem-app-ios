@@ -163,6 +163,7 @@ final class SendViewModel: ObservableObject {
 
         walletInfo = SendWalletInfo(
             walletName: walletName,
+            balanceValue: walletModel.balanceValue,
             balance: Localization.sendWalletBalanceFormat(walletModel.balance, walletModel.fiatBalance),
             blockchain: walletModel.blockchainNetwork.blockchain,
             currencyId: walletModel.tokenItem.currencyId,
@@ -423,7 +424,7 @@ extension SendViewModel: NotificationTapDelegate {
     private func reduceAmountBy(_ amount: Decimal) {
         guard var newAmount = sendModel.amountValue else { return }
 
-        newAmount = newAmount - Amount(with: sendModel.blockchain, type: sendModel.amountType, value: amount)
+        newAmount = newAmount - Amount(with: walletModel.tokenItem.blockchain, type: walletModel.amountType, value: amount)
         if sendModel.isFeeIncluded, let feeValue = sendModel.feeValue?.amount {
             newAmount = newAmount + feeValue
         }
@@ -438,7 +439,7 @@ extension SendViewModel: NotificationTapDelegate {
             newAmount = newAmount + feeValue
         }
 
-        sendModel.setAmount(Amount(with: sendModel.blockchain, type: sendModel.amountType, value: newAmount))
+        sendModel.setAmount(Amount(with: walletModel.tokenItem.blockchain, type: walletModel.amountType, value: newAmount))
     }
 }
 
