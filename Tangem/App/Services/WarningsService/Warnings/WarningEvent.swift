@@ -25,6 +25,7 @@ enum WarningEvent: Equatable {
     case walletLocked
     case missingBackup
     case supportedOnlySingleCurrencyWallet
+    case backupErrors
 }
 
 // For Notifications
@@ -67,6 +68,8 @@ extension WarningEvent: NotificationEvent {
             return .string(Localization.warningNoBackupTitle)
         case .supportedOnlySingleCurrencyWallet:
             return .string(Localization.manageTokensWalletSupportOnlyOneNetworkTitle)
+        case .backupErrors:
+            return .string(Localization.warningBackupErrorsTitle)
         }
     }
 
@@ -105,6 +108,8 @@ extension WarningEvent: NotificationEvent {
             return Localization.warningNoBackupMessage
         case .supportedOnlySingleCurrencyWallet:
             return nil
+        case .backupErrors:
+            return Localization.warningBackupErrorsMessage
         }
     }
 
@@ -119,7 +124,7 @@ extension WarningEvent: NotificationEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .failedToVerifyCard, .devCard:
+        case .failedToVerifyCard, .devCard, .backupErrors:
             return .init(iconType: .image(Assets.redCircleWarning.image))
         case .numberOfSignedHashesIncorrect, .testnetCard, .oldDeviceOldCard, .oldCard, .lowSignatures, .systemDeprecationPermanent, .missingBackup, .supportedOnlySingleCurrencyWallet:
             return .init(iconType: .image(Assets.attention.image))
@@ -136,7 +141,8 @@ extension WarningEvent: NotificationEvent {
         switch self {
         case .walletLocked,
              .failedToVerifyCard,
-             .devCard:
+             .devCard,
+             .backupErrors:
             return .critical
         case .demoCard,
              .legacyDerivation,
@@ -158,7 +164,7 @@ extension WarningEvent: NotificationEvent {
 
     var isDismissable: Bool {
         switch self {
-        case .failedToVerifyCard, .testnetCard, .devCard, .oldDeviceOldCard, .oldCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent, .missingDerivation, .walletLocked, .missingBackup, .supportedOnlySingleCurrencyWallet:
+        case .failedToVerifyCard, .testnetCard, .devCard, .oldDeviceOldCard, .oldCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent, .missingDerivation, .walletLocked, .missingBackup, .supportedOnlySingleCurrencyWallet, .backupErrors:
             return false
         case .rateApp, .numberOfSignedHashesIncorrect, .systemDeprecationTemporary:
             return true
@@ -216,6 +222,7 @@ extension WarningEvent {
         case .walletLocked: return .mainNoticeWalletUnlock
         case .missingBackup: return .mainNoticeBackupYourWallet
         case .supportedOnlySingleCurrencyWallet: return nil
+        case .backupErrors: return .mainNoticeBackupErrors
         }
     }
 
