@@ -132,18 +132,23 @@ class SendModel {
         self.sendType = sendType
         self.addressService = addressService
 
+        bind()
+
         if let amount = sendType.predefinedAmount {
-            #warning("TODO")
             setAmount(amount)
         }
 
         if let destination = sendType.predefinedDestination {
             setDestination(destination)
+        } else {
+            validateDestination()
         }
 
-        validateDestination()
-        validateDestinationAdditionalField()
-        bind()
+        if let tag = sendType.predefinedTag {
+            setDestinationAdditionalField(tag)
+        } else {
+            validateDestinationAdditionalField()
+        }
     }
 
     func includeFeeIntoAmount() {
@@ -403,6 +408,17 @@ class SendModel {
         _amount.send(newAmount)
     }
 
+    // Convenience method
+    func setAmount(_ decimal: Decimal?) {
+        let amount: Amount?
+        if let decimal {
+            amount = Amount(type: walletModel.amountType, currencySymbol: currencySymbol, value: decimal, decimals: walletModel.decimalCount)
+        } else {
+            amount = nil
+        }
+        setAmount(amount)
+    }
+
     private func updateAndValidateAmount(_ newAmount: Amount?) {
         let validatedAmount: Amount?
         let amountError: Error?
@@ -546,6 +562,7 @@ class SendModel {
         if let gasPrice = _customFeeGasPrice.value,
            let gasLimit = _customFeeGasLimit.value,
            let gasInWei = (gasPrice * gasLimit).decimal {
+            let blockchain = walletModel.tokenItem.blockchain
             let amount = Amount(with: blockchain, value: gasInWei / blockchain.decimalValue)
             newFee = Fee(amount, parameters: EthereumFeeParameters(gasLimit: gasLimit, gasPrice: gasPrice))
         } else {
@@ -589,23 +606,6 @@ class SendModel {
 // MARK: - Subview model inputs
 
 extension SendModel: SendAmountViewModelInput {
-    var blockchain: BlockchainSdk.Blockchain {
-        walletModel.blockchainNetwork.blockchain
-    }
-
-    var amountType: BlockchainSdk.Amount.AmountType {
-        walletModel.amountType
-    }
-
-    var amountInputPublisher: AnyPublisher<BlockchainSdk.Amount?, Never> {
-        _amount.eraseToAnyPublisher()
-    }
-
-    #warning("TODO")
-    var errorPublisher: AnyPublisher<Error?, Never> {
-        _amountError.eraseToAnyPublisher()
-    }
-
     var amountError: AnyPublisher<Error?, Never> { _amountError.eraseToAnyPublisher() }
 }
 
@@ -668,7 +668,7 @@ extension SendModel: SendFeeViewModelInput {
     var feeOptions: [FeeOption] {
         if walletModel.shouldShowFeeSelector {
             var options: [FeeOption] = [.slow, .market, .fast]
-            if blockchain.isEvm {
+            if tokenItem.blockchain.isEvm {
                 options.append(.custom)
             }
             return options
