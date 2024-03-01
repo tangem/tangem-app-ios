@@ -1,5 +1,5 @@
 //
-//  CardInitializationValidator.swift
+//  CurvesValidator.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,15 +9,15 @@
 import Foundation
 import TangemSdk
 
-struct CardInitializationValidator {
+struct CurvesValidator {
     let expectedCurves: [EllipticCurve]
 
-    func validateWallets(_ wallets: [Card.Wallet]) -> Bool {
-        let createdCurves = Set(wallets.map { $0.curve })
+    func validate(_ curves: [EllipticCurve]) -> Bool {
+        let uniqueCurves = Set(curves)
 
         // check that all curves created without duplicates
-        guard wallets.count == expectedCurves.count,
-              createdCurves == Set(expectedCurves) else {
+        guard curves.count == expectedCurves.count,
+              uniqueCurves == Set(expectedCurves) else {
             return false
         }
 
