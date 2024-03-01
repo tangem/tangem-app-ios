@@ -86,7 +86,7 @@ class SendModel {
 
     // MARK: - Raw data
 
-    private var _amount = CurrentValueSubject<Amount?, Never>(nil)
+    private var userInputAmount = CurrentValueSubject<Amount?, Never>(nil)
     private var _isValidatingDestination = CurrentValueSubject<Bool, Never>(false)
     private var _destinationText = CurrentValueSubject<String, Never>("")
     private var _destinationAdditionalFieldText = CurrentValueSubject<String, Never>("")
@@ -153,7 +153,7 @@ class SendModel {
 
     func includeFeeIntoAmount() {
         guard
-            let amount = _amount.value,
+            let amount = userInputAmount.value,
             let fee = fee.value?.amount,
             (amount - fee).value >= 0
         else {
@@ -237,7 +237,7 @@ class SendModel {
             }
             .store(in: &bag)
 
-        _amount
+        userInputAmount
             .removeDuplicates {
                 $0 == $1
             }
@@ -403,9 +403,9 @@ class SendModel {
     func setAmount(_ amount: Amount?) {
         let newAmount: Amount? = (amount?.isZero ?? true) ? nil : amount
 
-        guard _amount.value != newAmount else { return }
+        guard userInputAmount.value != newAmount else { return }
 
-        _amount.send(newAmount)
+        userInputAmount.send(newAmount)
     }
 
     // Convenience method
@@ -726,7 +726,7 @@ extension SendModel: SendSummaryViewModelInput {
     }
 
     var userInputAmountPublisher: AnyPublisher<Amount?, Never> {
-        _amount.eraseToAnyPublisher()
+        userInputAmount.eraseToAnyPublisher()
     }
 
     var feeValuePublisher: AnyPublisher<BlockchainSdk.Fee?, Never> {
@@ -752,7 +752,7 @@ extension SendModel: SendSummaryViewModelInput {
 
 extension SendModel: SendFinishViewModelInput {
     var userInputAmountValue: Amount? {
-        _amount.value
+        userInputAmount.value
     }
 
     var destinationText: String? {
