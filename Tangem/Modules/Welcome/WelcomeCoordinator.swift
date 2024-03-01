@@ -80,9 +80,15 @@ class WelcomeCoordinator: CoordinatorObject {
     }
 
     func start(with options: WelcomeCoordinator.Options) {
-        viewState = .welcome(WelcomeViewModel(shouldScanOnAppear: options.shouldScan, coordinator: self))
-        pushedOnboardingCoordinator = nil
-        subscribeToWelcomeLifecycle()
+        switch viewState {
+        case .welcome:
+            if pushedOnboardingCoordinator != nil {
+                pushedOnboardingCoordinator = nil
+            }
+        case .main, .none:
+            viewState = .welcome(WelcomeViewModel(shouldScanOnAppear: options.shouldScan, coordinator: self))
+            subscribeToWelcomeLifecycle()
+        }
     }
 
     private func subscribeToWelcomeLifecycle() {
