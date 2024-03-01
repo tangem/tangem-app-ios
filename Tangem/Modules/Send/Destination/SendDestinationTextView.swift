@@ -28,15 +28,18 @@ struct SendDestinationTextView: View {
                 VStack(alignment: .leading, spacing: 14) {
                     fieldName
 
-                    HStack(spacing: 12) {
-                        addressIconView
-                        input
+                    ZStack(alignment: .trailing) {
+                        HStack(spacing: 12) {
+                            addressIconView
+                            input
+                        }
+
                         pasteButton
                     }
                 }
                 .padding(.vertical, 12)
             } else {
-                HStack {
+                ZStack(alignment: .trailing) {
                     VStack(alignment: .leading, spacing: 2) {
                         fieldName
                         input
