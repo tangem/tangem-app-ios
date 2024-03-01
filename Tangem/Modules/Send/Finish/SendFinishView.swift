@@ -32,7 +32,7 @@ struct SendFinishView: View {
                         }
                     }
                 }
-                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
+                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.addressContainer.rawValue, namespace: namespace)
 
                 GroupedSection(viewModel.amountSummaryViewData) {
                     AmountSummaryView(data: $0)
