@@ -47,6 +47,8 @@ class CardSettingsViewModel: ObservableObject {
     private weak var coordinator: CardSettingsRoutable?
     private let cardModel: CardViewModel
 
+    private let recoveryInteractor: UserCodeRecovering
+
     // MARK: Private
 
     private var isChangeAccessCodeVisible: Bool {
@@ -55,12 +57,15 @@ class CardSettingsViewModel: ObservableObject {
 
     private var bag: Set<AnyCancellable> = []
 
+    // [REDACTED_TODO_COMMENT]
     init(
         cardModel: CardViewModel,
         coordinator: CardSettingsRoutable
     ) {
         self.cardModel = cardModel
         self.coordinator = coordinator
+        recoveryInteractor = UserCodeRecoveringCardInteractor(with: cardModel.cardInfo)
+
         securityModeTitle = cardModel.currentSecurityOption.title
         hasSingleSecurityMode = cardModel.availableSecurityOptions.count <= 1
 
@@ -80,8 +85,8 @@ private extension CardSettingsViewModel {
             }
             .store(in: &bag)
 
-        cardModel.$accessCodeRecoveryEnabled
-            .receiveValue { [weak self] enabled in
+        recoveryInteractor.isUserCodeRecoveryAllowedPublisher
+            .sink { [weak self] enabled in
                 self?.setupAccessCodeRecoveryModel(enabled: enabled)
             }
             .store(in: &bag)
@@ -107,7 +112,7 @@ private extension CardSettingsViewModel {
         }
 
         setupSecurityOptions()
-        setupAccessCodeRecoveryModel(enabled: cardModel.accessCodeRecoveryEnabled)
+        setupAccessCodeRecoveryModel(enabled: recoveryInteractor.isUserCodeRecoveryAllowed)
 
         if isResetToFactoryAvailable {
             resetToFactoryViewModel = DefaultRowViewModel(
@@ -186,6 +191,6 @@ extension CardSettingsViewModel {
 
     func openAccessCodeSettings() {
         Analytics.log(.cardSettingsButtonAccessCodeRecovery)
-        coordinator?.openAccessCodeRecoverySettings(using: cardModel)
+        coordinator?.openAccessCodeRecoverySettings(with: recoveryInteractor)
     }
 }
