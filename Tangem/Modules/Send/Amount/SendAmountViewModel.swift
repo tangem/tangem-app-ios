@@ -14,7 +14,7 @@ import BlockchainSdk
 #warning("[REDACTED_TODO_COMMENT]")
 
 protocol SendAmountViewModelInput {
-    var amountValue: Amount? { get }
+    var validatedAmountValue: Amount? { get }
     var amountError: AnyPublisher<Error?, Never> { get }
 
     func setAmount(_ decimal: Decimal?)
@@ -72,7 +72,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     }
 
     func onAppear() {
-        fiatCryptoAdapter?.setCrypto(input.amountValue?.value)
+        fiatCryptoAdapter?.setCrypto(input.validatedAmountValue?.value)
 
         if animatingAuxiliaryViewsOnAppear {
             withAnimation(SendView.Constants.defaultAnimation) {
