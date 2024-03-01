@@ -32,7 +32,6 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
         input: AnyPublisher<String, Never>,
         isValidating: AnyPublisher<Bool, Never>,
         isDisabled: AnyPublisher<Bool, Never>,
-        animatingFooterOnAppear: AnyPublisher<Bool, Never>,
         errorText: AnyPublisher<Error?, Never>,
         didEnterDestination: @escaping (String) -> Void
     ) {
@@ -42,10 +41,10 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
         self.didEnterDestination = didEnterDestination
         placeholder = style.placeholder(isDisabled: self.isDisabled)
 
-        bind(style: style, input: input, isValidating: isValidating, isDisabled: isDisabled, animatingFooterOnAppear: animatingFooterOnAppear, errorText: errorText)
+        bind(style: style, input: input, isValidating: isValidating, isDisabled: isDisabled, errorText: errorText)
     }
 
-    private func bind(style: Style, input: AnyPublisher<String, Never>, isValidating: AnyPublisher<Bool, Never>, isDisabled: AnyPublisher<Bool, Never>, animatingFooterOnAppear: AnyPublisher<Bool, Never>, errorText: AnyPublisher<Error?, Never>) {
+    private func bind(style: Style, input: AnyPublisher<String, Never>, isValidating: AnyPublisher<Bool, Never>, isDisabled: AnyPublisher<Bool, Never>, errorText: AnyPublisher<Error?, Never>) {
         input
             .assign(to: \.input, on: self, ownership: .weak)
             .store(in: &bag)
@@ -69,11 +68,6 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
                 self?.isDisabled = isDisabled
                 self?.placeholder = style.placeholder(isDisabled: isDisabled)
             }
-            .store(in: &bag)
-
-        animatingFooterOnAppear
-            .removeDuplicates()
-            .assign(to: \.animatingFooterOnAppear, on: self, ownership: .weak)
             .store(in: &bag)
 
         errorText
@@ -103,6 +97,16 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
 
     func onAppear() {
         updatePasteButton()
+
+        if animatingFooterOnAppear {
+            withAnimation(SendView.Constants.defaultAnimation) {
+                animatingFooterOnAppear = false
+            }
+        }
+    }
+
+    func setAnimatingFooterOnAppear(_ animatingFooterOnAppear: Bool) {
+        self.animatingFooterOnAppear = animatingFooterOnAppear
     }
 
     func onBecomingActive() {
