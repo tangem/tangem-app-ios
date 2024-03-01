@@ -40,7 +40,6 @@ class CardViewModel: Identifiable, ObservableObject {
     private let keysRepository: KeysRepository
     private let walletManagersRepository: WalletManagersRepository
     private let cardImageProvider = CardImageProvider()
-//    private let notificationAnalyticsManager: NotificationsAnalyticsManager
 
     lazy var derivationManager: DerivationManager? = {
         guard config.hasFeature(.hdWallets) else {
@@ -59,7 +58,6 @@ class CardViewModel: Identifiable, ObservableObject {
     let warningsService = WarningsService()
 
     @Published private(set) var currentSecurityOption: SecurityModeOption = .longTap
-    @Published private(set) var accessCodeRecoveryEnabled: Bool
 
     var signer: TangemSigner { _signer }
 
@@ -282,7 +280,6 @@ class CardViewModel: Identifiable, ObservableObject {
         )
 
         _signer = config.tangemSigner
-        accessCodeRecoveryEnabled = cardInfo.card.userSettings.isUserCodeRecoveryAllowed
         _userWalletNamePublisher = .init(cardInfo.name)
         _cardHeaderImagePublisher = .init(config.cardHeaderImage)
         updateCurrentSecurityOption()
@@ -302,6 +299,30 @@ class CardViewModel: Identifiable, ObservableObject {
             card: cardInfo.card,
             validator: walletModelsManager.walletModels.first?.signatureCountValidator
         )
+    }
+
+    func validate() -> Bool {
+        if userWallet.hasBackupErrors == true {
+            return false
+        }
+
+        var expectedCurves = config.mandatoryCurves
+        /// Since the curve `bls12381_G2_AUG` was added later into first generation of wallets,, we cannot determine whether this curve is missing due to an error or because the user did not want to recreate the wallet.
+        if config is GenericConfig {
+            expectedCurves.remove(.bls12381_G2_AUG)
+        }
+
+        let curvesValidator = CurvesValidator(expectedCurves: expectedCurves)
+        if !curvesValidator.validate(card.wallets.map { $0.curve }) {
+            return false
+        }
+
+        let backupValidator = BackupValidator()
+        if !backupValidator.validate(card.backupStatus) {
+            return false
+        }
+
+        return true
     }
 
     private func appendPersistentBlockchains() {
@@ -474,27 +495,6 @@ extension CardViewModel {
 extension CardViewModel: WalletConnectUserWalletInfoProvider {
     var wcWalletModelProvider: WalletConnectWalletModelProvider {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
-    }
-}
-
-// MARK: Access code recovery settings provider
-
-extension CardViewModel: AccessCodeRecoverySettingsProvider {
-    func setAccessCodeRecovery(to enabled: Bool, _ completionHandler: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        let tangemSdk = makeTangemSdk()
-        self.tangemSdk = tangemSdk
-
-        tangemSdk.setUserCodeRecoveryAllowed(enabled, cardId: cardId) { [weak self] result in
-            guard let self else { return }
-            switch result {
-            case .success:
-                cardInfo.card.userSettings.isUserCodeRecoveryAllowed = enabled
-                accessCodeRecoveryEnabled = enabled
-                completionHandler(.success(()))
-            case .failure(let error):
-                completionHandler(.failure(error))
-            }
-        }
     }
 }
 
