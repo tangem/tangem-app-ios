@@ -101,17 +101,17 @@ class SingleTokenRouter: SingleTokenRoutable {
 
     func openSendToSell(with request: SellCryptoRequest, for walletModel: WalletModel) {
         // [REDACTED_TODO_COMMENT]
-        guard let cardViewModel = userWalletModel as? CardViewModel else {
+        guard let cardViewModel = userWalletModel as? CardViewModel,
+              var amountToSend = walletModel.wallet.amounts[walletModel.amountType] else {
             return
         }
 
-        let blockchainNetwork = walletModel.blockchainNetwork
-        let amount = Amount(with: blockchainNetwork.blockchain, value: request.amount)
+        amountToSend.value = request.amount
         coordinator?.openSendToSell(
-            amountToSend: amount,
+            amountToSend: amountToSend,
             destination: request.targetAddress,
             tag: request.tag,
-            blockchainNetwork: blockchainNetwork,
+            blockchainNetwork: walletModel.blockchainNetwork,
             cardViewModel: cardViewModel,
             walletModel: walletModel
         )
