@@ -86,7 +86,7 @@ extension ExpressNotificationEvent: NotificationEvent {
         case .cexOperationFailed:
             return Localization.expressExchangeNotificationFailedText
         case .feeWillBeSubtractFromSendingAmount:
-            return Localization.sendNetworkFeeWarningContent
+            return Localization.swappingNetworkFeeWarningContent
         case .existentialDepositWarning(let blockchainName, let amount):
             return Localization.warningExistentialDepositMessage(blockchainName, amount)
         case .dustAmount(let minimumAmountText, let minimumChangeText):
