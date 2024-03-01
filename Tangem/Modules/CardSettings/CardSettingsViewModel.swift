@@ -39,7 +39,7 @@ class CardSettingsViewModel: ObservableObject {
             return Localization.cardSettingsChangeAccessCodeFooter
         }
 
-        return cardModel.currentSecurityOption.description
+        return securityOptionChangeInteractor.currentSecurityOption.description
     }
 
     // MARK: Dependencies
@@ -48,11 +48,12 @@ class CardSettingsViewModel: ObservableObject {
     private let cardModel: CardViewModel
 
     private let recoveryInteractor: UserCodeRecovering
+    private let securityOptionChangeInteractor: SecurityOptionChanging
 
     // MARK: Private
 
     private var isChangeAccessCodeVisible: Bool {
-        cardModel.currentSecurityOption == .accessCode
+        securityOptionChangeInteractor.currentSecurityOption == .accessCode
     }
 
     private var bag: Set<AnyCancellable> = []
@@ -65,9 +66,10 @@ class CardSettingsViewModel: ObservableObject {
         self.cardModel = cardModel
         self.coordinator = coordinator
         recoveryInteractor = UserCodeRecoveringCardInteractor(with: cardModel.cardInfo)
+        securityOptionChangeInteractor = SecurityOptionChangingCardInteractor(with: cardModel.cardInfo)
 
-        securityModeTitle = cardModel.currentSecurityOption.title
-        hasSingleSecurityMode = cardModel.availableSecurityOptions.count <= 1
+        securityModeTitle = securityOptionChangeInteractor.currentSecurityOption.title
+        hasSingleSecurityMode = securityOptionChangeInteractor.availableSecurityOptions.count <= 1
 
         bind()
         setupView()
@@ -78,7 +80,7 @@ class CardSettingsViewModel: ObservableObject {
 
 private extension CardSettingsViewModel {
     func bind() {
-        cardModel.$currentSecurityOption
+        securityOptionChangeInteractor.currentSecurityOptionPublisher
             .receiveValue { [weak self] newMode in
                 self?.securityModeTitle = newMode.titleForDetails
                 self?.setupSecurityOptions()
@@ -158,7 +160,7 @@ extension CardSettingsViewModel {
         Analytics.log(.buttonChangeUserCode)
         isChangeAccessCodeLoading = true
         setupSecurityOptions()
-        cardModel.changeSecurityOption(.accessCode) { [weak self] result in
+        securityOptionChangeInteractor.changeSecurityOption(.accessCode) { [weak self] result in
             DispatchQueue.main.async {
                 self?.isChangeAccessCodeLoading = false
                 self?.setupSecurityOptions()
@@ -168,7 +170,7 @@ extension CardSettingsViewModel {
 
     func openSecurityMode() {
         Analytics.log(.buttonChangeSecurityMode)
-        coordinator?.openSecurityMode(cardModel: cardModel)
+        coordinator?.openSecurityMode(with: securityOptionChangeInteractor)
     }
 
     func openResetCard() {
