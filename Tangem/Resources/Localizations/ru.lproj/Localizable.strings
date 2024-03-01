@@ -378,6 +378,10 @@
 "push_additional_fee" = "Дополнительная комиссия";
 "push_previous_fee" = "Предыдущая комиссия";
 "push_tx_address_hint" = "Сумма за предыдущую транзакцию, включая комиссию";
+"qr_scanner_camera_denied_gallery_button" = "Select from the gallery";
+"qr_scanner_camera_denied_settings_button" = "Settings";
+"qr_scanner_camera_denied_text" = "You have not given access to your camera";
+"qr_scanner_camera_denied_title" = "Camera access denied";
 "rate_app_sheet_negative_response_button_title" = "Отправить отзыв";
 "rate_app_sheet_positive_response_button_title" = "Оцените приложение 🙌";
 "rate_app_sheet_subtitle" = "Поделитесь опытом использования приложения - нам важна любая деталь.";
