@@ -146,7 +146,7 @@ class SendModel {
         bind()
     }
 
-    func subtractFeeFromAmount() {
+    func includeFeeIntoAmount() {
         guard
             let amount = _amount.value,
             let fee = fee.value?.amount,
