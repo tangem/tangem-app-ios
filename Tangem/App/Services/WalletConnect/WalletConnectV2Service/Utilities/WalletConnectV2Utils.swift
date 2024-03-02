@@ -19,7 +19,7 @@ struct WalletConnectV2Utils {
     /// `Bool` that indicates that all blockchains in session proposal is supported
     func allChainsSupported(in namespaces: [String: ProposalNamespace]) -> Bool {
         for (namespace, proposals) in namespaces {
-            if namespace != evmNamespace {
+            guard isNamespaceSupported(namespace) else {
                 return false
             }
 
@@ -119,7 +119,10 @@ struct WalletConnectV2Utils {
         }
 
         for (namespace, proposalNamespace) in optionalNamespaces ?? [:] {
-            guard let chains = proposalNamespace.chains else {
+            guard
+                isNamespaceSupported(namespace),
+                let chains = proposalNamespace.chains
+            else {
                 continue
             }
 
@@ -137,10 +140,14 @@ struct WalletConnectV2Utils {
 
                 return filteredWallets.compactMap { Account("\(wcBlockchain.absoluteString):\($0.wallet.address)") }
             }
+            let flattenedAccounts = accounts.reduce([], +)
+            if flattenedAccounts.isEmpty {
+                continue
+            }
 
             let sessionNamespace = SessionNamespace(
                 chains: supportedChains,
-                accounts: Set(accounts.reduce([], +)),
+                accounts: Set(flattenedAccounts),
                 methods: proposalNamespace.methods,
                 events: proposalNamespace.events
             )
@@ -212,6 +219,10 @@ struct WalletConnectV2Utils {
         default:
             return nil
         }
+    }
+
+    private func isNamespaceSupported(_ namespace: String) -> Bool {
+        return namespace == evmNamespace
     }
 
     private func mapBlockchainNetworks(from namespaces: [String: SessionNamespace], walletModelProvider: WalletConnectWalletModelProvider) -> [BlockchainNetwork] {
