@@ -292,7 +292,7 @@ CHECKOUT OPTIONS:
     :git: https://github.com/tangem/bitcoincore.git
     :tag: 0.0.19
   BlockchainSdk:
-    :commit: 2fd687f3edd476c6f7529b452adbad036f6f9803
+    :commit: 3c66a62ae29efb9dc7a53ac6f85311b52599be80
     :git: https://github.com/tangem/blockchain-sdk-swift.git
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
@@ -314,7 +314,7 @@ SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   BinanceChain: f727abc7a20ba71f4497e46b7400124027b25692
   BitcoinCore.swift: 64ac4e69d9a6ef917bcbb0c23f1324cf57a822fb
-  BlockchainSdk: c56153a3a4e6bfe0537f538cca5467d472e4861f
+  BlockchainSdk: d3c2191f9b11b76bdf3422e8eb00592ad346cf7e
   BlockiesSwift: 22d8d56dd187e6bfd16cb8c8fbd4fd4896c3e65d
   CombineExt: c4daa97ef75754d8ef319bd79edeef82652f3eea
   Firebase: 10c8cb12fb7ad2ae0c09ffc86cd9c1ab392a0031
