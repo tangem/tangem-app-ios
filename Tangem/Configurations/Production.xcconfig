@@ -17,9 +17,9 @@ ENVIRONMENT_NAME = Production
 // Will use in TangemApp as BUNDLE_IDENTIFIER
 APP_BUNDLE_IDENTIFIER = $(APP_BUNDLE_IDENTIFIER_COMMON)
 
-// Path to *.entitlements file
-ENTITLEMENTS_PATH = Tangem/Configurations/Tangem.entitlements
-
 // Overriding (do NOT change key name)
 // app name
 PRODUCT_NAME = $(PRODUCT_NAME_COMMON)
+
+// Path to *.entitlements file
+ENTITLEMENTS_PATH = Tangem/Configurations/Tangem.entitlements
