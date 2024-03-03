@@ -110,7 +110,7 @@ extension CommonWalletModelsManager: WalletModelsManager {
             .collect(publishers.count)
             .mapToVoid()
             .eraseToAnyPublisher()
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .receiveCompletion { _ in
                 completion()
             }
