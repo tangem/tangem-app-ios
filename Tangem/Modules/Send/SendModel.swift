@@ -179,7 +179,7 @@ class SendModel {
                 self?.destination.send(nil)
                 self?._isValidatingDestination.send(true)
             })
-            .debounce(for: 1, scheduler: RunLoop.main)
+            .debounce(for: 1, scheduler: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.validateDestination()
             }
