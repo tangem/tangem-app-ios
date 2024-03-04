@@ -21,7 +21,7 @@ class CommonUserTokensManager {
     private let userTokenListManager: UserTokenListManager
     private let walletModelsManager: WalletModelsManager
     private let derivationStyle: DerivationStyle?
-    private weak var cardDerivableProvider: CardDerivableProvider?
+    private weak var keysDerivingProvider: KeysDerivingProvider?
     private let existingCurves: [EllipticCurve]
     private let longHashesSupported: Bool
 
@@ -34,7 +34,7 @@ class CommonUserTokensManager {
         walletModelsManager: WalletModelsManager,
         derivationStyle: DerivationStyle?,
         derivationManager: DerivationManager?,
-        cardDerivableProvider: CardDerivableProvider,
+        keysDerivingProvider: KeysDerivingProvider,
         existingCurves: [EllipticCurve],
         longHashesSupported: Bool
     ) {
@@ -44,7 +44,7 @@ class CommonUserTokensManager {
         self.walletModelsManager = walletModelsManager
         self.derivationStyle = derivationStyle
         self.derivationManager = derivationManager
-        self.cardDerivableProvider = cardDerivableProvider
+        self.keysDerivingProvider = keysDerivingProvider
         self.existingCurves = existingCurves
         self.longHashesSupported = longHashesSupported
     }
@@ -100,7 +100,7 @@ class CommonUserTokensManager {
 extension CommonUserTokensManager: UserTokensManager {
     func deriveIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
         guard let derivationManager,
-              let interactor = cardDerivableProvider?.cardDerivableInteractor else {
+              let interactor = keysDerivingProvider?.keysDerivingInteractor else {
             completion(.success(()))
             return
         }
