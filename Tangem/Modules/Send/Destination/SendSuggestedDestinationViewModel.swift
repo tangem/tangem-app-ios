@@ -91,5 +91,12 @@ struct SendSuggestedDestinationTransactionRecord {
     let address: String
     let additionalField: String?
     let isOutgoing: Bool
-    let description: String
+    let amountFormatted: String
+    let dateFormatted: String
+}
+
+extension SendSuggestedDestinationTransactionRecord {
+    func description(_ amount: String) -> String {
+        "\(amount), \(dateFormatted)"
+    }
 }
