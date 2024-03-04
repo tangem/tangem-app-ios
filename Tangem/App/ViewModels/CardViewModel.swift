@@ -32,7 +32,7 @@ class CardViewModel: Identifiable, ObservableObject {
         derivationManager: derivationManager,
         keysDerivingProvider: self,
         existingCurves: config.walletCurves,
-        longHashesSupported: longHashesSupported
+        longHashesSupported: config.hasFeature(.longHashes)
     )
 
     let userTokenListManager: UserTokenListManager
@@ -65,71 +65,22 @@ class CardViewModel: Identifiable, ObservableObject {
         cardInfo.card
     }
 
-    var walletData: DefaultWalletData {
-        cardInfo.walletData
-    }
-
-    var batchId: String { cardInfo.card.batchId }
     var cardPublicKey: Data { cardInfo.card.cardPublicKey }
 
     var supportsOnlineImage: Bool {
         config.hasFeature(.onlineImage)
     }
 
-    var isMultiWallet: Bool {
-        config.hasFeature(.multiCurrency)
-    }
-
-    var canDisplayHashesCount: Bool {
-        config.hasFeature(.displayHashesCount)
-    }
-
     var emailConfig: EmailConfig? {
         config.emailConfig
-    }
-
-    var cardsCount: Int {
-        config.cardsCount
-    }
-
-    var cardIdFormatted: String {
-        cardInfo.cardIdFormatted
-    }
-
-    var cardIssuer: String {
-        cardInfo.card.issuer.name
-    }
-
-    var cardSignedHashes: Int {
-        cardInfo.card.walletSignedHashes
-    }
-
-    var artworkInfo: ArtworkInfo? {
-        cardImageProvider.cardArtwork(for: cardInfo.card.cardId)?.artworkInfo
     }
 
     var name: String {
         cardInfo.name
     }
 
-    var defaultName: String {
-        config.cardName
-    }
-
-    var canCreateBackup: Bool {
-        !config.getFeatureAvailability(.backup).isHidden
-    }
-
     var canSkipBackup: Bool {
         config.canSkipBackup
-    }
-
-    var canTwin: Bool {
-        config.hasFeature(.twinning)
-    }
-
-    var canChangeAccessCodeRecoverySettings: Bool {
-        config.hasFeature(.accessCodeRecoverySettings)
     }
 
     var hasBackupCards: Bool {
@@ -138,15 +89,6 @@ class CardViewModel: Identifiable, ObservableObject {
 
     var cardDisclaimer: TOU {
         config.tou
-    }
-
-    var canShowSwapping: Bool {
-        !config.getFeatureAvailability(.swapping).isHidden
-    }
-
-    // Temp for WC. Migrate to userWalletId?
-    var secp256k1SeedKey: Data? {
-        cardInfo.card.wallets.last(where: { $0.curve == .secp256k1 })?.publicKey
     }
 
     let userWalletId: UserWalletId
@@ -159,36 +101,6 @@ class CardViewModel: Identifiable, ObservableObject {
     private(set) var cardInfo: CardInfo
     private var tangemSdk: TangemSdk?
     var config: UserWalletConfig
-
-    var hdWalletsSupported: Bool {
-        config.hasFeature(.hdWallets)
-    }
-
-    var longHashesSupported: Bool {
-        config.hasFeature(.longHashes)
-    }
-
-    var cardSetLabel: String? {
-        config.cardSetLabel
-    }
-
-    var canShowSend: Bool {
-        config.hasFeature(.withdrawal)
-    }
-
-    var canParticipateInPromotion: Bool {
-        config.hasFeature(.promotion)
-    }
-
-    var resetToFactoryAvailability: UserWalletFeature.Availability {
-        config.getFeatureAvailability(.resetToFactory)
-    }
-
-    var shouldShowLegacyDerivationAlert: Bool {
-        config.warningEvents.contains(where: { $0 == .legacyDerivation })
-    }
-
-    var canExchangeCrypto: Bool { !config.getFeatureAvailability(.exchange).isHidden }
 
     var userWallet: UserWallet {
         UserWalletFactory().userWallet(from: cardInfo, config: config, userWalletId: userWalletId)
@@ -339,10 +251,6 @@ class CardViewModel: Identifiable, ObservableObject {
         _updatePublisher.send()
     }
 
-    func getDisabledLocalizedReason(for feature: UserWalletFeature) -> String? {
-        config.getDisabledLocalizedReason(for: feature)
-    }
-
     private func updateModel() {
         AppLog.shared.debug("🔄 Updating Card view model")
         setupWarnings()
@@ -383,6 +291,10 @@ extension CardViewModel: TangemSdkFactory {
 // MARK: - UserWalletModel
 
 extension CardViewModel: UserWalletModel {
+    var cardsCount: Int {
+        config.cardsCount
+    }
+
     var emailData: [EmailCollectedData] {
         var data = config.emailData
 
@@ -428,7 +340,7 @@ extension CardViewModel: UserWalletModel {
     var cardImagePublisher: AnyPublisher<CardImageResult, Never> {
         let artwork: CardArtwork
 
-        if let artworkInfo = artworkInfo {
+        if let artworkInfo = cardImageProvider.cardArtwork(for: cardInfo.card.cardId)?.artworkInfo {
             artwork = .artwork(artworkInfo)
         } else {
             artwork = .notLoaded
