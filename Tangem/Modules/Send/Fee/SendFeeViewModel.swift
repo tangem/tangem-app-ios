@@ -126,7 +126,7 @@ class SendFeeViewModel: ObservableObject {
         customFeeGasLimitModel = SendCustomFeeInputFieldModel(
             title: Localization.sendGasLimit,
             amountPublisher: input.customGasLimitPublisher.decimalPublisher,
-            fieldSuffix: "WEI",
+            fieldSuffix: nil,
             fractionDigits: 0,
             amountAlternativePublisher: .just(output: nil),
             footer: Localization.sendGasLimitFooter
