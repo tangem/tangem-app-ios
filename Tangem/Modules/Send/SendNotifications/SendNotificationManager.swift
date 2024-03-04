@@ -36,7 +36,8 @@ class CommonSendNotificationManager: SendNotificationManager {
             feeAmountTypeName: feeTokenItem.name,
             feeAmountTypeCurrencySymbol: feeTokenItem.currencySymbol,
             feeAmountTypeIconName: feeTokenItem.blockchain.iconNameFilled,
-            networkName: tokenItem.networkName
+            networkName: tokenItem.networkName,
+            currencyButtonTitle: nil
         )
     }
 
