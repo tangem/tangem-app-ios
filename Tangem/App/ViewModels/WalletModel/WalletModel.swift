@@ -401,7 +401,7 @@ class WalletModel {
         }
 
         return walletManager.send(tx, signer: signer)
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .handleEvents(receiveOutput: { [weak self] _ in
                 // Force update transactions history to take a new pending transaction from the local storage
                 self?._localPendingTransactionSubject.send(())
