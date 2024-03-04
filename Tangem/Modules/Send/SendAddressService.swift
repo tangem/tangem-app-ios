@@ -12,6 +12,8 @@ import BlockchainSdk
 // MARK: - Service protocol
 
 protocol SendAddressService {
+    var isAsynchronous: Bool { get }
+
     func validate(address: String) async throws -> String?
     func hasEmbeddedAdditionalField(address: String) -> Bool
 }
@@ -21,6 +23,8 @@ protocol SendAddressService {
 class DefaultSendAddressService: SendAddressService {
     private let walletAddresses: [Address]
     private let addressService: AddressService
+
+    var isAsynchronous: Bool { false }
 
     init(walletAddresses: [Address], addressService: AddressService) {
         self.walletAddresses = walletAddresses
@@ -57,6 +61,8 @@ class DefaultSendAddressService: SendAddressService {
 class SendResolvableAddressService: SendAddressService {
     private let defaultSendAddressService: DefaultSendAddressService
     private let addressResolver: AddressResolver
+
+    var isAsynchronous: Bool { true }
 
     init(defaultSendAddressService: DefaultSendAddressService, addressResolver: AddressResolver) {
         self.defaultSendAddressService = defaultSendAddressService
