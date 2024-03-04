@@ -80,7 +80,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
                 return !isLocked
             }
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 self?.lock(reason: .loggedOut)
             }
