@@ -24,7 +24,7 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
     @Published var errorText: String?
 
     var hasTextInClipboard = false
-    
+
     var shouldShowPasteButton: Bool {
         input.isEmpty && !isDisabled
     }
