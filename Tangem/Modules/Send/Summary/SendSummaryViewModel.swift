@@ -15,7 +15,7 @@ protocol SendSummaryViewModelInput: AnyObject {
     var canEditAmount: Bool { get }
     var canEditDestination: Bool { get }
 
-    var amountPublisher: AnyPublisher<Amount?, Never> { get }
+    var userInputAmountPublisher: AnyPublisher<Amount?, Never> { get }
     var destinationTextPublisher: AnyPublisher<String, Never> { get }
     var additionalFieldPublisher: AnyPublisher<(SendAdditionalFields, String)?, Never> { get }
     var feeValuePublisher: AnyPublisher<Fee?, Never> { get }
@@ -147,7 +147,7 @@ class SendSummaryViewModel: ObservableObject {
             .store(in: &bag)
 
         input
-            .amountPublisher
+            .userInputAmountPublisher
             .compactMap { [weak self] amount in
                 self?.sectionViewModelFactory.makeAmountViewData(from: amount)
             }
