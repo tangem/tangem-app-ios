@@ -298,7 +298,7 @@ final class SendViewModel: ObservableObject {
         }
 
         if checkCustomFee, notificationManager.hasNotificationEvent(.customFeeTooLow) {
-            alert = makeCustomFeeTooLowAlert { [weak self] in
+            alert = SendAlertBuilder.makeCustomFeeTooLowAlert { [weak self] in
                 self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: false)
             }
 
@@ -344,17 +344,6 @@ final class SendViewModel: ObservableObject {
 
         sendFinishViewModel.router = coordinator
         openStep(.finish(model: sendFinishViewModel), stepAnimation: nil)
-    }
-
-    private func makeCustomFeeTooLowAlert(continueAction: @escaping () -> Void) -> AlertBinder {
-        let continueButton = Alert.Button.default(Text(Localization.commonContinue), action: continueAction)
-
-        return AlertBuilder.makeAlert(
-            title: "",
-            message: Localization.sendAlertFeeTooLowText,
-            primaryButton: continueButton,
-            secondaryButton: .cancel()
-        )
     }
 
     private func parseQRCode(_ code: String) {
