@@ -68,21 +68,6 @@ struct SendFeeView: View {
                 }
             }
 
-            if !viewModel.animatingAuxiliaryViewsOnAppear {
-                GroupedSection(viewModel.subtractFromAmountModel) {
-                    DefaultToggleRowView(viewModel: $0)
-                } footer: {
-                    DefaultFooterView(viewModel.subtractFromAmountFooterText)
-                        .animation(.default, value: viewModel.subtractFromAmountFooterText)
-                }
-                .transition(SendView.Constants.auxiliaryViewTransition)
-
-                ForEach(viewModel.feeCoverageNotificationInputs) { input in
-                    NotificationView(input: input)
-                        .transition(SendView.Constants.auxiliaryViewTransition)
-                }
-            }
-
             Spacer(minLength: bottomSpacing)
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
@@ -107,6 +92,7 @@ struct SendFeeView_Previews: PreviewProvider {
 
     static let walletInfo = SendWalletInfo(
         walletName: "Wallet",
+        balanceValue: 12013,
         balance: "12013",
         blockchain: .ethereum(testnet: false),
         currencyId: "tether",
