@@ -113,16 +113,27 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
         updatePasteButton()
     }
 
+    func didTapPasteButton(_ input: String) {
+        provideButtonHapticFeedback()
+        didEnterDestination(input)
+    }
+
     func didTapLegacyPasteButton() {
         guard let input = UIPasteboard.general.string else {
             return
         }
 
+        provideButtonHapticFeedback()
         didEnterDestination(input)
     }
 
     func clearInput() {
         didEnterDestination("")
+    }
+
+    private func provideButtonHapticFeedback() {
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
     }
 
     private func updatePasteButton() {
