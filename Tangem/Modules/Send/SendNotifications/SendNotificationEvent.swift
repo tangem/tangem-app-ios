@@ -109,10 +109,10 @@ extension SendNotificationEvent: NotificationEvent {
         case .minimumAmount, .withdrawalMandatoryAmountChange:
             // ⚠️ sync with SendNotificationEvent.icon
             return .critical
-        case .networkFeeUnreachable, .existentialDeposit, .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .withdrawalOptionalAmountChange:
+        case .networkFeeUnreachable, .existentialDeposit, .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .withdrawalOptionalAmountChange, .totalExceedsBalance:
             // ⚠️ sync with SendNotificationEvent.icon
             return .warning
-        case .totalExceedsBalance, .feeExceedsBalance:
+        case .feeExceedsBalance:
             // ⚠️ sync with SendNotificationEvent.icon
             return .critical
         }
@@ -150,13 +150,11 @@ extension SendNotificationEvent {
 
     var location: Location {
         switch self {
-        case .networkFeeUnreachable, .totalExceedsBalance, .feeExceedsBalance:
+        case .networkFeeUnreachable, .feeExceedsBalance:
             return .feeLevels
         case .customFeeTooHigh, .customFeeTooLow:
             return .customFee
-        case .feeCoverage:
-            return .feeIncluded
-        case .minimumAmount, .existentialDeposit, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange:
+        case .minimumAmount, .existentialDeposit, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange, .feeCoverage, .totalExceedsBalance:
             return .summary
         }
     }
