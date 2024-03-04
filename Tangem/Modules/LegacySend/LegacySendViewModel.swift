@@ -561,7 +561,7 @@ class LegacySendViewModel: ObservableObject {
     func validateWithdrawal(_ transaction: BlockchainSdk.Transaction, _ totalAmount: Amount) {
         #warning("[REDACTED_TODO_COMMENT]")
         guard
-            let validator = walletModel.withdrawalValidator,
+            let validator = walletModel.withdrawalSuggestionProvider,
             let warning = validator.validateWithdrawalWarning(amount: transaction.amount, fee: transaction.fee.amount),
             error == nil
         else {
