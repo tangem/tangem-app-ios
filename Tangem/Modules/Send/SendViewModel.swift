@@ -18,7 +18,6 @@ final class SendViewModel: ObservableObject {
     @Published var step: SendStep
     @Published var currentStepInvalid: Bool = false
     @Published var alert: AlertBinder?
-    @Published var showCameraDeniedAlert = false
 
     var title: String? {
         step.name
@@ -163,6 +162,7 @@ final class SendViewModel: ObservableObject {
 
         walletInfo = SendWalletInfo(
             walletName: walletName,
+            balanceValue: walletModel.balanceValue,
             balance: Localization.sendWalletBalanceFormat(walletModel.balance, walletModel.fiatBalance),
             blockchain: walletModel.blockchainNetwork.blockchain,
             currencyId: walletModel.tokenItem.currencyId,
@@ -222,21 +222,17 @@ final class SendViewModel: ObservableObject {
     }
 
     func scanQRCode() {
-        if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
-            showCameraDeniedAlert = true
-        } else {
-            let binding = Binding<String>(
-                get: {
-                    ""
-                },
-                set: { [weak self] in
-                    self?.parseQRCode($0)
-                }
-            )
+        let binding = Binding<String>(
+            get: {
+                ""
+            },
+            set: { [weak self] in
+                self?.parseQRCode($0)
+            }
+        )
 
-            let networkName = walletModel.blockchainNetwork.blockchain.displayName
-            coordinator?.openQRScanner(with: binding, networkName: networkName)
-        }
+        let networkName = walletModel.blockchainNetwork.blockchain.displayName
+        coordinator?.openQRScanner(with: binding, networkName: networkName)
     }
 
     private func bind() {
@@ -297,6 +293,15 @@ final class SendViewModel: ObservableObject {
                 alert = makeCustomFeeTooLowAlert { [weak self] in
                     self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: false)
                 }
+                
+                return
+            }
+
+            if sendModel.totalExceedsBalance {
+                alert = SendAlertBuilder.makeSubtractFeeFromAmountAlert { [weak self] in
+                    self?.sendModel.includeFeeIntoAmount()
+                    self?.openStep(step, stepAnimation: stepAnimation)
+                }
 
                 return
             }
@@ -315,7 +320,7 @@ final class SendViewModel: ObservableObject {
             self.step = step
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + SendView.Constants.animationDuration) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2 * SendView.Constants.animationDuration) {
             // Hide the keyboard with a delay, otherwise the animation is going to be screwed up
             if !step.opensKeyboardByDefault {
                 UIApplication.shared.endEditing()
@@ -421,9 +426,9 @@ extension SendViewModel: NotificationTapDelegate {
     }
 
     private func reduceAmountBy(_ amount: Decimal) {
-        guard var newAmount = sendModel.amountValue else { return }
+        guard var newAmount = sendModel.validatedAmountValue else { return }
 
-        newAmount = newAmount - Amount(with: sendModel.blockchain, type: sendModel.amountType, value: amount)
+        newAmount = newAmount - Amount(with: walletModel.tokenItem.blockchain, type: walletModel.amountType, value: amount)
         if sendModel.isFeeIncluded, let feeValue = sendModel.feeValue?.amount {
             newAmount = newAmount + feeValue
         }
@@ -438,7 +443,7 @@ extension SendViewModel: NotificationTapDelegate {
             newAmount = newAmount + feeValue
         }
 
-        sendModel.setAmount(Amount(with: sendModel.blockchain, type: sendModel.amountType, value: newAmount))
+        sendModel.setAmount(Amount(with: walletModel.tokenItem.blockchain, type: walletModel.amountType, value: newAmount))
     }
 }
 
@@ -449,9 +454,9 @@ private extension ValidationError {
         switch self {
         case .invalidAmount, .balanceNotFound:
             return .amount
-        case .amountExceedsBalance, .invalidFee, .feeExceedsBalance, .totalExceedsBalance, .withdrawalWarning, .reserve:
+        case .amountExceedsBalance, .invalidFee, .feeExceedsBalance, .withdrawalWarning, .reserve:
             return .fee
-        case .dustAmount, .dustChange, .minimumBalance:
+        case .dustAmount, .dustChange, .minimumBalance, .totalExceedsBalance:
             return .summary
         }
     }
