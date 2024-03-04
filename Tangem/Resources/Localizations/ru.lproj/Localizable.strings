@@ -431,12 +431,12 @@
 "scan_card_settings_message" = "Отсканируйте карту, чтобы изменить ее настройки. Изменения затронут только ту карту, которую вы отсканировали, и не повлияют на другие карты, привязанные к вашему кошельку.";
 "scan_card_settings_title" = "Приготовьте свою карту";
 "send_additional_field_already_included" = "Уже содержится в введенном адресе";
+"send_alert_fee_coverage_subract_text" = "Вычесть";
+"send_alert_fee_coverage_title" = "Недостаточно средств для покрытия комиссии сети. Вычесть комиссию из отправляемой сумму?";
 "send_alert_fee_increased_title" = "Комиссия увеличилась";
 "send_alert_transaction_failed_text" = "Причина: %1$s\nКод: %2$s";
 "send_alert_transaction_failed_title" = "Транзакция не выполнена";
 "send_amount_label" = "Сумма";
-"send_amount_substract" = "Вычесть из суммы отправки";
-"send_amount_substract_footer" = "Сумма к получению %@";
 "send_confirm_label" = "Подтвердить";
 "send_date_format" = "%1$@ в %2$@";
 "send_destination_hint_address" = "Адрес";
