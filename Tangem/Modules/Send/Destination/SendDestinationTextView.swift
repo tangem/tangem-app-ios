@@ -17,6 +17,7 @@ struct SendDestinationTextView: View {
     private var titleNamespaceId: String?
     private var textNamespaceId: String?
     private var clearButtonNamespaceId: String?
+    private var inputFieldFont = Fonts.Regular.subheadline
 
     init(viewModel: SendDestinationTextViewModel) {
         self.viewModel = viewModel
@@ -104,9 +105,16 @@ struct SendDestinationTextView: View {
 
     private var input: some View {
         ZStack {
-            // Hidden icon to ensure the layout stays the same way
-            clearIcon
-                .hidden()
+            // Hidden views to ensure the layout stays the same way
+            Group {
+                clearIcon
+
+                if #available(iOS 16, *) {
+                    TextField("", text: .constant("Two\nLines"), axis: .vertical)
+                        .style(inputFieldFont, color: .black)
+                }
+            }
+            .hidden()
 
             HStack(spacing: 12) {
                 Group {
@@ -121,7 +129,7 @@ struct SendDestinationTextView: View {
                 .autocapitalization(.none)
                 .keyboardType(.asciiCapable)
                 .disableAutocorrection(true)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                .style(inputFieldFont, color: Colors.Text.primary1)
                 .matchedGeometryEffectOptional(id: textNamespaceId, in: namespace)
 
                 if !viewModel.input.isEmpty {
