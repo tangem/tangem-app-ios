@@ -157,7 +157,6 @@ PODS:
   - Solana.Swift (1.1):
     - Starscream (= 4.0.4)
     - TweetNacl (~> 1.0.2)
-  - SPRMessengerClient (3.6.2)
   - Starscream (4.0.4)
   - stellar-ios-mac-sdk (2.5.4)
   - SwiftCBOR (0.4.5)
@@ -211,7 +210,7 @@ DEPENDENCIES:
   - AppsFlyerFramework
   - BinanceChain (from `https://github.com/tangem/swiftbinancechain.git`, tag `0.0.11`)
   - BitcoinCore.swift (from `https://github.com/tangem/bitcoincore.git`, tag `0.0.19`)
-  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-509`)
+  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-512`)
   - BlockiesSwift (~> 0.1.2)
   - CombineExt (~> 1.8.0)
   - Firebase/Analytics
@@ -220,7 +219,6 @@ DEPENDENCIES:
   - Kingfisher (~> 7.9.0)
   - Moya
   - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `1.2.0-tangem1`)
-  - SPRMessengerClient (from `https://github.com/tangem/SPRMessengerClient-binaries-ios.git`, tag `sprinklr-3.6.2-tangem1`)
   - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-282`)
   - WalletConnectSwiftV2 (from `https://github.com/WalletConnect/WalletConnectSwiftV2`, tag `1.8.4`)
 
@@ -272,13 +270,10 @@ EXTERNAL SOURCES:
     :tag: 0.0.19
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
-    :tag: develop-509
+    :tag: develop-512
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
     :tag: 1.2.0-tangem1
-  SPRMessengerClient:
-    :git: https://github.com/tangem/SPRMessengerClient-binaries-ios.git
-    :tag: sprinklr-3.6.2-tangem1
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
     :tag: develop-282
@@ -298,13 +293,10 @@ CHECKOUT OPTIONS:
     :tag: 0.0.19
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
-    :tag: develop-509
+    :tag: develop-512
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
     :tag: 1.2.0-tangem1
-  SPRMessengerClient:
-    :git: https://github.com/tangem/SPRMessengerClient-binaries-ios.git
-    :tag: sprinklr-3.6.2-tangem1
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
     :tag: develop-282
@@ -345,7 +337,6 @@ SPEC CHECKSUMS:
   ScaleCodec: 5d7d0439940c600f49babad6ea265a09377c404b
   Sodium: 23d11554ecd556196d313cf6130d406dfe7ac6da
   Solana.Swift: 0baed6d4f0d9a4b8438f066022c31542dc2f93d9
-  SPRMessengerClient: 6c1ab0a60e254ef17515f1433f95c9ee951f0395
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   stellar-ios-mac-sdk: 01055b326a62d1e9bb50999eadeb85c9dec60658
   SwiftCBOR: ac340b74d3b2cf1f8884bb748bd09875848e3873
@@ -355,6 +346,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   WalletConnectSwiftV2: c1c2c2fbd0495860baf71515be1b943f0c5dce0c
 
-PODFILE CHECKSUM: bb513df448284659e440b5ec69d5c4abcaca44e7
+PODFILE CHECKSUM: a930bb097df518ba902679950fc6470ff2313994
 
 COCOAPODS: 1.15.2
