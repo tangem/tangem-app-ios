@@ -111,7 +111,7 @@ class StoriesViewModel: ObservableObject {
         currentDragLocation = current
         pauseTimer()
 
-        longTapTimerSubscription = Timer.publish(every: longTapDuration, on: RunLoop.main, in: .default)
+        longTapTimerSubscription = Timer.publish(every: longTapDuration, on: .main, in: .default)
             .autoconnect()
             .sink { [weak self] _ in
                 self?.currentDragLocation = nil
