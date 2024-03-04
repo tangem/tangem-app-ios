@@ -21,7 +21,6 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     let signer: TangemSigner = .init(filter: .cardId(""), sdk: .init(), twinKey: nil)
     let config: UserWalletConfig
     let userWallet: UserWallet
-    let isMultiWallet: Bool
     let isUserWalletLocked: Bool
     let userWalletId: UserWalletId
 
@@ -38,7 +37,6 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
 
     init(
         userWalletName: String,
-        isMultiWallet: Bool,
         isUserWalletLocked: Bool,
         isDelayed: Bool,
         cardsCount: Int,
@@ -46,7 +44,6 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
         walletManagers: [FakeWalletManager],
         userWallet: UserWallet
     ) {
-        self.isMultiWallet = isMultiWallet
         self.isUserWalletLocked = isUserWalletLocked
         self.cardsCount = cardsCount
         self.userWalletId = userWalletId
@@ -105,7 +102,6 @@ extension FakeUserWalletModel {
 
     static let wallet3Cards = FakeUserWalletModel(
         userWalletName: "William Wallet",
-        isMultiWallet: true,
         isUserWalletLocked: false,
         isDelayed: true,
         cardsCount: 3,
@@ -121,7 +117,6 @@ extension FakeUserWalletModel {
 
     static let visa = FakeUserWalletModel(
         userWalletName: "Tangem Visa",
-        isMultiWallet: false,
         isUserWalletLocked: false,
         isDelayed: false,
         cardsCount: 1,
@@ -134,7 +129,6 @@ extension FakeUserWalletModel {
 
     static let walletWithoutDelay = FakeUserWalletModel(
         userWalletName: "Just A Wallet",
-        isMultiWallet: true,
         isUserWalletLocked: false,
         isDelayed: false,
         cardsCount: 1,
@@ -151,7 +145,6 @@ extension FakeUserWalletModel {
 
     static let twins = FakeUserWalletModel(
         userWalletName: "Tangem Twins",
-        isMultiWallet: false,
         isUserWalletLocked: true,
         isDelayed: true,
         cardsCount: 2,
@@ -162,7 +155,6 @@ extension FakeUserWalletModel {
 
     static let xrpNote = FakeUserWalletModel(
         userWalletName: "XRP Note",
-        isMultiWallet: false,
         isUserWalletLocked: false,
         isDelayed: true,
         cardsCount: 1,
@@ -173,7 +165,6 @@ extension FakeUserWalletModel {
 
     static let xlmBird = FakeUserWalletModel(
         userWalletName: "XLM Bird",
-        isMultiWallet: false,
         isUserWalletLocked: false,
         isDelayed: true,
         cardsCount: 1,
