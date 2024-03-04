@@ -77,6 +77,8 @@ struct FocusedDecimalNumberTextField<ToolbarButton: View>: View {
         )
         .maximumFractionDigits(maximumFractionDigits)
         .font(font)
+        .textColor(textColor)
+        .placeholderColor(placeholderColor)
         .focused($isInputActive)
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
