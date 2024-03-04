@@ -183,7 +183,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             createWallet()
         case .topup:
             if canBuyCrypto {
-                if let disabledLocalizedReason = cardModel?.getDisabledLocalizedReason(for: .exchange) {
+                if let disabledLocalizedReason = cardModel?.config.getDisabledLocalizedReason(for: .exchange) {
                     alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason) {
                         DispatchQueue.main.async {
                             self.updateCardBalance()
