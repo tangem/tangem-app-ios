@@ -56,14 +56,8 @@ class ExpressNotificationManager {
             notificationInputsSubject.value = []
 
         case .previewCEX(let preview, _):
-            if let notification = makeFeeWillBeSubtractFromSendingAmountNotification(subtractFee: preview.subtractFee) {
-                // If this notification already showed then will not update the notifications set
-                if !notificationInputsSubject.value.contains(where: { $0.id == notification.id }) {
-                    notificationInputsSubject.value = [notification]
-                }
-            } else {
-                notificationInputsSubject.value = []
-            }
+            setupFeeWillBeSubtractFromSendingAmountNotification(subtractFee: preview.subtractFee)
+            setupWithdrawalSuggestion(suggestion: preview.suggestion)
         }
     }
 
@@ -144,9 +138,8 @@ class ExpressNotificationManager {
             event = .dustAmount(minimumAmountText: amountText, minimumChangeText: amountText)
         case .minimumBalance(let minimumBalance):
             event = .existentialDepositWarning(blockchainName: sourceTokenItem.blockchain.displayName, amount: "\(minimumBalance.value)")
-        case .withdrawalWarning(let withdrawalWarning):
-            let amount = withdrawalWarning.suggestedReduceAmount
-            event = .withdrawalWarning(amount: amount.value, amountFormatted: amount.string())
+        case .maximumUTXO(let blockchainName, let newAmount, let maxUtxo):
+            event = .withdrawalMandatoryAmountChange(amount: newAmount.value, amountFormatted: newAmount.string(), blockchainName: blockchainName, maxUtxo: maxUtxo)
         case .reserve(let amount):
             event = .notEnoughReserveToSwap(maximumAmountText: "\(amount.value)\(sourceTokenItemSymbol)")
         }
@@ -171,11 +164,17 @@ class ExpressNotificationManager {
         notificationInputsSubject.value = [notification]
     }
 
-    private func makeFeeWillBeSubtractFromSendingAmountNotification(subtractFee: Decimal) -> NotificationViewInput? {
-        guard subtractFee > 0 else { return nil }
+    private func setupFeeWillBeSubtractFromSendingAmountNotification(subtractFee: Decimal) {
+        let event = ExpressNotificationEvent.feeWillBeSubtractFromSendingAmount
+
+        guard subtractFee > 0 else {
+            notificationInputsSubject.value.removeAll(where: { $0.settings.event.id == event.id })
+            return
+        }
+
         let factory = NotificationsFactory()
-        let notification = factory.buildNotificationInput(for: .feeWillBeSubtractFromSendingAmount)
-        return notification
+        let notification = factory.buildNotificationInput(for: event)
+        notificationInputsSubject.value.appendIfNotContains(notification)
     }
 
     private func makeNotEnoughFeeForTokenTx(sender: WalletModel) -> ExpressNotificationEvent? {
@@ -188,6 +187,19 @@ class ExpressNotificationManager {
             mainTokenSymbol: sender.feeTokenItem.currencySymbol,
             blockchainIconName: sender.feeTokenItem.blockchain.iconNameFilled
         )
+    }
+
+    private func setupWithdrawalSuggestion(suggestion: WithdrawalSuggestion?) {
+        switch suggestion {
+        case .none:
+            break
+        case .feeIsTooHigh(let reduceAmountBy):
+            let event: ExpressNotificationEvent = .withdrawalOptionalAmountChange(amount: reduceAmountBy.value, amountFormatted: reduceAmountBy.string())
+            let notification = NotificationsFactory().buildNotificationInput(for: event) { [weak self] id, actionType in
+                self?.delegate?.didTapNotificationButton(with: id, action: actionType)
+            }
+            notificationInputsSubject.value.appendIfNotContains(notification)
+        }
     }
 }
 
