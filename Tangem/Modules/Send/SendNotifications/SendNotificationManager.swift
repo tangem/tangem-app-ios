@@ -89,24 +89,15 @@ class CommonSendNotificationManager: SendNotificationManager {
                 guard let self else { return }
 
                 switch withdrawalSuggestion {
-                case .optionalAmountChange(let newAmount):
+                case .feeIsTooHigh(let newAmount):
                     let event = SendNotificationEvent.withdrawalOptionalAmountChange(
                         amount: newAmount.value,
                         amountFormatted: newAmount.string()
                     )
                     updateEventVisibility(true, event: event)
-                case .mandatoryAmountChange(let newAmount, let maxUtxos):
-                    let event = SendNotificationEvent.withdrawalMandatoryAmountChange(
-                        amount: newAmount.value,
-                        amountFormatted: newAmount.string(),
-                        blockchainName: tokenItem.blockchain.displayName,
-                        maxUtxo: maxUtxos
-                    )
-                    updateEventVisibility(true, event: event)
                 case nil:
                     let events = [
                         SendNotificationEvent.withdrawalOptionalAmountChange(amount: .zero, amountFormatted: ""),
-                        SendNotificationEvent.withdrawalMandatoryAmountChange(amount: .zero, amountFormatted: "", blockchainName: "", maxUtxo: 0),
                     ]
                     for event in events {
                         updateEventVisibility(false, event: event)
@@ -218,6 +209,13 @@ class CommonSendNotificationManager: SendNotificationManager {
             return .feeExceedsBalance(configuration: notEnoughFeeConfiguration)
         case .minimumBalance(let minimumBalance):
             return .existentialDeposit(amountFormatted: minimumBalance.string())
+        case .maximumUTXO(let blockchainName, let newAmount, let maxUtxos):
+            return SendNotificationEvent.withdrawalMandatoryAmountChange(
+                amount: newAmount.value,
+                amountFormatted: newAmount.string(),
+                blockchainName: blockchainName,
+                maxUtxo: maxUtxos
+            )
         default:
             return nil
         }
