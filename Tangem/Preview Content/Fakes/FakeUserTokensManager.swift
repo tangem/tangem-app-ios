@@ -48,7 +48,7 @@ class FakeUserTokensManager: UserTokensManager {
         completion(.success(()))
     }
 
-    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) {}
+    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) throws {}
 
     func canRemove(_ tokenItem: TokenItem) -> Bool {
         false
