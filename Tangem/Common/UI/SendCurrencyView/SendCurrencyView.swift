@@ -29,6 +29,7 @@ struct SendCurrencyView: View {
             )
             .maximumFractionDigits(viewModel.maximumFractionDigits)
             .maxAmountAction(maxAmountAction)
+            .initialFocusBehavior(.immediateFocus)
             .offset(x: isShaking ? 10 : 0)
             .simultaneousGesture(TapGesture().onEnded {
                 viewModel.textFieldDidTapped()
