@@ -194,7 +194,6 @@
 "exchange_tokens_empty_tokens" = "You haven't added any tokens yet. Add tokens via Market to swap";
 "exchange_tokens_unavailable_tokens_header" = "Cannot be swapped for %@";
 "express_by_provider" = "Provided by %@";
-"express_cex_fee_explanation" = "Additionally, the network fee for sending the exchanged funds back to your address is included in the rate";
 "express_cex_status_button_title" = "Status";
 "express_choose_providers_subtitle" = "Tangem offers token swaps via 3rd-party providers according to each provider's terms";
 "express_choose_providers_title" = "Choose provider";
@@ -431,12 +430,12 @@
 "scan_card_settings_message" = "Scan the card to change its settings. The changes will impact only the card you've scanned and will not affect other cards tied to your wallet.";
 "scan_card_settings_title" = "Get your card ready!";
 "send_additional_field_already_included" = "Already included in the entered address";
+"send_alert_fee_coverage_subract_text" = "Subtract";
+"send_alert_fee_coverage_title" = "Not enough funds to cover the network commission. Subtract the commission from the amount sent?";
 "send_alert_fee_increased_title" = "Fee is increased";
 "send_alert_transaction_failed_text" = "Reason: %1$s\nCode: %2$s";
 "send_alert_transaction_failed_title" = "The transaction is not completed";
 "send_amount_label" = "Amount";
-"send_amount_substract" = "Subtract from send amount";
-"send_amount_substract_footer" = "The recipient will receive %@";
 "send_confirm_label" = "Confirm";
 "send_date_format" = "%1$@ at %2$@";
 "send_destination_hint_address" = "Address";
