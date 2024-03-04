@@ -16,6 +16,9 @@ struct DecimalNumberTextField: View {
     private let placeholder: String = "0"
     private var decimalNumberFormatter: DecimalNumberFormatter
     private var font: Font = Fonts.Regular.title1
+    private var textColor: Color = Colors.Text.primary1
+    private var placeholderColor: Color = Colors.Text.disabled
+
     private var decimalSeparator: Character { decimalNumberFormatter.decimalSeparator }
     private var groupingSeparator: Character { decimalNumberFormatter.groupingSeparator }
 
@@ -42,8 +45,8 @@ struct DecimalNumberTextField: View {
     }
 
     private var textField: some View {
-        TextField(placeholder, text: $textFieldText)
-            .style(font, color: Colors.Text.primary1)
+        TextField(text: $textFieldText, prompt: prompt, label: {})
+            .style(font, color: textColor)
             .keyboardType(.decimalPad)
             .tint(Colors.Text.primary1)
             .onChange(of: decimalValue) { newDecimalValue in
@@ -68,6 +71,14 @@ struct DecimalNumberTextField: View {
                     textFieldText = ""
                 }
             }
+    }
+
+    private var prompt: Text {
+        Text(placeholder)
+            // We can't use .style(font:, color:) here because
+            // We should have the `Text` type
+            .font(font)
+            .foregroundColor(placeholderColor)
     }
 
     private func updateValues(with newValue: String) {
@@ -112,6 +123,14 @@ extension DecimalNumberTextField: Setupable {
 
     func font(_ font: Font) -> Self {
         map { $0.font = font }
+    }
+
+    func textColor(_ color: Color) -> Self {
+        map { $0.textColor = color }
+    }
+
+    func placeholderColor(_ color: Color) -> Self {
+        map { $0.placeholderColor = color }
     }
 }
 
