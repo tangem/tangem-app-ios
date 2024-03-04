@@ -71,7 +71,7 @@ extension SendNotificationEvent: NotificationEvent {
         case .customFeeTooLow:
             return Localization.sendNotificationTransactionDelayText
         case .feeCoverage:
-            return Localization.sendNetworkFeeWarningContent
+            return Localization.sendNetworkFeeWarningContent("", "") // [REDACTED_TODO_COMMENT]
         case .minimumAmount(let value):
             return Localization.sendNotificationInvalidMinimumAmountText(value)
         case .withdrawalOptionalAmountChange(_, let amount):
@@ -109,10 +109,10 @@ extension SendNotificationEvent: NotificationEvent {
         case .minimumAmount, .withdrawalMandatoryAmountChange:
             // ⚠️ sync with SendNotificationEvent.icon
             return .critical
-        case .networkFeeUnreachable, .existentialDeposit, .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .withdrawalOptionalAmountChange:
+        case .networkFeeUnreachable, .existentialDeposit, .customFeeTooHigh, .customFeeTooLow, .feeCoverage, .withdrawalOptionalAmountChange, .totalExceedsBalance:
             // ⚠️ sync with SendNotificationEvent.icon
             return .warning
-        case .totalExceedsBalance, .feeExceedsBalance:
+        case .feeExceedsBalance:
             // ⚠️ sync with SendNotificationEvent.icon
             return .critical
         }
@@ -150,13 +150,11 @@ extension SendNotificationEvent {
 
     var location: Location {
         switch self {
-        case .networkFeeUnreachable, .totalExceedsBalance, .feeExceedsBalance:
+        case .networkFeeUnreachable, .feeExceedsBalance:
             return .feeLevels
         case .customFeeTooHigh:
             return .customFee
-        case .feeCoverage:
-            return .feeIncluded
-        case .minimumAmount, .existentialDeposit, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange, .customFeeTooLow:
+        case .minimumAmount, .existentialDeposit, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange, .feeCoverage, .totalExceedsBalance, .customFeeTooLow:
             return .summary
         }
     }
