@@ -182,8 +182,9 @@ extension CardSettingsViewModel {
         if cardModel.canTwin {
             prepareTwinOnboarding()
         } else {
+            let cardInteractor = FactorySettingsResettingCardInteractor(with: cardModel.cardInfo)
             let input = ResetToFactoryViewModel.Input(
-                cardInteractor: cardModel.cardInteractor,
+                cardInteractor: cardInteractor,
                 hasBackupCards: cardModel.hasBackupCards,
                 userWalletId: cardModel.userWalletId
             )
