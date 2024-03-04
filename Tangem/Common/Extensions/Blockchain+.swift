@@ -198,3 +198,14 @@ extension Set<Blockchain> {
         return nil
     }
 }
+
+extension Blockchain {
+    var feeDisplayName: String {
+        switch self {
+        case .arbitrum, .optimism:
+            return displayName + " (\(currencySymbol))"
+        default:
+            return currencySymbol
+        }
+    }
+}
