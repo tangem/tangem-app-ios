@@ -102,6 +102,7 @@ class SendFeeViewModel: ObservableObject {
         customFeeModel = SendCustomFeeInputFieldModel(
             title: Localization.sendMaxFee,
             amountPublisher: input.customFeePublisher.decimalPublisher,
+            fieldSuffix: walletInfo.feeCurrencySymbol,
             fractionDigits: walletInfo.feeFractionDigits,
             amountAlternativePublisher: customFeeInFiat.eraseToAnyPublisher(),
             footer: Localization.sendMaxFeeFooter
@@ -113,6 +114,7 @@ class SendFeeViewModel: ObservableObject {
         customFeeGasPriceModel = SendCustomFeeInputFieldModel(
             title: Localization.sendGasPrice,
             amountPublisher: input.customGasPricePublisher.decimalPublisher,
+            fieldSuffix: "WEI",
             fractionDigits: 0,
             amountAlternativePublisher: .just(output: nil),
             footer: Localization.sendGasPriceFooter
@@ -124,6 +126,7 @@ class SendFeeViewModel: ObservableObject {
         customFeeGasLimitModel = SendCustomFeeInputFieldModel(
             title: Localization.sendGasLimit,
             amountPublisher: input.customGasLimitPublisher.decimalPublisher,
+            fieldSuffix: "WEI",
             fractionDigits: 0,
             amountAlternativePublisher: .just(output: nil),
             footer: Localization.sendGasLimitFooter
