@@ -15,7 +15,7 @@ class SendCustomFeeInputFieldModel: ObservableObject, Identifiable {
     let title: String
     let fractionDigits: Int
     let footer: String
-    let fieldSuffix: String
+    let fieldSuffix: String?
 
     @Published var amount: DecimalNumberTextField.DecimalValue? = nil
     @Published var amountAlternative: String?
@@ -26,7 +26,7 @@ class SendCustomFeeInputFieldModel: ObservableObject, Identifiable {
     init(
         title: String,
         amountPublisher: AnyPublisher<DecimalNumberTextField.DecimalValue?, Never>,
-        fieldSuffix: String,
+        fieldSuffix: String?,
         fractionDigits: Int,
         amountAlternativePublisher: AnyPublisher<String?, Never>,
         footer: String,
