@@ -26,7 +26,7 @@ struct SendAmountView: View {
                         .matchedGeometryEffect(id: SendViewNamespaceId.amountTitle.rawValue, in: namespace)
 
                     if !viewModel.animatingAuxiliaryViewsOnAppear {
-                        Text(viewModel.balance)
+                        SensitiveText(viewModel.balance)
                             .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                             .lineLimit(1)
                             .padding(.top, 4)
