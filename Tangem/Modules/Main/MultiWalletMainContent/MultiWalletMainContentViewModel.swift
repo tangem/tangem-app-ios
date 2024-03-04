@@ -60,7 +60,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let rateAppController: RateAppController
     private weak var coordinator: MultiWalletMainContentRoutable?
 
-    private var canManageTokens: Bool { userWalletModel.isMultiWallet }
+    private var canManageTokens: Bool { userWalletModel.config.hasFeature(.multiCurrency) }
 
     private var cachedTokenItemViewModels: [ObjectIdentifier: TokenItemViewModel] = [:]
 
