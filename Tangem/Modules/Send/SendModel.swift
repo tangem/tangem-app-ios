@@ -216,14 +216,23 @@ class SendModel {
     }
 
     private func bind() {
-        _destinationText
-            .dropFirst()
-            .removeDuplicates()
-            .handleEvents(receiveOutput: { [weak self] _ in
-                self?.destination.send(nil)
-                self?._isValidatingDestination.send(true)
-            })
-            .debounce(for: 1, scheduler: DispatchQueue.main)
+        var destinationValidationInput: AnyPublisher<String, Never> =
+            _destinationText
+                .dropFirst()
+                .removeDuplicates()
+                .eraseToAnyPublisher()
+
+        if addressService.isAsynchronous {
+            destinationValidationInput = destinationValidationInput
+                .handleEvents(receiveOutput: { [weak self] _ in
+                    self?.destination.send(nil)
+                    self?._isValidatingDestination.send(true)
+                })
+                .debounce(for: 1, scheduler: DispatchQueue.main)
+                .eraseToAnyPublisher()
+        }
+
+        destinationValidationInput
             .sink { [weak self] _ in
                 self?.validateDestination()
             }
