@@ -18,7 +18,7 @@ enum SendNotificationEvent {
     case existentialDeposit(amountFormatted: String)
     case customFeeTooHigh(orderOfMagnitude: Int)
     case customFeeTooLow
-    case feeCoverage
+    case feeCoverage(feeAmount: String, transactionAmount: String)
     case minimumAmount(value: String)
     case withdrawalOptionalAmountChange(amount: Decimal, amountFormatted: String)
     case withdrawalMandatoryAmountChange(amount: Decimal, amountFormatted: String, blockchainName: String, maxUtxo: Int)
@@ -70,8 +70,8 @@ extension SendNotificationEvent: NotificationEvent {
             return Localization.sendNotificationFeeTooHighText(orderOfMagnitude)
         case .customFeeTooLow:
             return Localization.sendNotificationTransactionDelayText
-        case .feeCoverage:
-            return Localization.sendNetworkFeeWarningContent("", "") // [REDACTED_TODO_COMMENT]
+        case .feeCoverage(let feeAmount, let transactionAmount):
+            return Localization.sendNetworkFeeWarningContent(feeAmount, transactionAmount)
         case .minimumAmount(let value):
             return Localization.sendNotificationInvalidMinimumAmountText(value)
         case .withdrawalOptionalAmountChange(_, let amount):
