@@ -287,22 +287,30 @@ final class SendViewModel: ObservableObject {
         coordinator?.openMail(with: emailDataCollector, recipient: recipient)
     }
 
-    private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation?, checkCustomFee: Bool = true) {
-        if case .summary = step {
-            if checkCustomFee, notificationManager.hasNotificationEvent(.customFeeTooLow) {
-                alert = makeCustomFeeTooLowAlert { [weak self] in
-                    self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: false)
-                }
-                
-                return
+    private func showSummaryStepAlertIfNeeded(_ step: SendStep, stepAnimation: SendView.StepAnimation?, checkCustomFee: Bool) -> Bool {
+        if sendModel.totalExceedsBalance {
+            alert = SendAlertBuilder.makeSubtractFeeFromAmountAlert { [weak self] in
+                self?.sendModel.includeFeeIntoAmount()
+                self?.openStep(step, stepAnimation: stepAnimation)
             }
 
-            if sendModel.totalExceedsBalance {
-                alert = SendAlertBuilder.makeSubtractFeeFromAmountAlert { [weak self] in
-                    self?.sendModel.includeFeeIntoAmount()
-                    self?.openStep(step, stepAnimation: stepAnimation)
-                }
+            return true
+        }
 
+        if checkCustomFee, notificationManager.hasNotificationEvent(.customFeeTooLow) {
+            alert = makeCustomFeeTooLowAlert { [weak self] in
+                self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: false)
+            }
+
+            return true
+        }
+
+        return false
+    }
+
+    private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation?, checkCustomFee: Bool = true) {
+        if case .summary = step {
+            if showSummaryStepAlertIfNeeded(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee) {
                 return
             }
 
