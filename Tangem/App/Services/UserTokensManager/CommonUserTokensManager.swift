@@ -62,9 +62,10 @@ class CommonUserTokensManager {
         return tokenItem.blockchainNetwork
     }
 
-    private func addInternal(_ tokenItems: [TokenItem], shouldUpload: Bool) {
-        let entries = tokenItems.map { tokenItem in
+    private func addInternal(_ tokenItems: [TokenItem], shouldUpload: Bool) throws {
+        let entries = try tokenItems.map { tokenItem in
             let blockchainNetwork = getBlockchainNetwork(for: tokenItem)
+            try validateDerivation(for: tokenItem)
             return StorageEntry(blockchainNetwork: blockchainNetwork, token: tokenItem.token)
         }
 
@@ -92,6 +93,14 @@ class CommonUserTokensManager {
         let nonCustomTokens = userTokenListManager.userTokensList.entries.filter { !$0.isCustom }
         let tokenItems = converter.convertToTokenItem(nonCustomTokens)
         swapAvailabilityController.loadSwapAvailability(for: tokenItems, forceReload: forceReload, userWalletId: userWalletId.stringValue)
+    }
+
+    private func validateDerivation(for tokenItem: TokenItem) throws {
+        if let derivationPath = tokenItem.blockchainNetwork.derivationPath,
+           tokenItem.blockchain.curve == .ed25519_slip0010,
+           derivationPath.nodes.contains(where: { !$0.isHardened }) {
+            throw TangemSdkError.nonHardenedDerivationNotSupported
+        }
     }
 }
 
@@ -145,6 +154,8 @@ extension CommonUserTokensManager: UserTokensManager {
             throw Error.failedSupportedLongHahesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
 
+        try validateDerivation(for: tokenItem)
+
         return
     }
 
@@ -169,7 +180,12 @@ extension CommonUserTokensManager: UserTokensManager {
     }
 
     func add(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        addInternal(tokenItems, shouldUpload: true)
+        do {
+            try addInternal(tokenItems, shouldUpload: true)
+        } catch {
+            completion(.failure(error.toTangemSdkError()))
+            return
+        }
         deriveIfNeeded(completion: completion)
     }
 
@@ -193,16 +209,22 @@ extension CommonUserTokensManager: UserTokensManager {
     }
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        update(itemsToRemove: itemsToRemove, itemsToAdd: itemsToAdd)
+        do {
+            try update(itemsToRemove: itemsToRemove, itemsToAdd: itemsToAdd)
+        } catch {
+            completion(.failure(error.toTangemSdkError()))
+            return
+        }
+
         deriveIfNeeded(completion: completion)
     }
 
-    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) {
+    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) throws {
         itemsToRemove.forEach {
             removeInternal($0, shouldUpload: false)
         }
 
-        addInternal(itemsToAdd, shouldUpload: false)
+        try addInternal(itemsToAdd, shouldUpload: false)
         loadSwapAvailbilityStateIfNeeded(forceReload: true)
         userTokenListManager.upload()
     }
