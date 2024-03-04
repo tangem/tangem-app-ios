@@ -89,7 +89,7 @@ class CommonSendNotificationManager: SendNotificationManager {
                 guard let self else { return }
 
                 switch withdrawalSuggestion {
-                case .feeTooHigh(let newAmount):
+                case .feeIsTooHigh(let newAmount):
                     let event = SendNotificationEvent.withdrawalOptionalAmountChange(
                         amount: newAmount.value,
                         amountFormatted: newAmount.string()
@@ -209,7 +209,7 @@ class CommonSendNotificationManager: SendNotificationManager {
             return .feeExceedsBalance(configuration: notEnoughFeeConfiguration)
         case .minimumBalance(let minimumBalance):
             return .existentialDeposit(amountFormatted: minimumBalance.string())
-        case .maximumAmount(let blockchainName, let newAmount, let maxUtxos):
+        case .maximumUTXO(let blockchainName, let newAmount, let maxUtxos):
             return SendNotificationEvent.withdrawalMandatoryAmountChange(
                 amount: newAmount.value,
                 amountFormatted: newAmount.string(),
