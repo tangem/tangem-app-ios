@@ -34,7 +34,12 @@ struct SendDestinationTextView: View {
                             input
                         }
 
+                        if viewModel.shouldShowPasteButton {
+                            pasteButton
+                        }
+
                         pasteButton
+                            .opacity(0)
                     }
                 }
                 .padding(.vertical, 12)
@@ -45,7 +50,12 @@ struct SendDestinationTextView: View {
                         input
                     }
 
+                    if viewModel.shouldShowPasteButton {
+                        pasteButton
+                    }
+
                     pasteButton
+                        .opacity(0)
                 }
                 .padding(.vertical, 10)
             }
@@ -132,30 +142,28 @@ struct SendDestinationTextView: View {
 
     @ViewBuilder
     private var pasteButton: some View {
-        if viewModel.input.isEmpty, !viewModel.isDisabled {
-            if #available(iOS 16.0, *) {
-                PasteButton(payloadType: String.self) { strings in
-                    guard let string = strings.first else { return }
+        if #available(iOS 16.0, *) {
+            PasteButton(payloadType: String.self) { strings in
+                guard let string = strings.first else { return }
 
-                    // We receive the value on the non-GUI thread
-                    DispatchQueue.main.async {
-                        viewModel.didEnterDestination(string)
-                    }
+                // We receive the value on the non-GUI thread
+                DispatchQueue.main.async {
+                    viewModel.didEnterDestination(string)
                 }
-                .tint(Color.black)
-                .labelStyle(.titleOnly)
-                .buttonBorderShape(.capsule)
-            } else {
-                Button(action: viewModel.didTapLegacyPasteButton) {
-                    Text(Localization.commonPaste)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.primary2)
-                        .padding(.vertical, 6)
-                        .padding(.horizontal, 12)
-                        .background(viewModel.hasTextInClipboard ? Colors.Button.primary : Colors.Button.disabled)
-                        .clipShape(Capsule())
-                }
-                .disabled(!viewModel.hasTextInClipboard)
             }
+            .tint(Color.black)
+            .labelStyle(.titleOnly)
+            .buttonBorderShape(.capsule)
+        } else {
+            Button(action: viewModel.didTapLegacyPasteButton) {
+                Text(Localization.commonPaste)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.primary2)
+                    .padding(.vertical, 6)
+                    .padding(.horizontal, 12)
+                    .background(viewModel.hasTextInClipboard ? Colors.Button.primary : Colors.Button.disabled)
+                    .clipShape(Capsule())
+            }
+            .disabled(!viewModel.hasTextInClipboard)
         }
     }
 }
