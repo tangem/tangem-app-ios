@@ -178,8 +178,7 @@ private extension WarningsService {
                     self?.showWarningWithAnimation(.numberOfSignedHashesIncorrect)
                 }
                 didFinishCountingHashes()
-
-                validatorSubscription = nil
+                withExtendedLifetime(validatorSubscription) {}
             }
     }
 
