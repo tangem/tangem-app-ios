@@ -77,7 +77,7 @@ struct SendSuggestedDestinationView: View {
                         .background(Colors.Background.tertiary)
                         .clipShape(Circle())
 
-                    Text(transaction.description)
+                    SensitiveText(builder: transaction.description, sensitive: transaction.amountFormatted)
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                         .truncationMode(.middle)
                         .lineLimit(1)
@@ -124,9 +124,9 @@ struct SendSuggestedDestinationView: View {
                 .init(name: "Main Wallet Wallet Wallet Wallet Wallet Wallet Wallet Wallet Wallet Wallet Wallet", address: "0x391316d97a07027a0702c8A002c8A0C25d8470"),
             ],
             recentTransactions: [
-                .init(address: "0x391316d97a07027a0702c8A002c8A0C25d8470", additionalField: nil, isOutgoing: false, description: "20,09 USDT, 24.05.2004 at 14:46"),
-                .init(address: "0x391316d97a07027a", additionalField: "123142", isOutgoing: true, description: "1 USDT, today at 14:46"),
-                .init(address: "0x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d8470", additionalField: nil, isOutgoing: false, description: "1 000 000 000 000 000 000 000 000 000 000.123012310 USDT, today at 14:46"),
+                .init(address: "0x391316d97a07027a0702c8A002c8A0C25d8470", additionalField: nil, isOutgoing: false, amountFormatted: "20,09 USDT", dateFormatted: "24.05.2004 at 14:46"),
+                .init(address: "0x391316d97a07027a", additionalField: "123142", isOutgoing: true, amountFormatted: "1 USDT", dateFormatted: "today at 14:46"),
+                .init(address: "0x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d8470", additionalField: nil, isOutgoing: false, amountFormatted: "1 000 000 000 000 000 000 000 000 000 000.123012310 USDT", dateFormatted: "today at 14:46"),
             ],
             tapAction: { _ in }
         )
@@ -141,8 +141,8 @@ struct SendSuggestedDestinationView: View {
                     .init(name: "Main Wallet", address: "0x391316d97a07027a0702c8A002c8A0C25d8470"),
                 ],
                 recentTransactions: [
-                    .init(address: "0x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d8470", additionalField: nil, isOutgoing: true, description: "1 000 000 000 000 000 000 000 000 000 000.123012310 USDT, today at 14:46"),
-                    .init(address: "0x391316d97a07027a0702c8A002c8A0C25d8470", additionalField: nil, isOutgoing: false, description: "20,09 USDT, 24.05.2004 at 14:46"),
+                    .init(address: "0x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d8470", additionalField: nil, isOutgoing: true, amountFormatted: "1 000 000 000 000 000 000 000 000 000 000.123012310 USDT", dateFormatted: "today at 14:46"),
+                    .init(address: "0x391316d97a07027a0702c8A002c8A0C25d8470", additionalField: nil, isOutgoing: false, amountFormatted: "20,09 USDT", dateFormatted: "24.05.2004 at 14:46"),
                 ],
                 tapAction: { _ in }
             )
