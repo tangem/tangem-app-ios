@@ -138,7 +138,7 @@ class ExpressNotificationManager {
             event = .dustAmount(minimumAmountText: amountText, minimumChangeText: amountText)
         case .minimumBalance(let minimumBalance):
             event = .existentialDepositWarning(blockchainName: sourceTokenItem.blockchain.displayName, amount: "\(minimumBalance.value)")
-        case .maximumAmount(let blockchainName, let newAmount, let maxUtxo):
+        case .maximumUTXO(let blockchainName, let newAmount, let maxUtxo):
             event = .withdrawalMandatoryAmountChange(amount: newAmount.value, amountFormatted: newAmount.string(), blockchainName: blockchainName, maxUtxo: maxUtxo)
         case .reserve(let amount):
             event = .notEnoughReserveToSwap(maximumAmountText: "\(amount.value)\(sourceTokenItemSymbol)")
@@ -193,7 +193,7 @@ class ExpressNotificationManager {
         switch suggestion {
         case .none:
             break
-        case .feeTooHigh(let reduceAmountBy):
+        case .feeIsTooHigh(let reduceAmountBy):
             let event: ExpressNotificationEvent = .withdrawalOptionalAmountChange(amount: reduceAmountBy.value, amountFormatted: reduceAmountBy.string())
             let notification = NotificationsFactory().buildNotificationInput(for: event) { [weak self] id, actionType in
                 self?.delegate?.didTapNotificationButton(with: id, action: actionType)
