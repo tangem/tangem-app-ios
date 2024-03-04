@@ -958,6 +958,9 @@
 		DC66BC10285C405C00CDF765 /* CoordinatorObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC0F285C405C00CDF765 /* CoordinatorObject.swift */; };
 		DC66BC16285C529600CDF765 /* LegacySendRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC15285C529600CDF765 /* LegacySendRoutable.swift */; };
 		DC6DACFF2A98DF1F00AEBB8C /* ReferralInputModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6DACFE2A98DF1F00AEBB8C /* ReferralInputModel.swift */; };
+		DC70BFD52B91059B002205BA /* SecurityOptionChanging.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC70BFD42B91059B002205BA /* SecurityOptionChanging.swift */; };
+		DC70BFD72B9105BF002205BA /* SecurityOptionChangingCardInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC70BFD62B9105BF002205BA /* SecurityOptionChangingCardInteractor.swift */; };
+		DC70C0002B924DA6002205BA /* SecurityOptionChangingMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC70BFFF2B924DA6002205BA /* SecurityOptionChangingMock.swift */; };
 		DC7127AB2897EC6B00F60F71 /* Start2CoinConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7127AA2897EC6B00F60F71 /* Start2CoinConfig.swift */; };
 		DC7127AD2897ECA100F60F71 /* TwinConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7127AC2897ECA100F60F71 /* TwinConfig.swift */; };
 		DC7127AF2897ECBB00F60F71 /* NoteConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7127AE2897ECBB00F60F71 /* NoteConfig.swift */; };
@@ -2411,6 +2414,9 @@
 		DC66BC0F285C405C00CDF765 /* CoordinatorObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatorObject.swift; sourceTree = "<group>"; };
 		DC66BC15285C529600CDF765 /* LegacySendRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacySendRoutable.swift; sourceTree = "<group>"; };
 		DC6DACFE2A98DF1F00AEBB8C /* ReferralInputModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralInputModel.swift; sourceTree = "<group>"; };
+		DC70BFD42B91059B002205BA /* SecurityOptionChanging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityOptionChanging.swift; sourceTree = "<group>"; };
+		DC70BFD62B9105BF002205BA /* SecurityOptionChangingCardInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityOptionChangingCardInteractor.swift; sourceTree = "<group>"; };
+		DC70BFFF2B924DA6002205BA /* SecurityOptionChangingMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityOptionChangingMock.swift; sourceTree = "<group>"; };
 		DC7127AA2897EC6B00F60F71 /* Start2CoinConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Start2CoinConfig.swift; sourceTree = "<group>"; };
 		DC7127AC2897ECA100F60F71 /* TwinConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinConfig.swift; sourceTree = "<group>"; };
 		DC7127AE2897ECBB00F60F71 /* NoteConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteConfig.swift; sourceTree = "<group>"; };
@@ -3443,6 +3449,7 @@
 		5DF2522524F914C90015B429 /* TangemSdk */ = {
 			isa = PBXGroup;
 			children = (
+				DC70BFD32B91057C002205BA /* SecurityOptionChanging */,
 				DCEC71F82B8690EC00B3847E /* Validators */,
 				DC9A4A2E2AB4AE1C0031C7C2 /* UserCodeRecovering */,
 				B0296A83258BFBB400FC936E /* Tasks */,
@@ -4746,6 +4753,7 @@
 			isa = PBXGroup;
 			children = (
 				B0DCD02829DFF04B00C36C84 /* UserCodeRecoveringMock.swift */,
+				DC70BFFF2B924DA6002205BA /* SecurityOptionChangingMock.swift */,
 			);
 			path = CardSettings;
 			sourceTree = "<group>";
@@ -6063,6 +6071,15 @@
 				DAC53CE927BE63830027147D /* Stories */,
 			);
 			path = Welcome;
+			sourceTree = "<group>";
+		};
+		DC70BFD32B91057C002205BA /* SecurityOptionChanging */ = {
+			isa = PBXGroup;
+			children = (
+				DC70BFD42B91059B002205BA /* SecurityOptionChanging.swift */,
+				DC70BFD62B9105BF002205BA /* SecurityOptionChangingCardInteractor.swift */,
+			);
+			path = SecurityOptionChanging;
 			sourceTree = "<group>";
 		};
 		DC7127A92897EC5300F60F71 /* Implementations */ = {
@@ -8005,6 +8022,7 @@
 				B09BB861259A075600B92000 /* NavigationBar.swift in Sources */,
 				5DF2522B24F9439D0015B429 /* UIImage+.swift in Sources */,
 				B0F62C4825DE4ABE005C8BA0 /* EmailType.swift in Sources */,
+				DC70BFD72B9105BF002205BA /* SecurityOptionChangingCardInteractor.swift in Sources */,
 				B06734392A7A988F008DE8F9 /* FakeUserTokenListManager.swift in Sources */,
 				B6E932C52A2F2D860068D466 /* OrganizeTokensRoutable.swift in Sources */,
 				B012A10F2AA5A6F80079BAB4 /* WalletModel+.swift in Sources */,
@@ -8108,6 +8126,7 @@
 				DA11F9842B2978CC0075F028 /* SendCustomFeeInputField.swift in Sources */,
 				2DC5677B2B0E047700B0244F /* MainBottomSheetHeaderInputView.swift in Sources */,
 				EF92412F2934BB8000C28551 /* MainButton.swift in Sources */,
+				DC70BFD52B91059B002205BA /* SecurityOptionChanging.swift in Sources */,
 				B06C084C2A73FB4D00D982BC /* MainCoordinator.swift in Sources */,
 				B0A0910C26D3628200F46DF5 /* AnimatableGradient.swift in Sources */,
 				DAF3D58D2B3AD9050047D65F /* SendCurrencyPicker.swift in Sources */,
@@ -8310,6 +8329,7 @@
 				DC3B49FA2893EEA600C207EA /* UserWalletConfigFeatures.swift in Sources */,
 				B0A948FF2ACD999C00C80B0A /* WeakifyFuncion.swift in Sources */,
 				DAF72F442B0F480A0006B44F /* SendFinishRoutable.swift in Sources */,
+				DC70C0002B924DA6002205BA /* SecurityOptionChangingMock.swift in Sources */,
 				DAFD691627CDEB7F00B36C71 /* CombinedExchangeService.swift in Sources */,
 				DC295B3A28615D03006CB7B6 /* NavHolder.swift in Sources */,
 				DCFE143E294B31C00053106B /* AppPresenter.swift in Sources */,
