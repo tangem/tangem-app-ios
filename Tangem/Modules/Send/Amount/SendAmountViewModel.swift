@@ -89,7 +89,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         guard let balanceValue else { return }
 
         fiatCryptoAdapter?.setCrypto(balanceValue)
-        input.didChangeFeeInclusion(true)
     }
 
     private func bind(from input: SendAmountViewModelInput) {
