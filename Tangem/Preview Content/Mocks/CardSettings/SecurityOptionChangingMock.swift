@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import TangemSdk
 
-class SecurityOptionChangingMock: SecurityOptionChanging {
+struct SecurityOptionChangingMock: SecurityOptionChanging {
     var availableSecurityOptions: [SecurityModeOption] = []
 
     private var _currentSecurityOption: CurrentValueSubject<SecurityModeOption, Never> = .init(.longTap)

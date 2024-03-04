@@ -876,7 +876,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         Analytics.log(.backupResetCardNotification, params: [.option: .reset])
         isMainButtonBusy = true
 
-        let interactor = FactorySettingsResettingCardInteractor(with: cardId)
+        let interactor = CardInteractor(cardId: cardId)
         interactor.resetCard { [weak self] result in
             switch result {
             case .failure(let error):
