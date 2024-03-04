@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import TangemSdk
 
-protocol UserCodeRecovering: AnyObject {
+protocol UserCodeRecovering {
     var isUserCodeRecoveryAllowed: Bool { get }
     var isUserCodeRecoveryAllowedPublisher: AnyPublisher<Bool, Never> { get }
 
