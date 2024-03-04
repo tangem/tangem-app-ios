@@ -15,7 +15,7 @@ protocol SendSummaryViewModelInput: AnyObject {
     var canEditAmount: Bool { get }
     var canEditDestination: Bool { get }
 
-    var amountPublisher: AnyPublisher<Amount?, Never> { get }
+    var userInputAmountPublisher: AnyPublisher<Amount?, Never> { get }
     var destinationTextPublisher: AnyPublisher<String, Never> { get }
     var additionalFieldPublisher: AnyPublisher<(SendAdditionalFields, String)?, Never> { get }
     var feeValuePublisher: AnyPublisher<Fee?, Never> { get }
@@ -38,6 +38,14 @@ class SendSummaryViewModel: ObservableObject {
 
     var sendButtonIcon: MainButton.Icon? {
         isSending ? nil : .trailing(Assets.tangemIcon)
+    }
+
+    var destinationBackground: Color {
+        sectionBackground(canEdit: canEditDestination)
+    }
+
+    var amountBackground: Color {
+        sectionBackground(canEdit: canEditAmount)
     }
 
     @Published var isSendButtonDisabled = false
@@ -139,7 +147,7 @@ class SendSummaryViewModel: ObservableObject {
             .store(in: &bag)
 
         input
-            .amountPublisher
+            .userInputAmountPublisher
             .compactMap { [weak self] amount in
                 self?.sectionViewModelFactory.makeAmountViewData(from: amount)
             }
@@ -171,5 +179,9 @@ class SendSummaryViewModel: ObservableObject {
             .hasNotifications(with: .critical)
             .assign(to: \.isSendButtonDisabled, on: self, ownership: .weak)
             .store(in: &bag)
+    }
+
+    private func sectionBackground(canEdit: Bool) -> Color {
+        canEdit ? Colors.Background.action : Colors.Button.disabled
     }
 }
