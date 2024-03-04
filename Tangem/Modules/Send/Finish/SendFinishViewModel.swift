@@ -12,7 +12,7 @@ import Combine
 import BlockchainSdk
 
 protocol SendFinishViewModelInput: AnyObject {
-    var amountValue: Amount? { get }
+    var userInputAmountValue: Amount? { get }
     var destinationText: String? { get }
     var additionalField: (SendAdditionalFields, String)? { get }
     var feeValue: Fee? { get }
@@ -56,7 +56,7 @@ class SendFinishViewModel: ObservableObject {
             address: destinationText,
             additionalField: input.additionalField
         )
-        amountSummaryViewData = sectionViewModelFactory.makeAmountViewData(from: input.amountValue)
+        amountSummaryViewData = sectionViewModelFactory.makeAmountViewData(from: input.userInputAmountValue)
         feeSummaryViewData = sectionViewModelFactory.makeFeeViewData(from: input.feeValue)
 
         let formatter = DateFormatter()
