@@ -3251,7 +3251,7 @@
 				EF0DC1052A0BD7E6007E3DA7 /* OptionPicker */,
 				EF56B3CE2A03AFDA002CCE27 /* DefaultMenuRowView */,
 				EFD32AE529ED93EB0026353E /* FeatureStateRowView */,
-				EF6EDD8A296D6B3B001B21A3 /* SendGroupedNumberTextField */,
+				EF6EDD8A296D6B3B001B21A3 /* SendDecimalNumberTextField */,
 				EFE23AC9292CB84600A3C554 /* IconView */,
 				EF4662322924DFAF00346B6C /* GroupedScrollView */,
 				EF46620F2924DEEE00346B6C /* DefaultListViews */,
@@ -6636,7 +6636,7 @@
 			path = IncomingActionManager;
 			sourceTree = "<group>";
 		};
-		EF6EDD8A296D6B3B001B21A3 /* SendGroupedNumberTextField */ = {
+		EF6EDD8A296D6B3B001B21A3 /* SendDecimalNumberTextField */ = {
 			isa = PBXGroup;
 			children = (
 				EF6EDD8B296D6B51001B21A3 /* SendDecimalNumberTextField.swift */,
@@ -6645,7 +6645,7 @@
 				EFBAABAC2927CCBA0065C6D4 /* DecimalNumberTextField.swift */,
 				EFBAABAD2927CCBA0065C6D4 /* DecimalNumberFormatter.swift */,
 			);
-			path = SendGroupedNumberTextField;
+			path = SendDecimalNumberTextField;
 			sourceTree = "<group>";
 		};
 		EF729B412AF108E200D80205 /* ExpressFeeSelector */ = {
