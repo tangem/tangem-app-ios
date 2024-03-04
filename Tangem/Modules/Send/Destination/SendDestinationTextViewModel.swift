@@ -58,7 +58,7 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
 
         isValidating
             .removeDuplicates()
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .assign(to: \.isValidating, on: self, ownership: .weak)
             .store(in: &bag)
 
