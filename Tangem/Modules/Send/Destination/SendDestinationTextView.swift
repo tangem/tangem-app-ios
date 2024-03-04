@@ -196,7 +196,10 @@ extension SendDestinationTextView: Setupable {
 
         SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "123456789"), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
 
-        Text("There are two fields and they must be aligned 👇")
+
+        // MARK: memo alignment test
+
+        Text("There are two **MEMO** fields and they must be aligned 👇")
             .foregroundColor(.blue)
             .font(.caption)
 
