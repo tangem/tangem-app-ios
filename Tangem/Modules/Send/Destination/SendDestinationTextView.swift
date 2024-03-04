@@ -114,7 +114,7 @@ struct SendDestinationTextView: View {
                         .style(inputFieldFont, color: .black)
                 }
             }
-            .hidden()
+            .opacity(0)
 
             HStack(spacing: 12) {
                 Group {
