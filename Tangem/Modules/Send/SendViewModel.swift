@@ -431,10 +431,11 @@ extension SendViewModel: NotificationTapDelegate {
 // MARK: - ValidationError
 
 private extension ValidationError {
-    var step: SendStep {
+    var step: SendStep? {
         switch self {
         case .invalidAmount, .balanceNotFound:
-            return .amount
+            // Shouldn't happen as we validate and cover amount errors separately, synchronously
+            return nil
         case .amountExceedsBalance, .invalidFee, .feeExceedsBalance, .withdrawalWarning, .reserve:
             return .fee
         case .dustAmount, .dustChange, .minimumBalance, .totalExceedsBalance:
