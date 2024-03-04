@@ -58,6 +58,7 @@ class ExpressNotificationManager {
         case .previewCEX(let preview, _):
             setupFeeWillBeSubtractFromSendingAmountNotification(subtractFee: preview.subtractFee)
             setupWithdrawalSuggestion(suggestion: preview.suggestion)
+            setupNoAccountNotification()
         }
     }
 
@@ -195,6 +196,19 @@ class ExpressNotificationManager {
             break
         case .feeIsTooHigh(let reduceAmountBy):
             let event: ExpressNotificationEvent = .withdrawalOptionalAmountChange(amount: reduceAmountBy.value, amountFormatted: reduceAmountBy.string())
+            let notification = NotificationsFactory().buildNotificationInput(for: event) { [weak self] id, actionType in
+                self?.delegate?.didTapNotificationButton(with: id, action: actionType)
+            }
+            notificationInputsSubject.value.appendIfNotContains(notification)
+        }
+    }
+
+    private func setupNoAccountNotification() {
+        switch expressInteractor?.getDestination()?.state {
+        case .none, .created, .idle, .loading, .failed, .noDerivation:
+            break
+        case .noAccount(let message):
+            let event: ExpressNotificationEvent = .noAccount(message: message)
             let notification = NotificationsFactory().buildNotificationInput(for: event) { [weak self] id, actionType in
                 self?.delegate?.didTapNotificationButton(with: id, action: actionType)
             }

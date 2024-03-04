@@ -26,6 +26,7 @@ enum ExpressNotificationEvent {
     case dustAmount(minimumAmountText: String, minimumChangeText: String)
     case withdrawalOptionalAmountChange(amount: Decimal, amountFormatted: String)
     case withdrawalMandatoryAmountChange(amount: Decimal, amountFormatted: String, blockchainName: String, maxUtxo: Int)
+    case noAccount
 }
 
 extension ExpressNotificationEvent: NotificationEvent {
@@ -63,6 +64,8 @@ extension ExpressNotificationEvent: NotificationEvent {
             return .string(Localization.sendNotificationHighFeeTitle)
         case .withdrawalMandatoryAmountChange:
             return .string(Localization.sendNotificationTransactionLimitTitle)
+        case .noAccount:
+            return .string(Localization.sendNotificationInvalidAmountTitle)
         }
     }
 
@@ -98,6 +101,8 @@ extension ExpressNotificationEvent: NotificationEvent {
             return Localization.sendNotificationHighFeeText(amount)
         case .withdrawalMandatoryAmountChange(_, let amountFormatted, let blockchainName, let maxUtxo):
             return Localization.sendNotificationTransactionLimitText(blockchainName, maxUtxo, amountFormatted)
+        case .noAccount:
+            return Localization.sendNotificationInvalidReserveAmountText
         }
     }
 
@@ -112,7 +117,8 @@ extension ExpressNotificationEvent: NotificationEvent {
              .noDestinationTokens,
              .feeWillBeSubtractFromSendingAmount,
              .existentialDepositWarning,
-             .dustAmount:
+             .dustAmount,
+             .noAccount:
             return .secondary
         case .notEnoughFeeForTokenTx,
              .refreshRequired,
@@ -146,7 +152,8 @@ extension ExpressNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.redCircleWarning.image))
         case .hasPendingTransaction,
              .existentialDepositWarning,
-             .withdrawalOptionalAmountChange:
+             .withdrawalOptionalAmountChange,
+             .noAccount:
             return .init(iconType: .image(Assets.blueCircleWarning.image))
         }
     }
@@ -157,7 +164,8 @@ extension ExpressNotificationEvent: NotificationEvent {
              .hasPendingTransaction,
              .hasPendingApproveTransaction,
              .verificationRequired,
-             .feeWillBeSubtractFromSendingAmount:
+             .feeWillBeSubtractFromSendingAmount,
+             .noAccount:
             return .info
         case .notEnoughFeeForTokenTx,
              .tooSmallAmountToSwap,
@@ -216,7 +224,8 @@ extension ExpressNotificationEvent: NotificationEvent {
              .existentialDepositWarning,
              .dustAmount,
              .withdrawalOptionalAmountChange,
-             .withdrawalMandatoryAmountChange:
+             .withdrawalMandatoryAmountChange,
+             .noAccount:
             return true
         }
     }
