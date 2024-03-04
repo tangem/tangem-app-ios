@@ -11,6 +11,8 @@ import BlockchainSdk
 
 protocol SendNotificationManagerInput {
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
+    var amountPublisher: AnyPublisher<Amount?, Never> { get }
+    var feeValuePublisher: AnyPublisher<Fee?, Never> { get }
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> { get }
     var customFeePublisher: AnyPublisher<Fee?, Never> { get }
     var withdrawalSuggestion: AnyPublisher<WithdrawalSuggestion?, Never> { get }
@@ -145,10 +147,18 @@ class CommonSendNotificationManager: SendNotificationManager {
             }
             .store(in: &bag)
 
-        input
-            .isFeeIncludedPublisher
-            .sink { [weak self] isFeeIncluded in
-                self?.updateEventVisibility(isFeeIncluded, event: .feeCoverage)
+        Publishers.CombineLatest3(input.isFeeIncludedPublisher, input.feeValuePublisher, input.amountPublisher)
+            .sink { [weak self] isFeeIncluded, fee, amount in
+                if isFeeIncluded,
+                   let feeAmount = fee?.amount,
+                   let amount {
+                    let formatter = BalanceFormatter()
+                    let feeAmountFormatted = formatter.formatCryptoBalance(feeAmount.value, currencyCode: feeAmount.currencySymbol)
+                    let transactionAmountFormatted = formatter.formatCryptoBalance(amount.value, currencyCode: amount.currencySymbol)
+                    self?.updateEventVisibility(true, event: .feeCoverage(feeAmount: feeAmountFormatted, transactionAmount: transactionAmountFormatted))
+                } else {
+                    self?.updateEventVisibility(false, event: .feeCoverage(feeAmount: "", transactionAmount: ""))
+                }
             }
             .store(in: &bag)
 
