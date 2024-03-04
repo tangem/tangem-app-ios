@@ -289,6 +289,15 @@ final class SendViewModel: ObservableObject {
 
     private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation?) {
         if case .summary = step {
+            if sendModel.totalExceedsBalance {
+                alert = SendAlertBuilder.makeSubtractFeeFromAmountAlert { [weak self] in
+                    self?.sendModel.includeFeeIntoAmount()
+                    self?.openStep(step, stepAnimation: stepAnimation)
+                }
+
+                return
+            }
+
             didReachSummaryScreen = true
         }
 
@@ -398,7 +407,7 @@ extension SendViewModel: NotificationTapDelegate {
     }
 
     private func reduceAmountBy(_ amount: Decimal) {
-        guard var newAmount = sendModel.amountValue else { return }
+        guard var newAmount = sendModel.validatedAmountValue else { return }
 
         newAmount = newAmount - Amount(with: walletModel.tokenItem.blockchain, type: walletModel.amountType, value: amount)
         if sendModel.isFeeIncluded, let feeValue = sendModel.feeValue?.amount {
@@ -426,9 +435,9 @@ private extension ValidationError {
         switch self {
         case .invalidAmount, .balanceNotFound:
             return .amount
-        case .amountExceedsBalance, .invalidFee, .feeExceedsBalance, .totalExceedsBalance, .withdrawalWarning, .reserve:
+        case .amountExceedsBalance, .invalidFee, .feeExceedsBalance, .withdrawalWarning, .reserve:
             return .fee
-        case .dustAmount, .dustChange, .minimumBalance:
+        case .dustAmount, .dustChange, .minimumBalance, .totalExceedsBalance:
             return .summary
         }
     }
