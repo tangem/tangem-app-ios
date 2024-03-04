@@ -11,7 +11,7 @@ import Combine
 import BlockchainSdk
 
 class SendAmountViewModelInputMock: SendAmountViewModelInput {
-    var amountValue: Amount? { nil }
+    var userInputAmountValue: Amount? { nil }
     var amountError: AnyPublisher<Error?, Never> {
         Just(nil).eraseToAnyPublisher()
     }
