@@ -138,7 +138,7 @@ private extension ExpressSuccessSentViewModel {
             detailsType: .none
         )
 
-        let feeFormatted = feeFormatter.format(fee: data.fee, tokenItem: data.source.tokenItem)
+        let feeFormatted = feeFormatter.format(fee: data.fee, tokenItem: data.source.feeTokenItem)
         expressFee = ExpressFeeRowData(title: Localization.commonNetworkFeeTitle, subtitle: feeFormatted)
     }
 }

@@ -80,9 +80,9 @@ extension CardSettingsCoordinator: CardSettingsRoutable {
         modalOnboardingCoordinator = coordinator
     }
 
-    func openSecurityMode(cardModel: CardViewModel) {
+    func openSecurityMode(with securityOptionChangeInteractor: SecurityOptionChanging) {
         let coordinator = SecurityModeCoordinator(popToRootAction: popToRootAction)
-        let options = SecurityModeCoordinator.Options(cardModel: cardModel)
+        let options = SecurityModeCoordinator.Options(securityOptionChangeInteractor: securityOptionChangeInteractor)
         coordinator.start(with: options)
         securityManagementCoordinator = coordinator
     }
@@ -95,8 +95,8 @@ extension CardSettingsCoordinator: CardSettingsRoutable {
         )
     }
 
-    func openAccessCodeRecoverySettings(using provider: AccessCodeRecoverySettingsProvider) {
-        accessCodeRecoverySettingsViewModel = .init(settingsProvider: provider)
+    func openAccessCodeRecoverySettings(with recoveryInteractor: UserCodeRecovering) {
+        accessCodeRecoverySettingsViewModel = .init(with: recoveryInteractor)
     }
 }
 
