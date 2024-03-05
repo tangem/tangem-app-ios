@@ -23,6 +23,7 @@ class MainBottomSheetCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @Published var manageTokensCoordinator: ManageTokensCoordinator?
+    @Published var shouldDissmis: Bool = false
 
     // MARK: - Child view models
 
@@ -68,7 +69,7 @@ class MainBottomSheetCoordinator: CoordinatorObject {
 
     private func setupManageTokens() {
         let dismissAction: Action<Void> = { [weak self] _ in
-            self?.manageTokensCoordinator = nil
+            self?.shouldDissmis = true
         }
 
         let coordinator = ManageTokensCoordinator(
