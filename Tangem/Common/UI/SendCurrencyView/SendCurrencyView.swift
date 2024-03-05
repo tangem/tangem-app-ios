@@ -10,25 +10,21 @@ import SwiftUI
 
 struct SendCurrencyView: View {
     @ObservedObject private var viewModel: SendCurrencyViewModel
-    @Binding private var decimalValue: DecimalNumberTextField.DecimalValue?
     @State private var isShaking: Bool = false
 
     private var didTapChangeCurrency: (() -> Void)?
     private var maxAmountAction: (() -> Void)?
 
-    init(viewModel: SendCurrencyViewModel, decimalValue: Binding<DecimalNumberTextField.DecimalValue?>) {
+    init(viewModel: SendCurrencyViewModel) {
         self.viewModel = viewModel
-        _decimalValue = decimalValue
     }
 
     var body: some View {
         ExpressCurrencyView(viewModel: viewModel.expressCurrencyViewModel) {
             SendDecimalNumberTextField(
-                decimalValue: $decimalValue,
-                maximumFractionDigits: viewModel.maximumFractionDigits
+                stateObject: viewModel.decimalNumberTextFieldStateObject
             )
-            .maximumFractionDigits(viewModel.maximumFractionDigits)
-            .maxAmountAction(maxAmountAction)
+            .toolbarType(maxAmountAction.flatMap(SendDecimalNumberTextField.ToolbarType.maxAmount(action:)))
             .initialFocusBehavior(.immediateFocus)
             .offset(x: isShaking ? 10 : 0)
             .simultaneousGesture(TapGesture().onEnded {
@@ -62,8 +58,6 @@ extension SendCurrencyView: Setupable {
 }
 
 struct SendCurrencyView_Preview: PreviewProvider {
-    @State private static var decimalValue: DecimalNumberTextField.DecimalValue? = nil
-
     static let viewModels = [
         SendCurrencyViewModel(
             expressCurrencyViewModel: .init(
@@ -74,7 +68,7 @@ struct SendCurrencyView_Preview: PreviewProvider {
                 symbolState: .loaded(text: "ETH"),
                 canChangeCurrency: false
             ),
-            maximumFractionDigits: 8
+            decimalNumberTextFieldStateObject: .init(maximumFractionDigits: 8)
         ),
         SendCurrencyViewModel(
             expressCurrencyViewModel: .init(
@@ -85,7 +79,7 @@ struct SendCurrencyView_Preview: PreviewProvider {
                 symbolState: .loaded(text: "ADA"),
                 canChangeCurrency: false
             ),
-            maximumFractionDigits: 8
+            decimalNumberTextFieldStateObject: .init(maximumFractionDigits: 8)
         ),
         SendCurrencyViewModel(
             expressCurrencyViewModel: .init(
@@ -96,7 +90,7 @@ struct SendCurrencyView_Preview: PreviewProvider {
                 symbolState: .loaded(text: "MATIC"),
                 canChangeCurrency: true
             ),
-            maximumFractionDigits: 8
+            decimalNumberTextFieldStateObject: .init(maximumFractionDigits: 8)
         ),
         SendCurrencyViewModel(
             expressCurrencyViewModel: .init(
@@ -107,7 +101,7 @@ struct SendCurrencyView_Preview: PreviewProvider {
                 symbolState: .loaded(text: "MATIC"),
                 canChangeCurrency: true
             ),
-            maximumFractionDigits: 8
+            decimalNumberTextFieldStateObject: .init(maximumFractionDigits: 8)
         ),
         SendCurrencyViewModel(
             expressCurrencyViewModel: .init(
@@ -118,7 +112,7 @@ struct SendCurrencyView_Preview: PreviewProvider {
                 symbolState: .loaded(text: "USDT"),
                 canChangeCurrency: true
             ),
-            maximumFractionDigits: 8
+            decimalNumberTextFieldStateObject: .init(maximumFractionDigits: 8)
         ),
         SendCurrencyViewModel(
             expressCurrencyViewModel: .init(
@@ -130,7 +124,7 @@ struct SendCurrencyView_Preview: PreviewProvider {
                 symbolState: .loaded(text: "USDT"),
                 canChangeCurrency: true
             ),
-            maximumFractionDigits: 8
+            decimalNumberTextFieldStateObject: .init(maximumFractionDigits: 8)
         ),
     ]
 
@@ -141,7 +135,7 @@ struct SendCurrencyView_Preview: PreviewProvider {
             VStack {
                 ForEach(viewModels) { viewModel in
                     GroupedSection(viewModel) { viewModel in
-                        SendCurrencyView(viewModel: viewModel, decimalValue: $decimalValue)
+                        SendCurrencyView(viewModel: viewModel) // , decimalValue: $decimalValue
                     }
                     .innerContentPadding(12)
                     .interItemSpacing(10)
