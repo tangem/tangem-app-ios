@@ -183,21 +183,19 @@ extension MainCoordinator: SingleTokenBaseRoutable {
     func openBuyCrypto(at url: URL, action: @escaping () -> Void) {
         Analytics.log(.topupScreenOpened)
 
-        safariHandle = safariManager.openURL(url) { [weak self] in
+        safariHandle = safariManager.openURL(url) { [weak self] _ in
             self?.safariHandle = nil
             action()
         }
     }
 
-    func openSellCrypto(at url: URL, sellRequestUrl: String, action: @escaping (String) -> Void) {
+    func openSellCrypto(at url: URL, action: @escaping (String) -> Void) {
         Analytics.log(.withdrawScreenOpened)
-        modalWebViewModel = WebViewContainerViewModel(
-            url: url,
-            title: Localization.commonSell,
-            addLoadingIndicator: true,
-            withCloseButton: true,
-            urlActions: [sellRequestUrl: action]
-        )
+
+        safariHandle = safariManager.openURL(url) { [weak self] closeURL in
+            self?.safariHandle = nil
+            action(closeURL.absoluteString)
+        }
     }
 
     func openSend(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel, walletModel: WalletModel) {
@@ -208,6 +206,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             let options = LegacySendCoordinator.Options(
                 amountToSend: amountToSend,
                 destination: nil,
+                tag: nil,
                 blockchainNetwork: blockchainNetwork,
                 cardViewModel: cardViewModel
             )
@@ -231,7 +230,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         sendCoordinator = coordinator
     }
 
-    func openSendToSell(amountToSend: Amount, destination: String, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel, walletModel: WalletModel) {
+    func openSendToSell(amountToSend: Amount, destination: String, tag: String?, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel, walletModel: WalletModel) {
         guard FeatureProvider.isAvailable(.sendV2) else {
             let coordinator = LegacySendCoordinator { [weak self] in
                 self?.legacySendCoordinator = nil
@@ -239,6 +238,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             let options = LegacySendCoordinator.Options(
                 amountToSend: amountToSend,
                 destination: destination,
+                tag: tag,
                 blockchainNetwork: blockchainNetwork,
                 cardViewModel: cardViewModel
             )
@@ -255,7 +255,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             emailDataProvider: cardViewModel,
             walletModel: walletModel,
             transactionSigner: cardViewModel.signer,
-            type: .sell(amount: amountToSend, destination: destination)
+            type: .sell(amount: amountToSend, destination: destination, tag: tag)
         )
         coordinator.start(with: options)
         sendCoordinator = coordinator

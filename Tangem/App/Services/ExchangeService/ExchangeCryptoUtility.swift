@@ -55,10 +55,6 @@ struct ExchangeCryptoUtility {
         }
     }
 
-    var sellCryptoCloseURL: String {
-        exchangeService.sellRequestUrl.removeLatestSlash()
-    }
-
     func extractSellCryptoRequest(from data: String) -> SellCryptoRequest? {
         exchangeService.extractSellCryptoRequest(from: data)
     }
