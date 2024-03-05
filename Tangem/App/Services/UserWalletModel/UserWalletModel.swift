@@ -10,7 +10,6 @@ import BlockchainSdk
 import Combine
 
 protocol UserWalletModel: MainHeaderSupplementInfoProvider, TotalBalanceProviding, MultiWalletMainHeaderSubtitleDataSource, AnalyticsContextDataProvider, MainHeaderUserWalletStateInfoProvider, AnyObject {
-    var isMultiWallet: Bool { get }
     var tokensCount: Int? { get }
     var config: UserWalletConfig { get }
     var userWalletId: UserWalletId { get }
