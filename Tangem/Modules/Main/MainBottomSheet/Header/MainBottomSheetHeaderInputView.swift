@@ -25,8 +25,9 @@ struct MainBottomSheetHeaderInputView: View {
     private var searchBar: some View {
         CustomSearchBar(
             searchText: $searchText,
-            placeholder: Localization.commonSearch
+            placeholder: Localization.manageTokensSearchPlaceholder
         )
+        .padding(.horizontal, 16)
         .allowsHitTesting(allowsHitTestingForTextField)
         .padding(.top, Constants.verticalInset)
         .padding(.bottom, max(UIApplication.safeAreaInsets.bottom, Constants.verticalInset))
