@@ -72,6 +72,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     }
 
     func onAppear() {
+        didFinishAnimationToSummary = false
+
         fiatCryptoAdapter?.setCrypto(input.userInputAmountValue?.value)
 
         if animatingAuxiliaryViewsOnAppear {
@@ -80,6 +82,13 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             }
         }
     }
+
+    func onDisappear() {
+        print("zzz ondisappear")
+        didFinishAnimationToSummary = true
+    }
+
+    var didFinishAnimationToSummary = false
 
     func setUserInputAmount(_ userInputAmount: DecimalNumberTextField.DecimalValue?) {
         amount = userInputAmount
@@ -135,9 +144,15 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 }
 
 extension SendAmountViewModel: AuxiliaryViewAnimatable {
-    func setAnimatingAuxiliaryViewsOnAppear(_ animatingAuxiliaryViewsOnAppear: Bool) {
-        self.animatingAuxiliaryViewsOnAppear = animatingAuxiliaryViewsOnAppear
-    }
+//    func setAnimatingAuxiliaryViewsOnAppear(_ animatingAuxiliaryViewsOnAppear: Bool) {
+//        //        self.animatingAuxiliaryViewsOnAppear = animatingAuxiliaryViewsOnAppear
+//        print("zzz setAnimatingAuxiliaryViewsOnAppear", didFinishAnimationToSummary)
+//        if didFinishAnimationToSummary {
+//            self.animatingAuxiliaryViewsOnAppear = true
+//        } else {
+//            self.animatingAuxiliaryViewsOnAppear = false
+//        }
+//    }
 }
 
 extension SendAmountViewModel: SendFiatCryptoAdapterInput {
