@@ -71,7 +71,17 @@ struct SendDecimalNumberTextField: View {
             .focused($isInputActive)
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
-                    toolbarView
+                    leadingToolbarView
+
+                    Spacer()
+
+                    Button {
+                        isInputActive = false
+                    } label: {
+                        Assets.hideKeyboard.image
+                            .renderingMode(.template)
+                            .foregroundColor(Colors.Icon.primary1)
+                    }
                 }
             }
             .onAppear {
@@ -84,7 +94,7 @@ struct SendDecimalNumberTextField: View {
     }
 
     @ViewBuilder
-    private var toolbarView: some View {
+    private var leadingToolbarView: some View {
         switch toolbarType {
         case .none:
             EmptyView()
@@ -92,16 +102,6 @@ struct SendDecimalNumberTextField: View {
             Button(action: action) {
                 Text(Localization.sendMaxAmountLabel)
                     .style(Fonts.Bold.callout, color: Colors.Text.primary1)
-            }
-
-            Spacer()
-
-            Button {
-                isInputActive = false
-            } label: {
-                Assets.hideKeyboard.image
-                    .renderingMode(.template)
-                    .foregroundColor(Colors.Icon.primary1)
             }
         }
     }
