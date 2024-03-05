@@ -10,7 +10,6 @@ import Foundation
 import Combine
 
 class UserWalletModelMock: UserWalletModel {
-    var isMultiWallet: Bool { true }
     var tokensCount: Int? { 7 }
     var config: UserWalletConfig { fatalError("UserWalletConfigMock doesn't exist") }
     var userWalletId: UserWalletId { .init(value: Data()) }
