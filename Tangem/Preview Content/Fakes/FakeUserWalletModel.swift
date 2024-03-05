@@ -65,10 +65,7 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
 
         self.userWallet = userWallet
         cardImagePublisher = Just(.cached(Assets.Cards.walletSingle.uiImage)).eraseToAnyPublisher()
-        initialUpdate()
     }
-
-    func initialUpdate() {}
 
     func updateWalletName(_ name: String) {
         _userWalletNamePublisher.send(name)
@@ -77,6 +74,10 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
 
     var totalBalancePublisher: AnyPublisher<LoadingValue<TotalBalance>, Never> {
         .just(output: .loading)
+    }
+
+    func validate() -> Bool {
+        return true
     }
 }
 

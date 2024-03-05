@@ -25,4 +25,5 @@ protocol UserWalletModel: MainHeaderSupplementInfoProvider, TotalBalanceProvidin
     var twinInput: OnboardingInput? { get }
     var cardImagePublisher: AnyPublisher<CardImageResult, Never> { get }
     func updateWalletName(_ name: String)
+    func validate() -> Bool
 }
