@@ -15,16 +15,15 @@ class CommonUserTokensManager {
     @Injected(\.swapAvailabilityController) private var swapAvailabilityController: SwapAvailabilityController
 
     let derivationManager: DerivationManager?
-
+    
     private let userWalletId: UserWalletId
     private let shouldLoadSwapAvailability: Bool
     private let userTokenListManager: UserTokenListManager
     private let walletModelsManager: WalletModelsManager
     private let derivationStyle: DerivationStyle?
-    private weak var keysDerivingProvider: KeysDerivingProvider?
     private let existingCurves: [EllipticCurve]
     private let longHashesSupported: Bool
-
+    private weak var keysDerivingProvider: KeysDerivingProvider?
     private var bag: Set<AnyCancellable> = []
 
     init(
