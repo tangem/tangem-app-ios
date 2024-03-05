@@ -1,5 +1,5 @@
 //
-//  CardInteractorMocks.swift
+//  CardInitializerMock.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -23,19 +23,5 @@ class CardInitializerMock: CardInitializable {
             )
             completion(.success(cardInfo))
         }
-    }
-}
-
-class CardResettableMock: CardResettable {
-    func resetCard(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            completion(.success(()))
-        }
-    }
-}
-
-class CardInteractorMock: CardResettable {
-    func resetCard(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        CardResettableMock().resetCard(completion: completion)
     }
 }
