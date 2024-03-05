@@ -369,8 +369,8 @@ extension OnboardingViewModel {
         coordinator?.closeOnboarding()
     }
 
-    func openSupportChat() {
-        Analytics.log(.onboardingButtonChat)
+    func openSupport() {
+        Analytics.log(.requestSupport)
 
         // Hide keyboard on set pin screen
         UIApplication.shared.endEditing()
@@ -380,9 +380,13 @@ extension OnboardingViewModel {
             userWalletEmailData: input.cardInput.emailData
         )
 
-        coordinator?.openSupportChat(input: .init(
-            logsComposer: .init(infoProvider: dataCollector)
-        ))
+        let emailConfig = input.cardInput.config?.emailConfig ?? .default
+
+        coordinator?.openMail(
+            with: dataCollector,
+            recipient: emailConfig.recipient,
+            emailType: .appFeedback(subject: emailConfig.subject)
+        )
     }
 }
 

@@ -65,20 +65,19 @@ extension CEXExpressProviderManager: ExpressProviderManager {
 private extension CEXExpressProviderManager {
     func getState(request: ExpressManagerSwappingPairRequest) async -> ExpressProviderManagerState {
         do {
-            if try await isNotEnoughBalanceForSwapping(request: request) {
+            if try isNotEnoughBalanceForSwapping(request: request) {
                 // If we don't have the balance just load a quotes for show them to a user
                 let quote = try await loadQuote(request: request)
                 return .restriction(.insufficientBalance(request.amount), quote: quote)
             }
 
-            guard try request.pair.source.availableForLoadFee() else {
+            guard request.pair.source.feeCurrencyHasPositiveBalance else {
                 let quote = try await loadQuote(request: request)
                 return .restriction(.notEnoughBalanceForFee, quote: quote)
             }
 
             let (estimatedFee, subtractFee, request) = try await subtractedFeeRequestIfNeeded(request: request)
-            let item = mapper.makeExpressSwappableItem(request: request, providerId: provider.id)
-            let quote = try await expressAPIProvider.exchangeQuote(item: item)
+            let quote = try await loadQuote(request: request)
 
             return .preview(.init(fee: estimatedFee, subtractFee: subtractFee, quote: quote))
 
@@ -104,6 +103,7 @@ private extension CEXExpressProviderManager {
     func loadQuote(request: ExpressManagerSwappingPairRequest) async throws -> ExpressQuote {
         let item = mapper.makeExpressSwappableItem(request: request, providerId: provider.id)
         let quote = try await expressAPIProvider.exchangeQuote(item: item)
+
         return quote
     }
 
@@ -113,7 +113,7 @@ private extension CEXExpressProviderManager {
         request: ExpressManagerSwappingPairRequest
     ) {
         let estimatedFee = try await feeProvider.estimatedFee(amount: request.amount)
-        let subtractFee = try await subtractFee(request: request, fee: estimatedFee)
+        let subtractFee = try subtractFee(request: request, fee: estimatedFee)
 
         if subtractFee > 0 {
             return (
@@ -130,16 +130,18 @@ private extension CEXExpressProviderManager {
         )
     }
 
-    func isNotEnoughBalanceForSwapping(request: ExpressManagerSwappingPairRequest) async throws -> Bool {
+    func isNotEnoughBalanceForSwapping(request: ExpressManagerSwappingPairRequest) throws -> Bool {
         let sourceBalance = try request.pair.source.getBalance()
         let isNotEnoughBalanceForSwapping = request.amount > sourceBalance
 
         return isNotEnoughBalanceForSwapping
     }
 
-    func subtractFee(request: ExpressManagerSwappingPairRequest, fee: ExpressFee) async throws -> Decimal {
-        // The fee's subtraction needed only for coin
-        guard !request.pair.source.isToken else { return 0 }
+    func subtractFee(request: ExpressManagerSwappingPairRequest, fee: ExpressFee) throws -> Decimal {
+        // The fee's subtraction needed only for fee currency
+        guard request.pair.source.isFeeCurrency else {
+            return 0
+        }
 
         let balance = try request.pair.source.getBalance()
         let fullAmount = request.amount + fee.fastest.amount.value

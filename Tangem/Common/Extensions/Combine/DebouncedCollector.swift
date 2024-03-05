@@ -26,7 +26,9 @@ extension Publishers {
             self.options = options
         }
 
-        func receive<S>(subscriber: S) where S: Subscriber, Failure == S.Failure, Output == S.Input {
+        func receive<Subscriber>(
+            subscriber: Subscriber
+        ) where Subscriber: Combine.Subscriber, Failure == Subscriber.Failure, Output == Subscriber.Input {
             var reset = false
             upstream
                 .receive(on: scheduler)
