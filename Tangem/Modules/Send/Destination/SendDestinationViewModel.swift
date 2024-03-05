@@ -183,11 +183,13 @@ class SendDestinationViewModel: ObservableObject {
             }
             .store(in: &bag)
     }
+
+    var didFinishAnimationToSummary: Bool = false
 }
 
 extension SendDestinationViewModel: AuxiliaryViewAnimatable {
-    func setAnimatingAuxiliaryViewsOnAppear(_ animatingAuxiliaryViewsOnAppear: Bool) {
-        self.animatingAuxiliaryViewsOnAppear = animatingAuxiliaryViewsOnAppear
-        addressViewModel?.setAnimatingFooterOnAppear(animatingAuxiliaryViewsOnAppear)
-    }
+//    func setAnimatingAuxiliaryViewsOnAppear(_ animatingAuxiliaryViewsOnAppear: Bool) {
+//        self.animatingAuxiliaryViewsOnAppear = animatingAuxiliaryViewsOnAppear
+//        addressViewModel?.setAnimatingFooterOnAppear(animatingAuxiliaryViewsOnAppear)
+//    }
 }
