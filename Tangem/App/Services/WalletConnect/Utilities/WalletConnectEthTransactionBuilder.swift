@@ -75,7 +75,7 @@ extension CommonWalletConnectEthTransactionBuilder: WalletConnectEthTransactionB
         let fee = Fee(gasAmount, parameters: feeParameters)
         let _ = await walletUpdate
 
-        var transaction = try walletModel.transactionCreator.createTransaction(
+        var transaction = try await walletModel.transactionCreator.createTransaction(
             amount: valueAmount,
             fee: fee,
             sourceAddress: wcTransaction.from,
