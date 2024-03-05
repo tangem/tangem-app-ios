@@ -32,9 +32,6 @@ struct SendView: View {
                 }
 
                 NavHolder()
-                    .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
-
-                NavHolder()
                     .alert(item: $viewModel.alert) { $0.alert }
             }
         }
@@ -92,7 +89,7 @@ struct SendView: View {
         case .amount:
             SendAmountView(namespace: namespace, viewModel: viewModel.sendAmountViewModel)
         case .destination:
-            SendDestinationView(namespace: namespace, viewModel: viewModel.sendDestinationViewModel)
+            SendDestinationView(namespace: namespace, viewModel: viewModel.sendDestinationViewModel, bottomSpacing: bottomGradientHeight)
         case .fee:
             SendFeeView(namespace: namespace, viewModel: viewModel.sendFeeViewModel, bottomSpacing: bottomGradientHeight)
         case .summary:
@@ -121,6 +118,16 @@ struct SendView: View {
                     size: .default,
                     isDisabled: viewModel.currentStepInvalid,
                     action: viewModel.next
+                )
+            }
+
+            if viewModel.showContinueButton {
+                MainButton(
+                    title: Localization.commonContinue,
+                    style: .primary,
+                    size: .default,
+                    isDisabled: viewModel.currentStepInvalid,
+                    action: viewModel.continue
                 )
             }
         }
@@ -185,6 +192,7 @@ struct SendView_Preview: PreviewProvider {
     static let viewModel = SendViewModel(
         walletName: card.userWalletName,
         walletModel: card.walletModelsManager.walletModels.first!,
+        userWalletModel: card,
         transactionSigner: TransactionSignerMock(),
         sendType: .send,
         emailDataProvider: CardViewModel.mock!,

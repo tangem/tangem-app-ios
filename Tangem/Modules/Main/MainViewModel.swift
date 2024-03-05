@@ -345,7 +345,6 @@ final class MainViewModel: ObservableObject {
                 case .locked:
                     isLoggingOut = true
                 case .scan:
-                    // [REDACTED_TODO_COMMENT]
                     break
                 case .inserted(let userWallet):
                     setNeedsUpdateUserWallet(userWallet)
