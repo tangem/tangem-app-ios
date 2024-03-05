@@ -15,7 +15,8 @@ struct DecimalNumberTextField: View {
 
     private let placeholder: String = "0"
     private var decimalNumberFormatter: DecimalNumberFormatter
-    private var font: Font = Fonts.Regular.title1
+    private var appearance: Appearance = .init()
+
     private var decimalSeparator: Character { decimalNumberFormatter.decimalSeparator }
     private var groupingSeparator: Character { decimalNumberFormatter.groupingSeparator }
 
@@ -30,7 +31,7 @@ struct DecimalNumberTextField: View {
     var body: some View {
         ZStack(alignment: .leading) {
             Text(textFieldText.isEmpty ? placeholder : textFieldText)
-                .font(font)
+                .font(appearance.font)
                 .opacity(0)
                 .layoutPriority(1)
                 .readGeometry(\.frame.size, bindTo: $size)
@@ -42,8 +43,8 @@ struct DecimalNumberTextField: View {
     }
 
     private var textField: some View {
-        TextField(placeholder, text: $textFieldText)
-            .style(font, color: Colors.Text.primary1)
+        TextField(text: $textFieldText, prompt: prompt, label: {})
+            .style(appearance.font, color: appearance.textColor)
             .keyboardType(.decimalPad)
             .tint(Colors.Text.primary1)
             .onChange(of: decimalValue) { newDecimalValue in
@@ -68,6 +69,14 @@ struct DecimalNumberTextField: View {
                     textFieldText = ""
                 }
             }
+    }
+
+    private var prompt: Text {
+        Text(placeholder)
+            // We can't use .style(font:, color:) here because
+            // We should have the `Text` type
+            .font(appearance.font)
+            .foregroundColor(appearance.placeholderColor)
     }
 
     private func updateValues(with newValue: String) {
@@ -110,8 +119,8 @@ extension DecimalNumberTextField: Setupable {
         map { $0.decimalNumberFormatter.update(maximumFractionDigits: digits) }
     }
 
-    func font(_ font: Font) -> Self {
-        map { $0.font = font }
+    func appearance(_ appearance: Appearance) -> Self {
+        map { $0.appearance = appearance }
     }
 }
 
@@ -147,6 +156,22 @@ extension DecimalNumberTextField {
             case .external:
                 return false
             }
+        }
+    }
+
+    struct Appearance {
+        let font: Font
+        let textColor: Color
+        let placeholderColor: Color
+
+        init(
+            font: Font = Fonts.Regular.title1,
+            textColor: Color = Colors.Text.primary1,
+            placeholderColor: Color = Colors.Text.disabled
+        ) {
+            self.font = font
+            self.textColor = textColor
+            self.placeholderColor = placeholderColor
         }
     }
 }
