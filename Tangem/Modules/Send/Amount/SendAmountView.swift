@@ -92,6 +92,7 @@ struct SendAmountView: View {
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         .onAppear(perform: viewModel.onAppear)
+        .onDisappear(perform: viewModel.onDisappear)
     }
 }
 
