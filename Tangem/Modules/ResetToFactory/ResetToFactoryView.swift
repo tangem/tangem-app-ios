@@ -126,7 +126,7 @@ private extension ResetToFactoryView {
 struct ResetToFactoryView_Previews: PreviewProvider {
     static let viewModel = ResetToFactoryViewModel(
         input: .init(
-            cardInteractor: CardResettableMock(),
+            cardInteractor: FactorySettingsResettingMock(),
             hasBackupCards: false,
             userWalletId: UserWalletId(value: Data())
         ),
