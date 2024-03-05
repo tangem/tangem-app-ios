@@ -36,7 +36,7 @@ struct SendDecimalNumberTextField: View {
         .alignment(alignment)
         .initialFocusBehavior(initialFocusBehavior)
         .maximumFractionDigits(maximumFractionDigits)
-        .font(font)
+        .appearance(.init(font: font))
         .suffix(suffix)
     }
 }
