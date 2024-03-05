@@ -86,13 +86,23 @@ class SendFeeViewModel: ObservableObject {
         bind()
     }
 
-    func onAppear() {
-        if animatingAuxiliaryViewsOnAppear {
-            withAnimation(SendView.Constants.defaultAnimation) {
-                animatingAuxiliaryViewsOnAppear = false
-            }
-        }
-    }
+//    func onAppear() {
+//        print("zzz onappear")
+//        didFinishAnimationToSummary = false
+//
+//        if animatingAuxiliaryViewsOnAppear {
+//            withAnimation(SendView.Constants.defaultAnimation) {
+//                animatingAuxiliaryViewsOnAppear = false
+//            }
+//        }
+//    }
+//
+//    func onDisappear() {
+//        print("zzz ondisappear")
+//        didFinishAnimationToSummary = true
+//    }
+//
+    var didFinishAnimationToSummary = false
 
     func openFeeExplanation() {
         router?.openFeeExplanation(url: feeExplanationUrl)
@@ -267,12 +277,12 @@ class SendFeeViewModel: ObservableObject {
         let parameters = EthereumFeeParameters(gasLimit: currentGasLimit, gasPrice: gasPrice)
         return Fee(feeAmount, parameters: parameters)
     }
+
+//    var didDisappearSubject: CurrentValueSubject
 }
 
 extension SendFeeViewModel: AuxiliaryViewAnimatable {
-    func setAnimatingAuxiliaryViewsOnAppear(_ animatingAuxiliaryViewsOnAppear: Bool) {
-        self.animatingAuxiliaryViewsOnAppear = animatingAuxiliaryViewsOnAppear
-    }
+//    var didDisappear: AnyPublisher<Void, Never> { }
 }
 
 // MARK: - private extensions
