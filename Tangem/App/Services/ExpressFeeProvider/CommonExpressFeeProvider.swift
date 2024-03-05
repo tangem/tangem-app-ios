@@ -36,7 +36,7 @@ extension CommonExpressFeeProvider: ExpressFeeProvider {
                 return fee
             }
 
-            let gasLimit = parameters.gasLimit * BigUInt(105) / BigUInt(100)
+            let gasLimit = parameters.gasLimit * BigUInt(112) / BigUInt(100)
             let feeValue = gasLimit * parameters.gasPrice
             let fee = Decimal(Int(feeValue)) / wallet.tokenItem.blockchain.decimalValue
             let amount = Amount(with: wallet.tokenItem.blockchain, value: fee)
