@@ -42,6 +42,11 @@ extension EnvironmentValues {
         get { self[BottomScrollableSheetConfigurationEnvironmentKey.self] }
         set { self[BottomScrollableSheetConfigurationEnvironmentKey.self] = newValue }
     }
+
+    var bottomScrollableSheetStateController: BottomScrollableSheetStateController? {
+        get { self[BottomScrollableSheetStateControllerEnvironmentKey.self] }
+        set { self[BottomScrollableSheetStateControllerEnvironmentKey.self] = newValue }
+    }
 }
 
 // MARK: - Private implementation
@@ -56,4 +61,8 @@ private enum BottomScrollableSheetConfigurationEnvironmentKey: EnvironmentKey {
         prefersGrabberVisible: true,
         allowsHitTesting: true
     )
+}
+
+private enum BottomScrollableSheetStateControllerEnvironmentKey: EnvironmentKey {
+    static var defaultValue: BottomScrollableSheetStateController? { nil }
 }
