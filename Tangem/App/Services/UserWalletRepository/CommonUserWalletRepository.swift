@@ -17,10 +17,10 @@ class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
     @Injected(\.analyticsContext) var analyticsContext: AnalyticsContext
 
-    var selectedModel: CardViewModel? {
+    var selectedModel: CommonUserWalletModel? {
         return models.first {
             $0.userWalletId.value == selectedUserWalletId
-        } as? CardViewModel
+        } as? CommonUserWalletModel
     }
 
     var selectedUserWalletId: Data?
@@ -48,7 +48,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private(set) var models = [UserWalletModel]()
-    private(set) var userWallets: [UserWallet] = []
+    private(set) var userWallets: [StoredUserWallet] = []
 
     var isLocked: Bool { userWallets.contains { $0.isLocked } }
 
@@ -108,14 +108,14 @@ class CommonUserWalletRepository: UserWalletRepository {
 
                 cardInfo.name = config.cardName
 
-                let cardModel = CardViewModel(cardInfo: cardInfo)
+                let cardModel = CommonUserWalletModel(cardInfo: cardInfo)
                 if let cardModel {
                     initializeServices(for: cardModel, cardInfo: cardInfo)
                 }
 
                 let factory = OnboardingInputFactory(
                     cardInfo: cardInfo,
-                    cardModel: cardModel,
+                    userWalletModel: cardModel,
                     sdkFactory: config,
                     onboardingStepsBuilderFactory: config
                 )
@@ -202,7 +202,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         save(userWallet)
     }
 
-    func contains(_ userWallet: UserWallet) -> Bool {
+    func contains(_ userWallet: StoredUserWallet) -> Bool {
         userWallets.contains { $0.userWalletId == userWallet.userWalletId }
     }
 
@@ -269,7 +269,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    func save(_ userWallet: UserWallet) {
+    func save(_ userWallet: StoredUserWallet) {
         if models.isEmpty && !userWallets.isEmpty {
             loadModels()
         }
@@ -332,7 +332,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             return
         }
 
-        let updateSelection: (UserWallet) -> Void = { [weak self] userWallet in
+        let updateSelection: (StoredUserWallet) -> Void = { [weak self] userWallet in
             self?.selectedUserWalletId = userWallet.userWalletId
             AppSettings.shared.selectedUserWalletId = userWallet.userWalletId
             self?.initializeServicesForSelectedModel()
@@ -411,9 +411,9 @@ class CommonUserWalletRepository: UserWalletRepository {
         sendEvent(.deleted(userWalletIds: otherUserWallets.map { $0.userWalletId }))
     }
 
-    func initializeServices(for cardModel: CardViewModel, cardInfo: CardInfo) {
+    func initializeServices(for cardModel: CommonUserWalletModel, cardInfo: CardInfo) {
         initializeAnalyticsContext(with: cardInfo)
-        tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
+        tangemApiService.setAuthData(cardModel.tangemApiAuthData)
         walletConnectService.initialize(with: cardModel)
     }
 
@@ -494,13 +494,14 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    private func unlockWithCard(_ requiredUserWallet: UserWallet?, completion: @escaping (UserWalletRepositoryResult?) -> Void) {
+    private func unlockWithCard(_ requiredUserWallet: StoredUserWallet?, completion: @escaping (UserWalletRepositoryResult?) -> Void) {
         scanPublisher()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] result in
                 guard
                     let self,
-                    case .success(let cardModel) = result
+                    case .success(let userWalletModel) = result,
+                    let cardModel = userWalletModel as? CommonUserWalletModel // [REDACTED_TODO_COMMENT]
                 else {
                     completion(result)
                     return
@@ -539,7 +540,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                     loadModels()
                 }
 
-                let savedUserWallet: UserWallet
+                let savedUserWallet: StoredUserWallet
                 if contains(scannedUserWallet) {
                     guard let userWallet = self.savedUserWallet(with: scannedUserWallet.userWalletId) else { return }
 
@@ -551,7 +552,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                 }
 
                 guard
-                    let cardModel = models.first(where: { $0.userWalletId.value == savedUserWallet.userWalletId }) as? CardViewModel
+                    let cardModel = models.first(where: { $0.userWalletId.value == savedUserWallet.userWalletId }) as? CommonUserWalletModel
                 else {
                     return
                 }
@@ -575,23 +576,23 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     private func loadModels() {
         let models: [UserWalletModel] = userWallets.map { userWalletStorageItem in
-            if let userWallet = CardViewModel(userWallet: userWalletStorageItem) {
+            if let userWallet = CommonUserWalletModel(userWallet: userWalletStorageItem) {
                 return userWallet
             } else {
-                return LockedUserWallet(with: userWalletStorageItem)
+                return LockedUserWalletModel(with: userWalletStorageItem)
             }
         }
 
         self.models = models
     }
 
-    private func loadModel(for userWallet: UserWallet) {
+    private func loadModel(for userWallet: StoredUserWallet) {
         guard let index = userWallets.firstIndex(where: { $0.userWalletId == userWallet.userWalletId }) else { return }
 
         userWallets[index] = userWallet
 
         guard index < models.count,
-              let cardModel = CardViewModel(userWallet: userWallet) else {
+              let cardModel = CommonUserWalletModel(userWallet: userWallet) else {
             return
         }
 
@@ -611,18 +612,18 @@ class CommonUserWalletRepository: UserWalletRepository {
         eventSubject.send(event)
     }
 
-    private func savedUserWallets(withSensitiveData loadSensitiveData: Bool) -> [UserWallet] {
+    private func savedUserWallets(withSensitiveData loadSensitiveData: Bool) -> [StoredUserWallet] {
         let keys = loadSensitiveData ? encryptionKeyByUserWalletId : [:]
         return UserWalletRepositoryUtil().savedUserWallets(encryptionKeyByUserWalletId: keys)
     }
 
-    private func savedUserWallet(with userWalletId: Data) -> UserWallet? {
+    private func savedUserWallet(with userWalletId: Data) -> StoredUserWallet? {
         let keys = encryptionKeyByUserWalletId.filter { $0.key == userWalletId }
         let userWallets = UserWalletRepositoryUtil().savedUserWallets(encryptionKeyByUserWalletId: keys)
         return userWallets.first { $0.userWalletId == userWalletId }
     }
 
-    private func saveUserWallets(_ userWallets: [UserWallet]) {
+    private func saveUserWallets(_ userWallets: [StoredUserWallet]) {
         UserWalletRepositoryUtil().saveUserWallets(userWallets)
     }
 }

@@ -12,8 +12,8 @@ import Combine
 protocol UserWalletRepository: Initializable {
     var hasSavedWallets: Bool { get }
     var models: [UserWalletModel] { get }
-    var userWallets: [UserWallet] { get }
-    var selectedModel: CardViewModel? { get }
+    var userWallets: [StoredUserWallet] { get }
+    var selectedModel: CommonUserWalletModel? { get }
     var selectedUserWalletId: Data? { get }
     var selectedIndexUserWalletModel: Int? { get }
     var isEmpty: Bool { get }
@@ -30,12 +30,12 @@ protocol UserWalletRepository: Initializable {
     func add(_ completion: @escaping (UserWalletRepositoryResult?) -> Void)
     // use this method for saving. [REDACTED_TODO_COMMENT]
     func save(_ cardViewModel: UserWalletModel)
-    func contains(_ userWallet: UserWallet) -> Bool
+    func contains(_ userWallet: StoredUserWallet) -> Bool
     // use this method for updating. [REDACTED_TODO_COMMENT]
-    func save(_ userWallet: UserWallet)
+    func save(_ userWallet: StoredUserWallet)
     func delete(_ userWalletId: UserWalletId, logoutIfNeeded shouldAutoLogout: Bool)
     func clearNonSelectedUserWallets()
-    func initializeServices(for cardModel: CardViewModel, cardInfo: CardInfo)
+    func initializeServices(for cardModel: CommonUserWalletModel, cardInfo: CardInfo)
     func initialClean()
     func setSaving(_ enabled: Bool)
     func addOrScan(completion: @escaping (UserWalletRepositoryResult?) -> Void)
@@ -60,11 +60,11 @@ extension InjectedValues {
 }
 
 enum UserWalletRepositoryResult {
-    case success(CardViewModel)
+    case success(UserWalletModel)
     case onboarding(OnboardingInput)
     case troubleshooting
     case error(Error)
-    case partial(CardViewModel, Error)
+    case partial(UserWalletModel, Error)
 
     var isSuccess: Bool {
         switch self {
@@ -80,11 +80,11 @@ enum UserWalletRepositoryEvent {
     case locked(reason: UserWalletRepositoryLockReason)
     case biometryUnlocked
     case scan(isScanning: Bool)
-    case inserted(userWallet: UserWallet)
+    case inserted(userWallet: StoredUserWallet)
     case updated(userWalletModel: UserWalletModel)
     case deleted(userWalletIds: [Data])
-    case selected(userWallet: UserWallet, reason: UserWalletRepositorySelectionChangeReason)
-    case replaced(userWallet: UserWallet)
+    case selected(userWallet: StoredUserWallet, reason: UserWalletRepositorySelectionChangeReason)
+    case replaced(userWallet: StoredUserWallet)
 }
 
 enum UserWalletRepositorySelectionChangeReason {
@@ -100,7 +100,7 @@ enum UserWalletRepositoryLockReason {
 
 enum UserWalletRepositoryUnlockMethod {
     case biometry
-    case card(userWallet: UserWallet?)
+    case card(userWallet: StoredUserWallet?)
 }
 
 enum UserWalletRepositoryError: String, Error, LocalizedError, BindableError {

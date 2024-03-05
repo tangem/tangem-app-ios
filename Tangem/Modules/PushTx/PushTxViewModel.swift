@@ -72,7 +72,7 @@ class PushTxViewModel: ObservableObject {
 
     @Published var shouldAmountBlink: Bool = false
 
-    let cardViewModel: CardViewModel
+    let cardViewModel: CommonUserWalletModel
     let blockchainNetwork: BlockchainNetwork
     var transaction: PendingTransactionRecord
 
@@ -92,7 +92,7 @@ class PushTxViewModel: ObservableObject {
     init(
         transaction: PendingTransactionRecord,
         blockchainNetwork: BlockchainNetwork,
-        cardViewModel: CardViewModel,
+        cardViewModel: CommonUserWalletModel,
         coordinator: PushTxRoutable
     ) {
         self.coordinator = coordinator
