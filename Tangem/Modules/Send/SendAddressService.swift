@@ -96,7 +96,8 @@ class SendResolvableAddressService: SendAddressService {
         }
 
         do {
-            try await Task.sleep(seconds: 1.0)
+            let validationDebounceDelay = 1.0
+            try await Task.sleep(seconds: validationDebounceDelay)
 
             try Task.checkCancellation()
 
