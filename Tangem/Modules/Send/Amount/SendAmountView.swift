@@ -41,8 +41,7 @@ struct SendAmountView: View {
                     .padding(.top, 34)
 
                     SendDecimalNumberTextField(
-                        decimalValue: $viewModel.amount,
-                        maximumFractionDigits: viewModel.amountFractionDigits
+                        stateObject: viewModel.decimalNumberTextFieldStateObject
                     )
                     // A small delay must be introduced to fix a glitch in a transition animation when changing screens
                     .initialFocusBehavior(.delayedFocus(duration: 2 * SendView.Constants.animationDuration))
