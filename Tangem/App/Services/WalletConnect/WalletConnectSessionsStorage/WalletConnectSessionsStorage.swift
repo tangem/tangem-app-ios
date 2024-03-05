@@ -46,7 +46,7 @@ actor CommonWalletConnectSessionsStorage {
     private var sessionsFilteringSubscription: AnyCancellable?
 
     func loadSessions() {
-        var savedSessions: [WalletConnectSavedSession] = (try? storage.value(for: .allWalletConnectSessions)) ?? []
+        let savedSessions: [WalletConnectSavedSession] = (try? storage.value(for: .allWalletConnectSessions)) ?? []
         allSessions.value = savedSessions
     }
 
