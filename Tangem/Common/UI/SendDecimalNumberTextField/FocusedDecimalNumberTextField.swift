@@ -14,21 +14,21 @@ struct FocusedDecimalNumberTextField<ToolbarButton: View>: View {
     @Binding private var decimalValue: DecimalNumberTextField.DecimalValue?
     @FocusState private var isInputActive: Bool
     @State private var textFieldSize: CGSize = .zero
+    @State private var oneSpaceWidth: CGFloat = .zero
+
     private let toolbarButton: () -> ToolbarButton
 
     private var initialFocusBehavior: InitialFocusBehavior = .immediateFocus
     private var maximumFractionDigits: Int
-    private var placeholderColor: Color = Colors.Text.disabled
-    private var textColor: Color = Colors.Text.primary1
-    private var font: Font = Fonts.Regular.title1
+    private var appearance: DecimalNumberTextField.Appearance = .init()
     private var alignment: Alignment = .leading
     private var suffix: String? = nil
     private var suffixColor: Color {
         switch decimalValue {
         case .none:
-            return placeholderColor
+            return appearance.placeholderColor
         case .some:
-            return textColor
+            return appearance.textColor
         }
     }
 
@@ -44,15 +44,20 @@ struct FocusedDecimalNumberTextField<ToolbarButton: View>: View {
 
     var body: some View {
         ZStack(alignment: alignment) {
-            HStack(alignment: .center, spacing: 8) {
+            HStack(alignment: .center, spacing: oneSpaceWidth) {
                 textField
 
                 if let suffix {
                     Text(suffix)
-                        .style(font, color: suffixColor)
+                        .style(appearance.font, color: suffixColor)
                         .onTapGesture {
                             isInputActive = true
                         }
+                        .background(
+                            Text(" ")
+                                .font(appearance.font)
+                                .readGeometry(\.frame.size.width, bindTo: $oneSpaceWidth)
+                        )
                 }
             }
             .readGeometry(\.frame.size, bindTo: $textFieldSize)
@@ -76,7 +81,7 @@ struct FocusedDecimalNumberTextField<ToolbarButton: View>: View {
             decimalNumberFormatter: DecimalNumberFormatter(maximumFractionDigits: maximumFractionDigits)
         )
         .maximumFractionDigits(maximumFractionDigits)
-        .font(font)
+        .appearance(appearance)
         .focused($isInputActive)
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
@@ -110,8 +115,8 @@ extension FocusedDecimalNumberTextField: Setupable {
         map { $0.maximumFractionDigits = digits }
     }
 
-    func font(_ font: Font) -> Self {
-        map { $0.font = font }
+    func appearance(_ appearance: DecimalNumberTextField.Appearance) -> Self {
+        map { $0.appearance = appearance }
     }
 
     func suffix(_ suffix: String?) -> Self {
