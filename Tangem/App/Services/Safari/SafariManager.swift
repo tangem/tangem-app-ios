@@ -13,14 +13,14 @@ import SafariServices
 
 protocol SafariManager {
     /// You should retain the handle in the coordionator always
-    func openURL(_ url: URL, configuration: SafariConfiguration, onDismiss: @escaping () -> Void) -> SafariHandle
+    func openURL(_ url: URL, configuration: SafariConfiguration, onDismiss: @escaping (URL) -> Void) -> SafariHandle
 
     /// For any calls without callback
     func openURL(_ url: URL, configuration: SafariConfiguration)
 }
 
 extension SafariManager {
-    func openURL(_ url: URL, configuration: SafariConfiguration = .init(), onDismiss: @escaping () -> Void = {}) -> SafariHandle {
+    func openURL(_ url: URL, configuration: SafariConfiguration = .init(), onDismiss: @escaping (URL) -> Void = { _ in }) -> SafariHandle {
         openURL(url, configuration: configuration, onDismiss: onDismiss)
     }
 
@@ -58,13 +58,14 @@ class CommonSafariManager: SafariManager {
     }
 
     func openURL(_ url: URL, configuration: SafariConfiguration) {
-        _ = openURL(url, configuration: configuration, onDismiss: {})
+        openURL(url, configuration: configuration) { _ in }
     }
 
+    @discardableResult
     func openURL(
         _ url: URL,
         configuration: SafariConfiguration,
-        onDismiss: @escaping () -> Void
+        onDismiss: @escaping (URL) -> Void
     ) -> SafariHandle {
         AppLog.shared.debug("Open URL: \(url)")
         let controller = SFSafariViewController(url: url)
@@ -76,15 +77,15 @@ class CommonSafariManager: SafariManager {
         return context
     }
 
-    func dismiss() {
+    func dismiss(with url: URL) {
         // already dismissed by user, but we received an url from Safari
         if context?.controller.presentingViewController == nil {
-            context?.onDismiss()
+            context?.onDismiss(url)
             return
         }
 
         context?.controller.dismiss(animated: true, completion: { [weak self] in
-            self?.context?.onDismiss()
+            self?.context?.onDismiss(url)
         })
     }
 }
@@ -93,11 +94,11 @@ class CommonSafariManager: SafariManager {
 
 extension CommonSafariManager: IncomingActionResponder {
     func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
-        guard case .dismissSafari = action else {
+        guard case .dismissSafari(let url) = action else {
             return false
         }
 
-        dismiss()
+        dismiss(with: url)
         return true
     }
 }
@@ -106,9 +107,9 @@ extension CommonSafariManager: IncomingActionResponder {
 
 class SafariContext: SafariHandle {
     let controller: SFSafariViewController
-    let onDismiss: () -> Void
+    let onDismiss: (URL) -> Void
 
-    init(controller: SFSafariViewController, onDismiss: @escaping (() -> Void)) {
+    init(controller: SFSafariViewController, onDismiss: @escaping ((URL) -> Void)) {
         self.controller = controller
         self.onDismiss = onDismiss
     }
