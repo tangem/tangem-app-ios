@@ -40,7 +40,7 @@ extension PushTxCoordinator {
     struct Options {
         let tx: PendingTransactionRecord
         let blockchainNetwork: BlockchainNetwork
-        let cardModel: CardViewModel
+        let cardModel: CommonUserWalletModel
     }
 }
 
