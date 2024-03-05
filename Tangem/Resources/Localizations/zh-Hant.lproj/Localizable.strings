@@ -433,6 +433,7 @@
 "send_alert_fee_coverage_subract_text" = "Subtract";
 "send_alert_fee_coverage_title" = "Not enough funds to cover the network commission. Subtract the commission from the amount sent?";
 "send_alert_fee_increased_title" = "Fee is increased";
+"send_alert_fee_too_low_text" = "You specified a commission below the recommended amount, which could cause a delay in your transaction. Continue?";
 "send_alert_transaction_failed_text" = "Reason: %1$s\nCode: %2$s";
 "send_alert_transaction_failed_title" = "The transaction is not completed";
 "send_amount_label" = "數量";
@@ -461,7 +462,7 @@
 "send_max_fee" = "Max fee";
 "send_max_fee_footer" = "Maximum fee amount";
 "send_memo_destination_tag_error" = "Numbers only for Destination Tag";
-"send_network_fee_warning_content" = "Sending amount will be reduced by %1$s to cover the selected commission level. The recipient will get %2$s.";
+"send_network_fee_warning_content" = "Sending amount will be reduced by %1$@ to cover the selected commission level. The recipient will get %2$@.";
 "send_network_fee_warning_title" = "Network fee coverage";
 "send_notification_exceed_balance_text" = "Insufficient funds for the transfer, as the total of the fee and transfer amount exceeds the existing balance";
 "send_notification_exceed_balance_title" = "Total exceeds balance";
