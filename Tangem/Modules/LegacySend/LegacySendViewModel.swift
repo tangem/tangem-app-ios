@@ -127,7 +127,7 @@ class LegacySendViewModel: ObservableObject {
 
     @Published var error: AlertBinder?
 
-    let cardViewModel: CardViewModel
+    let cardViewModel: CommonUserWalletModel
 
     var walletModel: WalletModel {
         let id = WalletModel.Id(blockchainNetwork: blockchainNetwork, amountType: amountToSend.type).id
@@ -178,7 +178,7 @@ class LegacySendViewModel: ObservableObject {
     init(
         amountToSend: Amount,
         blockchainNetwork: BlockchainNetwork,
-        cardViewModel: CardViewModel,
+        cardViewModel: CommonUserWalletModel,
         coordinator: LegacySendRoutable
     ) {
         self.blockchainNetwork = blockchainNetwork
@@ -200,7 +200,7 @@ class LegacySendViewModel: ObservableObject {
         destination: String,
         tag: String?,
         blockchainNetwork: BlockchainNetwork,
-        cardViewModel: CardViewModel,
+        cardViewModel: CommonUserWalletModel,
         coordinator: LegacySendRoutable
     ) {
         self.init(
