@@ -30,7 +30,7 @@ class CardViewModel: Identifiable, ObservableObject {
         walletModelsManager: walletModelsManager,
         derivationStyle: config.derivationStyle,
         derivationManager: derivationManager,
-        cardDerivableProvider: self,
+        keysDerivingProvider: self,
         existingCurves: config.walletCurves,
         longHashesSupported: longHashesSupported
     )
@@ -58,10 +58,6 @@ class CardViewModel: Identifiable, ObservableObject {
     let warningsService = WarningsService()
 
     var signer: TangemSigner { _signer }
-
-    var cardInteractor: CardInteractor {
-        .init(cardInfo: cardInfo)
-    }
 
     var cardId: String { cardInfo.card.cardId }
 
@@ -477,9 +473,9 @@ extension CardViewModel: DerivationManagerDelegate {
     }
 }
 
-extension CardViewModel: CardDerivableProvider {
-    var cardDerivableInteractor: CardDerivable {
-        return cardInteractor
+extension CardViewModel: KeysDerivingProvider {
+    var keysDerivingInteractor: KeysDeriving {
+        KeysDerivingCardInteractor(with: cardInfo)
     }
 }
 
