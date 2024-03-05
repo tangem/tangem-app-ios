@@ -55,7 +55,7 @@ extension LegacySendCoordinator {
         let destination: String?
         let tag: String?
         let blockchainNetwork: BlockchainNetwork
-        let cardViewModel: CardViewModel
+        let cardViewModel: CommonUserWalletModel
     }
 }
 
