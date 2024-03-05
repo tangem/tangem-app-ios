@@ -43,7 +43,7 @@ extension OnboardingInput {
                 let factory = UserWalletConfigFactory(cardInfo)
                 return factory.makeConfig().getFeatureAvailability(.backup).disabledLocalizedReason
             case .cardModel(let cardModel):
-                return cardModel.getDisabledLocalizedReason(for: .backup)
+                return cardModel.config.getDisabledLocalizedReason(for: .backup)
             case .cardId:
                 return nil
             }
