@@ -13,25 +13,25 @@ import SwiftUI
 
 class SendCustomFeeInputFieldModel: ObservableObject, Identifiable {
     let title: String
-    let fractionDigits: Int
+//    let fractionDigits: Int
     let footer: String
 
-    @Published var amount: DecimalNumberTextField.DecimalValue? = nil
+    @Published var decimalNumberTextFieldStateObject: DecimalNumberTextField.StateObject
     @Published var amountAlternative: String?
 
     private var bag: Set<AnyCancellable> = []
-    private let onFieldChange: (DecimalNumberTextField.DecimalValue?) -> Void
+    private let onFieldChange: (Decimal?) -> Void
 
     init(
         title: String,
-        amountPublisher: AnyPublisher<DecimalNumberTextField.DecimalValue?, Never>,
+        amountPublisher: AnyPublisher<Decimal?, Never>,
         fractionDigits: Int,
         amountAlternativePublisher: AnyPublisher<String?, Never>,
         footer: String,
-        onFieldChange: @escaping (DecimalNumberTextField.DecimalValue?) -> Void
+        onFieldChange: @escaping (Decimal?) -> Void
     ) {
         self.title = title
-        self.fractionDigits = fractionDigits
+        decimalNumberTextFieldStateObject = .init(maximumFractionDigits: fractionDigits)
         self.footer = footer
         self.onFieldChange = onFieldChange
 
@@ -39,16 +39,14 @@ class SendCustomFeeInputFieldModel: ObservableObject, Identifiable {
             .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { (self, amount) in
-                guard amount?.value != self.amount?.value else { return }
-                self.amount = amount
+                guard amount != self.decimalNumberTextFieldStateObject.value else { return }
+
+                self.decimalNumberTextFieldStateObject.update(value: amount)
             }
             .store(in: &bag)
 
-        $amount
-            .removeDuplicates { $0?.value == $1?.value }
+        decimalNumberTextFieldStateObject.valuePublisher
             .dropFirst()
-            .filter { $0?.isInternal ?? true }
-            .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { (self, value) in
                 self.onFieldChange(value)
