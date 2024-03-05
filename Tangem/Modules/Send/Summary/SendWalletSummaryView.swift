@@ -16,7 +16,7 @@ struct SendWalletSummaryView: View {
             Text(viewModel.walletNameTitle(font: UIFonts.Regular.footnote))
                 .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
 
-            Text(viewModel.totalBalance)
+            SensitiveText(viewModel.totalBalance)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
         }
         .padding(.vertical, 14)

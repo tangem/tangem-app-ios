@@ -35,11 +35,11 @@ class VisaWalletMainContentViewModel: ObservableObject {
     private weak var coordinator: VisaWalletRoutable?
 
     private var bag = Set<AnyCancellable>()
-    private var updateTask: Task<Void, Never>?
+    private var updateTask: Task<Void, Error>?
 
     init(
         visaWalletModel: VisaWalletModel,
-        coordinator: VisaWalletRoutable
+        coordinator: VisaWalletRoutable?
     ) {
         self.visaWalletModel = visaWalletModel
         self.coordinator = coordinator
@@ -117,10 +117,13 @@ class VisaWalletMainContentViewModel: ObservableObject {
         isTransactoinHistoryReloading = true
         updateTask = Task { [weak self] in
             await self?.visaWalletModel.generalUpdateAsync()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            try await Task.sleep(seconds: 0.2)
+
+            await runOnMain {
                 self?.isTransactoinHistoryReloading = false
                 completionHandler()
             }
+
             self?.updateTask = nil
         }
     }
