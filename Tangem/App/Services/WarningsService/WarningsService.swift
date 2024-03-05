@@ -166,7 +166,7 @@ private extension WarningsService {
 
         validatorSubscription = validator.validateSignatureCount(signedHashes: cardSignedHashes)
             .subscribe(on: DispatchQueue.global())
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .handleEvents(receiveCancel: {
                 AppLog.shared.debug("⚠️ Hash counter subscription cancelled")
             })
@@ -178,8 +178,7 @@ private extension WarningsService {
                     self?.showWarningWithAnimation(.numberOfSignedHashesIncorrect)
                 }
                 didFinishCountingHashes()
-
-                validatorSubscription = nil
+                withExtendedLifetime(validatorSubscription) {}
             }
     }
 
