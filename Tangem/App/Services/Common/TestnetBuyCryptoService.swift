@@ -34,7 +34,7 @@ class TestnetBuyCryptoService {
                     return .anyFail(error: "Not enough funds on ETH wallet balance. You need to topup ETH wallet first")
                 }
 
-                guard let tx = try? walletModel.createTransaction(amountToSend: amountToSend, fee: fee, destinationAddress: destinationAddress) else {
+                guard let tx = try? walletModel.transactionCreator.createTransaction(amount: amountToSend, fee: fee, destinationAddress: destinationAddress) else {
                     return .anyFail(error: "Failed to create topup transaction for token. Try again later")
                 }
 

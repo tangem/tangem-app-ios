@@ -39,7 +39,7 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
 
     init(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo]) {
         self.tokenItem = tokenItem
-        iconURL = tokenItem.id != nil ? TokenIconURLBuilder().iconURL(id: tokenItem.id!) : nil
+        iconURL = tokenItem.id != nil ? IconURLBuilder().tokenIconURL(id: tokenItem.id!) : nil
         self.addressInfos = addressInfos
 
         networkWarningMessage = Localization.receiveBottomSheetWarningMessage(
