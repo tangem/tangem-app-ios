@@ -15,16 +15,15 @@ class CommonUserTokensManager {
     @Injected(\.swapAvailabilityController) private var swapAvailabilityController: SwapAvailabilityController
 
     let derivationManager: DerivationManager?
-
+    
     private let userWalletId: UserWalletId
     private let shouldLoadSwapAvailability: Bool
     private let userTokenListManager: UserTokenListManager
     private let walletModelsManager: WalletModelsManager
     private let derivationStyle: DerivationStyle?
-    private weak var cardDerivableProvider: CardDerivableProvider?
     private let existingCurves: [EllipticCurve]
     private let longHashesSupported: Bool
-
+    private weak var keysDerivingProvider: KeysDerivingProvider?
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -34,7 +33,7 @@ class CommonUserTokensManager {
         walletModelsManager: WalletModelsManager,
         derivationStyle: DerivationStyle?,
         derivationManager: DerivationManager?,
-        cardDerivableProvider: CardDerivableProvider,
+        keysDerivingProvider: KeysDerivingProvider,
         existingCurves: [EllipticCurve],
         longHashesSupported: Bool
     ) {
@@ -44,7 +43,7 @@ class CommonUserTokensManager {
         self.walletModelsManager = walletModelsManager
         self.derivationStyle = derivationStyle
         self.derivationManager = derivationManager
-        self.cardDerivableProvider = cardDerivableProvider
+        self.keysDerivingProvider = keysDerivingProvider
         self.existingCurves = existingCurves
         self.longHashesSupported = longHashesSupported
     }
@@ -100,7 +99,7 @@ class CommonUserTokensManager {
 extension CommonUserTokensManager: UserTokensManager {
     func deriveIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
         guard let derivationManager,
-              let interactor = cardDerivableProvider?.cardDerivableInteractor else {
+              let interactor = keysDerivingProvider?.keysDerivingInteractor else {
             completion(.success(()))
             return
         }
