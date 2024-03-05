@@ -20,8 +20,6 @@ class LockedUserWallet: UserWalletModel {
 
     var cardsCount: Int { config.cardsCount }
 
-    var isMultiWallet: Bool { config.hasFeature(.multiCurrency) }
-
     var userWalletId: UserWalletId { .init(value: userWallet.userWalletId) }
 
     var updatePublisher: AnyPublisher<Void, Never> { .just }
