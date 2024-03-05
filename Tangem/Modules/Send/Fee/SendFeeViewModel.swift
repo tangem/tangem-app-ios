@@ -102,6 +102,7 @@ class SendFeeViewModel: ObservableObject {
         customFeeModel = SendCustomFeeInputFieldModel(
             title: Localization.sendMaxFee,
             amountPublisher: input.customFeePublisher.decimalPublisher,
+            fieldSuffix: walletInfo.feeCurrencySymbol,
             fractionDigits: walletInfo.feeFractionDigits,
             amountAlternativePublisher: customFeeInFiat.eraseToAnyPublisher(),
             footer: Localization.sendMaxFeeFooter
@@ -110,20 +111,34 @@ class SendFeeViewModel: ObservableObject {
             input.didChangeCustomFee(recalculateFee(enteredFee: enteredFee, input: input, walletInfo: walletInfo))
         }
 
+        let gasPriceFractionDigits = 9
+        let gasPriceGweiPublisher = input
+            .customGasPricePublisher
+            .decimalPublisher
+            .map { weiValue -> DecimalNumberTextField.DecimalValue? in
+                let gweiValue = weiValue?.shiftOrder(magnitude: -gasPriceFractionDigits)
+                return gweiValue
+            }
+            .eraseToAnyPublisher()
+
         customFeeGasPriceModel = SendCustomFeeInputFieldModel(
             title: Localization.sendGasPrice,
-            amountPublisher: input.customGasPricePublisher.decimalPublisher,
-            fractionDigits: 0,
+            amountPublisher: gasPriceGweiPublisher,
+            fieldSuffix: "GWEI",
+            fractionDigits: gasPriceFractionDigits,
             amountAlternativePublisher: .just(output: nil),
             footer: Localization.sendGasPriceFooter
-        ) { [weak self] in
+        ) { [weak self] gweiValue in
             guard let self else { return }
-            input.didChangeCustomFeeGasPrice($0?.bigUIntValue)
+
+            let weiValue = gweiValue?.shiftOrder(magnitude: gasPriceFractionDigits)
+            input.didChangeCustomFeeGasPrice(weiValue?.bigUIntValue)
         }
 
         customFeeGasLimitModel = SendCustomFeeInputFieldModel(
             title: Localization.sendGasLimit,
             amountPublisher: input.customGasLimitPublisher.decimalPublisher,
+            fieldSuffix: nil,
             fractionDigits: 0,
             amountAlternativePublisher: .just(output: nil),
             footer: Localization.sendGasLimitFooter
@@ -291,5 +306,22 @@ private extension AnyPublisher where Output == BigUInt?, Failure == Never {
             }
         }
         .eraseToAnyPublisher()
+    }
+}
+
+private extension DecimalNumberTextField.DecimalValue {
+    func shiftOrder(magnitude: Int) -> DecimalNumberTextField.DecimalValue {
+        switch self {
+        case .internal(let decimal):
+            return .internal(decimal.shiftOrder(magnitude: magnitude))
+        case .external(let decimal):
+            return .external(decimal.shiftOrder(magnitude: magnitude))
+        }
+    }
+}
+
+private extension Decimal {
+    func shiftOrder(magnitude: Int) -> Decimal {
+        self * Decimal(pow(10.0, Double(magnitude)))
     }
 }
