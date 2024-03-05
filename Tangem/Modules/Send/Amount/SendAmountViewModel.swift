@@ -33,7 +33,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     let amountFractionDigits: Int
     let windowWidth: CGFloat
 
-    @Published var amount: DecimalNumberTextField.DecimalValue? = nil
+    @Published var decimalNumberTextFieldStateObject: DecimalNumberTextField.StateObject
     @Published var useFiatCalculation = false
     @Published var amountAlternative: String?
     @Published var error: String?
@@ -53,6 +53,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         tokenIconInfo = walletInfo.tokenIconInfo
         amountFractionDigits = walletInfo.amountFractionDigits
         windowWidth = UIApplication.shared.windows.first?.frame.width ?? 400
+        decimalNumberTextFieldStateObject = .init(maximumFractionDigits: walletInfo.amountFractionDigits)
 
         showCurrencyPicker = walletInfo.currencyId != nil
         cryptoIconURL = walletInfo.cryptoIconURL
@@ -81,8 +82,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         }
     }
 
-    func setUserInputAmount(_ userInputAmount: DecimalNumberTextField.DecimalValue?) {
-        amount = userInputAmount
+    func setUserInputAmount(_ userInputAmount: Decimal?) {
+        decimalNumberTextFieldStateObject.update(value: userInputAmount)
     }
 
     func didTapMaxAmount() {
@@ -98,8 +99,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             .assign(to: \.error, on: self, ownership: .weak)
             .store(in: &bag)
 
-        $amount
-            .removeDuplicates { $0?.value == $1?.value }
+        decimalNumberTextFieldStateObject.valuePublisher
             .dropFirst()
             .sink { [weak self] decimal in
                 self?.fiatCryptoAdapter?.setAmount(decimal)
@@ -109,8 +109,12 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         $useFiatCalculation
             .dropFirst()
             .removeDuplicates()
-            .sink { [weak self] useFiatCalculation in
-                self?.fiatCryptoAdapter?.setUseFiatCalculation(useFiatCalculation)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, useFiatCalculation in
+                viewModel.decimalNumberTextFieldStateObject.update(
+                    maximumFractionDigits: useFiatCalculation ? 2 : viewModel.amountFractionDigits
+                )
+                viewModel.fiatCryptoAdapter?.setUseFiatCalculation(useFiatCalculation)
             }
             .store(in: &bag)
 
@@ -128,8 +132,8 @@ extension SendAmountViewModel: AuxiliaryViewAnimatable {
 }
 
 extension SendAmountViewModel: SendFiatCryptoAdapterInput {
-    var amountPublisher: AnyPublisher<DecimalNumberTextField.DecimalValue?, Never> {
-        $amount.eraseToAnyPublisher()
+    var amountPublisher: AnyPublisher<Decimal?, Never> {
+        decimalNumberTextFieldStateObject.valuePublisher
     }
 }
 
