@@ -8,12 +8,15 @@
 
 import BlockchainSdk
 import Combine
+import TangemSdk
 
-protocol UserWalletModel: MainHeaderSupplementInfoProvider, TotalBalanceProviding, MultiWalletMainHeaderSubtitleDataSource, AnalyticsContextDataProvider, MainHeaderUserWalletStateInfoProvider, AnyObject {
+protocol UserWalletModel: MainHeaderSupplementInfoProvider, TotalBalanceProviding, MultiWalletMainHeaderSubtitleDataSource, AnalyticsContextDataProvider, MainHeaderUserWalletStateInfoProvider, EmailDataProvider, AnyObject {
     var tokensCount: Int? { get }
+    var hasBackupCards: Bool { get }
     var config: UserWalletConfig { get }
     var userWalletId: UserWalletId { get }
-    var userWallet: UserWallet { get }
+    var userWallet: StoredUserWallet { get }
+    var tangemApiAuthData: TangemApiTarget.AuthData { get }
     var walletModelsManager: WalletModelsManager { get }
     var userTokensManager: UserTokensManager { get }
     var userTokenListManager: UserTokenListManager { get }
@@ -25,4 +28,5 @@ protocol UserWalletModel: MainHeaderSupplementInfoProvider, TotalBalanceProvidin
     var cardImagePublisher: AnyPublisher<CardImageResult, Never> { get }
     func updateWalletName(_ name: String)
     func validate() -> Bool
+    func onBackupCreated(_ card: Card)
 }
