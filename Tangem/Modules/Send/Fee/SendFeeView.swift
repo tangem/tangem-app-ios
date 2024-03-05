@@ -71,7 +71,8 @@ struct SendFeeView: View {
             Spacer(minLength: bottomSpacing)
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
-        .onAppear(perform: viewModel.onAppear)
+        .onAppear(perform: viewModel.onViewAppeared)
+        .onDisappear(perform: viewModel.onViewDisappeared)
     }
 
     private var feeSelectorFooter: some View {
