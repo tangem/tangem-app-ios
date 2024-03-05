@@ -15,9 +15,9 @@ class FakeUserWalletRepository: UserWalletRepository {
 
     var models: [UserWalletModel] = []
 
-    var userWallets: [UserWallet] = []
+    var userWallets: [StoredUserWallet] = []
 
-    var selectedModel: CardViewModel?
+    var selectedModel: CommonUserWalletModel?
 
     var selectedUserWalletId: Data?
 
@@ -50,7 +50,7 @@ class FakeUserWalletRepository: UserWalletRepository {
             case .biometry:
                 completion(.troubleshooting)
             case .card(let userWallet):
-                if let userWallet, let cardViewModel = CardViewModel(userWallet: userWallet) {
+                if let userWallet, let cardViewModel = CommonUserWalletModel(userWallet: userWallet) {
                     completion(.success(cardViewModel))
                     return
                 }
@@ -74,11 +74,11 @@ class FakeUserWalletRepository: UserWalletRepository {
 
     func save(_ cardViewModel: UserWalletModel) {}
 
-    func contains(_ userWallet: UserWallet) -> Bool {
+    func contains(_ userWallet: StoredUserWallet) -> Bool {
         return false
     }
 
-    func save(_ userWallet: UserWallet) {}
+    func save(_ userWallet: StoredUserWallet) {}
 
     func delete(_ userWalletId: UserWalletId, logoutIfNeeded shouldAutoLogout: Bool) {}
 
@@ -86,7 +86,7 @@ class FakeUserWalletRepository: UserWalletRepository {
 
     func initialize() {}
 
-    func initializeServices(for cardModel: CardViewModel, cardInfo: CardInfo) {}
+    func initializeServices(for cardModel: CommonUserWalletModel, cardInfo: CardInfo) {}
 
     func initialClean() {}
 
