@@ -15,7 +15,7 @@ class CommonUserTokensManager {
     @Injected(\.swapAvailabilityController) private var swapAvailabilityController: SwapAvailabilityController
 
     let derivationManager: DerivationManager?
-    
+
     private let userWalletId: UserWalletId
     private let shouldLoadSwapAvailability: Bool
     private let userTokenListManager: UserTokenListManager
