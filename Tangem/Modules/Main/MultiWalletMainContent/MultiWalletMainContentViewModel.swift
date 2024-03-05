@@ -82,7 +82,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         tokenSectionsAdapter: TokenSectionsAdapter,
         tokenRouter: SingleTokenRoutable,
         optionsEditing: OrganizeTokensOptionsEditing,
-        coordinator: MultiWalletMainContentRoutable
+        coordinator: MultiWalletMainContentRoutable?
     ) {
         self.userWalletModel = userWalletModel
         self.userWalletNotificationManager = userWalletNotificationManager
