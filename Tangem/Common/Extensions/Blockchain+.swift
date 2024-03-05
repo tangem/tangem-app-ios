@@ -157,6 +157,22 @@ private extension Blockchain {
             return "aptos"
         case .hedera:
             return "hedera-hashgraph"
+        case .areon:
+            return "areon-network"
+        case .playa3ullGames:
+            switch type {
+            case .network:
+                return "playa3ull-games"
+            case .coin:
+                return "playa3ull-games-2"
+            }
+        case .pulsechain:
+            return "pulsechain"
+        case .aurora:
+            switch type {
+            case .network: return "aurora"
+            case .coin: return "aurora-near"
+            }
         }
     }
 
@@ -180,5 +196,16 @@ extension Set<Blockchain> {
 
         AppLog.shared.debug("⚠️⚠️⚠️ Blockchain with id: \(networkId) isn't contained in supported blockchains")
         return nil
+    }
+}
+
+extension Blockchain {
+    var feeDisplayName: String {
+        switch self {
+        case .arbitrum, .optimism:
+            return displayName + " (\(currencySymbol))"
+        default:
+            return currencySymbol
+        }
     }
 }
