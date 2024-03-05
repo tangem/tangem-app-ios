@@ -7,25 +7,22 @@
 //
 
 import SwiftUI
+import Combine
 
 struct DecimalNumberTextField: View {
-    @Binding private var decimalValue: DecimalValue?
+    // Public
+    @ObservedObject private var stateObject: StateObject
+
+    // Septupable properties
+    private var placeholder: String = "0"
+    private var appearance: Appearance = .init()
+
+    // Internal state
     @State private var textFieldText: String = ""
     @State private var size: CGSize = .zero
 
-    private let placeholder: String = "0"
-    private var decimalNumberFormatter: DecimalNumberFormatter
-    private var appearance: Appearance = .init()
-
-    private var decimalSeparator: Character { decimalNumberFormatter.decimalSeparator }
-    private var groupingSeparator: Character { decimalNumberFormatter.groupingSeparator }
-
-    init(
-        decimalValue: Binding<DecimalValue?>,
-        decimalNumberFormatter: DecimalNumberFormatter
-    ) {
-        _decimalValue = decimalValue
-        self.decimalNumberFormatter = decimalNumberFormatter
+    init(stateObject: StateObject) {
+        self.stateObject = stateObject
     }
 
     var body: some View {
@@ -45,9 +42,10 @@ struct DecimalNumberTextField: View {
     private var textField: some View {
         TextField(text: $textFieldText, prompt: prompt, label: {})
             .style(appearance.font, color: appearance.textColor)
+            .tint(appearance.textColor)
+            .labelsHidden()
             .keyboardType(.decimalPad)
-            .tint(Colors.Text.primary1)
-            .onChange(of: decimalValue) { newDecimalValue in
+            .onChange(of: stateObject.decimalValue) { newDecimalValue in
                 switch newDecimalValue {
                 case .none, .internal:
                     // Do nothing. Because all internal values already updated
@@ -55,19 +53,12 @@ struct DecimalNumberTextField: View {
                 case .external(let value):
                     // If the decimalValue did updated from external place
                     // We have to update the private values
-                    let formattedNewValue = decimalNumberFormatter.format(value: value)
+                    let formattedNewValue = stateObject.format(value: value)
                     updateValues(with: formattedNewValue)
                 }
             }
             .onChange(of: textFieldText) { newValue in
                 updateValues(with: newValue)
-            }
-            .onAppear {
-                if let value = _decimalValue.wrappedValue?.value {
-                    textFieldText = decimalNumberFormatter.format(value: value)
-                } else {
-                    textFieldText = ""
-                }
             }
     }
 
@@ -80,6 +71,8 @@ struct DecimalNumberTextField: View {
     }
 
     private func updateValues(with newValue: String) {
+        let decimalSeparator = stateObject.decimalSeparator()
+
         var numberString = newValue
 
         // If user start enter number with `decimalSeparator` add zero before it
@@ -99,15 +92,15 @@ struct DecimalNumberTextField: View {
         }
 
         // Format the string and reduce the tail
-        numberString = decimalNumberFormatter.format(value: numberString)
+        numberString = stateObject.format(value: numberString)
 
         // Update private `@State` for display not correct number, like 0,000
         textFieldText = numberString
 
-        if let value = decimalNumberFormatter.mapToDecimal(string: numberString) {
-            decimalValue = .internal(value)
+        if let value = stateObject.mapToDecimal(string: numberString) {
+            stateObject.update(decimalValue: .internal(value))
         } else if numberString.isEmpty {
-            decimalValue = nil
+            stateObject.update(decimalValue: nil)
         }
     }
 }
@@ -115,8 +108,8 @@ struct DecimalNumberTextField: View {
 // MARK: - Setupable
 
 extension DecimalNumberTextField: Setupable {
-    func maximumFractionDigits(_ digits: Int) -> Self {
-        map { $0.decimalNumberFormatter.update(maximumFractionDigits: digits) }
+    func placeholder(_ placeholder: String) -> Self {
+        map { $0.placeholder = placeholder }
     }
 
     func appearance(_ appearance: Appearance) -> Self {
@@ -125,17 +118,109 @@ extension DecimalNumberTextField: Setupable {
 }
 
 struct DecimalNumberTextField_Previews: PreviewProvider {
-    @State private static var decimalValue: DecimalNumberTextField.DecimalValue?
-
     static var previews: some View {
-        DecimalNumberTextField(
-            decimalValue: $decimalValue,
-            decimalNumberFormatter: DecimalNumberFormatter(maximumFractionDigits: 8)
-        )
+        DecimalNumberTextField(stateObject: .init(maximumFractionDigits: 8))
     }
 }
 
+// MARK: - StateObject
+
 extension DecimalNumberTextField {
+    class StateObject: ObservableObject {
+        // Public properties
+        var value: Decimal? {
+            decimalValue?.value
+        }
+
+        var valuePublisher: AnyPublisher<Decimal?, Never> {
+            $decimalValue
+                .removeDuplicates { $0?.value == $1?.value }
+                // We skip the first nil value from the text field
+                .dropFirst()
+                // If value == nil then continue chain to reset states to idle
+                .filter { $0 == nil || $0?.isInternal == true }
+                .map { $0?.value }
+                .eraseToAnyPublisher()
+        }
+
+        // Fileprivate
+        @Published fileprivate var decimalValue: DecimalValue?
+
+        // Private
+        private let decimalNumberFormatter: DecimalNumberFormatter
+
+        init(maximumFractionDigits: Int) {
+            decimalNumberFormatter = .init(maximumFractionDigits: maximumFractionDigits)
+        }
+
+        // MARK: - Public
+
+        func update(maximumFractionDigits: Int) {
+            decimalNumberFormatter.update(maximumFractionDigits: maximumFractionDigits)
+        }
+
+        /// Use this method for `external` update the `decimalValue`
+        func update(value: Decimal?) {
+            guard let value else {
+                decimalValue = nil
+                return
+            }
+
+            decimalValue = .external(value)
+        }
+
+        // MARK: - Fileprivate only for DecimalNumberTextField
+
+        fileprivate func decimalSeparator() -> Character {
+            decimalNumberFormatter.decimalSeparator
+        }
+
+        fileprivate func format(value: String) -> String {
+            decimalNumberFormatter.format(value: value)
+        }
+
+        fileprivate func format(value: Decimal) -> String {
+            decimalNumberFormatter.format(value: value)
+        }
+
+        fileprivate func mapToDecimal(string: String) -> Decimal? {
+            decimalNumberFormatter.mapToDecimal(string: string)
+        }
+
+        fileprivate func update(decimalValue value: DecimalValue?) {
+            guard let value else {
+                decimalValue = nil
+                return
+            }
+
+            decimalValue = value
+        }
+    }
+}
+
+// MARK: - Appearance
+
+extension DecimalNumberTextField {
+    struct Appearance {
+        let font: Font
+        let textColor: Color
+        let placeholderColor: Color
+
+        init(
+            font: Font = Fonts.Regular.title1,
+            textColor: Color = Colors.Text.primary1,
+            placeholderColor: Color = Colors.Text.disabled
+        ) {
+            self.font = font
+            self.textColor = textColor
+            self.placeholderColor = placeholderColor
+        }
+    }
+}
+
+// MARK: - DecimalValue
+
+extension DecimalNumberTextField.StateObject {
     enum DecimalValue: Hashable {
         case `internal`(Decimal)
         case external(Decimal)
@@ -156,22 +241,6 @@ extension DecimalNumberTextField {
             case .external:
                 return false
             }
-        }
-    }
-
-    struct Appearance {
-        let font: Font
-        let textColor: Color
-        let placeholderColor: Color
-
-        init(
-            font: Font = Fonts.Regular.title1,
-            textColor: Color = Colors.Text.primary1,
-            placeholderColor: Color = Colors.Text.disabled
-        ) {
-            self.font = font
-            self.textColor = textColor
-            self.placeholderColor = placeholderColor
         }
     }
 }
