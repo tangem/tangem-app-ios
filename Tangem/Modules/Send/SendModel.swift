@@ -87,7 +87,6 @@ class SendModel {
     // MARK: - Raw data
 
     private var userInputAmount = CurrentValueSubject<Amount?, Never>(nil)
-    private var _isValidatingDestination = CurrentValueSubject<Bool, Never>(false)
     private var _destinationText = CurrentValueSubject<String, Never>("")
     private var _destinationAdditionalFieldText = CurrentValueSubject<String, Never>("")
     private var _additionalFieldEmbeddedInAddress = CurrentValueSubject<Bool, Never>(false)
@@ -219,11 +218,6 @@ class SendModel {
         _destinationText
             .dropFirst()
             .removeDuplicates()
-            .handleEvents(receiveOutput: { [weak self] _ in
-                self?.destination.send(nil)
-                self?._isValidatingDestination.send(true)
-            })
-            .debounce(for: 1, scheduler: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.validateDestination()
             }
@@ -308,6 +302,7 @@ class SendModel {
                 }
 
                 do {
+                    #warning("[REDACTED_TODO_COMMENT]")
                     let transaction = try walletModel.transactionCreator.createTransaction(
                         amount: validatedAmount,
                         fee: fee,
@@ -331,7 +326,7 @@ class SendModel {
             }
             .store(in: &bag)
 
-        if let withdrawalValidator = walletModel.withdrawalValidator {
+        if let withdrawalValidator = walletModel.withdrawalSuggestionProvider {
             transaction
                 .map { transaction in
                     guard let transaction else { return nil }
@@ -481,6 +476,8 @@ class SendModel {
     private func validateDestination() {
         destinationResolutionRequest?.cancel()
 
+        destination.send(nil)
+
         destinationResolutionRequest = runTask(in: self) { `self` in
             let destination: String?
             let error: Error?
@@ -500,7 +497,6 @@ class SendModel {
             await runOnMain {
                 self.destination.send(destination)
                 self._destinationError.send(error)
-                self._isValidatingDestination.send(false)
             }
         }
     }
@@ -610,7 +606,7 @@ extension SendModel: SendAmountViewModelInput {
 }
 
 extension SendModel: SendDestinationViewModelInput {
-    var isValidatingDestination: AnyPublisher<Bool, Never> { _isValidatingDestination.eraseToAnyPublisher() }
+    var isValidatingDestination: AnyPublisher<Bool, Never> { addressService.validationInProgressPublisher }
 
     var destinationTextPublisher: AnyPublisher<String, Never> { _destinationText.eraseToAnyPublisher() }
     var destinationAdditionalFieldTextPublisher: AnyPublisher<String, Never> { _destinationAdditionalFieldText.eraseToAnyPublisher() }
