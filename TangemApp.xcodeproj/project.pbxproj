@@ -289,7 +289,7 @@
 		B050F5082B6283CF00B2E53C /* VisaTransactionHistoryMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B050F5072B6283CF00B2E53C /* VisaTransactionHistoryMapper.swift */; };
 		B05145062B5933E000EDAD1E /* VisaUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05145052B5933E000EDAD1E /* VisaUtilities.swift */; };
 		B05145092B59340700EDAD1E /* AnyPublisher+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05145082B59340700EDAD1E /* AnyPublisher+.swift */; };
-		B051450C2B59344100EDAD1E /* GetPaymentAccountMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = B051450B2B59344100EDAD1E /* GetPaymentAccountMethod.swift */; };
+		B051450C2B59344100EDAD1E /* GetPaymentAccountByCardMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = B051450B2B59344100EDAD1E /* GetPaymentAccountByCardMethod.swift */; };
 		B051450E2B59346500EDAD1E /* GetTotalBalanceMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = B051450D2B59346500EDAD1E /* GetTotalBalanceMethod.swift */; };
 		B05145102B59348000EDAD1E /* GetAmountMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = B051450F2B59348000EDAD1E /* GetAmountMethod.swift */; };
 		B05145122B59349100EDAD1E /* SmartContractMethodPrefixCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05145112B59349100EDAD1E /* SmartContractMethodPrefixCreator.swift */; };
@@ -1735,7 +1735,7 @@
 		B050F5072B6283CF00B2E53C /* VisaTransactionHistoryMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaTransactionHistoryMapper.swift; sourceTree = "<group>"; };
 		B05145052B5933E000EDAD1E /* VisaUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaUtilities.swift; sourceTree = "<group>"; };
 		B05145082B59340700EDAD1E /* AnyPublisher+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyPublisher+.swift"; sourceTree = "<group>"; };
-		B051450B2B59344100EDAD1E /* GetPaymentAccountMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetPaymentAccountMethod.swift; sourceTree = "<group>"; };
+		B051450B2B59344100EDAD1E /* GetPaymentAccountByCardMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetPaymentAccountByCardMethod.swift; sourceTree = "<group>"; };
 		B051450D2B59346500EDAD1E /* GetTotalBalanceMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetTotalBalanceMethod.swift; sourceTree = "<group>"; };
 		B051450F2B59348000EDAD1E /* GetAmountMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetAmountMethod.swift; sourceTree = "<group>"; };
 		B05145112B59349100EDAD1E /* SmartContractMethodPrefixCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartContractMethodPrefixCreator.swift; sourceTree = "<group>"; };
@@ -3984,7 +3984,7 @@
 		B051450A2B59342E00EDAD1E /* SmartContractMethods */ = {
 			isa = PBXGroup;
 			children = (
-				B051450B2B59344100EDAD1E /* GetPaymentAccountMethod.swift */,
+				B051450B2B59344100EDAD1E /* GetPaymentAccountByCardMethod.swift */,
 				B051450D2B59346500EDAD1E /* GetTotalBalanceMethod.swift */,
 				B051450F2B59348000EDAD1E /* GetAmountMethod.swift */,
 				B05145112B59349100EDAD1E /* SmartContractMethodPrefixCreator.swift */,
@@ -9200,7 +9200,7 @@
 			files = (
 				B051451E2B59355E00EDAD1E /* VisaLimits.swift in Sources */,
 				B06F033F2B5A8C4600F04F0E /* Decimal+.swift in Sources */,
-				B051450C2B59344100EDAD1E /* GetPaymentAccountMethod.swift in Sources */,
+				B051450C2B59344100EDAD1E /* GetPaymentAccountByCardMethod.swift in Sources */,
 				B05145172B5934FD00EDAD1E /* VisaAddressParser.swift in Sources */,
 				B05145192B59351E00EDAD1E /* VisaBridgeInteractorBuilder.swift in Sources */,
 				B051450E2B59346500EDAD1E /* GetTotalBalanceMethod.swift in Sources */,
