@@ -23,7 +23,7 @@ enum PreviewCard {
     case tangemWalletEmpty
     case tangemWalletBackuped
 
-    var cardModel: CommonUserWalletModel {
+    var userWalletModel: CommonUserWalletModel {
         let card = CardDTO(card: card)
         let ci = CardInfo(card: card, walletData: walletData, name: "Name")
         let vm = CommonUserWalletModel(cardInfo: ci)!
