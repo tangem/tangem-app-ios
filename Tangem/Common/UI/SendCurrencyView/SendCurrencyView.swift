@@ -24,7 +24,7 @@ struct SendCurrencyView: View {
             SendDecimalNumberTextField(
                 stateObject: viewModel.decimalNumberTextFieldStateObject
             )
-            .toolbarType(maxAmountAction.flatMap(SendDecimalNumberTextField.ToolbarType.maxAmount(action:)))
+            .toolbarType(maxAmountAction.map { .maxAmount(action: $0) })
             .initialFocusBehavior(.immediateFocus)
             .offset(x: isShaking ? 10 : 0)
             .simultaneousGesture(TapGesture().onEnded {
@@ -135,7 +135,7 @@ struct SendCurrencyView_Preview: PreviewProvider {
             VStack {
                 ForEach(viewModels) { viewModel in
                     GroupedSection(viewModel) { viewModel in
-                        SendCurrencyView(viewModel: viewModel) // , decimalValue: $decimalValue
+                        SendCurrencyView(viewModel: viewModel)
                     }
                     .innerContentPadding(12)
                     .interItemSpacing(10)
