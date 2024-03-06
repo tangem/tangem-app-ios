@@ -17,7 +17,7 @@ struct PreviewData {
             primaryCardId: "",
             cardInitializer: nil,
             steps: .singleWallet([.createWallet, .success]),
-            cardInput: .userWalletModel(PreviewCard.ethEmptyNote.cardModel),
+            cardInput: .userWalletModel(PreviewCard.ethEmptyNote.userWalletModel),
             twinData: nil
         )
     }
@@ -35,7 +35,7 @@ struct PreviewData {
                 .topup,
                 .done,
             ]),
-            cardInput: .userWalletModel(PreviewCard.twin.cardModel),
+            cardInput: .userWalletModel(PreviewCard.twin.userWalletModel),
             twinData: .init(series: TwinCardSeries.cb61)
         )
     }
@@ -46,7 +46,7 @@ struct PreviewData {
             primaryCardId: "",
             cardInitializer: nil,
             steps: .wallet([.createWallet, .backupIntro, .selectBackupCards, .backupCards, .success]),
-            cardInput: .userWalletModel(PreviewCard.tangemWalletEmpty.cardModel),
+            cardInput: .userWalletModel(PreviewCard.tangemWalletEmpty.userWalletModel),
             twinData: nil
         )
     }
