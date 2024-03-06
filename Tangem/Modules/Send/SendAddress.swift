@@ -1,5 +1,5 @@
 //
-//  SendDestination.swift
+//  SendAddress.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,13 +8,13 @@
 
 import Foundation
 
-struct SendDestination: Equatable {
-    let address: String
-    let source: Source
+struct SendAddress: Equatable {
+    let value: String
+    let inputSource: InputSource
 }
 
-extension SendDestination {
-    enum Source: Equatable {
+extension SendAddress {
+    enum InputSource: Equatable {
         case otherWallet
         case recentAddress
         case pasteButton
