@@ -13,13 +13,13 @@ protocol AuxiliaryViewAnimatable: AnyObject {
     var didFinishAnimationToSummary: Bool { get set }
     var animatingAuxiliaryViewsOnAppear: Bool { get set }
 
-    func onViewAppeared()
-    func onViewDisappeared()
+    func onAuxiliaryViewAppear()
+    func onAuxiliaryViewDisappear()
     func setAnimatingAuxiliaryViewsOnAppear()
 }
 
 extension AuxiliaryViewAnimatable {
-    func onViewAppeared() {
+    func onAuxiliaryViewAppear() {
         print("zzz onappear")
         didFinishAnimationToSummary = false
 
@@ -30,7 +30,7 @@ extension AuxiliaryViewAnimatable {
         }
     }
 
-    func onViewDisappeared() {
+    func onAuxiliaryViewDisappear() {
         print("zzz ondisappear")
         didFinishAnimationToSummary = true
     }
