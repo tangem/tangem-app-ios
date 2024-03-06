@@ -512,6 +512,7 @@
 		B0E1D175257DE75D00A3AB98 /* CommonKeysManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D174257DE75D00A3AB98 /* CommonKeysManager.swift */; };
 		B0E3381C2A7A809600D36727 /* LockedUserTokensManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E3381B2A7A809600D36727 /* LockedUserTokensManager.swift */; };
 		B0E7489C2A3C130B0015E3FC /* ReceiveBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E7489B2A3C130B0015E3FC /* ReceiveBottomSheetView.swift */; };
+		B0E9775C2B97511F0006896B /* OnboardingSeedPhraseGenerateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E9775B2B97511F0006896B /* OnboardingSeedPhraseGenerateViewModel.swift */; };
 		B0E9E2FD2679DA5B00269C7A /* Separator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E9E2FC2679DA5B00269C7A /* Separator.swift */; };
 		B0E9E2FF2679DA8000269C7A /* AmountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E9E2FE2679DA8000269C7A /* AmountView.swift */; };
 		B0EBBB222924C42E00020EC2 /* ReferralParticipationRequestBody.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EBBB212924C42E00020EC2 /* ReferralParticipationRequestBody.swift */; };
@@ -1961,6 +1962,7 @@
 		B0E1D174257DE75D00A3AB98 /* CommonKeysManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonKeysManager.swift; sourceTree = "<group>"; };
 		B0E3381B2A7A809600D36727 /* LockedUserTokensManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockedUserTokensManager.swift; sourceTree = "<group>"; };
 		B0E7489B2A3C130B0015E3FC /* ReceiveBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveBottomSheetView.swift; sourceTree = "<group>"; };
+		B0E9775B2B97511F0006896B /* OnboardingSeedPhraseGenerateViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingSeedPhraseGenerateViewModel.swift; sourceTree = "<group>"; };
 		B0E9E2FC2679DA5B00269C7A /* Separator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Separator.swift; sourceTree = "<group>"; };
 		B0E9E2FE2679DA8000269C7A /* AmountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountView.swift; sourceTree = "<group>"; };
 		B0EBBB212924C42E00020EC2 /* ReferralParticipationRequestBody.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralParticipationRequestBody.swift; sourceTree = "<group>"; };
@@ -4848,6 +4850,15 @@
 			path = BottomSheets;
 			sourceTree = "<group>";
 		};
+		B0E9775A2B9751040006896B /* OnboardingSeedPhraseGenerateView */ = {
+			isa = PBXGroup;
+			children = (
+				B06ADFD729B9CEEC00E92E5E /* OnboardingSeedPhraseGenerateView.swift */,
+				B0E9775B2B97511F0006896B /* OnboardingSeedPhraseGenerateViewModel.swift */,
+			);
+			path = OnboardingSeedPhraseGenerateView;
+			sourceTree = "<group>";
+		};
 		B0F16D6F26EF253000687C47 /* Simple */ = {
 			isa = PBXGroup;
 			children = (
@@ -4912,10 +4923,10 @@
 		B0FC72E929B798FA001930D4 /* SeedPhrase */ = {
 			isa = PBXGroup;
 			children = (
+				B0E9775A2B9751040006896B /* OnboardingSeedPhraseGenerateView */,
 				B04126EB29CC31B300A8BB43 /* OnboardingSeedPhraseUserValidationView */,
 				B0625A2329CB3D1000EDD245 /* OnboardingSeedPhraseImportView */,
 				B0FC72EA29B7991A001930D4 /* OnboardingSeedPhraseIntroView.swift */,
-				B06ADFD729B9CEEC00E92E5E /* OnboardingSeedPhraseGenerateView.swift */,
 				B06A827F29C81E3A00B6160E /* SeedPhraseTextView.swift */,
 				B06ADFDA29BAFA4600E92E5E /* SeedPhraseManager.swift */,
 				B0625A2129CB3C6500EDD245 /* SeedPhraseInputProcessor.swift */,
@@ -8431,6 +8442,7 @@
 				B0DE006C2A431BA6005A77D4 /* LocalizationIconParser.swift in Sources */,
 				B04CD33E29122C64001EA84A /* ReferralViewModel.swift in Sources */,
 				DCBC944B2993F3420050BC35 /* AnalyticsStorageKey.swift in Sources */,
+				B0E9775C2B97511F0006896B /* OnboardingSeedPhraseGenerateViewModel.swift in Sources */,
 				65B4DED6288357DC001524CF /* BottomSheetBaseController.swift in Sources */,
 				EF6EDD81296C0D61001B21A3 /* OrderedWeakObjectsCollection.swift in Sources */,
 				DAAA3C732B3D813C0002DBB0 /* SendAddressServiceFactory.swift in Sources */,
