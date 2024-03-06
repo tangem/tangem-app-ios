@@ -208,7 +208,9 @@ private extension ExpressViewModel {
     }
 
     func bind() {
-        sendCurrencyViewModel?.decimalNumberTextFieldStateObject.valuePublisher
+        sendCurrencyViewModel?
+            .decimalNumberTextFieldStateObject
+            .valuePublisher
             .handleEvents(receiveOutput: { [weak self] amount in
                 self?.interactor.cancelRefresh()
                 self?.updateSendFiatValue(amount: amount)
