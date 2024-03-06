@@ -119,9 +119,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     func startBackupProcess() {
-        // [REDACTED_TODO_COMMENT]
-        if let cardViewModel = userWalletModel as? CardViewModel,
-           let input = cardViewModel.backupInput {
+        if let input = userWalletModel.backupInput {
             Analytics.log(.mainNoticeBackupWalletTapped)
             coordinator?.openOnboardingModal(with: input)
         }
@@ -335,7 +333,7 @@ extension MultiWalletMainContentViewModel {
             longHashesSupported: userWalletModel.config.hasFeature(.longHashes),
             derivationStyle: userWalletModel.config.derivationStyle,
             shouldShowLegacyDerivationAlert: shouldShowLegacyDerivationAlert,
-            existingCurves: (userWalletModel as? CardViewModel)?.card.walletCurves ?? []
+            existingCurves: userWalletModel.config.walletCurves
         )
 
         coordinator?.openManageTokens(with: settings, userTokensManager: userWalletModel.userTokensManager)
