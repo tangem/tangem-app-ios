@@ -10,7 +10,6 @@ import SwiftUI
 import Combine
 
 struct DecimalNumberTextField: View {
-    // Public
     @ObservedObject private var stateObject: StateObject
 
     // Septupable properties
@@ -220,7 +219,7 @@ extension DecimalNumberTextField {
 
 // MARK: - DecimalValue
 
-extension DecimalNumberTextField.StateObject {
+private extension DecimalNumberTextField.StateObject {
     enum DecimalValue: Hashable {
         case `internal`(Decimal)
         case external(Decimal)
