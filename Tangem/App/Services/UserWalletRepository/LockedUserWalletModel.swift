@@ -62,6 +62,19 @@ class LockedUserWalletModel: UserWalletModel {
         .just(output: .loaded(.init(balance: 0, currencyCode: "", hasError: false)))
     }
 
+    var analyticsContextData: AnalyticsContextData {
+        AnalyticsContextData(
+            card: userWallet.cardInfo().card,
+            productType: config.productType,
+            userWalletId: userWalletId.value,
+            embeddedEntry: config.embeddedBlockchain
+        )
+    }
+
+    var wcWalletModelProvider: WalletConnectWalletModelProvider {
+        CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
+    }
+
     let backupInput: OnboardingInput? = nil
     let twinInput: OnboardingInput? = nil
 
