@@ -44,6 +44,8 @@ class SendFeeViewModel: ObservableObject {
     @Published private(set) var showCustomFeeFields: Bool = false
     @Published var animatingAuxiliaryViewsOnAppear: Bool = false
 
+    var didFinishAnimationToSummary = false
+
     private(set) var customFeeModel: SendCustomFeeInputFieldModel?
     private(set) var customFeeGasPriceModel: SendCustomFeeInputFieldModel?
     private(set) var customFeeGasLimitModel: SendCustomFeeInputFieldModel?
@@ -85,24 +87,6 @@ class SendFeeViewModel: ObservableObject {
 
         bind()
     }
-
-//    func onAppear() {
-//        print("zzz onappear")
-//        didFinishAnimationToSummary = false
-//
-//        if animatingAuxiliaryViewsOnAppear {
-//            withAnimation(SendView.Constants.defaultAnimation) {
-//                animatingAuxiliaryViewsOnAppear = false
-//            }
-//        }
-//    }
-//
-//    func onDisappear() {
-//        print("zzz ondisappear")
-//        didFinishAnimationToSummary = true
-//    }
-//
-    var didFinishAnimationToSummary = false
 
     func openFeeExplanation() {
         router?.openFeeExplanation(url: feeExplanationUrl)
@@ -277,12 +261,9 @@ class SendFeeViewModel: ObservableObject {
         let parameters = EthereumFeeParameters(gasLimit: currentGasLimit, gasPrice: gasPrice)
         return Fee(feeAmount, parameters: parameters)
     }
-
-//    var didDisappearSubject: CurrentValueSubject
 }
 
 extension SendFeeViewModel: AuxiliaryViewAnimatable {
-//    var didDisappear: AnyPublisher<Void, Never> { }
 }
 
 // MARK: - private extensions
