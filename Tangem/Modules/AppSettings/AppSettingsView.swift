@@ -100,5 +100,15 @@ struct AppSettingsView: View {
             #warning("L10n")
             DefaultFooterView("Подключите функцию комиссии по умолчанию и при формировании транзакции на отправку средств комиссия будет выставлена автоматически, а экран комиссии пропущен. Вы всегда сможете на него вернуться.")
         }
+
+        if viewModel.showDefaultFeeOptionSelector {
+            SelectableGropedSection(
+                viewModel.defaultFeeOptionViewModels,
+                selection: $viewModel.defaultFeeOption,
+                content: {
+                    DefaultSelectableRowView(viewModel: $0)
+                }
+            )
+        }
     }
 }
