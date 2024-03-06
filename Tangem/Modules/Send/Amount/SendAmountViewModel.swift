@@ -72,20 +72,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     }
 
     func onAppear() {
-        didFinishAnimationToSummary = false
-
         fiatCryptoAdapter?.setCrypto(input.userInputAmountValue?.value)
-
-        if animatingAuxiliaryViewsOnAppear {
-            withAnimation(SendView.Constants.defaultAnimation) {
-                animatingAuxiliaryViewsOnAppear = false
-            }
-        }
-    }
-
-    func onDisappear() {
-        print("zzz ondisappear")
-        didFinishAnimationToSummary = true
     }
 
     var didFinishAnimationToSummary = false
