@@ -52,6 +52,20 @@ class UserWalletModelMock: UserWalletModel {
 
     var isTokensListEmpty: Bool { false }
 
+    var analyticsContextData: AnalyticsContextData {
+        .init(
+            id: "",
+            productType: .other,
+            batchId: "",
+            firmware: "",
+            baseCurrency: ""
+        )
+    }
+
+    var wcWalletModelProvider: WalletConnectWalletModelProvider {
+        CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
+    }
+
     func updateWalletName(_ name: String) {}
 
     func getAnalyticsContextData() -> AnalyticsContextData? { nil }
