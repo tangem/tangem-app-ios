@@ -89,6 +89,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     func didTapMaxAmount() {
         guard let balanceValue else { return }
 
+        provideButtonHapticFeedback()
+
         fiatCryptoAdapter?.setCrypto(balanceValue)
     }
 
@@ -109,12 +111,12 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         $useFiatCalculation
             .dropFirst()
             .removeDuplicates()
-            .withWeakCaptureOf(self)
-            .sink { viewModel, useFiatCalculation in
+            .sink { [weak self] useFiatCalculation in
                 viewModel.decimalNumberTextFieldStateObject.update(
                     maximumFractionDigits: useFiatCalculation ? 2 : viewModel.amountFractionDigits
                 )
-                viewModel.fiatCryptoAdapter?.setUseFiatCalculation(useFiatCalculation)
+                self?.provideSelectionHapticFeedback()
+                self?.fiatCryptoAdapter?.setUseFiatCalculation(useFiatCalculation)
             }
             .store(in: &bag)
 
@@ -122,6 +124,16 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             .amountAlternative
             .assign(to: \.amountAlternative, on: self, ownership: .weak)
             .store(in: &bag)
+    }
+
+    private func provideButtonHapticFeedback() {
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
+    }
+
+    private func provideSelectionHapticFeedback() {
+        let generator = UISelectionFeedbackGenerator()
+        generator.selectionChanged()
     }
 }
 
