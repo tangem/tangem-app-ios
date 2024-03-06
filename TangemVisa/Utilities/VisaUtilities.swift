@@ -22,11 +22,8 @@ public struct VisaUtilities {
 }
 
 internal extension VisaUtilities {
-    var TangemBridgeProcessorAddresses: [String] {
-        [
-            "0x7cb2513e419c8fcbc731f19c85fe1c61642fed38",
-            "0xfb1ca6456edcce2c2c6e1ac4fccc32c0ac88d86e",
-        ]
+    var registryAddress: String {
+        "0x3f4ae01073d1a9d5a92315fe118e57d1cdec7c44"
     }
 }
 
