@@ -31,6 +31,8 @@ struct AppSettingsView: View {
                 sensitiveTextAvailabilitySection
 
                 themeSettingsSection
+
+                defaultFeeSections
             }
             .interContentPadding(8)
         }
@@ -87,6 +89,16 @@ struct AppSettingsView: View {
     private var themeSettingsSection: some View {
         GroupedSection(viewModel.themeSettingsViewModel) {
             DefaultRowView(viewModel: $0)
+        }
+    }
+
+    @ViewBuilder
+    private var defaultFeeSections: some View {
+        GroupedSection(viewModel.defaultFeeViewModel) {
+            DefaultToggleRowView(viewModel: $0)
+        } footer: {
+            #warning("L10n")
+            DefaultFooterView("Подключите функцию комиссии по умолчанию и при формировании транзакции на отправку средств комиссия будет выставлена автоматически, а экран комиссии пропущен. Вы всегда сможете на него вернуться.")
         }
     }
 }
