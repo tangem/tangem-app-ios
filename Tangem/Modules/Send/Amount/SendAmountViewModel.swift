@@ -101,8 +101,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             .assign(to: \.error, on: self, ownership: .weak)
             .store(in: &bag)
 
-        decimalNumberTextFieldStateObject.valuePublisher
-            .dropFirst()
+        decimalNumberTextFieldStateObject
+            .valuePublisher
             .sink { [weak self] decimal in
                 self?.fiatCryptoAdapter?.setAmount(decimal)
             }
@@ -111,12 +111,12 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         $useFiatCalculation
             .dropFirst()
             .removeDuplicates()
-            .sink { [weak self] useFiatCalculation in
-                viewModel.decimalNumberTextFieldStateObject.update(
-                    maximumFractionDigits: useFiatCalculation ? 2 : viewModel.amountFractionDigits
-                )
-                self?.provideSelectionHapticFeedback()
-                self?.fiatCryptoAdapter?.setUseFiatCalculation(useFiatCalculation)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, useFiatCalculation in
+                let maximumFractionDigits = useFiatCalculation ? 2 : viewModel.amountFractionDigits
+                viewModel.decimalNumberTextFieldStateObject.update(maximumFractionDigits: maximumFractionDigits)
+                viewModel.provideSelectionHapticFeedback()
+                viewModel.fiatCryptoAdapter?.setUseFiatCalculation(useFiatCalculation)
             }
             .store(in: &bag)
 
