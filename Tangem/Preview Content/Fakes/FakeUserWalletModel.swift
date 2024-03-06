@@ -32,6 +32,20 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
         .init(cardId: "", cardPublicKey: Data())
     }
 
+    var analyticsContextData: AnalyticsContextData {
+        .init(
+            id: "",
+            productType: .other,
+            batchId: "",
+            firmware: "",
+            baseCurrency: ""
+        )
+    }
+
+    var wcWalletModelProvider: WalletConnectWalletModelProvider {
+        CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
+    }
+
     var userWalletName: String { _userWalletNamePublisher.value }
 
     var tokensCount: Int? { walletModelsManager.walletModels.filter { !$0.isMainToken }.count }
