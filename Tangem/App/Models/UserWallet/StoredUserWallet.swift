@@ -1,5 +1,5 @@
 //
-//  UserWallet.swift
+//  StoredUserWallet.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Foundation
 import CryptoKit
 import TangemSdk
 
-struct UserWallet: Identifiable, Encodable {
+struct StoredUserWallet: Identifiable, Encodable {
     var id = UUID()
     let userWalletId: Data
     var name: String
@@ -22,13 +22,13 @@ struct UserWallet: Identifiable, Encodable {
     var hasBackupErrors: Bool?
 }
 
-extension UserWallet {
+extension StoredUserWallet {
     struct SensitiveInformation: Codable {
         let wallets: [CardDTO.Wallet]
     }
 }
 
-extension UserWallet {
+extension StoredUserWallet {
     var isLocked: Bool {
         card.wallets.isEmpty
     }
@@ -51,7 +51,7 @@ extension UserWallet {
     }
 }
 
-extension UserWallet: Decodable {
+extension StoredUserWallet: Decodable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(UUID.self, forKey: .id)
