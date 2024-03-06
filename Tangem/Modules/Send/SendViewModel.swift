@@ -183,6 +183,17 @@ final class SendViewModel: ObservableObject {
             return
         }
 
+        if nextStep == .fee,
+           AppSettings.shared.useDefaultFee,
+           sendModel.feeValue != nil {
+            guard let stepAfterNext = step(adding: 2) else {
+                assertionFailure("Invalid step logic")
+                return
+            }
+
+            nextStep = stepAfterNext
+        }
+
         let stepAnimation: SendView.StepAnimation? = (nextStep == .summary) ? nil : .slideForward
         openStep(nextStep, stepAnimation: stepAnimation)
     }
