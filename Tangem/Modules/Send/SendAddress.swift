@@ -20,5 +20,6 @@ extension SendAddress {
         case pasteButton
         case qrCode
         case textField
+        case sellProvider
     }
 }
