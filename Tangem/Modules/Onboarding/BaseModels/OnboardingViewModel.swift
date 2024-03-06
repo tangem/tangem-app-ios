@@ -164,7 +164,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     func initializeUserWallet(from cardInfo: CardInfo) {
         guard let userWallet = CommonUserWalletModel(cardInfo: cardInfo) else { return }
 
-        userWalletRepository.initializeServices(for: userWallet, cardInfo: userWallet.cardInfo)
+        userWalletRepository.initializeServices(for: userWallet)
 
         Analytics.logTopUpIfNeeded(balance: 0)
 
@@ -172,11 +172,11 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     func handleUserWalletOnFinish() throws {
-        guard let cardModel = userWalletModel else {
+        guard let userWalletModel else {
             return
         }
 
-        userWalletRepository.add(cardModel)
+        userWalletRepository.add(userWalletModel)
     }
 
     func loadImage(supportsOnlineImage: Bool, cardId: String?, cardPublicKey: Data?) {
