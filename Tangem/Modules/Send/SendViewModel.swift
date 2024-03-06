@@ -244,6 +244,19 @@ final class SendViewModel: ObservableObject {
             .store(in: &bag)
 
         sendModel
+            .destinationPublisher
+            .sink { [weak self] destination in
+                print("ZZZ destination changed", destination?.address, destination?.source)
+                switch destination?.source {
+                case .myWallet, .recentAddress:
+                    self?.next()
+                default:
+                    break
+                }
+            }
+            .store(in: &bag)
+
+        sendModel
             .sendError
             .compactMap { $0 }
             .sink { [weak self] sendError in
@@ -351,7 +364,7 @@ final class SendViewModel: ObservableObject {
         let parser = QRCodeParser(amountType: walletModel.amountType, blockchain: walletModel.blockchainNetwork.blockchain)
         let result = parser.parse(code)
 
-        sendModel.setDestination(result.destination)
+        sendModel.setDestination(.init(address: result.destination, source: .qrCode))
         sendModel.setAmount(result.amount)
     }
 
