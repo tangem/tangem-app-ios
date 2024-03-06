@@ -16,6 +16,10 @@ class UserWalletEncryptionKeyFactory {
 
         guard let seed = config.userWalletIdSeed else { return nil }
 
-        return UserWalletEncryptionKey(with: seed)
+        return encryptionKey(from: seed)
+    }
+
+    func encryptionKey(from userWalletIdSeed: Data) -> UserWalletEncryptionKey? {
+        return UserWalletEncryptionKey(with: userWalletIdSeed)
     }
 }
