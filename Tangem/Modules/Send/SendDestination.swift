@@ -15,7 +15,7 @@ struct SendDestination: Equatable {
 
 extension SendDestination {
     enum Source: Equatable {
-        case myWallet
+        case otherWallet
         case recentAddress
         case pasteButton
         case qrCode
