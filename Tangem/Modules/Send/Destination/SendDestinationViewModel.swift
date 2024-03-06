@@ -34,7 +34,7 @@ protocol SendDestinationViewModelInput {
 
     var transactionHistoryPublisher: AnyPublisher<WalletModel.TransactionHistoryState, Never> { get }
 
-    func setDestination(_ address: SendDestination)
+    func setDestination(_ address: SendAddress)
     func setDestinationAdditionalField(_ additionalField: String)
 }
 
@@ -92,9 +92,9 @@ class SendDestinationViewModel: ObservableObject {
             isDisabled: .just(output: false),
             errorText: input.destinationError
         ) { [weak self] in
-            self?.input.setDestination(.init(address: $0, source: .textField))
+            self?.input.setDestination(SendAddress(value: $0, inputSource: .textField))
         } didPasteDestination: { [weak self] in
-            self?.input.setDestination(.init(address: $0, source: .pasteButton))
+            self?.input.setDestination(SendAddress(value: $0, inputSource: .pasteButton))
         }
 
         if let additionalFieldType = input.additionalFieldType,
@@ -179,7 +179,7 @@ class SendDestinationViewModel: ObservableObject {
                     let feedbackGenerator = UINotificationFeedbackGenerator()
                     feedbackGenerator.notificationOccurred(.success)
 
-                    self?.input.setDestination(SendDestination(address: destination.address, source: destination.type.source))
+                    self?.input.setDestination(SendAddress(value: destination.address, inputSource: destination.type.inputSource))
                     if let additionalField = destination.additionalField {
                         self?.input.setDestinationAdditionalField(additionalField)
                     }
@@ -197,7 +197,7 @@ extension SendDestinationViewModel: AuxiliaryViewAnimatable {
 }
 
 private extension SendSuggestedDestination.`Type` {
-    var source: SendDestination.Source {
+    var inputSource: SendAddress.InputSource {
         switch self {
         case .otherWallet:
             return .otherWallet
