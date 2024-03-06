@@ -90,7 +90,7 @@ class SendModel {
     private var _destinationText = CurrentValueSubject<String, Never>("")
     private var _destinationAdditionalFieldText = CurrentValueSubject<String, Never>("")
     private var _additionalFieldEmbeddedInAddress = CurrentValueSubject<Bool, Never>(false)
-    private var _selectedFeeOption = CurrentValueSubject<FeeOption, Never>(.market)
+    private var _selectedFeeOption: CurrentValueSubject<FeeOption, Never>
     private var _feeValues = CurrentValueSubject<[FeeOption: LoadingValue<Fee>], Never>([:])
     private var _isFeeIncluded = CurrentValueSubject<Bool, Never>(false)
 
@@ -125,11 +125,12 @@ class SendModel {
 
     // MARK: - Public interface
 
-    init(walletModel: WalletModel, transactionSigner: TransactionSigner, addressService: SendAddressService, sendType: SendType) {
+    init(walletModel: WalletModel, transactionSigner: TransactionSigner, addressService: SendAddressService, defaultFeeOption: FeeOption, sendType: SendType) {
         self.walletModel = walletModel
         self.transactionSigner = transactionSigner
         self.sendType = sendType
         self.addressService = addressService
+        _selectedFeeOption = .init(defaultFeeOption)
 
         bind()
 
