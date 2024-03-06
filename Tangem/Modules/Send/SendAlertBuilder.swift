@@ -19,4 +19,14 @@ enum SendAlertBuilder {
             secondaryButton: .cancel()
         )
     }
+
+    static func makeCustomFeeTooLowAlert(continueAction: @escaping () -> Void) -> AlertBinder {
+        let continueButton = Alert.Button.default(Text(Localization.commonContinue), action: continueAction)
+        return AlertBuilder.makeAlert(
+            title: "",
+            message: Localization.sendAlertFeeTooLowText,
+            primaryButton: continueButton,
+            secondaryButton: .cancel()
+        )
+    }
 }
