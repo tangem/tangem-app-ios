@@ -115,7 +115,7 @@ class SendFeeViewModel: ObservableObject {
         let gasPriceGweiPublisher = input
             .customGasPricePublisher
             .decimalPublisher
-            .map { weiValue -> DecimalNumberTextField.DecimalValue? in
+            .map { weiValue -> Decimal? in
                 let gweiValue = weiValue?.shiftOrder(magnitude: -gasPriceFractionDigits)
                 return gweiValue
             }
@@ -292,17 +292,6 @@ private extension AnyPublisher where Output == Fee?, Failure == Never {
 private extension AnyPublisher where Output == BigUInt?, Failure == Never {
     var decimalPublisher: AnyPublisher<Decimal?, Never> {
         map { $0?.decimal }.eraseToAnyPublisher()
-    }
-}
-
-private extension DecimalNumberTextField.DecimalValue {
-    func shiftOrder(magnitude: Int) -> DecimalNumberTextField.DecimalValue {
-        switch self {
-        case .internal(let decimal):
-            return .internal(decimal.shiftOrder(magnitude: magnitude))
-        case .external(let decimal):
-            return .external(decimal.shiftOrder(magnitude: magnitude))
-        }
     }
 }
 
