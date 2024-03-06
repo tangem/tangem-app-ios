@@ -183,7 +183,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
                 destination: nil,
                 tag: nil,
                 blockchainNetwork: blockchainNetwork,
-                cardViewModel: userWalletModel as! CommonUserWalletModel // Legacy
+                userWalletModel: userWalletModel
             )
             coordinator.start(with: options)
             legacySendCoordinator = coordinator
@@ -223,7 +223,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
                 destination: destination,
                 tag: tag,
                 blockchainNetwork: blockchainNetwork,
-                cardViewModel: userWalletModel as! CommonUserWalletModel // legacy
+                userWalletModel: userWalletModel
             )
             coordinator.start(with: options)
             legacySendCoordinator = coordinator
