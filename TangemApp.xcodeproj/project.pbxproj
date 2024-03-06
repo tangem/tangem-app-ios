@@ -1200,7 +1200,6 @@
 		EF9E29A92B4F0C9900418559 /* TangemExpress.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EF9E29932B4F0C8800418559 /* TangemExpress.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		EF9E2A052B4F0CCF00418559 /* Publisher+AsyncMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29BA2B4F0CCE00418559 /* Publisher+AsyncMap.swift */; };
 		EF9E2A062B4F0CD100418559 /* Moya.Task+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29BB2B4F0CCE00418559 /* Moya.Task+.swift */; };
-		EF9E2A072B4F0CD100418559 /* MoyaProvider+AsyncRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29BC2B4F0CCE00418559 /* MoyaProvider+AsyncRequest.swift */; };
 		EF9E2A082B4F0CD100418559 /* Sequence+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29BD2B4F0CCE00418559 /* Sequence+Async.swift */; };
 		EF9E2A092B4F0CD100418559 /* ThreadSafeContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29BF2B4F0CCE00418559 /* ThreadSafeContainer.swift */; };
 		EF9E2A0A2B4F0CD100418559 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29C02B4F0CCE00418559 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift */; };
@@ -1324,6 +1323,7 @@
 		EFF466E22AC709BE00ACC3EA /* BalanceTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF466E12AC709BE00ACC3EA /* BalanceTitleView.swift */; };
 		EFF466E32ACC337500ACC3EA /* FakeTokenQuotesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01178482AC1B86200C5AD07 /* FakeTokenQuotesRepository.swift */; };
 		EFF466EA2ACD928800ACC3EA /* PendingTransactionRecordMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF466E92ACD928800ACC3EA /* PendingTransactionRecordMapper.swift */; };
+		EFF82D202B98D280004DF1A0 /* AnyPublisher+async.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF82D1F2B98D280004DF1A0 /* AnyPublisher+async.swift */; };
 		EFFC861328BCF6C500F863CE /* StorageEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFC861228BCF6C500F863CE /* StorageEntry.swift */; };
 		EFFE2CE928B8E0B300B9F279 /* UserWalletModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFE2CE828B8E0B300B9F279 /* UserWalletModel.swift */; };
 		EFFE2CEC28B8E1B000B9F279 /* CommonDerivationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFE2CEB28B8E1B000B9F279 /* CommonDerivationManager.swift */; };
@@ -2683,7 +2683,6 @@
 		EF9E29A32B4F0C9800418559 /* TangemExpressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemExpressTests.swift; sourceTree = "<group>"; };
 		EF9E29BA2B4F0CCE00418559 /* Publisher+AsyncMap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Publisher+AsyncMap.swift"; sourceTree = "<group>"; };
 		EF9E29BB2B4F0CCE00418559 /* Moya.Task+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Moya.Task+.swift"; sourceTree = "<group>"; };
-		EF9E29BC2B4F0CCE00418559 /* MoyaProvider+AsyncRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MoyaProvider+AsyncRequest.swift"; sourceTree = "<group>"; };
 		EF9E29BD2B4F0CCE00418559 /* Sequence+Async.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Sequence+Async.swift"; sourceTree = "<group>"; };
 		EF9E29BF2B4F0CCE00418559 /* ThreadSafeContainer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ThreadSafeContainer.swift; sourceTree = "<group>"; };
 		EF9E29C02B4F0CCE00418559 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift"; sourceTree = "<group>"; };
@@ -2805,6 +2804,7 @@
 		EFF466E12AC709BE00ACC3EA /* BalanceTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceTitleView.swift; sourceTree = "<group>"; };
 		EFF466E92ACD928800ACC3EA /* PendingTransactionRecordMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransactionRecordMapper.swift; sourceTree = "<group>"; };
 		EFF5CF1928C796B1000EE8DB /* Alpha.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Alpha.xcconfig; sourceTree = "<group>"; };
+		EFF82D1F2B98D280004DF1A0 /* AnyPublisher+async.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyPublisher+async.swift"; sourceTree = "<group>"; };
 		EFFC861228BCF6C500F863CE /* StorageEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageEntry.swift; sourceTree = "<group>"; };
 		EFFE2CE828B8E0B300B9F279 /* UserWalletModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletModel.swift; sourceTree = "<group>"; };
 		EFFE2CEB28B8E1B000B9F279 /* CommonDerivationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonDerivationManager.swift; sourceTree = "<group>"; };
@@ -6955,8 +6955,8 @@
 			children = (
 				EF9E29BA2B4F0CCE00418559 /* Publisher+AsyncMap.swift */,
 				EF9E29BB2B4F0CCE00418559 /* Moya.Task+.swift */,
-				EF9E29BC2B4F0CCE00418559 /* MoyaProvider+AsyncRequest.swift */,
 				EF9E29BD2B4F0CCE00418559 /* Sequence+Async.swift */,
+				EFF82D1F2B98D280004DF1A0 /* AnyPublisher+async.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -9281,7 +9281,6 @@
 				EF9E2A0F2B4F0CD100418559 /* CommonExpressProviderManagerFactory.swift in Sources */,
 				EF9E2A3C2B4F0CD100418559 /* ExpressManagerError.swift in Sources */,
 				EF9E2A292B4F0CD100418559 /* ExpressAvailableProvider.swift in Sources */,
-				EF9E2A072B4F0CD100418559 /* MoyaProvider+AsyncRequest.swift in Sources */,
 				EF9E2A182B4F0CD100418559 /* ExpressAPITarget.swift in Sources */,
 				EF9E2A162B4F0CD100418559 /* ExpressDTO.swift in Sources */,
 				EF9E2A0D2B4F0CD100418559 /* ExpressManagerMapper.swift in Sources */,
@@ -9295,6 +9294,7 @@
 				EF9E2A062B4F0CD100418559 /* Moya.Task+.swift in Sources */,
 				EF9E2A342B4F0CD100418559 /* ExpressProviderManager.swift in Sources */,
 				EF9E2A2E2B4F0CD100418559 /* FeeProvider.swift in Sources */,
+				EFF82D202B98D280004DF1A0 /* AnyPublisher+async.swift in Sources */,
 				EF9E2A2D2B4F0CD100418559 /* ExpressWallet.swift in Sources */,
 				EF9E2A322B4F0CD100418559 /* ExpressProviderError.swift in Sources */,
 				EF9E2A092B4F0CD100418559 /* ThreadSafeContainer.swift in Sources */,
