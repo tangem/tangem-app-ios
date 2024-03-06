@@ -249,7 +249,7 @@ final class SendViewModel: ObservableObject {
                 guard let self else { return }
 
                 if showNextButton {
-                    switch destination?.source {
+                    switch destination?.inputSource {
                     case .otherWallet, .recentAddress:
                         next()
                     default:
@@ -367,7 +367,7 @@ final class SendViewModel: ObservableObject {
         let parser = QRCodeParser(amountType: walletModel.amountType, blockchain: walletModel.blockchainNetwork.blockchain)
         let result = parser.parse(code)
 
-        sendModel.setDestination(.init(address: result.destination, source: .qrCode))
+        sendModel.setDestination(SendAddress(value: result.destination, inputSource: .qrCode))
         sendModel.setAmount(result.amount)
     }
 
