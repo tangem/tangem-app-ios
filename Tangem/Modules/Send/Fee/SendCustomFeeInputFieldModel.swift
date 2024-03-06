@@ -15,6 +15,7 @@ class SendCustomFeeInputFieldModel: ObservableObject, Identifiable {
     let title: String
 //    let fractionDigits: Int
     let footer: String
+    let fieldSuffix: String?
 
     @Published var decimalNumberTextFieldStateObject: DecimalNumberTextField.StateObject
     @Published var amountAlternative: String?
@@ -25,15 +26,18 @@ class SendCustomFeeInputFieldModel: ObservableObject, Identifiable {
     init(
         title: String,
         amountPublisher: AnyPublisher<Decimal?, Never>,
+        fieldSuffix: String?,
         fractionDigits: Int,
         amountAlternativePublisher: AnyPublisher<String?, Never>,
         footer: String,
         onFieldChange: @escaping (Decimal?) -> Void
     ) {
         self.title = title
-        decimalNumberTextFieldStateObject = .init(maximumFractionDigits: fractionDigits)
+        self.fieldSuffix = fieldSuffix
         self.footer = footer
         self.onFieldChange = onFieldChange
+
+        decimalNumberTextFieldStateObject = .init(maximumFractionDigits: fractionDigits)
 
         amountPublisher
             .removeDuplicates()
