@@ -252,12 +252,6 @@ extension CommonUserWalletModel {
     }
 }
 
-extension CommonUserWalletModel: WalletConnectUserWalletInfoProvider {
-    var wcWalletModelProvider: WalletConnectWalletModelProvider {
-        CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
-    }
-}
-
 // [REDACTED_TODO_COMMENT]
 extension CommonUserWalletModel: TangemSdkFactory {
     func makeTangemSdk() -> TangemSdk {
@@ -268,6 +262,19 @@ extension CommonUserWalletModel: TangemSdkFactory {
 // MARK: - UserWalletModel
 
 extension CommonUserWalletModel: UserWalletModel {
+    var analyticsContextData: AnalyticsContextData {
+        AnalyticsContextData(
+            card: cardInfo.card,
+            productType: config.productType,
+            userWalletId: userWalletId.value,
+            embeddedEntry: config.embeddedBlockchain
+        )
+    }
+
+    var wcWalletModelProvider: WalletConnectWalletModelProvider {
+        CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
+    }
+
     var tangemApiAuthData: TangemApiTarget.AuthData {
         .init(cardId: card.cardId, cardPublicKey: card.cardPublicKey)
     }
