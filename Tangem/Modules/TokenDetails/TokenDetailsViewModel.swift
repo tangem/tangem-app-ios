@@ -40,7 +40,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         walletModel.tokenItem.token?.customTokenColor
     }
 
-    var canHideToken: Bool { userWalletModel.isMultiWallet }
+    var canHideToken: Bool { userWalletModel.config.hasFeature(.multiCurrency) }
 
     init(
         userWalletModel: UserWalletModel,
