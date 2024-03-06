@@ -22,7 +22,7 @@ struct SendCustomFeeInputField: View {
                     SendDecimalNumberTextField(
                         stateObject: viewModel.decimalNumberTextFieldStateObject
                     )
-                    .suffix("WEI")
+                    .suffix(viewModel.fieldSuffix)
                     .font(Fonts.Regular.subheadline)
 
                     Spacer()
@@ -49,6 +49,7 @@ struct SendCustomFeeInputField: View {
             viewModel: SendCustomFeeInputFieldModel(
                 title: "Fee up to",
                 amountPublisher: .just(output: 1234),
+                fieldSuffix: "WEI",
                 fractionDigits: 2,
                 amountAlternativePublisher: .just(output: "0.41 $"),
                 footer: "Maximum commission amount",
@@ -60,6 +61,7 @@ struct SendCustomFeeInputField: View {
             viewModel: SendCustomFeeInputFieldModel(
                 title: "Fee up to",
                 amountPublisher: .just(output: 1234),
+                fieldSuffix: "WEI",
                 fractionDigits: 2,
                 amountAlternativePublisher: .just(output: nil),
                 footer: "Maximum commission amount",
