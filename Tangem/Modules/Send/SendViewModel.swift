@@ -28,7 +28,7 @@ final class SendViewModel: ObservableObject {
     }
 
     var showBackButton: Bool {
-        previousStep != nil && !didReachSummaryScreen
+        step != steps.first && !didReachSummaryScreen
     }
 
     var showNextButton: Bool {
@@ -54,28 +54,6 @@ final class SendViewModel: ObservableObject {
     let sendSummaryViewModel: SendSummaryViewModel
 
     // MARK: - Dependencies
-
-    private var nextStep: SendStep? {
-        guard
-            let currentStepIndex = steps.firstIndex(of: step),
-            (currentStepIndex + 1) < steps.count
-        else {
-            return nil
-        }
-
-        return steps[currentStepIndex + 1]
-    }
-
-    private var previousStep: SendStep? {
-        guard
-            let currentStepIndex = steps.firstIndex(of: step),
-            (currentStepIndex - 1) >= 0
-        else {
-            return nil
-        }
-
-        return steps[currentStepIndex - 1]
-    }
 
     private let sendModel: SendModel
     private let sendType: SendType
@@ -200,7 +178,7 @@ final class SendViewModel: ObservableObject {
     }
 
     func next() {
-        guard let nextStep else {
+        guard var nextStep = step(adding: 1) else {
             assertionFailure("Invalid step logic -- next")
             return
         }
@@ -210,7 +188,7 @@ final class SendViewModel: ObservableObject {
     }
 
     func back() {
-        guard let previousStep else {
+        guard let previousStep = step(adding: -1) else {
             assertionFailure("Invalid step logic -- back")
             return
         }
@@ -270,6 +248,17 @@ final class SendViewModel: ObservableObject {
                 }
             }
             .store(in: &bag)
+    }
+
+    private func step(adding numberOfSteps: Int) -> SendStep? {
+        guard
+            let currentStepIndex = steps.firstIndex(of: step),
+            (0 ..< steps.count).contains(currentStepIndex + numberOfSteps)
+        else {
+            return nil
+        }
+
+        return steps[currentStepIndex + numberOfSteps]
     }
 
     private func openMail(with error: Error) {
