@@ -132,11 +132,11 @@ extension DetailsCoordinator: DetailsRoutable {
 // MARK: - ScanCardSettingsRoutable
 
 extension DetailsCoordinator: ScanCardSettingsRoutable {
-    func openCardSettings(cardModel: CardViewModel) {
+    func openCardSettings(with input: CardSettingsViewModel.Input) {
         scanCardSettingsViewModel = nil
 
         let coordinator = CardSettingsCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        coordinator.start(with: .init(cardModel: cardModel))
+        coordinator.start(with: .init(input: input))
         cardSettingsCoordinator = coordinator
     }
 }
