@@ -73,10 +73,14 @@ class SendModel {
         return false
     }
 
+    var destinationPublisher: AnyPublisher<SendDestination?, Never> {
+        destination.eraseToAnyPublisher()
+    }
+
     // MARK: - Data
 
     private let validatedAmount = CurrentValueSubject<Amount?, Never>(nil)
-    private let destination = CurrentValueSubject<String?, Never>(nil)
+    private let destination = CurrentValueSubject<SendDestination?, Never>(nil)
     private let fee = CurrentValueSubject<Fee?, Never>(nil)
 
     private var transactionParameters: TransactionParams?
@@ -87,7 +91,7 @@ class SendModel {
     // MARK: - Raw data
 
     private var userInputAmount = CurrentValueSubject<Amount?, Never>(nil)
-    private var _destinationText = CurrentValueSubject<String, Never>("")
+    private var _destinationText = CurrentValueSubject<SendDestination, Never>(.init(address: "", source: .textField))
     private var _destinationAdditionalFieldText = CurrentValueSubject<String, Never>("")
     private var _additionalFieldEmbeddedInAddress = CurrentValueSubject<Bool, Never>(false)
     private var _selectedFeeOption = CurrentValueSubject<FeeOption, Never>(.market)
@@ -138,7 +142,7 @@ class SendModel {
         }
 
         if let destination = sendType.predefinedDestination {
-            setDestination(destination)
+            setDestination(.init(address: destination, source: .textField))
         } else {
             validateDestination()
         }
@@ -177,7 +181,7 @@ class SendModel {
 
     @discardableResult
     func updateFees() -> AnyPublisher<FeeUpdateResult, Error> {
-        updateFees(amount: validatedAmount.value, destination: destination.value)
+        updateFees(amount: validatedAmount.value, destination: destination.value?.address)
     }
 
     func send() {
@@ -216,8 +220,9 @@ class SendModel {
 
     private func bind() {
         _destinationText
+//            .map(\.address)
             .dropFirst()
-            .removeDuplicates()
+//            .removeDuplicates()
             .sink { [weak self] _ in
                 self?.validateDestination()
             }
@@ -255,7 +260,7 @@ class SendModel {
             }
             .withWeakCaptureOf(self)
             .flatMap { (self, parameters) -> AnyPublisher<FeeUpdateResult, Error> in
-                self.updateFees(amount: parameters.0, destination: parameters.1)
+                self.updateFees(amount: parameters.0, destination: parameters.1?.address)
                     .catch { _ in
                         Empty<FeeUpdateResult, Error>()
                     }
@@ -306,7 +311,7 @@ class SendModel {
                     let transaction = try walletModel.transactionCreator.createTransaction(
                         amount: validatedAmount,
                         fee: fee,
-                        destinationAddress: destination
+                        destinationAddress: destination.address
                     )
                     return .success(transaction)
                 } catch {
@@ -458,10 +463,12 @@ class SendModel {
 
     // MARK: - Destination and memo
 
-    func setDestination(_ address: String) {
+    func setDestination(_ address: SendDestination) {
+        guard address.address != _destinationText.value.address else { return }
+
         _destinationText.send(address)
 
-        let hasEmbeddedAdditionalField = addressService.hasEmbeddedAdditionalField(address: address)
+        let hasEmbeddedAdditionalField = addressService.hasEmbeddedAdditionalField(address: address.address)
         _additionalFieldEmbeddedInAddress.send(hasEmbeddedAdditionalField)
 
         if hasEmbeddedAdditionalField {
@@ -479,10 +486,10 @@ class SendModel {
         destination.send(nil)
 
         destinationResolutionRequest = runTask(in: self) { `self` in
-            let destination: String?
+            let address: String?
             let error: Error?
             do {
-                destination = try await self.addressService.validate(address: self._destinationText.value)
+                address = try await self.addressService.validate(address: self._destinationText.value.address)
 
                 guard !Task.isCancelled else { return }
 
@@ -490,11 +497,18 @@ class SendModel {
             } catch let addressError {
                 guard !Task.isCancelled else { return }
 
-                destination = nil
+                address = nil
                 error = addressError
             }
 
             await runOnMain {
+                let destination: SendDestination?
+                if let address {
+                    destination = SendDestination(address: address, source: self._destinationText.value.source)
+                } else {
+                    destination = nil
+                }
+
                 self.destination.send(destination)
                 self._destinationError.send(error)
             }
@@ -608,7 +622,7 @@ extension SendModel: SendAmountViewModelInput {
 extension SendModel: SendDestinationViewModelInput {
     var isValidatingDestination: AnyPublisher<Bool, Never> { addressService.validationInProgressPublisher }
 
-    var destinationTextPublisher: AnyPublisher<String, Never> { _destinationText.eraseToAnyPublisher() }
+    var destinationTextPublisher: AnyPublisher<String, Never> { _destinationText.map(\.address).eraseToAnyPublisher() }
     var destinationAdditionalFieldTextPublisher: AnyPublisher<String, Never> { _destinationAdditionalFieldText.eraseToAnyPublisher() }
 
     var destinationError: AnyPublisher<Error?, Never> { _destinationError.eraseToAnyPublisher() }
@@ -752,7 +766,7 @@ extension SendModel: SendFinishViewModelInput {
     }
 
     var destinationText: String? {
-        destination.value
+        destination.value?.address
     }
 
     var additionalField: (SendAdditionalFields, String)? {
