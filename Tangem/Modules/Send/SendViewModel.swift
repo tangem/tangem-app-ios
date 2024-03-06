@@ -246,12 +246,15 @@ final class SendViewModel: ObservableObject {
         sendModel
             .destinationPublisher
             .sink { [weak self] destination in
-                print("ZZZ destination changed", destination?.address, destination?.source)
-                switch destination?.source {
-                case .otherWallet, .recentAddress:
-                    self?.next()
-                default:
-                    break
+                guard let self else { return }
+
+                if showNextButton {
+                    switch destination?.source {
+                    case .otherWallet, .recentAddress:
+                        next()
+                    default:
+                        break
+                    }
                 }
             }
             .store(in: &bag)
