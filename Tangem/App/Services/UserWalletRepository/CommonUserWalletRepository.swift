@@ -17,10 +17,10 @@ class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
     @Injected(\.analyticsContext) var analyticsContext: AnalyticsContext
 
-    var selectedModel: CommonUserWalletModel? {
+    var selectedModel: UserWalletModel? {
         return models.first {
             $0.userWalletId.value == selectedUserWalletId
-        } as? CommonUserWalletModel
+        }
     }
 
     var selectedUserWalletId: Data?
@@ -108,22 +108,22 @@ class CommonUserWalletRepository: UserWalletRepository {
 
                 cardInfo.name = config.cardName
 
-                let cardModel = CommonUserWalletModel(cardInfo: cardInfo)
-                if let cardModel {
-                    initializeServices(for: cardModel, cardInfo: cardInfo)
+                let userWalletModel = CommonUserWalletModel(cardInfo: cardInfo)
+                if let userWalletModel {
+                    initializeServices(for: userWalletModel)
                 }
 
                 let factory = OnboardingInputFactory(
                     cardInfo: cardInfo,
-                    userWalletModel: cardModel,
+                    userWalletModel: userWalletModel,
                     sdkFactory: config,
                     onboardingStepsBuilderFactory: config
                 )
 
                 if let onboardingInput = factory.makeOnboardingInput() {
                     return .justWithError(output: .onboarding(onboardingInput))
-                } else if let cardModel {
-                    return .justWithError(output: .success(cardModel))
+                } else if let userWalletModel {
+                    return .justWithError(output: .success(userWalletModel))
                 }
 
                 return .anyFail(error: "Unknown error")
@@ -224,11 +224,11 @@ class CommonUserWalletRepository: UserWalletRepository {
                 guard let self else { return }
 
                 switch result {
-                case .success(let cardModel):
-                    let userWallet = cardModel.userWallet
+                case .success(let userWalletModel):
+                    let userWallet = userWalletModel.userWallet
 
                     if !contains(userWallet) {
-                        save(cardModel)
+                        save(userWalletModel)
                         completion(result)
                     } else {
                         completion(.error(UserWalletRepositoryError.duplicateWalletAdded))
@@ -244,19 +244,19 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     // [REDACTED_TODO_COMMENT]
-    func save(_ cardViewModel: UserWalletModel) {
+    func save(_ userWalletModel: UserWalletModel) {
         if models.isEmpty, !userWallets.isEmpty {
             loadModels()
         }
 
-        if let index = models.firstIndex(where: { $0.userWalletId == cardViewModel.userWalletId }) {
-            models[index] = cardViewModel
+        if let index = models.firstIndex(where: { $0.userWalletId == userWalletModel.userWalletId }) {
+            models[index] = userWalletModel
         } else {
-            models.append(cardViewModel)
-            sendEvent(.inserted(userWallet: cardViewModel.userWallet))
+            models.append(userWalletModel)
+            sendEvent(.inserted(userWallet: userWalletModel.userWallet))
         }
 
-        save(cardViewModel.userWallet)
+        save(userWalletModel.userWallet)
     }
 
     func setSaving(_ enabled: Bool) {
@@ -411,10 +411,10 @@ class CommonUserWalletRepository: UserWalletRepository {
         sendEvent(.deleted(userWalletIds: otherUserWallets.map { $0.userWalletId }))
     }
 
-    func initializeServices(for cardModel: CommonUserWalletModel, cardInfo: CardInfo) {
-        initializeAnalyticsContext(with: cardInfo)
-        tangemApiService.setAuthData(cardModel.tangemApiAuthData)
-        walletConnectService.initialize(with: cardModel)
+    func initializeServices(for userWalletModel: UserWalletModel) {
+        analyticsContext.setupContext(with: userWalletModel.analyticsContextData)
+        tangemApiService.setAuthData(userWalletModel.tangemApiAuthData)
+        walletConnectService.initialize(with: userWalletModel)
     }
 
     // we can initialize it right after scan for more accurate analytics
@@ -500,24 +500,24 @@ class CommonUserWalletRepository: UserWalletRepository {
             .sink { [weak self] result in
                 guard
                     let self,
-                    case .success(let userWalletModel) = result,
-                    let cardModel = userWalletModel as? CommonUserWalletModel // [REDACTED_TODO_COMMENT]
+                    case .success(let userWalletModel) = result
                 else {
                     completion(result)
                     return
                 }
 
                 if !AppSettings.shared.saveUserWallets {
-                    userWallets = [cardModel.userWallet]
-                    models = [cardModel]
-                    selectedUserWalletId = cardModel.userWalletId.value
-                    sendEvent(.replaced(userWallet: cardModel.userWallet))
+                    userWallets = [userWalletModel.userWallet]
+                    models = [userWalletModel]
+                    selectedUserWalletId = userWalletModel.userWalletId.value
+                    sendEvent(.replaced(userWallet: userWalletModel.userWallet))
                     completion(result)
                     return
                 }
 
-                let scannedUserWallet = cardModel.userWallet
-                guard let encryptionKey = UserWalletEncryptionKeyFactory().encryptionKey(from: cardModel.cardInfo) else {
+                let scannedUserWallet = userWalletModel.userWallet
+                guard let seed = userWalletModel.config.userWalletIdSeed,
+                      let encryptionKey = UserWalletEncryptionKeyFactory().encryptionKey(from: seed) else {
                     completion(.error(TangemSdkError.cardError))
                     return
                 }
@@ -547,12 +547,12 @@ class CommonUserWalletRepository: UserWalletRepository {
                     loadModel(for: userWallet)
                     savedUserWallet = userWallet
                 } else {
-                    save(cardModel)
+                    save(userWalletModel)
                     savedUserWallet = scannedUserWallet
                 }
 
                 guard
-                    let cardModel = models.first(where: { $0.userWalletId.value == savedUserWallet.userWalletId }) as? CommonUserWalletModel
+                    let userWalletModel = models.first(where: { $0.userWalletId.value == savedUserWallet.userWalletId })
                 else {
                     return
                 }
@@ -560,8 +560,8 @@ class CommonUserWalletRepository: UserWalletRepository {
                 setSelectedUserWalletId(savedUserWallet.userWalletId, reason: .userSelected)
                 initializeServicesForSelectedModel()
 
-                sendEvent(.updated(userWalletModel: cardModel))
-                completion(.success(cardModel))
+                sendEvent(.updated(userWalletModel: userWalletModel))
+                completion(.success(userWalletModel))
             }
             .store(in: &bag)
     }
@@ -592,11 +592,11 @@ class CommonUserWalletRepository: UserWalletRepository {
         userWallets[index] = userWallet
 
         guard index < models.count,
-              let cardModel = CommonUserWalletModel(userWallet: userWallet) else {
+              let userWalletModel = CommonUserWalletModel(userWallet: userWallet) else {
             return
         }
 
-        models[index] = cardModel
+        models[index] = userWalletModel
     }
 
     private func initializeServicesForSelectedModel() {
@@ -604,8 +604,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         guard let selectedModel else { return }
 
-        let cardInfo = selectedModel.cardInfo
-        initializeServices(for: selectedModel, cardInfo: cardInfo)
+        initializeServices(for: selectedModel)
     }
 
     private func sendEvent(_ event: UserWalletRepositoryEvent) {
