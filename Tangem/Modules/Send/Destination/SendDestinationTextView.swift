@@ -139,7 +139,7 @@ struct SendDestinationTextView: View {
 
                     // We receive the value on the non-GUI thread
                     DispatchQueue.main.async {
-                        viewModel.didEnterDestination(string)
+                        viewModel.didTapPasteButton(string)
                     }
                 }
                 .tint(Color.black)
