@@ -39,7 +39,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     @Published var error: String?
     @Published var animatingAuxiliaryViewsOnAppear = false
 
-    var didFinishAnimationToSummary = false
+    var didProperlyDisappear = false
 
     private var fiatCryptoAdapter: SendFiatCryptoAdapter?
 
