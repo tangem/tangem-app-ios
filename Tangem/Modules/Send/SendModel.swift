@@ -142,7 +142,7 @@ class SendModel {
         }
 
         if let destination = sendType.predefinedDestination {
-            setDestination(SendAddress(value: destination, inputSource: .textField))
+            setDestination(SendAddress(value: destination, inputSource: .sellProvider))
         } else {
             validateDestination()
         }
