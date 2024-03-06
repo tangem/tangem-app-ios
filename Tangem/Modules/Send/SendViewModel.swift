@@ -287,14 +287,30 @@ final class SendViewModel: ObservableObject {
         coordinator?.openMail(with: emailDataCollector, recipient: recipient)
     }
 
-    private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation?) {
-        if case .summary = step {
-            if sendModel.totalExceedsBalance {
-                alert = SendAlertBuilder.makeSubtractFeeFromAmountAlert { [weak self] in
-                    self?.sendModel.includeFeeIntoAmount()
-                    self?.openStep(step, stepAnimation: stepAnimation)
-                }
+    private func showSummaryStepAlertIfNeeded(_ step: SendStep, stepAnimation: SendView.StepAnimation?, checkCustomFee: Bool) -> Bool {
+        if sendModel.totalExceedsBalance {
+            alert = SendAlertBuilder.makeSubtractFeeFromAmountAlert { [weak self] in
+                self?.sendModel.includeFeeIntoAmount()
+                self?.openStep(step, stepAnimation: stepAnimation)
+            }
 
+            return true
+        }
+
+        if checkCustomFee, notificationManager.hasNotificationEvent(.customFeeTooLow) {
+            alert = SendAlertBuilder.makeCustomFeeTooLowAlert { [weak self] in
+                self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: false)
+            }
+
+            return true
+        }
+
+        return false
+    }
+
+    private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation?, checkCustomFee: Bool = true) {
+        if case .summary = step {
+            if showSummaryStepAlertIfNeeded(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee) {
                 return
             }
 
@@ -431,10 +447,11 @@ extension SendViewModel: NotificationTapDelegate {
 // MARK: - ValidationError
 
 private extension ValidationError {
-    var step: SendStep {
+    var step: SendStep? {
         switch self {
         case .invalidAmount, .balanceNotFound:
-            return .amount
+            // Shouldn't happen as we validate and cover amount errors separately, synchronously
+            return nil
         case .amountExceedsBalance, .invalidFee, .feeExceedsBalance, .maximumUTXO, .reserve:
             return .fee
         case .dustAmount, .dustChange, .minimumBalance, .totalExceedsBalance:

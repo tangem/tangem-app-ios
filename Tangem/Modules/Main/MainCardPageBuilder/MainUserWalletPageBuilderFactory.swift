@@ -41,7 +41,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
         let id = model.userWalletId
         let containsDefaultToken = model.config.hasDefaultToken
-        let isMultiWalletPage = model.isMultiWallet || containsDefaultToken
+        let isMultiWalletPage = model.config.hasFeature(.multiCurrency) || containsDefaultToken
 
         let providerFactory = model.config.makeMainHeaderProviderFactory()
         let balanceProvider = providerFactory.makeHeaderBalanceProvider(for: model)
@@ -167,7 +167,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
     }
 
     private func selectSignatureCountValidator(for userWalletModel: UserWalletModel) -> SignatureCountValidator? {
-        if userWalletModel.isMultiWallet {
+        if userWalletModel.config.hasFeature(.multiCurrency) {
             return nil
         }
 
