@@ -152,7 +152,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                 return false
             }
 
-            if !(cardModel?.canSkipBackup ?? true) {
+            if !(userWalletModel?.config.canSkipBackup ?? true) {
                 return false
             }
         }
@@ -330,8 +330,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             self.customOnboardingImage = customOnboardingImage.image
         }
 
-        if let cardModel {
-            backupContextManager = BackupContextManager(userWalletModel: cardModel)
+        if let userWalletModel {
+            backupContextManager = BackupContextManager(userWalletModel: userWalletModel)
         }
 
         bind()
@@ -422,7 +422,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         switch currentStep {
         case .createWallet, .createWalletSelector, .seedPhraseUserValidation, .seedPhraseImport:
             if let backupIntroStepIndex = steps.firstIndex(of: .backupIntro) {
-                let canSkipBackup = cardModel?.canSkipBackup ?? true
+                let canSkipBackup = userWalletModel?.config.canSkipBackup ?? true
                 if canSkipBackup {
                     goToStep(with: backupIntroStepIndex)
                 } else {
@@ -675,7 +675,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     private func createWalletOnPrimaryCard(using mnemonic: Mnemonic? = nil, walletCreationType: WalletCreationType) {
         guard let cardInitializer else { return }
 
-        AppSettings.shared.cardsStartedActivation.insert(input.cardInput.cardId)
+        AppSettings.shared.cardsStartedActivation.insert(input.primaryCardId)
 
         cardInitializer.initializeCard(mnemonic: mnemonic) { [weak self] result in
             guard let self else { return }
@@ -684,8 +684,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             case .success(let cardInfo):
                 initializeUserWallet(from: cardInfo)
 
-                if let cardModel {
-                    backupContextManager = BackupContextManager(userWalletModel: cardModel)
+                if let userWalletModel {
+                    backupContextManager = BackupContextManager(userWalletModel: userWalletModel)
                 }
 
                 if let primaryCard = cardInfo.primaryCard {
@@ -724,7 +724,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             Future { [weak self] promise in
                 guard let self = self else { return }
 
-                backupService.readPrimaryCard(cardId: input.cardInput.cardId) { result in
+                backupService.readPrimaryCard(cardId: input.primaryCardId) { result in
                     switch result {
                     case .success:
                         promise(.success(()))
@@ -797,7 +797,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                         case .success(let updatedCard):
                             self.backupContextManager?.onProceedBackup(updatedCard)
                             if updatedCard.cardId == self.backupService.primaryCard?.cardId {
-                                self.cardModel?.onBackupCreated(updatedCard)
+                                self.userWalletModel?.onBackupCreated(updatedCard)
                                 self.backupContextManager?.onCompleteBackup()
                             }
 
@@ -876,7 +876,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         Analytics.log(.backupResetCardNotification, params: [.option: .reset])
         isMainButtonBusy = true
 
-        let interactor = CardInteractor(cardId: cardId)
+        let interactor = FactorySettingsResettingCardInteractor(with: cardId)
         interactor.resetCard { [weak self] result in
             switch result {
             case .failure(let error):
