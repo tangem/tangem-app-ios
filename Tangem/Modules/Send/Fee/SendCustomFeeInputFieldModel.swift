@@ -13,7 +13,6 @@ import SwiftUI
 
 class SendCustomFeeInputFieldModel: ObservableObject, Identifiable {
     let title: String
-//    let fractionDigits: Int
     let footer: String
     let fieldSuffix: String?
 
@@ -49,8 +48,8 @@ class SendCustomFeeInputFieldModel: ObservableObject, Identifiable {
             }
             .store(in: &bag)
 
-        decimalNumberTextFieldStateObject.valuePublisher
-            .dropFirst()
+        decimalNumberTextFieldStateObject
+            .valuePublisher
             .withWeakCaptureOf(self)
             .sink { (self, value) in
                 self.onFieldChange(value)
