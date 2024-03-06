@@ -34,7 +34,7 @@ protocol SendDestinationViewModelInput {
 
     var transactionHistoryPublisher: AnyPublisher<WalletModel.TransactionHistoryState, Never> { get }
 
-    func setDestination(_ address: String)
+    func setDestination(_ address: SendDestination)
     func setDestinationAdditionalField(_ additionalField: String)
 }
 
@@ -92,7 +92,7 @@ class SendDestinationViewModel: ObservableObject {
             isDisabled: .just(output: false),
             errorText: input.destinationError
         ) { [weak self] in
-            self?.input.setDestination($0)
+            self?.input.setDestination(.init(address: $0, source: .textField))
         }
 
         if let additionalFieldType = input.additionalFieldType,
@@ -175,7 +175,7 @@ class SendDestinationViewModel: ObservableObject {
                     let feedbackGenerator = UINotificationFeedbackGenerator()
                     feedbackGenerator.notificationOccurred(.success)
 
-                    self?.input.setDestination(destination.address)
+                    self?.input.setDestination(SendDestination(address: destination.address, source: .myWallet))
                     if let additionalField = destination.additionalField {
                         self?.input.setDestinationAdditionalField(additionalField)
                     }
