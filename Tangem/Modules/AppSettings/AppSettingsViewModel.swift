@@ -22,6 +22,8 @@ class AppSettingsViewModel: ObservableObject {
     @Published var sensitiveTextAvailabilityViewModel: DefaultToggleRowViewModel?
     @Published var themeSettingsViewModel: DefaultRowViewModel?
     @Published var defaultFeeViewModel: DefaultToggleRowViewModel?
+    @Published var defaultFeeOptionViewModels: [DefaultSelectableRowViewModel<FeeOption>] = []
+
     @Published var isSavingWallet: Bool {
         didSet { AppSettings.shared.saveUserWallets = isSavingWallet }
     }
@@ -29,6 +31,9 @@ class AppSettingsViewModel: ObservableObject {
     @Published var isSavingAccessCodes: Bool {
         didSet { AppSettings.shared.saveAccessCodes = isSavingAccessCodes }
     }
+
+    @Published var showDefaultFeeOptionSelector = false
+    @Published var defaultFeeOption: FeeOption = AppSettings.shared.defaultFeeOption
 
     @Published var alert: AlertBinder?
 
@@ -95,6 +100,20 @@ private extension AppSettingsViewModel {
                 if showingBiometryWarning {
                     Analytics.log(.settingsNoticeEnableBiometrics)
                 }
+            }
+            .store(in: &bag)
+
+        $defaultFeeOption
+            .removeDuplicates()
+            .dropFirst()
+            .sink { newOption in
+                AppSettings.shared.defaultFeeOption = newOption
+            }
+            .store(in: &bag)
+
+        AppSettings.shared.$useDefaultFee
+            .sink { [weak self] useDefaultFee in
+                self?.showDefaultFeeOptionSelector = useDefaultFee
             }
             .store(in: &bag)
     }
@@ -188,6 +207,15 @@ private extension AppSettingsViewModel {
             title: "Default Fee",
             isOn: useDefaultFeeBinding()
         )
+
+        let defaultFeeOptions: [FeeOption] = [.slow, .market, .fast]
+        defaultFeeOptionViewModels = defaultFeeOptions.map {
+            DefaultSelectableRowViewModel(
+                id: $0,
+                title: $0.title,
+                subtitle: nil
+            )
+        }
     }
 
     func isSavingWalletBinding() -> BindingValue<Bool> {
