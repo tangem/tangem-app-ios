@@ -12,6 +12,7 @@ import SwiftUI
 /// Same as `DecimalNumberTextField` with  support
 /// - `InitialFocusBehavior`
 /// - `ToolbarType`
+/// - `Suffix`
 /// - Different `Alignment`
 struct SendDecimalNumberTextField: View {
     // Public
@@ -85,7 +86,10 @@ struct SendDecimalNumberTextField: View {
                 }
             }
             .onAppear {
-                guard let focusDelayDuration = initialFocusBehavior.delayDuration else { return }
+                guard !isInputActive,
+                      let focusDelayDuration = initialFocusBehavior.delayDuration else {
+                    return
+                }
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + focusDelayDuration) {
                     isInputActive = true
