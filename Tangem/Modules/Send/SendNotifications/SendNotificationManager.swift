@@ -72,6 +72,12 @@ class CommonSendNotificationManager: SendNotificationManager {
             .eraseToAnyPublisher()
     }
 
+    func hasNotificationEvent(_ event: SendNotificationEvent) -> Bool {
+        return notificationInputs.contains { notificationInput in
+            notificationInput.settings.event.id == event.id
+        }
+    }
+
     private func bind() {
         input
             .feeValues
