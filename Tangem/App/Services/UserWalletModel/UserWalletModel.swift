@@ -10,8 +10,9 @@ import BlockchainSdk
 import Combine
 import TangemSdk
 
-protocol UserWalletModel: MainHeaderSupplementInfoProvider, TotalBalanceProviding, MultiWalletMainHeaderSubtitleDataSource, AnalyticsContextDataProvider, MainHeaderUserWalletStateInfoProvider, EmailDataProvider, AnyObject {
+protocol UserWalletModel: MainHeaderSupplementInfoProvider, TotalBalanceProviding, MultiWalletMainHeaderSubtitleDataSource, AnalyticsContextDataProvider, MainHeaderUserWalletStateInfoProvider, EmailDataProvider, WalletConnectUserWalletInfoProvider, AnyObject {
     var tokensCount: Int? { get }
+    var analyticsContextData: AnalyticsContextData { get }
     var hasBackupCards: Bool { get }
     var config: UserWalletConfig { get }
     var userWalletId: UserWalletId { get }
