@@ -13,7 +13,7 @@ protocol UserWalletRepository: Initializable {
     var hasSavedWallets: Bool { get }
     var models: [UserWalletModel] { get }
     var userWallets: [StoredUserWallet] { get }
-    var selectedModel: CommonUserWalletModel? { get }
+    var selectedModel: UserWalletModel? { get }
     var selectedUserWalletId: Data? { get }
     var selectedIndexUserWalletModel: Int? { get }
     var isEmpty: Bool { get }
@@ -29,13 +29,13 @@ protocol UserWalletRepository: Initializable {
     func add(_ userWalletModel: UserWalletModel)
     func add(_ completion: @escaping (UserWalletRepositoryResult?) -> Void)
     // use this method for saving. [REDACTED_TODO_COMMENT]
-    func save(_ cardViewModel: UserWalletModel)
+    func save(_ userWalletModel: UserWalletModel)
     func contains(_ userWallet: StoredUserWallet) -> Bool
     // use this method for updating. [REDACTED_TODO_COMMENT]
     func save(_ userWallet: StoredUserWallet)
     func delete(_ userWalletId: UserWalletId, logoutIfNeeded shouldAutoLogout: Bool)
     func clearNonSelectedUserWallets()
-    func initializeServices(for cardModel: CommonUserWalletModel, cardInfo: CardInfo)
+    func initializeServices(for userWalletModel: UserWalletModel)
     func initialClean()
     func setSaving(_ enabled: Bool)
     func addOrScan(completion: @escaping (UserWalletRepositoryResult?) -> Void)
