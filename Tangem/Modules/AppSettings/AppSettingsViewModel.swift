@@ -21,6 +21,7 @@ class AppSettingsViewModel: ObservableObject {
     @Published var currencySelectionViewModel: DefaultRowViewModel?
     @Published var sensitiveTextAvailabilityViewModel: DefaultToggleRowViewModel?
     @Published var themeSettingsViewModel: DefaultRowViewModel?
+    @Published var defaultFeeViewModel: DefaultToggleRowViewModel?
     @Published var isSavingWallet: Bool {
         didSet { AppSettings.shared.saveUserWallets = isSavingWallet }
     }
@@ -181,6 +182,12 @@ private extension AppSettingsViewModel {
             detailsType: .text(AppSettings.shared.appTheme.titleForDetails),
             action: coordinator?.openThemeSelection
         )
+
+        #warning("L10n")
+        defaultFeeViewModel = DefaultToggleRowViewModel(
+            title: "Default Fee",
+            isOn: useDefaultFeeBinding()
+        )
     }
 
     func isSavingWalletBinding() -> BindingValue<Bool> {
@@ -213,6 +220,15 @@ private extension AppSettingsViewModel {
             set: { enabled in
                 Analytics.log(.hideBalanceChanged, params: [.state: Analytics.ParameterValue.toggleState(for: enabled)])
                 AppSettings.shared.isHidingSensitiveAvailable = enabled
+            }
+        )
+    }
+
+    func useDefaultFeeBinding() -> BindingValue<Bool> {
+        BindingValue<Bool>(
+            get: { AppSettings.shared.useDefaultFee },
+            set: { useDefaultFee in
+                AppSettings.shared.useDefaultFee = useDefaultFee
             }
         )
     }
