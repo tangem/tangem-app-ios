@@ -20,7 +20,6 @@ protocol AuxiliaryViewAnimatable: AnyObject {
 
 extension AuxiliaryViewAnimatable {
     func onAuxiliaryViewAppear() {
-        print("zzz onappear")
         didFinishAnimationToSummary = false
 
         if animatingAuxiliaryViewsOnAppear {
@@ -31,12 +30,10 @@ extension AuxiliaryViewAnimatable {
     }
 
     func onAuxiliaryViewDisappear() {
-        print("zzz ondisappear")
         didFinishAnimationToSummary = true
     }
 
     func setAnimatingAuxiliaryViewsOnAppear() {
-        print("zzz setAnimatingAuxiliaryViewsOnAppear", didFinishAnimationToSummary)
         if didFinishAnimationToSummary {
             animatingAuxiliaryViewsOnAppear = true
         } else {
