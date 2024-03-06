@@ -93,6 +93,8 @@ class SendDestinationViewModel: ObservableObject {
             errorText: input.destinationError
         ) { [weak self] in
             self?.input.setDestination(.init(address: $0, source: .textField))
+        } didPasteDestination: { [weak self] in
+            self?.input.setDestination(.init(address: $0, source: .pasteButton))
         }
 
         if let additionalFieldType = input.additionalFieldType,
@@ -104,6 +106,8 @@ class SendDestinationViewModel: ObservableObject {
                 isDisabled: input.additionalFieldEmbeddedInAddress,
                 errorText: input.destinationAdditionalFieldError
             ) { [weak self] in
+                self?.input.setDestinationAdditionalField($0)
+            } didPasteDestination: { [weak self] in
                 self?.input.setDestinationAdditionalField($0)
             }
         }
@@ -175,7 +179,7 @@ class SendDestinationViewModel: ObservableObject {
                     let feedbackGenerator = UINotificationFeedbackGenerator()
                     feedbackGenerator.notificationOccurred(.success)
 
-                    self?.input.setDestination(SendDestination(address: destination.address, source: .myWallet))
+                    self?.input.setDestination(SendDestination(address: destination.address, source: destination.type.source))
                     if let additionalField = destination.additionalField {
                         self?.input.setDestinationAdditionalField(additionalField)
                     }
@@ -189,5 +193,16 @@ extension SendDestinationViewModel: AuxiliaryViewAnimatable {
     func setAnimatingAuxiliaryViewsOnAppear(_ animatingAuxiliaryViewsOnAppear: Bool) {
         self.animatingAuxiliaryViewsOnAppear = animatingAuxiliaryViewsOnAppear
         addressViewModel?.setAnimatingFooterOnAppear(animatingAuxiliaryViewsOnAppear)
+    }
+}
+
+private extension SendSuggestedDestination.`Type` {
+    var source: SendDestination.Source {
+        switch self {
+        case .otherWallet:
+            return .otherWallet
+        case .recentAddress:
+            return .recentAddress
+        }
     }
 }
