@@ -34,10 +34,6 @@ extension AuxiliaryViewAnimatable {
     }
 
     func setAnimatingAuxiliaryViewsOnAppear() {
-        if didProperlyDisappear {
-            animatingAuxiliaryViewsOnAppear = true
-        } else {
-            animatingAuxiliaryViewsOnAppear = false
-        }
+        animatingAuxiliaryViewsOnAppear = didProperlyDisappear
     }
 }
