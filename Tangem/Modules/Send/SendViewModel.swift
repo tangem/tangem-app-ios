@@ -248,7 +248,7 @@ final class SendViewModel: ObservableObject {
             .sink { [weak self] destination in
                 print("ZZZ destination changed", destination?.address, destination?.source)
                 switch destination?.source {
-                case .myWallet, .recentAddress:
+                case .otherWallet, .recentAddress:
                     self?.next()
                 default:
                     break
