@@ -44,7 +44,7 @@ class SendFeeViewModel: ObservableObject {
     @Published private(set) var showCustomFeeFields: Bool = false
     @Published var animatingAuxiliaryViewsOnAppear: Bool = false
 
-    var didFinishAnimationToSummary = false
+    var didProperlyDisappear = false
 
     private(set) var customFeeModel: SendCustomFeeInputFieldModel?
     private(set) var customFeeGasPriceModel: SendCustomFeeInputFieldModel?
@@ -263,8 +263,7 @@ class SendFeeViewModel: ObservableObject {
     }
 }
 
-extension SendFeeViewModel: AuxiliaryViewAnimatable {
-}
+extension SendFeeViewModel: AuxiliaryViewAnimatable {}
 
 // MARK: - private extensions
 
