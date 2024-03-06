@@ -48,7 +48,7 @@ class SendDestinationViewModel: ObservableObject {
     @Published var animatingAuxiliaryViewsOnAppear: Bool = false
     @Published var showSuggestedDestinations = true
 
-    var didFinishAnimationToSummary: Bool = false
+    var didProperlyDisappear: Bool = false
 
     private let input: SendDestinationViewModelInput
     private let transactionHistoryMapper: TransactionHistoryMapper
