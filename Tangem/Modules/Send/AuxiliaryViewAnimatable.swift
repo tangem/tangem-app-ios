@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 protocol AuxiliaryViewAnimatable: AnyObject {
-    var didFinishAnimationToSummary: Bool { get set }
+    var didProperlyDisappear: Bool { get set }
     var animatingAuxiliaryViewsOnAppear: Bool { get set }
 
     func onAuxiliaryViewAppear()
@@ -20,7 +20,7 @@ protocol AuxiliaryViewAnimatable: AnyObject {
 
 extension AuxiliaryViewAnimatable {
     func onAuxiliaryViewAppear() {
-        didFinishAnimationToSummary = false
+        didProperlyDisappear = false
 
         if animatingAuxiliaryViewsOnAppear {
             withAnimation(SendView.Constants.defaultAnimation) {
@@ -30,11 +30,11 @@ extension AuxiliaryViewAnimatable {
     }
 
     func onAuxiliaryViewDisappear() {
-        didFinishAnimationToSummary = true
+        didProperlyDisappear = true
     }
 
     func setAnimatingAuxiliaryViewsOnAppear() {
-        if didFinishAnimationToSummary {
+        if didProperlyDisappear {
             animatingAuxiliaryViewsOnAppear = true
         } else {
             animatingAuxiliaryViewsOnAppear = false
