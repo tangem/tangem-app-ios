@@ -25,7 +25,7 @@ extension Blockchain {
     /// Should be used to get the actual currency rate
     var currencyId: String {
         switch self {
-        case .arbitrum(let testnet), .optimism(let testnet):
+        case .arbitrum(let testnet), .optimism(let testnet), .aurora(let testnet):
             return Blockchain.ethereum(testnet: testnet).coinId
         default:
             return coinId
@@ -171,7 +171,7 @@ private extension Blockchain {
         case .aurora:
             switch type {
             case .network: return "aurora"
-            case .coin: return "aurora-near"
+            case .coin: return "aurora-ethereum"
             }
         }
     }
