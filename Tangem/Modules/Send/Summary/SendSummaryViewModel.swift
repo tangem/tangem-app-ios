@@ -11,11 +11,6 @@ import SwiftUI
 import Combine
 import BlockchainSdk
 
-enum GlobalStorage {
-    // Set this to true when fee screen is hidden
-    static var didFinishAnimationToSummary = false
-}
-
 protocol SendSummaryViewModelInput: AnyObject {
     var canEditAmount: Bool { get }
     var canEditDestination: Bool { get }
