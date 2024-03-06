@@ -111,14 +111,6 @@ class SendDestinationViewModel: ObservableObject {
         bind()
     }
 
-    func onAppear() {
-        if animatingAuxiliaryViewsOnAppear {
-            withAnimation(SendView.Constants.defaultAnimation) {
-                animatingAuxiliaryViewsOnAppear = false
-            }
-        }
-    }
-
     private func bind() {
         input
             .destinationError
