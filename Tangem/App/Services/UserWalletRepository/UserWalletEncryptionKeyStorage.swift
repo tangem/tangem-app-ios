@@ -68,7 +68,7 @@ class UserWalletEncryptionKeyStorage {
             try addUserWalletId(userWallet)
 
             let encryptionKeyData = encryptionKey.symmetricKey.dataRepresentationWithHexConversion
-            try biometricsStorage.store(encryptionKeyData, forKey: encryptionKeyStorageKey(for: UserWalletId(value: userWallet.userWalletId)))
+            try biometricsStorage.store(encryptionKeyData, forKey: encryptionKeyStorageKey(for: userWallet))
         } catch {
             AppLog.shared.debug("Failed to add UserWallet ID to the list")
             AppLog.shared.error(error)
@@ -78,9 +78,9 @@ class UserWalletEncryptionKeyStorage {
 
     func delete(_ userWallet: StoredUserWallet) {
         do {
-            try deleteUserWalletId(UserWalletId(value: userWallet.userWalletId))
+            try deleteUserWalletId(userWallet)
 
-            try biometricsStorage.delete(encryptionKeyStorageKey(for: userWallet.userWalletId))
+            try biometricsStorage.delete(encryptionKeyStorageKey(for: userWallet))
 
             if AppSettings.shared.saveAccessCodes {
                 let accessCodeRepository = AccessCodeRepository()
@@ -118,8 +118,8 @@ class UserWalletEncryptionKeyStorage {
 
     // MARK: - Saving the list of UserWallet IDs
 
-    private func encryptionKeyStorageKey(for userWalletId: UserWalletId) -> String {
-        encryptionKeyStorageKey(for: userWalletId.value)
+    private func encryptionKeyStorageKey(for userWallet: StoredUserWallet) -> String {
+        encryptionKeyStorageKey(for: userWallet.userWalletId)
     }
 
     private func encryptionKeyStorageKey(for userWalletId: Data) -> String {
@@ -132,9 +132,9 @@ class UserWalletEncryptionKeyStorage {
         try saveUserWalletIds(ids)
     }
 
-    private func deleteUserWalletId(_ userWalletId: UserWalletId) throws {
+    private func deleteUserWalletId(_ userWallet: StoredUserWallet) throws {
         var ids = try userWalletIds()
-        ids.remove(userWalletId.value)
+        ids.remove(userWallet.userWalletId)
         try saveUserWalletIds(ids)
     }
 
