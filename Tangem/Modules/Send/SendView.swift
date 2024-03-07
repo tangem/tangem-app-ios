@@ -202,7 +202,7 @@ struct SendView_Preview: PreviewProvider {
     static var previews: some View {
         SendView(viewModel: viewModel)
             .previewDisplayName("Full screen")
-        
+
         NavHolder()
             .sheet(isPresented: .constant(true)) {
                 SendView(viewModel: viewModel)
