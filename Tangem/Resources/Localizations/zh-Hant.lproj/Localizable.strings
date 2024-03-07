@@ -78,7 +78,6 @@
 "common_explore_history" = "Explore history";
 "common_explore_transaction_history" = "Explore transaction history";
 "common_explorer" = "Explorer";
-"common_explorer_format" = "%@ explorer";
 "common_fee_label" = "費用";
 "common_fee_selector_footer" = "Network fees are charges users pay to process and confirm transactions. The fee amount can be affected by network congestion, transaction size, and execution priority. %@";
 "common_fee_selector_option_custom" = "Custom";
