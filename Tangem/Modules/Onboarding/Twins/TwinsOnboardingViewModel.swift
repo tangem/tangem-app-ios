@@ -329,9 +329,9 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
                 let (viewModel, (newStep, _)) = values
                 switch (viewModel.currentStep, newStep) {
                 case (.first, .second):
-                    if let originalUserWalletId = viewModel.input.userWalletToDelete {
+                    if let originalUserWallet = viewModel.input.userWalletToDelete {
                         viewModel.userWalletRepository.delete(
-                            originalUserWalletId,
+                            UserWalletId(value: originalUserWallet.userWalletId),
                             logoutIfNeeded: false
                         )
                     }
