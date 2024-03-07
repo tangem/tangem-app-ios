@@ -19,11 +19,9 @@ struct SendCustomFeeInputField: View {
                     .lineLimit(1)
 
                 HStack {
-                    SendDecimalNumberTextField(
-                        stateObject: viewModel.decimalNumberTextFieldStateObject
-                    )
-                    .suffix(viewModel.fieldSuffix)
-                    .font(Fonts.Regular.subheadline)
+                    SendDecimalNumberTextField(viewModel: viewModel.decimalNumberTextFieldViewModel)
+                        .suffix(viewModel.fieldSuffix)
+                        .appearance(.init(font: Fonts.Regular.subheadline))
 
                     Spacer()
 
