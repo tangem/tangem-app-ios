@@ -189,7 +189,7 @@ class CommonUserWalletModel: Identifiable, ObservableObject {
         }
 
         let backupValidator = BackupValidator()
-        if !backupValidator.validate(card.backupStatus) {
+        if !backupValidator.validate(backupStatus: card.backupStatus, wallets: cardInfo.card.wallets) {
             return false
         }
 
