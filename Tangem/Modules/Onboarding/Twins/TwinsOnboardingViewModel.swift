@@ -135,11 +135,11 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         let twinData = input.twinData!
 
         twinCardSeries = twinData.series
-        twinsService = .init(cardId: input.cardInput.cardId, twinData: twinData)
+        twinsService = .init(cardId: input.primaryCardId, twinData: twinData)
 
         super.init(input: input, coordinator: coordinator)
 
-        if let walletModel = cardModel?.walletModelsManager.walletModels.first {
+        if let walletModel = userWalletModel?.walletModelsManager.walletModels.first {
             updateCardBalanceText(for: walletModel)
         }
 
@@ -212,8 +212,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         case .done, .success, .alert:
             goToNextStep()
         case .first:
-            if !retwinMode, let cardId = cardModel?.cardId {
-                AppSettings.shared.cardsStartedActivation.insert(cardId)
+            if !retwinMode {
+                AppSettings.shared.cardsStartedActivation.insert(twinsService.firstTwinCid)
             }
 
             Analytics.log(.twinSetupStarted)
