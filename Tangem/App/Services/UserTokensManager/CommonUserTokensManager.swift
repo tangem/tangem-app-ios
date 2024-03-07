@@ -150,7 +150,7 @@ extension CommonUserTokensManager: UserTokensManager {
         }
 
         if !longHashesSupported, tokenItem.blockchain.hasLongTransactions {
-            throw Error.failedSupportedLongHahesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
+            throw Error.failedSupportedLongHashesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
 
         try validateDerivation(for: tokenItem)
@@ -315,12 +315,12 @@ extension CommonUserTokensManager: UserTokensReordering {
 extension CommonUserTokensManager {
     enum Error: Swift.Error, LocalizedError {
         case addressNotFound
-        case failedSupportedLongHahesTokens(blockchainDisplayName: String)
+        case failedSupportedLongHashesTokens(blockchainDisplayName: String)
         case failedSupportedCurve(blockchainDisplayName: String)
 
         var errorDescription: String? {
             switch self {
-            case .failedSupportedLongHahesTokens(let blockchainDisplayName):
+            case .failedSupportedLongHashesTokens(let blockchainDisplayName):
                 return Localization.alertManageTokensUnsupportedMessage(blockchainDisplayName)
             case .failedSupportedCurve(let blockchainDisplayName):
                 return Localization.alertManageTokensUnsupportedCurveMessage(blockchainDisplayName)
