@@ -10,7 +10,7 @@ import SwiftUI
 
 struct LoadingProvidersRow: View {
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 6) {
             Text(Localization.expressProvider)
                 .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
 
@@ -28,6 +28,8 @@ struct LoadingProvidersRow: View {
     private var progressView: some View {
         ProgressView()
             .controlSize(.small)
+            .frame(width: 16, height: 16)
+            .padding(.vertical, 2)
     }
 }
 
