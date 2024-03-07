@@ -371,6 +371,10 @@ final class SendViewModel: ObservableObject {
         )
         let result = parser.parse(code)
 
+        if let memo = result.memo {
+            sendModel.setDestinationAdditionalField(memo)
+        }
+
         sendModel.setDestination(SendAddress(value: result.destination, inputSource: .qrCode))
         sendModel.setAmount(result.amount)
     }
