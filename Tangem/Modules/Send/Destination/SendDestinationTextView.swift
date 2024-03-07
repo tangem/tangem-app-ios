@@ -25,7 +25,7 @@ struct SendDestinationTextView: View {
     var body: some View {
         GroupedSection(viewModel) { _ in
             if viewModel.showAddressIcon {
-                VStack(alignment: .leading, spacing: 14) {
+                VStack(alignment: .leading, spacing: 12) {
                     fieldName
 
                     ZStack(alignment: .trailing) {
@@ -47,7 +47,7 @@ struct SendDestinationTextView: View {
 
                     pasteButton
                 }
-                .padding(.vertical, 10)
+                .padding(.vertical, 12)
             }
         } footer: {
             if !viewModel.animatingFooterOnAppear {
