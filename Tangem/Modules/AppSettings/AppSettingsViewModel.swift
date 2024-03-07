@@ -103,17 +103,17 @@ private extension AppSettingsViewModel {
             }
             .store(in: &bag)
 
+        AppSettings.shared.$useDefaultFee
+            .sink { [weak self] useDefaultFee in
+                self?.showDefaultFeeOptionSelector = useDefaultFee
+            }
+            .store(in: &bag)
+
         $defaultFeeOption
             .removeDuplicates()
             .dropFirst()
             .sink { newOption in
                 AppSettings.shared.defaultFeeOption = newOption
-            }
-            .store(in: &bag)
-
-        AppSettings.shared.$useDefaultFee
-            .sink { [weak self] useDefaultFee in
-                self?.showDefaultFeeOptionSelector = useDefaultFee
             }
             .store(in: &bag)
     }
