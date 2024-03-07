@@ -10,7 +10,7 @@ import SwiftUI
 import Combine
 
 struct DecimalNumberTextField: View {
-    @ObservedObject private var stateObject: StateObject
+    @ObservedObject private var viewModel: ViewModel
 
     // Septupable properties
     private var placeholder: String = "0"
@@ -20,8 +20,8 @@ struct DecimalNumberTextField: View {
     @State private var textFieldText: String = ""
     @State private var size: CGSize = .zero
 
-    init(stateObject: StateObject) {
-        self.stateObject = stateObject
+    init(viewModel: ViewModel) {
+        self.viewModel = viewModel
     }
 
     var body: some View {
@@ -44,7 +44,7 @@ struct DecimalNumberTextField: View {
             .tint(appearance.textColor)
             .labelsHidden()
             .keyboardType(.decimalPad)
-            .onChange(of: stateObject.decimalValue) { newDecimalValue in
+            .onChange(of: viewModel.decimalValue) { newDecimalValue in
                 switch newDecimalValue {
                 case .none, .internal:
                     // Do nothing. Because all internal values already updated
@@ -52,7 +52,7 @@ struct DecimalNumberTextField: View {
                 case .external(let value):
                     // If the decimalValue did updated from external place
                     // We have to update the private values
-                    let formattedNewValue = stateObject.format(value: value)
+                    let formattedNewValue = viewModel.format(value: value)
                     updateValues(with: formattedNewValue)
                 }
             }
@@ -70,7 +70,7 @@ struct DecimalNumberTextField: View {
     }
 
     private func updateValues(with newValue: String) {
-        let decimalSeparator = stateObject.decimalSeparator()
+        let decimalSeparator = viewModel.decimalSeparator()
 
         var numberString = newValue
 
@@ -91,15 +91,15 @@ struct DecimalNumberTextField: View {
         }
 
         // Format the string and reduce the tail
-        numberString = stateObject.format(value: numberString)
+        numberString = viewModel.format(value: numberString)
 
         // Update private `@State` for display not correct number, like 0,000
         textFieldText = numberString
 
-        if let value = stateObject.mapToDecimal(string: numberString) {
-            stateObject.update(decimalValue: .internal(value))
+        if let value = viewModel.mapToDecimal(string: numberString) {
+            viewModel.update(decimalValue: .internal(value))
         } else if numberString.isEmpty {
-            stateObject.update(decimalValue: nil)
+            viewModel.update(decimalValue: nil)
         }
     }
 }
@@ -118,14 +118,14 @@ extension DecimalNumberTextField: Setupable {
 
 struct DecimalNumberTextField_Previews: PreviewProvider {
     static var previews: some View {
-        DecimalNumberTextField(stateObject: .init(maximumFractionDigits: 8))
+        DecimalNumberTextField(viewModel: .init(maximumFractionDigits: 8))
     }
 }
 
-// MARK: - StateObject
+// MARK: - ViewModel
 
 extension DecimalNumberTextField {
-    class StateObject: ObservableObject {
+    class ViewModel: ObservableObject {
         // Public properties
         var value: Decimal? {
             decimalValue?.value
@@ -219,7 +219,7 @@ extension DecimalNumberTextField {
 
 // MARK: - DecimalValue
 
-private extension DecimalNumberTextField.StateObject {
+private extension DecimalNumberTextField.ViewModel {
     enum DecimalValue: Hashable {
         case `internal`(Decimal)
         case external(Decimal)
