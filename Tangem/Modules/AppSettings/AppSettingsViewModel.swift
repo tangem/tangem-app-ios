@@ -202,9 +202,8 @@ private extension AppSettingsViewModel {
             action: coordinator?.openThemeSelection
         )
 
-        #warning("L10n")
         defaultFeeViewModel = DefaultToggleRowViewModel(
-            title: "Default Fee",
+            title: Localization.appSettingsDefaultFee,
             isOn: useDefaultFeeBinding()
         )
 
