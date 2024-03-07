@@ -17,6 +17,7 @@ struct SendDestinationTextView: View {
     private var titleNamespaceId: String?
     private var textNamespaceId: String?
     private var clearButtonNamespaceId: String?
+    private var inputFieldFont = Fonts.Regular.subheadline
 
     init(viewModel: SendDestinationTextViewModel) {
         self.viewModel = viewModel
@@ -34,7 +35,12 @@ struct SendDestinationTextView: View {
                             input
                         }
 
+                        if viewModel.shouldShowPasteButton {
+                            pasteButton
+                        }
+
                         pasteButton
+                            .opacity(0)
                     }
                 }
                 .padding(.vertical, 12)
@@ -45,7 +51,12 @@ struct SendDestinationTextView: View {
                         input
                     }
 
+                    if viewModel.shouldShowPasteButton {
+                        pasteButton
+                    }
+
                     pasteButton
+                        .opacity(0)
                 }
                 .padding(.vertical, 12)
             }
@@ -94,9 +105,16 @@ struct SendDestinationTextView: View {
 
     private var input: some View {
         ZStack {
-            // Hidden icon to ensure the layout stays the same way
-            clearIcon
-                .hidden()
+            // Hidden views to ensure the layout stays the same way
+            Group {
+                clearIcon
+
+                if #available(iOS 16, *) {
+                    TextField("", text: .constant("Two\nLines"), axis: .vertical)
+                        .style(inputFieldFont, color: .black)
+                }
+            }
+            .opacity(0)
 
             HStack(spacing: 12) {
                 Group {
@@ -111,7 +129,7 @@ struct SendDestinationTextView: View {
                 .autocapitalization(.none)
                 .keyboardType(.asciiCapable)
                 .disableAutocorrection(true)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                .style(inputFieldFont, color: Colors.Text.primary1)
                 .matchedGeometryEffectOptional(id: textNamespaceId, in: namespace)
 
                 if !viewModel.input.isEmpty {
@@ -132,30 +150,28 @@ struct SendDestinationTextView: View {
 
     @ViewBuilder
     private var pasteButton: some View {
-        if viewModel.input.isEmpty, !viewModel.isDisabled {
-            if #available(iOS 16.0, *) {
-                PasteButton(payloadType: String.self) { strings in
-                    guard let string = strings.first else { return }
+        if #available(iOS 16.0, *) {
+            PasteButton(payloadType: String.self) { strings in
+                guard let string = strings.first else { return }
 
-                    // We receive the value on the non-GUI thread
-                    DispatchQueue.main.async {
-                        viewModel.didTapPasteButton(string)
-                    }
+                // We receive the value on the non-GUI thread
+                DispatchQueue.main.async {
+                    viewModel.didTapPasteButton(string)
                 }
-                .tint(Color.black)
-                .labelStyle(.titleOnly)
-                .buttonBorderShape(.capsule)
-            } else {
-                Button(action: viewModel.didTapLegacyPasteButton) {
-                    Text(Localization.commonPaste)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.primary2)
-                        .padding(.vertical, 6)
-                        .padding(.horizontal, 12)
-                        .background(viewModel.hasTextInClipboard ? Colors.Button.primary : Colors.Button.disabled)
-                        .clipShape(Capsule())
-                }
-                .disabled(!viewModel.hasTextInClipboard)
             }
+            .tint(Color.black)
+            .labelStyle(.titleOnly)
+            .buttonBorderShape(.capsule)
+        } else {
+            Button(action: viewModel.didTapLegacyPasteButton) {
+                Text(Localization.commonPaste)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.primary2)
+                    .padding(.vertical, 6)
+                    .padding(.horizontal, 12)
+                    .background(viewModel.hasTextInClipboard ? Colors.Button.primary : Colors.Button.disabled)
+                    .clipShape(Capsule())
+            }
+            .disabled(!viewModel.hasTextInClipboard)
         }
     }
 }
@@ -186,26 +202,48 @@ extension SendDestinationTextView: Setupable {
     }
 }
 
-#Preview {
-    GroupedScrollView {
-        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: ""), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
+#Preview("Different cases") {
+    GroupedScrollView(spacing: 14) {
+        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: ""), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in }))
 
-        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: "0x391316d97a07027a0702c8A002c8A0C25d8470"), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
+        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: "0x391316d97a07027a0702c8A002c8A0C25d8470"), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in }))
 
-        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
+        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in }))
 
-        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "123456789"), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
+        SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "123456789"), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in }))
+    }
+    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+}
 
-        Text("There are two fields and they must be aligned 👇")
+#Preview("Alignment") {
+    GroupedScrollView(spacing: 14) {
+        // MARK: address alignment test
+
+        Text("There are two **ADDRESS** fields and they must be aligned 👇")
             .foregroundColor(.blue)
             .font(.caption)
 
         // To make sure everything's aligned and doesn't jump when entering stuff
         ZStack {
-            SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
+            SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: ""), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in }))
                 .opacity(0.5)
 
-            SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "Optional"), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }))
+            SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: "0x391316d97a07027a0702c8A002c8A0C25d8470"), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in }))
+                .opacity(0.5)
+        }
+
+        // MARK: memo alignment test
+
+        Text("There are two **MEMO** fields and they must be aligned 👇")
+            .foregroundColor(.blue)
+            .font(.caption)
+
+        // To make sure everything's aligned and doesn't jump when entering stuff
+        ZStack {
+            SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in }))
+                .opacity(0.5)
+
+            SendDestinationTextView(viewModel: SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "Optional"), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in }))
                 .opacity(0.5)
         }
     }
