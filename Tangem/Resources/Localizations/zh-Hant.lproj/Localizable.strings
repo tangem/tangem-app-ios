@@ -15,6 +15,8 @@
 "alert_negative_app_rate_sent_title" = "你的建議已送出";
 "alert_troubleshooting_scan_card_message" = "請嘗試完全按照動畫中顯示的方式點擊卡片或請求支持";
 "alert_troubleshooting_scan_card_title" = "有困難在掃描卡上嗎？";
+"app_settings_default_fee" = "Default Fee";
+"app_settings_default_fee_footer" = "Enable Default Fee to set transaction fees automatically and skip the Fee page when sending funds. You can always go back to this page if necessary.";
 "app_settings_off_saved_access_code_alert_message" = "這將刪除所有保存的錢包訪問代碼。對錢包的任何進一步操作都需要提交訪問代碼。";
 "app_settings_off_saved_wallet_alert_message" = "移除已保存的卡會刪除所有已保存的錢包及其訪問密碼";
 "app_settings_saved_access_codes" = "保存訪問密碼";
@@ -187,7 +189,6 @@
 "exchange_tokens_available_tokens_header" = "My tokens";
 "exchange_tokens_empty_tokens" = "You haven't added any tokens yet. Add tokens via Market to swap";
 "exchange_tokens_unavailable_tokens_header" = "Cannot be swapped for %@";
-"express_by_provider" = "Provided by";
 "express_by_provider_placeholder" = "Provided by %@";
 "express_cex_status_button_title" = "Status";
 "express_choose_providers_subtitle" = "Tangem offers token swaps via 3rd-party providers according to each provider's terms";
@@ -264,7 +265,6 @@
 "main_tokens" = "代幣";
 "manage_tokens_add" = "Add";
 "manage_tokens_edit" = "Edit";
-"manage_tokens_list_header_subtitle" = "Couldn’t find this token, you can add it manually";
 "manage_tokens_list_header_title" = "Coin market cap";
 "manage_tokens_network_selector_native_subtitle" = "Blockchain the cryptocurrency was initially created";
 "manage_tokens_network_selector_native_title" = "Native network";
@@ -275,7 +275,6 @@
 "manage_tokens_network_selector_wallet" = "Wallet";
 "manage_tokens_nothing_found" = "Couldn’t find this token, you can add it manually";
 "manage_tokens_search_placeholder" = "e.g. BTC I trust, hodl I must";
-"manage_tokens_title" = "Coin market cap";
 "manage_tokens_unavailable_description" = "The selected token is currently unavailable for actions within the crypto wallet. But worry not, you can express your interest by upvoting it.";
 "manage_tokens_unavailable_vote" = "Upvote";
 "manage_tokens_wallet_selector_title" = "Choose wallet";
@@ -320,7 +319,6 @@
 "onboarding_navbar_save_wallet" = "儲存你的錢包";
 "onboarding_navbar_title_creating_backup" = "創建備份";
 "onboarding_seed_button_read_more" = "閱讀更多關於助記詞的訊息";
-"onboarding_seed_generate_message" = "按照下面給出的順序寫下這 12 個單詞，並將它們存放在安全秘密的地方。";
 "onboarding_seed_generate_title" = "Your seed phrase";
 "onboarding_seed_import_message" = "To import your wallet, enter your seed phrase in the field below";
 "onboarding_seed_intro_button_generate" = "生成助記詞";
@@ -510,14 +508,11 @@
 "swapping_alert_title" = "Fees";
 "swapping_approve_information_text" = "批准被視為所有去中心化交易所的行業標準，並保護您的錢包在未經您許可的情況下不被智能合約訪問。按照設計，智能合約無法訪問您的代幣，除非您從您的終端批准訪問。通過“解鎖”您的代幣，您將獲得 1inch 智能合約使用您的資產的權限。網絡的礦工將獲得Gas Fee（由您支付）作為補償，以在區塊鏈上記錄此操作。一旦獲得許可，您就可以交易您的代幣。";
 "swapping_approve_information_title" = "批准";
-"swapping_error_wrapper" = "錯誤： %@";
 "swapping_from_title" = "You swap";
 "swapping_give_permission" = "賦予權限";
 "swapping_high_price_impact_description" = "在此代幣交換的數量將對價格產生重大影響，並降低您收到的數量";
 "swapping_insufficient_funds" = "餘額不足";
 "swapping_network_fee_warning_content" = "Sending amount will be reduced to cover the selected fee level";
-"swapping_pending_transaction_subtitle" = "交易進行中...";
-"swapping_pending_transaction_title" = "等待中";
 "swapping_permission_buttons_approve" = "允許";
 "swapping_permission_current_transaction" = "Current transaction";
 "swapping_permission_fee_footer" = "The network will charge a token approval fee to verify that you are authorizing the use of your token for the swap.";
