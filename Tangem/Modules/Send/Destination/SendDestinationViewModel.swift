@@ -34,7 +34,7 @@ protocol SendDestinationViewModelInput {
 
     var transactionHistoryPublisher: AnyPublisher<WalletModel.TransactionHistoryState, Never> { get }
 
-    func setDestination(_ address: String)
+    func setDestination(_ address: SendAddress)
     func setDestinationAdditionalField(_ additionalField: String)
 }
 
@@ -47,6 +47,8 @@ class SendDestinationViewModel: ObservableObject {
     @Published var destinationAdditionalFieldErrorText: String?
     @Published var animatingAuxiliaryViewsOnAppear: Bool = false
     @Published var showSuggestedDestinations = true
+
+    var didProperlyDisappear: Bool = false
 
     private let input: SendDestinationViewModelInput
     private let transactionHistoryMapper: TransactionHistoryMapper
@@ -92,7 +94,9 @@ class SendDestinationViewModel: ObservableObject {
             isDisabled: .just(output: false),
             errorText: input.destinationError
         ) { [weak self] in
-            self?.input.setDestination($0)
+            self?.input.setDestination(SendAddress(value: $0, inputSource: .textField))
+        } didPasteDestination: { [weak self] in
+            self?.input.setDestination(SendAddress(value: $0, inputSource: .pasteButton))
         }
 
         if let additionalFieldType = input.additionalFieldType,
@@ -105,18 +109,12 @@ class SendDestinationViewModel: ObservableObject {
                 errorText: input.destinationAdditionalFieldError
             ) { [weak self] in
                 self?.input.setDestinationAdditionalField($0)
+            } didPasteDestination: { [weak self] in
+                self?.input.setDestinationAdditionalField($0)
             }
         }
 
         bind()
-    }
-
-    func onAppear() {
-        if animatingAuxiliaryViewsOnAppear {
-            withAnimation(SendView.Constants.defaultAnimation) {
-                animatingAuxiliaryViewsOnAppear = false
-            }
-        }
     }
 
     private func bind() {
@@ -175,7 +173,7 @@ class SendDestinationViewModel: ObservableObject {
                     let feedbackGenerator = UINotificationFeedbackGenerator()
                     feedbackGenerator.notificationOccurred(.success)
 
-                    self?.input.setDestination(destination.address)
+                    self?.input.setDestination(SendAddress(value: destination.address, inputSource: destination.type.inputSource))
                     if let additionalField = destination.additionalField {
                         self?.input.setDestinationAdditionalField(additionalField)
                     }
@@ -185,9 +183,15 @@ class SendDestinationViewModel: ObservableObject {
     }
 }
 
-extension SendDestinationViewModel: AuxiliaryViewAnimatable {
-    func setAnimatingAuxiliaryViewsOnAppear(_ animatingAuxiliaryViewsOnAppear: Bool) {
-        self.animatingAuxiliaryViewsOnAppear = animatingAuxiliaryViewsOnAppear
-        addressViewModel?.setAnimatingFooterOnAppear(animatingAuxiliaryViewsOnAppear)
+extension SendDestinationViewModel: AuxiliaryViewAnimatable {}
+
+private extension SendSuggestedDestination.`Type` {
+    var inputSource: SendAddress.InputSource {
+        switch self {
+        case .otherWallet:
+            return .otherWallet
+        case .recentAddress:
+            return .recentAddress
+        }
     }
 }
