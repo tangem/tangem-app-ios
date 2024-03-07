@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemSdk
 import BlockchainSdk
 
 class FakeUserWalletModel: UserWalletModel, ObservableObject {
@@ -20,11 +21,30 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     let totalBalanceProvider: TotalBalanceProviding
     let signer: TangemSigner = .init(filter: .cardId(""), sdk: .init(), twinKey: nil)
     let config: UserWalletConfig
-    let userWallet: UserWallet
+    let userWallet: StoredUserWallet
     let isUserWalletLocked: Bool
     let userWalletId: UserWalletId
-
+    var hasBackupCards: Bool { cardsCount > 1 }
+    var emailConfig: EmailConfig? { nil }
     var cardsCount: Int
+
+    var tangemApiAuthData: TangemApiTarget.AuthData {
+        .init(cardId: "", cardPublicKey: Data())
+    }
+
+    var analyticsContextData: AnalyticsContextData {
+        .init(
+            id: "",
+            productType: .other,
+            batchId: "",
+            firmware: "",
+            baseCurrency: ""
+        )
+    }
+
+    var wcWalletModelProvider: WalletConnectWalletModelProvider {
+        CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
+    }
 
     var userWalletName: String { _userWalletNamePublisher.value }
 
@@ -42,7 +62,7 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
         cardsCount: Int,
         userWalletId: UserWalletId,
         walletManagers: [FakeWalletManager],
-        userWallet: UserWallet
+        userWallet: StoredUserWallet
     ) {
         self.isUserWalletLocked = isUserWalletLocked
         self.cardsCount = cardsCount
@@ -75,6 +95,8 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     func validate() -> Bool {
         return true
     }
+
+    func onBackupCreated(_ card: Card) {}
 }
 
 extension FakeUserWalletModel: MainHeaderSupplementInfoProvider {
