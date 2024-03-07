@@ -97,17 +97,24 @@ struct AppSettingsView: View {
         GroupedSection(viewModel.defaultFeeViewModel) {
             DefaultToggleRowView(viewModel: $0)
         } footer: {
-            DefaultFooterView(Localization.appSettingsDefaultFeeFooter)
+            if !viewModel.showDefaultFeeOptionSelector {
+                defaultFeeFooter
+            }
         }
 
         if viewModel.showDefaultFeeOptionSelector {
             SelectableGropedSection(
                 viewModel.defaultFeeOptionViewModels,
-                selection: $viewModel.defaultFeeOption,
-                content: {
-                    DefaultSelectableRowView(viewModel: $0)
-                }
-            )
+                selection: $viewModel.defaultFeeOption
+            ) {
+                DefaultSelectableRowView(viewModel: $0)
+            } footer: {
+                defaultFeeFooter
+            }
         }
+    }
+
+    private var defaultFeeFooter: some View {
+        DefaultFooterView(Localization.appSettingsDefaultFeeFooter)
     }
 }
