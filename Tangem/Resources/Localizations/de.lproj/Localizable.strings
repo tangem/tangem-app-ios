@@ -15,6 +15,8 @@
 "alert_negative_app_rate_sent_title" = "Your suggestions were sent";
 "alert_troubleshooting_scan_card_message" = "Please try to tap the card exactly as shown in the animation or request support.";
 "alert_troubleshooting_scan_card_title" = "Are you having difficulty scanning your card?";
+"app_settings_default_fee" = "Default Fee";
+"app_settings_default_fee_footer" = "Enable Default Fee to set transaction fees automatically and skip the Fee page when sending funds. You can always go back to this page if necessary.";
 "app_settings_off_saved_access_code_alert_message" = "This will delete all the saved wallet access codes. Any further operation with the wallet will require submitting the access code.";
 "app_settings_off_saved_wallet_alert_message" = "Removing the saved card deletes all the saved wallets and their access codes from the app.";
 "app_settings_saved_access_codes" = "Save Access Code";
@@ -187,7 +189,6 @@
 "exchange_tokens_available_tokens_header" = "My tokens";
 "exchange_tokens_empty_tokens" = "You haven't added any tokens yet. Add tokens via Market to swap";
 "exchange_tokens_unavailable_tokens_header" = "Cannot be swapped for %@";
-"express_by_provider" = "Provided by";
 "express_by_provider_placeholder" = "Provided by %@";
 "express_cex_status_button_title" = "Status";
 "express_choose_providers_subtitle" = "Tangem offers token swaps via 3rd-party providers according to each provider's terms";
@@ -264,7 +265,6 @@
 "main_tokens" = "Tokens";
 "manage_tokens_add" = "Add";
 "manage_tokens_edit" = "Edit";
-"manage_tokens_list_header_subtitle" = "Couldn’t find this token, you can add it manually";
 "manage_tokens_list_header_title" = "Coin market cap";
 "manage_tokens_network_selector_native_subtitle" = "Blockchain the cryptocurrency was initially created";
 "manage_tokens_network_selector_native_title" = "Native network";
@@ -275,7 +275,6 @@
 "manage_tokens_network_selector_wallet" = "Wallet";
 "manage_tokens_nothing_found" = "Couldn’t find this token, you can add it manually";
 "manage_tokens_search_placeholder" = "e.g. BTC I trust, hodl I must";
-"manage_tokens_title" = "Coin market cap";
 "manage_tokens_unavailable_description" = "The selected token is currently unavailable for actions within the crypto wallet. But worry not, you can express your interest by upvoting it.";
 "manage_tokens_unavailable_vote" = "Upvote";
 "manage_tokens_wallet_selector_title" = "Choose wallet";
@@ -320,7 +319,6 @@
 "onboarding_navbar_save_wallet" = "Save your wallet";
 "onboarding_navbar_title_creating_backup" = "Creating a backup";
 "onboarding_seed_button_read_more" = "Read more about seed phrase";
-"onboarding_seed_generate_message" = "Write these 12 words down in the order given below and store them in a safe and secret place.";
 "onboarding_seed_generate_title" = "Your seed phrase";
 "onboarding_seed_import_message" = "To import your wallet, enter your seed phrase in the field below";
 "onboarding_seed_intro_button_generate" = "Generate seed phrase";
@@ -510,14 +508,11 @@
 "swapping_alert_title" = "Fees";
 "swapping_approve_information_text" = "All decentralized exchanges require approvals to prevent smart contracts from accessing your wallet without your permission. By design, smart contracts can't access your tokens unless you approve. By \"unlocking\" your tokens, you authorize the 1-inch smart contract to spend them. The network's miners receive a gas fee (paid by you) to record this action on the blockchain. You can swap your token after giving approval.";
 "swapping_approve_information_title" = "Approve";
-"swapping_error_wrapper" = "Error: %@";
 "swapping_from_title" = "You swap";
 "swapping_give_permission" = "Give Permission";
 "swapping_high_price_impact_description" = "Swapping this amount of selected tokens will cause a significant price impact and reduce your outcome.";
 "swapping_insufficient_funds" = "Insufficient funds";
 "swapping_network_fee_warning_content" = "Sending amount will be reduced to cover the selected fee level";
-"swapping_pending_transaction_subtitle" = "Transaction in progress...";
-"swapping_pending_transaction_title" = "Waiting";
 "swapping_permission_buttons_approve" = "Approve";
 "swapping_permission_current_transaction" = "Current transaction";
 "swapping_permission_fee_footer" = "The network will charge a token approval fee to verify that you are authorizing the use of your token for the swap.";
