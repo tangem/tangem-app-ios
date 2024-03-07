@@ -162,7 +162,13 @@ class LegacySendViewModel: ObservableObject {
     let amountToSend: Amount
 
     private(set) var isSellingCrypto: Bool
+
     private var scannedQRCode: CurrentValueSubject<String?, Never> = .init(nil)
+    private lazy var qrCodeParser = QRCodeParser(
+        amountType: amountToSend.type,
+        blockchain: walletModel.blockchainNetwork.blockchain,
+        decimalCount: walletModel.decimalCount
+    )
 
     @Published private var validatedXrpDestinationTag: UInt32? = nil
 
@@ -458,20 +464,18 @@ class LegacySendViewModel: ObservableObject {
         scannedQRCode
             .compactMap { $0 }
             .sink { [unowned self] qrCodeString in
-                let withoutPrefix = qrCodeString.remove(contentsOf: walletModel.wallet.blockchain.qrPrefixes)
-                let splitted = withoutPrefix.split(separator: "?")
-                lastDestinationAddressSource = .qrCode
-                destination = splitted.first.map { String($0) } ?? withoutPrefix
+                let result = qrCodeParser.parse(qrCodeString)
 
-                if splitted.count > 1 {
-                    let queryItems = splitted[1].lowercased().split(separator: "&")
-                    for queryItem in queryItems {
-                        if queryItem.contains("amount") {
-                            amountText = queryItem.replacingOccurrences(of: "amount=", with: "")
-                            break
-                        }
-                    }
+                if let parsedAmountText = result.amountText {
+                    amountText = parsedAmountText
                 }
+
+                if let parsedMemo = result.memo {
+                    memo = parsedMemo
+                }
+
+                destination = result.destination
+                lastDestinationAddressSource = .qrCode
             }
             .store(in: &bag)
     }
