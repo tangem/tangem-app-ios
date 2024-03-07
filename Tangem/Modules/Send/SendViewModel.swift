@@ -394,7 +394,7 @@ extension SendViewModel: SendSummaryRoutable {
         }
 
         if let auxiliaryViewAnimatable = auxiliaryViewAnimatable(step) {
-            auxiliaryViewAnimatable.setAnimatingAuxiliaryViewsOnAppear(true)
+            auxiliaryViewAnimatable.setAnimatingAuxiliaryViewsOnAppear()
         }
 
         openStep(step, stepAnimation: nil)
