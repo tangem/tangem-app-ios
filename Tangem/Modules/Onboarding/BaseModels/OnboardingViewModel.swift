@@ -370,7 +370,7 @@ extension OnboardingViewModel {
     }
 
     func openSupport() {
-        Analytics.log(.requestSupport)
+        Analytics.log(.requestSupport, params: [.source: .onboarding])
 
         // Hide keyboard on set pin screen
         UIApplication.shared.endEditing()
