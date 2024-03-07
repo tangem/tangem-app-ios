@@ -16,6 +16,8 @@
 "alert_negative_app_rate_sent_title" = "Your suggestions were sent";
 "alert_troubleshooting_scan_card_message" = "Please try to tap the card exactly as shown in the animation or request support.";
 "alert_troubleshooting_scan_card_title" = "Are you having difficulty scanning your card?";
+"app_settings_default_fee" = "Default Fee";
+"app_settings_default_fee_footer" = "Enable Default Fee to set transaction fees automatically and skip the Fee page when sending funds. You can always go back to this page if necessary.";
 "app_settings_off_saved_access_code_alert_message" = "This will delete all the saved wallet access codes. Any further operation with the wallet will require submitting the access code.";
 "app_settings_off_saved_wallet_alert_message" = "Removing the saved card deletes all the saved wallets and their access codes from the app.";
 "app_settings_saved_access_codes" = "Save Access Code";
