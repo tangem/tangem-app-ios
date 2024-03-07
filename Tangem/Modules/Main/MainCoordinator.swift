@@ -222,7 +222,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
 
         let coordinator = SendCoordinator(dismissAction: dismissAction)
         let options = SendCoordinator.Options(
-            walletName: userWalletModel.name,
+            walletName: userWalletModel.userWallet.name,
             emailDataProvider: userWalletModel,
             walletModel: walletModel,
             userWalletModel: userWalletModel,
@@ -262,7 +262,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
 
         let coordinator = SendCoordinator(dismissAction: dismissAction)
         let options = SendCoordinator.Options(
-            walletName: userWalletModel.name,
+            walletName: userWalletModel.userWallet.name,
             emailDataProvider: userWalletModel,
             walletModel: walletModel,
             userWalletModel: userWalletModel,
