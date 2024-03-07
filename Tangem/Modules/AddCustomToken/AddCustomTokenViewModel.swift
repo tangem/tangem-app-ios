@@ -93,12 +93,12 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             try checkLocalStorage()
 
             try userWalletModel.userTokensManager.addTokenItemPrecondition(tokenItem)
+            try userWalletModel.userTokensManager.update(itemsToRemove: [], itemsToAdd: [tokenItem])
         } catch {
             self.error = error.alertBinder
             return
         }
 
-        userWalletModel.userTokensManager.update(itemsToRemove: [], itemsToAdd: [tokenItem])
         logSuccess(tokenItem: tokenItem)
 
         closeModule()
