@@ -178,20 +178,16 @@ final class SendViewModel: ObservableObject {
     }
 
     func next() {
-        guard var nextStep = step(adding: 1) else {
-            assertionFailure("Invalid step logic -- next")
-            return
-        }
-
+        var nextStep = step(adding: 1)
         if nextStep == .fee,
            AppSettings.shared.useDefaultFee,
            sendModel.feeValue != nil {
-            guard let stepAfterNext = step(adding: 2) else {
-                assertionFailure("Invalid step logic")
-                return
-            }
+            nextStep = step(adding: 2)
+        }
 
-            nextStep = stepAfterNext
+        guard let nextStep else {
+            assertionFailure("Invalid step logic -- next")
+            return
         }
 
         let stepAnimation: SendView.StepAnimation? = (nextStep == .summary) ? nil : .slideForward
