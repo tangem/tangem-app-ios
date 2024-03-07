@@ -15,6 +15,8 @@
 "alert_negative_app_rate_sent_title" = "Ваши предложения отправлены";
 "alert_troubleshooting_scan_card_message" = "Пожалуйста, попробуйте приложить карту в точности, как показано на анимации, или запросите поддержку.";
 "alert_troubleshooting_scan_card_title" = "У вас возникли трудности со сканированием карты?";
+"app_settings_default_fee" = "Default Fee";
+"app_settings_default_fee_footer" = "Подключите функцию комиссии по умолчанию и при формировании транзакции на отправку средств комиссия будет выставлена автоматически, а экран комиссии пропущен. Вы всегда сможете на него вернуться.";
 "app_settings_off_saved_access_code_alert_message" = "Все сохраненные коды доступа будут удалены. Вам потребуется вводить код доступа при работе с кошельком.";
 "app_settings_off_saved_wallet_alert_message" = "При отключении функции сохранения кошелька все ранее сохраненные кошельки будут удалены из приложения.";
 "app_settings_saved_access_codes" = "Сохранение кода доступа";
@@ -138,7 +140,7 @@
 "custom_token_creation_error_invalid_contract_address" = "Адрес контракта некорректен";
 "custom_token_creation_error_invalid_derivation_path" = "Путь деривации некорректен";
 "custom_token_creation_error_network_not_selected" = "Пожалуйста, выберите сеть";
-"custom_token_creation_error_wrong_decimals" = "Decimal must be a valid integer, up to %li";
+"custom_token_creation_error_wrong_decimals" = "Десятичное число должно быть действительным целым числом, до %li";
 "custom_token_custom_derivation" = "Своя деривация";
 "custom_token_custom_derivation_placeholder" = "Например m/00'/0000'/0'/0/0";
 "custom_token_custom_derivation_title" = "Введите свою деривацию";
@@ -187,7 +189,6 @@
 "exchange_tokens_available_tokens_header" = "Мои токены";
 "exchange_tokens_empty_tokens" = "У вас нет добавленных токенов. Добавьте токены для обмена";
 "exchange_tokens_unavailable_tokens_header" = "Недоступен для обмена с %@";
-"express_by_provider" = "Предоставлено";
 "express_by_provider_placeholder" = "Предоставлено %@";
 "express_cex_status_button_title" = "Статус";
 "express_choose_providers_subtitle" = "Tangem предоставляет доступ к обмену через сторонних поставщиков в соответствии с их правилами";
@@ -264,8 +265,7 @@
 "main_tokens" = "Токены";
 "manage_tokens_add" = "Добавить";
 "manage_tokens_edit" = "Изменить";
-"manage_tokens_list_header_subtitle" = "Couldn’t find this token, you can add it manually";
-"manage_tokens_list_header_title" = "Coin market cap";
+"manage_tokens_list_header_title" = "Рыночная капитализация";
 "manage_tokens_network_selector_native_subtitle" = "Blockchain the cryptocurrency was initially created";
 "manage_tokens_network_selector_native_title" = "Основная сеть";
 "manage_tokens_network_selector_non_native_info" = "Using non-native networks for tokens enables cross-blockchain interoperability, allowing assets to be utilized in diverse decentralized applications and smart contracts across platforms. However, this often involves a custodian or smart contract to hold the original asset securely, introducing centralization and counterparty risk.";
@@ -275,7 +275,6 @@
 "manage_tokens_network_selector_wallet" = "Кошелек";
 "manage_tokens_nothing_found" = "Не удалось найти этот токен, вы можете добавить его вручную.";
 "manage_tokens_search_placeholder" = "например Bitcoin";
-"manage_tokens_title" = "Рыночная капитализация";
 "manage_tokens_unavailable_description" = "Выбранный токен не доступен в кошельке на данный момент. Но не переживайте, вы можете выразить свой интерес проголосовав за его добавление.";
 "manage_tokens_unavailable_vote" = "Голосовать";
 "manage_tokens_wallet_selector_title" = "Выберите кошелек";
@@ -320,7 +319,6 @@
 "onboarding_navbar_save_wallet" = "Сохраните ваш кошелек";
 "onboarding_navbar_title_creating_backup" = "Резервная копия";
 "onboarding_seed_button_read_more" = "Прочитать о seed-фразе";
-"onboarding_seed_generate_message" = "Запишите эти 12 слов в порядке, указанном ниже, и сохраните их в надежном месте.";
 "onboarding_seed_generate_title" = "Ваша seed-фраза";
 "onboarding_seed_import_message" = "Чтобы импортировать кошелек, введите seed-фразу в поле ниже";
 "onboarding_seed_intro_button_generate" = "Создать seed-фразу";
@@ -510,14 +508,11 @@
 "swapping_alert_title" = "Комиссии";
 "swapping_approve_information_text" = "Подтверждения считаются отраслевым стандартом для всех децентрализованных бирж и защищают ваш кошелек от доступа со стороны смарт-контракта без вашего разрешения. По замыслу смарт-контракты не могут получить доступ к вашим токенам, если вы не одобрите доступ со своей стороны. «Разблокируя» свои токены, вы даете смарт-контракту 1inch разрешение тратить ваши активы. Майнеры сети получают компенсацию за газ (оплачиваемый вами) за запись этого действия в блокчейне. Как только разрешение будет предоставлено, вы сможете обменять свой токен.";
 "swapping_approve_information_title" = "Подтвердить";
-"swapping_error_wrapper" = "Ошибка: %@";
 "swapping_from_title" = "Вы отправляете";
 "swapping_give_permission" = "Дать разрешение";
 "swapping_high_price_impact_description" = "Обмен этой суммы выбранных токенов может вызвать значительные колебания цены и уменьшить получаемую сумму.";
 "swapping_insufficient_funds" = "Недостаточно средств";
 "swapping_network_fee_warning_content" = "Сумма отправки будет уменьшена для покрытия выбранного уровня комиссии";
-"swapping_pending_transaction_subtitle" = "Транзакция в процессе…";
-"swapping_pending_transaction_title" = "Подождите";
 "swapping_permission_buttons_approve" = "Подтвердить";
 "swapping_permission_current_transaction" = "Текущая транзакция";
 "swapping_permission_fee_footer" = "Комиссия сети за одобрение токена будет взиматься за подтверждение того, что именно вы разрешаете использовать ваш токен для обмена.";
