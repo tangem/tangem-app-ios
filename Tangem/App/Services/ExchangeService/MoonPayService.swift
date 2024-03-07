@@ -368,6 +368,7 @@ private extension Blockchain {
         case .playa3ullGames: return nil
         case .pulsechain: return nil
         case .aurora: return nil
+        case .manta: return nil
         }
     }
 
@@ -425,6 +426,7 @@ private extension Blockchain {
         case .playa3ullGames: return nil
         case .pulsechain: return nil
         case .aurora: return nil
+        case .manta: return nil
         }
     }
 }
