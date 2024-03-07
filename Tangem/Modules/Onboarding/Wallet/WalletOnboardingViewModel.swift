@@ -224,29 +224,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             self?.createWalletOnPrimaryCard(using: mnemonic, walletCreationType: .seedImport(length: mnemonic.mnemonicComponents.count))
         }
 
-    lazy var validationUserSeedPhraseModel: OnboardingSeedPhraseUserValidationViewModel? = {
-        let words = seedPhraseManager.seedPhrase
-        assert(words.count == 12)
-        guard words.count == 12 else {
-            alert = MnemonicError.invalidWordCount.alertBinder
-            return nil
-        }
-
-        return OnboardingSeedPhraseUserValidationViewModel(validationInput: .init(
-            secondWord: words[1],
-            seventhWord: words[6],
-            eleventhWord: words[10],
-            createWalletAction: { [weak self] in
-                assert(self?.seedPhraseManager.mnemonic != nil, "Missing mnemonic O_o")
-                guard let mnemonic = self?.seedPhraseManager.mnemonic else {
-                    self?.alert = MnemonicError.mnenmonicCreationFailed.alertBinder
-                    return
-                }
-
-                self?.createWalletOnPrimaryCard(using: mnemonic, walletCreationType: .newSeed)
-            }
-        ))
-    }()
+    var generateSeedPhraseModel: OnboardingSeedPhraseGenerateViewModel?
+    var validationUserSeedPhraseModel: OnboardingSeedPhraseUserValidationViewModel?
 
     var canShowThirdCardImage: Bool {
         return true
@@ -254,12 +233,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     var canShowOriginCardLabel: Bool {
         return currentStep == .backupCards
-    }
-
-    // MARK: - Seed phrase
-
-    var seedPhrase: [String] {
-        seedPhraseManager.seedPhrase
     }
 
     // MARK: - Private properties
@@ -443,9 +416,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         switch currentStep {
         case .createWallet, .createWalletSelector:
             createWallet()
-        case .seedPhraseIntro:
-            generateSeedPhrase()
-            Analytics.log(.onboarindgSeedButtonGenerateSeedPhrase)
         case .seedPhraseGeneration:
             goToStep(.seedPhraseUserValidation)
         case .scanPrimaryCard:
@@ -912,9 +882,11 @@ extension WalletOnboardingViewModel {
         Analytics.log(.onboardingSeedButtonReadMore)
     }
 
-    private func generateSeedPhrase() {
+    func generateSeedPhrase() {
+        Analytics.log(.onboarindgSeedButtonGenerateSeedPhrase)
         do {
             try seedPhraseManager.generateSeedPhrase()
+            generateSeedPhraseModel = .init(seedPhraseManager: seedPhraseManager, delegate: self)
             goToNextStep()
         } catch {
             alert = error.alertBinder
@@ -937,6 +909,31 @@ extension WalletOnboardingViewModel {
                 Analytics.log(.onboardingSeedScreenCapture)
             }
             .store(in: &bag)
+    }
+}
+
+extension WalletOnboardingViewModel: OnboardingSeedPhraseGenerationDelegate {
+    func continuePhraseGeneration(with entropyLength: EntropyLength) {
+        guard let mnemonic = seedPhraseManager.mnemonics[entropyLength] else {
+            alert = MnemonicError.mnenmonicCreationFailed.alertBinder
+            return
+        }
+
+        let words = mnemonic.mnemonicComponents
+        guard words.count == entropyLength.wordCount else {
+            alert = MnemonicError.invalidWordCount.alertBinder
+            return
+        }
+
+        validationUserSeedPhraseModel = OnboardingSeedPhraseUserValidationViewModel(validationInput: .init(
+            secondWord: words[1],
+            seventhWord: words[6],
+            eleventhWord: words[10],
+            createWalletAction: { [weak self, mnemonic] in
+                self?.createWalletOnPrimaryCard(using: mnemonic, walletCreationType: .newSeed)
+            }
+        ))
+        mainButtonAction()
     }
 }
 
