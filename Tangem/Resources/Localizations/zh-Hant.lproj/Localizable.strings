@@ -16,6 +16,8 @@
 "alert_negative_app_rate_sent_title" = "你的建議已送出";
 "alert_troubleshooting_scan_card_message" = "請嘗試完全按照動畫中顯示的方式點擊卡片或請求支持";
 "alert_troubleshooting_scan_card_title" = "有困難在掃描卡上嗎？";
+"app_settings_default_fee" = "Default Fee";
+"app_settings_default_fee_footer" = "Enable Default Fee to set transaction fees automatically and skip the Fee page when sending funds. You can always go back to this page if necessary.";
 "app_settings_off_saved_access_code_alert_message" = "這將刪除所有保存的錢包訪問代碼。對錢包的任何進一步操作都需要提交訪問代碼。";
 "app_settings_off_saved_wallet_alert_message" = "移除已保存的卡會刪除所有已保存的錢包及其訪問密碼";
 "app_settings_saved_access_codes" = "保存訪問密碼";
