@@ -1,5 +1,5 @@
 //
-//  LockedUserWallet.swift
+//  LockedUserWalletModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,8 +8,9 @@
 
 import Foundation
 import Combine
+import TangemSdk
 
-class LockedUserWallet: UserWalletModel {
+class LockedUserWalletModel: UserWalletModel {
     let walletModelsManager: WalletModelsManager = LockedWalletModelsManager()
     let userTokenListManager: UserTokenListManager = LockedUserTokenListManager()
     let userTokensManager: UserTokensManager = LockedUserTokensManager()
@@ -19,6 +20,10 @@ class LockedUserWallet: UserWalletModel {
     var tokensCount: Int? { nil }
 
     var cardsCount: Int { config.cardsCount }
+
+    var hasBackupCards: Bool { userWallet.cardInfo().card.backupStatus?.isActive ?? false }
+
+    var emailConfig: EmailConfig? { nil }
 
     var userWalletId: UserWalletId { .init(value: userWallet.userWalletId) }
 
@@ -31,6 +36,10 @@ class LockedUserWallet: UserWalletModel {
         data.append(userWalletIdItem)
 
         return data
+    }
+
+    var tangemApiAuthData: TangemApiTarget.AuthData {
+        .init(cardId: userWallet.card.cardId, cardPublicKey: userWallet.card.cardPublicKey)
     }
 
     var cardImagePublisher: AnyPublisher<CardImageResult, Never> {
@@ -53,13 +62,26 @@ class LockedUserWallet: UserWalletModel {
         .just(output: .loaded(.init(balance: 0, currencyCode: "", hasError: false)))
     }
 
+    var analyticsContextData: AnalyticsContextData {
+        AnalyticsContextData(
+            card: userWallet.cardInfo().card,
+            productType: config.productType,
+            userWalletId: userWalletId.value,
+            embeddedEntry: config.embeddedBlockchain
+        )
+    }
+
+    var wcWalletModelProvider: WalletConnectWalletModelProvider {
+        CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
+    }
+
     let backupInput: OnboardingInput? = nil
     let twinInput: OnboardingInput? = nil
 
-    private(set) var userWallet: UserWallet
+    private(set) var userWallet: StoredUserWallet
     private let cardImageProvider = CardImageProvider()
 
-    init(with userWallet: UserWallet) {
+    init(with userWallet: StoredUserWallet) {
         self.userWallet = userWallet
         config = UserWalletConfigFactory(userWallet.cardInfo()).makeConfig()
         signer = TangemSigner(filter: .cardId(""), sdk: .init(), twinKey: nil)
@@ -75,9 +97,11 @@ class LockedUserWallet: UserWalletModel {
         // Nothing to validate for locked wallets
         return true
     }
+
+    func onBackupCreated(_ card: Card) {}
 }
 
-extension LockedUserWallet: MainHeaderSupplementInfoProvider {
+extension LockedUserWalletModel: MainHeaderSupplementInfoProvider {
     var isUserWalletLocked: Bool { true }
 
     var userWalletNamePublisher: AnyPublisher<String, Never> {
@@ -91,7 +115,7 @@ extension LockedUserWallet: MainHeaderSupplementInfoProvider {
     var isTokensListEmpty: Bool { false }
 }
 
-extension LockedUserWallet: AnalyticsContextDataProvider {
+extension LockedUserWalletModel: AnalyticsContextDataProvider {
     func getAnalyticsContextData() -> AnalyticsContextData? {
         let cardInfo = userWallet.cardInfo()
         let embeddedEntry = config.embeddedBlockchain
