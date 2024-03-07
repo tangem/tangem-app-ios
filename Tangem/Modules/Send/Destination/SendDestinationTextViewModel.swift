@@ -15,6 +15,7 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
     let showAddressIcon: Bool
     let description: String
     let didEnterDestination: (String) -> Void
+    let didPasteDestination: (String) -> Void
 
     @Published var isValidating: Bool = false
     @Published var input: String = ""
@@ -25,6 +26,10 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
 
     var hasTextInClipboard = false
 
+    var shouldShowPasteButton: Bool {
+        input.isEmpty && !isDisabled
+    }
+
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -33,12 +38,14 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
         isValidating: AnyPublisher<Bool, Never>,
         isDisabled: AnyPublisher<Bool, Never>,
         errorText: AnyPublisher<Error?, Never>,
-        didEnterDestination: @escaping (String) -> Void
+        didEnterDestination: @escaping (String) -> Void,
+        didPasteDestination: @escaping (String) -> Void
     ) {
         name = style.name
         showAddressIcon = style.showAddressIcon
         description = style.description
         self.didEnterDestination = didEnterDestination
+        self.didPasteDestination = didPasteDestination
         placeholder = style.placeholder(isDisabled: self.isDisabled)
 
         bind(style: style, input: input, isValidating: isValidating, isDisabled: isDisabled, errorText: errorText)
@@ -115,7 +122,7 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
 
     func didTapPasteButton(_ input: String) {
         provideButtonHapticFeedback()
-        didEnterDestination(input)
+        didPasteDestination(input)
     }
 
     func didTapLegacyPasteButton() {
@@ -124,7 +131,7 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
         }
 
         provideButtonHapticFeedback()
-        didEnterDestination(input)
+        didPasteDestination(input)
     }
 
     func clearInput() {
