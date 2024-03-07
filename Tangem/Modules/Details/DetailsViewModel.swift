@@ -92,7 +92,7 @@ extension DetailsViewModel {
     }
 
     func openMail() {
-        Analytics.log(.requestSupport)
+        Analytics.log(.requestSupport, params: [.source: .settings])
 
         guard let emailConfig = userWalletModel.config.emailConfig else { return }
 
@@ -179,7 +179,7 @@ extension DetailsViewModel {
     }
 
     func requestSupport() {
-        Analytics.log(.buttonRequestSupport)
+        Analytics.log(.requestSupport, params: [.source: .settings])
         failedCardScanTracker.resetCounter()
         coordinator?.openMail(with: failedCardScanTracker, recipient: EmailConfig.default.recipient, emailType: .failedToScanCard)
     }

@@ -25,6 +25,10 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
 
     var hasTextInClipboard = false
 
+    var shouldShowPasteButton: Bool {
+        input.isEmpty && !isDisabled
+    }
+
     private var bag: Set<AnyCancellable> = []
 
     init(
