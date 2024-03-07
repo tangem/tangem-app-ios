@@ -39,6 +39,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     @Published var error: String?
     @Published var animatingAuxiliaryViewsOnAppear = false
 
+    var didProperlyDisappear = false
+
     private var fiatCryptoAdapter: SendFiatCryptoAdapter?
 
     private let input: SendAmountViewModelInput
@@ -73,12 +75,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     func onAppear() {
         fiatCryptoAdapter?.setCrypto(input.userInputAmountValue?.value)
-
-        if animatingAuxiliaryViewsOnAppear {
-            withAnimation(SendView.Constants.defaultAnimation) {
-                animatingAuxiliaryViewsOnAppear = false
-            }
-        }
     }
 
     func setUserInputAmount(_ userInputAmount: DecimalNumberTextField.DecimalValue?) {
@@ -134,11 +130,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     }
 }
 
-extension SendAmountViewModel: AuxiliaryViewAnimatable {
-    func setAnimatingAuxiliaryViewsOnAppear(_ animatingAuxiliaryViewsOnAppear: Bool) {
-        self.animatingAuxiliaryViewsOnAppear = animatingAuxiliaryViewsOnAppear
-    }
-}
+extension SendAmountViewModel: AuxiliaryViewAnimatable {}
 
 extension SendAmountViewModel: SendFiatCryptoAdapterInput {
     var amountPublisher: AnyPublisher<DecimalNumberTextField.DecimalValue?, Never> {
