@@ -9,6 +9,7 @@
 import Foundation
 import BlockchainSdk
 
+/// Supports https://github.com/bitcoin/bips/blob/master/bip-0020.mediawiki and https://eips.ethereum.org/EIPS/eip-681 (partially).
 struct QRCodeParser {
     let amountType: Amount.AmountType
     let blockchain: Blockchain
@@ -133,6 +134,7 @@ private extension QRCodeParser {
         ]
     }
 
+    /// We don't care about other params from ERC-681, like `gasLimit`, `gasPrice` and so on.
     enum ParameterName: String, RawRepresentable {
         /// From BIP-0021, the value MUST be specified in decimal BTC.
         case amount
