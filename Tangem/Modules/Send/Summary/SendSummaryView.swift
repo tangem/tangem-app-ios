@@ -117,9 +117,9 @@ struct SendSummaryView_Previews: PreviewProvider {
     )
 
     static let walletInfo = SendWalletInfo(
-        walletName: "Wallet",
-        balanceValue: 12013,
-        balance: "12013",
+        walletName: "Family Wallet",
+        balanceValue: 2130.88,
+        balance: "2 130,88 USDT (2 129,92 $)",
         blockchain: .ethereum(testnet: false),
         currencyId: "tether",
         feeCurrencySymbol: "ETH",
