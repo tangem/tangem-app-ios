@@ -97,8 +97,7 @@ struct AppSettingsView: View {
         GroupedSection(viewModel.defaultFeeViewModel) {
             DefaultToggleRowView(viewModel: $0)
         } footer: {
-            #warning("L10n")
-            DefaultFooterView("Подключите функцию комиссии по умолчанию и при формировании транзакции на отправку средств комиссия будет выставлена автоматически, а экран комиссии пропущен. Вы всегда сможете на него вернуться.")
+            DefaultFooterView(Localization.appSettingsDefaultFeeFooter)
         }
 
         if viewModel.showDefaultFeeOptionSelector {
