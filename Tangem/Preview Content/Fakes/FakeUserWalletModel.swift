@@ -12,8 +12,6 @@ import TangemSdk
 import BlockchainSdk
 
 class FakeUserWalletModel: UserWalletModel, ObservableObject {
-    var keysRepository: KeysRepository { CommonKeysRepository(with: []) }
-    var name: String { "" }
     let emailData: [EmailCollectedData] = []
     let backupInput: OnboardingInput? = nil
     let twinInput: OnboardingInput? = nil
@@ -23,12 +21,12 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     let totalBalanceProvider: TotalBalanceProviding
     let signer: TangemSigner = .init(filter: .cardId(""), sdk: .init(), twinKey: nil)
     let config: UserWalletConfig
+    let userWallet: StoredUserWallet
     let isUserWalletLocked: Bool
     let userWalletId: UserWalletId
     var hasBackupCards: Bool { cardsCount > 1 }
     var emailConfig: EmailConfig? { nil }
     var cardsCount: Int
-    var totalSignedHashes: Int { 1 }
 
     var tangemApiAuthData: TangemApiTarget.AuthData {
         .init(cardId: "", cardPublicKey: Data())
@@ -64,12 +62,12 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
         cardsCount: Int,
         userWalletId: UserWalletId,
         walletManagers: [FakeWalletManager],
-        config: UserWalletConfig
+        userWallet: StoredUserWallet
     ) {
         self.isUserWalletLocked = isUserWalletLocked
         self.cardsCount = cardsCount
         self.userWalletId = userWalletId
-        self.config = config
+        config = UserWalletConfigFactory(userWallet.cardInfo()).makeConfig()
         _userWalletNamePublisher = .init(userWalletName)
 
         walletModelsManager = FakeWalletModelsManager(walletManagers: walletManagers, isDelayed: isDelayed)
@@ -80,6 +78,8 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
             userTokenListManager: fakeUserTokenListManager
         )
         totalBalanceProvider = TotalBalanceProviderMock()
+
+        self.userWallet = userWallet
         cardImagePublisher = Just(.cached(Assets.Cards.walletSingle.uiImage)).eraseToAnyPublisher()
     }
 
@@ -97,7 +97,6 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     }
 
     func onBackupCreated(_ card: Card) {}
-    func addAssociatedCard(_ card: Card) {}
 }
 
 extension FakeUserWalletModel: MainHeaderSupplementInfoProvider {
@@ -135,7 +134,7 @@ extension FakeUserWalletModel {
             .polygonWithTokensManager,
             .xrpManager,
         ],
-        config: UserWalletConfigStubs.walletV2Stub
+        userWallet: UserWalletStubs.walletV2Stub
     )
 
     static let visa = FakeUserWalletModel(
@@ -147,7 +146,7 @@ extension FakeUserWalletModel {
         walletManagers: [
             .visaWalletManager,
         ],
-        config: UserWalletConfigStubs.visaStub
+        userWallet: UserWalletStubs.visaStub
     )
 
     static let walletWithoutDelay = FakeUserWalletModel(
@@ -163,7 +162,7 @@ extension FakeUserWalletModel {
             .xrpManager,
             .xlmManager,
         ],
-        config: UserWalletConfigStubs.walletV2Stub
+        userWallet: UserWalletStubs.walletV2Stub
     )
 
     static let twins = FakeUserWalletModel(
@@ -173,7 +172,7 @@ extension FakeUserWalletModel {
         cardsCount: 2,
         userWalletId: .init(with: Data.randomData(count: 32)),
         walletManagers: [.btcManager],
-        config: UserWalletConfigStubs.twinStub
+        userWallet: UserWalletStubs.twinStub
     )
 
     static let xrpNote = FakeUserWalletModel(
@@ -183,7 +182,7 @@ extension FakeUserWalletModel {
         cardsCount: 1,
         userWalletId: .init(with: Data.randomData(count: 32)),
         walletManagers: [.xrpManager],
-        config: UserWalletConfigStubs.xrpNoteStub
+        userWallet: UserWalletStubs.xrpNoteStub
     )
 
     static let xlmBird = FakeUserWalletModel(
@@ -193,6 +192,6 @@ extension FakeUserWalletModel {
         cardsCount: 1,
         userWalletId: .init(with: Data.randomData(count: 32)),
         walletManagers: [.xlmManager],
-        config: UserWalletConfigStubs.xlmBirdStub
+        userWallet: UserWalletStubs.xlmBirdStub
     )
 }
