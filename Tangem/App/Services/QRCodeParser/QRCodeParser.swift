@@ -38,7 +38,7 @@ struct QRCodeParser {
             switch parameterName {
             case .amount:
                 // According to BIP-0021, the value is specified in decimals. No conversion needed
-                result.amount = makeAmount(from: parameterValue)
+                result.amount = makeAmount(with: parameterValue)
                 result.amountText = parameterValue
             case .message, .memo:
                 result.memo = parameterValue
@@ -48,9 +48,9 @@ struct QRCodeParser {
             case .value, .uint256:
                 // According to ERC-681, the value is specified in the atomic unit (i.e. wei). Converting it to decimals
                 if let valueInSmallestDenomination = Decimal(stringValue: parameterValue) {
-                    let amount = valueInSmallestDenomination / pow(Decimal(10), decimalCount)
-                    result.amount = makeAmount(from: amount)
-                    result.amountText = parameterValue
+                    let value = valueInSmallestDenomination / pow(Decimal(10), decimalCount)
+                    result.amount = makeAmount(with: value)
+                    result.amountText = value.stringValue
                 }
             }
         }
@@ -96,15 +96,15 @@ struct QRCodeParser {
             }
     }
 
-    private func makeAmount(from parameterValue: String) -> Amount? {
+    private func makeAmount(with parameterValue: String) -> Amount? {
         guard let value = Decimal(stringValue: parameterValue) else {
             return nil
         }
 
-        return makeAmount(from: value)
+        return makeAmount(with: value)
     }
 
-    private func makeAmount(from value: Decimal) -> Amount? {
+    private func makeAmount(with value: Decimal) -> Amount? {
         return Amount(with: blockchain, type: amountType, value: value)
     }
 }
