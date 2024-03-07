@@ -27,7 +27,7 @@ class BackupContextManager {
         let curvesValidator = CurvesValidator(expectedCurves: userWalletModel.config.mandatoryCurves)
         let backupValidator = BackupValidator()
 
-        if !curvesValidator.validate(card.wallets.map { $0.curve }) || !backupValidator.validate(card.backupStatus) {
+        if !curvesValidator.validate(card.wallets.map { $0.curve }) || !backupValidator.validate(backupStatus: card.backupStatus, wallets: card.wallets) {
             hasBackupErrors = true
         }
     }
