@@ -123,14 +123,13 @@ private extension ExpressTokensListViewModel {
         availableWalletModels.removeAll()
         unavailableWalletModels.removeAll()
 
-        let currenciesSet = availableCurrencies.toSet()
-        Analytics.log(.swapChooseTokenScreenOpened, params: [.availableTokens: currenciesSet.isEmpty ? .no : .yes])
+        Analytics.log(.swapChooseTokenScreenOpened, params: [.availableTokens: availableCurrencies.isEmpty ? .no : .yes])
 
         walletModels
             .forEach { walletModel in
                 guard walletModel != swapDirection.wallet else { return }
 
-                let isAvailable = currenciesSet.contains(walletModel.expressCurrency)
+                let isAvailable = availableCurrencies.contains(walletModel.expressCurrency)
                 let isNotCustom = !walletModel.isCustom
                 if isAvailable, isNotCustom {
                     availableWalletModels.append(walletModel)
