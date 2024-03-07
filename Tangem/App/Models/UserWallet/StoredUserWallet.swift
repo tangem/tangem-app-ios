@@ -18,6 +18,7 @@ struct StoredUserWallet: Identifiable, Encodable {
     var associatedCardIds: Set<String>
     let walletData: DefaultWalletData
     let artwork: ArtworkInfo?
+    let isHDWalletAllowed: Bool
     var hasBackupErrors: Bool?
 }
 
@@ -59,6 +60,7 @@ extension StoredUserWallet: Decodable {
         associatedCardIds = try container.decode(Set<String>.self, forKey: .associatedCardIds)
         walletData = try container.decode(DefaultWalletData.self, forKey: .walletData)
         artwork = try container.decodeIfPresent(ArtworkInfo.self, forKey: .artwork)
+        isHDWalletAllowed = try container.decode(Bool.self, forKey: .isHDWalletAllowed)
         hasBackupErrors = try container.decodeIfPresent(Bool.self, forKey: .hasBackupErrors)
 
         if let cardDTOv4 = try? container.decode(CardDTOv4.self, forKey: .card) {
