@@ -173,6 +173,9 @@ private extension Blockchain {
             case .network: return "aurora"
             case .coin: return "aurora-ethereum"
             }
+            #warning("Fix network and coin ids if necessary")
+        case .manta:
+            return "manta"
         }
     }
 

@@ -85,7 +85,8 @@ struct SendTransactionParametersBuilder {
              .areon,
              .playa3ullGames,
              .pulsechain,
-             .aurora:
+             .aurora,
+             .manta:
             return nil
         }
     }
