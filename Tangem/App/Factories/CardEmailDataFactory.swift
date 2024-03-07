@@ -14,6 +14,7 @@ struct CardEmailDataFactory {
         var data: [EmailCollectedData] = [
             .init(type: .card(.cardId), data: card.cardId),
             .init(type: .card(.firmwareVersion), data: card.firmwareVersion.stringValue),
+            .init(type: .card(.linkedCardsCount), data: "\(card.backupStatus.flatMap { $0.linkedCardsCount } ?? 0)"),
         ]
 
         if let walletData = walletData {
@@ -25,6 +26,7 @@ struct CardEmailDataFactory {
                 let hashesData = "\(wallet.curve.rawValue) - \(totalSignedHahes)"
                 data.append(.init(type: .wallet(.signedHashes), data: hashesData))
             }
+            data.append(.init(type: .wallet(.hasSeedPhrase), data: "\(wallet.isImported ?? false)"))
         }
 
         return data
