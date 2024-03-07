@@ -329,7 +329,6 @@
 "onboarding_navbar_save_wallet" = "儲存你的錢包";
 "onboarding_navbar_title_creating_backup" = "創建備份";
 "onboarding_seed_button_read_more" = "閱讀更多關於助記詞的訊息";
-"onboarding_seed_generate_message" = "按照下面給出的順序寫下這 12 個單詞，並將它們存放在安全秘密的地方。";
 "onboarding_seed_generate_title" = "Your seed phrase";
 "onboarding_seed_import_message" = "To import your wallet, enter your seed phrase in the field below";
 "onboarding_seed_intro_button_generate" = "生成助記詞";
