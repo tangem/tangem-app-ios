@@ -130,7 +130,7 @@ struct SendView: View {
             }
         }
         .padding(.horizontal)
-        .padding(.bottom, 14)
+        .padding(.bottom, 6)
     }
 
     @ViewBuilder
