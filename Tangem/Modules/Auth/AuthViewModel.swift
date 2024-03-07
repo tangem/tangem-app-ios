@@ -41,7 +41,7 @@ final class AuthViewModel: ObservableObject {
     }
 
     func requestSupport() {
-        Analytics.log(.buttonRequestSupport)
+        Analytics.log(.requestSupport, params: [.source: .signIn])
         failedCardScanTracker.resetCounter()
         openMail()
     }
@@ -58,8 +58,8 @@ final class AuthViewModel: ObservableObject {
             didFinishUnlocking(result)
 
             switch result {
-            case .success(let cardViewModel), .partial(let cardViewModel, _):
-                let walletHasBackup = Analytics.ParameterValue.affirmativeOrNegative(for: cardViewModel.hasBackupCards)
+            case .success(let model), .partial(let model, _):
+                let walletHasBackup = Analytics.ParameterValue.affirmativeOrNegative(for: model.hasBackupCards)
                 Analytics.log(event: .signedIn, params: [
                     .signInType: Analytics.ParameterValue.signInTypeBiometrics.rawValue,
                     .walletsCount: "\(userWalletRepository.count)",
@@ -81,8 +81,8 @@ final class AuthViewModel: ObservableObject {
             didFinishUnlocking(result)
 
             switch result {
-            case .success(let cardViewModel), .partial(let cardViewModel, _):
-                let walletHasBackup = Analytics.ParameterValue.affirmativeOrNegative(for: cardViewModel.hasBackupCards)
+            case .success(let model), .partial(let model, _):
+                let walletHasBackup = Analytics.ParameterValue.affirmativeOrNegative(for: model.hasBackupCards)
                 Analytics.log(event: .signedIn, params: [
                     .signInType: Analytics.ParameterValue.signInTypeCard.rawValue,
                     .walletsCount: "\(userWalletRepository.count)",
@@ -133,8 +133,8 @@ final class AuthViewModel: ObservableObject {
             } else {
                 self.error = error.alertBinder
             }
-        case .success(let cardModel), .partial(let cardModel, _):
-            openMain(with: cardModel)
+        case .success(let model), .partial(let model, _):
+            openMain(with: model)
         }
     }
 }
@@ -150,8 +150,8 @@ extension AuthViewModel {
         coordinator?.openOnboarding(with: input)
     }
 
-    func openMain(with cardModel: CardViewModel) {
-        coordinator?.openMain(with: cardModel)
+    func openMain(with model: UserWalletModel) {
+        coordinator?.openMain(with: model)
     }
 }
 

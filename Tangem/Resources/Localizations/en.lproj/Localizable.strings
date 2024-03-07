@@ -331,7 +331,6 @@
 "onboarding_navbar_save_wallet" = "Save your wallet";
 "onboarding_navbar_title_creating_backup" = "Creating a backup";
 "onboarding_seed_button_read_more" = "Read more about seed phrase";
-"onboarding_seed_generate_message" = "Write these 12 words down in the order given below and store them in a safe and secret place.";
 "onboarding_seed_generate_title" = "Your seed phrase";
 "onboarding_seed_import_message" = "To import your wallet, enter your seed phrase in the field below";
 "onboarding_seed_intro_button_generate" = "Generate seed phrase";
