@@ -19,7 +19,6 @@ extension Analytics {
         case requestSupport = "[Basic] Request Support"
         case buttonTokensList = "[Introduction Process] Button - Tokens List"
         case buttonBuyCards = "[Introduction Process] Button - Buy Cards"
-        case buttonRequestSupport = "[Introduction Process] Button - Request Support"
         case introductionProcessButtonScanCard = "[Introduction Process] Button - Scan Card"
         case introductionProcessOpened = "[Introduction Process] Introduction Process Screen Opened"
         case introductionProcessLearn = "[Introduction Process] Button - Learn"
