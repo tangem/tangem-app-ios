@@ -196,7 +196,7 @@ private extension ExpressViewModel {
                 titleState: .text(Localization.swappingFromTitle),
                 canChangeCurrency: interactor.getSender().id != initialWallet.id
             ),
-            decimalNumberTextFieldStateObject: .init(maximumFractionDigits: interactor.getSender().decimalCount)
+            decimalNumberTextFieldViewModel: .init(maximumFractionDigits: interactor.getSender().decimalCount)
         )
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
@@ -209,7 +209,7 @@ private extension ExpressViewModel {
 
     func bind() {
         sendCurrencyViewModel?
-            .decimalNumberTextFieldStateObject
+            .decimalNumberTextFieldViewModel
             .valuePublisher
             .handleEvents(receiveOutput: { [weak self] amount in
                 self?.interactor.cancelRefresh()
@@ -268,7 +268,7 @@ private extension ExpressViewModel {
     }
 
     func updateSendDecimalValue(to value: Decimal) {
-        sendCurrencyViewModel?.decimalNumberTextFieldStateObject.update(value: value)
+        sendCurrencyViewModel?.decimalNumberTextFieldViewModel.update(value: value)
         updateSendFiatValue(amount: value)
         interactor.update(amount: value)
     }
@@ -279,7 +279,7 @@ private extension ExpressViewModel {
         sendCurrencyViewModel?.update(wallet: wallet, initialWalletId: initialWallet.id)
 
         // If we have amount then we should round and update it with new decimalCount
-        guard let amount = sendCurrencyViewModel?.decimalNumberTextFieldStateObject.value else {
+        guard let amount = sendCurrencyViewModel?.decimalNumberTextFieldViewModel.value else {
             updateSendFiatValue(amount: nil)
             return
         }
@@ -590,7 +590,7 @@ extension ExpressViewModel: NotificationTapDelegate {
         case .openFeeCurrency:
             openFeeCurrency()
         case .reduceAmountBy(let amount, _):
-            guard let value = sendCurrencyViewModel?.decimalNumberTextFieldStateObject.value else {
+            guard let value = sendCurrencyViewModel?.decimalNumberTextFieldViewModel.value else {
                 AppLog.shared.debug("[Express] Couldn't find sendDecimalValue")
                 return
             }
