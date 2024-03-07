@@ -16,7 +16,7 @@ class SendCustomFeeInputFieldModel: ObservableObject, Identifiable {
     let footer: String
     let fieldSuffix: String?
 
-    @Published var decimalNumberTextFieldStateObject: DecimalNumberTextField.StateObject
+    @Published var decimalNumberTextFieldViewModel: DecimalNumberTextField.ViewModel
     @Published var amountAlternative: String?
 
     private var bag: Set<AnyCancellable> = []
@@ -36,19 +36,19 @@ class SendCustomFeeInputFieldModel: ObservableObject, Identifiable {
         self.footer = footer
         self.onFieldChange = onFieldChange
 
-        decimalNumberTextFieldStateObject = .init(maximumFractionDigits: fractionDigits)
+        decimalNumberTextFieldViewModel = .init(maximumFractionDigits: fractionDigits)
 
         amountPublisher
             .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { (self, amount) in
-                guard amount != self.decimalNumberTextFieldStateObject.value else { return }
+                guard amount != self.decimalNumberTextFieldViewModel.value else { return }
 
-                self.decimalNumberTextFieldStateObject.update(value: amount)
+                self.decimalNumberTextFieldViewModel.update(value: amount)
             }
             .store(in: &bag)
 
-        decimalNumberTextFieldStateObject
+        decimalNumberTextFieldViewModel
             .valuePublisher
             .withWeakCaptureOf(self)
             .sink { (self, value) in

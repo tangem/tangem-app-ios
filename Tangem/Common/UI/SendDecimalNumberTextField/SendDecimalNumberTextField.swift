@@ -16,7 +16,7 @@ import SwiftUI
 /// - Different `Alignment`
 struct SendDecimalNumberTextField: View {
     // Public
-    @ObservedObject private var stateObject: DecimalNumberTextField.StateObject
+    @ObservedObject private var viewModel: DecimalNumberTextField.ViewModel
 
     // Internal state
     @FocusState private var isInputActive: Bool
@@ -32,7 +32,7 @@ struct SendDecimalNumberTextField: View {
     // Suffix properties
     private var suffix: String? = nil
     private var suffixColor: Color {
-        switch stateObject.value {
+        switch viewModel.value {
         case .none:
             return appearance.placeholderColor
         case .some:
@@ -40,8 +40,8 @@ struct SendDecimalNumberTextField: View {
         }
     }
 
-    init(stateObject: DecimalNumberTextField.StateObject) {
-        self.stateObject = stateObject
+    init(viewModel: DecimalNumberTextField.ViewModel) {
+        self.viewModel = viewModel
     }
 
     var body: some View {
@@ -67,7 +67,7 @@ struct SendDecimalNumberTextField: View {
 
     @ViewBuilder
     private var textField: some View {
-        DecimalNumberTextField(stateObject: stateObject)
+        DecimalNumberTextField(viewModel: viewModel)
             .appearance(appearance)
             .focused($isInputActive)
             .toolbar {
@@ -180,22 +180,22 @@ struct SendDecimalNumberTextField_Previews: PreviewProvider {
             Colors.Background.tertiary.ignoresSafeArea()
 
             VStack(alignment: .leading, spacing: 16) {
-                SendDecimalNumberTextField(stateObject: .init(maximumFractionDigits: 8))
+                SendDecimalNumberTextField(viewModel: .init(maximumFractionDigits: 8))
                     .suffix("WEI")
                     .padding()
                     .background(Colors.Background.action)
 
-                SendDecimalNumberTextField(stateObject: .init(maximumFractionDigits: 8))
+                SendDecimalNumberTextField(viewModel: .init(maximumFractionDigits: 8))
                     .suffix(nil)
                     .padding()
                     .background(Colors.Background.action)
 
-                SendDecimalNumberTextField(stateObject: .init(maximumFractionDigits: 8))
+                SendDecimalNumberTextField(viewModel: .init(maximumFractionDigits: 8))
                     .suffix("USDT")
                     .padding()
                     .background(Colors.Background.action)
 
-                SendDecimalNumberTextField(stateObject: .init(maximumFractionDigits: 8))
+                SendDecimalNumberTextField(viewModel: .init(maximumFractionDigits: 8))
                     .suffix("USDT")
                     .appearance(.init(font: Fonts.Regular.body))
                     .alignment(.leading)
