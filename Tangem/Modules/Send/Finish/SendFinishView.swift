@@ -58,7 +58,7 @@ struct SendFinishView: View {
             if viewModel.showButtons {
                 bottomButtons
                     .padding(.horizontal, 16)
-                    .padding(.bottom, 14)
+                    .padding(.bottom, 6)
             }
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
