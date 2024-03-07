@@ -48,6 +48,8 @@ class SendDestinationViewModel: ObservableObject {
     @Published var animatingAuxiliaryViewsOnAppear: Bool = false
     @Published var showSuggestedDestinations = true
 
+    var didProperlyDisappear: Bool = false
+
     private let input: SendDestinationViewModelInput
     private let transactionHistoryMapper: TransactionHistoryMapper
     private let suggestedWallets: [SendSuggestedDestinationWallet]
@@ -109,14 +111,6 @@ class SendDestinationViewModel: ObservableObject {
         }
 
         bind()
-    }
-
-    func onAppear() {
-        if animatingAuxiliaryViewsOnAppear {
-            withAnimation(SendView.Constants.defaultAnimation) {
-                animatingAuxiliaryViewsOnAppear = false
-            }
-        }
     }
 
     private func bind() {
@@ -185,9 +179,4 @@ class SendDestinationViewModel: ObservableObject {
     }
 }
 
-extension SendDestinationViewModel: AuxiliaryViewAnimatable {
-    func setAnimatingAuxiliaryViewsOnAppear(_ animatingAuxiliaryViewsOnAppear: Bool) {
-        self.animatingAuxiliaryViewsOnAppear = animatingAuxiliaryViewsOnAppear
-        addressViewModel?.setAnimatingFooterOnAppear(animatingAuxiliaryViewsOnAppear)
-    }
-}
+extension SendDestinationViewModel: AuxiliaryViewAnimatable {}
