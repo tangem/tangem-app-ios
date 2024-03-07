@@ -15,11 +15,19 @@ class FakeUserWalletRepository: UserWalletRepository {
 
     var models: [UserWalletModel] = []
 
+    var userWallets: [StoredUserWallet] = []
+
     var selectedModel: UserWalletModel?
 
     var selectedUserWalletId: Data?
 
     var selectedIndexUserWalletModel: Int?
+
+    var isEmpty: Bool { models.isEmpty }
+
+    var count: Int { models.count }
+
+    var isLocked: Bool = false
 
     var eventProvider: AnyPublisher<UserWalletRepositoryEvent, Never> {
         eventSubject.eraseToAnyPublisher()
@@ -41,8 +49,8 @@ class FakeUserWalletRepository: UserWalletRepository {
             switch method {
             case .biometry:
                 completion(.troubleshooting)
-            case .card(let userWalletId):
-                if let userWalletId, let userWalletModel = self.models.first(where: { $0.userWalletId == userWalletId }) {
+            case .card(let userWallet):
+                if let userWallet, let userWalletModel = CommonUserWalletModel(userWallet: userWallet) {
                     completion(.success(userWalletModel))
                     return
                 }
@@ -64,8 +72,10 @@ class FakeUserWalletRepository: UserWalletRepository {
 
     func addOrScan(completion: @escaping (UserWalletRepositoryResult?) -> Void) {}
 
-    func get(_ userWalletId: UserWalletId) -> StoredUserWallet? {
-        return nil
+    func save(_ userWalletModel: UserWalletModel) {}
+
+    func contains(_ userWallet: StoredUserWallet) -> Bool {
+        return false
     }
 
     func save(_ userWallet: StoredUserWallet) {}
@@ -81,6 +91,4 @@ class FakeUserWalletRepository: UserWalletRepository {
     func initialClean() {}
 
     func setSaving(_ enabled: Bool) {}
-
-    func save() {}
 }
