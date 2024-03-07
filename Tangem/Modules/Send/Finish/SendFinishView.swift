@@ -18,7 +18,8 @@ struct SendFinishView: View {
             GroupedScrollView(spacing: 14) {
                 if viewModel.showHeader {
                     header
-                        .padding(.bottom, 24)
+                        .padding(.top, 24)
+                        .padding(.bottom, 12)
                 }
 
                 GroupedSection(viewModel.destinationViewTypes) { type in
