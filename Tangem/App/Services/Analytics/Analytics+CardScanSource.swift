@@ -31,13 +31,13 @@ extension Analytics {
         var cardWasScannedParameterValue: Analytics.ParameterValue {
             switch self {
             case .welcome:
-                return .scanSourceWelcome
+                return .introduction
             case .auth:
-                return .scanSourceAuth
+                return .signIn
             case .mainUnlock:
                 return .main
             case .settings:
-                return .scanSourceSettings
+                return .settings
             }
         }
     }
