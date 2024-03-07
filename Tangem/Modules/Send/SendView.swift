@@ -19,7 +19,7 @@ struct SendView: View {
     private let bottomGradientHeight: CGFloat = 150
 
     var body: some View {
-        VStack {
+        VStack(spacing: 14) {
             header
 
             ZStack(alignment: .bottom) {
