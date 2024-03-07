@@ -118,10 +118,10 @@ extension CommonWalletConnectSessionsStorage: Initializable {
 
     private func migrateSavedSessions() {
         var sessionsToSave = [WalletConnectSavedSession]()
-        for userWallet in userWalletRepository.models {
-            if let oldSavedSessions: [WalletConnectSavedSession] = try? storage.value(for: .walletConnectSessions(userWalletId: userWallet.userWalletId.stringValue)) {
+        for userWallet in userWalletRepository.userWallets {
+            if let oldSavedSessions: [WalletConnectSavedSession] = try? storage.value(for: .walletConnectSessions(userWalletId: userWallet.userWalletId.hexString)) {
                 sessionsToSave.append(contentsOf: oldSavedSessions)
-                try? storage.store(value: [WalletConnectSavedSession]?(nil), for: .walletConnectSessions(userWalletId: userWallet.userWalletId.stringValue))
+                try? storage.store(value: [WalletConnectSavedSession]?(nil), for: .walletConnectSessions(userWalletId: userWallet.userWalletId.hexString))
             }
         }
 
