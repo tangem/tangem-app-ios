@@ -78,7 +78,6 @@
 "common_explore_history" = "Посмотреть историю";
 "common_explore_transaction_history" = "Посмотреть историю транзакций";
 "common_explorer" = "Обозреватель";
-"common_explorer_format" = "%@ обозреватель";
 "common_fee_label" = "Комиссия";
 "common_fee_selector_footer" = "Сетевые комиссии – это плата пользователя за обработку и подтверждение транзакций. Размер комиссии зависит от нагрузки на сеть, объема транзакции и приоритета исполнения. %@";
 "common_fee_selector_option_custom" = "Свое";
