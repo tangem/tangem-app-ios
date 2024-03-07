@@ -1,5 +1,5 @@
 //
-//  Decimal_.swift
+//  Decimal+.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -27,4 +27,16 @@ extension Decimal {
     var stringValue: String {
         (self as NSDecimalNumber).stringValue
     }
+
+    /// Parses given string using a fixed `en_US_POSIX` locale; prefer this initializer to the `init(string:locale:)`.
+    init?(stringValue: String) {
+        self.init(string: stringValue, locale: .posixEnUS)
+    }
+}
+
+// MARK: - Private implementation
+
+private extension Locale {
+    /// Locale for string literals parsing.
+    static let posixEnUS = Locale(identifier: "en_US_POSIX")
 }
