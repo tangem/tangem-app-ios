@@ -52,35 +52,33 @@ struct SendView: View {
 
     @ViewBuilder
     private var header: some View {
-        VStack {
-            if let title = viewModel.title {
-                HStack {
+        if let title = viewModel.title {
+            HStack {
+                Color.clear
+                    .frame(maxWidth: .infinity, maxHeight: 1)
+
+                Text(title)
+                    .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                    .animation(nil, value: title)
+                    .padding(.vertical, 8)
+                    .lineLimit(1)
+                    .layoutPriority(1)
+
+                if viewModel.showQRCodeButton {
+                    Button(action: viewModel.scanQRCode) {
+                        Assets.qrCode.image
+                            .renderingMode(.template)
+                            .foregroundColor(Colors.Icon.primary1)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                    }
+                } else {
                     Color.clear
                         .frame(maxWidth: .infinity, maxHeight: 1)
-
-                    Text(title)
-                        .style(Fonts.Bold.body, color: Colors.Text.primary1)
-                        .animation(nil, value: title)
-                        .padding(.vertical, 8)
-                        .lineLimit(1)
-                        .layoutPriority(1)
-
-                    if viewModel.showQRCodeButton {
-                        Button(action: viewModel.scanQRCode) {
-                            Assets.qrCode.image
-                                .renderingMode(.template)
-                                .foregroundColor(Colors.Icon.primary1)
-                                .frame(maxWidth: .infinity, alignment: .trailing)
-                        }
-                    } else {
-                        Color.clear
-                            .frame(maxWidth: .infinity, maxHeight: 1)
-                    }
                 }
             }
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
         }
-        .padding(.horizontal, 16)
-        .padding(.top, 12)
     }
 
     @ViewBuilder
