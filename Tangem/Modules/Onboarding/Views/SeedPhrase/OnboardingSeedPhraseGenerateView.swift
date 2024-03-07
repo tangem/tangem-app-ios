@@ -18,12 +18,12 @@ struct OnboardingSeedPhraseGenerateView: View {
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                 .padding(.top, 40)
 
-            Text(Localization.onboardingSeedGenerateMessage)
-                .style(Fonts.Regular.callout, color: Colors.Text.secondary)
-                .multilineTextAlignment(.center)
-                .lineSpacing(2)
-                .padding(.horizontal, 54)
-                .padding(.top, 14)
+//            Text(Localization.onboardingSeedGenerateMessage)
+//                .style(Fonts.Regular.callout, color: Colors.Text.secondary)
+//                .multilineTextAlignment(.center)
+//                .lineSpacing(2)
+//                .padding(.horizontal, 54)
+//                .padding(.top, 14)
 
             HStack(alignment: .top, spacing: 8) {
                 wordsVerticalView(indexRange: 0 ..< (words.count / 2))
