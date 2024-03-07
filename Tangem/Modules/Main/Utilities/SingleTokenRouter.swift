@@ -64,17 +64,13 @@ final class SingleTokenRouter: SingleTokenRoutable {
     }
 
     func openSend(walletModel: WalletModel) {
-        guard
-            let amountToSend = walletModel.wallet.amounts[walletModel.amountType],
-            // [REDACTED_TODO_COMMENT]
-            let cardViewModel = userWalletModel as? CardViewModel
-        else { return }
+        guard let amountToSend = walletModel.wallet.amounts[walletModel.amountType] else { return }
 
         sendAnalyticsEvent(.buttonSend, for: walletModel)
         coordinator?.openSend(
             amountToSend: amountToSend,
             blockchainNetwork: walletModel.blockchainNetwork,
-            cardViewModel: cardViewModel,
+            userWalletModel: userWalletModel,
             walletModel: walletModel
         )
     }
@@ -101,8 +97,7 @@ final class SingleTokenRouter: SingleTokenRoutable {
 
     func openSendToSell(with request: SellCryptoRequest, for walletModel: WalletModel) {
         // [REDACTED_TODO_COMMENT]
-        guard let cardViewModel = userWalletModel as? CardViewModel,
-              var amountToSend = walletModel.wallet.amounts[walletModel.amountType] else {
+        guard var amountToSend = walletModel.wallet.amounts[walletModel.amountType] else {
             return
         }
 
@@ -112,7 +107,7 @@ final class SingleTokenRouter: SingleTokenRoutable {
             destination: request.targetAddress,
             tag: request.tag,
             blockchainNetwork: walletModel.blockchainNetwork,
-            cardViewModel: cardViewModel,
+            userWalletModel: userWalletModel,
             walletModel: walletModel
         )
     }
