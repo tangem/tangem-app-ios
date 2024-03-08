@@ -86,7 +86,8 @@ struct SendTransactionParametersBuilder {
              .playa3ullGames,
              .pulsechain,
              .aurora,
-             .manta:
+             .manta,
+             .zkSync:
             return nil
         }
     }
