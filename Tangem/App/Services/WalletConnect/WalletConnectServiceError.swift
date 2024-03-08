@@ -32,24 +32,6 @@ enum WalletConnectServiceError: LocalizedError {
         default: return true
         }
     }
-
-    var errorDescription: String? {
-        switch self {
-        case .timeout: return Localization.walletConnectErrorTimeout
-        case .signFailed: return Localization.walletConnectErrorSingFailed
-        case .failedToConnect: return Localization.walletConnectErrorFailedToConnect
-        case .txNotFound: return Localization.walletConnectTxNotFound
-        case .sessionNotFound: return Localization.walletConnectSessionNotFound
-        case .failedToBuildTx(let code): return Localization.walletConnectFailedToBuildTx(code.rawValue)
-        case .other(let error): return error.localizedDescription
-        case .noChainId: return Localization.walletConnectServiceNoChainId
-        case .unsupportedNetwork: return Localization.walletConnectScannerErrorUnsupportedNetwork
-        case .notValidCard: return Localization.walletConnectScannerErrorNotValidCard
-        case .networkNotFound(let name): return Localization.walletConnectNetworkNotFoundFormat(name)
-        case .unsupportedDApp: return Localization.walletConnectErrorUnsupportedDapp
-        default: return ""
-        }
-    }
 }
 
 extension WalletConnectServiceError {
