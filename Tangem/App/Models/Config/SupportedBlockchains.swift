@@ -60,6 +60,7 @@ struct SupportedBlockchains {
         [
             .manta(testnet: false),
             .zkSync(testnet: false),
+            .moonbeam(testnet: false),
         ]
     }
 
@@ -157,6 +158,7 @@ struct SupportedBlockchains {
             .aurora(testnet: true),
             .manta(testnet: true),
             .zkSync(testnet: true),
+            .moonbeam(testnet: true),
         ]
     }
 
