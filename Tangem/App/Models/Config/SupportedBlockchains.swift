@@ -59,6 +59,7 @@ struct SupportedBlockchains {
     private func testableBlockchains() -> Set<Blockchain> {
         [
             .manta(testnet: false),
+            .zkSync(testnet: false),
         ]
     }
 
@@ -155,6 +156,7 @@ struct SupportedBlockchains {
             .pulsechain(testnet: true),
             .aurora(testnet: true),
             .manta(testnet: true),
+            .zkSync(testnet: true),
         ]
     }
 
