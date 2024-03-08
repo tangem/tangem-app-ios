@@ -180,6 +180,8 @@ private extension Blockchain {
             return "zksync"
         case .moonbeam:
             return "moonbeam"
+        case .polygonZkEVM:
+            return "polygon-zk-evm"
         }
     }
 
