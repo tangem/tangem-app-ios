@@ -82,7 +82,8 @@ struct TokenInteractionAvailabilityProvider {
              .playa3ullGames,
              .pulsechain,
              .aurora,
-             .manta:
+             .manta,
+             .zkSync:
 
             // Checking that we have at least one valid (non-empty) address
             //
