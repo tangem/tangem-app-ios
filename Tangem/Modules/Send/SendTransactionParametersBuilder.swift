@@ -87,7 +87,8 @@ struct SendTransactionParametersBuilder {
              .pulsechain,
              .aurora,
              .manta,
-             .zkSync:
+             .zkSync,
+             .moonbeam:
             return nil
         }
     }
