@@ -165,7 +165,8 @@ private extension CommonExpressTransactionBuilder {
              .pulsechain,
              .aurora,
              .manta,
-             .zkSync:
+             .zkSync,
+             .moonbeam:
             throw ExpressTransactionBuilderError.blockchainDonNotSupportedExtraId
         }
     }

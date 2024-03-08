@@ -178,6 +178,8 @@ private extension Blockchain {
             return "manta"
         case .zkSync:
             return "zksync"
+        case .moonbeam:
+            return "moonbeam"
         }
     }
 
