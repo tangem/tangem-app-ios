@@ -164,7 +164,8 @@ private extension CommonExpressTransactionBuilder {
              .playa3ullGames,
              .pulsechain,
              .aurora,
-             .manta:
+             .manta,
+             .zkSync:
             throw ExpressTransactionBuilderError.blockchainDonNotSupportedExtraId
         }
     }
