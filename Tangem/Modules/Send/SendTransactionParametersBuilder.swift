@@ -88,7 +88,8 @@ struct SendTransactionParametersBuilder {
              .aurora,
              .manta,
              .zkSync,
-             .moonbeam:
+             .moonbeam,
+             .polygonZkEVM:
             return nil
         }
     }
