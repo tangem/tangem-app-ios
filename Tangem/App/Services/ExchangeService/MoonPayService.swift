@@ -369,6 +369,7 @@ private extension Blockchain {
         case .pulsechain: return nil
         case .aurora: return nil
         case .manta: return nil
+        case .zkSync: return nil
         }
     }
 
@@ -427,6 +428,7 @@ private extension Blockchain {
         case .pulsechain: return nil
         case .aurora: return nil
         case .manta: return nil
+        case .zkSync: return nil
         }
     }
 }
