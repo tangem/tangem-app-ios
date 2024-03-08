@@ -176,6 +176,8 @@ private extension Blockchain {
             #warning("Fix network and coin ids if necessary")
         case .manta:
             return "manta"
+        case .zkSync:
+            return "zksync"
         }
     }
 
