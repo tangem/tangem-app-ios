@@ -173,6 +173,29 @@ private extension TotalBalanceProvider {
             ]
         )
 
+        let mainCoinModels = walletModels.filter { $0.isMainToken }
+        let trackedModels = mainCoinModels.filter {
+            switch $0.blockchainNetwork.blockchain {
+            case .polkadot, .kusama, .azero:
+                return true
+            default:
+                return false
+            }
+        }
+
+        for trackedModel in trackedModels {
+            let balanceValue = trackedModel.balanceValue ?? 0
+
+            Analytics.log(
+                event:
+                .tokenBalanceLoaded,
+                params: [
+                    .token: trackedModel.blockchainNetwork.blockchain.currencySymbol,
+                    .state: balanceValue > 0 ? Analytics.ParameterValue.full.rawValue : Analytics.ParameterValue.empty.rawValue,
+                ]
+            )
+        }
+
         return TotalBalance(balance: balance, currencyCode: currencyCode, hasError: hasError)
     }
 
