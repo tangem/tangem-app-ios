@@ -25,10 +25,9 @@ struct SendDestinationView: View {
                         .setIconNamespaceId(SendViewNamespaceId.addressIcon.rawValue)
                         .setTextNamespaceId(SendViewNamespaceId.addressText.rawValue)
                         .setClearButtonNamespaceId(SendViewNamespaceId.addressClearButton.rawValue)
-                        //
                         .opacity(viewModel.showSectionContent ? 1 : 0)
                 } footer: {
-                    if !addressViewModel.animatingFooterOnAppear {
+                    if !viewModel.animatingAuxiliaryViewsOnAppear {
                         Text(addressViewModel.description)
                             .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                             .transition(SendView.Constants.auxiliaryViewTransition)
@@ -43,7 +42,7 @@ struct SendDestinationView: View {
                     SendDestinationTextView(viewModel: $0)
                         .opacity(viewModel.showSectionContent ? 1 : 0)
                 } footer: {
-                    if !additionalFieldViewModel.animatingFooterOnAppear {
+                    if !viewModel.animatingAuxiliaryViewsOnAppear {
                         Text(additionalFieldViewModel.description)
                             .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                             .transition(SendView.Constants.auxiliaryViewTransition)
