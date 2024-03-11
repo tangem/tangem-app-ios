@@ -750,7 +750,14 @@ class LegacySendViewModel: ObservableObject {
                         .blockchain: walletModel.wallet.blockchain.displayName,
                         .action: Analytics.ParameterValue.sendTx.rawValue,
                     ])
-                    self.error = SendError(error, openMailAction: openMail).alertBinder
+
+                    self.error = SendError(
+                        title: Localization.feedbackSubjectTxFailed,
+                        message: Localization.alertFailedToSendTransactionMessage(String(error.localizedDescription.dropTrailingPeriod)),
+                        error: error,
+                        openMailAction: openMail
+                    )
+                    .alertBinder
                 } else {
                     if !isDemo {
                         let sourceValue: Analytics.ParameterValue = isSellingCrypto ? .transactionSourceSell : .transactionSourceSend
