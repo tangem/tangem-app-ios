@@ -54,7 +54,7 @@ struct BackButton: View {
     }
 }
 
-struct ChatButton: View {
+struct SupportButton: View {
     let height: CGFloat
     let isVisible: Bool
     let isEnabled: Bool
@@ -64,7 +64,7 @@ struct ChatButton: View {
 
     var body: some View {
         Button(action: action, label: {
-            Text(Localization.chatButtonTitle)
+            Text(Localization.commonSupport)
                 .font(.system(size: 17, weight: .regular))
         })
         .allowsHitTesting(isEnabled)

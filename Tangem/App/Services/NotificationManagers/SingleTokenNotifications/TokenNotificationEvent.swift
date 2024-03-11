@@ -51,8 +51,9 @@ enum TokenNotificationEvent: Hashable {
         case .networkUnreachable, .someNetworksUnreachable, .rentFee, .existentialDepositWarning, .longTransaction, .noAccount:
             return nil
         case .notEnoughFeeForTransaction(let configuration):
+            let eventConfig = configuration.eventConfiguration
             return configuration.isFeeCurrencyPurchaseAllowed
-                ? .openFeeCurrency(currencySymbol: configuration.eventConfiguration.feeAmountTypeCurrencySymbol)
+                ? .openFeeCurrency(currencySymbol: eventConfig.currencyButtonTitle ?? eventConfig.feeAmountTypeCurrencySymbol)
                 : nil
         }
     }
