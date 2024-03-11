@@ -33,6 +33,7 @@ class OnboardingCoordinator: CoordinatorObject {
     @Published var accessCodeModel: OnboardingAccessCodeViewModel? = nil
     @Published var addressQrBottomSheetContentViewModel: AddressQrBottomSheetContentViewModel? = nil
     @Published var supportChatViewModel: SupportChatViewModel? = nil
+    @Published var mailViewModel: MailViewModel? = nil
 
     // MARK: - Helpers
 
@@ -94,7 +95,7 @@ extension OnboardingCoordinator {
 
 extension OnboardingCoordinator: OnboardingTopupRoutable {
     func openCryptoShop(at url: URL, action: @escaping () -> Void) {
-        safariHandle = safariManager.openURL(url) { [weak self] in
+        safariHandle = safariManager.openURL(url) { [weak self] _ in
             self?.safariHandle = nil
             action()
         }
@@ -140,6 +141,11 @@ extension OnboardingCoordinator: WalletOnboardingRoutable {
         })
     }
 
+    func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType) {
+        let logsComposer = LogsComposer(infoProvider: dataCollector)
+        mailViewModel = .init(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
+    }
+
     func openSupportChat(input: SupportChatInputModel) {
         Analytics.log(.chatScreenOpened)
         supportChatViewModel = SupportChatViewModel(input: input)
@@ -158,11 +164,11 @@ extension OnboardingCoordinator: WalletOnboardingRoutable {
 // MARK: - OnboardingRoutable
 
 extension OnboardingCoordinator: OnboardingRoutable {
-    func onboardingDidFinish(userWallet: CardViewModel?) {
+    func onboardingDidFinish(userWalletModel: UserWalletModel?) {
         switch options.destination {
         case .main:
-            if let userWallet {
-                openMain(with: userWallet)
+            if let userWalletModel {
+                openMain(with: userWalletModel)
                 return
             }
 
@@ -178,9 +184,9 @@ extension OnboardingCoordinator: OnboardingRoutable {
         dismiss(with: .init(isSuccessful: false))
     }
 
-    private func openMain(with cardModel: CardViewModel) {
+    private func openMain(with userWalletModel: UserWalletModel) {
         let coordinator = MainCoordinator(popToRootAction: popToRootAction)
-        let options = MainCoordinator.Options(userWalletModel: cardModel)
+        let options = MainCoordinator.Options(userWalletModel: userWalletModel)
         coordinator.start(with: options)
         mainCoordinator = coordinator
     }
