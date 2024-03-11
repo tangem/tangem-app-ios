@@ -19,7 +19,7 @@ struct SendAmountView: View {
         GroupedScrollView(spacing: 14) {
             GroupedSection(viewModel) { viewModel in
                 amountSectionContent
-                    .opacity(viewModel.showSectionContent ? 1 : 0)
+                    .visible(viewModel.showSectionContent)
             }
             .contentAlignment(.center)
             .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
