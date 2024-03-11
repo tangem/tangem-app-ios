@@ -118,6 +118,322 @@ final class QRCodeParserTests: XCTestCase {
         )
     }
 
+    func testERC681Coin() throws {
+        let blockchain: Blockchain = .ethereum(testnet: false)
+        let parser = QRCodeParser(
+            amountType: .coin,
+            blockchain: blockchain,
+            decimalCount: blockchain.decimalCount
+        )
+
+        // MARK: - Destination address
+
+        testPositiveCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: nil,
+            amountText: nil,
+            memo: nil,
+            parser: parser
+        )
+
+        testPositiveCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: nil,
+            amountText: nil,
+            memo: nil,
+            parser: parser
+        )
+
+        testPositiveCase(
+            code: "ethereum:0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: nil,
+            amountText: nil,
+            memo: nil,
+            parser: parser
+        )
+
+        testPositiveCase(
+            code: "ethereum:pay-0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: nil,
+            amountText: nil,
+            memo: nil,
+            parser: parser
+        )
+
+        testPositiveCase(
+            code: "some_garbage=ethereum:0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: nil,
+            amountText: nil,
+            memo: nil,
+            parser: parser
+        )
+
+        testPositiveCase(
+            code: "ethereum:0x6090a6e47849629b7245dfa1ca21d94cd15878ef/transfer?address=0xc00f86ab93cd0bd3a60213583d0fe35aaa1ace23",
+            destination: "0xc00f86ab93cd0bd3a60213583d0fe35aaa1ace23",
+            amount: nil,
+            amountText: nil,
+            memo: nil,
+            parser: parser
+        )
+
+        // MARK: - Amount
+
+        testPositiveCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&amount=asdasd",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: nil,
+            amountText: nil,
+            memo: nil,
+            parser: parser
+        )
+
+        testPositiveCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&value=1.88e10",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: Amount(
+                with: blockchain,
+                type: .coin,
+                value: try XCTUnwrap(Decimal(stringValue: "0.0000000188")) //  = 1.88 * 10^10 / 10^18, 18 is the number of decimals for Ethereum
+            ),
+            amountText: "0.0000000188",
+            memo: nil,
+            parser: parser
+        )
+
+        testPositiveCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&value=1.68E11",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: Amount(
+                with: blockchain,
+                type: .coin,
+                value: try XCTUnwrap(Decimal(stringValue: "0.000000168")) //  = 1.68 * 10^11 / 10^18, 18 is the number of decimals for Ethereum
+            ),
+            amountText: "0.000000168",
+            memo: nil,
+            parser: parser
+        )
+
+        testPositiveCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&value=23000000000",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: Amount(
+                with: blockchain,
+                type: .coin,
+                value: try XCTUnwrap(Decimal(stringValue: "0.000000023")) //  = 23000000000 / 10^18, 18 is the number of decimals for Ethereum
+            ),
+            amountText: "0.000000023",
+            memo: nil,
+            parser: parser
+        )
+
+        // MARK: - Message
+
+        testPositiveCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&memo=a%20random%20memo",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: nil,
+            amountText: nil,
+            memo: "a random memo",
+            parser: parser
+        )
+
+        testPositiveCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&message=some%20message",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: nil,
+            amountText: nil,
+            memo: "some message",
+            parser: parser
+        )
+
+        testPositiveCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&message=hello",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: nil,
+            amountText: nil,
+            memo: "hello",
+            parser: parser
+        )
+
+        // MARK: - Negative cases
+
+        testNegativeCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&amount=1234.56789",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aCb",
+            amount: Amount(with: blockchain, type: .coin, value: try XCTUnwrap(Decimal(stringValue: "1334.56789"))),
+            amountText: "1334.56789",
+            memo: "no memo",
+            parser: parser
+        )
+    }
+
+    func testERC681Token() throws {
+        let blockchain: Blockchain = .ethereum(testnet: false)
+        let exampleToken = Token(
+            name: "Test",
+            symbol: "TEST",
+            contractAddress: "0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7",
+            decimalCount: 7
+        )
+        let parser = QRCodeParser(
+            amountType: .token(value: exampleToken),
+            blockchain: blockchain,
+            decimalCount: exampleToken.decimalCount
+        )
+
+        // MARK: - Destination address
+
+        testPositiveCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: nil,
+            amountText: nil,
+            memo: nil,
+            parser: parser
+        )
+
+        testPositiveCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: nil,
+            amountText: nil,
+            memo: nil,
+            parser: parser
+        )
+
+        testPositiveCase(
+            code: "ethereum:0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: nil,
+            amountText: nil,
+            memo: nil,
+            parser: parser
+        )
+
+        testPositiveCase(
+            code: "ethereum:pay-0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: nil,
+            amountText: nil,
+            memo: nil,
+            parser: parser
+        )
+
+        testPositiveCase(
+            code: "some_garbage=ethereum:0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: nil,
+            amountText: nil,
+            memo: nil,
+            parser: parser
+        )
+
+        testPositiveCase(
+            code: "ethereum:0x6090a6e47849629b7245dfa1ca21d94cd15878ef/transfer?address=0xc00f86ab93cd0bd3a60213583d0fe35aaa1ace23",
+            destination: "0xc00f86ab93cd0bd3a60213583d0fe35aaa1ace23",
+            amount: nil,
+            amountText: nil,
+            memo: nil,
+            parser: parser
+        )
+
+        // MARK: - Amount
+
+        testPositiveCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&amount=asdasd",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: nil,
+            amountText: nil,
+            memo: nil,
+            parser: parser
+        )
+
+        testPositiveCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&value=1.88e10",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: Amount(
+                with: blockchain,
+                type: .token(value: exampleToken),
+                value: try XCTUnwrap(Decimal(stringValue: "1880")) //  = 1.88 * 10^10 / 10^7, 7 is the number of decimals for `exampleToken`
+            ),
+            amountText: "1880",
+            memo: nil,
+            parser: parser
+        )
+
+        testPositiveCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&value=1.68E11",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: Amount(
+                with: blockchain,
+                type: .token(value: exampleToken),
+                value: try XCTUnwrap(Decimal(stringValue: "16800")) //  = 1.68 * 10^11 / 10^7, 7 is the number of decimals for `exampleToken`
+            ),
+            amountText: "16800",
+            memo: nil,
+            parser: parser
+        )
+
+        testPositiveCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&value=23000000000",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: Amount(
+                with: blockchain,
+                type: .token(value: exampleToken),
+                value: try XCTUnwrap(Decimal(stringValue: "2300")) //  = 23000000000 / 10^7, 7 is the number of decimals for `exampleToken`
+            ),
+            amountText: "2300",
+            memo: nil,
+            parser: parser
+        )
+
+        // MARK: - Message
+
+        testPositiveCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&memo=a%20random%20memo",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: nil,
+            amountText: nil,
+            memo: "a random memo",
+            parser: parser
+        )
+
+        testPositiveCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&message=some%20message",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: nil,
+            amountText: nil,
+            memo: "some message",
+            parser: parser
+        )
+
+        testPositiveCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&message=hello",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: nil,
+            amountText: nil,
+            memo: "hello",
+            parser: parser
+        )
+
+        // MARK: - Negative cases
+
+        testNegativeCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&amount=1234.56789",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aCb",
+            amount: Amount(with: blockchain, type: .token(value: exampleToken), value: try XCTUnwrap(Decimal(stringValue: "1334.56789"))),
+            amountText: "1334.56789",
+            memo: "no memo",
+            parser: parser
+        )
+    }
+
     private func testPositiveCase(
         code: String,
         destination: String,
