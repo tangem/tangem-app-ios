@@ -39,8 +39,10 @@ struct QRCodeParser {
             switch parameterName {
             case .amount:
                 // According to BIP-0021, the value is specified in decimals. No conversion needed
-                result.amount = makeAmount(with: parameterValue)
-                result.amountText = parameterValue
+                if let amount = makeAmount(with: parameterValue) {
+                    result.amount = amount
+                    result.amountText = parameterValue
+                }
             case .message, .memo:
                 result.memo = parameterValue
             case .address:
@@ -105,7 +107,7 @@ struct QRCodeParser {
         return makeAmount(with: value)
     }
 
-    private func makeAmount(with value: Decimal) -> Amount? {
+    private func makeAmount(with value: Decimal) -> Amount {
         return Amount(with: blockchain, type: amountType, value: value)
     }
 }
