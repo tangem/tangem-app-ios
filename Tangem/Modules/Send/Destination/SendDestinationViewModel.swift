@@ -115,6 +115,7 @@ class SendDestinationViewModel: ObservableObject {
                 errorText: input.destinationAdditionalFieldError
             ) { [weak self] in
                 self?.input.setDestinationAdditionalField($0)
+//                Analytics.log(.sendAddressEntered, [)
             } didPasteDestination: { [weak self] in
                 self?.input.setDestinationAdditionalField($0)
             }
