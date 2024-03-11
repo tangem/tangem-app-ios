@@ -56,7 +56,18 @@ final class UserWalletNotificationManager {
 
         var inputs: [NotificationViewInput] = []
 
-        if userWalletModel.isMultiWallet {
+        if !userWalletModel.validate() {
+            inputs.append(
+                factory.buildNotificationInput(
+                    for: .backupErrors,
+                    action: action,
+                    buttonAction: buttonAction,
+                    dismissAction: dismissAction
+                )
+            )
+        }
+
+        if userWalletModel.config.hasFeature(.multiCurrency) {
             setupTangemExpressPromotionNotification(dismissAction: dismissAction)
         }
 
