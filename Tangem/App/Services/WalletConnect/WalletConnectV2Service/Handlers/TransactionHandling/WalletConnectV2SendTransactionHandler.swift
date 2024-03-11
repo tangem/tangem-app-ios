@@ -67,7 +67,7 @@ extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler {
             throw WalletConnectV2Error.missingTransaction
         }
 
-        try await walletModel.send(transaction, signer: signer).async()
+        _ = try await walletModel.send(transaction, signer: signer).async()
 
         Analytics.log(.transactionSent, params: [.commonSource: .transactionSourceWalletConnect])
 
