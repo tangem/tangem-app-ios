@@ -20,7 +20,8 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
     let name: String
     let showAddressIcon: Bool
     let description: String
-    let didEnterDestination: (String, InputSource) -> Void
+    let didEnterDestination: (String) -> Void
+    let didPasteDestination: (String) -> Void
 
     @Published var isValidating: Bool = false
     @Published var input: String = ""
@@ -31,7 +32,9 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
 
     var hasTextInClipboard = false
 
-    var lastInputSource: InputSource?
+    var shouldShowPasteButton: Bool {
+        input.isEmpty && !isDisabled
+    }
 
     private var bag: Set<AnyCancellable> = []
 
@@ -40,20 +43,21 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
         input: AnyPublisher<String, Never>,
         isValidating: AnyPublisher<Bool, Never>,
         isDisabled: AnyPublisher<Bool, Never>,
-        animatingFooterOnAppear: AnyPublisher<Bool, Never>,
         errorText: AnyPublisher<Error?, Never>,
-        didEnterDestination: @escaping (String, InputSource) -> Void
+        didEnterDestination: @escaping (String) -> Void,
+        didPasteDestination: @escaping (String) -> Void
     ) {
         name = style.name
         showAddressIcon = style.showAddressIcon
         description = style.description
         self.didEnterDestination = didEnterDestination
+        self.didPasteDestination = didPasteDestination
         placeholder = style.placeholder(isDisabled: self.isDisabled)
 
-        bind(style: style, input: input, isValidating: isValidating, isDisabled: isDisabled, animatingFooterOnAppear: animatingFooterOnAppear, errorText: errorText)
+        bind(style: style, input: input, isValidating: isValidating, isDisabled: isDisabled, errorText: errorText)
     }
 
-    private func bind(style: Style, input: AnyPublisher<String, Never>, isValidating: AnyPublisher<Bool, Never>, isDisabled: AnyPublisher<Bool, Never>, animatingFooterOnAppear: AnyPublisher<Bool, Never>, errorText: AnyPublisher<Error?, Never>) {
+    private func bind(style: Style, input: AnyPublisher<String, Never>, isValidating: AnyPublisher<Bool, Never>, isDisabled: AnyPublisher<Bool, Never>, errorText: AnyPublisher<Error?, Never>) {
         input
             .sink { [weak self] text in
 //                guard let self else { return }
@@ -80,7 +84,7 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
 
         isValidating
             .removeDuplicates()
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .assign(to: \.isValidating, on: self, ownership: .weak)
             .store(in: &bag)
 
@@ -90,11 +94,6 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
                 self?.isDisabled = isDisabled
                 self?.placeholder = style.placeholder(isDisabled: isDisabled)
             }
-            .store(in: &bag)
-
-        animatingFooterOnAppear
-            .removeDuplicates()
-            .assign(to: \.animatingFooterOnAppear, on: self, ownership: .weak)
             .store(in: &bag)
 
         errorText
@@ -124,15 +123,25 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
 
     func onAppear() {
         updatePasteButton()
+
+        if animatingFooterOnAppear {
+            withAnimation(SendView.Constants.defaultAnimation) {
+                animatingFooterOnAppear = false
+            }
+        }
+    }
+
+    func setAnimatingFooterOnAppear(_ animatingFooterOnAppear: Bool) {
+        self.animatingFooterOnAppear = animatingFooterOnAppear
     }
 
     func onBecomingActive() {
         updatePasteButton()
     }
 
-    func didTapPasteButton(_ string: String) {
-        lastInputSource = .pasteButton
-        input = string
+    func didTapPasteButton(_ input: String) {
+        provideButtonHapticFeedback()
+        didPasteDestination(input)
     }
 
     func didTapLegacyPasteButton() {
@@ -140,10 +149,8 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
             return
         }
 
-        print("zzz did tap legacy")
-//        didEnterDestination(input)
-        lastInputSource = .pasteButton
-        self.input = input
+        provideButtonHapticFeedback()
+        didPasteDestination(input)
     }
 
     func clearInput() {
@@ -151,6 +158,11 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
 //        didEnterDestination("")
         lastInputSource = .pasteButton
         input = ""
+    }
+
+    private func provideButtonHapticFeedback() {
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
     }
 
     private func updatePasteButton() {

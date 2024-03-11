@@ -35,7 +35,8 @@ struct TransactionSendAvailabilityProvider {
                     feeAmountTypeName: walletModel.feeTokenItem.name,
                     feeAmountTypeCurrencySymbol: walletModel.feeTokenItem.currencySymbol,
                     feeAmountTypeIconName: walletModel.feeTokenItem.blockchain.iconNameFilled,
-                    networkName: walletModel.tokenItem.networkName
+                    networkName: walletModel.tokenItem.networkName,
+                    currencyButtonTitle: walletModel.tokenItem.blockchain.feeDisplayName
                 )
             )
         }
@@ -67,6 +68,7 @@ extension TransactionSendAvailabilityProvider {
             let feeAmountTypeCurrencySymbol: String
             let feeAmountTypeIconName: String
             let networkName: String
+            let currencyButtonTitle: String?
         }
 
         var description: String? {
