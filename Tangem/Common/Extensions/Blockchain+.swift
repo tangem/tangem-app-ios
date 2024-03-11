@@ -25,7 +25,8 @@ extension Blockchain {
     /// Should be used to get the actual currency rate
     var currencyId: String {
         switch self {
-        case .arbitrum(let testnet), .optimism(let testnet), .aurora(let testnet):
+        case .arbitrum(let testnet), .optimism(let testnet),
+             .aurora(let testnet), .zkSync(let testnet), .polygonZkEVM(let testnet):
             return Blockchain.ethereum(testnet: testnet).coinId
         default:
             return coinId
@@ -40,11 +41,14 @@ extension Blockchain {
             name = String(name.prefix(upTo: index))
         }
 
-        if name == "binance" {
+        switch name {
+        case "binance":
             return "bsc"
+        case "polygonzkevm":
+            return "polygon"
+        default:
+            return name
         }
-
-        return name
     }
 
     /// Should be used to get a filled icon from the`Tokens.xcassets` file
@@ -181,7 +185,7 @@ private extension Blockchain {
         case .moonbeam:
             return "moonbeam"
         case .polygonZkEVM:
-            return "polygon-zk-evm"
+            return "polygon-zkevm"
         }
     }
 
