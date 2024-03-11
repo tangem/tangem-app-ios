@@ -76,15 +76,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     }
 
     func onAppear() {
-        withAnimation(.easeOut(duration: SendView.Constants.animationDuration)) {
-            showSectionContent = true
-        }
-
         fiatCryptoAdapter?.setCrypto(input.userInputAmountValue?.value)
-    }
-
-    func onDisappear() {
-        showSectionContent = false
     }
 
     func setUserInputAmount(_ userInputAmount: Decimal?) {
@@ -143,6 +135,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 }
 
 extension SendAmountViewModel: AuxiliaryViewAnimatable {}
+
+extension SendAmountViewModel: SectionContainerAnimatable {}
 
 extension SendAmountViewModel: SendFiatCryptoAdapterInput {
     var amountPublisher: AnyPublisher<Decimal?, Never> {
