@@ -152,7 +152,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                 return false
             }
 
-            if !(cardModel?.canSkipBackup ?? true) {
+            if !(userWalletModel?.config.canSkipBackup ?? true) {
                 return false
             }
         }
@@ -224,29 +224,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             self?.createWalletOnPrimaryCard(using: mnemonic, walletCreationType: .seedImport(length: mnemonic.mnemonicComponents.count))
         }
 
-    lazy var validationUserSeedPhraseModel: OnboardingSeedPhraseUserValidationViewModel? = {
-        let words = seedPhraseManager.seedPhrase
-        assert(words.count == 12)
-        guard words.count == 12 else {
-            alert = MnemonicError.invalidWordCount.alertBinder
-            return nil
-        }
-
-        return OnboardingSeedPhraseUserValidationViewModel(validationInput: .init(
-            secondWord: words[1],
-            seventhWord: words[6],
-            eleventhWord: words[10],
-            createWalletAction: { [weak self] in
-                assert(self?.seedPhraseManager.mnemonic != nil, "Missing mnemonic O_o")
-                guard let mnemonic = self?.seedPhraseManager.mnemonic else {
-                    self?.alert = MnemonicError.mnenmonicCreationFailed.alertBinder
-                    return
-                }
-
-                self?.createWalletOnPrimaryCard(using: mnemonic, walletCreationType: .newSeed)
-            }
-        ))
-    }()
+    var generateSeedPhraseModel: OnboardingSeedPhraseGenerateViewModel?
+    var validationUserSeedPhraseModel: OnboardingSeedPhraseUserValidationViewModel?
 
     var canShowThirdCardImage: Bool {
         return true
@@ -254,12 +233,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     var canShowOriginCardLabel: Bool {
         return currentStep == .backupCards
-    }
-
-    // MARK: - Seed phrase
-
-    var seedPhrase: [String] {
-        seedPhraseManager.seedPhrase
     }
 
     // MARK: - Private properties
@@ -305,6 +278,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     private let backupService: BackupService
     private var cardInitializer: CardInitializable?
+    private var backupContextManager: BackupContextManager?
 
     // MARK: - Initializer
 
@@ -327,6 +301,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
         if let customOnboardingImage = input.cardInput.config?.customOnboardingImage {
             self.customOnboardingImage = customOnboardingImage.image
+        }
+
+        if let userWalletModel {
+            backupContextManager = BackupContextManager(userWalletModel: userWalletModel)
         }
 
         bind()
@@ -417,7 +395,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         switch currentStep {
         case .createWallet, .createWalletSelector, .seedPhraseUserValidation, .seedPhraseImport:
             if let backupIntroStepIndex = steps.firstIndex(of: .backupIntro) {
-                let canSkipBackup = cardModel?.canSkipBackup ?? true
+                let canSkipBackup = userWalletModel?.config.canSkipBackup ?? true
                 if canSkipBackup {
                     goToStep(with: backupIntroStepIndex)
                 } else {
@@ -438,9 +416,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         switch currentStep {
         case .createWallet, .createWalletSelector:
             createWallet()
-        case .seedPhraseIntro:
-            generateSeedPhrase()
-            Analytics.log(.onboarindgSeedButtonGenerateSeedPhrase)
         case .seedPhraseGeneration:
             goToStep(.seedPhraseUserValidation)
         case .scanPrimaryCard:
@@ -670,7 +645,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     private func createWalletOnPrimaryCard(using mnemonic: Mnemonic? = nil, walletCreationType: WalletCreationType) {
         guard let cardInitializer else { return }
 
-        AppSettings.shared.cardsStartedActivation.insert(input.cardInput.cardId)
+        AppSettings.shared.cardsStartedActivation.insert(input.primaryCardId)
 
         cardInitializer.initializeCard(mnemonic: mnemonic) { [weak self] result in
             guard let self else { return }
@@ -678,6 +653,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             switch result {
             case .success(let cardInfo):
                 initializeUserWallet(from: cardInfo)
+
+                if let userWalletModel {
+                    backupContextManager = BackupContextManager(userWalletModel: userWalletModel)
+                }
 
                 if let primaryCard = cardInfo.primaryCard {
                     backupService.setPrimaryCard(primaryCard)
@@ -697,7 +676,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                                 self?.cardInitializer?.shouldReset = true
                             }),
                             secondaryButton: .default(Text(Localization.chatButtonTitle), action: { [weak self] in
-                                self?.openSupportChat()
+                                self?.openSupport()
                             })
                         )
                     } else {
@@ -715,7 +694,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             Future { [weak self] promise in
                 guard let self = self else { return }
 
-                backupService.readPrimaryCard(cardId: input.cardInput.cardId) { result in
+                backupService.readPrimaryCard(cardId: input.primaryCardId) { result in
                     switch result {
                     case .success:
                         promise(.success(()))
@@ -786,8 +765,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
                         switch result {
                         case .success(let updatedCard):
+                            self.backupContextManager?.onProceedBackup(updatedCard)
                             if updatedCard.cardId == self.backupService.primaryCard?.cardId {
-                                self.cardModel?.onBackupCreated(updatedCard)
+                                self.userWalletModel?.onBackupCreated(updatedCard)
+                                self.backupContextManager?.onCompleteBackup()
                             }
 
                             if self.backupServiceState == .finished {
@@ -865,7 +846,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         Analytics.log(.backupResetCardNotification, params: [.option: .reset])
         isMainButtonBusy = true
 
-        let interactor = CardInteractor(cardId: cardId)
+        let interactor = FactorySettingsResettingCardInteractor(with: cardId)
         interactor.resetCard { [weak self] result in
             switch result {
             case .failure(let error):
@@ -901,9 +882,11 @@ extension WalletOnboardingViewModel {
         Analytics.log(.onboardingSeedButtonReadMore)
     }
 
-    private func generateSeedPhrase() {
+    func generateSeedPhrase() {
+        Analytics.log(.onboarindgSeedButtonGenerateSeedPhrase)
         do {
             try seedPhraseManager.generateSeedPhrase()
+            generateSeedPhraseModel = .init(seedPhraseManager: seedPhraseManager, delegate: self)
             goToNextStep()
         } catch {
             alert = error.alertBinder
@@ -926,6 +909,31 @@ extension WalletOnboardingViewModel {
                 Analytics.log(.onboardingSeedScreenCapture)
             }
             .store(in: &bag)
+    }
+}
+
+extension WalletOnboardingViewModel: OnboardingSeedPhraseGenerationDelegate {
+    func continuePhraseGeneration(with entropyLength: EntropyLength) {
+        guard let mnemonic = seedPhraseManager.mnemonics[entropyLength] else {
+            alert = MnemonicError.mnenmonicCreationFailed.alertBinder
+            return
+        }
+
+        let words = mnemonic.mnemonicComponents
+        guard words.count == entropyLength.wordCount else {
+            alert = MnemonicError.invalidWordCount.alertBinder
+            return
+        }
+
+        validationUserSeedPhraseModel = OnboardingSeedPhraseUserValidationViewModel(validationInput: .init(
+            secondWord: words[1],
+            seventhWord: words[6],
+            eleventhWord: words[10],
+            createWalletAction: { [weak self, mnemonic] in
+                self?.createWalletOnPrimaryCard(using: mnemonic, walletCreationType: .newSeed)
+            }
+        ))
+        mainButtonAction()
     }
 }
 
