@@ -31,7 +31,7 @@ PODS:
     - ScaleCodec (= 0.2.1)
     - Sodium (= 0.9.1)
     - Solana.Swift
-    - stellar-ios-mac-sdk (= 2.3.2)
+    - stellar-ios-mac-sdk (= 2.5.4)
     - SwiftCBOR (= 0.4.5)
     - SwiftyJSON (= 5.0.1)
     - TangemSdk
@@ -157,9 +157,8 @@ PODS:
   - Solana.Swift (1.1):
     - Starscream (= 4.0.4)
     - TweetNacl (~> 1.0.2)
-  - SPRMessengerClient (3.6.2)
   - Starscream (4.0.4)
-  - stellar-ios-mac-sdk (2.3.2)
+  - stellar-ios-mac-sdk (2.5.4)
   - SwiftCBOR (0.4.5)
   - SwiftDate (7.0.0)
   - SwiftyJSON (5.0.1)
@@ -211,7 +210,7 @@ DEPENDENCIES:
   - AppsFlyerFramework
   - BinanceChain (from `https://github.com/tangem/swiftbinancechain.git`, tag `0.0.11`)
   - BitcoinCore.swift (from `https://github.com/tangem/bitcoincore.git`, tag `0.0.19`)
-  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-498`)
+  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-517`)
   - BlockiesSwift (~> 0.1.2)
   - CombineExt (~> 1.8.0)
   - Firebase/Analytics
@@ -220,8 +219,7 @@ DEPENDENCIES:
   - Kingfisher (~> 7.9.0)
   - Moya
   - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `1.2.0-tangem1`)
-  - SPRMessengerClient (from `https://github.com/tangem/SPRMessengerClient-binaries-ios.git`, tag `sprinklr-3.6.2-tangem1`)
-  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-282`)
+  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-284`)
   - WalletConnectSwiftV2 (from `https://github.com/WalletConnect/WalletConnectSwiftV2`, tag `1.8.4`)
 
 SPEC REPOS:
@@ -272,16 +270,13 @@ EXTERNAL SOURCES:
     :tag: 0.0.19
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
-    :tag: develop-498
+    :tag: develop-517
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
     :tag: 1.2.0-tangem1
-  SPRMessengerClient:
-    :git: https://github.com/tangem/SPRMessengerClient-binaries-ios.git
-    :tag: sprinklr-3.6.2-tangem1
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-282
+    :tag: develop-284
   WalletConnectSwiftV2:
     :git: https://github.com/WalletConnect/WalletConnectSwiftV2
     :tag: 1.8.4
@@ -298,16 +293,13 @@ CHECKOUT OPTIONS:
     :tag: 0.0.19
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
-    :tag: develop-498
+    :tag: develop-517
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
     :tag: 1.2.0-tangem1
-  SPRMessengerClient:
-    :git: https://github.com/tangem/SPRMessengerClient-binaries-ios.git
-    :tag: sprinklr-3.6.2-tangem1
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-282
+    :tag: develop-284
   WalletConnectSwiftV2:
     :git: https://github.com/WalletConnect/WalletConnectSwiftV2
     :tag: 1.8.4
@@ -322,7 +314,7 @@ SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   BinanceChain: f727abc7a20ba71f4497e46b7400124027b25692
   BitcoinCore.swift: 64ac4e69d9a6ef917bcbb0c23f1324cf57a822fb
-  BlockchainSdk: 1e52e0864fb78180b878474f8d2bf1a5e2841d53
+  BlockchainSdk: d3c2191f9b11b76bdf3422e8eb00592ad346cf7e
   BlockiesSwift: 22d8d56dd187e6bfd16cb8c8fbd4fd4896c3e65d
   CombineExt: c4daa97ef75754d8ef319bd79edeef82652f3eea
   Firebase: 10c8cb12fb7ad2ae0c09ffc86cd9c1ab392a0031
@@ -345,9 +337,8 @@ SPEC CHECKSUMS:
   ScaleCodec: 5d7d0439940c600f49babad6ea265a09377c404b
   Sodium: 23d11554ecd556196d313cf6130d406dfe7ac6da
   Solana.Swift: 0baed6d4f0d9a4b8438f066022c31542dc2f93d9
-  SPRMessengerClient: 6c1ab0a60e254ef17515f1433f95c9ee951f0395
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
-  stellar-ios-mac-sdk: d8ab1ff49ac48e25ac3097da4deebcef77af6047
+  stellar-ios-mac-sdk: 01055b326a62d1e9bb50999eadeb85c9dec60658
   SwiftCBOR: ac340b74d3b2cf1f8884bb748bd09875848e3873
   SwiftDate: bbc26e26fc8c0c33fbee8c140c5e8a68293a148a
   SwiftyJSON: 2f33a42c6fbc52764d96f13368585094bfd8aa5e
@@ -355,6 +346,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   WalletConnectSwiftV2: c1c2c2fbd0495860baf71515be1b943f0c5dce0c
 
-PODFILE CHECKSUM: 062ee2629450a4026a4aa66e7270e23782352615
+PODFILE CHECKSUM: d4a3871245c0b5542fa9d2cb1f54e0c60e44b645
 
 COCOAPODS: 1.15.2
