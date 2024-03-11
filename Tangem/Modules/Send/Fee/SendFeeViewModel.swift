@@ -109,7 +109,7 @@ class SendFeeViewModel: ObservableObject {
         let gasPriceGweiPublisher = input
             .customGasPricePublisher
             .decimalPublisher
-            .map { weiValue -> DecimalNumberTextField.DecimalValue? in
+            .map { weiValue -> Decimal? in
                 let gweiValue = weiValue?.shiftOrder(magnitude: -gasPriceFractionDigits)
                 return gweiValue
             }
@@ -238,13 +238,13 @@ class SendFeeViewModel: ObservableObject {
         showCustomFeeFields = feeOption == .custom
     }
 
-    private func recalculateFee(enteredFee: DecimalNumberTextField.DecimalValue?, input: SendFeeViewModelInput, walletInfo: SendWalletInfo) -> Fee? {
+    private func recalculateFee(enteredFee: Decimal?, input: SendFeeViewModelInput, walletInfo: SendWalletInfo) -> Fee? {
         let feeDecimalValue = Decimal(pow(10, Double(walletInfo.feeFractionDigits)))
 
         guard
             let enteredFee,
             let currentGasLimit = input.customGasLimit,
-            let enteredFeeInSmallestDenomination = BigUInt(decimal: (enteredFee.value * feeDecimalValue).rounded(roundingMode: .down))
+            let enteredFeeInSmallestDenomination = BigUInt(decimal: (enteredFee * feeDecimalValue).rounded(roundingMode: .down))
         else {
             return nil
         }
@@ -267,46 +267,21 @@ extension SendFeeViewModel: AuxiliaryViewAnimatable {}
 
 // MARK: - private extensions
 
-private extension DecimalNumberTextField.DecimalValue {
+private extension Decimal {
     var bigUIntValue: BigUInt? {
-        BigUInt(decimal: value)
+        BigUInt(decimal: self)
     }
 }
 
 private extension AnyPublisher where Output == Fee?, Failure == Never {
-    var decimalPublisher: AnyPublisher<DecimalNumberTextField.DecimalValue?, Never> {
-        map { value in
-            if let value = value?.amount.value {
-                return .external(value)
-            } else {
-                return nil
-            }
-        }
-        .eraseToAnyPublisher()
+    var decimalPublisher: AnyPublisher<Decimal?, Never> {
+        map { $0?.amount.value }.eraseToAnyPublisher()
     }
 }
 
 private extension AnyPublisher where Output == BigUInt?, Failure == Never {
-    var decimalPublisher: AnyPublisher<DecimalNumberTextField.DecimalValue?, Never> {
-        map { value in
-            if let decimal = value?.decimal {
-                return .external(decimal)
-            } else {
-                return nil
-            }
-        }
-        .eraseToAnyPublisher()
-    }
-}
-
-private extension DecimalNumberTextField.DecimalValue {
-    func shiftOrder(magnitude: Int) -> DecimalNumberTextField.DecimalValue {
-        switch self {
-        case .internal(let decimal):
-            return .internal(decimal.shiftOrder(magnitude: magnitude))
-        case .external(let decimal):
-            return .external(decimal.shiftOrder(magnitude: magnitude))
-        }
+    var decimalPublisher: AnyPublisher<Decimal?, Never> {
+        map { $0?.decimal }.eraseToAnyPublisher()
     }
 }
 
