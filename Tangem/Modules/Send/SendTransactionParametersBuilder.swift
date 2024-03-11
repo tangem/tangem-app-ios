@@ -81,7 +81,11 @@ struct SendTransactionParametersBuilder {
              .veChain,
              .xdc,
              .shibarium,
-             .aptos:
+             .aptos,
+             .areon,
+             .playa3ullGames,
+             .pulsechain,
+             .aurora:
             return nil
         }
     }

@@ -27,7 +27,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
     override var subtitle: String? {
         if currentStep == .topup,
-           case .xrp = cardModel?.walletModelsManager.walletModels.first?.blockchainNetwork.blockchain {
+           case .xrp = userWalletModel?.walletModelsManager.walletModels.first?.blockchainNetwork.blockchain {
             return Localization.onboardingTopUpBodyNoAccountError("10", "XRP")
         } else {
             return super.subtitle
@@ -94,7 +94,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     private var scheduledUpdate: DispatchWorkItem?
 
     private var canBuyCrypto: Bool {
-        if let blockchain = cardModel?.walletModelsManager.walletModels.first?.blockchainNetwork.blockchain,
+        if let blockchain = userWalletModel?.walletModelsManager.walletModels.first?.blockchainNetwork.blockchain,
            exchangeService.canBuy(blockchain.currencySymbol, amountType: .coin, blockchain: blockchain) {
             return true
         }
@@ -111,7 +111,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             fatalError("Wrong onboarding steps passed to initializer")
         }
 
-        if let walletModel = cardModel?.walletModelsManager.walletModels.first {
+        if let walletModel = userWalletModel?.walletModelsManager.walletModels.first {
             updateCardBalanceText(for: walletModel)
         }
 
@@ -138,7 +138,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
                 switch currentStep {
                 case .topup:
-                    if let walletModel = cardModel?.walletModelsManager.walletModels.first {
+                    if let walletModel = userWalletModel?.walletModelsManager.walletModels.first {
                         updateCardBalanceText(for: walletModel)
                     }
 
@@ -183,7 +183,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             createWallet()
         case .topup:
             if canBuyCrypto {
-                if let disabledLocalizedReason = cardModel?.getDisabledLocalizedReason(for: .exchange) {
+                if let disabledLocalizedReason = userWalletModel?.config.getDisabledLocalizedReason(for: .exchange) {
                     alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason) {
                         DispatchQueue.main.async {
                             self.updateCardBalance()
@@ -237,7 +237,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     private func createWallet() {
         guard let cardInitializer = input.cardInitializer else { return }
 
-        AppSettings.shared.cardsStartedActivation.insert(input.cardInput.cardId)
+        AppSettings.shared.cardsStartedActivation.insert(input.primaryCardId)
         Analytics.log(.buttonCreateWallet)
         isMainButtonBusy = true
 
