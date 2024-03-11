@@ -39,13 +39,9 @@ struct SendSummaryView: View {
                     viewModel.didTapSummary(for: .destination)
                 }
 
-                GroupedSection(viewModel.amountSummaryViewData) {
-                    AmountSummaryView(data: $0)
-                        .setNamespace(namespace)
-                        .setTitleNamespaceId(SendViewNamespaceId.amountTitle.rawValue)
-                        .setIconNamespaceId(SendViewNamespaceId.tokenIcon.rawValue)
-                        .setAmountCryptoNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
-                        .setAmountFiatNamespaceId(SendViewNamespaceId.amountFiatText.rawValue)
+                GroupedSection(viewModel.amountSummaryViewData) { data in
+                    amountSectionContent(data: data)
+                        .opacity(viewModel.showSectionContent ? 1 : 0)
                 }
                 .innerContentPadding(12)
                 .backgroundColor(viewModel.amountBackground, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
@@ -84,6 +80,15 @@ struct SendSummaryView: View {
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
         .interactiveDismissDisabled(viewModel.isSending)
+    }
+
+    private func amountSectionContent(data: AmountSummaryViewData) -> some View {
+        AmountSummaryView(data: data)
+            .setNamespace(namespace)
+            .setTitleNamespaceId(SendViewNamespaceId.amountTitle.rawValue)
+            .setIconNamespaceId(SendViewNamespaceId.tokenIcon.rawValue)
+            .setAmountCryptoNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
+            .setAmountFiatNamespaceId(SendViewNamespaceId.amountFiatText.rawValue)
     }
 
     @ViewBuilder
