@@ -306,7 +306,6 @@ private struct TangemRichTextFormatter {
             attributedString.replaceCharacters(in: richTextRange, with: String(plainText))
 
             let plainTextRange = NSRange(location: match.range.location, length: plainText.count)
-            let attributedStringColor = [NSAttributedString.Key.foregroundColor: highlightColor]
             attributedString.addAttribute(.foregroundColor, value: highlightColor, range: plainTextRange)
         }
 

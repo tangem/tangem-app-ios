@@ -15,7 +15,7 @@ protocol SendSummaryViewModelInput: AnyObject {
     var canEditAmount: Bool { get }
     var canEditDestination: Bool { get }
 
-    var amountPublisher: AnyPublisher<Amount?, Never> { get }
+    var userInputAmountPublisher: AnyPublisher<Amount?, Never> { get }
     var destinationTextPublisher: AnyPublisher<String, Never> { get }
     var additionalFieldPublisher: AnyPublisher<(SendAdditionalFields, String)?, Never> { get }
     var feeValuePublisher: AnyPublisher<Fee?, Never> { get }
@@ -28,6 +28,7 @@ protocol SendSummaryViewModelInput: AnyObject {
 }
 
 class SendSummaryViewModel: ObservableObject {
+    let walletSummaryViewModel: SendWalletSummaryViewModel
     let canEditAmount: Bool
     let canEditDestination: Bool
 
@@ -39,14 +40,24 @@ class SendSummaryViewModel: ObservableObject {
         isSending ? nil : .trailing(Assets.tangemIcon)
     }
 
+    var destinationBackground: Color {
+        sectionBackground(canEdit: canEditDestination)
+    }
+
+    var amountBackground: Color {
+        sectionBackground(canEdit: canEditAmount)
+    }
+
+    @Published var isSendButtonDisabled = false
     @Published var isSending = false
     @Published var alert: AlertBinder?
 
-    let walletSummaryViewModel: SendWalletSummaryViewModel
     @Published var destinationViewTypes: [SendDestinationSummaryViewType] = []
     @Published var amountSummaryViewData: AmountSummaryViewData?
     @Published var feeSummaryViewData: DefaultTextWithTitleRowViewData?
     @Published var feeOptionIcon: Image?
+
+    @Published private(set) var notificationInputs: [NotificationViewInput] = []
 
     weak var router: SendSummaryRoutable?
 
@@ -54,9 +65,11 @@ class SendSummaryViewModel: ObservableObject {
     private var screenIdleStartTime: Date?
     private var bag: Set<AnyCancellable> = []
     private let input: SendSummaryViewModelInput
+    private let notificationManager: SendNotificationManager
 
-    init(input: SendSummaryViewModelInput, walletInfo: SendWalletInfo) {
+    init(input: SendSummaryViewModelInput, notificationManager: SendNotificationManager, walletInfo: SendWalletInfo) {
         self.input = input
+        self.notificationManager = notificationManager
 
         sectionViewModelFactory = SendSummarySectionViewModelFactory(
             feeCurrencySymbol: walletInfo.feeCurrencySymbol,
@@ -136,7 +149,7 @@ class SendSummaryViewModel: ObservableObject {
             .store(in: &bag)
 
         input
-            .amountPublisher
+            .userInputAmountPublisher
             .compactMap { [weak self] amount in
                 self?.sectionViewModelFactory.makeAmountViewData(from: amount)
             }
@@ -158,5 +171,19 @@ class SendSummaryViewModel: ObservableObject {
             }
             .assign(to: \.feeOptionIcon, on: self, ownership: .weak)
             .store(in: &bag)
+
+        notificationManager
+            .notificationPublisher(for: .summary)
+            .assign(to: \.notificationInputs, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        notificationManager
+            .hasNotifications(with: .critical)
+            .assign(to: \.isSendButtonDisabled, on: self, ownership: .weak)
+            .store(in: &bag)
+    }
+
+    private func sectionBackground(canEdit: Bool) -> Color {
+        canEdit ? Colors.Background.action : Colors.Button.disabled
     }
 }
