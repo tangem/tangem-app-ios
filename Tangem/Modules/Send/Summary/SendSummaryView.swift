@@ -26,11 +26,11 @@ struct SendSummaryView: View {
                     case .address(let address):
                         SendDestinationAddressSummaryView(address: address)
                             .setNamespace(namespace)
-                            .opacity(viewModel.showSectionContent ? 1 : 0)
+                            .visible(viewModel.showSectionContent)
                     case .additionalField(let type, let value):
                         if let name = type.name {
                             DefaultTextWithTitleRowView(data: .init(title: name, text: value))
-                                .opacity(viewModel.showSectionContent ? 1 : 0)
+                                .visible(viewModel.showSectionContent)
                         }
                     }
                 }
@@ -43,7 +43,7 @@ struct SendSummaryView: View {
 
                 GroupedSection(viewModel.amountSummaryViewData) { data in
                     amountSectionContent(data: data)
-                        .opacity(viewModel.showSectionContent ? 1 : 0)
+                        .visible(viewModel.showSectionContent)
                 }
                 .innerContentPadding(12)
                 .backgroundColor(viewModel.amountBackground, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
@@ -55,7 +55,7 @@ struct SendSummaryView: View {
 
                 GroupedSection(viewModel.feeSummaryViewData) { data in
                     feeSectionContent(data: data)
-                        .opacity(viewModel.showSectionContent ? 1 : 0)
+                        .visible(viewModel.showSectionContent)
                 }
                 .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
                 .contentShape(Rectangle())
