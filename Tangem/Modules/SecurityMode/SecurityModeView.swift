@@ -48,7 +48,7 @@ struct SecurityModeView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             SecurityModeView(viewModel: .init(
-                cardModel: PreviewCard.tangemWalletEmpty.cardModel,
+                securityOptionChangeInteractor: SecurityOptionChangingMock(),
                 coordinator: SecurityModeCoordinator()
             ))
         }

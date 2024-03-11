@@ -52,7 +52,7 @@ class BottomSheetViewController<Content: View>: BottomSheetBaseController {
 
         keyboardSubscription = Publishers
             .keyboardInfo
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] info in
                 guard let self = self else { return }
                 bottomConstraint.constant = -info.0
