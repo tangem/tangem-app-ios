@@ -242,6 +242,11 @@ class CommonUserWalletRepository: UserWalletRepository {
             .store(in: &bag)
     }
 
+    func save() {
+        let serialized = models.compactMap { $0.userWallet }
+        saveUserWallets(serialized)
+    }
+
     // [REDACTED_TODO_COMMENT]
     func save(_ userWalletModel: UserWalletModel) {
         if models.isEmpty, !userWallets.isEmpty {
@@ -270,9 +275,8 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    func save() {}
-
-    func save(_ userWallet: StoredUserWallet) {
+    func
+        save(_ userWallet: StoredUserWallet) {
         if models.isEmpty && !userWallets.isEmpty {
             loadModels()
         }
@@ -651,7 +655,7 @@ extension CommonUserWalletRepository {
     }
 }
 
-extension UserWalletModel {
+private extension UserWalletModel {
     var userWallet: StoredUserWallet? {
         (self as? UserWalletSerializable)?.serialize()
     }
