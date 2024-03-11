@@ -11,7 +11,7 @@ import TangemSdk
 import BlockchainSdk
 
 struct UserWalletStubs {
-    static var walletV2Stub: UserWallet = .init(
+    static var walletV2Stub: StoredUserWallet = .init(
         userWalletId: Data.randomData(count: 32),
         name: "Wallet 2.0",
         card: .init(card: .walletV2),
@@ -24,7 +24,7 @@ struct UserWalletStubs {
         isHDWalletAllowed: true
     )
 
-    static var twinStub: UserWallet = .init(
+    static var twinStub: StoredUserWallet = .init(
         userWalletId: Data.randomData(count: 32),
         name: "Tangem Twins",
         card: .init(card: .twin),
@@ -40,7 +40,7 @@ struct UserWalletStubs {
         isHDWalletAllowed: false
     )
 
-    static var xrpNoteStub: UserWallet = .init(
+    static var xrpNoteStub: StoredUserWallet = .init(
         userWalletId: Data.randomData(count: 32),
         name: "XRP Note",
         card: .init(card: .xrpNote),
@@ -50,7 +50,7 @@ struct UserWalletStubs {
         isHDWalletAllowed: false
     )
 
-    static var xlmBirdStub: UserWallet = .init(
+    static var xlmBirdStub: StoredUserWallet = .init(
         userWalletId: Data.randomData(count: 32),
         name: "XLM Bird",
         card: .init(card: .xrpNote),
@@ -60,7 +60,7 @@ struct UserWalletStubs {
         isHDWalletAllowed: false
     )
 
-    static var visaStub: UserWallet = .init(
+    static var visaStub: StoredUserWallet = .init(
         userWalletId: Data.randomData(count: 32),
         name: "Tangem Visa",
         card: .init(card: .visa),
