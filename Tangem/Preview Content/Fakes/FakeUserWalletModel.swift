@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemSdk
 import BlockchainSdk
 
 class FakeUserWalletModel: UserWalletModel, ObservableObject {
@@ -19,14 +20,31 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     let userTokensManager: UserTokensManager
     let totalBalanceProvider: TotalBalanceProviding
     let signer: TangemSigner = .init(filter: .cardId(""), sdk: .init(), twinKey: nil)
-
     let config: UserWalletConfig
-    let userWallet: UserWallet
-    let isMultiWallet: Bool
+    let userWallet: StoredUserWallet
     let isUserWalletLocked: Bool
     let userWalletId: UserWalletId
-
+    var hasBackupCards: Bool { cardsCount > 1 }
+    var emailConfig: EmailConfig? { nil }
     var cardsCount: Int
+
+    var tangemApiAuthData: TangemApiTarget.AuthData {
+        .init(cardId: "", cardPublicKey: Data())
+    }
+
+    var analyticsContextData: AnalyticsContextData {
+        .init(
+            id: "",
+            productType: .other,
+            batchId: "",
+            firmware: "",
+            baseCurrency: ""
+        )
+    }
+
+    var wcWalletModelProvider: WalletConnectWalletModelProvider {
+        CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
+    }
 
     var userWalletName: String { _userWalletNamePublisher.value }
 
@@ -39,15 +57,13 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
 
     init(
         userWalletName: String,
-        isMultiWallet: Bool,
         isUserWalletLocked: Bool,
         isDelayed: Bool,
         cardsCount: Int,
         userWalletId: UserWalletId,
         walletManagers: [FakeWalletManager],
-        userWallet: UserWallet
+        userWallet: StoredUserWallet
     ) {
-        self.isMultiWallet = isMultiWallet
         self.isUserWalletLocked = isUserWalletLocked
         self.cardsCount = cardsCount
         self.userWalletId = userWalletId
@@ -65,10 +81,7 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
 
         self.userWallet = userWallet
         cardImagePublisher = Just(.cached(Assets.Cards.walletSingle.uiImage)).eraseToAnyPublisher()
-        initialUpdate()
     }
-
-    func initialUpdate() {}
 
     func updateWalletName(_ name: String) {
         _userWalletNamePublisher.send(name)
@@ -78,6 +91,12 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     var totalBalancePublisher: AnyPublisher<LoadingValue<TotalBalance>, Never> {
         .just(output: .loading)
     }
+
+    func validate() -> Bool {
+        return true
+    }
+
+    func onBackupCreated(_ card: Card) {}
 }
 
 extension FakeUserWalletModel: MainHeaderSupplementInfoProvider {
@@ -105,7 +124,6 @@ extension FakeUserWalletModel {
 
     static let wallet3Cards = FakeUserWalletModel(
         userWalletName: "William Wallet",
-        isMultiWallet: true,
         isUserWalletLocked: false,
         isDelayed: true,
         cardsCount: 3,
@@ -121,7 +139,6 @@ extension FakeUserWalletModel {
 
     static let visa = FakeUserWalletModel(
         userWalletName: "Tangem Visa",
-        isMultiWallet: false,
         isUserWalletLocked: false,
         isDelayed: false,
         cardsCount: 1,
@@ -134,7 +151,6 @@ extension FakeUserWalletModel {
 
     static let walletWithoutDelay = FakeUserWalletModel(
         userWalletName: "Just A Wallet",
-        isMultiWallet: true,
         isUserWalletLocked: false,
         isDelayed: false,
         cardsCount: 1,
@@ -151,7 +167,6 @@ extension FakeUserWalletModel {
 
     static let twins = FakeUserWalletModel(
         userWalletName: "Tangem Twins",
-        isMultiWallet: false,
         isUserWalletLocked: true,
         isDelayed: true,
         cardsCount: 2,
@@ -162,7 +177,6 @@ extension FakeUserWalletModel {
 
     static let xrpNote = FakeUserWalletModel(
         userWalletName: "XRP Note",
-        isMultiWallet: false,
         isUserWalletLocked: false,
         isDelayed: true,
         cardsCount: 1,
@@ -173,7 +187,6 @@ extension FakeUserWalletModel {
 
     static let xlmBird = FakeUserWalletModel(
         userWalletName: "XLM Bird",
-        isMultiWallet: false,
         isUserWalletLocked: false,
         isDelayed: true,
         cardsCount: 1,
