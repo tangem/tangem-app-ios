@@ -191,3 +191,5 @@ class SendSummaryViewModel: ObservableObject {
         canEdit ? Colors.Background.action : Colors.Button.disabled
     }
 }
+
+extension SendSummaryViewModel: SectionContainerAnimatable {}
