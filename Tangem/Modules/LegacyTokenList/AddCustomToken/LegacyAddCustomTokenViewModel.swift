@@ -78,7 +78,7 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
 
         $contractAddress.removeDuplicates()
             .dropFirst()
-            .debounce(for: 0.5, scheduler: RunLoop.main)
+            .debounce(for: 0.5, scheduler: DispatchQueue.main)
             .flatMap { [unowned self] contractAddress -> AnyPublisher<[CoinModel], Never> in
                 isLoading = true
 
@@ -88,7 +88,7 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
 
                 return findToken(contractAddress: contractAddress)
             }
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .sink { [unowned self] currencyModels in
                 didFinishTokenSearch(currencyModels)
             }
@@ -99,7 +99,7 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
             $derivationsPicker.map { $0.selection }.removeDuplicates(),
             $customDerivationPath.removeDuplicates()
         )
-        .debounce(for: 0.1, scheduler: RunLoop.main)
+        .debounce(for: 0.1, scheduler: DispatchQueue.main)
         .sink { [unowned self] _ in
             didChangeBlockchain()
         }
@@ -111,7 +111,7 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
             $symbol.removeDuplicates(),
             $decimals.removeDuplicates()
         )
-        .debounce(for: 0.1, scheduler: RunLoop.main)
+        .debounce(for: 0.1, scheduler: DispatchQueue.main)
         .sink { [weak self] _ in
             self?.validate()
         }
