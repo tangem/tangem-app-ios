@@ -64,7 +64,12 @@ struct QRCodeParser {
     private func stripSchemaPrefix(from qrCode: String) -> String {
         var result = qrCode
 
-        for qrPrefix in blockchain.qrPrefixes {
+        // The most specific (i.e. the most lengthy) prefixes always come first
+        let qrPrefixes = blockchain
+            .qrPrefixes
+            .sorted { $0.count > $1.count }
+
+        for qrPrefix in qrPrefixes {
             // Sometimes there are quite weird prefixes like "Address=bitcoin:" or "destination=ethereum:";
             // therefore we have to cut out an entire prefix, including all garbage in front
             let components = qrCode.components(separatedBy: qrPrefix)
