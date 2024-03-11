@@ -14,6 +14,7 @@ extension Analytics {
         case toppedUp = "[Basic] Topped up"
         case walletOpened = "[Basic] Wallet Opened"
         case balanceLoaded = "[Basic] Balance Loaded"
+        case tokenBalanceLoaded = "[Basic] Token Balance"
         case cardWasScanned = "[Basic] Card Was Scanned"
         case transactionSent = "[Basic] Transaction sent"
         case buttonTokensList = "[Introduction Process] Button - Tokens List"
