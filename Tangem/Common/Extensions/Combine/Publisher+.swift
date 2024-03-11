@@ -48,6 +48,17 @@ public extension Publisher {
         }
         .eraseToAnyPublisher()
     }
+
+    static func anyFail(error: Failure) -> AnyPublisher<Output, Failure> {
+        return Fail(error: error)
+            .eraseToAnyPublisher()
+    }
+
+    static func justWithError(output: Output) -> AnyPublisher<Output, Error> {
+        return Just(output)
+            .setFailureType(to: Error.self)
+            .eraseToAnyPublisher()
+    }
 }
 
 extension Publisher where Output == Void, Failure == Error {
