@@ -92,7 +92,7 @@ extension DetailsViewModel {
     }
 
     func openMail() {
-        Analytics.log(.buttonSendFeedback)
+        Analytics.log(.requestSupport, params: [.source: .settings])
 
         guard let emailConfig = userWalletModel.config.emailConfig else { return }
 
@@ -179,7 +179,7 @@ extension DetailsViewModel {
     }
 
     func requestSupport() {
-        Analytics.log(.buttonRequestSupport)
+        Analytics.log(.requestSupport, params: [.source: .settings])
         failedCardScanTracker.resetCounter()
         coordinator?.openMail(with: failedCardScanTracker, recipient: EmailConfig.default.recipient, emailType: .failedToScanCard)
     }
@@ -226,16 +226,12 @@ extension DetailsViewModel {
     }
 
     func setupSupportSectionModels() {
-        supportSectionModels = [
-            DefaultRowViewModel(title: Localization.detailsChat, action: weakify(self, forFunction: DetailsViewModel.openSupportChat)),
-        ]
-
         if !userWalletModel.config.getFeatureAvailability(.referralProgram).isHidden {
             supportSectionModels.append(DefaultRowViewModel(title: Localization.detailsReferralTitle, action: weakify(self, forFunction: DetailsViewModel.openReferral)))
         }
 
         if userWalletModel.config.emailConfig != nil {
-            supportSectionModels.append(DefaultRowViewModel(title: Localization.detailsRowTitleSendFeedback, action: weakify(self, forFunction: DetailsViewModel.openMail)))
+            supportSectionModels.append(DefaultRowViewModel(title: Localization.detailsRowTitleContactToSupport, action: weakify(self, forFunction: DetailsViewModel.openMail)))
         }
     }
 

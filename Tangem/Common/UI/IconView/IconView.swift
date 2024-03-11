@@ -152,7 +152,7 @@ private enum IconViewDefaults {
 struct IconView_Preview: PreviewProvider {
     static var previews: some View {
         IconView(
-            url: TokenIconURLBuilder().iconURL(id: "arbitrum-one", size: .small),
+            url: IconURLBuilder().tokenIconURL(id: "arbitrum-one", size: .small),
             size: CGSize(width: 40, height: 40)
         )
     }

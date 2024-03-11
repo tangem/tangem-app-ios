@@ -22,8 +22,4 @@ extension CardDTO {
     var hasWallets: Bool {
         !wallets.isEmpty
     }
-
-    var tangemApiAuthData: TangemApiTarget.AuthData {
-        .init(cardId: cardId, cardPublicKey: cardPublicKey)
-    }
 }

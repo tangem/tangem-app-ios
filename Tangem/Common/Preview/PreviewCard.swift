@@ -23,10 +23,10 @@ enum PreviewCard {
     case tangemWalletEmpty
     case tangemWalletBackuped
 
-    var cardModel: CardViewModel {
+    var userWalletModel: CommonUserWalletModel {
         let card = CardDTO(card: card)
         let ci = CardInfo(card: card, walletData: walletData, name: "Name")
-        let vm = CardViewModel(cardInfo: ci)!
+        let vm = CommonUserWalletModel(cardInfo: ci)!
         if let blockchain = blockchain {
             let factory = WalletManagerFactory(
                 config: .init(
@@ -49,14 +49,12 @@ enum PreviewCard {
                     dataStorage: FakeBlockchainDataStorage()
                 )
             )
-            let walletManager = try! factory.makeWalletManager(
+            // [REDACTED_TODO_COMMENT]
+            _ = try! factory.makeWalletManager(
                 blockchain: blockchain,
                 publicKey: .init(seedKey: publicKey, derivationType: .none)
             )
         }
-
-        // [REDACTED_TODO_COMMENT]
-//        vm.state = .loaded(walletModel: walletModels)
         return vm
     }
 
