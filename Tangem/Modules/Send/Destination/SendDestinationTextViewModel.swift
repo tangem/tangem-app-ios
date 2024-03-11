@@ -60,10 +60,7 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
     private func bind(style: Style, input: AnyPublisher<String, Never>, isValidating: AnyPublisher<Bool, Never>, isDisabled: AnyPublisher<Bool, Never>, errorText: AnyPublisher<Error?, Never>) {
         input
             .sink { [weak self] text in
-//                guard let self else { return }
                 guard self?.input != text else { return }
-
-                self?.lastInputSource = .programmatic
                 self?.input = text
             }
             .store(in: &bag)
@@ -71,16 +68,9 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
         self.$input
             .removeDuplicates()
             .sink { [weak self] in
-                print("ZZZ input change", $0, self!.lastInputSource)
-
-                guard let lastInputSource = self?.lastInputSource else { return }
-
-                self?.didEnterDestination($0, lastInputSource)
-                self?.lastInputSource = nil
+                self?.didEnterDestination($0)
             }
             .store(in: &bag)
-
-        // TGPz1VgfdRMMDhyeQDtNi9xZjFpQacHGzH
 
         isValidating
             .removeDuplicates()
@@ -156,7 +146,6 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
     func clearInput() {
         print("zzz clear input")
 //        didEnterDestination("")
-        lastInputSource = .pasteButton
         input = ""
     }
 
