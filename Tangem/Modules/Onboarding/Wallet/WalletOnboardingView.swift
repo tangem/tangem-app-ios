@@ -45,14 +45,13 @@ struct WalletOnboardingView: View {
         case .seedPhraseIntro:
             OnboardingSeedPhraseIntroView(
                 readMoreAction: viewModel.openReadMoreAboutSeedPhraseScreen,
-                generateSeedAction: viewModel.mainButtonAction,
+                generateSeedAction: viewModel.generateSeedPhrase,
                 importWalletAction: viewModel.supplementButtonAction
             )
         case .seedPhraseGeneration:
-            OnboardingSeedPhraseGenerateView(
-                words: viewModel.seedPhrase,
-                continueAction: viewModel.mainButtonAction
-            )
+            if let model = viewModel.generateSeedPhraseModel {
+                OnboardingSeedPhraseGenerateView(viewModel: model)
+            }
         case .seedPhraseImport:
             if let model = viewModel.importSeedPhraseModel {
                 OnboardingSeedPhraseImportView(viewModel: model)
@@ -113,12 +112,12 @@ struct WalletOnboardingView: View {
                                 }
                             },
                             rightItems: {
-                                ChatButton(
+                                SupportButton(
                                     height: viewModel.navbarSize.height,
                                     isVisible: true,
                                     isEnabled: true
                                 ) {
-                                    viewModel.openSupportChat()
+                                    viewModel.openSupport()
                                 }
                             }
                         )
