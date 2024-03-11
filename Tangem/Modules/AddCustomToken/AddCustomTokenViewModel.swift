@@ -93,12 +93,12 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             try checkLocalStorage()
 
             try userWalletModel.userTokensManager.addTokenItemPrecondition(tokenItem)
+            try userWalletModel.userTokensManager.update(itemsToRemove: [], itemsToAdd: [tokenItem])
         } catch {
             self.error = error.alertBinder
             return
         }
 
-        userWalletModel.userTokensManager.update(itemsToRemove: [], itemsToAdd: [tokenItem])
         logSuccess(tokenItem: tokenItem)
 
         closeModule()
@@ -207,7 +207,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         $contractAddress
             .removeDuplicates()
             .dropFirst()
-            .debounce(for: 0.5, scheduler: RunLoop.main)
+            .debounce(for: 0.5, scheduler: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .flatMap { viewModel, contractAddress -> AnyPublisher<[CoinModel], Never> in
                 let result: AnyPublisher<[CoinModel], Never>
@@ -238,7 +238,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
                 self.contractAddressError = contractAddressError
                 return result
             }
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] currencyModels in
                 self?.didFinishTokenSearch(currencyModels)
             }
@@ -249,7 +249,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             $symbol.removeDuplicates(),
             $decimals.removeDuplicates()
         )
-        .debounce(for: 0.1, scheduler: RunLoop.main)
+        .debounce(for: 0.1, scheduler: DispatchQueue.main)
         .sink { [weak self] _ in
             self?.validate()
         }
