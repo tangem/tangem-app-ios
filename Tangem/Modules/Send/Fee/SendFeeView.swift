@@ -32,7 +32,7 @@ struct SendFeeView: View {
                         }
                     }
                 }
-                .opacity(viewModel.showSectionContent ? 1 : 0)
+                .visible(viewModel.showSectionContent)
             } footer: {
                 if !viewModel.animatingAuxiliaryViewsOnAppear {
                     feeSelectorFooter
