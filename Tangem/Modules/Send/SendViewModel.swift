@@ -262,10 +262,20 @@ final class SendViewModel: ObservableObject {
         sendModel
             .sendError
             .compactMap { $0 }
-            .sink { [weak self] sendError in
+            .sink { [weak self] error in
+
                 guard let self else { return }
 
-                alert = SendError(sendError, openMailAction: openMail).alertBinder
+                let reason = String(error.localizedDescription.dropTrailingPeriod)
+                let code = 1
+
+                alert = SendError(
+                    title: Localization.sendAlertTransactionFailedTitle,
+                    message: Localization.sendAlertTransactionFailedText(reason, code),
+                    error: error,
+                    openMailAction: openMail
+                )
+                .alertBinder
             }
             .store(in: &bag)
 
