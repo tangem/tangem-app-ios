@@ -198,12 +198,12 @@ final class MainViewModel: ObservableObject {
     // MARK: - User wallets pages management
 
     /// Marks the given user wallet as 'dirty' (needs to be updated).
-    private func setNeedsUpdateUserWallet(_ userWallet: UserWallet) {
+    private func setNeedsUpdateUserWallet(_ userWallet: StoredUserWallet) {
         pendingUserWalletIdsToUpdate.insert(userWallet.userWalletId)
     }
 
     /// Checks if the given user wallet is 'dirty' (needs to be updated).
-    private func userWalletAwaitsPendingUpdate(_ userWallet: UserWallet) -> Bool {
+    private func userWalletAwaitsPendingUpdate(_ userWallet: StoredUserWallet) -> Bool {
         return pendingUserWalletIdsToUpdate.contains(userWallet.userWalletId)
     }
 
@@ -288,7 +288,7 @@ final class MainViewModel: ObservableObject {
 
     /// Postpones pages re-creation if a given user wallet is marked for update.
     /// Otherwise, re-creates pages immediately.
-    private func recreatePagesIfNeeded(for userWallet: UserWallet) {
+    private func recreatePagesIfNeeded(for userWallet: StoredUserWallet) {
         if userWalletAwaitsPendingUpdate(userWallet) {
             shouldRecreatePagesAfterAddingPendingWalletModels = true
         } else {
