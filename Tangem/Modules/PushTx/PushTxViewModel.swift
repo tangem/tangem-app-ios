@@ -38,7 +38,7 @@ class PushTxViewModel: ObservableObject {
 
     var walletModel: WalletModel {
         let id = WalletModel.Id(blockchainNetwork: blockchainNetwork, amountType: amountToSend.type).id
-        return cardViewModel.walletModelsManager.walletModels.first(where: { $0.id == id })!
+        return userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == id })!
     }
 
     var previousFeeAmount: Amount { transaction.fee.amount }
@@ -72,7 +72,7 @@ class PushTxViewModel: ObservableObject {
 
     @Published var shouldAmountBlink: Bool = false
 
-    let cardViewModel: CardViewModel
+    let userWalletModel: CommonUserWalletModel
     let blockchainNetwork: BlockchainNetwork
     var transaction: PendingTransactionRecord
 
@@ -92,12 +92,12 @@ class PushTxViewModel: ObservableObject {
     init(
         transaction: PendingTransactionRecord,
         blockchainNetwork: BlockchainNetwork,
-        cardViewModel: CardViewModel,
+        userWalletModel: UserWalletModel,
         coordinator: PushTxRoutable
     ) {
         self.coordinator = coordinator
         self.blockchainNetwork = blockchainNetwork
-        self.cardViewModel = cardViewModel
+        self.userWalletModel = userWalletModel as! CommonUserWalletModel
         self.transaction = transaction
         amountToSend = transaction.amount
         additionalFee = emptyValue
@@ -131,7 +131,7 @@ class PushTxViewModel: ObservableObject {
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.addLoadingView()
-        pusher.pushTransaction(with: transaction.hash, newTransaction: tx, signer: cardViewModel.signer)
+        pusher.pushTransaction(with: transaction.hash, newTransaction: tx, signer: userWalletModel.signer)
             .delay(for: 0.5, scheduler: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self else { return }
@@ -346,10 +346,7 @@ class PushTxViewModel: ObservableObject {
 
     private func getFiat(for amount: Amount?, roundingType: AmountRoundingType) -> Decimal? {
         if let amount = amount {
-            guard
-                let currencyId = walletModel.tokenItem.currencyId,
-                let fiatValue = BalanceConverter().convertToFiat(value: amount.value, from: amount.currencySymbol)
-            else {
+            guard let fiatValue = BalanceConverter().convertToFiat(value: amount.value, from: amount.currencySymbol) else {
                 return nil
             }
 
@@ -381,7 +378,7 @@ class PushTxViewModel: ObservableObject {
 extension PushTxViewModel {
     func openMail(with error: Error) {
         let emailDataCollector = PushScreenDataCollector(
-            userWalletEmailData: cardViewModel.emailData,
+            userWalletEmailData: userWalletModel.emailData,
             walletModel: walletModel,
             fee: newTransaction?.fee.amount,
             pushingFee: selectedFee?.amount,
@@ -392,7 +389,7 @@ extension PushTxViewModel {
             lastError: error
         )
 
-        let recipient = cardViewModel.emailConfig?.recipient ?? EmailConfig.default.recipient
+        let recipient = userWalletModel.emailConfig?.recipient ?? EmailConfig.default.recipient
         coordinator?.openMail(with: emailDataCollector, recipient: recipient)
     }
 
