@@ -12,7 +12,7 @@ import SwiftUI
 import BlockchainSdk
 
 class SendCoordinator: CoordinatorObject {
-    let dismissAction: Action<Void>
+    let dismissAction: Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?>
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Dependencies
@@ -31,7 +31,7 @@ class SendCoordinator: CoordinatorObject {
     @Published var qrScanViewCoordinator: QRScanViewCoordinator? = nil
 
     required init(
-        dismissAction: @escaping Action<Void>,
+        dismissAction: @escaping Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?>,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) {
         self.dismissAction = dismissAction
@@ -42,6 +42,7 @@ class SendCoordinator: CoordinatorObject {
         rootViewModel = SendViewModel(
             walletName: options.walletName,
             walletModel: options.walletModel,
+            userWalletModel: options.userWalletModel,
             transactionSigner: options.transactionSigner,
             sendType: options.type,
             emailDataProvider: options.emailDataProvider,
@@ -57,6 +58,7 @@ extension SendCoordinator {
         let walletName: String
         let emailDataProvider: EmailDataProvider
         let walletModel: WalletModel
+        let userWalletModel: UserWalletModel
         let transactionSigner: TransactionSigner
         let type: SendType
     }
@@ -65,9 +67,17 @@ extension SendCoordinator {
 // MARK: - SendRoutable
 
 extension SendCoordinator: SendRoutable {
+    func dismiss() {
+        dismiss(with: nil)
+    }
+
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {
         let logsComposer = LogsComposer(infoProvider: dataCollector)
         mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToSendTx)
+    }
+
+    func openFeeExplanation(url: URL) {
+        safariManager.openURL(url)
     }
 
     func explore(url: URL) {
@@ -90,5 +100,9 @@ extension SendCoordinator: SendRoutable {
         qrScanViewCoordinator.start(with: options)
 
         self.qrScanViewCoordinator = qrScanViewCoordinator
+    }
+
+    func openFeeCurrency(for walletModel: WalletModel, userWalletModel: UserWalletModel) {
+        dismiss(with: (walletModel, userWalletModel))
     }
 }

@@ -137,15 +137,15 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     private(set) var containerSize: CGSize = .zero
     weak var coordinator: Coordinator?
 
-    var cardModel: CardViewModel?
+    var userWalletModel: UserWalletModel?
 
     init(input: OnboardingInput, coordinator: Coordinator) {
         self.input = input
         self.coordinator = coordinator
 
         // [REDACTED_TODO_COMMENT]
-        if let cardModel = input.cardInput.cardModel {
-            self.cardModel = cardModel
+        if let userWalletModel = input.cardInput.userWalletModel {
+            self.userWalletModel = userWalletModel
         }
 
         isFromMain = input.isStandalone
@@ -162,21 +162,21 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     func initializeUserWallet(from cardInfo: CardInfo) {
-        guard let userWallet = CardViewModel(cardInfo: cardInfo) else { return }
+        guard let userWallet = CommonUserWalletModel(cardInfo: cardInfo) else { return }
 
-        userWalletRepository.initializeServices(for: userWallet, cardInfo: userWallet.cardInfo)
+        userWalletRepository.initializeServices(for: userWallet)
 
         Analytics.logTopUpIfNeeded(balance: 0)
 
-        cardModel = userWallet
+        userWalletModel = userWallet
     }
 
     func handleUserWalletOnFinish() throws {
-        guard let cardModel = cardModel else {
+        guard let userWalletModel else {
             return
         }
 
-        userWalletRepository.add(cardModel)
+        userWalletRepository.add(userWalletModel)
     }
 
     func loadImage(supportsOnlineImage: Bool, cardId: String?, cardPublicKey: Data?) {
@@ -251,7 +251,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                 self.onboardingDidFinish()
             }
 
-            onOnboardingFinished(for: input.cardInput.cardId)
+            onOnboardingFinished(for: input.primaryCardId)
 
             return
         }
@@ -360,7 +360,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
 extension OnboardingViewModel {
     func onboardingDidFinish() {
-        coordinator?.onboardingDidFinish(userWallet: cardModel)
+        coordinator?.onboardingDidFinish(userWalletModel: userWalletModel)
     }
 
     func closeOnboarding() {
@@ -369,20 +369,24 @@ extension OnboardingViewModel {
         coordinator?.closeOnboarding()
     }
 
-    func openSupportChat() {
-        Analytics.log(.onboardingButtonChat)
+    func openSupport() {
+        Analytics.log(.requestSupport, params: [.source: .onboarding])
 
         // Hide keyboard on set pin screen
         UIApplication.shared.endEditing()
 
         let dataCollector = DetailsFeedbackDataCollector(
-            walletModels: cardModel?.walletModelsManager.walletModels ?? [],
+            walletModels: userWalletModel?.walletModelsManager.walletModels ?? [],
             userWalletEmailData: input.cardInput.emailData
         )
 
-        coordinator?.openSupportChat(input: .init(
-            logsComposer: .init(infoProvider: dataCollector)
-        ))
+        let emailConfig = input.cardInput.config?.emailConfig ?? .default
+
+        coordinator?.openMail(
+            with: dataCollector,
+            recipient: emailConfig.recipient,
+            emailType: .appFeedback(subject: emailConfig.subject)
+        )
     }
 }
 
