@@ -9,7 +9,7 @@
 import Foundation
 
 enum SendViewNamespaceId: String {
-    case address
+    case addressContainer
     case addressTitle
     case addressIcon
     case addressText
