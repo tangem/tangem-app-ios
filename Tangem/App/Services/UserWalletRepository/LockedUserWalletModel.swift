@@ -76,7 +76,7 @@ class LockedUserWalletModel: UserWalletModel {
     }
 
     var totalSignedHashes: Int {
-        userWallet.cardInfo().card.wallets.compactMap { $0.totalSignedHashes }.reduce(0, +)
+        0
     }
 
     var keysRepository: KeysRepository { CommonKeysRepository(with: []) }
@@ -137,5 +137,11 @@ extension LockedUserWalletModel: AnalyticsContextDataProvider {
             firmware: cardInfo.card.firmwareVersion.stringValue,
             baseCurrency: baseCurrency
         )
+    }
+}
+
+extension LockedUserWalletModel: UserWalletSerializable {
+    func serialize() -> StoredUserWallet {
+        userWallet
     }
 }
