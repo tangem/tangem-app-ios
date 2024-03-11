@@ -174,8 +174,8 @@ final class QRCodeParserTests: XCTestCase {
         )
 
         testPositiveCase(
-            code: "ethereum:0x6090a6e47849629b7245dfa1ca21d94cd15878ef/transfer?address=0xc00f86ab93cd0bd3a60213583d0fe35aaa1ace23",
-            destination: "0xc00f86ab93cd0bd3a60213583d0fe35aaa1ace23",
+            code: "ethereum:0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7/transfer?address=0xc00f86ab93cd0bd3a60213583d0fe35aaa1ace23",
+            destination: "0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7",
             amount: nil,
             amountText: nil,
             memo: nil,
@@ -335,7 +335,7 @@ final class QRCodeParserTests: XCTestCase {
         )
 
         testPositiveCase(
-            code: "ethereum:0x6090a6e47849629b7245dfa1ca21d94cd15878ef/transfer?address=0xc00f86ab93cd0bd3a60213583d0fe35aaa1ace23",
+            code: "ethereum:0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7/transfer?address=0xc00f86ab93cd0bd3a60213583d0fe35aaa1ace23",
             destination: "0xc00f86ab93cd0bd3a60213583d0fe35aaa1ace23",
             amount: nil,
             amountText: nil,
@@ -430,6 +430,15 @@ final class QRCodeParserTests: XCTestCase {
             amount: Amount(with: blockchain, type: .token(value: exampleToken), value: try XCTUnwrap(Decimal(stringValue: "1334.56789"))),
             amountText: "1334.56789",
             memo: "no memo",
+            parser: parser
+        )
+
+        testPositiveCase(
+            code: "ethereum:0x6090a6e47849629b7245dfa1ca21d94cd15878ef/transfer?address=0xc00f86ab93cd0bd3a60213583d0fe35aaa1ace23",
+            destination: "",
+            amount: nil,
+            amountText: nil,
+            memo: nil,
             parser: parser
         )
     }
