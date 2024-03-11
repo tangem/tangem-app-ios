@@ -16,9 +16,9 @@ extension Analytics {
         case balanceLoaded = "[Basic] Balance Loaded"
         case cardWasScanned = "[Basic] Card Was Scanned"
         case transactionSent = "[Basic] Transaction sent"
+        case requestSupport = "[Basic] Request Support"
         case buttonTokensList = "[Introduction Process] Button - Tokens List"
         case buttonBuyCards = "[Introduction Process] Button - Buy Cards"
-        case buttonRequestSupport = "[Introduction Process] Button - Request Support"
         case introductionProcessButtonScanCard = "[Introduction Process] Button - Scan Card"
         case introductionProcessOpened = "[Introduction Process] Introduction Process Screen Opened"
         case introductionProcessLearn = "[Introduction Process] Button - Learn"
@@ -237,6 +237,7 @@ extension Analytics {
         case mainNoticeWalletUnlockTapped = "[Main Screen] Notice - Wallet Unlock Tapped"
         case mainNoticeBackupYourWallet = "[Main Screen] Notice - Backup Your Wallet"
         case mainNoticeRateTheApp = "[Main Screen] Notice - Rate The App"
+        case mainNoticeBackupErrors = "[Main Screen] Notice - Backup Errors"
         case tokenNoticeNetworkUnreachable = "[Token] Notice - Network Unreachable"
         case tokenNoticeNotEnoughFee = "[Token] Notice - Not Enough Fee"
 
