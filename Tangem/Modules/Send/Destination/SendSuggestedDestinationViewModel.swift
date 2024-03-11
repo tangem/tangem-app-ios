@@ -78,11 +78,6 @@ extension SendSuggestedDestinationViewModel.CellModel {
 }
 
 struct SendSuggestedDestination {
-    enum `Type` {
-        case wallet
-        case transactionRecord
-    }
-
     let address: String
     let additionalField: String?
     let type: Type
