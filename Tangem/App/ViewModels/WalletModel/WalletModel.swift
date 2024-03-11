@@ -401,7 +401,7 @@ class WalletModel {
         }
 
         return walletManager.send(tx, signer: signer)
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .handleEvents(receiveOutput: { [weak self] _ in
                 // Force update transactions history to take a new pending transaction from the local storage
                 self?._localPendingTransactionSubject.send(())
@@ -569,6 +569,10 @@ extension WalletModel {
         walletManager
     }
 
+    var transactionValidator: TransactionValidator {
+        walletManager
+    }
+
     var transactionCreator: TransactionCreator {
         walletManager
     }
@@ -579,10 +583,6 @@ extension WalletModel {
 
     var transactionPusher: TransactionPusher? {
         walletManager as? TransactionPusher
-    }
-
-    var withdrawalValidator: WithdrawalValidator? {
-        walletManager as? WithdrawalValidator
     }
 
     var ethereumGasLoader: EthereumGasLoader? {
@@ -609,16 +609,16 @@ extension WalletModel {
         walletManager as? AddressResolver
     }
 
+    var withdrawalSuggestionProvider: WithdrawalSuggestionProvider? {
+        walletManager as? WithdrawalSuggestionProvider
+    }
+
     var hasRent: Bool {
         walletManager is RentProvider
     }
 
     var existentialDepositProvider: ExistentialDepositProvider? {
         walletManager as? ExistentialDepositProvider
-    }
-
-    var transactionValidator: TransactionValidator {
-        walletManager
     }
 }
 
