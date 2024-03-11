@@ -14,6 +14,7 @@ public class IncomingActionParser {
 
     private var incomingActionURLParsers: [IncomingActionURLParser] = [
         DismissSafariActionURLHelper(),
+        SellActionURLHelper(),
     ]
 
     public init() {}
