@@ -44,7 +44,7 @@ struct QRCodeParser {
                     result.amountText = parameterValue
                 }
             case .message, .memo:
-                result.memo = parameterValue
+                result.memo = parameterValue.removingPercentEncoding
             case .address:
                 /// Overrides destination address for token transfers (ERC-681)
                 result.destination = parameterValue
