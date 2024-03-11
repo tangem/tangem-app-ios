@@ -127,10 +127,6 @@ class SendModel {
     private var feeUpdateSubscription: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
-    var destinationPublisher: AnyPublisher<String?, Never> {
-        destination.eraseToAnyPublisher()
-    }
-
     // MARK: - Public interface
 
     init(walletModel: WalletModel, transactionSigner: TransactionSigner, addressService: SendAddressService, sendType: SendType) {
