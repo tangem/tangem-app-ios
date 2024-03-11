@@ -146,7 +146,14 @@ class PushTxViewModel: ObservableObject {
                         .blockchain: walletModel.wallet.blockchain.displayName,
                         .action: Analytics.ParameterValue.pushTx.rawValue,
                     ])
-                    sendError = SendError(error, openMailAction: openMail).alertBinder
+
+                    sendError = SendError(
+                        title: Localization.feedbackSubjectTxFailed,
+                        message: Localization.alertFailedToSendTransactionMessage(String(error.localizedDescription.dropTrailingPeriod)),
+                        error: error,
+                        openMailAction: openMail
+                    )
+                    .alertBinder
                 } else {
                     walletModel.startUpdatingTimer()
                     callback()
