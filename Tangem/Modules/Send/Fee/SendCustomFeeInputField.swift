@@ -29,7 +29,7 @@ struct SendCustomFeeInputField: View {
                         decimalValue: $viewModel.amount,
                         maximumFractionDigits: viewModel.fractionDigits
                     )
-                    .suffix("WEI")
+                    .suffix(viewModel.fieldSuffix)
                     .font(Fonts.Regular.subheadline)
                     .onFocusChanged(onFocusChanged)
 
@@ -63,6 +63,7 @@ extension SendCustomFeeInputField: Setupable {
             viewModel: SendCustomFeeInputFieldModel(
                 title: "Fee up to",
                 amountPublisher: .just(output: .internal(1234)),
+                fieldSuffix: "WEI",
                 fractionDigits: 2,
                 amountAlternativePublisher: .just(output: "0.41 $"),
                 footer: "Maximum commission amount",
@@ -74,6 +75,7 @@ extension SendCustomFeeInputField: Setupable {
             viewModel: SendCustomFeeInputFieldModel(
                 title: "Fee up to",
                 amountPublisher: .just(output: .internal(1234)),
+                fieldSuffix: "WEI",
                 fractionDigits: 2,
                 amountAlternativePublisher: .just(output: nil),
                 footer: "Maximum commission amount",
