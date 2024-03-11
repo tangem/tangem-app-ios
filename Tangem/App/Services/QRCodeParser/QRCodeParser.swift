@@ -46,8 +46,17 @@ struct QRCodeParser {
             case .message, .memo:
                 result.memo = parameterValue.removingPercentEncoding
             case .address:
-                /// Overrides destination address for token transfers (ERC-681)
-                result.destination = parameterValue
+                // Overrides destination address for token transfers (ERC-681)
+                guard case .token(let token) = amountType else { continue }
+
+                // `address` parameter is used only if the contract address, encoded in the QR,
+                // matches the contract address of the token from `amountType` property.
+                // Otherwise, the scanned string is likely malformed, and we stop the entire parsing routine
+                if token.contractAddress.caseInsensitiveCompare(result.destination) == .orderedSame {
+                    result.destination = parameterValue
+                } else {
+                    return Result(destination: "")
+                }
             case .value, .uint256:
                 // According to ERC-681, the value is specified in the atomic unit (i.e. wei). Converting it to decimals
                 if let valueInSmallestDenomination = Decimal(stringValue: parameterValue) {
