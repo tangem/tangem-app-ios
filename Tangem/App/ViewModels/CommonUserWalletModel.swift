@@ -325,21 +325,6 @@ extension CommonUserWalletModel: UserWalletModel {
         return factory.makeBackupInput()
     }
 
-    var twinInput: OnboardingInput? {
-        guard let twinData = cardInfo.walletData.twinData else {
-            return nil
-        }
-
-        let factory = TwinInputFactory(
-            firstCardId: cardInfo.card.cardId,
-            cardInput: .userWalletModel(self),
-            userWalletToDelete: userWalletId,
-            twinData: twinData,
-            sdkFactory: config
-        )
-        return factory.makeTwinInput()
-    }
-
     var updatePublisher: AnyPublisher<Void, Never> {
         _updatePublisher.eraseToAnyPublisher()
     }
