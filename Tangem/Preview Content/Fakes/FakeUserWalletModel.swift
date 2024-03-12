@@ -16,7 +16,6 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     var name: String { "" }
     let emailData: [EmailCollectedData] = []
     let backupInput: OnboardingInput? = nil
-    let twinInput: OnboardingInput? = nil
     let walletModelsManager: WalletModelsManager
     let userTokenListManager: UserTokenListManager
     let userTokensManager: UserTokensManager
