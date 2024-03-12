@@ -49,7 +49,7 @@ class CommonUserTokenListManager {
         self.hasTokenSynchronization = hasTokenSynchronization
         self.defaultBlockchains = defaultBlockchains
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
-        initializedSubject = .init(tokenItemsRepository.containsFile)
+        initializedSubject = CurrentValueSubject(tokenItemsRepository.containsFile)
         userTokensListSubject = CurrentValueSubject(tokenItemsRepository.getList())
 
         removeInvalidTokens()
