@@ -125,7 +125,7 @@ class SendSummaryViewModel: ObservableObject {
                 self?.screenIdleStartTime = Date()
 
                 if let oldFee = result.oldFee, result.newFee > oldFee {
-                    self?.alert = AlertBuilder.makeOkGotItAlert(message: Localization.sendAlertFeeIncreasedTitle)
+                    self?.alert = AlertBuilder.makeOkGotItAlert(message: Localization.sendNotificationHighFeeTitle)
                 } else {
                     self?.input.send()
                 }
