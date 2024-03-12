@@ -51,24 +51,19 @@ class UserWalletEncryptionKeyStorage {
         }
     }
 
-    func add(_ userWallet: StoredUserWallet) {
-        let cardInfo = userWallet.cardInfo()
-
-        guard let encryptionKey = UserWalletEncryptionKeyFactory().encryptionKey(from: cardInfo) else {
-            AppLog.shared.debug("Failed to get encryption key for UserWallet")
-            return
-        }
+    func add(_ userWalletId: UserWalletId, userWalletIdSeed: Data) {
+        let encryptionKey = UserWalletEncryptionKeyFactory().encryptionKey(from: userWalletIdSeed)
 
         do {
             let userWalletIds = try userWalletIds()
-            if userWalletIds.contains(userWallet.userWalletId) {
+            if userWalletIds.contains(userWalletId.value) {
                 return
             }
 
-            try addUserWalletId(userWallet)
+            try addUserWalletId(userWalletId.value)
 
             let encryptionKeyData = encryptionKey.symmetricKey.dataRepresentationWithHexConversion
-            try biometricsStorage.store(encryptionKeyData, forKey: encryptionKeyStorageKey(for: UserWalletId(value: userWallet.userWalletId)))
+            try biometricsStorage.store(encryptionKeyData, forKey: encryptionKeyStorageKey(for: userWalletId))
         } catch {
             AppLog.shared.debug("Failed to add UserWallet ID to the list")
             AppLog.shared.error(error)
@@ -126,9 +121,9 @@ class UserWalletEncryptionKeyStorage {
         "user_wallet_encryption_key_\(userWalletId.hexString.lowercased())"
     }
 
-    private func addUserWalletId(_ userWallet: StoredUserWallet) throws {
+    private func addUserWalletId(_ userWalletId: Data) throws {
         var ids = try userWalletIds()
-        ids.insert(userWallet.userWalletId)
+        ids.insert(userWalletId)
         try saveUserWalletIds(ids)
     }
 
