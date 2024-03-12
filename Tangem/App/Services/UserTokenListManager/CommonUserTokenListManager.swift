@@ -138,10 +138,8 @@ private extension CommonUserTokenListManager {
         let updatedUserTokenList = userTokenList ?? tokenItemsRepository.getList()
         userTokensListSubject.send(updatedUserTokenList)
 
-        DispatchQueue.main.async {
-            if !self.initialized, self.tokenItemsRepository.containsFile {
-                self.initializedSubject.send(true)
-            }
+        if !initialized, tokenItemsRepository.containsFile {
+            initializedSubject.send(true)
         }
     }
 
