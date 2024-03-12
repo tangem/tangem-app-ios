@@ -116,7 +116,6 @@
 "common_share" = "分享";
 "common_sign" = "簽署";
 "common_sign_and_send" = "簽署和發送";
-"common_stake" = "Stake";
 "common_start" = "開始";
 "common_submit" = "提交";
 "common_success" = "成功";
@@ -419,7 +418,6 @@
 "send_additional_field_already_included" = "Already included in the entered address";
 "send_alert_fee_coverage_subract_text" = "Subtract";
 "send_alert_fee_coverage_title" = "Not enough funds to cover the network commission. Subtract the commission from the amount sent?";
-"send_alert_fee_increased_title" = "Fee is increased";
 "send_alert_fee_too_low_text" = "You specified a commission below the recommended amount, which could cause a delay in your transaction. Continue?";
 "send_alert_transaction_failed_text" = "Reason: %1$s\nCode: %2$s";
 "send_alert_transaction_failed_title" = "The transaction is not completed";
@@ -461,7 +459,7 @@
 "send_notification_high_fee_title" = "Fee is increased";
 "send_notification_invalid_amount_text" = "The included commission exceeds the transfer amount, leading to a negative value";
 "send_notification_invalid_amount_title" = "Invalid amount";
-"send_notification_invalid_minimum_amount_text" = "The minimum sending amount is %1$@. Please ensure that the remaining balance after sending will not be less than %1$@.";
+"send_notification_invalid_minimum_amount_text" = "The minimum sending amount is %1$@. Please ensure that the remaining balance after sending will not be less than %2$@.";
 "send_notification_invalid_reserve_amount_text" = "Target account is not created. Please change the amount to send.";
 "send_notification_invalid_reserve_amount_title" = "The amount to send must be at least %@";
 "send_notification_reduce_by" = "Reduce by %@";
@@ -575,13 +573,11 @@
 "voice_over_scan_qr_with_address" = "掃二維碼地址";
 "voice_over_share_address" = "分享地址";
 "voice_over_show_address_qr" = "顯示地址、二維碼、代碼";
-"wallet_address_button_explore" = "交易記錄";
 "wallet_balance_missing_derivation" = "掃描卡片";
 "wallet_connect_alert_sign_message" = "請求籤署消息。%@";
 "wallet_connect_bnb_sign_message" = "Dapp %1$@，請求\n簽署 BNB 交易。\n%2$@";
 "wallet_connect_bnb_trade_order_message" = "%1$@ 的交易訂單\n價格： %2$@\n接收金額：%3$@\n支付數量： %4$@";
 "wallet_connect_bnb_transaction_message" = "交易明細：\n從： %1$@\n到： %2$@\n數量： %3$@";
-"wallet_connect_bnb_transaction_signed" = "BNB 交易已成功簽署並發送至 Dapp";
 "wallet_connect_clipboard_alert" = "剪貼板包含 WalletConnect 代碼。使用複制的值或掃描二維碼";
 "wallet_connect_create_tx_message" = "請求為 %1$@ 創建交易\n%2$@\n\n數量： %3$@\n費用： %4$@\n全部的： %5$@\n餘額： %6$@";
 "wallet_connect_create_tx_not_enough_funds" = "無法交易，無足夠資金";
@@ -595,8 +591,6 @@
 "wallet_connect_error_wrong_card_selected" = "在 Tangem App 中選擇了錯誤的卡";
 "wallet_connect_failed_to_build_tx" = "無法從 Dapp 數據創建交易。代碼： %@";
 "wallet_connect_generic_error_with_code" = "我們遇到了未知錯誤。錯誤代碼：%li。如果問題仍然存在-請隨時聯繫我們的支持人員";
-"wallet_connect_message_signed" = "消息已成功簽名並發送至Dapp";
-"wallet_connect_network_not_found_format" = "沒有 %@ 網路，請先加入後再試一次";
 "wallet_connect_no_sessions_message" = "沒有已連結的WalletConnect";
 "wallet_connect_no_sessions_title" = "Ooops, 沒有連接";
 "wallet_connect_pairing_error" = "Failed to pairing WalletConnect session: %1$@";
@@ -607,14 +601,9 @@
 "wallet_connect_scanner_error_not_valid_card" = "此卡不能用於建立 WalletConnect 連接";
 "wallet_connect_scanner_error_unsupported_network" = "不支持此網絡。請選擇其他網絡";
 "wallet_connect_select_network" = "選擇網路";
-"wallet_connect_service_no_chain_id" = "Dapp 沒有提供必要的數據來建立 WalletConnect 連接";
-"wallet_connect_session_not_found" = "找不到請求的連接";
 "wallet_connect_sessions_title" = "WalletConnect 連接";
 "wallet_connect_subtitle" = "連結到Dapps";
 "wallet_connect_title" = "WalletConnect";
-"wallet_connect_transaction_signed" = "交易已成功簽署並發送至 Dapp";
-"wallet_connect_transaction_signed_and_send" = "交易已成功簽署並發送至區塊鏈";
-"wallet_connect_tx_not_found" = "未能找到交易哈希";
 "wallet_marketplace_block_title" = "%s市場價格";
 "wallet_marketprice_block_update_time" = "last 24h";
 "wallet_network_group_title" = "%@ network";
@@ -639,7 +628,7 @@
 "warning_express_active_transaction_title" = "You have active transaction";
 "warning_express_approval_in_progress_message" = "Swap approval is underway and will be completed shortly";
 "warning_express_approval_in_progress_title" = "Approval in progress";
-"warning_express_dust_message" = "The minimum swapping amount is %1$@. Please ensure that the remaining balance after sending will not be less than %2$@.";
+"warning_express_dust_message" = "The minimum swapping amount is %1$@. Please ensure that the remaining balance after the swap will not be less than %2$@.";
 "warning_express_no_exchangeable_coins_description" = "You do not have any %@ exchangeable coins in your list";
 "warning_express_no_exchangeable_coins_title" = "No available tokens to swap";
 "warning_express_not_enough_fee_for_token_tx_description" = "To make a transaction you need to deposit some %1$@ %2$@";
