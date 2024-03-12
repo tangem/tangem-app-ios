@@ -146,8 +146,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .share(replay: 1)
 
-        subscribeToTokenListSync(with: sectionsPublisher)
-
         sectionsPublisher
             .assign(to: \.sections, on: self, ownership: .weak)
             .store(in: &bag)
@@ -189,6 +187,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             notificationsPublisher1: $notificationInputs,
             notificationsPublisher2: $tokensNotificationInputs
         )
+
+        subscribeToTokenListSync(with: sectionsPublisher)
     }
 
     private func convertToSections(
