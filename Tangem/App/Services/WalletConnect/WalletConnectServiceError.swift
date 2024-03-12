@@ -9,27 +9,15 @@
 import Foundation
 
 enum WalletConnectServiceError: LocalizedError {
-    case failedToConnect
     case signFailed
-    case cancelled
-    case timeout
-    case deallocated
-    case failedToFindSigner
-    case sessionNotFound
-    case txNotFound
-    case failedToBuildTx(code: TxErrorCodes)
-    case other(Error)
-    case noChainId
-    case unsupportedNetwork
-    case switchChainNotSupported
-    case notValidCard
-    case networkNotFound(name: String)
-    case unsupportedDApp
 
     var shouldHandle: Bool {
+        return true
+    }
+
+    var errorDescription: String? {
         switch self {
-        case .cancelled, .deallocated, .failedToFindSigner: return false
-        default: return true
+        case .signFailed: return Localization.walletConnectErrorSingFailed
         }
     }
 }
