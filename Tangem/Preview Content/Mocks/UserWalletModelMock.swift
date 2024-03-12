@@ -37,8 +37,6 @@ class UserWalletModelMock: UserWalletModel {
 
     var backupInput: OnboardingInput? { nil }
 
-    var twinInput: OnboardingInput? { nil }
-
     var cardImagePublisher: AnyPublisher<CardImageResult, Never> { Empty().eraseToAnyPublisher() }
 
     var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> { Empty().eraseToAnyPublisher() }
