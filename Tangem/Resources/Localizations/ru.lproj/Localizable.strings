@@ -116,7 +116,6 @@
 "common_share" = "Поделиться";
 "common_sign" = "Подписать";
 "common_sign_and_send" = "Подписать и отправить";
-"common_stake" = "Стейкинг";
 "common_start" = "Начать";
 "common_submit" = "Отправить";
 "common_success" = "Успешно";
@@ -419,7 +418,6 @@
 "send_additional_field_already_included" = "Уже содержится в введенном адресе";
 "send_alert_fee_coverage_subract_text" = "Вычесть";
 "send_alert_fee_coverage_title" = "Недостаточно средств для покрытия комиссии сети. Вычесть комиссию из отправляемой сумму?";
-"send_alert_fee_increased_title" = "Комиссия увеличилась";
 "send_alert_fee_too_low_text" = "Вы указали комиссию ниже рекомендуемой, это может привести к задержке исполнения вашей транзакции. Продолжить?";
 "send_alert_transaction_failed_text" = "Причина: %1$s\nКод: %2$s";
 "send_alert_transaction_failed_title" = "Транзакция не выполнена";
@@ -458,10 +456,10 @@
 "send_notification_fee_too_high_text" = "Сумма комиссии в %@ раз превышает рекомендованную. Убедитесь, что указанная комиссия верна.";
 "send_notification_fee_too_high_title" = "Установлена высокая комиссия";
 "send_notification_high_fee_text" = "Комиссия при переводе всего баланса выше. Для того, чтобы снизить комиссию Вы можете оставить %@.";
-"send_notification_high_fee_title" = "Увеличение комиссии";
+"send_notification_high_fee_title" = "Комиссия увеличилась";
 "send_notification_invalid_amount_text" = "Включенная комиссия превышает сумму перевода, что приводит к отрицательному значению";
 "send_notification_invalid_amount_title" = "Недопустимая сумма";
-"send_notification_invalid_minimum_amount_text" = "Минимальная сумма отправки - %1$@. Пожалуйста, убедитесь, что остаток после отправки также не будет меньше %1$@.";
+"send_notification_invalid_minimum_amount_text" = "Минимальная сумма отправки - %1$@. Пожалуйста, убедитесь, что остаток после отправки также не будет меньше %2$@.";
 "send_notification_invalid_reserve_amount_text" = "Адрес получателя не активирован. \nПожалуйста, измените сумму отправки, чтобы продолжить.";
 "send_notification_invalid_reserve_amount_title" = "Сумма отправки не может быть менее %@";
 "send_notification_reduce_by" = "Уменьшить на %@";
@@ -575,13 +573,11 @@
 "voice_over_scan_qr_with_address" = "Сканировать QR код с адресом";
 "voice_over_share_address" = "Поделиться адресом";
 "voice_over_show_address_qr" = "Показать QR код с адресом";
-"wallet_address_button_explore" = "История транзакций";
 "wallet_balance_missing_derivation" = "Отсканируйте карту";
 "wallet_connect_alert_sign_message" = "Запрос на подпись сообщения.\n\n%@";
 "wallet_connect_bnb_sign_message" = "Dapp %1$@, запрос на\nподпись транзакции с BNB.\n\n%2$@";
 "wallet_connect_bnb_trade_order_message" = "Торговый ордер на %1$@\nЦена: %2$@\nСумма к получению: %3$@\nСумма к оплате: %4$@";
 "wallet_connect_bnb_transaction_message" = "Детали транзакции:\nОт: %1$@\nК: %2$@\nСумма: %3$@";
-"wallet_connect_bnb_transaction_signed" = "Транзакция с BNB успешно подписана и отправлена ​​в Dapp.";
 "wallet_connect_clipboard_alert" = "Буфер обмена содержит код WalletConnect. Использовать скопированное значение или отсканировать QR-код";
 "wallet_connect_create_tx_message" = "Запрос на создание транзакции для %1$@\n%2$@\n\nСумма: %3$@\nКомиссия: %4$@\nВсего: %5$@\nБаланс: %6$@";
 "wallet_connect_create_tx_not_enough_funds" = "Невозможно отправить транзакцию. Недостаточно средств.";
@@ -595,8 +591,6 @@
 "wallet_connect_error_wrong_card_selected" = "Неверная карта выбрана в приложении Tangem";
 "wallet_connect_failed_to_build_tx" = "Не удалось создать транзакцию из данных Dapp. Код: %@";
 "wallet_connect_generic_error_with_code" = "Произошла непредвиденная ошибка. Код ошибки: %li Попробуйте, пожалуйста, позже. Если проблема будет продолжать возникать - обратитесь в службу поддержки.";
-"wallet_connect_message_signed" = "Сообщение было успешно подписано и отправлено в Dapp";
-"wallet_connect_network_not_found_format" = "Сеть %@ не найдена. Пожалуйста, добавьте её и попробуйте заново.";
 "wallet_connect_no_sessions_message" = "Нет открытых сессий WalletConnect";
 "wallet_connect_no_sessions_title" = "Упс. Нет сессий.";
 "wallet_connect_pairing_error" = "Не удалось создать пару WalletConnect: %1$@";
@@ -607,14 +601,9 @@
 "wallet_connect_scanner_error_not_valid_card" = "Эту карту нельзя использовать с WalletConnect.";
 "wallet_connect_scanner_error_unsupported_network" = "Сеть не поддерживается. Пожалуйста, выберите другую сеть.";
 "wallet_connect_select_network" = "Выберите сеть";
-"wallet_connect_service_no_chain_id" = "Dapp не предоставил необходимые данные для открытия сессии WalletConnect";
-"wallet_connect_session_not_found" = "Не удалось найти сессию для обработки запроса";
 "wallet_connect_sessions_title" = "Сессии WalletConnect";
 "wallet_connect_subtitle" = "Подключение к dApps";
 "wallet_connect_title" = "WalletConnect";
-"wallet_connect_transaction_signed" = "Транзакция успешно подписана и отправлена ​​в Dapp";
-"wallet_connect_transaction_signed_and_send" = "Транзакция успешно подписана и отправлена ​​в блокчейн";
-"wallet_connect_tx_not_found" = "Не удалось найти хэш транзакции";
 "wallet_marketplace_block_title" = "Рыночная цена %s";
 "wallet_marketprice_block_update_time" = "за 24 часа";
 "wallet_network_group_title" = "Сеть %@";
