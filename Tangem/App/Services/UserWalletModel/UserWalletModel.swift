@@ -25,7 +25,6 @@ protocol UserWalletModel: MainHeaderSupplementInfoProvider, TotalBalanceProvidin
     var updatePublisher: AnyPublisher<Void, Never> { get }
     var emailData: [EmailCollectedData] { get }
     var backupInput: OnboardingInput? { get } // [REDACTED_TODO_COMMENT]
-    var twinInput: OnboardingInput? { get }
     var cardImagePublisher: AnyPublisher<CardImageResult, Never> { get }
     var totalSignedHashes: Int { get }
     var name: String { get }
