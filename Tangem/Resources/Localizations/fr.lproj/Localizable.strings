@@ -116,7 +116,6 @@
 "common_share" = "Share";
 "common_sign" = "Sign";
 "common_sign_and_send" = "Sign and send";
-"common_stake" = "Stake";
 "common_start" = "Start";
 "common_submit" = "Submit";
 "common_success" = "Avec succès";
@@ -419,7 +418,6 @@
 "send_additional_field_already_included" = "Already included in the entered address";
 "send_alert_fee_coverage_subract_text" = "Subtract";
 "send_alert_fee_coverage_title" = "Not enough funds to cover the network commission. Subtract the commission from the amount sent?";
-"send_alert_fee_increased_title" = "Fee is increased";
 "send_alert_fee_too_low_text" = "You specified a commission below the recommended amount, which could cause a delay in your transaction. Continue?";
 "send_alert_transaction_failed_text" = "Reason: %1$s\nCode: %2$s";
 "send_alert_transaction_failed_title" = "The transaction is not completed";
@@ -461,7 +459,7 @@
 "send_notification_high_fee_title" = "Fee is increased";
 "send_notification_invalid_amount_text" = "The included commission exceeds the transfer amount, leading to a negative value";
 "send_notification_invalid_amount_title" = "Invalid amount";
-"send_notification_invalid_minimum_amount_text" = "The minimum sending amount is %1$@. Please ensure that the remaining balance after sending will not be less than %1$@.";
+"send_notification_invalid_minimum_amount_text" = "The minimum sending amount is %1$@. Please ensure that the remaining balance after sending will not be less than %2$@.";
 "send_notification_invalid_reserve_amount_text" = "Target account is not created. Please change the amount to send.";
 "send_notification_invalid_reserve_amount_title" = "The amount to send must be at least %@";
 "send_notification_reduce_by" = "Reduce by %@";
@@ -575,13 +573,11 @@
 "voice_over_scan_qr_with_address" = "Scan, QR, code with address";
 "voice_over_share_address" = "Share address";
 "voice_over_show_address_qr" = "Show address, QR, code";
-"wallet_address_button_explore" = "Transaction history";
 "wallet_balance_missing_derivation" = "Scan the card";
 "wallet_connect_alert_sign_message" = "Requesting to sign a message.\n\n%@";
 "wallet_connect_bnb_sign_message" = "Dapp %1$@, requesting to\nsign BNB transaction.\n\n%2$@";
 "wallet_connect_bnb_trade_order_message" = "Trade order for %1$@\nPrice: %2$@\nAmount to receive: %3$@\nAmount to pay: %4$@";
 "wallet_connect_bnb_transaction_message" = "Transaction details:\nFrom: %1$@\nTo: %2$@\nAmount: %3$@";
-"wallet_connect_bnb_transaction_signed" = "The BNB transaction has been successfully signed and sent to the Dapp";
 "wallet_connect_clipboard_alert" = "Clipboard contain WalletConnect code. Use copied value or scan QR-code";
 "wallet_connect_create_tx_message" = "Request to create transaction for %1$@\n%2$@\n\nAmount: %3$@\nFee: %4$@\nTotal: %5$@\nBalance: %6$@";
 "wallet_connect_create_tx_not_enough_funds" = "Can't send transaction. Not enough funds.";
@@ -595,8 +591,6 @@
 "wallet_connect_error_wrong_card_selected" = "Wrong card selected in Tangem App";
 "wallet_connect_failed_to_build_tx" = "Failed to create transaction from Dapp data. Code: %@";
 "wallet_connect_generic_error_with_code" = "We've encountered unknown error. Error code: %li. If the problem persists — feel free to contact our support";
-"wallet_connect_message_signed" = "The message has been successfully signed and sent to the Dapp";
-"wallet_connect_network_not_found_format" = "%@ network not found. Please, add it first and try again.";
 "wallet_connect_no_sessions_message" = "No opened WalletConnect sessions";
 "wallet_connect_no_sessions_title" = "Ooops. No Sessions.";
 "wallet_connect_pairing_error" = "Failed to pairing WalletConnect session: %1$@";
@@ -607,14 +601,9 @@
 "wallet_connect_scanner_error_not_valid_card" = "This card can't be used to establish WalletConnect session";
 "wallet_connect_scanner_error_unsupported_network" = "This network is not supported. Please select another network.";
 "wallet_connect_select_network" = "Select network";
-"wallet_connect_service_no_chain_id" = "Dapp didn't provide essential data to establish WalletConnect session";
-"wallet_connect_session_not_found" = "Failed to find session for request";
 "wallet_connect_sessions_title" = "WalletConnect Sessions";
 "wallet_connect_subtitle" = "Connect to dApps";
 "wallet_connect_title" = "WalletConnect";
-"wallet_connect_transaction_signed" = "The transaction has been successfully signed and sent to the Dapp";
-"wallet_connect_transaction_signed_and_send" = "The transaction has been succesfully signed and sent to the blockchain";
-"wallet_connect_tx_not_found" = "Failed to find transaction hash";
 "wallet_marketplace_block_title" = "%s Market Price";
 "wallet_marketprice_block_update_time" = "last 24h";
 "wallet_network_group_title" = "%@ network";
@@ -639,7 +628,7 @@
 "warning_express_active_transaction_title" = "You have active transaction";
 "warning_express_approval_in_progress_message" = "Swap approval is underway and will be completed shortly";
 "warning_express_approval_in_progress_title" = "Approval in progress";
-"warning_express_dust_message" = "The minimum swapping amount is %1$@. Please ensure that the remaining balance after sending will not be less than %2$@.";
+"warning_express_dust_message" = "The minimum swapping amount is %1$@. Please ensure that the remaining balance after the swap will not be less than %2$@.";
 "warning_express_no_exchangeable_coins_description" = "You do not have any %@ exchangeable coins in your list";
 "warning_express_no_exchangeable_coins_title" = "No available tokens to swap";
 "warning_express_not_enough_fee_for_token_tx_description" = "To make a transaction you need to deposit some %1$@ %2$@";
