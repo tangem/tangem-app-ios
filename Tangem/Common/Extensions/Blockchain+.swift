@@ -26,7 +26,8 @@ extension Blockchain {
     var currencyId: String {
         switch self {
         case .arbitrum(let testnet), .optimism(let testnet),
-             .aurora(let testnet), .zkSync(let testnet), .polygonZkEVM(let testnet):
+             .aurora(let testnet), .manta(let testnet),
+             .zkSync(let testnet), .polygonZkEVM(let testnet):
             return Blockchain.ethereum(testnet: testnet).coinId
         default:
             return coinId
@@ -179,13 +180,28 @@ private extension Blockchain {
             }
             #warning("Fix network and coin ids if necessary")
         case .manta:
-            return "manta"
+            switch type {
+            case .network:
+                return "manta-network"
+            case .coin:
+                return "manta-network-ethereum"
+            }
         case .zkSync:
-            return "zksync"
+            switch type {
+            case .network:
+                return "zksync"
+            case .coin:
+                return "zksync-ethereum"
+            }
         case .moonbeam:
             return "moonbeam"
         case .polygonZkEVM:
-            return "polygon-zkevm"
+            switch type {
+            case .network:
+                return "polygon-zkevm"
+            case .coin:
+                return "polygon-zkevm-ethereum"
+            }
         }
     }
 
