@@ -11,13 +11,13 @@ import Combine
 import BlockchainSdk
 
 class FakeUserWalletRepository: UserWalletRepository {
+    var selectedUserWalletId: UserWalletId?
+
     var hasSavedWallets: Bool { true }
 
     var models: [UserWalletModel] = []
 
     var selectedModel: UserWalletModel?
-
-    var selectedUserWalletId: Data?
 
     var selectedIndexUserWalletModel: Int?
 
@@ -52,7 +52,7 @@ class FakeUserWalletRepository: UserWalletRepository {
         }
     }
 
-    func setSelectedUserWalletId(_ userWalletId: Data?, unlockIfNeeded: Bool, reason: UserWalletRepositorySelectionChangeReason) {}
+    func setSelectedUserWalletId(_ userWalletId: UserWalletId, unlockIfNeeded: Bool, reason: UserWalletRepositorySelectionChangeReason) {}
 
     func updateSelection() {}
 
@@ -63,12 +63,6 @@ class FakeUserWalletRepository: UserWalletRepository {
     func add(_ completion: @escaping (UserWalletRepositoryResult?) -> Void) {}
 
     func addOrScan(completion: @escaping (UserWalletRepositoryResult?) -> Void) {}
-
-    func get(_ userWalletId: UserWalletId) -> StoredUserWallet? {
-        return nil
-    }
-
-    func save(_ userWallet: StoredUserWallet) {}
 
     func delete(_ userWalletId: UserWalletId, logoutIfNeeded shouldAutoLogout: Bool) {}
 
