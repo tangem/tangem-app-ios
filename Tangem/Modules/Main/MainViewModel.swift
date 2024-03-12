@@ -180,10 +180,7 @@ final class MainViewModel: ObservableObject {
     }
 
     func didConfirmWalletDeletion() {
-        guard
-            let userWalletId = userWalletRepository.selectedUserWalletId,
-            let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.value == userWalletId })
-        else {
+        guard let userWalletModel = userWalletRepository.selectedModel else {
             return
         }
 
@@ -277,7 +274,7 @@ final class MainViewModel: ObservableObject {
 
         guard
             let newSelectedId = userWalletRepository.selectedUserWalletId,
-            let index = pages.firstIndex(where: { $0.id.value == newSelectedId })
+            let index = pages.firstIndex(where: { $0.id == newSelectedId })
         else {
             return
         }
@@ -316,7 +313,7 @@ final class MainViewModel: ObservableObject {
 
                 Analytics.log(.walletOpened)
                 self?.userWalletRepository.setSelectedUserWalletId(
-                    userWalletId.value,
+                    userWalletId,
                     unlockIfNeeded: false,
                     reason: .userSelected
                 )
