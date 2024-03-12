@@ -73,7 +73,7 @@ extension SendNotificationEvent: NotificationEvent {
         case .feeCoverage(let feeAmount, let transactionAmount):
             return Localization.sendNetworkFeeWarningContent(feeAmount, transactionAmount)
         case .minimumAmount(let value):
-            return Localization.sendNotificationInvalidMinimumAmountText(value)
+            return Localization.sendNotificationInvalidMinimumAmountText(value, value) // [REDACTED_TODO_COMMENT]
         case .withdrawalOptionalAmountChange(_, let amount):
             return Localization.sendNotificationHighFeeText(amount)
         case .withdrawalMandatoryAmountChange(_, let amountFormatted, let blockchainName, let maxUtxo):
