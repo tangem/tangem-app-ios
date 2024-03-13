@@ -43,7 +43,7 @@ class CardSettingsCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         cardSettingsViewModel = CardSettingsViewModel(
-            cardModel: options.cardModel,
+            input: options.input,
             coordinator: self
         )
     }
@@ -53,7 +53,7 @@ class CardSettingsCoordinator: CoordinatorObject {
 
 extension CardSettingsCoordinator {
     struct Options {
-        let cardModel: CardViewModel
+        let input: CardSettingsViewModel.Input
     }
 }
 
