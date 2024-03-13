@@ -751,9 +751,16 @@ class LegacySendViewModel: ObservableObject {
                         .action: Analytics.ParameterValue.sendTx.rawValue,
                     ])
 
+                    let fullErrorDescription: String
+                    if let blockchainSdkError = error as? BlockchainSdkError {
+                        fullErrorDescription = blockchainSdkError.errorDescriptionWithCode
+                    } else {
+                        fullErrorDescription = error.localizedDescription
+                    }
+
                     self.error = SendError(
                         title: Localization.feedbackSubjectTxFailed,
-                        message: Localization.alertFailedToSendTransactionMessage(String(error.localizedDescription.dropTrailingPeriod)),
+                        message: Localization.alertFailedToSendTransactionMessage(fullErrorDescription.dropTrailingPeriod),
                         error: error,
                         openMailAction: openMail
                     )
