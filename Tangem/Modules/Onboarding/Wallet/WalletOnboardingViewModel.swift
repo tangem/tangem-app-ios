@@ -756,7 +756,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
                         switch result {
                         case .success(let updatedCard):
-                            self.userWalletModel?.addAssociatedCard(updatedCard)
+                            self.userWalletModel?.addAssociatedCard(CardDTO(card: updatedCard), validationMode: .full)
                             if updatedCard.cardId == self.backupService.primaryCard?.cardId {
                                 self.userWalletModel?.onBackupCreated(updatedCard)
                             }
