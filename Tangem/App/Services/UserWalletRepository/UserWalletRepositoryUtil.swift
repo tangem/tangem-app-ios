@@ -31,7 +31,7 @@ class UserWalletRepositoryUtil {
         }
     }
 
-    func savedUserWallets(encryptionKeyByUserWalletId: [Data: SymmetricKey]) -> [UserWallet] {
+    func savedUserWallets(encryptionKeyByUserWalletId: [Data: SymmetricKey]) -> [StoredUserWallet] {
         do {
             guard fileManager.fileExists(atPath: userWalletListPath().path) else {
                 AppLog.shared.debug("Detected empty saved user wallets")
@@ -42,7 +42,7 @@ class UserWalletRepositoryUtil {
 
             let userWalletsPublicDataEncrypted = try Data(contentsOf: userWalletListPath())
             let userWalletsPublicData = try decrypt(userWalletsPublicDataEncrypted, with: publicDataEncryptionKey())
-            var userWallets = try decoder.decode([UserWallet].self, from: userWalletsPublicData)
+            var userWallets = try decoder.decode([StoredUserWallet].self, from: userWalletsPublicData)
 
             for i in 0 ..< userWallets.count {
                 let userWallet = userWallets[i]
@@ -53,7 +53,7 @@ class UserWalletRepositoryUtil {
 
                 let sensitiveInformationEncryptedData = try Data(contentsOf: userWalletPath(for: userWallet))
                 let sensitiveInformationData = try decrypt(sensitiveInformationEncryptedData, with: userWalletEncryptionKey)
-                let sensitiveInformation = try decoder.decode(UserWallet.SensitiveInformation.self, from: sensitiveInformationData)
+                let sensitiveInformation = try decoder.decode(StoredUserWallet.SensitiveInformation.self, from: sensitiveInformationData)
 
                 var card = userWallet.card
                 card.wallets = sensitiveInformation.wallets
@@ -67,7 +67,7 @@ class UserWalletRepositoryUtil {
         }
     }
 
-    func saveUserWallets(_ userWallets: [UserWallet]) {
+    func saveUserWallets(_ userWallets: [StoredUserWallet]) {
         let encoder = JSONEncoder.tangemSdkEncoder
 
         do {
@@ -80,7 +80,7 @@ class UserWalletRepositoryUtil {
 
             try fileManager.createDirectory(at: userWalletDirectoryUrl, withIntermediateDirectories: true)
 
-            let userWalletsWithoutSensitiveInformation: [UserWallet] = userWallets.map {
+            let userWalletsWithoutSensitiveInformation: [StoredUserWallet] = userWallets.map {
                 var card = $0.card
                 card.wallets = []
 
@@ -103,7 +103,7 @@ class UserWalletRepositoryUtil {
                     continue
                 }
 
-                let sensitiveInformation = UserWallet.SensitiveInformation(wallets: userWallet.card.wallets)
+                let sensitiveInformation = StoredUserWallet.SensitiveInformation(wallets: userWallet.card.wallets)
                 let sensitiveDataEncoded = try encrypt(encoder.encode(sensitiveInformation), with: encryptionKey.symmetricKey)
                 let sensitiveDataPath = userWalletPath(for: userWallet)
                 try sensitiveDataEncoded.write(to: sensitiveDataPath, options: .atomic)
@@ -134,7 +134,7 @@ class UserWalletRepositoryUtil {
         userWalletDirectoryUrl.appendingPathComponent("user_wallets.bin")
     }
 
-    private func userWalletPath(for userWallet: UserWallet) -> URL {
+    private func userWalletPath(for userWallet: StoredUserWallet) -> URL {
         return userWalletDirectoryUrl.appendingPathComponent("user_wallet_\(userWallet.userWalletId.hexString.lowercased()).bin")
     }
 
