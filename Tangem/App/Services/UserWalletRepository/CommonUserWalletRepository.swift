@@ -95,7 +95,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
                 let cardDTO = CardDTO(card: response.card)
                 var cardInfo = response.getCardInfo()
-                updateAssociatedCardIds(for: cardInfo)
+                updateAssociatedCard(for: cardInfo)
                 resetServices()
                 initializeAnalyticsContext(with: cardInfo)
                 let config = UserWalletConfigFactory(cardInfo).makeConfig()
@@ -179,19 +179,14 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    private func updateAssociatedCardIds(for cardInfo: CardInfo) {
-        guard let userWalletId = UserWalletIdFactory().userWalletId(from: cardInfo) else {
+    private func updateAssociatedCard(for cardInfo: CardInfo) {
+        guard let userWalletId = UserWalletIdFactory().userWalletId(from: cardInfo),
+              let existing = models.first(where: { $0.userWalletId == userWalletId }) else {
             return
         }
 
-        var existing = UserWalletRepositoryUtil().savedUserWallets(encryptionKeyByUserWalletId: [:])
-        guard let index = existing.firstIndex(where: { $0.userWalletId == userWalletId.value }),
-              !existing[index].associatedCardIds.contains(cardInfo.card.cardId) else {
-            return
-        }
-
-        existing[index].associatedCardIds.insert(cardInfo.card.cardId)
-        UserWalletRepositoryUtil().saveUserWallets(existing)
+        existing.addAssociatedCard(cardInfo.card, validationMode: .light)
+        save()
     }
 
     func add(_ userWalletModel: UserWalletModel) {

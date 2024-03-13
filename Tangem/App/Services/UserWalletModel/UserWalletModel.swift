@@ -32,5 +32,5 @@ protocol UserWalletModel: MainHeaderSupplementInfoProvider, TotalBalanceProvidin
     func validate() -> Bool
     func onBackupCreated(_ card: Card)
     func updateWalletName(_ name: String)
-    func addAssociatedCard(_ card: Card)
+    func addAssociatedCard(_ card: CardDTO, validationMode: ValidationMode)
 }
