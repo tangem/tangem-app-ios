@@ -656,7 +656,7 @@
 "wallet_title" = "Tangem";
 "warning_access_denied_message" = "Use %@ or scan a card to unlock access to your wallet";
 "warning_backup_errors_message" = "Please withdraw all funds from this wallet, reset it to factory settings, and create a new one. Access to the current wallet will be lost.";
-"warning_backup_errors_title" = "Backup error";
+"warning_backup_errors_title" = "Activation error";
 "warning_button_could_be_better" = "可以更好";
 "warning_button_learn_more" = "了解更多";
 "warning_button_like_it" = "Like it";
