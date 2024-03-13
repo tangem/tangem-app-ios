@@ -85,9 +85,9 @@ extension AuthCoordinator: AuthRoutable {
         pushedOnboardingCoordinator = coordinator
     }
 
-    func openMain(with cardModel: CardViewModel) {
+    func openMain(with userWalletModel: UserWalletModel) {
         let coordinator = MainCoordinator(popToRootAction: popToRootAction)
-        let options = MainCoordinator.Options(userWalletModel: cardModel)
+        let options = MainCoordinator.Options(userWalletModel: userWalletModel)
         coordinator.start(with: options)
         viewState = .main(coordinator)
     }
