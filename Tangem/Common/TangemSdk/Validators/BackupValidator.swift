@@ -10,7 +10,35 @@ import Foundation
 import TangemSdk
 
 struct BackupValidator {
-    func validate(_ backupStatus: Card.BackupStatus?) -> Bool {
+    func validate(backupStatus: Card.BackupStatus?, wallets: [CardDTO.Wallet]) -> Bool {
+        guard validate(backupStatus) else {
+            return false
+        }
+
+        if let backupStatus, backupStatus.isActive {
+            if wallets.contains(where: { !$0.hasBackup }) {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    func validate(backupStatus: Card.BackupStatus?, wallets: [Card.Wallet]) -> Bool {
+        guard validate(backupStatus) else {
+            return false
+        }
+
+        if let backupStatus, backupStatus.isActive {
+            if wallets.contains(where: { !$0.hasBackup }) {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    private func validate(_ backupStatus: Card.BackupStatus?) -> Bool {
         guard let backupStatus else {
             return true
         }
