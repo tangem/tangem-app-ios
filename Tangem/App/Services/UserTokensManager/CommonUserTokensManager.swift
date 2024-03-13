@@ -267,13 +267,12 @@ extension CommonUserTokensManager: UserTokensReordering {
     func reorder(
         _ reorderingActions: [UserTokensReorderingAction]
     ) -> AnyPublisher<Void, Never> {
-        return Deferred { [userTokenListManager = self.userTokenListManager] in
-            Future<Void, Never> { promise in
-                if reorderingActions.isEmpty {
-                    promise(.success(()))
-                    return
-                }
+        if reorderingActions.isEmpty {
+            return .just
+        }
 
+        return Deferred { [userTokenListManager = self.userTokenListManager] in
+            Future { promise in
                 let converter = UserTokensReorderingOptionsConverter()
                 let existingList = userTokenListManager.userTokensList
                 var entries = existingList.entries
@@ -301,11 +300,14 @@ extension CommonUserTokensManager: UserTokensReordering {
                     sorting: sorting
                 )
 
-                if editedList != existingList {
-                    userTokenListManager.update(with: editedList)
-                }
-
-                promise(.success(()))
+                promise(.success((editedList, existingList)))
+            }
+            .filter { $0 != $1 }
+            .map(\.0)
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .map { userTokensManager, editedList in
+                userTokensManager.userTokenListManager.update(with: editedList)
             }
         }
         .eraseToAnyPublisher()
