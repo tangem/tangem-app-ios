@@ -137,6 +137,11 @@ class SendModel {
 
         bind()
 
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            self._sendError.send(Self.b ? WalletError.failedToBuildTx : BlockchainSdkError.decodingFailed)
+            Self.b.toggle()
+        }
+
         if let amount = sendType.predefinedAmount {
             setAmount(amount)
         }
@@ -153,6 +158,8 @@ class SendModel {
             validateDestinationAdditionalField()
         }
     }
+
+    static var b = true
 
     func includeFeeIntoAmount() {
         guard
