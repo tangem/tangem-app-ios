@@ -167,11 +167,11 @@ class CommonUserWalletModel: Identifiable, ObservableObject {
             return false
         }
 
-        return validateInternal(cardInfo.card)
+        return validateInternal(cardInfo.card, validationMode: .light)
     }
 
-    private func validateInternal(_ card: CardDTO) -> Bool {
-        guard validateCurves(card.wallets.map { $0.curve }) else {
+    private func validateInternal(_ card: CardDTO, validationMode: ValidationMode) -> Bool {
+        guard validateCurves(card.wallets.map { $0.curve }, validationMode: validationMode) else {
             return false
         }
 
@@ -182,10 +182,10 @@ class CommonUserWalletModel: Identifiable, ObservableObject {
         return true
     }
 
-    private func validateCurves(_ curves: [EllipticCurve]) -> Bool {
+    private func validateCurves(_ curves: [EllipticCurve], validationMode: ValidationMode) -> Bool {
         var expectedCurves = config.mandatoryCurves
-        /// Since the curve `bls12381_G2_AUG` was added later into first generation of wallets,, we cannot determine whether this curve is missing due to an error or because the user did not want to recreate the wallet.
-        if config is GenericConfig {
+
+        if config is GenericConfig, validationMode == .light {
             expectedCurves.remove(.bls12381_G2_AUG)
         }
 
@@ -381,19 +381,20 @@ extension CommonUserWalletModel: UserWalletModel {
         onUpdate()
     }
 
-    func addAssociatedCard(_ card: Card) {
-        let cardDTO = CardDTO(card: card)
-        let cardInfo = CardInfo(card: cardDTO, walletData: .none, name: "")
+    func addAssociatedCard(_ card: CardDTO, validationMode: ValidationMode) {
+        let cardInfo = CardInfo(card: card, walletData: .none, name: "")
         guard let userWalletId = UserWalletIdFactory().userWalletId(from: cardInfo),
-              userWalletId == self.userWalletId,
-              !associatedCardIds.contains(card.cardId) else {
+              userWalletId == self.userWalletId else {
             return
         }
 
-        associatedCardIds.insert(card.cardId)
+        if !associatedCardIds.contains(card.cardId) {
+            associatedCardIds.insert(card.cardId)
+        }
 
-        if !validateInternal(cardDTO) {
+        if !validateInternal(card, validationMode: validationMode) {
             hasBackupErrors = true
+            _updatePublisher.send()
         }
     }
 }
