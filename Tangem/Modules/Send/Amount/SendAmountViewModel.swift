@@ -31,13 +31,13 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     let fiatIconURL: URL?
     let fiatCurrencyCode: String
     let amountFractionDigits: Int
-    let windowWidth: CGFloat
 
     @Published var decimalNumberTextFieldViewModel: DecimalNumberTextField.ViewModel
     @Published var useFiatCalculation = false
     @Published var amountAlternative: String?
     @Published var error: String?
     @Published var animatingAuxiliaryViewsOnAppear = false
+    @Published var showSectionContent = false
 
     var didProperlyDisappear = false
 
@@ -54,7 +54,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         balance = walletInfo.balance
         tokenIconInfo = walletInfo.tokenIconInfo
         amountFractionDigits = walletInfo.amountFractionDigits
-        windowWidth = UIApplication.shared.windows.first?.frame.width ?? 400
         decimalNumberTextFieldViewModel = .init(maximumFractionDigits: walletInfo.amountFractionDigits)
 
         showCurrencyPicker = walletInfo.currencyId != nil
@@ -134,6 +133,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 }
 
 extension SendAmountViewModel: AuxiliaryViewAnimatable {}
+
+extension SendAmountViewModel: SectionContainerAnimatable {}
 
 extension SendAmountViewModel: SendFiatCryptoAdapterInput {
     var amountPublisher: AnyPublisher<Decimal?, Never> {
