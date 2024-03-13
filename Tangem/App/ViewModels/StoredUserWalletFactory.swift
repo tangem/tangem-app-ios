@@ -1,5 +1,5 @@
 //
-//  UserWalletFactory.swift
+//  StoredUserWalletFactory.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,10 +8,10 @@
 
 import Foundation
 
-class UserWalletFactory {
+class StoredUserWalletFactory {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    func userWallet(from cardInfo: CardInfo, config: UserWalletConfig, userWalletId: UserWalletId) -> UserWallet {
+    func userWallet(from cardInfo: CardInfo, config: UserWalletConfig, userWalletId: UserWalletId) -> StoredUserWallet {
         let name: String
         if !cardInfo.name.isEmpty {
             name = cardInfo.name
@@ -21,7 +21,7 @@ class UserWalletFactory {
 
         let saved = userWalletRepository.userWallets.first(where: { $0.userWalletId == userWalletId.value })
 
-        return UserWallet(
+        return StoredUserWallet(
             userWalletId: userWalletId.value,
             name: name,
             card: cardInfo.card,
