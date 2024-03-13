@@ -40,16 +40,13 @@ struct SendAmountView: View {
                     .matchedGeometryEffect(id: SendViewNamespaceId.tokenIcon.rawValue, in: namespace)
                     .padding(.top, 34)
 
-                    SendDecimalNumberTextField(
-                        decimalValue: $viewModel.amount,
-                        maximumFractionDigits: viewModel.amountFractionDigits
-                    )
-                    // A small delay must be introduced to fix a glitch in a transition animation when changing screens
-                    .initialFocusBehavior(.delayedFocus(duration: 2 * SendView.Constants.animationDuration))
-                    .alignment(.center)
-                    .suffix(viewModel.useFiatCalculation ? viewModel.fiatCurrencyCode : viewModel.cryptoCurrencyCode)
-                    .matchedGeometryEffect(id: SendViewNamespaceId.amountCryptoText.rawValue, in: namespace)
-                    .padding(.top, 18)
+                    SendDecimalNumberTextField(viewModel: viewModel.decimalNumberTextFieldViewModel)
+                        // A small delay must be introduced to fix a glitch in a transition animation when changing screens
+                        .initialFocusBehavior(.delayedFocus(duration: 2 * SendView.Constants.animationDuration))
+                        .alignment(.center)
+                        .suffix(viewModel.useFiatCalculation ? viewModel.fiatCurrencyCode : viewModel.cryptoCurrencyCode)
+                        .matchedGeometryEffect(id: SendViewNamespaceId.amountCryptoText.rawValue, in: namespace)
+                        .padding(.top, 18)
 
                     // Keep empty text so that the view maintains its place in the layout
                     Text(viewModel.amountAlternative ?? " ")
