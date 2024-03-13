@@ -455,10 +455,10 @@ final class QRCodeParserTests: XCTestCase {
         line: UInt = #line
     ) {
         let result = parser.parse(code)
-        XCTAssertEqual(result.destination, destination, message(), file: file, line: line)
-        XCTAssertEqual(result.amount?.string(), amount?.string(), message(), file: file, line: line)
-        XCTAssertEqual(result.amountText, amountText, message(), file: file, line: line)
-        XCTAssertEqual(result.memo, memo, message(), file: file, line: line)
+        XCTAssertEqual(result?.destination, destination, message(), file: file, line: line)
+        XCTAssertEqual(result?.amount?.string(), amount?.string(), message(), file: file, line: line)
+        XCTAssertEqual(result?.amountText, amountText, message(), file: file, line: line)
+        XCTAssertEqual(result?.memo, memo, message(), file: file, line: line)
     }
 
     private func testNegativeCase(
@@ -473,9 +473,9 @@ final class QRCodeParserTests: XCTestCase {
         line: UInt = #line
     ) {
         let result = parser.parse(code)
-        XCTAssertNotEqual(result.destination, destination, message(), file: file, line: line)
-        XCTAssertNotEqual(result.amount?.string(), amount?.string(), message(), file: file, line: line)
-        XCTAssertNotEqual(result.amountText, amountText, message(), file: file, line: line)
-        XCTAssertNotEqual(result.memo, memo, message(), file: file, line: line)
+        XCTAssertNotEqual(result?.destination, destination, message(), file: file, line: line)
+        XCTAssertNotEqual(result?.amount?.string(), amount?.string(), message(), file: file, line: line)
+        XCTAssertNotEqual(result?.amountText, amountText, message(), file: file, line: line)
+        XCTAssertNotEqual(result?.memo, memo, message(), file: file, line: line)
     }
 }
