@@ -210,13 +210,11 @@
 "express_exchange_status_receiving" = "Ожидание депозита";
 "express_exchange_status_receiving_active" = "Ожидаем пополнения...";
 "express_exchange_status_refunded" = "Возвращено";
-"express_exchange_status_refunded_active" = "Возврат...";
 "express_exchange_status_sending" = "Отправляем ";
 "express_exchange_status_sending_active" = "Отправка средств...";
 "express_exchange_status_sent" = "Отправлено";
 "express_exchange_status_subtitle" = "Данные провайдера. Сумма к получению может измениться в зависимости от рыночных условий.";
 "express_exchange_status_title" = "Статус обмена";
-"express_exchange_status_verified" = "Верифицировано";
 "express_exchange_status_verifying" = "Требуется верификация";
 "express_fetch_best_rates" = "Получение наилучших курсов...";
 "express_floating_rate" = "Плавающая ставка";
@@ -613,7 +611,6 @@
 "warning_backup_errors_message" = "Пожалуйста, выведите все средства из этого кошелька, сбросьте его к заводским настройкам и создайте новый. Доступ к текущему кошельку будет утерян.";
 "warning_backup_errors_title" = "Ошибка активации";
 "warning_button_could_be_better" = "Можно лучше";
-"warning_button_learn_more" = "Узнать больше";
 "warning_button_like_it" = "Нравится";
 "warning_button_ok" = "Понятно!";
 "warning_button_really_cool" = "Очень круто!";
