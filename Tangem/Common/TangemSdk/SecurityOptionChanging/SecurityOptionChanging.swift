@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-protocol SecurityOptionChanging {
+protocol SecurityOptionChanging: AnyObject {
     var availableSecurityOptions: [SecurityModeOption] { get }
     var currentSecurityOption: SecurityModeOption { get }
     var currentSecurityOptionPublisher: AnyPublisher<SecurityModeOption, Never> { get }
