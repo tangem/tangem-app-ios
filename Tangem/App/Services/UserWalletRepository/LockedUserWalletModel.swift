@@ -83,7 +83,6 @@ class LockedUserWalletModel: UserWalletModel {
     var name: String { userWallet.cardInfo().name }
 
     let backupInput: OnboardingInput? = nil
-    let twinInput: OnboardingInput? = nil
 
     private let userWallet: StoredUserWallet
     private let cardImageProvider = CardImageProvider()
