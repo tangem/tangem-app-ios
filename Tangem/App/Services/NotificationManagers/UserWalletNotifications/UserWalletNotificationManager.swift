@@ -67,7 +67,7 @@ final class UserWalletNotificationManager {
             )
         }
 
-        if userWalletModel.isMultiWallet {
+        if userWalletModel.config.hasFeature(.multiCurrency) {
             setupTangemExpressPromotionNotification(dismissAction: dismissAction)
         }
 
