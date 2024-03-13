@@ -181,7 +181,6 @@
 "details_row_title_signed_hashes" = "Подписано";
 "details_security_management_warning" = "Если вы забудете код, то потеряете доступ к своим средствам. Восстановление кода невозможно.";
 "details_title" = "Подробности";
-"disclaimer_error_loading" = "Проверьте подключение с интернетом или переключитесь на другую сеть";
 "disclaimer_title" = "Условия использования";
 "error_wrong_wallet_tapped" = "Вы использовали карту от другого кошелька. Приложите карту, связанную с этим кошельком.";
 "exchange_tokens_available_tokens_header" = "Мои токены";
@@ -569,8 +568,6 @@
 "voice_over_open_new_wallet_connect_session" = "Отсканируйте QR-код, чтобы открыть новую сессию WalletConnect";
 "voice_over_paste_from_clipboard" = "Вставить адрес из буфера обмена";
 "voice_over_scan_qr_with_address" = "Сканировать QR код с адресом";
-"voice_over_share_address" = "Поделиться адресом";
-"voice_over_show_address_qr" = "Показать QR код с адресом";
 "wallet_balance_missing_derivation" = "Отсканируйте карту";
 "wallet_connect_alert_sign_message" = "Запрос на подпись сообщения.\n\n%@";
 "wallet_connect_bnb_sign_message" = "Dapp %1$@, запрос на\nподпись транзакции с BNB.\n\n%2$@";
