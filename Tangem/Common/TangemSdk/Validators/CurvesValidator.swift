@@ -13,12 +13,18 @@ struct CurvesValidator {
     let expectedCurves: [EllipticCurve]
 
     func validate(_ curves: [EllipticCurve]) -> Bool {
-        let uniqueCurves = Set(curves)
+        for expectedCurve in expectedCurves {
+            let cardCurvesCount = curves.filter { $0 == expectedCurve }.count
 
-        // check that all curves created without duplicates
-        guard curves.count == expectedCurves.count,
-              uniqueCurves == Set(expectedCurves) else {
-            return false
+            // Curve is missing
+            if cardCurvesCount == 0 {
+                return false
+            }
+
+            // Duplicated curve
+            if cardCurvesCount > 1 {
+                return false
+            }
         }
 
         return true
