@@ -261,17 +261,20 @@ final class SendViewModel: ObservableObject {
 
         sendModel
             .sendError
-            .compactMap { $0 }
             .sink { [weak self] error in
+                guard let self, let error else { return }
 
-                guard let self else { return }
-
+                let errorCode: String
                 let reason = String(error.localizedDescription.dropTrailingPeriod)
-                let code = 1
+                if let errorCodeProviding = error as? ErrorCodeProviding {
+                    errorCode = "\(errorCodeProviding.errorCode)"
+                } else {
+                    errorCode = "-"
+                }
 
                 alert = SendError(
                     title: Localization.sendAlertTransactionFailedTitle,
-                    message: Localization.sendAlertTransactionFailedText(reason, code),
+                    message: Localization.sendAlertTransactionFailedText(reason, errorCode),
                     error: error,
                     openMailAction: openMail
                 )
