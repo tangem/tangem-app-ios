@@ -31,7 +31,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     let fiatIconURL: URL?
     let fiatCurrencyCode: String
     let amountFractionDigits: Int
-    let windowWidth: CGFloat
 
     @Published var decimalNumberTextFieldViewModel: DecimalNumberTextField.ViewModel
     @Published var useFiatCalculation = false
@@ -55,7 +54,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         balance = walletInfo.balance
         tokenIconInfo = walletInfo.tokenIconInfo
         amountFractionDigits = walletInfo.amountFractionDigits
-        windowWidth = UIApplication.shared.windows.first?.frame.width ?? 400
         decimalNumberTextFieldViewModel = .init(maximumFractionDigits: walletInfo.amountFractionDigits)
 
         showCurrencyPicker = walletInfo.currencyId != nil
