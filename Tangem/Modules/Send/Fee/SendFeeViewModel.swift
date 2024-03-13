@@ -43,6 +43,7 @@ class SendFeeViewModel: ObservableObject {
     @Published private(set) var feeRowViewModels: [FeeRowViewModel] = []
     @Published private(set) var showCustomFeeFields: Bool = false
     @Published var animatingAuxiliaryViewsOnAppear: Bool = false
+    @Published var showSectionContent = false
 
     var didProperlyDisappear = false
 
@@ -264,6 +265,8 @@ class SendFeeViewModel: ObservableObject {
 }
 
 extension SendFeeViewModel: AuxiliaryViewAnimatable {}
+
+extension SendFeeViewModel: SectionContainerAnimatable {}
 
 // MARK: - private extensions
 
