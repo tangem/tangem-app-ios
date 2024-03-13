@@ -399,6 +399,7 @@ class SendModel {
 
     // MARK: - Amount
 
+    /// NOTE: this action resets the "is fee included" flag
     func setAmount(_ amount: Amount?) {
         _isFeeIncluded.send(false)
 
@@ -409,7 +410,8 @@ class SendModel {
         userInputAmount.send(newAmount)
     }
 
-    // Convenience method
+    /// Convenience method
+    /// NOTE: this action resets the "is fee included" flag
     func setAmount(_ decimal: Decimal?) {
         let amount: Amount?
         if let decimal {
