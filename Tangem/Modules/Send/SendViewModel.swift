@@ -244,6 +244,22 @@ final class SendViewModel: ObservableObject {
             .store(in: &bag)
 
         sendModel
+            .destinationPublisher
+            .sink { [weak self] destination in
+                guard let self else { return }
+
+                if showNextButton {
+                    switch destination?.inputSource {
+                    case .otherWallet, .recentAddress:
+                        next()
+                    default:
+                        break
+                    }
+                }
+            }
+            .store(in: &bag)
+
+        sendModel
             .sendError
             .compactMap { $0 }
             .sink { [weak self] sendError in
@@ -287,14 +303,30 @@ final class SendViewModel: ObservableObject {
         coordinator?.openMail(with: emailDataCollector, recipient: recipient)
     }
 
-    private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation?) {
-        if case .summary = step {
-            if sendModel.totalExceedsBalance {
-                alert = SendAlertBuilder.makeSubtractFeeFromAmountAlert { [weak self] in
-                    self?.sendModel.includeFeeIntoAmount()
-                    self?.openStep(step, stepAnimation: stepAnimation)
-                }
+    private func showSummaryStepAlertIfNeeded(_ step: SendStep, stepAnimation: SendView.StepAnimation?, checkCustomFee: Bool) -> Bool {
+        if sendModel.totalExceedsBalance {
+            alert = SendAlertBuilder.makeSubtractFeeFromAmountAlert { [weak self] in
+                self?.sendModel.includeFeeIntoAmount()
+                self?.openStep(step, stepAnimation: stepAnimation)
+            }
 
+            return true
+        }
+
+        if checkCustomFee, notificationManager.hasNotificationEvent(.customFeeTooLow) {
+            alert = SendAlertBuilder.makeCustomFeeTooLowAlert { [weak self] in
+                self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: false)
+            }
+
+            return true
+        }
+
+        return false
+    }
+
+    private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation?, checkCustomFee: Bool = true) {
+        if case .summary = step {
+            if showSummaryStepAlertIfNeeded(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee) {
                 return
             }
 
@@ -335,7 +367,7 @@ final class SendViewModel: ObservableObject {
         let parser = QRCodeParser(amountType: walletModel.amountType, blockchain: walletModel.blockchainNetwork.blockchain)
         let result = parser.parse(code)
 
-        sendModel.setDestination(result.destination)
+        sendModel.setDestination(SendAddress(value: result.destination, inputSource: .qrCode))
         sendModel.setAmount(result.amount)
     }
 
@@ -362,7 +394,7 @@ extension SendViewModel: SendSummaryRoutable {
         }
 
         if let auxiliaryViewAnimatable = auxiliaryViewAnimatable(step) {
-            auxiliaryViewAnimatable.setAnimatingAuxiliaryViewsOnAppear(true)
+            auxiliaryViewAnimatable.setAnimatingAuxiliaryViewsOnAppear()
         }
 
         openStep(step, stepAnimation: nil)
@@ -431,10 +463,11 @@ extension SendViewModel: NotificationTapDelegate {
 // MARK: - ValidationError
 
 private extension ValidationError {
-    var step: SendStep {
+    var step: SendStep? {
         switch self {
         case .invalidAmount, .balanceNotFound:
-            return .amount
+            // Shouldn't happen as we validate and cover amount errors separately, synchronously
+            return nil
         case .amountExceedsBalance, .invalidFee, .feeExceedsBalance, .maximumUTXO, .reserve:
             return .fee
         case .dustAmount, .dustChange, .minimumBalance, .totalExceedsBalance:
