@@ -57,6 +57,7 @@ class SendSummaryViewModel: ObservableObject {
     @Published var feeSummaryViewData: DefaultTextWithTitleRowViewData?
     @Published var feeOptionIcon: Image?
 
+    @Published var showSectionContent = false
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
 
     weak var router: SendSummaryRoutable?
@@ -91,10 +92,15 @@ class SendSummaryViewModel: ObservableObject {
     }
 
     func onAppear() {
+        withAnimation(SendView.Constants.sectionContentAnimation) {
+            showSectionContent = true
+        }
+
         screenIdleStartTime = Date()
     }
 
     func onDisappear() {
+        showSectionContent = false
         screenIdleStartTime = nil
     }
 
@@ -185,3 +191,5 @@ class SendSummaryViewModel: ObservableObject {
         canEdit ? Colors.Background.action : Colors.Button.disabled
     }
 }
+
+extension SendSummaryViewModel: SectionContainerAnimatable {}
