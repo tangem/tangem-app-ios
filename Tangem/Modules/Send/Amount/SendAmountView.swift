@@ -18,51 +18,8 @@ struct SendAmountView: View {
     var body: some View {
         GroupedScrollView(spacing: 14) {
             GroupedSection(viewModel) { viewModel in
-                VStack(spacing: 0) {
-                    Text(viewModel.walletName)
-                        .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-                        .lineLimit(1)
-                        .padding(.top, 18)
-                        .matchedGeometryEffect(id: SendViewNamespaceId.amountTitle.rawValue, in: namespace)
-
-                    if !viewModel.animatingAuxiliaryViewsOnAppear {
-                        SensitiveText(viewModel.balance)
-                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                            .lineLimit(1)
-                            .padding(.top, 4)
-                            .transition(SendView.Constants.auxiliaryViewTransition)
-                    }
-
-                    TokenIcon(
-                        tokenIconInfo: viewModel.tokenIconInfo,
-                        size: iconSize
-                    )
-                    .matchedGeometryEffect(id: SendViewNamespaceId.tokenIcon.rawValue, in: namespace)
-                    .padding(.top, 34)
-
-                    SendDecimalNumberTextField(viewModel: viewModel.decimalNumberTextFieldViewModel)
-                        // A small delay must be introduced to fix a glitch in a transition animation when changing screens
-                        .initialFocusBehavior(.delayedFocus(duration: 2 * SendView.Constants.animationDuration))
-                        .alignment(.center)
-                        .suffix(viewModel.useFiatCalculation ? viewModel.fiatCurrencyCode : viewModel.cryptoCurrencyCode)
-                        .matchedGeometryEffect(id: SendViewNamespaceId.amountCryptoText.rawValue, in: namespace)
-                        .padding(.top, 18)
-
-                    // Keep empty text so that the view maintains its place in the layout
-                    Text(viewModel.amountAlternative ?? " ")
-                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                        .lineLimit(1)
-                        .matchedGeometryEffect(id: SendViewNamespaceId.amountFiatText.rawValue, in: namespace)
-                        .padding(.top, 6)
-
-                    // Keep empty text so that the view maintains its place in the layout
-                    Text(viewModel.error ?? " ")
-                        .style(Fonts.Regular.caption1, color: Colors.Text.warning)
-                        .lineLimit(1)
-                        .padding(.top, 6)
-                        .padding(.bottom, 12)
-                }
-                .frame(maxWidth: .infinity)
+                amountSectionContent
+                    .visible(viewModel.showSectionContent)
             }
             .contentAlignment(.center)
             .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
@@ -89,8 +46,58 @@ struct SendAmountView: View {
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         .onAppear(perform: viewModel.onAppear)
+        .onAppear(perform: viewModel.onSectionContentAppear)
+        .onDisappear(perform: viewModel.onSectionContentDisappear)
         .onAppear(perform: viewModel.onAuxiliaryViewAppear)
         .onDisappear(perform: viewModel.onAuxiliaryViewDisappear)
+    }
+
+    private var amountSectionContent: some View {
+        VStack(spacing: 0) {
+            Text(viewModel.walletName)
+                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                .lineLimit(1)
+                .padding(.top, 18)
+                .matchedGeometryEffect(id: SendViewNamespaceId.amountTitle.rawValue, in: namespace)
+
+            if !viewModel.animatingAuxiliaryViewsOnAppear {
+                SensitiveText(viewModel.balance)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .lineLimit(1)
+                    .padding(.top, 4)
+                    .transition(SendView.Constants.auxiliaryViewTransition)
+            }
+
+            TokenIcon(
+                tokenIconInfo: viewModel.tokenIconInfo,
+                size: iconSize
+            )
+            .matchedGeometryEffect(id: SendViewNamespaceId.tokenIcon.rawValue, in: namespace)
+            .padding(.top, 34)
+
+            SendDecimalNumberTextField(viewModel: viewModel.decimalNumberTextFieldViewModel)
+                // A small delay must be introduced to fix a glitch in a transition animation when changing screens
+                .initialFocusBehavior(.delayedFocus(duration: 2 * SendView.Constants.animationDuration))
+                .alignment(.center)
+                .suffix(viewModel.useFiatCalculation ? viewModel.fiatCurrencyCode : viewModel.cryptoCurrencyCode)
+                .matchedGeometryEffect(id: SendViewNamespaceId.amountCryptoText.rawValue, in: namespace)
+                .padding(.top, 18)
+
+            // Keep empty text so that the view maintains its place in the layout
+            Text(viewModel.amountAlternative ?? " ")
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .lineLimit(1)
+                .matchedGeometryEffect(id: SendViewNamespaceId.amountFiatText.rawValue, in: namespace)
+                .padding(.top, 6)
+
+            // Keep empty text so that the view maintains its place in the layout
+            Text(viewModel.error ?? " ")
+                .style(Fonts.Regular.caption1, color: Colors.Text.warning)
+                .lineLimit(1)
+                .padding(.top, 6)
+                .padding(.bottom, 12)
+        }
+        .frame(maxWidth: .infinity)
     }
 }
 
