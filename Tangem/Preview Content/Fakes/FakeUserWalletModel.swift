@@ -97,7 +97,7 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     }
 
     func onBackupCreated(_ card: Card) {}
-    func addAssociatedCard(_ card: Card) {}
+    func addAssociatedCard(_ card: CardDTO, validationMode: ValidationMode) {}
 }
 
 extension FakeUserWalletModel: MainHeaderSupplementInfoProvider {
