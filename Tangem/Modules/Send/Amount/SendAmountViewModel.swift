@@ -38,6 +38,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     @Published var amountAlternative: String?
     @Published var error: String?
     @Published var animatingAuxiliaryViewsOnAppear = false
+    @Published var showSectionContent = false
 
     var didProperlyDisappear = false
 
@@ -134,6 +135,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 }
 
 extension SendAmountViewModel: AuxiliaryViewAnimatable {}
+
+extension SendAmountViewModel: SectionContainerAnimatable {}
 
 extension SendAmountViewModel: SendFiatCryptoAdapterInput {
     var amountPublisher: AnyPublisher<Decimal?, Never> {
