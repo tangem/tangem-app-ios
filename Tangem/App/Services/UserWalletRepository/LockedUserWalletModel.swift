@@ -75,10 +75,16 @@ class LockedUserWalletModel: UserWalletModel {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
     }
 
-    let backupInput: OnboardingInput? = nil
-    let twinInput: OnboardingInput? = nil
+    var totalSignedHashes: Int {
+        0
+    }
 
-    private(set) var userWallet: StoredUserWallet
+    var keysRepository: KeysRepository { CommonKeysRepository(with: []) }
+    var name: String { userWallet.cardInfo().name }
+
+    let backupInput: OnboardingInput? = nil
+
+    private let userWallet: StoredUserWallet
     private let cardImageProvider = CardImageProvider()
 
     init(with userWallet: StoredUserWallet) {
@@ -99,6 +105,8 @@ class LockedUserWalletModel: UserWalletModel {
     }
 
     func onBackupCreated(_ card: Card) {}
+
+    func addAssociatedCard(_ card: CardDTO, validationMode: ValidationMode) {}
 }
 
 extension LockedUserWalletModel: MainHeaderSupplementInfoProvider {
@@ -128,5 +136,11 @@ extension LockedUserWalletModel: AnalyticsContextDataProvider {
             firmware: cardInfo.card.firmwareVersion.stringValue,
             baseCurrency: baseCurrency
         )
+    }
+}
+
+extension LockedUserWalletModel: UserWalletSerializable {
+    func serialize() -> StoredUserWallet {
+        userWallet
     }
 }
