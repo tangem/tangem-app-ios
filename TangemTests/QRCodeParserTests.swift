@@ -435,7 +435,7 @@ final class QRCodeParserTests: XCTestCase {
 
         testPositiveCase(
             code: "ethereum:0x6090a6e47849629b7245dfa1ca21d94cd15878ef/transfer?address=0xc00f86ab93cd0bd3a60213583d0fe35aaa1ace23",
-            destination: "",
+            destination: nil,
             amount: nil,
             amountText: nil,
             memo: nil,
@@ -445,7 +445,7 @@ final class QRCodeParserTests: XCTestCase {
 
     private func testPositiveCase(
         code: String,
-        destination: String,
+        destination: String?,
         amount: Amount?,
         amountText: String?,
         memo: String?,
