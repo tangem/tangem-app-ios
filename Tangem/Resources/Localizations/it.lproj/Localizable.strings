@@ -181,7 +181,6 @@
 "details_row_title_signed_hashes" = "Firmato";
 "details_security_management_warning" = "If you forget the code you will lose access to your funds. Code recovery is not possible.";
 "details_title" = "Requisiti";
-"disclaimer_error_loading" = "Check your internet connection or switch to a different network";
 "disclaimer_title" = "Termini del servizio";
 "error_wrong_wallet_tapped" = "You have used a card from another wallet. Tap the card associated with this wallet";
 "exchange_tokens_available_tokens_header" = "My tokens";
@@ -569,8 +568,6 @@
 "voice_over_open_new_wallet_connect_session" = "Scan QR code to open new WalletConnect session";
 "voice_over_paste_from_clipboard" = "Paste address from clipboard";
 "voice_over_scan_qr_with_address" = "Scan, QR, code with address";
-"voice_over_share_address" = "Share address";
-"voice_over_show_address_qr" = "Show address, QR, code";
 "wallet_balance_missing_derivation" = "Scan the card";
 "wallet_connect_alert_sign_message" = "Requesting to sign a message.\n\n%@";
 "wallet_connect_bnb_sign_message" = "Dapp %1$@, requesting to\nsign BNB transaction.\n\n%2$@";
