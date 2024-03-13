@@ -15,7 +15,7 @@ struct QRCodeParser {
     let blockchain: Blockchain
     let decimalCount: Int
 
-    func parse(_ qrCode: String) -> Result {
+    func parse(_ qrCode: String) -> Result? {
         let qrCodeWithoutSchemaPrefix = stripSchemaPrefix(from: qrCode)
         let scanner = Scanner(string: qrCodeWithoutSchemaPrefix)
 
@@ -55,7 +55,7 @@ struct QRCodeParser {
                 if token.contractAddress.caseInsensitiveCompare(result.destination) == .orderedSame {
                     result.destination = parameterValue
                 } else {
-                    return Result(destination: "")
+                    return nil
                 }
             case .value, .uint256:
                 // According to ERC-681, the value is specified in the atomic unit (i.e. wei). Converting it to decimals
