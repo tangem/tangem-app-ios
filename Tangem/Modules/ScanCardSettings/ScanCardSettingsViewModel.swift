@@ -57,15 +57,32 @@ extension ScanCardSettingsViewModel {
         var cardInfo = cardInfo
 
         // [REDACTED_TODO_COMMENT]
-        if let existingCardModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) as? CardViewModel {
+        if let existingCardModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) as? CommonUserWalletModel {
             cardInfo.name = existingCardModel.name
         }
 
-        guard let newCardViewModel = CardViewModel(cardInfo: cardInfo) else {
+        guard let newCardViewModel = CommonUserWalletModel(cardInfo: cardInfo) else {
             return
         }
 
-        coordinator?.openCardSettings(cardModel: newCardViewModel)
+        let input = CardSettingsViewModel.Input(
+            userWalletId: newCardViewModel.userWalletId,
+            recoveryInteractor: UserCodeRecoveringCardInteractor(with: newCardViewModel.cardInfo),
+            securityOptionChangeInteractor: SecurityOptionChangingCardInteractor(with: newCardViewModel.cardInfo),
+            factorySettingsResettingCardInteractor: FactorySettingsResettingCardInteractor(with: newCardViewModel.cardInfo),
+            isResetToFactoryAvailable: !newCardViewModel.config.getFeatureAvailability(.resetToFactory).isHidden,
+            hasBackupCards: newCardViewModel.hasBackupCards,
+            canTwin: newCardViewModel.config.hasFeature(.twinning),
+            twinInput: newCardViewModel.twinInput,
+            cardIdFormatted: newCardViewModel.cardInfo.cardIdFormatted,
+            cardIssuer: newCardViewModel.cardInfo.card.issuer.name,
+            canDisplayHashesCount: newCardViewModel.config.hasFeature(.displayHashesCount),
+            cardSignedHashes: newCardViewModel.cardInfo.card.walletSignedHashes,
+            canChangeAccessCodeRecoverySettings: newCardViewModel.config.hasFeature(.accessCodeRecoverySettings),
+            resetTofactoryDisabledLocalizedReason: newCardViewModel.config.getDisabledLocalizedReason(for: .resetToFactory)
+        )
+
+        coordinator?.openCardSettings(with: input)
     }
 }
 

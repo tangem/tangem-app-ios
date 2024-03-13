@@ -51,7 +51,7 @@ class UserWalletEncryptionKeyStorage {
         }
     }
 
-    func add(_ userWallet: UserWallet) {
+    func add(_ userWallet: StoredUserWallet) {
         let cardInfo = userWallet.cardInfo()
 
         guard let encryptionKey = UserWalletEncryptionKeyFactory().encryptionKey(from: cardInfo) else {
@@ -76,7 +76,7 @@ class UserWalletEncryptionKeyStorage {
         }
     }
 
-    func delete(_ userWallet: UserWallet) {
+    func delete(_ userWallet: StoredUserWallet) {
         do {
             try deleteUserWalletId(userWallet)
 
@@ -118,7 +118,7 @@ class UserWalletEncryptionKeyStorage {
 
     // MARK: - Saving the list of UserWallet IDs
 
-    private func encryptionKeyStorageKey(for userWallet: UserWallet) -> String {
+    private func encryptionKeyStorageKey(for userWallet: StoredUserWallet) -> String {
         encryptionKeyStorageKey(for: userWallet.userWalletId)
     }
 
@@ -126,13 +126,13 @@ class UserWalletEncryptionKeyStorage {
         "user_wallet_encryption_key_\(userWalletId.hexString.lowercased())"
     }
 
-    private func addUserWalletId(_ userWallet: UserWallet) throws {
+    private func addUserWalletId(_ userWallet: StoredUserWallet) throws {
         var ids = try userWalletIds()
         ids.insert(userWallet.userWalletId)
         try saveUserWalletIds(ids)
     }
 
-    private func deleteUserWalletId(_ userWallet: UserWallet) throws {
+    private func deleteUserWalletId(_ userWallet: StoredUserWallet) throws {
         var ids = try userWalletIds()
         ids.remove(userWallet.userWalletId)
         try saveUserWalletIds(ids)
