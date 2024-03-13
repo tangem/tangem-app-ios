@@ -75,5 +75,5 @@ class UserWalletModelMock: UserWalletModel {
 
     func onBackupCreated(_ card: Card) {}
 
-    func addAssociatedCard(_ card: Card) {}
+    func addAssociatedCard(_ card: CardDTO, validationMode: ValidationMode) {}
 }
