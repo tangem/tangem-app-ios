@@ -1,5 +1,5 @@
 //
-//  CardViewModel.swift
+//  CommonUserWalletModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -13,7 +13,7 @@ import Combine
 import Alamofire
 import SwiftUI
 
-class CardViewModel: Identifiable, ObservableObject {
+class CommonUserWalletModel: Identifiable, ObservableObject {
     // MARK: Services
 
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
@@ -30,9 +30,9 @@ class CardViewModel: Identifiable, ObservableObject {
         walletModelsManager: walletModelsManager,
         derivationStyle: config.derivationStyle,
         derivationManager: derivationManager,
-        cardDerivableProvider: self,
+        keysDerivingProvider: self,
         existingCurves: config.walletCurves,
-        longHashesSupported: longHashesSupported
+        longHashesSupported: config.hasFeature(.longHashes)
     )
 
     let userTokenListManager: UserTokenListManager
@@ -59,98 +59,24 @@ class CardViewModel: Identifiable, ObservableObject {
 
     var signer: TangemSigner { _signer }
 
-    var cardInteractor: CardInteractor {
-        .init(cardInfo: cardInfo)
-    }
-
     var cardId: String { cardInfo.card.cardId }
 
     var card: CardDTO {
         cardInfo.card
     }
 
-    var walletData: DefaultWalletData {
-        cardInfo.walletData
-    }
-
-    var batchId: String { cardInfo.card.batchId }
     var cardPublicKey: Data { cardInfo.card.cardPublicKey }
 
     var supportsOnlineImage: Bool {
         config.hasFeature(.onlineImage)
     }
 
-    var isMultiWallet: Bool {
-        config.hasFeature(.multiCurrency)
-    }
-
-    var canDisplayHashesCount: Bool {
-        config.hasFeature(.displayHashesCount)
-    }
-
     var emailConfig: EmailConfig? {
         config.emailConfig
     }
 
-    var cardsCount: Int {
-        config.cardsCount
-    }
-
-    var cardIdFormatted: String {
-        cardInfo.cardIdFormatted
-    }
-
-    var cardIssuer: String {
-        cardInfo.card.issuer.name
-    }
-
-    var cardSignedHashes: Int {
-        cardInfo.card.walletSignedHashes
-    }
-
-    var artworkInfo: ArtworkInfo? {
-        cardImageProvider.cardArtwork(for: cardInfo.card.cardId)?.artworkInfo
-    }
-
     var name: String {
         cardInfo.name
-    }
-
-    var defaultName: String {
-        config.cardName
-    }
-
-    var canCreateBackup: Bool {
-        !config.getFeatureAvailability(.backup).isHidden
-    }
-
-    var canSkipBackup: Bool {
-        config.canSkipBackup
-    }
-
-    var canTwin: Bool {
-        config.hasFeature(.twinning)
-    }
-
-    var canChangeAccessCodeRecoverySettings: Bool {
-        config.hasFeature(.accessCodeRecoverySettings)
-    }
-
-    var hasBackupCards: Bool {
-        cardInfo.card.backupStatus?.isActive ?? false
-    }
-
-    var cardDisclaimer: TOU {
-        config.tou
-    }
-
-    var canShowSwapping: Bool {
-        !config.getFeatureAvailability(.swapping).isHidden
-    }
-
-    // Temp for WC. Migrate to userWalletId?
-    var secp256k1SeedKey: Data? {
-        cardInfo.card.wallets.last(where: { $0.curve == .secp256k1 })?.publicKey
     }
 
     let userWalletId: UserWalletId
@@ -164,38 +90,8 @@ class CardViewModel: Identifiable, ObservableObject {
     private var tangemSdk: TangemSdk?
     var config: UserWalletConfig
 
-    var hdWalletsSupported: Bool {
-        config.hasFeature(.hdWallets)
-    }
-
-    var longHashesSupported: Bool {
-        config.hasFeature(.longHashes)
-    }
-
-    var cardSetLabel: String? {
-        config.cardSetLabel
-    }
-
-    var canShowSend: Bool {
-        config.hasFeature(.withdrawal)
-    }
-
-    var canParticipateInPromotion: Bool {
-        config.hasFeature(.promotion)
-    }
-
-    var resetToFactoryAvailability: UserWalletFeature.Availability {
-        config.getFeatureAvailability(.resetToFactory)
-    }
-
-    var shouldShowLegacyDerivationAlert: Bool {
-        config.warningEvents.contains(where: { $0 == .legacyDerivation })
-    }
-
-    var canExchangeCrypto: Bool { !config.getFeatureAvailability(.exchange).isHidden }
-
-    var userWallet: UserWallet {
-        UserWalletFactory().userWallet(from: cardInfo, config: config, userWalletId: userWalletId)
+    var userWallet: StoredUserWallet {
+        StoredUserWalletFactory().userWallet(from: cardInfo, config: config, userWalletId: userWalletId)
     }
 
     private var isActive: Bool {
@@ -218,7 +114,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
 
-    convenience init?(userWallet: UserWallet) {
+    convenience init?(userWallet: StoredUserWallet) {
         let cardInfo = userWallet.cardInfo()
         self.init(cardInfo: cardInfo)
     }
@@ -265,7 +161,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     deinit {
-        Log.debug("CardViewModel deinit 🥳🤟")
+        Log.debug("CommonUserWalletModel deinit 🥳🤟")
     }
 
     func setupWarnings() {
@@ -293,7 +189,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
 
         let backupValidator = BackupValidator()
-        if !backupValidator.validate(card.backupStatus) {
+        if !backupValidator.validate(backupStatus: card.backupStatus, wallets: cardInfo.card.wallets) {
             return false
         }
 
@@ -319,19 +215,8 @@ class CardViewModel: Identifiable, ObservableObject {
         onUpdate()
     }
 
-    func onBackupCreated(_ card: Card) {
-        for updatedWallet in card.wallets {
-            cardInfo.card.wallets[updatedWallet.publicKey]?.hasBackup = updatedWallet.hasBackup
-        }
-
-        cardInfo.card.settings = CardDTO.Settings(settings: card.settings)
-        cardInfo.card.isAccessCodeSet = card.isAccessCodeSet
-        cardInfo.card.backupStatus = card.backupStatus
-        onUpdate()
-    }
-
     private func onUpdate() {
-        AppLog.shared.debug("🔄 Updating CardViewModel with new Card")
+        AppLog.shared.debug("🔄 Updating CommonUserWalletModel with new Card")
         config = UserWalletConfigFactory(cardInfo).makeConfig()
         _cardHeaderImagePublisher.send(config.cardHeaderImage)
         _signer = config.tangemSigner
@@ -341,10 +226,6 @@ class CardViewModel: Identifiable, ObservableObject {
             userWalletRepository.save(userWallet)
         }
         _updatePublisher.send()
-    }
-
-    func getDisabledLocalizedReason(for feature: UserWalletFeature) -> String? {
-        config.getDisabledLocalizedReason(for: feature)
     }
 
     private func updateModel() {
@@ -364,21 +245,15 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 }
 
-extension CardViewModel {
+extension CommonUserWalletModel {
     enum WalletsBalanceState {
         case inProgress
         case loaded
     }
 }
 
-extension CardViewModel: WalletConnectUserWalletInfoProvider {
-    var wcWalletModelProvider: WalletConnectWalletModelProvider {
-        CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
-    }
-}
-
 // [REDACTED_TODO_COMMENT]
-extension CardViewModel: TangemSdkFactory {
+extension CommonUserWalletModel: TangemSdkFactory {
     func makeTangemSdk() -> TangemSdk {
         config.makeTangemSdk()
     }
@@ -386,7 +261,32 @@ extension CardViewModel: TangemSdkFactory {
 
 // MARK: - UserWalletModel
 
-extension CardViewModel: UserWalletModel {
+extension CommonUserWalletModel: UserWalletModel {
+    var analyticsContextData: AnalyticsContextData {
+        AnalyticsContextData(
+            card: cardInfo.card,
+            productType: config.productType,
+            userWalletId: userWalletId.value,
+            embeddedEntry: config.embeddedBlockchain
+        )
+    }
+
+    var wcWalletModelProvider: WalletConnectWalletModelProvider {
+        CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
+    }
+
+    var tangemApiAuthData: TangemApiTarget.AuthData {
+        .init(cardId: card.cardId, cardPublicKey: card.cardPublicKey)
+    }
+
+    var hasBackupCards: Bool {
+        cardInfo.card.backupStatus?.isActive ?? false
+    }
+
+    var cardsCount: Int {
+        config.cardsCount
+    }
+
     var emailData: [EmailCollectedData] {
         var data = config.emailData
 
@@ -399,7 +299,7 @@ extension CardViewModel: UserWalletModel {
     var backupInput: OnboardingInput? {
         let factory = OnboardingInputFactory(
             cardInfo: cardInfo,
-            cardModel: self,
+            userWalletModel: self,
             sdkFactory: config,
             onboardingStepsBuilderFactory: config
         )
@@ -413,7 +313,8 @@ extension CardViewModel: UserWalletModel {
         }
 
         let factory = TwinInputFactory(
-            cardInput: .cardModel(self),
+            firstCardId: cardInfo.card.cardId,
+            cardInput: .userWalletModel(self),
             userWalletToDelete: userWallet,
             twinData: twinData,
             sdkFactory: config
@@ -432,7 +333,7 @@ extension CardViewModel: UserWalletModel {
     var cardImagePublisher: AnyPublisher<CardImageResult, Never> {
         let artwork: CardArtwork
 
-        if let artworkInfo = artworkInfo {
+        if let artworkInfo = cardImageProvider.cardArtwork(for: cardInfo.card.cardId)?.artworkInfo {
             artwork = .artwork(artworkInfo)
         } else {
             artwork = .notLoaded
@@ -449,22 +350,33 @@ extension CardViewModel: UserWalletModel {
         cardInfo.name = name
         _userWalletNamePublisher.send(name)
     }
+
+    func onBackupCreated(_ card: Card) {
+        for updatedWallet in card.wallets {
+            cardInfo.card.wallets[updatedWallet.publicKey]?.hasBackup = updatedWallet.hasBackup
+        }
+
+        cardInfo.card.settings = CardDTO.Settings(settings: card.settings)
+        cardInfo.card.isAccessCodeSet = card.isAccessCodeSet
+        cardInfo.card.backupStatus = card.backupStatus
+        onUpdate()
+    }
 }
 
-extension CardViewModel: MainHeaderSupplementInfoProvider {
+extension CommonUserWalletModel: MainHeaderSupplementInfoProvider {
     var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> { _cardHeaderImagePublisher.removeDuplicates().eraseToAnyPublisher() }
 
     var userWalletNamePublisher: AnyPublisher<String, Never> { _userWalletNamePublisher.eraseToAnyPublisher() }
 }
 
-extension CardViewModel: MainHeaderUserWalletStateInfoProvider {
+extension CommonUserWalletModel: MainHeaderUserWalletStateInfoProvider {
     var isUserWalletLocked: Bool { userWallet.isLocked }
 
     var isTokensListEmpty: Bool { userTokenListManager.userTokensList.entries.isEmpty }
 }
 
 // [REDACTED_TODO_COMMENT]
-extension CardViewModel: DerivationManagerDelegate {
+extension CommonUserWalletModel: DerivationManagerDelegate {
     func onDerived(_ response: DerivationResult) {
         // tmp sync
         for updatedWallet in response {
@@ -477,19 +389,19 @@ extension CardViewModel: DerivationManagerDelegate {
     }
 }
 
-extension CardViewModel: CardDerivableProvider {
-    var cardDerivableInteractor: CardDerivable {
-        return cardInteractor
+extension CommonUserWalletModel: KeysDerivingProvider {
+    var keysDerivingInteractor: KeysDeriving {
+        KeysDerivingCardInteractor(with: cardInfo)
     }
 }
 
-extension CardViewModel: TotalBalanceProviding {
+extension CommonUserWalletModel: TotalBalanceProviding {
     var totalBalancePublisher: AnyPublisher<LoadingValue<TotalBalance>, Never> {
         totalBalanceProvider.totalBalancePublisher
     }
 }
 
-extension CardViewModel: AnalyticsContextDataProvider {
+extension CommonUserWalletModel: AnalyticsContextDataProvider {
     func getAnalyticsContextData() -> AnalyticsContextData? {
         return AnalyticsContextData(
             card: card,
@@ -499,5 +411,3 @@ extension CardViewModel: AnalyticsContextDataProvider {
         )
     }
 }
-
-extension CardViewModel: EmailDataProvider {}
