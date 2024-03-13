@@ -457,24 +457,28 @@ class LegacySendViewModel: ObservableObject {
 
         scannedQRCode
             .compactMap { $0 }
-            .sink { [unowned self] qrCodeString in
+            .withWeakCaptureOf(self)
+            .compactMap { viewModel, qrCodeString in
                 let parser = QRCodeParser(
-                    amountType: amountToSend.type,
-                    blockchain: walletModel.blockchainNetwork.blockchain,
-                    decimalCount: walletModel.decimalCount
+                    amountType: viewModel.amountToSend.type,
+                    blockchain: viewModel.walletModel.blockchainNetwork.blockchain,
+                    decimalCount: viewModel.walletModel.decimalCount
                 )
-                let result = parser.parse(qrCodeString)
 
+                return parser.parse(qrCodeString)
+            }
+            .withWeakCaptureOf(self)
+            .sink { viewModel, result in
                 if let parsedAmountText = result.amountText {
-                    amountText = parsedAmountText
+                    viewModel.amountText = parsedAmountText
                 }
 
                 if let parsedMemo = result.memo {
-                    memo = parsedMemo
+                    viewModel.memo = parsedMemo
                 }
 
-                destination = result.destination
-                lastDestinationAddressSource = .qrCode
+                viewModel.destination = result.destination
+                viewModel.lastDestinationAddressSource = .qrCode
             }
             .store(in: &bag)
     }
