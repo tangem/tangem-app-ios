@@ -369,7 +369,10 @@ final class SendViewModel: ObservableObject {
             blockchain: walletModel.blockchainNetwork.blockchain,
             decimalCount: walletModel.decimalCount
         )
-        let result = parser.parse(code)
+
+        guard let result = parser.parse(code) else {
+            return
+        }
 
         sendModel.setDestination(SendAddress(value: result.destination, inputSource: .qrCode))
         sendModel.setAmount(result.amount)
