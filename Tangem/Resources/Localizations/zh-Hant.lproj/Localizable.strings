@@ -181,7 +181,6 @@
 "details_row_title_signed_hashes" = "簽署";
 "details_security_management_warning" = "如果您忘記密碼，您將無法使用您的資金。無法恢復代碼";
 "details_title" = "更多";
-"disclaimer_error_loading" = "檢查您的網路連接或切換到其他網絡";
 "disclaimer_title" = "服務條款";
 "error_wrong_wallet_tapped" = "您使用了另一個錢包中的卡。點按與此錢包關聯的卡片";
 "exchange_tokens_available_tokens_header" = "My tokens";
@@ -569,8 +568,6 @@
 "voice_over_open_new_wallet_connect_session" = "掃描二維碼打開新的 WalletConnect 鏈接";
 "voice_over_paste_from_clipboard" = "從剪貼板粘貼地址";
 "voice_over_scan_qr_with_address" = "掃二維碼地址";
-"voice_over_share_address" = "分享地址";
-"voice_over_show_address_qr" = "顯示地址、二維碼、代碼";
 "wallet_balance_missing_derivation" = "掃描卡片";
 "wallet_connect_alert_sign_message" = "請求籤署消息。%@";
 "wallet_connect_bnb_sign_message" = "Dapp %1$@，請求\n簽署 BNB 交易。\n%2$@";
