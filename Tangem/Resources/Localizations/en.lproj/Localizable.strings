@@ -210,13 +210,11 @@
 "express_exchange_status_receiving" = "Awaiting deposit";
 "express_exchange_status_receiving_active" = "Awaiting deposit...";
 "express_exchange_status_refunded" = "Refunded";
-"express_exchange_status_refunded_active" = "Refunding...";
 "express_exchange_status_sending" = "Sending to you";
 "express_exchange_status_sending_active" = "Sending to you...";
 "express_exchange_status_sent" = "Sent";
 "express_exchange_status_subtitle" = "Provider-sourced data. Estimated amount subject to change due to market conditions.";
 "express_exchange_status_title" = "Exchange status";
-"express_exchange_status_verified" = "Verified";
 "express_exchange_status_verifying" = "Verification required";
 "express_fetch_best_rates" = "Fetching best rates...";
 "express_floating_rate" = "Floating rate";
@@ -613,7 +611,6 @@
 "warning_backup_errors_message" = "Please withdraw all funds from this wallet, reset it to factory settings, and create a new one. Access to the current wallet will be lost.";
 "warning_backup_errors_title" = "Backup error";
 "warning_button_could_be_better" = "Could be better";
-"warning_button_learn_more" = "Learn more";
 "warning_button_like_it" = "Like it";
 "warning_button_ok" = "Ok, Got it!";
 "warning_button_really_cool" = "Really cool!";
