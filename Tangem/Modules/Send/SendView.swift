@@ -54,6 +54,7 @@ struct SendView: View {
     private var header: some View {
         if let title = viewModel.title {
             HStack {
+                // Using Color.clear to avoid dealing with priorities
                 Color.clear
                     .frame(maxWidth: .infinity, maxHeight: 1)
 
