@@ -17,19 +17,22 @@ struct SendFeeView: View {
 
     var body: some View {
         GroupedScrollView(spacing: 20) {
-            GroupedSection(viewModel.feeRowViewModels) {
-                if $0.isSelected.value {
-                    FeeRowView(viewModel: $0)
-                        .setNamespace(namespace)
-                        .setIconNamespaceId(SendViewNamespaceId.feeIcon.rawValue)
-                        .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
-                        .setSubtitleNamespaceId(SendViewNamespaceId.feeSubtitle.rawValue)
-                } else {
-                    if !viewModel.animatingAuxiliaryViewsOnAppear {
-                        FeeRowView(viewModel: $0)
-                            .transition(SendView.Constants.auxiliaryViewTransition)
+            GroupedSection(viewModel.feeRowViewModels) { feeRowViewModel in
+                Group {
+                    if feeRowViewModel.isSelected.value {
+                        FeeRowView(viewModel: feeRowViewModel)
+                            .setNamespace(namespace)
+                            .setIconNamespaceId(SendViewNamespaceId.feeIcon.rawValue)
+                            .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
+                            .setSubtitleNamespaceId(SendViewNamespaceId.feeSubtitle.rawValue)
+                    } else {
+                        if !viewModel.animatingAuxiliaryViewsOnAppear {
+                            FeeRowView(viewModel: feeRowViewModel)
+                                .transition(SendView.Constants.auxiliaryViewTransition)
+                        }
                     }
                 }
+                .visible(viewModel.showSectionContent)
             } footer: {
                 if !viewModel.animatingAuxiliaryViewsOnAppear {
                     feeSelectorFooter
@@ -71,6 +74,8 @@ struct SendFeeView: View {
             Spacer(minLength: bottomSpacing)
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
+        .onAppear(perform: viewModel.onSectionContentAppear)
+        .onDisappear(perform: viewModel.onSectionContentDisappear)
         .onAppear(perform: viewModel.onAuxiliaryViewAppear)
         .onDisappear(perform: viewModel.onAuxiliaryViewDisappear)
     }
