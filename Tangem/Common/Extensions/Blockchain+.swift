@@ -42,14 +42,11 @@ extension Blockchain {
             name = String(name.prefix(upTo: index))
         }
 
-        switch name {
-        case "binance":
+        if name == "binance" {
             return "bsc"
-        case "polygonzkevm":
-            return "polygon"
-        default:
-            return name
         }
+
+        return name
     }
 
     /// Should be used to get a filled icon from the`Tokens.xcassets` file
