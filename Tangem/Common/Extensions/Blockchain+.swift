@@ -163,10 +163,8 @@ private extension Blockchain {
             return "areon-network"
         case .playa3ullGames:
             switch type {
-            case .network:
-                return "playa3ull-games"
-            case .coin:
-                return "playa3ull-games-2"
+            case .network: return "playa3ull-games"
+            case .coin: return "playa3ull-games-2"
             }
         case .pulsechain:
             return "pulsechain"
@@ -175,29 +173,22 @@ private extension Blockchain {
             case .network: return "aurora"
             case .coin: return "aurora-ethereum"
             }
-            #warning("Fix network and coin ids if necessary")
         case .manta:
             switch type {
-            case .network:
-                return "manta-network"
-            case .coin:
-                return "manta-network-ethereum"
+            case .network: return "manta-network"
+            case .coin: return "manta-network-ethereum"
             }
         case .zkSync:
             switch type {
-            case .network:
-                return "zksync"
-            case .coin:
-                return "zksync-ethereum"
+            case .network: return "zksync"
+            case .coin: return "zksync-ethereum"
             }
         case .moonbeam:
             return "moonbeam"
         case .polygonZkEVM:
             switch type {
-            case .network:
-                return "polygon-zkevm"
-            case .coin:
-                return "polygon-zkevm-ethereum"
+            case .network: return "polygon-zkevm"
+            case .coin: return "polygon-zkevm-ethereum"
             }
         }
     }
