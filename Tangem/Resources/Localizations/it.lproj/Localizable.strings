@@ -49,7 +49,6 @@
 "card_settings_reset_card_to_factory" = "Reset to Factory Settings";
 "card_settings_security_mode" = "Security Mode";
 "card_settings_title" = "Card Settings";
-"chat_button_title" = "Support";
 "common_accept" = "Accetta";
 "common_access_denied" = "Access denied";
 "common_apply" = "Apply";
@@ -75,7 +74,6 @@
 "common_enabled" = "Enabled";
 "common_error" = "Errore";
 "common_explore" = "Explore";
-"common_explore_history" = "Explore history";
 "common_explore_transaction_history" = "Explore transaction history";
 "common_explorer" = "Explorer";
 "common_fee_label" = "Commissione";
@@ -420,7 +418,7 @@
 "send_alert_transaction_failed_title" = "The transaction is not completed";
 "send_amount_label" = "Importo";
 "send_confirm_label" = "Confirm";
-"send_date_format" = "%1$@ at %2$@";
+"send_date_format" = "%1$@, %2$@";
 "send_destination_hint_address" = "Indirizzo";
 "send_destination_tag_field" = "Destination Tag";
 "send_enter_address_field" = "Enter address";
@@ -606,9 +604,8 @@
 "wallet_title" = "Tangem";
 "warning_access_denied_message" = "Use %@ or scan a card to unlock access to your wallet";
 "warning_backup_errors_message" = "Please withdraw all funds from this wallet, reset it to factory settings, and create a new one. Access to the current wallet will be lost.";
-"warning_backup_errors_title" = "Backup error";
+"warning_backup_errors_title" = "Activation error";
 "warning_button_could_be_better" = "Could be better";
-"warning_button_like_it" = "Like it";
 "warning_button_ok" = "Ok, ho capito!";
 "warning_button_really_cool" = "Really cool!";
 "warning_button_refresh" = "Refresh";
