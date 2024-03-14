@@ -13,7 +13,7 @@ import Combine
 import Alamofire
 import SwiftUI
 
-class CommonUserWalletModel: Identifiable, ObservableObject {
+class CommonUserWalletModel {
     // MARK: Services
 
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
