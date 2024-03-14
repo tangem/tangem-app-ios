@@ -666,7 +666,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                             primaryButton: .default(Text(Localization.warningButtonOk), action: { [weak self] in
                                 self?.cardInitializer?.shouldReset = true
                             }),
-                            secondaryButton: .default(Text(Localization.chatButtonTitle), action: { [weak self] in
+                            secondaryButton: .default(Text(Localization.commonSupport), action: { [weak self] in
                                 self?.openSupport()
                             })
                         )
