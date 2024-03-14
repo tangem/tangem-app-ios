@@ -49,7 +49,6 @@
 "card_settings_reset_card_to_factory" = "Заводские настройки";
 "card_settings_security_mode" = "Тип безопасности";
 "card_settings_title" = "Настройки карты";
-"chat_button_title" = "Чат";
 "common_accept" = "Принять";
 "common_access_denied" = "Доступ запрещен";
 "common_apply" = "Применить";
@@ -75,7 +74,6 @@
 "common_enabled" = "Включено";
 "common_error" = "Ошибка";
 "common_explore" = "Обозреватель";
-"common_explore_history" = "Посмотреть историю";
 "common_explore_transaction_history" = "Посмотреть историю транзакций";
 "common_explorer" = "Обозреватель";
 "common_fee_label" = "Комиссия";
@@ -420,7 +418,7 @@
 "send_alert_transaction_failed_title" = "Транзакция не выполнена";
 "send_amount_label" = "Сумма";
 "send_confirm_label" = "Подтвердить";
-"send_date_format" = "%1$@ в %2$@";
+"send_date_format" = "%1$@, %2$@";
 "send_destination_hint_address" = "Адрес";
 "send_destination_tag_field" = "Код назначения";
 "send_enter_address_field" = "Введите адрес";
@@ -608,7 +606,6 @@
 "warning_backup_errors_message" = "Пожалуйста, выведите все средства из этого кошелька, сбросьте его к заводским настройкам и создайте новый. Доступ к текущему кошельку будет утерян.";
 "warning_backup_errors_title" = "Ошибка активации";
 "warning_button_could_be_better" = "Можно лучше";
-"warning_button_like_it" = "Нравится";
 "warning_button_ok" = "Понятно!";
 "warning_button_really_cool" = "Очень круто!";
 "warning_button_refresh" = "Обновить";
