@@ -13,7 +13,6 @@ import Combine
 import CombineExt
 
 class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
-    @Published var isUserUnderstandsAddressNetworkRequirements: Bool
     @Published var showToast: Bool = false
 
     let addressInfos: [ReceiveAddressInfo]
@@ -48,8 +47,6 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
             tokenItem.networkName
         )
 
-        isUserUnderstandsAddressNetworkRequirements = true
-
         bind()
     }
 
@@ -63,13 +60,6 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
             tokenItem.currencySymbol,
             tokenItem.networkName
         )
-    }
-
-    func understandNetworkRequirements() {
-        Analytics.log(event: .buttonUnderstand, params: [.token: tokenItem.currencySymbol])
-
-        AppSettings.shared.understandsAddressNetworkRequirements.append(tokenItem.networkName)
-        isUserUnderstandsAddressNetworkRequirements = true
     }
 
     func copyToClipboard() {
