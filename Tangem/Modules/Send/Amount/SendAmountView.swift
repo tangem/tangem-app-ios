@@ -39,7 +39,7 @@ struct SendAmountView: View {
                     }
 
                     MainButton(title: Localization.sendMaxAmount, style: .secondary, action: viewModel.didTapMaxAmount)
-                        .frame(width: viewModel.windowWidth / 3)
+                        .frame(width: 108)
                 }
                 .transition(SendView.Constants.auxiliaryViewTransition)
             }
@@ -81,7 +81,7 @@ struct SendAmountView: View {
                 .alignment(.center)
                 .suffix(viewModel.useFiatCalculation ? viewModel.fiatCurrencyCode : viewModel.cryptoCurrencyCode)
                 .matchedGeometryEffect(id: SendViewNamespaceId.amountCryptoText.rawValue, in: namespace)
-                .padding(.top, 16)
+                .padding(.top, 18)
 
             // Keep empty text so that the view maintains its place in the layout
             Text(viewModel.amountAlternative ?? " ")
@@ -113,9 +113,9 @@ struct SendAmountView_Previews: PreviewProvider {
     )
 
     static let walletInfo = SendWalletInfo(
-        walletName: "Wallet",
-        balanceValue: 12013,
-        balance: "12013",
+        walletName: "Family Wallet",
+        balanceValue: 2130.88,
+        balance: "2 130,88 USDT (2 129,92 $)",
         blockchain: .ethereum(testnet: false),
         currencyId: "tether",
         feeCurrencySymbol: "ETH",
