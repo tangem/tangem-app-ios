@@ -49,7 +49,6 @@
 "card_settings_reset_card_to_factory" = "回復至原廠設置";
 "card_settings_security_mode" = "安全模式";
 "card_settings_title" = "卡片設置";
-"chat_button_title" = "支援";
 "common_accept" = "接受";
 "common_access_denied" = "Access denied";
 "common_apply" = "Apply";
@@ -75,7 +74,6 @@
 "common_enabled" = "啟用";
 "common_error" = "錯誤";
 "common_explore" = "Explore";
-"common_explore_history" = "Explore history";
 "common_explore_transaction_history" = "Explore transaction history";
 "common_explorer" = "Explorer";
 "common_fee_label" = "費用";
@@ -420,7 +418,7 @@
 "send_alert_transaction_failed_title" = "The transaction is not completed";
 "send_amount_label" = "數量";
 "send_confirm_label" = "Confirm";
-"send_date_format" = "%1$@ at %2$@";
+"send_date_format" = "%1$@, %2$@";
 "send_destination_hint_address" = "地址";
 "send_destination_tag_field" = "Destination Tag";
 "send_enter_address_field" = "Enter address";
@@ -606,9 +604,8 @@
 "wallet_title" = "Tangem";
 "warning_access_denied_message" = "Use %@ or scan a card to unlock access to your wallet";
 "warning_backup_errors_message" = "Please withdraw all funds from this wallet, reset it to factory settings, and create a new one. Access to the current wallet will be lost.";
-"warning_backup_errors_title" = "Backup error";
+"warning_backup_errors_title" = "Activation error";
 "warning_button_could_be_better" = "可以更好";
-"warning_button_like_it" = "Like it";
 "warning_button_ok" = "了解";
 "warning_button_really_cool" = "真的很酷！";
 "warning_button_refresh" = "Refresh";
