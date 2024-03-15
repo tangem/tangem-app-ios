@@ -148,6 +148,12 @@ extension Wallet2Config: UserWalletConfig {
         if isRing {
             return nil
         }
+
+        // Case with broken backup (e.g. CardLinked)
+        if cardsCount == 1 {
+            return nil
+        }
+
         // Wallet 2.0 cards can't be used without backup, so min number of cards = 2
         // and there can't be more than 3 cards.
         switch card.batchId {
