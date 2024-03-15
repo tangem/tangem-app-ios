@@ -14,10 +14,6 @@ extension Publisher where Failure: Error {
         let cancellableWrapper = CancellableWrapper()
 
         return try await withTaskCancellationHandler {
-            // This check is necessary in case this code runs after the task was
-            // cancelled. In which case we want to bail right away.
-            try Task.checkCancellation()
-
             return try await withCheckedThrowingContinuation { continuation in
                 // This check is necessary in case this code runs after the task was
                 // cancelled. In which case we want to bail right away.
@@ -26,21 +22,22 @@ extension Publisher where Failure: Error {
                     return
                 }
 
-                cancellableWrapper.cancellable = handleEvents(receiveCancel: {
-                    // We don't get a cancel error when cancelling a publisher, so we need
-                    // to handle if the publisher was cancelled from the
-                    // `withTaskCancellationHandler` here.
-                    continuation.resume(throwing: CancellationError())
-                }).sink { completion in
-                    if case .failure(let error) = completion {
-                        continuation.resume(throwing: error)
-                    } else if !didSendValue {
-                        continuation.resume(throwing: AsyncError.valueWasNotEmittedBeforeCompletion)
+                cancellableWrapper.cancellable = first()
+                    .handleEvents(receiveCancel: {
+                        // We don't get a cancel error when cancelling a publisher, so we need
+                        // to handle if the publisher was cancelled from the
+                        // `withTaskCancellationHandler` here.
+                        continuation.resume(throwing: CancellationError())
+                    }).sink { completion in
+                        if case .failure(let error) = completion {
+                            continuation.resume(throwing: error)
+                        } else if !didSendValue {
+                            continuation.resume(throwing: AsyncError.valueWasNotEmittedBeforeCompletion)
+                        }
+                    } receiveValue: { value in
+                        didSendValue = true
+                        continuation.resume(with: .success(value))
                     }
-                } receiveValue: { value in
-                    continuation.resume(with: .success(value))
-                    didSendValue = true
-                }
             }
         } onCancel: {
             cancellableWrapper.cancellable?.cancel()
@@ -52,6 +49,6 @@ enum AsyncError: Error {
     case valueWasNotEmittedBeforeCompletion
 }
 
-class CancellableWrapper {
+private class CancellableWrapper {
     var cancellable: AnyCancellable?
 }
