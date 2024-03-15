@@ -56,6 +56,7 @@ class SendSummaryViewModel: ObservableObject {
     @Published var amountSummaryViewData: SendAmountSummaryViewData?
     @Published var feeSummaryViewData: SendFeeSummaryViewData?
     @Published var feeOptionIcon: Image?
+    @Published var transactionDescription: String?
 
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
 
@@ -65,10 +66,12 @@ class SendSummaryViewModel: ObservableObject {
     private var screenIdleStartTime: Date?
     private var bag: Set<AnyCancellable> = []
     private let input: SendSummaryViewModelInput
+    private let walletInfo: SendWalletInfo
     private let notificationManager: SendNotificationManager
 
     init(input: SendSummaryViewModelInput, notificationManager: SendNotificationManager, walletInfo: SendWalletInfo) {
         self.input = input
+        self.walletInfo = walletInfo
         self.notificationManager = notificationManager
 
         sectionViewModelFactory = SendSummarySectionViewModelFactory(
@@ -163,6 +166,39 @@ class SendSummaryViewModel: ObservableObject {
                 $0.icon.image
             }
             .assign(to: \.feeOptionIcon, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        Publishers.CombineLatest(input.userInputAmountPublisher, input.feeValuePublisher)
+            .withWeakCaptureOf(self)
+            .map { parameters -> String? in
+                let (thisSendSummaryViewModel, (amount, fee)) = parameters
+
+                guard
+                    let fee,
+                    let amount,
+                    let amountCurrencyId = thisSendSummaryViewModel.walletInfo.currencyId
+                else {
+                    return nil
+                }
+
+                let converter = BalanceConverter()
+                let amountInFiat = converter.convertToFiat(value: amount.value, from: amountCurrencyId)
+                let feeInFiat = converter.convertToFiat(value: fee.amount.value, from: thisSendSummaryViewModel.walletInfo.feeCurrencyId)
+
+                let totalInFiat: Decimal?
+                if let amountInFiat, let feeInFiat {
+                    totalInFiat = amountInFiat + feeInFiat
+                } else {
+                    totalInFiat = nil
+                }
+
+                let formatter = BalanceFormatter()
+                let totalInFiatFormatted = formatter.formatFiatBalance(totalInFiat)
+                let feeInFiatFormatted = formatter.formatFiatBalance(feeInFiat)
+
+                return Localization.sendSummaryTransactionDescription(totalInFiatFormatted, feeInFiatFormatted)
+            }
+            .assign(to: \.transactionDescription, on: self, ownership: .weak)
             .store(in: &bag)
 
         notificationManager
