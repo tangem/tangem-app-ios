@@ -28,29 +28,29 @@ struct SendFeeSummaryView: View {
 
             HStack(spacing: 12) {
                 Assets.FeeOptions.marketFeeIcon.image
-                
+
                 Text("Market")
                     .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
 
                 Spacer()
-                
+
                 feeAmount
             }
         }
         .padding(.vertical, 14)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
+
     @ViewBuilder
     private var feeAmount: some View {
-        
         HStack(spacing: 4) {
             Text(data.text)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
                 .matchedGeometryEffectOptional(id: textNamespaceId, in: namespace)
-            
+
             Text("•")
                 .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
-            
+
             Text("0,22 $")
                 .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
         }
