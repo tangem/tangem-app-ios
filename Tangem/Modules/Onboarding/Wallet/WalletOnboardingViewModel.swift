@@ -219,11 +219,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     // MARK: - Other View related stuff
 
-    lazy var importSeedPhraseModel: OnboardingSeedPhraseImportViewModel? = .init(
-        inputProcessor: SeedPhraseInputProcessor()) { [weak self] mnemonic in
-            self?.createWalletOnPrimaryCard(using: mnemonic, walletCreationType: .seedImport(length: mnemonic.mnemonicComponents.count))
-        }
-
+    lazy var importSeedPhraseModel: OnboardingSeedPhraseImportViewModel? = .init(inputProcessor: SeedPhraseInputProcessor(), delegate: self)
     var generateSeedPhraseModel: OnboardingSeedPhraseGenerateViewModel?
     var validationUserSeedPhraseModel: OnboardingSeedPhraseUserValidationViewModel?
 
@@ -447,6 +443,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             goToStep(.seedPhraseIntro)
         case .seedPhraseIntro:
             Analytics.log(.onboardingSeedButtonImportWallet)
+            importSeedPhraseModel?.resetModel()
             goToStep(.seedPhraseImport)
         case .backupIntro:
             Analytics.log(.backupSkipped)
@@ -532,7 +529,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             back()
         case .seedPhraseIntro:
             goToStep(.createWalletSelector)
-        case .seedPhraseGeneration, .seedPhraseImport:
+        case .seedPhraseGeneration:
+            goToStep(.seedPhraseIntro)
+        case .seedPhraseImport:
+            UIApplication.shared.endEditing()
             goToStep(.seedPhraseIntro)
         case .seedPhraseUserValidation:
             goToStep(.seedPhraseGeneration)
@@ -611,7 +611,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
         isMainButtonBusy = true
 
-        createWalletOnPrimaryCard(using: nil, walletCreationType: .privateKey)
+        createWalletOnPrimaryCard(using: nil, mnemonicPassphrase: nil, walletCreationType: .privateKey)
     }
 
     private func readPrimaryCard() {
@@ -637,12 +637,12 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             )
     }
 
-    private func createWalletOnPrimaryCard(using mnemonic: Mnemonic? = nil, walletCreationType: WalletCreationType) {
+    private func createWalletOnPrimaryCard(using mnemonic: Mnemonic? = nil, mnemonicPassphrase passphrase: String?, walletCreationType: WalletCreationType) {
         guard let cardInitializer else { return }
 
         AppSettings.shared.cardsStartedActivation.insert(input.primaryCardId)
 
-        cardInitializer.initializeCard(mnemonic: mnemonic) { [weak self] result in
+        cardInitializer.initializeCard(mnemonic: mnemonic, passphrase: passphrase) { [weak self] result in
             guard let self else { return }
 
             switch result {
@@ -920,18 +920,34 @@ extension WalletOnboardingViewModel: OnboardingSeedPhraseGenerationDelegate {
             seventhWord: words[6],
             eleventhWord: words[10],
             createWalletAction: { [weak self, mnemonic] in
-                self?.createWalletOnPrimaryCard(using: mnemonic, walletCreationType: .newSeed)
+                self?.createWalletOnPrimaryCard(using: mnemonic, mnemonicPassphrase: nil, walletCreationType: .newSeed)
             }
         ))
         mainButtonAction()
     }
 }
 
+extension WalletOnboardingViewModel: SeedPhraseImportDelegate {
+    func importSeedPhrase(mnemonic: Mnemonic, passphrase: String?) {
+        let isWithPassphrase = !(passphrase ?? "").isEmpty
+        createWalletOnPrimaryCard(
+            using: mnemonic,
+            mnemonicPassphrase: passphrase,
+            walletCreationType: .seedImport(
+                length: mnemonic.mnemonicComponents.count,
+                isWithPassphrase: isWithPassphrase
+            )
+        )
+    }
+}
+
+// MARK: - Wallet creation type
+
 extension WalletOnboardingViewModel {
     enum WalletCreationType {
         case privateKey
         case newSeed
-        case seedImport(length: Int)
+        case seedImport(length: Int, isWithPassphrase: Bool)
 
         var params: [Analytics.ParameterKey: String] {
             switch self {
@@ -939,10 +955,11 @@ extension WalletOnboardingViewModel {
                 return [.creationType: Analytics.ParameterValue.walletCreationTypePrivateKey.rawValue]
             case .newSeed:
                 return [.creationType: Analytics.ParameterValue.walletCreationTypeNewSeed.rawValue]
-            case .seedImport(let length):
+            case .seedImport(let length, let isWithPassphrase):
                 return [
                     .creationType: Analytics.ParameterValue.walletCreationTypeSeedImport.rawValue,
                     .seedLength: "\(length)",
+                    .passphrase: isWithPassphrase ? Analytics.ParameterValue.full.rawValue : Analytics.ParameterValue.empty.rawValue,
                 ]
             }
         }
