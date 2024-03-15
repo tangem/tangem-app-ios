@@ -61,18 +61,16 @@ struct SendView: View {
                     VStack {
                         Text(title)
                             .style(Fonts.Bold.body, color: Colors.Text.primary1)
-                            .animation(nil, value: title)
-
-                            .lineLimit(1)
-                            .layoutPriority(1)
 
                         if let subtitle = viewModel.subtitle {
                             Text(subtitle)
                                 .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
-                                .lineLimit(1)
                         }
                     }
+                    .animation(nil, value: title)
                     .padding(.vertical, viewModel.hasSubtitle ? 2 : 8)
+                    .lineLimit(1)
+                    .layoutPriority(1)
 
                     if viewModel.showQRCodeButton {
                         Button(action: viewModel.scanQRCode) {
