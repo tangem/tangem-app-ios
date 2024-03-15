@@ -20,7 +20,7 @@ final class SendViewModel: ObservableObject {
     @Published var alert: AlertBinder?
 
     var title: String? {
-        step.name
+        step.name(for: sendStepParameters)
     }
 
     var hasSubtitle: Bool {
@@ -28,8 +28,7 @@ final class SendViewModel: ObservableObject {
     }
 
     var subtitle: String? {
-        // [REDACTED_TODO_COMMENT]
-        walletInfo.walletName
+        step.description(for: sendStepParameters)
     }
 
     var showNavigationButtons: Bool {
@@ -84,6 +83,10 @@ final class SendViewModel: ObservableObject {
         }
 
         return steps[currentStepIndex - 1]
+    }
+
+    private var sendStepParameters: SendStep.Parameters {
+        SendStep.Parameters(currencyName: walletModel.tokenItem.name, walletName: walletInfo.walletName)
     }
 
     private let sendModel: SendModel
