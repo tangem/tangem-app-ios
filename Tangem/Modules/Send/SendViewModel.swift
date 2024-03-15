@@ -23,6 +23,15 @@ final class SendViewModel: ObservableObject {
         step.name
     }
 
+    var hasSubtitle: Bool {
+        subtitle != nil
+    }
+
+    var subtitle: String? {
+        // [REDACTED_TODO_COMMENT]
+        walletInfo.walletName
+    }
+
     var showNavigationButtons: Bool {
         step.hasNavigationButtons
     }
