@@ -47,7 +47,7 @@ struct SendSummaryView: View {
                         .setAmountCryptoNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
                         .setAmountFiatNamespaceId(SendViewNamespaceId.amountFiatText.rawValue)
                 }
-                .innerContentPadding(12)
+                .innerContentPadding(0)
                 .backgroundColor(viewModel.amountBackground, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
                 .contentShape(Rectangle())
                 .allowsHitTesting(viewModel.canEditAmount)
