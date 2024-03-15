@@ -62,11 +62,10 @@ struct SendView: View {
                         Text(title)
                             .style(Fonts.Bold.body, color: Colors.Text.primary1)
                             .animation(nil, value: title)
-                            
+
                             .lineLimit(1)
                             .layoutPriority(1)
-                        
-                        
+
                         if let subtitle = viewModel.subtitle {
                             Text(subtitle)
                                 .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
@@ -213,7 +212,6 @@ struct SendView_Preview: PreviewProvider {
         SendView(viewModel: viewModel)
     }
 }
-
 
 class EmailDataProviderMock: EmailDataProvider {
     var emailData: [EmailCollectedData] { [] }
