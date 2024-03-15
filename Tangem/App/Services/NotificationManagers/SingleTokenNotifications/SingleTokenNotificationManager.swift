@@ -71,7 +71,8 @@ final class SingleTokenNotificationManager {
             events.append(.existentialDepositWarning(message: existentialWarning))
         }
 
-        if case .solana = walletModel.tokenItem.blockchain {
+        if case .solana = walletModel.tokenItem.blockchain,
+           !walletModel.isZeroAmount {
             events.append(.solanaHighImpact)
         }
 
