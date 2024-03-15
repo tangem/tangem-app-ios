@@ -86,7 +86,7 @@ class CommonUserTokensManager {
         }
     }
 
-    private func loadSwapAvailbilityStateIfNeeded(forceReload: Bool) {
+    private func loadSwapAvailabilityStateIfNeeded(forceReload: Bool) {
         guard shouldLoadSwapAvailability else { return }
 
         let converter = StorageEntryConverter()
@@ -104,7 +104,7 @@ class CommonUserTokensManager {
     }
 
     private func handleUserTokensSync() {
-        loadSwapAvailbilityStateIfNeeded(forceReload: true)
+        loadSwapAvailabilityStateIfNeeded(forceReload: true)
         walletModelsManager.updateAll(silent: false) { [weak self] in
             self?.handleWalletModelsUpdate()
         }
@@ -238,7 +238,7 @@ extension CommonUserTokensManager: UserTokensManager {
         }
 
         try addInternal(itemsToAdd, shouldUpload: false)
-        loadSwapAvailbilityStateIfNeeded(forceReload: true)
+        loadSwapAvailabilityStateIfNeeded(forceReload: true)
         userTokenListManager.upload()
     }
 
