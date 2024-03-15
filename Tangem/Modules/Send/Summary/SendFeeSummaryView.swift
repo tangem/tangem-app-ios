@@ -49,7 +49,6 @@ struct SendFeeSummaryView: View {
                 .renderingMode(.template)
                 .frame(width: 24, height: 24)
                 .foregroundColor(Colors.Icon.accent)
-            
 
             Text(data.feeOption.title)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
@@ -84,7 +83,7 @@ extension SendFeeSummaryView: Setupable {
     func setTitleNamespaceId(_ titleNamespaceId: String?) -> Self {
         map { $0.titleNamespaceId = titleNamespaceId }
     }
-    
+
     func setOptionNamespaceId(_ optionNamespaceId: String?) -> Self {
         map { $0.optionNamespaceId = optionNamespaceId }
     }
