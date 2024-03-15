@@ -205,11 +205,17 @@ struct SendView_Preview: PreviewProvider {
         userWalletModel: card,
         transactionSigner: TransactionSignerMock(),
         sendType: .send,
-        emailDataProvider: CommonUserWalletModel.mock!,
+        emailDataProvider: EmailDataProviderMock(),
         coordinator: SendRoutableMock()
     )
 
     static var previews: some View {
         SendView(viewModel: viewModel)
     }
+}
+
+
+class EmailDataProviderMock: EmailDataProvider {
+    var emailData: [EmailCollectedData] { [] }
+    var emailConfig: EmailConfig? { nil }
 }
