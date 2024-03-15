@@ -16,11 +16,6 @@ struct SendSummaryView: View {
     var body: some View {
         VStack {
             GroupedScrollView(spacing: 14) {
-                GroupedSection(viewModel.walletSummaryViewModel) { viewModel in
-                    SendWalletSummaryView(viewModel: viewModel)
-                }
-                .backgroundColor(Colors.Button.disabled)
-
                 GroupedSection(viewModel.destinationViewTypes) { type in
                     switch type {
                     case .address(let address):

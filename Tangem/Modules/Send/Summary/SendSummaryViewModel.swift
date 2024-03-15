@@ -28,7 +28,6 @@ protocol SendSummaryViewModelInput: AnyObject {
 }
 
 class SendSummaryViewModel: ObservableObject {
-    let walletSummaryViewModel: SendWalletSummaryViewModel
     let canEditAmount: Bool
     let canEditDestination: Bool
 
@@ -78,11 +77,6 @@ class SendSummaryViewModel: ObservableObject {
             isFeeApproximate: walletInfo.isFeeApproximate,
             currencyId: walletInfo.currencyId,
             tokenIconInfo: walletInfo.tokenIconInfo
-        )
-
-        walletSummaryViewModel = SendWalletSummaryViewModel(
-            walletName: walletInfo.walletName,
-            totalBalance: walletInfo.balance
         )
 
         canEditAmount = input.canEditAmount
