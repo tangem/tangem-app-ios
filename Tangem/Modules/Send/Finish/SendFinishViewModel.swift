@@ -28,8 +28,8 @@ class SendFinishViewModel: ObservableObject {
     let transactionTime: String
 
     let destinationViewTypes: [SendDestinationSummaryViewType]
-    let amountSummaryViewData: AmountSummaryViewData?
-    let feeSummaryViewData: DefaultTextWithTitleRowViewData?
+    let amountSummaryViewData: SendAmountSummaryViewData?
+    let feeSummaryViewData: SendFeeSummaryViewData?
 
     weak var router: SendFinishRoutable?
 
