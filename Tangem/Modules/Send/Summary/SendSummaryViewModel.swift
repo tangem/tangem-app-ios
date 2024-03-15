@@ -53,8 +53,8 @@ class SendSummaryViewModel: ObservableObject {
     @Published var alert: AlertBinder?
 
     @Published var destinationViewTypes: [SendDestinationSummaryViewType] = []
-    @Published var amountSummaryViewData: AmountSummaryViewData?
-    @Published var feeSummaryViewData: DefaultTextWithTitleRowViewData?
+    @Published var amountSummaryViewData: SendAmountSummaryViewData?
+    @Published var feeSummaryViewData: SendFeeSummaryViewData?
     @Published var feeOptionIcon: Image?
 
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
