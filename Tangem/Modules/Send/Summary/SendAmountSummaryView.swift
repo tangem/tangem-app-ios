@@ -34,6 +34,7 @@ struct SendAmountSummaryView: View {
                 Text(data.amount)
                     .style(Fonts.Regular.title1, color: Colors.Text.primary1)
                     .matchedGeometryEffectOptional(id: amountCryptoNamespaceId, in: namespace)
+                    .frame(maxWidth: .infinity)
 
                 Text(data.amountFiat)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
