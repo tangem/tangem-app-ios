@@ -97,7 +97,7 @@ struct TangemButton_Previews: PreviewProvider {
                 ))
 
             TangemButton(
-                title: "Explore",
+                title: Localization.commonExplore,
                 systemImage: "chevron.right",
                 iconPosition: .trailing
             ) {}
