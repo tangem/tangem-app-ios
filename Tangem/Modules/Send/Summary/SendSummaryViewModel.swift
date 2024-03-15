@@ -50,6 +50,7 @@ class SendSummaryViewModel: ObservableObject {
 
     @Published var isSendButtonDisabled = false
     @Published var isSending = false
+    @Published var hasNotifications = false
     @Published var alert: AlertBinder?
 
     @Published var destinationViewTypes: [SendDestinationSummaryViewType] = []
@@ -172,7 +173,10 @@ class SendSummaryViewModel: ObservableObject {
 
         notificationManager
             .notificationPublisher(for: .summary)
-            .assign(to: \.notificationInputs, on: self, ownership: .weak)
+            .sink { [weak self] notificationInputs in
+                self?.notificationInputs = notificationInputs
+                self?.hasNotifications = !notificationInputs.isEmpty
+            }
             .store(in: &bag)
 
         notificationManager
