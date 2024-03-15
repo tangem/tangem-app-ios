@@ -55,9 +55,8 @@ struct SendSummaryView: View {
                         SendFeeSummaryView(data: data)
                             .setNamespace(namespace)
                             .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
+                            .setOptionNamespaceId(SendViewNamespaceId.feeIcon.rawValue)
                             .setTextNamespaceId(SendViewNamespaceId.feeSubtitle.rawValue)
-                            // To maintain cell animation from Summary to Fee screen
-                            .overlay(feeIcon.opacity(0), alignment: .topLeading)
                     }
                     .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
                     .contentShape(Rectangle())
@@ -107,14 +106,6 @@ struct SendSummaryView: View {
             isDisabled: viewModel.isSending,
             action: viewModel.send
         )
-    }
-
-    @ViewBuilder
-    private var feeIcon: some View {
-        if let feeOptionIcon = viewModel.feeOptionIcon {
-            feeOptionIcon
-                .matchedGeometryEffect(id: SendViewNamespaceId.feeIcon.rawValue, in: namespace)
-        }
     }
 }
 
