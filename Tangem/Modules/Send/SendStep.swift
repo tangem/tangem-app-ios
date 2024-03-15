@@ -17,7 +17,14 @@ enum SendStep {
 }
 
 extension SendStep {
-    var name: String? {
+    struct Parameters {
+        let currencyName: String
+        let walletName: String
+    }
+}
+
+extension SendStep {
+    func name(for parameters: Parameters) -> String? {
         switch self {
         case .amount:
             return Localization.sendAmountLabel
@@ -26,8 +33,16 @@ extension SendStep {
         case .fee:
             return Localization.commonFeeSelectorTitle
         case .summary:
-            return Localization.sendConfirmLabel
+            return Localization.sendSummaryTitle(parameters.currencyName)
         case .finish:
+            return nil
+        }
+    }
+
+    func description(for parameters: Parameters) -> String? {
+        if case .summary = self {
+            return parameters.walletName
+        } else {
             return nil
         }
     }
