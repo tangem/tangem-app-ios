@@ -24,31 +24,26 @@ struct SendAmountSummaryView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(data.title)
-                .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
-                .matchedGeometryEffectOptional(id: titleNamespaceId, in: namespace)
+        VStack(spacing: 12) {
+            TokenIcon(tokenIconInfo: data.tokenIconInfo, size: iconSize)
+                .matchedGeometryEffectOptional(id: iconNamespaceId, in: namespace)
+                .padding(.top, 18)
+                .padding(.bottom, 6)
 
-            HStack(spacing: 0) {
-                TokenIcon(tokenIconInfo: data.tokenIconInfo, size: iconSize)
-                    .matchedGeometryEffectOptional(id: iconNamespaceId, in: namespace)
-                    .padding(.trailing, 12)
+            VStack(spacing: 6) {
+                Text(data.amount)
+                    .style(Fonts.Regular.title1, color: Colors.Text.primary1)
+                    .matchedGeometryEffectOptional(id: amountCryptoNamespaceId, in: namespace)
 
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(data.amount)
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
-                        .matchedGeometryEffectOptional(id: amountCryptoNamespaceId, in: namespace)
-
-                    Text(data.amountFiat)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                        .matchedGeometryEffectOptional(id: amountFiatNamespaceId, in: namespace)
-                }
-                .truncationMode(.middle)
-                .lineLimit(1)
-
-                Spacer(minLength: 0)
+                Text(data.amountFiat)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .matchedGeometryEffectOptional(id: amountFiatNamespaceId, in: namespace)
+                    .padding(.bottom, 16)
             }
+            .truncationMode(.middle)
+            .lineLimit(1)
         }
+        .frame(maxWidth: .infinity)
     }
 }
 
