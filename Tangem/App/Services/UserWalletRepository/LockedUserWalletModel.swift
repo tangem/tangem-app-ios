@@ -93,8 +93,6 @@ class LockedUserWalletModel: UserWalletModel {
         signer = TangemSigner(filter: .cardId(""), sdk: .init(), twinKey: nil)
     }
 
-    func initialUpdate() {}
-
     func updateWalletName(_ name: String) {
         // Renaming locked wallets is prohibited
     }
