@@ -14,7 +14,7 @@ struct SendSummaryView: View {
     @ObservedObject var viewModel: SendSummaryViewModel
 
     var body: some View {
-        VStack {
+        VStack(spacing: 14) {
             GroupedScrollView(spacing: 14) {
                 GroupedSection(viewModel.destinationViewTypes) { type in
                     switch type {
@@ -67,7 +67,7 @@ struct SendSummaryView: View {
 
                     if !viewModel.hasNotifications {
                         HintView(
-                            text: "Tap any field to change it",
+                            text: Localization.sendSummaryTapHint,
                             font: Fonts.Regular.footnote,
                             textColor: Colors.Text.secondary,
                             backgroundColor: Colors.Button.secondary
@@ -79,6 +79,12 @@ struct SendSummaryView: View {
                     NotificationView(input: input)
                         .transition(SendView.Constants.auxiliaryViewTransition)
                 }
+            }
+
+            if let transactionDescription = viewModel.transactionDescription {
+                Text(transactionDescription)
+                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .padding(.horizontal, 16)
             }
 
             sendButton
