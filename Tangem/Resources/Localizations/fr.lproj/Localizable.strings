@@ -436,7 +436,6 @@
 "send_alert_transaction_failed_text" = "Reason: %1$s\nCode: %2$s";
 "send_alert_transaction_failed_title" = "The transaction is not completed";
 "send_amount_label" = "Somme";
-"send_confirm_label" = "Confirm";
 "send_date_format" = "%1$@ at %2$@";
 "send_destination_hint_address" = "Adresse";
 "send_destination_tag_field" = "Destination Tag";
@@ -500,6 +499,7 @@
 "send_recipient_wallets_title" = "My wallets";
 "send_sending" = "Sending...";
 "send_summary_tap_hint" = "Tap any field to change it";
+"send_summary_title" = "Send %@";
 "send_summary_transaction_description" = "You are sending %1$@ including a network fee of %2$@";
 "send_title_currency_format" = "Sending %@";
 "send_total_label" = "Total";
