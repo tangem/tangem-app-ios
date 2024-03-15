@@ -55,18 +55,29 @@ struct SendSummaryView: View {
                     viewModel.didTapSummary(for: .amount)
                 }
 
-                GroupedSection(viewModel.feeSummaryViewData) { data in
-                    SendFeeSummaryView(data: data)
-                        .setNamespace(namespace)
-                        .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
-                        .setTextNamespaceId(SendViewNamespaceId.feeSubtitle.rawValue)
-                        // To maintain cell animation from Summary to Fee screen
-                        .overlay(feeIcon.opacity(0), alignment: .topLeading)
-                }
-                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    viewModel.didTapSummary(for: .fee)
+                VStack(spacing: 8) {
+                    GroupedSection(viewModel.feeSummaryViewData) { data in
+                        SendFeeSummaryView(data: data)
+                            .setNamespace(namespace)
+                            .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
+                            .setTextNamespaceId(SendViewNamespaceId.feeSubtitle.rawValue)
+                            // To maintain cell animation from Summary to Fee screen
+                            .overlay(feeIcon.opacity(0), alignment: .topLeading)
+                    }
+                    .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        viewModel.didTapSummary(for: .fee)
+                    }
+
+                    if !viewModel.hasNotifications {
+                        HintView(
+                            text: "Tap any field to change it",
+                            font: Fonts.Regular.footnote,
+                            textColor: Colors.Text.secondary,
+                            backgroundColor: Colors.Button.secondary
+                        )
+                    }
                 }
 
                 ForEach(viewModel.notificationInputs) { input in
