@@ -45,8 +45,8 @@ struct SendAmountView: View {
                         .initialFocusBehavior(.delayedFocus(duration: 2 * SendView.Constants.animationDuration))
                         .alignment(.center)
                         .suffix(viewModel.useFiatCalculation ? viewModel.fiatCurrencyCode : viewModel.cryptoCurrencyCode)
-                        .matchedGeometryEffect(id: SendViewNamespaceId.amountCryptoText.rawValue, in: namespace)
                         .frame(maxWidth: .infinity)
+                        .matchedGeometryEffect(id: SendViewNamespaceId.amountCryptoText.rawValue, in: namespace)
                         .padding(.top, 16)
 
                     // Keep empty text so that the view maintains its place in the layout
