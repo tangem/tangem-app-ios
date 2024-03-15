@@ -241,14 +241,6 @@ class LegacySendViewModel: ObservableObject {
     func bind() {
         bag = Set<AnyCancellable>()
 
-        userWalletModel
-            .objectWillChange
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
-                self?.objectWillChange.send()
-            }
-            .store(in: &bag)
-
         $destination // destination validation
             .debounce(for: 1.0, scheduler: DispatchQueue.main, options: nil)
             .removeDuplicates()
