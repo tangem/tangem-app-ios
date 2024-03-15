@@ -43,7 +43,7 @@ struct SendSummarySectionViewModelFactory {
         return destinationViewTypes
     }
 
-    func makeAmountViewData(from amount: Amount?) -> AmountSummaryViewData? {
+    func makeAmountViewData(from amount: Amount?) -> SendAmountSummaryViewData? {
         guard let amount else { return nil }
 
         let formattedAmount = amount.description
@@ -55,7 +55,7 @@ struct SendSummarySectionViewModelFactory {
         } else {
             amountFiat = AppConstants.dashSign
         }
-        return AmountSummaryViewData(
+        return SendAmountSummaryViewData(
             title: Localization.sendAmountLabel,
             amount: formattedAmount,
             amountFiat: amountFiat,
@@ -63,7 +63,7 @@ struct SendSummarySectionViewModelFactory {
         )
     }
 
-    func makeFeeViewData(from value: Fee?) -> DefaultTextWithTitleRowViewData? {
+    func makeFeeViewData(from value: Fee?) -> SendFeeSummaryViewData? {
         guard let value else { return nil }
 
         let formattedValue = feeFormatter.format(
@@ -73,6 +73,6 @@ struct SendSummarySectionViewModelFactory {
             isFeeApproximate: isFeeApproximate
         )
 
-        return DefaultTextWithTitleRowViewData(title: Localization.commonNetworkFeeTitle, text: formattedValue)
+        return SendFeeSummaryViewData(title: Localization.commonNetworkFeeTitle, text: formattedValue)
     }
 }
