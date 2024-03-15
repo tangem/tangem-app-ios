@@ -84,6 +84,7 @@ struct SendSummaryView: View {
             if let transactionDescription = viewModel.transactionDescription {
                 Text(transactionDescription)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .multilineTextAlignment(.center)
                     .padding(.horizontal, 16)
             }
 
