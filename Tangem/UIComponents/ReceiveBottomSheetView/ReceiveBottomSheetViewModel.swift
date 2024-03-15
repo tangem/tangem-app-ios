@@ -55,11 +55,13 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     }
 
     func headerForAddress(with info: ReceiveAddressInfo) -> String {
-        Localization.receiveBottomSheetTitle(
-            addressInfos.count > 1 ? info.localizedName.capitalizingFirstLetter() : "",
-            tokenItem.currencySymbol,
-            tokenItem.networkName
-        )
+        let name: String
+        if addressInfos.count > 1 {
+            name = "\(info.localizedName.capitalizingFirstLetter()) \(tokenItem.name)"
+        } else {
+            name = tokenItem.name
+        }
+        return Localization.receiveBottomSheetWarningMessage(name, tokenItem.currencySymbol, tokenItem.networkName)
     }
 
     func copyToClipboard() {
