@@ -44,13 +44,12 @@ struct SendFeeSummaryView: View {
     @ViewBuilder
     private var feeOption: some View {
         HStack(spacing: 8) {
-            data.feeOption.icon
-                .image
+            data.feeIconImage
                 .renderingMode(.template)
                 .frame(width: 24, height: 24)
                 .foregroundColor(Colors.Icon.accent)
 
-            Text(data.feeOption.title)
+            Text(data.feeName)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
                 .lineLimit(1)
         }
@@ -64,13 +63,15 @@ struct SendFeeSummaryView: View {
                 .lineLimit(1)
                 .layoutPriority(1)
 
-            Text("•")
-                .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
-                .layoutPriority(3)
+            if let fiatAmount = data.fiatAmount {
+                Text("•")
+                    .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                    .layoutPriority(3)
 
-            Text(data.fiatAmount)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
-                .layoutPriority(2)
+                Text(fiatAmount)
+                    .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                    .layoutPriority(2)
+            }
         }
     }
 }
@@ -95,11 +96,11 @@ extension SendFeeSummaryView: Setupable {
 
 #Preview {
     GroupedScrollView(spacing: 14) {
-        GroupedSection(SendFeeSummaryViewData(title: "Network fee", cryptoAmount: "0.159817 MATIC", fiatAmount: "0,22 $")) { data in
+        GroupedSection(SendFeeSummaryViewData(title: "Network fee", feeOption: .market, cryptoAmount: "0.159817 MATIC", fiatAmount: "0,22 $")) { data in
             SendFeeSummaryView(data: data)
         }
 
-        GroupedSection(SendFeeSummaryViewData(title: "Network Fee Network Fee Network Fee Network Fee Network Fee Network Fee Network Fee Network Fee", cryptoAmount: "159 817 159 817.159817 MATIC", fiatAmount: "100 120,22 $")) { data in
+        GroupedSection(SendFeeSummaryViewData(title: "Network Fee Network Fee Network Fee Network Fee Network Fee Network Fee Network Fee Network Fee", feeOption: .slow, cryptoAmount: "159 817 159 817.159817 MATIC", fiatAmount: "100 120,22 $")) { data in
             SendFeeSummaryView(data: data)
         }
     }
