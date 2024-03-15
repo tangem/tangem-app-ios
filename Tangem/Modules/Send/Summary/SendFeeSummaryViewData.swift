@@ -12,5 +12,10 @@ struct SendFeeSummaryViewData: Identifiable {
     let id = UUID()
 
     let title: String
-    let text: String
+    let cryptoAmount: String
+    let fiatAmount: String
+
+    var feeOption: FeeOption {
+        .market
+    }
 }
