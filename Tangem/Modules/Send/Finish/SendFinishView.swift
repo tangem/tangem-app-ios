@@ -49,6 +49,7 @@ struct SendFinishView: View {
                     SendFeeSummaryView(data: data)
                         .setNamespace(namespace)
                         .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
+                        .setOptionNamespaceId(SendViewNamespaceId.feeIcon.rawValue)
                         .setTextNamespaceId(SendViewNamespaceId.feeSubtitle.rawValue)
                 }
                 .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
