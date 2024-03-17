@@ -68,7 +68,7 @@ extension SendNotificationEvent: NotificationEvent {
         case .customFeeTooLow:
             return Localization.sendNotificationTransactionDelayText
         case .minimumAmount(let value):
-            return Localization.sendNotificationInvalidMinimumAmountText(value)
+            return Localization.sendNotificationInvalidMinimumAmountText(value, value)
         case .withdrawalOptionalAmountChange(_, let amount):
             return Localization.sendNotificationHighFeeText(amount)
         case .withdrawalMandatoryAmountChange(_, let amountFormatted, let blockchainName, let maxUtxo):
