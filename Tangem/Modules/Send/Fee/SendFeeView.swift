@@ -81,7 +81,11 @@ struct SendFeeView: View {
     }
 
     private var feeSelectorFooter: some View {
-        Text(Localization.commonFeeSelectorFooter) + Text(" ") + Text("[\(Localization.commonReadMore)](\(viewModel.feeExplanationUrl.absoluteString))")
+        Text(
+            Localization.commonFeeSelectorFooter(
+                "[\(Localization.commonReadMore)](\(viewModel.feeExplanationUrl.absoluteString))"
+            )
+        )
     }
 }
 
