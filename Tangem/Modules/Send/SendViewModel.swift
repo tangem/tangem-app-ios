@@ -398,8 +398,6 @@ final class SendViewModel: ObservableObject {
             return
         }
 
-        sendDestinationViewModel.didScanAddressFromQrCode()
-
         sendModel.setDestination(SendAddress(value: result.destination, source: .qrCode))
         sendModel.setAmount(result.amount)
 
