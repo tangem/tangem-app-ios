@@ -12,7 +12,6 @@ struct SendAmountSummaryView: View {
     let data: SendAmountSummaryViewData
 
     private var namespace: Namespace.ID?
-    private var titleNamespaceId: String?
     private var iconNamespaceId: String?
     private var amountCryptoNamespaceId: String?
     private var amountFiatNamespaceId: String?
@@ -39,8 +38,8 @@ struct SendAmountSummaryView: View {
                 Text(data.amountFiat)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     .matchedGeometryEffectOptional(id: amountFiatNamespaceId, in: namespace)
-                    .padding(.bottom, 16)
             }
+            .padding(.bottom, 16)
             .truncationMode(.middle)
             .lineLimit(1)
         }
@@ -51,10 +50,6 @@ struct SendAmountSummaryView: View {
 extension SendAmountSummaryView: Setupable {
     func setNamespace(_ namespace: Namespace.ID) -> Self {
         map { $0.namespace = namespace }
-    }
-
-    func setTitleNamespaceId(_ titleNamespaceId: String?) -> Self {
-        map { $0.titleNamespaceId = titleNamespaceId }
     }
 
     func setIconNamespaceId(_ iconNamespaceId: String?) -> Self {
