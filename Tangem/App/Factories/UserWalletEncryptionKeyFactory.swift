@@ -19,7 +19,7 @@ class UserWalletEncryptionKeyFactory {
         return encryptionKey(from: seed)
     }
 
-    func encryptionKey(from userWalletIdSeed: Data) -> UserWalletEncryptionKey? {
+    func encryptionKey(from userWalletIdSeed: Data) -> UserWalletEncryptionKey {
         return UserWalletEncryptionKey(with: userWalletIdSeed)
     }
 }
