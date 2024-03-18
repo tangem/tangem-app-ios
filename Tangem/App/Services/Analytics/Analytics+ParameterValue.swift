@@ -69,10 +69,10 @@ extension Analytics {
 
         // destination address entered
         case destinationAddressSourceQrCode = "QRCode"
-        case destinationAddressPasteButton = "PasteButton"
-        case destinationAddressPastePopup = "PastePopup"
-        case destinationAddressRecentAddress = "RecentAddress"
-        case destinationAddressMyWallet = "MyWallet"
+        case destinationAddressSourcePasteButton = "PasteButton"
+        case destinationAddressSourcePastePopup = "PastePopup"
+        case destinationAddressSourceRecentAddress = "RecentAddress"
+        case destinationAddressSourceMyWallet = "MyWallet"
 
         case success = "Success"
         case fail = "Fail"
