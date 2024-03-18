@@ -12,9 +12,8 @@ struct FeeRowView: View {
     let viewModel: FeeRowViewModel
 
     private var namespace: Namespace.ID?
-    private var iconNamespaceId: String?
-    private var titleNamespaceId: String?
-    private var subtitleNamespaceId: String?
+    private var optionNamespaceId: String?
+    private var amountNamespaceId: String?
 
     init(viewModel: FeeRowViewModel) {
         self.viewModel = viewModel
@@ -23,23 +22,24 @@ struct FeeRowView: View {
     var body: some View {
         Button(action: viewModel.isSelected.toggle) {
             HStack(spacing: 8) {
-                viewModel.option.icon.image
-                    .resizable()
-                    .renderingMode(.template)
-                    .matchedGeometryEffectOptional(id: iconNamespaceId, in: namespace)
-                    .frame(width: 24, height: 24)
-                    .foregroundColor(iconColor)
+                HStack(spacing: 8) {
+                    viewModel.option.icon.image
+                        .resizable()
+                        .renderingMode(.template)
+                        .frame(width: 24, height: 24)
+                        .foregroundColor(iconColor)
 
-                Text(viewModel.option.title)
-                    .style(font, color: Colors.Text.primary1)
-                    .matchedGeometryEffectOptional(id: titleNamespaceId, in: namespace)
+                    Text(viewModel.option.title)
+                        .style(font, color: Colors.Text.primary1)
+                }
+                .matchedGeometryEffectOptional(id: optionNamespaceId, in: namespace)
 
                 Spacer()
 
                 if let subtitleText = viewModel.subtitleText {
                     Text(subtitleText)
                         .style(font, color: Colors.Text.primary1)
-                        .matchedGeometryEffectOptional(id: subtitleNamespaceId, in: namespace)
+                        .matchedGeometryEffectOptional(id: amountNamespaceId, in: namespace)
                         .frame(minWidth: viewModel.isLoading ? 70 : 0)
                         .skeletonable(isShown: viewModel.isLoading)
                 }
@@ -62,16 +62,12 @@ extension FeeRowView: Setupable {
         map { $0.namespace = namespace }
     }
 
-    func setIconNamespaceId(_ iconNamespaceId: String?) -> Self {
-        map { $0.iconNamespaceId = iconNamespaceId }
+    func setOptionNamespaceId(_ optionNamespaceId: String?) -> Self {
+        map { $0.optionNamespaceId = optionNamespaceId }
     }
 
-    func setTitleNamespaceId(_ titleNamespaceId: String?) -> Self {
-        map { $0.titleNamespaceId = titleNamespaceId }
-    }
-
-    func setSubtitleNamespaceId(_ subtitleNamespaceId: String?) -> Self {
-        map { $0.subtitleNamespaceId = subtitleNamespaceId }
+    func setAmountNamespaceId(_ amountNamespaceId: String?) -> Self {
+        map { $0.amountNamespaceId = amountNamespaceId }
     }
 }
 
