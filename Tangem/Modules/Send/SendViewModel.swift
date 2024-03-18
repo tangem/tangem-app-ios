@@ -263,11 +263,24 @@ final class SendViewModel: ObservableObject {
 
         sendModel
             .sendError
-            .compactMap { $0 }
-            .sink { [weak self] sendError in
-                guard let self else { return }
+            .sink { [weak self] error in
+                guard let self, let error else { return }
 
-                alert = SendError(sendError, openMailAction: openMail).alertBinder
+                let errorCode: String
+                let reason = String(error.localizedDescription.dropTrailingPeriod)
+                if let errorCodeProviding = error as? ErrorCodeProviding {
+                    errorCode = "\(errorCodeProviding.errorCode)"
+                } else {
+                    errorCode = "-"
+                }
+
+                alert = SendError(
+                    title: Localization.sendAlertTransactionFailedTitle,
+                    message: Localization.sendAlertTransactionFailedText(reason, errorCode),
+                    error: error,
+                    openMailAction: openMail
+                )
+                .alertBinder
             }
             .store(in: &bag)
 
@@ -366,13 +379,24 @@ final class SendViewModel: ObservableObject {
 
     private func parseQRCode(_ code: String) {
         #warning("[REDACTED_TODO_COMMENT]")
-        sendDestinationViewModel.didScanAddressFromQrCode()
+        let parser = QRCodeParser(
+            amountType: walletModel.amountType,
+            blockchain: walletModel.blockchainNetwork.blockchain,
+            decimalCount: walletModel.decimalCount
+        )
 
-        let parser = QRCodeParser(amountType: walletModel.amountType, blockchain: walletModel.blockchainNetwork.blockchain)
-        let result = parser.parse(code)
+        guard let result = parser.parse(code) else {
+            return
+        }
+
+        sendDestinationViewModel.didScanAddressFromQrCode()
 
         sendModel.setDestination(SendAddress(value: result.destination, inputSource: .qrCode))
         sendModel.setAmount(result.amount)
+
+        if let memo = result.memo {
+            sendModel.setDestinationAdditionalField(memo)
+        }
     }
 
     private func logNextStepAnalytics() {
