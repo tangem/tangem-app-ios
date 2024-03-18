@@ -266,6 +266,10 @@ final class SendViewModel: ObservableObject {
             .sink { [weak self] error in
                 guard let self, let error else { return }
 
+                Analytics.log(event: .sendErrorTransactionRejected, params: [
+                    .token: walletModel.tokenItem.currencySymbol,
+                ])
+
                 let errorCode: String
                 let reason = String(error.localizedDescription.dropTrailingPeriod)
                 if let errorCodeProviding = error as? ErrorCodeProviding {
@@ -298,6 +302,10 @@ final class SendViewModel: ObservableObject {
                     }
                     alert = AlertBuilder.makeAlert(title: "", message: Localization.alertDemoFeatureDisabled, primaryButton: button)
                 }
+
+                Analytics.log(.sendSelectedCurrency, params: [
+                    .commonType: sendAmountViewModel.useFiatCalculation ? .selectedCurrencyApp : .token,
+                ])
             }
             .store(in: &bag)
 
@@ -329,6 +337,11 @@ final class SendViewModel: ObservableObject {
 
     private func showSummaryStepAlertIfNeeded(_ step: SendStep, stepAnimation: SendView.StepAnimation?, checkCustomFee: Bool) -> Bool {
         if sendModel.totalExceedsBalance {
+            Analytics.log(event: .sendNotEnoughFee, params: [
+                .token: walletModel.tokenItem.currencySymbol,
+                .blockchain: walletModel.tokenItem.blockchain.displayName,
+            ])
+
             alert = SendAlertBuilder.makeSubtractFeeFromAmountAlert { [weak self] in
                 self?.sendModel.includeFeeIntoAmount()
                 self?.openStep(step, stepAnimation: stepAnimation)
@@ -338,6 +351,10 @@ final class SendViewModel: ObservableObject {
         }
 
         if checkCustomFee, notificationManager.hasNotificationEvent(.customFeeTooLow) {
+            Analytics.log(event: .sendNoticeTransactionDelaysArePossible, params: [
+                .token: walletModel.tokenItem.currencySymbol,
+            ])
+
             alert = SendAlertBuilder.makeCustomFeeTooLowAlert { [weak self] in
                 self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: false)
             }
