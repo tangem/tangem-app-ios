@@ -58,6 +58,7 @@ class SendSummaryViewModel: ObservableObject {
     @Published var feeOptionIcon: Image?
     @Published var transactionDescription: String?
 
+    @Published var showSectionContent = false
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
 
     weak var router: SendSummaryRoutable?
@@ -89,10 +90,15 @@ class SendSummaryViewModel: ObservableObject {
     }
 
     func onAppear() {
+        withAnimation(SendView.Constants.sectionContentAnimation) {
+            showSectionContent = true
+        }
+
         screenIdleStartTime = Date()
     }
 
     func onDisappear() {
+        showSectionContent = false
         screenIdleStartTime = nil
     }
 
@@ -123,7 +129,7 @@ class SendSummaryViewModel: ObservableObject {
                 self?.screenIdleStartTime = Date()
 
                 if let oldFee = result.oldFee, result.newFee > oldFee {
-                    self?.alert = AlertBuilder.makeOkGotItAlert(message: Localization.sendAlertFeeIncreasedTitle)
+                    self?.alert = AlertBuilder.makeOkGotItAlert(message: Localization.sendNotificationHighFeeTitle)
                 } else {
                     self?.input.send()
                 }
@@ -219,3 +225,5 @@ class SendSummaryViewModel: ObservableObject {
         canEdit ? Colors.Background.action : Colors.Button.disabled
     }
 }
+
+extension SendSummaryViewModel: SectionContainerAnimatable {}
