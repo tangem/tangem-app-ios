@@ -90,6 +90,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     func didTapMaxAmount() {
         guard let balanceValue else { return }
 
+        Analytics.log(.sendMaxAmountTapped)
+
         provideButtonHapticFeedback()
 
         fiatCryptoAdapter?.setCrypto(balanceValue)
