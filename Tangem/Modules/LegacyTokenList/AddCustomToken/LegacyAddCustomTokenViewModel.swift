@@ -46,7 +46,7 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
 
     private var selectedBlockchainSupportsTokens: Bool {
         let blockchain = try? enteredBlockchain()
-        return blockchain?.canHandleTokens ?? false
+        return blockchain?.canHandleCustomTokens ?? false
     }
 
     private var bag: Set<AnyCancellable> = []
@@ -234,7 +234,7 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
         let derivationPath = enteredDerivationPath()
 
         let missingTokenInformation = contractAddress.isEmpty && name.isEmpty && symbol.isEmpty && decimals.isEmpty
-        if !blockchain.canHandleTokens || missingTokenInformation {
+        if !blockchain.canHandleCustomTokens || missingTokenInformation {
             return .blockchain(.init(blockchain, derivationPath: derivationPath))
         } else {
             let enteredContractAddress = try enteredContractAddress(in: blockchain)
@@ -531,5 +531,16 @@ struct LegacyPickerModel: Identifiable {
 
     static var empty: LegacyPickerModel {
         .init(items: [], selection: "")
+    }
+}
+
+private extension Blockchain {
+    var canHandleCustomTokens: Bool {
+        switch self {
+        case .terraV1:
+            return false
+        default:
+            return canHandleTokens
+        }
     }
 }

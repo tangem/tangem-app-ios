@@ -156,6 +156,7 @@ class SendModel {
 
     func includeFeeIntoAmount() {
         guard
+            !_isFeeIncluded.value,
             let userInputAmount = userInputAmount.value,
             let fee = fee.value?.amount,
             (userInputAmount - fee).value >= 0
@@ -165,7 +166,7 @@ class SendModel {
         }
 
         _isFeeIncluded.value = true
-        validatedAmount.send(userInputAmount - fee)
+        self.userInputAmount.send(userInputAmount - fee)
     }
 
     func useMaxAmount() {
@@ -398,7 +399,10 @@ class SendModel {
 
     // MARK: - Amount
 
+    /// NOTE: this action resets the "is fee included" flag
     func setAmount(_ amount: Amount?) {
+        _isFeeIncluded.send(false)
+
         let newAmount: Amount? = (amount?.isZero ?? true) ? nil : amount
 
         guard userInputAmount.value != newAmount else { return }
@@ -406,7 +410,8 @@ class SendModel {
         userInputAmount.send(newAmount)
     }
 
-    // Convenience method
+    /// Convenience method
+    /// NOTE: this action resets the "is fee included" flag
     func setAmount(_ decimal: Decimal?) {
         let amount: Amount?
         if let decimal {
