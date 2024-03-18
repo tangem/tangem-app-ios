@@ -58,7 +58,7 @@ struct SendAmountView: View {
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                 .lineLimit(1)
                 .padding(.top, 18)
-                .matchedGeometryEffect(id: SendViewNamespaceId.amountTitle.rawValue, in: namespace)
+                .transition(SendView.Constants.auxiliaryViewTransition)
 
             if !viewModel.animatingAuxiliaryViewsOnAppear {
                 SensitiveText(viewModel.balance)
