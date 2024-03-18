@@ -85,10 +85,6 @@ final class SendViewModel: ObservableObject {
         return steps[currentStepIndex - 1]
     }
 
-    private var sendStepParameters: SendStep.Parameters {
-        SendStep.Parameters(currencyName: walletModel.tokenItem.name, walletName: walletInfo.walletName)
-    }
-
     private let sendModel: SendModel
     private let sendType: SendType
     private let steps: [SendStep]
@@ -97,6 +93,7 @@ final class SendViewModel: ObservableObject {
     private let emailDataProvider: EmailDataProvider
     private let walletInfo: SendWalletInfo
     private let notificationManager: CommonSendNotificationManager
+    private let sendStepParameters: SendStep.Parameters
 
     private weak var coordinator: SendRoutable?
 
@@ -196,6 +193,8 @@ final class SendViewModel: ObservableObject {
             feeTokenItem: walletModel.feeTokenItem,
             input: sendModel
         )
+
+        sendStepParameters = SendStep.Parameters(currencyName: walletModel.tokenItem.name, walletName: walletInfo.walletName)
 
         sendAmountViewModel = SendAmountViewModel(input: sendModel, walletInfo: walletInfo)
         sendDestinationViewModel = SendDestinationViewModel(input: sendModel)
