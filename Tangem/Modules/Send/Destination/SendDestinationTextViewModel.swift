@@ -11,12 +11,6 @@ import SwiftUI
 import Combine
 
 class SendDestinationTextViewModel: ObservableObject, Identifiable {
-    enum InputSource {
-        case programmatic
-        case keyboard
-        case pasteButton
-    }
-
     let name: String
     let showAddressIcon: Bool
     let description: String
@@ -133,8 +127,6 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
     }
 
     func clearInput() {
-        print("zzz clear input")
-//        didEnterDestination("")
         input = ""
     }
 
