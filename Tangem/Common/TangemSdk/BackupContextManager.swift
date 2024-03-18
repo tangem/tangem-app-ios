@@ -35,7 +35,7 @@ class BackupContextManager {
     func onCompleteBackup() {
         var userWallet = userWalletModel.userWallet
         userWallet.associatedCardIds = associatedCardIds
-        userWallet.hasBackupErrors = hasBackupErrors
+        //  userWallet.hasBackupErrors = hasBackupErrors
         userWalletRepository.save(userWallet)
     }
 }
