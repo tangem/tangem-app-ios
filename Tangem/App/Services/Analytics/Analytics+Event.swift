@@ -88,6 +88,7 @@ extension Analytics {
         case sendButtonQRCode = "[Token / Send] Button - QR Code"
         case sendAddressScreenOpened = "[Token / Send] Address Screen Opened"
         case sendAmountScreenOpened = "[Token / Send] Amount Screen Opened"
+        case sendMaxAmountTapped = "[Token / Send] Max Amount Taped"
         case sendSelectedCurrency = "[Token / Send] Selected Currency"
         case sendFeeScreenOpened = "[Token / Send] Fee Screen Opened"
         case sendFeeSelected = "[Token / Send] Fee Selected"
@@ -99,6 +100,9 @@ extension Analytics {
         case sendTransactionSentScreenOpened = "[Token / Send] Transaction Sent Screen Opened"
         case sendButtonShare = "[Token / Send] Button - Share"
         case sendButtonExplore = "[Token / Send] Button - Explore"
+        case sendNotEnoughFee = "[Token / Send] Notice - Not Enough Fee"
+        case sendNoticeTransactionDelaysArePossible = "[Token / Send] Notice - Transaction Delays Are Possible."
+        case sendErrorTransactionRejected = "[Token / Send] Error - Transaction Rejected"
 
         case topupScreenOpened = "[Token / Topup] Top Up Screen Opened"
         case p2PScreenOpened = "[Token / Topup] P2P Screen Opened"
