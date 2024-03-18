@@ -117,12 +117,13 @@ final class ExpressViewModel: ObservableObject {
 
             switch providerType {
             case .cex:
-                let tokenItemSymbol = viewModel.interactor.getSender().tokenItem.currencySymbol
+                let tokenItemSymbol = viewModel.interactor.getDestination()?.tokenItem.currencySymbol ?? ""
                 message = Localization.swappingAlertCexDescription(tokenItemSymbol)
             case .dex:
                 message = Localization.swappingAlertDexDescription
                 if isBigLoss {
-                    message += "\n\n\(Localization.swappingHighPriceImpactDescription)"
+                    // Insert as the first paragraph
+                    message += "\(Localization.swappingHighPriceImpactDescription)\n\n\(message)"
                 }
             }
 
