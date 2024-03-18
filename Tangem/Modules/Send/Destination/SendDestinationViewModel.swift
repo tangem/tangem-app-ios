@@ -101,9 +101,9 @@ class SendDestinationViewModel: ObservableObject {
             isDisabled: .just(output: false),
             errorText: input.destinationError
         ) { [weak self] in
-            self?.input.setDestination(SendAddress(value: $0, inputSource: .textField))
+            self?.input.setDestination(SendAddress(value: $0, source: .textField))
         } didPasteDestination: { [weak self] in
-            self?.input.setDestination(SendAddress(value: $0, inputSource: .pasteButton))
+            self?.input.setDestination(SendAddress(value: $0, source: .pasteButton))
         }
 
         if let additionalFieldType = input.additionalFieldType,
@@ -200,7 +200,7 @@ class SendDestinationViewModel: ObservableObject {
                     let feedbackGenerator = UINotificationFeedbackGenerator()
                     feedbackGenerator.notificationOccurred(.success)
 
-                    self?.input.setDestination(SendAddress(value: destination.address, inputSource: destination.type.inputSource))
+                    self?.input.setDestination(SendAddress(value: destination.address, source: destination.type.inputSource))
                     if let additionalField = destination.additionalField {
                         self?.input.setDestinationAdditionalField(additionalField)
                     }
@@ -215,10 +215,10 @@ extension SendDestinationViewModel: AuxiliaryViewAnimatable {}
 extension SendDestinationViewModel: SectionContainerAnimatable {}
 
 private extension SendSuggestedDestination.`Type` {
-    var inputSource: SendAddress.InputSource {
+    var inputSource: Analytics.DestinationAddressSource {
         switch self {
         case .otherWallet:
-            return .otherWallet
+            return .myWallet
         case .recentAddress:
             return .recentAddress
         }
