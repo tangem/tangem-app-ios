@@ -13,21 +13,25 @@ extension Analytics {
         case qrCode
         case pasteButton
         case pasteMenu
+        case textField
         case myWallet
         case recentAddress
+        case sellProvider
 
-        var parameterValue: Analytics.ParameterValue {
+        var parameterValue: Analytics.ParameterValue? {
             switch self {
             case .pasteButton:
-                return .destinationAddressPasteButton
+                return .destinationAddressSourcePasteButton
             case .pasteMenu:
-                return .destinationAddressPastePopup
+                return .destinationAddressSourcePastePopup
             case .qrCode:
                 return .destinationAddressSourceQrCode
             case .myWallet:
-                return .destinationAddressMyWallet
+                return .destinationAddressSourceMyWallet
             case .recentAddress:
-                return .destinationAddressRecentAddress
+                return .destinationAddressSourceRecentAddress
+            case .textField, .sellProvider:
+                return nil
             }
         }
     }
