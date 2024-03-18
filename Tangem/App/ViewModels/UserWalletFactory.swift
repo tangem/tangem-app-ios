@@ -28,8 +28,7 @@ class UserWalletFactory {
             associatedCardIds: saved?.associatedCardIds ?? [cardInfo.card.cardId],
             walletData: cardInfo.walletData,
             artwork: cardInfo.artwork.artworkInfo,
-            isHDWalletAllowed: cardInfo.card.settings.isHDWalletAllowed,
-            hasBackupErrors: saved?.hasBackupErrors
+            isHDWalletAllowed: cardInfo.card.settings.isHDWalletAllowed
         )
     }
 }
