@@ -38,7 +38,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
 
     var selectedBlockchainSupportsTokens: Bool {
         let blockchain = try? enteredBlockchain()
-        return blockchain?.canHandleTokens ?? false
+        return blockchain?.canHandleCustomTokens ?? false
     }
 
     var showDerivationPaths: Bool {
@@ -71,7 +71,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         self.dataSource = networkDataSource
         self.userWalletModel = userWalletModel
         canSelectWallet = networkDataSource.userWalletModels.count > 1
-        selectedWalletName = userWalletModel.userWallet.name
+        selectedWalletName = userWalletModel.name
 
         bind()
     }
@@ -109,7 +109,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     }
 
     func setSelectedWallet(userWalletModel: UserWalletModel) {
-        selectedWalletName = userWalletModel.userWallet.name
+        selectedWalletName = userWalletModel.name
         settings = Self.makeSettings(userWalletModel: userWalletModel)
 
         updateDefaultDerivationOption()
@@ -274,7 +274,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         let derivationPath = enteredDerivationPath()
 
         let missingTokenInformation = contractAddress.isEmpty && name.isEmpty && symbol.isEmpty && decimals.isEmpty
-        if !blockchain.canHandleTokens || missingTokenInformation {
+        if !blockchain.canHandleCustomTokens || missingTokenInformation {
             return .blockchain(.init(blockchain, derivationPath: derivationPath))
         } else {
             let enteredContractAddress = try enteredContractAddress(in: blockchain)
@@ -589,5 +589,17 @@ extension AddCustomTokenViewModel {
         case name
         case symbol
         case decimals
+    }
+}
+
+private extension Blockchain {
+    var canHandleCustomTokens: Bool {
+        switch self {
+        // Only one token supported currently
+        case .terraV1:
+            return false
+        default:
+            return canHandleTokens
+        }
     }
 }
