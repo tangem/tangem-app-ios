@@ -19,7 +19,7 @@ struct SendView: View {
     private let bottomGradientHeight: CGFloat = 150
 
     var body: some View {
-        VStack {
+        VStack(spacing: 14) {
             header
 
             ZStack(alignment: .bottom) {
@@ -52,42 +52,41 @@ struct SendView: View {
 
     @ViewBuilder
     private var header: some View {
-        VStack {
-            if let title = viewModel.title {
-                HStack {
-                    Color.clear
-                        .frame(maxWidth: .infinity, maxHeight: 1)
+        if let title = viewModel.title {
+            HStack {
+                // Using Color.clear to avoid dealing with priorities
+                Color.clear
+                    .frame(maxWidth: .infinity, maxHeight: 1)
 
-                    VStack {
-                        Text(title)
-                            .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                VStack {
+                    Text(title)
+                        .style(Fonts.Bold.body, color: Colors.Text.primary1)
 
-                        if let subtitle = viewModel.subtitle {
-                            Text(subtitle)
-                                .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
-                        }
-                    }
-                    .animation(nil, value: title)
-                    .padding(.vertical, viewModel.hasSubtitle ? 2 : 8)
-                    .lineLimit(1)
-                    .layoutPriority(1)
-
-                    if viewModel.showQRCodeButton {
-                        Button(action: viewModel.scanQRCode) {
-                            Assets.qrCode.image
-                                .renderingMode(.template)
-                                .foregroundColor(Colors.Icon.primary1)
-                                .frame(maxWidth: .infinity, alignment: .trailing)
-                        }
-                    } else {
-                        Color.clear
-                            .frame(maxWidth: .infinity, maxHeight: 1)
+                    if let subtitle = viewModel.subtitle {
+                        Text(subtitle)
+                            .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
                     }
                 }
+                .animation(nil, value: title)
+                .padding(.vertical, viewModel.hasSubtitle ? 2 : 8)
+                .lineLimit(1)
+                .layoutPriority(1)
+
+                if viewModel.showQRCodeButton {
+                    Button(action: viewModel.scanQRCode) {
+                        Assets.qrCode.image
+                            .renderingMode(.template)
+                            .foregroundColor(Colors.Icon.primary1)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                    }
+                } else {
+                    Color.clear
+                        .frame(maxWidth: .infinity, maxHeight: 1)
+                }
             }
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
         }
-        .padding(.horizontal, 16)
-        .padding(.top, 12)
     }
 
     @ViewBuilder
@@ -139,7 +138,7 @@ struct SendView: View {
             }
         }
         .padding(.horizontal)
-        .padding(.bottom, 14)
+        .padding(.bottom, 6)
     }
 
     @ViewBuilder
@@ -180,6 +179,7 @@ extension SendView {
     enum Constants {
         static let animationDuration: TimeInterval = 0.3
         static let defaultAnimation: Animation = .spring(duration: animationDuration)
+        static let sectionContentAnimation: Animation = .easeOut(duration: animationDuration)
         static let auxiliaryViewTransition: AnyTransition = .offset(y: 300).combined(with: .opacity)
     }
 }
@@ -208,10 +208,12 @@ struct SendView_Preview: PreviewProvider {
 
     static var previews: some View {
         SendView(viewModel: viewModel)
-    }
-}
+            .previewDisplayName("Full screen")
 
-class EmailDataProviderMock: EmailDataProvider {
-    var emailData: [EmailCollectedData] { [] }
-    var emailConfig: EmailConfig? { nil }
+        NavHolder()
+            .sheet(isPresented: .constant(true)) {
+                SendView(viewModel: viewModel)
+            }
+            .previewDisplayName("Sheet")
+    }
 }
