@@ -241,14 +241,6 @@ class LegacySendViewModel: ObservableObject {
     func bind() {
         bag = Set<AnyCancellable>()
 
-        userWalletModel
-            .objectWillChange
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
-                self?.objectWillChange.send()
-            }
-            .store(in: &bag)
-
         $destination // destination validation
             .debounce(for: 1.0, scheduler: DispatchQueue.main, options: nil)
             .removeDuplicates()
@@ -457,21 +449,28 @@ class LegacySendViewModel: ObservableObject {
 
         scannedQRCode
             .compactMap { $0 }
-            .sink { [unowned self] qrCodeString in
-                let withoutPrefix = qrCodeString.remove(contentsOf: walletModel.wallet.blockchain.qrPrefixes)
-                let splitted = withoutPrefix.split(separator: "?")
-                lastDestinationAddressSource = .qrCode
-                destination = splitted.first.map { String($0) } ?? withoutPrefix
+            .withWeakCaptureOf(self)
+            .compactMap { viewModel, qrCodeString in
+                let parser = QRCodeParser(
+                    amountType: viewModel.amountToSend.type,
+                    blockchain: viewModel.walletModel.blockchainNetwork.blockchain,
+                    decimalCount: viewModel.walletModel.decimalCount
+                )
 
-                if splitted.count > 1 {
-                    let queryItems = splitted[1].lowercased().split(separator: "&")
-                    for queryItem in queryItems {
-                        if queryItem.contains("amount") {
-                            amountText = queryItem.replacingOccurrences(of: "amount=", with: "")
-                            break
-                        }
-                    }
+                return parser.parse(qrCodeString)
+            }
+            .withWeakCaptureOf(self)
+            .sink { viewModel, result in
+                if let parsedAmountText = result.amountText {
+                    viewModel.amountText = parsedAmountText
                 }
+
+                if let parsedMemo = result.memo {
+                    viewModel.memo = parsedMemo
+                }
+
+                viewModel.destination = result.destination
+                viewModel.lastDestinationAddressSource = .qrCode
             }
             .store(in: &bag)
     }
