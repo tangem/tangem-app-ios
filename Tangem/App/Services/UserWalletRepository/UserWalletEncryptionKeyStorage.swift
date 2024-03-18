@@ -51,24 +51,19 @@ class UserWalletEncryptionKeyStorage {
         }
     }
 
-    func add(_ userWallet: StoredUserWallet) {
-        let cardInfo = userWallet.cardInfo()
-
-        guard let encryptionKey = UserWalletEncryptionKeyFactory().encryptionKey(from: cardInfo) else {
-            AppLog.shared.debug("Failed to get encryption key for UserWallet")
-            return
-        }
+    func add(_ userWalletId: UserWalletId, userWalletIdSeed: Data) {
+        let encryptionKey = UserWalletEncryptionKeyFactory().encryptionKey(from: userWalletIdSeed)
 
         do {
             let userWalletIds = try userWalletIds()
-            if userWalletIds.contains(userWallet.userWalletId) {
+            if userWalletIds.contains(userWalletId.value) {
                 return
             }
 
-            try addUserWalletId(userWallet)
+            try addUserWalletId(userWalletId.value)
 
             let encryptionKeyData = encryptionKey.symmetricKey.dataRepresentationWithHexConversion
-            try biometricsStorage.store(encryptionKeyData, forKey: encryptionKeyStorageKey(for: userWallet))
+            try biometricsStorage.store(encryptionKeyData, forKey: encryptionKeyStorageKey(for: userWalletId))
         } catch {
             AppLog.shared.debug("Failed to add UserWallet ID to the list")
             AppLog.shared.error(error)
@@ -78,9 +73,9 @@ class UserWalletEncryptionKeyStorage {
 
     func delete(_ userWallet: StoredUserWallet) {
         do {
-            try deleteUserWalletId(userWallet)
+            try deleteUserWalletId(UserWalletId(value: userWallet.userWalletId))
 
-            try biometricsStorage.delete(encryptionKeyStorageKey(for: userWallet))
+            try biometricsStorage.delete(encryptionKeyStorageKey(for: userWallet.userWalletId))
 
             if AppSettings.shared.saveAccessCodes {
                 let accessCodeRepository = AccessCodeRepository()
@@ -118,23 +113,23 @@ class UserWalletEncryptionKeyStorage {
 
     // MARK: - Saving the list of UserWallet IDs
 
-    private func encryptionKeyStorageKey(for userWallet: StoredUserWallet) -> String {
-        encryptionKeyStorageKey(for: userWallet.userWalletId)
+    private func encryptionKeyStorageKey(for userWalletId: UserWalletId) -> String {
+        encryptionKeyStorageKey(for: userWalletId.value)
     }
 
     private func encryptionKeyStorageKey(for userWalletId: Data) -> String {
         "user_wallet_encryption_key_\(userWalletId.hexString.lowercased())"
     }
 
-    private func addUserWalletId(_ userWallet: StoredUserWallet) throws {
+    private func addUserWalletId(_ userWalletId: Data) throws {
         var ids = try userWalletIds()
-        ids.insert(userWallet.userWalletId)
+        ids.insert(userWalletId)
         try saveUserWalletIds(ids)
     }
 
-    private func deleteUserWalletId(_ userWallet: StoredUserWallet) throws {
+    private func deleteUserWalletId(_ userWalletId: UserWalletId) throws {
         var ids = try userWalletIds()
-        ids.remove(userWallet.userWalletId)
+        ids.remove(userWalletId.value)
         try saveUserWalletIds(ids)
     }
 
