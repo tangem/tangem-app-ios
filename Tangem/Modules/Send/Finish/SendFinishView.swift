@@ -38,7 +38,6 @@ struct SendFinishView: View {
                 GroupedSection(viewModel.amountSummaryViewData) {
                     SendAmountSummaryView(data: $0)
                         .setNamespace(namespace)
-                        .setTitleNamespaceId(SendViewNamespaceId.amountTitle.rawValue)
                         .setIconNamespaceId(SendViewNamespaceId.tokenIcon.rawValue)
                         .setAmountCryptoNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
                         .setAmountFiatNamespaceId(SendViewNamespaceId.amountFiatText.rawValue)
@@ -49,6 +48,7 @@ struct SendFinishView: View {
                 GroupedSection(viewModel.feeSummaryViewData) { data in
                     SendFeeSummaryView(data: data)
                         .setNamespace(namespace)
+                        .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
                         .setOptionNamespaceId(SendViewNamespaceId.feeOption.rawValue)
                         .setAmountNamespaceId(SendViewNamespaceId.feeAmount.rawValue)
                 }
