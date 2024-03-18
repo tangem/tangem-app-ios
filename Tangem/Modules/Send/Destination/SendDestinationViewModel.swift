@@ -183,7 +183,7 @@ class SendDestinationViewModel: ObservableObject {
                     let feedbackGenerator = UINotificationFeedbackGenerator()
                     feedbackGenerator.notificationOccurred(.success)
 
-                    self?.input.setDestination(SendAddress(value: destination.address, source: destination.type.inputSource))
+                    self?.input.setDestination(SendAddress(value: destination.address, source: destination.type.source))
                     if let additionalField = destination.additionalField {
                         self?.input.setDestinationAdditionalField(additionalField)
                     }
@@ -198,7 +198,7 @@ extension SendDestinationViewModel: AuxiliaryViewAnimatable {}
 extension SendDestinationViewModel: SectionContainerAnimatable {}
 
 private extension SendSuggestedDestination.`Type` {
-    var inputSource: Analytics.DestinationAddressSource {
+    var source: Analytics.DestinationAddressSource {
         switch self {
         case .otherWallet:
             return .myWallet
