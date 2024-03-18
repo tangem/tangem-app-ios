@@ -58,17 +58,15 @@ struct SendView: View {
                 Color.clear
                     .frame(maxWidth: .infinity, maxHeight: 1)
 
-                VStack {
-                    Text(title)
-                        .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                // Making sure the header doesn't jump when changing the visibility of the fields
+                ZStack {
+                    headerText(title: title, subtitle: viewModel.subtitle)
 
-                    if let subtitle = viewModel.subtitle {
-                        Text(subtitle)
-                            .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
-                    }
+                    headerText(title: "Title", subtitle: "Subtitle")
+                        .hidden()
                 }
                 .animation(nil, value: title)
-                .padding(.vertical, viewModel.hasSubtitle ? 2 : 8)
+                .padding(.vertical, 0)
                 .lineLimit(1)
                 .layoutPriority(1)
 
@@ -86,6 +84,19 @@ struct SendView: View {
             }
             .padding(.horizontal, 16)
             .padding(.top, 12)
+        }
+    }
+
+    @ViewBuilder
+    private func headerText(title: String, subtitle: String?) -> some View {
+        VStack(spacing: 2) {
+            Text(title)
+                .style(Fonts.Bold.body, color: Colors.Text.primary1)
+
+            if let subtitle = subtitle {
+                Text(subtitle)
+                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+            }
         }
     }
 
