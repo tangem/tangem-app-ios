@@ -70,6 +70,7 @@ struct SendFeeSummaryView: View {
 
                 Text(fiatAmount)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                    .lineLimit(1)
                     .layoutPriority(2)
             }
         }
