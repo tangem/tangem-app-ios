@@ -55,12 +55,6 @@ class SendDestinationViewModel: ObservableObject {
     private let transactionHistoryMapper: TransactionHistoryMapper
     private let suggestedWallets: [SendSuggestedDestinationWallet]
 
-    private var lastDestinationAddressSource: Analytics.DestinationAddressSource?
-
-    func setLastDestinationAddressSource(_ lastDestinationAddressSource: Analytics.DestinationAddressSource) {
-        self.lastDestinationAddressSource = lastDestinationAddressSource
-    }
-
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Dependencies
@@ -123,13 +117,6 @@ class SendDestinationViewModel: ObservableObject {
         }
 
         bind()
-
-        (input as! SendModel)
-            .destinationPublisher
-            .sink { [weak self] dest in
-                print("ZZZ new dest", dest, self!.lastDestinationAddressSource)
-            }
-            .store(in: &bag)
     }
 
     func onAppear() {
@@ -138,10 +125,6 @@ class SendDestinationViewModel: ObservableObject {
         } else {
             Analytics.log(.sendAddressScreenOpened)
         }
-    }
-
-    func didScanAddressFromQrCode() {
-        lastDestinationAddressSource = .qrCode
     }
 
     private func bind() {
