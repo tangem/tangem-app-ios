@@ -26,9 +26,11 @@ struct SendSummaryView: View {
                     case .address(let address):
                         SendDestinationAddressSummaryView(address: address)
                             .setNamespace(namespace)
+                            .visible(viewModel.showSectionContent)
                     case .additionalField(let type, let value):
                         if let name = type.name {
                             DefaultTextWithTitleRowView(data: .init(title: name, text: value))
+                                .visible(viewModel.showSectionContent)
                         }
                     }
                 }
@@ -39,13 +41,9 @@ struct SendSummaryView: View {
                     viewModel.didTapSummary(for: .destination)
                 }
 
-                GroupedSection(viewModel.amountSummaryViewData) {
-                    AmountSummaryView(data: $0)
-                        .setNamespace(namespace)
-                        .setTitleNamespaceId(SendViewNamespaceId.amountTitle.rawValue)
-                        .setIconNamespaceId(SendViewNamespaceId.tokenIcon.rawValue)
-                        .setAmountCryptoNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
-                        .setAmountFiatNamespaceId(SendViewNamespaceId.amountFiatText.rawValue)
+                GroupedSection(viewModel.amountSummaryViewData) { data in
+                    amountSectionContent(data: data)
+                        .visible(viewModel.showSectionContent)
                 }
                 .innerContentPadding(12)
                 .backgroundColor(viewModel.amountBackground, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
@@ -56,12 +54,8 @@ struct SendSummaryView: View {
                 }
 
                 GroupedSection(viewModel.feeSummaryViewData) { data in
-                    DefaultTextWithTitleRowView(data: data)
-                        .setNamespace(namespace)
-                        .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
-                        .setTextNamespaceId(SendViewNamespaceId.feeSubtitle.rawValue)
-                        // To maintain cell animation from Summary to Fee screen
-                        .overlay(feeIcon.opacity(0), alignment: .topLeading)
+                    feeSectionContent(data: data)
+                        .visible(viewModel.showSectionContent)
                 }
                 .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
                 .contentShape(Rectangle())
@@ -77,13 +71,33 @@ struct SendSummaryView: View {
 
             sendButton
                 .padding(.horizontal, 16)
-                .padding(.bottom, 14)
+                .padding(.bottom, 6)
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         .alert(item: $viewModel.alert) { $0.alert }
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
+        .onAppear(perform: viewModel.onSectionContentAppear)
+        .onDisappear(perform: viewModel.onSectionContentDisappear)
         .interactiveDismissDisabled(viewModel.isSending)
+    }
+
+    private func amountSectionContent(data: AmountSummaryViewData) -> some View {
+        AmountSummaryView(data: data)
+            .setNamespace(namespace)
+            .setTitleNamespaceId(SendViewNamespaceId.amountTitle.rawValue)
+            .setIconNamespaceId(SendViewNamespaceId.tokenIcon.rawValue)
+            .setAmountCryptoNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
+            .setAmountFiatNamespaceId(SendViewNamespaceId.amountFiatText.rawValue)
+    }
+
+    private func feeSectionContent(data: DefaultTextWithTitleRowViewData) -> some View {
+        DefaultTextWithTitleRowView(data: data)
+            .setNamespace(namespace)
+            .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
+            .setTextNamespaceId(SendViewNamespaceId.feeSubtitle.rawValue)
+            // To maintain cell animation from Summary to Fee screen
+            .overlay(feeIcon.opacity(0), alignment: .topLeading)
     }
 
     @ViewBuilder
@@ -117,9 +131,9 @@ struct SendSummaryView_Previews: PreviewProvider {
     )
 
     static let walletInfo = SendWalletInfo(
-        walletName: "Wallet",
-        balanceValue: 12013,
-        balance: "12013",
+        walletName: "Family Wallet",
+        balanceValue: 2130.88,
+        balance: "2 130,88 USDT (2 129,92 $)",
         blockchain: .ethereum(testnet: false),
         currencyId: "tether",
         feeCurrencySymbol: "ETH",

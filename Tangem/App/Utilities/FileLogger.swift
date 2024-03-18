@@ -37,16 +37,9 @@ class FileLogger: TangemSdkLogger {
 
             do {
                 let handler = try FileHandle(forWritingTo: self.logFileURL)
-                let nsException = nsTryCatch {
-                    handler.seekToEndOfFile()
-                    handler.write(messageData)
-                    handler.closeFile()
-                }
-
-                if let nsException {
-                    print(nsException)
-                }
-
+                try handler.seekToEnd()
+                try handler.write(contentsOf: messageData)
+                try handler.close()
             } catch {
                 print(error)
             }
