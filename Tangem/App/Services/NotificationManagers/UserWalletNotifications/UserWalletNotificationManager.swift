@@ -58,14 +58,6 @@ final class UserWalletNotificationManager {
 
         if !userWalletModel.validate() {
             Analytics.log(.mainNoticeBackupErrors)
-//            inputs.append(
-//                factory.buildNotificationInput(
-//                    for: .backupErrors,
-//                    action: action,
-//                    buttonAction: buttonAction,
-//                    dismissAction: dismissAction
-//                )
-//            )
         }
 
         if userWalletModel.config.hasFeature(.multiCurrency) {
