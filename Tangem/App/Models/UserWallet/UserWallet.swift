@@ -19,7 +19,6 @@ struct UserWallet: Identifiable, Encodable {
     let walletData: DefaultWalletData
     let artwork: ArtworkInfo?
     let isHDWalletAllowed: Bool
-    var hasBackupErrors: Bool?
 }
 
 extension UserWallet {
@@ -61,7 +60,6 @@ extension UserWallet: Decodable {
         walletData = try container.decode(DefaultWalletData.self, forKey: .walletData)
         artwork = try container.decodeIfPresent(ArtworkInfo.self, forKey: .artwork)
         isHDWalletAllowed = try container.decode(Bool.self, forKey: .isHDWalletAllowed)
-        hasBackupErrors = try container.decodeIfPresent(Bool.self, forKey: .hasBackupErrors)
 
         if let cardDTOv4 = try? container.decode(CardDTOv4.self, forKey: .card) {
             card = .init(cardDTOv4: cardDTOv4)
