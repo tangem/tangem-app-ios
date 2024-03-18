@@ -53,10 +53,12 @@ class Analytics {
 
     static func logDestinationAddress(isAddressValid: Bool, source: DestinationAddressSource) {
         let validationResult: Analytics.ParameterValue = isAddressValid ? .success : .fail
+        guard let parameterValue = source.parameterValue else { return }
+
         Analytics.log(
             .sendAddressEntered,
             params: [
-                .commonSource: source.parameterValue,
+                .commonSource: parameterValue,
                 .validation: validationResult,
             ]
         )
