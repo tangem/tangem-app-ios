@@ -21,7 +21,6 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
     @Published var input: String = ""
     @Published var placeholder: String = ""
     @Published var isDisabled: Bool = true
-    @Published var animatingFooterOnAppear = false
     @Published var errorText: String?
 
     var hasTextInClipboard = false
@@ -104,16 +103,6 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
 
     func onAppear() {
         updatePasteButton()
-
-        if animatingFooterOnAppear {
-            withAnimation(SendView.Constants.defaultAnimation) {
-                animatingFooterOnAppear = false
-            }
-        }
-    }
-
-    func setAnimatingFooterOnAppear(_ animatingFooterOnAppear: Bool) {
-        self.animatingFooterOnAppear = animatingFooterOnAppear
     }
 
     func onBecomingActive() {
