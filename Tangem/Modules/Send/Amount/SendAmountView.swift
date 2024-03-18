@@ -54,11 +54,13 @@ struct SendAmountView: View {
 
     private var amountSectionContent: some View {
         VStack(spacing: 0) {
-            Text(viewModel.walletName)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-                .lineLimit(1)
-                .padding(.top, 18)
-                .transition(SendView.Constants.auxiliaryViewTransition)
+            if !viewModel.animatingAuxiliaryViewsOnAppear {
+                Text(viewModel.walletName)
+                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .lineLimit(1)
+                    .padding(.top, 18)
+                    .transition(SendView.Constants.auxiliaryViewTransition)
+            }
 
             if !viewModel.animatingAuxiliaryViewsOnAppear {
                 SensitiveText(viewModel.balance)
