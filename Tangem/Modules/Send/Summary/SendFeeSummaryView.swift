@@ -12,6 +12,7 @@ struct SendFeeSummaryView: View {
     let data: SendFeeSummaryViewData
 
     private var namespace: Namespace.ID?
+    private var titleNamespaceId: String?
     private var optionNamespaceId: String?
     private var amountNamespaceId: String?
 
@@ -24,6 +25,7 @@ struct SendFeeSummaryView: View {
             Text(data.title)
                 .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
                 .lineLimit(1)
+                .matchedGeometryEffectOptional(id: titleNamespaceId, in: namespace)
 
             HStack(spacing: 0) {
                 feeOption
@@ -77,6 +79,10 @@ struct SendFeeSummaryView: View {
 extension SendFeeSummaryView: Setupable {
     func setNamespace(_ namespace: Namespace.ID) -> Self {
         map { $0.namespace = namespace }
+    }
+
+    func setTitleNamespaceId(_ titleNamespaceId: String?) -> Self {
+        map { $0.titleNamespaceId = titleNamespaceId }
     }
 
     func setOptionNamespaceId(_ optionNamespaceId: String?) -> Self {
