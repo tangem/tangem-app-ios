@@ -47,6 +47,7 @@ class SendDestinationViewModel: ObservableObject {
     @Published var destinationAdditionalFieldErrorText: String?
     @Published var animatingAuxiliaryViewsOnAppear: Bool = false
     @Published var showSuggestedDestinations = true
+    @Published var showSectionContent = false
 
     var didProperlyDisappear: Bool = false
 
@@ -82,7 +83,7 @@ class SendDestinationViewModel: ObservableObject {
                 guard let walletModel else { return nil }
 
                 return SendSuggestedDestinationWallet(
-                    name: userWalletModel.userWallet.name,
+                    name: userWalletModel.name,
                     address: walletModel.defaultAddress
                 )
             }
@@ -184,6 +185,8 @@ class SendDestinationViewModel: ObservableObject {
 }
 
 extension SendDestinationViewModel: AuxiliaryViewAnimatable {}
+
+extension SendDestinationViewModel: SectionContainerAnimatable {}
 
 private extension SendSuggestedDestination.`Type` {
     var inputSource: SendAddress.InputSource {
