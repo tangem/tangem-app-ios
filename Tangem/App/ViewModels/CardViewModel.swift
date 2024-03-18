@@ -185,10 +185,6 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func validate() -> Bool {
-        if userWallet.hasBackupErrors == true {
-            return false
-        }
-
         var expectedCurves = config.mandatoryCurves
         /// Since the curve `bls12381_G2_AUG` was added later into first generation of wallets,, we cannot determine whether this curve is missing due to an error or because the user did not want to recreate the wallet.
         if config is GenericConfig {
