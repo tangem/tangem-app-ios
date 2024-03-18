@@ -228,7 +228,9 @@ private extension ExpressViewModel {
 
         notificationManager
             .notificationPublisher
-            .receive(on: DispatchQueue.main)
+            .removeDuplicates()
+            // Debounce for exclude unwanted animations/updates
+            .debounce(for: 0.2, scheduler: DispatchQueue.main)
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
@@ -571,7 +573,7 @@ private extension ExpressViewModel {
     }
 }
 
-// MARK: - Restrictions
+// MARK: - NotificationTapDelegate
 
 extension ExpressViewModel: NotificationTapDelegate {
     func didTapNotification(with id: NotificationViewId) {}
