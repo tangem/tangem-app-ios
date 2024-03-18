@@ -98,7 +98,6 @@ struct SendSummaryView: View {
     private func amountSectionContent(data: SendAmountSummaryViewData) -> some View {
         SendAmountSummaryView(data: data)
             .setNamespace(namespace)
-            .setTitleNamespaceId(SendViewNamespaceId.amountTitle.rawValue)
             .setIconNamespaceId(SendViewNamespaceId.tokenIcon.rawValue)
             .setAmountCryptoNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
             .setAmountFiatNamespaceId(SendViewNamespaceId.amountFiatText.rawValue)
@@ -107,6 +106,7 @@ struct SendSummaryView: View {
     private func feeSectionContent(data: SendFeeSummaryViewData) -> some View {
         SendFeeSummaryView(data: data)
             .setNamespace(namespace)
+            .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
             .setOptionNamespaceId(SendViewNamespaceId.feeOption.rawValue)
             .setAmountNamespaceId(SendViewNamespaceId.feeAmount.rawValue)
     }
