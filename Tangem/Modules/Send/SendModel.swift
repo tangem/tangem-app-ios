@@ -24,7 +24,7 @@ class SendModel {
     var destinationValid: AnyPublisher<Bool, Never> {
         Publishers.CombineLatest(validatedDestination, destinationAdditionalFieldError)
             .map {
-                $0 != nil && $1 == nil
+                $0?.value != nil && $1 == nil
             }
             .eraseToAnyPublisher()
     }
