@@ -56,6 +56,8 @@ class ExpressNotificationManager {
             notificationInputsSubject.value = []
 
         case .previewCEX(let preview, _):
+            notificationInputsSubject.value = []
+
             setupFeeWillBeSubtractFromSendingAmountNotification(subtractFee: preview.subtractFee)
             setupWithdrawalSuggestion(suggestion: preview.suggestion)
         }
