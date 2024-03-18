@@ -49,9 +49,8 @@ struct SendFinishView: View {
                 GroupedSection(viewModel.feeSummaryViewData) { data in
                     SendFeeSummaryView(data: data)
                         .setNamespace(namespace)
-                        .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
-                        .setOptionNamespaceId(SendViewNamespaceId.feeIcon.rawValue)
-                        .setTextNamespaceId(SendViewNamespaceId.feeSubtitle.rawValue)
+                        .setOptionNamespaceId(SendViewNamespaceId.feeOption.rawValue)
+                        .setAmountNamespaceId(SendViewNamespaceId.feeAmount.rawValue)
                 }
                 .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
             }
