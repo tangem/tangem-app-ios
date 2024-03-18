@@ -18,7 +18,8 @@ struct SendFinishView: View {
             GroupedScrollView(spacing: 14) {
                 if viewModel.showHeader {
                     header
-                        .padding(.bottom, 24)
+                        .padding(.top, 24)
+                        .padding(.bottom, 12)
                 }
 
                 GroupedSection(viewModel.destinationViewTypes) { type in
@@ -57,7 +58,7 @@ struct SendFinishView: View {
             if viewModel.showButtons {
                 bottomButtons
                     .padding(.horizontal, 16)
-                    .padding(.bottom, 14)
+                    .padding(.bottom, 6)
             }
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
