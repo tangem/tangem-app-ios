@@ -23,11 +23,9 @@ struct SendAmountSummaryView: View {
     }
 
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 18) {
             TokenIcon(tokenIconInfo: data.tokenIconInfo, size: iconSize)
                 .matchedGeometryEffectOptional(id: iconNamespaceId, in: namespace)
-                .padding(.top, 18)
-                .padding(.bottom, 6)
 
             VStack(spacing: 6) {
                 Text(data.amount)
@@ -39,11 +37,11 @@ struct SendAmountSummaryView: View {
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     .matchedGeometryEffectOptional(id: amountFiatNamespaceId, in: namespace)
             }
-            .padding(.bottom, 16)
             .truncationMode(.middle)
             .lineLimit(1)
         }
-        .frame(maxWidth: .infinity)
+        .padding(.top, 18)
+        .padding(.bottom, 16)
     }
 }
 
