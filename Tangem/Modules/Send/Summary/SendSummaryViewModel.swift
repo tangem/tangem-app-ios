@@ -179,30 +179,7 @@ class SendSummaryViewModel: ObservableObject {
             .map { parameters -> String? in
                 let (thisSendSummaryViewModel, (amount, fee)) = parameters
 
-                guard
-                    let fee,
-                    let amount,
-                    let amountCurrencyId = thisSendSummaryViewModel.walletInfo.currencyId
-                else {
-                    return nil
-                }
-
-                let converter = BalanceConverter()
-                let amountInFiat = converter.convertToFiat(value: amount.value, from: amountCurrencyId)
-                let feeInFiat = converter.convertToFiat(value: fee.amount.value, from: thisSendSummaryViewModel.walletInfo.feeCurrencyId)
-
-                let totalInFiat: Decimal?
-                if let amountInFiat, let feeInFiat {
-                    totalInFiat = amountInFiat + feeInFiat
-                } else {
-                    totalInFiat = nil
-                }
-
-                let formatter = BalanceFormatter()
-                let totalInFiatFormatted = formatter.formatFiatBalance(totalInFiat)
-                let feeInFiatFormatted = formatter.formatFiatBalance(feeInFiat)
-
-                return Localization.sendSummaryTransactionDescription(totalInFiatFormatted, feeInFiatFormatted)
+                return thisSendSummaryViewModel.makeTransactionDescription(amount: amount, fee: fee)
             }
             .assign(to: \.transactionDescription, on: self, ownership: .weak)
             .store(in: &bag)
@@ -223,6 +200,33 @@ class SendSummaryViewModel: ObservableObject {
 
     private func sectionBackground(canEdit: Bool) -> Color {
         canEdit ? Colors.Background.action : Colors.Button.disabled
+    }
+
+    private func makeTransactionDescription(amount: Amount?, fee: Fee?) -> String? {
+        guard
+            let amount,
+            let fee,
+            let amountCurrencyId = walletInfo.currencyId
+        else {
+            return nil
+        }
+
+        let converter = BalanceConverter()
+        let amountInFiat = converter.convertToFiat(value: amount.value, from: amountCurrencyId)
+        let feeInFiat = converter.convertToFiat(value: fee.amount.value, from: walletInfo.feeCurrencyId)
+
+        let totalInFiat: Decimal?
+        if let amountInFiat, let feeInFiat {
+            totalInFiat = amountInFiat + feeInFiat
+        } else {
+            totalInFiat = nil
+        }
+
+        let formatter = BalanceFormatter()
+        let totalInFiatFormatted = formatter.formatFiatBalance(totalInFiat)
+        let feeInFiatFormatted = formatter.formatFiatBalance(feeInFiat)
+
+        return Localization.sendSummaryTransactionDescription(totalInFiatFormatted, feeInFiatFormatted)
     }
 }
 
