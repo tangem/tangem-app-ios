@@ -251,8 +251,8 @@ final class SendViewModel: ObservableObject {
                 guard let self else { return }
 
                 if showNextButton {
-                    switch destination?.inputSource {
-                    case .otherWallet, .recentAddress:
+                    switch destination?.source {
+                    case .myWallet, .recentAddress:
                         next()
                     default:
                         break
@@ -298,6 +298,15 @@ final class SendViewModel: ObservableObject {
                     }
                     alert = AlertBuilder.makeAlert(title: "", message: Localization.alertDemoFeatureDisabled, primaryButton: button)
                 }
+            }
+            .store(in: &bag)
+
+        sendModel
+            .destinationPublisher
+            .sink { destination in
+                guard let destination else { return }
+
+                Analytics.logDestinationAddress(isAddressValid: destination.value != nil, source: destination.source)
             }
             .store(in: &bag)
     }
@@ -391,7 +400,7 @@ final class SendViewModel: ObservableObject {
 
         sendDestinationViewModel.didScanAddressFromQrCode()
 
-        sendModel.setDestination(SendAddress(value: result.destination, inputSource: .qrCode))
+        sendModel.setDestination(SendAddress(value: result.destination, source: .qrCode))
         sendModel.setAmount(result.amount)
 
         if let memo = result.memo {
