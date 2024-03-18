@@ -91,7 +91,7 @@ class SendModel {
     // MARK: - Raw data
 
     private var userInputAmount = CurrentValueSubject<Amount?, Never>(nil)
-    private var userInputDestination = CurrentValueSubject<SendAddress, Never>(SendAddress(value: "", inputSource: .textField))
+    private var userInputDestination = CurrentValueSubject<SendAddress, Never>(SendAddress(value: "", source: .textField))
     private var _destinationAdditionalFieldText = CurrentValueSubject<String, Never>("")
     private var _additionalFieldEmbeddedInAddress = CurrentValueSubject<Bool, Never>(false)
     private var _selectedFeeOption = CurrentValueSubject<FeeOption, Never>(.market)
@@ -142,7 +142,7 @@ class SendModel {
         }
 
         if let destination = sendType.predefinedDestination {
-            setDestination(SendAddress(value: destination, inputSource: .sellProvider))
+            setDestination(SendAddress(value: destination, source: .sellProvider))
         } else {
             validateDestination()
         }
@@ -510,7 +510,7 @@ class SendModel {
             }
 
             await runOnMain {
-                let destination = SendAddress(value: address, inputSource: self.userInputDestination.value.inputSource)
+                let destination = SendAddress(value: address, source: self.userInputDestination.value.source)
                 self.validatedDestination.send(destination)
                 self._destinationError.send(error)
             }
