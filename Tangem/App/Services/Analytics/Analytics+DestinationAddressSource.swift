@@ -13,9 +13,9 @@ extension Analytics {
         case qrCode
         case pasteButton
         case pasteMenu
-        case textField
         case myWallet
         case recentAddress
+        case textField
         case sellProvider
 
         var parameterValue: Analytics.ParameterValue? {
