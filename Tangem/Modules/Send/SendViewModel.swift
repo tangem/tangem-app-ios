@@ -409,25 +409,26 @@ final class SendViewModel: ObservableObject {
     private func logNextStepAnalytics() {
         switch step {
         case .fee:
-            let feeType: Analytics.ParameterValue
-            if sendModel.feeOptions.count == 1 {
-                feeType = .transactionFeeFixed
-            } else {
-                switch sendModel.selectedFeeOption {
-                case .slow:
-                    feeType = .transactionFeeMin
-                case .market:
-                    feeType = .transactionFeeNormal
-                case .fast:
-                    feeType = .transactionFeeMax
-                case .custom:
-                    feeType = .transactionFeeCustom
-                }
-            }
-
-            Analytics.log(event: .sendFeeSelected, params: [.feeType: feeType.rawValue])
+            Analytics.log(event: .sendFeeSelected, params: [.feeType: selectedFeeTypeAnalyticsParameter().rawValue])
         default:
             break
+        }
+    }
+
+    private func selectedFeeTypeAnalyticsParameter() -> Analytics.ParameterValue {
+        if sendModel.feeOptions.count == 1 {
+            return .transactionFeeFixed
+        }
+
+        switch sendModel.selectedFeeOption {
+        case .slow:
+            return .transactionFeeMin
+        case .market:
+            return .transactionFeeNormal
+        case .fast:
+            return .transactionFeeMax
+        case .custom:
+            return .transactionFeeCustom
         }
     }
 
