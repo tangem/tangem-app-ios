@@ -12,9 +12,8 @@ struct SendFeeSummaryView: View {
     let data: SendFeeSummaryViewData
 
     private var namespace: Namespace.ID?
-    private var titleNamespaceId: String?
     private var optionNamespaceId: String?
-    private var textNamespaceId: String?
+    private var amountNamespaceId: String?
 
     init(data: SendFeeSummaryViewData) {
         self.data = data
@@ -25,7 +24,6 @@ struct SendFeeSummaryView: View {
             Text(data.title)
                 .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
                 .lineLimit(1)
-                .matchedGeometryEffectOptional(id: titleNamespaceId, in: namespace)
 
             HStack(spacing: 0) {
                 feeOption
@@ -34,7 +32,7 @@ struct SendFeeSummaryView: View {
                 Spacer()
 
                 feeAmount
-                    .matchedGeometryEffectOptional(id: textNamespaceId, in: namespace)
+                    .matchedGeometryEffectOptional(id: amountNamespaceId, in: namespace)
             }
         }
         .padding(.vertical, 14)
@@ -81,16 +79,12 @@ extension SendFeeSummaryView: Setupable {
         map { $0.namespace = namespace }
     }
 
-    func setTitleNamespaceId(_ titleNamespaceId: String?) -> Self {
-        map { $0.titleNamespaceId = titleNamespaceId }
-    }
-
     func setOptionNamespaceId(_ optionNamespaceId: String?) -> Self {
         map { $0.optionNamespaceId = optionNamespaceId }
     }
 
-    func setTextNamespaceId(_ textNamespaceId: String?) -> Self {
-        map { $0.textNamespaceId = textNamespaceId }
+    func setAmountNamespaceId(_ amountNamespaceId: String?) -> Self {
+        map { $0.amountNamespaceId = amountNamespaceId }
     }
 }
 
