@@ -149,8 +149,8 @@ extension CommonUserTokensManager: UserTokensManager {
             throw Error.failedSupportedCurve(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
 
-        if !longHashesSupported, tokenItem.blockchain.hasLongTransactions {
-            throw Error.failedSupportedLongHahesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
+        if !longHashesSupported, tokenItem.hasLongTransactions {
+            throw Error.failedSupportedLongHashesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
 
         try validateDerivation(for: tokenItem)
@@ -267,13 +267,12 @@ extension CommonUserTokensManager: UserTokensReordering {
     func reorder(
         _ reorderingActions: [UserTokensReorderingAction]
     ) -> AnyPublisher<Void, Never> {
-        return Deferred { [userTokenListManager = self.userTokenListManager] in
-            Future<Void, Never> { promise in
-                if reorderingActions.isEmpty {
-                    promise(.success(()))
-                    return
-                }
+        if reorderingActions.isEmpty {
+            return .just
+        }
 
+        return Deferred { [userTokenListManager = self.userTokenListManager] in
+            Future { promise in
                 let converter = UserTokensReorderingOptionsConverter()
                 let existingList = userTokenListManager.userTokensList
                 var entries = existingList.entries
@@ -301,11 +300,14 @@ extension CommonUserTokensManager: UserTokensReordering {
                     sorting: sorting
                 )
 
-                if editedList != existingList {
-                    userTokenListManager.update(with: editedList)
-                }
-
-                promise(.success(()))
+                promise(.success((editedList, existingList)))
+            }
+            .filter { $0 != $1 }
+            .map(\.0)
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .map { userTokensManager, editedList in
+                userTokensManager.userTokenListManager.update(with: editedList)
             }
         }
         .eraseToAnyPublisher()
@@ -315,12 +317,12 @@ extension CommonUserTokensManager: UserTokensReordering {
 extension CommonUserTokensManager {
     enum Error: Swift.Error, LocalizedError {
         case addressNotFound
-        case failedSupportedLongHahesTokens(blockchainDisplayName: String)
+        case failedSupportedLongHashesTokens(blockchainDisplayName: String)
         case failedSupportedCurve(blockchainDisplayName: String)
 
         var errorDescription: String? {
             switch self {
-            case .failedSupportedLongHahesTokens(let blockchainDisplayName):
+            case .failedSupportedLongHashesTokens(let blockchainDisplayName):
                 return Localization.alertManageTokensUnsupportedMessage(blockchainDisplayName)
             case .failedSupportedCurve(let blockchainDisplayName):
                 return Localization.alertManageTokensUnsupportedCurveMessage(blockchainDisplayName)
