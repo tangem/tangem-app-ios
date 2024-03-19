@@ -22,9 +22,8 @@ struct SendFeeView: View {
                     if feeRowViewModel.isSelected.value {
                         FeeRowView(viewModel: feeRowViewModel)
                             .setNamespace(namespace)
-                            .setIconNamespaceId(SendViewNamespaceId.feeIcon.rawValue)
-                            .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
-                            .setSubtitleNamespaceId(SendViewNamespaceId.feeSubtitle.rawValue)
+                            .setOptionNamespaceId(SendViewNamespaceId.feeOption.rawValue)
+                            .setAmountNamespaceId(SendViewNamespaceId.feeAmount.rawValue)
                     } else {
                         if !viewModel.animatingAuxiliaryViewsOnAppear {
                             FeeRowView(viewModel: feeRowViewModel)
