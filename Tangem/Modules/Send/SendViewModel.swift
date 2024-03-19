@@ -462,6 +462,9 @@ extension SendViewModel: NotificationTapDelegate {
         switch action {
         case .refreshFee:
             sendModel.updateFees()
+                .mapToVoid()
+                .sink()
+                .store(in: &bag)
         case .openFeeCurrency:
             openNetworkCurrency()
         case .reduceAmountBy(let amount, _):
