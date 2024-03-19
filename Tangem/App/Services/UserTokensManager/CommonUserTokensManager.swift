@@ -24,6 +24,7 @@ class CommonUserTokensManager {
     private let existingCurves: [EllipticCurve]
     private let longHashesSupported: Bool
     private weak var keysDerivingProvider: KeysDerivingProvider?
+    private var pendingUserTokensSyncCompletions: [() -> Void] = []
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -85,7 +86,7 @@ class CommonUserTokensManager {
         }
     }
 
-    private func loadSwapAvailbilityStateIfNeeded(forceReload: Bool) {
+    private func loadSwapAvailabilityStateIfNeeded(forceReload: Bool) {
         guard shouldLoadSwapAvailability else { return }
 
         let converter = StorageEntryConverter()
@@ -100,6 +101,19 @@ class CommonUserTokensManager {
            derivationPath.nodes.contains(where: { !$0.isHardened }) {
             throw TangemSdkError.nonHardenedDerivationNotSupported
         }
+    }
+
+    private func handleUserTokensSync() {
+        loadSwapAvailabilityStateIfNeeded(forceReload: true)
+        walletModelsManager.updateAll(silent: false) { [weak self] in
+            self?.handleWalletModelsUpdate()
+        }
+    }
+
+    private func handleWalletModelsUpdate() {
+        let completions = pendingUserTokensSyncCompletions
+        pendingUserTokensSyncCompletions.removeAll()
+        completions.forEach { $0() }
     }
 }
 
@@ -224,16 +238,22 @@ extension CommonUserTokensManager: UserTokensManager {
         }
 
         try addInternal(itemsToAdd, shouldUpload: false)
-        loadSwapAvailbilityStateIfNeeded(forceReload: true)
+        loadSwapAvailabilityStateIfNeeded(forceReload: true)
         userTokenListManager.upload()
     }
 
     func sync(completion: @escaping () -> Void) {
-        userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
-            guard let self else { return }
+        defer {
+            pendingUserTokensSyncCompletions.append(completion)
+        }
 
-            loadSwapAvailbilityStateIfNeeded(forceReload: true)
-            walletModelsManager.updateAll(silent: false, completion: completion)
+        // Initiate a new update only if there is no ongoing update (i.e. `pendingUserTokensSyncCompletions` is empty)
+        guard pendingUserTokensSyncCompletions.isEmpty else {
+            return
+        }
+
+        userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
+            self?.handleUserTokensSync()
         }
     }
 }
