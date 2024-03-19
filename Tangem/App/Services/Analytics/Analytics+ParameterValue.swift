@@ -105,11 +105,11 @@ extension Analytics {
         case light = "Light"
         case dark = "Dark"
 
-        // MARK: - Send
+        // MARK: - Send screens
 
-        case sendScreenAddress = "Address"
-        case sendScreenAmount = "Amount"
-        case sendScreenFee = "Fee"
+        case address = "Address"
+        case amount = "Amount"
+        case fee = "Fee"
 
         // MARK: - Actions
 
