@@ -77,7 +77,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         fiatCryptoAdapter?.setCrypto(input.userInputAmountValue?.value)
 
         if animatingAuxiliaryViewsOnAppear {
-            Analytics.log(.sendScreenReopened, params: [.commonSource: .sendScreenAmount])
+            Analytics.log(.sendScreenReopened, params: [.commonSource: .amount])
         } else {
             Analytics.log(.sendAmountScreenOpened)
         }
