@@ -95,6 +95,7 @@
 "common_no_address" = "Нет адреса";
 "common_ok" = "OK";
 "common_origin_card" = "Основная карта";
+"common_passphrase" = "Кодовая фраза";
 "common_paste" = "Вставить";
 "common_push" = "Ускорить";
 "common_read_more" = "Подробнее";
@@ -288,6 +289,7 @@
 "onboarding_alert_message_not_max_backup_cards_added" = "Вы добавили одну резервную карту. После того, как процесс будет завершен, Вы больше не сможете добавить карт. Если у Вас есть еще одна карта, добавьте ее в резервную копию. Хотите продолжить?";
 "onboarding_alert_message_old_device" = "iPhone 7/7+ не может создать резервную копию для Tangem Wallet из-за системных ограничений. Пожалуйста, используйте другой телефон для выполнения этой операции. Все остальные функции работают стабильно.";
 "onboarding_backup_exit_warning" = "Процесс резервного копирования почти завершен. Вы не можете выйти из него сейчас.";
+"onboarding_bottom_sheet_passphrase_description" = "Кодовая фраза — это расширенная функция безопасности, которую используют криптокошельки. Она добавляет дополнительное слово или фразу по вашему выбору к уже существующей seed - фразе, чтобы разблокировать совершенно новый набор адресов.";
 "onboarding_button_add_backup_card" = "Добавить резервную карту";
 "onboarding_button_backup_card_format" = "Сканировать карту #%li";
 "onboarding_button_backup_now" = "Создать резервную копию";
@@ -417,7 +419,6 @@
 "send_alert_transaction_failed_text" = "Причина: %1$s\nКод: %2$s";
 "send_alert_transaction_failed_title" = "Транзакция не выполнена";
 "send_amount_label" = "Сумма";
-"send_confirm_label" = "Подтвердить";
 "send_date_format" = "%1$@, %2$@";
 "send_destination_hint_address" = "Адрес";
 "send_destination_tag_field" = "Код назначения";
@@ -473,6 +474,9 @@
 "send_recipient_memo_footer" = "Мемо/ Код назначения - это код, разделяющий транзакции к общему получателю в сети криптовалют. Внимание: отсутствие мемо может привести к потере средств.";
 "send_recipient_wallets_title" = "Мои кошельки";
 "send_sending" = "Sending...";
+"send_summary_tap_hint" = "Tap any field to change it";
+"send_summary_title" = "Send %@";
+"send_summary_transaction_description" = "You are sending %1$@ including a network fee of %2$@";
 "send_title_currency_format" = "Отправка %@";
 "send_total_label" = "Всего";
 "send_total_subtitle_asset_format" = "%1$@ и %2$@ будет отправлено";
