@@ -47,7 +47,9 @@ struct FeeRowViewModel: Identifiable {
 extension FeeRowViewModel: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(option)
+        hasher.combine(subtitle.isLoading)
         hasher.combine(subtitle.value)
+        hasher.combine(subtitle.error != nil)
         hasher.combine(isSelected)
     }
 
