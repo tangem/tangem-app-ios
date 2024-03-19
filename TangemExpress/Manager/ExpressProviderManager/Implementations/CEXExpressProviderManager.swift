@@ -113,7 +113,7 @@ private extension CEXExpressProviderManager {
         request: ExpressManagerSwappingPairRequest
     ) {
         let estimatedFee = try await feeProvider.estimatedFee(amount: request.amount)
-        let subtractFee = try subtractFee(request: request, fee: estimatedFee)
+        let subtractFee = try subtractFee(request: request, estimatedFee: estimatedFee)
 
         if subtractFee > 0 {
             return (
@@ -137,23 +137,24 @@ private extension CEXExpressProviderManager {
         return isNotEnoughBalanceForSwapping
     }
 
-    func subtractFee(request: ExpressManagerSwappingPairRequest, fee: ExpressFee) throws -> Decimal {
+    func subtractFee(request: ExpressManagerSwappingPairRequest, estimatedFee: ExpressFee) throws -> Decimal {
         // The fee's subtraction needed only for fee currency
         guard request.pair.source.isFeeCurrency else {
             return 0
         }
 
         let balance = try request.pair.source.getBalance()
-        let fullAmount = request.amount + fee.fastest.amount.value
-        // We have enough balance
-        if fullAmount < balance {
+        let fee = estimatedFee.fastest.amount.value
+        let fullAmount = request.amount + fee
+
+        // If we don't have enough balance
+        guard fullAmount > balance else {
             return 0
         }
 
-        // We try to decrease on exceed amount
-        let subtractFee = fullAmount - balance
-        log("Subtract fee - \(subtractFee) from amount - \(request.amount)")
-        return subtractFee
+        // We're decreasing amount on the fee value
+        log("Subtract fee - \(fee) from amount - \(request.amount)")
+        return fee
     }
 
     func log(_ args: Any) {
