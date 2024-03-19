@@ -114,6 +114,7 @@ struct SupportedBlockchains {
             .areon(testnet: false),
             .pulsechain(testnet: false),
             .aurora(testnet: false),
+            .nexa,
         ]
     }
 

@@ -163,6 +163,7 @@ private extension Blockchain {
             case .network: return "aurora"
             case .coin: return "aurora-ethereum"
             }
+        case .nexa: return "nexa"
         }
     }
 

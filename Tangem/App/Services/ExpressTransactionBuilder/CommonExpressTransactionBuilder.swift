@@ -163,7 +163,8 @@ private extension CommonExpressTransactionBuilder {
              .areon,
              .playa3ullGames,
              .pulsechain,
-             .aurora:
+             .aurora,
+             .nexa:
             throw ExpressTransactionBuilderError.blockchainDonNotSupportedExtraId
         }
     }
