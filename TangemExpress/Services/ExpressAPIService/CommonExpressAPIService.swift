@@ -58,7 +58,7 @@ private extension CommonExpressAPIService {
         var response: Response
 
         do {
-            response = try await provider.asyncRequest(request)
+            response = try await provider.requestPublisher(request).async()
         } catch {
             log(target: request, error: error)
             throw error
