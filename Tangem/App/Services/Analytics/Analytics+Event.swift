@@ -81,6 +81,8 @@ extension Analytics {
         case buttonCopyAddress = "[Token / Receive] Button - Copy Address"
         case buttonShareAddress = "[Token / Receive] Button - Share Address"
 
+        // MARK: - Send
+        
         case buttonPaste = "[Token / Send] Button - Paste"
         case buttonSwapCurrency = "[Token / Send] Button - Swap Currency"
         case sendScreenOpened = "[Token / Send] Send Screen Opened"
