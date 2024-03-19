@@ -30,7 +30,11 @@ class SendModel {
     }
 
     var feeValid: AnyPublisher<Bool, Never> {
-        .just(output: true)
+        Publishers.CombineLatest(fee, _feeError)
+            .map {
+                $0 != nil && $1 == nil
+            }
+            .eraseToAnyPublisher()
     }
 
     var sendError: AnyPublisher<Error?, Never> {
