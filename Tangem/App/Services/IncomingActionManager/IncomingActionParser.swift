@@ -13,8 +13,10 @@ public class IncomingActionParser {
     @Injected(\.walletConnectService) private var walletConnectService: WalletConnectService
 
     private var incomingActionURLParsers: [IncomingActionURLParser] = [
+        NDEFURLParser(),
         DismissSafariActionURLHelper(),
         SellActionURLHelper(),
+        WalletConnectURLParser(),
     ]
 
     public init() {}
@@ -22,17 +24,10 @@ public class IncomingActionParser {
     public func parseDeeplink(_ url: URL) -> IncomingAction? {
         guard validateURL(url) else { return nil }
 
-        if url.absoluteString.starts(with: IncomingActionConstants.ndefURL) {
-            return .start
-        }
-
-        if let action = parseActionURL(url) {
-            return action
-        }
-
-        let parser = WalletConnectURLParser()
-        if let uri = parser.parse(url) {
-            return .walletConnect(uri)
+        for parser in incomingActionURLParsers {
+            if let action = parser.parse(url) {
+                return action
+            }
         }
 
         return nil
@@ -58,16 +53,6 @@ public class IncomingActionParser {
         }
 
         return false
-    }
-
-    private func parseActionURL(_ url: URL) -> IncomingAction? {
-        for parser in incomingActionURLParsers {
-            if let action = parser.parse(url) {
-                return action
-            }
-        }
-
-        return nil
     }
 }
 
