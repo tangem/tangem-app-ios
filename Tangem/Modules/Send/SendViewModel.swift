@@ -20,7 +20,15 @@ final class SendViewModel: ObservableObject {
     @Published var alert: AlertBinder?
 
     var title: String? {
-        step.name
+        step.name(for: sendStepParameters)
+    }
+
+    var hasSubtitle: Bool {
+        subtitle != nil
+    }
+
+    var subtitle: String? {
+        step.description(for: sendStepParameters)
     }
 
     var showNavigationButtons: Bool {
@@ -85,6 +93,7 @@ final class SendViewModel: ObservableObject {
     private let emailDataProvider: EmailDataProvider
     private let walletInfo: SendWalletInfo
     private let notificationManager: CommonSendNotificationManager
+    private let sendStepParameters: SendStep.Parameters
 
     private weak var coordinator: SendRoutable?
 
@@ -184,6 +193,8 @@ final class SendViewModel: ObservableObject {
             feeTokenItem: walletModel.feeTokenItem,
             input: sendModel
         )
+
+        sendStepParameters = SendStep.Parameters(currencyName: walletModel.tokenItem.name, walletName: walletInfo.walletName)
 
         sendAmountViewModel = SendAmountViewModel(input: sendModel, walletInfo: walletInfo)
         sendDestinationViewModel = SendDestinationViewModel(input: sendModel)
