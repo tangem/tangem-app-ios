@@ -66,7 +66,7 @@ struct SendSummarySectionViewModelFactory {
     func makeFeeViewData(from value: Fee?) -> SendFeeSummaryViewData? {
         guard let value else { return nil }
 
-        let formattedFeeParts = feeFormatter.formattedFeeParts(
+        let formattedFeeComponents = feeFormatter.formattedFeeComponents(
             fee: value.amount.value,
             currencySymbol: feeCurrencySymbol,
             currencyId: feeCurrencyId,
@@ -76,8 +76,8 @@ struct SendSummarySectionViewModelFactory {
         return SendFeeSummaryViewData(
             title: Localization.commonNetworkFeeTitle,
             feeOption: .market,
-            cryptoAmount: formattedFeeParts.cryptoFee,
-            fiatAmount: formattedFeeParts.fiatFee
+            cryptoAmount: formattedFeeComponents.cryptoFee,
+            fiatAmount: formattedFeeComponents.fiatFee
         )
     }
 }

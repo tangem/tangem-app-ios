@@ -9,13 +9,13 @@
 import TangemExpress
 
 protocol FeeFormatter {
-    func formattedFeeParts(fee: Decimal, currencySymbol: String, currencyId: String?, isFeeApproximate: Bool) -> FormattedFeeParts
+    func formattedFeeComponents(fee: Decimal, currencySymbol: String, currencyId: String?, isFeeApproximate: Bool) -> FormattedFeeComponents
     func format(fee: Decimal, currencySymbol: String, currencyId: String?, isFeeApproximate: Bool) -> String
 }
 
 extension FeeFormatter {
-    func formattedFeeParts(fee: Decimal, tokenItem: TokenItem) -> FormattedFeeParts {
-        formattedFeeParts(
+    func formattedFeeComponents(fee: Decimal, tokenItem: TokenItem) -> FormattedFeeComponents {
+        formattedFeeComponents(
             fee: fee,
             currencySymbol: tokenItem.currencySymbol,
             currencyId: tokenItem.currencyId,
