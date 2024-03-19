@@ -95,6 +95,7 @@
 "common_no_address" = "No address";
 "common_ok" = "OK";
 "common_origin_card" = "主卡片";
+"common_passphrase" = "Passphrase";
 "common_paste" = "Paste";
 "common_push" = "推送";
 "common_read_more" = "Read more";
@@ -288,6 +289,7 @@
 "onboarding_alert_message_not_max_backup_cards_added" = "您已添加一張備用卡。備份過程完成後，您將無法添加更多備份卡。如果您還有一張卡，請將其添加到備份中。您想繼續備份過程嗎？";
 "onboarding_alert_message_old_device" = "由於某些系統限制，iPhone 7/7+ 無法為 Tangem 錢包創建備份。請使用另一部手機執行此操作。 所有其他功能穩定運行";
 "onboarding_backup_exit_warning" = "備份過程已部分完成。你現在不能退出";
+"onboarding_bottom_sheet_passphrase_description" = "The passphrase is an advanced security feature that crypto wallets use. It adds an extra word or phrase of your own choosing to your already existing recovery phrase to unlock a brand-new set of addresses.";
 "onboarding_button_add_backup_card" = "添加備用卡";
 "onboarding_button_backup_card_format" = "掃描卡片 #%li";
 "onboarding_button_backup_now" = "立即備份";
@@ -417,7 +419,6 @@
 "send_alert_transaction_failed_text" = "Reason: %1$s\nCode: %2$s";
 "send_alert_transaction_failed_title" = "The transaction is not completed";
 "send_amount_label" = "數量";
-"send_confirm_label" = "Confirm";
 "send_date_format" = "%1$@, %2$@";
 "send_destination_hint_address" = "地址";
 "send_destination_tag_field" = "Destination Tag";
@@ -473,6 +474,9 @@
 "send_recipient_memo_footer" = "A Memo/Destination Tag is a unique ID for differentiating transactions sent to the same recipient on the same network. Caution: Omitting a memo may lead to misplaced funds";
 "send_recipient_wallets_title" = "My wallets";
 "send_sending" = "Sending...";
+"send_summary_tap_hint" = "Tap any field to change it";
+"send_summary_title" = "Send %@";
+"send_summary_transaction_description" = "You are sending %1$@ including a network fee of %2$@";
 "send_title_currency_format" = "發送 %@";
 "send_total_label" = "總計";
 "send_total_subtitle_asset_format" = "%1$@ 和 %2$@ 將被發送";

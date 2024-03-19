@@ -95,6 +95,7 @@
 "common_no_address" = "No address";
 "common_ok" = "OK";
 "common_origin_card" = "Primary Card";
+"common_passphrase" = "Passphrase";
 "common_paste" = "Paste";
 "common_push" = "Push";
 "common_read_more" = "Read more";
@@ -288,6 +289,7 @@
 "onboarding_alert_message_not_max_backup_cards_added" = "You've added one backup card. When backup process is finished you can't add more backup cards. If you have one more card, add it to backup. Do you like to continue the backup process?";
 "onboarding_alert_message_old_device" = "iPhone 7/7+ is not able to create a backup for Tangem Wallet due to some system limitations. Please use another phone to perform this operation. All other functions work stably.";
 "onboarding_backup_exit_warning" = "The backup process is partly complete. You can't exit it now.";
+"onboarding_bottom_sheet_passphrase_description" = "The passphrase is an advanced security feature that crypto wallets use. It adds an extra word or phrase of your own choosing to your already existing recovery phrase to unlock a brand-new set of addresses.";
 "onboarding_button_add_backup_card" = "Add a backup card";
 "onboarding_button_backup_card_format" = "Scan the card #%li";
 "onboarding_button_backup_now" = "Backup now";
@@ -417,7 +419,6 @@
 "send_alert_transaction_failed_text" = "Reason: %1$s\nCode: %2$s";
 "send_alert_transaction_failed_title" = "The transaction is not completed";
 "send_amount_label" = "Somme";
-"send_confirm_label" = "Confirm";
 "send_date_format" = "%1$@, %2$@";
 "send_destination_hint_address" = "Adresse";
 "send_destination_tag_field" = "Destination Tag";
@@ -473,6 +474,9 @@
 "send_recipient_memo_footer" = "A Memo/Destination Tag is a unique ID for differentiating transactions sent to the same recipient on the same network. Caution: Omitting a memo may lead to misplaced funds";
 "send_recipient_wallets_title" = "My wallets";
 "send_sending" = "Sending...";
+"send_summary_tap_hint" = "Tap any field to change it";
+"send_summary_title" = "Send %@";
+"send_summary_transaction_description" = "You are sending %1$@ including a network fee of %2$@";
 "send_title_currency_format" = "Sending %@";
 "send_total_label" = "Total";
 "send_total_subtitle_asset_format" = "Sera envoyé %1$@ et %2$@";
