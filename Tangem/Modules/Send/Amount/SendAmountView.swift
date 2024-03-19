@@ -54,11 +54,13 @@ struct SendAmountView: View {
 
     private var amountSectionContent: some View {
         VStack(spacing: 0) {
-            Text(viewModel.walletName)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-                .lineLimit(1)
-                .padding(.top, 18)
-                .matchedGeometryEffect(id: SendViewNamespaceId.amountTitle.rawValue, in: namespace)
+            if !viewModel.animatingAuxiliaryViewsOnAppear {
+                Text(viewModel.walletName)
+                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .lineLimit(1)
+                    .padding(.top, 18)
+                    .transition(SendView.Constants.auxiliaryViewTransition)
+            }
 
             if !viewModel.animatingAuxiliaryViewsOnAppear {
                 SensitiveText(viewModel.balance)
@@ -80,6 +82,7 @@ struct SendAmountView: View {
                 .initialFocusBehavior(.delayedFocus(duration: 2 * SendView.Constants.animationDuration))
                 .alignment(.center)
                 .suffix(viewModel.useFiatCalculation ? viewModel.fiatCurrencyCode : viewModel.cryptoCurrencyCode)
+                .frame(maxWidth: .infinity)
                 .matchedGeometryEffect(id: SendViewNamespaceId.amountCryptoText.rawValue, in: namespace)
                 .padding(.top, 18)
 
