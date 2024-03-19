@@ -964,6 +964,7 @@
 		DC66BC0E285B75C900CDF765 /* PushTxCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC0D285B75C900CDF765 /* PushTxCoordinatorView.swift */; };
 		DC66BC10285C405C00CDF765 /* CoordinatorObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC0F285C405C00CDF765 /* CoordinatorObject.swift */; };
 		DC66BC16285C529600CDF765 /* LegacySendRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC15285C529600CDF765 /* LegacySendRoutable.swift */; };
+		DC6D99FE2BAA2481001F620A /* NDEFURLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6D99FD2BAA2481001F620A /* NDEFURLParser.swift */; };
 		DC6DACFF2A98DF1F00AEBB8C /* ReferralInputModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6DACFE2A98DF1F00AEBB8C /* ReferralInputModel.swift */; };
 		DC70BFD52B91059B002205BA /* SecurityOptionChanging.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC70BFD42B91059B002205BA /* SecurityOptionChanging.swift */; };
 		DC70BFD72B9105BF002205BA /* SecurityOptionChangingCardInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC70BFD62B9105BF002205BA /* SecurityOptionChangingCardInteractor.swift */; };
@@ -2432,6 +2433,7 @@
 		DC66BC0D285B75C900CDF765 /* PushTxCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTxCoordinatorView.swift; sourceTree = "<group>"; };
 		DC66BC0F285C405C00CDF765 /* CoordinatorObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatorObject.swift; sourceTree = "<group>"; };
 		DC66BC15285C529600CDF765 /* LegacySendRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacySendRoutable.swift; sourceTree = "<group>"; };
+		DC6D99FD2BAA2481001F620A /* NDEFURLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NDEFURLParser.swift; sourceTree = "<group>"; };
 		DC6DACFE2A98DF1F00AEBB8C /* ReferralInputModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralInputModel.swift; sourceTree = "<group>"; };
 		DC70BFD42B91059B002205BA /* SecurityOptionChanging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityOptionChanging.swift; sourceTree = "<group>"; };
 		DC70BFD62B9105BF002205BA /* SecurityOptionChangingCardInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityOptionChangingCardInteractor.swift; sourceTree = "<group>"; };
@@ -6693,6 +6695,7 @@
 				DC0DE2792B6175B100E7247F /* IncomingActionConstants.swift */,
 				DC8B159E2B69616B00DBBE9E /* DismissSafariActionURLHelper.swift */,
 				DC0469392B8E6BE400C785D1 /* SellActionURLHelper.swift */,
+				DC6D99FD2BAA2481001F620A /* NDEFURLParser.swift */,
 			);
 			path = IncomingActionManager;
 			sourceTree = "<group>";
@@ -8418,6 +8421,7 @@
 				5D39515925597DA5002CC452 /* WalletModel.swift in Sources */,
 				DAAA3C722B3D813C0002DBB0 /* SendAddressService.swift in Sources */,
 				EF6EDD8C296D6B51001B21A3 /* SendDecimalNumberTextField.swift in Sources */,
+				DC6D99FE2BAA2481001F620A /* NDEFURLParser.swift in Sources */,
 				B0E7489C2A3C130B0015E3FC /* ReceiveBottomSheetView.swift in Sources */,
 				B00371C22A8A5F8800D77A4B /* FakeDerivationManager.swift in Sources */,
 				EFD32AEB29EE7F390026353E /* Feature.swift in Sources */,
