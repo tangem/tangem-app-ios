@@ -78,7 +78,10 @@ extension SendNotificationEvent: NotificationEvent {
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .networkFeeUnreachable, .totalExceedsBalance, .feeExceedsBalance, .existentialDeposit, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange:
+        case .networkFeeUnreachable, .totalExceedsBalance, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange:
+            // ♿️ Does it have a button? Use `action`
+            return .action
+        case .feeExceedsBalance, .existentialDeposit:
             return .primary
         case .customFeeTooHigh, .customFeeTooLow, .minimumAmount:
             return .secondary
@@ -156,6 +159,7 @@ extension SendNotificationEvent {
 }
 
 extension SendNotificationEvent {
+    // ♿️ Does it have a button? Use `action` color scheme then ☝️
     var buttonActionType: NotificationButtonActionType? {
         switch self {
         case .networkFeeUnreachable:
