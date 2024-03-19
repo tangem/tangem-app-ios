@@ -184,7 +184,6 @@ class SendModel {
         transaction.value
     }
 
-    @discardableResult
     func updateFees() -> AnyPublisher<FeeUpdateResult, Error> {
         updateFees(amount: validatedAmount.value, destination: validatedDestination.value?.value)
     }
