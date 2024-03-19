@@ -273,15 +273,9 @@ class SendModel {
 
         _feeValues
             .sink { [weak self] feeValues in
-                guard
-                    let self,
-                    let selectedFee = feeValues[selectedFeeOption],
-                    let selectedFeeValue = selectedFee.value
-                else {
-                    return
-                }
+                guard let self else { return }
 
-                fee.send(selectedFeeValue)
+                fee.send(feeValues[selectedFeeOption]?.value)
 
                 if let customFee = feeValues[.custom]?.value,
                    let ethereumFeeParameters = customFee.parameters as? EthereumFeeParameters,
@@ -356,6 +350,8 @@ class SendModel {
             _feeValues.send([:])
             return .anyFail(error: WalletError.failedToGetFee)
         }
+
+        _feeValues.send([:])
 
         let oldFee = fee.value
         let publisher = walletModel
