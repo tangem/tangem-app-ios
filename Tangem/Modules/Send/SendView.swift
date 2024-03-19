@@ -57,12 +57,17 @@ struct SendView: View {
                 Spacer()
                     .layoutPriority(1)
 
-                Text(title)
-                    .style(Fonts.Bold.body, color: Colors.Text.primary1)
-                    .animation(nil, value: title)
-                    .padding(.vertical, 8)
-                    .lineLimit(1)
-                    .layoutPriority(2)
+                // Making sure the header doesn't jump when changing the visibility of the fields
+                ZStack {
+                    headerText(title: title, subtitle: viewModel.subtitle)
+
+                    headerText(title: "Title", subtitle: "Subtitle")
+                        .hidden()
+                }
+                .animation(nil, value: title)
+                .padding(.vertical, 0)
+                .lineLimit(1)
+                .layoutPriority(2)
 
                 if viewModel.showQRCodeButton {
                     Button(action: viewModel.scanQRCode) {
@@ -79,6 +84,19 @@ struct SendView: View {
             }
             .padding(.horizontal, 16)
             .padding(.top, 12)
+        }
+    }
+
+    @ViewBuilder
+    private func headerText(title: String, subtitle: String?) -> some View {
+        VStack(spacing: 2) {
+            Text(title)
+                .style(Fonts.Bold.body, color: Colors.Text.primary1)
+
+            if let subtitle = subtitle {
+                Text(subtitle)
+                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+            }
         }
     }
 
