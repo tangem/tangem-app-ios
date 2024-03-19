@@ -59,7 +59,6 @@ class ServicesManager {
     }
 
     private func configureAmplitude() {
-        Amplitude.instance().trackingSessionEvents = true
         Amplitude.instance().initializeApiKey(try! CommonKeysManager().amplitudeApiKey)
     }
 
