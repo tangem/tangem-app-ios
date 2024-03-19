@@ -57,14 +57,7 @@ final class UserWalletNotificationManager {
         var inputs: [NotificationViewInput] = []
 
         if !userWalletModel.validate() {
-            inputs.append(
-                factory.buildNotificationInput(
-                    for: .backupErrors,
-                    action: action,
-                    buttonAction: buttonAction,
-                    dismissAction: dismissAction
-                )
-            )
+            Analytics.log(.mainNoticeBackupErrors)
         }
 
         if userWalletModel.config.hasFeature(.multiCurrency) {
