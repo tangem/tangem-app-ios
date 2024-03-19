@@ -128,7 +128,6 @@ class SendModel {
     private var destinationResolutionRequest: Task<Void, Error>?
     private var didSetCustomFee = false
     private var feeUpdatePublisher: AnyPublisher<FeeUpdateResult, Error>?
-    private var feeUpdateSubscription: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
