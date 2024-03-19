@@ -117,12 +117,13 @@ final class ExpressViewModel: ObservableObject {
 
             switch providerType {
             case .cex:
-                let tokenItemSymbol = viewModel.interactor.getSender().tokenItem.currencySymbol
+                let tokenItemSymbol = viewModel.interactor.getDestination()?.tokenItem.currencySymbol ?? ""
                 message = Localization.swappingAlertCexDescription(tokenItemSymbol)
             case .dex:
                 message = Localization.swappingAlertDexDescription
                 if isBigLoss {
-                    message += "\n\n\(Localization.swappingHighPriceImpactDescription)"
+                    // Insert as the first paragraph
+                    message += "\(Localization.swappingHighPriceImpactDescription)\n\n\(message)"
                 }
             }
 
@@ -228,7 +229,9 @@ private extension ExpressViewModel {
 
         notificationManager
             .notificationPublisher
-            .receive(on: DispatchQueue.main)
+            .removeDuplicates()
+            // Debounce for exclude unwanted animations/updates
+            .debounce(for: 0.2, scheduler: DispatchQueue.main)
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
@@ -571,7 +574,7 @@ private extension ExpressViewModel {
     }
 }
 
-// MARK: - Restrictions
+// MARK: - NotificationTapDelegate
 
 extension ExpressViewModel: NotificationTapDelegate {
     func didTapNotification(with id: NotificationViewId) {}
