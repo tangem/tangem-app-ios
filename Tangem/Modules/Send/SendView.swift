@@ -54,9 +54,8 @@ struct SendView: View {
     private var header: some View {
         if let title = viewModel.title {
             HStack {
-                // Using Color.clear to avoid dealing with priorities
-                Color.clear
-                    .frame(maxWidth: .infinity, maxHeight: 1)
+                Spacer()
+                    .layoutPriority(1)
 
                 // Making sure the header doesn't jump when changing the visibility of the fields
                 ZStack {
@@ -68,7 +67,7 @@ struct SendView: View {
                 .animation(nil, value: title)
                 .padding(.vertical, 0)
                 .lineLimit(1)
-                .layoutPriority(1)
+                .layoutPriority(2)
 
                 if viewModel.showQRCodeButton {
                     Button(action: viewModel.scanQRCode) {
@@ -77,9 +76,10 @@ struct SendView: View {
                             .foregroundColor(Colors.Icon.primary1)
                             .frame(maxWidth: .infinity, alignment: .trailing)
                     }
+                    .layoutPriority(1)
                 } else {
-                    Color.clear
-                        .frame(maxWidth: .infinity, maxHeight: 1)
+                    Spacer()
+                        .layoutPriority(1)
                 }
             }
             .padding(.horizontal, 16)
