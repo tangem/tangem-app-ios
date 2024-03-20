@@ -52,7 +52,10 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
 
     private func bind(style: Style, input: AnyPublisher<String, Never>, isValidating: AnyPublisher<Bool, Never>, isDisabled: AnyPublisher<Bool, Never>, errorText: AnyPublisher<Error?, Never>) {
         input
-            .assign(to: \.input, on: self, ownership: .weak)
+            .sink { [weak self] text in
+                guard self?.input != text else { return }
+                self?.input = text
+            }
             .store(in: &bag)
 
         self.$input
@@ -124,7 +127,7 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
     }
 
     func clearInput() {
-        didEnterDestination("")
+        input = ""
     }
 
     private func provideButtonHapticFeedback() {

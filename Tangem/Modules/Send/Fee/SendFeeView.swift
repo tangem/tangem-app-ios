@@ -59,7 +59,10 @@ struct SendFeeView: View {
                let customFeeGasLimitModel = viewModel.customFeeGasLimitModel {
                 Group {
                     SendCustomFeeInputField(viewModel: customFeeModel)
+
                     SendCustomFeeInputField(viewModel: customFeeGasPriceModel)
+                        .onFocusChanged(viewModel.onCustomGasPriceFocusChanged)
+
                     SendCustomFeeInputField(viewModel: customFeeGasLimitModel)
                 }
                 .transition(SendView.Constants.auxiliaryViewTransition)
@@ -73,6 +76,7 @@ struct SendFeeView: View {
             Spacer(minLength: bottomSpacing)
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
+        .onAppear(perform: viewModel.onAppear)
         .onAppear(perform: viewModel.onSectionContentAppear)
         .onDisappear(perform: viewModel.onSectionContentDisappear)
         .onAppear(perform: viewModel.onAuxiliaryViewAppear)
