@@ -28,6 +28,7 @@ struct SendDecimalNumberTextField: View {
     private var toolbarType: ToolbarType?
     private var appearance: DecimalNumberTextField.Appearance = .init()
     private var alignment: Alignment = .leading
+    private var onFocusChanged: ((Bool) -> Void)?
 
     // Suffix properties
     private var suffix: String? = nil
@@ -95,6 +96,9 @@ struct SendDecimalNumberTextField: View {
                     isInputActive = true
                 }
             }
+            .onChange(of: isInputActive) { isInputActive in
+                onFocusChanged?(isInputActive)
+            }
     }
 
     @ViewBuilder
@@ -148,6 +152,10 @@ extension SendDecimalNumberTextField: Setupable {
 
     func initialFocusBehavior(_ initialFocusBehavior: InitialFocusBehavior) -> Self {
         map { $0.initialFocusBehavior = initialFocusBehavior }
+    }
+
+    func onFocusChanged(_ action: ((Bool) -> Void)?) -> Self {
+        map { $0.onFocusChanged = action }
     }
 }
 
