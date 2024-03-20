@@ -200,7 +200,12 @@ final class SendViewModel: ObservableObject {
         sendAmountViewModel = SendAmountViewModel(input: sendModel, walletInfo: walletInfo)
         sendDestinationViewModel = SendDestinationViewModel(input: sendModel)
         sendFeeViewModel = SendFeeViewModel(input: sendModel, notificationManager: notificationManager, walletInfo: walletInfo)
-        sendSummaryViewModel = SendSummaryViewModel(input: sendModel, notificationManager: notificationManager, walletInfo: walletInfo)
+        sendSummaryViewModel = SendSummaryViewModel(
+            input: sendModel, 
+            useFiatCalculation: sendAmountViewModel.$useFiatCalculation.eraseToAnyPublisher(),
+            notificationManager: notificationManager,
+            walletInfo: walletInfo
+        )
 
         sendFeeViewModel.router = coordinator
         sendSummaryViewModel.router = self
@@ -406,7 +411,11 @@ final class SendViewModel: ObservableObject {
     }
 
     private func openFinishPage() {
-        guard let sendFinishViewModel = SendFinishViewModel(input: sendModel, walletInfo: walletInfo) else {
+        guard let sendFinishViewModel = SendFinishViewModel(
+            input: sendModel,
+            useFiatCalculation: sendAmountViewModel.useFiatCalculation,
+            walletInfo: walletInfo
+        ) else {
             assertionFailure("WHY?")
             return
         }
