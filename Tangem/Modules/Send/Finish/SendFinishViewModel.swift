@@ -67,15 +67,21 @@ class SendFinishViewModel: ObservableObject {
     }
 
     func onAppear() {
+        Analytics.log(.sendTransactionSentScreenOpened)
+
         showHeader = true
         showButtons = true
     }
 
     func explore() {
+        Analytics.log(.sendButtonExplore)
+
         router?.explore(url: transactionURL)
     }
 
     func share() {
+        Analytics.log(.sendButtonShare)
+
         router?.share(url: transactionURL)
     }
 
