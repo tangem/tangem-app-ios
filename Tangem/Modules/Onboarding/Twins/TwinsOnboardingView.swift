@@ -12,7 +12,7 @@ struct TwinsOnboardingView: View {
     @ObservedObject var viewModel: TwinsOnboardingViewModel
 
     private let screenSize: CGSize = UIScreen.main.bounds.size
-    private let progressBarHeight: CGFloat = 5
+    private let progressBarHeight: CGFloat = 4
     private let progressBarPadding: CGFloat = 10
     private let disclaimerTopPadding: CGFloat = 8
 
@@ -173,13 +173,7 @@ struct TwinsOnboardingView: View {
                             supplement: viewModel.supplementButtonSettings
                         ),
                         infoText: viewModel.infoText,
-                        titleAction: {
-//                                                    guard viewModel.assembly.isPreview else { return }
-//
-//                                                    withAnimation { //reset for testing
-//                                                        viewModel.reset()
-//                                                    }
-                        },
+                        titleAction: {},
                         checkmarkText: currentStep.checkmarkText,
                         isCheckmarkChecked: $viewModel.alertAccepted
                     )
