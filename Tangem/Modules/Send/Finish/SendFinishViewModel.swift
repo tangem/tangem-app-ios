@@ -16,6 +16,7 @@ protocol SendFinishViewModelInput: AnyObject {
     var destinationText: String? { get }
     var additionalField: (SendAdditionalFields, String)? { get }
     var feeValue: Fee? { get }
+    var selectedFeeOption: FeeOption { get }
 
     var transactionTime: Date? { get }
     var transactionURL: URL? { get }
@@ -57,7 +58,7 @@ class SendFinishViewModel: ObservableObject {
             additionalField: input.additionalField
         )
         amountSummaryViewData = sectionViewModelFactory.makeAmountViewData(from: input.userInputAmountValue)
-        feeSummaryViewData = sectionViewModelFactory.makeFeeViewData(from: input.feeValue)
+        feeSummaryViewData = sectionViewModelFactory.makeFeeViewData(from: input.feeValue, feeOption: input.selectedFeeOption)
 
         let formatter = DateFormatter()
         formatter.dateStyle = .long
