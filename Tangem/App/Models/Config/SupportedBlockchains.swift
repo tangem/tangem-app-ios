@@ -59,6 +59,10 @@ struct SupportedBlockchains {
     private func testableBlockchains() -> Set<Blockchain> {
         [
             .playa3ullGames,
+            .manta(testnet: false),
+            .zkSync(testnet: false),
+            .moonbeam(testnet: false),
+            .polygonZkEVM(testnet: false),
         ]
     }
 
@@ -114,11 +118,6 @@ struct SupportedBlockchains {
             .areon(testnet: false),
             .pulsechain(testnet: false),
             .aurora(testnet: false),
-
-            .manta(testnet: false),
-            .zkSync(testnet: false),
-            .moonbeam(testnet: false),
-            .polygonZkEVM(testnet: false),
         ]
     }
 
