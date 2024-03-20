@@ -75,6 +75,12 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     func onAppear() {
         fiatCryptoAdapter?.setCrypto(input.userInputAmountValue?.value)
+
+        if animatingAuxiliaryViewsOnAppear {
+            Analytics.log(.sendScreenReopened, params: [.commonSource: .amount])
+        } else {
+            Analytics.log(.sendAmountScreenOpened)
+        }
     }
 
     func setUserInputAmount(_ userInputAmount: Decimal?) {
@@ -83,6 +89,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     func didTapMaxAmount() {
         guard let balanceValue else { return }
+
+        Analytics.log(.sendMaxAmountTapped)
 
         provideButtonHapticFeedback()
 
