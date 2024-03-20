@@ -30,7 +30,11 @@ class SendModel {
     }
 
     var feeValid: AnyPublisher<Bool, Never> {
-        .just(output: true)
+        Publishers.CombineLatest(fee, _feeError)
+            .map {
+                $0 != nil && $1 == nil
+            }
+            .eraseToAnyPublisher()
     }
 
     var sendError: AnyPublisher<Error?, Never> {
@@ -124,7 +128,6 @@ class SendModel {
     private var destinationResolutionRequest: Task<Void, Error>?
     private var didSetCustomFee = false
     private var feeUpdatePublisher: AnyPublisher<FeeUpdateResult, Error>?
-    private var feeUpdateSubscription: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
@@ -180,7 +183,6 @@ class SendModel {
         transaction.value
     }
 
-    @discardableResult
     func updateFees() -> AnyPublisher<FeeUpdateResult, Error> {
         updateFees(amount: validatedAmount.value, destination: validatedDestination.value?.value)
     }
@@ -270,15 +272,9 @@ class SendModel {
 
         _feeValues
             .sink { [weak self] feeValues in
-                guard
-                    let self,
-                    let selectedFee = feeValues[selectedFeeOption],
-                    let selectedFeeValue = selectedFee.value
-                else {
-                    return
-                }
+                guard let self else { return }
 
-                fee.send(selectedFeeValue)
+                fee.send(feeValues[selectedFeeOption]?.value)
 
                 if let customFee = feeValues[.custom]?.value,
                    let ethereumFeeParameters = customFee.parameters as? EthereumFeeParameters,
@@ -353,6 +349,8 @@ class SendModel {
             _feeValues.send([:])
             return .anyFail(error: WalletError.failedToGetFee)
         }
+
+        _feeValues.send([:])
 
         let oldFee = fee.value
         let publisher = walletModel

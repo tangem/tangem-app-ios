@@ -98,6 +98,7 @@ final class SendViewModel: ObservableObject {
     private weak var coordinator: SendRoutable?
 
     private var bag: Set<AnyCancellable> = []
+    private var feeUpdateSubscription: AnyCancellable? = nil
 
     private var didReachSummaryScreen = false
 
@@ -515,7 +516,9 @@ extension SendViewModel: NotificationTapDelegate {
     func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
         switch action {
         case .refreshFee:
-            sendModel.updateFees()
+            feeUpdateSubscription = sendModel.updateFees()
+                .mapToVoid()
+                .sink()
         case .openFeeCurrency:
             openNetworkCurrency()
         case .reduceAmountBy(let amount, _):
