@@ -94,6 +94,8 @@ class SendSummaryViewModel: ObservableObject {
             showSectionContent = true
         }
 
+        Analytics.log(.sendConfirmScreenOpened)
+
         screenIdleStartTime = Date()
     }
 
