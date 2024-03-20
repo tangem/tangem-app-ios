@@ -33,7 +33,7 @@ struct SendAmountSummaryView: View {
                     .frame(maxWidth: .infinity)
                     .matchedGeometryEffectOptional(id: amountCryptoNamespaceId, in: namespace)
 
-                Text(data.amountFiat)
+                Text(data.amountAlternative)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     .matchedGeometryEffectOptional(id: amountFiatNamespaceId, in: namespace)
             }
@@ -70,7 +70,7 @@ extension SendAmountSummaryView: Setupable {
                 SendAmountSummaryViewData(
                     title: Localization.sendAmountLabel,
                     amount: "100.00 USDT",
-                    amountFiat: "99.98$",
+                    amountAlternative: "99.98$",
                     tokenIconInfo: .init(
                         name: "tether",
                         blockchainIconName: "ethereum.fill",
@@ -89,7 +89,7 @@ extension SendAmountSummaryView: Setupable {
             SendAmountSummaryViewData(
                 title: Localization.sendAmountLabel,
                 amount: "100 000 000 000 000 000 000 000 000 000 000.00 SOL",
-                amountFiat: "999 999 999 999 999 999 999 999 999 999 999 999 999.98$",
+                amountAlternative: "999 999 999 999 999 999 999 999 999 999 999 999 999.98$",
                 tokenIconInfo: .init(
                     name: "optimism",
                     blockchainIconName: nil,
