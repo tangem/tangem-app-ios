@@ -79,7 +79,7 @@ struct SingleCardOnboardingView: View {
                             rightItems: {
                                 SupportButton(
                                     height: viewModel.navbarSize.height,
-                                    isVisible: true,
+                                    isVisible: viewModel.isSupportButtonVisible,
                                     isEnabled: true
                                 ) {
                                     viewModel.openSupport()
@@ -168,7 +168,6 @@ struct SingleCardOnboardingView: View {
                     ) {
                         viewModel.closeOnboarding()
                     }
-                    .padding(.horizontal, 40)
                 }
             }
         }
