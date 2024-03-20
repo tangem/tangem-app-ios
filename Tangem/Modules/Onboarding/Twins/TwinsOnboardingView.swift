@@ -88,7 +88,7 @@ struct TwinsOnboardingView: View {
                             rightItems: {
                                 SupportButton(
                                     height: viewModel.navbarSize.height,
-                                    isVisible: true,
+                                    isVisible: viewModel.isSupportButtonVisible,
                                     isEnabled: true
                                 ) {
                                     viewModel.openSupport()
@@ -183,7 +183,6 @@ struct TwinsOnboardingView: View {
                         checkmarkText: currentStep.checkmarkText,
                         isCheckmarkChecked: $viewModel.alertAccepted
                     )
-                    .padding(.horizontal, 40)
                 }
             }
         }
