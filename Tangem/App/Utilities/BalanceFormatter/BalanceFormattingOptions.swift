@@ -13,13 +13,11 @@ struct BalanceFormattingOptions {
     let maxFractionDigits: Int
     let roundingType: AmountRoundingType?
 
-    static let defaultFiatRoundingMode: NSDecimalNumber.RoundingMode = .plain
-
     static var defaultFiatFormattingOptions: BalanceFormattingOptions {
         .init(
             minFractionDigits: 2,
             maxFractionDigits: 2,
-            roundingType: .default(roundingMode: defaultFiatRoundingMode, scale: 2)
+            roundingType: .default(roundingMode: .plain, scale: 2)
         )
     }
 
