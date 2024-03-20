@@ -159,17 +159,15 @@ extension CommonUserTokensManager: UserTokensManager {
     }
 
     func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {
-        guard existingCurves.contains(tokenItem.blockchain.curve) else {
-            throw Error.failedSupportedCurve(blockchainDisplayName: tokenItem.blockchain.displayName)
-        }
-
-        if !longHashesSupported, tokenItem.hasLongTransactions {
+        if tokenItem.hasLongTransactions, !longHashesSupported {
             throw Error.failedSupportedLongHashesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
 
-        try validateDerivation(for: tokenItem)
+        if !existingCurves.contains(tokenItem.blockchain.curve) {
+            throw Error.failedSupportedCurve(blockchainDisplayName: tokenItem.blockchain.displayName)
+        }
 
-        return
+        try validateDerivation(for: tokenItem)
     }
 
     func add(_ tokenItem: TokenItem) async throws -> String {
