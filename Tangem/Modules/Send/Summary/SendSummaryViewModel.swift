@@ -70,7 +70,7 @@ class SendSummaryViewModel: ObservableObject {
     private let walletInfo: SendWalletInfo
     private let notificationManager: SendNotificationManager
 
-    init(input: SendSummaryViewModelInput, notificationManager: SendNotificationManager, walletInfo: SendWalletInfo) {
+    init(input: SendSummaryViewModelInput, useFiatCalculation: AnyPublisher<Bool, Never>, notificationManager: SendNotificationManager, walletInfo: SendWalletInfo) {
         self.input = input
         self.walletInfo = walletInfo
         self.notificationManager = notificationManager
@@ -86,7 +86,7 @@ class SendSummaryViewModel: ObservableObject {
         canEditAmount = input.canEditAmount
         canEditDestination = input.canEditDestination
 
-        bind()
+        bind(useFiatCalculation: useFiatCalculation)
     }
 
     func onAppear() {
@@ -139,7 +139,7 @@ class SendSummaryViewModel: ObservableObject {
             .store(in: &bag)
     }
 
-    private func bind() {
+    private func bind(useFiatCalculation: AnyPublisher<Bool, Never>) {
         input
             .isSending
             .assign(to: \.isSending, on: self, ownership: .weak)
@@ -152,10 +152,9 @@ class SendSummaryViewModel: ObservableObject {
             .assign(to: \.destinationViewTypes, on: self)
             .store(in: &bag)
 
-        input
-            .userInputAmountPublisher
-            .compactMap { [weak self] amount in
-                self?.sectionViewModelFactory.makeAmountViewData(from: amount)
+        Publishers.CombineLatest(input.userInputAmountPublisher, useFiatCalculation)
+            .compactMap { [weak self] amount, useFiatCalculation in
+                self?.sectionViewModelFactory.makeAmountViewData(from: amount, useFiatCalculation: useFiatCalculation)
             }
             .assign(to: \.amountSummaryViewData, on: self, ownership: .weak)
             .store(in: &bag)

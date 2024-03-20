@@ -13,6 +13,6 @@ struct SendAmountSummaryViewData: Identifiable {
 
     let title: String
     let amount: String
-    let amountFiat: String
+    let amountAlternative: String
     let tokenIconInfo: TokenIconInfo
 }
