@@ -25,7 +25,7 @@ struct CommonFeeFormatter {
 // MARK: - FeeFormatter
 
 extension CommonFeeFormatter: FeeFormatter {
-    func formattedFeeParts(fee: Decimal, currencySymbol: String, currencyId: String?, isFeeApproximate: Bool) -> FormattedFeeParts {
+    func formattedFeeComponents(fee: Decimal, currencySymbol: String, currencyId: String?, isFeeApproximate: Bool) -> FormattedFeeComponents {
         let cryptoFeeFormatted = balanceFormatter.formatCryptoBalance(fee, currencyCode: currencySymbol)
         let fiatFeeFormatted: String?
 
@@ -37,14 +37,14 @@ extension CommonFeeFormatter: FeeFormatter {
 
         let useApproximationSymbol = fee > 0 && isFeeApproximate
 
-        return FormattedFeeParts(
+        return FormattedFeeComponents(
             cryptoFee: useApproximationSymbol ? ("< " + cryptoFeeFormatted) : cryptoFeeFormatted,
             fiatFee: fiatFeeFormatted
         )
     }
 
     func format(fee: Decimal, currencySymbol: String, currencyId: String?, isFeeApproximate: Bool) -> String {
-        let formattedFee: FormattedFeeParts = formattedFeeParts(
+        let formattedFee: FormattedFeeComponents = formattedFeeComponents(
             fee: fee,
             currencySymbol: currencySymbol,
             currencyId: currencyId,
