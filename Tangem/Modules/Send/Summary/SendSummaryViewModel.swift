@@ -55,7 +55,6 @@ class SendSummaryViewModel: ObservableObject {
     @Published var destinationViewTypes: [SendDestinationSummaryViewType] = []
     @Published var amountSummaryViewData: SendAmountSummaryViewData?
     @Published var feeSummaryViewData: SendFeeSummaryViewData?
-    @Published var feeOptionIcon: Image?
     @Published var transactionDescription: String?
 
     @Published var showSectionContent = false
@@ -165,14 +164,6 @@ class SendSummaryViewModel: ObservableObject {
                 self?.sectionViewModelFactory.makeFeeViewData(from: feeValue, feeOption: feeOption)
             }
             .assign(to: \.feeSummaryViewData, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        input
-            .feeOptionPublisher
-            .map {
-                $0.icon.image
-            }
-            .assign(to: \.feeOptionIcon, on: self, ownership: .weak)
             .store(in: &bag)
 
         Publishers.CombineLatest(input.userInputAmountPublisher, input.feeValuePublisher)
