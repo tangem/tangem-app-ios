@@ -114,7 +114,7 @@ struct WalletOnboardingView: View {
                             rightItems: {
                                 SupportButton(
                                     height: viewModel.navbarSize.height,
-                                    isVisible: true,
+                                    isVisible: viewModel.isSupportButtonVisible,
                                     isEnabled: true
                                 ) {
                                     viewModel.openSupport()
@@ -213,7 +213,6 @@ struct WalletOnboardingView: View {
                     ) {
                         viewModel.closeOnboarding()
                     }
-                    .padding(.horizontal, 40)
                     .padding(.top, 8)
                 }
             }
