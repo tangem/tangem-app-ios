@@ -99,7 +99,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     override var mainButtonSettings: MainButton.Settings? {
         switch currentStep {
-        case .disclaimer, .seedPhraseIntro:
+        case .disclaimer, .seedPhraseIntro, .backupCards, .success, .scanPrimaryCard:
             return nil
         default:
             return MainButton.Settings(
@@ -146,35 +146,35 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     // MARK: - Supplement Button settings
 
-    override var isSupplementButtonVisible: Bool {
-        if currentStep == .backupIntro {
-            if input.isStandalone {
-                return false
+    override var supplementButtonTitle: String {
+        switch currentStep {
+        case .backupCards:
+            switch backupServiceState {
+            case .finalizingPrimaryCard: return Localization.onboardingButtonBackupOrigin
+            case .finalizingBackupCard(let index): return Localization.onboardingButtonBackupCardFormat(index)
+            default: break
             }
-
-            if !(userWalletModel?.config.canSkipBackup ?? true) {
-                return false
-            }
+        case .success:
+            return input.isStandalone ? Localization.commonContinue : super.supplementButtonTitle
+        default: break
         }
 
-        return super.isSupplementButtonVisible
+        return super.supplementButtonTitle
+    }
+
+    override var supplementButtonStyle: MainButton.Style {
+        switch currentStep {
+        case .selectBackupCards, .scanPrimaryCard, .backupCards, .success, .disclaimer:
+            return .primary
+        default:
+            return .secondary
+        }
     }
 
     override var isSupplementButtonEnabled: Bool {
         switch currentStep {
         case .selectBackupCards: return backupCardsAddedCount > 0
         default: return true
-        }
-    }
-
-    override var supplementButtonColor: ButtonColorStyle {
-        switch currentStep {
-        case .createWalletSelector:
-            return .grayAlt3
-        case .backupIntro:
-            return .transparentWhite
-        default:
-            return .black
         }
     }
 
@@ -218,6 +218,14 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     }
 
     // MARK: - Other View related stuff
+
+    override var isSupportButtonVisible: Bool {
+        if case .success = currentStep {
+            return false
+        }
+
+        return true
+    }
 
     lazy var importSeedPhraseModel: OnboardingSeedPhraseImportViewModel? = .init(inputProcessor: SeedPhraseInputProcessor(), delegate: self)
     var generateSeedPhraseModel: OnboardingSeedPhraseGenerateViewModel?
@@ -409,8 +417,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             createWallet()
         case .seedPhraseGeneration:
             goToStep(.seedPhraseUserValidation)
-        case .scanPrimaryCard:
-            readPrimaryCard()
         case .backupIntro:
             if NFCUtils.isPoorNfcQualityDevice {
                 alert = AlertBuilder.makeOldDeviceAlert()
@@ -423,10 +429,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             }
         case .selectBackupCards:
             addBackupCard()
-        case .backupCards:
-            backupCard()
-        case .success:
-            goToNextStep()
         default:
             break
         }
@@ -436,8 +438,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     override func supplementButtonAction() {
         switch currentStep {
-        case .createWallet:
-            break
         case .createWalletSelector:
             Analytics.log(.onboardingSeedButtonOtherCreateWalletOptions)
             goToStep(.seedPhraseIntro)
@@ -468,6 +468,12 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         case .disclaimer:
             disclaimerAccepted()
             goToNextStep()
+        case .backupCards:
+            backupCard()
+        case .success:
+            goToNextStep()
+        case .scanPrimaryCard:
+            readPrimaryCard()
         default:
             break
         }
