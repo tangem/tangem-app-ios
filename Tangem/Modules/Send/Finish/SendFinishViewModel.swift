@@ -35,7 +35,7 @@ class SendFinishViewModel: ObservableObject {
 
     private let transactionURL: URL
 
-    init?(input: SendFinishViewModelInput, walletInfo: SendWalletInfo) {
+    init?(input: SendFinishViewModelInput, useFiatCalculation: Bool, walletInfo: SendWalletInfo) {
         guard
             let destinationText = input.destinationText,
             let transactionTime = input.transactionTime,
@@ -56,7 +56,7 @@ class SendFinishViewModel: ObservableObject {
             address: destinationText,
             additionalField: input.additionalField
         )
-        amountSummaryViewData = sectionViewModelFactory.makeAmountViewData(from: input.userInputAmountValue)
+        amountSummaryViewData = sectionViewModelFactory.makeAmountViewData(from: input.userInputAmountValue, useFiatCalculation: useFiatCalculation)
         feeSummaryViewData = sectionViewModelFactory.makeFeeViewData(from: input.feeValue)
 
         let formatter = DateFormatter()
