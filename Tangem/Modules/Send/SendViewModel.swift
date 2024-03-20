@@ -98,6 +98,7 @@ final class SendViewModel: ObservableObject {
     private weak var coordinator: SendRoutable?
 
     private var bag: Set<AnyCancellable> = []
+    private var feeUpdateSubscription: AnyCancellable? = nil
 
     private var didReachSummaryScreen = false
 
@@ -215,6 +216,8 @@ final class SendViewModel: ObservableObject {
             return
         }
 
+        logNextStepAnalytics()
+
         let stepAnimation: SendView.StepAnimation? = (nextStep == .summary) ? nil : .slideForward
         openStep(nextStep, stepAnimation: stepAnimation)
     }
@@ -260,8 +263,8 @@ final class SendViewModel: ObservableObject {
                 guard let self else { return }
 
                 if showNextButton {
-                    switch destination?.inputSource {
-                    case .otherWallet, .recentAddress:
+                    switch destination?.source {
+                    case .myWallet, .recentAddress:
                         next()
                     default:
                         break
@@ -274,6 +277,10 @@ final class SendViewModel: ObservableObject {
             .sendError
             .sink { [weak self] error in
                 guard let self, let error else { return }
+
+                Analytics.log(event: .sendErrorTransactionRejected, params: [
+                    .token: walletModel.tokenItem.currencySymbol,
+                ])
 
                 let errorCode: String
                 let reason = String(error.localizedDescription.dropTrailingPeriod)
@@ -307,6 +314,19 @@ final class SendViewModel: ObservableObject {
                     }
                     alert = AlertBuilder.makeAlert(title: "", message: Localization.alertDemoFeatureDisabled, primaryButton: button)
                 }
+
+                Analytics.log(.sendSelectedCurrency, params: [
+                    .commonType: sendAmountViewModel.useFiatCalculation ? .selectedCurrencyApp : .token,
+                ])
+            }
+            .store(in: &bag)
+
+        sendModel
+            .destinationPublisher
+            .sink { destination in
+                guard let destination else { return }
+
+                Analytics.logDestinationAddress(isAddressValid: destination.value != nil, source: destination.source)
             }
             .store(in: &bag)
     }
@@ -329,6 +349,11 @@ final class SendViewModel: ObservableObject {
 
     private func showSummaryStepAlertIfNeeded(_ step: SendStep, stepAnimation: SendView.StepAnimation?, checkCustomFee: Bool) -> Bool {
         if sendModel.totalExceedsBalance {
+            Analytics.log(event: .sendNoticeNotEnoughFee, params: [
+                .token: walletModel.tokenItem.currencySymbol,
+                .blockchain: walletModel.tokenItem.blockchain.displayName,
+            ])
+
             alert = SendAlertBuilder.makeSubtractFeeFromAmountAlert { [weak self] in
                 self?.sendModel.includeFeeIntoAmount()
                 self?.openStep(step, stepAnimation: stepAnimation)
@@ -338,6 +363,10 @@ final class SendViewModel: ObservableObject {
         }
 
         if checkCustomFee, notificationManager.hasNotificationEvent(.customFeeTooLow) {
+            Analytics.log(event: .sendNoticeTransactionDelaysArePossible, params: [
+                .token: walletModel.tokenItem.currencySymbol,
+            ])
+
             alert = SendAlertBuilder.makeCustomFeeTooLowAlert { [weak self] in
                 self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: false)
             }
@@ -398,11 +427,37 @@ final class SendViewModel: ObservableObject {
             return
         }
 
-        sendModel.setDestination(SendAddress(value: result.destination, inputSource: .qrCode))
+        sendModel.setDestination(SendAddress(value: result.destination, source: .qrCode))
         sendModel.setAmount(result.amount)
 
         if let memo = result.memo {
             sendModel.setDestinationAdditionalField(memo)
+        }
+    }
+
+    private func logNextStepAnalytics() {
+        switch step {
+        case .fee:
+            Analytics.log(event: .sendFeeSelected, params: [.feeType: selectedFeeTypeAnalyticsParameter().rawValue])
+        default:
+            break
+        }
+    }
+
+    private func selectedFeeTypeAnalyticsParameter() -> Analytics.ParameterValue {
+        if sendModel.feeOptions.count == 1 {
+            return .transactionFeeFixed
+        }
+
+        switch sendModel.selectedFeeOption {
+        case .slow:
+            return .transactionFeeMin
+        case .market:
+            return .transactionFeeNormal
+        case .fast:
+            return .transactionFeeMax
+        case .custom:
+            return .transactionFeeCustom
         }
     }
 
@@ -461,7 +516,9 @@ extension SendViewModel: NotificationTapDelegate {
     func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
         switch action {
         case .refreshFee:
-            sendModel.updateFees()
+            feeUpdateSubscription = sendModel.updateFees()
+                .mapToVoid()
+                .sink()
         case .openFeeCurrency:
             openNetworkCurrency()
         case .reduceAmountBy(let amount, _):
