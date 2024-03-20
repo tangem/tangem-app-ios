@@ -139,7 +139,10 @@ private extension SendFiatCryptoAdapter {
             self.crypto = crypto
 
             if let cryptoCurrencyId, let crypto {
-                fiat = balanceConverter.convertToFiat(value: crypto, from: cryptoCurrencyId)?.rounded(scale: 2)
+                fiat = balanceConverter.convertToFiat(value: crypto, from: cryptoCurrencyId)?.rounded(
+                    scale: 2,
+                    roundingMode: BalanceFormattingOptions.defaultFiatRoundingMode
+                )
             } else {
                 fiat = nil
             }
