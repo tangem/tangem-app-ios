@@ -141,6 +141,6 @@ struct SendFinishView_Previews: PreviewProvider {
     )
 
     static var previews: some View {
-        SendFinishView(namespace: namespace, viewModel: SendFinishViewModel(input: SendFinishViewModelInputMock(), walletInfo: walletInfo)!)
+        SendFinishView(namespace: namespace, viewModel: SendFinishViewModel(input: SendFinishViewModelInputMock(), useFiatCalculation: false, walletInfo: walletInfo)!)
     }
 }
