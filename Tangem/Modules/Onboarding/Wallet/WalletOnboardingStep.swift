@@ -111,7 +111,6 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
     var mainButtonTitle: String {
         switch self {
         case .createWallet, .createWalletSelector: return Localization.onboardingCreateWalletButtonCreateWallet
-        case .scanPrimaryCard: return Localization.onboardingButtonScanOriginCard
         case .backupIntro: return Localization.onboardingButtonBackupNow
         case .selectBackupCards: return Localization.onboardingButtonAddBackupCard
         case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonTitle
@@ -123,7 +122,7 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
 
     var mainButtonIcon: ImageType? {
         switch self {
-        case .createWallet, .createWalletSelector, .scanPrimaryCard, .selectBackupCards, .backupCards:
+        case .createWallet, .createWalletSelector, .selectBackupCards, .backupCards:
             return Assets.tangemIcon
         default:
             return nil
@@ -138,7 +137,18 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
         case .selectBackupCards: return Localization.onboardingButtonFinalizeBackup
         case .createWalletSelector: return Localization.onboardingCreateWalletOptionsButtonOptions
         case .seedPhraseIntro: return Localization.onboardingSeedIntroButtonImport
+        case .success: return Localization.onboardingButtonContinueWallet
+        case .scanPrimaryCard: return Localization.onboardingButtonScanOriginCard
         default: return ""
+        }
+    }
+
+    var supplementButtonIcon: ImageType? {
+        switch self {
+        case .backupCards, .scanPrimaryCard:
+            return Assets.tangemIcon
+        default:
+            return nil
         }
     }
 
