@@ -81,7 +81,7 @@ struct SendAmountView: View {
                 // A small delay must be introduced to fix a glitch in a transition animation when changing screens
                 .initialFocusBehavior(.delayedFocus(duration: 2 * SendView.Constants.animationDuration))
                 .alignment(.center)
-                .suffix(viewModel.useFiatCalculation ? viewModel.fiatCurrencyCode : viewModel.cryptoCurrencyCode)
+                .suffix(viewModel.useFiatCalculation ? viewModel.fiatCurrencySymbol : viewModel.cryptoCurrencyCode)
                 .frame(maxWidth: .infinity)
                 .matchedGeometryEffect(id: SendViewNamespaceId.amountCryptoText.rawValue, in: namespace)
                 .padding(.top, 18)
