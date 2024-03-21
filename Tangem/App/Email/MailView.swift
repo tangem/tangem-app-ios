@@ -66,9 +66,35 @@ struct MailView: UIViewControllerRepresentable {
         messageBody.append("\n\n")
         vc.setMessageBody(messageBody, isHTML: false)
 
-        viewModel.logsComposer.getLogsData().forEach {
-            vc.addAttachmentData($0.value, mimeType: "text/plain", fileName: $0.key)
-        }
+        let logFiles = viewModel.logsComposer.getLogFiles()
+//        logFiles.forEach { originalURL in
+//            let coordinator = NSFileCoordinator()
+//            let zipIntent = NSFileAccessIntent.readingIntent(with: originalURL, options: [.forUploading])
+//            coordinator.coordinate(with: [zipIntent], queue: .main) { error in
+//                if let error {
+//                    print("Error")
+//                    return
+//                }
+//                let zipURL = zipIntent.url
+//                vc.addAttachmentData((try? Data(contentsOf: zipURL)) ?? Data(), mimeType: "application/zip", fileName: (originalURL.lastPathComponent as NSString).deletingPathExtension + ".zip")
+//            }
+//        }
+
+//        let fileManager = FileManager()
+//        logFiles.forEach { originalURL in
+//            let fileName = (originalURL.lastPathComponent as NSString).deletingPathExtension + ".zip"
+//            let archiveURL = fileManager.temporaryDirectory.appendingPathComponent(fileName, conformingTo: .zip)
+//            try? fileManager.zipItem(at: originalURL, to: archiveURL, compressionMethod: .deflate)
+//            vc.addAttachmentData((try? Data(contentsOf: archiveURL)) ?? Data(), mimeType: "application/zip", fileName: fileName)
+//        }
+
+//        viewModel.logsComposer.getLogsData().forEach {
+//            if let compressed = try? $0.value.compressed(using: .lz4) {
+//                vc.addAttachmentData(compressed, mimeType: "application/zip", fileName: ($0.key as NSString).deletingPathExtension + ".zip")
+//            } else {
+//                vc.addAttachmentData($0.value, mimeType: "text/plain", fileName: $0.key)
+//            }
+//        }
 
         return vc
     }
