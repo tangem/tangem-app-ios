@@ -16,6 +16,8 @@ enum AppConstants {
         UIScreen.main.bounds.width < 375 || UIScreen.main.bounds.height < 650
     }
 
+    static let platformName = "iOS"
+
     static let messageForTokensKey = "TokensSymmetricKey"
     static let maximumFractionDigitsForBalance = 8
 
