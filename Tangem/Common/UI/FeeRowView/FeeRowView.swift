@@ -99,23 +99,80 @@ struct ExpressFeeRowView_Preview: PreviewProvider {
         @State private var option: FeeOption = .market
 
         private var viewModels: [FeeRowViewModel] {
-            [FeeRowViewModel(
-                option: .market,
-                subtitle: .loaded("0.159817 MATIC (0.22 $)"),
-                isSelected: .init(get: { option == .market }, set: { _ in option = .market })
-            ), FeeRowViewModel(
-                option: .fast,
-                subtitle: .loaded("0.159817 MATIC (0.22 $)"),
-                isSelected: .init(get: { option == .fast }, set: { _ in option = .fast })
-            )]
+            [
+                FeeRowViewModel(
+                    option: .slow,
+                    formattedFeeComponents: .loaded(.init(cryptoFee: "0.359817123123123123123 MATIC", fiatFee: "123123123123120.22 $")),
+                    isSelected: .init(get: { option == .slow }, set: { _ in option = .slow })
+                ),
+                FeeRowViewModel(
+                    option: .market,
+                    formattedFeeComponents: .loaded(.init(cryptoFee: "0.159817 MATIC", fiatFee: "0.22 $")),
+                    isSelected: .init(get: { option == .market }, set: { _ in option = .market })
+                ),
+                FeeRowViewModel(
+                    option: .fast,
+                    formattedFeeComponents: .loaded(.init(cryptoFee: "0.159817 MATIC", fiatFee: "0.22 $")),
+                    isSelected: .init(get: { option == .fast }, set: { _ in option = .fast })
+                ),
+            ]
+        }
+
+        private var viewModels2: [FeeRowViewModel] {
+            [
+                FeeRowViewModel(
+                    option: .slow,
+                    formattedFeeComponents: .loaded(.init(cryptoFee: "0.359817123123123123123 MATIC", fiatFee: "123123123123120.22 $")),
+                    isSelected: .init(get: { option == .slow }, set: { _ in option = .slow })
+                ),
+                FeeRowViewModel(
+                    option: .market,
+                    formattedFeeComponents: .loaded(.init(cryptoFee: "0.159812312312312317 MATIC", fiatFee: "0.22 $")),
+                    isSelected: .init(get: { option == .market }, set: { _ in option = .market })
+                ),
+                FeeRowViewModel(
+                    option: .fast,
+                    formattedFeeComponents: .loaded(.init(cryptoFee: "0.159817 MATIC", fiatFee: "123123123123120.22 $")),
+                    isSelected: .init(get: { option == .fast }, set: { _ in option = .fast })
+                ),
+            ]
+        }
+
+        private var viewModels3: [FeeRowViewModel] {
+            [
+                FeeRowViewModel(
+                    option: .slow,
+                    formattedFeeComponents: .loaded(.init(cryptoFee: "0.35981712312312312313 MATIC", fiatFee: "123123123123120.22 $")),
+                    isSelected: .init(get: { option == .slow }, set: { _ in option = .slow })
+                ),
+                FeeRowViewModel(
+                    option: .market,
+                    formattedFeeComponents: .loading,
+                    isSelected: .init(get: { option == .market }, set: { _ in option = .market })
+                ),
+                FeeRowViewModel(
+                    option: .fast,
+                    formattedFeeComponents: .failedToLoad(error: ExpressFeeProviderError.feeNotFound),
+                    isSelected: .init(get: { option == .fast }, set: { _ in option = .fast })
+                ),
+            ]
         }
 
         var body: some View {
-            GroupedSection(viewModels) {
-                FeeRowView(viewModel: $0)
+            GroupedScrollView(spacing: 14) {
+                GroupedSection(viewModels) {
+                    FeeRowView(viewModel: $0)
+                }
+
+                GroupedSection(viewModels2) {
+                    FeeRowView(viewModel: $0)
+                }
+
+                GroupedSection(viewModels3) {
+                    FeeRowView(viewModel: $0)
+                }
             }
-            .padding(.vertical, 14)
-            .background(Colors.Background.secondary)
+            .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         }
     }
 
