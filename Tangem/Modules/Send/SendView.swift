@@ -147,7 +147,7 @@ struct SendView: View {
                 )
             }
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 16)
         .padding(.bottom, 6)
     }
 
