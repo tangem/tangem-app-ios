@@ -138,8 +138,14 @@ private extension SendFiatCryptoAdapter {
 
             self.crypto = crypto
 
-            if let cryptoCurrencyId, let crypto {
-                fiat = balanceConverter.convertToFiat(value: crypto, from: cryptoCurrencyId)?.rounded(scale: 2)
+            let fiatFormattingOptions = BalanceFormattingOptions.defaultFiatFormattingOptions
+            if let cryptoCurrencyId,
+               let crypto,
+               let roundingMode = fiatFormattingOptions.roundingType?.roundingMode {
+                fiat = balanceConverter.convertToFiat(value: crypto, from: cryptoCurrencyId)?.rounded(
+                    scale: fiatFormattingOptions.maxFractionDigits,
+                    roundingMode: roundingMode
+                )
             } else {
                 fiat = nil
             }
