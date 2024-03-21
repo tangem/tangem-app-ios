@@ -15,6 +15,9 @@ struct FeeRowView: View {
     private var optionNamespaceId: String?
     private var amountNamespaceId: String?
 
+    private let regularFont = Fonts.Regular.subheadline
+    private let boldFont = Fonts.Bold.subheadline
+
     init(viewModel: FeeRowViewModel) {
         self.viewModel = viewModel
     }
@@ -36,9 +39,8 @@ struct FeeRowView: View {
 
                 Spacer()
 
-                if let subtitleText = viewModel.subtitleText {
-                    Text(subtitleText)
-                        .style(font, color: Colors.Text.primary1)
+                if let cryptoAmount = viewModel.cryptoAmount {
+                    feeAmount(cryptoAmount: cryptoAmount, fiatAmount: viewModel.fiatAmount)
                         .matchedGeometryEffectOptional(id: amountNamespaceId, in: namespace)
                         .frame(minWidth: viewModel.isLoading ? 70 : 0)
                         .skeletonable(isShown: viewModel.isLoading)
@@ -48,12 +50,33 @@ struct FeeRowView: View {
         }
     }
 
+    @ViewBuilder
+    private func feeAmount(cryptoAmount: String, fiatAmount: String?) -> some View {
+        HStack(spacing: 4) {
+            Text(cryptoAmount)
+                .style(font, color: Colors.Text.primary1)
+                .lineLimit(1)
+                .layoutPriority(1)
+
+            if let fiatAmount {
+                Text("•")
+                    .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                    .layoutPriority(3)
+
+                Text(fiatAmount)
+                    .style(regularFont, color: Colors.Text.tertiary)
+                    .lineLimit(1)
+                    .layoutPriority(2)
+            }
+        }
+    }
+
     private var iconColor: Color {
         viewModel.isSelected.value ? Colors.Icon.accent : Colors.Icon.informative
     }
 
     private var font: Font {
-        viewModel.isSelected.value ? Fonts.Bold.footnote : Fonts.Regular.footnote
+        viewModel.isSelected.value ? boldFont : regularFont
     }
 }
 
