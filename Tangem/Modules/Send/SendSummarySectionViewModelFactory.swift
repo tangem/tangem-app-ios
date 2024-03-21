@@ -51,7 +51,7 @@ struct SendSummarySectionViewModelFactory {
         let amountFiat: String
         if let currencyId,
            let fiatValue = BalanceConverter().convertToFiat(value: amount.value, from: currencyId) {
-            amountFiat = BalanceFormatter().formatFiatBalance(fiatValue)
+            amountFiat = BalanceFormatter().formatFiatBalance(fiatValue, formattingOptions: .defaultFiatFormattingOptions)
         } else {
             amountFiat = AppConstants.dashSign
         }
