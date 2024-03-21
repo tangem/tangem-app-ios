@@ -52,7 +52,7 @@ final class SingleTokenNotificationManager {
                 switch state {
                 case .failed:
                     self?.setupNetworkUnreachable()
-                case .noAccount(let message):
+                case .noAccount(let message, _):
                     self?.setupNoAccountNotification(with: message)
                 case .loading, .created:
                     break
