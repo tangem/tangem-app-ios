@@ -135,6 +135,6 @@ struct SendAmountView_Previews: PreviewProvider {
     )
 
     static var previews: some View {
-        SendAmountView(namespace: namespace, viewModel: SendAmountViewModel(input: SendAmountViewModelInputMock(), walletInfo: walletInfo))
+        SendAmountView(namespace: namespace, viewModel: SendAmountViewModel(input: SendAmountViewModelInputMock(), fiatCryptoAdapter: SendFiatCryptoAdapterMock(), walletInfo: walletInfo))
     }
 }
