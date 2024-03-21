@@ -88,7 +88,7 @@ extension WalletOnboardingStepsBuilder: OnboardingStepsBuilder {
         }
 
         if hasWallets {
-            let forceBackup = !canSkipBackup && !hasBackup
+            let forceBackup = !canSkipBackup && !hasBackup && canBackup // canBackup is false for cardLinked state
 
             if AppSettings.shared.cardsStartedActivation.contains(cardId) || forceBackup {
                 steps.append(contentsOf: backupSteps + userWalletSavingSteps + [.success])
