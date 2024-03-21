@@ -404,9 +404,9 @@ final class SendViewModel: ObservableObject {
             animateStepChanges()
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2 * SendView.Constants.animationDuration) {
-            // Hide the keyboard with a delay, otherwise the animation is going to be screwed up
-            if !step.opensKeyboardByDefault {
+        // Hide the keyboard with a delay, otherwise the animation is going to be screwed up
+        if !step.opensKeyboardByDefault {
+            DispatchQueue.main.asyncAfter(deadline: .now() + SendView.Constants.animationDuration) {
                 UIApplication.shared.endEditing()
             }
         }
