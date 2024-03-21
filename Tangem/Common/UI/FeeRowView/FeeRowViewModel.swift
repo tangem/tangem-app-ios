@@ -58,8 +58,7 @@ extension FeeRowViewModel: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(option)
         hasher.combine(formattedFeeComponents.isLoading)
-        hasher.combine(formattedFeeComponents.value??.cryptoFee)
-        hasher.combine(formattedFeeComponents.value??.fiatFee)
+        hasher.combine(formattedFeeComponents.value)
         hasher.combine(formattedFeeComponents.error != nil)
         hasher.combine(isSelected)
     }
