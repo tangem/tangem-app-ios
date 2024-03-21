@@ -51,7 +51,7 @@ struct SendSummarySectionViewModelFactory {
         let amountFiat: String
         if let currencyId,
            let fiatValue = BalanceConverter().convertToFiat(value: amount.value, from: currencyId) {
-            amountFiat = BalanceFormatter().formatFiatBalance(fiatValue)
+            amountFiat = BalanceFormatter().formatFiatBalance(fiatValue, formattingOptions: .defaultFiatFormattingOptions)
         } else {
             amountFiat = AppConstants.dashSign
         }
@@ -63,7 +63,7 @@ struct SendSummarySectionViewModelFactory {
         )
     }
 
-    func makeFeeViewData(from value: Fee?) -> SendFeeSummaryViewData? {
+    func makeFeeViewData(from value: Fee?, feeOption: FeeOption) -> SendFeeSummaryViewData? {
         guard let value else { return nil }
 
         let formattedFeeComponents = feeFormatter.formattedFeeComponents(
@@ -75,7 +75,7 @@ struct SendSummarySectionViewModelFactory {
 
         return SendFeeSummaryViewData(
             title: Localization.commonNetworkFeeTitle,
-            feeOption: .market,
+            feeOption: feeOption,
             cryptoAmount: formattedFeeComponents.cryptoFee,
             fiatAmount: formattedFeeComponents.fiatFee
         )
