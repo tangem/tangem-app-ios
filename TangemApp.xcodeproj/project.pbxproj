@@ -600,6 +600,7 @@
 		B674D6DF2A9762D400172491 /* UserTokenListConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B674D6DE2A9762D400172491 /* UserTokenListConverter.swift */; };
 		B675A1E62A1E05F700F624B6 /* CardsInfoPagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B675A1E52A1E05F700F624B6 /* CardsInfoPagerView.swift */; };
 		B675A1EA2A1E068D00F624B6 /* Clamp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B675A1E92A1E068D00F624B6 /* Clamp.swift */; };
+		B675C35F2BAC8A48007BE1DC /* SubscanAPITarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B675C35E2BAC8A48007BE1DC /* SubscanAPITarget.swift */; };
 		B675C3622BAC9DC8007BE1DC /* SubscanAPIParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = B675C3612BAC9DC8007BE1DC /* SubscanAPIParams.swift */; };
 		B675C3642BAC9E36007BE1DC /* SubscanAPIParams.AccountInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B675C3632BAC9E36007BE1DC /* SubscanAPIParams.AccountInfo.swift */; };
 		B675C3662BAC9E92007BE1DC /* SubscanAPIParams.ExtrinsicsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = B675C3652BAC9E92007BE1DC /* SubscanAPIParams.ExtrinsicsList.swift */; };
@@ -2072,6 +2073,7 @@
 		B674D6DE2A9762D400172491 /* UserTokenListConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenListConverter.swift; sourceTree = "<group>"; };
 		B675A1E52A1E05F700F624B6 /* CardsInfoPagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPagerView.swift; sourceTree = "<group>"; };
 		B675A1E92A1E068D00F624B6 /* Clamp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clamp.swift; sourceTree = "<group>"; };
+		B675C35E2BAC8A48007BE1DC /* SubscanAPITarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscanAPITarget.swift; sourceTree = "<group>"; };
 		B675C3612BAC9DC8007BE1DC /* SubscanAPIParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscanAPIParams.swift; sourceTree = "<group>"; };
 		B675C3632BAC9E36007BE1DC /* SubscanAPIParams.AccountInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscanAPIParams.AccountInfo.swift; sourceTree = "<group>"; };
 		B675C3652BAC9E92007BE1DC /* SubscanAPIParams.ExtrinsicsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscanAPIParams.ExtrinsicsList.swift; sourceTree = "<group>"; };
@@ -5125,6 +5127,15 @@
 				B6C3B56D2AA1823A0017241C /* CardsInfoPagerScrollState.swift */,
 			);
 			path = CardsInfoPagerView;
+			sourceTree = "<group>";
+		};
+		B675C35D2BAC8A0E007BE1DC /* PolkaDotAccountAnalyzer */ = {
+			isa = PBXGroup;
+			children = (
+				B675C3602BAC9DB0007BE1DC /* DTO */,
+				B675C35E2BAC8A48007BE1DC /* SubscanAPITarget.swift */,
+			);
+			path = PolkaDotAccountAnalyzer;
 			sourceTree = "<group>";
 		};
 		B675C3602BAC9DB0007BE1DC /* DTO */ = {
@@ -8249,6 +8260,7 @@
 				B0A0910C26D3628200F46DF5 /* AnimatableGradient.swift in Sources */,
 				DAF3D58D2B3AD9050047D65F /* SendCurrencyPicker.swift in Sources */,
 				B0ADFD3E298A70CD00EF2869 /* WalletConnectEthTransactionBuilder.swift in Sources */,
+				B675C35F2BAC8A48007BE1DC /* SubscanAPITarget.swift in Sources */,
 				B654B6422A8513D4002553F4 /* CardsInfoPagerAnimationFactory.swift in Sources */,
 				EFA9854F2947787F00D1FCB3 /* FeeFormatterMock.swift in Sources */,
 				EF4662362924DFAF00346B6C /* GroupedSection.swift in Sources */,
