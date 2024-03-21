@@ -19,7 +19,7 @@ protocol SendSummaryViewModelInput: AnyObject {
     var destinationTextPublisher: AnyPublisher<String, Never> { get }
     var additionalFieldPublisher: AnyPublisher<(SendAdditionalFields, String)?, Never> { get }
     var feeValuePublisher: AnyPublisher<Fee?, Never> { get }
-    var feeOptionPublisher: AnyPublisher<FeeOption, Never> { get }
+    var selectedFeeOptionPublisher: AnyPublisher<FeeOption, Never> { get }
 
     var isSending: AnyPublisher<Bool, Never> { get }
 
@@ -55,7 +55,6 @@ class SendSummaryViewModel: ObservableObject {
     @Published var destinationViewTypes: [SendDestinationSummaryViewType] = []
     @Published var amountSummaryViewData: SendAmountSummaryViewData?
     @Published var feeSummaryViewData: SendFeeSummaryViewData?
-    @Published var feeOptionIcon: Image?
     @Published var transactionDescription: String?
 
     @Published var showSectionContent = false
@@ -160,20 +159,11 @@ class SendSummaryViewModel: ObservableObject {
             .assign(to: \.amountSummaryViewData, on: self, ownership: .weak)
             .store(in: &bag)
 
-        input
-            .feeValuePublisher
-            .map { [weak self] fee in
-                self?.sectionViewModelFactory.makeFeeViewData(from: fee)
+        Publishers.CombineLatest(input.feeValuePublisher, input.selectedFeeOptionPublisher)
+            .map { [weak self] feeValue, feeOption in
+                self?.sectionViewModelFactory.makeFeeViewData(from: feeValue, feeOption: feeOption)
             }
             .assign(to: \.feeSummaryViewData, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        input
-            .feeOptionPublisher
-            .map {
-                $0.icon.image
-            }
-            .assign(to: \.feeOptionIcon, on: self, ownership: .weak)
             .store(in: &bag)
 
         Publishers.CombineLatest(input.userInputAmountPublisher, input.feeValuePublisher)
