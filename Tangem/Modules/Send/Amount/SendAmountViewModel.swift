@@ -30,6 +30,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     let cryptoCurrencyCode: String
     let fiatIconURL: URL?
     let fiatCurrencyCode: String
+    let fiatCurrencySymbol: String
     let amountFractionDigits: Int
 
     @Published var decimalNumberTextFieldViewModel: DecimalNumberTextField.ViewModel
@@ -57,10 +58,14 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         decimalNumberTextFieldViewModel = .init(maximumFractionDigits: walletInfo.amountFractionDigits)
 
         showCurrencyPicker = walletInfo.currencyId != nil
+
         cryptoIconURL = walletInfo.cryptoIconURL
         cryptoCurrencyCode = walletInfo.cryptoCurrencyCode
+
+        let localizedCurrencySymbol = Locale.current.localizedCurrencySymbol(forCurrencyCode: walletInfo.fiatCurrencyCode)
         fiatIconURL = walletInfo.fiatIconURL
         fiatCurrencyCode = walletInfo.fiatCurrencyCode
+        fiatCurrencySymbol = localizedCurrencySymbol ?? walletInfo.fiatCurrencyCode
 
         fiatCryptoAdapter = SendFiatCryptoAdapter(
             cryptoCurrencyId: walletInfo.currencyId,
