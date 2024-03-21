@@ -26,6 +26,7 @@ enum ExpressNotificationEvent {
     case dustAmount(minimumAmountText: String, minimumChangeText: String)
     case withdrawalOptionalAmountChange(amount: Decimal, amountFormatted: String)
     case withdrawalMandatoryAmountChange(amount: Decimal, amountFormatted: String, blockchainName: String, maxUtxo: Int)
+    case notEnoughReceivedAmountForReserve(amountFormatted: String)
 }
 
 extension ExpressNotificationEvent: NotificationEvent {
@@ -63,6 +64,8 @@ extension ExpressNotificationEvent: NotificationEvent {
             return .string(Localization.sendNotificationHighFeeTitle)
         case .withdrawalMandatoryAmountChange:
             return .string(Localization.sendNotificationTransactionLimitTitle)
+        case .notEnoughReceivedAmountForReserve:
+            return .string(Localization.sendNotificationInvalidAmountTitle)
         }
     }
 
@@ -98,6 +101,8 @@ extension ExpressNotificationEvent: NotificationEvent {
             return Localization.sendNotificationHighFeeText(amount)
         case .withdrawalMandatoryAmountChange(_, let amountFormatted, let blockchainName, let maxUtxo):
             return Localization.sendNotificationTransactionLimitText(blockchainName, maxUtxo, amountFormatted)
+        case .notEnoughReceivedAmountForReserve(let amountFormatted):
+            return Localization.warningExpressNotificationInvalidReserveAmountTitle(amountFormatted)
         }
     }
 
@@ -119,7 +124,8 @@ extension ExpressNotificationEvent: NotificationEvent {
              .verificationRequired,
              .cexOperationFailed,
              .withdrawalOptionalAmountChange,
-             .withdrawalMandatoryAmountChange:
+             .withdrawalMandatoryAmountChange,
+             .notEnoughReceivedAmountForReserve:
             return .action
         }
     }
@@ -142,7 +148,8 @@ extension ExpressNotificationEvent: NotificationEvent {
              .notEnoughReserveToSwap,
              .cexOperationFailed,
              .dustAmount,
-             .withdrawalMandatoryAmountChange:
+             .withdrawalMandatoryAmountChange,
+             .notEnoughReceivedAmountForReserve:
             return .init(iconType: .image(Assets.redCircleWarning.image))
         case .hasPendingTransaction,
              .existentialDepositWarning,
@@ -167,7 +174,8 @@ extension ExpressNotificationEvent: NotificationEvent {
              .noDestinationTokens,
              .dustAmount,
              .withdrawalOptionalAmountChange,
-             .withdrawalMandatoryAmountChange:
+             .withdrawalMandatoryAmountChange,
+             .notEnoughReceivedAmountForReserve:
             return .warning
         case .refreshRequired,
              .cexOperationFailed:
@@ -216,7 +224,8 @@ extension ExpressNotificationEvent: NotificationEvent {
              .existentialDepositWarning,
              .dustAmount,
              .withdrawalOptionalAmountChange,
-             .withdrawalMandatoryAmountChange:
+             .withdrawalMandatoryAmountChange,
+             .notEnoughReceivedAmountForReserve:
             return true
         }
     }
