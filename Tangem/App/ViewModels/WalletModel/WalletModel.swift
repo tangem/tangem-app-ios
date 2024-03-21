@@ -141,11 +141,11 @@ class WalletModel {
     }
 
     var pendingTransactions: [PendingTransactionRecord] {
-        wallet.pendingTransactions.filter { !$0.isDummy }
+        wallet.pendingTransactions.filter { !$0.isDummy && $0.amount.type == amountType }
     }
 
     var incomingPendingTransactions: [PendingTransactionRecord] {
-        wallet.pendingTransactions.filter { $0.isIncoming }
+        wallet.pendingTransactions.filter { $0.isIncoming && $0.amount.type == amountType }
     }
 
     var outgoingPendingTransactions: [PendingTransactionRecord] {
