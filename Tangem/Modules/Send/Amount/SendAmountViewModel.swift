@@ -28,7 +28,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     let showCurrencyPicker: Bool
     let cryptoIconURL: URL?
     let cryptoCurrencyCode: String
-    let cryptoCurrencySymbol: String
     let fiatIconURL: URL?
     let fiatCurrencyCode: String
     let fiatCurrencySymbol: String
@@ -62,7 +61,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
         cryptoIconURL = walletInfo.cryptoIconURL
         cryptoCurrencyCode = walletInfo.cryptoCurrencyCode
-        cryptoCurrencySymbol = walletInfo.cryptoCurrencyCode
 
         let localizedCurrencySymbol = Locale.current.localizedCurrencySymbol(forCurrencyCode: walletInfo.fiatCurrencyCode)
         fiatIconURL = walletInfo.fiatIconURL
