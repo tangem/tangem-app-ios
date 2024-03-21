@@ -9,17 +9,12 @@
 import Foundation
 
 class UserWalletEncryptionKeyFactory {
-    #warning("[REDACTED_TODO_COMMENT]")
-
-    func encryptionKey(from cardInfo: CardInfo) -> UserWalletEncryptionKey? {
+    func encryptionKey(for userWallet: StoredUserWallet) -> UserWalletEncryptionKey? {
+        let cardInfo = userWallet.cardInfo()
         let config = UserWalletConfigFactory(cardInfo).makeConfig()
 
-        guard let seed = config.userWalletIdSeed else { return nil }
+        guard let userWalletIdSeed = config.userWalletIdSeed else { return nil }
 
-        return encryptionKey(from: seed)
-    }
-
-    func encryptionKey(from userWalletIdSeed: Data) -> UserWalletEncryptionKey {
-        return UserWalletEncryptionKey(with: userWalletIdSeed)
+        return UserWalletEncryptionKey(userWalletIdSeed: userWalletIdSeed)
     }
 }
