@@ -450,7 +450,7 @@ class SendModel {
 
         if let validatedAmount, let fee {
             do {
-                try walletModel.transactionCreator.validate(amount: validatedAmount, fee: fee)
+                try walletModel.transactionCreator.validateAmounts(amount: validatedAmount, fee: fee.amount, options: .init(validateTotalAgainstBalance: false))
                 feeError = nil
             } catch let validationError {
                 feeError = validationError
