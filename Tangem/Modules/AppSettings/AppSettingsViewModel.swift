@@ -21,6 +21,9 @@ class AppSettingsViewModel: ObservableObject {
     @Published var currencySelectionViewModel: DefaultRowViewModel?
     @Published var sensitiveTextAvailabilityViewModel: DefaultToggleRowViewModel?
     @Published var themeSettingsViewModel: DefaultRowViewModel?
+    @Published var defaultFeeViewModel: DefaultToggleRowViewModel?
+    @Published var defaultFeeOptionViewModels: [DefaultSelectableRowViewModel<FeeOption>] = []
+
     @Published var isSavingWallet: Bool {
         didSet { AppSettings.shared.saveUserWallets = isSavingWallet }
     }
@@ -28,6 +31,9 @@ class AppSettingsViewModel: ObservableObject {
     @Published var isSavingAccessCodes: Bool {
         didSet { AppSettings.shared.saveAccessCodes = isSavingAccessCodes }
     }
+
+    @Published var showDefaultFeeOptionSelector = false
+    @Published var defaultFeeOption: FeeOption = AppSettings.shared.defaultFeeOption
 
     @Published var alert: AlertBinder?
 
@@ -95,6 +101,16 @@ private extension AppSettingsViewModel {
                     Analytics.log(.settingsNoticeEnableBiometrics)
                 }
             }
+            .store(in: &bag)
+
+        AppSettings.shared.$useDefaultFee
+            .assign(to: \.showDefaultFeeOptionSelector, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        $defaultFeeOption
+            .removeDuplicates()
+            .dropFirst()
+            .assign(to: \.defaultFeeOption, on: AppSettings.shared)
             .store(in: &bag)
     }
 
@@ -181,6 +197,20 @@ private extension AppSettingsViewModel {
             detailsType: .text(AppSettings.shared.appTheme.titleForDetails),
             action: coordinator?.openThemeSelection
         )
+
+        defaultFeeViewModel = DefaultToggleRowViewModel(
+            title: Localization.appSettingsDefaultFee,
+            isOn: useDefaultFeeBinding()
+        )
+
+        let defaultFeeOptions: [FeeOption] = [.slow, .market, .fast]
+        defaultFeeOptionViewModels = defaultFeeOptions.map {
+            DefaultSelectableRowViewModel(
+                id: $0,
+                title: $0.title,
+                subtitle: nil
+            )
+        }
     }
 
     func isSavingWalletBinding() -> BindingValue<Bool> {
@@ -213,6 +243,15 @@ private extension AppSettingsViewModel {
             set: { enabled in
                 Analytics.log(.hideBalanceChanged, params: [.state: Analytics.ParameterValue.toggleState(for: enabled)])
                 AppSettings.shared.isHidingSensitiveAvailable = enabled
+            }
+        )
+    }
+
+    func useDefaultFeeBinding() -> BindingValue<Bool> {
+        BindingValue<Bool>(
+            get: { AppSettings.shared.useDefaultFee },
+            set: { useDefaultFee in
+                AppSettings.shared.useDefaultFee = useDefaultFee
             }
         )
     }

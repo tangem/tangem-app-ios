@@ -31,6 +31,8 @@ struct AppSettingsView: View {
                 sensitiveTextAvailabilitySection
 
                 themeSettingsSection
+
+                defaultFeeSections
             }
             .interContentPadding(8)
         }
@@ -88,5 +90,31 @@ struct AppSettingsView: View {
         GroupedSection(viewModel.themeSettingsViewModel) {
             DefaultRowView(viewModel: $0)
         }
+    }
+
+    @ViewBuilder
+    private var defaultFeeSections: some View {
+        GroupedSection(viewModel.defaultFeeViewModel) {
+            DefaultToggleRowView(viewModel: $0)
+        } footer: {
+            if !viewModel.showDefaultFeeOptionSelector {
+                defaultFeeFooter
+            }
+        }
+
+        if viewModel.showDefaultFeeOptionSelector {
+            SelectableGropedSection(
+                viewModel.defaultFeeOptionViewModels,
+                selection: $viewModel.defaultFeeOption
+            ) {
+                DefaultSelectableRowView(viewModel: $0)
+            } footer: {
+                defaultFeeFooter
+            }
+        }
+    }
+
+    private var defaultFeeFooter: some View {
+        DefaultFooterView(Localization.appSettingsDefaultFeeFooter)
     }
 }

@@ -54,6 +54,12 @@ class AppSettings {
     @AppStorageCompat(StorageType.hideSensitiveAvailable)
     var isHidingSensitiveAvailable: Bool = false
 
+    @AppStorageCompat(StorageType.useDefaultFee)
+    var useDefaultFee: Bool = false
+
+    @AppStorageCompat(StorageType.defaultFeeOption)
+    var defaultFeeOption: FeeOption = .market
+
     @AppStorageCompat(StorageType.shouldHidingSensitiveInformationSheetShowing)
     var shouldHidingSensitiveInformationSheetShowing: Bool = true
 
