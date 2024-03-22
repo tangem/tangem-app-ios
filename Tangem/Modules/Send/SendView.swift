@@ -36,7 +36,6 @@ struct SendView: View {
             }
         }
         .background(backgroundColor.ignoresSafeArea())
-        .animation(Constants.defaultAnimation, value: viewModel.step)
     }
 
     private var pageContentTransition: AnyTransition {
@@ -148,7 +147,7 @@ struct SendView: View {
                 )
             }
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 16)
         .padding(.bottom, 6)
     }
 
@@ -189,7 +188,8 @@ private struct SendViewBackButton: View {
 extension SendView {
     enum Constants {
         static let animationDuration: TimeInterval = 0.3
-        static let defaultAnimation: Animation = .spring(duration: animationDuration)
+        static let defaultAnimation: Animation = .spring(duration: 0.3)
+        static let backButtonAnimation: Animation = .easeOut(duration: 0.1)
         static let sectionContentAnimation: Animation = .easeOut(duration: animationDuration)
         static let auxiliaryViewTransition: AnyTransition = .offset(y: 300).combined(with: .opacity)
     }
