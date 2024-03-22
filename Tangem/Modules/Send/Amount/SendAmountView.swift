@@ -134,7 +134,13 @@ struct SendAmountView_Previews: PreviewProvider {
         feeAmountType: .coin
     )
 
+    static let viewModel = SendAmountViewModel(
+        input: SendAmountViewModelInputMock(),
+        fiatCryptoAdapter: SendFiatCryptoAdapterMock(),
+        walletInfo: walletInfo
+    )
+
     static var previews: some View {
-        SendAmountView(namespace: namespace, viewModel: SendAmountViewModel(input: SendAmountViewModelInputMock(), fiatCryptoAdapter: SendFiatCryptoAdapterMock(), walletInfo: walletInfo))
+        SendAmountView(namespace: namespace, viewModel: viewModel)
     }
 }
