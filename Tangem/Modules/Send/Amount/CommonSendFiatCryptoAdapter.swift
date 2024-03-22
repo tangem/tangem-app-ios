@@ -11,40 +11,15 @@ import Combine
 import BlockchainSdk
 
 class CommonSendFiatCryptoAdapter: SendFiatCryptoAdapter {
-    var amountAlternative: AnyPublisher<String?, Never> {
-        Publishers.CombineLatest(_useFiatCalculation, _fiatCryptoValue)
-            .withWeakCaptureOf(self)
-            .map { thisSendFiatCryptoAdapter, params -> String? in
-                let (useFiatCalculation, fiatCryptoValue) = params
-
-                guard let cryptoValue = fiatCryptoValue.crypto, let fiatValue = fiatCryptoValue.fiat else { return nil }
-
-                let formatter = BalanceFormatter()
-                if useFiatCalculation {
-                    let formattingOption = BalanceFormattingOptions(
-                        minFractionDigits: BalanceFormattingOptions.defaultCryptoFormattingOptions.minFractionDigits,
-                        maxFractionDigits: thisSendFiatCryptoAdapter.decimals,
-                        roundingType: BalanceFormattingOptions.defaultCryptoFormattingOptions.roundingType
-                    )
-
-                    return formatter.formatCryptoBalance(
-                        cryptoValue,
-                        currencyCode: thisSendFiatCryptoAdapter.currencySymbol,
-                        formattingOptions: formattingOption
-                    )
-                } else {
-                    return formatter.formatFiatBalance(fiatValue)
-                }
-            }
-            .eraseToAnyPublisher()
-    }
-
     private let currencySymbol: String
     private let decimals: Int
 
     private var _fiatCryptoValue: CurrentValueSubject<FiatCryptoValue, Never>
 
     private var _useFiatCalculation = CurrentValueSubject<Bool, Never>(false)
+
+    private var formattedAmountSubject: CurrentValueSubject<String?, Never> = .init(nil)
+    private var formattedAmountAlternativeSubject: CurrentValueSubject<String?, Never> = .init(nil)
 
     private weak var input: SendFiatCryptoAdapterInput?
     private weak var output: SendFiatCryptoAdapterOutput?
@@ -101,6 +76,38 @@ class CommonSendFiatCryptoAdapter: SendFiatCryptoAdapter {
                 self?.output?.setAmount(crypto)
             }
             .store(in: &bag)
+
+        Publishers.CombineLatest(_useFiatCalculation, _fiatCryptoValue)
+            .sink { [weak self] useFiatCalculation, fiatCryptoValue in
+                guard
+                    let self,
+                    let cryptoValue = fiatCryptoValue.crypto
+                else {
+                    self?.formattedAmountSubject.send(nil)
+                    self?.formattedAmountAlternativeSubject.send(nil)
+                    return
+                }
+
+                let formatter = BalanceFormatter()
+
+                let cryptoFormattingOption = BalanceFormattingOptions(
+                    minFractionDigits: BalanceFormattingOptions.defaultCryptoFormattingOptions.minFractionDigits,
+                    maxFractionDigits: decimals,
+                    roundingType: BalanceFormattingOptions.defaultCryptoFormattingOptions.roundingType
+                )
+
+                let formattedCryptoAmount: String? = formatter.formatCryptoBalance(
+                    cryptoValue,
+                    currencyCode: currencySymbol,
+                    formattingOptions: cryptoFormattingOption
+                )
+
+                let formattedFiatAmount = formatter.formatFiatBalance(fiatCryptoValue.fiat)
+
+                formattedAmountSubject.send(useFiatCalculation ? formattedFiatAmount : formattedCryptoAmount)
+                formattedAmountAlternativeSubject.send(useFiatCalculation ? formattedCryptoAmount : formattedFiatAmount)
+            }
+            .store(in: &bag)
     }
 
     private func setUserInputAmount() {
@@ -112,6 +119,28 @@ class CommonSendFiatCryptoAdapter: SendFiatCryptoAdapter {
         }
     }
 }
+
+// MARK: - SendFiatCryptoValueProvider
+
+extension CommonSendFiatCryptoAdapter: SendFiatCryptoValueProvider {
+    var formattedAmount: String? {
+        formattedAmountSubject.value
+    }
+
+    var formattedAmountAlternative: String? {
+        formattedAmountAlternativeSubject.value
+    }
+    
+    var formattedAmountPublisher: AnyPublisher<String?, Never> {
+        formattedAmountSubject.eraseToAnyPublisher()
+    }
+
+    var formattedAmountAlternativePublisher: AnyPublisher<String?, Never> {
+        formattedAmountAlternativeSubject.eraseToAnyPublisher()
+    }
+}
+
+// MARK: - CommonSendFiatCryptoAdapter
 
 private extension CommonSendFiatCryptoAdapter {
     struct FiatCryptoValue {
