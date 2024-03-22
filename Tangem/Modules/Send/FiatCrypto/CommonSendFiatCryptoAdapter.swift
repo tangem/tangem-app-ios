@@ -130,7 +130,7 @@ extension CommonSendFiatCryptoAdapter: SendFiatCryptoValueProvider {
     var formattedAmountAlternative: String? {
         formattedAmountAlternativeSubject.value
     }
-    
+
     var formattedAmountPublisher: AnyPublisher<String?, Never> {
         formattedAmountSubject.eraseToAnyPublisher()
     }
