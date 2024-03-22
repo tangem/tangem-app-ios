@@ -5129,13 +5129,13 @@
 			path = CardsInfoPagerView;
 			sourceTree = "<group>";
 		};
-		B675C35D2BAC8A0E007BE1DC /* PolkaDotAccountAnalyzer */ = {
+		B675C35D2BAC8A0E007BE1DC /* PolkaDotAccountHealthCheck */ = {
 			isa = PBXGroup;
 			children = (
 				B675C3602BAC9DB0007BE1DC /* DTO */,
 				B675C35E2BAC8A48007BE1DC /* SubscanAPITarget.swift */,
 			);
-			path = PolkaDotAccountAnalyzer;
+			path = PolkaDotAccountHealthCheck;
 			sourceTree = "<group>";
 		};
 		B675C3602BAC9DB0007BE1DC /* DTO */ = {
@@ -5823,6 +5823,7 @@
 		DC0A57DA2822A4DC0031BECC /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				B675C35D2BAC8A0E007BE1DC /* PolkaDotAccountHealthCheck */,
 				B68728722B7D4B870090C24F /* BlockchainDataStorage */,
 				B687286D2B7D48A70090C24F /* BlockchainAccountCreator */,
 				EF9E38032B74E6B5004B694C /* BannerPromotionNotification */,
@@ -9388,7 +9389,6 @@
 				EF9E2A0F2B4F0CD100418559 /* CommonExpressProviderManagerFactory.swift in Sources */,
 				EF9E2A3C2B4F0CD100418559 /* ExpressManagerError.swift in Sources */,
 				EF9E2A292B4F0CD100418559 /* ExpressAvailableProvider.swift in Sources */,
-				EF9E2A072B4F0CD100418559 /* MoyaProvider+AsyncRequest.swift in Sources */,
 				B6BB2CE22BAC4A9B009C12F2 /* ExpressDeviceInfoPlugin.swift in Sources */,
 				EF9E2A182B4F0CD100418559 /* ExpressAPITarget.swift in Sources */,
 				EF9E2A162B4F0CD100418559 /* ExpressDTO.swift in Sources */,
