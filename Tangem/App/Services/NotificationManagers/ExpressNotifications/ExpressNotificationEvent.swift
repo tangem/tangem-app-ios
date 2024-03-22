@@ -64,8 +64,8 @@ extension ExpressNotificationEvent: NotificationEvent {
             return .string(Localization.sendNotificationHighFeeTitle)
         case .withdrawalMandatoryAmountChange:
             return .string(Localization.sendNotificationTransactionLimitTitle)
-        case .notEnoughReceivedAmountForReserve:
-            return .string(Localization.sendNotificationInvalidAmountTitle)
+        case .notEnoughReceivedAmountForReserve(let amountFormatted):
+            return .string(Localization.warningExpressNotificationInvalidReserveAmountTitle(amountFormatted))
         }
     }
 
@@ -83,7 +83,7 @@ extension ExpressNotificationEvent: NotificationEvent {
             return Localization.warningExpressNotEnoughFeeForTokenTxDescription(mainTokenName, mainTokenSymbol)
         case .tooSmallAmountToSwap, .tooBigAmountToSwap:
             return Localization.warningExpressWrongAmountDescription
-        case .notEnoughReserveToSwap:
+        case .notEnoughReserveToSwap, .notEnoughReceivedAmountForReserve:
             return Localization.sendNotificationInvalidReserveAmountText
         case .noDestinationTokens(let sourceTokenName):
             return Localization.warningExpressNoExchangeableCoinsDescription(sourceTokenName)
@@ -101,8 +101,6 @@ extension ExpressNotificationEvent: NotificationEvent {
             return Localization.sendNotificationHighFeeText(amount)
         case .withdrawalMandatoryAmountChange(_, let amountFormatted, let blockchainName, let maxUtxo):
             return Localization.sendNotificationTransactionLimitText(blockchainName, maxUtxo, amountFormatted)
-        case .notEnoughReceivedAmountForReserve(let amountFormatted):
-            return Localization.warningExpressNotificationInvalidReserveAmountTitle(amountFormatted)
         }
     }
 
