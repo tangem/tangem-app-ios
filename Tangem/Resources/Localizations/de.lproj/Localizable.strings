@@ -67,6 +67,7 @@
 "common_continue" = "Continue";
 "common_copy" = "Copy";
 "common_copy_address" = "Copy address";
+"common_create" = "Create";
 "common_delete" = "Entfernen";
 "common_disabled" = "Disabled";
 "common_disconnect" = "Disconnect";
@@ -273,14 +274,15 @@
 "manage_tokens_unavailable_vote" = "Upvote";
 "manage_tokens_wallet_selector_title" = "Choose wallet";
 "manage_tokens_wallet_support_only_one_network_title" = "The wallet doesn't support more than one network";
-"onboarding_access_code_feature_1_description" = "You have to set up a single access code to protect all your wallets";
+"onboarding_access_code_feature_1_description" = "You have to set up a single access code to protect all your cards";
 "onboarding_access_code_feature_1_title" = "Protect";
 "onboarding_access_code_feature_2_description" = "You can set up an individual access code on each card later";
 "onboarding_access_code_feature_2_title" = "Personalize";
-"onboarding_access_code_feature_3_description" = "The access code can be restored with a linked card, don't keep all cards in one place";
+"onboarding_access_code_feature_3_description" = "The access code can be restored with a linked card. Don’t keep all cards at one place.";
 "onboarding_access_code_feature_3_title" = "Restore";
 "onboarding_access_code_hint" = "Choose any word, phrase, or number you want as your access code";
 "onboarding_access_code_intro_title" = "Create Access Code";
+"onboarding_access_code_repeat_code_hint" = "Enter your access code one more time to avoid a mistake";
 "onboarding_access_code_repeat_code_title" = "Re-enter your Access Code";
 "onboarding_access_code_too_short" = "Access code must be at least 4 characters long";
 "onboarding_access_codes_doesnt_match" = "Entered access code didn't match the initial access code";
