@@ -28,11 +28,3 @@ protocol SendFiatCryptoAdapter: AnyObject {
     func setUseFiatCalculation(_ useFiatCalculation: Bool)
     func setCrypto(_ decimal: Decimal?)
 }
-
-protocol SendFiatCryptoValueProvider: AnyObject {
-    var formattedAmount: String? { get }
-    var formattedAmountAlternative: String? { get }
-
-    var formattedAmountPublisher: AnyPublisher<String?, Never> { get }
-    var formattedAmountAlternativePublisher: AnyPublisher<String?, Never> { get }
-}
