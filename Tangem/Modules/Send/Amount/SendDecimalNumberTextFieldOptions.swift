@@ -17,20 +17,20 @@ struct SendDecimalNumberTextFieldOptions {
 }
 
 struct SendDecimalNumberTextFieldOptionsFactory {
-    private let cryptoCurrencySymbol: String
+    private let cryptoCurrencyCode: String
     private let fiatCurrencyCode: String
 
-    init(cryptoCurrencySymbol: String, fiatCurrencyCode: String) {
-        self.cryptoCurrencySymbol = cryptoCurrencySymbol
+    init(cryptoCurrencyCode: String, fiatCurrencyCode: String) {
+        self.cryptoCurrencyCode = cryptoCurrencyCode
         self.fiatCurrencyCode = fiatCurrencyCode
     }
 
     func makeCryptoOptions() -> SendDecimalNumberTextFieldOptions {
         let numberFormatter = NumberFormatter()
         numberFormatter.numberStyle = .currency
-        numberFormatter.currencySymbol = cryptoCurrencySymbol
+        numberFormatter.currencySymbol = cryptoCurrencyCode
 
-        return options(from: numberFormatter, currency: cryptoCurrencySymbol, forceSpace: true)
+        return options(from: numberFormatter, currency: cryptoCurrencyCode, forceSpace: true)
     }
 
     func makeFiatOptions() -> SendDecimalNumberTextFieldOptions {
