@@ -18,11 +18,3 @@ class SendFiatCryptoAdapterMock: SendFiatCryptoAdapter {
     func setUseFiatCalculation(_ useFiatCalculation: Bool) {}
     func setCrypto(_ decimal: Decimal?) {}
 }
-
-class SendFiatCryptoValueProviderMock: SendFiatCryptoValueProvider {
-    var formattedAmount: String? { "100 USDT" }
-    var formattedAmountAlternative: String? { "100 $" }
-
-    var formattedAmountPublisher: AnyPublisher<String?, Never> { .just(output: formattedAmount) }
-    var formattedAmountAlternativePublisher: AnyPublisher<String?, Never> { .just(output: formattedAmountAlternative) }
-}
