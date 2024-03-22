@@ -16,6 +16,7 @@ final class SendViewModel: ObservableObject {
 
     @Published var stepAnimation: SendView.StepAnimation? = .slideForward
     @Published var step: SendStep
+    @Published var showBackButton = false
     @Published var currentStepInvalid: Bool = false
     @Published var alert: AlertBinder?
 
@@ -33,10 +34,6 @@ final class SendViewModel: ObservableObject {
 
     var showNavigationButtons: Bool {
         step.hasNavigationButtons
-    }
-
-    var showBackButton: Bool {
-        previousStep != nil && !didReachSummaryScreen
     }
 
     var showNextButton: Bool {
@@ -62,28 +59,6 @@ final class SendViewModel: ObservableObject {
     let sendSummaryViewModel: SendSummaryViewModel
 
     // MARK: - Dependencies
-
-    private var nextStep: SendStep? {
-        guard
-            let currentStepIndex = steps.firstIndex(of: step),
-            (currentStepIndex + 1) < steps.count
-        else {
-            return nil
-        }
-
-        return steps[currentStepIndex + 1]
-    }
-
-    private var previousStep: SendStep? {
-        guard
-            let currentStepIndex = steps.firstIndex(of: step),
-            (currentStepIndex - 1) >= 0
-        else {
-            return nil
-        }
-
-        return steps[currentStepIndex - 1]
-    }
 
     private let sendModel: SendModel
     private let sendType: SendType
@@ -211,7 +186,7 @@ final class SendViewModel: ObservableObject {
     }
 
     func next() {
-        guard let nextStep else {
+        guard let nextStep = nextStep(after: step) else {
             assertionFailure("Invalid step logic -- next")
             return
         }
@@ -223,7 +198,7 @@ final class SendViewModel: ObservableObject {
     }
 
     func back() {
-        guard let previousStep else {
+        guard let previousStep = previousStep(before: step) else {
             assertionFailure("Invalid step logic -- back")
             return
         }
@@ -331,6 +306,28 @@ final class SendViewModel: ObservableObject {
             .store(in: &bag)
     }
 
+    private func nextStep(after step: SendStep) -> SendStep? {
+        guard
+            let currentStepIndex = steps.firstIndex(of: step),
+            (currentStepIndex + 1) < steps.count
+        else {
+            return nil
+        }
+
+        return steps[currentStepIndex + 1]
+    }
+
+    private func previousStep(before step: SendStep) -> SendStep? {
+        guard
+            let currentStepIndex = steps.firstIndex(of: step),
+            (currentStepIndex - 1) >= 0
+        else {
+            return nil
+        }
+
+        return steps[currentStepIndex - 1]
+    }
+
     private func openMail(with error: Error) {
         guard let transaction = sendModel.currentTransaction() else { return }
 
@@ -388,18 +385,28 @@ final class SendViewModel: ObservableObject {
 
         self.stepAnimation = stepAnimation
 
+        let animateStepChanges: () -> Void = {
+            withAnimation(SendView.Constants.backButtonAnimation) {
+                self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
+            }
+
+            withAnimation(SendView.Constants.defaultAnimation) {
+                self.step = step
+            }
+        }
+
         if stepAnimation != nil {
             // Gotta give some time to update animation variable
             DispatchQueue.main.async {
-                self.step = step
+                animateStepChanges()
             }
         } else {
-            self.step = step
+            animateStepChanges()
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2 * SendView.Constants.animationDuration) {
-            // Hide the keyboard with a delay, otherwise the animation is going to be screwed up
-            if !step.opensKeyboardByDefault {
+        // Hide the keyboard with a delay, otherwise the animation is going to be screwed up
+        if !step.opensKeyboardByDefault {
+            DispatchQueue.main.asyncAfter(deadline: .now() + SendView.Constants.animationDuration) {
                 UIApplication.shared.endEditing()
             }
         }
