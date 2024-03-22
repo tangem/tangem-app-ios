@@ -40,11 +40,29 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     @Published var animatingAuxiliaryViewsOnAppear = false
     @Published var showSectionContent = false
 
+    var inputFieldPrefix: String? {
+        useFiatCalculation ? fiatFieldOptions.prefix : cryptoFieldOptions.prefix
+    }
+
+    var inputFieldSuffix: String? {
+        useFiatCalculation ? fiatFieldOptions.suffix : cryptoFieldOptions.suffix
+    }
+
+    var hasSpaceAfterPrefix: Bool {
+        useFiatCalculation ? fiatFieldOptions.hasSpaceAfterPrefix : cryptoFieldOptions.hasSpaceBeforeSuffix
+    }
+
+    var hasSpaceBeforeSuffix: Bool {
+        useFiatCalculation ? fiatFieldOptions.hasSpaceAfterPrefix : cryptoFieldOptions.hasSpaceBeforeSuffix
+    }
+
     var didProperlyDisappear = false
 
     private var fiatCryptoAdapter: SendFiatCryptoAdapter?
 
     private let input: SendAmountViewModelInput
+    private let cryptoFieldOptions: SendDecimalNumberTextFieldOptions
+    private let fiatFieldOptions: SendDecimalNumberTextFieldOptions
     private let balanceValue: Decimal?
     private var bag: Set<AnyCancellable> = []
 
@@ -66,6 +84,13 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         fiatIconURL = walletInfo.fiatIconURL
         fiatCurrencyCode = walletInfo.fiatCurrencyCode
         fiatCurrencySymbol = localizedCurrencySymbol ?? walletInfo.fiatCurrencyCode
+
+        let factory = SendDecimalNumberTextFieldOptionsFactory(
+            cryptoCurrencyCode: walletInfo.cryptoCurrencyCode,
+            fiatCurrencyCode: walletInfo.fiatCurrencyCode
+        )
+        cryptoFieldOptions = factory.makeCryptoOptions()
+        fiatFieldOptions = factory.makeFiatOptions()
 
         fiatCryptoAdapter = SendFiatCryptoAdapter(
             cryptoCurrencyId: walletInfo.currencyId,
