@@ -720,6 +720,7 @@
 		DA34BDF52B26F1AD00F606C2 /* SendWalletInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA34BDF42B26F1AD00F606C2 /* SendWalletInfo.swift */; };
 		DA393F522BACA05A00735B41 /* SendFiatCryptoAdapterMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA393F512BACA05A00735B41 /* SendFiatCryptoAdapterMock.swift */; };
 		DA393F542BACA29D00735B41 /* SendFiatCryptoAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA393F532BACA29D00735B41 /* SendFiatCryptoAdapter.swift */; };
+		DA393F572BAD642C00735B41 /* SendFiatCryptoValueProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA393F562BAD642C00735B41 /* SendFiatCryptoValueProvider.swift */; };
 		DA3F46A02B9F24670074BECD /* SectionContainerAnimatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA3F469F2B9F24670074BECD /* SectionContainerAnimatable.swift */; };
 		DA4055252ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4055202ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemViewModel.swift */; };
 		DA4055262ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4055212ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemView.swift */; };
@@ -2190,6 +2191,7 @@
 		DA34BDF42B26F1AD00F606C2 /* SendWalletInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendWalletInfo.swift; sourceTree = "<group>"; };
 		DA393F512BACA05A00735B41 /* SendFiatCryptoAdapterMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFiatCryptoAdapterMock.swift; sourceTree = "<group>"; };
 		DA393F532BACA29D00735B41 /* SendFiatCryptoAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFiatCryptoAdapter.swift; sourceTree = "<group>"; };
+		DA393F562BAD642C00735B41 /* SendFiatCryptoValueProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFiatCryptoValueProvider.swift; sourceTree = "<group>"; };
 		DA3F469F2B9F24670074BECD /* SectionContainerAnimatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionContainerAnimatable.swift; sourceTree = "<group>"; };
 		DA4055202ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworkSelectorItemViewModel.swift; sourceTree = "<group>"; };
 		DA4055212ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworkSelectorItemView.swift; sourceTree = "<group>"; };
@@ -5404,6 +5406,16 @@
 			path = AddCustomToken;
 			sourceTree = "<group>";
 		};
+		DA393F552BAD641A00735B41 /* FiatCrypto */ = {
+			isa = PBXGroup;
+			children = (
+				DA393F532BACA29D00735B41 /* SendFiatCryptoAdapter.swift */,
+				DA393F562BAD642C00735B41 /* SendFiatCryptoValueProvider.swift */,
+				DAF1FE692B8E1513009FDBDA /* CommonSendFiatCryptoAdapter.swift */,
+			);
+			path = FiatCrypto;
+			sourceTree = "<group>";
+		};
 		DA40551F2ABDD3A300353F8A /* AddCustomTokenNetworkSelector */ = {
 			isa = PBXGroup;
 			children = (
@@ -5488,8 +5500,6 @@
 				DA559C2C2B0261F400F59584 /* SendAmountView.swift */,
 				DA559C2D2B0261F400F59584 /* SendAmountViewModel.swift */,
 				DAF3D58C2B3AD9050047D65F /* SendCurrencyPicker.swift */,
-				DA393F532BACA29D00735B41 /* SendFiatCryptoAdapter.swift */,
-				DAF1FE692B8E1513009FDBDA /* CommonSendFiatCryptoAdapter.swift */,
 			);
 			path = Amount;
 			sourceTree = "<group>";
@@ -5689,6 +5699,7 @@
 		DAFC3E002AA8A50000D1013F /* Send */ = {
 			isa = PBXGroup;
 			children = (
+				DA393F552BAD641A00735B41 /* FiatCrypto */,
 				DA7B2C4E2B6B893500FB9622 /* SendNotifications */,
 				DA1D3B6F2B56C7DC00247393 /* QRScanView */,
 				DA559C2B2B0261F400F59584 /* Amount */,
@@ -8706,6 +8717,7 @@
 				DA5044E32ABACA6600D1E5CF /* MarketPriceView.swift in Sources */,
 				EF5A5AD028D86089002544AC /* TotalBalanceProviding.swift in Sources */,
 				B6E9A8C92A9A410A005CF137 /* CardsInfoPagerView+.swift in Sources */,
+				DA393F572BAD642C00735B41 /* SendFiatCryptoValueProvider.swift in Sources */,
 				B0323F2C258C041D005C7CD5 /* SignerUtils.swift in Sources */,
 				5DBBAB0824D850EA00E78F1C /* CircleView.swift in Sources */,
 				DC3B49F62893E51B00C207EA /* UserWalletConfig.swift in Sources */,
