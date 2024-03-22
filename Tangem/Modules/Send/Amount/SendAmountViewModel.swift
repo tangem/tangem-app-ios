@@ -125,7 +125,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             .store(in: &bag)
 
         fiatCryptoAdapter?
-            .amountAlternative
+            .formattedAmountAlternativePublisher
             .assign(to: \.amountAlternative, on: self, ownership: .weak)
             .store(in: &bag)
     }
