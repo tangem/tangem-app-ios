@@ -49,9 +49,37 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         return super.title
     }
 
+    override var isSupportButtonVisible: Bool {
+        switch currentStep {
+        case .success, .done: return false
+        default: return super.isSupportButtonVisible
+        }
+    }
+
+    // MARK: - Main Button settings
+
     override var mainButtonTitle: String {
+        if case .topup = currentStep, !canBuy {
+            return Localization.onboardingButtonReceiveCrypto
+        }
+
+        return super.mainButtonTitle
+    }
+
+    override var mainButtonSettings: MainButton.Settings? {
+        switch currentStep {
+        case .topup, .saveUserWallet:
+            return super.mainButtonSettings
+        default:
+            return nil
+        }
+    }
+
+    // MARK: - Supplement button settings
+
+    override var supplementButtonTitle: String {
         if !isInitialAnimPlayed {
-            return super.mainButtonTitle
+            return super.supplementButtonTitle
         }
 
         if twinCardSeries.number != 1 {
@@ -65,29 +93,37 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
             }
         }
 
-        if case .topup = currentStep, !canBuy {
-            return Localization.onboardingButtonReceiveCrypto
-        }
-
-        return super.mainButtonTitle
+        return super.supplementButtonTitle
     }
 
-    override var supplementButtonColor: ButtonColorStyle {
+    override var supplementButtonSettings: MainButton.Settings? {
+        var settings = super.supplementButtonSettings
+
         switch currentStep {
-        case .disclaimer:
-            return .black
+        case .alert:
+            settings?.isDisabled = !alertAccepted
         default:
-            return super.supplementButtonColor
+            break
+        }
+
+        return settings
+    }
+
+    override var supplementButtonStyle: MainButton.Style {
+        switch currentStep {
+        case .disclaimer, .intro, .success, .first, .second, .third, .done, .alert:
+            return .primary
+        default:
+            return super.supplementButtonStyle
         }
     }
 
-    override var isSupplementButtonVisible: Bool {
-        switch currentStep {
-        case .topup:
-            return currentStep.isSupplementButtonVisible && canBuy
-        default:
-            return currentStep.isSupplementButtonVisible
+    override var supplementButtonIcon: MainButton.Icon? {
+        if let icon = currentStep.supplementButtonIcon {
+            return .trailing(icon)
         }
+
+        return nil
     }
 
     var isCustomContentVisible: Bool {
@@ -108,20 +144,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
 
     var infoText: String? {
         currentStep.infoText
-    }
-
-    override var mainButtonSettings: MainButton.Settings? {
-        var settings = super.mainButtonSettings
-
-        switch currentStep {
-        case .disclaimer:
-            return nil
-        case .alert:
-            settings?.isDisabled = !alertAccepted
-        default: break
-        }
-
-        return settings
     }
 
     private var stackCalculator: StackCalculator = .init()
@@ -203,13 +225,33 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         }
     }
 
+    // MARK: - Main button action
+
     override func mainButtonAction() {
         switch currentStep {
-        case .disclaimer:
+        case .disclaimer, .first, .second, .third, .saveUserWallet, .done, .intro, .success, .alert:
             break
-        case .intro:
-            fallthrough
-        case .done, .success, .alert:
+        case .topup:
+            if canBuy {
+                openCryptoShopIfPossible()
+            } else {
+                supplementButtonAction()
+            }
+        }
+    }
+
+    // MARK: - Supplement button action
+
+    override func supplementButtonAction() {
+        switch currentStep {
+        case .intro, .success, .done, .alert:
+            goToNextStep()
+        case .topup:
+            withAnimation {
+                openQR()
+            }
+        case .disclaimer:
+            disclaimerAccepted()
             goToNextStep()
         case .first:
             if !retwinMode {
@@ -230,26 +272,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
             isMainButtonBusy = true
             subscribeToStepUpdates()
             twinsService.executeCurrentStep()
-        case .topup:
-            if canBuy {
-                openCryptoShopIfPossible()
-            } else {
-                supplementButtonAction()
-            }
-        case .saveUserWallet:
-            break
-        }
-    }
-
-    override func supplementButtonAction() {
-        switch currentStep {
-        case .topup:
-            withAnimation {
-                openQR()
-            }
-        case .disclaimer:
-            disclaimerAccepted()
-            goToNextStep()
         default:
             break
         }
