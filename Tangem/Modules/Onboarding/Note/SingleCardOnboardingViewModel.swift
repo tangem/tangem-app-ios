@@ -44,29 +44,28 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
     override var mainButtonSettings: MainButton.Settings? {
         switch currentStep {
-        case .disclaimer:
+        case .disclaimer, .createWallet, .successTopup, .success:
             return nil
         default:
             return super.mainButtonSettings
         }
     }
 
-    override var isSupplementButtonVisible: Bool {
+    override var supplementButtonStyle: MainButton.Style {
         switch currentStep {
-        case .topup:
-            return currentStep.isSupplementButtonVisible && canBuyCrypto
+        case .disclaimer, .createWallet, .successTopup, .success:
+            return .primary
         default:
-            return currentStep.isSupplementButtonVisible
+            return super.supplementButtonStyle
         }
     }
 
-    override var supplementButtonColor: ButtonColorStyle {
-        switch currentStep {
-        case .disclaimer:
-            return .black
-        default:
-            return super.supplementButtonColor
+    override var supplementButtonIcon: MainButton.Icon? {
+        if let icon = currentStep.supplementButtonIcon {
+            return .trailing(icon)
         }
+
+        return nil
     }
 
     var isCustomContentVisible: Bool {
@@ -82,6 +81,15 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         switch currentStep {
         case .saveUserWallet: return false
         default: return true
+        }
+    }
+
+    override var isSupportButtonVisible: Bool {
+        switch currentStep {
+        case .success, .successTopup:
+            return false
+        default:
+            return true
         }
     }
 
@@ -177,10 +185,8 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
     override func mainButtonAction() {
         switch currentStep {
-        case .disclaimer:
+        case .disclaimer, .createWallet, .saveUserWallet, .success, .successTopup:
             break
-        case .createWallet:
-            createWallet()
         case .topup:
             if canBuyCrypto {
                 if let disabledLocalizedReason = userWalletModel?.config.getDisabledLocalizedReason(for: .exchange) {
@@ -195,12 +201,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             } else {
                 supplementButtonAction()
             }
-        case .successTopup:
-            goToNextStep()
-        case .saveUserWallet:
-            break
-        case .success:
-            goToNextStep()
         }
     }
 
@@ -210,6 +210,10 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             openQR()
         case .disclaimer:
             disclaimerAccepted()
+            goToNextStep()
+        case .createWallet:
+            createWallet()
+        case .successTopup, .success:
             goToNextStep()
         default:
             break
