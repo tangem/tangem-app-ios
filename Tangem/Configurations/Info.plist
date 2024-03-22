@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>BSDK_SUITE_NAME</key>
+	<string>$(BSDK_SUITE_NAME)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -30,6 +32,96 @@
 				<string>tangem</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.tangem.Tangem</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>bitcoin</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.tangem.Tangem</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>ethereum</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.tangem.Tangem</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>litecoin</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.tangem.Tangem</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>xrpl</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.tangem.Tangem</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>ripple</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.tangem.Tangem</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>xrp</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.tangem.Tangem</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>bnb</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.tangem.Tangem</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>doge</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.tangem.Tangem</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>dogecoin</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>1</string>
@@ -55,8 +147,6 @@
 	</array>
 	<key>SUITE_NAME</key>
 	<string>$(SUITE_NAME)</string>
-	<key>BSDK_SUITE_NAME</key>
-	<string>$(BSDK_SUITE_NAME)</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
