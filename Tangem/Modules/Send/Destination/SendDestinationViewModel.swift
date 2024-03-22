@@ -41,10 +41,10 @@ protocol SendDestinationViewModelInput {
 class SendDestinationViewModel: ObservableObject {
     var addressViewModel: SendDestinationTextViewModel?
     var additionalFieldViewModel: SendDestinationTextViewModel?
-    var suggestedDestinationViewModel: SendSuggestedDestinationViewModel?
 
     @Published var destinationErrorText: String?
     @Published var destinationAdditionalFieldErrorText: String?
+    @Published var suggestedDestinationViewModel: SendSuggestedDestinationViewModel?
     @Published var animatingAuxiliaryViewsOnAppear: Bool = false
     @Published var showSuggestedDestinations = true
     @Published var showSectionContent = false
