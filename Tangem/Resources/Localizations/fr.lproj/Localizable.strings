@@ -673,11 +673,12 @@
 "warning_express_active_transaction_title" = "You have active transaction";
 "warning_express_approval_in_progress_message" = "Swap approval is underway and will be completed shortly";
 "warning_express_approval_in_progress_title" = "Approval in progress";
-"warning_express_dust_message" = "The minimum swapping amount is %1$@. Please ensure that the remaining balance after sending will not be less than %2$@.";
+"warning_express_dust_message" = "The minimum swapping amount is %1$@. Please ensure that the remaining balance after the swap will not be less than %2$@.";
 "warning_express_no_exchangeable_coins_description" = "You do not have any %@ exchangeable coins in your list";
 "warning_express_no_exchangeable_coins_title" = "No available tokens to swap";
 "warning_express_not_enough_fee_for_token_tx_description" = "To make a transaction you need to deposit some %1$@ %2$@";
 "warning_express_not_enough_fee_for_token_tx_title" = "Unable to cover %@ fee";
+"warning_express_notification_invalid_reserve_amount_title" = "The amount to receive must be at least %@";
 "warning_express_refresh_required_title" = "Service temporarily unavailable";
 "warning_express_too_maximum_amount_title" = "The amount of tokens to be swapped must not exceed %@";
 "warning_express_too_minimal_amount_title" = "The amount to swap must be at least %@";
