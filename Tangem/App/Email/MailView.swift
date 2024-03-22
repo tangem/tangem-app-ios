@@ -67,17 +67,22 @@ struct MailView: UIViewControllerRepresentable {
         vc.setMessageBody(messageBody, isHTML: false)
 
         let logFiles = viewModel.logsComposer.getLogFiles()
-//        logFiles.forEach { originalURL in
-//            let coordinator = NSFileCoordinator()
-//            let zipIntent = NSFileAccessIntent.readingIntent(with: originalURL, options: [.forUploading])
-//            coordinator.coordinate(with: [zipIntent], queue: .main) { error in
-//                if let error {
-//                    print("Error")
-//                    return
-//                }
-//                let zipURL = zipIntent.url
-//                vc.addAttachmentData((try? Data(contentsOf: zipURL)) ?? Data(), mimeType: "application/zip", fileName: (originalURL.lastPathComponent as NSString).deletingPathExtension + ".zip")
-//            }
+        logFiles.forEach { originalURL in
+            let zipName = (originalURL.lastPathComponent as NSString).deletingPathExtension + ".zip"
+            try? zip(itemAtURL: originalURL, in: FileManager().temporaryDirectory, zipName: zipName, completion: { result in
+                if case .success(let zipURL) = result {
+                    let data = (try? Data(contentsOf: zipURL)) ?? Data()
+                    vc.addAttachmentData(data, mimeType: "application/x-deflate", fileName: zipName)
+                }
+            })
+        }
+//
+//        let fileManager = FileManager.default
+//        viewModel.logsComposer.getLogsData().forEach { data in
+//            let archiveName = (data.key as NSString).deletingPathExtension + ".gz"
+//            let archiveURL = fileManager.temporaryDirectory.appendingPathComponent(archiveName, conformingTo: .gzip)
+//            let archive = ZlibArchive.archive(data: data.value)
+//            vc.addAttachmentData(archive, mimeType: "application/gzip", fileName: archiveName)
 //        }
 
 //        let fileManager = FileManager()
@@ -89,14 +94,40 @@ struct MailView: UIViewControllerRepresentable {
 //        }
 
 //        viewModel.logsComposer.getLogsData().forEach {
-//            if let compressed = try? $0.value.compressed(using: .lz4) {
-//                vc.addAttachmentData(compressed, mimeType: "application/zip", fileName: ($0.key as NSString).deletingPathExtension + ".zip")
+//            if let compressed = try? $0.value.compressed(using: .zlib) {
+//                vc.addAttachmentData(compressed, mimeType: "application/x-deflate", fileName: ($0.key as NSString).deletingPathExtension + ".zip")
 //            } else {
 //                vc.addAttachmentData($0.value, mimeType: "text/plain", fileName: $0.key)
 //            }
 //        }
 
         return vc
+    }
+
+    /// Zip the itemAtURL (file or folder) into the destinationFolderURL with the given zipName
+    /// - Parameters:
+    ///   - itemURL: File or folder to zip
+    ///   - destinationFolderURL: destination folder
+    ///   - zipName: zip file name
+    /// - Throws: Error in case of failure in generating or moving the zip
+    func zip(itemAtURL itemURL: URL, in destinationFolderURL: URL, zipName: String, completion: @escaping (Result<URL, Error>) -> Void) throws {
+        var error: NSError?
+        NSFileCoordinator().coordinate(readingItemAt: itemURL, options: [.forUploading], error: &error) { zipUrl in
+            // zipUrl points to the zip file created by [REDACTED_AUTHOR]
+            // zipUrl is valid only until the end of this block, so we move the file to a temporary folder
+            let finalUrl = destinationFolderURL.appendingPathComponent(zipName)
+            do {
+                try? FileManager.default.removeItem(at: finalUrl)
+                try FileManager.default.moveItem(at: zipUrl, to: finalUrl)
+                completion(.success(finalUrl))
+            } catch let localError {
+                completion(.failure(localError))
+            }
+        }
+
+        if let error {
+            throw error
+        }
     }
 
     func updateUIViewController(
