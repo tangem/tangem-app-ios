@@ -154,12 +154,12 @@ class SendSummaryViewModel: ObservableObject {
             .store(in: &bag)
 
         Publishers.CombineLatest(
-            fiatCryptoValueProvider.formattedAmountPublisher, 
+            fiatCryptoValueProvider.formattedAmountPublisher,
             fiatCryptoValueProvider.formattedAmountAlternativePublisher
         )
         .compactMap { [weak self] formattedAmount, formattedAmountAlternative in
             self?.sectionViewModelFactory.makeAmountViewData(
-                from: formattedAmount, 
+                from: formattedAmount,
                 amountAlternative: formattedAmountAlternative
             )
         }
