@@ -30,9 +30,14 @@ struct SendDecimalNumberTextField: View {
     private var alignment: Alignment = .leading
     private var onFocusChanged: ((Bool) -> Void)?
 
-    // Suffix properties
+    // Prefix-suffix properties
+    private var prefix: String? = nil
+    private var hasSpaceAfterPrefix = false
+
     private var suffix: String? = nil
-    private var suffixColor: Color {
+    private var hasSpaceBeforeSuffix = false
+
+    private var prefixSuffixColor: Color {
         switch viewModel.value {
         case .none:
             return appearance.placeholderColor
@@ -47,10 +52,12 @@ struct SendDecimalNumberTextField: View {
 
     var body: some View {
         ZStack(alignment: alignment) {
-            HStack(alignment: .center, spacing: oneSpaceWidth) {
+            HStack(alignment: .center, spacing: 0) {
+                prefixSuffixView(prefix, hasSpaceAfterText: hasSpaceAfterPrefix)
+
                 textField
 
-                suffixView
+                prefixSuffixView(suffix, hasSpaceBeforeText: hasSpaceBeforeSuffix)
             }
             .readGeometry(\.frame.size.height, bindTo: $textFieldHeight)
 
@@ -115,10 +122,14 @@ struct SendDecimalNumberTextField: View {
     }
 
     @ViewBuilder
-    private var suffixView: some View {
-        if let suffix {
-            Text(suffix)
-                .style(appearance.font, color: suffixColor)
+    private func prefixSuffixView(_ text: String?, hasSpaceBeforeText: Bool = false, hasSpaceAfterText: Bool = false) -> some View {
+        if let text {
+            if hasSpaceBeforeText {
+                FixedSpacer(width: oneSpaceWidth)
+            }
+
+            Text(text)
+                .style(appearance.font, color: prefixSuffixColor)
                 .onTapGesture {
                     isInputActive = true
                 }
@@ -127,6 +138,10 @@ struct SendDecimalNumberTextField: View {
                         .font(appearance.font)
                         .readGeometry(\.frame.size.width, bindTo: $oneSpaceWidth)
                 )
+
+            if hasSpaceAfterText {
+                FixedSpacer(width: oneSpaceWidth)
+            }
         }
     }
 }
@@ -138,8 +153,18 @@ extension SendDecimalNumberTextField: Setupable {
         map { $0.toolbarType = toolbarType }
     }
 
-    func suffix(_ suffix: String?) -> Self {
-        map { $0.suffix = suffix }
+    func prefix(_ prefix: String?, hasSpaceAfterPrefix: Bool) -> Self {
+        map {
+            $0.prefix = prefix
+            $0.hasSpaceAfterPrefix = hasSpaceAfterPrefix
+        }
+    }
+
+    func suffix(_ suffix: String?, hasSpaceBeforeSuffix: Bool) -> Self {
+        map {
+            $0.suffix = suffix
+            $0.hasSpaceBeforeSuffix = hasSpaceBeforeSuffix
+        }
     }
 
     func appearance(_ appearance: DecimalNumberTextField.Appearance) -> Self {
@@ -189,22 +214,22 @@ struct SendDecimalNumberTextField_Previews: PreviewProvider {
 
             VStack(alignment: .leading, spacing: 16) {
                 SendDecimalNumberTextField(viewModel: .init(maximumFractionDigits: 8))
-                    .suffix("WEI")
+                    .suffix("WEI", hasSpaceBeforeSuffix: true)
                     .padding()
                     .background(Colors.Background.action)
 
                 SendDecimalNumberTextField(viewModel: .init(maximumFractionDigits: 8))
-                    .suffix(nil)
+                    .suffix(nil, hasSpaceBeforeSuffix: true)
                     .padding()
                     .background(Colors.Background.action)
 
                 SendDecimalNumberTextField(viewModel: .init(maximumFractionDigits: 8))
-                    .suffix("USDT")
+                    .suffix("USDT", hasSpaceBeforeSuffix: true)
                     .padding()
                     .background(Colors.Background.action)
 
                 SendDecimalNumberTextField(viewModel: .init(maximumFractionDigits: 8))
-                    .suffix("USDT")
+                    .suffix("USDT", hasSpaceBeforeSuffix: true)
                     .appearance(.init(font: Fonts.Regular.body))
                     .alignment(.leading)
                     .padding()
