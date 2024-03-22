@@ -610,6 +610,7 @@
 		B675C3702BACAE1F007BE1DC /* SubscanAPIResult.ExtrinsicsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = B675C36F2BACAE1F007BE1DC /* SubscanAPIResult.ExtrinsicsList.swift */; };
 		B675C3722BACB0F3007BE1DC /* SubscanAPIResult.AccountInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B675C3712BACB0F3007BE1DC /* SubscanAPIResult.AccountInfo.swift */; };
 		B675C3742BACB5B8007BE1DC /* SubscanAPIResult.ExtrinsicInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B675C3732BACB5B8007BE1DC /* SubscanAPIResult.ExtrinsicInfo.swift */; };
+		B675C3762BACB8AA007BE1DC /* PolkaDotAccountHealthChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B675C3752BACB8AA007BE1DC /* PolkaDotAccountHealthChecker.swift */; };
 		B67688EF2B078EDB006C94F7 /* MainBottomSheetOverlayViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67688EE2B078EDB006C94F7 /* MainBottomSheetOverlayViewModel.swift */; };
 		B67688F12B078F71006C94F7 /* MainBottomSheetOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67688F02B078F71006C94F7 /* MainBottomSheetOverlayView.swift */; };
 		B67D90DD2ABAC603006B2C00 /* BottomScrollableSheetModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67D90DC2ABAC603006B2C00 /* BottomScrollableSheetModifier.swift */; };
@@ -2083,6 +2084,7 @@
 		B675C36F2BACAE1F007BE1DC /* SubscanAPIResult.ExtrinsicsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscanAPIResult.ExtrinsicsList.swift; sourceTree = "<group>"; };
 		B675C3712BACB0F3007BE1DC /* SubscanAPIResult.AccountInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscanAPIResult.AccountInfo.swift; sourceTree = "<group>"; };
 		B675C3732BACB5B8007BE1DC /* SubscanAPIResult.ExtrinsicInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscanAPIResult.ExtrinsicInfo.swift; sourceTree = "<group>"; };
+		B675C3752BACB8AA007BE1DC /* PolkaDotAccountHealthChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkaDotAccountHealthChecker.swift; sourceTree = "<group>"; };
 		B67688EE2B078EDB006C94F7 /* MainBottomSheetOverlayViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainBottomSheetOverlayViewModel.swift; sourceTree = "<group>"; };
 		B67688F02B078F71006C94F7 /* MainBottomSheetOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainBottomSheetOverlayView.swift; sourceTree = "<group>"; };
 		B67D90DC2ABAC603006B2C00 /* BottomScrollableSheetModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomScrollableSheetModifier.swift; sourceTree = "<group>"; };
@@ -5134,6 +5136,7 @@
 			children = (
 				B675C3602BAC9DB0007BE1DC /* DTO */,
 				B675C35E2BAC8A48007BE1DC /* SubscanAPITarget.swift */,
+				B675C3752BACB8AA007BE1DC /* PolkaDotAccountHealthChecker.swift */,
 			);
 			path = PolkaDotAccountHealthCheck;
 			sourceTree = "<group>";
@@ -8385,6 +8388,7 @@
 				B65CB3FE2A98A93F00C31199 /* UserTokensReorderingAction.swift in Sources */,
 				B67DC1EA2B7C4C48008ACB0E /* BlockchainAccountCreatorStub.swift in Sources */,
 				DC13D04029DF2D470003895C /* BackupServiceFactory.swift in Sources */,
+				B675C3762BACB8AA007BE1DC /* PolkaDotAccountHealthChecker.swift in Sources */,
 				DCBAF69F2A4AF4660029480A /* TwinWalletManagerFactory.swift in Sources */,
 				EFE7D5842AA224C50047D93A /* FetchMore.swift in Sources */,
 				B6ED08302A7D9FA70090E51F /* OrganizeTokensOptionsEditing.swift in Sources */,
