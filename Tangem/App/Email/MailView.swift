@@ -67,15 +67,15 @@ struct MailView: UIViewControllerRepresentable {
         vc.setMessageBody(messageBody, isHTML: false)
 
         let logFiles = viewModel.logsComposer.getLogFiles()
-        logFiles.forEach { originalURL in
-            let zipName = (originalURL.lastPathComponent as NSString).deletingPathExtension + ".zip"
-            try? zip(itemAtURL: originalURL, in: FileManager().temporaryDirectory, zipName: zipName, completion: { result in
-                if case .success(let zipURL) = result {
-                    let data = (try? Data(contentsOf: zipURL)) ?? Data()
-                    vc.addAttachmentData(data, mimeType: "application/x-deflate", fileName: zipName)
-                }
-            })
-        }
+//        logFiles.forEach { originalURL in
+//            let zipName = (originalURL.lastPathComponent as NSString).deletingPathExtension + ".aar"
+//            try? zip(itemAtURL: originalURL, in: FileManager().temporaryDirectory, zipName: zipName, completion: { result in
+//                if case .success(let zipURL) = result {
+//                    let data = (try? Data(contentsOf: zipURL)) ?? Data()
+//                    vc.addAttachmentData(data, mimeType: "application/x-deflate", fileName: zipName)
+//                }
+//            })
+//        }
 //
 //        let fileManager = FileManager.default
 //        viewModel.logsComposer.getLogsData().forEach { data in
@@ -93,13 +93,13 @@ struct MailView: UIViewControllerRepresentable {
 //            vc.addAttachmentData((try? Data(contentsOf: archiveURL)) ?? Data(), mimeType: "application/zip", fileName: fileName)
 //        }
 
-//        viewModel.logsComposer.getLogsData().forEach {
-//            if let compressed = try? $0.value.compressed(using: .zlib) {
-//                vc.addAttachmentData(compressed, mimeType: "application/x-deflate", fileName: ($0.key as NSString).deletingPathExtension + ".zip")
-//            } else {
-//                vc.addAttachmentData($0.value, mimeType: "text/plain", fileName: $0.key)
-//            }
-//        }
+        viewModel.logsComposer.getLogsData().forEach {
+            if let compressed = try? $0.value.compressed(using: .lzfse) {
+                vc.addAttachmentData(compressed, mimeType: "application/x-deflate", fileName: ($0.key as NSString).deletingPathExtension + ".aar")
+            } else {
+                vc.addAttachmentData($0.value, mimeType: "text/plain", fileName: $0.key)
+            }
+        }
 
         return vc
     }
