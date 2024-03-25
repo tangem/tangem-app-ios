@@ -134,9 +134,9 @@ struct OnboardingAccessCodeView: View {
 
                 state = nextState
             }
-            .padding(.bottom, 16)
+            .padding(.bottom, 8)
         }
-        .padding(.horizontal, 40)
+        .padding(.horizontal, 16)
         .onDisappear {
             DispatchQueue.main.async {
                 error = .none
