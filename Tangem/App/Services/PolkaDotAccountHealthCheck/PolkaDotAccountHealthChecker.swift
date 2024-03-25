@@ -242,7 +242,16 @@ final class PolkaDotAccountHealthChecker {
     }
 
     @MainActor
-    private func sendAccountHealthMetric(_ metric: AccountHealthMetric) {}
+    private func sendAccountHealthMetric(_ metric: AccountHealthMetric) {
+        switch metric {
+        case .hasBeenReset(let value):
+            let value: Analytics.ParameterValue = .affirmativeOrNegative(for: value)
+            Analytics.log(event: .healthCheckPolkadotAccountReset, params: [.state: value.rawValue])
+        case .hasImmortalTransaction(let value):
+            let value: Analytics.ParameterValue = .affirmativeOrNegative(for: value)
+            Analytics.log(event: .healthCheckPolkadotImmortalTransactions, params: [.state: value.rawValue])
+        }
+    }
 }
 
 // MARK: - Auxiliary types
