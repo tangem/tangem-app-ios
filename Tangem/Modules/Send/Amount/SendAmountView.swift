@@ -81,8 +81,7 @@ struct SendAmountView: View {
                 // A small delay must be introduced to fix a glitch in a transition animation when changing screens
                 .initialFocusBehavior(.delayedFocus(duration: SendView.Constants.animationDuration))
                 .alignment(.center)
-                .prefix(viewModel.inputFieldPrefix, hasSpaceAfterPrefix: viewModel.hasSpaceAfterPrefix)
-                .suffix(viewModel.inputFieldSuffix, hasSpaceBeforeSuffix: viewModel.hasSpaceBeforeSuffix)
+                .prefixSuffixOptions(viewModel.currentFieldOptions)
                 .frame(maxWidth: .infinity)
                 .matchedGeometryEffect(id: SendViewNamespaceId.amountCryptoText.rawValue, in: namespace)
                 .padding(.top, 18)
