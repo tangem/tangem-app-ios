@@ -747,7 +747,7 @@ extension SendModel: SendSummaryViewModelInput {
         fee.eraseToAnyPublisher()
     }
 
-    var feeOptionPublisher: AnyPublisher<FeeOption, Never> {
+    var selectedFeeOptionPublisher: AnyPublisher<FeeOption, Never> {
         _selectedFeeOption.eraseToAnyPublisher()
     }
 
@@ -805,3 +805,5 @@ extension SendModel: SendNotificationManagerInput {
         _withdrawalSuggestion.eraseToAnyPublisher()
     }
 }
+
+extension SendModel: SendFiatCryptoAdapterOutput {}
