@@ -41,19 +41,19 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     @Published var showSectionContent = false
 
     var inputFieldPrefix: String? {
-        useFiatCalculation ? fiatFieldOptions.prefix : cryptoFieldOptions.prefix
+        currentFieldOptions.prefix
     }
 
     var inputFieldSuffix: String? {
-        useFiatCalculation ? fiatFieldOptions.suffix : cryptoFieldOptions.suffix
+        currentFieldOptions.suffix
     }
 
     var hasSpaceAfterPrefix: Bool {
-        useFiatCalculation ? fiatFieldOptions.hasSpaceAfterPrefix : cryptoFieldOptions.hasSpaceBeforeSuffix
+        currentFieldOptions.hasSpaceAfterPrefix
     }
 
     var hasSpaceBeforeSuffix: Bool {
-        useFiatCalculation ? fiatFieldOptions.hasSpaceAfterPrefix : cryptoFieldOptions.hasSpaceBeforeSuffix
+        currentFieldOptions.hasSpaceBeforeSuffix
     }
 
     var didProperlyDisappear = false
@@ -65,6 +65,10 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private let fiatFieldOptions: SendDecimalNumberTextFieldOptions
     private let balanceValue: Decimal?
     private var bag: Set<AnyCancellable> = []
+
+    private var currentFieldOptions: SendDecimalNumberTextFieldOptions {
+        useFiatCalculation ? fiatFieldOptions : cryptoFieldOptions
+    }
 
     init(input: SendAmountViewModelInput, walletInfo: SendWalletInfo) {
         self.input = input
