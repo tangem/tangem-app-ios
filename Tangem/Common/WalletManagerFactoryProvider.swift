@@ -16,7 +16,8 @@ class WalletManagerFactoryProvider {
         config: keysManager.blockchainConfig,
         dependencies: .init(
             accountCreator: BlockchainAccountCreator(),
-            dataStorage: UserDefaultsBlockchainDataStorage(suiteName: AppEnvironment.current.blockchainDataStorageSuiteName)
+            dataStorage: UserDefaultsBlockchainDataStorage(suiteName: AppEnvironment.current.blockchainDataStorageSuiteName),
+            blockchainAnalytics: BlockchainAnalytics()
         )
     )
 
