@@ -12,6 +12,7 @@ enum InfoDictionaryUtils {
     case appName
     case version
     case bundleVersion
+    case bundleIdentifier
     case bundleURLTypes
     case bundleURLSchemes
 
@@ -24,6 +25,8 @@ enum InfoDictionaryUtils {
             return infoDictionary["CFBundleShortVersionString"] as? T
         case .bundleVersion:
             return infoDictionary["CFBundleVersion"] as? T
+        case .bundleIdentifier:
+            return infoDictionary["CFBundleIdentifier"] as? T
         case .bundleURLTypes:
             return infoDictionary["CFBundleURLTypes"] as? T
         case .bundleURLSchemes:
