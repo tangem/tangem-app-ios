@@ -9,7 +9,6 @@
 import Foundation
 import FirebaseAnalytics
 import FirebaseCrashlytics
-import AppsFlyerLib
 import BlockchainSdk
 import Amplitude
 import TangemSdk
@@ -53,10 +52,12 @@ class Analytics {
 
     static func logDestinationAddress(isAddressValid: Bool, source: DestinationAddressSource) {
         let validationResult: Analytics.ParameterValue = isAddressValid ? .success : .fail
+        guard let parameterValue = source.parameterValue else { return }
+
         Analytics.log(
-            .addressEntered,
+            .sendAddressEntered,
             params: [
-                .commonSource: source.parameterValue,
+                .commonSource: parameterValue,
                 .validation: validationResult,
             ]
         )
@@ -83,7 +84,7 @@ class Analytics {
     static func log(
         event: Event,
         params: [ParameterKey: String],
-        analyticsSystems: [Analytics.AnalyticsSystem] = [.firebase, .appsflyer, .amplitude, .crashlytics]
+        analyticsSystems: [Analytics.AnalyticsSystem] = [.firebase, .amplitude, .crashlytics]
     ) {
         assert(event.canBeLoggedDirectly)
 
@@ -135,7 +136,7 @@ class Analytics {
     private static func logEventInternal(
         _ event: Event,
         params: [ParameterKey: String] = [:],
-        analyticsSystems: [Analytics.AnalyticsSystem] = [.firebase, .appsflyer, .amplitude, .crashlytics]
+        analyticsSystems: [Analytics.AnalyticsSystem] = [.firebase, .amplitude, .crashlytics]
     ) {
         if AppEnvironment.current.isXcodePreview {
             return
@@ -151,7 +152,7 @@ class Analytics {
     private static func logInternal(
         _ event: String,
         params: [String: Any] = [:],
-        analyticsSystems: [Analytics.AnalyticsSystem] = [.firebase, .appsflyer, .amplitude, .crashlytics]
+        analyticsSystems: [Analytics.AnalyticsSystem] = [.firebase, .amplitude, .crashlytics]
     ) {
         if AppEnvironment.current.isXcodePreview {
             return
@@ -165,8 +166,6 @@ class Analytics {
 
         for system in analyticsSystems {
             switch system {
-            case .appsflyer:
-                AppsFlyerLib.shared().logEvent(event, withValues: params)
             case .firebase:
                 FirebaseAnalytics.Analytics.logEvent(event, parameters: params)
             case .crashlytics:
