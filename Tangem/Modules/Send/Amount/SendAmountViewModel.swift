@@ -40,20 +40,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     @Published var animatingAuxiliaryViewsOnAppear = false
     @Published var showSectionContent = false
 
-    var inputFieldPrefix: String? {
-        currentFieldOptions.prefix
-    }
-
-    var inputFieldSuffix: String? {
-        currentFieldOptions.suffix
-    }
-
-    var hasSpaceAfterPrefix: Bool {
-        currentFieldOptions.hasSpaceAfterPrefix
-    }
-
-    var hasSpaceBeforeSuffix: Bool {
-        currentFieldOptions.hasSpaceBeforeSuffix
+    var currentFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions {
+        useFiatCalculation ? fiatFieldOptions : cryptoFieldOptions
     }
 
     var didProperlyDisappear = false
@@ -65,10 +53,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private let fiatFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions
     private let balanceValue: Decimal?
     private var bag: Set<AnyCancellable> = []
-
-    private var currentFieldOptions: PrefixSuffixOptions {
-        useFiatCalculation ? fiatFieldOptions : cryptoFieldOptions
-    }
 
     init(input: SendAmountViewModelInput, walletInfo: SendWalletInfo) {
         self.input = input
