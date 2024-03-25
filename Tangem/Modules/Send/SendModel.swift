@@ -247,9 +247,7 @@ class SendModel {
             .store(in: &bag)
 
         fee
-            .removeDuplicates {
-                $0 == $1
-            }
+            .removeDuplicates()
             .sink { [weak self] fee in
                 self?.validateFee(fee)
             }
