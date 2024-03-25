@@ -141,11 +141,11 @@ class WalletModel {
     }
 
     var pendingTransactions: [PendingTransactionRecord] {
-        wallet.pendingTransactions.filter { !$0.isDummy }
+        wallet.pendingTransactions.filter { !$0.isDummy && $0.amount.type == amountType }
     }
 
     var incomingPendingTransactions: [PendingTransactionRecord] {
-        wallet.pendingTransactions.filter { $0.isIncoming }
+        wallet.pendingTransactions.filter { $0.isIncoming && $0.amount.type == amountType }
     }
 
     var outgoingPendingTransactions: [PendingTransactionRecord] {
@@ -332,13 +332,10 @@ class WalletModel {
         switch walletManagerState {
         case .loaded:
             return .idle
+        case .failed(WalletError.noAccount(let message, let amountToCreate)):
+            return .noAccount(message: message, amountToCreate: amountToCreate)
         case .failed(let error):
-            switch error as? WalletError {
-            case .noAccount(let message):
-                return .noAccount(message: message)
-            default:
-                return .failed(error: error.detailedError.localizedDescription)
-            }
+            return .failed(error: error.detailedError.localizedDescription)
         case .loading:
             return .loading
         case .initial:
