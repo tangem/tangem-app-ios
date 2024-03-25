@@ -61,12 +61,12 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private var fiatCryptoAdapter: SendFiatCryptoAdapter?
 
     private let input: SendAmountViewModelInput
-    private let cryptoFieldOptions: SendDecimalNumberTextFieldOptions
-    private let fiatFieldOptions: SendDecimalNumberTextFieldOptions
+    private let cryptoFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions
+    private let fiatFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions
     private let balanceValue: Decimal?
     private var bag: Set<AnyCancellable> = []
 
-    private var currentFieldOptions: SendDecimalNumberTextFieldOptions {
+    private var currentFieldOptions: PrefixSuffixOptions {
         useFiatCalculation ? fiatFieldOptions : cryptoFieldOptions
     }
 
@@ -89,7 +89,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         fiatCurrencyCode = walletInfo.fiatCurrencyCode
         fiatCurrencySymbol = localizedCurrencySymbol ?? walletInfo.fiatCurrencyCode
 
-        let factory = SendDecimalNumberTextFieldOptionsFactory(
+        let factory = SendDecimalNumberTextField.PrefixSuffixOptionsFactory(
             cryptoCurrencyCode: walletInfo.cryptoCurrencyCode,
             fiatCurrencyCode: walletInfo.fiatCurrencyCode
         )
