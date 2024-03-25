@@ -397,6 +397,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         discardSensitiveData()
 
         resetServices()
+        analyticsContext.clearSession()
 
         sendEvent(.locked(reason: reason))
     }
@@ -420,11 +421,9 @@ class CommonUserWalletRepository: UserWalletRepository {
     // we can initialize it right after scan for more accurate analytics
     func initializeAnalyticsContext(with cardInfo: CardInfo) {
         let config = UserWalletConfigFactory(cardInfo).makeConfig()
-        let userWalletId = config.userWalletIdSeed.map { UserWalletId(with: $0).value }
         let contextData = AnalyticsContextData(
             card: cardInfo.card,
             productType: config.productType,
-            userWalletId: userWalletId,
             embeddedEntry: config.embeddedBlockchain
         )
 
