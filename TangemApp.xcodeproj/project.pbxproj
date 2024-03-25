@@ -719,7 +719,7 @@
 		DA1DF0612BA4630D008310E4 /* FormattedFeeComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1DF0602BA4630D008310E4 /* FormattedFeeComponents.swift */; };
 		DA28D57D290AAE2000F0C335 /* ScrollView+.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA28D57C290AAE2000F0C335 /* ScrollView+.swift */; };
 		DA34BDF52B26F1AD00F606C2 /* SendWalletInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA34BDF42B26F1AD00F606C2 /* SendWalletInfo.swift */; };
-		DA393F922BADBE4900735B41 /* SendDecimalNumberTextFieldOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA393F912BADBE4900735B41 /* SendDecimalNumberTextFieldOptions.swift */; };
+		DA393F922BADBE4900735B41 /* SendDecimalNumberTextFieldPrefixSuffixOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA393F912BADBE4900735B41 /* SendDecimalNumberTextFieldPrefixSuffixOptions.swift */; };
 		DA3F46A02B9F24670074BECD /* SectionContainerAnimatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA3F469F2B9F24670074BECD /* SectionContainerAnimatable.swift */; };
 		DA4055252ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4055202ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemViewModel.swift */; };
 		DA4055262ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4055212ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemView.swift */; };
@@ -2189,7 +2189,7 @@
 		DA1DF0602BA4630D008310E4 /* FormattedFeeComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormattedFeeComponents.swift; sourceTree = "<group>"; };
 		DA28D57C290AAE2000F0C335 /* ScrollView+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScrollView+.swift"; sourceTree = "<group>"; };
 		DA34BDF42B26F1AD00F606C2 /* SendWalletInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendWalletInfo.swift; sourceTree = "<group>"; };
-		DA393F912BADBE4900735B41 /* SendDecimalNumberTextFieldOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDecimalNumberTextFieldOptions.swift; sourceTree = "<group>"; };
+		DA393F912BADBE4900735B41 /* SendDecimalNumberTextFieldPrefixSuffixOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDecimalNumberTextFieldPrefixSuffixOptions.swift; sourceTree = "<group>"; };
 		DA3F469F2B9F24670074BECD /* SectionContainerAnimatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionContainerAnimatable.swift; sourceTree = "<group>"; };
 		DA4055202ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworkSelectorItemViewModel.swift; sourceTree = "<group>"; };
 		DA4055212ABDD3A300353F8A /* AddCustomTokenNetworkSelectorItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenNetworkSelectorItemView.swift; sourceTree = "<group>"; };
@@ -5487,7 +5487,7 @@
 			children = (
 				DA559C2C2B0261F400F59584 /* SendAmountView.swift */,
 				DA559C2D2B0261F400F59584 /* SendAmountViewModel.swift */,
-				DA393F912BADBE4900735B41 /* SendDecimalNumberTextFieldOptions.swift */,
+				DA393F912BADBE4900735B41 /* SendDecimalNumberTextFieldPrefixSuffixOptions.swift */,
 				DAF3D58C2B3AD9050047D65F /* SendCurrencyPicker.swift */,
 				DAF1FE692B8E1513009FDBDA /* SendFiatCryptoAdapter.swift */,
 			);
@@ -8800,7 +8800,7 @@
 				B687E9492A2D881C00BFF604 /* View+ReadContentOffset.swift in Sources */,
 				DAC53CF927BE63830027147D /* StoriesViewModel.swift in Sources */,
 				DC234CC429F12E3D00082063 /* AppStorageCompat.swift in Sources */,
-				DA393F922BADBE4900735B41 /* SendDecimalNumberTextFieldOptions.swift in Sources */,
+				DA393F922BADBE4900735B41 /* SendDecimalNumberTextFieldPrefixSuffixOptions.swift in Sources */,
 				B6FB04E52B1FEEF6000BB59E /* RootHostingController.swift in Sources */,
 				B0C4F76B26F0896E0086D815 /* SingleCardOnboardingCardsLayout.swift in Sources */,
 				B60C13B32A530C500003F68F /* ScrollDetector.swift in Sources */,
@@ -9321,7 +9321,6 @@
 				EF9E2A0F2B4F0CD100418559 /* CommonExpressProviderManagerFactory.swift in Sources */,
 				EF9E2A3C2B4F0CD100418559 /* ExpressManagerError.swift in Sources */,
 				EF9E2A292B4F0CD100418559 /* ExpressAvailableProvider.swift in Sources */,
-				EF9E2A072B4F0CD100418559 /* MoyaProvider+AsyncRequest.swift in Sources */,
 				B6BB2CE22BAC4A9B009C12F2 /* ExpressDeviceInfoPlugin.swift in Sources */,
 				EF9E2A182B4F0CD100418559 /* ExpressAPITarget.swift in Sources */,
 				EF9E2A162B4F0CD100418559 /* ExpressDTO.swift in Sources */,
