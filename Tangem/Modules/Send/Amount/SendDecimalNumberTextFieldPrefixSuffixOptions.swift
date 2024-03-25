@@ -9,12 +9,9 @@
 import Foundation
 
 extension SendDecimalNumberTextField {
-    struct PrefixSuffixOptions {
-        var prefix: String?
-        var hasSpaceAfterPrefix: Bool = false
-
-        var suffix: String?
-        var hasSpaceBeforeSuffix: Bool = false
+    enum PrefixSuffixOptions {
+        case prefix(text: String?, hasSpace: Bool)
+        case suffix(text: String?, hasSpace: Bool)
     }
 }
 
@@ -51,22 +48,24 @@ extension SendDecimalNumberTextField {
 
             let hasPrefix = (format.first == currencySymbolPlaceholder)
 
-            let hasSpaceAfterPrefix: Bool
-            let hasSpaceBeforeSuffix: Bool
+            let hasSpace: Bool
             if forceSpace {
-                hasSpaceAfterPrefix = true
-                hasSpaceBeforeSuffix = true
+                hasSpace = true
             } else {
-                hasSpaceAfterPrefix = format.dropFirst().first?.isWhitespace ?? false
-                hasSpaceBeforeSuffix = format.dropLast().last?.isWhitespace ?? false
+                let adjacentCharacter: Character?
+                if hasPrefix {
+                    adjacentCharacter = format.dropFirst().first
+                } else {
+                    adjacentCharacter = format.dropLast().last
+                }
+                hasSpace = adjacentCharacter?.isWhitespace ?? false
             }
 
-            return PrefixSuffixOptions(
-                prefix: hasPrefix ? currency : nil,
-                hasSpaceAfterPrefix: hasSpaceAfterPrefix,
-                suffix: hasPrefix ? nil : currency,
-                hasSpaceBeforeSuffix: hasSpaceBeforeSuffix
-            )
+            if hasPrefix {
+                return .prefix(text: currency, hasSpace: hasSpace)
+            } else {
+                return .suffix(text: currency, hasSpace: hasSpace)
+            }
         }
     }
 }
