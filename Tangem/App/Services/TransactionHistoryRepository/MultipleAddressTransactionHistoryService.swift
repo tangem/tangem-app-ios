@@ -1,5 +1,5 @@
 //
-//  MutipleAddressTransactionHistoryService.swift
+//  MultipleAddressTransactionHistoryService.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import BlockchainSdk
 import Combine
 import class TangemExpress.ThreadSafeContainer
 
-class MutipleAddressTransactionHistoryService {
+class MultipleAddressTransactionHistoryService {
     private let tokenItem: TokenItem
     private let addresses: [String]
 
@@ -37,7 +37,7 @@ class MutipleAddressTransactionHistoryService {
 
 // MARK: - TransactionHistoryService
 
-extension MutipleAddressTransactionHistoryService: TransactionHistoryService {
+extension MultipleAddressTransactionHistoryService: TransactionHistoryService {
     var state: TransactionHistoryServiceState {
         _state.value
     }
@@ -75,7 +75,7 @@ extension MutipleAddressTransactionHistoryService: TransactionHistoryService {
 
 // MARK: - Private
 
-private extension MutipleAddressTransactionHistoryService {
+private extension MultipleAddressTransactionHistoryService {
     /// `Publisher` with the tuple value that contains the address and the history response by the one page
     typealias LoadingPublisher = AnyPublisher<(address: String, response: TransactionHistory.Response), Error>
 
@@ -189,7 +189,7 @@ private extension MutipleAddressTransactionHistoryService {
     }
 }
 
-extension MutipleAddressTransactionHistoryService {
+extension MultipleAddressTransactionHistoryService {
     enum ServiceError: Error {
         case unknowProvider
     }
@@ -197,7 +197,7 @@ extension MutipleAddressTransactionHistoryService {
 
 // MARK: - CustomStringConvertible
 
-extension MutipleAddressTransactionHistoryService: CustomStringConvertible {
+extension MultipleAddressTransactionHistoryService: CustomStringConvertible {
     var description: String {
         objectDescription(
             self,
