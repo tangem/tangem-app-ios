@@ -74,8 +74,7 @@ target 'Tangem' do
   pod 'Amplitude'
   pod 'Firebase/Crashlytics'
   pod 'Firebase/Analytics'
-  pod 'AppsFlyerFramework'
-  
+
   target 'TangemTests' do
     inherit! :search_paths
     # Pods for testing
