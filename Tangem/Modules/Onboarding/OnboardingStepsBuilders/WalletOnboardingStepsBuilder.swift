@@ -41,7 +41,9 @@ struct WalletOnboardingStepsBuilder {
 
         var steps: [WalletOnboardingStep] = []
 
-        steps.append(.backupIntro)
+        if canSkipBackup {
+            steps.append(.backupIntro)
+        }
 
         if hasWallets, !backupService.primaryCardIsSet {
             steps.append(.scanPrimaryCard)
