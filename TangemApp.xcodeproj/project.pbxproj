@@ -659,6 +659,8 @@
 		B6BB2CE22BAC4A9B009C12F2 /* ExpressDeviceInfoPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6BB2CE12BAC4A9B009C12F2 /* ExpressDeviceInfoPlugin.swift */; };
 		B6C1B9FF2AE1627500A98D2F /* OrganizeTokensScrollState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C1B9FE2AE1627500A98D2F /* OrganizeTokensScrollState.swift */; };
 		B6C1BE6D2B6C2F4E008FE5A0 /* secp256k1 in Frameworks */ = {isa = PBXBuildFile; productRef = B6C1BE6C2B6C2F4E008FE5A0 /* secp256k1 */; };
+		B6C1D2762BB238CF00B837F5 /* BlockchainAnalytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C1D2752BB238CF00B837F5 /* BlockchainAnalytics.swift */; };
+		B6C1D27A2BB239E900B837F5 /* FakeBlockchainAnalytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C1D2792BB239E900B837F5 /* FakeBlockchainAnalytics.swift */; };
 		B6C3B3072A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C3B3062A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift */; };
 		B6C3B3092A3AD2230007525E /* TokenListSectionLoadingPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C3B3082A3AD2230007525E /* TokenListSectionLoadingPlaceholderView.swift */; };
 		B6C3B56E2AA1823A0017241C /* CardsInfoPagerScrollState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C3B56D2AA1823A0017241C /* CardsInfoPagerScrollState.swift */; };
@@ -2127,6 +2129,8 @@
 		B6AEF9732A796713004663C3 /* TokenSectionsAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenSectionsAdapter.swift; sourceTree = "<group>"; };
 		B6BB2CE12BAC4A9B009C12F2 /* ExpressDeviceInfoPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressDeviceInfoPlugin.swift; sourceTree = "<group>"; };
 		B6C1B9FE2AE1627500A98D2F /* OrganizeTokensScrollState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensScrollState.swift; sourceTree = "<group>"; };
+		B6C1D2752BB238CF00B837F5 /* BlockchainAnalytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainAnalytics.swift; sourceTree = "<group>"; };
+		B6C1D2792BB239E900B837F5 /* FakeBlockchainAnalytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeBlockchainAnalytics.swift; sourceTree = "<group>"; };
 		B6C3B3062A3AD2120007525E /* TokenListItemLoadingPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListItemLoadingPlaceholderView.swift; sourceTree = "<group>"; };
 		B6C3B3082A3AD2230007525E /* TokenListSectionLoadingPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListSectionLoadingPlaceholderView.swift; sourceTree = "<group>"; };
 		B6C3B56D2AA1823A0017241C /* CardsInfoPagerScrollState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPagerScrollState.swift; sourceTree = "<group>"; };
@@ -4924,6 +4928,7 @@
 				B01178482AC1B86200C5AD07 /* FakeTokenQuotesRepository.swift */,
 				B66C259D2A801CAB002ADFBD /* FakeOrganizeTokensOptionsManager.swift */,
 				B67DC1EB2B7C4CB9008ACB0E /* FakeBlockchainDataStorage.swift */,
+				B6C1D2792BB239E900B837F5 /* FakeBlockchainAnalytics.swift */,
 			);
 			path = Fakes;
 			sourceTree = "<group>";
@@ -5260,6 +5265,14 @@
 				B6AD952B2A30072000FE845A /* TokenItemViewLeadingComponent.swift */,
 			);
 			path = Components;
+			sourceTree = "<group>";
+		};
+		B6C1D2742BB238B600B837F5 /* BlockchainAnalytics */ = {
+			isa = PBXGroup;
+			children = (
+				B6C1D2752BB238CF00B837F5 /* BlockchainAnalytics.swift */,
+			);
+			path = BlockchainAnalytics;
 			sourceTree = "<group>";
 		};
 		B6C3B3052A3AD14B0007525E /* TokenListLoadingPlaceholders */ = {
@@ -5785,6 +5798,7 @@
 		DC0A57DA2822A4DC0031BECC /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				B6C1D2742BB238B600B837F5 /* BlockchainAnalytics */,
 				B68728722B7D4B870090C24F /* BlockchainDataStorage */,
 				B687286D2B7D48A70090C24F /* BlockchainAccountCreator */,
 				EF9E38032B74E6B5004B694C /* BannerPromotionNotification */,
@@ -8113,6 +8127,7 @@
 				B65591ED2A2FF1B20066A13B /* OrganizeTokensHeaderView.swift in Sources */,
 				EFB6800E2B29BD4B00842BE3 /* SheetModifier.swift in Sources */,
 				B09BB861259A075600B92000 /* NavigationBar.swift in Sources */,
+				B6C1D27A2BB239E900B837F5 /* FakeBlockchainAnalytics.swift in Sources */,
 				5DF2522B24F9439D0015B429 /* UIImage+.swift in Sources */,
 				B0F62C4825DE4ABE005C8BA0 /* EmailType.swift in Sources */,
 				DC70BFD72B9105BF002205BA /* SecurityOptionChangingCardInteractor.swift in Sources */,
@@ -8621,6 +8636,7 @@
 				B04CD33C29122C5C001EA84A /* ReferralView.swift in Sources */,
 				DA559C4B2B02622600F59584 /* SendFeeViewModelInputMock.swift in Sources */,
 				B0FB4EF72A8511A40057F4C2 /* UserTokenListStubs.swift in Sources */,
+				B6C1D2762BB238CF00B837F5 /* BlockchainAnalytics.swift in Sources */,
 				B04126ED29CC31C700A8BB43 /* OnboardingSeedPhraseUserValidationView.swift in Sources */,
 				EF48E6E12B02408500FE0072 /* ExpressCoordinator.swift in Sources */,
 				DC0A57F72822BE300031BECC /* CardImageLoaderProtocol.swift in Sources */,
