@@ -47,7 +47,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     var isLocked: Bool { models.contains { $0.isUserWalletLocked } }
 
-    private var encryptionKeyByUserWalletId: [Data: SymmetricKey] = [:]
+    private var encryptionKeyByUserWalletId: [UserWalletId: UserWalletEncryptionKey] = [:]
 
     private let encryptionKeyStorage = UserWalletEncryptionKeyStorage()
 
@@ -93,7 +93,6 @@ class CommonUserWalletRepository: UserWalletRepository {
                 failedCardScanTracker.resetCounter()
                 sendEvent(.scan(isScanning: false))
 
-                let cardDTO = CardDTO(card: response.card)
                 var cardInfo = response.getCardInfo()
                 updateAssociatedCard(for: cardInfo)
                 resetServices()
@@ -238,7 +237,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
 
         if let userWalletIdSeed = userWalletModel.config.userWalletIdSeed {
-            encryptionKeyStorage.add(userWalletModel.userWalletId, userWalletIdSeed: userWalletIdSeed)
+            encryptionKeyStorage.add(userWalletModel.userWalletId, encryptionKey: UserWalletEncryptionKey(userWalletIdSeed: userWalletIdSeed))
             save()
         } else {
             AppLog.shared.debug("Failed to get encryption key for UserWallet")
@@ -323,10 +322,20 @@ class CommonUserWalletRepository: UserWalletRepository {
             targetIndex = 0
         }
 
-        encryptionKeyByUserWalletId[userWalletId.value] = nil
+        encryptionKeyByUserWalletId[userWalletId] = nil
         models.removeAll { $0.userWalletId == userWalletId }
 
-        encryptionKeyStorage.delete(userWallet)
+        encryptionKeyStorage.delete(userWalletId)
+
+        if AppSettings.shared.saveAccessCodes {
+            do {
+                let accessCodeRepository = AccessCodeRepository()
+                try accessCodeRepository.deleteAccessCode(for: Array(userWallet.associatedCardIds))
+            } catch {
+                AppLog.shared.error(error)
+            }
+        }
+
         save()
 
         if !models.isEmpty {
@@ -461,7 +470,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                     return
                 }
 
-                guard let seed = userWalletModel.config.userWalletIdSeed else {
+                guard let userWalletIdSeed = userWalletModel.config.userWalletIdSeed else {
                     completion(.error(TangemSdkError.cardError))
                     return
                 }
@@ -471,10 +480,10 @@ class CommonUserWalletRepository: UserWalletRepository {
                     return
                 }
 
-                let encryptionKey = UserWalletEncryptionKeyFactory().encryptionKey(from: seed)
-                encryptionKeyByUserWalletId[userWalletModel.userWalletId.value] = encryptionKey.symmetricKey
+                let encryptionKey = UserWalletEncryptionKey(userWalletIdSeed: userWalletIdSeed)
+                encryptionKeyByUserWalletId[userWalletModel.userWalletId] = encryptionKey
                 // We have to refresh a key on every scan because we are unable to check presence of the key
-                encryptionKeyStorage.refreshEncryptionKey(encryptionKey.symmetricKey, for: userWalletModel.userWalletId.value)
+                encryptionKeyStorage.refreshEncryptionKey(encryptionKey, for: userWalletModel.userWalletId)
 
                 if models.isEmpty {
                     loadModels()
@@ -520,7 +529,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         // find locked to replace
         guard let index = models.firstIndex(where: { $0.userWalletId == userWalletId }) else { return }
 
-        guard let savedUserWallet = savedUserWallet(with: userWalletId.value),
+        guard let savedUserWallet = savedUserWallet(with: userWalletId),
               let userWalletModel = CommonUserWalletModel(userWallet: savedUserWallet) else {
             return
         }
@@ -545,10 +554,10 @@ class CommonUserWalletRepository: UserWalletRepository {
         return UserWalletRepositoryUtil().savedUserWallets(encryptionKeyByUserWalletId: keys)
     }
 
-    private func savedUserWallet(with userWalletId: Data) -> StoredUserWallet? {
+    private func savedUserWallet(with userWalletId: UserWalletId) -> StoredUserWallet? {
         let keys = encryptionKeyByUserWalletId.filter { $0.key == userWalletId }
         let userWallets = UserWalletRepositoryUtil().savedUserWallets(encryptionKeyByUserWalletId: keys)
-        return userWallets.first { $0.userWalletId == userWalletId }
+        return userWallets.first { $0.userWalletId == userWalletId.value }
     }
 }
 
