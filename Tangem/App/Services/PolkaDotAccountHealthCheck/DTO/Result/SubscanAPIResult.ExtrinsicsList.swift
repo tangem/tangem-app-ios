@@ -13,11 +13,12 @@ extension SubscanAPIResult {
     struct ExtrinsicsList: Decodable {
         struct Data: Decodable {
             let count: Int
-            let extrinsics: [Extrinsic]
+            let extrinsics: [Extrinsic]?
         }
 
         struct Extrinsic: Decodable {
             let extrinsicHash: String
+            let id: Int
         }
 
         let data: Data
