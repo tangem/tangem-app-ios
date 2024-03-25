@@ -68,11 +68,13 @@ class SendSummaryViewModel: ObservableObject {
     private let input: SendSummaryViewModelInput
     private let walletInfo: SendWalletInfo
     private let notificationManager: SendNotificationManager
+    private let fiatCryptoValueProvider: SendFiatCryptoValueProvider
 
-    init(input: SendSummaryViewModelInput, notificationManager: SendNotificationManager, walletInfo: SendWalletInfo) {
+    init(input: SendSummaryViewModelInput, notificationManager: SendNotificationManager, fiatCryptoValueProvider: SendFiatCryptoValueProvider, walletInfo: SendWalletInfo) {
         self.input = input
         self.walletInfo = walletInfo
         self.notificationManager = notificationManager
+        self.fiatCryptoValueProvider = fiatCryptoValueProvider
 
         sectionViewModelFactory = SendSummarySectionViewModelFactory(
             feeCurrencySymbol: walletInfo.feeCurrencySymbol,
@@ -151,13 +153,18 @@ class SendSummaryViewModel: ObservableObject {
             .assign(to: \.destinationViewTypes, on: self)
             .store(in: &bag)
 
-        input
-            .userInputAmountPublisher
-            .compactMap { [weak self] amount in
-                self?.sectionViewModelFactory.makeAmountViewData(from: amount)
-            }
-            .assign(to: \.amountSummaryViewData, on: self, ownership: .weak)
-            .store(in: &bag)
+        Publishers.CombineLatest(
+            fiatCryptoValueProvider.formattedAmountPublisher,
+            fiatCryptoValueProvider.formattedAmountAlternativePublisher
+        )
+        .compactMap { [weak self] formattedAmount, formattedAmountAlternative in
+            self?.sectionViewModelFactory.makeAmountViewData(
+                from: formattedAmount,
+                amountAlternative: formattedAmountAlternative
+            )
+        }
+        .assign(to: \.amountSummaryViewData, on: self, ownership: .weak)
+        .store(in: &bag)
 
         Publishers.CombineLatest(input.feeValuePublisher, input.selectedFeeOptionPublisher)
             .map { [weak self] feeValue, feeOption in
