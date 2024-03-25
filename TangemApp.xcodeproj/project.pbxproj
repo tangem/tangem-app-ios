@@ -781,6 +781,7 @@
 		DA5EE9FE2AF3F3E8004B455C /* AddressIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5EE9FD2AF3F3E8004B455C /* AddressIconView.swift */; };
 		DA5FAD8A27B27F7F00EE53AE /* SheetDragHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5FAD8927B27F7F00EE53AE /* SheetDragHandler.swift */; };
 		DA60DD7D2B34572300AC1B79 /* QRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA60DD7C2B34572300AC1B79 /* QRScannerView.swift */; };
+		DA6445262BB17C8100865F7B /* SendDecimalNumberTextFieldPrefixSuffixOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA6445252BB17C8100865F7B /* SendDecimalNumberTextFieldPrefixSuffixOptions.swift */; };
 		DA64C36D27CCAD7E005B5E9A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = DA64C36F27CCAD7E005B5E9A /* InfoPlist.strings */; };
 		DA682F962A29D08F0083CA79 /* PromotionNetworkModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA682F952A29D08F0083CA79 /* PromotionNetworkModels.swift */; };
 		DA6915A62A9CE2BD00DB4339 /* Tokens.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DA6915A52A9CE2BD00DB4339 /* Tokens.xcassets */; };
@@ -2254,6 +2255,7 @@
 		DA5EE9FD2AF3F3E8004B455C /* AddressIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressIconView.swift; sourceTree = "<group>"; };
 		DA5FAD8927B27F7F00EE53AE /* SheetDragHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetDragHandler.swift; sourceTree = "<group>"; };
 		DA60DD7C2B34572300AC1B79 /* QRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerView.swift; sourceTree = "<group>"; };
+		DA6445252BB17C8100865F7B /* SendDecimalNumberTextFieldPrefixSuffixOptions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendDecimalNumberTextFieldPrefixSuffixOptions.swift; sourceTree = "<group>"; };
 		DA64C36E27CCAD7E005B5E9A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		DA64C37027CCAD7F005B5E9A /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		DA682F952A29D08F0083CA79 /* PromotionNetworkModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromotionNetworkModels.swift; sourceTree = "<group>"; };
@@ -5504,6 +5506,7 @@
 				DA559C2C2B0261F400F59584 /* SendAmountView.swift */,
 				DA559C2D2B0261F400F59584 /* SendAmountViewModel.swift */,
 				DAF3D58C2B3AD9050047D65F /* SendCurrencyPicker.swift */,
+				DA6445252BB17C8100865F7B /* SendDecimalNumberTextFieldPrefixSuffixOptions.swift */,
 			);
 			path = Amount;
 			sourceTree = "<group>";
@@ -8704,6 +8707,7 @@
 				EF9448E12ADFD4F800F4AFAC /* InformationHiddenBalancesViewModel.swift in Sources */,
 				EF9E2A532B56A5DF00418559 /* WalletModel+Mock.swift in Sources */,
 				5DD4CB5424FAEE8B008F23CC /* AppCardIdFormatter.swift in Sources */,
+				DA6445262BB17C8100865F7B /* SendDecimalNumberTextFieldPrefixSuffixOptions.swift in Sources */,
 				2DC5677C2B0E047700B0244F /* MainBottomSheetHeaderViewModel.swift in Sources */,
 				B6AD952C2A30072000FE845A /* TokenItemViewLeadingComponent.swift in Sources */,
 				B06C084D2A73FB4D00D982BC /* MainCoordinatorView.swift in Sources */,
@@ -9341,7 +9345,6 @@
 				EF9E2A0F2B4F0CD100418559 /* CommonExpressProviderManagerFactory.swift in Sources */,
 				EF9E2A3C2B4F0CD100418559 /* ExpressManagerError.swift in Sources */,
 				EF9E2A292B4F0CD100418559 /* ExpressAvailableProvider.swift in Sources */,
-				EF9E2A072B4F0CD100418559 /* MoyaProvider+AsyncRequest.swift in Sources */,
 				B6BB2CE22BAC4A9B009C12F2 /* ExpressDeviceInfoPlugin.swift in Sources */,
 				EF9E2A182B4F0CD100418559 /* ExpressAPITarget.swift in Sources */,
 				EF9E2A162B4F0CD100418559 /* ExpressDTO.swift in Sources */,
