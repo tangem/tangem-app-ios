@@ -1,5 +1,5 @@
 //
-//  GetPaymentAccountMethod.swift
+//  GetPaymentAccountByCardMethod.swift
 //  TangemVisa
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,9 +9,9 @@
 import Foundation
 import BlockchainSdk
 
-struct GetPaymentAccountMethod: SmartContractMethod {
+struct GetPaymentAccountByCardMethod: SmartContractMethod {
     let cardWalletAddress: String
-    private let methodSignature = "getPaymentAccount(address)"
+    private let methodSignature = "paymentAccountByCard(address)"
 
     var prefix: String {
         SmartContractMethodPrefixCreator().createPrefixForMethod(with: methodSignature)
