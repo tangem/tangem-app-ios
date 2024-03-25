@@ -19,7 +19,7 @@ struct SendView: View {
     private let bottomGradientHeight: CGFloat = 150
 
     var body: some View {
-        VStack {
+        VStack(spacing: 14) {
             header
 
             ZStack(alignment: .bottom) {
@@ -36,7 +36,6 @@ struct SendView: View {
             }
         }
         .background(backgroundColor.ignoresSafeArea())
-        .animation(Constants.defaultAnimation, value: viewModel.step)
     }
 
     private var pageContentTransition: AnyTransition {
@@ -52,35 +51,52 @@ struct SendView: View {
 
     @ViewBuilder
     private var header: some View {
-        VStack {
-            if let title = viewModel.title {
-                HStack {
-                    Color.clear
-                        .frame(maxWidth: .infinity, maxHeight: 1)
+        if let title = viewModel.title {
+            HStack {
+                Spacer()
+                    .layoutPriority(1)
 
-                    Text(title)
-                        .style(Fonts.Bold.body, color: Colors.Text.primary1)
-                        .animation(nil, value: title)
-                        .padding(.vertical, 8)
-                        .lineLimit(1)
-                        .layoutPriority(1)
+                // Making sure the header doesn't jump when changing the visibility of the fields
+                ZStack {
+                    headerText(title: title, subtitle: viewModel.subtitle)
 
-                    if viewModel.showQRCodeButton {
-                        Button(action: viewModel.scanQRCode) {
-                            Assets.qrCode.image
-                                .renderingMode(.template)
-                                .foregroundColor(Colors.Icon.primary1)
-                                .frame(maxWidth: .infinity, alignment: .trailing)
-                        }
-                    } else {
-                        Color.clear
-                            .frame(maxWidth: .infinity, maxHeight: 1)
+                    headerText(title: "Title", subtitle: "Subtitle")
+                        .hidden()
+                }
+                .animation(nil, value: title)
+                .padding(.vertical, 0)
+                .lineLimit(1)
+                .layoutPriority(2)
+
+                if viewModel.showQRCodeButton {
+                    Button(action: viewModel.scanQRCode) {
+                        Assets.qrCode.image
+                            .renderingMode(.template)
+                            .foregroundColor(Colors.Icon.primary1)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
                     }
+                    .layoutPriority(1)
+                } else {
+                    Spacer()
+                        .layoutPriority(1)
                 }
             }
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
         }
-        .padding(.horizontal, 16)
-        .padding(.top, 12)
+    }
+
+    @ViewBuilder
+    private func headerText(title: String, subtitle: String?) -> some View {
+        VStack(spacing: 2) {
+            Text(title)
+                .style(Fonts.Bold.body, color: Colors.Text.primary1)
+
+            if let subtitle = subtitle {
+                Text(subtitle)
+                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+            }
+        }
     }
 
     @ViewBuilder
@@ -131,8 +147,8 @@ struct SendView: View {
                 )
             }
         }
-        .padding(.horizontal)
-        .padding(.bottom, 14)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 6)
     }
 
     @ViewBuilder
@@ -172,7 +188,9 @@ private struct SendViewBackButton: View {
 extension SendView {
     enum Constants {
         static let animationDuration: TimeInterval = 0.3
-        static let defaultAnimation: Animation = .spring(duration: animationDuration)
+        static let defaultAnimation: Animation = .spring(duration: 0.3)
+        static let backButtonAnimation: Animation = .easeOut(duration: 0.1)
+        static let sectionContentAnimation: Animation = .easeOut(duration: animationDuration)
         static let auxiliaryViewTransition: AnyTransition = .offset(y: 300).combined(with: .opacity)
     }
 }
@@ -195,11 +213,18 @@ struct SendView_Preview: PreviewProvider {
         userWalletModel: card,
         transactionSigner: TransactionSignerMock(),
         sendType: .send,
-        emailDataProvider: CardViewModel.mock!,
+        emailDataProvider: EmailDataProviderMock(),
         coordinator: SendRoutableMock()
     )
 
     static var previews: some View {
         SendView(viewModel: viewModel)
+            .previewDisplayName("Full screen")
+
+        NavHolder()
+            .sheet(isPresented: .constant(true)) {
+                SendView(viewModel: viewModel)
+            }
+            .previewDisplayName("Sheet")
     }
 }
