@@ -11,6 +11,7 @@ import Moya
 
 struct SubscanAPITarget {
     let isTestnet: Bool
+    let encoder: JSONEncoder
     let target: Target
 }
 
@@ -19,7 +20,7 @@ struct SubscanAPITarget {
 extension SubscanAPITarget {
     enum Target {
         case getAccountInfo(address: String)
-        case getExtrinsicsList(address: String, page: Int, limit: Int)
+        case getExtrinsicsList(address: String, afterId: Int, page: Int, limit: Int)
         case getExtrinsicInfo(hash: String)
     }
 }
@@ -34,14 +35,13 @@ extension SubscanAPITarget: TargetType {
     }
 
     var path: String {
-        let commonPath = "api/scan"
         switch target {
         case .getAccountInfo:
-            return commonPath + "/search"
+            return "api/v2/scan/search"
         case .getExtrinsicsList:
-            return commonPath + "/extrinsics"
+            return "api/v2/scan/extrinsics"
         case .getExtrinsicInfo:
-            return commonPath + "/extrinsic"
+            return "api/scan/extrinsic"
         }
     }
 
@@ -58,13 +58,13 @@ extension SubscanAPITarget: TargetType {
         switch target {
         case .getAccountInfo(let address):
             let body = SubscanAPIParams.AccountInfo(key: address)
-            return .requestJSONEncodable(body)
-        case .getExtrinsicsList(let address, let page, let limit):
-            let body = SubscanAPIParams.ExtrinsicsList(address: address, order: .desc, page: page, row: limit)
-            return .requestJSONEncodable(body)
+            return .requestCustomJSONEncodable(body, encoder: encoder)
+        case .getExtrinsicsList(let address, let afterId, let page, let limit):
+            let body = SubscanAPIParams.ExtrinsicsList(address: address, order: .asc, afterId: afterId, page: page, row: limit)
+            return .requestCustomJSONEncodable(body, encoder: encoder)
         case .getExtrinsicInfo(let hash):
             let body = SubscanAPIParams.ExtrinsicInfo(hash: hash)
-            return .requestJSONEncodable(body)
+            return .requestCustomJSONEncodable(body, encoder: encoder)
         }
     }
 
