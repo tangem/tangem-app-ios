@@ -49,7 +49,7 @@ struct SendSummarySectionViewModelFactory {
         return SendAmountSummaryViewData(
             title: Localization.sendAmountLabel,
             amount: amount,
-            amountFiat: amountAlternative,
+            amountAlternative: amountAlternative,
             tokenIconInfo: tokenIconInfo
         )
     }
