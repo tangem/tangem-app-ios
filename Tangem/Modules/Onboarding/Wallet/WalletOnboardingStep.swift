@@ -110,7 +110,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
 extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
     var mainButtonTitle: String {
         switch self {
-        case .createWallet, .createWalletSelector: return Localization.onboardingCreateWalletButtonCreateWallet
+        case .createWalletSelector: return Localization.onboardingCreateWalletButtonCreateWallet
         case .backupIntro: return Localization.onboardingButtonBackupNow
         case .selectBackupCards: return Localization.onboardingButtonAddBackupCard
         case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonTitle
@@ -132,7 +132,7 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
     var supplementButtonTitle: String {
         switch self {
         case .disclaimer: return Localization.commonAccept
-        case .createWallet: return Localization.onboardingButtonWhatDoesItMean
+        case .createWallet: return Localization.onboardingCreateWalletButtonCreateWallet
         case .backupIntro: return Localization.onboardingButtonSkipBackup
         case .selectBackupCards: return Localization.onboardingButtonFinalizeBackup
         case .createWalletSelector: return Localization.onboardingCreateWalletOptionsButtonOptions
@@ -149,13 +149,6 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
             return Assets.tangemIcon
         default:
             return nil
-        }
-    }
-
-    var isSupplementButtonVisible: Bool {
-        switch self {
-        case .scanPrimaryCard, .backupCards, .success, .createWallet, .saveUserWallet: return false
-        default: return true
         }
     }
 
