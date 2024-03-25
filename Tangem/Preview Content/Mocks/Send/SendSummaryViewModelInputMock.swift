@@ -15,7 +15,7 @@ class SendSummaryViewModelInputMock: SendSummaryViewModelInput {
     var destinationTextPublisher: AnyPublisher<String, Never> { .just(output: "0x1f9090aaE28b8a3dCeaDf281B0F12828e676c326") }
     var additionalFieldPublisher: AnyPublisher<(SendAdditionalFields, String)?, Never> { .just(output: (.memo, "123123")) }
     var feeValuePublisher: AnyPublisher<BlockchainSdk.Fee?, Never> { .just(output: Fee(Amount(with: .ethereum(testnet: false), value: 0.003))) }
-    var feeOptionPublisher: AnyPublisher<FeeOption, Never> { .just(output: FeeOption.fast) }
+    var selectedFeeOptionPublisher: AnyPublisher<FeeOption, Never> { .just(output: FeeOption.fast) }
     var amountText: String { "100,00" }
     var canEditAmount: Bool { true }
     var canEditDestination: Bool { true }
