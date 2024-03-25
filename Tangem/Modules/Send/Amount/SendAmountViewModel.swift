@@ -17,7 +17,6 @@ protocol SendAmountViewModelInput {
     var userInputAmountValue: Amount? { get }
     var amountError: AnyPublisher<Error?, Never> { get }
 
-    func setAmount(_ decimal: Decimal?)
     func didChangeFeeInclusion(_ isFeeIncluded: Bool)
 }
 
@@ -67,9 +66,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         fiatIconURL = walletInfo.fiatIconURL
         fiatCurrencyCode = walletInfo.fiatCurrencyCode
         fiatCurrencySymbol = localizedCurrencySymbol ?? walletInfo.fiatCurrencyCode
-
-        fiatCryptoAdapter.setInput(self)
-        fiatCryptoAdapter.setOutput(self)
 
         bind(from: input)
     }
@@ -148,11 +144,5 @@ extension SendAmountViewModel: SectionContainerAnimatable {}
 extension SendAmountViewModel: SendFiatCryptoAdapterInput {
     var amountPublisher: AnyPublisher<Decimal?, Never> {
         decimalNumberTextFieldViewModel.valuePublisher
-    }
-}
-
-extension SendAmountViewModel: SendFiatCryptoAdapterOutput {
-    func setAmount(_ decimal: Decimal?) {
-        input.setAmount(decimal)
     }
 }
