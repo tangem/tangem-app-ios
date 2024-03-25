@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 
 class SendFiatCryptoValueProviderMock: SendFiatCryptoValueProvider {
     var formattedAmount: String? { "100 USDT" }
