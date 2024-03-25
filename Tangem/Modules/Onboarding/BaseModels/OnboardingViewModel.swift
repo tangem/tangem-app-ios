@@ -79,24 +79,34 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         return nil
     }
 
-    var supplementButtonSettings: TangemButtonSettings? {
+    var supplementButtonSettings: MainButton.Settings? {
         .init(
             title: supplementButtonTitle,
-            size: .wide,
-            action: supplementButtonAction,
-            isBusy: isSupplementButtonBusy,
-            isEnabled: isSupplementButtonEnabled,
-            isVisible: isSupplementButtonVisible,
-            color: supplementButtonColor
+            icon: supplementButtonIcon,
+            style: supplementButtonStyle,
+            size: .default,
+            isLoading: isSupplementButtonBusy,
+            isDisabled: !isSupplementButtonEnabled,
+            action: { [weak self] in
+                self?.supplementButtonAction()
+            }
         )
+    }
+
+    var supplementButtonIcon: MainButton.Icon? {
+        if let icon = currentStep.supplementButtonIcon {
+            return .trailing(icon)
+        }
+
+        return nil
     }
 
     var isSupplementButtonEnabled: Bool {
         return true
     }
 
-    var supplementButtonColor: ButtonColorStyle {
-        .transparentWhite
+    var supplementButtonStyle: MainButton.Style {
+        return .secondary
     }
 
     var supplementButtonTitle: String {
@@ -115,11 +125,13 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         return true
     }
 
+    var isSupportButtonVisible: Bool {
+        return true
+    }
+
     var isBackButtonEnabled: Bool {
         true
     }
-
-    var isSupplementButtonVisible: Bool { currentStep.isSupplementButtonVisible }
 
     lazy var userWalletStorageAgreementViewModel = UserWalletStorageAgreementViewModel(coordinator: self)
 
