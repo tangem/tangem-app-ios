@@ -16,6 +16,7 @@ protocol SendFinishViewModelInput: AnyObject {
     var destinationText: String? { get }
     var additionalField: (SendAdditionalFields, String)? { get }
     var feeValue: Fee? { get }
+    var selectedFeeOption: FeeOption { get }
 
     var transactionTime: Date? { get }
     var transactionURL: URL? { get }
@@ -35,7 +36,7 @@ class SendFinishViewModel: ObservableObject {
 
     private let transactionURL: URL
 
-    init?(input: SendFinishViewModelInput, walletInfo: SendWalletInfo) {
+    init?(input: SendFinishViewModelInput, fiatCryptoValueProvider: SendFiatCryptoValueProvider, walletInfo: SendWalletInfo) {
         guard
             let destinationText = input.destinationText,
             let transactionTime = input.transactionTime,
@@ -56,8 +57,11 @@ class SendFinishViewModel: ObservableObject {
             address: destinationText,
             additionalField: input.additionalField
         )
-        amountSummaryViewData = sectionViewModelFactory.makeAmountViewData(from: input.userInputAmountValue)
-        feeSummaryViewData = sectionViewModelFactory.makeFeeViewData(from: input.feeValue)
+        amountSummaryViewData = sectionViewModelFactory.makeAmountViewData(
+            from: fiatCryptoValueProvider.formattedAmount,
+            amountAlternative: fiatCryptoValueProvider.formattedAmountAlternative
+        )
+        feeSummaryViewData = sectionViewModelFactory.makeFeeViewData(from: input.feeValue, feeOption: input.selectedFeeOption)
 
         let formatter = DateFormatter()
         formatter.dateStyle = .long

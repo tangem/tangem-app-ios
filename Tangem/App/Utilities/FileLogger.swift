@@ -33,7 +33,10 @@ class FileLogger: TangemSdkLogger {
 
         loggerSerialQueue.async {
             let formattedMessage = "\n\(level.emoji) \(self.dateFormatter.string(from: Date())):\(level.prefix) \(message)"
-            let messageData = formattedMessage.data(using: .utf8)!
+
+            guard let messageData = formattedMessage.data(using: .utf8) else {
+                return
+            }
 
             do {
                 let handler = try FileHandle(forWritingTo: self.logFileURL)
