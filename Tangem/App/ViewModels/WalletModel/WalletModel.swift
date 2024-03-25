@@ -334,7 +334,7 @@ class WalletModel {
             return .idle
         case .failed(let error):
             switch error as? WalletError {
-            case .noAccount(let message):
+            case .noAccount(let message, _):
                 return .noAccount(message: message)
             default:
                 return .failed(error: error.detailedError.localizedDescription)
