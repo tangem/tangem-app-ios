@@ -97,8 +97,7 @@ class ExpressNotificationManager {
             event = .notEnoughReceivedAmountForReserve(amountFormatted: "\(minAmount.formatted()) \(tokenSymbol)")
         case .requiredRefresh(let occurredError as ExpressAPIError):
             // For only a express error we use "Service temporary unavailable"
-            let message = Localization.expressErrorCode(occurredError.errorCode.localizedDescription)
-            event = .refreshRequired(title: Localization.warningExpressRefreshRequiredTitle, message: message)
+            event = .refreshRequired(title: Localization.warningExpressRefreshRequiredTitle, message: occurredError.localizedMessage)
         case .requiredRefresh:
             event = .refreshRequired(title: Localization.commonError, message: Localization.commonUnknownError)
         case .noDestinationTokens:
@@ -203,6 +202,21 @@ class ExpressNotificationManager {
                 self?.delegate?.didTapNotificationButton(with: id, action: actionType)
             }
             notificationInputsSubject.value.appendIfNotContains(notification)
+        }
+    }
+}
+
+extension ExpressAPIError {
+    public var localizedMessage: String {
+        switch errorCode {
+        case .exchangeInternalError:
+            return Localization.expressErrorSwapUnavailable(errorCode.rawValue)
+        case .exchangeNotPossibleError:
+            return Localization.expressErrorSwapPairUnavailable(errorCode.rawValue)
+        case .exchangeProviderNotActiveError, .exchangeProviderNotAvailableError:
+            return Localization.expressErrorProviderUnavailable(errorCode.rawValue)
+        default:
+            return Localization.expressErrorCode(errorCode.localizedDescription)
         }
     }
 }
