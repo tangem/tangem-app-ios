@@ -36,7 +36,7 @@ class SendFinishViewModel: ObservableObject {
 
     private let transactionURL: URL
 
-    init?(input: SendFinishViewModelInput, walletInfo: SendWalletInfo) {
+    init?(input: SendFinishViewModelInput, fiatCryptoValueProvider: SendFiatCryptoValueProvider, walletInfo: SendWalletInfo) {
         guard
             let destinationText = input.destinationText,
             let transactionTime = input.transactionTime,
@@ -57,7 +57,10 @@ class SendFinishViewModel: ObservableObject {
             address: destinationText,
             additionalField: input.additionalField
         )
-        amountSummaryViewData = sectionViewModelFactory.makeAmountViewData(from: input.userInputAmountValue)
+        amountSummaryViewData = sectionViewModelFactory.makeAmountViewData(
+            from: fiatCryptoValueProvider.formattedAmount,
+            amountAlternative: fiatCryptoValueProvider.formattedAmountAlternative
+        )
         feeSummaryViewData = sectionViewModelFactory.makeFeeViewData(from: input.feeValue, feeOption: input.selectedFeeOption)
 
         let formatter = DateFormatter()
