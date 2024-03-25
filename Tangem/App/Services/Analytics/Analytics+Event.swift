@@ -256,5 +256,10 @@ extension Analytics {
         // MARK: - BlockchainSdk exceptions
 
         case blockchainSdkException = "[BlockchainSdk] Exception"
+
+        // MARK: - Health check
+
+        case healthCheckPolkadotAccountReset = "[Token] Polkadot Account Reset"
+        case healthCheckPolkadotImmortalTransactions = "[Token] Polkadot Immortal Transactions"
     }
 }
