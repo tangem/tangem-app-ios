@@ -98,7 +98,6 @@ extension LockedUserWallet: AnalyticsContextDataProvider {
         let baseCurrency = embeddedEntry?.tokens.first?.symbol ?? embeddedEntry?.blockchainNetwork.blockchain.currencySymbol
 
         return AnalyticsContextData(
-            id: nil,
             productType: config.productType,
             batchId: cardInfo.card.batchId,
             firmware: cardInfo.card.firmwareVersion.stringValue,
