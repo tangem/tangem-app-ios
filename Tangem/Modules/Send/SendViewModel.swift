@@ -209,6 +209,9 @@ final class SendViewModel: ObservableObject {
         sendFeeViewModel = SendFeeViewModel(input: sendModel, notificationManager: notificationManager, walletInfo: walletInfo)
         sendSummaryViewModel = SendSummaryViewModel(input: sendModel, notificationManager: notificationManager, fiatCryptoValueProvider: fiatCryptoAdapter, walletInfo: walletInfo)
 
+        fiatCryptoAdapter.setInput(sendAmountViewModel)
+        fiatCryptoAdapter.setOutput(sendModel)
+
         sendFeeViewModel.router = coordinator
         sendSummaryViewModel.router = self
 
