@@ -38,24 +38,28 @@ public struct TangemExpressFactory {
 
     public func makeExpressAPIProvider(
         credential: ExpressAPICredential,
+        deviceInfo: ExpressDeviceInfo,
         configuration: URLSessionConfiguration,
         expressAPIType: ExpressAPIType,
         exchangeDataDecoder: ExpressExchangeDataDecoder,
         logger: Logger? = nil
     ) -> ExpressAPIProvider {
-        let authorizationPlugin = ExpressAuthorizationPlugin(
-            apiKey: credential.apiKey,
-            userId: credential.userId,
-            sessionId: credential.sessionId
-        )
-        let provider = MoyaProvider<ExpressAPITarget>(session: Session(configuration: configuration), plugins: [authorizationPlugin])
+        let plugins: [PluginType] = [
+            ExpressAuthorizationPlugin(
+                apiKey: credential.apiKey,
+                userId: credential.userId,
+                sessionId: credential.sessionId
+            ),
+            ExpressDeviceInfoPlugin(deviceInfo: deviceInfo),
+        ]
+        let provider = MoyaProvider<ExpressAPITarget>(session: Session(configuration: configuration), plugins: plugins)
         let service = CommonExpressAPIService(provider: provider, expressAPIType: expressAPIType, logger: logger ?? CommonLogger())
         let mapper = ExpressAPIMapper(exchangeDataDecoder: exchangeDataDecoder)
         return CommonExpressAPIProvider(expressAPIService: service, expressAPIMapper: mapper)
     }
 }
 
-// MARK: - Credential
+// MARK: - Injected configurations and dependencies
 
 public struct ExpressAPICredential {
     public let apiKey: String
@@ -66,6 +70,16 @@ public struct ExpressAPICredential {
         self.apiKey = apiKey
         self.userId = userId
         self.sessionId = sessionId
+    }
+}
+
+public struct ExpressDeviceInfo {
+    let platform: String
+    let version: String
+
+    public init(platform: String, version: String) {
+        self.platform = platform
+        self.version = version
     }
 }
 
