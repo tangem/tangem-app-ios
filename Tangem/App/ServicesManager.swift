@@ -40,6 +40,7 @@ class ServicesManager {
         }
 
         configureBlockchainSdkExceptionHandler()
+        configureBlockchainSdkBackgroundTasksManager()
 
         S2CTOUMigrator().migrate()
         exchangeService.initialize()
@@ -64,6 +65,16 @@ class ServicesManager {
 
     private func configureBlockchainSdkExceptionHandler() {
         ExceptionHandler.shared.append(output: Analytics.BlockchainExceptionHandler())
+    }
+
+    /// - Note: MUST be called before the end of `applicationDidFinishLaunching(_:)` method call, see
+    /// https://developer.apple.com/documentation/backgroundtasks/bgtaskscheduler/3180427-register for details.
+    private func configureBlockchainSdkBackgroundTasksManager() {
+        guard let bundleIdentifier: String = InfoDictionaryUtils.bundleIdentifier.value() else {
+            preconditionFailure("Unable to get app bundle identifier")
+        }
+
+        BackgroundTasksManager.shared.registerBackgroundTasks(forApplicationWithBundleIdentifier: bundleIdentifier)
     }
 }
 
