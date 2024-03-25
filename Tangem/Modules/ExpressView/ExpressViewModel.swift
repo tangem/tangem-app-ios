@@ -17,7 +17,6 @@ final class ExpressViewModel: ObservableObject {
 
     // Main bubbles
     @Published var sendCurrencyViewModel: SendCurrencyViewModel?
-    @Published var sendDecimalValue: DecimalNumberTextField.DecimalValue?
     @Published var isSwapButtonLoading: Bool = false
     @Published var isSwapButtonDisabled: Bool = false
     @Published var receiveCurrencyViewModel: ReceiveCurrencyViewModel?
@@ -198,7 +197,7 @@ private extension ExpressViewModel {
                 titleState: .text(Localization.swappingFromTitle),
                 canChangeCurrency: interactor.getSender().id != initialWallet.id
             ),
-            maximumFractionDigits: interactor.getSender().decimalCount
+            decimalNumberTextFieldViewModel: .init(maximumFractionDigits: interactor.getSender().decimalCount)
         )
 
         receiveCurrencyViewModel = ReceiveCurrencyViewModel(
@@ -210,22 +209,19 @@ private extension ExpressViewModel {
     }
 
     func bind() {
-        $sendDecimalValue
-            .removeDuplicates { $0?.value == $1?.value }
-            // We skip the first nil value from the text field
-            .dropFirst()
-            // If value == nil then continue chain to reset states to idle
-            .filter { $0?.isInternal ?? true }
+        sendCurrencyViewModel?
+            .decimalNumberTextFieldViewModel
+            .valuePublisher
             .handleEvents(receiveOutput: { [weak self] amount in
                 self?.interactor.cancelRefresh()
-                self?.updateSendFiatValue(amount: amount?.value)
+                self?.updateSendFiatValue(amount: amount)
                 self?.stopTimer()
             })
             .debounce(for: 1, scheduler: DispatchQueue.main)
             .sink { [weak self] amount in
-                self?.interactor.update(amount: amount?.value)
+                self?.interactor.update(amount: amount)
 
-                if let amount, amount.value > 0 {
+                if let amount, amount > 0 {
                     self?.startTimer()
                 }
             }
@@ -275,7 +271,7 @@ private extension ExpressViewModel {
     }
 
     func updateSendDecimalValue(to value: Decimal) {
-        sendDecimalValue = .external(value)
+        sendCurrencyViewModel?.decimalNumberTextFieldViewModel.update(value: value)
         updateSendFiatValue(amount: value)
         interactor.update(amount: value)
     }
@@ -286,7 +282,7 @@ private extension ExpressViewModel {
         sendCurrencyViewModel?.update(wallet: wallet, initialWalletId: initialWallet.id)
 
         // If we have amount then we should round and update it with new decimalCount
-        guard let amount = sendDecimalValue?.value else {
+        guard let amount = sendCurrencyViewModel?.decimalNumberTextFieldViewModel.value else {
             updateSendFiatValue(amount: nil)
             return
         }
@@ -598,7 +594,7 @@ extension ExpressViewModel: NotificationTapDelegate {
         case .openFeeCurrency:
             openFeeCurrency()
         case .reduceAmountBy(let amount, _):
-            guard let value = sendDecimalValue?.value else {
+            guard let value = sendCurrencyViewModel?.decimalNumberTextFieldViewModel.value else {
                 AppLog.shared.debug("[Express] Couldn't find sendDecimalValue")
                 return
             }
