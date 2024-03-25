@@ -46,7 +46,8 @@ enum PreviewCard {
                 ),
                 dependencies: .init(
                     accountCreator: BlockchainAccountCreatorStub(),
-                    dataStorage: FakeBlockchainDataStorage()
+                    dataStorage: FakeBlockchainDataStorage(),
+                    blockchainAnalytics: FakeBlockchainAnalytics()
                 )
             )
             // [REDACTED_TODO_COMMENT]
