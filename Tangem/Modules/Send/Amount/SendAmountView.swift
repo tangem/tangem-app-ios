@@ -79,9 +79,9 @@ struct SendAmountView: View {
 
             SendDecimalNumberTextField(viewModel: viewModel.decimalNumberTextFieldViewModel)
                 // A small delay must be introduced to fix a glitch in a transition animation when changing screens
-                .initialFocusBehavior(.delayedFocus(duration: 2 * SendView.Constants.animationDuration))
+                .initialFocusBehavior(.delayedFocus(duration: SendView.Constants.animationDuration))
                 .alignment(.center)
-                .suffix(viewModel.useFiatCalculation ? viewModel.fiatCurrencyCode : viewModel.cryptoCurrencyCode)
+                .prefixSuffixOptions(viewModel.currentFieldOptions)
                 .frame(maxWidth: .infinity)
                 .matchedGeometryEffect(id: SendViewNamespaceId.amountCryptoText.rawValue, in: namespace)
                 .padding(.top, 18)
@@ -134,7 +134,13 @@ struct SendAmountView_Previews: PreviewProvider {
         feeAmountType: .coin
     )
 
+    static let viewModel = SendAmountViewModel(
+        input: SendAmountViewModelInputMock(),
+        fiatCryptoAdapter: SendFiatCryptoAdapterMock(),
+        walletInfo: walletInfo
+    )
+
     static var previews: some View {
-        SendAmountView(namespace: namespace, viewModel: SendAmountViewModel(input: SendAmountViewModelInputMock(), walletInfo: walletInfo))
+        SendAmountView(namespace: namespace, viewModel: viewModel)
     }
 }
