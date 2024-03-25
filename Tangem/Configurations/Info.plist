@@ -30,105 +30,15 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>tangem</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Viewer</string>
-			<key>CFBundleURLName</key>
-			<string>com.tangem.Tangem</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
 				<string>bitcoin</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Viewer</string>
-			<key>CFBundleURLName</key>
-			<string>com.tangem.Tangem</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
 				<string>ethereum</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Viewer</string>
-			<key>CFBundleURLName</key>
-			<string>com.tangem.Tangem</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
 				<string>litecoin</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Viewer</string>
-			<key>CFBundleURLName</key>
-			<string>com.tangem.Tangem</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
 				<string>xrpl</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Viewer</string>
-			<key>CFBundleURLName</key>
-			<string>com.tangem.Tangem</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
 				<string>ripple</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Viewer</string>
-			<key>CFBundleURLName</key>
-			<string>com.tangem.Tangem</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
 				<string>xrp</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Viewer</string>
-			<key>CFBundleURLName</key>
-			<string>com.tangem.Tangem</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
 				<string>bnb</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Viewer</string>
-			<key>CFBundleURLName</key>
-			<string>com.tangem.Tangem</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
 				<string>doge</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Viewer</string>
-			<key>CFBundleURLName</key>
-			<string>com.tangem.Tangem</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
 				<string>dogecoin</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Viewer</string>
-			<key>CFBundleURLName</key>
-			<string>com.tangem.Tangem</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
 				<string>ethereum:pay-</string>
 			</array>
 		</dict>
