@@ -166,7 +166,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
         userWalletRepository.initializeServices(for: userWallet, cardInfo: userWallet.cardInfo)
 
-        Analytics.logTopUpIfNeeded(balance: 0)
+        Analytics.logTopUpIfNeeded(balance: 0, for: userWallet.userWalletId)
 
         cardModel = userWallet
     }
