@@ -202,26 +202,10 @@ final class PolkaDotAccountHealthChecker {
                 }
 
                 for transaction in transactions {
-                    // Adding small delays between consecutive fetches of transaction details to avoid hitting the API rate limit
-                    try await _Concurrency.Task.sleep(seconds: Constants.transactionInfoCheckDelay) // [REDACTED_TODO_COMMENT]
-
-                    let lifetime = try await provider
-                        .asyncRequest(
-                            for: .init(
-                                isTestnet: isTestnet,
-                                encoder: encoder,
-                                target: .getExtrinsicInfo(hash: transaction.extrinsicHash)
-                            )
-                        )
-                        .filterSuccessfulStatusAndRedirectCodes()
-                        .map(SubscanAPIResult.ExtrinsicInfo.self, using: decoder)
-                        .data
-                        .lifetime
-
+                    let isTransactionImmortal = try await isTransactionImmortal(transaction)
                     lastAnalyzedTransactionIds[account] = transaction.id
-
                     // Early exit if we've found at least one immortal transaction
-                    if lifetime == nil {
+                    if isTransactionImmortal {
                         foundImmortalTransaction = true
                         break transactionsListLoop
                     }
@@ -239,6 +223,26 @@ final class PolkaDotAccountHealthChecker {
         } catch {
             print(error) // [REDACTED_TODO_COMMENT]
         }
+    }
+
+    private func isTransactionImmortal(_ transaction: SubscanAPIResult.ExtrinsicsList.Extrinsic) async throws -> Bool {
+        // Adding small delays between consecutive fetches of transaction details to avoid hitting the API rate limit
+        try await _Concurrency.Task.sleep(seconds: Constants.transactionInfoCheckDelay) // [REDACTED_TODO_COMMENT]
+
+        let lifetime = try await provider
+            .asyncRequest(
+                for: .init(
+                    isTestnet: isTestnet,
+                    encoder: encoder,
+                    target: .getExtrinsicInfo(hash: transaction.extrinsicHash)
+                )
+            )
+            .filterSuccessfulStatusAndRedirectCodes()
+            .map(SubscanAPIResult.ExtrinsicInfo.self, using: decoder)
+            .data
+            .lifetime
+
+        return lifetime == nil
     }
 
     @MainActor
