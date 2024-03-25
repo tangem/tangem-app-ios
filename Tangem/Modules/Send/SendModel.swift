@@ -246,12 +246,12 @@ class SendModel {
             }
             .store(in: &bag)
 
-        Publishers.CombineLatest(validatedAmount, fee)
+        fee
             .removeDuplicates {
                 $0 == $1
             }
-            .sink { [weak self] validatedAmount, fee in
-                self?.validateFee(fee, validatedAmount: validatedAmount)
+            .sink { [weak self] fee in
+                self?.validateFee(fee)
             }
             .store(in: &bag)
 
@@ -445,12 +445,12 @@ class SendModel {
         _amountError.send(amountError)
     }
 
-    private func validateFee(_ fee: Fee?, validatedAmount: Amount?) {
+    private func validateFee(_ fee: Fee?) {
         let feeError: Error?
 
-        if let validatedAmount, let fee {
+        if let fee {
             do {
-                try walletModel.transactionValidator.validate(fee: validatedAmount)
+                try walletModel.transactionValidator.validate(fee: fee.amount)
                 feeError = nil
             } catch let validationError {
                 feeError = validationError
