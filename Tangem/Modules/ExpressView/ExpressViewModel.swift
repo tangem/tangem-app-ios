@@ -113,19 +113,19 @@ final class ExpressViewModel: ObservableObject {
                 return
             }
 
-            var message: String
+            let message: String = {
+                switch providerType {
+                case .cex:
+                    let tokenItemSymbol = viewModel.interactor.getDestination()?.tokenItem.currencySymbol ?? ""
+                    return Localization.swappingAlertCexDescription(tokenItemSymbol)
+                case .dex:
+                    if isBigLoss {
+                        return "\(Localization.swappingHighPriceImpactDescription)\n\n\(Localization.swappingAlertDexDescription)"
+                    }
 
-            switch providerType {
-            case .cex:
-                let tokenItemSymbol = viewModel.interactor.getDestination()?.tokenItem.currencySymbol ?? ""
-                message = Localization.swappingAlertCexDescription(tokenItemSymbol)
-            case .dex:
-                message = Localization.swappingAlertDexDescription
-                if isBigLoss {
-                    // Insert as the first paragraph
-                    message += "\(Localization.swappingHighPriceImpactDescription)\n\n\(message)"
+                    return Localization.swappingAlertDexDescription
                 }
-            }
+            }()
 
             await runOnMain {
                 viewModel.alert = .init(title: "", message: message)
@@ -456,7 +456,8 @@ private extension ExpressViewModel {
                  .tooBigAmountForSwapping,
                  .noDestinationTokens,
                  .validationError,
-                 .notEnoughAmountForFee:
+                 .notEnoughAmountForFee,
+                 .notEnoughReceivedAmount:
                 mainButtonState = .swap
             case .notEnoughBalanceForSwapping:
                 mainButtonState = .insufficientFunds
