@@ -100,7 +100,7 @@
 	<string>Automatic</string>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
-		<string>$(APP_BUNDLE_IDENTIFIER).PolkaDotAccountHealth</string>
+		<string>$(APP_BUNDLE_IDENTIFIER).PolkaDotAccountHealthCheckTask</string>
 	</array>
 	<key>com.apple.developer.nfc.readersession.iso7816.select-identifiers</key>
 	<array>
