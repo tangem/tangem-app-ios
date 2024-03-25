@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import Moya
+import UIKit
 import BackgroundTasks
 
 final class PolkaDotAccountHealthChecker {
@@ -15,9 +15,10 @@ final class PolkaDotAccountHealthChecker {
     private let encoder: JSONEncoder // [REDACTED_TODO_COMMENT]
     private let decoder: JSONDecoder // [REDACTED_TODO_COMMENT]
 
-    private var currentlyAnalyzingAccounts: Set<String> = []
-
     // [REDACTED_TODO_COMMENT]
+    @AppStorageCompat(StorageKeys.currentlyAnalyzedAccounts)
+    private var currentlyAnalyzedAccounts: [String] = []
+
     @AppStorageCompat(StorageKeys.fullyAnalyzedAccounts)
     private var fullyAnalyzedAccounts: [String] = []
 
@@ -29,6 +30,9 @@ final class PolkaDotAccountHealthChecker {
 
     @AppStorageCompat(StorageKeys.lastAnalyzedTransactionIds)
     private var lastAnalyzedTransactionIds: [String: Int] = [:]
+
+    private var healthCheckTasks: [String: Task<Void, Never>] = [:]
+    private var backgroundHealthCheckTask: Task<Void, Never>?
 
     private let isTestnet: Bool
 
@@ -56,9 +60,8 @@ final class PolkaDotAccountHealthChecker {
             return
         }
 
-        currentlyAnalyzingAccounts.insert(account)
-
-        runTask(in: self) { try await $0.scheduleForegroundHealthCheck(for: account) }
+        currentlyAnalyzedAccounts.append(account)
+        healthCheckTasks[account] = runTask(in: self) { await $0.scheduleForegroundHealthCheck(for: account) }
     }
 
     // MARK: - Setup
@@ -78,6 +81,17 @@ final class PolkaDotAccountHealthChecker {
         }
     }
 
+    private func cleanupAll() {
+        let accounts = currentlyAnalyzedAccounts
+        accounts.forEach(cleanup(account:))
+        backgroundHealthCheckTask?.cancel()
+    }
+
+    private func cleanup(account: String) {
+        healthCheckTasks[account]?.cancel()
+        currentlyAnalyzedAccounts.remove(account)
+    }
+
     private func registerBackgroundTask() {
         let result = BGTaskScheduler.shared.register(forTaskWithIdentifier: backgroundTaskIdentifier, using: nil) { [weak self] task in
             if let task = task as? BGProcessingTask {
@@ -91,7 +105,7 @@ final class PolkaDotAccountHealthChecker {
 
     // MARK: - Foreground health check
 
-    private func scheduleForegroundHealthCheck(for account: String) async throws {
+    private func scheduleForegroundHealthCheck(for account: String) async {
         await withTaskGroup(of: Void.self) { taskGroup in
             taskGroup.addTask {
                 await self.checkAccountForReset(account)
@@ -100,6 +114,7 @@ final class PolkaDotAccountHealthChecker {
                 await self.checkIfAccountContainsImmortalTransactions(account)
             }
         }
+        currentlyAnalyzedAccounts.remove(account)
     }
 
     // MARK: - Background health check
@@ -120,7 +135,22 @@ final class PolkaDotAccountHealthChecker {
         BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: backgroundTaskIdentifier)
     }
 
-    private func handleBackgroundProcessingTask(_ task: BGProcessingTask) {}
+    private func handleBackgroundProcessingTask(_ task: BGProcessingTask) {
+        task.expirationHandler = { [weak self] in
+            self?.cleanupAll()
+        }
+
+        backgroundHealthCheckTask = runTask(in: self) { healthChecker in
+            let accounts = healthChecker.currentlyAnalyzedAccounts
+            await withTaskGroup(of: Void.self) { taskGroup in
+                accounts.forEach { account in
+                    taskGroup.addTask {
+                        await healthChecker.scheduleForegroundHealthCheck(for: account)
+                    }
+                }
+            }
+        }
+    }
 
     @MainActor
     private func handleApplicationStatusChange(isBackground: Bool) {
@@ -227,7 +257,7 @@ final class PolkaDotAccountHealthChecker {
 
     private func isTransactionImmortal(_ transaction: SubscanAPIResult.ExtrinsicsList.Extrinsic) async throws -> Bool {
         // Adding small delays between consecutive fetches of transaction details to avoid hitting the API rate limit
-        try await _Concurrency.Task.sleep(seconds: Constants.transactionInfoCheckDelay) // [REDACTED_TODO_COMMENT]
+        try await Task.sleep(seconds: Constants.transactionInfoCheckDelay) // [REDACTED_TODO_COMMENT]
 
         let lifetime = try await provider
             .asyncRequest(
@@ -271,6 +301,7 @@ private extension PolkaDotAccountHealthChecker {
 
 private extension PolkaDotAccountHealthChecker {
     enum StorageKeys: String, RawRepresentable {
+        case currentlyAnalyzedAccounts = "polka_dot_account_health_checker_currently_analyzed_accounts"
         case fullyAnalyzedAccounts = "polka_dot_account_health_checker_fully_analyzed_accounts"
         case analyzedForResetAccounts = "polka_dot_account_health_checker_analyzed_for_reset_accounts"
         case analyzedForImmortalTransactionsAccounts = "polka_dot_account_health_checker_analyzed_for_immortal_transactions_accounts"
