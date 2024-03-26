@@ -94,6 +94,7 @@ class CardViewModel: Identifiable, ObservableObject {
     let userWalletId: UserWalletId
 
     lazy var totalBalanceProvider: TotalBalanceProviding = TotalBalanceProvider(
+        userWalletId: userWalletId,
         walletModelsManager: walletModelsManager,
         derivationManager: derivationManager
     )
@@ -398,7 +399,6 @@ extension CardViewModel: AnalyticsContextDataProvider {
         return AnalyticsContextData(
             card: card,
             productType: config.productType,
-            userWalletId: userWalletId.value,
             embeddedEntry: config.embeddedBlockchain
         )
     }
