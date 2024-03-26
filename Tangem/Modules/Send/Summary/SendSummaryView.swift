@@ -55,7 +55,7 @@ struct SendSummaryView: View {
                         viewModel.didTapSummary(for: .fee)
                     }
 
-                    if !viewModel.hasNotifications {
+                    if viewModel.showHint {
                         HintView(
                             text: Localization.sendSummaryTapHint,
                             font: Fonts.Regular.footnote,
