@@ -22,32 +22,32 @@ class Analytics {
     // MARK: - Scan
 
     static func beginLoggingCardScan(source: CardScanSource) {
-        analyticsContext.set(value: source, forKey: .scanSource, scope: .common())
+        analyticsContext.set(value: source, forKey: .scanSource, scope: .common)
         logEventInternal(source.cardScanButtonEvent)
     }
 
     static func endLoggingCardScan() {
-        guard let source = analyticsContext.value(forKey: .scanSource, scope: .common()) as? CardScanSource else {
+        guard let source = analyticsContext.value(forKey: .scanSource, scope: .common) as? CardScanSource else {
             assertionFailure("Don't forget to call beginLoggingCardScan")
             return
         }
 
-        analyticsContext.removeValue(forKey: .scanSource, scope: .common())
+        analyticsContext.removeValue(forKey: .scanSource, scope: .common)
         logEventInternal(.cardWasScanned, params: [.commonSource: source.cardWasScannedParameterValue.rawValue])
     }
 
     // MARK: - Others
 
     static func logTopUpIfNeeded(balance: Decimal, for userWalletId: UserWalletId) {
-        let hasPreviousPositiveBalance = analyticsContext.value(forKey: .hasPositiveBalance, scope: .userWallet(userWalletId: userWalletId)) as? Bool
+        let hasPreviousPositiveBalance = analyticsContext.value(forKey: .hasPositiveBalance, scope: .userWallet(userWalletId)) as? Bool
 
         // Send only first topped up event. Do not send the event to analytics on following topup events.
         if balance > 0, hasPreviousPositiveBalance == false {
             logEventInternal(.toppedUp)
-            analyticsContext.set(value: true, forKey: .hasPositiveBalance, scope: .userWallet(userWalletId: userWalletId))
+            analyticsContext.set(value: true, forKey: .hasPositiveBalance, scope: .userWallet(userWalletId))
         } else if hasPreviousPositiveBalance == nil { // Do not save in a withdrawal case
             // Register the first app launch with balance.
-            analyticsContext.set(value: balance > 0, forKey: .hasPositiveBalance, scope: .userWallet(userWalletId: userWalletId))
+            analyticsContext.set(value: balance > 0, forKey: .hasPositiveBalance, scope: .userWallet(userWalletId))
         }
     }
 
@@ -138,14 +138,17 @@ class Analytics {
             return true
         }
 
-        var events = analyticsContext.value(forKey: .limitedEvents, scope: limit.contextScope) as? [Event] ?? []
+        let extraEventId = limit.extraEventId.map { "_\($0)" } ?? ""
+        let eventId = event.rawValue + extraEventId
 
-        if events.contains(event) {
+        var eventIds = analyticsContext.value(forKey: .limitedEvents, scope: limit.contextScope) as? [String] ?? []
+
+        if eventIds.contains(eventId) {
             return false
         }
 
-        events.append(event)
-        analyticsContext.set(value: events, forKey: .limitedEvents, scope: limit.contextScope)
+        eventIds.append(eventId)
+        analyticsContext.set(value: eventIds, forKey: .limitedEvents, scope: limit.contextScope)
         return true
     }
 
