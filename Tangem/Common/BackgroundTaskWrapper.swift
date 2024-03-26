@@ -18,6 +18,7 @@ final class BackgroundTaskWrapper {
     private let taskName: String
     private var expirationHandler: ExpirationHandler?
     private var taskIdentifier: UIBackgroundTaskIdentifier
+    private let criticalSection = Lock(isRecursive: false)
 
     init(
         taskName: String = BackgroundTaskWrapper.makeTaskName(),
@@ -44,18 +45,20 @@ final class BackgroundTaskWrapper {
     }
 
     private func finish(isExpired: Bool) {
-        guard taskIdentifier != .invalid else {
-            return
+        criticalSection {
+            guard taskIdentifier != .invalid else {
+                return
+            }
+
+            UIApplication.shared.endBackgroundTask(taskIdentifier)
+            taskIdentifier = .invalid
+
+            if isExpired {
+                expirationHandler?()
+            }
+
+            expirationHandler = nil
         }
-
-        UIApplication.shared.endBackgroundTask(taskIdentifier)
-        taskIdentifier = .invalid
-
-        if isExpired {
-            expirationHandler?()
-        }
-
-        expirationHandler = nil
     }
 }
 
