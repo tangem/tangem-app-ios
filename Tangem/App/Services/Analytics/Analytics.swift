@@ -38,16 +38,16 @@ class Analytics {
 
     // MARK: - Others
 
-    static func logTopUpIfNeeded(balance: Decimal) {
-        let hasPreviousPositiveBalance = analyticsContext.value(forKey: .hasPositiveBalance, scope: .userWallet) as? Bool
+    static func logTopUpIfNeeded(balance: Decimal, for userWalletId: UserWalletId) {
+        let hasPreviousPositiveBalance = analyticsContext.value(forKey: .hasPositiveBalance, scope: .userWallet(userWalletId)) as? Bool
 
         // Send only first topped up event. Do not send the event to analytics on following topup events.
         if balance > 0, hasPreviousPositiveBalance == false {
             logEventInternal(.toppedUp)
-            analyticsContext.set(value: true, forKey: .hasPositiveBalance, scope: .userWallet)
+            analyticsContext.set(value: true, forKey: .hasPositiveBalance, scope: .userWallet(userWalletId))
         } else if hasPreviousPositiveBalance == nil { // Do not save in a withdrawal case
             // Register the first app launch with balance.
-            analyticsContext.set(value: balance > 0, forKey: .hasPositiveBalance, scope: .userWallet)
+            analyticsContext.set(value: balance > 0, forKey: .hasPositiveBalance, scope: .userWallet(userWalletId))
         }
     }
 
@@ -76,18 +76,19 @@ class Analytics {
 
     // MARK: - Common
 
-    static func log(_ event: Event, params: [ParameterKey: ParameterValue] = [:]) {
-        log(event: event, params: params.mapValues { $0.rawValue })
+    static func log(_ event: Event, params: [ParameterKey: ParameterValue] = [:], limit: Analytics.EventLimit = .unlimited) {
+        log(event: event, params: params.mapValues { $0.rawValue }, limit: limit)
     }
 
     static func log(
         event: Event,
         params: [ParameterKey: String],
-        analyticsSystems: [Analytics.AnalyticsSystem] = [.firebase, .appsflyer, .amplitude, .crashlytics]
+        analyticsSystems: [Analytics.AnalyticsSystem] = [.firebase, .appsflyer, .amplitude, .crashlytics],
+        limit: Analytics.EventLimit = .unlimited
     ) {
         assert(event.canBeLoggedDirectly)
 
-        logEventInternal(event, params: params, analyticsSystems: analyticsSystems)
+        logEventInternal(event, params: params, analyticsSystems: analyticsSystems, limit: limit)
     }
 
     static func debugLog(eventInfo: any AnalyticsDebugEvent) {
@@ -132,12 +133,33 @@ class Analytics {
         }
     }
 
+    private static func assertCanSend(event: Event, limit: EventLimit) -> Bool {
+        guard limit.isLimited else {
+            return true
+        }
+
+        var events = analyticsContext.value(forKey: .limitedEvents, scope: limit.contextScope) as? [Event] ?? []
+
+        if events.contains(event) {
+            return false
+        }
+
+        events.append(event)
+        analyticsContext.set(value: events, forKey: .limitedEvents, scope: limit.contextScope)
+        return true
+    }
+
     private static func logEventInternal(
         _ event: Event,
         params: [ParameterKey: String] = [:],
-        analyticsSystems: [Analytics.AnalyticsSystem] = [.firebase, .appsflyer, .amplitude, .crashlytics]
+        analyticsSystems: [Analytics.AnalyticsSystem] = [.firebase, .appsflyer, .amplitude, .crashlytics],
+        limit: Analytics.EventLimit = .unlimited
     ) {
         if AppEnvironment.current.isXcodePreview {
+            return
+        }
+
+        guard assertCanSend(event: event, limit: limit) else {
             return
         }
 
@@ -151,7 +173,7 @@ class Analytics {
     private static func logInternal(
         _ event: String,
         params: [String: Any] = [:],
-        analyticsSystems: [Analytics.AnalyticsSystem] = [.firebase, .appsflyer, .amplitude, .crashlytics]
+        analyticsSystems: [Analytics.AnalyticsSystem]
     ) {
         if AppEnvironment.current.isXcodePreview {
             return
