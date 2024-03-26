@@ -55,6 +55,7 @@ class SendSummaryViewModel: ObservableObject {
     @Published var destinationViewTypes: [SendDestinationSummaryViewType] = []
     @Published var amountSummaryViewData: SendAmountSummaryViewData?
     @Published var feeSummaryViewData: SendFeeSummaryViewData?
+    @Published var showHint = false
     @Published var transactionDescription: String?
 
     @Published var showSectionContent = false
@@ -87,6 +88,8 @@ class SendSummaryViewModel: ObservableObject {
         canEditAmount = input.canEditAmount
         canEditDestination = input.canEditDestination
 
+        showHint = !AppSettings.shared.userDidTapSendScreenSummary
+
         bind()
     }
 
@@ -109,6 +112,9 @@ class SendSummaryViewModel: ObservableObject {
         if isSending {
             return
         }
+
+        AppSettings.shared.userDidTapSendScreenSummary = true
+        showHint = false
 
         router?.openStep(step)
     }
