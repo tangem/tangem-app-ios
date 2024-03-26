@@ -9,6 +9,6 @@
 import Foundation
 
 enum AnalyticsContextScope {
-    case common
-    case userWallet(UserWalletId)
+    case common(extraEventId: String? = nil)
+    case userWallet(userWalletId: UserWalletId, extraEventId: String? = nil)
 }
