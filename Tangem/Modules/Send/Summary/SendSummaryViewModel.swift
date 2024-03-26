@@ -49,12 +49,12 @@ class SendSummaryViewModel: ObservableObject {
 
     @Published var isSendButtonDisabled = false
     @Published var isSending = false
-    @Published var hasNotifications = false
     @Published var alert: AlertBinder?
 
     @Published var destinationViewTypes: [SendDestinationSummaryViewType] = []
     @Published var amountSummaryViewData: SendAmountSummaryViewData?
     @Published var feeSummaryViewData: SendFeeSummaryViewData?
+    @Published var showHint = false
     @Published var transactionDescription: String?
 
     @Published var showSectionContent = false
@@ -68,11 +68,13 @@ class SendSummaryViewModel: ObservableObject {
     private let input: SendSummaryViewModelInput
     private let walletInfo: SendWalletInfo
     private let notificationManager: SendNotificationManager
+    private let fiatCryptoValueProvider: SendFiatCryptoValueProvider
 
-    init(input: SendSummaryViewModelInput, notificationManager: SendNotificationManager, walletInfo: SendWalletInfo) {
+    init(input: SendSummaryViewModelInput, notificationManager: SendNotificationManager, fiatCryptoValueProvider: SendFiatCryptoValueProvider, walletInfo: SendWalletInfo) {
         self.input = input
         self.walletInfo = walletInfo
         self.notificationManager = notificationManager
+        self.fiatCryptoValueProvider = fiatCryptoValueProvider
 
         sectionViewModelFactory = SendSummarySectionViewModelFactory(
             feeCurrencySymbol: walletInfo.feeCurrencySymbol,
@@ -107,6 +109,9 @@ class SendSummaryViewModel: ObservableObject {
         if isSending {
             return
         }
+
+        AppSettings.shared.userDidTapSendScreenSummary = true
+        showHint = false
 
         router?.openStep(step)
     }
@@ -151,13 +156,18 @@ class SendSummaryViewModel: ObservableObject {
             .assign(to: \.destinationViewTypes, on: self)
             .store(in: &bag)
 
-        input
-            .userInputAmountPublisher
-            .compactMap { [weak self] amount in
-                self?.sectionViewModelFactory.makeAmountViewData(from: amount)
-            }
-            .assign(to: \.amountSummaryViewData, on: self, ownership: .weak)
-            .store(in: &bag)
+        Publishers.CombineLatest(
+            fiatCryptoValueProvider.formattedAmountPublisher,
+            fiatCryptoValueProvider.formattedAmountAlternativePublisher
+        )
+        .compactMap { [weak self] formattedAmount, formattedAmountAlternative in
+            self?.sectionViewModelFactory.makeAmountViewData(
+                from: formattedAmount,
+                amountAlternative: formattedAmountAlternative
+            )
+        }
+        .assign(to: \.amountSummaryViewData, on: self, ownership: .weak)
+        .store(in: &bag)
 
         Publishers.CombineLatest(input.feeValuePublisher, input.selectedFeeOptionPublisher)
             .map { [weak self] feeValue, feeOption in
@@ -180,7 +190,7 @@ class SendSummaryViewModel: ObservableObject {
             .notificationPublisher(for: .summary)
             .sink { [weak self] notificationInputs in
                 self?.notificationInputs = notificationInputs
-                self?.hasNotifications = !notificationInputs.isEmpty
+                self?.showHint = notificationInputs.isEmpty && !AppSettings.shared.userDidTapSendScreenSummary
             }
             .store(in: &bag)
 
