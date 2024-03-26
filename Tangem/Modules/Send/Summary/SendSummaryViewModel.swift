@@ -56,6 +56,7 @@ class SendSummaryViewModel: ObservableObject {
     @Published var amountSummaryViewData: SendAmountSummaryViewData?
     @Published var feeSummaryViewData: SendFeeSummaryViewData?
     @Published var transactionDescription: String?
+    @Published var showTransactionDescription = true
 
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
 
