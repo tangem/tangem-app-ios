@@ -41,6 +41,7 @@ class ServicesManager {
             configureAmplitude()
         }
 
+        configureBackgroundTasksManager()
         configureBlockchainSdkExceptionHandler()
 
         S2CTOUMigrator().migrate()
@@ -77,6 +78,19 @@ class ServicesManager {
     private func configureAmplitude() {
         Amplitude.instance().trackingSessionEvents = true
         Amplitude.instance().initializeApiKey(try! CommonKeysManager().amplitudeApiKey)
+    }
+
+    /// - Note: MUST be called before the end of `applicationDidFinishLaunching(_:)` method call, see
+    /// https://developer.apple.com/documentation/backgroundtasks/bgtaskscheduler/3180427-register for details.
+    private func configureBackgroundTasksManager() {
+        guard let bundleIdentifier: String = InfoDictionaryUtils.bundleIdentifier.value() else {
+            preconditionFailure("Unable to get app bundle identifier")
+        }
+
+        BackgroundTasksManager.shared.registerBackgroundTasks(
+            [.polkadotAccountHealthCheck],
+            forApplicationWithBundleIdentifier: bundleIdentifier
+        )
     }
 
     private func configureBlockchainSdkExceptionHandler() {
