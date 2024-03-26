@@ -332,13 +332,10 @@ class WalletModel {
         switch walletManagerState {
         case .loaded:
             return .idle
+        case .failed(WalletError.noAccount(let message, let amountToCreate)):
+            return .noAccount(message: message, amountToCreate: amountToCreate)
         case .failed(let error):
-            switch error as? WalletError {
-            case .noAccount(let message, _):
-                return .noAccount(message: message)
-            default:
-                return .failed(error: error.detailedError.localizedDescription)
-            }
+            return .failed(error: error.detailedError.localizedDescription)
         case .loading:
             return .loading
         case .initial:
@@ -365,8 +362,7 @@ class WalletModel {
         return quotesRepository
             .loadQuotes(currencyIds: [currencyId])
             .handleEvents(receiveOutput: { [weak self] _ in
-                let value = self.flatMap { String(describing: $0) } ?? "unknown"
-                AppLog.shared.debug("🔄 Finished loading quotes for \(value)")
+                AppLog.shared.debug("🔄 Finished loading quotes for \(String(describing: self))")
             })
             .mapToVoid()
             .eraseToAnyPublisher()
@@ -384,7 +380,7 @@ class WalletModel {
         .autoconnect()
         .withWeakCaptureOf(self)
         .flatMap { root, _ in
-            AppLog.shared.debug("⏰ Updating timer alarm ‼️ \(String(describing: root)) will be updated")
+            AppLog.shared.debug("⏰ Updating timer alarm ‼️ \(String(describing: self)) will be updated")
             return root.generalUpdate(silent: false)
         }
         .sink { [weak self] in
