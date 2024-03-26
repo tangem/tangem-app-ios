@@ -17,6 +17,7 @@ public class IncomingActionParser {
         DismissSafariActionURLHelper(),
         SellActionURLHelper(),
         WalletConnectURLParser(),
+        BlockchainURLSchemesParser(isURLSchemeSupported: SupportedURLSchemeCheck.isURLSchemeSupported),
     ]
 
     public init() {}
@@ -48,7 +49,7 @@ public class IncomingActionParser {
 
         if urlString.starts(with: IncomingActionConstants.tangemDomain)
             || urlString.starts(with: IncomingActionConstants.appTangemDomain)
-            || urlString.starts(with: IncomingActionConstants.universalLinkScheme) {
+            || SupportedURLSchemeCheck.isURLSchemeSupported(for: url) {
             return true
         }
 
@@ -59,5 +60,15 @@ public class IncomingActionParser {
 private extension IncomingActionParser {
     enum AppIntent: String {
         case scanCard = "ScanTangemCardIntent"
+    }
+}
+
+private enum SupportedURLSchemeCheck {
+    static func isURLSchemeSupported(for url: URL) -> Bool {
+        if let supportedSchemes: [String] = InfoDictionaryUtils.bundleURLSchemes.value() {
+            return supportedSchemes.contains(url.scheme ?? "")
+        } else {
+            return url.absoluteString.starts(with: IncomingActionConstants.universalLinkScheme)
+        }
     }
 }
