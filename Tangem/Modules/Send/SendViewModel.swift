@@ -68,6 +68,7 @@ final class SendViewModel: ObservableObject {
     private let emailDataProvider: EmailDataProvider
     private let walletInfo: SendWalletInfo
     private let notificationManager: CommonSendNotificationManager
+    private let fiatCryptoAdapter: CommonSendFiatCryptoAdapter
     private let sendStepParameters: SendStep.Parameters
 
     private weak var coordinator: SendRoutable?
@@ -170,12 +171,21 @@ final class SendViewModel: ObservableObject {
             input: sendModel
         )
 
+        fiatCryptoAdapter = CommonSendFiatCryptoAdapter(
+            cryptoCurrencyId: walletInfo.currencyId,
+            currencySymbol: walletInfo.cryptoCurrencyCode,
+            decimals: walletInfo.amountFractionDigits
+        )
+
         sendStepParameters = SendStep.Parameters(currencyName: walletModel.tokenItem.name, walletName: walletInfo.walletName)
 
-        sendAmountViewModel = SendAmountViewModel(input: sendModel, walletInfo: walletInfo)
+        sendAmountViewModel = SendAmountViewModel(input: sendModel, fiatCryptoAdapter: fiatCryptoAdapter, walletInfo: walletInfo)
         sendDestinationViewModel = SendDestinationViewModel(input: sendModel)
         sendFeeViewModel = SendFeeViewModel(input: sendModel, notificationManager: notificationManager, walletInfo: walletInfo)
-        sendSummaryViewModel = SendSummaryViewModel(input: sendModel, notificationManager: notificationManager, walletInfo: walletInfo)
+        sendSummaryViewModel = SendSummaryViewModel(input: sendModel, notificationManager: notificationManager, fiatCryptoValueProvider: fiatCryptoAdapter, walletInfo: walletInfo)
+
+        fiatCryptoAdapter.setInput(sendAmountViewModel)
+        fiatCryptoAdapter.setOutput(sendModel)
 
         sendFeeViewModel.router = coordinator
         sendSummaryViewModel.router = self
@@ -331,6 +341,8 @@ final class SendViewModel: ObservableObject {
     private func openMail(with error: Error) {
         guard let transaction = sendModel.currentTransaction() else { return }
 
+        Analytics.log(.requestSupport, params: [.source: .transactionSourceSend])
+
         let emailDataCollector = SendScreenDataCollector(
             userWalletEmailData: emailDataProvider.emailData,
             walletModel: walletModel,
@@ -413,7 +425,7 @@ final class SendViewModel: ObservableObject {
     }
 
     private func openFinishPage() {
-        guard let sendFinishViewModel = SendFinishViewModel(input: sendModel, walletInfo: walletInfo) else {
+        guard let sendFinishViewModel = SendFinishViewModel(input: sendModel, fiatCryptoValueProvider: fiatCryptoAdapter, walletInfo: walletInfo) else {
             assertionFailure("WHY?")
             return
         }
