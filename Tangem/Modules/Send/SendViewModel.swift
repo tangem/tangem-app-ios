@@ -341,6 +341,8 @@ final class SendViewModel: ObservableObject {
     private func openMail(with error: Error) {
         guard let transaction = sendModel.currentTransaction() else { return }
 
+        Analytics.log(.requestSupport, params: [.source: .transactionSourceSend])
+
         let emailDataCollector = SendScreenDataCollector(
             userWalletEmailData: emailDataProvider.emailData,
             walletModel: walletModel,
