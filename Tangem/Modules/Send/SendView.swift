@@ -36,6 +36,7 @@ struct SendView: View {
             }
         }
         .background(backgroundColor.ignoresSafeArea())
+        .animation(Constants.defaultAnimation, value: viewModel.step)
     }
 
     private var pageContentTransition: AnyTransition {
@@ -125,6 +126,7 @@ struct SendView: View {
                     height: backButtonSize.height,
                     action: viewModel.back
                 )
+                .animation(Constants.backButtonAnimation, value: viewModel.showBackButton)
             }
 
             if viewModel.showNextButton {

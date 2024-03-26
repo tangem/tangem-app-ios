@@ -396,13 +396,8 @@ final class SendViewModel: ObservableObject {
         self.stepAnimation = stepAnimation
 
         let animateStepChanges: () -> Void = {
-            withAnimation(SendView.Constants.backButtonAnimation) {
-                self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
-            }
-
-            withAnimation(SendView.Constants.defaultAnimation) {
-                self.step = step
-            }
+            self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
+            self.step = step
         }
 
         if stepAnimation != nil {
