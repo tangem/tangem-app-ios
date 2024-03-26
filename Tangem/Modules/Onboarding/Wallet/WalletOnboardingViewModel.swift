@@ -99,7 +99,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     override var mainButtonSettings: MainButton.Settings? {
         switch currentStep {
-        case .disclaimer, .seedPhraseIntro, .backupCards, .success, .scanPrimaryCard:
+        case .createWallet, .disclaimer, .seedPhraseIntro, .backupCards, .success, .scanPrimaryCard:
             return nil
         default:
             return MainButton.Settings(
@@ -164,7 +164,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     override var supplementButtonStyle: MainButton.Style {
         switch currentStep {
-        case .selectBackupCards, .scanPrimaryCard, .backupCards, .success, .disclaimer:
+        case .createWallet, .selectBackupCards, .scanPrimaryCard, .backupCards, .success, .disclaimer:
             return .primary
         default:
             return .secondary
@@ -413,7 +413,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     override func mainButtonAction() {
         switch currentStep {
-        case .createWallet, .createWalletSelector:
+        case .createWalletSelector:
             createWallet()
         case .seedPhraseGeneration:
             goToStep(.seedPhraseUserValidation)
@@ -438,6 +438,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     override func supplementButtonAction() {
         switch currentStep {
+        case .createWallet:
+            createWallet()
         case .createWalletSelector:
             Analytics.log(.onboardingSeedButtonOtherCreateWalletOptions)
             goToStep(.seedPhraseIntro)
