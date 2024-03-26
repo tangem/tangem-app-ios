@@ -598,6 +598,7 @@
 		B674D6DF2A9762D400172491 /* UserTokenListConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B674D6DE2A9762D400172491 /* UserTokenListConverter.swift */; };
 		B675A1E62A1E05F700F624B6 /* CardsInfoPagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B675A1E52A1E05F700F624B6 /* CardsInfoPagerView.swift */; };
 		B675A1EA2A1E068D00F624B6 /* Clamp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B675A1E92A1E068D00F624B6 /* Clamp.swift */; };
+		B675C3762BACB8AA007BE1DC /* PolkadotAccountHealthChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B675C3752BACB8AA007BE1DC /* PolkadotAccountHealthChecker.swift */; };
 		B67688EF2B078EDB006C94F7 /* MainBottomSheetOverlayViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67688EE2B078EDB006C94F7 /* MainBottomSheetOverlayViewModel.swift */; };
 		B67688F12B078F71006C94F7 /* MainBottomSheetOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67688F02B078F71006C94F7 /* MainBottomSheetOverlayView.swift */; };
 		B67D90DD2ABAC603006B2C00 /* BottomScrollableSheetModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67D90DC2ABAC603006B2C00 /* BottomScrollableSheetModifier.swift */; };
@@ -2056,6 +2057,7 @@
 		B674D6DE2A9762D400172491 /* UserTokenListConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenListConverter.swift; sourceTree = "<group>"; };
 		B675A1E52A1E05F700F624B6 /* CardsInfoPagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPagerView.swift; sourceTree = "<group>"; };
 		B675A1E92A1E068D00F624B6 /* Clamp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clamp.swift; sourceTree = "<group>"; };
+		B675C3752BACB8AA007BE1DC /* PolkadotAccountHealthChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkadotAccountHealthChecker.swift; sourceTree = "<group>"; };
 		B67688EE2B078EDB006C94F7 /* MainBottomSheetOverlayViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainBottomSheetOverlayViewModel.swift; sourceTree = "<group>"; };
 		B67688F02B078F71006C94F7 /* MainBottomSheetOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainBottomSheetOverlayView.swift; sourceTree = "<group>"; };
 		B67D90DC2ABAC603006B2C00 /* BottomScrollableSheetModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomScrollableSheetModifier.swift; sourceTree = "<group>"; };
@@ -5097,6 +5099,7 @@
 		B675C35D2BAC8A0E007BE1DC /* PolkaDotAccountHealthCheck */ = {
 			isa = PBXGroup;
 			children = (
+				B675C3752BACB8AA007BE1DC /* PolkadotAccountHealthChecker.swift */,
 				B6961B1F2BB2FD2900FE266D /* PolkadotAccountHealthNetworkService.swift */,
 			);
 			path = PolkaDotAccountHealthCheck;
@@ -8308,6 +8311,7 @@
 				B65CB3FE2A98A93F00C31199 /* UserTokensReorderingAction.swift in Sources */,
 				B67DC1EA2B7C4C48008ACB0E /* BlockchainAccountCreatorStub.swift in Sources */,
 				DC13D04029DF2D470003895C /* BackupServiceFactory.swift in Sources */,
+				B675C3762BACB8AA007BE1DC /* PolkadotAccountHealthChecker.swift in Sources */,
 				DCBAF69F2A4AF4660029480A /* TwinWalletManagerFactory.swift in Sources */,
 				EFE7D5842AA224C50047D93A /* FetchMore.swift in Sources */,
 				B6ED08302A7D9FA70090E51F /* OrganizeTokensOptionsEditing.swift in Sources */,
