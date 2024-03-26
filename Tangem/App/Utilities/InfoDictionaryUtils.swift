@@ -31,7 +31,11 @@ enum InfoDictionaryUtils {
                 return nil
             }
 
-            return dictionary.map { $0["CFBundleURLSchemes"] } as? T
+            guard let schemes = dictionary.compactMap({ $0["CFBundleURLSchemes"] }) as? [[String]] else {
+                return nil
+            }
+
+            return schemes.flatMap { $0 } as? T
         }
     }
 }
