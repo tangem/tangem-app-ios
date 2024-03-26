@@ -98,7 +98,7 @@ struct SendSummaryView: View {
             .setAmountFiatNamespaceId(SendViewNamespaceId.amountFiatText.rawValue)
     }
 
-    private func feeSectionContent(data: SendFeeSummaryViewData) -> some View {
+    private func feeSectionContent(data: SendFeeSummaryViewModel) -> some View {
         SendFeeSummaryView(data: data)
             .setNamespace(namespace)
             .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
