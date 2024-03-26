@@ -108,10 +108,7 @@ private extension CustomPasswordTextField {
 
         private func onAppear() {
             if shouldBecomeFirstResponder {
-                // Works only with huge delay
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    setFocus(for: isSecured)
-                }
+                setFocus(for: isSecured)
             }
         }
     }
