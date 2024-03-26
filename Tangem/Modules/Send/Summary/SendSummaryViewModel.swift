@@ -49,7 +49,6 @@ class SendSummaryViewModel: ObservableObject {
 
     @Published var isSendButtonDisabled = false
     @Published var isSending = false
-    @Published var hasNotifications = false
     @Published var alert: AlertBinder?
 
     @Published var destinationViewTypes: [SendDestinationSummaryViewType] = []
@@ -87,8 +86,6 @@ class SendSummaryViewModel: ObservableObject {
 
         canEditAmount = input.canEditAmount
         canEditDestination = input.canEditDestination
-
-        showHint = !AppSettings.shared.userDidTapSendScreenSummary
 
         bind()
     }
@@ -193,7 +190,7 @@ class SendSummaryViewModel: ObservableObject {
             .notificationPublisher(for: .summary)
             .sink { [weak self] notificationInputs in
                 self?.notificationInputs = notificationInputs
-                self?.hasNotifications = !notificationInputs.isEmpty
+                self?.showHint = notificationInputs.isEmpty && !AppSettings.shared.userDidTapSendScreenSummary
             }
             .store(in: &bag)
 
