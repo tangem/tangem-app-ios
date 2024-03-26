@@ -19,7 +19,6 @@ struct SendAmountView: View {
         GroupedScrollView(spacing: 14) {
             GroupedSection(viewModel) { viewModel in
                 amountSectionContent
-                    .visible(viewModel.showSectionContent)
             }
             .contentAlignment(.center)
             .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
@@ -46,8 +45,6 @@ struct SendAmountView: View {
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         .onAppear(perform: viewModel.onAppear)
-        .onAppear(perform: viewModel.onSectionContentAppear)
-        .onDisappear(perform: viewModel.onSectionContentDisappear)
         .onAppear(perform: viewModel.onAuxiliaryViewAppear)
         .onDisappear(perform: viewModel.onAuxiliaryViewDisappear)
     }
