@@ -106,6 +106,7 @@ struct LegacySendView: View {
                                             Colors.Button.positive : Color.tangemGrayDark6.opacity(0.5))
                                         .lineLimit(1)
                                         .minimumScaleFactor(0.5)
+                                        .fixedSize(horizontal: false, vertical: true)
 
                                     if viewModel.isFiatConvertingAvailable {
                                         Image(systemName: "arrow.up.arrow.down")
