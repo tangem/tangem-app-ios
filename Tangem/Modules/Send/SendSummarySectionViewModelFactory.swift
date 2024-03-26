@@ -54,7 +54,7 @@ struct SendSummarySectionViewModelFactory {
         )
     }
 
-    func makeFeeViewData(from value: Fee?, feeOption: FeeOption) -> SendFeeSummaryViewData? {
+    func makeFeeViewData(from value: Fee?, feeOption: FeeOption, animateTitleOnAppear: Bool) -> SendFeeSummaryViewModel? {
         guard let value else { return nil }
 
         let formattedFeeComponents = feeFormatter.formattedFeeComponents(
@@ -64,11 +64,12 @@ struct SendSummarySectionViewModelFactory {
             isFeeApproximate: isFeeApproximate
         )
 
-        return SendFeeSummaryViewData(
+        return SendFeeSummaryViewModel(
             title: Localization.commonNetworkFeeTitle,
             feeOption: feeOption,
             cryptoAmount: formattedFeeComponents.cryptoFee,
-            fiatAmount: formattedFeeComponents.fiatFee
+            fiatAmount: formattedFeeComponents.fiatFee,
+            animateTitleOnAppear: animateTitleOnAppear
         )
     }
 }
