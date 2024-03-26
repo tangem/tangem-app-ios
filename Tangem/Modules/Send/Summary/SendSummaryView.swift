@@ -69,6 +69,7 @@ struct SendSummaryView: View {
                         textColor: Colors.Text.secondary,
                         backgroundColor: Colors.Button.secondary
                     )
+                    .transition(SendView.Constants.hintViewTransition)
                 }
 
                 ForEach(viewModel.notificationInputs) { input in
