@@ -456,7 +456,8 @@ private extension ExpressViewModel {
                  .tooBigAmountForSwapping,
                  .noDestinationTokens,
                  .validationError,
-                 .notEnoughAmountForFee:
+                 .notEnoughAmountForFee,
+                 .notEnoughReceivedAmount:
                 mainButtonState = .swap
             case .notEnoughBalanceForSwapping:
                 mainButtonState = .insufficientFunds
