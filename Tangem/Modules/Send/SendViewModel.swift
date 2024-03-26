@@ -32,10 +32,6 @@ final class SendViewModel: ObservableObject {
         step.description(for: sendStepParameters)
     }
 
-    var showNavigationButtons: Bool {
-        step.hasNavigationButtons
-    }
-
     var showNextButton: Bool {
         !didReachSummaryScreen
     }
