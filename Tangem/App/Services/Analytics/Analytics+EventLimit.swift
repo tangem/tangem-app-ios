@@ -29,14 +29,23 @@ extension Analytics.EventLimit {
         }
     }
 
-    var contextScope: AnalyticsContextScope {
+    var extraEventId: String? {
         switch self {
         case .appSession(let extraEventId):
-            return .common(extraEventId: extraEventId)
-        case .userWalletSession(let userWalletId, let extraEventId):
-            return .userWallet(userWalletId: userWalletId, extraEventId: extraEventId)
+            return extraEventId
+        case .userWalletSession(_, let extraEventId):
+            return extraEventId
         case .unlimited:
-            return .common(extraEventId: nil)
+            return nil
+        }
+    }
+
+    var contextScope: AnalyticsContextScope {
+        switch self {
+        case .appSession, .unlimited:
+            return .common
+        case .userWalletSession(let userWalletId, _):
+            return .userWallet(userWalletId)
         }
     }
 }
