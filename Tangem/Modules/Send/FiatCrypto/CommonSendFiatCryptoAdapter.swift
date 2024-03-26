@@ -88,8 +88,8 @@ class CommonSendFiatCryptoAdapter: SendFiatCryptoAdapter {
                     return
                 }
 
-                let formattedCryptoAmount = formattedCryptoAmount(cryptoValue, trimFractions: !useFiatCalculation)
-                let formattedFiatAmount = formattedFiatAmount(fiatCryptoValue.fiat, trimFractions: useFiatCalculation)
+                let formattedCryptoAmount = formatCryptoAmount(cryptoValue, trimFractions: !useFiatCalculation)
+                let formattedFiatAmount = formatFiatAmount(fiatCryptoValue.fiat, trimFractions: useFiatCalculation)
 
                 formattedAmountSubject.send(useFiatCalculation ? formattedFiatAmount : formattedCryptoAmount)
                 formattedAmountAlternativeSubject.send(useFiatCalculation ? formattedCryptoAmount : formattedFiatAmount)
@@ -106,7 +106,7 @@ class CommonSendFiatCryptoAdapter: SendFiatCryptoAdapter {
         }
     }
 
-    private func formattedCryptoAmount(_ amount: Decimal, trimFractions: Bool) -> String {
+    private func formatCryptoAmount(_ amount: Decimal, trimFractions: Bool) -> String {
         let formatter = BalanceFormatter()
 
         let minCryptoFractionDigits = trimFractions ? 0 : BalanceFormattingOptions.defaultCryptoFormattingOptions.minFractionDigits
@@ -122,7 +122,7 @@ class CommonSendFiatCryptoAdapter: SendFiatCryptoAdapter {
         )
     }
 
-    private func formattedFiatAmount(_ amount: Decimal?, trimFractions: Bool) -> String {
+    private func formatFiatAmount(_ amount: Decimal?, trimFractions: Bool) -> String {
         let formatter = BalanceFormatter()
 
         let minFiatFractionDigits = trimFractions ? 0 : BalanceFormattingOptions.defaultFiatFormattingOptions.minFractionDigits
