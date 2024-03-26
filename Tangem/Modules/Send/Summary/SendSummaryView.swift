@@ -59,7 +59,7 @@ struct SendSummaryView: View {
                         viewModel.didTapSummary(for: .fee)
                     }
 
-                    if !viewModel.hasNotifications {
+                    if viewModel.showHint {
                         HintView(
                             text: Localization.sendSummaryTapHint,
                             font: Fonts.Regular.footnote,
@@ -152,7 +152,14 @@ struct SendSummaryView_Previews: PreviewProvider {
         feeAmountType: .coin
     )
 
+    static let viewModel = SendSummaryViewModel(
+        input: SendSummaryViewModelInputMock(),
+        notificationManager: FakeSendNotificationManager(),
+        fiatCryptoValueProvider: SendFiatCryptoValueProviderMock(),
+        walletInfo: walletInfo
+    )
+
     static var previews: some View {
-        SendSummaryView(namespace: namespace, viewModel: SendSummaryViewModel(input: SendSummaryViewModelInputMock(), notificationManager: FakeSendNotificationManager(), walletInfo: walletInfo))
+        SendSummaryView(namespace: namespace, viewModel: viewModel)
     }
 }
