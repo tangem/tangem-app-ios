@@ -56,7 +56,7 @@ struct CommonWalletModelsFactory {
             return nil
         }
 
-        return MutipleAddressTransactionHistoryService(
+        return MultipleAddressTransactionHistoryService(
             tokenItem: tokenItem,
             addresses: addresses,
             transactionHistoryProviders: multiAddressProviders.compactMapValues { $0 }
