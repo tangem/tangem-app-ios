@@ -94,6 +94,14 @@ class SendSummaryViewModel: ObservableObject {
         Analytics.log(.sendConfirmScreenOpened)
 
         screenIdleStartTime = Date()
+
+        // For the sake of simplicity we're assuming that notifications aren't going to be created after the screen has been displayed
+        showHint = false
+        if notificationInputs.isEmpty, !AppSettings.shared.userDidTapSendScreenSummary {
+            withAnimation(SendView.Constants.defaultAnimation.delay(SendView.Constants.animationDuration * 2)) {
+                self.showHint = true
+            }
+        }
     }
 
     func onDisappear() {
@@ -185,7 +193,6 @@ class SendSummaryViewModel: ObservableObject {
             .notificationPublisher(for: .summary)
             .sink { [weak self] notificationInputs in
                 self?.notificationInputs = notificationInputs
-                self?.showHint = notificationInputs.isEmpty && !AppSettings.shared.userDidTapSendScreenSummary
             }
             .store(in: &bag)
 
