@@ -140,7 +140,13 @@ struct SendFinishView_Previews: PreviewProvider {
         feeAmountType: .coin
     )
 
+    static var viewModel = SendFinishViewModel(
+        input: SendFinishViewModelInputMock(),
+        fiatCryptoValueProvider: SendFiatCryptoValueProviderMock(),
+        walletInfo: walletInfo
+    )!
+
     static var previews: some View {
-        SendFinishView(namespace: namespace, viewModel: SendFinishViewModel(input: SendFinishViewModelInputMock(), walletInfo: walletInfo)!)
+        SendFinishView(namespace: namespace, viewModel: viewModel)
     }
 }

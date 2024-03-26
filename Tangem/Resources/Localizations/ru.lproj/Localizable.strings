@@ -67,6 +67,7 @@
 "common_continue" = "Продолжить";
 "common_copy" = "Копировать";
 "common_copy_address" = "Скопировать адрес";
+"common_create" = "Создать";
 "common_delete" = "Удалить";
 "common_disabled" = "Отключено";
 "common_disconnect" = "Отключить";
@@ -277,10 +278,11 @@
 "onboarding_access_code_feature_1_title" = "Защита";
 "onboarding_access_code_feature_2_description" = "Позже вы сможете установить индивидуальный код доступа для каждой карты";
 "onboarding_access_code_feature_2_title" = "Персонализация";
-"onboarding_access_code_feature_3_description" = "Код доступа можно восстановить с помощью привязанной карты. Не храните все карты в одном месте";
+"onboarding_access_code_feature_3_description" = "Код доступа можно восстановить с помощью привязанной карты. Не храните все карты в одном месте.";
 "onboarding_access_code_feature_3_title" = "Восстановление";
 "onboarding_access_code_hint" = "Выберите любое слово, фразу или число в качестве кода доступа";
 "onboarding_access_code_intro_title" = "Создайте код доступа";
+"onboarding_access_code_repeat_code_hint" = "Введите код доступа еще раз, чтобы избежать ошибки";
 "onboarding_access_code_repeat_code_title" = "Повторно введите код доступа";
 "onboarding_access_code_too_short" = "Код доступа должен состоять не менее чем из 4 символов.";
 "onboarding_access_codes_doesnt_match" = "Введенные коды доступа не совпадают";
@@ -628,6 +630,7 @@
 "warning_express_no_exchangeable_coins_title" = "Нет доступных для обмена токенов";
 "warning_express_not_enough_fee_for_token_tx_description" = "Чтобы совершить транзакцию, вам необходимо внести немного %1$@ %2$@";
 "warning_express_not_enough_fee_for_token_tx_title" = "Невозможно покрыть комиссию %@";
+"warning_express_notification_invalid_reserve_amount_title" = "Сумма получения не может быть менее %@";
 "warning_express_refresh_required_title" = "Cервис временно недоступен";
 "warning_express_too_maximum_amount_title" = "Сумма для обмена должна быть не более %@";
 "warning_express_too_minimal_amount_title" = "Сумма для обмена должна быть не менее %@";
