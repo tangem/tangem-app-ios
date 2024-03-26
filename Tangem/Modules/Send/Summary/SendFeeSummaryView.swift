@@ -9,14 +9,14 @@
 import SwiftUI
 
 struct SendFeeSummaryView: View {
-    let data: SendFeeSummaryViewData
+    @ObservedObject var data: SendFeeSummaryViewModel
 
     private var namespace: Namespace.ID?
     private var titleNamespaceId: String?
     private var optionNamespaceId: String?
     private var amountNamespaceId: String?
 
-    init(data: SendFeeSummaryViewData) {
+    init(data: SendFeeSummaryViewModel) {
         self.data = data
     }
 
@@ -26,6 +26,7 @@ struct SendFeeSummaryView: View {
                 .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
                 .lineLimit(1)
                 .matchedGeometryEffectOptional(id: titleNamespaceId, in: namespace)
+                .visible(data.titleVisible)
 
             HStack(spacing: 0) {
                 feeOption
@@ -39,6 +40,7 @@ struct SendFeeSummaryView: View {
         }
         .padding(.vertical, 14)
         .frame(maxWidth: .infinity, alignment: .leading)
+        .onAppear(perform: data.onAppear)
     }
 
     @ViewBuilder
@@ -97,11 +99,11 @@ extension SendFeeSummaryView: Setupable {
 
 #Preview {
     GroupedScrollView(spacing: 14) {
-        GroupedSection(SendFeeSummaryViewData(title: "Network fee", feeOption: .market, cryptoAmount: "0.159817 MATIC", fiatAmount: "0,22 $")) { data in
+        GroupedSection(SendFeeSummaryViewModel(title: "Network fee", feeOption: .market, cryptoAmount: "0.159817 MATIC", fiatAmount: "0,22 $", animateTitleOnAppear: false)) { data in
             SendFeeSummaryView(data: data)
         }
 
-        GroupedSection(SendFeeSummaryViewData(title: "Network Fee Network Fee Network Fee Network Fee Network Fee Network Fee Network Fee Network Fee", feeOption: .slow, cryptoAmount: "159 817 159 817.159817 MATIC", fiatAmount: "100 120,22 $")) { data in
+        GroupedSection(SendFeeSummaryViewModel(title: "Network Fee Network Fee Network Fee Network Fee Network Fee Network Fee Network Fee Network Fee", feeOption: .slow, cryptoAmount: "159 817 159 817.159817 MATIC", fiatAmount: "100 120,22 $", animateTitleOnAppear: false)) { data in
             SendFeeSummaryView(data: data)
         }
     }
