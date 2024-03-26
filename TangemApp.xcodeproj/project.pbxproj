@@ -634,6 +634,7 @@
 		B69E7FC62B21C0F200B78D9A /* RateAppService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69E7FC52B21C0F200B78D9A /* RateAppService.swift */; };
 		B69E7FC82B220C3400B78D9A /* Dictionary+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69E7FC72B220C3300B78D9A /* Dictionary+.swift */; };
 		B6A373082A45CF2B0076A11C /* UserTokenListUpdateType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6A373072A45CF2B0076A11C /* UserTokenListUpdateType.swift */; };
+		B6A89DB82BB1AE2B007A1619 /* BackgroundTaskWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6A89DB72BB1AE2B007A1619 /* BackgroundTaskWrapper.swift */; };
 		B6A8DAA52A4C96C4004CB1E7 /* ObjectDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6A8DAA42A4C96C4004CB1E7 /* ObjectDescription.swift */; };
 		B6A90A932AC6464D00108144 /* BottomScrollableSheetGrabberView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6A90A922AC6464D00108144 /* BottomScrollableSheetGrabberView.swift */; };
 		B6AA13662A2A372500B53937 /* CardsInfoPagerPreviewProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AA13652A2A372500B53937 /* CardsInfoPagerPreviewProvider.swift */; };
@@ -2092,6 +2093,7 @@
 		B69E7FC52B21C0F200B78D9A /* RateAppService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateAppService.swift; sourceTree = "<group>"; };
 		B69E7FC72B220C3300B78D9A /* Dictionary+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dictionary+.swift"; sourceTree = "<group>"; };
 		B6A373072A45CF2B0076A11C /* UserTokenListUpdateType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenListUpdateType.swift; sourceTree = "<group>"; };
+		B6A89DB72BB1AE2B007A1619 /* BackgroundTaskWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundTaskWrapper.swift; sourceTree = "<group>"; };
 		B6A8DAA42A4C96C4004CB1E7 /* ObjectDescription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectDescription.swift; sourceTree = "<group>"; };
 		B6A90A922AC6464D00108144 /* BottomScrollableSheetGrabberView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomScrollableSheetGrabberView.swift; sourceTree = "<group>"; };
 		B6AA13652A2A372500B53937 /* CardsInfoPagerPreviewProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPagerPreviewProvider.swift; sourceTree = "<group>"; };
@@ -3510,6 +3512,7 @@
 				EFE5EC542AEC2AF400C5ADC3 /* Toast.swift */,
 				B68B442B2B6C7C9C00CF95AB /* OptionalProtocol.swift */,
 				B6961B232BB30A4D00FE266D /* BackgroundTasksManager.swift */,
+				B6A89DB72BB1AE2B007A1619 /* BackgroundTaskWrapper.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -8846,6 +8849,7 @@
 				B0468CE72954A0D300F2E728 /* WalletConnectV2DefaultSocketFactory.swift in Sources */,
 				B0AA865226DC90E600287F80 /* WelcomeView.swift in Sources */,
 				EF0DC11B2A0CE29E007E3DA7 /* ExpressApproveView.swift in Sources */,
+				B6A89DB82BB1AE2B007A1619 /* BackgroundTaskWrapper.swift in Sources */,
 				5D225CB92524B721001564A3 /* Analytics.swift in Sources */,
 				DC66BC16285C529600CDF765 /* LegacySendRoutable.swift in Sources */,
 				5DDFC2022812B716005976FE /* CurrenciesResponse.swift in Sources */,
