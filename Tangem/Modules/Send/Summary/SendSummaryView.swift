@@ -21,11 +21,9 @@ struct SendSummaryView: View {
                     case .address(let address):
                         SendDestinationAddressSummaryView(address: address)
                             .setNamespace(namespace)
-                            .visible(viewModel.showSectionContent)
                     case .additionalField(let type, let value):
                         if let name = type.name {
                             DefaultTextWithTitleRowView(data: .init(title: name, text: value))
-                                .visible(viewModel.showSectionContent)
                         }
                     }
                 }
@@ -38,7 +36,6 @@ struct SendSummaryView: View {
 
                 GroupedSection(viewModel.amountSummaryViewData) { data in
                     amountSectionContent(data: data)
-                        .visible(viewModel.showSectionContent)
                 }
                 .innerContentPadding(0)
                 .backgroundColor(viewModel.amountBackground, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
@@ -51,7 +48,6 @@ struct SendSummaryView: View {
                 VStack(spacing: 8) {
                     GroupedSection(viewModel.feeSummaryViewData) { data in
                         feeSectionContent(data: data)
-                            .visible(viewModel.showSectionContent)
                     }
                     .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
                     .contentShape(Rectangle())
@@ -90,8 +86,6 @@ struct SendSummaryView: View {
         .alert(item: $viewModel.alert) { $0.alert }
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
-        .onAppear(perform: viewModel.onSectionContentAppear)
-        .onDisappear(perform: viewModel.onSectionContentDisappear)
         .interactiveDismissDisabled(viewModel.isSending)
     }
 
