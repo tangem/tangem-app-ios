@@ -42,7 +42,6 @@ protocol OnboardingButtonsInfoProvider {
     var mainButtonIcon: ImageType? { get }
     var supplementButtonTitle: String { get }
     var supplementButtonIcon: ImageType? { get }
-    var isSupplementButtonVisible: Bool { get }
     var checkmarkText: String? { get }
     var infoText: String? { get }
 }
