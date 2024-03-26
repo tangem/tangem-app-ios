@@ -49,12 +49,12 @@ class SendSummaryViewModel: ObservableObject {
 
     @Published var isSendButtonDisabled = false
     @Published var isSending = false
-    @Published var hasNotifications = false
     @Published var alert: AlertBinder?
 
     @Published var destinationViewTypes: [SendDestinationSummaryViewType] = []
     @Published var amountSummaryViewData: SendAmountSummaryViewData?
     @Published var feeSummaryViewData: SendFeeSummaryViewData?
+    @Published var showHint = false
     @Published var transactionDescription: String?
 
     @Published var showSectionContent = false
@@ -109,6 +109,9 @@ class SendSummaryViewModel: ObservableObject {
         if isSending {
             return
         }
+
+        AppSettings.shared.userDidTapSendScreenSummary = true
+        showHint = false
 
         router?.openStep(step)
     }
@@ -187,7 +190,7 @@ class SendSummaryViewModel: ObservableObject {
             .notificationPublisher(for: .summary)
             .sink { [weak self] notificationInputs in
                 self?.notificationInputs = notificationInputs
-                self?.hasNotifications = !notificationInputs.isEmpty
+                self?.showHint = notificationInputs.isEmpty && !AppSettings.shared.userDidTapSendScreenSummary
             }
             .store(in: &bag)
 
