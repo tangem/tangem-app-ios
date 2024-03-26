@@ -712,7 +712,7 @@
 		DA1D3B792B56DC7800247393 /* QRScanViewRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D3B782B56DC7800247393 /* QRScanViewRoutable.swift */; };
 		DA1DC0CD2B7F4D5100395A1F /* FakeSendNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1DC0CC2B7F4D5100395A1F /* FakeSendNotificationManager.swift */; };
 		DA1DF0452BA3E3AC008310E4 /* SendFeeSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1DF0442BA3E3AC008310E4 /* SendFeeSummaryView.swift */; };
-		DA1DF0472BA3E3B1008310E4 /* SendFeeSummaryViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1DF0462BA3E3B1008310E4 /* SendFeeSummaryViewData.swift */; };
+		DA1DF0472BA3E3B1008310E4 /* SendFeeSummaryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1DF0462BA3E3B1008310E4 /* SendFeeSummaryViewModel.swift */; };
 		DA1DF0492BA3E496008310E4 /* SendAmountSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1DF0482BA3E496008310E4 /* SendAmountSummaryView.swift */; };
 		DA1DF04B2BA3E4A0008310E4 /* SendAmountSummaryViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1DF04A2BA3E4A0008310E4 /* SendAmountSummaryViewData.swift */; };
 		DA1DF04F2BA40D44008310E4 /* HintView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1DF04E2BA40D44008310E4 /* HintView.swift */; };
@@ -2184,7 +2184,7 @@
 		DA1D3B782B56DC7800247393 /* QRScanViewRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScanViewRoutable.swift; sourceTree = "<group>"; };
 		DA1DC0CC2B7F4D5100395A1F /* FakeSendNotificationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FakeSendNotificationManager.swift; sourceTree = "<group>"; };
 		DA1DF0442BA3E3AC008310E4 /* SendFeeSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFeeSummaryView.swift; sourceTree = "<group>"; };
-		DA1DF0462BA3E3B1008310E4 /* SendFeeSummaryViewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFeeSummaryViewData.swift; sourceTree = "<group>"; };
+		DA1DF0462BA3E3B1008310E4 /* SendFeeSummaryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFeeSummaryViewModel.swift; sourceTree = "<group>"; };
 		DA1DF0482BA3E496008310E4 /* SendAmountSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAmountSummaryView.swift; sourceTree = "<group>"; };
 		DA1DF04A2BA3E4A0008310E4 /* SendAmountSummaryViewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAmountSummaryViewData.swift; sourceTree = "<group>"; };
 		DA1DF04E2BA40D44008310E4 /* HintView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HintView.swift; sourceTree = "<group>"; };
@@ -5491,7 +5491,7 @@
 				DA8C67242B0B44EF00E1C9B8 /* SendDestinationAddressSummaryView.swift */,
 				DA8C67252B0B44EF00E1C9B8 /* SendDestinationSummaryViewType.swift */,
 				DA1DF0442BA3E3AC008310E4 /* SendFeeSummaryView.swift */,
-				DA1DF0462BA3E3B1008310E4 /* SendFeeSummaryViewData.swift */,
+				DA1DF0462BA3E3B1008310E4 /* SendFeeSummaryViewModel.swift */,
 			);
 			path = Summary;
 			sourceTree = "<group>";
@@ -8728,7 +8728,7 @@
 				B6C4D7322B1A71480084AF1E /* BottomScrollableSheet+Environment.swift in Sources */,
 				B03156AA2A8636CB001D9646 /* TokenItemViewState+WalletModelState.swift in Sources */,
 				5D242A5F273C1F24008F79B5 /* Publisher+.swift in Sources */,
-				DA1DF0472BA3E3B1008310E4 /* SendFeeSummaryViewData.swift in Sources */,
+				DA1DF0472BA3E3B1008310E4 /* SendFeeSummaryViewModel.swift in Sources */,
 				2DC567812B0E047700B0244F /* MainBottomSheetVisibility.swift in Sources */,
 				5D24A12A24FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift in Sources */,
 				B003BDAC2A029C4300B282F7 /* BalanceConverter.swift in Sources */,
