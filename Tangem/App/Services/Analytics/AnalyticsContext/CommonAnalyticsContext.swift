@@ -47,10 +47,12 @@ class CommonAnalyticsContext: AnalyticsContext {
 
     private func makeId(for scope: AnalyticsContextScope) -> String? {
         switch scope {
-        case .userWallet(let userWalletId):
-            return userWalletId.stringValue
-        case .common:
-            return Constants.commonContextId
+        case .userWallet(let userWalletId, let extraEventId):
+            let extraId = extraEventId ?? ""
+            return userWalletId.stringValue + extraId
+        case .common(let extraEventId):
+            let extraId = extraEventId ?? ""
+            return Constants.commonContextId + extraId
         }
     }
 }
