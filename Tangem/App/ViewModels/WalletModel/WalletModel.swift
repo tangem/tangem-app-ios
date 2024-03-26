@@ -332,13 +332,10 @@ class WalletModel {
         switch walletManagerState {
         case .loaded:
             return .idle
+        case .failed(WalletError.noAccount(let message, let amountToCreate)):
+            return .noAccount(message: message, amountToCreate: amountToCreate)
         case .failed(let error):
-            switch error as? WalletError {
-            case .noAccount(let message, _):
-                return .noAccount(message: message)
-            default:
-                return .failed(error: error.detailedError.localizedDescription)
-            }
+            return .failed(error: error.detailedError.localizedDescription)
         case .loading:
             return .loading
         case .initial:
