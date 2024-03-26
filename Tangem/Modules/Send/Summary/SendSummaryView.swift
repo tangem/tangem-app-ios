@@ -76,6 +76,7 @@ struct SendSummaryView: View {
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 16)
+                    .visible(viewModel.showTransactionDescription)
             }
 
             sendButton
