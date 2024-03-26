@@ -24,6 +24,12 @@ struct SendFeeView: View {
                             .setNamespace(namespace)
                             .setOptionNamespaceId(SendViewNamespaceId.feeOption.rawValue)
                             .setAmountNamespaceId(SendViewNamespaceId.feeAmount.rawValue)
+                            .overlay(alignment: .topLeading) {
+                                Text(Localization.commonNetworkFeeTitle)
+                                    .font(Fonts.Regular.footnote)
+                                    .visible(false)
+                                    .matchedGeometryEffect(id: SendViewNamespaceId.feeTitle.rawValue, in: namespace)
+                            }
                     } else {
                         if !viewModel.animatingAuxiliaryViewsOnAppear {
                             FeeRowView(viewModel: feeRowViewModel)

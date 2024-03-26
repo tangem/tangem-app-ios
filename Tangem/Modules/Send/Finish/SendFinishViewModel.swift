@@ -30,7 +30,7 @@ class SendFinishViewModel: ObservableObject {
 
     let destinationViewTypes: [SendDestinationSummaryViewType]
     let amountSummaryViewData: SendAmountSummaryViewData?
-    let feeSummaryViewData: SendFeeSummaryViewData?
+    let feeSummaryViewData: SendFeeSummaryViewModel?
 
     weak var router: SendFinishRoutable?
 
@@ -61,7 +61,7 @@ class SendFinishViewModel: ObservableObject {
             from: fiatCryptoValueProvider.formattedAmount,
             amountAlternative: fiatCryptoValueProvider.formattedAmountAlternative
         )
-        feeSummaryViewData = sectionViewModelFactory.makeFeeViewData(from: input.feeValue, feeOption: input.selectedFeeOption)
+        feeSummaryViewData = sectionViewModelFactory.makeFeeViewData(from: input.feeValue, feeOption: input.selectedFeeOption, animateTitleOnAppear: false)
 
         let formatter = DateFormatter()
         formatter.dateStyle = .long
