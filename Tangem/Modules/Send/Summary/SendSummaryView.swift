@@ -13,9 +13,11 @@ struct SendSummaryView: View {
 
     @ObservedObject var viewModel: SendSummaryViewModel
 
+    private let spacing: CGFloat = 14
+
     var body: some View {
         VStack(spacing: 14) {
-            GroupedScrollView(spacing: 14) {
+            GroupedScrollView(spacing: 0) {
                 GroupedSection(viewModel.destinationViewTypes) { type in
                     switch type {
                     case .address(let address):
@@ -34,6 +36,8 @@ struct SendSummaryView: View {
                     viewModel.didTapSummary(for: .destination)
                 }
 
+                FixedSpacer(height: spacing)
+
                 GroupedSection(viewModel.amountSummaryViewData) { data in
                     amountSectionContent(data: data)
                 }
@@ -45,24 +49,26 @@ struct SendSummaryView: View {
                     viewModel.didTapSummary(for: .amount)
                 }
 
-                VStack(spacing: 8) {
-                    GroupedSection(viewModel.feeSummaryViewData) { data in
-                        feeSectionContent(data: data)
-                    }
-                    .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        viewModel.didTapSummary(for: .fee)
-                    }
+                FixedSpacer(height: spacing)
 
-                    if viewModel.showHint {
-                        HintView(
-                            text: Localization.sendSummaryTapHint,
-                            font: Fonts.Regular.footnote,
-                            textColor: Colors.Text.secondary,
-                            backgroundColor: Colors.Button.secondary
-                        )
-                    }
+                GroupedSection(viewModel.feeSummaryViewData) { data in
+                    feeSectionContent(data: data)
+                }
+                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    viewModel.didTapSummary(for: .fee)
+                }
+
+                FixedSpacer(height: 8)
+
+                if viewModel.showHint {
+                    HintView(
+                        text: Localization.sendSummaryTapHint,
+                        font: Fonts.Regular.footnote,
+                        textColor: Colors.Text.secondary,
+                        backgroundColor: Colors.Button.secondary
+                    )
                 }
 
                 ForEach(viewModel.notificationInputs) { input in
