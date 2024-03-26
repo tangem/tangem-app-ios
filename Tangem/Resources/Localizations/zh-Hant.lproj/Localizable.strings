@@ -67,6 +67,7 @@
 "common_continue" = "繼續";
 "common_copy" = "複製";
 "common_copy_address" = "複製地址";
+"common_create" = "創造";
 "common_delete" = "刪除";
 "common_disabled" = "禁用";
 "common_disconnect" = "斷開連接";
@@ -273,14 +274,15 @@
 "manage_tokens_unavailable_vote" = "Upvote";
 "manage_tokens_wallet_selector_title" = "Choose wallet";
 "manage_tokens_wallet_support_only_one_network_title" = "The wallet doesn't support more than one network";
-"onboarding_access_code_feature_1_description" = "您必須設置一個單一的訪問代碼來保護您的所有錢包";
+"onboarding_access_code_feature_1_description" = "You have to set up a single access code to protect all your cards";
 "onboarding_access_code_feature_1_title" = "保護";
 "onboarding_access_code_feature_2_description" = "您可以稍後在每張卡上設置單獨的訪問密碼";
 "onboarding_access_code_feature_2_title" = "個人化";
-"onboarding_access_code_feature_3_description" = "門禁密碼可以用聯動卡恢復，不要把所有卡都放在一個地方";
+"onboarding_access_code_feature_3_description" = "The access code can be restored with a linked card. Don’t keep all cards at one place.";
 "onboarding_access_code_feature_3_title" = "恢復";
 "onboarding_access_code_hint" = "選擇您想要的任何單詞、短語或數字作為您的訪問代碼";
 "onboarding_access_code_intro_title" = "建立訪問密碼";
+"onboarding_access_code_repeat_code_hint" = "Enter your access code one more time to avoid a mistake";
 "onboarding_access_code_repeat_code_title" = "重新輸入訪問密碼";
 "onboarding_access_code_too_short" = "訪問代碼的長度必須至少為 4 個字符";
 "onboarding_access_codes_doesnt_match" = "輸入的訪問密碼與初始訪問密碼不匹配";
@@ -628,6 +630,7 @@
 "warning_express_no_exchangeable_coins_title" = "No available tokens to swap";
 "warning_express_not_enough_fee_for_token_tx_description" = "To make a transaction you need to deposit some %1$@ %2$@";
 "warning_express_not_enough_fee_for_token_tx_title" = "Unable to cover %@ fee";
+"warning_express_notification_invalid_reserve_amount_title" = "The amount to receive must be at least %@";
 "warning_express_refresh_required_title" = "Service temporarily unavailable";
 "warning_express_too_maximum_amount_title" = "The amount of tokens to be swapped must not exceed %@";
 "warning_express_too_minimal_amount_title" = "The amount to swap must be at least %@";

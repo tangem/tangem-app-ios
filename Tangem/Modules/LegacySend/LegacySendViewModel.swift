@@ -979,6 +979,8 @@ extension LegacySendViewModel {
     func openMail(with error: Error) {
         guard let transaction else { return }
 
+        Analytics.log(.requestSupport, params: [.source: .transactionSourceSend])
+
         let emailDataCollector = SendScreenDataCollector(
             userWalletEmailData: userWalletModel.emailData,
             walletModel: walletModel,

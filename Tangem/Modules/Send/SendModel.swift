@@ -246,12 +246,10 @@ class SendModel {
             }
             .store(in: &bag)
 
-        Publishers.CombineLatest(validatedAmount, fee)
-            .removeDuplicates {
-                $0 == $1
-            }
-            .sink { [weak self] validatedAmount, fee in
-                self?.validateFee(fee, validatedAmount: validatedAmount)
+        fee
+            .removeDuplicates()
+            .sink { [weak self] fee in
+                self?.validateFee(fee)
             }
             .store(in: &bag)
 
@@ -428,7 +426,7 @@ class SendModel {
             do {
                 let amount: Amount
                 amount = newAmount
-                try walletModel.transactionCreator.validate(amount: amount)
+                try walletModel.transactionValidator.validate(amount: amount)
 
                 validatedAmount = amount
                 amountError = nil
@@ -445,12 +443,12 @@ class SendModel {
         _amountError.send(amountError)
     }
 
-    private func validateFee(_ fee: Fee?, validatedAmount: Amount?) {
+    private func validateFee(_ fee: Fee?) {
         let feeError: Error?
 
-        if let validatedAmount, let fee {
+        if let fee {
             do {
-                try walletModel.transactionCreator.validate(amount: validatedAmount, fee: fee)
+                try walletModel.transactionValidator.validate(fee: fee.amount)
                 feeError = nil
             } catch let validationError {
                 feeError = validationError
@@ -805,3 +803,5 @@ extension SendModel: SendNotificationManagerInput {
         _withdrawalSuggestion.eraseToAnyPublisher()
     }
 }
+
+extension SendModel: SendFiatCryptoAdapterOutput {}
