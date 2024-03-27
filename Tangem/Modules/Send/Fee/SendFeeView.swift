@@ -80,7 +80,7 @@ struct SendFeeView: View {
 
             Spacer(minLength: bottomSpacing)
         }
-        .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
+//        .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         .onAppear(perform: viewModel.onAppear)
         .onAppear(perform: viewModel.onAuxiliaryViewAppear)
         .onDisappear(perform: viewModel.onAuxiliaryViewDisappear)

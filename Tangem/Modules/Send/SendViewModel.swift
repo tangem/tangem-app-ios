@@ -397,25 +397,45 @@ final class SendViewModel: ObservableObject {
 
         self.stepAnimation = stepAnimation
 
-        let animateStepChanges: () -> Void = {
-            self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
+        if step == .summary {
+            switch self.step {
+            case .destination:
+                sendSummaryViewModel.showAmount = false
+                sendSummaryViewModel.showFee = false
+            case .amount:
+                sendSummaryViewModel.showDestination = false
+                sendSummaryViewModel.showFee = false
+            case .fee:
+                sendSummaryViewModel.showDestination = false
+                sendSummaryViewModel.showAmount = false
+            default:
+                break
+            }
+        }
+
+//        let animateStepChanges: () -> Void = {
+//            self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
+//            self.step = step
+//        }
+//
+//        if stepAnimation != nil {
+//            // Gotta give some time to update animation variable
+//            DispatchQueue.main.async {
+//                animateStepChanges()
+//            }
+//        } else {
+//            animateStepChanges()
+//        }
+//
+//        // Hide the keyboard with a delay, otherwise the animation is going to be screwed up
+//        if !step.opensKeyboardByDefault {
+//            DispatchQueue.main.asyncAfter(deadline: .now() + SendView.Constants.animationDuration) {
+//                UIApplication.shared.endEditing()
+//            }
+//        }
+
+        withAnimation(SendView.Constants.defaultAnimation) {
             self.step = step
-        }
-
-        if stepAnimation != nil {
-            // Gotta give some time to update animation variable
-            DispatchQueue.main.async {
-                animateStepChanges()
-            }
-        } else {
-            animateStepChanges()
-        }
-
-        // Hide the keyboard with a delay, otherwise the animation is going to be screwed up
-        if !step.opensKeyboardByDefault {
-            DispatchQueue.main.asyncAfter(deadline: .now() + SendView.Constants.animationDuration) {
-                UIApplication.shared.endEditing()
-            }
         }
     }
 
