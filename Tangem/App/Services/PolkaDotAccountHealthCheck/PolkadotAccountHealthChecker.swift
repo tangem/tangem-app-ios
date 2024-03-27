@@ -11,6 +11,7 @@ import UIKit
 import BlockchainSdk
 
 // [REDACTED_TODO_COMMENT]
+/// - Warning: Read-write access to all `@AppStorageCompat` properties must be synchronized (e.g. by using `runOnMain(_:)` helper).
 final class PolkadotAccountHealthChecker {
     static let shared = PolkadotAccountHealthChecker()
 
@@ -39,6 +40,8 @@ final class PolkadotAccountHealthChecker {
     private init() {}
 
     func performAccountCheckIfNeeded(_ account: String) {
+        assert(Thread.isMainThread, "Non-synchronized access is prohibited")
+
         guard !fullyAnalyzedAccounts.contains(account) else {
             return
         }
@@ -69,6 +72,8 @@ final class PolkadotAccountHealthChecker {
                     }
                 }
 
+                runOnMain { fullyAnalyzedAccounts.append(account) }
+
                 // `BackgroundTaskWrapper.finish` can be safely called multiple times,
                 // therefore no additional check for the task cancellation here
                 backgroundTask.finish()
@@ -80,7 +85,7 @@ final class PolkadotAccountHealthChecker {
     }
 
     private func checkAccountForReset(_ account: String) async {
-        guard !analyzedForResetAccounts.contains(account) else {
+        guard runOnMain({ !analyzedForResetAccounts.contains(account) }) else {
             return
         }
 
@@ -91,14 +96,14 @@ final class PolkadotAccountHealthChecker {
             try Task.checkCancellation()
 
             // Double checking is a must since theoretically there can be multiple ongoing checks
-            guard !analyzedForResetAccounts.contains(account) else {
+            guard runOnMain({ !analyzedForResetAccounts.contains(account) }) else {
                 return
             }
 
             // `accountInfo.nonceCount` can be equal to or greater than the count of extrinsics,
             // but can't it be less (unless the account has been reset)
             sendAccountHealthMetric(.hasBeenReset(value: accountInfo.nonceCount < accountInfo.extrinsicCount))
-            analyzedForResetAccounts.append(account)
+            runOnMain { analyzedForResetAccounts.append(account) }
         } catch {
             AppLog.shared.debug("Failed to check Polkadot account for reset due to error: '\(error)'")
             AppLog.shared.error(error)
@@ -106,7 +111,7 @@ final class PolkadotAccountHealthChecker {
     }
 
     private func checkIfAccountContainsImmortalTransactions(_ account: String) async {
-        guard !analyzedForImmortalTransactionsAccounts.contains(account) else {
+        guard runOnMain({ !analyzedForImmortalTransactionsAccounts.contains(account) }) else {
             return
         }
 
@@ -116,7 +121,7 @@ final class PolkadotAccountHealthChecker {
             var foundImmortalTransaction = false
 
             transactionsListLoop: while true {
-                let afterId = lastAnalyzedTransactionIds[account, default: Constants.initialTransactionId]
+                let afterId = runOnMain { lastAnalyzedTransactionIds[account, default: Constants.initialTransactionId] }
                 let transactions = try await networkService.getTransactionsList(account: account, afterId: afterId)
                 try Task.checkCancellation()
 
@@ -132,7 +137,7 @@ final class PolkadotAccountHealthChecker {
                     let isTransactionImmortal = try await isTransactionImmortal(transaction)
                     try Task.checkCancellation()
 
-                    lastAnalyzedTransactionIds[account] = transaction.id
+                    runOnMain { lastAnalyzedTransactionIds[account] = transaction.id }
 
                     // Early exit if we've found at least one immortal transaction
                     if isTransactionImmortal {
@@ -146,12 +151,12 @@ final class PolkadotAccountHealthChecker {
             try Task.checkCancellation()
 
             // Double checking is a must since theoretically there can be multiple ongoing checks
-            guard !analyzedForImmortalTransactionsAccounts.contains(account) else {
+            guard runOnMain({ !analyzedForImmortalTransactionsAccounts.contains(account) }) else {
                 return
             }
 
             sendAccountHealthMetric(.hasImmortalTransaction(value: foundImmortalTransaction))
-            analyzedForImmortalTransactionsAccounts.append(account)
+            runOnMain { analyzedForImmortalTransactionsAccounts.append(account) }
         } catch {
             AppLog.shared.debug("Failed to check Polkadot account for immortal transactions due to error: '\(error)'")
             AppLog.shared.error(error)
