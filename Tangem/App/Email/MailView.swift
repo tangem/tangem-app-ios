@@ -104,7 +104,6 @@ struct MailView: UIViewControllerRepresentable {
 
             let destinationFilePath = NSTemporaryDirectory() + destinationFileName
 
-
             try? fileManager.removeItem(atPath: destinationFilePath)
 
             guard let writeFileStream = ArchiveByteStream.fileStream(
