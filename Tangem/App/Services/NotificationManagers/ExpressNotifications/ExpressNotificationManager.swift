@@ -206,14 +206,15 @@ class ExpressNotificationManager {
     }
 }
 
-extension ExpressAPIError {
-    public var localizedMessage: String {
+public extension ExpressAPIError {
+    var localizedMessage: String {
         switch errorCode {
         case .exchangeInternalError:
             return Localization.expressErrorSwapUnavailable(errorCode.rawValue)
         case .exchangeNotPossibleError:
             return Localization.expressErrorSwapPairUnavailable(errorCode.rawValue)
-        case .exchangeProviderNotActiveError, .exchangeProviderNotAvailableError:
+        case .exchangeProviderNotActiveError, .exchangeProviderNotAvailableError,
+             .exchangeProviderProviderInternalError:
             return Localization.expressErrorProviderUnavailable(errorCode.rawValue)
         default:
             return Localization.expressErrorCode(errorCode.localizedDescription)
