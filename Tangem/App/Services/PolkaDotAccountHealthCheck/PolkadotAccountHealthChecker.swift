@@ -41,7 +41,10 @@ final class PolkadotAccountHealthChecker {
     func performAccountCheckIfNeeded(_ account: String) {
         assert(Thread.isMainThread, "Non-synchronized access is prohibited")
 
-        guard !fullyAnalyzedAccounts.contains(account) else {
+        guard
+            !fullyAnalyzedAccounts.contains(account),
+            healthCheckTasks[account] == nil
+        else {
             return
         }
 
@@ -55,32 +58,29 @@ final class PolkadotAccountHealthChecker {
             self?.healthCheckTasks[account] = nil
         }
 
-        await withTaskCancellationHandler(
-            operation: {
-                // This check is required since `operation` closure is called regardless of whether the task is cancelled or not
-                guard !Task.isCancelled else {
-                    return
-                }
+        defer {
+            backgroundTask.finish()
+            runOnMain { healthCheckTasks[account] = nil }
+        }
 
-                await withTaskGroup(of: Void.self) { taskGroup in
-                    taskGroup.addTask {
-                        await self.checkAccountForReset(account)
-                    }
-                    taskGroup.addTask {
-                        await self.checkIfAccountContainsImmortalTransactions(account)
-                    }
-                }
+        guard !Task.isCancelled else {
+            return
+        }
 
-                runOnMain { fullyAnalyzedAccounts.append(account) }
-
-                // `BackgroundTaskWrapper.finish` can be safely called multiple times,
-                // therefore no additional check for the task cancellation here
-                backgroundTask.finish()
-            },
-            onCancel: {
-                backgroundTask.finish()
+        await withTaskGroup(of: Void.self) { taskGroup in
+            taskGroup.addTask {
+                await self.checkAccountForReset(account)
             }
-        )
+            taskGroup.addTask {
+                await self.checkIfAccountContainsImmortalTransactions(account)
+            }
+        }
+
+        guard !Task.isCancelled else {
+            return
+        }
+
+        runOnMain { fullyAnalyzedAccounts.append(account) }
     }
 
     private func checkAccountForReset(_ account: String) async {
