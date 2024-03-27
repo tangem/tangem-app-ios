@@ -19,7 +19,10 @@ protocol PolkadotAccountHealthNetworkService {
 
 extension InjectedValues {
     private struct PolkadotAccountHealthNetworkServiceKey: InjectionKey {
-        static var currentValue: PolkadotAccountHealthNetworkService = SubscanPolkadotAccountHealthNetworkService(isTestnet: false)
+        static var currentValue: PolkadotAccountHealthNetworkService = SubscanPolkadotAccountHealthNetworkService(
+            isTestnet: false,
+            pageSize: 100
+        )
     }
 
     var polkadotAccountHealthNetworkService: PolkadotAccountHealthNetworkService {
