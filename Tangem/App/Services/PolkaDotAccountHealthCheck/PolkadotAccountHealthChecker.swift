@@ -95,7 +95,8 @@ final class PolkadotAccountHealthChecker {
             sendAccountHealthMetric(.hasBeenReset(value: accountInfo.nonceCount < accountInfo.extrinsicCount))
             analyzedForResetAccounts.append(account)
         } catch {
-            print(error) // [REDACTED_TODO_COMMENT]
+            AppLog.shared.debug("Failed to check Polkadot account for reset due to error: '\(error)'")
+            AppLog.shared.error(error)
         }
     }
 
@@ -142,7 +143,8 @@ final class PolkadotAccountHealthChecker {
             sendAccountHealthMetric(.hasImmortalTransaction(value: foundImmortalTransaction))
             analyzedForImmortalTransactionsAccounts.append(account)
         } catch {
-            print(error) // [REDACTED_TODO_COMMENT]
+            AppLog.shared.debug("Failed to check Polkadot account for immortal transactions due to error: '\(error)'")
+            AppLog.shared.error(error)
         }
     }
 
