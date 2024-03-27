@@ -31,6 +31,11 @@ final class PolkadotAccountHealthChecker {
 
     private var healthCheckTasks: [String: Task<Void, Never>] = [:]
 
+    private var transactionInfoCheckDelay: TimeInterval {
+        return Constants.transactionInfoCheckDelayBaseValue
+            + .random(in: Constants.transactionInfoCheckDelayJitterMinValue ... Constants.transactionInfoCheckDelayJitterMaxValue)
+    }
+
     private init() {}
 
     func performAccountCheckIfNeeded(_ account: String) {
@@ -118,7 +123,7 @@ final class PolkadotAccountHealthChecker {
 
                 for transaction in transactions {
                     // Adding small delays between consecutive fetches of transaction details to avoid hitting the API rate limit
-                    try await Task.sleep(seconds: Constants.transactionInfoCheckDelay) // [REDACTED_TODO_COMMENT]
+                    try await Task.sleep(seconds: transactionInfoCheckDelay)
 
                     let isTransactionImmortal = try await isTransactionImmortal(transaction)
                     try Task.checkCancellation()
@@ -191,6 +196,8 @@ private extension PolkadotAccountHealthChecker {
 private extension PolkadotAccountHealthChecker {
     enum Constants {
         static let initialTransactionId = 0
-        static let transactionInfoCheckDelay = 1.0
+        static let transactionInfoCheckDelayBaseValue = 1.5
+        static var transactionInfoCheckDelayJitterMinValue: TimeInterval { -transactionInfoCheckDelayJitterMaxValue }
+        static var transactionInfoCheckDelayJitterMaxValue: TimeInterval { 0.5 }
     }
 }
