@@ -31,7 +31,12 @@ final class BackgroundTasksManager {
                     preconditionFailure("Unsupported type of background task '\(type(of: task))' received")
                 }
             }
-            assert(result, "Can't register background task with identifier '\(identifier)'")
+
+            if !result {
+                let message = "Can't register background task with identifier '\(identifier)'"
+                assertionFailure(message)
+                AppLog.shared.error(message)
+            }
         }
     }
 
