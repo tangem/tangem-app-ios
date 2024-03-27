@@ -40,6 +40,10 @@ class AppLog {
         Log.debug(message())
     }
 
+    func debugDetailed<T>(file: StaticString = #fileID, line: UInt = #line, _ message: @autoclosure () -> T) {
+        Log.debug("\(file):\(line): \(message())")
+    }
+
     func error(_ error: Error) {
         self.error(error: error, params: [:])
     }
