@@ -62,14 +62,16 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
             .sink { viewModel, walletModelState in
                 viewModel.updateCardBalanceText(for: walletModel)
                 switch walletModelState {
-                case .noAccount(let message):
+                case .noAccount(let message, _):
                     AppLog.shared.debug(message)
                     fallthrough
                 case .idle:
                     if shouldGoToNextStep,
                        !walletModel.isEmptyIncludingPendingIncomingTxs,
                        !walletModel.isZeroAmount {
-                        Analytics.logTopUpIfNeeded(balance: walletModel.fiatValue ?? 0)
+                        if let userWalletId = viewModel.userWalletModel?.userWalletId {
+                            Analytics.logTopUpIfNeeded(balance: walletModel.fiatValue ?? 0, for: userWalletId)
+                        }
                         viewModel.goToNextStep()
                         viewModel.walletModelUpdateCancellable = nil
                         return
