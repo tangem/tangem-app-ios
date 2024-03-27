@@ -40,6 +40,14 @@ final class BackgroundTasksManager {
         }
     }
 
+    func schedule() {
+        // [REDACTED_TODO_COMMENT]
+    }
+
+    func cancel() {
+        // [REDACTED_TODO_COMMENT]
+    }
+
     private func handleBackgroundProcessingTask(_ task: BGProcessingTask) {
         // [REDACTED_TODO_COMMENT]
     }
