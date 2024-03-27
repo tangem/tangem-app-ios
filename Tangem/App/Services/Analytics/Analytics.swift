@@ -33,7 +33,7 @@ class Analytics {
         }
 
         analyticsContext.removeValue(forKey: .scanSource, scope: .common)
-        logEventInternal(.cardWasScanned, params: [.commonSource: source.cardWasScannedParameterValue.rawValue])
+        logEventInternal(.cardWasScanned, params: [.source: source.cardWasScannedParameterValue.rawValue])
     }
 
     // MARK: - Others
@@ -56,7 +56,7 @@ class Analytics {
         Analytics.log(
             .addressEntered,
             params: [
-                .commonSource: source.parameterValue,
+                .source: source.parameterValue,
                 .validation: validationResult,
             ]
         )
