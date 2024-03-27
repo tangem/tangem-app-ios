@@ -52,26 +52,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
-    func zip(itemAtURL itemURL: URL, in destinationFolderURL: URL, zipName: String, completion: @escaping (Result<URL, Error>) -> Void) throws {
-        var error: NSError?
-        NSFileCoordinator().coordinate(readingItemAt: itemURL, options: [.forUploading], error: &error) { zipUrl in
-            // zipUrl points to the zip file created by [REDACTED_AUTHOR]
-            // zipUrl is valid only until the end of this block, so we move the file to a temporary folder
-            let finalUrl = destinationFolderURL.appendingPathComponent(zipName)
-            do {
-                try? FileManager.default.removeItem(at: finalUrl)
-                try FileManager.default.moveItem(at: zipUrl, to: finalUrl)
-                completion(.success(finalUrl))
-            } catch let localError {
-                completion(.failure(localError))
-            }
-        }
-
-        if let error {
-            throw error
-        }
-    }
-
     // MARK: UISceneSession Lifecycle
 
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
