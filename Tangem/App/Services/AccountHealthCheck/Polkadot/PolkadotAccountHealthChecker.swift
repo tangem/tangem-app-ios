@@ -14,9 +14,6 @@ import BlockchainSdk
 final class PolkadotAccountHealthChecker {
     private let networkService: PolkadotAccountHealthNetworkService
 
-    @AppStorageCompat(StorageKeys.fullyAnalyzedAccounts)
-    private var fullyAnalyzedAccounts: [String] = []
-
     @AppStorageCompat(StorageKeys.analyzedForResetAccounts)
     private var analyzedForResetAccounts: [String] = []
 
@@ -27,6 +24,8 @@ final class PolkadotAccountHealthChecker {
     private var lastAnalyzedTransactionIds: [String: Int] = [:]
 
     private var healthCheckTasks: [String: Task<Void, Never>] = [:]
+
+    private var currentlyAnalyzedAccounts: Set<String> = []
 
     private var transactionInfoCheckDelay: TimeInterval {
         return Constants.transactionInfoCheckDelayBaseValue
@@ -62,11 +61,7 @@ final class PolkadotAccountHealthChecker {
             }
         }
 
-        guard !Task.isCancelled else {
-            return
-        }
-
-        runOnMain { fullyAnalyzedAccounts.append(account) }
+        runOnMain { currentlyAnalyzedAccounts.remove(account) }
     }
 
     private func checkAccountForReset(_ account: String) async {
@@ -171,12 +166,13 @@ extension PolkadotAccountHealthChecker: AccountHealthChecker {
         assert(Thread.isMainThread, "Non-synchronized access is prohibited")
 
         guard
-            !fullyAnalyzedAccounts.contains(account),
-            healthCheckTasks[account] == nil
+            !analyzedForResetAccounts.contains(account) || !analyzedForImmortalTransactionsAccounts.contains(account),
+            !currentlyAnalyzedAccounts.contains(account)
         else {
             return
         }
 
+        currentlyAnalyzedAccounts.insert(account)
         healthCheckTasks[account] = runTask(in: self) { await $0.checkAccount(account) }
     }
 }
