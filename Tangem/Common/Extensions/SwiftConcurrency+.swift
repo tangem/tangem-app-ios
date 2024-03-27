@@ -59,6 +59,7 @@ func runInTask<T>(_ code: @escaping () async -> T) async throws -> T {
     }.value
 }
 
+@discardableResult
 @MainActor
 func runOnMain<T>(_ code: () throws -> T) rethrows -> T {
     return try code()
