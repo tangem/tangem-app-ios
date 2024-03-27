@@ -14,6 +14,7 @@ import BlockchainSdk
 class TotalBalanceProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
+    private let userWalletId: UserWalletId
     private let walletModelsManager: WalletModelsManager
     private let derivationManager: DerivationManager?
 
@@ -23,9 +24,11 @@ class TotalBalanceProvider {
     private var updateSubscription: AnyCancellable?
 
     init(
+        userWalletId: UserWalletId,
         walletModelsManager: WalletModelsManager,
         derivationManager: DerivationManager?
     ) {
+        self.userWalletId = userWalletId
         self.walletModelsManager = walletModelsManager
         self.derivationManager = derivationManager
 
@@ -159,7 +162,7 @@ private extension TotalBalanceProvider {
 
         // It is also empty when derivation is missing
         if let balance, !hasEntriesWithoutDerivation {
-            Analytics.logTopUpIfNeeded(balance: balance)
+            Analytics.logTopUpIfNeeded(balance: balance, for: userWalletId)
         }
 
         Analytics.log(
@@ -170,7 +173,8 @@ private extension TotalBalanceProvider {
                     hasError: hasError,
                     balance: balance
                 ),
-            ]
+            ],
+            limit: .userWalletSession(userWalletId: userWalletId)
         )
 
         let mainCoinModels = walletModels.filter { $0.isMainToken }
@@ -192,7 +196,8 @@ private extension TotalBalanceProvider {
                 params: [
                     .token: trackedModel.blockchainNetwork.blockchain.currencySymbol,
                     .state: balanceValue > 0 ? Analytics.ParameterValue.full.rawValue : Analytics.ParameterValue.empty.rawValue,
-                ]
+                ],
+                limit: .userWalletSession(userWalletId: userWalletId, extraEventId: trackedModel.blockchainNetwork.blockchain.currencySymbol)
             )
         }
 
