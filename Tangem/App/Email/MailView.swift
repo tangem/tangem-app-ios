@@ -8,10 +8,6 @@
 
 import SwiftUI
 import MessageUI
-import Compression
-import AppleArchive
-import System
-import Foundation
 import ZIPFoundation
 
 struct MailView: UIViewControllerRepresentable {
