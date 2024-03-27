@@ -5113,6 +5113,15 @@
 			path = UserTokensReordering;
 			sourceTree = "<group>";
 		};
+		B65DB3412BB4129300BE0501 /* Polkadot */ = {
+			isa = PBXGroup;
+			children = (
+				B675C3752BACB8AA007BE1DC /* PolkadotAccountHealthChecker.swift */,
+				B6961B1F2BB2FD2900FE266D /* PolkadotAccountHealthNetworkService.swift */,
+			);
+			path = Polkadot;
+			sourceTree = "<group>";
+		};
 		B673FC3F2B1BF73A0089944C /* ViewModifiers */ = {
 			isa = PBXGroup;
 			children = (
@@ -5137,14 +5146,13 @@
 			path = CardsInfoPagerView;
 			sourceTree = "<group>";
 		};
-		B675C35D2BAC8A0E007BE1DC /* PolkaDotAccountHealthCheck */ = {
+		B675C35D2BAC8A0E007BE1DC /* AccountHealthCheck */ = {
 			isa = PBXGroup;
 			children = (
+				B65DB3412BB4129300BE0501 /* Polkadot */,
 				B65DB33D2BB4101000BE0501 /* AccountHealthChecker.swift */,
-				B675C3752BACB8AA007BE1DC /* PolkadotAccountHealthChecker.swift */,
-				B6961B1F2BB2FD2900FE266D /* PolkadotAccountHealthNetworkService.swift */,
 			);
-			path = PolkaDotAccountHealthCheck;
+			path = AccountHealthCheck;
 			sourceTree = "<group>";
 		};
 		B67688ED2B078EBB006C94F7 /* Overlay */ = {
@@ -5813,7 +5821,7 @@
 		DC0A57DA2822A4DC0031BECC /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				B675C35D2BAC8A0E007BE1DC /* PolkaDotAccountHealthCheck */,
+				B675C35D2BAC8A0E007BE1DC /* AccountHealthCheck */,
 				B68728722B7D4B870090C24F /* BlockchainDataStorage */,
 				B687286D2B7D48A70090C24F /* BlockchainAccountCreator */,
 				EF9E38032B74E6B5004B694C /* BannerPromotionNotification */,
