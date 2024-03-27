@@ -35,7 +35,6 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
 
     var analyticsContextData: AnalyticsContextData {
         .init(
-            id: "",
             productType: .other,
             batchId: "",
             firmware: "",
