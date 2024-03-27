@@ -83,10 +83,12 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                 tokenItem: .blockchain(blockchainNetwork),
                 addresses: walletManager.wallet.addresses.map { $0.value }
             )
+            let shouldPerformHealthCheck = shouldPerformHealthCheck(blockchain: currentBlockchain, amountType: .coin)
             let mainCoinModel = WalletModel(
                 walletManager: walletManager,
                 transactionHistoryService: transactionHistoryService,
                 amountType: .coin,
+                shouldPerformHealthCheck: shouldPerformHealthCheck,
                 isCustom: isMainCoinCustom
             )
             models.append(mainCoinModel)
@@ -100,10 +102,12 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                     tokenItem: .token(token, blockchainNetwork),
                     addresses: walletManager.wallet.addresses.map { $0.value }
                 )
+                let shouldPerformHealthCheck = shouldPerformHealthCheck(blockchain: currentBlockchain, amountType: amountType)
                 let tokenModel = WalletModel(
                     walletManager: walletManager,
                     transactionHistoryService: transactionHistoryService,
                     amountType: amountType,
+                    shouldPerformHealthCheck: shouldPerformHealthCheck,
                     isCustom: isTokenCustom
                 )
                 models.append(tokenModel)
@@ -111,5 +115,15 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
         }
 
         return models
+    }
+
+    /// For now, an account health check is only required for Polkadot Mainnet.
+    private func shouldPerformHealthCheck(blockchain: Blockchain, amountType: Amount.AmountType) -> Bool {
+        switch (blockchain, amountType) {
+        case (.polkadot(_, let isTestnet), .coin):
+            return !isTestnet
+        default:
+            return false
+        }
     }
 }
