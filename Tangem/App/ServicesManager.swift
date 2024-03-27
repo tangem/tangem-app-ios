@@ -66,9 +66,7 @@ class ServicesManager {
     /// - Note: MUST be called before the end of `applicationDidFinishLaunching(_:)` method call, see
     /// https://developer.apple.com/documentation/backgroundtasks/bgtaskscheduler/3180427-register for details.
     private func configureBackgroundTasksManager() {
-        guard let bundleIdentifier: String = InfoDictionaryUtils.bundleIdentifier.value() else {
-            preconditionFailure("Unable to get app bundle identifier")
-        }
+        let bundleIdentifier = InfoDictionaryUtils.bundleIdentifier.value() ?? ""
 
         BackgroundTasksManager.shared.registerBackgroundTasks(
             [.polkadotAccountHealthCheck],
