@@ -60,8 +60,8 @@ func runInTask<T>(_ code: @escaping () async -> T) async throws -> T {
 }
 
 @MainActor
-func runOnMain(_ code: () -> Void) {
-    code()
+func runOnMain<T>(_ code: () throws -> T) rethrows -> T {
+    return try code()
 }
 
 extension Task where Success == Never, Failure == Never {
