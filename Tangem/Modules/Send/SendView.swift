@@ -46,7 +46,10 @@ struct SendView: View {
         case .slideBackward:
             return .asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .trailing))
         case .none:
-            return .opacity
+            return .asymmetric(
+                insertion: .opacity,
+                removal: .opacity.animation(.spring(duration: SendView.Constants.animationDuration / 2))
+            )
         }
     }
 
