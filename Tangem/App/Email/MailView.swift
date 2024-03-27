@@ -72,85 +72,21 @@ struct MailView: UIViewControllerRepresentable {
         vc.setMessageBody(messageBody, isHTML: false)
 
         let logFiles = viewModel.logsComposer.getLogFiles()
-        let fileManager = FileManager()
-//        logFiles.forEach { originalURL in
-//            let zipName = (originalURL.lastPathComponent as NSString).deletingPathExtension + ".zip"
-//            let destinationURL = fileManager.temporaryDirectory.appendingPathComponent(zipName, conformingTo: .zip)
-//            do {
-//                try? fileManager.removeItem(at: destinationURL)
-//                try fileManager.zipItem(at: originalURL, to: destinationURL, compressionMethod: .deflate)
-//                let data = (try? Data(contentsOf: destinationURL)) ?? Data()
-//                vc.addAttachmentData(data, mimeType: "application/zip", fileName: zipName)
-//            } catch {
-//                print("Creation of ZIP archive failed with error:\(error)")
-//            }
-//        }
-
+        let fileManager = FileManager.default
         logFiles.forEach { originalURL in
-            guard let path = FilePath(originalURL),
-                  let readFileStream = ArchiveByteStream.fileStream(
-                      path: path,
-                      mode: .readOnly,
-                      options: [],
-                      permissions: FilePermissions(rawValue: 0o644)
-                  ) else {
-                return
-            }
-            defer {
-                try? readFileStream.close()
-            }
-
-            let destinationFileName = originalURL.lastPathComponent + ".lzfse"
-
-            let destinationFilePath = NSTemporaryDirectory() + destinationFileName
-
-            try? fileManager.removeItem(atPath: destinationFilePath)
-
-            guard let writeFileStream = ArchiveByteStream.fileStream(
-                path: FilePath(destinationFilePath),
-                mode: .writeOnly,
-                options: [.create],
-                permissions: FilePermissions(rawValue: 0o644)
-            ) else {
-                return
-            }
-            defer {
-                try? writeFileStream.close()
-            }
-
-            guard let compressStream = ArchiveByteStream.compressionStream(
-                using: .zlib,
-                writingTo: writeFileStream
-            ) else {
-                return
-            }
-            defer {
-                try? compressStream.close()
-            }
-
+            let archiveName = originalURL.appendingPathExtension(for: .zip).lastPathComponent
+            let destinationURL = fileManager.temporaryDirectory.appendingPathComponent(archiveName, conformingTo: .zip)
             do {
-                let archives = try ArchiveByteStream.process(
-                    readingFrom: readFileStream,
-                    writingTo: compressStream
-                )
-                print(archives)
+                try? fileManager.removeItem(at: destinationURL)
+                try fileManager.zipItem(at: originalURL, to: destinationURL, compressionMethod: .deflate)
+                let data = try Data(contentsOf: destinationURL)
+                vc.addAttachmentData(data, mimeType: "application/zip", fileName: archiveName)
             } catch {
-                print("Handle `ArchiveByteStream.process` failed. with error: \(error)")
+                if let data = try? Data(contentsOf: originalURL) {
+                    vc.addAttachmentData(data, mimeType: "text/plain", fileName: originalURL.lastPathComponent)
+                }
             }
-
-            let archiveURL = URL(fileURLWithPath: destinationFilePath, isDirectory: false)
-            vc.addAttachmentData((try? Data(contentsOf: archiveURL)) ?? Data(), mimeType: "application/appleArchive", fileName: destinationFileName)
         }
-
-//        viewModel.logsComposer.getLogsData().forEach { data in
-//            let archiveName = (data.key as NSString).deletingPathExtension + ".aar"
-//            let archiveURL = fileManager.temporaryDirectory.appendingPathComponent(archiveName, conformingTo: .appleArchive)
-//            if let archive = try? data.value.compressed(using: .zlib) {
-//                vc.addAttachmentData(archive, mimeType: "application/appleArchive", fileName: archiveName)
-//            } else {
-//                vc.addAttachmentData(data.value, mimeType: "text/plain", fileName: data.key)
-//            }
-//        }
 
         return vc
     }
