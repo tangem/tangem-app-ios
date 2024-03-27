@@ -18,46 +18,52 @@ struct SendSummaryView: View {
     var body: some View {
         VStack(spacing: 14) {
             GroupedScrollView(spacing: 0) {
-                GroupedSection(viewModel.destinationViewTypes) { type in
-                    switch type {
-                    case .address(let address):
-                        SendDestinationAddressSummaryView(address: address)
-                            .setNamespace(namespace)
-                    case .additionalField(let type, let value):
-                        if let name = type.name {
-                            DefaultTextWithTitleRowView(data: .init(title: name, text: value))
+                if viewModel.showDestination {
+                    GroupedSection(viewModel.destinationViewTypes) { type in
+                        switch type {
+                        case .address(let address):
+                            SendDestinationAddressSummaryView(address: address)
+                                .setNamespace(namespace)
+                        case .additionalField(let type, let value):
+                            if let name = type.name {
+                                DefaultTextWithTitleRowView(data: .init(title: name, text: value))
+                            }
                         }
                     }
-                }
-                .backgroundColor(viewModel.destinationBackground, id: SendViewNamespaceId.addressContainer.rawValue, namespace: namespace)
-                .contentShape(Rectangle())
-                .allowsHitTesting(viewModel.canEditDestination)
-                .onTapGesture {
-                    viewModel.didTapSummary(for: .destination)
-                }
-
-                FixedSpacer(height: spacing)
-
-                GroupedSection(viewModel.amountSummaryViewData) { data in
-                    amountSectionContent(data: data)
-                }
-                .innerContentPadding(0)
-                .backgroundColor(viewModel.amountBackground, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
-                .contentShape(Rectangle())
-                .allowsHitTesting(viewModel.canEditAmount)
-                .onTapGesture {
-                    viewModel.didTapSummary(for: .amount)
+                    .backgroundColor(viewModel.destinationBackground, id: SendViewNamespaceId.addressContainer.rawValue, namespace: namespace)
+                    .contentShape(Rectangle())
+                    .allowsHitTesting(viewModel.canEditDestination)
+                    .onTapGesture {
+                        viewModel.didTapSummary(for: .destination)
+                    }
                 }
 
                 FixedSpacer(height: spacing)
 
-                GroupedSection(viewModel.feeSummaryViewData) { data in
-                    feeSectionContent(data: data)
+                if viewModel.showAmount {
+                    GroupedSection(viewModel.amountSummaryViewData) { data in
+                        amountSectionContent(data: data)
+                    }
+                    .innerContentPadding(0)
+                    .backgroundColor(viewModel.amountBackground, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
+                    .contentShape(Rectangle())
+                    .allowsHitTesting(viewModel.canEditAmount)
+                    .onTapGesture {
+                        viewModel.didTapSummary(for: .amount)
+                    }
                 }
-                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    viewModel.didTapSummary(for: .fee)
+
+                FixedSpacer(height: spacing)
+
+                if viewModel.showFee {
+                    GroupedSection(viewModel.feeSummaryViewData) { data in
+                        feeSectionContent(data: data)
+                    }
+                    .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        viewModel.didTapSummary(for: .fee)
+                    }
                 }
 
                 FixedSpacer(height: 8)
