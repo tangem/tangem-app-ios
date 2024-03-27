@@ -14,23 +14,3 @@ protocol PolkadotAccountHealthNetworkService {
     func getTransactionsList(account: String, afterId: Int) async throws -> [PolkadotTransaction]
     func getTransactionDetails(hash: String) async throws -> PolkadotTransactionDetails
 }
-
-// MARK: - Dependency injection
-
-extension InjectedValues {
-    private struct PolkadotAccountHealthNetworkServiceKey: InjectionKey {
-        static var currentValue: PolkadotAccountHealthNetworkService = SubscanPolkadotAccountHealthNetworkService(
-            isTestnet: false,
-            pageSize: 100
-        )
-    }
-
-    var polkadotAccountHealthNetworkService: PolkadotAccountHealthNetworkService {
-        get { Self[PolkadotAccountHealthNetworkServiceKey.self] }
-        set { Self[PolkadotAccountHealthNetworkServiceKey.self] = newValue }
-    }
-}
-
-// MARK: - PolkadotAccountHealthNetworkService protocol conformance
-
-extension SubscanPolkadotAccountHealthNetworkService: PolkadotAccountHealthNetworkService {}

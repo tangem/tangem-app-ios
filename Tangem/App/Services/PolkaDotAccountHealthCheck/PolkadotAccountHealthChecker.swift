@@ -12,10 +12,7 @@ import BlockchainSdk
 
 /// - Warning: Read-write access to all `@AppStorageCompat` properties must be synchronized (e.g. by using `runOnMain(_:)` helper).
 final class PolkadotAccountHealthChecker {
-    static let shared = PolkadotAccountHealthChecker()
-
-    @Injected(\.polkadotAccountHealthNetworkService)
-    private var networkService: PolkadotAccountHealthNetworkService
+    private let networkService: PolkadotAccountHealthNetworkService
 
     @AppStorageCompat(StorageKeys.fullyAnalyzedAccounts)
     private var fullyAnalyzedAccounts: [String] = []
@@ -36,19 +33,8 @@ final class PolkadotAccountHealthChecker {
             + .random(in: Constants.transactionInfoCheckDelayJitterMinValue ... Constants.transactionInfoCheckDelayJitterMaxValue)
     }
 
-    private init() {}
-
-    func performAccountCheckIfNeeded(_ account: String) {
-        assert(Thread.isMainThread, "Non-synchronized access is prohibited")
-
-        guard
-            !fullyAnalyzedAccounts.contains(account),
-            healthCheckTasks[account] == nil
-        else {
-            return
-        }
-
-        healthCheckTasks[account] = runTask(in: self) { await $0.checkAccount(account) }
+    init(networkService: PolkadotAccountHealthNetworkService) {
+        self.networkService = networkService
     }
 
     private func checkAccount(_ account: String) async {
@@ -175,6 +161,23 @@ final class PolkadotAccountHealthChecker {
             let value: Analytics.ParameterValue = .affirmativeOrNegative(for: value)
             Analytics.log(event: .healthCheckPolkadotImmortalTransactions, params: [.state: value.rawValue])
         }
+    }
+}
+
+// MARK: - AccountHealthChecker protocol conformance
+
+extension PolkadotAccountHealthChecker: AccountHealthChecker {
+    func performAccountCheckIfNeeded(_ account: String) {
+        assert(Thread.isMainThread, "Non-synchronized access is prohibited")
+
+        guard
+            !fullyAnalyzedAccounts.contains(account),
+            healthCheckTasks[account] == nil
+        else {
+            return
+        }
+
+        healthCheckTasks[account] = runTask(in: self) { await $0.checkAccount(account) }
     }
 }
 
