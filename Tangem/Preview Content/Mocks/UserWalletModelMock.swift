@@ -53,7 +53,6 @@ class UserWalletModelMock: UserWalletModel {
 
     var analyticsContextData: AnalyticsContextData {
         .init(
-            id: "",
             productType: .other,
             batchId: "",
             firmware: "",
