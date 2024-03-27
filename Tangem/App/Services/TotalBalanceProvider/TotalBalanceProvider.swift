@@ -197,7 +197,7 @@ private extension TotalBalanceProvider {
                     .token: trackedModel.blockchainNetwork.blockchain.currencySymbol,
                     .state: balanceValue > 0 ? Analytics.ParameterValue.full.rawValue : Analytics.ParameterValue.empty.rawValue,
                 ],
-                limit: .userWalletSession(userWalletId: userWalletId)
+                limit: .userWalletSession(userWalletId: userWalletId, extraEventId: trackedModel.blockchainNetwork.blockchain.currencySymbol)
             )
         }
 
