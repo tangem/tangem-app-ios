@@ -28,6 +28,10 @@ protocol SendSummaryViewModelInput: AnyObject {
 }
 
 class SendSummaryViewModel: ObservableObject {
+    @Published var showDestination = true
+    @Published var showAmount = true
+    @Published var showFee = true
+
     let canEditAmount: Bool
     let canEditDestination: Bool
 
@@ -91,17 +95,23 @@ class SendSummaryViewModel: ObservableObject {
     }
 
     func onAppear() {
+        withAnimation(SendView.Constants.defaultAnimation) {
+            self.showDestination = true
+            self.showAmount = true
+            self.showFee = true
+        }
+
         Analytics.log(.sendConfirmScreenOpened)
 
         screenIdleStartTime = Date()
 
         // For the sake of simplicity we're assuming that notifications aren't going to be created after the screen has been displayed
-        showHint = false
-        if notificationInputs.isEmpty, !AppSettings.shared.userDidTapSendScreenSummary {
-            withAnimation(SendView.Constants.defaultAnimation.delay(SendView.Constants.animationDuration * 2)) {
-                self.showHint = true
-            }
-        }
+//        showHint = false
+//        if notificationInputs.isEmpty, !AppSettings.shared.userDidTapSendScreenSummary {
+//            withAnimation(SendView.Constants.defaultAnimation.delay(SendView.Constants.animationDuration * 2)) {
+//                self.showHint = true
+//            }
+//        }
     }
 
     func onDisappear() {
