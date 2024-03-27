@@ -755,7 +755,7 @@ class LegacySendViewModel: ObservableObject {
                     if !isDemo {
                         let sourceValue: Analytics.ParameterValue = isSellingCrypto ? .transactionSourceSell : .transactionSourceSend
                         Analytics.log(event: .transactionSent, params: [
-                            .commonSource: sourceValue.rawValue,
+                            .source: sourceValue.rawValue,
                             .token: tx.amount.currencySymbol,
                             .blockchain: blockchainNetwork.blockchain.displayName,
                             .feeType: analyticsFeeType.rawValue,
