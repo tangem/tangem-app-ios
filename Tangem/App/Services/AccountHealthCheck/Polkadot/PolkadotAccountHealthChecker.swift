@@ -50,6 +50,7 @@ final class PolkadotAccountHealthChecker {
     @MainActor
     private func handleWillEnterForegroundNotification() {
         for account in currentlyAnalyzedAccounts where healthCheckTasks[account] == nil {
+            AppLog.shared.debugDetailed("Found an incomplete health check for account '\(account)', restarting health check")
             performAccountCheck(account)
         }
     }
@@ -64,11 +65,13 @@ final class PolkadotAccountHealthChecker {
         let backgroundTask = BackgroundTaskWrapper(taskName: backgroundTaskName) { [weak self] in
             self?.healthCheckTasks[account]?.cancel()
             self?.healthCheckTasks[account] = nil
+            AppLog.shared.debugDetailed("Background task has expired while checking account '\(account)'")
         }
 
         defer {
             backgroundTask.finish()
             runOnMain { healthCheckTasks[account] = nil }
+            AppLog.shared.debugDetailed("Cleaning up after checking account '\(account)'")
         }
 
         guard !Task.isCancelled else {
@@ -89,6 +92,7 @@ final class PolkadotAccountHealthChecker {
         }
 
         runOnMain { currentlyAnalyzedAccounts.remove(account) }
+        AppLog.shared.debugDetailed("Finished checking account '\(account)'")
     }
 
     private func checkAccountForReset(_ account: String) async {
@@ -109,8 +113,9 @@ final class PolkadotAccountHealthChecker {
             // but can't it be less (unless the account has been reset)
             sendAccountHealthMetric(.hasBeenReset(value: accountInfo.nonceCount < accountInfo.extrinsicCount))
             runOnMain { analyzedForResetAccounts.append(account) }
+            AppLog.shared.debugDetailed("Finished checking account '\(account)' for reset")
         } catch {
-            AppLog.shared.debug("Failed to check Polkadot account for reset due to error: '\(error)'")
+            AppLog.shared.debugDetailed("Failed to check account '\(account)' for reset due to error: '\(error)'")
             AppLog.shared.error(error)
         }
     }
@@ -160,8 +165,9 @@ final class PolkadotAccountHealthChecker {
 
             sendAccountHealthMetric(.hasImmortalTransaction(value: foundImmortalTransaction))
             runOnMain { analyzedForImmortalTransactionsAccounts.append(account) }
+            AppLog.shared.debugDetailed("Finished checking account '\(account)' for immortal transactions")
         } catch {
-            AppLog.shared.debug("Failed to check Polkadot account for immortal transactions due to error: '\(error)'")
+            AppLog.shared.debugDetailed("Failed to check account '\(account)' for immortal transactions due to error: '\(error)'")
             AppLog.shared.error(error)
         }
     }
@@ -199,6 +205,7 @@ extension PolkadotAccountHealthChecker: AccountHealthChecker {
             return
         }
 
+        AppLog.shared.debugDetailed("Starting checking account '\(account)'")
         performAccountCheck(account)
     }
 }
