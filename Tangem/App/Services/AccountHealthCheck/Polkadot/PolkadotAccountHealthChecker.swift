@@ -23,9 +23,11 @@ final class PolkadotAccountHealthChecker {
     @AppStorageCompat(StorageKeys.lastAnalyzedTransactionIds)
     private var lastAnalyzedTransactionIds: [String: Int] = [:]
 
+    private var currentlyAnalyzedAccounts: Set<String> = []
+
     private var healthCheckTasks: [String: Task<Void, Never>] = [:]
 
-    private var currentlyAnalyzedAccounts: Set<String> = []
+    private var willEnterForegroundNotificationObserver: Task<Void, Never>?
 
     private var transactionInfoCheckDelay: TimeInterval {
         return Constants.transactionInfoCheckDelayBaseValue
@@ -34,6 +36,27 @@ final class PolkadotAccountHealthChecker {
 
     init(networkService: PolkadotAccountHealthNetworkService) {
         self.networkService = networkService
+        subscribeToNotifications()
+    }
+
+    private func subscribeToNotifications() {
+        willEnterForegroundNotificationObserver = Task.detached { [weak self] in
+            for await _ in await NotificationCenter.default.notifications(named: UIApplication.willEnterForegroundNotification) {
+                await self?.handleWillEnterForegroundNotification()
+            }
+        }
+    }
+
+    @MainActor
+    private func handleWillEnterForegroundNotification() {
+        for account in currentlyAnalyzedAccounts where healthCheckTasks[account] == nil {
+            performAccountCheck(account)
+        }
+    }
+
+    private func performAccountCheck(_ account: String) {
+        currentlyAnalyzedAccounts.insert(account)
+        healthCheckTasks[account] = runTask(in: self) { await $0.checkAccount(account) }
     }
 
     private func checkAccount(_ account: String) async {
@@ -59,6 +82,10 @@ final class PolkadotAccountHealthChecker {
             taskGroup.addTask {
                 await self.checkIfAccountContainsImmortalTransactions(account)
             }
+        }
+
+        guard !Task.isCancelled else {
+            return
         }
 
         runOnMain { currentlyAnalyzedAccounts.remove(account) }
@@ -172,8 +199,7 @@ extension PolkadotAccountHealthChecker: AccountHealthChecker {
             return
         }
 
-        currentlyAnalyzedAccounts.insert(account)
-        healthCheckTasks[account] = runTask(in: self) { await $0.checkAccount(account) }
+        performAccountCheck(account)
     }
 }
 
