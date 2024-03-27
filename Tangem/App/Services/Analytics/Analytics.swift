@@ -138,14 +138,17 @@ class Analytics {
             return true
         }
 
-        var events = analyticsContext.value(forKey: .limitedEvents, scope: limit.contextScope) as? [Event] ?? []
+        let extraEventId = limit.extraEventId.map { "_\($0)" } ?? ""
+        let eventId = event.rawValue + extraEventId
 
-        if events.contains(event) {
+        var eventIds = analyticsContext.value(forKey: .limitedEvents, scope: limit.contextScope) as? [String] ?? []
+
+        if eventIds.contains(eventId) {
             return false
         }
 
-        events.append(event)
-        analyticsContext.set(value: events, forKey: .limitedEvents, scope: limit.contextScope)
+        eventIds.append(eventId)
+        analyticsContext.set(value: eventIds, forKey: .limitedEvents, scope: limit.contextScope)
         return true
     }
 
