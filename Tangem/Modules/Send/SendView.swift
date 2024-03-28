@@ -196,7 +196,7 @@ extension SendView {
         static let defaultAnimation: Animation = .spring(duration: 0.3)
         static let backButtonAnimation: Animation = .easeOut(duration: 0.1)
         static let sectionContentAnimation: Animation = .easeOut(duration: animationDuration)
-        static let auxiliaryViewTransition: AnyTransition = .offset(y: 300).combined(with: .opacity)
+        static let auxiliaryViewTransition: AnyTransition = .offset(y: UIScreen.main.bounds.height).combined(with: .opacity)
         static let hintViewTransition: AnyTransition = .asymmetric(insertion: .offset(y: 20), removal: .identity).combined(with: .opacity)
     }
 }
