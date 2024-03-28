@@ -19,7 +19,7 @@ struct CommonBridgeInteractor {
     init(evmSmartContractInteractor: EVMSmartContractInteractor, paymentAccount: String, logger: InternalLogger) {
         self.evmSmartContractInteractor = evmSmartContractInteractor
         self.paymentAccount = paymentAccount
-        decimalCount = VisaUtilities().visaBlockchain.decimalCount
+        decimalCount = VisaUtilities().visaToken.decimalCount
         self.logger = logger
     }
 }
