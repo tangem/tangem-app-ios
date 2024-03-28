@@ -22,9 +22,8 @@ struct SendFeeView: View {
                     if feeRowViewModel.isSelected.value {
                         FeeRowView(viewModel: feeRowViewModel)
                             .setNamespace(namespace)
-                            .setIconNamespaceId(SendViewNamespaceId.feeIcon.rawValue)
-                            .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
-                            .setSubtitleNamespaceId(SendViewNamespaceId.feeSubtitle.rawValue)
+                            .setOptionNamespaceId(SendViewNamespaceId.feeOption.rawValue)
+                            .setAmountNamespaceId(SendViewNamespaceId.feeAmount.rawValue)
                     } else {
                         if !viewModel.animatingAuxiliaryViewsOnAppear {
                             FeeRowView(viewModel: feeRowViewModel)
@@ -60,7 +59,10 @@ struct SendFeeView: View {
                let customFeeGasLimitModel = viewModel.customFeeGasLimitModel {
                 Group {
                     SendCustomFeeInputField(viewModel: customFeeModel)
+
                     SendCustomFeeInputField(viewModel: customFeeGasPriceModel)
+                        .onFocusChanged(viewModel.onCustomGasPriceFocusChanged)
+
                     SendCustomFeeInputField(viewModel: customFeeGasLimitModel)
                 }
                 .transition(SendView.Constants.auxiliaryViewTransition)
@@ -74,6 +76,7 @@ struct SendFeeView: View {
             Spacer(minLength: bottomSpacing)
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
+        .onAppear(perform: viewModel.onAppear)
         .onAppear(perform: viewModel.onSectionContentAppear)
         .onDisappear(perform: viewModel.onSectionContentDisappear)
         .onAppear(perform: viewModel.onAuxiliaryViewAppear)
@@ -81,7 +84,7 @@ struct SendFeeView: View {
     }
 
     private var feeSelectorFooter: some View {
-        Text(Localization.commonFeeSelectorFooter) + Text(" ") + Text("[\(Localization.commonReadMore)](\(viewModel.feeExplanationUrl.absoluteString))")
+        Text(.init(Localization.commonFeeSelectorFooter("[\(Localization.commonReadMore)](\(viewModel.feeExplanationUrl.absoluteString))")))
     }
 }
 
