@@ -56,6 +56,8 @@ class ExpressNotificationManager {
             notificationInputsSubject.value = []
 
         case .previewCEX(let preview, _):
+            notificationInputsSubject.value = []
+
             setupFeeWillBeSubtractFromSendingAmountNotification(subtractFee: preview.subtractFee)
             setupWithdrawalSuggestion(suggestion: preview.suggestion)
         }
@@ -91,12 +93,14 @@ class ExpressNotificationManager {
             }
 
             event = notEnoughFeeForTokenTxEvent
+        case .notEnoughReceivedAmount(let minAmount, let tokenSymbol):
+            event = .notEnoughReceivedAmountForReserve(amountFormatted: "\(minAmount.formatted()) \(tokenSymbol)")
         case .requiredRefresh(let occurredError as ExpressAPIError):
             // For only a express error we use "Service temporary unavailable"
             let message = Localization.expressErrorCode(occurredError.errorCode.localizedDescription)
             event = .refreshRequired(title: Localization.warningExpressRefreshRequiredTitle, message: message)
         case .requiredRefresh:
-            event = .refreshRequired(title: Localization.commonError, message: Localization.expressUnknownError)
+            event = .refreshRequired(title: Localization.commonError, message: Localization.commonUnknownError)
         case .noDestinationTokens:
             let sourceTokenItemName = sourceTokenItem.name
             event = .noDestinationTokens(sourceTokenName: sourceTokenItemName)
