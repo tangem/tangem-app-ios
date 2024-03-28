@@ -36,7 +36,7 @@ struct SendView: View {
             }
         }
         .background(backgroundColor.ignoresSafeArea())
-//        .animation(Constants.defaultAnimation, value: viewModel.step)
+        .animation(Constants.defaultAnimation, value: viewModel.step)
     }
 
     private var pageContentTransition: AnyTransition {
