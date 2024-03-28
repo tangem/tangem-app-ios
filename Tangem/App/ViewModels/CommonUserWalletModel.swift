@@ -41,7 +41,6 @@ class CommonUserWalletModel {
     private let cardImageProvider = CardImageProvider()
 
     private var associatedCardIds: Set<String>
-    private var hasBackupErrors: Bool
 
     lazy var derivationManager: DerivationManager? = {
         guard config.hasFeature(.hdWallets) else {
@@ -80,6 +79,7 @@ class CommonUserWalletModel {
     let userWalletId: UserWalletId
 
     lazy var totalBalanceProvider: TotalBalanceProviding = TotalBalanceProvider(
+        userWalletId: userWalletId,
         walletModelsManager: walletModelsManager,
         derivationManager: derivationManager
     )
@@ -103,7 +103,6 @@ class CommonUserWalletModel {
     convenience init?(userWallet: StoredUserWallet) {
         let cardInfo = userWallet.cardInfo()
         self.init(cardInfo: cardInfo)
-        hasBackupErrors = userWallet.hasBackupErrors ?? false
         let allIds = associatedCardIds.union(userWallet.associatedCardIds)
         associatedCardIds = allIds
     }
@@ -111,7 +110,6 @@ class CommonUserWalletModel {
     init?(cardInfo: CardInfo) {
         let config = UserWalletConfigFactory(cardInfo).makeConfig()
         associatedCardIds = [cardInfo.card.cardId]
-        hasBackupErrors = false
         guard let userWalletIdSeed = config.userWalletIdSeed,
               let walletManagerFactory = try? config.makeAnyWalletManagerFactory() else {
             return nil
@@ -163,10 +161,6 @@ class CommonUserWalletModel {
     }
 
     func validate() -> Bool {
-        if hasBackupErrors {
-            return false
-        }
-
         return validateInternal(cardInfo.card, validationMode: .light)
     }
 
@@ -284,7 +278,6 @@ extension CommonUserWalletModel: UserWalletModel {
         AnalyticsContextData(
             card: cardInfo.card,
             productType: config.productType,
-            userWalletId: userWalletId.value,
             embeddedEntry: config.embeddedBlockchain
         )
     }
@@ -378,7 +371,7 @@ extension CommonUserWalletModel: UserWalletModel {
         }
 
         if !validateInternal(card, validationMode: validationMode) {
-            hasBackupErrors = true
+            // [REDACTED_TODO_COMMENT]
             _updatePublisher.send()
         }
     }
@@ -427,7 +420,6 @@ extension CommonUserWalletModel: AnalyticsContextDataProvider {
         return AnalyticsContextData(
             card: card,
             productType: config.productType,
-            userWalletId: userWalletId.value,
             embeddedEntry: config.embeddedBlockchain
         )
     }
@@ -443,8 +435,7 @@ extension CommonUserWalletModel: UserWalletSerializable {
             card: cardInfo.card,
             associatedCardIds: associatedCardIds,
             walletData: cardInfo.walletData,
-            artwork: cardInfo.artwork.artworkInfo,
-            hasBackupErrors: hasBackupErrors
+            artwork: cardInfo.artwork.artworkInfo
         )
 
         return newStoredUserWallet
