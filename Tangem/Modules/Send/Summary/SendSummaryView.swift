@@ -84,12 +84,13 @@ struct SendSummaryView: View {
                 }
             }
 
-            if let transactionDescription = viewModel.transactionDescription {
+            if let transactionDescription = viewModel.transactionDescription,
+               viewModel.showTransactionDescription {
                 Text(transactionDescription)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 16)
-                    .visible(viewModel.showTransactionDescription)
+                    .transition(.opacity)
             }
 
             sendButton
