@@ -14,6 +14,16 @@ import BlockchainSdk
 final class PolkadotAccountHealthChecker {
     private let networkService: PolkadotAccountHealthNetworkService
 
+    private lazy var backgroundTasksManager = PolkadotAccountHealthBackgroundTaskManager(
+        backgroundTaskDelay: Constants.backgroundTaskDelay,
+        onAccountCheck: { [weak self] account, backgroundTask in
+            self?.performAccountCheck(account, backgroundTask: backgroundTask)
+        },
+        onResourcesCleanup: { [weak self] in
+            self?.cleanupResources()
+        }
+    )
+
     @AppStorageCompat(StorageKeys.analyzedForResetAccounts)
     private var analyzedForResetAccounts: [String] = []
 
@@ -39,6 +49,10 @@ final class PolkadotAccountHealthChecker {
         subscribeToNotifications()
     }
 
+    deinit {
+        cleanupResources()
+    }
+
     private func subscribeToNotifications() {
         willEnterForegroundNotificationObserver = Task.detached { [weak self] in
             for await _ in await NotificationCenter.default.notifications(named: UIApplication.willEnterForegroundNotification) {
@@ -49,29 +63,53 @@ final class PolkadotAccountHealthChecker {
 
     @MainActor
     private func handleWillEnterForegroundNotification() {
+        backgroundTasksManager.cancelAllBackgroundTasks()
+
         for account in currentlyAnalyzedAccounts where healthCheckTasks[account] == nil {
             AppLog.shared.debugDetailed("Found an incomplete health check for account '\(account)', restarting health check")
             performAccountCheck(account)
         }
     }
 
-    private func performAccountCheck(_ account: String) {
-        currentlyAnalyzedAccounts.insert(account)
-        healthCheckTasks[account] = runTask(in: self) { await $0.checkAccount(account) }
+    private func cleanupResources() {
+        willEnterForegroundNotificationObserver?.cancel()
+        healthCheckTasks.values.forEach { $0.cancel() }
     }
 
-    private func checkAccount(_ account: String) async {
+    // This overload schedules background task (UIKit).
+    private func performAccountCheck(_ account: String) {
         let backgroundTaskName = "com.tangem.PolkadotAccountHealthChecker_\(account)_\(UUID().uuidString)"
+
+        // This callback is guaranteed to be called on the main queue, so no thread synchronization is required
         let backgroundTask = BackgroundTaskWrapper(taskName: backgroundTaskName) { [weak self] in
-            self?.healthCheckTasks[account]?.cancel()
-            self?.healthCheckTasks[account] = nil
-            AppLog.shared.debugDetailed("Background task has expired while checking account '\(account)'")
+            AppLog.shared.debugDetailed("Background task (UIKit) has expired while checking account '\(account)'")
+
+            guard let self else {
+                return
+            }
+
+            backgroundTasksManager.scheduleBackgroundTask(for: account)
+            healthCheckTasks[account]?.cancel()
+            healthCheckTasks[account] = nil
         }
 
+        backgroundTasksManager.cancelBackgroundTaskForAccount(account)
+        performAccountCheck(account, backgroundTask: backgroundTask)
+    }
+
+    // This overload uses given background task (hidden behind `AccountHealthCheckBackgroundTask` interface).
+    private func performAccountCheck(_ account: String, backgroundTask: AccountHealthCheckBackgroundTask) {
+        AppLog.shared.debugDetailed("Starting checking account '\(account)'")
+
+        currentlyAnalyzedAccounts.insert(account)
+        healthCheckTasks[account] = runTask(in: self) { await $0.checkAccount(account, backgroundTask: backgroundTask) }
+    }
+
+    private func checkAccount(_ account: String, backgroundTask: AccountHealthCheckBackgroundTask) async {
         defer {
+            AppLog.shared.debugDetailed("Cleaning up after checking account '\(account)'")
             backgroundTask.finish()
             runOnMain { healthCheckTasks[account] = nil }
-            AppLog.shared.debugDetailed("Cleaning up after checking account '\(account)'")
         }
 
         guard !Task.isCancelled else {
@@ -205,8 +243,15 @@ extension PolkadotAccountHealthChecker: AccountHealthChecker {
             return
         }
 
-        AppLog.shared.debugDetailed("Starting checking account '\(account)'")
         performAccountCheck(account)
+    }
+}
+
+// MARK: - Initializable protocol conformance
+
+extension PolkadotAccountHealthChecker: Initializable {
+    func initialize() {
+        backgroundTasksManager.registerBackgroundTask()
     }
 }
 
@@ -232,6 +277,8 @@ private extension PolkadotAccountHealthChecker {
 
 private extension PolkadotAccountHealthChecker {
     enum Constants {
+        // Ten minutes
+        static let backgroundTaskDelay = 60.0 * 10.0
         static let initialTransactionId = 0
         static let transactionInfoCheckDelayBaseValue = 1.5
         static var transactionInfoCheckDelayJitterMinValue: TimeInterval { -transactionInfoCheckDelayJitterMaxValue }
