@@ -393,27 +393,13 @@ final class SendViewModel: ObservableObject {
             }
 
             didReachSummaryScreen = true
-        }
 
-        if step == .summary {
-            switch self.step {
-            case .destination:
-                sendSummaryViewModel.showAmount = false
-                sendSummaryViewModel.showFee = false
-            case .amount:
-                sendSummaryViewModel.showDestination = false
-                sendSummaryViewModel.showFee = false
-            case .fee:
-                sendSummaryViewModel.showDestination = false
-                sendSummaryViewModel.showAmount = false
-            default:
-                break
-            }
+            sendSummaryViewModel.setupAnimations(previousStep: self.step)
         }
 
         // Gotta give some time to update animation variable
         self.stepAnimation = stepAnimation
-        
+
         DispatchQueue.main.async {
             self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
             self.step = step
