@@ -63,6 +63,9 @@ struct SupportedBlockchains {
             .zkSync(testnet: false),
             .moonbeam(testnet: false),
             .polygonZkEVM(testnet: false),
+            .moonriver(testnet: false),
+            .mantle(testnet: false),
+            .flare(testnet: false),
         ]
     }
 
@@ -161,6 +164,9 @@ struct SupportedBlockchains {
             .zkSync(testnet: true),
             .moonbeam(testnet: true),
             .polygonZkEVM(testnet: true),
+            .moonriver(testnet: true),
+            .mantle(testnet: true),
+            .flare(testnet: true),
         ]
     }
 
