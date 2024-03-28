@@ -49,6 +49,7 @@ public class IncomingActionParser {
 
         if urlString.starts(with: IncomingActionConstants.tangemDomain)
             || urlString.starts(with: IncomingActionConstants.appTangemDomain)
+            || url.absoluteString.starts(with: IncomingActionConstants.universalLinkScheme)
             || SupportedURLSchemeCheck.isURLSchemeSupported(for: url) {
             return true
         }
@@ -65,10 +66,10 @@ private extension IncomingActionParser {
 
 private enum SupportedURLSchemeCheck {
     static func isURLSchemeSupported(for url: URL) -> Bool {
-        if let supportedSchemes: [String] = InfoDictionaryUtils.bundleURLSchemes.value() {
-            return supportedSchemes.contains(url.scheme ?? "")
-        } else {
-            return url.absoluteString.starts(with: IncomingActionConstants.universalLinkScheme)
+        guard let supportedSchemes: [[String]] = InfoDictionaryUtils.bundleURLSchemes.value() else {
+            // impossible case
+            return false
         }
+        return supportedSchemes.flatMap { $0 }.contains(url.scheme ?? "")
     }
 }
