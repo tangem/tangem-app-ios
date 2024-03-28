@@ -51,6 +51,14 @@ class SendSummaryViewModel: ObservableObject {
         sectionBackground(canEdit: canEditAmount)
     }
 
+    var walletName: String {
+        walletInfo.walletName
+    }
+
+    var balance: String {
+        walletInfo.balance
+    }
+
     @Published var isSendButtonDisabled = false
     @Published var isSending = false
     @Published var alert: AlertBinder?

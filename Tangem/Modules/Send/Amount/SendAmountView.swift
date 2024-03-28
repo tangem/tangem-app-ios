@@ -52,19 +52,8 @@ struct SendAmountView: View {
     private var amountSectionContent: some View {
         VStack(spacing: 0) {
             if !viewModel.animatingAuxiliaryViewsOnAppear {
-                Text(viewModel.walletName)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-                    .lineLimit(1)
+                SendWalletInfoView(namespace: namespace, walletName: viewModel.walletName, walletBalance: viewModel.balance)
                     .padding(.top, 18)
-                    .transition(SendView.Constants.auxiliaryViewTransition)
-            }
-
-            if !viewModel.animatingAuxiliaryViewsOnAppear {
-                SensitiveText(viewModel.balance)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                    .lineLimit(1)
-                    .padding(.top, 4)
-                    .transition(SendView.Constants.auxiliaryViewTransition)
             }
 
             TokenIcon(
