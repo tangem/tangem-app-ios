@@ -88,21 +88,8 @@ class CommonSendFiatCryptoAdapter: SendFiatCryptoAdapter {
                     return
                 }
 
-                let formatter = BalanceFormatter()
-
-                let cryptoFormattingOption = BalanceFormattingOptions(
-                    minFractionDigits: BalanceFormattingOptions.defaultCryptoFormattingOptions.minFractionDigits,
-                    maxFractionDigits: decimals,
-                    roundingType: BalanceFormattingOptions.defaultCryptoFormattingOptions.roundingType
-                )
-
-                let formattedCryptoAmount: String? = formatter.formatCryptoBalance(
-                    cryptoValue,
-                    currencyCode: currencySymbol,
-                    formattingOptions: cryptoFormattingOption
-                )
-
-                let formattedFiatAmount = formatter.formatFiatBalance(fiatCryptoValue.fiat)
+                let formattedCryptoAmount = formatCryptoAmount(cryptoValue, trimFractions: !useFiatCalculation)
+                let formattedFiatAmount = formatFiatAmount(fiatCryptoValue.fiat, trimFractions: useFiatCalculation)
 
                 formattedAmountSubject.send(useFiatCalculation ? formattedFiatAmount : formattedCryptoAmount)
                 formattedAmountAlternativeSubject.send(useFiatCalculation ? formattedCryptoAmount : formattedFiatAmount)
@@ -117,6 +104,37 @@ class CommonSendFiatCryptoAdapter: SendFiatCryptoAdapter {
         } else {
             input?.setUserInputAmount(nil)
         }
+    }
+
+    private func formatCryptoAmount(_ amount: Decimal, trimFractions: Bool) -> String {
+        let formatter = BalanceFormatter()
+
+        let minCryptoFractionDigits = trimFractions ? 0 : BalanceFormattingOptions.defaultCryptoFormattingOptions.minFractionDigits
+        let cryptoFormattingOption = BalanceFormattingOptions(
+            minFractionDigits: minCryptoFractionDigits,
+            maxFractionDigits: decimals,
+            roundingType: BalanceFormattingOptions.defaultCryptoFormattingOptions.roundingType
+        )
+        return formatter.formatCryptoBalance(
+            amount,
+            currencyCode: currencySymbol,
+            formattingOptions: cryptoFormattingOption
+        )
+    }
+
+    private func formatFiatAmount(_ amount: Decimal?, trimFractions: Bool) -> String {
+        let formatter = BalanceFormatter()
+
+        let minFiatFractionDigits = trimFractions ? 0 : BalanceFormattingOptions.defaultFiatFormattingOptions.minFractionDigits
+        let fiatFormattingOptions = BalanceFormattingOptions(
+            minFractionDigits: minFiatFractionDigits,
+            maxFractionDigits: BalanceFormattingOptions.defaultFiatFormattingOptions.maxFractionDigits,
+            roundingType: BalanceFormattingOptions.defaultFiatFormattingOptions.roundingType
+        )
+        return formatter.formatFiatBalance(
+            amount,
+            formattingOptions: fiatFormattingOptions
+        )
     }
 }
 
