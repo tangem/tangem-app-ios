@@ -191,9 +191,9 @@
 "express_choose_providers_subtitle" = "Tangem предоставляет доступ к обмену через сторонних поставщиков в соответствии с их правилами";
 "express_choose_providers_title" = "Выберите провайдера";
 "express_error_code" = "Произошла ошибка. Код: %@";
-"express_error_provider_unavailable" = "К сожалению обмен указанной пары через выбранного провайдера на данный момент не возможен. Попробуйте совершить обмен позже. (Код: %@)";
-"express_error_swap_pair_unavailable" = "Выбранный провайдер не доступен для обмена. Попробуйте позже. (Код: %@)";
-"express_error_swap_unavailable" = "В данный момент обмен не возможен. Попробуйте позже. (Код: %@)";
+"express_error_provider_unavailable" = "К сожалению обмен указанной пары через выбранного провайдера на данный момент не возможен. Попробуйте совершить обмен позже. (Код: %@)";
+"express_error_swap_pair_unavailable" = "Выбранный провайдер не доступен для обмена. Попробуйте позже. (Код: %@)";
+"express_error_swap_unavailable" = "В данный момент обмен не возможен. Попробуйте позже. (Код: %@)";
 "express_estimated_amount" = "Курс обмена";
 "express_exchange_by" = "Обмен через %@";
 "express_exchange_notification_failed_text" = "Чтобы вернуть ваши деньги, посетите сайт провайдера";
