@@ -45,7 +45,7 @@ struct SendView: View {
             return .asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading))
         case .slideBackward:
             return .asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .trailing))
-        case .none:
+        case .moveAndFade:
             return .asymmetric(
                 insertion: .offset(),
                 removal: .opacity.animation(.spring(duration: SendView.Constants.animationDuration / 2))
@@ -205,6 +205,7 @@ extension SendView {
     enum StepAnimation {
         case slideForward
         case slideBackward
+        case moveAndFade
     }
 }
 
