@@ -113,18 +113,19 @@ final class ExpressViewModel: ObservableObject {
                 return
             }
 
-            var message: String
+            let message: String = {
+                switch providerType {
+                case .cex:
+                    let tokenItemSymbol = viewModel.interactor.getDestination()?.tokenItem.currencySymbol ?? ""
+                    return Localization.swappingAlertCexDescription(tokenItemSymbol)
+                case .dex:
+                    if isBigLoss {
+                        return "\(Localization.swappingHighPriceImpactDescription)\n\n\(Localization.swappingAlertDexDescription)"
+                    }
 
-            switch providerType {
-            case .cex:
-                let tokenItemSymbol = viewModel.interactor.getSender().tokenItem.currencySymbol
-                message = Localization.swappingAlertCexDescription(tokenItemSymbol)
-            case .dex:
-                message = Localization.swappingAlertDexDescription
-                if isBigLoss {
-                    message += "\n\n\(Localization.swappingHighPriceImpactDescription)"
+                    return Localization.swappingAlertDexDescription
                 }
-            }
+            }()
 
             await runOnMain {
                 viewModel.alert = .init(title: "", message: message)
@@ -228,7 +229,9 @@ private extension ExpressViewModel {
 
         notificationManager
             .notificationPublisher
-            .receive(on: DispatchQueue.main)
+            .removeDuplicates()
+            // Debounce for exclude unwanted animations/updates
+            .debounce(for: 0.2, scheduler: DispatchQueue.main)
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
@@ -453,7 +456,8 @@ private extension ExpressViewModel {
                  .tooBigAmountForSwapping,
                  .noDestinationTokens,
                  .validationError,
-                 .notEnoughAmountForFee:
+                 .notEnoughAmountForFee,
+                 .notEnoughReceivedAmount:
                 mainButtonState = .swap
             case .notEnoughBalanceForSwapping:
                 mainButtonState = .insufficientFunds
@@ -571,7 +575,7 @@ private extension ExpressViewModel {
     }
 }
 
-// MARK: - Restrictions
+// MARK: - NotificationTapDelegate
 
 extension ExpressViewModel: NotificationTapDelegate {
     func didTapNotification(with id: NotificationViewId) {}

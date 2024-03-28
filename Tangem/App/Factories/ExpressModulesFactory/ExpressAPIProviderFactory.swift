@@ -31,8 +31,14 @@ struct ExpressAPIProviderFactory {
             sessionId: AppConstants.sessionId
         )
 
+        let deviceInfo = ExpressDeviceInfo(
+            platform: AppConstants.platformName.lowercased(),
+            version: appVersion()
+        )
+
         return factory.makeExpressAPIProvider(
             credential: credentials,
+            deviceInfo: deviceInfo,
             configuration: .defaultConfiguration,
             expressAPIType: expressAPIType,
             exchangeDataDecoder: exchangeDataDecoder,
@@ -68,5 +74,14 @@ private extension ExpressAPIProviderFactory {
         case .production:
             return keysManager.expressKeys.signVerifierPublicKey
         }
+    }
+
+    func appVersion() -> String {
+        if let appVersion: String = InfoDictionaryUtils.version.value() {
+            return appVersion
+        }
+
+        assertionFailure("Can't get the app version from the app bundle")
+        return .unknown.lowercased()
     }
 }
