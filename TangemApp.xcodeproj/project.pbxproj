@@ -668,6 +668,7 @@
 		B6C4D7342B1A74DB0084AF1E /* BottomScrollableSheetState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C4D7332B1A74DB0084AF1E /* BottomScrollableSheetState.swift */; };
 		B6C921C62A49FF960057811F /* VisualEffectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C921C52A49FF960057811F /* VisualEffectView.swift */; };
 		B6C957A32ACBDDBE00671B37 /* IOS15AndBelowScrollDisabledModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C957A22ACBDDBE00671B37 /* IOS15AndBelowScrollDisabledModifier.swift */; };
+		B6CA91352BB55F4400752999 /* PolkadotAccountHealthBackgroundTaskManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6CA91342BB55F4300752999 /* PolkadotAccountHealthBackgroundTaskManager.swift */; };
 		B6CA91372BB5616C00752999 /* AccountHealthCheckBackgroundTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6CA91362BB5616C00752999 /* AccountHealthCheckBackgroundTask.swift */; };
 		B6CF16822B22548A004925CC /* PropertyListObjectRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6CF16812B22548A004925CC /* PropertyListObjectRepresentable.swift */; };
 		B6DD245E2B1A77860097F674 /* BottomScrollableSheetStateObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6DD245D2B1A77860097F674 /* BottomScrollableSheetStateObserver.swift */; };
@@ -2128,6 +2129,7 @@
 		B6C4D7332B1A74DB0084AF1E /* BottomScrollableSheetState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomScrollableSheetState.swift; sourceTree = "<group>"; };
 		B6C921C52A49FF960057811F /* VisualEffectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualEffectView.swift; sourceTree = "<group>"; };
 		B6C957A22ACBDDBE00671B37 /* IOS15AndBelowScrollDisabledModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOS15AndBelowScrollDisabledModifier.swift; sourceTree = "<group>"; };
+		B6CA91342BB55F4300752999 /* PolkadotAccountHealthBackgroundTaskManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkadotAccountHealthBackgroundTaskManager.swift; sourceTree = "<group>"; };
 		B6CA91362BB5616C00752999 /* AccountHealthCheckBackgroundTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountHealthCheckBackgroundTask.swift; sourceTree = "<group>"; };
 		B6CF16812B22548A004925CC /* PropertyListObjectRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyListObjectRepresentable.swift; sourceTree = "<group>"; };
 		B6DD245D2B1A77860097F674 /* BottomScrollableSheetStateObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomScrollableSheetStateObserver.swift; sourceTree = "<group>"; };
@@ -5077,6 +5079,7 @@
 			isa = PBXGroup;
 			children = (
 				B675C3752BACB8AA007BE1DC /* PolkadotAccountHealthChecker.swift */,
+				B6CA91342BB55F4300752999 /* PolkadotAccountHealthBackgroundTaskManager.swift */,
 				B6961B1F2BB2FD2900FE266D /* PolkadotAccountHealthNetworkService.swift */,
 			);
 			path = Polkadot;
@@ -8588,6 +8591,7 @@
 				EF46622F2924DF0300346B6C /* DefaultRowViewModel.swift in Sources */,
 				B0C87B432566461600F861DE /* TwinCardsFileCoder.swift in Sources */,
 				DC66BC0E285B75C900CDF765 /* PushTxCoordinatorView.swift in Sources */,
+				B6CA91352BB55F4400752999 /* PolkadotAccountHealthBackgroundTaskManager.swift in Sources */,
 				DC261CBB292CFBB500875E64 /* StartupProcessor.swift in Sources */,
 				EFD39C972A6A916C0055D215 /* EnvironmentSetupCoordinator.swift in Sources */,
 				5D09383C25EAE7FD0049B8F0 /* PersistentStorage.swift in Sources */,
