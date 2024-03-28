@@ -204,7 +204,7 @@ final class SendViewModel: ObservableObject {
         logNextStepAnalytics()
 
         let stepAnimation: SendView.StepAnimation? = (nextStep == .summary) ? nil : .slideForward
-        openStep(nextStep, stepAnimation: stepAnimation)
+        openStep(nextStep, stepAnimation: stepAnimation, updateFee: step.updateFeeOnLeave)
     }
 
     func back() {
@@ -213,11 +213,11 @@ final class SendViewModel: ObservableObject {
             return
         }
 
-        openStep(previousStep, stepAnimation: .slideBackward)
+        openStep(previousStep, stepAnimation: .slideBackward, updateFee: false)
     }
 
     func `continue`() {
-        openStep(.summary, stepAnimation: nil)
+        openStep(.summary, stepAnimation: nil, updateFee: step.updateFeeOnLeave)
     }
 
     func scanQRCode() {
@@ -365,7 +365,7 @@ final class SendViewModel: ObservableObject {
 
             alert = SendAlertBuilder.makeSubtractFeeFromAmountAlert { [weak self] in
                 self?.sendModel.includeFeeIntoAmount()
-                self?.openStep(step, stepAnimation: stepAnimation)
+                self?.openStep(step, stepAnimation: stepAnimation, updateFee: false)
             }
 
             return true
@@ -377,7 +377,7 @@ final class SendViewModel: ObservableObject {
             ])
 
             alert = SendAlertBuilder.makeCustomFeeTooLowAlert { [weak self] in
-                self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: false)
+                self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: false, updateFee: false)
             }
 
             return true
@@ -386,8 +386,28 @@ final class SendViewModel: ObservableObject {
         return false
     }
 
-    private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation?, checkCustomFee: Bool = true) {
+    private func updateFee(_ step: SendStep, stepAnimation: SendView.StepAnimation?, checkCustomFee: Bool) {
+        sendModel.updateFees()
+            .receive(on: RunLoop.main)
+            .sink { [weak self] completion in
+                guard case .failure = completion else { return }
+
+                self?.alert = SendAlertBuilder.makeFeeRetryAlert {
+                    self?.updateFee(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee)
+                }
+            } receiveValue: { [weak self] result in
+                self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee, updateFee: false)
+            }
+            .store(in: &bag)
+    }
+
+    private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation?, checkCustomFee: Bool = true, updateFee: Bool) {
         if case .summary = step {
+            if updateFee {
+                self.updateFee(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee)
+                return
+            }
+
             if showSummaryStepAlertIfNeeded(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee) {
                 return
             }
@@ -431,7 +451,7 @@ final class SendViewModel: ObservableObject {
         }
 
         sendFinishViewModel.router = coordinator
-        openStep(.finish(model: sendFinishViewModel), stepAnimation: nil)
+        openStep(.finish(model: sendFinishViewModel), stepAnimation: nil, updateFee: false)
     }
 
     private func parseQRCode(_ code: String) {
@@ -506,7 +526,7 @@ extension SendViewModel: SendSummaryRoutable {
             auxiliaryViewAnimatable.setAnimatingAuxiliaryViewsOnAppear()
         }
 
-        openStep(step, stepAnimation: nil)
+        openStep(step, stepAnimation: nil, updateFee: false)
     }
 
     func send() {
@@ -568,6 +588,20 @@ extension SendViewModel: NotificationTapDelegate {
         }
 
         sendModel.setAmount(Amount(with: walletModel.tokenItem.blockchain, type: walletModel.amountType, value: newAmount))
+    }
+}
+
+// MARK: - SendStep
+
+private extension SendStep {
+    var updateFeeOnLeave: Bool {
+        let updateFee: Bool
+        switch self {
+        case .destination, .amount:
+            return true
+        case .fee, .summary, .finish:
+            return false
+        }
     }
 }
 
