@@ -24,6 +24,7 @@ class CommonUserTokensManager {
     private let existingCurves: [EllipticCurve]
     private let longHashesSupported: Bool
     private weak var keysDerivingProvider: KeysDerivingProvider?
+    private var pendingUserTokensSyncCompletions: [() -> Void] = []
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -85,7 +86,7 @@ class CommonUserTokensManager {
         }
     }
 
-    private func loadSwapAvailbilityStateIfNeeded(forceReload: Bool) {
+    private func loadSwapAvailabilityStateIfNeeded(forceReload: Bool) {
         guard shouldLoadSwapAvailability else { return }
 
         let converter = StorageEntryConverter()
@@ -100,6 +101,19 @@ class CommonUserTokensManager {
            derivationPath.nodes.contains(where: { !$0.isHardened }) {
             throw TangemSdkError.nonHardenedDerivationNotSupported
         }
+    }
+
+    private func handleUserTokensSync() {
+        loadSwapAvailabilityStateIfNeeded(forceReload: true)
+        walletModelsManager.updateAll(silent: false) { [weak self] in
+            self?.handleWalletModelsUpdate()
+        }
+    }
+
+    private func handleWalletModelsUpdate() {
+        let completions = pendingUserTokensSyncCompletions
+        pendingUserTokensSyncCompletions.removeAll()
+        completions.forEach { $0() }
     }
 }
 
@@ -145,17 +159,15 @@ extension CommonUserTokensManager: UserTokensManager {
     }
 
     func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {
-        guard existingCurves.contains(tokenItem.blockchain.curve) else {
+        if tokenItem.hasLongTransactions, !longHashesSupported {
+            throw Error.failedSupportedLongHashesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
+        }
+
+        if !existingCurves.contains(tokenItem.blockchain.curve) {
             throw Error.failedSupportedCurve(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
 
-        if !longHashesSupported, tokenItem.blockchain.hasLongTransactions {
-            throw Error.failedSupportedLongHahesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
-        }
-
         try validateDerivation(for: tokenItem)
-
-        return
     }
 
     func add(_ tokenItem: TokenItem) async throws -> String {
@@ -224,16 +236,22 @@ extension CommonUserTokensManager: UserTokensManager {
         }
 
         try addInternal(itemsToAdd, shouldUpload: false)
-        loadSwapAvailbilityStateIfNeeded(forceReload: true)
+        loadSwapAvailabilityStateIfNeeded(forceReload: true)
         userTokenListManager.upload()
     }
 
     func sync(completion: @escaping () -> Void) {
-        userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
-            guard let self else { return }
+        defer {
+            pendingUserTokensSyncCompletions.append(completion)
+        }
 
-            loadSwapAvailbilityStateIfNeeded(forceReload: true)
-            walletModelsManager.updateAll(silent: false, completion: completion)
+        // Initiate a new update only if there is no ongoing update (i.e. `pendingUserTokensSyncCompletions` is empty)
+        guard pendingUserTokensSyncCompletions.isEmpty else {
+            return
+        }
+
+        userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
+            self?.handleUserTokensSync()
         }
     }
 }
@@ -317,12 +335,12 @@ extension CommonUserTokensManager: UserTokensReordering {
 extension CommonUserTokensManager {
     enum Error: Swift.Error, LocalizedError {
         case addressNotFound
-        case failedSupportedLongHahesTokens(blockchainDisplayName: String)
+        case failedSupportedLongHashesTokens(blockchainDisplayName: String)
         case failedSupportedCurve(blockchainDisplayName: String)
 
         var errorDescription: String? {
             switch self {
-            case .failedSupportedLongHahesTokens(let blockchainDisplayName):
+            case .failedSupportedLongHashesTokens(let blockchainDisplayName):
                 return Localization.alertManageTokensUnsupportedMessage(blockchainDisplayName)
             case .failedSupportedCurve(let blockchainDisplayName):
                 return Localization.alertManageTokensUnsupportedCurveMessage(blockchainDisplayName)
