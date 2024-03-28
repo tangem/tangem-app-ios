@@ -66,7 +66,6 @@ class LockedUserWalletModel: UserWalletModel {
         AnalyticsContextData(
             card: userWallet.cardInfo().card,
             productType: config.productType,
-            userWalletId: userWalletId.value,
             embeddedEntry: config.embeddedBlockchain
         )
     }
@@ -92,8 +91,6 @@ class LockedUserWalletModel: UserWalletModel {
         config = UserWalletConfigFactory(userWallet.cardInfo()).makeConfig()
         signer = TangemSigner(filter: .cardId(""), sdk: .init(), twinKey: nil)
     }
-
-    func initialUpdate() {}
 
     func updateWalletName(_ name: String) {
         // Renaming locked wallets is prohibited
@@ -130,7 +127,6 @@ extension LockedUserWalletModel: AnalyticsContextDataProvider {
         let baseCurrency = embeddedEntry?.tokens.first?.symbol ?? embeddedEntry?.blockchainNetwork.blockchain.currencySymbol
 
         return AnalyticsContextData(
-            id: nil,
             productType: config.productType,
             batchId: cardInfo.card.batchId,
             firmware: cardInfo.card.firmwareVersion.stringValue,
