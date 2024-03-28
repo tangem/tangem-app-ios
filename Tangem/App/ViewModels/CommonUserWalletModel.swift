@@ -79,6 +79,7 @@ class CommonUserWalletModel {
     let userWalletId: UserWalletId
 
     lazy var totalBalanceProvider: TotalBalanceProviding = TotalBalanceProvider(
+        userWalletId: userWalletId,
         walletModelsManager: walletModelsManager,
         derivationManager: derivationManager
     )
@@ -277,7 +278,6 @@ extension CommonUserWalletModel: UserWalletModel {
         AnalyticsContextData(
             card: cardInfo.card,
             productType: config.productType,
-            userWalletId: userWalletId.value,
             embeddedEntry: config.embeddedBlockchain
         )
     }
@@ -420,7 +420,6 @@ extension CommonUserWalletModel: AnalyticsContextDataProvider {
         return AnalyticsContextData(
             card: card,
             productType: config.productType,
-            userWalletId: userWalletId.value,
             embeddedEntry: config.embeddedBlockchain
         )
     }
