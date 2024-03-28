@@ -16,7 +16,7 @@ protocol AccountHealthChecker {
 // MARK: - Dependency injection
 
 extension InjectedValues {
-    private struct AccountHealthCheckerKey: InjectionKey {
+    struct AccountHealthCheckerKey: InjectionKey {
         static var currentValue: AccountHealthChecker = PolkadotAccountHealthChecker(
             networkService: SubscanPolkadotAccountHealthNetworkService(
                 isTestnet: false,
