@@ -28,10 +28,6 @@ protocol SendSummaryViewModelInput: AnyObject {
 }
 
 class SendSummaryViewModel: ObservableObject {
-    @Published var showDestination = true
-    @Published var showAmount = true
-    @Published var showFee = true
-
     let canEditAmount: Bool
     let canEditDestination: Bool
 
@@ -66,6 +62,10 @@ class SendSummaryViewModel: ObservableObject {
     @Published var destinationViewTypes: [SendDestinationSummaryViewType] = []
     @Published var amountSummaryViewData: SendAmountSummaryViewData?
     @Published var feeSummaryViewData: SendFeeSummaryViewModel?
+
+    @Published var animatingDestinationOnAppear = false
+    @Published var animatingAmountOnAppear = false
+    @Published var animatingFeeOnAppear = false
     @Published var showHint = false
     @Published var transactionDescription: String?
     @Published var showTransactionDescription = true
@@ -102,15 +102,31 @@ class SendSummaryViewModel: ObservableObject {
         bind()
     }
 
+    func setupAnimations(previousStep: SendStep) {
+        switch previousStep {
+        case .destination:
+            animatingAmountOnAppear = true
+            animatingFeeOnAppear = true
+        case .amount:
+            animatingDestinationOnAppear = true
+            animatingFeeOnAppear = true
+        case .fee:
+            animatingDestinationOnAppear = true
+            animatingAmountOnAppear = true
+        default:
+            break
+        }
+    }
+
     func onAppear() {
         showTransactionDescription = false
 
         withAnimation(SendView.Constants.defaultAnimation) {
             self.showTransactionDescription = true
 
-            self.showDestination = true
-            self.showAmount = true
-            self.showFee = true
+            self.animatingDestinationOnAppear = false
+            self.animatingAmountOnAppear = false
+            self.animatingFeeOnAppear = false
         }
 
         Analytics.log(.sendConfirmScreenOpened)
