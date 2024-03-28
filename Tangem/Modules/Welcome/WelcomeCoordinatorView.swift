@@ -17,17 +17,20 @@ struct WelcomeCoordinatorView: CoordinatorView {
             content
             sheets
         }
-        .navigationBarHidden(coordinator.mainCoordinator == nil)
-        .animation(.default, value: coordinator.mainCoordinator == nil)
+        .navigationBarHidden(coordinator.viewState?.isMain == false)
+        .animation(.default, value: coordinator.viewState)
     }
 
     @ViewBuilder
     private var content: some View {
-        if let mainCoordinator = coordinator.mainCoordinator {
-            MainCoordinatorView(coordinator: mainCoordinator)
-        } else if let welcomeViewModel = coordinator.welcomeViewModel {
+        switch coordinator.viewState {
+        case .welcome(let welcomeViewModel):
             WelcomeView(viewModel: welcomeViewModel)
                 .navigationLinks(links)
+        case .main(let mainCoordinator):
+            MainCoordinatorView(coordinator: mainCoordinator)
+        case .none:
+            EmptyView()
         }
     }
 
