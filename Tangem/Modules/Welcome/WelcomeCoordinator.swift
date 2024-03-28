@@ -82,9 +82,7 @@ class WelcomeCoordinator: CoordinatorObject {
     func start(with options: WelcomeCoordinator.Options) {
         switch viewState {
         case .welcome:
-//            if pushedOnboardingCoordinator != nil {
             pushedOnboardingCoordinator = nil
-//            }
         case .main, .none:
             viewState = .welcome(WelcomeViewModel(shouldScanOnAppear: options.shouldScan, coordinator: self))
             subscribeToWelcomeLifecycle()
