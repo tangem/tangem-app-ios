@@ -13,7 +13,7 @@ extension WalletModel {
         case created
         case idle
         case loading
-        case noAccount(message: String)
+        case noAccount(message: String, amountToCreate: Decimal)
         case failed(error: String)
         case noDerivation
 
@@ -57,7 +57,7 @@ extension WalletModel {
             switch self {
             case .failed(let localizedDescription):
                 return localizedDescription
-            case .noAccount(let message):
+            case .noAccount(let message, _):
                 return message
             default:
                 return nil

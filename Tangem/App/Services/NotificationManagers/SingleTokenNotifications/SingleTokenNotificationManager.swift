@@ -52,7 +52,7 @@ final class SingleTokenNotificationManager {
                 switch state {
                 case .failed:
                     self?.setupNetworkUnreachable()
-                case .noAccount(let message):
+                case .noAccount(let message, _):
                     self?.setupNoAccountNotification(with: message)
                 case .loading, .created:
                     break
@@ -69,6 +69,11 @@ final class SingleTokenNotificationManager {
         var events = [TokenNotificationEvent]()
         if let existentialWarning = walletModel.existentialDepositWarning {
             events.append(.existentialDepositWarning(message: existentialWarning))
+        }
+
+        if case .solana = walletModel.tokenItem.blockchain,
+           !walletModel.isZeroAmount {
+            events.append(.solanaHighImpact)
         }
 
         if let sendingRestrictions = walletModel.sendingRestrictions {
