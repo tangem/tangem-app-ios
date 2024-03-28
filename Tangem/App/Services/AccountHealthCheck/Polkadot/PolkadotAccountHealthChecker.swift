@@ -10,7 +10,8 @@ import Foundation
 import UIKit
 import BlockchainSdk
 
-/// - Warning: Read-write access to all `@AppStorageCompat` properties must be synchronized (e.g. by using `runOnMain(_:)` helper).
+/// - Warning: Read-write access to all `@AppStorageCompat` or stored properties
+/// must be synchronized (e.g. by using `runOnMain(_:)` helper).
 final class PolkadotAccountHealthChecker {
     private let networkService: PolkadotAccountHealthNetworkService
 
