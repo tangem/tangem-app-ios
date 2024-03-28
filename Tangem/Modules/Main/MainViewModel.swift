@@ -307,7 +307,7 @@ final class MainViewModel: ObservableObject {
         $selectedCardIndex
             .dropFirst()
             .sink { [weak self] newIndex in
-                guard let userWalletId = self?.pages[newIndex].id else {
+                guard let userWalletId = self?.pages[safe: newIndex]?.id else {
                     return
                 }
 
