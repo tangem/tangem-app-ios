@@ -109,6 +109,10 @@ struct SendSummaryView: View {
             .setIconNamespaceId(SendViewNamespaceId.tokenIcon.rawValue)
             .setAmountCryptoNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
             .setAmountFiatNamespaceId(SendViewNamespaceId.amountFiatText.rawValue)
+            .overlay(alignment: .top) {
+                SendWalletInfoView(namespace: namespace, walletName: viewModel.walletName, walletBalance: viewModel.balance)
+                    .opacity(0)
+            }
     }
 
     private func feeSectionContent(data: SendFeeSummaryViewModel) -> some View {
