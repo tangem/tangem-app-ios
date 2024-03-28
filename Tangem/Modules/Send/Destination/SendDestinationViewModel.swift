@@ -119,7 +119,7 @@ class SendDestinationViewModel: ObservableObject {
 
     func onAppear() {
         if animatingAuxiliaryViewsOnAppear {
-            Analytics.log(.sendScreenReopened, params: [.commonSource: .address])
+            Analytics.log(.sendScreenReopened, params: [.source: .address])
         } else {
             Analytics.log(.sendAddressScreenOpened)
         }
