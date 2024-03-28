@@ -58,6 +58,8 @@ final class BackgroundTaskWrapper {
             }
 
             expirationHandler = nil
+
+            AppLog.shared.debug("Background task '\(taskName)' finished (expired: \(isExpired))")
         }
     }
 }
