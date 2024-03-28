@@ -449,21 +449,28 @@ class LegacySendViewModel: ObservableObject {
 
         scannedQRCode
             .compactMap { $0 }
-            .sink { [unowned self] qrCodeString in
-                let withoutPrefix = qrCodeString.remove(contentsOf: walletModel.wallet.blockchain.qrPrefixes)
-                let splitted = withoutPrefix.split(separator: "?")
-                lastDestinationAddressSource = .qrCode
-                destination = splitted.first.map { String($0) } ?? withoutPrefix
+            .withWeakCaptureOf(self)
+            .compactMap { viewModel, qrCodeString in
+                let parser = QRCodeParser(
+                    amountType: viewModel.amountToSend.type,
+                    blockchain: viewModel.walletModel.blockchainNetwork.blockchain,
+                    decimalCount: viewModel.walletModel.decimalCount
+                )
 
-                if splitted.count > 1 {
-                    let queryItems = splitted[1].lowercased().split(separator: "&")
-                    for queryItem in queryItems {
-                        if queryItem.contains("amount") {
-                            amountText = queryItem.replacingOccurrences(of: "amount=", with: "")
-                            break
-                        }
-                    }
+                return parser.parse(qrCodeString)
+            }
+            .withWeakCaptureOf(self)
+            .sink { viewModel, result in
+                if let parsedAmountText = result.amountText {
+                    viewModel.amountText = parsedAmountText
                 }
+
+                if let parsedMemo = result.memo {
+                    viewModel.memo = parsedMemo
+                }
+
+                viewModel.destination = result.destination
+                viewModel.lastDestinationAddressSource = .qrCode
             }
             .store(in: &bag)
     }
@@ -742,19 +749,33 @@ class LegacySendViewModel: ObservableObject {
                         .blockchain: walletModel.wallet.blockchain.displayName,
                         .action: Analytics.ParameterValue.sendTx.rawValue,
                     ])
-                    self.error = SendError(error, openMailAction: openMail).alertBinder
+
+                    let fullErrorDescription: String
+                    if let blockchainSdkError = error as? BlockchainSdkError {
+                        fullErrorDescription = blockchainSdkError.errorDescriptionWithCode
+                    } else {
+                        fullErrorDescription = error.localizedDescription
+                    }
+
+                    self.error = SendError(
+                        title: Localization.feedbackSubjectTxFailed,
+                        message: Localization.alertFailedToSendTransactionMessage(fullErrorDescription.dropTrailingPeriod),
+                        error: error,
+                        openMailAction: openMail
+                    )
+                    .alertBinder
                 } else {
                     if !isDemo {
                         let sourceValue: Analytics.ParameterValue = isSellingCrypto ? .transactionSourceSell : .transactionSourceSend
                         Analytics.log(event: .transactionSent, params: [
-                            .commonSource: sourceValue.rawValue,
+                            .source: sourceValue.rawValue,
                             .token: tx.amount.currencySymbol,
                             .blockchain: blockchainNetwork.blockchain.displayName,
                             .feeType: analyticsFeeType.rawValue,
                             .memo: retrieveAnalyticsMemoValue().rawValue,
                         ])
 
-                        Analytics.log(.selectedCurrency, params: [
+                        Analytics.log(.sendSelectedCurrency, params: [
                             .commonType: isFiatCalculation ? .selectedCurrencyApp : .token,
                         ])
                     }
@@ -958,6 +979,8 @@ extension LegacySendViewModel {
     func openMail(with error: Error) {
         guard let transaction else { return }
 
+        Analytics.log(.requestSupport, params: [.source: .transactionSourceSend])
+
         let emailDataCollector = SendScreenDataCollector(
             userWalletEmailData: userWalletModel.emailData,
             walletModel: walletModel,
@@ -977,7 +1000,7 @@ extension LegacySendViewModel {
     }
 
     func openQRScanner() {
-        Analytics.log(.buttonQRCode)
+        Analytics.log(.sendButtonQRCode)
         if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
             showCameraDeniedAlert = true
         } else {

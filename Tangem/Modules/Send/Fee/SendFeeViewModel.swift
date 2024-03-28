@@ -19,6 +19,7 @@ protocol SendFeeViewModelInput {
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
 
     var customGasLimit: BigUInt? { get }
+    var customGasPrice: BigUInt? { get }
 
     var customFeePublisher: AnyPublisher<Fee?, Never> { get }
     var customGasPricePublisher: AnyPublisher<BigUInt?, Never> { get }
@@ -63,6 +64,7 @@ class SendFeeViewModel: ObservableObject {
     private let feeOptions: [FeeOption]
     private let walletInfo: SendWalletInfo
     private let customFeeInFiat = CurrentValueSubject<String?, Never>("")
+    private var customGasPriceBeforeEditing: BigUInt?
     private var bag: Set<AnyCancellable> = []
 
     private lazy var balanceFormatter = BalanceFormatter()
@@ -87,6 +89,31 @@ class SendFeeViewModel: ObservableObject {
         feeRowViewModels = makeFeeRowViewModels([:])
 
         bind()
+    }
+
+    func onAppear() {
+        if animatingAuxiliaryViewsOnAppear {
+            Analytics.log(.sendScreenReopened, params: [.source: .fee])
+
+            withAnimation(SendView.Constants.defaultAnimation) {
+                animatingAuxiliaryViewsOnAppear = false
+            }
+        } else {
+            Analytics.log(.sendFeeScreenOpened)
+        }
+    }
+
+    func onCustomGasPriceFocusChanged(focused: Bool) {
+        if focused {
+            customGasPriceBeforeEditing = input.customGasPrice
+        } else {
+            let customGasPriceAfterEditing = input.customGasPrice
+            if customGasPriceAfterEditing != customGasPriceBeforeEditing {
+                Analytics.log(.sendGasPriceInserted)
+            }
+
+            customGasPriceBeforeEditing = nil
+        }
     }
 
     func openFeeExplanation() {
@@ -191,23 +218,23 @@ class SendFeeViewModel: ObservableObject {
     }
 
     private func makeFeeRowViewModels(_ feeValues: [FeeOption: LoadingValue<Fee>]) -> [FeeRowViewModel] {
-        let formattedFeeValuePairs: [(FeeOption, LoadingValue<String?>)] = feeValues.map { feeOption, feeValue in
+        let formattedFeeValuePairs: [(FeeOption, LoadingValue<FormattedFeeComponents?>)] = feeValues.map { feeOption, feeValue in
             guard feeOption != .custom else {
                 return (feeOption, .loaded(nil))
             }
 
-            let result: LoadingValue<String?>
+            let result: LoadingValue<FormattedFeeComponents?>
             switch feeValue {
             case .loading:
                 result = .loading
             case .loaded(let value):
-                let formattedValue = self.feeFormatter.format(
+                let formattedFeeComponents = self.feeFormatter.formattedFeeComponents(
                     fee: value.amount.value,
                     currencySymbol: walletInfo.feeCurrencySymbol,
                     currencyId: walletInfo.feeCurrencyId,
                     isFeeApproximate: walletInfo.isFeeApproximate
                 )
-                result = .loaded(formattedValue)
+                result = .loaded(formattedFeeComponents)
             case .failedToLoad(let error):
                 result = .failedToLoad(error: error)
             }
@@ -221,7 +248,7 @@ class SendFeeViewModel: ObservableObject {
 
             return FeeRowViewModel(
                 option: option,
-                subtitle: value,
+                formattedFeeComponents: value,
                 isSelected: .init(root: self, default: false, get: { root in
                     root.selectedFeeOption == option
                 }, set: { root, newValue in
@@ -234,6 +261,10 @@ class SendFeeViewModel: ObservableObject {
     }
 
     private func selectFeeOption(_ feeOption: FeeOption) {
+        if feeOption == .custom {
+            Analytics.log(.sendCustomFeeClicked)
+        }
+
         selectedFeeOption = feeOption
         input.didSelectFeeOption(feeOption)
         showCustomFeeFields = feeOption == .custom
