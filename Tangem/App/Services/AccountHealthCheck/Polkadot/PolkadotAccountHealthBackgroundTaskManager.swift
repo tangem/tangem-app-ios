@@ -9,6 +9,8 @@
 import Foundation
 import BackgroundTasks
 
+/// - Warning: Read-write access to all `@AppStorageCompat` or stored properties
+/// must be synchronized (e.g. by using `runOnMain(_:)` helper).
 final class PolkadotAccountHealthBackgroundTaskManager {
     typealias OnAccountCheck = (_ account: String, _ backgroundTask: AccountHealthCheckBackgroundTask) -> Void
     typealias OnResourcesCleanup = () -> Void
@@ -57,7 +59,7 @@ final class PolkadotAccountHealthBackgroundTaskManager {
     }
 
     /// - Note: Submitting a task request for an unexecuted task that’s already in the queue replaces the previous task request,
-    /// so it's perfectly fine to call this method multiple time.
+    /// so it's perfectly fine to call this method multiple times.
     func scheduleBackgroundTask(for account: String) {
         pendingAccountsForBackgroundTask.append(account)
 
