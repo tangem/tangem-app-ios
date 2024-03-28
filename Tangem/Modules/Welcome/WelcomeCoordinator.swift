@@ -11,6 +11,27 @@ import Combine
 import TangemSdk
 
 class WelcomeCoordinator: CoordinatorObject {
+    enum ViewState: Equatable {
+        case welcome(WelcomeViewModel)
+        case main(MainCoordinator)
+
+        var isMain: Bool {
+            if case .main = self {
+                return true
+            }
+            return false
+        }
+
+        static func == (lhs: WelcomeCoordinator.ViewState, rhs: WelcomeCoordinator.ViewState) -> Bool {
+            switch (lhs, rhs) {
+            case (.welcome, .welcome), (.main, .main):
+                return true
+            default:
+                return false
+            }
+        }
+    }
+
     var dismissAction: Action<Void>
     var popToRootAction: Action<PopToRootOptions>
 
@@ -20,11 +41,16 @@ class WelcomeCoordinator: CoordinatorObject {
 
     // MARK: - Main view model
 
-    @Published private(set) var welcomeViewModel: WelcomeViewModel? = nil
+    @Published private(set) var viewState: ViewState? = nil
+    private var welcomeViewModel: WelcomeViewModel? {
+        if case .welcome(let viewModel) = viewState {
+            return viewModel
+        }
+        return nil
+    }
 
     // MARK: - Child coordinators
 
-    @Published var mainCoordinator: MainCoordinator? = nil
     @Published var pushedOnboardingCoordinator: OnboardingCoordinator? = nil
     @Published var legacyTokenListCoordinator: LegacyTokenListCoordinator? = nil
     @Published var promotionCoordinator: PromotionCoordinator? = nil
@@ -54,8 +80,15 @@ class WelcomeCoordinator: CoordinatorObject {
     }
 
     func start(with options: WelcomeCoordinator.Options) {
-        welcomeViewModel = .init(shouldScanOnAppear: options.shouldScan, coordinator: self)
-        subscribeToWelcomeLifecycle()
+        switch viewState {
+        case .welcome:
+//            if pushedOnboardingCoordinator != nil {
+            pushedOnboardingCoordinator = nil
+//            }
+        case .main, .none:
+            viewState = .welcome(WelcomeViewModel(shouldScanOnAppear: options.shouldScan, coordinator: self))
+            subscribeToWelcomeLifecycle()
+        }
     }
 
     private func subscribeToWelcomeLifecycle() {
@@ -98,7 +131,7 @@ extension WelcomeCoordinator: WelcomeRoutable {
         let coordinator = MainCoordinator(popToRootAction: popToRootAction)
         let options = MainCoordinator.Options(userWalletModel: userWalletModel)
         coordinator.start(with: options)
-        mainCoordinator = coordinator
+        viewState = .main(coordinator)
     }
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {
