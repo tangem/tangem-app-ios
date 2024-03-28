@@ -9,7 +9,7 @@
 import Foundation
 import BlockchainSdk
 
-protocol AccountHealthChecker {
+protocol AccountHealthChecker: Initializable {
     func performAccountCheckIfNeeded(_ account: String)
 }
 
