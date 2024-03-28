@@ -18,20 +18,23 @@ struct AuthCoordinatorView: CoordinatorView {
     var body: some View {
         ZStack {
             content
-            
+
             sheets
         }
-        .animation(.default, value: coordinator.mainCoordinator == nil)
-        .navigationBarHidden(coordinator.mainCoordinator == nil)
+        .animation(.default, value: coordinator.viewState)
+        .navigationBarHidden(coordinator.viewState?.isMain != true)
     }
 
     @ViewBuilder
     private var content: some View {
-        if let mainCoordinator = coordinator.mainCoordinator {
-            MainCoordinatorView(coordinator: mainCoordinator)
-        } else if let authViewModel = coordinator.rootViewModel {
+        switch coordinator.viewState {
+        case .auth(let authViewModel):
             AuthView(viewModel: authViewModel)
                 .navigationLinks(links)
+        case .main(let mainCoordinator):
+            MainCoordinatorView(coordinator: mainCoordinator)
+        case .none:
+            EmptyView()
         }
     }
 
