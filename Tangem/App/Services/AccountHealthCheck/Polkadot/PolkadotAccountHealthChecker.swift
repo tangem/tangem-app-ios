@@ -225,6 +225,7 @@ final class PolkadotAccountHealthChecker {
 
     @MainActor
     private func sendAccountHealthMetric(_ metric: AccountHealthMetric) {
+        AppLog.shared.debugDetailed("Sending analytics event for metric '\(metric)'")
         switch metric {
         case .hasBeenReset(let value):
             let value: Analytics.ParameterValue = .affirmativeOrNegative(for: value)
