@@ -119,11 +119,7 @@ class SendSummaryViewModel: ObservableObject {
     }
 
     func onAppear() {
-        showTransactionDescription = false
-
         withAnimation(SendView.Constants.defaultAnimation) {
-            self.showTransactionDescription = true
-
             self.animatingDestinationOnAppear = false
             self.animatingAmountOnAppear = false
             self.animatingFeeOnAppear = false
@@ -134,12 +130,18 @@ class SendSummaryViewModel: ObservableObject {
         screenIdleStartTime = Date()
 
         // For the sake of simplicity we're assuming that notifications aren't going to be created after the screen has been displayed
-//        showHint = false
-//        if notificationInputs.isEmpty, !AppSettings.shared.userDidTapSendScreenSummary {
-//            withAnimation(SendView.Constants.defaultAnimation.delay(SendView.Constants.animationDuration * 2)) {
-//                self.showHint = true
-//            }
-//        }
+        showHint = false
+        if notificationInputs.isEmpty, !AppSettings.shared.userDidTapSendScreenSummary {
+            withAnimation(SendView.Constants.defaultAnimation.delay(SendView.Constants.animationDuration * 2)) {
+                self.showHint = true
+            }
+        }
+
+        // Show it with a delay, otherwise it will clash with the keyboard
+        showTransactionDescription = false
+        withAnimation(SendView.Constants.defaultAnimation.delay(SendView.Constants.animationDuration * 2)) {
+            self.showTransactionDescription = true
+        }
     }
 
     func onDisappear() {
