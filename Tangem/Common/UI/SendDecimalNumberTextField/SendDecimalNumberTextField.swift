@@ -69,6 +69,9 @@ struct SendDecimalNumberTextField: View {
                 }
         }
         .lineLimit(1)
+        .transaction { transaction in
+            transaction.animation = nil
+        }
     }
 
     @ViewBuilder
