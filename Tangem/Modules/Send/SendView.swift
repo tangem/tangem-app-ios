@@ -36,7 +36,6 @@ struct SendView: View {
             }
         }
         .background(backgroundColor.ignoresSafeArea())
-        .animation(Constants.defaultAnimation, value: viewModel.step)
     }
 
     private var pageContentTransition: AnyTransition {
@@ -54,16 +53,20 @@ struct SendView: View {
     private var header: some View {
         if let title = viewModel.title {
             HStack {
-                // Using Color.clear to avoid dealing with priorities
-                Color.clear
-                    .frame(maxWidth: .infinity, maxHeight: 1)
-
-                Text(title)
-                    .style(Fonts.Bold.body, color: Colors.Text.primary1)
-                    .animation(nil, value: title)
-                    .padding(.vertical, 8)
-                    .lineLimit(1)
+                Spacer()
                     .layoutPriority(1)
+
+                // Making sure the header doesn't jump when changing the visibility of the fields
+                ZStack {
+                    headerText(title: title, subtitle: viewModel.subtitle)
+
+                    headerText(title: "Title", subtitle: "Subtitle")
+                        .hidden()
+                }
+                .animation(nil, value: title)
+                .padding(.vertical, 0)
+                .lineLimit(1)
+                .layoutPriority(2)
 
                 if viewModel.showQRCodeButton {
                     Button(action: viewModel.scanQRCode) {
@@ -72,13 +75,27 @@ struct SendView: View {
                             .foregroundColor(Colors.Icon.primary1)
                             .frame(maxWidth: .infinity, alignment: .trailing)
                     }
+                    .layoutPriority(1)
                 } else {
-                    Color.clear
-                        .frame(maxWidth: .infinity, maxHeight: 1)
+                    Spacer()
+                        .layoutPriority(1)
                 }
             }
             .padding(.horizontal, 16)
             .padding(.top, 12)
+        }
+    }
+
+    @ViewBuilder
+    private func headerText(title: String, subtitle: String?) -> some View {
+        VStack(spacing: 2) {
+            Text(title)
+                .style(Fonts.Bold.body, color: Colors.Text.primary1)
+
+            if let subtitle = subtitle {
+                Text(subtitle)
+                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+            }
         }
     }
 
@@ -130,7 +147,7 @@ struct SendView: View {
                 )
             }
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 16)
         .padding(.bottom, 6)
     }
 
@@ -171,7 +188,8 @@ private struct SendViewBackButton: View {
 extension SendView {
     enum Constants {
         static let animationDuration: TimeInterval = 0.3
-        static let defaultAnimation: Animation = .spring(duration: animationDuration)
+        static let defaultAnimation: Animation = .spring(duration: 0.3)
+        static let backButtonAnimation: Animation = .easeOut(duration: 0.1)
         static let sectionContentAnimation: Animation = .easeOut(duration: animationDuration)
         static let auxiliaryViewTransition: AnyTransition = .offset(y: 300).combined(with: .opacity)
     }

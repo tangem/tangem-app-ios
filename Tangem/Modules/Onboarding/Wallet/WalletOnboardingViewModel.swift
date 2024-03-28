@@ -99,7 +99,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     override var mainButtonSettings: MainButton.Settings? {
         switch currentStep {
-        case .disclaimer, .seedPhraseIntro:
+        case .createWallet, .disclaimer, .seedPhraseIntro, .backupCards, .success, .scanPrimaryCard:
             return nil
         default:
             return MainButton.Settings(
@@ -146,35 +146,35 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     // MARK: - Supplement Button settings
 
-    override var isSupplementButtonVisible: Bool {
-        if currentStep == .backupIntro {
-            if input.isStandalone {
-                return false
+    override var supplementButtonTitle: String {
+        switch currentStep {
+        case .backupCards:
+            switch backupServiceState {
+            case .finalizingPrimaryCard: return Localization.onboardingButtonBackupOrigin
+            case .finalizingBackupCard(let index): return Localization.onboardingButtonBackupCardFormat(index)
+            default: break
             }
-
-            if !(userWalletModel?.config.canSkipBackup ?? true) {
-                return false
-            }
+        case .success:
+            return input.isStandalone ? Localization.commonContinue : super.supplementButtonTitle
+        default: break
         }
 
-        return super.isSupplementButtonVisible
+        return super.supplementButtonTitle
+    }
+
+    override var supplementButtonStyle: MainButton.Style {
+        switch currentStep {
+        case .createWallet, .selectBackupCards, .scanPrimaryCard, .backupCards, .success, .disclaimer:
+            return .primary
+        default:
+            return .secondary
+        }
     }
 
     override var isSupplementButtonEnabled: Bool {
         switch currentStep {
         case .selectBackupCards: return backupCardsAddedCount > 0
         default: return true
-        }
-    }
-
-    override var supplementButtonColor: ButtonColorStyle {
-        switch currentStep {
-        case .createWalletSelector:
-            return .grayAlt3
-        case .backupIntro:
-            return .transparentWhite
-        default:
-            return .black
         }
     }
 
@@ -219,11 +219,15 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     // MARK: - Other View related stuff
 
-    lazy var importSeedPhraseModel: OnboardingSeedPhraseImportViewModel? = .init(
-        inputProcessor: SeedPhraseInputProcessor()) { [weak self] mnemonic in
-            self?.createWalletOnPrimaryCard(using: mnemonic, walletCreationType: .seedImport(length: mnemonic.mnemonicComponents.count))
+    override var isSupportButtonVisible: Bool {
+        if case .success = currentStep {
+            return false
         }
 
+        return true
+    }
+
+    lazy var importSeedPhraseModel: OnboardingSeedPhraseImportViewModel? = .init(inputProcessor: SeedPhraseInputProcessor(), delegate: self)
     var generateSeedPhraseModel: OnboardingSeedPhraseGenerateViewModel?
     var validationUserSeedPhraseModel: OnboardingSeedPhraseUserValidationViewModel?
 
@@ -409,12 +413,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     override func mainButtonAction() {
         switch currentStep {
-        case .createWallet, .createWalletSelector:
+        case .createWalletSelector:
             createWallet()
         case .seedPhraseGeneration:
             goToStep(.seedPhraseUserValidation)
-        case .scanPrimaryCard:
-            readPrimaryCard()
         case .backupIntro:
             if NFCUtils.isPoorNfcQualityDevice {
                 alert = AlertBuilder.makeOldDeviceAlert()
@@ -427,10 +429,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             }
         case .selectBackupCards:
             addBackupCard()
-        case .backupCards:
-            backupCard()
-        case .success:
-            goToNextStep()
         default:
             break
         }
@@ -441,12 +439,13 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     override func supplementButtonAction() {
         switch currentStep {
         case .createWallet:
-            break
+            createWallet()
         case .createWalletSelector:
             Analytics.log(.onboardingSeedButtonOtherCreateWalletOptions)
             goToStep(.seedPhraseIntro)
         case .seedPhraseIntro:
             Analytics.log(.onboardingSeedButtonImportWallet)
+            importSeedPhraseModel?.resetModel()
             goToStep(.seedPhraseImport)
         case .backupIntro:
             Analytics.log(.backupSkipped)
@@ -471,6 +470,12 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         case .disclaimer:
             disclaimerAccepted()
             goToNextStep()
+        case .backupCards:
+            backupCard()
+        case .success:
+            goToNextStep()
+        case .scanPrimaryCard:
+            readPrimaryCard()
         default:
             break
         }
@@ -532,7 +537,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             back()
         case .seedPhraseIntro:
             goToStep(.createWalletSelector)
-        case .seedPhraseGeneration, .seedPhraseImport:
+        case .seedPhraseGeneration:
+            goToStep(.seedPhraseIntro)
+        case .seedPhraseImport:
+            UIApplication.shared.endEditing()
             goToStep(.seedPhraseIntro)
         case .seedPhraseUserValidation:
             goToStep(.seedPhraseGeneration)
@@ -611,7 +619,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
         isMainButtonBusy = true
 
-        createWalletOnPrimaryCard(using: nil, walletCreationType: .privateKey)
+        createWalletOnPrimaryCard(using: nil, mnemonicPassphrase: nil, walletCreationType: .privateKey)
     }
 
     private func readPrimaryCard() {
@@ -637,12 +645,12 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             )
     }
 
-    private func createWalletOnPrimaryCard(using mnemonic: Mnemonic? = nil, walletCreationType: WalletCreationType) {
+    private func createWalletOnPrimaryCard(using mnemonic: Mnemonic? = nil, mnemonicPassphrase passphrase: String?, walletCreationType: WalletCreationType) {
         guard let cardInitializer else { return }
 
         AppSettings.shared.cardsStartedActivation.insert(input.primaryCardId)
 
-        cardInitializer.initializeCard(mnemonic: mnemonic) { [weak self] result in
+        cardInitializer.initializeCard(mnemonic: mnemonic, passphrase: passphrase) { [weak self] result in
             guard let self else { return }
 
             switch result {
@@ -666,7 +674,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                             primaryButton: .default(Text(Localization.warningButtonOk), action: { [weak self] in
                                 self?.cardInitializer?.shouldReset = true
                             }),
-                            secondaryButton: .default(Text(Localization.chatButtonTitle), action: { [weak self] in
+                            secondaryButton: .default(Text(Localization.commonSupport), action: { [weak self] in
                                 self?.openSupport()
                             })
                         )
@@ -920,18 +928,34 @@ extension WalletOnboardingViewModel: OnboardingSeedPhraseGenerationDelegate {
             seventhWord: words[6],
             eleventhWord: words[10],
             createWalletAction: { [weak self, mnemonic] in
-                self?.createWalletOnPrimaryCard(using: mnemonic, walletCreationType: .newSeed)
+                self?.createWalletOnPrimaryCard(using: mnemonic, mnemonicPassphrase: nil, walletCreationType: .newSeed)
             }
         ))
         mainButtonAction()
     }
 }
 
+extension WalletOnboardingViewModel: SeedPhraseImportDelegate {
+    func importSeedPhrase(mnemonic: Mnemonic, passphrase: String?) {
+        let isWithPassphrase = !(passphrase ?? "").isEmpty
+        createWalletOnPrimaryCard(
+            using: mnemonic,
+            mnemonicPassphrase: passphrase,
+            walletCreationType: .seedImport(
+                length: mnemonic.mnemonicComponents.count,
+                isWithPassphrase: isWithPassphrase
+            )
+        )
+    }
+}
+
+// MARK: - Wallet creation type
+
 extension WalletOnboardingViewModel {
     enum WalletCreationType {
         case privateKey
         case newSeed
-        case seedImport(length: Int)
+        case seedImport(length: Int, isWithPassphrase: Bool)
 
         var params: [Analytics.ParameterKey: String] {
             switch self {
@@ -939,10 +963,11 @@ extension WalletOnboardingViewModel {
                 return [.creationType: Analytics.ParameterValue.walletCreationTypePrivateKey.rawValue]
             case .newSeed:
                 return [.creationType: Analytics.ParameterValue.walletCreationTypeNewSeed.rawValue]
-            case .seedImport(let length):
+            case .seedImport(let length, let isWithPassphrase):
                 return [
                     .creationType: Analytics.ParameterValue.walletCreationTypeSeedImport.rawValue,
                     .seedLength: "\(length)",
+                    .passphrase: isWithPassphrase ? Analytics.ParameterValue.full.rawValue : Analytics.ParameterValue.empty.rawValue,
                 ]
             }
         }
