@@ -283,8 +283,8 @@ private extension PolkadotAccountHealthChecker {
 
 private extension PolkadotAccountHealthChecker {
     enum Constants {
-        // Ten minutes
-        static let backgroundTaskDelay = 60.0 * 10.0
+        // 15 minutes
+        static let backgroundTaskDelay = 60.0 * 15.0
         static let initialTransactionId = 0
         static let transactionInfoCheckDelayBaseValue = 1.5
         static var transactionInfoCheckDelayJitterMinValue: TimeInterval { -transactionInfoCheckDelayJitterMaxValue }
