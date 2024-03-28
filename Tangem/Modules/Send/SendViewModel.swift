@@ -176,6 +176,7 @@ final class SendViewModel: ObservableObject {
             currencySymbol: walletInfo.cryptoCurrencyCode,
             decimals: walletInfo.amountFractionDigits
         )
+        fiatCryptoAdapter.setAmount(sendType.predefinedAmount?.value)
 
         sendStepParameters = SendStep.Parameters(currencyName: walletModel.tokenItem.name, walletName: walletInfo.walletName)
 
