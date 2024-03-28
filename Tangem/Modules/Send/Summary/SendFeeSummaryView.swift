@@ -29,13 +29,23 @@ struct SendFeeSummaryView: View {
                 .visible(data.titleVisible)
 
             HStack(spacing: 0) {
-                feeOption
-                    .matchedGeometryEffectOptional(id: optionNamespaceId, in: namespace)
+                ZStack {
+                    feeOption(bold: false)
+
+                    feeOption(bold: true)
+                        .opacity(0)
+                }
+                .matchedGeometryEffectOptional(id: optionNamespaceId, in: namespace)
 
                 Spacer()
 
-                feeAmount
-                    .matchedGeometryEffectOptional(id: amountNamespaceId, in: namespace)
+                ZStack {
+                    feeAmount(bold: false)
+
+                    feeAmount(bold: true)
+                        .opacity(0)
+                }
+                .matchedGeometryEffectOptional(id: amountNamespaceId, in: namespace)
             }
         }
         .padding(.vertical, 14)
@@ -44,7 +54,7 @@ struct SendFeeSummaryView: View {
     }
 
     @ViewBuilder
-    private var feeOption: some View {
+    private func feeOption(bold: Bool) -> some View {
         HStack(spacing: 8) {
             data.feeIconImage
                 .renderingMode(.template)
@@ -52,16 +62,16 @@ struct SendFeeSummaryView: View {
                 .foregroundColor(Colors.Icon.accent)
 
             Text(data.feeName)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                .style(bold ? Fonts.Bold.subheadline : Fonts.Regular.subheadline, color: Colors.Text.primary1)
                 .lineLimit(1)
         }
     }
 
     @ViewBuilder
-    private var feeAmount: some View {
+    private func feeAmount(bold: Bool) -> some View {
         HStack(spacing: 4) {
             Text(data.cryptoAmount)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                .style(bold ? Fonts.Bold.subheadline : Fonts.Regular.subheadline, color: Colors.Text.primary1)
                 .lineLimit(1)
                 .layoutPriority(1)
 
