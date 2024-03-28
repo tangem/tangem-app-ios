@@ -392,6 +392,17 @@ private extension ExpressInteractor {
         let withdrawalSuggestionProvider = getSender().withdrawalSuggestionProvider
         let suggestion = withdrawalSuggestionProvider?.withdrawalSuggestion(amount: amount, fee: fee.amount)
 
+        // Check on the minimum received amount
+        // Almost impossible case because the providers check it on their side
+        if let destination = getDestination(),
+           case .noAccount(_, let amount) = destination.state,
+           previewCEX.quote.expectAmount < amount {
+            return .restriction(
+                .notEnoughReceivedAmount(minAmount: amount, tokenSymbol: destination.tokenItem.currencySymbol),
+                quote: previewCEX.quote
+            )
+        }
+
         let previewCEXState = PreviewCEXState(subtractFee: previewCEX.subtractFee, fees: fees, suggestion: suggestion)
         let correctState: State = .previewCEX(previewCEXState, quote: previewCEX.quote)
 
@@ -653,7 +664,7 @@ private extension ExpressInteractor {
         }()
 
         Analytics.log(event: .transactionSent, params: [
-            .commonSource: Analytics.ParameterValue.transactionSourceSwap.rawValue,
+            .source: Analytics.ParameterValue.transactionSourceSwap.rawValue,
             .token: data.source.tokenItem.currencySymbol,
             .blockchain: data.source.tokenItem.blockchain.displayName,
             .feeType: analyticsFeeType.rawValue,
@@ -671,7 +682,7 @@ private extension ExpressInteractor {
         }()
 
         Analytics.log(event: .transactionSent, params: [
-            .commonSource: Analytics.ParameterValue.transactionSourceApprove.rawValue,
+            .source: Analytics.ParameterValue.transactionSourceApprove.rawValue,
             .feeType: Analytics.ParameterValue.transactionFeeMax.rawValue,
             .token: getSender().tokenItem.currencySymbol,
             .blockchain: getSender().tokenItem.blockchain.displayName,
@@ -782,6 +793,7 @@ extension ExpressInteractor {
         case requiredRefresh(occurredError: Error)
         case noDestinationTokens
         case validationError(ValidationError)
+        case notEnoughReceivedAmount(minAmount: Decimal, tokenSymbol: String)
     }
 
     struct PermissionRequiredState {
