@@ -14,13 +14,8 @@ struct SendSummaryView: View {
     @ObservedObject var viewModel: SendSummaryViewModel
 
     var body: some View {
-        VStack {
+        VStack(spacing: 14) {
             GroupedScrollView(spacing: 14) {
-                GroupedSection(viewModel.walletSummaryViewModel) { viewModel in
-                    SendWalletSummaryView(viewModel: viewModel)
-                }
-                .backgroundColor(Colors.Button.disabled)
-
                 GroupedSection(viewModel.destinationViewTypes) { type in
                     switch type {
                     case .address(let address):
@@ -45,7 +40,7 @@ struct SendSummaryView: View {
                     amountSectionContent(data: data)
                         .visible(viewModel.showSectionContent)
                 }
-                .innerContentPadding(12)
+                .innerContentPadding(0)
                 .backgroundColor(viewModel.amountBackground, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
                 .contentShape(Rectangle())
                 .allowsHitTesting(viewModel.canEditAmount)
@@ -53,20 +48,38 @@ struct SendSummaryView: View {
                     viewModel.didTapSummary(for: .amount)
                 }
 
-                GroupedSection(viewModel.feeSummaryViewData) { data in
-                    feeSectionContent(data: data)
-                        .visible(viewModel.showSectionContent)
-                }
-                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    viewModel.didTapSummary(for: .fee)
+                VStack(spacing: 8) {
+                    GroupedSection(viewModel.feeSummaryViewData) { data in
+                        feeSectionContent(data: data)
+                            .visible(viewModel.showSectionContent)
+                    }
+                    .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        viewModel.didTapSummary(for: .fee)
+                    }
+
+                    if viewModel.showHint {
+                        HintView(
+                            text: Localization.sendSummaryTapHint,
+                            font: Fonts.Regular.footnote,
+                            textColor: Colors.Text.secondary,
+                            backgroundColor: Colors.Button.secondary
+                        )
+                    }
                 }
 
                 ForEach(viewModel.notificationInputs) { input in
                     NotificationView(input: input)
                         .transition(SendView.Constants.auxiliaryViewTransition)
                 }
+            }
+
+            if let transactionDescription = viewModel.transactionDescription {
+                Text(transactionDescription)
+                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 16)
             }
 
             sendButton
@@ -82,22 +95,20 @@ struct SendSummaryView: View {
         .interactiveDismissDisabled(viewModel.isSending)
     }
 
-    private func amountSectionContent(data: AmountSummaryViewData) -> some View {
-        AmountSummaryView(data: data)
+    private func amountSectionContent(data: SendAmountSummaryViewData) -> some View {
+        SendAmountSummaryView(data: data)
             .setNamespace(namespace)
-            .setTitleNamespaceId(SendViewNamespaceId.amountTitle.rawValue)
             .setIconNamespaceId(SendViewNamespaceId.tokenIcon.rawValue)
             .setAmountCryptoNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
             .setAmountFiatNamespaceId(SendViewNamespaceId.amountFiatText.rawValue)
     }
 
-    private func feeSectionContent(data: DefaultTextWithTitleRowViewData) -> some View {
-        DefaultTextWithTitleRowView(data: data)
+    private func feeSectionContent(data: SendFeeSummaryViewData) -> some View {
+        SendFeeSummaryView(data: data)
             .setNamespace(namespace)
             .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
-            .setTextNamespaceId(SendViewNamespaceId.feeSubtitle.rawValue)
-            // To maintain cell animation from Summary to Fee screen
-            .overlay(feeIcon.opacity(0), alignment: .topLeading)
+            .setOptionNamespaceId(SendViewNamespaceId.feeOption.rawValue)
+            .setAmountNamespaceId(SendViewNamespaceId.feeAmount.rawValue)
     }
 
     @ViewBuilder
@@ -108,14 +119,6 @@ struct SendSummaryView: View {
             isDisabled: viewModel.isSending,
             action: viewModel.send
         )
-    }
-
-    @ViewBuilder
-    private var feeIcon: some View {
-        if let feeOptionIcon = viewModel.feeOptionIcon {
-            feeOptionIcon
-                .matchedGeometryEffect(id: SendViewNamespaceId.feeIcon.rawValue, in: namespace)
-        }
     }
 }
 
@@ -149,7 +152,14 @@ struct SendSummaryView_Previews: PreviewProvider {
         feeAmountType: .coin
     )
 
+    static let viewModel = SendSummaryViewModel(
+        input: SendSummaryViewModelInputMock(),
+        notificationManager: FakeSendNotificationManager(),
+        fiatCryptoValueProvider: SendFiatCryptoValueProviderMock(),
+        walletInfo: walletInfo
+    )
+
     static var previews: some View {
-        SendSummaryView(namespace: namespace, viewModel: SendSummaryViewModel(input: SendSummaryViewModelInputMock(), notificationManager: FakeSendNotificationManager(), walletInfo: walletInfo))
+        SendSummaryView(namespace: namespace, viewModel: viewModel)
     }
 }
