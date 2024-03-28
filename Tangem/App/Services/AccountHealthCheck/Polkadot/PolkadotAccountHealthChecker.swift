@@ -53,6 +53,8 @@ final class PolkadotAccountHealthChecker {
         cleanupResources()
     }
 
+    // MARK: - Lifecycle
+
     private func subscribeToNotifications() {
         willEnterForegroundNotificationObserver = Task.detached { [weak self] in
             for await _ in await NotificationCenter.default.notifications(named: UIApplication.willEnterForegroundNotification) {
@@ -75,6 +77,8 @@ final class PolkadotAccountHealthChecker {
         willEnterForegroundNotificationObserver?.cancel()
         healthCheckTasks.values.forEach { $0.cancel() }
     }
+
+    // MARK: - Account health check
 
     // This overload schedules background task (UIKit).
     private func performAccountCheck(_ account: String) {
@@ -217,6 +221,8 @@ final class PolkadotAccountHealthChecker {
         return transactionDetails.birth == nil || transactionDetails.death == nil
     }
 
+    // MARK: - Analytics
+
     @MainActor
     private func sendAccountHealthMetric(_ metric: AccountHealthMetric) {
         switch metric {
@@ -268,7 +274,6 @@ private extension PolkadotAccountHealthChecker {
 
 private extension PolkadotAccountHealthChecker {
     enum StorageKeys: String, RawRepresentable {
-        case fullyAnalyzedAccounts = "polka_dot_account_health_checker_fully_analyzed_accounts"
         case analyzedForResetAccounts = "polka_dot_account_health_checker_analyzed_for_reset_accounts"
         case analyzedForImmortalTransactionsAccounts = "polka_dot_account_health_checker_analyzed_for_immortal_transactions_accounts"
         case lastAnalyzedTransactionIds = "polka_dot_account_health_checker_last_analyzed_transaction_ids"
