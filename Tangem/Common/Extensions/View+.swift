@@ -110,13 +110,4 @@ extension View {
             #endif
         }
     }
-
-    /// Removes animation from this view, workaround for deprecated .animation(nil)
-    /// - Returns: A view that wraps this view and removes animation from all
-    ///   animatable values used within the view.
-    func removeAnimation() -> some View {
-        transaction { transaction in
-            transaction.animation = nil
-        }
-    }
 }
