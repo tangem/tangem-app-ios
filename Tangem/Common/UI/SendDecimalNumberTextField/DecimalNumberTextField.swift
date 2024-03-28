@@ -59,6 +59,9 @@ struct DecimalNumberTextField: View {
             .onChange(of: textFieldText) { newValue in
                 updateValues(with: newValue)
             }
+            .onAppear {
+                textFieldText = viewModel.value.map { viewModel.format(value: $0) } ?? ""
+            }
     }
 
     private var prompt: Text {
