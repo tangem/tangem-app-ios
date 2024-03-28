@@ -118,7 +118,7 @@ struct SendDecimalNumberTextField: View {
         }
     }
 
-    private func oneSpaceView() -> some View {
+    private func singleSpaceView() -> some View {
         Text(" ")
             .font(appearance.font)
     }
@@ -127,7 +127,7 @@ struct SendDecimalNumberTextField: View {
     private func prefixSuffixView(_ text: String?, hasSpaceBeforeText: Bool = false, hasSpaceAfterText: Bool = false) -> some View {
         if let text {
             if hasSpaceBeforeText {
-                oneSpaceView()
+                singleSpaceView()
             }
 
             Text(text)
@@ -137,7 +137,7 @@ struct SendDecimalNumberTextField: View {
                 }
 
             if hasSpaceAfterText {
-                oneSpaceView()
+                singleSpaceView()
             }
         }
     }
