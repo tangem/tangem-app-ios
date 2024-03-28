@@ -134,7 +134,7 @@ final class PolkadotAccountHealthChecker {
         }
 
         runOnMain { currentlyAnalyzedAccounts.remove(account) }
-        AppLog.shared.debugDetailed("Finished checking account '\(account)'")
+        AppLog.shared.debugDetailed("Finished checking account '\(account)' for all issues")
     }
 
     private func checkAccountForReset(_ account: String) async {
