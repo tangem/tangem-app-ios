@@ -41,10 +41,10 @@ protocol SendDestinationViewModelInput {
 class SendDestinationViewModel: ObservableObject {
     var addressViewModel: SendDestinationTextViewModel?
     var additionalFieldViewModel: SendDestinationTextViewModel?
-    var suggestedDestinationViewModel: SendSuggestedDestinationViewModel?
 
     @Published var destinationErrorText: String?
     @Published var destinationAdditionalFieldErrorText: String?
+    @Published var suggestedDestinationViewModel: SendSuggestedDestinationViewModel?
     @Published var animatingAuxiliaryViewsOnAppear: Bool = false
     @Published var showSuggestedDestinations = true
     @Published var showSectionContent = false
@@ -95,9 +95,9 @@ class SendDestinationViewModel: ObservableObject {
             isDisabled: .just(output: false),
             errorText: input.destinationError
         ) { [weak self] in
-            self?.input.setDestination(SendAddress(value: $0, inputSource: .textField))
+            self?.input.setDestination(SendAddress(value: $0, source: .textField))
         } didPasteDestination: { [weak self] in
-            self?.input.setDestination(SendAddress(value: $0, inputSource: .pasteButton))
+            self?.input.setDestination(SendAddress(value: $0, source: .pasteButton))
         }
 
         if let additionalFieldType = input.additionalFieldType,
@@ -116,6 +116,14 @@ class SendDestinationViewModel: ObservableObject {
         }
 
         bind()
+    }
+
+    func onAppear() {
+        if animatingAuxiliaryViewsOnAppear {
+            Analytics.log(.sendScreenReopened, params: [.source: .address])
+        } else {
+            Analytics.log(.sendAddressScreenOpened)
+        }
     }
 
     private func bind() {
@@ -174,7 +182,7 @@ class SendDestinationViewModel: ObservableObject {
                     let feedbackGenerator = UINotificationFeedbackGenerator()
                     feedbackGenerator.notificationOccurred(.success)
 
-                    self?.input.setDestination(SendAddress(value: destination.address, inputSource: destination.type.inputSource))
+                    self?.input.setDestination(SendAddress(value: destination.address, source: destination.type.source))
                     if let additionalField = destination.additionalField {
                         self?.input.setDestinationAdditionalField(additionalField)
                     }
@@ -189,10 +197,10 @@ extension SendDestinationViewModel: AuxiliaryViewAnimatable {}
 extension SendDestinationViewModel: SectionContainerAnimatable {}
 
 private extension SendSuggestedDestination.`Type` {
-    var inputSource: SendAddress.InputSource {
+    var source: Analytics.DestinationAddressSource {
         switch self {
         case .otherWallet:
-            return .otherWallet
+            return .myWallet
         case .recentAddress:
             return .recentAddress
         }

@@ -28,10 +28,10 @@ struct SendDecimalNumberTextField: View {
     private var toolbarType: ToolbarType?
     private var appearance: DecimalNumberTextField.Appearance = .init()
     private var alignment: Alignment = .leading
+    private var onFocusChanged: ((Bool) -> Void)?
+    private var prefixSuffixOptions: PrefixSuffixOptions?
 
-    // Suffix properties
-    private var suffix: String? = nil
-    private var suffixColor: Color {
+    private var prefixSuffixColor: Color {
         switch viewModel.value {
         case .none:
             return appearance.placeholderColor
@@ -46,10 +46,16 @@ struct SendDecimalNumberTextField: View {
 
     var body: some View {
         ZStack(alignment: alignment) {
-            HStack(alignment: .center, spacing: oneSpaceWidth) {
+            HStack(alignment: .center, spacing: 0) {
+                if case .prefix(let prefix, let hasSpace) = prefixSuffixOptions {
+                    prefixSuffixView(prefix, hasSpaceAfterText: hasSpace)
+                }
+
                 textField
 
-                suffixView
+                if case .suffix(let suffix, let hasSpace) = prefixSuffixOptions {
+                    prefixSuffixView(suffix, hasSpaceBeforeText: hasSpace)
+                }
             }
             .readGeometry(\.frame.size.height, bindTo: $textFieldHeight)
 
@@ -95,6 +101,9 @@ struct SendDecimalNumberTextField: View {
                     isInputActive = true
                 }
             }
+            .onChange(of: isInputActive) { isInputActive in
+                onFocusChanged?(isInputActive)
+            }
     }
 
     @ViewBuilder
@@ -111,10 +120,14 @@ struct SendDecimalNumberTextField: View {
     }
 
     @ViewBuilder
-    private var suffixView: some View {
-        if let suffix {
-            Text(suffix)
-                .style(appearance.font, color: suffixColor)
+    private func prefixSuffixView(_ text: String?, hasSpaceBeforeText: Bool = false, hasSpaceAfterText: Bool = false) -> some View {
+        if let text {
+            if hasSpaceBeforeText {
+                FixedSpacer(width: oneSpaceWidth)
+            }
+
+            Text(text)
+                .style(appearance.font, color: prefixSuffixColor)
                 .onTapGesture {
                     isInputActive = true
                 }
@@ -123,6 +136,10 @@ struct SendDecimalNumberTextField: View {
                         .font(appearance.font)
                         .readGeometry(\.frame.size.width, bindTo: $oneSpaceWidth)
                 )
+
+            if hasSpaceAfterText {
+                FixedSpacer(width: oneSpaceWidth)
+            }
         }
     }
 }
@@ -134,8 +151,8 @@ extension SendDecimalNumberTextField: Setupable {
         map { $0.toolbarType = toolbarType }
     }
 
-    func suffix(_ suffix: String?) -> Self {
-        map { $0.suffix = suffix }
+    func prefixSuffixOptions(_ prefixSuffixOptions: PrefixSuffixOptions) -> Self {
+        map { $0.prefixSuffixOptions = prefixSuffixOptions }
     }
 
     func appearance(_ appearance: DecimalNumberTextField.Appearance) -> Self {
@@ -148,6 +165,10 @@ extension SendDecimalNumberTextField: Setupable {
 
     func initialFocusBehavior(_ initialFocusBehavior: InitialFocusBehavior) -> Self {
         map { $0.initialFocusBehavior = initialFocusBehavior }
+    }
+
+    func onFocusChanged(_ action: ((Bool) -> Void)?) -> Self {
+        map { $0.onFocusChanged = action }
     }
 }
 
@@ -181,22 +202,21 @@ struct SendDecimalNumberTextField_Previews: PreviewProvider {
 
             VStack(alignment: .leading, spacing: 16) {
                 SendDecimalNumberTextField(viewModel: .init(maximumFractionDigits: 8))
-                    .suffix("WEI")
+                    .prefixSuffixOptions(.suffix(text: "WEI", hasSpace: true))
                     .padding()
                     .background(Colors.Background.action)
 
                 SendDecimalNumberTextField(viewModel: .init(maximumFractionDigits: 8))
-                    .suffix(nil)
                     .padding()
                     .background(Colors.Background.action)
 
                 SendDecimalNumberTextField(viewModel: .init(maximumFractionDigits: 8))
-                    .suffix("USDT")
+                    .prefixSuffixOptions(.suffix(text: "USDT", hasSpace: true))
                     .padding()
                     .background(Colors.Background.action)
 
                 SendDecimalNumberTextField(viewModel: .init(maximumFractionDigits: 8))
-                    .suffix("USDT")
+                    .prefixSuffixOptions(.suffix(text: "WEI", hasSpace: true))
                     .appearance(.init(font: Fonts.Regular.body))
                     .alignment(.leading)
                     .padding()
