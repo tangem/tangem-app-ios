@@ -24,6 +24,12 @@ struct SendFeeView: View {
                             .setNamespace(namespace)
                             .setOptionNamespaceId(SendViewNamespaceId.feeOption.rawValue)
                             .setAmountNamespaceId(SendViewNamespaceId.feeAmount.rawValue)
+                            .overlay(alignment: .topLeading) {
+                                Text(Localization.commonNetworkFeeTitle)
+                                    .font(Fonts.Regular.footnote)
+                                    .visible(false)
+                                    .matchedGeometryEffect(id: SendViewNamespaceId.feeTitle.rawValue, in: namespace)
+                            }
                     } else {
                         if !viewModel.animatingAuxiliaryViewsOnAppear {
                             FeeRowView(viewModel: feeRowViewModel)
@@ -31,7 +37,6 @@ struct SendFeeView: View {
                         }
                     }
                 }
-                .visible(viewModel.showSectionContent)
             } footer: {
                 if !viewModel.animatingAuxiliaryViewsOnAppear {
                     feeSelectorFooter
@@ -75,10 +80,7 @@ struct SendFeeView: View {
 
             Spacer(minLength: bottomSpacing)
         }
-        .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         .onAppear(perform: viewModel.onAppear)
-        .onAppear(perform: viewModel.onSectionContentAppear)
-        .onDisappear(perform: viewModel.onSectionContentDisappear)
         .onAppear(perform: viewModel.onAuxiliaryViewAppear)
         .onDisappear(perform: viewModel.onAuxiliaryViewDisappear)
     }
