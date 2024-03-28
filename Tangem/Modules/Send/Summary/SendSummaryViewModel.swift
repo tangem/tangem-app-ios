@@ -103,7 +103,11 @@ class SendSummaryViewModel: ObservableObject {
     }
 
     func onAppear() {
+        showTransactionDescription = false
+
         withAnimation(SendView.Constants.defaultAnimation) {
+            self.showTransactionDescription = true
+
             self.showDestination = true
             self.showAmount = true
             self.showFee = true
