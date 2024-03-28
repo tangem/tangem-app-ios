@@ -27,7 +27,9 @@ extension Blockchain {
         switch self {
         case .arbitrum(let testnet), .optimism(let testnet),
              .aurora(let testnet), .manta(let testnet),
-             .zkSync(let testnet), .polygonZkEVM(let testnet):
+             .zkSync(let testnet), .polygonZkEVM(let testnet),
+             .moonriver(let testnet), .mantle(let testnet),
+             .flare(let testnet):
             return Blockchain.ethereum(testnet: testnet).coinId
         default:
             return coinId
@@ -179,6 +181,15 @@ private extension Blockchain {
             switch type {
             case .network: return "polygon-zkevm"
             case .coin: return "polygon-zkevm-ethereum"
+            }
+        case .moonriver:
+            return "moonriver"
+        case .mantle:
+            return "mantle"
+        case .flare:
+            switch type {
+            case .network: return "flare-network"
+            case .coin: return "flare-networks"
             }
         }
     }
