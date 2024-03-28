@@ -19,7 +19,7 @@ extension InjectedValues {
     struct AccountHealthCheckerKey: InjectionKey {
         static var currentValue: AccountHealthChecker = PolkadotAccountHealthChecker(
             networkService: SubscanPolkadotAccountHealthNetworkService(
-                isTestnet: false,
+                isTestnet: AppEnvironment.current.isTestnet,
                 pageSize: 100
             )
         )
