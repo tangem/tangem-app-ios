@@ -18,7 +18,7 @@ struct SendSummaryView: View {
     var body: some View {
         VStack(spacing: 14) {
             GroupedScrollView(spacing: 0) {
-                if viewModel.showDestination {
+                if !viewModel.animatingDestinationOnAppear {
                     GroupedSection(viewModel.destinationViewTypes) { type in
                         switch type {
                         case .address(let address):
@@ -40,7 +40,7 @@ struct SendSummaryView: View {
 
                 FixedSpacer(height: spacing)
 
-                if viewModel.showAmount {
+                if !viewModel.animatingAmountOnAppear {
                     GroupedSection(viewModel.amountSummaryViewData) { data in
                         amountSectionContent(data: data)
                     }
@@ -55,7 +55,7 @@ struct SendSummaryView: View {
 
                 FixedSpacer(height: spacing)
 
-                if viewModel.showFee {
+                if !viewModel.animatingFeeOnAppear {
                     GroupedSection(viewModel.feeSummaryViewData) { data in
                         feeSectionContent(data: data)
                     }
