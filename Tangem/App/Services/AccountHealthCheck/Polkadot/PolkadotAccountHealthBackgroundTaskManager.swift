@@ -77,8 +77,10 @@ final class PolkadotAccountHealthBackgroundTaskManager {
     }
 
     func cancelAllBackgroundTasks() {
-        BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: backgroundTaskIdentifier)
+        let identifier = backgroundTaskIdentifier
+        BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: identifier)
         pendingAccountsForBackgroundTask.removeAll()
+        AppLog.shared.debugDetailed("Cancelled background task (BackgroundTasks) with identifier '\(identifier)'")
     }
 
     func cancelBackgroundTaskForAccount(_ account: String) {
