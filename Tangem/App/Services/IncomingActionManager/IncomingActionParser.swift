@@ -17,7 +17,7 @@ public class IncomingActionParser {
         DismissSafariActionURLHelper(),
         SellActionURLHelper(),
         WalletConnectURLParser(),
-        BlockchainURLSchemesParser(isURLSchemeSupported: SupportedURLSchemeCheck.isURLSchemeSupported),
+        BlockchainURLSchemesParser(),
     ]
 
     public init() {}
@@ -64,7 +64,7 @@ private extension IncomingActionParser {
     }
 }
 
-private enum SupportedURLSchemeCheck {
+enum SupportedURLSchemeCheck {
     static func isURLSchemeSupported(for url: URL) -> Bool {
         guard let supportedSchemes: [[String]] = InfoDictionaryUtils.bundleURLSchemes.value() else {
             // impossible case
