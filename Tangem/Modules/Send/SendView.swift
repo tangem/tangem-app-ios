@@ -132,7 +132,7 @@ struct SendView: View {
                     title: Localization.commonNext,
                     style: .primary,
                     size: .default,
-                    isDisabled: viewModel.currentStepInvalid,
+                    isDisabled: !viewModel.nextButtonEnabled,
                     action: viewModel.next
                 )
             }
@@ -142,7 +142,7 @@ struct SendView: View {
                     title: Localization.commonContinue,
                     style: .primary,
                     size: .default,
-                    isDisabled: viewModel.currentStepInvalid,
+                    isDisabled: !viewModel.nextButtonEnabled,
                     action: viewModel.continue
                 )
             }
