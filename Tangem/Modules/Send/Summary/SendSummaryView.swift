@@ -129,7 +129,7 @@ struct SendSummaryView: View {
         MainButton(
             title: viewModel.sendButtonText,
             icon: viewModel.sendButtonIcon,
-            isDisabled: viewModel.isSending,
+            isDisabled: viewModel.isSendButtonDisabled,
             action: viewModel.send
         )
     }
