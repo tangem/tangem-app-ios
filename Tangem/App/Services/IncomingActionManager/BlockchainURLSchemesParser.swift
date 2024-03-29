@@ -12,11 +12,9 @@ import Foundation
 /// current implementation just chekcs that url scheme is supported,
 /// actual parsing may be implemented in the future
 struct BlockchainURLSchemesParser: IncomingActionURLParser {
-    let isURLSchemeSupported: (URL) -> Bool
-
     func parse(_ url: URL) -> IncomingAction? {
         guard !url.absoluteString.starts(with: IncomingActionConstants.universalLinkScheme),
-              isURLSchemeSupported(url) else {
+              SupportedURLSchemeCheck.isURLSchemeSupported(for: url) else {
             return nil
         }
 
