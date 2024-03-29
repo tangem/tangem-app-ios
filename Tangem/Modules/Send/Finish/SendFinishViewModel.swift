@@ -88,8 +88,4 @@ class SendFinishViewModel: ObservableObject {
 
         router?.share(url: transactionURL)
     }
-
-    func close() {
-        router?.dismiss()
-    }
 }
