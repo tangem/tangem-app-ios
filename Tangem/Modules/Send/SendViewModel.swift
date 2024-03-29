@@ -244,6 +244,13 @@ final class SendViewModel: ObservableObject {
             .assign(to: \.nextButtonEnabled, on: self, ownership: .weak)
             .store(in: &bag)
 
+        $updatingFees
+            .sink { [weak self] updatingFees in
+                self?.sendDestinationViewModel.setUserInputDisabled(updatingFees)
+                self?.sendAmountViewModel.setUserInputDisabled(updatingFees)
+            }
+            .store(in: &bag)
+
         sendModel
             .destinationPublisher
             .sink { [weak self] destination in
