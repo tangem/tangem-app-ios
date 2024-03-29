@@ -17,7 +17,8 @@ final class SendViewModel: ObservableObject {
     @Published var stepAnimation: SendView.StepAnimation? = .slideForward
     @Published var step: SendStep
     @Published var showBackButton = false
-    @Published var currentStepInvalid: Bool = false
+    @Published var nextButtonEnabled = true
+    @Published var updatingFees = false
     @Published var alert: AlertBinder?
 
     var title: String? {
@@ -236,11 +237,11 @@ final class SendViewModel: ObservableObject {
     }
 
     private func bind() {
-        currentStepValid
-            .map {
-                !$0
+        Publishers.CombineLatest(currentStepValid, $updatingFees)
+            .map { currentStepValid, updatingFees in
+                currentStepValid && !updatingFees
             }
-            .assign(to: \.currentStepInvalid, on: self, ownership: .weak)
+            .assign(to: \.nextButtonEnabled, on: self, ownership: .weak)
             .store(in: &bag)
 
         sendModel
@@ -388,9 +389,13 @@ final class SendViewModel: ObservableObject {
     }
 
     private func updateFee(_ step: SendStep, stepAnimation: SendView.StepAnimation?, checkCustomFee: Bool) {
+        updatingFees = true
+
         sendModel.updateFees()
             .receive(on: RunLoop.main)
             .sink { [weak self] completion in
+                self?.updatingFees = false
+
                 guard case .failure = completion else { return }
 
                 self?.alert = SendAlertBuilder.makeFeeRetryAlert {
