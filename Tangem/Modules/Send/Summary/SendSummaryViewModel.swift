@@ -194,9 +194,10 @@ class SendSummaryViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        notificationManager
-            .hasNotifications(with: .critical)
-            .assign(to: \.isSendButtonDisabled, on: self, ownership: .weak)
+        Publishers.CombineLatest($isSending, notificationManager.hasNotifications(with: .critical))
+            .sink { [weak self] isSending, hasCriticalNotifications in
+                self?.isSendButtonDisabled = isSending || hasCriticalNotifications
+            }
             .store(in: &bag)
     }
 
