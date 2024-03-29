@@ -133,7 +133,7 @@ struct SendView: View {
                     action: viewModel.back
                 )
                 .transition(.move(edge: .leading).combined(with: .opacity))
-                .animation(.linear(duration: 0.1), value: viewModel.showBackButton)
+                .animation(SendView.Constants.backButtonAnimation, value: viewModel.showBackButton)
             }
 
             MainButton(
