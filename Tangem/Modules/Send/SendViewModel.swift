@@ -399,7 +399,7 @@ final class SendViewModel: ObservableObject {
         updatingFees = true
 
         feeUpdateSubscription = sendModel.updateFees()
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.updatingFees = false
 
