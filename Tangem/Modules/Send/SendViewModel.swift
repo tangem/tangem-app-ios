@@ -398,7 +398,7 @@ final class SendViewModel: ObservableObject {
     private func updateFee(_ step: SendStep, stepAnimation: SendView.StepAnimation?, checkCustomFee: Bool) {
         updatingFees = true
 
-        sendModel.updateFees()
+        feeUpdateSubscription = sendModel.updateFees()
             .receive(on: RunLoop.main)
             .sink { [weak self] completion in
                 self?.updatingFees = false
@@ -411,10 +411,16 @@ final class SendViewModel: ObservableObject {
             } receiveValue: { [weak self] result in
                 self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee, updateFee: false)
             }
-            .store(in: &bag)
+    }
+
+    private func cancelUpdatingFee() {
+        feeUpdateSubscription = nil
+        updatingFees = false
     }
 
     private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation?, checkCustomFee: Bool = true, updateFee: Bool) {
+        cancelUpdatingFee()
+
         if case .summary = step {
             if updateFee {
                 self.updateFee(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee)
