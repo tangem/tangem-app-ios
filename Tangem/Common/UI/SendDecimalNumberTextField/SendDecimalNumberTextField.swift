@@ -118,6 +118,7 @@ struct SendDecimalNumberTextField: View {
         }
     }
 
+    // This is used to emulate a single space between the prefix/suffix and the amount field
     private func singleSpaceView() -> some View {
         Text(" ")
             .font(appearance.font)
