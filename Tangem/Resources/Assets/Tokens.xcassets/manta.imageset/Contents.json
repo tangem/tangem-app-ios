@@ -1,15 +1,12 @@
 {
   "images" : [
     {
-      "filename" : "polygon.fill.pdf",
+      "filename" : "manta.pdf",
       "idiom" : "universal"
     }
   ],
   "info" : {
     "author" : "xcode",
     "version" : 1
-  },
-  "properties" : {
-    "preserves-vector-representation" : true
   }
 }
