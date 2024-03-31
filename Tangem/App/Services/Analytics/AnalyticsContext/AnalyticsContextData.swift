@@ -10,7 +10,6 @@ import Foundation
 import TangemSdk
 
 struct AnalyticsContextData {
-    let id: String?
     let productType: Analytics.ProductType
     let batchId: String
     let firmware: String
@@ -27,21 +26,10 @@ struct AnalyticsContextData {
 }
 
 extension AnalyticsContextData {
-    init(card: CardDTO, productType: Analytics.ProductType, userWalletId: Data?, embeddedEntry: StorageEntry?) {
-        id = userWalletId?.sha256().hexString
+    init(card: CardDTO, productType: Analytics.ProductType, embeddedEntry: StorageEntry?) {
         self.productType = productType
         batchId = card.batchId
         firmware = card.firmwareVersion.stringValue
         baseCurrency = embeddedEntry?.tokens.first?.symbol ?? embeddedEntry?.blockchainNetwork.blockchain.currencySymbol
-    }
-
-    func copy(with userWalletId: Data) -> Self {
-        return .init(
-            id: userWalletId.sha256().hexString,
-            productType: productType,
-            batchId: batchId,
-            firmware: firmware,
-            baseCurrency: baseCurrency
-        )
     }
 }
