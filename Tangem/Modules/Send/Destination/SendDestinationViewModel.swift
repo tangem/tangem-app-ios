@@ -47,7 +47,6 @@ class SendDestinationViewModel: ObservableObject {
     @Published var suggestedDestinationViewModel: SendSuggestedDestinationViewModel?
     @Published var animatingAuxiliaryViewsOnAppear: Bool = false
     @Published var showSuggestedDestinations = true
-    @Published var showSectionContent = false
 
     var didProperlyDisappear: Bool = false
 
@@ -120,7 +119,7 @@ class SendDestinationViewModel: ObservableObject {
 
     func onAppear() {
         if animatingAuxiliaryViewsOnAppear {
-            Analytics.log(.sendScreenReopened, params: [.commonSource: .address])
+            Analytics.log(.sendScreenReopened, params: [.source: .address])
         } else {
             Analytics.log(.sendAddressScreenOpened)
         }
@@ -193,8 +192,6 @@ class SendDestinationViewModel: ObservableObject {
 }
 
 extension SendDestinationViewModel: AuxiliaryViewAnimatable {}
-
-extension SendDestinationViewModel: SectionContainerAnimatable {}
 
 private extension SendSuggestedDestination.`Type` {
     var source: Analytics.DestinationAddressSource {
