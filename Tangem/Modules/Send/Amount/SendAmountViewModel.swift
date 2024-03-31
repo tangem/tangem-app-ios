@@ -37,7 +37,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     @Published var amountAlternative: String?
     @Published var error: String?
     @Published var animatingAuxiliaryViewsOnAppear = false
-    @Published var showSectionContent = false
 
     var currentFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions {
         useFiatCalculation ? fiatFieldOptions : cryptoFieldOptions
@@ -87,7 +86,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         fiatCryptoAdapter?.setCrypto(input.userInputAmountValue?.value)
 
         if animatingAuxiliaryViewsOnAppear {
-            Analytics.log(.sendScreenReopened, params: [.commonSource: .amount])
+            Analytics.log(.sendScreenReopened, params: [.source: .amount])
         } else {
             Analytics.log(.sendAmountScreenOpened)
         }
@@ -151,8 +150,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 }
 
 extension SendAmountViewModel: AuxiliaryViewAnimatable {}
-
-extension SendAmountViewModel: SectionContainerAnimatable {}
 
 extension SendAmountViewModel: SendFiatCryptoAdapterInput {
     var amountPublisher: AnyPublisher<Decimal?, Never> {
