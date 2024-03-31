@@ -9,16 +9,23 @@
 import Foundation
 
 enum SendViewNamespaceId: String {
+    // Address
     case addressContainer
     case addressTitle
     case addressIcon
     case addressText
     case addressClearButton
     case additionalField
+
+    // Amount
     case amountContainer
+    case walletName
+    case walletBalance
     case tokenIcon
     case amountCryptoText
     case amountFiatText
+
+    // Fee
     case feeContainer
     case feeTitle
     case feeOption
