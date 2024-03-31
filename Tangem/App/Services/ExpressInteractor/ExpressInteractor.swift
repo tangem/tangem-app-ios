@@ -664,7 +664,7 @@ private extension ExpressInteractor {
         }()
 
         Analytics.log(event: .transactionSent, params: [
-            .commonSource: Analytics.ParameterValue.transactionSourceSwap.rawValue,
+            .source: Analytics.ParameterValue.transactionSourceSwap.rawValue,
             .token: data.source.tokenItem.currencySymbol,
             .blockchain: data.source.tokenItem.blockchain.displayName,
             .feeType: analyticsFeeType.rawValue,
@@ -682,7 +682,7 @@ private extension ExpressInteractor {
         }()
 
         Analytics.log(event: .transactionSent, params: [
-            .commonSource: Analytics.ParameterValue.transactionSourceApprove.rawValue,
+            .source: Analytics.ParameterValue.transactionSourceApprove.rawValue,
             .feeType: Analytics.ParameterValue.transactionFeeMax.rawValue,
             .token: getSender().tokenItem.currencySymbol,
             .blockchain: getSender().tokenItem.blockchain.displayName,
