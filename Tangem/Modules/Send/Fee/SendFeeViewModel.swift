@@ -44,7 +44,6 @@ class SendFeeViewModel: ObservableObject {
     @Published private(set) var feeRowViewModels: [FeeRowViewModel] = []
     @Published private(set) var showCustomFeeFields: Bool = false
     @Published var animatingAuxiliaryViewsOnAppear: Bool = false
-    @Published var showSectionContent = false
 
     var didProperlyDisappear = false
 
@@ -93,7 +92,7 @@ class SendFeeViewModel: ObservableObject {
 
     func onAppear() {
         if animatingAuxiliaryViewsOnAppear {
-            Analytics.log(.sendScreenReopened, params: [.commonSource: .fee])
+            Analytics.log(.sendScreenReopened, params: [.source: .fee])
 
             withAnimation(SendView.Constants.defaultAnimation) {
                 animatingAuxiliaryViewsOnAppear = false
@@ -296,8 +295,6 @@ class SendFeeViewModel: ObservableObject {
 }
 
 extension SendFeeViewModel: AuxiliaryViewAnimatable {}
-
-extension SendFeeViewModel: SectionContainerAnimatable {}
 
 // MARK: - private extensions
 
