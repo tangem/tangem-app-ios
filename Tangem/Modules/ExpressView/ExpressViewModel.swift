@@ -227,11 +227,25 @@ private extension ExpressViewModel {
             }
             .store(in: &bag)
 
-        notificationManager
-            .notificationPublisher
-            .removeDuplicates()
+        let makeNotificationPublisher = { [notificationManager] filter in
+            notificationManager
+                .notificationPublisher
+                .removeDuplicates()
+                .scan(([NotificationViewInput](), [NotificationViewInput]())) { prev, new in
+                    (prev.1, new)
+                }
+                .filter(filter)
+                .map(\.1)
+                .removeDuplicates()
+        }
+
+        makeNotificationPublisher { $1.count > $0.count }
             // Debounce for exclude unwanted animations/updates
             .debounce(for: 0.2, scheduler: DispatchQueue.main)
+            .assign(to: \.notificationInputs, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        makeNotificationPublisher { $1.count < $0.count }
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
