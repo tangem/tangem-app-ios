@@ -59,16 +59,21 @@ struct SendFeeView: View {
 
             if !viewModel.animatingAuxiliaryViewsOnAppear,
                viewModel.showCustomFeeFields,
-               let customFeeModel = viewModel.customFeeModel,
-               let customFeeGasPriceModel = viewModel.customFeeGasPriceModel,
-               let customFeeGasLimitModel = viewModel.customFeeGasLimitModel {
+               let customFeeModel = viewModel.customFeeModel {
                 Group {
                     SendCustomFeeInputField(viewModel: customFeeModel)
 
-                    SendCustomFeeInputField(viewModel: customFeeGasPriceModel)
-                        .onFocusChanged(viewModel.onCustomGasPriceFocusChanged)
+                    if let customFeeSatoshiPerByteModel = viewModel.customFeeSatoshiPerByteModel {
+                        SendCustomFeeInputField(viewModel: customFeeSatoshiPerByteModel)
+                    }
 
-                    SendCustomFeeInputField(viewModel: customFeeGasLimitModel)
+                    if let customFeeGasPriceModel = viewModel.customFeeGasPriceModel,
+                       let customFeeGasLimitModel = viewModel.customFeeGasLimitModel {
+                        SendCustomFeeInputField(viewModel: customFeeGasPriceModel)
+                            .onFocusChanged(viewModel.onCustomGasPriceFocusChanged)
+
+                        SendCustomFeeInputField(viewModel: customFeeGasLimitModel)
+                    }
                 }
                 .transition(SendView.Constants.auxiliaryViewTransition)
 
