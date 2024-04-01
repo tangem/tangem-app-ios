@@ -10,7 +10,7 @@ import SwiftUI
 
 struct LoadingProvidersRow: View {
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 3.5) {
             Text(Localization.expressProvider)
                 .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
 

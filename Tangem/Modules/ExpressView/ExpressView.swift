@@ -14,8 +14,6 @@ struct ExpressView: View {
     @State private var viewGeometryInfo: GeometryInfo = .zero
     @State private var contentSize: CGSize = .zero
     @State private var bottomViewSize: CGSize = .zero
-    @State private var providerViewHeight: CGFloat = .zero
-    @State private var loadingProviderViewHeight: CGFloat = .zero
 
     private var spacer: CGFloat {
         var height = viewGeometryInfo.frame.height
@@ -110,13 +108,10 @@ struct ExpressView: View {
 
     @ViewBuilder
     private var informationSection: some View {
-        // To force notifications' appearing only after feeSection is appeared
-        if viewModel.expressFeeRowViewModel != nil {
-            ForEach(viewModel.notificationInputs) {
-                NotificationView(input: $0)
-                    .setButtonsLoadingState(to: viewModel.isSwapButtonLoading)
-                    .transition(.notificationTransition)
-            }
+        ForEach(viewModel.notificationInputs) {
+            NotificationView(input: $0)
+                .setButtonsLoadingState(to: viewModel.isSwapButtonLoading)
+                .transition(.notificationTransition)
         }
     }
 
@@ -134,12 +129,8 @@ struct ExpressView: View {
             switch state {
             case .loading:
                 LoadingProvidersRow()
-                    .readGeometry(\.frame.height, bindTo: $loadingProviderViewHeight)
-                    .frame(height: max(providerViewHeight, loadingProviderViewHeight))
             case .loaded(let data):
                 ProviderRowView(viewModel: data)
-                    .readGeometry(\.frame.height, bindTo: $providerViewHeight)
-                    .frame(height: max(providerViewHeight, loadingProviderViewHeight))
             }
         }
         .innerContentPadding(12)
@@ -164,7 +155,9 @@ struct ExpressView: View {
             .readGeometry(\.frame.size, bindTo: $bottomViewSize)
         }
         // To force `.animation(nil)` behaviour
-        .animation(nil, value: UUID())
+        .transaction { transaction in
+            transaction.animation = nil
+        }
     }
 
     @ViewBuilder
