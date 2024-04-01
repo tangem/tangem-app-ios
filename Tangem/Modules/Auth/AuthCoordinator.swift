@@ -10,31 +10,18 @@ import Foundation
 import Combine
 
 class AuthCoordinator: CoordinatorObject {
-    enum ViewState: Equatable {
-        case auth(AuthViewModel)
-        case main(MainCoordinator)
-
-        var isMain: Bool {
-            if case .main = self {
-                return true
-            }
-            return false
-        }
-
-        static func == (lhs: AuthCoordinator.ViewState, rhs: AuthCoordinator.ViewState) -> Bool {
-            switch (lhs, rhs) {
-            case (.auth, .auth), (.main, .main):
-                return true
-            default:
-                return false
-            }
-        }
-    }
-
     // MARK: - Dependencies
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
+
+    var navigationBarHidden: Bool {
+        viewState?.isMain == false
+    }
+
+    var transitionAnimationValue: Bool {
+        viewState?.isMain == false
+    }
 
     // MARK: - Root view model
 
@@ -95,5 +82,30 @@ extension AuthCoordinator: AuthRoutable {
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {
         let logsComposer = LogsComposer(infoProvider: dataCollector)
         mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToScanCard)
+    }
+}
+
+// MARK: ViewState
+
+extension AuthCoordinator {
+    enum ViewState: Equatable {
+        case auth(AuthViewModel)
+        case main(MainCoordinator)
+
+        var isMain: Bool {
+            if case .main = self {
+                return true
+            }
+            return false
+        }
+
+        static func == (lhs: AuthCoordinator.ViewState, rhs: AuthCoordinator.ViewState) -> Bool {
+            switch (lhs, rhs) {
+            case (.auth, .auth), (.main, .main):
+                return true
+            default:
+                return false
+            }
+        }
     }
 }
