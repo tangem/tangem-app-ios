@@ -126,6 +126,7 @@ class SendModel {
     private let walletModel: WalletModel
     private let transactionSigner: TransactionSigner
     private let addressService: SendAddressService
+    private let customFeeService: CustomFeeService?
     private let sendType: SendType
     private var destinationResolutionRequest: Task<Void, Error>?
     private var didSetCustomFee = false
@@ -134,17 +135,18 @@ class SendModel {
 
     // MARK: - Public interface
 
-    init(walletModel: WalletModel, transactionSigner: TransactionSigner, addressService: SendAddressService, sendType: SendType) {
+    init(walletModel: WalletModel, transactionSigner: TransactionSigner, addressService: SendAddressService, customFeeService: CustomFeeService?, sendType: SendType) {
         self.walletModel = walletModel
         self.transactionSigner = transactionSigner
         self.sendType = sendType
         self.addressService = addressService
+        self.customFeeService = customFeeService
 
         bind()
 
-        if let amount = sendType.predefinedAmount {
-            setAmount(amount)
-        }
+//        if let amount = sendType.predefinedAmount {
+        setAmount(Decimal(stringValue: "0.00001"))
+//        }
 
         if let destination = sendType.predefinedDestination {
             setDestination(SendAddress(value: destination, source: .sellProvider))
@@ -282,15 +284,25 @@ class SendModel {
                 else {
                     return
                 }
-                
-                if let bitcoinFeeParameters = customFee.parameters as? BitcoinFeeParameters {
-                    _customFee.send(customFee)
-                    _customFeeSatoshiPerByte.send(bitcoinFeeParameters.rate)
-                } else if let ethereumFeeParameters = customFee.parameters as? EthereumFeeParameters {
-                    _customFee.send(customFee)
-                    _customFeeGasPrice.send(ethereumFeeParameters.gasPrice)
-                    _customFeeGasLimit.send(ethereumFeeParameters.gasLimit)
-                }
+
+                customFeeService?.setFee(customFee)
+
+//                if let bitcoinFeeParameters = customFee.parameters as? BitcoinFeeParameters {
+//                    _customFee.send(customFee)
+//                    _customFeeSatoshiPerByte.send(bitcoinFeeParameters.rate)
+//                } else if let ethereumFeeParameters = customFee.parameters as? EthereumFeeParameters {
+//                    _customFee.send(customFee)
+//                    _customFeeGasPrice.send(ethereumFeeParameters.gasPrice)
+//                    _customFeeGasLimit.send(ethereumFeeParameters.gasLimit)
+//                }
+            }
+            .store(in: &bag)
+
+        customFeeService?
+            .customFeePublisher
+            .sink { [weak self] customFee in
+                self?._customFee.send(customFee)
+                self?.fee.send(customFee)
             }
             .store(in: &bag)
 
@@ -559,17 +571,20 @@ class SendModel {
         _customFee.send(value)
         fee.send(value)
 
-        if let bitcoinParams = value?.parameters as? BitcoinFeeParameters {
-            _customFeeSatoshiPerByte.send(bitcoinParams.rate)
-        } else if let ethereumParams = value?.parameters as? EthereumFeeParameters {
-            _customFeeGasLimit.send(ethereumParams.gasLimit)
-            _customFeeGasPrice.send(ethereumParams.gasPrice)
-        }
+        customFeeService?.didChangeCustomFee(value)
+
+//        if let bitcoinParams = value?.parameters as? BitcoinFeeParameters {
+//            _customFeeSatoshiPerByte.send(bitcoinParams.rate)
+//        } else if let ethereumParams = value?.parameters as? EthereumFeeParameters {
+//            _customFeeGasLimit.send(ethereumParams.gasLimit)
+//            _customFeeGasPrice.send(ethereumParams.gasPrice)
+//        }
     }
 
     func didChangeCustomSatoshiPerByte(_ value: Int?) {
-        _customFeeSatoshiPerByte.send(value)
-        recalculateCustomFee()
+        print("ZZZ didChangeCustomSatoshiPerByte")
+//        _customFeeSatoshiPerByte.send(value)
+//        recalculateCustomFee()
     }
 
     func didChangeCustomFeeGasPrice(_ value: BigUInt?) {
