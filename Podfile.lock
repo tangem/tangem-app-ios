@@ -287,7 +287,7 @@ CHECKOUT OPTIONS:
     :git: https://github.com/tangem/bitcoincore.git
     :tag: 0.0.19
   BlockchainSdk:
-    :commit: 805a2d414419d45c26a4cc7457e1dc067d79bfc2
+    :commit: cfb43a3eb3cd35538cab30fb943b3335b6f68eee
     :git: https://github.com/tangem/blockchain-sdk-swift.git
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
