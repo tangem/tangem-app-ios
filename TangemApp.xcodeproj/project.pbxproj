@@ -747,6 +747,8 @@
 		DA4371AA2A7D1937006215CA /* LegacyTokenListRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA43719C2A7D1937006215CA /* LegacyTokenListRoutable.swift */; };
 		DA4B804B2BBA984F00CE50B7 /* CustomUtxoFeeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4B804A2BBA984F00CE50B7 /* CustomUtxoFeeService.swift */; };
 		DA4B804E2BBAA15A00CE50B7 /* CustomFeeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4B804D2BBAA15A00CE50B7 /* CustomFeeService.swift */; };
+		DA4B80502BBAA1A000CE50B7 /* CustomEvmFeeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4B804F2BBAA1A000CE50B7 /* CustomEvmFeeService.swift */; };
+		DA4B80522BBAB96B00CE50B7 /* CustomFeeServiceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4B80512BBAB96B00CE50B7 /* CustomFeeServiceFactory.swift */; };
 		DA4C84CD27DA2D6D00B76F91 /* AnimatableModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4C84CB27DA2D6D00B76F91 /* AnimatableModifiers.swift */; };
 		DA4C84CE27DA2D6D00B76F91 /* StoriesConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4C84CC27DA2D6D00B76F91 /* StoriesConstants.swift */; };
 		DA5044E32ABACA6600D1E5CF /* MarketPriceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5044E22ABACA6600D1E5CF /* MarketPriceView.swift */; };
@@ -2226,6 +2228,8 @@
 		DA43719C2A7D1937006215CA /* LegacyTokenListRoutable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyTokenListRoutable.swift; sourceTree = "<group>"; };
 		DA4B804A2BBA984F00CE50B7 /* CustomUtxoFeeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomUtxoFeeService.swift; sourceTree = "<group>"; };
 		DA4B804D2BBAA15A00CE50B7 /* CustomFeeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomFeeService.swift; sourceTree = "<group>"; };
+		DA4B804F2BBAA1A000CE50B7 /* CustomEvmFeeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomEvmFeeService.swift; sourceTree = "<group>"; };
+		DA4B80512BBAB96B00CE50B7 /* CustomFeeServiceFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomFeeServiceFactory.swift; sourceTree = "<group>"; };
 		DA4C84CB27DA2D6D00B76F91 /* AnimatableModifiers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimatableModifiers.swift; sourceTree = "<group>"; };
 		DA4C84CC27DA2D6D00B76F91 /* StoriesConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoriesConstants.swift; sourceTree = "<group>"; };
 		DA5044E22ABACA6600D1E5CF /* MarketPriceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketPriceView.swift; sourceTree = "<group>"; };
@@ -5479,8 +5483,10 @@
 		DA4B804C2BBAA14800CE50B7 /* CustomFeeService */ = {
 			isa = PBXGroup;
 			children = (
+				DA4B80512BBAB96B00CE50B7 /* CustomFeeServiceFactory.swift */,
 				DA4B804D2BBAA15A00CE50B7 /* CustomFeeService.swift */,
 				DA4B804A2BBA984F00CE50B7 /* CustomUtxoFeeService.swift */,
+				DA4B804F2BBAA1A000CE50B7 /* CustomEvmFeeService.swift */,
 			);
 			path = CustomFeeService;
 			sourceTree = "<group>";
@@ -8231,6 +8237,7 @@
 				B05209C3261F2B4E000DD204 /* WalletConnectUIBuilder.swift in Sources */,
 				B6ACD0102AD69B50005A6CA3 /* OrganizeTokensDragAndDropMarkView.swift in Sources */,
 				EF48E6E02B02408500FE0072 /* ExpressRoutable.swift in Sources */,
+				DA4B80522BBAB96B00CE50B7 /* CustomFeeServiceFactory.swift in Sources */,
 				EF914D522A612E49001F00B2 /* Wallet2Config.swift in Sources */,
 				B00FC6A92949A6460007ACCA /* CardImageResult.swift in Sources */,
 				EFD32AE729ED93F20026353E /* FeatureStateRowView.swift in Sources */,
@@ -9012,6 +9019,7 @@
 				EF5F1BB429D5A19E0093307B /* SelectableGropedSection.swift in Sources */,
 				B69E78782A69795D007E358A /* CardInfoPagePreviewConfig.swift in Sources */,
 				B0AF2DF82B1DF42D001A8696 /* PendingExpressTransaction.swift in Sources */,
+				DA4B80502BBAA1A000CE50B7 /* CustomEvmFeeService.swift in Sources */,
 				DA6C752C292909B20070EEFD /* UserWalletRepositoryUtil.swift in Sources */,
 				DC295B4E2861D871006CB7B6 /* WalletConnectCoordinatorView.swift in Sources */,
 				B0F79C6A2689AC56008C9B30 /* FileEncryptionUtility.swift in Sources */,
