@@ -18,10 +18,12 @@ protocol SendFeeViewModelInput {
     var feeOptions: [FeeOption] { get }
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
 
+    var customFeeSatoshiPerByte: Int? { get }
     var customGasLimit: BigUInt? { get }
     var customGasPrice: BigUInt? { get }
 
     var customFeePublisher: AnyPublisher<Fee?, Never> { get }
+    var customFeeSatoshiPerBytePublisher: AnyPublisher<Int?, Never> { get }
     var customGasPricePublisher: AnyPublisher<BigUInt?, Never> { get }
     var customGasLimitPublisher: AnyPublisher<BigUInt?, Never> { get }
 
@@ -30,6 +32,7 @@ protocol SendFeeViewModelInput {
 
     func didSelectFeeOption(_ feeOption: FeeOption)
     func didChangeCustomFee(_ value: Fee?)
+    func didChangeCustomSatoshiPerByte(_ value: Int?)
     func didChangeCustomFeeGasPrice(_ value: BigUInt?)
     func didChangeCustomFeeGasLimit(_ value: BigUInt?)
     func didChangeFeeInclusion(_ isFeeIncluded: Bool)
@@ -48,6 +51,7 @@ class SendFeeViewModel: ObservableObject {
     var didProperlyDisappear = false
 
     private(set) var customFeeModel: SendCustomFeeInputFieldModel?
+    private(set) var customFeeSatoshiPerByteModel: SendCustomFeeInputFieldModel?
     private(set) var customFeeGasPriceModel: SendCustomFeeInputFieldModel?
     private(set) var customFeeGasLimitModel: SendCustomFeeInputFieldModel?
 
@@ -120,52 +124,97 @@ class SendFeeViewModel: ObservableObject {
     }
 
     private func createCustomFeeModels() {
+        let customFeeFooter: String?
+        let customFeeTitle: String
+
+        let sendModel = input as! SendModel
+
+        if case .bitcoin = sendModel.blockchainNetwork.blockchain {
+            let satoshiPerBytePublisher = input
+                .customFeeSatoshiPerBytePublisher
+                .map { intValue -> Decimal? in
+                    if let intValue {
+                        Decimal(intValue)
+                    } else {
+                        nil
+                    }
+                }
+                .eraseToAnyPublisher()
+
+            customFeeSatoshiPerByteModel = SendCustomFeeInputFieldModel(
+                title: "Satoshi per byte",
+                amountPublisher: satoshiPerBytePublisher,
+                fieldSuffix: nil,
+                fractionDigits: 0,
+                amountAlternativePublisher: .just(output: nil),
+                footer: nil
+            ) { [weak self] decimalValue in
+                let intValue: Int?
+                if let decimalValue {
+                    intValue = (decimalValue as NSDecimalNumber).intValue
+                } else {
+                    intValue = nil
+                }
+
+                self?.input.didChangeCustomSatoshiPerByte(intValue)
+            }
+
+            customFeeTitle = Localization.commonFeeLabel
+            customFeeFooter = nil
+        } else if sendModel.blockchainNetwork.blockchain.isEvm {
+            let gasPriceFractionDigits = 9
+            let gasPriceGweiPublisher = input
+                .customGasPricePublisher
+                .decimalPublisher
+                .map { weiValue -> Decimal? in
+                    let gweiValue = weiValue?.shiftOrder(magnitude: -gasPriceFractionDigits)
+                    return gweiValue
+                }
+                .eraseToAnyPublisher()
+
+            customFeeGasPriceModel = SendCustomFeeInputFieldModel(
+                title: Localization.sendGasPrice,
+                amountPublisher: gasPriceGweiPublisher,
+                fieldSuffix: "GWEI",
+                fractionDigits: gasPriceFractionDigits,
+                amountAlternativePublisher: .just(output: nil),
+                footer: Localization.sendGasPriceFooter
+            ) { [weak self] gweiValue in
+                guard let self else { return }
+
+                let weiValue = gweiValue?.shiftOrder(magnitude: gasPriceFractionDigits)
+                input.didChangeCustomFeeGasPrice(weiValue?.bigUIntValue)
+            }
+
+            customFeeGasLimitModel = SendCustomFeeInputFieldModel(
+                title: Localization.sendGasLimit,
+                amountPublisher: input.customGasLimitPublisher.decimalPublisher,
+                fieldSuffix: nil,
+                fractionDigits: 0,
+                amountAlternativePublisher: .just(output: nil),
+                footer: Localization.sendGasLimitFooter
+            ) { [weak self] in
+                guard let self else { return }
+                input.didChangeCustomFeeGasLimit($0?.bigUIntValue)
+            }
+
+            customFeeTitle = Localization.sendMaxFee
+            customFeeFooter = Localization.sendMaxFeeFooter
+
+        } else {
+            return
+        }
+
         customFeeModel = SendCustomFeeInputFieldModel(
-            title: Localization.sendMaxFee,
+            title: customFeeTitle,
             amountPublisher: input.customFeePublisher.decimalPublisher,
             fieldSuffix: walletInfo.feeCurrencySymbol,
             fractionDigits: walletInfo.feeFractionDigits,
             amountAlternativePublisher: customFeeInFiat.eraseToAnyPublisher(),
-            footer: Localization.sendMaxFeeFooter
+            footer: customFeeFooter
         ) { [weak self] enteredFee in
             guard let self else { return }
             input.didChangeCustomFee(recalculateFee(enteredFee: enteredFee, input: input, walletInfo: walletInfo))
-        }
-
-        let gasPriceFractionDigits = 9
-        let gasPriceGweiPublisher = input
-            .customGasPricePublisher
-            .decimalPublisher
-            .map { weiValue -> Decimal? in
-                let gweiValue = weiValue?.shiftOrder(magnitude: -gasPriceFractionDigits)
-                return gweiValue
-            }
-            .eraseToAnyPublisher()
-
-        customFeeGasPriceModel = SendCustomFeeInputFieldModel(
-            title: Localization.sendGasPrice,
-            amountPublisher: gasPriceGweiPublisher,
-            fieldSuffix: "GWEI",
-            fractionDigits: gasPriceFractionDigits,
-            amountAlternativePublisher: .just(output: nil),
-            footer: Localization.sendGasPriceFooter
-        ) { [weak self] gweiValue in
-            guard let self else { return }
-
-            let weiValue = gweiValue?.shiftOrder(magnitude: gasPriceFractionDigits)
-            input.didChangeCustomFeeGasPrice(weiValue?.bigUIntValue)
-        }
-
-        customFeeGasLimitModel = SendCustomFeeInputFieldModel(
-            title: Localization.sendGasLimit,
-            amountPublisher: input.customGasLimitPublisher.decimalPublisher,
-            fieldSuffix: nil,
-            fractionDigits: 0,
-            amountAlternativePublisher: .just(output: nil),
-            footer: Localization.sendGasLimitFooter
-        ) { [weak self] in
-            guard let self else { return }
-            input.didChangeCustomFeeGasLimit($0?.bigUIntValue)
         }
     }
 
@@ -270,27 +319,32 @@ class SendFeeViewModel: ObservableObject {
     }
 
     private func recalculateFee(enteredFee: Decimal?, input: SendFeeViewModelInput, walletInfo: SendWalletInfo) -> Fee? {
-        let feeDecimalValue = Decimal(pow(10, Double(walletInfo.feeFractionDigits)))
+        let sendModel = input as! SendModel
+        if sendModel.blockchainNetwork.blockchain.isEvm {
+            let feeDecimalValue = Decimal(pow(10, Double(walletInfo.feeFractionDigits)))
 
-        guard
-            let enteredFee,
-            let currentGasLimit = input.customGasLimit,
-            let enteredFeeInSmallestDenomination = BigUInt(decimal: (enteredFee * feeDecimalValue).rounded(roundingMode: .down))
-        else {
+            guard
+                let enteredFee,
+                let currentGasLimit = input.customGasLimit,
+                let enteredFeeInSmallestDenomination = BigUInt(decimal: (enteredFee * feeDecimalValue).rounded(roundingMode: .down))
+            else {
+                return nil
+            }
+
+            let gasPrice = (enteredFeeInSmallestDenomination / currentGasLimit)
+            guard
+                let recalculatedFeeInSmallestDenomination = (gasPrice * currentGasLimit).decimal
+            else {
+                return nil
+            }
+
+            let recalculatedFee = recalculatedFeeInSmallestDenomination / feeDecimalValue
+            let feeAmount = Amount(with: walletInfo.blockchain, type: walletInfo.feeAmountType, value: recalculatedFee)
+            let parameters = EthereumFeeParameters(gasLimit: currentGasLimit, gasPrice: gasPrice)
+            return Fee(feeAmount, parameters: parameters)
+        } else {
             return nil
         }
-
-        let gasPrice = (enteredFeeInSmallestDenomination / currentGasLimit)
-        guard
-            let recalculatedFeeInSmallestDenomination = (gasPrice * currentGasLimit).decimal
-        else {
-            return nil
-        }
-
-        let recalculatedFee = recalculatedFeeInSmallestDenomination / feeDecimalValue
-        let feeAmount = Amount(with: walletInfo.blockchain, type: walletInfo.feeAmountType, value: recalculatedFee)
-        let parameters = EthereumFeeParameters(gasLimit: currentGasLimit, gasPrice: gasPrice)
-        return Fee(feeAmount, parameters: parameters)
     }
 }
 
