@@ -571,7 +571,7 @@ class SendModel {
         _customFee.send(value)
         fee.send(value)
 
-        customFeeService?.didChangeCustomFee(value)
+//        customFeeService?.didChangeCustomFee(value)
 
 //        if let bitcoinParams = value?.parameters as? BitcoinFeeParameters {
 //            _customFeeSatoshiPerByte.send(bitcoinParams.rate)
