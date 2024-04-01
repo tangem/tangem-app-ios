@@ -22,17 +22,18 @@ class CustomUtxoFeeService {
 
     private var didSetCustomFee = false
 
-//    init(input: SendModel) {
-    init() {
-//        self.input = input
+    private let utxoTransactionFeeCalculator: UTXOTransactionFeeCalculator
+
+    init(utxoTransactionFeeCalculator: UTXOTransactionFeeCalculator) {
+        self.utxoTransactionFeeCalculator = utxoTransactionFeeCalculator
     }
 
     func setInput(_ input: SendModel) {
         self.input = input
     }
 
-    func setFee(_ fee: Fee) {
-        guard let bitcoinFeeParameters = fee.parameters as? BitcoinFeeParameters else {
+    func setFee(_ fee: Fee?) {
+        guard let bitcoinFeeParameters = fee?.parameters as? BitcoinFeeParameters else {
             assertionFailure("WHY?")
             return
         }
@@ -41,19 +42,16 @@ class CustomUtxoFeeService {
         _customFeeSatoshiPerByte.send(bitcoinFeeParameters.rate)
     }
 
-    func didChangeCustomFee(_ value: Fee?) {
-        didSetCustomFee = true
-        _customFee.send(value)
-//        fee.send(value)
-
-        if let bitcoinParams = value?.parameters as? BitcoinFeeParameters {
-            _customFeeSatoshiPerByte.send(bitcoinParams.rate)
-        }
+    func didChangeCustomFee(enteredFee: Decimal?, input: SendFeeViewModelInput, walletInfo: SendWalletInfo) {
+//        didSetCustomFee = true
+//        _customFee.send(value)
+//
+//        if let bitcoinParams = value?.parameters as? BitcoinFeeParameters {
+//            _customFeeSatoshiPerByte.send(bitcoinParams.rate)
+//        }
     }
 
     func models() -> [SendCustomFeeInputFieldModel] {
-        guard let input else { return [] }
-
         let satoshiPerBytePublisher = _customFeeSatoshiPerByte
             .map { intValue -> Decimal? in
                 if let intValue {
@@ -91,25 +89,25 @@ class CustomUtxoFeeService {
     }
 
     private func recalculateCustomFee() {
-        if let utxoTransactionFeeCalculator = input?.utxoTransactionFeeCalculator {
-            let newFee: Fee?
-            if let satoshiPerByte = _customFeeSatoshiPerByte.value,
-               let amount = input?.validatedAmountValue,
-               let destination = input?.destinationText {
-                newFee = utxoTransactionFeeCalculator.calculateFee(satoshiPerByte: satoshiPerByte, amount: amount, destination: destination)
-            } else {
-                newFee = nil
-            }
-            print("ZZZ satoshi per byte", _customFeeSatoshiPerByte.value)
-            print("ZZZ recalc new fee", newFee)
-
-            didSetCustomFee = true
-            _customFee.send(newFee)
-//            fee.send(newFee)
+        let newFee: Fee?
+        if let satoshiPerByte = _customFeeSatoshiPerByte.value,
+           let amount = input?.validatedAmountValue,
+           let destination = input?.destinationText {
+            newFee = utxoTransactionFeeCalculator.calculateFee(satoshiPerByte: satoshiPerByte, amount: amount, destination: destination)
+        } else {
+            newFee = nil
         }
+        print("ZZZ satoshi per byte", _customFeeSatoshiPerByte.value)
+        print("ZZZ recalc new fee", newFee)
+
+        didSetCustomFee = true
+        _customFee.send(newFee)
     }
 }
 
-extension CustomUtxoFeeService: CustomFeeService {}
-
-// typealias CustomFeeService = CustomUtxoFeeService
+extension CustomUtxoFeeService: CustomFeeService {
+    func recalculateFee(enteredFee: Decimal?, input: SendFeeViewModelInput, walletInfo: SendWalletInfo) -> BlockchainSdk.Fee? {
+        assertionFailure("WHY")
+        return nil
+    }
+}
