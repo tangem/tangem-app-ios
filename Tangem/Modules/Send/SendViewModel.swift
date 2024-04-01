@@ -68,7 +68,7 @@ final class SendViewModel: ObservableObject {
     private let emailDataProvider: EmailDataProvider
     private let walletInfo: SendWalletInfo
     private let notificationManager: CommonSendNotificationManager
-    private let customFeeService: CustomFeeService
+    private let customFeeService: CustomFeeService?
     private let fiatCryptoAdapter: CommonSendFiatCryptoAdapter
     private let sendStepParameters: SendStep.Parameters
 
@@ -129,10 +129,10 @@ final class SendViewModel: ObservableObject {
         let addressService = SendAddressServiceFactory(walletModel: walletModel).makeService()
         #warning("[REDACTED_TODO_COMMENT]")
 
-        customFeeService = CustomUtxoFeeService()
+        customFeeService = CustomFeeServiceFactory(walletModel: walletModel).makeService()
 
         sendModel = SendModel(walletModel: walletModel, transactionSigner: transactionSigner, addressService: addressService, customFeeService: customFeeService, sendType: sendType)
-        customFeeService.setInput(sendModel)
+        customFeeService?.setInput(sendModel)
 
         let steps = sendType.steps
         guard let firstStep = steps.first else {
