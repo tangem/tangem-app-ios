@@ -117,7 +117,7 @@ final class PolkadotAccountHealthChecker {
             runOnMain { healthCheckTasks[account] = nil }
         }
 
-        guard !Task.isCancelled else {
+        if Task.isCancelled {
             return
         }
 
@@ -130,7 +130,7 @@ final class PolkadotAccountHealthChecker {
             }
         }
 
-        guard !Task.isCancelled else {
+        if Task.isCancelled {
             return
         }
 
@@ -139,7 +139,7 @@ final class PolkadotAccountHealthChecker {
     }
 
     private func checkAccountForReset(_ account: String) async {
-        guard runOnMain({ !analyzedForResetAccounts.contains(account) }) else {
+        if runOnMain({ analyzedForResetAccounts.contains(account) }) {
             return
         }
 
@@ -148,7 +148,7 @@ final class PolkadotAccountHealthChecker {
             try Task.checkCancellation()
 
             // Double checking is a must since theoretically there can be multiple ongoing checks
-            guard runOnMain({ !analyzedForResetAccounts.contains(account) }) else {
+            if runOnMain({ analyzedForResetAccounts.contains(account) }) {
                 return
             }
 
@@ -164,7 +164,7 @@ final class PolkadotAccountHealthChecker {
     }
 
     private func checkIfAccountContainsImmortalTransactions(_ account: String) async {
-        guard runOnMain({ !analyzedForImmortalTransactionsAccounts.contains(account) }) else {
+        if runOnMain({ analyzedForImmortalTransactionsAccounts.contains(account) }) {
             return
         }
 
@@ -177,7 +177,7 @@ final class PolkadotAccountHealthChecker {
                 try Task.checkCancellation()
 
                 // Checking if we've reached the end of the transactions list
-                guard !transactions.isEmpty else {
+                if transactions.isEmpty {
                     break transactionsListLoop
                 }
 
@@ -202,7 +202,7 @@ final class PolkadotAccountHealthChecker {
             try Task.checkCancellation()
 
             // Double checking is a must since theoretically there can be multiple ongoing checks
-            guard runOnMain({ !analyzedForImmortalTransactionsAccounts.contains(account) }) else {
+            if runOnMain({ analyzedForImmortalTransactionsAccounts.contains(account) }) {
                 return
             }
 
