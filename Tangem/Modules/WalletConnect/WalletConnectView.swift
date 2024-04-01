@@ -27,13 +27,13 @@ struct WalletConnectView: View {
         ZStack {
             VStack {
                 if viewModel.noActiveSessions {
-                    Assets.walletConnectEmpty.image
-                    Text(Localization.walletConnectSubtitle)
+                    Text(Localization.walletConnectNoSessionsTitle)
+                        .font(.system(size: 24, weight: .semibold))
+                        .padding(.bottom, 10)
+                    Text(Localization.walletConnectNoSessionsMessage)
                         .multilineTextAlignment(.center)
-                        .font(.system(size: 17))
-                        .foregroundColor(Colors.Text.tertiary)
+                        .font(.system(size: 17, weight: .medium))
                         .padding(.horizontal, 40)
-                        .padding(.top, 28)
                 } else {
                     List {
                         ForEach(viewModel.sessions, id: \.id) { item -> WalletConnectSessionItemView in
