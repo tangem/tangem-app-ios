@@ -26,7 +26,7 @@ struct SendCustomFeeInputField: View {
 
                 HStack {
                     SendDecimalNumberTextField(viewModel: viewModel.decimalNumberTextFieldViewModel)
-                        .prefixSuffixOptions(.suffix(text: "WEI", hasSpace: true))
+                        .prefixSuffixOptions(.suffix(text: viewModel.fieldSuffix, hasSpace: true))
                         .appearance(.init(font: Fonts.Regular.subheadline))
                         .onFocusChanged(onFocusChanged)
 
