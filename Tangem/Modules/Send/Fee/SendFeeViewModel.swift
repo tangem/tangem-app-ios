@@ -55,6 +55,8 @@ class SendFeeViewModel: ObservableObject {
     private(set) var customFeeGasPriceModel: SendCustomFeeInputFieldModel?
     private(set) var customFeeGasLimitModel: SendCustomFeeInputFieldModel?
 
+    private(set) var customFeeModels: [SendCustomFeeInputFieldModel] = []
+
     @Published private var isFeeIncluded: Bool = false
 
     @Published private(set) var feeLevelsNotificationInputs: [NotificationViewInput] = []
@@ -66,6 +68,7 @@ class SendFeeViewModel: ObservableObject {
     private let input: SendFeeViewModelInput
     private let feeOptions: [FeeOption]
     private let walletInfo: SendWalletInfo
+    private let customFeeService: CustomFeeService?
     private let customFeeInFiat = CurrentValueSubject<String?, Never>("")
     private var customGasPriceBeforeEditing: BigUInt?
     private var bag: Set<AnyCancellable> = []
@@ -78,9 +81,10 @@ class SendFeeViewModel: ObservableObject {
         balanceConverter: balanceConverter
     )
 
-    init(input: SendFeeViewModelInput, notificationManager: SendNotificationManager, walletInfo: SendWalletInfo) {
+    init(input: SendFeeViewModelInput, notificationManager: SendNotificationManager, customFeeService: CustomFeeService?, walletInfo: SendWalletInfo) {
         self.input = input
         self.notificationManager = notificationManager
+        self.customFeeService = customFeeService
         self.walletInfo = walletInfo
         feeOptions = input.feeOptions
         selectedFeeOption = input.selectedFeeOption
@@ -124,86 +128,88 @@ class SendFeeViewModel: ObservableObject {
     }
 
     private func createCustomFeeModels() {
+        customFeeModels = customFeeService?.models() ?? []
+
         let customFeeFooter: String?
         let customFeeTitle: String
 
-        let sendModel = input as! SendModel
-
-        if case .bitcoin = sendModel.blockchainNetwork.blockchain {
-            let satoshiPerBytePublisher = input
-                .customFeeSatoshiPerBytePublisher
-                .map { intValue -> Decimal? in
-                    if let intValue {
-                        Decimal(intValue)
-                    } else {
-                        nil
-                    }
-                }
-                .eraseToAnyPublisher()
-
-            customFeeSatoshiPerByteModel = SendCustomFeeInputFieldModel(
-                title: "Satoshi per byte",
-                amountPublisher: satoshiPerBytePublisher,
-                fieldSuffix: nil,
-                fractionDigits: 0,
-                amountAlternativePublisher: .just(output: nil),
-                footer: nil
-            ) { [weak self] decimalValue in
-                let intValue: Int?
-                if let decimalValue {
-                    intValue = (decimalValue as NSDecimalNumber).intValue
-                } else {
-                    intValue = nil
-                }
-
-                self?.input.didChangeCustomSatoshiPerByte(intValue)
-            }
-
-            customFeeTitle = Localization.commonFeeLabel
-            customFeeFooter = nil
-        } else if sendModel.blockchainNetwork.blockchain.isEvm {
-            let gasPriceFractionDigits = 9
-            let gasPriceGweiPublisher = input
-                .customGasPricePublisher
-                .decimalPublisher
-                .map { weiValue -> Decimal? in
-                    let gweiValue = weiValue?.shiftOrder(magnitude: -gasPriceFractionDigits)
-                    return gweiValue
-                }
-                .eraseToAnyPublisher()
-
-            customFeeGasPriceModel = SendCustomFeeInputFieldModel(
-                title: Localization.sendGasPrice,
-                amountPublisher: gasPriceGweiPublisher,
-                fieldSuffix: "GWEI",
-                fractionDigits: gasPriceFractionDigits,
-                amountAlternativePublisher: .just(output: nil),
-                footer: Localization.sendGasPriceFooter
-            ) { [weak self] gweiValue in
-                guard let self else { return }
-
-                let weiValue = gweiValue?.shiftOrder(magnitude: gasPriceFractionDigits)
-                input.didChangeCustomFeeGasPrice(weiValue?.bigUIntValue)
-            }
-
-            customFeeGasLimitModel = SendCustomFeeInputFieldModel(
-                title: Localization.sendGasLimit,
-                amountPublisher: input.customGasLimitPublisher.decimalPublisher,
-                fieldSuffix: nil,
-                fractionDigits: 0,
-                amountAlternativePublisher: .just(output: nil),
-                footer: Localization.sendGasLimitFooter
-            ) { [weak self] in
-                guard let self else { return }
-                input.didChangeCustomFeeGasLimit($0?.bigUIntValue)
-            }
-
-            customFeeTitle = Localization.sendMaxFee
-            customFeeFooter = Localization.sendMaxFeeFooter
-
-        } else {
-            return
-        }
+//        let sendModel = input as! SendModel
+//
+//        if case .bitcoin = sendModel.blockchainNetwork.blockchain {
+//            let satoshiPerBytePublisher = input
+//                .customFeeSatoshiPerBytePublisher
+//                .map { intValue -> Decimal? in
+//                    if let intValue {
+//                        Decimal(intValue)
+//                    } else {
+//                        nil
+//                    }
+//                }
+//                .eraseToAnyPublisher()
+//
+//            customFeeSatoshiPerByteModel = SendCustomFeeInputFieldModel(
+//                title: "Satoshi per byte",
+//                amountPublisher: satoshiPerBytePublisher,
+//                fieldSuffix: nil,
+//                fractionDigits: 0,
+//                amountAlternativePublisher: .just(output: nil),
+//                footer: nil
+//            ) { [weak self] decimalValue in
+//                let intValue: Int?
+//                if let decimalValue {
+//                    intValue = (decimalValue as NSDecimalNumber).intValue
+//                } else {
+//                    intValue = nil
+//                }
+//
+//                self?.input.didChangeCustomSatoshiPerByte(intValue)
+//            }
+//
+        customFeeTitle = Localization.commonFeeLabel
+        customFeeFooter = nil
+//        } else if sendModel.blockchainNetwork.blockchain.isEvm {
+//            let gasPriceFractionDigits = 9
+//            let gasPriceGweiPublisher = input
+//                .customGasPricePublisher
+//                .decimalPublisher
+//                .map { weiValue -> Decimal? in
+//                    let gweiValue = weiValue?.shiftOrder(magnitude: -gasPriceFractionDigits)
+//                    return gweiValue
+//                }
+//                .eraseToAnyPublisher()
+//
+//            customFeeGasPriceModel = SendCustomFeeInputFieldModel(
+//                title: Localization.sendGasPrice,
+//                amountPublisher: gasPriceGweiPublisher,
+//                fieldSuffix: "GWEI",
+//                fractionDigits: gasPriceFractionDigits,
+//                amountAlternativePublisher: .just(output: nil),
+//                footer: Localization.sendGasPriceFooter
+//            ) { [weak self] gweiValue in
+//                guard let self else { return }
+//
+//                let weiValue = gweiValue?.shiftOrder(magnitude: gasPriceFractionDigits)
+//                input.didChangeCustomFeeGasPrice(weiValue?.bigUIntValue)
+//            }
+//
+//            customFeeGasLimitModel = SendCustomFeeInputFieldModel(
+//                title: Localization.sendGasLimit,
+//                amountPublisher: input.customGasLimitPublisher.decimalPublisher,
+//                fieldSuffix: nil,
+//                fractionDigits: 0,
+//                amountAlternativePublisher: .just(output: nil),
+//                footer: Localization.sendGasLimitFooter
+//            ) { [weak self] in
+//                guard let self else { return }
+//                input.didChangeCustomFeeGasLimit($0?.bigUIntValue)
+//            }
+//
+//            customFeeTitle = Localization.sendMaxFee
+//            customFeeFooter = Localization.sendMaxFeeFooter
+//
+//        } else {
+//            return
+//        }
 
         customFeeModel = SendCustomFeeInputFieldModel(
             title: customFeeTitle,
