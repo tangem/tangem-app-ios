@@ -8,11 +8,13 @@
 
 import Foundation
 import BlockchainSdk
+import Combine
 
 protocol CustomFeeService: AnyObject {
     var customFeePublisher: AnyPublisher<Fee?, Never> { get }
     func setInput(_ input: SendModel)
-    func setFee(_ fee: Fee)
-    func didChangeCustomFee(_ value: Fee?)
+    func setFee(_ fee: Fee?)
+    func didChangeCustomFee(enteredFee: Decimal?, input: SendFeeViewModelInput, walletInfo: SendWalletInfo)
     func models() -> [SendCustomFeeInputFieldModel]
+    func recalculateFee(enteredFee: Decimal?, input: SendFeeViewModelInput, walletInfo: SendWalletInfo) -> Fee?
 }
