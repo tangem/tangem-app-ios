@@ -43,7 +43,7 @@ final class PolkadotAccountHealthBackgroundTaskManager {
     /// - Warning: Registration of all launch handlers must be complete before the end of applicationDidFinishLaunching(_:).
     func registerBackgroundTask() {
         let identifier = backgroundTaskIdentifier
-        let result = BGTaskScheduler.shared.register(forTaskWithIdentifier: identifier, using: .main) { [weak self] task in
+        let isRegistered = BGTaskScheduler.shared.register(forTaskWithIdentifier: identifier, using: .main) { [weak self] task in
             if let task = task as? BGProcessingTask {
                 self?.handleBackgroundTask(task)
             } else {
@@ -51,7 +51,7 @@ final class PolkadotAccountHealthBackgroundTaskManager {
             }
         }
 
-        if !result {
+        if !isRegistered {
             let message = "Can't register background task (BackgroundTasks) with identifier '\(identifier)'"
             assertionFailure(message)
             AppLog.shared.error(message)
@@ -103,7 +103,7 @@ final class PolkadotAccountHealthBackgroundTaskManager {
 
         let backgroundTaskWrapper = BGProcessingTaskWrapper(innerTask: backgroundTask, counter: accounts.count)
 
-        guard !accounts.isEmpty else {
+        if accounts.isEmpty {
             backgroundTaskWrapper.finish()
             return
         }
