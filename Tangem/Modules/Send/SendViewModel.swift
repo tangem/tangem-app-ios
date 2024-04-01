@@ -14,7 +14,7 @@ import AVFoundation
 final class SendViewModel: ObservableObject {
     // MARK: - ViewState
 
-    @Published var stepAnimation: SendView.StepAnimation? = .slideForward
+    @Published var stepAnimation: SendView.StepAnimation = .slideForward
     @Published var step: SendStep
     @Published var showBackButton = false
     @Published var currentStepInvalid: Bool = false
@@ -203,7 +203,7 @@ final class SendViewModel: ObservableObject {
 
         logNextStepAnalytics()
 
-        let stepAnimation: SendView.StepAnimation? = (nextStep == .summary) ? nil : .slideForward
+        let stepAnimation: SendView.StepAnimation = (nextStep == .summary) ? .moveAndFade : .slideForward
         openStep(nextStep, stepAnimation: stepAnimation)
     }
 
@@ -217,7 +217,7 @@ final class SendViewModel: ObservableObject {
     }
 
     func `continue`() {
-        openStep(.summary, stepAnimation: nil)
+        openStep(.summary, stepAnimation: .moveAndFade)
     }
 
     func scanQRCode() {
@@ -356,14 +356,14 @@ final class SendViewModel: ObservableObject {
         coordinator?.openMail(with: emailDataCollector, recipient: recipient)
     }
 
-    private func showSummaryStepAlertIfNeeded(_ step: SendStep, stepAnimation: SendView.StepAnimation?, checkCustomFee: Bool) -> Bool {
+    private func showSummaryStepAlertIfNeeded(_ step: SendStep, stepAnimation: SendView.StepAnimation, checkCustomFee: Bool) -> Bool {
         if sendModel.totalExceedsBalance {
             Analytics.log(event: .sendNoticeNotEnoughFee, params: [
                 .token: walletModel.tokenItem.currencySymbol,
                 .blockchain: walletModel.tokenItem.blockchain.displayName,
             ])
 
-            alert = SendAlertBuilder.makeSubtractFeeFromAmountAlert { [weak self] in
+            alert = SendAlertBuilder.makeSubtractFeeFromAmountAlert(sendModel.feeText) { [weak self] in
                 self?.sendModel.includeFeeIntoAmount()
                 self?.openStep(step, stepAnimation: stepAnimation)
             }
@@ -386,34 +386,23 @@ final class SendViewModel: ObservableObject {
         return false
     }
 
-    private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation?, checkCustomFee: Bool = true) {
+    private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation, checkCustomFee: Bool = true) {
         if case .summary = step {
             if showSummaryStepAlertIfNeeded(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee) {
                 return
             }
 
             didReachSummaryScreen = true
+
+            sendSummaryViewModel.setupAnimations(previousStep: self.step)
         }
 
+        // Gotta give some time to update animation variable
         self.stepAnimation = stepAnimation
 
-        let animateStepChanges: () -> Void = {
-            withAnimation(SendView.Constants.backButtonAnimation) {
-                self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
-            }
-
-            withAnimation(SendView.Constants.defaultAnimation) {
-                self.step = step
-            }
-        }
-
-        if stepAnimation != nil {
-            // Gotta give some time to update animation variable
-            DispatchQueue.main.async {
-                animateStepChanges()
-            }
-        } else {
-            animateStepChanges()
+        DispatchQueue.main.async {
+            self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
+            self.step = step
         }
 
         // Hide the keyboard with a delay, otherwise the animation is going to be screwed up
@@ -431,7 +420,7 @@ final class SendViewModel: ObservableObject {
         }
 
         sendFinishViewModel.router = coordinator
-        openStep(.finish(model: sendFinishViewModel), stepAnimation: nil)
+        openStep(.finish(model: sendFinishViewModel), stepAnimation: .moveAndFade)
     }
 
     private func parseQRCode(_ code: String) {
@@ -506,7 +495,7 @@ extension SendViewModel: SendSummaryRoutable {
             auxiliaryViewAnimatable.setAnimatingAuxiliaryViewsOnAppear()
         }
 
-        openStep(step, stepAnimation: nil)
+        openStep(step, stepAnimation: .moveAndFade)
     }
 
     func send() {
