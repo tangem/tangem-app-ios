@@ -13,7 +13,7 @@ import SwiftUI
 
 class SendCustomFeeInputFieldModel: ObservableObject, Identifiable {
     let title: String
-    let footer: String
+    let footer: String?
     let fieldSuffix: String?
 
     @Published var decimalNumberTextFieldViewModel: DecimalNumberTextField.ViewModel
@@ -28,7 +28,7 @@ class SendCustomFeeInputFieldModel: ObservableObject, Identifiable {
         fieldSuffix: String?,
         fractionDigits: Int,
         amountAlternativePublisher: AnyPublisher<String?, Never>,
-        footer: String,
+        footer: String?,
         onFieldChange: @escaping (Decimal?) -> Void
     ) {
         self.title = title
