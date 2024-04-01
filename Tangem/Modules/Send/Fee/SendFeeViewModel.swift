@@ -220,7 +220,9 @@ class SendFeeViewModel: ObservableObject {
             footer: customFeeFooter
         ) { [weak self] enteredFee in
             guard let self else { return }
-            input.didChangeCustomFee(recalculateFee(enteredFee: enteredFee, input: input, walletInfo: walletInfo))
+
+            customFeeService?.didChangeCustomFee(enteredFee: enteredFee, input: input, walletInfo: walletInfo)
+//            input.didChangeCustomFee(recalculateFee(enteredFee: enteredFee, input: input, walletInfo: walletInfo))
         }
     }
 
