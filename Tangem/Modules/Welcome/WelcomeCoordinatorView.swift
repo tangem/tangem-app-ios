@@ -17,7 +17,7 @@ struct WelcomeCoordinatorView: CoordinatorView {
             content
             sheets
         }
-        .navigationBarHidden(coordinator.viewState?.isMain == false)
+        .navigationBarHidden(coordinator.navigationBarHidden)
         .animation(.default, value: coordinator.viewState)
     }
 

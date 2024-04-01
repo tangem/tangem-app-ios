@@ -21,8 +21,8 @@ struct AuthCoordinatorView: CoordinatorView {
 
             sheets
         }
-        .animation(.default, value: coordinator.viewState)
-        .navigationBarHidden(coordinator.viewState?.isMain != true)
+        .animation(.default, value: coordinator.transitionAnimationValue)
+        .navigationBarHidden(coordinator.navigationBarHidden)
     }
 
     @ViewBuilder
