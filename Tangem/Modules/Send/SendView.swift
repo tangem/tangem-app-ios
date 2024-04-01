@@ -36,6 +36,7 @@ struct SendView: View {
             }
         }
         .background(backgroundColor.ignoresSafeArea())
+        .animation(Constants.defaultAnimation, value: viewModel.step)
     }
 
     private var pageContentTransition: AnyTransition {
@@ -44,8 +45,11 @@ struct SendView: View {
             return .asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading))
         case .slideBackward:
             return .asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .trailing))
-        case .none:
-            return .offset()
+        case .moveAndFade:
+            return .asymmetric(
+                insertion: .offset(),
+                removal: .opacity.animation(.spring(duration: SendView.Constants.animationDuration / 2))
+            )
         }
     }
 
@@ -125,6 +129,7 @@ struct SendView: View {
                     height: backButtonSize.height,
                     action: viewModel.back
                 )
+                .animation(Constants.backButtonAnimation, value: viewModel.showBackButton)
             }
 
             if viewModel.showNextButton {
@@ -191,7 +196,8 @@ extension SendView {
         static let defaultAnimation: Animation = .spring(duration: 0.3)
         static let backButtonAnimation: Animation = .easeOut(duration: 0.1)
         static let sectionContentAnimation: Animation = .easeOut(duration: animationDuration)
-        static let auxiliaryViewTransition: AnyTransition = .offset(y: 300).combined(with: .opacity)
+        static let auxiliaryViewTransition: AnyTransition = .offset(y: UIScreen.main.bounds.height).combined(with: .opacity)
+        static let hintViewTransition: AnyTransition = .asymmetric(insertion: .offset(y: 20), removal: .identity).combined(with: .opacity)
     }
 }
 
@@ -199,6 +205,7 @@ extension SendView {
     enum StepAnimation {
         case slideForward
         case slideBackward
+        case moveAndFade
     }
 }
 
