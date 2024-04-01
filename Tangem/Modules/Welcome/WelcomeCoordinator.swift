@@ -11,29 +11,12 @@ import Combine
 import TangemSdk
 
 class WelcomeCoordinator: CoordinatorObject {
-    enum ViewState: Equatable {
-        case welcome(WelcomeViewModel)
-        case main(MainCoordinator)
-
-        var isMain: Bool {
-            if case .main = self {
-                return true
-            }
-            return false
-        }
-
-        static func == (lhs: WelcomeCoordinator.ViewState, rhs: WelcomeCoordinator.ViewState) -> Bool {
-            switch (lhs, rhs) {
-            case (.welcome, .welcome), (.main, .main):
-                return true
-            default:
-                return false
-            }
-        }
-    }
-
     var dismissAction: Action<Void>
     var popToRootAction: Action<PopToRootOptions>
+
+    var navigationBarHidden: Bool {
+        viewState?.isMain == false
+    }
 
     // MARK: - Dependencies
 
@@ -80,13 +63,9 @@ class WelcomeCoordinator: CoordinatorObject {
     }
 
     func start(with options: WelcomeCoordinator.Options) {
-        switch viewState {
-        case .welcome:
-            pushedOnboardingCoordinator = nil
-        case .main, .none:
-            viewState = .welcome(WelcomeViewModel(shouldScanOnAppear: options.shouldScan, coordinator: self))
-            subscribeToWelcomeLifecycle()
-        }
+        pushedOnboardingCoordinator = nil
+        viewState = .welcome(WelcomeViewModel(shouldScanOnAppear: options.shouldScan, coordinator: self))
+        subscribeToWelcomeLifecycle()
     }
 
     private func subscribeToWelcomeLifecycle() {
@@ -160,5 +139,30 @@ extension WelcomeCoordinator: WelcomeRoutable {
     func openShop() {
         Analytics.log(.shopScreenOpened)
         safariManager.openURL(AppConstants.webShopUrl)
+    }
+}
+
+// MARK: ViewState
+
+extension WelcomeCoordinator {
+    enum ViewState: Equatable {
+        case welcome(WelcomeViewModel)
+        case main(MainCoordinator)
+
+        var isMain: Bool {
+            if case .main = self {
+                return true
+            }
+            return false
+        }
+
+        static func == (lhs: WelcomeCoordinator.ViewState, rhs: WelcomeCoordinator.ViewState) -> Bool {
+            switch (lhs, rhs) {
+            case (.welcome, .welcome), (.main, .main):
+                return true
+            default:
+                return false
+            }
+        }
     }
 }
