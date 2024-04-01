@@ -9,22 +9,16 @@
 import Foundation
 
 class OnboardingCoordinator: CoordinatorObject {
-    enum ViewState {
-        case singleCard(SingleCardOnboardingViewModel)
-        case twins(TwinsOnboardingViewModel)
-        case wallet(WalletOnboardingViewModel)
-        case main(MainCoordinator)
-
-        var isMain: Bool {
-            if case .main = self {
-                return true
-            }
-            return false
-        }
-    }
-
     var dismissAction: Action<OutputOptions>
     var popToRootAction: Action<PopToRootOptions>
+
+    var navigationBarHidden: Bool {
+        viewState?.isMain == false
+    }
+
+    var transitionAnimationValue: Bool {
+        viewState?.isMain == false
+    }
 
     // MARK: - Dependencies
 
@@ -194,8 +188,28 @@ extension OnboardingCoordinator: OnboardingRoutable {
 
     private func openMain(with userWalletModel: UserWalletModel) {
         let coordinator = MainCoordinator(popToRootAction: popToRootAction)
+
         let options = MainCoordinator.Options(userWalletModel: userWalletModel)
         coordinator.start(with: options)
+
         viewState = .main(coordinator)
+    }
+}
+
+// MARK: ViewState
+
+extension OnboardingCoordinator {
+    enum ViewState {
+        case singleCard(SingleCardOnboardingViewModel)
+        case twins(TwinsOnboardingViewModel)
+        case wallet(WalletOnboardingViewModel)
+        case main(MainCoordinator)
+
+        var isMain: Bool {
+            if case .main = self {
+                return true
+            }
+            return false
+        }
     }
 }

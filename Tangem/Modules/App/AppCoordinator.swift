@@ -13,22 +13,6 @@ import CombineExt
 import SwiftUI
 
 class AppCoordinator: CoordinatorObject {
-    enum ViewState: Equatable {
-        case welcome(WelcomeCoordinator)
-        case uncompleteBackup(UncompletedBackupCoordinator)
-        case auth(AuthCoordinator)
-        case main(MainCoordinator)
-
-        static func == (lhs: AppCoordinator.ViewState, rhs: AppCoordinator.ViewState) -> Bool {
-            switch (lhs, rhs) {
-            case (.welcome, .welcome), (.uncompleteBackup, .uncompleteBackup), (.auth, .auth), (.main, .main):
-                return true
-            default:
-                return false
-            }
-        }
-    }
-
     // MARK: - Dependencies
 
     let dismissAction: Action<Void> = { _ in }
@@ -94,14 +78,10 @@ class AppCoordinator: CoordinatorObject {
 
         let shouldScan = options.newScan ?? false
 
-        switch viewState {
-        case .welcome(let welcomeCoordinator):
-            welcomeCoordinator.start(with: .init(shouldScan: shouldScan))
-        default:
-            let welcomeCoordinator = WelcomeCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-            welcomeCoordinator.start(with: .init(shouldScan: shouldScan))
-            viewState = .welcome(welcomeCoordinator)
-        }
+        let welcomeCoordinator = WelcomeCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+        welcomeCoordinator.start(with: .init(shouldScan: shouldScan))
+
+        viewState = .welcome(welcomeCoordinator)
     }
 
     private func setupAuth(with options: AppCoordinator.Options) {
@@ -118,8 +98,9 @@ class AppCoordinator: CoordinatorObject {
         let unlockOnStart = options.newScan ?? true
 
         let authCoordinator = AuthCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        viewState = .auth(authCoordinator)
         authCoordinator.start(with: .init(unlockOnStart: unlockOnStart))
+
+        viewState = .auth(authCoordinator)
     }
 
     private func setupUncompletedBackup() {
@@ -128,8 +109,9 @@ class AppCoordinator: CoordinatorObject {
         }
 
         let uncompleteBackupCoordinator = UncompletedBackupCoordinator(dismissAction: dismissAction)
-        viewState = .uncompleteBackup(uncompleteBackupCoordinator)
         uncompleteBackupCoordinator.start()
+
+        viewState = .uncompleteBackup(uncompleteBackupCoordinator)
     }
 
     /// - Note: The coordinator is set up only once and only when the feature toggle is enabled.
@@ -219,5 +201,25 @@ extension AppCoordinator {
         let newScan: Bool?
 
         static let `default`: Options = .init(newScan: false)
+    }
+}
+
+// MARK: - ViewState
+
+extension AppCoordinator {
+    enum ViewState: Equatable {
+        case welcome(WelcomeCoordinator)
+        case uncompleteBackup(UncompletedBackupCoordinator)
+        case auth(AuthCoordinator)
+        case main(MainCoordinator)
+
+        static func == (lhs: AppCoordinator.ViewState, rhs: AppCoordinator.ViewState) -> Bool {
+            switch (lhs, rhs) {
+            case (.welcome, .welcome), (.uncompleteBackup, .uncompleteBackup), (.auth, .auth), (.main, .main):
+                return true
+            default:
+                return false
+            }
+        }
     }
 }

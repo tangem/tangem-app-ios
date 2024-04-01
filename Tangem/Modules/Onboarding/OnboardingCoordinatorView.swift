@@ -19,8 +19,8 @@ struct OnboardingCoordinatorView: CoordinatorView {
             content
             sheets
         }
-        .navigationBarHidden(coordinator.viewState?.isMain == false)
-        .animation(.default, value: coordinator.viewState?.isMain == true)
+        .navigationBarHidden(coordinator.navigationBarHidden)
+        .animation(.default, value: coordinator.transitionAnimationValue)
         .transition(.opacity)
     }
 
