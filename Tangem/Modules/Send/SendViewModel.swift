@@ -19,7 +19,8 @@ final class SendViewModel: ObservableObject {
     @Published var showBackButton = false
     @Published var mainButtonType: SendMainButtonType = .next
     @Published var mainButtonDisabled: Bool = false
-    @Published var currentStepInvalid: Bool = false
+    @Published var updatingFees = false
+    @Published var currentStepInvalid: Bool = false // delete?
     @Published var alert: AlertBinder?
 
     var title: String? {
@@ -175,6 +176,7 @@ final class SendViewModel: ObservableObject {
             currencySymbol: walletInfo.cryptoCurrencyCode,
             decimals: walletInfo.amountFractionDigits
         )
+        fiatCryptoAdapter.setAmount(sendType.predefinedAmount?.value)
 
         sendStepParameters = SendStep.Parameters(currencyName: walletModel.tokenItem.name, walletName: walletInfo.walletName)
 
@@ -205,9 +207,9 @@ final class SendViewModel: ObservableObject {
             logNextStepAnalytics()
 
             let stepAnimation: SendView.StepAnimation = (nextStep == .summary) ? .moveAndFade : .slideForward
-            openStep(nextStep, stepAnimation: stepAnimation)
+            openStep(nextStep, stepAnimation: stepAnimation, updateFee: step.updateFeeOnLeave)
         case .continue:
-            openStep(.summary, stepAnimation: .moveAndFade)
+            openStep(.summary, stepAnimation: .moveAndFade, updateFee: step.updateFeeOnLeave)
         case .send:
             sendModel.send()
         case .sending:
@@ -223,7 +225,7 @@ final class SendViewModel: ObservableObject {
             return
         }
 
-        openStep(previousStep, stepAnimation: .slideBackward)
+        openStep(previousStep, stepAnimation: .slideBackward, updateFee: false)
     }
 
     func scanQRCode() {
@@ -249,19 +251,35 @@ final class SendViewModel: ObservableObject {
     }
 
     private func bind() {
-        Publishers.CombineLatest4(currentStepValid, $step, notificationManager.hasNotifications(with: .critical), sendModel.isSending)
-            .map { currentStepValid, step, hasCriticalNotifications, isSending in
-                if !currentStepValid {
+        let summaryMainButtonDisabled = Publishers.CombineLatest(
+            notificationManager.hasNotifications(with: .critical),
+            sendModel.isSending
+        )
+        .map { hasCriticalNotifications, isSending in
+            hasCriticalNotifications && isSending
+        }
+        .eraseToAnyPublisher()
+
+        Publishers.CombineLatest4(currentStepValid, $step, $updatingFees, summaryMainButtonDisabled)
+            .map { currentStepValid, step, updatingFees, summaryMainButtonDisabled in
+                if !currentStepValid || updatingFees {
                     return true
                 }
 
-                if step == .summary {
-                    return hasCriticalNotifications || isSending
+                if step == .summary, summaryMainButtonDisabled {
+                    return true
                 }
 
                 return false
             }
             .assign(to: \.mainButtonDisabled, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        $updatingFees
+            .sink { [weak self] updatingFees in
+                self?.sendDestinationViewModel.setUserInputDisabled(updatingFees)
+                self?.sendAmountViewModel.setUserInputDisabled(updatingFees)
+            }
             .store(in: &bag)
 
         sendModel
@@ -396,7 +414,7 @@ final class SendViewModel: ObservableObject {
 
             alert = SendAlertBuilder.makeSubtractFeeFromAmountAlert(sendModel.feeText) { [weak self] in
                 self?.sendModel.includeFeeIntoAmount()
-                self?.openStep(step, stepAnimation: stepAnimation)
+                self?.openStep(step, stepAnimation: stepAnimation, updateFee: false)
             }
 
             return true
@@ -408,7 +426,7 @@ final class SendViewModel: ObservableObject {
             ])
 
             alert = SendAlertBuilder.makeCustomFeeTooLowAlert { [weak self] in
-                self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: false)
+                self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: false, updateFee: false)
             }
 
             return true
@@ -432,8 +450,36 @@ final class SendViewModel: ObservableObject {
         }
     }
 
-    private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation, checkCustomFee: Bool = true) {
+    private func updateFee(_ step: SendStep, stepAnimation: SendView.StepAnimation, checkCustomFee: Bool) {
+        updatingFees = true
+
+        feeUpdateSubscription = sendModel.updateFees()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                self?.updatingFees = false
+
+                guard case .failure = completion else { return }
+
+                self?.alert = SendAlertBuilder.makeFeeRetryAlert {
+                    self?.updateFee(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee)
+                }
+            } receiveValue: { [weak self] result in
+                self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee, updateFee: false)
+            }
+    }
+
+    private func cancelUpdatingFee() {
+        feeUpdateSubscription = nil
+        updatingFees = false
+    }
+
+    private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation, checkCustomFee: Bool = true, updateFee: Bool) {
         if case .summary = step {
+            if updateFee {
+                self.updateFee(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee)
+                return
+            }
+
             if showSummaryStepAlertIfNeeded(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee) {
                 return
             }
@@ -468,7 +514,7 @@ final class SendViewModel: ObservableObject {
         }
 
         sendFinishViewModel.router = coordinator
-        openStep(.finish(model: sendFinishViewModel), stepAnimation: .moveAndFade)
+        openStep(.finish(model: sendFinishViewModel), stepAnimation: .moveAndFade, updateFee: false)
     }
 
     private func parseQRCode(_ code: String) {
@@ -543,7 +589,7 @@ extension SendViewModel: SendSummaryRoutable {
             auxiliaryViewAnimatable.setAnimatingAuxiliaryViewsOnAppear()
         }
 
-        openStep(step, stepAnimation: .moveAndFade)
+        openStep(step, stepAnimation: .moveAndFade, updateFee: false)
     }
 
     func send() {
@@ -628,6 +674,20 @@ extension SendViewModel: NotificationTapDelegate {
         }
 
         sendModel.setAmount(Amount(with: walletModel.tokenItem.blockchain, type: walletModel.amountType, value: newAmount))
+    }
+}
+
+// MARK: - SendStep
+
+private extension SendStep {
+    var updateFeeOnLeave: Bool {
+        let updateFee: Bool
+        switch self {
+        case .destination, .amount:
+            return true
+        case .fee, .summary, .finish:
+            return false
+        }
     }
 }
 
