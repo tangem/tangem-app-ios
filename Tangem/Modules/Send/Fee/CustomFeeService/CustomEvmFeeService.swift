@@ -18,16 +18,18 @@ class CustomEvmFeeService {
     private let _customFeeGasLimit = CurrentValueSubject<BigUInt?, Never>(nil)
 
     private let blockchain: Blockchain
+    private let walletInfo: SendWalletInfo
 
     private weak var input: CustomFeeServiceInput?
     private weak var output: CustomFeeServiceOutput?
 
     private var bag: Set<AnyCancellable> = []
 
-    init(input: CustomFeeServiceInput, output: CustomFeeServiceOutput, blockchain: Blockchain) {
+    init(input: CustomFeeServiceInput, output: CustomFeeServiceOutput, blockchain: Blockchain, walletInfo: SendWalletInfo) {
         self.input = input
         self.output = output
         self.blockchain = blockchain
+        self.walletInfo = walletInfo
 
         bind()
     }
@@ -86,12 +88,12 @@ class CustomEvmFeeService {
         output?.setCustomFee(newFee)
     }
 
-    private func recalculateFee(enteredFee: Decimal?, input: SendFeeViewModelInput, walletInfo: SendWalletInfo) -> Fee? {
+    private func recalculateFee(enteredFee: Decimal?) -> Fee? {
         let feeDecimalValue = Decimal(pow(10, Double(walletInfo.feeFractionDigits)))
 
         guard
             let enteredFee,
-            let currentGasLimit = _customFeeGasLimit.value, // input.customGasLimit,
+            let currentGasLimit = _customFeeGasLimit.value,
             let enteredFeeInSmallestDenomination = BigUInt(decimal: (enteredFee * feeDecimalValue).rounded(roundingMode: .down))
         else {
             return nil
@@ -112,7 +114,11 @@ class CustomEvmFeeService {
 }
 
 extension CustomEvmFeeService: CustomFeeService {
-    func models() -> [SendCustomFeeInputFieldModel] {
+    var customFeeDescription: String? {
+        Localization.sendMaxFeeFooter
+    }
+
+    func inputFieldModels() -> [SendCustomFeeInputFieldModel] {
         let gasPriceFractionDigits = 9
         let gasPriceGweiPublisher = _customFeeGasPrice
             .eraseToAnyPublisher()
@@ -159,8 +165,8 @@ extension CustomEvmFeeService: CustomFeeService {
         ]
     }
 
-    func didChangeCustomFee(enteredFee: Decimal?, input: SendFeeViewModelInput, walletInfo: SendWalletInfo) {
-        let fee = recalculateFee(enteredFee: enteredFee, input: input, walletInfo: walletInfo)
+    func setCustomFee(enteredFee: Decimal?) {
+        let fee = recalculateFee(enteredFee: enteredFee)
 
         _customFee.send(fee)
         output?.setCustomFee(fee)

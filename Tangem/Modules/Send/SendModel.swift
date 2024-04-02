@@ -110,10 +110,6 @@ class SendModel {
 
     private let _customFee = CurrentValueSubject<Fee?, Never>(nil)
 
-    private let _customFeeSatoshiPerByte = CurrentValueSubject<Int?, Never>(nil)
-    private let _customFeeGasPrice = CurrentValueSubject<BigUInt?, Never>(nil)
-    private let _customFeeGasLimit = CurrentValueSubject<BigUInt?, Never>(nil)
-
     // MARK: - Errors (raw implementation)
 
     private let _amountError = CurrentValueSubject<Error?, Never>(nil)
@@ -283,25 +279,6 @@ class SendModel {
                 guard let self else { return }
 
                 fee.send(feeValues[selectedFeeOption]?.value)
-
-                guard
-                    let customFee = feeValues[.custom]?.value,
-                    !didSetCustomFee
-                else {
-                    return
-                }
-
-                // !!!!!!!!!!
-//                customFeeService?.setFee(customFee)
-
-//                if let bitcoinFeeParameters = customFee.parameters as? BitcoinFeeParameters {
-//                    _customFee.send(customFee)
-//                    _customFeeSatoshiPerByte.send(bitcoinFeeParameters.rate)
-//                } else if let ethereumFeeParameters = customFee.parameters as? EthereumFeeParameters {
-//                    _customFee.send(customFee)
-//                    _customFeeGasPrice.send(ethereumFeeParameters.gasPrice)
-//                    _customFeeGasLimit.send(ethereumFeeParameters.gasLimit)
-//                }
             }
             .store(in: &bag)
 
@@ -565,79 +542,12 @@ class SendModel {
         _isFeeIncluded.send(isFeeIncluded)
     }
 
-    func didChangeCustomFee(_ value: Fee?) {
-        didSetCustomFee = true
-        _customFee.send(value)
-        fee.send(value)
-
-//        if let bitcoinParams = value?.parameters as? BitcoinFeeParameters {
-//            _customFeeSatoshiPerByte.send(bitcoinParams.rate)
-//        } else if let ethereumParams = value?.parameters as? EthereumFeeParameters {
-//            _customFeeGasLimit.send(ethereumParams.gasLimit)
-//            _customFeeGasPrice.send(ethereumParams.gasPrice)
-//        }
-    }
-
-    func didChangeCustomSatoshiPerByte(_ value: Int?) {
-        print("ZZZ didChangeCustomSatoshiPerByte")
-//        _customFeeSatoshiPerByte.send(value)
-//        recalculateCustomFee()
-    }
-
-    func didChangeCustomFeeGasPrice(_ value: BigUInt?) {
-        _customFeeGasPrice.send(value)
-        recalculateCustomFee()
-    }
-
-    func didChangeCustomFeeGasLimit(_ value: BigUInt?) {
-        _customFeeGasLimit.send(value)
-        recalculateCustomFee()
-    }
-
     // REMOVE
     // REMOVE
     // REMOVE
     // REMOVE
     var utxoTransactionFeeCalculator: UTXOTransactionFeeCalculator? {
         walletModel.utxoTransactionFeeCalculator
-    }
-
-    private func recalculateCustomFee() {
-        print("ZZZ recalculateCustomFee")
-
-        if let utxoTransactionFeeCalculator = walletModel.utxoTransactionFeeCalculator {
-            let newFee: Fee?
-            if let satoshiPerByte = _customFeeSatoshiPerByte.value,
-               let amount = validatedAmount.value,
-               let destination = validatedDestination.value?.value {
-                newFee = utxoTransactionFeeCalculator.calculateFee(satoshiPerByte: satoshiPerByte, amount: amount, destination: destination)
-            } else {
-                newFee = nil
-            }
-            print("ZZZ satoshi per byte", _customFeeSatoshiPerByte.value)
-            print("ZZZ recalc new fee", newFee)
-
-            didSetCustomFee = true
-            _customFee.send(newFee)
-            fee.send(newFee)
-        }
-
-        if walletModel.blockchainNetwork.blockchain.isEvm {
-            let newFee: Fee?
-            if let gasPrice = _customFeeGasPrice.value,
-               let gasLimit = _customFeeGasLimit.value,
-               let gasInWei = (gasPrice * gasLimit).decimal {
-                let blockchain = walletModel.tokenItem.blockchain
-                let validatedAmount = Amount(with: blockchain, value: gasInWei / blockchain.decimalValue)
-                newFee = Fee(validatedAmount, parameters: EthereumFeeParameters(gasLimit: gasLimit, gasPrice: gasPrice))
-            } else {
-                newFee = nil
-            }
-
-            didSetCustomFee = true
-            _customFee.send(newFee)
-            fee.send(newFee)
-        }
     }
 
     private func feeValues(_ fees: [Fee]) -> [FeeOption: LoadingValue<Fee>] {
@@ -753,32 +663,8 @@ extension SendModel: SendFeeViewModelInput {
         walletModel.tokenItem
     }
 
-    var customFeeSatoshiPerByte: Int? {
-        _customFeeSatoshiPerByte.value
-    }
-
-    var customGasLimit: BigUInt? {
-        _customFeeGasLimit.value
-    }
-
-    var customGasPrice: BigUInt? {
-        _customFeeGasPrice.value
-    }
-
     var customFeePublisher: AnyPublisher<Fee?, Never> {
         _customFee.eraseToAnyPublisher()
-    }
-
-    var customFeeSatoshiPerBytePublisher: AnyPublisher<Int?, Never> {
-        _customFeeSatoshiPerByte.eraseToAnyPublisher()
-    }
-
-    var customGasPricePublisher: AnyPublisher<BigUInt?, Never> {
-        _customFeeGasPrice.eraseToAnyPublisher()
-    }
-
-    var customGasLimitPublisher: AnyPublisher<BigUInt?, Never> {
-        _customFeeGasLimit.eraseToAnyPublisher()
     }
 
     var canIncludeFeeIntoAmount: Bool {
@@ -873,3 +759,5 @@ extension SendModel: SendNotificationManagerInput {
 }
 
 extension SendModel: SendFiatCryptoAdapterOutput {}
+
+extension SendModel: CustomFeeServiceInput, CustomFeeServiceOutput {}
