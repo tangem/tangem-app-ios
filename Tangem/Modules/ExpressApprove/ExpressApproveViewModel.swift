@@ -145,7 +145,7 @@ private extension ExpressApproveViewModel {
 
         let formatted = feeFormatter.format(
             fee: fee.amount.value,
-            tokenItem: expressInteractor.getSender().tokenItem
+            tokenItem: expressInteractor.getSender().feeTokenItem
         )
 
         feeRowViewModel?.update(detailsType: .text(formatted))
