@@ -11,7 +11,7 @@ import Combine
 import SwiftUI
 
 class SupportChatViewModel: ObservableObject, Identifiable {
-    @Published var sprinklrViewModel = SprinklrSupportChatViewModel()
+//    [REDACTED_USERNAME] var sprinklrViewModel = SprinklrSupportChatViewModel()
     private let input: SupportChatInputModel
 
     init(input: SupportChatInputModel) {

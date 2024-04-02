@@ -30,9 +30,9 @@ class CardViewModel: Identifiable, ObservableObject {
         walletModelsManager: walletModelsManager,
         derivationStyle: config.derivationStyle,
         derivationManager: derivationManager,
-        cardDerivableProvider: self,
+        keysDerivingProvider: self,
         existingCurves: config.walletCurves,
-        longHashesSupported: longHashesSupported
+        longHashesSupported: config.hasFeature(.longHashes)
     )
 
     let userTokenListManager: UserTokenListManager
@@ -40,7 +40,6 @@ class CardViewModel: Identifiable, ObservableObject {
     private let keysRepository: KeysRepository
     private let walletManagersRepository: WalletManagersRepository
     private let cardImageProvider = CardImageProvider()
-//    private let notificationAnalyticsManager: NotificationsAnalyticsManager
 
     lazy var derivationManager: DerivationManager? = {
         guard config.hasFeature(.hdWallets) else {
@@ -58,14 +57,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     let warningsService = WarningsService()
 
-    @Published private(set) var currentSecurityOption: SecurityModeOption = .longTap
-    @Published private(set) var accessCodeRecoveryEnabled: Bool
-
     var signer: TangemSigner { _signer }
-
-    var cardInteractor: CardInteractor {
-        .init(cardInfo: cardInfo)
-    }
 
     var cardId: String { cardInfo.card.cardId }
 
@@ -73,71 +65,22 @@ class CardViewModel: Identifiable, ObservableObject {
         cardInfo.card
     }
 
-    var walletData: DefaultWalletData {
-        cardInfo.walletData
-    }
-
-    var batchId: String { cardInfo.card.batchId }
     var cardPublicKey: Data { cardInfo.card.cardPublicKey }
 
     var supportsOnlineImage: Bool {
         config.hasFeature(.onlineImage)
     }
 
-    var isMultiWallet: Bool {
-        config.hasFeature(.multiCurrency)
-    }
-
-    var canDisplayHashesCount: Bool {
-        config.hasFeature(.displayHashesCount)
-    }
-
     var emailConfig: EmailConfig? {
         config.emailConfig
-    }
-
-    var cardsCount: Int {
-        config.cardsCount
-    }
-
-    var cardIdFormatted: String {
-        cardInfo.cardIdFormatted
-    }
-
-    var cardIssuer: String {
-        cardInfo.card.issuer.name
-    }
-
-    var cardSignedHashes: Int {
-        cardInfo.card.walletSignedHashes
-    }
-
-    var artworkInfo: ArtworkInfo? {
-        cardImageProvider.cardArtwork(for: cardInfo.card.cardId)?.artworkInfo
     }
 
     var name: String {
         cardInfo.name
     }
 
-    var defaultName: String {
-        config.cardName
-    }
-
-    var canCreateBackup: Bool {
-        !config.getFeatureAvailability(.backup).isHidden
-    }
-
     var canSkipBackup: Bool {
         config.canSkipBackup
-    }
-
-    var canTwin: Bool {
-        config.hasFeature(.twinning)
-    }
-
-    var canChangeAccessCodeRecoverySettings: Bool {
-        config.hasFeature(.accessCodeRecoverySettings)
     }
 
     var hasBackupCards: Bool {
@@ -148,18 +91,10 @@ class CardViewModel: Identifiable, ObservableObject {
         config.tou
     }
 
-    var canShowSwapping: Bool {
-        !config.getFeatureAvailability(.swapping).isHidden
-    }
-
-    // Temp for WC. Migrate to userWalletId?
-    var secp256k1SeedKey: Data? {
-        cardInfo.card.wallets.last(where: { $0.curve == .secp256k1 })?.publicKey
-    }
-
     let userWalletId: UserWalletId
 
     lazy var totalBalanceProvider: TotalBalanceProviding = TotalBalanceProvider(
+        userWalletId: userWalletId,
         walletModelsManager: walletModelsManager,
         derivationManager: derivationManager
     )
@@ -167,58 +102,6 @@ class CardViewModel: Identifiable, ObservableObject {
     private(set) var cardInfo: CardInfo
     private var tangemSdk: TangemSdk?
     var config: UserWalletConfig
-
-    var availableSecurityOptions: [SecurityModeOption] {
-        var options: [SecurityModeOption] = []
-
-        if canSetLongTap || currentSecurityOption == .longTap {
-            options.append(.longTap)
-        }
-
-        if config.hasFeature(.accessCode) || currentSecurityOption == .accessCode {
-            options.append(.accessCode)
-        }
-
-        if config.hasFeature(.passcode) || currentSecurityOption == .passCode {
-            options.append(.passCode)
-        }
-
-        return options
-    }
-
-    var hdWalletsSupported: Bool {
-        config.hasFeature(.hdWallets)
-    }
-
-    var canSetLongTap: Bool {
-        config.hasFeature(.longTap)
-    }
-
-    var longHashesSupported: Bool {
-        config.hasFeature(.longHashes)
-    }
-
-    var cardSetLabel: String? {
-        config.cardSetLabel
-    }
-
-    var canShowSend: Bool {
-        config.hasFeature(.withdrawal)
-    }
-
-    var canParticipateInPromotion: Bool {
-        config.hasFeature(.promotion)
-    }
-
-    var resetToFactoryAvailability: UserWalletFeature.Availability {
-        config.getFeatureAvailability(.resetToFactory)
-    }
-
-    var shouldShowLegacyDerivationAlert: Bool {
-        config.warningEvents.contains(where: { $0 == .legacyDerivation })
-    }
-
-    var canExchangeCrypto: Bool { !config.getFeatureAvailability(.exchange).isHidden }
 
     var userWallet: UserWallet {
         UserWalletFactory().userWallet(from: cardInfo, config: config, userWalletId: userWalletId)
@@ -282,14 +165,16 @@ class CardViewModel: Identifiable, ObservableObject {
         )
 
         _signer = config.tangemSigner
-        accessCodeRecoveryEnabled = cardInfo.card.userSettings.isUserCodeRecoveryAllowed
         _userWalletNamePublisher = .init(cardInfo.name)
         _cardHeaderImagePublisher = .init(config.cardHeaderImage)
-        updateCurrentSecurityOption()
         appendPersistentBlockchains()
         bind()
 
         userTokensManager.sync {}
+    }
+
+    deinit {
+        Log.debug("CardViewModel deinit 🥳🤟")
     }
 
     func setupWarnings() {
@@ -300,6 +185,26 @@ class CardViewModel: Identifiable, ObservableObject {
         )
     }
 
+    func validate() -> Bool {
+        var expectedCurves = config.mandatoryCurves
+        /// Since the curve `bls12381_G2_AUG` was added later into first generation of wallets,, we cannot determine whether this curve is missing due to an error or because the user did not want to recreate the wallet.
+        if config is GenericConfig {
+            expectedCurves.remove(.bls12381_G2_AUG)
+        }
+
+        let curvesValidator = CurvesValidator(expectedCurves: expectedCurves)
+        if !curvesValidator.validate(card.wallets.map { $0.curve }) {
+            return false
+        }
+
+        let backupValidator = BackupValidator()
+        if !backupValidator.validate(backupStatus: card.backupStatus, wallets: cardInfo.card.wallets) {
+            return false
+        }
+
+        return true
+    }
+
     private func appendPersistentBlockchains() {
         guard let persistentBlockchains = config.persistentBlockchains else {
             return
@@ -308,91 +213,7 @@ class CardViewModel: Identifiable, ObservableObject {
         userTokenListManager.update(.append(persistentBlockchains), shouldUpload: true)
     }
 
-    // MARK: - Security
-
-    func changeSecurityOption(_ option: SecurityModeOption, completion: @escaping (Result<Void, Error>) -> Void) {
-        let tangemSdk = makeTangemSdk()
-        self.tangemSdk = tangemSdk
-        switch option {
-        case .accessCode:
-            tangemSdk.startSession(
-                with: SetUserCodeCommand(accessCode: nil),
-                cardId: cardId,
-                initialMessage: Message(header: nil, body: Localization.initialMessageChangeAccessCodeBody)
-            ) { [weak self] result in
-                guard let self = self else { return }
-
-                switch result {
-                case .success:
-                    onSecurityOptionChanged(isAccessCodeSet: true, isPasscodeSet: false)
-                    Analytics.log(.userCodeChanged)
-                    completion(.success(()))
-                case .failure(let error):
-                    AppLog.shared.error(
-                        error,
-                        params: [
-                            .newSecOption: .accessCode,
-                            .action: .changeSecOptions,
-                        ]
-                    )
-                    completion(.failure(error))
-                }
-            }
-        case .longTap:
-            tangemSdk.startSession(
-                with: SetUserCodeCommand.resetUserCodes,
-                cardId: cardId
-            ) { [weak self] result in
-                guard let self = self else { return }
-
-                switch result {
-                case .success:
-                    onSecurityOptionChanged(isAccessCodeSet: false, isPasscodeSet: false)
-                    completion(.success(()))
-                case .failure(let error):
-                    AppLog.shared.error(
-                        error,
-                        params: [
-                            .newSecOption: .longTap,
-                            .action: .changeSecOptions,
-                        ]
-                    )
-                    completion(.failure(error))
-                }
-            }
-        case .passCode:
-            tangemSdk.startSession(
-                with: SetUserCodeCommand(passcode: nil),
-                cardId: cardId,
-                initialMessage: Message(header: nil, body: Localization.initialMessageChangePasscodeBody)
-            ) { [weak self] result in
-                guard let self = self else { return }
-
-                switch result {
-                case .success:
-                    onSecurityOptionChanged(isAccessCodeSet: false, isPasscodeSet: true)
-                    completion(.success(()))
-                case .failure(let error):
-                    AppLog.shared.error(
-                        error,
-                        params: [
-                            .newSecOption: .passcode,
-                            .action: .changeSecOptions,
-                        ]
-                    )
-                    completion(.failure(error))
-                }
-            }
-        }
-    }
-
     // MARK: - Update
-
-    func onSecurityOptionChanged(isAccessCodeSet: Bool, isPasscodeSet: Bool) {
-        cardInfo.card.isAccessCodeSet = isAccessCodeSet
-        cardInfo.card.isPasscodeSet = isPasscodeSet
-        onUpdate()
-    }
 
     func onSigned(_ card: Card) {
         for updatedWallet in card.wallets {
@@ -427,25 +248,9 @@ class CardViewModel: Identifiable, ObservableObject {
         _updatePublisher.send()
     }
 
-    func getDisabledLocalizedReason(for feature: UserWalletFeature) -> String? {
-        config.getDisabledLocalizedReason(for: feature)
-    }
-
     private func updateModel() {
         AppLog.shared.debug("🔄 Updating Card view model")
-        updateCurrentSecurityOption()
-
         setupWarnings()
-    }
-
-    private func updateCurrentSecurityOption() {
-        if cardInfo.card.isAccessCodeSet {
-            currentSecurityOption = .accessCode
-        } else if cardInfo.card.isPasscodeSet ?? false {
-            currentSecurityOption = .passCode
-        } else {
-            currentSecurityOption = .longTap
-        }
     }
 
     private func bind() {
@@ -473,27 +278,6 @@ extension CardViewModel: WalletConnectUserWalletInfoProvider {
     }
 }
 
-// MARK: Access code recovery settings provider
-
-extension CardViewModel: AccessCodeRecoverySettingsProvider {
-    func setAccessCodeRecovery(to enabled: Bool, _ completionHandler: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        let tangemSdk = makeTangemSdk()
-        self.tangemSdk = tangemSdk
-
-        tangemSdk.setUserCodeRecoveryAllowed(enabled, cardId: cardId) { [weak self] result in
-            guard let self else { return }
-            switch result {
-            case .success:
-                cardInfo.card.userSettings.isUserCodeRecoveryAllowed = enabled
-                accessCodeRecoveryEnabled = enabled
-                completionHandler(.success(()))
-            case .failure(let error):
-                completionHandler(.failure(error))
-            }
-        }
-    }
-}
-
 // [REDACTED_TODO_COMMENT]
 extension CardViewModel: TangemSdkFactory {
     func makeTangemSdk() -> TangemSdk {
@@ -504,6 +288,10 @@ extension CardViewModel: TangemSdkFactory {
 // MARK: - UserWalletModel
 
 extension CardViewModel: UserWalletModel {
+    var cardsCount: Int {
+        config.cardsCount
+    }
+
     var emailData: [EmailCollectedData] {
         var data = config.emailData
 
@@ -549,7 +337,7 @@ extension CardViewModel: UserWalletModel {
     var cardImagePublisher: AnyPublisher<CardImageResult, Never> {
         let artwork: CardArtwork
 
-        if let artworkInfo = artworkInfo {
+        if let artworkInfo = cardImageProvider.cardArtwork(for: cardInfo.card.cardId)?.artworkInfo {
             artwork = .artwork(artworkInfo)
         } else {
             artwork = .notLoaded
@@ -594,9 +382,9 @@ extension CardViewModel: DerivationManagerDelegate {
     }
 }
 
-extension CardViewModel: CardDerivableProvider {
-    var cardDerivableInteractor: CardDerivable {
-        return cardInteractor
+extension CardViewModel: KeysDerivingProvider {
+    var keysDerivingInteractor: KeysDeriving {
+        KeysDerivingCardInteractor(with: cardInfo)
     }
 }
 
@@ -611,7 +399,6 @@ extension CardViewModel: AnalyticsContextDataProvider {
         return AnalyticsContextData(
             card: card,
             productType: config.productType,
-            userWalletId: userWalletId.value,
             embeddedEntry: config.embeddedBlockchain
         )
     }
