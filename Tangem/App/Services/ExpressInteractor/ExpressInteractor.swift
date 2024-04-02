@@ -226,9 +226,7 @@ extension ExpressInteractor {
             throw ExpressInteractorError.transactionDataNotFound
         }
 
-        guard let fee = state.fees[getFeeOption()] else {
-            throw ExpressInteractorError.feeNotFound
-        }
+        let fee = try selectedFee(fees: state.fees)
 
         logApproveTransactionAnalyticsEvent(policy: state.policy)
 
@@ -311,42 +309,13 @@ private extension ExpressInteractor {
             return .restriction(.notEnoughAmountForFee(.idle), quote: quote)
 
         case .permissionRequired(let permissionRequired):
-            let permissionRequiredState = PermissionRequiredState(
-                policy: permissionRequired.policy,
-                data: permissionRequired.data,
-                fees: mapToFees(fee: permissionRequired.fee)
-            )
-            let state: State = .permissionRequired(permissionRequiredState, quote: permissionRequired.quote)
-
-            guard try await hasEnoughBalanceForFee(fees: permissionRequiredState.fees, amount: permissionRequired.quote.fromAmount) else {
-                return .restriction(.notEnoughAmountForFee(state), quote: permissionRequired.quote)
-            }
-
-            return state
+            return try await map(permissionRequired: permissionRequired)
 
         case .previewCEX(let previewCEX):
-            let previewCEXState = PreviewCEXState(subtractFee: previewCEX.subtractFee, fees: mapToFees(fee: previewCEX.fee))
-            let state: State = .previewCEX(previewCEXState, quote: previewCEX.quote)
-
-            guard try await hasEnoughBalanceForFee(fees: previewCEXState.fees, amount: previewCEX.quote.fromAmount) else {
-                return .restriction(.notEnoughAmountForFee(state), quote: previewCEX.quote)
-            }
-
-            return state
+            return try await map(previewCEX: previewCEX)
 
         case .ready(let ready):
-            if hasPendingTransaction() {
-                return .restriction(.hasPendingTransaction, quote: ready.quote)
-            }
-
-            let readyToSwapState = ReadyToSwapState(data: ready.data, fees: mapToFees(fee: ready.fee))
-            let state: State = .readyToSwap(readyToSwapState, quote: ready.quote)
-
-            guard try await hasEnoughBalanceForFee(fees: readyToSwapState.fees, amount: ready.quote.fromAmount) else {
-                return .restriction(.notEnoughAmountForFee(state), quote: ready.quote)
-            }
-
-            return state
+            return try await map(ready: ready)
         }
     }
 
@@ -370,30 +339,92 @@ private extension ExpressInteractor {
 // MARK: - Restriction
 
 private extension ExpressInteractor {
-    func hasEnoughBalanceForFee(fees: [FeeOption: Fee], amount: Decimal?) async throws -> Bool {
-        guard let fee = fees[getFeeOption()]?.amount.value else {
-            throw ExpressInteractorError.feeNotFound
+    func hasEnoughBalanceForFee(fees: [FeeOption: Fee], amount: Decimal) async throws -> Bool {
+        let fee = try selectedFee(fees: fees)
+
+        do {
+            let transactionValidator = getSender().transactionValidator
+            let amount = makeAmount(value: amount)
+            try await transactionValidator.validate(amount: amount, fee: fee, destination: .generate)
+            return true
+        } catch ValidationError.feeExceedsBalance {
+            return false
+        } catch {
+            return true
         }
-
-        let sender = getSender()
-
-        if sender.isToken {
-            let coinBalance = try sender.getCoinBalance()
-            return fee <= coinBalance
-        }
-
-        guard let amount else {
-            throw ExpressManagerError.amountNotFound
-        }
-
-        let balance = try sender.getBalance()
-        log("\(#function) fee: \(fee) amount: \(amount) balance: \(balance)")
-
-        return fee + amount <= balance
     }
 
     func hasPendingTransaction() -> Bool {
         return getSender().hasPendingTransactions
+    }
+
+    func map(permissionRequired: ExpressManagerState.PermissionRequired) async throws -> State {
+        let fees = mapToFees(fee: permissionRequired.fee)
+        let amount = makeAmount(value: permissionRequired.quote.fromAmount)
+        let fee = try selectedFee(fees: fees)
+
+        let permissionRequiredState = PermissionRequiredState(
+            policy: permissionRequired.policy,
+            data: permissionRequired.data,
+            fees: fees
+        )
+        let correctState: State = .permissionRequired(permissionRequiredState, quote: permissionRequired.quote)
+
+        return await validate(amount: amount, fee: fee, correctState: correctState)
+    }
+
+    func map(ready: ExpressManagerState.Ready) async throws -> State {
+        let fees = mapToFees(fee: ready.fee)
+        let fee = try selectedFee(fees: fees)
+        let amount = makeAmount(value: ready.quote.fromAmount)
+
+        let readyToSwapState = ReadyToSwapState(data: ready.data, fees: fees)
+        let correctState: State = .readyToSwap(readyToSwapState, quote: ready.quote)
+
+        return await validate(amount: amount, fee: fee, correctState: correctState)
+    }
+
+    func map(previewCEX: ExpressManagerState.PreviewCEX) async throws -> State {
+        let fees = mapToFees(fee: previewCEX.fee)
+        let fee = try selectedFee(fees: fees)
+        let amount = makeAmount(value: previewCEX.quote.fromAmount)
+
+        let withdrawalSuggestionProvider = getSender().withdrawalSuggestionProvider
+        let suggestion = withdrawalSuggestionProvider?.withdrawalSuggestion(amount: amount, fee: fee.amount)
+
+        // Check on the minimum received amount
+        // Almost impossible case because the providers check it on their side
+        if let destination = getDestination(),
+           case .noAccount(_, let amount) = destination.state,
+           previewCEX.quote.expectAmount < amount {
+            return .restriction(
+                .notEnoughReceivedAmount(minAmount: amount, tokenSymbol: destination.tokenItem.currencySymbol),
+                quote: previewCEX.quote
+            )
+        }
+
+        let previewCEXState = PreviewCEXState(subtractFee: previewCEX.subtractFee, fees: fees, suggestion: suggestion)
+        let correctState: State = .previewCEX(previewCEXState, quote: previewCEX.quote)
+
+        return await validate(amount: amount, fee: fee, correctState: correctState)
+    }
+
+    func validate(amount: Amount, fee: Fee, correctState: State) async -> State {
+        do {
+            let transactionValidator = getSender().transactionValidator
+            try await transactionValidator.validate(amount: amount, fee: fee, destination: .generate)
+
+        } catch ValidationError.feeExceedsBalance {
+            return .restriction(.notEnoughAmountForFee(correctState), quote: correctState.quote)
+
+        } catch let error as ValidationError {
+            return .restriction(.validationError(error), quote: correctState.quote)
+
+        } catch {
+            return .restriction(.requiredRefresh(occurredError: error), quote: correctState.quote)
+        }
+
+        return correctState
     }
 }
 
@@ -401,10 +432,7 @@ private extension ExpressInteractor {
 
 private extension ExpressInteractor {
     func sendDEXTransaction(state: ReadyToSwapState, provider: ExpressProvider) async throws -> TransactionSendResultState {
-        guard let fee = state.fees[getFeeOption()] else {
-            throw ExpressInteractorError.feeNotFound
-        }
-
+        let fee = try selectedFee(fees: state.fees)
         let sender = getSender()
         let transaction = try await expressTransactionBuilder.makeTransaction(wallet: sender, data: state.data, fee: fee)
         let result = try await sender.send(transaction, signer: signer).async()
@@ -413,10 +441,7 @@ private extension ExpressInteractor {
     }
 
     func sendCEXTransaction(state: PreviewCEXState, provider: ExpressProvider) async throws -> TransactionSendResultState {
-        guard let fee = state.fees[getFeeOption()] else {
-            throw ExpressInteractorError.feeNotFound
-        }
-
+        let fee = try selectedFee(fees: state.fees)
         let sender = getSender()
         let data = try await expressManager.requestData()
         let transaction = try await expressTransactionBuilder.makeTransaction(wallet: sender, data: data, fee: fee)
@@ -467,7 +492,11 @@ private extension ExpressInteractor {
 
             return state
         case .restriction(.notEnoughAmountForFee(let returnState), let quote):
-            guard try await hasEnoughBalanceForFee(fees: returnState.fees, amount: quote?.fromAmount) else {
+            guard let amount = quote?.fromAmount else {
+                throw ExpressManagerError.amountNotFound
+            }
+
+            guard try await hasEnoughBalanceForFee(fees: returnState.fees, amount: amount) else {
                 return .restriction(.notEnoughAmountForFee(returnState), quote: quote)
             }
 
@@ -572,6 +601,19 @@ private extension ExpressInteractor {
             return [.market: market, .fast: priority]
         }
     }
+
+    func selectedFee(fees: [FeeOption: Fee]) throws -> Fee {
+        guard let fee = fees[getFeeOption()] else {
+            throw ExpressInteractorError.feeNotFound
+        }
+
+        return fee
+    }
+
+    func makeAmount(value: Decimal) -> Amount {
+        let wallet = getSender()
+        return Amount(with: wallet.tokenItem.blockchain, type: wallet.amountType, value: value)
+    }
 }
 
 // MARK: - Log
@@ -622,7 +664,7 @@ private extension ExpressInteractor {
         }()
 
         Analytics.log(event: .transactionSent, params: [
-            .commonSource: Analytics.ParameterValue.transactionSourceSwap.rawValue,
+            .source: Analytics.ParameterValue.transactionSourceSwap.rawValue,
             .token: data.source.tokenItem.currencySymbol,
             .blockchain: data.source.tokenItem.blockchain.displayName,
             .feeType: analyticsFeeType.rawValue,
@@ -640,7 +682,7 @@ private extension ExpressInteractor {
         }()
 
         Analytics.log(event: .transactionSent, params: [
-            .commonSource: Analytics.ParameterValue.transactionSourceApprove.rawValue,
+            .source: Analytics.ParameterValue.transactionSourceApprove.rawValue,
             .feeType: Analytics.ParameterValue.transactionFeeMax.rawValue,
             .token: getSender().tokenItem.currencySymbol,
             .blockchain: getSender().tokenItem.blockchain.displayName,
@@ -689,7 +731,7 @@ extension ExpressInteractor {
     indirect enum State {
         case idle
         case loading(type: RefreshType)
-        case restriction(_ type: RestrictionType, quote: ExpressQuote?)
+        case restriction(RestrictionType, quote: ExpressQuote?)
         case permissionRequired(PermissionRequiredState, quote: ExpressQuote)
         case previewCEX(PreviewCEXState, quote: ExpressQuote)
         case readyToSwap(ReadyToSwapState, quote: ExpressQuote)
@@ -750,6 +792,8 @@ extension ExpressInteractor {
         case notEnoughAmountForFee(_ returnState: State)
         case requiredRefresh(occurredError: Error)
         case noDestinationTokens
+        case validationError(ValidationError)
+        case notEnoughReceivedAmount(minAmount: Decimal, tokenSymbol: String)
     }
 
     struct PermissionRequiredState {
@@ -761,6 +805,7 @@ extension ExpressInteractor {
     struct PreviewCEXState {
         let subtractFee: Decimal
         let fees: [FeeOption: Fee]
+        let suggestion: WithdrawalSuggestion?
     }
 
     struct ReadyToSwapState {
