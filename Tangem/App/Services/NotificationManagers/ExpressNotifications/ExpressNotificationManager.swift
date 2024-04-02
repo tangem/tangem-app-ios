@@ -206,7 +206,7 @@ class ExpressNotificationManager {
     }
 }
 
-public extension ExpressAPIError {
+extension ExpressAPIError {
     var localizedMessage: String {
         switch errorCode {
         case .exchangeInternalError:
