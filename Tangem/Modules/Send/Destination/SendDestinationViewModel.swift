@@ -10,7 +10,6 @@ import Foundation
 import SwiftUI
 import Combine
 import BlockchainSdk
-import TangemSdk
 
 protocol SendDestinationViewModelInput {
     var destinationValid: AnyPublisher<Bool, Never> { get }
