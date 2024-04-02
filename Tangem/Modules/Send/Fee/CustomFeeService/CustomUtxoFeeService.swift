@@ -12,12 +12,10 @@ import BlockchainSdk
 
 class CustomUtxoFeeService {
     private let _customFeeSatoshiPerByte = CurrentValueSubject<Int?, Never>(nil)
-
     private let utxoTransactionFeeCalculator: UTXOTransactionFeeCalculator
 
     private weak var input: CustomFeeServiceInput?
     private weak var output: CustomFeeServiceOutput?
-
     private var bag: Set<AnyCancellable> = []
 
     init(input: CustomFeeServiceInput, output: CustomFeeServiceOutput, utxoTransactionFeeCalculator: UTXOTransactionFeeCalculator) {
@@ -120,7 +118,7 @@ extension CustomUtxoFeeService: CustomFeeService {
         return [customFeeSatoshiPerByteModel]
     }
 
-    func setCustomFee(enteredFee: Decimal?) {
+    func setCustomFee(value: Decimal?) {
         print("zzz Aaaaa didChangeCustomFee utxo????????????????????????????")
     }
 }
