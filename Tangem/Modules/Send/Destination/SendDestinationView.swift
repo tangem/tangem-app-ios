@@ -25,6 +25,7 @@ struct SendDestinationView: View {
                         .setIconNamespaceId(SendViewNamespaceId.addressIcon.rawValue)
                         .setTextNamespaceId(SendViewNamespaceId.addressText.rawValue)
                         .setClearButtonNamespaceId(SendViewNamespaceId.addressClearButton.rawValue)
+                        .disabled(viewModel.userInputDisabled)
                 } footer: {
                     if !viewModel.animatingAuxiliaryViewsOnAppear {
                         Text(addressViewModel.description)
@@ -39,6 +40,7 @@ struct SendDestinationView: View {
             if let additionalFieldViewModel = viewModel.additionalFieldViewModel {
                 GroupedSection(additionalFieldViewModel) {
                     SendDestinationTextView(viewModel: $0)
+                        .disabled(viewModel.userInputDisabled)
                 } footer: {
                     if !viewModel.animatingAuxiliaryViewsOnAppear {
                         Text(additionalFieldViewModel.description)
