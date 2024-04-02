@@ -90,6 +90,10 @@ extension CustomUtxoFeeService: CustomFeeService {
         nil
     }
 
+    var readOnlyCustomFee: Bool {
+        true
+    }
+
     func inputFieldModels() -> [SendCustomFeeInputFieldModel] {
         let satoshiPerBytePublisher = _customFeeSatoshiPerByte
             .map { intValue -> Decimal? in
