@@ -174,6 +174,9 @@ final class SendViewModel: ObservableObject {
         )
 
         customFeeService = CustomFeeServiceFactory(input: sendModel, output: sendModel, walletModel: walletModel, walletInfo: walletInfo).makeService()
+        if customFeeService != nil {
+            sendModel.setSupportsCustomFees(true)
+        }
 
         fiatCryptoAdapter = CommonSendFiatCryptoAdapter(
             cryptoCurrencyId: walletInfo.currencyId,
