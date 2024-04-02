@@ -69,4 +69,8 @@ enum PendingExpressTransactionStatus: String, Equatable, Codable {
             return false
         }
     }
+
+    var isDone: Bool {
+        self == .done
+    }
 }
