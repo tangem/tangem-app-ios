@@ -54,7 +54,7 @@ struct ProviderRowView: View {
                         )
                 }
 
-                Text(viewModel.provider.type)
+                Text(viewModel.provider.type.uppercased())
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
             }
 
