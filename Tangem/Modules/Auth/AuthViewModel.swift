@@ -41,7 +41,7 @@ final class AuthViewModel: ObservableObject {
     }
 
     func requestSupport() {
-        Analytics.log(.buttonRequestSupport)
+        Analytics.log(.requestSupport, params: [.source: .signIn])
         failedCardScanTracker.resetCounter()
         openMail()
     }
