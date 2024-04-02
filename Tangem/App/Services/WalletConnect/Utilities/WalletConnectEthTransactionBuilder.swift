@@ -69,13 +69,13 @@ extension CommonWalletConnectEthTransactionBuilder: WalletConnectEthTransactionB
         async let gasPrice = getGasPrice(for: wcTransaction, using: gasLoader)
         async let gasLimit = getGasLimit(for: wcTransaction, with: valueAmount, using: gasLoader)
 
-        let feeValue = try await Decimal(gasLimit * gasPrice) / blockchain.decimalValue
+        let feeValue = try await Decimal(gasLimit) * Decimal(gasPrice) / blockchain.decimalValue
         let gasAmount = Amount(with: blockchain, value: feeValue)
         let feeParameters = try await EthereumFeeParameters(gasLimit: BigUInt(gasLimit), gasPrice: BigUInt(gasPrice))
         let fee = Fee(gasAmount, parameters: feeParameters)
         let _ = await walletUpdate
 
-        var transaction = try walletModel.transactionCreator.createTransaction(
+        var transaction = try await walletModel.transactionCreator.createTransaction(
             amount: valueAmount,
             fee: fee,
             sourceAddress: wcTransaction.from,
