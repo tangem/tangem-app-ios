@@ -15,7 +15,6 @@ final class MainBottomSheetHeaderViewModel: ObservableObject {
     }
 
     @Published var enteredSearchText = ""
-
     @Published var inputShouldBecomeFocused = false
 
     func onBottomScrollableSheetStateChange(_ state: BottomScrollableSheetState) {

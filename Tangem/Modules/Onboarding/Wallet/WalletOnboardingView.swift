@@ -113,12 +113,12 @@ struct WalletOnboardingView: View {
                                 }
                             },
                             rightItems: {
-                                ChatButton(
+                                SupportButton(
                                     height: viewModel.navbarSize.height,
                                     isVisible: true,
                                     isEnabled: true
                                 ) {
-                                    viewModel.openSupportChat()
+                                    viewModel.openSupport()
                                 }
                             }
                         )
