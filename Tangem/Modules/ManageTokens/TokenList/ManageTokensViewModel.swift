@@ -49,15 +49,13 @@ final class ManageTokensViewModel: ObservableObject {
         bind()
     }
 
-    func onAppear() {
-        Analytics.log(.manageTokensScreenOpened)
-    }
-
     func onBottomAppear() {
         // Need for locked fetchMore process when bottom sheet not yet open
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.viewDidAppear = true
         }
+
+        Analytics.log(.manageTokensScreenOpened)
     }
 
     func onBottomDisappear() {
@@ -71,6 +69,7 @@ final class ManageTokensViewModel: ObservableObject {
     }
 
     func addCustomTokenDidTapAction() {
+        Analytics.log(.manageTokensButtonCustomToken)
         coordinator?.openAddCustomToken(dataSource: dataSource)
     }
 }
@@ -179,7 +178,11 @@ private extension ManageTokensViewModel {
                 tokenViewModels = items.compactMap { self.mapToTokenViewModel(coinModel: $0) }
                 updateQuote(by: items.map { $0.id })
 
-                isShowAddCustomToken = tokenViewModels.isEmpty && !dataSource.userWalletModels.contains(where: { $0.isMultiWallet })
+                isShowAddCustomToken = tokenViewModels.isEmpty && !dataSource.userWalletModels.contains(where: { $0.config.hasFeature(.multiCurrency) })
+
+                if let searchValue = loader.lastSearchTextValue, !searchValue.isEmpty, items.isEmpty {
+                    Analytics.log(event: .manageTokensTokenIsNotFound, params: [.input: searchValue])
+                }
             })
             .store(in: &bag)
 
@@ -247,8 +250,11 @@ private extension ManageTokensViewModel {
         }
 
         Analytics.log(
-            event: .manageTokensButtonGenerateAddresses,
-            params: [.cardsCount: String(countWalletPendingDerivation)]
+            event: .manageTokensButtonGetAddresses,
+            params: [
+                .walletCount: String(countWalletPendingDerivation),
+                .source: Analytics.ParameterValue.manageTokens.rawValue,
+            ]
         )
 
         coordinator?.showGenerateAddressesWarning(
