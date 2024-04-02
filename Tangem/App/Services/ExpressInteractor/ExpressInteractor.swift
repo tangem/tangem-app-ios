@@ -89,6 +89,10 @@ extension ExpressInteractor {
         _swappingPair.value.destination.value
     }
 
+    func getDestinationValue() -> LoadingValue<WalletModel> {
+        _swappingPair.value.destination
+    }
+
     func getFeeOption() -> FeeOption {
         feeOption.read()
     }
