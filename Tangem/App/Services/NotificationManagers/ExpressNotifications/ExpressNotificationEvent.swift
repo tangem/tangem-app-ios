@@ -22,7 +22,11 @@ enum ExpressNotificationEvent {
     case verificationRequired
     case cexOperationFailed
     case feeWillBeSubtractFromSendingAmount
-    case existentialDepositWarning(message: String)
+    case existentialDepositWarning(blockchainName: String, amount: String)
+    case dustAmount(minimumAmountText: String, minimumChangeText: String)
+    case withdrawalOptionalAmountChange(amount: Decimal, amountFormatted: String)
+    case withdrawalMandatoryAmountChange(amount: Decimal, amountFormatted: String, blockchainName: String, maxUtxo: Int)
+    case notEnoughReceivedAmountForReserve(amountFormatted: String)
 }
 
 extension ExpressNotificationEvent: NotificationEvent {
@@ -54,6 +58,14 @@ extension ExpressNotificationEvent: NotificationEvent {
             return .string(Localization.sendNetworkFeeWarningTitle)
         case .existentialDepositWarning:
             return .string(Localization.warningExistentialDepositTitle)
+        case .dustAmount:
+            return .string(Localization.sendNotificationInvalidAmountTitle)
+        case .withdrawalOptionalAmountChange:
+            return .string(Localization.sendNotificationHighFeeTitle)
+        case .withdrawalMandatoryAmountChange:
+            return .string(Localization.sendNotificationTransactionLimitTitle)
+        case .notEnoughReceivedAmountForReserve(let amountFormatted):
+            return .string(Localization.warningExpressNotificationInvalidReserveAmountTitle(amountFormatted))
         }
     }
 
@@ -71,7 +83,7 @@ extension ExpressNotificationEvent: NotificationEvent {
             return Localization.warningExpressNotEnoughFeeForTokenTxDescription(mainTokenName, mainTokenSymbol)
         case .tooSmallAmountToSwap, .tooBigAmountToSwap:
             return Localization.warningExpressWrongAmountDescription
-        case .notEnoughReserveToSwap:
+        case .notEnoughReserveToSwap, .notEnoughReceivedAmountForReserve:
             return Localization.sendNotificationInvalidReserveAmountText
         case .noDestinationTokens(let sourceTokenName):
             return Localization.warningExpressNoExchangeableCoinsDescription(sourceTokenName)
@@ -80,9 +92,15 @@ extension ExpressNotificationEvent: NotificationEvent {
         case .cexOperationFailed:
             return Localization.expressExchangeNotificationFailedText
         case .feeWillBeSubtractFromSendingAmount:
-            return Localization.sendNetworkFeeWarningContent
-        case .existentialDepositWarning(let message):
-            return message
+            return Localization.swappingNetworkFeeWarningContent
+        case .existentialDepositWarning(let blockchainName, let amount):
+            return Localization.warningExistentialDepositMessage(blockchainName, amount)
+        case .dustAmount(let minimumAmountText, let minimumChangeText):
+            return Localization.warningExpressDustMessage(minimumAmountText, minimumChangeText)
+        case .withdrawalOptionalAmountChange(_, let amount):
+            return Localization.sendNotificationHighFeeText(amount)
+        case .withdrawalMandatoryAmountChange(_, let amountFormatted, let blockchainName, let maxUtxo):
+            return Localization.sendNotificationTransactionLimitText(blockchainName, maxUtxo, amountFormatted)
         }
     }
 
@@ -96,9 +114,16 @@ extension ExpressNotificationEvent: NotificationEvent {
              .notEnoughReserveToSwap,
              .noDestinationTokens,
              .feeWillBeSubtractFromSendingAmount,
-             .existentialDepositWarning:
+             .existentialDepositWarning,
+             .dustAmount:
             return .secondary
-        case .notEnoughFeeForTokenTx, .refreshRequired, .verificationRequired, .cexOperationFailed:
+        case .notEnoughFeeForTokenTx,
+             .refreshRequired,
+             .verificationRequired,
+             .cexOperationFailed,
+             .withdrawalOptionalAmountChange,
+             .withdrawalMandatoryAmountChange,
+             .notEnoughReceivedAmountForReserve:
             return .action
         }
     }
@@ -107,15 +132,26 @@ extension ExpressNotificationEvent: NotificationEvent {
         switch self {
         case .permissionNeeded:
             return .init(iconType: .image(Assets.swapLock.image))
-        case .refreshRequired, .noDestinationTokens, .verificationRequired, .feeWillBeSubtractFromSendingAmount:
+        case .refreshRequired,
+             .noDestinationTokens,
+             .verificationRequired,
+             .feeWillBeSubtractFromSendingAmount:
             return .init(iconType: .image(Assets.attention.image))
         case .hasPendingApproveTransaction:
             return .init(iconType: .progressView)
         case .notEnoughFeeForTokenTx(_, _, let blockchainIconName):
             return .init(iconType: .image(Image(blockchainIconName)))
-        case .tooSmallAmountToSwap, .tooBigAmountToSwap, .notEnoughReserveToSwap, .cexOperationFailed:
+        case .tooSmallAmountToSwap,
+             .tooBigAmountToSwap,
+             .notEnoughReserveToSwap,
+             .cexOperationFailed,
+             .dustAmount,
+             .withdrawalMandatoryAmountChange,
+             .notEnoughReceivedAmountForReserve:
             return .init(iconType: .image(Assets.redCircleWarning.image))
-        case .hasPendingTransaction, .existentialDepositWarning:
+        case .hasPendingTransaction,
+             .existentialDepositWarning,
+             .withdrawalOptionalAmountChange:
             return .init(iconType: .image(Assets.blueCircleWarning.image))
         }
     }
@@ -126,14 +162,18 @@ extension ExpressNotificationEvent: NotificationEvent {
              .hasPendingTransaction,
              .hasPendingApproveTransaction,
              .verificationRequired,
-             .feeWillBeSubtractFromSendingAmount,
-             .existentialDepositWarning:
+             .feeWillBeSubtractFromSendingAmount:
             return .info
         case .notEnoughFeeForTokenTx,
              .tooSmallAmountToSwap,
              .tooBigAmountToSwap,
              .notEnoughReserveToSwap,
-             .noDestinationTokens:
+             .existentialDepositWarning,
+             .noDestinationTokens,
+             .dustAmount,
+             .withdrawalOptionalAmountChange,
+             .withdrawalMandatoryAmountChange,
+             .notEnoughReceivedAmountForReserve:
             return .warning
         case .refreshRequired,
              .cexOperationFailed:
@@ -149,6 +189,10 @@ extension ExpressNotificationEvent: NotificationEvent {
             return .refresh
         case .verificationRequired, .cexOperationFailed:
             return .goToProvider
+        case .withdrawalOptionalAmountChange(let amount, let amountFormatted):
+            return .reduceAmountBy(amount: amount, amountFormatted: amountFormatted)
+        case .withdrawalMandatoryAmountChange(let amount, let amountFormatted, _, _):
+            return .reduceAmountTo(amount: amount, amountFormatted: amountFormatted)
         default:
             return nil
         }
@@ -175,7 +219,11 @@ extension ExpressNotificationEvent: NotificationEvent {
              .tooBigAmountToSwap,
              .notEnoughReserveToSwap,
              .feeWillBeSubtractFromSendingAmount,
-             .existentialDepositWarning:
+             .existentialDepositWarning,
+             .dustAmount,
+             .withdrawalOptionalAmountChange,
+             .withdrawalMandatoryAmountChange,
+             .notEnoughReceivedAmountForReserve:
             return true
         }
     }
