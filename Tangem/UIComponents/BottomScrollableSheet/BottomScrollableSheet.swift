@@ -20,6 +20,10 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
 
     @State private var overlayHeight: CGFloat = .zero
 
+    private var overlayBottomInset: CGFloat {
+        return overlayHeight.isZero ? 0.0 : max(stateObject.maxHeight - stateObject.minHeight, 0.0)
+    }
+
     @State private var isHidden = true
     private var isHiddenWhenCollapsed = false
 
@@ -33,7 +37,7 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
 
     private var scrollViewBottomContentInset: CGFloat {
         return max(
-            overlayHeight,
+            overlayHeight + overlayBottomInset,
             UIApplication.safeAreaInsets.bottom + sheetVerticalOffset,
             Constants.notchlessDevicesBottomInset + sheetVerticalOffset
         )
@@ -128,11 +132,11 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
             .ios15AndBelowScrollDisabledCompat(stateObject.scrollViewIsDragging)
         }
         .ios16AndAboveScrollDisabledCompat(stateObject.scrollViewIsDragging)
-        .overlay(
+        .overlay(alignment: .bottom) {
             overlay
+                .offset(y: -overlayBottomInset)
                 .readGeometry(\.size.height, bindTo: $overlayHeight)
-                .infinityFrame(alignment: .bottom)
-        )
+        }
         .coordinateSpace(name: coordinateSpaceName)
     }
 
