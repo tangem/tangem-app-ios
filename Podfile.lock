@@ -205,7 +205,7 @@ DEPENDENCIES:
   - AlertToast (from `https://github.com/elai950/AlertToast`, commit `a437862bb6605080a5816e866cbd4ac8c8657b49`)
   - Amplitude
   - BinanceChain (from `https://github.com/tangem/swiftbinancechain.git`, tag `0.0.11`)
-  - BitcoinCore.swift (from `https://github.com/tangem/bitcoincore.git`, tag `0.0.19`)
+  - BitcoinCore.swift (from `https://github.com/tangem/bitcoincore.git`, branch `bugfix/IOS-6182_base58_crash`)
   - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-538`)
   - BlockiesSwift (~> 0.1.2)
   - CombineExt (~> 1.8.0)
@@ -261,8 +261,8 @@ EXTERNAL SOURCES:
     :git: https://github.com/tangem/swiftbinancechain.git
     :tag: 0.0.11
   BitcoinCore.swift:
+    :branch: bugfix/IOS-6182_base58_crash
     :git: https://github.com/tangem/bitcoincore.git
-    :tag: 0.0.19
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
     :tag: develop-538
@@ -284,8 +284,8 @@ CHECKOUT OPTIONS:
     :git: https://github.com/tangem/swiftbinancechain.git
     :tag: 0.0.11
   BitcoinCore.swift:
+    :commit: 68b3c0c993d7d914e9c37279f41da6c4eda8d084
     :git: https://github.com/tangem/bitcoincore.git
-    :tag: 0.0.19
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
     :tag: develop-538
@@ -340,6 +340,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   WalletConnectSwiftV2: c1c2c2fbd0495860baf71515be1b943f0c5dce0c
 
-PODFILE CHECKSUM: 96cfa3caaec9b55e467815b39c92db6faaf2d5b2
+PODFILE CHECKSUM: 78f181c7233e7ba4659f7e1b6d1f4b72badab38f
 
 COCOAPODS: 1.15.2
