@@ -133,83 +133,8 @@ class SendFeeViewModel: ObservableObject {
         let customFeeFooter: String?
         let customFeeTitle: String
 
-//        let sendModel = input as! SendModel
-//
-//        if case .bitcoin = sendModel.blockchainNetwork.blockchain {
-//            let satoshiPerBytePublisher = input
-//                .customFeeSatoshiPerBytePublisher
-//                .map { intValue -> Decimal? in
-//                    if let intValue {
-//                        Decimal(intValue)
-//                    } else {
-//                        nil
-//                    }
-//                }
-//                .eraseToAnyPublisher()
-//
-//            customFeeSatoshiPerByteModel = SendCustomFeeInputFieldModel(
-//                title: "Satoshi per byte",
-//                amountPublisher: satoshiPerBytePublisher,
-//                fieldSuffix: nil,
-//                fractionDigits: 0,
-//                amountAlternativePublisher: .just(output: nil),
-//                footer: nil
-//            ) { [weak self] decimalValue in
-//                let intValue: Int?
-//                if let decimalValue {
-//                    intValue = (decimalValue as NSDecimalNumber).intValue
-//                } else {
-//                    intValue = nil
-//                }
-//
-//                self?.input.didChangeCustomSatoshiPerByte(intValue)
-//            }
-//
         customFeeTitle = Localization.commonFeeLabel
         customFeeFooter = nil
-//        } else if sendModel.blockchainNetwork.blockchain.isEvm {
-//            let gasPriceFractionDigits = 9
-//            let gasPriceGweiPublisher = input
-//                .customGasPricePublisher
-//                .decimalPublisher
-//                .map { weiValue -> Decimal? in
-//                    let gweiValue = weiValue?.shiftOrder(magnitude: -gasPriceFractionDigits)
-//                    return gweiValue
-//                }
-//                .eraseToAnyPublisher()
-//
-//            customFeeGasPriceModel = SendCustomFeeInputFieldModel(
-//                title: Localization.sendGasPrice,
-//                amountPublisher: gasPriceGweiPublisher,
-//                fieldSuffix: "GWEI",
-//                fractionDigits: gasPriceFractionDigits,
-//                amountAlternativePublisher: .just(output: nil),
-//                footer: Localization.sendGasPriceFooter
-//            ) { [weak self] gweiValue in
-//                guard let self else { return }
-//
-//                let weiValue = gweiValue?.shiftOrder(magnitude: gasPriceFractionDigits)
-//                input.didChangeCustomFeeGasPrice(weiValue?.bigUIntValue)
-//            }
-//
-//            customFeeGasLimitModel = SendCustomFeeInputFieldModel(
-//                title: Localization.sendGasLimit,
-//                amountPublisher: input.customGasLimitPublisher.decimalPublisher,
-//                fieldSuffix: nil,
-//                fractionDigits: 0,
-//                amountAlternativePublisher: .just(output: nil),
-//                footer: Localization.sendGasLimitFooter
-//            ) { [weak self] in
-//                guard let self else { return }
-//                input.didChangeCustomFeeGasLimit($0?.bigUIntValue)
-//            }
-//
-//            customFeeTitle = Localization.sendMaxFee
-//            customFeeFooter = Localization.sendMaxFeeFooter
-//
-//        } else {
-//            return
-//        }
 
         customFeeModel = SendCustomFeeInputFieldModel(
             title: customFeeTitle,
@@ -222,7 +147,6 @@ class SendFeeViewModel: ObservableObject {
             guard let self else { return }
 
             customFeeService?.didChangeCustomFee(enteredFee: enteredFee, input: input, walletInfo: walletInfo)
-//            input.didChangeCustomFee(recalculateFee(enteredFee: enteredFee, input: input, walletInfo: walletInfo))
         }
     }
 
@@ -360,12 +284,6 @@ extension SendFeeViewModel: AuxiliaryViewAnimatable {}
 
 // MARK: - private extensions
 
-private extension Decimal {
-    var bigUIntValue: BigUInt? {
-        BigUInt(decimal: self)
-    }
-}
-
 private extension AnyPublisher where Output == Fee?, Failure == Never {
     var decimalPublisher: AnyPublisher<Decimal?, Never> {
         map { $0?.amount.value }.eraseToAnyPublisher()
@@ -375,11 +293,5 @@ private extension AnyPublisher where Output == Fee?, Failure == Never {
 private extension AnyPublisher where Output == BigUInt?, Failure == Never {
     var decimalPublisher: AnyPublisher<Decimal?, Never> {
         map { $0?.decimal }.eraseToAnyPublisher()
-    }
-}
-
-private extension Decimal {
-    func shiftOrder(magnitude: Int) -> Decimal {
-        self * Decimal(pow(10.0, Double(magnitude)))
     }
 }
