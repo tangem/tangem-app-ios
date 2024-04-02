@@ -12,8 +12,6 @@ import Combine
 import BigInt
 
 class CustomEvmFeeService {
-    private let _customFee = CurrentValueSubject<Fee?, Never>(nil)
-
     private let _customFeeGasPrice = CurrentValueSubject<BigUInt?, Never>(nil)
     private let _customFeeGasLimit = CurrentValueSubject<BigUInt?, Never>(nil)
 
@@ -46,7 +44,7 @@ class CustomEvmFeeService {
                 guard
                     let self,
                     let fee,
-                    _customFee.value == nil
+                    input.customFee == nil
                 else {
                     print("ZZZ updating initial fee", "NO")
                     return
@@ -56,7 +54,6 @@ class CustomEvmFeeService {
                 if let ethereumFeeParameters = fee.parameters as? EthereumFeeParameters {
                     _customFeeGasPrice.send(ethereumFeeParameters.gasPrice)
                     _customFeeGasLimit.send(ethereumFeeParameters.gasLimit)
-                    _customFee.send(fee)
                     output?.setCustomFee(fee)
                 }
             }
@@ -168,7 +165,6 @@ extension CustomEvmFeeService: CustomFeeService {
     func setCustomFee(enteredFee: Decimal?) {
         let fee = recalculateFee(enteredFee: enteredFee)
 
-        _customFee.send(fee)
         output?.setCustomFee(fee)
         if let ethereumFeeParameters = fee?.parameters as? EthereumFeeParameters {
             _customFeeGasPrice.send(ethereumFeeParameters.gasPrice)
