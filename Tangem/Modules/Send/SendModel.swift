@@ -126,6 +126,7 @@ class SendModel {
     private var destinationResolutionRequest: Task<Void, Error>?
     private var didSetCustomFee = false
     private var feeUpdatePublisher: AnyPublisher<FeeUpdateResult, Error>?
+    private var supportsCustomFees = false
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
@@ -175,6 +176,10 @@ class SendModel {
         if let amount = walletModel.wallet.amounts[amountType] {
             setAmount(amount)
         }
+    }
+
+    func setSupportsCustomFees(_ supportsCustomFees: Bool) {
+        self.supportsCustomFees = supportsCustomFees
     }
 
     func currentTransaction() -> BlockchainSdk.Transaction? {
@@ -547,14 +552,6 @@ class SendModel {
         _isFeeIncluded.send(isFeeIncluded)
     }
 
-    // REMOVE
-    // REMOVE
-    // REMOVE
-    // REMOVE
-    var utxoTransactionFeeCalculator: UTXOTransactionFeeCalculator? {
-        walletModel.utxoTransactionFeeCalculator
-    }
-
     private func feeValues(_ fees: [Fee]) -> [FeeOption: LoadingValue<Fee>] {
         switch fees.count {
         case 1:
@@ -650,7 +647,7 @@ extension SendModel: SendFeeViewModelInput {
         if walletModel.shouldShowFeeSelector {
             var options: [FeeOption] = [.slow, .market, .fast]
 
-            if walletModel.utxoTransactionFeeCalculator != nil || tokenItem.blockchain.isEvm {
+            if supportsCustomFees {
                 options.append(.custom)
             }
 
