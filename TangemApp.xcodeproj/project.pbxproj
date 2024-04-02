@@ -851,6 +851,7 @@
 		DAC53D0027BE63830027147D /* Web3StoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC53CF527BE63830027147D /* Web3StoryPage.swift */; };
 		DAD2D8522B4D2144002EA7F1 /* SendSummarySectionViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAD2D8512B4D2144002EA7F1 /* SendSummarySectionViewModelFactory.swift */; };
 		DAD2D8542B4D578C002EA7F1 /* SendViewNamespaceId.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAD2D8532B4D578C002EA7F1 /* SendViewNamespaceId.swift */; };
+		DAD60F292BB6E80B00F9E4D9 /* SendMainButtonType.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAD60F282BB6E80B00F9E4D9 /* SendMainButtonType.swift */; };
 		DADC9CA02B91C8AC00DA2C27 /* SendAlertBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DADC9C9F2B91C8AC00DA2C27 /* SendAlertBuilder.swift */; };
 		DADD18F82AA7516B0044AA66 /* UITraitCollection+.swift in Sources */ = {isa = PBXBuildFile; fileRef = DADD18F72AA7516B0044AA66 /* UITraitCollection+.swift */; };
 		DAE0F05A2A404CCC006074FF /* AwardToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAE0F0592A404CCC006074FF /* AwardToken.swift */; };
@@ -2334,6 +2335,7 @@
 		DAC53CF527BE63830027147D /* Web3StoryPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Web3StoryPage.swift; sourceTree = "<group>"; };
 		DAD2D8512B4D2144002EA7F1 /* SendSummarySectionViewModelFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendSummarySectionViewModelFactory.swift; sourceTree = "<group>"; };
 		DAD2D8532B4D578C002EA7F1 /* SendViewNamespaceId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendViewNamespaceId.swift; sourceTree = "<group>"; };
+		DAD60F282BB6E80B00F9E4D9 /* SendMainButtonType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendMainButtonType.swift; sourceTree = "<group>"; };
 		DADC9C9F2B91C8AC00DA2C27 /* SendAlertBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAlertBuilder.swift; sourceTree = "<group>"; };
 		DADD18F72AA7516B0044AA66 /* UITraitCollection+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UITraitCollection+.swift"; sourceTree = "<group>"; };
 		DAE0F0592A404CCC006074FF /* AwardToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AwardToken.swift; sourceTree = "<group>"; };
@@ -5733,6 +5735,7 @@
 				DA559C1E2B0261F300F59584 /* SendCoordinatorView.swift */,
 				DA559C262B0261F400F59584 /* SendView.swift */,
 				DA559C252B0261F400F59584 /* SendViewModel.swift */,
+				DAD60F282BB6E80B00F9E4D9 /* SendMainButtonType.swift */,
 				DAC4BD392B7C8EF400B8F64F /* AuxiliaryViewAnimatable.swift */,
 				DAD2D8512B4D2144002EA7F1 /* SendSummarySectionViewModelFactory.swift */,
 				DA559C242B0261F400F59584 /* SendType.swift */,
@@ -8423,6 +8426,7 @@
 				DA19DBD229477E7C00E43675 /* ContinuousCornerRadius.swift in Sources */,
 				EF914D4E2A604615001F00B2 /* QuotesDTO.swift in Sources */,
 				B0CCA7222568FD0F009325E3 /* TwinsCreateWalletTask.swift in Sources */,
+				DAD60F292BB6E80B00F9E4D9 /* SendMainButtonType.swift in Sources */,
 				B0323F27258BFCF4005C7CD5 /* WriteIssuerDataTask.swift in Sources */,
 				B644EC292ACBF469007D9F4B /* DragGesturePassthroughView.swift in Sources */,
 				EFBAABAE2927CCBA0065C6D4 /* DecimalNumberTextField.swift in Sources */,
