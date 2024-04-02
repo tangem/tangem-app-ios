@@ -77,20 +77,12 @@ class SendDestinationViewModel: ObservableObject {
         suggestedWallets = Self.userWalletRepository
             .models
             .compactMap { userWalletModel in
-                let derivationConfig = userWalletModel.config.derivationStyle?.provider
-                let defaultDerivationPath: DerivationPath?
-                if let defaultDerivationPathString = derivationConfig?.derivationPath(for: blockchain) {
-                    defaultDerivationPath = try? DerivationPath(rawPath: defaultDerivationPathString)
-                } else {
-                    defaultDerivationPath = nil
-                }
-
                 let walletModels = userWalletModel.walletModelsManager.walletModels
                 let walletModel = walletModels.first { walletModel in
                     return
                         walletModel.wallet.publicKey != input.walletPublicKey &&
                         walletModel.blockchainNetwork.blockchain == blockchain &&
-                        walletModel.blockchainNetwork.derivationPath == defaultDerivationPath
+                        !walletModel.isCustom
                 }
 
                 guard let walletModel else { return nil }
