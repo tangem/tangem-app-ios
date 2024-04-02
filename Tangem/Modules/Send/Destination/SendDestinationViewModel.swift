@@ -48,7 +48,6 @@ class SendDestinationViewModel: ObservableObject {
     @Published var suggestedDestinationViewModel: SendSuggestedDestinationViewModel?
     @Published var animatingAuxiliaryViewsOnAppear: Bool = false
     @Published var showSuggestedDestinations = true
-    @Published var showSectionContent = false
 
     var didProperlyDisappear: Bool = false
 
@@ -198,8 +197,6 @@ class SendDestinationViewModel: ObservableObject {
 }
 
 extension SendDestinationViewModel: AuxiliaryViewAnimatable {}
-
-extension SendDestinationViewModel: SectionContainerAnimatable {}
 
 private extension SendSuggestedDestination.`Type` {
     var source: Analytics.DestinationAddressSource {
