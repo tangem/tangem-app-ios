@@ -12,15 +12,13 @@ import Combine
 import BigInt
 
 class CustomEvmFeeService {
-    private let _customFeeGasPrice = CurrentValueSubject<BigUInt?, Never>(nil)
-    private let _customFeeGasLimit = CurrentValueSubject<BigUInt?, Never>(nil)
-
+    private let gasPrice = CurrentValueSubject<BigUInt?, Never>(nil)
+    private let gasLimit = CurrentValueSubject<BigUInt?, Never>(nil)
     private let blockchain: Blockchain
     private let walletInfo: SendWalletInfo
 
     private weak var input: CustomFeeServiceInput?
     private weak var output: CustomFeeServiceOutput?
-
     private var bag: Set<AnyCancellable> = []
     private var customGasPriceBeforeEditing: BigUInt?
 
@@ -53,8 +51,8 @@ class CustomEvmFeeService {
 
                 print("ZZZ updating initial fee", fee)
                 if let ethereumFeeParameters = fee.parameters as? EthereumFeeParameters {
-                    _customFeeGasPrice.send(ethereumFeeParameters.gasPrice)
-                    _customFeeGasLimit.send(ethereumFeeParameters.gasLimit)
+                    gasPrice.send(ethereumFeeParameters.gasPrice)
+                    gasLimit.send(ethereumFeeParameters.gasLimit)
                     output?.setCustomFee(fee)
                 }
             }
@@ -62,15 +60,13 @@ class CustomEvmFeeService {
     }
 
     private func didChangeCustomFeeGasPrice(_ value: BigUInt?) {
-        _customFeeGasPrice.send(value)
-        let fee = recalculateFee(gasPrice: _customFeeGasPrice.value, gasLimit: _customFeeGasLimit.value)
-        output?.setCustomFee(fee)
+        gasPrice.send(value)
+        output?.setCustomFee(recalculateFee(gasPrice: gasPrice.value, gasLimit: gasLimit.value))
     }
 
     private func didChangeCustomFeeGasLimit(_ value: BigUInt?) {
-        _customFeeGasLimit.send(value)
-        let fee = recalculateFee(gasPrice: _customFeeGasPrice.value, gasLimit: _customFeeGasLimit.value)
-        output?.setCustomFee(fee)
+        gasLimit.send(value)
+        output?.setCustomFee(recalculateFee(gasPrice: gasPrice.value, gasLimit: gasLimit.value))
     }
 
     private func recalculateFee(gasPrice: BigUInt?, gasLimit: BigUInt?) -> Fee? {
@@ -90,7 +86,7 @@ class CustomEvmFeeService {
 
         guard
             let value,
-            let currentGasLimit = _customFeeGasLimit.value,
+            let currentGasLimit = gasLimit.value,
             let enteredFeeInSmallestDenomination = BigUInt(decimal: (value * feeDecimalValue).rounded(roundingMode: .down))
         else {
             return nil
@@ -121,7 +117,7 @@ extension CustomEvmFeeService: CustomFeeService {
 
     func inputFieldModels() -> [SendCustomFeeInputFieldModel] {
         let gasPriceFractionDigits = 9
-        let gasPriceGweiPublisher = _customFeeGasPrice
+        let gasPriceGweiPublisher = gasPrice
             .eraseToAnyPublisher()
             .decimalPublisher
             .map { weiValue -> Decimal? in
@@ -146,7 +142,7 @@ extension CustomEvmFeeService: CustomFeeService {
 
         let customFeeGasLimitModel = SendCustomFeeInputFieldModel(
             title: Localization.sendGasLimit,
-            amountPublisher: _customFeeGasLimit.eraseToAnyPublisher().decimalPublisher,
+            amountPublisher: gasLimit.eraseToAnyPublisher().decimalPublisher,
             fieldSuffix: nil,
             fractionDigits: 0,
             amountAlternativePublisher: .just(output: nil),
@@ -166,16 +162,16 @@ extension CustomEvmFeeService: CustomFeeService {
 
         output?.setCustomFee(fee)
         if let ethereumFeeParameters = fee?.parameters as? EthereumFeeParameters {
-            _customFeeGasPrice.send(ethereumFeeParameters.gasPrice)
-            _customFeeGasLimit.send(ethereumFeeParameters.gasLimit)
+            gasPrice.send(ethereumFeeParameters.gasPrice)
+            gasLimit.send(ethereumFeeParameters.gasLimit)
         }
     }
 
     private func onGasPriceFocusChanged(_ focused: Bool) {
         if focused {
-            customGasPriceBeforeEditing = _customFeeGasPrice.value
+            customGasPriceBeforeEditing = gasPrice.value
         } else {
-            let customGasPriceAfterEditing = _customFeeGasPrice.value
+            let customGasPriceAfterEditing = gasPrice.value
             if customGasPriceAfterEditing != customGasPriceBeforeEditing {
                 Analytics.log(.sendGasPriceInserted)
             }
