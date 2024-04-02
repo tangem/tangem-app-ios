@@ -46,7 +46,7 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
 
     private var selectedBlockchainSupportsTokens: Bool {
         let blockchain = try? enteredBlockchain()
-        return blockchain?.canHandleTokens ?? false
+        return blockchain?.canHandleCustomTokens ?? false
     }
 
     private var bag: Set<AnyCancellable> = []
@@ -78,7 +78,7 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
 
         $contractAddress.removeDuplicates()
             .dropFirst()
-            .debounce(for: 0.5, scheduler: RunLoop.main)
+            .debounce(for: 0.5, scheduler: DispatchQueue.main)
             .flatMap { [unowned self] contractAddress -> AnyPublisher<[CoinModel], Never> in
                 isLoading = true
 
@@ -88,7 +88,7 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
 
                 return findToken(contractAddress: contractAddress)
             }
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .sink { [unowned self] currencyModels in
                 didFinishTokenSearch(currencyModels)
             }
@@ -99,7 +99,7 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
             $derivationsPicker.map { $0.selection }.removeDuplicates(),
             $customDerivationPath.removeDuplicates()
         )
-        .debounce(for: 0.1, scheduler: RunLoop.main)
+        .debounce(for: 0.1, scheduler: DispatchQueue.main)
         .sink { [unowned self] _ in
             didChangeBlockchain()
         }
@@ -111,7 +111,7 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
             $symbol.removeDuplicates(),
             $decimals.removeDuplicates()
         )
-        .debounce(for: 0.1, scheduler: RunLoop.main)
+        .debounce(for: 0.1, scheduler: DispatchQueue.main)
         .sink { [weak self] _ in
             self?.validate()
         }
@@ -234,7 +234,7 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
         let derivationPath = enteredDerivationPath()
 
         let missingTokenInformation = contractAddress.isEmpty && name.isEmpty && symbol.isEmpty && decimals.isEmpty
-        if !blockchain.canHandleTokens || missingTokenInformation {
+        if !blockchain.canHandleCustomTokens || missingTokenInformation {
             return .blockchain(.init(blockchain, derivationPath: derivationPath))
         } else {
             let enteredContractAddress = try enteredContractAddress(in: blockchain)
@@ -435,7 +435,7 @@ class LegacyAddCustomTokenViewModel: ObservableObject {
             params[.contractAddress] = token.contractAddress
         }
 
-        Analytics.log(event: .customTokenWasAdded, params: params)
+        Analytics.log(event: .manageTokensCustomTokenWasAdded, params: params)
     }
 }
 
@@ -531,5 +531,16 @@ struct LegacyPickerModel: Identifiable {
 
     static var empty: LegacyPickerModel {
         .init(items: [], selection: "")
+    }
+}
+
+private extension Blockchain {
+    var canHandleCustomTokens: Bool {
+        switch self {
+        case .terraV1:
+            return false
+        default:
+            return canHandleTokens
+        }
     }
 }

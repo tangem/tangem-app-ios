@@ -44,7 +44,7 @@ class WelcomeViewModel: ObservableObject {
     }
 
     func requestSupport() {
-        Analytics.log(.buttonRequestSupport)
+        Analytics.log(.requestSupport, params: [.source: .introduction])
         failedCardScanTracker.resetCounter()
         openMail()
     }
