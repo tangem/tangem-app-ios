@@ -186,6 +186,11 @@ class SendModel {
     }
 
     func setCustomFee(_ customFee: Fee?) {
+        guard _customFee.value?.amount != customFee?.amount else {
+            return
+        }
+
+        didSetCustomFee = true
         _customFee.send(customFee)
         if case .custom = selectedFeeOption {
             fee.send(customFee)
@@ -760,4 +765,8 @@ extension SendModel: SendNotificationManagerInput {
 
 extension SendModel: SendFiatCryptoAdapterOutput {}
 
-extension SendModel: CustomFeeServiceInput, CustomFeeServiceOutput {}
+extension SendModel: CustomFeeServiceInput, CustomFeeServiceOutput {
+    var customFee: Fee? {
+        _customFee.value
+    }
+}
