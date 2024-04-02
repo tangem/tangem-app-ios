@@ -52,4 +52,15 @@ extension AddCustomTokenDerivationOption {
     var rawDerivationDath: String? {
         derivationPath?.rawPath
     }
+
+    var parameterValue: String {
+        switch self {
+        case .custom(let path):
+            return "Custom/\(path?.rawPath ?? "")"
+        case .default(let path):
+            return "Default/\(path.rawPath)"
+        case .blockchain(let name, _):
+            return "Blockchain/\(name)"
+        }
+    }
 }
