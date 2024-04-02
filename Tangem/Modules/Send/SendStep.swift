@@ -47,15 +47,6 @@ extension SendStep {
         }
     }
 
-    var hasNavigationButtons: Bool {
-        switch self {
-        case .amount, .destination, .fee:
-            return true
-        case .summary, .finish:
-            return false
-        }
-    }
-
     var opensKeyboardByDefault: Bool {
         switch self {
         case .amount:
