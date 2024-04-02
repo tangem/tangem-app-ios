@@ -14,7 +14,7 @@ import AVFoundation
 final class SendViewModel: ObservableObject {
     // MARK: - ViewState
 
-    @Published var stepAnimation: SendView.StepAnimation? = .slideForward
+    @Published var stepAnimation: SendView.StepAnimation = .slideForward
     @Published var step: SendStep
     @Published var showBackButton = false
     @Published var nextButtonEnabled = true
@@ -205,7 +205,7 @@ final class SendViewModel: ObservableObject {
 
         logNextStepAnalytics()
 
-        let stepAnimation: SendView.StepAnimation? = (nextStep == .summary) ? nil : .slideForward
+        let stepAnimation: SendView.StepAnimation = (nextStep == .summary) ? .moveAndFade : .slideForward
         openStep(nextStep, stepAnimation: stepAnimation, updateFee: step.updateFeeOnLeave)
     }
 
@@ -219,7 +219,7 @@ final class SendViewModel: ObservableObject {
     }
 
     func `continue`() {
-        openStep(.summary, stepAnimation: nil, updateFee: step.updateFeeOnLeave)
+        openStep(.summary, stepAnimation: .moveAndFade, updateFee: step.updateFeeOnLeave)
     }
 
     func scanQRCode() {
@@ -365,7 +365,7 @@ final class SendViewModel: ObservableObject {
         coordinator?.openMail(with: emailDataCollector, recipient: recipient)
     }
 
-    private func showSummaryStepAlertIfNeeded(_ step: SendStep, stepAnimation: SendView.StepAnimation?, checkCustomFee: Bool) -> Bool {
+    private func showSummaryStepAlertIfNeeded(_ step: SendStep, stepAnimation: SendView.StepAnimation, checkCustomFee: Bool) -> Bool {
         if sendModel.totalExceedsBalance {
             Analytics.log(event: .sendNoticeNotEnoughFee, params: [
                 .token: walletModel.tokenItem.currencySymbol,
@@ -395,7 +395,7 @@ final class SendViewModel: ObservableObject {
         return false
     }
 
-    private func updateFee(_ step: SendStep, stepAnimation: SendView.StepAnimation?, checkCustomFee: Bool) {
+    private func updateFee(_ step: SendStep, stepAnimation: SendView.StepAnimation, checkCustomFee: Bool) {
         updatingFees = true
 
         feeUpdateSubscription = sendModel.updateFees()
@@ -418,7 +418,7 @@ final class SendViewModel: ObservableObject {
         updatingFees = false
     }
 
-    private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation?, checkCustomFee: Bool = true, updateFee: Bool) {
+    private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation, checkCustomFee: Bool = true, updateFee: Bool) {
         cancelUpdatingFee()
 
         if case .summary = step {
@@ -432,27 +432,16 @@ final class SendViewModel: ObservableObject {
             }
 
             didReachSummaryScreen = true
+
+            sendSummaryViewModel.setupAnimations(previousStep: self.step)
         }
 
+        // Gotta give some time to update animation variable
         self.stepAnimation = stepAnimation
 
-        let animateStepChanges: () -> Void = {
-            withAnimation(SendView.Constants.backButtonAnimation) {
-                self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
-            }
-
-            withAnimation(SendView.Constants.defaultAnimation) {
-                self.step = step
-            }
-        }
-
-        if stepAnimation != nil {
-            // Gotta give some time to update animation variable
-            DispatchQueue.main.async {
-                animateStepChanges()
-            }
-        } else {
-            animateStepChanges()
+        DispatchQueue.main.async {
+            self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
+            self.step = step
         }
 
         // Hide the keyboard with a delay, otherwise the animation is going to be screwed up
@@ -470,7 +459,7 @@ final class SendViewModel: ObservableObject {
         }
 
         sendFinishViewModel.router = coordinator
-        openStep(.finish(model: sendFinishViewModel), stepAnimation: nil, updateFee: false)
+        openStep(.finish(model: sendFinishViewModel), stepAnimation: .moveAndFade, updateFee: false)
     }
 
     private func parseQRCode(_ code: String) {
@@ -545,7 +534,7 @@ extension SendViewModel: SendSummaryRoutable {
             auxiliaryViewAnimatable.setAnimatingAuxiliaryViewsOnAppear()
         }
 
-        openStep(step, stepAnimation: nil, updateFee: false)
+        openStep(step, stepAnimation: .moveAndFade, updateFee: false)
     }
 
     func send() {
