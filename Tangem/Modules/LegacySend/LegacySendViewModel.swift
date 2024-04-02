@@ -315,7 +315,7 @@ class LegacySendViewModel: ObservableObject {
                 let newAmount = Amount(with: amountToSend, value: newAmountValue)
 
                 do {
-                    try walletModel.transactionCreator.validate(amount: newAmount)
+                    try walletModel.transactionValidator.validate(amount: newAmount)
                     amountHint = nil
                     validatedAmount = newAmount
                 } catch {
@@ -364,8 +364,8 @@ class LegacySendViewModel: ObservableObject {
                 }
 
                 do {
-                    let tx = try walletModel.createTransaction(
-                        amountToSend: isFeeIncluded ? amount - selectedFee.amount : amount,
+                    let tx = try walletModel.transactionCreator.createTransaction(
+                        amount: isFeeIncluded ? amount - selectedFee.amount : amount,
                         fee: selectedFee,
                         destinationAddress: destination
                     )
@@ -559,9 +559,10 @@ class LegacySendViewModel: ObservableObject {
     }
 
     func validateWithdrawal(_ transaction: BlockchainSdk.Transaction, _ totalAmount: Amount) {
+        #warning("[REDACTED_TODO_COMMENT]")
         guard
-            let validator = walletModel.withdrawalValidator,
-            let warning = validator.validate(transaction),
+            let validator = walletModel.withdrawalSuggestionProvider,
+            let warning = validator.validateWithdrawalWarning(amount: transaction.amount, fee: transaction.fee.amount),
             error == nil
         else {
             return
@@ -754,7 +755,7 @@ class LegacySendViewModel: ObservableObject {
                     if !isDemo {
                         let sourceValue: Analytics.ParameterValue = isSellingCrypto ? .transactionSourceSell : .transactionSourceSend
                         Analytics.log(event: .transactionSent, params: [
-                            .commonSource: sourceValue.rawValue,
+                            .source: sourceValue.rawValue,
                             .token: tx.amount.currencySymbol,
                             .blockchain: blockchainNetwork.blockchain.displayName,
                             .feeType: analyticsFeeType.rawValue,
@@ -964,6 +965,8 @@ private extension LegacySendViewModel {
 extension LegacySendViewModel {
     func openMail(with error: Error) {
         guard let transaction else { return }
+
+        Analytics.log(.requestSupport, params: [.source: .transactionSourceSend])
 
         let emailDataCollector = SendScreenDataCollector(
             userWalletEmailData: cardViewModel.emailData,
