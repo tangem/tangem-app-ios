@@ -18,23 +18,12 @@ protocol SendFeeViewModelInput {
     var feeOptions: [FeeOption] { get }
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
 
-    var customFeeSatoshiPerByte: Int? { get }
-    var customGasLimit: BigUInt? { get }
-    var customGasPrice: BigUInt? { get }
-
     var customFeePublisher: AnyPublisher<Fee?, Never> { get }
-    var customFeeSatoshiPerBytePublisher: AnyPublisher<Int?, Never> { get }
-    var customGasPricePublisher: AnyPublisher<BigUInt?, Never> { get }
-    var customGasLimitPublisher: AnyPublisher<BigUInt?, Never> { get }
 
     var canIncludeFeeIntoAmount: Bool { get }
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> { get }
 
     func didSelectFeeOption(_ feeOption: FeeOption)
-    func didChangeCustomFee(_ value: Fee?)
-    func didChangeCustomSatoshiPerByte(_ value: Int?)
-    func didChangeCustomFeeGasPrice(_ value: BigUInt?)
-    func didChangeCustomFeeGasLimit(_ value: BigUInt?)
     func didChangeFeeInclusion(_ isFeeIncluded: Bool)
 }
 
@@ -102,19 +91,6 @@ class SendFeeViewModel: ObservableObject {
             }
         } else {
             Analytics.log(.sendFeeScreenOpened)
-        }
-    }
-
-    func onCustomGasPriceFocusChanged(focused: Bool) {
-        if focused {
-            customGasPriceBeforeEditing = input.customGasPrice
-        } else {
-            let customGasPriceAfterEditing = input.customGasPrice
-            if customGasPriceAfterEditing != customGasPriceBeforeEditing {
-                Analytics.log(.sendGasPriceInserted)
-            }
-
-            customGasPriceBeforeEditing = nil
         }
     }
 
