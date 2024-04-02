@@ -207,7 +207,6 @@ class SendModel {
             AppLog.shared.debug("Transaction object hasn't been created")
             return
         }
-        print("ZZZ send", transaction.fee, transaction.fee.parameters)
 
         #warning("[REDACTED_TODO_COMMENT]")
         #warning("[REDACTED_TODO_COMMENT]")
