@@ -89,9 +89,9 @@ class PreparePrimaryCardTask: CardSessionRunnable {
         command.run(in: session) { result in
             switch result {
             case .success(let response):
-                let validator = CardInitializationValidator(expectedCurves: self.curves)
+                let validator = CurvesValidator(expectedCurves: self.curves)
 
-                if validator.validateWallets(response.wallets) {
+                if validator.validate(response.wallets.map { $0.curve }) {
                     self.readPrimaryCardIfNeeded(in: session, completion: completion)
                 } else {
                     completion(.failure(.walletAlreadyCreated))
