@@ -22,6 +22,7 @@ class CustomEvmFeeService {
     private weak var output: CustomFeeServiceOutput?
 
     private var bag: Set<AnyCancellable> = []
+    private var customGasPriceBeforeEditing: BigUInt?
 
     init(input: CustomFeeServiceInput, output: CustomFeeServiceOutput, blockchain: Blockchain, walletInfo: SendWalletInfo) {
         self.input = input
@@ -138,6 +139,8 @@ extension CustomEvmFeeService: CustomFeeService {
 
             let weiValue = gweiValue?.shiftOrder(magnitude: gasPriceFractionDigits)
             didChangeCustomFeeGasPrice(weiValue?.bigUIntValue)
+        } onFocusChanged: { [weak self] focused in
+            self?.onGasPriceFocusChanged(focused)
         }
 
         let customFeeGasLimitModel = SendCustomFeeInputFieldModel(
@@ -152,10 +155,6 @@ extension CustomEvmFeeService: CustomFeeService {
             didChangeCustomFeeGasLimit($0?.bigUIntValue)
         }
 
-//        customFeeTitle = Localization.sendMaxFee
-//        customFeeFooter = Localization.sendMaxFeeFooter
-
-        //
         return [
             customFeeGasPriceModel,
             customFeeGasLimitModel,
@@ -169,6 +168,19 @@ extension CustomEvmFeeService: CustomFeeService {
         if let ethereumFeeParameters = fee?.parameters as? EthereumFeeParameters {
             _customFeeGasPrice.send(ethereumFeeParameters.gasPrice)
             _customFeeGasLimit.send(ethereumFeeParameters.gasLimit)
+        }
+    }
+
+    private func onGasPriceFocusChanged(_ focused: Bool) {
+        if focused {
+            customGasPriceBeforeEditing = _customFeeGasPrice.value
+        } else {
+            let customGasPriceAfterEditing = _customFeeGasPrice.value
+            if customGasPriceAfterEditing != customGasPriceBeforeEditing {
+                Analytics.log(.sendGasPriceInserted)
+            }
+
+            customGasPriceBeforeEditing = nil
         }
     }
 }
