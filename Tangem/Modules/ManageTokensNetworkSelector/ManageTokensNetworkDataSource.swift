@@ -21,7 +21,7 @@ class ManageTokensNetworkDataSource {
     // MARK: - Init
 
     init(_ dataSource: ManageTokensDataSource) {
-        let userWalletModels = dataSource.userWalletModels.filter { $0.isMultiWallet }
+        let userWalletModels = dataSource.userWalletModels.filter { $0.config.hasFeature(.multiCurrency) }
 
         _userWalletModels.send(userWalletModels)
 
