@@ -14,6 +14,7 @@ protocol AnalyticsContext {
     func setupContext(with: AnalyticsContextData)
 
     func clearContext()
+    func clearSession()
 
     func value(forKey: AnalyticsStorageKey, scope: AnalyticsContextScope) -> Any?
     func set(value: Any, forKey storageKey: AnalyticsStorageKey, scope: AnalyticsContextScope)
