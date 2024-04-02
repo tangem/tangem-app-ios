@@ -227,6 +227,8 @@ private extension ExpressViewModel {
             }
             .store(in: &bag)
 
+        // Creates a publisher that emits changes in the notification list
+        // based on a provided filter that compares the previous and new values
         let makeNotificationPublisher = { [notificationManager] filter in
             notificationManager
                 .notificationPublisher
@@ -239,12 +241,14 @@ private extension ExpressViewModel {
                 .removeDuplicates()
         }
 
-        makeNotificationPublisher { $1.count > $0.count }
-            // Debounce for exclude unwanted animations/updates
+        // Publisher for showing new notifications with a delay to prevent unwanted animations
+        makeNotificationPublisher { $1.count >= $0.count }
             .debounce(for: 0.2, scheduler: DispatchQueue.main)
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
+        // Publisher for immediate updates when notifications are removed (e.g., from 2 to 0 or 1)
+        // to fix 'jumping' animation bug
         makeNotificationPublisher { $1.count < $0.count }
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
