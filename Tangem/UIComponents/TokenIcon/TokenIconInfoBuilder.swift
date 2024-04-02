@@ -30,8 +30,8 @@ struct TokenIconInfoBuilder {
         }
 
         if let id {
-            imageURL = TokenIconURLBuilder()
-                .iconURL(id: id, size: .large)
+            imageURL = IconURLBuilder()
+                .tokenIconURL(id: id, size: .large)
         }
 
         return .init(name: name, blockchainIconName: blockchainIconName, imageURL: imageURL, isCustom: isCustom, customTokenColor: customTokenColor)
