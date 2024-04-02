@@ -13,6 +13,7 @@ import SwiftUI
 
 class SendCustomFeeInputFieldModel: ObservableObject, Identifiable {
     let title: String
+    let disabled: Bool
     let footer: String?
     let fieldSuffix: String?
 
@@ -27,6 +28,7 @@ class SendCustomFeeInputFieldModel: ObservableObject, Identifiable {
     init(
         title: String,
         amountPublisher: AnyPublisher<Decimal?, Never>,
+        disabled: Bool = false,
         fieldSuffix: String?,
         fractionDigits: Int,
         amountAlternativePublisher: AnyPublisher<String?, Never>,
@@ -35,6 +37,7 @@ class SendCustomFeeInputFieldModel: ObservableObject, Identifiable {
         onFocusChanged: ((Bool) -> Void)? = nil
     ) {
         self.title = title
+        self.disabled = disabled
         self.fieldSuffix = fieldSuffix
         self.footer = footer
         self.onFieldChange = onFieldChange
