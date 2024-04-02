@@ -12,6 +12,8 @@ extension Analytics {
     enum ParameterValue: String {
         case welcome
         case walletOnboarding = "wallet_onboarding"
+        case ok = "Ok"
+        case error = "Error"
         case on = "On"
         case off = "Off"
         case yes = "Yes"
@@ -30,10 +32,11 @@ extension Analytics {
 
         case main = "Main"
         case token = "Token"
-
-        case scanSourceWelcome = "Introduction"
-        case scanSourceAuth = "Sign In"
-        case scanSourceSettings = "Settings"
+        case manageTokens = "Manage Tokens"
+        case introduction = "Introduction"
+        case onboarding = "Onboarding"
+        case settings = "Settings"
+        case signIn = "Sign In"
 
         case transactionSourceSend = "Send"
         case transactionSourceSwap = "Swap"
