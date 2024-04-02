@@ -10,6 +10,7 @@ import Foundation
 import SwiftUI
 import Combine
 import BlockchainSdk
+import TangemSdk
 
 protocol SendDestinationViewModelInput {
     var destinationValid: AnyPublisher<Bool, Never> { get }
@@ -71,14 +72,27 @@ class SendDestinationViewModel: ObservableObject {
             showSign: false
         )
 
+        let blockchain = input.blockchainNetwork.blockchain
+
         suggestedWallets = Self.userWalletRepository
             .models
             .compactMap { userWalletModel in
+                let derivationConfig = userWalletModel.config.derivationStyle?.provider
+                let defaultDerivationPath: DerivationPath?
+                if let defaultDerivationPathString = derivationConfig?.derivationPath(for: blockchain) {
+                    defaultDerivationPath = try? DerivationPath(rawPath: defaultDerivationPathString)
+                } else {
+                    defaultDerivationPath = nil
+                }
+
                 let walletModels = userWalletModel.walletModelsManager.walletModels
                 let walletModel = walletModels.first { walletModel in
-                    walletModel.blockchainNetwork == input.blockchainNetwork &&
-                        walletModel.wallet.publicKey != input.walletPublicKey
+                    return
+                        walletModel.wallet.publicKey != input.walletPublicKey &&
+                        walletModel.blockchainNetwork.blockchain == blockchain &&
+                        walletModel.blockchainNetwork.derivationPath == defaultDerivationPath
                 }
+
                 guard let walletModel else { return nil }
 
                 return SendSuggestedDestinationWallet(
