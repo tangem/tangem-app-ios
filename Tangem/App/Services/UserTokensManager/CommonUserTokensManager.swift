@@ -282,10 +282,8 @@ extension CommonUserTokensManager: UserTokensReordering {
             .eraseToAnyPublisher()
     }
 
-    func reorder(
-        _ reorderingActions: [UserTokensReorderingAction]
-    ) -> AnyPublisher<Void, Never> {
-        if reorderingActions.isEmpty {
+    func reorder(_ actions: [UserTokensReorderingAction], source: UserTokensReorderingSource) -> AnyPublisher<Void, Never> {
+        if actions.isEmpty {
             return .just
         }
 
@@ -297,7 +295,7 @@ extension CommonUserTokensManager: UserTokensReordering {
                 var grouping = existingList.grouping
                 var sorting = existingList.sorting
 
-                for action in reorderingActions {
+                for action in actions {
                     switch action {
                     case .setGroupingOption(let option):
                         grouping = converter.convert(option)
