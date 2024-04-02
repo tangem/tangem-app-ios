@@ -19,7 +19,6 @@ struct SendAmountView: View {
         GroupedScrollView(spacing: 14) {
             GroupedSection(viewModel) { viewModel in
                 amountSectionContent
-                    .visible(viewModel.showSectionContent)
             }
             .contentAlignment(.center)
             .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
@@ -44,10 +43,7 @@ struct SendAmountView: View {
                 .transition(SendView.Constants.auxiliaryViewTransition)
             }
         }
-        .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         .onAppear(perform: viewModel.onAppear)
-        .onAppear(perform: viewModel.onSectionContentAppear)
-        .onDisappear(perform: viewModel.onSectionContentDisappear)
         .onAppear(perform: viewModel.onAuxiliaryViewAppear)
         .onDisappear(perform: viewModel.onAuxiliaryViewDisappear)
     }
@@ -55,19 +51,8 @@ struct SendAmountView: View {
     private var amountSectionContent: some View {
         VStack(spacing: 0) {
             if !viewModel.animatingAuxiliaryViewsOnAppear {
-                Text(viewModel.walletName)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-                    .lineLimit(1)
+                SendWalletInfoView(namespace: namespace, walletName: viewModel.walletName, walletBalance: viewModel.balance)
                     .padding(.top, 18)
-                    .transition(SendView.Constants.auxiliaryViewTransition)
-            }
-
-            if !viewModel.animatingAuxiliaryViewsOnAppear {
-                SensitiveText(viewModel.balance)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                    .lineLimit(1)
-                    .padding(.top, 4)
-                    .transition(SendView.Constants.auxiliaryViewTransition)
             }
 
             TokenIcon(
@@ -79,7 +64,7 @@ struct SendAmountView: View {
 
             SendDecimalNumberTextField(viewModel: viewModel.decimalNumberTextFieldViewModel)
                 // A small delay must be introduced to fix a glitch in a transition animation when changing screens
-                .initialFocusBehavior(.delayedFocus(duration: SendView.Constants.animationDuration))
+                .initialFocusBehavior(.delayedFocus(duration: 2 * SendView.Constants.animationDuration))
                 .alignment(.center)
                 .prefixSuffixOptions(viewModel.currentFieldOptions)
                 .frame(maxWidth: .infinity)
