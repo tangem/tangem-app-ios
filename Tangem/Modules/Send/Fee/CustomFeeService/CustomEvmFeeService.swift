@@ -116,6 +116,10 @@ extension CustomEvmFeeService: CustomFeeService {
         Localization.sendMaxFeeFooter
     }
 
+    var readOnlyCustomFee: Bool {
+        false
+    }
+
     func inputFieldModels() -> [SendCustomFeeInputFieldModel] {
         let gasPriceFractionDigits = 9
         let gasPriceGweiPublisher = _customFeeGasPrice
