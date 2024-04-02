@@ -11,6 +11,8 @@ import BlockchainSdk
 import Combine
 
 protocol CustomFeeService: AnyObject {
-    func models() -> [SendCustomFeeInputFieldModel]
-    func didChangeCustomFee(enteredFee: Decimal?, input: SendFeeViewModelInput, walletInfo: SendWalletInfo)
+    var customFeeDescription: String? { get }
+
+    func inputFieldModels() -> [SendCustomFeeInputFieldModel]
+    func setCustomFee(enteredFee: Decimal?)
 }
