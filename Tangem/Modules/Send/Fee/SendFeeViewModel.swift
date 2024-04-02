@@ -50,11 +50,6 @@ class SendFeeViewModel: ObservableObject {
 
     var didProperlyDisappear = false
 
-    private(set) var customFeeModel: SendCustomFeeInputFieldModel?
-    private(set) var customFeeSatoshiPerByteModel: SendCustomFeeInputFieldModel?
-    private(set) var customFeeGasPriceModel: SendCustomFeeInputFieldModel?
-    private(set) var customFeeGasLimitModel: SendCustomFeeInputFieldModel?
-
     private(set) var customFeeModels: [SendCustomFeeInputFieldModel] = []
 
     @Published private var isFeeIncluded: Bool = false
@@ -128,26 +123,20 @@ class SendFeeViewModel: ObservableObject {
     }
 
     private func createCustomFeeModels() {
-        customFeeModels = customFeeService?.models() ?? []
+        guard let customFeeService else { return }
 
-        let customFeeFooter: String?
-        let customFeeTitle: String
-
-        customFeeTitle = Localization.commonFeeLabel
-        customFeeFooter = nil
-
-        customFeeModel = SendCustomFeeInputFieldModel(
-            title: customFeeTitle,
+        let customFeeModel = SendCustomFeeInputFieldModel(
+            title: Localization.sendMaxFee,
             amountPublisher: input.customFeePublisher.decimalPublisher,
             fieldSuffix: walletInfo.feeCurrencySymbol,
             fractionDigits: walletInfo.feeFractionDigits,
             amountAlternativePublisher: customFeeInFiat.eraseToAnyPublisher(),
-            footer: customFeeFooter
-        ) { [weak self] enteredFee in
-            guard let self else { return }
-
-            customFeeService?.didChangeCustomFee(enteredFee: enteredFee, input: input, walletInfo: walletInfo)
+            footer: customFeeService.customFeeDescription
+        ) { enteredFee in
+            customFeeService.setCustomFee(enteredFee: enteredFee)
         }
+
+        customFeeModels = [customFeeModel] + customFeeService.inputFieldModels()
     }
 
     private func bind() {
@@ -248,35 +237,6 @@ class SendFeeViewModel: ObservableObject {
         selectedFeeOption = feeOption
         input.didSelectFeeOption(feeOption)
         showCustomFeeFields = feeOption == .custom
-    }
-
-    private func recalculateFee(enteredFee: Decimal?, input: SendFeeViewModelInput, walletInfo: SendWalletInfo) -> Fee? {
-        let sendModel = input as! SendModel
-        if sendModel.blockchainNetwork.blockchain.isEvm {
-            let feeDecimalValue = Decimal(pow(10, Double(walletInfo.feeFractionDigits)))
-
-            guard
-                let enteredFee,
-                let currentGasLimit = input.customGasLimit,
-                let enteredFeeInSmallestDenomination = BigUInt(decimal: (enteredFee * feeDecimalValue).rounded(roundingMode: .down))
-            else {
-                return nil
-            }
-
-            let gasPrice = (enteredFeeInSmallestDenomination / currentGasLimit)
-            guard
-                let recalculatedFeeInSmallestDenomination = (gasPrice * currentGasLimit).decimal
-            else {
-                return nil
-            }
-
-            let recalculatedFee = recalculatedFeeInSmallestDenomination / feeDecimalValue
-            let feeAmount = Amount(with: walletInfo.blockchain, type: walletInfo.feeAmountType, value: recalculatedFee)
-            let parameters = EthereumFeeParameters(gasLimit: currentGasLimit, gasPrice: gasPrice)
-            return Fee(feeAmount, parameters: parameters)
-        } else {
-            return nil
-        }
     }
 }
 
