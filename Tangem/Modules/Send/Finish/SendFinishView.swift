@@ -13,6 +13,8 @@ struct SendFinishView: View {
 
     @ObservedObject var viewModel: SendFinishViewModel
 
+    let bottomSpacing: CGFloat
+
     var body: some View {
         VStack {
             GroupedScrollView(spacing: 14) {
@@ -58,7 +60,7 @@ struct SendFinishView: View {
             if viewModel.showButtons {
                 bottomButtons
                     .padding(.horizontal, 16)
-                    .padding(.bottom, 6)
+                    .padding(.bottom, bottomSpacing + 10)
             }
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
@@ -100,11 +102,6 @@ struct SendFinishView: View {
                     action: viewModel.share
                 )
             }
-
-            MainButton(
-                title: Localization.commonClose,
-                action: viewModel.close
-            )
         }
         .transition(.opacity)
     }
@@ -147,6 +144,6 @@ struct SendFinishView_Previews: PreviewProvider {
     )!
 
     static var previews: some View {
-        SendFinishView(namespace: namespace, viewModel: viewModel)
+        SendFinishView(namespace: namespace, viewModel: viewModel, bottomSpacing: 0)
     }
 }
