@@ -72,14 +72,19 @@ class SendDestinationViewModel: ObservableObject {
             showSign: false
         )
 
+        let blockchain = input.blockchainNetwork.blockchain
+
         suggestedWallets = Self.userWalletRepository
             .models
             .compactMap { userWalletModel in
                 let walletModels = userWalletModel.walletModelsManager.walletModels
                 let walletModel = walletModels.first { walletModel in
-                    walletModel.blockchainNetwork == input.blockchainNetwork &&
-                        walletModel.wallet.publicKey != input.walletPublicKey
+                    return
+                        walletModel.wallet.publicKey != input.walletPublicKey &&
+                        walletModel.blockchainNetwork.blockchain == blockchain &&
+                        !walletModel.isCustom
                 }
+
                 guard let walletModel else { return nil }
 
                 return SendSuggestedDestinationWallet(
