@@ -40,11 +40,9 @@ class CustomUtxoFeeService {
                     let fee,
                     input.customFee == nil
                 else {
-                    print("ZZZ updating initial fee", "NO")
                     return
                 }
 
-                print("ZZZ updating initial fee", fee)
                 if let bitcoinFeeParameters = fee.parameters as? BitcoinFeeParameters {
                     satoshiPerByte.send(bitcoinFeeParameters.rate)
                 }
@@ -57,7 +55,6 @@ class CustomUtxoFeeService {
             input.destinationPublisher.map(\.?.value)
         )
         .sink { [weak self] satoshiPerByte, amount, destination in
-            print("ZZZ recalculating", satoshiPerByte, amount, destination)
             self?.recalculateCustomFee(
                 satoshiPerByte: satoshiPerByte,
                 amount: amount,
@@ -76,8 +73,6 @@ class CustomUtxoFeeService {
         } else {
             newFee = nil
         }
-        print("ZZZ satoshi per byte", self.satoshiPerByte.value)
-        print("ZZZ recalc new fee", newFee)
 
         output?.setCustomFee(newFee)
     }
@@ -119,6 +114,6 @@ extension CustomUtxoFeeService: CustomFeeService {
     }
 
     func setCustomFee(value: Decimal?) {
-        print("zzz Aaaaa didChangeCustomFee utxo????????????????????????????")
+        assertionFailure("WHY")
     }
 }
