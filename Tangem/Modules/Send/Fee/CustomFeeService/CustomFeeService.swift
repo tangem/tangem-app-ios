@@ -12,6 +12,7 @@ import Combine
 
 protocol CustomFeeService: AnyObject {
     var customFeeDescription: String? { get }
+    var readOnlyCustomFee: Bool { get }
 
     func inputFieldModels() -> [SendCustomFeeInputFieldModel]
     func setCustomFee(enteredFee: Decimal?)
