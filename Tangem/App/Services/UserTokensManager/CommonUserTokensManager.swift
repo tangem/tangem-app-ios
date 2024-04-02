@@ -24,6 +24,7 @@ class CommonUserTokensManager {
     private let existingCurves: [EllipticCurve]
     private let longHashesSupported: Bool
     private weak var keysDerivingProvider: KeysDerivingProvider?
+    private var pendingUserTokensSyncCompletions: [() -> Void] = []
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -61,9 +62,10 @@ class CommonUserTokensManager {
         return tokenItem.blockchainNetwork
     }
 
-    private func addInternal(_ tokenItems: [TokenItem], shouldUpload: Bool) {
-        let entries = tokenItems.map { tokenItem in
+    private func addInternal(_ tokenItems: [TokenItem], shouldUpload: Bool) throws {
+        let entries = try tokenItems.map { tokenItem in
             let blockchainNetwork = getBlockchainNetwork(for: tokenItem)
+            try validateDerivation(for: tokenItem)
             return StorageEntry(blockchainNetwork: blockchainNetwork, token: tokenItem.token)
         }
 
@@ -84,13 +86,34 @@ class CommonUserTokensManager {
         }
     }
 
-    private func loadSwapAvailbilityStateIfNeeded(forceReload: Bool) {
+    private func loadSwapAvailabilityStateIfNeeded(forceReload: Bool) {
         guard shouldLoadSwapAvailability else { return }
 
         let converter = StorageEntryConverter()
         let nonCustomTokens = userTokenListManager.userTokensList.entries.filter { !$0.isCustom }
         let tokenItems = converter.convertToTokenItem(nonCustomTokens)
         swapAvailabilityController.loadSwapAvailability(for: tokenItems, forceReload: forceReload, userWalletId: userWalletId.stringValue)
+    }
+
+    private func validateDerivation(for tokenItem: TokenItem) throws {
+        if let derivationPath = tokenItem.blockchainNetwork.derivationPath,
+           tokenItem.blockchain.curve == .ed25519_slip0010,
+           derivationPath.nodes.contains(where: { !$0.isHardened }) {
+            throw TangemSdkError.nonHardenedDerivationNotSupported
+        }
+    }
+
+    private func handleUserTokensSync() {
+        loadSwapAvailabilityStateIfNeeded(forceReload: true)
+        walletModelsManager.updateAll(silent: false) { [weak self] in
+            self?.handleWalletModelsUpdate()
+        }
+    }
+
+    private func handleWalletModelsUpdate() {
+        let completions = pendingUserTokensSyncCompletions
+        pendingUserTokensSyncCompletions.removeAll()
+        completions.forEach { $0() }
     }
 }
 
@@ -136,15 +159,15 @@ extension CommonUserTokensManager: UserTokensManager {
     }
 
     func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {
-        guard existingCurves.contains(tokenItem.blockchain.curve) else {
+        if tokenItem.hasLongTransactions, !longHashesSupported {
+            throw Error.failedSupportedLongHashesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
+        }
+
+        if !existingCurves.contains(tokenItem.blockchain.curve) {
             throw Error.failedSupportedCurve(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
 
-        if !longHashesSupported, tokenItem.hasLongTransactions {
-            throw Error.failedSupportedLongHahesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
-        }
-
-        return
+        try validateDerivation(for: tokenItem)
     }
 
     func add(_ tokenItem: TokenItem) async throws -> String {
@@ -168,7 +191,12 @@ extension CommonUserTokensManager: UserTokensManager {
     }
 
     func add(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        addInternal(tokenItems, shouldUpload: true)
+        do {
+            try addInternal(tokenItems, shouldUpload: true)
+        } catch {
+            completion(.failure(error.toTangemSdkError()))
+            return
+        }
         deriveIfNeeded(completion: completion)
     }
 
@@ -192,26 +220,38 @@ extension CommonUserTokensManager: UserTokensManager {
     }
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        update(itemsToRemove: itemsToRemove, itemsToAdd: itemsToAdd)
+        do {
+            try update(itemsToRemove: itemsToRemove, itemsToAdd: itemsToAdd)
+        } catch {
+            completion(.failure(error.toTangemSdkError()))
+            return
+        }
+
         deriveIfNeeded(completion: completion)
     }
 
-    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) {
+    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) throws {
         itemsToRemove.forEach {
             removeInternal($0, shouldUpload: false)
         }
 
-        addInternal(itemsToAdd, shouldUpload: false)
-        loadSwapAvailbilityStateIfNeeded(forceReload: true)
+        try addInternal(itemsToAdd, shouldUpload: false)
+        loadSwapAvailabilityStateIfNeeded(forceReload: true)
         userTokenListManager.upload()
     }
 
     func sync(completion: @escaping () -> Void) {
-        userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
-            guard let self else { return }
+        defer {
+            pendingUserTokensSyncCompletions.append(completion)
+        }
 
-            loadSwapAvailbilityStateIfNeeded(forceReload: true)
-            walletModelsManager.updateAll(silent: false, completion: completion)
+        // Initiate a new update only if there is no ongoing update (i.e. `pendingUserTokensSyncCompletions` is empty)
+        guard pendingUserTokensSyncCompletions.isEmpty else {
+            return
+        }
+
+        userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
+            self?.handleUserTokensSync()
         }
     }
 }
@@ -245,13 +285,12 @@ extension CommonUserTokensManager: UserTokensReordering {
     func reorder(
         _ reorderingActions: [UserTokensReorderingAction]
     ) -> AnyPublisher<Void, Never> {
-        return Deferred { [userTokenListManager = self.userTokenListManager] in
-            Future<Void, Never> { promise in
-                if reorderingActions.isEmpty {
-                    promise(.success(()))
-                    return
-                }
+        if reorderingActions.isEmpty {
+            return .just
+        }
 
+        return Deferred { [userTokenListManager = self.userTokenListManager] in
+            Future { promise in
                 let converter = UserTokensReorderingOptionsConverter()
                 let existingList = userTokenListManager.userTokensList
                 var entries = existingList.entries
@@ -279,11 +318,14 @@ extension CommonUserTokensManager: UserTokensReordering {
                     sorting: sorting
                 )
 
-                if editedList != existingList {
-                    userTokenListManager.update(with: editedList)
-                }
-
-                promise(.success(()))
+                promise(.success((editedList, existingList)))
+            }
+            .filter { $0 != $1 }
+            .map(\.0)
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .map { userTokensManager, editedList in
+                userTokensManager.userTokenListManager.update(with: editedList)
             }
         }
         .eraseToAnyPublisher()
@@ -293,12 +335,12 @@ extension CommonUserTokensManager: UserTokensReordering {
 extension CommonUserTokensManager {
     enum Error: Swift.Error, LocalizedError {
         case addressNotFound
-        case failedSupportedLongHahesTokens(blockchainDisplayName: String)
+        case failedSupportedLongHashesTokens(blockchainDisplayName: String)
         case failedSupportedCurve(blockchainDisplayName: String)
 
         var errorDescription: String? {
             switch self {
-            case .failedSupportedLongHahesTokens(let blockchainDisplayName):
+            case .failedSupportedLongHashesTokens(let blockchainDisplayName):
                 return Localization.alertManageTokensUnsupportedMessage(blockchainDisplayName)
             case .failedSupportedCurve(let blockchainDisplayName):
                 return Localization.alertManageTokensUnsupportedCurveMessage(blockchainDisplayName)
