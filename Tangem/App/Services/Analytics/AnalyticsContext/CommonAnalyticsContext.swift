@@ -23,6 +23,10 @@ class CommonAnalyticsContext: AnalyticsContext {
         contextData = nil
     }
 
+    func clearSession() {
+        analyticsStorage.clearSessionStorage()
+    }
+
     func value(forKey: AnalyticsStorageKey, scope: AnalyticsContextScope) -> Any? {
         guard let id = makeId(for: scope) else { return nil }
 
@@ -43,8 +47,8 @@ class CommonAnalyticsContext: AnalyticsContext {
 
     private func makeId(for scope: AnalyticsContextScope) -> String? {
         switch scope {
-        case .userWallet:
-            return contextData?.id
+        case .userWallet(let userWalletId):
+            return userWalletId.stringValue
         case .common:
             return Constants.commonContextId
         }
@@ -63,6 +67,10 @@ private extension CommonAnalyticsContext {
 
 private class AnalyticsStorage {
     private var tempStorage: [String: Any] = [:]
+
+    func clearSessionStorage() {
+        tempStorage = [:]
+    }
 
     func value(_ storageKey: AnalyticsStorageKey, id: String) -> Any? {
         let rawKey = makeRawKey(from: storageKey, id: id)

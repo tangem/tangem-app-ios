@@ -12,6 +12,8 @@ import Combine
 import BlockchainSdk
 
 protocol SendDestinationViewModelInput {
+    var destinationValid: AnyPublisher<Bool, Never> { get }
+
     var isValidatingDestination: AnyPublisher<Bool, Never> { get }
 
     var destinationTextPublisher: AnyPublisher<String, Never> { get }
@@ -44,6 +46,7 @@ class SendDestinationViewModel: ObservableObject {
     @Published var destinationErrorText: String?
     @Published var destinationAdditionalFieldErrorText: String?
     @Published var animatingAuxiliaryViewsOnAppear: Bool = false
+    @Published var showSuggestedDestinations = true
 
     private let input: SendDestinationViewModelInput
     private let transactionHistoryMapper: TransactionHistoryMapper
@@ -87,7 +90,6 @@ class SendDestinationViewModel: ObservableObject {
             input: input.destinationTextPublisher,
             isValidating: input.isValidatingDestination,
             isDisabled: .just(output: false),
-            animatingFooterOnAppear: $animatingAuxiliaryViewsOnAppear.uiPublisher,
             errorText: input.destinationError
         ) { [weak self] in
             self?.input.setDestination($0)
@@ -100,7 +102,6 @@ class SendDestinationViewModel: ObservableObject {
                 input: input.destinationAdditionalFieldTextPublisher,
                 isValidating: .just(output: false),
                 isDisabled: input.additionalFieldEmbeddedInAddress,
-                animatingFooterOnAppear: .just(output: false),
                 errorText: input.destinationAdditionalFieldError
             ) { [weak self] in
                 self?.input.setDestinationAdditionalField($0)
@@ -133,6 +134,16 @@ class SendDestinationViewModel: ObservableObject {
                 $0?.localizedDescription
             }
             .assign(to: \.destinationAdditionalFieldErrorText, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        input
+            .destinationValid
+            .removeDuplicates()
+            .sink { [weak self] destinationValid in
+                withAnimation(SendView.Constants.defaultAnimation) {
+                    self?.showSuggestedDestinations = !destinationValid
+                }
+            }
             .store(in: &bag)
 
         input
@@ -177,5 +188,6 @@ class SendDestinationViewModel: ObservableObject {
 extension SendDestinationViewModel: AuxiliaryViewAnimatable {
     func setAnimatingAuxiliaryViewsOnAppear(_ animatingAuxiliaryViewsOnAppear: Bool) {
         self.animatingAuxiliaryViewsOnAppear = animatingAuxiliaryViewsOnAppear
+        addressViewModel?.setAnimatingFooterOnAppear(animatingAuxiliaryViewsOnAppear)
     }
 }
