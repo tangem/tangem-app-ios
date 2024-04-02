@@ -85,7 +85,7 @@ extension AmountSummaryView: Setupable {
                     tokenIconInfo: .init(
                         name: "tether",
                         blockchainIconName: "ethereum.fill",
-                        imageURL: TokenIconURLBuilder().iconURL(id: "tether"),
+                        imageURL: IconURLBuilder().tokenIconURL(id: "tether"),
                         isCustom: false,
                         customTokenColor: nil
                     )
@@ -104,7 +104,7 @@ extension AmountSummaryView: Setupable {
                 tokenIconInfo: .init(
                     name: "optimism",
                     blockchainIconName: nil,
-                    imageURL: TokenIconURLBuilder().iconURL(id: "solana"),
+                    imageURL: IconURLBuilder().tokenIconURL(id: "solana"),
                     isCustom: false,
                     customTokenColor: nil
                 )
