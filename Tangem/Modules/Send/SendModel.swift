@@ -123,10 +123,9 @@ class SendModel {
 
     // MARK: - Private stuff
 
-    private let walletModel: WalletModel
+    let walletModel: WalletModel
     private let transactionSigner: TransactionSigner
     private let addressService: SendAddressService
-    private let customFeeService: CustomFeeService?
     private let sendType: SendType
     private var destinationResolutionRequest: Task<Void, Error>?
     private var didSetCustomFee = false
@@ -135,12 +134,11 @@ class SendModel {
 
     // MARK: - Public interface
 
-    init(walletModel: WalletModel, transactionSigner: TransactionSigner, addressService: SendAddressService, customFeeService: CustomFeeService?, sendType: SendType) {
+    init(walletModel: WalletModel, transactionSigner: TransactionSigner, addressService: SendAddressService, sendType: SendType) {
         self.walletModel = walletModel
         self.transactionSigner = transactionSigner
         self.sendType = sendType
         self.addressService = addressService
-        self.customFeeService = customFeeService
 
         bind()
 
@@ -191,11 +189,19 @@ class SendModel {
         updateFees(amount: validatedAmount.value, destination: validatedDestination.value?.value)
     }
 
+    func setCustomFee(_ customFee: Fee?) {
+        _customFee.send(customFee)
+        if case .custom = selectedFeeOption {
+            fee.send(customFee)
+        }
+    }
+
     func send() {
         guard var transaction = transaction.value else {
             AppLog.shared.debug("Transaction object hasn't been created")
             return
         }
+        print("ZZZ send", transaction.fee, transaction.fee.parameters)
 
         #warning("[REDACTED_TODO_COMMENT]")
         #warning("[REDACTED_TODO_COMMENT]")
@@ -285,7 +291,8 @@ class SendModel {
                     return
                 }
 
-                customFeeService?.setFee(customFee)
+                // !!!!!!!!!!
+//                customFeeService?.setFee(customFee)
 
 //                if let bitcoinFeeParameters = customFee.parameters as? BitcoinFeeParameters {
 //                    _customFee.send(customFee)
@@ -295,14 +302,6 @@ class SendModel {
 //                    _customFeeGasPrice.send(ethereumFeeParameters.gasPrice)
 //                    _customFeeGasLimit.send(ethereumFeeParameters.gasLimit)
 //                }
-            }
-            .store(in: &bag)
-
-        customFeeService?
-            .customFeePublisher
-            .sink { [weak self] customFee in
-                self?._customFee.send(customFee)
-                self?.fee.send(customFee)
             }
             .store(in: &bag)
 
@@ -571,8 +570,6 @@ class SendModel {
         _customFee.send(value)
         fee.send(value)
 
-//        customFeeService?.didChangeCustomFee(value)
-
 //        if let bitcoinParams = value?.parameters as? BitcoinFeeParameters {
 //            _customFeeSatoshiPerByte.send(bitcoinParams.rate)
 //        } else if let ethereumParams = value?.parameters as? EthereumFeeParameters {
@@ -606,6 +603,8 @@ class SendModel {
     }
 
     private func recalculateCustomFee() {
+        print("ZZZ recalculateCustomFee")
+
         if let utxoTransactionFeeCalculator = walletModel.utxoTransactionFeeCalculator {
             let newFee: Fee?
             if let satoshiPerByte = _customFeeSatoshiPerByte.value,
