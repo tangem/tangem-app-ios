@@ -10,7 +10,6 @@ import Foundation
 import Combine
 
 class UserWalletModelMock: UserWalletModel {
-    var isMultiWallet: Bool { true }
     var tokensCount: Int? { 7 }
     var config: UserWalletConfig { fatalError("UserWalletConfigMock doesn't exist") }
     var userWalletId: UserWalletId { .init(value: Data()) }
@@ -34,8 +33,6 @@ class UserWalletModelMock: UserWalletModel {
 
     var cardImagePublisher: AnyPublisher<CardImageResult, Never> { Empty().eraseToAnyPublisher() }
 
-    func updateWalletName(_ name: String) {}
-
     var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> { Empty().eraseToAnyPublisher() }
 
     var userWalletNamePublisher: AnyPublisher<String, Never> { Empty().eraseToAnyPublisher() }
@@ -44,9 +41,13 @@ class UserWalletModelMock: UserWalletModel {
 
     var cardsCount: Int { 3 }
 
-    func getAnalyticsContextData() -> AnalyticsContextData? { nil }
-
     var isUserWalletLocked: Bool { false }
 
     var isTokensListEmpty: Bool { false }
+
+    func updateWalletName(_ name: String) {}
+
+    func getAnalyticsContextData() -> AnalyticsContextData? { nil }
+
+    func validate() -> Bool { true }
 }
