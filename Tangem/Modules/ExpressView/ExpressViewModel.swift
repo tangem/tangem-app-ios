@@ -92,9 +92,7 @@ final class ExpressViewModel: ObservableObject {
             return
         }
 
-        sendDecimalValue = .external(sourceBalance)
-        updateSendFiatValue(amount: sourceBalance)
-        interactor.update(amount: sourceBalance)
+        updateSendDecimalValue(to: sourceBalance)
     }
 
     func userDidTapSwapSwappingItemsButton() {
@@ -116,21 +114,19 @@ final class ExpressViewModel: ObservableObject {
                 return
             }
 
-            var message: String
+            let message: String = {
+                switch providerType {
+                case .cex:
+                    let tokenItemSymbol = viewModel.interactor.getDestination()?.tokenItem.currencySymbol ?? ""
+                    return Localization.swappingAlertCexDescription(tokenItemSymbol)
+                case .dex:
+                    if isBigLoss {
+                        return "\(Localization.swappingHighPriceImpactDescription)\n\n\(Localization.swappingAlertDexDescription)"
+                    }
 
-            switch providerType {
-            case .cex:
-                message = Localization.expressCexFeeExplanation
-                if isBigLoss {
-                    let tokenItemSymbol = viewModel.interactor.getSender().tokenItem.currencySymbol
-                    message += "\n\n\(Localization.swappingAlertCexDescription(tokenItemSymbol))"
+                    return Localization.swappingAlertDexDescription
                 }
-            case .dex:
-                message = Localization.swappingAlertDexDescription
-                if isBigLoss {
-                    message += "\n\n\(Localization.swappingHighPriceImpactDescription)"
-                }
-            }
+            }()
 
             await runOnMain {
                 viewModel.alert = .init(title: "", message: message)
@@ -237,7 +233,9 @@ private extension ExpressViewModel {
 
         notificationManager
             .notificationPublisher
-            .receive(on: DispatchQueue.main)
+            .removeDuplicates()
+            // Debounce for exclude unwanted animations/updates
+            .debounce(for: 0.2, scheduler: DispatchQueue.main)
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
@@ -276,6 +274,12 @@ private extension ExpressViewModel {
             .store(in: &bag)
     }
 
+    func updateSendDecimalValue(to value: Decimal) {
+        sendDecimalValue = .external(value)
+        updateSendFiatValue(amount: value)
+        interactor.update(amount: value)
+    }
+
     // MARK: - Send view bubble
 
     func updateSendView(wallet: WalletModel) {
@@ -288,9 +292,7 @@ private extension ExpressViewModel {
         }
 
         let roundedAmount = amount.rounded(scale: wallet.decimalCount, roundingMode: .down)
-        sendDecimalValue = .external(roundedAmount)
-        updateSendFiatValue(amount: roundedAmount)
-        interactor.update(amount: roundedAmount)
+        updateSendDecimalValue(to: roundedAmount)
     }
 
     func updateSendFiatValue(amount: Decimal?) {
@@ -429,7 +431,7 @@ private extension ExpressViewModel {
             return
         }
 
-        let tokenItem = interactor.getSender().tokenItem
+        let tokenItem = interactor.getSender().feeTokenItem
         let formattedFee = feeFormatter.format(fee: fee, tokenItem: tokenItem)
 
         var action: (() -> Void)?
@@ -457,7 +459,9 @@ private extension ExpressViewModel {
                  .tooSmallAmountForSwapping,
                  .tooBigAmountForSwapping,
                  .noDestinationTokens,
-                 .notEnoughAmountForFee:
+                 .validationError,
+                 .notEnoughAmountForFee,
+                 .notEnoughReceivedAmount:
                 mainButtonState = .swap
             case .notEnoughBalanceForSwapping:
                 mainButtonState = .insufficientFunds
@@ -575,7 +579,7 @@ private extension ExpressViewModel {
     }
 }
 
-// MARK: - Restrictions
+// MARK: - NotificationTapDelegate
 
 extension ExpressViewModel: NotificationTapDelegate {
     func didTapNotification(with id: NotificationViewId) {}
@@ -592,24 +596,31 @@ extension ExpressViewModel: NotificationTapDelegate {
         case .refresh:
             interactor.refresh(type: .full)
         case .openFeeCurrency:
-            openNetworkCurrency()
+            openFeeCurrency()
+        case .reduceAmountBy(let amount, _):
+            guard let value = sendDecimalValue?.value else {
+                AppLog.shared.debug("[Express] Couldn't find sendDecimalValue")
+                return
+            }
+
+            updateSendDecimalValue(to: value - amount)
+        case .reduceAmountTo(let amount, _):
+            updateSendDecimalValue(to: amount)
         default:
             return
         }
     }
 
-    // [REDACTED_TODO_COMMENT]
-    private func openNetworkCurrency() {
-        guard
-            let networkCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
-                $0.tokenItem == initialWallet.tokenItem
-            })
-        else {
-            assertionFailure("Network currency WalletModel not found")
+    func openFeeCurrency() {
+        let walletModels = userWalletModel.walletModelsManager.walletModels
+        guard let feeCurrencyWalletModel = walletModels.first(where: {
+            $0.tokenItem == interactor.getSender().feeTokenItem
+        }) else {
+            assertionFailure("Fee currency '\(initialWallet.feeTokenItem.name)' for currency '\(initialWallet.tokenItem.name)' not found")
             return
         }
 
-        coordinator?.presentNetworkCurrency(for: networkCurrencyWalletModel, userWalletModel: userWalletModel)
+        coordinator?.presentFeeCurrency(for: feeCurrencyWalletModel, userWalletModel: userWalletModel)
     }
 }
 
