@@ -119,7 +119,7 @@ class SendModel {
 
     // MARK: - Private stuff
 
-    let walletModel: WalletModel
+    private let walletModel: WalletModel
     private let transactionSigner: TransactionSigner
     private let addressService: SendAddressService
     private let sendType: SendType
@@ -139,9 +139,9 @@ class SendModel {
 
         bind()
 
-//        if let amount = sendType.predefinedAmount {
-        setAmount(Decimal(stringValue: "0.00001"))
-//        }
+        if let amount = sendType.predefinedAmount {
+            setAmount(amount)
+        }
 
         if let destination = sendType.predefinedDestination {
             setDestination(SendAddress(value: destination, source: .sellProvider))
@@ -645,11 +645,9 @@ extension SendModel: SendFeeViewModelInput {
     var feeOptions: [FeeOption] {
         if walletModel.shouldShowFeeSelector {
             var options: [FeeOption] = [.slow, .market, .fast]
-
             if supportsCustomFees {
                 options.append(.custom)
             }
-
             return options
         } else {
             return [.market]
