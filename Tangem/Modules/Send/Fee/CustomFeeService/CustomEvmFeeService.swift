@@ -45,11 +45,9 @@ class CustomEvmFeeService {
                     let fee,
                     input.customFee == nil
                 else {
-                    print("ZZZ updating initial fee", "NO")
                     return
                 }
 
-                print("ZZZ updating initial fee", fee)
                 if let ethereumFeeParameters = fee.parameters as? EthereumFeeParameters {
                     gasPrice.send(ethereumFeeParameters.gasPrice)
                     gasLimit.send(ethereumFeeParameters.gasLimit)
