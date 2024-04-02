@@ -11,7 +11,6 @@ import Combine
 import BlockchainSdk
 
 class CustomUtxoFeeService {
-    private let _customFee = CurrentValueSubject<Fee?, Never>(nil)
     private let _customFeeSatoshiPerByte = CurrentValueSubject<Int?, Never>(nil)
 
     private let utxoTransactionFeeCalculator: UTXOTransactionFeeCalculator
@@ -41,7 +40,7 @@ class CustomUtxoFeeService {
                 guard
                     let self,
                     let fee,
-                    _customFee.value == nil
+                    input.customFee == nil
                 else {
                     print("ZZZ updating initial fee", "NO")
                     return
@@ -50,7 +49,6 @@ class CustomUtxoFeeService {
                 print("ZZZ updating initial fee", fee)
                 if let bitcoinFeeParameters = fee.parameters as? BitcoinFeeParameters {
                     _customFeeSatoshiPerByte.send(bitcoinFeeParameters.rate)
-                    _customFee.send(fee)
                 }
             }
             .store(in: &bag)
