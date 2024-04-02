@@ -240,8 +240,8 @@ class PushTxViewModel: ObservableObject {
                 var tx: BlockchainSdk.Transaction?
 
                 do {
-                    tx = try viewModel.walletModel.createTransaction(
-                        amountToSend: newAmount,
+                    tx = try viewModel.walletModel.transactionCreator.createTransaction(
+                        amount: newAmount,
                         fee: fee,
                         destinationAddress: viewModel.destination
                     )
@@ -346,10 +346,7 @@ class PushTxViewModel: ObservableObject {
 
     private func getFiat(for amount: Amount?, roundingType: AmountRoundingType) -> Decimal? {
         if let amount = amount {
-            guard
-                let currencyId = walletModel.tokenItem.currencyId,
-                let fiatValue = BalanceConverter().convertToFiat(value: amount.value, from: amount.currencySymbol)
-            else {
+            guard let fiatValue = BalanceConverter().convertToFiat(value: amount.value, from: amount.currencySymbol) else {
                 return nil
             }
 
