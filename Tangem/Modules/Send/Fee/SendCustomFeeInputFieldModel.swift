@@ -19,6 +19,8 @@ class SendCustomFeeInputFieldModel: ObservableObject, Identifiable {
     @Published var decimalNumberTextFieldViewModel: DecimalNumberTextField.ViewModel
     @Published var amountAlternative: String?
 
+    let onFocusChanged: ((Bool) -> Void)?
+
     private var bag: Set<AnyCancellable> = []
     private let onFieldChange: (Decimal?) -> Void
 
@@ -29,12 +31,14 @@ class SendCustomFeeInputFieldModel: ObservableObject, Identifiable {
         fractionDigits: Int,
         amountAlternativePublisher: AnyPublisher<String?, Never>,
         footer: String?,
-        onFieldChange: @escaping (Decimal?) -> Void
+        onFieldChange: @escaping (Decimal?) -> Void,
+        onFocusChanged: ((Bool) -> Void)? = nil
     ) {
         self.title = title
         self.fieldSuffix = fieldSuffix
         self.footer = footer
         self.onFieldChange = onFieldChange
+        self.onFocusChanged = onFocusChanged
 
         decimalNumberTextFieldViewModel = .init(maximumFractionDigits: fractionDigits)
 
