@@ -11,7 +11,7 @@ import Combine
 import BlockchainSdk
 
 class CustomUtxoFeeService {
-    private let _customFeeSatoshiPerByte = CurrentValueSubject<Int?, Never>(nil)
+    private let satoshiPerByte = CurrentValueSubject<Int?, Never>(nil)
     private let utxoTransactionFeeCalculator: UTXOTransactionFeeCalculator
 
     private weak var input: CustomFeeServiceInput?
@@ -46,13 +46,13 @@ class CustomUtxoFeeService {
 
                 print("ZZZ updating initial fee", fee)
                 if let bitcoinFeeParameters = fee.parameters as? BitcoinFeeParameters {
-                    _customFeeSatoshiPerByte.send(bitcoinFeeParameters.rate)
+                    satoshiPerByte.send(bitcoinFeeParameters.rate)
                 }
             }
             .store(in: &bag)
 
         Publishers.CombineLatest3(
-            _customFeeSatoshiPerByte,
+            satoshiPerByte,
             input.amountPublisher,
             input.destinationPublisher.map(\.?.value)
         )
@@ -76,7 +76,7 @@ class CustomUtxoFeeService {
         } else {
             newFee = nil
         }
-        print("ZZZ satoshi per byte", _customFeeSatoshiPerByte.value)
+        print("ZZZ satoshi per byte", self.satoshiPerByte.value)
         print("ZZZ recalc new fee", newFee)
 
         output?.setCustomFee(newFee)
@@ -93,7 +93,7 @@ extension CustomUtxoFeeService: CustomFeeService {
     }
 
     func inputFieldModels() -> [SendCustomFeeInputFieldModel] {
-        let satoshiPerBytePublisher = _customFeeSatoshiPerByte
+        let satoshiPerBytePublisher = satoshiPerByte
             .map { intValue -> Decimal? in
                 if let intValue {
                     Decimal(intValue)
@@ -112,7 +112,7 @@ extension CustomUtxoFeeService: CustomFeeService {
             footer: nil
         ) { [weak self] decimalValue in
             let intValue = (decimalValue as NSDecimalNumber?)?.intValue
-            self?._customFeeSatoshiPerByte.send(intValue)
+            self?.satoshiPerByte.send(intValue)
         }
 
         return [customFeeSatoshiPerByteModel]
