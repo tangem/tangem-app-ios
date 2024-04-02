@@ -305,6 +305,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     private let backupService: BackupService
     private var cardInitializer: CardInitializable?
+    private var backupContextManager: BackupContextManager?
 
     // MARK: - Initializer
 
@@ -327,6 +328,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
         if let customOnboardingImage = input.cardInput.config?.customOnboardingImage {
             self.customOnboardingImage = customOnboardingImage.image
+        }
+
+        if let cardModel {
+            backupContextManager = BackupContextManager(userWalletModel: cardModel)
         }
 
         bind()
@@ -679,6 +684,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             case .success(let cardInfo):
                 initializeUserWallet(from: cardInfo)
 
+                if let cardModel {
+                    backupContextManager = BackupContextManager(userWalletModel: cardModel)
+                }
+
                 if let primaryCard = cardInfo.primaryCard {
                     backupService.setPrimaryCard(primaryCard)
                 }
@@ -697,7 +706,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                                 self?.cardInitializer?.shouldReset = true
                             }),
                             secondaryButton: .default(Text(Localization.chatButtonTitle), action: { [weak self] in
-                                self?.openSupportChat()
+                                self?.openSupport()
                             })
                         )
                     } else {
@@ -786,8 +795,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
                         switch result {
                         case .success(let updatedCard):
+                            self.backupContextManager?.onProceedBackup(updatedCard)
                             if updatedCard.cardId == self.backupService.primaryCard?.cardId {
                                 self.cardModel?.onBackupCreated(updatedCard)
+                                self.backupContextManager?.onCompleteBackup()
                             }
 
                             if self.backupServiceState == .finished {
@@ -865,7 +876,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         Analytics.log(.backupResetCardNotification, params: [.option: .reset])
         isMainButtonBusy = true
 
-        let interactor = CardInteractor(cardId: cardId)
+        let interactor = FactorySettingsResettingCardInteractor(with: cardId)
         interactor.resetCard { [weak self] result in
             switch result {
             case .failure(let error):
