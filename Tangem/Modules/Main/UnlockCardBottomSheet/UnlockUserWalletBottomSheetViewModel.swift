@@ -73,7 +73,7 @@ class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
     }
 
     func requestSupport() {
-        Analytics.log(.buttonRequestSupport)
+        Analytics.log(.requestSupport, params: [.source: .main])
         failedCardScanTracker.resetCounter()
         delegate?.openMail(with: failedCardScanTracker, recipient: EmailConfig.default.recipient, emailType: .failedToScanCard)
     }
