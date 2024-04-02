@@ -17,8 +17,10 @@ final class SendViewModel: ObservableObject {
     @Published var stepAnimation: SendView.StepAnimation = .slideForward
     @Published var step: SendStep
     @Published var showBackButton = false
-    @Published var nextButtonEnabled = true
+    @Published var mainButtonType: SendMainButtonType = .next
+    @Published var mainButtonDisabled: Bool = false
     @Published var updatingFees = false
+    @Published var currentStepInvalid: Bool = false // delete?
     @Published var alert: AlertBinder?
 
     var title: String? {
@@ -33,16 +35,12 @@ final class SendViewModel: ObservableObject {
         step.description(for: sendStepParameters)
     }
 
-    var showNavigationButtons: Bool {
-        step.hasNavigationButtons
+    var mainButtonTitle: String {
+        mainButtonType.title
     }
 
-    var showNextButton: Bool {
-        !didReachSummaryScreen
-    }
-
-    var showContinueButton: Bool {
-        didReachSummaryScreen
+    var mainButtonIcon: MainButton.Icon? {
+        mainButtonType.icon
     }
 
     var showQRCodeButton: Bool {
@@ -77,6 +75,7 @@ final class SendViewModel: ObservableObject {
     private var bag: Set<AnyCancellable> = []
     private var feeUpdateSubscription: AnyCancellable? = nil
 
+    private var screenIdleStartTime: Date?
     private var didReachSummaryScreen = false
 
     private var currentStepValid: AnyPublisher<Bool, Never> {
@@ -198,15 +197,26 @@ final class SendViewModel: ObservableObject {
     }
 
     func next() {
-        guard let nextStep = nextStep(after: step) else {
-            assertionFailure("Invalid step logic -- next")
-            return
+        switch mainButtonType {
+        case .next:
+            guard let nextStep = nextStep(after: step) else {
+                assertionFailure("Invalid step logic -- next")
+                return
+            }
+
+            logNextStepAnalytics()
+
+            let stepAnimation: SendView.StepAnimation = (nextStep == .summary) ? .moveAndFade : .slideForward
+            openStep(nextStep, stepAnimation: stepAnimation, updateFee: step.updateFeeOnLeave)
+        case .continue:
+            openStep(.summary, stepAnimation: .moveAndFade, updateFee: step.updateFeeOnLeave)
+        case .send:
+            sendModel.send()
+        case .sending:
+            break
+        case .close:
+            coordinator?.dismiss()
         }
-
-        logNextStepAnalytics()
-
-        let stepAnimation: SendView.StepAnimation = (nextStep == .summary) ? .moveAndFade : .slideForward
-        openStep(nextStep, stepAnimation: stepAnimation, updateFee: step.updateFeeOnLeave)
     }
 
     func back() {
@@ -216,10 +226,6 @@ final class SendViewModel: ObservableObject {
         }
 
         openStep(previousStep, stepAnimation: .slideBackward, updateFee: false)
-    }
-
-    func `continue`() {
-        openStep(.summary, stepAnimation: .moveAndFade, updateFee: step.updateFeeOnLeave)
     }
 
     func scanQRCode() {
@@ -236,12 +242,37 @@ final class SendViewModel: ObservableObject {
         coordinator?.openQRScanner(with: binding, networkName: networkName)
     }
 
+    func onSummaryAppear() {
+        screenIdleStartTime = Date()
+    }
+
+    func onSummaryDisappear() {
+        screenIdleStartTime = nil
+    }
+
     private func bind() {
-        Publishers.CombineLatest(currentStepValid, $updatingFees)
-            .map { currentStepValid, updatingFees in
-                currentStepValid && !updatingFees
+        let summaryMainButtonDisabled = Publishers.CombineLatest(
+            notificationManager.hasNotifications(with: .critical),
+            sendModel.isSending
+        )
+        .map { hasCriticalNotifications, isSending in
+            hasCriticalNotifications && isSending
+        }
+        .eraseToAnyPublisher()
+
+        Publishers.CombineLatest4(currentStepValid, $step, $updatingFees, summaryMainButtonDisabled)
+            .map { currentStepValid, step, updatingFees, summaryMainButtonDisabled in
+                if !currentStepValid || updatingFees {
+                    return true
+                }
+
+                if step == .summary, summaryMainButtonDisabled {
+                    return true
+                }
+
+                return false
             }
-            .assign(to: \.nextButtonEnabled, on: self, ownership: .weak)
+            .assign(to: \.mainButtonDisabled, on: self, ownership: .weak)
             .store(in: &bag)
 
         $updatingFees
@@ -256,7 +287,7 @@ final class SendViewModel: ObservableObject {
             .sink { [weak self] destination in
                 guard let self else { return }
 
-                if showNextButton {
+                if case .next = mainButtonType {
                     switch destination?.source {
                     case .myWallet, .recentAddress:
                         next()
@@ -321,6 +352,15 @@ final class SendViewModel: ObservableObject {
                 guard let destination else { return }
 
                 Analytics.logDestinationAddress(isAddressValid: destination.value != nil, source: destination.source)
+            }
+            .store(in: &bag)
+
+        sendModel
+            .isSending
+            .sink { [weak self] isSending in
+                if isSending {
+                    self?.mainButtonType = .sending
+                }
             }
             .store(in: &bag)
     }
@@ -395,6 +435,21 @@ final class SendViewModel: ObservableObject {
         return false
     }
 
+    private func mainButtonType(for step: SendStep) -> SendMainButtonType {
+        switch step {
+        case .amount, .destination, .fee:
+            if didReachSummaryScreen {
+                return .continue
+            } else {
+                return .next
+            }
+        case .summary:
+            return .send
+        case .finish:
+            return .close
+        }
+    }
+
     private func updateFee(_ step: SendStep, stepAnimation: SendView.StepAnimation, checkCustomFee: Bool) {
         updatingFees = true
 
@@ -419,8 +474,6 @@ final class SendViewModel: ObservableObject {
     }
 
     private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation, checkCustomFee: Bool = true, updateFee: Bool) {
-        cancelUpdatingFee()
-
         if case .summary = step {
             if updateFee {
                 self.updateFee(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee)
@@ -438,6 +491,8 @@ final class SendViewModel: ObservableObject {
 
         // Gotta give some time to update animation variable
         self.stepAnimation = stepAnimation
+
+        mainButtonType = mainButtonType(for: step)
 
         DispatchQueue.main.async {
             self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
@@ -538,7 +593,30 @@ extension SendViewModel: SendSummaryRoutable {
     }
 
     func send() {
-        sendModel.send()
+        guard let screenIdleStartTime else { return }
+
+        let feeValidityInterval: TimeInterval = 60
+        let now = Date()
+        if now.timeIntervalSince(screenIdleStartTime) <= feeValidityInterval {
+            sendModel.send()
+            return
+        }
+
+        sendModel.updateFees()
+            .sink { [weak self] completion in
+                if case .failure = completion {
+                    self?.alert = AlertBuilder.makeOkErrorAlert(message: Localization.sendAlertTransactionFailedTitle)
+                }
+            } receiveValue: { [weak self] result in
+                self?.screenIdleStartTime = Date()
+
+                if let oldFee = result.oldFee, result.newFee > oldFee {
+                    self?.alert = AlertBuilder.makeOkGotItAlert(message: Localization.sendNotificationHighFeeTitle)
+                } else {
+                    self?.sendModel.send()
+                }
+            }
+            .store(in: &bag)
     }
 
     private func auxiliaryViewAnimatable(_ step: SendStep) -> AuxiliaryViewAnimatable? {
