@@ -62,6 +62,7 @@ struct SendFeeView: View {
                !viewModel.customFeeModels.isEmpty {
                 ForEach(viewModel.customFeeModels) { customFeeModel in
                     SendCustomFeeInputField(viewModel: customFeeModel)
+                        .onFocusChanged(customFeeModel.onFocusChanged)
                         .transition(SendView.Constants.auxiliaryViewTransition)
                 }
 
