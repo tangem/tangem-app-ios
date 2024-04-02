@@ -32,8 +32,9 @@ struct SendSummaryView: View {
                         }
                     }
                 }
-                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.address.rawValue, namespace: namespace)
+                .backgroundColor(viewModel.destinationBackground, id: SendViewNamespaceId.addressContainer.rawValue, namespace: namespace)
                 .contentShape(Rectangle())
+                .allowsHitTesting(viewModel.canEditDestination)
                 .onTapGesture {
                     viewModel.didTapSummary(for: .destination)
                 }
@@ -47,8 +48,9 @@ struct SendSummaryView: View {
                         .setAmountFiatNamespaceId(SendViewNamespaceId.amountFiatText.rawValue)
                 }
                 .innerContentPadding(12)
-                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
+                .backgroundColor(viewModel.amountBackground, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
                 .contentShape(Rectangle())
+                .allowsHitTesting(viewModel.canEditAmount)
                 .onTapGesture {
                     viewModel.didTapSummary(for: .amount)
                 }
@@ -66,23 +68,30 @@ struct SendSummaryView: View {
                 .onTapGesture {
                     viewModel.didTapSummary(for: .fee)
                 }
+
+                ForEach(viewModel.notificationInputs) { input in
+                    NotificationView(input: input)
+                        .transition(SendView.Constants.auxiliaryViewTransition)
+                }
             }
 
             sendButton
                 .padding(.horizontal, 16)
+                .padding(.bottom, 14)
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         .alert(item: $viewModel.alert) { $0.alert }
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
+        .interactiveDismissDisabled(viewModel.isSending)
     }
 
     @ViewBuilder
     private var sendButton: some View {
         MainButton(
-            title: Localization.commonSend,
-            icon: .trailing(Assets.tangemIcon),
-            isLoading: viewModel.isSending,
+            title: viewModel.sendButtonText,
+            icon: viewModel.sendButtonIcon,
+            isDisabled: viewModel.isSending,
             action: viewModel.send
         )
     }
@@ -102,13 +111,14 @@ struct SendSummaryView_Previews: PreviewProvider {
     static let tokenIconInfo = TokenIconInfo(
         name: "Tether",
         blockchainIconName: "ethereum.fill",
-        imageURL: TokenIconURLBuilder().iconURL(id: "tether"),
+        imageURL: IconURLBuilder().tokenIconURL(id: "tether"),
         isCustom: false,
         customTokenColor: nil
     )
 
     static let walletInfo = SendWalletInfo(
         walletName: "Wallet",
+        balanceValue: 12013,
         balance: "12013",
         blockchain: .ethereum(testnet: false),
         currencyId: "tether",
@@ -126,6 +136,6 @@ struct SendSummaryView_Previews: PreviewProvider {
     )
 
     static var previews: some View {
-        SendSummaryView(namespace: namespace, viewModel: SendSummaryViewModel(input: SendSummaryViewModelInputMock(), walletInfo: walletInfo))
+        SendSummaryView(namespace: namespace, viewModel: SendSummaryViewModel(input: SendSummaryViewModelInputMock(), notificationManager: FakeSendNotificationManager(), walletInfo: walletInfo))
     }
 }
