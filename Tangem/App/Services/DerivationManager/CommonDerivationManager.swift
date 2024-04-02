@@ -77,7 +77,7 @@ extension CommonDerivationManager: DerivationManager {
             .eraseToAnyPublisher()
     }
 
-    func deriveKeys(cardInteractor: CardDerivable, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+    func deriveKeys(cardInteractor: KeysDeriving, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
         guard !pendingDerivations.value.isEmpty else {
             completion(.success(()))
             return

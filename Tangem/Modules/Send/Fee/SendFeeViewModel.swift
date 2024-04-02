@@ -35,6 +35,10 @@ protocol SendFeeViewModelInput {
 }
 
 class SendFeeViewModel: ObservableObject {
+    let feeExplanationUrl = TangemBlogUrlBuilder().url(post: .fee)
+
+    weak var router: SendFeeRoutable?
+
     @Published private(set) var selectedFeeOption: FeeOption
     @Published private(set) var feeRowViewModels: [FeeRowViewModel] = []
     @Published private(set) var showCustomFeeFields: Bool = false
@@ -44,14 +48,14 @@ class SendFeeViewModel: ObservableObject {
     private(set) var customFeeGasPriceModel: SendCustomFeeInputFieldModel?
     private(set) var customFeeGasLimitModel: SendCustomFeeInputFieldModel?
 
-    @Published private(set) var subtractFromAmountFooterText: String = ""
-    @Published private(set) var subtractFromAmountModel: DefaultToggleRowViewModel?
-
     @Published private var isFeeIncluded: Bool = false
 
+    @Published private(set) var feeLevelsNotificationInputs: [NotificationViewInput] = []
+    @Published private(set) var customFeeNotificationInputs: [NotificationViewInput] = []
+    @Published private(set) var feeCoverageNotificationInputs: [NotificationViewInput] = []
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
 
-    private let notificationManager: NotificationManager
+    private let notificationManager: SendNotificationManager
     private let input: SendFeeViewModelInput
     private let feeOptions: [FeeOption]
     private let walletInfo: SendWalletInfo
@@ -66,7 +70,7 @@ class SendFeeViewModel: ObservableObject {
         balanceConverter: balanceConverter
     )
 
-    init(input: SendFeeViewModelInput, notificationManager: NotificationManager, walletInfo: SendWalletInfo) {
+    init(input: SendFeeViewModelInput, notificationManager: SendNotificationManager, walletInfo: SendWalletInfo) {
         self.input = input
         self.notificationManager = notificationManager
         self.walletInfo = walletInfo
@@ -79,20 +83,6 @@ class SendFeeViewModel: ObservableObject {
 
         feeRowViewModels = makeFeeRowViewModels([:])
 
-        if input.canIncludeFeeIntoAmount {
-            let isFeeIncludedBinding = BindingValue<Bool>(root: self, default: isFeeIncluded) {
-                $0.isFeeIncluded
-            } set: {
-                $0.isFeeIncluded = $1
-                $0.input.didChangeFeeInclusion($1)
-            }
-            subtractFromAmountModel = DefaultToggleRowViewModel(
-                title: Localization.sendAmountSubstract,
-                isDisabled: false,
-                isOn: isFeeIncludedBinding
-            )
-        }
-
         bind()
     }
 
@@ -104,10 +94,15 @@ class SendFeeViewModel: ObservableObject {
         }
     }
 
+    func openFeeExplanation() {
+        router?.openFeeExplanation(url: feeExplanationUrl)
+    }
+
     private func createCustomFeeModels() {
         customFeeModel = SendCustomFeeInputFieldModel(
             title: Localization.sendMaxFee,
             amountPublisher: input.customFeePublisher.decimalPublisher,
+            fieldSuffix: walletInfo.feeCurrencySymbol,
             fractionDigits: walletInfo.feeFractionDigits,
             amountAlternativePublisher: customFeeInFiat.eraseToAnyPublisher(),
             footer: Localization.sendMaxFeeFooter
@@ -116,20 +111,34 @@ class SendFeeViewModel: ObservableObject {
             input.didChangeCustomFee(recalculateFee(enteredFee: enteredFee, input: input, walletInfo: walletInfo))
         }
 
+        let gasPriceFractionDigits = 9
+        let gasPriceGweiPublisher = input
+            .customGasPricePublisher
+            .decimalPublisher
+            .map { weiValue -> DecimalNumberTextField.DecimalValue? in
+                let gweiValue = weiValue?.shiftOrder(magnitude: -gasPriceFractionDigits)
+                return gweiValue
+            }
+            .eraseToAnyPublisher()
+
         customFeeGasPriceModel = SendCustomFeeInputFieldModel(
             title: Localization.sendGasPrice,
-            amountPublisher: input.customGasPricePublisher.decimalPublisher,
-            fractionDigits: 0,
+            amountPublisher: gasPriceGweiPublisher,
+            fieldSuffix: "GWEI",
+            fractionDigits: gasPriceFractionDigits,
             amountAlternativePublisher: .just(output: nil),
             footer: Localization.sendGasPriceFooter
-        ) { [weak self] in
+        ) { [weak self] gweiValue in
             guard let self else { return }
-            input.didChangeCustomFeeGasPrice($0?.bigUIntValue)
+
+            let weiValue = gweiValue?.shiftOrder(magnitude: gasPriceFractionDigits)
+            input.didChangeCustomFeeGasPrice(weiValue?.bigUIntValue)
         }
 
         customFeeGasLimitModel = SendCustomFeeInputFieldModel(
             title: Localization.sendGasLimit,
             amountPublisher: input.customGasLimitPublisher.decimalPublisher,
+            fieldSuffix: nil,
             fractionDigits: 0,
             amountAlternativePublisher: .just(output: nil),
             footer: Localization.sendGasLimitFooter
@@ -170,20 +179,19 @@ class SendFeeViewModel: ObservableObject {
             .assign(to: \.isFeeIncluded, on: self, ownership: .weak)
             .store(in: &bag)
 
-        input.amountPublisher
-            .compactMap {
-                guard let amount = $0 else { return nil }
-
-                let feeDecimals = 6
-                let amountFormatted = amount.string(with: feeDecimals)
-                return Localization.sendAmountSubstractFooter(amountFormatted)
-            }
-            .assign(to: \.subtractFromAmountFooterText, on: self, ownership: .weak)
+        notificationManager
+            .notificationPublisher(for: .feeLevels)
+            .assign(to: \.feeLevelsNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
-        notificationManager.notificationPublisher
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.notificationInputs, on: self, ownership: .weak)
+        notificationManager
+            .notificationPublisher(for: .customFee)
+            .assign(to: \.customFeeNotificationInputs, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        notificationManager
+            .notificationPublisher(for: .feeIncluded)
+            .assign(to: \.feeCoverageNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
@@ -298,5 +306,22 @@ private extension AnyPublisher where Output == BigUInt?, Failure == Never {
             }
         }
         .eraseToAnyPublisher()
+    }
+}
+
+private extension DecimalNumberTextField.DecimalValue {
+    func shiftOrder(magnitude: Int) -> DecimalNumberTextField.DecimalValue {
+        switch self {
+        case .internal(let decimal):
+            return .internal(decimal.shiftOrder(magnitude: magnitude))
+        case .external(let decimal):
+            return .external(decimal.shiftOrder(magnitude: magnitude))
+        }
+    }
+}
+
+private extension Decimal {
+    func shiftOrder(magnitude: Int) -> Decimal {
+        self * Decimal(pow(10.0, Double(magnitude)))
     }
 }
