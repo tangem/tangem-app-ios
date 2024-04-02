@@ -26,7 +26,7 @@ struct SendAmountView: View {
                         .matchedGeometryEffect(id: SendViewNamespaceId.amountTitle.rawValue, in: namespace)
 
                     if !viewModel.animatingAuxiliaryViewsOnAppear {
-                        Text(viewModel.balance)
+                        SensitiveText(viewModel.balance)
                             .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                             .lineLimit(1)
                             .padding(.top, 4)
@@ -45,13 +45,14 @@ struct SendAmountView: View {
                         maximumFractionDigits: viewModel.amountFractionDigits
                     )
                     // A small delay must be introduced to fix a glitch in a transition animation when changing screens
-                    .initialFocusBehavior(.delayedFocus(duration: SendView.Constants.animationDuration))
+                    .initialFocusBehavior(.delayedFocus(duration: 2 * SendView.Constants.animationDuration))
                     .alignment(.center)
                     .suffix(viewModel.useFiatCalculation ? viewModel.fiatCurrencyCode : viewModel.cryptoCurrencyCode)
                     .matchedGeometryEffect(id: SendViewNamespaceId.amountCryptoText.rawValue, in: namespace)
                     .padding(.top, 16)
 
-                    Text(viewModel.amountAlternative)
+                    // Keep empty text so that the view maintains its place in the layout
+                    Text(viewModel.amountAlternative ?? " ")
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                         .lineLimit(1)
                         .matchedGeometryEffect(id: SendViewNamespaceId.amountFiatText.rawValue, in: namespace)
@@ -100,13 +101,14 @@ struct SendAmountView_Previews: PreviewProvider {
     static let tokenIconInfo = TokenIconInfo(
         name: "Tether",
         blockchainIconName: "ethereum.fill",
-        imageURL: TokenIconURLBuilder().iconURL(id: "tether"),
+        imageURL: IconURLBuilder().tokenIconURL(id: "tether"),
         isCustom: false,
         customTokenColor: nil
     )
 
     static let walletInfo = SendWalletInfo(
         walletName: "Wallet",
+        balanceValue: 12013,
         balance: "12013",
         blockchain: .ethereum(testnet: false),
         currencyId: "tether",

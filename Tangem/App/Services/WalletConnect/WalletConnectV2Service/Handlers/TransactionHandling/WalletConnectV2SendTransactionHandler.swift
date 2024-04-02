@@ -69,7 +69,7 @@ extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler {
 
         let txResult = try await walletModel.send(transaction, signer: signer).async()
 
-        Analytics.log(.transactionSent, params: [.commonSource: .transactionSourceWalletConnect])
+        Analytics.log(.transactionSent, params: [.source: .transactionSourceWalletConnect])
 
         uiDelegate.showScreen(with: .init(
             event: .success,
