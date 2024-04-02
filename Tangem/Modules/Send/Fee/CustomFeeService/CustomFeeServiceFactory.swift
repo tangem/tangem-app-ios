@@ -38,7 +38,7 @@ struct CustomFeeServiceFactory {
                 input: input,
                 output: output,
                 blockchain: walletModel.blockchainNetwork.blockchain,
-                walletInfo: walletInfo
+                feeTokenItem: walletModel.feeTokenItem
             )
         } else {
             return nil
