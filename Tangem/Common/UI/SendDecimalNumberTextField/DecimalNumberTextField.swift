@@ -36,6 +36,7 @@ struct DecimalNumberTextField: View {
                 .frame(width: size.width)
         }
         .lineLimit(1)
+        .animation(.none, value: size.width)
     }
 
     private var textField: some View {
@@ -58,6 +59,9 @@ struct DecimalNumberTextField: View {
             }
             .onChange(of: textFieldText) { newValue in
                 updateValues(with: newValue)
+            }
+            .onAppear {
+                textFieldText = viewModel.value.map { viewModel.format(value: $0) } ?? ""
             }
     }
 
