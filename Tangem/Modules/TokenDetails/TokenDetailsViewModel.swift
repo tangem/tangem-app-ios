@@ -33,14 +33,14 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             return nil
         }
 
-        return TokenIconURLBuilder().iconURL(id: id)
+        return IconURLBuilder().tokenIconURL(id: id)
     }
 
     var customTokenColor: Color? {
         walletModel.tokenItem.token?.customTokenColor
     }
 
-    var canHideToken: Bool { userWalletModel.isMultiWallet }
+    var canHideToken: Bool { userWalletModel.config.hasFeature(.multiCurrency) }
 
     init(
         userWalletModel: UserWalletModel,
@@ -210,9 +210,9 @@ private extension TokenDetailsViewModel {
     }
 
     func openFeeCurrency() {
-        guard let feeCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(
-            where: { $0.tokenItem == walletModel.feeTokenItem && $0.blockchainNetwork == walletModel.blockchainNetwork }
-        ) else {
+        guard let feeCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
+            $0.tokenItem == walletModel.feeTokenItem
+        }) else {
             assertionFailure("Fee currency '\(walletModel.feeTokenItem.name)' for currency '\(walletModel.tokenItem.name)' not found")
             return
         }
