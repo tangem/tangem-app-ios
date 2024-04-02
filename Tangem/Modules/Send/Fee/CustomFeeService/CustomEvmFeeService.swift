@@ -15,7 +15,7 @@ class CustomEvmFeeService {
     private let gasPrice = CurrentValueSubject<BigUInt?, Never>(nil)
     private let gasLimit = CurrentValueSubject<BigUInt?, Never>(nil)
     private let blockchain: Blockchain
-    private let walletInfo: SendWalletInfo
+    private let feeTokenItem: TokenItem
 
     private weak var input: CustomFeeServiceInput?
     private weak var output: CustomFeeServiceOutput?
@@ -26,12 +26,12 @@ class CustomEvmFeeService {
         input: CustomFeeServiceInput,
         output: CustomFeeServiceOutput,
         blockchain: Blockchain,
-        walletInfo: SendWalletInfo
+        feeTokenItem: TokenItem
     ) {
         self.input = input
         self.output = output
         self.blockchain = blockchain
-        self.walletInfo = walletInfo
+        self.feeTokenItem = feeTokenItem
 
         bind()
     }
@@ -85,7 +85,7 @@ class CustomEvmFeeService {
     }
 
     private func recalculateFee(from value: Decimal?) -> Fee? {
-        let feeDecimalValue = Decimal(pow(10, Double(walletInfo.feeFractionDigits)))
+        let feeDecimalValue = Decimal(pow(10, Double(feeTokenItem.decimalCount)))
 
         guard
             let value,
@@ -103,7 +103,7 @@ class CustomEvmFeeService {
         }
 
         let recalculatedFee = recalculatedFeeInSmallestDenomination / feeDecimalValue
-        let feeAmount = Amount(with: walletInfo.blockchain, type: walletInfo.feeAmountType, value: recalculatedFee)
+        let feeAmount = Amount(with: blockchain, type: feeTokenItem.amountType, value: recalculatedFee)
         let parameters = EthereumFeeParameters(gasLimit: currentGasLimit, gasPrice: gasPrice)
         return Fee(feeAmount, parameters: parameters)
     }
