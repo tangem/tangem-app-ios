@@ -38,6 +38,10 @@ extension QRScanViewCoordinator: QRScanViewRoutable {
             self?.rootViewModel?.didSelectImage(image)
         }
     }
+
+    func openSettings() {
+        UIApplication.openSystemSettings()
+    }
 }
 
 // MARK: - Options

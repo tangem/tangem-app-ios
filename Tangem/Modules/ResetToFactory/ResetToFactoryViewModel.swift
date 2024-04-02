@@ -28,7 +28,7 @@ class ResetToFactoryViewModel: ObservableObject {
     }
 
     private let hasBackupCards: Bool
-    private let cardInteractor: CardResettable
+    private let cardInteractor: FactorySettingsResetting
     private let userWalletId: UserWalletId
     private weak var coordinator: ResetToFactoryViewRoutable?
 
