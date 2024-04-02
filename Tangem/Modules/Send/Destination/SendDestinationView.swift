@@ -26,7 +26,6 @@ struct SendDestinationView: View {
                         .setTextNamespaceId(SendViewNamespaceId.addressText.rawValue)
                         .setClearButtonNamespaceId(SendViewNamespaceId.addressClearButton.rawValue)
                         .disabled(viewModel.userInputDisabled)
-                        .visible(viewModel.showSectionContent)
                 } footer: {
                     if !viewModel.animatingAuxiliaryViewsOnAppear {
                         Text(addressViewModel.description)
@@ -42,7 +41,6 @@ struct SendDestinationView: View {
                 GroupedSection(additionalFieldViewModel) {
                     SendDestinationTextView(viewModel: $0)
                         .disabled(viewModel.userInputDisabled)
-                        .visible(viewModel.showSectionContent)
                 } footer: {
                     if !viewModel.animatingAuxiliaryViewsOnAppear {
                         Text(additionalFieldViewModel.description)
@@ -61,10 +59,7 @@ struct SendDestinationView: View {
 
             Spacer(minLength: bottomSpacing)
         }
-        .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         .onAppear(perform: viewModel.onAppear)
-        .onAppear(perform: viewModel.onSectionContentAppear)
-        .onDisappear(perform: viewModel.onSectionContentDisappear)
         .onAppear(perform: viewModel.onAuxiliaryViewAppear)
         .onDisappear(perform: viewModel.onAuxiliaryViewDisappear)
     }
