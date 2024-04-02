@@ -65,7 +65,7 @@ struct SendAmountView: View {
 
             SendDecimalNumberTextField(viewModel: viewModel.decimalNumberTextFieldViewModel)
                 // A small delay must be introduced to fix a glitch in a transition animation when changing screens
-                .initialFocusBehavior(.delayedFocus(duration: SendView.Constants.animationDuration))
+                .initialFocusBehavior(.delayedFocus(duration: 2 * SendView.Constants.animationDuration))
                 .alignment(.center)
                 .prefixSuffixOptions(viewModel.currentFieldOptions)
                 .disabled(viewModel.userInputDisabled)
