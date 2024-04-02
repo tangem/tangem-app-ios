@@ -22,22 +22,11 @@ protocol SendSummaryViewModelInput: AnyObject {
     var selectedFeeOptionPublisher: AnyPublisher<FeeOption, Never> { get }
 
     var isSending: AnyPublisher<Bool, Never> { get }
-
-    func updateFees() -> AnyPublisher<FeeUpdateResult, Error>
-    func send()
 }
 
 class SendSummaryViewModel: ObservableObject {
     let canEditAmount: Bool
     let canEditDestination: Bool
-
-    var sendButtonText: String {
-        isSending ? Localization.sendSending : Localization.commonSend
-    }
-
-    var sendButtonIcon: MainButton.Icon? {
-        isSending ? nil : .trailing(Assets.tangemIcon)
-    }
 
     var destinationBackground: Color {
         sectionBackground(canEdit: canEditDestination)
@@ -47,23 +36,33 @@ class SendSummaryViewModel: ObservableObject {
         sectionBackground(canEdit: canEditAmount)
     }
 
-    @Published var isSendButtonDisabled = false
+    var walletName: String {
+        walletInfo.walletName
+    }
+
+    var balance: String {
+        walletInfo.balance
+    }
+
     @Published var isSending = false
     @Published var alert: AlertBinder?
 
     @Published var destinationViewTypes: [SendDestinationSummaryViewType] = []
     @Published var amountSummaryViewData: SendAmountSummaryViewData?
-    @Published var feeSummaryViewData: SendFeeSummaryViewData?
+    @Published var feeSummaryViewData: SendFeeSummaryViewModel?
+
+    @Published var animatingDestinationOnAppear = false
+    @Published var animatingAmountOnAppear = false
+    @Published var animatingFeeOnAppear = false
     @Published var showHint = false
     @Published var transactionDescription: String?
+    @Published var showTransactionDescription = true
 
-    @Published var showSectionContent = false
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
 
     weak var router: SendSummaryRoutable?
 
     private let sectionViewModelFactory: SendSummarySectionViewModelFactory
-    private var screenIdleStartTime: Date?
     private var bag: Set<AnyCancellable> = []
     private let input: SendSummaryViewModelInput
     private let walletInfo: SendWalletInfo
@@ -90,19 +89,44 @@ class SendSummaryViewModel: ObservableObject {
         bind()
     }
 
+    func setupAnimations(previousStep: SendStep) {
+        switch previousStep {
+        case .destination:
+            animatingAmountOnAppear = true
+            animatingFeeOnAppear = true
+        case .amount:
+            animatingDestinationOnAppear = true
+            animatingFeeOnAppear = true
+        case .fee:
+            animatingDestinationOnAppear = true
+            animatingAmountOnAppear = true
+        default:
+            break
+        }
+    }
+
     func onAppear() {
-        withAnimation(SendView.Constants.sectionContentAnimation) {
-            showSectionContent = true
+        withAnimation(SendView.Constants.defaultAnimation) {
+            self.animatingDestinationOnAppear = false
+            self.animatingAmountOnAppear = false
+            self.animatingFeeOnAppear = false
         }
 
         Analytics.log(.sendConfirmScreenOpened)
 
-        screenIdleStartTime = Date()
-    }
+        // For the sake of simplicity we're assuming that notifications aren't going to be created after the screen has been displayed
+        showHint = false
+        if notificationInputs.isEmpty, !AppSettings.shared.userDidTapSendScreenSummary {
+            withAnimation(SendView.Constants.defaultAnimation.delay(SendView.Constants.animationDuration * 2)) {
+                self.showHint = true
+            }
+        }
 
-    func onDisappear() {
-        showSectionContent = false
-        screenIdleStartTime = nil
+        // Show it with a delay, otherwise it will clash with the keyboard
+        showTransactionDescription = false
+        withAnimation(SendView.Constants.defaultAnimation.delay(SendView.Constants.animationDuration * 2)) {
+            self.showTransactionDescription = true
+        }
     }
 
     func didTapSummary(for step: SendStep) {
@@ -114,33 +138,6 @@ class SendSummaryViewModel: ObservableObject {
         showHint = false
 
         router?.openStep(step)
-    }
-
-    func send() {
-        guard let screenIdleStartTime else { return }
-
-        let feeValidityInterval: TimeInterval = 60
-        let now = Date()
-        if now.timeIntervalSince(screenIdleStartTime) <= feeValidityInterval {
-            input.send()
-            return
-        }
-
-        input.updateFees()
-            .sink { [weak self] completion in
-                if case .failure = completion {
-                    self?.alert = AlertBuilder.makeOkErrorAlert(message: Localization.sendAlertTransactionFailedTitle)
-                }
-            } receiveValue: { [weak self] result in
-                self?.screenIdleStartTime = Date()
-
-                if let oldFee = result.oldFee, result.newFee > oldFee {
-                    self?.alert = AlertBuilder.makeOkGotItAlert(message: Localization.sendNotificationHighFeeTitle)
-                } else {
-                    self?.input.send()
-                }
-            }
-            .store(in: &bag)
     }
 
     private func bind() {
@@ -171,7 +168,7 @@ class SendSummaryViewModel: ObservableObject {
 
         Publishers.CombineLatest(input.feeValuePublisher, input.selectedFeeOptionPublisher)
             .map { [weak self] feeValue, feeOption in
-                self?.sectionViewModelFactory.makeFeeViewData(from: feeValue, feeOption: feeOption)
+                self?.sectionViewModelFactory.makeFeeViewData(from: feeValue, feeOption: feeOption, animateTitleOnAppear: true)
             }
             .assign(to: \.feeSummaryViewData, on: self, ownership: .weak)
             .store(in: &bag)
@@ -190,13 +187,7 @@ class SendSummaryViewModel: ObservableObject {
             .notificationPublisher(for: .summary)
             .sink { [weak self] notificationInputs in
                 self?.notificationInputs = notificationInputs
-                self?.showHint = notificationInputs.isEmpty && !AppSettings.shared.userDidTapSendScreenSummary
             }
-            .store(in: &bag)
-
-        notificationManager
-            .hasNotifications(with: .critical)
-            .assign(to: \.isSendButtonDisabled, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
@@ -231,5 +222,3 @@ class SendSummaryViewModel: ObservableObject {
         return Localization.sendSummaryTransactionDescription(totalInFiatFormatted, feeInFiatFormatted)
     }
 }
-
-extension SendSummaryViewModel: SectionContainerAnimatable {}
