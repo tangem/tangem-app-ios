@@ -20,8 +20,6 @@ class LockedUserWallet: UserWalletModel {
 
     var cardsCount: Int { config.cardsCount }
 
-    var isMultiWallet: Bool { config.hasFeature(.multiCurrency) }
-
     var userWalletId: UserWalletId { .init(value: userWallet.userWalletId) }
 
     var updatePublisher: AnyPublisher<Void, Never> { .just }
@@ -51,6 +49,10 @@ class LockedUserWallet: UserWalletModel {
         )
     }
 
+    var totalBalancePublisher: AnyPublisher<LoadingValue<TotalBalance>, Never> {
+        .just(output: .loaded(.init(balance: 0, currencyCode: "", hasError: false)))
+    }
+
     let backupInput: OnboardingInput? = nil
     let twinInput: OnboardingInput? = nil
 
@@ -69,8 +71,9 @@ class LockedUserWallet: UserWalletModel {
         // Renaming locked wallets is prohibited
     }
 
-    var totalBalancePublisher: AnyPublisher<LoadingValue<TotalBalance>, Never> {
-        .just(output: .loaded(.init(balance: 0, currencyCode: "", hasError: false)))
+    func validate() -> Bool {
+        // Nothing to validate for locked wallets
+        return true
     }
 }
 
@@ -95,7 +98,6 @@ extension LockedUserWallet: AnalyticsContextDataProvider {
         let baseCurrency = embeddedEntry?.tokens.first?.symbol ?? embeddedEntry?.blockchainNetwork.blockchain.currencySymbol
 
         return AnalyticsContextData(
-            id: nil,
             productType: config.productType,
             batchId: cardInfo.card.batchId,
             firmware: cardInfo.card.firmwareVersion.stringValue,
