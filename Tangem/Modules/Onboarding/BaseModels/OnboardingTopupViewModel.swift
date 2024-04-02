@@ -69,7 +69,9 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
                     if shouldGoToNextStep,
                        !walletModel.isEmptyIncludingPendingIncomingTxs,
                        !walletModel.isZeroAmount {
-                        Analytics.logTopUpIfNeeded(balance: walletModel.fiatValue ?? 0)
+                        if let userWalletId = viewModel.cardModel?.userWalletId {
+                            Analytics.logTopUpIfNeeded(balance: walletModel.fiatValue ?? 0, for: userWalletId)
+                        }
                         viewModel.goToNextStep()
                         viewModel.walletModelUpdateCancellable = nil
                         return
