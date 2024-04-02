@@ -8,9 +8,6 @@
 
 import Foundation
 
-typealias CustomFeeServiceInput = SendModel
-typealias CustomFeeServiceOutput = SendModel
-
 struct CustomFeeServiceFactory {
     let input: CustomFeeServiceInput
     let output: CustomFeeServiceOutput
