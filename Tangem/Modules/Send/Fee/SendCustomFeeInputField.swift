@@ -29,6 +29,7 @@ struct SendCustomFeeInputField: View {
                         .prefixSuffixOptions(.suffix(text: viewModel.fieldSuffix, hasSpace: true))
                         .appearance(.init(font: Fonts.Regular.subheadline))
                         .onFocusChanged(onFocusChanged)
+                        .allowsHitTesting(!viewModel.disabled)
 
                     Spacer()
 
