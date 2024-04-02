@@ -88,7 +88,11 @@ class CustomUtxoFeeService {
 }
 
 extension CustomUtxoFeeService: CustomFeeService {
-    func models() -> [SendCustomFeeInputFieldModel] {
+    var customFeeDescription: String? {
+        nil
+    }
+
+    func inputFieldModels() -> [SendCustomFeeInputFieldModel] {
         let satoshiPerBytePublisher = _customFeeSatoshiPerByte
             .map { intValue -> Decimal? in
                 if let intValue {
@@ -114,7 +118,7 @@ extension CustomUtxoFeeService: CustomFeeService {
         return [customFeeSatoshiPerByteModel]
     }
 
-    func didChangeCustomFee(enteredFee: Decimal?, input: SendFeeViewModelInput, walletInfo: SendWalletInfo) {
+    func setCustomFee(enteredFee: Decimal?) {
         print("zzz Aaaaa didChangeCustomFee utxo????????????????????????????")
     }
 }
