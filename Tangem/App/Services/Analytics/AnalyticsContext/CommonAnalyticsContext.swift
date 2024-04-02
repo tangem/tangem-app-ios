@@ -31,10 +31,6 @@ class CommonAnalyticsContext: AnalyticsContext {
         analyticsStorage.clearSessionStorage()
     }
 
-    func clearSession() {
-        analyticsStorage.clearSessionStorage()
-    }
-
     func value(forKey: AnalyticsStorageKey, scope: AnalyticsContextScope) -> Any? {
         guard let id = makeId(for: scope) else { return nil }
 
