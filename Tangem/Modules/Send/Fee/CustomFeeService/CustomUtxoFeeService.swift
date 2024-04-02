@@ -18,7 +18,11 @@ class CustomUtxoFeeService {
     private weak var output: CustomFeeServiceOutput?
     private var bag: Set<AnyCancellable> = []
 
-    init(input: CustomFeeServiceInput, output: CustomFeeServiceOutput, utxoTransactionFeeCalculator: UTXOTransactionFeeCalculator) {
+    init(
+        input: CustomFeeServiceInput,
+        output: CustomFeeServiceOutput,
+        utxoTransactionFeeCalculator: UTXOTransactionFeeCalculator
+    ) {
         self.input = input
         self.output = output
         self.utxoTransactionFeeCalculator = utxoTransactionFeeCalculator
@@ -69,7 +73,11 @@ class CustomUtxoFeeService {
         if let satoshiPerByte,
            let amount,
            let destination {
-            newFee = utxoTransactionFeeCalculator.calculateFee(satoshiPerByte: satoshiPerByte, amount: amount, destination: destination)
+            newFee = utxoTransactionFeeCalculator.calculateFee(
+                satoshiPerByte: satoshiPerByte,
+                amount: amount,
+                destination: destination
+            )
         } else {
             newFee = nil
         }
