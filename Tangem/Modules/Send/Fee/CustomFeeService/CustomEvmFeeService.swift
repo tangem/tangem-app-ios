@@ -22,7 +22,12 @@ class CustomEvmFeeService {
     private var bag: Set<AnyCancellable> = []
     private var customGasPriceBeforeEditing: BigUInt?
 
-    init(input: CustomFeeServiceInput, output: CustomFeeServiceOutput, blockchain: Blockchain, walletInfo: SendWalletInfo) {
+    init(
+        input: CustomFeeServiceInput,
+        output: CustomFeeServiceOutput,
+        blockchain: Blockchain,
+        walletInfo: SendWalletInfo
+    ) {
         self.input = input
         self.output = output
         self.blockchain = blockchain
