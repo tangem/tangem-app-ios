@@ -102,7 +102,7 @@ extension CustomUtxoFeeService: CustomFeeService {
             .eraseToAnyPublisher()
 
         let customFeeSatoshiPerByteModel = SendCustomFeeInputFieldModel(
-            title: "Satoshi per byte",
+            title: Localization.sendSatoshiPerByteTitle,
             amountPublisher: satoshiPerBytePublisher,
             fieldSuffix: nil,
             fractionDigits: 0,
