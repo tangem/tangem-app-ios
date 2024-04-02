@@ -109,8 +109,8 @@ class SendFeeViewModel: ObservableObject {
             fractionDigits: walletInfo.feeFractionDigits,
             amountAlternativePublisher: customFeeInFiat.eraseToAnyPublisher(),
             footer: customFeeService.customFeeDescription
-        ) { enteredFee in
-            customFeeService.setCustomFee(enteredFee: enteredFee)
+        ) { value in
+            customFeeService.setCustomFee(value: value)
         }
 
         customFeeModels = [customFeeModel] + customFeeService.inputFieldModels()

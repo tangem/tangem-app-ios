@@ -63,36 +63,35 @@ class CustomEvmFeeService {
 
     private func didChangeCustomFeeGasPrice(_ value: BigUInt?) {
         _customFeeGasPrice.send(value)
-        recalculateCustomFee(gasPrice: _customFeeGasPrice.value, gasLimit: _customFeeGasLimit.value)
+        let fee = recalculateFee(gasPrice: _customFeeGasPrice.value, gasLimit: _customFeeGasLimit.value)
+        output?.setCustomFee(fee)
     }
 
     private func didChangeCustomFeeGasLimit(_ value: BigUInt?) {
         _customFeeGasLimit.send(value)
-        recalculateCustomFee(gasPrice: _customFeeGasPrice.value, gasLimit: _customFeeGasLimit.value)
+        let fee = recalculateFee(gasPrice: _customFeeGasPrice.value, gasLimit: _customFeeGasLimit.value)
+        output?.setCustomFee(fee)
     }
 
-    private func recalculateCustomFee(gasPrice: BigUInt?, gasLimit: BigUInt?) {
+    private func recalculateFee(gasPrice: BigUInt?, gasLimit: BigUInt?) -> Fee? {
         let newFee: Fee?
         if let gasPrice,
            let gasLimit,
            let gasInWei = (gasPrice * gasLimit).decimal {
-            let blockchain = blockchain
             let validatedAmount = Amount(with: blockchain, value: gasInWei / blockchain.decimalValue)
-            newFee = Fee(validatedAmount, parameters: EthereumFeeParameters(gasLimit: gasLimit, gasPrice: gasPrice))
+            return Fee(validatedAmount, parameters: EthereumFeeParameters(gasLimit: gasLimit, gasPrice: gasPrice))
         } else {
-            newFee = nil
+            return nil
         }
-
-        output?.setCustomFee(newFee)
     }
 
-    private func recalculateFee(enteredFee: Decimal?) -> Fee? {
+    private func recalculateFee(from value: Decimal?) -> Fee? {
         let feeDecimalValue = Decimal(pow(10, Double(walletInfo.feeFractionDigits)))
 
         guard
-            let enteredFee,
+            let value,
             let currentGasLimit = _customFeeGasLimit.value,
-            let enteredFeeInSmallestDenomination = BigUInt(decimal: (enteredFee * feeDecimalValue).rounded(roundingMode: .down))
+            let enteredFeeInSmallestDenomination = BigUInt(decimal: (value * feeDecimalValue).rounded(roundingMode: .down))
         else {
             return nil
         }
@@ -139,10 +138,8 @@ extension CustomEvmFeeService: CustomFeeService {
             amountAlternativePublisher: .just(output: nil),
             footer: Localization.sendGasPriceFooter
         ) { [weak self] gweiValue in
-            guard let self else { return }
-
             let weiValue = gweiValue?.shiftOrder(magnitude: gasPriceFractionDigits)
-            didChangeCustomFeeGasPrice(weiValue?.bigUIntValue)
+            self?.didChangeCustomFeeGasPrice(weiValue?.bigUIntValue)
         } onFocusChanged: { [weak self] focused in
             self?.onGasPriceFocusChanged(focused)
         }
@@ -155,8 +152,7 @@ extension CustomEvmFeeService: CustomFeeService {
             amountAlternativePublisher: .just(output: nil),
             footer: Localization.sendGasLimitFooter
         ) { [weak self] in
-            guard let self else { return }
-            didChangeCustomFeeGasLimit($0?.bigUIntValue)
+            self?.didChangeCustomFeeGasLimit($0?.bigUIntValue)
         }
 
         return [
@@ -165,8 +161,8 @@ extension CustomEvmFeeService: CustomFeeService {
         ]
     }
 
-    func setCustomFee(enteredFee: Decimal?) {
-        let fee = recalculateFee(enteredFee: enteredFee)
+    func setCustomFee(value: Decimal?) {
+        let fee = recalculateFee(from: value)
 
         output?.setCustomFee(fee)
         if let ethereumFeeParameters = fee?.parameters as? EthereumFeeParameters {
