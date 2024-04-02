@@ -166,7 +166,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
         userWalletRepository.initializeServices(for: userWallet, cardInfo: userWallet.cardInfo)
 
-        Analytics.logTopUpIfNeeded(balance: 0)
+        Analytics.logTopUpIfNeeded(balance: 0, for: userWallet.userWalletId)
 
         cardModel = userWallet
     }
@@ -369,8 +369,8 @@ extension OnboardingViewModel {
         coordinator?.closeOnboarding()
     }
 
-    func openSupportChat() {
-        Analytics.log(.onboardingButtonChat)
+    func openSupport() {
+        Analytics.log(.requestSupport, params: [.source: .onboarding])
 
         // Hide keyboard on set pin screen
         UIApplication.shared.endEditing()
@@ -380,9 +380,13 @@ extension OnboardingViewModel {
             userWalletEmailData: input.cardInput.emailData
         )
 
-        coordinator?.openSupportChat(input: .init(
-            logsComposer: .init(infoProvider: dataCollector)
-        ))
+        let emailConfig = input.cardInput.config?.emailConfig ?? .default
+
+        coordinator?.openMail(
+            with: dataCollector,
+            recipient: emailConfig.recipient,
+            emailType: .appFeedback(subject: emailConfig.subject)
+        )
     }
 }
 

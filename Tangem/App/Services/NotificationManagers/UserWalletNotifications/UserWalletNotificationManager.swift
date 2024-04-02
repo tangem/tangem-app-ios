@@ -44,13 +44,23 @@ final class UserWalletNotificationManager {
 
     private func createNotifications() {
         let factory = NotificationsFactory()
-        let action: NotificationView.NotificationAction = delegate?.didTapNotification(with:) ?? { _ in }
-        let buttonAction = delegate?.didTapNotificationButton(with:action:) ?? { _, _ in }
+        let action: NotificationView.NotificationAction = { [weak self] id in
+            self?.delegate?.didTapNotification(with: id)
+        }
+
+        let buttonAction: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
+            self?.delegate?.didTapNotificationButton(with: id, action: action)
+        }
+
         let dismissAction: NotificationView.NotificationAction = weakify(self, forFunction: UserWalletNotificationManager.dismissNotification)
 
         var inputs: [NotificationViewInput] = []
 
-        if userWalletModel.isMultiWallet {
+        if !userWalletModel.validate() {
+            Analytics.log(.mainNoticeBackupErrors)
+        }
+
+        if userWalletModel.config.hasFeature(.multiCurrency) {
             setupTangemExpressPromotionNotification(dismissAction: dismissAction)
         }
 
@@ -181,7 +191,9 @@ final class UserWalletNotificationManager {
             didFinishCountingHashes()
             let notification = factory.buildNotificationInput(
                 for: .numberOfSignedHashesIncorrect,
-                action: delegate?.didTapNotification(with:) ?? { _ in },
+                action: { [weak self] id in
+                    self?.delegate?.didTapNotification(with: id)
+                },
                 buttonAction: { _, _ in },
                 dismissAction: weakify(self, forFunction: UserWalletNotificationManager.dismissNotification(with:))
             )
