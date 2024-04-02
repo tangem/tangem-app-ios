@@ -319,10 +319,15 @@ extension CommonUserTokensManager: UserTokensReordering {
                 promise(.success((editedList, existingList)))
             }
             .filter { $0 != $1 }
-            .map(\.0)
-            .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
-            .map { userTokensManager, editedList in
+            .handleEvents(receiveOutput: { input in
+                let (userTokensManager, (editedList, existingList)) = input
+                let logger = UserTokensReorderingLogger(walletModels: userTokensManager.walletModelsManager.walletModels)
+                logger.logReorder(existingList: existingList, editedList: editedList, source: source)
+            })
+            .receive(on: DispatchQueue.main)
+            .map { input in
+                let (userTokensManager, (editedList, _)) = input
                 userTokensManager.userTokenListManager.update(with: editedList)
             }
         }
