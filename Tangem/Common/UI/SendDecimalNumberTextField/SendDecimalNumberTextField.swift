@@ -21,7 +21,6 @@ struct SendDecimalNumberTextField: View {
     // Internal state
     @FocusState private var isInputActive: Bool
     @State private var textFieldHeight: CGFloat = .zero
-    @State private var oneSpaceWidth: CGFloat = .zero
 
     // Setupable
     private var initialFocusBehavior: InitialFocusBehavior = .noFocus
@@ -119,11 +118,17 @@ struct SendDecimalNumberTextField: View {
         }
     }
 
+    // This is used to emulate a single space between the prefix/suffix and the amount field
+    private func singleSpaceView() -> some View {
+        Text(" ")
+            .font(appearance.font)
+    }
+
     @ViewBuilder
     private func prefixSuffixView(_ text: String?, hasSpaceBeforeText: Bool = false, hasSpaceAfterText: Bool = false) -> some View {
         if let text {
             if hasSpaceBeforeText {
-                FixedSpacer(width: oneSpaceWidth)
+                singleSpaceView()
             }
 
             Text(text)
@@ -131,14 +136,9 @@ struct SendDecimalNumberTextField: View {
                 .onTapGesture {
                     isInputActive = true
                 }
-                .background(
-                    Text(" ")
-                        .font(appearance.font)
-                        .readGeometry(\.frame.size.width, bindTo: $oneSpaceWidth)
-                )
 
             if hasSpaceAfterText {
-                FixedSpacer(width: oneSpaceWidth)
+                singleSpaceView()
             }
         }
     }
