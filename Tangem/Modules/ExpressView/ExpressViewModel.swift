@@ -227,11 +227,29 @@ private extension ExpressViewModel {
             }
             .store(in: &bag)
 
-        notificationManager
-            .notificationPublisher
-            .removeDuplicates()
-            // Debounce for exclude unwanted animations/updates
+        // Creates a publisher that emits changes in the notification list
+        // based on a provided filter that compares the previous and new values
+        let makeNotificationPublisher = { [notificationManager] filter in
+            notificationManager
+                .notificationPublisher
+                .removeDuplicates()
+                .scan(([NotificationViewInput](), [NotificationViewInput]())) { prev, new in
+                    (prev.1, new)
+                }
+                .filter(filter)
+                .map(\.1)
+                .removeDuplicates()
+        }
+
+        // Publisher for showing new notifications with a delay to prevent unwanted animations
+        makeNotificationPublisher { $1.count >= $0.count }
             .debounce(for: 0.2, scheduler: DispatchQueue.main)
+            .assign(to: \.notificationInputs, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        // Publisher for immediate updates when notifications are removed (e.g., from 2 to 0 or 1)
+        // to fix 'jumping' animation bug
+        makeNotificationPublisher { $1.count < $0.count }
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
@@ -559,7 +577,7 @@ private extension ExpressViewModel {
                 root.restartTimer()
             } catch let error as ExpressAPIError {
                 await runOnMain {
-                    let message = Localization.expressErrorCode(error.errorCode.localizedDescription)
+                    let message = error.localizedMessage
                     root.alert = AlertBinder(title: Localization.commonError, message: message)
                 }
             } catch {
