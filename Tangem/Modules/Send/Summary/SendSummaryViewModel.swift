@@ -22,22 +22,11 @@ protocol SendSummaryViewModelInput: AnyObject {
     var selectedFeeOptionPublisher: AnyPublisher<FeeOption, Never> { get }
 
     var isSending: AnyPublisher<Bool, Never> { get }
-
-    func updateFees() -> AnyPublisher<FeeUpdateResult, Error>
-    func send()
 }
 
 class SendSummaryViewModel: ObservableObject {
     let canEditAmount: Bool
     let canEditDestination: Bool
-
-    var sendButtonText: String {
-        isSending ? Localization.sendSending : Localization.commonSend
-    }
-
-    var sendButtonIcon: MainButton.Icon? {
-        isSending ? nil : .trailing(Assets.tangemIcon)
-    }
 
     var destinationBackground: Color {
         sectionBackground(canEdit: canEditDestination)
@@ -55,7 +44,6 @@ class SendSummaryViewModel: ObservableObject {
         walletInfo.balance
     }
 
-    @Published var isSendButtonDisabled = false
     @Published var isSending = false
     @Published var alert: AlertBinder?
 
@@ -75,7 +63,6 @@ class SendSummaryViewModel: ObservableObject {
     weak var router: SendSummaryRoutable?
 
     private let sectionViewModelFactory: SendSummarySectionViewModelFactory
-    private var screenIdleStartTime: Date?
     private var bag: Set<AnyCancellable> = []
     private let input: SendSummaryViewModelInput
     private let walletInfo: SendWalletInfo
@@ -127,8 +114,6 @@ class SendSummaryViewModel: ObservableObject {
 
         Analytics.log(.sendConfirmScreenOpened)
 
-        screenIdleStartTime = Date()
-
         // For the sake of simplicity we're assuming that notifications aren't going to be created after the screen has been displayed
         showHint = false
         if notificationInputs.isEmpty, !AppSettings.shared.userDidTapSendScreenSummary {
@@ -144,10 +129,6 @@ class SendSummaryViewModel: ObservableObject {
         }
     }
 
-    func onDisappear() {
-        screenIdleStartTime = nil
-    }
-
     func didTapSummary(for step: SendStep) {
         if isSending {
             return
@@ -157,33 +138,6 @@ class SendSummaryViewModel: ObservableObject {
         showHint = false
 
         router?.openStep(step)
-    }
-
-    func send() {
-        guard let screenIdleStartTime else { return }
-
-        let feeValidityInterval: TimeInterval = 60
-        let now = Date()
-        if now.timeIntervalSince(screenIdleStartTime) <= feeValidityInterval {
-            input.send()
-            return
-        }
-
-        input.updateFees()
-            .sink { [weak self] completion in
-                if case .failure = completion {
-                    self?.alert = AlertBuilder.makeOkErrorAlert(message: Localization.sendAlertTransactionFailedTitle)
-                }
-            } receiveValue: { [weak self] result in
-                self?.screenIdleStartTime = Date()
-
-                if let oldFee = result.oldFee, result.newFee > oldFee {
-                    self?.alert = AlertBuilder.makeOkGotItAlert(message: Localization.sendNotificationHighFeeTitle)
-                } else {
-                    self?.input.send()
-                }
-            }
-            .store(in: &bag)
     }
 
     private func bind() {
@@ -233,12 +187,6 @@ class SendSummaryViewModel: ObservableObject {
             .notificationPublisher(for: .summary)
             .sink { [weak self] notificationInputs in
                 self?.notificationInputs = notificationInputs
-            }
-            .store(in: &bag)
-
-        Publishers.CombineLatest($isSending, notificationManager.hasNotifications(with: .critical))
-            .sink { [weak self] isSending, hasCriticalNotifications in
-                self?.isSendButtonDisabled = isSending || hasCriticalNotifications
             }
             .store(in: &bag)
     }
