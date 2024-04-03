@@ -80,6 +80,7 @@ struct SendView: View {
                             .foregroundColor(Colors.Icon.primary1)
                             .frame(maxWidth: .infinity, alignment: .trailing)
                     }
+                    .disabled(viewModel.updatingFees)
                     .layoutPriority(1)
                 } else {
                     Spacer()
