@@ -8,7 +8,7 @@
 
 import Foundation
 import UIKit
-import class TangemExpress.Lock
+import TangemFoundation
 
 /// Lightweight wrapper for the RAII-like lifetime management of iOS background tasks created
 /// using `UIApplication.beginBackgroundTask(withName:expirationHandler:)` system API.
