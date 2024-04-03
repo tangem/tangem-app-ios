@@ -88,7 +88,8 @@ struct TokenInteractionAvailabilityProvider {
              .polygonZkEVM,
              .moonriver,
              .mantle,
-             .flare:
+             .flare,
+             .taraxa:
 
             // Checking that we have at least one valid (non-empty) address
             //
