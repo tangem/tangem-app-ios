@@ -128,6 +128,8 @@ class SendModel {
     private var destinationResolutionRequest: Task<Void, Error>?
     private var didSetCustomFee = false
     private var feeUpdatePublisher: AnyPublisher<FeeUpdateResult, Error>?
+    private var feeInclusionSubject: CurrentValueSubject<Void, Error>?
+    private var feeInclusionSubscription: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
@@ -164,19 +166,57 @@ class SendModel {
         }
     }
 
-    func includeFeeIntoAmount() {
+    func includeFeeIntoAmount(completion: @escaping (Result<Void, Error>) -> Void) {
         guard
             !_isFeeIncluded.value,
-            let userInputAmount = userInputAmount.value,
-            let fee = fee.value?.amount,
-            (userInputAmount - fee).value >= 0
+            let destination = destinationText,
+            let originalAmount = validatedAmountValue
         else {
             AppLog.shared.debug("Invalid amount and fee when subtracting")
             return
         }
 
-        _isFeeIncluded.value = true
-        self.userInputAmount.send(userInputAmount - fee)
+        let feeInclusionSubject = CurrentValueSubject<Void, Error>(())
+        self.feeInclusionSubject = feeInclusionSubject
+
+        feeInclusionSubscription = feeInclusionSubject
+            .flatMap { [weak self] value -> AnyPublisher<(Amount, Amount), Error> in
+                guard
+                    let self,
+                    let feeAmount = feeValue?.amount
+                else {
+                    return .anyFail(error: WalletError.failedToGetFee)
+                }
+
+                let newAmount = originalAmount - feeAmount
+                return updateFees(amount: newAmount, destination: destination)
+                    .map { feeResult in
+                        (newAmount, feeResult.newFee)
+                    }
+                    .eraseToAnyPublisher()
+            }
+            .sink { [weak self] result in
+                switch result {
+                case .finished:
+                    completion(.success(()))
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+
+                self?.feeInclusionSubject = nil
+            } receiveValue: { [weak self] newAmount, newFee in
+                let newAmount = originalAmount - newFee
+
+                if let currentAmount = self?.userInputAmount.value,
+                   currentAmount <= newAmount {
+                    self?.feeInclusionSubject?.send(completion: .finished)
+                    self?.feeInclusionSubscription = nil
+                } else {
+                    self?._isFeeIncluded.value = true
+                    self?.userInputAmount.send(newAmount)
+                    self?.feeInclusionSubject?.send(())
+                }
+            }
     }
 
     func useMaxAmount() {
