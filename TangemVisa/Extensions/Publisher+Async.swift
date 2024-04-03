@@ -7,9 +7,9 @@
 //
 
 import Combine
-import Foundation
 
-public extension Publisher {
+// [REDACTED_TODO_COMMENT]
+extension Publisher {
     func async() async throws -> Output {
         var didSendValue = false
         let cancellableWrapper = CancellableWrapper()
