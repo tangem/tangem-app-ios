@@ -191,6 +191,8 @@ private extension Blockchain {
             case .network: return "flare-network"
             case .coin: return "flare-networks"
             }
+        case .taraxa:
+            return "taraxa"
         }
     }
 
