@@ -24,7 +24,7 @@ use_frameworks!
 inhibit_all_warnings!
 
 def tangem_sdk_pod
-  pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :branch => 'feature/IOS-6296_backup_errors_update'
+  pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-287'
   #pod 'TangemSdk', :path => '../tangem-sdk-ios'
 end
 
