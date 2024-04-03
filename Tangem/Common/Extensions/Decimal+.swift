@@ -1,5 +1,5 @@
 //
-//  Decimal_.swift
+//  Decimal+.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
