@@ -66,6 +66,7 @@ struct SupportedBlockchains {
             .moonriver(testnet: false),
             .mantle(testnet: false),
             .flare(testnet: false),
+            .taraxa(testnet: false),
         ]
     }
 
@@ -167,6 +168,7 @@ struct SupportedBlockchains {
             .moonriver(testnet: true),
             .mantle(testnet: true),
             .flare(testnet: true),
+            .taraxa(testnet: true),
         ]
     }
 
