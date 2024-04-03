@@ -7,8 +7,9 @@
 //
 
 import Moya
+import struct Alamofire.URLEncoding
 
-extension Moya.Task {
+public extension Moya.Task {
     static func requestParameters(
         _ encodable: Encodable,
         encoder: JSONEncoder = JSONEncoder(),
