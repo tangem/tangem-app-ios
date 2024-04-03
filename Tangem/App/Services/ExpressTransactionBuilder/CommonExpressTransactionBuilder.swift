@@ -170,7 +170,8 @@ private extension CommonExpressTransactionBuilder {
              .polygonZkEVM,
              .moonriver,
              .mantle,
-             .flare:
+             .flare,
+             .taraxa:
             throw ExpressTransactionBuilderError.blockchainDonNotSupportedExtraId
         }
     }
