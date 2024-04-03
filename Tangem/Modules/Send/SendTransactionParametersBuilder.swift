@@ -92,7 +92,8 @@ struct SendTransactionParametersBuilder {
              .polygonZkEVM,
              .moonriver,
              .mantle,
-             .flare:
+             .flare,
+             .taraxa:
             return nil
         }
     }
