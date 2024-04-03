@@ -27,9 +27,7 @@ extension Blockchain {
         switch self {
         case .arbitrum(let testnet), .optimism(let testnet),
              .aurora(let testnet), .manta(let testnet),
-             .zkSync(let testnet), .polygonZkEVM(let testnet),
-             .moonriver(let testnet), .mantle(let testnet),
-             .flare(let testnet):
+             .zkSync(let testnet), .polygonZkEVM(let testnet):
             return Blockchain.ethereum(testnet: testnet).coinId
         default:
             return coinId
