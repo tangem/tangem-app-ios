@@ -312,7 +312,7 @@
 "onboarding_exit_alert_message" = "В этом случае вам будет необходимо начать процесс заново.";
 "onboarding_exit_alert_title" = "Вы хотите выйти из процесса активации?";
 "onboarding_getting_started" = "Подготовка";
-"onboarding_linking_error_card_with_wallets" = "Другой кошелек уже был создан на карте, которую вы пытаетесь добавить. Хотите сбросить его и использовать карту для бэкапа?";
+"onboarding_linking_error_card_with_wallets" = "Другой кошелек уже был создан на карте, которую вы пытаетесь добавить. Если на нем есть средства, пожалуйста сначала выведите их, а затем сделайте сброс до заводских настроек и используйте как резервную.";
 "onboarding_navbar_save_wallet" = "Сохраните ваш кошелек";
 "onboarding_navbar_title_creating_backup" = "Резервная копия";
 "onboarding_seed_button_read_more" = "Прочитать о seed-фразе";
