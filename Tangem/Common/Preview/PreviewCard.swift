@@ -23,10 +23,10 @@ enum PreviewCard {
     case tangemWalletEmpty
     case tangemWalletBackuped
 
-    var cardModel: CardViewModel {
+    var userWalletModel: CommonUserWalletModel {
         let card = CardDTO(card: card)
         let ci = CardInfo(card: card, walletData: walletData, name: "Name")
-        let vm = CardViewModel(cardInfo: ci)!
+        let vm = CommonUserWalletModel(cardInfo: ci)!
         if let blockchain = blockchain {
             let factory = WalletManagerFactory(
                 config: .init(
