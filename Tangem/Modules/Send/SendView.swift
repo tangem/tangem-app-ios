@@ -18,6 +18,8 @@ struct SendView: View {
     private let backgroundColor = Colors.Background.tertiary
     private let bottomGradientHeight: CGFloat = 150
 
+    @State private var navigationButtonsHeight: CGFloat = 0
+
     var body: some View {
         VStack(spacing: 14) {
             header
@@ -27,9 +29,8 @@ struct SendView: View {
                     .overlay(bottomOverlay, alignment: .bottom)
                     .transition(pageContentTransition)
 
-                if viewModel.showNavigationButtons {
-                    navigationButtons
-                }
+                navigationButtons
+                    .readGeometry(\.size.height, bindTo: $navigationButtonsHeight)
 
                 NavHolder()
                     .alert(item: $viewModel.alert) { $0.alert }
@@ -79,6 +80,7 @@ struct SendView: View {
                             .foregroundColor(Colors.Icon.primary1)
                             .frame(maxWidth: .infinity, alignment: .trailing)
                     }
+                    .disabled(viewModel.updatingFees)
                     .layoutPriority(1)
                 } else {
                     Spacer()
@@ -113,9 +115,11 @@ struct SendView: View {
         case .fee:
             SendFeeView(namespace: namespace, viewModel: viewModel.sendFeeViewModel, bottomSpacing: bottomGradientHeight)
         case .summary:
-            SendSummaryView(namespace: namespace, viewModel: viewModel.sendSummaryViewModel)
+            SendSummaryView(namespace: namespace, viewModel: viewModel.sendSummaryViewModel, bottomSpacing: navigationButtonsHeight)
+                .onAppear(perform: viewModel.onSummaryAppear)
+                .onDisappear(perform: viewModel.onSummaryDisappear)
         case .finish(let sendFinishViewModel):
-            SendFinishView(namespace: namespace, viewModel: sendFinishViewModel)
+            SendFinishView(namespace: namespace, viewModel: sendFinishViewModel, bottomSpacing: navigationButtonsHeight)
         }
     }
 
@@ -129,28 +133,18 @@ struct SendView: View {
                     height: backButtonSize.height,
                     action: viewModel.back
                 )
-                .animation(Constants.backButtonAnimation, value: viewModel.showBackButton)
+                .transition(.move(edge: .leading).combined(with: .opacity))
+                .animation(SendView.Constants.backButtonAnimation, value: viewModel.showBackButton)
             }
 
-            if viewModel.showNextButton {
-                MainButton(
-                    title: Localization.commonNext,
-                    style: .primary,
-                    size: .default,
-                    isDisabled: viewModel.currentStepInvalid,
-                    action: viewModel.next
-                )
-            }
-
-            if viewModel.showContinueButton {
-                MainButton(
-                    title: Localization.commonContinue,
-                    style: .primary,
-                    size: .default,
-                    isDisabled: viewModel.currentStepInvalid,
-                    action: viewModel.continue
-                )
-            }
+            MainButton(
+                title: viewModel.mainButtonTitle,
+                icon: viewModel.mainButtonIcon,
+                style: .primary,
+                size: .default,
+                isDisabled: viewModel.mainButtonDisabled,
+                action: viewModel.next
+            )
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 6)
@@ -158,12 +152,10 @@ struct SendView: View {
 
     @ViewBuilder
     private var bottomOverlay: some View {
-        if viewModel.showNavigationButtons {
-            LinearGradient(colors: [.clear, backgroundColor], startPoint: .top, endPoint: .bottom)
-                .ignoresSafeArea()
-                .frame(maxHeight: bottomGradientHeight)
-                .allowsHitTesting(false)
-        }
+        LinearGradient(colors: [.clear, backgroundColor], startPoint: .top, endPoint: .bottom)
+            .ignoresSafeArea()
+            .frame(maxHeight: bottomGradientHeight)
+            .allowsHitTesting(false)
     }
 }
 
