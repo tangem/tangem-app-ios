@@ -8,7 +8,6 @@
 
 import Foundation
 
-// [REDACTED_TODO_COMMENT]
 public final class Lock {
     private let lock: NSLocking
 
