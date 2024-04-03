@@ -375,6 +375,7 @@ private extension Blockchain {
         case .moonriver: return nil
         case .mantle: return nil
         case .flare: return nil
+        case .taraxa: return nil
         }
     }
 
@@ -439,6 +440,7 @@ private extension Blockchain {
         case .moonriver: return nil
         case .mantle: return nil
         case .flare: return nil
+        case .taraxa: return nil
         }
     }
 }
