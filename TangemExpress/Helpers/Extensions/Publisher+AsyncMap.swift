@@ -10,14 +10,14 @@ import Foundation
 import Combine
 
 public extension Publishers {
-    struct AsyncMap<Upstream, Output>: Publisher where Upstream: Publisher, Upstream.Failure == Error {
+    struct AsyncMap<Upstream, Output>: Publisher where Upstream: Publisher, Upstream.Failure == Never {
         public typealias Failure = Upstream.Failure
 
         public let upstream: Upstream
         public let priority: TaskPriority?
-        public let transform: (Upstream.Output) async throws -> Output
+        public let transform: (Upstream.Output) async -> Output
 
-        public init(upstream: Upstream, priority: TaskPriority?, transform: @escaping (Upstream.Output) async throws -> Output) {
+        public init(upstream: Upstream, priority: TaskPriority?, transform: @escaping (Upstream.Output) async -> Output) {
             self.upstream = upstream
             self.priority = priority
             self.transform = transform
@@ -29,13 +29,9 @@ public extension Publishers {
                     let subject = PassthroughSubject<Output, Failure>()
 
                     let task = Task(priority: priority) {
-                        do {
-                            let mapped = try await transform(output)
-                            subject.send(mapped)
-                            subject.send(completion: .finished)
-                        } catch {
-                            subject.send(completion: .failure(error))
-                        }
+                        let mapped = await transform(output)
+                        subject.send(mapped)
+                        subject.send(completion: .finished)
                     }
 
                     return subject
@@ -47,8 +43,8 @@ public extension Publishers {
     }
 }
 
-public extension Publisher where Failure == Error {
-    func asyncMap<T>(priority: TaskPriority? = .none, _ transform: @escaping (Output) async throws -> T) -> Publishers.AsyncMap<Self, T> {
+public extension Publisher where Failure == Never {
+    func asyncMap<T>(priority: TaskPriority? = .none, _ transform: @escaping (Output) async -> T) -> Publishers.AsyncMap<Self, T> {
         .init(upstream: self, priority: priority, transform: transform)
     }
 }
