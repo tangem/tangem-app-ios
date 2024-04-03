@@ -1100,6 +1100,7 @@
 		EF2D9CC42BBDAB3E0055C485 /* ThreadSafeContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29BF2B4F0CCE00418559 /* ThreadSafeContainer.swift */; };
 		EF2D9CC52BBDAB3E0055C485 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29C02B4F0CCE00418559 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift */; };
 		EF2D9CC62BBDAB3E0055C485 /* ThreadSafeContainer+ExpressibleByArrayLiteral.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29C12B4F0CCE00418559 /* ThreadSafeContainer+ExpressibleByArrayLiteral.swift */; };
+		EF2D9CF92BBDAFBB0055C485 /* DebouncedCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B3F2AEFC1DA00D80205 /* DebouncedCollector.swift */; };
 		EF39A6532AD5A70D00AAB518 /* SmartContractMethodMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF39A6522AD5A70D00AAB518 /* SmartContractMethodMapper.swift */; };
 		EF39A6562AD5A90300AAB518 /* contract_methods.json in Resources */ = {isa = PBXBuildFile; fileRef = EF39A6552AD5A90300AAB518 /* contract_methods.json */; };
 		EF39A6582AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF39A6572AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift */; };
@@ -1187,7 +1188,6 @@
 		EF6EDD84296C0EA9001B21A3 /* IncomingActionParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD83296C0EA9001B21A3 /* IncomingActionParser.swift */; };
 		EF6EDD8C296D6B51001B21A3 /* SendDecimalNumberTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD8B296D6B51001B21A3 /* SendDecimalNumberTextField.swift */; };
 		EF7000812A94BE7300C56E8A /* CardanoWalletManagerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7000802A94BE7300C56E8A /* CardanoWalletManagerFactory.swift */; };
-		EF729B402AEFC1DA00D80205 /* DebouncedCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B3F2AEFC1DA00D80205 /* DebouncedCollector.swift */; };
 		EF729B492AF1091900D80205 /* ExpressFeeSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B442AF1091900D80205 /* ExpressFeeSelectorView.swift */; };
 		EF729B4A2AF1091900D80205 /* ExpressFeeSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B452AF1091900D80205 /* ExpressFeeSelectorViewModel.swift */; };
 		EF729B4B2AF1091900D80205 /* ExpressFeeSelectorRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B462AF1091900D80205 /* ExpressFeeSelectorRoutable.swift */; };
@@ -4825,7 +4825,6 @@
 				B6FF1EFD2A57E59100B208E4 /* Subject+.swift */,
 				E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */,
 				EFF034AB28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift */,
-				EF729B3F2AEFC1DA00D80205 /* DebouncedCollector.swift */,
 			);
 			path = Combine;
 			sourceTree = "<group>";
@@ -6522,6 +6521,7 @@
 		EF2D9CBB2BBDAA670055C485 /* Combine */ = {
 			isa = PBXGroup;
 			children = (
+				EF729B3F2AEFC1DA00D80205 /* DebouncedCollector.swift */,
 				EFF82D232B9A0905004DF1A0 /* Publisher+Async.swift */,
 				EF9E29BA2B4F0CCE00418559 /* Publisher+AsyncMap.swift */,
 				EF74D6A62BA8A8A0000550F3 /* Publisher+ThrowingAsyncMap.swift */,
@@ -8597,7 +8597,6 @@
 				DC66BBE32858E7A600CDF765 /* WelcomeRoutable.swift in Sources */,
 				EFFE2CEC28B8E1B000B9F279 /* CommonDerivationManager.swift in Sources */,
 				B00EBF862B20EE1D00071EB0 /* CommonPendingExpressTransactionAnalyticsTracker.swift in Sources */,
-				EF729B402AEFC1DA00D80205 /* DebouncedCollector.swift in Sources */,
 				B0BB97312B18654300053954 /* ExpressPendingTransactionRecord.swift in Sources */,
 				EF6EDD84296C0EA9001B21A3 /* IncomingActionParser.swift in Sources */,
 				EF6A8B032B278A6200CA3535 /* CommonExpressRepository.swift in Sources */,
@@ -9627,6 +9626,7 @@
 				EF2D9CC32BBDAB350055C485 /* MoyaProvider+AsyncRequest.swift in Sources */,
 				EF2D9C8A2BBDA87A0055C485 /* TangemFoundation.docc in Sources */,
 				EF2D9CBF2BBDAB290055C485 /* Publisher+Async.swift in Sources */,
+				EF2D9CF92BBDAFBB0055C485 /* DebouncedCollector.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
