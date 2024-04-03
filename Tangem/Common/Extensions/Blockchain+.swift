@@ -25,7 +25,9 @@ extension Blockchain {
     /// Should be used to get the actual currency rate
     var currencyId: String {
         switch self {
-        case .arbitrum(let testnet), .optimism(let testnet), .aurora(let testnet):
+        case .arbitrum(let testnet), .optimism(let testnet),
+             .aurora(let testnet), .manta(let testnet),
+             .zkSync(let testnet), .polygonZkEVM(let testnet):
             return Blockchain.ethereum(testnet: testnet).coinId
         default:
             return coinId
@@ -151,10 +153,8 @@ private extension Blockchain {
             return "areon-network"
         case .playa3ullGames:
             switch type {
-            case .network:
-                return "playa3ull-games"
-            case .coin:
-                return "playa3ull-games-2"
+            case .network: return "playa3ull-games"
+            case .coin: return "playa3ull-games-2"
             }
         case .pulsechain:
             return "pulsechain"
@@ -162,6 +162,23 @@ private extension Blockchain {
             switch type {
             case .network: return "aurora"
             case .coin: return "aurora-ethereum"
+            }
+        case .manta:
+            switch type {
+            case .network: return "manta-network"
+            case .coin: return "manta-network-ethereum"
+            }
+        case .zkSync:
+            switch type {
+            case .network: return "zksync"
+            case .coin: return "zksync-ethereum"
+            }
+        case .moonbeam:
+            return "moonbeam"
+        case .polygonZkEVM:
+            switch type {
+            case .network: return "polygon-zkevm"
+            case .coin: return "polygon-zkevm-ethereum"
             }
         }
     }
