@@ -413,8 +413,18 @@ final class SendViewModel: ObservableObject {
             ])
 
             alert = SendAlertBuilder.makeSubtractFeeFromAmountAlert(sendModel.feeText) { [weak self] in
-                self?.sendModel.includeFeeIntoAmount()
-                self?.openStep(step, stepAnimation: stepAnimation, updateFee: false)
+                self?.updatingFees = true
+
+                self?.sendModel.includeFeeIntoAmount { result in
+                    self?.updatingFees = false
+
+                    guard case .success = result else {
+                        return
+                    }
+
+                    self?.fiatCryptoAdapter.setAmount(self?.sendModel.userInputAmountValue?.value)
+                    self?.openStep(step, stepAnimation: stepAnimation, updateFee: false)
+                }
             }
 
             return true
