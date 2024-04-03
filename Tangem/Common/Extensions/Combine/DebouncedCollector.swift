@@ -8,7 +8,7 @@
 
 import Foundation
 import Combine
-import class TangemExpress.Lock
+import TangemFoundation
 
 extension Publishers {
     struct DebouncedCollector<Upstream: Publisher, S: Scheduler>: Publisher {

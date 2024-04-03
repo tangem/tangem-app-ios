@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0196B2105CC356A636D37415 /* Pods_TangemFoundation_TangemFoundationTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E243655AFFEEA2A47F2FBCDA /* Pods_TangemFoundation_TangemFoundationTests.framework */; };
 		0A1992A62B5FBDF800344312 /* CurrencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1992A52B5FBDF800344312 /* CurrencyTests.swift */; };
 		0A81B3732BB2D24A0008F21C /* BlockchainURLSchemesParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A81B3722BB2D24A0008F21C /* BlockchainURLSchemesParser.swift */; };
 		0A81B38E2BB3018E0008F21C /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 0A81B38D2BB3018E0008F21C /* ZIPFoundation */; };
@@ -80,7 +81,6 @@
 		5D20812A27D2439700D8A970 /* WCExample.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D20812927D2439700D8A970 /* WCExample.json */; };
 		5D225CB92524B721001564A3 /* Analytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D225CB82524B721001564A3 /* Analytics.swift */; };
 		5D242A5F273C1F24008F79B5 /* Publisher+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D74F718262722FF00B03897 /* Publisher+.swift */; };
-		5D24A12A24FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D24A12924FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift */; };
 		5D24A12C24FF9E3A002A3BCA /* Decimal+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D24A12B24FF9E3A002A3BCA /* Decimal+.swift */; };
 		5D383E3F24D95BA600C9BFF6 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5D383E4124D95BA600C9BFF6 /* Localizable.strings */; };
 		5D384B9124FD4E1800C2C92C /* String+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D384B9024FD4E1800C2C92C /* String+.swift */; };
@@ -282,7 +282,6 @@
 		B04EADEC2A80D659009B5768 /* SingleTokenBaseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04EADEB2A80D659009B5768 /* SingleTokenBaseViewModel.swift */; };
 		B050F4F42B5FB03F00B2E53C /* VisaAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B050F4F32B5FB03F00B2E53C /* VisaAPIService.swift */; };
 		B050F4F62B60E7F400B2E53C /* VisaTransactionRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = B050F4F52B60E7F400B2E53C /* VisaTransactionRecord.swift */; };
-		B050F4F82B60F52700B2E53C /* MoyaProvider+AsyncRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B050F4F72B60F52700B2E53C /* MoyaProvider+AsyncRequest.swift */; };
 		B050F4FA2B60F60600B2E53C /* VisaAPIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B050F4F92B60F60600B2E53C /* VisaAPIError.swift */; };
 		B050F4FC2B60F9F300B2E53C /* VisaAPITarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B050F4FB2B60F9F300B2E53C /* VisaAPITarget.swift */; };
 		B050F4FE2B60FA1800B2E53C /* CommonVisaAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B050F4FD2B60FA1800B2E53C /* CommonVisaAPIService.swift */; };
@@ -1091,9 +1090,16 @@
 		EF2D9C982BBDA87D0055C485 /* TangemFoundation.h in Headers */ = {isa = PBXBuildFile; fileRef = EF2D9C882BBDA87A0055C485 /* TangemFoundation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EF2D9C9B2BBDA87D0055C485 /* TangemFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF2D9C862BBDA8790055C485 /* TangemFoundation.framework */; };
 		EF2D9C9C2BBDA87D0055C485 /* TangemFoundation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EF2D9C862BBDA8790055C485 /* TangemFoundation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		EF2D9BF32BBC2A490055C485 /* Publisher+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF2D9BF22BBC2A490055C485 /* Publisher+Async.swift */; };
-		EF2D9C2C2BBD9E9E0055C485 /* Lock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF2D9C2B2BBD9E9E0055C485 /* Lock.swift */; };
-		EF2D9C342BBD9F110055C485 /* Lock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF2D9C332BBD9F110055C485 /* Lock.swift */; };
+		EF2D9CB82BBDA9090055C485 /* Lock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF2D9CB72BBDA9090055C485 /* Lock.swift */; };
+		EF2D9CBE2BBDAB290055C485 /* Publisher+AsyncMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29BA2B4F0CCE00418559 /* Publisher+AsyncMap.swift */; };
+		EF2D9CBF2BBDAB290055C485 /* Publisher+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF82D232B9A0905004DF1A0 /* Publisher+Async.swift */; };
+		EF2D9CC02BBDAB290055C485 /* Publisher+ThrowingAsyncMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF74D6A62BA8A8A0000550F3 /* Publisher+ThrowingAsyncMap.swift */; };
+		EF2D9CC12BBDAB2E0055C485 /* Sequence+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29BD2B4F0CCE00418559 /* Sequence+Async.swift */; };
+		EF2D9CC22BBDAB350055C485 /* Moya.Task+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29BB2B4F0CCE00418559 /* Moya.Task+.swift */; };
+		EF2D9CC32BBDAB350055C485 /* MoyaProvider+AsyncRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B050F4F72B60F52700B2E53C /* MoyaProvider+AsyncRequest.swift */; };
+		EF2D9CC42BBDAB3E0055C485 /* ThreadSafeContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29BF2B4F0CCE00418559 /* ThreadSafeContainer.swift */; };
+		EF2D9CC52BBDAB3E0055C485 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29C02B4F0CCE00418559 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift */; };
+		EF2D9CC62BBDAB3E0055C485 /* ThreadSafeContainer+ExpressibleByArrayLiteral.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29C12B4F0CCE00418559 /* ThreadSafeContainer+ExpressibleByArrayLiteral.swift */; };
 		EF39A6532AD5A70D00AAB518 /* SmartContractMethodMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF39A6522AD5A70D00AAB518 /* SmartContractMethodMapper.swift */; };
 		EF39A6562AD5A90300AAB518 /* contract_methods.json in Resources */ = {isa = PBXBuildFile; fileRef = EF39A6552AD5A90300AAB518 /* contract_methods.json */; };
 		EF39A6582AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF39A6572AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift */; };
@@ -1193,7 +1199,6 @@
 		EF729B722AF3E86300D80205 /* ExpressProvidersSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B6D2AF3E86300D80205 /* ExpressProvidersSelectorViewModel.swift */; };
 		EF729B732AF3E86300D80205 /* ExpressProvidersSelectorRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B6E2AF3E86300D80205 /* ExpressProvidersSelectorRoutable.swift */; };
 		EF729B772AF3E95F00D80205 /* ProviderRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B762AF3E95F00D80205 /* ProviderRowView.swift */; };
-		EF74D6A72BA8A8A0000550F3 /* Publisher+ThrowingAsyncMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF74D6A62BA8A8A0000550F3 /* Publisher+ThrowingAsyncMap.swift */; };
 		EF74F50D289BF5AE001034D2 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF74F50B289BF5AE001034D2 /* Fonts.swift */; };
 		EF74F50E289BF5AE001034D2 /* Text+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF74F50C289BF5AE001034D2 /* Text+.swift */; };
 		EF75A3CF2B06416F0023A60A /* TokenItem+ExpressCurrency.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF75A3CE2B06416F0023A60A /* TokenItem+ExpressCurrency.swift */; };
@@ -1231,12 +1236,6 @@
 		EF9E29A52B4F0C9800418559 /* TangemExpress.h in Headers */ = {isa = PBXBuildFile; fileRef = EF9E29952B4F0C8C00418559 /* TangemExpress.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EF9E29A82B4F0C9900418559 /* TangemExpress.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF9E29932B4F0C8800418559 /* TangemExpress.framework */; };
 		EF9E29A92B4F0C9900418559 /* TangemExpress.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EF9E29932B4F0C8800418559 /* TangemExpress.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		EF9E2A052B4F0CCF00418559 /* Publisher+AsyncMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29BA2B4F0CCE00418559 /* Publisher+AsyncMap.swift */; };
-		EF9E2A062B4F0CD100418559 /* Moya.Task+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29BB2B4F0CCE00418559 /* Moya.Task+.swift */; };
-		EF9E2A082B4F0CD100418559 /* Sequence+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29BD2B4F0CCE00418559 /* Sequence+Async.swift */; };
-		EF9E2A092B4F0CD100418559 /* ThreadSafeContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29BF2B4F0CCE00418559 /* ThreadSafeContainer.swift */; };
-		EF9E2A0A2B4F0CD100418559 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29C02B4F0CCE00418559 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift */; };
-		EF9E2A0B2B4F0CD100418559 /* ThreadSafeContainer+ExpressibleByArrayLiteral.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29C12B4F0CCE00418559 /* ThreadSafeContainer+ExpressibleByArrayLiteral.swift */; };
 		EF9E2A0C2B4F0CD100418559 /* ExpressConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29C22B4F0CCE00418559 /* ExpressConstants.swift */; };
 		EF9E2A0D2B4F0CD100418559 /* ExpressManagerMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29C52B4F0CCE00418559 /* ExpressManagerMapper.swift */; };
 		EF9E2A0E2B4F0CD100418559 /* ExpressProviderManagerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29C72B4F0CCE00418559 /* ExpressProviderManagerFactory.swift */; };
@@ -1356,10 +1355,10 @@
 		EFF466E22AC709BE00ACC3EA /* BalanceTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF466E12AC709BE00ACC3EA /* BalanceTitleView.swift */; };
 		EFF466E32ACC337500ACC3EA /* FakeTokenQuotesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01178482AC1B86200C5AD07 /* FakeTokenQuotesRepository.swift */; };
 		EFF466EA2ACD928800ACC3EA /* PendingTransactionRecordMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF466E92ACD928800ACC3EA /* PendingTransactionRecordMapper.swift */; };
-		EFF82D252B9A0921004DF1A0 /* Publisher+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF82D232B9A0905004DF1A0 /* Publisher+Async.swift */; };
 		EFFC861328BCF6C500F863CE /* StorageEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFC861228BCF6C500F863CE /* StorageEntry.swift */; };
 		EFFE2CE928B8E0B300B9F279 /* UserWalletModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFE2CE828B8E0B300B9F279 /* UserWalletModel.swift */; };
 		EFFE2CEC28B8E1B000B9F279 /* CommonDerivationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFE2CEB28B8E1B000B9F279 /* CommonDerivationManager.swift */; };
+		F38207178CBEED23096DD2A3 /* Pods_TangemFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C4C91A7C98E3AA6D2DDA0CF4 /* Pods_TangemFoundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1462,6 +1461,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		046E500E45ADE9A0FF490817 /* Pods-TangemFoundation.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemFoundation.release(production).xcconfig"; path = "Target Support Files/Pods-TangemFoundation/Pods-TangemFoundation.release(production).xcconfig"; sourceTree = "<group>"; };
+		092ECB5B992F6B7A0E4662A9 /* Pods-TangemFoundation-TangemFoundationTests.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemFoundation-TangemFoundationTests.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemFoundation-TangemFoundationTests/Pods-TangemFoundation-TangemFoundationTests.debug(production).xcconfig"; sourceTree = "<group>"; };
 		0969050B5BD1FC210FB46E9D /* Pods-TangemTests.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.debug(alpha).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.debug(alpha).xcconfig"; sourceTree = "<group>"; };
 		0A1992A52B5FBDF800344312 /* CurrencyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrencyTests.swift; sourceTree = "<group>"; };
 		0A81B3722BB2D24A0008F21C /* BlockchainURLSchemesParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainURLSchemesParser.swift; sourceTree = "<group>"; };
@@ -1518,9 +1519,11 @@
 		2DF5A81C2B13C33700AA5E73 /* WalletSelectorDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorDataSource.swift; sourceTree = "<group>"; };
 		2DF5A81E2B13C33C00AA5E73 /* ManageTokensNetworkDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensNetworkDataSource.swift; sourceTree = "<group>"; };
 		439DE89E29EA8E4F34216B21 /* Pods-TangemVisa-TangemVisaTests.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemVisa-TangemVisaTests.release(production).xcconfig"; path = "Target Support Files/Pods-TangemVisa-TangemVisaTests/Pods-TangemVisa-TangemVisaTests.release(production).xcconfig"; sourceTree = "<group>"; };
+		43A7B644C43A0DE071D171FE /* Pods-TangemFoundation.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemFoundation.debug(alpha).xcconfig"; path = "Target Support Files/Pods-TangemFoundation/Pods-TangemFoundation.debug(alpha).xcconfig"; sourceTree = "<group>"; };
 		488131D33A527B55CC79C3A7 /* Pods-Tangem-TangemUITests.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release(beta).xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release(beta).xcconfig"; sourceTree = "<group>"; };
 		4A944E2BA7E9F0593E3D55BB /* Pods-TangemExpressTests.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExpressTests.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemExpressTests/Pods-TangemExpressTests.release(beta).xcconfig"; sourceTree = "<group>"; };
 		4B541BC797DA6ED5E19E8868 /* Pods-TangemVisa.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemVisa.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemVisa/Pods-TangemVisa.debug(production).xcconfig"; sourceTree = "<group>"; };
+		4C959F57EF8F052F90A8536E /* Pods-TangemFoundation.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemFoundation.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemFoundation/Pods-TangemFoundation.release(beta).xcconfig"; sourceTree = "<group>"; };
 		5233C93EE33006BB0D9E83C5 /* Pods-TangemTests.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.debug(beta).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.debug(beta).xcconfig"; sourceTree = "<group>"; };
 		55D506642497E1EBC2A1012A /* Pods-Tangem-TangemUITests.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release(production).xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release(production).xcconfig"; sourceTree = "<group>"; };
 		5CA6F634082591E5CC0EE198 /* Pods-Tangem-TangemUITests.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.debug(beta).xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.debug(beta).xcconfig"; sourceTree = "<group>"; };
@@ -1548,7 +1551,6 @@
 		5D20812727D242E500D8A970 /* cryptofights.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = cryptofights.json; sourceTree = "<group>"; };
 		5D20812927D2439700D8A970 /* WCExample.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = WCExample.json; sourceTree = "<group>"; };
 		5D225CB82524B721001564A3 /* Analytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Analytics.swift; sourceTree = "<group>"; };
-		5D24A12924FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NetworkLoggerConfiguration+.swift"; sourceTree = "<group>"; };
 		5D24A12B24FF9E3A002A3BCA /* Decimal+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Decimal+.swift"; sourceTree = "<group>"; };
 		5D383E4024D95BA600C9BFF6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5D384B9024FD4E1800C2C92C /* String+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+.swift"; sourceTree = "<group>"; };
@@ -1644,6 +1646,7 @@
 		5DFCE54B274BDEE200C1B1A0 /* ResetToFactorySettingsTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetToFactorySettingsTask.swift; sourceTree = "<group>"; };
 		5DFE855624EF051400194106 /* Error+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Error+.swift"; sourceTree = "<group>"; };
 		5F8FF306F4890EBF3CD82852 /* Pods-TangemVisa-TangemVisaTests.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemVisa-TangemVisaTests.debug(alpha).xcconfig"; path = "Target Support Files/Pods-TangemVisa-TangemVisaTests/Pods-TangemVisa-TangemVisaTests.debug(alpha).xcconfig"; sourceTree = "<group>"; };
+		625236B3E1E34D2BE28289F6 /* Pods-TangemFoundation-TangemFoundationTests.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemFoundation-TangemFoundationTests.debug(beta).xcconfig"; path = "Target Support Files/Pods-TangemFoundation-TangemFoundationTests/Pods-TangemFoundation-TangemFoundationTests.debug(beta).xcconfig"; sourceTree = "<group>"; };
 		633739AD10818E2C892E5277 /* Pods-TangemVisa-TangemVisaTests.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemVisa-TangemVisaTests.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemVisa-TangemVisaTests/Pods-TangemVisa-TangemVisaTests.debug(production).xcconfig"; sourceTree = "<group>"; };
 		65469D3928AA64520092138F /* ResizableSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResizableSheetView.swift; sourceTree = "<group>"; };
 		65469D3B28AA6B710092138F /* ResizableBottomSheetModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResizableBottomSheetModifier.swift; sourceTree = "<group>"; };
@@ -1664,6 +1667,7 @@
 		67814A545FDF0DE003DD7120 /* Pods-TangemTests.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.release(alpha).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.release(alpha).xcconfig"; sourceTree = "<group>"; };
 		7006DA107F6CFAA4488CED2E /* Pods-Tangem.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.release(beta).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.release(beta).xcconfig"; sourceTree = "<group>"; };
 		7459A58EC58151DA8230EC9E /* Pods-Tangem.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.debug(alpha).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.debug(alpha).xcconfig"; sourceTree = "<group>"; };
+		75A8C18022A7E4D1A65CD476 /* Pods-TangemFoundation-TangemFoundationTests.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemFoundation-TangemFoundationTests.release(alpha).xcconfig"; path = "Target Support Files/Pods-TangemFoundation-TangemFoundationTests/Pods-TangemFoundation-TangemFoundationTests.release(alpha).xcconfig"; sourceTree = "<group>"; };
 		7894C038FFEA6581256F4D88 /* Pods_TangemVisa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemVisa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		83C19073F7139C98D3174EBC /* Pods-Tangem.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.debug(production).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.debug(production).xcconfig"; sourceTree = "<group>"; };
 		8700305FFC977CA91D1BAA24 /* Pods-TangemVisa.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemVisa.debug(beta).xcconfig"; path = "Target Support Files/Pods-TangemVisa/Pods-TangemVisa.debug(beta).xcconfig"; sourceTree = "<group>"; };
@@ -1673,8 +1677,10 @@
 		9E2DDA42DA7943379722461B /* Pods_Tangem.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tangem.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9F304E864A6B1D4032E3A239 /* Pods-TangemVisa.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemVisa.debug(alpha).xcconfig"; path = "Target Support Files/Pods-TangemVisa/Pods-TangemVisa.debug(alpha).xcconfig"; sourceTree = "<group>"; };
 		9F8689536D8C09D357253F5B /* Pods_TangemVisa_TangemVisaTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemVisa_TangemVisaTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A19D40918C571CD4E4C14A1A /* Pods-TangemFoundation-TangemFoundationTests.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemFoundation-TangemFoundationTests.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemFoundation-TangemFoundationTests/Pods-TangemFoundation-TangemFoundationTests.release(beta).xcconfig"; sourceTree = "<group>"; };
 		A86347CC910840A5B4D3C5A9 /* Pods-TangemTests.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.release(beta).xcconfig"; sourceTree = "<group>"; };
 		AC78651E7FCE2926A0A56935 /* Pods_TangemTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		ADCD92181E4C760F8A54B54F /* Pods-TangemFoundation-TangemFoundationTests.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemFoundation-TangemFoundationTests.release(production).xcconfig"; path = "Target Support Files/Pods-TangemFoundation-TangemFoundationTests/Pods-TangemFoundation-TangemFoundationTests.release(production).xcconfig"; sourceTree = "<group>"; };
 		B00307032AF0E1BA00C13BCA /* Analytics+WalletConnectDebugEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+WalletConnectDebugEvent.swift"; sourceTree = "<group>"; };
 		B00371BD2A8A5E5900D77A4B /* FakeUserTokensManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeUserTokensManager.swift; sourceTree = "<group>"; };
 		B00371BF2A8A5ECE00D77A4B /* FakeTangemApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeTangemApiService.swift; sourceTree = "<group>"; };
@@ -2053,6 +2059,7 @@
 		B0FE0B36297138CC0046EE2C /* WalletConnectSavedSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSavedSession.swift; sourceTree = "<group>"; };
 		B0FE0B39297140D10046EE2C /* WalletConnectV2Error.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectV2Error.swift; sourceTree = "<group>"; };
 		B48997758FE07E590F7400E2 /* Pods-TangemExpress.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExpress.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemExpress/Pods-TangemExpress.debug(production).xcconfig"; sourceTree = "<group>"; };
+		B5827528BDAD5774BE310AF3 /* Pods-TangemFoundation.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemFoundation.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemFoundation/Pods-TangemFoundation.debug(production).xcconfig"; sourceTree = "<group>"; };
 		B60275282A7A626200865EA7 /* CornerRadiusAnimatableModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CornerRadiusAnimatableModifier.swift; sourceTree = "<group>"; };
 		B602752A2A7A651000865EA7 /* ShadowAnimatableModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowAnimatableModifier.swift; sourceTree = "<group>"; };
 		B605224A2A5C20E000966DFA /* OrganizeTokensDragAndDropController+AuxiliaryTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OrganizeTokensDragAndDropController+AuxiliaryTypes.swift"; sourceTree = "<group>"; };
@@ -2212,6 +2219,7 @@
 		BE83CFCC9744941D7E055C9B /* Pods_TangemExpress.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemExpress.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C049DAA10A096A3F61F234C5 /* Pods-TangemVisa.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemVisa.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemVisa/Pods-TangemVisa.release(beta).xcconfig"; sourceTree = "<group>"; };
 		C1CC2108028D92B68AFFEB95 /* Pods-TangemTests.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.debug(production).xcconfig"; sourceTree = "<group>"; };
+		C4C91A7C98E3AA6D2DDA0CF4 /* Pods_TangemFoundation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemFoundation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C58EB8B875C503AF805932D3 /* Pods-TangemExpress.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExpress.release(production).xcconfig"; path = "Target Support Files/Pods-TangemExpress/Pods-TangemExpress.release(production).xcconfig"; sourceTree = "<group>"; };
 		C6D3F3EC77B7D2CBEB78ED96 /* Pods-Tangem-TangemUITests.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.debug(production).xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.debug(production).xcconfig"; sourceTree = "<group>"; };
 		CAFE5BC5F240EF52611FE0D7 /* Pods_Tangem_TangemUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tangem_TangemUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2571,8 +2579,11 @@
 		DCFCA17428F4232F0037586C /* Array+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+.swift"; sourceTree = "<group>"; };
 		DCFE143D294B31C00053106B /* AppPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPresenter.swift; sourceTree = "<group>"; };
 		DE2E7BF274B875EBD5C779CE /* Pods-TangemVisa.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemVisa.release(alpha).xcconfig"; path = "Target Support Files/Pods-TangemVisa/Pods-TangemVisa.release(alpha).xcconfig"; sourceTree = "<group>"; };
+		E16F22C8B238434773B8C3DE /* Pods-TangemFoundation-TangemFoundationTests.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemFoundation-TangemFoundationTests.debug(alpha).xcconfig"; path = "Target Support Files/Pods-TangemFoundation-TangemFoundationTests/Pods-TangemFoundation-TangemFoundationTests.debug(alpha).xcconfig"; sourceTree = "<group>"; };
+		E243655AFFEEA2A47F2FBCDA /* Pods_TangemFoundation_TangemFoundationTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemFoundation_TangemFoundationTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E3352DF3C59716820D5568D3 /* Pods-TangemExpressTests.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExpressTests.release(alpha).xcconfig"; path = "Target Support Files/Pods-TangemExpressTests/Pods-TangemExpressTests.release(alpha).xcconfig"; sourceTree = "<group>"; };
 		E36B9E24B742EAD8BC7CFD98 /* Pods-TangemVisa-TangemVisaTests.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemVisa-TangemVisaTests.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemVisa-TangemVisaTests/Pods-TangemVisa-TangemVisaTests.release(beta).xcconfig"; sourceTree = "<group>"; };
+		E7C475961680EB4B7459C4C0 /* Pods-TangemFoundation.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemFoundation.debug(beta).xcconfig"; path = "Target Support Files/Pods-TangemFoundation/Pods-TangemFoundation.debug(beta).xcconfig"; sourceTree = "<group>"; };
 		E7CEA818BBF533792A06ED3A /* Pods-Tangem-TangemUITests.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release(alpha).xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release(alpha).xcconfig"; sourceTree = "<group>"; };
 		E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyPublisher+.swift"; sourceTree = "<group>"; };
 		EF0295582A9DCDEE000B2142 /* SensitiveText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensitiveText.swift; sourceTree = "<group>"; };
@@ -2611,9 +2622,7 @@
 		EF2D9C892BBDA87A0055C485 /* TangemFoundation.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = TangemFoundation.docc; sourceTree = "<group>"; };
 		EF2D9C8F2BBDA87A0055C485 /* TangemFoundationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TangemFoundationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF2D9C962BBDA87D0055C485 /* TangemFoundationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemFoundationTests.swift; sourceTree = "<group>"; };
-		EF2D9BF22BBC2A490055C485 /* Publisher+Async.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Publisher+Async.swift"; sourceTree = "<group>"; };
-		EF2D9C2B2BBD9E9E0055C485 /* Lock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Lock.swift; sourceTree = "<group>"; };
-		EF2D9C332BBD9F110055C485 /* Lock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Lock.swift; sourceTree = "<group>"; };
+		EF2D9CB72BBDA9090055C485 /* Lock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Lock.swift; sourceTree = "<group>"; };
 		EF2EFDE12865C05D00798051 /* Production.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Production.xcconfig; sourceTree = "<group>"; };
 		EF2EFDE22865C07100798051 /* Beta.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Beta.xcconfig; sourceTree = "<group>"; };
 		EF39A6522AD5A70D00AAB518 /* SmartContractMethodMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartContractMethodMapper.swift; sourceTree = "<group>"; };
@@ -2865,6 +2874,7 @@
 		EFC597BC2AA0B1B7001F6945 /* CommonTokenQuotesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTokenQuotesRepository.swift; sourceTree = "<group>"; };
 		EFC6846C2A0FA3C600660690 /* BindingValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BindingValue.swift; sourceTree = "<group>"; };
 		EFCC66E028AA6FC500EC7757 /* UserTokenList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenList.swift; sourceTree = "<group>"; };
+		EFD01FBF989DFA0512021D8A /* Pods-TangemFoundation.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemFoundation.release(alpha).xcconfig"; path = "Target Support Files/Pods-TangemFoundation/Pods-TangemFoundation.release(alpha).xcconfig"; sourceTree = "<group>"; };
 		EFD32AE629ED93F20026353E /* FeatureStateRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureStateRowView.swift; sourceTree = "<group>"; };
 		EFD32AE829ED94030026353E /* FeatureStateRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureStateRowViewModel.swift; sourceTree = "<group>"; };
 		EFD32AEA29EE7F390026353E /* Feature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feature.swift; sourceTree = "<group>"; };
@@ -2953,6 +2963,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F38207178CBEED23096DD2A3 /* Pods_TangemFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2961,6 +2972,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EF2D9C902BBDA87B0055C485 /* TangemFoundation.framework in Frameworks */,
+				0196B2105CC356A636D37415 /* Pods_TangemFoundation_TangemFoundationTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3133,6 +3145,8 @@
 				AC78651E7FCE2926A0A56935 /* Pods_TangemTests.framework */,
 				7894C038FFEA6581256F4D88 /* Pods_TangemVisa.framework */,
 				9F8689536D8C09D357253F5B /* Pods_TangemVisa_TangemVisaTests.framework */,
+				C4C91A7C98E3AA6D2DDA0CF4 /* Pods_TangemFoundation.framework */,
+				E243655AFFEEA2A47F2FBCDA /* Pods_TangemFoundation_TangemFoundationTests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -3476,7 +3490,6 @@
 				5DFE855624EF051400194106 /* Error+.swift */,
 				5D384B9024FD4E1800C2C92C /* String+.swift */,
 				DAF97FC82BAAF2CC006D9A44 /* Locale+.swift */,
-				5D24A12924FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift */,
 				5D24A12B24FF9E3A002A3BCA /* Decimal+.swift */,
 				5D06E03F250A5D54004218D0 /* NSRegualrExpression+.swift */,
 				5D80ED462550186A0008DEF0 /* View+.swift */,
@@ -3506,6 +3519,7 @@
 				DAF1EB9A2A9F83EF00467490 /* KingfisherImageProcessors.swift */,
 				B0A948FE2ACD999C00C80B0A /* WeakifyFuncion.swift */,
 				B0B657922B690D5400FBC610 /* Int+.swift */,
+				EF08A0EE283D1914008BD923 /* Moya+.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -4084,9 +4098,6 @@
 		B05145072B5933FA00EDAD1E /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				EF2D9C332BBD9F110055C485 /* Lock.swift */,
-				B050F4F72B60F52700B2E53C /* MoyaProvider+AsyncRequest.swift */,
-				EF2D9BF22BBC2A490055C485 /* Publisher+Async.swift */,
 				B06F033E2B5A8C4600F04F0E /* Decimal+.swift */,
 			);
 			path = Extensions;
@@ -5466,6 +5477,18 @@
 				439DE89E29EA8E4F34216B21 /* Pods-TangemVisa-TangemVisaTests.release(production).xcconfig */,
 				E36B9E24B742EAD8BC7CFD98 /* Pods-TangemVisa-TangemVisaTests.release(beta).xcconfig */,
 				2A25B3639EF2F5613379F967 /* Pods-TangemVisa-TangemVisaTests.release(alpha).xcconfig */,
+				B5827528BDAD5774BE310AF3 /* Pods-TangemFoundation.debug(production).xcconfig */,
+				E7C475961680EB4B7459C4C0 /* Pods-TangemFoundation.debug(beta).xcconfig */,
+				43A7B644C43A0DE071D171FE /* Pods-TangemFoundation.debug(alpha).xcconfig */,
+				046E500E45ADE9A0FF490817 /* Pods-TangemFoundation.release(production).xcconfig */,
+				4C959F57EF8F052F90A8536E /* Pods-TangemFoundation.release(beta).xcconfig */,
+				EFD01FBF989DFA0512021D8A /* Pods-TangemFoundation.release(alpha).xcconfig */,
+				092ECB5B992F6B7A0E4662A9 /* Pods-TangemFoundation-TangemFoundationTests.debug(production).xcconfig */,
+				625236B3E1E34D2BE28289F6 /* Pods-TangemFoundation-TangemFoundationTests.debug(beta).xcconfig */,
+				E16F22C8B238434773B8C3DE /* Pods-TangemFoundation-TangemFoundationTests.debug(alpha).xcconfig */,
+				ADCD92181E4C760F8A54B54F /* Pods-TangemFoundation-TangemFoundationTests.release(production).xcconfig */,
+				A19D40918C571CD4E4C14A1A /* Pods-TangemFoundation-TangemFoundationTests.release(beta).xcconfig */,
+				75A8C18022A7E4D1A65CD476 /* Pods-TangemFoundation-TangemFoundationTests.release(alpha).xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -5928,7 +5951,6 @@
 				EFFE2CEA28B8E1A700B9F279 /* DerivationManager */,
 				EF7BD10E28B8B318001B2D59 /* UserWalletModel */,
 				DCE5C66A28898B4D000C7F67 /* TangemApiService */,
-				EF08A0ED283D1905008BD923 /* Extensions */,
 				DC0A584D282C12BC0031BECC /* Common */,
 				EFF034AD28B6521900F70FF7 /* WalletModelsManager */,
 				EF4BEF8428ACF0FD00C5D1BE /* UserTokenListManager */,
@@ -6424,14 +6446,6 @@
 			path = FeeFormatter;
 			sourceTree = "<group>";
 		};
-		EF08A0ED283D1905008BD923 /* Extensions */ = {
-			isa = PBXGroup;
-			children = (
-				EF08A0EE283D1914008BD923 /* Moya+.swift */,
-			);
-			path = Extensions;
-			sourceTree = "<group>";
-		};
 		EF0DC1052A0BD7E6007E3DA7 /* OptionPicker */ = {
 			isa = PBXGroup;
 			children = (
@@ -6480,6 +6494,8 @@
 		EF2D9C872BBDA87A0055C485 /* TangemFoundation */ = {
 			isa = PBXGroup;
 			children = (
+				EF2D9CB92BBDA91A0055C485 /* Helpers */,
+				EF9E29B92B4F0CCE00418559 /* Extensions */,
 				EF2D9C882BBDA87A0055C485 /* TangemFoundation.h */,
 				EF2D9C892BBDA87A0055C485 /* TangemFoundation.docc */,
 			);
@@ -6492,6 +6508,42 @@
 				EF2D9C962BBDA87D0055C485 /* TangemFoundationTests.swift */,
 			);
 			path = TangemFoundationTests;
+			sourceTree = "<group>";
+		};
+		EF2D9CB92BBDA91A0055C485 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				EF2D9CB72BBDA9090055C485 /* Lock.swift */,
+				EF9E29BE2B4F0CCE00418559 /* ThreadSafeContainer */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+		EF2D9CBB2BBDAA670055C485 /* Combine */ = {
+			isa = PBXGroup;
+			children = (
+				EFF82D232B9A0905004DF1A0 /* Publisher+Async.swift */,
+				EF9E29BA2B4F0CCE00418559 /* Publisher+AsyncMap.swift */,
+				EF74D6A62BA8A8A0000550F3 /* Publisher+ThrowingAsyncMap.swift */,
+			);
+			path = Combine;
+			sourceTree = "<group>";
+		};
+		EF2D9CBC2BBDAA710055C485 /* Moya */ = {
+			isa = PBXGroup;
+			children = (
+				EF9E29BB2B4F0CCE00418559 /* Moya.Task+.swift */,
+				B050F4F72B60F52700B2E53C /* MoyaProvider+AsyncRequest.swift */,
+			);
+			path = Moya;
+			sourceTree = "<group>";
+		};
+		EF2D9CBD2BBDAAA30055C485 /* Foundation */ = {
+			isa = PBXGroup;
+			children = (
+				EF9E29BD2B4F0CCE00418559 /* Sequence+Async.swift */,
+			);
+			path = Foundation;
 			sourceTree = "<group>";
 		};
 		EF2EFDE02865BFE800798051 /* Configurations */ = {
@@ -7093,7 +7145,6 @@
 			children = (
 				EF9E29C22B4F0CCE00418559 /* ExpressConstants.swift */,
 				EF9E29ED2B4F0CCF00418559 /* Factory */,
-				EF9E29B82B4F0CCE00418559 /* Helpers */,
 				EF9E29EF2B4F0CCF00418559 /* Interfaces */,
 				EF9E29F52B4F0CCF00418559 /* Manager */,
 				EF9E29DC2B4F0CCE00418559 /* Models */,
@@ -7112,24 +7163,12 @@
 			path = TangemExpressTests;
 			sourceTree = "<group>";
 		};
-		EF9E29B82B4F0CCE00418559 /* Helpers */ = {
-			isa = PBXGroup;
-			children = (
-				EF2D9C2B2BBD9E9E0055C485 /* Lock.swift */,
-				EF9E29B92B4F0CCE00418559 /* Extensions */,
-				EF9E29BE2B4F0CCE00418559 /* ThreadSafeContainer */,
-			);
-			path = Helpers;
-			sourceTree = "<group>";
-		};
 		EF9E29B92B4F0CCE00418559 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				EFF82D232B9A0905004DF1A0 /* Publisher+Async.swift */,
-				EF9E29BA2B4F0CCE00418559 /* Publisher+AsyncMap.swift */,
-				EF74D6A62BA8A8A0000550F3 /* Publisher+ThrowingAsyncMap.swift */,
-				EF9E29BB2B4F0CCE00418559 /* Moya.Task+.swift */,
-				EF9E29BD2B4F0CCE00418559 /* Sequence+Async.swift */,
+				EF2D9CBD2BBDAAA30055C485 /* Foundation */,
+				EF2D9CBB2BBDAA670055C485 /* Combine */,
+				EF2D9CBC2BBDAA710055C485 /* Moya */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -7723,6 +7762,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = EF2D9CA92BBDA87D0055C485 /* Build configuration list for PBXNativeTarget "TangemFoundation" */;
 			buildPhases = (
+				DDC93D0961EDB67EB3B998DC /* [CP] Check Pods Manifest.lock */,
 				EF2D9C812BBDA8790055C485 /* Headers */,
 				EF2D9C822BBDA8790055C485 /* Sources */,
 				EF2D9C832BBDA8790055C485 /* Frameworks */,
@@ -7741,9 +7781,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = EF2D9CAA2BBDA87D0055C485 /* Build configuration list for PBXNativeTarget "TangemFoundationTests" */;
 			buildPhases = (
+				7E2B6AB251FBB371B246D8F2 /* [CP] Check Pods Manifest.lock */,
 				EF2D9C8B2BBDA87A0055C485 /* Sources */,
 				EF2D9C8C2BBDA87A0055C485 /* Frameworks */,
 				EF2D9C8D2BBDA87A0055C485 /* Resources */,
+				F079D404873B9BA11BC486C3 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -8067,6 +8109,28 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		7E2B6AB251FBB371B246D8F2 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-TangemFoundation-TangemFoundationTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 		956FF997EF1175B5C27148AF /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -8206,6 +8270,28 @@
 			shellPath = /bin/sh;
 			shellScript = "find . -name 'Localizable.strings' -not -path './Pods/*' -exec sort {} -o {} \\;\n";
 		};
+		DDC93D0961EDB67EB3B998DC /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-TangemFoundation-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 		EFA18E73290FBA1B00CF1AE4 /* Run SwiftFormat */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -8224,6 +8310,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "PATH=$PATH:/opt/homebrew/bin\n\n# check if directory exists then add it to path\nif [ -d ~/.mint/bin ]; then\n    echo \"Adding ~/.mint/bin to PATH\"\n    export PATH=~/.mint/bin:$PATH\nelse\n  echo \"~/.mint/bin folder is missing\"\nfi\n\n# check if swiftgen tool can be found.\nif [ ${ENABLE_PREVIEWS} == \"NO\" ]; then \n    echo \"🚀 Running SwiftFormat\"\n    mint run swiftformat@0.52.8 . --config .swiftformat\nfi\n";
+		};
+		F079D404873B9BA11BC486C3 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-TangemFoundation-TangemFoundationTests/Pods-TangemFoundation-TangemFoundationTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-TangemFoundation-TangemFoundationTests/Pods-TangemFoundation-TangemFoundationTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-TangemFoundation-TangemFoundationTests/Pods-TangemFoundation-TangemFoundationTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
 		};
 		F8D9253AE584A1B0D72391B6 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -8939,7 +9042,6 @@
 				5D242A5F273C1F24008F79B5 /* Publisher+.swift in Sources */,
 				DA1DF0472BA3E3B1008310E4 /* SendFeeSummaryViewModel.swift in Sources */,
 				2DC567812B0E047700B0244F /* MainBottomSheetVisibility.swift in Sources */,
-				5D24A12A24FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift in Sources */,
 				B003BDAC2A029C4300B282F7 /* BalanceConverter.swift in Sources */,
 				DCBAF6992A4AEEDD0029480A /* AnyWalletManagerFactory.swift in Sources */,
 				EF0B173529F2CDF4002A3C6D /* UIDevice+IPhoneModel.swift in Sources */,
@@ -9488,7 +9590,6 @@
 				B050F4F42B5FB03F00B2E53C /* VisaAPIService.swift in Sources */,
 				B050F4FC2B60F9F300B2E53C /* VisaAPITarget.swift in Sources */,
 				B050F4FE2B60FA1800B2E53C /* CommonVisaAPIService.swift in Sources */,
-				EF2D9C342BBD9F110055C485 /* Lock.swift in Sources */,
 				B050F5002B60FCE500B2E53C /* VisaAPIServiceBuilder.swift in Sources */,
 				B050F4FA2B60F60600B2E53C /* VisaAPIError.swift in Sources */,
 				B06F033D2B5A8C1200F04F0E /* LimitsResponseParser.swift in Sources */,
@@ -9498,10 +9599,8 @@
 				B099339D2B55196700240CDB /* VisaBridgeInteractor.swift in Sources */,
 				B05145062B5933E000EDAD1E /* VisaUtilities.swift in Sources */,
 				B05145122B59349100EDAD1E /* SmartContractMethodPrefixCreator.swift in Sources */,
-				B050F4F82B60F52700B2E53C /* MoyaProvider+AsyncRequest.swift in Sources */,
 				B03FF8A22B5E5C4500202EC0 /* VisaLogger.swift in Sources */,
 				B05145102B59348000EDAD1E /* GetAmountMethod.swift in Sources */,
-				EF2D9BF32BBC2A490055C485 /* Publisher+Async.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -9517,7 +9616,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EF2D9CC52BBDAB3E0055C485 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift in Sources */,
+				EF2D9CB82BBDA9090055C485 /* Lock.swift in Sources */,
+				EF2D9CC42BBDAB3E0055C485 /* ThreadSafeContainer.swift in Sources */,
+				EF2D9CC22BBDAB350055C485 /* Moya.Task+.swift in Sources */,
+				EF2D9CC12BBDAB2E0055C485 /* Sequence+Async.swift in Sources */,
+				EF2D9CC02BBDAB290055C485 /* Publisher+ThrowingAsyncMap.swift in Sources */,
+				EF2D9CBE2BBDAB290055C485 /* Publisher+AsyncMap.swift in Sources */,
+				EF2D9CC62BBDAB3E0055C485 /* ThreadSafeContainer+ExpressibleByArrayLiteral.swift in Sources */,
+				EF2D9CC32BBDAB350055C485 /* MoyaProvider+AsyncRequest.swift in Sources */,
 				EF2D9C8A2BBDA87A0055C485 /* TangemFoundation.docc in Sources */,
+				EF2D9CBF2BBDAB290055C485 /* Publisher+Async.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -9536,23 +9645,18 @@
 				EF9E2A1A2B4F0CD100418559 /* ExpressAPIService.swift in Sources */,
 				EF9E2A372B4F0CD100418559 /* ExpressManagerSwappingPairRequest.swift in Sources */,
 				EF9E2A382B4F0CD100418559 /* ExpressManager.swift in Sources */,
-				EF9E2A0B2B4F0CD100418559 /* ThreadSafeContainer+ExpressibleByArrayLiteral.swift in Sources */,
 				EF9E2A2A2B4F0CD100418559 /* ExpressTransactionStatus.swift in Sources */,
 				EF9E2A0C2B4F0CD100418559 /* ExpressConstants.swift in Sources */,
 				EF9E2A1C2B4F0CD100418559 /* ExpressTransactionType.swift in Sources */,
 				EF9E2A2B2B4F0CD100418559 /* ExpressSwappableItem.swift in Sources */,
-				EF74D6A72BA8A8A0000550F3 /* Publisher+ThrowingAsyncMap.swift in Sources */,
 				EF9E2A0E2B4F0CD100418559 /* ExpressProviderManagerFactory.swift in Sources */,
 				EF9E2A252B4F0CD100418559 /* ExpressProvider.swift in Sources */,
 				EF9E2A232B4F0CD100418559 /* ExpressCurrency.swift in Sources */,
 				EF9E2A242B4F0CD100418559 /* DecodedTransactionDetails.swift in Sources */,
-				EF9E2A082B4F0CD100418559 /* Sequence+Async.swift in Sources */,
 				EF9E2A282B4F0CD100418559 /* ExpressAsset.swift in Sources */,
 				EF9E2A1D2B4F0CD100418559 /* ExpressPair.swift in Sources */,
 				EF9E2A302B4F0CD100418559 /* ExpressExchangeDataDecoder.swift in Sources */,
 				EF9E2A102B4F0CD100418559 /* CommonExpressAPIProvider.swift in Sources */,
-				EFF82D252B9A0921004DF1A0 /* Publisher+Async.swift in Sources */,
-				EF9E2A052B4F0CCF00418559 /* Publisher+AsyncMap.swift in Sources */,
 				EF9E2A192B4F0CD100418559 /* ExpressAPIError.swift in Sources */,
 				EF9E2A3B2B4F0CD100418559 /* CommonExpressManager.swift in Sources */,
 				EF9E2A3D2B4F0CD100418559 /* ExpressManagerState.swift in Sources */,
@@ -9576,21 +9680,17 @@
 				EF9E2A2C2B4F0CD100418559 /* TangemExpressFactory.swift in Sources */,
 				EF9E2A392B4F0CD100418559 /* ExpressManagerSwappingPair.swift in Sources */,
 				EF9E2A262B4F0CD100418559 /* ExpressTransaction.swift in Sources */,
-				EF9E2A0A2B4F0CD100418559 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift in Sources */,
 				EF9E2A352B4F0CD100418559 /* CEXExpressProviderManager.swift in Sources */,
-				EF9E2A062B4F0CD100418559 /* Moya.Task+.swift in Sources */,
 				EF9E2A342B4F0CD100418559 /* ExpressProviderManager.swift in Sources */,
 				EF9E2A2E2B4F0CD100418559 /* FeeProvider.swift in Sources */,
 				EF9E2A2D2B4F0CD100418559 /* ExpressWallet.swift in Sources */,
 				EF9E2A322B4F0CD100418559 /* ExpressProviderError.swift in Sources */,
-				EF9E2A092B4F0CD100418559 /* ThreadSafeContainer.swift in Sources */,
 				EF9E2A202B4F0CD100418559 /* ExpressRestriction.swift in Sources */,
 				EF9E2A1B2B4F0CD100418559 /* CommonExpressAPIService.swift in Sources */,
 				EF9E2A312B4F0CD100418559 /* ExpressRepository.swift in Sources */,
 				EF9E2A212B4F0CD100418559 /* ExpressApprovePolicy.swift in Sources */,
 				EF9E2A362B4F0CD100418559 /* DEXExpressProviderManager.swift in Sources */,
 				EF9E29972B4F0C8C00418559 /* TangemExpress.docc in Sources */,
-				EF2D9C2C2BBD9E9E0055C485 /* Lock.swift in Sources */,
 				EF9E2A272B4F0CD100418559 /* ExpressProviderType.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -11235,6 +11335,7 @@
 		};
 		EF2D9C9D2BBDA87D0055C485 /* Debug(production) */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B5827528BDAD5774BE310AF3 /* Pods-TangemFoundation.debug(production).xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -11259,7 +11360,6 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -11297,7 +11397,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 Tangem AG. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -11326,6 +11426,7 @@
 		};
 		EF2D9C9E2BBDA87D0055C485 /* Debug(beta) */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E7C475961680EB4B7459C4C0 /* Pods-TangemFoundation.debug(beta).xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -11350,7 +11451,6 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -11387,7 +11487,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 Tangem AG. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -11416,6 +11516,7 @@
 		};
 		EF2D9C9F2BBDA87D0055C485 /* Debug(alpha) */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 43A7B644C43A0DE071D171FE /* Pods-TangemFoundation.debug(alpha).xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -11440,7 +11541,6 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -11477,7 +11577,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 Tangem AG. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -11506,6 +11606,7 @@
 		};
 		EF2D9CA02BBDA87D0055C485 /* Release(production) */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 046E500E45ADE9A0FF490817 /* Pods-TangemFoundation.release(production).xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -11530,7 +11631,6 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -11562,7 +11662,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 Tangem AG. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -11590,6 +11690,7 @@
 		};
 		EF2D9CA12BBDA87D0055C485 /* Release(beta) */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4C959F57EF8F052F90A8536E /* Pods-TangemFoundation.release(beta).xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -11614,7 +11715,6 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -11646,7 +11746,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 Tangem AG. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -11674,6 +11774,7 @@
 		};
 		EF2D9CA22BBDA87D0055C485 /* Release(alpha) */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = EFD01FBF989DFA0512021D8A /* Pods-TangemFoundation.release(alpha).xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -11698,7 +11799,6 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -11730,7 +11830,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 Tangem AG. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -11758,8 +11858,8 @@
 		};
 		EF2D9CA32BBDA87D0055C485 /* Debug(production) */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 092ECB5B992F6B7A0E4662A9 /* Pods-TangemFoundation-TangemFoundationTests.debug(production).xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -11783,7 +11883,6 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -11833,8 +11932,8 @@
 		};
 		EF2D9CA42BBDA87D0055C485 /* Debug(beta) */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 625236B3E1E34D2BE28289F6 /* Pods-TangemFoundation-TangemFoundationTests.debug(beta).xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -11858,7 +11957,6 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -11908,8 +12006,8 @@
 		};
 		EF2D9CA52BBDA87D0055C485 /* Debug(alpha) */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E16F22C8B238434773B8C3DE /* Pods-TangemFoundation-TangemFoundationTests.debug(alpha).xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -11933,7 +12031,6 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -11983,8 +12080,8 @@
 		};
 		EF2D9CA62BBDA87D0055C485 /* Release(production) */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = ADCD92181E4C760F8A54B54F /* Pods-TangemFoundation-TangemFoundationTests.release(production).xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -12008,7 +12105,6 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -12051,8 +12147,8 @@
 		};
 		EF2D9CA72BBDA87D0055C485 /* Release(beta) */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A19D40918C571CD4E4C14A1A /* Pods-TangemFoundation-TangemFoundationTests.release(beta).xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -12076,7 +12172,6 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -12119,8 +12214,8 @@
 		};
 		EF2D9CA82BBDA87D0055C485 /* Release(alpha) */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 75A8C18022A7E4D1A65CD476 /* Pods-TangemFoundation-TangemFoundationTests.release(alpha).xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -12144,7 +12239,6 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
