@@ -559,7 +559,7 @@ private extension ExpressViewModel {
                 root.restartTimer()
             } catch let error as ExpressAPIError {
                 await runOnMain {
-                    let message = Localization.expressErrorCode(error.errorCode.localizedDescription)
+                    let message = error.localizedMessage
                     root.alert = AlertBinder(title: Localization.commonError, message: message)
                 }
             } catch {
