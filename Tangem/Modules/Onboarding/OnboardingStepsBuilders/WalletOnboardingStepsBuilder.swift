@@ -41,8 +41,9 @@ struct WalletOnboardingStepsBuilder {
 
         var steps: [WalletOnboardingStep] = []
 
-        /// Always must be added, because some step logic depends on `backupIntro` state
-        steps.append(.backupIntro)
+        if canSkipBackup {
+            steps.append(.backupIntro)
+        }
 
         if hasWallets, !backupService.primaryCardIsSet {
             steps.append(.scanPrimaryCard)
@@ -92,11 +93,7 @@ extension WalletOnboardingStepsBuilder: OnboardingStepsBuilder {
             let forceBackup = !canSkipBackup && !hasBackup && canBackup // canBackup is false for cardLinked state
 
             if AppSettings.shared.cardsStartedActivation.contains(cardId) || forceBackup {
-                var firstSteps = backupSteps
-                if !canSkipBackup {
-                    firstSteps.removeAll(where: { $0 == .backupIntro })
-                }
-                steps.append(contentsOf: firstSteps + userWalletSavingSteps + [.success])
+                steps.append(contentsOf: backupSteps + userWalletSavingSteps + [.success])
             } else {
                 steps.append(contentsOf: userWalletSavingSteps)
             }
