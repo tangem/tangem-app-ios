@@ -859,7 +859,7 @@
 		DAD2D8542B4D578C002EA7F1 /* SendViewNamespaceId.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAD2D8532B4D578C002EA7F1 /* SendViewNamespaceId.swift */; };
 		DAD60F292BB6E80B00F9E4D9 /* SendMainButtonType.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAD60F282BB6E80B00F9E4D9 /* SendMainButtonType.swift */; };
 		DADBECDF2BBE910C007E7885 /* CustomFeeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DADBECDA2BBE910C007E7885 /* CustomFeeService.swift */; };
-		DADBECE02BBE910C007E7885 /* CustomUtxoFeeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DADBECDB2BBE910C007E7885 /* CustomUtxoFeeService.swift */; };
+		DADBECE02BBE910C007E7885 /* CustomBitcoinFeeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DADBECDB2BBE910C007E7885 /* CustomBitcoinFeeService.swift */; };
 		DADBECE12BBE910C007E7885 /* CustomFeeServiceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DADBECDC2BBE910C007E7885 /* CustomFeeServiceFactory.swift */; };
 		DADBECE22BBE910C007E7885 /* CustomEvmFeeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DADBECDD2BBE910C007E7885 /* CustomEvmFeeService.swift */; };
 		DADBECE32BBE910C007E7885 /* CustomFeeServiceInputOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = DADBECDE2BBE910C007E7885 /* CustomFeeServiceInputOutput.swift */; };
@@ -2354,7 +2354,7 @@
 		DAD2D8532B4D578C002EA7F1 /* SendViewNamespaceId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendViewNamespaceId.swift; sourceTree = "<group>"; };
 		DAD60F282BB6E80B00F9E4D9 /* SendMainButtonType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendMainButtonType.swift; sourceTree = "<group>"; };
 		DADBECDA2BBE910C007E7885 /* CustomFeeService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomFeeService.swift; sourceTree = "<group>"; };
-		DADBECDB2BBE910C007E7885 /* CustomUtxoFeeService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomUtxoFeeService.swift; sourceTree = "<group>"; };
+		DADBECDB2BBE910C007E7885 /* CustomBitcoinFeeService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomBitcoinFeeService.swift; sourceTree = "<group>"; };
 		DADBECDC2BBE910C007E7885 /* CustomFeeServiceFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomFeeServiceFactory.swift; sourceTree = "<group>"; };
 		DADBECDD2BBE910C007E7885 /* CustomEvmFeeService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomEvmFeeService.swift; sourceTree = "<group>"; };
 		DADBECDE2BBE910C007E7885 /* CustomFeeServiceInputOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomFeeServiceInputOutput.swift; sourceTree = "<group>"; };
@@ -5745,7 +5745,7 @@
 			isa = PBXGroup;
 			children = (
 				DADBECDA2BBE910C007E7885 /* CustomFeeService.swift */,
-				DADBECDB2BBE910C007E7885 /* CustomUtxoFeeService.swift */,
+				DADBECDB2BBE910C007E7885 /* CustomBitcoinFeeService.swift */,
 				DADBECDC2BBE910C007E7885 /* CustomFeeServiceFactory.swift */,
 				DADBECDD2BBE910C007E7885 /* CustomEvmFeeService.swift */,
 				DADBECDE2BBE910C007E7885 /* CustomFeeServiceInputOutput.swift */,
@@ -9104,7 +9104,7 @@
 				B030B4DB2A8CE1DA0023DB8B /* LockedWalletMainContentView.swift in Sources */,
 				B0C4F77D26F0BFF90086D815 /* OnboardingMessagesView.swift in Sources */,
 				65469D3A28AA64520092138F /* ResizableSheetView.swift in Sources */,
-				DADBECE02BBE910C007E7885 /* CustomUtxoFeeService.swift in Sources */,
+				DADBECE02BBE910C007E7885 /* CustomBitcoinFeeService.swift in Sources */,
 				B6DD245E2B1A77860097F674 /* BottomScrollableSheetStateObserver.swift in Sources */,
 				EFF466E32ACC337500ACC3EA /* FakeTokenQuotesRepository.swift in Sources */,
 				5D43E2D72514D5B700697E5B /* CardOperationView.swift in Sources */,
