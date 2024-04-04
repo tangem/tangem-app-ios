@@ -80,8 +80,9 @@ class AppCoordinator: CoordinatorObject {
 
         let welcomeCoordinator = WelcomeCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
         welcomeCoordinator.start(with: .init(shouldScan: shouldScan))
-
-        viewState = .welcome(welcomeCoordinator)
+        withTransaction(.withoutAnimations()) {
+            viewState = .welcome(welcomeCoordinator)
+        }
     }
 
     private func setupAuth(with options: AppCoordinator.Options) {
