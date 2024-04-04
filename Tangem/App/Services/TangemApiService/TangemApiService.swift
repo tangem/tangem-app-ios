@@ -20,6 +20,8 @@ protocol TangemApiService: AnyObject, Initializable {
     func loadTokens(for key: String) -> AnyPublisher<UserTokenList?, TangemAPIError>
     func saveTokens(list: UserTokenList, for key: String) -> AnyPublisher<Void, TangemAPIError>
 
+    func createAccount(networkId: String, publicKey: String) -> AnyPublisher<BlockchainAccountCreateResult, TangemAPIError>
+
     func loadReferralProgramInfo(for userWalletId: String, expectedAwardsLimit: Int) async throws -> ReferralProgramInfo
     func participateInReferralProgram(
         using token: AwardToken,
