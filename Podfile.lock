@@ -216,8 +216,8 @@ DEPENDENCIES:
   - AlertToast (from `https://github.com/elai950/AlertToast`, commit `a437862bb6605080a5816e866cbd4ac8c8657b49`)
   - Amplitude
   - BinanceChain (from `https://github.com/tangem/swiftbinancechain.git`, tag `0.0.11`)
-  - BitcoinCore.swift (from `https://github.com/tangem/bitcoincore.git`, tag `0.0.19`)
-  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-545`)
+  - BitcoinCore.swift (from `https://github.com/tangem/bitcoincore.git`, tag `0.0.20`)
+  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-547`)
   - BlockiesSwift (~> 0.1.2)
   - CombineExt (~> 1.8.0)
   - Firebase/Analytics
@@ -274,10 +274,10 @@ EXTERNAL SOURCES:
     :tag: 0.0.11
   BitcoinCore.swift:
     :git: https://github.com/tangem/bitcoincore.git
-    :tag: 0.0.19
+    :tag: 0.0.20
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
-    :tag: develop-545
+    :tag: develop-547
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
     :tag: 1.2.0-tangem5
@@ -297,10 +297,10 @@ CHECKOUT OPTIONS:
     :tag: 0.0.11
   BitcoinCore.swift:
     :git: https://github.com/tangem/bitcoincore.git
-    :tag: 0.0.19
+    :tag: 0.0.20
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
-    :tag: develop-545
+    :tag: develop-547
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
     :tag: 1.2.0-tangem5
