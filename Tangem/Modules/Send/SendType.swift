@@ -11,14 +11,14 @@ import BlockchainSdk
 
 enum SendType {
     case send
-    case sell(amount: Amount, destination: String)
+    case sell(amount: Amount, destination: String, tag: String?)
 }
 
 extension SendType {
     var steps: [SendStep] {
         switch self {
         case .send:
-            return [.destination, .amount, .fee, .summary]
+            return [.destination, .amount, .summary, .fee]
         case .sell:
             return [.fee, .summary]
         }
@@ -28,7 +28,7 @@ extension SendType {
         switch self {
         case .send:
             return nil
-        case .sell(let amount, _):
+        case .sell(let amount, _, _):
             return amount
         }
     }
@@ -37,7 +37,16 @@ extension SendType {
         switch self {
         case .send:
             return nil
-        case .sell(_, let destination):
+        case .sell(_, let destination, _):
+            return destination
+        }
+    }
+
+    var predefinedTag: String? {
+        switch self {
+        case .send:
+            return nil
+        case .sell(_, let destination, _):
             return destination
         }
     }
