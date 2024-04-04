@@ -27,11 +27,11 @@ struct CustomFeeServiceFactory {
     }
 
     func makeService() -> CustomFeeService? {
-        if let utxoTransactionFeeCalculator = walletModel.utxoTransactionFeeCalculator {
-            return CustomUtxoFeeService(
+        if let bitcoinTransactionFeeCalculator = walletModel.bitcoinTransactionFeeCalculator {
+            return CustomBitcoinFeeService(
                 input: input,
                 output: output,
-                utxoTransactionFeeCalculator: utxoTransactionFeeCalculator
+                bitcoinTransactionFeeCalculator: bitcoinTransactionFeeCalculator
             )
         } else if walletModel.blockchainNetwork.blockchain.isEvm {
             return CustomEvmFeeService(
