@@ -65,6 +65,7 @@ struct TransactionHistoryMapper {
 
         return TransactionViewModel(
             hash: record.hash,
+            index: record.index,
             interactionAddress: interactionAddress(from: record),
             timeFormatted: timeFormatted,
             amount: transferAmount(from: record),
