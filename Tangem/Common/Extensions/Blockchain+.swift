@@ -51,6 +51,10 @@ extension Blockchain {
 
     /// Should be used to get a filled icon from the`Tokens.xcassets` file
     var iconNameFilled: String { "\(iconName).fill" }
+
+    static func curveInsensitiveCompare(_ left: Blockchain, _ right: Blockchain) -> Bool {
+        return left.coinId == right.coinId && left.isTestnet == right.isTestnet
+    }
 }
 
 // MARK: - Blockchain ID
