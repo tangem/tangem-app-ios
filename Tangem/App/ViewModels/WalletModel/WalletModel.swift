@@ -591,8 +591,8 @@ extension WalletModel {
         walletManager as? TransactionPusher
     }
 
-    var utxoTransactionFeeCalculator: UTXOTransactionFeeCalculator? {
-        walletManager as? UTXOTransactionFeeCalculator
+    var bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator? {
+        walletManager as? BitcoinTransactionFeeCalculator
     }
 
     var ethereumGasLoader: EthereumGasLoader? {
