@@ -69,6 +69,7 @@ final class SendViewModel: ObservableObject {
     private let notificationManager: CommonSendNotificationManager
     private let fiatCryptoAdapter: CommonSendFiatCryptoAdapter
     private let sendStepParameters: SendStep.Parameters
+    private let keyboardVisibilityService: KeyboardVisibilityService
 
     private weak var coordinator: SendRoutable?
 
@@ -177,6 +178,8 @@ final class SendViewModel: ObservableObject {
             decimals: walletInfo.amountFractionDigits
         )
         fiatCryptoAdapter.setAmount(sendType.predefinedAmount?.value)
+
+        keyboardVisibilityService = KeyboardVisibilityService()
 
         sendStepParameters = SendStep.Parameters(currencyName: walletModel.tokenItem.name, walletName: walletInfo.walletName)
 
@@ -486,6 +489,21 @@ final class SendViewModel: ObservableObject {
     }
 
     private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation, checkCustomFee: Bool = true, updateFee: Bool) {
+        print("zzz \(ttttt()) keyboard visible", keyboardVisibilityService.keyboardVisible)
+        if keyboardVisibilityService.keyboardVisible, !step.opensKeyboardByDefault {
+            print("zzz \(ttttt()) hiding with delay")
+            keyboardVisibilityService.hideKeyboard {
+                print("zzz \(ttttt()) did hide")
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    print("zzz \(ttttt()) opening after delay")
+                    self.openStep(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee, updateFee: updateFee)
+                }
+            }
+
+            return
+        }
+
+        print("zzz \(ttttt()) proceding to open step")
         if case .summary = step {
             if updateFee {
                 self.updateFee(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee)
@@ -507,15 +525,9 @@ final class SendViewModel: ObservableObject {
         mainButtonType = mainButtonType(for: step)
 
         DispatchQueue.main.async {
+            print("zzz  \(ttttt()) did actually open step", step)
             self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
             self.step = step
-        }
-
-        // Hide the keyboard with a delay, otherwise the animation is going to be screwed up
-        if !step.opensKeyboardByDefault {
-            DispatchQueue.main.asyncAfter(deadline: .now() + SendView.Constants.animationDuration) {
-                UIApplication.shared.endEditing()
-            }
         }
     }
 
