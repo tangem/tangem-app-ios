@@ -85,9 +85,9 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         if twinCardSeries.number != 1 {
             switch currentStep {
             case .first, .third:
-                return TwinsOnboardingStep.second.mainButtonTitle
+                return TwinsOnboardingStep.second.supplementButtonTitle
             case .second:
-                return TwinsOnboardingStep.first.mainButtonTitle
+                return TwinsOnboardingStep.first.supplementButtonTitle
             default:
                 break
             }
