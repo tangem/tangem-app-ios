@@ -16,11 +16,9 @@ public protocol IncomingActionURLParser {
     func parse(_ url: URL) -> IncomingAction?
 }
 
-public protocol IncomingActionURLHelper: IncomingActionURLBuilder & IncomingActionURLParser {
-    var actionValue: String { get }
-}
+public protocol IncomingActionURLHelper: IncomingActionURLBuilder & IncomingActionURLParser {}
 
-public enum IncomingActionScheme {
+public enum IncomingActionScheme: CaseIterable {
     case redirectLink
     case universalLink
 
