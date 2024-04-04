@@ -10,39 +10,34 @@ import SwiftUI
 
 struct SendCurrencyView: View {
     @ObservedObject private var viewModel: SendCurrencyViewModel
-    @Binding private var decimalValue: DecimalNumberTextField.DecimalValue?
     @State private var isShaking: Bool = false
 
     private var didTapChangeCurrency: (() -> Void)?
     private var maxAmountAction: (() -> Void)?
 
-    init(viewModel: SendCurrencyViewModel, decimalValue: Binding<DecimalNumberTextField.DecimalValue?>) {
+    init(viewModel: SendCurrencyViewModel) {
         self.viewModel = viewModel
-        _decimalValue = decimalValue
     }
 
     var body: some View {
         ExpressCurrencyView(viewModel: viewModel.expressCurrencyViewModel) {
-            SendDecimalNumberTextField(
-                decimalValue: $decimalValue,
-                maximumFractionDigits: viewModel.maximumFractionDigits
-            )
-            .maximumFractionDigits(viewModel.maximumFractionDigits)
-            .maxAmountAction(maxAmountAction)
-            .offset(x: isShaking ? 10 : 0)
-            .simultaneousGesture(TapGesture().onEnded {
-                viewModel.textFieldDidTapped()
-            })
-            .onChange(of: viewModel.expressCurrencyViewModel.titleState) { titleState in
-                guard case .insufficientFunds = titleState else {
-                    return
-                }
+            SendDecimalNumberTextField(viewModel: viewModel.decimalNumberTextFieldViewModel)
+                .toolbarType(maxAmountAction.map { .maxAmount(action: $0) })
+                .initialFocusBehavior(.immediateFocus)
+                .offset(x: isShaking ? 10 : 0)
+                .simultaneousGesture(TapGesture().onEnded {
+                    viewModel.textFieldDidTapped()
+                })
+                .onChange(of: viewModel.expressCurrencyViewModel.titleState) { titleState in
+                    guard case .insufficientFunds = titleState else {
+                        return
+                    }
 
-                isShaking = true
-                withAnimation(.spring(response: 0.2, dampingFraction: 0.2, blendDuration: 0.2)) {
-                    isShaking = false
+                    isShaking = true
+                    withAnimation(.spring(response: 0.2, dampingFraction: 0.2, blendDuration: 0.2)) {
+                        isShaking = false
+                    }
                 }
-            }
         }
         .didTapChangeCurrency { didTapChangeCurrency?() }
     }
@@ -61,8 +56,6 @@ extension SendCurrencyView: Setupable {
 }
 
 struct SendCurrencyView_Preview: PreviewProvider {
-    @State private static var decimalValue: DecimalNumberTextField.DecimalValue? = nil
-
     static let viewModels = [
         SendCurrencyViewModel(
             expressCurrencyViewModel: .init(
@@ -73,7 +66,7 @@ struct SendCurrencyView_Preview: PreviewProvider {
                 symbolState: .loaded(text: "ETH"),
                 canChangeCurrency: false
             ),
-            maximumFractionDigits: 8
+            decimalNumberTextFieldViewModel: .init(maximumFractionDigits: 8)
         ),
         SendCurrencyViewModel(
             expressCurrencyViewModel: .init(
@@ -84,7 +77,7 @@ struct SendCurrencyView_Preview: PreviewProvider {
                 symbolState: .loaded(text: "ADA"),
                 canChangeCurrency: false
             ),
-            maximumFractionDigits: 8
+            decimalNumberTextFieldViewModel: .init(maximumFractionDigits: 8)
         ),
         SendCurrencyViewModel(
             expressCurrencyViewModel: .init(
@@ -95,7 +88,7 @@ struct SendCurrencyView_Preview: PreviewProvider {
                 symbolState: .loaded(text: "MATIC"),
                 canChangeCurrency: true
             ),
-            maximumFractionDigits: 8
+            decimalNumberTextFieldViewModel: .init(maximumFractionDigits: 8)
         ),
         SendCurrencyViewModel(
             expressCurrencyViewModel: .init(
@@ -106,7 +99,7 @@ struct SendCurrencyView_Preview: PreviewProvider {
                 symbolState: .loaded(text: "MATIC"),
                 canChangeCurrency: true
             ),
-            maximumFractionDigits: 8
+            decimalNumberTextFieldViewModel: .init(maximumFractionDigits: 8)
         ),
         SendCurrencyViewModel(
             expressCurrencyViewModel: .init(
@@ -117,19 +110,19 @@ struct SendCurrencyView_Preview: PreviewProvider {
                 symbolState: .loaded(text: "USDT"),
                 canChangeCurrency: true
             ),
-            maximumFractionDigits: 8
+            decimalNumberTextFieldViewModel: .init(maximumFractionDigits: 8)
         ),
         SendCurrencyViewModel(
             expressCurrencyViewModel: .init(
                 titleState: .text(Localization.swappingFromTitle),
                 balanceState: .formatted("0.0058"),
                 fiatAmountState: .loaded(text: "2100.46 $"),
-                priceChangePercent: "-24.3 %",
+                priceChangeState: .percent("-24.3 %"),
                 tokenIconState: .icon(TokenIconInfoBuilder().build(from: .token(.tetherMock, .init(.polygon(testnet: false), derivationPath: nil)), isCustom: false)),
                 symbolState: .loaded(text: "USDT"),
                 canChangeCurrency: true
             ),
-            maximumFractionDigits: 8
+            decimalNumberTextFieldViewModel: .init(maximumFractionDigits: 8)
         ),
     ]
 
@@ -140,7 +133,7 @@ struct SendCurrencyView_Preview: PreviewProvider {
             VStack {
                 ForEach(viewModels) { viewModel in
                     GroupedSection(viewModel) { viewModel in
-                        SendCurrencyView(viewModel: viewModel, decimalValue: $decimalValue)
+                        SendCurrencyView(viewModel: viewModel)
                     }
                     .innerContentPadding(12)
                     .interItemSpacing(10)
