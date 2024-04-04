@@ -376,8 +376,14 @@ extension SingleTokenBaseViewModel {
             if let message = walletModel.sendingRestrictions?.description {
                 alert = .init(title: Localization.warningSendBlockedPendingTransactionsTitle, message: message)
             }
-        case .cantSignLongTransactions, .zeroWalletBalance, .zeroFeeCurrencyBalance:
+        case .cantSignLongTransactions, .zeroWalletBalance:
             assertionFailure("Send Button have to be disabled")
+        case .zeroFeeCurrencyBalance:
+            guard FeatureProvider.isAvailable(.sendV2) else {
+                assertionFailure("Send Button have to be disabled")
+                return
+            }
+            tokenRouter.openSend(walletModel: walletModel)
         case .none:
             tokenRouter.openSend(walletModel: walletModel)
         }
