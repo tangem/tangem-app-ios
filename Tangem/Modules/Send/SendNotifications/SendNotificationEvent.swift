@@ -148,11 +148,11 @@ extension SendNotificationEvent {
 
     var location: Location {
         switch self {
-        case .networkFeeUnreachable, .feeExceedsBalance:
+        case .networkFeeUnreachable:
             return .feeLevels
         case .customFeeTooHigh:
             return .customFee
-        case .minimumAmount, .existentialDeposit, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange, .totalExceedsBalance, .customFeeTooLow:
+        case .minimumAmount, .existentialDeposit, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange, .totalExceedsBalance, .customFeeTooLow, .feeExceedsBalance:
             return .summary
         }
     }
