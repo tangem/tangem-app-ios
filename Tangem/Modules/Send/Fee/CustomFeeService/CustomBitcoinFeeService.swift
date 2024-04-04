@@ -1,5 +1,5 @@
 //
-//  CustomUtxoFeeService.swift
+//  CustomBitcoinFeeService.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,9 +10,9 @@ import Foundation
 import Combine
 import BlockchainSdk
 
-class CustomUtxoFeeService {
+class CustomBitcoinFeeService {
     private let satoshiPerByte = CurrentValueSubject<Int?, Never>(nil)
-    private let utxoTransactionFeeCalculator: UTXOTransactionFeeCalculator
+    private let bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator
 
     private weak var input: CustomFeeServiceInput?
     private weak var output: CustomFeeServiceOutput?
@@ -21,11 +21,11 @@ class CustomUtxoFeeService {
     init(
         input: CustomFeeServiceInput,
         output: CustomFeeServiceOutput,
-        utxoTransactionFeeCalculator: UTXOTransactionFeeCalculator
+        bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator
     ) {
         self.input = input
         self.output = output
-        self.utxoTransactionFeeCalculator = utxoTransactionFeeCalculator
+        self.bitcoinTransactionFeeCalculator = bitcoinTransactionFeeCalculator
 
         bind()
     }
@@ -73,7 +73,7 @@ class CustomUtxoFeeService {
         if let satoshiPerByte,
            let amount,
            let destination {
-            newFee = utxoTransactionFeeCalculator.calculateFee(
+            newFee = bitcoinTransactionFeeCalculator.calculateFee(
                 satoshiPerByte: satoshiPerByte,
                 amount: amount,
                 destination: destination
@@ -86,7 +86,7 @@ class CustomUtxoFeeService {
     }
 }
 
-extension CustomUtxoFeeService: CustomFeeService {
+extension CustomBitcoinFeeService: CustomFeeService {
     var customFeeDescription: String? {
         nil
     }
