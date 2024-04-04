@@ -12,18 +12,15 @@ struct CustomFeeServiceFactory {
     let input: CustomFeeServiceInput
     let output: CustomFeeServiceOutput
     let walletModel: WalletModel
-    let walletInfo: SendWalletInfo
 
     init(
         input: CustomFeeServiceInput,
         output: CustomFeeServiceOutput,
         walletModel: WalletModel,
-        walletInfo: SendWalletInfo
     ) {
         self.input = input
         self.output = output
         self.walletModel = walletModel
-        self.walletInfo = walletInfo
     }
 
     func makeService() -> CustomFeeService? {
