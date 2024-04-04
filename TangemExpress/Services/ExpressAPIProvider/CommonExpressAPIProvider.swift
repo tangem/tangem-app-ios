@@ -16,6 +16,15 @@ class CommonExpressAPIProvider {
         self.expressAPIService = expressAPIService
         self.expressAPIMapper = expressAPIMapper
     }
+
+    private func refundAddress(item: ExpressSwappableItem) -> String? {
+        switch item.providerInfo.type {
+        case .dex:
+            return nil
+        case .cex:
+            return item.source.defaultAddress
+        }
+    }
 }
 
 // MARK: - ExpressAPIProvider
@@ -24,10 +33,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
     /// Requests from Express API `exchangeAvailable` state for currencies included in filter
     /// - Returns: All `ExpressCurrency` that available to exchange specified by filter
     func assets(with filter: [ExpressCurrency]) async throws -> [ExpressAsset] {
-        // [REDACTED_TODO_COMMENT]
-        let _filter = filter.filter { $0.network.lowercased() != "vechain" }
-
-        let tokens = _filter.map(expressAPIMapper.mapToDTOCurrency(currency:))
+        let tokens = filter.map(expressAPIMapper.mapToDTOCurrency(currency:))
         let request = ExpressDTO.Assets.Request(tokensList: tokens)
         let response = try await expressAPIService.assets(request: request)
         let assets: [ExpressAsset] = response.map(expressAPIMapper.mapToExpressAsset(response:))
@@ -35,12 +41,8 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
     }
 
     func pairs(from: [ExpressCurrency], to: [ExpressCurrency]) async throws -> [ExpressPair] {
-        // [REDACTED_TODO_COMMENT]
-        let _from = from.filter { $0.network.lowercased() != "vechain" }
-        let _to = to.filter { $0.network.lowercased() != "vechain" }
-
-        let from = _from.map(expressAPIMapper.mapToDTOCurrency(currency:))
-        let to = _to.map(expressAPIMapper.mapToDTOCurrency(currency:))
+        let from = from.map(expressAPIMapper.mapToDTOCurrency(currency:))
+        let to = to.map(expressAPIMapper.mapToDTOCurrency(currency:))
         let request = ExpressDTO.Pairs.Request(from: from, to: to)
         let response = try await expressAPIService.pairs(request: request)
         let pairs = response.map(expressAPIMapper.mapToExpressPair(response:))
@@ -55,14 +57,14 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
 
     func exchangeQuote(item: ExpressSwappableItem) async throws -> ExpressQuote {
         let request = ExpressDTO.ExchangeQuote.Request(
-            fromContractAddress: item.source.contractAddress,
-            fromNetwork: item.source.network,
-            toContractAddress: item.destination.contractAddress,
-            toNetwork: item.destination.network,
+            fromContractAddress: item.source.expressCurrency.contractAddress,
+            fromNetwork: item.source.expressCurrency.network,
+            toContractAddress: item.destination.expressCurrency.contractAddress,
+            toNetwork: item.destination.expressCurrency.network,
             toDecimals: item.destination.decimalCount,
             fromAmount: item.sourceAmountWEI(),
             fromDecimals: item.source.decimalCount,
-            providerId: item.providerId,
+            providerId: item.providerInfo.id,
             rateType: .float
         )
 
@@ -78,18 +80,21 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
 
     func exchangeData(item: ExpressSwappableItem) async throws -> ExpressTransactionData {
         let requestId: String = UUID().uuidString
+        let refundAddress = refundAddress(item: item)
         let request = ExpressDTO.ExchangeData.Request(
             requestId: requestId,
-            fromContractAddress: item.source.contractAddress,
-            fromNetwork: item.source.network,
-            toContractAddress: item.destination.contractAddress,
-            toNetwork: item.destination.network,
+            fromContractAddress: item.source.expressCurrency.contractAddress,
+            fromNetwork: item.source.expressCurrency.network,
+            toContractAddress: item.destination.expressCurrency.contractAddress,
+            toNetwork: item.destination.expressCurrency.network,
             toDecimals: item.destination.decimalCount,
             fromAmount: item.sourceAmountWEI(),
             fromDecimals: item.source.decimalCount,
-            providerId: item.providerId,
+            providerId: item.providerInfo.id,
             rateType: .float,
-            toAddress: item.destination.defaultAddress
+            toAddress: item.destination.defaultAddress,
+            refundAddress: refundAddress,
+            refundExtraId: nil // There is no memo on the client side
         )
 
         let response = try await expressAPIService.exchangeData(request: request)

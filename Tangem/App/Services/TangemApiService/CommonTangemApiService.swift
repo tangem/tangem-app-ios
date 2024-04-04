@@ -16,8 +16,8 @@ class CommonTangemApiService {
     private let provider = TangemProvider<TangemApiTarget>(plugins: [
         CachePolicyPlugin(),
         TimeoutIntervalPlugin(),
-        NetworkLoggerPlugin(configuration: .init(
-            output: NetworkLoggerPlugin.tangemSdkLoggerOutput,
+        TangemNetworkLoggerPlugin(configuration: .init(
+            output: TangemNetworkLoggerPlugin.tangemSdkLoggerOutput,
             logOptions: .verbose
         )),
     ])
@@ -78,6 +78,18 @@ extension CommonTangemApiService: TangemApiService {
             .filterSuccessfulStatusCodes()
             .mapTangemAPIError()
             .mapToVoid()
+            .eraseToAnyPublisher()
+    }
+
+    func createAccount(networkId: String, publicKey: String) -> AnyPublisher<BlockchainAccountCreateResult, TangemAPIError> {
+        let parameters = BlockchainAccountCreateParameters(networkId: networkId, walletPublicKey: publicKey)
+        let target = TangemApiTarget(type: .createAccount(parameters), authData: authData)
+
+        return provider
+            .requestPublisher(target)
+            .filterSuccessfulStatusCodes()
+            .map(BlockchainAccountCreateResult.self)
+            .mapTangemAPIError()
             .eraseToAnyPublisher()
     }
 

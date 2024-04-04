@@ -104,6 +104,9 @@ struct LegacySendView: View {
                                         .font(Font.system(size: 38.0, weight: .light, design: .default))
                                         .foregroundColor(!viewModel.isSellingCrypto ?
                                             Colors.Button.positive : Color.tangemGrayDark6.opacity(0.5))
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.5)
+                                        .fixedSize(horizontal: false, vertical: true)
 
                                     if viewModel.isFiatConvertingAvailable {
                                         Image(systemName: "arrow.up.arrow.down")
@@ -309,8 +312,9 @@ struct ExtractView_Previews: PreviewProvider {
                     value: 0.0
                 ),
                 destination: "Target",
+                tag: "Tag",
                 blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
-                cardViewModel: PreviewCard.ethereum.cardModel,
+                userWalletModel: PreviewCard.ethereum.userWalletModel,
                 coordinator: LegacySendCoordinator()
             ))
             .previewLayout(.iphone7Zoomed)
@@ -322,7 +326,7 @@ struct ExtractView_Previews: PreviewProvider {
                     value: 0.0
                 ),
                 blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
-                cardViewModel: PreviewCard.ethereum.cardModel,
+                userWalletModel: PreviewCard.ethereum.userWalletModel,
                 coordinator: LegacySendCoordinator()
             ))
             .previewLayout(.iphone7Zoomed)
