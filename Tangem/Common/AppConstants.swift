@@ -16,6 +16,8 @@ enum AppConstants {
         UIScreen.main.bounds.width < 375 || UIScreen.main.bounds.height < 650
     }
 
+    static let platformName = "iOS"
+
     static let messageForTokensKey = "TokensSymmetricKey"
     static let maximumFractionDigitsForBalance = 8
 
@@ -26,5 +28,6 @@ enum AppConstants {
 
     static let sessionId = UUID().uuidString
 
+    #warning("[REDACTED_TODO_COMMENT]")
     static let feeExplanationTangemBlogURL = URL(string: "https://tangem.com/en/blog/post/what-is-a-transaction-fee-and-why-do-we-need-it/")!
 }
