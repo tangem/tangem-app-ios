@@ -631,10 +631,6 @@ extension WalletModel {
         walletManager as? BitcoinTransactionFeeCalculator
     }
 
-    var ethereumGasLoader: EthereumGasLoader? {
-        walletManager as? EthereumGasLoader
-    }
-
     var ethereumTransactionSigner: EthereumTransactionSigner? {
         walletManager as? EthereumTransactionSigner
     }
@@ -643,8 +639,8 @@ extension WalletModel {
         walletManager as? EthereumNetworkProvider
     }
 
-    var ethereumTransactionProcessor: EthereumTransactionProcessor? {
-        walletManager as? EthereumTransactionProcessor
+    var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? {
+        walletManager as? EthereumTransactionDataBuilder
     }
 
     var signatureCountValidator: SignatureCountValidator? {
