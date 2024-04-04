@@ -81,7 +81,7 @@ class SendDestinationViewModel: ObservableObject {
                 let walletModel = walletModels.first { walletModel in
                     return
                         walletModel.wallet.publicKey != input.walletPublicKey &&
-                        walletModel.blockchainNetwork.blockchain == blockchain &&
+                        Blockchain.curveInsensitiveCompare(walletModel.blockchainNetwork.blockchain, blockchain) &&
                         !walletModel.isCustom
                 }
 
