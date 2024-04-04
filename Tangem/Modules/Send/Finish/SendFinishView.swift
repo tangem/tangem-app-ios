@@ -13,12 +13,15 @@ struct SendFinishView: View {
 
     @ObservedObject var viewModel: SendFinishViewModel
 
+    let bottomSpacing: CGFloat
+
     var body: some View {
         VStack {
             GroupedScrollView(spacing: 14) {
                 if viewModel.showHeader {
                     header
-                        .padding(.bottom, 24)
+                        .padding(.top, 24)
+                        .padding(.bottom, 12)
                 }
 
                 GroupedSection(viewModel.destinationViewTypes) { type in
@@ -32,12 +35,11 @@ struct SendFinishView: View {
                         }
                     }
                 }
-                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.address.rawValue, namespace: namespace)
+                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.addressContainer.rawValue, namespace: namespace)
 
                 GroupedSection(viewModel.amountSummaryViewData) {
-                    AmountSummaryView(data: $0)
+                    SendAmountSummaryView(data: $0)
                         .setNamespace(namespace)
-                        .setTitleNamespaceId(SendViewNamespaceId.amountTitle.rawValue)
                         .setIconNamespaceId(SendViewNamespaceId.tokenIcon.rawValue)
                         .setAmountCryptoNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
                         .setAmountFiatNamespaceId(SendViewNamespaceId.amountFiatText.rawValue)
@@ -46,10 +48,11 @@ struct SendFinishView: View {
                 .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
 
                 GroupedSection(viewModel.feeSummaryViewData) { data in
-                    DefaultTextWithTitleRowView(data: data)
+                    SendFeeSummaryView(data: data)
                         .setNamespace(namespace)
                         .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
-                        .setTextNamespaceId(SendViewNamespaceId.feeSubtitle.rawValue)
+                        .setOptionNamespaceId(SendViewNamespaceId.feeOption.rawValue)
+                        .setAmountNamespaceId(SendViewNamespaceId.feeAmount.rawValue)
                 }
                 .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
             }
@@ -57,6 +60,7 @@ struct SendFinishView: View {
             if viewModel.showButtons {
                 bottomButtons
                     .padding(.horizontal, 16)
+                    .padding(.bottom, bottomSpacing + 10)
             }
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
@@ -98,11 +102,6 @@ struct SendFinishView: View {
                     action: viewModel.share
                 )
             }
-
-            MainButton(
-                title: Localization.commonClose,
-                action: viewModel.close
-            )
         }
         .transition(.opacity)
     }
@@ -114,13 +113,14 @@ struct SendFinishView_Previews: PreviewProvider {
     static let tokenIconInfo = TokenIconInfo(
         name: "Tether",
         blockchainIconName: "ethereum.fill",
-        imageURL: TokenIconURLBuilder().iconURL(id: "tether"),
+        imageURL: IconURLBuilder().tokenIconURL(id: "tether"),
         isCustom: false,
         customTokenColor: nil
     )
 
     static let walletInfo = SendWalletInfo(
         walletName: "Wallet",
+        balanceValue: 12013,
         balance: "12013",
         blockchain: .ethereum(testnet: false),
         currencyId: "tether",
@@ -137,7 +137,13 @@ struct SendFinishView_Previews: PreviewProvider {
         feeAmountType: .coin
     )
 
+    static var viewModel = SendFinishViewModel(
+        input: SendFinishViewModelInputMock(),
+        fiatCryptoValueProvider: SendFiatCryptoValueProviderMock(),
+        walletInfo: walletInfo
+    )!
+
     static var previews: some View {
-        SendFinishView(namespace: namespace, viewModel: SendFinishViewModel(input: SendFinishViewModelInputMock(), walletInfo: walletInfo)!)
+        SendFinishView(namespace: namespace, viewModel: viewModel, bottomSpacing: 0)
     }
 }
