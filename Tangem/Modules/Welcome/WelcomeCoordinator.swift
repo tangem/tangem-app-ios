@@ -25,12 +25,6 @@ class WelcomeCoordinator: CoordinatorObject {
     // MARK: - Main view model
 
     @Published private(set) var viewState: ViewState? = nil
-    private var welcomeViewModel: WelcomeViewModel? {
-        if case .welcome(let viewModel) = viewState {
-            return viewModel
-        }
-        return nil
-    }
 
     // MARK: - Child coordinators
 
@@ -63,7 +57,6 @@ class WelcomeCoordinator: CoordinatorObject {
     }
 
     func start(with options: WelcomeCoordinator.Options) {
-        pushedOnboardingCoordinator = nil
         viewState = .welcome(WelcomeViewModel(shouldScanOnAppear: options.shouldScan, coordinator: self))
         subscribeToWelcomeLifecycle()
     }
@@ -74,9 +67,9 @@ class WelcomeCoordinator: CoordinatorObject {
                 guard let self else { return }
 
                 if viewDismissed {
-                    welcomeViewModel?.becomeActive()
+                    viewState?.welcomeViewModel?.becomeActive()
                 } else {
-                    welcomeViewModel?.resignActve()
+                    viewState?.welcomeViewModel?.resignActve()
                 }
             }
     }
@@ -154,6 +147,13 @@ extension WelcomeCoordinator {
                 return true
             }
             return false
+        }
+
+        var welcomeViewModel: WelcomeViewModel? {
+            if case .welcome(let viewModel) = self {
+                return viewModel
+            }
+            return nil
         }
 
         static func == (lhs: WelcomeCoordinator.ViewState, rhs: WelcomeCoordinator.ViewState) -> Bool {
