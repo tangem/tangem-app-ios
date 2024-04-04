@@ -173,6 +173,7 @@ class SendModel {
             let originalAmount = validatedAmountValue
         else {
             AppLog.shared.debug("Invalid amount and fee when subtracting")
+            completion(.failure(WalletError.failedToGetFee))
             return
         }
 
