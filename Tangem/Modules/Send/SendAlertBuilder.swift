@@ -23,7 +23,7 @@ enum SendAlertBuilder {
         let subtractButton = Alert.Button.default(Text(Localization.sendAlertFeeCoverageSubractText), action: subtractAction)
         return AlertBuilder.makeAlert(
             title: "",
-            message: Localization.sendAlertFeeCoverageTitle(fee),
+            message: Localization.sendAlertFeeCoverageTitle,
             primaryButton: subtractButton,
             secondaryButton: .cancel()
         )
