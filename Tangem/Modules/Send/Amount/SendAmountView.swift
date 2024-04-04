@@ -38,6 +38,7 @@ struct SendAmountView: View {
                     }
 
                     MainButton(title: Localization.sendMaxAmount, style: .secondary, action: viewModel.didTapMaxAmount)
+                        .disabled(viewModel.userInputDisabled)
                         .frame(width: 108)
                 }
                 .transition(SendView.Constants.auxiliaryViewTransition)
@@ -64,9 +65,10 @@ struct SendAmountView: View {
 
             SendDecimalNumberTextField(viewModel: viewModel.decimalNumberTextFieldViewModel)
                 // A small delay must be introduced to fix a glitch in a transition animation when changing screens
-                .initialFocusBehavior(.delayedFocus(duration: SendView.Constants.animationDuration))
+                .initialFocusBehavior(.delayedFocus(duration: 2 * SendView.Constants.animationDuration))
                 .alignment(.center)
                 .prefixSuffixOptions(viewModel.currentFieldOptions)
+                .disabled(viewModel.userInputDisabled)
                 .frame(maxWidth: .infinity)
                 .matchedGeometryEffect(id: SendViewNamespaceId.amountCryptoText.rawValue, in: namespace)
                 .padding(.top, 18)
