@@ -18,6 +18,7 @@ extension Publishers {
         private let dueTime: S.SchedulerTimeType.Stride
         private let scheduler: S
         private let options: S.SchedulerOptions?
+        private let lock = Lock(isRecursive: false)
 
         init(upstream: Upstream, dueTime: S.SchedulerTimeType.Stride, scheduler: S, options: S.SchedulerOptions?) {
             self.upstream = upstream
@@ -26,14 +27,18 @@ extension Publishers {
             self.options = options
         }
 
-        func receive<S>(subscriber: S) where S: Subscriber, Failure == S.Failure, Output == S.Input {
+        func receive<Subscriber>(
+            subscriber: Subscriber
+        ) where Subscriber: Combine.Subscriber, Failure == Subscriber.Failure, Output == Subscriber.Input {
             var reset = false
             upstream
                 .receive(on: scheduler)
-                .scan([]) { reset ? [$1] : $0 + [$1] }
-                .handleEvents(receiveOutput: { _ in reset = false })
+                .scan([]) { result, element in
+                    lock.withLock { reset ? [element] : result + [element] }
+                }
+                .handleEvents(receiveOutput: { _ in lock.withLock { reset = false }})
                 .debounce(for: dueTime, scheduler: scheduler, options: options)
-                .handleEvents(receiveOutput: { _ in reset = true })
+                .handleEvents(receiveOutput: { _ in lock.withLock { reset = true }})
                 .receive(subscriber: subscriber)
         }
     }
