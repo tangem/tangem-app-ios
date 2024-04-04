@@ -21,7 +21,7 @@ struct QRScanView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            QRScannerView(code: viewModel.code)
+            cameraView
                 .overlay(viewfinder(screenSize: geometry.size))
                 .overlay(
                     Color.clear
@@ -30,7 +30,18 @@ struct QRScanView: View {
                 )
                 .overlay(topButtons(), alignment: .top)
         }
+        .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
         .ignoresSafeArea(edges: .bottom)
+        .onAppear(perform: viewModel.onAppear)
+    }
+
+    @ViewBuilder
+    private var cameraView: some View {
+        if viewModel.hasCameraAccess {
+            QRScannerView(code: viewModel.code)
+        } else {
+            Color.black
+        }
     }
 
     private func viewfinder(screenSize: CGSize) -> some View {
@@ -148,6 +159,7 @@ struct QRScanView_Previews_Inline: PreviewProvider {
 
 struct QRScannerView: UIViewRepresentable {
     @Binding var code: String
+
     @Environment(\.presentationMode) var presentationMode
 
     func makeUIView(context: Context) -> UIQRScannerView {
@@ -242,20 +254,7 @@ extension UIQRScannerView {
         clipsToBounds = true
         captureSession = AVCaptureSession()
         feedbackGenerator = UINotificationFeedbackGenerator()
-
-        if AVCaptureDevice.authorizationStatus(for: .video) == .authorized {
-            initVideo()
-        } else {
-            AVCaptureDevice.requestAccess(for: .video, completionHandler: { [weak self] (granted: Bool) in
-                DispatchQueue.main.async {
-                    if granted {
-                        self?.initVideo()
-                    } else {
-                        self?.scanningDidFail()
-                    }
-                }
-            })
-        }
+        initVideo()
     }
 
     private func initVideo() {
