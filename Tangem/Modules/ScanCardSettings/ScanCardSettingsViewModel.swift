@@ -54,18 +54,40 @@ extension ScanCardSettingsViewModel {
 
         let userWalletId = UserWalletId(with: userWalletIdSeed)
 
-        var cardInfo = cardInfo
+        let input = CardSettingsViewModel.Input(
+            userWalletId: userWalletId,
+            recoveryInteractor: UserCodeRecoveringCardInteractor(with: cardInfo),
+            securityOptionChangeInteractor: SecurityOptionChangingCardInteractor(with: cardInfo),
+            factorySettingsResettingCardInteractor: FactorySettingsResettingCardInteractor(with: cardInfo),
+            isResetToFactoryAvailable: !config.getFeatureAvailability(.resetToFactory).isHidden,
+            hasBackupCards: cardInfo.card.backupStatus?.isActive ?? false,
+            canTwin: config.hasFeature(.twinning),
+            twinInput: makeTwinInput(from: cardInfo, config: config, userWalletId: userWalletId),
+            cardIdFormatted: cardInfo.cardIdFormatted,
+            cardIssuer: cardInfo.card.issuer.name,
+            canDisplayHashesCount: config.hasFeature(.displayHashesCount),
+            cardSignedHashes: cardInfo.card.walletSignedHashes,
+            canChangeAccessCodeRecoverySettings: config.hasFeature(.accessCodeRecoverySettings),
+            resetTofactoryDisabledLocalizedReason: config.getDisabledLocalizedReason(for: .resetToFactory)
+        )
 
-        // [REDACTED_TODO_COMMENT]
-        if let existingCardModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) as? CardViewModel {
-            cardInfo.name = existingCardModel.name
+        coordinator?.openCardSettings(with: input)
+    }
+
+    private func makeTwinInput(from cardInfo: CardInfo, config: UserWalletConfig, userWalletId: UserWalletId) -> OnboardingInput? {
+        guard let twinData = cardInfo.walletData.twinData,
+              let existingModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) else {
+            return nil
         }
 
-        guard let newCardViewModel = CardViewModel(cardInfo: cardInfo) else {
-            return
-        }
-
-        coordinator?.openCardSettings(cardModel: newCardViewModel)
+        let factory = TwinInputFactory(
+            firstCardId: cardInfo.card.cardId,
+            cardInput: .userWalletModel(existingModel),
+            userWalletToDelete: userWalletId,
+            twinData: twinData,
+            sdkFactory: config
+        )
+        return factory.makeTwinInput()
     }
 }
 
