@@ -24,7 +24,6 @@ protocol SendDestinationViewModelInput {
 
     var networkName: String { get }
     var blockchainNetwork: BlockchainNetwork { get }
-    var walletPublicKey: Wallet.PublicKey { get }
 
     var additionalFieldType: SendAdditionalFields? { get }
     var additionalFieldEmbeddedInAddress: AnyPublisher<Bool, Never> { get }
@@ -73,14 +72,18 @@ class SendDestinationViewModel: ObservableObject {
         )
 
         let blockchain = input.blockchainNetwork.blockchain
+        let currentUserWalletId = Self.userWalletRepository.selectedModel?.userWalletId
 
         suggestedWallets = Self.userWalletRepository
             .models
             .compactMap { userWalletModel in
+                if userWalletModel.userWalletId == currentUserWalletId {
+                    return nil
+                }
+
                 let walletModels = userWalletModel.walletModelsManager.walletModels
                 let walletModel = walletModels.first { walletModel in
                     return
-                        walletModel.wallet.publicKey != input.walletPublicKey &&
                         Blockchain.curveInsensitiveCompare(walletModel.blockchainNetwork.blockchain, blockchain) &&
                         !walletModel.isCustom
                 }
