@@ -7,11 +7,14 @@
 //
 
 import Foundation
+import Combine
 import BlockchainSdk
 
 // MARK: - Service protocol
 
 protocol SendAddressService {
+    var validationInProgressPublisher: AnyPublisher<Bool, Never> { get }
+
     func validate(address: String) async throws -> String?
     func hasEmbeddedAdditionalField(address: String) -> Bool
 }
@@ -22,12 +25,24 @@ class DefaultSendAddressService: SendAddressService {
     private let walletAddresses: [Address]
     private let addressService: AddressService
 
+    var validationInProgressPublisher: AnyPublisher<Bool, Never> {
+        validationInProgressSubject.eraseToAnyPublisher()
+    }
+
+    private var validationInProgressSubject = CurrentValueSubject<Bool, Never>(false)
+
     init(walletAddresses: [Address], addressService: AddressService) {
         self.walletAddresses = walletAddresses
         self.addressService = addressService
     }
 
     func validate(address: String) async throws -> String? {
+        validationInProgressSubject.send(true)
+
+        defer {
+            validationInProgressSubject.send(false)
+        }
+
         if address.isEmpty {
             return nil
         }
@@ -58,17 +73,34 @@ class SendResolvableAddressService: SendAddressService {
     private let defaultSendAddressService: DefaultSendAddressService
     private let addressResolver: AddressResolver
 
+    var validationInProgressPublisher: AnyPublisher<Bool, Never> {
+        validationInProgressSubject.eraseToAnyPublisher()
+    }
+
+    private var validationInProgressSubject = CurrentValueSubject<Bool, Never>(false)
+
     init(defaultSendAddressService: DefaultSendAddressService, addressResolver: AddressResolver) {
         self.defaultSendAddressService = defaultSendAddressService
         self.addressResolver = addressResolver
     }
 
     func validate(address: String) async throws -> String? {
+        validationInProgressSubject.send(true)
+
+        defer {
+            validationInProgressSubject.send(false)
+        }
+
         guard let validatedAddress = try await defaultSendAddressService.validate(address: address) else {
             return nil
         }
 
         do {
+            let validationDebounceDelay = 1.0
+            try await Task.sleep(seconds: validationDebounceDelay)
+
+            try Task.checkCancellation()
+
             return try await addressResolver.resolve(validatedAddress)
         } catch {
             throw SendAddressServiceError.invalidAddress
