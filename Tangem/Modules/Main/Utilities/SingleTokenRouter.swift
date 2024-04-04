@@ -21,14 +21,14 @@ protocol SingleTokenRoutable {
     func openExplorer(at url: URL, for walletModel: WalletModel)
 }
 
-class SingleTokenRouter: SingleTokenRoutable {
+final class SingleTokenRouter: SingleTokenRoutable {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.keysManager) private var keysManager: KeysManager
 
     private let userWalletModel: UserWalletModel
     private weak var coordinator: SingleTokenBaseRoutable?
 
-    init(userWalletModel: UserWalletModel, coordinator: SingleTokenBaseRoutable) {
+    init(userWalletModel: UserWalletModel, coordinator: SingleTokenBaseRoutable?) {
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
     }
@@ -64,17 +64,13 @@ class SingleTokenRouter: SingleTokenRoutable {
     }
 
     func openSend(walletModel: WalletModel) {
-        guard
-            let amountToSend = walletModel.wallet.amounts[walletModel.amountType],
-            // [REDACTED_TODO_COMMENT]
-            let cardViewModel = userWalletModel as? CardViewModel
-        else { return }
+        guard let amountToSend = walletModel.wallet.amounts[walletModel.amountType] else { return }
 
         sendAnalyticsEvent(.buttonSend, for: walletModel)
         coordinator?.openSend(
             amountToSend: amountToSend,
             blockchainNetwork: walletModel.blockchainNetwork,
-            cardViewModel: cardViewModel,
+            userWalletModel: userWalletModel,
             walletModel: walletModel
         )
     }
@@ -92,7 +88,7 @@ class SingleTokenRouter: SingleTokenRoutable {
             return
         }
 
-        coordinator?.openSellCrypto(at: url, sellRequestUrl: exchangeUtility.sellCryptoCloseURL) { [weak self] response in
+        coordinator?.openSellCrypto(at: url) { [weak self] response in
             if let request = exchangeUtility.extractSellCryptoRequest(from: response) {
                 self?.openSendToSell(with: request, for: walletModel)
             }
@@ -101,17 +97,17 @@ class SingleTokenRouter: SingleTokenRoutable {
 
     func openSendToSell(with request: SellCryptoRequest, for walletModel: WalletModel) {
         // [REDACTED_TODO_COMMENT]
-        guard let cardViewModel = userWalletModel as? CardViewModel else {
+        guard var amountToSend = walletModel.wallet.amounts[walletModel.amountType] else {
             return
         }
 
-        let blockchainNetwork = walletModel.blockchainNetwork
-        let amount = Amount(with: blockchainNetwork.blockchain, value: request.amount)
+        amountToSend.value = request.amount
         coordinator?.openSendToSell(
-            amountToSend: amount,
+            amountToSend: amountToSend,
             destination: request.targetAddress,
-            blockchainNetwork: blockchainNetwork,
-            cardViewModel: cardViewModel,
+            tag: request.tag,
+            blockchainNetwork: walletModel.blockchainNetwork,
+            userWalletModel: userWalletModel,
             walletModel: walletModel
         )
     }

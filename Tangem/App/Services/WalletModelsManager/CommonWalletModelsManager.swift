@@ -109,8 +109,7 @@ extension CommonWalletModelsManager: WalletModelsManager {
             .MergeMany(publishers)
             .collect(publishers.count)
             .mapToVoid()
-            .eraseToAnyPublisher()
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .receiveCompletion { _ in
                 completion()
             }

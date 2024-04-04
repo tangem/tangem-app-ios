@@ -9,7 +9,6 @@
 import Foundation
 import Combine
 import Firebase
-import AppsFlyerLib
 import Amplitude
 import BlockchainSdk
 
@@ -17,6 +16,7 @@ class ServicesManager {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.accountHealthChecker) private var accountHealthChecker: AccountHealthChecker
 
     private var bag = Set<AnyCancellable>()
 
@@ -37,7 +37,6 @@ class ServicesManager {
 
         if !AppEnvironment.current.isDebug {
             configureFirebase()
-            configureAppsFlyer()
             configureAmplitude()
         }
 
@@ -46,6 +45,7 @@ class ServicesManager {
         S2CTOUMigrator().migrate()
         exchangeService.initialize()
         tangemApiService.initialize()
+        accountHealthChecker.initialize()
     }
 
     private func configureFirebase() {
@@ -60,29 +60,12 @@ class ServicesManager {
         FirebaseApp.configure(options: options)
     }
 
-    private func configureAppsFlyer() {
-        guard AppEnvironment.current.isProduction else {
-            return
-        }
-
-        do {
-            let keysManager = try CommonKeysManager()
-            AppsFlyerLib.shared().appsFlyerDevKey = keysManager.appsFlyer.appsFlyerDevKey
-            AppsFlyerLib.shared().appleAppID = keysManager.appsFlyer.appsFlyerAppID
-        } catch {
-            assertionFailure("CommonKeysManager not initialized with error: \(error.localizedDescription)")
-        }
-    }
-
     private func configureAmplitude() {
-        Amplitude.instance().trackingSessionEvents = true
         Amplitude.instance().initializeApiKey(try! CommonKeysManager().amplitudeApiKey)
     }
 
     private func configureBlockchainSdkExceptionHandler() {
-        if FeatureProvider.isAvailable(.enableBlockchainSdkEvents) {
-            ExceptionHandler.shared.append(output: Analytics.BlockchainExceptionHandler())
-        }
+        ExceptionHandler.shared.append(output: Analytics.BlockchainExceptionHandler())
     }
 }
 
