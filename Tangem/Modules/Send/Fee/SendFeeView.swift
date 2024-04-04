@@ -22,8 +22,8 @@ struct SendFeeView: View {
                     if feeRowViewModel.isSelected.value {
                         FeeRowView(viewModel: feeRowViewModel)
                             .setNamespace(namespace)
-                            .setOptionNamespaceId(SendViewNamespaceId.feeOption.rawValue)
-                            .setAmountNamespaceId(SendViewNamespaceId.feeAmount.rawValue)
+                            .setOptionNamespaceId(SendViewNamespaceId.feeOption(feeOption: feeRowViewModel.option).rawValue)
+                            .setAmountNamespaceId(SendViewNamespaceId.feeAmount(feeOption: feeRowViewModel.option).rawValue)
                             .overlay(alignment: .topLeading) {
                                 Text(Localization.commonNetworkFeeTitle)
                                     .font(Fonts.Regular.footnote)
@@ -33,7 +33,9 @@ struct SendFeeView: View {
                     } else {
                         if !viewModel.animatingAuxiliaryViewsOnAppear {
                             FeeRowView(viewModel: feeRowViewModel)
-                                .transition(SendView.Constants.auxiliaryViewTransition)
+                                .setNamespace(namespace)
+                                .setOptionNamespaceId(SendViewNamespaceId.feeOption(feeOption: feeRowViewModel.option).rawValue)
+                                .setAmountNamespaceId(SendViewNamespaceId.feeAmount(feeOption: feeRowViewModel.option).rawValue)
                         }
                     }
                 }
