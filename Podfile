@@ -108,6 +108,7 @@ target 'TangemFoundation' do
   pod 'Moya'
 
   target 'TangemFoundationTests' do
+    inherit! :search_paths
   end
 end
 
