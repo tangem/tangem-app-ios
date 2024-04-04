@@ -175,8 +175,7 @@ final class SendViewModel: ObservableObject {
         let customFeeServiceFactory = CustomFeeServiceFactory(
             input: sendModel,
             output: sendModel,
-            walletModel: walletModel,
-            walletInfo: walletInfo
+            walletModel: walletModel
         )
         customFeeService = customFeeServiceFactory.makeService()
         if customFeeService != nil {
