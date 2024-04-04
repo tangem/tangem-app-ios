@@ -13,6 +13,8 @@ struct SendSummaryView: View {
 
     @ObservedObject var viewModel: SendSummaryViewModel
 
+    let bottomSpacing: CGFloat
+
     private let spacing: CGFloat = 14
 
     var body: some View {
@@ -91,16 +93,12 @@ struct SendSummaryView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 16)
                     .transition(.opacity)
+                    .padding(.bottom, bottomSpacing + 14)
             }
-
-            sendButton
-                .padding(.horizontal, 16)
-                .padding(.bottom, 6)
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         .alert(item: $viewModel.alert) { $0.alert }
         .onAppear(perform: viewModel.onAppear)
-        .onDisappear(perform: viewModel.onDisappear)
         .interactiveDismissDisabled(viewModel.isSending)
     }
 
@@ -122,16 +120,6 @@ struct SendSummaryView: View {
             .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
             .setOptionNamespaceId(SendViewNamespaceId.feeOption.rawValue)
             .setAmountNamespaceId(SendViewNamespaceId.feeAmount.rawValue)
-    }
-
-    @ViewBuilder
-    private var sendButton: some View {
-        MainButton(
-            title: viewModel.sendButtonText,
-            icon: viewModel.sendButtonIcon,
-            isDisabled: viewModel.isSendButtonDisabled,
-            action: viewModel.send
-        )
     }
 }
 
@@ -173,6 +161,6 @@ struct SendSummaryView_Previews: PreviewProvider {
     )
 
     static var previews: some View {
-        SendSummaryView(namespace: namespace, viewModel: viewModel)
+        SendSummaryView(namespace: namespace, viewModel: viewModel, bottomSpacing: 0)
     }
 }
