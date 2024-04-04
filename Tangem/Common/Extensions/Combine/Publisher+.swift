@@ -48,6 +48,17 @@ public extension Publisher {
         }
         .eraseToAnyPublisher()
     }
+
+    static func anyFail(error: Failure) -> AnyPublisher<Output, Failure> {
+        return Fail(error: error)
+            .eraseToAnyPublisher()
+    }
+
+    static func justWithError(output: Output) -> AnyPublisher<Output, Error> {
+        return Just(output)
+            .setFailureType(to: Error.self)
+            .eraseToAnyPublisher()
+    }
 }
 
 extension Publisher where Output == Void, Failure == Error {
@@ -59,38 +70,6 @@ extension Publisher where Output == Void, Failure == Error {
 extension Publisher where Output == Void, Failure == Never {
     static var just: AnyPublisher<Output, Failure> {
         .just(output: ())
-    }
-}
-
-extension Publisher {
-    func asyncMap<T>(
-        _ transform: @escaping (Output) async throws -> T
-    ) -> Publishers.FlatMap<Future<T, Error>, Self> {
-        flatMap { value in
-            Future { promise in
-                Task {
-                    do {
-                        let output = try await transform(value)
-                        promise(.success(output))
-                    } catch {
-                        promise(.failure(error))
-                    }
-                }
-            }
-        }
-    }
-
-    func asyncMap<T>(
-        _ transform: @escaping (Output) async -> T
-    ) -> Publishers.FlatMap<Future<T, Never>, Self> {
-        flatMap { value in
-            Future { promise in
-                Task {
-                    let output = await transform(value)
-                    promise(.success(output))
-                }
-            }
-        }
     }
 }
 

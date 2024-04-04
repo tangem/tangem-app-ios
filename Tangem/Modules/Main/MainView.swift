@@ -21,9 +21,9 @@ struct MainView: View {
                 info.header
                     .contextMenu {
                         if !info.isLockedWallet {
-                            Button(action: viewModel.didTapEditWallet, label: editButtonLabel)
+                            Button(action: weakify(viewModel, forFunction: MainViewModel.didTapEditWallet), label: editButtonLabel)
 
-                            Button(role: .destructive, action: viewModel.didTapDeleteWallet, label: deleteButtonLabel)
+                            Button(role: .destructive, action: weakify(viewModel, forFunction: MainViewModel.didTapDeleteWallet), label: deleteButtonLabel)
                         }
                     }
             },
@@ -71,7 +71,7 @@ struct MainView: View {
     }
 
     var detailsNavigationButton: some View {
-        Button(action: viewModel.openDetails) {
+        Button(action: weakify(viewModel, forFunction: MainViewModel.openDetails)) {
             NavbarDotsImage()
         }
         .buttonStyle(PlainButtonStyle())

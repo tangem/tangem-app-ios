@@ -81,6 +81,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     }
 
     func displayNonNativeNetworkAlert() {
+        Analytics.log(.manageTokensNoticeNonNativeNetworkClicked)
+
         let okButton = Alert.Button.default(Text(Localization.commonOk)) {}
 
         alert = AlertBinder(alert: Alert(
@@ -155,12 +157,12 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
         }
     }
 
-    private func saveChanges() {
+    private func saveChanges() throws {
         guard let userTokensManager = dataSource.selectedUserWalletModel?.userTokensManager else {
             return
         }
 
-        userTokensManager.update(
+        try userTokensManager.update(
             itemsToRemove: pendingRemove,
             itemsToAdd: pendingAdd
         )
@@ -197,7 +199,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
             }
         }
 
-        saveChanges()
+        try saveChanges()
     }
 
     private func bindSelection(_ tokenItem: TokenItem) -> Binding<Bool> {
@@ -242,8 +244,8 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
 
     private func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool, tokenItem: TokenItem) {
         Analytics.log(event: .manageTokensSwitcherChanged, params: [
-            .state: Analytics.ParameterValue.toggleState(for: tokenIsSelected).rawValue,
             .token: tokenItem.currencySymbol,
+            .state: Analytics.ParameterValue.toggleState(for: tokenIsSelected).rawValue,
         ])
     }
 

@@ -70,7 +70,7 @@ private extension CommonExpressTransactionBuilder {
 
         switch destination {
         case .send(let string):
-            return try wallet.createTransaction(amountToSend: amount, fee: fee, destinationAddress: string)
+            return try await wallet.transactionCreator.createTransaction(amount: amount, fee: fee, destinationAddress: string)
         case .contractCall(let contract, let data):
             var transaction = BlockchainSdk.Transaction(
                 amount: amount,
@@ -119,11 +119,14 @@ private extension CommonExpressTransactionBuilder {
         case .algorand:
             return AlgorandTransactionParams(nonce: extraDestinationId)
 
+        case .hedera:
+            return HederaTransactionParams(memo: extraDestinationId)
+
         case .bitcoin,
              .litecoin,
              .ethereum,
              .ethereumPoW,
-             .ethereumFair,
+             .disChain,
              .ethereumClassic,
              .rsk,
              .bitcoinCash,
@@ -156,7 +159,19 @@ private extension CommonExpressTransactionBuilder {
              .veChain,
              .xdc,
              .shibarium,
-             .aptos:
+             .aptos,
+             .areon,
+             .playa3ullGames,
+             .pulsechain,
+             .aurora,
+             .manta,
+             .zkSync,
+             .moonbeam,
+             .polygonZkEVM,
+             .moonriver,
+             .mantle,
+             .flare,
+             .taraxa:
             throw ExpressTransactionBuilderError.blockchainDonNotSupportedExtraId
         }
     }

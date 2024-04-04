@@ -15,55 +15,23 @@ struct ManageTokensItemView: View {
     private let iconSize = CGSize(bothDimensions: 36)
 
     var body: some View {
-        VStack(spacing: 10) {
-            HStack(spacing: 0) {
+        HStack {
+            HStack(spacing: 12) {
                 IconView(url: viewModel.imageURL, size: iconSize, forceKingfisher: true)
                     .skeletonable(isShown: viewModel.isLoading, radius: iconSize.height / 2)
-                    .padding(.trailing, 12)
 
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack(spacing: 4) {
-                        Text(viewModel.name)
-                            .lineLimit(1)
-                            .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-                            .skeletonable(isShown: viewModel.isLoading, radius: 3)
-
-                        Text(viewModel.symbol)
-                            .lineLimit(1)
-                            .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                    }
-
-                    HStack(spacing: 4) {
-                        Text(viewModel.priceValue)
-                            .lineLimit(1)
-                            .truncationMode(.middle)
-                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                            .skeletonable(isShown: viewModel.isLoading, radius: 3)
-
-                        if !viewModel.isLoading {
-                            TokenPriceChangeView(state: viewModel.priceChangeState)
-                        }
-                    }
-                }
-
-                Spacer(minLength: 24)
-
-                if let priceHistory = viewModel.priceHistory {
-                    LineChartView(
-                        color: viewModel.priceHistoryChangeType.textColor,
-                        data: priceHistory
-                    )
-                    .frame(width: 50, height: 37, alignment: .center)
-                    .padding(.trailing, 24)
-                }
-
-                manageButton(for: viewModel.action, with: viewModel.id)
-                    .skeletonable(isShown: viewModel.isLoading)
+                tokenInfo
             }
+
+            Spacer(minLength: 24)
+
+            priceHistoryView
+
+            manageButton(for: viewModel.action, with: viewModel.id)
+                .skeletonable(isShown: viewModel.isLoading)
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 14)
-        .contentShape(Rectangle())
+        .padding(.vertical, 15)
         .animation(nil) // Disable animations on scroll reuse
     }
 
@@ -92,6 +60,46 @@ struct ManageTokensItemView: View {
                 .hidden()
         }
     }
+
+    private var tokenInfo: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(alignment: .firstBaselineCustom, spacing: 4) {
+                Text(viewModel.name)
+                    .lineLimit(1)
+                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    .skeletonable(isShown: viewModel.isLoading, radius: 3)
+
+                Text(viewModel.symbol)
+                    .lineLimit(1)
+                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+            }
+
+            HStack(spacing: 6) {
+                Text(viewModel.priceValue)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .skeletonable(isShown: viewModel.isLoading, radius: 3)
+
+                if !viewModel.isLoading {
+                    TokenPriceChangeView(state: viewModel.priceChangeState)
+                }
+            }
+        }
+    }
+
+    private var priceHistoryView: some View {
+        VStack {
+            if let priceHistory = viewModel.priceHistory {
+                LineChartView(
+                    color: viewModel.priceHistoryChangeType.textColor,
+                    data: priceHistory
+                )
+            }
+        }
+        .frame(width: 50, height: 37, alignment: .center)
+        .padding(.trailing, 24)
+    }
 }
 
 private struct AddButtonView: View {
@@ -114,10 +122,13 @@ private struct TextButtonView: View {
     var body: some View {
         Text(text)
             .style(Fonts.Bold.caption1, color: foreground)
-            .padding(.horizontal, 12)
+            .frame(size: .init(width: 24, height: 16))
+            .padding(.horizontal, 10)
             .padding(.vertical, 4)
-            .background(background)
-            .clipShape(Capsule())
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(background)
+            )
     }
 }
 
