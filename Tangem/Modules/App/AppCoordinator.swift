@@ -80,6 +80,7 @@ class AppCoordinator: CoordinatorObject {
 
         let welcomeCoordinator = WelcomeCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
         welcomeCoordinator.start(with: .init(shouldScan: shouldScan))
+        // withTransaction call fixes stories animation on scenario: welcome -> onboarding -> main -> welcome
         withTransaction(.withoutAnimations()) {
             viewState = .welcome(welcomeCoordinator)
         }
