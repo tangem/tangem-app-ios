@@ -8,7 +8,6 @@
 
 import Foundation
 import XCTest
-
 @testable import TangemFoundation
 
 class ThreadSafeContainerTests: XCTestCase {
