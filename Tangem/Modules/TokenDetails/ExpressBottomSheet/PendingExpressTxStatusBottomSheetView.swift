@@ -92,44 +92,40 @@ struct PendingExpressTxStatusBottomSheetView: View {
     private var providerView: some View {
         VStack(spacing: 12) {
             HStack {
-                exchangeByTitle
+                Text(Localization.expressProvider)
+                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
                 Spacer()
-            }
 
-            HStack(spacing: 12) {
-                IconView(
-                    url: viewModel.providerIconURL,
-                    size: iconSize
-                )
+                if let transactionID = viewModel.transactionID {
+                    Button {
+                        viewModel.copyTransactionID()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Assets.copy.image
+                                .resizable()
+                                .renderingMode(.template)
+                                .frame(width: 16, height: 16)
+                                .foregroundColor(Colors.Icon.informative)
 
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 4) {
-                        Text(viewModel.providerName)
-                            .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
-
-                        Text(viewModel.providerType)
-                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                            Text(Localization.expressTransactionId(transactionID))
+                                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        }
+                        .lineLimit(1)
                     }
-
-                    Text(Localization.expressFloatingRate)
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
                 }
-                Spacer()
             }
+
+            ProviderRowView(viewModel: viewModel.providerRowViewModel)
         }
         .defaultRoundedBackground(with: Colors.Background.action)
-    }
-
-    private var exchangeByTitle: some View {
-        Text(Localization.expressExchangeBy(viewModel.providerName))
-            .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
     }
 
     private var statusesView: some View {
         VStack(spacing: 14) {
             HStack(spacing: 10) {
-                exchangeByTitle
+                Text(Localization.expressExchangeBy(viewModel.providerRowViewModel.provider.name))
+                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
                 Spacer()
 
@@ -219,7 +215,7 @@ struct ExpressPendingTxStatusBottomSheetView_Preview: PreviewProvider {
             currentTokenItem: tokenItem,
             pendingTransactionsManager: CommonPendingExpressTransactionsManager(
                 userWalletId: userWalletId,
-                tokenItem: tokenItem
+                walletModel: .mockETH
             ),
             router: TokenDetailsCoordinator()
         )

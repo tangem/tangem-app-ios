@@ -47,7 +47,7 @@ extension WarningEvent {
         switch self {
         case .numberOfSignedHashesIncorrect, .rateApp, .oldDeviceOldCard, .oldCard:
             return .info
-        case .failedToVerifyCard, .testnetCard, .demoCard, .devCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent:
+        case .failedToVerifyCard, .testnetCard, .demoCard, .devCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent, .backupErrors:
             return .critical
         case .systemDeprecationTemporary, .supportedOnlySingleCurrencyWallet:
             return .warning
@@ -60,7 +60,7 @@ extension WarningEvent {
         switch self {
         case .numberOfSignedHashesIncorrect, .rateApp, .systemDeprecationTemporary, .supportedOnlySingleCurrencyWallet:
             return .temporary
-        case .failedToVerifyCard, .testnetCard, .demoCard, .oldDeviceOldCard, .oldCard, .devCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent:
+        case .failedToVerifyCard, .testnetCard, .demoCard, .oldDeviceOldCard, .oldCard, .devCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent, .backupErrors:
             return .permanent
         case .missingDerivation, .walletLocked, .missingBackup: // New cases won't be displayed in new design
             return .temporary
@@ -80,7 +80,7 @@ extension WarningEvent {
             return Localization.warningSystemDeprecationTitle
         case .testnetCard, .demoCard, .oldDeviceOldCard, .oldCard, .devCard, .lowSignatures, .numberOfSignedHashesIncorrect, .legacyDerivation:
             return defaultTitle
-        case .missingDerivation, .walletLocked, .missingBackup, .supportedOnlySingleCurrencyWallet:
+        case .missingDerivation, .walletLocked, .missingBackup, .supportedOnlySingleCurrencyWallet, .backupErrors:
             // New cases won't be displayed in new design
             return defaultTitle
         }
