@@ -14,6 +14,7 @@ import BlockchainSdk
 class WalletModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
     @Injected(\.swapAvailabilityProvider) private var swapAvailabilityProvider: SwapAvailabilityProvider
+    @Injected(\.accountHealthChecker) private var accountHealthChecker: AccountHealthChecker
 
     var walletModelId: WalletModel.Id {
         .init(blockchainNetwork: blockchainNetwork, amountType: amountType)
@@ -218,6 +219,7 @@ class WalletModel {
         walletManager: WalletManager,
         transactionHistoryService: TransactionHistoryService?,
         amountType: Amount.AmountType,
+        shouldPerformHealthCheck: Bool,
         isCustom: Bool
     ) {
         self.walletManager = walletManager
@@ -226,6 +228,7 @@ class WalletModel {
         self.isCustom = isCustom
 
         bind()
+        performHealthCheckIfNeeded(shouldPerform: shouldPerformHealthCheck)
     }
 
     func bind() {
@@ -259,6 +262,12 @@ class WalletModel {
             .map { $0.0 }
             .assign(to: \._walletDidChangePublisher.value, on: self, ownership: .weak)
             .store(in: &bag)
+    }
+
+    private func performHealthCheckIfNeeded(shouldPerform: Bool) {
+        if shouldPerform {
+            accountHealthChecker.performAccountCheckIfNeeded(wallet.address)
+        }
     }
 
     // MARK: - Update wallet model
