@@ -393,17 +393,19 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     override func goToNextStep() {
         switch currentStep {
         case .createWallet, .createWalletSelector, .seedPhraseUserValidation, .seedPhraseImport:
-            if let backupIntroStepIndex = steps.firstIndex(of: .backupIntro) {
-                let canSkipBackup = userWalletModel?.config.canSkipBackup ?? true
-                if canSkipBackup {
+            let canSkipBackup = userWalletModel?.config.canSkipBackup ?? true
+            if canSkipBackup {
+                if let backupIntroStepIndex = steps.firstIndex(of: .backupIntro) {
                     goToStep(with: backupIntroStepIndex)
-                } else {
-                    goToStep(with: backupIntroStepIndex + 1)
+                    return
                 }
             } else {
-                // impossible case
-                super.goToNextStep()
+                if let index = steps.firstIndex(of: .selectBackupCards) {
+                    goToStep(with: index)
+                    return
+                }
             }
+            super.goToNextStep()
         default:
             super.goToNextStep()
         }
