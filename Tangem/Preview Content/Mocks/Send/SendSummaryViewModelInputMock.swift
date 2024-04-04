@@ -22,7 +22,4 @@ class SendSummaryViewModelInputMock: SendSummaryViewModelInput {
     var destinationTextBinding: Binding<String> { .constant("0x0123123") }
     var feeTextPublisher: AnyPublisher<String?, Never> { .just(output: "0.1 ETH") }
     var isSending: AnyPublisher<Bool, Never> { .just(output: false) }
-
-    func updateFees() -> AnyPublisher<FeeUpdateResult, Error> { .anyFail(error: WalletError.failedToGetFee) }
-    func send() {}
 }
