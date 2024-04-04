@@ -14,6 +14,7 @@ import BlockchainSdk
 class WalletModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
     @Injected(\.swapAvailabilityProvider) private var swapAvailabilityProvider: SwapAvailabilityProvider
+    @Injected(\.accountHealthChecker) private var accountHealthChecker: AccountHealthChecker
 
     var walletModelId: WalletModel.Id {
         .init(blockchainNetwork: blockchainNetwork, amountType: amountType)
@@ -141,11 +142,11 @@ class WalletModel {
     }
 
     var pendingTransactions: [PendingTransactionRecord] {
-        wallet.pendingTransactions.filter { !$0.isDummy }
+        wallet.pendingTransactions.filter { !$0.isDummy && $0.amount.type == amountType }
     }
 
     var incomingPendingTransactions: [PendingTransactionRecord] {
-        wallet.pendingTransactions.filter { $0.isIncoming }
+        wallet.pendingTransactions.filter { $0.isIncoming && $0.amount.type == amountType }
     }
 
     var outgoingPendingTransactions: [PendingTransactionRecord] {
@@ -218,6 +219,7 @@ class WalletModel {
         walletManager: WalletManager,
         transactionHistoryService: TransactionHistoryService?,
         amountType: Amount.AmountType,
+        shouldPerformHealthCheck: Bool,
         isCustom: Bool
     ) {
         self.walletManager = walletManager
@@ -226,6 +228,7 @@ class WalletModel {
         self.isCustom = isCustom
 
         bind()
+        performHealthCheckIfNeeded(shouldPerform: shouldPerformHealthCheck)
     }
 
     func bind() {
@@ -259,6 +262,12 @@ class WalletModel {
             .map { $0.0 }
             .assign(to: \._walletDidChangePublisher.value, on: self, ownership: .weak)
             .store(in: &bag)
+    }
+
+    private func performHealthCheckIfNeeded(shouldPerform: Bool) {
+        if shouldPerform {
+            accountHealthChecker.performAccountCheckIfNeeded(wallet.address)
+        }
     }
 
     // MARK: - Update wallet model
@@ -332,13 +341,10 @@ class WalletModel {
         switch walletManagerState {
         case .loaded:
             return .idle
+        case .failed(WalletError.noAccount(let message, let amountToCreate)):
+            return .noAccount(message: message, amountToCreate: amountToCreate)
         case .failed(let error):
-            switch error as? WalletError {
-            case .noAccount(let message):
-                return .noAccount(message: message)
-            default:
-                return .failed(error: error.detailedError.localizedDescription)
-            }
+            return .failed(error: error.detailedError.localizedDescription)
         case .loading:
             return .loading
         case .initial:
@@ -401,7 +407,7 @@ class WalletModel {
         }
 
         return walletManager.send(tx, signer: signer)
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .handleEvents(receiveOutput: { [weak self] _ in
                 // Force update transactions history to take a new pending transaction from the local storage
                 self?._localPendingTransactionSubject.send(())
@@ -422,10 +428,6 @@ class WalletModel {
         }
 
         return walletManager.getFee(amount: amount, destination: destination)
-    }
-
-    func createTransaction(amountToSend: Amount, fee: Fee, destinationAddress: String) throws -> Transaction {
-        try walletManager.createTransaction(amount: amountToSend, fee: fee, destinationAddress: destinationAddress)
     }
 }
 
@@ -573,6 +575,10 @@ extension WalletModel {
         walletManager
     }
 
+    var transactionValidator: TransactionValidator {
+        walletManager
+    }
+
     var transactionCreator: TransactionCreator {
         walletManager
     }
@@ -583,10 +589,6 @@ extension WalletModel {
 
     var transactionPusher: TransactionPusher? {
         walletManager as? TransactionPusher
-    }
-
-    var withdrawalValidator: WithdrawalValidator? {
-        walletManager as? WithdrawalValidator
     }
 
     var ethereumGasLoader: EthereumGasLoader? {
@@ -611,6 +613,10 @@ extension WalletModel {
 
     var addressResolver: AddressResolver? {
         walletManager as? AddressResolver
+    }
+
+    var withdrawalSuggestionProvider: WithdrawalSuggestionProvider? {
+        walletManager as? WithdrawalSuggestionProvider
     }
 
     var hasRent: Bool {
