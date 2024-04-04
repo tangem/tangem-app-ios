@@ -335,7 +335,18 @@ extension SingleTokenBaseViewModel {
         }
 
         switch walletModel.sendingRestrictions {
-        case .zeroWalletBalance, .cantSignLongTransactions, .zeroFeeCurrencyBalance:
+        case .zeroFeeCurrencyBalance:
+            guard FeatureProvider.isAvailable(.sendV2) else {
+                return true
+            }
+            
+            if case .token = walletModel.amountType,
+               !walletModel.isFeeCurrency {
+                return false
+            } else {
+                return true
+            }
+        case .zeroWalletBalance, .cantSignLongTransactions:
             return true
         case .none, .hasPendingTransaction:
             return false
