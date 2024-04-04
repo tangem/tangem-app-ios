@@ -27,18 +27,17 @@ struct ManageTokensView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(Localization.manageTokensListHeaderTitle)
-                .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title3, color: Colors.Text.primary1)
                 .lineLimit(1)
 
             if viewModel.isShowAddCustomToken {
-                Text(Localization.manageTokensListHeaderSubtitle)
+                Text(Localization.manageTokensNothingFound)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                     .lineLimit(1)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
-        .padding(.bottom, 12)
     }
 
     private var list: some View {
@@ -47,9 +46,11 @@ struct ManageTokensView: View {
                 ManageTokensItemView(viewModel: $0)
             }
 
-            addCustomTokenView
+            if viewModel.isShowAddCustomToken {
+                addCustomTokenView
+            }
 
-            if viewModel.hasNextPage {
+            if viewModel.hasNextPage, viewModel.viewDidAppear {
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle(tint: Colors.Icon.informative))
                     .onAppear(perform: viewModel.fetchMore)
@@ -59,6 +60,9 @@ struct ManageTokensView: View {
 
     private var addCustomTokenView: some View {
         ManageTokensAddCustomItemView {
+            // Need force hide keyboard, because it will affect the state of the focus properties field in the shield under the hood
+            UIApplication.shared.endEditing()
+
             viewModel.addCustomTokenDidTapAction()
         }
     }
