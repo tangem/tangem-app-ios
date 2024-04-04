@@ -11,7 +11,7 @@ import Combine
 import WalletConnectSwiftV2
 import BlockchainSdk
 
-protocol WalletConnectUserWalletInfoProvider {
+protocol WalletConnectUserWalletInfoProvider: AnyObject {
     var userWalletId: UserWalletId { get }
     var signer: TangemSigner { get }
     var wcWalletModelProvider: WalletConnectWalletModelProvider { get }
@@ -45,7 +45,7 @@ final class WalletConnectV2Service {
         }
     }
 
-    private var infoProvider: WalletConnectUserWalletInfoProvider?
+    private weak var infoProvider: WalletConnectUserWalletInfoProvider?
 
     init(
         uiDelegate: WalletConnectUIDelegate,
@@ -83,7 +83,6 @@ final class WalletConnectV2Service {
         canEstablishNewSessionSubject.send(false)
         runTask(withTimeout: 20) { [weak self] in
             await self?.pairClient(with: uri)
-            self?.canEstablishNewSessionSubject.send(true)
         } onTimeout: { [weak self] in
             self?.displayErrorUI(WalletConnectV2Error.sessionConnetionTimeout)
             self?.canEstablishNewSessionSubject.send(true)
@@ -133,7 +132,40 @@ final class WalletConnectV2Service {
         }
     }
 
+    private func checkSocketConnection() async -> Bool {
+        guard let socket = factory.lastCreatetSocket else {
+            return false
+        }
+
+        if socket.currentState == .connected {
+            return true
+        }
+
+        do {
+            let newState = try await socket.statePublisher
+                .filter { $0 == .connected }
+                .eraseError()
+                .timeout(.seconds(10), scheduler: DispatchQueue.main, customError: {
+                    WalletConnectV2Error.socketConnectionTimeout
+                })
+                .eraseToAnyPublisher()
+                .async()
+
+            return newState == .connected
+        } catch {
+            log("Failed to get new connection state.\nError: \(error)")
+            return false
+        }
+    }
+
     private func pairClient(with url: WalletConnectURI) async {
+        guard await checkSocketConnection() else {
+            Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.webSocketConnectionTimeout)
+            displayErrorUI(WalletConnectV2Error.socketIsNotConnected)
+            canEstablishNewSessionSubject.send(true)
+            return
+        }
+
         log("Trying to pair client: \(url)")
         do {
             try await pairApi.pair(uri: url)
@@ -191,6 +223,8 @@ final class WalletConnectV2Service {
                         .dAppUrl: session.peer.url,
                     ]
                 )
+
+                canEstablishNewSessionSubject.send(true)
 
                 await sessionsStorage.save(savedSession)
             }
@@ -273,6 +307,7 @@ final class WalletConnectV2Service {
             AppLog.shared.error("[WC 2.0] \(error)")
             displayErrorUI(.unknown(error.localizedDescription))
         }
+        canEstablishNewSessionSubject.send(true)
     }
 
     // MARK: - UI Related
@@ -336,6 +371,7 @@ final class WalletConnectV2Service {
             } catch {
                 AppLog.shared.error("[WC 2.0] Failed to reject WC connection with error: \(error)")
             }
+            self?.canEstablishNewSessionSubject.send(true)
         }
     }
 
@@ -372,7 +408,7 @@ final class WalletConnectV2Service {
             return
         }
 
-        if userWalletRepository.isLocked, userWalletRepository.models.isEmpty {
+        if userWalletRepository.models.isEmpty {
             log("User wallet repository is locked")
             await respond(with: .userWalletRepositoryIsLocked, session: nil, blockchainCurrencySymbol: targetBlockchain.currencySymbol)
             return
@@ -390,7 +426,7 @@ final class WalletConnectV2Service {
             return
         }
 
-        if userWallet.userWallet.isLocked {
+        if userWallet.isUserWalletLocked {
             log("Attempt to handle message with locked user wallet")
             await respond(with: .userWalletIsLocked, session: session, blockchainCurrencySymbol: targetBlockchain.currencySymbol)
             return
@@ -451,8 +487,16 @@ final class WalletConnectV2Service {
         if let error {
             params[.validation] = Analytics.ParameterValue.fail.rawValue
             params[.errorCode] = "\(error.code)"
+            let errorDescription: String
+            if case .unknown(let externalErrorMessage) = error {
+                errorDescription = externalErrorMessage
+            } else {
+                errorDescription = error.errorDescription ?? "No error description"
+            }
+            params[.errorDescription] = errorDescription
         } else {
             params[.validation] = Analytics.ParameterValue.success.rawValue
+            params[.errorCode] = "0"
         }
 
         Analytics.log(event: .requestHandled, params: params)

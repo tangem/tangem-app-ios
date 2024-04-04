@@ -49,7 +49,7 @@ class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
     func unlockWithCard() {
         Analytics.beginLoggingCardScan(source: .mainUnlock)
         isScannerBusy = true
-        userWalletRepository.unlock(with: .card(userWallet: userWalletModel.userWallet)) { [weak self] result in
+        userWalletRepository.unlock(with: .card(userWalletId: userWalletModel.userWalletId)) { [weak self] result in
             DispatchQueue.main.async {
                 self?.isScannerBusy = false
                 switch result {
@@ -73,7 +73,7 @@ class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
     }
 
     func requestSupport() {
-        Analytics.log(.buttonRequestSupport)
+        Analytics.log(.requestSupport, params: [.source: .main])
         failedCardScanTracker.resetCounter()
         delegate?.openMail(with: failedCardScanTracker, recipient: EmailConfig.default.recipient, emailType: .failedToScanCard)
     }

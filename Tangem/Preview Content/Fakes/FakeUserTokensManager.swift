@@ -31,7 +31,7 @@ class FakeUserTokensManager: UserTokensManager {
     }
 
     func deriveIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        derivationManager?.deriveKeys(cardInteractor: CardInteractor(cardId: ""), completion: { result in
+        derivationManager?.deriveKeys(cardInteractor: KeysDerivingMock(), completion: { result in
             completion(result)
         })
     }
@@ -48,7 +48,7 @@ class FakeUserTokensManager: UserTokensManager {
         completion(.success(()))
     }
 
-    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) {}
+    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) throws {}
 
     func canRemove(_ tokenItem: TokenItem) -> Bool {
         false

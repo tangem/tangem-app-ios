@@ -47,14 +47,14 @@ struct BackButton: View {
             }
         })
         .allowsHitTesting(isEnabled)
-        .opacity(isVisible ? 1.0 : 0.0)
+        .hidden(!isVisible)
         .frame(height: height)
         .foregroundColor(isEnabled ? color : color.opacity(0.5))
         .padding(.horizontal, hPadding)
     }
 }
 
-struct ChatButton: View {
+struct SupportButton: View {
     let height: CGFloat
     let isVisible: Bool
     let isEnabled: Bool
@@ -64,7 +64,7 @@ struct ChatButton: View {
 
     var body: some View {
         Button(action: action, label: {
-            Text(Localization.chatButtonTitle)
+            Text(Localization.commonSupport)
                 .font(.system(size: 17, weight: .regular))
         })
         .allowsHitTesting(isEnabled)
@@ -129,7 +129,7 @@ struct NavigationBar<LeftButtons: View, RightButtons: View>: View {
                 .foregroundColor(settings.titleColor)
         }
         .padding(.horizontal, settings.horizontalPadding)
-        .frame(width: UIScreen.main.bounds.size.width, height: settings.height)
+        .frame(height: settings.height)
         .background(settings.backgroundColor.edgesIgnoringSafeArea(.all))
     }
 }
