@@ -191,6 +191,9 @@
 "express_choose_providers_subtitle" = "Tangem предоставляет доступ к обмену через сторонних поставщиков в соответствии с их правилами";
 "express_choose_providers_title" = "Выберите провайдера";
 "express_error_code" = "Произошла ошибка. Код: %@";
+"express_error_provider_unavailable" = "К сожалению обмен указанной пары через выбранного провайдера на данный момент не возможен. Попробуйте совершить обмен позже. (Код: %@)";
+"express_error_swap_pair_unavailable" = "Выбранный провайдер не доступен для обмена. Попробуйте позже. (Код: %@)";
+"express_error_swap_unavailable" = "В данный момент обмен не возможен. Попробуйте позже. (Код: %@)";
 "express_estimated_amount" = "Курс обмена";
 "express_exchange_by" = "Обмен через %@";
 "express_exchange_notification_failed_text" = "Чтобы вернуть ваши деньги, посетите сайт провайдера";
@@ -312,7 +315,7 @@
 "onboarding_exit_alert_message" = "В этом случае вам будет необходимо начать процесс заново.";
 "onboarding_exit_alert_title" = "Вы хотите выйти из процесса активации?";
 "onboarding_getting_started" = "Подготовка";
-"onboarding_linking_error_card_with_wallets" = "Другой кошелек уже был создан на карте, которую вы пытаетесь добавить. Хотите сбросить его и использовать карту для бэкапа?";
+"onboarding_linking_error_card_with_wallets" = "Другой кошелек уже был создан на карте, которую вы пытаетесь добавить. Если на нем есть средства, пожалуйста сначала выведите их, а затем сделайте сброс до заводских настроек и используйте как резервную.";
 "onboarding_navbar_save_wallet" = "Сохраните ваш кошелек";
 "onboarding_navbar_title_creating_backup" = "Резервная копия";
 "onboarding_seed_button_read_more" = "Прочитать о seed-фразе";
