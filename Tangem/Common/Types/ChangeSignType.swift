@@ -39,7 +39,7 @@ enum ChangeSignType: Int, Hashable {
         case .positive:
             return Colors.Text.accent
         case .neutral:
-            return Colors.Text.disabled
+            return Colors.Text.tertiary
         case .negative:
             return Colors.Text.warning
         }
