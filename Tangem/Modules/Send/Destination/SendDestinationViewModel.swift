@@ -42,6 +42,7 @@ class SendDestinationViewModel: ObservableObject {
     var addressViewModel: SendDestinationTextViewModel?
     var additionalFieldViewModel: SendDestinationTextViewModel?
 
+    @Published var userInputDisabled = false
     @Published var destinationErrorText: String?
     @Published var destinationAdditionalFieldErrorText: String?
     @Published var suggestedDestinationViewModel: SendSuggestedDestinationViewModel?
@@ -71,14 +72,19 @@ class SendDestinationViewModel: ObservableObject {
             showSign: false
         )
 
+        let blockchain = input.blockchainNetwork.blockchain
+
         suggestedWallets = Self.userWalletRepository
             .models
             .compactMap { userWalletModel in
                 let walletModels = userWalletModel.walletModelsManager.walletModels
                 let walletModel = walletModels.first { walletModel in
-                    walletModel.blockchainNetwork == input.blockchainNetwork &&
-                        walletModel.wallet.publicKey != input.walletPublicKey
+                    return
+                        walletModel.wallet.publicKey != input.walletPublicKey &&
+                        walletModel.blockchainNetwork.blockchain == blockchain &&
+                        !walletModel.isCustom
                 }
+
                 guard let walletModel else { return nil }
 
                 return SendSuggestedDestinationWallet(
@@ -123,6 +129,10 @@ class SendDestinationViewModel: ObservableObject {
         } else {
             Analytics.log(.sendAddressScreenOpened)
         }
+    }
+
+    func setUserInputDisabled(_ userInputDisabled: Bool) {
+        self.userInputDisabled = userInputDisabled
     }
 
     private func bind() {
