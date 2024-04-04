@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import UIKit
 
 class ManageTokensCoordinator: CoordinatorObject {
     // MARK: - Dependencies
@@ -40,6 +41,14 @@ class ManageTokensCoordinator: CoordinatorObject {
         assert(delegate != nil)
         manageTokensViewModel = .init(searchTextPublisher: options.searchTextPublisher, coordinator: self)
     }
+
+    func onBottomScrollableSheetStateChange(_ state: BottomScrollableSheetState) {
+        if state.isBottom {
+            manageTokensViewModel?.onBottomDisappear()
+        } else {
+            manageTokensViewModel?.onBottomAppear()
+        }
+    }
 }
 
 extension ManageTokensCoordinator {
@@ -54,6 +63,7 @@ extension ManageTokensCoordinator: ManageTokensRoutable {
 
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.addCustomTokenCoordinator = nil
+            self?.dismiss()
         }
 
         let addCustomTokenCoordinator = AddCustomTokenCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)

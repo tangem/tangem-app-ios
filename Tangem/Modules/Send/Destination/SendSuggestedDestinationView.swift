@@ -13,26 +13,35 @@ struct SendSuggestedDestinationView: View {
 
     private let cellVerticalSpacing: Double = 4
     private let cellHorizontalSpacing: Double = 12
-    private let cellVerticalPadding: Double = 14
 
     var body: some View {
         GroupedSection(viewModel.cellViewModels) { cellViewModel in
+            let index = viewModel.cellViewModels.firstIndex(where: { $0.id == cellViewModel.id }) ?? -1
+
             if let tapAction = cellViewModel.tapAction {
-                cellView(for: cellViewModel.type)
+                cellView(for: cellViewModel.type, index: index)
                     .contentShape(Rectangle())
                     .onTapGesture(perform: tapAction)
             } else {
-                cellView(for: cellViewModel.type)
+                cellView(for: cellViewModel.type, index: index)
             }
         }
+        .interItemSpacing(0)
         .separatorStyle(.none)
     }
 
     @ViewBuilder
-    private func cellView(for type: SendSuggestedDestinationViewModel.CellModel.`Type`) -> some View {
+    private func cellView(for type: SendSuggestedDestinationViewModel.CellModel.`Type`, index: Int) -> some View {
         switch type {
         case .header(let title):
-            headerView(for: title)
+            if index == 0 {
+                headerView(for: title)
+                    .padding(.vertical, 16)
+            } else {
+                headerView(for: title)
+                    .padding(.top, 22)
+                    .padding(.bottom, 10)
+            }
         case .wallet(let wallet, let addressIconViewModel):
             walletView(for: wallet, addressIconViewModel: addressIconViewModel)
         case .recentTransaction(let record, let addressIconViewModel):
@@ -44,7 +53,6 @@ struct SendSuggestedDestinationView: View {
     private func headerView(for title: String) -> some View {
         Text(title)
             .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-            .padding(.vertical, 14)
     }
 
     @ViewBuilder
@@ -60,7 +68,7 @@ struct SendSuggestedDestinationView: View {
                     .lineLimit(1)
             }
         }
-        .padding(.vertical, cellVerticalPadding)
+        .padding(.vertical, 10)
     }
 
     @ViewBuilder
@@ -77,14 +85,14 @@ struct SendSuggestedDestinationView: View {
                         .background(Colors.Background.tertiary)
                         .clipShape(Circle())
 
-                    Text(transaction.description)
+                    SensitiveText(builder: transaction.description, sensitive: transaction.amountFormatted)
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                         .truncationMode(.middle)
                         .lineLimit(1)
                 }
             }
         }
-        .padding(.vertical, cellVerticalPadding)
+        .padding(.vertical, 14)
     }
 
     @ViewBuilder
@@ -124,9 +132,9 @@ struct SendSuggestedDestinationView: View {
                 .init(name: "Main Wallet Wallet Wallet Wallet Wallet Wallet Wallet Wallet Wallet Wallet Wallet", address: "0x391316d97a07027a0702c8A002c8A0C25d8470"),
             ],
             recentTransactions: [
-                .init(address: "0x391316d97a07027a0702c8A002c8A0C25d8470", additionalField: nil, isOutgoing: false, description: "20,09 USDT, 24.05.2004 at 14:46"),
-                .init(address: "0x391316d97a07027a", additionalField: "123142", isOutgoing: true, description: "1 USDT, today at 14:46"),
-                .init(address: "0x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d8470", additionalField: nil, isOutgoing: false, description: "1 000 000 000 000 000 000 000 000 000 000.123012310 USDT, today at 14:46"),
+                .init(address: "0x391316d97a07027a0702c8A002c8A0C25d8470", additionalField: nil, isOutgoing: false, amountFormatted: "20,09 USDT", dateFormatted: "24.05.2004 at 14:46"),
+                .init(address: "0x391316d97a07027a", additionalField: "123142", isOutgoing: true, amountFormatted: "1 USDT", dateFormatted: "today at 14:46"),
+                .init(address: "0x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d8470", additionalField: nil, isOutgoing: false, amountFormatted: "1 000 000 000 000 000 000 000 000 000 000.123012310 USDT", dateFormatted: "today at 14:46"),
             ],
             tapAction: { _ in }
         )
@@ -141,8 +149,8 @@ struct SendSuggestedDestinationView: View {
                     .init(name: "Main Wallet", address: "0x391316d97a07027a0702c8A002c8A0C25d8470"),
                 ],
                 recentTransactions: [
-                    .init(address: "0x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d8470", additionalField: nil, isOutgoing: true, description: "1 000 000 000 000 000 000 000 000 000 000.123012310 USDT, today at 14:46"),
-                    .init(address: "0x391316d97a07027a0702c8A002c8A0C25d8470", additionalField: nil, isOutgoing: false, description: "20,09 USDT, 24.05.2004 at 14:46"),
+                    .init(address: "0x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d8470", additionalField: nil, isOutgoing: true, amountFormatted: "1 000 000 000 000 000 000 000 000 000 000.123012310 USDT", dateFormatted: "today at 14:46"),
+                    .init(address: "0x391316d97a07027a0702c8A002c8A0C25d8470", additionalField: nil, isOutgoing: false, amountFormatted: "20,09 USDT", dateFormatted: "24.05.2004 at 14:46"),
                 ],
                 tapAction: { _ in }
             )
