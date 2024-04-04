@@ -8,7 +8,8 @@
 
 import Foundation
 
-protocol NotificationEvent: Hashable {
+protocol NotificationEvent: Hashable, Identifiable {
+    var id: String { get }
     var title: NotificationView.Title { get }
     var description: String? { get }
     var colorScheme: NotificationView.ColorScheme { get }
@@ -20,4 +21,11 @@ protocol NotificationEvent: Hashable {
     var analyticsParams: [Analytics.ParameterKey: String] { get }
     /// Determine if analytics event should be sent only once and tracked by service
     var isOneShotAnalyticsEvent: Bool { get }
+}
+
+extension NotificationEvent {
+    // Unique ID. Overwrite if hash value is not enough (may be influenced by associated values)
+    var id: String {
+        "\(hashValue)"
+    }
 }
