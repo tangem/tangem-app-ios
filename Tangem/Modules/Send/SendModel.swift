@@ -155,6 +155,13 @@ class SendModel {
         } else {
             validateDestinationAdditionalField()
         }
+
+        // Update the fees in case we have all prerequisites specified
+        if let predefinedAmount = sendType.predefinedAmount, let predefinedDestination = sendType.predefinedDestination {
+            updateFees(amount: predefinedAmount, destination: predefinedDestination)
+                .sink()
+                .store(in: &bag)
+        }
     }
 
     func includeFeeIntoAmount() {
@@ -253,21 +260,6 @@ class SendModel {
             }
             .store(in: &bag)
 
-        Publishers.CombineLatest(validatedAmount, validatedDestination)
-            .removeDuplicates {
-                $0 == $1
-            }
-            .withWeakCaptureOf(self)
-            .flatMap { (self, parameters) -> AnyPublisher<FeeUpdateResult, Error> in
-                self.updateFees(amount: parameters.0, destination: parameters.1?.value)
-                    .catch { _ in
-                        Empty<FeeUpdateResult, Error>()
-                    }
-                    .eraseToAnyPublisher()
-            }
-            .sink()
-            .store(in: &bag)
-
         _feeValues
             .sink { [weak self] feeValues in
                 guard let self else { return }
@@ -339,10 +331,6 @@ class SendModel {
 
     @discardableResult
     private func updateFees(amount: Amount?, destination: String?) -> AnyPublisher<FeeUpdateResult, Error> {
-        if let feeUpdatePublisher {
-            return feeUpdatePublisher.eraseToAnyPublisher()
-        }
-
         guard let amount, let destination else {
             _feeValues.send([:])
             return .anyFail(error: WalletError.failedToGetFee)
@@ -351,7 +339,7 @@ class SendModel {
         _feeValues.send([:])
 
         let oldFee = fee.value
-        let publisher = walletModel
+        return walletModel
             .getFee(amount: amount, destination: destination)
             .withWeakCaptureOf(self)
             .map { (self, fees) in
@@ -381,10 +369,6 @@ class SendModel {
                 return FeeUpdateResult(oldFee: oldFee?.amount, newFee: selectedFeeValue.amount)
             }
             .eraseToAnyPublisher()
-
-        feeUpdatePublisher = publisher
-
-        return publisher
     }
 
     private func explorerUrl(from hash: String) -> URL? {
