@@ -372,6 +372,10 @@ private extension Blockchain {
         case .zkSync: return nil
         case .moonbeam: return nil
         case .polygonZkEVM: return nil
+        case .moonriver: return nil
+        case .mantle: return nil
+        case .flare: return nil
+        case .taraxa: return nil
         }
     }
 
@@ -433,6 +437,10 @@ private extension Blockchain {
         case .zkSync: return nil
         case .moonbeam: return nil
         case .polygonZkEVM: return nil
+        case .moonriver: return nil
+        case .mantle: return nil
+        case .flare: return nil
+        case .taraxa: return nil
         }
     }
 }
