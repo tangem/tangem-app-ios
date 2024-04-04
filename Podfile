@@ -24,23 +24,23 @@ use_frameworks!
 inhibit_all_warnings!
 
 def tangem_sdk_pod
-  pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-280'
+  pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-286'
   #pod 'TangemSdk', :path => '../tangem-sdk-ios'
 end
 
 def blockchain_sdk_pods
   # 'TangemWalletCore' dependency must be added via SPM
 
-  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-484'
+  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-548'
   #pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
 
-  pod 'Solana.Swift', :git => 'https://github.com/tangem/Solana.Swift', :tag => '1.2.0-tangem1'
+  pod 'Solana.Swift', :git => 'https://github.com/tangem/Solana.Swift', :tag => '1.2.0-tangem5'
   #pod 'Solana.Swift', :path => '../Solana.Swift'
 
   pod 'BinanceChain', :git => 'https://github.com/tangem/swiftbinancechain.git', :tag => '0.0.11'
   #pod 'BinanceChain', :path => '../SwiftBinanceChain'
   
-  pod 'BitcoinCore.swift', :git => 'https://github.com/tangem/bitcoincore.git', :tag => '0.0.19'
+  pod 'BitcoinCore.swift', :git => 'https://github.com/tangem/bitcoincore.git', :tag => '0.0.20'
   #pod 'BitcoinCore.swift', :path => '../bitcoincore'
 end
 
@@ -68,14 +68,13 @@ target 'Tangem' do
   ]
 
   # support chat
-  pod 'SPRMessengerClient', :git => 'https://github.com/tangem/SPRMessengerClient-binaries-ios.git', :tag => 'sprinklr-3.6.2-tangem1'
+#  pod 'SPRMessengerClient', :git => 'https://github.com/tangem/SPRMessengerClient-binaries-ios.git', :tag => 'sprinklr-3.6.2-tangem1'
   
   # Analytics
   pod 'Amplitude'
   pod 'Firebase/Crashlytics'
   pod 'Firebase/Analytics'
-  pod 'AppsFlyerFramework'
-  
+
   target 'TangemTests' do
     inherit! :search_paths
     # Pods for testing
