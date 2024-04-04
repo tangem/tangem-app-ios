@@ -11,15 +11,11 @@ import Combine
 import BlockchainSdk
 
 class SendAmountViewModelInputMock: SendAmountViewModelInput {
-    var amountInputPublisher: AnyPublisher<BlockchainSdk.Amount?, Never> { .just(output: nil) }
-
-    var amountType: Amount.AmountType { .coin }
-
-    var blockchain: Blockchain { .ethereum(testnet: false) }
+    var userInputAmountValue: Amount? { .init(type: .coin, currencySymbol: "$", value: 1_000_000, decimals: 0) }
     var amountError: AnyPublisher<Error?, Never> {
-        Just(nil).eraseToAnyPublisher()
+        Just("Insufficient funds for transfer").eraseToAnyPublisher()
     }
 
-    func setAmount(_ amount: BlockchainSdk.Amount?) {}
-    func useMaxAmount() {}
+    func setAmount(_ decimal: Decimal?) {}
+    func didChangeFeeInclusion(_ isFeeIncluded: Bool) {}
 }

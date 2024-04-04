@@ -19,9 +19,9 @@ struct MainHeaderView: View {
     @State private var balanceTextSize: CGSize = .zero
 
     var body: some View {
-        HStack(alignment: .bottom, spacing: 0) {
-            let contentSettings = contentSettings(containerWidth: containerSize.width)
+        let contentSettings = contentSettings(containerWidth: containerSize.width)
 
+        return HStack(alignment: .bottom, spacing: 0) {
             VStack(alignment: .leading, spacing: 0) {
                 titleView
 
@@ -54,8 +54,9 @@ struct MainHeaderView: View {
             }
             .lineLimit(1)
             .padding(.vertical, 12)
-
-            if contentSettings.shouldShowTrailingContent {
+        }
+        .background(alignment: .bottom, content: {
+            HStack {
                 Spacer(minLength: horizontalSpacing)
 
                 // A transparent 1px image is used to preserve the structural identity of the view,
@@ -66,7 +67,8 @@ struct MainHeaderView: View {
                 Image(viewModel.cardImage?.name ?? Assets.clearColor1px.name)
                     .frame(size: imageSize)
             }
-        }
+            .hidden(!contentSettings.shouldShowTrailingContent)
+        })
         .readGeometry(\.size, bindTo: $containerSize)
         .padding(.horizontal, 14)
         .background(Colors.Background.primary)
