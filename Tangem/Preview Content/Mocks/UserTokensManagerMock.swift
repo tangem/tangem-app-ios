@@ -18,7 +18,7 @@ struct UserTokensManagerMock: UserTokensManager {
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, TangemSdkError>) -> Void) {}
 
-    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) {}
+    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) throws {}
 
     func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {}
 

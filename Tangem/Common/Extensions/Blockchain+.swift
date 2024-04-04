@@ -25,10 +25,10 @@ extension Blockchain {
     /// Should be used to get the actual currency rate
     var currencyId: String {
         switch self {
-        case .arbitrum(let testnet), .optimism(let testnet):
+        case .arbitrum(let testnet), .optimism(let testnet),
+             .aurora(let testnet), .manta(let testnet),
+             .zkSync(let testnet), .polygonZkEVM(let testnet):
             return Blockchain.ethereum(testnet: testnet).coinId
-        case .ducatus:
-            return "ducatus" // from DucatusX
         default:
             return coinId
         }
@@ -51,16 +51,6 @@ extension Blockchain {
 
     /// Should be used to get a filled icon from the`Tokens.xcassets` file
     var iconNameFilled: String { "\(iconName).fill" }
-
-    // We can't sign transactions at legacy devices for this blockchains
-    var hasLongTransactions: Bool {
-        switch self {
-        case .solana, .chia:
-            return true
-        default:
-            return false
-        }
-    }
 }
 
 // MARK: - Blockchain ID
@@ -73,7 +63,7 @@ private extension Blockchain {
         case .stellar: return "stellar"
         case .ethereum: return "ethereum"
         case .ethereumPoW: return "ethereum-pow-iou"
-        case .ethereumFair: return "ethereumfair"
+        case .disChain: return "ethereumfair" // keep existing id for compatibility
         case .ethereumClassic: return "ethereum-classic"
         case .rsk: return "rootstock"
         case .bitcoinCash: return "bitcoin-cash"
@@ -84,7 +74,7 @@ private extension Blockchain {
             case .network: return "xrp"
             case .coin: return "ripple"
             }
-        case .ducatus: return "duc"
+        case .ducatus: return "ducatus"
         case .tezos: return "tezos"
         case .dogecoin: return "dogecoin"
         case .bsc:
@@ -155,7 +145,52 @@ private extension Blockchain {
             case .network: return "shibarium"
             case .coin: return "bone-shibaswap"
             }
-        case .aptos: return "aptos"
+        case .aptos:
+            return "aptos"
+        case .hedera:
+            return "hedera-hashgraph"
+        case .areon:
+            return "areon-network"
+        case .playa3ullGames:
+            switch type {
+            case .network: return "playa3ull-games"
+            case .coin: return "playa3ull-games-2"
+            }
+        case .pulsechain:
+            return "pulsechain"
+        case .aurora:
+            switch type {
+            case .network: return "aurora"
+            case .coin: return "aurora-ethereum"
+            }
+        case .manta:
+            switch type {
+            case .network: return "manta-network"
+            case .coin: return "manta-network-ethereum"
+            }
+        case .zkSync:
+            switch type {
+            case .network: return "zksync"
+            case .coin: return "zksync-ethereum"
+            }
+        case .moonbeam:
+            return "moonbeam"
+        case .polygonZkEVM:
+            switch type {
+            case .network: return "polygon-zkevm"
+            case .coin: return "polygon-zkevm-ethereum"
+            }
+        case .moonriver:
+            return "moonriver"
+        case .mantle:
+            return "mantle"
+        case .flare:
+            switch type {
+            case .network: return "flare-network"
+            case .coin: return "flare-networks"
+            }
+        case .taraxa:
+            return "taraxa"
         }
     }
 
@@ -179,5 +214,16 @@ extension Set<Blockchain> {
 
         AppLog.shared.debug("⚠️⚠️⚠️ Blockchain with id: \(networkId) isn't contained in supported blockchains")
         return nil
+    }
+}
+
+extension Blockchain {
+    var feeDisplayName: String {
+        switch self {
+        case .arbitrum, .optimism:
+            return displayName + " (\(currencySymbol))"
+        default:
+            return currencySymbol
+        }
     }
 }
