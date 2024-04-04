@@ -12,9 +12,8 @@ import BlockchainSdk
 struct TransactionSendAvailabilityProvider {
     func sendingRestrictions(walletModel: WalletModel) -> SendingRestrictions? {
         let wallet = walletModel.wallet
-        let blockchainNetwork = walletModel.blockchainNetwork
 
-        if !AppUtils().canSignLongTransactions(network: blockchainNetwork) {
+        if !AppUtils().canSignLongTransactions(tokenItem: walletModel.tokenItem) {
             return .cantSignLongTransactions
         }
 
@@ -24,7 +23,7 @@ struct TransactionSendAvailabilityProvider {
 
         // has pending tx
         if hasPendingTransactions(walletModel: walletModel) {
-            return .hasPendingTransaction(blockchain: blockchainNetwork.blockchain)
+            return .hasPendingTransaction(blockchain: walletModel.tokenItem.blockchain)
         }
 
         // no fee
@@ -35,7 +34,8 @@ struct TransactionSendAvailabilityProvider {
                     feeAmountTypeName: walletModel.feeTokenItem.name,
                     feeAmountTypeCurrencySymbol: walletModel.feeTokenItem.currencySymbol,
                     feeAmountTypeIconName: walletModel.feeTokenItem.blockchain.iconNameFilled,
-                    networkName: walletModel.tokenItem.networkName
+                    networkName: walletModel.tokenItem.networkName,
+                    currencyButtonTitle: walletModel.tokenItem.blockchain.feeDisplayName
                 )
             )
         }
@@ -67,6 +67,7 @@ extension TransactionSendAvailabilityProvider {
             let feeAmountTypeCurrencySymbol: String
             let feeAmountTypeIconName: String
             let networkName: String
+            let currencyButtonTitle: String?
         }
 
         var description: String? {
