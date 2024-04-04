@@ -55,6 +55,7 @@ struct ExpressView: View {
         // For animate button below informationSection
         .animation(.easeInOut, value: viewModel.providerState?.id)
         .animation(.default, value: viewModel.notificationInputs)
+        .animation(.easeInOut, value: viewModel.expressFeeRowViewModel)
     }
 
     @ViewBuilder
@@ -153,7 +154,10 @@ struct ExpressView: View {
             }
             .readGeometry(\.frame.size, bindTo: $bottomViewSize)
         }
-        .animation(nil, value: 0)
+        // To force `.animation(nil)` behaviour
+        .transaction { transaction in
+            transaction.animation = nil
+        }
     }
 
     @ViewBuilder
