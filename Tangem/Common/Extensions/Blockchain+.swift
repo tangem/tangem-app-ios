@@ -180,6 +180,17 @@ private extension Blockchain {
             case .network: return "polygon-zkevm"
             case .coin: return "polygon-zkevm-ethereum"
             }
+        case .moonriver:
+            return "moonriver"
+        case .mantle:
+            return "mantle"
+        case .flare:
+            switch type {
+            case .network: return "flare-network"
+            case .coin: return "flare-networks"
+            }
+        case .taraxa:
+            return "taraxa"
         }
     }
 
