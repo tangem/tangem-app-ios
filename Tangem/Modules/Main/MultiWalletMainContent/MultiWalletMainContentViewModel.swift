@@ -163,7 +163,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .map { $0.map(\.walletModelId) }
             .withWeakCaptureOf(self)
             .flatMapLatest { viewModel, walletModelIds in
-                return viewModel.optionsEditing.save(reorderedWalletModelIds: walletModelIds)
+                return viewModel.optionsEditing.save(reorderedWalletModelIds: walletModelIds, source: .mainScreen)
             }
             .sink()
             .store(in: &bag)
