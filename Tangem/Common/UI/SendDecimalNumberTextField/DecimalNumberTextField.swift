@@ -36,6 +36,7 @@ struct DecimalNumberTextField: View {
                 .frame(width: size.width)
         }
         .lineLimit(1)
+        .animation(.none, value: size.width)
     }
 
     private var textField: some View {
