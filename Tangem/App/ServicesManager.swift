@@ -16,6 +16,7 @@ class ServicesManager {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.accountHealthChecker) private var accountHealthChecker: AccountHealthChecker
 
     private var bag = Set<AnyCancellable>()
 
@@ -44,6 +45,7 @@ class ServicesManager {
         S2CTOUMigrator().migrate()
         exchangeService.initialize()
         tangemApiService.initialize()
+        accountHealthChecker.initialize()
     }
 
     private func configureFirebase() {
