@@ -61,7 +61,7 @@ struct SendSummaryView: View {
                     GroupedSection(viewModel.selectedFeeSummaryViewModel) { data in
                         feeSectionContent(data: data)
                             .overlay {
-                                ForEach(viewModel.otherFeeViewModels) { model in
+                                ForEach(viewModel.deselectedFeeRowViewModels) { model in
                                     FeeRowView(viewModel: model)
                                         .setNamespace(namespace)
                                         .setOptionNamespaceId(SendViewNamespaceId.feeOption(feeOption: model.option).rawValue)
