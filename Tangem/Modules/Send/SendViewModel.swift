@@ -477,21 +477,13 @@ final class SendViewModel: ObservableObject {
     }
 
     private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation, checkCustomFee: Bool = true, updateFee: Bool) {
-        print("zzz \(ttttt()) keyboard visible", keyboardVisibilityService.keyboardVisible)
         if keyboardVisibilityService.keyboardVisible, !step.opensKeyboardByDefault {
-            print("zzz \(ttttt()) hiding with delay")
-            keyboardVisibilityService.hideKeyboard {
-                print("zzz \(ttttt()) did hide")
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    print("zzz \(ttttt()) opening after delay")
-                    self.openStep(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee, updateFee: updateFee)
-                }
+            keyboardVisibilityService.hideKeyboard { [weak self] in
+                self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee, updateFee: updateFee)
             }
-
             return
         }
 
-        print("zzz \(ttttt()) proceding to open step")
         if case .summary = step {
             if updateFee {
                 self.updateFee(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee)
@@ -513,7 +505,6 @@ final class SendViewModel: ObservableObject {
         mainButtonType = mainButtonType(for: step)
 
         DispatchQueue.main.async {
-            print("zzz  \(ttttt()) did actually open step", step)
             self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
             self.step = step
         }
