@@ -206,6 +206,10 @@ private extension ExpressViewModel {
                 canChangeCurrency: interactor.getDestination()?.id != initialWallet.id
             )
         )
+
+        // First update
+        updateSendView(wallet: interactor.getSender())
+        updateReceiveView(wallet: interactor.getDestinationValue())
     }
 
     func bind() {
@@ -262,9 +266,16 @@ private extension ExpressViewModel {
 
         interactor.swappingPair
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] pair in
-                self?.updateSendView(wallet: pair.sender)
-                self?.updateReceiveView(wallet: pair.destination)
+            .pairwise()
+            .sink { [weak self] prev, pair in
+                if pair.sender != prev.sender {
+                    self?.updateSendView(wallet: pair.sender)
+                }
+
+                if pair.destination.value != prev.destination.value {
+                    self?.updateReceiveView(wallet: pair.destination)
+                }
+
                 self?.updateMaxButtonVisibility(pair: pair)
             }
             .store(in: &bag)
@@ -306,6 +317,10 @@ private extension ExpressViewModel {
         }
 
         let roundedAmount = amount.rounded(scale: wallet.decimalCount, roundingMode: .down)
+
+        // Exclude unnecessary update
+        guard roundedAmount != amount else { return }
+
         updateSendDecimalValue(to: roundedAmount)
     }
 
