@@ -216,3 +216,9 @@ private extension SendSuggestedDestination.`Type` {
         }
     }
 }
+
+private extension Blockchain {
+    static func curveInsensitiveCompare(_ left: Blockchain, _ right: Blockchain) -> Bool {
+        return left.coinId == right.coinId && left.isTestnet == right.isTestnet
+    }
+}
