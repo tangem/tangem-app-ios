@@ -206,6 +206,10 @@ private extension ExpressViewModel {
                 canChangeCurrency: interactor.getDestination()?.id != initialWallet.id
             )
         )
+
+        // First update
+        updateSendView(wallet: interactor.getSender())
+        updateReceiveView(wallet: interactor.getDestinationValue())
     }
 
     func bind() {
@@ -227,11 +231,29 @@ private extension ExpressViewModel {
             }
             .store(in: &bag)
 
-        notificationManager
-            .notificationPublisher
-            .removeDuplicates()
-            // Debounce for exclude unwanted animations/updates
+        // Creates a publisher that emits changes in the notification list
+        // based on a provided filter that compares the previous and new values
+        let makeNotificationPublisher = { [notificationManager] filter in
+            notificationManager
+                .notificationPublisher
+                .removeDuplicates()
+                .scan(([NotificationViewInput](), [NotificationViewInput]())) { prev, new in
+                    (prev.1, new)
+                }
+                .filter(filter)
+                .map(\.1)
+                .removeDuplicates()
+        }
+
+        // Publisher for showing new notifications with a delay to prevent unwanted animations
+        makeNotificationPublisher { $1.count >= $0.count }
             .debounce(for: 0.2, scheduler: DispatchQueue.main)
+            .assign(to: \.notificationInputs, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        // Publisher for immediate updates when notifications are removed (e.g., from 2 to 0 or 1)
+        // to fix 'jumping' animation bug
+        makeNotificationPublisher { $1.count < $0.count }
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
@@ -244,9 +266,16 @@ private extension ExpressViewModel {
 
         interactor.swappingPair
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] pair in
-                self?.updateSendView(wallet: pair.sender)
-                self?.updateReceiveView(wallet: pair.destination)
+            .pairwise()
+            .sink { [weak self] prev, pair in
+                if pair.sender != prev.sender {
+                    self?.updateSendView(wallet: pair.sender)
+                }
+
+                if pair.destination.value != prev.destination.value {
+                    self?.updateReceiveView(wallet: pair.destination)
+                }
+
                 self?.updateMaxButtonVisibility(pair: pair)
             }
             .store(in: &bag)
@@ -288,6 +317,10 @@ private extension ExpressViewModel {
         }
 
         let roundedAmount = amount.rounded(scale: wallet.decimalCount, roundingMode: .down)
+
+        // Exclude unnecessary update
+        guard roundedAmount != amount else { return }
+
         updateSendDecimalValue(to: roundedAmount)
     }
 
@@ -559,7 +592,7 @@ private extension ExpressViewModel {
                 root.restartTimer()
             } catch let error as ExpressAPIError {
                 await runOnMain {
-                    let message = Localization.expressErrorCode(error.errorCode.localizedDescription)
+                    let message = error.localizedMessage
                     root.alert = AlertBinder(title: Localization.commonError, message: message)
                 }
             } catch {
