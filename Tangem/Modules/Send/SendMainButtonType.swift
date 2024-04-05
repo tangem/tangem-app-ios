@@ -12,7 +12,6 @@ enum SendMainButtonType {
     case next
     case `continue`
     case send
-    case sending
     case close
 }
 
@@ -25,8 +24,6 @@ extension SendMainButtonType {
             Localization.commonContinue
         case .send:
             Localization.commonSend
-        case .sending:
-            Localization.sendSending
         case .close:
             Localization.commonClose
         }
