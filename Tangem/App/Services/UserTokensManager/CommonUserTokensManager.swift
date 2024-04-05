@@ -282,10 +282,8 @@ extension CommonUserTokensManager: UserTokensReordering {
             .eraseToAnyPublisher()
     }
 
-    func reorder(
-        _ reorderingActions: [UserTokensReorderingAction]
-    ) -> AnyPublisher<Void, Never> {
-        if reorderingActions.isEmpty {
+    func reorder(_ actions: [UserTokensReorderingAction], source: UserTokensReorderingSource) -> AnyPublisher<Void, Never> {
+        if actions.isEmpty {
             return .just
         }
 
@@ -297,7 +295,7 @@ extension CommonUserTokensManager: UserTokensReordering {
                 var grouping = existingList.grouping
                 var sorting = existingList.sorting
 
-                for action in reorderingActions {
+                for action in actions {
                     switch action {
                     case .setGroupingOption(let option):
                         grouping = converter.convert(option)
@@ -321,10 +319,15 @@ extension CommonUserTokensManager: UserTokensReordering {
                 promise(.success((editedList, existingList)))
             }
             .filter { $0 != $1 }
-            .map(\.0)
-            .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
-            .map { userTokensManager, editedList in
+            .handleEvents(receiveOutput: { input in
+                let (userTokensManager, (editedList, existingList)) = input
+                let logger = UserTokensReorderingLogger(walletModels: userTokensManager.walletModelsManager.walletModels)
+                logger.logReorder(existingList: existingList, editedList: editedList, source: source)
+            })
+            .receive(on: DispatchQueue.main)
+            .map { input in
+                let (userTokensManager, (editedList, _)) = input
                 userTokensManager.userTokenListManager.update(with: editedList)
             }
         }
