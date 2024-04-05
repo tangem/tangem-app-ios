@@ -44,6 +44,7 @@ class SendFeeViewModel: ObservableObject {
     @Published private(set) var feeRowViewModels: [FeeRowViewModel] = []
     @Published private(set) var showCustomFeeFields: Bool = false
     @Published var animatingAuxiliaryViewsOnAppear: Bool = false
+    @Published private(set) var deselectedFeeViewsVisible: Bool = false
 
     var didProperlyDisappear = true
 
@@ -91,11 +92,21 @@ class SendFeeViewModel: ObservableObject {
     }
 
     func onAppear() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + SendView.Constants.animationDuration / 3) {
+            withAnimation(SendView.Constants.defaultAnimation) {
+                self.deselectedFeeViewsVisible = true
+            }
+        }
+
         if animatingAuxiliaryViewsOnAppear {
             Analytics.log(.sendScreenReopened, params: [.source: .fee])
         } else {
             Analytics.log(.sendFeeScreenOpened)
         }
+    }
+
+    func onDisappear() {
+        deselectedFeeViewsVisible = false
     }
 
     func onCustomGasPriceFocusChanged(focused: Bool) {

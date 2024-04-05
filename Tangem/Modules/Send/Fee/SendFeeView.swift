@@ -31,12 +31,11 @@ struct SendFeeView: View {
                                     .matchedGeometryEffect(id: SendViewNamespaceId.feeTitle.rawValue, in: namespace)
                             }
                     } else {
-                        if !viewModel.animatingAuxiliaryViewsOnAppear {
-                            FeeRowView(viewModel: feeRowViewModel)
-                                .setNamespace(namespace)
-                                .setOptionNamespaceId(SendViewNamespaceId.feeOption(feeOption: feeRowViewModel.option).rawValue)
-                                .setAmountNamespaceId(SendViewNamespaceId.feeAmount(feeOption: feeRowViewModel.option).rawValue)
-                        }
+                        FeeRowView(viewModel: feeRowViewModel)
+                            .setNamespace(namespace)
+                            .setOptionNamespaceId(SendViewNamespaceId.feeOption(feeOption: feeRowViewModel.option).rawValue)
+                            .setAmountNamespaceId(SendViewNamespaceId.feeAmount(feeOption: feeRowViewModel.option).rawValue)
+                            .opacity(viewModel.deselectedFeeViewsVisible ? 1 : 0)
                     }
                 }
             } footer: {
@@ -83,6 +82,7 @@ struct SendFeeView: View {
             Spacer(minLength: bottomSpacing)
         }
         .onAppear(perform: viewModel.onAppear)
+        .onDisappear(perform: viewModel.onDisappear)
         .onAppear(perform: viewModel.onAuxiliaryViewAppear)
         .onDisappear(perform: viewModel.onAuxiliaryViewDisappear)
     }
