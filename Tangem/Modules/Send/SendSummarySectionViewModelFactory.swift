@@ -67,9 +67,7 @@ struct SendSummarySectionViewModelFactory {
         )
     }
 
-    func makeDeselectedFeeRowViewModel(from value: Fee?, feeOption: FeeOption) -> FeeRowViewModel? {
-        guard let value else { return nil }
-
+    func makeDeselectedFeeRowViewModel(from value: Fee, feeOption: FeeOption) -> FeeRowViewModel {
         return FeeRowViewModel(
             option: feeOption,
             formattedFeeComponents: .loaded(formattedFeeComponents(from: value)),
