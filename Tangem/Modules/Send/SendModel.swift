@@ -205,13 +205,13 @@ class SendModel {
                 }
 
                 self?.feeInclusionSubject = nil
+                self?.feeInclusionSubscription = nil
             } receiveValue: { [weak self] newAmount, newFee in
                 let newAmount = originalAmount - newFee
 
                 if let currentAmount = self?.userInputAmount.value,
                    currentAmount <= newAmount {
                     self?.feeInclusionSubject?.send(completion: .finished)
-                    self?.feeInclusionSubscription = nil
                 } else {
                     self?._isFeeIncluded.value = true
                     self?.userInputAmount.send(newAmount)
