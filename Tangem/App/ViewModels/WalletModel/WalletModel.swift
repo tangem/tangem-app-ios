@@ -14,6 +14,7 @@ import BlockchainSdk
 class WalletModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
     @Injected(\.swapAvailabilityProvider) private var swapAvailabilityProvider: SwapAvailabilityProvider
+    @Injected(\.accountHealthChecker) private var accountHealthChecker: AccountHealthChecker
 
     var walletModelId: WalletModel.Id {
         .init(blockchainNetwork: blockchainNetwork, amountType: amountType)
@@ -102,8 +103,11 @@ class WalletModel {
     }
 
     var fiatValue: Decimal? {
-        guard let balanceValue,
-              let currencyId = tokenItem.currencyId else {
+        guard
+            let balanceValue,
+            canUseQuotes,
+            let currencyId = tokenItem.currencyId
+        else {
             return nil
         }
 
@@ -117,6 +121,9 @@ class WalletModel {
 
         return formatter.formatFiatBalance(rate, formattingOptions: .defaultFiatFormattingOptions)
     }
+
+    /// Quotes can't be fetched for custom tokens.
+    var canUseQuotes: Bool { tokenItem.currencyId != nil }
 
     var quote: TokenQuote? {
         quotesRepository.quote(for: tokenItem)
@@ -218,6 +225,7 @@ class WalletModel {
         walletManager: WalletManager,
         transactionHistoryService: TransactionHistoryService?,
         amountType: Amount.AmountType,
+        shouldPerformHealthCheck: Bool,
         isCustom: Bool
     ) {
         self.walletManager = walletManager
@@ -226,6 +234,7 @@ class WalletModel {
         self.isCustom = isCustom
 
         bind()
+        performHealthCheckIfNeeded(shouldPerform: shouldPerformHealthCheck)
     }
 
     func bind() {
@@ -239,8 +248,13 @@ class WalletModel {
 
         quotesRepository
             .quotesPublisher
-            .compactMap { [tokenItem] quotes -> Decimal? in
-                guard let currencyId = tokenItem.currencyId else { return nil }
+            .compactMap { [canUseQuotes, tokenItem] quotes -> Decimal? in
+                guard
+                    canUseQuotes,
+                    let currencyId = tokenItem.currencyId
+                else {
+                    return nil
+                }
 
                 return quotes[currencyId]?.price
             }
@@ -259,6 +273,12 @@ class WalletModel {
             .map { $0.0 }
             .assign(to: \._walletDidChangePublisher.value, on: self, ownership: .weak)
             .store(in: &bag)
+    }
+
+    private func performHealthCheckIfNeeded(shouldPerform: Bool) {
+        if shouldPerform {
+            accountHealthChecker.performAccountCheckIfNeeded(wallet.address)
+        }
     }
 
     // MARK: - Update wallet model
@@ -353,7 +373,10 @@ class WalletModel {
     // MARK: - Load Quotes
 
     private func loadQuotes() -> AnyPublisher<Void, Never> {
-        guard let currencyId = tokenItem.currencyId else {
+        guard
+            canUseQuotes,
+            let currencyId = tokenItem.currencyId
+        else {
             return .just(output: ())
         }
 
