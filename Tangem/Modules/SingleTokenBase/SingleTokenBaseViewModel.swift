@@ -339,7 +339,7 @@ extension SingleTokenBaseViewModel {
             guard FeatureProvider.isAvailable(.sendV2) else {
                 return true
             }
-            
+
             if case .token = walletModel.amountType,
                !walletModel.isFeeCurrency {
                 return false
