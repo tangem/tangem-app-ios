@@ -24,37 +24,19 @@ class KeyboardVisibilityService {
                     .map { _ in true },
                 NotificationCenter
                     .default
-                    .publisher(for: UIResponder.keyboardWillHideNotification)
+                    .publisher(for: UIResponder.keyboardDidHideNotification)
                     .map { _ in false }
             )
             .assign(to: \.keyboardVisible, on: self, ownership: .weak)
     }
 
     func hideKeyboard(completion: @escaping () -> Void) {
-        hideKeyboardSubscription = NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)
+        hideKeyboardSubscription = NotificationCenter.default.publisher(for: UIResponder.keyboardDidHideNotification)
             .sink { [weak self] _ in
-                print("zzz \(ttttt()) did hide")
                 completion()
                 self?.hideKeyboardSubscription = nil
             }
 
         UIApplication.shared.endEditing()
     }
-}
-
-// DELETE
-// DELETE
-// DELETE
-// DELETE
-// DELETE
-// DELETE
-// DELETE
-// DELETE
-
-func ttttt() -> String {
-    let date = Date()
-    let formatter = DateFormatter()
-    formatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
-    let dateString = formatter.string(from: date)
-    return dateString
 }
