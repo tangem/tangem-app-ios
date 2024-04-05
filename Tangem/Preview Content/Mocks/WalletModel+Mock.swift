@@ -15,6 +15,7 @@ extension WalletModel {
         walletManager: EthereumWalletManagerMock(),
         transactionHistoryService: nil,
         amountType: .coin,
+        shouldPerformHealthCheck: false,
         isCustom: false
     )
 }
@@ -51,6 +52,6 @@ class EthereumWalletManagerMock: WalletManager {
     var allowsFeeSelection: Bool { true }
 
     func getFee(amount: BlockchainSdk.Amount, destination: String) -> AnyPublisher<[BlockchainSdk.Fee], Error> {
-        .just(output: []).eraseError()
+        .just(output: [])
     }
 }
