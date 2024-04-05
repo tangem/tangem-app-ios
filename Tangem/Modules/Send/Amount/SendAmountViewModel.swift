@@ -63,7 +63,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         amountFractionDigits = walletInfo.amountFractionDigits
         decimalNumberTextFieldViewModel = .init(maximumFractionDigits: walletInfo.amountFractionDigits)
 
-        showCurrencyPicker = walletInfo.currencyId != nil
+        showCurrencyPicker = walletInfo.canUseFiatCalculation
 
         cryptoIconURL = walletInfo.cryptoIconURL
         cryptoCurrencyCode = walletInfo.cryptoCurrencyCode
