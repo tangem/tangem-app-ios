@@ -318,21 +318,33 @@ final class SendViewModel: ObservableObject {
                     .token: walletModel.tokenItem.currencySymbol,
                 ])
 
-                let errorCode: String
-                let reason = String(error.localizedDescription.dropTrailingPeriod)
-                if let errorCodeProviding = error as? ErrorCodeProviding {
-                    errorCode = "\(errorCodeProviding.errorCode)"
-                } else {
-                    errorCode = "-"
-                }
+                if case .noAccount(_, let amount) = (error as? WalletError) {
+                    let amountFormatted = Amount(
+                        with: walletModel.blockchainNetwork.blockchain,
+                        type: walletModel.amountType,
+                        value: amount
+                    ).string()
+                    let title = Localization.sendNotificationInvalidReserveAmountTitle(amountFormatted)
+                    let message = Localization.sendNotificationInvalidReserveAmountText
 
-                alert = SendError(
-                    title: Localization.sendAlertTransactionFailedTitle,
-                    message: Localization.sendAlertTransactionFailedText(reason, errorCode),
-                    error: error,
-                    openMailAction: openMail
-                )
-                .alertBinder
+                    alert = AlertBinder(title: title, message: message)
+                } else {
+                    let errorCode: String
+                    let reason = String(error.localizedDescription.dropTrailingPeriod)
+                    if let errorCodeProviding = error as? ErrorCodeProviding {
+                        errorCode = "\(errorCodeProviding.errorCode)"
+                    } else {
+                        errorCode = "-"
+                    }
+
+                    alert = SendError(
+                        title: Localization.sendAlertTransactionFailedTitle,
+                        message: Localization.sendAlertTransactionFailedText(reason, errorCode),
+                        error: error,
+                        openMailAction: openMail
+                    )
+                    .alertBinder
+                }
             }
             .store(in: &bag)
 
