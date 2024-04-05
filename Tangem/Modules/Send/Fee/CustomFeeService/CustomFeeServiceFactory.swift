@@ -16,7 +16,7 @@ struct CustomFeeServiceFactory {
     init(
         input: CustomFeeServiceInput,
         output: CustomFeeServiceOutput,
-        walletModel: WalletModel,
+        walletModel: WalletModel
     ) {
         self.input = input
         self.output = output
