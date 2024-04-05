@@ -454,7 +454,9 @@ final class SendViewModel: ObservableObject {
 
     private func updateTransactionHistoryIfNeeded() {
         if walletModel.transactionHistoryNotLoaded {
-            let _ = walletModel.updateTransactionsHistory()
+            walletModel.updateTransactionsHistory()
+                .sink()
+                .store(in: &bag)
         }
     }
 
