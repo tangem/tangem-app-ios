@@ -49,7 +49,8 @@ class SendSummaryViewModel: ObservableObject {
 
     @Published var destinationViewTypes: [SendDestinationSummaryViewType] = []
     @Published var amountSummaryViewData: SendAmountSummaryViewData?
-    @Published var feeSummaryViewData: SendFeeSummaryViewModel?
+    @Published var selectedFeeSummaryViewModel: SendFeeSummaryViewModel?
+    @Published var otherFeeViewModels: [FeeRowViewModel] = []
 
     @Published var animatingDestinationOnAppear = false
     @Published var animatingAmountOnAppear = false
@@ -166,11 +167,65 @@ class SendSummaryViewModel: ObservableObject {
         .assign(to: \.amountSummaryViewData, on: self, ownership: .weak)
         .store(in: &bag)
 
-        Publishers.CombineLatest(input.feeValuePublisher, input.selectedFeeOptionPublisher)
-            .map { [weak self] feeValue, feeOption in
-                self?.sectionViewModelFactory.makeFeeViewData(from: feeValue, feeOption: feeOption, animateTitleOnAppear: true)
+//        Publishers.CombineLatest(input.feeValuePublisher, input.selectedFeeOptionPublisher)
+//            .map { [weak self] feeValue, feeOption in
+//                self?.sectionViewModelFactory.makeFeeViewData(from: feeValue, feeOption: feeOption, animateTitleOnAppear: true)
+//            }
+//            .assign(to: \.feeSummaryViewData, on: self, ownership: .weak)
+//            .store(in: &bag)
+        let sendModel = input as! SendModel
+        // TODO: // TODO // TODO // TODO // TODO // [REDACTED_TODO_COMMENT]
+        let loadedFeeValues = sendModel.feeValues
+            .map {
+                $0.mapValues { $0.value }
             }
-            .assign(to: \.feeSummaryViewData, on: self, ownership: .weak)
+
+        Publishers.CombineLatest(loadedFeeValues, input.selectedFeeOptionPublisher)
+
+            .sink { [weak self] feeValues, selectedFeeOption in
+                guard let self else { return }
+
+                var selectedViewModel: SendFeeSummaryViewModel?
+                var otherViewModels: [FeeRowViewModel] = []
+
+                for (feeOption, feeValue) in feeValues {
+                    let isSelected = feeOption == selectedFeeOption
+
+                    if isSelected {
+                        selectedViewModel = sectionViewModelFactory.makeFeeViewData(
+                            from: feeValue,
+                            feeOption: feeOption,
+                            animateTitleOnAppear: isSelected
+                        )
+
+                    } else {
+                        let feeFormatter = CommonFeeFormatter(
+                            balanceFormatter: BalanceFormatter(),
+                            balanceConverter: BalanceConverter()
+                        )
+                        let formattedFeeComponents = feeFormatter.formattedFeeComponents(
+                            fee: feeValue!.amount.value,
+                            currencySymbol: walletInfo.feeCurrencySymbol,
+                            currencyId: walletInfo.feeCurrencyId,
+                            isFeeApproximate: walletInfo.isFeeApproximate
+                        )
+
+                        let model = FeeRowViewModel(
+                            option: feeOption,
+                            formattedFeeComponents: .loaded(formattedFeeComponents),
+                            isSelected: .init(get: {
+                                false
+                            }, set: { _ in
+
+                            })
+                        )
+                        otherViewModels.append(model)
+                    }
+
+                    selectedFeeSummaryViewModel = selectedViewModel
+                    otherFeeViewModels = otherViewModels
+                }
+            }
             .store(in: &bag)
 
         Publishers.CombineLatest(input.userInputAmountPublisher, input.feeValuePublisher)
