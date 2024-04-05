@@ -2,10 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>BGTaskSchedulerPermittedIdentifiers</key>
-	<array>
-		<string>$(APP_BUNDLE_IDENTIFIER).PolkadotAccountHealthCheckTask</string>
-	</array>
 	<key>BSDK_SUITE_NAME</key>
 	<string>$(BSDK_SUITE_NAME)</string>
 	<key>CFBundleDevelopmentRegion</key>
@@ -111,6 +107,10 @@
 	</array>
 	<key>UIUserInterfaceStyle</key>
 	<string>Automatic</string>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>$(APP_BUNDLE_IDENTIFIER).PolkadotAccountHealthCheckTask</string>
+	</array>
 	<key>com.apple.developer.nfc.readersession.iso7816.select-identifiers</key>
 	<array>
 		<string>A000000812010208</string>
