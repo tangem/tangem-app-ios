@@ -27,4 +27,5 @@ struct SendWalletInfo {
     let amountFractionDigits: Int
     let feeFractionDigits: Int
     let feeAmountType: Amount.AmountType
+    let canUseFiatCalculation: Bool
 }
