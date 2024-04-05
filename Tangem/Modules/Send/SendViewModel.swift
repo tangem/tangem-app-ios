@@ -482,7 +482,7 @@ final class SendViewModel: ObservableObject {
             print("zzz \(ttttt()) hiding with delay")
             keyboardVisibilityService.hideKeyboard {
                 print("zzz \(ttttt()) did hide")
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     print("zzz \(ttttt()) opening after delay")
                     self.openStep(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee, updateFee: updateFee)
                 }
