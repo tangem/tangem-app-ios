@@ -12,6 +12,8 @@ import BlockchainSdk
 import AVFoundation
 
 final class SendViewModel: ObservableObject {
+    @Injected(\.quotesRepository) private static var quotesRepository: TokenQuotesRepository
+
     // MARK: - ViewState
 
     @Published var stepAnimation: SendView.StepAnimation = .slideForward
@@ -163,7 +165,8 @@ final class SendViewModel: ObservableObject {
             fiatCurrencyCode: AppSettings.shared.selectedCurrencyCode,
             amountFractionDigits: walletModel.tokenItem.decimalCount,
             feeFractionDigits: walletModel.feeTokenItem.decimalCount,
-            feeAmountType: walletModel.feeTokenItem.amountType
+            feeAmountType: walletModel.feeTokenItem.amountType,
+            canUseFiatCalculation: walletModel.tokenItem.currencyId != nil && Self.quotesRepository.quote(for: walletModel.tokenItem) != nil
         )
 
         notificationManager = CommonSendNotificationManager(
