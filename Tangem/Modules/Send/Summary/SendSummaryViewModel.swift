@@ -170,7 +170,7 @@ class SendSummaryViewModel: ObservableObject {
 
         let feeValues = input.feeValues
             .map {
-                $0.mapValues { $0.value }
+                $0.compactMapValues { $0.value }
             }
 
         Publishers.CombineLatest(feeValues, input.selectedFeeOptionPublisher)
@@ -188,9 +188,8 @@ class SendSummaryViewModel: ObservableObject {
                             animateTitleOnAppear: true
                         )
                     } else {
-                        if let model = sectionViewModelFactory.makeDeselectedFeeRowViewModel(from: feeValue, feeOption: feeOption) {
-                            deselectedFeeRowViewModels.append(model)
-                        }
+                        let model = sectionViewModelFactory.makeDeselectedFeeRowViewModel(from: feeValue, feeOption: feeOption)
+                        deselectedFeeRowViewModels.append(model)
                     }
                 }
 
