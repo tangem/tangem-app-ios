@@ -114,7 +114,12 @@ extension CustomBitcoinFeeService: CustomFeeService {
             amountAlternativePublisher: .just(output: nil),
             footer: nil
         ) { [weak self] decimalValue in
-            let intValue = (decimalValue as NSDecimalNumber?)?.intValue
+            let intValue: Int?
+            if let roundedValue = decimalValue?.rounded() {
+                intValue = (roundedValue as NSDecimalNumber).intValue
+            } else {
+                intValue = nil
+            }
             self?.satoshiPerByte.send(intValue)
         }
 
