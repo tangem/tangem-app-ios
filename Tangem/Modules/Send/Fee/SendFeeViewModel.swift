@@ -45,7 +45,7 @@ class SendFeeViewModel: ObservableObject {
     @Published private(set) var showCustomFeeFields: Bool = false
     @Published var animatingAuxiliaryViewsOnAppear: Bool = false
 
-    var didProperlyDisappear = false
+    var didProperlyDisappear = true
 
     private(set) var customFeeModel: SendCustomFeeInputFieldModel?
     private(set) var customFeeGasPriceModel: SendCustomFeeInputFieldModel?
