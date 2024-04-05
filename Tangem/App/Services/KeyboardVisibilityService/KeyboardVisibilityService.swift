@@ -31,6 +31,11 @@ class KeyboardVisibilityService {
     }
 
     func hideKeyboard(completion: @escaping () -> Void) {
+        guard keyboardVisible else {
+            completion()
+            return
+        }
+
         hideKeyboardSubscription = NotificationCenter.default.publisher(for: UIResponder.keyboardDidHideNotification)
             .sink { [weak self] _ in
                 completion()
