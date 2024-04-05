@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import class TangemExpress.ThreadSafeContainer
+import TangemFoundation
 
 class CommonAnalyticsContext: AnalyticsContext {
     var contextData: AnalyticsContextData? {
