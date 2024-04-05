@@ -49,6 +49,7 @@ struct VisaTransactionHistoryMapper {
         let leadingSubtitle = "\(time) • \(prepareSnakeCaseString(record.status))"
         return .init(
             hash: "\(record.id)",
+            index: 0,
             interactionAddress: .custom(message: leadingSubtitle),
             timeFormatted: balanceFormatter.formatFiatBalance(record.transactionAmount, numericCurrencyCode: record.transactionCurrencyCode),
             amount: balanceFormatter.formatCryptoBalance(record.blockchainAmount, currencyCode: currencySymbol),
