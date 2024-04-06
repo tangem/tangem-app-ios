@@ -191,6 +191,8 @@ private extension Blockchain {
             }
         case .taraxa:
             return "taraxa"
+        case .radiant:
+            return "radiant"
         }
     }
 
