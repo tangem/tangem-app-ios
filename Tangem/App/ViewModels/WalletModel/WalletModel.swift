@@ -34,6 +34,14 @@ class WalletModel {
         transactionHistoryState()
     }
 
+    var transactionHistoryNotLoaded: Bool {
+        if case .initial = _transactionHistoryService?.state {
+            return true
+        } else {
+            return false
+        }
+    }
+
     var isSupportedTransactionHistory: Bool {
         _transactionHistoryService != nil
     }

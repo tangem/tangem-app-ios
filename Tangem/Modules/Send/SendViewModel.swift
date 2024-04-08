@@ -197,6 +197,8 @@ final class SendViewModel: ObservableObject {
 
         notificationManager.setupManager(with: self)
 
+        updateTransactionHistoryIfNeeded()
+
         bind()
     }
 
@@ -450,6 +452,14 @@ final class SendViewModel: ObservableObject {
             return .send
         case .finish:
             return .close
+        }
+    }
+
+    private func updateTransactionHistoryIfNeeded() {
+        if walletModel.transactionHistoryNotLoaded {
+            walletModel.updateTransactionsHistory()
+                .sink()
+                .store(in: &bag)
         }
     }
 
