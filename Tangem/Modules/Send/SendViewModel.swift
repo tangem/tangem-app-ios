@@ -119,6 +119,7 @@ final class SendViewModel: ObservableObject {
         transactionSigner: TransactionSigner,
         sendType: SendType,
         emailDataProvider: EmailDataProvider,
+        canUseFiatCalculation: Bool,
         coordinator: SendRoutable
     ) {
         self.coordinator = coordinator
@@ -164,7 +165,8 @@ final class SendViewModel: ObservableObject {
             fiatCurrencyCode: AppSettings.shared.selectedCurrencyCode,
             amountFractionDigits: walletModel.tokenItem.decimalCount,
             feeFractionDigits: walletModel.feeTokenItem.decimalCount,
-            feeAmountType: walletModel.feeTokenItem.amountType
+            feeAmountType: walletModel.feeTokenItem.amountType,
+            canUseFiatCalculation: canUseFiatCalculation
         )
 
         notificationManager = CommonSendNotificationManager(
