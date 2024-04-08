@@ -131,10 +131,10 @@ class SendModel {
 
     // MARK: - Public interface
 
-    init(walletModel: WalletModel, transactionSigner: TransactionSigner, addressService: SendAddressService, supportsCustomFees: Bool, sendType: SendType) {
+    init(walletModel: WalletModel, transactionSigner: TransactionSigner, addressService: SendAddressService, sendType: SendType) {
         self.walletModel = walletModel
         self.transactionSigner = transactionSigner
-        self.supportsCustomFees = supportsCustomFees
+        self.supportsCustomFees = walletModel.supportsCustomFees
         self.sendType = sendType
         self.addressService = addressService
 
