@@ -92,7 +92,8 @@ class SendFeeViewModel: ObservableObject {
     }
 
     func onAppear() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + SendView.Constants.animationDuration / 3) {
+        let deselectedFeeViewAppearanceDelay = SendView.Constants.animationDuration / 3
+        DispatchQueue.main.asyncAfter(deadline: .now() + deselectedFeeViewAppearanceDelay) {
             withAnimation(SendView.Constants.defaultAnimation) {
                 self.deselectedFeeViewsVisible = true
             }
