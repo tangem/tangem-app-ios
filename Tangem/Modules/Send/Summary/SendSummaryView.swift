@@ -160,7 +160,8 @@ struct SendSummaryView_Previews: PreviewProvider {
         fiatCurrencyCode: "USD",
         amountFractionDigits: 6,
         feeFractionDigits: 6,
-        feeAmountType: .coin
+        feeAmountType: .coin,
+        canUseFiatCalculation: true
     )
 
     static let viewModel = SendSummaryViewModel(
