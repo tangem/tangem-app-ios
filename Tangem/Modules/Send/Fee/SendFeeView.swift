@@ -20,10 +20,7 @@ struct SendFeeView: View {
             GroupedSection(viewModel.feeRowViewModels) { feeRowViewModel in
                 Group {
                     if feeRowViewModel.isSelected.value {
-                        FeeRowView(viewModel: feeRowViewModel)
-                            .setNamespace(namespace)
-                            .setOptionNamespaceId(SendViewNamespaceId.feeOption.rawValue)
-                            .setAmountNamespaceId(SendViewNamespaceId.feeAmount.rawValue)
+                        feeRowView(feeRowViewModel)
                             .overlay(alignment: .topLeading) {
                                 Text(Localization.commonNetworkFeeTitle)
                                     .font(Fonts.Regular.footnote)
@@ -31,10 +28,8 @@ struct SendFeeView: View {
                                     .matchedGeometryEffect(id: SendViewNamespaceId.feeTitle.rawValue, in: namespace)
                             }
                     } else {
-                        if !viewModel.animatingAuxiliaryViewsOnAppear {
-                            FeeRowView(viewModel: feeRowViewModel)
-                                .transition(SendView.Constants.auxiliaryViewTransition)
-                        }
+                        feeRowView(feeRowViewModel)
+                            .visible(viewModel.deselectedFeeViewsVisible)
                     }
                 }
             } footer: {
@@ -81,8 +76,16 @@ struct SendFeeView: View {
             Spacer(minLength: bottomSpacing)
         }
         .onAppear(perform: viewModel.onAppear)
+        .onDisappear(perform: viewModel.onDisappear)
         .onAppear(perform: viewModel.onAuxiliaryViewAppear)
         .onDisappear(perform: viewModel.onAuxiliaryViewDisappear)
+    }
+
+    private func feeRowView(_ viewModel: FeeRowViewModel) -> FeeRowView {
+        FeeRowView(viewModel: viewModel)
+            .setNamespace(namespace)
+            .setOptionNamespaceId(SendViewNamespaceId.feeOption(feeOption: viewModel.option).rawValue)
+            .setAmountNamespaceId(SendViewNamespaceId.feeAmount(feeOption: viewModel.option).rawValue)
     }
 
     private var feeSelectorFooter: some View {
