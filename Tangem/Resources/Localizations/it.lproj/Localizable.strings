@@ -315,7 +315,7 @@
 "onboarding_exit_alert_message" = "In this case, you will need to start from the beginning.";
 "onboarding_exit_alert_title" = "Do you want to exit the activation process?";
 "onboarding_getting_started" = "Getting started";
-"onboarding_linking_error_card_with_wallets" = "Another wallet has already been created on the card you're trying to add. Do you want to reset it and use the card for a new wallet?";
+"onboarding_linking_error_card_with_wallets" = "Another wallet has already been created on the card you're trying to add. If you have funds in this wallet, please withdraw it and then reset this card and add it as a backup.";
 "onboarding_navbar_save_wallet" = "Save your wallet";
 "onboarding_navbar_title_creating_backup" = "Creating a backup";
 "onboarding_seed_button_read_more" = "Read more about seed phrase";
