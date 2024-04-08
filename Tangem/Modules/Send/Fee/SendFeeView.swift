@@ -29,7 +29,7 @@ struct SendFeeView: View {
                             }
                     } else {
                         feeRowView(feeRowViewModel)
-                            .opacity(viewModel.deselectedFeeViewsVisible ? 1 : 0)
+                            .visible(viewModel.deselectedFeeViewsVisible)
                     }
                 }
             } footer: {
