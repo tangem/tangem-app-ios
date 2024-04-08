@@ -142,6 +142,7 @@ struct SendView: View {
                 icon: viewModel.mainButtonIcon,
                 style: .primary,
                 size: .default,
+                isLoading: viewModel.mainButtonLoading,
                 isDisabled: viewModel.mainButtonDisabled,
                 action: viewModel.next
             )
