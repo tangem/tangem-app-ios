@@ -24,6 +24,10 @@ struct CustomFeeServiceFactory {
     }
 
     func makeService() -> CustomFeeService? {
+        guard walletModel.supportsCustomFees else {
+            return nil
+        }
+
         if let bitcoinTransactionFeeCalculator = walletModel.bitcoinTransactionFeeCalculator {
             return CustomBitcoinFeeService(
                 input: input,
@@ -38,6 +42,7 @@ struct CustomFeeServiceFactory {
                 feeTokenItem: walletModel.feeTokenItem
             )
         } else {
+            assertionFailure("WHY")
             return nil
         }
     }
