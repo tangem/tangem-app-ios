@@ -853,6 +853,7 @@
 		DAC53CFE27BE63830027147D /* MeetTangemStoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC53CF327BE63830027147D /* MeetTangemStoryPage.swift */; };
 		DAC53CFF27BE63830027147D /* FinishStoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC53CF427BE63830027147D /* FinishStoryPage.swift */; };
 		DAC53D0027BE63830027147D /* Web3StoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC53CF527BE63830027147D /* Web3StoryPage.swift */; };
+		DAC5A5292BBEB5B5003CFC1D /* KeyboardVisibilityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC5A5282BBEB5B5003CFC1D /* KeyboardVisibilityService.swift */; };
 		DAD2D8522B4D2144002EA7F1 /* SendSummarySectionViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAD2D8512B4D2144002EA7F1 /* SendSummarySectionViewModelFactory.swift */; };
 		DAD2D8542B4D578C002EA7F1 /* SendViewNamespaceId.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAD2D8532B4D578C002EA7F1 /* SendViewNamespaceId.swift */; };
 		DAD60F292BB6E80B00F9E4D9 /* SendMainButtonType.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAD60F282BB6E80B00F9E4D9 /* SendMainButtonType.swift */; };
@@ -2390,6 +2391,7 @@
 		DAC53CF327BE63830027147D /* MeetTangemStoryPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeetTangemStoryPage.swift; sourceTree = "<group>"; };
 		DAC53CF427BE63830027147D /* FinishStoryPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FinishStoryPage.swift; sourceTree = "<group>"; };
 		DAC53CF527BE63830027147D /* Web3StoryPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Web3StoryPage.swift; sourceTree = "<group>"; };
+		DAC5A5282BBEB5B5003CFC1D /* KeyboardVisibilityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardVisibilityService.swift; sourceTree = "<group>"; };
 		DAD2D8512B4D2144002EA7F1 /* SendSummarySectionViewModelFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendSummarySectionViewModelFactory.swift; sourceTree = "<group>"; };
 		DAD2D8532B4D578C002EA7F1 /* SendViewNamespaceId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendViewNamespaceId.swift; sourceTree = "<group>"; };
 		DAD60F282BB6E80B00F9E4D9 /* SendMainButtonType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendMainButtonType.swift; sourceTree = "<group>"; };
@@ -5814,6 +5816,14 @@
 			path = Pages;
 			sourceTree = "<group>";
 		};
+		DAC5A5272BBEB5A4003CFC1D /* KeyboardVisibilityService */ = {
+			isa = PBXGroup;
+			children = (
+				DAC5A5282BBEB5B5003CFC1D /* KeyboardVisibilityService.swift */,
+			);
+			path = KeyboardVisibilityService;
+			sourceTree = "<group>";
+		};
 		DAD98A752AB2E3240051CFBE /* ManageTokens */ = {
 			isa = PBXGroup;
 			children = (
@@ -5928,6 +5938,7 @@
 		DC0A57DA2822A4DC0031BECC /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				DAC5A5272BBEB5A4003CFC1D /* KeyboardVisibilityService */,
 				B675C35D2BAC8A0E007BE1DC /* AccountHealthCheck */,
 				B68728722B7D4B870090C24F /* BlockchainDataStorage */,
 				B687286D2B7D48A70090C24F /* BlockchainAccountCreator */,
@@ -8653,6 +8664,7 @@
 				EFE7D57B2AA209990047D93A /* TokenQuote.swift in Sources */,
 				EF7673402B0FD6840027D8E0 /* SentExpressTransactionData.swift in Sources */,
 				B0FE0B37297138CC0046EE2C /* WalletConnectSavedSession.swift in Sources */,
+				DAC5A5292BBEB5B5003CFC1D /* KeyboardVisibilityService.swift in Sources */,
 				B0A0910E26D362A600F46DF5 /* OnboardingProgressCircle.swift in Sources */,
 				DAF59CC12ACC4D8C004FCA86 /* AddCustomTokenDerivationOption.swift in Sources */,
 				B020A51926F1DDA700D38596 /* OnboardingViewModel.swift in Sources */,
