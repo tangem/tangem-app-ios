@@ -11,7 +11,10 @@ import Combine
 import BlockchainSdk
 
 class CommonSendFiatCryptoAdapter: SendFiatCryptoAdapter {
+    @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
+
     private let currencySymbol: String
+    private let cryptoCurrencyId: String?
     private let decimals: Int
 
     private var _fiatCryptoValue: CurrentValueSubject<FiatCryptoValue, Never>
@@ -32,6 +35,7 @@ class CommonSendFiatCryptoAdapter: SendFiatCryptoAdapter {
         decimals: Int
     ) {
         self.currencySymbol = currencySymbol
+        self.cryptoCurrencyId = cryptoCurrencyId
         self.decimals = decimals
         _fiatCryptoValue = .init(FiatCryptoValue(decimals: decimals, cryptoCurrencyId: cryptoCurrencyId))
 
@@ -79,17 +83,21 @@ class CommonSendFiatCryptoAdapter: SendFiatCryptoAdapter {
 
         Publishers.CombineLatest(_useFiatCalculation, _fiatCryptoValue)
             .sink { [weak self] useFiatCalculation, fiatCryptoValue in
-                guard
-                    let self,
-                    let cryptoValue = fiatCryptoValue.crypto
-                else {
-                    self?.formattedAmountSubject.send(nil)
-                    self?.formattedAmountAlternativeSubject.send(nil)
-                    return
+                guard let self else { return }
+
+                let cryptoValue = fiatCryptoValue.crypto
+                let fiatValue: Decimal?
+
+                if cryptoValue != nil {
+                    fiatValue = fiatCryptoValue.fiat
+                } else if quotesRepository.quote(for: cryptoCurrencyId) != nil {
+                    fiatValue = 0
+                } else {
+                    fiatValue = nil
                 }
 
                 let formattedCryptoAmount = formatCryptoAmount(cryptoValue, trimFractions: !useFiatCalculation)
-                let formattedFiatAmount = formatFiatAmount(fiatCryptoValue.fiat, trimFractions: useFiatCalculation)
+                let formattedFiatAmount = formatFiatAmount(fiatValue, trimFractions: useFiatCalculation)
 
                 formattedAmountSubject.send(useFiatCalculation ? formattedFiatAmount : formattedCryptoAmount)
                 formattedAmountAlternativeSubject.send(useFiatCalculation ? formattedCryptoAmount : formattedFiatAmount)
@@ -106,7 +114,9 @@ class CommonSendFiatCryptoAdapter: SendFiatCryptoAdapter {
         }
     }
 
-    private func formatCryptoAmount(_ amount: Decimal, trimFractions: Bool) -> String {
+    private func formatCryptoAmount(_ amount: Decimal?, trimFractions: Bool) -> String? {
+        guard let amount else { return nil }
+
         let formatter = BalanceFormatter()
 
         let minCryptoFractionDigits = trimFractions ? 0 : BalanceFormattingOptions.defaultCryptoFormattingOptions.minFractionDigits
