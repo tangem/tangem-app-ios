@@ -26,7 +26,7 @@ class SendFeeSummaryViewModel: ObservableObject, Identifiable {
         feeOption.icon.image
     }
 
-    private let feeOption: FeeOption
+    let feeOption: FeeOption
     private let animateTitleOnAppear: Bool
 
     init(title: String, feeOption: FeeOption, cryptoAmount: String, fiatAmount: String?, animateTitleOnAppear: Bool) {
