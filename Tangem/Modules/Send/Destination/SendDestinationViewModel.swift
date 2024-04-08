@@ -83,8 +83,9 @@ class SendDestinationViewModel: ObservableObject {
 
                 let walletModels = userWalletModel.walletModelsManager.walletModels
                 let walletModel = walletModels.first { walletModel in
-                    return
-                        Blockchain.curveInsensitiveCompare(walletModel.blockchainNetwork.blockchain, blockchain) &&
+                    // Disregarding the difference between testnet and mainnet blockchains
+                    // See https://github.com/tangem/tangem-app-ios/pull/3079#discussion_r1553709671
+                    return walletModel.blockchainNetwork.blockchain.coinId == blockchain.coinId &&
                         !walletModel.isCustom
                 }
 
@@ -214,11 +215,5 @@ private extension SendSuggestedDestination.`Type` {
         case .recentAddress:
             return .recentAddress
         }
-    }
-}
-
-private extension Blockchain {
-    static func curveInsensitiveCompare(_ left: Blockchain, _ right: Blockchain) -> Bool {
-        return left.coinId == right.coinId && left.isTestnet == right.isTestnet
     }
 }
