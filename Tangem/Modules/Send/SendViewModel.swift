@@ -18,6 +18,7 @@ final class SendViewModel: ObservableObject {
     @Published var step: SendStep
     @Published var showBackButton = false
     @Published var mainButtonType: SendMainButtonType = .next
+    @Published var mainButtonLoading: Bool = false
     @Published var mainButtonDisabled: Bool = false
     @Published var updatingFees = false
     @Published var currentStepInvalid: Bool = false // delete?
@@ -70,6 +71,7 @@ final class SendViewModel: ObservableObject {
     private let customFeeService: CustomFeeService?
     private let fiatCryptoAdapter: CommonSendFiatCryptoAdapter
     private let sendStepParameters: SendStep.Parameters
+    private let keyboardVisibilityService: KeyboardVisibilityService
 
     private weak var coordinator: SendRoutable?
 
@@ -189,6 +191,8 @@ final class SendViewModel: ObservableObject {
         )
         fiatCryptoAdapter.setAmount(sendType.predefinedAmount?.value)
 
+        keyboardVisibilityService = KeyboardVisibilityService()
+
         sendStepParameters = SendStep.Parameters(currencyName: walletModel.tokenItem.name, walletName: walletInfo.walletName)
 
         sendAmountViewModel = SendAmountViewModel(input: sendModel, fiatCryptoAdapter: fiatCryptoAdapter, walletInfo: walletInfo)
@@ -223,8 +227,6 @@ final class SendViewModel: ObservableObject {
             openStep(.summary, stepAnimation: .moveAndFade, updateFee: step.updateFeeOnLeave)
         case .send:
             sendModel.send()
-        case .sending:
-            break
         case .close:
             coordinator?.dismiss()
         }
@@ -262,22 +264,20 @@ final class SendViewModel: ObservableObject {
     }
 
     private func bind() {
-        let summaryMainButtonDisabled = Publishers.CombineLatest(
-            notificationManager.hasNotifications(with: .critical),
-            sendModel.isSending
-        )
-        .map { hasCriticalNotifications, isSending in
-            hasCriticalNotifications && isSending
-        }
-        .eraseToAnyPublisher()
+        Publishers.CombineLatest($updatingFees, sendModel.isSending)
+            .map { updatingFees, isSending in
+                updatingFees || isSending
+            }
+            .assign(to: \.mainButtonLoading, on: self, ownership: .weak)
+            .store(in: &bag)
 
-        Publishers.CombineLatest4(currentStepValid, $step, $updatingFees, summaryMainButtonDisabled)
-            .map { currentStepValid, step, updatingFees, summaryMainButtonDisabled in
-                if !currentStepValid || updatingFees {
+        Publishers.CombineLatest3(currentStepValid, $step, notificationManager.hasNotifications(with: .critical))
+            .map { currentStepValid, step, hasCriticalNotifications in
+                if !currentStepValid {
                     return true
                 }
 
-                if step == .summary, summaryMainButtonDisabled {
+                if step == .summary, hasCriticalNotifications {
                     return true
                 }
 
@@ -375,15 +375,6 @@ final class SendViewModel: ObservableObject {
                 guard let destination else { return }
 
                 Analytics.logDestinationAddress(isAddressValid: destination.value != nil, source: destination.source)
-            }
-            .store(in: &bag)
-
-        sendModel
-            .isSending
-            .sink { [weak self] isSending in
-                if isSending {
-                    self?.mainButtonType = .sending
-                }
             }
             .store(in: &bag)
     }
@@ -497,6 +488,13 @@ final class SendViewModel: ObservableObject {
     }
 
     private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation, checkCustomFee: Bool = true, updateFee: Bool) {
+        if keyboardVisibilityService.keyboardVisible, !step.opensKeyboardByDefault {
+            keyboardVisibilityService.hideKeyboard { [weak self] in
+                self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee, updateFee: updateFee)
+            }
+            return
+        }
+
         if case .summary = step {
             if updateFee {
                 self.updateFee(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee)
@@ -520,13 +518,6 @@ final class SendViewModel: ObservableObject {
         DispatchQueue.main.async {
             self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
             self.step = step
-        }
-
-        // Hide the keyboard with a delay, otherwise the animation is going to be screwed up
-        if !step.opensKeyboardByDefault {
-            DispatchQueue.main.asyncAfter(deadline: .now() + SendView.Constants.animationDuration) {
-                UIApplication.shared.endEditing()
-            }
         }
     }
 
