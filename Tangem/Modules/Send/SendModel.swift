@@ -126,14 +126,15 @@ class SendModel {
     private var destinationResolutionRequest: Task<Void, Error>?
     private var didSetCustomFee = false
     private var feeUpdatePublisher: AnyPublisher<FeeUpdateResult, Error>?
-    private var supportsCustomFees = false
+    private var supportsCustomFees: Bool
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
 
-    init(walletModel: WalletModel, transactionSigner: TransactionSigner, addressService: SendAddressService, sendType: SendType) {
+    init(walletModel: WalletModel, transactionSigner: TransactionSigner, addressService: SendAddressService, supportsCustomFees: Bool, sendType: SendType) {
         self.walletModel = walletModel
         self.transactionSigner = transactionSigner
+        self.supportsCustomFees = supportsCustomFees
         self.sendType = sendType
         self.addressService = addressService
 
@@ -183,10 +184,6 @@ class SendModel {
         if let amount = walletModel.wallet.amounts[amountType] {
             setAmount(amount)
         }
-    }
-
-    func setSupportsCustomFees(_ supportsCustomFees: Bool) {
-        self.supportsCustomFees = supportsCustomFees
     }
 
     func currentTransaction() -> BlockchainSdk.Transaction? {

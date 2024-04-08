@@ -130,7 +130,13 @@ final class SendViewModel: ObservableObject {
 
         let addressService = SendAddressServiceFactory(walletModel: walletModel).makeService()
         #warning("[REDACTED_TODO_COMMENT]")
-        sendModel = SendModel(walletModel: walletModel, transactionSigner: transactionSigner, addressService: addressService, sendType: sendType)
+        sendModel = SendModel(
+            walletModel: walletModel,
+            transactionSigner: transactionSigner,
+            addressService: addressService,
+            supportsCustomFees: walletModel.supportsCustomFees,
+            sendType: sendType
+        )
 
         let steps = sendType.steps
         guard let firstStep = steps.first else {
@@ -180,9 +186,6 @@ final class SendViewModel: ObservableObject {
             walletModel: walletModel
         )
         customFeeService = customFeeServiceFactory.makeService()
-        if customFeeService != nil {
-            sendModel.setSupportsCustomFees(true)
-        }
 
         fiatCryptoAdapter = CommonSendFiatCryptoAdapter(
             cryptoCurrencyId: walletInfo.currencyId,
