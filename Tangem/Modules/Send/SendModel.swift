@@ -126,7 +126,6 @@ class SendModel {
     private var destinationResolutionRequest: Task<Void, Error>?
     private var didSetCustomFee = false
     private var feeUpdatePublisher: AnyPublisher<FeeUpdateResult, Error>?
-    private var supportsCustomFees: Bool
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
@@ -134,7 +133,6 @@ class SendModel {
     init(walletModel: WalletModel, transactionSigner: TransactionSigner, addressService: SendAddressService, sendType: SendType) {
         self.walletModel = walletModel
         self.transactionSigner = transactionSigner
-        supportsCustomFees = walletModel.supportsCustomFees
         self.sendType = sendType
         self.addressService = addressService
 
@@ -626,7 +624,7 @@ extension SendModel: SendFeeViewModelInput {
     var feeOptions: [FeeOption] {
         if walletModel.shouldShowFeeSelector {
             var options: [FeeOption] = [.slow, .market, .fast]
-            if supportsCustomFees {
+            if walletModel.supportsCustomFees {
                 options.append(.custom)
             }
             return options
