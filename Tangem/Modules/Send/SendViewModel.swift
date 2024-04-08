@@ -134,7 +134,6 @@ final class SendViewModel: ObservableObject {
             walletModel: walletModel,
             transactionSigner: transactionSigner,
             addressService: addressService,
-            supportsCustomFees: walletModel.supportsCustomFees,
             sendType: sendType
         )
 
