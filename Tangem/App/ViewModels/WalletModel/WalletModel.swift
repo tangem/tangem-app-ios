@@ -42,6 +42,10 @@ class WalletModel {
         walletManager.allowsFeeSelection
     }
 
+    var supportsCustomFees: Bool {
+        bitcoinTransactionFeeCalculator != nil || blockchainNetwork.blockchain.isEvm
+    }
+
     var tokenItem: TokenItem {
         switch amountType {
         case .coin, .reserve:
