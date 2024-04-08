@@ -134,7 +134,7 @@ class SendModel {
     init(walletModel: WalletModel, transactionSigner: TransactionSigner, addressService: SendAddressService, sendType: SendType) {
         self.walletModel = walletModel
         self.transactionSigner = transactionSigner
-        self.supportsCustomFees = walletModel.supportsCustomFees
+        supportsCustomFees = walletModel.supportsCustomFees
         self.sendType = sendType
         self.addressService = addressService
 
