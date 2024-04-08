@@ -707,20 +707,6 @@ extension SendModel: SendFeeViewModelInput {
 }
 
 extension SendModel: SendSummaryViewModelInput {
-    var additionalFieldPublisher: AnyPublisher<(SendAdditionalFields, String)?, Never> {
-        _destinationAdditionalFieldText
-            .map { [weak self] in
-                guard
-                    !$0.isEmpty,
-                    let additionalFields = self?.additionalFieldType
-                else {
-                    return nil
-                }
-                return (additionalFields, $0)
-            }
-            .eraseToAnyPublisher()
-    }
-
     var userInputAmountPublisher: AnyPublisher<Amount?, Never> {
         userInputAmount.eraseToAnyPublisher()
     }
@@ -753,12 +739,6 @@ extension SendModel: SendFinishViewModelInput {
 
     var destinationText: String? {
         validatedDestination.value?.value
-    }
-
-    var additionalField: (SendAdditionalFields, String)? {
-        guard let additionalFieldType else { return nil }
-
-        return (additionalFieldType, _destinationAdditionalFieldText.value)
     }
 
     var feeValue: Fee? {
