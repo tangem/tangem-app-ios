@@ -21,16 +21,9 @@ struct SendSummaryView: View {
         VStack(spacing: 14) {
             GroupedScrollView(spacing: 0) {
                 if !viewModel.animatingDestinationOnAppear {
-                    GroupedSection(viewModel.destinationViewTypes) { type in
-                        switch type {
-                        case .address(let address):
-                            SendDestinationAddressSummaryView(address: address)
-                                .setNamespace(namespace)
-                        case .additionalField(let type, let value):
-                            if let name = type.name {
-                                DefaultTextWithTitleRowView(data: .init(title: name, text: value))
-                            }
-                        }
+                    GroupedSection(viewModel.destinationSummaryViewData) { data in
+                        SendDestinationAddressSummaryView(address: data.address)
+                            .setNamespace(namespace)
                     }
                     .backgroundColor(viewModel.destinationBackground, id: SendViewNamespaceId.addressContainer.rawValue, namespace: namespace)
                     .contentShape(Rectangle())
@@ -58,8 +51,18 @@ struct SendSummaryView: View {
                 FixedSpacer(height: spacing)
 
                 if !viewModel.animatingFeeOnAppear {
-                    GroupedSection(viewModel.feeSummaryViewData) { data in
+                    GroupedSection(viewModel.selectedFeeSummaryViewModel) { data in
                         feeSectionContent(data: data)
+                            .overlay {
+                                ForEach(viewModel.deselectedFeeRowViewModels) { model in
+                                    FeeRowView(viewModel: model)
+                                        .setNamespace(namespace)
+                                        .setOptionNamespaceId(SendViewNamespaceId.feeOption(feeOption: model.option).rawValue)
+                                        .setAmountNamespaceId(SendViewNamespaceId.feeAmount(feeOption: model.option).rawValue)
+                                        .allowsHitTesting(false)
+                                        .opacity(0)
+                                }
+                            }
                     }
                     .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
                     .contentShape(Rectangle())
@@ -118,8 +121,8 @@ struct SendSummaryView: View {
         SendFeeSummaryView(data: data)
             .setNamespace(namespace)
             .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
-            .setOptionNamespaceId(SendViewNamespaceId.feeOption.rawValue)
-            .setAmountNamespaceId(SendViewNamespaceId.feeAmount.rawValue)
+            .setOptionNamespaceId(SendViewNamespaceId.feeOption(feeOption: data.feeOption).rawValue)
+            .setAmountNamespaceId(SendViewNamespaceId.feeAmount(feeOption: data.feeOption).rawValue)
     }
 }
 
@@ -150,7 +153,8 @@ struct SendSummaryView_Previews: PreviewProvider {
         fiatCurrencyCode: "USD",
         amountFractionDigits: 6,
         feeFractionDigits: 6,
-        feeAmountType: .coin
+        feeAmountType: .coin,
+        canUseFiatCalculation: true
     )
 
     static let viewModel = SendSummaryViewModel(
