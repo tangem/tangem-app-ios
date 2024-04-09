@@ -21,8 +21,10 @@ struct AuthCoordinatorView: CoordinatorView {
 
             sheets
         }
+        // modifiers order is changed intentionally (see OnboardingCoordinatorView, WelcomeCoordinatorView):
+        // navigation bar animation looks redundant in case of regular authentication
         .animation(.default, value: coordinator.transitionAnimationValue)
-        .navigationBarHidden(coordinator.navigationBarHidden)
+        .navigationBarHidden(coordinator.isNavigationBarHidden)
     }
 
     @ViewBuilder
