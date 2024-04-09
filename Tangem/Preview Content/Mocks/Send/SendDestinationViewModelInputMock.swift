@@ -51,10 +51,6 @@ class SendDestinationViewModelInputMock: SendDestinationViewModelInput {
         BlockchainNetwork(.ethereum(testnet: false), derivationPath: nil)
     }
 
-    var walletPublicKey: Wallet.PublicKey {
-        .init(seedKey: Data(), derivationType: nil)
-    }
-
     var currencySymbol: String {
         "ETH"
     }
@@ -71,6 +67,6 @@ class SendDestinationViewModelInputMock: SendDestinationViewModelInput {
         []
     }
 
-    func setDestination(_ address: String) {}
+    func setDestination(_ address: SendAddress) {}
     func setDestinationAdditionalField(_ additionalField: String) {}
 }
