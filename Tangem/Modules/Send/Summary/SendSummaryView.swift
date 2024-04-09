@@ -21,16 +21,9 @@ struct SendSummaryView: View {
         VStack(spacing: 14) {
             GroupedScrollView(spacing: 0) {
                 if !viewModel.animatingDestinationOnAppear {
-                    GroupedSection(viewModel.destinationViewTypes) { type in
-                        switch type {
-                        case .address(let address):
-                            SendDestinationAddressSummaryView(address: address)
-                                .setNamespace(namespace)
-                        case .additionalField(let type, let value):
-                            if let name = type.name {
-                                DefaultTextWithTitleRowView(data: .init(title: name, text: value))
-                            }
-                        }
+                    GroupedSection(viewModel.destinationSummaryViewData) { data in
+                        SendDestinationAddressSummaryView(address: data.address)
+                            .setNamespace(namespace)
                     }
                     .backgroundColor(viewModel.destinationBackground, id: SendViewNamespaceId.addressContainer.rawValue, namespace: namespace)
                     .contentShape(Rectangle())
