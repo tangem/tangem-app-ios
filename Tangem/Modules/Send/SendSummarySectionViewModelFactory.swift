@@ -43,36 +43,48 @@ struct SendSummarySectionViewModelFactory {
         return destinationViewTypes
     }
 
-    func makeAmountViewData(from amount: Amount?) -> AmountSummaryViewData? {
-        guard let amount else { return nil }
+    func makeAmountViewData(from amount: String?, amountAlternative: String?) -> SendAmountSummaryViewData? {
+        guard let amount, let amountAlternative else { return nil }
 
-        let formattedAmount = amount.description
-
-        let amountFiat: String
-        if let currencyId,
-           let fiatValue = BalanceConverter().convertToFiat(value: amount.value, from: currencyId) {
-            amountFiat = BalanceFormatter().formatFiatBalance(fiatValue)
-        } else {
-            amountFiat = AppConstants.dashSign
-        }
-        return AmountSummaryViewData(
+        return SendAmountSummaryViewData(
             title: Localization.sendAmountLabel,
-            amount: formattedAmount,
-            amountFiat: amountFiat,
+            amount: amount,
+            amountAlternative: amountAlternative,
             tokenIconInfo: tokenIconInfo
         )
     }
 
-    func makeFeeViewData(from value: Fee?) -> DefaultTextWithTitleRowViewData? {
+    func makeFeeViewData(from value: Fee?, feeOption: FeeOption, animateTitleOnAppear: Bool) -> SendFeeSummaryViewModel? {
         guard let value else { return nil }
 
-        let formattedValue = feeFormatter.format(
+        let formattedFeeComponents = formattedFeeComponents(from: value)
+        return SendFeeSummaryViewModel(
+            title: Localization.commonNetworkFeeTitle,
+            feeOption: feeOption,
+            cryptoAmount: formattedFeeComponents.cryptoFee,
+            fiatAmount: formattedFeeComponents.fiatFee,
+            animateTitleOnAppear: animateTitleOnAppear
+        )
+    }
+
+    func makeDeselectedFeeRowViewModel(from value: Fee, feeOption: FeeOption) -> FeeRowViewModel {
+        return FeeRowViewModel(
+            option: feeOption,
+            formattedFeeComponents: .loaded(formattedFeeComponents(from: value)),
+            isSelected: .init(get: {
+                false
+            }, set: { _ in
+
+            })
+        )
+    }
+
+    private func formattedFeeComponents(from value: Fee) -> FormattedFeeComponents {
+        feeFormatter.formattedFeeComponents(
             fee: value.amount.value,
             currencySymbol: feeCurrencySymbol,
             currencyId: feeCurrencyId,
             isFeeApproximate: isFeeApproximate
         )
-
-        return DefaultTextWithTitleRowViewData(title: Localization.commonNetworkFeeTitle, text: formattedValue)
     }
 }
