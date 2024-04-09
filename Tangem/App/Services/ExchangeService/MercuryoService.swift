@@ -234,7 +234,41 @@ private extension Blockchain {
             return "TRON"
         case .base:
             return "BASE"
-        default:
+        case .ethereumPoW,
+             .disChain,
+             .ethereumClassic,
+             .rsk,
+             .binance,
+             .ducatus,
+             .azero,
+             .gnosis,
+             .kava,
+             .kaspa,
+             .ravencoin,
+             .terraV1,
+             .terraV2,
+             .cronos,
+             .telos,
+             .octa,
+             .chia,
+             .decimal,
+             .veChain,
+             .xdc,
+             .shibarium,
+             .aptos,
+             .hedera,
+             .areon,
+             .playa3ullGames,
+             .pulsechain,
+             .aurora,
+             .manta,
+             .zkSync,
+             .moonbeam,
+             .polygonZkEVM,
+             .moonriver,
+             .mantle,
+             .flare,
+             .taraxa:
             return nil
         }
     }
