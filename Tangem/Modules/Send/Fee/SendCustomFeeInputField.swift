@@ -11,6 +11,12 @@ import SwiftUI
 struct SendCustomFeeInputField: View {
     @ObservedObject var viewModel: SendCustomFeeInputFieldModel
 
+    private var onFocusChanged: ((Bool) -> Void)?
+
+    init(viewModel: SendCustomFeeInputFieldModel) {
+        self.viewModel = viewModel
+    }
+
     var body: some View {
         GroupedSection(viewModel) { viewModel in
             VStack(alignment: .leading, spacing: 4) {
@@ -19,12 +25,11 @@ struct SendCustomFeeInputField: View {
                     .lineLimit(1)
 
                 HStack {
-                    SendDecimalNumberTextField(
-                        decimalValue: $viewModel.amount,
-                        maximumFractionDigits: viewModel.fractionDigits
-                    )
-                    .suffix(viewModel.fieldSuffix)
-                    .font(Fonts.Regular.subheadline)
+                    SendDecimalNumberTextField(viewModel: viewModel.decimalNumberTextFieldViewModel)
+                        .prefixSuffixOptions(.suffix(text: viewModel.fieldSuffix, hasSpace: true))
+                        .appearance(.init(font: Fonts.Regular.subheadline))
+                        .onFocusChanged(onFocusChanged)
+                        .allowsHitTesting(!viewModel.disabled)
 
                     Spacer()
 
@@ -37,10 +42,18 @@ struct SendCustomFeeInputField: View {
             }
             .padding(.vertical, 14)
         } footer: {
-            Text(viewModel.footer)
-                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+            if let footer = viewModel.footer {
+                Text(footer)
+                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+            }
         }
         .backgroundColor(Colors.Background.action)
+    }
+}
+
+extension SendCustomFeeInputField: Setupable {
+    func onFocusChanged(_ action: ((Bool) -> Void)?) -> Self {
+        map { $0.onFocusChanged = action }
     }
 }
 
@@ -49,7 +62,7 @@ struct SendCustomFeeInputField: View {
         SendCustomFeeInputField(
             viewModel: SendCustomFeeInputFieldModel(
                 title: "Fee up to",
-                amountPublisher: .just(output: .internal(1234)),
+                amountPublisher: .just(output: 1234),
                 fieldSuffix: "WEI",
                 fractionDigits: 2,
                 amountAlternativePublisher: .just(output: "0.41 $"),
@@ -61,7 +74,7 @@ struct SendCustomFeeInputField: View {
         SendCustomFeeInputField(
             viewModel: SendCustomFeeInputFieldModel(
                 title: "Fee up to",
-                amountPublisher: .just(output: .internal(1234)),
+                amountPublisher: .just(output: 1234),
                 fieldSuffix: "WEI",
                 fractionDigits: 2,
                 amountAlternativePublisher: .just(output: nil),
