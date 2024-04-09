@@ -15,7 +15,7 @@ class AuthCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
-    var navigationBarHidden: Bool {
+    var isNavigationBarHidden: Bool {
         viewState?.isMain == false
     }
 
