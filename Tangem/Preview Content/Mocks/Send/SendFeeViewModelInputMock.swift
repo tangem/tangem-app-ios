@@ -12,23 +12,7 @@ import BigInt
 import BlockchainSdk
 
 class SendFeeViewModelInputMock: SendFeeViewModelInput {
-    var customGasLimit: BigUInt? {
-        nil
-    }
-
-    var customGasPrice: BigUInt? {
-        nil
-    }
-
     var customFeePublisher: AnyPublisher<Fee?, Never> {
-        .just(output: nil)
-    }
-
-    var customGasPricePublisher: AnyPublisher<BigUInt?, Never> {
-        .just(output: nil)
-    }
-
-    var customGasLimitPublisher: AnyPublisher<BigUInt?, Never> {
         .just(output: nil)
     }
 
@@ -61,8 +45,5 @@ class SendFeeViewModelInputMock: SendFeeViewModelInput {
     }
 
     func didSelectFeeOption(_ feeOption: FeeOption) {}
-    func didChangeCustomFee(_ value: Fee?) {}
-    func didChangeCustomFeeGasPrice(_ value: BigUInt?) {}
-    func didChangeCustomFeeGasLimit(_ value: BigUInt?) {}
     func didChangeFeeInclusion(_ feeIncluded: Bool) {}
 }
