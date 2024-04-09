@@ -232,6 +232,8 @@ extension Blockchain {
         case .arbitrum,
              .optimism,
              .base:
+            // [REDACTED_TODO_COMMENT]
+            // Provides a more descriptive display name for the fee currency (ETH) for some Ethereum L2s
             return displayName + " (\(currencySymbol))"
         default:
             return currencySymbol
