@@ -14,7 +14,7 @@ class WelcomeCoordinator: CoordinatorObject {
     var dismissAction: Action<Void>
     var popToRootAction: Action<PopToRootOptions>
 
-    var navigationBarHidden: Bool {
+    var isNavigationBarHidden: Bool {
         viewState?.isMain == false
     }
 

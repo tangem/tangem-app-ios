@@ -41,7 +41,6 @@ class StoriesViewModel: ObservableObject {
     }
 
     func onAppear() {
-        currentProgress = 0
         NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)
             .sink { [weak self] _ in
                 self?.pauseTimer()
