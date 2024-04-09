@@ -129,10 +129,8 @@ struct MainButton: View {
 
     @ViewBuilder
     private var border: some View {
-        if let borderColor = style.border(isDisabled: isDisabled) {
-            RoundedRectangle(cornerRadius: style.cornerRadius(for: size), style: .continuous)
-                .stroke(borderColor)
-        }
+        RoundedRectangle(cornerRadius: style.cornerRadius(for: size), style: .continuous)
+            .stroke(style.border(isDisabled: isDisabled) ?? Color.clear)
     }
 }
 
