@@ -68,6 +68,7 @@ final class SendViewModel: ObservableObject {
     private let emailDataProvider: EmailDataProvider
     private let walletInfo: SendWalletInfo
     private let notificationManager: CommonSendNotificationManager
+    private let customFeeService: CustomFeeService?
     private let fiatCryptoAdapter: CommonSendFiatCryptoAdapter
     private let sendStepParameters: SendStep.Parameters
     private let keyboardVisibilityService: KeyboardVisibilityService
@@ -119,6 +120,7 @@ final class SendViewModel: ObservableObject {
         transactionSigner: TransactionSigner,
         sendType: SendType,
         emailDataProvider: EmailDataProvider,
+        canUseFiatCalculation: Bool,
         coordinator: SendRoutable
     ) {
         self.coordinator = coordinator
@@ -129,7 +131,12 @@ final class SendViewModel: ObservableObject {
 
         let addressService = SendAddressServiceFactory(walletModel: walletModel).makeService()
         #warning("[REDACTED_TODO_COMMENT]")
-        sendModel = SendModel(walletModel: walletModel, transactionSigner: transactionSigner, addressService: addressService, sendType: sendType)
+        sendModel = SendModel(
+            walletModel: walletModel,
+            transactionSigner: transactionSigner,
+            addressService: addressService,
+            sendType: sendType
+        )
 
         let steps = sendType.steps
         guard let firstStep = steps.first else {
@@ -164,7 +171,8 @@ final class SendViewModel: ObservableObject {
             fiatCurrencyCode: AppSettings.shared.selectedCurrencyCode,
             amountFractionDigits: walletModel.tokenItem.decimalCount,
             feeFractionDigits: walletModel.feeTokenItem.decimalCount,
-            feeAmountType: walletModel.feeTokenItem.amountType
+            feeAmountType: walletModel.feeTokenItem.amountType,
+            canUseFiatCalculation: canUseFiatCalculation
         )
 
         notificationManager = CommonSendNotificationManager(
@@ -172,6 +180,13 @@ final class SendViewModel: ObservableObject {
             feeTokenItem: walletModel.feeTokenItem,
             input: sendModel
         )
+
+        let customFeeServiceFactory = CustomFeeServiceFactory(
+            input: sendModel,
+            output: sendModel,
+            walletModel: walletModel
+        )
+        customFeeService = customFeeServiceFactory.makeService()
 
         fiatCryptoAdapter = CommonSendFiatCryptoAdapter(
             cryptoCurrencyId: walletInfo.currencyId,
@@ -186,7 +201,7 @@ final class SendViewModel: ObservableObject {
 
         sendAmountViewModel = SendAmountViewModel(input: sendModel, fiatCryptoAdapter: fiatCryptoAdapter, walletInfo: walletInfo)
         sendDestinationViewModel = SendDestinationViewModel(input: sendModel)
-        sendFeeViewModel = SendFeeViewModel(input: sendModel, notificationManager: notificationManager, walletInfo: walletInfo)
+        sendFeeViewModel = SendFeeViewModel(input: sendModel, notificationManager: notificationManager, customFeeService: customFeeService, walletInfo: walletInfo)
         sendSummaryViewModel = SendSummaryViewModel(input: sendModel, notificationManager: notificationManager, fiatCryptoValueProvider: fiatCryptoAdapter, walletInfo: walletInfo)
 
         fiatCryptoAdapter.setInput(sendAmountViewModel)
@@ -196,6 +211,8 @@ final class SendViewModel: ObservableObject {
         sendSummaryViewModel.router = self
 
         notificationManager.setupManager(with: self)
+
+        updateTransactionHistoryIfNeeded()
 
         bind()
     }
@@ -416,8 +433,11 @@ final class SendViewModel: ObservableObject {
             ])
 
             alert = SendAlertBuilder.makeSubtractFeeFromAmountAlert(sendModel.feeText) { [weak self] in
-                self?.sendModel.includeFeeIntoAmount()
-                self?.openStep(step, stepAnimation: stepAnimation, updateFee: false)
+                guard let self else { return }
+                sendModel.includeFeeIntoAmount()
+                fiatCryptoAdapter.setAmount(sendModel.userInputAmountValue?.value)
+
+                openStep(step, stepAnimation: stepAnimation, updateFee: false)
             }
 
             return true
@@ -450,6 +470,14 @@ final class SendViewModel: ObservableObject {
             return .send
         case .finish:
             return .close
+        }
+    }
+
+    private func updateTransactionHistoryIfNeeded() {
+        if walletModel.transactionHistoryNotLoaded {
+            walletModel.updateTransactionsHistory()
+                .sink()
+                .store(in: &bag)
         }
     }
 

@@ -18,20 +18,12 @@ protocol SendFeeViewModelInput {
     var feeOptions: [FeeOption] { get }
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
 
-    var customGasLimit: BigUInt? { get }
-    var customGasPrice: BigUInt? { get }
-
     var customFeePublisher: AnyPublisher<Fee?, Never> { get }
-    var customGasPricePublisher: AnyPublisher<BigUInt?, Never> { get }
-    var customGasLimitPublisher: AnyPublisher<BigUInt?, Never> { get }
 
     var canIncludeFeeIntoAmount: Bool { get }
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> { get }
 
     func didSelectFeeOption(_ feeOption: FeeOption)
-    func didChangeCustomFee(_ value: Fee?)
-    func didChangeCustomFeeGasPrice(_ value: BigUInt?)
-    func didChangeCustomFeeGasLimit(_ value: BigUInt?)
     func didChangeFeeInclusion(_ isFeeIncluded: Bool)
 }
 
@@ -44,12 +36,11 @@ class SendFeeViewModel: ObservableObject {
     @Published private(set) var feeRowViewModels: [FeeRowViewModel] = []
     @Published private(set) var showCustomFeeFields: Bool = false
     @Published var animatingAuxiliaryViewsOnAppear: Bool = false
+    @Published private(set) var deselectedFeeViewsVisible: Bool = false
 
-    var didProperlyDisappear = false
+    var didProperlyDisappear = true
 
-    private(set) var customFeeModel: SendCustomFeeInputFieldModel?
-    private(set) var customFeeGasPriceModel: SendCustomFeeInputFieldModel?
-    private(set) var customFeeGasLimitModel: SendCustomFeeInputFieldModel?
+    private(set) var customFeeModels: [SendCustomFeeInputFieldModel] = []
 
     @Published private var isFeeIncluded: Bool = false
 
@@ -62,6 +53,7 @@ class SendFeeViewModel: ObservableObject {
     private let input: SendFeeViewModelInput
     private let feeOptions: [FeeOption]
     private let walletInfo: SendWalletInfo
+    private let customFeeService: CustomFeeService?
     private let customFeeInFiat = CurrentValueSubject<String?, Never>("")
     private var customGasPriceBeforeEditing: BigUInt?
     private var bag: Set<AnyCancellable> = []
@@ -74,9 +66,10 @@ class SendFeeViewModel: ObservableObject {
         balanceConverter: balanceConverter
     )
 
-    init(input: SendFeeViewModelInput, notificationManager: SendNotificationManager, walletInfo: SendWalletInfo) {
+    init(input: SendFeeViewModelInput, notificationManager: SendNotificationManager, customFeeService: CustomFeeService?, walletInfo: SendWalletInfo) {
         self.input = input
         self.notificationManager = notificationManager
+        self.customFeeService = customFeeService
         self.walletInfo = walletInfo
         feeOptions = input.feeOptions
         selectedFeeOption = input.selectedFeeOption
@@ -91,28 +84,22 @@ class SendFeeViewModel: ObservableObject {
     }
 
     func onAppear() {
+        let deselectedFeeViewAppearanceDelay = SendView.Constants.animationDuration / 3
+        DispatchQueue.main.asyncAfter(deadline: .now() + deselectedFeeViewAppearanceDelay) {
+            withAnimation(SendView.Constants.defaultAnimation) {
+                self.deselectedFeeViewsVisible = true
+            }
+        }
+
         if animatingAuxiliaryViewsOnAppear {
             Analytics.log(.sendScreenReopened, params: [.source: .fee])
-
-            withAnimation(SendView.Constants.defaultAnimation) {
-                animatingAuxiliaryViewsOnAppear = false
-            }
         } else {
             Analytics.log(.sendFeeScreenOpened)
         }
     }
 
-    func onCustomGasPriceFocusChanged(focused: Bool) {
-        if focused {
-            customGasPriceBeforeEditing = input.customGasPrice
-        } else {
-            let customGasPriceAfterEditing = input.customGasPrice
-            if customGasPriceAfterEditing != customGasPriceBeforeEditing {
-                Analytics.log(.sendGasPriceInserted)
-            }
-
-            customGasPriceBeforeEditing = nil
-        }
+    func onDisappear() {
+        deselectedFeeViewsVisible = false
     }
 
     func openFeeExplanation() {
@@ -120,53 +107,21 @@ class SendFeeViewModel: ObservableObject {
     }
 
     private func createCustomFeeModels() {
-        customFeeModel = SendCustomFeeInputFieldModel(
+        guard let customFeeService else { return }
+
+        let customFeeModel = SendCustomFeeInputFieldModel(
             title: Localization.sendMaxFee,
             amountPublisher: input.customFeePublisher.decimalPublisher,
+            disabled: customFeeService.readOnlyCustomFee,
             fieldSuffix: walletInfo.feeCurrencySymbol,
             fractionDigits: walletInfo.feeFractionDigits,
             amountAlternativePublisher: customFeeInFiat.eraseToAnyPublisher(),
-            footer: Localization.sendMaxFeeFooter
-        ) { [weak self] enteredFee in
-            guard let self else { return }
-            input.didChangeCustomFee(recalculateFee(enteredFee: enteredFee, input: input, walletInfo: walletInfo))
+            footer: customFeeService.customFeeDescription
+        ) { value in
+            customFeeService.setCustomFee(value: value)
         }
 
-        let gasPriceFractionDigits = 9
-        let gasPriceGweiPublisher = input
-            .customGasPricePublisher
-            .decimalPublisher
-            .map { weiValue -> Decimal? in
-                let gweiValue = weiValue?.shiftOrder(magnitude: -gasPriceFractionDigits)
-                return gweiValue
-            }
-            .eraseToAnyPublisher()
-
-        customFeeGasPriceModel = SendCustomFeeInputFieldModel(
-            title: Localization.sendGasPrice,
-            amountPublisher: gasPriceGweiPublisher,
-            fieldSuffix: "GWEI",
-            fractionDigits: gasPriceFractionDigits,
-            amountAlternativePublisher: .just(output: nil),
-            footer: Localization.sendGasPriceFooter
-        ) { [weak self] gweiValue in
-            guard let self else { return }
-
-            let weiValue = gweiValue?.shiftOrder(magnitude: gasPriceFractionDigits)
-            input.didChangeCustomFeeGasPrice(weiValue?.bigUIntValue)
-        }
-
-        customFeeGasLimitModel = SendCustomFeeInputFieldModel(
-            title: Localization.sendGasLimit,
-            amountPublisher: input.customGasLimitPublisher.decimalPublisher,
-            fieldSuffix: nil,
-            fractionDigits: 0,
-            amountAlternativePublisher: .just(output: nil),
-            footer: Localization.sendGasLimitFooter
-        ) { [weak self] in
-            guard let self else { return }
-            input.didChangeCustomFeeGasLimit($0?.bigUIntValue)
-        }
+        customFeeModels = [customFeeModel] + customFeeService.inputFieldModels()
     }
 
     private func bind() {
@@ -268,41 +223,11 @@ class SendFeeViewModel: ObservableObject {
         input.didSelectFeeOption(feeOption)
         showCustomFeeFields = feeOption == .custom
     }
-
-    private func recalculateFee(enteredFee: Decimal?, input: SendFeeViewModelInput, walletInfo: SendWalletInfo) -> Fee? {
-        let feeDecimalValue = Decimal(pow(10, Double(walletInfo.feeFractionDigits)))
-
-        guard
-            let enteredFee,
-            let currentGasLimit = input.customGasLimit,
-            let enteredFeeInSmallestDenomination = BigUInt(decimal: (enteredFee * feeDecimalValue).rounded(roundingMode: .down))
-        else {
-            return nil
-        }
-
-        let gasPrice = (enteredFeeInSmallestDenomination / currentGasLimit)
-        guard
-            let recalculatedFeeInSmallestDenomination = (gasPrice * currentGasLimit).decimal
-        else {
-            return nil
-        }
-
-        let recalculatedFee = recalculatedFeeInSmallestDenomination / feeDecimalValue
-        let feeAmount = Amount(with: walletInfo.blockchain, type: walletInfo.feeAmountType, value: recalculatedFee)
-        let parameters = EthereumFeeParameters(gasLimit: currentGasLimit, gasPrice: gasPrice)
-        return Fee(feeAmount, parameters: parameters)
-    }
 }
 
 extension SendFeeViewModel: AuxiliaryViewAnimatable {}
 
 // MARK: - private extensions
-
-private extension Decimal {
-    var bigUIntValue: BigUInt? {
-        BigUInt(decimal: self)
-    }
-}
 
 private extension AnyPublisher where Output == Fee?, Failure == Never {
     var decimalPublisher: AnyPublisher<Decimal?, Never> {
@@ -313,11 +238,5 @@ private extension AnyPublisher where Output == Fee?, Failure == Never {
 private extension AnyPublisher where Output == BigUInt?, Failure == Never {
     var decimalPublisher: AnyPublisher<Decimal?, Never> {
         map { $0?.decimal }.eraseToAnyPublisher()
-    }
-}
-
-private extension Decimal {
-    func shiftOrder(magnitude: Int) -> Decimal {
-        self * Decimal(pow(10.0, Double(magnitude)))
     }
 }
