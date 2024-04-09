@@ -15,6 +15,7 @@ extension WalletModel {
         walletManager: EthereumWalletManagerMock(),
         transactionHistoryService: nil,
         amountType: .coin,
+        shouldPerformHealthCheck: false,
         isCustom: false
     )
 }
