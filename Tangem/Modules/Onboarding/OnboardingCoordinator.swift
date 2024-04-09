@@ -12,7 +12,7 @@ class OnboardingCoordinator: CoordinatorObject {
     var dismissAction: Action<OutputOptions>
     var popToRootAction: Action<PopToRootOptions>
 
-    var navigationBarHidden: Bool {
+    var isNavigationBarHidden: Bool {
         viewState?.isMain == false
     }
 
