@@ -120,6 +120,7 @@ final class SendViewModel: ObservableObject {
         transactionSigner: TransactionSigner,
         sendType: SendType,
         emailDataProvider: EmailDataProvider,
+        canUseFiatCalculation: Bool,
         coordinator: SendRoutable
     ) {
         self.coordinator = coordinator
@@ -170,7 +171,8 @@ final class SendViewModel: ObservableObject {
             fiatCurrencyCode: AppSettings.shared.selectedCurrencyCode,
             amountFractionDigits: walletModel.tokenItem.decimalCount,
             feeFractionDigits: walletModel.feeTokenItem.decimalCount,
-            feeAmountType: walletModel.feeTokenItem.amountType
+            feeAmountType: walletModel.feeTokenItem.amountType,
+            canUseFiatCalculation: canUseFiatCalculation
         )
 
         notificationManager = CommonSendNotificationManager(
@@ -209,6 +211,8 @@ final class SendViewModel: ObservableObject {
         sendSummaryViewModel.router = self
 
         notificationManager.setupManager(with: self)
+
+        updateTransactionHistoryIfNeeded()
 
         bind()
     }
@@ -463,6 +467,14 @@ final class SendViewModel: ObservableObject {
             return .send
         case .finish:
             return .close
+        }
+    }
+
+    private func updateTransactionHistoryIfNeeded() {
+        if walletModel.transactionHistoryNotLoaded {
+            walletModel.updateTransactionsHistory()
+                .sink()
+                .store(in: &bag)
         }
     }
 
