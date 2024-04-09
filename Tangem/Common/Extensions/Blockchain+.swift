@@ -25,9 +25,13 @@ extension Blockchain {
     /// Should be used to get the actual currency rate
     var currencyId: String {
         switch self {
-        case .arbitrum(let testnet), .optimism(let testnet),
-             .aurora(let testnet), .manta(let testnet),
-             .zkSync(let testnet), .polygonZkEVM(let testnet):
+        case .arbitrum(let testnet),
+             .optimism(let testnet),
+             .aurora(let testnet),
+             .manta(let testnet),
+             .zkSync(let testnet),
+             .polygonZkEVM(let testnet),
+             .base(let testnet):
             return Blockchain.ethereum(testnet: testnet).coinId
         default:
             return coinId
@@ -191,6 +195,11 @@ private extension Blockchain {
             }
         case .taraxa:
             return "taraxa"
+        case .base:
+            switch type {
+            case .network: return "base"
+            case .coin: return "base-ethereum"
+            }
         }
     }
 
@@ -220,7 +229,9 @@ extension Set<Blockchain> {
 extension Blockchain {
     var feeDisplayName: String {
         switch self {
-        case .arbitrum, .optimism:
+        case .arbitrum,
+             .optimism,
+             .base:
             return displayName + " (\(currencySymbol))"
         default:
             return currencySymbol
