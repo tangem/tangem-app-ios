@@ -478,6 +478,7 @@
 "send_recipient_label" = "Отправить";
 "send_recipient_memo_footer" = "Мемо/ Код назначения - это код, разделяющий транзакции к общему получателю в сети криптовалют. Внимание: отсутствие мемо может привести к потере средств.";
 "send_recipient_wallets_title" = "Мои кошельки";
+"send_satoshi_per_byte_title" = "Satoshi per vbyte";
 "send_sending" = "Отправка";
 "send_summary_tap_hint" = "Нажмите на любое поле, чтобы изменить его";
 "send_summary_title" = "Отправка %@";
