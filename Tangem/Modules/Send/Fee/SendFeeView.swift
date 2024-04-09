@@ -25,10 +25,7 @@ struct SendFeeView: View {
             GroupedSection(viewModel.feeRowViewModels) { feeRowViewModel in
                 Group {
                     if feeRowViewModel.isSelected.value {
-                        FeeRowView(viewModel: feeRowViewModel)
-                            .setNamespace(namespace)
-                            .setOptionNamespaceId(SendViewNamespaceId.feeOption.rawValue)
-                            .setAmountNamespaceId(SendViewNamespaceId.feeAmount.rawValue)
+                        feeRowView(feeRowViewModel)
                             .overlay(alignment: .topLeading) {
                                 Text(Localization.commonNetworkFeeTitle)
                                     .font(Fonts.Regular.footnote)
@@ -36,10 +33,8 @@ struct SendFeeView: View {
                                     .matchedGeometryEffect(id: SendViewNamespaceId.feeTitle.rawValue, in: namespace)
                             }
                     } else {
-                        if !viewModel.animatingAuxiliaryViewsOnAppear {
-                            FeeRowView(viewModel: feeRowViewModel)
-                                .transition(SendView.Constants.auxiliaryViewTransition)
-                        }
+                        feeRowView(feeRowViewModel)
+                            .visible(viewModel.deselectedFeeViewsVisible)
                     }
                 }
             } footer: {
@@ -64,18 +59,12 @@ struct SendFeeView: View {
 
             if !viewModel.animatingAuxiliaryViewsOnAppear,
                viewModel.showCustomFeeFields,
-               let customFeeModel = viewModel.customFeeModel,
-               let customFeeGasPriceModel = viewModel.customFeeGasPriceModel,
-               let customFeeGasLimitModel = viewModel.customFeeGasLimitModel {
-                Group {
+               !viewModel.customFeeModels.isEmpty {
+                ForEach(viewModel.customFeeModels) { customFeeModel in
                     SendCustomFeeInputField(viewModel: customFeeModel)
-
-                    SendCustomFeeInputField(viewModel: customFeeGasPriceModel)
-                        .onFocusChanged(viewModel.onCustomGasPriceFocusChanged)
-
-                    SendCustomFeeInputField(viewModel: customFeeGasLimitModel)
+                        .onFocusChanged(customFeeModel.onFocusChanged)
+                        .transition(SendView.Constants.auxiliaryViewTransition)
                 }
-                .transition(SendView.Constants.auxiliaryViewTransition)
 
                 ForEach(viewModel.customFeeNotificationInputs) { input in
                     NotificationView(input: input)
@@ -86,11 +75,19 @@ struct SendFeeView: View {
             Spacer(minLength: bottomSpacing)
         }
         .onAppear(perform: viewModel.onAppear)
+        .onDisappear(perform: viewModel.onDisappear)
         .onAppear(perform: viewModel.onAuxiliaryViewAppear)
         .onDisappear(perform: viewModel.onAuxiliaryViewDisappear)
         .safeAreaInset(edge: .bottom, spacing: safeAreaBottomSpacing) {
             EmptyView().frame(height: 0)
         }
+    }
+
+    private func feeRowView(_ viewModel: FeeRowViewModel) -> FeeRowView {
+        FeeRowView(viewModel: viewModel)
+            .setNamespace(namespace)
+            .setOptionNamespaceId(SendViewNamespaceId.feeOption(feeOption: viewModel.option).rawValue)
+            .setAmountNamespaceId(SendViewNamespaceId.feeAmount(feeOption: viewModel.option).rawValue)
     }
 
     private var feeSelectorFooter: some View {
@@ -125,10 +122,11 @@ struct SendFeeView_Previews: PreviewProvider {
         fiatCurrencyCode: "USD",
         amountFractionDigits: 6,
         feeFractionDigits: 6,
-        feeAmountType: .coin
+        feeAmountType: .coin,
+        canUseFiatCalculation: true
     )
 
     static var previews: some View {
-        SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock(), notificationManager: FakeSendNotificationManager(), walletInfo: walletInfo), bottomSpacing: 150, navigationButtonsHeight: 0)
+        SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock(), notificationManager: FakeSendNotificationManager(), customFeeService: nil, walletInfo: walletInfo), bottomSpacing: 150, navigationButtonsHeight: 0)
     }
 }
