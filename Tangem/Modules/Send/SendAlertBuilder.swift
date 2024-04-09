@@ -15,7 +15,8 @@ enum SendAlertBuilder {
         return AlertBuilder.makeAlert(
             title: Localization.sendFeeUnreachableErrorTitle,
             message: Localization.sendFeeUnreachableErrorText,
-            primaryButton: retryButton
+            primaryButton: retryButton,
+            secondaryButton: .cancel()
         )
     }
 
