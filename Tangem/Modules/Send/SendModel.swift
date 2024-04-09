@@ -109,8 +109,6 @@ class SendModel {
     private let _sendError = PassthroughSubject<Error?, Never>()
 
     private let _customFee = CurrentValueSubject<Fee?, Never>(nil)
-    private let _customFeeGasPrice = CurrentValueSubject<BigUInt?, Never>(nil)
-    private let _customFeeGasLimit = CurrentValueSubject<BigUInt?, Never>(nil)
 
     // MARK: - Errors (raw implementation)
 
@@ -194,6 +192,18 @@ class SendModel {
         updateFees(amount: validatedAmount.value, destination: validatedDestination.value?.value)
     }
 
+    func setCustomFee(_ customFee: Fee?) {
+        guard _customFee.value?.amount != customFee?.amount else {
+            return
+        }
+
+        didSetCustomFee = true
+        _customFee.send(customFee)
+        if case .custom = selectedFeeOption {
+            fee.send(customFee)
+        }
+    }
+
     func send() {
         guard var transaction = transaction.value else {
             AppLog.shared.debug("Transaction object hasn't been created")
@@ -265,14 +275,6 @@ class SendModel {
                 guard let self else { return }
 
                 fee.send(feeValues[selectedFeeOption]?.value)
-
-                if let customFee = feeValues[.custom]?.value,
-                   let ethereumFeeParameters = customFee.parameters as? EthereumFeeParameters,
-                   !didSetCustomFee {
-                    _customFee.send(customFee)
-                    _customFeeGasPrice.send(ethereumFeeParameters.gasPrice)
-                    _customFeeGasLimit.send(ethereumFeeParameters.gasLimit)
-                }
             }
             .store(in: &bag)
 
@@ -528,44 +530,6 @@ class SendModel {
         _isFeeIncluded.send(isFeeIncluded)
     }
 
-    func didChangeCustomFee(_ value: Fee?) {
-        didSetCustomFee = true
-        _customFee.send(value)
-        fee.send(value)
-
-        if let ethereumParams = value?.parameters as? EthereumFeeParameters {
-            _customFeeGasLimit.send(ethereumParams.gasLimit)
-            _customFeeGasPrice.send(ethereumParams.gasPrice)
-        }
-    }
-
-    func didChangeCustomFeeGasPrice(_ value: BigUInt?) {
-        _customFeeGasPrice.send(value)
-        recalculateCustomFee()
-    }
-
-    func didChangeCustomFeeGasLimit(_ value: BigUInt?) {
-        _customFeeGasLimit.send(value)
-        recalculateCustomFee()
-    }
-
-    private func recalculateCustomFee() {
-        let newFee: Fee?
-        if let gasPrice = _customFeeGasPrice.value,
-           let gasLimit = _customFeeGasLimit.value,
-           let gasInWei = (gasPrice * gasLimit).decimal {
-            let blockchain = walletModel.tokenItem.blockchain
-            let validatedAmount = Amount(with: blockchain, value: gasInWei / blockchain.decimalValue)
-            newFee = Fee(validatedAmount, parameters: EthereumFeeParameters(gasLimit: gasLimit, gasPrice: gasPrice))
-        } else {
-            newFee = nil
-        }
-
-        didSetCustomFee = true
-        _customFee.send(newFee)
-        fee.send(newFee)
-    }
-
     private func feeValues(_ fees: [Fee]) -> [FeeOption: LoadingValue<Fee>] {
         switch fees.count {
         case 1:
@@ -656,7 +620,7 @@ extension SendModel: SendFeeViewModelInput {
     var feeOptions: [FeeOption] {
         if walletModel.shouldShowFeeSelector {
             var options: [FeeOption] = [.slow, .market, .fast]
-            if tokenItem.blockchain.isEvm {
+            if walletModel.supportsCustomFees {
                 options.append(.custom)
             }
             return options
@@ -673,24 +637,8 @@ extension SendModel: SendFeeViewModelInput {
         walletModel.tokenItem
     }
 
-    var customGasLimit: BigUInt? {
-        _customFeeGasLimit.value
-    }
-
-    var customGasPrice: BigUInt? {
-        _customFeeGasPrice.value
-    }
-
     var customFeePublisher: AnyPublisher<Fee?, Never> {
         _customFee.eraseToAnyPublisher()
-    }
-
-    var customGasPricePublisher: AnyPublisher<BigUInt?, Never> {
-        _customFeeGasPrice.eraseToAnyPublisher()
-    }
-
-    var customGasLimitPublisher: AnyPublisher<BigUInt?, Never> {
-        _customFeeGasLimit.eraseToAnyPublisher()
     }
 
     var canIncludeFeeIntoAmount: Bool {
@@ -785,3 +733,9 @@ extension SendModel: SendNotificationManagerInput {
 }
 
 extension SendModel: SendFiatCryptoAdapterOutput {}
+
+extension SendModel: CustomFeeServiceInput, CustomFeeServiceOutput {
+    var customFee: Fee? {
+        _customFee.value
+    }
+}
