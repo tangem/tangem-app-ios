@@ -18,6 +18,7 @@ class SendCoordinator: CoordinatorObject {
     // MARK: - Dependencies
 
     @Injected(\.safariManager) private var safariManager: SafariManager
+    @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
 
     // MARK: - Root view model
 
@@ -39,6 +40,8 @@ class SendCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        let canUseFiatCalculation = quotesRepository.quote(for: options.walletModel.tokenItem) != nil
+
         rootViewModel = SendViewModel(
             walletName: options.walletName,
             walletModel: options.walletModel,
@@ -46,6 +49,7 @@ class SendCoordinator: CoordinatorObject {
             transactionSigner: options.transactionSigner,
             sendType: options.type,
             emailDataProvider: options.emailDataProvider,
+            canUseFiatCalculation: canUseFiatCalculation,
             coordinator: self
         )
     }
@@ -89,6 +93,8 @@ extension SendCoordinator: SendRoutable {
     }
 
     func openQRScanner(with codeBinding: Binding<String>, networkName: String) {
+        Analytics.log(.sendButtonQRCode)
+
         let qrScanViewCoordinator = QRScanViewCoordinator { [weak self] in
             self?.qrScanViewCoordinator = nil
         }
