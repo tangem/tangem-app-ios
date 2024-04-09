@@ -37,7 +37,7 @@ struct SendFinishView: View {
                         .setAmountCryptoNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
                         .setAmountFiatNamespaceId(SendViewNamespaceId.amountFiatText.rawValue)
                 }
-                .innerContentPadding(12)
+                .innerContentPadding(0)
                 .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
 
                 GroupedSection(viewModel.feeSummaryViewData) { data in
