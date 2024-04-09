@@ -51,10 +51,9 @@ struct SendAmountView: View {
 
     private var amountSectionContent: some View {
         VStack(spacing: 0) {
-            if !viewModel.animatingAuxiliaryViewsOnAppear {
-                SendWalletInfoView(namespace: namespace, walletName: viewModel.walletName, walletBalance: viewModel.balance)
-                    .padding(.top, 18)
-            }
+            SendWalletInfoView(namespace: namespace, walletName: viewModel.walletName, walletBalance: viewModel.balance)
+                .padding(.top, 18)
+                .visible(!viewModel.animatingAuxiliaryViewsOnAppear)
 
             TokenIcon(
                 tokenIconInfo: viewModel.tokenIconInfo,
@@ -118,7 +117,8 @@ struct SendAmountView_Previews: PreviewProvider {
         fiatCurrencyCode: "USD",
         amountFractionDigits: 6,
         feeFractionDigits: 6,
-        feeAmountType: .coin
+        feeAmountType: .coin,
+        canUseFiatCalculation: true
     )
 
     static let viewModel = SendAmountViewModel(
