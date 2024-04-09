@@ -24,7 +24,6 @@ protocol SendDestinationViewModelInput {
 
     var networkName: String { get }
     var blockchainNetwork: BlockchainNetwork { get }
-    var walletPublicKey: Wallet.PublicKey { get }
 
     var additionalFieldType: SendAdditionalFields? { get }
     var additionalFieldEmbeddedInAddress: AnyPublisher<Bool, Never> { get }
@@ -34,19 +33,22 @@ protocol SendDestinationViewModelInput {
 
     var transactionHistoryPublisher: AnyPublisher<WalletModel.TransactionHistoryState, Never> { get }
 
-    func setDestination(_ address: String)
+    func setDestination(_ address: SendAddress)
     func setDestinationAdditionalField(_ additionalField: String)
 }
 
 class SendDestinationViewModel: ObservableObject {
     var addressViewModel: SendDestinationTextViewModel?
     var additionalFieldViewModel: SendDestinationTextViewModel?
-    var suggestedDestinationViewModel: SendSuggestedDestinationViewModel?
 
+    @Published var userInputDisabled = false
     @Published var destinationErrorText: String?
     @Published var destinationAdditionalFieldErrorText: String?
+    @Published var suggestedDestinationViewModel: SendSuggestedDestinationViewModel?
     @Published var animatingAuxiliaryViewsOnAppear: Bool = false
     @Published var showSuggestedDestinations = true
+
+    var didProperlyDisappear: Bool = false
 
     private let input: SendDestinationViewModelInput
     private let transactionHistoryMapper: TransactionHistoryMapper
@@ -69,18 +71,28 @@ class SendDestinationViewModel: ObservableObject {
             showSign: false
         )
 
+        let blockchain = input.blockchainNetwork.blockchain
+        let currentUserWalletId = Self.userWalletRepository.selectedModel?.userWalletId
+
         suggestedWallets = Self.userWalletRepository
             .models
             .compactMap { userWalletModel in
+                if userWalletModel.userWalletId == currentUserWalletId {
+                    return nil
+                }
+
                 let walletModels = userWalletModel.walletModelsManager.walletModels
                 let walletModel = walletModels.first { walletModel in
-                    walletModel.blockchainNetwork == input.blockchainNetwork &&
-                        walletModel.wallet.publicKey != input.walletPublicKey
+                    // Disregarding the difference between testnet and mainnet blockchains
+                    // See https://github.com/tangem/tangem-app-ios/pull/3079#discussion_r1553709671
+                    return walletModel.blockchainNetwork.blockchain.coinId == blockchain.coinId &&
+                        !walletModel.isCustom
                 }
+
                 guard let walletModel else { return nil }
 
                 return SendSuggestedDestinationWallet(
-                    name: userWalletModel.userWallet.name,
+                    name: userWalletModel.name,
                     address: walletModel.defaultAddress
                 )
             }
@@ -92,7 +104,9 @@ class SendDestinationViewModel: ObservableObject {
             isDisabled: .just(output: false),
             errorText: input.destinationError
         ) { [weak self] in
-            self?.input.setDestination($0)
+            self?.input.setDestination(SendAddress(value: $0, source: .textField))
+        } didPasteDestination: { [weak self] in
+            self?.input.setDestination(SendAddress(value: $0, source: .pasteButton))
         }
 
         if let additionalFieldType = input.additionalFieldType,
@@ -105,6 +119,8 @@ class SendDestinationViewModel: ObservableObject {
                 errorText: input.destinationAdditionalFieldError
             ) { [weak self] in
                 self?.input.setDestinationAdditionalField($0)
+            } didPasteDestination: { [weak self] in
+                self?.input.setDestinationAdditionalField($0)
             }
         }
 
@@ -113,10 +129,14 @@ class SendDestinationViewModel: ObservableObject {
 
     func onAppear() {
         if animatingAuxiliaryViewsOnAppear {
-            withAnimation(SendView.Constants.defaultAnimation) {
-                animatingAuxiliaryViewsOnAppear = false
-            }
+            Analytics.log(.sendScreenReopened, params: [.source: .address])
+        } else {
+            Analytics.log(.sendAddressScreenOpened)
         }
+    }
+
+    func setUserInputDisabled(_ userInputDisabled: Bool) {
+        self.userInputDisabled = userInputDisabled
     }
 
     private func bind() {
@@ -175,7 +195,7 @@ class SendDestinationViewModel: ObservableObject {
                     let feedbackGenerator = UINotificationFeedbackGenerator()
                     feedbackGenerator.notificationOccurred(.success)
 
-                    self?.input.setDestination(destination.address)
+                    self?.input.setDestination(SendAddress(value: destination.address, source: destination.type.source))
                     if let additionalField = destination.additionalField {
                         self?.input.setDestinationAdditionalField(additionalField)
                     }
@@ -185,9 +205,15 @@ class SendDestinationViewModel: ObservableObject {
     }
 }
 
-extension SendDestinationViewModel: AuxiliaryViewAnimatable {
-    func setAnimatingAuxiliaryViewsOnAppear(_ animatingAuxiliaryViewsOnAppear: Bool) {
-        self.animatingAuxiliaryViewsOnAppear = animatingAuxiliaryViewsOnAppear
-        addressViewModel?.setAnimatingFooterOnAppear(animatingAuxiliaryViewsOnAppear)
+extension SendDestinationViewModel: AuxiliaryViewAnimatable {}
+
+private extension SendSuggestedDestination.`Type` {
+    var source: Analytics.DestinationAddressSource {
+        switch self {
+        case .otherWallet:
+            return .myWallet
+        case .recentAddress:
+            return .recentAddress
+        }
     }
 }
