@@ -594,10 +594,6 @@ extension SendModel: SendDestinationViewModelInput {
         walletModel.blockchainNetwork
     }
 
-    var walletPublicKey: Wallet.PublicKey {
-        walletModel.wallet.publicKey
-    }
-
     var currencySymbol: String {
         walletModel.tokenItem.currencySymbol
     }
