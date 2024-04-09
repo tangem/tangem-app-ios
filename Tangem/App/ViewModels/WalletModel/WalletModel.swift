@@ -50,6 +50,10 @@ class WalletModel {
         walletManager.allowsFeeSelection
     }
 
+    var supportsCustomFees: Bool {
+        bitcoinTransactionFeeCalculator != nil || blockchainNetwork.blockchain.isEvm
+    }
+
     var tokenItem: TokenItem {
         switch amountType {
         case .coin, .reserve:
@@ -611,6 +615,10 @@ extension WalletModel {
 
     var transactionPusher: TransactionPusher? {
         walletManager as? TransactionPusher
+    }
+
+    var bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator? {
+        walletManager as? BitcoinTransactionFeeCalculator
     }
 
     var ethereumGasLoader: EthereumGasLoader? {
