@@ -13,11 +13,14 @@ import SwiftUI
 
 class SendCustomFeeInputFieldModel: ObservableObject, Identifiable {
     let title: String
-    let footer: String
+    let disabled: Bool
+    let footer: String?
     let fieldSuffix: String?
 
     @Published var decimalNumberTextFieldViewModel: DecimalNumberTextField.ViewModel
     @Published var amountAlternative: String?
+
+    let onFocusChanged: ((Bool) -> Void)?
 
     private var bag: Set<AnyCancellable> = []
     private let onFieldChange: (Decimal?) -> Void
@@ -25,16 +28,20 @@ class SendCustomFeeInputFieldModel: ObservableObject, Identifiable {
     init(
         title: String,
         amountPublisher: AnyPublisher<Decimal?, Never>,
+        disabled: Bool = false,
         fieldSuffix: String?,
         fractionDigits: Int,
         amountAlternativePublisher: AnyPublisher<String?, Never>,
-        footer: String,
-        onFieldChange: @escaping (Decimal?) -> Void
+        footer: String?,
+        onFieldChange: @escaping (Decimal?) -> Void,
+        onFocusChanged: ((Bool) -> Void)? = nil
     ) {
         self.title = title
+        self.disabled = disabled
         self.fieldSuffix = fieldSuffix
         self.footer = footer
         self.onFieldChange = onFieldChange
+        self.onFocusChanged = onFocusChanged
 
         decimalNumberTextFieldViewModel = .init(maximumFractionDigits: fractionDigits)
 
