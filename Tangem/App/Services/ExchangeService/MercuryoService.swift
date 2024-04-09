@@ -232,6 +232,8 @@ private extension Blockchain {
             return "TEZOS"
         case .tron:
             return "TRON"
+        case .base:
+            return "BASE"
         default:
             return nil
         }
