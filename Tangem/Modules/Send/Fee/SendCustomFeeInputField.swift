@@ -26,9 +26,10 @@ struct SendCustomFeeInputField: View {
 
                 HStack {
                     SendDecimalNumberTextField(viewModel: viewModel.decimalNumberTextFieldViewModel)
-                        .prefixSuffixOptions(.suffix(text: "WEI", hasSpace: true))
+                        .prefixSuffixOptions(.suffix(text: viewModel.fieldSuffix, hasSpace: true))
                         .appearance(.init(font: Fonts.Regular.subheadline))
                         .onFocusChanged(onFocusChanged)
+                        .allowsHitTesting(!viewModel.disabled)
 
                     Spacer()
 
@@ -41,8 +42,10 @@ struct SendCustomFeeInputField: View {
             }
             .padding(.vertical, 14)
         } footer: {
-            Text(viewModel.footer)
-                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+            if let footer = viewModel.footer {
+                Text(footer)
+                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+            }
         }
         .backgroundColor(Colors.Background.action)
     }
