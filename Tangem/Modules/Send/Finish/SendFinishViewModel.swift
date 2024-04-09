@@ -14,7 +14,6 @@ import BlockchainSdk
 protocol SendFinishViewModelInput: AnyObject {
     var userInputAmountValue: Amount? { get }
     var destinationText: String? { get }
-    var additionalField: (SendAdditionalFields, String)? { get }
     var feeValue: Fee? { get }
     var selectedFeeOption: FeeOption { get }
 
@@ -28,7 +27,7 @@ class SendFinishViewModel: ObservableObject {
 
     let transactionTime: String
 
-    let destinationViewTypes: [SendDestinationSummaryViewType]
+    let destinationSummaryViewData: SendDestinationSummaryViewData?
     let amountSummaryViewData: SendAmountSummaryViewData?
     let feeSummaryViewData: SendFeeSummaryViewModel?
 
@@ -53,10 +52,7 @@ class SendFinishViewModel: ObservableObject {
             tokenIconInfo: walletInfo.tokenIconInfo
         )
 
-        destinationViewTypes = sectionViewModelFactory.makeDestinationViewTypes(
-            address: destinationText,
-            additionalField: input.additionalField
-        )
+        destinationSummaryViewData = sectionViewModelFactory.makeDestinationViewData(address: destinationText)
         amountSummaryViewData = sectionViewModelFactory.makeAmountViewData(
             from: fiatCryptoValueProvider.formattedAmount,
             amountAlternative: fiatCryptoValueProvider.formattedAmountAlternative
@@ -73,8 +69,10 @@ class SendFinishViewModel: ObservableObject {
     func onAppear() {
         Analytics.log(.sendTransactionSentScreenOpened)
 
-        showHeader = true
-        showButtons = true
+        withAnimation(SendView.Constants.defaultAnimation) {
+            showHeader = true
+            showButtons = true
+        }
     }
 
     func explore() {
