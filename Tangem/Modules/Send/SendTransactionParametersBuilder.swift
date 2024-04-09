@@ -93,7 +93,8 @@ struct SendTransactionParametersBuilder {
              .moonriver,
              .mantle,
              .flare,
-             .taraxa:
+             .taraxa,
+             .base:
             return nil
         }
     }
