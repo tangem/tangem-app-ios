@@ -18,6 +18,7 @@ final class SendViewModel: ObservableObject {
     @Published var step: SendStep
     @Published var showBackButton = false
     @Published var mainButtonType: SendMainButtonType = .next
+    @Published var mainButtonLoading: Bool = false
     @Published var mainButtonDisabled: Bool = false
     @Published var updatingFees = false
     @Published var currentStepInvalid: Bool = false // delete?
@@ -67,8 +68,10 @@ final class SendViewModel: ObservableObject {
     private let emailDataProvider: EmailDataProvider
     private let walletInfo: SendWalletInfo
     private let notificationManager: CommonSendNotificationManager
+    private let customFeeService: CustomFeeService?
     private let fiatCryptoAdapter: CommonSendFiatCryptoAdapter
     private let sendStepParameters: SendStep.Parameters
+    private let keyboardVisibilityService: KeyboardVisibilityService
 
     private weak var coordinator: SendRoutable?
 
@@ -117,6 +120,7 @@ final class SendViewModel: ObservableObject {
         transactionSigner: TransactionSigner,
         sendType: SendType,
         emailDataProvider: EmailDataProvider,
+        canUseFiatCalculation: Bool,
         coordinator: SendRoutable
     ) {
         self.coordinator = coordinator
@@ -127,7 +131,12 @@ final class SendViewModel: ObservableObject {
 
         let addressService = SendAddressServiceFactory(walletModel: walletModel).makeService()
         #warning("[REDACTED_TODO_COMMENT]")
-        sendModel = SendModel(walletModel: walletModel, transactionSigner: transactionSigner, addressService: addressService, sendType: sendType)
+        sendModel = SendModel(
+            walletModel: walletModel,
+            transactionSigner: transactionSigner,
+            addressService: addressService,
+            sendType: sendType
+        )
 
         let steps = sendType.steps
         guard let firstStep = steps.first else {
@@ -162,7 +171,8 @@ final class SendViewModel: ObservableObject {
             fiatCurrencyCode: AppSettings.shared.selectedCurrencyCode,
             amountFractionDigits: walletModel.tokenItem.decimalCount,
             feeFractionDigits: walletModel.feeTokenItem.decimalCount,
-            feeAmountType: walletModel.feeTokenItem.amountType
+            feeAmountType: walletModel.feeTokenItem.amountType,
+            canUseFiatCalculation: canUseFiatCalculation
         )
 
         notificationManager = CommonSendNotificationManager(
@@ -171,6 +181,13 @@ final class SendViewModel: ObservableObject {
             input: sendModel
         )
 
+        let customFeeServiceFactory = CustomFeeServiceFactory(
+            input: sendModel,
+            output: sendModel,
+            walletModel: walletModel
+        )
+        customFeeService = customFeeServiceFactory.makeService()
+
         fiatCryptoAdapter = CommonSendFiatCryptoAdapter(
             cryptoCurrencyId: walletInfo.currencyId,
             currencySymbol: walletInfo.cryptoCurrencyCode,
@@ -178,11 +195,13 @@ final class SendViewModel: ObservableObject {
         )
         fiatCryptoAdapter.setAmount(sendType.predefinedAmount?.value)
 
+        keyboardVisibilityService = KeyboardVisibilityService()
+
         sendStepParameters = SendStep.Parameters(currencyName: walletModel.tokenItem.name, walletName: walletInfo.walletName)
 
         sendAmountViewModel = SendAmountViewModel(input: sendModel, fiatCryptoAdapter: fiatCryptoAdapter, walletInfo: walletInfo)
         sendDestinationViewModel = SendDestinationViewModel(input: sendModel)
-        sendFeeViewModel = SendFeeViewModel(input: sendModel, notificationManager: notificationManager, walletInfo: walletInfo)
+        sendFeeViewModel = SendFeeViewModel(input: sendModel, notificationManager: notificationManager, customFeeService: customFeeService, walletInfo: walletInfo)
         sendSummaryViewModel = SendSummaryViewModel(input: sendModel, notificationManager: notificationManager, fiatCryptoValueProvider: fiatCryptoAdapter, walletInfo: walletInfo)
 
         fiatCryptoAdapter.setInput(sendAmountViewModel)
@@ -192,6 +211,8 @@ final class SendViewModel: ObservableObject {
         sendSummaryViewModel.router = self
 
         notificationManager.setupManager(with: self)
+
+        updateTransactionHistoryIfNeeded()
 
         bind()
     }
@@ -212,8 +233,6 @@ final class SendViewModel: ObservableObject {
             openStep(.summary, stepAnimation: .moveAndFade, updateFee: step.updateFeeOnLeave)
         case .send:
             sendModel.send()
-        case .sending:
-            break
         case .close:
             coordinator?.dismiss()
         }
@@ -251,22 +270,20 @@ final class SendViewModel: ObservableObject {
     }
 
     private func bind() {
-        let summaryMainButtonDisabled = Publishers.CombineLatest(
-            notificationManager.hasNotifications(with: .critical),
-            sendModel.isSending
-        )
-        .map { hasCriticalNotifications, isSending in
-            hasCriticalNotifications && isSending
-        }
-        .eraseToAnyPublisher()
+        Publishers.CombineLatest($updatingFees, sendModel.isSending)
+            .map { updatingFees, isSending in
+                updatingFees || isSending
+            }
+            .assign(to: \.mainButtonLoading, on: self, ownership: .weak)
+            .store(in: &bag)
 
-        Publishers.CombineLatest4(currentStepValid, $step, $updatingFees, summaryMainButtonDisabled)
-            .map { currentStepValid, step, updatingFees, summaryMainButtonDisabled in
-                if !currentStepValid || updatingFees {
+        Publishers.CombineLatest3(currentStepValid, $step, notificationManager.hasNotifications(with: .critical))
+            .map { currentStepValid, step, hasCriticalNotifications in
+                if !currentStepValid {
                     return true
                 }
 
-                if step == .summary, summaryMainButtonDisabled {
+                if step == .summary, hasCriticalNotifications {
                     return true
                 }
 
@@ -366,15 +383,6 @@ final class SendViewModel: ObservableObject {
                 Analytics.logDestinationAddress(isAddressValid: destination.value != nil, source: destination.source)
             }
             .store(in: &bag)
-
-        sendModel
-            .isSending
-            .sink { [weak self] isSending in
-                if isSending {
-                    self?.mainButtonType = .sending
-                }
-            }
-            .store(in: &bag)
     }
 
     private func nextStep(after step: SendStep) -> SendStep? {
@@ -425,8 +433,11 @@ final class SendViewModel: ObservableObject {
             ])
 
             alert = SendAlertBuilder.makeSubtractFeeFromAmountAlert(sendModel.feeText) { [weak self] in
-                self?.sendModel.includeFeeIntoAmount()
-                self?.openStep(step, stepAnimation: stepAnimation, updateFee: false)
+                guard let self else { return }
+                sendModel.includeFeeIntoAmount()
+                fiatCryptoAdapter.setAmount(sendModel.userInputAmountValue?.value)
+
+                openStep(step, stepAnimation: stepAnimation, updateFee: false)
             }
 
             return true
@@ -462,6 +473,14 @@ final class SendViewModel: ObservableObject {
         }
     }
 
+    private func updateTransactionHistoryIfNeeded() {
+        if walletModel.transactionHistoryNotLoaded {
+            walletModel.updateTransactionsHistory()
+                .sink()
+                .store(in: &bag)
+        }
+    }
+
     private func updateFee(_ step: SendStep, stepAnimation: SendView.StepAnimation, checkCustomFee: Bool) {
         updatingFees = true
 
@@ -486,6 +505,13 @@ final class SendViewModel: ObservableObject {
     }
 
     private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation, checkCustomFee: Bool = true, updateFee: Bool) {
+        if keyboardVisibilityService.keyboardVisible, !step.opensKeyboardByDefault {
+            keyboardVisibilityService.hideKeyboard { [weak self] in
+                self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee, updateFee: updateFee)
+            }
+            return
+        }
+
         if case .summary = step {
             if updateFee {
                 self.updateFee(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee)
@@ -509,13 +535,6 @@ final class SendViewModel: ObservableObject {
         DispatchQueue.main.async {
             self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
             self.step = step
-        }
-
-        // Hide the keyboard with a delay, otherwise the animation is going to be screwed up
-        if !step.opensKeyboardByDefault {
-            DispatchQueue.main.asyncAfter(deadline: .now() + SendView.Constants.animationDuration) {
-                UIApplication.shared.endEditing()
-            }
         }
     }
 
