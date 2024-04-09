@@ -24,7 +24,6 @@ protocol SendDestinationViewModelInput {
 
     var networkName: String { get }
     var blockchainNetwork: BlockchainNetwork { get }
-    var walletPublicKey: Wallet.PublicKey { get }
 
     var additionalFieldType: SendAdditionalFields? { get }
     var additionalFieldEmbeddedInAddress: AnyPublisher<Bool, Never> { get }
@@ -73,15 +72,20 @@ class SendDestinationViewModel: ObservableObject {
         )
 
         let blockchain = input.blockchainNetwork.blockchain
+        let currentUserWalletId = Self.userWalletRepository.selectedModel?.userWalletId
 
         suggestedWallets = Self.userWalletRepository
             .models
             .compactMap { userWalletModel in
+                if userWalletModel.userWalletId == currentUserWalletId {
+                    return nil
+                }
+
                 let walletModels = userWalletModel.walletModelsManager.walletModels
                 let walletModel = walletModels.first { walletModel in
-                    return
-                        walletModel.wallet.publicKey != input.walletPublicKey &&
-                        walletModel.blockchainNetwork.blockchain == blockchain &&
+                    // Disregarding the difference between testnet and mainnet blockchains
+                    // See https://github.com/tangem/tangem-app-ios/pull/3079#discussion_r1553709671
+                    return walletModel.blockchainNetwork.blockchain.coinId == blockchain.coinId &&
                         !walletModel.isCustom
                 }
 
