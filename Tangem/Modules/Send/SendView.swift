@@ -214,6 +214,7 @@ struct SendView_Preview: PreviewProvider {
         transactionSigner: TransactionSignerMock(),
         sendType: .send,
         emailDataProvider: EmailDataProviderMock(),
+        canUseFiatCalculation: true,
         coordinator: SendRoutableMock()
     )
 
