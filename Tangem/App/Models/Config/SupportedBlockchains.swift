@@ -122,6 +122,7 @@ struct SupportedBlockchains {
             .areon(testnet: false),
             .pulsechain(testnet: false),
             .aurora(testnet: false),
+            .base(testnet: false),
         ]
     }
 
@@ -169,6 +170,7 @@ struct SupportedBlockchains {
             .mantle(testnet: true),
             .flare(testnet: true),
             .taraxa(testnet: true),
+            .base(testnet: true),
         ]
     }
 
