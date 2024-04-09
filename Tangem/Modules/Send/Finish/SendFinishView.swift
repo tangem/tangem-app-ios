@@ -24,16 +24,9 @@ struct SendFinishView: View {
                         .padding(.bottom, 12)
                 }
 
-                GroupedSection(viewModel.destinationViewTypes) { type in
-                    switch type {
-                    case .address(let address):
-                        SendDestinationAddressSummaryView(address: address)
-                            .setNamespace(namespace)
-                    case .additionalField(let type, let value):
-                        if let name = type.name {
-                            DefaultTextWithTitleRowView(data: .init(title: name, text: value))
-                        }
-                    }
+                GroupedSection(viewModel.destinationSummaryViewData) { data in
+                    SendDestinationAddressSummaryView(address: data.address)
+                        .setNamespace(namespace)
                 }
                 .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.addressContainer.rawValue, namespace: namespace)
 
@@ -44,15 +37,15 @@ struct SendFinishView: View {
                         .setAmountCryptoNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
                         .setAmountFiatNamespaceId(SendViewNamespaceId.amountFiatText.rawValue)
                 }
-                .innerContentPadding(12)
+                .innerContentPadding(0)
                 .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
 
                 GroupedSection(viewModel.feeSummaryViewData) { data in
                     SendFeeSummaryView(data: data)
                         .setNamespace(namespace)
                         .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
-                        .setOptionNamespaceId(SendViewNamespaceId.feeOption.rawValue)
-                        .setAmountNamespaceId(SendViewNamespaceId.feeAmount.rawValue)
+                        .setOptionNamespaceId(SendViewNamespaceId.feeOption(feeOption: .market).rawValue)
+                        .setAmountNamespaceId(SendViewNamespaceId.feeAmount(feeOption: .market).rawValue)
                 }
                 .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
             }
@@ -134,7 +127,8 @@ struct SendFinishView_Previews: PreviewProvider {
         fiatCurrencyCode: "USD",
         amountFractionDigits: 6,
         feeFractionDigits: 6,
-        feeAmountType: .coin
+        feeAmountType: .coin,
+        canUseFiatCalculation: true
     )
 
     static var viewModel = SendFinishViewModel(
