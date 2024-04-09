@@ -54,18 +54,12 @@ struct SendFeeView: View {
 
             if !viewModel.animatingAuxiliaryViewsOnAppear,
                viewModel.showCustomFeeFields,
-               let customFeeModel = viewModel.customFeeModel,
-               let customFeeGasPriceModel = viewModel.customFeeGasPriceModel,
-               let customFeeGasLimitModel = viewModel.customFeeGasLimitModel {
-                Group {
+               !viewModel.customFeeModels.isEmpty {
+                ForEach(viewModel.customFeeModels) { customFeeModel in
                     SendCustomFeeInputField(viewModel: customFeeModel)
-
-                    SendCustomFeeInputField(viewModel: customFeeGasPriceModel)
-                        .onFocusChanged(viewModel.onCustomGasPriceFocusChanged)
-
-                    SendCustomFeeInputField(viewModel: customFeeGasLimitModel)
+                        .onFocusChanged(customFeeModel.onFocusChanged)
+                        .transition(SendView.Constants.auxiliaryViewTransition)
                 }
-                .transition(SendView.Constants.auxiliaryViewTransition)
 
                 ForEach(viewModel.customFeeNotificationInputs) { input in
                     NotificationView(input: input)
@@ -125,6 +119,6 @@ struct SendFeeView_Previews: PreviewProvider {
     )
 
     static var previews: some View {
-        SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock(), notificationManager: FakeSendNotificationManager(), walletInfo: walletInfo), bottomSpacing: 150)
+        SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock(), notificationManager: FakeSendNotificationManager(), customFeeService: nil, walletInfo: walletInfo), bottomSpacing: 150)
     }
 }
