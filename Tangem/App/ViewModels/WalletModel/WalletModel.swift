@@ -34,12 +34,24 @@ class WalletModel {
         transactionHistoryState()
     }
 
+    var transactionHistoryNotLoaded: Bool {
+        if case .initial = _transactionHistoryService?.state {
+            return true
+        } else {
+            return false
+        }
+    }
+
     var isSupportedTransactionHistory: Bool {
         _transactionHistoryService != nil
     }
 
     var shouldShowFeeSelector: Bool {
         walletManager.allowsFeeSelection
+    }
+
+    var supportsCustomFees: Bool {
+        bitcoinTransactionFeeCalculator != nil || blockchainNetwork.blockchain.isEvm
     }
 
     var tokenItem: TokenItem {
@@ -603,6 +615,10 @@ extension WalletModel {
 
     var transactionPusher: TransactionPusher? {
         walletManager as? TransactionPusher
+    }
+
+    var bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator? {
+        walletManager as? BitcoinTransactionFeeCalculator
     }
 
     var ethereumGasLoader: EthereumGasLoader? {
