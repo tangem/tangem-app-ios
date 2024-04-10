@@ -40,7 +40,7 @@ struct SendCustomFeeInputField: View {
                     }
                 }
             }
-            .padding(.vertical, 14)
+            .padding(.vertical, Constants.fieldPadding)
         } footer: {
             if let footer = viewModel.footer {
                 Text(footer)
@@ -48,6 +48,12 @@ struct SendCustomFeeInputField: View {
             }
         }
         .backgroundColor(Colors.Background.action)
+    }
+}
+
+extension SendCustomFeeInputField {
+    enum Constants {
+        static let fieldPadding: CGFloat = 14
     }
 }
 
