@@ -83,9 +83,11 @@ struct SendSummaryView: View {
                     .transition(SendView.Constants.hintViewTransition)
                 }
 
-                ForEach(viewModel.notificationInputs) { input in
-                    NotificationView(input: input)
-                        .transition(SendView.Constants.auxiliaryViewTransition)
+                if !viewModel.animatingAuxiliaryViewsOnAppear {
+                    ForEach(viewModel.notificationInputs) { input in
+                        NotificationView(input: input)
+                            .transition(SendView.Constants.auxiliaryViewTransition(for: .summary))
+                    }
                 }
             }
 
