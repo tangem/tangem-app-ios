@@ -110,16 +110,26 @@ struct SendView: View {
         switch viewModel.step {
         case .amount:
             SendAmountView(namespace: namespace, viewModel: viewModel.sendAmountViewModel)
+                .onAppear(perform: viewModel.onCurrentPageAppear)
+                .onDisappear(perform: viewModel.onCurrentPageDisappear)
         case .destination:
             SendDestinationView(namespace: namespace, viewModel: viewModel.sendDestinationViewModel, bottomSpacing: bottomGradientHeight)
+                .onAppear(perform: viewModel.onCurrentPageAppear)
+                .onDisappear(perform: viewModel.onCurrentPageDisappear)
         case .fee:
             SendFeeView(namespace: namespace, viewModel: viewModel.sendFeeViewModel, bottomSpacing: bottomGradientHeight, navigationButtonsHeight: navigationButtonsHeight)
+                .onAppear(perform: viewModel.onCurrentPageAppear)
+                .onDisappear(perform: viewModel.onCurrentPageDisappear)
         case .summary:
             SendSummaryView(namespace: namespace, viewModel: viewModel.sendSummaryViewModel, bottomSpacing: navigationButtonsHeight)
                 .onAppear(perform: viewModel.onSummaryAppear)
                 .onDisappear(perform: viewModel.onSummaryDisappear)
+                .onAppear(perform: viewModel.onCurrentPageAppear)
+                .onDisappear(perform: viewModel.onCurrentPageDisappear)
         case .finish(let sendFinishViewModel):
             SendFinishView(namespace: namespace, viewModel: sendFinishViewModel, bottomSpacing: navigationButtonsHeight)
+                .onAppear(perform: viewModel.onCurrentPageAppear)
+                .onDisappear(perform: viewModel.onCurrentPageDisappear)
         }
     }
 
