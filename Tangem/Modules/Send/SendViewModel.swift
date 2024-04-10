@@ -79,6 +79,7 @@ final class SendViewModel: ObservableObject {
     private var feeUpdateSubscription: AnyCancellable? = nil
 
     private var screenIdleStartTime: Date?
+    private var currentPageAnimating: Bool? = nil
     private var didReachSummaryScreen = false
 
     private var currentStepValid: AnyPublisher<Bool, Never> {
@@ -217,7 +218,22 @@ final class SendViewModel: ObservableObject {
         bind()
     }
 
+    func onCurrentPageAppear() {
+        if currentPageAnimating != nil {
+            currentPageAnimating = true
+        }
+    }
+
+    func onCurrentPageDisappear() {
+        currentPageAnimating = false
+    }
+
     func next() {
+        // If we try to open another page mid-animation then the appropriate onAppear of the new page will not get called
+        if currentPageAnimating ?? false {
+            return
+        }
+
         switch mainButtonType {
         case .next:
             guard let nextStep = nextStep(after: step) else {
