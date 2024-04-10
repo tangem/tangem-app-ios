@@ -184,7 +184,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             return
         }
 
-        existing.addAssociatedCard(cardInfo.card, validationMode: .light)
+        existing.addAssociatedCard(cardInfo.card.cardId)
         save()
     }
 
