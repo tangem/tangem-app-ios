@@ -419,6 +419,9 @@ private extension ExpressInteractor {
             let transactionValidator = getSender().transactionValidator
             try await transactionValidator.validate(amount: amount, fee: fee, destination: .generate)
 
+        } catch ValidationError.totalExceedsBalance, ValidationError.amountExceedsBalance {
+            return .restriction(.notEnoughBalanceForSwapping(requiredAmount: amount.value), quote: correctState.quote)
+
         } catch ValidationError.feeExceedsBalance {
             return .restriction(.notEnoughAmountForFee(correctState), quote: correctState.quote)
 
