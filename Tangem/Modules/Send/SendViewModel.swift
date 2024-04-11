@@ -232,7 +232,7 @@ final class SendViewModel: ObservableObject {
         case .continue:
             openStep(.summary, stepAnimation: .moveAndFade, updateFee: step.updateFeeOnLeave)
         case .send:
-            sendModel.send()
+            send()
         case .close:
             coordinator?.dismiss()
         }
