@@ -32,6 +32,8 @@ final class BottomScrollableSheetStateObject: ObservableObject {
         }
     }
 
+    private(set) var isHeaderDragged = false
+
     var geometryInfoSubject: some Subject<GeometryInfo, Never> { _geometryInfoSubject }
     private let _geometryInfoSubject = CurrentValueSubject<GeometryInfo, Never>(.zero)
     private var geometryInfo: GeometryInfo { _geometryInfoSubject.value }
@@ -135,6 +137,7 @@ final class BottomScrollableSheetStateObject: ObservableObject {
     func headerDragGesture(onChanged value: DragGesture.Value) {
         UIApplication.shared.endEditing()
         dragView(translation: value.translation.height)
+        isHeaderDragged = true
     }
 
     func headerDragGesture(onEnded value: DragGesture.Value) {
@@ -147,6 +150,7 @@ final class BottomScrollableSheetStateObject: ObservableObject {
         } else {
             updateToState(.top(trigger: .dragGesture), velocity: velocity, remainingProgress: 1.0 - progress)
         }
+        isHeaderDragged = false
     }
 
     func scrollViewContentDragGesture(onChanged value: UIPanGestureRecognizer.Value) {
