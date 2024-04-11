@@ -68,8 +68,10 @@ final class SendViewModel: ObservableObject {
     private let emailDataProvider: EmailDataProvider
     private let walletInfo: SendWalletInfo
     private let notificationManager: CommonSendNotificationManager
+    private let customFeeService: CustomFeeService?
     private let fiatCryptoAdapter: CommonSendFiatCryptoAdapter
     private let sendStepParameters: SendStep.Parameters
+    private let keyboardVisibilityService: KeyboardVisibilityService
 
     private weak var coordinator: SendRoutable?
 
@@ -118,6 +120,7 @@ final class SendViewModel: ObservableObject {
         transactionSigner: TransactionSigner,
         sendType: SendType,
         emailDataProvider: EmailDataProvider,
+        canUseFiatCalculation: Bool,
         coordinator: SendRoutable
     ) {
         self.coordinator = coordinator
@@ -128,7 +131,12 @@ final class SendViewModel: ObservableObject {
 
         let addressService = SendAddressServiceFactory(walletModel: walletModel).makeService()
         #warning("[REDACTED_TODO_COMMENT]")
-        sendModel = SendModel(walletModel: walletModel, transactionSigner: transactionSigner, addressService: addressService, sendType: sendType)
+        sendModel = SendModel(
+            walletModel: walletModel,
+            transactionSigner: transactionSigner,
+            addressService: addressService,
+            sendType: sendType
+        )
 
         let steps = sendType.steps
         guard let firstStep = steps.first else {
@@ -163,7 +171,8 @@ final class SendViewModel: ObservableObject {
             fiatCurrencyCode: AppSettings.shared.selectedCurrencyCode,
             amountFractionDigits: walletModel.tokenItem.decimalCount,
             feeFractionDigits: walletModel.feeTokenItem.decimalCount,
-            feeAmountType: walletModel.feeTokenItem.amountType
+            feeAmountType: walletModel.feeTokenItem.amountType,
+            canUseFiatCalculation: canUseFiatCalculation
         )
 
         notificationManager = CommonSendNotificationManager(
@@ -172,6 +181,13 @@ final class SendViewModel: ObservableObject {
             input: sendModel
         )
 
+        let customFeeServiceFactory = CustomFeeServiceFactory(
+            input: sendModel,
+            output: sendModel,
+            walletModel: walletModel
+        )
+        customFeeService = customFeeServiceFactory.makeService()
+
         fiatCryptoAdapter = CommonSendFiatCryptoAdapter(
             cryptoCurrencyId: walletInfo.currencyId,
             currencySymbol: walletInfo.cryptoCurrencyCode,
@@ -179,11 +195,13 @@ final class SendViewModel: ObservableObject {
         )
         fiatCryptoAdapter.setAmount(sendType.predefinedAmount?.value)
 
+        keyboardVisibilityService = KeyboardVisibilityService()
+
         sendStepParameters = SendStep.Parameters(currencyName: walletModel.tokenItem.name, walletName: walletInfo.walletName)
 
         sendAmountViewModel = SendAmountViewModel(input: sendModel, fiatCryptoAdapter: fiatCryptoAdapter, walletInfo: walletInfo)
         sendDestinationViewModel = SendDestinationViewModel(input: sendModel)
-        sendFeeViewModel = SendFeeViewModel(input: sendModel, notificationManager: notificationManager, walletInfo: walletInfo)
+        sendFeeViewModel = SendFeeViewModel(input: sendModel, notificationManager: notificationManager, customFeeService: customFeeService, walletInfo: walletInfo)
         sendSummaryViewModel = SendSummaryViewModel(input: sendModel, notificationManager: notificationManager, fiatCryptoValueProvider: fiatCryptoAdapter, walletInfo: walletInfo)
 
         fiatCryptoAdapter.setInput(sendAmountViewModel)
@@ -193,6 +211,8 @@ final class SendViewModel: ObservableObject {
         sendSummaryViewModel.router = self
 
         notificationManager.setupManager(with: self)
+
+        updateTransactionHistoryIfNeeded()
 
         bind()
     }
@@ -413,8 +433,11 @@ final class SendViewModel: ObservableObject {
             ])
 
             alert = SendAlertBuilder.makeSubtractFeeFromAmountAlert(sendModel.feeText) { [weak self] in
-                self?.sendModel.includeFeeIntoAmount()
-                self?.openStep(step, stepAnimation: stepAnimation, updateFee: false)
+                guard let self else { return }
+                sendModel.includeFeeIntoAmount()
+                fiatCryptoAdapter.setAmount(sendModel.userInputAmountValue?.value)
+
+                openStep(step, stepAnimation: stepAnimation, updateFee: false)
             }
 
             return true
@@ -450,6 +473,14 @@ final class SendViewModel: ObservableObject {
         }
     }
 
+    private func updateTransactionHistoryIfNeeded() {
+        if walletModel.transactionHistoryNotLoaded {
+            walletModel.updateTransactionsHistory()
+                .sink()
+                .store(in: &bag)
+        }
+    }
+
     private func updateFee(_ step: SendStep, stepAnimation: SendView.StepAnimation, checkCustomFee: Bool) {
         updatingFees = true
 
@@ -474,6 +505,13 @@ final class SendViewModel: ObservableObject {
     }
 
     private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation, checkCustomFee: Bool = true, updateFee: Bool) {
+        if keyboardVisibilityService.keyboardVisible, !step.opensKeyboardByDefault {
+            keyboardVisibilityService.hideKeyboard { [weak self] in
+                self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee, updateFee: updateFee)
+            }
+            return
+        }
+
         if case .summary = step {
             if updateFee {
                 self.updateFee(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee)
@@ -497,13 +535,6 @@ final class SendViewModel: ObservableObject {
         DispatchQueue.main.async {
             self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
             self.step = step
-        }
-
-        // Hide the keyboard with a delay, otherwise the animation is going to be screwed up
-        if !step.opensKeyboardByDefault {
-            DispatchQueue.main.asyncAfter(deadline: .now() + SendView.Constants.animationDuration) {
-                UIApplication.shared.endEditing()
-            }
         }
     }
 
