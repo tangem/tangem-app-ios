@@ -15,6 +15,7 @@ struct FeeRowViewModel: Identifiable {
 
     let option: FeeOption
     let isSelected: BindingValue<Bool>
+    let hasIssues: BindingValue<Bool>
 
     var cryptoAmount: String? {
         switch formattedFeeComponents {
@@ -46,11 +47,13 @@ struct FeeRowViewModel: Identifiable {
     init(
         option: FeeOption,
         formattedFeeComponents: LoadingValue<FormattedFeeComponents?>,
-        isSelected: BindingValue<Bool>
+        isSelected: BindingValue<Bool>,
+        hasIssues: BindingValue<Bool> = .init(get: { false }, set: { _ in })
     ) {
         self.option = option
         self.formattedFeeComponents = formattedFeeComponents
         self.isSelected = isSelected
+        self.hasIssues = hasIssues
     }
 }
 
@@ -61,6 +64,7 @@ extension FeeRowViewModel: Hashable {
         hasher.combine(formattedFeeComponents.value)
         hasher.combine(formattedFeeComponents.error != nil)
         hasher.combine(isSelected)
+        hasher.combine(hasIssues)
     }
 
     static func == (lhs: FeeRowViewModel, rhs: FeeRowViewModel) -> Bool {
