@@ -37,6 +37,7 @@ class SendFeeViewModel: ObservableObject {
     @Published private(set) var showCustomFeeFields: Bool = false
     @Published var animatingAuxiliaryViewsOnAppear: Bool = false
     @Published private(set) var deselectedFeeViewsVisible: Bool = false
+    @Published private(set) var hasCustomFeeNotifications = false
 
     var didProperlyDisappear = true
 
@@ -169,6 +170,21 @@ class SendFeeViewModel: ObservableObject {
             .notificationPublisher(for: .feeIncluded)
             .assign(to: \.feeCoverageNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
+
+        notificationManager
+            .notificationPublisher
+            .map { notificationInputs in
+                let customFeeEventIds = [
+                    SendNotificationEvent.customFeeTooLow.id,
+                    SendNotificationEvent.customFeeTooHigh(orderOfMagnitude: 0).id,
+                ]
+
+                return notificationInputs.contains { notificationInput in
+                    customFeeEventIds.contains(notificationInput.settings.event.id)
+                }
+            }
+            .assign(to: \.hasCustomFeeNotifications, on: self, ownership: .weak)
+            .store(in: &bag)
     }
 
     private func makeFeeRowViewModels(_ feeValues: [FeeOption: LoadingValue<Fee>]) -> [FeeRowViewModel] {
@@ -203,13 +219,27 @@ class SendFeeViewModel: ObservableObject {
             return FeeRowViewModel(
                 option: option,
                 formattedFeeComponents: value,
-                isSelected: .init(root: self, default: false, get: { root in
-                    root.selectedFeeOption == option
-                }, set: { root, newValue in
-                    if newValue {
-                        self.selectFeeOption(option)
+                isSelected: .init(
+                    root: self,
+                    default: false,
+                    get: { root in
+                        root.selectedFeeOption == option
+                    },
+                    set: { root, newValue in
+                        if newValue {
+                            self.selectFeeOption(option)
+                        }
                     }
-                })
+                ),
+                hasIssues: .init(
+                    root: self,
+                    default: false,
+                    get: { root in
+                        option == .custom && root.hasCustomFeeNotifications
+                    },
+                    set: { _, _ in
+                    }
+                )
             )
         }
     }
