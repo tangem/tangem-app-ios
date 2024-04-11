@@ -79,10 +79,14 @@ class PendingBackupManager {
     }
 }
 
+// MARK: - CardID
+
+fileprivate typealias CardID = String
+
 // MARK: - PendingBackupRepository
 
-private class PendingBackupRepository {
-    var backups: [String: PendingBackup] = [:]
+fileprivate class PendingBackupRepository {
+    var backups: [CardID: PendingBackup] = [:]
 
     @AppStorageCompat(StorageType.pendingBackups)
     private var pendingBackupData = Data()
