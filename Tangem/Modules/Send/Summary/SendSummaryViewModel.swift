@@ -176,8 +176,8 @@ class SendSummaryViewModel: ObservableObject {
                 $0.compactMapValues { $0.value }
             }
 
-        Publishers.CombineLatest(feeValues, input.selectedFeeOptionPublisher)
-            .sink { [weak self] feeValues, selectedFeeOption in
+        Publishers.CombineLatest3(feeValues, input.feeValuePublisher, input.selectedFeeOptionPublisher)
+            .sink { [weak self] feeValues, selectedFeeValue, selectedFeeOption in
                 guard let self else { return }
 
                 var selectedFeeSummaryViewModel: SendFeeSummaryViewModel?
@@ -186,7 +186,7 @@ class SendSummaryViewModel: ObservableObject {
                 for (feeOption, feeValue) in feeValues {
                     if feeOption == selectedFeeOption {
                         selectedFeeSummaryViewModel = sectionViewModelFactory.makeFeeViewData(
-                            from: feeValue,
+                            from: selectedFeeValue,
                             feeOption: feeOption,
                             animateTitleOnAppear: true
                         )
