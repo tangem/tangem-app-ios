@@ -20,7 +20,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Published var alert: AlertBinder? = nil
     @Published var transactionHistoryState: TransactionsListView.State = .loading
     @Published var isReloadingTransactionHistory: Bool = false
-    @Published var actionButtons: [ButtonWithIconInfo] = []
+    @Published var actionButtons: [FixedSizeButtonWithIconInfo] = []
     @Published var tokenNotificationInputs: [NotificationViewInput] = []
     @Published private(set) var pendingTransactionViews: [TransactionViewModel] = []
 
@@ -268,17 +268,22 @@ extension SingleTokenBaseViewModel {
         let buttons = availableActions.map { type in
             let isDisabled = isButtonDisabled(with: type)
 
-            return ButtonWithIconInfo(title: type.title, icon: type.icon, action: { [weak self] in
+            return FixedSizeButtonWithIconInfo(
+                title: type.title,
+                icon: type.icon,
+                disabled: false,
+                style: isDisabled ? .disabled : .default
+            ) { [weak self] in
                 self?.action(for: type)?()
-            }, disabled: isDisabled)
+            }
         }
 
         actionButtons = buttons.sorted(by: { lhs, rhs in
-            if !lhs.disabled, !rhs.disabled {
+            if lhs.style != .disabled, rhs.style != .disabled {
                 return false
             }
 
-            return !lhs.disabled
+            return lhs.style != .disabled
         })
     }
 
@@ -335,9 +340,9 @@ extension SingleTokenBaseViewModel {
         }
 
         switch walletModel.sendingRestrictions {
-        case .zeroWalletBalance, .cantSignLongTransactions, .zeroFeeCurrencyBalance:
+        case .zeroWalletBalance, .cantSignLongTransactions, .hasPendingTransaction:
             return true
-        case .none, .hasPendingTransaction:
+        case .none, .zeroFeeCurrencyBalance:
             return false
         }
     }
@@ -365,9 +370,11 @@ extension SingleTokenBaseViewModel {
             if let message = walletModel.sendingRestrictions?.description {
                 alert = .init(title: Localization.warningSendBlockedPendingTransactionsTitle, message: message)
             }
-        case .cantSignLongTransactions, .zeroWalletBalance, .zeroFeeCurrencyBalance:
-            assertionFailure("Send Button have to be disabled")
-        case .none:
+        case .cantSignLongTransactions:
+            alert = .init(title: Localization.warningLongTransactionTitle, message: Localization.warningLongTransactionMessage)
+        case .zeroWalletBalance:
+            alert = .init(title: Localization.commonWarning, message: Localization.tokenButtonUnavailabilityReasonEmptyBalance)
+        case .none, .zeroFeeCurrencyBalance:
             tokenRouter.openSend(walletModel: walletModel)
         }
     }
@@ -423,7 +430,7 @@ extension SingleTokenBaseViewModel {
 }
 
 extension SingleTokenBaseViewModel: ActionButtonsProvider {
-    var buttonsPublisher: AnyPublisher<[ButtonWithIconInfo], Never> { $actionButtons.eraseToAnyPublisher() }
+    var buttonsPublisher: AnyPublisher<[FixedSizeButtonWithIconInfo], Never> { $actionButtons.eraseToAnyPublisher() }
 }
 
 // MARK: - CustomStringConvertible protocol conformance
