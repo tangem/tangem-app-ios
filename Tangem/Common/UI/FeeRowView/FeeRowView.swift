@@ -45,6 +45,11 @@ struct FeeRowView: View {
                         .frame(minWidth: viewModel.isLoading ? 70 : 0)
                         .skeletonable(isShown: viewModel.isLoading)
                 }
+
+                if viewModel.hasIssues.value {
+                    Assets.attentionSmaller
+                        .image
+                }
             }
             .padding(.vertical, 12)
         }
