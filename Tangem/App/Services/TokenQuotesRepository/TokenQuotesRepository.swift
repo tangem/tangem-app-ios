@@ -27,12 +27,16 @@ extension TokenQuotesRepository {
         try? await loadQuotes(currencyIds: currencyIds).async()
     }
 
-    func quote(for item: TokenItem) -> TokenQuote? {
-        guard let id = item.currencyId else {
+    func quote(for id: String?) -> TokenQuote? {
+        guard let id else {
             return nil
         }
 
         return quotes[id]
+    }
+
+    func quote(for item: TokenItem) -> TokenQuote? {
+        return quote(for: item.currencyId)
     }
 }
 
