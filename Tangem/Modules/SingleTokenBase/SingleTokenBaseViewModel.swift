@@ -361,6 +361,11 @@ extension SingleTokenBaseViewModel {
             return
         }
 
+        if !exchangeUtility.buyAvailable {
+            alert = .init(title: Localization.commonWarning, message: Localization.tokenButtonUnavailabilityReasonBuyUnavailable(walletModel.tokenItem.name))
+            return
+        }
+
         tokenRouter.openBuyCryptoIfPossible(walletModel: walletModel)
     }
 
