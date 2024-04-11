@@ -113,7 +113,7 @@ struct SendView: View {
         case .destination:
             SendDestinationView(namespace: namespace, viewModel: viewModel.sendDestinationViewModel, bottomSpacing: bottomGradientHeight)
         case .fee:
-            SendFeeView(namespace: namespace, viewModel: viewModel.sendFeeViewModel, bottomSpacing: bottomGradientHeight)
+            SendFeeView(namespace: namespace, viewModel: viewModel.sendFeeViewModel, bottomSpacing: bottomGradientHeight, navigationButtonsHeight: navigationButtonsHeight)
         case .summary:
             SendSummaryView(namespace: namespace, viewModel: viewModel.sendSummaryViewModel, bottomSpacing: navigationButtonsHeight)
                 .onAppear(perform: viewModel.onSummaryAppear)
@@ -148,7 +148,7 @@ struct SendView: View {
             )
         }
         .padding(.horizontal, 16)
-        .padding(.bottom, 6)
+        .padding(.bottom, 14)
     }
 
     @ViewBuilder
@@ -214,6 +214,7 @@ struct SendView_Preview: PreviewProvider {
         transactionSigner: TransactionSignerMock(),
         sendType: .send,
         emailDataProvider: EmailDataProviderMock(),
+        canUseFiatCalculation: true,
         coordinator: SendRoutableMock()
     )
 
