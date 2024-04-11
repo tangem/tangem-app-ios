@@ -71,8 +71,6 @@ struct SendSummaryView: View {
                     }
                 }
 
-                FixedSpacer(height: 8)
-
                 if viewModel.showHint {
                     HintView(
                         text: Localization.sendSummaryTapHint,
@@ -80,12 +78,14 @@ struct SendSummaryView: View {
                         textColor: Colors.Text.secondary,
                         backgroundColor: Colors.Button.secondary
                     )
+                    .padding(.top, 8)
                     .transition(SendView.Constants.hintViewTransition)
                 }
 
                 if !viewModel.animatingAuxiliaryViewsOnAppear {
                     ForEach(viewModel.notificationInputs) { input in
                         NotificationView(input: input)
+                            .padding(.top, spacing)
                             .transition(SendView.Constants.auxiliaryViewTransition(for: .summary))
                     }
                 }
