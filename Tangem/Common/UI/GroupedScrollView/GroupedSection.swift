@@ -52,7 +52,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
 
     var body: some View {
         if !models.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: GroupedSectionConstants.headerFooterSpacing) {
                 header()
                     .padding(.horizontal, horizontalPadding)
 
@@ -101,6 +101,10 @@ extension GroupedSection {
         case single
         case minimum
     }
+}
+
+enum GroupedSectionConstants {
+    static let headerFooterSpacing: CGFloat = 8
 }
 
 extension GroupedSection: Setupable {
