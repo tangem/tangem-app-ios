@@ -67,6 +67,7 @@ struct SupportedBlockchains {
             .mantle(testnet: false),
             .flare(testnet: false),
             .taraxa(testnet: false),
+            .radiant(testnet: false),
         ]
     }
 
