@@ -238,7 +238,7 @@ private extension BottomScrollableSheetStateObject {
     }
 }
 
-// MARK: - BottomScrollableSheetStateHandler
+// MARK: - BottomScrollableSheetStateController
 
 extension BottomScrollableSheetStateObject: BottomScrollableSheetStateController {
     func collapse() {
