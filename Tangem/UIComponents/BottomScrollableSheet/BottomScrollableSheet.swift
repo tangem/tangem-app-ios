@@ -24,7 +24,11 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
         return overlayHeight.isZero ? 0.0 : max(stateObject.maxHeight - stateObject.minHeight, 0.0)
     }
 
+    /// `.onAnimationStarted` may be called multiple times, therefore we need this state var to track only the initial call.
+    @State private var isAnimating = false
+
     @State private var isHidden = true
+
     private var isHiddenWhenCollapsed = false
 
     private var prefersGrabberVisible = true
@@ -69,6 +73,22 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
             statusBarStyleConfigurator.setSelectedStatusBarColorScheme(newValue, animated: true)
         }
         .readGeometry(bindTo: stateObject.geometryInfoSubject.asWriteOnlyBinding(.zero))
+        .onAnimationStarted(for: stateObject.visibleHeight) {
+            guard !isAnimating else { return }
+
+            if isHidden, stateObject.isHeaderDragged {
+                isHidden = false
+            }
+
+            isAnimating = true
+        }
+        .onAnimationCompleted(for: stateObject.visibleHeight) {
+            if !isHidden, !stateObject.isHeaderDragged, stateObject.progress < .ulpOfOne {
+                isHidden = true
+            }
+
+            isAnimating = false
+        }
     }
 
     private var headerDragGesture: some Gesture {
@@ -155,16 +175,6 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
         .bottomScrollableSheetCornerRadius()
         .bottomScrollableSheetShadow()
         .hidden(isHiddenWhenCollapsed ? isHidden : false)
-        .onAnimationStarted(for: stateObject.progress) {
-            if isHidden {
-                isHidden = false
-            }
-        }
-        .onAnimationCompleted(for: stateObject.progress) {
-            if !isHidden, stateObject.progress < .ulpOfOne {
-                isHidden = true
-            }
-        }
         .overlay(headerGestureOverlayView, alignment: .top) // Mustn't be hidden (by the 'isHidden' flag applied above)
         .offset(y: sheetVerticalOffset)
     }
