@@ -182,6 +182,7 @@ private extension URLQueryItem {
 }
 
 private extension Blockchain {
+    /// https://api.mercuryo.io/v1.6/lib/currencies
     var mercuryoNetwork: String? {
         switch self {
         case .algorand:
@@ -269,6 +270,7 @@ private extension Blockchain {
              .mantle,
              .flare,
              .taraxa:
+            // Did you get a compilation error here? If so, check whether the network is supported at https://api.mercuryo.io/v1.6/lib/currencies
             return nil // [REDACTED_TODO_COMMENT]
         }
     }
