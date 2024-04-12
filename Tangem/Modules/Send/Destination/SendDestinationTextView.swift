@@ -110,12 +110,7 @@ struct SendDestinationTextView: View {
 
             HStack(spacing: 12) {
                 Group {
-                    if #available(iOS 16, *) {
-                        TextField(viewModel.placeholder, text: $viewModel.input, axis: .vertical)
-                            .lineLimit(5, reservesSpace: false)
-                    } else {
-                        TextField(viewModel.placeholder, text: $viewModel.input)
-                    }
+                    TextEditor(text: $viewModel.input)
                 }
                 .disabled(viewModel.isDisabled)
                 .autocapitalization(.none)
