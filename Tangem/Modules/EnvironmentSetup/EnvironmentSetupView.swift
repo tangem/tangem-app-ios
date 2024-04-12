@@ -38,6 +38,8 @@ struct EnvironmentSetupView: View {
                     DefaultHeaderView("Feature toggles")
                 }
 
+                demoCardIdControls
+
                 promotionProgramControls
             }
             .interContentPadding(8)
@@ -45,6 +47,21 @@ struct EnvironmentSetupView: View {
         .navigationBarTitle(Text("Environment setup"))
         .navigationBarItems(trailing: exitButton)
         .alert(item: $viewModel.alert) { $0.alert }
+    }
+
+    private var demoCardIdControls: some View {
+        VStack(spacing: 10) {
+            Text("Demo card ID")
+
+            TextField("Demo card ID", text: viewModel.forcedDemoCardIdValue().asBinding)
+                .padding()
+                .border(.gray, width: 1)
+
+            Text("Note that a restart is required for the override to take effect. Only certain blockchains that have demo balances are considered to have their functionality affected [\(DemoUtil().getDemoBlockchains(isTestnet: false).joined(separator: ", "))]")
+                .font(.footnote)
+            
+            Text("*Warning*: when demo override is imposed on a regular card it still has all the amounts in the respective blockchain wallets and it is still possible to spend these money even though the displayed amount might be different")
+        }
     }
 
     private var promotionProgramControls: some View {
