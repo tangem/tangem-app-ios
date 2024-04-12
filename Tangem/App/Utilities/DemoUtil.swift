@@ -11,7 +11,12 @@ import BlockchainSdk
 
 struct DemoUtil {
     func isDemoCard(cardId: String) -> Bool {
-        demoCardIds.contains(cardId)
+        if let forcedDemoCardId = AppSettings.shared.forcedDemoCardId,
+           cardId == forcedDemoCardId {
+            return true
+        }
+
+        return demoCardIds.contains(cardId)
     }
 
     func getDemoBlockchains(isTestnet: Bool) -> [String] {
