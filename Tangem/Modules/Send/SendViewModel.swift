@@ -79,6 +79,7 @@ final class SendViewModel: ObservableObject {
     private var feeUpdateSubscription: AnyCancellable? = nil
 
     private var screenIdleStartTime: Date?
+    private var currentPageAnimating: Bool? = nil
     private var didReachSummaryScreen = false
 
     private var currentStepValid: AnyPublisher<Bool, Never> {
@@ -217,7 +218,22 @@ final class SendViewModel: ObservableObject {
         bind()
     }
 
+    func onCurrentPageAppear() {
+        if currentPageAnimating != nil {
+            currentPageAnimating = true
+        }
+    }
+
+    func onCurrentPageDisappear() {
+        currentPageAnimating = false
+    }
+
     func next() {
+        // If we try to open another page mid-animation then the appropriate onAppear of the new page will not get called
+        if currentPageAnimating ?? false {
+            return
+        }
+
         switch mainButtonType {
         case .next:
             guard let nextStep = nextStep(after: step) else {
@@ -234,7 +250,7 @@ final class SendViewModel: ObservableObject {
         case .continue:
             openStep(.summary, stepAnimation: .moveAndFade, updateFee: step.updateFeeOnLeave)
         case .send:
-            sendModel.send()
+            send()
         case .close:
             coordinator?.dismiss()
         }
@@ -306,13 +322,11 @@ final class SendViewModel: ObservableObject {
             .sink { [weak self] destination in
                 guard let self else { return }
 
-                if case .next = mainButtonType {
-                    switch destination?.source {
-                    case .myWallet, .recentAddress:
-                        next()
-                    default:
-                        break
-                    }
+                switch destination?.source {
+                case .myWallet, .recentAddress:
+                    next()
+                default:
+                    break
                 }
             }
             .store(in: &bag)
@@ -437,7 +451,7 @@ final class SendViewModel: ObservableObject {
             alert = SendAlertBuilder.makeSubtractFeeFromAmountAlert(sendModel.feeText) { [weak self] in
                 guard let self else { return }
                 sendModel.includeFeeIntoAmount()
-                fiatCryptoAdapter.setAmount(sendModel.userInputAmountValue?.value)
+                fiatCryptoAdapter.setCrypto(sendModel.userInputAmountValue?.value)
 
                 openStep(step, stepAnimation: stepAnimation, updateFee: false)
             }
@@ -532,7 +546,10 @@ final class SendViewModel: ObservableObject {
 
         if keyboardVisibilityService.keyboardVisible, !step.opensKeyboardByDefault {
             keyboardVisibilityService.hideKeyboard { [weak self] in
-                self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee, updateFee: updateFee)
+                // Slight delay is needed, otherwise the animation of the keyboard will interfere with the page change
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee, updateFee: updateFee)
+                }
             }
             return
         }
@@ -714,7 +731,7 @@ extension SendViewModel: NotificationTapDelegate {
             newAmount = newAmount + feeValue
         }
 
-        sendModel.setAmount(newAmount)
+        fiatCryptoAdapter.setCrypto(newAmount.value)
     }
 
     private func reduceAmountTo(_ amount: Decimal) {
@@ -724,7 +741,7 @@ extension SendViewModel: NotificationTapDelegate {
             newAmount = newAmount + feeValue
         }
 
-        sendModel.setAmount(Amount(with: walletModel.tokenItem.blockchain, type: walletModel.amountType, value: newAmount))
+        fiatCryptoAdapter.setCrypto(newAmount)
     }
 }
 
