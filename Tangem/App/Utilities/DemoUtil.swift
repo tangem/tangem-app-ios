@@ -11,8 +11,7 @@ import BlockchainSdk
 
 struct DemoUtil {
     func isDemoCard(cardId: String) -> Bool {
-        if let forcedDemoCardId = AppSettings.shared.forcedDemoCardId,
-           cardId == forcedDemoCardId {
+        if cardId == AppSettings.shared.forcedDemoCardId {
             return true
         }
 
