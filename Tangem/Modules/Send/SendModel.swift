@@ -58,10 +58,12 @@ class SendModel {
         validatedAmount.value
     }
 
-    var totalExceedsBalance: Bool {
+    var shouldSubtractFee: Bool {
         guard
             let validatedAmount = validatedAmount.value,
-            let fee = fee.value
+            let fee = fee.value,
+            fee.amount.type == validatedAmount.type,
+            validatedAmount >= fee.amount
         else {
             return false
         }
@@ -295,6 +297,8 @@ class SendModel {
 
                 do {
                     #warning("[REDACTED_TODO_COMMENT]")
+                    try walletModel.transactionValidator.validateTotal(amount: validatedAmount, fee: fee.amount)
+
                     let transaction = try walletModel.transactionCreator.createTransaction(
                         amount: validatedAmount,
                         fee: fee,
