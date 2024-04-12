@@ -700,7 +700,7 @@ extension SendViewModel: NotificationTapDelegate {
             newAmount = newAmount + feeValue
         }
 
-        sendModel.setAmount(newAmount)
+        fiatCryptoAdapter.setCrypto(newAmount.value)
     }
 
     private func reduceAmountTo(_ amount: Decimal) {
@@ -710,7 +710,7 @@ extension SendViewModel: NotificationTapDelegate {
             newAmount = newAmount + feeValue
         }
 
-        sendModel.setAmount(Amount(with: walletModel.tokenItem.blockchain, type: walletModel.amountType, value: newAmount))
+        fiatCryptoAdapter.setCrypto(newAmount)
     }
 }
 
