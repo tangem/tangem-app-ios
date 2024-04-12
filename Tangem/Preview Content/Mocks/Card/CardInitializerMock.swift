@@ -9,7 +9,7 @@
 import Foundation
 import TangemSdk
 
-class CardInitializerMock: CardInitializable {
+class CardInitializerMock: CardInitializer {
     var shouldReset: Bool = false
 
     func initializeCard(mnemonic: Mnemonic?, passphrase: String?, completion: @escaping (Result<CardInfo, TangemSdkError>) -> Void) {
