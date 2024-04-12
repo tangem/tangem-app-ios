@@ -434,7 +434,7 @@ final class SendViewModel: ObservableObject {
                 .blockchain: walletModel.tokenItem.blockchain.displayName,
             ])
 
-            alert = SendAlertBuilder.makeSubtractFeeFromAmountAlert(sendModel.feeText) { [weak self] in
+            alert = SendAlertBuilder.makeSubtractFeeFromAmountAlert { [weak self] in
                 guard let self else { return }
                 sendModel.includeFeeIntoAmount()
                 fiatCryptoAdapter.setCrypto(sendModel.userInputAmountValue?.value)
