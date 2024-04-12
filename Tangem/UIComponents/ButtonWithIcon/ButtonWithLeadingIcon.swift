@@ -11,8 +11,8 @@ import SwiftUI
 struct FixedSizeButtonWithLeadingIcon: View {
     var body: some View {
         let colorConfiguration = ButtonWithLeadingIconContentView.ColorConfiguration(
-            textColor: textColor,
-            iconColor: iconColor,
+            textColor: stateRelatedStyle.textColor,
+            iconColor: stateRelatedStyle.iconColor,
             backgroundColor: backgroundColor
         )
         ButtonWithLeadingIconContentView(
@@ -29,18 +29,16 @@ struct FixedSizeButtonWithLeadingIcon: View {
 
     private let title: String
     private let icon: Image
+    private let style: Style
     private let action: () -> Void
 
-    private var textColor: Color {
-        isEnabled ? Colors.Text.primary1 : Colors.Text.disabled
-    }
-
-    private var iconColor: Color {
-        isEnabled ? Colors.Icon.primary1 : Colors.Icon.inactive
+    private var stateRelatedStyle: Style {
+        isEnabled ? style : .disabled
     }
 
     private var backgroundColor: Color {
-        isEnabled ? (backgroundColorOverride ?? Colors.Button.secondary) : Colors.Button.disabled
+        let styleColor = style.backgroundColor
+        return isEnabled ? backgroundColorOverride ?? styleColor : styleColor
     }
 
     private var backgroundColorOverride: Color?
@@ -48,11 +46,47 @@ struct FixedSizeButtonWithLeadingIcon: View {
     init(
         title: String,
         icon: Image,
+        style: Style,
         action: @escaping () -> Void
     ) {
         self.title = title
         self.icon = icon
+        self.style = style
         self.action = action
+    }
+}
+
+extension FixedSizeButtonWithLeadingIcon {
+    enum Style {
+        case `default`
+        case disabled
+
+        var textColor: Color {
+            switch self {
+            case .default:
+                return Colors.Text.primary1
+            case .disabled:
+                return Colors.Text.disabled
+            }
+        }
+
+        var iconColor: Color {
+            switch self {
+            case .default:
+                return Colors.Icon.primary1
+            case .disabled:
+                return Colors.Icon.inactive
+            }
+        }
+
+        var backgroundColor: Color {
+            switch self {
+            case .default:
+                return Colors.Button.secondary
+            case .disabled:
+                return Colors.Button.disabled
+            }
+        }
     }
 }
 
@@ -182,31 +216,36 @@ struct ButtonWithLeadingIcon_Previews: PreviewProvider {
             VStack {
                 FixedSizeButtonWithLeadingIcon(
                     title: "Buy",
-                    icon: Assets.plusMini.image
+                    icon: Assets.plusMini.image,
+                    style: .default
                 ) {}
 
                 FixedSizeButtonWithLeadingIcon(
                     title: "Exchange",
                     icon: Assets.exchangeMini.image,
+                    style: .default,
                     action: {}
                 )
                 .disabled(true)
 
                 FixedSizeButtonWithLeadingIcon(
                     title: "Organize tokens",
-                    icon: Assets.sliders.image
+                    icon: Assets.sliders.image,
+                    style: .disabled
                 ) {}
 
                 FixedSizeButtonWithLeadingIcon(
                     title: "",
                     icon: Assets.horizontalDots.image,
+                    style: .disabled,
                     action: {}
                 )
                 .disabled(true)
 
                 FixedSizeButtonWithLeadingIcon(
                     title: "LongTitle_LongTitle_LongTitle_LongTitle_LongTitle",
-                    icon: Assets.infoIconMini.image
+                    icon: Assets.infoIconMini.image,
+                    style: .default
                 ) {}
 
                 FlexySizeButtonWithLeadingIcon(
