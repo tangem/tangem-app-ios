@@ -36,10 +36,6 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     private let tokenRouter: SingleTokenRoutable
 
-    private var isSwapAvailable: Bool {
-        !walletModel.isCustom && swapAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem)
-    }
-
     private var percentFormatter = PercentFormatter()
     private var transactionHistoryBag: AnyCancellable?
     private var updateSubscription: AnyCancellable?
@@ -73,6 +69,10 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         } else {
             return true
         }
+    }
+
+    var cantSignTransaction: Bool {
+        walletModel.sendingRestrictions == .cantSignLongTransactions
     }
 
     lazy var transactionHistoryMapper = TransactionHistoryMapper(currencySymbol: currencySymbol, walletAddresses: walletModel.wallet.addresses.map { $0.value }, showSign: true)
@@ -315,7 +315,9 @@ extension SingleTokenBaseViewModel {
         case .receive:
             return false
         case .exchange:
-            return isBlockchainUnreachable || !isSwapAvailable
+            return isBlockchainUnreachable ||
+                !swapAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem) ||
+                cantSignTransaction
         case .sell:
             return isBlockchainUnreachable || !exchangeUtility.sellAvailable
         case .copyAddress, .hide:
@@ -351,6 +353,10 @@ extension SingleTokenBaseViewModel {
 // MARK: - Navigation
 
 extension SingleTokenBaseViewModel {
+    private var cantSignLongTransactionAlert: AlertBinder {
+        .init(title: Localization.warningLongTransactionTitle, message: Localization.warningLongTransactionMessage)
+    }
+
     func openReceive() {
         tokenRouter.openReceive(walletModel: walletModel)
     }
@@ -371,9 +377,9 @@ extension SingleTokenBaseViewModel {
                 alert = .init(title: Localization.warningSendBlockedPendingTransactionsTitle, message: message)
             }
         case .cantSignLongTransactions:
-            alert = .init(title: Localization.warningLongTransactionTitle, message: Localization.warningLongTransactionMessage)
+            alert = cantSignLongTransactionAlert
         case .zeroWalletBalance:
-            alert = .init(title: Localization.commonWarning, message: Localization.tokenButtonUnavailabilityReasonEmptyBalance)
+            alert = .init(title: "", message: Localization.tokenButtonUnavailabilityReasonEmptyBalance)
         case .none, .zeroFeeCurrencyBalance:
             tokenRouter.openSend(walletModel: walletModel)
         }
@@ -387,6 +393,40 @@ extension SingleTokenBaseViewModel {
     func openExchange() {
         if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .swapping) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
+            return
+        }
+
+        if cantSignTransaction {
+            alert = cantSignLongTransactionAlert
+            return
+        }
+
+        let tryAgainLaterAlert = AlertBinder(title: "", message: Localization.tokenButtonUnavailabilityGenericDescription)
+
+        if walletModel.state.isBlockchainUnreachable {
+            alert = tryAgainLaterAlert
+            return
+        }
+
+        let notSupportedToken = AlertBinder(title: "", message: Localization.tokenButtonUnavailabilityReasonNotExchangeable(walletModel.tokenItem.name))
+        var alertToDisplay: AlertBinder?
+        switch swapAvailabilityProvider.swapState(for: walletModel.tokenItem) {
+        case .unavailable:
+            alertToDisplay = notSupportedToken
+        case .loading, .failedToLoadInfo, .notLoaded:
+            alertToDisplay = tryAgainLaterAlert
+        case .available:
+            if walletModel.state.isBlockchainUnreachable {
+                alertToDisplay = tryAgainLaterAlert
+            }
+
+            if walletModel.isCustom {
+                alertToDisplay = notSupportedToken
+            }
+        }
+
+        if let alertToDisplay {
+            alert = alertToDisplay
             return
         }
 
