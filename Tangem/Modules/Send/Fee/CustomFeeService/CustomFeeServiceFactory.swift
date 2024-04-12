@@ -28,17 +28,18 @@ struct CustomFeeServiceFactory {
             return nil
         }
 
-        if let bitcoinTransactionFeeCalculator = walletModel.bitcoinTransactionFeeCalculator {
+        let blockchain = walletModel.blockchainNetwork.blockchain
+        if case .bitcoin = blockchain, let bitcoinTransactionFeeCalculator = walletModel.bitcoinTransactionFeeCalculator {
             return CustomBitcoinFeeService(
                 input: input,
                 output: output,
                 bitcoinTransactionFeeCalculator: bitcoinTransactionFeeCalculator
             )
-        } else if walletModel.blockchainNetwork.blockchain.isEvm {
+        } else if blockchain.isEvm {
             return CustomEvmFeeService(
                 input: input,
                 output: output,
-                blockchain: walletModel.blockchainNetwork.blockchain,
+                blockchain: blockchain,
                 feeTokenItem: walletModel.feeTokenItem
             )
         } else {
