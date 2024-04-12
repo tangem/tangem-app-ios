@@ -306,13 +306,11 @@ final class SendViewModel: ObservableObject {
             .sink { [weak self] destination in
                 guard let self else { return }
 
-                if case .next = mainButtonType {
-                    switch destination?.source {
-                    case .myWallet, .recentAddress:
-                        next()
-                    default:
-                        break
-                    }
+                switch destination?.source {
+                case .myWallet, .recentAddress:
+                    next()
+                default:
+                    break
                 }
             }
             .store(in: &bag)
