@@ -172,7 +172,8 @@ private extension CommonExpressTransactionBuilder {
              .mantle,
              .flare,
              .taraxa,
-             .radiant:
+             .radiant,
+             .base:
             throw ExpressTransactionBuilderError.blockchainDonNotSupportedExtraId
         }
     }
