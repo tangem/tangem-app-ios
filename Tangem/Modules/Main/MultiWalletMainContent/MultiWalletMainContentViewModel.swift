@@ -140,6 +140,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         let sectionsPublisher = organizedTokensSectionsPublisher
             .withWeakCaptureOf(self)
+            .receive(on: DispatchQueue.main)
             .map { viewModel, sections in
                 return viewModel.convertToSections(sections)
             }
@@ -152,6 +153,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         organizedTokensSectionsPublisher
             .withWeakCaptureOf(self)
+            .receive(on: DispatchQueue.main)
             .sink { viewModel, sections in
                 viewModel.removeOldCachedTokenViewModels(sections)
             }
