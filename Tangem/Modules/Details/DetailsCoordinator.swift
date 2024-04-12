@@ -8,7 +8,6 @@
 
 import Foundation
 import UIKit
-import TangemSdk
 
 class DetailsCoordinator: CoordinatorObject {
     // MARK: - Dependencies
