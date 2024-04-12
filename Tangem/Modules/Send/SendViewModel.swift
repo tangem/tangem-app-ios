@@ -227,8 +227,10 @@ final class SendViewModel: ObservableObject {
 
             logNextStepAnalytics()
 
-            let stepAnimation: SendView.StepAnimation = (nextStep == .summary) ? .moveAndFade : .slideForward
-            openStep(nextStep, stepAnimation: stepAnimation, updateFee: step.updateFeeOnLeave)
+            let openingSummary = (nextStep == .summary)
+            let stepAnimation: SendView.StepAnimation = openingSummary ? .moveAndFade : .slideForward
+            let updateFee = openingSummary && step.updateFeeOnLeave
+            openStep(nextStep, stepAnimation: stepAnimation, updateFee: updateFee)
         case .continue:
             openStep(.summary, stepAnimation: .moveAndFade, updateFee: step.updateFeeOnLeave)
         case .send:
@@ -505,6 +507,15 @@ final class SendViewModel: ObservableObject {
     }
 
     private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation, checkCustomFee: Bool = true, updateFee: Bool) {
+        if updateFee {
+            self.updateFee(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee)
+            keyboardVisibilityService.hideKeyboard {
+                // No matter how long it takes to get the fees when we try to open the step again we will check if the keyboard is open
+                // If it's in the process of being hidden we will wait for it to finish
+            }
+            return
+        }
+
         if keyboardVisibilityService.keyboardVisible, !step.opensKeyboardByDefault {
             keyboardVisibilityService.hideKeyboard { [weak self] in
                 self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee, updateFee: updateFee)
@@ -513,11 +524,6 @@ final class SendViewModel: ObservableObject {
         }
 
         if case .summary = step {
-            if updateFee {
-                self.updateFee(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee)
-                return
-            }
-
             if showSummaryStepAlertIfNeeded(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee) {
                 return
             }
