@@ -20,7 +20,7 @@ enum SendAlertBuilder {
         )
     }
 
-    static func makeSubtractFeeFromAmountAlert(subtractAction: @escaping () -> Void) -> AlertBinder {
+    static func makeSubtractFeeFromMaxAmountAlert(subtractAction: @escaping () -> Void) -> AlertBinder {
         let subtractButton = Alert.Button.default(Text(Localization.sendAlertFeeCoverageSubractText), action: subtractAction)
         return AlertBuilder.makeAlert(
             title: "",
