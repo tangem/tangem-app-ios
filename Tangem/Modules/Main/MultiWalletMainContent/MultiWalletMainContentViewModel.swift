@@ -63,10 +63,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private var canManageTokens: Bool { userWalletModel.config.hasFeature(.multiCurrency) }
 
     private var cachedTokenItemViewModels: [ObjectIdentifier: TokenItemViewModel] = [:]
-    private let tokenItemViewModelsCachingQueue = DispatchQueue(
-        label: "com.tangem.MultiWalletMainContentViewModel.tokenItemViewModelsCachingQueue",
-        qos: .userInitiated
-    )
 
     private let mappingQueue = DispatchQueue(
         label: "com.tangem.MultiWalletMainContentViewModel.mappingQueue",
@@ -144,7 +140,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         let sectionsPublisher = organizedTokensSectionsPublisher
             .withWeakCaptureOf(self)
-            .receive(on: tokenItemViewModelsCachingQueue)
             .map { viewModel, sections in
                 return viewModel.convertToSections(sections)
             }
@@ -157,7 +152,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         organizedTokensSectionsPublisher
             .withWeakCaptureOf(self)
-            .receive(on: tokenItemViewModelsCachingQueue)
             .sink { viewModel, sections in
                 viewModel.removeOldCachedTokenViewModels(sections)
             }
