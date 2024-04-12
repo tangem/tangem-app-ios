@@ -51,7 +51,17 @@ class WalletModel {
     }
 
     var supportsCustomFees: Bool {
-        bitcoinTransactionFeeCalculator != nil || blockchainNetwork.blockchain.isEvm
+        let blockchain = blockchainNetwork.blockchain
+
+        if case .bitcoin = blockchain, bitcoinTransactionFeeCalculator != nil {
+            return true
+        }
+
+        if blockchain.isEvm {
+            return true
+        }
+
+        return false
     }
 
     var tokenItem: TokenItem {
