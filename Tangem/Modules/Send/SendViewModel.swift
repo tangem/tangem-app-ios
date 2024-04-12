@@ -243,12 +243,14 @@ final class SendViewModel: ObservableObject {
 
             logNextStepAnalytics()
 
-            let stepAnimation: SendView.StepAnimation = (nextStep == .summary) ? .moveAndFade : .slideForward
-            openStep(nextStep, stepAnimation: stepAnimation, updateFee: step.updateFeeOnLeave)
+            let openingSummary = (nextStep == .summary)
+            let stepAnimation: SendView.StepAnimation = openingSummary ? .moveAndFade : .slideForward
+            let updateFee = openingSummary && step.updateFeeOnLeave
+            openStep(nextStep, stepAnimation: stepAnimation, updateFee: updateFee)
         case .continue:
             openStep(.summary, stepAnimation: .moveAndFade, updateFee: step.updateFeeOnLeave)
         case .send:
-            sendModel.send()
+            send()
         case .close:
             coordinator?.dismiss()
         }
@@ -320,13 +322,11 @@ final class SendViewModel: ObservableObject {
             .sink { [weak self] destination in
                 guard let self else { return }
 
-                if case .next = mainButtonType {
-                    switch destination?.source {
-                    case .myWallet, .recentAddress:
-                        next()
-                    default:
-                        break
-                    }
+                switch destination?.source {
+                case .myWallet, .recentAddress:
+                    next()
+                default:
+                    break
                 }
             }
             .store(in: &bag)
@@ -451,7 +451,7 @@ final class SendViewModel: ObservableObject {
             alert = SendAlertBuilder.makeSubtractFeeFromAmountAlert(sendModel.feeText) { [weak self] in
                 guard let self else { return }
                 sendModel.includeFeeIntoAmount()
-                fiatCryptoAdapter.setAmount(sendModel.userInputAmountValue?.value)
+                fiatCryptoAdapter.setCrypto(sendModel.userInputAmountValue?.value)
 
                 openStep(step, stepAnimation: stepAnimation, updateFee: false)
             }
@@ -521,6 +521,15 @@ final class SendViewModel: ObservableObject {
     }
 
     private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation, checkCustomFee: Bool = true, updateFee: Bool) {
+        if updateFee {
+            self.updateFee(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee)
+            keyboardVisibilityService.hideKeyboard {
+                // No matter how long it takes to get the fees when we try to open the step again we will check if the keyboard is open
+                // If it's in the process of being hidden we will wait for it to finish
+            }
+            return
+        }
+
         if keyboardVisibilityService.keyboardVisible, !step.opensKeyboardByDefault {
             keyboardVisibilityService.hideKeyboard { [weak self] in
                 // Slight delay is needed, otherwise the animation of the keyboard will interfere with the page change
@@ -532,11 +541,6 @@ final class SendViewModel: ObservableObject {
         }
 
         if case .summary = step {
-            if updateFee {
-                self.updateFee(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee)
-                return
-            }
-
             if showSummaryStepAlertIfNeeded(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee) {
                 return
             }
@@ -713,7 +717,7 @@ extension SendViewModel: NotificationTapDelegate {
             newAmount = newAmount + feeValue
         }
 
-        sendModel.setAmount(newAmount)
+        fiatCryptoAdapter.setCrypto(newAmount.value)
     }
 
     private func reduceAmountTo(_ amount: Decimal) {
@@ -723,7 +727,7 @@ extension SendViewModel: NotificationTapDelegate {
             newAmount = newAmount + feeValue
         }
 
-        sendModel.setAmount(Amount(with: walletModel.tokenItem.blockchain, type: walletModel.amountType, value: newAmount))
+        fiatCryptoAdapter.setCrypto(newAmount)
     }
 }
 
