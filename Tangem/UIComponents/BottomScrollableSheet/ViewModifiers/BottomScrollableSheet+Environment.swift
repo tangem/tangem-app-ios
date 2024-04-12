@@ -18,6 +18,13 @@ extension View {
         return environment(\.bottomScrollableSheetStateObserver, observer)
     }
 
+    /// - Warning: This method maintains strong reference (via `SwiftUI.EnvironmentValues`) to the given `observer` closure.
+    func onBottomScrollableSheetDrag(
+        _ observer: @escaping BottomScrollableSheetDragObserver
+    ) -> some View {
+        return environment(\.bottomScrollableSheetDragObserver, observer)
+    }
+
     func bottomScrollableSheetConfiguration(
         isHiddenWhenCollapsed: Bool = BottomScrollableSheetConfigurationEnvironmentKey.defaultValue.isHiddenWhenCollapsed,
         prefersGrabberVisible: Bool = BottomScrollableSheetConfigurationEnvironmentKey.defaultValue.prefersGrabberVisible,
@@ -38,6 +45,11 @@ extension EnvironmentValues {
         set { self[BottomScrollableSheetStateObserverEnvironmentKey.self] = newValue }
     }
 
+    var bottomScrollableSheetDragObserver: BottomScrollableSheetDragObserver? {
+        get { self[BottomScrollableSheetDragObserverEnvironmentKey.self] }
+        set { self[BottomScrollableSheetDragObserverEnvironmentKey.self] = newValue }
+    }
+
     var bottomScrollableSheetConfiguration: BottomScrollableSheetConfiguration {
         get { self[BottomScrollableSheetConfigurationEnvironmentKey.self] }
         set { self[BottomScrollableSheetConfigurationEnvironmentKey.self] = newValue }
@@ -53,6 +65,10 @@ extension EnvironmentValues {
 
 private enum BottomScrollableSheetStateObserverEnvironmentKey: EnvironmentKey {
     static var defaultValue: BottomScrollableSheetStateObserver? { nil }
+}
+
+private enum BottomScrollableSheetDragObserverEnvironmentKey: EnvironmentKey {
+    static var defaultValue: BottomScrollableSheetDragObserver? { nil }
 }
 
 private enum BottomScrollableSheetConfigurationEnvironmentKey: EnvironmentKey {
