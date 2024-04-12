@@ -162,7 +162,7 @@ class SendModel {
         }
     }
 
-    func includeFeeIntoAmount() {
+    func subtractFeeFromMaxAmount() {
         guard
             !_isFeeIncluded.value,
             let maxAmount = walletModel.wallet.amounts[walletModel.amountType],
