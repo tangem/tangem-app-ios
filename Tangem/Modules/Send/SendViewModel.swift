@@ -434,9 +434,9 @@ final class SendViewModel: ObservableObject {
                 .blockchain: walletModel.tokenItem.blockchain.displayName,
             ])
 
-            alert = SendAlertBuilder.makeSubtractFeeFromAmountAlert { [weak self] in
+            alert = SendAlertBuilder.makeSubtractFeeFromMaxAmountAlert { [weak self] in
                 guard let self else { return }
-                sendModel.includeFeeIntoAmount()
+                sendModel.subtractFeeFromMaxAmount()
                 fiatCryptoAdapter.setCrypto(sendModel.userInputAmountValue?.value)
 
                 openStep(step, stepAnimation: stepAnimation, updateFee: false)
