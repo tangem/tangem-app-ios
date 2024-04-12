@@ -17,9 +17,9 @@ struct CardOperationView: View {
             Spacer()
 
             content
-            
+
             Spacer()
-            
+
             MainButton(
                 title: viewModel.buttonTitle,
                 isLoading: viewModel.isLoading,
@@ -31,17 +31,17 @@ struct CardOperationView: View {
         .navigationBarTitle(viewModel.title)
         .alert(item: $viewModel.error) { $0.alert }
     }
-    
+
     private var content: some View {
         VStack(spacing: 28) {
             Image(systemName: "exclamationmark.circle")
                 .resizable()
                 .frame(width: 100, height: 100)
                 .foregroundColor(Colors.Icon.attention)
-            
+
             Text(Localization.commonWarning.uppercased())
                 .style(Fonts.Regular.largeTitle, color: Colors.Icon.attention)
-            
+
             Text(viewModel.alert)
                 .style(Fonts.Regular.title2, color: Colors.Text.primary1)
         }
