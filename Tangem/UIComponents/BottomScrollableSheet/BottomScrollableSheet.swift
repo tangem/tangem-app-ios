@@ -16,6 +16,7 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
     @ObservedObject private var stateObject: BottomScrollableSheetStateObject
 
     @Environment(\.bottomScrollableSheetStateObserver) private var bottomScrollableSheetStateObserver
+    @Environment(\.bottomScrollableSheetDragObserver) private var bottomScrollableSheetDragObserver
     @Environment(\.statusBarStyleConfigurator) private var statusBarStyleConfigurator
 
     @State private var overlayHeight: CGFloat = .zero
@@ -23,6 +24,9 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
     private var overlayBottomInset: CGFloat {
         return overlayHeight.isZero ? 0.0 : max(stateObject.maxHeight - stateObject.minHeight, 0.0)
     }
+
+    // [REDACTED_TODO_COMMENT]
+    @State private var isDragged = false
 
     /// `.onAnimationStarted` may be called multiple times, therefore we need this state var to track only the initial call.
     @State private var isAnimating = false
@@ -93,8 +97,20 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
 
     private var headerDragGesture: some Gesture {
         DragGesture(coordinateSpace: .global)
-            .onChanged(stateObject.headerDragGesture(onChanged:))
-            .onEnded(stateObject.headerDragGesture(onEnded:))
+            .onChanged { value in
+                stateObject.headerDragGesture(onChanged: value)
+
+                if !isDragged {
+                    isDragged = true
+                    bottomScrollableSheetDragObserver?(true)
+                }
+            }
+            .onEnded { value in
+                stateObject.headerDragGesture(onEnded: value)
+
+                isDragged = false
+                bottomScrollableSheetDragObserver?(false)
+            }
     }
 
     private var headerTapGesture: some Gesture {
@@ -132,8 +148,20 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
         ScrollView(.vertical) {
             ZStack {
                 DragGesturePassthroughView(
-                    onChanged: stateObject.scrollViewContentDragGesture(onChanged:),
-                    onEnded: stateObject.scrollViewContentDragGesture(onEnded:)
+                    onChanged: { value in
+                        stateObject.scrollViewContentDragGesture(onChanged: value)
+
+                        if !isDragged {
+                            isDragged = true
+                            bottomScrollableSheetDragObserver?(true)
+                        }
+                    },
+                    onEnded: { value in
+                        stateObject.scrollViewContentDragGesture(onEnded: value)
+
+                        isDragged = false
+                        bottomScrollableSheetDragObserver?(false)
+                    }
                 )
 
                 VStack(spacing: 0.0) {
