@@ -10,11 +10,11 @@ import Foundation
 import FirebaseAnalytics
 import FirebaseCrashlytics
 import BlockchainSdk
-import Amplitude
 import TangemSdk
 
 class Analytics {
     @Injected(\.analyticsContext) private static var analyticsContext: AnalyticsContext
+    @Injected(\.amplitude) private static var amplitude: TangemAmplitude?
 
     private init() {}
 
@@ -197,7 +197,7 @@ class Analytics {
                 let message = "\(event).\(params)"
                 Crashlytics.crashlytics().log(message)
             case .amplitude:
-                Amplitude.instance().logEvent(event, withEventProperties: params)
+                amplitude?.track(eventType: event, eventProperties: params)
             }
         }
 
