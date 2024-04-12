@@ -118,6 +118,19 @@ final class EnvironmentSetupViewModel: ObservableObject {
         updateAwardedPromotionNames()
     }
 
+    func forcedDemoCardIdValue() -> BindingValue<String> {
+        BindingValue<String>(
+            root: self,
+            default: "",
+            get: { _ in
+                AppSettings.shared.forcedDemoCardId ?? ""
+            },
+            set: { root, newValue in
+                AppSettings.shared.forcedDemoCardId = newValue.isEmpty ? nil : newValue
+            }
+        )
+    }
+
     func copyCurrentPromoCode() {
         guard let promoCode = promotionService.promoCode else { return }
 
