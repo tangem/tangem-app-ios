@@ -73,7 +73,7 @@ class AppSettings {
     var userDidTapSendScreenSummary: Bool = false
 
     @AppStorageCompat(StorageType.forcedDemoCardId)
-    var forcedDemoCardId: String? = nil
+    var forcedDemoCardId: String = ""
 
     static let shared: AppSettings = .init()
 
