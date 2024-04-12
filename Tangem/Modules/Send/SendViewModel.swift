@@ -459,16 +459,30 @@ final class SendViewModel: ObservableObject {
             return true
         }
 
-        if checkCustomFee, notificationManager.hasNotificationEvent(.customFeeTooLow) {
-            Analytics.log(event: .sendNoticeTransactionDelaysArePossible, params: [
-                .token: walletModel.tokenItem.currencySymbol,
-            ])
+        if checkCustomFee {
+            let events = notificationManager.notificationInputs.compactMap { $0.settings.event as? SendNotificationEvent }
+            for event in events {
+                switch event {
+                case .customFeeTooLow:
+                    Analytics.log(event: .sendNoticeTransactionDelaysArePossible, params: [
+                        .token: walletModel.tokenItem.currencySymbol,
+                    ])
 
-            alert = SendAlertBuilder.makeCustomFeeTooLowAlert { [weak self] in
-                self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: false, updateFee: false)
+                    alert = SendAlertBuilder.makeCustomFeeTooLowAlert { [weak self] in
+                        self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: false, updateFee: false)
+                    }
+
+                    return true
+                case .customFeeTooHigh(let orderOfMagnitude):
+                    alert = SendAlertBuilder.makeCustomFeeTooHighAlert(orderOfMagnitude) { [weak self] in
+                        self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: false, updateFee: false)
+                    }
+
+                    return true
+                default:
+                    break
+                }
             }
-
-            return true
         }
 
         return false
