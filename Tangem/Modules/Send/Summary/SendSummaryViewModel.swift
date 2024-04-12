@@ -223,14 +223,15 @@ class SendSummaryViewModel: ObservableObject {
         guard
             let amount,
             let fee,
-            let amountCurrencyId = walletInfo.currencyId
+            let amountCurrencyId = walletInfo.currencyId,
+            let feeCurrencyId = walletInfo.feeCurrencyId
         else {
             return nil
         }
 
         let converter = BalanceConverter()
         let amountInFiat = converter.convertToFiat(value: amount.value, from: amountCurrencyId)
-        let feeInFiat = converter.convertToFiat(value: fee.amount.value, from: walletInfo.feeCurrencyId)
+        let feeInFiat = converter.convertToFiat(value: fee.amount.value, from: feeCurrencyId)
 
         let totalInFiat: Decimal?
         if let amountInFiat, let feeInFiat {
