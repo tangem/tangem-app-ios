@@ -11,9 +11,7 @@ import BlockchainSdk
 
 protocol SendNotificationManagerInput {
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
-    var amountPublisher: AnyPublisher<Amount?, Never> { get }
-    var feeValuePublisher: AnyPublisher<Fee?, Never> { get }
-    var isFeeIncludedPublisher: AnyPublisher<Bool, Never> { get }
+    var selectedFeeOptionPublisher: AnyPublisher<FeeOption, Never> { get }
     var customFeePublisher: AnyPublisher<Fee?, Never> { get }
     var withdrawalSuggestion: AnyPublisher<WithdrawalSuggestion?, Never> { get }
     var transactionCreationError: AnyPublisher<Error?, Never> { get }
@@ -126,21 +124,24 @@ class CommonSendNotificationManager: SendNotificationManager {
             .compactMap {
                 $0?.amount.value
             }
-        Publishers.CombineLatest(loadedFeeValues, customFeeValue)
-            .sink { [weak self] loadedFeeValues, customFee in
-                guard
-                    let lowestFee = loadedFeeValues[.slow],
-                    let highestFee = loadedFeeValues[.fast]
-                else {
-                    return
-                }
-
-                let tooLow = customFee < lowestFee
-                self?.updateEventVisibility(tooLow, event: .customFeeTooLow)
+        Publishers.CombineLatest3(input.selectedFeeOptionPublisher, loadedFeeValues, customFeeValue)
+            .sink { [weak self] selectedFeeOption, loadedFeeValues, customFee in
+                let customFeeTooLow: Bool
+                let customFeeTooHigh: Bool
 
                 let highFeeOrderTrigger = 5
-                let tooHigh = customFee > (highestFee * Decimal(highFeeOrderTrigger))
-                self?.updateEventVisibility(tooHigh, event: .customFeeTooHigh(orderOfMagnitude: highFeeOrderTrigger))
+                if selectedFeeOption == .custom,
+                   let lowestFee = loadedFeeValues[.slow],
+                   let highestFee = loadedFeeValues[.fast] {
+                    customFeeTooLow = customFee < lowestFee
+                    customFeeTooHigh = customFee > (highestFee * Decimal(highFeeOrderTrigger))
+                } else {
+                    customFeeTooLow = false
+                    customFeeTooHigh = false
+                }
+
+                self?.updateEventVisibility(customFeeTooLow, event: .customFeeTooLow)
+                self?.updateEventVisibility(customFeeTooHigh, event: .customFeeTooHigh(orderOfMagnitude: highFeeOrderTrigger))
             }
             .store(in: &bag)
 
