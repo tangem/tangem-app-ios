@@ -30,7 +30,7 @@ struct SendDestinationView: View {
                     if !viewModel.animatingAuxiliaryViewsOnAppear {
                         Text(addressViewModel.description)
                             .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                            .transition(SendView.Constants.auxiliaryViewTransition)
+                            .transition(SendView.Constants.auxiliaryViewTransition(for: .destination))
                     }
                 }
                 .innerContentPadding(2)
@@ -44,11 +44,10 @@ struct SendDestinationView: View {
                 } footer: {
                     Text(additionalFieldViewModel.description)
                         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                        .transition(SendView.Constants.auxiliaryViewTransition)
                 }
                 .innerContentPadding(2)
                 .backgroundColor(Colors.Background.action)
-                .transition(SendView.Constants.auxiliaryViewTransition)
+                .transition(SendView.Constants.auxiliaryViewTransition(for: .destination))
             }
 
             if let suggestedDestinationViewModel = viewModel.suggestedDestinationViewModel, viewModel.showSuggestedDestinations {
