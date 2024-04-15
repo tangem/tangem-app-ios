@@ -131,4 +131,8 @@ enum TokenItem: Hashable, Codable {
             return false
         }
     }
+
+    var isCustom: Bool {
+        id == nil
+    }
 }
