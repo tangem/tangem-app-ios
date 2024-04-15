@@ -57,9 +57,8 @@ class SendSummaryViewModel: ObservableObject {
     @Published var animatingFeeOnAppear = false
     @Published var showHint = false
     @Published var transactionDescription: String?
+    @Published var showNotifications = true
     @Published var showTransactionDescription = true
-
-    @Published var animatingAuxiliaryViewsOnAppear: Bool = false
 
     var didProperlyDisappear: Bool = true
 
@@ -95,6 +94,10 @@ class SendSummaryViewModel: ObservableObject {
     }
 
     func setupAnimations(previousStep: SendStep) {
+        showHint = false
+        showNotifications = false
+        showTransactionDescription = false
+
         switch previousStep {
         case .destination:
             animatingAmountOnAppear = true
@@ -115,22 +118,17 @@ class SendSummaryViewModel: ObservableObject {
             self.animatingDestinationOnAppear = false
             self.animatingAmountOnAppear = false
             self.animatingFeeOnAppear = false
+            self.showNotifications = !self.notificationInputs.isEmpty
+            self.showTransactionDescription = self.transactionDescription != nil
         }
 
         Analytics.log(.sendConfirmScreenOpened)
 
         // For the sake of simplicity we're assuming that notifications aren't going to be created after the screen has been displayed
-        showHint = false
         if notificationInputs.isEmpty, !AppSettings.shared.userDidTapSendScreenSummary {
             withAnimation(SendView.Constants.defaultAnimation.delay(SendView.Constants.animationDuration * 2)) {
                 self.showHint = true
             }
-        }
-
-        // Show it with a delay, otherwise it will clash with the keyboard
-        showTransactionDescription = false
-        withAnimation(SendView.Constants.defaultAnimation.delay(SendView.Constants.animationDuration * 2)) {
-            self.showTransactionDescription = true
         }
     }
 
@@ -250,5 +248,3 @@ class SendSummaryViewModel: ObservableObject {
         return Localization.sendSummaryTransactionDescription(totalInFiatFormatted, feeInFiatFormatted)
     }
 }
-
-extension SendSummaryViewModel: AuxiliaryViewAnimatable {}
