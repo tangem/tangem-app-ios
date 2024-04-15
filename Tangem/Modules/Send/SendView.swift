@@ -38,6 +38,12 @@ struct SendView: View {
         }
         .background(backgroundColor.ignoresSafeArea())
         .animation(Constants.defaultAnimation, value: viewModel.step)
+        .presentation2(modal: $viewModel.isModal) {
+            print("zzz ondismissal")
+            viewModel.tryToDismiss()
+        } onDismissed: {
+            print("on dismissed")
+        }
     }
 
     private var pageContentTransition: AnyTransition {
