@@ -34,6 +34,7 @@ extension FixedSizeButtonWithIconInfo: Hashable {
         hasher.combine(title)
         hasher.combine(icon)
         hasher.combine(disabled)
+        hasher.combine(style)
     }
 
     static func == (lhs: FixedSizeButtonWithIconInfo, rhs: FixedSizeButtonWithIconInfo) -> Bool {
