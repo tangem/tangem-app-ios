@@ -59,6 +59,10 @@ class SendSummaryViewModel: ObservableObject {
     @Published var transactionDescription: String?
     @Published var showTransactionDescription = true
 
+    @Published var animatingAuxiliaryViewsOnAppear: Bool = false
+
+    var didProperlyDisappear: Bool = true
+
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
 
     weak var router: SendSummaryRoutable?
@@ -247,3 +251,5 @@ class SendSummaryViewModel: ObservableObject {
         return Localization.sendSummaryTransactionDescription(totalInFiatFormatted, feeInFiatFormatted)
     }
 }
+
+extension SendSummaryViewModel: AuxiliaryViewAnimatable {}
