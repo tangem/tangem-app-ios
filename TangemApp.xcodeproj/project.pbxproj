@@ -332,6 +332,8 @@
 		B06ADFD829B9CEEC00E92E5E /* OnboardingSeedPhraseGenerateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06ADFD729B9CEEC00E92E5E /* OnboardingSeedPhraseGenerateView.swift */; };
 		B06ADFDB29BAFA4600E92E5E /* SeedPhraseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06ADFDA29BAFA4600E92E5E /* SeedPhraseManager.swift */; };
 		B06B62E02B10D20C00042A39 /* ExpressAPIProviderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06B62DF2B10D20C00042A39 /* ExpressAPIProviderFactory.swift */; };
+		B06BB8E52BCD0F6C00C0FBCF /* SingleTokenAlertBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06BB8E42BCD0F6C00C0FBCF /* SingleTokenAlertBuilder.swift */; };
+		B06BB8E72BCD139500C0FBCF /* TokenItemSwapState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06BB8E62BCD139500C0FBCF /* TokenItemSwapState.swift */; };
 		B06C083B2A73E0D400D982BC /* MainHeaderSubtitleProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C083A2A73E0D400D982BC /* MainHeaderSubtitleProvider.swift */; };
 		B06C083D2A73E0E900D982BC /* MainHeaderSubtitleInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C083C2A73E0E900D982BC /* MainHeaderSubtitleInfo.swift */; };
 		B06C08412A73E11000D982BC /* SingleWalletMainHeaderSubtitleProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C08402A73E11000D982BC /* SingleWalletMainHeaderSubtitleProvider.swift */; };
@@ -1855,6 +1857,8 @@
 		B06ADFD729B9CEEC00E92E5E /* OnboardingSeedPhraseGenerateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingSeedPhraseGenerateView.swift; sourceTree = "<group>"; };
 		B06ADFDA29BAFA4600E92E5E /* SeedPhraseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedPhraseManager.swift; sourceTree = "<group>"; };
 		B06B62DF2B10D20C00042A39 /* ExpressAPIProviderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPIProviderFactory.swift; sourceTree = "<group>"; };
+		B06BB8E42BCD0F6C00C0FBCF /* SingleTokenAlertBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleTokenAlertBuilder.swift; sourceTree = "<group>"; };
+		B06BB8E62BCD139500C0FBCF /* TokenItemSwapState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItemSwapState.swift; sourceTree = "<group>"; };
 		B06C083A2A73E0D400D982BC /* MainHeaderSubtitleProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainHeaderSubtitleProvider.swift; sourceTree = "<group>"; };
 		B06C083C2A73E0E900D982BC /* MainHeaderSubtitleInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainHeaderSubtitleInfo.swift; sourceTree = "<group>"; };
 		B06C08402A73E11000D982BC /* SingleWalletMainHeaderSubtitleProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleWalletMainHeaderSubtitleProvider.swift; sourceTree = "<group>"; };
@@ -4092,6 +4096,7 @@
 			children = (
 				B04EADE92A80D62E009B5768 /* SingleTokenBaseRoutable.swift */,
 				B04EADEB2A80D659009B5768 /* SingleTokenBaseViewModel.swift */,
+				B06BB8E42BCD0F6C00C0FBCF /* SingleTokenAlertBuilder.swift */,
 			);
 			path = SingleTokenBase;
 			sourceTree = "<group>";
@@ -7017,6 +7022,7 @@
 			children = (
 				5D5332B025F9091900D32CA5 /* TokenItem.swift */,
 				EF75A3CE2B06416F0023A60A /* TokenItem+ExpressCurrency.swift */,
+				B06BB8E62BCD139500C0FBCF /* TokenItemSwapState.swift */,
 			);
 			path = TokenItem;
 			sourceTree = "<group>";
@@ -8676,6 +8682,7 @@
 				DA5CD0982A25F4F2008FD876 /* PromotionViewModel.swift in Sources */,
 				B03A9339259877790061FB2D /* WarningsContainer.swift in Sources */,
 				DA1DF04F2BA40D44008310E4 /* HintView.swift in Sources */,
+				B06BB8E72BCD139500C0FBCF /* TokenItemSwapState.swift in Sources */,
 				EF74F50D289BF5AE001034D2 /* Fonts.swift in Sources */,
 				B65CB3FE2A98A93F00C31199 /* UserTokensReorderingAction.swift in Sources */,
 				B67DC1EA2B7C4C48008ACB0E /* BlockchainAccountCreatorStub.swift in Sources */,
@@ -9143,6 +9150,7 @@
 				B668D2582A685DD800D9A12A /* BinaryFloatingPoint+.swift in Sources */,
 				DA60DD7D2B34572300AC1B79 /* QRScannerView.swift in Sources */,
 				DC66BBFC285A389000CDF765 /* PopoverModifier.swift in Sources */,
+				B06BB8E52BCD0F6C00C0FBCF /* SingleTokenAlertBuilder.swift in Sources */,
 				EF0DD7902B026A840099527D /* WalletModel+ExpressWallet.swift in Sources */,
 				EF729B772AF3E95F00D80205 /* ProviderRowView.swift in Sources */,
 				B0B8670326DF5AE1008DAA67 /* ModalSheetPreferenceKey.swift in Sources */,
