@@ -101,8 +101,11 @@ struct SendDestinationTextView: View {
             Group {
                 clearIcon
 
-                if #available(iOS 16, *) {
+                if #available(iOS 16, *), viewModel.allowMultilineText {
                     TextField("", text: .constant("Two\nLines"), axis: .vertical)
+                        .style(inputFieldFont, color: .black)
+                } else {
+                    TextField("", text: .constant("One Line"))
                         .style(inputFieldFont, color: .black)
                 }
             }
@@ -110,7 +113,7 @@ struct SendDestinationTextView: View {
 
             HStack(spacing: 12) {
                 Group {
-                    if #available(iOS 16, *) {
+                    if #available(iOS 16, *), viewModel.allowMultilineText {
                         TextField(viewModel.placeholder, text: $viewModel.input, axis: .vertical)
                             .lineLimit(5, reservesSpace: false)
                     } else {
