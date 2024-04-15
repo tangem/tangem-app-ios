@@ -1,5 +1,4 @@
 {
-  "originHash" : "b4054eb42ba68d5494e329b1b5ada27b86a35abfe2422c9f838f1be5b357085c",
   "pins" : [
     {
       "identity" : "anyasyncsequence",
@@ -182,5 +181,5 @@
       }
     }
   ],
-  "version" : 3
+  "version" : 2
 }
