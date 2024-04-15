@@ -16,6 +16,7 @@ final class SendViewModel: ObservableObject {
 
     @Published var stepAnimation: SendView.StepAnimation = .slideForward
     @Published var step: SendStep
+    @Published var isModal: Bool = false
     @Published var showBackButton = false
     @Published var mainButtonType: SendMainButtonType = .next
     @Published var mainButtonLoading: Bool = false
@@ -287,12 +288,40 @@ final class SendViewModel: ObservableObject {
         screenIdleStartTime = nil
     }
 
+    func tryToDismiss() {
+        alert = AlertBuilder.makeAlert(title: "Dismiss?", message: "Sure?", primaryButton: .default(Text("Yes"), action: { [weak self] in
+            self?.coordinator?.dismiss()
+        }), secondaryButton: .cancel())
+    }
+
     private func bind() {
         Publishers.CombineLatest($updatingFees, sendModel.isSending)
             .map { updatingFees, isSending in
                 updatingFees || isSending
             }
             .assign(to: \.mainButtonLoading, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        Publishers.CombineLatest4($step, sendModel.destinationPublisher, sendModel.amountPublisher, sendModel.isSending)
+            .map { step, destination, amount, isSending in
+                if isSending {
+                    return true
+                }
+
+                switch step {
+                case .destination, .fee, .summary:
+                    return true
+                case .amount:
+                    return amount != nil
+                case .finish:
+                    return false
+                }
+            }
+            .map {
+                print("zzz ismodal", $0)
+                return $0
+            }
+            .assign(to: \.isModal, on: self, ownership: .weak)
             .store(in: &bag)
 
         Publishers.CombineLatest3(currentStepValid, $step, notificationManager.hasNotifications(with: .critical))
