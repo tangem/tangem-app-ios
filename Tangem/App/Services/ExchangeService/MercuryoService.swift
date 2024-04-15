@@ -182,6 +182,7 @@ private extension URLQueryItem {
 }
 
 private extension Blockchain {
+    /// https://api.mercuryo.io/v1.6/lib/currencies
     var mercuryoNetwork: String? {
         switch self {
         case .algorand:
@@ -232,8 +233,45 @@ private extension Blockchain {
             return "TEZOS"
         case .tron:
             return "TRON"
-        default:
-            return nil
+        case .base:
+            return "BASE"
+        case .ethereumPoW,
+             .disChain,
+             .ethereumClassic,
+             .rsk,
+             .binance,
+             .ducatus,
+             .azero,
+             .gnosis,
+             .kava,
+             .kaspa,
+             .ravencoin,
+             .terraV1,
+             .terraV2,
+             .cronos,
+             .telos,
+             .octa,
+             .chia,
+             .decimal,
+             .veChain,
+             .xdc,
+             .shibarium,
+             .aptos,
+             .hedera,
+             .areon,
+             .playa3ullGames,
+             .pulsechain,
+             .aurora,
+             .manta,
+             .zkSync,
+             .moonbeam,
+             .polygonZkEVM,
+             .moonriver,
+             .mantle,
+             .flare,
+             .taraxa:
+            // Did you get a compilation error here? If so, check whether the network is supported at https://api.mercuryo.io/v1.6/lib/currencies
+            return nil // [REDACTED_TODO_COMMENT]
         }
     }
 }
