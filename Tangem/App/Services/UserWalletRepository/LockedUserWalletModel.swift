@@ -103,7 +103,7 @@ class LockedUserWalletModel: UserWalletModel {
 
     func onBackupCreated(_ card: Card) {}
 
-    func addAssociatedCard(_ card: CardDTO, validationMode: ValidationMode) {}
+    func addAssociatedCard(_ cardId: String) {}
 }
 
 extension LockedUserWalletModel: MainHeaderSupplementInfoProvider {
