@@ -55,7 +55,7 @@ struct EnvironmentSetupView: View {
                 .font(.headline)
                 .textCase(.uppercase)
 
-            TextField("Demo card ID", text: viewModel.forcedDemoCardIdValue().asBinding)
+            TextField("Demo card ID", text: $viewModel.forcedDemoCardId)
                 .padding()
                 .border(.gray, width: 1)
 
