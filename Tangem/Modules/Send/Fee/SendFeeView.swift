@@ -45,7 +45,7 @@ struct SendFeeView: View {
                             viewModel.openFeeExplanation()
                             return .handled
                         })
-                        .transition(SendView.Constants.auxiliaryViewTransition)
+                        .transition(SendView.Constants.auxiliaryViewTransition(for: .fee))
                 }
             }
             .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
@@ -53,7 +53,7 @@ struct SendFeeView: View {
             if !viewModel.animatingAuxiliaryViewsOnAppear {
                 ForEach(viewModel.feeLevelsNotificationInputs) { input in
                     NotificationView(input: input)
-                        .transition(SendView.Constants.auxiliaryViewTransition)
+                        .transition(SendView.Constants.auxiliaryViewTransition(for: .fee))
                 }
             }
 
@@ -63,12 +63,12 @@ struct SendFeeView: View {
                 ForEach(viewModel.customFeeModels) { customFeeModel in
                     SendCustomFeeInputField(viewModel: customFeeModel)
                         .onFocusChanged(customFeeModel.onFocusChanged)
-                        .transition(SendView.Constants.auxiliaryViewTransition)
+                        .transition(SendView.Constants.auxiliaryViewTransition(for: .fee))
                 }
 
                 ForEach(viewModel.customFeeNotificationInputs) { input in
                     NotificationView(input: input)
-                        .transition(SendView.Constants.auxiliaryViewTransition)
+                        .transition(SendView.Constants.auxiliaryViewTransition(for: .fee))
                 }
             }
 
