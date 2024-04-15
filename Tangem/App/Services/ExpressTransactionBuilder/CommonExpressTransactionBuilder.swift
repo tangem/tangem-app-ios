@@ -171,7 +171,8 @@ private extension CommonExpressTransactionBuilder {
              .moonriver,
              .mantle,
              .flare,
-             .taraxa:
+             .taraxa,
+             .base:
             throw ExpressTransactionBuilderError.blockchainDonNotSupportedExtraId
         }
     }
