@@ -101,8 +101,11 @@ struct SendDestinationTextView: View {
             Group {
                 clearIcon
 
-                if #available(iOS 16, *) {
+                if #available(iOS 16, *), viewModel.allowMultilineText {
                     TextField("", text: .constant("Two\nLines"), axis: .vertical)
+                        .style(inputFieldFont, color: .black)
+                } else {
+                    TextField("", text: .constant("One Line"))
                         .style(inputFieldFont, color: .black)
                 }
             }
