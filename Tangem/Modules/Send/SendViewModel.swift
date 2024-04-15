@@ -79,6 +79,7 @@ final class SendViewModel: ObservableObject {
     private var feeUpdateSubscription: AnyCancellable? = nil
 
     private var screenIdleStartTime: Date?
+    private var currentPageAnimating: Bool? = nil
     private var didReachSummaryScreen = false
 
     private var currentStepValid: AnyPublisher<Bool, Never> {
@@ -217,7 +218,22 @@ final class SendViewModel: ObservableObject {
         bind()
     }
 
+    func onCurrentPageAppear() {
+        if currentPageAnimating != nil {
+            currentPageAnimating = true
+        }
+    }
+
+    func onCurrentPageDisappear() {
+        currentPageAnimating = false
+    }
+
     func next() {
+        // If we try to open another page mid-animation then the appropriate onAppear of the new page will not get called
+        if currentPageAnimating ?? false {
+            return
+        }
+
         switch mainButtonType {
         case .next:
             guard let nextStep = nextStep(after: step) else {
@@ -443,16 +459,30 @@ final class SendViewModel: ObservableObject {
             return true
         }
 
-        if checkCustomFee, notificationManager.hasNotificationEvent(.customFeeTooLow) {
-            Analytics.log(event: .sendNoticeTransactionDelaysArePossible, params: [
-                .token: walletModel.tokenItem.currencySymbol,
-            ])
+        if checkCustomFee {
+            let events = notificationManager.notificationInputs.compactMap { $0.settings.event as? SendNotificationEvent }
+            for event in events {
+                switch event {
+                case .customFeeTooLow:
+                    Analytics.log(event: .sendNoticeTransactionDelaysArePossible, params: [
+                        .token: walletModel.tokenItem.currencySymbol,
+                    ])
 
-            alert = SendAlertBuilder.makeCustomFeeTooLowAlert { [weak self] in
-                self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: false, updateFee: false)
+                    alert = SendAlertBuilder.makeCustomFeeTooLowAlert { [weak self] in
+                        self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: false, updateFee: false)
+                    }
+
+                    return true
+                case .customFeeTooHigh(let orderOfMagnitude):
+                    alert = SendAlertBuilder.makeCustomFeeTooHighAlert(orderOfMagnitude) { [weak self] in
+                        self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: false, updateFee: false)
+                    }
+
+                    return true
+                default:
+                    break
+                }
             }
-
-            return true
         }
 
         return false
@@ -516,7 +546,10 @@ final class SendViewModel: ObservableObject {
 
         if keyboardVisibilityService.keyboardVisible, !step.opensKeyboardByDefault {
             keyboardVisibilityService.hideKeyboard { [weak self] in
-                self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee, updateFee: updateFee)
+                // Slight delay is needed, otherwise the animation of the keyboard will interfere with the page change
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee, updateFee: updateFee)
+                }
             }
             return
         }
