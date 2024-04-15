@@ -123,10 +123,10 @@ final class EnvironmentSetupViewModel: ObservableObject {
             root: self,
             default: "",
             get: { _ in
-                AppSettings.shared.forcedDemoCardId
+                AppSettings.shared.forcedDemoCardId ?? ""
             },
             set: { root, newValue in
-                AppSettings.shared.forcedDemoCardId = newValue
+                AppSettings.shared.forcedDemoCardId = newValue.isEmpty ? nil : newValue
             }
         )
     }
