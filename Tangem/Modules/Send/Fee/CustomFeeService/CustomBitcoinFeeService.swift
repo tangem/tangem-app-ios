@@ -112,7 +112,7 @@ extension CustomBitcoinFeeService: CustomFeeService {
             fieldSuffix: nil,
             fractionDigits: 0,
             amountAlternativePublisher: .just(output: nil),
-            footer: nil
+            footer: Localization.sendSatoshiPerByteText
         ) { [weak self] decimalValue in
             let intValue: Int?
             if let roundedValue = decimalValue?.rounded() {
