@@ -89,7 +89,8 @@ struct TokenInteractionAvailabilityProvider {
              .moonriver,
              .mantle,
              .flare,
-             .taraxa:
+             .taraxa,
+             .base:
 
             // Checking that we have at least one valid (non-empty) address
             //
