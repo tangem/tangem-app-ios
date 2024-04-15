@@ -51,7 +51,7 @@ struct EnvironmentSetupView: View {
 
     private var demoCardIdControls: some View {
         VStack(spacing: 10) {
-            Text("Demo card ID")
+            Text("Demo card override")
                 .font(.headline)
                 .textCase(.uppercase)
 
