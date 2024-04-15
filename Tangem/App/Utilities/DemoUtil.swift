@@ -11,11 +11,7 @@ import BlockchainSdk
 
 struct DemoUtil {
     func isDemoCard(cardId: String) -> Bool {
-        if cardId == AppSettings.shared.forcedDemoCardId {
-            return true
-        }
-
-        return demoCardIds.contains(cardId)
+        demoCardIds.contains(cardId)
     }
 
     func getDemoBlockchains(isTestnet: Bool) -> [String] {
@@ -369,7 +365,6 @@ extension DemoUtil {
             "AC01000000044492",
             "AC01000000044260",
             "AC01000000044278",
-            "AC19000000000064",
 
             // Note BTC
             "AB01000000049864",
@@ -421,7 +416,16 @@ extension DemoUtil {
             "AF04000000012022",
             "AF04000000012030",
             "FB04000000000152",
-            "AF19000000000038",
+            "AF15000000257889",
+            "AF15000000257897",
+            "AF15000000637809",
+            "AF15000000640282",
+            "AF15000001187424",
+            "AF15000001187408",
+            "AF15000001187416",
+            "AF15000001195781",
+            "AF15000001195773",
+            "AF15000001195799",
         ]
     }
 }
