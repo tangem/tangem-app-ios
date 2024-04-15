@@ -125,7 +125,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
         $forcedDemoCardId
             .removeDuplicates()
             .sink { newValue in
-                AppSettings.shared.forcedDemoCardId = newValue.isEmpty ? nil : newValue
+                AppSettings.shared.forcedDemoCardId = newValue.nilIfEmpty
             }
             .store(in: &bag)
     }
