@@ -25,7 +25,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private lazy var _userTokensManager = CommonUserTokensManager(
         userWalletId: userWalletId,
-        shouldLoadSwapAvailability: config.hasFeature(.swapping),
+        shouldLoadSwapAvailability: config.isFeatureVisible(.swapping),
         userTokenListManager: userTokenListManager,
         walletModelsManager: walletModelsManager,
         derivationStyle: config.derivationStyle,
