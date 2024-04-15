@@ -245,10 +245,13 @@ final class SendViewModel: ObservableObject {
 
             let openingSummary = (nextStep == .summary)
             let stepAnimation: SendView.StepAnimation = openingSummary ? .moveAndFade : .slideForward
-            let updateFee = openingSummary && step.updateFeeOnLeave
-            openStep(nextStep, stepAnimation: stepAnimation, updateFee: updateFee)
+
+            let feeUpdatePolicy = FeeUpdatePolicy.fromTransition(currentStep: step, nextStep: nextStep)
+            openStep(nextStep, stepAnimation: stepAnimation, feeUpdatePolicy: feeUpdatePolicy)
         case .continue:
-            openStep(.summary, stepAnimation: .moveAndFade, updateFee: step.updateFeeOnLeave)
+            let nextStep = SendStep.summary
+            let feeUpdatePolicy = FeeUpdatePolicy.fromTransition(currentStep: step, nextStep: nextStep)
+            openStep(nextStep, stepAnimation: .moveAndFade, feeUpdatePolicy: feeUpdatePolicy)
         case .send:
             send()
         case .close:
@@ -262,7 +265,7 @@ final class SendViewModel: ObservableObject {
             return
         }
 
-        openStep(previousStep, stepAnimation: .slideBackward, updateFee: false)
+        openStep(previousStep, stepAnimation: .slideBackward, feeUpdatePolicy: nil)
     }
 
     func scanQRCode() {
@@ -453,7 +456,7 @@ final class SendViewModel: ObservableObject {
                 sendModel.includeFeeIntoAmount()
                 fiatCryptoAdapter.setCrypto(sendModel.userInputAmountValue?.value)
 
-                openStep(step, stepAnimation: stepAnimation, updateFee: false)
+                openStep(step, stepAnimation: stepAnimation, feeUpdatePolicy: nil)
             }
 
             return true
@@ -469,13 +472,13 @@ final class SendViewModel: ObservableObject {
                     ])
 
                     alert = SendAlertBuilder.makeCustomFeeTooLowAlert { [weak self] in
-                        self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: false, updateFee: false)
+                        self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: false, feeUpdatePolicy: nil)
                     }
 
                     return true
                 case .customFeeTooHigh(let orderOfMagnitude):
                     alert = SendAlertBuilder.makeCustomFeeTooHighAlert(orderOfMagnitude) { [weak self] in
-                        self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: false, updateFee: false)
+                        self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: false, feeUpdatePolicy: nil)
                     }
 
                     return true
@@ -525,7 +528,7 @@ final class SendViewModel: ObservableObject {
                     self?.updateFee(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee)
                 }
             } receiveValue: { [weak self] result in
-                self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee, updateFee: false)
+                self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee, feeUpdatePolicy: nil)
             }
     }
 
@@ -534,9 +537,9 @@ final class SendViewModel: ObservableObject {
         updatingFees = false
     }
 
-    private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation, checkCustomFee: Bool = true, updateFee: Bool) {
-        if updateFee {
-            self.updateFee(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee)
+    private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation, checkCustomFee: Bool = true, feeUpdatePolicy: FeeUpdatePolicy?) {
+        if feeUpdatePolicy == .updateBeforeChangingStep {
+            updateFee(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee)
             keyboardVisibilityService.hideKeyboard {
                 // No matter how long it takes to get the fees when we try to open the step again we will check if the keyboard is open
                 // If it's in the process of being hidden we will wait for it to finish
@@ -548,7 +551,7 @@ final class SendViewModel: ObservableObject {
             keyboardVisibilityService.hideKeyboard { [weak self] in
                 // Slight delay is needed, otherwise the animation of the keyboard will interfere with the page change
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee, updateFee: updateFee)
+                    self?.openStep(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee, feeUpdatePolicy: feeUpdatePolicy)
                 }
             }
             return
@@ -572,6 +575,11 @@ final class SendViewModel: ObservableObject {
         DispatchQueue.main.async {
             self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
             self.step = step
+
+            if feeUpdatePolicy == .updateAfterChangingStep {
+                self.feeUpdateSubscription = self.sendModel.updateFees()
+                    .sink { _ in } receiveValue: { _ in }
+            }
         }
     }
 
@@ -582,7 +590,7 @@ final class SendViewModel: ObservableObject {
         }
 
         sendFinishViewModel.router = coordinator
-        openStep(.finish(model: sendFinishViewModel), stepAnimation: .moveAndFade, updateFee: false)
+        openStep(.finish(model: sendFinishViewModel), stepAnimation: .moveAndFade, feeUpdatePolicy: nil)
     }
 
     private func parseQRCode(_ code: String) {
@@ -657,7 +665,8 @@ extension SendViewModel: SendSummaryRoutable {
             auxiliaryViewAnimatable.setAnimatingAuxiliaryViewsOnAppear()
         }
 
-        openStep(step, stepAnimation: .moveAndFade, updateFee: false)
+        let feeUpdatePolicy = FeeUpdatePolicy.fromTransition(currentStep: self.step, nextStep: step)
+        openStep(step, stepAnimation: .moveAndFade, feeUpdatePolicy: feeUpdatePolicy)
     }
 
     func send() {
@@ -749,12 +758,41 @@ extension SendViewModel: NotificationTapDelegate {
 
 private extension SendStep {
     var updateFeeOnLeave: Bool {
-        let updateFee: Bool
         switch self {
         case .destination, .amount:
             return true
         case .fee, .summary, .finish:
             return false
+        }
+    }
+
+    var updateFeeOnOpen: Bool {
+        switch self {
+        case .fee:
+            return true
+        case .destination, .amount, .summary, .finish:
+            return false
+        }
+    }
+}
+
+// MARK: - FeeUpdatePolicy
+
+private extension SendViewModel {
+    enum FeeUpdatePolicy {
+        case updateBeforeChangingStep
+        case updateAfterChangingStep
+    }
+}
+
+extension SendViewModel.FeeUpdatePolicy {
+    static func fromTransition(currentStep: SendStep, nextStep: SendStep) -> SendViewModel.FeeUpdatePolicy? {
+        if nextStep == .summary, currentStep.updateFeeOnLeave {
+            return .updateBeforeChangingStep
+        } else if nextStep.updateFeeOnOpen {
+            return .updateAfterChangingStep
+        } else {
+            return nil
         }
     }
 }
