@@ -162,8 +162,8 @@ final class SendViewModel: ObservableObject {
             balance: Localization.sendWalletBalanceFormat(walletModel.balance, walletModel.fiatBalance),
             blockchain: walletModel.blockchainNetwork.blockchain,
             currencyId: walletModel.tokenItem.currencyId,
-            feeCurrencySymbol: walletModel.tokenItem.blockchain.currencySymbol,
-            feeCurrencyId: walletModel.tokenItem.blockchain.currencyId,
+            feeCurrencySymbol: walletModel.feeTokenItem.currencySymbol,
+            feeCurrencyId: walletModel.feeTokenItem.currencyId,
             isFeeApproximate: walletModel.tokenItem.blockchain.isFeeApproximate(for: walletModel.amountType),
             tokenIconInfo: tokenIconInfo,
             cryptoIconURL: cryptoIconURL,
@@ -442,15 +442,15 @@ final class SendViewModel: ObservableObject {
     }
 
     private func showSummaryStepAlertIfNeeded(_ step: SendStep, stepAnimation: SendView.StepAnimation, checkCustomFee: Bool) -> Bool {
-        if sendModel.totalExceedsBalance {
+        if sendModel.shouldSubtractFee {
             Analytics.log(event: .sendNoticeNotEnoughFee, params: [
                 .token: walletModel.tokenItem.currencySymbol,
                 .blockchain: walletModel.tokenItem.blockchain.displayName,
             ])
 
-            alert = SendAlertBuilder.makeSubtractFeeFromAmountAlert(sendModel.feeText) { [weak self] in
+            alert = SendAlertBuilder.makeSubtractFeeFromMaxAmountAlert { [weak self] in
                 guard let self else { return }
-                sendModel.includeFeeIntoAmount()
+                sendModel.subtractFeeFromMaxAmount()
                 fiatCryptoAdapter.setCrypto(sendModel.userInputAmountValue?.value)
 
                 openStep(step, stepAnimation: stepAnimation, updateFee: false)
