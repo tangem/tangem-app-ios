@@ -442,7 +442,7 @@ final class SendViewModel: ObservableObject {
     }
 
     private func showSummaryStepAlertIfNeeded(_ step: SendStep, stepAnimation: SendView.StepAnimation, checkCustomFee: Bool) -> Bool {
-        if sendModel.totalExceedsBalance {
+        if sendModel.shouldSubtractFee {
             Analytics.log(event: .sendNoticeNotEnoughFee, params: [
                 .token: walletModel.tokenItem.currencySymbol,
                 .blockchain: walletModel.tokenItem.blockchain.displayName,
