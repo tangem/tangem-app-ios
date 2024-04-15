@@ -699,6 +699,18 @@
                     "exchangeable": false
                 }
             ]
+        },
+        {
+            "id": "base-ethereum",
+            "symbol": "ETH",
+            "name": "Base",
+            "networks":
+            [
+                {
+                    "networkId": "base/test",
+                    "exchangeable": false
+                }
+            ]
         }
     ],
     "total": 0,
