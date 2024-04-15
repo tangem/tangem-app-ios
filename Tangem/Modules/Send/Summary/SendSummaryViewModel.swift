@@ -56,8 +56,8 @@ class SendSummaryViewModel: ObservableObject {
     @Published var animatingAmountOnAppear = false
     @Published var animatingFeeOnAppear = false
     @Published var showHint = false
-    @Published var transactionDescription: String?
     @Published var showNotifications = true
+    @Published var transactionDescription: String?
     @Published var showTransactionDescription = true
 
     var didProperlyDisappear: Bool = true
@@ -94,10 +94,6 @@ class SendSummaryViewModel: ObservableObject {
     }
 
     func setupAnimations(previousStep: SendStep) {
-        showHint = false
-        showNotifications = false
-        showTransactionDescription = false
-
         switch previousStep {
         case .destination:
             animatingAmountOnAppear = true
@@ -111,6 +107,10 @@ class SendSummaryViewModel: ObservableObject {
         default:
             break
         }
+
+        showHint = false
+        showNotifications = false
+        showTransactionDescription = false
     }
 
     func onAppear() {
