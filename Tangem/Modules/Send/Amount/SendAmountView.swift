@@ -41,7 +41,7 @@ struct SendAmountView: View {
                         .disabled(viewModel.userInputDisabled)
                         .frame(width: 108)
                 }
-                .transition(SendView.Constants.auxiliaryViewTransition)
+                .transition(SendView.Constants.auxiliaryViewTransition(for: .amount))
             }
         }
         .onAppear(perform: viewModel.onAppear)
