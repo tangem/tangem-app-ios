@@ -34,7 +34,7 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
 
         var notSupportedTokens = [TokenItem]()
         let filteredItemsToRequest = items.filter {
-            if $0.id == nil {
+            if $0.isCustom {
                 notSupportedTokens.append($0)
                 return false
             }
@@ -129,24 +129,5 @@ private extension CommonSwapAvailabilityManager {
     struct RequestItem: Hashable {
         let blockchains: Set<Blockchain>
         let ids: [String]
-    }
-}
-
-enum TokenItemSwapState: Equatable {
-    case available
-    case unavailable
-    case loading
-    case failedToLoadInfo(Error)
-    case notLoaded
-
-    static func == (lhs: TokenItemSwapState, rhs: TokenItemSwapState) -> Bool {
-        switch (lhs, rhs) {
-        case (.available, .available): return true
-        case (.unavailable, .unavailable): return true
-        case (.loading, .loading): return true
-        case (.notLoaded, .notLoaded): return true
-        case (.failedToLoadInfo, .failedToLoadInfo): return true
-        default: return false
-        }
     }
 }
