@@ -11,7 +11,7 @@ import BlockchainSdk
 
 struct SendSummarySectionViewModelFactory {
     private let feeCurrencySymbol: String
-    private let feeCurrencyId: String
+    private let feeCurrencyId: String?
     private let isFeeApproximate: Bool
     private let currencyId: String?
     private let tokenIconInfo: TokenIconInfo
@@ -23,7 +23,7 @@ struct SendSummarySectionViewModelFactory {
         )
     }
 
-    init(feeCurrencySymbol: String, feeCurrencyId: String, isFeeApproximate: Bool, currencyId: String?, tokenIconInfo: TokenIconInfo) {
+    init(feeCurrencySymbol: String, feeCurrencyId: String?, isFeeApproximate: Bool, currencyId: String?, tokenIconInfo: TokenIconInfo) {
         self.feeCurrencySymbol = feeCurrencySymbol
         self.feeCurrencyId = feeCurrencyId
         self.isFeeApproximate = isFeeApproximate
