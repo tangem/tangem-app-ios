@@ -102,7 +102,6 @@ struct SendSummaryView: View {
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         .alert(item: $viewModel.alert) { $0.alert }
         .onAppear(perform: viewModel.onAppear)
-        .interactiveDismissDisabled(viewModel.isSending)
     }
 
     private func amountSectionContent(data: SendAmountSummaryViewData) -> some View {
