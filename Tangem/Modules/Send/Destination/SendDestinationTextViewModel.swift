@@ -11,6 +11,7 @@ import SwiftUI
 import Combine
 
 class SendDestinationTextViewModel: ObservableObject, Identifiable {
+    let allowMultilineText: Bool
     let name: String
     let showAddressIcon: Bool
     let description: String
@@ -40,6 +41,7 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
         didEnterDestination: @escaping (String) -> Void,
         didPasteDestination: @escaping (String) -> Void
     ) {
+        allowMultilineText = style.allowMultilineText
         name = style.name
         showAddressIcon = style.showAddressIcon
         description = style.description
@@ -152,6 +154,15 @@ extension SendDestinationTextViewModel {
 }
 
 private extension SendDestinationTextViewModel.Style {
+    var allowMultilineText: Bool {
+        switch self {
+        case .address:
+            return true
+        case .additionalField:
+            return false
+        }
+    }
+
     var name: String {
         switch self {
         case .address:
