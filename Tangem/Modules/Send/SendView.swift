@@ -38,6 +38,7 @@ struct SendView: View {
         }
         .background(backgroundColor.ignoresSafeArea())
         .animation(Constants.defaultAnimation, value: viewModel.step)
+        .interactiveDismissDisabled(!viewModel.canDismiss)
     }
 
     private var pageContentTransition: AnyTransition {
@@ -73,19 +74,24 @@ struct SendView: View {
                 .lineLimit(1)
                 .layoutPriority(2)
 
-                if viewModel.showQRCodeButton {
-                    Button(action: viewModel.scanQRCode) {
-                        Assets.qrCode.image
-                            .renderingMode(.template)
-                            .foregroundColor(Colors.Icon.primary1)
-                            .frame(maxWidth: .infinity, alignment: .trailing)
+                HStack(spacing: 12) {
+                    if viewModel.showQRCodeButton {
+                        Button(action: viewModel.scanQRCode) {
+                            Assets.qrCode.image
+                                .renderingMode(.template)
+                                .foregroundColor(Colors.Icon.primary1)
+                                .frame(maxWidth: .infinity, alignment: .trailing)
+                        }
+                        .disabled(viewModel.updatingFees)
+                    } else {
+                        Spacer()
+                            .frame(maxHeight: 1)
                     }
-                    .disabled(viewModel.updatingFees)
-                    .layoutPriority(1)
-                } else {
-                    Spacer()
-                        .layoutPriority(1)
+
+                    Button(Localization.commonClose, action: viewModel.dismiss)
+                        .style(Fonts.Regular.body, color: Colors.Text.primary1)
                 }
+                .layoutPriority(1)
             }
             .padding(.horizontal, 16)
             .padding(.top, 12)
