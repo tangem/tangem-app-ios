@@ -55,8 +55,6 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     private let minimizedAppTimer = MinimizedAppTimer(interval: 5 * 60)
 
-    private var sdk: TangemSdk?
-
     private var bag: Set<AnyCancellable> = .init()
 
     init() {
@@ -83,7 +81,26 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func scanPublisher() -> AnyPublisher<UserWalletRepositoryResult?, Never> {
-        scanInternal()
+        var config = TangemSdkConfigFactory().makeDefaultConfig()
+
+        if AppSettings.shared.saveUserWallets {
+            config.accessCodeRequestPolicy = .alwaysWithBiometrics
+        }
+
+        let scannerParameters = CardScannerParameters(
+            shouldAskForAccessCodes: false,
+            performDerivations: true,
+            sessionFilter: nil
+        )
+
+        let scanner = CommonCardScanner(
+            tangemSdk: TangemSdkDefaultFactory().makeTangemSdk(with: config),
+            parameters: scannerParameters
+        )
+
+        sendEvent(.scan(isScanning: true))
+
+        return scanner.scanCardPublisher()
             .eraseError()
             .flatMap { [weak self] response -> AnyPublisher<UserWalletRepositoryResult?, Error> in
                 guard let self else {
@@ -142,22 +159,9 @@ class CommonUserWalletRepository: UserWalletRepository {
                     return Just(nil)
                 }
             }
-            .eraseToAnyPublisher()
-    }
-
-    private func scanInternal() -> AnyPublisher<AppScanTaskResponse, TangemSdkError> {
-        var config = TangemSdkConfigFactory().makeDefaultConfig()
-
-        if AppSettings.shared.saveUserWallets {
-            config.accessCodeRequestPolicy = .alwaysWithBiometrics
-        }
-
-        let sdk = TangemSdkDefaultFactory().makeTangemSdk(with: config)
-        self.sdk = sdk
-        sendEvent(.scan(isScanning: true))
-
-        return sdk
-            .startSessionPublisher(with: AppScanTask())
+            .handleEvents(receiveCompletion: { _ in
+                withExtendedLifetime(scanner) {}
+            })
             .eraseToAnyPublisher()
     }
 
