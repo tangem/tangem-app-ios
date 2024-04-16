@@ -71,8 +71,6 @@ struct SendSummaryView: View {
                     }
                 }
 
-                FixedSpacer(height: 8)
-
                 if viewModel.showHint {
                     HintView(
                         text: Localization.sendSummaryTapHint,
@@ -80,23 +78,25 @@ struct SendSummaryView: View {
                         textColor: Colors.Text.secondary,
                         backgroundColor: Colors.Button.secondary
                     )
+                    .padding(.top, 8)
                     .transition(SendView.Constants.hintViewTransition)
                 }
 
-                ForEach(viewModel.notificationInputs) { input in
-                    NotificationView(input: input)
-                        .transition(SendView.Constants.auxiliaryViewTransition)
+                if viewModel.showNotifications {
+                    ForEach(viewModel.notificationInputs) { input in
+                        NotificationView(input: input)
+                            .padding(.top, spacing)
+                    }
                 }
             }
 
-            if let transactionDescription = viewModel.transactionDescription,
-               viewModel.showTransactionDescription {
+            if let transactionDescription = viewModel.transactionDescription {
                 Text(transactionDescription)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 16)
-                    .transition(.opacity)
                     .padding(.bottom, bottomSpacing + 14)
+                    .visible(viewModel.showTransactionDescription)
             }
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
