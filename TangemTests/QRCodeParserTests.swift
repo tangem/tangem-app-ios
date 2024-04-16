@@ -68,11 +68,42 @@ final class QRCodeParserTests: XCTestCase {
             parser: parser
         )
 
+        // '.' decimal separator
         testPositiveCase(
             code: "bc1pw83rs5s75na2g7ec8yqgekr3ae209ye7ck2ftakjnh8tv3xzw8ls6wgt62?someArgument=someValue&amount=1234.56789",
             destination: "bc1pw83rs5s75na2g7ec8yqgekr3ae209ye7ck2ftakjnh8tv3xzw8ls6wgt62",
             amount: Amount(with: blockchain, type: .coin, value: try XCTUnwrap(Decimal(stringValue: "1234.56789"))),
             amountText: "1234.56789",
+            memo: nil,
+            parser: parser
+        )
+
+        // ',' decimal separator
+        testPositiveCase(
+            code: "bc1pw83rs5s75na2g7ec8yqgekr3ae209ye7ck2ftakjnh8tv3xzw8ls6wgt62?someArgument=someValue&amount=1234,56789",
+            destination: "bc1pw83rs5s75na2g7ec8yqgekr3ae209ye7ck2ftakjnh8tv3xzw8ls6wgt62",
+            amount: Amount(with: blockchain, type: .coin, value: try XCTUnwrap(Decimal(stringValue: "1234.56789"))),
+            amountText: "1234.56789",
+            memo: nil,
+            parser: parser
+        )
+
+        // We don't support mixed decimal separators and digit group separators like '1,234,567.89' or '1.234.567,89'
+        testPositiveCase(
+            code: "bc1pw83rs5s75na2g7ec8yqgekr3ae209ye7ck2ftakjnh8tv3xzw8ls6wgt62?someArgument=someValue&amount=1.234,56789",
+            destination: "bc1pw83rs5s75na2g7ec8yqgekr3ae209ye7ck2ftakjnh8tv3xzw8ls6wgt62",
+            amount: nil,
+            amountText: nil,
+            memo: nil,
+            parser: parser
+        )
+
+        // We don't support mixed decimal separators and digit group separators like '1,234,567.89' or '1.234.567,89'
+        testPositiveCase(
+            code: "bc1pw83rs5s75na2g7ec8yqgekr3ae209ye7ck2ftakjnh8tv3xzw8ls6wgt62?someArgument=someValue&amount=1,234.56789",
+            destination: "bc1pw83rs5s75na2g7ec8yqgekr3ae209ye7ck2ftakjnh8tv3xzw8ls6wgt62",
+            amount: nil,
+            amountText: nil,
             memo: nil,
             parser: parser
         )
@@ -193,6 +224,7 @@ final class QRCodeParserTests: XCTestCase {
             parser: parser
         )
 
+        // '.' decimal separator
         testPositiveCase(
             code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&value=1.88e10",
             destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
@@ -206,6 +238,21 @@ final class QRCodeParserTests: XCTestCase {
             parser: parser
         )
 
+        // ',' decimal separator
+        testPositiveCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&value=1,88e10",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: Amount(
+                with: blockchain,
+                type: .coin,
+                value: try XCTUnwrap(Decimal(stringValue: "0.0000000188")) //  = 1.88 * 10^10 / 10^18, 18 is the number of decimals for Ethereum
+            ),
+            amountText: "0.0000000188",
+            memo: nil,
+            parser: parser
+        )
+
+        // '.' decimal separator
         testPositiveCase(
             code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&value=1.68E11",
             destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
@@ -215,6 +262,40 @@ final class QRCodeParserTests: XCTestCase {
                 value: try XCTUnwrap(Decimal(stringValue: "0.000000168")) //  = 1.68 * 10^11 / 10^18, 18 is the number of decimals for Ethereum
             ),
             amountText: "0.000000168",
+            memo: nil,
+            parser: parser
+        )
+
+        // ',' decimal separator
+        testPositiveCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&value=1,68E11",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: Amount(
+                with: blockchain,
+                type: .coin,
+                value: try XCTUnwrap(Decimal(stringValue: "0.000000168")) //  = 1.68 * 10^11 / 10^18, 18 is the number of decimals for Ethereum
+            ),
+            amountText: "0.000000168",
+            memo: nil,
+            parser: parser
+        )
+
+        // We don't support mixed decimal separators and digit group separators like '1,234,567.89' or '1.234.567,89'
+        testPositiveCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&value=1.222,91E11",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: nil,
+            amountText: nil,
+            memo: nil,
+            parser: parser
+        )
+
+        // We don't support mixed decimal separators and digit group separators like '1,234,567.89' or '1.234.567,89'
+        testPositiveCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&value=1,222.91E11",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: nil,
+            amountText: nil,
             memo: nil,
             parser: parser
         )
@@ -354,6 +435,7 @@ final class QRCodeParserTests: XCTestCase {
             parser: parser
         )
 
+        // '.' decimal separator
         testPositiveCase(
             code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&value=1.88e10",
             destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
@@ -367,6 +449,21 @@ final class QRCodeParserTests: XCTestCase {
             parser: parser
         )
 
+        // ',' decimal separator
+        testPositiveCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&value=1,88e10",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: Amount(
+                with: blockchain,
+                type: .token(value: exampleToken),
+                value: try XCTUnwrap(Decimal(stringValue: "1880")) //  = 1.88 * 10^10 / 10^7, 7 is the number of decimals for `exampleToken`
+            ),
+            amountText: "1880",
+            memo: nil,
+            parser: parser
+        )
+
+        // '.' decimal separator
         testPositiveCase(
             code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&value=1.68E11",
             destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
@@ -376,6 +473,40 @@ final class QRCodeParserTests: XCTestCase {
                 value: try XCTUnwrap(Decimal(stringValue: "16800")) //  = 1.68 * 10^11 / 10^7, 7 is the number of decimals for `exampleToken`
             ),
             amountText: "16800",
+            memo: nil,
+            parser: parser
+        )
+
+        // ',' decimal separator
+        testPositiveCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&value=1,68E11",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: Amount(
+                with: blockchain,
+                type: .token(value: exampleToken),
+                value: try XCTUnwrap(Decimal(stringValue: "16800")) //  = 1.68 * 10^11 / 10^7, 7 is the number of decimals for `exampleToken`
+            ),
+            amountText: "16800",
+            memo: nil,
+            parser: parser
+        )
+
+        // We don't support mixed decimal separators and digit group separators like '1,234,567.89' or '1.234.567,89'
+        testPositiveCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&value=1.222,91E11",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: nil,
+            amountText: nil,
+            memo: nil,
+            parser: parser
+        )
+
+        // We don't support mixed decimal separators and digit group separators like '1,234,567.89' or '1.234.567,89'
+        testPositiveCase(
+            code: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb?someArgument=someValue&value=1,222.91E11",
+            destination: "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+            amount: nil,
+            amountText: nil,
             memo: nil,
             parser: parser
         )
