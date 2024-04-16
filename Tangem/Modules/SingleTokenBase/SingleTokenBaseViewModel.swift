@@ -304,7 +304,6 @@ extension SingleTokenBaseViewModel {
     }
 
     private func isButtonDisabled(with type: TokenActionType) -> Bool {
-        let isBlockchainUnreachable = walletModel.state.isBlockchainUnreachable
         switch type {
         case .buy:
             return !exchangeUtility.buyAvailable
@@ -315,7 +314,7 @@ extension SingleTokenBaseViewModel {
         case .exchange:
             return isSwapDisabled()
         case .sell:
-            return isBlockchainUnreachable || !exchangeUtility.sellAvailable
+            return sendIsDisabled() || !exchangeUtility.sellAvailable
         case .copyAddress, .hide:
             return true
         }
@@ -375,7 +374,7 @@ extension SingleTokenBaseViewModel {
         }
 
         if !exchangeUtility.buyAvailable {
-            alert = .init(title: Localization.commonWarning, message: Localization.tokenButtonUnavailabilityReasonBuyUnavailable(walletModel.tokenItem.name))
+            alert = SingleTokenAlertBuilder().buyUnavailableAlert(for: walletModel.tokenItem)
             return
         }
 
@@ -422,6 +421,17 @@ extension SingleTokenBaseViewModel {
     func openSell() {
         if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
+            return
+        }
+
+        let alertBuilder = SingleTokenAlertBuilder()
+        if !exchangeUtility.sellAvailable {
+            alert = alertBuilder.sellUnavailableAlert(for: walletModel.tokenItem)
+            return
+        }
+
+        if let sendAlert = alertBuilder.sendAlert(for: walletModel.sendingRestrictions) {
+            alert = sendAlert
             return
         }
 
