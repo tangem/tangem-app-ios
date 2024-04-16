@@ -37,4 +37,5 @@ enum StorageType: String {
     case mainPromotionDismissed = "main_promotion_dismissed"
     case tokenPromotionDismissed = "token_promotion_dismissed"
     case userDidTapSendScreenSummary = "user_did_tap_send_screen_summary"
+    case forcedDemoCardId = "forced_demo_card_id"
 }
