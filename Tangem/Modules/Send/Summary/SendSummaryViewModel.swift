@@ -56,8 +56,11 @@ class SendSummaryViewModel: ObservableObject {
     @Published var animatingAmountOnAppear = false
     @Published var animatingFeeOnAppear = false
     @Published var showHint = false
+    @Published var showNotifications = true
     @Published var transactionDescription: String?
     @Published var showTransactionDescription = true
+
+    var didProperlyDisappear: Bool = true
 
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
 
@@ -104,6 +107,10 @@ class SendSummaryViewModel: ObservableObject {
         default:
             break
         }
+
+        showHint = false
+        showNotifications = false
+        showTransactionDescription = false
     }
 
     func onAppear() {
@@ -111,22 +118,17 @@ class SendSummaryViewModel: ObservableObject {
             self.animatingDestinationOnAppear = false
             self.animatingAmountOnAppear = false
             self.animatingFeeOnAppear = false
+            self.showNotifications = !self.notificationInputs.isEmpty
+            self.showTransactionDescription = self.transactionDescription != nil
         }
 
         Analytics.log(.sendConfirmScreenOpened)
 
         // For the sake of simplicity we're assuming that notifications aren't going to be created after the screen has been displayed
-        showHint = false
         if notificationInputs.isEmpty, !AppSettings.shared.userDidTapSendScreenSummary {
             withAnimation(SendView.Constants.defaultAnimation.delay(SendView.Constants.animationDuration * 2)) {
                 self.showHint = true
             }
-        }
-
-        // Show it with a delay, otherwise it will clash with the keyboard
-        showTransactionDescription = false
-        withAnimation(SendView.Constants.defaultAnimation.delay(SendView.Constants.animationDuration * 2)) {
-            self.showTransactionDescription = true
         }
     }
 
@@ -172,8 +174,8 @@ class SendSummaryViewModel: ObservableObject {
                 $0.compactMapValues { $0.value }
             }
 
-        Publishers.CombineLatest(feeValues, input.selectedFeeOptionPublisher)
-            .sink { [weak self] feeValues, selectedFeeOption in
+        Publishers.CombineLatest3(feeValues, input.feeValuePublisher, input.selectedFeeOptionPublisher)
+            .sink { [weak self] feeValues, selectedFeeValue, selectedFeeOption in
                 guard let self else { return }
 
                 var selectedFeeSummaryViewModel: SendFeeSummaryViewModel?
@@ -182,7 +184,7 @@ class SendSummaryViewModel: ObservableObject {
                 for (feeOption, feeValue) in feeValues {
                     if feeOption == selectedFeeOption {
                         selectedFeeSummaryViewModel = sectionViewModelFactory.makeFeeViewData(
-                            from: feeValue,
+                            from: selectedFeeValue,
                             feeOption: feeOption,
                             animateTitleOnAppear: true
                         )
@@ -223,14 +225,15 @@ class SendSummaryViewModel: ObservableObject {
         guard
             let amount,
             let fee,
-            let amountCurrencyId = walletInfo.currencyId
+            let amountCurrencyId = walletInfo.currencyId,
+            let feeCurrencyId = walletInfo.feeCurrencyId
         else {
             return nil
         }
 
         let converter = BalanceConverter()
         let amountInFiat = converter.convertToFiat(value: amount.value, from: amountCurrencyId)
-        let feeInFiat = converter.convertToFiat(value: fee.amount.value, from: walletInfo.feeCurrencyId)
+        let feeInFiat = converter.convertToFiat(value: fee.amount.value, from: feeCurrencyId)
 
         let totalInFiat: Decimal?
         if let amountInFiat, let feeInFiat {
