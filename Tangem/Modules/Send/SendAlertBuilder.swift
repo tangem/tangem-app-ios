@@ -20,11 +20,11 @@ enum SendAlertBuilder {
         )
     }
 
-    static func makeSubtractFeeFromAmountAlert(_ fee: String, subtractAction: @escaping () -> Void) -> AlertBinder {
+    static func makeSubtractFeeFromMaxAmountAlert(subtractAction: @escaping () -> Void) -> AlertBinder {
         let subtractButton = Alert.Button.default(Text(Localization.sendAlertFeeCoverageSubractText), action: subtractAction)
         return AlertBuilder.makeAlert(
             title: "",
-            message: Localization.sendAlertFeeCoverageTitle(fee),
+            message: Localization.sendAlertFeeCoverageTitle,
             primaryButton: subtractButton,
             secondaryButton: .cancel()
         )
@@ -35,6 +35,16 @@ enum SendAlertBuilder {
         return AlertBuilder.makeAlert(
             title: "",
             message: Localization.sendAlertFeeTooLowText,
+            primaryButton: continueButton,
+            secondaryButton: .cancel()
+        )
+    }
+
+    static func makeCustomFeeTooHighAlert(_ orderOfMagnitude: Int, continueAction: @escaping () -> Void) -> AlertBinder {
+        let continueButton = Alert.Button.default(Text(Localization.commonContinue), action: continueAction)
+        return AlertBuilder.makeAlert(
+            title: "",
+            message: Localization.sendAlertFeeTooHighText(orderOfMagnitude),
             primaryButton: continueButton,
             secondaryButton: .cancel()
         )
