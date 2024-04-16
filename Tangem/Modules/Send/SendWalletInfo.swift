@@ -17,7 +17,7 @@ struct SendWalletInfo {
     let blockchain: Blockchain
     let currencyId: String?
     let feeCurrencySymbol: String
-    let feeCurrencyId: String
+    let feeCurrencyId: String?
     let isFeeApproximate: Bool
     let tokenIconInfo: TokenIconInfo
     let cryptoIconURL: URL?
