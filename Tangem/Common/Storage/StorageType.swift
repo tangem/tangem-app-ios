@@ -39,4 +39,5 @@ enum StorageType: String {
     case userDidTapSendScreenSummary = "user_did_tap_send_screen_summary"
     case pendingBackups = "pending_backups"
     case pendingBackupsCurrentID = "pending_backups_current_id"
+    case forcedDemoCardId = "forced_demo_card_id"
 }
