@@ -83,7 +83,9 @@ final class QRCodeParserTests: XCTestCase {
             code: "bc1pw83rs5s75na2g7ec8yqgekr3ae209ye7ck2ftakjnh8tv3xzw8ls6wgt62?someArgument=someValue&amount=1234,56789",
             destination: "bc1pw83rs5s75na2g7ec8yqgekr3ae209ye7ck2ftakjnh8tv3xzw8ls6wgt62",
             amount: Amount(with: blockchain, type: .coin, value: try XCTUnwrap(Decimal(stringValue: "1234.56789"))),
-            amountText: "1234.56789",
+            // Legacy send (uses `amountText`) works with both '.' and ',' decimal separators without issues,
+            // so no additional normalization is needed for the `amountText` string
+            amountText: "1234,56789",
             memo: nil,
             parser: parser
         )
