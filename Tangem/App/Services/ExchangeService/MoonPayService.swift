@@ -377,6 +377,8 @@ private extension Blockchain {
         case .flare: return nil
         case .taraxa: return nil
         case .radiant: return nil
+        case .base: return "base"
+            // Did you get a compilation error here? If so, check whether the network is supported at https://api.moonpay.com/v3/currencies
         }
     }
 
@@ -443,6 +445,8 @@ private extension Blockchain {
         case .flare: return nil
         case .taraxa: return nil
         case .radiant: return nil
+        case .base: return "eth_base"
+            // Did you get a compilation error here? If so, check whether the network is supported at https://api.moonpay.com/v3/currencies
         }
     }
 }
