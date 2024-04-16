@@ -19,6 +19,9 @@ final class EnvironmentSetupViewModel: ObservableObject {
     @Published var additionalSettingsViewModels: [DefaultRowViewModel] = []
     @Published var alert: AlertBinder?
 
+    // Demo
+    @Published var forcedDemoCardId: String = ""
+
     // Promotion
     @Published var currentPromoCode: String = ""
     @Published var finishedPromotionNames: String = ""
@@ -116,6 +119,15 @@ final class EnvironmentSetupViewModel: ObservableObject {
         updateFinishedPromotionNames()
 
         updateAwardedPromotionNames()
+
+        forcedDemoCardId = AppSettings.shared.forcedDemoCardId ?? ""
+
+        $forcedDemoCardId
+            .removeDuplicates()
+            .sink { newValue in
+                AppSettings.shared.forcedDemoCardId = newValue.nilIfEmpty
+            }
+            .store(in: &bag)
     }
 
     func copyCurrentPromoCode() {
