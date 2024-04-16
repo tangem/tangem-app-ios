@@ -1026,6 +1026,8 @@
 		DC7DA81E2844F27800AD6DBD /* WelcomeCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7DA81D2844F27800AD6DBD /* WelcomeCoordinatorView.swift */; };
 		DC7DA8202844F33D00AD6DBD /* CoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7DA81F2844F33D00AD6DBD /* CoordinatorView.swift */; };
 		DC858A3928AA48B000D58EE7 /* CardEmailDataFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC858A3828AA48B000D58EE7 /* CardEmailDataFactory.swift */; };
+		DC8B13C52BA8B2ED00B3DB53 /* PendingBackupData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8B13C42BA8B2ED00B3DB53 /* PendingBackupData.swift */; };
+		DC8B13C82BA8B51700B3DB53 /* PendingBackupManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8B13C72BA8B51700B3DB53 /* PendingBackupManager.swift */; };
 		DC8B159D2B681FE500DBBE9E /* PendingExpressTxStatusRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8B159C2B681FE500DBBE9E /* PendingExpressTxStatusRoutable.swift */; };
 		DC8B159F2B69616B00DBBE9E /* DismissSafariActionURLHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8B159E2B69616B00DBBE9E /* DismissSafariActionURLHelper.swift */; };
 		DC8D72142BB1967D0077F241 /* Analytics+EventLimit.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8D72132BB1967D0077F241 /* Analytics+EventLimit.swift */; };
@@ -2568,6 +2570,8 @@
 		DC7DA81D2844F27800AD6DBD /* WelcomeCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeCoordinatorView.swift; sourceTree = "<group>"; };
 		DC7DA81F2844F33D00AD6DBD /* CoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatorView.swift; sourceTree = "<group>"; };
 		DC858A3828AA48B000D58EE7 /* CardEmailDataFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEmailDataFactory.swift; sourceTree = "<group>"; };
+		DC8B13C42BA8B2ED00B3DB53 /* PendingBackupData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingBackupData.swift; sourceTree = "<group>"; };
+		DC8B13C72BA8B51700B3DB53 /* PendingBackupManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingBackupManager.swift; sourceTree = "<group>"; };
 		DC8B159C2B681FE500DBBE9E /* PendingExpressTxStatusRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingExpressTxStatusRoutable.swift; sourceTree = "<group>"; };
 		DC8B159E2B69616B00DBBE9E /* DismissSafariActionURLHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DismissSafariActionURLHelper.swift; sourceTree = "<group>"; };
 		DC8D72132BB1967D0077F241 /* Analytics+EventLimit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+EventLimit.swift"; sourceTree = "<group>"; };
@@ -3607,6 +3611,7 @@
 		5DF2522524F914C90015B429 /* TangemSdk */ = {
 			isa = PBXGroup;
 			children = (
+				DC8B13C62BA8B4FF00B3DB53 /* PendingBackup */,
 				DC70C0132B95EDF1002205BA /* KeysDeriving */,
 				DC70C0122B95EDD6002205BA /* FactorySettingsResetting */,
 				DC70BFD32B91057C002205BA /* SecurityOptionChanging */,
@@ -6426,6 +6431,15 @@
 				B6FB04E32B1FEED9000BB59E /* StatusBarConfiguration */,
 			);
 			path = Modules;
+			sourceTree = "<group>";
+		};
+		DC8B13C62BA8B4FF00B3DB53 /* PendingBackup */ = {
+			isa = PBXGroup;
+			children = (
+				DC8B13C42BA8B2ED00B3DB53 /* PendingBackupData.swift */,
+				DC8B13C72BA8B51700B3DB53 /* PendingBackupManager.swift */,
+			);
+			path = PendingBackup;
 			sourceTree = "<group>";
 		};
 		DC9A4A2E2AB4AE1C0031C7C2 /* UserCodeRecovering */ = {
@@ -9473,6 +9487,7 @@
 				B69A140B2B7EC3FB00EF0825 /* TokenInteractionAvailabilityProvider.swift in Sources */,
 				B0431B3F291951C200F84DEF /* IconWithMessageView.swift in Sources */,
 				B04BA23626F083C30036784C /* OnboardingTopupBalanceView.swift in Sources */,
+				DC8B13C82BA8B51700B3DB53 /* PendingBackupManager.swift in Sources */,
 				5DEC50A525F160930022CE83 /* CircleImageTextView.swift in Sources */,
 				B0FE0B3529712C170046EE2C /* WalletConnectV2Utils.swift in Sources */,
 				DCBC945F2994F9BF0050BC35 /* AnalyticsContextScope.swift in Sources */,
@@ -9526,6 +9541,7 @@
 				DA559C332B0261F400F59584 /* SendCoordinatorView.swift in Sources */,
 				EFD32AED29EE7F540026353E /* FeatureState.swift in Sources */,
 				DA4C84CE27DA2D6D00B76F91 /* StoriesConstants.swift in Sources */,
+				DC8B13C52BA8B2ED00B3DB53 /* PendingBackupData.swift in Sources */,
 				DAA5E31228D2137C003C0E80 /* UserWalletEncryptionKeyStorage.swift in Sources */,
 				5DF612A224E6E0ED001BF301 /* AddressFormatter.swift in Sources */,
 				EFA6164E2B62A96B0013A129 /* TransactionSendAvailabilityProvider.swift in Sources */,
