@@ -175,7 +175,7 @@ final class QRCodeParserTests: XCTestCase {
 
         testPositiveCase(
             code: "ethereum:0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7/transfer?address=0xc00f86ab93cd0bd3a60213583d0fe35aaa1ace23",
-            destination: "0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7",
+            destination: nil, // the contract address doesn't match (since it's a coin, not a token), therefore the parsed destination should be nil
             amount: nil,
             amountText: nil,
             memo: nil,
