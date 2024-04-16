@@ -281,7 +281,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     @Published private var previewBackupState: BackupService.State = .finalizingPrimaryCard
 
     private let backupService: BackupService
-    private var cardInitializer: CardInitializable?
+    private var cardInitializer: CardInitializer?
     private let pendingBackupManager = PendingBackupManager()
 
     // MARK: - Initializer
