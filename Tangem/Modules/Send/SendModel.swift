@@ -164,19 +164,19 @@ class SendModel {
         }
     }
 
-    func includeFeeIntoAmount() {
+    func subtractFeeFromMaxAmount() {
         guard
             !_isFeeIncluded.value,
-            let userInputAmount = userInputAmount.value,
+            let maxAmount = walletModel.wallet.amounts[walletModel.amountType],
             let fee = fee.value?.amount,
-            (userInputAmount - fee).value >= 0
+            (maxAmount - fee).value >= 0
         else {
             AppLog.shared.debug("Invalid amount and fee when subtracting")
             return
         }
 
         _isFeeIncluded.value = true
-        self.userInputAmount.send(userInputAmount - fee)
+        userInputAmount.send(maxAmount - fee)
     }
 
     func useMaxAmount() {
