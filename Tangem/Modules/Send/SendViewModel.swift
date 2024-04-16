@@ -22,6 +22,7 @@ final class SendViewModel: ObservableObject {
     @Published var mainButtonDisabled: Bool = false
     @Published var updatingFees = false
     @Published var currentStepInvalid: Bool = false // delete?
+    @Published var canDismiss: Bool = false
     @Published var alert: AlertBinder?
 
     var title: String? {
@@ -228,6 +229,10 @@ final class SendViewModel: ObservableObject {
         currentPageAnimating = false
     }
 
+    func dismiss() {
+        coordinator?.dismiss()
+    }
+
     func next() {
         // If we try to open another page mid-animation then the appropriate onAppear of the new page will not get called
         if currentPageAnimating ?? false {
@@ -375,6 +380,8 @@ final class SendViewModel: ObservableObject {
             .removeDuplicates()
             .sink { [weak self] transactionFinished in
                 guard let self, transactionFinished else { return }
+
+                canDismiss = true
 
                 openFinishPage()
 
