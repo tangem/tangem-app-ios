@@ -425,6 +425,7 @@
 "send_alert_transaction_failed_text" = "Причина: %1$s\nКод: %2$s";
 "send_alert_transaction_failed_title" = "Транзакция не выполнена";
 "send_amount_label" = "Сумма";
+"send_close_confirmation_message" = "Are you sure you want to leave this page? Any changes made will be lost.";
 "send_date_format" = "%1$@, %2$@";
 "send_destination_hint_address" = "Адрес";
 "send_destination_tag_field" = "Код назначения";
