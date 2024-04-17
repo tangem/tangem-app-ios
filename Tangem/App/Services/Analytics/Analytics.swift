@@ -10,11 +10,17 @@ import Foundation
 import FirebaseAnalytics
 import FirebaseCrashlytics
 import BlockchainSdk
+import AmplitudeSwift
 import TangemSdk
 
 class Analytics {
     @Injected(\.analyticsContext) private static var analyticsContext: AnalyticsContext
-    @Injected(\.amplitude) private static var amplitude: TangemAmplitude?
+    private static var amplitude: Amplitude? = {
+        guard !AppEnvironment.current.isDebug else {
+            return nil
+        }
+        return Amplitude(configuration: Configuration(apiKey: try! CommonKeysManager().amplitudeApiKey))
+    }()
 
     private init() {}
 
