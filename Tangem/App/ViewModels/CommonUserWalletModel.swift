@@ -161,11 +161,12 @@ class CommonUserWalletModel {
     }
 
     func validate() -> Bool {
-        return validateInternal(cardInfo.card, validationMode: .light)
-    }
+        let pendingBackupManager = PendingBackupManager()
+        if pendingBackupManager.fetchPendingCard(cardInfo.card.cardId) != nil {
+            return false
+        }
 
-    private func validateInternal(_ card: CardDTO, validationMode: ValidationMode) -> Bool {
-        guard validateCurves(card.wallets.map { $0.curve }, validationMode: validationMode) else {
+        guard validateCurves(card.wallets.map { $0.curve }) else {
             return false
         }
 
@@ -176,10 +177,10 @@ class CommonUserWalletModel {
         return true
     }
 
-    private func validateCurves(_ curves: [EllipticCurve], validationMode: ValidationMode) -> Bool {
+    private func validateCurves(_ curves: [EllipticCurve]) -> Bool {
         var expectedCurves = config.mandatoryCurves
 
-        if config is GenericConfig, validationMode == .light {
+        if config is GenericConfig {
             expectedCurves.remove(.bls12381_G2_AUG)
         }
 
@@ -359,20 +360,15 @@ extension CommonUserWalletModel: UserWalletModel {
         onUpdate()
     }
 
-    func addAssociatedCard(_ card: CardDTO, validationMode: ValidationMode) {
+    func addAssociatedCard(_ cardId: String) {
         let cardInfo = CardInfo(card: card, walletData: .none, name: "")
         guard let userWalletId = UserWalletIdFactory().userWalletId(from: cardInfo),
               userWalletId == self.userWalletId else {
             return
         }
 
-        if !associatedCardIds.contains(card.cardId) {
-            associatedCardIds.insert(card.cardId)
-        }
-
-        if !validateInternal(card, validationMode: validationMode) {
-            // [REDACTED_TODO_COMMENT]
-            _updatePublisher.send()
+        if !associatedCardIds.contains(cardId) {
+            associatedCardIds.insert(cardId)
         }
     }
 }
