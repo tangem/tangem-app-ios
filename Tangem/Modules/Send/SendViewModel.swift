@@ -299,8 +299,8 @@ final class SendViewModel: ObservableObject {
     }
 
     private func bind() {
-        Publishers.CombineLatest4($step, sendModel.destinationPublisher, sendModel.amountPublisher, sendModel.isSending)
-            .map { step, destination, amount, isSending in
+        Publishers.CombineLatest3($step, sendModel.amountPublisher, sendModel.isSending)
+            .map { step, amount, isSending in
                 if isSending {
                     return false
                 }
