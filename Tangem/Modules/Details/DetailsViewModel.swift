@@ -9,7 +9,6 @@
 import Foundation
 import SwiftUI
 import Combine
-import TangemSdk
 import BlockchainSdk
 
 class DetailsViewModel: ObservableObject {
@@ -115,7 +114,19 @@ extension DetailsViewModel {
 
     func openCardSettings() {
         Analytics.log(.buttonCardSettings)
-        coordinator?.openScanCardSettings(with: userWalletModel.config.cardSessionFilter, sdk: userWalletModel.config.makeTangemSdk()) // [REDACTED_TODO_COMMENT]
+
+        let scanParameters = CardScannerParameters(
+            shouldAskForAccessCodes: true,
+            performDerivations: false,
+            sessionFilter: userWalletModel.config.cardSessionFilter
+        )
+
+        let scanner = CommonCardScanner(
+            tangemSdk: userWalletModel.config.makeTangemSdk(),
+            parameters: scanParameters
+        )
+
+        coordinator?.openScanCardSettings(with: scanner)
     }
 
     func openAppSettings() {
