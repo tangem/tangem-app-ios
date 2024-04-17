@@ -233,7 +233,7 @@ final class SendViewModel: ObservableObject {
         if canDismiss {
             coordinator?.dismiss()
         } else {
-            alert = SendAlertBuilder.makeCloseConfirmationAlert { [weak self] in
+            alert = SendAlertBuilder.makeDismissalConfirmationAlert { [weak self] in
                 self?.coordinator?.dismiss()
             }
         }
