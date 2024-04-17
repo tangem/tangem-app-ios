@@ -196,21 +196,26 @@ private extension TransactionHistoryMapper {
         switch record.type {
         case .transfer:
             return .transfer
-        case .contractMethod(let id):
+        case .contractMethodIdentifier(let id):
             let name = smartContractMethodMapper.getName(for: id)
+            return transactionType(fromContractMethodName: name)
+        case .contractMethodName(let name):
+            return transactionType(fromContractMethodName: name)
+        }
+    }
 
-            switch name {
-            case "transfer":
-                return .transfer
-            case "approve":
-                return .approve
-            case "swap":
-                return .swap
-            case .none:
-                return .unknownOperation
-            case .some(let name):
-                return .operation(name: name.capitalizingFirstLetter())
-            }
+    func transactionType(fromContractMethodName contractMethodName: String?) -> TransactionViewModel.TransactionType {
+        switch contractMethodName?.nilIfEmpty {
+        case "transfer":
+            return .transfer
+        case "approve":
+            return .approve
+        case "swap":
+            return .swap
+        case .none:
+            return .unknownOperation
+        case .some(let name):
+            return .operation(name: name.capitalizingFirstLetter())
         }
     }
 
