@@ -195,6 +195,8 @@ private extension Blockchain {
             }
         case .taraxa:
             return "taraxa"
+        case .radiant:
+            return "radiant"
         case .base:
             switch type {
             case .network: return "base"
