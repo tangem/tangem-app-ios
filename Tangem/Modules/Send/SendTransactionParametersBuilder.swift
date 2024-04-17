@@ -94,6 +94,7 @@ struct SendTransactionParametersBuilder {
              .mantle,
              .flare,
              .taraxa,
+             .radiant,
              .base:
             return nil
         }
