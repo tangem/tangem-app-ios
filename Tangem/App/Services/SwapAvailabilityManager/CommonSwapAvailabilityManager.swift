@@ -13,14 +13,18 @@ import TangemExpress
 class CommonSwapAvailabilityManager: SwapAvailabilityManager {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    var tokenItemsAvailableToSwapPublisher: AnyPublisher<[TokenItem: TokenItemSwapState], Never> {
+    var tokenItemsAvailableToSwapPublisher: AnyPublisher<[TokenItemId: TokenItemSwapState], Never> {
         tokenItemsSwapState.eraseToAnyPublisher()
     }
 
-    private var tokenItemsSwapState: CurrentValueSubject<[TokenItem: TokenItemSwapState], Never> = .init([:])
+    private var tokenItemsSwapState: CurrentValueSubject<[TokenItemId: TokenItemSwapState], Never> = .init([:])
 
     func swapState(for tokenItem: TokenItem) -> TokenItemSwapState {
-        tokenItemsSwapState.value[tokenItem] ?? .notLoaded
+        guard let id = tokenItem.id else {
+            return .unavailable
+        }
+
+        return tokenItemsSwapState.value[id] ?? .notLoaded
     }
 
     func canSwap(tokenItem: TokenItem) -> Bool {
@@ -32,18 +36,14 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
             return
         }
 
-        var notSupportedTokens = [TokenItem]()
         let filteredItemsToRequest = items.filter {
-            if $0.isCustom {
-                notSupportedTokens.append($0)
+            guard let id = $0.id else {
                 return false
             }
 
             // If `forceReload` flag is true we need to force reload state for all items
-            return tokenItemsSwapState.value[$0] == nil || forceReload
+            return tokenItemsSwapState.value[id] == nil || forceReload
         }
-
-        saveTokenItemsStates(for: buildStates(for: notSupportedTokens, state: .unavailable))
 
         // This mean that all requesting items in blockchains that currently not available for swap
         // We can exit without request
@@ -57,35 +57,37 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
 
     private func loadExpressAssets(for items: [TokenItem], userWalletId: String) {
         runTask(in: self, code: { manager in
-            var requestedItems = [ExpressCurrency: TokenItem]()
-            let expressCurrencies = items.map {
+            var requestedItems = [ExpressCurrency: TokenItemId]()
+            let expressCurrencies: [ExpressCurrency] = items.compactMap {
                 let currency = $0.expressCurrency
-                requestedItems[currency] = $0
+                guard
+                    let id = $0.id,
+                    requestedItems[currency] == nil
+                else {
+                    return nil
+                }
+
+                requestedItems[currency] = id
                 return currency
             }
 
             do {
                 let provider = ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, logger: AppLog.shared)
-                let assets = try await provider.assets(with: expressCurrencies)
-                var loadedSwapStates: [TokenItem: TokenItemSwapState] = assets.reduce(into: [:]) { partialResult, asset in
-                    guard let tokenItem = requestedItems[asset.currency] else {
+                let assetsArray = try await provider.assets(with: expressCurrencies)
+                let assetsExchangeability: [ExpressCurrency: Bool] = assetsArray.reduce(into: [:]) { partialResult, asset in
+                    partialResult[asset.currency] = asset.isExchangeable
+                }
+
+                let swapStates: [TokenItemId: TokenItemSwapState] = requestedItems.reduce(into: [:]) { partialResult, pair in
+                    guard let isExchangeable = assetsExchangeability[pair.key] else {
+                        partialResult[pair.value] = .unavailable
                         return
                     }
 
-                    partialResult[tokenItem] = asset.isExchangeable ? .available : .unavailable
+                    partialResult[pair.value] = isExchangeable ? .available : .unavailable
                 }
 
-                if loadedSwapStates.count != items.count {
-                    items.forEach {
-                        guard loadedSwapStates[$0] == nil else {
-                            return
-                        }
-
-                        loadedSwapStates[$0] = .unavailable
-                    }
-                }
-
-                manager.saveTokenItemsStates(for: loadedSwapStates)
+                manager.saveTokenItemsStates(for: swapStates)
             } catch {
                 let failedToLoadTokensState = manager.buildStates(for: items, state: .failedToLoadInfo(error))
                 manager.saveTokenItemsStates(for: failedToLoadTokensState)
@@ -93,15 +95,19 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
         })
     }
 
-    private func buildStates(for items: [TokenItem], state: TokenItemSwapState) -> [TokenItem: TokenItemSwapState] {
-        var dictionary = [TokenItem: TokenItemSwapState]()
+    private func buildStates(for items: [TokenItem], state: TokenItemSwapState) -> [TokenItemId: TokenItemSwapState] {
+        var dictionary = [TokenItemId: TokenItemSwapState]()
         items.forEach {
-            dictionary[$0] = state
+            guard let id = $0.id else {
+                return
+            }
+
+            dictionary[id] = state
         }
         return dictionary
     }
 
-    private func saveTokenItemsStates(for states: [TokenItem: TokenItemSwapState]) {
+    private func saveTokenItemsStates(for states: [TokenItemId: TokenItemSwapState]) {
         var items = tokenItemsSwapState.value
         states.forEach { key, value in
             items.updateValue(value, forKey: key)
