@@ -125,12 +125,12 @@ extension CustomEvmFeeService: CustomFeeService {
             .eraseToAnyPublisher()
 
         let baseFeeModel = SendCustomFeeInputFieldModel(
-            title: "Base fee", //  Localization.sendGasPrice
+            title: Localization.sendBaseFee,
             amountPublisher: baseFeeGweiPublisher,
             fieldSuffix: "GWEI",
             fractionDigits: gweiFractionDigits,
             amountAlternativePublisher: .just(output: nil),
-            footer: Localization.sendGasPriceFooter
+            footer: Localization.sendBaseFeeFooter
         ) { [weak self] gweiValue in
             let weiValue = gweiValue?.shiftOrder(magnitude: gweiFractionDigits)
             self?.didChangeCustomFeeBaseFee(weiValue?.bigUIntValue)
@@ -143,12 +143,12 @@ extension CustomEvmFeeService: CustomFeeService {
             .eraseToAnyPublisher()
 
         let priorityFeeModel = SendCustomFeeInputFieldModel(
-            title: "Priority fee", //  Localization.sendGasPrice
+            title: Localization.sendPriorityFee,
             amountPublisher: priorityFeeGweiPublisher,
             fieldSuffix: "GWEI",
             fractionDigits: gweiFractionDigits,
             amountAlternativePublisher: .just(output: nil),
-            footer: Localization.sendGasPriceFooter
+            footer: Localization.sendPriorityFeeFooter
         ) { [weak self] gweiValue in
             let weiValue = gweiValue?.shiftOrder(magnitude: gweiFractionDigits)
             self?.didChangeCustomFeePriorityFee(weiValue?.bigUIntValue)
