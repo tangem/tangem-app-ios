@@ -49,6 +49,10 @@
 "card_settings_reset_card_to_factory" = "Заводские настройки";
 "card_settings_security_mode" = "Тип безопасности";
 "card_settings_title" = "Настройки карты";
+"cardano_coin_will_be_send_with_token_description" = "Ввиду особенностей сети Cardano при транзакции токена %1$@ помимо комиссии сети будет списано %2$@";
+"cardano_insufficient_balance_to_send_token_description" = "Для совершения транзакции %1$@, вам необходимо внести немного %2$@ (%3$@), чтобы покрыть комиссию сети и минимальное значение ADA для отправки.";
+"cardano_insufficient_balance_to_send_token_title" = "Недостаточно ADA для отправки токена";
+"cardano_max_amount_has_token_description" = "Вывод всего баланса ADA невозможен при наличии средств на токенах сети Cardano. Сначала выведите средства на ваших токенах.";
 "common_accept" = "Принять";
 "common_access_denied" = "Доступ запрещен";
 "common_apply" = "Применить";
