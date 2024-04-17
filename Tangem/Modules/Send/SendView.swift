@@ -74,24 +74,19 @@ struct SendView: View {
                 .lineLimit(1)
                 .layoutPriority(2)
 
-                HStack(spacing: 12) {
-                    if viewModel.showQRCodeButton {
-                        Button(action: viewModel.scanQRCode) {
-                            Assets.qrCode.image
-                                .renderingMode(.template)
-                                .foregroundColor(Colors.Icon.primary1)
-                                .frame(maxWidth: .infinity, alignment: .trailing)
-                        }
-                        .disabled(viewModel.updatingFees)
-                    } else {
-                        Spacer()
-                            .frame(maxHeight: 1)
+                if viewModel.showQRCodeButton {
+                    Button(action: viewModel.scanQRCode) {
+                        Assets.qrCode.image
+                            .renderingMode(.template)
+                            .foregroundColor(Colors.Icon.primary1)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
                     }
-
-                    Button(Localization.commonClose, action: viewModel.dismiss)
-                        .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                    .disabled(viewModel.updatingFees)
+                    .layoutPriority(1)
+                } else {
+                    Spacer()
+                        .layoutPriority(1)
                 }
-                .layoutPriority(1)
             }
             .padding(.horizontal, 16)
             .padding(.top, 12)
