@@ -281,7 +281,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     @Published private var previewBackupState: BackupService.State = .finalizingPrimaryCard
 
     private let backupService: BackupService
-    private var cardInitializer: CardInitializable?
+    private var cardInitializer: CardInitializer?
+    private let pendingBackupManager = PendingBackupManager()
 
     // MARK: - Initializer
 
@@ -755,12 +756,14 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
                         switch result {
                         case .success(let updatedCard):
-                            self.userWalletModel?.addAssociatedCard(CardDTO(card: updatedCard), validationMode: .full)
+                            self.userWalletModel?.addAssociatedCard(updatedCard.cardId)
+                            self.pendingBackupManager.onProceedBackup(updatedCard)
                             if updatedCard.cardId == self.backupService.primaryCard?.cardId {
                                 self.userWalletModel?.onBackupCreated(updatedCard)
                             }
 
                             if self.backupServiceState == .finished {
+                                self.pendingBackupManager.onBackupCompleted()
                                 Analytics.log(
                                     event: .backupFinished,
                                     params: [.cardsCount: String((updatedCard.backupStatus?.linkedCardsCount ?? 0) + 1)]
