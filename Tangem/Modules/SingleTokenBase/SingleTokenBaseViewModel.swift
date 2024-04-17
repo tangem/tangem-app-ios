@@ -215,7 +215,7 @@ extension SingleTokenBaseViewModel {
         }
 
         let listBuilder = TokenActionListBuilder()
-        let canShowSwap = userWalletModel.config.hasFeature(.swapping)
+        let canShowSwap = userWalletModel.config.isFeatureVisible(.swapping)
         let canShowBuySell = userWalletModel.config.isFeatureVisible(.exchange)
         availableActions = listBuilder.buildActionsForButtonsList(canShowBuySell: canShowBuySell, canShowSwap: canShowSwap)
     }
@@ -384,11 +384,6 @@ extension SingleTokenBaseViewModel {
     }
 
     func openExchange() {
-        if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .swapping) {
-            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
-            return
-        }
-
         let alertBuilder = SingleTokenAlertBuilder()
 
         switch walletModel.sendingRestrictions {
@@ -401,7 +396,8 @@ extension SingleTokenBaseViewModel {
 
         if let alertToDisplay = alertBuilder.swapAlert(
             for: walletModel.tokenItem,
-            tokenItemSwapState: swapAvailabilityProvider.swapState(for: walletModel.tokenItem)
+            tokenItemSwapState: swapAvailabilityProvider.swapState(for: walletModel.tokenItem),
+            isCustom: walletModel.isCustom
         ) {
             alert = alertToDisplay
             return
