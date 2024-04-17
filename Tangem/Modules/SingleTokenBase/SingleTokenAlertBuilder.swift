@@ -36,7 +36,7 @@ struct SingleTokenAlertBuilder {
         return nil
     }
 
-    func swapAlert(for tokenItem: TokenItem, tokenItemSwapState: TokenItemSwapState) -> AlertBinder? {
+    func swapAlert(for tokenItem: TokenItem, tokenItemSwapState: TokenItemSwapState, isCustom: Bool) -> AlertBinder? {
         let notSupportedToken = AlertBinder(
             title: "",
             message: Localization.tokenButtonUnavailabilityReasonNotExchangeable(tokenItem.name)
@@ -48,7 +48,7 @@ struct SingleTokenAlertBuilder {
         case .loading, .failedToLoadInfo, .notLoaded:
             alert = tryAgainLaterAlert
         case .available:
-            if tokenItem.isCustom {
+            if isCustom {
                 alert = notSupportedToken
             }
         }
