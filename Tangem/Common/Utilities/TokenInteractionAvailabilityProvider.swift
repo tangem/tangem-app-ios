@@ -90,6 +90,7 @@ struct TokenInteractionAvailabilityProvider {
              .mantle,
              .flare,
              .taraxa,
+             .radiant,
              .base:
 
             // Checking that we have at least one valid (non-empty) address
