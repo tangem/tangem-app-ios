@@ -313,9 +313,7 @@ extension SingleTokenBaseViewModel {
         case .receive:
             return false
         case .exchange:
-            return isBlockchainUnreachable ||
-                !swapAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem) ||
-                walletModel.sendingRestrictions == .cantSignLongTransactions
+            return isSwapDisabled()
         case .sell:
             return isBlockchainUnreachable || !exchangeUtility.sellAvailable
         case .copyAddress, .hide:
@@ -345,6 +343,21 @@ extension SingleTokenBaseViewModel {
         case .none, .zeroFeeCurrencyBalance:
             return false
         }
+    }
+
+    private func isSwapDisabled() -> Bool {
+        if walletModel.isCustom {
+            return true
+        }
+
+        switch walletModel.sendingRestrictions {
+        case .cantSignLongTransactions, .blockchainUnreachable:
+            return true
+        default:
+            break
+        }
+
+        return !swapAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem)
     }
 }
 
