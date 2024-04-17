@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 enum SendAlertBuilder {
-    static func makeCloseConfirmationAlert(callback: @escaping () -> Void) -> AlertBinder {
+    static func makeDismissalConfirmationAlert(callback: @escaping () -> Void) -> AlertBinder {
         let confirmationButton = Alert.Button.default(Text(Localization.commonOk), action: callback)
         return AlertBuilder.makeAlert(
             title: "",
