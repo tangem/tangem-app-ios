@@ -230,13 +230,7 @@ final class SendViewModel: ObservableObject {
     }
 
     func dismiss() {
-        if canDismiss {
-            coordinator?.dismiss()
-        } else {
-            alert = SendAlertBuilder.makeDismissalConfirmationAlert { [weak self] in
-                self?.coordinator?.dismiss()
-            }
-        }
+        coordinator?.dismiss()
     }
 
     func next() {
