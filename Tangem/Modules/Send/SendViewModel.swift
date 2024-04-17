@@ -230,7 +230,13 @@ final class SendViewModel: ObservableObject {
     }
 
     func dismiss() {
-        coordinator?.dismiss()
+        if canDismiss {
+            coordinator?.dismiss()
+        } else {
+            alert = SendAlertBuilder.makeCloseConfirmationAlert { [weak self] in
+                self?.coordinator?.dismiss()
+            }
+        }
     }
 
     func next() {
@@ -293,6 +299,24 @@ final class SendViewModel: ObservableObject {
     }
 
     private func bind() {
+        Publishers.CombineLatest4($step, sendModel.destinationPublisher, sendModel.amountPublisher, sendModel.isSending)
+            .map { step, destination, amount, isSending in
+                if isSending {
+                    return false
+                }
+
+                switch step {
+                case .destination, .fee, .summary:
+                    return false
+                case .amount:
+                    return amount == nil
+                case .finish:
+                    return true
+                }
+            }
+            .assign(to: \.canDismiss, on: self, ownership: .weak)
+            .store(in: &bag)
+
         Publishers.CombineLatest($updatingFees, sendModel.isSending)
             .map { updatingFees, isSending in
                 updatingFees || isSending
@@ -380,8 +404,6 @@ final class SendViewModel: ObservableObject {
             .removeDuplicates()
             .sink { [weak self] transactionFinished in
                 guard let self, transactionFinished else { return }
-
-                canDismiss = true
 
                 openFinishPage()
 
