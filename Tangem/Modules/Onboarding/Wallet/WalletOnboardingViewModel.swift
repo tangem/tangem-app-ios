@@ -391,28 +391,13 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     }
 
     override func goToNextStep() {
-        switch currentStep {
-        case .createWallet:
-            if let backupIntroStepIndex = steps.firstIndex(of: .backupIntro) {
-                let canSkipBackup = userWalletModel?.config.canSkipBackup ?? true
-                if canSkipBackup {
-                    goToStep(with: backupIntroStepIndex)
-                } else {
-                    goToStep(with: backupIntroStepIndex + 1)
-                }
-            } else {
-                // impossible case
-                super.goToNextStep()
-            }
-        case .createWalletSelector, .seedPhraseUserValidation, .seedPhraseImport:
-            if let selectBackupCardsStepIndex = steps.firstIndex(of: .selectBackupCards) {
-                goToStep(with: selectBackupCardsStepIndex)
-            } else {
-                super.goToNextStep()
-            }
-        default:
-            super.goToNextStep()
+        if currentStep.isCreateWalletStep,
+           let backupIntroStepIndex = steps.firstIndex(where: { $0.isInitialBackupStep }) {
+            goToStep(with: backupIntroStepIndex)
+            return
         }
+
+        super.goToNextStep()
     }
 
     // MARK: - Main button action
