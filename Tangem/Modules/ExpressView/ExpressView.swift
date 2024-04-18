@@ -53,8 +53,13 @@ struct ExpressView: View {
         .navigationBarTitle(Text(Localization.commonSwap), displayMode: .inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                Button(Localization.commonClose, action: {})
-                    .foregroundColor(Colors.Button.primary)
+                Button {
+                    viewModel.didTapCloseButton()
+                } label: {
+                    Assets.crossBlack.image
+                        .renderingMode(.template)
+                        .foregroundColor(Colors.Icon.primary1)
+                }
             }
         }
         .alert(item: $viewModel.alert) { $0.alert }
