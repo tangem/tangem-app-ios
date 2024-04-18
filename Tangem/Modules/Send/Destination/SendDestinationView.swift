@@ -40,14 +40,22 @@ struct SendDestinationView: View {
             if let additionalFieldViewModel = viewModel.additionalFieldViewModel {
                 GroupedSection(additionalFieldViewModel) {
                     SendDestinationTextView(viewModel: $0)
+                        .setNamespace(namespace)
+                        .setContainerNamespaceId(SendViewNamespaceId.addressAdditionalFieldContainer.rawValue)
+                        .setTitleNamespaceId(SendViewNamespaceId.addressAdditionalFieldTitle.rawValue)
+                        .setIconNamespaceId(SendViewNamespaceId.addressAdditionalFieldIcon.rawValue)
+                        .setTextNamespaceId(SendViewNamespaceId.addressAdditionalFieldText.rawValue)
+                        .setClearButtonNamespaceId(SendViewNamespaceId.addressAdditionalFieldClearButton.rawValue)
                         .disabled(viewModel.userInputDisabled)
                 } footer: {
-                    Text(additionalFieldViewModel.description)
-                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    if !viewModel.animatingAuxiliaryViewsOnAppear {
+                        Text(additionalFieldViewModel.description)
+                            .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                            .transition(SendView.Constants.auxiliaryViewTransition(for: .destination))
+                    }
                 }
                 .innerContentPadding(2)
-                .backgroundColor(Colors.Background.action)
-                .transition(SendView.Constants.auxiliaryViewTransition(for: .destination))
+                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.addressAdditionalFieldContainer.rawValue, namespace: namespace)
             }
 
             if let suggestedDestinationViewModel = viewModel.suggestedDestinationViewModel, viewModel.showSuggestedDestinations {
