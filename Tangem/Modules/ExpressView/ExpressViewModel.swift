@@ -635,7 +635,13 @@ extension ExpressViewModel: NotificationTapDelegate {
             updateSendDecimalValue(to: value - amount)
         case .reduceAmountTo(let amount, _):
             updateSendDecimalValue(to: amount)
-        default:
+        case .generateAddresses,
+             .backupCard,
+             .buyCrypto,
+             .refreshFee,
+             .goToProvider,
+             .exchange,
+             .addHederaTokenAssociation:
             return
         }
     }
