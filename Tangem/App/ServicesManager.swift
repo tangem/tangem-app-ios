@@ -9,7 +9,6 @@
 import Foundation
 import Combine
 import Firebase
-import Amplitude
 import BlockchainSdk
 
 class ServicesManager {
@@ -37,7 +36,6 @@ class ServicesManager {
 
         if !AppEnvironment.current.isDebug {
             configureFirebase()
-            configureAmplitude()
         }
 
         configureBlockchainSdkExceptionHandler()
@@ -58,10 +56,6 @@ class ServicesManager {
         }
 
         FirebaseApp.configure(options: options)
-    }
-
-    private func configureAmplitude() {
-        Amplitude.instance().initializeApiKey(try! CommonKeysManager().amplitudeApiKey)
     }
 
     private func configureBlockchainSdkExceptionHandler() {
