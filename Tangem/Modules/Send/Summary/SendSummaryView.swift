@@ -26,13 +26,26 @@ struct SendSummaryView: View {
                         case .address(let address):
                             SendDestinationAddressSummaryView(address: address)
                                 .setNamespace(namespace)
+                                .background(
+                                    viewModel.destinationBackground
+//                                            .cornerRadiusContinuous(14)
+                                        .matchedGeometryEffectOptional(id: SendViewNamespaceId.addressContainer, in: namespace)
+                                )
                         case .additionalField(let type, let value):
                             if let name = type.name {
                                 DefaultTextWithTitleRowView(data: .init(title: name, text: value))
+                                    .setNamespace(namespace)
+                                    .setTitleNamespaceId(SendViewNamespaceId.addressAdditionalFieldTitle.rawValue)
+                                    .setTextNamespaceId(SendViewNamespaceId.addressAdditionalFieldText.rawValue)
+                                    .background(
+                                        viewModel.destinationBackground
+//                                            .cornerRadiusContinuous(14)
+                                            .matchedGeometryEffectOptional(id: SendViewNamespaceId.addressAdditionalFieldContainer, in: namespace)
+                                    )
                             }
                         }
                     }
-                    .backgroundColor(viewModel.destinationBackground, id: SendViewNamespaceId.addressContainer.rawValue, namespace: namespace)
+                    .backgroundColor(viewModel.destinationBackground) // , id: SendViewNamespaceId.addressContainer.rawValue, namespace: namespace)
                     .contentShape(Rectangle())
                     .allowsHitTesting(viewModel.canEditDestination)
                     .onTapGesture {
