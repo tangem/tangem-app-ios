@@ -57,7 +57,13 @@ enum TokenNotificationEvent: Hashable {
     var buttonAction: NotificationButtonActionType? {
         switch self {
         // One notification with button action will be added later
-        case .networkUnreachable, .someNetworksUnreachable, .rentFee, .existentialDepositWarning, .longTransaction, .noAccount, .solanaHighImpact:
+        case .networkUnreachable,
+             .someNetworksUnreachable,
+             .rentFee,
+             .existentialDepositWarning,
+             .longTransaction,
+             .noAccount,
+             .solanaHighImpact:
             return nil
         case .notEnoughFeeForTransaction(let configuration):
             let eventConfig = configuration.eventConfiguration
@@ -125,7 +131,13 @@ extension TokenNotificationEvent: NotificationEvent {
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .networkUnreachable, .someNetworksUnreachable, .rentFee, .longTransaction, .existentialDepositWarning, .noAccount, .solanaHighImpact:
+        case .networkUnreachable,
+             .someNetworksUnreachable,
+             .rentFee,
+             .longTransaction,
+             .existentialDepositWarning,
+             .noAccount,
+             .solanaHighImpact:
             return .secondary
         // One white notification will be added later
         case .notEnoughFeeForTransaction:
@@ -205,7 +217,13 @@ extension TokenNotificationEvent {
             return [.token: currencySymbol]
         case .notEnoughFeeForTransaction(let configuration):
             return [.token: configuration.eventConfiguration.feeAmountTypeCurrencySymbol]
-        default:
+        case .someNetworksUnreachable,
+             .rentFee,
+             .noAccount,
+             .existentialDepositWarning,
+             .longTransaction,
+             .solanaHighImpact,
+             .hasUnfulfilledPrerequisites(configuration: .missingHederaTokenAssociation):
             return [:]
         }
     }
