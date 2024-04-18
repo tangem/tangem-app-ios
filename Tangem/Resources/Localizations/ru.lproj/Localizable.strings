@@ -534,8 +534,10 @@
 "toast_balances_hidden" = "Балансы скрыты";
 "toast_balances_shown" = "Балансы показаны";
 "toast_undo" = "Отменить";
+"token_button_unavailability_generic_description" = "Выбранная операция в данный момент недоступна. Попробуйте позже.";
 "token_button_unavailability_reason_buy_unavailable" = "В данный момент покупка монеты %@ недоступна. Но мы работаем над её добавлением.";
 "token_button_unavailability_reason_empty_balance" = "У вас нет средств для отправки. Пополните счет, чтобы иметь возможность отправить с него средства.";
+"token_button_unavailability_reason_not_exchangeable" = "Обмен %@ не доступен. Но мы работаем над его добавлением.";
 "token_details_choose_address" = "Выберите адрес";
 "token_details_hide_alert_hide" = "Скрыть";
 "token_details_hide_alert_message" = "Вы скрываете токен с главного экрана, но в любой момент сможете добавить его обратно через страницу управления токенами.";
