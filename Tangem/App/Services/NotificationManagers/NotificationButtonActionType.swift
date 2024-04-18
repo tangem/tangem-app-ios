@@ -19,6 +19,9 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     case exchange
     case reduceAmountBy(amount: Decimal, amountFormatted: String)
     case reduceAmountTo(amount: Decimal, amountFormatted: String)
+    case addHederaTokenAssociation
+    @available(*, unavailable, message: "Token trust lines support not implemented yet")
+    case addTokenTrustline
 
     var id: Int { hashValue }
 
@@ -46,6 +49,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return Localization.sendNotificationReduceBy(amountFormatted)
         case .reduceAmountTo(_, let amountFormatted):
             return Localization.sendNotificationReduceTo(amountFormatted)
+        case .addHederaTokenAssociation:
+            return "Associate" // [REDACTED_TODO_COMMENT]
         }
     }
 
@@ -55,7 +60,15 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return .trailing(Assets.tangemIcon)
         case .exchange:
             return .leading(Assets.exchangeMini)
-        case .backupCard, .buyCrypto, .openFeeCurrency, .refresh, .refreshFee, .goToProvider, .reduceAmountBy, .reduceAmountTo:
+        case .backupCard,
+             .buyCrypto,
+             .openFeeCurrency,
+             .refresh,
+             .refreshFee,
+             .goToProvider,
+             .reduceAmountBy,
+             .reduceAmountTo,
+             .addHederaTokenAssociation:
             return nil
         }
     }
@@ -64,7 +77,15 @@ enum NotificationButtonActionType: Identifiable, Hashable {
         switch self {
         case .generateAddresses:
             return .primary
-        case .backupCard, .buyCrypto, .openFeeCurrency, .refresh, .refreshFee, .goToProvider, .reduceAmountBy, .reduceAmountTo:
+        case .backupCard,
+             .buyCrypto,
+             .openFeeCurrency,
+             .refresh,
+             .refreshFee,
+             .goToProvider,
+             .reduceAmountBy,
+             .reduceAmountTo,
+             .addHederaTokenAssociation:
             return .secondary
         case .exchange:
             return .exchangePromotionWhite
