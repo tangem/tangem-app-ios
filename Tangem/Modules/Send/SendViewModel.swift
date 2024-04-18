@@ -864,7 +864,7 @@ private extension ValidationError {
         case .invalidAmount, .balanceNotFound:
             // Shouldn't happen as we validate and cover amount errors separately, synchronously
             return nil
-        case .amountExceedsBalance, .invalidFee, .feeExceedsBalance, .maximumUTXO, .reserve:
+        case .amountExceedsBalance, .invalidFee, .feeExceedsBalance, .maximumUTXO, .reserve, .cardanoHasTokens, .cardanoInsufficientBalanceToSendToken:
             return .fee
         case .dustAmount, .dustChange, .minimumBalance, .totalExceedsBalance:
             return .summary
