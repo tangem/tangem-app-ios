@@ -17,6 +17,10 @@ struct TransactionSendAvailabilityProvider {
             return .cantSignLongTransactions
         }
 
+        if walletModel.state.isBlockchainUnreachable {
+            return .blockchainUnreachable
+        }
+
         guard let currentAmount = wallet.amounts[walletModel.amountType], currentAmount.value > 0 else {
             return .zeroWalletBalance
         }
@@ -60,6 +64,7 @@ extension TransactionSendAvailabilityProvider {
         case cantSignLongTransactions
         case hasPendingTransaction(blockchain: Blockchain)
         case zeroFeeCurrencyBalance(configuration: NotEnoughFeeConfiguration)
+        case blockchainUnreachable
 
         struct NotEnoughFeeConfiguration: Hashable {
             let transactionAmountTypeName: String
@@ -91,6 +96,8 @@ extension TransactionSendAvailabilityProvider {
                     configuration.feeAmountTypeName,
                     configuration.feeAmountTypeCurrencySymbol
                 )
+            case .blockchainUnreachable:
+                return Localization.warningNetworkUnreachableMessage
             }
         }
     }
