@@ -145,6 +145,13 @@ class ExpressNotificationManager {
             event = .withdrawalMandatoryAmountChange(amount: newAmount.value, amountFormatted: newAmount.string(), blockchainName: blockchainName, maxUtxo: maxUtxo)
         case .reserve(let amount):
             event = .notEnoughReserveToSwap(maximumAmountText: "\(amount.value)\(sourceTokenItemSymbol)")
+        case .cardanoHasTokens:
+            event = .cardanoHasTokens
+        case .cardanoInsufficientBalanceToSendToken(let minimumAmount):
+            event = .cardanoInsufficientBalanceToSendToken(
+                tokenAmountFormatted: sourceTokenItemSymbol,
+                cardanoAmountFormatted: minimumAmount.string()
+            )
         }
 
         let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in
@@ -193,9 +200,14 @@ class ExpressNotificationManager {
     }
 
     private func setupWithdrawalSuggestion(suggestion: WithdrawalSuggestion?) {
+        guard let interactor = expressInteractor else { return }
+
+        let event: ExpressNotificationEvent
+        let sourceTokenItem = interactor.getSender().tokenItem
+
         switch suggestion {
         case .none:
-            break
+            return
         case .feeIsTooHigh(let reduceAmountBy):
             guard let interactor = expressInteractor else { return }
 
@@ -209,7 +221,18 @@ class ExpressNotificationManager {
                 self?.delegate?.didTapNotificationButton(with: id, action: actionType)
             }
             notificationInputsSubject.value.appendIfNotContains(notification)
+            event = .withdrawalOptionalAmountChange(amount: reduceAmountBy.value, amountFormatted: reduceAmountBy.string())
+        case .cardanoWillBeSendAlongToken(let amount):
+            event = .cardanoWillBeSentWithToken(
+                tokenAmountFormatted: sourceTokenItem.currencySymbol,
+                cardanoAmountFormatted: amount.string()
+            )
         }
+
+        let notification = NotificationsFactory().buildNotificationInput(for: event) { [weak self] id, actionType in
+            self?.delegate?.didTapNotificationButton(with: id, action: actionType)
+        }
+        notificationInputsSubject.value.appendIfNotContains(notification)
     }
 }
 
