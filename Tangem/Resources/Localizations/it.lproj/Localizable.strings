@@ -534,8 +534,10 @@
 "toast_balances_hidden" = "Balances hidden";
 "toast_balances_shown" = "Balances shown";
 "toast_undo" = "Undo";
+"token_button_unavailability_generic_description" = "This operation is currently unavailable. Please try again later.";
 "token_button_unavailability_reason_buy_unavailable" = "The purchase of the %@ is currently unavailable. But we are working on adding it.";
 "token_button_unavailability_reason_empty_balance" = "You do not have funds to send. Top up your account to be able to send funds from it.";
+"token_button_unavailability_reason_not_exchangeable" = "%@ swap is not available. But we are working on adding it.";
 "token_details_choose_address" = "Choose address";
 "token_details_hide_alert_hide" = "Hide";
 "token_details_hide_alert_message" = "You are about to hide this token from the main screen. You can add it back anytime through the manage tokens page.";
