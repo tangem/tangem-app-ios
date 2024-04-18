@@ -20,7 +20,6 @@ enum TokenNotificationEvent: Hashable {
     case rentFee(rentMessage: String)
     case noAccount(message: String)
     case existentialDepositWarning(message: String)
-    case longTransaction(message: String)
     case notEnoughFeeForTransaction(configuration: NotEnoughFeeConfiguration)
     case solanaHighImpact
 
@@ -33,10 +32,8 @@ enum TokenNotificationEvent: Hashable {
         }
 
         switch reason {
-        case .zeroWalletBalance, .hasPendingTransaction, .blockchainUnreachable:
+        case .zeroWalletBalance, .hasPendingTransaction, .blockchainUnreachable, .cantSignLongTransactions:
             return nil
-        case .cantSignLongTransactions:
-            return .longTransaction(message: message)
         case .zeroFeeCurrencyBalance(let eventConfiguration):
             let configuration = NotEnoughFeeConfiguration(
                 isFeeCurrencyPurchaseAllowed: isFeeCurrencyPurchaseAllowed,
@@ -49,7 +46,7 @@ enum TokenNotificationEvent: Hashable {
     var buttonAction: NotificationButtonActionType? {
         switch self {
         // One notification with button action will be added later
-        case .networkUnreachable, .someNetworksUnreachable, .rentFee, .existentialDepositWarning, .longTransaction, .noAccount, .solanaHighImpact:
+        case .networkUnreachable, .someNetworksUnreachable, .rentFee, .existentialDepositWarning, .noAccount, .solanaHighImpact:
             return nil
         case .notEnoughFeeForTransaction(let configuration):
             let eventConfig = configuration.eventConfiguration
@@ -73,8 +70,6 @@ extension TokenNotificationEvent: NotificationEvent {
             return .string(Localization.warningNoAccountTitle)
         case .existentialDepositWarning:
             return .string(Localization.warningExistentialDepositTitle)
-        case .longTransaction:
-            return .string(Localization.warningLongTransactionTitle)
         case .notEnoughFeeForTransaction(let configuration):
             return .string(Localization.warningSendBlockedFundsForFeeTitle(configuration.eventConfiguration.feeAmountTypeName))
         case .solanaHighImpact:
@@ -94,8 +89,6 @@ extension TokenNotificationEvent: NotificationEvent {
             return message
         case .existentialDepositWarning(let message):
             return message
-        case .longTransaction(let message):
-            return message
         case .notEnoughFeeForTransaction(let configuration):
             return Localization.warningSendBlockedFundsForFeeMessage(
                 configuration.eventConfiguration.transactionAmountTypeName,
@@ -111,7 +104,7 @@ extension TokenNotificationEvent: NotificationEvent {
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .networkUnreachable, .someNetworksUnreachable, .rentFee, .longTransaction, .existentialDepositWarning, .noAccount, .solanaHighImpact:
+        case .networkUnreachable, .someNetworksUnreachable, .rentFee, .existentialDepositWarning, .noAccount, .solanaHighImpact:
             return .secondary
         // One white notification will be added later
         case .notEnoughFeeForTransaction:
@@ -121,7 +114,7 @@ extension TokenNotificationEvent: NotificationEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .networkUnreachable, .someNetworksUnreachable, .longTransaction, .solanaHighImpact:
+        case .networkUnreachable, .someNetworksUnreachable, .solanaHighImpact:
             return .init(iconType: .image(Assets.attention.image))
         case .rentFee, .noAccount, .existentialDepositWarning:
             return .init(iconType: .image(Assets.blueCircleWarning.image))
@@ -139,7 +132,6 @@ extension TokenNotificationEvent: NotificationEvent {
         case .networkUnreachable,
              .someNetworksUnreachable,
              .notEnoughFeeForTransaction,
-             .longTransaction,
              .solanaHighImpact:
             return .warning
         }
@@ -149,7 +141,7 @@ extension TokenNotificationEvent: NotificationEvent {
         switch self {
         case .rentFee:
             return true
-        case .networkUnreachable, .someNetworksUnreachable, .longTransaction, .existentialDepositWarning, .notEnoughFeeForTransaction, .noAccount, .solanaHighImpact:
+        case .networkUnreachable, .someNetworksUnreachable, .existentialDepositWarning, .notEnoughFeeForTransaction, .noAccount, .solanaHighImpact:
             return false
         }
     }
@@ -165,7 +157,6 @@ extension TokenNotificationEvent {
         case .rentFee: return nil
         case .noAccount: return nil
         case .existentialDepositWarning: return nil
-        case .longTransaction: return nil
         case .notEnoughFeeForTransaction: return .tokenNoticeNotEnoughFee
         case .solanaHighImpact: return nil
         }
