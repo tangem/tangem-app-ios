@@ -15,6 +15,13 @@ enum TokenNotificationEvent: Hashable {
         let eventConfiguration: TransactionSendAvailabilityProvider.SendingRestrictions.NotEnoughFeeConfiguration
     }
 
+    // [REDACTED_TODO_COMMENT]
+    enum UnfulfilledPrerequisitesConfiguration {
+        case missingHederaTokenAssociation
+        @available(*, unavailable, message: "Token trust lines support not implemented yet")
+        case missingTokenTrustline
+    }
+
     case networkUnreachable(currencySymbol: String)
     case someNetworksUnreachable
     case rentFee(rentMessage: String)
@@ -23,6 +30,7 @@ enum TokenNotificationEvent: Hashable {
     case longTransaction(message: String)
     case notEnoughFeeForTransaction(configuration: NotEnoughFeeConfiguration)
     case solanaHighImpact
+    case hasUnfulfilledPrerequisites(configuration: UnfulfilledPrerequisitesConfiguration)
 
     static func event(
         for reason: TransactionSendAvailabilityProvider.SendingRestrictions,
@@ -56,6 +64,8 @@ enum TokenNotificationEvent: Hashable {
             return configuration.isFeeCurrencyPurchaseAllowed
                 ? .openFeeCurrency(currencySymbol: eventConfig.currencyButtonTitle ?? eventConfig.feeAmountTypeCurrencySymbol)
                 : nil
+        case .hasUnfulfilledPrerequisites(.missingHederaTokenAssociation):
+            return .addHederaTokenAssociation
         }
     }
 }
@@ -79,6 +89,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return .string(Localization.warningSendBlockedFundsForFeeTitle(configuration.eventConfiguration.feeAmountTypeName))
         case .solanaHighImpact:
             return .string(Localization.warningSolanaFeeTitle)
+        case .hasUnfulfilledPrerequisites(configuration: .missingHederaTokenAssociation):
+            return .string("Associate your token") // [REDACTED_TODO_COMMENT]
         }
     }
 
@@ -106,6 +118,8 @@ extension TokenNotificationEvent: NotificationEvent {
             )
         case .solanaHighImpact:
             return Localization.warningSolanaFeeMessage
+        case .hasUnfulfilledPrerequisites(configuration: .missingHederaTokenAssociation):
+            return "This token must be associated with your Hedera account before you can receive it. Association fee X HBAR" // [REDACTED_TODO_COMMENT]
         }
     }
 
@@ -116,6 +130,8 @@ extension TokenNotificationEvent: NotificationEvent {
         // One white notification will be added later
         case .notEnoughFeeForTransaction:
             return .primary
+        case .hasUnfulfilledPrerequisites(configuration: .missingHederaTokenAssociation):
+            return .action
         }
     }
 
@@ -127,6 +143,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.blueCircleWarning.image))
         case .notEnoughFeeForTransaction(let configuration):
             return .init(iconType: .image(Image(configuration.eventConfiguration.feeAmountTypeIconName)))
+        case .hasUnfulfilledPrerequisites(configuration: .missingHederaTokenAssociation):
+            return .init(iconType: .image(Tokens.hederaFill.image))
         }
     }
 
@@ -142,6 +160,8 @@ extension TokenNotificationEvent: NotificationEvent {
              .longTransaction,
              .solanaHighImpact:
             return .warning
+        case .hasUnfulfilledPrerequisites(configuration: .missingHederaTokenAssociation):
+            return .critical // [REDACTED_TODO_COMMENT]
         }
     }
 
@@ -149,7 +169,14 @@ extension TokenNotificationEvent: NotificationEvent {
         switch self {
         case .rentFee:
             return true
-        case .networkUnreachable, .someNetworksUnreachable, .longTransaction, .existentialDepositWarning, .notEnoughFeeForTransaction, .noAccount, .solanaHighImpact:
+        case .networkUnreachable,
+             .someNetworksUnreachable,
+             .longTransaction,
+             .existentialDepositWarning,
+             .notEnoughFeeForTransaction,
+             .noAccount,
+             .solanaHighImpact,
+             .hasUnfulfilledPrerequisites(configuration: .missingHederaTokenAssociation):
             return false
         }
     }
@@ -168,6 +195,7 @@ extension TokenNotificationEvent {
         case .longTransaction: return nil
         case .notEnoughFeeForTransaction: return .tokenNoticeNotEnoughFee
         case .solanaHighImpact: return nil
+        case .hasUnfulfilledPrerequisites(configuration: .missingHederaTokenAssociation): return nil // [REDACTED_TODO_COMMENT]
         }
     }
 
