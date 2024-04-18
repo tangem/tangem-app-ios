@@ -33,7 +33,7 @@ enum TokenNotificationEvent: Hashable {
         }
 
         switch reason {
-        case .zeroWalletBalance, .hasPendingTransaction:
+        case .zeroWalletBalance, .hasPendingTransaction, .blockchainUnreachable:
             return nil
         case .cantSignLongTransactions:
             return .longTransaction(message: message)
