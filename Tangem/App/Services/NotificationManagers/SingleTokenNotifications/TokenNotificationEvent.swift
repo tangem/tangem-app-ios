@@ -27,7 +27,6 @@ enum TokenNotificationEvent: Hashable {
     case rentFee(rentMessage: String)
     case noAccount(message: String)
     case existentialDepositWarning(message: String)
-    case longTransaction(message: String)
     case notEnoughFeeForTransaction(configuration: NotEnoughFeeConfiguration)
     case solanaHighImpact
     case hasUnfulfilledPrerequisites(configuration: UnfulfilledPrerequisitesConfiguration)
@@ -41,10 +40,8 @@ enum TokenNotificationEvent: Hashable {
         }
 
         switch reason {
-        case .zeroWalletBalance, .hasPendingTransaction, .blockchainUnreachable:
+        case .zeroWalletBalance, .hasPendingTransaction, .blockchainUnreachable, .cantSignLongTransactions:
             return nil
-        case .cantSignLongTransactions:
-            return .longTransaction(message: message)
         case .zeroFeeCurrencyBalance(let eventConfiguration):
             let configuration = NotEnoughFeeConfiguration(
                 isFeeCurrencyPurchaseAllowed: isFeeCurrencyPurchaseAllowed,
@@ -61,7 +58,6 @@ enum TokenNotificationEvent: Hashable {
              .someNetworksUnreachable,
              .rentFee,
              .existentialDepositWarning,
-             .longTransaction,
              .noAccount,
              .solanaHighImpact:
             return nil
@@ -89,8 +85,6 @@ extension TokenNotificationEvent: NotificationEvent {
             return .string(Localization.warningNoAccountTitle)
         case .existentialDepositWarning:
             return .string(Localization.warningExistentialDepositTitle)
-        case .longTransaction:
-            return .string(Localization.warningLongTransactionTitle)
         case .notEnoughFeeForTransaction(let configuration):
             return .string(Localization.warningSendBlockedFundsForFeeTitle(configuration.eventConfiguration.feeAmountTypeName))
         case .solanaHighImpact:
@@ -112,8 +106,6 @@ extension TokenNotificationEvent: NotificationEvent {
             return message
         case .existentialDepositWarning(let message):
             return message
-        case .longTransaction(let message):
-            return message
         case .notEnoughFeeForTransaction(let configuration):
             return Localization.warningSendBlockedFundsForFeeMessage(
                 configuration.eventConfiguration.transactionAmountTypeName,
@@ -134,7 +126,6 @@ extension TokenNotificationEvent: NotificationEvent {
         case .networkUnreachable,
              .someNetworksUnreachable,
              .rentFee,
-             .longTransaction,
              .existentialDepositWarning,
              .noAccount,
              .solanaHighImpact:
@@ -149,7 +140,7 @@ extension TokenNotificationEvent: NotificationEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .networkUnreachable, .someNetworksUnreachable, .longTransaction, .solanaHighImpact:
+        case .networkUnreachable, .someNetworksUnreachable, .solanaHighImpact:
             return .init(iconType: .image(Assets.attention.image))
         case .rentFee, .noAccount, .existentialDepositWarning:
             return .init(iconType: .image(Assets.blueCircleWarning.image))
@@ -169,7 +160,6 @@ extension TokenNotificationEvent: NotificationEvent {
         case .networkUnreachable,
              .someNetworksUnreachable,
              .notEnoughFeeForTransaction,
-             .longTransaction,
              .solanaHighImpact:
             return .warning
         case .hasUnfulfilledPrerequisites(configuration: .missingHederaTokenAssociation):
@@ -183,7 +173,6 @@ extension TokenNotificationEvent: NotificationEvent {
             return true
         case .networkUnreachable,
              .someNetworksUnreachable,
-             .longTransaction,
              .existentialDepositWarning,
              .notEnoughFeeForTransaction,
              .noAccount,
@@ -204,7 +193,6 @@ extension TokenNotificationEvent {
         case .rentFee: return nil
         case .noAccount: return nil
         case .existentialDepositWarning: return nil
-        case .longTransaction: return nil
         case .notEnoughFeeForTransaction: return .tokenNoticeNotEnoughFee
         case .solanaHighImpact: return nil
         case .hasUnfulfilledPrerequisites(configuration: .missingHederaTokenAssociation): return nil // [REDACTED_TODO_COMMENT]
