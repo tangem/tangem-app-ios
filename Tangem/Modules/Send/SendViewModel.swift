@@ -718,7 +718,13 @@ extension SendViewModel: NotificationTapDelegate {
             reduceAmountBy(amount)
         case .reduceAmountTo(let amount, _):
             reduceAmountTo(amount)
-        default:
+        case .generateAddresses,
+             .backupCard,
+             .buyCrypto,
+             .refresh,
+             .goToProvider,
+             .exchange,
+             .addHederaTokenAssociation:
             assertionFailure("Notification tap not handled")
         }
     }
