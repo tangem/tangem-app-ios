@@ -14,12 +14,21 @@ struct SendDestinationTextViewInputField: View {
     @Binding var text: String
     let placeholder: String
 
+    let font: UIFont
+    let color: UIColor
+
     @State private var currentHeight: CGFloat = 10
     @State private var width: CGFloat = 10
 
     var body: some View {
         ZStack(alignment: .leading) {
-            CustomTextView(text: $text, currentHeight: $currentHeight, width: $width, textFont: UIFont.preferredFont(forTextStyle: .body), textColor: .textPrimary1)
+            CustomTextView(
+                text: $text,
+                currentHeight: $currentHeight,
+                width: $width,
+                font: font,
+                color: color
+            )
 
             if text.isEmpty {
                 Text(placeholder)
@@ -37,8 +46,8 @@ private struct CustomTextView: UIViewRepresentable {
     @Binding var currentHeight: CGFloat
     @Binding var width: CGFloat
 
-    let textFont: UIFont
-    let textColor: UIColor
+    let font: UIFont
+    let color: UIColor
 
     func makeUIView(context: Context) -> UITextView {
         let textView = UITextView()
@@ -52,7 +61,7 @@ private struct CustomTextView: UIViewRepresentable {
         textView.textContainer.lineFragmentPadding = 0
 
 //        textView.attributedText = attributedText(text)
-//        textView.textColor = textColor
+//        textView.color = color
 //        updateHeight(textView)
 
 //        self.textView = textView
@@ -71,7 +80,7 @@ private struct CustomTextView: UIViewRepresentable {
     func updateUIView(_ uiView: UITextView, context: Context) {
         print("ZZZ update view")
         uiView.attributedText = attributedText(text)
-        uiView.textColor = textColor
+        uiView.textColor = color
         updateHeight(uiView)
     }
 
@@ -93,7 +102,7 @@ private struct CustomTextView: UIViewRepresentable {
 
         let attributes: [NSAttributedString.Key: Any] = [
             NSAttributedString.Key.paragraphStyle: paragraphStyle,
-            NSAttributedString.Key.font: textFont,
+            NSAttributedString.Key.font: font,
         ]
 
         return NSAttributedString(string: text, attributes: attributes)
