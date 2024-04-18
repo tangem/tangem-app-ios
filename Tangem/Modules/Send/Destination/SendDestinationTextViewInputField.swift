@@ -17,6 +17,7 @@ struct SendDestinationTextViewInputField: View {
     let font: UIFont
     let color: UIColor
 
+    @State private var showPlaceholder = false
     @State private var currentHeight: CGFloat = 10
     @State private var width: CGFloat = 10
 
@@ -24,13 +25,14 @@ struct SendDestinationTextViewInputField: View {
         ZStack(alignment: .leading) {
             CustomTextView(
                 text: $text,
+                showPlaceholder: $showPlaceholder,
                 currentHeight: $currentHeight,
                 width: $width,
                 font: font,
                 color: color
             )
 
-            if text.isEmpty {
+            if showPlaceholder {
                 Text(placeholder)
                     .style(Fonts.Regular.body, color: Colors.Text.disabled)
             }
@@ -43,6 +45,7 @@ struct SendDestinationTextViewInputField: View {
 
 private struct CustomTextView: UIViewRepresentable {
     @Binding var text: String
+    @Binding var showPlaceholder: Bool
     @Binding var currentHeight: CGFloat
     @Binding var width: CGFloat
 
@@ -78,10 +81,15 @@ private struct CustomTextView: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: UITextView, context: Context) {
-        print("ZZZ update view")
-        uiView.attributedText = attributedText(text)
-        uiView.textColor = color
-        updateHeight(uiView)
+        DispatchQueue.main.async {
+            uiView.attributedText = attributedText(text)
+            uiView.textColor = color
+
+            showPlaceholder = text.isEmpty
+
+            let size = uiView.sizeThatFits(CGSize(width: width, height: .infinity))
+            currentHeight = size.height
+        }
     }
 
     func makeCoordinator() -> Coordinator {
