@@ -17,7 +17,12 @@ struct SendDestinationTextView: View {
     private var titleNamespaceId: String?
     private var textNamespaceId: String?
     private var clearButtonNamespaceId: String?
-    private var inputFieldFont = Fonts.Regular.subheadline
+
+    private let inputFieldFont = Fonts.Regular.subheadline
+    private let inputFieldUIFont = UIFont.preferredFont(forTextStyle: .subheadline)
+
+    private let inputFieldColor = Colors.Text.primary1
+    private let inputFieldUIColor = UIColor.textPrimary1
 
     @State private var inputWidth: CGFloat = 0
 
@@ -28,7 +33,7 @@ struct SendDestinationTextView: View {
     var body: some View {
         Group {
             if viewModel.showAddressIcon {
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 2) {
                     fieldName
 
                     ZStack(alignment: .trailing) {
@@ -45,7 +50,8 @@ struct SendDestinationTextView: View {
                             .opacity(0)
                     }
                 }
-                .padding(.vertical, 12)
+                .padding(.top, 12)
+                .padding(.bottom, 2)
             } else {
                 ZStack(alignment: .trailing) {
                     VStack(alignment: .leading, spacing: 2) {
@@ -115,17 +121,22 @@ struct SendDestinationTextView: View {
             HStack(spacing: 12) {
                 Group {
                     if viewModel.allowMultilineText {
-                        SendDestinationTextViewInputField(text: $viewModel.input, placeholder: viewModel.placeholder)
+                        SendDestinationTextViewInputField(
+                            text: $viewModel.input,
+                            placeholder: viewModel.placeholder,
+                            font: inputFieldUIFont,
+                            color: inputFieldUIColor
+                        )
 //                            .readGeometry(\.size.width, bindTo: $inputWidth)
                     } else {
                         TextField(viewModel.placeholder, text: $viewModel.input)
+                            .style(inputFieldFont, color: inputFieldColor)
                     }
                 }
                 .disabled(viewModel.isDisabled)
                 .autocapitalization(.none)
                 .keyboardType(.asciiCapable)
                 .disableAutocorrection(true)
-                .style(inputFieldFont, color: Colors.Text.primary1)
                 .matchedGeometryEffectOptional(id: textNamespaceId, in: namespace)
 
 //                if !viewModel.input.isEmpty {
