@@ -538,6 +538,7 @@
 "token_button_unavailability_reason_buy_unavailable" = "The purchase of the %@ is currently unavailable. But we are working on adding it.";
 "token_button_unavailability_reason_empty_balance" = "You do not have funds to send. Top up your account to be able to send funds from it.";
 "token_button_unavailability_reason_not_exchangeable" = "%@ swap is not available. But we are working on adding it.";
+"token_button_unavailability_reason_sell_unavailable" = "Sell of the %@ coin is currently unavailable. But we are working on adding it.";
 "token_details_choose_address" = "Choose address";
 "token_details_hide_alert_hide" = "隱藏";
 "token_details_hide_alert_message" = "您即將在主屏幕上隱藏此代幣。您可以隨時通過管理代幣頁面將其添加回來。";
