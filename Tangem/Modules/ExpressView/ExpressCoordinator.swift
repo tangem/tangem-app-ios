@@ -98,6 +98,12 @@ extension ExpressCoordinator: ExpressRoutable {
     func presentFeeCurrency(for walletModel: WalletModel, userWalletModel: UserWalletModel) {
         dismiss(with: (walletModel, userWalletModel))
     }
+
+    func closeSwappingView() {
+        DispatchQueue.main.async {
+            self.dismiss(with: nil)
+        }
+    }
 }
 
 // MARK: - ExpressTokensListRoutable
