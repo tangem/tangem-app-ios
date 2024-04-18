@@ -209,7 +209,6 @@ extension TokenNotificationEvent {
              .rentFee,
              .noAccount,
              .existentialDepositWarning,
-             .longTransaction,
              .solanaHighImpact,
              .hasUnfulfilledPrerequisites(configuration: .missingHederaTokenAssociation):
             return [:]
