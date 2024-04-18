@@ -121,8 +121,8 @@ extension DetailsViewModel {
             sessionFilter: userWalletModel.config.cardSessionFilter
         )
 
-        let scanner = CommonCardScanner(
-            tangemSdk: userWalletModel.config.makeTangemSdk(),
+        let scanner = CardScannerFactory().makeScanner(
+            with: userWalletModel.config.makeTangemSdk(),
             parameters: scanParameters
         )
 
@@ -300,7 +300,7 @@ extension DetailsViewModel {
         Analytics.beginLoggingCardScan(source: .settings)
         isScanning = true
 
-        userWalletRepository.addOrScan { [weak self] result in
+        userWalletRepository.addOrScan(scanner: CardScannerFactory().makeDefaultScanner()) { [weak self] result in
             guard let self else {
                 return
             }
