@@ -75,6 +75,13 @@ final class SingleTokenNotificationManager {
             events.append(.solanaHighImpact)
         }
 
+        // [REDACTED_TODO_COMMENT]
+        // [REDACTED_TODO_COMMENT]
+        if case .hedera = walletModel.tokenItem.blockchain,
+           walletModel.assetPrerequisitesManager?.hasPrerequisites(for: walletModel.amountType) == true {
+            events.append(.hasUnfulfilledPrerequisites(configuration: .missingHederaTokenAssociation))
+        }
+
         if let sendingRestrictions = walletModel.sendingRestrictions {
             let isFeeCurrencyPurchaseAllowed = walletModelsManager.walletModels.contains {
                 $0.tokenItem == walletModel.feeTokenItem && $0.blockchainNetwork == walletModel.blockchainNetwork
