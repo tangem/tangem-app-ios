@@ -36,10 +36,6 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     private let tokenRouter: SingleTokenRoutable
 
-    private var isSwapAvailable: Bool {
-        !walletModel.isCustom && swapAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem)
-    }
-
     private var percentFormatter = PercentFormatter()
     private var transactionHistoryBag: AnyCancellable?
     private var updateSubscription: AnyCancellable?
@@ -227,6 +223,8 @@ extension SingleTokenBaseViewModel {
     private func bind() {
         walletModel.walletDidChangePublisher
             .receive(on: DispatchQueue.main)
+            .removeDuplicates()
+            .filter { $0 != .loading }
             .sink { _ in } receiveValue: { [weak self] newState in
                 AppLog.shared.debug("Token details receive new wallet model state: \(newState)")
                 self?.updateActionButtons()
@@ -315,7 +313,7 @@ extension SingleTokenBaseViewModel {
         case .receive:
             return false
         case .exchange:
-            return isBlockchainUnreachable || !isSwapAvailable
+            return isSwapDisabled()
         case .sell:
             return isBlockchainUnreachable || !exchangeUtility.sellAvailable
         case .copyAddress, .hide:
@@ -340,11 +338,26 @@ extension SingleTokenBaseViewModel {
         }
 
         switch walletModel.sendingRestrictions {
-        case .zeroWalletBalance, .cantSignLongTransactions, .hasPendingTransaction:
+        case .zeroWalletBalance, .cantSignLongTransactions, .hasPendingTransaction, .blockchainUnreachable:
             return true
         case .none, .zeroFeeCurrencyBalance:
             return false
         }
+    }
+
+    private func isSwapDisabled() -> Bool {
+        if walletModel.isCustom {
+            return true
+        }
+
+        switch walletModel.sendingRestrictions {
+        case .cantSignLongTransactions, .blockchainUnreachable:
+            return true
+        default:
+            break
+        }
+
+        return !swapAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem)
     }
 }
 
@@ -370,18 +383,12 @@ extension SingleTokenBaseViewModel {
     }
 
     func openSend() {
-        switch walletModel.sendingRestrictions {
-        case .hasPendingTransaction:
-            if let message = walletModel.sendingRestrictions?.description {
-                alert = .init(title: Localization.warningSendBlockedPendingTransactionsTitle, message: message)
-            }
-        case .cantSignLongTransactions:
-            alert = .init(title: Localization.warningLongTransactionTitle, message: Localization.warningLongTransactionMessage)
-        case .zeroWalletBalance:
-            alert = .init(title: Localization.commonWarning, message: Localization.tokenButtonUnavailabilityReasonEmptyBalance)
-        case .none, .zeroFeeCurrencyBalance:
-            tokenRouter.openSend(walletModel: walletModel)
+        if let sendUnavailableAlert = SingleTokenAlertBuilder().sendAlert(for: walletModel.sendingRestrictions) {
+            alert = sendUnavailableAlert
+            return
         }
+
+        tokenRouter.openSend(walletModel: walletModel)
     }
 
     func openExchangeAndLogAnalytics() {
@@ -390,6 +397,25 @@ extension SingleTokenBaseViewModel {
     }
 
     func openExchange() {
+        let alertBuilder = SingleTokenAlertBuilder()
+
+        switch walletModel.sendingRestrictions {
+        case .cantSignLongTransactions, .blockchainUnreachable:
+            alert = alertBuilder.sendAlert(for: walletModel.sendingRestrictions)
+            return
+        default:
+            break
+        }
+
+        if let alertToDisplay = alertBuilder.swapAlert(
+            for: walletModel.tokenItem,
+            tokenItemSwapState: swapAvailabilityProvider.swapState(for: walletModel.tokenItem),
+            isCustom: walletModel.isCustom
+        ) {
+            alert = alertToDisplay
+            return
+        }
+
         tokenRouter.openExchange(walletModel: walletModel)
     }
 
