@@ -115,7 +115,7 @@ struct SendDestinationTextView: View {
             HStack(spacing: 12) {
                 Group {
                     if viewModel.allowMultilineText {
-                        SendDestinationTextView2(text: $viewModel.input, placeholder: viewModel.placeholder)
+                        SendDestinationTextViewInputField(text: $viewModel.input, placeholder: viewModel.placeholder)
 //                            .readGeometry(\.size.width, bindTo: $inputWidth)
                     } else {
                         TextField(viewModel.placeholder, text: $viewModel.input)
