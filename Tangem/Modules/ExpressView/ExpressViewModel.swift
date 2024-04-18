@@ -155,6 +155,10 @@ final class ExpressViewModel: ObservableObject {
     func didCloseFeeSelectorSheet() {
         restartTimer()
     }
+
+    func didTapCloseButton() {
+        coordinator?.closeSwappingView()
+    }
 }
 
 // MARK: - Navigation
