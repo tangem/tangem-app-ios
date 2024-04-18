@@ -26,7 +26,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
 
     private var bag = Set<AnyCancellable>()
-    private var notificatioChangeSubscription: AnyCancellable?
 
     var iconUrl: URL? {
         guard let id = walletModel.tokenItem.id else {
