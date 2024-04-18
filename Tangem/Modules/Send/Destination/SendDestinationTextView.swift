@@ -110,7 +110,7 @@ struct SendDestinationTextView: View {
                 clearIcon
 
                 if viewModel.allowMultilineText {
-//                    SendDestinationTextView2(text: .constant("Two\nLines"), placeholder: viewModel.placeholder)
+                    SendDestinationTextViewInputField(text: .constant("Two\nLines"), placeholder: "Placeholder", font: inputFieldUIFont, color: inputFieldUIColor)
                 } else {
                     TextField("", text: .constant("One Line"))
                         .style(inputFieldFont, color: .black)
@@ -127,7 +127,6 @@ struct SendDestinationTextView: View {
                             font: inputFieldUIFont,
                             color: inputFieldUIColor
                         )
-//                            .readGeometry(\.size.width, bindTo: $inputWidth)
                     } else {
                         TextField(viewModel.placeholder, text: $viewModel.input)
                             .style(inputFieldFont, color: inputFieldColor)
@@ -139,14 +138,12 @@ struct SendDestinationTextView: View {
                 .disableAutocorrection(true)
                 .matchedGeometryEffectOptional(id: textNamespaceId, in: namespace)
 
-//                if !viewModel.input.isEmpty {
                 Button(action: viewModel.clearInput) {
                     clearIcon
                         .matchedGeometryEffectOptional(id: clearButtonNamespaceId, in: namespace)
                 }
                 .hidden(viewModel.input.isEmpty)
                 .disabled(viewModel.input.isEmpty)
-//                }
             }
         }
     }
