@@ -51,6 +51,12 @@ struct ExpressView: View {
         .readGeometry(bindTo: $viewGeometryInfo)
         .ignoresSafeArea(.keyboard)
         .navigationBarTitle(Text(Localization.commonSwap), displayMode: .inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(Localization.commonClose, action: {})
+                    .foregroundColor(Colors.Button.primary)
+            }
+        }
         .alert(item: $viewModel.alert) { $0.alert }
         // For animate button below informationSection
         .animation(.easeInOut, value: viewModel.providerState?.id)
