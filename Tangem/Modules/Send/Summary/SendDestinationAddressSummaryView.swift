@@ -28,11 +28,14 @@ struct SendDestinationAddressSummaryView: View {
                     .matchedGeometryEffectOptional(id: SendViewNamespaceId.addressIcon.rawValue, in: namespace)
                     .frame(size: CGSize(bothDimensions: 36))
 
-                Text(address)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
-                    .multilineTextAlignment(.leading)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .matchedGeometryEffectOptional(id: SendViewNamespaceId.addressText.rawValue, in: namespace)
+                SendDestinationTextViewInputField(
+                    text: .constant(address),
+                    placeholder: "",
+                    font: .preferredFont(forTextStyle: .subheadline),
+                    color: .textPrimary1
+                )
+//                .disabled(true)
+                .matchedGeometryEffectOptional(id: SendViewNamespaceId.addressText.rawValue, in: namespace)
 
                 Assets.clear.image
                     .renderingMode(.template)
@@ -41,7 +44,9 @@ struct SendDestinationAddressSummaryView: View {
                     .matchedGeometryEffectOptional(id: SendViewNamespaceId.addressClearButton.rawValue, in: namespace)
             }
         }
-        .padding(.vertical, 14)
+
+//        .padding(.vertical, 14)
+//        .
     }
 }
 
