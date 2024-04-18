@@ -1,5 +1,5 @@
 //
-//  SendDestinationTextViewInput.swift
+//  SendDestinationTextViewInputField.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,16 +10,16 @@ import Foundation
 import UIKit
 import SwiftUI
 
-struct SendDestinationTextView2: View {
+struct SendDestinationTextViewInputField: View {
     @Binding var text: String
     let placeholder: String
 
-    @State private var height: CGFloat = 10
+    @State private var currentHeight: CGFloat = 10
     @State private var width: CGFloat = 10
 
     var body: some View {
         ZStack(alignment: .leading) {
-            CustomTextView(text: $text, height: $height, width: $width, textFont: UIFont.preferredFont(forTextStyle: .body), textColor: .textPrimary1)
+            CustomTextView(text: $text, currentHeight: $currentHeight, width: $width, textFont: UIFont.preferredFont(forTextStyle: .body), textColor: .textPrimary1)
 
             if text.isEmpty {
                 Text(placeholder)
@@ -27,26 +27,14 @@ struct SendDestinationTextView2: View {
             }
         }
         .readGeometry(\.size.width, bindTo: $width)
-        .frame(minHeight: height, maxHeight: height)
+        .frame(minHeight: currentHeight, maxHeight: currentHeight)
         .border(.red.opacity(0.5))
-        .overlay(alignment: .topLeading) {
-            Text("\(height)")
-                .font(.footnote)
-                .foregroundColor(.red)
-        }
-        .onAppear {
-            print("ZZZ on appear")
-            let t = text
-            text = t
-            text = " "
-            text = t
-        }
     }
 }
 
 private struct CustomTextView: UIViewRepresentable {
     @Binding var text: String
-    @Binding var height: CGFloat
+    @Binding var currentHeight: CGFloat
     @Binding var width: CGFloat
 
     let textFont: UIFont
@@ -95,7 +83,7 @@ private struct CustomTextView: UIViewRepresentable {
         let size = uiView.sizeThatFits(CGSize(width: width, height: .infinity))
         print("ZZZ new size", text, width, size)
         DispatchQueue.main.async {
-            height = size.height
+            currentHeight = size.height
         }
     }
 
