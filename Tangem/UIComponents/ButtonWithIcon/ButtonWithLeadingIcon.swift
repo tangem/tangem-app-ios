@@ -57,7 +57,7 @@ struct FixedSizeButtonWithLeadingIcon: View {
 }
 
 extension FixedSizeButtonWithLeadingIcon {
-    enum Style {
+    enum Style: Hashable {
         case `default`
         case disabled
 
