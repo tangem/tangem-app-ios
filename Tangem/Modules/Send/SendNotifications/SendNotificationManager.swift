@@ -102,7 +102,14 @@ class CommonSendNotificationManager: SendNotificationManager {
                         blockchainName: tokenItem.blockchain.displayName
                     )
                     updateEventVisibility(true, event: event)
-                case nil:
+
+                case .cardanoWillBeSendAlongToken(let amount):
+                    let event = SendNotificationEvent.cardanoWillBeSentWithToken(
+                        tokenAmountFormatted: tokenItem.currencySymbol,
+                        cardanoAmountFormatted: amount.string()
+                    )
+                    updateEventVisibility(true, event: event)
+                case .none:
                     let events = [
                         SendNotificationEvent.withdrawalOptionalAmountChange(amount: .zero, amountFormatted: "", blockchainName: ""),
                     ]
@@ -221,7 +228,7 @@ class CommonSendNotificationManager: SendNotificationManager {
     private func notificationEvent(from validationError: ValidationError) -> SendNotificationEvent? {
         switch validationError {
         case .dustAmount(let minimumAmount), .dustChange(let minimumAmount):
-            return SendNotificationEvent.minimumAmount(value: minimumAmount.string())
+            return .minimumAmount(value: minimumAmount.string())
         case .totalExceedsBalance, .amountExceedsBalance:
             return .totalExceedsBalance
         case .feeExceedsBalance:
@@ -229,11 +236,18 @@ class CommonSendNotificationManager: SendNotificationManager {
         case .minimumBalance(let minimumBalance):
             return .existentialDeposit(amount: minimumBalance.value, amountFormatted: minimumBalance.string())
         case .maximumUTXO(let blockchainName, let newAmount, let maxUtxos):
-            return SendNotificationEvent.withdrawalMandatoryAmountChange(
+            return .withdrawalMandatoryAmountChange(
                 amount: newAmount.value,
                 amountFormatted: newAmount.string(),
                 blockchainName: blockchainName,
                 maxUtxo: maxUtxos
+            )
+        case .cardanoHasTokens:
+            return .cardanoHasTokens
+        case .cardanoInsufficientBalanceToSendToken(let minimumAmount):
+            return .cardanoInsufficientBalanceToSendToken(
+                tokenAmountFormatted: tokenItem.currencySymbol,
+                cardanoAmountFormatted: minimumAmount.string()
             )
         default:
             return nil
