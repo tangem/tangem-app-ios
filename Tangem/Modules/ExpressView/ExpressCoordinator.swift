@@ -100,9 +100,7 @@ extension ExpressCoordinator: ExpressRoutable {
     }
 
     func closeSwappingView() {
-        DispatchQueue.main.async {
-            self.dismiss(with: nil)
-        }
+        self.dismiss(with: nil)
     }
 }
 
