@@ -31,8 +31,16 @@ struct SendSummarySectionViewModelFactory {
         self.tokenIconInfo = tokenIconInfo
     }
 
-    func makeDestinationViewData(address: String) -> SendDestinationSummaryViewData? {
-        return SendDestinationSummaryViewData(address: address)
+    func makeDestinationViewTypes(address: String, additionalField: (SendAdditionalFields, String)?) -> [SendDestinationSummaryViewType] {
+        var destinationViewTypes: [SendDestinationSummaryViewType] = [
+            .address(address: address),
+        ]
+
+        if let (additionalFieldType, additionalFieldValue) = additionalField {
+            destinationViewTypes.append(.additionalField(type: additionalFieldType, value: additionalFieldValue))
+        }
+
+        return destinationViewTypes
     }
 
     func makeAmountViewData(from amount: String?, amountAlternative: String?) -> SendAmountSummaryViewData? {
