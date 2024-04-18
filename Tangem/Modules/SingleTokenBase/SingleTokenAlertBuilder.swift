@@ -55,4 +55,12 @@ struct SingleTokenAlertBuilder {
 
         return alert
     }
+
+    func sellUnavailableAlert(for tokenItem: TokenItem) -> AlertBinder {
+        .init(title: "", message: Localization.tokenButtonUnavailabilityReasonSellUnavailable(tokenItem.name))
+    }
+
+    func buyUnavailableAlert(for tokenItem: TokenItem) -> AlertBinder {
+        .init(title: "", message: Localization.tokenButtonUnavailabilityReasonBuyUnavailable(tokenItem.name))
+    }
 }
