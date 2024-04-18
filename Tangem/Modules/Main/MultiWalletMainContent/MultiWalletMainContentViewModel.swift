@@ -436,9 +436,11 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionsProvider {
         let canSend = userWalletModel.config.hasFeature(.send) && walletModel.sendingRestrictions == .none
         let canSwap = userWalletModel.config.isFeatureVisible(.swapping) && swapAvailabilityProvider.canSwap(tokenItem: tokenItem.tokenItem) && !walletModel.isCustom
         let isBlockchainReachable = !walletModel.state.isBlockchainUnreachable
+        let canSignTransactions = walletModel.sendingRestrictions != .cantSignLongTransactions
 
         return actionsBuilder.buildTokenContextActions(
             canExchange: canExchange,
+            canSignTransactions: canSignTransactions,
             canSend: canSend,
             canSwap: canSwap,
             canHide: canManageTokens,
