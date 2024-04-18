@@ -19,6 +19,8 @@ struct SendDestinationTextView: View {
     private var clearButtonNamespaceId: String?
     private var inputFieldFont = Fonts.Regular.subheadline
 
+    @State private var inputWidth: CGFloat = 0
+
     init(viewModel: SendDestinationTextViewModel) {
         self.viewModel = viewModel
     }
@@ -101,9 +103,8 @@ struct SendDestinationTextView: View {
             Group {
                 clearIcon
 
-                if #available(iOS 16, *), viewModel.allowMultilineText {
-                    TextField("", text: .constant("Two\nLines"), axis: .vertical)
-                        .style(inputFieldFont, color: .black)
+                if viewModel.allowMultilineText {
+//                    SendDestinationTextView2(text: .constant("Two\nLines"), placeholder: viewModel.placeholder)
                 } else {
                     TextField("", text: .constant("One Line"))
                         .style(inputFieldFont, color: .black)
@@ -113,7 +114,12 @@ struct SendDestinationTextView: View {
 
             HStack(spacing: 12) {
                 Group {
-                    TextEditor(text: $viewModel.input)
+                    if viewModel.allowMultilineText {
+                        SendDestinationTextView2(text: $viewModel.input, placeholder: viewModel.placeholder)
+//                            .readGeometry(\.size.width, bindTo: $inputWidth)
+                    } else {
+                        TextField(viewModel.placeholder, text: $viewModel.input)
+                    }
                 }
                 .disabled(viewModel.isDisabled)
                 .autocapitalization(.none)
@@ -122,12 +128,14 @@ struct SendDestinationTextView: View {
                 .style(inputFieldFont, color: Colors.Text.primary1)
                 .matchedGeometryEffectOptional(id: textNamespaceId, in: namespace)
 
-                if !viewModel.input.isEmpty {
-                    Button(action: viewModel.clearInput) {
-                        clearIcon
-                            .matchedGeometryEffectOptional(id: clearButtonNamespaceId, in: namespace)
-                    }
+//                if !viewModel.input.isEmpty {
+                Button(action: viewModel.clearInput) {
+                    clearIcon
+                        .matchedGeometryEffectOptional(id: clearButtonNamespaceId, in: namespace)
                 }
+                .hidden(viewModel.input.isEmpty)
+                .disabled(viewModel.input.isEmpty)
+//                }
             }
         }
     }
