@@ -10,6 +10,8 @@ import Foundation
 import UIKit
 import SwiftUI
 
+// MARK: - SwiftUI view
+
 struct SendDestinationTextViewInputField: View {
     @Binding var text: String
     let placeholder: String
@@ -39,9 +41,10 @@ struct SendDestinationTextViewInputField: View {
         }
         .readGeometry(\.size.width, bindTo: $width)
         .frame(minHeight: currentHeight, maxHeight: currentHeight)
-        .border(.red.opacity(0.5))
     }
 }
+
+// MARK: - SwiftUI wrapper of UITextView
 
 private struct CustomTextView: UIViewRepresentable {
     @Binding var text: String
@@ -63,21 +66,7 @@ private struct CustomTextView: UIViewRepresentable {
 
         textView.textContainer.lineFragmentPadding = 0
 
-//        textView.attributedText = attributedText(text)
-//        textView.color = color
-//        updateHeight(textView)
-
-//        self.textView = textView
-
-        print("ZZZ make view")
-
         return textView
-    }
-
-    func updateHeight() {
-//        if let textView {
-//            updateHeight(textView)
-//        }
     }
 
     func updateUIView(_ uiView: UITextView, context: Context) {
@@ -98,7 +87,6 @@ private struct CustomTextView: UIViewRepresentable {
 
     private func updateHeight(_ uiView: UITextView) {
         let size = uiView.sizeThatFits(CGSize(width: width, height: .infinity))
-        print("ZZZ new size", text, width, size)
         DispatchQueue.main.async {
             currentHeight = size.height
         }
@@ -116,6 +104,8 @@ private struct CustomTextView: UIViewRepresentable {
         return NSAttributedString(string: text, attributes: attributes)
     }
 }
+
+// MARK: - Coordinator
 
 private extension CustomTextView {
     class Coordinator: NSObject, UITextViewDelegate {
