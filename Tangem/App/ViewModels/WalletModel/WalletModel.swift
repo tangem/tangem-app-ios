@@ -662,6 +662,10 @@ extension WalletModel {
     var existentialDepositProvider: ExistentialDepositProvider? {
         walletManager as? ExistentialDepositProvider
     }
+
+    var assetPrerequisitesManager: AssetPrerequisitesManager? {
+        walletManager as? AssetPrerequisitesManager
+    }
 }
 
 extension WalletModel: TransactionHistoryFetcher {
