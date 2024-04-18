@@ -400,11 +400,9 @@ class SendModel {
 
         if let newAmount {
             do {
-                let amount: Amount
-                amount = newAmount
-                try walletModel.transactionValidator.validate(amount: amount)
+                try walletModel.transactionValidator.validate(amount: newAmount)
 
-                validatedAmount = amount
+                validatedAmount = newAmount
                 amountError = nil
             } catch let validationError {
                 validatedAmount = nil
