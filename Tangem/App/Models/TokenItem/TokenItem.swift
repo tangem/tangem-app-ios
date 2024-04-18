@@ -10,6 +10,8 @@ import Foundation
 import BlockchainSdk
 import struct TangemSdk.DerivationPath
 
+typealias TokenItemId = String
+
 enum TokenItem: Hashable, Codable {
     case blockchain(BlockchainNetwork)
     case token(Token, BlockchainNetwork)
@@ -18,7 +20,7 @@ enum TokenItem: Hashable, Codable {
 
     var isToken: Bool { token != nil }
 
-    var id: String? {
+    var id: TokenItemId? {
         switch self {
         case .token(let token, _):
             return token.id
