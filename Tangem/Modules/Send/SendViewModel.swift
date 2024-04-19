@@ -17,7 +17,7 @@ final class SendViewModel: ObservableObject {
     @Published var stepAnimation: SendView.StepAnimation = .slideForward
     @Published var step: SendStep
     @Published var showBackButton = false
-    @Published var mainButtonType: SendMainButtonType = .next
+    @Published var mainButtonType: SendMainButtonType
     @Published var mainButtonLoading: Bool = false
     @Published var mainButtonDisabled: Bool = false
     @Published var updatingFees = false
@@ -146,6 +146,7 @@ final class SendViewModel: ObservableObject {
         }
         self.steps = steps
         step = firstStep
+        mainButtonType = Self.mainButtonType(for: firstStep, didReachSummaryScreen: false)
 
         let tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
         let cryptoIconURL: URL?
@@ -511,7 +512,7 @@ final class SendViewModel: ObservableObject {
         return false
     }
 
-    private func mainButtonType(for step: SendStep) -> SendMainButtonType {
+    private static func mainButtonType(for step: SendStep, didReachSummaryScreen: Bool) -> SendMainButtonType {
         switch step {
         case .amount, .destination, .fee:
             if didReachSummaryScreen {
@@ -590,7 +591,7 @@ final class SendViewModel: ObservableObject {
         // Gotta give some time to update animation variable
         self.stepAnimation = stepAnimation
 
-        mainButtonType = mainButtonType(for: step)
+        mainButtonType = Self.mainButtonType(for: step, didReachSummaryScreen: didReachSummaryScreen)
 
         DispatchQueue.main.async {
             self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
