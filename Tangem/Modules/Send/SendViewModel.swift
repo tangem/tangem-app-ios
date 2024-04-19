@@ -14,7 +14,7 @@ import AVFoundation
 final class SendViewModel: ObservableObject {
     // MARK: - ViewState
 
-    @Published var stepAnimation: SendView.StepAnimation = .slideForward
+    @Published var stepAnimation: SendView.StepAnimation
     @Published var step: SendStep
     @Published var showBackButton = false
     @Published var mainButtonType: SendMainButtonType
@@ -81,7 +81,7 @@ final class SendViewModel: ObservableObject {
 
     private var screenIdleStartTime: Date?
     private var currentPageAnimating: Bool? = nil
-    private var didReachSummaryScreen = false
+    private var didReachSummaryScreen: Bool
 
     private var currentStepValid: AnyPublisher<Bool, Never> {
         let inputFieldsValid = $step
@@ -147,6 +147,8 @@ final class SendViewModel: ObservableObject {
         self.steps = steps
         step = firstStep
         mainButtonType = Self.mainButtonType(for: firstStep, didReachSummaryScreen: false)
+        didReachSummaryScreen = (firstStep == .summary)
+        stepAnimation = (firstStep == .summary) ? .moveAndFade : .slideForward
 
         let tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
         let cryptoIconURL: URL?
