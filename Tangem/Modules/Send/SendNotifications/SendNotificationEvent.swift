@@ -148,9 +148,7 @@ extension SendNotificationEvent {
         switch self {
         case .networkFeeUnreachable:
             return .feeLevels
-        case .customFeeTooHigh:
-            return .customFee
-        case .minimumAmount, .existentialDeposit, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange, .totalExceedsBalance, .customFeeTooLow, .feeExceedsBalance:
+        case .minimumAmount, .existentialDeposit, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange, .totalExceedsBalance, .customFeeTooHigh, .customFeeTooLow, .feeExceedsBalance:
             return .summary
         }
     }
