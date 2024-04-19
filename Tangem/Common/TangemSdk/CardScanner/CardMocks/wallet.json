@@ -25,20 +25,20 @@
             "fast",
             "none"
         ],
-        "isPermanentWallet" : true,
         "securityDelay" : 15000,
         "isBackupAllowed" : true,
         "isSettingAccessCodeAllowed" : true,
         "isRemovingUserCodesAllowed" : false,
-        
+
         "isSelectBlockchainAllowed" : true,
         "isHDWalletAllowed" : true,
         "isSettingPasscodeAllowed" : true,
 
         "isPermanentWallet": false,
-        "isOverwritingIssuerExtraDataRestricted": true,
-        "isIssuerDataProtectedAgainstReplay": true,
-        "isSelectBlockchainAllowed": true
+        "isKeysImportAllowed" : false
+    },
+    "userSettings" : {
+        "isUserCodeRecoveryAllowed" : true
     },
     "issuer" : {
         "name" : "TANGEM AG",
@@ -70,9 +70,23 @@
             "totalSignedHashes" : 0,
             "index" : 0,
             "hasBackup" : true,
-            "derivedKeys" : [
-                
-            ],
+            "isImported" : false,
+            "derivedKeys" : {
+                "m/44'/0'/0'/0/0" : {
+                    "depth" : 0,
+                    "parentFingerprint" : "00000000",
+                    "chainCode" : "3665484A4E44F86CCB22483786E52B486C7C35A742D3A64C1D52B2D16CE0F5F4",
+                    "childNumber" : 0,
+                    "publicKey" : "033FC9999345E02E80194D74AFB47B16AEB6433B1B9297521BEA7DB0894CD174AF"
+                },
+                "m/44'/60'/0'/0/0" : {
+                    "chainCode" : "172B41C2D943C03219CB3D5A825698766A16C5BB0207FDFF770C5B757463F975",
+                    "childNumber" : 0,
+                    "parentFingerprint" : "00000000",
+                    "depth" : 0,
+                    "publicKey" : "036E3E1C1D98F64CF2E05E82F99F22EE97B436F54CCD5F73E1D660996ED4A03B9A"
+                }
+            },
             "curve" : "secp256k1",
             "publicKey" : "02BC15494B8349EB2E41C96B9C38E8D1BB32F19DE388DDDD6AB4935623EEE44641",
             "chainCode" : "59A8B5F8010116B1B63171EAB44E8F35B123077A84F1C796A3BF784CABD4962E",
@@ -84,9 +98,16 @@
             "totalSignedHashes" : 0,
             "index" : 1,
             "hasBackup" : true,
-            "derivedKeys" : [
-                
-            ],
+            "isImported" : false,
+            "derivedKeys" : {
+                "m/44'/501'/0'" : {
+                    "publicKey" : "25599BE19A2B890C7086203530AF5BBE15A86FFFA625D856A4C6FA6F534DE129",
+                    "chainCode" : "8ECC3E797AE918C32AC09AEC0FA63AEAFDF477147B106A170207E0E1DB41A93E",
+                    "depth" : 0,
+                    "childNumber" : 0,
+                    "parentFingerprint" : "00000000"
+                }
+            },
             "curve" : "ed25519",
             "publicKey" : "76D300FD1D54224DD6F79AD0712C08B8CBC88EF0F32E3F6842FB1EA08015E819",
             "chainCode" : "6D41CD0BD3C3121C81072FCAC0E0B7865EF8AA7D8409896D5092BF14D20CEF64",
