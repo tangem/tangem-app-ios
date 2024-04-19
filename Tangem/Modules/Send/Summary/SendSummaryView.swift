@@ -23,13 +23,14 @@ struct SendSummaryView: View {
                 if !viewModel.animatingDestinationOnAppear {
                     GroupedSection(viewModel.destinationViewTypes) { type in
                         switch type {
-                        case .address(let address):
+                        case .address(let address, let corners):
                             SendDestinationAddressSummaryView(address: address)
                                 .setNamespace(namespace)
+                                .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)
                                 .background(
                                     viewModel.destinationBackground
-//                                            .cornerRadiusContinuous(14)
-                                        .matchedGeometryEffectOptional(id: SendViewNamespaceId.addressContainer, in: namespace)
+                                        .cornerRadius(GroupedSectionConstants.defaultCornerRadius, corners: corners)
+                                        .matchedGeometryEffect(id: SendViewNamespaceId.addressBackground.rawValue, in: namespace)
                                 )
                         case .additionalField(let type, let value):
                             if let name = type.name {
@@ -37,15 +38,18 @@ struct SendSummaryView: View {
                                     .setNamespace(namespace)
                                     .setTitleNamespaceId(SendViewNamespaceId.addressAdditionalFieldTitle.rawValue)
                                     .setTextNamespaceId(SendViewNamespaceId.addressAdditionalFieldText.rawValue)
+                                    .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)
                                     .background(
                                         viewModel.destinationBackground
-//                                            .cornerRadiusContinuous(14)
-                                            .matchedGeometryEffectOptional(id: SendViewNamespaceId.addressAdditionalFieldContainer, in: namespace)
+                                            .cornerRadius(GroupedSectionConstants.defaultCornerRadius, corners: [.bottomLeft, .bottomRight])
+                                            .matchedGeometryEffect(id: SendViewNamespaceId.addressAdditionalFieldBackground.rawValue, in: namespace)
                                     )
                             }
                         }
                     }
-                    .backgroundColor(viewModel.destinationBackground) // , id: SendViewNamespaceId.addressContainer.rawValue, namespace: namespace)
+                    .backgroundColor(.clear)
+                    .horizontalPadding(0)
+                    .separatorStyle(.single)
                     .contentShape(Rectangle())
                     .allowsHitTesting(viewModel.canEditDestination)
                     .onTapGesture {
