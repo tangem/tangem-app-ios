@@ -39,13 +39,17 @@ struct SendFeeSummaryView: View {
 
                 Spacer()
 
-                ZStack {
-                    feeAmount(bold: false)
+                if let cryptoAmount = data.cryptoAmount {
+                    ZStack {
+                        feeAmount(cryptoAmount: cryptoAmount, fiatAmount: data.fiatAmount, bold: false)
+                            .frame(minWidth: data.isLoading ? 70 : 0)
+                            .skeletonable(isShown: data.isLoading)
 
-                    feeAmount(bold: true)
-                        .opacity(0)
+                        feeAmount(cryptoAmount: cryptoAmount, fiatAmount: data.fiatAmount, bold: true)
+                            .opacity(0)
+                    }
+                    .matchedGeometryEffectOptional(id: amountNamespaceId, in: namespace)
                 }
-                .matchedGeometryEffectOptional(id: amountNamespaceId, in: namespace)
             }
         }
         .padding(.vertical, 14)
@@ -68,14 +72,14 @@ struct SendFeeSummaryView: View {
     }
 
     @ViewBuilder
-    private func feeAmount(bold: Bool) -> some View {
+    private func feeAmount(cryptoAmount: String, fiatAmount: String?, bold: Bool) -> some View {
         HStack(spacing: 4) {
-            Text(data.cryptoAmount)
+            Text(cryptoAmount)
                 .style(bold ? Fonts.Bold.subheadline : Fonts.Regular.subheadline, color: Colors.Text.primary1)
                 .lineLimit(1)
                 .layoutPriority(1)
 
-            if let fiatAmount = data.fiatAmount {
+            if let fiatAmount {
                 Text("•")
                     .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
                     .layoutPriority(3)
@@ -107,15 +111,16 @@ extension SendFeeSummaryView: Setupable {
     }
 }
 
-#Preview {
-    GroupedScrollView(spacing: 14) {
-        GroupedSection(SendFeeSummaryViewModel(title: "Network fee", feeOption: .market, cryptoAmount: "0.159817 MATIC", fiatAmount: "0,22 $", animateTitleOnAppear: false)) { data in
-            SendFeeSummaryView(data: data)
-        }
-
-        GroupedSection(SendFeeSummaryViewModel(title: "Network Fee Network Fee Network Fee Network Fee Network Fee Network Fee Network Fee Network Fee", feeOption: .slow, cryptoAmount: "159 817 159 817.159817 MATIC", fiatAmount: "100 120,22 $", animateTitleOnAppear: false)) { data in
-            SendFeeSummaryView(data: data)
-        }
-    }
-    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-}
+//
+// #Preview {
+//    GroupedScrollView(spacing: 14) {
+//        GroupedSection(SendFeeSummaryViewModel(title: "Network fee", feeOption: .market, cryptoAmount: "0.159817 MATIC", fiatAmount: "0,22 $", animateTitleOnAppear: false)) { data in
+//            SendFeeSummaryView(data: data)
+//        }
+//
+//        GroupedSection(SendFeeSummaryViewModel(title: "Network Fee Network Fee Network Fee Network Fee Network Fee Network Fee Network Fee Network Fee", feeOption: .slow, cryptoAmount: "159 817 159 817.159817 MATIC", fiatAmount: "100 120,22 $", animateTitleOnAppear: false)) { data in
+//            SendFeeSummaryView(data: data)
+//        }
+//    }
+//    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+// }
