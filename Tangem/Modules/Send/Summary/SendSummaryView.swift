@@ -47,7 +47,7 @@ struct SendSummaryView: View {
                             }
                         }
                     }
-                    .backgroundColor(.clear)
+                    .backgroundColor(.clear, id: SendViewNamespaceId.destinationContainer.rawValue, namespace: namespace)
                     .horizontalPadding(0)
                     .separatorStyle(.single)
                     .contentShape(Rectangle())
