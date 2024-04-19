@@ -97,7 +97,11 @@ final class SendViewModel: ObservableObject {
                     return sendModel.destinationValid
                 case .fee:
                     return sendModel.feeValid
-                case .summary, .finish:
+                case .summary:
+                    return sendModel.transactionCreationError
+                        .map { $0 == nil }
+                        .eraseToAnyPublisher()
+                case .finish:
                     return .just(output: true)
                 }
             }
