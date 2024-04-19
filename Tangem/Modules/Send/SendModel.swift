@@ -58,27 +58,6 @@ class SendModel {
         validatedAmount.value
     }
 
-    var shouldSubtractFee: Bool {
-        guard
-            let validatedAmount = validatedAmount.value,
-            let fee = fee.value,
-            fee.amount.type == validatedAmount.type,
-            validatedAmount >= fee.amount
-        else {
-            return false
-        }
-
-        do {
-            try walletModel.transactionCreator.validate(amount: validatedAmount, fee: fee)
-        } catch {
-            let validationError = error as? ValidationError
-            if case .totalExceedsBalance = validationError {
-                return true
-            }
-        }
-        return false
-    }
-
     var destinationPublisher: AnyPublisher<SendAddress?, Never> {
         validatedDestination.eraseToAnyPublisher()
     }
@@ -162,21 +141,6 @@ class SendModel {
                 .sink()
                 .store(in: &bag)
         }
-    }
-
-    func subtractFeeFromMaxAmount() {
-        guard
-            !_isFeeIncluded.value,
-            let maxAmount = walletModel.wallet.amounts[walletModel.amountType],
-            let fee = fee.value?.amount,
-            (maxAmount - fee).value >= 0
-        else {
-            AppLog.shared.debug("Invalid amount and fee when subtracting")
-            return
-        }
-
-        _isFeeIncluded.value = true
-        userInputAmount.send(maxAmount - fee)
     }
 
     func useMaxAmount() {
@@ -292,15 +256,20 @@ class SendModel {
                     let destination = validatedDestination?.value,
                     let fee
                 else {
+                    self?._isFeeIncluded.send(false)
                     return .failure(ValidationError.invalidAmount)
                 }
 
                 do {
                     #warning("[REDACTED_TODO_COMMENT]")
-                    try walletModel.transactionValidator.validateTotal(amount: validatedAmount, fee: fee.amount)
+                    let includeFee = shouldIncludeFee(fee, into: validatedAmount)
+                    let transactionAmount = includeFee ? validatedAmount - fee.amount : validatedAmount
+                    _isFeeIncluded.send(includeFee)
+
+                    try walletModel.transactionValidator.validateTotal(amount: transactionAmount, fee: fee.amount)
 
                     let transaction = try walletModel.transactionCreator.createTransaction(
-                        amount: validatedAmount,
+                        amount: transactionAmount,
                         fee: fee,
                         destinationAddress: destination
                     )
@@ -377,6 +346,25 @@ class SendModel {
             .eraseToAnyPublisher()
     }
 
+    private func shouldIncludeFee(_ fee: Fee, into amount: Amount) -> Bool {
+        guard
+            fee.amount.type == amount.type,
+            amount >= fee.amount
+        else {
+            return false
+        }
+
+        do {
+            try walletModel.transactionCreator.validate(amount: amount, fee: fee)
+        } catch {
+            let validationError = error as? ValidationError
+            if case .totalExceedsBalance = validationError {
+                return true
+            }
+        }
+        return false
+    }
+
     private func explorerUrl(from hash: String) -> URL? {
         let factory = ExternalLinkProviderFactory()
         let provider = factory.makeProvider(for: walletModel.blockchainNetwork.blockchain)
@@ -385,10 +373,7 @@ class SendModel {
 
     // MARK: - Amount
 
-    /// NOTE: this action resets the "is fee included" flag
     func setAmount(_ amount: Amount?) {
-        _isFeeIncluded.send(false)
-
         let newAmount: Amount? = (amount?.isZero ?? true) ? nil : amount
 
         guard userInputAmount.value != newAmount else { return }
