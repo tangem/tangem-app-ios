@@ -26,6 +26,27 @@ enum WalletOnboardingStep: Equatable {
 
     case success
 
+    var isInitialBackupStep: Bool {
+        switch self {
+        case .backupIntro, .selectBackupCards:
+            return true
+        default:
+            return false
+        }
+    }
+
+    var isCreateWalletStep: Bool {
+        switch self {
+        case .createWallet,
+             .createWalletSelector,
+             .seedPhraseUserValidation,
+             .seedPhraseImport:
+            return true
+        default:
+            return false
+        }
+    }
+
     var navbarTitle: String {
         switch self {
         case .disclaimer: return Localization.disclaimerTitle
