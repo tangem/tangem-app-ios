@@ -26,7 +26,7 @@ class CommonCardInitializer {
 extension CommonCardInitializer: CardInitializer {
     func initializeCard(mnemonic: Mnemonic?, passphrase: String?, completion: @escaping (Result<CardInfo, TangemSdkError>) -> Void) {
         let config = UserWalletConfigFactory(cardInfo).makeConfig()
-        let task = PreparePrimaryCardTask(curves: config.mandatoryCurves, mnemonic: mnemonic, passphrase: passphrase, shouldReset: shouldReset)
+        let task = PreparePrimaryCardTask(curves: config.createWalletCurves, mnemonic: mnemonic, passphrase: passphrase, shouldReset: shouldReset)
         let initialMessage = Message(header: nil, body: Localization.initialMessageCreateWalletBody)
 
         // Ring onboarding. Set custom image
