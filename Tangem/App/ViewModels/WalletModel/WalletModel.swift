@@ -295,6 +295,15 @@ class WalletModel {
             .map { $0.0 }
             .assign(to: \._walletDidChangePublisher.value, on: self, ownership: .weak)
             .store(in: &bag)
+
+        NotificationCenter.default
+            .publisher(for: UIApplication.didBecomeActiveNotification)
+            .withWeakCaptureOf(self)
+            .flatMap { walletModel, _ in
+                walletModel.loadQuotes()
+            }
+            .sink()
+            .store(in: &bag)
     }
 
     private func performHealthCheckIfNeeded(shouldPerform: Bool) {
