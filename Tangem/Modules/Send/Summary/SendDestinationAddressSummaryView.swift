@@ -53,9 +53,9 @@ extension SendDestinationAddressSummaryView: Setupable {
 
 #Preview {
     GroupedScrollView {
-        GroupedSection(SendDestinationSummaryViewType.address(address: "1230123")) { type in
+        GroupedSection(SendDestinationSummaryViewType.address(address: "1230123", corners: .allCorners)) { type in
             switch type {
-            case .address(let address):
+            case .address(let address, _):
                 SendDestinationAddressSummaryView(address: address)
             case .additionalField(let type, let value):
                 if let name = type.name {
@@ -64,9 +64,9 @@ extension SendDestinationAddressSummaryView: Setupable {
             }
         }
 
-        GroupedSection(SendDestinationSummaryViewType.address(address: "0x391316d97a07027a0702c8A002c8A0C25d8470")) { type in
+        GroupedSection(SendDestinationSummaryViewType.address(address: "0x391316d97a07027a0702c8A002c8A0C25d8470", corners: .allCorners)) { type in
             switch type {
-            case .address(let address):
+            case .address(let address, _):
                 SendDestinationAddressSummaryView(address: address)
             case .additionalField(let type, let value):
                 if let name = type.name {
@@ -77,12 +77,12 @@ extension SendDestinationAddressSummaryView: Setupable {
 
         GroupedSection(
             [
-                SendDestinationSummaryViewType.address(address: "0x391316d97a07027a0702c8A002c8A0C25d8470"),
+                SendDestinationSummaryViewType.address(address: "0x391316d97a07027a0702c8A002c8A0C25d8470", corners: [.topLeft, .topRight]),
                 SendDestinationSummaryViewType.additionalField(type: .memo, value: "123456789"),
             ]
         ) { type in
             switch type {
-            case .address(let address):
+            case .address(let address, _):
                 SendDestinationAddressSummaryView(address: address)
             case .additionalField(let type, let value):
                 if let name = type.name {
@@ -94,12 +94,12 @@ extension SendDestinationAddressSummaryView: Setupable {
 
         GroupedSection(
             [
-                SendDestinationSummaryViewType.address(address: "0x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d8470"),
+                SendDestinationSummaryViewType.address(address: "0x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d84700x391316d97a07027a0702c8A002c8A0C25d8470", corners: [.topLeft, .topRight]),
                 SendDestinationSummaryViewType.additionalField(type: .destinationTag, value: "123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789123456789"),
             ]
         ) { type in
             switch type {
-            case .address(let address):
+            case .address(let address, _):
                 SendDestinationAddressSummaryView(address: address)
             case .additionalField(let type, let value):
                 if let name = type.name {
