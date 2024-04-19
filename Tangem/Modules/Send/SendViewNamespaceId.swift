@@ -9,6 +9,9 @@
 import Foundation
 
 enum SendViewNamespaceId {
+    // Destination
+    case destinationContainer
+
     // Address
     case addressContainer
     case addressTitle
@@ -17,6 +20,7 @@ enum SendViewNamespaceId {
     case addressClearButton
     case addressBackground
 
+    // Memo/tag
     case addressAdditionalFieldContainer
     case addressAdditionalFieldTitle
     case addressAdditionalFieldIcon
@@ -51,6 +55,8 @@ extension SendViewNamespaceId {
 
     private var baseValue: String {
         switch self {
+        case .destinationContainer:
+            "destinationContainer"
         case .addressContainer:
             "addressContainer"
         case .addressTitle:
