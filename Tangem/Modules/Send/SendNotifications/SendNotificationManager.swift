@@ -13,6 +13,7 @@ protocol SendNotificationManagerInput {
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
     var selectedFeeOptionPublisher: AnyPublisher<FeeOption, Never> { get }
     var customFeePublisher: AnyPublisher<Fee?, Never> { get }
+    var isFeeIncludedPublisher: AnyPublisher<Bool, Never> { get }
     var withdrawalSuggestion: AnyPublisher<WithdrawalSuggestion?, Never> { get }
     var transactionCreationError: AnyPublisher<Error?, Never> { get }
 }
@@ -142,6 +143,13 @@ class CommonSendNotificationManager: SendNotificationManager {
 
                 self?.updateEventVisibility(customFeeTooLow, event: .customFeeTooLow)
                 self?.updateEventVisibility(customFeeTooHigh, event: .customFeeTooHigh(orderOfMagnitude: highFeeOrderTrigger))
+            }
+            .store(in: &bag)
+
+        input
+            .isFeeIncludedPublisher
+            .sink { [weak self] isFeeIncluded in
+                self?.updateEventVisibility(isFeeIncluded, event: .feeWillBeSubtractFromSendingAmount)
             }
             .store(in: &bag)
 
