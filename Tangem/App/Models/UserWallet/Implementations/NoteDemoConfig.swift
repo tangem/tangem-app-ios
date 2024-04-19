@@ -39,7 +39,7 @@ extension NoteDemoConfig: UserWalletConfig {
         "Note"
     }
 
-    var mandatoryCurves: [EllipticCurve] {
+    var createWalletCurves: [EllipticCurve] {
         [defaultBlockchain.curve]
     }
 
