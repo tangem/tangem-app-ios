@@ -88,12 +88,20 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .reduceAmountTo:
             super.didTapNotificationButton(with: id, action: action)
         case .addHederaTokenAssociation:
-            break // [REDACTED_TODO_COMMENT]
+            fulfillAssetPrerequisites()
         }
     }
 
     override func presentActionSheet(_ actionSheet: ActionSheetBinder) {
         self.actionSheet = actionSheet
+    }
+
+    private func fulfillAssetPrerequisites() {
+        walletModel
+            .assetPrerequisitesManager?
+            .fulfillPrerequisites(for: walletModel.amountType, signer: userWalletModel.signer)
+            .sink()
+            .store(in: &bag)
     }
 }
 
