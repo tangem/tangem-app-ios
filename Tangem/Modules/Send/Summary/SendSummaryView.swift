@@ -82,29 +82,26 @@ struct SendSummaryView: View {
                     .transition(SendView.Constants.hintViewTransition)
                 }
 
-                if !viewModel.animatingAuxiliaryViewsOnAppear {
+                if viewModel.showNotifications {
                     ForEach(viewModel.notificationInputs) { input in
                         NotificationView(input: input)
                             .padding(.top, spacing)
-                            .transition(SendView.Constants.auxiliaryViewTransition(for: .summary))
                     }
                 }
             }
 
-            if let transactionDescription = viewModel.transactionDescription,
-               viewModel.showTransactionDescription {
+            if let transactionDescription = viewModel.transactionDescription {
                 Text(transactionDescription)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 16)
-                    .transition(.opacity)
                     .padding(.bottom, bottomSpacing + 14)
+                    .visible(viewModel.showTransactionDescription)
             }
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         .alert(item: $viewModel.alert) { $0.alert }
         .onAppear(perform: viewModel.onAppear)
-        .interactiveDismissDisabled(viewModel.isSending)
     }
 
     private func amountSectionContent(data: SendAmountSummaryViewData) -> some View {
