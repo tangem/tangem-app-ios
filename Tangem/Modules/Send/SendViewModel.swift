@@ -465,23 +465,6 @@ final class SendViewModel: ObservableObject {
     }
 
     private func showSummaryStepAlertIfNeeded(_ step: SendStep, stepAnimation: SendView.StepAnimation, checkCustomFee: Bool) -> Bool {
-        if sendModel.shouldSubtractFee {
-            Analytics.log(event: .sendNoticeNotEnoughFee, params: [
-                .token: walletModel.tokenItem.currencySymbol,
-                .blockchain: walletModel.tokenItem.blockchain.displayName,
-            ])
-
-            alert = SendAlertBuilder.makeSubtractFeeFromMaxAmountAlert { [weak self] in
-                guard let self else { return }
-                sendModel.subtractFeeFromMaxAmount()
-                fiatCryptoAdapter.setCrypto(sendModel.userInputAmountValue?.value)
-
-                openStep(step, stepAnimation: stepAnimation, updateFee: false)
-            }
-
-            return true
-        }
-
         if checkCustomFee {
             let events = notificationManager.notificationInputs.compactMap { $0.settings.event as? SendNotificationEvent }
             for event in events {
