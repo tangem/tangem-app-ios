@@ -58,10 +58,12 @@ class SendModel {
         validatedAmount.value
     }
 
-    var totalExceedsBalance: Bool {
+    var shouldSubtractFee: Bool {
         guard
             let validatedAmount = validatedAmount.value,
-            let fee = fee.value
+            let fee = fee.value,
+            fee.amount.type == validatedAmount.type,
+            validatedAmount >= fee.amount
         else {
             return false
         }
@@ -162,19 +164,19 @@ class SendModel {
         }
     }
 
-    func includeFeeIntoAmount() {
+    func subtractFeeFromMaxAmount() {
         guard
             !_isFeeIncluded.value,
-            let userInputAmount = userInputAmount.value,
+            let maxAmount = walletModel.wallet.amounts[walletModel.amountType],
             let fee = fee.value?.amount,
-            (userInputAmount - fee).value >= 0
+            (maxAmount - fee).value >= 0
         else {
             AppLog.shared.debug("Invalid amount and fee when subtracting")
             return
         }
 
         _isFeeIncluded.value = true
-        self.userInputAmount.send(userInputAmount - fee)
+        userInputAmount.send(maxAmount - fee)
     }
 
     func useMaxAmount() {
@@ -295,6 +297,8 @@ class SendModel {
 
                 do {
                     #warning("[REDACTED_TODO_COMMENT]")
+                    try walletModel.transactionValidator.validateTotal(amount: validatedAmount, fee: fee.amount)
+
                     let transaction = try walletModel.transactionCreator.createTransaction(
                         amount: validatedAmount,
                         fee: fee,
