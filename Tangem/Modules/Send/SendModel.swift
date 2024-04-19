@@ -127,7 +127,6 @@ class SendModel {
     private var didSetCustomFee = false
     private var feeUpdatePublisher: AnyPublisher<FeeUpdateResult, Error>?
     private var bag: Set<AnyCancellable> = []
-    private var lastFeeUpdateDetails: FeeUpdateDetails?
 
     // MARK: - Public interface
 
@@ -339,15 +338,6 @@ class SendModel {
             return .anyFail(error: WalletError.failedToGetFee)
         }
 
-        let feeValidityInterval: TimeInterval = 10
-        if let currentFeeAmount = feeValue?.amount,
-           let lastFeeUpdateDetails = lastFeeUpdateDetails,
-           Date().timeIntervalSince(lastFeeUpdateDetails.date) <= feeValidityInterval,
-           lastFeeUpdateDetails.amount == amount,
-           lastFeeUpdateDetails.destination == destination {
-            return .just(output: FeeUpdateResult(oldFee: currentFeeAmount, newFee: currentFeeAmount))
-        }
-
         _feeValues.send([:])
 
         let oldFee = fee.value
@@ -358,7 +348,6 @@ class SendModel {
                 self.feeValues(fees)
             }
             .handleEvents(receiveOutput: { [weak self] feeValues in
-                self?.lastFeeUpdateDetails = FeeUpdateDetails(date: Date(), amount: amount, destination: destination)
                 self?._feeValues.send(feeValues)
             }, receiveCompletion: { [weak self] completion in
                 guard let self else { return }
@@ -567,14 +556,6 @@ class SendModel {
         default:
             return [:]
         }
-    }
-}
-
-extension SendModel {
-    struct FeeUpdateDetails {
-        let date: Date
-        let amount: Amount
-        let destination: String
     }
 }
 
