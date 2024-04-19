@@ -211,7 +211,7 @@ extension ExpressAPIError {
         switch errorCode {
         case .exchangeInternalError:
             return Localization.expressErrorSwapUnavailable(errorCode.rawValue)
-        case .exchangeProviderNotActiveError, .exchangeProviderNotAvailableError, exchangeProviderProviderInternalError:
+        case .exchangeProviderNotActiveError, .exchangeProviderNotAvailableError, .exchangeProviderProviderInternalError:
             return Localization.expressErrorSwapPairUnavailable(errorCode.rawValue)
         case .exchangeNotPossibleError:
             return Localization.expressErrorProviderUnavailable(errorCode.rawValue)
