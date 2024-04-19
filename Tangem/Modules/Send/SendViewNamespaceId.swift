@@ -15,15 +15,14 @@ enum SendViewNamespaceId {
     case addressIcon
     case addressText
     case addressClearButton
+    case addressBackground
 
     case addressAdditionalFieldContainer
     case addressAdditionalFieldTitle
     case addressAdditionalFieldIcon
     case addressAdditionalFieldText
     case addressAdditionalFieldClearButton
-//    case additionalField
-
-    case additionalField
+    case addressAdditionalFieldBackground
 
     // Amount
     case amountContainer
@@ -62,7 +61,8 @@ extension SendViewNamespaceId {
             "addressText"
         case .addressClearButton:
             "addressClearButton"
-
+        case .addressBackground:
+            "addressBackground"
         case .addressAdditionalFieldContainer:
             "addressAdditionalFieldContainer"
         case .addressAdditionalFieldTitle:
@@ -73,9 +73,8 @@ extension SendViewNamespaceId {
             "addressAdditionalFieldText"
         case .addressAdditionalFieldClearButton:
             "addressAdditionalFieldClearButton"
-
-        case .additionalField:
-            "additionalField"
+        case .addressAdditionalFieldBackground:
+            "addressAdditionalFieldBackground"
         case .amountContainer:
             "amountContainer"
         case .walletName:
