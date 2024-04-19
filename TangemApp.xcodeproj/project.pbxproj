@@ -191,6 +191,7 @@
 		B008E13A29802157006E0E31 /* WebSocketError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B008E13929802157006E0E31 /* WebSocketError.swift */; };
 		B008E13C29802612006E0E31 /* WebSocketConnectionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B008E13B29802612006E0E31 /* WebSocketConnectionDelegate.swift */; };
 		B008E13E2980264D006E0E31 /* WebSocketEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B008E13D2980264D006E0E31 /* WebSocketEvent.swift */; };
+		B00B58DA2BCFAA60007475F7 /* providers_order.json in Resources */ = {isa = PBXBuildFile; fileRef = B00B58D92BCFAA60007475F7 /* providers_order.json */; };
 		B00D7150258A1B6C00A9442C /* JsonUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00D714F258A1B6C00A9442C /* JsonUtils.swift */; };
 		B00EBF832B20EDE800071EB0 /* PendingExpressTransactionAnalyticsTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00EBF822B20EDE800071EB0 /* PendingExpressTransactionAnalyticsTracker.swift */; };
 		B00EBF862B20EE1D00071EB0 /* CommonPendingExpressTransactionAnalyticsTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00EBF852B20EE1D00071EB0 /* CommonPendingExpressTransactionAnalyticsTracker.swift */; };
@@ -209,6 +210,10 @@
 		B018F304259204A200D8F89A /* WarningEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018F303259204A200D8F89A /* WarningEvent.swift */; };
 		B018FE612B0CD33400D8D31E /* ExpressNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018FE602B0CD33400D8D31E /* ExpressNotificationManager.swift */; };
 		B018FE662B0CE55E00D8D31E /* ExpressNotificationEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018FE652B0CE55E00D8D31E /* ExpressNotificationEvent.swift */; };
+		B01B2D752BD2924F00D8A6A1 /* CommonAPIListProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01B2D742BD2924F00D8A6A1 /* CommonAPIListProvider.swift */; };
+		B01B2D782BD292A400D8A6A1 /* APIListDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01B2D772BD292A400D8A6A1 /* APIListDTO.swift */; };
+		B01B2D7A2BD2935000D8A6A1 /* APIType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01B2D792BD2935000D8A6A1 /* APIType.swift */; };
+		B01B2D7C2BD2936A00D8A6A1 /* APIProviderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01B2D7B2BD2936A00D8A6A1 /* APIProviderType.swift */; };
 		B01EB9C426E9F18A0060E2FB /* StackCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01EB9C326E9F18A0060E2FB /* StackCalculator.swift */; };
 		B020A51426F1DBE700D38596 /* OnboardingInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = B020A51326F1DBE600D38596 /* OnboardingInput.swift */; };
 		B020A51726F1DD9E00D38596 /* OnboardingTopupViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B020A51626F1DD9E00D38596 /* OnboardingTopupViewModel.swift */; };
@@ -366,6 +371,7 @@
 		B07C6A0B2A77E5A600ACCBB0 /* walletV2.json in Resources */ = {isa = PBXBuildFile; fileRef = B0F319062A73951E009F131E /* walletV2.json */; };
 		B07C6A0C2A77E5AA00ACCBB0 /* twinCard.json in Resources */ = {isa = PBXBuildFile; fileRef = B0F319072A73954E009F131E /* twinCard.json */; };
 		B07C6A0D2A77E5AD00ACCBB0 /* xrpNote.json in Resources */ = {isa = PBXBuildFile; fileRef = B0F319052A7394E2009F131E /* xrpNote.json */; };
+		B080DE572BB3F504001A23BD /* APIListProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B080DE562BB3F504001A23BD /* APIListProvider.swift */; };
 		B082E923255A8EF000A0CEA9 /* StorageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B082E922255A8EF000A0CEA9 /* StorageType.swift */; };
 		B08394E12B2998580025176F /* VisaConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08394E02B2998580025176F /* VisaConfig.swift */; };
 		B08394E42B299FDB0025176F /* VisaWalletMainContentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08394E32B299FDB0025176F /* VisaWalletMainContentViewModel.swift */; };
@@ -1714,6 +1720,7 @@
 		B008E13929802157006E0E31 /* WebSocketError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketError.swift; sourceTree = "<group>"; };
 		B008E13B29802612006E0E31 /* WebSocketConnectionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketConnectionDelegate.swift; sourceTree = "<group>"; };
 		B008E13D2980264D006E0E31 /* WebSocketEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketEvent.swift; sourceTree = "<group>"; };
+		B00B58D92BCFAA60007475F7 /* providers_order.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = providers_order.json; path = "tangem-app-config/providers_order.json"; sourceTree = SOURCE_ROOT; };
 		B00D714F258A1B6C00A9442C /* JsonUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsonUtils.swift; sourceTree = "<group>"; };
 		B00EBF822B20EDE800071EB0 /* PendingExpressTransactionAnalyticsTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingExpressTransactionAnalyticsTracker.swift; sourceTree = "<group>"; };
 		B00EBF852B20EE1D00071EB0 /* CommonPendingExpressTransactionAnalyticsTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonPendingExpressTransactionAnalyticsTracker.swift; sourceTree = "<group>"; };
@@ -1733,6 +1740,10 @@
 		B018F303259204A200D8F89A /* WarningEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningEvent.swift; sourceTree = "<group>"; };
 		B018FE602B0CD33400D8D31E /* ExpressNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressNotificationManager.swift; sourceTree = "<group>"; };
 		B018FE652B0CE55E00D8D31E /* ExpressNotificationEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressNotificationEvent.swift; sourceTree = "<group>"; };
+		B01B2D742BD2924F00D8A6A1 /* CommonAPIListProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonAPIListProvider.swift; sourceTree = "<group>"; };
+		B01B2D772BD292A400D8A6A1 /* APIListDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIListDTO.swift; sourceTree = "<group>"; };
+		B01B2D792BD2935000D8A6A1 /* APIType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIType.swift; sourceTree = "<group>"; };
+		B01B2D7B2BD2936A00D8A6A1 /* APIProviderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIProviderType.swift; sourceTree = "<group>"; };
 		B01D10F32B31D139008F7291 /* visa.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = visa.json; sourceTree = "<group>"; };
 		B01EB9C326E9F18A0060E2FB /* StackCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StackCalculator.swift; sourceTree = "<group>"; };
 		B020A51326F1DBE600D38596 /* OnboardingInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingInput.swift; sourceTree = "<group>"; };
@@ -1895,6 +1906,7 @@
 		B074BAC026779B28005D641B /* PushTxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTxView.swift; sourceTree = "<group>"; };
 		B074BAC226779BC8005D641B /* PushTxViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTxViewModel.swift; sourceTree = "<group>"; };
 		B079DB712AEB937D00D2D0D5 /* Analytics+DebugEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+DebugEvent.swift"; sourceTree = "<group>"; };
+		B080DE562BB3F504001A23BD /* APIListProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIListProvider.swift; sourceTree = "<group>"; };
 		B082E922255A8EF000A0CEA9 /* StorageType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageType.swift; sourceTree = "<group>"; };
 		B08394E02B2998580025176F /* VisaConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaConfig.swift; sourceTree = "<group>"; };
 		B08394E32B299FDB0025176F /* VisaWalletMainContentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaWalletMainContentViewModel.swift; sourceTree = "<group>"; };
@@ -3254,6 +3266,7 @@
 		5D39515725597D89002CC452 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				B01B2D762BD2929800D8A6A1 /* APIList */,
 				EF76733E2B0FD67C0027D8E0 /* Express */,
 				EF75A3D02B06418D0023A60A /* TokenItem */,
 				EFD39C8C2A6A87DD0055D215 /* Config */,
@@ -3784,6 +3797,7 @@
 				5D15102D264BD49600961000 /* issuers.json */,
 				5D15102B264BD47500961000 /* issuers_example.json */,
 				5D5CE19E2625FEE9009023EC /* config_example.json */,
+				B00B58D92BCFAA60007475F7 /* providers_order.json */,
 			);
 			path = JsonSettings;
 			sourceTree = "<group>";
@@ -3825,6 +3839,16 @@
 				B018FE652B0CE55E00D8D31E /* ExpressNotificationEvent.swift */,
 			);
 			path = ExpressNotifications;
+			sourceTree = "<group>";
+		};
+		B01B2D762BD2929800D8A6A1 /* APIList */ = {
+			isa = PBXGroup;
+			children = (
+				B01B2D772BD292A400D8A6A1 /* APIListDTO.swift */,
+				B01B2D792BD2935000D8A6A1 /* APIType.swift */,
+				B01B2D7B2BD2936A00D8A6A1 /* APIProviderType.swift */,
+			);
+			path = APIList;
 			sourceTree = "<group>";
 		};
 		B020A51526F1DD8900D38596 /* BaseModels */ = {
@@ -4408,6 +4432,15 @@
 				EF033B172B8631C700A71600 /* UIResponder+.swift */,
 			);
 			path = UIKit;
+			sourceTree = "<group>";
+		};
+		B080DE552BB3F4E5001A23BD /* APIListProvider */ = {
+			isa = PBXGroup;
+			children = (
+				B080DE562BB3F504001A23BD /* APIListProvider.swift */,
+				B01B2D742BD2924F00D8A6A1 /* CommonAPIListProvider.swift */,
+			);
+			path = APIListProvider;
 			sourceTree = "<group>";
 		};
 		B082E91E255A8E7800A0CEA9 /* Storage */ = {
@@ -5985,6 +6018,7 @@
 			children = (
 				DAC5A5272BBEB5A4003CFC1D /* KeyboardVisibilityService */,
 				B675C35D2BAC8A0E007BE1DC /* AccountHealthCheck */,
+				B080DE552BB3F4E5001A23BD /* APIListProvider */,
 				B68728722B7D4B870090C24F /* BlockchainDataStorage */,
 				B687286D2B7D48A70090C24F /* BlockchainAccountCreator */,
 				EF9E38032B74E6B5004B694C /* BannerPromotionNotification */,
@@ -8033,6 +8067,7 @@
 				B0FB4EFA2A8512210057F4C2 /* walletUserWalletList.json in Resources */,
 				DC261CA0292CD3B800875E64 /* GoogleService-Info-Alpha.plist in Resources */,
 				DA64C36D27CCAD7E005B5E9A /* InfoPlist.strings in Resources */,
+				B00B58DA2BCFAA60007475F7 /* providers_order.json in Resources */,
 				B07C6A0C2A77E5AA00ACCBB0 /* twinCard.json in Resources */,
 				EF661E2E28BF41D6005769E5 /* Intents.strings in Resources */,
 				DC261CA1292CD3B800875E64 /* GoogleService-Info-Production.plist in Resources */,
@@ -8617,6 +8652,7 @@
 				EF7B9CF1286C6BE2004C33A9 /* CardSettingsViewModel.swift in Sources */,
 				B68728712B7D48F10090C24F /* BlockchainAccountCreateResult.swift in Sources */,
 				EF94A89C29927C50008F2C3F /* CachedAsyncImage.swift in Sources */,
+				B01B2D7C2BD2936A00D8A6A1 /* APIProviderType.swift in Sources */,
 				EF5E5AAD2B73E9AD00D19BBB /* Timeline.swift in Sources */,
 				EF032C532955C725006C1FF3 /* CheckIconView.swift in Sources */,
 				DC0A57D82822A3C80031BECC /* InjectedValues.swift in Sources */,
@@ -8690,6 +8726,7 @@
 				B09BB865259A075600B92000 /* TextInputField.swift in Sources */,
 				B037B1EE256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift in Sources */,
 				B03AEEB029596DA400212267 /* WebSocket.swift in Sources */,
+				B01B2D782BD292A400D8A6A1 /* APIListDTO.swift in Sources */,
 				2DC567632B0DFFAF00B0244F /* ManageTokensItemView.swift in Sources */,
 				DC0A5808282501CA0031BECC /* MoonPayKeys.swift in Sources */,
 				DCBAF6A12A4C4F650029480A /* DerivationManager.swift in Sources */,
@@ -8839,6 +8876,7 @@
 				B03478602B0F6C08004FECA0 /* HighPriceImpactCalculator.swift in Sources */,
 				DA43719E2A7D1937006215CA /* LegacyCoinView.swift in Sources */,
 				5D51036B27C534CB0025EA55 /* EIP712TypedData.swift in Sources */,
+				B080DE572BB3F504001A23BD /* APIListProvider.swift in Sources */,
 				E9C17C5F291951BF00FDE4BC /* AnyPublisher+.swift in Sources */,
 				DCBAF69B2A4AEF3C0029480A /* HDWalletManagerFactory.swift in Sources */,
 				5D39515925597DA5002CC452 /* WalletModel.swift in Sources */,
@@ -9005,6 +9043,7 @@
 				B0BF631B2A0D1C6F009EB975 /* TotalBalanceFormattingOptions.swift in Sources */,
 				DAB19D492B2C72A100DD08C4 /* AddCustomTokenViewModel.swift in Sources */,
 				DC3B49F42893E50700C207EA /* StoredUserWallet.swift in Sources */,
+				B01B2D7A2BD2935000D8A6A1 /* APIType.swift in Sources */,
 				DC66BC06285B6C7300CDF765 /* LegacySendCoordinatorView.swift in Sources */,
 				EFE1812B292E30C00072D80C /* SupportChatViewModel.swift in Sources */,
 				EF46622F2924DF0300346B6C /* DefaultRowViewModel.swift in Sources */,
@@ -9033,6 +9072,7 @@
 				B022DB3D26C24D13006F18B4 /* ConfettiGenerator.swift in Sources */,
 				B6A373082A45CF2B0076A11C /* UserTokenListUpdateType.swift in Sources */,
 				B0A943602565010900A7958E /* TwinsWalletCreationUtil.swift in Sources */,
+				B01B2D752BD2924F00D8A6A1 /* CommonAPIListProvider.swift in Sources */,
 				B0AF2DF12B1DAACD001A8696 /* PendingExpressTransactionStatus.swift in Sources */,
 				EF032C512955C59E006C1FF3 /* DefaultSelectableRowView.swift in Sources */,
 				EF4662222924DEEE00346B6C /* DefaultToggleRowView.swift in Sources */,
