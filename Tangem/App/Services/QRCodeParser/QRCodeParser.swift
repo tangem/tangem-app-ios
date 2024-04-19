@@ -39,27 +39,29 @@ struct QRCodeParser {
             switch parameterName {
             case .amount:
                 // According to BIP-0021, the value is specified in decimals. No conversion needed
-                if let amount = makeAmount(with: parameterValue) {
-                    result.amount = amount
+                if let decimalValue = parseDecimal(parameterValue) {
+                    result.amount = makeAmount(with: decimalValue)
                     result.amountText = parameterValue
                 }
             case .message, .memo:
                 result.memo = parameterValue.removingPercentEncoding
             case .address:
-                // Overrides destination address for token transfers (ERC-681)
-                guard case .token(let token) = amountType else { continue }
-
+                // Overrides destination address for token transfers (`address` parameter from ERC-681)
+                //
                 // `address` parameter is used only if the contract address, encoded in the QR,
                 // matches the contract address of the token from `amountType` property.
                 // Otherwise, the scanned string is likely malformed, and we stop the entire parsing routine
-                if token.contractAddress.caseInsensitiveCompare(result.destination) == .orderedSame {
-                    result.destination = parameterValue
-                } else {
+                guard
+                    case .token(let token) = amountType,
+                    token.contractAddress.caseInsensitiveCompare(result.destination) == .orderedSame
+                else {
                     return nil
                 }
+
+                result.destination = parameterValue
             case .value, .uint256:
                 // According to ERC-681, the value is specified in the atomic unit (i.e. wei). Converting it to decimals
-                if let valueInSmallestDenomination = Decimal(stringValue: parameterValue) {
+                if let valueInSmallestDenomination = parseDecimal(parameterValue) {
                     let value = valueInSmallestDenomination / pow(Decimal(10), decimalCount)
                     result.amount = makeAmount(with: value)
                     result.amountText = value.stringValue
@@ -113,12 +115,21 @@ struct QRCodeParser {
             }
     }
 
-    private func makeAmount(with parameterValue: String) -> Amount? {
-        guard let value = Decimal(stringValue: parameterValue) else {
+    private func parseDecimal(_ stringValue: String) -> Decimal? {
+        let decimalSeparator = Constants.decimalParsingLocale.decimalSeparator ?? "."
+        let normalizedStringValue = stringValue.replacingOccurrences(of: ",", with: decimalSeparator)
+
+        // If the normalized string contains more than one separators (i.e. it can be divided into 3 or more parts),
+        // like '1,234,567.89' or '1.234.567,89' - it violates both BIP-0021 and ERC-681 and can't be parsed reliably.
+        // In this case, we consider the given string to be malformed, and we stop the decimal number parsing routine
+        guard
+            normalizedStringValue.split(separator: decimalSeparator.first!).count < 3,
+            let value = Decimal(string: normalizedStringValue, locale: Constants.decimalParsingLocale)
+        else {
             return nil
         }
 
-        return makeAmount(with: value)
+        return value
     }
 
     private func makeAmount(with value: Decimal) -> Amount {
@@ -148,6 +159,9 @@ private extension QRCodeParser {
             "/",
             "?",
         ]
+
+        /// Locale for string literals parsing.
+        static let decimalParsingLocale = Locale(identifier: "en_US_POSIX")
     }
 
     /// We don't care about other params from ERC-681, like `gasLimit`, `gasPrice` and so on.
