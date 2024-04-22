@@ -16,12 +16,27 @@ class CommonCardScanner: CardScanner {
     private let parameters: CardScannerParameters
     private var cancellable: AnyCancellable?
 
-    required init(
-        tangemSdk: TangemSdk,
-        parameters: CardScannerParameters
-    ) {
+    init(tangemSdk: TangemSdk, parameters: CardScannerParameters) {
         self.tangemSdk = tangemSdk
         self.parameters = parameters
+    }
+
+    // Make default scanner
+    convenience init() {
+        var config = TangemSdkConfigFactory().makeDefaultConfig()
+
+        if AppSettings.shared.saveUserWallets {
+            config.accessCodeRequestPolicy = .alwaysWithBiometrics
+        }
+
+        let scannerParameters = CardScannerParameters(
+            shouldAskForAccessCodes: false,
+            performDerivations: true,
+            sessionFilter: nil
+        )
+
+        let sdk = TangemSdkDefaultFactory().makeTangemSdk(with: config)
+        self.init(tangemSdk: sdk, parameters: scannerParameters)
     }
 
     func scanCardPublisher() -> AnyPublisher<AppScanTaskResponse, TangemSdkError> {
