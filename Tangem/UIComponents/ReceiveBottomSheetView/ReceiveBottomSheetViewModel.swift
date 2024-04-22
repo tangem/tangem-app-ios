@@ -70,7 +70,10 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
         UIPasteboard.general.string = addressInfos[currentIndex].address
 
         toast = Toast(view: SuccessToast(text: Localization.walletNotificationAddressCopied))
-        toast?.present(layout: .top(padding: 80), type: .temporary())
+        toast?.present(
+            layout: .top(padding: 80),
+            type: .temporary { self.toast = nil }
+        )
     }
 
     func clearNotification() {
