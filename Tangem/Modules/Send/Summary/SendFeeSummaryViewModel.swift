@@ -50,14 +50,17 @@ class SendFeeSummaryViewModel: ObservableObject, Identifiable {
     }
 
     let feeOption: FeeOption
-    private let animateTitleOnAppear: Bool
+    private var animateTitleOnAppear: Bool = false
 
     private let formattedFeeComponents: LoadingValue<FormattedFeeComponents?>
 
-    init(title: String, feeOption: FeeOption, formattedFeeComponents: LoadingValue<FormattedFeeComponents?>, animateTitleOnAppear: Bool) {
+    init(title: String, feeOption: FeeOption, formattedFeeComponents: LoadingValue<FormattedFeeComponents?>) {
         self.title = title
         self.feeOption = feeOption
         self.formattedFeeComponents = formattedFeeComponents
+    }
+
+    func setAnimateTitleOnAppear(_ animateTitleOnAppear: Bool) {
         self.animateTitleOnAppear = animateTitleOnAppear
     }
 
