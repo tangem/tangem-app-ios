@@ -29,7 +29,6 @@ public extension Publisher {
                         // to handle if the publisher was cancelled from the
                         // `withTaskCancellationHandler` here.
                         continuation.resume(throwing: CancellationError())
-                        didSendContinuation = true
                     }).sink { completion in
                         if case .failure(let error) = completion {
                             continuation.resume(throwing: error)
