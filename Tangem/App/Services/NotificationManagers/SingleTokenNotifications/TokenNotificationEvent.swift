@@ -131,10 +131,9 @@ extension TokenNotificationEvent: NotificationEvent {
              .solanaHighImpact:
             return .secondary
         // One white notification will be added later
-        case .notEnoughFeeForTransaction:
+        case .notEnoughFeeForTransaction,
+             .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation):
             return .primary
-        case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation):
-            return .action
         }
     }
 
