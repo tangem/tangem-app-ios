@@ -314,7 +314,6 @@ final class MainViewModel: ObservableObject {
                 Analytics.log(.walletOpened)
                 self?.userWalletRepository.setSelectedUserWalletId(
                     userWalletId,
-                    unlockIfNeeded: false,
                     reason: .userSelected
                 )
             }
