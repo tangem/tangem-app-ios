@@ -79,7 +79,7 @@ final class SingleTokenNotificationManager {
         // [REDACTED_TODO_COMMENT]
         if case .hedera = walletModel.tokenItem.blockchain,
            walletModel.assetRequirementsManager?.hasRequirements(for: walletModel.amountType) == true {
-            events.append(.hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation))
+            events.append(.hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation(associationFee: nil)))
         }
 
         if let sendingRestrictions = walletModel.sendingRestrictions {
