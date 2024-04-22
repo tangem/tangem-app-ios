@@ -10075,7 +10075,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -10101,8 +10101,6 @@
 					"\"Accelerate\"",
 					"-framework",
 					"\"Alamofire\"",
-					"-framework",
-					"\"AlertToast\"",
 					"-framework",
 					"\"AmplitudeSwift\"",
 					"-framework",
@@ -10221,7 +10219,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -10247,8 +10245,6 @@
 					"\"Accelerate\"",
 					"-framework",
 					"\"Alamofire\"",
-					"-framework",
-					"\"AlertToast\"",
 					"-framework",
 					"\"AmplitudeSwift\"",
 					"-framework",
@@ -12467,7 +12463,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEPLOYMENT_POSTPROCESSING = NO;
@@ -12492,8 +12488,6 @@
 					"\"Accelerate\"",
 					"-framework",
 					"\"Alamofire\"",
-					"-framework",
-					"\"AlertToast\"",
 					"-framework",
 					"\"AmplitudeSwift\"",
 					"-framework",
@@ -12718,7 +12712,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -12744,8 +12738,6 @@
 					"\"Accelerate\"",
 					"-framework",
 					"\"Alamofire\"",
-					"-framework",
-					"\"AlertToast\"",
 					"-framework",
 					"\"AmplitudeSwift\"",
 					"-framework",
@@ -13956,7 +13948,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEPLOYMENT_POSTPROCESSING = NO;
@@ -13981,8 +13973,6 @@
 					"\"Accelerate\"",
 					"-framework",
 					"\"Alamofire\"",
-					"-framework",
-					"\"AlertToast\"",
 					"-framework",
 					"\"AmplitudeSwift\"",
 					"-framework",
@@ -14207,7 +14197,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -14233,8 +14223,6 @@
 					"\"Accelerate\"",
 					"-framework",
 					"\"Alamofire\"",
-					"-framework",
-					"\"AlertToast\"",
 					"-framework",
 					"\"AmplitudeSwift\"",
 					"-framework",
