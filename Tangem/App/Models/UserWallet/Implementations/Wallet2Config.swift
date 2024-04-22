@@ -60,6 +60,11 @@ extension Wallet2Config: UserWalletConfig {
         return false
     }
 
+    var isWalletsCreated: Bool {
+        let validator = CurvesValidator(expectedCurves: mandatoryCurves)
+        return validator.validate(card.walletCurves)
+    }
+
     var canImportKeys: Bool {
         card.settings.isKeysImportAllowed
     }
