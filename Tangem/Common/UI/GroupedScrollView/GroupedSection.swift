@@ -14,7 +14,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
     private let header: () -> Header
     private let footer: () -> Footer
 
-    private var horizontalPadding: CGFloat = 14
+    private var horizontalPadding: CGFloat = GroupedSectionConstants.defaultHorizontalPadding
     private var separatorStyle: SeparatorStyle = .minimum
     private var interItemSpacing: CGFloat = 0
     private var innerContentPadding: CGFloat = 0
@@ -69,7 +69,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
                 .padding(.vertical, innerContentPadding)
                 .background(
                     backgroundColor
-                        .cornerRadiusContinuous(14)
+                        .cornerRadiusContinuous(GroupedSectionConstants.defaultCornerRadius)
                         .matchedGeometryEffectOptional(id: backgroundNamespaceId, in: namespace)
                 )
 
@@ -104,6 +104,8 @@ extension GroupedSection {
 }
 
 enum GroupedSectionConstants {
+    static let defaultHorizontalPadding: CGFloat = 14
+    static let defaultCornerRadius: CGFloat = 14
     static let headerFooterSpacing: CGFloat = 8
 }
 
