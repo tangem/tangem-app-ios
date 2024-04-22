@@ -648,6 +648,10 @@
 "warning_express_wrong_amount_description" = "Please change the amount to swap";
 "warning_failed_to_verify_card_message" = "此卡可能是生產樣本或偽造品";
 "warning_failed_to_verify_card_title" = "認證檢查失敗";
+"warning_hedera_missing_token_association_button_title" = "Associate";
+"warning_hedera_missing_token_association_message" = "This token must be associated with your Hedera account before you can receive it. Association fee ~%1$@ %2$@";
+"warning_hedera_missing_token_association_message_brief" = "This token must be associated with your Hedera account before you can receive it";
+"warning_hedera_missing_token_association_title" = "Associate your token";
 "warning_long_transaction_message" = "iPhone 7/7+ cannot sign transactions on this network. To complete this operation, please use a different phone.";
 "warning_long_transaction_title" = "Transaction signing unavailable";
 "warning_low_signatures_message" = "Only %@ signatures are left on this card. You must withdraw all of your funds.";
