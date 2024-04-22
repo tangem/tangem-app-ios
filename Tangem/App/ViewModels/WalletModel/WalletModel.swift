@@ -663,8 +663,8 @@ extension WalletModel {
         walletManager as? ExistentialDepositProvider
     }
 
-    var assetPrerequisitesManager: AssetPrerequisitesManager? {
-        walletManager as? AssetPrerequisitesManager
+    var assetRequirementsManager: AssetRequirementsManager? {
+        walletManager as? AssetRequirementsManager
     }
 }
 
