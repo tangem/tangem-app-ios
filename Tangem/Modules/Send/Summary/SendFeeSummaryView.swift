@@ -111,16 +111,15 @@ extension SendFeeSummaryView: Setupable {
     }
 }
 
-//
-// #Preview {
-//    GroupedScrollView(spacing: 14) {
-//        GroupedSection(SendFeeSummaryViewModel(title: "Network fee", feeOption: .market, cryptoAmount: "0.159817 MATIC", fiatAmount: "0,22 $", animateTitleOnAppear: false)) { data in
-//            SendFeeSummaryView(data: data)
-//        }
-//
-//        GroupedSection(SendFeeSummaryViewModel(title: "Network Fee Network Fee Network Fee Network Fee Network Fee Network Fee Network Fee Network Fee", feeOption: .slow, cryptoAmount: "159 817 159 817.159817 MATIC", fiatAmount: "100 120,22 $", animateTitleOnAppear: false)) { data in
-//            SendFeeSummaryView(data: data)
-//        }
-//    }
-//    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-// }
+#Preview {
+    GroupedScrollView(spacing: 14) {
+        GroupedSection(SendFeeSummaryViewModel(title: "Network fee", feeOption: .market, formattedFeeComponents: .loaded(.init(cryptoFee: "0.159817 MATIC", fiatFee: "0,22 $")))) { data in
+            SendFeeSummaryView(data: data)
+        }
+
+        GroupedSection(SendFeeSummaryViewModel(title: "Network Fee Network Fee Network Fee Network Fee Network Fee Network Fee Network Fee Network Fee", feeOption: .slow, formattedFeeComponents: .loaded(.init(cryptoFee: "159 817 159 817.159817 MATIC", fiatFee: "100 120,22 $")))) { data in
+            SendFeeSummaryView(data: data)
+        }
+    }
+    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+}
