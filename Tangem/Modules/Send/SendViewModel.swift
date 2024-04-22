@@ -20,6 +20,7 @@ final class SendViewModel: ObservableObject {
     @Published var mainButtonType: SendMainButtonType = .next
     @Published var mainButtonLoading: Bool = false
     @Published var mainButtonDisabled: Bool = false
+    @Published var dismissButtonDisabled: Bool = false
     @Published var updatingFees = false
     @Published var currentStepInvalid: Bool = false // delete?
     @Published var canDismiss: Bool = false
@@ -81,7 +82,17 @@ final class SendViewModel: ObservableObject {
 
     private var screenIdleStartTime: Date?
     private var currentPageAnimating: Bool? = nil
-    private var didReachSummaryScreen = false
+
+    private var didReachSummaryScreen: Bool {
+        get {
+            didReachSummaryScreenSubject.value
+        }
+        set {
+            didReachSummaryScreenSubject.send(newValue)
+        }
+    }
+
+    private var didReachSummaryScreenSubject: CurrentValueSubject<Bool, Never> = .init(false)
 
     private var currentStepValid: AnyPublisher<Bool, Never> {
         let inputFieldsValid = $step
@@ -230,7 +241,11 @@ final class SendViewModel: ObservableObject {
     }
 
     func dismiss() {
-        coordinator?.dismiss()
+        if step != .summary, didReachSummaryScreen {
+            next()
+        } else {
+            coordinator?.dismiss()
+        }
     }
 
     func next() {
@@ -331,6 +346,17 @@ final class SendViewModel: ObservableObject {
                 return false
             }
             .assign(to: \.mainButtonDisabled, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        Publishers.CombineLatest3(currentStepValid, $step, didReachSummaryScreenSubject)
+            .map { currentStepValid, step, didReachSummaryScreen in
+                if didReachSummaryScreen {
+                    return (step != .summary) && !currentStepValid
+                } else {
+                    return false
+                }
+            }
+            .assign(to: \.dismissButtonDisabled, on: self, ownership: .weak)
             .store(in: &bag)
 
         $updatingFees
