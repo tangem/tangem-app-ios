@@ -15,8 +15,8 @@ class SendRoutableMock: SendRoutable {
     func dismiss() {}
     func openFeeExplanation(url: URL) {}
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {}
-    func explore(url: URL) {}
-    func share(url: URL) {}
+    func openExplorer(url: URL) {}
+    func openShareSheet(url: URL) {}
     func openQRScanner(with codeBinding: Binding<String>, networkName: String) {}
     func openFeeCurrency(for walletModel: WalletModel, userWalletModel: UserWalletModel) {}
 }

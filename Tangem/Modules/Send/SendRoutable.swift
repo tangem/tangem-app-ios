@@ -9,9 +9,11 @@
 import Foundation
 import SwiftUI
 
-protocol SendRoutable: SendFeeRoutable, SendFinishRoutable, AnyObject {
+protocol SendRoutable: SendFeeRoutable, AnyObject {
     func dismiss()
     func openMail(with dataCollector: EmailDataCollector, recipient: String)
     func openQRScanner(with codeBinding: Binding<String>, networkName: String)
     func openFeeCurrency(for walletModel: WalletModel, userWalletModel: UserWalletModel) // aka presentFeeCurrency
+    func openExplorer(url: URL)
+    func openShareSheet(url: URL)
 }
