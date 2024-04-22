@@ -88,7 +88,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .reduceAmountTo:
             super.didTapNotificationButton(with: id, action: action)
         case .addHederaTokenAssociation:
-            fulfillAssetPrerequisites()
+            fulfillAssetRequirements()
         }
     }
 
@@ -96,10 +96,10 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         self.actionSheet = actionSheet
     }
 
-    private func fulfillAssetPrerequisites() {
+    private func fulfillAssetRequirements() {
         walletModel
-            .assetPrerequisitesManager?
-            .fulfillPrerequisites(for: walletModel.amountType, signer: userWalletModel.signer)
+            .assetRequirementsManager?
+            .fulfillRequirements(for: walletModel.amountType, signer: userWalletModel.signer)
             .sink()
             .store(in: &bag)
     }
