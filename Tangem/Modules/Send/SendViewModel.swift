@@ -150,8 +150,8 @@ final class SendViewModel: ObservableObject {
         }
         self.steps = steps
         step = firstStep
-        mainButtonType = Self.mainButtonType(for: firstStep, didReachSummaryScreen: false)
         didReachSummaryScreen = (firstStep == .summary)
+        mainButtonType = Self.mainButtonType(for: firstStep, didReachSummaryScreen: didReachSummaryScreen)
         stepAnimation = (firstStep == .summary) ? .moveAndFade : .slideForward
 
         let tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
