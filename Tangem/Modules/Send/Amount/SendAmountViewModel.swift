@@ -24,7 +24,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     let walletName: String
     let balance: String
     let tokenIconInfo: TokenIconInfo
-    let showCurrencyPicker: Bool
+    let currencyPickerDisabled: Bool
     let cryptoIconURL: URL?
     let cryptoCurrencyCode: String
     let fiatIconURL: URL?
@@ -63,7 +63,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         amountFractionDigits = walletInfo.amountFractionDigits
         decimalNumberTextFieldViewModel = .init(maximumFractionDigits: walletInfo.amountFractionDigits)
 
-        showCurrencyPicker = walletInfo.canUseFiatCalculation
+        currencyPickerDisabled = !walletInfo.canUseFiatCalculation
 
         cryptoIconURL = walletInfo.cryptoIconURL
         cryptoCurrencyCode = walletInfo.cryptoCurrencyCode
