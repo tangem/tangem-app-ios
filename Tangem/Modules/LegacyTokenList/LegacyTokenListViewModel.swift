@@ -24,7 +24,6 @@ class LegacyTokenListViewModel: ObservableObject {
     @Published var alert: AlertBinder?
     @Published var pendingAdd: [TokenItem] = []
     @Published var pendingRemove: [TokenItem] = []
-    @Published var showToast: Bool = false
 
     var titleKey: String {
         switch mode {
@@ -56,6 +55,7 @@ class LegacyTokenListViewModel: ObservableObject {
         loader.canFetchMore
     }
 
+    private var toast: Toast<SuccessToast>?
     private lazy var loader = setupListDataLoader()
     private let mode: Mode
     private var bag = Set<AnyCancellable>()
@@ -120,6 +120,12 @@ class LegacyTokenListViewModel: ObservableObject {
 
     func fetch() {
         loader.fetch(enteredSearchText.value)
+    }
+
+    func clearNotification() {
+        toast?.dismiss(animated: true) {
+            self.toast = nil
+        }
     }
 }
 
@@ -277,9 +283,17 @@ private extension LegacyTokenListViewModel {
 
     func bindCopy() -> Binding<Bool> {
         let binding = Binding<Bool> { [weak self] in
-            self?.showToast ?? false
+            self?.toast != nil
         } set: { [weak self] isSelected in
-            self?.showToast = isSelected
+            guard let self else { return }
+            if isSelected {
+                toast = Toast(view: SuccessToast(text: Localization.contractAddressCopiedMessage))
+                toast?.present(layout: .bottom(padding: 80), type: .temporary())
+            } else {
+                toast?.dismiss(animated: true) {
+                    self.toast = nil
+                }
+            }
         }
 
         return binding
