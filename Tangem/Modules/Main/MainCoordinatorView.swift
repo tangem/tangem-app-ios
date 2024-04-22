@@ -80,7 +80,7 @@ struct MainCoordinatorView: CoordinatorView {
                 item: $coordinator.receiveBottomSheetViewModel,
                 backgroundColor: Colors.Background.primary
             ) {
-                ReceiveBottomSheetView(viewModel: $0)
+                ReceiveBottomSheetView(viewModel: $0, sheetStateObject: $1)
             }
             .bottomSheet(
                 item: $coordinator.rateAppBottomSheetViewModel,

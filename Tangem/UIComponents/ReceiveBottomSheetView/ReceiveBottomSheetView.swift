@@ -7,10 +7,10 @@
 //
 
 import SwiftUI
-import AlertToast
 
 struct ReceiveBottomSheetView: View {
     @ObservedObject var viewModel: ReceiveBottomSheetViewModel
+    @ObservedObject var sheetStateObject: BottomSheetContainer<Self>.StateObject
 
     @State private var containerWidth: CGFloat = 0
 
@@ -18,10 +18,10 @@ struct ReceiveBottomSheetView: View {
         VStack {
             mainContent
         }
-        .toast(isPresenting: $viewModel.showToast, alert: {
-            AlertToast(type: .complete(Colors.Icon.accent), title: Localization.walletNotificationAddressCopied)
-        })
         .onAppear(perform: viewModel.onViewAppear)
+        .onReceive(sheetStateObject.$offset) { _ in
+            viewModel.clearNotification()
+        }
     }
 
     @ViewBuilder
@@ -126,7 +126,7 @@ struct ReceiveBottomSheet_Previews: PreviewProvider {
             VStack {
                 Colors.Background.secondary
                     .overlay(
-                        ReceiveBottomSheetView(viewModel: btcAddressBottomSheet)
+                        ReceiveBottomSheetView(viewModel: btcAddressBottomSheet, sheetStateObject: .init())
                             .background(Colors.Background.primary),
 
                         alignment: .bottom
@@ -150,8 +150,8 @@ struct ReceiveBottomSheet_Previews: PreviewProvider {
                             .bottomSheet(
                                 item: viewModel,
                                 backgroundColor: Colors.Background.primary
-                            ) { model in
-                                ReceiveBottomSheetView(viewModel: model)
+                            ) {
+                                ReceiveBottomSheetView(viewModel: $0, sheetStateObject: $1)
                             }
                     }
                 }
@@ -172,8 +172,8 @@ struct ReceiveBottomSheet_Previews: PreviewProvider {
                             .bottomSheet(
                                 item: viewModel,
                                 backgroundColor: Colors.Background.primary
-                            ) { model in
-                                ReceiveBottomSheetView(viewModel: model)
+                            ) {
+                                ReceiveBottomSheetView(viewModel: $0, sheetStateObject: $1)
                             }
                     }
                 }
