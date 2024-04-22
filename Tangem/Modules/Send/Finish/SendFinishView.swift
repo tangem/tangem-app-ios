@@ -24,11 +24,35 @@ struct SendFinishView: View {
                         .padding(.bottom, 12)
                 }
 
-                GroupedSection(viewModel.destinationSummaryViewData) { data in
-                    SendDestinationAddressSummaryView(address: data.address)
-                        .setNamespace(namespace)
+                GroupedSection(viewModel.destinationViewTypes) { type in
+                    switch type {
+                    case .address(let address, let corners):
+                        SendDestinationAddressSummaryView(address: address)
+                            .setNamespace(namespace)
+                            .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)
+                            .background(
+                                Colors.Background.action
+                                    .cornerRadius(GroupedSectionConstants.defaultCornerRadius, corners: corners)
+                                    .matchedGeometryEffect(id: SendViewNamespaceId.addressBackground.rawValue, in: namespace)
+                            )
+                    case .additionalField(let type, let value):
+                        if let name = type.name {
+                            DefaultTextWithTitleRowView(data: .init(title: name, text: value))
+                                .setNamespace(namespace)
+                                .setTitleNamespaceId(SendViewNamespaceId.addressAdditionalFieldTitle.rawValue)
+                                .setTextNamespaceId(SendViewNamespaceId.addressAdditionalFieldText.rawValue)
+                                .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)
+                                .background(
+                                    Colors.Background.action
+                                        .cornerRadius(GroupedSectionConstants.defaultCornerRadius, corners: [.bottomLeft, .bottomRight])
+                                        .matchedGeometryEffect(id: SendViewNamespaceId.addressAdditionalFieldBackground.rawValue, in: namespace)
+                                )
+                        }
+                    }
                 }
-                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.addressContainer.rawValue, namespace: namespace)
+                .backgroundColor(.clear, id: SendViewNamespaceId.destinationContainer.rawValue, namespace: namespace)
+                .horizontalPadding(0)
+                .separatorStyle(.single)
 
                 GroupedSection(viewModel.amountSummaryViewData) {
                     SendAmountSummaryView(data: $0)
