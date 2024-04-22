@@ -63,8 +63,9 @@ struct SendView: View {
                     Button(action: viewModel.dismiss) {
                         Assets.crossBlack.image
                             .renderingMode(.template)
-                            .foregroundColor(Colors.Icon.primary1)
+                            .foregroundColor(viewModel.dismissButtonDisabled ? Colors.Icon.inactive : Colors.Icon.primary1)
                     }
+                    .disabled(viewModel.dismissButtonDisabled)
 
                     Spacer()
                 }
