@@ -47,4 +47,23 @@ extension View {
             )
         )
     }
+
+    @ViewBuilder
+    func bottomSheet<Item: Identifiable, ContentView: View>(
+        item: Binding<Item?>,
+        backgroundColor: Color,
+        stateObject: BottomSheetContainer<ContentView>.StateObject = .init(),
+        @ViewBuilder sheetContent: @escaping (Item, BottomSheetContainer<ContentView>.StateObject) -> ContentView
+    ) -> some View {
+        modifier(
+            BottomSheetModifier(
+                item: item,
+                stateObject: stateObject,
+                settings: .init(backgroundColor: backgroundColor),
+                sheetContent: {
+                    sheetContent($0, stateObject)
+                }
+            )
+        )
+    }
 }
