@@ -20,7 +20,7 @@ extension SendType {
         case .send:
             return [.destination, .amount, .summary, .fee]
         case .sell:
-            return [.summary, .fee]
+            return [.summary]
         }
     }
 
