@@ -15,9 +15,14 @@ enum TokenNotificationEvent: Hashable {
         let eventConfiguration: TransactionSendAvailabilityProvider.SendingRestrictions.NotEnoughFeeConfiguration
     }
 
-    // [REDACTED_TODO_COMMENT]
-    enum UnfulfilledRequirementsConfiguration {
-        case missingHederaTokenAssociation
+    enum UnfulfilledRequirementsConfiguration: Hashable {
+        /// `value` is denominated in hbars.
+        struct HederaTokenAssociationFee: Hashable {
+            let value: Decimal
+            let currencySymbol: String
+        }
+
+        case missingHederaTokenAssociation(associationFee: HederaTokenAssociationFee?)
         @available(*, unavailable, message: "Token trust lines support not implemented yet")
         case missingTokenTrustline
     }
@@ -90,7 +95,7 @@ extension TokenNotificationEvent: NotificationEvent {
         case .solanaHighImpact:
             return .string(Localization.warningSolanaFeeTitle)
         case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation):
-            return .string("Associate your token") // [REDACTED_TODO_COMMENT]
+            return .string(Localization.warningHederaMissingTokenAssociationTitle)
         }
     }
 
@@ -116,8 +121,11 @@ extension TokenNotificationEvent: NotificationEvent {
             )
         case .solanaHighImpact:
             return Localization.warningSolanaFeeMessage
-        case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation):
-            return "This token must be associated with your Hedera account before you can receive it. Association fee X HBAR" // [REDACTED_TODO_COMMENT]
+        case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation(let associationFee)):
+            if let associationFee {
+                return Localization.warningHederaMissingTokenAssociationMessage(associationFee.value, associationFee.currencySymbol)
+            }
+            return Localization.warningHederaMissingTokenAssociationMessageBrief
         }
     }
 
