@@ -115,6 +115,8 @@ class SendSummaryViewModel: ObservableObject {
     }
 
     func onAppear() {
+        selectedFeeSummaryViewModel?.setAnimateTitleOnAppear(true)
+
         withAnimation(SendView.Constants.defaultAnimation) {
             self.animatingDestinationOnAppear = false
             self.animatingAmountOnAppear = false
@@ -183,8 +185,7 @@ class SendSummaryViewModel: ObservableObject {
                     if feeOption == selectedFeeOption {
                         selectedFeeSummaryViewModel = sectionViewModelFactory.makeFeeViewData(
                             from: feeValue,
-                            feeOption: feeOption,
-                            animateTitleOnAppear: true
+                            feeOption: feeOption
                         )
                     } else {
                         let model = sectionViewModelFactory.makeDeselectedFeeRowViewModel(from: feeValue, feeOption: feeOption)
