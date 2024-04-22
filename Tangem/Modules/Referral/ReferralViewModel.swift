@@ -102,7 +102,10 @@ class ReferralViewModel: ObservableObject {
         UIPasteboard.general.string = referralProgramInfo?.referral?.promoCode
 
         toast = Toast(view: SuccessToast(text: Localization.referralPromoCodeCopied))
-        toast?.present(layout: .top(padding: 80), type: .temporary())
+        toast?.present(
+            layout: .top(padding: 80),
+            type: .temporary { self.toast = nil }
+        )
     }
 
     func sharePromoCode() {

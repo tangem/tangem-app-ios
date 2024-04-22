@@ -121,12 +121,6 @@ class LegacyTokenListViewModel: ObservableObject {
     func fetch() {
         loader.fetch(enteredSearchText.value)
     }
-
-    func clearNotification() {
-        toast?.dismiss(animated: true) {
-            self.toast = nil
-        }
-    }
 }
 
 // MARK: - Navigation
@@ -288,7 +282,10 @@ private extension LegacyTokenListViewModel {
             guard let self else { return }
             if isSelected {
                 toast = Toast(view: SuccessToast(text: Localization.contractAddressCopiedMessage))
-                toast?.present(layout: .bottom(padding: 80), type: .temporary())
+                toast?.present(
+                    layout: .bottom(padding: 80),
+                    type: .temporary { self.toast = nil }
+                )
             } else {
                 toast?.dismiss(animated: true) {
                     self.toast = nil
