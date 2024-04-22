@@ -417,7 +417,10 @@ extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
 extension MainViewModel: MultiWalletMainContentDelegate {
     func displayAddressCopiedToast() {
         toast = Toast(view: SuccessToast(text: Localization.walletNotificationAddressCopied))
-        toast?.present(layout: .bottom(padding: 80), type: .temporary())
+        toast?.present(
+            layout: .bottom(padding: 80),
+            type: .temporary { self.toast = nil }
+        )
     }
 }
 
