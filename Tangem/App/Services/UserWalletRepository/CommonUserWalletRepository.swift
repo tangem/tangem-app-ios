@@ -80,24 +80,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             .store(in: &bag)
     }
 
-    private func scanPublisher() -> AnyPublisher<UserWalletRepositoryResult?, Never> {
-        var config = TangemSdkConfigFactory().makeDefaultConfig()
-
-        if AppSettings.shared.saveUserWallets {
-            config.accessCodeRequestPolicy = .alwaysWithBiometrics
-        }
-
-        let scannerParameters = CardScannerParameters(
-            shouldAskForAccessCodes: false,
-            performDerivations: true,
-            sessionFilter: nil
-        )
-
-        let scanner = CommonCardScanner(
-            tangemSdk: TangemSdkDefaultFactory().makeTangemSdk(with: config),
-            parameters: scannerParameters
-        )
-
+    private func scanPublisher(_ scanner: CardScanner) -> AnyPublisher<UserWalletRepositoryResult?, Never> {
         sendEvent(.scan(isScanning: true))
 
         return scanner.scanCardPublisher()
@@ -169,16 +152,16 @@ class CommonUserWalletRepository: UserWalletRepository {
         switch method {
         case .biometry:
             unlockWithBiometry(completion: completion)
-        case .card(let userWalletId):
-            unlockWithCard(userWalletId, completion: completion)
+        case .card(let userWalletId, let scanner):
+            unlockWithCard(scanner: scanner, userWalletId, completion: completion)
         }
     }
 
-    func addOrScan(completion: @escaping (UserWalletRepositoryResult?) -> Void) {
+    func addOrScan(scanner: CardScanner, completion: @escaping (UserWalletRepositoryResult?) -> Void) {
         if AppSettings.shared.saveUserWallets {
-            add(completion)
+            add(scanner: scanner, completion)
         } else {
-            unlockWithCard(nil, completion: completion)
+            unlockWithCard(scanner: scanner, nil, completion: completion)
         }
     }
 
@@ -199,11 +182,11 @@ class CommonUserWalletRepository: UserWalletRepository {
             models = [userWalletModel]
         }
 
-        setSelectedUserWalletId(userWalletModel.userWalletId, unlockIfNeeded: true, reason: .inserted)
+        setSelectedUserWalletId(userWalletModel.userWalletId, reason: .inserted)
     }
 
-    func add(_ completion: @escaping (UserWalletRepositoryResult?) -> Void) {
-        scanPublisher()
+    private func add(scanner: CardScanner, _ completion: @escaping (UserWalletRepositoryResult?) -> Void) {
+        scanPublisher(scanner)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] result in
                 guard let self else { return }
@@ -218,7 +201,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                         return
                     }
 
-                    setSelectedUserWalletId(userWalletModel.userWalletId, unlockIfNeeded: true, reason: .inserted)
+                    setSelectedUserWalletId(userWalletModel.userWalletId, reason: .inserted)
                 default:
                     completion(result)
                 }
@@ -250,7 +233,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         sendEvent(.updated(userWalletId: userWalletModel.userWalletId))
 
         if selectedUserWalletId == nil {
-            setSelectedUserWalletId(userWalletModel.userWalletId, unlockIfNeeded: true, reason: .inserted)
+            setSelectedUserWalletId(userWalletModel.userWalletId, reason: .inserted)
         }
     }
 
@@ -276,38 +259,16 @@ class CommonUserWalletRepository: UserWalletRepository {
         lock(reason: .nothingToDisplay)
     }
 
-    func setSelectedUserWalletId(_ userWalletId: UserWalletId, unlockIfNeeded: Bool, reason: UserWalletRepositorySelectionChangeReason) {
-        guard selectedUserWalletId != userWalletId else { return }
-
-        guard let model = models.first(where: {
-            $0.userWalletId == userWalletId
-        }) else {
+    func setSelectedUserWalletId(_ userWalletId: UserWalletId, reason: UserWalletRepositorySelectionChangeReason) {
+        guard selectedUserWalletId != userWalletId,
+              let model = models.first(where: { $0.userWalletId == userWalletId }) else {
             return
         }
 
-        let updateSelection: (UserWalletModel) -> Void = { [weak self] userWalletModel in
-            self?.selectedUserWalletId = userWalletModel.userWalletId
-            AppSettings.shared.selectedUserWalletId = userWalletModel.userWalletId.value
-            self?.initializeServicesForSelectedModel()
-            self?.sendEvent(.selected(userWalletId: userWalletModel.userWalletId, reason: reason))
-        }
-
-        if !model.isUserWalletLocked || !unlockIfNeeded {
-            updateSelection(model)
-            return
-        }
-
-        unlock(with: .card(userWalletId: userWalletId)) { [weak self] result in
-            guard
-                let self,
-                case .success = result,
-                let selectedModel = models.first(where: { $0.userWalletId == userWalletId })
-            else {
-                return
-            }
-
-            updateSelection(selectedModel)
-        }
+        selectedUserWalletId = model.userWalletId
+        AppSettings.shared.selectedUserWalletId = model.userWalletId.value
+        initializeServicesForSelectedModel()
+        sendEvent(.selected(userWalletId: model.userWalletId, reason: reason))
     }
 
     func delete(_ userWalletId: UserWalletId, logoutIfNeeded shouldAutoLogout: Bool) {
@@ -344,7 +305,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         if !models.isEmpty {
             let newModel = models[targetIndex]
-            setSelectedUserWalletId(newModel.userWalletId, unlockIfNeeded: false, reason: .deleted)
+            setSelectedUserWalletId(newModel.userWalletId, reason: .deleted)
         }
 
         if shouldAutoLogout {
@@ -453,8 +414,8 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    private func unlockWithCard(_ requiredUserWalletId: UserWalletId?, completion: @escaping (UserWalletRepositoryResult?) -> Void) {
-        scanPublisher()
+    private func unlockWithCard(scanner: CardScanner, _ requiredUserWalletId: UserWalletId?, completion: @escaping (UserWalletRepositoryResult?) -> Void) {
+        scanPublisher(scanner)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] result in
                 guard
@@ -507,7 +468,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                     return
                 }
 
-                setSelectedUserWalletId(userWalletModel.userWalletId, unlockIfNeeded: true, reason: .userSelected)
+                setSelectedUserWalletId(userWalletModel.userWalletId, reason: .userSelected)
                 initializeServicesForSelectedModel()
 
                 sendEvent(.updated(userWalletId: userWalletModel.userWalletId))
