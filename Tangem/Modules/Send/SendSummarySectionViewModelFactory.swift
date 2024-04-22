@@ -46,13 +46,12 @@ struct SendSummarySectionViewModelFactory {
         )
     }
 
-    func makeFeeViewData(from value: LoadingValue<Fee>, feeOption: FeeOption, animateTitleOnAppear: Bool) -> SendFeeSummaryViewModel? {
+    func makeFeeViewData(from value: LoadingValue<Fee>, feeOption: FeeOption) -> SendFeeSummaryViewModel? {
         let formattedFeeComponents = formattedFeeComponents(from: value)
         return SendFeeSummaryViewModel(
             title: Localization.commonNetworkFeeTitle,
             feeOption: feeOption,
-            formattedFeeComponents: formattedFeeComponents,
-            animateTitleOnAppear: animateTitleOnAppear
+            formattedFeeComponents: formattedFeeComponents
         )
     }
 
