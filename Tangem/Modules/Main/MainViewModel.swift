@@ -21,7 +21,6 @@ final class MainViewModel: ObservableObject {
     @Published var pages: [MainUserWalletPageBuilder] = []
     @Published var selectedCardIndex = 0
     @Published var isHorizontalScrollDisabled = false
-    @Published var showAddressCopiedToast = false
     @Published var actionSheet: ActionSheetBinder?
 
     @Published var unlockWalletBottomSheetViewModel: UnlockUserWalletBottomSheetViewModel?
@@ -41,6 +40,8 @@ final class MainViewModel: ObservableObject {
     private var pendingUserWalletIdsToUpdate: Set<UserWalletId> = []
     private var pendingUserWalletModelsToAdd: [UserWalletModel] = []
     private var shouldRecreatePagesAfterAddingPendingWalletModels = false
+
+    private var toast: Toast<SuccessToast>?
 
     private var isLoggingOut = false
 
@@ -415,7 +416,8 @@ extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
 
 extension MainViewModel: MultiWalletMainContentDelegate {
     func displayAddressCopiedToast() {
-        showAddressCopiedToast = true
+        toast = Toast(view: SuccessToast(text: Localization.walletNotificationAddressCopied))
+        toast?.present(layout: .bottom(padding: 80), type: .temporary())
     }
 }
 
