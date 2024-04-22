@@ -75,7 +75,7 @@ final class AuthViewModel: ObservableObject {
         isScanningCard = true
         Analytics.beginLoggingCardScan(source: .auth)
 
-        userWalletRepository.unlock(with: .card(userWalletId: nil)) { [weak self] result in
+        userWalletRepository.unlock(with: .card(userWalletId: nil, scanner: CardScannerFactory().makeDefaultScanner())) { [weak self] result in
             guard let self else { return }
 
             didFinishUnlocking(result)
