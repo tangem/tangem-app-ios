@@ -116,9 +116,9 @@ enum PreviewCard {
     private var card: Card {
         switch self {
         case .tangemWalletBackuped:
-            return .walletWithBackup
+            return CardMock.wallet.card
         default:
-            return .walletV2
+            return CardMock.wallet2.card
         }
     }
 }
