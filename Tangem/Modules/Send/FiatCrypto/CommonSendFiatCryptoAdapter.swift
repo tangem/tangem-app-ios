@@ -85,13 +85,11 @@ class CommonSendFiatCryptoAdapter: SendFiatCryptoAdapter {
             .sink { [weak self] useFiatCalculation, fiatCryptoValue in
                 guard let self else { return }
 
-                let cryptoValue = fiatCryptoValue.crypto
+                let cryptoValue = fiatCryptoValue.crypto ?? 0
                 let fiatValue: Decimal?
 
-                if cryptoValue != nil {
-                    fiatValue = fiatCryptoValue.fiat
-                } else if quotesRepository.quote(for: cryptoCurrencyId) != nil {
-                    fiatValue = 0
+                if quotesRepository.quote(for: cryptoCurrencyId) != nil {
+                    fiatValue = fiatCryptoValue.fiat ?? 0
                 } else {
                     fiatValue = nil
                 }
@@ -114,9 +112,7 @@ class CommonSendFiatCryptoAdapter: SendFiatCryptoAdapter {
         }
     }
 
-    private func formatCryptoAmount(_ amount: Decimal?, trimFractions: Bool) -> String? {
-        guard let amount else { return nil }
-
+    private func formatCryptoAmount(_ amount: Decimal, trimFractions: Bool) -> String? {
         let formatter = BalanceFormatter()
 
         let minCryptoFractionDigits = trimFractions ? 0 : BalanceFormattingOptions.defaultCryptoFormattingOptions.minFractionDigits
