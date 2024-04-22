@@ -72,13 +72,13 @@ struct SendSummarySectionViewModelFactory {
         case .loading:
             return .loading
         case .loaded(let value):
-            let f = feeFormatter.formattedFeeComponents(
+            let formattedFeeComponents = feeFormatter.formattedFeeComponents(
                 fee: value.amount.value,
                 currencySymbol: feeCurrencySymbol,
                 currencyId: feeCurrencyId,
                 isFeeApproximate: isFeeApproximate
             )
-            return .loaded(f)
+            return .loaded(formattedFeeComponents)
         case .failedToLoad(let error):
             return .failedToLoad(error: error)
         }
