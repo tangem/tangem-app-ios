@@ -12615,8 +12615,6 @@
 					"-framework",
 					"\"AlertToast\"",
 					"-framework",
-					"\"Amplitude\"",
-					"-framework",
 					"\"AmplitudeSwift\"",
 					"-framework",
 					"\"AnalyticsConnector\"",
