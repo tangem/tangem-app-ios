@@ -55,7 +55,7 @@ extension LegacyConfig: UserWalletConfig {
         "Tangem Card"
     }
 
-    var mandatoryCurves: [EllipticCurve] {
+    var createWalletCurves: [EllipticCurve] {
         if let defaultBlockchain {
             return [defaultBlockchain.curve]
         }
