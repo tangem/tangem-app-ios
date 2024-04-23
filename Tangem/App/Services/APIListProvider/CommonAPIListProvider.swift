@@ -7,20 +7,47 @@
 //
 
 import Foundation
+import Combine
 import BlockchainSdk
 
 class CommonAPIListProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-    private var locallyStoredList: APIList?
-    private var loadedFromRemoteList: APIList?
+
+    private let remoteListRequestTimeout: TimeInterval = 5.0
+
+    private var apiListSubject = CurrentValueSubject<APIList?, Never>(nil)
 
     func initialize() {
-        parseLocalFile()
-        loadRemoteFile()
+        runTask(withTimeout: remoteListRequestTimeout) { [weak self] in
+            self?.log("onTimeout while file load")
+            await self?.loadRemoteList()
+        } onTimeout: { [weak self] in
+            self?.parseLocalFile()
+        }
     }
 
-    private func log<T>(_ message: @autoclosure () -> T, function: String = #function) {
-        AppLog.shared.debug("[CommonAPIListProvider, line: \(function)] - \(message())")
+    private func loadRemoteList() async {
+        let startTime = CFAbsoluteTimeGetCurrent()
+        do {
+            log("Attempting to load API list from server")
+
+            let loadedList = try await tangemApiService.loadAPIList()
+
+            try Task.checkCancellation()
+
+            apiListSubject.value = convertToSDKModels(loadedList)
+
+            let remoteFileParseTime = CFAbsoluteTimeGetCurrent()
+            log("Remote API list loading and parsing time: \(remoteFileParseTime - startTime) seconds")
+        } catch {
+            if error is CancellationError || Task.isCancelled {
+                log("Loading API list from server was cancelled. No action required")
+                return
+            }
+
+            log("Failed to load API list from server. Error: \(error).\nAttempting to read local API list.")
+            parseLocalFile()
+        }
     }
 
     private func parseLocalFile() {
@@ -33,24 +60,10 @@ class CommonAPIListProvider {
             let jsonData = try Data(contentsOf: url)
             let decoder = JSONDecoder()
             let order = try decoder.decode(APIListDTO.self, from: jsonData)
-            locallyStoredList = convertToSDKModels(order)
+
+            apiListSubject.value = convertToSDKModels(order)
         } catch {
             log("Failed to parse providers_order file. Error: \(error)")
-        }
-    }
-
-    private func loadRemoteFile() {
-        let startTime = CFAbsoluteTimeGetCurrent()
-        Task { [weak self] in
-            guard let self else { return }
-            do {
-                let loadedList = try await tangemApiService.loadAPIList()
-                loadedFromRemoteList = convertToSDKModels(loadedList)
-            } catch {
-                log("Failed to load API list from server. Error: \(error)")
-            }
-            let endTime = CFAbsoluteTimeGetCurrent()
-            log("API list loading and parsing time: \(endTime - startTime) seconds")
         }
     }
 
@@ -88,18 +101,21 @@ class CommonAPIListProvider {
 
         return apiProvider.blockchainProvider
     }
+
+    private func log<T>(_ message: @autoclosure () -> T, function: String = #function) {
+        AppLog.shared.debug("[CommonAPIListProvider, line: \(function)] - \(message())")
+    }
 }
 
 extension CommonAPIListProvider: APIListProvider {
     var apiList: APIList {
-        if let loadedFromRemoteList {
-            return loadedFromRemoteList
-        }
+        return apiListSubject.value ?? [:]
+    }
 
-        if let locallyStoredList {
-            return locallyStoredList
-        }
-
-        return [:]
+    var apiListPublisher: AnyPublisher<APIList, Never> {
+        apiListSubject
+            .compactMap { $0 }
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
     }
 }
