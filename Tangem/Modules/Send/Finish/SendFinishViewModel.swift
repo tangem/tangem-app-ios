@@ -14,6 +14,7 @@ import BlockchainSdk
 protocol SendFinishViewModelInput: AnyObject {
     var userInputAmountValue: Amount? { get }
     var destinationText: String? { get }
+    var additionalField: (SendAdditionalFields, String)? { get }
     var feeValue: Fee? { get }
     var selectedFeeOption: FeeOption { get }
 
@@ -27,7 +28,7 @@ class SendFinishViewModel: ObservableObject {
 
     let transactionTime: String
 
-    let destinationSummaryViewData: SendDestinationSummaryViewData?
+    let destinationViewTypes: [SendDestinationSummaryViewType]
     let amountSummaryViewData: SendAmountSummaryViewData?
     let feeSummaryViewData: SendFeeSummaryViewModel?
 
@@ -39,7 +40,8 @@ class SendFinishViewModel: ObservableObject {
         guard
             let destinationText = input.destinationText,
             let transactionTime = input.transactionTime,
-            let transactionURL = input.transactionURL
+            let transactionURL = input.transactionURL,
+            let feeValue = input.feeValue
         else {
             return nil
         }
@@ -52,12 +54,15 @@ class SendFinishViewModel: ObservableObject {
             tokenIconInfo: walletInfo.tokenIconInfo
         )
 
-        destinationSummaryViewData = sectionViewModelFactory.makeDestinationViewData(address: destinationText)
+        destinationViewTypes = sectionViewModelFactory.makeDestinationViewTypes(
+            address: destinationText,
+            additionalField: input.additionalField
+        )
         amountSummaryViewData = sectionViewModelFactory.makeAmountViewData(
             from: fiatCryptoValueProvider.formattedAmount,
             amountAlternative: fiatCryptoValueProvider.formattedAmountAlternative
         )
-        feeSummaryViewData = sectionViewModelFactory.makeFeeViewData(from: input.feeValue, feeOption: input.selectedFeeOption, animateTitleOnAppear: false)
+        feeSummaryViewData = sectionViewModelFactory.makeFeeViewData(from: .loaded(feeValue), feeOption: input.selectedFeeOption)
 
         let formatter = DateFormatter()
         formatter.dateStyle = .long
