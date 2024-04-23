@@ -157,7 +157,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         sendEvent(.scan(isScanning: true))
 
         return sdk
-            .startSessionPublisher(with: AppScanTask())
+            .startSessionPublisher(with: AppScanTask(), cardId: nil)
             .eraseToAnyPublisher()
     }
 
