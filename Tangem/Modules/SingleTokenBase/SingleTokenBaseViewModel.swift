@@ -364,6 +364,12 @@ extension SingleTokenBaseViewModel {
 
 extension SingleTokenBaseViewModel {
     func openReceive() {
+        let requirementsCondition = walletModel.assetRequirementsManager?.requirementsCondition(for: amountType)
+        if let receiveUnavailableAlert = SingleTokenAlertBuilder().receiveAlert(for: requirementsCondition) {
+            alert = receiveUnavailableAlert
+            return
+        }
+
         tokenRouter.openReceive(walletModel: walletModel)
     }
 
