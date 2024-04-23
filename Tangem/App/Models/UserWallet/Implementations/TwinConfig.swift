@@ -48,7 +48,7 @@ extension TwinConfig: UserWalletConfig {
         "Twin"
     }
 
-    var mandatoryCurves: [EllipticCurve] {
+    var createWalletCurves: [EllipticCurve] {
         [.secp256k1]
     }
 
