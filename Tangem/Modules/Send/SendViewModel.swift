@@ -686,7 +686,9 @@ extension SendViewModel: SendSummaryRoutable {
         sendModel.updateFees()
             .sink { [weak self] completion in
                 if case .failure = completion {
-                    self?.alert = AlertBuilder.makeOkErrorAlert(message: Localization.sendAlertTransactionFailedTitle)
+                    self?.alert = SendAlertBuilder.makeFeeRetryAlert {
+                        self?.send()
+                    }
                 }
             } receiveValue: { [weak self] result in
                 self?.screenIdleStartTime = Date()
