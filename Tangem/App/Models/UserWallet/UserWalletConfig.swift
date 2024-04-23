@@ -21,9 +21,14 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
 
     var cardName: String { get }
 
-    var walletCurves: [EllipticCurve] { get }
+    /// Actual state of current card's curves or main card's curves in case of biometrics
+    var existingCurves: [EllipticCurve] { get }
 
-    var mandatoryCurves: [EllipticCurve] { get }
+    /// Curves to create during card initialization
+    var createWalletCurves: [EllipticCurve] { get }
+
+    /// `validationCurves` cannot be equal to `createWalletCurves`  for the first generation of Wallet because the bls curve was added later. But we can perform validation with `createWalletCurves` during backup or card initialization for new users
+    var validationCurves: [EllipticCurve] { get }
 
     var derivationStyle: DerivationStyle? { get }
 
@@ -114,6 +119,10 @@ extension UserWalletConfig {
     var hasDefaultToken: Bool {
         (defaultBlockchains.first?.tokens.count ?? 0) > 0
     }
+
+    var validationCurves: [EllipticCurve] {
+        createWalletCurves
+    }
 }
 
 struct EmailConfig {
@@ -138,7 +147,7 @@ protocol CardContainer {
 }
 
 extension UserWalletConfig where Self: CardContainer {
-    var walletCurves: [EllipticCurve] {
+    var existingCurves: [EllipticCurve] {
         card.walletCurves
     }
 
