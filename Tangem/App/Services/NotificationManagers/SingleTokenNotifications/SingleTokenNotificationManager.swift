@@ -75,8 +75,6 @@ final class SingleTokenNotificationManager {
             events.append(.solanaHighImpact)
         }
 
-        // [REDACTED_TODO_COMMENT]
-        // [REDACTED_TODO_COMMENT]
         if let sendingRestrictions = walletModel.sendingRestrictions {
             let isFeeCurrencyPurchaseAllowed = walletModelsManager.walletModels.contains {
                 $0.tokenItem == walletModel.feeTokenItem && $0.blockchainNetwork == walletModel.blockchainNetwork
