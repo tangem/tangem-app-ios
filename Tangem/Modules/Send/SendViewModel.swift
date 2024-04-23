@@ -22,6 +22,7 @@ final class SendViewModel: ObservableObject {
     @Published var mainButtonDisabled: Bool = false
     @Published var updatingFees = false
     @Published var currentStepInvalid: Bool = false // delete?
+    @Published var canDismiss: Bool = false
     @Published var alert: AlertBinder?
 
     var title: String? {
@@ -228,6 +229,10 @@ final class SendViewModel: ObservableObject {
         currentPageAnimating = false
     }
 
+    func dismiss() {
+        coordinator?.dismiss()
+    }
+
     func next() {
         // If we try to open another page mid-animation then the appropriate onAppear of the new page will not get called
         if currentPageAnimating ?? false {
@@ -288,6 +293,24 @@ final class SendViewModel: ObservableObject {
     }
 
     private func bind() {
+        Publishers.CombineLatest3($step, sendModel.amountPublisher, sendModel.isSending)
+            .map { step, amount, isSending in
+                if isSending {
+                    return false
+                }
+
+                switch step {
+                case .destination, .fee, .summary:
+                    return false
+                case .amount:
+                    return amount == nil
+                case .finish:
+                    return true
+                }
+            }
+            .assign(to: \.canDismiss, on: self, ownership: .weak)
+            .store(in: &bag)
+
         Publishers.CombineLatest($updatingFees, sendModel.isSending)
             .map { updatingFees, isSending in
                 updatingFees || isSending
