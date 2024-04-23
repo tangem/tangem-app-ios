@@ -7,10 +7,12 @@
 //
 
 import Foundation
+import Combine
 import BlockchainSdk
 
 protocol APIListProvider: Initializable {
     var apiList: APIList { get }
+    var apiListPublisher: AnyPublisher<APIList, Never> { get }
 }
 
 private struct APIListProviderKey: InjectionKey {
