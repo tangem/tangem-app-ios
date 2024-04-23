@@ -655,8 +655,10 @@ extension SendModel: SendSummaryViewModelInput {
             .eraseToAnyPublisher()
     }
 
-    var userInputAmountPublisher: AnyPublisher<Amount?, Never> {
-        userInputAmount.eraseToAnyPublisher()
+    var transactionAmountPublisher: AnyPublisher<Amount?, Never> {
+        transaction
+            .map(\.?.amount)
+            .eraseToAnyPublisher()
     }
 
     var feeValuePublisher: AnyPublisher<BlockchainSdk.Fee?, Never> {
