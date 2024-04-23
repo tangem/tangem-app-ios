@@ -316,7 +316,7 @@ SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   BinanceChain: f727abc7a20ba71f4497e46b7400124027b25692
   BitcoinCore.swift: 64ac4e69d9a6ef917bcbb0c23f1324cf57a822fb
-  BlockchainSdk: d3c2191f9b11b76bdf3422e8eb00592ad346cf7e
+  BlockchainSdk: 1bd84f2a6a2d3a26a5a0bc89cbb8e16c7e90b571
   BlockiesSwift: 22d8d56dd187e6bfd16cb8c8fbd4fd4896c3e65d
   CombineExt: c4daa97ef75754d8ef319bd79edeef82652f3eea
   Firebase: cf09623f98ae25a3ad484e23c7e0e5f464152d80
