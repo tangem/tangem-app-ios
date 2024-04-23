@@ -16,7 +16,7 @@ protocol SendSummaryViewModelInput: AnyObject {
     var canEditDestination: Bool { get }
     var feeOptions: [FeeOption] { get }
 
-    var userInputAmountPublisher: AnyPublisher<Amount?, Never> { get }
+    var transactionAmountPublisher: AnyPublisher<Amount?, Never> { get }
     var destinationTextPublisher: AnyPublisher<String, Never> { get }
     var additionalFieldPublisher: AnyPublisher<(SendAdditionalFields, String)?, Never> { get }
     var feeValuePublisher: AnyPublisher<Fee?, Never> { get }
@@ -199,7 +199,7 @@ class SendSummaryViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        Publishers.CombineLatest(input.userInputAmountPublisher, input.feeValuePublisher)
+        Publishers.CombineLatest(input.transactionAmountPublisher, input.feeValuePublisher)
             .withWeakCaptureOf(self)
             .map { parameters -> String? in
                 let (thisSendSummaryViewModel, (amount, fee)) = parameters
