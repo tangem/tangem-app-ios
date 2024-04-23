@@ -140,21 +140,21 @@ class SendModel {
 
         bind()
 
-        if let amount = sendType.predefinedAmount {
-            setAmount(amount)
-        }
+//        if let amount = sendType.predefinedAmount {
+        setAmount(1)
+//        }
 
-        if let destination = sendType.predefinedDestination {
-            setDestination(SendAddress(value: destination, source: .sellProvider))
-        } else {
-            validateDestination()
-        }
+//        if let destination = sendType.predefinedDestination {
+        setDestination(SendAddress(value: "TXLuYhdbMUsLYLatsbYBPzsyaU3CX2n4t6", source: .sellProvider))
+//        } else {
+//            validateDestination()
+//        }
 
-        if let tag = sendType.predefinedTag {
-            setDestinationAdditionalField(tag)
-        } else {
-            validateDestinationAdditionalField()
-        }
+//        if let tag = sendType.predefinedTag {
+//            setDestinationAdditionalField(tag)
+//        } else {
+//            validateDestinationAdditionalField()
+//        }
 
         // Update the fees in case we have all prerequisites specified
         if let predefinedAmount = sendType.predefinedAmount, let predefinedDestination = sendType.predefinedDestination {
