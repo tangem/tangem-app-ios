@@ -130,19 +130,27 @@ class CommonSendNotificationManager: SendNotificationManager {
                 let customFeeTooLow: Bool
                 let customFeeTooHigh: Bool
 
-                let highFeeOrderTrigger = 5
+                let highFeeOrderOfMagnitudeTrigger = 5
+                let highFeeOrderOfMagnitude: Int?
                 if selectedFeeOption == .custom,
                    let lowestFee = loadedFeeValues[.slow],
                    let highestFee = loadedFeeValues[.fast] {
                     customFeeTooLow = customFee < lowestFee
-                    customFeeTooHigh = customFee > (highestFee * Decimal(highFeeOrderTrigger))
+                    customFeeTooHigh = customFee > (highestFee * Decimal(highFeeOrderOfMagnitudeTrigger))
+
+                    if customFeeTooHigh {
+                        highFeeOrderOfMagnitude = ((customFee / highestFee).rounded(roundingMode: .plain) as NSDecimalNumber).intValue
+                    } else {
+                        highFeeOrderOfMagnitude = nil
+                    }
                 } else {
                     customFeeTooLow = false
                     customFeeTooHigh = false
+                    highFeeOrderOfMagnitude = nil
                 }
 
                 self?.updateEventVisibility(customFeeTooLow, event: .customFeeTooLow)
-                self?.updateEventVisibility(customFeeTooHigh, event: .customFeeTooHigh(orderOfMagnitude: highFeeOrderTrigger))
+                self?.updateEventVisibility(customFeeTooHigh, event: .customFeeTooHigh(orderOfMagnitude: highFeeOrderOfMagnitude ?? 0))
             }
             .store(in: &bag)
 
@@ -184,14 +192,16 @@ class CommonSendNotificationManager: SendNotificationManager {
 
     private func updateEventVisibility(_ visible: Bool, event: SendNotificationEvent) {
         if visible {
-            if !notificationInputsSubject.value.contains(where: { $0.settings.event.id == event.id }) {
-                let factory = NotificationsFactory()
+            let factory = NotificationsFactory()
+            let input = factory.buildNotificationInput(for: event) { [weak self] id, actionType in
+                self?.delegate?.didTapNotificationButton(with: id, action: actionType)
+            } dismissAction: { [weak self] id in
+                self?.dismissAction(with: id)
+            }
 
-                let input = factory.buildNotificationInput(for: event) { [weak self] id, actionType in
-                    self?.delegate?.didTapNotificationButton(with: id, action: actionType)
-                } dismissAction: { [weak self] id in
-                    self?.dismissAction(with: id)
-                }
+            if let index = notificationInputsSubject.value.firstIndex(where: { $0.settings.event.id == event.id }) {
+                notificationInputsSubject.value[index] = input
+            } else {
                 notificationInputsSubject.value.append(input)
             }
         } else {
