@@ -740,9 +740,6 @@ extension SendViewModel: NotificationTapDelegate {
         guard var newAmount = sendModel.validatedAmountValue else { return }
 
         newAmount = newAmount - Amount(with: walletModel.tokenItem.blockchain, type: walletModel.amountType, value: amount)
-        if sendModel.isFeeIncluded, let feeValue = sendModel.feeValue?.amount {
-            newAmount = newAmount + feeValue
-        }
 
         fiatCryptoAdapter.setCrypto(newAmount.value)
     }
