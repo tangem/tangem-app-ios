@@ -310,7 +310,7 @@ extension SingleTokenBaseViewModel {
         case .send:
             return sendIsDisabled()
         case .receive:
-            return false
+            return isReceiveDisabled()
         case .exchange:
             return isSwapDisabled()
         case .sell:
@@ -357,6 +357,14 @@ extension SingleTokenBaseViewModel {
         }
 
         return !swapAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem)
+    }
+
+    private func isReceiveDisabled() -> Bool {
+        guard let assetRequirementsManager = walletModel.assetRequirementsManager else {
+            return false
+        }
+
+        return assetRequirementsManager.hasRequirements(for: amountType)
     }
 }
 
