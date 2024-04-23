@@ -40,7 +40,12 @@ struct SendDestinationTextViewInputField: View {
             }
         }
         .readGeometry(\.size.width, bindTo: $width)
-        .frame(minHeight: currentHeight, maxHeight: currentHeight)
+        .frame(minHeight: 56, maxHeight: 56)
+        .overlay(alignment: .topTrailing) {
+            Text("\(width) x \(currentHeight)")
+                .font(.caption2)
+                .foregroundStyle(.red)
+        }
     }
 }
 
@@ -56,6 +61,7 @@ private struct CustomTextView: UIViewRepresentable {
     let color: UIColor
 
     func makeUIView(context: Context) -> UITextView {
+        print("ZZZ make view")
         let textView = UITextView()
         textView.delegate = context.coordinator
 
@@ -66,17 +72,25 @@ private struct CustomTextView: UIViewRepresentable {
 
         textView.textContainer.lineFragmentPadding = 0
 
+        let size = textView.sizeThatFits(CGSize(width: width, height: .infinity))
+        print("ZZZ make view text \(text), width \(width), height \(size.height)")
+        print("ZZZ separate calculation of text size: \(text.height(forContainerWidth: width, font: font)), \(attributedText(text).height(withConstrainedWidth: width)) ")
+
         return textView
     }
 
     func updateUIView(_ uiView: UITextView, context: Context) {
+        let newAttributedText = attributedText(text)
+
         DispatchQueue.main.async {
-            uiView.attributedText = attributedText(text)
+            uiView.attributedText = newAttributedText
             uiView.textColor = color
 
             showPlaceholder = text.isEmpty
 
             let size = uiView.sizeThatFits(CGSize(width: width, height: .infinity))
+            print("ZZZ update view text \(text), width \(width), height \(size.height)")
+            print("ZZZ separate calculation of text size: \(text.height(forContainerWidth: width, font: font)), \(attributedText(text).height(withConstrainedWidth: width)) ")
             currentHeight = size.height
         }
     }
@@ -127,5 +141,37 @@ private extension CustomTextView {
                 return true
             }
         }
+    }
+}
+
+extension NSAttributedString {
+    func height(withConstrainedWidth width: CGFloat) -> CGFloat {
+        let constraintRect = CGSize(width: width, height: .greatestFiniteMagnitude)
+        let boundingBox = boundingRect(with: constraintRect, options: .usesLineFragmentOrigin, context: nil)
+
+        return ceil(boundingBox.height)
+    }
+
+    func width(withConstrainedHeight height: CGFloat) -> CGFloat {
+        let constraintRect = CGSize(width: .greatestFiniteMagnitude, height: height)
+        let boundingBox = boundingRect(with: constraintRect, options: .usesLineFragmentOrigin, context: nil)
+
+        return ceil(boundingBox.width)
+    }
+}
+
+extension String {
+    func height(withConstrainedWidth width: CGFloat, font: UIFont) -> CGFloat {
+        let constraintRect = CGSize(width: width, height: .greatestFiniteMagnitude)
+        let boundingBox = (self as NSString).boundingRect(with: constraintRect, options: .usesLineFragmentOrigin, attributes: [NSAttributedString.Key.font: font], context: nil)
+
+        return ceil(boundingBox.height)
+    }
+
+    func width(withConstrainedHeight height: CGFloat, font: UIFont) -> CGFloat {
+        let constraintRect = CGSize(width: .greatestFiniteMagnitude, height: height)
+        let boundingBox = (self as NSString).boundingRect(with: constraintRect, options: .usesLineFragmentOrigin, attributes: [NSAttributedString.Key.font: font], context: nil)
+
+        return ceil(boundingBox.width)
     }
 }
