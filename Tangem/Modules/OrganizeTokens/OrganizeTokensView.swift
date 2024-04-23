@@ -259,6 +259,7 @@ struct OrganizeTokensView: View {
         )
         .background(navigationBarBackground)
         .padding(.bottom, Constants.headerAdditionalBottomInset)
+        .readGeometry(\.size.height, bindTo: $scrollViewTopContentInset)
         .infinityFrame(alignment: .top)
     }
 
