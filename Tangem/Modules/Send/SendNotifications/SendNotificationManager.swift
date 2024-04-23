@@ -15,6 +15,7 @@ protocol SendNotificationManagerInput {
     var customFeePublisher: AnyPublisher<Fee?, Never> { get }
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> { get }
     var withdrawalSuggestion: AnyPublisher<WithdrawalSuggestion?, Never> { get }
+    var amountError: AnyPublisher<Error?, Never> { get }
     var transactionCreationError: AnyPublisher<Error?, Never> { get }
 }
 
@@ -28,7 +29,7 @@ class CommonSendNotificationManager: SendNotificationManager {
     private let feeTokenItem: TokenItem
     private let input: SendNotificationManagerInput
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
-    private let transactionCreationNotificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
+    private let validationErrorInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
     private var bag: Set<AnyCancellable> = []
 
     private var notEnoughFeeConfiguration: TransactionSendAvailabilityProvider.SendingRestrictions.NotEnoughFeeConfiguration {
@@ -130,19 +131,27 @@ class CommonSendNotificationManager: SendNotificationManager {
                 let customFeeTooLow: Bool
                 let customFeeTooHigh: Bool
 
-                let highFeeOrderTrigger = 5
+                let highFeeOrderOfMagnitudeTrigger = 5
+                let highFeeOrderOfMagnitude: Int?
                 if selectedFeeOption == .custom,
                    let lowestFee = loadedFeeValues[.slow],
                    let highestFee = loadedFeeValues[.fast] {
                     customFeeTooLow = customFee < lowestFee
-                    customFeeTooHigh = customFee > (highestFee * Decimal(highFeeOrderTrigger))
+                    customFeeTooHigh = customFee > (highestFee * Decimal(highFeeOrderOfMagnitudeTrigger))
+
+                    if customFeeTooHigh {
+                        highFeeOrderOfMagnitude = ((customFee / highestFee).rounded(roundingMode: .plain) as NSDecimalNumber).intValue
+                    } else {
+                        highFeeOrderOfMagnitude = nil
+                    }
                 } else {
                     customFeeTooLow = false
                     customFeeTooHigh = false
+                    highFeeOrderOfMagnitude = nil
                 }
 
                 self?.updateEventVisibility(customFeeTooLow, event: .customFeeTooLow)
-                self?.updateEventVisibility(customFeeTooHigh, event: .customFeeTooHigh(orderOfMagnitude: highFeeOrderTrigger))
+                self?.updateEventVisibility(customFeeTooHigh, event: .customFeeTooHigh(orderOfMagnitude: highFeeOrderOfMagnitude ?? 0))
             }
             .store(in: &bag)
 
@@ -153,27 +162,34 @@ class CommonSendNotificationManager: SendNotificationManager {
             }
             .store(in: &bag)
 
-        input
-            .transactionCreationError
-            .map {
-                $0 as? ValidationError
-            }
-            .withWeakCaptureOf(self)
-            .map { (self, validationError) -> [NotificationViewInput] in
-                guard let validationError else { return [] }
-                let factory = NotificationsFactory()
+        Publishers.CombineLatest(
+            input.amountError.compactMap { [$0].compactMap { $0 } },
+            input.transactionCreationError.compactMap { [$0].compactMap { $0 } }
+        )
+        .map {
+            $0.0 + $0.1
+        }
+        .withWeakCaptureOf(self)
+        .map { (self, errors) -> [NotificationViewInput] in
+            self.notificationInputs(from: errors.first)
+        }
+        .assign(to: \.value, on: validationErrorInputsSubject, ownership: .weak)
+        .store(in: &bag)
+    }
 
-                guard let event = self.notificationEvent(from: validationError) else { return [] }
+    private func notificationInputs(from error: Error?) -> [NotificationViewInput] {
+        guard let validationError = error as? ValidationError else { return [] }
 
-                let input = factory.buildNotificationInput(for: event) { [weak self] id, actionType in
-                    self?.delegate?.didTapNotificationButton(with: id, action: actionType)
-                } dismissAction: { [weak self] id in
-                    self?.dismissAction(with: id)
-                }
-                return [input]
-            }
-            .assign(to: \.value, on: transactionCreationNotificationInputsSubject, ownership: .weak)
-            .store(in: &bag)
+        let factory = NotificationsFactory()
+
+        guard let event = notificationEvent(from: validationError) else { return [] }
+
+        let input = factory.buildNotificationInput(for: event) { [weak self] id, actionType in
+            self?.delegate?.didTapNotificationButton(with: id, action: actionType)
+        } dismissAction: { [weak self] id in
+            self?.dismissAction(with: id)
+        }
+        return [input]
     }
 
     private func dismissAction(with settingsId: NotificationViewId) {
@@ -184,14 +200,16 @@ class CommonSendNotificationManager: SendNotificationManager {
 
     private func updateEventVisibility(_ visible: Bool, event: SendNotificationEvent) {
         if visible {
-            if !notificationInputsSubject.value.contains(where: { $0.settings.event.id == event.id }) {
-                let factory = NotificationsFactory()
+            let factory = NotificationsFactory()
+            let input = factory.buildNotificationInput(for: event) { [weak self] id, actionType in
+                self?.delegate?.didTapNotificationButton(with: id, action: actionType)
+            } dismissAction: { [weak self] id in
+                self?.dismissAction(with: id)
+            }
 
-                let input = factory.buildNotificationInput(for: event) { [weak self] id, actionType in
-                    self?.delegate?.didTapNotificationButton(with: id, action: actionType)
-                } dismissAction: { [weak self] id in
-                    self?.dismissAction(with: id)
-                }
+            if let index = notificationInputsSubject.value.firstIndex(where: { $0.settings.event.id == event.id }) {
+                notificationInputsSubject.value[index] = input
+            } else {
                 notificationInputsSubject.value.append(input)
             }
         } else {
@@ -203,7 +221,7 @@ class CommonSendNotificationManager: SendNotificationManager {
         switch validationError {
         case .dustAmount(let minimumAmount), .dustChange(let minimumAmount):
             return SendNotificationEvent.minimumAmount(value: minimumAmount.string())
-        case .totalExceedsBalance:
+        case .totalExceedsBalance, .amountExceedsBalance:
             return .totalExceedsBalance(configuration: notEnoughFeeConfiguration)
         case .feeExceedsBalance:
             return .feeExceedsBalance(configuration: notEnoughFeeConfiguration)
@@ -224,11 +242,11 @@ class CommonSendNotificationManager: SendNotificationManager {
 
 extension CommonSendNotificationManager: NotificationManager {
     var notificationInputs: [NotificationViewInput] {
-        notificationInputsSubject.value + transactionCreationNotificationInputsSubject.value
+        notificationInputsSubject.value + validationErrorInputsSubject.value
     }
 
     var notificationPublisher: AnyPublisher<[NotificationViewInput], Never> {
-        Publishers.CombineLatest(notificationInputsSubject, transactionCreationNotificationInputsSubject)
+        Publishers.CombineLatest(notificationInputsSubject, validationErrorInputsSubject)
             .map {
                 $0 + $1
             }
