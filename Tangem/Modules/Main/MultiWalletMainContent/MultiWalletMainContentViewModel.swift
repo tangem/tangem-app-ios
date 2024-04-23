@@ -13,6 +13,7 @@ import CombineExt
 
 final class MultiWalletMainContentViewModel: ObservableObject {
     @Injected(\.swapAvailabilityProvider) private var swapAvailabilityProvider: SwapAvailabilityProvider
+    @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
 
     // MARK: - ViewState
 
@@ -252,8 +253,12 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         let sectionsPublisher = sectionsPublisher
             .replaceEmpty(with: [])
 
+        let apiListPublisher = apiListProvider
+            .apiListPublisher
+
         var tokenListSyncSubscription: AnyCancellable?
-        tokenListSyncSubscription = Publishers.Zip(tokenListSyncPublisher, sectionsPublisher)
+        tokenListSyncSubscription = Publishers.Zip3(tokenListSyncPublisher, sectionsPublisher, apiListPublisher)
+            .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
                 viewModel.isLoadingTokenList = false

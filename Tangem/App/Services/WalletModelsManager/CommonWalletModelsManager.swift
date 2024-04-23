@@ -14,7 +14,7 @@ class CommonWalletModelsManager {
     private let walletManagersRepository: WalletManagersRepository
     private let walletModelsFactory: WalletModelsFactory
 
-    private var _walletModels = CurrentValueSubject<[WalletModel], Never>([])
+    private var _walletModels = CurrentValueSubject<[WalletModel]?, Never>(nil)
     private var bag = Set<AnyCancellable>()
     private var updateAllSubscription: AnyCancellable?
 
@@ -87,11 +87,13 @@ class CommonWalletModelsManager {
 
 extension CommonWalletModelsManager: WalletModelsManager {
     var walletModels: [WalletModel] {
-        _walletModels.value
+        _walletModels.value ?? []
     }
 
     var walletModelsPublisher: AnyPublisher<[WalletModel], Never> {
-        _walletModels.eraseToAnyPublisher()
+        _walletModels
+            .compactMap { $0 }
+            .eraseToAnyPublisher()
     }
 
     func updateAll() {
