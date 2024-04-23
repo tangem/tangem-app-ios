@@ -16,7 +16,7 @@ enum TokenNotificationEvent: Hashable {
     }
 
     enum UnfulfilledRequirementsConfiguration: Hashable {
-        /// `value` is denominated in hbars.
+        /// `value` is denominated in HBARs.
         struct HederaTokenAssociationFee: Hashable {
             let value: Decimal
             let currencySymbol: String
