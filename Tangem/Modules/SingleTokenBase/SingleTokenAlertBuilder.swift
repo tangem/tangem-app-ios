@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import enum BlockchainSdk.AssetRequirementsCondition
 
 struct SingleTokenAlertBuilder {
     var cantSignLongTransactionAlert: AlertBinder {
@@ -15,6 +16,18 @@ struct SingleTokenAlertBuilder {
 
     var tryAgainLaterAlert: AlertBinder {
         .init(title: "", message: Localization.tokenButtonUnavailabilityGenericDescription)
+    }
+
+    func receiveAlert(for requirementsCondition: AssetRequirementsCondition?) -> AlertBinder? {
+        switch requirementsCondition {
+        case .paidTransaction,
+             .paidTransactionWithFee:
+            return AlertBinder(title: "", message: Localization.warningReceiveBlockedHederaTokenAssociationRequiredMessage)
+        case .none:
+            break
+        }
+
+        return nil
     }
 
     func sendAlert(for sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions?) -> AlertBinder? {
