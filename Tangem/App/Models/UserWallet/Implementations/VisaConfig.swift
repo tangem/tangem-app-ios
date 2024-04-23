@@ -36,7 +36,7 @@ extension VisaConfig: UserWalletConfig {
         "Tangem Visa"
     }
 
-    var mandatoryCurves: [EllipticCurve] {
+    var createWalletCurves: [EllipticCurve] {
         [defaultBlockchain.curve]
     }
 
