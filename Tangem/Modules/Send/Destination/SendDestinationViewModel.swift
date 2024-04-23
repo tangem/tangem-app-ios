@@ -85,7 +85,7 @@ class SendDestinationViewModel: ObservableObject {
                 let walletModel = walletModels.first { walletModel in
                     // Disregarding the difference between testnet and mainnet blockchains
                     // See https://github.com/tangem/tangem-app-ios/pull/3079#discussion_r1553709671
-                    return walletModel.blockchainNetwork.blockchain.coinId == blockchain.coinId &&
+                    return walletModel.blockchainNetwork.blockchain.networkId == blockchain.networkId &&
                         !walletModel.isCustom
                 }
 
