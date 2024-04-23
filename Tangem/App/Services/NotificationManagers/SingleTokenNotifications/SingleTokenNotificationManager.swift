@@ -77,11 +77,6 @@ final class SingleTokenNotificationManager {
 
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_TODO_COMMENT]
-        if case .hedera = walletModel.tokenItem.blockchain,
-           walletModel.assetRequirementsManager?.hasRequirements(for: walletModel.amountType) == true {
-            events.append(.hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation(associationFee: nil)))
-        }
-
         if let sendingRestrictions = walletModel.sendingRestrictions {
             let isFeeCurrencyPurchaseAllowed = walletModelsManager.walletModels.contains {
                 $0.tokenItem == walletModel.feeTokenItem && $0.blockchainNetwork == walletModel.blockchainNetwork
@@ -91,6 +86,8 @@ final class SingleTokenNotificationManager {
                 events.append(event)
             }
         }
+
+        events += makeAssetRequirementsNotificationEvents()
 
         let inputs = events.map {
             factory.buildNotificationInput(
@@ -220,6 +217,30 @@ final class SingleTokenNotificationManager {
             dismissAction: weakify(self, forFunction: SingleTokenNotificationManager.dismissNotification(with:))
         )
         return input
+    }
+
+    private func makeAssetRequirementsNotificationEvents() -> [TokenNotificationEvent] {
+        let asset = walletModel.amountType
+
+        guard
+            let assetRequirementsManager = walletModel.assetRequirementsManager,
+            assetRequirementsManager.hasRequirements(for: asset)
+        else {
+            return []
+        }
+
+        switch assetRequirementsManager.requirementsCondition(for: asset) {
+        case .paidTransaction:
+            return [.hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation(associationFee: nil))]
+        case .paidTransactionWithFee(let feeAmount):
+            let associationFee = TokenNotificationEvent.UnfulfilledRequirementsConfiguration.HederaTokenAssociationFee(
+                value: feeAmount.value.rounded(scale: 4, roundingMode: .up),
+                currencySymbol: feeAmount.currencySymbol
+            )
+            return [.hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation(associationFee: associationFee))]
+        case .none:
+            return []
+        }
     }
 }
 
