@@ -82,7 +82,7 @@ class CommonAPIListProvider {
     }
 
     private func convertToSDKModels(_ listDTO: APIListDTO) -> APIList {
-        var apiList: APIList = listDTO.reduce(into: [:]) { partialResult, element in
+        return listDTO.reduce(into: [:]) { partialResult, element in
             let providers: [NetworkProviderType] = element.value.compactMap { apiInfo in
                 switch APIType(rawValue: apiInfo.type) {
                 case .public:
@@ -100,8 +100,6 @@ class CommonAPIListProvider {
 
             partialResult[element.key] = providers
         }
-
-        return apiList
     }
 
     private func mapToNetworkProviderType(name: String?) -> NetworkProviderType? {
