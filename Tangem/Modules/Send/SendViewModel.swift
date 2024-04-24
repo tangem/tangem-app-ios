@@ -601,7 +601,7 @@ final class SendViewModel: ObservableObject {
 
             if feeUpdatePolicy == .updateAfterChangingStep {
                 self.feeUpdateSubscription = self.sendModel.updateFees()
-                    .sink { _ in } receiveValue: { _ in }
+                    .sink()
             }
         }
     }
