@@ -184,6 +184,8 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         case .exchange:
             Analytics.log(event: .swapPromoButtonExchangeNow, params: [.token: walletModel.tokenItem.currencySymbol])
             openExchange()
+        case .addHederaTokenAssociation:
+            fulfillAssetRequirements()
         default:
             break
         }
@@ -195,6 +197,24 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         }
 
         openExplorer(at: url)
+    }
+
+    private func fulfillAssetRequirements() {
+        let alertBuilder = SingleTokenAlertBuilder()
+        let requirementsCondition = walletModel.assetRequirementsManager?.requirementsCondition(for: amountType)
+        if let fulfillAssetRequirementsAlert = alertBuilder.fulfillAssetRequirementsAlert(
+            for: requirementsCondition,
+            feeTokenItem: walletModel.feeTokenItem,
+            isZeroAmount: walletModel.isZeroAmount
+        ) {
+            alert = fulfillAssetRequirementsAlert
+            return
+        }
+
+        walletModel
+            .fulfillRequirements(signer: userWalletModel.signer)
+            .sink()
+            .store(in: &bag)
     }
 }
 
