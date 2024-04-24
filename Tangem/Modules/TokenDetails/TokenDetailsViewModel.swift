@@ -85,22 +85,14 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .goToProvider,
              .exchange,
              .reduceAmountBy,
-             .reduceAmountTo:
+             .reduceAmountTo,
+             .addHederaTokenAssociation:
             super.didTapNotificationButton(with: id, action: action)
-        case .addHederaTokenAssociation:
-            fulfillAssetRequirements()
         }
     }
 
     override func presentActionSheet(_ actionSheet: ActionSheetBinder) {
         self.actionSheet = actionSheet
-    }
-
-    private func fulfillAssetRequirements() {
-        walletModel
-            .fulfillRequirements(signer: userWalletModel.signer)
-            .sink()
-            .store(in: &bag)
     }
 }
 
