@@ -69,6 +69,35 @@ struct SingleTokenAlertBuilder {
         return alert
     }
 
+    func fulfillAssetRequirementsAlert(
+        for requirementsCondition: AssetRequirementsCondition?,
+        feeTokenItem: TokenItem,
+        isZeroAmount: Bool
+    ) -> AlertBinder? {
+        switch requirementsCondition {
+        case .paidTransaction where isZeroAmount:
+            return AlertBinder(
+                title: "",
+                message: Localization.warningHederaTokenAssociationNotEnoughHbarMessage(feeTokenItem.currencySymbol)
+            )
+        case .paidTransactionWithFee(let feeAmount) where isZeroAmount:
+            assert(
+                feeAmount.type == feeTokenItem.amountType,
+                "Incorrect fee token item received: expected '\(feeAmount.currencySymbol)', got '\(feeTokenItem.currencySymbol)'"
+            )
+            return AlertBinder(
+                title: "",
+                message: Localization.warningHederaTokenAssociationNotEnoughHbarMessage(feeTokenItem.currencySymbol)
+            )
+        case .paidTransaction,
+             .paidTransactionWithFee,
+             .none:
+            break
+        }
+
+        return nil
+    }
+
     func sellUnavailableAlert(for tokenItem: TokenItem) -> AlertBinder {
         .init(title: "", message: Localization.tokenButtonUnavailabilityReasonSellUnavailable(tokenItem.name))
     }
