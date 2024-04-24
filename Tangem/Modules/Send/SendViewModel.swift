@@ -20,7 +20,6 @@ final class SendViewModel: ObservableObject {
     @Published var mainButtonType: SendMainButtonType
     @Published var mainButtonLoading: Bool = false
     @Published var mainButtonDisabled: Bool = false
-    @Published var dismissButtonDisabled: Bool = false
     @Published var updatingFees = false
     @Published var currentStepInvalid: Bool = false // delete?
     @Published var canDismiss: Bool = false
@@ -44,6 +43,10 @@ final class SendViewModel: ObservableObject {
 
     var mainButtonIcon: MainButton.Icon? {
         mainButtonType.icon
+    }
+
+    var showDismissButton: Bool {
+        !didReachSummaryScreen || step == .summary
     }
 
     var showQRCodeButton: Bool {
@@ -159,9 +162,11 @@ final class SendViewModel: ObservableObject {
         guard let firstStep = steps.first else {
             fatalError("No steps provided for the send type")
         }
+
+        let didReachSummaryScreen = (firstStep == .summary)
         self.steps = steps
         step = firstStep
-        didReachSummaryScreen = (firstStep == .summary)
+        didReachSummaryScreenSubject = .init(didReachSummaryScreen)
         mainButtonType = Self.mainButtonType(for: firstStep, didReachSummaryScreen: didReachSummaryScreen)
         stepAnimation = (firstStep == .summary) ? .moveAndFade : .slideForward
 
@@ -353,17 +358,6 @@ final class SendViewModel: ObservableObject {
                 return false
             }
             .assign(to: \.mainButtonDisabled, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        Publishers.CombineLatest3(currentStepValid, $step, didReachSummaryScreenSubject)
-            .map { currentStepValid, step, didReachSummaryScreen in
-                if didReachSummaryScreen {
-                    return (step != .summary) && !currentStepValid
-                } else {
-                    return false
-                }
-            }
-            .assign(to: \.dismissButtonDisabled, on: self, ownership: .weak)
             .store(in: &bag)
 
         $updatingFees
@@ -615,19 +609,21 @@ final class SendViewModel: ObservableObject {
                 return
             }
 
-            didReachSummaryScreen = true
-
             sendSummaryViewModel.setupAnimations(previousStep: self.step)
         }
 
         // Gotta give some time to update animation variable
         self.stepAnimation = stepAnimation
 
-        mainButtonType = Self.mainButtonType(for: step, didReachSummaryScreen: didReachSummaryScreen)
-
         DispatchQueue.main.async {
+            if step == .summary {
+                self.didReachSummaryScreen = true
+            }
+
             self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
             self.step = step
+
+            self.mainButtonType = Self.mainButtonType(for: step, didReachSummaryScreen: self.didReachSummaryScreen)
         }
     }
 
