@@ -14,6 +14,10 @@ class CommonWalletModelsManager {
     private let walletManagersRepository: WalletManagersRepository
     private let walletModelsFactory: WalletModelsFactory
 
+    /// We need to keep optional array to track state when wallet models array wasn't able to initialize
+    /// This state can happen while app awaiting API list from server, because and Wallet managers can't be created without this info
+    /// Nil state is not the same as an empty state, because user can remove all tokens from main and the array will be empty
+    /// Also if we initialize CurrentValueSubject with empty array recipients will evaluate this state as an empty list
     private var _walletModels = CurrentValueSubject<[WalletModel]?, Never>(nil)
     private var bag = Set<AnyCancellable>()
     private var updateAllSubscription: AnyCancellable?
