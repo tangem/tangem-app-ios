@@ -77,7 +77,6 @@ struct SendView: View {
                     headerText(title: "Title", subtitle: "Subtitle")
                         .hidden()
                 }
-                .animation(nil, value: title)
                 .padding(.vertical, 0)
                 .lineLimit(1)
                 .layoutPriority(2)
