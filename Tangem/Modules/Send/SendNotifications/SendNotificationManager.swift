@@ -242,12 +242,12 @@ class CommonSendNotificationManager: SendNotificationManager {
                 blockchainName: blockchainName,
                 maxUtxo: maxUtxos
             )
-        case .cardanoHasTokens:
-            return .cardanoHasTokens
+        case .cardanoHasTokens(let minimumAmount):
+            return .cardanoHasTokens(minCardanoAmountFormatted: minimumAmount.string())
         case .cardanoInsufficientBalanceToSendToken(let minimumAmount):
             return .cardanoInsufficientBalanceToSendToken(
                 tokenAmountFormatted: tokenItem.currencySymbol,
-                cardanoAmountFormatted: minimumAmount.string()
+                minCardanoAmountFormatted: minimumAmount.string()
             )
         default:
             return nil
