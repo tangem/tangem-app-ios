@@ -19,6 +19,9 @@ class CommonWalletManagersRepository {
     private let userTokenListManager: UserTokenListManager
     private let walletManagerFactory: AnyWalletManagerFactory
 
+    /// We need to keep optional dictionary to track state when wallet managers dictionary wasn't able to initialize
+    /// This state can happen while app awaiting API list from server, because Wallet managers can't be created without this info
+    /// Nil state is not the same as an empty state, because user can remove all tokens from main and the dictionary will be empty
     private var walletManagers = CurrentValueSubject<[BlockchainNetwork: WalletManager]?, Never>(nil)
     private var bag = Set<AnyCancellable>()
 
