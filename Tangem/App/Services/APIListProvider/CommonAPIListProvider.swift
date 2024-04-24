@@ -22,12 +22,13 @@ class CommonAPIListProvider {
             self?.log("onTimeout while file load")
             await self?.loadRemoteList()
         } onTimeout: { [weak self] in
-            self?.parseLocalFile()
+            self?.loadLocalFile()
         }
     }
 
     private func loadRemoteList() async {
         let startTime = CFAbsoluteTimeGetCurrent()
+
         do {
             log("Attempting to load API list from server")
 
@@ -35,8 +36,15 @@ class CommonAPIListProvider {
 
             try Task.checkCancellation()
 
-            apiListSubject.value = convertToSDKModels(loadedList)
+            var convertedRemoteAPIList = convertToSDKModels(loadedList)
+            let localAPIListFile: APIList = try parseLocalFile()
 
+            // Adding missing network providers to prevent case when no providers available for blockchain
+            convertedRemoteAPIList.merge(localAPIListFile, uniquingKeysWith: { remote, local in
+                return remote.isEmpty ? local : remote
+            })
+
+            apiListSubject.value = convertedRemoteAPIList
             let remoteFileParseTime = CFAbsoluteTimeGetCurrent()
             log("Remote API list loading and parsing time: \(remoteFileParseTime - startTime) seconds")
         } catch {
@@ -46,31 +54,36 @@ class CommonAPIListProvider {
             }
 
             log("Failed to load API list from server. Error: \(error).\nAttempting to read local API list.")
-            parseLocalFile()
+            loadLocalFile()
         }
     }
 
-    private func parseLocalFile() {
-        guard let url = Bundle.main.url(forResource: "providers_order", withExtension: "json") else {
-            log("providers_order.json file not found")
-            return
-        }
-
+    private func loadLocalFile() {
         do {
-            let jsonData = try Data(contentsOf: url)
-            let decoder = JSONDecoder()
-            let order = try decoder.decode(APIListDTO.self, from: jsonData)
-
-            apiListSubject.value = convertToSDKModels(order)
+            let localAPIList = try parseLocalFile()
+            apiListSubject.value = localAPIList
         } catch {
-            log("Failed to parse providers_order file. Error: \(error)")
+            log("Failed to parse local file.\nReason: \(error).\nPublishing empty list")
+            apiListSubject.value = [:]
         }
+    }
+
+    private func parseLocalFile() throws -> APIList {
+        guard let url = Bundle.main.url(forResource: "providers_order", withExtension: "json") else {
+            log("Local file with API List  not found")
+            throw APIListProviderError.localFileNotFound
+        }
+
+        let jsonData = try Data(contentsOf: url)
+        let decoder = JSONDecoder()
+        let order = try decoder.decode(APIListDTO.self, from: jsonData)
+
+        return convertToSDKModels(order)
     }
 
     private func convertToSDKModels(_ listDTO: APIListDTO) -> APIList {
-        var APIList: APIList = [:]
-        listDTO.forEach { element in
-            let apiList: [NetworkProviderType] = element.value.compactMap { apiInfo in
+        var apiList: APIList = listDTO.reduce(into: [:]) { partialResult, element in
+            let providers: [NetworkProviderType] = element.value.compactMap { apiInfo in
                 switch APIType(rawValue: apiInfo.type) {
                 case .public:
                     guard let link = apiInfo.url else {
@@ -85,10 +98,10 @@ class CommonAPIListProvider {
                 }
             }
 
-            APIList[element.key] = apiList
+            partialResult[element.key] = providers
         }
 
-        return APIList
+        return apiList
     }
 
     private func mapToNetworkProviderType(name: String?) -> NetworkProviderType? {
@@ -119,3 +132,17 @@ extension CommonAPIListProvider: APIListProvider {
             .eraseToAnyPublisher()
     }
 }
+
+extension CommonAPIListProvider {
+    enum APIListProviderError: Error {
+        case localFileNotFound
+    }
+}
+
+#if DEBUG
+extension CommonAPIListProvider {
+    func parseLocalFileForTest() throws -> APIList {
+        try parseLocalFile()
+    }
+}
+#endif
