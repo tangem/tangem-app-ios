@@ -14,6 +14,7 @@ import BlockchainSdk
 protocol SendSummaryViewModelInput: AnyObject {
     var canEditAmount: Bool { get }
     var canEditDestination: Bool { get }
+    var feeOptions: [FeeOption] { get }
 
     var userInputAmountPublisher: AnyPublisher<Amount?, Never> { get }
     var destinationTextPublisher: AnyPublisher<String, Never> { get }
@@ -115,6 +116,8 @@ class SendSummaryViewModel: ObservableObject {
     }
 
     func onAppear() {
+        selectedFeeSummaryViewModel?.setAnimateTitleOnAppear(true)
+
         withAnimation(SendView.Constants.defaultAnimation) {
             self.animatingDestinationOnAppear = false
             self.animatingAmountOnAppear = false
@@ -170,24 +173,20 @@ class SendSummaryViewModel: ObservableObject {
         .assign(to: \.amountSummaryViewData, on: self, ownership: .weak)
         .store(in: &bag)
 
-        let feeValues = input.feeValues
-            .map {
-                $0.compactMapValues { $0.value }
-            }
-
-        Publishers.CombineLatest3(feeValues, input.feeValuePublisher, input.selectedFeeOptionPublisher)
-            .sink { [weak self] feeValues, selectedFeeValue, selectedFeeOption in
+        Publishers.CombineLatest(input.feeValues, input.selectedFeeOptionPublisher)
+            .sink { [weak self] feeValues, selectedFeeOption in
                 guard let self else { return }
 
                 var selectedFeeSummaryViewModel: SendFeeSummaryViewModel?
                 var deselectedFeeRowViewModels: [FeeRowViewModel] = []
 
-                for (feeOption, feeValue) in feeValues {
+                for feeOption in input.feeOptions {
+                    let feeValue = feeValues[feeOption] ?? .loading
+
                     if feeOption == selectedFeeOption {
                         selectedFeeSummaryViewModel = sectionViewModelFactory.makeFeeViewData(
-                            from: selectedFeeValue,
-                            feeOption: feeOption,
-                            animateTitleOnAppear: true
+                            from: feeValue,
+                            feeOption: feeOption
                         )
                     } else {
                         let model = sectionViewModelFactory.makeDeselectedFeeRowViewModel(from: feeValue, feeOption: feeOption)
