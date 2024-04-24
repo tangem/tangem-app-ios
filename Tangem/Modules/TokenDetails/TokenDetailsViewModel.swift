@@ -98,8 +98,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     private func fulfillAssetRequirements() {
         walletModel
-            .assetRequirementsManager?
-            .fulfillRequirements(for: walletModel.amountType, signer: userWalletModel.signer)
+            .fulfillRequirements(signer: userWalletModel.signer)
             .sink()
             .store(in: &bag)
     }
