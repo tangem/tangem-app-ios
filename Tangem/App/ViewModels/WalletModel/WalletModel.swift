@@ -392,6 +392,12 @@ class WalletModel {
         }
     }
 
+    private func updateAfterSendingTransaction() {
+        // Force update transactions history to take a new pending transaction from the local storage
+        _localPendingTransactionSubject.send(())
+        startUpdatingTimer()
+    }
+
     // MARK: - Load Quotes
 
     private func loadQuotes() -> AnyPublisher<Void, Never> {
@@ -442,14 +448,14 @@ class WalletModel {
                 .eraseToAnyPublisher()
         }
 
-        return walletManager.send(tx, signer: signer)
+        return walletManager
+            .send(tx, signer: signer)
             .receive(on: DispatchQueue.main)
-            .handleEvents(receiveOutput: { [weak self] _ in
-                // Force update transactions history to take a new pending transaction from the local storage
-                self?._localPendingTransactionSubject.send(())
-                self?.startUpdatingTimer()
+            .withWeakCaptureOf(self)
+            .handleEvents(receiveOutput: { walletModel, _ in
+                walletModel.updateAfterSendingTransaction()
             })
-            .receive(on: DispatchQueue.main)
+            .map(\.1)
             .eraseToAnyPublisher()
     }
 
