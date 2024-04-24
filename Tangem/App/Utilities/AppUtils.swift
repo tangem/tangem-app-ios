@@ -15,6 +15,20 @@ struct AppUtils {
             return true
         }
 
-        return !tokenItem.hasLongTransactions
+        return tokenItem.canBeSignedOnLegacyDevice
+    }
+}
+
+fileprivate extension TokenItem {
+    // We can't sign transactions at legacy devices fot these blockchains
+    var canBeSignedOnLegacyDevice: Bool {
+        switch blockchain {
+        case .solana:
+            return isToken ? false : true
+        case .chia:
+            return false
+        default:
+            return true
+        }
     }
 }
