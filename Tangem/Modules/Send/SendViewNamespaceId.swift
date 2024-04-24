@@ -9,13 +9,24 @@
 import Foundation
 
 enum SendViewNamespaceId {
+    // Destination
+    case destinationContainer
+
     // Address
     case addressContainer
     case addressTitle
     case addressIcon
     case addressText
     case addressClearButton
-    case additionalField
+    case addressBackground
+
+    // Memo/tag
+    case addressAdditionalFieldContainer
+    case addressAdditionalFieldTitle
+    case addressAdditionalFieldIcon
+    case addressAdditionalFieldText
+    case addressAdditionalFieldClearButton
+    case addressAdditionalFieldBackground
 
     // Amount
     case amountContainer
@@ -44,6 +55,8 @@ extension SendViewNamespaceId {
 
     private var baseValue: String {
         switch self {
+        case .destinationContainer:
+            "destinationContainer"
         case .addressContainer:
             "addressContainer"
         case .addressTitle:
@@ -54,8 +67,20 @@ extension SendViewNamespaceId {
             "addressText"
         case .addressClearButton:
             "addressClearButton"
-        case .additionalField:
-            "additionalField"
+        case .addressBackground:
+            "addressBackground"
+        case .addressAdditionalFieldContainer:
+            "addressAdditionalFieldContainer"
+        case .addressAdditionalFieldTitle:
+            "addressAdditionalFieldTitle"
+        case .addressAdditionalFieldIcon:
+            "addressAdditionalFieldIcon"
+        case .addressAdditionalFieldText:
+            "addressAdditionalFieldText"
+        case .addressAdditionalFieldClearButton:
+            "addressAdditionalFieldClearButton"
+        case .addressAdditionalFieldBackground:
+            "addressAdditionalFieldBackground"
         case .amountContainer:
             "amountContainer"
         case .walletName:
