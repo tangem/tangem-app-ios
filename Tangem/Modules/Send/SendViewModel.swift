@@ -14,11 +14,11 @@ import AVFoundation
 final class SendViewModel: ObservableObject {
     // MARK: - ViewState
 
-    @Published var stepAnimation: SendView.StepAnimation = .slideForward
+    @Published var stepAnimation: SendView.StepAnimation
     @Published var step: SendStep
     @Published var showBackButton = false
     @Published var showTransactionButtons = false
-    @Published var mainButtonType: SendMainButtonType = .next
+    @Published var mainButtonType: SendMainButtonType
     @Published var mainButtonLoading: Bool = false
     @Published var mainButtonDisabled: Bool = false
     @Published var updatingFees = false
@@ -81,7 +81,7 @@ final class SendViewModel: ObservableObject {
 
     private var screenIdleStartTime: Date?
     private var currentPageAnimating: Bool? = nil
-    private var didReachSummaryScreen = false
+    private var didReachSummaryScreen: Bool
 
     private var currentStepValid: AnyPublisher<Bool, Never> {
         let inputFieldsValid = $step
@@ -97,7 +97,11 @@ final class SendViewModel: ObservableObject {
                     return sendModel.destinationValid
                 case .fee:
                     return sendModel.feeValid
-                case .summary, .finish:
+                case .summary:
+                    return sendModel.transactionCreationError
+                        .map { $0 == nil }
+                        .eraseToAnyPublisher()
+                case .finish:
                     return .just(output: true)
                 }
             }
@@ -146,6 +150,9 @@ final class SendViewModel: ObservableObject {
         }
         self.steps = steps
         step = firstStep
+        didReachSummaryScreen = (firstStep == .summary)
+        mainButtonType = Self.mainButtonType(for: firstStep, didReachSummaryScreen: didReachSummaryScreen)
+        stepAnimation = (firstStep == .summary) ? .moveAndFade : .slideForward
 
         let tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
         let cryptoIconURL: URL?
@@ -531,7 +538,7 @@ final class SendViewModel: ObservableObject {
         return false
     }
 
-    private func mainButtonType(for step: SendStep) -> SendMainButtonType {
+    private static func mainButtonType(for step: SendStep, didReachSummaryScreen: Bool) -> SendMainButtonType {
         switch step {
         case .amount, .destination, .fee:
             if didReachSummaryScreen {
@@ -610,7 +617,7 @@ final class SendViewModel: ObservableObject {
         // Gotta give some time to update animation variable
         self.stepAnimation = stepAnimation
 
-        mainButtonType = mainButtonType(for: step)
+        mainButtonType = Self.mainButtonType(for: step, didReachSummaryScreen: didReachSummaryScreen)
 
         DispatchQueue.main.async {
             self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
@@ -716,7 +723,9 @@ extension SendViewModel: SendSummaryRoutable {
         sendModel.updateFees()
             .sink { [weak self] completion in
                 if case .failure = completion {
-                    self?.alert = AlertBuilder.makeOkErrorAlert(message: Localization.sendAlertTransactionFailedTitle)
+                    self?.alert = SendAlertBuilder.makeFeeRetryAlert {
+                        self?.send()
+                    }
                 }
             } receiveValue: { [weak self] result in
                 self?.screenIdleStartTime = Date()
