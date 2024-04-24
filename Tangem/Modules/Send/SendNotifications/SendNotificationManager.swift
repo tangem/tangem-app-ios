@@ -222,7 +222,7 @@ class CommonSendNotificationManager: SendNotificationManager {
         case .dustAmount(let minimumAmount), .dustChange(let minimumAmount):
             return SendNotificationEvent.minimumAmount(value: minimumAmount.string())
         case .totalExceedsBalance, .amountExceedsBalance:
-            return .totalExceedsBalance(configuration: notEnoughFeeConfiguration)
+            return .totalExceedsBalance
         case .feeExceedsBalance:
             return .feeExceedsBalance(configuration: notEnoughFeeConfiguration)
         case .minimumBalance(let minimumBalance):
