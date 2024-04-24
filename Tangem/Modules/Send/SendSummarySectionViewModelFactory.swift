@@ -58,23 +58,19 @@ struct SendSummarySectionViewModelFactory {
         )
     }
 
-    func makeFeeViewData(from value: Fee?, feeOption: FeeOption, animateTitleOnAppear: Bool) -> SendFeeSummaryViewModel? {
-        guard let value else { return nil }
-
+    func makeFeeViewData(from value: LoadingValue<Fee>, feeOption: FeeOption) -> SendFeeSummaryViewModel? {
         let formattedFeeComponents = formattedFeeComponents(from: value)
         return SendFeeSummaryViewModel(
             title: Localization.commonNetworkFeeTitle,
             feeOption: feeOption,
-            cryptoAmount: formattedFeeComponents.cryptoFee,
-            fiatAmount: formattedFeeComponents.fiatFee,
-            animateTitleOnAppear: animateTitleOnAppear
+            formattedFeeComponents: formattedFeeComponents
         )
     }
 
-    func makeDeselectedFeeRowViewModel(from value: Fee, feeOption: FeeOption) -> FeeRowViewModel {
+    func makeDeselectedFeeRowViewModel(from value: LoadingValue<Fee>, feeOption: FeeOption) -> FeeRowViewModel {
         return FeeRowViewModel(
             option: feeOption,
-            formattedFeeComponents: .loaded(formattedFeeComponents(from: value)),
+            formattedFeeComponents: formattedFeeComponents(from: value),
             isSelected: .init(get: {
                 false
             }, set: { _ in
@@ -83,12 +79,20 @@ struct SendSummarySectionViewModelFactory {
         )
     }
 
-    private func formattedFeeComponents(from value: Fee) -> FormattedFeeComponents {
-        feeFormatter.formattedFeeComponents(
-            fee: value.amount.value,
-            currencySymbol: feeCurrencySymbol,
-            currencyId: feeCurrencyId,
-            isFeeApproximate: isFeeApproximate
-        )
+    private func formattedFeeComponents(from feeValue: LoadingValue<Fee>) -> LoadingValue<FormattedFeeComponents?> {
+        switch feeValue {
+        case .loading:
+            return .loading
+        case .loaded(let value):
+            let formattedFeeComponents = feeFormatter.formattedFeeComponents(
+                fee: value.amount.value,
+                currencySymbol: feeCurrencySymbol,
+                currencyId: feeCurrencyId,
+                isFeeApproximate: isFeeApproximate
+            )
+            return .loaded(formattedFeeComponents)
+        case .failedToLoad(let error):
+            return .failedToLoad(error: error)
+        }
     }
 }
