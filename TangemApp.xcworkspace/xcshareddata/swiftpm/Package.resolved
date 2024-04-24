@@ -1,4 +1,5 @@
 {
+  "originHash" : "b4054eb42ba68d5494e329b1b5ada27b86a35abfe2422c9f838f1be5b357085c",
   "pins" : [
     {
       "identity" : "anyasyncsequence",
@@ -32,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/tangem/hedera-sdk-swift.git",
       "state" : {
-        "revision" : "c29a30f38b0a6228f4ce861feeab7a49fd78a27f",
-        "version" : "0.26.0-tangem2"
+        "revision" : "4363eee442377ba3bb4254330bb567bb75780ec1",
+        "version" : "0.26.0-tangem3"
       }
     },
     {
@@ -181,5 +182,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }
