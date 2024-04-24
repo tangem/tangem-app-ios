@@ -342,9 +342,10 @@ class SendModel {
             return .anyFail(error: WalletError.failedToGetFee)
         }
 
+        let oldFee = fee.value
+
         _feeValues.send([:])
 
-        let oldFee = fee.value
         return walletModel
             .getFee(amount: amount, destination: destination)
             .withWeakCaptureOf(self)
