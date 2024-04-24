@@ -39,6 +39,8 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
     var canSkipBackup: Bool { get }
 
     var canImportKeys: Bool { get }
+
+    var isWalletsCreated: Bool { get }
     /// All blockchains supported by this user wallet.
     var supportedBlockchains: Set<Blockchain> { get }
 
@@ -151,6 +153,10 @@ extension UserWalletConfig where Self: CardContainer {
 
     var tangemSigner: TangemSigner {
         .init(filter: cardSessionFilter, sdk: makeTangemSdk(), twinKey: nil)
+    }
+
+    var isWalletsCreated: Bool {
+        !card.wallets.isEmpty
     }
 
     var cardSessionFilter: SessionFilter {
