@@ -23,8 +23,9 @@ enum SendNotificationEvent {
     case withdrawalOptionalAmountChange(amount: Decimal, amountFormatted: String, blockchainName: String)
     case withdrawalMandatoryAmountChange(amount: Decimal, amountFormatted: String, blockchainName: String, maxUtxo: Int)
     case cardanoWillBeSentWithToken(tokenAmountFormatted: String, cardanoAmountFormatted: String)
-    case cardanoHasTokens
-    case cardanoInsufficientBalanceToSendToken(tokenAmountFormatted: String, cardanoAmountFormatted: String)
+    // Try to spend all cardano when we have a token
+    case cardanoHasTokens(minCardanoAmountFormatted: String)
+    case cardanoInsufficientBalanceToSendToken(tokenAmountFormatted: String, minCardanoAmountFormatted: String)
 }
 
 extension SendNotificationEvent: NotificationEvent {
@@ -50,10 +51,12 @@ extension SendNotificationEvent: NotificationEvent {
             return .string(Localization.sendNotificationHighFeeTitle)
         case .withdrawalMandatoryAmountChange:
             return .string(Localization.sendNotificationTransactionLimitTitle)
-        case .cardanoHasTokens, .cardanoWillBeSentWithToken:
-            // [REDACTED_TODO_COMMENT]
-            return .string(Localization.commonError)
+        case .cardanoHasTokens:
+            return .string(Localization.sendNotificationInvalidAmountTitle)
         case .cardanoInsufficientBalanceToSendToken:
+            return .string(Localization.cardanoInsufficientBalanceToSendTokenTitle)
+        case .cardanoWillBeSentWithToken:
+            // [REDACTED_TODO_COMMENT]
             return .string(Localization.cardanoInsufficientBalanceToSendTokenTitle)
         }
     }
@@ -181,7 +184,17 @@ extension SendNotificationEvent {
         switch self {
         case .networkFeeUnreachable:
             return .feeLevels
-        case .feeWillBeSubtractFromSendingAmount, .minimumAmount, .existentialDeposit, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange, .totalExceedsBalance, .customFeeTooHigh, .customFeeTooLow, .feeExceedsBalance:
+        case .minimumAmount,
+             .existentialDeposit,
+             .withdrawalOptionalAmountChange,
+             .withdrawalMandatoryAmountChange,
+             .totalExceedsBalance,
+             .customFeeTooHigh,
+             .customFeeTooLow,
+             .feeExceedsBalance,
+             .cardanoHasTokens,
+             .cardanoInsufficientBalanceToSendToken,
+             .cardanoWillBeSentWithToken:
             return .summary
         }
     }
