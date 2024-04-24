@@ -503,6 +503,22 @@ extension WalletModel {
     func getDecimalBalance(for type: Amount.AmountType) -> Decimal? {
         return wallet.amounts[type]?.value
     }
+
+    /// A convenience wrapper for `AssetRequirementsManager.fulfillRequirements(for:signer:)`
+    /// that automatically triggers the update of the internal state of this wallet model.
+    func fulfillRequirements(signer: any TransactionSigner) -> some Publisher<Void, Error> {
+        let amountType = amountType
+
+        return assetRequirementsManager
+            .publisher
+            .flatMap { $0.fulfillRequirements(for: amountType, signer: signer) }
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .handleEvents(receiveOutput: { walletModel, _ in
+                walletModel.updateAfterSendingTransaction()
+            })
+            .mapToVoid()
+    }
 }
 
 // MARK: - Transaction history
