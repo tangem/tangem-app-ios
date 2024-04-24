@@ -60,12 +60,13 @@ struct SendView: View {
         if let title = viewModel.title {
             HStack {
                 HStack(spacing: 0) {
-                    Button(action: viewModel.dismiss) {
-                        Assets.crossBlack.image
-                            .renderingMode(.template)
-                            .foregroundColor(viewModel.dismissButtonDisabled ? Colors.Icon.inactive : Colors.Icon.primary1)
+                    if viewModel.showDismissButton {
+                        Button(action: viewModel.dismiss) {
+                            Assets.crossBlack.image
+                                .renderingMode(.template)
+                                .foregroundColor(Colors.Icon.primary1)
+                        }
                     }
-                    .disabled(viewModel.dismissButtonDisabled)
 
                     Spacer()
                 }
