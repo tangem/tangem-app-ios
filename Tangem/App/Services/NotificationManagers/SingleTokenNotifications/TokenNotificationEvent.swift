@@ -22,6 +22,7 @@ enum TokenNotificationEvent: Hashable {
             let currencySymbol: String
         }
 
+        /// `associationFee` fetched asynchronously and therefore may be absent in some cases.
         case missingHederaTokenAssociation(associationFee: HederaTokenAssociationFee?)
         @available(*, unavailable, message: "Token trust lines support not implemented yet")
         case missingTokenTrustline
