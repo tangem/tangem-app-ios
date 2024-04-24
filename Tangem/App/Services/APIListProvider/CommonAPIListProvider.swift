@@ -86,7 +86,11 @@ class CommonAPIListProvider {
             let providers: [NetworkProviderType] = element.value.compactMap { apiInfo in
                 switch APIType(rawValue: apiInfo.type) {
                 case .public:
-                    guard let link = apiInfo.url else {
+                    guard
+                        let link = apiInfo.url,
+                        // Check that link is valid
+                        let _ = URL(string: link)
+                    else {
                         return nil
                     }
 
