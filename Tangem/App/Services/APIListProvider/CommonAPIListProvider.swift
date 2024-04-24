@@ -36,15 +36,7 @@ class CommonAPIListProvider {
 
             try Task.checkCancellation()
 
-            var convertedRemoteAPIList = convertToSDKModels(loadedList)
-            let localAPIListFile: APIList = try parseLocalFile()
-
-            // Adding missing network providers to prevent case when no providers available for blockchain
-            convertedRemoteAPIList.merge(localAPIListFile, uniquingKeysWith: { remote, local in
-                return remote.isEmpty ? local : remote
-            })
-
-            apiListSubject.value = convertedRemoteAPIList
+            apiListSubject.value = convertToSDKModels(loadedList)
             let remoteFileParseTime = CFAbsoluteTimeGetCurrent()
             log("Remote API list loading and parsing time: \(remoteFileParseTime - startTime) seconds")
         } catch {
