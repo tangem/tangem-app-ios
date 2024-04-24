@@ -12,6 +12,7 @@ import Foundation
 public extension Publisher {
     func async() async throws -> Output {
         var didSendValue = false
+        var didSendContinuation = false
         let cancellableWrapper = CancellableWrapper()
 
         return try await withTaskCancellationHandler {
@@ -25,19 +26,27 @@ public extension Publisher {
 
                 cancellableWrapper.value = first()
                     .handleEvents(receiveCancel: {
+                        guard !didSendContinuation || !didSendValue else {
+                            Swift.print("Publisher.Async() Received a cancellation after the completion was sent")
+                            return
+                        }
+
                         // We don't get a cancel error when cancelling a publisher, so we need
                         // to handle if the publisher was cancelled from the
                         // `withTaskCancellationHandler` here.
                         continuation.resume(throwing: CancellationError())
+                        didSendContinuation = true
                     }).sink { completion in
                         if case .failure(let error) = completion {
                             continuation.resume(throwing: error)
                         } else if !didSendValue {
                             continuation.resume(throwing: AsyncError.valueWasNotEmittedBeforeCompletion)
                         }
+
+                        didSendContinuation = true
                     } receiveValue: { value in
                         didSendValue = true
-                        continuation.resume(with: .success(value))
+                        continuation.resume(returning: value)
                     }
             }
         } onCancel: {
