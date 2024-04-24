@@ -28,8 +28,8 @@ enum ExpressNotificationEvent {
     case withdrawalMandatoryAmountChange(amount: Decimal, amountFormatted: String, blockchainName: String, maxUtxo: Int)
     case notEnoughReceivedAmountForReserve(amountFormatted: String)
     case cardanoWillBeSentWithToken(tokenAmountFormatted: String, cardanoAmountFormatted: String)
-    case cardanoHasTokens
-    case cardanoInsufficientBalanceToSendToken(tokenAmountFormatted: String, cardanoAmountFormatted: String)
+    case cardanoHasTokens(minCardanoAmountFormatted: String)
+    case cardanoInsufficientBalanceToSendToken(tokenSymbol: String)
 }
 
 extension ExpressNotificationEvent: NotificationEvent {
@@ -111,10 +111,10 @@ extension ExpressNotificationEvent: NotificationEvent {
             return Localization.sendNotificationTransactionLimitText(blockchainName, maxUtxo, amountFormatted)
         case .cardanoWillBeSentWithToken(let tokenAmountFormatted, let cardanoAmountFormatted):
             return Localization.cardanoCoinWillBeSendWithTokenDescription(tokenAmountFormatted, cardanoAmountFormatted)
-        case .cardanoHasTokens:
-            return Localization.cardanoMaxAmountHasTokenDescription
-        case .cardanoInsufficientBalanceToSendToken(let tokenAmountFormatted, let cardanoAmountFormatted):
-            return Localization.cardanoInsufficientBalanceToSendTokenDescription(tokenAmountFormatted, cardanoAmountFormatted, cardanoAmountFormatted)
+        case .cardanoHasTokens(let minCardanoAmountFormatted):
+            return Localization.cardanoMaxAmountHasTokenDescription(minCardanoAmountFormatted)
+        case .cardanoInsufficientBalanceToSendToken(let tokenSymbol):
+            return Localization.cardanoInsufficientBalanceToSendTokenDescription(tokenSymbol)
         }
     }
 
