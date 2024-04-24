@@ -145,13 +145,10 @@ class ExpressNotificationManager {
             event = .withdrawalMandatoryAmountChange(amount: newAmount.value, amountFormatted: newAmount.string(), blockchainName: blockchainName, maxUtxo: maxUtxo)
         case .reserve(let amount):
             event = .notEnoughReserveToSwap(maximumAmountText: "\(amount.value)\(sourceTokenItemSymbol)")
-        case .cardanoHasTokens:
-            event = .cardanoHasTokens
-        case .cardanoInsufficientBalanceToSendToken(let minimumAmount):
-            event = .cardanoInsufficientBalanceToSendToken(
-                tokenAmountFormatted: sourceTokenItemSymbol,
-                cardanoAmountFormatted: minimumAmount.string()
-            )
+        case .cardanoHasTokens(let minimumAmount):
+            event = .cardanoHasTokens(minCardanoAmountFormatted: minimumAmount.string())
+        case .cardanoInsufficientBalanceToSendToken:
+            event = .cardanoInsufficientBalanceToSendToken(tokenSymbol: sourceTokenItemSymbol)
         }
 
         let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in

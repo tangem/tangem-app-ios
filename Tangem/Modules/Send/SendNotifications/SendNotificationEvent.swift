@@ -25,7 +25,7 @@ enum SendNotificationEvent {
     case cardanoWillBeSentWithToken(tokenAmountFormatted: String, cardanoAmountFormatted: String)
     // Try to spend all cardano when we have a token
     case cardanoHasTokens(minCardanoAmountFormatted: String)
-    case cardanoInsufficientBalanceToSendToken(tokenAmountFormatted: String, minCardanoAmountFormatted: String)
+    case cardanoInsufficientBalanceToSendToken(tokenSymbol: String)
 }
 
 extension SendNotificationEvent: NotificationEvent {
@@ -91,10 +91,10 @@ extension SendNotificationEvent: NotificationEvent {
             return Localization.sendNotificationTransactionLimitText(blockchainName, maxUtxo, amountFormatted)
         case .cardanoWillBeSentWithToken(let tokenAmountFormatted, let cardanoAmountFormatted):
             return Localization.cardanoCoinWillBeSendWithTokenDescription(tokenAmountFormatted, cardanoAmountFormatted)
-        case .cardanoHasTokens:
-            return Localization.cardanoMaxAmountHasTokenDescription
-        case .cardanoInsufficientBalanceToSendToken(let tokenAmountFormatted, let cardanoAmountFormatted):
-            return Localization.cardanoInsufficientBalanceToSendTokenDescription(tokenAmountFormatted, cardanoAmountFormatted, cardanoAmountFormatted)
+        case .cardanoHasTokens(let minCardanoAmountFormatted):
+            return Localization.cardanoMaxAmountHasTokenDescription(minCardanoAmountFormatted)
+        case .cardanoInsufficientBalanceToSendToken(let tokenSymbol):
+            return Localization.cardanoInsufficientBalanceToSendTokenDescription(tokenSymbol)
         }
     }
 
