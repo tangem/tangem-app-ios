@@ -162,15 +162,6 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         performLoadHistory()
     }
 
-    private func performLoadHistory() {
-        transactionHistoryBag = walletModel
-            .updateTransactionsHistory()
-            .receive(on: DispatchQueue.main)
-            .receiveCompletion { [weak self] _ in
-                self?.isReloadingTransactionHistory = false
-            }
-    }
-
     // We need to keep this not in extension because we may want to override this logic and
     // implementation from extensions can't be overriden
     func didTapNotification(with id: NotificationViewId) {}
@@ -191,12 +182,13 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         }
     }
 
-    private func openAddressExplorer(at index: Int) {
-        guard let url = walletModel.exploreURL(for: index, token: amountType.token) else {
-            return
-        }
-
-        openExplorer(at: url)
+    private func performLoadHistory() {
+        transactionHistoryBag = walletModel
+            .updateTransactionsHistory()
+            .receive(on: DispatchQueue.main)
+            .receiveCompletion { [weak self] _ in
+                self?.isReloadingTransactionHistory = false
+            }
     }
 
     private func fulfillAssetRequirements() {
@@ -496,6 +488,14 @@ extension SingleTokenBaseViewModel {
 
     func openExplorer(at url: URL) {
         tokenRouter.openExplorer(at: url, for: walletModel)
+    }
+
+    private func openAddressExplorer(at index: Int) {
+        guard let url = walletModel.exploreURL(for: index, token: amountType.token) else {
+            return
+        }
+
+        openExplorer(at: url)
     }
 }
 
