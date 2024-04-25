@@ -11,7 +11,6 @@ import SwiftUI
 struct SendDestinationTextView: View {
     @ObservedObject var viewModel: SendDestinationTextViewModel
 
-    @StateObject var placeholderHeightModel: AddressTextViewHeightModel = .init()
     private var namespace: Namespace.ID?
     private var containerNamespaceId: String?
     private var iconNamespaceId: String?
@@ -20,12 +19,12 @@ struct SendDestinationTextView: View {
     private var clearButtonNamespaceId: String?
 
     private let inputFieldFont = Fonts.Regular.subheadline
-    private let inputFieldUIFont = UIFont.preferredFont(forTextStyle: .subheadline)
+    private let inputFieldUIFont = UIFonts.Regular.subheadline
 
     private let inputFieldColor = Colors.Text.primary1
     private let inputFieldUIColor = UIColor.textPrimary1
 
-    @State private var inputWidth: CGFloat = 0
+    @StateObject private var placeholderHeightModel: AddressTextViewHeightModel = .init()
 
     init(viewModel: SendDestinationTextViewModel) {
         self.viewModel = viewModel
@@ -212,68 +211,66 @@ extension SendDestinationTextView: Setupable {
     }
 }
 
-//
-// #Preview("Different cases") {
-//    GroupedScrollView(spacing: 14) {
-//        GroupedSection(SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: ""), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
-//            SendDestinationTextView(viewModel: $0)
-//        }
-//
-//        GroupedSection(SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: "0x391316d97a07027a0702c8A002c8A0C25d8470"), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
-//            SendDestinationTextView(viewModel: $0)
-//        }
-//
-//        GroupedSection(SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
-//            SendDestinationTextView(viewModel: $0)
-//        }
-//
-//        GroupedSection(SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "123456789"), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
-//            SendDestinationTextView(viewModel: $0)
-//        }
-//    }
-//    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-// }
-//
-////
-//// #Preview("Alignment") {
-////    GroupedScrollView(spacing: 14) {
-////        // MARK: address alignment test
-////
-////        Text("There are two **ADDRESS** fields and they must be aligned 👇")
-////            .foregroundColor(.blue)
-////            .font(.caption)
-////
-////        // To make sure everything's aligned and doesn't jump when entering stuff
-////        ZStack {
-////            GroupedSection(SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: ""), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
-////                SendDestinationTextView(viewModel: $0)
-////                    .opacity(0.5)
-////            }
-////
-////            GroupedSection(SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: "0x391316d97a07027a0702c8A002c8A0C25d8470"), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
-////                SendDestinationTextView(viewModel: $0)
-////                    .opacity(0.5)
-////            }
-////        }
-////
-////        // MARK: memo alignment test
-////
-////        Text("There are two **MEMO** fields and they must be aligned 👇")
-////            .foregroundColor(.blue)
-////            .font(.caption)
-////
-////        // To make sure everything's aligned and doesn't jump when entering stuff
-////        ZStack {
-////            GroupedSection(SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
-////                SendDestinationTextView(viewModel: $0)
-////                    .opacity(0.5)
-////            }
-////
-////            GroupedSection(SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "Optional"), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
-////                SendDestinationTextView(viewModel: $0)
-////                    .opacity(0.5)
-////            }
-////        }
-////    }
-////    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-//// }
+#Preview("Different cases") {
+    GroupedScrollView(spacing: 14) {
+        GroupedSection(SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: ""), isValidating: .just(output: false), isDisabled: .just(output: false), addressTextViewHeightModel: .init(), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
+            SendDestinationTextView(viewModel: $0)
+        }
+
+        GroupedSection(SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: "0x391316d97a07027a0702c8A002c8A0C25d8470"), isValidating: .just(output: false), isDisabled: .just(output: false), addressTextViewHeightModel: .init(), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
+            SendDestinationTextView(viewModel: $0)
+        }
+
+        GroupedSection(SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), isValidating: .just(output: false), isDisabled: .just(output: false), addressTextViewHeightModel: .init(), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
+            SendDestinationTextView(viewModel: $0)
+        }
+
+        GroupedSection(SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "123456789"), isValidating: .just(output: false), isDisabled: .just(output: false), addressTextViewHeightModel: .init(), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
+            SendDestinationTextView(viewModel: $0)
+        }
+    }
+    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+}
+
+#Preview("Alignment") {
+    GroupedScrollView(spacing: 14) {
+        // MARK: address alignment test
+
+        Text("There are two **ADDRESS** fields and they must be aligned 👇")
+            .foregroundColor(.blue)
+            .font(.caption)
+
+        // To make sure everything's aligned and doesn't jump when entering stuff
+        ZStack {
+            GroupedSection(SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: ""), isValidating: .just(output: false), isDisabled: .just(output: false), addressTextViewHeightModel: .init(), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
+                SendDestinationTextView(viewModel: $0)
+                    .opacity(0.5)
+            }
+
+            GroupedSection(SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: "0x391316d97a07027a0702c8A002c8A0C25d8470"), isValidating: .just(output: false), isDisabled: .just(output: false), addressTextViewHeightModel: .init(), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
+                SendDestinationTextView(viewModel: $0)
+                    .opacity(0.5)
+            }
+        }
+
+        // MARK: memo alignment test
+
+        Text("There are two **MEMO** fields and they must be aligned 👇")
+            .foregroundColor(.blue)
+            .font(.caption)
+
+        // To make sure everything's aligned and doesn't jump when entering stuff
+        ZStack {
+            GroupedSection(SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), isValidating: .just(output: false), isDisabled: .just(output: false), addressTextViewHeightModel: .init(), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
+                SendDestinationTextView(viewModel: $0)
+                    .opacity(0.5)
+            }
+
+            GroupedSection(SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "Optional"), isValidating: .just(output: false), isDisabled: .just(output: false), addressTextViewHeightModel: .init(), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
+                SendDestinationTextView(viewModel: $0)
+                    .opacity(0.5)
+            }
+        }
+    }
+    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+}
