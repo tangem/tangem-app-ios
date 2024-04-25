@@ -13,7 +13,7 @@ struct TransactionSendAvailabilityProvider {
     func sendingRestrictions(walletModel: WalletModel) -> SendingRestrictions? {
         let wallet = walletModel.wallet
 
-        if !AppUtils().canSignLongTransactions(tokenItem: walletModel.tokenItem) {
+        if !AppUtils().canSignTransaction(for: walletModel.tokenItem) {
             return .cantSignLongTransactions
         }
 
