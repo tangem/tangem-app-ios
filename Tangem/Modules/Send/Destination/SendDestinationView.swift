@@ -10,6 +10,7 @@ import SwiftUI
 
 struct SendDestinationView: View {
     let namespace: Namespace.ID
+    @ObservedObject var heightModel: SendDestinationTextViewHeightModel
     @ObservedObject var viewModel: SendDestinationViewModel
 
     let bottomSpacing: CGFloat
@@ -18,7 +19,7 @@ struct SendDestinationView: View {
         GroupedScrollView(spacing: 20) {
             if let addressViewModel = viewModel.addressViewModel {
                 GroupedSection(addressViewModel) {
-                    SendDestinationTextView(viewModel: $0)
+                    SendDestinationTextView(heightModel: heightModel, viewModel: $0)
                         .setNamespace(namespace)
                         .setContainerNamespaceId(SendViewNamespaceId.addressContainer.rawValue)
                         .setTitleNamespaceId(SendViewNamespaceId.addressTitle.rawValue)
@@ -45,34 +46,34 @@ struct SendDestinationView: View {
                 .horizontalPadding(0)
             }
 
-            if let additionalFieldViewModel = viewModel.additionalFieldViewModel {
-                GroupedSection(additionalFieldViewModel) {
-                    SendDestinationTextView(viewModel: $0)
-                        .setNamespace(namespace)
-                        .setContainerNamespaceId(SendViewNamespaceId.addressAdditionalFieldContainer.rawValue)
-                        .setTitleNamespaceId(SendViewNamespaceId.addressAdditionalFieldTitle.rawValue)
-                        .setIconNamespaceId(SendViewNamespaceId.addressAdditionalFieldIcon.rawValue)
-                        .setTextNamespaceId(SendViewNamespaceId.addressAdditionalFieldText.rawValue)
-                        .setClearButtonNamespaceId(SendViewNamespaceId.addressAdditionalFieldClearButton.rawValue)
-                        .disabled(viewModel.userInputDisabled)
-                        .padding(.vertical, 2)
-                        .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)
-                        .background(
-                            Colors.Background.action
-                                .cornerRadiusContinuous(GroupedSectionConstants.defaultCornerRadius)
-                                .matchedGeometryEffect(id: SendViewNamespaceId.addressAdditionalFieldBackground.rawValue, in: namespace)
-                        )
-                } footer: {
-                    if !viewModel.animatingAuxiliaryViewsOnAppear {
-                        Text(additionalFieldViewModel.description)
-                            .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                            .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)
-                            .transition(SendView.Constants.auxiliaryViewTransition(for: .destination))
-                    }
-                }
-                .backgroundColor(.clear)
-                .horizontalPadding(0)
-            }
+//            if let additionalFieldViewModel = viewModel.additionalFieldViewModel {
+//                GroupedSection(additionalFieldViewModel) {
+//                    SendDestinationTextView(heightModel: .init(), viewModel: $0)
+//                        .setNamespace(namespace)
+//                        .setContainerNamespaceId(SendViewNamespaceId.addressAdditionalFieldContainer.rawValue)
+//                        .setTitleNamespaceId(SendViewNamespaceId.addressAdditionalFieldTitle.rawValue)
+//                        .setIconNamespaceId(SendViewNamespaceId.addressAdditionalFieldIcon.rawValue)
+//                        .setTextNamespaceId(SendViewNamespaceId.addressAdditionalFieldText.rawValue)
+//                        .setClearButtonNamespaceId(SendViewNamespaceId.addressAdditionalFieldClearButton.rawValue)
+//                        .disabled(viewModel.userInputDisabled)
+//                        .padding(.vertical, 2)
+//                        .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)
+//                        .background(
+//                            Colors.Background.action
+//                                .cornerRadiusContinuous(GroupedSectionConstants.defaultCornerRadius)
+//                                .matchedGeometryEffect(id: SendViewNamespaceId.addressAdditionalFieldBackground.rawValue, in: namespace)
+//                        )
+//                } footer: {
+//                    if !viewModel.animatingAuxiliaryViewsOnAppear {
+//                        Text(additionalFieldViewModel.description)
+//                            .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+//                            .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)
+//                            .transition(SendView.Constants.auxiliaryViewTransition(for: .destination))
+//                    }
+//                }
+//                .backgroundColor(.clear)
+//                .horizontalPadding(0)
+//            }
 
             if let suggestedDestinationViewModel = viewModel.suggestedDestinationViewModel, viewModel.showSuggestedDestinations {
                 SendSuggestedDestinationView(viewModel: suggestedDestinationViewModel)
@@ -87,10 +88,11 @@ struct SendDestinationView: View {
     }
 }
 
-struct SendDestinationView_Previews: PreviewProvider {
-    @Namespace static var namespace
-
-    static var previews: some View {
-        SendDestinationView(namespace: namespace, viewModel: SendDestinationViewModel(input: SendDestinationViewModelInputMock()), bottomSpacing: 150)
-    }
-}
+//
+// struct SendDestinationView_Previews: PreviewProvider {
+//    [REDACTED_USERNAME] static var namespace
+//
+//    static var previews: some View {
+//        SendDestinationView(namespace: namespace, viewModel: SendDestinationViewModel(input: SendDestinationViewModelInputMock()), bottomSpacing: 150)
+//    }
+// }
