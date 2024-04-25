@@ -36,8 +36,9 @@ class CommonAPIListProvider {
 
             try Task.checkCancellation()
 
-            var convertedRemoteAPIList = convertToSDKModels(loadedList)
-            let localAPIListFile: APIList = try parseLocalFile()
+            let apiListUtils = APIListUtils()
+            var convertedRemoteAPIList = apiListUtils.convertToSDKModels(loadedList)
+            let localAPIListFile: APIList = try apiListUtils.parseLocalAPIListJson()
 
             // Adding missing network providers to prevent case when no providers available for blockchain
             convertedRemoteAPIList.merge(localAPIListFile, uniquingKeysWith: { remote, local in
@@ -60,61 +61,12 @@ class CommonAPIListProvider {
 
     private func loadLocalFile() {
         do {
-            let localAPIList = try parseLocalFile()
+            let localAPIList = try APIListUtils().parseLocalAPIListJson()
             apiListSubject.value = localAPIList
         } catch {
             log("Failed to parse local file.\nReason: \(error).\nPublishing empty list")
             apiListSubject.value = [:]
         }
-    }
-
-    private func parseLocalFile() throws -> APIList {
-        guard let url = Bundle.main.url(forResource: "providers_order", withExtension: "json") else {
-            log("Local file with API List  not found")
-            throw APIListProviderError.localFileNotFound
-        }
-
-        let jsonData = try Data(contentsOf: url)
-        let decoder = JSONDecoder()
-        let order = try decoder.decode(APIListDTO.self, from: jsonData)
-
-        return convertToSDKModels(order)
-    }
-
-    private func convertToSDKModels(_ listDTO: APIListDTO) -> APIList {
-        return listDTO.reduce(into: [:]) { partialResult, element in
-            let providers: [NetworkProviderType] = element.value.compactMap { apiInfo in
-                switch APIType(rawValue: apiInfo.type) {
-                case .public:
-                    guard
-                        let link = apiInfo.url,
-                        // Check that link is valid
-                        let _ = URL(string: link)
-                    else {
-                        return nil
-                    }
-
-                    return NetworkProviderType.public(link: link)
-                case .private:
-                    return mapToNetworkProviderType(name: apiInfo.name)
-                case .none:
-                    return nil
-                }
-            }
-
-            partialResult[element.key] = providers
-        }
-    }
-
-    private func mapToNetworkProviderType(name: String?) -> NetworkProviderType? {
-        guard
-            let name,
-            let apiProvider = APIProvider(rawValue: name)
-        else {
-            return nil
-        }
-
-        return apiProvider.blockchainProvider
     }
 
     private func log<T>(_ message: @autoclosure () -> T, function: String = #function) {
@@ -134,17 +86,3 @@ extension CommonAPIListProvider: APIListProvider {
             .eraseToAnyPublisher()
     }
 }
-
-extension CommonAPIListProvider {
-    enum APIListProviderError: Error {
-        case localFileNotFound
-    }
-}
-
-#if DEBUG
-extension CommonAPIListProvider {
-    func parseLocalFileForTest() throws -> APIList {
-        try parseLocalFile()
-    }
-}
-#endif
