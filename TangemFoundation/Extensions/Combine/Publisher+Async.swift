@@ -26,26 +26,28 @@ public extension Publisher {
 
                 cancellableWrapper.value = first()
                     .handleEvents(receiveCancel: {
-                        guard !didSendContinuation || !didSendValue else {
-                            Swift.print("Publisher.Async() Received a cancellation after the completion was sent")
-                            return
-                        }
-
                         // We don't get a cancel error when cancelling a publisher, so we need
                         // to handle if the publisher was cancelled from the
                         // `withTaskCancellationHandler` here.
-                        continuation.resume(throwing: CancellationError())
-                        didSendContinuation = true
+                        if !didSendContinuation {
+                            didSendContinuation = true
+                            continuation.resume(throwing: CancellationError())
+                        }
                     }).sink { completion in
+                        var errorToSend: Error? = nil
                         if case .failure(let error) = completion {
-                            continuation.resume(throwing: error)
+                            errorToSend = error
                         } else if !didSendValue {
-                            continuation.resume(throwing: AsyncError.valueWasNotEmittedBeforeCompletion)
+                            errorToSend = AsyncError.valueWasNotEmittedBeforeCompletion
                         }
 
-                        didSendContinuation = true
+                        if let errorToSend, !didSendContinuation {
+                            didSendContinuation = true
+                            continuation.resume(throwing: errorToSend)
+                        }
                     } receiveValue: { value in
                         didSendValue = true
+                        didSendContinuation = true
                         continuation.resume(returning: value)
                     }
             }
