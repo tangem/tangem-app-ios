@@ -10,18 +10,18 @@ import Foundation
 import TangemSdk
 
 struct AppUtils {
-    func canSignLongTransactions(tokenItem: TokenItem) -> Bool {
+    func canSignTransaction(for tokenItem: TokenItem) -> Bool {
         guard NFCUtils.isPoorNfcQualityDevice else {
             return true
         }
 
-        return tokenItem.canBeSignedOnLegacyDevice
+        return tokenItem.canBeSignedOnPoorNfcQualityDevice
     }
 }
 
-fileprivate extension TokenItem {
+private extension TokenItem {
     // We can't sign transactions at legacy devices fot these blockchains
-    var canBeSignedOnLegacyDevice: Bool {
+    var canBeSignedOnPoorNfcQualityDevice: Bool {
         switch blockchain {
         case .solana:
             return isToken ? false : true
