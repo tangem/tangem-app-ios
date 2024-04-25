@@ -841,6 +841,7 @@
 		DAB5E335297E8CBF00A4E9CF /* SignificantFractionDigitRounder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB5E333297E8CBF00A4E9CF /* SignificantFractionDigitRounder.swift */; };
 		DABA435427BFB63D00718AC6 /* WelcomeStoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DABA435327BFB63D00718AC6 /* WelcomeStoryPage.swift */; };
 		DABA435627BFC41700718AC6 /* StoriesBottomButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = DABA435527BFC41700718AC6 /* StoriesBottomButtons.swift */; };
+		DABDF4132BDA2D7000CE475D /* SendDestinationTextViewInputFieldModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DABDF4122BDA2D7000CE475D /* SendDestinationTextViewInputFieldModel.swift */; };
 		DAC37FBA2A2DFB730068F3ED /* PromotionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC37FB92A2DFB730068F3ED /* PromotionView.swift */; };
 		DAC3D57A2B0518C900C55B4C /* TransactionSignerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC3D5792B0518C900C55B4C /* TransactionSignerMock.swift */; };
 		DAC4BD3A2B7C8EF400B8F64F /* AuxiliaryViewAnimatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC4BD392B7C8EF400B8F64F /* AuxiliaryViewAnimatable.swift */; };
@@ -2386,6 +2387,7 @@
 		DAB5E333297E8CBF00A4E9CF /* SignificantFractionDigitRounder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignificantFractionDigitRounder.swift; sourceTree = "<group>"; };
 		DABA435327BFB63D00718AC6 /* WelcomeStoryPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeStoryPage.swift; sourceTree = "<group>"; };
 		DABA435527BFC41700718AC6 /* StoriesBottomButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesBottomButtons.swift; sourceTree = "<group>"; };
+		DABDF4122BDA2D7000CE475D /* SendDestinationTextViewInputFieldModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationTextViewInputFieldModel.swift; sourceTree = "<group>"; };
 		DAC37FB92A2DFB730068F3ED /* PromotionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromotionView.swift; sourceTree = "<group>"; };
 		DAC3D5792B0518C900C55B4C /* TransactionSignerMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionSignerMock.swift; sourceTree = "<group>"; };
 		DAC4BD392B7C8EF400B8F64F /* AuxiliaryViewAnimatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuxiliaryViewAnimatable.swift; sourceTree = "<group>"; };
@@ -5660,10 +5662,10 @@
 		DA559C2E2B0261F400F59584 /* Destination */ = {
 			isa = PBXGroup;
 			children = (
+				DABDF4112BDA2D2100CE475D /* AddressView */,
 				DA559C2F2B0261F400F59584 /* SendDestinationView.swift */,
 				DA559C302B0261F400F59584 /* SendDestinationViewModel.swift */,
 				DA559C502B0265E700F59584 /* SendDestinationTextView.swift */,
-				DA406C1B2BD0D84200D1FC5E /* SendDestinationTextViewInputField.swift */,
 				DA559C512B0265E700F59584 /* SendDestinationTextViewModel.swift */,
 				DA81CF2D2B060A5C008877F1 /* SendSuggestedDestinationView.swift */,
 				DA81CF2E2B060A5D008877F1 /* SendSuggestedDestinationViewModel.swift */,
@@ -5787,6 +5789,15 @@
 				DAB5E332297E8CBF00A4E9CF /* AmountRoundingType.swift */,
 			);
 			path = Rounding;
+			sourceTree = "<group>";
+		};
+		DABDF4112BDA2D2100CE475D /* AddressView */ = {
+			isa = PBXGroup;
+			children = (
+				DA406C1B2BD0D84200D1FC5E /* SendDestinationTextViewInputField.swift */,
+				DABDF4122BDA2D7000CE475D /* SendDestinationTextViewInputFieldModel.swift */,
+			);
+			path = AddressView;
 			sourceTree = "<group>";
 		};
 		DAC53CE927BE63830027147D /* Stories */ = {
@@ -9044,6 +9055,7 @@
 				5DD4CB5424FAEE8B008F23CC /* AppCardIdFormatter.swift in Sources */,
 				DA6445262BB17C8100865F7B /* SendDecimalNumberTextFieldPrefixSuffixOptions.swift in Sources */,
 				2DC5677C2B0E047700B0244F /* MainBottomSheetHeaderViewModel.swift in Sources */,
+				DABDF4132BDA2D7000CE475D /* SendDestinationTextViewInputFieldModel.swift in Sources */,
 				B6AD952C2A30072000FE845A /* TokenItemViewLeadingComponent.swift in Sources */,
 				B06C084D2A73FB4D00D982BC /* MainCoordinatorView.swift in Sources */,
 				EF0F99AE289028F8008B01DF /* AppSettingsRoutable.swift in Sources */,
