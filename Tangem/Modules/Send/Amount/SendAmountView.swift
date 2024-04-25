@@ -25,17 +25,14 @@ struct SendAmountView: View {
 
             if !viewModel.animatingAuxiliaryViewsOnAppear {
                 HStack {
-                    if viewModel.showCurrencyPicker {
-                        SendCurrencyPicker(
-                            cryptoIconURL: viewModel.cryptoIconURL,
-                            cryptoCurrencyCode: viewModel.cryptoCurrencyCode,
-                            fiatIconURL: viewModel.fiatIconURL,
-                            fiatCurrencyCode: viewModel.fiatCurrencyCode,
-                            useFiatCalculation: $viewModel.useFiatCalculation
-                        )
-                    } else {
-                        Spacer()
-                    }
+                    SendCurrencyPicker(
+                        cryptoIconURL: viewModel.cryptoIconURL,
+                        cryptoCurrencyCode: viewModel.cryptoCurrencyCode,
+                        fiatIconURL: viewModel.fiatIconURL,
+                        fiatCurrencyCode: viewModel.fiatCurrencyCode,
+                        disabled: viewModel.currencyPickerDisabled,
+                        useFiatCalculation: $viewModel.useFiatCalculation
+                    )
 
                     MainButton(title: Localization.sendMaxAmount, style: .secondary, action: viewModel.didTapMaxAmount)
                         .disabled(viewModel.userInputDisabled)
