@@ -50,9 +50,8 @@ class SendDestinationViewModel: ObservableObject {
 
     var didProperlyDisappear: Bool = false
 
-    let addressTextViewHeightModel: AddressTextViewHeightModel
-
     private let input: SendDestinationViewModelInput
+    private let addressTextViewHeightModel: AddressTextViewHeightModel
     private let transactionHistoryMapper: TransactionHistoryMapper
     private let suggestedWallets: [SendSuggestedDestinationWallet]
 
