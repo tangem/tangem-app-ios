@@ -50,7 +50,7 @@ class SendDestinationViewModel: ObservableObject {
 
     var didProperlyDisappear: Bool = false
 
-    let heightModel: SendDestinationTextViewInputFieldModel
+    let addressTextViewHeightModel: AddressTextViewHeightModel
 
     private let input: SendDestinationViewModelInput
     private let transactionHistoryMapper: TransactionHistoryMapper
@@ -64,9 +64,9 @@ class SendDestinationViewModel: ObservableObject {
 
     // MARK: - Methods
 
-    init(input: SendDestinationViewModelInput, heightModel: SendDestinationTextViewInputFieldModel) {
+    init(input: SendDestinationViewModelInput, addressTextViewHeightModel: AddressTextViewHeightModel) {
         self.input = input
-        self.heightModel = heightModel
+        self.addressTextViewHeightModel = addressTextViewHeightModel
 
         transactionHistoryMapper = TransactionHistoryMapper(
             currencySymbol: input.currencySymbol,
@@ -105,7 +105,7 @@ class SendDestinationViewModel: ObservableObject {
             input: input.destinationTextPublisher,
             isValidating: input.isValidatingDestination,
             isDisabled: .just(output: false),
-            heightModel: heightModel,
+            addressTextViewHeightModel: addressTextViewHeightModel,
             errorText: input.destinationError
         ) { [weak self] in
             self?.input.setDestination(SendAddress(value: $0, source: .textField))
@@ -120,7 +120,7 @@ class SendDestinationViewModel: ObservableObject {
                 input: input.destinationAdditionalFieldTextPublisher,
                 isValidating: .just(output: false),
                 isDisabled: input.additionalFieldEmbeddedInAddress,
-                heightModel: .init(),
+                addressTextViewHeightModel: .init(),
                 errorText: input.destinationAdditionalFieldError
             ) { [weak self] in
                 self?.input.setDestinationAdditionalField($0)

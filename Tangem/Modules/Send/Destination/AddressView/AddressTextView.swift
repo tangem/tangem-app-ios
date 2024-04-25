@@ -1,5 +1,5 @@
 //
-//  SendDestinationTextViewInputField.swift
+//  AddressTextView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,8 +12,8 @@ import SwiftUI
 
 // MARK: - SwiftUI view
 
-struct SendDestinationTextViewInputField: View {
-    @ObservedObject var heightModel: SendDestinationTextViewInputFieldModel
+struct AddressTextView: View {
+    @ObservedObject var heightModel: AddressTextViewHeightModel
 
     @Binding var text: String
     let placeholder: String
@@ -31,7 +31,7 @@ struct SendDestinationTextViewInputField: View {
                     .style(Fonts.Regular.body, color: Colors.Text.disabled)
             }
 
-            CustomTextView(
+            TextViewWrapper(
                 text: $text,
                 showPlaceholder: $showPlaceholder,
                 currentHeight: $heightModel.height,
@@ -47,7 +47,7 @@ struct SendDestinationTextViewInputField: View {
 
 // MARK: - SwiftUI wrapper of UITextView
 
-private struct CustomTextView: UIViewRepresentable {
+private struct TextViewWrapper: UIViewRepresentable {
     @Binding var text: String
     @Binding var showPlaceholder: Bool
     @Binding var currentHeight: CGFloat
@@ -74,6 +74,7 @@ private struct CustomTextView: UIViewRepresentable {
     func updateUIView(_ uiView: UITextView, context: Context) {
         let newAttributedText = attributedText(text)
 
+        // [REDACTED_USERNAME] members of the SwiftUI view cannot be updated synchronously
         DispatchQueue.main.async {
             uiView.attributedText = newAttributedText
             uiView.textColor = color
@@ -106,11 +107,11 @@ private struct CustomTextView: UIViewRepresentable {
 
 // MARK: - Coordinator
 
-private extension CustomTextView {
+private extension TextViewWrapper {
     class Coordinator: NSObject, UITextViewDelegate {
-        var parent: CustomTextView
+        var parent: TextViewWrapper
 
-        init(parent: CustomTextView) {
+        init(parent: TextViewWrapper) {
             self.parent = parent
         }
 
