@@ -10,7 +10,6 @@ import SwiftUI
 
 struct ReceiveBottomSheetView: View {
     @ObservedObject var viewModel: ReceiveBottomSheetViewModel
-    @ObservedObject var sheetStateObject: BottomSheetContainer<Self>.StateObject
 
     @State private var containerWidth: CGFloat = 0
 
@@ -19,9 +18,6 @@ struct ReceiveBottomSheetView: View {
             mainContent
         }
         .onAppear(perform: viewModel.onViewAppear)
-        .onReceive(sheetStateObject.$offset) { _ in
-            viewModel.clearNotification()
-        }
     }
 
     @ViewBuilder
@@ -126,7 +122,7 @@ struct ReceiveBottomSheet_Previews: PreviewProvider {
             VStack {
                 Colors.Background.secondary
                     .overlay(
-                        ReceiveBottomSheetView(viewModel: btcAddressBottomSheet, sheetStateObject: .init())
+                        ReceiveBottomSheetView(viewModel: btcAddressBottomSheet)
                             .background(Colors.Background.primary),
 
                         alignment: .bottom
@@ -150,8 +146,8 @@ struct ReceiveBottomSheet_Previews: PreviewProvider {
                             .bottomSheet(
                                 item: viewModel,
                                 backgroundColor: Colors.Background.primary
-                            ) {
-                                ReceiveBottomSheetView(viewModel: $0, sheetStateObject: $1)
+                            ) { model in
+                                ReceiveBottomSheetView(viewModel: model)
                             }
                     }
                 }
@@ -172,8 +168,8 @@ struct ReceiveBottomSheet_Previews: PreviewProvider {
                             .bottomSheet(
                                 item: viewModel,
                                 backgroundColor: Colors.Background.primary
-                            ) {
-                                ReceiveBottomSheetView(viewModel: $0, sheetStateObject: $1)
+                            ) { model in
+                                ReceiveBottomSheetView(viewModel: model)
                             }
                     }
                 }
