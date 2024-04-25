@@ -11,6 +11,7 @@ import SwiftUI
 struct SendFinishView: View {
     let namespace: Namespace.ID
 
+    @ObservedObject var heightModel: SendDestinationTextViewHeightModel
     @ObservedObject var viewModel: SendFinishViewModel
 
     let bottomSpacing: CGFloat
@@ -27,7 +28,7 @@ struct SendFinishView: View {
                 GroupedSection(viewModel.destinationViewTypes) { type in
                     switch type {
                     case .address(let address, let corners):
-                        SendDestinationAddressSummaryView(address: address)
+                        SendDestinationAddressSummaryView(heightModel: heightModel, address: address)
                             .setNamespace(namespace)
                             .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)
                             .background(
@@ -124,44 +125,45 @@ struct SendFinishView: View {
     }
 }
 
-struct SendFinishView_Previews: PreviewProvider {
-    @Namespace static var namespace
-
-    static let tokenIconInfo = TokenIconInfo(
-        name: "Tether",
-        blockchainIconName: "ethereum.fill",
-        imageURL: IconURLBuilder().tokenIconURL(id: "tether"),
-        isCustom: false,
-        customTokenColor: nil
-    )
-
-    static let walletInfo = SendWalletInfo(
-        walletName: "Wallet",
-        balanceValue: 12013,
-        balance: "12013",
-        blockchain: .ethereum(testnet: false),
-        currencyId: "tether",
-        feeCurrencySymbol: "ETH",
-        feeCurrencyId: "ethereum",
-        isFeeApproximate: false,
-        tokenIconInfo: tokenIconInfo,
-        cryptoIconURL: nil,
-        cryptoCurrencyCode: "USDT",
-        fiatIconURL: nil,
-        fiatCurrencyCode: "USD",
-        amountFractionDigits: 6,
-        feeFractionDigits: 6,
-        feeAmountType: .coin,
-        canUseFiatCalculation: true
-    )
-
-    static var viewModel = SendFinishViewModel(
-        input: SendFinishViewModelInputMock(),
-        fiatCryptoValueProvider: SendFiatCryptoValueProviderMock(),
-        walletInfo: walletInfo
-    )!
-
-    static var previews: some View {
-        SendFinishView(namespace: namespace, viewModel: viewModel, bottomSpacing: 0)
-    }
-}
+//
+// struct SendFinishView_Previews: PreviewProvider {
+//    [REDACTED_USERNAME] static var namespace
+//
+//    static let tokenIconInfo = TokenIconInfo(
+//        name: "Tether",
+//        blockchainIconName: "ethereum.fill",
+//        imageURL: IconURLBuilder().tokenIconURL(id: "tether"),
+//        isCustom: false,
+//        customTokenColor: nil
+//    )
+//
+//    static let walletInfo = SendWalletInfo(
+//        walletName: "Wallet",
+//        balanceValue: 12013,
+//        balance: "12013",
+//        blockchain: .ethereum(testnet: false),
+//        currencyId: "tether",
+//        feeCurrencySymbol: "ETH",
+//        feeCurrencyId: "ethereum",
+//        isFeeApproximate: false,
+//        tokenIconInfo: tokenIconInfo,
+//        cryptoIconURL: nil,
+//        cryptoCurrencyCode: "USDT",
+//        fiatIconURL: nil,
+//        fiatCurrencyCode: "USD",
+//        amountFractionDigits: 6,
+//        feeFractionDigits: 6,
+//        feeAmountType: .coin,
+//        canUseFiatCalculation: true
+//    )
+//
+//    static var viewModel = SendFinishViewModel(
+//        input: SendFinishViewModelInputMock(),
+//        fiatCryptoValueProvider: SendFiatCryptoValueProviderMock(),
+//        walletInfo: walletInfo
+//    )!
+//
+//    static var previews: some View {
+//        SendFinishView(namespace: namespace, viewModel: viewModel, bottomSpacing: 0)
+//    }
+// }
