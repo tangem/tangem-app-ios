@@ -75,11 +75,14 @@ class SendSummaryViewModel: ObservableObject {
     private let notificationManager: SendNotificationManager
     private let fiatCryptoValueProvider: SendFiatCryptoValueProvider
 
-    init(input: SendSummaryViewModelInput, notificationManager: SendNotificationManager, fiatCryptoValueProvider: SendFiatCryptoValueProvider, walletInfo: SendWalletInfo) {
+    let heightModel: SendDestinationTextViewInputFieldModel
+
+    init(input: SendSummaryViewModelInput, notificationManager: SendNotificationManager, fiatCryptoValueProvider: SendFiatCryptoValueProvider, heightModel: SendDestinationTextViewInputFieldModel, walletInfo: SendWalletInfo) {
         self.input = input
         self.walletInfo = walletInfo
         self.notificationManager = notificationManager
         self.fiatCryptoValueProvider = fiatCryptoValueProvider
+        self.heightModel = heightModel
 
         sectionViewModelFactory = SendSummarySectionViewModelFactory(
             feeCurrencySymbol: walletInfo.feeCurrencySymbol,
