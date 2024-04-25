@@ -122,7 +122,7 @@ struct SendView: View {
                 .onAppear(perform: viewModel.onCurrentPageAppear)
                 .onDisappear(perform: viewModel.onCurrentPageDisappear)
         case .destination:
-            SendDestinationView(namespace: namespace, heightModel: viewModel.heightModel, viewModel: viewModel.sendDestinationViewModel, bottomSpacing: bottomGradientHeight)
+            SendDestinationView(namespace: namespace, viewModel: viewModel.sendDestinationViewModel, bottomSpacing: bottomGradientHeight)
                 .onAppear(perform: viewModel.onCurrentPageAppear)
                 .onDisappear(perform: viewModel.onCurrentPageDisappear)
         case .fee:
@@ -130,13 +130,13 @@ struct SendView: View {
                 .onAppear(perform: viewModel.onCurrentPageAppear)
                 .onDisappear(perform: viewModel.onCurrentPageDisappear)
         case .summary:
-            SendSummaryView(namespace: namespace, heightModel: viewModel.heightModel, viewModel: viewModel.sendSummaryViewModel, bottomSpacing: navigationButtonsHeight)
+            SendSummaryView(namespace: namespace, viewModel: viewModel.sendSummaryViewModel, bottomSpacing: navigationButtonsHeight)
                 .onAppear(perform: viewModel.onSummaryAppear)
                 .onDisappear(perform: viewModel.onSummaryDisappear)
                 .onAppear(perform: viewModel.onCurrentPageAppear)
                 .onDisappear(perform: viewModel.onCurrentPageDisappear)
         case .finish(let sendFinishViewModel):
-            SendFinishView(namespace: namespace, heightModel: viewModel.heightModel, viewModel: sendFinishViewModel, bottomSpacing: navigationButtonsHeight)
+            SendFinishView(namespace: namespace, viewModel: sendFinishViewModel, bottomSpacing: navigationButtonsHeight)
                 .onAppear(perform: viewModel.onCurrentPageAppear)
                 .onDisappear(perform: viewModel.onCurrentPageDisappear)
         }
