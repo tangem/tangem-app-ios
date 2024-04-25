@@ -12,13 +12,13 @@ import BlockchainSdk
 
 final class APIListTests: XCTestCase {
     func testParseAPIList() throws {
-        let apiListProvider = CommonAPIListProvider()
-        XCTAssertNoThrow(try apiListProvider.parseLocalFileForTest())
+        let apiListUtils = APIListUtils()
+        XCTAssertNoThrow(try apiListUtils.parseLocalAPIListJson())
     }
 
     func testLocalAPIListFulfillment() throws {
-        let apiListProvider = CommonAPIListProvider()
-        let apiList = try apiListProvider.parseLocalFileForTest()
+        let apiListUtils = APIListUtils()
+        let apiList = try apiListUtils.parseLocalAPIListJson()
 
         XCTAssert(!apiList.isEmpty, "Local API list shouldn't be empty")
         Blockchain.allMainnetCases.forEach {
@@ -32,10 +32,7 @@ final class APIListTests: XCTestCase {
                 break
             }
 
-            if providers.isEmpty {
-                XCTFail("No providers were added in local API list for \($0.displayName)")
-                return
-            }
+            XCTAssert(!providers.isEmpty, "No providers were added in local API list for \($0.displayName)")
         }
     }
 }
