@@ -24,7 +24,7 @@ struct SendSummaryView: View {
                     GroupedSection(viewModel.destinationViewTypes) { type in
                         switch type {
                         case .address(let address, let corners):
-                            SendDestinationAddressSummaryView(heightModel: viewModel.heightModel, address: address)
+                            SendDestinationAddressSummaryView(addressTextViewHeightModel: viewModel.addressTextViewHeightModel, address: address)
                                 .setNamespace(namespace)
                                 .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)
                                 .background(

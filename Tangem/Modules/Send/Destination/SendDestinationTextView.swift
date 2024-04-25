@@ -11,7 +11,7 @@ import SwiftUI
 struct SendDestinationTextView: View {
     @ObservedObject var viewModel: SendDestinationTextViewModel
 
-    @StateObject var placeholderHeightModel: SendDestinationTextViewInputFieldModel = .init()
+    @StateObject var placeholderHeightModel: AddressTextViewHeightModel = .init()
     private var namespace: Namespace.ID?
     private var containerNamespaceId: String?
     private var iconNamespaceId: String?
@@ -113,7 +113,7 @@ struct SendDestinationTextView: View {
                 clearIcon
 
                 if viewModel.allowMultilineText {
-                    SendDestinationTextViewInputField(heightModel: placeholderHeightModel, text: .constant("Two\nLines"), placeholder: "Placeholder", font: inputFieldUIFont, color: inputFieldUIColor)
+                    AddressTextView(heightModel: placeholderHeightModel, text: .constant("Two\nLines"), placeholder: "Placeholder", font: inputFieldUIFont, color: inputFieldUIColor)
                 } else {
                     TextField("", text: .constant("One Line"))
                         .style(inputFieldFont, color: .black)
@@ -124,8 +124,8 @@ struct SendDestinationTextView: View {
             HStack(spacing: 12) {
                 Group {
                     if viewModel.allowMultilineText {
-                        SendDestinationTextViewInputField(
-                            heightModel: viewModel.heightModel,
+                        AddressTextView(
+                            heightModel: viewModel.addressTextViewHeightModel,
                             text: $viewModel.input,
                             placeholder: viewModel.placeholder,
                             font: inputFieldUIFont,
