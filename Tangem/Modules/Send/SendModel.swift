@@ -207,8 +207,6 @@ class SendModel {
     }
 
     func send() {
-        _isSending.send(true)
-
         guard var transaction = transaction.value else {
             AppLog.shared.debug("Transaction object hasn't been created")
             return
