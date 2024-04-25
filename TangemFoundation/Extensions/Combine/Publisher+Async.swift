@@ -13,6 +13,7 @@ public extension Publisher {
     func async() async throws -> Output {
         var didSendValue = false
         var didSendContinuation = false
+        let criticalSection = Lock(isRecursive: false)
         let cancellableWrapper = CancellableWrapper()
 
         return try await withTaskCancellationHandler {
@@ -29,26 +30,32 @@ public extension Publisher {
                         // We don't get a cancel error when cancelling a publisher, so we need
                         // to handle if the publisher was cancelled from the
                         // `withTaskCancellationHandler` here.
-                        if !didSendContinuation {
-                            didSendContinuation = true
-                            continuation.resume(throwing: CancellationError())
+                        criticalSection {
+                            if !didSendContinuation {
+                                didSendContinuation = true
+                                continuation.resume(throwing: CancellationError())
+                            }
                         }
                     }).sink { completion in
-                        var errorToSend: Error? = nil
-                        if case .failure(let error) = completion {
-                            errorToSend = error
-                        } else if !didSendValue {
-                            errorToSend = AsyncError.valueWasNotEmittedBeforeCompletion
-                        }
+                        criticalSection {
+                            var errorToSend: Error? = nil
+                            if case .failure(let error) = completion {
+                                errorToSend = error
+                            } else if !didSendValue {
+                                errorToSend = AsyncError.valueWasNotEmittedBeforeCompletion
+                            }
 
-                        if let errorToSend, !didSendContinuation {
-                            didSendContinuation = true
-                            continuation.resume(throwing: errorToSend)
+                            if let errorToSend, !didSendContinuation {
+                                didSendContinuation = true
+                                continuation.resume(throwing: errorToSend)
+                            }
                         }
                     } receiveValue: { value in
-                        didSendValue = true
-                        didSendContinuation = true
-                        continuation.resume(returning: value)
+                        criticalSection {
+                            didSendValue = true
+                            didSendContinuation = true
+                            continuation.resume(returning: value)
+                        }
                     }
             }
         } onCancel: {
