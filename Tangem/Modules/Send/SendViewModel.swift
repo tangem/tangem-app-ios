@@ -59,6 +59,8 @@ final class SendViewModel: ObservableObject {
     let sendFeeViewModel: SendFeeViewModel
     let sendSummaryViewModel: SendSummaryViewModel
 
+    let heightModel: SendDestinationTextViewHeightModel
+
     // MARK: - Dependencies
 
     private let sendModel: SendModel
@@ -212,6 +214,7 @@ final class SendViewModel: ObservableObject {
         sendDestinationViewModel = SendDestinationViewModel(input: sendModel)
         sendFeeViewModel = SendFeeViewModel(input: sendModel, notificationManager: notificationManager, customFeeService: customFeeService, walletInfo: walletInfo)
         sendSummaryViewModel = SendSummaryViewModel(input: sendModel, notificationManager: notificationManager, fiatCryptoValueProvider: fiatCryptoAdapter, walletInfo: walletInfo)
+        heightModel = .init()
 
         fiatCryptoAdapter.setInput(sendAmountViewModel)
         fiatCryptoAdapter.setOutput(sendModel)
