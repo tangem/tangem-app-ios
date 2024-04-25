@@ -59,7 +59,7 @@ final class SendViewModel: ObservableObject {
     let sendFeeViewModel: SendFeeViewModel
     let sendSummaryViewModel: SendSummaryViewModel
 
-    let heightModel: SendDestinationTextViewHeightModel
+    let heightModel: SendDestinationTextViewInputFieldModel
 
     // MARK: - Dependencies
 
