@@ -9,12 +9,12 @@
 import SwiftUI
 
 struct SendDestinationAddressSummaryView: View {
-    @ObservedObject var heightModel: SendDestinationTextViewHeightModel
+    @ObservedObject var heightModel: SendDestinationTextViewInputFieldModel
     let address: String
 
     private var namespace: Namespace.ID?
 
-    init(heightModel: SendDestinationTextViewHeightModel, address: String) {
+    init(heightModel: SendDestinationTextViewInputFieldModel, address: String) {
         self.heightModel = heightModel
         self.address = address
     }
@@ -29,6 +29,7 @@ struct SendDestinationAddressSummaryView: View {
                 AddressIconView(viewModel: AddressIconViewModel(address: address))
                     .matchedGeometryEffectOptional(id: SendViewNamespaceId.addressIcon.rawValue, in: namespace)
                     .frame(size: CGSize(bothDimensions: 36))
+                    .padding(.vertical, 10)
 
                 SendDestinationTextViewInputField(
                     heightModel: heightModel,
