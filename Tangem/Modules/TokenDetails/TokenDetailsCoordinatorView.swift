@@ -62,7 +62,7 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
                 item: $coordinator.receiveBottomSheetViewModel,
                 backgroundColor: Colors.Background.primary
             ) {
-                ReceiveBottomSheetView(viewModel: $0, sheetStateObject: $1)
+                ReceiveBottomSheetView(viewModel: $0)
             }
             .bottomSheet(
                 item: $coordinator.pendingExpressTxStatusBottomSheetViewModel,
