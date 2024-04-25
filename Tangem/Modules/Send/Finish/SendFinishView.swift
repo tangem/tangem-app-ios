@@ -11,7 +11,6 @@ import SwiftUI
 struct SendFinishView: View {
     let namespace: Namespace.ID
 
-    @ObservedObject var heightModel: SendDestinationTextViewInputFieldModel
     @ObservedObject var viewModel: SendFinishViewModel
 
     let bottomSpacing: CGFloat
@@ -28,7 +27,7 @@ struct SendFinishView: View {
                 GroupedSection(viewModel.destinationViewTypes) { type in
                     switch type {
                     case .address(let address, let corners):
-                        SendDestinationAddressSummaryView(heightModel: heightModel, address: address)
+                        SendDestinationAddressSummaryView(heightModel: viewModel.heightModel, address: address)
                             .setNamespace(namespace)
                             .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)
                             .background(

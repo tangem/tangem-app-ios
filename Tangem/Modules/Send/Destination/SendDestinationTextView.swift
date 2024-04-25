@@ -9,7 +9,6 @@
 import SwiftUI
 
 struct SendDestinationTextView: View {
-    @ObservedObject var heightModel: SendDestinationTextViewInputFieldModel
     @ObservedObject var viewModel: SendDestinationTextViewModel
 
     @StateObject var placeholderHeightModel: SendDestinationTextViewInputFieldModel = .init()
@@ -28,8 +27,7 @@ struct SendDestinationTextView: View {
 
     @State private var inputWidth: CGFloat = 0
 
-    init(heightModel: SendDestinationTextViewInputFieldModel, viewModel: SendDestinationTextViewModel) {
-        self.heightModel = heightModel
+    init(viewModel: SendDestinationTextViewModel) {
         self.viewModel = viewModel
     }
 
@@ -127,7 +125,7 @@ struct SendDestinationTextView: View {
                 Group {
                     if viewModel.allowMultilineText {
                         SendDestinationTextViewInputField(
-                            heightModel: heightModel,
+                            heightModel: viewModel.heightModel,
                             text: $viewModel.input,
                             placeholder: viewModel.placeholder,
                             font: inputFieldUIFont,
