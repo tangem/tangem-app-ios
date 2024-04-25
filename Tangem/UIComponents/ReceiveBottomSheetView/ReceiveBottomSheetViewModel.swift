@@ -30,9 +30,6 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     private var currentIndex = 0
     private var indexUpdateSubscription: AnyCancellable?
 
-    private var toast: Toast<SuccessToast>?
-    private var toastIsDissmissing = false
-
     var warningMessageFull: String {
         Localization.receiveBottomSheetWarningMessageFull(tokenItem.currencySymbol)
     }
@@ -69,23 +66,11 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
         Analytics.log(event: .buttonCopyAddress, params: [.token: tokenItem.currencySymbol])
         UIPasteboard.general.string = addressInfos[currentIndex].address
 
-        toast = Toast(view: SuccessToast(text: Localization.walletNotificationAddressCopied))
-        toast?.present(
-            layout: .top(padding: 80),
-            type: .temporary { self.toast = nil }
-        )
-    }
-
-    func clearNotification() {
-        if toast == nil || toastIsDissmissing {
-            return
-        }
-
-        toastIsDissmissing = true
-        toast?.dismiss(animated: true) {
-            self.toast = nil
-            self.toastIsDissmissing = false
-        }
+        Toast(view: SuccessToast(text: Localization.walletNotificationAddressCopied))
+            .present(
+                layout: .top(padding: 80),
+                type: .temporary()
+            )
     }
 
     func share() {
