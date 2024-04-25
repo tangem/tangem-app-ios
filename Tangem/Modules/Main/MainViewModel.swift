@@ -41,8 +41,6 @@ final class MainViewModel: ObservableObject {
     private var pendingUserWalletModelsToAdd: [UserWalletModel] = []
     private var shouldRecreatePagesAfterAddingPendingWalletModels = false
 
-//    private var toast: Toast<SuccessToast>?
-
     private var isLoggingOut = false
 
     private var bag: Set<AnyCancellable> = []
