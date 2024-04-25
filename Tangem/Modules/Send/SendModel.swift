@@ -209,13 +209,6 @@ class SendModel {
     func send() {
         _isSending.send(true)
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            self._isSending.send(false)
-            self._transactionURL.send(URL(string: "google.com")!)
-            self._transactionTime.send(Date())
-        }
-        return ()
-
         guard var transaction = transaction.value else {
             AppLog.shared.debug("Transaction object hasn't been created")
             return
