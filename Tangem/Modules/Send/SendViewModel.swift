@@ -59,7 +59,7 @@ final class SendViewModel: ObservableObject {
     let sendFeeViewModel: SendFeeViewModel
     let sendSummaryViewModel: SendSummaryViewModel
 
-    let heightModel: SendDestinationTextViewInputFieldModel
+    let addressTextViewHeightModel: AddressTextViewHeightModel
 
     // MARK: - Dependencies
 
@@ -210,12 +210,12 @@ final class SendViewModel: ObservableObject {
 
         sendStepParameters = SendStep.Parameters(currencyName: walletModel.tokenItem.name, walletName: walletInfo.walletName)
 
-        let heightModel = SendDestinationTextViewInputFieldModel()
-        self.heightModel = heightModel
+        let addressTextViewHeightModel = AddressTextViewHeightModel()
+        self.addressTextViewHeightModel = addressTextViewHeightModel
         sendAmountViewModel = SendAmountViewModel(input: sendModel, fiatCryptoAdapter: fiatCryptoAdapter, walletInfo: walletInfo)
-        sendDestinationViewModel = SendDestinationViewModel(input: sendModel, heightModel: heightModel)
+        sendDestinationViewModel = SendDestinationViewModel(input: sendModel, addressTextViewHeightModel: addressTextViewHeightModel)
         sendFeeViewModel = SendFeeViewModel(input: sendModel, notificationManager: notificationManager, customFeeService: customFeeService, walletInfo: walletInfo)
-        sendSummaryViewModel = SendSummaryViewModel(input: sendModel, notificationManager: notificationManager, fiatCryptoValueProvider: fiatCryptoAdapter, heightModel: heightModel, walletInfo: walletInfo)
+        sendSummaryViewModel = SendSummaryViewModel(input: sendModel, notificationManager: notificationManager, fiatCryptoValueProvider: fiatCryptoAdapter, addressTextViewHeightModel: addressTextViewHeightModel, walletInfo: walletInfo)
 
         fiatCryptoAdapter.setInput(sendAmountViewModel)
         fiatCryptoAdapter.setOutput(sendModel)
@@ -618,7 +618,7 @@ final class SendViewModel: ObservableObject {
     }
 
     private func openFinishPage() {
-        guard let sendFinishViewModel = SendFinishViewModel(input: sendModel, fiatCryptoValueProvider: fiatCryptoAdapter, heightModel: heightModel, walletInfo: walletInfo) else {
+        guard let sendFinishViewModel = SendFinishViewModel(input: sendModel, fiatCryptoValueProvider: fiatCryptoAdapter, addressTextViewHeightModel: addressTextViewHeightModel, walletInfo: walletInfo) else {
             assertionFailure("WHY?")
             return
         }
