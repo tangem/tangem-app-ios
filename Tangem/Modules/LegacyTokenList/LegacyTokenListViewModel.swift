@@ -55,7 +55,6 @@ class LegacyTokenListViewModel: ObservableObject {
         loader.canFetchMore
     }
 
-    private var toast: Toast<SuccessToast>?
     private lazy var loader = setupListDataLoader()
     private let mode: Mode
     private var bag = Set<AnyCancellable>()
@@ -276,21 +275,14 @@ private extension LegacyTokenListViewModel {
     }
 
     func bindCopy() -> Binding<Bool> {
-        let binding = Binding<Bool> { [weak self] in
-            self?.toast != nil
-        } set: { [weak self] isSelected in
-            guard let self else { return }
-            if isSelected {
-                toast = Toast(view: SuccessToast(text: Localization.contractAddressCopiedMessage))
-                toast?.present(
+        let binding = Binding<Bool> {
+            false
+        } set: { _ in
+            Toast(view: SuccessToast(text: Localization.contractAddressCopiedMessage))
+                .present(
                     layout: .bottom(padding: 80),
-                    type: .temporary { self.toast = nil }
+                    type: .temporary()
                 )
-            } else {
-                toast?.dismiss(animated: true) {
-                    self.toast = nil
-                }
-            }
         }
 
         return binding
