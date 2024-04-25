@@ -38,6 +38,7 @@ struct SendView: View {
         }
         .background(backgroundColor.ignoresSafeArea())
         .animation(Constants.defaultAnimation, value: viewModel.step)
+        .interactiveDismissDisabled(!viewModel.canDismiss)
     }
 
     private var pageContentTransition: AnyTransition {
@@ -58,8 +59,16 @@ struct SendView: View {
     private var header: some View {
         if let title = viewModel.title {
             HStack {
-                Spacer()
-                    .layoutPriority(1)
+                HStack(spacing: 0) {
+                    Button(action: viewModel.dismiss) {
+                        Assets.crossBlack.image
+                            .renderingMode(.template)
+                            .foregroundColor(Colors.Icon.primary1)
+                    }
+
+                    Spacer()
+                }
+                .layoutPriority(1)
 
                 // Making sure the header doesn't jump when changing the visibility of the fields
                 ZStack {
@@ -73,19 +82,19 @@ struct SendView: View {
                 .lineLimit(1)
                 .layoutPriority(2)
 
-                if viewModel.showQRCodeButton {
-                    Button(action: viewModel.scanQRCode) {
-                        Assets.qrCode.image
-                            .renderingMode(.template)
-                            .foregroundColor(Colors.Icon.primary1)
-                            .frame(maxWidth: .infinity, alignment: .trailing)
-                    }
-                    .disabled(viewModel.updatingFees)
-                    .layoutPriority(1)
-                } else {
+                HStack(spacing: 0) {
                     Spacer()
-                        .layoutPriority(1)
+
+                    if viewModel.showQRCodeButton {
+                        Button(action: viewModel.scanQRCode) {
+                            Assets.qrCode.image
+                                .renderingMode(.template)
+                                .foregroundColor(Colors.Icon.primary1)
+                        }
+                        .disabled(viewModel.updatingFees)
+                    }
                 }
+                .layoutPriority(1)
             }
             .padding(.horizontal, 16)
             .padding(.top, 12)
