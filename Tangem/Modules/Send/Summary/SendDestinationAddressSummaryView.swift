@@ -9,13 +9,13 @@
 import SwiftUI
 
 struct SendDestinationAddressSummaryView: View {
-    @ObservedObject var heightModel: SendDestinationTextViewInputFieldModel
+    @ObservedObject var addressTextViewHeightModel: AddressTextViewHeightModel
     let address: String
 
     private var namespace: Namespace.ID?
 
-    init(heightModel: SendDestinationTextViewInputFieldModel, address: String) {
-        self.heightModel = heightModel
+    init(addressTextViewHeightModel: AddressTextViewHeightModel, address: String) {
+        self.addressTextViewHeightModel = addressTextViewHeightModel
         self.address = address
     }
 
@@ -31,8 +31,8 @@ struct SendDestinationAddressSummaryView: View {
                     .frame(size: CGSize(bothDimensions: 36))
                     .padding(.vertical, 10)
 
-                SendDestinationTextViewInputField(
-                    heightModel: heightModel,
+                AddressTextView(
+                    heightModel: addressTextViewHeightModel,
                     text: .constant(address),
                     placeholder: "",
                     font: .preferredFont(forTextStyle: .subheadline),
