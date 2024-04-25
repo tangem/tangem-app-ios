@@ -9,9 +9,10 @@
 import SwiftUI
 
 struct SendDestinationTextView: View {
-    @ObservedObject var heightModel: SendDestinationTextViewHeightModel
+    @ObservedObject var heightModel: SendDestinationTextViewInputFieldModel
     @ObservedObject var viewModel: SendDestinationTextViewModel
 
+    @StateObject var placeholderHeightModel: SendDestinationTextViewInputFieldModel = .init()
     private var namespace: Namespace.ID?
     private var containerNamespaceId: String?
     private var iconNamespaceId: String?
@@ -27,7 +28,7 @@ struct SendDestinationTextView: View {
 
     @State private var inputWidth: CGFloat = 0
 
-    init(heightModel: SendDestinationTextViewHeightModel, viewModel: SendDestinationTextViewModel) {
+    init(heightModel: SendDestinationTextViewInputFieldModel, viewModel: SendDestinationTextViewModel) {
         self.heightModel = heightModel
         self.viewModel = viewModel
     }
@@ -41,6 +42,8 @@ struct SendDestinationTextView: View {
                     ZStack(alignment: .trailing) {
                         HStack(spacing: 12) {
                             addressIconView
+                                .padding(.vertical, 10)
+
                             input
                         }
 
@@ -111,12 +114,12 @@ struct SendDestinationTextView: View {
             Group {
                 clearIcon
 
-//                if viewModel.allowMultilineText {
-//                    SendDestinationTextViewInputField(heightModel: , text: .constant("Two\nLines"), placeholder: "Placeholder", font: inputFieldUIFont, color: inputFieldUIColor)
-//                } else {
-//                    TextField("", text: .constant("One Line"))
-//                        .style(inputFieldFont, color: .black)
-//                }
+                if viewModel.allowMultilineText {
+                    SendDestinationTextViewInputField(heightModel: placeholderHeightModel, text: .constant("Two\nLines"), placeholder: "Placeholder", font: inputFieldUIFont, color: inputFieldUIColor)
+                } else {
+                    TextField("", text: .constant("One Line"))
+                        .style(inputFieldFont, color: .black)
+                }
             }
             .opacity(0)
 
