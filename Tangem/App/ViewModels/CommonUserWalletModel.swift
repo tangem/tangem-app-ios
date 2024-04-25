@@ -31,7 +31,7 @@ class CommonUserWalletModel {
         derivationStyle: config.derivationStyle,
         derivationManager: derivationManager,
         keysDerivingProvider: self,
-        existingCurves: config.walletCurves,
+        existingCurves: config.existingCurves,
         longHashesSupported: config.hasFeature(.longHashes)
     )
 
@@ -178,13 +178,7 @@ class CommonUserWalletModel {
     }
 
     private func validateCurves(_ curves: [EllipticCurve]) -> Bool {
-        var expectedCurves = config.mandatoryCurves
-
-        if config is GenericConfig {
-            expectedCurves.remove(.bls12381_G2_AUG)
-        }
-
-        let curvesValidator = CurvesValidator(expectedCurves: expectedCurves)
+        let curvesValidator = CurvesValidator(expectedCurves: config.validationCurves)
         if !curvesValidator.validate(curves) {
             return false
         }
