@@ -25,7 +25,7 @@ protocol SendFinishViewModelInput: AnyObject {
 class SendFinishViewModel: ObservableObject {
     @Published var showHeader = false
     @Published var showButtons = false
-    @ObservedObject var heightModel: SendDestinationTextViewInputFieldModel
+    @ObservedObject var addressTextViewHeightModel: AddressTextViewHeightModel
 
     let transactionTime: String
 
@@ -37,7 +37,7 @@ class SendFinishViewModel: ObservableObject {
 
     private let transactionURL: URL
 
-    init?(input: SendFinishViewModelInput, fiatCryptoValueProvider: SendFiatCryptoValueProvider, heightModel: SendDestinationTextViewInputFieldModel, walletInfo: SendWalletInfo) {
+    init?(input: SendFinishViewModelInput, fiatCryptoValueProvider: SendFiatCryptoValueProvider, addressTextViewHeightModel: AddressTextViewHeightModel, walletInfo: SendWalletInfo) {
         guard
             let destinationText = input.destinationText,
             let transactionTime = input.transactionTime,
@@ -71,7 +71,7 @@ class SendFinishViewModel: ObservableObject {
         self.transactionTime = formatter.string(from: transactionTime)
         self.transactionURL = transactionURL
 
-        self.heightModel = heightModel
+        self.addressTextViewHeightModel = addressTextViewHeightModel
     }
 
     func onAppear() {
