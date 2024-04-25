@@ -14,10 +14,9 @@ import SwiftUI
 
 struct AddressTextView: View {
     @ObservedObject var heightModel: AddressTextViewHeightModel
-
     @Binding var text: String
-    let placeholder: String
 
+    let placeholder: String
     let font: UIFont
     let color: UIColor
 
