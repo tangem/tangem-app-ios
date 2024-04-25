@@ -149,46 +149,46 @@ struct SendSummaryView: View {
     }
 }
 
-//
-// struct SendSummaryView_Previews: PreviewProvider {
-//    [REDACTED_USERNAME] static var namespace
-//
-//    static let tokenIconInfo = TokenIconInfo(
-//        name: "Tether",
-//        blockchainIconName: "ethereum.fill",
-//        imageURL: IconURLBuilder().tokenIconURL(id: "tether"),
-//        isCustom: false,
-//        customTokenColor: nil
-//    )
-//
-//    static let walletInfo = SendWalletInfo(
-//        walletName: "Family Wallet",
-//        balanceValue: 2130.88,
-//        balance: "2 130,88 USDT (2 129,92 $)",
-//        blockchain: .ethereum(testnet: false),
-//        currencyId: "tether",
-//        feeCurrencySymbol: "ETH",
-//        feeCurrencyId: "ethereum",
-//        isFeeApproximate: false,
-//        tokenIconInfo: tokenIconInfo,
-//        cryptoIconURL: nil,
-//        cryptoCurrencyCode: "USDT",
-//        fiatIconURL: nil,
-//        fiatCurrencyCode: "USD",
-//        amountFractionDigits: 6,
-//        feeFractionDigits: 6,
-//        feeAmountType: .coin,
-//        canUseFiatCalculation: true
-//    )
-//
-//    static let viewModel = SendSummaryViewModel(
-//        input: SendSummaryViewModelInputMock(),
-//        notificationManager: FakeSendNotificationManager(),
-//        fiatCryptoValueProvider: SendFiatCryptoValueProviderMock(),
-//        walletInfo: walletInfo
-//    )
-//
-//    static var previews: some View {
-//        SendSummaryView(namespace: namespace, viewModel: viewModel, bottomSpacing: 0)
-//    }
-// }
+struct SendSummaryView_Previews: PreviewProvider {
+    @Namespace static var namespace
+
+    static let tokenIconInfo = TokenIconInfo(
+        name: "Tether",
+        blockchainIconName: "ethereum.fill",
+        imageURL: IconURLBuilder().tokenIconURL(id: "tether"),
+        isCustom: false,
+        customTokenColor: nil
+    )
+
+    static let walletInfo = SendWalletInfo(
+        walletName: "Family Wallet",
+        balanceValue: 2130.88,
+        balance: "2 130,88 USDT (2 129,92 $)",
+        blockchain: .ethereum(testnet: false),
+        currencyId: "tether",
+        feeCurrencySymbol: "ETH",
+        feeCurrencyId: "ethereum",
+        isFeeApproximate: false,
+        tokenIconInfo: tokenIconInfo,
+        cryptoIconURL: nil,
+        cryptoCurrencyCode: "USDT",
+        fiatIconURL: nil,
+        fiatCurrencyCode: "USD",
+        amountFractionDigits: 6,
+        feeFractionDigits: 6,
+        feeAmountType: .coin,
+        canUseFiatCalculation: true
+    )
+
+    static let viewModel = SendSummaryViewModel(
+        input: SendSummaryViewModelInputMock(),
+        notificationManager: FakeSendNotificationManager(),
+        fiatCryptoValueProvider: SendFiatCryptoValueProviderMock(),
+        addressTextViewHeightModel: .init(),
+        walletInfo: walletInfo
+    )
+
+    static var previews: some View {
+        SendSummaryView(namespace: namespace, viewModel: viewModel, bottomSpacing: 0)
+    }
+}
