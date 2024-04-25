@@ -43,9 +43,9 @@ class Toast<V: View> {
         case .always:
             break
 
-        case .temporary(let interval, let completion):
+        case .temporary(let interval):
             Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] _ in
-                self?.dismiss(animated: true, completion: completion)
+                self?.dismiss(animated: true)
             }
         }
 
@@ -103,7 +103,7 @@ class Toast<V: View> {
 extension Toast {
     enum PresentationTime {
         case always
-        case temporary(interval: TimeInterval = 2, completion: () -> Void = {})
+        case temporary(interval: TimeInterval = 2)
     }
 
     enum Layout {
