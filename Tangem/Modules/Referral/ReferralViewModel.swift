@@ -21,7 +21,6 @@ class ReferralViewModel: ObservableObject {
 
     @Published var expectedAwardsExpanded = false
 
-    private var toast: Toast<SuccessToast>?
     private weak var coordinator: ReferralRoutable?
     private let userTokensManager: UserTokensManager
     private let userWalletId: Data
@@ -101,11 +100,11 @@ class ReferralViewModel: ObservableObject {
         Analytics.log(.referralButtonCopyCode)
         UIPasteboard.general.string = referralProgramInfo?.referral?.promoCode
 
-        toast = Toast(view: SuccessToast(text: Localization.referralPromoCodeCopied))
-        toast?.present(
-            layout: .top(padding: 80),
-            type: .temporary { self.toast = nil }
-        )
+        Toast(view: SuccessToast(text: Localization.referralPromoCodeCopied))
+            .present(
+                layout: .top(padding: 80),
+                type: .temporary()
+            )
     }
 
     func sharePromoCode() {
