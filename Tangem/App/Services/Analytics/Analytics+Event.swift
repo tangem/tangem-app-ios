@@ -80,6 +80,7 @@ extension Analytics {
         case receiveScreenOpened = "[Token / Receive] Receive Screen Opened"
         case buttonCopyAddress = "[Token / Receive] Button - Copy Address"
         case buttonShareAddress = "[Token / Receive] Button - Share Address"
+        case buttonAddTokenTrustline = "[Token] Button - Token Trustline"
 
         // MARK: - Send
 
