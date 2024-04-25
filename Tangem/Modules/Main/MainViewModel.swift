@@ -41,7 +41,7 @@ final class MainViewModel: ObservableObject {
     private var pendingUserWalletModelsToAdd: [UserWalletModel] = []
     private var shouldRecreatePagesAfterAddingPendingWalletModels = false
 
-    private var toast: Toast<SuccessToast>?
+//    private var toast: Toast<SuccessToast>?
 
     private var isLoggingOut = false
 
@@ -416,11 +416,11 @@ extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
 
 extension MainViewModel: MultiWalletMainContentDelegate {
     func displayAddressCopiedToast() {
-        toast = Toast(view: SuccessToast(text: Localization.walletNotificationAddressCopied))
-        toast?.present(
-            layout: .bottom(padding: 80),
-            type: .temporary { self.toast = nil }
-        )
+        Toast(view: SuccessToast(text: Localization.walletNotificationAddressCopied))
+            .present(
+                layout: .bottom(padding: 80),
+                type: .temporary()
+            )
     }
 }
 
