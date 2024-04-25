@@ -10,9 +10,31 @@ import Foundation
 import UIKit
 import SwiftUI
 
+// MARK: - State model
+
+import Combine
+
+class SendDestinationTextViewHeightModel: ObservableObject {
+    @Published var height: CGFloat = 10
+
+    var bag: Set<AnyCancellable> = []
+
+    init() {
+        print("ZZZ [text model] init")
+
+        $height
+            .sink { height in
+                print("ZZZ [text model] height changed \(height)")
+            }
+            .store(in: &bag)
+    }
+}
+
 // MARK: - SwiftUI view
 
 struct SendDestinationTextViewInputField: View {
+    @ObservedObject var heightModel: SendDestinationTextViewHeightModel
+
     @Binding var text: String
     let placeholder: String
 
@@ -20,7 +42,7 @@ struct SendDestinationTextViewInputField: View {
     let color: UIColor
 
     @State private var showPlaceholder = false
-    @State private var currentHeight: CGFloat = 10
+//    [REDACTED_USERNAME] private var currentHeight: CGFloat = 10
     @State private var width: CGFloat = 10
 
     var body: some View {
@@ -28,7 +50,7 @@ struct SendDestinationTextViewInputField: View {
             CustomTextView(
                 text: $text,
                 showPlaceholder: $showPlaceholder,
-                currentHeight: $currentHeight,
+                currentHeight: $heightModel.height,
                 width: $width,
                 font: font,
                 color: color
@@ -40,9 +62,9 @@ struct SendDestinationTextViewInputField: View {
             }
         }
         .readGeometry(\.size.width, bindTo: $width)
-        .frame(minHeight: 56, maxHeight: 56)
+        .frame(minHeight: heightModel.height, maxHeight: heightModel.height)
         .overlay(alignment: .topTrailing) {
-            Text("\(width) x \(currentHeight)")
+            Text("\(width) x \(heightModel.height)")
                 .font(.caption2)
                 .foregroundStyle(.red)
         }
@@ -72,9 +94,12 @@ private struct CustomTextView: UIViewRepresentable {
 
         textView.textContainer.lineFragmentPadding = 0
 
+        textView.attributedText = attributedText(text)
+
         let size = textView.sizeThatFits(CGSize(width: width, height: .infinity))
-        print("ZZZ make view text \(text), width \(width), height \(size.height)")
-        print("ZZZ separate calculation of text size: \(text.height(forContainerWidth: width, font: font)), \(attributedText(text).height(withConstrainedWidth: width)) ")
+        print("ZZZ [make view] text \(text), width \(width), height \(size.height)")
+        print("ZZZ [make view] current height \(currentHeight)")
+        print("ZZZ [make view] separate calculation of text size: \(text.height(forContainerWidth: width, font: font)), \(attributedText(text).height(withConstrainedWidth: width)) ")
 
         return textView
     }
@@ -89,9 +114,12 @@ private struct CustomTextView: UIViewRepresentable {
             showPlaceholder = text.isEmpty
 
             let size = uiView.sizeThatFits(CGSize(width: width, height: .infinity))
-            print("ZZZ update view text \(text), width \(width), height \(size.height)")
-            print("ZZZ separate calculation of text size: \(text.height(forContainerWidth: width, font: font)), \(attributedText(text).height(withConstrainedWidth: width)) ")
-            currentHeight = size.height
+            print("ZZZ [update view] text \(text), width \(width), height \(size.height)")
+            print("ZZZ [update view] current height \(currentHeight)")
+            print("ZZZ [update view] separate calculation of text size: \(text.height(forContainerWidth: width, font: font)), \(attributedText(text).height(withConstrainedWidth: width)) ")
+            if currentHeight != size.height {
+                currentHeight = size.height
+            }
         }
     }
 
