@@ -26,7 +26,7 @@ struct SendDestinationView: View {
                         .setTextNamespaceId(SendViewNamespaceId.addressText.rawValue)
                         .setClearButtonNamespaceId(SendViewNamespaceId.addressClearButton.rawValue)
                         .disabled(viewModel.userInputDisabled)
-                        .padding(.vertical, 2)
+//                        .padding(.vertical, 2)
                         .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)
                         .background(
                             Colors.Background.action
