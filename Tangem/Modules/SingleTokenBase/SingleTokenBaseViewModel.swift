@@ -197,7 +197,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         if let fulfillAssetRequirementsAlert = alertBuilder.fulfillAssetRequirementsAlert(
             for: requirementsCondition,
             feeTokenItem: walletModel.feeTokenItem,
-            isZeroAmount: walletModel.isZeroAmount
+            hasFeeCurrency: walletModel.feeCurrencyHasPositiveBalance
         ) {
             alert = fulfillAssetRequirementsAlert
             return
