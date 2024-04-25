@@ -239,7 +239,7 @@ final class SendViewModel: ObservableObject {
     func dismiss() {
         Analytics.log(.sendButtonClose, params: [
             .source: step.analyticsSourceParameterValue,
-            .didReachSummary: .affirmativeOrNegative(for: didReachSummaryScreen),
+            .fromSummary: .affirmativeOrNegative(for: didReachSummaryScreen),
             .valid: .affirmativeOrNegative(for: !mainButtonDisabled),
         ])
 
