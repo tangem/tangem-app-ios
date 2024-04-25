@@ -203,6 +203,14 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
             return
         }
 
+        Analytics.log(
+            event: .buttonAddTokenTrustline,
+            params: [
+                .token: walletModel.tokenItem.currencySymbol,
+                .blockchain: blockchain.displayName,
+            ]
+        )
+
         walletModel
             .fulfillRequirements(signer: userWalletModel.signer)
             .sink()
