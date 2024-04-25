@@ -105,6 +105,7 @@ extension Analytics {
         case sendNoticeNotEnoughFee = "[Token / Send] Notice - Not Enough Fee"
         case sendNoticeTransactionDelaysArePossible = "[Token / Send] Notice - Transaction Delays Are Possible."
         case sendErrorTransactionRejected = "[Token / Send] Error - Transaction Rejected"
+        case sendButtonClose = "[Token / Send] Button - Close"
 
         case topupScreenOpened = "[Token / Topup] Top Up Screen Opened"
         case p2PScreenOpened = "[Token / Topup] P2P Screen Opened"
