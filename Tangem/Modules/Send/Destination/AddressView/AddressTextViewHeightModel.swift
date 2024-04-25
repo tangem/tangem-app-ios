@@ -1,5 +1,5 @@
 //
-//  SendDestinationTextViewInputFieldModel.swift
+//  AddressTextViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,6 +11,6 @@ import Combine
 
 // [REDACTED_TODO_COMMENT]
 
-class SendDestinationTextViewInputFieldModel: ObservableObject {
+class AddressTextViewHeightModel: ObservableObject {
     @Published var height: CGFloat = 10
 }
