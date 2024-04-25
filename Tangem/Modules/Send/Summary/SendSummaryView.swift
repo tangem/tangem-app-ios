@@ -11,7 +11,7 @@ import SwiftUI
 struct SendSummaryView: View {
     let namespace: Namespace.ID
 
-    @ObservedObject var heightModel: SendDestinationTextViewHeightModel
+    @ObservedObject var heightModel: SendDestinationTextViewInputFieldModel
     @ObservedObject var viewModel: SendSummaryViewModel
 
     let bottomSpacing: CGFloat
