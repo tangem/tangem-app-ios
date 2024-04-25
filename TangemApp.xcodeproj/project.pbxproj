@@ -284,6 +284,7 @@
 		B04CD34229122C7D001EA84A /* ReferralRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04CD34129122C7D001EA84A /* ReferralRoutable.swift */; };
 		B04CD34429122C8D001EA84A /* ReferralCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04CD34329122C8D001EA84A /* ReferralCoordinatorView.swift */; };
 		B04CD3482912AA61001EA84A /* IconWithMessagePlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04CD3472912AA61001EA84A /* IconWithMessagePlaceholderView.swift */; };
+		B04D81DE2BDA232A0020AAC0 /* APIListUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04D81DD2BDA232A0020AAC0 /* APIListUtils.swift */; };
 		B04EADEA2A80D62E009B5768 /* SingleTokenBaseRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04EADE92A80D62E009B5768 /* SingleTokenBaseRoutable.swift */; };
 		B04EADEC2A80D659009B5768 /* SingleTokenBaseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04EADEB2A80D659009B5768 /* SingleTokenBaseViewModel.swift */; };
 		B050F4F42B5FB03F00B2E53C /* VisaAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B050F4F32B5FB03F00B2E53C /* VisaAPIService.swift */; };
@@ -1826,6 +1827,7 @@
 		B04CD34129122C7D001EA84A /* ReferralRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralRoutable.swift; sourceTree = "<group>"; };
 		B04CD34329122C8D001EA84A /* ReferralCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralCoordinatorView.swift; sourceTree = "<group>"; };
 		B04CD3472912AA61001EA84A /* IconWithMessagePlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconWithMessagePlaceholderView.swift; sourceTree = "<group>"; };
+		B04D81DD2BDA232A0020AAC0 /* APIListUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIListUtils.swift; sourceTree = "<group>"; };
 		B04EADE92A80D62E009B5768 /* SingleTokenBaseRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleTokenBaseRoutable.swift; sourceTree = "<group>"; };
 		B04EADEB2A80D659009B5768 /* SingleTokenBaseViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleTokenBaseViewModel.swift; sourceTree = "<group>"; };
 		B050F4F32B5FB03F00B2E53C /* VisaAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaAPIService.swift; sourceTree = "<group>"; };
@@ -4453,6 +4455,7 @@
 			children = (
 				B080DE562BB3F504001A23BD /* APIListProvider.swift */,
 				B01B2D742BD2924F00D8A6A1 /* CommonAPIListProvider.swift */,
+				B04D81DD2BDA232A0020AAC0 /* APIListUtils.swift */,
 			);
 			path = APIListProvider;
 			sourceTree = "<group>";
@@ -9639,6 +9642,7 @@
 				EF9F907F299CFCC7006F638F /* WebViewContainerViewModel.swift in Sources */,
 				EF5D83D92B0B7A2B00516B5F /* ExpressSuccessSentView.swift in Sources */,
 				5D9DCB0C255199AA0059799C /* SecurityModeViewModel.swift in Sources */,
+				B04D81DE2BDA232A0020AAC0 /* APIListUtils.swift in Sources */,
 				B02B74AE29879DA5006473F2 /* WalletConnectV2PersonalSignHandler.swift in Sources */,
 				DAB19D482B2C72A100DD08C4 /* AddCustomTokenCoordinator.swift in Sources */,
 				DA559C332B0261F400F59584 /* SendCoordinatorView.swift in Sources */,
