@@ -254,6 +254,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         var tokenListSyncSubscription: AnyCancellable?
         tokenListSyncSubscription = Publishers.Zip(tokenListSyncPublisher, sectionsPublisher)
+            .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
                 viewModel.isLoadingTokenList = false
