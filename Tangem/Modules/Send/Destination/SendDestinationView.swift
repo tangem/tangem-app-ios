@@ -10,7 +10,6 @@ import SwiftUI
 
 struct SendDestinationView: View {
     let namespace: Namespace.ID
-    @ObservedObject var heightModel: SendDestinationTextViewInputFieldModel
     @ObservedObject var viewModel: SendDestinationViewModel
 
     let bottomSpacing: CGFloat
@@ -19,7 +18,7 @@ struct SendDestinationView: View {
         GroupedScrollView(spacing: 20) {
             if let addressViewModel = viewModel.addressViewModel {
                 GroupedSection(addressViewModel) {
-                    SendDestinationTextView(heightModel: heightModel, viewModel: $0)
+                    SendDestinationTextView(viewModel: $0)
                         .setNamespace(namespace)
                         .setContainerNamespaceId(SendViewNamespaceId.addressContainer.rawValue)
                         .setTitleNamespaceId(SendViewNamespaceId.addressTitle.rawValue)
@@ -47,7 +46,7 @@ struct SendDestinationView: View {
 
             if let additionalFieldViewModel = viewModel.additionalFieldViewModel {
                 GroupedSection(additionalFieldViewModel) {
-                    SendDestinationTextView(heightModel: .init(), viewModel: $0)
+                    SendDestinationTextView(viewModel: $0)
                         .setNamespace(namespace)
                         .setContainerNamespaceId(SendViewNamespaceId.addressAdditionalFieldContainer.rawValue)
                         .setTitleNamespaceId(SendViewNamespaceId.addressAdditionalFieldTitle.rawValue)
