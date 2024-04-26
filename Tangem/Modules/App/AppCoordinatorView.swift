@@ -12,6 +12,7 @@ import SwiftUI
 struct AppCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: AppCoordinator
     @ObservedObject var sensitiveTextVisibilityViewModel = SensitiveTextVisibilityViewModel.shared
+    @State private var isMainFooterVisible = true
 
     var body: some View {
         NavigationView {
@@ -26,6 +27,7 @@ struct AppCoordinatorView: CoordinatorView {
                     }
             }
         }
+        .isMainFooterVisible(isMainFooterVisible)
         .navigationViewStyle(.stack)
         .accentColor(Colors.Text.primary1)
         .modifier(ifLet: coordinator.mainBottomSheetCoordinator) { view, mainBottomSheetCoordinator in
@@ -50,6 +52,11 @@ struct AppCoordinatorView: CoordinatorView {
                 .onBottomScrollableSheetStateChange(
                     weakify(mainBottomSheetCoordinator, forFunction: MainBottomSheetCoordinator.onBottomScrollableSheetStateChange)
                 )
+                .onBottomScrollableSheetDrag { isDragging in
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    isMainFooterVisible = !isDragging
+//                    }
+                }
         }
         .bottomSheet(
             item: $sensitiveTextVisibilityViewModel.informationHiddenBalancesViewModel,

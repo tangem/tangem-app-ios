@@ -9,6 +9,8 @@
 import SwiftUI
 
 struct MainBottomSheetFooterView: View {
+    @Environment(\.isMainFooterVisible) private var isMainFooterVisible
+
     var body: some View {
         VStack(spacing: 0.0) {
             FixedSpacer.vertical(14.0)
@@ -24,5 +26,6 @@ struct MainBottomSheetFooterView: View {
             .bottomScrollableSheetGrabber()
             .bottomScrollableSheetShadow()
         }
+        .hidden(!isMainFooterVisible)
     }
 }

@@ -25,8 +25,7 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
         return overlayHeight.isZero ? 0.0 : max(stateObject.maxHeight - stateObject.minHeight, 0.0)
     }
 
-    // [REDACTED_TODO_COMMENT]
-    @State private var isDragged = false
+    @State private var isDragging = false
 
     /// `.onAnimationStarted` may be called multiple times, therefore we need this state var to track only the initial call.
     @State private var isAnimating = false
@@ -77,39 +76,17 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
             statusBarStyleConfigurator.setSelectedStatusBarColorScheme(newValue, animated: true)
         }
         .readGeometry(bindTo: stateObject.geometryInfoSubject.asWriteOnlyBinding(.zero))
-        .onAnimationStarted(for: stateObject.visibleHeight) {
-            guard !isAnimating else { return }
-
-            if isHidden, stateObject.isHeaderDragged {
-                isHidden = false
-            }
-
-            isAnimating = true
-        }
-        .onAnimationCompleted(for: stateObject.visibleHeight) {
-            if !isHidden, !stateObject.isHeaderDragged, stateObject.progress < .ulpOfOne {
-                isHidden = true
-            }
-
-            isAnimating = false
-        }
     }
 
     private var headerDragGesture: some Gesture {
         DragGesture(coordinateSpace: .global)
             .onChanged { value in
                 stateObject.headerDragGesture(onChanged: value)
-
-                if !isDragged {
-                    isDragged = true
-                    bottomScrollableSheetDragObserver?(true)
-                }
+                onDragStart()
             }
             .onEnded { value in
                 stateObject.headerDragGesture(onEnded: value)
-
-                isDragged = false
-                bottomScrollableSheetDragObserver?(false)
+                onDragEnd()
             }
     }
 
@@ -150,17 +127,11 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
                 DragGesturePassthroughView(
                     onChanged: { value in
                         stateObject.scrollViewContentDragGesture(onChanged: value)
-
-                        if !isDragged {
-                            isDragged = true
-                            bottomScrollableSheetDragObserver?(true)
-                        }
+                        onDragStart()
                     },
                     onEnded: { value in
                         stateObject.scrollViewContentDragGesture(onEnded: value)
-
-                        isDragged = false
-                        bottomScrollableSheetDragObserver?(false)
+                        onDragEnd()
                     }
                 )
 
@@ -202,7 +173,23 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
         .frame(height: stateObject.maxHeight)
         .bottomScrollableSheetCornerRadius()
         .bottomScrollableSheetShadow()
-        .hidden(isHiddenWhenCollapsed ? isHidden : false)
+//        .hidden(isHiddenWhenCollapsed ? isHidden : false)
+        .onAnimationStarted(for: stateObject.progress) {
+            guard !isAnimating else { return }
+
+            if isHidden {
+                isHidden = false
+            }
+
+            isAnimating = true
+        }
+        .onAnimationCompleted(for: stateObject.progress) {
+            if !isHidden, !isDragging, stateObject.progress < .ulpOfOne {
+                isHidden = true
+            }
+
+            isAnimating = false
+        }
         .overlay(headerGestureOverlayView, alignment: .top) // Mustn't be hidden (by the 'isHidden' flag applied above)
         .offset(y: sheetVerticalOffset)
     }
@@ -210,6 +197,18 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
     /// Restores default (system-driven) appearance of the status bar.
     private func restoreStatusBarColorScheme() {
         statusBarStyleConfigurator.setSelectedStatusBarColorScheme(nil, animated: true)
+    }
+
+    private func onDragStart() {
+        guard !isDragging else { return }
+
+        isDragging = true
+        bottomScrollableSheetDragObserver?(true)
+    }
+
+    private func onDragEnd() {
+        isDragging = false
+        bottomScrollableSheetDragObserver?(false)
     }
 }
 
