@@ -630,6 +630,7 @@
 		B69610982A428C9B00CF88B7 /* OrganizeTokensListSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69610972A428C9A00CF88B7 /* OrganizeTokensListSectionView.swift */; };
 		B696109A2A428CA300CF88B7 /* OrganizeTokensListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69610992A428CA300CF88B7 /* OrganizeTokensListItemView.swift */; };
 		B6961B202BB2FD2900FE266D /* PolkadotAccountHealthNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6961B1F2BB2FD2900FE266D /* PolkadotAccountHealthNetworkService.swift */; };
+		B697C79C2BCCB0E900495090 /* MainFooterView+Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B697C79B2BCCB0E900495090 /* MainFooterView+Environment.swift */; };
 		B69A140B2B7EC3FB00EF0825 /* TokenInteractionAvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69A140A2B7EC3FB00EF0825 /* TokenInteractionAvailabilityProvider.swift */; };
 		B69C9D3A2A7027F100ECD35F /* DragGesture.Value+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69C9D392A7027F100ECD35F /* DragGesture.Value+.swift */; };
 		B69D0E802A3AEE8000A8B44D /* TokenListLoadingPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69D0E7F2A3AEE7F00A8B44D /* TokenListLoadingPlaceholderView.swift */; };
@@ -2160,6 +2161,7 @@
 		B69610972A428C9A00CF88B7 /* OrganizeTokensListSectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListSectionView.swift; sourceTree = "<group>"; };
 		B69610992A428CA300CF88B7 /* OrganizeTokensListItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListItemView.swift; sourceTree = "<group>"; };
 		B6961B1F2BB2FD2900FE266D /* PolkadotAccountHealthNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkadotAccountHealthNetworkService.swift; sourceTree = "<group>"; };
+		B697C79B2BCCB0E900495090 /* MainFooterView+Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MainFooterView+Environment.swift"; sourceTree = "<group>"; };
 		B69A140A2B7EC3FB00EF0825 /* TokenInteractionAvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenInteractionAvailabilityProvider.swift; sourceTree = "<group>"; };
 		B69C9D392A7027F100ECD35F /* DragGesture.Value+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DragGesture.Value+.swift"; sourceTree = "<group>"; };
 		B69D0E7F2A3AEE7F00A8B44D /* TokenListLoadingPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListLoadingPlaceholderView.swift; sourceTree = "<group>"; };
@@ -5439,6 +5441,7 @@
 				B6364F862ACEE99F00D615B5 /* Empty */,
 				B6C428522ACE973900605E71 /* Default */,
 				B6C428532ACE973C00605E71 /* MainBottomSheet */,
+				B697C79B2BCCB0E900495090 /* MainFooterView+Environment.swift */,
 			);
 			path = MainFooterView;
 			sourceTree = "<group>";
@@ -8937,6 +8940,7 @@
 				B0120A962A0E0FB900F485F1 /* Text+NSAttributedString.swift in Sources */,
 				EF914D4C2A603F2F001F00B2 /* Quote.swift in Sources */,
 				EF4B41BB2864491B003911F6 /* TangemSkeletonModifier.swift in Sources */,
+				B697C79C2BCCB0E900495090 /* MainFooterView+Environment.swift in Sources */,
 				DA559C522B0265E700F59584 /* SendDestinationTextView.swift in Sources */,
 				B0CB73B72A82324200D530BA /* TokenWithoutDerivationInfoProvider.swift in Sources */,
 				B020FFBE25DE895E00EF422C /* FileLogger.swift in Sources */,
