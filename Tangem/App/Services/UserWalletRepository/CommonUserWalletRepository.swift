@@ -206,6 +206,10 @@ class CommonUserWalletRepository: UserWalletRepository {
 
                 switch result {
                 case .success(let userWalletModel):
+                    var existingNames = Set(models.map { $0.name })
+                    let suggestedWalletName = suggestedWalletName(for: userWalletModel.name, existingNames: &existingNames)
+                    userWalletModel.updateWalletName(suggestedWalletName)
+
                     if !models.contains(where: { $0.userWalletId == userWalletModel.userWalletId }) {
                         save(userWalletModel)
                         completion(result)
@@ -513,7 +517,8 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func loadModels() {
-        let savedUserWallets = savedUserWallets(withSensitiveData: true)
+        var savedUserWallets = savedUserWallets(withSensitiveData: true)
+        migrateNames(&savedUserWallets)
 
         models = savedUserWallets.map { userWalletStorageItem in
             if let userWallet = CommonUserWalletModel(userWallet: userWalletStorageItem) {
@@ -542,6 +547,48 @@ class CommonUserWalletRepository: UserWalletRepository {
         guard let selectedModel else { return }
 
         initializeServices(for: selectedModel)
+    }
+
+    private func migrateNames(_ wallets: inout [StoredUserWallet]) {
+        if AppSettings.shared.didMigrateUserWalletNames {
+            return
+        }
+
+        AppSettings.shared.didMigrateUserWalletNames = true
+
+        var didChangeNames = true
+        var existingNames: Set<String> = []
+        for i in 0 ..< wallets.count {
+            let defaultName = wallets[i].name
+            let suggestedWalletName = suggestedWalletName(for: defaultName, existingNames: &existingNames)
+            if defaultName != suggestedWalletName {
+                wallets[i].name = suggestedWalletName
+                didChangeNames = true
+            }
+        }
+
+        if didChangeNames {
+            UserWalletRepositoryUtil().saveUserWallets(wallets)
+        }
+    }
+
+    private func suggestedWalletName(for defaultName: String, existingNames: inout Set<String>) -> String {
+        let startIndex = 1
+        for index in startIndex ... 10000 {
+            let name: String
+            if index == startIndex {
+                name = defaultName
+            } else {
+                name = "\(defaultName) \(index)"
+            }
+
+            if !existingNames.contains(name) {
+                existingNames.insert(name)
+                return name
+            }
+        }
+
+        return defaultName
     }
 
     private func sendEvent(_ event: UserWalletRepositoryEvent) {
