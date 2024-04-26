@@ -16,6 +16,7 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
     @ObservedObject private var stateObject: BottomScrollableSheetStateObject
 
     @Environment(\.bottomScrollableSheetStateObserver) private var bottomScrollableSheetStateObserver
+    @Environment(\.bottomScrollableSheetDragObserver) private var bottomScrollableSheetDragObserver
     @Environment(\.statusBarStyleConfigurator) private var statusBarStyleConfigurator
 
     @State private var overlayHeight: CGFloat = .zero
@@ -24,7 +25,14 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
         return overlayHeight.isZero ? 0.0 : max(stateObject.maxHeight - stateObject.minHeight, 0.0)
     }
 
+    // TODO: Andrey Fedorov - Get rid of duplicate props (`stateObject.isHeaderDragged`)
+    @State private var isDragged = false
+
+    /// `.onAnimationStarted` may be called multiple times, therefore we need this state var to track only the initial call.
+    @State private var isAnimating = false
+
     @State private var isHidden = true
+
     private var isHiddenWhenCollapsed = false
 
     private var prefersGrabberVisible = true
@@ -69,12 +77,40 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
             statusBarStyleConfigurator.setSelectedStatusBarColorScheme(newValue, animated: true)
         }
         .readGeometry(bindTo: stateObject.geometryInfoSubject.asWriteOnlyBinding(.zero))
+        .onAnimationStarted(for: stateObject.visibleHeight) {
+            guard !isAnimating else { return }
+
+            if isHidden, stateObject.isHeaderDragged {
+                isHidden = false
+            }
+
+            isAnimating = true
+        }
+        .onAnimationCompleted(for: stateObject.visibleHeight) {
+            if !isHidden, !stateObject.isHeaderDragged, stateObject.progress < .ulpOfOne {
+                isHidden = true
+            }
+
+            isAnimating = false
+        }
     }
 
     private var headerDragGesture: some Gesture {
         DragGesture(coordinateSpace: .global)
-            .onChanged(stateObject.headerDragGesture(onChanged:))
-            .onEnded(stateObject.headerDragGesture(onEnded:))
+            .onChanged { value in
+                stateObject.headerDragGesture(onChanged: value)
+
+                if !isDragged {
+                    isDragged = true
+                    bottomScrollableSheetDragObserver?(true)
+                }
+            }
+            .onEnded { value in
+                stateObject.headerDragGesture(onEnded: value)
+
+                isDragged = false
+                bottomScrollableSheetDragObserver?(false)
+            }
     }
 
     private var headerTapGesture: some Gesture {
@@ -112,8 +148,20 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
         ScrollView(.vertical) {
             ZStack {
                 DragGesturePassthroughView(
-                    onChanged: stateObject.scrollViewContentDragGesture(onChanged:),
-                    onEnded: stateObject.scrollViewContentDragGesture(onEnded:)
+                    onChanged: { value in
+                        stateObject.scrollViewContentDragGesture(onChanged: value)
+
+                        if !isDragged {
+                            isDragged = true
+                            bottomScrollableSheetDragObserver?(true)
+                        }
+                    },
+                    onEnded: { value in
+                        stateObject.scrollViewContentDragGesture(onEnded: value)
+
+                        isDragged = false
+                        bottomScrollableSheetDragObserver?(false)
+                    }
                 )
 
                 VStack(spacing: 0.0) {
@@ -155,16 +203,6 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
         .bottomScrollableSheetCornerRadius()
         .bottomScrollableSheetShadow()
         .hidden(isHiddenWhenCollapsed ? isHidden : false)
-        .onAnimationStarted(for: stateObject.progress) {
-            if isHidden {
-                isHidden = false
-            }
-        }
-        .onAnimationCompleted(for: stateObject.progress) {
-            if !isHidden, stateObject.progress < .ulpOfOne {
-                isHidden = true
-            }
-        }
         .overlay(headerGestureOverlayView, alignment: .top) // Mustn't be hidden (by the 'isHidden' flag applied above)
         .offset(y: sheetVerticalOffset)
     }

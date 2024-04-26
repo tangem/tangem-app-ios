@@ -1,5 +1,5 @@
 //
-//  BottomScrollableSheetStateObserver.swift
+//  BottomScrollableSheetObservers.swift
 //  Tangem
 //
 //  Created by Andrey Fedorov on 01.12.2023.
@@ -9,3 +9,5 @@
 import Foundation
 
 typealias BottomScrollableSheetStateObserver = (_ state: BottomScrollableSheetState) -> Void
+
+typealias BottomScrollableSheetDragObserver = (_ isDragging: Bool) -> Void

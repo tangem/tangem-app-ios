@@ -1,5 +1,5 @@
 //
-//  BottomScrollableSheetStateHandler.swift
+//  BottomScrollableSheetStateController.swift
 //  Tangem
 //
 //  Created by skibinalexander on 21.02.2024.
