@@ -41,6 +41,7 @@ final class MainViewModel: ObservableObject {
     private var pendingUserWalletIdsToUpdate: Set<UserWalletId> = []
     private var pendingUserWalletModelsToAdd: [UserWalletModel] = []
     private var shouldRecreatePagesAfterAddingPendingWalletModels = false
+    private var walletNameFieldValidator: AlertFieldValidator?
 
     private var isLoggingOut = false
 
@@ -153,10 +154,21 @@ final class MainViewModel: ObservableObject {
 
         guard let userWalletModel = userWalletRepository.selectedModel else { return }
 
+        let otherWalletNames = userWalletRepository.models.compactMap { model -> String? in
+            guard model.userWalletId != userWalletModel.userWalletId else { return nil }
+
+            return model.name
+        }
+
+        walletNameFieldValidator = AlertFieldValidator { input in
+            !otherWalletNames.contains(input)
+        }
+
         let alert = AlertBuilder.makeAlertControllerWithTextField(
             title: Localization.userWalletListRenamePopupTitle,
             fieldPlaceholder: Localization.userWalletListRenamePopupPlaceholder,
-            fieldText: userWalletModel.name
+            fieldText: userWalletModel.name,
+            fieldValidator: walletNameFieldValidator
         ) { newName in
             guard userWalletModel.name != newName else { return }
 
