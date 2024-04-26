@@ -535,10 +535,13 @@
 "toast_balances_shown" = "Балансы показаны";
 "toast_undo" = "Отменить";
 "token_button_unavailability_generic_description" = "Выбранная операция в данный момент недоступна. Попробуйте позже.";
-"token_button_unavailability_reason_buy_unavailable" = "В данный момент покупка монеты %@ недоступна. Но мы работаем над её добавлением.";
-"token_button_unavailability_reason_empty_balance" = "У вас нет средств для отправки. Пополните счет, чтобы иметь возможность отправить с него средства.";
-"token_button_unavailability_reason_not_exchangeable" = "Обмен %@ не доступен. Но мы работаем над его добавлением.";
-"token_button_unavailability_reason_sell_unavailable" = "В данный момент продажа монеты %@ недоступна. Но мы работаем над её добавлением.";
+"token_button_unavailability_reason_buy_unavailable" = "В данный момент покупка монеты %@ недоступна. Следите за нашими обновлениями.";
+"token_button_unavailability_reason_empty_balance_sell" = "У вас нет средств для продажи. Пополните счет, чтобы иметь возможность продать с него средства.";
+"token_button_unavailability_reason_empty_balance_send" = "У вас нет средств для отправки. Пополните счет, чтобы иметь возможность отправить с него средства.";
+"token_button_unavailability_reason_not_exchangeable" = "В данный момент обмен монеты %@ недоступен. Следите за нашими обновлениями.";
+"token_button_unavailability_reason_pending_transaction_sell" = "Продажа средств станет доступной после завершения транзакции(-ий) в сети %@";
+"token_button_unavailability_reason_pending_transaction_send" = "Отправка средств станет доступной после завершения транзакции(-ий) в сети %@";
+"token_button_unavailability_reason_sell_unavailable" = "В данный момент продажа %@ недоступна. Следите за нашими обновлениями.";
 "token_details_choose_address" = "Выберите адрес";
 "token_details_hide_alert_hide" = "Скрыть";
 "token_details_hide_alert_message" = "Вы скрываете токен с главного экрана, но в любой момент сможете добавить его обратно через страницу управления токенами.";
@@ -670,8 +673,6 @@
 "warning_rent_fee_title" = "Необходима плата за аренду сети";
 "warning_send_blocked_funds_for_fee_message" = "%1$@ - это монета в сети %2$@. Для совершения транзакции %3$@, вам необходимо внести немного %4$@ (%5$@), чтобы покрыть комиссию сети.";
 "warning_send_blocked_funds_for_fee_title" = "Недостаточно %1$@ для оплаты комиссии сети";
-"warning_send_blocked_pending_transactions_in_blockchain_message" = "Отправка средств станет доступной после завершения транзакции(-ий) в сети %@";
-"warning_send_blocked_pending_transactions_message" = "Отправка средств станет доступной после завершения транзакции %@";
 "warning_send_blocked_pending_transactions_title" = "Транзакция в обработке";
 "warning_solana_fee_message" = "Сеть Солана испытывает высокую нагрузку. Если Ваша транзакция не прошла в течение 2 минут, повторите её отправку.";
 "warning_solana_fee_title" = "Оповещение сети Солана";
