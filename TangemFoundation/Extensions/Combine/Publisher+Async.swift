@@ -11,43 +11,39 @@ import Foundation
 
 public extension Publisher {
     func async() async throws -> Output {
-        var didSendValue = false
-        var didSendContinuation = false
         let cancellableWrapper = CancellableWrapper()
 
         return try await withTaskCancellationHandler {
             return try await withCheckedThrowingContinuation { continuation in
+                let continuationWrapper = CheckedContinuationWrapper(continuation: continuation)
+
                 // This check is necessary in case this code runs after the task was
                 // cancelled. In which case we want to bail right away.
                 guard !Task.isCancelled else {
-                    continuation.resume(throwing: CancellationError())
+                    continuationWrapper.resumeIfNeeded(throwing: CancellationError())
                     return
                 }
 
                 cancellableWrapper.value = first()
                     .handleEvents(receiveCancel: {
-                        guard !didSendContinuation || !didSendValue else {
-                            Swift.print("Publisher.Async() Received a cancellation after the completion was sent")
-                            return
-                        }
-
                         // We don't get a cancel error when cancelling a publisher, so we need
                         // to handle if the publisher was cancelled from the
                         // `withTaskCancellationHandler` here.
-                        continuation.resume(throwing: CancellationError())
-                        didSendContinuation = true
-                    }).sink { completion in
-                        if case .failure(let error) = completion {
-                            continuation.resume(throwing: error)
-                        } else if !didSendValue {
-                            continuation.resume(throwing: AsyncError.valueWasNotEmittedBeforeCompletion)
+                        continuationWrapper.resumeIfNeeded(throwing: CancellationError())
+                    })
+                    .sink(
+                        receiveCompletion: { completion in
+                            switch completion {
+                            case .finished:
+                                continuationWrapper.resumeIfNeeded(throwing: AsyncError.valueWasNotEmittedBeforeCompletion)
+                            case .failure(let error):
+                                continuationWrapper.resumeIfNeeded(throwing: error)
+                            }
+                        },
+                        receiveValue: { value in
+                            continuationWrapper.resumeIfNeeded(returning: value)
                         }
-
-                        didSendContinuation = true
-                    } receiveValue: { value in
-                        didSendValue = true
-                        continuation.resume(returning: value)
-                    }
+                    )
             }
         } onCancel: {
             cancellableWrapper.cancel()
@@ -72,5 +68,36 @@ private final class CancellableWrapper {
 
     func cancel() {
         criticalSection { innerCancellable?.cancel() }
+    }
+}
+
+/// Resumes the given continuation exactly once.
+private final class CheckedContinuationWrapper<T, E> where E: Error {
+    private var wasResumed = false
+    private let continuation: CheckedContinuation<T, E>
+    private let criticalSection = Lock(isRecursive: false)
+
+    init(continuation: CheckedContinuation<T, E>) {
+        self.continuation = continuation
+    }
+
+    /// Safe shim for `CheckedContinuation.resume(returning:)`.
+    func resumeIfNeeded(returning value: T) {
+        criticalSection {
+            if !wasResumed {
+                wasResumed = true
+                continuation.resume(returning: value)
+            }
+        }
+    }
+
+    /// Safe shim for `CheckedContinuation.resume(throwing:)`.
+    func resumeIfNeeded(throwing error: E) {
+        criticalSection {
+            if !wasResumed {
+                wasResumed = true
+                continuation.resume(throwing: error)
+            }
+        }
     }
 }
