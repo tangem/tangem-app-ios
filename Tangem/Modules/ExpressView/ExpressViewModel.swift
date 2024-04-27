@@ -134,6 +134,11 @@ final class ExpressViewModel: ObservableObject {
     }
 
     func didTapMainButton() {
+        if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .swapping) {
+            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
+            return
+        }
+
         switch mainButtonState {
         case .permitAndSwap:
             Analytics.log(.swapButtonPermitAndSwap)
