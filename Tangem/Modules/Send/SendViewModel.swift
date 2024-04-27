@@ -602,6 +602,8 @@ final class SendViewModel: ObservableObject {
 
         mainButtonType = Self.mainButtonType(for: step, didReachSummaryScreen: didReachSummaryScreen)
 
+        saveCurrentStep()
+
         DispatchQueue.main.async {
             self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
             self.step = step
@@ -611,6 +613,12 @@ final class SendViewModel: ObservableObject {
                     .sink()
             }
         }
+    }
+
+    private func saveCurrentStep() {
+        guard let saveable = stepViewModel(step) as? SendStepSaveable else { return }
+
+        saveable.save()
     }
 
     private func openFinishPage() {
@@ -691,7 +699,7 @@ extension SendViewModel: SendSummaryRoutable {
             return
         }
 
-        if let auxiliaryViewAnimatable = auxiliaryViewAnimatable(step) {
+        if let auxiliaryViewAnimatable = stepViewModel(step) as? AuxiliaryViewAnimatable {
             auxiliaryViewAnimatable.setAnimatingAuxiliaryViewsOnAppear()
         }
 
@@ -728,7 +736,7 @@ extension SendViewModel: SendSummaryRoutable {
             .store(in: &bag)
     }
 
-    private func auxiliaryViewAnimatable(_ step: SendStep) -> AuxiliaryViewAnimatable? {
+    private func stepViewModel(_ step: SendStep) -> AnyObject? {
         switch step {
         case .amount:
             return sendAmountViewModel
