@@ -166,7 +166,7 @@ class LegacySendViewModel: ObservableObject {
 
     @Published private var validatedXrpDestinationTag: UInt32? = nil
 
-    private let feeRetrySubject = CurrentValueSubject<Void, Never>(())
+    private let feeRetrySubject = CurrentValueSubject<Int, Never>(0)
 
     private var blockchainNetwork: BlockchainNetwork
 
@@ -321,10 +321,20 @@ class LegacySendViewModel: ObservableObject {
             .dropFirst()
             .compactMap { $0 }
             .combineLatest($validatedDestination.compactMap { $0 }, feeRetrySubject)
-            .flatMap { [unowned self] amount, dest, _ -> AnyPublisher<[Fee], Never> in
+            .flatMap { [unowned self] amount, dest, retryNumber -> AnyPublisher<[Fee], Never> in
                 isFeeLoading = true
+                var calculatedAmount: Amount = amount
+                if retryNumber != 0 {
+                    let calculatedFee = pow(10, Double(-10 + retryNumber))
+                    calculatedAmount = Amount(
+                        with: amount,
+                        value: amount.value - Decimal(calculatedFee)
+                    )
+                    print("DEBUG TAG", retryNumber, calculatedFee, calculatedAmount)
+                }
+
                 return walletModel
-                    .getFee(amount: amount, destination: dest)
+                    .getFee(amount: calculatedAmount, destination: dest)
                     .receive(on: DispatchQueue.main)
                     .catch { [unowned self] error in
                         AppLog.shared.error(error)
@@ -957,7 +967,7 @@ private extension LegacySendViewModel {
 
         let ok = Alert.Button.default(Text(Localization.commonOk))
         let retry = Alert.Button.default(Text(Localization.commonRetry)) { [unowned self] in
-            feeRetrySubject.send()
+            feeRetrySubject.send(feeRetrySubject.value + 1)
         }
         let alert = Alert(title: Text(errorText), primaryButton: retry, secondaryButton: ok)
         self.error = AlertBinder(alert: alert)
