@@ -18,7 +18,7 @@ struct SendView: View {
     private let backgroundColor = Colors.Background.tertiary
     private let bottomGradientHeight: CGFloat = 150
 
-    @State private var navigationButtonsHeight: CGFloat = 0
+    @State private var bottomButtonsHeight: CGFloat = 0
 
     var body: some View {
         VStack(spacing: 14) {
@@ -29,8 +29,8 @@ struct SendView: View {
                     .overlay(bottomOverlay, alignment: .bottom)
                     .transition(pageContentTransition)
 
-                navigationButtons
-                    .readGeometry(\.size.height, bindTo: $navigationButtonsHeight)
+                bottomButtons
+                    .readGeometry(\.size.height, bindTo: $bottomButtonsHeight)
 
                 NavHolder()
                     .alert(item: $viewModel.alert) { $0.alert }
@@ -38,6 +38,7 @@ struct SendView: View {
         }
         .background(backgroundColor.ignoresSafeArea())
         .animation(Constants.defaultAnimation, value: viewModel.step)
+        .animation(Constants.defaultAnimation, value: viewModel.showTransactionButtons)
         .interactiveDismissDisabled(!viewModel.canDismiss)
     }
 
@@ -126,48 +127,68 @@ struct SendView: View {
                 .onAppear(perform: viewModel.onCurrentPageAppear)
                 .onDisappear(perform: viewModel.onCurrentPageDisappear)
         case .fee:
-            SendFeeView(namespace: namespace, viewModel: viewModel.sendFeeViewModel, bottomSpacing: bottomGradientHeight, navigationButtonsHeight: navigationButtonsHeight)
+            SendFeeView(namespace: namespace, viewModel: viewModel.sendFeeViewModel, bottomSpacing: bottomGradientHeight, bottomButtonsHeight: bottomButtonsHeight)
                 .onAppear(perform: viewModel.onCurrentPageAppear)
                 .onDisappear(perform: viewModel.onCurrentPageDisappear)
         case .summary:
-            SendSummaryView(namespace: namespace, viewModel: viewModel.sendSummaryViewModel, bottomSpacing: navigationButtonsHeight)
+            SendSummaryView(namespace: namespace, viewModel: viewModel.sendSummaryViewModel, bottomSpacing: bottomButtonsHeight)
                 .onAppear(perform: viewModel.onSummaryAppear)
                 .onDisappear(perform: viewModel.onSummaryDisappear)
                 .onAppear(perform: viewModel.onCurrentPageAppear)
                 .onDisappear(perform: viewModel.onCurrentPageDisappear)
         case .finish(let sendFinishViewModel):
-            SendFinishView(namespace: namespace, viewModel: sendFinishViewModel, bottomSpacing: navigationButtonsHeight)
+            SendFinishView(namespace: namespace, viewModel: sendFinishViewModel, bottomSpacing: bottomButtonsHeight)
                 .onAppear(perform: viewModel.onCurrentPageAppear)
                 .onDisappear(perform: viewModel.onCurrentPageDisappear)
         }
     }
 
     @ViewBuilder
-    private var navigationButtons: some View {
-        HStack {
-            if viewModel.showBackButton {
-                SendViewBackButton(
-                    backgroundColor: backButtonStyle.background(isDisabled: false),
-                    cornerRadius: backButtonStyle.cornerRadius(for: backButtonSize),
-                    height: backButtonSize.height,
-                    action: viewModel.back
-                )
-                .transition(.move(edge: .leading).combined(with: .opacity))
-                .animation(SendView.Constants.backButtonAnimation, value: viewModel.showBackButton)
+    private var bottomButtons: some View {
+        VStack(spacing: 10) {
+            if viewModel.showTransactionButtons {
+                HStack(spacing: 8) {
+                    MainButton(
+                        title: Localization.commonExplore,
+                        icon: .leading(Assets.globe),
+                        style: .secondary,
+                        action: viewModel.explore
+                    )
+                    MainButton(
+                        title: Localization.commonShare,
+                        icon: .leading(Assets.share),
+                        style: .secondary,
+                        action: viewModel.share
+                    )
+                }
+                .transition(.opacity)
             }
 
-            MainButton(
-                title: viewModel.mainButtonTitle,
-                icon: viewModel.mainButtonIcon,
-                style: .primary,
-                size: .default,
-                isLoading: viewModel.mainButtonLoading,
-                isDisabled: viewModel.mainButtonDisabled,
-                action: viewModel.next
-            )
+            HStack(spacing: 8) {
+                if viewModel.showBackButton {
+                    SendViewBackButton(
+                        backgroundColor: backButtonStyle.background(isDisabled: false),
+                        cornerRadius: backButtonStyle.cornerRadius(for: backButtonSize),
+                        height: backButtonSize.height,
+                        action: viewModel.back
+                    )
+                    .transition(.move(edge: .leading).combined(with: .opacity))
+                    .animation(SendView.Constants.backButtonAnimation, value: viewModel.showBackButton)
+                }
+
+                MainButton(
+                    title: viewModel.mainButtonTitle,
+                    icon: viewModel.mainButtonIcon,
+                    style: .primary,
+                    size: .default,
+                    isLoading: viewModel.mainButtonLoading,
+                    isDisabled: viewModel.mainButtonDisabled,
+                    action: viewModel.next
+                )
+            }
+            .padding(.bottom, 14)
         }
         .padding(.horizontal, 16)
-        .padding(.bottom, 14)
     }
 
     @ViewBuilder
