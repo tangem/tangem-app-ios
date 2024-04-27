@@ -94,7 +94,7 @@ final class SendViewModel: ObservableObject {
                 case .amount:
                     return sendModel.amountValid
                 case .destination:
-                    return sendModel.destinationValid
+                    return sendDestinationViewModel.isValid
                 case .fee:
                     return sendModel.feeValid
                 case .summary:
@@ -209,7 +209,7 @@ final class SendViewModel: ObservableObject {
         sendStepParameters = SendStep.Parameters(currencyName: walletModel.tokenItem.name, walletName: walletInfo.walletName)
 
         sendAmountViewModel = SendAmountViewModel(input: sendModel, fiatCryptoAdapter: fiatCryptoAdapter, walletInfo: walletInfo)
-        sendDestinationViewModel = SendDestinationViewModel(input: sendModel)
+        sendDestinationViewModel = SendDestinationViewModel(input: sendModel, addressService: addressService)
         sendFeeViewModel = SendFeeViewModel(input: sendModel, notificationManager: notificationManager, customFeeService: customFeeService, walletInfo: walletInfo)
         sendSummaryViewModel = SendSummaryViewModel(input: sendModel, notificationManager: notificationManager, fiatCryptoValueProvider: fiatCryptoAdapter, walletInfo: walletInfo)
 
