@@ -74,31 +74,5 @@ extension TransactionSendAvailabilityProvider {
             let networkName: String
             let currencyButtonTitle: String?
         }
-
-        var description: String? {
-            switch self {
-            case .zeroWalletBalance:
-                return nil
-            case .cantSignLongTransactions:
-                return Localization.warningLongTransactionMessage
-            case .hasPendingTransaction(let blockchain):
-                switch blockchain.feePaidCurrency {
-                case .coin:
-                    return Localization.warningSendBlockedPendingTransactionsMessage(blockchain.currencySymbol)
-                case .token, .sameCurrency:
-                    return Localization.warningSendBlockedPendingTransactionsInBlockchainMessage(blockchain.displayName)
-                }
-            case .zeroFeeCurrencyBalance(let configuration):
-                return Localization.warningSendBlockedFundsForFeeMessage(
-                    configuration.transactionAmountTypeName,
-                    configuration.networkName,
-                    configuration.transactionAmountTypeName,
-                    configuration.feeAmountTypeName,
-                    configuration.feeAmountTypeCurrencySymbol
-                )
-            case .blockchainUnreachable:
-                return Localization.warningNetworkUnreachableMessage
-            }
-        }
     }
 }
