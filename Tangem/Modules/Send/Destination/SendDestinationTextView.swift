@@ -17,7 +17,14 @@ struct SendDestinationTextView: View {
     private var titleNamespaceId: String?
     private var textNamespaceId: String?
     private var clearButtonNamespaceId: String?
-    private var inputFieldFont = Fonts.Regular.subheadline
+
+    private let inputFieldFont = Fonts.Regular.subheadline
+    private let inputFieldUIFont = UIFonts.Regular.subheadline
+
+    private let inputFieldColor = Colors.Text.primary1
+    private let inputFieldUIColor = UIColor.textPrimary1
+
+    @StateObject private var placeholderHeightModel: AddressTextViewHeightModel = .init()
 
     init(viewModel: SendDestinationTextViewModel) {
         self.viewModel = viewModel
@@ -26,12 +33,14 @@ struct SendDestinationTextView: View {
     var body: some View {
         Group {
             if viewModel.showAddressIcon {
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 2) {
                     fieldName
 
                     ZStack(alignment: .trailing) {
                         HStack(spacing: 12) {
                             addressIconView
+                                .padding(.vertical, 10)
+
                             input
                         }
 
@@ -43,7 +52,8 @@ struct SendDestinationTextView: View {
                             .opacity(0)
                     }
                 }
-                .padding(.vertical, 12)
+                .padding(.top, 12)
+                .padding(.bottom, 2)
             } else {
                 ZStack(alignment: .trailing) {
                     VStack(alignment: .leading, spacing: 2) {
@@ -101,9 +111,8 @@ struct SendDestinationTextView: View {
             Group {
                 clearIcon
 
-                if #available(iOS 16, *), viewModel.allowMultilineText {
-                    TextField("", text: .constant("Two\nLines"), axis: .vertical)
-                        .style(inputFieldFont, color: .black)
+                if viewModel.allowMultilineText {
+                    AddressTextView(heightModel: placeholderHeightModel, text: .constant("Two\nLines"), placeholder: "Placeholder", font: inputFieldUIFont, color: inputFieldUIColor)
                 } else {
                     TextField("", text: .constant("One Line"))
                         .style(inputFieldFont, color: .black)
@@ -113,26 +122,31 @@ struct SendDestinationTextView: View {
 
             HStack(spacing: 12) {
                 Group {
-                    if #available(iOS 16, *), viewModel.allowMultilineText {
-                        TextField(viewModel.placeholder, text: $viewModel.input, axis: .vertical)
-                            .lineLimit(5, reservesSpace: false)
+                    if viewModel.allowMultilineText {
+                        AddressTextView(
+                            heightModel: viewModel.addressTextViewHeightModel,
+                            text: $viewModel.input,
+                            placeholder: viewModel.placeholder,
+                            font: inputFieldUIFont,
+                            color: inputFieldUIColor
+                        )
                     } else {
                         TextField(viewModel.placeholder, text: $viewModel.input)
+                            .style(inputFieldFont, color: inputFieldColor)
                     }
                 }
                 .disabled(viewModel.isDisabled)
                 .autocapitalization(.none)
                 .keyboardType(.asciiCapable)
                 .disableAutocorrection(true)
-                .style(inputFieldFont, color: Colors.Text.primary1)
                 .matchedGeometryEffectOptional(id: textNamespaceId, in: namespace)
 
-                if !viewModel.input.isEmpty {
-                    Button(action: viewModel.clearInput) {
-                        clearIcon
-                            .matchedGeometryEffectOptional(id: clearButtonNamespaceId, in: namespace)
-                    }
+                Button(action: viewModel.clearInput) {
+                    clearIcon
+                        .matchedGeometryEffectOptional(id: clearButtonNamespaceId, in: namespace)
                 }
+                .hidden(viewModel.input.isEmpty)
+                .disabled(viewModel.input.isEmpty)
             }
         }
     }
@@ -199,19 +213,19 @@ extension SendDestinationTextView: Setupable {
 
 #Preview("Different cases") {
     GroupedScrollView(spacing: 14) {
-        GroupedSection(SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: ""), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
+        GroupedSection(SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: ""), isValidating: .just(output: false), isDisabled: .just(output: false), addressTextViewHeightModel: .init(), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
             SendDestinationTextView(viewModel: $0)
         }
 
-        GroupedSection(SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: "0x391316d97a07027a0702c8A002c8A0C25d8470"), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
+        GroupedSection(SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: "0x391316d97a07027a0702c8A002c8A0C25d8470"), isValidating: .just(output: false), isDisabled: .just(output: false), addressTextViewHeightModel: .init(), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
             SendDestinationTextView(viewModel: $0)
         }
 
-        GroupedSection(SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
+        GroupedSection(SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), isValidating: .just(output: false), isDisabled: .just(output: false), addressTextViewHeightModel: .init(), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
             SendDestinationTextView(viewModel: $0)
         }
 
-        GroupedSection(SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "123456789"), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
+        GroupedSection(SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "123456789"), isValidating: .just(output: false), isDisabled: .just(output: false), addressTextViewHeightModel: .init(), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
             SendDestinationTextView(viewModel: $0)
         }
     }
@@ -228,12 +242,12 @@ extension SendDestinationTextView: Setupable {
 
         // To make sure everything's aligned and doesn't jump when entering stuff
         ZStack {
-            GroupedSection(SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: ""), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
+            GroupedSection(SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: ""), isValidating: .just(output: false), isDisabled: .just(output: false), addressTextViewHeightModel: .init(), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
                 SendDestinationTextView(viewModel: $0)
                     .opacity(0.5)
             }
 
-            GroupedSection(SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: "0x391316d97a07027a0702c8A002c8A0C25d8470"), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
+            GroupedSection(SendDestinationTextViewModel(style: .address(networkName: "Ethereum"), input: .just(output: "0x391316d97a07027a0702c8A002c8A0C25d8470"), isValidating: .just(output: false), isDisabled: .just(output: false), addressTextViewHeightModel: .init(), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
                 SendDestinationTextView(viewModel: $0)
                     .opacity(0.5)
             }
@@ -247,12 +261,12 @@ extension SendDestinationTextView: Setupable {
 
         // To make sure everything's aligned and doesn't jump when entering stuff
         ZStack {
-            GroupedSection(SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
+            GroupedSection(SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: ""), isValidating: .just(output: false), isDisabled: .just(output: false), addressTextViewHeightModel: .init(), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
                 SendDestinationTextView(viewModel: $0)
                     .opacity(0.5)
             }
 
-            GroupedSection(SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "Optional"), isValidating: .just(output: false), isDisabled: .just(output: false), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
+            GroupedSection(SendDestinationTextViewModel(style: .additionalField(name: "Memo"), input: .just(output: "Optional"), isValidating: .just(output: false), isDisabled: .just(output: false), addressTextViewHeightModel: .init(), errorText: .just(output: nil), didEnterDestination: { _ in }, didPasteDestination: { _ in })) {
                 SendDestinationTextView(viewModel: $0)
                     .opacity(0.5)
             }
