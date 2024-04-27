@@ -237,6 +237,12 @@ final class SendViewModel: ObservableObject {
     }
 
     func dismiss() {
+        Analytics.log(.sendButtonClose, params: [
+            .source: step.analyticsSourceParameterValue,
+            .fromSummary: .affirmativeOrNegative(for: didReachSummaryScreen),
+            .valid: .affirmativeOrNegative(for: !mainButtonDisabled),
+        ])
+
         coordinator?.dismiss()
     }
 
@@ -812,6 +818,21 @@ private extension SendStep {
             return true
         case .destination, .amount, .summary, .finish:
             return false
+        }
+    }
+
+    var analyticsSourceParameterValue: Analytics.ParameterValue {
+        switch self {
+        case .amount:
+            return .amount
+        case .destination:
+            return .address
+        case .fee:
+            return .fee
+        case .summary:
+            return .summary
+        case .finish:
+            return .finish
         }
     }
 }
