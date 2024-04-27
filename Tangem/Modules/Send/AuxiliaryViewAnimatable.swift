@@ -37,3 +37,8 @@ extension AuxiliaryViewAnimatable {
         animatingAuxiliaryViewsOnAppear = didProperlyDisappear
     }
 }
+
+// move
+protocol SendStepSaveable: AnyObject {
+    func save()
+}
