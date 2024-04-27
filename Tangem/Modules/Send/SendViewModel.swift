@@ -17,11 +17,11 @@ final class SendViewModel: ObservableObject {
     @Published var stepAnimation: SendView.StepAnimation
     @Published var step: SendStep
     @Published var showBackButton = false
+    @Published var showTransactionButtons = false
     @Published var mainButtonType: SendMainButtonType
     @Published var mainButtonLoading: Bool = false
     @Published var mainButtonDisabled: Bool = false
     @Published var updatingFees = false
-    @Published var currentStepInvalid: Bool = false // delete?
     @Published var canDismiss: Bool = false
     @Published var alert: AlertBinder?
 
@@ -278,6 +278,26 @@ final class SendViewModel: ObservableObject {
         }
 
         openStep(previousStep, stepAnimation: .slideBackward, feeUpdatePolicy: nil)
+    }
+
+    func share() {
+        guard let transactionURL = sendModel.transactionURL else {
+            assertionFailure("WHY")
+            return
+        }
+
+        Analytics.log(.sendButtonShare)
+        coordinator?.openShareSheet(url: transactionURL)
+    }
+
+    func explore() {
+        guard let transactionURL = sendModel.transactionURL else {
+            assertionFailure("WHY")
+            return
+        }
+
+        Analytics.log(.sendButtonExplore)
+        coordinator?.openExplorer(url: transactionURL)
     }
 
     func scanQRCode() {
@@ -587,6 +607,7 @@ final class SendViewModel: ObservableObject {
 
         DispatchQueue.main.async {
             self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
+            self.showTransactionButtons = step.isFinish
             self.step = step
 
             if feeUpdatePolicy == .updateAfterChangingStep {
@@ -602,7 +623,6 @@ final class SendViewModel: ObservableObject {
             return
         }
 
-        sendFinishViewModel.router = coordinator
         openStep(.finish(model: sendFinishViewModel), stepAnimation: .moveAndFade, feeUpdatePolicy: nil)
     }
 
@@ -774,6 +794,14 @@ private extension SendStep {
         case .destination, .amount:
             return true
         case .fee, .summary, .finish:
+            return false
+        }
+    }
+
+    var isFinish: Bool {
+        if case .finish = self {
+            return true
+        } else {
             return false
         }
     }
