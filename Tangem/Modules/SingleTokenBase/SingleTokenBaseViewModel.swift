@@ -192,25 +192,34 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     }
 
     private func fulfillAssetRequirements() {
+        func sendAnalytics(isSuccessful: Bool) {
+            let status: Analytics.ParameterValue = isSuccessful ? .sent : .error
+
+            Analytics.log(
+                event: .buttonAddTokenTrustline,
+                params: [
+                    .token: walletModel.tokenItem.currencySymbol,
+                    .blockchain: blockchain.displayName,
+                    .status: status.rawValue,
+                ]
+            )
+        }
+
         let alertBuilder = SingleTokenAlertBuilder()
         let requirementsCondition = walletModel.assetRequirementsManager?.requirementsCondition(for: amountType)
+
         if let fulfillAssetRequirementsAlert = alertBuilder.fulfillAssetRequirementsAlert(
             for: requirementsCondition,
             feeTokenItem: walletModel.feeTokenItem,
             hasFeeCurrency: walletModel.feeCurrencyHasPositiveBalance
         ) {
+            sendAnalytics(isSuccessful: false)
             alert = fulfillAssetRequirementsAlert
+
             return
         }
 
-        Analytics.log(
-            event: .buttonAddTokenTrustline,
-            params: [
-                .token: walletModel.tokenItem.currencySymbol,
-                .blockchain: blockchain.displayName,
-            ]
-        )
-
+        sendAnalytics(isSuccessful: true)
         walletModel
             .fulfillRequirements(signer: userWalletModel.signer)
             .sink()
