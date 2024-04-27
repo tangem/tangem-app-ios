@@ -12,10 +12,6 @@ import Combine
 import BlockchainSdk
 
 protocol SendDestinationViewModelInput {
-    var destinationValid: AnyPublisher<Bool, Never> { get }
-
-    var isValidatingDestination: AnyPublisher<Bool, Never> { get }
-
     var networkName: String { get }
     var blockchainNetwork: BlockchainNetwork { get }
 
@@ -28,12 +24,12 @@ protocol SendDestinationViewModelInput {
     var transactionHistoryPublisher: AnyPublisher<WalletModel.TransactionHistoryState, Never> { get }
 
     func setDestination(_ address: SendAddress)
-    func setDestinationAdditionalField(_ additionalField: String)
-
     func setTransactionParameters(transactionParameters: TransactionParams?)
 }
 
 class SendDestinationViewModel: ObservableObject {
+    var isValidatingDestination: AnyPublisher<Bool, Never> { addressService.validationInProgressPublisher }
+
     var addressViewModel: SendDestinationTextViewModel?
     var additionalFieldViewModel: SendDestinationTextViewModel?
 
@@ -117,7 +113,7 @@ class SendDestinationViewModel: ObservableObject {
         addressViewModel = SendDestinationTextViewModel(
             style: .address(networkName: input.networkName),
             input: destinationTextPublisher.eraseToAnyPublisher(),
-            isValidating: input.isValidatingDestination,
+            isValidating: isValidatingDestination,
             isDisabled: .just(output: false),
             errorText: _destinationError.eraseToAnyPublisher()
         ) { [weak self] in
@@ -206,8 +202,8 @@ class SendDestinationViewModel: ObservableObject {
     }
 
     private func bind() {
-        input
-            .destinationValid
+        validatedDestination
+            .map { $0 != nil }
             .removeDuplicates()
             .sink { [weak self] destinationValid in
                 withAnimation(SendView.Constants.defaultAnimation) {
