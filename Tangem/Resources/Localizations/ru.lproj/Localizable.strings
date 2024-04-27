@@ -232,7 +232,7 @@
 "express_provider_permission_needed" = "Требуется разрешение";
 "express_terms_of_use" = "Условиями использования";
 "express_token_list_empty_search" = "Токены не найдены. Пожалуйста, попробуйте другой запрос";
-"express_transaction_id" = "ID: %s";
+"express_transaction_id" = "ID: %@";
 "express_transaction_id_copied" = "ID транзакции скопирован";
 "feedback_preface_rate_negative" = "Расскажите, каких функций вам не хватает, и мы постараемся вам помочь.";
 "feedback_preface_scan_failed" = "Скажите, пожалуйста, какая у вас карта?";
@@ -507,7 +507,7 @@
 "story_meet_title" = "Встречайте Tangem";
 "story_web3_description" = "Обменивайте, покупайте NFT, получайте займы и делайте вклады в более чем 100 различных децентрализованных сервисах";
 "story_web3_title" = "Поддержка Web 3.0";
-"swapping_alert_cex_description" = "В сумму включено: \n• комиссия провайдера сервиса\n• комиссия сети за отправку %s от биржи обратно на адрес пользователя";
+"swapping_alert_cex_description" = "В сумму включено: \n• комиссия провайдера сервиса\n• комиссия сети за отправку %@ от биржи обратно на адрес пользователя";
 "swapping_alert_dex_description" = "В сумму включена комиссия провайдера сервиса.";
 "swapping_alert_title" = "Комиссии";
 "swapping_approve_information_text" = "Подтверждения считаются отраслевым стандартом для всех децентрализованных бирж и защищают ваш кошелек от доступа со стороны смарт-контракта без вашего разрешения. По замыслу смарт-контракты не могут получить доступ к вашим токенам, если вы не одобрите доступ со своей стороны. «Разблокируя» свои токены, вы даете смарт-контракту 1inch разрешение тратить ваши активы. Майнеры сети получают компенсацию за газ (оплачиваемый вами) за запись этого действия в блокчейне. Как только разрешение будет предоставлено, вы сможете обменять свой токен.";
@@ -535,10 +535,13 @@
 "toast_balances_shown" = "Балансы показаны";
 "toast_undo" = "Отменить";
 "token_button_unavailability_generic_description" = "Выбранная операция в данный момент недоступна. Попробуйте позже.";
-"token_button_unavailability_reason_buy_unavailable" = "В данный момент покупка монеты %@ недоступна. Но мы работаем над её добавлением.";
-"token_button_unavailability_reason_empty_balance" = "У вас нет средств для отправки. Пополните счет, чтобы иметь возможность отправить с него средства.";
-"token_button_unavailability_reason_not_exchangeable" = "Обмен %@ не доступен. Но мы работаем над его добавлением.";
-"token_button_unavailability_reason_sell_unavailable" = "В данный момент продажа монеты %@ недоступна. Но мы работаем над её добавлением.";
+"token_button_unavailability_reason_buy_unavailable" = "В данный момент покупка монеты %@ недоступна. Следите за нашими обновлениями.";
+"token_button_unavailability_reason_empty_balance_sell" = "У вас нет средств для продажи. Пополните счет, чтобы иметь возможность продать с него средства.";
+"token_button_unavailability_reason_empty_balance_send" = "У вас нет средств для отправки. Пополните счет, чтобы иметь возможность отправить с него средства.";
+"token_button_unavailability_reason_not_exchangeable" = "В данный момент обмен монеты %@ недоступен. Следите за нашими обновлениями.";
+"token_button_unavailability_reason_pending_transaction_sell" = "Продажа средств станет доступной после завершения транзакции(-ий) в сети %@";
+"token_button_unavailability_reason_pending_transaction_send" = "Отправка средств станет доступной после завершения транзакции(-ий) в сети %@";
+"token_button_unavailability_reason_sell_unavailable" = "В данный момент продажа %@ недоступна. Следите за нашими обновлениями.";
 "token_details_choose_address" = "Выберите адрес";
 "token_details_hide_alert_hide" = "Скрыть";
 "token_details_hide_alert_message" = "Вы скрываете токен с главного экрана, но в любой момент сможете добавить его обратно через страницу управления токенами.";
@@ -614,7 +617,7 @@
 "wallet_connect_sessions_title" = "Сессии WalletConnect";
 "wallet_connect_subtitle" = "Подключение к dApps";
 "wallet_connect_title" = "WalletConnect";
-"wallet_marketplace_block_title" = "Рыночная цена %s";
+"wallet_marketplace_block_title" = "Рыночная цена %@";
 "wallet_marketprice_block_update_time" = "за 24 часа";
 "wallet_network_group_title" = "Сеть %@";
 "wallet_notification_address_copied" = "Адрес скопирован в буфер обмена";
@@ -670,8 +673,6 @@
 "warning_rent_fee_title" = "Необходима плата за аренду сети";
 "warning_send_blocked_funds_for_fee_message" = "%1$@ - это монета в сети %2$@. Для совершения транзакции %3$@, вам необходимо внести немного %4$@ (%5$@), чтобы покрыть комиссию сети.";
 "warning_send_blocked_funds_for_fee_title" = "Недостаточно %1$@ для оплаты комиссии сети";
-"warning_send_blocked_pending_transactions_in_blockchain_message" = "Отправка средств станет доступной после завершения транзакции(-ий) в сети %@";
-"warning_send_blocked_pending_transactions_message" = "Отправка средств станет доступной после завершения транзакции %@";
 "warning_send_blocked_pending_transactions_title" = "Транзакция в обработке";
 "warning_solana_fee_message" = "Сеть Солана испытывает высокую нагрузку. Если Ваша транзакция не прошла в течение 2 минут, повторите её отправку.";
 "warning_solana_fee_title" = "Оповещение сети Солана";
