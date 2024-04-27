@@ -16,12 +16,6 @@ protocol SendDestinationViewModelInput {
 
     var isValidatingDestination: AnyPublisher<Bool, Never> { get }
 
-    var destinationTextPublisher: AnyPublisher<String, Never> { get }
-    var destinationAdditionalFieldTextPublisher: AnyPublisher<String, Never> { get }
-
-    var destinationError: AnyPublisher<Error?, Never> { get }
-    var destinationAdditionalFieldError: AnyPublisher<Error?, Never> { get }
-
     var networkName: String { get }
     var blockchainNetwork: BlockchainNetwork { get }
 
@@ -41,9 +35,15 @@ class SendDestinationViewModel: ObservableObject {
     var addressViewModel: SendDestinationTextViewModel?
     var additionalFieldViewModel: SendDestinationTextViewModel?
 
+    var isValid: AnyPublisher<Bool, Never> {
+        Publishers.CombineLatest(validatedDestination, _destinationAdditionalFieldError)
+            .map {
+                $0?.value != nil && $1 == nil
+            }
+            .eraseToAnyPublisher()
+    }
+
     @Published var userInputDisabled = false
-    @Published var destinationErrorText: String?
-    @Published var destinationAdditionalFieldErrorText: String?
     @Published var suggestedDestinationViewModel: SendSuggestedDestinationViewModel?
     @Published var animatingAuxiliaryViewsOnAppear: Bool = false
     @Published var showSuggestedDestinations = true
@@ -52,7 +52,17 @@ class SendDestinationViewModel: ObservableObject {
 
     private let input: SendDestinationViewModelInput
     private let transactionHistoryMapper: TransactionHistoryMapper
+    private let destinationValidator: SendDestinationValidator
     private let suggestedWallets: [SendSuggestedDestinationWallet]
+
+    private var destinationTextPublisher = CurrentValueSubject<String, Never>("")
+    private var destinationAdditionalFieldTextPublisher = CurrentValueSubject<String, Never>("")
+
+    private let _destinationError = CurrentValueSubject<Error?, Never>(nil)
+    private let _destinationAdditionalFieldError = CurrentValueSubject<Error?, Never>(nil)
+
+    private let validatedDestination = CurrentValueSubject<SendAddress?, Never>(nil)
+    private var destinationResolutionRequest: Task<Void, Error>?
 
     private var bag: Set<AnyCancellable> = []
 
@@ -62,8 +72,9 @@ class SendDestinationViewModel: ObservableObject {
 
     // MARK: - Methods
 
-    init(input: SendDestinationViewModelInput) {
+    init(input: SendDestinationViewModelInput, addressService: SendAddressService) {
         self.input = input
+        destinationValidator = SendDestinationValidator(addressService: addressService)
 
         transactionHistoryMapper = TransactionHistoryMapper(
             currencySymbol: input.currencySymbol,
@@ -99,24 +110,24 @@ class SendDestinationViewModel: ObservableObject {
 
         addressViewModel = SendDestinationTextViewModel(
             style: .address(networkName: input.networkName),
-            input: input.destinationTextPublisher,
+            input: destinationTextPublisher.eraseToAnyPublisher(),
             isValidating: input.isValidatingDestination,
             isDisabled: .just(output: false),
-            errorText: input.destinationError
+            errorText: _destinationError.eraseToAnyPublisher()
         ) { [weak self] in
-            self?.input.setDestination(SendAddress(value: $0, source: .textField))
+            self?.onDestinationChange(SendAddress(value: $0, source: .textField))
         } didPasteDestination: { [weak self] in
-            self?.input.setDestination(SendAddress(value: $0, source: .pasteButton))
+            self?.onDestinationChange(SendAddress(value: $0, source: .pasteButton))
         }
 
         if let additionalFieldType = input.additionalFieldType,
            let name = additionalFieldType.name {
             additionalFieldViewModel = SendDestinationTextViewModel(
                 style: .additionalField(name: name),
-                input: input.destinationAdditionalFieldTextPublisher,
+                input: destinationAdditionalFieldTextPublisher.eraseToAnyPublisher(),
                 isValidating: .just(output: false),
                 isDisabled: input.additionalFieldEmbeddedInAddress,
-                errorText: input.destinationAdditionalFieldError
+                errorText: _destinationAdditionalFieldError.eraseToAnyPublisher()
             ) { [weak self] in
                 self?.input.setDestinationAdditionalField($0)
             } didPasteDestination: { [weak self] in
@@ -139,23 +150,32 @@ class SendDestinationViewModel: ObservableObject {
         self.userInputDisabled = userInputDisabled
     }
 
+    private func onDestinationChange(_ sendAddress: SendAddress) {
+        destinationResolutionRequest?.cancel()
+
+        validatedDestination.send(nil)
+
+        destinationResolutionRequest = runTask(in: self) { `self` in
+            let result: SendAddress
+            let error: Error?
+            do {
+                result = try await self.destinationValidator.validate(sendAddress)
+                guard !Task.isCancelled else { return }
+
+                error = nil
+            } catch let addressError {
+                result = SendAddress(value: nil, source: sendAddress.source)
+                error = addressError
+            }
+
+            await runOnMain {
+                self.validatedDestination.send(result)
+                self._destinationError.send(error)
+            }
+        }
+    }
+
     private func bind() {
-        input
-            .destinationError
-            .map {
-                $0?.localizedDescription
-            }
-            .assign(to: \.destinationErrorText, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        input
-            .destinationAdditionalFieldError
-            .map {
-                $0?.localizedDescription
-            }
-            .assign(to: \.destinationAdditionalFieldErrorText, on: self, ownership: .weak)
-            .store(in: &bag)
-
         input
             .destinationValid
             .removeDuplicates()
@@ -195,9 +215,10 @@ class SendDestinationViewModel: ObservableObject {
                     let feedbackGenerator = UINotificationFeedbackGenerator()
                     feedbackGenerator.notificationOccurred(.success)
 
-                    self?.input.setDestination(SendAddress(value: destination.address, source: destination.type.source))
+                    // [REDACTED_TODO_COMMENT]
+                    self?.destinationTextPublisher.send(destination.address)
                     if let additionalField = destination.additionalField {
-                        self?.input.setDestinationAdditionalField(additionalField)
+//                        self?.input.setDestinationAdditionalField(additionalField)
                     }
                 }
             }
@@ -217,3 +238,5 @@ private extension SendSuggestedDestination.`Type` {
         }
     }
 }
+
+// [REDACTED_TODO_COMMENT]
