@@ -24,7 +24,6 @@ protocol SendFinishViewModelInput: AnyObject {
 
 class SendFinishViewModel: ObservableObject {
     @Published var showHeader = false
-    @Published var showButtons = false
     @ObservedObject var addressTextViewHeightModel: AddressTextViewHeightModel
 
     let transactionTime: String
@@ -32,8 +31,6 @@ class SendFinishViewModel: ObservableObject {
     let destinationViewTypes: [SendDestinationSummaryViewType]
     let amountSummaryViewData: SendAmountSummaryViewData?
     let feeSummaryViewData: SendFeeSummaryViewModel?
-
-    weak var router: SendFinishRoutable?
 
     private let transactionURL: URL
 
@@ -79,19 +76,6 @@ class SendFinishViewModel: ObservableObject {
 
         withAnimation(SendView.Constants.defaultAnimation) {
             showHeader = true
-            showButtons = true
         }
-    }
-
-    func explore() {
-        Analytics.log(.sendButtonExplore)
-
-        router?.explore(url: transactionURL)
-    }
-
-    func share() {
-        Analytics.log(.sendButtonShare)
-
-        router?.share(url: transactionURL)
     }
 }
