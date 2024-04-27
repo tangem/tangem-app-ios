@@ -49,12 +49,14 @@ struct TangemApiTarget: TargetType {
             return "/private/manual-check/promotion-award"
         case .createAccount:
             return "/user-network-account"
+        case .apiList:
+            return "/networks/providers"
         }
     }
 
     var method: Moya.Method {
         switch type {
-        case .rates, .currencies, .coins, .quotes, .geo, .getUserWalletTokens, .loadReferralProgramInfo, .promotion:
+        case .rates, .currencies, .coins, .quotes, .geo, .getUserWalletTokens, .loadReferralProgramInfo, .promotion, .apiList:
             return .get
         case .saveUserWalletTokens:
             return .put
@@ -127,6 +129,8 @@ struct TangemApiTarget: TargetType {
             ], encoding: URLEncoding.default)
         case .createAccount(let parameters):
             return .requestJSONEncodable(parameters)
+        case .apiList:
+            return .requestPlain
         }
     }
 
@@ -155,6 +159,9 @@ extension TangemApiTarget {
         case awardNewUser(walletId: String, address: String, code: String)
         case awardOldUser(walletId: String, address: String, programName: String)
         case resetAward(cardId: String)
+
+        // Configs
+        case apiList
     }
 
     struct AuthData {
