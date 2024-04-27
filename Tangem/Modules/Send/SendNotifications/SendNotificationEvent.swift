@@ -16,7 +16,7 @@ enum SendNotificationEvent {
     // When fee currency is different
     case feeExceedsBalance(configuration: TransactionSendAvailabilityProvider.SendingRestrictions.NotEnoughFeeConfiguration)
     case feeWillBeSubtractFromSendingAmount
-    case existentialDeposit(amountFormatted: String)
+    case existentialDeposit(amount: Decimal, amountFormatted: String)
     case customFeeTooHigh(orderOfMagnitude: Int)
     case customFeeTooLow
     case minimumAmount(value: String)
@@ -66,7 +66,7 @@ extension SendNotificationEvent: NotificationEvent {
                 configuration.feeAmountTypeName,
                 configuration.feeAmountTypeCurrencySymbol
             )
-        case .existentialDeposit(let amountFormatted):
+        case .existentialDeposit(_, let amountFormatted):
             return Localization.sendNotificationExistentialDepositText(amountFormatted)
         case .customFeeTooHigh(let orderOfMagnitude):
             return Localization.sendNotificationFeeTooHighText(orderOfMagnitude)
@@ -83,10 +83,10 @@ extension SendNotificationEvent: NotificationEvent {
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .networkFeeUnreachable, .totalExceedsBalance, .feeExceedsBalance, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange:
+        case .networkFeeUnreachable, .totalExceedsBalance, .feeExceedsBalance, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange, .existentialDeposit:
             // ♿️ Does it have a button? Use `action`
             return .action
-        case .feeWillBeSubtractFromSendingAmount, .customFeeTooHigh, .customFeeTooLow, .minimumAmount, .existentialDeposit:
+        case .feeWillBeSubtractFromSendingAmount, .customFeeTooHigh, .customFeeTooLow, .minimumAmount:
             return .secondary
         }
     }
@@ -167,11 +167,11 @@ extension SendNotificationEvent {
             return .refreshFee
         case .feeExceedsBalance(let configuration):
             return .openFeeCurrency(currencySymbol: configuration.feeAmountTypeCurrencySymbol)
-        case .withdrawalOptionalAmountChange(let amount, let amountFormatted):
+        case .withdrawalOptionalAmountChange(let amount, let amountFormatted), .existentialDeposit(let amount, let amountFormatted):
             return .reduceAmountBy(amount: amount, amountFormatted: amountFormatted)
         case .withdrawalMandatoryAmountChange(let amount, let amountFormatted, _, _):
             return .reduceAmountTo(amount: amount, amountFormatted: amountFormatted)
-        case .feeWillBeSubtractFromSendingAmount, .totalExceedsBalance, .existentialDeposit, .customFeeTooHigh, .customFeeTooLow, .minimumAmount:
+        case .feeWillBeSubtractFromSendingAmount, .totalExceedsBalance, .customFeeTooHigh, .customFeeTooLow, .minimumAmount:
             return nil
         }
     }
