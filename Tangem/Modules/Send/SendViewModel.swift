@@ -17,11 +17,11 @@ final class SendViewModel: ObservableObject {
     @Published var stepAnimation: SendView.StepAnimation
     @Published var step: SendStep
     @Published var showBackButton = false
+    @Published var showTransactionButtons = false
     @Published var mainButtonType: SendMainButtonType
     @Published var mainButtonLoading: Bool = false
     @Published var mainButtonDisabled: Bool = false
     @Published var updatingFees = false
-    @Published var currentStepInvalid: Bool = false // delete?
     @Published var canDismiss: Bool = false
     @Published var alert: AlertBinder?
 
@@ -69,6 +69,7 @@ final class SendViewModel: ObservableObject {
     private let emailDataProvider: EmailDataProvider
     private let walletInfo: SendWalletInfo
     private let notificationManager: CommonSendNotificationManager
+    private let addressTextViewHeightModel: AddressTextViewHeightModel
     private let customFeeService: CustomFeeService?
     private let fiatCryptoAdapter: CommonSendFiatCryptoAdapter
     private let sendStepParameters: SendStep.Parameters
@@ -208,10 +209,12 @@ final class SendViewModel: ObservableObject {
 
         sendStepParameters = SendStep.Parameters(currencyName: walletModel.tokenItem.name, walletName: walletInfo.walletName)
 
+        let addressTextViewHeightModel = AddressTextViewHeightModel()
+        self.addressTextViewHeightModel = addressTextViewHeightModel
         sendAmountViewModel = SendAmountViewModel(input: sendModel, fiatCryptoAdapter: fiatCryptoAdapter, walletInfo: walletInfo)
-        sendDestinationViewModel = SendDestinationViewModel(input: sendModel, addressService: addressService, walletInfo: walletInfo)
+        sendDestinationViewModel = SendDestinationViewModel(input: sendModel, addressService: addressService, addressTextViewHeightModel: addressTextViewHeightModel, walletInfo: walletInfo)
         sendFeeViewModel = SendFeeViewModel(input: sendModel, notificationManager: notificationManager, customFeeService: customFeeService, walletInfo: walletInfo)
-        sendSummaryViewModel = SendSummaryViewModel(input: sendModel, notificationManager: notificationManager, fiatCryptoValueProvider: fiatCryptoAdapter, walletInfo: walletInfo)
+        sendSummaryViewModel = SendSummaryViewModel(input: sendModel, notificationManager: notificationManager, fiatCryptoValueProvider: fiatCryptoAdapter, addressTextViewHeightModel: addressTextViewHeightModel, walletInfo: walletInfo)
 
         fiatCryptoAdapter.setInput(sendAmountViewModel)
         fiatCryptoAdapter.setOutput(sendModel)
@@ -237,6 +240,12 @@ final class SendViewModel: ObservableObject {
     }
 
     func dismiss() {
+        Analytics.log(.sendButtonClose, params: [
+            .source: step.analyticsSourceParameterValue,
+            .fromSummary: .affirmativeOrNegative(for: didReachSummaryScreen),
+            .valid: .affirmativeOrNegative(for: !mainButtonDisabled),
+        ])
+
         coordinator?.dismiss()
     }
 
@@ -278,6 +287,26 @@ final class SendViewModel: ObservableObject {
         }
 
         openStep(previousStep, stepAnimation: .slideBackward, feeUpdatePolicy: nil)
+    }
+
+    func share() {
+        guard let transactionURL = sendModel.transactionURL else {
+            assertionFailure("WHY")
+            return
+        }
+
+        Analytics.log(.sendButtonShare)
+        coordinator?.openShareSheet(url: transactionURL)
+    }
+
+    func explore() {
+        guard let transactionURL = sendModel.transactionURL else {
+            assertionFailure("WHY")
+            return
+        }
+
+        Analytics.log(.sendButtonExplore)
+        coordinator?.openExplorer(url: transactionURL)
     }
 
     func scanQRCode() {
@@ -475,23 +504,6 @@ final class SendViewModel: ObservableObject {
     }
 
     private func showSummaryStepAlertIfNeeded(_ step: SendStep, stepAnimation: SendView.StepAnimation, checkCustomFee: Bool) -> Bool {
-        if sendModel.shouldSubtractFee {
-            Analytics.log(event: .sendNoticeNotEnoughFee, params: [
-                .token: walletModel.tokenItem.currencySymbol,
-                .blockchain: walletModel.tokenItem.blockchain.displayName,
-            ])
-
-            alert = SendAlertBuilder.makeSubtractFeeFromMaxAmountAlert { [weak self] in
-                guard let self else { return }
-                sendModel.subtractFeeFromMaxAmount()
-                fiatCryptoAdapter.setCrypto(sendModel.userInputAmountValue?.value)
-
-                openStep(step, stepAnimation: stepAnimation, feeUpdatePolicy: nil)
-            }
-
-            return true
-        }
-
         if checkCustomFee {
             let events = notificationManager.notificationInputs.compactMap { $0.settings.event as? SendNotificationEvent }
             for event in events {
@@ -606,6 +618,7 @@ final class SendViewModel: ObservableObject {
 
         DispatchQueue.main.async {
             self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
+            self.showTransactionButtons = step.isFinish
             self.step = step
 
             if feeUpdatePolicy == .updateAfterChangingStep {
@@ -622,12 +635,11 @@ final class SendViewModel: ObservableObject {
     }
 
     private func openFinishPage() {
-        guard let sendFinishViewModel = SendFinishViewModel(input: sendModel, fiatCryptoValueProvider: fiatCryptoAdapter, walletInfo: walletInfo) else {
+        guard let sendFinishViewModel = SendFinishViewModel(input: sendModel, fiatCryptoValueProvider: fiatCryptoAdapter, addressTextViewHeightModel: addressTextViewHeightModel, walletInfo: walletInfo) else {
             assertionFailure("WHY?")
             return
         }
 
-        sendFinishViewModel.router = coordinator
         openStep(.finish(model: sendFinishViewModel), stepAnimation: .moveAndFade, feeUpdatePolicy: nil)
     }
 
@@ -779,9 +791,6 @@ extension SendViewModel: NotificationTapDelegate {
         guard var newAmount = sendModel.validatedAmountValue else { return }
 
         newAmount = newAmount - Amount(with: walletModel.tokenItem.blockchain, type: walletModel.amountType, value: amount)
-        if sendModel.isFeeIncluded, let feeValue = sendModel.feeValue?.amount {
-            newAmount = newAmount + feeValue
-        }
 
         fiatCryptoAdapter.setCrypto(newAmount.value)
     }
@@ -809,12 +818,35 @@ private extension SendStep {
         }
     }
 
+    var isFinish: Bool {
+        if case .finish = self {
+            return true
+        } else {
+            return false
+        }
+    }
+
     var updateFeeOnOpen: Bool {
         switch self {
         case .fee:
             return true
         case .destination, .amount, .summary, .finish:
             return false
+        }
+    }
+
+    var analyticsSourceParameterValue: Analytics.ParameterValue {
+        switch self {
+        case .amount:
+            return .amount
+        case .destination:
+            return .address
+        case .fee:
+            return .fee
+        case .summary:
+            return .summary
+        case .finish:
+            return .finish
         }
     }
 }
