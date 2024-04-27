@@ -27,7 +27,7 @@ struct SendFinishView: View {
                 GroupedSection(viewModel.destinationViewTypes) { type in
                     switch type {
                     case .address(let address, let corners):
-                        SendDestinationAddressSummaryView(address: address)
+                        SendDestinationAddressSummaryView(addressTextViewHeightModel: viewModel.addressTextViewHeightModel, address: address)
                             .setNamespace(namespace)
                             .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)
                             .background(
@@ -133,6 +133,7 @@ struct SendFinishView_Previews: PreviewProvider {
     static var viewModel = SendFinishViewModel(
         input: SendFinishViewModelInputMock(),
         fiatCryptoValueProvider: SendFiatCryptoValueProviderMock(),
+        addressTextViewHeightModel: .init(),
         walletInfo: walletInfo
     )!
 
