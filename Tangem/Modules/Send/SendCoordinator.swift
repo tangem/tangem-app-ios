@@ -84,11 +84,11 @@ extension SendCoordinator: SendRoutable {
         safariManager.openURL(url)
     }
 
-    func explore(url: URL) {
+    func openExplorer(url: URL) {
         safariManager.openURL(url)
     }
 
-    func share(url: URL) {
+    func openShareSheet(url: URL) {
         AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
     }
 
