@@ -171,7 +171,7 @@ class SendDestinationViewModel: ObservableObject {
             let result: SendAddress
             let error: Error?
             do {
-                let validatedAddress = try await addressService.validate(address: sendAddress.value ?? "")
+                let validatedAddress = try await self.addressService.validate(address: sendAddress.value ?? "")
                 result = SendAddress(value: validatedAddress, source: sendAddress.source)
 
                 guard !Task.isCancelled else { return }
