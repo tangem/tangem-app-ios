@@ -24,14 +24,14 @@ use_frameworks!
 inhibit_all_warnings!
 
 def tangem_sdk_pod
-  pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-289'
+  pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-291'
   #pod 'TangemSdk', :path => '../tangem-sdk-ios'
 end
 
 def blockchain_sdk_pods
   # 'TangemWalletCore' dependency must be added via SPM
 
-  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-548.8'
+  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-548.9'
   #pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
 
   pod 'Solana.Swift', :git => 'https://github.com/tangem/Solana.Swift', :tag => '1.2.0-tangem6'
@@ -153,7 +153,7 @@ post_install do |installer|
     "BlockchainSdk",
     "https://github.com/tangem/hedera-sdk-swift.git",
     "Hedera",
-    { :kind => "exactVersion", :version => "0.26.0-tangem2" }
+    { :kind => "exactVersion", :version => "0.26.0-tangem3" }
   )
 
   # `CryptoSwift` SPM package for `BlockchainSdk` pod
