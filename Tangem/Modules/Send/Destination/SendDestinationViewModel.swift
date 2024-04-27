@@ -50,6 +50,7 @@ class SendDestinationViewModel: ObservableObject {
 
     private let input: SendDestinationViewModelInput
     private let walletInfo: SendWalletInfo
+    private let addressTextViewHeightModel: AddressTextViewHeightModel
     private let transactionHistoryMapper: TransactionHistoryMapper
     private let addressService: SendAddressService
     private let destinationValidator: SendDestinationValidator
@@ -72,11 +73,12 @@ class SendDestinationViewModel: ObservableObject {
 
     // MARK: - Methods
 
-    init(input: SendDestinationViewModelInput, addressService: SendAddressService, walletInfo: SendWalletInfo) {
+    init(input: SendDestinationViewModelInput, addressService: SendAddressService, addressTextViewHeightModel: AddressTextViewHeightModel, walletInfo: SendWalletInfo) {
         self.input = input
         self.walletInfo = walletInfo
         self.addressService = addressService
         destinationValidator = SendDestinationValidator(addressService: addressService)
+        self.addressTextViewHeightModel = addressTextViewHeightModel
 
         transactionHistoryMapper = TransactionHistoryMapper(
             currencySymbol: input.currencySymbol,
@@ -115,6 +117,7 @@ class SendDestinationViewModel: ObservableObject {
             input: destinationTextPublisher.eraseToAnyPublisher(),
             isValidating: isValidatingDestination,
             isDisabled: .just(output: false),
+            addressTextViewHeightModel: addressTextViewHeightModel,
             errorText: _destinationError.eraseToAnyPublisher()
         ) { [weak self] in
             self?.setAddress(SendAddress(value: $0, source: .textField))
@@ -129,6 +132,7 @@ class SendDestinationViewModel: ObservableObject {
                 input: destinationAdditionalFieldTextPublisher.eraseToAnyPublisher(),
                 isValidating: .just(output: false),
                 isDisabled: input.additionalFieldEmbeddedInAddress,
+                addressTextViewHeightModel: .init(),
                 errorText: _destinationAdditionalFieldError.eraseToAnyPublisher()
             ) { [weak self] in
 //                self?.input.setDestinationAdditionalField($0)
