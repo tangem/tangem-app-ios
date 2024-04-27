@@ -110,6 +110,8 @@ extension Analytics {
         case address = "Address"
         case amount = "Amount"
         case fee = "Fee"
+        case summary = "Summary"
+        case finish = "Finish"
 
         // MARK: - Actions
 
