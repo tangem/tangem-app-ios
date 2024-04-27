@@ -41,10 +41,6 @@ enum TokenNotificationEvent: Hashable {
         for reason: TransactionSendAvailabilityProvider.SendingRestrictions,
         isFeeCurrencyPurchaseAllowed: Bool
     ) -> TokenNotificationEvent? {
-        guard let message = reason.description else {
-            return nil
-        }
-
         switch reason {
         case .zeroWalletBalance, .hasPendingTransaction, .blockchainUnreachable, .cantSignLongTransactions:
             return nil
