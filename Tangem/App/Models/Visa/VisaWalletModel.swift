@@ -165,7 +165,7 @@ class VisaWalletModel {
         let smartContractInteractor: EVMSmartContractInteractor
         do {
             let factory = EVMSmartContractInteractorFactory(config: keysManager.blockchainConfig)
-            smartContractInteractor = try factory.makeInteractor(for: tokenItem.blockchain)
+            smartContractInteractor = try factory.makeInteractor(for: tokenItem.blockchain, apiInfo: [])
         } catch {
             stateSubject.send(.failedToInitialize(.invalidBlockchain))
             return
