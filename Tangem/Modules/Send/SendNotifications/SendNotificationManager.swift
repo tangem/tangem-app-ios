@@ -226,7 +226,7 @@ class CommonSendNotificationManager: SendNotificationManager {
         case .feeExceedsBalance:
             return .feeExceedsBalance(configuration: notEnoughFeeConfiguration)
         case .minimumBalance(let minimumBalance):
-            return .existentialDeposit(amountFormatted: minimumBalance.string())
+            return .existentialDeposit(amount: minimumBalance.value, amountFormatted: minimumBalance.string())
         case .maximumUTXO(let blockchainName, let newAmount, let maxUtxos):
             return SendNotificationEvent.withdrawalMandatoryAmountChange(
                 amount: newAmount.value,
