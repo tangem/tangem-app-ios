@@ -140,6 +140,7 @@ class SendModel {
 
         bind()
 
+        // [REDACTED_TODO_COMMENT]
         if let amount = sendType.predefinedAmount {
             setAmount(amount)
         }
