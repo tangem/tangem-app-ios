@@ -26,7 +26,6 @@ struct SendDestinationView: View {
                         .setTextNamespaceId(SendViewNamespaceId.addressText.rawValue)
                         .setClearButtonNamespaceId(SendViewNamespaceId.addressClearButton.rawValue)
                         .disabled(viewModel.userInputDisabled)
-                        .padding(.vertical, 2)
                         .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)
                         .background(
                             Colors.Background.action
@@ -92,6 +91,6 @@ struct SendDestinationView: View {
 //    [REDACTED_USERNAME] static var namespace
 //
 //    static var previews: some View {
-//        SendDestinationView(namespace: namespace, viewModel: SendDestinationViewModel(input: SendDestinationViewModelInputMock()), bottomSpacing: 150)
+//        SendDestinationView(namespace: namespace, viewModel: SendDestinationViewModel(input: SendDestinationViewModelInputMock(), addressTextViewHeightModel: .init()), bottomSpacing: 150)
 //    }
 // }
