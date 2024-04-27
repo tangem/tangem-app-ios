@@ -74,5 +74,8 @@ extension Analytics {
         case result = "Result"
         case input = "Input"
         case passphrase = "Passphrase"
+
+        case fromSummary = "From Summary"
+        case valid = "Valid"
     }
 }
