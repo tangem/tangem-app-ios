@@ -29,6 +29,8 @@ protocol SendDestinationViewModelInput {
 
     func setDestination(_ address: SendAddress)
     func setDestinationAdditionalField(_ additionalField: String)
+
+    func setTransactionParameters(transactionParameters: TransactionParams?)
 }
 
 class SendDestinationViewModel: ObservableObject {
@@ -51,7 +53,9 @@ class SendDestinationViewModel: ObservableObject {
     var didProperlyDisappear: Bool = false
 
     private let input: SendDestinationViewModelInput
+    private let walletInfo: SendWalletInfo
     private let transactionHistoryMapper: TransactionHistoryMapper
+    private let addressService: SendAddressService
     private let destinationValidator: SendDestinationValidator
     private let suggestedWallets: [SendSuggestedDestinationWallet]
 
@@ -72,8 +76,10 @@ class SendDestinationViewModel: ObservableObject {
 
     // MARK: - Methods
 
-    init(input: SendDestinationViewModelInput, addressService: SendAddressService) {
+    init(input: SendDestinationViewModelInput, addressService: SendAddressService, walletInfo: SendWalletInfo) {
         self.input = input
+        self.walletInfo = walletInfo
+        self.addressService = addressService
         destinationValidator = SendDestinationValidator(addressService: addressService)
 
         transactionHistoryMapper = TransactionHistoryMapper(
@@ -129,9 +135,11 @@ class SendDestinationViewModel: ObservableObject {
                 isDisabled: input.additionalFieldEmbeddedInAddress,
                 errorText: _destinationAdditionalFieldError.eraseToAnyPublisher()
             ) { [weak self] in
-                self?.input.setDestinationAdditionalField($0)
+//                self?.input.setDestinationAdditionalField($0)
+                self?.setAdditionalField($0)
             } didPasteDestination: { [weak self] in
-                self?.input.setDestinationAdditionalField($0)
+//                self?.input.setDestinationAdditionalField($0)
+                self?.setAdditionalField($0)
             }
         }
 
@@ -163,7 +171,9 @@ class SendDestinationViewModel: ObservableObject {
             let result: SendAddress
             let error: Error?
             do {
-                result = try await self.destinationValidator.validate(sendAddress)
+                let validatedAddress = try await addressService.validate(address: sendAddress.value ?? "")
+                result = SendAddress(value: validatedAddress, source: sendAddress.source)
+
                 guard !Task.isCancelled else { return }
 
                 error = nil
@@ -177,6 +187,22 @@ class SendDestinationViewModel: ObservableObject {
                 self._destinationError.send(error)
             }
         }
+    }
+
+    func setAdditionalField(_ additionalField: String) {
+        let error: Error?
+        let transactionParameters: TransactionParams?
+        do {
+            let parametersBuilder = SendTransactionParametersBuilder(blockchain: walletInfo.blockchain)
+            transactionParameters = try parametersBuilder.transactionParameters(from: additionalField)
+            error = nil
+        } catch let transactionParameterError {
+            transactionParameters = nil
+            error = transactionParameterError
+        }
+
+        input.setTransactionParameters(transactionParameters: transactionParameters)
+        _destinationAdditionalFieldError.send(error)
     }
 
     private func bind() {
@@ -222,7 +248,7 @@ class SendDestinationViewModel: ObservableObject {
                     // [REDACTED_TODO_COMMENT]
                     self?.setAddress(SendAddress(value: destination.address, source: destination.type.source))
                     if let additionalField = destination.additionalField {
-//                        self?.input.setDestinationAdditionalField(additionalField)
+                        self?.setAdditionalField(additionalField)
                     }
                 }
             }
