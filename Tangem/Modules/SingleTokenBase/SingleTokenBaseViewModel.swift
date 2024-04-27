@@ -459,12 +459,11 @@ extension SingleTokenBaseViewModel {
         }
 
         let alertBuilder = SingleTokenAlertBuilder()
-        if !exchangeUtility.sellAvailable {
-            alert = alertBuilder.sellUnavailableAlert(for: walletModel.tokenItem)
-            return
-        }
-
-        if let sendAlert = alertBuilder.sendAlert(for: walletModel.sendingRestrictions) {
+        if let sendAlert = alertBuilder.sellAlert(
+            for: walletModel.tokenItem,
+            sellAvailable: exchangeUtility.sellAvailable,
+            sendingRestrictions: walletModel.sendingRestrictions
+        ) {
             alert = sendAlert
             return
         }
