@@ -115,9 +115,9 @@ class SendDestinationViewModel: ObservableObject {
             isDisabled: .just(output: false),
             errorText: _destinationError.eraseToAnyPublisher()
         ) { [weak self] in
-            self?.onDestinationChange(SendAddress(value: $0, source: .textField))
+            self?.setAddress(SendAddress(value: $0, source: .textField))
         } didPasteDestination: { [weak self] in
-            self?.onDestinationChange(SendAddress(value: $0, source: .pasteButton))
+            self?.setAddress(SendAddress(value: $0, source: .pasteButton))
         }
 
         if let additionalFieldType = input.additionalFieldType,
@@ -150,7 +150,11 @@ class SendDestinationViewModel: ObservableObject {
         self.userInputDisabled = userInputDisabled
     }
 
-    private func onDestinationChange(_ sendAddress: SendAddress) {
+    func setAddress(_ sendAddress: SendAddress) {
+        guard destinationTextPublisher.value != sendAddress.value else { return }
+
+        destinationTextPublisher.send(sendAddress.value ?? "")
+
         destinationResolutionRequest?.cancel()
 
         validatedDestination.send(nil)
@@ -216,7 +220,7 @@ class SendDestinationViewModel: ObservableObject {
                     feedbackGenerator.notificationOccurred(.success)
 
                     // [REDACTED_TODO_COMMENT]
-                    self?.destinationTextPublisher.send(destination.address)
+                    self?.setAddress(SendAddress(value: destination.address, source: destination.type.source))
                     if let additionalField = destination.additionalField {
 //                        self?.input.setDestinationAdditionalField(additionalField)
                     }
