@@ -505,6 +505,10 @@ class SendModel {
         }
     }
 
+    func setTransactionParameters(transactionParameters: TransactionParams?) {
+        self.transactionParameters = transactionParameters
+    }
+
     private func validateDestinationAdditionalField() {
         let error: Error?
         let transactionParameters: TransactionParams?
