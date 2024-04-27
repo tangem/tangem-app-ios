@@ -209,7 +209,7 @@ final class SendViewModel: ObservableObject {
         sendStepParameters = SendStep.Parameters(currencyName: walletModel.tokenItem.name, walletName: walletInfo.walletName)
 
         sendAmountViewModel = SendAmountViewModel(input: sendModel, fiatCryptoAdapter: fiatCryptoAdapter, walletInfo: walletInfo)
-        sendDestinationViewModel = SendDestinationViewModel(input: sendModel, addressService: addressService)
+        sendDestinationViewModel = SendDestinationViewModel(input: sendModel, addressService: addressService, walletInfo: walletInfo)
         sendFeeViewModel = SendFeeViewModel(input: sendModel, notificationManager: notificationManager, customFeeService: customFeeService, walletInfo: walletInfo)
         sendSummaryViewModel = SendSummaryViewModel(input: sendModel, notificationManager: notificationManager, fiatCryptoValueProvider: fiatCryptoAdapter, walletInfo: walletInfo)
 
@@ -649,7 +649,8 @@ final class SendViewModel: ObservableObject {
 
         if let memo = result.memo {
             // [REDACTED_TODO_COMMENT]
-            sendModel.setDestinationAdditionalField(memo)
+//            sendModel.setDestinationAdditionalField(memo)
+            sendDestinationViewModel.setAdditionalField(memo)
         }
     }
 
