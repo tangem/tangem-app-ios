@@ -226,6 +226,17 @@ class SendDestinationViewModel: ObservableObject {
     }
 }
 
+extension SendDestinationViewModel: SendStepSaveable {
+    func save() {
+        guard
+            let destination = validatedDestination.value
+        else {
+            return
+        }
+        input.setDestination(destination)
+    }
+}
+
 extension SendDestinationViewModel: AuxiliaryViewAnimatable {}
 
 private extension SendSuggestedDestination.`Type` {
