@@ -18,7 +18,6 @@ protocol AmountErrorProvider: AnyObject {
 }
 
 protocol SendAmountViewModelInput {
-    func didChangeFeeInclusion(_ isFeeIncluded: Bool)
     func setAmount(_ amount: Amount?)
 }
 
