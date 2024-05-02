@@ -16,6 +16,8 @@ struct SendWalletInfo {
     let balance: String
     let blockchain: Blockchain
     let currencyId: String?
+    let amountType: Amount.AmountType
+    let decimalCount: Int
     let feeCurrencySymbol: String
     let feeCurrencyId: String?
     let isFeeApproximate: Bool
