@@ -13,6 +13,7 @@ protocol SendNotificationManagerInput {
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
     var selectedFeeOptionPublisher: AnyPublisher<FeeOption, Never> { get }
     var customFeePublisher: AnyPublisher<Fee?, Never> { get }
+    var isFeeIncludedPublisher: AnyPublisher<Bool, Never> { get }
     var withdrawalSuggestion: AnyPublisher<WithdrawalSuggestion?, Never> { get }
     var amountError: AnyPublisher<Error?, Never> { get }
     var transactionCreationError: AnyPublisher<Error?, Never> { get }
@@ -154,6 +155,13 @@ class CommonSendNotificationManager: SendNotificationManager {
             }
             .store(in: &bag)
 
+        input
+            .isFeeIncludedPublisher
+            .sink { [weak self] isFeeIncluded in
+                self?.updateEventVisibility(isFeeIncluded, event: .feeWillBeSubtractFromSendingAmount)
+            }
+            .store(in: &bag)
+
         Publishers.CombineLatest(
             input.amountError.compactMap { [$0].compactMap { $0 } },
             input.transactionCreationError.compactMap { [$0].compactMap { $0 } }
@@ -214,11 +222,11 @@ class CommonSendNotificationManager: SendNotificationManager {
         case .dustAmount(let minimumAmount), .dustChange(let minimumAmount):
             return SendNotificationEvent.minimumAmount(value: minimumAmount.string())
         case .totalExceedsBalance, .amountExceedsBalance:
-            return .totalExceedsBalance(configuration: notEnoughFeeConfiguration)
+            return .totalExceedsBalance
         case .feeExceedsBalance:
             return .feeExceedsBalance(configuration: notEnoughFeeConfiguration)
         case .minimumBalance(let minimumBalance):
-            return .existentialDeposit(amountFormatted: minimumBalance.string())
+            return .existentialDeposit(amount: minimumBalance.value, amountFormatted: minimumBalance.string())
         case .maximumUTXO(let blockchainName, let newAmount, let maxUtxos):
             return SendNotificationEvent.withdrawalMandatoryAmountChange(
                 amount: newAmount.value,
