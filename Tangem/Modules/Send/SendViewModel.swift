@@ -224,6 +224,7 @@ final class SendViewModel: ObservableObject {
         sendFeeViewModel.router = coordinator
         sendSummaryViewModel.router = self
 
+        notificationManager.setAmountErrorProvider(sendAmountViewModel)
         notificationManager.setupManager(with: self)
 
         updateTransactionHistoryIfNeeded()
