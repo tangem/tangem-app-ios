@@ -357,6 +357,7 @@ class SendModel {
     // MARK: - Amount
 
     func setAmount(_ amount: Amount?) {
+        print("ZZZ [send model] amount", amount?.value)
         validatedAmount.send(amount)
     }
 
