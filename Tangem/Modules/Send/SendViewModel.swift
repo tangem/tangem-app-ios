@@ -264,6 +264,8 @@ final class SendViewModel: ObservableObject {
                 return
             }
 
+            saveCurrentStep()
+
             logNextStepAnalytics()
 
             let openingSummary = (nextStep == .summary)
@@ -274,6 +276,8 @@ final class SendViewModel: ObservableObject {
         case .continue:
             let nextStep = SendStep.summary
             let feeUpdatePolicy = FeeUpdatePolicy.fromTransition(currentStep: step, nextStep: nextStep)
+
+            saveCurrentStep()
             openStep(nextStep, stepAnimation: .moveAndFade, feeUpdatePolicy: feeUpdatePolicy)
         case .send:
             send()
@@ -381,19 +385,20 @@ final class SendViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        sendModel
-            .destinationPublisher
-            .sink { [weak self] destination in
-                guard let self else { return }
-
-                switch destination?.source {
-                case .myWallet, .recentAddress:
-                    next()
-                default:
-                    break
-                }
-            }
-            .store(in: &bag)
+        // [REDACTED_TODO_COMMENT]
+//        sendModel
+//            .destinationPublisher
+//            .sink { [weak self] destination in
+//                guard let self else { return }
+//
+//                switch destination?.source {
+//                case .myWallet, .recentAddress:
+//                    next()
+//                default:
+//                    break
+//                }
+//            }
+//            .store(in: &bag)
 
         sendModel
             .sendError
@@ -615,8 +620,6 @@ final class SendViewModel: ObservableObject {
         self.stepAnimation = stepAnimation
 
         mainButtonType = Self.mainButtonType(for: step, didReachSummaryScreen: didReachSummaryScreen)
-
-        saveCurrentStep()
 
         DispatchQueue.main.async {
             self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
