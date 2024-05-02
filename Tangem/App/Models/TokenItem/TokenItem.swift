@@ -122,13 +122,11 @@ enum TokenItem: Hashable, Codable {
         }
     }
 
-    // We can't sign transactions at legacy devices for this blockchains
-    var hasLongTransactions: Bool {
+    // We can't sign hashes on firmware prior 4.52
+    var hasLongHashes: Bool {
         switch blockchain {
         case .solana:
             return isToken ? true : false
-        case .chia:
-            return true
         default:
             return false
         }
