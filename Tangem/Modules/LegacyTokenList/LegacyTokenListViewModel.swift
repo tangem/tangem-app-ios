@@ -213,7 +213,7 @@ private extension LegacyTokenListViewModel {
         }
 
         if selected {
-            if tokenItem.hasLongTransactions,
+            if tokenItem.hasLongHashes,
                !settings.longHashesSupported {
                 displayAlertAndUpdateSelection(
                     for: tokenItem,
