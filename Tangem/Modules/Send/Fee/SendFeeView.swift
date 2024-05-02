@@ -112,6 +112,8 @@ struct SendFeeView_Previews: PreviewProvider {
         balance: "12013",
         blockchain: .ethereum(testnet: false),
         currencyId: "tether",
+        amountType: .coin,
+        decimalCount: 6,
         feeCurrencySymbol: "ETH",
         feeCurrencyId: "ethereum",
         isFeeApproximate: false,

@@ -15,7 +15,7 @@ protocol SendNotificationManagerInput {
     var customFeePublisher: AnyPublisher<Fee?, Never> { get }
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> { get }
     var withdrawalSuggestion: AnyPublisher<WithdrawalSuggestion?, Never> { get }
-    var amountError: AnyPublisher<Error?, Never> { get }
+//    var amountError: AnyPublisher<Error?, Never> { get } // ❌
     var transactionCreationError: AnyPublisher<Error?, Never> { get }
 }
 
@@ -162,19 +162,20 @@ class CommonSendNotificationManager: SendNotificationManager {
             }
             .store(in: &bag)
 
-        Publishers.CombineLatest(
-            input.amountError.compactMap { [$0].compactMap { $0 } },
-            input.transactionCreationError.compactMap { [$0].compactMap { $0 } }
-        )
-        .map {
-            $0.0 + $0.1
-        }
-        .withWeakCaptureOf(self)
-        .map { (self, errors) -> [NotificationViewInput] in
-            self.notificationInputs(from: errors.first)
-        }
-        .assign(to: \.value, on: validationErrorInputsSubject, ownership: .weak)
-        .store(in: &bag)
+        // [REDACTED_TODO_COMMENT]
+//        Publishers.CombineLatest(
+//            input.amountError.compactMap { [$0].compactMap { $0 } },
+//            input.transactionCreationError.compactMap { [$0].compactMap { $0 } }
+//        )
+//        .map {
+//            $0.0 + $0.1
+//        }
+//        .withWeakCaptureOf(self)
+//        .map { (self, errors) -> [NotificationViewInput] in
+//            self.notificationInputs(from: errors.first)
+//        }
+//        .assign(to: \.value, on: validationErrorInputsSubject, ownership: .weak)
+//        .store(in: &bag)
     }
 
     private func notificationInputs(from error: Error?) -> [NotificationViewInput] {
