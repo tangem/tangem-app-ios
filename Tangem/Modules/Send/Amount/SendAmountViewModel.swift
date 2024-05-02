@@ -206,6 +206,7 @@ extension SendAmountViewModel: SendFiatCryptoAdapterOutput {
 
         guard userInputAmount.value != newAmount else { return }
 
+        print("ZZZ [amount] vm changed", amount?.value)
         userInputAmount.send(newAmount)
     }
 
