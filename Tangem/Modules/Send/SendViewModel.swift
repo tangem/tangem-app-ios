@@ -93,7 +93,7 @@ final class SendViewModel: ObservableObject {
 
                 switch step {
                 case .amount:
-                    return sendModel.amountValid
+                    return sendAmountViewModel.isValid
                 case .destination:
                     return sendDestinationViewModel.isValid
                 case .fee:
@@ -171,6 +171,8 @@ final class SendViewModel: ObservableObject {
             balance: Localization.sendWalletBalanceFormat(walletModel.balance, walletModel.fiatBalance),
             blockchain: walletModel.blockchainNetwork.blockchain,
             currencyId: walletModel.tokenItem.currencyId,
+            amountType: walletModel.amountType,
+            decimalCount: walletModel.decimalCount,
             feeCurrencySymbol: walletModel.feeTokenItem.currencySymbol,
             feeCurrencyId: walletModel.feeTokenItem.currencyId,
             isFeeApproximate: walletModel.tokenItem.blockchain.isFeeApproximate(for: walletModel.amountType),
@@ -211,13 +213,13 @@ final class SendViewModel: ObservableObject {
 
         let addressTextViewHeightModel = AddressTextViewHeightModel()
         self.addressTextViewHeightModel = addressTextViewHeightModel
-        sendAmountViewModel = SendAmountViewModel(input: sendModel, fiatCryptoAdapter: fiatCryptoAdapter, walletInfo: walletInfo)
+        sendAmountViewModel = SendAmountViewModel(input: sendModel, transactionValidator: walletModel.transactionValidator, fiatCryptoAdapter: fiatCryptoAdapter, walletInfo: walletInfo)
         sendDestinationViewModel = SendDestinationViewModel(input: sendModel, addressService: addressService, addressTextViewHeightModel: addressTextViewHeightModel, walletInfo: walletInfo)
         sendFeeViewModel = SendFeeViewModel(input: sendModel, notificationManager: notificationManager, customFeeService: customFeeService, walletInfo: walletInfo)
         sendSummaryViewModel = SendSummaryViewModel(input: sendModel, notificationManager: notificationManager, fiatCryptoValueProvider: fiatCryptoAdapter, addressTextViewHeightModel: addressTextViewHeightModel, walletInfo: walletInfo)
 
         fiatCryptoAdapter.setInput(sendAmountViewModel)
-        fiatCryptoAdapter.setOutput(sendModel)
+        fiatCryptoAdapter.setOutput(sendAmountViewModel)
 
         sendFeeViewModel.router = coordinator
         sendSummaryViewModel.router = self
@@ -760,7 +762,7 @@ extension SendViewModel: SendSummaryRoutable {
         case .fee:
             return sendFeeViewModel
         case .summary:
-            return nil
+            return sendSummaryViewModel
         case .finish:
             return nil
         }
