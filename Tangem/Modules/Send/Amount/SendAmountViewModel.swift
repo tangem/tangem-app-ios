@@ -13,6 +13,10 @@ import BlockchainSdk
 
 #warning("[REDACTED_TODO_COMMENT]")
 
+protocol AmountErrorProvider: AnyObject {
+    var amountError: AnyPublisher<Error?, Never> { get }
+}
+
 protocol SendAmountViewModelInput {
     func didChangeFeeInclusion(_ isFeeIncluded: Bool)
     func setAmount(_ amount: Amount?)
@@ -228,6 +232,12 @@ extension SendAmountViewModel: SendStepSaveable {
 }
 
 extension SendAmountViewModel: AuxiliaryViewAnimatable {}
+
+extension SendAmountViewModel: AmountErrorProvider {
+    var amountError: AnyPublisher<Error?, Never> {
+        _amountError.eraseToAnyPublisher()
+    }
+}
 
 extension SendAmountViewModel: SendFiatCryptoAdapterInput {
     var amountPublisher: AnyPublisher<Decimal?, Never> {
