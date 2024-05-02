@@ -13,14 +13,6 @@ import BigInt
 import BlockchainSdk
 
 class SendModel {
-    var amountValid: AnyPublisher<Bool, Never> {
-        validatedAmount
-            .map {
-                $0 != nil
-            }
-            .eraseToAnyPublisher()
-    }
-
     var destinationValid: AnyPublisher<Bool, Never> {
         Publishers.CombineLatest(validatedDestination, destinationAdditionalFieldError)
             .map {
@@ -75,7 +67,6 @@ class SendModel {
 
     // MARK: - Raw data
 
-    private var userInputAmount = CurrentValueSubject<Amount?, Never>(nil)
     private var userInputDestination = CurrentValueSubject<SendAddress, Never>(SendAddress(value: "", source: .textField))
     private var _destinationAdditionalFieldText = CurrentValueSubject<String, Never>("")
     private var _additionalFieldEmbeddedInAddress = CurrentValueSubject<Bool, Never>(false)
@@ -93,7 +84,6 @@ class SendModel {
 
     // MARK: - Errors (raw implementation)
 
-    private let _amountError = CurrentValueSubject<Error?, Never>(nil)
     private let _destinationError = CurrentValueSubject<Error?, Never>(nil)
     private let _destinationAdditionalFieldError = CurrentValueSubject<Error?, Never>(nil)
     private let _feeError = CurrentValueSubject<Error?, Never>(nil)
@@ -218,15 +208,6 @@ class SendModel {
             .removeDuplicates()
             .sink { [weak self] _ in
                 self?.validateDestinationAdditionalField()
-            }
-            .store(in: &bag)
-
-        userInputAmount
-            .removeDuplicates {
-                $0 == $1
-            }
-            .sink { [weak self] amount in
-                self?.updateAndValidateAmount(amount)
             }
             .store(in: &bag)
 
@@ -376,11 +357,7 @@ class SendModel {
     // MARK: - Amount
 
     func setAmount(_ amount: Amount?) {
-        let newAmount: Amount? = (amount?.isZero ?? true) ? nil : amount
-
-        guard userInputAmount.value != newAmount else { return }
-
-        userInputAmount.send(newAmount)
+        validatedAmount.send(amount)
     }
 
     /// Convenience method
@@ -393,31 +370,6 @@ class SendModel {
             amount = nil
         }
         setAmount(amount)
-    }
-
-    private func updateAndValidateAmount(_ newAmount: Amount?) {
-        let validatedAmount: Amount?
-        let amountError: Error?
-
-        if let newAmount {
-            do {
-                let amount: Amount
-                amount = newAmount
-                try walletModel.transactionValidator.validate(amount: amount)
-
-                validatedAmount = amount
-                amountError = nil
-            } catch let validationError {
-                validatedAmount = nil
-                amountError = validationError
-            }
-        } else {
-            validatedAmount = nil
-            amountError = nil
-        }
-
-        self.validatedAmount.send(validatedAmount)
-        _amountError.send(amountError)
     }
 
     private func validateFee(_ fee: Fee?) {
@@ -556,9 +508,7 @@ class SendModel {
 
 // MARK: - Subview model inputs
 
-extension SendModel: SendAmountViewModelInput {
-    var amountError: AnyPublisher<Error?, Never> { _amountError.eraseToAnyPublisher() }
-}
+extension SendModel: SendAmountViewModelInput {}
 
 extension SendModel: SendDestinationViewModelInput {
     var isValidatingDestination: AnyPublisher<Bool, Never> { addressService.validationInProgressPublisher }
@@ -688,10 +638,6 @@ extension SendModel: SendSummaryViewModelInput {
 }
 
 extension SendModel: SendFinishViewModelInput {
-    var userInputAmountValue: Amount? {
-        userInputAmount.value
-    }
-
     var destinationText: String? {
         validatedDestination.value?.value
     }

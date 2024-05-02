@@ -14,10 +14,8 @@ import BlockchainSdk
 #warning("[REDACTED_TODO_COMMENT]")
 
 protocol SendAmountViewModelInput {
-    var userInputAmountValue: Amount? { get }
-    var amountError: AnyPublisher<Error?, Never> { get }
-
     func didChangeFeeInclusion(_ isFeeIncluded: Bool)
+    func setAmount(_ amount: Amount?)
 }
 
 class SendAmountViewModel: ObservableObject, Identifiable {
@@ -43,18 +41,33 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         useFiatCalculation ? fiatFieldOptions : cryptoFieldOptions
     }
 
+    var isValid: AnyPublisher<Bool, Never> {
+        validatedAmount
+            .map {
+                $0 != nil
+            }
+            .eraseToAnyPublisher()
+    }
+
     var didProperlyDisappear = false
 
+    private weak var transactionValidator: TransactionValidator?
     private weak var fiatCryptoAdapter: SendFiatCryptoAdapter?
 
     private let input: SendAmountViewModelInput
+    private let walletInfo: SendWalletInfo
     private let cryptoFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions
     private let fiatFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions
+    private let validatedAmount = CurrentValueSubject<Amount?, Never>(nil)
+    private let _amountError = CurrentValueSubject<Error?, Never>(nil)
+    private var userInputAmount = CurrentValueSubject<Amount?, Never>(nil)
     private let balanceValue: Decimal?
     private var bag: Set<AnyCancellable> = []
 
-    init(input: SendAmountViewModelInput, fiatCryptoAdapter: SendFiatCryptoAdapter, walletInfo: SendWalletInfo) {
+    init(input: SendAmountViewModelInput, transactionValidator: TransactionValidator, fiatCryptoAdapter: SendFiatCryptoAdapter, walletInfo: SendWalletInfo) {
         self.input = input
+        self.walletInfo = walletInfo
+        self.transactionValidator = transactionValidator
         self.fiatCryptoAdapter = fiatCryptoAdapter
         balanceValue = walletInfo.balanceValue
         walletName = walletInfo.walletName
@@ -84,7 +97,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     }
 
     func onAppear() {
-        fiatCryptoAdapter?.setCrypto(input.userInputAmountValue?.value)
+        fiatCryptoAdapter?.setCrypto(userInputAmount.value?.value)
 
         if animatingAuxiliaryViewsOnAppear {
             Analytics.log(.sendScreenReopened, params: [.source: .amount])
@@ -112,8 +125,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     }
 
     private func bind(from input: SendAmountViewModelInput) {
-        input
-            .amountError
+        _amountError
             .map { $0?.localizedDescription }
             .assign(to: \.error, on: self, ownership: .weak)
             .store(in: &bag)
@@ -141,6 +153,40 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             .formattedAmountAlternativePublisher
             .assign(to: \.amountAlternative, on: self, ownership: .weak)
             .store(in: &bag)
+
+        userInputAmount
+            .removeDuplicates {
+                $0 == $1
+            }
+            .sink { [weak self] amount in
+                self?.updateAndValidateAmount(amount)
+            }
+            .store(in: &bag)
+    }
+
+    private func updateAndValidateAmount(_ newAmount: Amount?) {
+        let validatedAmount: Amount?
+        let amountError: Error?
+
+        if let newAmount {
+            do {
+                let amount: Amount
+                amount = newAmount
+                try transactionValidator?.validate(amount: amount)
+
+                validatedAmount = amount
+                amountError = nil
+            } catch let validationError {
+                validatedAmount = nil
+                amountError = validationError
+            }
+        } else {
+            validatedAmount = nil
+            amountError = nil
+        }
+
+        self.validatedAmount.send(validatedAmount)
+        _amountError.send(amountError)
     }
 
     private func provideButtonHapticFeedback() {
@@ -151,6 +197,32 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private func provideSelectionHapticFeedback() {
         let generator = UISelectionFeedbackGenerator()
         generator.selectionChanged()
+    }
+}
+
+extension SendAmountViewModel: SendFiatCryptoAdapterOutput {
+    func setAmount(_ amount: Amount?) {
+        let newAmount: Amount? = (amount?.isZero ?? true) ? nil : amount
+
+        guard userInputAmount.value != newAmount else { return }
+
+        userInputAmount.send(newAmount)
+    }
+
+    func setAmount(_ decimal: Decimal?) {
+        let amount: Amount?
+        if let decimal {
+            amount = Amount(type: walletInfo.amountType, currencySymbol: walletInfo.cryptoCurrencyCode, value: decimal, decimals: walletInfo.decimalCount)
+        } else {
+            amount = nil
+        }
+        setAmount(amount)
+    }
+}
+
+extension SendAmountViewModel: SendStepSaveable {
+    func save() {
+        input.setAmount(validatedAmount.value)
     }
 }
 
