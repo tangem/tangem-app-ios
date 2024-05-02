@@ -44,6 +44,7 @@ class CommonSendNotificationManager: SendNotificationManager {
     }
 
     private weak var delegate: NotificationTapDelegate?
+    private weak var amountErrorProvider: AmountErrorProvider?
 
     init(tokenItem: TokenItem, feeTokenItem: TokenItem, input: SendNotificationManagerInput) {
         self.tokenItem = tokenItem
@@ -79,6 +80,11 @@ class CommonSendNotificationManager: SendNotificationManager {
     }
 
     private func bind() {
+        guard let amountErrorProvider else {
+            assertionFailure("You must set amount error provider")
+            return
+        }
+
         input
             .feeValues
             .map {
@@ -162,20 +168,19 @@ class CommonSendNotificationManager: SendNotificationManager {
             }
             .store(in: &bag)
 
-        // [REDACTED_TODO_COMMENT]
-//        Publishers.CombineLatest(
-//            input.amountError.compactMap { [$0].compactMap { $0 } },
-//            input.transactionCreationError.compactMap { [$0].compactMap { $0 } }
-//        )
-//        .map {
-//            $0.0 + $0.1
-//        }
-//        .withWeakCaptureOf(self)
-//        .map { (self, errors) -> [NotificationViewInput] in
-//            self.notificationInputs(from: errors.first)
-//        }
-//        .assign(to: \.value, on: validationErrorInputsSubject, ownership: .weak)
-//        .store(in: &bag)
+        Publishers.CombineLatest(
+            amountErrorProvider.amountError.compactMap { [$0].compactMap { $0 } },
+            input.transactionCreationError.compactMap { [$0].compactMap { $0 } }
+        )
+        .map {
+            $0.0 + $0.1
+        }
+        .withWeakCaptureOf(self)
+        .map { (self, errors) -> [NotificationViewInput] in
+            self.notificationInputs(from: errors.first)
+        }
+        .assign(to: \.value, on: validationErrorInputsSubject, ownership: .weak)
+        .store(in: &bag)
     }
 
     private func notificationInputs(from error: Error?) -> [NotificationViewInput] {
@@ -252,6 +257,10 @@ extension CommonSendNotificationManager: NotificationManager {
                 $0 + $1
             }
             .eraseToAnyPublisher()
+    }
+
+    func setAmountErrorProvider(_ amountErrorProvider: AmountErrorProvider) {
+        self.amountErrorProvider = amountErrorProvider
     }
 
     func setupManager(with delegate: NotificationTapDelegate?) {
