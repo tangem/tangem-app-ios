@@ -12,10 +12,11 @@ import SwiftUI
 enum SendNotificationEvent {
     case networkFeeUnreachable
     // When fee currency is same as fee currency
-    case totalExceedsBalance(configuration: TransactionSendAvailabilityProvider.SendingRestrictions.NotEnoughFeeConfiguration)
+    case totalExceedsBalance
     // When fee currency is different
     case feeExceedsBalance(configuration: TransactionSendAvailabilityProvider.SendingRestrictions.NotEnoughFeeConfiguration)
-    case existentialDeposit(amountFormatted: String)
+    case feeWillBeSubtractFromSendingAmount
+    case existentialDeposit(amount: Decimal, amountFormatted: String)
     case customFeeTooHigh(orderOfMagnitude: Int)
     case customFeeTooLow
     case minimumAmount(value: String)
@@ -32,6 +33,8 @@ extension SendNotificationEvent: NotificationEvent {
             return .string(Localization.sendNotificationExceedBalanceTitle)
         case .feeExceedsBalance(let configuration):
             return .string(Localization.warningSendBlockedFundsForFeeTitle(configuration.networkName))
+        case .feeWillBeSubtractFromSendingAmount:
+            return .string(Localization.sendNetworkFeeWarningTitle)
         case .existentialDeposit:
             return .string(Localization.sendNotificationExistentialDepositTitle)
         case .customFeeTooHigh:
@@ -53,6 +56,8 @@ extension SendNotificationEvent: NotificationEvent {
             return Localization.sendFeeUnreachableErrorText
         case .totalExceedsBalance:
             return Localization.sendNotificationExceedBalanceText
+        case .feeWillBeSubtractFromSendingAmount:
+            return Localization.swappingNetworkFeeWarningContent
         case .feeExceedsBalance(let configuration):
             return Localization.warningSendBlockedFundsForFeeMessage(
                 configuration.transactionAmountTypeName,
@@ -61,7 +66,7 @@ extension SendNotificationEvent: NotificationEvent {
                 configuration.feeAmountTypeName,
                 configuration.feeAmountTypeCurrencySymbol
             )
-        case .existentialDeposit(let amountFormatted):
+        case .existentialDeposit(_, let amountFormatted):
             return Localization.sendNotificationExistentialDepositText(amountFormatted)
         case .customFeeTooHigh(let orderOfMagnitude):
             return Localization.sendNotificationFeeTooHighText(orderOfMagnitude)
@@ -78,23 +83,23 @@ extension SendNotificationEvent: NotificationEvent {
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .networkFeeUnreachable, .totalExceedsBalance, .feeExceedsBalance, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange:
+        case .networkFeeUnreachable, .totalExceedsBalance, .feeExceedsBalance, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange, .existentialDeposit:
             // ♿️ Does it have a button? Use `action`
             return .action
-        case .customFeeTooHigh, .customFeeTooLow, .minimumAmount, .existentialDeposit:
+        case .feeWillBeSubtractFromSendingAmount, .customFeeTooHigh, .customFeeTooLow, .minimumAmount:
             return .secondary
         }
     }
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .minimumAmount, .withdrawalMandatoryAmountChange, .existentialDeposit:
+        case .totalExceedsBalance, .minimumAmount, .withdrawalMandatoryAmountChange, .existentialDeposit:
             // ⚠️ sync with SendNotificationEvent.icon
             return .init(iconType: .image(Assets.redCircleWarning.image))
-        case .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .withdrawalOptionalAmountChange:
+        case .feeWillBeSubtractFromSendingAmount, .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .withdrawalOptionalAmountChange:
             // ⚠️ sync with SendNotificationEvent.icon
             return .init(iconType: .image(Assets.attention.image))
-        case .totalExceedsBalance(let configuration), .feeExceedsBalance(let configuration):
+        case .feeExceedsBalance(let configuration):
             // ⚠️ sync with SendNotificationEvent.icon
             return .init(iconType: .image(Image(configuration.feeAmountTypeIconName)))
         }
@@ -102,10 +107,10 @@ extension SendNotificationEvent: NotificationEvent {
 
     var severity: NotificationView.Severity {
         switch self {
-        case .minimumAmount, .withdrawalMandatoryAmountChange, .existentialDeposit:
+        case .totalExceedsBalance, .minimumAmount, .withdrawalMandatoryAmountChange, .existentialDeposit:
             // ⚠️ sync with SendNotificationEvent.icon
             return .critical
-        case .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .withdrawalOptionalAmountChange, .totalExceedsBalance:
+        case .feeWillBeSubtractFromSendingAmount, .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .withdrawalOptionalAmountChange:
             // ⚠️ sync with SendNotificationEvent.icon
             return .warning
         case .feeExceedsBalance:
@@ -148,7 +153,7 @@ extension SendNotificationEvent {
         switch self {
         case .networkFeeUnreachable:
             return .feeLevels
-        case .minimumAmount, .existentialDeposit, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange, .totalExceedsBalance, .customFeeTooHigh, .customFeeTooLow, .feeExceedsBalance:
+        case .feeWillBeSubtractFromSendingAmount, .minimumAmount, .existentialDeposit, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange, .totalExceedsBalance, .customFeeTooHigh, .customFeeTooLow, .feeExceedsBalance:
             return .summary
         }
     }
@@ -160,13 +165,13 @@ extension SendNotificationEvent {
         switch self {
         case .networkFeeUnreachable:
             return .refreshFee
-        case .totalExceedsBalance(let configuration), .feeExceedsBalance(let configuration):
+        case .feeExceedsBalance(let configuration):
             return .openFeeCurrency(currencySymbol: configuration.feeAmountTypeCurrencySymbol)
-        case .withdrawalOptionalAmountChange(let amount, let amountFormatted):
+        case .withdrawalOptionalAmountChange(let amount, let amountFormatted), .existentialDeposit(let amount, let amountFormatted):
             return .reduceAmountBy(amount: amount, amountFormatted: amountFormatted)
         case .withdrawalMandatoryAmountChange(let amount, let amountFormatted, _, _):
             return .reduceAmountTo(amount: amount, amountFormatted: amountFormatted)
-        case .existentialDeposit, .customFeeTooHigh, .customFeeTooLow, .minimumAmount:
+        case .feeWillBeSubtractFromSendingAmount, .totalExceedsBalance, .customFeeTooHigh, .customFeeTooLow, .minimumAmount:
             return nil
         }
     }
@@ -179,6 +184,8 @@ extension SendNotificationEvent {
             "networkFeeUnreachable"
         case .totalExceedsBalance:
             "totalExceedsBalance"
+        case .feeWillBeSubtractFromSendingAmount:
+            "feeWillBeSubtractFromSendingAmount"
         case .feeExceedsBalance:
             "feeExceedsBalance"
         case .existentialDeposit:
