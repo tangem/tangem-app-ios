@@ -24,6 +24,7 @@ protocol SendFeeViewModelInput {
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> { get }
 
     func didSelectFeeOption(_ feeOption: FeeOption)
+    func setCustomFee(_ customFee: Fee?)
 }
 
 class SendFeeViewModel: ObservableObject {
@@ -39,6 +40,18 @@ class SendFeeViewModel: ObservableObject {
 
     var didProperlyDisappear = true
 
+    var isValid: AnyPublisher<Bool, Never> {
+        Publishers.CombineLatest($selectedFeeOption, customFee)
+            .map { selectedFeeOption, customFee in
+                if selectedFeeOption == .custom {
+                    return customFee != nil
+                } else {
+                    return true
+                }
+            }
+            .eraseToAnyPublisher()
+    }
+
     private(set) var customFeeModels: [SendCustomFeeInputFieldModel] = []
 
     @Published private var isFeeIncluded: Bool = false
@@ -52,7 +65,7 @@ class SendFeeViewModel: ObservableObject {
     private let input: SendFeeViewModelInput
     private let feeOptions: [FeeOption]
     private let walletInfo: SendWalletInfo
-    private let customFeeService: CustomFeeService?
+    private var customFee = CurrentValueSubject<Fee?, Never>(nil)
     private let customFeeInFiat = CurrentValueSubject<String?, Never>("")
     private var customGasPriceBeforeEditing: BigUInt?
     private var bag: Set<AnyCancellable> = []
@@ -65,17 +78,14 @@ class SendFeeViewModel: ObservableObject {
         balanceConverter: balanceConverter
     )
 
-    init(input: SendFeeViewModelInput, notificationManager: SendNotificationManager, customFeeService: CustomFeeService?, walletInfo: SendWalletInfo) {
+    private weak var customFeeService: CustomFeeService?
+
+    init(input: SendFeeViewModelInput, notificationManager: SendNotificationManager, walletInfo: SendWalletInfo) {
         self.input = input
         self.notificationManager = notificationManager
-        self.customFeeService = customFeeService
         self.walletInfo = walletInfo
         feeOptions = input.feeOptions
         selectedFeeOption = input.selectedFeeOption
-
-        if feeOptions.contains(.custom) {
-            createCustomFeeModels()
-        }
 
         feeRowViewModels = makeFeeRowViewModels([:])
 
@@ -105,12 +115,14 @@ class SendFeeViewModel: ObservableObject {
         router?.openFeeExplanation(url: feeExplanationUrl)
     }
 
-    private func createCustomFeeModels() {
-        guard let customFeeService else { return }
+    func setCustomFeeService(_ customFeeService: CustomFeeService) {
+        guard self.customFeeService == nil else { return }
+
+        self.customFeeService = customFeeService
 
         let customFeeModel = SendCustomFeeInputFieldModel(
             title: Localization.sendMaxFee,
-            amountPublisher: input.customFeePublisher.decimalPublisher,
+            amountPublisher: customFee.eraseToAnyPublisher().decimalPublisher,
             disabled: customFeeService.readOnlyCustomFee,
             fieldSuffix: walletInfo.feeCurrencySymbol,
             fractionDigits: walletInfo.feeFractionDigits,
@@ -131,8 +143,7 @@ class SendFeeViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        input
-            .customFeePublisher
+        customFee
             .withWeakCaptureOf(self)
             .map { (self, customFee) -> String? in
                 guard
@@ -220,8 +231,20 @@ class SendFeeViewModel: ObservableObject {
         }
 
         selectedFeeOption = feeOption
-        input.didSelectFeeOption(feeOption)
         showCustomFeeFields = feeOption == .custom
+    }
+}
+
+extension SendFeeViewModel: CustomFeeServiceOutput {
+    func setCustomFee(_ customFee: Fee?) {
+        self.customFee.send(customFee)
+    }
+}
+
+extension SendFeeViewModel: SendStepSaveable {
+    func save() {
+        input.setCustomFee(customFee.value)
+        input.didSelectFeeOption(selectedFeeOption)
     }
 }
 
