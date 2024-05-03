@@ -110,8 +110,8 @@ struct WalletConnectV2Utils {
             }
 
             let sessionNamespace = SessionNamespace(
-                chains: supportedChains,
-                accounts: Set(accounts.reduce([], +)),
+                chains: Array(supportedChains),
+                accounts: accounts.reduce([], +),
                 methods: proposalNamespace.methods,
                 events: proposalNamespace.events
             )
@@ -146,8 +146,8 @@ struct WalletConnectV2Utils {
             }
 
             let sessionNamespace = SessionNamespace(
-                chains: supportedChains,
-                accounts: Set(flattenedAccounts),
+                chains: Array(supportedChains),
+                accounts: flattenedAccounts,
                 methods: proposalNamespace.methods,
                 events: proposalNamespace.events
             )
