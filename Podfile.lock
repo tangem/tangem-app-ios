@@ -217,7 +217,7 @@ DEPENDENCIES:
   - AmplitudeSwift
   - BinanceChain (from `https://github.com/tangem/swiftbinancechain.git`, tag `0.0.11`)
   - BitcoinCore.swift (from `https://github.com/tangem/bitcoincore.git`, tag `0.0.20`)
-  - BlockchainSdk (from `../blockchain-sdk-swift`)
+  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, branch `feature/IOS-6527_joystream_integration`)
   - BlockiesSwift (~> 0.1.2)
   - CombineExt (~> 1.8.0)
   - Firebase/Analytics
@@ -231,17 +231,12 @@ DEPENDENCIES:
   - WalletConnectSwiftV2 (from `https://github.com/WalletConnect/WalletConnectSwiftV2`, tag `1.8.4`)
 
 SPEC REPOS:
-  https://github.com/CocoaPods/Specs.git:
-    - AnyCodable-FlightSchool
-    - BigInt
-    - ScaleCodec
-    - Sodium
-    - stellar-ios-mac-sdk
-    - SwiftCBOR
   trunk:
     - Alamofire
     - AmplitudeSwift
     - AnalyticsConnector
+    - AnyCodable-FlightSchool
+    - BigInt
     - BlockiesSwift
     - CombineExt
     - Firebase
@@ -262,7 +257,11 @@ SPEC REPOS:
     - nanopb
     - PromisesObjC
     - PromisesSwift
+    - ScaleCodec
+    - Sodium
     - Starscream
+    - stellar-ios-mac-sdk
+    - SwiftCBOR
     - SwiftDate
     - TweetNacl
 
@@ -277,7 +276,8 @@ EXTERNAL SOURCES:
     :git: https://github.com/tangem/bitcoincore.git
     :tag: 0.0.20
   BlockchainSdk:
-    :path: "../blockchain-sdk-swift"
+    :branch: feature/IOS-6527_joystream_integration
+    :git: https://github.com/tangem/blockchain-sdk-swift.git
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
     :tag: 1.2.0-tangem6
@@ -301,6 +301,9 @@ CHECKOUT OPTIONS:
   BitcoinCore.swift:
     :git: https://github.com/tangem/bitcoincore.git
     :tag: 0.0.20
+  BlockchainSdk:
+    :commit: 18f7fbb4c65b346d4f71745958e46cb8775334d7
+    :git: https://github.com/tangem/blockchain-sdk-swift.git
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
     :tag: 1.2.0-tangem6
@@ -356,6 +359,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   WalletConnectSwiftV2: c1c2c2fbd0495860baf71515be1b943f0c5dce0c
 
-PODFILE CHECKSUM: 9521409db9b31013e50c8b9df3955225901d62f1
+PODFILE CHECKSUM: 9740b5a86e2bdd26e98faa60c4790b0911546a45
 
 COCOAPODS: 1.15.2
