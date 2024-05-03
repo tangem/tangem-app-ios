@@ -21,7 +21,8 @@ struct FixedSizeButtonWithLeadingIcon: View {
             colorConfiguration: colorConfiguration,
             spacing: 4,
             maintainsIdealSize: true,
-            action: action
+            action: action,
+            longPressAction: longPressAction
         )
     }
 
@@ -31,6 +32,7 @@ struct FixedSizeButtonWithLeadingIcon: View {
     private let icon: Image
     private let style: Style
     private let action: () -> Void
+    private let longPressAction: (() -> Void)?
 
     private var stateRelatedStyle: Style {
         isEnabled ? style : .disabled
@@ -47,12 +49,14 @@ struct FixedSizeButtonWithLeadingIcon: View {
         title: String,
         icon: Image,
         style: Style,
-        action: @escaping () -> Void
+        action: @escaping () -> Void,
+        longPressAction: (() -> Void)? = nil
     ) {
         self.title = title
         self.icon = icon
         self.style = style
         self.action = action
+        self.longPressAction = longPressAction
     }
 }
 
@@ -103,7 +107,8 @@ struct FlexySizeButtonWithLeadingIcon: View {
             colorConfiguration: colorConfiguration,
             spacing: 6,
             maintainsIdealSize: false,
-            action: action
+            action: action,
+            longPressAction: nil
         )
     }
 
@@ -178,9 +183,22 @@ private struct ButtonWithLeadingIconContentView: View {
     let spacing: Double
     let maintainsIdealSize: Bool
     let action: () -> Void
+    let longPressAction: (() -> Void)?
+
+    // We need to keep track if LongPress was handled. If it was - then we shouldn't process standard action
+    // Also this way is better that adding highPriorityGesture(TapGesture()) because it will break
+    // default highlighting animation for pressed state of button (it will work with delay)
+    @State private var isLongPressTriggered = false
 
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            if isLongPressTriggered {
+                isLongPressTriggered = false
+                return
+            }
+
+            action()
+        }) {
             HStack(spacing: spacing) {
                 icon
                     .renderingMode(.template)
@@ -201,6 +219,17 @@ private struct ButtonWithLeadingIconContentView: View {
         }
         .cornerRadiusContinuous(Self.cornerRadius)
         .buttonStyle(.borderless)
+        .simultaneousGesture(
+            LongPressGesture()
+                .onEnded { _ in
+                    guard let longPressAction else {
+                        return
+                    }
+
+                    isLongPressTriggered = true
+                    longPressAction()
+                }
+        )
     }
 }
 
