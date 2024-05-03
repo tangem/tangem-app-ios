@@ -1,5 +1,4 @@
 # Uncomment the next line to define a global platform for your project
-source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '15.0'
 
 # Debug Xcode configurations
@@ -32,8 +31,8 @@ end
 def blockchain_sdk_pods
   # 'TangemWalletCore' dependency must be added via SPM
 
-#  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-570'
-  pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
+  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :branch => 'feature/IOS-6527_joystream_integration'
+  #pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
 
   pod 'Solana.Swift', :git => 'https://github.com/tangem/Solana.Swift', :tag => '1.2.0-tangem6'
   #pod 'Solana.Swift', :path => '../Solana.Swift'
