@@ -56,8 +56,10 @@ final class WalletConnectV2Service {
         self.messageComposer = messageComposer
         self.wcHandlersService = wcHandlersService
 
+        #warning("Redirect TODO")
         Networking.configure(
             projectId: keysManager.walletConnectProjectId,
+            groupIdentifier: "TODO: - groupIdentifier",
             socketFactory: factory,
             socketConnectionType: .automatic
         )
@@ -366,6 +368,7 @@ final class WalletConnectV2Service {
     private func sessionRejected(with proposal: Session.Proposal) {
         runTask { [weak self] in
             do {
+                #warning("FIXME:")
                 try await self?.signApi.reject(proposalId: proposal.id, reason: .userRejected)
                 self?.log("User reject WC connection")
             } catch {
