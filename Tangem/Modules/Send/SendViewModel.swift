@@ -97,11 +97,9 @@ final class SendViewModel: ObservableObject {
                 case .destination:
                     return sendDestinationViewModel.isValid
                 case .fee:
-                    return sendModel.feeValid
+                    return sendFeeViewModel.isValid
                 case .summary:
-                    return sendModel.transactionCreationError
-                        .map { $0 == nil }
-                        .eraseToAnyPublisher()
+                    return sendSummaryViewModel.isValid
                 case .finish:
                     return .just(output: true)
                 }
@@ -193,13 +191,6 @@ final class SendViewModel: ObservableObject {
             input: sendModel
         )
 
-        let customFeeServiceFactory = CustomFeeServiceFactory(
-            input: sendModel,
-            output: sendModel,
-            walletModel: walletModel
-        )
-        customFeeService = customFeeServiceFactory.makeService()
-
         fiatCryptoAdapter = CommonSendFiatCryptoAdapter(
             cryptoCurrencyId: walletInfo.currencyId,
             currencySymbol: walletInfo.cryptoCurrencyCode,
@@ -215,13 +206,24 @@ final class SendViewModel: ObservableObject {
         self.addressTextViewHeightModel = addressTextViewHeightModel
         sendAmountViewModel = SendAmountViewModel(input: sendModel, transactionValidator: walletModel.transactionValidator, fiatCryptoAdapter: fiatCryptoAdapter, walletInfo: walletInfo)
         sendDestinationViewModel = SendDestinationViewModel(input: sendModel, addressService: addressService, addressTextViewHeightModel: addressTextViewHeightModel, walletInfo: walletInfo)
-        sendFeeViewModel = SendFeeViewModel(input: sendModel, notificationManager: notificationManager, customFeeService: customFeeService, walletInfo: walletInfo)
+        sendFeeViewModel = SendFeeViewModel(input: sendModel, notificationManager: notificationManager, walletInfo: walletInfo)
         sendSummaryViewModel = SendSummaryViewModel(input: sendModel, notificationManager: notificationManager, fiatCryptoValueProvider: fiatCryptoAdapter, addressTextViewHeightModel: addressTextViewHeightModel, walletInfo: walletInfo)
 
         fiatCryptoAdapter.setInput(sendAmountViewModel)
         fiatCryptoAdapter.setOutput(sendAmountViewModel)
 
+        let customFeeServiceFactory = CustomFeeServiceFactory(
+            input: sendModel,
+            output: sendFeeViewModel,
+            walletModel: walletModel
+        )
+        customFeeService = customFeeServiceFactory.makeService()
+        if let customFeeService,
+           sendModel.feeOptions.contains(.custom) {
+            sendFeeViewModel.setCustomFeeService(customFeeService)
+        }
         sendFeeViewModel.router = coordinator
+
         sendSummaryViewModel.router = self
 
         notificationManager.setAmountErrorProvider(sendAmountViewModel)
@@ -886,9 +888,7 @@ private extension ValidationError {
         case .invalidAmount, .balanceNotFound:
             // Shouldn't happen as we validate and cover amount errors separately, synchronously
             return nil
-        case .amountExceedsBalance, .invalidFee, .feeExceedsBalance, .maximumUTXO, .reserve:
-            return .fee
-        case .dustAmount, .dustChange, .minimumBalance, .totalExceedsBalance:
+        case .amountExceedsBalance, .invalidFee, .feeExceedsBalance, .maximumUTXO, .reserve, .dustAmount, .dustChange, .minimumBalance, .totalExceedsBalance:
             return .summary
         }
     }
