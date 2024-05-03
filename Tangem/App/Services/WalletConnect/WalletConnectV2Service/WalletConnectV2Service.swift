@@ -510,7 +510,11 @@ final class WalletConnectV2Service {
 public typealias WalletConnectV2URI = WalletConnectURI
 
 private struct DApps {
-    private let unsupportedList: [String] = ["dydx.exchange"]
+    private let unsupportedList: [String] = [
+        "dydx.exchange",
+        "pro.apex.exchange",
+        "services.dfx.swiss",
+    ]
 
     func isSupported(_ dAppURL: String) -> Bool {
         for dApp in unsupportedList {
