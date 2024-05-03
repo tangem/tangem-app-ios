@@ -19,6 +19,9 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published var actionSheet: ActionSheetBinder?
     @Published var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
 
+    // [REDACTED_TODO_COMMENT]
+    @Published var isShowToast: Bool = false
+
     private(set) var balanceWithButtonsModel: BalanceWithButtonsViewModel!
     private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: walletModel.tokenItem)
 
@@ -84,6 +87,15 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     override func presentActionSheet(_ actionSheet: ActionSheetBinder) {
         self.actionSheet = actionSheet
+    }
+
+    override func copyDefaultAddress() {
+        super.copyDefaultAddress()
+        Analytics.log(event: .buttonCopyAddress, params: [
+            .token: walletModel.tokenItem.currencySymbol,
+            .source: Analytics.ParameterValue.token.rawValue,
+        ])
+        isShowToast = true
     }
 }
 
