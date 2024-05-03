@@ -65,7 +65,10 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     }
 
     func copyToClipboard() {
-        Analytics.log(event: .buttonCopyAddress, params: [.token: tokenItem.currencySymbol])
+        Analytics.log(event: .buttonCopyAddress, params: [
+            .token: tokenItem.currencySymbol,
+            .source: Analytics.ParameterValue.receive.rawValue,
+        ])
         UIPasteboard.general.string = addressInfos[currentIndex].address
         showToast = true
     }
