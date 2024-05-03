@@ -10,4 +10,7 @@ import Foundation
 
 protocol SingleWalletMainContentDelegate: AnyObject {
     func present(actionSheet: ActionSheetBinder)
+
+    // [REDACTED_TODO_COMMENT]
+    func displayAddressCopiedToast()
 }
