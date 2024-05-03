@@ -150,12 +150,22 @@ class SendModel {
     }
 
     func setCustomFee(_ customFee: Fee?) {
+        print("ZZZ [fee] did set custom fee", customFee)
         guard _customFee.value?.amount != customFee?.amount else {
             return
         }
 
         didSetCustomFee = true
         _customFee.send(customFee)
+
+        var feeValues = _feeValues.value
+        if let customFee {
+            feeValues[.custom] = .loaded(customFee)
+        } else {
+            feeValues[.custom] = .failedToLoad(error: WalletError.failedToGetFee)
+        }
+        _feeValues.send(feeValues)
+
         if case .custom = selectedFeeOption {
             fee.send(customFee)
         }
@@ -357,7 +367,7 @@ class SendModel {
     // MARK: - Amount
 
     func setAmount(_ amount: Amount?) {
-        print("ZZZ [send model] amount", amount?.value)
+        print("ZZZ [amount] send model changed amount", amount?.value)
         validatedAmount.send(amount)
     }
 
@@ -466,6 +476,7 @@ class SendModel {
     // MARK: - Fees
 
     func didSelectFeeOption(_ feeOption: FeeOption) {
+        print("ZZZ [fee] send model did select", feeOption)
         guard let newFee = _feeValues.value[feeOption]?.value else {
             return
         }
