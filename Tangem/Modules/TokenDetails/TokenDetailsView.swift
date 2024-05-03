@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import AlertToast
 
 struct TokenDetailsView: View {
     @ObservedObject var viewModel: TokenDetailsViewModel
@@ -92,6 +93,10 @@ struct TokenDetailsView: View {
             }
 
             ToolbarItem(placement: .navigationBarTrailing) { navbarTrailingButton }
+        })
+        // [REDACTED_TODO_COMMENT]
+        .toast(isPresenting: $viewModel.isShowToast, alert: {
+            AlertToast(type: .complete(Colors.Icon.accent), title: Localization.walletNotificationAddressCopied)
         })
         .navigationBarTitleDisplayMode(.inline)
     }
