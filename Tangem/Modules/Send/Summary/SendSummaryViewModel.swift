@@ -46,6 +46,15 @@ class SendSummaryViewModel: ObservableObject {
         walletInfo.balance
     }
 
+    var isValid: AnyPublisher<Bool, Never> {
+        notificationManager
+            .hasNotifications(with: .critical)
+            .map {
+                !$0
+            }
+            .eraseToAnyPublisher()
+    }
+
     @Published var isSending = false
     @Published var alert: AlertBinder?
 
@@ -185,6 +194,7 @@ class SendSummaryViewModel: ObservableObject {
 
                 for feeOption in input.feeOptions {
                     let feeValue = feeValues[feeOption] ?? .loading
+                    print("ZZZ [summary]", feeOption, feeValue)
 
                     if feeOption == selectedFeeOption {
                         selectedFeeSummaryViewModel = sectionViewModelFactory.makeFeeViewData(
