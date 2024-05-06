@@ -53,12 +53,12 @@ final class SendViewModel: ObservableObject {
         }
     }
 
-    var canDismiss: Bool {
+    var shouldShowDismissAlert: Bool {
         if case .finish = step {
-            return true
+            return false
         }
 
-        return !didReachSummaryScreen
+        return didReachSummaryScreen
     }
 
     let sendAmountViewModel: SendAmountViewModel
@@ -253,12 +253,12 @@ final class SendViewModel: ObservableObject {
             .valid: .affirmativeOrNegative(for: !mainButtonDisabled),
         ])
 
-        if canDismiss {
-            coordinator?.dismiss()
-        } else {
+        if shouldShowDismissAlert {
             alert = SendAlertBuilder.makeDismissAlert { [coordinator] in
                 coordinator?.dismiss()
             }
+        } else {
+            coordinator?.dismiss()
         }
     }
 
