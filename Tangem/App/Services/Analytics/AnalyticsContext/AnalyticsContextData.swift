@@ -14,11 +14,11 @@ struct AnalyticsContextData {
     let batchId: String
     let firmware: String
     let baseCurrency: String?
-    var userWalletId: String
+    var userWalletId: UserWalletId?
 
     var analyticsParams: [Analytics.ParameterKey: String] {
         [
-            .userWalletId: userWalletId,
+            .userWalletId: userWalletId?.stringValue ?? Constants.unknownedUserWalletId,
             .productType: productType.rawValue,
             .batch: batchId,
             .firmware: firmware,
@@ -33,7 +33,7 @@ extension AnalyticsContextData {
         batchId = card.batchId
         firmware = card.firmwareVersion.stringValue
         baseCurrency = embeddedEntry?.tokens.first?.symbol ?? embeddedEntry?.blockchainNetwork.blockchain.currencySymbol
-        self.userWalletId = userWalletId?.stringValue ?? Constants.unknownedUserWalletId
+        self.userWalletId = userWalletId
     }
 }
 
