@@ -455,7 +455,7 @@
 "send_notification_existential_deposit_title" = "Экзистенциальный депозит";
 "send_notification_fee_too_high_text" = "Сумма комиссии в %@ раз превышает рекомендованную. Убедитесь, что указанная комиссия верна.";
 "send_notification_fee_too_high_title" = "Установлена высокая комиссия";
-"send_notification_high_fee_text" = "Ввиду особенности сети Tezos комиссия при переводе всего баланса выше. Для того, чтобы снизить комиссию Вы можете оставить %@.";
+"send_notification_high_fee_text" = "Ввиду особенности сети %1$@ комиссия при переводе всего баланса выше. Для того, чтобы снизить комиссию Вы можете оставить %2$@.";
 "send_notification_high_fee_title" = "Комиссия повышена";
 "send_notification_invalid_amount_text" = "Включенная комиссия превышает сумму перевода, что приводит к отрицательному значению";
 "send_notification_invalid_amount_title" = "Недопустимая сумма";
