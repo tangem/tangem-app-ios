@@ -347,7 +347,8 @@ class CommonUserWalletRepository: UserWalletRepository {
         let contextData = AnalyticsContextData(
             card: cardInfo.card,
             productType: config.productType,
-            embeddedEntry: config.embeddedBlockchain
+            embeddedEntry: config.embeddedBlockchain,
+            userWalletId: nil
         )
 
         analyticsContext.setupContext(with: contextData)
