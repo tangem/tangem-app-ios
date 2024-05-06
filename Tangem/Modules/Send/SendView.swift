@@ -61,11 +61,8 @@ struct SendView: View {
         if let title = viewModel.title {
             HStack {
                 HStack(spacing: 0) {
-                    Button(action: viewModel.dismiss) {
-                        Assets.crossBlack.image
-                            .renderingMode(.template)
-                            .foregroundColor(Colors.Icon.primary1)
-                    }
+                    Button(Localization.commonClose, action: viewModel.dismiss)
+                        .foregroundColor(Colors.Text.primary1)
 
                     Spacer()
                 }
