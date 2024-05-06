@@ -56,10 +56,9 @@ final class WalletConnectV2Service {
         self.messageComposer = messageComposer
         self.wcHandlersService = wcHandlersService
 
-        #warning("Redirect TODO")
         Networking.configure(
+            groupIdentifier: AppEnvironment.current.suiteName,
             projectId: keysManager.walletConnectProjectId,
-            groupIdentifier: "TODO: - groupIdentifier",
             socketFactory: factory,
             socketConnectionType: .automatic
         )
@@ -67,7 +66,8 @@ final class WalletConnectV2Service {
             name: "Tangem iOS",
             description: "Tangem is a card-shaped self-custodial cold hardware wallet",
             url: "tangem.com",
-            icons: ["https://user-images.githubusercontent.com/24321494/124071202-72a00900-da58-11eb-935a-dcdab21de52b.png"]
+            icons: ["https://user-images.githubusercontent.com/24321494/124071202-72a00900-da58-11eb-935a-dcdab21de52b.png"],
+            redirect: .init(native: IncomingActionConstants.universalLinkScheme, universal: IncomingActionConstants.tangemDomain)
         ))
 
         setupSessionSubscriptions()
@@ -368,8 +368,7 @@ final class WalletConnectV2Service {
     private func sessionRejected(with proposal: Session.Proposal) {
         runTask { [weak self] in
             do {
-                #warning("FIXME:")
-                try await self?.signApi.reject(proposalId: proposal.id, reason: .userRejected)
+                try await self?.signApi.rejectSession(proposalId: proposal.id, reason: .userRejected)
                 self?.log("User reject WC connection")
             } catch {
                 AppLog.shared.error("[WC 2.0] Failed to reject WC connection with error: \(error)")
