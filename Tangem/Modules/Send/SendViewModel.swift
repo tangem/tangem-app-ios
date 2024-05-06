@@ -22,7 +22,6 @@ final class SendViewModel: ObservableObject {
     @Published var mainButtonLoading: Bool = false
     @Published var mainButtonDisabled: Bool = false
     @Published var updatingFees = false
-    @Published var canDismiss: Bool = false
     @Published var alert: AlertBinder?
 
     var title: String? {
@@ -52,6 +51,14 @@ final class SendViewModel: ObservableObject {
         case .amount, .fee, .summary, .finish:
             return false
         }
+    }
+
+    var canDismiss: Bool {
+        if case .finish = step {
+            return true
+        }
+
+        return !didReachSummaryScreen
     }
 
     let sendAmountViewModel: SendAmountViewModel
@@ -246,7 +253,13 @@ final class SendViewModel: ObservableObject {
             .valid: .affirmativeOrNegative(for: !mainButtonDisabled),
         ])
 
-        coordinator?.dismiss()
+        if canDismiss {
+            coordinator?.dismiss()
+        } else {
+            alert = SendAlertBuilder.makeDismissAlert { [coordinator] in
+                coordinator?.dismiss()
+            }
+        }
     }
 
     func next() {
@@ -332,24 +345,6 @@ final class SendViewModel: ObservableObject {
     }
 
     private func bind() {
-        Publishers.CombineLatest3($step, sendModel.amountPublisher, sendModel.isSending)
-            .map { step, amount, isSending in
-                if isSending {
-                    return false
-                }
-
-                switch step {
-                case .destination, .fee, .summary:
-                    return false
-                case .amount:
-                    return amount == nil
-                case .finish:
-                    return true
-                }
-            }
-            .assign(to: \.canDismiss, on: self, ownership: .weak)
-            .store(in: &bag)
-
         Publishers.CombineLatest($updatingFees, sendModel.isSending)
             .map { updatingFees, isSending in
                 updatingFees || isSending
