@@ -611,7 +611,7 @@ final class SendViewModel: ObservableObject {
 
         DispatchQueue.main.async {
             self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
-            self.showTransactionButtons = step.isFinish
+            self.showTransactionButtons = self.sendModel.transactionURL != nil
             self.step = step
 
             if feeUpdatePolicy == .updateAfterChangingStep {
