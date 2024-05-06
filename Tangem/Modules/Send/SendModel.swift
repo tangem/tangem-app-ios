@@ -13,14 +13,6 @@ import BigInt
 import BlockchainSdk
 
 class SendModel {
-    var amountValid: AnyPublisher<Bool, Never> {
-        validatedAmount
-            .map {
-                $0 != nil
-            }
-            .eraseToAnyPublisher()
-    }
-
     var destinationValid: AnyPublisher<Bool, Never> {
         Publishers.CombineLatest(validatedDestination, destinationAdditionalFieldError)
             .map {
@@ -75,7 +67,6 @@ class SendModel {
 
     // MARK: - Raw data
 
-    private var userInputAmount = CurrentValueSubject<Amount?, Never>(nil)
     private var userInputDestination = CurrentValueSubject<SendAddress, Never>(SendAddress(value: "", source: .textField))
     private var _destinationAdditionalFieldText = CurrentValueSubject<String, Never>("")
     private var _additionalFieldEmbeddedInAddress = CurrentValueSubject<Bool, Never>(false)
@@ -93,7 +84,6 @@ class SendModel {
 
     // MARK: - Errors (raw implementation)
 
-    private let _amountError = CurrentValueSubject<Error?, Never>(nil)
     private let _destinationError = CurrentValueSubject<Error?, Never>(nil)
     private let _destinationAdditionalFieldError = CurrentValueSubject<Error?, Never>(nil)
     private let _feeError = CurrentValueSubject<Error?, Never>(nil)
@@ -119,6 +109,7 @@ class SendModel {
 
         bind()
 
+        // TODO: ❌ move this crap
         if let amount = sendType.predefinedAmount {
             setAmount(amount)
         }
@@ -159,12 +150,22 @@ class SendModel {
     }
 
     func setCustomFee(_ customFee: Fee?) {
+        print("ZZZ [fee] did set custom fee", customFee)
         guard _customFee.value?.amount != customFee?.amount else {
             return
         }
 
         didSetCustomFee = true
         _customFee.send(customFee)
+
+        var feeValues = _feeValues.value
+        if let customFee {
+            feeValues[.custom] = .loaded(customFee)
+        } else {
+            feeValues[.custom] = .failedToLoad(error: WalletError.failedToGetFee)
+        }
+        _feeValues.send(feeValues)
+
         if case .custom = selectedFeeOption {
             fee.send(customFee)
         }
@@ -217,15 +218,6 @@ class SendModel {
             .removeDuplicates()
             .sink { [weak self] _ in
                 self?.validateDestinationAdditionalField()
-            }
-            .store(in: &bag)
-
-        userInputAmount
-            .removeDuplicates {
-                $0 == $1
-            }
-            .sink { [weak self] amount in
-                self?.updateAndValidateAmount(amount)
             }
             .store(in: &bag)
 
@@ -375,11 +367,8 @@ class SendModel {
     // MARK: - Amount
 
     func setAmount(_ amount: Amount?) {
-        let newAmount: Amount? = (amount?.isZero ?? true) ? nil : amount
-
-        guard userInputAmount.value != newAmount else { return }
-
-        userInputAmount.send(newAmount)
+        print("ZZZ [amount] send model changed amount", amount?.value)
+        validatedAmount.send(amount)
     }
 
     /// Convenience method
@@ -392,31 +381,6 @@ class SendModel {
             amount = nil
         }
         setAmount(amount)
-    }
-
-    private func updateAndValidateAmount(_ newAmount: Amount?) {
-        let validatedAmount: Amount?
-        let amountError: Error?
-
-        if let newAmount {
-            do {
-                let amount: Amount
-                amount = newAmount
-                try walletModel.transactionValidator.validate(amount: amount)
-
-                validatedAmount = amount
-                amountError = nil
-            } catch let validationError {
-                validatedAmount = nil
-                amountError = validationError
-            }
-        } else {
-            validatedAmount = nil
-            amountError = nil
-        }
-
-        self.validatedAmount.send(validatedAmount)
-        _amountError.send(amountError)
     }
 
     private func validateFee(_ fee: Fee?) {
@@ -489,6 +453,10 @@ class SendModel {
         }
     }
 
+    func setTransactionParameters(transactionParameters: TransactionParams?) {
+        self.transactionParameters = transactionParameters
+    }
+
     private func validateDestinationAdditionalField() {
         let error: Error?
         let transactionParameters: TransactionParams?
@@ -508,16 +476,13 @@ class SendModel {
     // MARK: - Fees
 
     func didSelectFeeOption(_ feeOption: FeeOption) {
+        print("ZZZ [fee] send model did select", feeOption)
         guard let newFee = _feeValues.value[feeOption]?.value else {
             return
         }
 
         _selectedFeeOption.send(feeOption)
         fee.send(newFee)
-    }
-
-    func didChangeFeeInclusion(_ isFeeIncluded: Bool) {
-        _isFeeIncluded.send(isFeeIncluded)
     }
 
     private func feeValues(_ fees: [Fee]) -> [FeeOption: LoadingValue<Fee>] {
@@ -551,9 +516,7 @@ class SendModel {
 
 // MARK: - Subview model inputs
 
-extension SendModel: SendAmountViewModelInput {
-    var amountError: AnyPublisher<Error?, Never> { _amountError.eraseToAnyPublisher() }
-}
+extension SendModel: SendAmountViewModelInput {}
 
 extension SendModel: SendDestinationViewModelInput {
     var isValidatingDestination: AnyPublisher<Bool, Never> { addressService.validationInProgressPublisher }
@@ -683,10 +646,6 @@ extension SendModel: SendSummaryViewModelInput {
 }
 
 extension SendModel: SendFinishViewModelInput {
-    var userInputAmountValue: Amount? {
-        userInputAmount.value
-    }
-
     var destinationText: String? {
         validatedDestination.value?.value
     }

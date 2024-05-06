@@ -11,11 +11,9 @@ import Combine
 import BlockchainSdk
 
 class SendAmountViewModelInputMock: SendAmountViewModelInput {
-    var userInputAmountValue: Amount? { .init(type: .coin, currencySymbol: "$", value: 1_000_000, decimals: 0) }
     var amountError: AnyPublisher<Error?, Never> {
         Just("Insufficient funds for transfer").eraseToAnyPublisher()
     }
 
-    func setAmount(_ decimal: Decimal?) {}
-    func didChangeFeeInclusion(_ isFeeIncluded: Bool) {}
+    func setAmount(_ decimal: Amount?) {}
 }

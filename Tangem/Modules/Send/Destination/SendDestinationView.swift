@@ -86,10 +86,11 @@ struct SendDestinationView: View {
     }
 }
 
-struct SendDestinationView_Previews: PreviewProvider {
-    @Namespace static var namespace
-
-    static var previews: some View {
-        SendDestinationView(namespace: namespace, viewModel: SendDestinationViewModel(input: SendDestinationViewModelInputMock(), addressTextViewHeightModel: .init()), bottomSpacing: 150)
-    }
-}
+//
+// struct SendDestinationView_Previews: PreviewProvider {
+//    @Namespace static var namespace
+//
+//    static var previews: some View {
+//        SendDestinationView(namespace: namespace, viewModel: SendDestinationViewModel(input: SendDestinationViewModelInputMock(), addressTextViewHeightModel: .init()), bottomSpacing: 150)
+//    }
+// }

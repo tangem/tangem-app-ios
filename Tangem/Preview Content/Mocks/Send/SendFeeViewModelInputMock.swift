@@ -45,5 +45,6 @@ class SendFeeViewModelInputMock: SendFeeViewModelInput {
     }
 
     func didSelectFeeOption(_ feeOption: FeeOption) {}
-    func didChangeFeeInclusion(_ feeIncluded: Bool) {}
+
+    func setCustomFee(_ customFee: Fee?) {}
 }

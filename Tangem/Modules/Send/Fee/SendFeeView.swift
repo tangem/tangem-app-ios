@@ -112,6 +112,8 @@ struct SendFeeView_Previews: PreviewProvider {
         balance: "12013",
         blockchain: .ethereum(testnet: false),
         currencyId: "tether",
+        amountType: .coin,
+        decimalCount: 6,
         feeCurrencySymbol: "ETH",
         feeCurrencyId: "ethereum",
         isFeeApproximate: false,
@@ -127,6 +129,6 @@ struct SendFeeView_Previews: PreviewProvider {
     )
 
     static var previews: some View {
-        SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock(), notificationManager: FakeSendNotificationManager(), customFeeService: nil, walletInfo: walletInfo), bottomSpacing: 150, bottomButtonsHeight: 0)
+        SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock(), notificationManager: FakeSendNotificationManager(), walletInfo: walletInfo), bottomSpacing: 150, bottomButtonsHeight: 0)
     }
 }

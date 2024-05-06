@@ -93,15 +93,13 @@ final class SendViewModel: ObservableObject {
 
                 switch step {
                 case .amount:
-                    return sendModel.amountValid
+                    return sendAmountViewModel.isValid
                 case .destination:
-                    return sendModel.destinationValid
+                    return sendDestinationViewModel.isValid
                 case .fee:
-                    return sendModel.feeValid
+                    return sendFeeViewModel.isValid
                 case .summary:
-                    return sendModel.transactionCreationError
-                        .map { $0 == nil }
-                        .eraseToAnyPublisher()
+                    return sendSummaryViewModel.isValid
                 case .finish:
                     return .just(output: true)
                 }
@@ -171,6 +169,8 @@ final class SendViewModel: ObservableObject {
             balance: Localization.sendWalletBalanceFormat(walletModel.balance, walletModel.fiatBalance),
             blockchain: walletModel.blockchainNetwork.blockchain,
             currencyId: walletModel.tokenItem.currencyId,
+            amountType: walletModel.amountType,
+            decimalCount: walletModel.decimalCount,
             feeCurrencySymbol: walletModel.feeTokenItem.currencySymbol,
             feeCurrencyId: walletModel.feeTokenItem.currencyId,
             isFeeApproximate: walletModel.tokenItem.blockchain.isFeeApproximate(for: walletModel.amountType),
@@ -191,13 +191,6 @@ final class SendViewModel: ObservableObject {
             input: sendModel
         )
 
-        let customFeeServiceFactory = CustomFeeServiceFactory(
-            input: sendModel,
-            output: sendModel,
-            walletModel: walletModel
-        )
-        customFeeService = customFeeServiceFactory.makeService()
-
         fiatCryptoAdapter = CommonSendFiatCryptoAdapter(
             cryptoCurrencyId: walletInfo.currencyId,
             currencySymbol: walletInfo.cryptoCurrencyCode,
@@ -211,17 +204,29 @@ final class SendViewModel: ObservableObject {
 
         let addressTextViewHeightModel = AddressTextViewHeightModel()
         self.addressTextViewHeightModel = addressTextViewHeightModel
-        sendAmountViewModel = SendAmountViewModel(input: sendModel, fiatCryptoAdapter: fiatCryptoAdapter, walletInfo: walletInfo)
-        sendDestinationViewModel = SendDestinationViewModel(input: sendModel, addressTextViewHeightModel: addressTextViewHeightModel)
-        sendFeeViewModel = SendFeeViewModel(input: sendModel, notificationManager: notificationManager, customFeeService: customFeeService, walletInfo: walletInfo)
+        sendAmountViewModel = SendAmountViewModel(input: sendModel, transactionValidator: walletModel.transactionValidator, fiatCryptoAdapter: fiatCryptoAdapter, walletInfo: walletInfo)
+        sendDestinationViewModel = SendDestinationViewModel(input: sendModel, addressService: addressService, addressTextViewHeightModel: addressTextViewHeightModel, walletInfo: walletInfo)
+        sendFeeViewModel = SendFeeViewModel(input: sendModel, notificationManager: notificationManager, walletInfo: walletInfo)
         sendSummaryViewModel = SendSummaryViewModel(input: sendModel, notificationManager: notificationManager, fiatCryptoValueProvider: fiatCryptoAdapter, addressTextViewHeightModel: addressTextViewHeightModel, walletInfo: walletInfo)
 
         fiatCryptoAdapter.setInput(sendAmountViewModel)
-        fiatCryptoAdapter.setOutput(sendModel)
+        fiatCryptoAdapter.setOutput(sendAmountViewModel)
 
+        let customFeeServiceFactory = CustomFeeServiceFactory(
+            input: sendModel,
+            output: sendFeeViewModel,
+            walletModel: walletModel
+        )
+        customFeeService = customFeeServiceFactory.makeService()
+        if let customFeeService,
+           sendModel.feeOptions.contains(.custom) {
+            sendFeeViewModel.setCustomFeeService(customFeeService)
+        }
         sendFeeViewModel.router = coordinator
+
         sendSummaryViewModel.router = self
 
+        notificationManager.setAmountErrorProvider(sendAmountViewModel)
         notificationManager.setupManager(with: self)
 
         updateTransactionHistoryIfNeeded()
@@ -262,6 +267,8 @@ final class SendViewModel: ObservableObject {
                 return
             }
 
+            saveCurrentStep()
+
             logNextStepAnalytics()
 
             let openingSummary = (nextStep == .summary)
@@ -272,6 +279,8 @@ final class SendViewModel: ObservableObject {
         case .continue:
             let nextStep = SendStep.summary
             let feeUpdatePolicy = FeeUpdatePolicy.fromTransition(currentStep: step, nextStep: nextStep)
+
+            saveCurrentStep()
             openStep(nextStep, stepAnimation: .moveAndFade, feeUpdatePolicy: feeUpdatePolicy)
         case .send:
             send()
@@ -379,19 +388,20 @@ final class SendViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        sendModel
-            .destinationPublisher
-            .sink { [weak self] destination in
-                guard let self else { return }
-
-                switch destination?.source {
-                case .myWallet, .recentAddress:
-                    next()
-                default:
-                    break
-                }
-            }
-            .store(in: &bag)
+        // TODO: use destination vm ❌
+//        sendModel
+//            .destinationPublisher
+//            .sink { [weak self] destination in
+//                guard let self else { return }
+//
+//                switch destination?.source {
+//                case .myWallet, .recentAddress:
+//                    next()
+//                default:
+//                    break
+//                }
+//            }
+//            .store(in: &bag)
 
         sendModel
             .sendError
@@ -626,6 +636,12 @@ final class SendViewModel: ObservableObject {
         }
     }
 
+    private func saveCurrentStep() {
+        guard let saveable = stepViewModel(step) as? SendStepSaveable else { return }
+
+        saveable.save()
+    }
+
     private func openFinishPage() {
         guard let sendFinishViewModel = SendFinishViewModel(input: sendModel, fiatCryptoValueProvider: fiatCryptoAdapter, addressTextViewHeightModel: addressTextViewHeightModel, walletInfo: walletInfo) else {
             assertionFailure("WHY?")
@@ -647,11 +663,14 @@ final class SendViewModel: ObservableObject {
             return
         }
 
-        sendModel.setDestination(SendAddress(value: result.destination, source: .qrCode))
+        sendDestinationViewModel.setAddress(SendAddress(value: result.destination, source: .qrCode))
+        // TODO: ❌
         sendModel.setAmount(result.amount)
 
         if let memo = result.memo {
-            sendModel.setDestinationAdditionalField(memo)
+            // TODO: ❌
+//            sendModel.setDestinationAdditionalField(memo)
+            sendDestinationViewModel.setAdditionalField(memo)
         }
     }
 
@@ -703,7 +722,7 @@ extension SendViewModel: SendSummaryRoutable {
             return
         }
 
-        if let auxiliaryViewAnimatable = auxiliaryViewAnimatable(step) {
+        if let auxiliaryViewAnimatable = stepViewModel(step) as? AuxiliaryViewAnimatable {
             auxiliaryViewAnimatable.setAnimatingAuxiliaryViewsOnAppear()
         }
 
@@ -740,7 +759,7 @@ extension SendViewModel: SendSummaryRoutable {
             .store(in: &bag)
     }
 
-    private func auxiliaryViewAnimatable(_ step: SendStep) -> AuxiliaryViewAnimatable? {
+    private func stepViewModel(_ step: SendStep) -> AnyObject? {
         switch step {
         case .amount:
             return sendAmountViewModel
@@ -749,7 +768,7 @@ extension SendViewModel: SendSummaryRoutable {
         case .fee:
             return sendFeeViewModel
         case .summary:
-            return nil
+            return sendSummaryViewModel
         case .finish:
             return nil
         }
@@ -869,9 +888,7 @@ private extension ValidationError {
         case .invalidAmount, .balanceNotFound:
             // Shouldn't happen as we validate and cover amount errors separately, synchronously
             return nil
-        case .amountExceedsBalance, .invalidFee, .feeExceedsBalance, .maximumUTXO, .reserve:
-            return .fee
-        case .dustAmount, .dustChange, .minimumBalance, .totalExceedsBalance:
+        case .amountExceedsBalance, .invalidFee, .feeExceedsBalance, .maximumUTXO, .reserve, .dustAmount, .dustChange, .minimumBalance, .totalExceedsBalance:
             return .summary
         }
     }

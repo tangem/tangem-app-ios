@@ -87,44 +87,48 @@ struct SendAmountView: View {
     }
 }
 
-struct SendAmountView_Previews: PreviewProvider {
-    @Namespace static var namespace
-
-    static let tokenIconInfo = TokenIconInfo(
-        name: "Tether",
-        blockchainIconName: "ethereum.fill",
-        imageURL: IconURLBuilder().tokenIconURL(id: "tether"),
-        isCustom: false,
-        customTokenColor: nil
-    )
-
-    static let walletInfo = SendWalletInfo(
-        walletName: "Family Wallet",
-        balanceValue: 2130.88,
-        balance: "2 130,88 USDT (2 129,92 $)",
-        blockchain: .ethereum(testnet: false),
-        currencyId: "tether",
-        feeCurrencySymbol: "ETH",
-        feeCurrencyId: "ethereum",
-        isFeeApproximate: false,
-        tokenIconInfo: tokenIconInfo,
-        cryptoIconURL: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/coins/large/tether.png")!,
-        cryptoCurrencyCode: "USDT",
-        fiatIconURL: URL(string: "https://vectorflags.s3-us-west-2.amazonaws.com/flags/us-square-01.png")!,
-        fiatCurrencyCode: "USD",
-        amountFractionDigits: 6,
-        feeFractionDigits: 6,
-        feeAmountType: .coin,
-        canUseFiatCalculation: true
-    )
-
-    static let viewModel = SendAmountViewModel(
-        input: SendAmountViewModelInputMock(),
-        fiatCryptoAdapter: SendFiatCryptoAdapterMock(),
-        walletInfo: walletInfo
-    )
-
-    static var previews: some View {
-        SendAmountView(namespace: namespace, viewModel: viewModel)
-    }
-}
+//
+// struct SendAmountView_Previews: PreviewProvider {
+//    @Namespace static var namespace
+//
+//    static let tokenIconInfo = TokenIconInfo(
+//        name: "Tether",
+//        blockchainIconName: "ethereum.fill",
+//        imageURL: IconURLBuilder().tokenIconURL(id: "tether"),
+//        isCustom: false,
+//        customTokenColor: nil
+//    )
+//
+//    static let walletInfo = SendWalletInfo(
+//        walletName: "Family Wallet",
+//        balanceValue: 2130.88,
+//        balance: "2 130,88 USDT (2 129,92 $)",
+//        blockchain: .ethereum(testnet: false),
+//        currencyId: "tether",
+//        amountType: .coin,
+//        decimalCount: 6,
+//        feeCurrencySymbol: "ETH",
+//        feeCurrencyId: "ethereum",
+//        isFeeApproximate: false,
+//        tokenIconInfo: tokenIconInfo,
+//        cryptoIconURL: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/coins/large/tether.png")!,
+//        cryptoCurrencyCode: "USDT",
+//        fiatIconURL: URL(string: "https://vectorflags.s3-us-west-2.amazonaws.com/flags/us-square-01.png")!,
+//        fiatCurrencyCode: "USD",
+//        amountFractionDigits: 6,
+//        feeFractionDigits: 6,
+//        feeAmountType: .coin,
+//        canUseFiatCalculation: true
+//    )
+//
+//    static let viewModel = SendAmountViewModel(
+//        input: SendAmountViewModelInputMock(),
+//        transactionValidator: <#T##any TransactionValidator#>
+//        fiatCryptoAdapter: SendFiatCryptoAdapterMock(),
+//        walletInfo: walletInfo
+//    )
+//
+//    static var previews: some View {
+//        SendAmountView(namespace: namespace, viewModel: viewModel)
+//    }
+// }

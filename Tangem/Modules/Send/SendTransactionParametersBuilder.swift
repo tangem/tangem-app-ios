@@ -39,6 +39,11 @@ struct SendTransactionParametersBuilder {
         case .ton:
             return TONTransactionParams(memo: value)
         case .cosmos, .terraV1, .terraV2:
+            // remove ❌
+            if value.count > 2 {
+                throw SendTransactionParametersBuilderError.invalidDestinationTag
+            }
+
             return CosmosTransactionParams(memo: value)
         case .algorand:
             return AlgorandTransactionParams(nonce: value)
