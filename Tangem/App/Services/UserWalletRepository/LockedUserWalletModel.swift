@@ -66,7 +66,8 @@ class LockedUserWalletModel: UserWalletModel {
         AnalyticsContextData(
             card: userWallet.cardInfo().card,
             productType: config.productType,
-            embeddedEntry: config.embeddedBlockchain
+            embeddedEntry: config.embeddedBlockchain,
+            userWalletId: userWalletId
         )
     }
 
