@@ -204,7 +204,6 @@ class Analytics {
                 let message = "\(event).\(params)"
                 Crashlytics.crashlytics().log(message)
             case .amplitude:
-                amplitude?.setUserId(userId: analyticsContext.contextData?.userWalletId?.stringValue)
                 amplitude?.track(eventType: event, eventProperties: params)
             }
         }
