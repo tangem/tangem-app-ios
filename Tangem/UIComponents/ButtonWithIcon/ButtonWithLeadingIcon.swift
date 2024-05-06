@@ -185,51 +185,52 @@ private struct ButtonWithLeadingIconContentView: View {
     let action: () -> Void
     let longPressAction: (() -> Void)?
 
-    // We need to keep track if LongPress was handled. If it was - then we shouldn't process standard action
-    // Also this way is better that adding highPriorityGesture(TapGesture()) because it will break
-    // default highlighting animation for pressed state of button (it will work with delay)
-    @State private var isLongPressTriggered = false
-
     var body: some View {
-        Button(action: {
-            if isLongPressTriggered {
-                isLongPressTriggered = false
-                return
-            }
+        buttonWithActionHandlers
+            .cornerRadiusContinuous(Self.cornerRadius)
+            .buttonStyle(.borderless)
+    }
 
-            action()
-        }) {
-            HStack(spacing: spacing) {
-                icon
-                    .renderingMode(.template)
-                    .resizable()
-                    .frame(size: .init(bothDimensions: 20))
-                    .foregroundColor(colorConfiguration.iconColor)
-
-                if !title.isEmpty {
-                    Text(title)
-                        .style(Fonts.Bold.subheadline, color: colorConfiguration.textColor)
-                        .lineLimit(1)
-                }
-            }
-            .frame(maxWidth: maintainsIdealSize ? nil : .infinity)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 8)
-            .background(colorConfiguration.backgroundColor)
+    @ViewBuilder
+    private var buttonWithActionHandlers: some View {
+        switch longPressAction {
+        case .some(let longPressAction):
+            Button(action: {}) { buttonContent }
+                .simultaneousGesture(
+                    LongPressGesture()
+                        .onEnded { _ in
+                            longPressAction()
+                        }
+                )
+                .highPriorityGesture(
+                    TapGesture()
+                        .onEnded {
+                            action()
+                        }
+                )
+        case .none:
+            Button(action: action) { buttonContent }
         }
-        .cornerRadiusContinuous(Self.cornerRadius)
-        .buttonStyle(.borderless)
-        .simultaneousGesture(
-            LongPressGesture()
-                .onEnded { _ in
-                    guard let longPressAction else {
-                        return
-                    }
+    }
 
-                    isLongPressTriggered = true
-                    longPressAction()
-                }
-        )
+    private var buttonContent: some View {
+        HStack(spacing: spacing) {
+            icon
+                .renderingMode(.template)
+                .resizable()
+                .frame(size: .init(bothDimensions: 20))
+                .foregroundColor(colorConfiguration.iconColor)
+
+            if !title.isEmpty {
+                Text(title)
+                    .style(Fonts.Bold.subheadline, color: colorConfiguration.textColor)
+                    .lineLimit(1)
+            }
+        }
+        .frame(maxWidth: maintainsIdealSize ? nil : .infinity)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+        .background(colorConfiguration.backgroundColor)
     }
 }
 
