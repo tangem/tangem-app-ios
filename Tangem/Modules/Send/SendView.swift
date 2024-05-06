@@ -39,7 +39,7 @@ struct SendView: View {
         .background(backgroundColor.ignoresSafeArea())
         .animation(Constants.defaultAnimation, value: viewModel.step)
         .animation(Constants.defaultAnimation, value: viewModel.showTransactionButtons)
-        .interactiveDismissDisabled(!viewModel.canDismiss)
+        .interactiveDismissDisabled(viewModel.shouldShowDismissAlert)
     }
 
     private var pageContentTransition: AnyTransition {
