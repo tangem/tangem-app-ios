@@ -131,7 +131,8 @@ extension LockedUserWalletModel: AnalyticsContextDataProvider {
             productType: config.productType,
             batchId: cardInfo.card.batchId,
             firmware: cardInfo.card.firmwareVersion.stringValue,
-            baseCurrency: baseCurrency
+            baseCurrency: baseCurrency,
+            userWalletId: userWalletId
         )
     }
 }
