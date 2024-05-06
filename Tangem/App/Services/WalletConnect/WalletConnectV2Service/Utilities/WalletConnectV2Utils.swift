@@ -154,13 +154,14 @@ struct WalletConnectV2Utils {
 
             // [REDACTED_TODO_COMMENT]
             if let existingNamespace = sessionNamespaces[namespace] {
-                let unionChains = existingNamespace.chains?.union(sessionNamespace.chains ?? [])
-                let unionAccounts = existingNamespace.accounts.union(sessionNamespace.accounts)
-                let unionMethods = existingNamespace.methods.union(sessionNamespace.methods)
-                let unionEvents = existingNamespace.events.union(sessionNamespace.events)
+                let unionChains = Set(existingNamespace.chains ?? []).union(sessionNamespace.chains ?? [])
+                let unionAccounts = Set(existingNamespace.accounts).union(sessionNamespace.accounts)
+                let unionMethods = Set(existingNamespace.methods).union(sessionNamespace.methods)
+                let unionEvents = Set(existingNamespace.events).union(sessionNamespace.events)
+
                 sessionNamespaces[namespace] = SessionNamespace(
-                    chains: unionChains,
-                    accounts: unionAccounts,
+                    chains: Array(unionChains),
+                    accounts: Array(unionAccounts),
                     methods: unionMethods,
                     events: unionEvents
                 )
