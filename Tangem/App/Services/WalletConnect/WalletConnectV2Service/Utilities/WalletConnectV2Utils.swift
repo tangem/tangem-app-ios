@@ -24,9 +24,11 @@ struct WalletConnectV2Utils {
             }
 
             let blockchains = proposals.chains?.compactMap(createBlockchain(for:))
-            if blockchains?.count != proposals.chains?.count {
-                return false
-            }
+
+            #warning("Need check why this validation")
+//            if blockchains?.count != proposals.chains?.count {
+//                return false
+//            }
         }
 
         return true
