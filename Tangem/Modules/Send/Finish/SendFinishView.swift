@@ -24,11 +24,35 @@ struct SendFinishView: View {
                         .padding(.bottom, 12)
                 }
 
-                GroupedSection(viewModel.destinationSummaryViewData) { data in
-                    SendDestinationAddressSummaryView(address: data.address)
-                        .setNamespace(namespace)
+                GroupedSection(viewModel.destinationViewTypes) { type in
+                    switch type {
+                    case .address(let address, let corners):
+                        SendDestinationAddressSummaryView(addressTextViewHeightModel: viewModel.addressTextViewHeightModel, address: address)
+                            .setNamespace(namespace)
+                            .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)
+                            .background(
+                                Colors.Background.action
+                                    .cornerRadius(GroupedSectionConstants.defaultCornerRadius, corners: corners)
+                                    .matchedGeometryEffect(id: SendViewNamespaceId.addressBackground.rawValue, in: namespace)
+                            )
+                    case .additionalField(let type, let value):
+                        if let name = type.name {
+                            DefaultTextWithTitleRowView(data: .init(title: name, text: value))
+                                .setNamespace(namespace)
+                                .setTitleNamespaceId(SendViewNamespaceId.addressAdditionalFieldTitle.rawValue)
+                                .setTextNamespaceId(SendViewNamespaceId.addressAdditionalFieldText.rawValue)
+                                .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)
+                                .background(
+                                    Colors.Background.action
+                                        .cornerRadius(GroupedSectionConstants.defaultCornerRadius, corners: [.bottomLeft, .bottomRight])
+                                        .matchedGeometryEffect(id: SendViewNamespaceId.addressAdditionalFieldBackground.rawValue, in: namespace)
+                                )
+                        }
+                    }
                 }
-                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.addressContainer.rawValue, namespace: namespace)
+                .backgroundColor(.clear, id: SendViewNamespaceId.destinationContainer.rawValue, namespace: namespace)
+                .horizontalPadding(0)
+                .separatorStyle(.single)
 
                 GroupedSection(viewModel.amountSummaryViewData) {
                     SendAmountSummaryView(data: $0)
@@ -48,12 +72,8 @@ struct SendFinishView: View {
                         .setAmountNamespaceId(SendViewNamespaceId.feeAmount(feeOption: .market).rawValue)
                 }
                 .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
-            }
 
-            if viewModel.showButtons {
-                bottomButtons
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, bottomSpacing + 10)
+                FixedSpacer(height: bottomSpacing)
             }
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
@@ -76,27 +96,6 @@ struct SendFinishView: View {
                 .padding(.top, 6)
         }
         .transition(.move(edge: .top).combined(with: .opacity))
-    }
-
-    @ViewBuilder
-    private var bottomButtons: some View {
-        VStack(spacing: 10) {
-            HStack(spacing: 8) {
-                MainButton(
-                    title: Localization.commonExplore,
-                    icon: .leading(Assets.globe),
-                    style: .secondary,
-                    action: viewModel.explore
-                )
-                MainButton(
-                    title: Localization.commonShare,
-                    icon: .leading(Assets.share),
-                    style: .secondary,
-                    action: viewModel.share
-                )
-            }
-        }
-        .transition(.opacity)
     }
 }
 
@@ -134,6 +133,7 @@ struct SendFinishView_Previews: PreviewProvider {
     static var viewModel = SendFinishViewModel(
         input: SendFinishViewModelInputMock(),
         fiatCryptoValueProvider: SendFiatCryptoValueProviderMock(),
+        addressTextViewHeightModel: .init(),
         walletInfo: walletInfo
     )!
 
