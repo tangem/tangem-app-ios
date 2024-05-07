@@ -17,13 +17,19 @@ struct AnalyticsContextData {
     var userWalletId: UserWalletId?
 
     var analyticsParams: [Analytics.ParameterKey: String] {
-        [
-            .userWalletId: userWalletId?.stringValue
+        var params: [Analytics.ParameterKey: String] = [
             .productType: productType.rawValue,
             .batch: batchId,
             .firmware: firmware,
             .basicCurrency: baseCurrency ?? Analytics.ParameterValue.multicurrency.rawValue,
         ]
+
+        // You need to send it only if the parameter exists. The default value is not needed.
+        if let userWalletId {
+            params[.userWalletId] = userWalletId.stringValue
+        }
+
+        return params
     }
 }
 
