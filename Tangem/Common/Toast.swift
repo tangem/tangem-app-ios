@@ -47,7 +47,7 @@ class Toast<V: View> {
             Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { _ in
                 self.dismiss(animated: true) {
                     // Retain a reference to `self` to prevent its deallocation before the dismissal animation completes.
-                    _ = self
+                    withExtendedLifetime(self) {}
                 }
             }
         }
