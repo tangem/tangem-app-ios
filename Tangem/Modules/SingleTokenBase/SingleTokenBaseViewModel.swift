@@ -223,12 +223,14 @@ extension SingleTokenBaseViewModel {
     private func bind() {
         walletModel.walletDidChangePublisher
             .receive(on: DispatchQueue.main)
+            .handleEvents(receiveOutput: { [weak self] _ in
+                self?.updatePendingTransactionView()
+            })
             .removeDuplicates()
             .filter { $0 != .loading }
             .sink { _ in } receiveValue: { [weak self] newState in
                 AppLog.shared.debug("Token details receive new wallet model state: \(newState)")
                 self?.updateActionButtons()
-                self?.updatePendingTransactionView()
             }
             .store(in: &bag)
 
@@ -425,12 +427,11 @@ extension SingleTokenBaseViewModel {
         }
 
         let alertBuilder = SingleTokenAlertBuilder()
-        if !exchangeUtility.sellAvailable {
-            alert = alertBuilder.sellUnavailableAlert(for: walletModel.tokenItem)
-            return
-        }
-
-        if let sendAlert = alertBuilder.sendAlert(for: walletModel.sendingRestrictions) {
+        if let sendAlert = alertBuilder.sellAlert(
+            for: walletModel.tokenItem,
+            sellAvailable: exchangeUtility.sellAvailable,
+            sendingRestrictions: walletModel.sendingRestrictions
+        ) {
             alert = sendAlert
             return
         }
