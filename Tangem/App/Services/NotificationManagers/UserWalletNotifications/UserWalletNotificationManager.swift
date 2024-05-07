@@ -60,7 +60,7 @@ final class UserWalletNotificationManager {
             Analytics.log(.mainNoticeBackupErrors)
         }
 
-        setupPromotionNotification(dismissAction: dismissAction)
+        setupPromotionNotification(buttonAction: buttonAction, dismissAction: dismissAction)
 
         inputs.append(contentsOf: factory.buildNotificationInputs(
             for: deprecationService.deprecationWarnings,
@@ -105,7 +105,10 @@ final class UserWalletNotificationManager {
         validateHashesCount()
     }
 
-    private func setupPromotionNotification(dismissAction: @escaping NotificationView.NotificationAction) {
+    private func setupPromotionNotification(
+        buttonAction: @escaping NotificationView.NotificationButtonTapAction,
+        dismissAction: @escaping NotificationView.NotificationAction
+    ) {
         promotionUpdateTask?.cancel()
         promotionUpdateTask = Task { [weak self] in
             guard let self, !Task.isCancelled else {
@@ -118,8 +121,12 @@ final class UserWalletNotificationManager {
                 return
             }
 
-            let input = BannerPromotionNotificationFactory().buildMainBannerNotificationInput(
+            let factory = BannerPromotionNotificationFactory()
+            let button = factory.buildNotificationButton(actionType: .bookNow, action: buttonAction)
+
+            let input = factory.buildBannerNotificationInput(
                 promotion: promotion,
+                button: button,
                 dismissAction: dismissAction
             )
 
