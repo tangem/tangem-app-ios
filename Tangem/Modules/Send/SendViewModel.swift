@@ -772,21 +772,18 @@ extension SendViewModel: NotificationTapDelegate {
     }
 
     private func reduceAmountBy(_ amount: Decimal) {
-        guard var newAmount = sendModel.validatedAmountValue else { return }
+        guard let currentAmount = sendModel.validatedAmountValue?.value else { return }
 
-        newAmount = newAmount - Amount(with: walletModel.tokenItem.blockchain, type: walletModel.amountType, value: amount)
-
-        fiatCryptoAdapter.setCrypto(newAmount.value)
-    }
-
-    private func reduceAmountTo(_ amount: Decimal) {
-        var newAmount = amount
-
+        var newAmount = currentAmount - amount
         if sendModel.isFeeIncluded, let feeValue = sendModel.feeValue?.amount.value {
-            newAmount = newAmount + feeValue
+            newAmount = newAmount - feeValue
         }
 
         fiatCryptoAdapter.setCrypto(newAmount)
+    }
+
+    private func reduceAmountTo(_ amount: Decimal) {
+        fiatCryptoAdapter.setCrypto(amount)
     }
 }
 
