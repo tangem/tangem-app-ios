@@ -91,6 +91,7 @@
 "common_locked" = "Locked";
 "common_main_network" = "Main network";
 "common_network_fee_title" = "Netzgebühr";
+"common_network_fee_warning_content" = "Amount sent will be reduced by %1$@ (%2$@) to cover the selected fee level";
 "common_next" = "Next";
 "common_no" = "No";
 "common_no_address" = "No address";
