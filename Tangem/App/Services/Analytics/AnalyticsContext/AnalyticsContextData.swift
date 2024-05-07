@@ -18,7 +18,7 @@ struct AnalyticsContextData {
 
     var analyticsParams: [Analytics.ParameterKey: String] {
         [
-            .userWalletId: userWalletId?.stringValue ?? Constants.unknownedUserWalletId,
+            .userWalletId: userWalletId?.stringValue
             .productType: productType.rawValue,
             .batch: batchId,
             .firmware: firmware,
@@ -34,11 +34,5 @@ extension AnalyticsContextData {
         firmware = card.firmwareVersion.stringValue
         baseCurrency = embeddedEntry?.tokens.first?.symbol ?? embeddedEntry?.blockchainNetwork.blockchain.currencySymbol
         self.userWalletId = userWalletId
-    }
-}
-
-extension AnalyticsContextData {
-    enum Constants {
-        static let unknownedUserWalletId: String = "Unknowned user wallet ID"
     }
 }
