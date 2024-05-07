@@ -15,6 +15,7 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
     let name: String
     let showAddressIcon: Bool
     let description: String
+    let addressTextViewHeightModel: AddressTextViewHeightModel
     let didEnterDestination: (String) -> Void
     let didPasteDestination: (String) -> Void
 
@@ -37,6 +38,7 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
         input: AnyPublisher<String, Never>,
         isValidating: AnyPublisher<Bool, Never>,
         isDisabled: AnyPublisher<Bool, Never>,
+        addressTextViewHeightModel: AddressTextViewHeightModel,
         errorText: AnyPublisher<Error?, Never>,
         didEnterDestination: @escaping (String) -> Void,
         didPasteDestination: @escaping (String) -> Void
@@ -45,6 +47,7 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
         name = style.name
         showAddressIcon = style.showAddressIcon
         description = style.description
+        self.addressTextViewHeightModel = addressTextViewHeightModel
         self.didEnterDestination = didEnterDestination
         self.didPasteDestination = didPasteDestination
         placeholder = style.placeholder(isDisabled: self.isDisabled)

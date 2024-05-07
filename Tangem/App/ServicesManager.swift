@@ -16,6 +16,7 @@ class ServicesManager {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.accountHealthChecker) private var accountHealthChecker: AccountHealthChecker
+    @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
 
     private var bag = Set<AnyCancellable>()
 
@@ -44,6 +45,7 @@ class ServicesManager {
         exchangeService.initialize()
         tangemApiService.initialize()
         accountHealthChecker.initialize()
+        apiListProvider.initialize()
     }
 
     private func configureFirebase() {
