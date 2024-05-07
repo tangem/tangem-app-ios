@@ -21,11 +21,35 @@ struct SendSummaryView: View {
         VStack(spacing: 14) {
             GroupedScrollView(spacing: 0) {
                 if !viewModel.animatingDestinationOnAppear {
-                    GroupedSection(viewModel.destinationSummaryViewData) { data in
-                        SendDestinationAddressSummaryView(address: data.address)
-                            .setNamespace(namespace)
+                    GroupedSection(viewModel.destinationViewTypes) { type in
+                        switch type {
+                        case .address(let address, let corners):
+                            SendDestinationAddressSummaryView(addressTextViewHeightModel: viewModel.addressTextViewHeightModel, address: address)
+                                .setNamespace(namespace)
+                                .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)
+                                .background(
+                                    viewModel.destinationBackground
+                                        .cornerRadius(GroupedSectionConstants.defaultCornerRadius, corners: corners)
+                                        .matchedGeometryEffect(id: SendViewNamespaceId.addressBackground.rawValue, in: namespace)
+                                )
+                        case .additionalField(let type, let value):
+                            if let name = type.name {
+                                DefaultTextWithTitleRowView(data: .init(title: name, text: value))
+                                    .setNamespace(namespace)
+                                    .setTitleNamespaceId(SendViewNamespaceId.addressAdditionalFieldTitle.rawValue)
+                                    .setTextNamespaceId(SendViewNamespaceId.addressAdditionalFieldText.rawValue)
+                                    .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)
+                                    .background(
+                                        viewModel.destinationBackground
+                                            .cornerRadius(GroupedSectionConstants.defaultCornerRadius, corners: [.bottomLeft, .bottomRight])
+                                            .matchedGeometryEffect(id: SendViewNamespaceId.addressAdditionalFieldBackground.rawValue, in: namespace)
+                                    )
+                            }
+                        }
                     }
-                    .backgroundColor(viewModel.destinationBackground, id: SendViewNamespaceId.addressContainer.rawValue, namespace: namespace)
+                    .backgroundColor(.clear, id: SendViewNamespaceId.destinationContainer.rawValue, namespace: namespace)
+                    .horizontalPadding(0)
+                    .separatorStyle(.single)
                     .contentShape(Rectangle())
                     .allowsHitTesting(viewModel.canEditDestination)
                     .onTapGesture {
@@ -95,14 +119,14 @@ struct SendSummaryView: View {
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 16)
-                    .padding(.bottom, bottomSpacing + 14)
                     .visible(viewModel.showTransactionDescription)
             }
+
+            FixedSpacer(height: bottomSpacing)
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         .alert(item: $viewModel.alert) { $0.alert }
         .onAppear(perform: viewModel.onAppear)
-        .interactiveDismissDisabled(viewModel.isSending)
     }
 
     private func amountSectionContent(data: SendAmountSummaryViewData) -> some View {
@@ -161,6 +185,7 @@ struct SendSummaryView_Previews: PreviewProvider {
         input: SendSummaryViewModelInputMock(),
         notificationManager: FakeSendNotificationManager(),
         fiatCryptoValueProvider: SendFiatCryptoValueProviderMock(),
+        addressTextViewHeightModel: .init(),
         walletInfo: walletInfo
     )
 

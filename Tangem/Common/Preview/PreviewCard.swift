@@ -48,7 +48,8 @@ enum PreviewCard {
                 dependencies: .init(
                     accountCreator: BlockchainAccountCreatorStub(),
                     dataStorage: FakeBlockchainDataStorage()
-                )
+                ),
+                apiList: [:]
             )
             // [REDACTED_TODO_COMMENT]
             _ = try! factory.makeWalletManager(
