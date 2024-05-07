@@ -14,9 +14,11 @@ import BlockchainSdk
 protocol SendSummaryViewModelInput: AnyObject {
     var canEditAmount: Bool { get }
     var canEditDestination: Bool { get }
+    var feeOptions: [FeeOption] { get }
 
-    var userInputAmountPublisher: AnyPublisher<Amount?, Never> { get }
+    var transactionAmountPublisher: AnyPublisher<Amount?, Never> { get }
     var destinationTextPublisher: AnyPublisher<String, Never> { get }
+    var additionalFieldPublisher: AnyPublisher<(SendAdditionalFields, String)?, Never> { get }
     var feeValuePublisher: AnyPublisher<Fee?, Never> { get }
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
     var selectedFeeOptionPublisher: AnyPublisher<FeeOption, Never> { get }
@@ -47,7 +49,7 @@ class SendSummaryViewModel: ObservableObject {
     @Published var isSending = false
     @Published var alert: AlertBinder?
 
-    @Published var destinationSummaryViewData: SendDestinationSummaryViewData?
+    @Published var destinationViewTypes: [SendDestinationSummaryViewType] = []
     @Published var amountSummaryViewData: SendAmountSummaryViewData?
     @Published var selectedFeeSummaryViewModel: SendFeeSummaryViewModel?
     @Published var deselectedFeeRowViewModels: [FeeRowViewModel] = []
@@ -73,11 +75,14 @@ class SendSummaryViewModel: ObservableObject {
     private let notificationManager: SendNotificationManager
     private let fiatCryptoValueProvider: SendFiatCryptoValueProvider
 
-    init(input: SendSummaryViewModelInput, notificationManager: SendNotificationManager, fiatCryptoValueProvider: SendFiatCryptoValueProvider, walletInfo: SendWalletInfo) {
+    let addressTextViewHeightModel: AddressTextViewHeightModel
+
+    init(input: SendSummaryViewModelInput, notificationManager: SendNotificationManager, fiatCryptoValueProvider: SendFiatCryptoValueProvider, addressTextViewHeightModel: AddressTextViewHeightModel, walletInfo: SendWalletInfo) {
         self.input = input
         self.walletInfo = walletInfo
         self.notificationManager = notificationManager
         self.fiatCryptoValueProvider = fiatCryptoValueProvider
+        self.addressTextViewHeightModel = addressTextViewHeightModel
 
         sectionViewModelFactory = SendSummarySectionViewModelFactory(
             feeCurrencySymbol: walletInfo.feeCurrencySymbol,
@@ -114,6 +119,8 @@ class SendSummaryViewModel: ObservableObject {
     }
 
     func onAppear() {
+        selectedFeeSummaryViewModel?.setAnimateTitleOnAppear(true)
+
         withAnimation(SendView.Constants.defaultAnimation) {
             self.animatingDestinationOnAppear = false
             self.animatingAmountOnAppear = false
@@ -149,11 +156,11 @@ class SendSummaryViewModel: ObservableObject {
             .assign(to: \.isSending, on: self, ownership: .weak)
             .store(in: &bag)
 
-        input.destinationTextPublisher
-            .map { [weak self] destination in
-                self?.sectionViewModelFactory.makeDestinationViewData(address: destination)
+        Publishers.CombineLatest(input.destinationTextPublisher, input.additionalFieldPublisher)
+            .map { [weak self] destination, additionalField in
+                self?.sectionViewModelFactory.makeDestinationViewTypes(address: destination, additionalField: additionalField) ?? []
             }
-            .assign(to: \.destinationSummaryViewData, on: self)
+            .assign(to: \.destinationViewTypes, on: self)
             .store(in: &bag)
 
         Publishers.CombineLatest(
@@ -169,24 +176,20 @@ class SendSummaryViewModel: ObservableObject {
         .assign(to: \.amountSummaryViewData, on: self, ownership: .weak)
         .store(in: &bag)
 
-        let feeValues = input.feeValues
-            .map {
-                $0.compactMapValues { $0.value }
-            }
-
-        Publishers.CombineLatest3(feeValues, input.feeValuePublisher, input.selectedFeeOptionPublisher)
-            .sink { [weak self] feeValues, selectedFeeValue, selectedFeeOption in
+        Publishers.CombineLatest(input.feeValues, input.selectedFeeOptionPublisher)
+            .sink { [weak self] feeValues, selectedFeeOption in
                 guard let self else { return }
 
                 var selectedFeeSummaryViewModel: SendFeeSummaryViewModel?
                 var deselectedFeeRowViewModels: [FeeRowViewModel] = []
 
-                for (feeOption, feeValue) in feeValues {
+                for feeOption in input.feeOptions {
+                    let feeValue = feeValues[feeOption] ?? .loading
+
                     if feeOption == selectedFeeOption {
                         selectedFeeSummaryViewModel = sectionViewModelFactory.makeFeeViewData(
-                            from: selectedFeeValue,
-                            feeOption: feeOption,
-                            animateTitleOnAppear: true
+                            from: feeValue,
+                            feeOption: feeOption
                         )
                     } else {
                         let model = sectionViewModelFactory.makeDeselectedFeeRowViewModel(from: feeValue, feeOption: feeOption)
@@ -199,7 +202,7 @@ class SendSummaryViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        Publishers.CombineLatest(input.userInputAmountPublisher, input.feeValuePublisher)
+        Publishers.CombineLatest(input.transactionAmountPublisher, input.feeValuePublisher)
             .withWeakCaptureOf(self)
             .map { parameters -> String? in
                 let (thisSendSummaryViewModel, (amount, fee)) = parameters

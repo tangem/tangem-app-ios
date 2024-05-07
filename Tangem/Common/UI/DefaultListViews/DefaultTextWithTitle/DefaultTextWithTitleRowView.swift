@@ -28,6 +28,7 @@ struct DefaultTextWithTitleRowView: View {
 
             Text(data.text)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .matchedGeometryEffectOptional(id: textNamespaceId, in: namespace)
         }
         .padding(.vertical, 14)
