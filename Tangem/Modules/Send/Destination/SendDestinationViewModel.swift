@@ -51,6 +51,7 @@ class SendDestinationViewModel: ObservableObject {
     var didProperlyDisappear: Bool = false
 
     private let input: SendDestinationViewModelInput
+    private let addressTextViewHeightModel: AddressTextViewHeightModel
     private let transactionHistoryMapper: TransactionHistoryMapper
     private let suggestedWallets: [SendSuggestedDestinationWallet]
 
@@ -62,8 +63,9 @@ class SendDestinationViewModel: ObservableObject {
 
     // MARK: - Methods
 
-    init(input: SendDestinationViewModelInput) {
+    init(input: SendDestinationViewModelInput, addressTextViewHeightModel: AddressTextViewHeightModel) {
         self.input = input
+        self.addressTextViewHeightModel = addressTextViewHeightModel
 
         transactionHistoryMapper = TransactionHistoryMapper(
             currencySymbol: input.currencySymbol,
@@ -85,7 +87,7 @@ class SendDestinationViewModel: ObservableObject {
                 let walletModel = walletModels.first { walletModel in
                     // Disregarding the difference between testnet and mainnet blockchains
                     // See https://github.com/tangem/tangem-app-ios/pull/3079#discussion_r1553709671
-                    return walletModel.blockchainNetwork.blockchain.coinId == blockchain.coinId &&
+                    return walletModel.blockchainNetwork.blockchain.networkId == blockchain.networkId &&
                         !walletModel.isCustom
                 }
 
@@ -102,6 +104,7 @@ class SendDestinationViewModel: ObservableObject {
             input: input.destinationTextPublisher,
             isValidating: input.isValidatingDestination,
             isDisabled: .just(output: false),
+            addressTextViewHeightModel: addressTextViewHeightModel,
             errorText: input.destinationError
         ) { [weak self] in
             self?.input.setDestination(SendAddress(value: $0, source: .textField))
@@ -116,6 +119,7 @@ class SendDestinationViewModel: ObservableObject {
                 input: input.destinationAdditionalFieldTextPublisher,
                 isValidating: .just(output: false),
                 isDisabled: input.additionalFieldEmbeddedInAddress,
+                addressTextViewHeightModel: .init(),
                 errorText: input.destinationAdditionalFieldError
             ) { [weak self] in
                 self?.input.setDestinationAdditionalField($0)
