@@ -13,8 +13,6 @@ class SendFeeSummaryViewModel: ObservableObject, Identifiable {
     let id = UUID()
 
     let title: String
-    let cryptoAmount: String
-    let fiatAmount: String?
 
     @Published var titleVisible = true
 
@@ -26,14 +24,43 @@ class SendFeeSummaryViewModel: ObservableObject, Identifiable {
         feeOption.icon.image
     }
 
-    let feeOption: FeeOption
-    private let animateTitleOnAppear: Bool
+    var cryptoAmount: String? {
+        switch formattedFeeComponents {
+        case .loading:
+            return ""
+        case .loaded(let value):
+            return value?.cryptoFee
+        case .failedToLoad:
+            return AppConstants.dashSign
+        }
+    }
 
-    init(title: String, feeOption: FeeOption, cryptoAmount: String, fiatAmount: String?, animateTitleOnAppear: Bool) {
+    var fiatAmount: String? {
+        switch formattedFeeComponents {
+        case .loading, .failedToLoad:
+            // Corresponding UI will be displayed by the cryptoAmount field
+            return nil
+        case .loaded(let value):
+            return value?.fiatFee
+        }
+    }
+
+    var isLoading: Bool {
+        formattedFeeComponents.isLoading
+    }
+
+    let feeOption: FeeOption
+    private var animateTitleOnAppear: Bool = false
+
+    private let formattedFeeComponents: LoadingValue<FormattedFeeComponents?>
+
+    init(title: String, feeOption: FeeOption, formattedFeeComponents: LoadingValue<FormattedFeeComponents?>) {
         self.title = title
         self.feeOption = feeOption
-        self.cryptoAmount = cryptoAmount
-        self.fiatAmount = fiatAmount
+        self.formattedFeeComponents = formattedFeeComponents
+    }
+
+    func setAnimateTitleOnAppear(_ animateTitleOnAppear: Bool) {
         self.animateTitleOnAppear = animateTitleOnAppear
     }
 
