@@ -32,7 +32,10 @@ final class WalletConnectV2Service {
     private var messagesSubscriptions = Set<AnyCancellable>()
 
     private lazy var pairApi: PairingInteracting = Pair.instance
-    private lazy var signApi: SignClient = Sign.instance
+    private lazy var signApi: SignClient = {
+        Sign.configure(crypto: WalletConnectCryptoProvider())
+        return Sign.instance
+    }()
 
     var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> {
         canEstablishNewSessionSubject
