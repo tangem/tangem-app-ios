@@ -254,6 +254,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         var tokenListSyncSubscription: AnyCancellable?
         tokenListSyncSubscription = Publishers.Zip(tokenListSyncPublisher, sectionsPublisher)
+            .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
                 viewModel.isLoadingTokenList = false
@@ -336,7 +337,7 @@ extension MultiWalletMainContentViewModel {
             longHashesSupported: userWalletModel.config.hasFeature(.longHashes),
             derivationStyle: userWalletModel.config.derivationStyle,
             shouldShowLegacyDerivationAlert: shouldShowLegacyDerivationAlert,
-            existingCurves: userWalletModel.config.walletCurves
+            existingCurves: userWalletModel.config.existingCurves
         )
 
         coordinator?.openManageTokens(with: settings, userTokensManager: userWalletModel.userTokensManager)
