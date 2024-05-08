@@ -59,7 +59,7 @@ class ExpressNotificationManager {
             notificationInputsSubject.value = []
 
             setupFeeWillBeSubtractFromSendingAmountNotification(subtractFee: preview.subtractFee)
-            setupWithdrawalSuggestion(suggestion: preview.suggestion)
+            setupWithdrawalNotification(suggestion: preview.suggestion)
         }
     }
 
@@ -196,12 +196,7 @@ class ExpressNotificationManager {
         )
     }
 
-    private func setupWithdrawalSuggestion(suggestion: WithdrawalSuggestion?) {
-        guard let interactor = expressInteractor else { return }
-
-        let event: ExpressNotificationEvent
-        let sourceTokenItem = interactor.getSender().tokenItem
-
+    private func setupWithdrawalNotification(suggestion: WithdrawalNotification?) {
         switch suggestion {
         case .none:
             return
