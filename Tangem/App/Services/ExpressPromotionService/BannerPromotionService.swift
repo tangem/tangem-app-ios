@@ -38,6 +38,7 @@ enum BannerPromotionPlace: String, Hashable {
 
 enum PromotionProgramName: String, Hashable {
     // The promotion has ended
+    // Will be deleted: [REDACTED_INFO]
     case changelly
     // Estimated dates 13/05 - 13/06
     case travala
