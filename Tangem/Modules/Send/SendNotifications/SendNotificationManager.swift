@@ -14,7 +14,7 @@ protocol SendNotificationManagerInput {
     var selectedFeeOptionPublisher: AnyPublisher<FeeOption, Never> { get }
     var customFeePublisher: AnyPublisher<Fee?, Never> { get }
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> { get }
-    var withdrawalSuggestion: AnyPublisher<WithdrawalSuggestion?, Never> { get }
+    var withdrawalSuggestion: AnyPublisher<WithdrawalNotification?, Never> { get }
     var amountError: AnyPublisher<Error?, Never> { get }
     var transactionCreationError: AnyPublisher<Error?, Never> { get }
 }
