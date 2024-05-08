@@ -100,14 +100,18 @@ extension SendNotificationEvent: NotificationEvent {
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .networkFeeUnreachable, .totalExceedsBalance, .feeExceedsBalance, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange, .existentialDeposit:
+        case .networkFeeUnreachable,
+             .totalExceedsBalance,
+             .feeExceedsBalance,
+             .withdrawalOptionalAmountChange,
+             .withdrawalMandatoryAmountChange,
+             .existentialDeposit:
             // ♿️ Does it have a button? Use `action`
             return .action
         case .feeWillBeSubtractFromSendingAmount,
              .customFeeTooHigh,
              .customFeeTooLow,
              .minimumAmount,
-             .existentialDeposit,
              .cardanoHasTokens,
              .cardanoWillBeSentWithToken,
              .cardanoInsufficientBalanceToSendToken:
@@ -117,10 +121,20 @@ extension SendNotificationEvent: NotificationEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .minimumAmount, .withdrawalMandatoryAmountChange, .existentialDeposit, .cardanoHasTokens, .cardanoInsufficientBalanceToSendToken:
+        case .minimumAmount,
+             .withdrawalMandatoryAmountChange,
+             .existentialDeposit,
+             .cardanoHasTokens,
+             .cardanoInsufficientBalanceToSendToken,
+             .totalExceedsBalance:
             // ⚠️ sync with SendNotificationEvent.icon
             return .init(iconType: .image(Assets.redCircleWarning.image))
-        case .networkFeeUnreachable, .customFeeTooHigh, .customFeeTooLow, .withdrawalOptionalAmountChange, .cardanoWillBeSentWithToken:
+        case .networkFeeUnreachable,
+             .customFeeTooHigh,
+             .customFeeTooLow,
+             .withdrawalOptionalAmountChange,
+             .cardanoWillBeSentWithToken,
+             .feeWillBeSubtractFromSendingAmount:
             // ⚠️ sync with SendNotificationEvent.icon
             return .init(iconType: .image(Assets.attention.image))
         case .feeExceedsBalance(let configuration):
@@ -144,7 +158,8 @@ extension SendNotificationEvent: NotificationEvent {
              .customFeeTooLow,
              .withdrawalOptionalAmountChange,
              .totalExceedsBalance,
-             .cardanoWillBeSentWithToken:
+             .cardanoWillBeSentWithToken,
+             .feeWillBeSubtractFromSendingAmount:
             // ⚠️ sync with SendNotificationEvent.icon
             return .warning
         }
@@ -194,7 +209,8 @@ extension SendNotificationEvent {
              .feeExceedsBalance,
              .cardanoHasTokens,
              .cardanoInsufficientBalanceToSendToken,
-             .cardanoWillBeSentWithToken:
+             .cardanoWillBeSentWithToken,
+             .feeWillBeSubtractFromSendingAmount:
             return .summary
         }
     }
@@ -208,17 +224,19 @@ extension SendNotificationEvent {
             return .refreshFee
         case .feeExceedsBalance(let configuration):
             return .openFeeCurrency(currencySymbol: configuration.feeAmountTypeCurrencySymbol)
-        case .withdrawalOptionalAmountChange(let amount, let amountFormatted, _), .existentialDeposit(let amount, let amountFormatted):
+        case .withdrawalOptionalAmountChange(let amount, let amountFormatted, _),
+             .existentialDeposit(let amount, let amountFormatted):
             return .reduceAmountBy(amount: amount, amountFormatted: amountFormatted)
         case .withdrawalMandatoryAmountChange(let amount, let amountFormatted, _, _):
             return .reduceAmountTo(amount: amount, amountFormatted: amountFormatted)
-        case .existentialDeposit,
+        case .feeWillBeSubtractFromSendingAmount,
              .customFeeTooHigh,
              .customFeeTooLow,
              .minimumAmount,
              .cardanoHasTokens,
              .cardanoWillBeSentWithToken,
-             .cardanoInsufficientBalanceToSendToken:
+             .cardanoInsufficientBalanceToSendToken,
+             .totalExceedsBalance:
             return nil
         }
     }
