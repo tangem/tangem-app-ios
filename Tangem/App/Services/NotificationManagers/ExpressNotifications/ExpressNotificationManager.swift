@@ -145,8 +145,8 @@ class ExpressNotificationManager {
             event = .withdrawalMandatoryAmountChange(amount: newAmount.value, amountFormatted: newAmount.string(), blockchainName: blockchainName, maxUtxo: maxUtxo)
         case .reserve(let amount):
             event = .notEnoughReserveToSwap(maximumAmountText: "\(amount.value)\(sourceTokenItemSymbol)")
-        case .cardanoHasTokens(let minimumAmount):
-            event = .cardanoHasTokens(minCardanoAmountFormatted: minimumAmount.string())
+        case .cardanoHasTokens:
+            event = .cardanoHasTokens
         case .cardanoInsufficientBalanceToSendToken:
             event = .cardanoInsufficientBalanceToSendToken(tokenSymbol: sourceTokenItemSymbol)
         }
@@ -197,27 +197,24 @@ class ExpressNotificationManager {
     }
 
     private func setupWithdrawalNotification(suggestion: WithdrawalNotification?) {
+        guard let interactor = expressInteractor else { return }
+
+        let sourceTokenItem = interactor.getSender().tokenItem
+        let event: ExpressNotificationEvent
+
         switch suggestion {
         case .none:
             return
         case .feeIsTooHigh(let reduceAmountBy):
-            guard let interactor = expressInteractor else { return }
-
-            let sourceTokenItem = interactor.getSender().tokenItem
-            let event: ExpressNotificationEvent = .withdrawalOptionalAmountChange(
+            event = .withdrawalOptionalAmountChange(
                 amount: reduceAmountBy.value,
                 amountFormatted: reduceAmountBy.string(),
                 blockchainName: sourceTokenItem.blockchain.displayName
             )
-            let notification = NotificationsFactory().buildNotificationInput(for: event) { [weak self] id, actionType in
-                self?.delegate?.didTapNotificationButton(with: id, action: actionType)
-            }
-            notificationInputsSubject.value.appendIfNotContains(notification)
-            event = .withdrawalOptionalAmountChange(amount: reduceAmountBy.value, amountFormatted: reduceAmountBy.string())
         case .cardanoWillBeSendAlongToken(let amount):
             event = .cardanoWillBeSentWithToken(
-                tokenAmountFormatted: sourceTokenItem.currencySymbol,
-                cardanoAmountFormatted: amount.string()
+                cardanoAmountFormatted: amount.value.description,
+                tokenSymbol: sourceTokenItem.currencySymbol
             )
         }
 
