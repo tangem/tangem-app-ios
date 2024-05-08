@@ -22,9 +22,9 @@ enum SendNotificationEvent {
     case minimumAmount(value: String)
     case withdrawalOptionalAmountChange(amount: Decimal, amountFormatted: String, blockchainName: String)
     case withdrawalMandatoryAmountChange(amount: Decimal, amountFormatted: String, blockchainName: String, maxUtxo: Int)
-    case cardanoWillBeSentWithToken(tokenAmountFormatted: String, cardanoAmountFormatted: String)
+    case cardanoWillBeSentWithToken(cardanoAmountFormatted: String, tokenSymbol: String)
     // Try to spend all cardano when we have a token
-    case cardanoHasTokens(minCardanoAmountFormatted: String)
+    case cardanoHasTokens
     case cardanoInsufficientBalanceToSendToken(tokenSymbol: String)
 }
 
@@ -56,8 +56,7 @@ extension SendNotificationEvent: NotificationEvent {
         case .cardanoInsufficientBalanceToSendToken:
             return .string(Localization.cardanoInsufficientBalanceToSendTokenTitle)
         case .cardanoWillBeSentWithToken:
-            // [REDACTED_TODO_COMMENT]
-            return .string(Localization.cardanoInsufficientBalanceToSendTokenTitle)
+            return .string(Localization.cardanoCoinWillBeSendWithTokenTitle)
         }
     }
 
@@ -89,10 +88,10 @@ extension SendNotificationEvent: NotificationEvent {
             return Localization.sendNotificationHighFeeText(blockchainName, amount)
         case .withdrawalMandatoryAmountChange(_, let amountFormatted, let blockchainName, let maxUtxo):
             return Localization.sendNotificationTransactionLimitText(blockchainName, maxUtxo, amountFormatted)
-        case .cardanoWillBeSentWithToken(let tokenAmountFormatted, let cardanoAmountFormatted):
-            return Localization.cardanoCoinWillBeSendWithTokenDescription(tokenAmountFormatted, cardanoAmountFormatted)
-        case .cardanoHasTokens(let minCardanoAmountFormatted):
-            return Localization.cardanoMaxAmountHasTokenDescription(minCardanoAmountFormatted)
+        case .cardanoWillBeSentWithToken(let cardanoAmountFormatted, let tokenSymbol):
+            return Localization.cardanoCoinWillBeSendWithTokenDescription(cardanoAmountFormatted, tokenSymbol)
+        case .cardanoHasTokens:
+            return Localization.cardanoMaxAmountHasTokenDescription
         case .cardanoInsufficientBalanceToSendToken(let tokenSymbol):
             return Localization.cardanoInsufficientBalanceToSendTokenDescription(tokenSymbol)
         }
