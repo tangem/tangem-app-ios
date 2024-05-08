@@ -70,7 +70,7 @@ class SendModel {
 
     private var transactionParameters: TransactionParams?
     private let _transactionCreationError = CurrentValueSubject<Error?, Never>(nil)
-    private let _withdrawalSuggestion = CurrentValueSubject<WithdrawalSuggestion?, Never>(nil)
+    private let _withdrawalSuggestion = CurrentValueSubject<WithdrawalNotification?, Never>(nil)
     private let transaction = CurrentValueSubject<BlockchainSdk.Transaction?, Never>(nil)
 
     // MARK: - Raw data
@@ -717,7 +717,7 @@ extension SendModel: SendNotificationManagerInput {
         _transactionCreationError.eraseToAnyPublisher()
     }
 
-    var withdrawalSuggestion: AnyPublisher<WithdrawalSuggestion?, Never> {
+    var withdrawalSuggestion: AnyPublisher<WithdrawalNotification?, Never> {
         _withdrawalSuggestion.eraseToAnyPublisher()
     }
 }
