@@ -813,7 +813,7 @@ extension ExpressInteractor {
     struct PreviewCEXState {
         let subtractFee: Decimal
         let fees: [FeeOption: Fee]
-        let suggestion: WithdrawalSuggestion?
+        let suggestion: WithdrawalNotification?
     }
 
     struct ReadyToSwapState {
