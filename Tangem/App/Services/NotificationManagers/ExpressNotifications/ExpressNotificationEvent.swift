@@ -112,7 +112,7 @@ extension ExpressNotificationEvent: NotificationEvent {
         case .cardanoWillBeSentWithToken(let tokenAmountFormatted, let cardanoAmountFormatted):
             return Localization.cardanoCoinWillBeSendWithTokenDescription(tokenAmountFormatted, cardanoAmountFormatted)
         case .cardanoHasTokens(let minCardanoAmountFormatted):
-            return Localization.cardanoMaxAmountHasTokenDescription(minCardanoAmountFormatted)
+            return Localization.cardanoMaxAmountHasTokenDescription
         case .cardanoInsufficientBalanceToSendToken(let tokenSymbol):
             return Localization.cardanoInsufficientBalanceToSendTokenDescription(tokenSymbol)
         }
