@@ -194,7 +194,9 @@ class ExpressNotificationManager {
         case .none:
             return nil
         case .feeIsTooHigh(let reduceAmountBy):
-            guard let interactor = expressInteractor else { return }
+            guard let interactor = expressInteractor else {
+                return nil
+            }
 
             let sourceTokenItem = interactor.getSender().tokenItem
             let event: ExpressNotificationEvent = .withdrawalOptionalAmountChange(
