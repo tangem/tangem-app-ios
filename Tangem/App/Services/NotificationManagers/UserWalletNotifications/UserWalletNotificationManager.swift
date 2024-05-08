@@ -60,7 +60,7 @@ final class UserWalletNotificationManager {
             Analytics.log(.mainNoticeBackupErrors)
         }
 
-        setupPromotionNotification(buttonAction: buttonAction, dismissAction: dismissAction)
+        setupPromotionNotification(dismissAction: dismissAction)
 
         inputs.append(contentsOf: factory.buildNotificationInputs(
             for: deprecationService.deprecationWarnings,
@@ -105,10 +105,7 @@ final class UserWalletNotificationManager {
         validateHashesCount()
     }
 
-    private func setupPromotionNotification(
-        buttonAction: @escaping NotificationView.NotificationButtonTapAction,
-        dismissAction: @escaping NotificationView.NotificationAction
-    ) {
+    private func setupPromotionNotification(dismissAction: @escaping NotificationView.NotificationAction) {
         promotionUpdateTask?.cancel()
         promotionUpdateTask = Task { [weak self] in
             guard let self, !Task.isCancelled else {
@@ -122,7 +119,13 @@ final class UserWalletNotificationManager {
             }
 
             let factory = BannerPromotionNotificationFactory()
-            let button = factory.buildNotificationButton(actionType: .bookNow, action: buttonAction)
+            let button = factory.buildNotificationButton(actionType: .bookNow) { [weak self] id, action in
+                var parameters = BannerNotificationEvent.travala(description: "").analyticsParams
+                parameters[.action] = Analytics.ParameterValue.clicked
+                Analytics.log(event: .promotionBannerClicked, params: parameters)
+
+                self?.delegate?.didTapNotificationButton(with: id, action: action)
+            }
 
             let input = factory.buildBannerNotificationInput(
                 promotion: promotion,
@@ -284,6 +287,10 @@ extension UserWalletNotificationManager: NotificationManager {
             case .changelly:
                 bannerPromotionService.hide(promotion: .changelly, on: .main)
             case .travala:
+                var parameters = event.analyticsParams
+                parameters[.action] = Analytics.ParameterValue.closed
+                Analytics.log(event: .promotionBannerClicked, params: parameters)
+
                 bannerPromotionService.hide(promotion: .travala, on: .main)
             }
         }
