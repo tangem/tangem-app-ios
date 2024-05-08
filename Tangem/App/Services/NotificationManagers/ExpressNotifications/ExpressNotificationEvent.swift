@@ -21,7 +21,7 @@ enum ExpressNotificationEvent {
     case noDestinationTokens(sourceTokenName: String)
     case verificationRequired
     case cexOperationFailed
-    case feeWillBeSubtractFromSendingAmount
+    case feeWillBeSubtractFromSendingAmount(cryptoAmountFormatted: String, fiatAmountFormatted: String)
     case existentialDepositWarning(blockchainName: String, amount: String)
     case dustAmount(minimumAmountText: String, minimumChangeText: String)
     case withdrawalOptionalAmountChange(amount: Decimal, amountFormatted: String, blockchainName: String)
@@ -91,8 +91,8 @@ extension ExpressNotificationEvent: NotificationEvent {
             return Localization.expressExchangeNotificationVerificationText
         case .cexOperationFailed:
             return Localization.expressExchangeNotificationFailedText
-        case .feeWillBeSubtractFromSendingAmount:
-            return Localization.swappingNetworkFeeWarningContent
+        case .feeWillBeSubtractFromSendingAmount(let cryptoAmountFormatted, let fiatAmountFormatted):
+            return Localization.commonNetworkFeeWarningContent(cryptoAmountFormatted, fiatAmountFormatted)
         case .existentialDepositWarning(let blockchainName, let amount):
             return Localization.warningExistentialDepositMessage(blockchainName, amount)
         case .dustAmount(let minimumAmountText, let minimumChangeText):
@@ -230,6 +230,47 @@ extension ExpressNotificationEvent: NotificationEvent {
 
     var isDismissable: Bool {
         return false
+    }
+}
+
+extension ExpressNotificationEvent {
+    var id: String {
+        switch self {
+        case .permissionNeeded:
+            return "permissionNeeded"
+        case .refreshRequired:
+            return "refreshRequired"
+        case .hasPendingTransaction:
+            return "hasPendingTransaction"
+        case .hasPendingApproveTransaction:
+            return "hasPendingApproveTransaction"
+        case .notEnoughFeeForTokenTx:
+            return "notEnoughFeeForTokenTx"
+        case .tooSmallAmountToSwap:
+            return "tooSmallAmountToSwap"
+        case .tooBigAmountToSwap:
+            return "tooBigAmountToSwap"
+        case .notEnoughReserveToSwap:
+            return "notEnoughReserveToSwap"
+        case .noDestinationTokens:
+            return "noDestinationTokens"
+        case .verificationRequired:
+            return "verificationRequired"
+        case .cexOperationFailed:
+            return "cexOperationFailed"
+        case .feeWillBeSubtractFromSendingAmount:
+            return "feeWillBeSubtractFromSendingAmount"
+        case .existentialDepositWarning:
+            return "existentialDepositWarning"
+        case .dustAmount:
+            return "dustAmount"
+        case .withdrawalOptionalAmountChange:
+            return "withdrawalOptionalAmountChange"
+        case .withdrawalMandatoryAmountChange:
+            return "withdrawalMandatoryAmountChange"
+        case .notEnoughReceivedAmountForReserve:
+            return "notEnoughReceivedAmountForReserve"
+        }
     }
 }
 
