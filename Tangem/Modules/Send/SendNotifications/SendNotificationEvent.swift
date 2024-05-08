@@ -32,7 +32,7 @@ extension SendNotificationEvent: NotificationEvent {
         case .totalExceedsBalance:
             return .string(Localization.sendNotificationExceedBalanceTitle)
         case .feeExceedsBalance(let configuration):
-            return .string(Localization.warningSendBlockedFundsForFeeTitle(configuration.networkName))
+            return .string(Localization.warningSendBlockedFundsForFeeTitle(configuration.feeAmountTypeName))
         case .feeWillBeSubtractFromSendingAmount:
             return .string(Localization.sendNetworkFeeWarningTitle)
         case .existentialDeposit:
