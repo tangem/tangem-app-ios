@@ -168,40 +168,23 @@ class ExpressNotificationManager {
     }
 
     private func setupFeeWillBeSubtractFromSendingAmountNotification(subtractFee: Decimal) {
-        guard let interactor = expressInteractor else { return }
+        guard let interactor = expressInteractor, subtractFee > 0 else {
+            return
+        }
 
         let feeTokenItem = interactor.getSender().feeTokenItem
+        let feeFiatValue = BalanceConverter().convertToFiat(value: subtractFee, from: feeTokenItem.currencyId ?? "")
 
-        let cryptoAmountFormatted: String
-        let fiatAmountFormatted: String
-        let visible: Bool
-        if subtractFee > 0 {
-            let converter = BalanceConverter()
-            let feeFiatValue = converter.convertToFiat(value: subtractFee, from: feeTokenItem.currencyId ?? "")
-
-            let formatter = BalanceFormatter()
-            cryptoAmountFormatted = formatter.formatCryptoBalance(subtractFee, currencyCode: feeTokenItem.currencySymbol)
-            fiatAmountFormatted = formatter.formatFiatBalance(feeFiatValue)
-
-            visible = true
-        } else {
-            cryptoAmountFormatted = ""
-            fiatAmountFormatted = ""
-            visible = false
-        }
+        let formatter = BalanceFormatter()
+        let cryptoAmountFormatted = formatter.formatCryptoBalance(subtractFee, currencyCode: feeTokenItem.currencySymbol)
+        let fiatAmountFormatted = formatter.formatFiatBalance(feeFiatValue)
 
         let event = ExpressNotificationEvent.feeWillBeSubtractFromSendingAmount(
             cryptoAmountFormatted: cryptoAmountFormatted,
             fiatAmountFormatted: fiatAmountFormatted
         )
 
-        guard visible else {
-            notificationInputsSubject.value.removeAll(where: { $0.settings.event.id == event.id })
-            return
-        }
-
-        let factory = NotificationsFactory()
-        let notification = factory.buildNotificationInput(for: event)
+        let notification = NotificationsFactory().buildNotificationInput(for: event)
         notificationInputsSubject.value.appendIfNotContains(notification)
     }
 
