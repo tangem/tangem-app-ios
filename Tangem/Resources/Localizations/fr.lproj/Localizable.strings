@@ -49,10 +49,12 @@
 "card_settings_reset_card_to_factory" = "Reset to Factory Settings";
 "card_settings_security_mode" = "Security Mode";
 "card_settings_title" = "Card Settings";
-"cardano_coin_will_be_send_with_token_description" = "Due to the peculiarities of the Cardano network, when transacting the %1$@ token, in addition to the network commission, %2$@ will be charged";
-"cardano_insufficient_balance_to_send_token_description" = "To make a %1$@ transaction, you must deposit some ADA to cover the network fee and minimum ADA value. (5 ADA balance recommended)";
-"cardano_insufficient_balance_to_send_token_title" = "Insufficient ADA to token transfer";
-"cardano_max_amount_has_token_description" = "The Cardano network does not allow you to leave an amount on your balance below the minimum value %1$@ if you have tokens. Please ensure that you have some ADA remaining.";
+"cardano_coin_will_be_send_with_token_description" = "In addition to network fee, the Cardano network charges %1$@ ADA when transacting with the %2$@ token";
+"cardano_coin_will_be_send_with_token_title" = "Cardano transaction requirements";
+"cardano_insufficient_balance_to_send_token_description" = "To make a %1$@ transaction, you must deposit some ADA to cover the network fee and minimum ADA value (5 ADA recommended)";
+"cardano_insufficient_balance_to_send_token_title" = "Insufficient ADA for token transfer";
+"cardano_max_amount_has_token_description" = "You must maintain some ADA because you have some tokens on the Cardano blockchain";
+"cardano_max_amount_has_token_title" = "Not enough ADA";
 "common_accept" = "J'accepte";
 "common_access_denied" = "Access denied";
 "common_apply" = "Apply";
