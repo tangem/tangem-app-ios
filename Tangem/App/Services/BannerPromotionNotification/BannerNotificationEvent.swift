@@ -9,7 +9,7 @@
 import Foundation
 
 enum BannerNotificationEvent: Hashable, NotificationEvent {
-    case changelly(title: NotificationView.Title, description: String?)
+    case changelly(title: NotificationView.Title, description: String)
 
     var title: NotificationView.Title {
         switch self {
