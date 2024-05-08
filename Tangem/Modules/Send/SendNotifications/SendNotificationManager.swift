@@ -105,8 +105,8 @@ class CommonSendNotificationManager: SendNotificationManager {
 
                 case .cardanoWillBeSendAlongToken(let amount):
                     let event = SendNotificationEvent.cardanoWillBeSentWithToken(
-                        tokenAmountFormatted: tokenItem.currencySymbol,
-                        cardanoAmountFormatted: amount.string()
+                        cardanoAmountFormatted: amount.value.description,
+                        tokenSymbol: tokenItem.currencySymbol
                     )
                     updateEventVisibility(true, event: event)
                 case .none:
@@ -242,8 +242,8 @@ class CommonSendNotificationManager: SendNotificationManager {
                 blockchainName: blockchainName,
                 maxUtxo: maxUtxos
             )
-        case .cardanoHasTokens(let minimumAmount):
-            return .cardanoHasTokens(minCardanoAmountFormatted: minimumAmount.string())
+        case .cardanoHasTokens:
+            return .cardanoHasTokens
         case .cardanoInsufficientBalanceToSendToken:
             return .cardanoInsufficientBalanceToSendToken(tokenSymbol: tokenItem.currencySymbol)
         default:
