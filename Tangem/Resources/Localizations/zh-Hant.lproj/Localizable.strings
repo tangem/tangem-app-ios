@@ -259,8 +259,6 @@
 "main_manage_tokens" = "管理代幣";
 "main_scan_card_warning_view_subtitle" = "要訪問所有的網路您需要掃描卡片";
 "main_scan_card_warning_view_title" = "掃描卡片";
-"main_swap_changelly_promotion_message" = "Enjoy %1$@ service fees on swaps via Changelly from February %2$@-%3$@";
-"main_swap_changelly_promotion_title" = "Swap with Changelly, %@ fees";
 "main_tokens" = "代幣";
 "main_travala_promotion_button" = "Book now";
 "main_travala_promotion_description" = "Save **50 USDT** while booking via our partner Travala: **%1@ - %2@**";
@@ -552,9 +550,6 @@
 "token_details_token_type_subtitle" = "%1$@ token in %%image%% %2$@ network";
 "token_details_unable_hide_alert_message" = "%1$@ (%2$@) 代幣是 %3$@ 網絡上的主要貨幣，只要列表中還有該網絡上的其他代幣，它就無法被隱藏。";
 "token_details_unable_hide_alert_title" = "無法隱藏 %@";
-"token_swap_changelly_promotion_message" = "Exchange this token for another at %1$@ service fees from February %2$@-%3$@.";
-"token_swap_changelly_promotion_title" = "Swap with Changelly, %@ fees";
-"token_swap_promotion_button" = "Swap now";
 "transaction_history_contract_address" = "contract: %@";
 "transaction_history_empty_transactions" = "您還沒有任何交易";
 "transaction_history_error_failed_to_load" = "無法加載交易";
