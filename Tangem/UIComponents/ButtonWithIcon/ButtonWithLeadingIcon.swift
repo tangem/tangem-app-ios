@@ -185,10 +185,13 @@ private struct ButtonWithLeadingIconContentView: View {
     let action: () -> Void
     let longPressAction: (() -> Void)?
 
+    @State private var disabled: Bool = false
+
     var body: some View {
         buttonWithActionHandlers
             .cornerRadiusContinuous(Self.cornerRadius)
             .buttonStyle(.borderless)
+            .disabled(disabled)
     }
 
     @ViewBuilder
@@ -204,12 +207,12 @@ private struct ButtonWithLeadingIconContentView: View {
                 )
                 .highPriorityGesture(
                     TapGesture()
-                        .onEnded {
-                            action()
-                        }
+                        .onEnded(executeMainAction)
                 )
         case .none:
-            Button(action: action) { buttonContent }
+            Button(action: executeMainAction) {
+                buttonContent
+            }
         }
     }
 
@@ -231,6 +234,16 @@ private struct ButtonWithLeadingIconContentView: View {
         .padding(.horizontal, 14)
         .padding(.vertical, 8)
         .background(colorConfiguration.backgroundColor)
+    }
+
+    private func executeMainAction() {
+        disabled = true
+        action()
+
+        // We need to add a delay to prevent the button from being clicked multiple times
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            disabled = false
+        }
     }
 }
 
