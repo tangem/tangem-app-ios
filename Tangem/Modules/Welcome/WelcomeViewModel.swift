@@ -43,6 +43,10 @@ class WelcomeViewModel: ObservableObject {
         scanCard()
     }
 
+    func openScanCardManual() {
+        coordinator?.openScanCardManual()
+    }
+
     func requestSupport() {
         Analytics.log(.requestSupport, params: [.source: .introduction])
         failedCardScanTracker.resetCounter()
