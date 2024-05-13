@@ -50,7 +50,7 @@ struct UnlockUserWalletBottomSheetView: View {
                 isPresented: $viewModel.showTroubleshootingView,
                 tryAgainAction: viewModel.unlockWithCard,
                 requestSupportAction: viewModel.requestSupport,
-                openCardScanManualAction: viewModel.openScanCardManual
+                openScanCardManualAction: viewModel.openScanCardManual
             )
         )
     }
