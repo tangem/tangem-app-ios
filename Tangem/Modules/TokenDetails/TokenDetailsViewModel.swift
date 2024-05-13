@@ -19,9 +19,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published var actionSheet: ActionSheetBinder?
     @Published var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
 
-    // [REDACTED_TODO_COMMENT]
-    @Published var isShowToast: Bool = false
-
     private(set) var balanceWithButtonsModel: BalanceWithButtonsViewModel!
     private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: walletModel.tokenItem)
 
@@ -95,7 +92,11 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             .token: walletModel.tokenItem.currencySymbol,
             .source: Analytics.ParameterValue.token.rawValue,
         ])
-        isShowToast = true
+        Toast(view: SuccessToast(text: Localization.walletNotificationAddressCopied))
+            .present(
+                layout: .bottom(padding: 80),
+                type: .temporary()
+            )
     }
 }
 
