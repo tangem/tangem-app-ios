@@ -83,6 +83,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         let refundAddress = refundAddress(item: item)
         let request = ExpressDTO.ExchangeData.Request(
             requestId: requestId,
+            fromAddress: item.source.defaultAddress,
             fromContractAddress: item.source.expressCurrency.contractAddress,
             fromNetwork: item.source.expressCurrency.network,
             toContractAddress: item.destination.expressCurrency.contractAddress,
