@@ -13,8 +13,6 @@ import Combine
 import CombineExt
 
 class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
-    @Published var showToast: Bool = false
-
     let addressInfos: [ReceiveAddressInfo]
     let networkWarningMessage: String
 
@@ -67,7 +65,12 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     func copyToClipboard() {
         Analytics.log(event: .buttonCopyAddress, params: [.token: tokenItem.currencySymbol])
         UIPasteboard.general.string = addressInfos[currentIndex].address
-        showToast = true
+
+        Toast(view: SuccessToast(text: Localization.walletNotificationAddressCopied))
+            .present(
+                layout: .top(padding: 80),
+                type: .temporary()
+            )
     }
 
     func share() {
