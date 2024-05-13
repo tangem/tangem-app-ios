@@ -13,6 +13,7 @@ protocol UnlockUserWalletBottomSheetDelegate: AnyObject {
     func unlockedWithBiometry()
     func userWalletUnlocked(_ userWalletModel: UserWalletModel)
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType)
+    func openScanCardManual()
 }
 
 class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
@@ -70,6 +71,10 @@ class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.showTroubleshootingView = true
         }
+    }
+
+    func openScanCardManual() {
+        delegate?.openScanCardManual()
     }
 
     func requestSupport() {

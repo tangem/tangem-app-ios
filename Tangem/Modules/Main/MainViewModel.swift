@@ -410,6 +410,10 @@ extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
             self?.coordinator?.openMail(with: dataCollector, emailType: emailType, recipient: recipient)
         }
     }
+
+    func openScanCardManual() {
+        coordinator?.openScanCardManual()
+    }
 }
 
 extension MainViewModel: MultiWalletMainContentDelegate {
