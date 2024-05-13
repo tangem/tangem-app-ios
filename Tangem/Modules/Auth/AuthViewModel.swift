@@ -40,6 +40,10 @@ final class AuthViewModel: ObservableObject {
         unlockWithCard()
     }
 
+    func openScanCardManual() {
+        coordinator?.openScanCardManual()
+    }
+
     func requestSupport() {
         Analytics.log(.requestSupport, params: [.source: .signIn])
         failedCardScanTracker.resetCounter()
