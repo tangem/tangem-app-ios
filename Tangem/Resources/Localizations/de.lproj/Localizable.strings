@@ -91,6 +91,7 @@
 "common_locked" = "Locked";
 "common_main_network" = "Main network";
 "common_network_fee_title" = "Netzgebühr";
+"common_network_fee_warning_content" = "Amount sent will be reduced by %1$@ (%2$@) to cover the selected fee level";
 "common_next" = "Next";
 "common_no" = "No";
 "common_no_address" = "No address";
@@ -448,7 +449,6 @@
 "send_max_fee" = "Max fee";
 "send_max_fee_footer" = "The fee that will be charged for your transaction. You can set your own value.";
 "send_memo_destination_tag_error" = "Numbers only for Destination Tag";
-"send_network_fee_warning_content" = "Amount sent will be reduced by %1$@ (%2$@) to cover the selected fee level";
 "send_network_fee_warning_title" = "Network fee coverage";
 "send_notification_exceed_balance_text" = "Insufficient funds for the transfer, as the total of the fee and transfer amount exceeds the existing balance";
 "send_notification_exceed_balance_title" = "Total exceeds balance";
@@ -515,7 +515,6 @@
 "swapping_give_permission" = "Give Permission";
 "swapping_high_price_impact_description" = "Swapping this amount of selected tokens will cause a significant price impact and reduce your outcome.";
 "swapping_insufficient_funds" = "Insufficient funds";
-"swapping_network_fee_warning_content" = "Sending amount will be reduced to cover the selected fee level";
 "swapping_permission_buttons_approve" = "Approve";
 "swapping_permission_current_transaction" = "Current transaction";
 "swapping_permission_fee_footer" = "The network will charge a token approval fee to verify that you are authorizing the use of your token for the swap.";
