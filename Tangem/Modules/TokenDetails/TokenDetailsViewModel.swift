@@ -94,6 +94,19 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     override func presentActionSheet(_ actionSheet: ActionSheetBinder) {
         self.actionSheet = actionSheet
     }
+
+    override func copyDefaultAddress() {
+        super.copyDefaultAddress()
+        Analytics.log(event: .buttonCopyAddress, params: [
+            .token: walletModel.tokenItem.currencySymbol,
+            .source: Analytics.ParameterValue.token.rawValue,
+        ])
+        Toast(view: SuccessToast(text: Localization.walletNotificationAddressCopied))
+            .present(
+                layout: .bottom(padding: 80),
+                type: .temporary()
+            )
+    }
 }
 
 // MARK: - Hide token
