@@ -22,7 +22,7 @@ struct WelcomeView: View {
                     isPresented: $viewModel.showTroubleshootingView,
                     tryAgainAction: viewModel.tryAgain,
                     requestSupportAction: viewModel.requestSupport,
-                    openCardScanManualAction: viewModel.openScanCardManual
+                    openScanCardManualAction: viewModel.openScanCardManual
                 )
             )
     }
