@@ -162,6 +162,10 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         performLoadHistory()
     }
 
+    func copyDefaultAddress() {
+        UIPasteboard.general.string = walletModel.defaultAddress
+    }
+
     private func performLoadHistory() {
         transactionHistoryBag = walletModel
             .updateTransactionsHistory()
@@ -272,10 +276,12 @@ extension SingleTokenBaseViewModel {
                 title: type.title,
                 icon: type.icon,
                 disabled: false,
-                style: isDisabled ? .disabled : .default
-            ) { [weak self] in
-                self?.action(for: type)?()
-            }
+                style: isDisabled ? .disabled : .default,
+                action: { [weak self] in
+                    self?.action(for: type)?()
+                },
+                longPressAction: longTapAction(for: type)
+            )
         }
 
         actionButtons = buttons.sorted(by: { lhs, rhs in
@@ -330,6 +336,15 @@ extension SingleTokenBaseViewModel {
         case .exchange: return openExchangeAndLogAnalytics
         case .sell: return openSell
         case .copyAddress, .hide: return nil
+        }
+    }
+
+    private func longTapAction(for buttonType: TokenActionType) -> (() -> Void)? {
+        switch buttonType {
+        case .receive:
+            return weakify(self, forFunction: SingleTokenBaseViewModel.copyDefaultAddress)
+        case .buy, .send, .exchange, .sell, .copyAddress, .hide:
+            return nil
         }
     }
 
