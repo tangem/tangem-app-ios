@@ -13,6 +13,7 @@ protocol SendNotificationManagerInput {
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
     var selectedFeeOptionPublisher: AnyPublisher<FeeOption, Never> { get }
     var customFeePublisher: AnyPublisher<Fee?, Never> { get }
+    var isFeeIncludedPublisher: AnyPublisher<Bool, Never> { get }
     var withdrawalSuggestion: AnyPublisher<WithdrawalSuggestion?, Never> { get }
     var amountError: AnyPublisher<Error?, Never> { get }
     var transactionCreationError: AnyPublisher<Error?, Never> { get }
@@ -97,12 +98,13 @@ class CommonSendNotificationManager: SendNotificationManager {
                 case .feeIsTooHigh(let newAmount):
                     let event = SendNotificationEvent.withdrawalOptionalAmountChange(
                         amount: newAmount.value,
-                        amountFormatted: newAmount.string()
+                        amountFormatted: newAmount.string(),
+                        blockchainName: tokenItem.blockchain.displayName
                     )
                     updateEventVisibility(true, event: event)
                 case nil:
                     let events = [
-                        SendNotificationEvent.withdrawalOptionalAmountChange(amount: .zero, amountFormatted: ""),
+                        SendNotificationEvent.withdrawalOptionalAmountChange(amount: .zero, amountFormatted: "", blockchainName: ""),
                     ]
                     for event in events {
                         updateEventVisibility(false, event: event)
@@ -151,6 +153,13 @@ class CommonSendNotificationManager: SendNotificationManager {
 
                 self?.updateEventVisibility(customFeeTooLow, event: .customFeeTooLow)
                 self?.updateEventVisibility(customFeeTooHigh, event: .customFeeTooHigh(orderOfMagnitude: highFeeOrderOfMagnitude ?? 0))
+            }
+            .store(in: &bag)
+
+        input
+            .isFeeIncludedPublisher
+            .sink { [weak self] isFeeIncluded in
+                self?.updateEventVisibility(isFeeIncluded, event: .feeWillBeSubtractFromSendingAmount)
             }
             .store(in: &bag)
 
@@ -214,11 +223,11 @@ class CommonSendNotificationManager: SendNotificationManager {
         case .dustAmount(let minimumAmount), .dustChange(let minimumAmount):
             return SendNotificationEvent.minimumAmount(value: minimumAmount.string())
         case .totalExceedsBalance, .amountExceedsBalance:
-            return .totalExceedsBalance(configuration: notEnoughFeeConfiguration)
+            return .totalExceedsBalance
         case .feeExceedsBalance:
             return .feeExceedsBalance(configuration: notEnoughFeeConfiguration)
         case .minimumBalance(let minimumBalance):
-            return .existentialDeposit(amountFormatted: minimumBalance.string())
+            return .existentialDeposit(amount: minimumBalance.value, amountFormatted: minimumBalance.string())
         case .maximumUTXO(let blockchainName, let newAmount, let maxUtxos):
             return SendNotificationEvent.withdrawalMandatoryAmountChange(
                 amount: newAmount.value,
