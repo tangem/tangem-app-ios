@@ -73,7 +73,6 @@ class CustomEvmFeeService {
     }
 
     private func recalculateFee(gasPrice: BigUInt?, gasLimit: BigUInt?) -> Fee? {
-        let newFee: Fee?
         if let gasPrice,
            let gasLimit,
            let gasInWei = (gasPrice * gasLimit).decimal {
@@ -96,14 +95,7 @@ class CustomEvmFeeService {
         }
 
         let gasPrice = (enteredFeeInSmallestDenomination / currentGasLimit)
-        guard
-            let recalculatedFeeInSmallestDenomination = (gasPrice * currentGasLimit).decimal
-        else {
-            return nil
-        }
-
-        let recalculatedFee = recalculatedFeeInSmallestDenomination / feeDecimalValue
-        let feeAmount = Amount(with: blockchain, type: feeTokenItem.amountType, value: recalculatedFee)
+        let feeAmount = Amount(with: blockchain, type: feeTokenItem.amountType, value: value)
         let parameters = EthereumFeeParameters(gasLimit: currentGasLimit, gasPrice: gasPrice)
         return Fee(feeAmount, parameters: parameters)
     }
