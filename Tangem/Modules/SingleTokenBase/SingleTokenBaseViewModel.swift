@@ -162,6 +162,21 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         performLoadHistory()
     }
 
+    func copyDefaultAddress() {
+        UIPasteboard.general.string = walletModel.defaultAddress
+        let heavyImpactGenerator = UIImpactFeedbackGenerator(style: .heavy)
+        heavyImpactGenerator.impactOccurred()
+    }
+
+    private func performLoadHistory() {
+        transactionHistoryBag = walletModel
+            .updateTransactionsHistory()
+            .receive(on: DispatchQueue.main)
+            .receiveCompletion { [weak self] _ in
+                self?.isReloadingTransactionHistory = false
+            }
+    }
+
     // We need to keep this not in extension because we may want to override this logic and
     // implementation from extensions can't be overriden
     func didTapNotification(with id: NotificationViewId) {}
@@ -252,12 +267,14 @@ extension SingleTokenBaseViewModel {
     private func bind() {
         walletModel.walletDidChangePublisher
             .receive(on: DispatchQueue.main)
+            .handleEvents(receiveOutput: { [weak self] _ in
+                self?.updatePendingTransactionView()
+            })
             .removeDuplicates()
             .filter { $0 != .loading }
             .sink { _ in } receiveValue: { [weak self] newState in
                 AppLog.shared.debug("Token details receive new wallet model state: \(newState)")
                 self?.updateActionButtons()
-                self?.updatePendingTransactionView()
             }
             .store(in: &bag)
 
@@ -299,10 +316,12 @@ extension SingleTokenBaseViewModel {
                 title: type.title,
                 icon: type.icon,
                 disabled: false,
-                style: isDisabled ? .disabled : .default
-            ) { [weak self] in
-                self?.action(for: type)?()
-            }
+                style: isDisabled ? .disabled : .default,
+                action: { [weak self] in
+                    self?.action(for: type)?()
+                },
+                longPressAction: longTapAction(for: type)
+            )
         }
 
         actionButtons = buttons.sorted(by: { lhs, rhs in
@@ -357,6 +376,15 @@ extension SingleTokenBaseViewModel {
         case .exchange: return openExchangeAndLogAnalytics
         case .sell: return openSell
         case .copyAddress, .hide: return nil
+        }
+    }
+
+    private func longTapAction(for buttonType: TokenActionType) -> (() -> Void)? {
+        switch buttonType {
+        case .receive:
+            return weakify(self, forFunction: SingleTokenBaseViewModel.copyDefaultAddress)
+        case .buy, .send, .exchange, .sell, .copyAddress, .hide:
+            return nil
         }
     }
 
