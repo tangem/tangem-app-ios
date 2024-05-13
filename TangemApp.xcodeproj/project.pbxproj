@@ -539,6 +539,8 @@
 		B0F319002A739477009F131E /* FakeWalletManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F318FF2A739477009F131E /* FakeWalletManager.swift */; };
 		B0F319022A7394AA009F131E /* FakeUserWalletRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F319012A7394AA009F131E /* FakeUserWalletRepository.swift */; };
 		B0F319042A7394C2009F131E /* FakeUserWalletModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F319032A7394C2009F131E /* FakeUserWalletModel.swift */; };
+		B0F3391B2BEB4C7D00441688 /* LoadingSingleWalletMainContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F3391A2BEB4C7D00441688 /* LoadingSingleWalletMainContentView.swift */; };
+		B0F3391D2BEB4C9500441688 /* LoadingSingleWalletMainContentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F3391C2BEB4C9500441688 /* LoadingSingleWalletMainContentViewModel.swift */; };
 		B0F62C4825DE4ABE005C8BA0 /* EmailType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F62C4725DE4ABE005C8BA0 /* EmailType.swift */; };
 		B0F62C5025DE4EC9005C8BA0 /* MailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F62C4F25DE4EC9005C8BA0 /* MailView.swift */; };
 		B0F62C5525DE4F6B005C8BA0 /* DeviceInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F62C5425DE4F6B005C8BA0 /* DeviceInfoProvider.swift */; };
@@ -2095,6 +2097,8 @@
 		B0F319052A7394E2009F131E /* xrpNote.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = xrpNote.json; sourceTree = "<group>"; };
 		B0F319062A73951E009F131E /* wallet2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = wallet2.json; sourceTree = "<group>"; };
 		B0F319072A73954E009F131E /* twinCard.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = twinCard.json; sourceTree = "<group>"; };
+		B0F3391A2BEB4C7D00441688 /* LoadingSingleWalletMainContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingSingleWalletMainContentView.swift; sourceTree = "<group>"; };
+		B0F3391C2BEB4C9500441688 /* LoadingSingleWalletMainContentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingSingleWalletMainContentViewModel.swift; sourceTree = "<group>"; };
 		B0F62C4725DE4ABE005C8BA0 /* EmailType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailType.swift; sourceTree = "<group>"; };
 		B0F62C4F25DE4EC9005C8BA0 /* MailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailView.swift; sourceTree = "<group>"; };
 		B0F62C5425DE4F6B005C8BA0 /* DeviceInfoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceInfoProvider.swift; sourceTree = "<group>"; };
@@ -4362,6 +4366,7 @@
 		B06C085F2A73FCC400D982BC /* SingleWalletMainContent */ = {
 			isa = PBXGroup;
 			children = (
+				B0F339192BEB4C5900441688 /* LoadingSingleWalletMainContent */,
 				B06C08622A73FCDE00D982BC /* SingleWalletMainContentView.swift */,
 				B06C08632A73FCDE00D982BC /* SingleWalletMainContentViewModel.swift */,
 				DAC4F9EF2AC314E100BEBCF8 /* SingleWalletMainContentDelegate.swift */,
@@ -5110,6 +5115,15 @@
 				B67DC1EB2B7C4CB9008ACB0E /* FakeBlockchainDataStorage.swift */,
 			);
 			path = Fakes;
+			sourceTree = "<group>";
+		};
+		B0F339192BEB4C5900441688 /* LoadingSingleWalletMainContent */ = {
+			isa = PBXGroup;
+			children = (
+				B0F3391A2BEB4C7D00441688 /* LoadingSingleWalletMainContentView.swift */,
+				B0F3391C2BEB4C9500441688 /* LoadingSingleWalletMainContentViewModel.swift */,
+			);
+			path = LoadingSingleWalletMainContent;
 			sourceTree = "<group>";
 		};
 		B0F7D75A2A40486B007FEB2E /* Utilities */ = {
@@ -8830,6 +8844,7 @@
 				EF74F50E289BF5AE001034D2 /* Text+.swift in Sources */,
 				DAC53CF827BE63830027147D /* StoriesTangemLogo.swift in Sources */,
 				2D9409742B8614CB00F0A196 /* BottomScrollableSheetStateHandler.swift in Sources */,
+				B0F3391B2BEB4C7D00441688 /* LoadingSingleWalletMainContentView.swift in Sources */,
 				DC295B4C2861D7CF006CB7B6 /* WalletConnectCoordinator.swift in Sources */,
 				B6ACD00C2AD698E0005A6CA3 /* DragAndDropGesturePredicate.swift in Sources */,
 				DC0A5801282500460031BECC /* SellCryptoRequest.swift in Sources */,
@@ -9540,6 +9555,7 @@
 				B6E9A8C72A9A35B5005CF137 /* MainFooterViewModel.swift in Sources */,
 				B064284629BF451F00A8AA20 /* OnboardingSeedPhraseImportView.swift in Sources */,
 				2DBE29C32B3C4A8100109D5E /* DetentBottomSheetModifier.swift in Sources */,
+				B0F3391D2BEB4C9500441688 /* LoadingSingleWalletMainContentViewModel.swift in Sources */,
 				B6E9AEA92B0E3B0B003183C8 /* MainBottomSheetOverlayCoordinatorView.swift in Sources */,
 				B0F318FB2A739418009F131E /* WalletPublicKeyDerivationStubs.swift in Sources */,
 				65B4DEE02885334F001524CF /* View+LegacyBottomSheet.swift in Sources */,
@@ -10135,7 +10151,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -10279,7 +10295,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -12523,7 +12539,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEPLOYMENT_POSTPROCESSING = NO;
@@ -12772,7 +12788,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -14008,7 +14024,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEPLOYMENT_POSTPROCESSING = NO;
@@ -14257,7 +14273,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
