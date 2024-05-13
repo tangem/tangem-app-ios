@@ -641,7 +641,7 @@ final class SendViewModel: ObservableObject {
     }
 
     private func openFinishPage() {
-        guard let sendFinishViewModel = SendFinishViewModel(input: sendModel, fiatCryptoValueProvider: fiatCryptoAdapter, addressTextViewHeightModel: addressTextViewHeightModel, walletInfo: walletInfo) else {
+        guard let sendFinishViewModel = SendFinishViewModel(input: sendModel, fiatCryptoValueProvider: fiatCryptoAdapter, addressTextViewHeightModel: addressTextViewHeightModel, feeTypeAnalyticsParameter: selectedFeeTypeAnalyticsParameter(), walletInfo: walletInfo) else {
             assertionFailure("WHY?")
             return
         }
