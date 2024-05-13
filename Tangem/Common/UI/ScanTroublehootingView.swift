@@ -13,6 +13,7 @@ struct ScanTroubleshootingView: View {
 
     var tryAgainAction: () -> Void
     var requestSupportAction: () -> Void
+    var openCardScanManualAction: () -> Void
 
     var body: some View {
         Color.clear
@@ -23,6 +24,7 @@ struct ScanTroubleshootingView: View {
                     message: Text(Localization.alertTroubleshootingScanCardMessage),
                     buttons: [
                         .default(Text(Localization.alertButtonTryAgain), action: tryAgainAction),
+                        .default(Text(Localization.commonReadMore), action: openCardScanManualAction),
                         .default(Text(Localization.alertButtonRequestSupport), action: requestSupportAction),
                         .cancel(),
                     ]
