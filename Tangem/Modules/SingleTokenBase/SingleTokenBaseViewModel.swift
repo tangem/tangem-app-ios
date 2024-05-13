@@ -168,15 +168,6 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         heavyImpactGenerator.impactOccurred()
     }
 
-    private func performLoadHistory() {
-        transactionHistoryBag = walletModel
-            .updateTransactionsHistory()
-            .receive(on: DispatchQueue.main)
-            .receiveCompletion { [weak self] _ in
-                self?.isReloadingTransactionHistory = false
-            }
-    }
-
     // We need to keep this not in extension because we may want to override this logic and
     // implementation from extensions can't be overriden
     func didTapNotification(with id: NotificationViewId) {}
