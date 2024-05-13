@@ -135,6 +135,7 @@ extension WelcomeCoordinator: WelcomeRoutable {
     }
 
     func openScanCardManual() {
+        // [REDACTED_TODO_COMMENT]
         safariManager.openURL(TangemBlogUrlBuilder().url(post: .scanCard))
     }
 }
