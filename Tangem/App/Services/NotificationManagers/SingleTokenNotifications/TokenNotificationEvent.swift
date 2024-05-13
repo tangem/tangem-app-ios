@@ -16,9 +16,9 @@ enum TokenNotificationEvent: Hashable {
     }
 
     enum UnfulfilledRequirementsConfiguration: Hashable {
-        /// `value` is denominated in HBARs.
+        /// `formattedValue` is a formatted string for value denominated in HBARs.
         struct HederaTokenAssociationFee: Hashable {
-            let value: Decimal
+            let formattedValue: String
             let currencySymbol: String
         }
 
@@ -120,7 +120,10 @@ extension TokenNotificationEvent: NotificationEvent {
             return Localization.warningSolanaFeeMessage
         case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation(let associationFee)):
             if let associationFee {
-                return Localization.warningHederaMissingTokenAssociationMessage(associationFee.value, associationFee.currencySymbol)
+                return Localization.warningHederaMissingTokenAssociationMessage(
+                    associationFee.formattedValue,
+                    associationFee.currencySymbol
+                )
             }
             return Localization.warningHederaMissingTokenAssociationMessageBrief
         }
