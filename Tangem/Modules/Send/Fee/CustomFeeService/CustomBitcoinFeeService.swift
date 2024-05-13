@@ -126,7 +126,5 @@ extension CustomBitcoinFeeService: CustomFeeService {
         return [customFeeSatoshiPerByteModel]
     }
 
-    func setCustomFee(value: Decimal?) {
-        assertionFailure("WHY")
-    }
+    func setCustomFee(value: Decimal?) {}
 }
