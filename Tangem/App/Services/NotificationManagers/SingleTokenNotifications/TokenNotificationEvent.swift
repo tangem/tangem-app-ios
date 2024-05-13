@@ -10,24 +10,6 @@ import Foundation
 import SwiftUI
 
 enum TokenNotificationEvent: Hashable {
-    struct NotEnoughFeeConfiguration: Hashable {
-        let isFeeCurrencyPurchaseAllowed: Bool
-        let eventConfiguration: TransactionSendAvailabilityProvider.SendingRestrictions.NotEnoughFeeConfiguration
-    }
-
-    enum UnfulfilledRequirementsConfiguration: Hashable {
-        /// `formattedValue` is a formatted string for value denominated in HBARs.
-        struct HederaTokenAssociationFee: Hashable {
-            let formattedValue: String
-            let currencySymbol: String
-        }
-
-        /// `associationFee` fetched asynchronously and therefore may be absent in some cases.
-        case missingHederaTokenAssociation(associationFee: HederaTokenAssociationFee?)
-        @available(*, unavailable, message: "Token trust lines support not implemented yet")
-        case missingTokenTrustline
-    }
-
     case networkUnreachable(currencySymbol: String)
     case someNetworksUnreachable
     case rentFee(rentMessage: String)
@@ -186,6 +168,28 @@ extension TokenNotificationEvent: NotificationEvent {
              .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation):
             return false
         }
+    }
+}
+
+// MARK: - Auxiliary types
+
+extension TokenNotificationEvent {
+    struct NotEnoughFeeConfiguration: Hashable {
+        let isFeeCurrencyPurchaseAllowed: Bool
+        let eventConfiguration: TransactionSendAvailabilityProvider.SendingRestrictions.NotEnoughFeeConfiguration
+    }
+
+    enum UnfulfilledRequirementsConfiguration: Hashable {
+        /// `formattedValue` is a formatted string for the value denominated in HBARs.
+        struct HederaTokenAssociationFee: Hashable {
+            let formattedValue: String
+            let currencySymbol: String
+        }
+
+        /// `associationFee` fetched asynchronously and therefore may be absent in some cases.
+        case missingHederaTokenAssociation(associationFee: HederaTokenAssociationFee?)
+        @available(*, unavailable, message: "Token trust lines support not implemented yet")
+        case missingTokenTrustline
     }
 }
 
