@@ -169,7 +169,7 @@ class ExpressNotificationManager {
 
     private func setupFeeWillBeSubtractFromSendingAmountNotification(subtractFee: Decimal) -> NotificationViewInput? {
         guard let interactor = expressInteractor, subtractFee > 0 else {
-            return
+            return nil
         }
 
         let feeTokenItem = interactor.getSender().feeTokenItem
