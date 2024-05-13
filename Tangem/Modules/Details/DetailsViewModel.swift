@@ -189,6 +189,10 @@ extension DetailsViewModel {
         addOrScanNewUserWallet()
     }
 
+    func openScanCardManual() {
+        coordinator?.openScanCardManual()
+    }
+
     func requestSupport() {
         Analytics.log(.requestSupport, params: [.source: .settings])
         failedCardScanTracker.resetCounter()
