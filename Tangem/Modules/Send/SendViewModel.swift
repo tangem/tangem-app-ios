@@ -16,6 +16,7 @@ final class SendViewModel: ObservableObject {
 
     @Published var stepAnimation: SendView.StepAnimation
     @Published var step: SendStep
+    @Published var closeButtonDisabled = false
     @Published var showBackButton = false
     @Published var showTransactionButtons = false
     @Published var mainButtonType: SendMainButtonType
@@ -34,6 +35,10 @@ final class SendViewModel: ObservableObject {
 
     var subtitle: String? {
         step.description(for: sendStepParameters)
+    }
+
+    var closeButtonColor: Color {
+        closeButtonDisabled ? Colors.Text.disabled : Colors.Text.primary1
     }
 
     var mainButtonTitle: String {
@@ -345,6 +350,10 @@ final class SendViewModel: ObservableObject {
     }
 
     private func bind() {
+        sendModel.isSending
+            .assign(to: \.closeButtonDisabled, on: self, ownership: .weak)
+            .store(in: &bag)
+
         Publishers.CombineLatest($updatingFees, sendModel.isSending)
             .map { updatingFees, isSending in
                 updatingFees || isSending
