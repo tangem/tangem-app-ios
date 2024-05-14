@@ -19,6 +19,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     case exchange
     case reduceAmountBy(amount: Decimal, amountFormatted: String)
     case reduceAmountTo(amount: Decimal, amountFormatted: String)
+    case bookNow(promotionLink: URL)
     case addHederaTokenAssociation
     @available(*, unavailable, message: "Token trust lines support not implemented yet")
     case addTokenTrustline
@@ -49,6 +50,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return Localization.sendNotificationReduceBy(amountFormatted)
         case .reduceAmountTo(_, let amountFormatted):
             return Localization.sendNotificationReduceTo(amountFormatted)
+        case .bookNow:
+            return Localization.mainTravalaPromotionButton
         case .addHederaTokenAssociation:
             return Localization.warningHederaMissingTokenAssociationButtonTitle
         }
@@ -75,7 +78,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
 
     var style: MainButton.Style {
         switch self {
-        case .generateAddresses:
+        case .generateAddresses, .bookNow:
             return .primary
         case .backupCard,
              .buyCrypto,
