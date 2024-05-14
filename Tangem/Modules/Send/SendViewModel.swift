@@ -810,7 +810,8 @@ extension SendViewModel: NotificationTapDelegate {
              .refresh,
              .goToProvider,
              .exchange,
-             .addHederaTokenAssociation:
+             .addHederaTokenAssociation,
+             .bookNow:
             assertionFailure("Notification tap not handled")
         }
     }
