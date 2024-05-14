@@ -71,7 +71,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .goToProvider,
              .reduceAmountBy,
              .reduceAmountTo,
-             .addHederaTokenAssociation:
+             .addHederaTokenAssociation,
+             .bookNow:
             return nil
         }
     }
