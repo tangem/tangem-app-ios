@@ -440,11 +440,9 @@ final class SendViewModel: ObservableObject {
                         self.coordinator?.dismiss()
                     }
                     alert = AlertBuilder.makeAlert(title: "", message: Localization.alertDemoFeatureDisabled, primaryButton: button)
+                } else {
+                    logTransactionAnalytics()
                 }
-
-                Analytics.log(.sendSelectedCurrency, params: [
-                    .commonType: sendAmountViewModel.useFiatCalculation ? .selectedCurrencyApp : .token,
-                ])
             }
             .store(in: &bag)
 
@@ -456,6 +454,27 @@ final class SendViewModel: ObservableObject {
                 Analytics.logDestinationAddress(isAddressValid: destination.value != nil, source: destination.source)
             }
             .store(in: &bag)
+    }
+
+    private func logTransactionAnalytics() {
+        let sourceValue: Analytics.ParameterValue
+        switch sendType {
+        case .send:
+            sourceValue = .transactionSourceSend
+        case .sell:
+            sourceValue = .transactionSourceSell
+        }
+        Analytics.log(event: .transactionSent, params: [
+            .source: sourceValue.rawValue,
+            .token: walletModel.tokenItem.currencySymbol,
+            .blockchain: walletModel.blockchainNetwork.blockchain.displayName,
+            .feeType: selectedFeeTypeAnalyticsParameter().rawValue,
+            .memo: additionalFieldAnalyticsParameter().rawValue,
+        ])
+
+        Analytics.log(.sendSelectedCurrency, params: [
+            .commonType: sendAmountViewModel.useFiatCalculation ? .selectedCurrencyApp : .token,
+        ])
     }
 
     private func nextStep(after step: SendStep) -> SendStep? {
@@ -622,7 +641,7 @@ final class SendViewModel: ObservableObject {
     }
 
     private func openFinishPage() {
-        guard let sendFinishViewModel = SendFinishViewModel(input: sendModel, fiatCryptoValueProvider: fiatCryptoAdapter, addressTextViewHeightModel: addressTextViewHeightModel, walletInfo: walletInfo) else {
+        guard let sendFinishViewModel = SendFinishViewModel(input: sendModel, fiatCryptoValueProvider: fiatCryptoAdapter, addressTextViewHeightModel: addressTextViewHeightModel, feeTypeAnalyticsParameter: selectedFeeTypeAnalyticsParameter(), walletInfo: walletInfo) else {
             assertionFailure("WHY?")
             return
         }
@@ -674,6 +693,16 @@ final class SendViewModel: ObservableObject {
         case .custom:
             return .transactionFeeCustom
         }
+    }
+
+    private func additionalFieldAnalyticsParameter() -> Analytics.ParameterValue {
+        // If the blockchain doesn't support additional field -- return null
+        // Otherwise return full / empty
+        guard let additionalField = sendModel.additionalField else {
+            return .null
+        }
+
+        return additionalField.1.isEmpty ? .empty : .full
     }
 
     // [REDACTED_TODO_COMMENT]
