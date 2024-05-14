@@ -22,7 +22,6 @@ struct BannerPromotionNotificationFactory {
         return formatter
     }()
 
-
     func buildNotificationButton(
         actionType: NotificationButtonActionType,
         action: @escaping NotificationView.NotificationButtonTapAction
