@@ -16,6 +16,7 @@ final class SendViewModel: ObservableObject {
 
     @Published var stepAnimation: SendView.StepAnimation
     @Published var step: SendStep
+    @Published var closeButtonDisabled = false
     @Published var showBackButton = false
     @Published var showTransactionButtons = false
     @Published var mainButtonType: SendMainButtonType
@@ -34,6 +35,10 @@ final class SendViewModel: ObservableObject {
 
     var subtitle: String? {
         step.description(for: sendStepParameters)
+    }
+
+    var closeButtonColor: Color {
+        closeButtonDisabled ? Colors.Text.disabled : Colors.Text.primary1
     }
 
     var mainButtonTitle: String {
@@ -345,6 +350,10 @@ final class SendViewModel: ObservableObject {
     }
 
     private func bind() {
+        sendModel.isSending
+            .assign(to: \.closeButtonDisabled, on: self, ownership: .weak)
+            .store(in: &bag)
+
         Publishers.CombineLatest($updatingFees, sendModel.isSending)
             .map { updatingFees, isSending in
                 updatingFees || isSending
@@ -440,11 +449,9 @@ final class SendViewModel: ObservableObject {
                         self.coordinator?.dismiss()
                     }
                     alert = AlertBuilder.makeAlert(title: "", message: Localization.alertDemoFeatureDisabled, primaryButton: button)
+                } else {
+                    logTransactionAnalytics()
                 }
-
-                Analytics.log(.sendSelectedCurrency, params: [
-                    .commonType: sendAmountViewModel.useFiatCalculation ? .selectedCurrencyApp : .token,
-                ])
             }
             .store(in: &bag)
 
@@ -456,6 +463,27 @@ final class SendViewModel: ObservableObject {
                 Analytics.logDestinationAddress(isAddressValid: destination.value != nil, source: destination.source)
             }
             .store(in: &bag)
+    }
+
+    private func logTransactionAnalytics() {
+        let sourceValue: Analytics.ParameterValue
+        switch sendType {
+        case .send:
+            sourceValue = .transactionSourceSend
+        case .sell:
+            sourceValue = .transactionSourceSell
+        }
+        Analytics.log(event: .transactionSent, params: [
+            .source: sourceValue.rawValue,
+            .token: walletModel.tokenItem.currencySymbol,
+            .blockchain: walletModel.blockchainNetwork.blockchain.displayName,
+            .feeType: selectedFeeTypeAnalyticsParameter().rawValue,
+            .memo: additionalFieldAnalyticsParameter().rawValue,
+        ])
+
+        Analytics.log(.sendSelectedCurrency, params: [
+            .commonType: sendAmountViewModel.useFiatCalculation ? .selectedCurrencyApp : .token,
+        ])
     }
 
     private func nextStep(after step: SendStep) -> SendStep? {
@@ -622,7 +650,7 @@ final class SendViewModel: ObservableObject {
     }
 
     private func openFinishPage() {
-        guard let sendFinishViewModel = SendFinishViewModel(input: sendModel, fiatCryptoValueProvider: fiatCryptoAdapter, addressTextViewHeightModel: addressTextViewHeightModel, walletInfo: walletInfo) else {
+        guard let sendFinishViewModel = SendFinishViewModel(input: sendModel, fiatCryptoValueProvider: fiatCryptoAdapter, addressTextViewHeightModel: addressTextViewHeightModel, feeTypeAnalyticsParameter: selectedFeeTypeAnalyticsParameter(), walletInfo: walletInfo) else {
             assertionFailure("WHY?")
             return
         }
@@ -676,11 +704,21 @@ final class SendViewModel: ObservableObject {
         }
     }
 
+    private func additionalFieldAnalyticsParameter() -> Analytics.ParameterValue {
+        // If the blockchain doesn't support additional field -- return null
+        // Otherwise return full / empty
+        guard let additionalField = sendModel.additionalField else {
+            return .null
+        }
+
+        return additionalField.1.isEmpty ? .empty : .full
+    }
+
     // [REDACTED_TODO_COMMENT]
     private func openNetworkCurrency() {
         guard
             let networkCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
-                $0.tokenItem == .blockchain(walletModel.tokenItem.blockchainNetwork) && $0.blockchainNetwork == walletModel.blockchainNetwork
+                $0.tokenItem == walletModel.feeTokenItem && $0.blockchainNetwork == walletModel.blockchainNetwork
             })
         else {
             assertionFailure("Network currency WalletModel not found")
@@ -778,21 +816,18 @@ extension SendViewModel: NotificationTapDelegate {
     }
 
     private func reduceAmountBy(_ amount: Decimal) {
-        guard var newAmount = sendModel.validatedAmountValue else { return }
+        guard let currentAmount = sendModel.validatedAmountValue?.value else { return }
 
-        newAmount = newAmount - Amount(with: walletModel.tokenItem.blockchain, type: walletModel.amountType, value: amount)
-
-        fiatCryptoAdapter.setCrypto(newAmount.value)
-    }
-
-    private func reduceAmountTo(_ amount: Decimal) {
-        var newAmount = amount
-
+        var newAmount = currentAmount - amount
         if sendModel.isFeeIncluded, let feeValue = sendModel.feeValue?.amount.value {
-            newAmount = newAmount + feeValue
+            newAmount = newAmount - feeValue
         }
 
         fiatCryptoAdapter.setCrypto(newAmount)
+    }
+
+    private func reduceAmountTo(_ amount: Decimal) {
+        fiatCryptoAdapter.setCrypto(amount)
     }
 }
 
