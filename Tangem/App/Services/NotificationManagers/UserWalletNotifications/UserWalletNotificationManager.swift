@@ -60,7 +60,9 @@ final class UserWalletNotificationManager {
             Analytics.log(.mainNoticeBackupErrors)
         }
 
-        setupPromotionNotification(dismissAction: dismissAction)
+        if userWalletModel.config.hasFeature(.multiCurrency) {
+            setupPromotionNotification(dismissAction: dismissAction)
+        }
 
         inputs.append(contentsOf: factory.buildNotificationInputs(
             for: deprecationService.deprecationWarnings,
