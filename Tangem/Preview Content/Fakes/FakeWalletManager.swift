@@ -67,8 +67,12 @@ class FakeWalletManager: WalletManager {
         tokens.forEach { wallet.add(tokenValue: 0, for: $0) }
     }
 
-    func send(_ transaction: BlockchainSdk.Transaction, signer: BlockchainSdk.TransactionSigner) -> AnyPublisher<BlockchainSdk.TransactionSendResult, Error> {
-        .justWithError(output: .init(hash: Data.randomData(count: 32).hexString))
+    func send(
+        _ transaction: BlockchainSdk.Transaction,
+        signer: BlockchainSdk.TransactionSigner
+    ) -> AnyPublisher<BlockchainSdk.TransactionSendResult, SendTxError> {
+        Fail(error: SendTxError(error: WalletError.empty, tx: Data.randomData(count: 32).hexString))
+            .eraseToAnyPublisher()
     }
 
     func validate(fee: BlockchainSdk.Fee) throws {}
