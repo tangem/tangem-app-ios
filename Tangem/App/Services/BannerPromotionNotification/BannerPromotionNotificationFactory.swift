@@ -67,7 +67,7 @@ struct BannerPromotionNotificationFactory {
         return .attributed(attributed)
     }
 
-    func changellyDescription(promotion: ActivePromotionInfo, place: BannerPromotionPlace) -> String? {
+    func changellyDescription(promotion: ActivePromotionInfo, place: BannerPromotionPlace) -> String {
         let percent = changellyZeroPercent()
         let formatter = DateFormatter()
         formatter.dateFormat = "dd"
