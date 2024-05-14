@@ -32,7 +32,7 @@ struct BannerPromotionNotificationFactory {
         )
     }
 
-    private func event(for promotion: ActivePromotionInfo, place: BannerPromotionPlace) -> BannerNotificationEvent {
+    private func event(for promotion: ActivePromotionInfo, place: BannerPromotionPlacement) -> BannerNotificationEvent {
         switch promotion.bannerPromotion {
         case .changelly:
             return .changelly(
@@ -44,7 +44,7 @@ struct BannerPromotionNotificationFactory {
         }
     }
 
-    private func changellyTitle(place: BannerPromotionPlace) -> NotificationView.Title {
+    private func changellyTitle(place: BannerPromotionPlacement) -> NotificationView.Title {
         let percent = changellyZeroPercent()
         let string: String = {
             switch place {
@@ -66,7 +66,7 @@ struct BannerPromotionNotificationFactory {
         return .attributed(attributed)
     }
 
-    func changellyDescription(promotion: ActivePromotionInfo, place: BannerPromotionPlace) -> String {
+    func changellyDescription(promotion: ActivePromotionInfo, place: BannerPromotionPlacement) -> String {
         let percent = changellyZeroPercent()
         Self.dateFormatter.dateFormat = "dd"
 
