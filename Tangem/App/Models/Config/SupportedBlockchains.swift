@@ -60,6 +60,7 @@ struct SupportedBlockchains {
         [
             .mantle(testnet: false),
             .manta(testnet: false),
+            .radiant(testnet: false),
         ]
     }
 
