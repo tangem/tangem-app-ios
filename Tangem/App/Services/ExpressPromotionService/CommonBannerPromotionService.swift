@@ -17,7 +17,7 @@ class CommonBannerPromotionService {
 // MARK: - PromotionService
 
 extension CommonBannerPromotionService: BannerPromotionService {
-    func activePromotion(promotion: PromotionProgramName, on place: BannerPromotionPlace) async -> ActivePromotionInfo? {
+    func activePromotion(promotion: PromotionProgramName, on place: BannerPromotionPlacement) async -> ActivePromotionInfo? {
         guard !isHidden(promotion: promotion, on: place) else {
             return nil
         }
@@ -36,7 +36,7 @@ extension CommonBannerPromotionService: BannerPromotionService {
         return nil
     }
 
-    func isHidden(promotion: PromotionProgramName, on place: BannerPromotionPlace) -> Bool {
+    func isHidden(promotion: PromotionProgramName, on place: BannerPromotionPlacement) -> Bool {
         switch place {
         case .main:
             return AppSettings.shared.mainPromotionDismissed.contains(promotion.rawValue)
@@ -45,7 +45,7 @@ extension CommonBannerPromotionService: BannerPromotionService {
         }
     }
 
-    func hide(promotion: PromotionProgramName, on place: BannerPromotionPlace) {
+    func hide(promotion: PromotionProgramName, on place: BannerPromotionPlacement) {
         switch place {
         case .main:
             AppSettings.shared.mainPromotionDismissed.insert(promotion.rawValue)

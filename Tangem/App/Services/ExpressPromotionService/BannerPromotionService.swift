@@ -9,9 +9,9 @@
 import Foundation
 
 protocol BannerPromotionService {
-    func activePromotion(promotion: PromotionProgramName, on place: BannerPromotionPlace) async -> ActivePromotionInfo?
-    func isHidden(promotion: PromotionProgramName, on place: BannerPromotionPlace) -> Bool
-    func hide(promotion: PromotionProgramName, on place: BannerPromotionPlace)
+    func activePromotion(promotion: PromotionProgramName, on place: BannerPromotionPlacement) async -> ActivePromotionInfo?
+    func isHidden(promotion: PromotionProgramName, on place: BannerPromotionPlacement) -> Bool
+    func hide(promotion: PromotionProgramName, on place: BannerPromotionPlacement)
 }
 
 private struct BannerPromotionServiceKey: InjectionKey {
@@ -31,7 +31,7 @@ struct ActivePromotionInfo: Hashable {
     let link: URL?
 }
 
-enum BannerPromotionPlace: String, Hashable {
+enum BannerPromotionPlacement: String, Hashable {
     case main
     case tokenDetails
 }
