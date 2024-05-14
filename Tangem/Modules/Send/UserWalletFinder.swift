@@ -1,0 +1,34 @@
+//
+//  UserWalletFinder.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2024 Tangem AG. All rights reserved.
+//
+
+import Foundation
+
+struct UserWalletFinder {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
+    func addTokenItem(_ tokenItem: TokenItem, for address: String) {
+        guard tokenItem.isToken else { return }
+
+        let blockchainTokenItem = TokenItem.blockchain(tokenItem.blockchainNetwork)
+
+        let userWalletModel = userWalletRepository.models.first { userWalletModel in
+            let walletModels = userWalletModel.walletModelsManager.walletModels
+            return !walletModels.contains { $0.tokenItem == tokenItem } &&
+                walletModels.contains { $0.tokenItem == blockchainTokenItem && $0.defaultAddress == address }
+        }
+
+        guard let userWalletModel else { return }
+
+        do {
+            try userWalletModel.userTokensManager.update(itemsToRemove: [], itemsToAdd: [tokenItem])
+        } catch {
+            AppLog.shared.debug("Failed to add token after transaction to other wallet")
+            AppLog.shared.error(error)
+        }
+    }
+}
