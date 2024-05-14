@@ -10,6 +10,8 @@ import Foundation
 import UIKit
 
 struct BannerPromotionNotificationFactory {
+    private static let dateFormatter = DateFormatter()
+
     func buildNotificationButton(
         actionType: NotificationButtonActionType,
         action: @escaping NotificationView.NotificationButtonTapAction
@@ -66,32 +68,30 @@ struct BannerPromotionNotificationFactory {
 
     func changellyDescription(promotion: ActivePromotionInfo, place: BannerPromotionPlace) -> String {
         let percent = changellyZeroPercent()
-        let formatter = DateFormatter()
-        formatter.dateFormat = "dd"
+        Self.dateFormatter.dateFormat = "dd"
 
         switch place {
         case .main:
             return Localization.mainSwapChangellyPromotionMessage(
                 percent,
-                formatter.string(from: promotion.timeline.start),
-                formatter.string(from: promotion.timeline.end)
+                Self.dateFormatter.string(from: promotion.timeline.start),
+                Self.dateFormatter.string(from: promotion.timeline.end)
             )
         case .tokenDetails:
             return Localization.tokenSwapChangellyPromotionMessage(
                 percent,
-                formatter.string(from: promotion.timeline.start),
-                formatter.string(from: promotion.timeline.end)
+                Self.dateFormatter.string(from: promotion.timeline.start),
+                Self.dateFormatter.string(from: promotion.timeline.end)
             )
         }
     }
 
     func travalaDescription(promotion: ActivePromotionInfo) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "dd MMMM"
+        Self.dateFormatter.dateFormat = "dd MMMM"
 
         return Localization.mainTravalaPromotionDescription(
-            formatter.string(from: promotion.timeline.start),
-            formatter.string(from: promotion.timeline.end)
+            Self.dateFormatter.string(from: promotion.timeline.start),
+            Self.dateFormatter.string(from: promotion.timeline.end)
         )
     }
 
