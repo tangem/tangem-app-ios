@@ -10,7 +10,18 @@ import Foundation
 import UIKit
 
 struct BannerPromotionNotificationFactory {
-    private static let dateFormatter = DateFormatter()
+    private static let changellyDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd"
+        return formatter
+    }()
+
+    private static let travalaDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd MMMM"
+        return formatter
+    }()
+
 
     func buildNotificationButton(
         actionType: NotificationButtonActionType,
@@ -68,30 +79,27 @@ struct BannerPromotionNotificationFactory {
 
     func changellyDescription(promotion: ActivePromotionInfo, place: BannerPromotionPlacement) -> String {
         let percent = changellyZeroPercent()
-        Self.dateFormatter.dateFormat = "dd"
 
         switch place {
         case .main:
             return Localization.mainSwapChangellyPromotionMessage(
                 percent,
-                Self.dateFormatter.string(from: promotion.timeline.start),
-                Self.dateFormatter.string(from: promotion.timeline.end)
+                Self.changellyDateFormatter.string(from: promotion.timeline.start),
+                Self.changellyDateFormatter.string(from: promotion.timeline.end)
             )
         case .tokenDetails:
             return Localization.tokenSwapChangellyPromotionMessage(
                 percent,
-                Self.dateFormatter.string(from: promotion.timeline.start),
-                Self.dateFormatter.string(from: promotion.timeline.end)
+                Self.changellyDateFormatter.string(from: promotion.timeline.start),
+                Self.changellyDateFormatter.string(from: promotion.timeline.end)
             )
         }
     }
 
     func travalaDescription(promotion: ActivePromotionInfo) -> String {
-        Self.dateFormatter.dateFormat = "dd MMMM"
-
-        return Localization.mainTravalaPromotionDescription(
-            Self.dateFormatter.string(from: promotion.timeline.start),
-            Self.dateFormatter.string(from: promotion.timeline.end)
+        Localization.mainTravalaPromotionDescription(
+            Self.travalaDateFormatter.string(from: promotion.timeline.start),
+            Self.travalaDateFormatter.string(from: promotion.timeline.end)
         )
     }
 
