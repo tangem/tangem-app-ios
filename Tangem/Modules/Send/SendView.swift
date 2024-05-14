@@ -63,7 +63,8 @@ struct SendView: View {
             HStack {
                 HStack(spacing: 0) {
                     Button(Localization.commonClose, action: viewModel.dismiss)
-                        .foregroundColor(Colors.Text.primary1)
+                        .foregroundColor(viewModel.closeButtonColor)
+                        .disabled(viewModel.closeButtonDisabled)
 
                     Spacer()
                 }
