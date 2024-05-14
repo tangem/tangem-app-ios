@@ -547,7 +547,7 @@
 "token_details_hide_alert_title" = "Скрыть %@";
 "token_details_hide_token" = "Скрыть токен";
 "token_details_token_type_subtitle" = "%1$@ токен в сети %%image%% %2$@";
-"token_details_unable_hide_alert_message" = "Токен %1$@ является основной валютой в сети %2$@ и не может быть скрыт до тех пор, пока у вас в списке есть другие токены этой сети.";
+"token_details_unable_hide_alert_message" = "Токен %1$@ (%2$@) является основной валютой в сети %3$@ и не может быть скрыт до тех пор, пока у вас в списке есть другие токены этой сети";
 "token_details_unable_hide_alert_title" = "Невозможно скрыть %@";
 "token_swap_changelly_promotion_message" = "Обменивайте этот токен на другие с %1$@ комиссии за обслуживание с %2$@ по %3$@ февраля.";
 "token_swap_changelly_promotion_title" = "Обмен с Changelly, %@ комиссии";
