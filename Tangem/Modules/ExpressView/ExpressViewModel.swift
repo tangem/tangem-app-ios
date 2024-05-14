@@ -650,7 +650,8 @@ extension ExpressViewModel: NotificationTapDelegate {
              .refreshFee,
              .goToProvider,
              .exchange,
-             .addHederaTokenAssociation:
+             .addHederaTokenAssociation,
+             .bookNow:
             return
         }
     }
