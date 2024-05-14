@@ -433,10 +433,11 @@ class WalletModel {
         }
     }
 
-    func send(_ tx: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, Error> {
+    func send(_ tx: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
         if isDemo {
             let hash = Data.randomData(count: 32)
             return signer.sign(hash: hash, walletPublicKey: wallet.publicKey)
+                .eraseSendError(tx: hash.hexString)
                 .map { _ in TransactionSendResult(hash: hash.hexString) }
                 .receive(on: DispatchQueue.main)
                 .eraseToAnyPublisher()
