@@ -484,7 +484,7 @@
 "send_sending" = "Отправка";
 "send_summary_tap_hint" = "Нажмите на любое поле, чтобы изменить его";
 "send_summary_title" = "Отправка %@";
-"send_summary_transaction_description" = "Вы отправляете %1$@, включая комиссию сети %2$@";
+"send_summary_transaction_description" = "Вы отправляете **%1$@**, включая комиссию сети %2$@";
 "send_title_currency_format" = "Отправка %@";
 "send_total_label" = "Всего";
 "send_total_subtitle_asset_format" = "%1$@ и %2$@ будет отправлено";
