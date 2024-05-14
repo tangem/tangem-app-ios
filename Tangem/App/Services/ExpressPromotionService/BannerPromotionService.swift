@@ -41,5 +41,6 @@ enum PromotionProgramName: String, Hashable {
     // Will be deleted: [REDACTED_INFO]
     case changelly
     // Estimated dates 13/05 - 13/06
+    // Will be deleted: [REDACTED_INFO]
     case travala
 }
