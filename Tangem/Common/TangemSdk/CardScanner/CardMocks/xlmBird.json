@@ -20,7 +20,9 @@
         "isSettingPasscodeAllowed" : true,
         "isOverwritingIssuerExtraDataRestricted": true,
         "isIssuerDataProtectedAgainstReplay": true,
-        "isSelectBlockchainAllowed": false
+        "isSelectBlockchainAllowed": false,
+        "isPermanentWallet": false,
+        "isKeysImportAllowed" : false
     },
     "supportedCurves" : [
         "ed25519"
