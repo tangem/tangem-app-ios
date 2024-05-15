@@ -81,21 +81,6 @@ private extension ManageTokensViewModel {
         loader.fetch(searchText)
     }
 
-    /// Obtain supported token list from UserWalletModels to determine the cell action type
-    /// Should be reset after updating the list of tokens
-    func updateAlreadyExistTokenUserList() {
-        let models = dataSource.userWalletModels
-
-        let existEntriesList = models
-            .flatMap {
-                let userTokenListManager = $0.userTokenListManager
-                let entries = userTokenListManager.userTokensList.entries
-                return entries.compactMap { $0.isCustom ? nil : $0.id }
-            }
-
-        cacheExistListCoinId = existEntriesList
-    }
-
     func searchBind(searchTextPublisher: (some Publisher<String, Never>)?) {
         searchTextPublisher?
             .dropFirst()
@@ -118,47 +103,7 @@ private extension ManageTokensViewModel {
         dataSource
             .userWalletModelsPublisher
             .sink { [weak self] models in
-                self?.updateAlreadyExistTokenUserList()
-                self?.updateDerivationBind()
                 self?.fetch()
-            }
-            .store(in: &bag)
-    }
-
-    func updateDerivationBind() {
-        // Used for update state generateAddressesViewModel property
-        let pendingDerivationsCountPublishers = dataSource.userWalletModels
-            .compactMap { model -> AnyPublisher<(UserWalletId, Int), Never>? in
-                if let derivationManager = model.userTokensManager.derivationManager {
-                    return derivationManager.pendingDerivationsCount
-                        .map { (model.userWalletId, $0) }
-                        .eraseToAnyPublisher()
-                }
-
-                return nil
-            }
-
-        Publishers.MergeMany(pendingDerivationsCountPublishers)
-            .receiveValue { [weak self] id, count in
-                self?.pendingDerivationCountByWalletId[id] = count
-                self?.updateGenerateAddressesViewModel()
-            }
-            .store(in: &bag)
-
-        // Used for update state actionType tokenViewModels list property
-        let userTokensPublishers = dataSource.userWalletModels
-            .map { $0.userTokenListManager.userTokensPublisher }
-
-        Publishers.MergeMany(userTokensPublishers)
-            .receive(on: DispatchQueue.main)
-            .receiveValue { [weak self] value in
-                guard let self = self else { return }
-
-                updateAlreadyExistTokenUserList()
-
-                tokenViewModels.forEach {
-                    $0.action = self.actionType(for: $0.id)
-                }
             }
             .store(in: &bag)
     }
@@ -197,47 +142,18 @@ private extension ManageTokensViewModel {
             ManageTokensItemViewModel(
                 coinModel: .dummy,
                 priceValue: "----------",
-                action: .info,
-                state: .loading,
-                didTapAction: { _, _ in }
+                state: .loading
             )
         }
     }
 
-    private func actionType(for coinId: String) -> ManageTokensItemViewModel.Action {
-        let isAlreadyExistToken = cacheExistListCoinId.contains(coinId)
-        return isAlreadyExistToken ? .edit : .add
-    }
-
     private func mapToTokenViewModel(coinModel: CoinModel) -> ManageTokensItemViewModel {
-        ManageTokensItemViewModel(
-            coinModel: coinModel,
-            action: actionType(for: coinModel.id),
-            state: .loaded,
-            didTapAction: weakify(self, forFunction: ManageTokensViewModel.handle)
-        )
+        ManageTokensItemViewModel(coinModel: coinModel, state: .loaded)
     }
 
     private func updateQuote(by coinIds: [String]) {
         runTask(in: self) { root in
             await root.tokenQuotesRepository.loadQuotes(currencyIds: coinIds)
-        }
-    }
-
-    private func handle(action: ManageTokensItemViewModel.Action, with coinModel: CoinModel) {
-        switch action {
-        case .info:
-            // [REDACTED_TODO_COMMENT]
-            break
-        case .add, .edit:
-            let event: Analytics.Event = action == .add ? .manageTokensButtonAdd : .manageTokensButtonEdit
-            Analytics.log(event: event, params: [.token: coinModel.id])
-
-            coordinator?.openTokenSelector(
-                dataSource: dataSource,
-                coinId: coinModel.id,
-                tokenItems: coinModel.items.map { $0.tokenItem }
-            )
         }
     }
 
