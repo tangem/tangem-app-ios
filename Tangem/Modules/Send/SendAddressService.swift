@@ -24,6 +24,7 @@ protocol SendAddressService {
 class DefaultSendAddressService: SendAddressService {
     private let walletAddresses: [Address]
     private let addressService: AddressService
+    private let blockchain: Blockchain
 
     var validationInProgressPublisher: AnyPublisher<Bool, Never> {
         validationInProgressSubject.eraseToAnyPublisher()
@@ -31,9 +32,10 @@ class DefaultSendAddressService: SendAddressService {
 
     private var validationInProgressSubject = CurrentValueSubject<Bool, Never>(false)
 
-    init(walletAddresses: [Address], addressService: AddressService) {
+    init(walletAddresses: [Address], addressService: AddressService, blockchain: Blockchain) {
         self.walletAddresses = walletAddresses
         self.addressService = addressService
+        self.blockchain = blockchain
     }
 
     func validate(address: String) async throws -> String? {
@@ -47,7 +49,7 @@ class DefaultSendAddressService: SendAddressService {
             return nil
         }
 
-        if walletAddresses.contains(where: { $0.value == address }) {
+        if !blockchain.supportSameAddressTransfer, walletAddresses.contains(where: { $0.value == address }) {
             throw SendAddressServiceError.sameAsWalletAddress
         }
 
@@ -126,6 +128,22 @@ extension SendAddressServiceError: LocalizedError {
             return Localization.sendErrorAddressSameAsWallet
         case .invalidAddress:
             return Localization.sendRecipientAddressError
+        }
+    }
+}
+
+private extension Blockchain {
+    var supportSameAddressTransfer: Bool {
+        switch self {
+        case .bitcoin,
+             .bitcoinCash,
+             .litecoin,
+             .dogecoin,
+             .dash,
+             .kaspa:
+            return true
+        default:
+            return false
         }
     }
 }
