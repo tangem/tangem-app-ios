@@ -19,7 +19,6 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
     @Published var priceValue: String = ""
     @Published var priceChangeState: TokenPriceChangeView.State = .noData
     @Published var priceHistory: [Double]? = nil
-    @Published var action: Action
     @Published var isLoading: Bool
 
     // MARK: - Properties
@@ -30,7 +29,6 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
     var symbol: String { coinModel.symbol }
 
     let coinModel: CoinModel
-    let didTapAction: (Action, CoinModel) -> Void
 
     private var bag = Set<AnyCancellable>()
 
@@ -58,17 +56,13 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
         priceValue: String = "",
         priceChangeState: TokenPriceChangeView.State = .loading,
         priceHistory: [Double]? = nil,
-        action: Action,
-        state: State,
-        didTapAction: @escaping (Action, CoinModel) -> Void
+        state: State
     ) {
         self.coinModel = coinModel
         self.priceValue = priceValue
         self.priceChangeState = priceChangeState
         self.priceHistory = priceHistory
-        self.action = action
         isLoading = state == .loading
-        self.didTapAction = didTapAction
 
         bind()
     }
@@ -107,12 +101,6 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
 }
 
 extension ManageTokensItemViewModel {
-    enum Action {
-        case add
-        case edit
-        case info
-    }
-
     enum State {
         case loading
         case loaded
