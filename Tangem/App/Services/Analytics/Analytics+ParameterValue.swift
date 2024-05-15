@@ -37,6 +37,7 @@ extension Analytics {
         case onboarding = "Onboarding"
         case settings = "Settings"
         case signIn = "Sign In"
+        case receive = "Receive"
 
         case transactionSourceSend = "Send"
         case transactionSourceSwap = "Swap"
