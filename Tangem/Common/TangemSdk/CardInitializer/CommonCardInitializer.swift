@@ -1,27 +1,20 @@
 //
-//  CardInitializer.swift
+//  CommonCardInitializer.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2023 Tangem AG. All rights reserved.
+//  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import Combine
 import CombineExt
 import TangemSdk
 
-protocol CardInitializable {
-    var shouldReset: Bool { get set }
-    func initializeCard(mnemonic: Mnemonic?, passphrase: String?, completion: @escaping (Result<CardInfo, TangemSdkError>) -> Void)
-}
-
-class CardInitializer {
+class CommonCardInitializer {
     var shouldReset: Bool = false
 
     private let tangemSdk: TangemSdk
     private var cardInfo: CardInfo
-    private var runnableBag: (any CardSessionRunnable)?
     private var cancellable: AnyCancellable?
 
     internal init(tangemSdk: TangemSdk, cardInfo: CardInfo) {
@@ -30,12 +23,11 @@ class CardInitializer {
     }
 }
 
-extension CardInitializer: CardInitializable {
+extension CommonCardInitializer: CardInitializer {
     func initializeCard(mnemonic: Mnemonic?, passphrase: String?, completion: @escaping (Result<CardInfo, TangemSdkError>) -> Void) {
         let config = UserWalletConfigFactory(cardInfo).makeConfig()
-        let task = PreparePrimaryCardTask(curves: config.mandatoryCurves, mnemonic: mnemonic, passphrase: passphrase, shouldReset: shouldReset)
+        let task = PreparePrimaryCardTask(curves: config.createWalletCurves, mnemonic: mnemonic, passphrase: passphrase, shouldReset: shouldReset)
         let initialMessage = Message(header: nil, body: Localization.initialMessageCreateWalletBody)
-        runnableBag = task
 
         // Ring onboarding. Set custom image
         if let customOnboardingImage = config.customScanImage {
@@ -61,9 +53,6 @@ extension CardInitializer: CardInitializable {
             return mutableCardInfo
         }
         .sink(receiveCompletion: { [weak self] completionResult in
-            self?.runnableBag = nil
-            self?.cancellable = nil
-
             // Ring onboarding. Reset the image
             self?.tangemSdk.config.style.scanTagImage = .genericCard
 
@@ -76,6 +65,9 @@ extension CardInitializer: CardInitializable {
             case .failure(let error):
                 completion(.failure(error))
             }
+
+            withExtendedLifetime(task) {}
+            self?.cancellable = nil
         }, receiveValue: { [weak self] newCardInfo in
             self?.cardInfo = newCardInfo
         })
