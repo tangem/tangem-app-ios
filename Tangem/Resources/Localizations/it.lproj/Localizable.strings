@@ -478,7 +478,7 @@
 "send_recent_transactions" = "Recent";
 "send_recipient" = "Recipient";
 "send_recipient_address_error" = "Not a valid address";
-"send_recipient_address_footer" = "Ensure that you are sending funds to an %@ wallet address. Errors may result in the loss of your tokens";
+"send_recipient_address_footer" = "Ensure the receiving wallet address is on the %@ network to avoid losing your tokens";
 "send_recipient_label" = "Send to";
 "send_recipient_memo_footer" = "A Memo/Destination Tag is a unique ID for differentiating transactions sent to the same recipient on the same network. Caution: Omitting a memo may lead to misplaced funds";
 "send_recipient_wallets_title" = "My wallets";
