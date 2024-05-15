@@ -17,16 +17,16 @@ protocol WalletConnectEthTransactionBuilder {
 struct CommonWalletConnectEthTransactionBuilder {
     private let zeroString = "0x0"
 
-    private func getGasPrice(for tx: WalletConnectEthTransaction, using gasLoader: EthereumGasLoader) async throws -> Int {
+    private func getGasPrice(for tx: WalletConnectEthTransaction, using ethereumNetworkProvider: EthereumNetworkProvider) async throws -> Int {
         if let gasPrice = tx.gasPrice?.hexToInteger {
             return gasPrice
         }
 
-        let price = try await gasLoader.getGasPrice().async()
+        let price = try await ethereumNetworkProvider.getGasPrice().async()
         return Int(price)
     }
 
-    private func getGasLimit(for tx: WalletConnectEthTransaction, with amount: Amount, using gasLoader: EthereumGasLoader) async throws -> Int {
+    private func getGasLimit(for tx: WalletConnectEthTransaction, with amount: Amount, using ethereumNetworkProvider: EthereumNetworkProvider) async throws -> Int {
         if let dappGasLimit = tx.gas?.hexToInteger ?? tx.gasLimit?.hexToInteger {
             return dappGasLimit
         }
@@ -37,7 +37,7 @@ struct CommonWalletConnectEthTransactionBuilder {
         // to send value from dApp instead of creating it yourself. [REDACTED_INFO]
         let valueString = amount.value.isZero ? zeroString : tx.value
 
-        let gasLimitBigInt = try await gasLoader.getGasLimit(
+        let gasLimitBigInt = try await ethereumNetworkProvider.getGasLimit(
             to: tx.to,
             from: tx.from,
             value: valueString,
@@ -49,7 +49,7 @@ struct CommonWalletConnectEthTransactionBuilder {
 
 extension CommonWalletConnectEthTransactionBuilder: WalletConnectEthTransactionBuilder {
     func buildTx(from wcTransaction: WalletConnectEthTransaction, for walletModel: WalletModel) async throws -> Transaction {
-        guard let gasLoader = walletModel.ethereumGasLoader else {
+        guard let ethereumNetworkProvider = walletModel.ethereumNetworkProvider else {
             let error = WalletConnectV2Error.missingGasLoader
             AppLog.shared.error(error)
             throw error
@@ -66,8 +66,8 @@ extension CommonWalletConnectEthTransactionBuilder: WalletConnectEthTransactionB
         let valueAmount = Amount(with: blockchain, type: .coin, value: value)
 
         async let walletUpdate = walletModel.update(silent: false).async()
-        async let gasPrice = getGasPrice(for: wcTransaction, using: gasLoader)
-        async let gasLimit = getGasLimit(for: wcTransaction, with: valueAmount, using: gasLoader)
+        async let gasPrice = getGasPrice(for: wcTransaction, using: ethereumNetworkProvider)
+        async let gasLimit = getGasLimit(for: wcTransaction, with: valueAmount, using: ethereumNetworkProvider)
 
         let feeValue = try await Decimal(gasLimit) * Decimal(gasPrice) / blockchain.decimalValue
         let gasAmount = Amount(with: blockchain, value: feeValue)
