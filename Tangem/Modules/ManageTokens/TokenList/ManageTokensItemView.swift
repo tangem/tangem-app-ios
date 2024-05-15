@@ -26,39 +26,10 @@ struct ManageTokensItemView: View {
             Spacer(minLength: 24)
 
             priceHistoryView
-
-            manageButton(for: viewModel.action, with: viewModel.id)
-                .skeletonable(isShown: viewModel.isLoading)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 15)
         .animation(nil) // Disable animations on scroll reuse
-    }
-
-    @ViewBuilder
-    private func manageButton(for action: ManageTokensItemViewModel.Action, with id: String) -> some View {
-        ZStack {
-            Button {
-                viewModel.didTapAction(action, viewModel.coinModel)
-            } label: {
-                switch action {
-                case .add:
-                    AddButtonView()
-                case .edit:
-                    EditButtonView()
-                case .info:
-                    Assets.infoIconMini.image
-                        .renderingMode(.template)
-                        .foregroundColor(Colors.Icon.informative)
-                }
-            }
-
-            AddButtonView()
-                .hidden()
-
-            EditButtonView()
-                .hidden()
-        }
     }
 
     private var tokenInfo: some View {
@@ -102,36 +73,6 @@ struct ManageTokensItemView: View {
     }
 }
 
-private struct AddButtonView: View {
-    var body: some View {
-        TextButtonView(text: Localization.manageTokensAdd, foreground: Colors.Text.primary2, background: Colors.Button.primary)
-    }
-}
-
-private struct EditButtonView: View {
-    var body: some View {
-        TextButtonView(text: Localization.manageTokensEdit, foreground: Colors.Text.primary1, background: Colors.Button.secondary)
-    }
-}
-
-private struct TextButtonView: View {
-    let text: String
-    let foreground: Color
-    let background: Color
-
-    var body: some View {
-        Text(text)
-            .style(Fonts.Bold.caption1, color: foreground)
-            .frame(size: .init(width: 24, height: 16))
-            .padding(.horizontal, 10)
-            .padding(.vertical, 4)
-            .background(
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(background)
-            )
-    }
-}
-
 struct CurrencyViewNew_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
@@ -145,9 +86,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 priceValue: "$23,034.83",
                 priceChangeState: .loaded(signType: .positive, text: "10.5%"),
                 priceHistory: [1, 7, 3, 5, 13],
-                action: .add,
-                state: .loaded,
-                didTapAction: { _, _ in }
+                state: .loaded
             ))
 
             ManageTokensItemView(viewModel: ManageTokensItemViewModel(
@@ -160,9 +99,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 priceValue: "$1,340.33",
                 priceChangeState: .loaded(signType: .negative, text: "10.5%"),
                 priceHistory: [1, 7, 3, 5, 13].reversed(),
-                action: .add,
-                state: .loaded,
-                didTapAction: { _, _ in }
+                state: .loaded
             ))
 
             ManageTokensItemView(viewModel: ManageTokensItemViewModel(
@@ -175,9 +112,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 priceValue: "$33.00",
                 priceChangeState: .loaded(signType: .positive, text: "1.3%"),
                 priceHistory: [1, 7, 3, 5, 13],
-                action: .add,
-                state: .loaded,
-                didTapAction: { _, _ in }
+                state: .loaded
             ))
 
             ManageTokensItemView(viewModel: ManageTokensItemViewModel(
@@ -190,9 +125,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 priceValue: "$34.83",
                 priceChangeState: .loaded(signType: .positive, text: "0.0%"),
                 priceHistory: [4, 7, 3, 5, 4],
-                action: .edit,
-                state: .loaded,
-                didTapAction: { _, _ in }
+                state: .loaded
             ))
 
             ManageTokensItemView(viewModel: ManageTokensItemViewModel(
@@ -205,9 +138,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 priceValue: "$23,341,324,034.83",
                 priceChangeState: .loaded(signType: .positive, text: "1,444,340,340.0%"),
                 priceHistory: [1, 7, 3, 5, 13],
-                action: .info,
-                state: .loaded,
-                didTapAction: { _, _ in }
+                state: .loaded
             ))
 
             ManageTokensItemView(viewModel: ManageTokensItemViewModel(
@@ -220,9 +151,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 priceValue: "$100.83",
                 priceChangeState: .loaded(signType: .positive, text: "1.0%"),
                 priceHistory: nil,
-                action: .add,
-                state: .loaded,
-                didTapAction: { _, _ in }
+                state: .loaded
             ))
 
             Spacer()
