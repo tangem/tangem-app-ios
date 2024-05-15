@@ -43,6 +43,10 @@ protocol TangemApiService: AnyObject, Initializable {
     @discardableResult
     func resetAwardForCurrentWallet(cardId: String) async throws -> PromotionAwardResetResult
 
+    // MARK: - Configs
+
+    func loadAPIList() async throws -> APIListDTO
+
     func setAuthData(_ authData: TangemApiTarget.AuthData)
 }
 
