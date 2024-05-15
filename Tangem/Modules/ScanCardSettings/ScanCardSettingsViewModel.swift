@@ -8,7 +8,6 @@
 
 import Combine
 import SwiftUI
-import TangemSdk
 
 final class ScanCardSettingsViewModel: ObservableObject, Identifiable {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
@@ -18,13 +17,11 @@ final class ScanCardSettingsViewModel: ObservableObject, Identifiable {
     @Published var isLoading: Bool = false
     @Published var alert: AlertBinder?
 
-    private let sessionFilter: SessionFilter
-    private let sdk: TangemSdk
+    private let cardScanner: CardScanner
     private weak var coordinator: ScanCardSettingsRoutable?
 
-    init(sessionFilter: SessionFilter, sdk: TangemSdk, coordinator: ScanCardSettingsRoutable) {
-        self.sessionFilter = sessionFilter
-        self.sdk = sdk
+    init(cardScanner: CardScanner, coordinator: ScanCardSettingsRoutable) {
+        self.cardScanner = cardScanner
         self.coordinator = coordinator
     }
 }
@@ -96,8 +93,7 @@ extension ScanCardSettingsViewModel {
 extension ScanCardSettingsViewModel {
     func scan(completion: @escaping (Result<CardInfo, Error>) -> Void) {
         isLoading = true
-        let task = AppScanTask(shouldAskForAccessCode: true)
-        sdk.startSession(with: task, filter: sessionFilter) { [weak self] result in
+        cardScanner.scanCard { [weak self] result in
             self?.isLoading = false
 
             switch result {
