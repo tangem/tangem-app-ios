@@ -25,6 +25,10 @@ struct SettingsUserWalletRowView: View {
             icon
 
             textViews
+
+            Spacer()
+
+            Assets.chevron.image
         }
         .infinityFrame(axis: .horizontal, alignment: .leading)
         .padding(.vertical, 12)
