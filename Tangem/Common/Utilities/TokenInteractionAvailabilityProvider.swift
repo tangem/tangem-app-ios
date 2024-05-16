@@ -91,7 +91,8 @@ struct TokenInteractionAvailabilityProvider {
              .flare,
              .taraxa,
              .radiant,
-             .base:
+             .base,
+             .joystream:
 
             // Checking that we have at least one valid (non-empty) address
             //
