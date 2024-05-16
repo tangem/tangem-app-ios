@@ -130,7 +130,6 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openScanCardManual() {
-        // [REDACTED_TODO_COMMENT]
         safariManager.openURL(TangemBlogUrlBuilder().url(post: .scanCard))
     }
 }

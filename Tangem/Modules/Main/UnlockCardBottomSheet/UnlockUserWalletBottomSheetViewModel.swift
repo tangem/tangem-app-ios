@@ -59,6 +59,7 @@ class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
                 case .error(let error), .partial(_, let error):
                     self?.error = error.alertBinder
                 case .troubleshooting:
+                    Analytics.log(.cantScanTheCard, params: [.source: .main])
                     self?.showTroubleshooting()
                 default:
                     break
@@ -74,6 +75,7 @@ class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
     }
 
     func openScanCardManual() {
+        Analytics.log(.cantScanTheCardButtonBlog, params: [.source: .main])
         delegate?.openScanCardManual()
     }
 
