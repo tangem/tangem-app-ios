@@ -33,7 +33,7 @@ class SettingsUserWalletRowViewModel: ObservableObject {
             tapAction: tapAction
         )
     }
-
+    
     init(
         name: String,
         cardsCount: Int,
@@ -48,7 +48,6 @@ class SettingsUserWalletRowViewModel: ObservableObject {
         self.totalBalancePublisher = totalBalancePublisher
         self.cardImagePublisher = cardImagePublisher
         self.tapAction = tapAction
-
         bind()
     }
 
