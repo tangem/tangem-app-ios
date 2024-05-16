@@ -9,16 +9,18 @@
 import SwiftUI
 
 struct SendDestinationAddressSummaryView: View {
+    @ObservedObject var addressTextViewHeightModel: AddressTextViewHeightModel
     let address: String
 
     private var namespace: Namespace.ID?
 
-    init(address: String) {
+    init(addressTextViewHeightModel: AddressTextViewHeightModel, address: String) {
+        self.addressTextViewHeightModel = addressTextViewHeightModel
         self.address = address
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 2) {
             Text(Localization.sendRecipient)
                 .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
                 .matchedGeometryEffectOptional(id: SendViewNamespaceId.addressTitle.rawValue, in: namespace)
@@ -27,12 +29,17 @@ struct SendDestinationAddressSummaryView: View {
                 AddressIconView(viewModel: AddressIconViewModel(address: address))
                     .matchedGeometryEffectOptional(id: SendViewNamespaceId.addressIcon.rawValue, in: namespace)
                     .frame(size: CGSize(bothDimensions: 36))
+                    .padding(.vertical, 10)
 
-                Text(address)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
-                    .multilineTextAlignment(.leading)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .matchedGeometryEffectOptional(id: SendViewNamespaceId.addressText.rawValue, in: namespace)
+                AddressTextView(
+                    heightModel: addressTextViewHeightModel,
+                    text: .constant(address),
+                    placeholder: "",
+                    font: UIFonts.Regular.subheadline,
+                    color: .textPrimary1
+                )
+                .disabled(true)
+                .matchedGeometryEffectOptional(id: SendViewNamespaceId.addressText.rawValue, in: namespace)
 
                 Assets.clear.image
                     .renderingMode(.template)
@@ -41,7 +48,8 @@ struct SendDestinationAddressSummaryView: View {
                     .matchedGeometryEffectOptional(id: SendViewNamespaceId.addressClearButton.rawValue, in: namespace)
             }
         }
-        .padding(.vertical, 14)
+        .padding(.top, 12)
+        .padding(.bottom, 2)
     }
 }
 
@@ -56,7 +64,7 @@ extension SendDestinationAddressSummaryView: Setupable {
         GroupedSection(SendDestinationSummaryViewType.address(address: "1230123", corners: .allCorners)) { type in
             switch type {
             case .address(let address, _):
-                SendDestinationAddressSummaryView(address: address)
+                SendDestinationAddressSummaryView(addressTextViewHeightModel: .init(), address: address)
             case .additionalField(let type, let value):
                 if let name = type.name {
                     DefaultTextWithTitleRowView(data: .init(title: name, text: value))
@@ -67,7 +75,7 @@ extension SendDestinationAddressSummaryView: Setupable {
         GroupedSection(SendDestinationSummaryViewType.address(address: "0x391316d97a07027a0702c8A002c8A0C25d8470", corners: .allCorners)) { type in
             switch type {
             case .address(let address, _):
-                SendDestinationAddressSummaryView(address: address)
+                SendDestinationAddressSummaryView(addressTextViewHeightModel: .init(), address: address)
             case .additionalField(let type, let value):
                 if let name = type.name {
                     DefaultTextWithTitleRowView(data: .init(title: name, text: value))
@@ -83,7 +91,7 @@ extension SendDestinationAddressSummaryView: Setupable {
         ) { type in
             switch type {
             case .address(let address, _):
-                SendDestinationAddressSummaryView(address: address)
+                SendDestinationAddressSummaryView(addressTextViewHeightModel: .init(), address: address)
             case .additionalField(let type, let value):
                 if let name = type.name {
                     DefaultTextWithTitleRowView(data: .init(title: name, text: value))
@@ -100,7 +108,7 @@ extension SendDestinationAddressSummaryView: Setupable {
         ) { type in
             switch type {
             case .address(let address, _):
-                SendDestinationAddressSummaryView(address: address)
+                SendDestinationAddressSummaryView(addressTextViewHeightModel: .init(), address: address)
             case .additionalField(let type, let value):
                 if let name = type.name {
                     DefaultTextWithTitleRowView(data: .init(title: name, text: value))

@@ -24,7 +24,7 @@ protocol SendFinishViewModelInput: AnyObject {
 
 class SendFinishViewModel: ObservableObject {
     @Published var showHeader = false
-    @Published var showButtons = false
+    @ObservedObject var addressTextViewHeightModel: AddressTextViewHeightModel
 
     let transactionTime: String
 
@@ -32,15 +32,13 @@ class SendFinishViewModel: ObservableObject {
     let amountSummaryViewData: SendAmountSummaryViewData?
     let feeSummaryViewData: SendFeeSummaryViewModel?
 
-    weak var router: SendFinishRoutable?
+    private let feeTypeAnalyticsParameter: Analytics.ParameterValue
+    private let walletInfo: SendWalletInfo
 
-    private let transactionURL: URL
-
-    init?(input: SendFinishViewModelInput, fiatCryptoValueProvider: SendFiatCryptoValueProvider, walletInfo: SendWalletInfo) {
+    init?(input: SendFinishViewModelInput, fiatCryptoValueProvider: SendFiatCryptoValueProvider, addressTextViewHeightModel: AddressTextViewHeightModel, feeTypeAnalyticsParameter: Analytics.ParameterValue, walletInfo: SendWalletInfo) {
         guard
             let destinationText = input.destinationText,
             let transactionTime = input.transactionTime,
-            let transactionURL = input.transactionURL,
             let feeValue = input.feeValue
         else {
             return nil
@@ -68,27 +66,20 @@ class SendFinishViewModel: ObservableObject {
         formatter.dateStyle = .long
         formatter.timeStyle = .short
         self.transactionTime = formatter.string(from: transactionTime)
-        self.transactionURL = transactionURL
+
+        self.addressTextViewHeightModel = addressTextViewHeightModel
+        self.feeTypeAnalyticsParameter = feeTypeAnalyticsParameter
+        self.walletInfo = walletInfo
     }
 
     func onAppear() {
-        Analytics.log(.sendTransactionSentScreenOpened)
+        Analytics.log(event: .sendTransactionSentScreenOpened, params: [
+            .token: walletInfo.cryptoCurrencyCode,
+            .feeType: feeTypeAnalyticsParameter.rawValue,
+        ])
 
         withAnimation(SendView.Constants.defaultAnimation) {
             showHeader = true
-            showButtons = true
         }
-    }
-
-    func explore() {
-        Analytics.log(.sendButtonExplore)
-
-        router?.explore(url: transactionURL)
-    }
-
-    func share() {
-        Analytics.log(.sendButtonShare)
-
-        router?.share(url: transactionURL)
     }
 }
