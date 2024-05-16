@@ -831,6 +831,7 @@
 		DAAA3C6F2B3D79FA0002DBB0 /* SendTransactionParametersBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAAA3C6E2B3D79FA0002DBB0 /* SendTransactionParametersBuilder.swift */; };
 		DAAA3C722B3D813C0002DBB0 /* SendAddressService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAAA3C702B3D813C0002DBB0 /* SendAddressService.swift */; };
 		DAAA3C732B3D813C0002DBB0 /* SendAddressServiceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAAA3C712B3D813C0002DBB0 /* SendAddressServiceFactory.swift */; };
+		DAAEC38D2BF31A8800184D7C /* SendFeatureProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAAEC38C2BF31A8800184D7C /* SendFeatureProvider.swift */; };
 		DAB19D482B2C72A100DD08C4 /* AddCustomTokenCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB19D432B2C72A100DD08C4 /* AddCustomTokenCoordinator.swift */; };
 		DAB19D492B2C72A100DD08C4 /* AddCustomTokenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB19D442B2C72A100DD08C4 /* AddCustomTokenViewModel.swift */; };
 		DAB19D4A2B2C72A100DD08C4 /* AddCustomTokenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB19D452B2C72A100DD08C4 /* AddCustomTokenView.swift */; };
@@ -2377,6 +2378,7 @@
 		DAAA3C6E2B3D79FA0002DBB0 /* SendTransactionParametersBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendTransactionParametersBuilder.swift; sourceTree = "<group>"; };
 		DAAA3C702B3D813C0002DBB0 /* SendAddressService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendAddressService.swift; sourceTree = "<group>"; };
 		DAAA3C712B3D813C0002DBB0 /* SendAddressServiceFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendAddressServiceFactory.swift; sourceTree = "<group>"; };
+		DAAEC38C2BF31A8800184D7C /* SendFeatureProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFeatureProvider.swift; sourceTree = "<group>"; };
 		DAB19D432B2C72A100DD08C4 /* AddCustomTokenCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenCoordinator.swift; sourceTree = "<group>"; };
 		DAB19D442B2C72A100DD08C4 /* AddCustomTokenViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenViewModel.swift; sourceTree = "<group>"; };
 		DAB19D452B2C72A100DD08C4 /* AddCustomTokenView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenView.swift; sourceTree = "<group>"; };
@@ -6798,6 +6800,7 @@
 			children = (
 				EF5903A32909285E00C527C9 /* FeaturesStorage.swift */,
 				EF5903A729092BC600C527C9 /* FeatureProvider.swift */,
+				DAAEC38C2BF31A8800184D7C /* SendFeatureProvider.swift */,
 				EFD32AEA29EE7F390026353E /* Feature.swift */,
 				EFD32AEC29EE7F540026353E /* FeatureState.swift */,
 			);
@@ -8723,6 +8726,7 @@
 				B08E26AF29D5580E00346C43 /* SeedPhraseSuggestionsView.swift in Sources */,
 				B06C085E2A73FCB700D982BC /* MainUserWalletPageBuilder.swift in Sources */,
 				B04EADEA2A80D62E009B5768 /* SingleTokenBaseRoutable.swift in Sources */,
+				DAAEC38D2BF31A8800184D7C /* SendFeatureProvider.swift in Sources */,
 				B0B335DE29FA959B00E2082E /* TokenIcon.swift in Sources */,
 				DA5970EC27FC1C1B0050387C /* TangemApiTarget.swift in Sources */,
 				B65D3FCD2A6712BB00FEEFE8 /* CardsInfoPagerContentSwitchingAnimationModifier.swift in Sources */,
@@ -10007,7 +10011,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -10153,7 +10157,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -12399,7 +12403,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEPLOYMENT_POSTPROCESSING = NO;
@@ -12758,7 +12762,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -13996,7 +14000,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEPLOYMENT_POSTPROCESSING = NO;
@@ -14247,7 +14251,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
