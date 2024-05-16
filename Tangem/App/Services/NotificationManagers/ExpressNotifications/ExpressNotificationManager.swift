@@ -56,10 +56,10 @@ class ExpressNotificationManager {
             notificationInputsSubject.value = []
 
         case .previewCEX(let preview, _):
-            notificationInputsSubject.value = []
-
-            setupFeeWillBeSubtractFromSendingAmountNotification(subtractFee: preview.subtractFee)
-            setupWithdrawalNotification(suggestion: preview.suggestion)
+            notificationInputsSubject.value = [
+                setupFeeWillBeSubtractFromSendingAmountNotification(subtractFee: preview.subtractFee),
+                setupWithdrawalSuggestion(suggestion: preview.suggestion),
+            ].compactMap { $0 }
         }
     }
 
@@ -171,17 +171,25 @@ class ExpressNotificationManager {
         notificationInputsSubject.value = [notification]
     }
 
-    private func setupFeeWillBeSubtractFromSendingAmountNotification(subtractFee: Decimal) {
-        let event = ExpressNotificationEvent.feeWillBeSubtractFromSendingAmount
-
-        guard subtractFee > 0 else {
-            notificationInputsSubject.value.removeAll(where: { $0.settings.event.id == event.id })
-            return
+    private func setupFeeWillBeSubtractFromSendingAmountNotification(subtractFee: Decimal) -> NotificationViewInput? {
+        guard let interactor = expressInteractor, subtractFee > 0 else {
+            return nil
         }
 
-        let factory = NotificationsFactory()
-        let notification = factory.buildNotificationInput(for: event)
-        notificationInputsSubject.value.appendIfNotContains(notification)
+        let feeTokenItem = interactor.getSender().feeTokenItem
+        let feeFiatValue = BalanceConverter().convertToFiat(value: subtractFee, from: feeTokenItem.currencyId ?? "")
+
+        let formatter = BalanceFormatter()
+        let cryptoAmountFormatted = formatter.formatCryptoBalance(subtractFee, currencyCode: feeTokenItem.currencySymbol)
+        let fiatAmountFormatted = formatter.formatFiatBalance(feeFiatValue)
+
+        let event = ExpressNotificationEvent.feeWillBeSubtractFromSendingAmount(
+            cryptoAmountFormatted: cryptoAmountFormatted,
+            fiatAmountFormatted: fiatAmountFormatted
+        )
+
+        let notification = NotificationsFactory().buildNotificationInput(for: event)
+        return notification
     }
 
     private func makeNotEnoughFeeForTokenTx(sender: WalletModel) -> ExpressNotificationEvent? {
@@ -196,17 +204,17 @@ class ExpressNotificationManager {
         )
     }
 
-    private func setupWithdrawalNotification(suggestion: WithdrawalNotification?) {
-        guard let interactor = expressInteractor else { return }
-
-        let sourceTokenItem = interactor.getSender().tokenItem
-        let event: ExpressNotificationEvent
-
+    private func setupWithdrawalSuggestion(suggestion: WithdrawalSuggestion?) -> NotificationViewInput? {
         switch suggestion {
         case .none:
-            return
+            return nil
         case .feeIsTooHigh(let reduceAmountBy):
-            event = .withdrawalOptionalAmountChange(
+            guard let interactor = expressInteractor else {
+                return nil
+            }
+
+            let sourceTokenItem = interactor.getSender().tokenItem
+            let event: ExpressNotificationEvent = .withdrawalOptionalAmountChange(
                 amount: reduceAmountBy.value,
                 amountFormatted: reduceAmountBy.string(),
                 blockchainName: sourceTokenItem.blockchain.displayName
@@ -221,7 +229,7 @@ class ExpressNotificationManager {
         let notification = NotificationsFactory().buildNotificationInput(for: event) { [weak self] id, actionType in
             self?.delegate?.didTapNotificationButton(with: id, action: actionType)
         }
-        notificationInputsSubject.value.appendIfNotContains(notification)
+        return notification
     }
 }
 
