@@ -14,7 +14,7 @@ protocol EmailDataCollector: LogFileProvider {}
 
 extension EmailDataCollector {
     var fileName: String {
-        "infoLogs.txt"
+        LogFilesNames.infoLogs
     }
 
     func prepareLogFile() -> URL {
