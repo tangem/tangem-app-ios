@@ -20,9 +20,11 @@ public struct VisaBridgeInteractorBuilder {
 
     public func build(for cardAddress: String) async throws -> VisaBridgeInteractor {
         var paymentAccount: String?
+
         log("Start searching PaymentAccount for card with address: \(cardAddress)")
-        let registryAddress = VisaUtilities().registryAddress
+        let registryAddress = try VisaRegistryInfoProvider().getRegistryAddress(isTestnet: VisaUtilities().visaBlockchain.isTestnet)
         log("Requesting PaymentAccount from bridge with address \(registryAddress)")
+
         let request = VisaSmartContractRequest(
             contractAddress: registryAddress,
             method: GetPaymentAccountByCardMethod(cardWalletAddress: cardAddress)
