@@ -19,6 +19,8 @@ struct DetailsView: View {
         GroupedScrollView(spacing: 24) {
             walletConnectSection
 
+            userWalletsSection
+
             commonSection
 
             settingsSection
@@ -54,6 +56,14 @@ struct DetailsView: View {
         GroupedSection(viewModel.walletConnectRowViewModel) {
             WalletConnectRowView(viewModel: $0)
         }
+    }
+
+    private var userWalletsSection: some View {
+        GroupedSection(viewModel.userWalletViewModels) {
+            DetailsUserWalletRowView(viewModel: $0)
+        }
+        .interItemSpacing(12)
+        .innerContentPadding(12)
     }
 
     // MARK: - Settings Section
