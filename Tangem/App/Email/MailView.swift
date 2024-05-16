@@ -74,7 +74,7 @@ struct MailView: UIViewControllerRepresentable {
             let destinationURL = fileManager.temporaryDirectory.appendingPathComponent(archiveName, conformingTo: .zip)
             do {
                 try? fileManager.removeItem(at: destinationURL)
-                try fileManager.zipItem(at: originalURL, to: destinationURL, compressionMethod: .deflate)
+                try fileManager.zipItem(at: originalURL, to: destinationURL, shouldKeepParent: false, compressionMethod: .deflate)
                 let data = try Data(contentsOf: destinationURL)
                 vc.addAttachmentData(data, mimeType: "application/zip", fileName: archiveName)
             } catch {
