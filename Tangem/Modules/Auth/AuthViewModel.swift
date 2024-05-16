@@ -37,10 +37,12 @@ final class AuthViewModel: ObservableObject {
     }
 
     func tryAgain() {
+        Analytics.log(.cantScanTheCardTryAgainButton, params: [.source: .signIn])
         unlockWithCard()
     }
 
     func openScanCardManual() {
+        Analytics.log(.cantScanTheCardButtonBlog, params: [.source: .signIn])
         coordinator?.openScanCardManual()
     }
 
@@ -128,6 +130,7 @@ final class AuthViewModel: ObservableObject {
 
         switch result {
         case .troubleshooting:
+            Analytics.log(.cantScanTheCard, params: [.source: .signIn])
             showTroubleshootingView = true
         case .onboarding(let input):
             openOnboarding(with: input)
