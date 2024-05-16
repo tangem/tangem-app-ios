@@ -23,8 +23,7 @@ struct VisaWalletManagerFactory: AnyWalletManagerFactory {
         let publicKey = Wallet.PublicKey(seedKey: walletPublicKey, derivationType: .none)
         let walletManager = try factory.makeWalletManager(blockchain: blockchain, publicKey: publicKey)
 
-        let visaToken = VisaUtilities().visaToken
-        walletManager.addTokens([visaToken])
+        walletManager.addTokens([])
         return walletManager
     }
 }
