@@ -87,7 +87,6 @@ extension AuthCoordinator: AuthRoutable {
     }
 
     func openScanCardManual() {
-        // [REDACTED_TODO_COMMENT]
         safariManager.openURL(TangemBlogUrlBuilder().url(post: .scanCard))
     }
 }
