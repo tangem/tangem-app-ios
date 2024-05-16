@@ -18,8 +18,8 @@ struct UserWalletFinder {
 
         let userWalletModel = userWalletRepository.models.first { userWalletModel in
             let walletModels = userWalletModel.walletModelsManager.walletModels
-            return !walletModels.contains { $0.tokenItem == tokenItem } &&
-                walletModels.contains { $0.isMainToken && $0.blockchainNetwork == blockchainNetwork && $0.defaultAddress == address }
+            return walletModels.contains { $0.isMainToken && $0.blockchainNetwork == blockchainNetwork && $0.defaultAddress == address } &&
+                !walletModels.contains { $0.tokenItem == tokenItem }
         }
 
         guard let userWalletModel else { return }
