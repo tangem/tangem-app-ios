@@ -20,6 +20,7 @@ class DetailsViewModel: ObservableObject {
     // MARK: - View State
 
     @Published var walletConnectRowViewModel: WalletConnectRowViewModel?
+    @Published var userWalletViewModels: [DetailsUserWalletRowViewModel] = []
     @Published var commonSectionViewModels: [DefaultRowViewModel] = []
     @Published var settingsSectionViewModels: [DefaultRowViewModel] = []
     @Published var supportSectionModels: [DefaultRowViewModel] = []
@@ -207,6 +208,7 @@ extension DetailsViewModel {
 extension DetailsViewModel {
     func setupView() {
         setupWalletConnectRowViewModel()
+        setupUserWalletViewModels()
         setupCommonSectionViewModels()
         setupSettingsSectionViewModels()
         setupSupportSectionModels()
@@ -217,14 +219,23 @@ extension DetailsViewModel {
     func bind() {
         $selectedCurrencyCode
             .dropFirst()
-            .sink { [weak self] _ in
-                self?.setupSettingsSectionViewModels()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                viewModel.setupSettingsSectionViewModels()
             }
             .store(in: &bag)
 
         AppSettings.shared.$saveUserWallets
-            .sink { [weak self] _ in
-                self?.setupCommonSectionViewModels()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                viewModel.setupCommonSectionViewModels()
+            }
+            .store(in: &bag)
+
+        userWalletRepository.eventProvider
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                viewModel.setupCommonSectionViewModels()
             }
             .store(in: &bag)
     }
@@ -280,6 +291,14 @@ extension DetailsViewModel {
     func setupEnvironmentSetupSection() {
         if !AppEnvironment.current.isProduction {
             environmentSetupViewModel = DefaultRowViewModel(title: "Environment setup", action: weakify(self, forFunction: DetailsViewModel.openEnvironmentSetup))
+        }
+    }
+
+    func setupUserWalletViewModels() {
+        userWalletViewModels = userWalletRepository.models.map { userWallet in
+            .init(userWallet: userWallet, tapAction: { [weak self] in
+                self?.coordinator?.openAppSettings()
+            })
         }
     }
 
