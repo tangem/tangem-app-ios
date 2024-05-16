@@ -10,7 +10,6 @@ import SwiftUI
 
 struct DetailsView: View {
     @ObservedObject private var viewModel: DetailsViewModel
-    @State private var socialNetworksViewSize: CGSize = .zero
 
     init(viewModel: DetailsViewModel) {
         self.viewModel = viewModel
@@ -43,7 +42,8 @@ struct DetailsView: View {
             )
         )
         .alert(item: $viewModel.alert) { $0.alert }
-        .navigationBarTitle(Text(Localization.detailsTitle), displayMode: .inline)
+        .navigationTitle(Localization.detailsTitle)
+        .navigationBarTitleDisplayMode(.inline)
         .onAppear(perform: viewModel.onAppear)
     }
 

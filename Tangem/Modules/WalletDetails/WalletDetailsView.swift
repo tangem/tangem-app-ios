@@ -23,7 +23,10 @@ struct WalletDetailsView: View {
 }
 
 struct WalletDetailsView_Preview: PreviewProvider {
-    static let viewModel = WalletDetailsViewModel(coordinator: WalletDetailsCoordinator())
+    static let viewModel = WalletDetailsViewModel(
+        userWalletModel: UserWalletModelMock(),
+        coordinator: WalletDetailsCoordinator()
+    )
 
     static var previews: some View {
         WalletDetailsView(viewModel: viewModel)
