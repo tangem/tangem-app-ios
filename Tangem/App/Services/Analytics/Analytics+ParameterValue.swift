@@ -110,6 +110,8 @@ extension Analytics {
         case address = "Address"
         case amount = "Amount"
         case fee = "Fee"
+        case summary = "Summary"
+        case finish = "Finish"
 
         // MARK: - Actions
 
@@ -127,6 +129,16 @@ extension Analytics {
         case readPrimary = "read_primary"
         case addbackup = "add_backup"
         case proceedBackup = "proceed_backup"
+
+        // MARK: - Promotion banners
+
+        case oneInch = "1inch"
+        case changelly = "Changelly"
+        case changeNow = "ChangeNow"
+        case travala = "Travala"
+
+        case clicked = "Clicked"
+        case closed = "Closed"
 
         // MARK: - Rate the app response
 
