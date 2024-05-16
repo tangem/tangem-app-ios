@@ -33,7 +33,7 @@ class SettingsUserWalletRowViewModel: ObservableObject {
             tapAction: tapAction
         )
     }
-    
+
     init(
         name: String,
         cardsCount: Int,
