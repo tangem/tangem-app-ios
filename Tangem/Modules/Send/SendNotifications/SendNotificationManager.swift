@@ -10,9 +10,11 @@ import Combine
 import BlockchainSdk
 
 protocol SendNotificationManagerInput {
+    var feeValuePublisher: AnyPublisher<BlockchainSdk.Fee?, Never> { get }
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
     var selectedFeeOptionPublisher: AnyPublisher<FeeOption, Never> { get }
     var customFeePublisher: AnyPublisher<Fee?, Never> { get }
+    var isFeeIncludedPublisher: AnyPublisher<Bool, Never> { get }
     var withdrawalSuggestion: AnyPublisher<WithdrawalSuggestion?, Never> { get }
     var amountError: AnyPublisher<Error?, Never> { get }
     var transactionCreationError: AnyPublisher<Error?, Never> { get }
@@ -97,12 +99,13 @@ class CommonSendNotificationManager: SendNotificationManager {
                 case .feeIsTooHigh(let newAmount):
                     let event = SendNotificationEvent.withdrawalOptionalAmountChange(
                         amount: newAmount.value,
-                        amountFormatted: newAmount.string()
+                        amountFormatted: newAmount.string(),
+                        blockchainName: tokenItem.blockchain.displayName
                     )
                     updateEventVisibility(true, event: event)
                 case nil:
                     let events = [
-                        SendNotificationEvent.withdrawalOptionalAmountChange(amount: .zero, amountFormatted: ""),
+                        SendNotificationEvent.withdrawalOptionalAmountChange(amount: .zero, amountFormatted: "", blockchainName: ""),
                     ]
                     for event in events {
                         updateEventVisibility(false, event: event)
@@ -155,6 +158,15 @@ class CommonSendNotificationManager: SendNotificationManager {
             .store(in: &bag)
 
         Publishers.CombineLatest(
+            input.isFeeIncludedPublisher,
+            input.feeValuePublisher.map(\.?.amount.value)
+        )
+        .sink { [weak self] isFeeIncluded, feeValue in
+            self?.updateFeeInclusionEvent(isFeeIncluded: isFeeIncluded, feeCryptoValue: feeValue)
+        }
+        .store(in: &bag)
+
+        Publishers.CombineLatest(
             input.amountError.compactMap { [$0].compactMap { $0 } },
             input.transactionCreationError.compactMap { [$0].compactMap { $0 } }
         )
@@ -167,6 +179,33 @@ class CommonSendNotificationManager: SendNotificationManager {
         }
         .assign(to: \.value, on: validationErrorInputsSubject, ownership: .weak)
         .store(in: &bag)
+    }
+
+    private func updateFeeInclusionEvent(isFeeIncluded: Bool, feeCryptoValue: Decimal?) {
+        let cryptoAmountFormatted: String
+        let fiatAmountFormatted: String
+        let visible: Bool
+        if let feeCryptoValue, isFeeIncluded {
+            let converter = BalanceConverter()
+            let feeFiatValue = converter.convertToFiat(value: feeCryptoValue, from: feeTokenItem.currencyId ?? "")
+
+            let formatter = BalanceFormatter()
+            cryptoAmountFormatted = formatter.formatCryptoBalance(feeCryptoValue, currencyCode: feeTokenItem.currencySymbol)
+            fiatAmountFormatted = formatter.formatFiatBalance(feeFiatValue)
+
+            visible = true
+        } else {
+            cryptoAmountFormatted = ""
+            fiatAmountFormatted = ""
+            visible = false
+        }
+
+        let event = SendNotificationEvent.feeWillBeSubtractFromSendingAmount(
+            cryptoAmountFormatted: cryptoAmountFormatted,
+            fiatAmountFormatted: fiatAmountFormatted
+        )
+
+        updateEventVisibility(visible, event: event)
     }
 
     private func notificationInputs(from error: Error?) -> [NotificationViewInput] {
@@ -218,7 +257,7 @@ class CommonSendNotificationManager: SendNotificationManager {
         case .feeExceedsBalance:
             return .feeExceedsBalance(configuration: notEnoughFeeConfiguration)
         case .minimumBalance(let minimumBalance):
-            return .existentialDeposit(amountFormatted: minimumBalance.string())
+            return .existentialDeposit(amount: minimumBalance.value, amountFormatted: minimumBalance.string())
         case .maximumUTXO(let blockchainName, let newAmount, let maxUtxos):
             return SendNotificationEvent.withdrawalMandatoryAmountChange(
                 amount: newAmount.value,
