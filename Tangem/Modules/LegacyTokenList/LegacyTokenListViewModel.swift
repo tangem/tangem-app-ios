@@ -332,6 +332,7 @@ private extension LegacyTokenListViewModel {
             let title = Localization.tokenDetailsUnableHideAlertTitle(tokenItem.blockchain.currencySymbol)
 
             let message = Localization.tokenDetailsUnableHideAlertMessage(
+                tokenItem.name,
                 tokenItem.blockchain.currencySymbol,
                 tokenItem.blockchain.displayName
             )
