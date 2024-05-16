@@ -199,7 +199,7 @@ class SendFeeViewModel: ObservableObject {
 
         let formattedFeeValues = Dictionary(uniqueKeysWithValues: formattedFeeValuePairs)
         return feeOptions.map { option in
-            let value = formattedFeeValues[option] ?? .loading
+            let value = formattedFeeValues[option] ?? .failedToLoad(error: WalletError.failedToGetFee)
 
             return FeeRowViewModel(
                 option: option,
