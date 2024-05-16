@@ -97,6 +97,8 @@ struct SendScreenDataCollector: EmailDataCollector {
             data.append(EmailCollectedData(type: .send(.transactionHex), data: txHex))
         }
 
+        print(String(data: formatData(data) ?? Data(), encoding: .utf8))
+
         return formatData(data)
     }
 
