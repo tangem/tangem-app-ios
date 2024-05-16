@@ -26,7 +26,7 @@ protocol SendDestinationViewModelInput {
     var blockchainNetwork: BlockchainNetwork { get }
 
     var additionalFieldType: SendAdditionalFields? { get }
-    var additionalFieldEmbeddedInAddress: AnyPublisher<Bool, Never> { get }
+    var canChangeAdditionalField: AnyPublisher<Bool, Never> { get }
 
     var currencySymbol: String { get }
     var walletAddresses: [String] { get }
@@ -51,6 +51,7 @@ class SendDestinationViewModel: ObservableObject {
     var didProperlyDisappear: Bool = false
 
     private let input: SendDestinationViewModelInput
+    private let addressTextViewHeightModel: AddressTextViewHeightModel
     private let transactionHistoryMapper: TransactionHistoryMapper
     private let suggestedWallets: [SendSuggestedDestinationWallet]
 
@@ -62,8 +63,9 @@ class SendDestinationViewModel: ObservableObject {
 
     // MARK: - Methods
 
-    init(input: SendDestinationViewModelInput) {
+    init(input: SendDestinationViewModelInput, addressTextViewHeightModel: AddressTextViewHeightModel) {
         self.input = input
+        self.addressTextViewHeightModel = addressTextViewHeightModel
 
         transactionHistoryMapper = TransactionHistoryMapper(
             currencySymbol: input.currencySymbol,
@@ -102,6 +104,7 @@ class SendDestinationViewModel: ObservableObject {
             input: input.destinationTextPublisher,
             isValidating: input.isValidatingDestination,
             isDisabled: .just(output: false),
+            addressTextViewHeightModel: addressTextViewHeightModel,
             errorText: input.destinationError
         ) { [weak self] in
             self?.input.setDestination(SendAddress(value: $0, source: .textField))
@@ -115,7 +118,8 @@ class SendDestinationViewModel: ObservableObject {
                 style: .additionalField(name: name),
                 input: input.destinationAdditionalFieldTextPublisher,
                 isValidating: .just(output: false),
-                isDisabled: input.additionalFieldEmbeddedInAddress,
+                isDisabled: input.canChangeAdditionalField.map { !$0 }.eraseToAnyPublisher(),
+                addressTextViewHeightModel: .init(),
                 errorText: input.destinationAdditionalFieldError
             ) { [weak self] in
                 self?.input.setDestinationAdditionalField($0)
