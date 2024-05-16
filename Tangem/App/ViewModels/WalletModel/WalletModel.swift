@@ -437,9 +437,10 @@ class WalletModel {
         if isDemo {
             let hash = Data.randomData(count: 32)
             return signer.sign(hash: hash, walletPublicKey: wallet.publicKey)
-                .eraseSendError(tx: hash.hexString)
+                .mapSendError(tx: hash.hexString)
                 .map { _ in TransactionSendResult(hash: hash.hexString) }
                 .receive(on: DispatchQueue.main)
+                .eraseSendError()
                 .eraseToAnyPublisher()
         }
 
