@@ -10,22 +10,23 @@ import Foundation
 import SwiftUI
 
 enum SendAlertBuilder {
+    static func makeDismissAlert(dismissAction: @escaping () -> Void) -> AlertBinder {
+        let dismissButton = Alert.Button.default(Text(Localization.commonYes), action: dismissAction)
+        let cancelButton = Alert.Button.cancel(Text(Localization.commonNo))
+        return AlertBuilder.makeAlert(
+            title: "",
+            message: Localization.sendDismissMessage,
+            primaryButton: dismissButton,
+            secondaryButton: cancelButton
+        )
+    }
+
     static func makeFeeRetryAlert(retryAction: @escaping () -> Void) -> AlertBinder {
         let retryButton = Alert.Button.default(Text(Localization.commonRetry), action: retryAction)
         return AlertBuilder.makeAlert(
             title: Localization.sendFeeUnreachableErrorTitle,
             message: Localization.sendFeeUnreachableErrorText,
             primaryButton: retryButton,
-            secondaryButton: .cancel()
-        )
-    }
-
-    static func makeSubtractFeeFromMaxAmountAlert(subtractAction: @escaping () -> Void) -> AlertBinder {
-        let subtractButton = Alert.Button.default(Text(Localization.sendAlertFeeCoverageSubractText), action: subtractAction)
-        return AlertBuilder.makeAlert(
-            title: "",
-            message: Localization.sendAlertFeeCoverageTitle,
-            primaryButton: subtractButton,
             secondaryButton: .cancel()
         )
     }
