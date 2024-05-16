@@ -13,11 +13,10 @@ struct SendFeeView: View {
 
     @ObservedObject var viewModel: SendFeeViewModel
 
-    let bottomSpacing: CGFloat
-    let navigationButtonsHeight: CGFloat
+    let bottomButtonsHeight: CGFloat
 
     private var safeAreaBottomSpacing: CGFloat {
-        navigationButtonsHeight + SendCustomFeeInputField.Constants.fieldPadding + GroupedSectionConstants.headerFooterSpacing
+        bottomButtonsHeight + SendCustomFeeInputField.Constants.fieldPadding + GroupedSectionConstants.headerFooterSpacing
     }
 
     var body: some View {
@@ -71,8 +70,6 @@ struct SendFeeView: View {
                         .transition(SendView.Constants.auxiliaryViewTransition(for: .fee))
                 }
             }
-
-            Spacer(minLength: bottomSpacing)
         }
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
@@ -127,6 +124,6 @@ struct SendFeeView_Previews: PreviewProvider {
     )
 
     static var previews: some View {
-        SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock(), notificationManager: FakeSendNotificationManager(), customFeeService: nil, walletInfo: walletInfo), bottomSpacing: 150, navigationButtonsHeight: 0)
+        SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock(), notificationManager: FakeSendNotificationManager(), customFeeService: nil, walletInfo: walletInfo), bottomButtonsHeight: 0)
     }
 }
