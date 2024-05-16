@@ -24,7 +24,7 @@ struct SendSummaryView: View {
                     GroupedSection(viewModel.destinationViewTypes) { type in
                         switch type {
                         case .address(let address, let corners):
-                            SendDestinationAddressSummaryView(address: address)
+                            SendDestinationAddressSummaryView(addressTextViewHeightModel: viewModel.addressTextViewHeightModel, address: address)
                                 .setNamespace(namespace)
                                 .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)
                                 .background(
@@ -115,13 +115,14 @@ struct SendSummaryView: View {
             }
 
             if let transactionDescription = viewModel.transactionDescription {
-                Text(transactionDescription)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                Text(.init(transactionDescription))
+                    .style(Fonts.Regular.caption1, color: Colors.Text.primary1)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 16)
-                    .padding(.bottom, bottomSpacing + 14)
                     .visible(viewModel.showTransactionDescription)
             }
+
+            FixedSpacer(height: bottomSpacing)
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         .alert(item: $viewModel.alert) { $0.alert }
@@ -184,6 +185,7 @@ struct SendSummaryView_Previews: PreviewProvider {
         input: SendSummaryViewModelInputMock(),
         notificationManager: FakeSendNotificationManager(),
         fiatCryptoValueProvider: SendFiatCryptoValueProviderMock(),
+        addressTextViewHeightModel: .init(),
         walletInfo: walletInfo
     )
 
