@@ -17,13 +17,22 @@ final class UserWalletSettingsViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published var name: String
-    @Published var walletConnectRowViewModel: WalletConnectRowViewModel?
+    @Published var accountsSection: [AccountsSectionType] = []
     @Published var backupViewModel: DefaultRowViewModel?
+
+    var commonSectionModels: [DefaultRowViewModel] {
+        [cardSettingsViewModel, refferalViewModel].compactMap { $0 }
+    }
+
     @Published var forgetViewModel: DefaultRowViewModel?
-    @Published var commonSectionModels: [DefaultRowViewModel] = []
 
     @Published var alert: AlertBinder?
     @Published var actionSheet: ActionSheetBinder?
+
+    // MARK: - Private
+
+    @Published private var cardSettingsViewModel: DefaultRowViewModel?
+    @Published private var refferalViewModel: DefaultRowViewModel?
 
     // MARK: - Dependencies
 
@@ -52,70 +61,40 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
 private extension WalletDetailsViewModel {
     func setupView() {
-        setupWalletConnectRowViewModel()
-        setupCommonSection()
         // setupAccountsSection()
-        setupBackupViewModel()
-        setupForgetViewModel()
-    }
-
-    func setupWalletConnectRowViewModel() {
-        guard !userWalletModel.config.getFeatureAvailability(.walletConnect).isHidden else {
-            walletConnectRowViewModel = nil
-            return
-        }
-
-        walletConnectRowViewModel = WalletConnectRowViewModel(
-            title: Localization.walletConnectTitle,
-            subtitle: Localization.walletConnectSubtitle,
-            action: weakify(self, forFunction: WalletDetailsViewModel.openWalletConnect)
-        )
+        setupViewModels()
     }
 
     func setupAccountsSection() {
         // [REDACTED_TODO_COMMENT]
+        accountsSection = []
     }
 
-    func setupCommonSection() {
-        var viewModels: [DefaultRowViewModel] = []
+    func setupViewModels() {
+        if !userWalletModel.config.getFeatureAvailability(.backup).isHidden {
+            backupViewModel = DefaultRowViewModel(
+                title: Localization.detailsRowTitleCreateBackup,
+                action: weakify(self, forFunction: WalletDetailsViewModel.prepareBackup)
+            )
+        } else {
+            backupViewModel = nil
+        }
 
-        viewModels.append(DefaultRowViewModel(
+        cardSettingsViewModel = DefaultRowViewModel(
             title: Localization.cardSettingsTitle,
             action: weakify(self, forFunction: WalletDetailsViewModel.openCardSettings)
-        ))
+        )
 
         if !userWalletModel.config.getFeatureAvailability(.referralProgram).isHidden {
-            viewModels.append(
+            refferalViewModel =
                 DefaultRowViewModel(
                     title: Localization.detailsReferralTitle,
                     action: weakify(self, forFunction: WalletDetailsViewModel.openReferral)
                 )
-            )
+        } else {
+            refferalViewModel = nil
         }
 
-        viewModels.append(
-            DefaultRowViewModel(
-                title: Localization.disclaimerTitle,
-                action: weakify(self, forFunction: WalletDetailsViewModel.openDisclaimer)
-            )
-        )
-
-        commonSectionModels = viewModels
-    }
-
-    func setupBackupViewModel() {
-        guard !userWalletModel.config.getFeatureAvailability(.backup).isHidden else {
-            backupViewModel = nil
-            return
-        }
-
-        backupViewModel = DefaultRowViewModel(
-            title: Localization.detailsRowTitleCreateBackup,
-            action: weakify(self, forFunction: WalletDetailsViewModel.prepareBackup)
-        )
-    }
-
-    func setupForgetViewModel() {
         forgetViewModel = DefaultRowViewModel(
             title: "Forget wallet",
             action: weakify(self, forFunction: WalletDetailsViewModel.didTapDeleteWallet)
@@ -123,6 +102,17 @@ private extension WalletDetailsViewModel {
     }
 
     // MARK: - Actions
+
+    func bind() {
+        $name
+            .debounce(for: 0.5, scheduler: DispatchQueue.global())
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .sink(receiveValue: { viewModel, name in
+                viewModel.userWalletModel.updateWalletName(name.trimmed())
+            })
+            .store(in: &bag)
+    }
 
     func prepareBackup() {
         Analytics.log(.buttonCreateBackup)
@@ -153,17 +143,11 @@ private extension WalletDetailsViewModel {
         }
 
         userWalletRepository.delete(userWalletModel.userWalletId, logoutIfNeeded: true)
+        coordinator?.dismiss()
     }
 
-    func bind() {
-        $name
-            .debounce(for: 0.5, scheduler: DispatchQueue.global())
-            .removeDuplicates()
-            .withWeakCaptureOf(self)
-            .sink(receiveValue: { viewModel, name in
-                viewModel.userWalletModel.updateWalletName(name.trimmed())
-            })
-            .store(in: &bag)
+    func showErrorAlert(error: Error) {
+        alert = AlertBuilder.makeOkErrorAlert(message: error.localizedDescription)
     }
 }
 
@@ -172,11 +156,6 @@ private extension WalletDetailsViewModel {
 private extension WalletDetailsViewModel {
     func openOnboarding(with input: OnboardingInput) {
         coordinator?.openOnboardingModal(with: input)
-    }
-
-    func openWalletConnect() {
-        Analytics.log(.buttonWalletConnect)
-        coordinator?.openWalletConnect(with: userWalletModel.config.getDisabledLocalizedReason(for: .walletConnect))
     }
 
     func openCardSettings() {
@@ -193,11 +172,22 @@ private extension WalletDetailsViewModel {
             parameters: scanParameters
         )
 
-        coordinator?.openScanCardSettings(with: scanner)
-    }
+        let scanUtil = CardSettingsScanUtil(
+            cardScanner: scanner,
+            userWalletModels: userWalletRepository.models
+        )
 
-    func openDisclaimer() {
-        coordinator?.openDisclaimer(at: userWalletModel.config.tou.url)
+        cardSettingsViewModel?.update(detailsType: .loader)
+        scanUtil.scan { [weak self] result in
+            self?.cardSettingsViewModel?.update(detailsType: .none)
+
+            switch result {
+            case .failure(let error):
+                self?.showErrorAlert(error: error)
+            case .success(let cardSettingsInput):
+                self?.coordinator?.openCardSettings(with: cardSettingsInput)
+            }
+        }
     }
 
     func openReferral() {
@@ -213,5 +203,24 @@ private extension WalletDetailsViewModel {
         )
 
         coordinator?.openReferral(input: input)
+    }
+}
+
+extension WalletDetailsViewModel {
+    enum AccountsSectionType: Identifiable {
+        case header
+        case account(DefaultRowViewModel) // [REDACTED_TODO_COMMENT]
+        case addNewAccountButton(DefaultRowViewModel)
+
+        var id: Int {
+            switch self {
+            case .header:
+                return "header".hashValue
+            case .account(let viewModel):
+                return viewModel.id.hashValue
+            case .addNewAccountButton(let viewModel):
+                return viewModel.id.hashValue
+            }
+        }
     }
 }
