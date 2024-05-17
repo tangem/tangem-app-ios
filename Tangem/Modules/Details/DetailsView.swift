@@ -55,7 +55,7 @@ struct DetailsView: View {
         GroupedSection(viewModel.walletsSectionTypes) { type in
             switch type {
             case .wallet(let viewModel):
-                DetailsUserWalletRowView(viewModel: viewModel)
+                SettingsUserWalletRowView(viewModel: viewModel)
             case .addOrScanNewUserWalletButton(let viewModel):
                 DefaultRowView(viewModel: viewModel)
                     .appearance(.accentButton)
