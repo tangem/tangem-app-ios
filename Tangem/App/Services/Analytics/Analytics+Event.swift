@@ -248,11 +248,6 @@ extension Analytics {
         case tokenNoticeNetworkUnreachable = "[Token] Notice - Network Unreachable"
         case tokenNoticeNotEnoughFee = "[Token] Notice - Not Enough Fee"
 
-        // MARK: - Swap promo
-
-        case swapPromoButtonExchangeNow = "[Swap Promo] Button - Exchange Now"
-        case swapPromoButtonClose = "[Swap Promo] Button - Close"
-
         // MARK: - BlockchainSdk exceptions
 
         case blockchainSdkException = "[BlockchainSdk] Exception"
@@ -266,5 +261,11 @@ extension Analytics {
 
         case promotionBannerAppeared = "[Promotion] Notice - Promotion Banner"
         case promotionBannerClicked = "[Promotion] Promo Banner Clicked"
+
+        // MARK: - Errors
+
+        case cantScanTheCard = "[Errors] Cant Scan The Card"
+        case cantScanTheCardButtonBlog = "[Errors] Cant Scan The Card - Button Blog"
+        case cantScanTheCardTryAgainButton = "[Errors] Cant Scan The Card - Try Again Button"
     }
 }
