@@ -29,11 +29,14 @@ struct DetailsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.walletConnectCoordinator) {
                 WalletConnectCoordinatorView(coordinator: $0)
             }
-            .navigation(item: $coordinator.walletDetailsCoordinator) {
-                WalletDetailsCoordinatorView(coordinator: $0)
+            .navigation(item: $coordinator.userWalletSettingsCoordinator) {
+                UserWalletSettingsCoordinatorView(coordinator: $0)
             }
             .navigation(item: $coordinator.appSettingsCoordinator) {
                 AppSettingsCoordinatorView(coordinator: $0)
+            }
+            .navigation(item: $coordinator.disclaimerViewModel) {
+                DisclaimerView(viewModel: $0)
             }
             .navigation(item: $coordinator.environmentSetupCoordinator) {
                 EnvironmentSetupCoordinatorView(coordinator: $0)
