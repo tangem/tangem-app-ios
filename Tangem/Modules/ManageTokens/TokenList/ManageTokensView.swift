@@ -19,7 +19,7 @@ struct ManageTokensView: View {
 
             list
         }
-        .scrollDismissesKeyboardCompat(true)
+        .scrollDismissesKeyboardCompat(.immediately)
         .alert(item: $viewModel.alert, content: { $0.alert })
     }
 
