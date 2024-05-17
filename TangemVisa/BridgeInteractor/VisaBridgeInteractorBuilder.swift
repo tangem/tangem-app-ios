@@ -11,18 +11,18 @@ import BlockchainSdk
 
 public struct VisaBridgeInteractorBuilder {
     private let evmSmartContractInteractor: EVMSmartContractInteractor
+    private let logger: InternalLogger
 
-    public init(evmSmartContractInteractor: EVMSmartContractInteractor) {
+    public init(evmSmartContractInteractor: EVMSmartContractInteractor, logger: VisaLogger) {
         self.evmSmartContractInteractor = evmSmartContractInteractor
+        self.logger = .init(logger: logger)
     }
 
-    public func build(for cardAddress: String, logger: VisaLogger) async throws -> VisaBridgeInteractor {
-        let logger = InternalLogger(logger: logger)
-
+    public func build(for cardAddress: String) async throws -> VisaBridgeInteractor {
         var paymentAccount: String?
-        logger.debug(subsystem: .bridgeInteractorBuilder, "Start searching PaymentAccount for card with address: \(cardAddress)")
+        log("Start searching PaymentAccount for card with address: \(cardAddress)")
         let registryAddress = VisaUtilities().registryAddress
-        logger.debug(subsystem: .bridgeInteractorBuilder, "Requesting PaymentAccount from bridge with address \(registryAddress)")
+        log("Requesting PaymentAccount from bridge with address \(registryAddress)")
         let request = VisaSmartContractRequest(
             contractAddress: registryAddress,
             method: GetPaymentAccountByCardMethod(cardWalletAddress: cardAddress)
@@ -31,20 +31,24 @@ public struct VisaBridgeInteractorBuilder {
         do {
             let response = try await evmSmartContractInteractor.ethCall(request: request).async()
             paymentAccount = try AddressParser().parseAddressResponse(response)
-            logger.debug(subsystem: .bridgeInteractorBuilder, "PaymentAccount founded: \(paymentAccount ?? .unknown)")
+            log("PaymentAccount founded: \(paymentAccount ?? .unknown)")
         } catch {
-            logger.debug(subsystem: .bridgeInteractorBuilder, "Failed to receive PaymentAccount. Reason: \(error)")
+            log("Failed to receive PaymentAccount. Reason: \(error)")
         }
 
         guard let paymentAccount else {
-            logger.debug(subsystem: .bridgeInteractorBuilder, "No payment account for card address: \(cardAddress)")
+            log("No payment account for card address: \(cardAddress)")
             throw VisaBridgeInteractorBuilderError.failedToFindPaymentAccount
         }
 
-        logger.debug(subsystem: .bridgeInteractorBuilder, "Start loading token info")
-        let visaToken = try await loadTokenInfo(for: paymentAccount, logger: logger)
+        log("Start loading token info")
+        let tokenInfoLoader = VisaTokenInfoLoader(
+            evmSmartContractInteractor: evmSmartContractInteractor,
+            logger: logger
+        )
+        let visaToken = try await tokenInfoLoader.loadTokenInfo(for: paymentAccount)
 
-        logger.debug(subsystem: .bridgeInteractorBuilder, "Creating Bridge interactor for founded PaymentAccount")
+        log("Creating Bridge interactor for founded PaymentAccount")
         return CommonBridgeInteractor(
             visaToken: visaToken,
             evmSmartContractInteractor: evmSmartContractInteractor,
@@ -53,73 +57,23 @@ public struct VisaBridgeInteractorBuilder {
         )
     }
 
-    private func loadTokenInfo(for paymentAccount: String, logger: InternalLogger) async throws -> Token {
-        let contractAddressRequest = VisaSmartContractRequest(contractAddress: paymentAccount, method: GetTokenInfoMethod(infoType: .contractAddress))
-
-        let contractAddress: String
-        do {
-            let contractAddressResponse = try await evmSmartContractInteractor.ethCall(request: contractAddressRequest).async()
-            contractAddress = try AddressParser().parseAddressResponse(contractAddressResponse)
-            logger.debug(subsystem: .bridgeInteractorBuilder, "Token contract address loaded and parsed. \n\(contractAddress)")
-        } catch {
-            logger.debug(subsystem: .bridgeInteractorBuilder, "Failed to load token contract address. Error: \(error)")
-            throw error
-        }
-
-        do {
-            let nameRequest = VisaSmartContractRequest(contractAddress: contractAddress, method: GetTokenInfoMethod(infoType: .name))
-            let symbolRequest = VisaSmartContractRequest(contractAddress: contractAddress, method: GetTokenInfoMethod(infoType: .symbol))
-            let decimalsRequest = VisaSmartContractRequest(contractAddress: contractAddress, method: GetTokenInfoMethod(infoType: .decimals))
-
-            logger.debug(subsystem: .bridgeInteractorBuilder, "Start loading token name, symbol and decimals")
-            async let nameResponse = try evmSmartContractInteractor.ethCall(request: nameRequest).async()
-            async let symbolResponse = try evmSmartContractInteractor.ethCall(request: symbolRequest).async()
-            async let decimalsResponse = try evmSmartContractInteractor.ethCall(request: decimalsRequest).async()
-
-            let nameData = try await Data(hexString: nameResponse)
-            let symbolData = try await Data(hexString: symbolResponse)
-            let decimalCount = try await EthereumUtils.parseEthereumDecimal(decimalsResponse, decimalsCount: 0)
-
-            logger.debug(subsystem: .bridgeInteractorBuilder, "Token name, symbol and decimals loaded. Validating data existence and creating Token entity")
-            guard
-                let name = String(data: nameData, encoding: .utf8),
-                let symbol = String(data: symbolData, encoding: .utf8),
-                let decimalCount
-            else {
-                logger.debug(subsystem: .bridgeInteractorBuilder, "Failed to convert loaded token name or symbol")
-                throw VisaBridgeInteractorBuilderError.failedToLoadTokenInfo
-            }
-
-            let token = Token(
-                name: cleanUpString(name),
-                symbol: cleanUpString(symbol),
-                contractAddress: contractAddress,
-                decimalCount: decimalCount.decimalNumber.intValue,
-                id: VisaUtilities().tokenId
-            )
-            logger.debug(subsystem: .bridgeInteractorBuilder, "Token info loaded and converted to entity. Token info:\n\(token)")
-
-            return token
-        } catch {
-            logger.debug(subsystem: .bridgeInteractorBuilder, "Failed to load Token info. Error: \(error)")
-            throw error
-        }
-    }
-
-    private func cleanUpString(_ string: String) -> String {
-        // We need to remove all null characters before usage.
-        // For some reason, the smart contract sends strings cluttered with null characters.
-        string.trimmingCharacters(in: .whitespacesAndNewlines.union(["\0"]))
+    private func log<T>(_ message: @autoclosure () -> T) {
+        logger.debug(subsystem: .bridgeInteractorBuilder, message())
     }
 }
 
 public extension VisaBridgeInteractorBuilder {
-    enum VisaBridgeInteractorBuilderError: String, LocalizedError {
+    enum VisaBridgeInteractorBuilderError: LocalizedError {
         case failedToFindPaymentAccount
-        case failedToLoadTokenInfo
+        case failedToLoadTokenInfo(error: LocalizedError)
 
         public var errorDescription: String? {
-            rawValue
+            switch self {
+            case .failedToFindPaymentAccount:
+                return "Failed to find payment account"
+            case .failedToLoadTokenInfo(let error):
+                return "Failed to load token info: \(error.errorDescription ?? "unknown")"
+            }
         }
     }
 }
