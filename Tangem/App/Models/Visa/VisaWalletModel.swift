@@ -173,7 +173,7 @@ class VisaWalletModel {
         }
 
         let appUtilities = VisaAppUtilities()
-        guard let walletPublicKey = appUtilities.makeBSDKPublicKey(using: userWalletModel.keysRepository.keys) else {
+        guard let walletPublicKey = appUtilities.makeBlockchainKey(using: userWalletModel.keysRepository.keys) else {
             stateSubject.send(.failedToInitialize(.invalidBlockchain))
             return
         }
@@ -182,8 +182,8 @@ class VisaWalletModel {
             let address = try AddressServiceFactory(blockchain: blockchain)
                 .makeAddressService()
                 .makeAddress(for: walletPublicKey, with: .default)
-            let builder = VisaBridgeInteractorBuilder(evmSmartContractInteractor: smartContractInteractor)
-            let interactor = try await builder.build(for: address.value, logger: AppLog.shared)
+            let builder = VisaBridgeInteractorBuilder(evmSmartContractInteractor: smartContractInteractor, logger: AppLog.shared)
+            let interactor = try await builder.build(for: address.value)
             visaBridgeInteractor = interactor
             tokenItem = .token(interactor.visaToken, .init(blockchain, derivationPath: nil))
             await generalUpdateAsync()
