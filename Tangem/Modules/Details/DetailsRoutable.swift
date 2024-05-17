@@ -16,10 +16,9 @@ protocol DetailsRoutable: AnyObject {
     func openScanCardSettings(with cardScanner: CardScanner)
     func openWalletSettings(options: UserWalletSettingsCoordinator.Options)
     func openAppSettings()
-    func openSupportChat(input: SupportChatInputModel)
+//    func openSupportChat(input: SupportChatInputModel)
     func openInSafari(url: URL)
     func openEnvironmentSetup()
-    func openReferral(input: ReferralInputModel)
     func openScanCardManual()
     func dismiss()
 }
