@@ -231,6 +231,7 @@ extension TokenNotificationEvent {
              .noAccount,
              .existentialDepositWarning,
              .solanaHighImpact,
+             .bnbBeaconChainRetirement,
              .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation):
             return [:]
         }
