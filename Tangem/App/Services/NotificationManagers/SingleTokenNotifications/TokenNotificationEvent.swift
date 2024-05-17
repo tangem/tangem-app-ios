@@ -17,6 +17,7 @@ enum TokenNotificationEvent: Hashable {
     case existentialDepositWarning(message: String)
     case notEnoughFeeForTransaction(configuration: NotEnoughFeeConfiguration)
     case solanaHighImpact
+    case bnbBeaconChainRetirement
     case hasUnfulfilledRequirements(configuration: UnfulfilledRequirementsConfiguration)
 
     static func event(
@@ -43,7 +44,8 @@ enum TokenNotificationEvent: Hashable {
              .rentFee,
              .existentialDepositWarning,
              .noAccount,
-             .solanaHighImpact:
+             .solanaHighImpact,
+             .bnbBeaconChainRetirement:
             return nil
         case .notEnoughFeeForTransaction(let configuration):
             let eventConfig = configuration.eventConfiguration
@@ -73,6 +75,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return .string(Localization.warningSendBlockedFundsForFeeTitle(configuration.eventConfiguration.feeAmountTypeName))
         case .solanaHighImpact:
             return .string(Localization.warningSolanaFeeTitle)
+        case .bnbBeaconChainRetirement:
+            return .string(Localization.warningBnbRetirementTitle)
         case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation):
             return .string(Localization.warningHederaMissingTokenAssociationTitle)
         }
@@ -100,6 +104,8 @@ extension TokenNotificationEvent: NotificationEvent {
             )
         case .solanaHighImpact:
             return Localization.warningSolanaFeeMessage
+        case .bnbBeaconChainRetirement:
+            return Localization.warningBnbRetirementMessage
         case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation(let associationFee)):
             guard let associationFee else {
                 return Localization.warningHederaMissingTokenAssociationMessageBrief
@@ -119,7 +125,8 @@ extension TokenNotificationEvent: NotificationEvent {
              .rentFee,
              .existentialDepositWarning,
              .noAccount,
-             .solanaHighImpact:
+             .solanaHighImpact,
+             .bnbBeaconChainRetirement:
             return .secondary
         // One white notification will be added later
         case .notEnoughFeeForTransaction,
@@ -130,7 +137,7 @@ extension TokenNotificationEvent: NotificationEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .networkUnreachable, .someNetworksUnreachable, .solanaHighImpact:
+        case .networkUnreachable, .someNetworksUnreachable, .solanaHighImpact, .bnbBeaconChainRetirement:
             return .init(iconType: .image(Assets.attention.image))
         case .rentFee, .noAccount, .existentialDepositWarning:
             return .init(iconType: .image(Assets.blueCircleWarning.image))
@@ -151,6 +158,7 @@ extension TokenNotificationEvent: NotificationEvent {
              .someNetworksUnreachable,
              .notEnoughFeeForTransaction,
              .solanaHighImpact,
+             .bnbBeaconChainRetirement,
              .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation):
             return .warning
         }
@@ -166,6 +174,7 @@ extension TokenNotificationEvent: NotificationEvent {
              .notEnoughFeeForTransaction,
              .noAccount,
              .solanaHighImpact,
+             .bnbBeaconChainRetirement,
              .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation):
             return false
         }
@@ -206,6 +215,7 @@ extension TokenNotificationEvent {
         case .existentialDepositWarning: return nil
         case .notEnoughFeeForTransaction: return .tokenNoticeNotEnoughFee
         case .solanaHighImpact: return nil
+        case .bnbBeaconChainRetirement: return nil
         case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation): return nil
         }
     }
