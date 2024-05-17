@@ -101,13 +101,14 @@ extension TokenNotificationEvent: NotificationEvent {
         case .solanaHighImpact:
             return Localization.warningSolanaFeeMessage
         case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation(let associationFee)):
-            if let associationFee {
-                return Localization.warningHederaMissingTokenAssociationMessage(
-                    associationFee.formattedValue,
-                    associationFee.currencySymbol
-                )
+            guard let associationFee else {
+                return Localization.warningHederaMissingTokenAssociationMessageBrief
             }
-            return Localization.warningHederaMissingTokenAssociationMessageBrief
+
+            return Localization.warningHederaMissingTokenAssociationMessage(
+                associationFee.formattedValue,
+                associationFee.currencySymbol
+            )
         }
     }
 
