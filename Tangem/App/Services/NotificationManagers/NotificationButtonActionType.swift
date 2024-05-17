@@ -58,8 +58,6 @@ enum NotificationButtonActionType: Identifiable, Hashable {
         switch self {
         case .generateAddresses:
             return .trailing(Assets.tangemIcon)
-        case .exchange:
-            return .leading(Assets.exchangeMini)
         case .backupCard,
              .buyCrypto,
              .openFeeCurrency,
