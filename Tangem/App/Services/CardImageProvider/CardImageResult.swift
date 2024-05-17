@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-enum CardImageResult: Hashable {
+enum CardImageResult {
     case cached(UIImage)
     case downloaded(UIImage)
     case embedded(UIImage)
