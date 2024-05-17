@@ -14633,8 +14633,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tangem/wallet-core-binaries-ios.git";
 			requirement = {
-				kind = exactVersion;
-				version = "4.0.21-tangem3";
+				kind = revision;
+				revision = 9b86c5e08312543d33bd24e92674402717f9fff8;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
