@@ -6723,14 +6723,6 @@
 			path = DefaultTextFieldRowView;
 			sourceTree = "<group>";
 		};
-		EF1E17692BF67FA6000364AE /* DefaultButtonRowView */ = {
-			isa = PBXGroup;
-			children = (
-				EF1E176A2BF67FB4000364AE /* DefaultButtonRowView.swift */,
-			);
-			path = DefaultButtonRowView;
-			sourceTree = "<group>";
-		};
 		EF1E17BA2BF79A2D000364AE /* CardSettingsScanUtil */ = {
 			isa = PBXGroup;
 			children = (
@@ -8644,7 +8636,6 @@
 				DC0A5844282BFDFC0031BECC /* UserWalletRepository.swift in Sources */,
 				DC7127B32897ECEE00F60F71 /* GenericConfig.swift in Sources */,
 				B06917E0270444CE0000E6C1 /* OnboardingWalletInfoPager.swift in Sources */,
-				EF1E176B2BF67FB4000364AE /* DefaultButtonRowView.swift in Sources */,
 				DAF1EB9B2A9F83EF00467490 /* KingfisherImageProcessors.swift in Sources */,
 				B0BB972A2B18653B00053954 /* ExpressInteractor.swift in Sources */,
 				B0ADFD40298A70FF00EF2869 /* WalletConnectV2SignTransactionHandler.swift in Sources */,

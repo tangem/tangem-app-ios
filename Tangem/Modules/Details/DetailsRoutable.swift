@@ -10,7 +10,7 @@ import Foundation
 
 protocol DetailsRoutable: AnyObject {
     func openWalletConnect(with disabledLocalizedReason: String?)
-    func openWalletSettings(options: WalletDetailsCoordinator.Options)
+    func openWalletSettings(options: UserWalletSettingsCoordinator.Options)
 
     func openOnboardingModal(with input: OnboardingInput)
 
