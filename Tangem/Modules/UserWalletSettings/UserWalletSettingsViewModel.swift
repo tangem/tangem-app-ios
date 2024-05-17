@@ -59,7 +59,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
 // MARK: - Private
 
-private extension WalletDetailsViewModel {
+private extension UserWalletSettingsViewModel {
     func setupView() {
         // setupAccountsSection()
         setupViewModels()
@@ -74,7 +74,7 @@ private extension WalletDetailsViewModel {
         if !userWalletModel.config.getFeatureAvailability(.backup).isHidden {
             backupViewModel = DefaultRowViewModel(
                 title: Localization.detailsRowTitleCreateBackup,
-                action: weakify(self, forFunction: WalletDetailsViewModel.prepareBackup)
+                action: weakify(self, forFunction: UserWalletSettingsViewModel.prepareBackup)
             )
         } else {
             backupViewModel = nil
@@ -82,14 +82,14 @@ private extension WalletDetailsViewModel {
 
         cardSettingsViewModel = DefaultRowViewModel(
             title: Localization.cardSettingsTitle,
-            action: weakify(self, forFunction: WalletDetailsViewModel.openCardSettings)
+            action: weakify(self, forFunction: UserWalletSettingsViewModel.openCardSettings)
         )
 
         if !userWalletModel.config.getFeatureAvailability(.referralProgram).isHidden {
             refferalViewModel =
                 DefaultRowViewModel(
                     title: Localization.detailsReferralTitle,
-                    action: weakify(self, forFunction: WalletDetailsViewModel.openReferral)
+                    action: weakify(self, forFunction: UserWalletSettingsViewModel.openReferral)
                 )
         } else {
             refferalViewModel = nil
@@ -97,7 +97,7 @@ private extension WalletDetailsViewModel {
 
         forgetViewModel = DefaultRowViewModel(
             title: "Forget wallet",
-            action: weakify(self, forFunction: WalletDetailsViewModel.didTapDeleteWallet)
+            action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapDeleteWallet)
         )
     }
 
@@ -129,7 +129,7 @@ private extension WalletDetailsViewModel {
             buttons: [
                 .destructive(
                     Text(Localization.commonDelete),
-                    action: weakify(self, forFunction: WalletDetailsViewModel.didConfirmWalletDeletion)
+                    action: weakify(self, forFunction: UserWalletSettingsViewModel.didConfirmWalletDeletion)
                 ),
                 .cancel(Text(Localization.commonCancel)),
             ]
@@ -153,7 +153,7 @@ private extension WalletDetailsViewModel {
 
 // MARK: - Navigation
 
-private extension WalletDetailsViewModel {
+private extension UserWalletSettingsViewModel {
     func openOnboarding(with input: OnboardingInput) {
         coordinator?.openOnboardingModal(with: input)
     }
@@ -180,9 +180,13 @@ private extension WalletDetailsViewModel {
         cardSettingsViewModel?.update(detailsType: .loader)
         scanUtil.scan { [weak self] result in
             self?.cardSettingsViewModel?.update(detailsType: .none)
-
             switch result {
             case .failure(let error):
+                guard !error.toTangemSdkError().isUserCancelled else {
+                    return
+                }
+
+                AppLog.shared.error(error)
                 self?.showErrorAlert(error: error)
             case .success(let cardSettingsInput):
                 self?.coordinator?.openCardSettings(with: cardSettingsInput)
@@ -206,7 +210,7 @@ private extension WalletDetailsViewModel {
     }
 }
 
-extension WalletDetailsViewModel {
+extension UserWalletSettingsViewModel {
     enum AccountsSectionType: Identifiable {
         case header
         case account(DefaultRowViewModel) // [REDACTED_TODO_COMMENT]
