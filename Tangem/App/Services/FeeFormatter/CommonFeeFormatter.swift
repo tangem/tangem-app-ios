@@ -26,7 +26,7 @@ struct CommonFeeFormatter {
 
 extension CommonFeeFormatter: FeeFormatter {
     func formattedFeeComponents(fee: Decimal, currencySymbol: String, currencyId: String?, isFeeApproximate: Bool) -> FormattedFeeComponents {
-        let cryptoFeeFormatted = balanceFormatter.formatCryptoBalance(fee, currencyCode: currencySymbol)
+        let cryptoFeeFormatted = balanceFormatter.formatCryptoBalance(fee, currencyCode: currencySymbol, formattingOptions: .defaultCryptoFeeFormattingOptions)
         let fiatFeeFormatted: String?
 
         if let currencyId, let fiatFee = balanceConverter.convertToFiat(value: fee, from: currencyId) {
