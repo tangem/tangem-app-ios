@@ -19,7 +19,7 @@ struct LegacyTokenListView: View {
 
             overlay
         }
-        .scrollDismissesKeyboardCompat(true)
+        .scrollDismissesKeyboardCompat(.interactively)
         .navigationBarTitle(Text(viewModel.titleKey), displayMode: .automatic)
         .navigationBarItems(trailing: addCustomView)
         .alert(item: $viewModel.alert, content: { $0.alert })
