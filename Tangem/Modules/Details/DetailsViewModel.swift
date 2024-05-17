@@ -21,7 +21,7 @@ class DetailsViewModel: ObservableObject {
 
     @Published var walletConnectRowViewModel: WalletConnectRowViewModel?
     var walletsSectionTypes: [WalletSectionType] {
-        var viewModels: [WalletSectionType] = detailsUserWalletRowViewModels.map { .wallet($0) }
+        var viewModels: [WalletSectionType] = userWalletsViewModels.map { .wallet($0) }
         addOrScanNewUserWalletViewModel.map { viewModel in
             viewModels.append(.addOrScanNewUserWalletButton(viewModel))
         }
@@ -35,7 +35,7 @@ class DetailsViewModel: ObservableObject {
     @Published var alert: AlertBinder?
     @Published var showTroubleshootingView: Bool = false
 
-    @Published private var detailsUserWalletRowViewModels: [DetailsUserWalletRowViewModel] = []
+    @Published private var userWalletsViewModels: [SettingsUserWalletRowViewModel] = []
     @Published private var addOrScanNewUserWalletViewModel: DefaultRowViewModel?
 
     private var isScanning: Bool = false {
@@ -223,9 +223,9 @@ private extension DetailsViewModel {
     }
 
     func setupUserWalletViewModels() {
-        detailsUserWalletRowViewModels = userWalletRepository.models.map { userWallet in
+        userWalletsViewModels = userWalletRepository.models.map { userWallet in
             .init(userWallet: userWallet) { [weak self] in
-                self?.coordinator?.openWalletsDetails(options: userWallet)
+                self?.coordinator?.openWalletSettings(options: userWallet)
             }
         }
 
@@ -263,7 +263,7 @@ private extension DetailsViewModel {
     }
 
     func setupEnvironmentSetupSection() {
-        if AppEnvironment.current.isProduction {
+        if !AppEnvironment.current.isProduction {
             environmentSetupViewModel = DefaultRowViewModel(
                 title: "Environment setup",
                 action: weakify(self, forFunction: DetailsViewModel.openEnvironmentSetup)
@@ -305,7 +305,7 @@ private extension DetailsViewModel {
 
 extension DetailsViewModel {
     enum WalletSectionType: Identifiable {
-        case wallet(DetailsUserWalletRowViewModel)
+        case wallet(SettingsUserWalletRowViewModel)
         case addOrScanNewUserWalletButton(DefaultRowViewModel)
 
         var id: Int {
