@@ -17,8 +17,6 @@ struct WalletDetailsView: View {
 
     var body: some View {
         GroupedScrollView(alignment: .leading, spacing: 24) {
-            walletConnectSection
-
             nameSection
 
             backupSection
@@ -37,25 +35,19 @@ struct WalletDetailsView: View {
         .onAppear(perform: viewModel.onAppear)
     }
 
-    private var walletConnectSection: some View {
-        GroupedSection(viewModel.walletConnectRowViewModel) {
-            WalletConnectRowView(viewModel: $0)
-        }
-    }
-
     private var nameSection: some View {
         DefaultTextFieldRowView(title: Localization.customTokenNameInputTitle, text: $viewModel.name)
             .defaultRoundedBackground()
     }
 
-    private var commonSection: some View {
-        GroupedSection(viewModel.commonSectionModels) {
+    private var backupSection: some View {
+        GroupedSection(viewModel.backupViewModel) {
             DefaultRowView(viewModel: $0)
         }
     }
 
-    private var backupSection: some View {
-        GroupedSection(viewModel.backupViewModel) {
+    private var commonSection: some View {
+        GroupedSection(viewModel.commonSectionModels) {
             DefaultRowView(viewModel: $0)
         }
     }
