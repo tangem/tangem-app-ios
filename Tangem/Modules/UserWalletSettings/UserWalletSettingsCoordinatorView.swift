@@ -32,12 +32,6 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.cardSettingsCoordinator) {
                 CardSettingsCoordinatorView(coordinator: $0)
             }
-            .navigation(item: $coordinator.walletConnectCoordinator) {
-                WalletConnectCoordinatorView(coordinator: $0)
-            }
-            .navigation(item: $coordinator.disclaimerViewModel) {
-                DisclaimerView(viewModel: $0)
-            }
             .navigation(item: $coordinator.referralCoordinator) {
                 ReferralCoordinatorView(coordinator: $0)
             }
@@ -52,9 +46,6 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
                     .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
-            }
-            .sheet(item: $coordinator.scanCardSettingsViewModel) {
-                ScanCardSettingsView(viewModel: $0)
             }
     }
 }
