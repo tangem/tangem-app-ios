@@ -178,9 +178,6 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         switch action {
         case .buyCrypto:
             openBuyCryptoIfPossible()
-        case .exchange:
-            Analytics.log(event: .swapPromoButtonExchangeNow, params: [.token: walletModel.tokenItem.currencySymbol])
-            openExchange()
         case .addHederaTokenAssociation:
             fulfillAssetRequirements()
         default:
