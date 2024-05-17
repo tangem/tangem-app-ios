@@ -507,8 +507,6 @@ extension WalletModel {
     /// A convenience wrapper for `AssetRequirementsManager.fulfillRequirements(for:signer:)`
     /// that automatically triggers the update of the internal state of this wallet model.
     func fulfillRequirements(signer: any TransactionSigner) -> some Publisher<Void, Error> {
-        let amountType = amountType
-
         return assetRequirementsManager
             .publisher
             .withWeakCaptureOf(self)
