@@ -13,7 +13,7 @@
 "alert_manage_tokens_unsupported_message" = "Токены в сети %1$@ не поддерживаются этой картой из-за ограничений прошивки.";
 "alert_negative_app_rate_sent_message" = "Спасибо за ваш отзыв. Мы ответим в кратчайшие сроки.";
 "alert_negative_app_rate_sent_title" = "Ваши предложения отправлены";
-"alert_troubleshooting_scan_card_message" = "Пожалуйста, попробуйте приложить карту в точности, как показано на анимации, или запросите поддержку.";
+"alert_troubleshooting_scan_card_message" = "Пожалуйста, попробуйте приложить карту в точности, как показано на анимации, либо прочтите руководство по сканированию. Если проблема осталась, то запросите поддержку.";
 "alert_troubleshooting_scan_card_title" = "У вас возникли трудности со сканированием карты?";
 "app_settings_default_fee" = "Default Fee";
 "app_settings_default_fee_footer" = "Подключите функцию комиссии по умолчанию и при формировании транзакции на отправку средств комиссия будет выставлена автоматически, а экран комиссии пропущен. Вы всегда сможете на него вернуться.";
@@ -259,8 +259,6 @@
 "main_manage_tokens" = "Управление токенами";
 "main_scan_card_warning_view_subtitle" = "Чтобы получить доступ ко всем сетям, вам необходимо отсканировать карту";
 "main_scan_card_warning_view_title" = "Отсканируйте карту";
-"main_swap_changelly_promotion_message" = "Обменивайте свои токены с %1$@ комиссии провайдера через Changelly с %2$@ по %3$@ февраля.";
-"main_swap_changelly_promotion_title" = "Обмен с Changelly, %@ комиссии";
 "main_tokens" = "Токены";
 "main_travala_promotion_button" = "Забронировать";
 "main_travala_promotion_description" = "Оплатите его криптой и сэкономьте **50 долларов** через нашего партнера Travala: **%1@ - %2@**";
@@ -552,9 +550,6 @@
 "token_details_token_type_subtitle" = "%1$@ токен в сети %%image%% %2$@";
 "token_details_unable_hide_alert_message" = "Токен %1$@ (%2$@) является основной валютой в сети %3$@ и не может быть скрыт до тех пор, пока у вас в списке есть другие токены этой сети";
 "token_details_unable_hide_alert_title" = "Невозможно скрыть %@";
-"token_swap_changelly_promotion_message" = "Обменивайте этот токен на другие с %1$@ комиссии за обслуживание с %2$@ по %3$@ февраля.";
-"token_swap_changelly_promotion_title" = "Обмен с Changelly, %@ комиссии";
-"token_swap_promotion_button" = "Обменять";
 "transaction_history_contract_address" = "контракт: %@";
 "transaction_history_empty_transactions" = "У вас еще нет транзакций";
 "transaction_history_error_failed_to_load" = "Не удалось загрузить историю транзакций.\nНажмите на кнопку перезагрузки, чтобы обновить информацию.";
