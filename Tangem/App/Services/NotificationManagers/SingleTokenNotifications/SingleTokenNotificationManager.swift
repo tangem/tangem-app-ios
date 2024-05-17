@@ -70,8 +70,7 @@ final class SingleTokenNotificationManager {
             events.append(.existentialDepositWarning(message: existentialWarning))
         }
 
-        if case .solana = walletModel.tokenItem.blockchain,
-           !walletModel.isZeroAmount {
+        if case .solana = walletModel.tokenItem.blockchain, !walletModel.isZeroAmount {
             events.append(.solanaHighImpact)
         }
 
@@ -88,6 +87,8 @@ final class SingleTokenNotificationManager {
                 events.append(event)
             }
         }
+
+        events += makeAssetRequirementsNotificationEvents()
 
         let inputs = events.map {
             factory.buildNotificationInput(
@@ -185,6 +186,32 @@ final class SingleTokenNotificationManager {
             dismissAction: weakify(self, forFunction: SingleTokenNotificationManager.dismissNotification(with:))
         )
         return input
+    }
+
+    private func makeAssetRequirementsNotificationEvents() -> [TokenNotificationEvent] {
+        let asset = walletModel.amountType
+
+        guard
+            !walletModel.hasPendingTransactions,
+            let assetRequirementsManager = walletModel.assetRequirementsManager,
+            assetRequirementsManager.hasRequirements(for: asset)
+        else {
+            return []
+        }
+
+        switch assetRequirementsManager.requirementsCondition(for: asset) {
+        case .paidTransaction:
+            return [.hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation(associationFee: nil))]
+        case .paidTransactionWithFee(let feeAmount):
+            let balanceFormatter = BalanceFormatter()
+            let associationFee = TokenNotificationEvent.UnfulfilledRequirementsConfiguration.HederaTokenAssociationFee(
+                formattedValue: balanceFormatter.formatDecimal(feeAmount.value),
+                currencySymbol: feeAmount.currencySymbol
+            )
+            return [.hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation(associationFee: associationFee))]
+        case .none:
+            return []
+        }
     }
 }
 
