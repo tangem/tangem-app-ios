@@ -511,7 +511,10 @@ extension WalletModel {
 
         return assetRequirementsManager
             .publisher
-            .flatMap { $0.fulfillRequirements(for: amountType, signer: signer) }
+            .withWeakCaptureOf(self)
+            .flatMap { walletModel, assetRequirementsManager in
+                assetRequirementsManager.fulfillRequirements(for: walletModel.amountType, signer: signer)
+            }
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .handleEvents(receiveOutput: { walletModel, _ in
