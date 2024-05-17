@@ -649,7 +649,6 @@ extension ExpressViewModel: NotificationTapDelegate {
              .buyCrypto,
              .refreshFee,
              .goToProvider,
-             .exchange,
              .addHederaTokenAssociation,
              .bookNow:
             return
