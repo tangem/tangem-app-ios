@@ -13,7 +13,7 @@
 "alert_manage_tokens_unsupported_message" = "Tokens in %1$@ network are not supported by this card due to firmware limitation.";
 "alert_negative_app_rate_sent_message" = "Thank you for your feedback. We will respond as soon as possible";
 "alert_negative_app_rate_sent_title" = "Your suggestions were sent";
-"alert_troubleshooting_scan_card_message" = "Please try to tap the card exactly as shown in the animation or request support.";
+"alert_troubleshooting_scan_card_message" = "Please try to tap the card exactly as shown in the animation or read our simple guide, or request support. If the problem persists, please request support.";
 "alert_troubleshooting_scan_card_title" = "Are you having difficulty scanning your card?";
 "app_settings_default_fee" = "Default Fee";
 "app_settings_default_fee_footer" = "Enable Default Fee to set transaction fees automatically and skip the Fee page when sending funds. You can always go back to this page if necessary.";
@@ -259,8 +259,6 @@
 "main_manage_tokens" = "Manage tokens";
 "main_scan_card_warning_view_subtitle" = "To access all the networks you need to scan the card";
 "main_scan_card_warning_view_title" = "Scan your card";
-"main_swap_changelly_promotion_message" = "Enjoy %1$@ service fees on swaps via Changelly from February %2$@-%3$@";
-"main_swap_changelly_promotion_title" = "Swap with Changelly, %@ fees";
 "main_tokens" = "Tokens";
 "main_travala_promotion_button" = "Book now";
 "main_travala_promotion_description" = "Save **$50** while booking via our partner Travala: **%1@ - %2@**";
@@ -552,9 +550,6 @@
 "token_details_token_type_subtitle" = "%1$@ token in %%image%% %2$@ network";
 "token_details_unable_hide_alert_message" = "The %1$@ (%2$@) token is the main currency on the %3$@ network and cannot be hidden as long as you have other tokens on this network in the list";
 "token_details_unable_hide_alert_title" = "Unable to hide %@";
-"token_swap_changelly_promotion_message" = "Exchange this token for another at %1$@ service fees from February %2$@-%3$@.";
-"token_swap_changelly_promotion_title" = "Swap with Changelly, %@ fees";
-"token_swap_promotion_button" = "Swap now";
 "transaction_history_contract_address" = "contract: %@";
 "transaction_history_empty_transactions" = "You don't have any transactions yet";
 "transaction_history_error_failed_to_load" = "Failed to load transaction history.\nClick on reload button to update the information.";
