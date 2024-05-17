@@ -204,17 +204,19 @@ class ExpressNotificationManager {
         )
     }
 
-    private func setupWithdrawalSuggestion(suggestion: WithdrawalSuggestion?) -> NotificationViewInput? {
+    private func setupWithdrawalSuggestion(suggestion: WithdrawalNotification?) -> NotificationViewInput? {
+        guard let interactor = expressInteractor else {
+            return nil
+        }
+
+        let event: ExpressNotificationEvent
+        let sourceTokenItem = interactor.getSender().tokenItem
+
         switch suggestion {
         case .none:
             return nil
         case .feeIsTooHigh(let reduceAmountBy):
-            guard let interactor = expressInteractor else {
-                return nil
-            }
-
-            let sourceTokenItem = interactor.getSender().tokenItem
-            let event: ExpressNotificationEvent = .withdrawalOptionalAmountChange(
+            event = .withdrawalOptionalAmountChange(
                 amount: reduceAmountBy.value,
                 amountFormatted: reduceAmountBy.string(),
                 blockchainName: sourceTokenItem.blockchain.displayName
