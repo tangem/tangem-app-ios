@@ -83,7 +83,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .refresh,
              .refreshFee,
              .goToProvider,
-             .exchange,
              .reduceAmountBy,
              .reduceAmountTo,
              .addHederaTokenAssociation,
