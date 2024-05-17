@@ -68,7 +68,11 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openWalletSettings(options: UserWalletSettingsCoordinator.Options) {
-        let coordinator = UserWalletSettingsCoordinator(popToRootAction: popToRootAction)
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.userWalletSettingsCoordinator = nil
+        }
+
+        let coordinator = UserWalletSettingsCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
         coordinator.start(with: options)
         userWalletSettingsCoordinator = coordinator
     }
@@ -107,8 +111,12 @@ extension DetailsCoordinator: DetailsRoutable {
         disclaimerViewModel = .init(url: url, style: .details)
     }
 
+    func openScanCardManual() {
+        safariManager.openURL(TangemBlogUrlBuilder().url(post: .scanCard))
+    }
+
     func openInSafari(url: URL) {
-        UIApplication.shared.open(url)
+        safariManager.openURL(url)
     }
 
     func openEnvironmentSetup() {
