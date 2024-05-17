@@ -1127,6 +1127,8 @@
 		EF193C032A78EBA60048C0C3 /* BottomScrollableSheetStateObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF193C022A78EBA60048C0C3 /* BottomScrollableSheetStateObject.swift */; };
 		EF1E172E2BF50E07000364AE /* SettingsUserWalletRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1E172D2BF50E07000364AE /* SettingsUserWalletRowView.swift */; };
 		EF1E17302BF64224000364AE /* SettingsUserWalletRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1E172F2BF64224000364AE /* SettingsUserWalletRowViewModel.swift */; };
+		EF1E17682BF672AC000364AE /* DefaultTextFieldRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1E17672BF672AC000364AE /* DefaultTextFieldRowView.swift */; };
+		EF1E176D2BF69065000364AE /* WalletConnectRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1E176C2BF69065000364AE /* WalletConnectRowViewModel.swift */; };
 		EF1E97FD2B03F93300D4B511 /* CommonExpressDestinationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1E97FC2B03F93300D4B511 /* CommonExpressDestinationService.swift */; };
 		EF2D9C8A2BBDA87A0055C485 /* TangemFoundation.docc in Sources */ = {isa = PBXBuildFile; fileRef = EF2D9C892BBDA87A0055C485 /* TangemFoundation.docc */; };
 		EF2D9C902BBDA87B0055C485 /* TangemFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF2D9C862BBDA8790055C485 /* TangemFoundation.framework */; };
@@ -2710,6 +2712,8 @@
 		EF193C022A78EBA60048C0C3 /* BottomScrollableSheetStateObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomScrollableSheetStateObject.swift; sourceTree = "<group>"; };
 		EF1E172D2BF50E07000364AE /* SettingsUserWalletRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsUserWalletRowView.swift; sourceTree = "<group>"; };
 		EF1E172F2BF64224000364AE /* SettingsUserWalletRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsUserWalletRowViewModel.swift; sourceTree = "<group>"; };
+		EF1E17672BF672AC000364AE /* DefaultTextFieldRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultTextFieldRowView.swift; sourceTree = "<group>"; };
+		EF1E176C2BF69065000364AE /* WalletConnectRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectRowViewModel.swift; sourceTree = "<group>"; };
 		EF1E97FC2B03F93300D4B511 /* CommonExpressDestinationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonExpressDestinationService.swift; sourceTree = "<group>"; };
 		EF2D9C862BBDA8790055C485 /* TangemFoundation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TangemFoundation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF2D9C882BBDA87A0055C485 /* TangemFoundation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TangemFoundation.h; sourceTree = "<group>"; };
@@ -4568,6 +4572,8 @@
 			isa = PBXGroup;
 			children = (
 				EF1E172C2BF50DDA000364AE /* SettingsUserWalletRow */,
+				EF1E17662BF67292000364AE /* DefaultTextFieldRowView */,
+				EF1E172C2BF50DDA000364AE /* DetailsUserWalletRowView */,
 				EF6600512B6D187600B65449 /* PendingTransactionsListView */,
 				EFE5EC512AEC1B8800C5ADC3 /* UndoToastView */,
 				EFF466E02AC709B600ACC3EA /* BalanceTitleView */,
@@ -6714,6 +6720,22 @@
 			path = SettingsUserWalletRow;
 			sourceTree = "<group>";
 		};
+		EF1E17662BF67292000364AE /* DefaultTextFieldRowView */ = {
+			isa = PBXGroup;
+			children = (
+				EF1E17672BF672AC000364AE /* DefaultTextFieldRowView.swift */,
+			);
+			path = DefaultTextFieldRowView;
+			sourceTree = "<group>";
+		};
+		EF1E17692BF67FA6000364AE /* DefaultButtonRowView */ = {
+			isa = PBXGroup;
+			children = (
+				EF1E176A2BF67FB4000364AE /* DefaultButtonRowView.swift */,
+			);
+			path = DefaultButtonRowView;
+			sourceTree = "<group>";
+		};
 		EF2D9C872BBDA87A0055C485 /* TangemFoundation */ = {
 			isa = PBXGroup;
 			children = (
@@ -6891,6 +6913,7 @@
 			isa = PBXGroup;
 			children = (
 				EF4662382924E00400346B6C /* WalletConnectRowView.swift */,
+				EF1E176C2BF69065000364AE /* WalletConnectRowViewModel.swift */,
 			);
 			path = WalletConnectRow;
 			sourceTree = "<group>";
@@ -8627,6 +8650,7 @@
 				DC0A5844282BFDFC0031BECC /* UserWalletRepository.swift in Sources */,
 				DC7127B32897ECEE00F60F71 /* GenericConfig.swift in Sources */,
 				B06917E0270444CE0000E6C1 /* OnboardingWalletInfoPager.swift in Sources */,
+				EF1E176B2BF67FB4000364AE /* DefaultButtonRowView.swift in Sources */,
 				DAF1EB9B2A9F83EF00467490 /* KingfisherImageProcessors.swift in Sources */,
 				B0BB972A2B18653B00053954 /* ExpressInteractor.swift in Sources */,
 				B0ADFD40298A70FF00EF2869 /* WalletConnectV2SignTransactionHandler.swift in Sources */,
@@ -8899,6 +8923,7 @@
 				DC0CC5B22B0D3B0900E32CAC /* UserWalletIdPreflightReadFilter.swift in Sources */,
 				DC7254922A050C200003FE1B /* NoteOnboardingStepsBuilder.swift in Sources */,
 				B65D3FCB2A67129D00FEEFE8 /* CardsInfoPagerContentAnimationModifier.swift in Sources */,
+				EF1E176D2BF69065000364AE /* WalletConnectRowViewModel.swift in Sources */,
 				5D17EC7826947ED9002782DE /* SignAndReadTask.swift in Sources */,
 				DAC4F9F02AC314E100BEBCF8 /* SingleWalletMainContentDelegate.swift in Sources */,
 				B0C616642AFBA56E00ABADF0 /* ThemeSelectionViewModel.swift in Sources */,
@@ -9781,6 +9806,7 @@
 				DAE6F76D2800011400411F45 /* AppError.swift in Sources */,
 				B63457772A3A097C00E164C5 /* View+ReadGeometry.swift in Sources */,
 				2DBE29C42B3C4A8100109D5E /* View+DetentBottomSheet.swift in Sources */,
+				EF1E17682BF672AC000364AE /* DefaultTextFieldRowView.swift in Sources */,
 				B0F318F92A7393FA009F131E /* WalletStubs.swift in Sources */,
 				B00307042AF0E1BA00C13BCA /* Analytics+WalletConnectDebugEvent.swift in Sources */,
 				B0431B47291A905A00F84DEF /* RoundedBackgroundModifier.swift in Sources */,
