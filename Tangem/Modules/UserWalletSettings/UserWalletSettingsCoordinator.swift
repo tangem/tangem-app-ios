@@ -20,14 +20,10 @@ class UserWalletSettingsCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @Published var modalOnboardingCoordinator: OnboardingCoordinator?
-    @Published var walletConnectCoordinator: WalletConnectCoordinator?
     @Published var cardSettingsCoordinator: CardSettingsCoordinator?
     @Published var referralCoordinator: ReferralCoordinator?
 
     // MARK: - Child view models
-
-    @Published var scanCardSettingsViewModel: ScanCardSettingsViewModel?
-    @Published var disclaimerViewModel: DisclaimerViewModel?
 
     // MARK: - Helpers
 
@@ -54,12 +50,9 @@ extension UserWalletSettingsCoordinator {
 
 // MARK: - UserWalletSettingsRoutable
 
-extension UserWalletSettingsCoordinator: WalletDetailsRoutable {
-    func openWalletConnect(with disabledLocalizedReason: String?) {
-        let coordinator = WalletConnectCoordinator()
-        let options = WalletConnectCoordinator.Options(disabledLocalizedReason: disabledLocalizedReason)
-        coordinator.start(with: options)
-        walletConnectCoordinator = coordinator
+extension UserWalletSettingsCoordinator: UserWalletSettingsRoutable {
+    func openAddNewAccount() {
+        // [REDACTED_TODO_COMMENT]
     }
 
     func openOnboardingModal(with input: OnboardingInput) {
@@ -76,12 +69,10 @@ extension UserWalletSettingsCoordinator: WalletDetailsRoutable {
         modalOnboardingCoordinator = coordinator
     }
 
-    func openScanCardSettings(with cardScanner: CardScanner) {
-        scanCardSettingsViewModel = ScanCardSettingsViewModel(cardScanner: cardScanner, coordinator: self)
-    }
-
-    func openDisclaimer(at url: URL) {
-        disclaimerViewModel = .init(url: url, style: .details)
+    func openCardSettings(with input: CardSettingsViewModel.Input) {
+        let coordinator = CardSettingsCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+        coordinator.start(with: .init(input: input))
+        cardSettingsCoordinator = coordinator
     }
 
     func openReferral(input: ReferralInputModel) {
@@ -93,17 +84,5 @@ extension UserWalletSettingsCoordinator: WalletDetailsRoutable {
         coordinator.start(with: .init(input: input))
         referralCoordinator = coordinator
         Analytics.log(.referralScreenOpened)
-    }
-}
-
-// MARK: - ScanCardSettingsRoutable
-
-extension WalletDetailsCoordinator: ScanCardSettingsRoutable {
-    func openCardSettings(with input: CardSettingsViewModel.Input) {
-        scanCardSettingsViewModel = nil
-
-        let coordinator = CardSettingsCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        coordinator.start(with: .init(input: input))
-        cardSettingsCoordinator = coordinator
     }
 }
