@@ -24,7 +24,7 @@ struct VisaAppUtilities {
         list.first(where: { $0.curve == curve })?.publicKey
     }
 
-    func makeBSDKPublicKey(using list: [CardDTO.Wallet]) -> Wallet.PublicKey? {
+    func makeBlockchainKey(using list: [CardDTO.Wallet]) -> Wallet.PublicKey? {
         guard let pubKey = getPublicKeyData(from: list) else {
             return nil
         }
