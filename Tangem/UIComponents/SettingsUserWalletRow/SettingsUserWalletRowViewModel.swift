@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-class DetailsUserWalletRowViewModel: ObservableObject, Identifiable {
+class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
     @Published var name: String = ""
     @Published var icon: LoadingValue<CardImageResult> = .loading
     @Published var cardsCount: String
@@ -53,19 +53,19 @@ class DetailsUserWalletRowViewModel: ObservableObject, Identifiable {
     }
 
     func bind() {
-        cardImagePublisher
-            .receive(on: DispatchQueue.main)
-            .withWeakCaptureOf(self)
-            .sink { viewModel, image in
-                viewModel.icon = .loaded(image)
-            }
-            .store(in: &bag)
-
         userWalletNamePublisher
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { viewModel, name in
                 viewModel.name = name
+            }
+            .store(in: &bag)
+
+        cardImagePublisher
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, image in
+                viewModel.icon = .loaded(image)
             }
             .store(in: &bag)
 
