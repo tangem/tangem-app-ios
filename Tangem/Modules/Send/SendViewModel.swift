@@ -809,7 +809,6 @@ extension SendViewModel: NotificationTapDelegate {
              .buyCrypto,
              .refresh,
              .goToProvider,
-             .exchange,
              .addHederaTokenAssociation,
              .bookNow:
             assertionFailure("Notification tap not handled")
