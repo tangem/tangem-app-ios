@@ -17,17 +17,13 @@ struct DetailsView: View {
 
     var body: some View {
         GroupedScrollView(spacing: 24) {
-//            walletConnectSection
+            walletConnectSection
 
             userWalletsSection
-
-//            commonSection
 
             settingsSection
 
             supportSection
-
-//            legalSection
 
             environmentSetupSection
 
@@ -49,14 +45,11 @@ struct DetailsView: View {
         .onAppear(perform: viewModel.onAppear)
     }
 
-    // MARK: - Wallet Connect Section
-
-//    [REDACTED_USERNAME]
-//    private var walletConnectSection: some View {
-//        GroupedSection(viewModel.walletConnectRowViewModel) {
-//            WalletConnectRowView(viewModel: $0)
-//        }
-//    }
+    private var walletConnectSection: some View {
+        GroupedSection(viewModel.walletConnectRowViewModel) {
+            WalletConnectRowView(viewModel: $0)
+        }
+    }
 
     private var userWalletsSection: some View {
         GroupedSection(viewModel.walletsSectionTypes) { type in
@@ -71,7 +64,7 @@ struct DetailsView: View {
     }
 
     private var settingsSection: some View {
-        GroupedSection(viewModel.settingsSectionViewModels) {
+        GroupedSection(viewModel.appSettingsViewModel) {
             DefaultRowView(viewModel: $0)
         }
     }
@@ -81,12 +74,6 @@ struct DetailsView: View {
             DefaultRowView(viewModel: $0)
         }
     }
-
-//    private var commonSection: some View {
-//        GroupedSection(viewModel.commonSectionViewModels) {
-//            DefaultRowView(viewModel: $0)
-//        }
-//    }
 
     private var socialNetworks: some View {
         VStack(alignment: .center, spacing: 16) {
@@ -109,7 +96,6 @@ struct DetailsView: View {
         .padding(.bottom, 8)
     }
 
-    @ViewBuilder
     private var environmentSetupSection: some View {
         GroupedSection(viewModel.environmentSetupViewModel) {
             DefaultRowView(viewModel: $0)
