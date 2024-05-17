@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 struct SettingsUserWalletRowView: View {
-    let viewModel: SettingsUserWalletRowViewModel
+    @ObservedObject var viewModel: SettingsUserWalletRowViewModel
 
     var body: some View {
         Button(action: viewModel.tapAction) {
@@ -32,6 +32,7 @@ struct SettingsUserWalletRowView: View {
         }
         .infinityFrame(axis: .horizontal, alignment: .leading)
         .padding(.vertical, 12)
+        .contentShape(Rectangle())
     }
 
     @ViewBuilder
