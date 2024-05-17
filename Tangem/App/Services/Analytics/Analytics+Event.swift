@@ -247,11 +247,6 @@ extension Analytics {
         case tokenNoticeNetworkUnreachable = "[Token] Notice - Network Unreachable"
         case tokenNoticeNotEnoughFee = "[Token] Notice - Not Enough Fee"
 
-        // MARK: - Swap promo
-
-        case swapPromoButtonExchangeNow = "[Swap Promo] Button - Exchange Now"
-        case swapPromoButtonClose = "[Swap Promo] Button - Close"
-
         // MARK: - BlockchainSdk exceptions
 
         case blockchainSdkException = "[BlockchainSdk] Exception"
@@ -260,5 +255,10 @@ extension Analytics {
 
         case healthCheckPolkadotAccountReset = "[Token] Polkadot Account Reset"
         case healthCheckPolkadotImmortalTransactions = "[Token] Polkadot Immortal Transactions"
+
+        // MARK: - Promotion
+
+        case promotionBannerAppeared = "[Promotion] Notice - Promotion Banner"
+        case promotionBannerClicked = "[Promotion] Promo Banner Clicked"
     }
 }
