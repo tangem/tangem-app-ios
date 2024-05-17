@@ -16,10 +16,12 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     case refresh
     case refreshFee
     case goToProvider
-    case exchange
     case reduceAmountBy(amount: Decimal, amountFormatted: String)
     case reduceAmountTo(amount: Decimal, amountFormatted: String)
     case bookNow(promotionLink: URL)
+    case addHederaTokenAssociation
+    @available(*, unavailable, message: "Token trust lines support not implemented yet")
+    case addTokenTrustline
 
     var id: Int { hashValue }
 
@@ -41,14 +43,14 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return Localization.warningButtonRefresh
         case .goToProvider:
             return Localization.commonGoToProvider
-        case .exchange:
-            return Localization.tokenSwapPromotionButton
         case .reduceAmountBy(_, let amountFormatted):
             return Localization.sendNotificationReduceBy(amountFormatted)
         case .reduceAmountTo(_, let amountFormatted):
-            return Localization.sendNotificationReduceTo(amountFormatted)
+            return Localization.sendNotificationLeaveButton(amountFormatted)
         case .bookNow:
             return Localization.mainTravalaPromotionButton
+        case .addHederaTokenAssociation:
+            return Localization.warningHederaMissingTokenAssociationButtonTitle
         }
     }
 
@@ -56,9 +58,16 @@ enum NotificationButtonActionType: Identifiable, Hashable {
         switch self {
         case .generateAddresses:
             return .trailing(Assets.tangemIcon)
-        case .exchange:
-            return .leading(Assets.exchangeMini)
-        case .backupCard, .buyCrypto, .openFeeCurrency, .refresh, .refreshFee, .goToProvider, .reduceAmountBy, .reduceAmountTo, .bookNow:
+        case .backupCard,
+             .buyCrypto,
+             .openFeeCurrency,
+             .refresh,
+             .refreshFee,
+             .goToProvider,
+             .reduceAmountBy,
+             .reduceAmountTo,
+             .addHederaTokenAssociation,
+             .bookNow:
             return nil
         }
     }
@@ -67,10 +76,16 @@ enum NotificationButtonActionType: Identifiable, Hashable {
         switch self {
         case .generateAddresses, .bookNow:
             return .primary
-        case .backupCard, .buyCrypto, .openFeeCurrency, .refresh, .refreshFee, .goToProvider, .reduceAmountBy, .reduceAmountTo:
+        case .backupCard,
+             .buyCrypto,
+             .openFeeCurrency,
+             .refresh,
+             .refreshFee,
+             .goToProvider,
+             .reduceAmountBy,
+             .reduceAmountTo,
+             .addHederaTokenAssociation:
             return .secondary
-        case .exchange:
-            return .exchangePromotionWhite
         }
     }
 }
