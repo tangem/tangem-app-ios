@@ -9,16 +9,18 @@
 import Foundation
 
 protocol DetailsRoutable: AnyObject {
-    func openOnboardingModal(with input: OnboardingInput)
-    func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType)
     func openWalletConnect(with disabledLocalizedReason: String?)
-    func openDisclaimer(at url: URL)
-    func openScanCardSettings(with cardScanner: CardScanner)
-    func openWalletSettings(options: UserWalletSettingsCoordinator.Options)
+    func openWalletSettings(options: WalletDetailsCoordinator.Options)
+
+    func openOnboardingModal(with input: OnboardingInput)
+
     func openAppSettings()
-//    func openSupportChat(input: SupportChatInputModel)
-    func openInSafari(url: URL)
-    func openEnvironmentSetup()
+    func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType)
+    func openSupportChat(input: SupportChatInputModel)
+    func openDisclaimer(at url: URL)
     func openScanCardManual()
+    func openInSafari(url: URL)
+
+    func openEnvironmentSetup()
     func dismiss()
 }

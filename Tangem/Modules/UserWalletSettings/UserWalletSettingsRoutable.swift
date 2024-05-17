@@ -9,10 +9,10 @@
 import Foundation
 
 protocol UserWalletSettingsRoutable: AnyObject {
-    func openWalletConnect(with disabledLocalizedReason: String?)
+    func openAddNewAccount()
     func openOnboardingModal(with input: OnboardingInput)
 
-    func openScanCardSettings(with cardScanner: CardScanner)
-    func openDisclaimer(at url: URL)
+    func openCardSettings(with input: CardSettingsViewModel.Input)
     func openReferral(input: ReferralInputModel)
+    func dismiss()
 }
