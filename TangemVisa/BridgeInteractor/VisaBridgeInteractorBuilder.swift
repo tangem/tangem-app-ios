@@ -22,7 +22,7 @@ public struct VisaBridgeInteractorBuilder {
         var paymentAccount: String?
 
         log("Start searching PaymentAccount for card with address: \(cardAddress)")
-        let registryAddress = try VisaRegistryInfoProvider().getRegistryAddress(isTestnet: VisaUtilities().visaBlockchain.isTestnet)
+        let registryAddress = try VisaConfigProvider.shared().getRegistryAddress(isTestnet: VisaUtilities().visaBlockchain.isTestnet)
         log("Requesting PaymentAccount from bridge with address \(registryAddress)")
 
         let request = VisaSmartContractRequest(
