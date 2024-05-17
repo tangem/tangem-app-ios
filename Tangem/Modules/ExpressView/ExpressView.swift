@@ -46,7 +46,7 @@ struct ExpressView: View {
 
                 bottomView
             }
-            .scrollDismissesKeyboardCompat(true)
+            .scrollDismissesKeyboardCompat(.interactively)
         }
         .readGeometry(bindTo: $viewGeometryInfo)
         .ignoresSafeArea(.keyboard)
