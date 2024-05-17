@@ -17,17 +17,17 @@ struct DetailsView: View {
 
     var body: some View {
         GroupedScrollView(spacing: 24) {
-            walletConnectSection
+//            walletConnectSection
 
             userWalletsSection
 
-            commonSection
+//            commonSection
 
             settingsSection
 
             supportSection
 
-            legalSection
+//            legalSection
 
             environmentSetupSection
 
@@ -51,33 +51,27 @@ struct DetailsView: View {
 
     // MARK: - Wallet Connect Section
 
-    @ViewBuilder
-    private var walletConnectSection: some View {
-        GroupedSection(viewModel.walletConnectRowViewModel) {
-            WalletConnectRowView(viewModel: $0)
-        }
-    }
+//    [REDACTED_USERNAME]
+//    private var walletConnectSection: some View {
+//        GroupedSection(viewModel.walletConnectRowViewModel) {
+//            WalletConnectRowView(viewModel: $0)
+//        }
+//    }
 
     private var userWalletsSection: some View {
-        GroupedSection(viewModel.userWalletViewModels) {
-            DetailsUserWalletRowView(viewModel: $0)
+        GroupedSection(viewModel.walletsSectionTypes) { type in
+            switch type {
+            case .wallet(let viewModel):
+                DetailsUserWalletRowView(viewModel: viewModel)
+            case .addOrScanNewUserWalletButton(let viewModel):
+                DefaultRowView(viewModel: viewModel)
+                    .appearance(.accentButton)
+            }
         }
-        .interItemSpacing(12)
-        .innerContentPadding(12)
     }
-
-    // MARK: - Settings Section
 
     private var settingsSection: some View {
         GroupedSection(viewModel.settingsSectionViewModels) {
-            DefaultRowView(viewModel: $0)
-        }
-    }
-
-    // MARK: - Legal Section
-
-    private var legalSection: some View {
-        GroupedSection(viewModel.legalSectionViewModel) {
             DefaultRowView(viewModel: $0)
         }
     }
@@ -88,15 +82,11 @@ struct DetailsView: View {
         }
     }
 
-    private var commonSection: some View {
-        GroupedSection(viewModel.commonSectionViewModels) {
-            DefaultRowView(viewModel: $0)
-        } footer: {
-            if viewModel.canCreateBackup {
-                DefaultFooterView(Localization.detailsRowTitleCreateBackupFooter)
-            }
-        }
-    }
+//    private var commonSection: some View {
+//        GroupedSection(viewModel.commonSectionViewModels) {
+//            DefaultRowView(viewModel: $0)
+//        }
+//    }
 
     private var socialNetworks: some View {
         VStack(alignment: .center, spacing: 16) {
@@ -145,7 +135,6 @@ struct SettingsView_Previews: PreviewProvider {
         NavigationView {
             DetailsView(
                 viewModel: DetailsViewModel(
-                    userWalletModel: PreviewCard.tangemWalletEmpty.userWalletModel,
                     coordinator: DetailsCoordinator()
                 )
             )
