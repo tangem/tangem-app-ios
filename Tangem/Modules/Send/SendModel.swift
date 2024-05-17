@@ -79,7 +79,7 @@ class SendModel {
     private var userInputAmount = CurrentValueSubject<Amount?, Never>(nil)
     private var userInputDestination = CurrentValueSubject<SendAddress, Never>(SendAddress(value: "", source: .textField))
     private var _destinationAdditionalFieldText = CurrentValueSubject<String, Never>("")
-    private var _additionalFieldEmbeddedInAddress = CurrentValueSubject<Bool, Never>(false)
+    private var _canChangeAdditionalField = CurrentValueSubject<Bool, Never>(true)
     private var _selectedFeeOption = CurrentValueSubject<FeeOption, Never>(.market)
     private var _feeValues = CurrentValueSubject<[FeeOption: LoadingValue<Fee>], Never>([:])
     private var _isFeeIncluded = CurrentValueSubject<Bool, Never>(false)
@@ -166,8 +166,14 @@ class SendModel {
 
         didSetCustomFee = true
         _customFee.send(customFee)
+
         if case .custom = selectedFeeOption {
             fee.send(customFee)
+        }
+
+        if _feeValues.value[.custom]?.value != customFee,
+           let customFee {
+            _feeValues.value[.custom] = .loaded(customFee)
         }
     }
 
@@ -449,10 +455,10 @@ class SendModel {
 
         userInputDestination.send(address)
 
-        let hasEmbeddedAdditionalField = addressService.hasEmbeddedAdditionalField(address: addressValue)
-        _additionalFieldEmbeddedInAddress.send(hasEmbeddedAdditionalField)
+        let canChangeAdditionalField = addressValue.isEmpty || addressService.canEmbedAdditionalField(into: addressValue)
+        _canChangeAdditionalField.send(canChangeAdditionalField)
 
-        if hasEmbeddedAdditionalField {
+        if !canChangeAdditionalField {
             setDestinationAdditionalField("")
         }
     }
@@ -577,8 +583,8 @@ extension SendModel: SendDestinationViewModelInput {
         }
     }
 
-    var additionalFieldEmbeddedInAddress: AnyPublisher<Bool, Never> {
-        _additionalFieldEmbeddedInAddress.eraseToAnyPublisher()
+    var canChangeAdditionalField: AnyPublisher<Bool, Never> {
+        _canChangeAdditionalField.eraseToAnyPublisher()
     }
 
     var blockchainNetwork: BlockchainNetwork {
