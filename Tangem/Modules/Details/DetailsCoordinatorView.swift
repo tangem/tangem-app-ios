@@ -26,27 +26,18 @@ struct DetailsCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var links: some View {
         NavHolder()
-//            .navigation(item: $coordinator.cardSettingsCoordinator) {
-//                CardSettingsCoordinatorView(coordinator: $0)
-//            }
-            .navigation(item: $coordinator.appSettingsCoordinator) {
-                AppSettingsCoordinatorView(coordinator: $0)
+            .navigation(item: $coordinator.walletConnectCoordinator) {
+                WalletConnectCoordinatorView(coordinator: $0)
             }
-//            .navigation(item: $coordinator.walletConnectCoordinator) {
-//                WalletConnectCoordinatorView(coordinator: $0)
-//            }
             .navigation(item: $coordinator.walletDetailsCoordinator) {
                 WalletDetailsCoordinatorView(coordinator: $0)
             }
-//            .navigation(item: $coordinator.disclaimerViewModel) {
-//                DisclaimerView(viewModel: $0)
-//            }
+            .navigation(item: $coordinator.appSettingsCoordinator) {
+                AppSettingsCoordinatorView(coordinator: $0)
+            }
             .navigation(item: $coordinator.environmentSetupCoordinator) {
                 EnvironmentSetupCoordinatorView(coordinator: $0)
             }
-//            .navigation(item: $coordinator.referralCoordinator) {
-//                ReferralCoordinatorView(coordinator: $0)
-//            }
     }
 
     @ViewBuilder
@@ -66,8 +57,5 @@ struct DetailsCoordinatorView: CoordinatorView {
                 SupportChatView(viewModel: $0)
                     .edgesIgnoringSafeArea(.vertical)
             }
-//            .sheet(item: $coordinator.scanCardSettingsViewModel) {
-//                ScanCardSettingsView(viewModel: $0)
-//            }
     }
 }
