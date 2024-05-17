@@ -31,4 +31,13 @@ struct BalanceFormattingOptions {
             roundingType: .default(roundingMode: .down, scale: 8)
         )
     }
+
+    static var defaultCryptoFeeFormattingOptions: BalanceFormattingOptions {
+        .init(
+            minFractionDigits: Self.defaultCryptoFormattingOptions.minFractionDigits,
+            maxFractionDigits: 6,
+            formatEpsilonAsLowestRepresentableValue: Self.defaultCryptoFormattingOptions.formatEpsilonAsLowestRepresentableValue,
+            roundingType: Self.defaultCryptoFormattingOptions.roundingType
+        )
+    }
 }
