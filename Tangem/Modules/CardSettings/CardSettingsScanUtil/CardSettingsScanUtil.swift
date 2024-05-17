@@ -21,11 +21,6 @@ struct CardSettingsScanUtil {
         cardScanner.scanCard { result in
             switch result {
             case .failure(let error):
-                guard !error.isUserCancelled else {
-                    return
-                }
-
-                AppLog.shared.error(error)
                 completion(.failure(error))
             case .success(let response):
                 if let input = processSuccessScan(for: response.getCardInfo()) {
