@@ -8,4 +8,11 @@
 
 import Foundation
 
-protocol UserWalletSettingsRoutable: AnyObject {}
+protocol UserWalletSettingsRoutable: AnyObject {
+    func openWalletConnect(with disabledLocalizedReason: String?)
+    func openOnboardingModal(with input: OnboardingInput)
+
+    func openScanCardSettings(with cardScanner: CardScanner)
+    func openDisclaimer(at url: URL)
+    func openReferral(input: ReferralInputModel)
+}
