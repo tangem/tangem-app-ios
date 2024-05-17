@@ -114,6 +114,10 @@ extension MainCoordinator: MainRoutable {
     func close(newScan: Bool) {
         popToRoot(with: .init(newScan: newScan))
     }
+
+    func openScanCardManual() {
+        safariManager.openURL(TangemBlogUrlBuilder().url(post: .scanCard))
+    }
 }
 
 // MARK: - MultiWalletMainContentRoutable protocol conformance

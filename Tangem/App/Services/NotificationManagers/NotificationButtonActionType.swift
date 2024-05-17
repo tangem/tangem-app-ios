@@ -16,7 +16,6 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     case refresh
     case refreshFee
     case goToProvider
-    case exchange
     case reduceAmountBy(amount: Decimal, amountFormatted: String)
     case reduceAmountTo(amount: Decimal, amountFormatted: String)
     case bookNow(promotionLink: URL)
@@ -44,8 +43,6 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return Localization.warningButtonRefresh
         case .goToProvider:
             return Localization.commonGoToProvider
-        case .exchange:
-            return Localization.tokenSwapPromotionButton
         case .reduceAmountBy(_, let amountFormatted):
             return Localization.sendNotificationReduceBy(amountFormatted)
         case .reduceAmountTo(_, let amountFormatted):
@@ -91,8 +88,6 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .reduceAmountTo,
              .addHederaTokenAssociation:
             return .secondary
-        case .exchange:
-            return .exchangePromotionWhite
         }
     }
 }
