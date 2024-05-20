@@ -1,5 +1,5 @@
 //
-//  WalletDetailsViewModel.swift
+//  UserWalletSettingsViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,17 +9,17 @@
 import Combine
 import SwiftUI
 
-final class WalletDetailsViewModel: ObservableObject {
+final class UserWalletSettingsViewModel: ObservableObject {
     // MARK: - ViewState
 
     // MARK: - Dependencies
 
     private let userWalletModel: UserWalletModel
-    private weak var coordinator: WalletDetailsRoutable?
+    private weak var coordinator: UserWalletSettingsRoutable?
 
     init(
         userWalletModel: UserWalletModel,
-        coordinator: WalletDetailsRoutable
+        coordinator: UserWalletSettingsRoutable
     ) {
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
