@@ -1,5 +1,5 @@
 //
-//  WalletDetailsCoordinator.swift
+//  UserWalletSettingsCoordinator.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,13 +9,13 @@
 import Foundation
 import Combine
 
-class WalletDetailsCoordinator: CoordinatorObject {
+class UserWalletSettingsCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Root view model
 
-    @Published private(set) var rootViewModel: WalletDetailsViewModel?
+    @Published private(set) var rootViewModel: UserWalletSettingsViewModel?
 
     // MARK: - Child coordinators
 
@@ -30,16 +30,16 @@ class WalletDetailsCoordinator: CoordinatorObject {
     }
 
     func start(with userWalletModel: Options) {
-        rootViewModel = WalletDetailsViewModel(userWalletModel: userWalletModel, coordinator: self)
+        rootViewModel = UserWalletSettingsViewModel(userWalletModel: userWalletModel, coordinator: self)
     }
 }
 
 // MARK: - Options
 
-extension WalletDetailsCoordinator {
+extension UserWalletSettingsCoordinator {
     typealias Options = UserWalletModel
 }
 
-// MARK: - WalletDetailsRoutable
+// MARK: - UserWalletSettingsRoutable
 
-extension WalletDetailsCoordinator: WalletDetailsRoutable {}
+extension UserWalletSettingsCoordinator: UserWalletSettingsRoutable {}
