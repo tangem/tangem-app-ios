@@ -90,6 +90,9 @@ extension Analytics {
 
         case balance = "Balance"
 
+        // Transaction is sent
+        case sent = "Sent"
+
         // MARK: - Express
 
         case status = "Status"
