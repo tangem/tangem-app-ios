@@ -128,6 +128,10 @@ final class UserWalletNotificationManager {
                 return
             }
 
+            if Task.isCancelled {
+                return
+            }
+
             let factory = BannerPromotionNotificationFactory()
             let button = factory.buildNotificationButton(actionType: .bookNow(promotionLink: promotionLink)) { [weak self] id, action in
                 var parameters = BannerNotificationEvent.travala(description: "").analyticsParams
@@ -143,11 +147,15 @@ final class UserWalletNotificationManager {
                 dismissAction: dismissAction
             )
 
-            guard !notificationInputsSubject.value.contains(where: { $0.id == input.id }) else {
-                return
-            }
-
             await runOnMain {
+                if Task.isCancelled {
+                    return
+                }
+
+                guard !self.notificationInputsSubject.value.contains(where: { $0.id == input.id }) else {
+                    return
+                }
+
                 self.notificationInputsSubject.value.insert(input, at: 0)
             }
         }
