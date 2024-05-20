@@ -35,6 +35,10 @@ class VisaConfigProvider {
     func getRegistryAddress(isTestnet: Bool) -> String {
         return isTestnet ? config.testnet.paymentAccountRegistry : config.mainnet.paymentAccountRegistry
     }
+
+    func getTxHistoryAPIAdditionalHeaders() -> [String: String] {
+        config.txHistoryAPIAdditionalHeaders
+    }
 }
 
 private struct VisaConfig: Decodable {
@@ -45,4 +49,5 @@ private struct VisaConfig: Decodable {
 
     let testnet: Addresses
     let mainnet: Addresses
+    let txHistoryAPIAdditionalHeaders: [String: String]
 }
