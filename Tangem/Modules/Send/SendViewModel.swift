@@ -96,40 +96,39 @@ final class SendViewModel: ObservableObject {
     private var currentPageAnimating: Bool? = nil
     private var didReachSummaryScreen: Bool
 
-    private var currentStepValid: AnyPublisher<Bool, Never> {
-        let inputFieldsValid = $step
-            .flatMap { [weak self] step -> AnyPublisher<Bool, Never> in
-                guard let self else {
-                    return .just(output: true)
-                }
+    private var validSteps: AnyPublisher<[SendStep], Never> {
+        let summaryValid = Publishers.CombineLatest(
+            sendModel.transactionCreationError.map { $0 != nil }.eraseToAnyPublisher(),
+            notificationManager.hasNotifications(with: .critical)
+        )
+        .map { hasTransactionErrors, hasCriticalNotifications in
+            !hasTransactionErrors && !hasCriticalNotifications
+        }
+        .eraseToAnyPublisher()
 
-                switch step {
-                case .amount:
-                    return sendModel.amountValid
-                case .destination:
-                    return sendModel.destinationValid
-                case .fee:
-                    return sendModel.feeValid
-                case .summary:
-                    return sendModel.transactionCreationError
-                        .map { $0 == nil }
-                        .eraseToAnyPublisher()
-                case .finish:
-                    return .just(output: true)
-                }
+        return Publishers.CombineLatest4(
+            sendModel.destinationValid,
+            sendModel.amountValid,
+            sendModel.feeValid,
+            summaryValid
+        )
+        .map { destinationValid, amountValid, feeValid, summaryValid in
+            var validSteps: [SendStep] = []
+            if destinationValid {
+                validSteps.append(.destination)
             }
-
-        let hasTransactionCreationError = Publishers.CombineLatest($step, sendModel.transactionCreationError)
-            .map { step, error in
-                guard let validationError = error as? ValidationError else { return false }
-                return validationError.step == step
+            if amountValid {
+                validSteps.append(.amount)
             }
-
-        return Publishers.CombineLatest(inputFieldsValid, hasTransactionCreationError)
-            .map { inputFieldsValid, hasTransactionCreationError in
-                inputFieldsValid && !hasTransactionCreationError
+            if feeValid {
+                validSteps.append(.fee)
             }
-            .eraseToAnyPublisher()
+            if summaryValid {
+                validSteps.append(.summary)
+            }
+            return validSteps
+        }
+        .eraseToAnyPublisher()
     }
 
     init(
@@ -361,17 +360,9 @@ final class SendViewModel: ObservableObject {
             .assign(to: \.mainButtonLoading, on: self, ownership: .weak)
             .store(in: &bag)
 
-        Publishers.CombineLatest3(currentStepValid, $step, notificationManager.hasNotifications(with: .critical))
-            .map { currentStepValid, step, hasCriticalNotifications in
-                if !currentStepValid {
-                    return true
-                }
-
-                if step == .summary, hasCriticalNotifications {
-                    return true
-                }
-
-                return false
+        Publishers.CombineLatest(validSteps, $step)
+            .map { validSteps, step in
+                !validSteps.contains(step)
             }
             .assign(to: \.mainButtonDisabled, on: self, ownership: .weak)
             .store(in: &bag)
