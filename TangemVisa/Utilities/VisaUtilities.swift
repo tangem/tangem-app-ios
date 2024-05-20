@@ -30,13 +30,3 @@ public struct VisaUtilities {
         .polygon(testnet: true)
     }
 }
-
-internal extension VisaUtilities {
-    var registryAddress: String {
-        if visaBlockchain.isTestnet {
-            return "0x3f4ae01073d1a9d5a92315fe118e57d1cdec7c44"
-        }
-
-        return "0xa7299243262087462a040c743ab6c8649ebcc1fe"
-    }
-}
