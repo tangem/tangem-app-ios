@@ -32,22 +32,29 @@ struct SettingsUserWalletRowView: View {
 
     @ViewBuilder
     private var icon: some View {
+        image
+            .frame(width: 36, height: 36)
+            .skeletonable(
+                isShown: viewModel.icon.isLoading,
+                size: CGSize(width: 36, height: 22),
+                paddings: EdgeInsets(top: 7, leading: 0, bottom: 7, trailing: 0)
+            )
+    }
+
+    @ViewBuilder
+    private var image: some View {
         switch viewModel.icon {
         case .loading:
-            SkeletonView()
-                .frame(width: 36, height: 22)
-                .cornerRadiusContinuous(3)
+            Color.clear
         case .loaded(let image):
             image.image
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 36, height: 36)
 
         case .failedToLoad:
             Assets.Onboarding.darkCard.image
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 36, height: 36)
         }
     }
 
@@ -122,7 +129,9 @@ struct SettingsUserWalletRowView: View {
                     cardsCount: 2,
                     isUserWalletLocked: true,
                     totalBalancePublisher: .just(output: .failedToLoad(error: CommonError.noData)),
-                    cardImagePublisher: .just(output: .embedded(Assets.Onboarding.darkCard.uiImage)),
+                    cardImagePublisher: .just(output: .embedded(Assets.Onboarding.darkCard.uiImage))
+                        .delay(for: 4, scheduler: DispatchQueue.main)
+                        .eraseToAnyPublisher(),
                     tapAction: {}
                 )
             )
