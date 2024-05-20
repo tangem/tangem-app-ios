@@ -194,11 +194,12 @@ extension SendNotificationEvent {
         case summary
     }
 
-    var location: Location {
+    var locations: [Location] {
         switch self {
         case .networkFeeUnreachable:
-            return .feeLevels
-        case .minimumAmount,
+            return [.feeLevels, .summary]
+        case .feeWillBeSubtractFromSendingAmount,
+             .minimumAmount,
              .existentialDeposit,
              .withdrawalOptionalAmountChange,
              .withdrawalMandatoryAmountChange,
@@ -208,9 +209,8 @@ extension SendNotificationEvent {
              .feeExceedsBalance,
              .cardanoHasTokens,
              .cardanoInsufficientBalanceToSendToken,
-             .cardanoWillBeSentWithToken,
-             .feeWillBeSubtractFromSendingAmount:
-            return .summary
+             .cardanoWillBeSentWithToken,:
+            return [.summary]
         }
     }
 }
