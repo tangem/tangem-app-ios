@@ -209,7 +209,7 @@ extension SendNotificationEvent {
              .feeExceedsBalance,
              .cardanoHasTokens,
              .cardanoInsufficientBalanceToSendToken,
-             .cardanoWillBeSentWithToken,:
+             .cardanoWillBeSentWithToken:
             return [.summary]
         }
     }
