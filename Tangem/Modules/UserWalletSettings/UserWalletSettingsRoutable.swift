@@ -1,5 +1,5 @@
 //
-//  WalletDetailsRoutable.swift
+//  UserWalletSettingsRoutable.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,4 +8,4 @@
 
 import Foundation
 
-protocol WalletDetailsRoutable: AnyObject {}
+protocol UserWalletSettingsRoutable: AnyObject {}
