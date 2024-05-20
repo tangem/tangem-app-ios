@@ -25,7 +25,7 @@ class DetailsCoordinator: CoordinatorObject {
 
     @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
     @Published var walletConnectCoordinator: WalletConnectCoordinator? = nil
-    @Published var walletsDetailsCoordinator: WalletDetailsCoordinator? = nil
+    @Published var walletsDetailsCoordinator: UserWalletSettingsCoordinator? = nil
     @Published var cardSettingsCoordinator: CardSettingsCoordinator? = nil
     @Published var appSettingsCoordinator: AppSettingsCoordinator? = nil
     @Published var referralCoordinator: ReferralCoordinator? = nil
@@ -97,8 +97,8 @@ extension DetailsCoordinator: DetailsRoutable {
         scanCardSettingsViewModel = ScanCardSettingsViewModel(cardScanner: cardScanner, coordinator: self)
     }
 
-    func openWalletsSettings(options: WalletDetailsCoordinator.Options) {
-        let coordinator = WalletDetailsCoordinator(popToRootAction: popToRootAction)
+    func openWalletsSettings(options: UserWalletSettingsCoordinator.Options) {
+        let coordinator = UserWalletSettingsCoordinator(popToRootAction: popToRootAction)
         coordinator.start(with: options)
         walletsDetailsCoordinator = coordinator
     }
