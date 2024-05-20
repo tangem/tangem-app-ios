@@ -67,11 +67,6 @@ struct SendScreenDataCollector: EmailDataCollector {
         // Did display current wallet manager curreny host by provider
         data.append(EmailCollectedData(type: .wallet(.walletManagerHost), data: walletModel.blockchainDataProvider.currentHost))
 
-        // The last retry attempt by the host caused an error
-        if let exceptionHost = lastError?.lastRetryHost {
-            data.append(EmailCollectedData(type: .wallet(.execptionWalletManagerHost), data: exceptionHost))
-        }
-
         if let outputsDescription = walletModel.blockchainDataProvider.outputsCount?.description {
             data.append(EmailCollectedData(type: .wallet(.outputsCount), data: outputsDescription))
         }
@@ -93,7 +88,9 @@ struct SendScreenDataCollector: EmailDataCollector {
             EmailCollectedData(type: .send(.isFeeIncluded), data: "\(isFeeIncluded)"),
         ])
 
-        if let txHex = lastError?.lastRetryHost {
+        // The last retry attempt by the host caused an error with txHex string
+        if let exceptionHost = lastError?.lastRetryHost, let txHex = lastError?.tx {
+            data.append(EmailCollectedData(type: .wallet(.exceptionWalletManagerHost), data: exceptionHost))
             data.append(EmailCollectedData(type: .send(.transactionHex), data: txHex))
         }
 
