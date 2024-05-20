@@ -12,15 +12,22 @@ class UserWalletNameIndexationHelper {
     private var indexesByNameTemplate: [String: [Int]] = [:]
     private let nameComponentsRegex = try! NSRegularExpression(pattern: "^(.+)(\\s+\\d+)$")
 
-    init(names: [String]) {
+    init(mode: Mode, names: [String]) {
         for name in names {
-            guard let nameComponents = nameComponents(from: name) else { continue }
+            guard let nameComponents = nameComponents(from: name) else {
+                if mode == .newName {
+                    addIndex(1, for: name )
+                }
+                continue
+            }
 
             let indexesByNameTemplate = indexesByNameTemplate[nameComponents.template] ?? []
             if !indexesByNameTemplate.contains(nameComponents.index) {
                 addIndex(nameComponents.index, for: nameComponents.template)
             }
         }
+        
+        print("\ndefault names", indexesByNameTemplate)
     }
 
     func suggestedName(_ rawName: String) -> String {
@@ -47,15 +54,13 @@ class UserWalletNameIndexationHelper {
 
     private func nextIndex(for nameTemplate: String) -> Int {
         let indexes = indexesByNameTemplate[nameTemplate] ?? []
-
-        for (arrayIndex, nameIndex) in indexes.enumerated() {
-            let potentialNameIndex = (arrayIndex + 1)
-            if potentialNameIndex != nameIndex {
-                let nextIndex = potentialNameIndex
-                return nextIndex
+        
+        for i in 1...100 {
+            if !indexes.contains(i) {
+                return i
             }
         }
-
+        
         let defaultIndex = indexes.count + 1
         return defaultIndex
     }
@@ -76,6 +81,13 @@ class UserWalletNameIndexationHelper {
 
         let template = String(name[templateRange])
         return NameComponents(template: template, index: index)
+    }
+}
+
+extension UserWalletNameIndexationHelper {
+    enum Mode {
+        case migration
+        case newName
     }
 }
 
