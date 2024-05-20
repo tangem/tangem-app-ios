@@ -174,7 +174,7 @@ class VisaWalletModel {
 
         let appUtilities = VisaAppUtilities()
         guard let walletPublicKey = appUtilities.makeBlockchainKey(using: userWalletModel.keysRepository.keys) else {
-            stateSubject.send(.failedToInitialize(.invalidBlockchain))
+            stateSubject.send(.failedToInitialize(.failedToGenerateAddress))
             return
         }
 
