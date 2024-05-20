@@ -80,6 +80,7 @@ extension Analytics {
         case receiveScreenOpened = "[Token / Receive] Receive Screen Opened"
         case buttonCopyAddress = "[Token / Receive] Button - Copy Address"
         case buttonShareAddress = "[Token / Receive] Button - Share Address"
+        case buttonAddTokenTrustline = "[Token] Button - Token Trustline"
 
         // MARK: - Send
 
@@ -260,5 +261,11 @@ extension Analytics {
 
         case promotionBannerAppeared = "[Promotion] Notice - Promotion Banner"
         case promotionBannerClicked = "[Promotion] Promo Banner Clicked"
+
+        // MARK: - Errors
+
+        case cantScanTheCard = "[Errors] Cant Scan The Card"
+        case cantScanTheCardButtonBlog = "[Errors] Cant Scan The Card - Button Blog"
+        case cantScanTheCardTryAgainButton = "[Errors] Cant Scan The Card - Try Again Button"
     }
 }
