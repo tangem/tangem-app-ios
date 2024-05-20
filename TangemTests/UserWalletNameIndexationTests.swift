@@ -36,7 +36,7 @@ class UserWalletNameIndexationTests: XCTestCase {
         let names = testNames.map(\.0)
         let expectedNamesAfterMigration = testNames.map(\.1)
 
-        let helper = UserWalletNameIndexationHelper(names: names)
+        let helper = UserWalletNameIndexationHelper(mode: .migration, names: names)
 
         let migratedNames = names.map { name in
             helper.suggestedName(name)
