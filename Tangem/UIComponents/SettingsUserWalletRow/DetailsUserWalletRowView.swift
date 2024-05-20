@@ -1,5 +1,5 @@
 //
-//  DetailsUserWalletRowView.swift
+//  SettingsUserWalletRowView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,8 +9,8 @@
 import Foundation
 import SwiftUI
 
-struct DetailsUserWalletRowView: View {
-    let viewModel: DetailsUserWalletRowViewModel
+struct SettingsUserWalletRowView: View {
+    let viewModel: SettingsUserWalletRowViewModel
 
     var body: some View {
         Button(action: viewModel.tapAction) {
@@ -78,12 +78,12 @@ struct DetailsUserWalletRowView: View {
     }
 }
 
-#Preview("DetailsUserWalletRowView") {
+#Preview("SettingsUserWalletRowView") {
     ZStack {
         Colors.Background.tertiary.ignoresSafeArea()
 
         VStack {
-            DetailsUserWalletRowView(
+            SettingsUserWalletRowView(
                 viewModel: .init(
                     name: "My wallet",
                     cardsCount: 3,
@@ -94,7 +94,7 @@ struct DetailsUserWalletRowView: View {
                 )
             )
 
-            DetailsUserWalletRowView(
+            SettingsUserWalletRowView(
                 viewModel: .init(
                     name: "My wallet",
                     cardsCount: 2,
@@ -105,7 +105,7 @@ struct DetailsUserWalletRowView: View {
                 )
             )
 
-            DetailsUserWalletRowView(
+            SettingsUserWalletRowView(
                 viewModel: .init(
                     name: "Old wallet",
                     cardsCount: 2,
@@ -116,7 +116,7 @@ struct DetailsUserWalletRowView: View {
                 )
             )
 
-            DetailsUserWalletRowView(
+            SettingsUserWalletRowView(
                 viewModel: .init(
                     name: "Locked wallet",
                     cardsCount: 2,
