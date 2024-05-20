@@ -13,7 +13,7 @@
 "alert_manage_tokens_unsupported_message" = "Tokens in %1$@ network are not supported by this card due to firmware limitation.";
 "alert_negative_app_rate_sent_message" = "Thank you for your feedback. We will respond as soon as possible";
 "alert_negative_app_rate_sent_title" = "Your suggestions were sent";
-"alert_troubleshooting_scan_card_message" = "Please try to tap the card exactly as shown in the animation or request support.";
+"alert_troubleshooting_scan_card_message" = "Please try to tap the card exactly as shown in the animation or read our simple guide, or request support. If the problem persists, please request support.";
 "alert_troubleshooting_scan_card_title" = "Are you having difficulty scanning your card?";
 "app_settings_default_fee" = "Default Fee";
 "app_settings_default_fee_footer" = "Enable Default Fee to set transaction fees automatically and skip the Fee page when sending funds. You can always go back to this page if necessary.";
@@ -471,8 +471,8 @@
 "send_notification_invalid_minimum_amount_text" = "The minimum sending amount is %1$@. Please ensure that the remaining balance after sending will not be less than %2$@.";
 "send_notification_invalid_reserve_amount_text" = "Target account is not created. Please change the amount to send.";
 "send_notification_invalid_reserve_amount_title" = "The amount to send must be at least %@";
+"send_notification_leave_button" = "Leave %@";
 "send_notification_reduce_by" = "Reduce by %@";
-"send_notification_reduce_to" = "Reduce to %@";
 "send_notification_transaction_delay_text" = "Kindly be aware that your transaction may experience delays under specific fee settings";
 "send_notification_transaction_delay_title" = "Transaction delays are possible";
 "send_notification_transaction_limit_text" = "Due to %1$@ limitations only %2$@ UTXOs can fit in a single transaction. This means you can only send %3$@ or less. You need to reduce the amount.";
@@ -628,6 +628,8 @@
 "warning_access_denied_message" = "Use %@ or scan a card to unlock access to your wallet";
 "warning_backup_errors_message" = "Please withdraw all funds from this wallet, reset it to factory settings, and create a new one. Access to the current wallet will be lost.";
 "warning_backup_errors_title" = "Activation error";
+"warning_bnb_retirement_message" = "BNB network developers will end support for the BEP-2 standard in June 2024. To avoid losing assets on this standard, please swap them in the app to the BNB Smart Chain (BEP-20) or use third-party services.";
+"warning_bnb_retirement_title" = "BNB Beacon Chain will shut down";
 "warning_button_could_be_better" = "Could be better";
 "warning_button_ok" = "Ok, je l'ai!";
 "warning_button_really_cool" = "Really cool!";
@@ -654,6 +656,11 @@
 "warning_express_wrong_amount_description" = "Please change the amount to swap";
 "warning_failed_to_verify_card_message" = "This card might be a production sample or counterfeit";
 "warning_failed_to_verify_card_title" = "Authenticity check failed";
+"warning_hedera_missing_token_association_button_title" = "Associate";
+"warning_hedera_missing_token_association_message" = "This token must be associated with your Hedera account before you can receive it. Association fee ~%1$@ %2$@";
+"warning_hedera_missing_token_association_message_brief" = "This token must be associated with your Hedera account before you can receive it";
+"warning_hedera_missing_token_association_title" = "Associate your token";
+"warning_hedera_token_association_not_enough_hbar_message" = "Not enough %@. Top up your Hedera account to associate this token";
 "warning_long_transaction_message" = "iPhone 7/7+ cannot sign transactions on this network. To complete this operation, please use a different phone.";
 "warning_long_transaction_title" = "Transaction signing unavailable";
 "warning_low_signatures_message" = "Only %@ signatures are left on this card. You must withdraw all of your funds.";
@@ -673,6 +680,7 @@
 "warning_old_device_old_card_title" = "Device incompatibility detected";
 "warning_rate_app_message" = "Your review keeps us motivated to make Tangem Wallet even better";
 "warning_rate_app_title" = "Enjoying Tangem?";
+"warning_receive_blocked_hedera_token_association_required_message" = "You must associate your token before receiving tokens";
 "warning_rent_fee_title" = "Network rent fee required";
 "warning_send_blocked_funds_for_fee_message" = "%1$@ is an asset in the %2$@ network. To make a %3$@ transaction, you must deposit some %4$@ (%5$@) to cover the network fee.";
 "warning_send_blocked_funds_for_fee_title" = "Insufficient %1$@ to cover network fee";
