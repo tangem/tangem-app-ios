@@ -294,8 +294,6 @@ extension UserWalletNotificationManager: NotificationManager {
 
         if let event = notification.settings.event as? BannerNotificationEvent {
             switch event {
-            case .changelly:
-                bannerPromotionService.hide(promotion: .changelly, on: .main)
             case .travala:
                 var parameters = event.analyticsParams
                 parameters[.action] = Analytics.ParameterValue.closed.rawValue
