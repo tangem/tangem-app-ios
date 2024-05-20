@@ -98,7 +98,7 @@ private extension CommonTokenQuotesRepository {
             .store(in: &bag)
 
         NotificationCenter.default
-            .publisher(for: UIApplication.didBecomeActiveNotification)
+            .publisher(for: UIApplication.willEnterForegroundNotification) //We can't use didBecomeActive because of NFC interaction app state changes
             .withWeakCaptureOf(self)
             .flatMap { repository, _ in
                 // Reload saved quotes
