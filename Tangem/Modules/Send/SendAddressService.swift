@@ -64,7 +64,7 @@ class DefaultSendAddressService: SendAddressService {
         if let addressAdditionalFieldService = addressService as? AddressAdditionalFieldService {
             return addressAdditionalFieldService.canEmbedAdditionalField(into: address)
         } else {
-            return false
+            return true
         }
     }
 }
