@@ -55,17 +55,19 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
 
     var body: some View {
         if !models.isEmpty {
-            VStack(alignment: .leading, spacing: GroupedSectionConstants.headerFooterSpacing) {
-                header()
-                    .padding(.horizontal, horizontalPadding)
+            VStack(alignment: .leading, spacing: GroupedSectionConstants.footerSpacing) {
+                VStack(alignment: .leading, spacing: .zero) {
+                    header()
+                        .padding(.horizontal, horizontalPadding)
 
-                VStack(alignment: contentAlignment, spacing: interItemSpacing) {
-                    ForEach(models) { model in
-                        content(model)
-                            .padding(.horizontal, horizontalPadding)
+                    VStack(alignment: contentAlignment, spacing: interItemSpacing) {
+                        ForEach(models) { model in
+                            content(model)
+                                .padding(.horizontal, horizontalPadding)
 
-                        if models.last?.id != model.id {
-                            separator
+                            if models.last?.id != model.id {
+                                separator
+                            }
                         }
                     }
                 }
@@ -109,7 +111,8 @@ extension GroupedSection {
 enum GroupedSectionConstants {
     static let defaultHorizontalPadding: CGFloat = 14
     static let defaultCornerRadius: CGFloat = 14
-    static let headerFooterSpacing: CGFloat = 8
+    static let headerSpacing: CGFloat = 12
+    static let footerSpacing: CGFloat = 8
 }
 
 extension GroupedSection: Setupable {
