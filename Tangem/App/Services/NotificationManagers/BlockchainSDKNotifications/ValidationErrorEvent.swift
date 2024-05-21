@@ -24,30 +24,22 @@ enum ValidationErrorEvent {
     case cardanoInsufficientBalanceToSendToken(tokenSymbol: String)
 }
 
-// Express | Send
 extension ValidationErrorEvent: NotificationEvent {
     var title: NotificationView.Title {
         switch self {
         case .invalidNumber:
-            // NaN | NaN
             return .string(Localization.commonError)
         case .insufficientBalance:
-            // NaN | Total exceeds balance
             return .string(Localization.sendNotificationExceedBalanceTitle)
         case .insufficientBalanceForFee(let configuration):
-            // NaN | Insufficient %1$@ to cover network fee
             return .string(Localization.warningSendBlockedFundsForFeeTitle(configuration.feeAmountTypeName))
         case .dustRestriction:
-            // Invalid amount | Invalid amount
             return .string(Localization.sendNotificationInvalidAmountTitle)
         case .existentialDeposit:
-            // Network requires Existential Deposit | Existential deposit
             return .string(Localization.warningExistentialDepositTitle)
         case .amountExceedMaximumUTXO:
-            // Transaction limitation | Transaction limitation
             return .string(Localization.sendNotificationTransactionLimitTitle)
         case .insufficientAmountToReserveAtDestination(let minimumAmountText):
-            // The amount to send must be at least %@ | Same but in the alert
             return .string(Localization.sendNotificationInvalidReserveAmountTitle(minimumAmountText))
         case .cardanoCannotBeSentBecauseHasTokens:
             return .string(Localization.sendNotificationInvalidAmountTitle)
@@ -61,10 +53,8 @@ extension ValidationErrorEvent: NotificationEvent {
         case .invalidNumber:
             return nil
         case .insufficientBalance:
-            // NaN | Insufficient funds for the transfer, as the total of the fee and transfer amount exceeds the existing balance
             return Localization.sendNotificationExceedBalanceText
         case .insufficientBalanceForFee(let configuration):
-            // NaN | Look below
             return Localization.warningSendBlockedFundsForFeeMessage(
                 configuration.transactionAmountTypeName,
                 configuration.networkName,
@@ -73,20 +63,12 @@ extension ValidationErrorEvent: NotificationEvent {
                 configuration.feeAmountTypeCurrencySymbol
             )
         case .dustRestriction(let minimumAmountText, let minimumChangeText):
-            // The minimum swapping amount is %1$@. Please ensure that the remaining balance after the swap will not be less than %2$@. |
-            // The minimum sending amount is %1$@. Please ensure that the remaining balance after sending will not be less than %2$@.
             return Localization.warningExpressDustMessage(minimumAmountText, minimumChangeText)
         case .existentialDeposit(let blockchainName, let amount):
-            // %1$@ network requires an Existential Deposit. If your account drops below %2$@, it will be deactivated, and any remaining funds will be destroyed. |
-            // The account will be wiped from the blockchain if a balance goes below the existential deposit. Please leave %@ on your balance.
             return Localization.warningExistentialDepositMessage(blockchainName, amount)
         case .amountExceedMaximumUTXO(_, let amountFormatted, let blockchainName, let maxUtxo):
-            // Due to %1$@ limitations only %2$@ UTXOs can fit in a single transaction. This means you can only send %3$@ or less. You need to reduce the amount. |
-            // Due to %1$@ limitations only %2$@ UTXOs can fit in a single transaction. This means you can only send %3$@ or less. You need to reduce the amount.
             return Localization.sendNotificationTransactionLimitText(blockchainName, maxUtxo, amountFormatted)
         case .insufficientAmountToReserveAtDestination(let maximumAmountText):
-            // Target account is not created. Please change the amount to send. |
-            // TBD on Send
             return Localization.sendNotificationInvalidReserveAmountText
         case .cardanoCannotBeSentBecauseHasTokens:
             return Localization.cardanoMaxAmountHasTokenDescription
