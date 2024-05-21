@@ -96,7 +96,7 @@ private extension UserWalletSettingsViewModel {
         }
 
         forgetViewModel = DefaultRowViewModel(
-            title: "Forget wallet",
+            title: Localization.settingsForgetWallet,
             action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapDeleteWallet)
         )
     }
