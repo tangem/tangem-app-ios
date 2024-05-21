@@ -9,22 +9,28 @@
 import Foundation
 
 struct CommonTokenPriceFormatter {
-    private let balanceFormatter: BalanceFormatter
-
-    init(balanceFormatter: BalanceFormatter) {
-        self.balanceFormatter = balanceFormatter
-    }
+    private let balanceFormatter = BalanceFormatter()
 }
 
 // MARK: - FeeFormatter
 
-extension CommonTokenPriceFormatter: TokenPriceFormatter {
+extension CommonTokenPriceFormatter {
+    private var tokenPriceFiatFormattingOptions: BalanceFormattingOptions {
+        .init(
+            minFractionDigits: 2,
+            maxFractionDigits: 6,
+            formatEpsilonAsLowestRepresentableValue: false,
+            roundingType: .default(roundingMode: .plain, scale: 6)
+        )
+    }
+
     func formatFiatBalance(_ value: Decimal?) -> String {
         guard let value else {
             return balanceFormatter.formatFiatBalance(value)
         }
 
-        let fiatFormattingOptions: BalanceFormattingOptions = value > Constants.boundaryLowDigitOptions ? .defaultFiatFormattingOptions : .lowPriceFiatFormattingOptions
+        let fiatFormattingOptions: BalanceFormattingOptions = value > Constants.boundaryLowDigitOptions ? .defaultFiatFormattingOptions : tokenPriceFiatFormattingOptions
+
         return balanceFormatter.formatDecimal(value, formattingOptions: fiatFormattingOptions)
     }
 }
