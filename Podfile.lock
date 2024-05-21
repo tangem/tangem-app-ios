@@ -294,7 +294,7 @@ CHECKOUT OPTIONS:
     :git: https://github.com/tangem/bitcoincore.git
     :tag: 0.0.20
   BlockchainSdk:
-    :commit: e2388edb357561b3f45bc15ffadf7f6fef2fbbc3
+    :commit: 442335fcd063f0683d126d54e30dfd60b5d4054e
     :git: https://github.com/tangem/blockchain-sdk-swift.git
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
@@ -350,6 +350,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   WalletConnectSwiftV2: c1c2c2fbd0495860baf71515be1b943f0c5dce0c
 
-PODFILE CHECKSUM: 1dcd0aac7cca911dded4aa8ab3bfb853c911c49f
+PODFILE CHECKSUM: 1c005904ee6cd1f6fefdfb7d669ae7931aca44ef
 
 COCOAPODS: 1.15.2
