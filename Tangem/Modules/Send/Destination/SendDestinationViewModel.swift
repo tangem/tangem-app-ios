@@ -175,6 +175,7 @@ class SendDestinationViewModel: ObservableObject {
                     return []
                 }
 
+                #warning("[REDACTED_TODO_COMMENT]")
                 let transactions = records
                     .sorted {
                         ($0.date ?? Date()) > ($1.date ?? Date())
