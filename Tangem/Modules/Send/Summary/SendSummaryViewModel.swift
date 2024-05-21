@@ -29,6 +29,7 @@ protocol SendSummaryViewModelInput: AnyObject {
 class SendSummaryViewModel: ObservableObject {
     let canEditAmount: Bool
     let canEditDestination: Bool
+    @Published var canEditFee: Bool = true
 
     var destinationBackground: Color {
         sectionBackground(canEdit: canEditDestination)
@@ -58,7 +59,6 @@ class SendSummaryViewModel: ObservableObject {
     @Published var animatingAmountOnAppear = false
     @Published var animatingFeeOnAppear = false
     @Published var showHint = false
-    @Published var showNotifications = true
     @Published var transactionDescription: String?
     @Published var showTransactionDescription = true
 
@@ -114,7 +114,6 @@ class SendSummaryViewModel: ObservableObject {
         }
 
         showHint = false
-        showNotifications = false
         showTransactionDescription = false
     }
 
@@ -125,7 +124,6 @@ class SendSummaryViewModel: ObservableObject {
             self.animatingDestinationOnAppear = false
             self.animatingAmountOnAppear = false
             self.animatingFeeOnAppear = false
-            self.showNotifications = !self.notificationInputs.isEmpty
             self.showTransactionDescription = self.transactionDescription != nil
         }
 
@@ -199,6 +197,7 @@ class SendSummaryViewModel: ObservableObject {
 
                 self.selectedFeeSummaryViewModel = selectedFeeSummaryViewModel
                 self.deselectedFeeRowViewModels = deselectedFeeRowViewModels
+                canEditFee = feeValues.allSatisfy { $0.value.error == nil }
             }
             .store(in: &bag)
 
@@ -245,9 +244,15 @@ class SendSummaryViewModel: ObservableObject {
             totalInFiat = nil
         }
 
+        let formattingOptions = BalanceFormattingOptions(
+            minFractionDigits: BalanceFormattingOptions.defaultFiatFormattingOptions.minFractionDigits,
+            maxFractionDigits: BalanceFormattingOptions.defaultFiatFormattingOptions.maxFractionDigits,
+            formatEpsilonAsLowestRepresentableValue: true,
+            roundingType: BalanceFormattingOptions.defaultFiatFormattingOptions.roundingType
+        )
         let formatter = BalanceFormatter()
-        let totalInFiatFormatted = formatter.formatFiatBalance(totalInFiat)
-        let feeInFiatFormatted = formatter.formatFiatBalance(feeInFiat)
+        let totalInFiatFormatted = formatter.formatFiatBalance(totalInFiat, formattingOptions: formattingOptions)
+        let feeInFiatFormatted = formatter.formatFiatBalance(feeInFiat, formattingOptions: formattingOptions)
 
         return Localization.sendSummaryTransactionDescription(totalInFiatFormatted, feeInFiatFormatted)
     }
