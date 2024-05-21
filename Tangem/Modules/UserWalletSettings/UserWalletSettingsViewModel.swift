@@ -138,10 +138,6 @@ private extension UserWalletSettingsViewModel {
     }
 
     func didConfirmWalletDeletion() {
-        guard let userWalletModel = userWalletRepository.selectedModel else {
-            return
-        }
-
         userWalletRepository.delete(userWalletModel.userWalletId, logoutIfNeeded: true)
         coordinator?.dismiss()
     }
