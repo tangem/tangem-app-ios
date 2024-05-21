@@ -398,8 +398,8 @@ private extension ExpressInteractor {
         let fee = try selectedFee(fees: fees)
         let amount = makeAmount(value: previewCEX.quote.fromAmount)
 
-        let withdrawalSuggestionProvider = getSender().withdrawalSuggestionProvider
-        let suggestion = withdrawalSuggestionProvider?.withdrawalSuggestion(amount: amount, fee: fee.amount)
+        let withdrawalNotificationProvider = getSender().withdrawalNotificationProvider
+        let suggestion = withdrawalNotificationProvider?.withdrawalSuggestion(amount: amount, fee: fee.amount)
 
         // Check on the minimum received amount
         // Almost impossible case because the providers check it on their side
