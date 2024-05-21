@@ -36,7 +36,7 @@ extension ValidationErrorEvent: NotificationEvent {
         case .dustRestriction:
             return .string(Localization.sendNotificationInvalidAmountTitle)
         case .existentialDeposit:
-            return .string(Localization.warningExistentialDepositTitle)
+            return .string(Localization.sendNotificationExistentialDepositTitle)
         case .amountExceedMaximumUTXO:
             return .string(Localization.sendNotificationTransactionLimitTitle)
         case .insufficientAmountToReserveAtDestination(let minimumAmountText):
@@ -64,8 +64,8 @@ extension ValidationErrorEvent: NotificationEvent {
             )
         case .dustRestriction(let minimumAmountText, let minimumChangeText):
             return Localization.warningExpressDustMessage(minimumAmountText, minimumChangeText)
-        case .existentialDeposit(let blockchainName, let amount):
-            return Localization.warningExistentialDepositMessage(blockchainName, amount)
+        case .existentialDeposit(_, let amountFormatted):
+            return Localization.sendNotificationExistentialDepositText(amountFormatted)
         case .amountExceedMaximumUTXO(_, let amountFormatted, let blockchainName, let maxUtxo):
             return Localization.sendNotificationTransactionLimitText(blockchainName, maxUtxo, amountFormatted)
         case .insufficientAmountToReserveAtDestination(let maximumAmountText):
