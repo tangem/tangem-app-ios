@@ -27,7 +27,7 @@ struct UserWalletSettingsView: View {
         }
         .interContentPadding(8)
         .background(Colors.Background.secondary.ignoresSafeArea())
-        .navigationTitle("Wallet settings")
+        .navigationTitle(Localization.walletSettingsTitle)
         .navigationBarTitleDisplayMode(.inline)
         .alert(item: $viewModel.alert) { $0.alert }
         .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
@@ -57,7 +57,7 @@ struct UserWalletSettingsView: View {
             DefaultRowView(viewModel: $0)
                 .appearance(.destructiveButton)
         } footer: {
-            DefaultFooterView("This will remove the wallet from the application. The wallet itself can be added again.")
+            DefaultFooterView(Localization.settingsForgetWalletFooter)
         }
     }
 }
