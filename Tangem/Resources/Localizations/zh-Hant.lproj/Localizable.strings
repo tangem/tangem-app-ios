@@ -497,6 +497,7 @@
 "sent_transaction_sent_title" = "Transaction sent";
 "settings_forget_wallet" = "Forget wallet";
 "settings_forget_wallet_footer" = "This will remove the wallet from the application. The wallet itself can be added again.";
+"settings_wallet_name_title" = "Name";
 "story_awe_description" = "安全地存儲您的加密貨幣，同時將私鑰保存在您的卡中";
 "story_awe_title" = "創新式的硬體錢包";
 "story_backup_description" = "最多 3張實體卡片 到一個錢包";
