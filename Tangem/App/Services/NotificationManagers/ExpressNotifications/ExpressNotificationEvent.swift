@@ -27,9 +27,9 @@ enum ExpressNotificationEvent {
     case withdrawalOptionalAmountChange(amount: Decimal, amountFormatted: String, blockchainName: String)
     case withdrawalMandatoryAmountChange(amount: Decimal, amountFormatted: String, blockchainName: String, maxUtxo: Int)
     case notEnoughReceivedAmountForReserve(amountFormatted: String)
-    case cardanoWillBeSentWithToken(cardanoAmountFormatted: String, tokenSymbol: String)
+    case cardanoWillBeSendAlongToken(cardanoAmountFormatted: String, tokenSymbol: String)
     // Try to spend all cardano when we have a token
-    case cardanoHasTokens
+    case cardanoCannotBeSentBecauseHasTokens
     case cardanoInsufficientBalanceToSendToken(tokenSymbol: String)
 }
 
@@ -70,11 +70,11 @@ extension ExpressNotificationEvent: NotificationEvent {
             return .string(Localization.sendNotificationTransactionLimitTitle)
         case .notEnoughReceivedAmountForReserve(let amountFormatted):
             return .string(Localization.warningExpressNotificationInvalidReserveAmountTitle(amountFormatted))
-        case .cardanoHasTokens:
+        case .cardanoCannotBeSentBecauseHasTokens:
             return .string(Localization.sendNotificationInvalidAmountTitle)
         case .cardanoInsufficientBalanceToSendToken:
             return .string(Localization.cardanoInsufficientBalanceToSendTokenTitle)
-        case .cardanoWillBeSentWithToken:
+        case .cardanoWillBeSendAlongToken:
             return .string(Localization.cardanoCoinWillBeSendWithTokenTitle)
         }
     }
@@ -111,9 +111,9 @@ extension ExpressNotificationEvent: NotificationEvent {
             return Localization.sendNotificationHighFeeText(amount, blockchainName)
         case .withdrawalMandatoryAmountChange(_, let amountFormatted, let blockchainName, let maxUtxo):
             return Localization.sendNotificationTransactionLimitText(blockchainName, maxUtxo, amountFormatted)
-        case .cardanoWillBeSentWithToken(let cardanoAmountFormatted, let tokenSymbol):
+        case .cardanoWillBeSendAlongToken(let cardanoAmountFormatted, let tokenSymbol):
             return Localization.cardanoCoinWillBeSendWithTokenDescription(cardanoAmountFormatted, tokenSymbol)
-        case .cardanoHasTokens:
+        case .cardanoCannotBeSentBecauseHasTokens:
             return Localization.cardanoMaxAmountHasTokenDescription
         case .cardanoInsufficientBalanceToSendToken(let tokenSymbol):
             return Localization.cardanoInsufficientBalanceToSendTokenDescription(tokenSymbol)
@@ -132,8 +132,8 @@ extension ExpressNotificationEvent: NotificationEvent {
              .feeWillBeSubtractFromSendingAmount,
              .existentialDepositWarning,
              .dustAmount,
-             .cardanoHasTokens,
-             .cardanoWillBeSentWithToken,
+             .cardanoCannotBeSentBecauseHasTokens,
+             .cardanoWillBeSendAlongToken,
              .cardanoInsufficientBalanceToSendToken:
             return .secondary
         case .notEnoughFeeForTokenTx,
@@ -155,7 +155,7 @@ extension ExpressNotificationEvent: NotificationEvent {
              .noDestinationTokens,
              .verificationRequired,
              .feeWillBeSubtractFromSendingAmount,
-             .cardanoWillBeSentWithToken:
+             .cardanoWillBeSendAlongToken:
             return .init(iconType: .image(Assets.attention.image))
         case .hasPendingApproveTransaction:
             return .init(iconType: .progressView)
@@ -168,7 +168,7 @@ extension ExpressNotificationEvent: NotificationEvent {
              .dustAmount,
              .withdrawalMandatoryAmountChange,
              .notEnoughReceivedAmountForReserve,
-             .cardanoHasTokens,
+             .cardanoCannotBeSentBecauseHasTokens,
              .cardanoInsufficientBalanceToSendToken:
             return .init(iconType: .image(Assets.redCircleWarning.image))
         case .hasPendingTransaction,
@@ -196,11 +196,11 @@ extension ExpressNotificationEvent: NotificationEvent {
              .withdrawalOptionalAmountChange,
              .withdrawalMandatoryAmountChange,
              .notEnoughReceivedAmountForReserve,
-             .cardanoWillBeSentWithToken:
+             .cardanoWillBeSendAlongToken:
             return .warning
         case .refreshRequired,
              .cexOperationFailed,
-             .cardanoHasTokens,
+             .cardanoCannotBeSentBecauseHasTokens,
              .cardanoInsufficientBalanceToSendToken:
             return .critical
         }
@@ -249,8 +249,8 @@ extension ExpressNotificationEvent: NotificationEvent {
              .withdrawalOptionalAmountChange,
              .withdrawalMandatoryAmountChange,
              .notEnoughReceivedAmountForReserve,
-             .cardanoHasTokens,
-             .cardanoWillBeSentWithToken,
+             .cardanoCannotBeSentBecauseHasTokens,
+             .cardanoWillBeSendAlongToken,
              .cardanoInsufficientBalanceToSendToken:
             return true
         }
