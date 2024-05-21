@@ -976,7 +976,7 @@ private extension LegacySendViewModel {
 // MARK: - Navigation
 
 extension LegacySendViewModel {
-    func openMail(with error: Error) {
+    func openMail(with error: SendTxError) {
         guard let transaction else { return }
 
         Analytics.log(.requestSupport, params: [.source: .transactionSourceSend])
