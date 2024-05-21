@@ -16,7 +16,7 @@ class UserWalletNameIndexationHelper {
         for name in names {
             guard let nameComponents = nameComponents(from: name) else {
                 if mode == .newName {
-                    addIndex(1, for: name )
+                    addIndex(1, for: name)
                 }
                 continue
             }
@@ -26,7 +26,7 @@ class UserWalletNameIndexationHelper {
                 addIndex(nameComponents.index, for: nameComponents.template)
             }
         }
-        
+
         print("\ndefault names", indexesByNameTemplate)
     }
 
@@ -54,13 +54,13 @@ class UserWalletNameIndexationHelper {
 
     private func nextIndex(for nameTemplate: String) -> Int {
         let indexes = indexesByNameTemplate[nameTemplate] ?? []
-        
-        for i in 1...100 {
+
+        for i in 1 ... 100 {
             if !indexes.contains(i) {
                 return i
             }
         }
-        
+
         let defaultIndex = indexes.count + 1
         return defaultIndex
     }
