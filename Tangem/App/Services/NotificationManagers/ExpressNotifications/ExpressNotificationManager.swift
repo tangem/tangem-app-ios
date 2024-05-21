@@ -114,44 +114,37 @@ class ExpressNotificationManager {
     private func setupNotification(for validationError: ValidationError) {
         guard let interactor = expressInteractor else { return }
 
-        let sourceTokenItem = interactor.getSender().tokenItem
-        let sourceTokenItemSymbol = sourceTokenItem.currencySymbol
-
+        let sender = interactor.getSender()
+        let factory = BlockchainSDKNotificationMapper(tokenItem: sender.tokenItem, feeTokenItem: sender.feeTokenItem)
+        let validationErrorEvent = factory.mapToValidationErrorEvent(validationError)
         let event: ExpressNotificationEvent
-        let notificationsFactory = NotificationsFactory()
 
-        switch validationError {
-        case .balanceNotFound, .invalidAmount, .invalidFee:
+        switch validationErrorEvent {
+        case .invalidNumber:
             event = .refreshRequired(title: Localization.commonError, message: validationError.localizedDescription)
-        case .amountExceedsBalance, .totalExceedsBalance:
+        case .insufficientBalance:
             assertionFailure("It had to mapped to ExpressInteractor.RestrictionType.notEnoughBalanceForSwapping")
             notificationInputsSubject.value = []
             return
-        case .feeExceedsBalance:
+        case .insufficientBalanceFee:
             assertionFailure("It had to mapped to ExpressInteractor.RestrictionType.notEnoughAmountForFee")
-            guard let notEnoughFeeForTokenTxEvent = makeNotEnoughFeeForTokenTx(sender: interactor.getSender()) else {
+            guard let notEnoughFeeForTokenTxEvent = makeNotEnoughFeeForTokenTx(sender: sender) else {
                 notificationInputsSubject.value = []
                 return
             }
 
             event = notEnoughFeeForTokenTxEvent
 
-        case .dustAmount(let minimumAmount), .dustChange(let minimumAmount):
-            let amountText = "\(minimumAmount.value) \(sourceTokenItemSymbol)"
-            event = .dustAmount(minimumAmountText: amountText, minimumChangeText: amountText)
-        case .minimumBalance(let minimumBalance):
-            event = .existentialDepositWarning(blockchainName: sourceTokenItem.blockchain.displayName, amount: "\(minimumBalance.value)")
-        case .maximumUTXO(let blockchainName, let newAmount, let maxUtxo):
-            event = .withdrawalMandatoryAmountChange(amount: newAmount.value, amountFormatted: newAmount.string(), blockchainName: blockchainName, maxUtxo: maxUtxo)
-        case .reserve(let amount):
-            event = .notEnoughReserveToSwap(maximumAmountText: "\(amount.value)\(sourceTokenItemSymbol)")
-        case .cardanoHasTokens:
-            event = .cardanoCannotBeSentBecauseHasTokens
-        case .cardanoInsufficientBalanceToSendToken:
-            event = .cardanoInsufficientBalanceToSendToken(tokenSymbol: sourceTokenItemSymbol)
+        case .dustAmount,
+             .existentialDepositWarning,
+             .withdrawalMandatoryAmountChange,
+             .notEnoughReserveToSwap,
+             .cardanoHasTokens,
+             .cardanoInsufficientBalanceToSendToken:
+            event = .validationErrorEvent(validationErrorEvent)
         }
 
-        let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in
+        let notification = NotificationsFactory().buildNotificationInput(for: event) { [weak self] id, actionType in
             self?.delegate?.didTapNotificationButton(with: id, action: actionType)
         }
 
@@ -205,29 +198,15 @@ class ExpressNotificationManager {
     }
 
     private func setupWithdrawalNotification(notification: WithdrawalNotification?) -> NotificationViewInput? {
-        guard let interactor = expressInteractor else {
+        guard let interactor = expressInteractor, let suggestion else {
             return nil
         }
 
-        let event: ExpressNotificationEvent
-        let sourceTokenItem = interactor.getSender().tokenItem
+        let sender = interactor.getSender()
+        let factory = BlockchainSDKNotificationMapper(tokenItem: sender.tokenItem, feeTokenItem: sender.feeTokenItem)
+        let withdrawalNotification = factory.mapToWithdrawalNotificationEvent(notification)
 
-        switch notification {
-        case .none:
-            return nil
-        case .feeIsTooHigh(let reduceAmountBy):
-            event = .withdrawalOptionalAmountChange(
-                amount: reduceAmountBy.value,
-                amountFormatted: reduceAmountBy.string(),
-                blockchainName: sourceTokenItem.blockchain.displayName
-            )
-        case .cardanoWillBeSendAlongToken(let amount):
-            event = .cardanoWillBeSendAlongToken(
-                cardanoAmountFormatted: amount.value.description,
-                tokenSymbol: sourceTokenItem.currencySymbol
-            )
-        }
-
+        let event = ExpressNotificationEvent.withdrawalNotificationEvent(withdrawalNotification)
         let notification = NotificationsFactory().buildNotificationInput(for: event) { [weak self] id, actionType in
             self?.delegate?.didTapNotificationButton(with: id, action: actionType)
         }
