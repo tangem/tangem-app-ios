@@ -167,9 +167,9 @@ extension SendNotificationEvent {
             return .refreshFee
         case .feeExceedsBalance(let configuration):
             return .openFeeCurrency(currencySymbol: configuration.feeAmountTypeCurrencySymbol)
-        case .withdrawalOptionalAmountChange(let amount, let amountFormatted, _), .existentialDeposit(let amount, let amountFormatted):
+        case .withdrawalOptionalAmountChange(let amount, let amountFormatted, _):
             return .reduceAmountBy(amount: amount, amountFormatted: amountFormatted)
-        case .withdrawalMandatoryAmountChange(let amount, let amountFormatted, _, _):
+        case .withdrawalMandatoryAmountChange(let amount, let amountFormatted, _, _), .existentialDeposit(let amount, let amountFormatted):
             return .reduceAmountTo(amount: amount, amountFormatted: amountFormatted)
         case .feeWillBeSubtractFromSendingAmount, .totalExceedsBalance, .customFeeTooHigh, .customFeeTooLow, .minimumAmount:
             return nil
