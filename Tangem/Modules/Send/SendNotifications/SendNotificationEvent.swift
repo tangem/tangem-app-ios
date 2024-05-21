@@ -22,9 +22,9 @@ enum SendNotificationEvent {
     case minimumAmount(value: String)
     case withdrawalOptionalAmountChange(amount: Decimal, amountFormatted: String, blockchainName: String)
     case withdrawalMandatoryAmountChange(amount: Decimal, amountFormatted: String, blockchainName: String, maxUtxo: Int)
-    case cardanoWillBeSentWithToken(cardanoAmountFormatted: String, tokenSymbol: String)
+    case cardanoWillBeSendAlongToken(cardanoAmountFormatted: String, tokenSymbol: String)
     // Try to spend all cardano when we have a token
-    case cardanoHasTokens
+    case cardanoCannotBeSentBecauseHasTokens
     case cardanoInsufficientBalanceToSendToken(tokenSymbol: String)
 }
 
@@ -51,11 +51,11 @@ extension SendNotificationEvent: NotificationEvent {
             return .string(Localization.sendNotificationHighFeeTitle)
         case .withdrawalMandatoryAmountChange:
             return .string(Localization.sendNotificationTransactionLimitTitle)
-        case .cardanoHasTokens:
+        case .cardanoCannotBeSentBecauseHasTokens:
             return .string(Localization.sendNotificationInvalidAmountTitle)
         case .cardanoInsufficientBalanceToSendToken:
             return .string(Localization.cardanoInsufficientBalanceToSendTokenTitle)
-        case .cardanoWillBeSentWithToken:
+        case .cardanoWillBeSendAlongToken:
             return .string(Localization.cardanoCoinWillBeSendWithTokenTitle)
         }
     }
@@ -88,9 +88,9 @@ extension SendNotificationEvent: NotificationEvent {
             return Localization.sendNotificationHighFeeText(blockchainName, amount)
         case .withdrawalMandatoryAmountChange(_, let amountFormatted, let blockchainName, let maxUtxo):
             return Localization.sendNotificationTransactionLimitText(blockchainName, maxUtxo, amountFormatted)
-        case .cardanoWillBeSentWithToken(let cardanoAmountFormatted, let tokenSymbol):
+        case .cardanoWillBeSendAlongToken(let cardanoAmountFormatted, let tokenSymbol):
             return Localization.cardanoCoinWillBeSendWithTokenDescription(cardanoAmountFormatted, tokenSymbol)
-        case .cardanoHasTokens:
+        case .cardanoCannotBeSentBecauseHasTokens:
             return Localization.cardanoMaxAmountHasTokenDescription
         case .cardanoInsufficientBalanceToSendToken(let tokenSymbol):
             return Localization.cardanoInsufficientBalanceToSendTokenDescription(tokenSymbol)
@@ -111,8 +111,8 @@ extension SendNotificationEvent: NotificationEvent {
              .customFeeTooHigh,
              .customFeeTooLow,
              .minimumAmount,
-             .cardanoHasTokens,
-             .cardanoWillBeSentWithToken,
+             .cardanoCannotBeSentBecauseHasTokens,
+             .cardanoWillBeSendAlongToken,
              .cardanoInsufficientBalanceToSendToken:
             return .secondary
         }
@@ -123,7 +123,7 @@ extension SendNotificationEvent: NotificationEvent {
         case .minimumAmount,
              .withdrawalMandatoryAmountChange,
              .existentialDeposit,
-             .cardanoHasTokens,
+             .cardanoCannotBeSentBecauseHasTokens,
              .cardanoInsufficientBalanceToSendToken,
              .totalExceedsBalance:
             // ⚠️ sync with SendNotificationEvent.icon
@@ -132,7 +132,7 @@ extension SendNotificationEvent: NotificationEvent {
              .customFeeTooHigh,
              .customFeeTooLow,
              .withdrawalOptionalAmountChange,
-             .cardanoWillBeSentWithToken,
+             .cardanoWillBeSendAlongToken,
              .feeWillBeSubtractFromSendingAmount:
             // ⚠️ sync with SendNotificationEvent.icon
             return .init(iconType: .image(Assets.attention.image))
@@ -148,7 +148,7 @@ extension SendNotificationEvent: NotificationEvent {
              .withdrawalMandatoryAmountChange,
              .existentialDeposit,
              .feeExceedsBalance,
-             .cardanoHasTokens,
+             .cardanoCannotBeSentBecauseHasTokens,
              .cardanoInsufficientBalanceToSendToken:
             // ⚠️ sync with SendNotificationEvent.icon
             return .critical
@@ -157,7 +157,7 @@ extension SendNotificationEvent: NotificationEvent {
              .customFeeTooLow,
              .withdrawalOptionalAmountChange,
              .totalExceedsBalance,
-             .cardanoWillBeSentWithToken,
+             .cardanoWillBeSendAlongToken,
              .feeWillBeSubtractFromSendingAmount:
             // ⚠️ sync with SendNotificationEvent.icon
             return .warning
@@ -207,9 +207,9 @@ extension SendNotificationEvent {
              .customFeeTooHigh,
              .customFeeTooLow,
              .feeExceedsBalance,
-             .cardanoHasTokens,
+             .cardanoCannotBeSentBecauseHasTokens,
              .cardanoInsufficientBalanceToSendToken,
-             .cardanoWillBeSentWithToken:
+             .cardanoWillBeSendAlongToken:
             return [.summary]
         }
     }
@@ -223,17 +223,17 @@ extension SendNotificationEvent {
             return .refreshFee
         case .feeExceedsBalance(let configuration):
             return .openFeeCurrency(currencySymbol: configuration.feeAmountTypeCurrencySymbol)
-        case .withdrawalOptionalAmountChange(let amount, let amountFormatted, _),
-             .existentialDeposit(let amount, let amountFormatted):
+        case .withdrawalOptionalAmountChange(let amount, let amountFormatted, _):
             return .reduceAmountBy(amount: amount, amountFormatted: amountFormatted)
-        case .withdrawalMandatoryAmountChange(let amount, let amountFormatted, _, _):
+        case .withdrawalMandatoryAmountChange(let amount, let amountFormatted, _, _),
+             .existentialDeposit(let amount, let amountFormatted):
             return .reduceAmountTo(amount: amount, amountFormatted: amountFormatted)
         case .feeWillBeSubtractFromSendingAmount,
              .customFeeTooHigh,
              .customFeeTooLow,
              .minimumAmount,
-             .cardanoHasTokens,
-             .cardanoWillBeSentWithToken,
+             .cardanoCannotBeSentBecauseHasTokens,
+             .cardanoWillBeSendAlongToken,
              .cardanoInsufficientBalanceToSendToken,
              .totalExceedsBalance:
             return nil
@@ -264,10 +264,10 @@ extension SendNotificationEvent {
             "withdrawalOptionalAmountChange"
         case .withdrawalMandatoryAmountChange:
             "withdrawalMandatoryAmountChange"
-        case .cardanoHasTokens:
-            "cardanoHasTokens"
-        case .cardanoWillBeSentWithToken:
-            "cardanoWillBeSentWithToken"
+        case .cardanoCannotBeSentBecauseHasTokens:
+            "cardanoCannotBeSentBecauseHasTokens"
+        case .cardanoWillBeSendAlongToken:
+            "cardanoWillBeSendAlongToken"
         case .cardanoInsufficientBalanceToSendToken:
             "cardanoInsufficientBalanceToSendToken"
         }
