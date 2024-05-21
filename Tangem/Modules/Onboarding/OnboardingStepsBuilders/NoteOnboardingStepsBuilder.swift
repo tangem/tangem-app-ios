@@ -40,7 +40,6 @@ extension NoteOnboardingStepsBuilder: OnboardingStepsBuilder {
         }
 
         if hasWallets {
-            AppSettings.shared.cardsStartedActivation.remove(cardId)
             if !AppSettings.shared.cardsStartedActivation.contains(cardId) {
                 steps.append(contentsOf: userWalletSavingSteps)
             } else {
