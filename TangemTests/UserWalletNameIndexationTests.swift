@@ -10,7 +10,7 @@ import XCTest
 @testable import Tangem
 
 class UserWalletNameIndexationTests: XCTestCase {
-    private var testNames: [(String, String)] {
+    private var existingNameTestCases: [(String, String)] {
         [
             ("Wallet 2", /*     -> */ "Wallet 2"),
             ("Wallet", /*       -> */ "Wallet"),
@@ -34,7 +34,7 @@ class UserWalletNameIndexationTests: XCTestCase {
         ]
     }
 
-    private var suggestedNameTestCases: [(String, String)] {
+    private var newNameTestCases: [(String, String)] {
         [
             ("Wallet", "Wallet 5"),
             ("Note", "Note 4"),
@@ -49,28 +49,28 @@ class UserWalletNameIndexationTests: XCTestCase {
         let numberOfShuffleTests = 10
 
         for testNumber in 1 ... numberOfShuffleTests {
-            var generator = SeededNumberGenerator(seed: testNumber, length: testNames.count)
+            var generator = SeededNumberGenerator(seed: testNumber, length: existingNameTestCases.count)
             XCTAssertNotNil(generator)
 
-            let names = testNames.map(\.0).shuffled(using: &generator!)
-            let expectedNamesAfterMigration = testNames.map(\.1).sorted()
+            let existingNames = existingNameTestCases.map(\.0).shuffled(using: &generator!)
+            let expectedNamesAfterMigration = existingNameTestCases.map(\.1).sorted()
 
-            let migrationHelper = UserWalletNameIndexationHelper(mode: .migration, names: names)
+            let nameMigrationHelper = UserWalletNameIndexationHelper(mode: .migration, names: existingNames)
 
-            let migratedNames = names
+            let migratedNames = existingNames
                 .map { name in
-                    migrationHelper.suggestedName(name)
+                    nameMigrationHelper.suggestedName(name)
                 }
                 .sorted()
             XCTAssertEqual(migratedNames, expectedNamesAfterMigration)
 
-            for suggestedNameTestCase in suggestedNameTestCases {
-                XCTAssertEqual(migrationHelper.suggestedName(suggestedNameTestCase.0), suggestedNameTestCase.1)
+            for newNameTestCase in newNameTestCases {
+                XCTAssertEqual(nameMigrationHelper.suggestedName(newNameTestCase.0), newNameTestCase.1)
             }
 
-            let suggestedNameHelper = UserWalletNameIndexationHelper(mode: .newName, names: migratedNames)
-            for suggestedNameTestCase in suggestedNameTestCases {
-                XCTAssertEqual(suggestedNameHelper.suggestedName(suggestedNameTestCase.0), suggestedNameTestCase.1)
+            let newNameHelper = UserWalletNameIndexationHelper(mode: .newName, names: migratedNames)
+            for newNameTestCase in newNameTestCases {
+                XCTAssertEqual(newNameHelper.suggestedName(newNameTestCase.0), newNameTestCase.1)
             }
         }
     }
