@@ -360,7 +360,11 @@ private extension ExpressInteractor {
     }
 
     func hasPendingTransaction() -> Bool {
-        return getSender().hasPendingTransactions
+        if case .hasPendingTransaction = getSender().sendingRestrictions {
+            return true
+        }
+
+        return false
     }
 
     func map(permissionRequired: ExpressManagerState.PermissionRequired) async throws -> State {
