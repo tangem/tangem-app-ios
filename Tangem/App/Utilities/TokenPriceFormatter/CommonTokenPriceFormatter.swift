@@ -29,7 +29,7 @@ extension CommonTokenPriceFormatter {
             return balanceFormatter.formatFiatBalance(value)
         }
 
-        let fiatFormattingOptions: BalanceFormattingOptions = value > Constants.boundaryLowDigitOptions ? .defaultFiatFormattingOptions : tokenPriceFiatFormattingOptions
+        let fiatFormattingOptions: BalanceFormattingOptions = value >= Constants.boundaryLowDigitOptions ? .defaultFiatFormattingOptions : tokenPriceFiatFormattingOptions
 
         return balanceFormatter.formatDecimal(value, formattingOptions: fiatFormattingOptions)
     }
