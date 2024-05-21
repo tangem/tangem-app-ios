@@ -497,6 +497,7 @@
 "sent_transaction_sent_title" = "Транзакция отправлена";
 "settings_forget_wallet" = "Забыть кошелек";
 "settings_forget_wallet_footer" = "Это приведет к удалению кошелька из приложения. Сам кошелек можно добавить снова.";
+"settings_wallet_name_title" = "Имя";
 "story_awe_description" = "Держите свои криптосбережения в безопасности. Приватные ключи надежно хранятся на карте.";
 "story_awe_title" = "Революционный аппаратный кошелек";
 "story_backup_description" = "До трех карт с одним кошельком";
