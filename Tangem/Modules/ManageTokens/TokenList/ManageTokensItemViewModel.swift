@@ -35,9 +35,7 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
     private var bag = Set<AnyCancellable>()
 
     private var percentFormatter = PercentFormatter()
-    private var balanceFormatter = BalanceFormatter()
-
-    private lazy var priceFormatter = CommonTokenPriceFormatter(balanceFormatter: balanceFormatter)
+    private var priceFormatter = CommonTokenPriceFormatter()
 
     // MARK: - Helpers
 

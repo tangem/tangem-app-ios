@@ -60,9 +60,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     private let tokenTapped: (WalletModelId) -> Void
     private let infoProvider: TokenItemInfoProvider
     private let percentFormatter = PercentFormatter()
-    private let balanceFormatter = BalanceFormatter()
-
-    private lazy var priceFormatter = CommonTokenPriceFormatter(balanceFormatter: balanceFormatter)
+    private var priceFormatter = CommonTokenPriceFormatter()
 
     private var bag = Set<AnyCancellable>()
     private weak var contextActionsProvider: TokenItemContextActionsProvider?
