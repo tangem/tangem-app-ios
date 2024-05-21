@@ -251,7 +251,6 @@ private extension ExpressViewModel {
                 }
                 .filter(filter)
                 .map(\.1)
-                .removeDuplicates()
         }
 
         // Publisher for showing new notifications with a delay to prevent unwanted animations
@@ -644,7 +643,13 @@ extension ExpressViewModel: NotificationTapDelegate {
             updateSendDecimalValue(to: value - amount)
         case .reduceAmountTo(let amount, _):
             updateSendDecimalValue(to: amount)
-        default:
+        case .generateAddresses,
+             .backupCard,
+             .buyCrypto,
+             .refreshFee,
+             .goToProvider,
+             .addHederaTokenAssociation,
+             .bookNow:
             return
         }
     }
