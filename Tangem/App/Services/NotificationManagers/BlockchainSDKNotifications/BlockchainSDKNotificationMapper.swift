@@ -29,7 +29,7 @@ struct BlockchainSDKNotificationMapper {
         case .amountExceedsBalance, .totalExceedsBalance:
             return .insufficientBalance
         case .feeExceedsBalance:
-            return .insufficientBalanceFee(
+            return .insufficientBalanceForFee(
                 configuration: .init(
                     transactionAmountTypeName: tokenItem.name,
                     feeAmountTypeName: feeTokenItem.name,
@@ -41,15 +41,15 @@ struct BlockchainSDKNotificationMapper {
             )
         case .dustAmount(let minimumAmount), .dustChange(let minimumAmount):
             let amountText = "\(minimumAmount.value) \(tokenItemSymbol)"
-            return .dustAmount(minimumAmountText: amountText, minimumChangeText: amountText)
+            return .dustRestriction(minimumAmountFormatted: amountText, minimumChangeFormatted: amountText)
         case .minimumBalance(let minimumBalance):
-            return .existentialDepositWarning(amount: minimumBalance.value, amountFormatted: minimumBalance.string())
+            return .existentialDeposit(amount: minimumBalance.value, amountFormatted: minimumBalance.string())
         case .maximumUTXO(let blockchainName, let newAmount, let maxUtxo):
-            return .withdrawalMandatoryAmountChange(amount: newAmount.value, amountFormatted: newAmount.string(), blockchainName: blockchainName, maxUtxo: maxUtxo)
+            return .amountExceedMaximumUTXO(amount: newAmount.value, amountFormatted: newAmount.string(), blockchainName: blockchainName, maxUTXO: maxUtxo)
         case .reserve(let amount):
-            return .notEnoughReserveToSwap(minimumAmountText: "\(amount.value)\(tokenItemSymbol)")
+            return .insufficientAmountToReserveAtDestination(minimumAmountFormatted: "\(amount.value)\(tokenItemSymbol)")
         case .cardanoHasTokens:
-            return .cardanoHasTokens
+            return .cardanoCannotBeSentBecauseHasTokens
         case .cardanoInsufficientBalanceToSendToken:
             return .cardanoInsufficientBalanceToSendToken(tokenSymbol: tokenItemSymbol)
         }
@@ -58,13 +58,13 @@ struct BlockchainSDKNotificationMapper {
     func mapToWithdrawalNotificationEvent(_ notification: WithdrawalNotification) -> WithdrawalNotificationEvent {
         switch notification {
         case .feeIsTooHigh(let reduceAmountBy):
-            return .withdrawalOptionalAmountChange(
+            return .reduceAmountBecauseFeeIsTooHigh(
                 amount: reduceAmountBy.value,
                 amountFormatted: reduceAmountBy.string(),
                 blockchainName: tokenItem.blockchain.displayName
             )
         case .cardanoWillBeSendAlongToken(let amount):
-            return .cardanoWillBeSentWithToken(
+            return .cardanoWillBeSendAlongToken(
                 cardanoAmountFormatted: amount.value.description,
                 tokenSymbol: tokenItem.currencySymbol
             )
