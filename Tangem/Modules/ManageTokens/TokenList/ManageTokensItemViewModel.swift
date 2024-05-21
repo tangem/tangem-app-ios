@@ -37,6 +37,8 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
     private var percentFormatter = PercentFormatter()
     private var balanceFormatter = BalanceFormatter()
 
+    private lazy var priceFormatter = CommonTokenPriceFormatter(balanceFormatter: balanceFormatter)
+
     // MARK: - Helpers
 
     var priceHistoryChangeType: ChangeSignType {
@@ -94,7 +96,7 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
         }
 
         priceChangeState = getPriceChangeState(by: quote)
-        priceValue = balanceFormatter.formatFiatBalance(quote.price)
+        priceValue = priceFormatter.formatFiatBalance(quote.price)
         priceHistory = quote.prices24h?.map { $0 }
     }
 
