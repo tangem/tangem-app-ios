@@ -15,7 +15,7 @@ protocol SendNotificationManagerInput {
     var selectedFeeOptionPublisher: AnyPublisher<FeeOption, Never> { get }
     var customFeePublisher: AnyPublisher<Fee?, Never> { get }
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> { get }
-    var withdrawalSuggestion: AnyPublisher<WithdrawalNotification?, Never> { get }
+    var withdrawalNotification: AnyPublisher<WithdrawalNotification?, Never> { get }
     var amountError: AnyPublisher<Error?, Never> { get }
     var transactionCreationError: AnyPublisher<Error?, Never> { get }
 }
@@ -94,11 +94,11 @@ class CommonSendNotificationManager: SendNotificationManager {
             .store(in: &bag)
 
         input
-            .withdrawalSuggestion
-            .sink { [weak self] withdrawalSuggestion in
+            .withdrawalNotification
+            .sink { [weak self] withdrawalNotification in
                 guard let self else { return }
 
-                switch withdrawalSuggestion {
+                switch withdrawalNotification {
                 case .feeIsTooHigh(let newAmount):
                     let event = SendNotificationEvent.withdrawalOptionalAmountChange(
                         amount: newAmount.value,
@@ -108,7 +108,7 @@ class CommonSendNotificationManager: SendNotificationManager {
                     updateEventVisibility(true, event: event)
 
                 case .cardanoWillBeSendAlongToken(let amount):
-                    let event = SendNotificationEvent.cardanoWillBeSentWithToken(
+                    let event = SendNotificationEvent.cardanoWillBeSendAlongToken(
                         cardanoAmountFormatted: amount.value.description,
                         tokenSymbol: tokenItem.currencySymbol
                     )
@@ -275,8 +275,8 @@ class CommonSendNotificationManager: SendNotificationManager {
                 blockchainName: blockchainName,
                 maxUtxo: maxUtxos
             )
-        case .cardanoHasTokens:
-            return .cardanoHasTokens
+        case .cardanoCannotBeSentBecauseHasTokens:
+            return .cardanoCannotBeSentBecauseHasTokens
         case .cardanoInsufficientBalanceToSendToken:
             return .cardanoInsufficientBalanceToSendToken(tokenSymbol: tokenItem.currencySymbol)
         default:
