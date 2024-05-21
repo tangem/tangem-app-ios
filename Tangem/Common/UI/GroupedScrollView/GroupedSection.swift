@@ -18,7 +18,10 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
     private var separatorStyle: SeparatorStyle = .minimum
     private var interItemSpacing: CGFloat = 0
     private var innerContentPadding: CGFloat = 0
-    private var backgroundColor: Color = Colors.Background.action
+
+    // Use "Colors.Background.primary" as default with "Colors.Background.secondary" background
+    // Use "Colors.Background.action" on sheets with "Colors.Background.teritary" background
+    private var backgroundColor: Color = Colors.Background.primary
     private var contentAlignment: HorizontalAlignment = .leading
 
     private var namespace: Namespace.ID?
