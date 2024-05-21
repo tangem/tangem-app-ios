@@ -79,6 +79,7 @@ struct ExpressView: View {
                         .didTapChangeCurrency(viewModel.userDidTapChangeSourceButton)
                 }
                 .innerContentPadding(12)
+                .backgroundColor(Colors.Background.action)
 
                 GroupedSection(viewModel.receiveCurrencyViewModel) {
                     ReceiveCurrencyView(viewModel: $0)
@@ -86,6 +87,7 @@ struct ExpressView: View {
                         .didTapNetworkFeeInfoButton(viewModel.userDidTapPriceChangeInfoButton)
                 }
                 .innerContentPadding(12)
+                .backgroundColor(Colors.Background.action)
             }
 
             swappingButton
@@ -132,6 +134,7 @@ struct ExpressView: View {
             ExpressFeeRowView(viewModel: $0)
         }
         .innerContentPadding(12)
+        .backgroundColor(Colors.Background.action)
     }
 
     @ViewBuilder
@@ -145,6 +148,7 @@ struct ExpressView: View {
             }
         }
         .innerContentPadding(12)
+        .backgroundColor(Colors.Background.action)
     }
 
     @ViewBuilder
