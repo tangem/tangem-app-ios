@@ -251,7 +251,6 @@ private extension ExpressViewModel {
                 }
                 .filter(filter)
                 .map(\.1)
-                .removeDuplicates()
         }
 
         // Publisher for showing new notifications with a delay to prevent unwanted animations
