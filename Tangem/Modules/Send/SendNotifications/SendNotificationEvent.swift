@@ -149,12 +149,12 @@ extension SendNotificationEvent {
         case summary
     }
 
-    var location: Location {
+    var locations: [Location] {
         switch self {
         case .networkFeeUnreachable:
-            return .feeLevels
+            return [.feeLevels, .summary]
         case .feeWillBeSubtractFromSendingAmount, .minimumAmount, .existentialDeposit, .withdrawalOptionalAmountChange, .withdrawalMandatoryAmountChange, .totalExceedsBalance, .customFeeTooHigh, .customFeeTooLow, .feeExceedsBalance:
-            return .summary
+            return [.summary]
         }
     }
 }
@@ -167,9 +167,9 @@ extension SendNotificationEvent {
             return .refreshFee
         case .feeExceedsBalance(let configuration):
             return .openFeeCurrency(currencySymbol: configuration.feeAmountTypeCurrencySymbol)
-        case .withdrawalOptionalAmountChange(let amount, let amountFormatted, _), .existentialDeposit(let amount, let amountFormatted):
+        case .withdrawalOptionalAmountChange(let amount, let amountFormatted, _):
             return .reduceAmountBy(amount: amount, amountFormatted: amountFormatted)
-        case .withdrawalMandatoryAmountChange(let amount, let amountFormatted, _, _):
+        case .withdrawalMandatoryAmountChange(let amount, let amountFormatted, _, _), .existentialDeposit(let amount, let amountFormatted):
             return .reduceAmountTo(amount: amount, amountFormatted: amountFormatted)
         case .feeWillBeSubtractFromSendingAmount, .totalExceedsBalance, .customFeeTooHigh, .customFeeTooLow, .minimumAmount:
             return nil
