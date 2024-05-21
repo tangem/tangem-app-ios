@@ -145,8 +145,8 @@ class ExpressNotificationManager {
             event = .withdrawalMandatoryAmountChange(amount: newAmount.value, amountFormatted: newAmount.string(), blockchainName: blockchainName, maxUtxo: maxUtxo)
         case .reserve(let amount):
             event = .notEnoughReserveToSwap(maximumAmountText: "\(amount.value)\(sourceTokenItemSymbol)")
-        case .cardanoHasTokens:
-            event = .cardanoHasTokens
+        case .cardanoCannotBeSentBecauseHasTokens:
+            event = .cardanoCannotBeSentBecauseHasTokens
         case .cardanoInsufficientBalanceToSendToken:
             event = .cardanoInsufficientBalanceToSendToken(tokenSymbol: sourceTokenItemSymbol)
         }
@@ -222,7 +222,7 @@ class ExpressNotificationManager {
                 blockchainName: sourceTokenItem.blockchain.displayName
             )
         case .cardanoWillBeSendAlongToken(let amount):
-            event = .cardanoWillBeSentWithToken(
+            event = .cardanoWillBeSendAlongToken(
                 cardanoAmountFormatted: amount.value.description,
                 tokenSymbol: sourceTokenItem.currencySymbol
             )
