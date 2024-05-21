@@ -11,28 +11,26 @@ import SwiftUI
 
 // Warning/Information Notifications
 enum WithdrawalNotificationEvent {
-    case withdrawalOptionalAmountChange(amount: Decimal, amountFormatted: String, blockchainName: String)
-    case cardanoWillBeSentWithToken(cardanoAmountFormatted: String, tokenSymbol: String)
+    case reduceAmountBecauseFeeIsTooHigh(amount: Decimal, amountFormatted: String, blockchainName: String)
+    case cardanoWillBeSendAlongToken(cardanoAmountFormatted: String, tokenSymbol: String)
 }
 
 // Express | Send
 extension WithdrawalNotificationEvent: NotificationEvent {
     var title: NotificationView.Title {
         switch self {
-        case .withdrawalOptionalAmountChange:
-            // The fee is higher |
+        case .reduceAmountBecauseFeeIsTooHigh:
             return .string(Localization.sendNotificationHighFeeTitle)
-        case .cardanoWillBeSentWithToken:
+        case .cardanoWillBeSendAlongToken:
             return .string(Localization.cardanoCoinWillBeSendWithTokenTitle)
         }
     }
 
     var description: String? {
         switch self {
-        case .withdrawalOptionalAmountChange(_, let amount, let blockchainName):
-            // Due to the peculiarities of the %1$@ network, the fee for transferring the entire balance is higher. To reduce the commission, you can leave %2$@.
+        case .reduceAmountBecauseFeeIsTooHigh(_, let amount, let blockchainName):
             return Localization.sendNotificationHighFeeText(amount, blockchainName)
-        case .cardanoWillBeSentWithToken(let cardanoAmountFormatted, let tokenSymbol):
+        case .cardanoWillBeSendAlongToken(let cardanoAmountFormatted, let tokenSymbol):
             return Localization.cardanoCoinWillBeSendWithTokenDescription(cardanoAmountFormatted, tokenSymbol)
         }
     }
@@ -48,16 +46,16 @@ extension WithdrawalNotificationEvent: NotificationEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .withdrawalOptionalAmountChange,
-             .cardanoWillBeSentWithToken:
+        case .reduceAmountBecauseFeeIsTooHigh,
+             .cardanoWillBeSendAlongToken:
             return .init(iconType: .image(Assets.attention.image))
         }
     }
 
     var severity: NotificationView.Severity {
         switch self {
-        case .withdrawalOptionalAmountChange,
-             .cardanoWillBeSentWithToken:
+        case .reduceAmountBecauseFeeIsTooHigh,
+             .cardanoWillBeSendAlongToken:
             return .warning
         }
     }
@@ -72,9 +70,9 @@ extension WithdrawalNotificationEvent: NotificationEvent {
 extension WithdrawalNotificationEvent {
     var buttonActionType: NotificationButtonActionType? {
         switch self {
-        case .withdrawalOptionalAmountChange(let amount, let amountFormatted, _):
+        case .reduceAmountBecauseFeeIsTooHigh(let amount, let amountFormatted, _):
             return .reduceAmountBy(amount: amount, amountFormatted: amountFormatted)
-        case .cardanoWillBeSentWithToken:
+        case .cardanoWillBeSendAlongToken:
             return nil
         }
     }
