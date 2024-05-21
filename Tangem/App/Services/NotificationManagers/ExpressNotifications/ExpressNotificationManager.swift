@@ -58,7 +58,7 @@ class ExpressNotificationManager {
         case .previewCEX(let preview, _):
             notificationInputsSubject.value = [
                 setupFeeWillBeSubtractFromSendingAmountNotification(subtractFee: preview.subtractFee),
-                setupWithdrawalNotification(notification: preview.notification),
+                setupWithdrawalInput(notification: preview.notification),
             ].compactMap { $0 }
         }
     }
@@ -126,7 +126,7 @@ class ExpressNotificationManager {
             assertionFailure("It had to mapped to ExpressInteractor.RestrictionType.notEnoughBalanceForSwapping")
             notificationInputsSubject.value = []
             return
-        case .insufficientBalanceFee:
+        case .insufficientBalanceForFee:
             assertionFailure("It had to mapped to ExpressInteractor.RestrictionType.notEnoughAmountForFee")
             guard let notEnoughFeeForTokenTxEvent = makeNotEnoughFeeForTokenTx(sender: sender) else {
                 notificationInputsSubject.value = []
@@ -135,11 +135,11 @@ class ExpressNotificationManager {
 
             event = notEnoughFeeForTokenTxEvent
 
-        case .dustAmount,
-             .existentialDepositWarning,
-             .withdrawalMandatoryAmountChange,
-             .notEnoughReserveToSwap,
-             .cardanoHasTokens,
+        case .dustRestriction,
+             .existentialDeposit,
+             .amountExceedMaximumUTXO,
+             .insufficientAmountToReserveAtDestination,
+             .cardanoCannotBeSentBecauseHasTokens,
              .cardanoInsufficientBalanceToSendToken:
             event = .validationErrorEvent(validationErrorEvent)
         }
@@ -197,8 +197,8 @@ class ExpressNotificationManager {
         )
     }
 
-    private func setupWithdrawalNotification(notification: WithdrawalNotification?) -> NotificationViewInput? {
-        guard let interactor = expressInteractor, let suggestion else {
+    private func setupWithdrawalInput(notification: WithdrawalNotification?) -> NotificationViewInput? {
+        guard let interactor = expressInteractor, let notification else {
             return nil
         }
 
@@ -207,10 +207,10 @@ class ExpressNotificationManager {
         let withdrawalNotification = factory.mapToWithdrawalNotificationEvent(notification)
 
         let event = ExpressNotificationEvent.withdrawalNotificationEvent(withdrawalNotification)
-        let notification = NotificationsFactory().buildNotificationInput(for: event) { [weak self] id, actionType in
+        let input = NotificationsFactory().buildNotificationInput(for: event) { [weak self] id, actionType in
             self?.delegate?.didTapNotificationButton(with: id, action: actionType)
         }
-        return notification
+        return input
     }
 }
 
