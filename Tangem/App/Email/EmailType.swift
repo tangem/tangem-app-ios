@@ -104,6 +104,7 @@ enum EmailCollectedDataType {
         case explorerLink = "Explorer link"
         case signedHashes = "Signed hashes"
         case walletManagerHost = "Host"
+        case exceptionWalletManagerHost = "Exception Host"
         case outputsCount = "Outputs count"
         case derivationPath = "Derivation path"
         case xpub = "XPUB"
