@@ -275,7 +275,7 @@ class CommonSendNotificationManager: SendNotificationManager {
                 blockchainName: blockchainName,
                 maxUtxo: maxUtxos
             )
-        case .cardanoCannotBeSentBecauseHasTokens:
+        case .cardanoHasTokens:
             return .cardanoCannotBeSentBecauseHasTokens
         case .cardanoInsufficientBalanceToSendToken:
             return .cardanoInsufficientBalanceToSendToken(tokenSymbol: tokenItem.currencySymbol)
