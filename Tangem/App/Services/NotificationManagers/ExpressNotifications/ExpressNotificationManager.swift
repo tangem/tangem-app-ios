@@ -58,7 +58,7 @@ class ExpressNotificationManager {
         case .previewCEX(let preview, _):
             notificationInputsSubject.value = [
                 setupFeeWillBeSubtractFromSendingAmountNotification(subtractFee: preview.subtractFee),
-                setupWithdrawalSuggestion(suggestion: preview.suggestion),
+                setupWithdrawalNotification(notification: preview.notification),
             ].compactMap { $0 }
         }
     }
@@ -145,7 +145,7 @@ class ExpressNotificationManager {
             event = .withdrawalMandatoryAmountChange(amount: newAmount.value, amountFormatted: newAmount.string(), blockchainName: blockchainName, maxUtxo: maxUtxo)
         case .reserve(let amount):
             event = .notEnoughReserveToSwap(maximumAmountText: "\(amount.value)\(sourceTokenItemSymbol)")
-        case .cardanoCannotBeSentBecauseHasTokens:
+        case .cardanoHasTokens:
             event = .cardanoCannotBeSentBecauseHasTokens
         case .cardanoInsufficientBalanceToSendToken:
             event = .cardanoInsufficientBalanceToSendToken(tokenSymbol: sourceTokenItemSymbol)
@@ -204,7 +204,7 @@ class ExpressNotificationManager {
         )
     }
 
-    private func setupWithdrawalSuggestion(suggestion: WithdrawalNotification?) -> NotificationViewInput? {
+    private func setupWithdrawalNotification(notification: WithdrawalNotification?) -> NotificationViewInput? {
         guard let interactor = expressInteractor else {
             return nil
         }
@@ -212,7 +212,7 @@ class ExpressNotificationManager {
         let event: ExpressNotificationEvent
         let sourceTokenItem = interactor.getSender().tokenItem
 
-        switch suggestion {
+        switch notification {
         case .none:
             return nil
         case .feeIsTooHigh(let reduceAmountBy):
