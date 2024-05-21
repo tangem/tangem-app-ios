@@ -105,7 +105,7 @@ extension SendNotificationEvent: NotificationEvent {
 
     var isDismissable: Bool {
         switch self {
-        case .withdrawalNotificationEvent(.withdrawalOptionalAmountChange):
+        case .withdrawalNotificationEvent(.reduceAmountBecauseFeeIsTooHigh):
             return true
         default:
             return false
