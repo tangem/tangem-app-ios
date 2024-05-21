@@ -15,7 +15,6 @@ enum WithdrawalNotificationEvent {
     case cardanoWillBeSendAlongToken(cardanoAmountFormatted: String, tokenSymbol: String)
 }
 
-// Express | Send
 extension WithdrawalNotificationEvent: NotificationEvent {
     var title: NotificationView.Title {
         switch self {
