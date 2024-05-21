@@ -23,15 +23,6 @@ struct BalanceFormattingOptions {
         )
     }
 
-    static var lowPriceFiatFormattingOptions: BalanceFormattingOptions {
-        .init(
-            minFractionDigits: 2,
-            maxFractionDigits: 6,
-            formatEpsilonAsLowestRepresentableValue: false,
-            roundingType: .default(roundingMode: .plain, scale: 6)
-        )
-    }
-
     static var defaultCryptoFormattingOptions: BalanceFormattingOptions {
         .init(
             minFractionDigits: 2,
