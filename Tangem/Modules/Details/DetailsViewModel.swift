@@ -99,9 +99,12 @@ extension DetailsViewModel {
             return
         }
 
+        // Collect data from the all wallets
+        let walletModels = userWalletRepository.models.flatMap { $0.walletModelsManager.walletModels }
+        let emailData = userWalletRepository.models.flatMap { $0.emailData }
         let dataCollector = DetailsFeedbackDataCollector(
-            walletModels: selectedUserWalletModel.walletModelsManager.walletModels,
-            userWalletEmailData: selectedUserWalletModel.emailData
+            walletModels: walletModels,
+            userWalletEmailData: emailData
         )
 
         coordinator?.openMail(
@@ -195,7 +198,6 @@ private extension DetailsViewModel {
 
         userWalletRepository.eventProvider
             .withWeakCaptureOf(self)
-            .print("->> eventProvider")
             .sink { viewModel, event in
                 switch event {
                 case .scan:
