@@ -36,7 +36,7 @@ struct UserWalletSettingsView: View {
     }
 
     private var nameSection: some View {
-        DefaultTextFieldRowView(title: Localization.customTokenNameInputTitle, text: $viewModel.name)
+        DefaultTextFieldRowView(title: Localization.settingsWalletNameTitle, text: $viewModel.name)
             .defaultRoundedBackground()
     }
 
