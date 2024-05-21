@@ -258,18 +258,18 @@ class CommonSendNotificationManager: SendNotificationManager {
         let validationErrorEvent = factory.mapToValidationErrorEvent(validationError)
 
         switch validationErrorEvent {
-        case .dustAmount,
+        case .dustRestriction,
              .insufficientBalance,
-             .insufficientBalanceFee,
-             .existentialDepositWarning,
-             .withdrawalMandatoryAmountChange,
-             .cardanoHasTokens,
+             .insufficientBalanceForFee,
+             .existentialDeposit,
+             .amountExceedMaximumUTXO,
+             .cardanoCannotBeSentBecauseHasTokens,
              .cardanoInsufficientBalanceToSendToken:
             return .validationErrorEvent(validationErrorEvent)
         case .invalidNumber:
             return nil
-        case .notEnoughReserveToSwap(minimumAmountText: let minimumAmountText):
-            // Use async validation and use notifcation instead of alert
+        case .insufficientAmountToReserveAtDestination:
+            // Use async validation and show the notifcation before. Instead of alert
             return nil
         }
     }
