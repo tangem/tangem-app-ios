@@ -15,8 +15,7 @@
 		2D0E4F532A8D114E00001D8E /* GenericWalletManagerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D0E4F522A8D114E00001D8E /* GenericWalletManagerFactory.swift */; };
 		2D1146A62ADD0EDC00DEE827 /* ManageTokensNetworkSelectorItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1146A42ADD0EDC00DEE827 /* ManageTokensNetworkSelectorItemView.swift */; };
 		2D1146A72ADD0EDC00DEE827 /* ManageTokensNetworkSelectorItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1146A52ADD0EDC00DEE827 /* ManageTokensNetworkSelectorItemViewModel.swift */; };
-		2D276FCE2BFC86EE0099001A /* TokenPriceFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D276FCD2BFC86EE0099001A /* TokenPriceFormatter.swift */; };
-		2D276FDF2BFC87C30099001A /* CommonTokenPriceFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D276FDE2BFC87C30099001A /* CommonTokenPriceFormatter.swift */; };
+		2D276FED2BFCD3690099001A /* CommonTokenPriceFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D276FEA2BFCD3690099001A /* CommonTokenPriceFormatter.swift */; };
 		2D2ACE1A2B30FAA90004CBB6 /* PresentationConfigurationViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2ACE192B30FAA90004CBB6 /* PresentationConfigurationViewModifier.swift */; };
 		2D535E702A0CB4D20081EB76 /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D535E6B2A0CB4D20081EB76 /* NotificationView.swift */; };
 		2D535E722A0CB4D20081EB76 /* BottomSheetInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D535E6E2A0CB4D20081EB76 /* BottomSheetInfoView.swift */; };
@@ -1527,8 +1526,7 @@
 		2D0E4F522A8D114E00001D8E /* GenericWalletManagerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericWalletManagerFactory.swift; sourceTree = "<group>"; };
 		2D1146A42ADD0EDC00DEE827 /* ManageTokensNetworkSelectorItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensNetworkSelectorItemView.swift; sourceTree = "<group>"; };
 		2D1146A52ADD0EDC00DEE827 /* ManageTokensNetworkSelectorItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensNetworkSelectorItemViewModel.swift; sourceTree = "<group>"; };
-		2D276FCD2BFC86EE0099001A /* TokenPriceFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPriceFormatter.swift; sourceTree = "<group>"; };
-		2D276FDE2BFC87C30099001A /* CommonTokenPriceFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTokenPriceFormatter.swift; sourceTree = "<group>"; };
+		2D276FEA2BFCD3690099001A /* CommonTokenPriceFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonTokenPriceFormatter.swift; sourceTree = "<group>"; };
 		2D2ACE192B30FAA90004CBB6 /* PresentationConfigurationViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresentationConfigurationViewModifier.swift; sourceTree = "<group>"; };
 		2D535E6B2A0CB4D20081EB76 /* NotificationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationView.swift; sourceTree = "<group>"; };
 		2D535E6E2A0CB4D20081EB76 /* BottomSheetInfoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BottomSheetInfoView.swift; sourceTree = "<group>"; };
@@ -3096,13 +3094,12 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		2D276FCC2BFC86E00099001A /* TokenBalanceFormatter */ = {
+		2D276FEB2BFCD3690099001A /* TokenPriceFormatter */ = {
 			isa = PBXGroup;
 			children = (
-				2D276FCD2BFC86EE0099001A /* TokenPriceFormatter.swift */,
-				2D276FDE2BFC87C30099001A /* CommonTokenPriceFormatter.swift */,
+				2D276FEA2BFCD3690099001A /* CommonTokenPriceFormatter.swift */,
 			);
-			path = TokenBalanceFormatter;
+			path = TokenPriceFormatter;
 			sourceTree = "<group>";
 		};
 		2D535E6A2A0CB4D20081EB76 /* NotificationView */ = {
@@ -4324,7 +4321,7 @@
 		B068A7E525678A6E00D28CD2 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
-				2D276FCC2BFC86E00099001A /* TokenBalanceFormatter */,
+				2D276FEB2BFCD3690099001A /* TokenPriceFormatter */,
 				B0B335E129FA9E9A00E2082E /* BalanceFormatter */,
 				B0AF2DF22B1DF282001A8696 /* Express */,
 				B036626A2B63D77D0064E073 /* ISO4217CodeConverter.swift */,
@@ -8730,6 +8727,7 @@
 				B0A9E939259213E7007B6D36 /* WarningsService.swift in Sources */,
 				B08394E12B2998580025176F /* VisaConfig.swift in Sources */,
 				EF666C282A2DFA1C0044986F /* View+BottomSheet.swift in Sources */,
+				2D276FED2BFCD3690099001A /* CommonTokenPriceFormatter.swift in Sources */,
 				B0E1CED62B19B682006DDF98 /* PendingExpressTxStatusBottomSheetViewModel.swift in Sources */,
 				65B4DEC92881AAD1001524CF /* BottomSheetPresentationController.swift in Sources */,
 				B098DD4C29C46EC300D2D55B /* UIFonts.swift in Sources */,
@@ -9245,7 +9243,6 @@
 				DAB19D4E2B2C72C400DD08C4 /* AddCustomTokenNotificationEvent.swift in Sources */,
 				EF1E172E2BF50E07000364AE /* SettingsUserWalletRowView.swift in Sources */,
 				DA406C1C2BD0D84200D1FC5E /* AddressTextView.swift in Sources */,
-				2D276FCE2BFC86EE0099001A /* TokenPriceFormatter.swift in Sources */,
 				5D9DCB06255193C30059799C /* AppSettings.swift in Sources */,
 				DC7D39F729E00635007BCD23 /* TwinOnboardingStepsBulder.swift in Sources */,
 				DA559C4D2B02622600F59584 /* SendDestinationViewModelInputMock.swift in Sources */,
@@ -9726,7 +9723,6 @@
 				DA8C67342B0B451F00E1C9B8 /* AmountSummaryViewData.swift in Sources */,
 				B0BDFD1D2A8B68B600479F53 /* NotificationViewInput.swift in Sources */,
 				5D51036D27C535AB0025EA55 /* ABIEncoder.swift in Sources */,
-				2D276FDF2BFC87C30099001A /* CommonTokenPriceFormatter.swift in Sources */,
 				B6E932C32A2F2D860068D466 /* OrganizeTokensViewModel.swift in Sources */,
 				EF0DD7A12B02B3230099527D /* ExpressFeeRow.swift in Sources */,
 				DA1DC0CD2B7F4D5100395A1F /* FakeSendNotificationManager.swift in Sources */,
