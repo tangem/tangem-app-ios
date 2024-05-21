@@ -77,7 +77,16 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         switch action {
         case .openFeeCurrency:
             openFeeCurrency()
-        default:
+        case .generateAddresses,
+             .backupCard,
+             .buyCrypto,
+             .refresh,
+             .refreshFee,
+             .goToProvider,
+             .reduceAmountBy,
+             .reduceAmountTo,
+             .addHederaTokenAssociation,
+             .bookNow:
             super.didTapNotificationButton(with: id, action: action)
         }
     }
