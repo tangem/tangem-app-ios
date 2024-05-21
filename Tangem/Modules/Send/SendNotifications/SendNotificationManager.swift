@@ -99,27 +99,12 @@ class CommonSendNotificationManager: SendNotificationManager {
                 guard let self else { return }
 
                 switch withdrawalNotification {
-                case .feeIsTooHigh(let newAmount):
-                    let event = SendNotificationEvent.withdrawalOptionalAmountChange(
-                        amount: newAmount.value,
-                        amountFormatted: newAmount.string(),
-                        blockchainName: tokenItem.blockchain.displayName
-                    )
-                    updateEventVisibility(true, event: event)
-
-                case .cardanoWillBeSendAlongToken(let amount):
-                    let event = SendNotificationEvent.cardanoWillBeSendAlongToken(
-                        cardanoAmountFormatted: amount.value.description,
-                        tokenSymbol: tokenItem.currencySymbol
-                    )
-                    updateEventVisibility(true, event: event)
+                case .some(let suggestion):
+                    let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem, feeTokenItem: feeTokenItem)
+                    let withdrawalNotification = factory.mapToWithdrawalNotificationEvent(suggestion)
+                    updateEventVisibility(true, event: .withdrawalNotificationEvent(withdrawalNotification))
                 case .none:
-                    let events = [
-                        SendNotificationEvent.withdrawalOptionalAmountChange(amount: .zero, amountFormatted: "", blockchainName: ""),
-                    ]
-                    for event in events {
-                        updateEventVisibility(false, event: event)
-                    }
+                    hideAllWithdrawalNotificationEvent()
                 }
             }
             .store(in: &bag)
@@ -239,6 +224,16 @@ class CommonSendNotificationManager: SendNotificationManager {
         }
     }
 
+    private func hideAllWithdrawalNotificationEvent() {
+        notificationInputsSubject.value.removeAll(where: { input in
+            guard case .withdrawalNotificationEvent = input.settings.event as? SendNotificationEvent else {
+                return false
+            }
+
+            return false
+        })
+    }
+
     private func updateEventVisibility(_ visible: Bool, event: SendNotificationEvent) {
         if visible {
             let factory = NotificationsFactory()
@@ -259,27 +254,22 @@ class CommonSendNotificationManager: SendNotificationManager {
     }
 
     private func notificationEvent(from validationError: ValidationError) -> SendNotificationEvent? {
-        switch validationError {
-        case .dustAmount(let minimumAmount), .dustChange(let minimumAmount):
-            return .minimumAmount(value: minimumAmount.string())
-        case .totalExceedsBalance, .amountExceedsBalance:
-            return .totalExceedsBalance
-        case .feeExceedsBalance:
-            return .feeExceedsBalance(configuration: notEnoughFeeConfiguration)
-        case .minimumBalance(let minimumBalance):
-            return .existentialDeposit(amount: minimumBalance.value, amountFormatted: minimumBalance.string())
-        case .maximumUTXO(let blockchainName, let newAmount, let maxUtxos):
-            return .withdrawalMandatoryAmountChange(
-                amount: newAmount.value,
-                amountFormatted: newAmount.string(),
-                blockchainName: blockchainName,
-                maxUtxo: maxUtxos
-            )
-        case .cardanoHasTokens:
-            return .cardanoCannotBeSentBecauseHasTokens
-        case .cardanoInsufficientBalanceToSendToken:
-            return .cardanoInsufficientBalanceToSendToken(tokenSymbol: tokenItem.currencySymbol)
-        default:
+        let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem, feeTokenItem: feeTokenItem)
+        let validationErrorEvent = factory.mapToValidationErrorEvent(validationError)
+
+        switch validationErrorEvent {
+        case .dustAmount,
+             .insufficientBalance,
+             .insufficientBalanceFee,
+             .existentialDepositWarning,
+             .withdrawalMandatoryAmountChange,
+             .cardanoHasTokens,
+             .cardanoInsufficientBalanceToSendToken:
+            return .validationErrorEvent(validationErrorEvent)
+        case .invalidNumber:
+            return nil
+        case .notEnoughReserveToSwap(minimumAmountText: let minimumAmountText):
+            // Use async validation and use notifcation instead of alert
             return nil
         }
     }
