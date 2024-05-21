@@ -26,8 +26,6 @@ class UserWalletNameIndexationHelper {
                 addIndex(nameComponents.index, for: nameComponents.template)
             }
         }
-
-        print("\ndefault names", indexesByNameTemplate)
     }
 
     func suggestedName(_ rawName: String) -> String {
