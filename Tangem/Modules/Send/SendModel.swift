@@ -30,9 +30,10 @@ class SendModel {
     }
 
     var feeValid: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest(fee, _feeError)
-            .map {
-                $0 != nil && $1 == nil
+        fee
+            .map { fee in
+                guard let fee else { return false }
+                return !fee.amount.isZero
             }
             .eraseToAnyPublisher()
     }
@@ -165,8 +166,14 @@ class SendModel {
 
         didSetCustomFee = true
         _customFee.send(customFee)
+
         if case .custom = selectedFeeOption {
             fee.send(customFee)
+        }
+
+        if _feeValues.value[.custom]?.value != customFee,
+           let customFee {
+            _feeValues.value[.custom] = .loaded(customFee)
         }
     }
 
