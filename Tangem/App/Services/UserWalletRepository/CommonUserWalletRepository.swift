@@ -100,7 +100,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                 let config = UserWalletConfigFactory(cardInfo).makeConfig()
                 Analytics.endLoggingCardScan()
 
-                cardInfo.name = config.cardName
+                cardInfo.name = suggestedUserWalletName(defaultName: config.cardName)
 
                 let userWalletModel = CommonUserWalletModel(cardInfo: cardInfo)
                 if let userWalletModel {
@@ -143,6 +143,13 @@ class CommonUserWalletRepository: UserWalletRepository {
                 }
             }
             .eraseToAnyPublisher()
+    }
+
+    private func suggestedUserWalletName(defaultName: String) -> String {
+        let otherNames = models.map(\.name)
+        let helper = UserWalletNameIndexationHelper(mode: .newName, names: otherNames)
+
+        return helper.suggestedName(defaultName)
     }
 
     private func scanInternal() -> AnyPublisher<AppScanTaskResponse, TangemSdkError> {
@@ -206,10 +213,6 @@ class CommonUserWalletRepository: UserWalletRepository {
 
                 switch result {
                 case .success(let userWalletModel):
-                    var existingNames = Set(models.map { $0.name })
-                    let suggestedWalletName = suggestedWalletName(for: userWalletModel.name, existingNames: &existingNames)
-                    userWalletModel.updateWalletName(suggestedWalletName)
-
                     if !models.contains(where: { $0.userWalletId == userWalletModel.userWalletId }) {
                         save(userWalletModel)
                         completion(result)
@@ -518,7 +521,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     private func loadModels() {
         var savedUserWallets = savedUserWallets(withSensitiveData: true)
-        migrateNames(&savedUserWallets)
+        migrateNamesIfNeeded(&savedUserWallets)
 
         models = savedUserWallets.map { userWalletStorageItem in
             if let userWallet = CommonUserWalletModel(userWallet: userWalletStorageItem) {
@@ -549,20 +552,22 @@ class CommonUserWalletRepository: UserWalletRepository {
         initializeServices(for: selectedModel)
     }
 
-    private func migrateNames(_ wallets: inout [StoredUserWallet]) {
+    private func migrateNamesIfNeeded(_ wallets: inout [StoredUserWallet]) {
         if AppSettings.shared.didMigrateUserWalletNames {
             return
         }
 
         AppSettings.shared.didMigrateUserWalletNames = true
 
+        let oldNames = wallets.map(\.name)
+        let helper = UserWalletNameIndexationHelper(mode: .migration, names: oldNames)
+
         var didChangeNames = true
-        var existingNames: Set<String> = []
         for i in 0 ..< wallets.count {
-            let defaultName = wallets[i].name
-            let suggestedWalletName = suggestedWalletName(for: defaultName, existingNames: &existingNames)
-            if defaultName != suggestedWalletName {
-                wallets[i].name = suggestedWalletName
+            let oldName = wallets[i].name
+            let newName = helper.suggestedName(oldName)
+            if newName != oldName {
+                wallets[i].name = newName
                 didChangeNames = true
             }
         }
@@ -570,25 +575,6 @@ class CommonUserWalletRepository: UserWalletRepository {
         if didChangeNames {
             UserWalletRepositoryUtil().saveUserWallets(wallets)
         }
-    }
-
-    private func suggestedWalletName(for defaultName: String, existingNames: inout Set<String>) -> String {
-        let startIndex = 1
-        for index in startIndex ... 10000 {
-            let name: String
-            if index == startIndex {
-                name = defaultName
-            } else {
-                name = "\(defaultName) \(index)"
-            }
-
-            if !existingNames.contains(name) {
-                existingNames.insert(name)
-                return name
-            }
-        }
-
-        return defaultName
     }
 
     private func sendEvent(_ event: UserWalletRepositoryEvent) {
