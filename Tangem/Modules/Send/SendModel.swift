@@ -302,7 +302,7 @@ class SendModel {
             transaction
                 .map { transaction in
                     guard let transaction else { return nil }
-                    return withdrawalValidator.withdrawalSuggestion(amount: transaction.amount, fee: transaction.fee.amount)
+                    return withdrawalValidator.withdrawalNotification(amount: transaction.amount, fee: transaction.fee.amount)
                 }
                 .sink { [weak self] in
                     self?._withdrawalNotification.send($0)
