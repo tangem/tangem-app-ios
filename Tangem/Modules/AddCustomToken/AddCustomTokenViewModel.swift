@@ -61,7 +61,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
 
     init(
         userWalletModel: UserWalletModel,
-        dataSource: ManageTokensDataSource,
+        dataSource: MarketsDataSource,
         coordinator: AddCustomTokenRoutable
     ) {
         let networkDataSource = ManageTokensNetworkDataSource(dataSource)
