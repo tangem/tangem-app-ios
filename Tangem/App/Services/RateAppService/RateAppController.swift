@@ -10,6 +10,8 @@ import Foundation
 import Combine
 
 protocol RateAppController {
+    var showAppRateNotificationPublisher: AnyPublisher<Bool, Never> { get }
+
     func bind(
         isPageSelectedPublisher: some Publisher<Bool, Never>,
         notificationsPublisher1: some Publisher<[NotificationViewInput], Never>,
@@ -20,4 +22,10 @@ protocol RateAppController {
         isPageSelectedPublisher: some Publisher<Bool, Never>,
         notificationsPublisher: some Publisher<[NotificationViewInput], Never>
     )
+
+    @available(*, deprecated, message: "Test only")
+    func openFeedbackMail(with emailType: EmailType)
+
+    @available(*, deprecated, message: "Test only")
+    func openAppStoreReview()
 }
