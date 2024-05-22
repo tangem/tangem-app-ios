@@ -29,17 +29,13 @@ class StakeDetailsCoordinator: CoordinatorObject {
         self.popToRootAction = popToRootAction
     }
 
-    func start(with options: Options) {
-
-    }
+    func start(with options: Options) {}
 }
 
 // MARK: - Options
 
 extension StakeDetailsCoordinator {
-    enum Options {
-
-    }
+    enum Options {}
 }
 
 // MARK: - StakeDetailsRoutable
