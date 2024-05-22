@@ -17,6 +17,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     case refreshFee
     case goToProvider
     case exchange
+    case leaveAmount(amount: Decimal, amountFormatted: String)
     case reduceAmountBy(amount: Decimal, amountFormatted: String)
     case reduceAmountTo(amount: Decimal, amountFormatted: String)
     case bookNow(promotionLink: URL)
@@ -45,7 +46,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return Localization.tokenSwapPromotionButton
         case .reduceAmountBy(_, let amountFormatted):
             return Localization.sendNotificationReduceBy(amountFormatted)
-        case .reduceAmountTo(_, let amountFormatted):
+        case .reduceAmountTo(_, let amountFormatted), .leaveAmount(_, let amountFormatted):
             return Localization.sendNotificationLeaveButton(amountFormatted)
         case .bookNow:
             return Localization.mainTravalaPromotionButton
@@ -58,7 +59,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return .trailing(Assets.tangemIcon)
         case .exchange:
             return .leading(Assets.exchangeMini)
-        case .backupCard, .buyCrypto, .openFeeCurrency, .refresh, .refreshFee, .goToProvider, .reduceAmountBy, .reduceAmountTo, .bookNow:
+        case .backupCard, .buyCrypto, .openFeeCurrency, .refresh, .refreshFee, .goToProvider, .reduceAmountBy, .reduceAmountTo, .leaveAmount, .bookNow:
             return nil
         }
     }
@@ -67,7 +68,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
         switch self {
         case .generateAddresses, .bookNow:
             return .primary
-        case .backupCard, .buyCrypto, .openFeeCurrency, .refresh, .refreshFee, .goToProvider, .reduceAmountBy, .reduceAmountTo:
+        case .backupCard, .buyCrypto, .openFeeCurrency, .refresh, .refreshFee, .goToProvider, .reduceAmountBy, .reduceAmountTo, .leaveAmount:
             return .secondary
         case .exchange:
             return .exchangePromotionWhite
