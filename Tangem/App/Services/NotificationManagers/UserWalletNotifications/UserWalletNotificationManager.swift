@@ -1,5 +1,5 @@
 //
-//  UserWalletNotificationService.swift
+//  UserWalletNotificationManager.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
