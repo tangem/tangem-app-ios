@@ -22,6 +22,10 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     case addHederaTokenAssociation
     @available(*, unavailable, message: "Token trust lines support not implemented yet")
     case addTokenTrustline
+    /// Rate the app.
+    case openFeedbackMail
+    /// Rate the app.
+    case openAppStoreReview
 
     var id: Int { hashValue }
 
@@ -51,6 +55,10 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return Localization.mainTravalaPromotionButton
         case .addHederaTokenAssociation:
             return Localization.warningHederaMissingTokenAssociationButtonTitle
+        case .openFeedbackMail:
+            return "Can be better" // [REDACTED_TODO_COMMENT]
+        case .openAppStoreReview:
+            return "Love it!" // [REDACTED_TODO_COMMENT]
         }
     }
 
@@ -67,14 +75,18 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .reduceAmountBy,
              .reduceAmountTo,
              .addHederaTokenAssociation,
-             .bookNow:
+             .bookNow,
+             .openFeedbackMail,
+             .openAppStoreReview:
             return nil
         }
     }
 
     var style: MainButton.Style {
         switch self {
-        case .generateAddresses, .bookNow:
+        case .generateAddresses,
+             .bookNow,
+             .openAppStoreReview:
             return .primary
         case .backupCard,
              .buyCrypto,
@@ -84,7 +96,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .goToProvider,
              .reduceAmountBy,
              .reduceAmountTo,
-             .addHederaTokenAssociation:
+             .addHederaTokenAssociation,
+             .openFeedbackMail:
             return .secondary
         }
     }
