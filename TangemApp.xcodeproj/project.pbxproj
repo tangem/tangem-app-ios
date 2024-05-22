@@ -1451,6 +1451,7 @@
 		EFEE236C2BFE20860099917E /* StakeDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFEE23672BFE20860099917E /* StakeDetailsView.swift */; };
 		EFEE236D2BFE20860099917E /* StakeDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFEE23682BFE20860099917E /* StakeDetailsViewModel.swift */; };
 		EFEE236E2BFE20860099917E /* StakeDetailsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFEE23692BFE20860099917E /* StakeDetailsRoutable.swift */; };
+		EFEE23702BFE3A8A0099917E /* DateFormatter+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFEE236F2BFE3A8A0099917E /* DateFormatter+.swift */; };
 		EFF034AC28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF034AB28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift */; };
 		EFF034AF28B6522500F70FF7 /* WalletModelsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF034AE28B6522500F70FF7 /* WalletModelsManager.swift */; };
 		EFF034B128B6523F00F70FF7 /* CommonWalletModelsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF034B028B6523F00F70FF7 /* CommonWalletModelsManager.swift */; };
@@ -3155,6 +3156,7 @@
 		EFEE23672BFE20860099917E /* StakeDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakeDetailsView.swift; sourceTree = "<group>"; };
 		EFEE23682BFE20860099917E /* StakeDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakeDetailsViewModel.swift; sourceTree = "<group>"; };
 		EFEE23692BFE20860099917E /* StakeDetailsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakeDetailsRoutable.swift; sourceTree = "<group>"; };
+		EFEE236F2BFE3A8A0099917E /* DateFormatter+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DateFormatter+.swift"; sourceTree = "<group>"; };
 		EFF034AB28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Publisher+TangemAPIError.swift"; sourceTree = "<group>"; };
 		EFF034AE28B6522500F70FF7 /* WalletModelsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModelsManager.swift; sourceTree = "<group>"; };
 		EFF034B028B6523F00F70FF7 /* CommonWalletModelsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonWalletModelsManager.swift; sourceTree = "<group>"; };
@@ -7032,6 +7034,7 @@
 			isa = PBXGroup;
 			children = (
 				EF9E29BD2B4F0CCE00418559 /* Sequence+Async.swift */,
+				EFEE236F2BFE3A8A0099917E /* DateFormatter+.swift */,
 			);
 			path = Foundation;
 			sourceTree = "<group>";
@@ -10449,6 +10452,7 @@
 			files = (
 				EF2D9CC52BBDAB3E0055C485 /* ThreadSafeContainer+ExpressibleByDictionaryLiteral.swift in Sources */,
 				EF2D9CB82BBDA9090055C485 /* Lock.swift in Sources */,
+				EFEE23702BFE3A8A0099917E /* DateFormatter+.swift in Sources */,
 				EF2D9CC42BBDAB3E0055C485 /* ThreadSafeContainer.swift in Sources */,
 				EF2D9CC22BBDAB350055C485 /* Moya.Task+.swift in Sources */,
 				EF2D9CC12BBDAB2E0055C485 /* Sequence+Async.swift in Sources */,
