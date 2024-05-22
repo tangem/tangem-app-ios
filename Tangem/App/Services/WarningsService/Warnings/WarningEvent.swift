@@ -175,7 +175,10 @@ extension WarningEvent: NotificationEvent {
         }
     }
 
-    func style(tapAction: NotificationView.NotificationAction? = nil, buttonAction: NotificationView.NotificationButtonTapAction? = nil) -> NotificationView.Style {
+    func style(
+        tapAction: NotificationView.NotificationAction? = nil,
+        buttonAction: NotificationView.NotificationButtonTapAction? = nil
+    ) -> NotificationView.Style {
         switch self {
         case .walletLocked:
             guard let tapAction else {
