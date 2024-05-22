@@ -40,6 +40,8 @@ final class CommonRateAppController {
             DispatchQueue.main.asyncAfter(deadline: .now() + Constants.feedbackRequestDelay) { [weak self] in
                 self?.coordinator?.openAppStoreReview()
             }
+        case .requestAppRate:
+            break // [REDACTED_TODO_COMMENT]
         }
     }
 }
@@ -47,6 +49,21 @@ final class CommonRateAppController {
 // MARK: - RateAppController protocol conformance
 
 extension CommonRateAppController: RateAppController {
+    var showAppRateNotificationPublisher: AnyPublisher<Bool, Never> {
+        return rateAppService
+            .rateAppAction
+            .map { action in
+                switch action {
+                case .requestAppRate:
+                    return true
+                case .openAppStoreReview,
+                     .openFeedbackMailWithEmailType:
+                    return false
+                }
+            }
+            .eraseToAnyPublisher()
+    }
+
     private var isBalanceLoadedPublisher: AnyPublisher<Bool, Never> {
         userWalletModel
             .totalBalancePublisher
@@ -82,6 +99,14 @@ extension CommonRateAppController: RateAppController {
             .store(in: &bag)
 
         bind()
+    }
+
+    func openFeedbackMail(with emailType: EmailType) {
+        rateAppService.respondToRateAppDialog(with: .negative)
+    }
+
+    func openAppStoreReview() {
+        rateAppService.respondToRateAppDialog(with: .positive)
     }
 
     private func bind() {
