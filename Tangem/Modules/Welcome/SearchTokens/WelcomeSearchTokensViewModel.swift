@@ -12,23 +12,25 @@ import Combine
 class WelcomeSearchTokensViewModel: Identifiable, ObservableObject {
     // I can't use @Published here, because of swiftui redraw perfomance drop
     var enteredSearchText = CurrentValueSubject<String, Never>("")
+    var manageTokensListViewModel: ManageTokensListViewModel!
 
     @Published var coinViewModels: [LegacyCoinViewModel] = []
     @Published var isLoading: Bool = true
-
-    var hasNextPage: Bool {
-        loader.canFetchMore
-    }
 
     private lazy var loader = setupListDataLoader()
     private var bag = Set<AnyCancellable>()
 
     init() {
+        manageTokensListViewModel = .init(
+            loader: self,
+            coinViewModelsPublisher: $coinViewModels
+        )
+
         bind()
     }
 
     func onAppear() {
-        loader.reset(enteredSearchText.value)
+        reset()
     }
 
     func onDisappear() {
@@ -36,9 +38,19 @@ class WelcomeSearchTokensViewModel: Identifiable, ObservableObject {
             self.enteredSearchText.value = ""
         }
     }
+}
+
+extension WelcomeSearchTokensViewModel: ManageTokensListLoader {
+    var hasNextPage: Bool {
+        loader.canFetchMore
+    }
 
     func fetch() {
         loader.fetch(enteredSearchText.value)
+    }
+
+    func reset() {
+        loader.reset(enteredSearchText.value)
     }
 }
 
