@@ -203,17 +203,13 @@ extension WarningEvent: NotificationEvent {
                 .init(action: buttonAction, actionType: .generateAddresses, isWithLoader: true),
             ])
         case .rateApp:
+            guard let buttonAction else {
+                break
+            }
+
             return .withButtons([
-                .init(
-                    action: { _, _ in }, // [REDACTED_TODO_COMMENT]
-                    actionType: .openFeedbackMail,
-                    isWithLoader: false
-                ),
-                .init(
-                    action: { _, _ in }, // [REDACTED_TODO_COMMENT]
-                    actionType: .openAppStoreReview,
-                    isWithLoader: false
-                ),
+                .init(action: buttonAction, actionType: .openFeedbackMail, isWithLoader: false),
+                .init(action: buttonAction, actionType: .openAppStoreReview, isWithLoader: false),
             ])
         default: break
         }
