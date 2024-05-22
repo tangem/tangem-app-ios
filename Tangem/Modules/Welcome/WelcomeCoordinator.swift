@@ -29,11 +29,11 @@ class WelcomeCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @Published var pushedOnboardingCoordinator: OnboardingCoordinator? = nil
-    @Published var legacyTokenListCoordinator: LegacyTokenListCoordinator? = nil
     @Published var promotionCoordinator: PromotionCoordinator? = nil
 
     // MARK: - Child view models
 
+    @Published var searchTokensViewModel: WelcomeSearchTokensViewModel? = nil
     @Published var mailViewModel: MailViewModel? = nil
 
     // MARK: - Private
@@ -44,7 +44,7 @@ class WelcomeCoordinator: CoordinatorObject {
         // Only modals, because the modal presentation will not trigger onAppear/onDissapear events
         var publishers: [AnyPublisher<Bool, Never>] = []
         publishers.append($mailViewModel.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
-        publishers.append($legacyTokenListCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
+        publishers.append($searchTokensViewModel.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($promotionCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
 
         return Publishers.MergeMany(publishers)
@@ -121,12 +121,10 @@ extension WelcomeCoordinator: WelcomeRoutable {
 
     func openTokensList() {
         let dismissAction: Action<Void> = { [weak self] _ in
-            self?.legacyTokenListCoordinator = nil
+            self?.searchTokensViewModel = nil
         }
 
-        let coordinator = LegacyTokenListCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: .show)
-        legacyTokenListCoordinator = coordinator
+        searchTokensViewModel = .init()
     }
 
     func openShop() {
