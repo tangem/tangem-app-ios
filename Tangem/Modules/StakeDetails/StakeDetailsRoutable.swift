@@ -8,6 +8,4 @@
 
 import Foundation
 
-protocol StakeDetailsRoutable: AnyObject {
-
-}
+protocol StakeDetailsRoutable: AnyObject {}
