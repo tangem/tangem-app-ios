@@ -164,7 +164,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
 
         let coordinator = LegacyTokenListCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: .add(
+        coordinator.start(with: .init(
             settings: settings,
             userTokensManager: userTokensManager
         ))
