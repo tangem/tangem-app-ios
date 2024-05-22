@@ -785,7 +785,7 @@ extension SendViewModel: NotificationTapDelegate {
                 .sink()
         case .openFeeCurrency:
             openNetworkCurrency()
-        case .reduceAmountBy(let amount, _):
+        case .reduceAmountBy(let amount, _), .leaveAmount(let amount, _):
             reduceAmountBy(amount)
         case .reduceAmountTo(let amount, _):
             reduceAmountTo(amount)
