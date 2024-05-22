@@ -37,7 +37,7 @@ extension WarningEvent: NotificationEvent {
     var title: NotificationView.Title {
         switch self {
         case .rateApp:
-            return .string(Localization.warningRateAppTitle)
+            return .string("Rate the app") // [REDACTED_TODO_COMMENT]
         case .failedToVerifyCard:
             return .string(Localization.warningFailedToVerifyCardTitle)
         case .systemDeprecationTemporary:
@@ -78,7 +78,7 @@ extension WarningEvent: NotificationEvent {
         case .numberOfSignedHashesIncorrect:
             return Localization.warningNumberOfSignedHashesIncorrectMessage
         case .rateApp:
-            return Localization.warningRateAppMessage
+            return "How do you like Tangem?" // [REDACTED_TODO_COMMENT]
         case .failedToVerifyCard:
             return Localization.warningFailedToVerifyCardMessage
         case .testnetCard:
@@ -115,8 +115,10 @@ extension WarningEvent: NotificationEvent {
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .rateApp, .missingDerivation, .missingBackup:
+        case .missingDerivation, .missingBackup:
             return .primary
+        case .rateApp:
+            return .action
         default:
             return .secondary
         }
@@ -166,7 +168,9 @@ extension WarningEvent: NotificationEvent {
         switch self {
         case .failedToVerifyCard, .testnetCard, .devCard, .oldDeviceOldCard, .oldCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent, .missingDerivation, .walletLocked, .missingBackup, .supportedOnlySingleCurrencyWallet, .backupErrors:
             return false
-        case .rateApp, .numberOfSignedHashesIncorrect, .systemDeprecationTemporary:
+        case .numberOfSignedHashesIncorrect,
+             .systemDeprecationTemporary,
+             .rateApp:
             return true
         }
     }
@@ -195,6 +199,19 @@ extension WarningEvent: NotificationEvent {
             return .withButtons([
                 .init(action: buttonAction, actionType: .generateAddresses, isWithLoader: true),
             ])
+        case .rateApp:
+            return .withButtons([
+                .init(
+                    action: { _, _ in }, // [REDACTED_TODO_COMMENT]
+                    actionType: .openFeedbackMail,
+                    isWithLoader: false
+                ),
+                .init(
+                    action: { _, _ in }, // [REDACTED_TODO_COMMENT]
+                    actionType: .openAppStoreReview,
+                    isWithLoader: false
+                ),
+            ])
         default: break
         }
         return .plain
@@ -207,7 +224,7 @@ extension WarningEvent {
     var analyticsEvent: Analytics.Event? {
         switch self {
         case .numberOfSignedHashesIncorrect: return .mainNoticeCardSignedTransactions
-        case .rateApp: return nil
+        case .rateApp: return nil // [REDACTED_TODO_COMMENT]
         case .failedToVerifyCard: return .mainNoticeProductSampleCard
         case .testnetCard: return .mainNoticeTestnetCard
         case .demoCard: return .mainNoticeDemoCard
