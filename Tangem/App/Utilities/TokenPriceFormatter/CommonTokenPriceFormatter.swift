@@ -15,7 +15,7 @@ struct CommonTokenPriceFormatter {
 // MARK: - FeeFormatter
 
 extension CommonTokenPriceFormatter {
-    private var tokenPriceFiatFormattingOptions: BalanceFormattingOptions {
+    private var lowPriceFiatFormattingOptions: BalanceFormattingOptions {
         .init(
             minFractionDigits: 2,
             maxFractionDigits: 6,
@@ -29,7 +29,7 @@ extension CommonTokenPriceFormatter {
             return balanceFormatter.formatFiatBalance(value)
         }
 
-        let fiatFormattingOptions: BalanceFormattingOptions = value >= Constants.boundaryLowDigitOptions ? .defaultFiatFormattingOptions : tokenPriceFiatFormattingOptions
+        let fiatFormattingOptions: BalanceFormattingOptions = value >= Constants.boundaryLowDigitOptions ? .defaultFiatFormattingOptions : lowPriceFiatFormattingOptions
 
         return balanceFormatter.formatDecimal(value, formattingOptions: fiatFormattingOptions)
     }
