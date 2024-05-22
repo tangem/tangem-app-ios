@@ -27,7 +27,19 @@ extension WarningEvent {
             return [.manageTokens]
         case .testnetCard, .oldDeviceOldCard, .demoCard:
             return [.main, .send]
-        default:
+        case .numberOfSignedHashesIncorrect,
+             .rateApp,
+             .failedToVerifyCard,
+             .oldCard,
+             .devCard,
+             .lowSignatures,
+             .systemDeprecationTemporary,
+             .systemDeprecationPermanent,
+             .missingDerivation,
+             .walletLocked,
+             .missingBackup,
+             .supportedOnlySingleCurrencyWallet,
+             .backupErrors:
             return [.main]
         }
     }
@@ -36,7 +48,21 @@ extension WarningEvent {
         switch self {
         case .numberOfSignedHashesIncorrect, .systemDeprecationTemporary:
             return [.okGotIt]
-        default:
+        case .rateApp,
+             .failedToVerifyCard,
+             .testnetCard,
+             .demoCard,
+             .oldDeviceOldCard,
+             .oldCard,
+             .devCard,
+             .lowSignatures,
+             .legacyDerivation,
+             .systemDeprecationPermanent,
+             .missingDerivation,
+             .walletLocked,
+             .missingBackup,
+             .supportedOnlySingleCurrencyWallet,
+             .backupErrors:
             return []
         }
     }
