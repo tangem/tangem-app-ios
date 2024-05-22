@@ -9,7 +9,7 @@
 import Foundation
 
 struct ExpressFeeRowData: Identifiable {
-    var id: String { title }
+    var id: Int { hashValue }
 
     let title: String
     let subtitle: String
@@ -22,7 +22,12 @@ struct ExpressFeeRowData: Identifiable {
     }
 }
 
-extension ExpressFeeRowData: Equatable {
+extension ExpressFeeRowData: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(title)
+        hasher.combine(subtitle)
+    }
+
     static func == (lhs: ExpressFeeRowData, rhs: ExpressFeeRowData) -> Bool {
         lhs.id == rhs.id
     }
