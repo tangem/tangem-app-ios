@@ -398,8 +398,8 @@ private extension ExpressInteractor {
         let fee = try selectedFee(fees: fees)
         let amount = makeAmount(value: previewCEX.quote.fromAmount)
 
-        let withdrawalSuggestionProvider = getSender().withdrawalSuggestionProvider
-        let suggestion = withdrawalSuggestionProvider?.withdrawalSuggestion(amount: amount, fee: fee.amount)
+        let withdrawalNotificationProvider = getSender().withdrawalNotificationProvider
+        let notification = withdrawalNotificationProvider?.withdrawalNotification(amount: amount, fee: fee.amount)
 
         // Check on the minimum received amount
         // Almost impossible case because the providers check it on their side
@@ -412,7 +412,7 @@ private extension ExpressInteractor {
             )
         }
 
-        let previewCEXState = PreviewCEXState(subtractFee: previewCEX.subtractFee, fees: fees, suggestion: suggestion)
+        let previewCEXState = PreviewCEXState(subtractFee: previewCEX.subtractFee, fees: fees, notification: notification)
         let correctState: State = .previewCEX(previewCEXState, quote: previewCEX.quote)
 
         return await validate(amount: amount, fee: fee, correctState: correctState)
@@ -817,7 +817,7 @@ extension ExpressInteractor {
     struct PreviewCEXState {
         let subtractFee: Decimal
         let fees: [FeeOption: Fee]
-        let suggestion: WithdrawalSuggestion?
+        let notification: WithdrawalNotification?
     }
 
     struct ReadyToSwapState {
