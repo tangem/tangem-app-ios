@@ -443,8 +443,8 @@ final class SendViewModel: ObservableObject {
                     logTransactionAnalytics()
                 }
 
-                if let address = sendModel.destinationText {
-                    UserWalletFinder().addTokenItem(walletModel.tokenItem, for: address)
+                if let address = sendModel.destinationText, let token = walletModel.tokenItem.token {
+                    UserWalletFinder().addToken(token, in: walletModel.blockchainNetwork.blockchain, for: address)
                 }
             }
             .store(in: &bag)
