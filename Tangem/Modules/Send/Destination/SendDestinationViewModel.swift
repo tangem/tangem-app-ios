@@ -72,7 +72,7 @@ class SendDestinationViewModel: ObservableObject {
             showSign: false
         )
 
-        suggestedWallets = Self.suggestedWallets(for: input.blockchainNetwork.blockchain)
+        suggestedWallets = Self.suggestedWallets(for: input.blockchainNetwork.blockchain, ignoringAddesses: input.walletAddresses)
 
         addressViewModel = SendDestinationTextViewModel(
             style: .address(networkName: input.networkName),
@@ -187,21 +187,17 @@ class SendDestinationViewModel: ObservableObject {
             .store(in: &bag)
     }
 
-    private static func suggestedWallets(for blockchain: Blockchain) -> [SendSuggestedDestinationWallet] {
-        let currentUserWalletId = Self.userWalletRepository.selectedModel?.userWalletId
-
+    private static func suggestedWallets(for blockchain: Blockchain, ignoringAddesses ignoredAddresses: [String]) -> [SendSuggestedDestinationWallet] {
         var suggestedWallets: [SendSuggestedDestinationWallet] = []
         for userWalletModel in Self.userWalletRepository.models {
-            if userWalletModel.userWalletId == currentUserWalletId {
-                continue
-            }
-
             let walletModels = userWalletModel.walletModelsManager.walletModels
             let suggestedDestinationWallets = walletModels
                 .filter { walletModel in
                     // Disregarding the difference between testnet and mainnet blockchains
                     // See https://github.com/tangem/tangem-app-ios/pull/3079#discussion_r1553709671
-                    return walletModel.blockchainNetwork.blockchain.networkId == blockchain.networkId && walletModel.isMainToken
+                    return walletModel.blockchainNetwork.blockchain.networkId == blockchain.networkId
+                        && walletModel.isMainToken
+                        && !ignoredAddresses.contains(walletModel.defaultAddress)
                 }
                 .map { walletModel in
                     SendSuggestedDestinationWallet(
