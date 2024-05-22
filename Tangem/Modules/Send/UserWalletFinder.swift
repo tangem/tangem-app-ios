@@ -13,7 +13,7 @@ struct UserWalletFinder {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     func addToken(_ token: Token, in blockchain: Blockchain, for address: String) {
-        guard let result = find(token, blockchain: blockchain, with: address) else { return }
+        guard let result = find(token, in: blockchain, with: address) else { return }
 
         do {
             let userWalletModel = result.userWalletModel
@@ -26,7 +26,7 @@ struct UserWalletFinder {
         }
     }
 
-    private func find(_ token: Token, blockchain: Blockchain, with address: String) -> SearchResult? {
+    private func find(_ token: Token, in blockchain: Blockchain, with address: String) -> SearchResult? {
         for userWalletModel in userWalletRepository.models {
             let walletModels = userWalletModel.walletModelsManager.walletModels
 
