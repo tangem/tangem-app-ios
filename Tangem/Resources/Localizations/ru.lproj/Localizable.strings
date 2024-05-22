@@ -49,6 +49,12 @@
 "card_settings_reset_card_to_factory" = "Заводские настройки";
 "card_settings_security_mode" = "Тип безопасности";
 "card_settings_title" = "Настройки карты";
+"cardano_coin_will_be_send_with_token_description" = "Помимо сетевой комиссий, сеть Cardano взимает %1$@ ADA при транзакции с токеном %2$@";
+"cardano_coin_will_be_send_with_token_title" = "Требования к транзакции Cardano";
+"cardano_insufficient_balance_to_send_token_description" = "Чтобы совершить транзакцию %1$@, внесите некоторую сумму ADA для покрытия сетевой комиссии и минимального значения ADA (рекомендуется 5 ADA)";
+"cardano_insufficient_balance_to_send_token_title" = "Недостаточно ADA для транзакции";
+"cardano_max_amount_has_token_description" = "Вы должны поддерживать некоторое количество ADA, поскольку у вас на балансе есть токены в сети Cardano";
+"cardano_max_amount_has_token_title" = "Недостаточно ADA";
 "common_accept" = "Принять";
 "common_access_denied" = "Доступ запрещен";
 "common_apply" = "Применить";
