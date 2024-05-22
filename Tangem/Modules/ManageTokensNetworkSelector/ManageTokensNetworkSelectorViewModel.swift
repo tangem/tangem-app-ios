@@ -55,7 +55,7 @@ final class ManageTokensNetworkSelectorViewModel: Identifiable, ObservableObject
     // MARK: - Init
 
     init(
-        parentDataSource: ManageTokensDataSource,
+        parentDataSource: MarketsDataSource,
         coinId: String,
         tokenItems: [TokenItem],
         coordinator: ManageTokensNetworkSelectorRoutable
