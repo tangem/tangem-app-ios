@@ -15,7 +15,7 @@ protocol SendNotificationManagerInput {
     var selectedFeeOptionPublisher: AnyPublisher<FeeOption, Never> { get }
     var customFeePublisher: AnyPublisher<Fee?, Never> { get }
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> { get }
-    var withdrawalSuggestion: AnyPublisher<WithdrawalSuggestion?, Never> { get }
+    var withdrawalNotification: AnyPublisher<WithdrawalNotification?, Never> { get }
     var amountError: AnyPublisher<Error?, Never> { get }
     var transactionCreationError: AnyPublisher<Error?, Never> { get }
 }
@@ -94,11 +94,11 @@ class CommonSendNotificationManager: SendNotificationManager {
             .store(in: &bag)
 
         input
-            .withdrawalSuggestion
-            .sink { [weak self] withdrawalSuggestion in
+            .withdrawalNotification
+            .sink { [weak self] withdrawalNotification in
                 guard let self else { return }
 
-                switch withdrawalSuggestion {
+                switch withdrawalNotification {
                 case .feeIsTooHigh(let newAmount):
                     let event = SendNotificationEvent.withdrawalOptionalAmountChange(
                         amount: newAmount.value,
@@ -106,7 +106,14 @@ class CommonSendNotificationManager: SendNotificationManager {
                         blockchainName: tokenItem.blockchain.displayName
                     )
                     updateEventVisibility(true, event: event)
-                case nil:
+
+                case .cardanoWillBeSendAlongToken(let amount):
+                    let event = SendNotificationEvent.cardanoWillBeSendAlongToken(
+                        cardanoAmountFormatted: amount.value.description,
+                        tokenSymbol: tokenItem.currencySymbol
+                    )
+                    updateEventVisibility(true, event: event)
+                case .none:
                     let events = [
                         SendNotificationEvent.withdrawalOptionalAmountChange(amount: .zero, amountFormatted: "", blockchainName: ""),
                     ]
@@ -254,7 +261,7 @@ class CommonSendNotificationManager: SendNotificationManager {
     private func notificationEvent(from validationError: ValidationError) -> SendNotificationEvent? {
         switch validationError {
         case .dustAmount(let minimumAmount), .dustChange(let minimumAmount):
-            return SendNotificationEvent.minimumAmount(value: minimumAmount.string())
+            return .minimumAmount(value: minimumAmount.string())
         case .totalExceedsBalance, .amountExceedsBalance:
             return .totalExceedsBalance
         case .feeExceedsBalance:
@@ -262,12 +269,16 @@ class CommonSendNotificationManager: SendNotificationManager {
         case .minimumBalance(let minimumBalance):
             return .existentialDeposit(amount: minimumBalance.value, amountFormatted: minimumBalance.string())
         case .maximumUTXO(let blockchainName, let newAmount, let maxUtxos):
-            return SendNotificationEvent.withdrawalMandatoryAmountChange(
+            return .withdrawalMandatoryAmountChange(
                 amount: newAmount.value,
                 amountFormatted: newAmount.string(),
                 blockchainName: blockchainName,
                 maxUtxo: maxUtxos
             )
+        case .cardanoHasTokens:
+            return .cardanoCannotBeSentBecauseHasTokens
+        case .cardanoInsufficientBalanceToSendToken:
+            return .cardanoInsufficientBalanceToSendToken(tokenSymbol: tokenItem.currencySymbol)
         default:
             return nil
         }
