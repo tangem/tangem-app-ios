@@ -396,8 +396,12 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             startBackupProcess()
         case .bookNow(let url):
             openTravalaPromotion(url: url)
+        case .openFeedbackMail:
+            rateAppController.openFeedbackMail(with: .negativeRateAppFeedback)
+        case .openAppStoreReview:
+            rateAppController.openAppStoreReview()
         default:
-            return
+            break
         }
     }
 
