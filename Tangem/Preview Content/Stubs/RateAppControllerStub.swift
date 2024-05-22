@@ -10,6 +10,8 @@ import Foundation
 import Combine
 
 struct RateAppControllerStub: RateAppController {
+    var showAppRateNotificationPublisher: AnyPublisher<Bool, Never> { fatalError() }
+
     func bind(
         isPageSelectedPublisher: some Publisher<Bool, Never>,
         notificationsPublisher1: some Publisher<[NotificationViewInput], Never>,
@@ -20,4 +22,7 @@ struct RateAppControllerStub: RateAppController {
         isPageSelectedPublisher: some Publisher<Bool, Never>,
         notificationsPublisher: some Publisher<[NotificationViewInput], Never>
     ) {}
+
+    func openFeedbackMail(with emailType: EmailType) {}
+    func openAppStoreReview() {}
 }

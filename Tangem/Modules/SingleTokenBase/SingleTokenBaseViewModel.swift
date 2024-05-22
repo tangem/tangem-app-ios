@@ -180,6 +180,10 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
             openBuyCryptoIfPossible()
         case .addHederaTokenAssociation:
             fulfillAssetRequirements()
+        case .openFeedbackMail:
+            break
+        case .openAppStoreReview:
+            break
         default:
             break
         }
