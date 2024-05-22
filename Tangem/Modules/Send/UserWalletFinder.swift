@@ -38,12 +38,7 @@ struct UserWalletFinder {
                 continue
             }
 
-            let blockchainNetwork = BlockchainNetwork(
-                blockchain,
-                derivationPath: walletModel.wallet.publicKey.derivationPath
-            )
-
-            let tokenItem = TokenItem.token(token, blockchainNetwork)
+            let tokenItem = TokenItem.token(token, walletModel.blockchainNetwork)
 
             if walletModels.contains(where: { $0.tokenItem == tokenItem }) {
                 return nil
