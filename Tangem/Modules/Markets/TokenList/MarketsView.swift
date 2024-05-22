@@ -1,5 +1,5 @@
 //
-//  ManageTokensView.swift
+//  MarketsView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,8 +10,8 @@ import SwiftUI
 import Combine
 import BlockchainSdk
 
-struct ManageTokensView: View {
-    @ObservedObject var viewModel: ManageTokensViewModel
+struct MarketsView: View {
+    @ObservedObject var viewModel: MarketsViewModel
 
     var body: some View {
         VStack {
@@ -42,7 +42,7 @@ struct ManageTokensView: View {
     private var list: some View {
         LazyVStack(spacing: 0) {
             ForEach(viewModel.tokenViewModels) {
-                ManageTokensItemView(viewModel: $0)
+                MarketsItemView(viewModel: $0)
             }
 
             if viewModel.isShowAddCustomToken {
@@ -58,7 +58,7 @@ struct ManageTokensView: View {
     }
 
     private var addCustomTokenView: some View {
-        ManageTokensAddCustomItemView {
+        MarketsAddCustomItemView {
             // Need force hide keyboard, because it will affect the state of the focus properties field in the shield under the hood
             UIApplication.shared.endEditing()
 
