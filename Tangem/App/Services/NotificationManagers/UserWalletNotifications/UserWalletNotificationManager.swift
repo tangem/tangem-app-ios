@@ -24,20 +24,24 @@ final class UserWalletNotificationManager {
     private let analyticsService: NotificationsAnalyticsService = .init()
     private let userWalletModel: UserWalletModel
     private let signatureCountValidator: SignatureCountValidator?
+    private let rateAppController: RateAppController
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
 
     private weak var delegate: NotificationTapDelegate?
     private var bag = Set<AnyCancellable>()
     private var numberOfPendingDerivations: Int = 0
     private var promotionUpdateTask: Task<Void, Never>?
+    private var showAppRateNotification = false
 
     init(
         userWalletModel: UserWalletModel,
         signatureCountValidator: SignatureCountValidator?,
+        rateAppController: RateAppController, // [REDACTED_TODO_COMMENT]
         contextDataProvider: AnalyticsContextDataProvider?
     ) {
         self.userWalletModel = userWalletModel
         self.signatureCountValidator = signatureCountValidator
+        self.rateAppController = rateAppController
 
         analyticsService.setup(with: self, contextDataProvider: contextDataProvider)
     }
@@ -109,6 +113,17 @@ final class UserWalletNotificationManager {
             )
         }
 
+        if showAppRateNotification {
+            inputs.append(
+                factory.buildNotificationInput(
+                    for: .rateApp,
+                    action: action,
+                    buttonAction: buttonAction,
+                    dismissAction: dismissAction
+                )
+            )
+        }
+
         notificationInputsSubject.send(inputs)
 
         validateHashesCount()
@@ -173,6 +188,19 @@ final class UserWalletNotificationManager {
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .sink(receiveValue: weakify(self, forFunction: UserWalletNotificationManager.addMissingDerivationWarningIfNeeded(pendingDerivationsCount:)))
+            .store(in: &bag)
+
+        let showAppRateNotificationPublisher = rateAppController
+            .showAppRateNotificationPublisher
+            .share(replay: 1)
+
+        showAppRateNotificationPublisher
+            .assign(to: \.showAppRateNotification, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        showAppRateNotificationPublisher
+            .mapToVoid()
+            .sink(receiveValue: weakify(self, forFunction: UserWalletNotificationManager.createNotifications))
             .store(in: &bag)
     }
 
