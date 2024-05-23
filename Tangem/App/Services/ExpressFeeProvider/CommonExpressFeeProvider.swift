@@ -39,7 +39,7 @@ extension CommonExpressFeeProvider: ExpressFeeProvider {
             let gasLimit = parameters.gasLimit * BigUInt(112) / BigUInt(100)
             let feeParameters = EthereumEIP1559FeeParameters(
                 gasLimit: gasLimit,
-                baseFee: parameters.baseFee,
+                maxFeePerGas: parameters.maxFeePerGas,
                 priorityFee: parameters.priorityFee
             )
             let feeValue = feeParameters.caclulateFee(decimalValue: wallet.tokenItem.blockchain.decimalValue)
