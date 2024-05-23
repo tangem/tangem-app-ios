@@ -74,6 +74,7 @@ class SendSummaryViewModel: ObservableObject {
     private let walletInfo: SendWalletInfo
     private let notificationManager: SendNotificationManager
     private let fiatCryptoValueProvider: SendFiatCryptoValueProvider
+    private var isVisible = false
 
     let addressTextViewHeightModel: AddressTextViewHeightModel
 
@@ -118,6 +119,8 @@ class SendSummaryViewModel: ObservableObject {
     }
 
     func onAppear() {
+        isVisible = true
+
         selectedFeeSummaryViewModel?.setAnimateTitleOnAppear(true)
 
         withAnimation(SendView.Constants.defaultAnimation) {
@@ -135,6 +138,10 @@ class SendSummaryViewModel: ObservableObject {
                 self.showHint = true
             }
         }
+    }
+
+    func onDisappear() {
+        isVisible = false
     }
 
     func didTapSummary(for step: SendStep) {
@@ -208,7 +215,17 @@ class SendSummaryViewModel: ObservableObject {
 
                 return thisSendSummaryViewModel.makeTransactionDescription(amount: amount, fee: fee)
             }
-            .assign(to: \.transactionDescription, on: self, ownership: .weak)
+            .sink { [weak self] transactionDescription in
+                guard let self else { return }
+
+                self.transactionDescription = transactionDescription
+
+                if isVisible, !showTransactionDescription, transactionDescription != nil {
+                    withAnimation(SendView.Constants.defaultAnimation) {
+                        self.showTransactionDescription = true
+                    }
+                }
+            }
             .store(in: &bag)
 
         notificationManager
