@@ -237,6 +237,10 @@ extension CommonTangemApiService: TangemApiService {
         try await request(for: .resetAward(cardId: cardId))
     }
 
+    func loadAPIList() async throws -> APIListDTO {
+        try await request(for: .apiList)
+    }
+
     func loadFeatures() async throws -> [String: Bool] {
         try await request(for: .features)
     }
