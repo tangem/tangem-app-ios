@@ -14,17 +14,20 @@ class WelcomeCoordinator: CoordinatorObject {
     var dismissAction: Action<Void>
     var popToRootAction: Action<PopToRootOptions>
 
+    var isNavigationBarHidden: Bool {
+        viewState?.isMain == false
+    }
+
     // MARK: - Dependencies
 
     @Injected(\.safariManager) private var safariManager: SafariManager
 
     // MARK: - Main view model
 
-    @Published private(set) var welcomeViewModel: WelcomeViewModel? = nil
+    @Published private(set) var viewState: ViewState? = nil
 
     // MARK: - Child coordinators
 
-    @Published var mainCoordinator: MainCoordinator? = nil
     @Published var pushedOnboardingCoordinator: OnboardingCoordinator? = nil
     @Published var legacyTokenListCoordinator: LegacyTokenListCoordinator? = nil
     @Published var promotionCoordinator: PromotionCoordinator? = nil
@@ -54,7 +57,7 @@ class WelcomeCoordinator: CoordinatorObject {
     }
 
     func start(with options: WelcomeCoordinator.Options) {
-        welcomeViewModel = .init(shouldScanOnAppear: options.shouldScan, coordinator: self)
+        viewState = .welcome(WelcomeViewModel(shouldScanOnAppear: options.shouldScan, coordinator: self))
         subscribeToWelcomeLifecycle()
     }
 
@@ -64,9 +67,9 @@ class WelcomeCoordinator: CoordinatorObject {
                 guard let self else { return }
 
                 if viewDismissed {
-                    welcomeViewModel?.becomeActive()
+                    viewState?.welcomeViewModel?.becomeActive()
                 } else {
-                    welcomeViewModel?.resignActve()
+                    viewState?.welcomeViewModel?.resignActve()
                 }
             }
     }
@@ -98,7 +101,7 @@ extension WelcomeCoordinator: WelcomeRoutable {
         let coordinator = MainCoordinator(popToRootAction: popToRootAction)
         let options = MainCoordinator.Options(userWalletModel: userWalletModel)
         coordinator.start(with: options)
-        mainCoordinator = coordinator
+        viewState = .main(coordinator)
     }
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {
@@ -129,5 +132,41 @@ extension WelcomeCoordinator: WelcomeRoutable {
     func openShop() {
         Analytics.log(.shopScreenOpened)
         safariManager.openURL(AppConstants.webShopUrl)
+    }
+
+    func openScanCardManual() {
+        safariManager.openURL(TangemBlogUrlBuilder().url(post: .scanCard))
+    }
+}
+
+// MARK: ViewState
+
+extension WelcomeCoordinator {
+    enum ViewState: Equatable {
+        case welcome(WelcomeViewModel)
+        case main(MainCoordinator)
+
+        var isMain: Bool {
+            if case .main = self {
+                return true
+            }
+            return false
+        }
+
+        var welcomeViewModel: WelcomeViewModel? {
+            if case .welcome(let viewModel) = self {
+                return viewModel
+            }
+            return nil
+        }
+
+        static func == (lhs: WelcomeCoordinator.ViewState, rhs: WelcomeCoordinator.ViewState) -> Bool {
+            switch (lhs, rhs) {
+            case (.welcome, .welcome), (.main, .main):
+                return true
+            default:
+                return false
+            }
+        }
     }
 }
