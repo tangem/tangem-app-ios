@@ -168,26 +168,12 @@ private extension UserWalletSettingsViewModel {
             parameters: scanParameters
         )
 
-        let scanUtil = CardSettingsScanUtil(
-            cardScanner: scanner,
-            userWalletModels: userWalletRepository.models
+        coordinator?.openScanCardSettings(
+            with: .init(
+                cardImagePublisher: userWalletModel.cardImagePublisher,
+                cardScanner: scanner
+            )
         )
-
-        cardSettingsViewModel?.update(detailsType: .loader)
-        scanUtil.scan { [weak self] result in
-            self?.cardSettingsViewModel?.update(detailsType: .none)
-            switch result {
-            case .failure(let error):
-                guard !error.toTangemSdkError().isUserCancelled else {
-                    return
-                }
-
-                AppLog.shared.error(error)
-                self?.showErrorAlert(error: error)
-            case .success(let cardSettingsInput):
-                self?.coordinator?.openCardSettings(with: cardSettingsInput)
-            }
-        }
     }
 
     func openReferral() {
