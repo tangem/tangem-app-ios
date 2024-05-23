@@ -35,7 +35,7 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
     private var bag = Set<AnyCancellable>()
 
     private var percentFormatter = PercentFormatter()
-    private var balanceFormatter = BalanceFormatter()
+    private let priceFormatter = CommonTokenPriceFormatter()
 
     // MARK: - Helpers
 
@@ -94,7 +94,7 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
         }
 
         priceChangeState = getPriceChangeState(by: quote)
-        priceValue = balanceFormatter.formatFiatBalance(quote.price)
+        priceValue = priceFormatter.formatFiatBalance(quote.price)
         priceHistory = quote.prices24h?.map { $0 }
     }
 
