@@ -25,6 +25,8 @@ class UserWalletSettingsCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
+    @Published var scanCardSettingsViewModel: ScanCardSettingsViewModel?
+
     // MARK: - Helpers
 
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
@@ -69,10 +71,8 @@ extension UserWalletSettingsCoordinator: UserWalletSettingsRoutable {
         modalOnboardingCoordinator = coordinator
     }
 
-    func openCardSettings(with input: CardSettingsViewModel.Input) {
-        let coordinator = CardSettingsCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        coordinator.start(with: .init(input: input))
-        cardSettingsCoordinator = coordinator
+    func openScanCardSettings(with input: ScanCardSettingsViewModel.Input) {
+        scanCardSettingsViewModel = ScanCardSettingsViewModel(input: input, coordinator: self)
     }
 
     func openReferral(input: ReferralInputModel) {
@@ -84,5 +84,17 @@ extension UserWalletSettingsCoordinator: UserWalletSettingsRoutable {
         coordinator.start(with: .init(input: input))
         referralCoordinator = coordinator
         Analytics.log(.referralScreenOpened)
+    }
+}
+
+// MARK: - ScanCardSettingsRoutable
+
+extension UserWalletSettingsCoordinator: ScanCardSettingsRoutable {
+    func openCardSettings(with input: CardSettingsViewModel.Input) {
+        scanCardSettingsViewModel = nil
+
+        let coordinator = CardSettingsCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+        coordinator.start(with: .init(input: input))
+        cardSettingsCoordinator = coordinator
     }
 }
