@@ -46,6 +46,10 @@ protocol TangemApiService: AnyObject, Initializable {
 
     func loadFeatures() async throws -> [String: Bool]
 
+    // MARK: - Configs
+
+    func loadAPIList() async throws -> APIListDTO
+
     func setAuthData(_ authData: TangemApiTarget.AuthData)
 }
 
