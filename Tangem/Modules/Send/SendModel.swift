@@ -21,10 +21,16 @@ class SendModel {
             .eraseToAnyPublisher()
     }
 
+    var destinationValidValue: Bool {
+        // ⚠️ Any changes must be reflected in 'destinationValid'
+        validatedDestination.value?.value != nil && _destinationAdditionalFieldError.value == nil
+    }
+
     var destinationValid: AnyPublisher<Bool, Never> {
         Publishers.CombineLatest(validatedDestination, destinationAdditionalFieldError)
-            .map {
-                $0?.value != nil && $1 == nil
+            .map { validatedDestination, destinationAdditionalFieldError in
+                // ⚠️ Any changes must be reflected in 'destinationAdditionalFieldValid'
+                validatedDestination?.value != nil && destinationAdditionalFieldError == nil
             }
             .eraseToAnyPublisher()
     }
