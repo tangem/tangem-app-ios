@@ -100,6 +100,7 @@ enum ExpressDTO {
     enum ExchangeData {
         struct Request: Encodable {
             let requestId: String
+            let fromAddress: String
             let fromContractAddress: String
             let fromNetwork: String
             let toContractAddress: String
