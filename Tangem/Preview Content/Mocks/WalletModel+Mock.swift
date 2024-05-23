@@ -43,7 +43,7 @@ class EthereumWalletManagerMock: WalletManager {
     var currentHost: String { "" }
     var outputsCount: Int? { nil }
 
-    func send(_ transaction: BlockchainSdk.Transaction, signer: BlockchainSdk.TransactionSigner) -> AnyPublisher<BlockchainSdk.TransactionSendResult, Error> {
+    func send(_ transaction: BlockchainSdk.Transaction, signer: BlockchainSdk.TransactionSigner) -> AnyPublisher<BlockchainSdk.TransactionSendResult, SendTxError> {
         Empty().eraseToAnyPublisher()
     }
 
