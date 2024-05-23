@@ -431,9 +431,9 @@
 "send_alert_transaction_failed_text" = "Reason: %1$@\nCode: %2$@";
 "send_alert_transaction_failed_title" = "The transaction is not completed";
 "send_amount_label" = "Somme";
-"send_bitcoin_custom_fee_footer" = "You can set your transaction fee by adjusting the value in the Satoshi per vByte field.";
 "send_base_fee" = "Base fee";
 "send_base_fee_footer" = "Represents the part of the transaction fee that goes to the miner";
+"send_bitcoin_custom_fee_footer" = "You can set your transaction fee by adjusting the value in the Satoshi per vByte field.";
 "send_date_format" = "%1$@, %2$@";
 "send_destination_hint_address" = "Adresse";
 "send_destination_tag_field" = "Destination Tag";
