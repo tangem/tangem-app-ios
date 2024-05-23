@@ -12,7 +12,7 @@ protocol UserWalletSettingsRoutable: AnyObject {
     func openAddNewAccount()
     func openOnboardingModal(with input: OnboardingInput)
 
-    func openCardSettings(with input: CardSettingsViewModel.Input)
+    func openScanCardSettings(with input: ScanCardSettingsViewModel.Input)
     func openReferral(input: ReferralInputModel)
     func dismiss()
 }
