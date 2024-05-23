@@ -1,5 +1,5 @@
 //
-//  StakeDetailsView.swift
+//  StakingDetailsView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,10 +8,10 @@
 
 import SwiftUI
 
-struct StakeDetailsView: View {
-    @ObservedObject private var viewModel: StakeDetailsViewModel
+struct StakingDetailsView: View {
+    @ObservedObject private var viewModel: StakingDetailsViewModel
 
-    init(viewModel: StakeDetailsViewModel) {
+    init(viewModel: StakingDetailsViewModel) {
         self.viewModel = viewModel
     }
 
@@ -30,7 +30,7 @@ struct StakeDetailsView: View {
             }
             .interContentPadding(14)
             .background(Colors.Background.secondary)
-            .navigationTitle("Stake Solana")
+            .navigationTitle("Staking Solana")
             .navigationBarTitleDisplayMode(.inline)
         }
     }
@@ -149,8 +149,8 @@ struct AverageRewardingView: View {
     }
 }
 
-struct StakeDetailsView_Preview: PreviewProvider {
-    static let viewModel = StakeDetailsViewModel(
+struct StakingDetailsView_Preview: PreviewProvider {
+    static let viewModel = StakingDetailsViewModel(
         inputData: .init(
             tokenItem: .blockchain(
                 .init(
@@ -172,10 +172,10 @@ struct StakeDetailsView_Preview: PreviewProvider {
             warmupPeriod: .days(3),
             rewardScheduleType: .block
         ),
-        coordinator: StakeDetailsCoordinator()
+        coordinator: StakingDetailsCoordinator()
     )
 
     static var previews: some View {
-        StakeDetailsView(viewModel: viewModel)
+        StakingDetailsView(viewModel: viewModel)
     }
 }
