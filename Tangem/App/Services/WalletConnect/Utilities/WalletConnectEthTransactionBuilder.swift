@@ -17,18 +17,9 @@ protocol WalletConnectEthTransactionBuilder {
 struct CommonWalletConnectEthTransactionBuilder {
     private let zeroString = "0x0"
 
-    private func getGasPrice(for tx: WalletConnectEthTransaction, using ethereumNetworkProvider: EthereumNetworkProvider) async throws -> Int {
-        if let gasPrice = tx.gasPrice?.hexToInteger {
-            return gasPrice
-        }
-
-        let price = try await ethereumNetworkProvider.getGasPrice().async()
-        return Int(price)
-    }
-
-    private func getGasLimit(for tx: WalletConnectEthTransaction, with amount: Amount, using ethereumNetworkProvider: EthereumNetworkProvider) async throws -> Int {
+    private func getGasLimit(for tx: WalletConnectEthTransaction, with amount: Amount, using ethereumNetworkProvider: EthereumNetworkProvider) async throws -> BigUInt {
         if let dappGasLimit = tx.gas?.hexToInteger ?? tx.gasLimit?.hexToInteger {
-            return dappGasLimit
+            return BigUInt(dappGasLimit)
         }
 
         // If amount is zero it is better to use default zero string `0x0`, because some dApps (app.thorswap.finance) can send
@@ -43,7 +34,7 @@ struct CommonWalletConnectEthTransactionBuilder {
             value: valueString,
             data: tx.data
         ).async()
-        return Int(gasLimitBigInt)
+        return gasLimitBigInt
     }
 }
 
@@ -66,12 +57,14 @@ extension CommonWalletConnectEthTransactionBuilder: WalletConnectEthTransactionB
         let valueAmount = Amount(with: blockchain, type: .coin, value: value)
 
         async let walletUpdate = walletModel.update(silent: false).async()
-        async let gasPrice = getGasPrice(for: wcTransaction, using: ethereumNetworkProvider)
+        async let baseFee = ethereumNetworkProvider.getBaseFee().async()
+        async let priorityFee = ethereumNetworkProvider.getPriorityFee().async()
         async let gasLimit = getGasLimit(for: wcTransaction, with: valueAmount, using: ethereumNetworkProvider)
 
-        let feeValue = try await Decimal(gasLimit) * Decimal(gasPrice) / blockchain.decimalValue
+        let feeParameters = try await EthereumEIP1559FeeParameters(gasLimit: gasLimit, baseFee: baseFee, priorityFee: priorityFee)
+        let feeValue = feeParameters.caclulateFee(decimalValue: blockchain.decimalValue)
         let gasAmount = Amount(with: blockchain, value: feeValue)
-        let feeParameters = try await EthereumFeeParameters(gasLimit: BigUInt(gasLimit), gasPrice: BigUInt(gasPrice))
+
         let fee = Fee(gasAmount, parameters: feeParameters)
         let _ = try await walletUpdate
 
