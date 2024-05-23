@@ -80,6 +80,10 @@ class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
+    func loadAPIList() async throws -> APIListDTO {
+        throw "Not implemented"
+    }
+
     func loadFeatures() async throws -> [String: Bool] {
         throw "Not implemented"
     }
