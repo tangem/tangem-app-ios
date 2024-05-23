@@ -1,5 +1,5 @@
 //
-//  StakeViewModel.swift
+//  StakingViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,15 +9,15 @@
 import Combine
 import SwiftUI
 
-final class StakeViewModel: ObservableObject {
+final class StakingViewModel: ObservableObject {
     // MARK: - ViewState
 
     // MARK: - Dependencies
 
-    private weak var coordinator: StakeRoutable?
+    private weak var coordinator: StakingRoutable?
 
     init(
-        coordinator: StakeRoutable
+        coordinator: StakingRoutable
     ) {
         self.coordinator = coordinator
     }
