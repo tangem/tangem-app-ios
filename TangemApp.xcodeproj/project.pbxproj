@@ -192,6 +192,7 @@
 		B008E13A29802157006E0E31 /* WebSocketError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B008E13929802157006E0E31 /* WebSocketError.swift */; };
 		B008E13C29802612006E0E31 /* WebSocketConnectionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B008E13B29802612006E0E31 /* WebSocketConnectionDelegate.swift */; };
 		B008E13E2980264D006E0E31 /* WebSocketEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B008E13D2980264D006E0E31 /* WebSocketEvent.swift */; };
+		B009DD8A2BFF67A4001E6887 /* ManageTokensAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B009DD892BFF67A4001E6887 /* ManageTokensAdapter.swift */; };
 		B00B58DA2BCFAA60007475F7 /* providers_order.json in Resources */ = {isa = PBXBuildFile; fileRef = B00B58D92BCFAA60007475F7 /* providers_order.json */; };
 		B00D7150258A1B6C00A9442C /* JsonUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00D714F258A1B6C00A9442C /* JsonUtils.swift */; };
 		B00EBF832B20EDE800071EB0 /* PendingExpressTransactionAnalyticsTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00EBF822B20EDE800071EB0 /* PendingExpressTransactionAnalyticsTracker.swift */; };
@@ -1757,6 +1758,7 @@
 		B008E13929802157006E0E31 /* WebSocketError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketError.swift; sourceTree = "<group>"; };
 		B008E13B29802612006E0E31 /* WebSocketConnectionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketConnectionDelegate.swift; sourceTree = "<group>"; };
 		B008E13D2980264D006E0E31 /* WebSocketEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketEvent.swift; sourceTree = "<group>"; };
+		B009DD892BFF67A4001E6887 /* ManageTokensAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageTokensAdapter.swift; sourceTree = "<group>"; };
 		B00B58D92BCFAA60007475F7 /* providers_order.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = providers_order.json; path = "tangem-app-config/providers_order.json"; sourceTree = SOURCE_ROOT; };
 		B00D714F258A1B6C00A9442C /* JsonUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsonUtils.swift; sourceTree = "<group>"; };
 		B00EBF822B20EDE800071EB0 /* PendingExpressTransactionAnalyticsTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingExpressTransactionAnalyticsTracker.swift; sourceTree = "<group>"; };
@@ -5753,6 +5755,7 @@
 				DA43719A2A7D1937006215CA /* LegacyCoinViewModel.swift */,
 				DA43719B2A7D1937006215CA /* LegacyTokenListViewModel.swift */,
 				DA43719C2A7D1937006215CA /* LegacyTokenListRoutable.swift */,
+				B009DD892BFF67A4001E6887 /* ManageTokensAdapter.swift */,
 			);
 			path = LegacyTokenList;
 			sourceTree = "<group>";
@@ -9162,6 +9165,7 @@
 				B0F7D7622A404907007FEB2E /* ReceiveBottomSheetViewModel.swift in Sources */,
 				EF08A0F1283D2382008BD923 /* CoinsList.swift in Sources */,
 				B68E5E7F2A9526BD00216281 /* SectionModel.swift in Sources */,
+				B009DD8A2BFF67A4001E6887 /* ManageTokensAdapter.swift in Sources */,
 				DC3DCAE52A41FA6A00F72554 /* KeysRepository.swift in Sources */,
 				DA393F592BAD661500735B41 /* SendFiatCryptoValueProviderMock.swift in Sources */,
 				DAB19D4A2B2C72A100DD08C4 /* AddCustomTokenView.swift in Sources */,
