@@ -418,7 +418,7 @@ final class SendViewModel: ObservableObject {
                     alert = SendError(
                         title: Localization.sendAlertTransactionFailedTitle,
                         message: Localization.sendAlertTransactionFailedText(reason, errorCode),
-                        error: error,
+                        error: (error as? SendTxError) ?? SendTxError(error: error),
                         openMailAction: openMail
                     )
                     .alertBinder
@@ -502,7 +502,7 @@ final class SendViewModel: ObservableObject {
         return steps[currentStepIndex - 1]
     }
 
-    private func openMail(with error: Error) {
+    private func openMail(with error: SendTxError) {
         guard let transaction = sendModel.currentTransaction() else { return }
 
         Analytics.log(.requestSupport, params: [.source: .transactionSourceSend])
@@ -789,7 +789,13 @@ extension SendViewModel: NotificationTapDelegate {
             reduceAmountBy(amount)
         case .reduceAmountTo(let amount, _):
             reduceAmountTo(amount)
-        default:
+        case .generateAddresses,
+             .backupCard,
+             .buyCrypto,
+             .refresh,
+             .goToProvider,
+             .addHederaTokenAssociation,
+             .bookNow:
             assertionFailure("Notification tap not handled")
         }
     }
@@ -863,7 +869,17 @@ private extension ValidationError {
         case .invalidAmount, .balanceNotFound:
             // Shouldn't happen as we validate and cover amount errors separately, synchronously
             return nil
-        case .amountExceedsBalance, .invalidFee, .feeExceedsBalance, .maximumUTXO, .reserve, .dustAmount, .dustChange, .minimumBalance, .totalExceedsBalance:
+        case .amountExceedsBalance,
+             .invalidFee,
+             .feeExceedsBalance,
+             .maximumUTXO,
+             .reserve,
+             .dustAmount,
+             .dustChange,
+             .minimumBalance,
+             .totalExceedsBalance,
+             .cardanoHasTokens,
+             .cardanoInsufficientBalanceToSendToken:
             return .summary
         }
     }

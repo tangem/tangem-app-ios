@@ -254,6 +254,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         var tokenListSyncSubscription: AnyCancellable?
         tokenListSyncSubscription = Publishers.Zip(tokenListSyncPublisher, sectionsPublisher)
+            .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
                 viewModel.isLoadingTokenList = false
@@ -282,13 +283,13 @@ private extension MultiWalletMainContentViewModel {
         if userWalletModel.userTokensManager.canRemove(tokenItem) {
             showHideWarningAlert(tokenItem: tokenItem)
         } else {
-            showUnableToHideAlert(currencySymbol: tokenItem.currencySymbol, blockchainName: tokenItem.blockchain.displayName)
+            showUnableToHideAlert(name: tokenItem.name, currencySymbol: tokenItem.currencySymbol, blockchainName: tokenItem.blockchain.displayName)
         }
     }
 
     func showHideWarningAlert(tokenItem: TokenItem) {
         error = AlertBuilder.makeAlert(
-            title: Localization.tokenDetailsHideAlertTitle(tokenItem.currencySymbol),
+            title: Localization.tokenDetailsHideAlertTitle(tokenItem.name),
             message: Localization.tokenDetailsHideAlertMessage,
             primaryButton: .destructive(Text(Localization.tokenDetailsHideAlertHide)) { [weak self] in
                 self?.hideToken(tokenItem: tokenItem)
@@ -297,14 +298,15 @@ private extension MultiWalletMainContentViewModel {
         )
     }
 
-    func showUnableToHideAlert(currencySymbol: String, blockchainName: String) {
+    func showUnableToHideAlert(name: String, currencySymbol: String, blockchainName: String) {
         let message = Localization.tokenDetailsUnableHideAlertMessage(
+            name,
             currencySymbol,
             blockchainName
         )
 
         error = AlertBuilder.makeAlert(
-            title: Localization.tokenDetailsUnableHideAlertTitle(currencySymbol),
+            title: Localization.tokenDetailsUnableHideAlertTitle(name),
             message: message,
             primaryButton: .default(Text(Localization.commonOk))
         )
@@ -336,7 +338,7 @@ extension MultiWalletMainContentViewModel {
             longHashesSupported: userWalletModel.config.hasFeature(.longHashes),
             derivationStyle: userWalletModel.config.derivationStyle,
             shouldShowLegacyDerivationAlert: shouldShowLegacyDerivationAlert,
-            existingCurves: userWalletModel.config.walletCurves
+            existingCurves: userWalletModel.config.existingCurves
         )
 
         coordinator?.openManageTokens(with: settings, userTokensManager: userWalletModel.userTokensManager)
@@ -442,9 +444,11 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionsProvider {
         let canSend = userWalletModel.config.hasFeature(.send) && walletModel.sendingRestrictions == .none
         let canSwap = userWalletModel.config.isFeatureVisible(.swapping) && swapAvailabilityProvider.canSwap(tokenItem: tokenItem.tokenItem) && !walletModel.isCustom
         let isBlockchainReachable = !walletModel.state.isBlockchainUnreachable
+        let canSignTransactions = walletModel.sendingRestrictions != .cantSignLongTransactions
 
         return actionsBuilder.buildTokenContextActions(
             canExchange: canExchange,
+            canSignTransactions: canSignTransactions,
             canSend: canSend,
             canSwap: canSwap,
             canHide: canManageTokens,
