@@ -8,13 +8,14 @@
 
 import Foundation
 import UIKit
-import TangemSdk
 
 class DetailsCoordinator: CoordinatorObject {
     // MARK: - Dependencies
 
     var dismissAction: Action<Void>
     var popToRootAction: Action<PopToRootOptions>
+
+    @Injected(\.safariManager) private var safariManager: SafariManager
 
     // MARK: - Main view model
 
@@ -24,6 +25,7 @@ class DetailsCoordinator: CoordinatorObject {
 
     @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
     @Published var walletConnectCoordinator: WalletConnectCoordinator? = nil
+    @Published var userWalletSettingsCoordinator: UserWalletSettingsCoordinator? = nil
     @Published var cardSettingsCoordinator: CardSettingsCoordinator? = nil
     @Published var appSettingsCoordinator: AppSettingsCoordinator? = nil
     @Published var referralCoordinator: ReferralCoordinator? = nil
@@ -91,8 +93,14 @@ extension DetailsCoordinator: DetailsRoutable {
         disclaimerViewModel = .init(url: url, style: .details)
     }
 
-    func openScanCardSettings(with sessionFilter: SessionFilter, sdk: TangemSdk) {
-        scanCardSettingsViewModel = ScanCardSettingsViewModel(sessionFilter: sessionFilter, sdk: sdk, coordinator: self)
+    func openScanCardSettings(with cardScanner: CardScanner) {
+        scanCardSettingsViewModel = ScanCardSettingsViewModel(cardScanner: cardScanner, coordinator: self)
+    }
+
+    func openWalletSettings(options: UserWalletSettingsCoordinator.Options) {
+        let coordinator = UserWalletSettingsCoordinator(popToRootAction: popToRootAction)
+        coordinator.start(with: options)
+        userWalletSettingsCoordinator = coordinator
     }
 
     func openAppSettings() {
@@ -126,6 +134,10 @@ extension DetailsCoordinator: DetailsRoutable {
         coordinator.start(with: .init(input: input))
         referralCoordinator = coordinator
         Analytics.log(.referralScreenOpened)
+    }
+
+    func openScanCardManual() {
+        safariManager.openURL(TangemBlogUrlBuilder().url(post: .scanCard))
     }
 }
 

@@ -8,11 +8,8 @@
 
 import Foundation
 
-// [REDACTED_TODO_COMMENT]
-
 /// Provides `multiple readers - single writer` semantics for underlying `value`.
 /// It's most useful with Swift native collections like `Array`, `Dictionary`, etc.
-///
 @dynamicMemberLookup
 public final class ThreadSafeContainer<Value> {
     public subscript<T>(dynamicMember keyPath: KeyPath<Value, T>) -> T {
