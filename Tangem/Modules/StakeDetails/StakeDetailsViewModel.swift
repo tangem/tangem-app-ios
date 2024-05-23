@@ -15,6 +15,7 @@ final class StakeDetailsViewModel: ObservableObject {
 
     @Published var detailsViewModels: [DefaultRowViewModel] = []
     @Published var averageRewardingViewData: AverageRewardingViewData?
+    @Published var rewardViewData: RewardViewData?
 
     // MARK: - Dependencies
 
@@ -33,20 +34,40 @@ final class StakeDetailsViewModel: ObservableObject {
 
         setupAverageRewardingViewData()
         setupDetailsSection()
+        setupRewardViewData()
     }
 
-    func setupAverageRewardingViewData() {
-        averageRewardingViewData = .init(
-            aprFormatted: aprFormatted(),
-            profitFormatted: inputData.monthEstimatedProfit
-        )
+    func userDidTapBanner() {
+
     }
+}
+
+private extension StakeDetailsViewModel {
 
     func aprFormatted() -> String {
         let minAPRFormatted = percentFormatter.percentFormat(value: inputData.minAPR)
         let maxAPRFormatted = percentFormatter.percentFormat(value: inputData.maxAPR)
         let aprFormatted = "\(minAPRFormatted) - \(maxAPRFormatted)"
         return aprFormatted
+    }
+
+    func setupAverageRewardingViewData() {
+        let profitFormatted = balanceFormatter.formatFiatBalance(inputData.monthEstimatedProfit)
+        averageRewardingViewData = .init(
+            aprFormatted: aprFormatted(),
+            profitFormatted: profitFormatted
+        )
+    }
+
+    func setupRewardViewData() {
+        let fiatFormatted = balanceFormatter.formatFiatBalance(inputData.monthEstimatedProfit)
+        let cryptoFormatted = balanceFormatter.formatCryptoBalance(
+            inputData.staked,
+            currencyCode: inputData.tokenItem.currencySymbol
+        )
+
+        rewardViewData = .init(state: .noRewards)
+//        rewardViewData = .init(state: .rewards(fiatFormatted: fiatFormatted, cryptoFormatted: cryptoFormatted))
     }
 
     func setupDetailsSection() {
@@ -83,7 +104,7 @@ final class StakeDetailsViewModel: ObservableObject {
 
 struct StakeDetailsData {
     let tokenItem: TokenItem
-    let monthEstimatedProfit: String
+    let monthEstimatedProfit: Decimal
     let available: Decimal
     let staked: Decimal
     let minAPR: Decimal
