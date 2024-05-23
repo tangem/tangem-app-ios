@@ -431,9 +431,9 @@
 "send_alert_transaction_failed_text" = "Причина: %1$@\nКод: %2$@";
 "send_alert_transaction_failed_title" = "Транзакция не выполнена";
 "send_amount_label" = "Сумма";
-"send_bitcoin_custom_fee_footer" = "Вы можете установить комиссию за транзакцию, изменив значение в поле Satoshi per vByte.";
 "send_base_fee" = "Base fee";
 "send_base_fee_footer" = "Represents the part of the transaction fee that goes to the miner";
+"send_bitcoin_custom_fee_footer" = "Вы можете установить комиссию за транзакцию, изменив значение в поле Satoshi per vByte.";
 "send_date_format" = "%1$@, %2$@";
 "send_destination_hint_address" = "Адрес";
 "send_destination_tag_field" = "Код назначения";
