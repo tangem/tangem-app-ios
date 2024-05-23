@@ -24,6 +24,7 @@ protocol SendAddressService {
 class DefaultSendAddressService: SendAddressService {
     private let walletAddresses: [Address]
     private let addressService: AddressService
+    private let supportSameAsWalletAddressTransfer: Bool
 
     var validationInProgressPublisher: AnyPublisher<Bool, Never> {
         validationInProgressSubject.eraseToAnyPublisher()
@@ -31,9 +32,10 @@ class DefaultSendAddressService: SendAddressService {
 
     private var validationInProgressSubject = CurrentValueSubject<Bool, Never>(false)
 
-    init(walletAddresses: [Address], addressService: AddressService) {
+    init(walletAddresses: [Address], addressService: AddressService, supportSameAsWalletAddressTransfer: Bool) {
         self.walletAddresses = walletAddresses
         self.addressService = addressService
+        self.supportSameAsWalletAddressTransfer = supportSameAsWalletAddressTransfer
     }
 
     func validate(address: String) async throws -> String? {
@@ -47,7 +49,7 @@ class DefaultSendAddressService: SendAddressService {
             return nil
         }
 
-        if walletAddresses.contains(where: { $0.value == address }) {
+        if !supportSameAsWalletAddressTransfer, walletAddresses.contains(where: { $0.value == address }) {
             throw SendAddressServiceError.sameAsWalletAddress
         }
 
