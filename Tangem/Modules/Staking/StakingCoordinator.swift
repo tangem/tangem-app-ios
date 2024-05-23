@@ -1,5 +1,5 @@
 //
-//  StakeCoordinator.swift
+//  StakingCoordinator.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,13 +9,13 @@
 import Foundation
 import Combine
 
-class StakeCoordinator: CoordinatorObject {
+class StakingCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Root view model
 
-    @Published private(set) var rootViewModel: StakeViewModel?
+    @Published private(set) var rootViewModel: StakingViewModel?
 
     // MARK: - Child coordinators
 
@@ -34,10 +34,10 @@ class StakeCoordinator: CoordinatorObject {
 
 // MARK: - Options
 
-extension StakeCoordinator {
+extension StakingCoordinator {
     enum Options {}
 }
 
-// MARK: - StakeRoutable
+// MARK: - StakingRoutable
 
-extension StakeCoordinator: StakeRoutable {}
+extension StakingCoordinator: StakingRoutable {}
