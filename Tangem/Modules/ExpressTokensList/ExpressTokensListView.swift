@@ -87,6 +87,7 @@ struct ExpressTokensListView: View {
             ExpressTokenItemView(viewModel: $0)
         } header: {
             DefaultHeaderView(title)
+                .padding(.vertical, 12)
         }
     }
 }
