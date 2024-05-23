@@ -23,7 +23,7 @@ struct LegacyTokenListView: View {
         .navigationBarTitle(Text(Localization.addTokensTitle), displayMode: .automatic)
         .navigationBarItems(trailing: addCustomView)
         .alert(item: $viewModel.alert, content: { $0.alert })
-        .searchable(text: $viewModel.enteredSearchText.value, placement: .navigationBarDrawer(displayMode: .always))
+        .searchable(text: viewModel.enteredSearchText, placement: .navigationBarDrawer(displayMode: .always))
         .keyboardType(.alphabet)
         .autocorrectionDisabled()
         .background(Colors.Background.primary.edgesIgnoringSafeArea(.all))
@@ -35,7 +35,7 @@ struct LegacyTokenListView: View {
         ManageTokensListView(
             viewModel: viewModel.manageTokensListViewModel,
             header: {
-                if viewModel.shouldShowAlert {
+                if viewModel.shouldShowLegacyDerivationAlert {
                     Text(Localization.warningManageTokensLegacyDerivationMessage)
                         .font(.system(size: 13, weight: .medium, design: .default))
                         .multilineTextAlignment(.center)
@@ -76,7 +76,7 @@ struct LegacyTokenListView: View {
             MainButton(
                 title: Localization.commonSaveChanges,
                 isLoading: viewModel.isSaving,
-                isDisabled: viewModel.isSaveDisabled,
+                isDisabled: viewModel.isSaveButtonDisabled,
                 action: viewModel.saveChanges
             )
             .padding(.horizontal, 16)
