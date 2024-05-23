@@ -1,5 +1,5 @@
 //
-//  ManageTokensCoordinatorDelegate.swift
+//  MarketsCoordinator.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol ManageTokensCoordinatorDelegate: AnyObject {
+protocol MarketsCoordinatorDelegate: AnyObject {
     func showGenerateAddressesWarning(
         numberOfNetworks: Int,
         currentWalletNumber: Int,
