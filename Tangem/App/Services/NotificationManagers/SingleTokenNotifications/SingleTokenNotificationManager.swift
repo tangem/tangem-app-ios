@@ -25,7 +25,6 @@ final class SingleTokenNotificationManager {
     private var rentFeeNotification: NotificationViewInput?
     private var bag: Set<AnyCancellable> = []
     private var notificationsUpdateTask: Task<Void, Never>?
-    private var promotionUpdateTask: Task<Void, Never>?
 
     init(
         walletModel: WalletModel,
@@ -71,8 +70,7 @@ final class SingleTokenNotificationManager {
             events.append(.existentialDepositWarning(message: existentialWarning))
         }
 
-        if case .solana = walletModel.tokenItem.blockchain,
-           !walletModel.isZeroAmount {
+        if case .solana = walletModel.tokenItem.blockchain, !walletModel.isZeroAmount {
             events.append(.solanaHighImpact)
         }
 
@@ -90,6 +88,8 @@ final class SingleTokenNotificationManager {
             }
         }
 
+        events += makeAssetRequirementsNotificationEvents()
+
         let inputs = events.map {
             factory.buildNotificationInput(
                 for: $0,
@@ -105,7 +105,6 @@ final class SingleTokenNotificationManager {
         notificationInputsSubject.send(inputs)
 
         setupRentFeeNotification()
-        setupTangemExpressPromotionNotification()
     }
 
     private func setupRentFeeNotification() {
@@ -131,47 +130,6 @@ final class SingleTokenNotificationManager {
                     self.rentFeeNotification = rentInput
                     self.notificationInputsSubject.value.append(rentInput)
                 }
-            }
-        }
-    }
-
-    private func setupTangemExpressPromotionNotification() {
-        promotionUpdateTask?.cancel()
-        promotionUpdateTask = Task { [weak self] in
-            guard let self, let expressDestinationService, !Task.isCancelled else {
-                return
-            }
-
-            guard let promotion = await bannerPromotionService.activePromotion(promotion: .changelly, on: .tokenDetails) else {
-                notificationInputsSubject.value.removeAll { $0.settings.event is BannerNotificationEvent }
-                return
-            }
-
-            let factory = BannerPromotionNotificationFactory()
-            let button = factory.buildNotificationButton(actionType: .exchange) { [weak self] id, actionType in
-                self?.delegate?.didTapNotificationButton(with: id, action: actionType)
-                self?.dismissNotification(with: id)
-            }
-
-            let input = factory.buildBannerNotificationInput(
-                promotion: promotion,
-                button: button,
-                dismissAction: { [weak self] id in
-                    self?.dismissNotification(with: id)
-                }
-            )
-
-            guard await expressDestinationService.canBeSwapped(wallet: walletModel) else {
-                notificationInputsSubject.value.removeAll { $0.id == input.id }
-                return
-            }
-
-            guard !notificationInputsSubject.value.contains(where: { $0.id == input.id }) else {
-                return
-            }
-
-            await runOnMain {
-                self.notificationInputsSubject.value.insert(input, at: 0)
             }
         }
     }
@@ -229,6 +187,32 @@ final class SingleTokenNotificationManager {
         )
         return input
     }
+
+    private func makeAssetRequirementsNotificationEvents() -> [TokenNotificationEvent] {
+        let asset = walletModel.amountType
+
+        guard
+            !walletModel.hasPendingTransactions,
+            let assetRequirementsManager = walletModel.assetRequirementsManager,
+            assetRequirementsManager.hasRequirements(for: asset)
+        else {
+            return []
+        }
+
+        switch assetRequirementsManager.requirementsCondition(for: asset) {
+        case .paidTransaction:
+            return [.hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation(associationFee: nil))]
+        case .paidTransactionWithFee(let feeAmount):
+            let balanceFormatter = BalanceFormatter()
+            let associationFee = TokenNotificationEvent.UnfulfilledRequirementsConfiguration.HederaTokenAssociationFee(
+                formattedValue: balanceFormatter.formatDecimal(feeAmount.value),
+                currencySymbol: feeAmount.currencySymbol
+            )
+            return [.hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation(associationFee: associationFee))]
+        case .none:
+            return []
+        }
+    }
 }
 
 extension SingleTokenNotificationManager: NotificationManager {
@@ -257,9 +241,6 @@ extension SingleTokenNotificationManager: NotificationManager {
         }
 
         switch event {
-        case .changelly:
-            Analytics.log(.swapPromoButtonClose)
-            bannerPromotionService.hide(promotion: .changelly, on: .tokenDetails)
         case .travala:
             bannerPromotionService.hide(promotion: .travala, on: .tokenDetails)
         }
