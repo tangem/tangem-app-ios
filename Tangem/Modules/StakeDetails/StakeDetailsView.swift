@@ -20,18 +20,15 @@ struct StakeDetailsView: View {
             GroupedScrollView(alignment: .leading, spacing: 14) {
                 banner
 
-                GroupedSection(viewModel.averageRewardingViewData) {
-                    AverageRewardingView(data: $0)
-                } header: {
-                    DefaultHeaderView("Average Reward Rate")
-                }
-                .interItemSpacing(12)
-                .innerContentPadding(12)
+                averageRewardingView
 
                 GroupedSection(viewModel.detailsViewModels) {
                     DefaultRowView(viewModel: $0)
                 }
+
+                rewardView
             }
+            .interContentPadding(14)
             .background(Colors.Background.secondary)
             .navigationTitle("Stake Solana")
             .navigationBarTitleDisplayMode(.inline)
@@ -39,10 +36,73 @@ struct StakeDetailsView: View {
     }
 
     private var banner: some View {
-        Rectangle()
-            .fill(Color.cyan.opacity(0.5))
-            .frame(height: 100)
-            .cornerRadiusContinuous(18)
+        Button(action: { viewModel.userDidTapBanner() }) {
+            Assets.whatIsStakingBanner.image
+                .resizable()
+                .cornerRadiusContinuous(18)
+        }
+    }
+
+    private var averageRewardingView: some View {
+        GroupedSection(viewModel.averageRewardingViewData) {
+            AverageRewardingView(data: $0)
+        } header: {
+            DefaultHeaderView("Average Reward Rate")
+        }
+        .interItemSpacing(12)
+        .innerContentPadding(12)
+    }
+
+    private var rewardView: some View {
+        GroupedSection(viewModel.rewardViewData) {
+            RewardView(data: $0)
+        } header: {
+            DefaultHeaderView("Rewards")
+        }
+        .interItemSpacing(12)
+        .innerContentPadding(12)
+    }
+}
+
+struct RewardViewData: Hashable, Identifiable {
+    var id: Int { hashValue }
+
+    let state: State
+}
+
+extension RewardViewData {
+    enum State: Hashable {
+        case noRewards
+        case rewards(fiatFormatted: String, cryptoFormatted: String)
+    }
+}
+
+struct RewardView: View {
+    let data: RewardViewData
+
+    var body: some View {
+        HStack(spacing: 4) {
+            content
+        }
+        .infinityFrame(axis: .horizontal, alignment: .leading)
+    }
+
+    @ViewBuilder
+    var content: some View {
+        switch data.state {
+        case .noRewards:
+            Text("No rewards to claim")
+                .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+        case .rewards(let fiatFormatted, let cryptoFormatted):
+            Text(fiatFormatted)
+                .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+
+            Text(AppConstants.dotSign)
+                .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+
+            Text(cryptoFormatted)
+                .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+        }
     }
 }
 
@@ -62,6 +122,7 @@ struct AverageRewardingView: View {
 
             trailingView
         }
+        .infinityFrame(axis: .horizontal, alignment: .leading)
     }
 
     private var leadingView: some View {
@@ -100,7 +161,7 @@ struct StakeDetailsView_Preview: PreviewProvider {
                     derivationPath: .none
                 )
             ),
-            monthEstimatedProfit: "+56.25$",
+            monthEstimatedProfit: 56.25,
             available: 15,
             staked: 0,
             minAPR: 3.54,
