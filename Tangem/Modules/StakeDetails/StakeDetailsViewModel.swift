@@ -14,6 +14,7 @@ final class StakeDetailsViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published var detailsViewModels: [DefaultRowViewModel] = []
+    @Published var averageRewardingViewData: AverageRewardingViewData?
 
     // MARK: - Dependencies
 
@@ -21,7 +22,7 @@ final class StakeDetailsViewModel: ObservableObject {
     private weak var coordinator: StakeDetailsRoutable?
     private let balanceFormatter = BalanceFormatter()
     private let percentFormatter = PercentFormatter()
-    private let dateFormatter = DateFormatter(dateFormat: "DD")
+    private let dateComponentsFormatter = DateComponentsFormatter()
 
     init(
         inputData: StakeDetailsData,
@@ -30,7 +31,22 @@ final class StakeDetailsViewModel: ObservableObject {
         self.inputData = inputData
         self.coordinator = coordinator
 
+        setupAverageRewardingViewData()
         setupDetailsSection()
+    }
+
+    func setupAverageRewardingViewData() {
+        averageRewardingViewData = .init(
+            aprFormatted: aprFormatted(),
+            profitFormatted: inputData.monthEstimatedProfit
+        )
+    }
+
+    func aprFormatted() -> String {
+        let minAPRFormatted = percentFormatter.percentFormat(value: inputData.minAPR)
+        let maxAPRFormatted = percentFormatter.percentFormat(value: inputData.maxAPR)
+        let aprFormatted = "\(minAPRFormatted) - \(maxAPRFormatted)"
+        return aprFormatted
     }
 
     func setupDetailsSection() {
@@ -44,22 +60,18 @@ final class StakeDetailsViewModel: ObservableObject {
             currencyCode: inputData.tokenItem.currencySymbol
         )
 
-        let minAPRFormatted = percentFormatter.percentFormat(value: inputData.minAPR)
-        let maxAPRFormatted = percentFormatter.percentFormat(value: inputData.maxAPR)
-        let aprFormatted = "\(minAPRFormatted) \(AppConstants.dashSign) \(maxAPRFormatted)"
-
-        let unbondingFormatted = dateFormatter.string(from: inputData.unbonding)
+        let unbondingFormatted = inputData.unbonding.formatted(formatter: dateComponentsFormatter)
         let minimumFormatted = balanceFormatter.formatCryptoBalance(
             inputData.minimumRequirement,
             currencyCode: inputData.tokenItem.currencySymbol
         )
 
-        let warmupFormatted = dateFormatter.string(from: inputData.warmupPeriod)
+        let warmupFormatted = inputData.warmupPeriod.formatted(formatter: dateComponentsFormatter)
 
         detailsViewModels = [
             DefaultRowViewModel(title: "Available", detailsType: .text(availableFormatted)),
             DefaultRowViewModel(title: "On stake", detailsType: .text(stakedFormatted)),
-            DefaultRowViewModel(title: "APR", detailsType: .text(aprFormatted)),
+            DefaultRowViewModel(title: "APR", detailsType: .text(aprFormatted())),
             DefaultRowViewModel(title: "Unbonding Period", detailsType: .text(unbondingFormatted)),
             DefaultRowViewModel(title: "Minimum Requirement", detailsType: .text(minimumFormatted)),
             DefaultRowViewModel(title: "Reward claiming", detailsType: .text(inputData.rewardClaimingType.title)),
@@ -76,11 +88,24 @@ struct StakeDetailsData {
     let staked: Decimal
     let minAPR: Decimal
     let maxAPR: Decimal
-    let unbonding: Date
+    let unbonding: StakePeriod
     let minimumRequirement: Decimal
     let rewardClaimingType: RewardClaimingType
-    let warmupPeriod: Date
+    let warmupPeriod: StakePeriod
     let rewardScheduleType: RewardScheduleType
+}
+
+enum StakePeriod {
+    case days(_ days: Int)
+
+    func formatted(formatter: DateComponentsFormatter) -> String {
+        switch self {
+        case .days(let days):
+            formatter.unitsStyle = .short
+            formatter.allowedUnits = [.day]
+            return formatter.string(from: DateComponents(day: days)) ?? days.formatted()
+        }
+    }
 }
 
 enum RewardClaimingType: String, Hashable {
