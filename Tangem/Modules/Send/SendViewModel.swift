@@ -370,7 +370,12 @@ final class SendViewModel: ObservableObject {
         sendModel
             .destinationPublisher
             .sink { [weak self] destination in
-                guard let self else { return }
+                guard
+                    let self,
+                    sendModel.destinationValidValue
+                else {
+                    return
+                }
 
                 switch destination?.source {
                 case .myWallet, .recentAddress:
