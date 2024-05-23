@@ -160,6 +160,10 @@ final class ExpressViewModel: ObservableObject {
     func didCloseFeeSelectorSheet() {
         restartTimer()
     }
+
+    func didTapCloseButton() {
+        coordinator?.closeSwappingView()
+    }
 }
 
 // MARK: - Navigation
@@ -639,7 +643,13 @@ extension ExpressViewModel: NotificationTapDelegate {
             updateSendDecimalValue(to: value - amount)
         case .reduceAmountTo(let amount, _):
             updateSendDecimalValue(to: amount)
-        default:
+        case .generateAddresses,
+             .backupCard,
+             .buyCrypto,
+             .refreshFee,
+             .goToProvider,
+             .addHederaTokenAssociation,
+             .bookNow:
             return
         }
     }
