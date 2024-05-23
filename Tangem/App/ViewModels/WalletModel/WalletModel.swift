@@ -676,8 +676,8 @@ extension WalletModel {
         walletManager as? AddressResolver
     }
 
-    var withdrawalSuggestionProvider: WithdrawalSuggestionProvider? {
-        walletManager as? WithdrawalSuggestionProvider
+    var withdrawalNotificationProvider: WithdrawalNotificationProvider? {
+        walletManager as? WithdrawalNotificationProvider
     }
 
     var hasRent: Bool {
