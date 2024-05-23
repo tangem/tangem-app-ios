@@ -1,5 +1,5 @@
 //
-//  StakeRoutable.swift
+//  StakingRoutable.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,4 +8,4 @@
 
 import Foundation
 
-protocol StakeRoutable: AnyObject {}
+protocol StakingRoutable: AnyObject {}
