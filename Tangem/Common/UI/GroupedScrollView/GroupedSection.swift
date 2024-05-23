@@ -8,6 +8,20 @@
 
 import SwiftUI
 
+/**
+ Layout:
+ `Background`
+    `- innerContentPadding`
+        `Header`
+        `- interItemSpacing`
+        `Content 1`
+        `- interItemSpacing`
+        `Content 2`
+    `- innerContentPadding`
+ `Background`
+ `- footerSpacing`
+ `Footer`
+ */
 struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: View>: View {
     private let models: [Model]
     private let content: (Model) -> Content
@@ -23,6 +37,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
     // Use "Colors.Background.action" on sheets with "Colors.Background.teritary" background
     private var backgroundColor: Color = Colors.Background.primary
     private var contentAlignment: HorizontalAlignment = .leading
+    private var innerHeaderPadding: CGFloat = GroupedSectionConstants.headerSpacing
 
     private var namespace: Namespace.ID?
     private var backgroundNamespaceId: String?
@@ -56,18 +71,16 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
     var body: some View {
         if !models.isEmpty {
             VStack(alignment: .leading, spacing: GroupedSectionConstants.footerSpacing) {
-                VStack(alignment: .leading, spacing: .zero) {
+                VStack(alignment: contentAlignment, spacing: interItemSpacing) {
                     header()
                         .padding(.horizontal, horizontalPadding)
 
-                    VStack(alignment: contentAlignment, spacing: interItemSpacing) {
-                        ForEach(models) { model in
-                            content(model)
-                                .padding(.horizontal, horizontalPadding)
+                    ForEach(models) { model in
+                        content(model)
+                            .padding(.horizontal, horizontalPadding)
 
-                            if models.last?.id != model.id {
-                                separator
-                            }
+                        if models.last?.id != model.id {
+                            separator
                         }
                     }
                 }
@@ -128,8 +141,12 @@ extension GroupedSection: Setupable {
         map { $0.interItemSpacing = spacing }
     }
 
-    func innerContentPadding(_ spacing: CGFloat) -> Self {
-        map { $0.innerContentPadding = spacing }
+    func innerContentPadding(_ padding: CGFloat) -> Self {
+        map { $0.innerContentPadding = padding }
+    }
+
+    func innerHeaderPadding(_ padding: CGFloat) -> Self {
+        map { $0.innerHeaderPadding = padding }
     }
 
     func backgroundColor(_ color: Color) -> Self {
