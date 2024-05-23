@@ -16,19 +16,75 @@ struct StakeDetailsView: View {
     }
 
     var body: some View {
-        GroupedScrollView(alignment: .leading, spacing: 14) {
-            banner
+        NavigationView {
+            GroupedScrollView(alignment: .leading, spacing: 14) {
+                banner
 
-            GroupedSection(viewModel.detailsViewModels) {
-                DefaultRowView(viewModel: $0)
+                GroupedSection(viewModel.averageRewardingViewData) {
+                    AverageRewardingView(data: $0)
+                } header: {
+                    DefaultHeaderView("Average Reward Rate")
+                }
+                .interItemSpacing(12)
+                .innerContentPadding(12)
+
+                GroupedSection(viewModel.detailsViewModels) {
+                    DefaultRowView(viewModel: $0)
+                }
             }
+            .background(Colors.Background.secondary)
+            .navigationTitle("Stake Solana")
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 
     private var banner: some View {
         Rectangle()
-            .fill(Color.blue)
+            .fill(Color.cyan.opacity(0.5))
             .frame(height: 100)
+            .cornerRadiusContinuous(18)
+    }
+}
+
+struct AverageRewardingViewData: Hashable, Identifiable {
+    var id: Int { hashValue }
+
+    let aprFormatted: String
+    let profitFormatted: String
+}
+
+struct AverageRewardingView: View {
+    let data: AverageRewardingViewData
+
+    var body: some View {
+        HStack(spacing: .zero) {
+            leadingView
+
+            trailingView
+        }
+    }
+
+    private var leadingView: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("APR")
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+
+            Text(data.aprFormatted)
+                .style(Fonts.Regular.callout, color: Colors.Text.accent)
+        }
+        .infinityFrame(axis: .horizontal, alignment: .leading)
+    }
+
+    private var trailingView: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("30 day est. profit")
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+
+            Text(data.profitFormatted)
+                .style(Fonts.Regular.callout, color: Colors.Text.primary1)
+        }
+        .lineLimit(1)
+        .infinityFrame(axis: .horizontal, alignment: .leading)
     }
 }
 
@@ -49,10 +105,10 @@ struct StakeDetailsView_Preview: PreviewProvider {
             staked: 0,
             minAPR: 3.54,
             maxAPR: 5.06,
-            unbonding: DateComponents(day: 3).date!,
+            unbonding: .days(3),
             minimumRequirement: 0.000028,
             rewardClaimingType: .auto,
-            warmupPeriod: DateComponents(day: 3).date!,
+            warmupPeriod: .days(3),
             rewardScheduleType: .block
         ),
         coordinator: StakeDetailsCoordinator()
