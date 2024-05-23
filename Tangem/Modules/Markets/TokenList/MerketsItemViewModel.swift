@@ -1,5 +1,5 @@
 //
-//  ManageTokensItemViewModel.swift
+//  MarketsItemViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-class ManageTokensItemViewModel: Identifiable, ObservableObject {
+class MarketsItemViewModel: Identifiable, ObservableObject {
     // MARK: - Injected Properties
 
     @Injected(\.quotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
@@ -106,7 +106,7 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
     }
 }
 
-extension ManageTokensItemViewModel {
+extension MarketsItemViewModel {
     enum Action {
         case add
         case edit
