@@ -431,9 +431,11 @@
 "send_alert_transaction_failed_text" = "Reason: %1$@\nCode: %2$@";
 "send_alert_transaction_failed_title" = "The transaction is not completed";
 "send_amount_label" = "數量";
-"send_base_fee" = "Base fee";
-"send_base_fee_footer" = "Represents the part of the transaction fee that goes to the miner";
 "send_bitcoin_custom_fee_footer" = "You can set your transaction fee by adjusting the value in the Satoshi per vByte field.";
+"send_custom_evm_max_fee" = "Max fee";
+"send_custom_evm_max_fee_footer" = "This is the cost you are willing to pay for each unit of gas. The higher the gas price, the faster your transaction will be processed. (Priority fee included)";
+"send_custom_evm_priority_fee" = "Priority fee";
+"send_custom_evm_priority_fee_footer" = "The fee that a user can pay to miners or validators to expedite the inclusion of their transaction in a block.";
 "send_date_format" = "%1$@, %2$@";
 "send_destination_hint_address" = "地址";
 "send_destination_tag_field" = "Destination Tag";
@@ -478,8 +480,6 @@
 "send_notification_transaction_limit_text" = "Due to %1$@ limitations only %2$@ UTXOs can fit in a single transaction. This means you can only send %3$@ or less. You need to reduce the amount.";
 "send_notification_transaction_limit_title" = "Transaction limitation";
 "send_optional_field" = "Optional";
-"send_priority_fee" = "Priority fee";
-"send_priority_fee_footer" = "Represents the minimum gasUsed multiplier required for a transaction to be included in a block. This is the part of the transaction fee that is burnt.";
 "send_qrcode_scan_info" = "Please align your QR code with the square to scan it. Ensure you scan %@ network address.";
 "send_recent_transactions" = "Recent";
 "send_recipient" = "Recipient";
