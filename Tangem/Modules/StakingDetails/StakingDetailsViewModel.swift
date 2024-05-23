@@ -1,5 +1,5 @@
 //
-//  StakeDetailsViewModel.swift
+//  StakingDetailsViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Combine
 import BlockchainSdk
 import TangemFoundation
 
-final class StakeDetailsViewModel: ObservableObject {
+final class StakingDetailsViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published var detailsViewModels: [DefaultRowViewModel] = []
@@ -19,15 +19,15 @@ final class StakeDetailsViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let inputData: StakeDetailsData
-    private weak var coordinator: StakeDetailsRoutable?
+    private let inputData: StakingDetailsData
+    private weak var coordinator: StakingDetailsRoutable?
     private let balanceFormatter = BalanceFormatter()
     private let percentFormatter = PercentFormatter()
     private let dateComponentsFormatter = DateComponentsFormatter()
 
     init(
-        inputData: StakeDetailsData,
-        coordinator: StakeDetailsRoutable
+        inputData: StakingDetailsData,
+        coordinator: StakingDetailsRoutable
     ) {
         self.inputData = inputData
         self.coordinator = coordinator
@@ -42,7 +42,7 @@ final class StakeDetailsViewModel: ObservableObject {
     }
 }
 
-private extension StakeDetailsViewModel {
+private extension StakingDetailsViewModel {
 
     func aprFormatted() -> String {
         let minAPRFormatted = percentFormatter.percentFormat(value: inputData.minAPR)
@@ -102,21 +102,21 @@ private extension StakeDetailsViewModel {
     }
 }
 
-struct StakeDetailsData {
+struct StakingDetailsData {
     let tokenItem: TokenItem
     let monthEstimatedProfit: Decimal
     let available: Decimal
     let staked: Decimal
     let minAPR: Decimal
     let maxAPR: Decimal
-    let unbonding: StakePeriod
+    let unbonding: StakingPeriod
     let minimumRequirement: Decimal
     let rewardClaimingType: RewardClaimingType
-    let warmupPeriod: StakePeriod
+    let warmupPeriod: StakingPeriod
     let rewardScheduleType: RewardScheduleType
 }
 
-enum StakePeriod {
+enum StakingPeriod {
     case days(_ days: Int)
 
     func formatted(formatter: DateComponentsFormatter) -> String {
