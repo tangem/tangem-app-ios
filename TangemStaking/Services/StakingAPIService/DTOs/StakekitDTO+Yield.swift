@@ -1,5 +1,5 @@
 //
-//  StakekitStakingAPIService.swift
+//  StakekitDTO+Yield.swift
 //  TangemStaking
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,111 +7,10 @@
 //
 
 import Foundation
-import Moya
 
-class StakekitStakingAPIService: StakingAPIService {
-    let provider: MoyaProvider<StakekitTarget>
-
-    init(provider: MoyaProvider<StakekitTarget>) {
-        self.provider = provider
-    }
-
-    func getStakingInfo(wallet: any StakingWallet) async throws -> StakingInfo {}
-}
-
-private extension StakekitStakingAPIService {}
-
-struct StakekitTarget: Moya.TargetType {
-    let target: Target
-
-    enum Target {
-        case getAction(id: String)
-//        case createAction()
-    }
-
-    var baseURL: URL {
-        URL(string: "https://api.stakek.it")!
-    }
-
-    var path: String {}
-
-    var method: Moya.Method {}
-
-    var task: Moya.Task {}
-
-    var headers: [String: String]? {
-        ["X-API-KEY": "ccf0a87a-3d6a-41d0-afa4-3dfc1a101335"]
-    }
-}
-
-// Polygon native
-// ethereum-matic-native-staking
-// 0x29010F8F91B980858EB298A0843264cfF21Fd9c9
-
-enum StakekitDTO {
-    // MARK: - Common
-
-    struct Token: Codable {
-        let network: String?
-        let name: String?
-        let decimals: Int?
-        let address: String?
-        let symbol: String?
-        let logoURI: String?
-    }
-
-    struct Validator: Decodable {
-        let address: String
-        let status: Status
-        let name: String?
-        let image: String?
-        let website: String?
-        let apr: Double?
-        let commission: Double?
-        let stakedBalance: String?
-        let votingPower: Double?
-        let preferred: Bool?
-
-        enum Status: String, Decodable {
-            case active
-            case jailed
-            case deactivating
-            case inactive
-        }
-    }
-
-    enum Actions {
-        enum Get {
-            struct Request: Encodable {
-                let actionId: String
-            }
-
-            struct Response: Decodable {}
-        }
-
-        enum Enter {
-            struct Request: Encodable {
-                let addresses: [Address]
-                let args: Args
-                let integrationId: String
-
-                struct Address: Encodable {
-                    let address: String
-                }
-
-                struct Args: Encodable {
-                    let inputToken: Token
-                    let amount: String
-                    let validatorAddress: String
-                }
-            }
-
-            struct Response: Decodable {}
-        }
-    }
-
+extension StakekitDTO {
     enum Yield {
-        enum Get {
+        enum Info {
             struct Request: Encodable {
                 let integrationId: String
             }
@@ -233,6 +132,59 @@ enum StakekitDTO {
 
                     struct Enabled: Decodable {
                         let enabled: Bool
+                    }
+                }
+            }
+        }
+
+        enum Balance {
+            struct Request: Encodable {
+                let integrationId: String
+                let address: Address
+            }
+
+            struct Response: Decodable {
+                let groupId: String
+                let type: BalanceType
+                let amount: String
+                let date: Date?
+                let pricePerShare: String
+                let pendingActions: [PendingAction]
+                let token: Token
+                let validatorAddress: String?
+                let providerId: String?
+
+                enum BalanceType: String, Decodable {
+                    case available
+                    case staked
+                    case unstaking
+                    case unstaked
+                    case preparing
+                    case rewards
+                    case locked
+                    case unlocking
+                }
+
+                struct PendingAction: Decodable {
+                    let type: PendingActionType
+                    let passthrough: String
+
+                    enum PendingActionType: String, Decodable {
+                        case STAKE
+                        case UNSTAKE
+                        case CLAIM_REWARDS
+                        case RESTAKE_REWARDS
+                        case WITHDRAW
+                        case RESTAKE
+                        case CLAIM_UNSTAKED
+                        case UNLOCK_LOCKED
+                        case STAKE_LOCKED
+                        case VOTE
+                        case REVOKE
+                        case VOTE_LOCKED
+                        case REVOTE
+                        case REBOND
+                        case MIGRATE
                     }
                 }
             }
