@@ -56,7 +56,7 @@ class CommonWalletModelsManager {
 
         if walletModelIdsToAdd.isEmpty, walletModelIdsToDelete.isEmpty {
             if _walletModels.value == nil {
-                // Emit initial list. Case with first card scan start wihout derivations
+                // Emit initial list. Case with first card scan without derivations
                 _walletModels.send([])
             }
 
