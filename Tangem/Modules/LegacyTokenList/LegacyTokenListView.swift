@@ -47,7 +47,7 @@ struct LegacyTokenListView: View {
                 divider
 
                 ForEach(viewModel.coinViewModels) {
-                    LegacyCoinView(model: $0)
+                    ManageTokensCoinView(model: $0)
                         .padding(.horizontal)
 
                     divider
