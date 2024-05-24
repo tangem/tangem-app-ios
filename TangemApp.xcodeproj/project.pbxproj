@@ -1446,6 +1446,11 @@
 		EFEE23B02BFF69790099917E /* ScanCardSettingsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFEE23AD2BFF69790099917E /* ScanCardSettingsRoutable.swift */; };
 		EFEE23B12BFF69790099917E /* ScanCardSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFEE23AE2BFF69790099917E /* ScanCardSettingsView.swift */; };
 		EFEE23B32BFF69FE0099917E /* ScanCardSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFEE23B22BFF69FE0099917E /* ScanCardSettingsViewModel.swift */; };
+		EFEE236A2BFE20860099917E /* StakeDetailsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFEE23652BFE20860099917E /* StakeDetailsCoordinator.swift */; };
+		EFEE236B2BFE20860099917E /* StakeDetailsCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFEE23662BFE20860099917E /* StakeDetailsCoordinatorView.swift */; };
+		EFEE236C2BFE20860099917E /* StakeDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFEE23672BFE20860099917E /* StakeDetailsView.swift */; };
+		EFEE236D2BFE20860099917E /* StakeDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFEE23682BFE20860099917E /* StakeDetailsViewModel.swift */; };
+		EFEE236E2BFE20860099917E /* StakeDetailsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFEE23692BFE20860099917E /* StakeDetailsRoutable.swift */; };
 		EFF034AC28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF034AB28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift */; };
 		EFF034AF28B6522500F70FF7 /* WalletModelsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF034AE28B6522500F70FF7 /* WalletModelsManager.swift */; };
 		EFF034B128B6523F00F70FF7 /* CommonWalletModelsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF034B028B6523F00F70FF7 /* CommonWalletModelsManager.swift */; };
@@ -3145,6 +3150,11 @@
 		EFEE23AD2BFF69790099917E /* ScanCardSettingsRoutable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScanCardSettingsRoutable.swift; sourceTree = "<group>"; };
 		EFEE23AE2BFF69790099917E /* ScanCardSettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScanCardSettingsView.swift; sourceTree = "<group>"; };
 		EFEE23B22BFF69FE0099917E /* ScanCardSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanCardSettingsViewModel.swift; sourceTree = "<group>"; };
+		EFEE23652BFE20860099917E /* StakeDetailsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakeDetailsCoordinator.swift; sourceTree = "<group>"; };
+		EFEE23662BFE20860099917E /* StakeDetailsCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakeDetailsCoordinatorView.swift; sourceTree = "<group>"; };
+		EFEE23672BFE20860099917E /* StakeDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakeDetailsView.swift; sourceTree = "<group>"; };
+		EFEE23682BFE20860099917E /* StakeDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakeDetailsViewModel.swift; sourceTree = "<group>"; };
+		EFEE23692BFE20860099917E /* StakeDetailsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakeDetailsRoutable.swift; sourceTree = "<group>"; };
 		EFF034AB28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Publisher+TangemAPIError.swift"; sourceTree = "<group>"; };
 		EFF034AE28B6522500F70FF7 /* WalletModelsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModelsManager.swift; sourceTree = "<group>"; };
 		EFF034B028B6523F00F70FF7 /* CommonWalletModelsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonWalletModelsManager.swift; sourceTree = "<group>"; };
@@ -6780,6 +6790,7 @@
 			isa = PBXGroup;
 			children = (
 				EFEE232E2BFE00EA0099917E /* Staking */,
+				EFEE23632BFE204A0099917E /* StakeDetails */,
 				EF5D83D12B0B79F900516B5F /* ExpressSuccessSent */,
 				EF842DE22AFA58A5006E472E /* ExpressTokensList */,
 				EF48E6CC2B023EC900FE0072 /* ExpressView */,
@@ -8220,6 +8231,18 @@
 			name = ScanCardSettings;
 			path = Tangem/Modules/ScanCardSettings;
 			sourceTree = SOURCE_ROOT;
+		};
+		EFEE23632BFE204A0099917E /* StakeDetails */ = {
+			isa = PBXGroup;
+			children = (
+				EFEE23652BFE20860099917E /* StakeDetailsCoordinator.swift */,
+				EFEE23662BFE20860099917E /* StakeDetailsCoordinatorView.swift */,
+				EFEE23672BFE20860099917E /* StakeDetailsView.swift */,
+				EFEE23682BFE20860099917E /* StakeDetailsViewModel.swift */,
+				EFEE23692BFE20860099917E /* StakeDetailsRoutable.swift */,
+			);
+			path = StakeDetails;
+			sourceTree = "<group>";
 		};
 		EFF034AD28B6521900F70FF7 /* WalletModelsManager */ = {
 			isa = PBXGroup;
@@ -10171,6 +10194,11 @@
 				B0F319022A7394AA009F131E /* FakeUserWalletRepository.swift in Sources */,
 				B61D2A202B1947E6004F2C2D /* TokenDetailsScrollState.swift in Sources */,
 				B691A8C02AFE43CE0059D182 /* CardsInfoPagerSwipeDiscoveryAnimationModifier.swift in Sources */,
+				EFEE236A2BFE20860099917E /* StakeDetailsCoordinator.swift in Sources */,
+				EFEE236B2BFE20860099917E /* StakeDetailsCoordinatorView.swift in Sources */,
+				EFEE236C2BFE20860099917E /* StakeDetailsView.swift in Sources */,
+				EFEE236D2BFE20860099917E /* StakeDetailsViewModel.swift in Sources */,
+				EFEE236E2BFE20860099917E /* StakeDetailsRoutable.swift in Sources */,
 				B0AC1A312BA47D5D00FE6879 /* OnboardingSeedPassphraseInfoBottomSheetView.swift in Sources */,
 				DADC9CA02B91C8AC00DA2C27 /* SendAlertBuilder.swift in Sources */,
 				B6AEF9742A796713004663C3 /* TokenSectionsAdapter.swift in Sources */,
