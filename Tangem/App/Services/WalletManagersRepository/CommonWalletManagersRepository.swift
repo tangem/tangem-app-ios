@@ -86,6 +86,11 @@ class CommonWalletManagersRepository {
             hasUpdates = true
         }
 
+        if walletManagers.value == nil {
+            // Emit initial list. Case with first card scan start wihout derivations
+            hasUpdates = true
+        }
+
         if hasUpdates {
             walletManagers.send(managers)
         }
