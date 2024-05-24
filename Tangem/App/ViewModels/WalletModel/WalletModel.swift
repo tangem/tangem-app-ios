@@ -439,12 +439,14 @@ class WalletModel {
         }
     }
 
-    func send(_ tx: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, Error> {
+    func send(_ tx: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
         if isDemo {
             let hash = Data.randomData(count: 32)
             return signer.sign(hash: hash, walletPublicKey: wallet.publicKey)
+                .mapSendError(tx: hash.hexString)
                 .map { _ in TransactionSendResult(hash: hash.hexString) }
                 .receive(on: DispatchQueue.main)
+                .eraseSendError()
                 .eraseToAnyPublisher()
         }
 
@@ -674,8 +676,8 @@ extension WalletModel {
         walletManager as? AddressResolver
     }
 
-    var withdrawalSuggestionProvider: WithdrawalSuggestionProvider? {
-        walletManager as? WithdrawalSuggestionProvider
+    var withdrawalNotificationProvider: WithdrawalNotificationProvider? {
+        walletManager as? WithdrawalNotificationProvider
     }
 
     var hasRent: Bool {
