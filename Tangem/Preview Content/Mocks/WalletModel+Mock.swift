@@ -37,7 +37,14 @@ class EthereumWalletManagerMock: WalletManager {
 
     func addTokens(_ tokens: [BlockchainSdk.Token]) {}
 
-    var wallet: BlockchainSdk.Wallet = .init(blockchain: .ethereum(testnet: false), addresses: [:])
+    var wallet: BlockchainSdk.Wallet = .init(
+        blockchain: .ethereum(testnet: false),
+        addresses: [.default: PlainAddress(
+            value: "0xtestaddress",
+            publicKey: Wallet.PublicKey(seedKey: Data(), derivationType: .none),
+            type: .default
+        )]
+    )
     var walletPublisher: AnyPublisher<BlockchainSdk.Wallet, Never> { .just(output: wallet) }
     var statePublisher: AnyPublisher<BlockchainSdk.WalletManagerState, Never> { .just(output: .initial) }
     var currentHost: String { "" }
