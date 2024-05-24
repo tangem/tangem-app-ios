@@ -9,19 +9,19 @@
 import Combine
 
 class ManageTokensListViewModel: ObservableObject {
-    @Published var coinViewModels: [LegacyCoinViewModel] = []
+    @Published var coinViewModels: [ManageTokensCoinViewModel] = []
 
     var hasNextPage: Bool {
-        loader.hasNextPage
+        loader?.hasNextPage ?? false
     }
 
-    private unowned let loader: ManageTokensListLoader
-    private let coinViewModelsPublisher: any Publisher<[LegacyCoinViewModel], Never>
+    private weak var loader: ManageTokensListLoader?
+    private let coinViewModelsPublisher: any Publisher<[ManageTokensCoinViewModel], Never>
     private var bag = Set<AnyCancellable>()
 
     init(
         loader: ManageTokensListLoader,
-        coinViewModelsPublisher: some Publisher<[LegacyCoinViewModel], Never>
+        coinViewModelsPublisher: some Publisher<[ManageTokensCoinViewModel], Never>
     ) {
         self.loader = loader
         self.coinViewModelsPublisher = coinViewModelsPublisher
@@ -30,7 +30,7 @@ class ManageTokensListViewModel: ObservableObject {
     }
 
     func fetch() {
-        loader.fetch()
+        loader?.fetch()
     }
 
     func bind() {
