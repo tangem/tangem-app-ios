@@ -14,7 +14,7 @@ class WelcomeSearchTokensViewModel: Identifiable, ObservableObject {
     var enteredSearchText = CurrentValueSubject<String, Never>("")
     var manageTokensListViewModel: ManageTokensListViewModel!
 
-    @Published var coinViewModels: [LegacyCoinViewModel] = []
+    @Published var coinViewModels: [ManageTokensCoinViewModel] = []
     @Published var isLoading: Bool = true
 
     private lazy var loader = setupListDataLoader()
@@ -78,7 +78,7 @@ private extension WelcomeSearchTokensViewModel {
 
         loader.$items
             .withWeakCaptureOf(self)
-            .map { viewModel, items -> [LegacyCoinViewModel] in
+            .map { viewModel, items -> [ManageTokensCoinViewModel] in
                 items.compactMap(viewModel.mapToCoinViewModel(coinModel:))
             }
             .receive(on: DispatchQueue.main)
@@ -88,9 +88,9 @@ private extension WelcomeSearchTokensViewModel {
         return loader
     }
 
-    func mapToCoinViewModel(coinModel: CoinModel) -> LegacyCoinViewModel {
+    func mapToCoinViewModel(coinModel: CoinModel) -> ManageTokensCoinViewModel {
         let currencyItems = coinModel.items.enumerated().map { index, item in
-            LegacyCoinItemViewModel(
+            ManageTokensCoinItemViewModel(
                 tokenItem: item.tokenItem,
                 isReadonly: true,
                 isSelected: .constant(false),
@@ -99,6 +99,6 @@ private extension WelcomeSearchTokensViewModel {
             )
         }
 
-        return LegacyCoinViewModel(with: coinModel, items: currencyItems)
+        return ManageTokensCoinViewModel(with: coinModel, items: currencyItems)
     }
 }
