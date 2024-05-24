@@ -105,6 +105,15 @@ target 'TangemVisa' do
   end
 end
 
+target 'TangemStaking' do
+  blockchain_sdk_pods
+  pod 'Moya'
+
+  target 'TangemStakingTests' do
+    blockchain_sdk_pods
+  end
+end
+
 target 'TangemFoundation' do
   pod 'Moya'
 
