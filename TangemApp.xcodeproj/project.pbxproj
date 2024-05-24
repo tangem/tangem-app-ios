@@ -1377,6 +1377,8 @@
 		EFBC5C742C00A74100B662E0 /* StakingWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBC5C6E2C00A74100B662E0 /* StakingWallet.swift */; };
 		EFBC5C752C00A74100B662E0 /* StakingAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBC5C702C00A74100B662E0 /* StakingAPIService.swift */; };
 		EFBC5C792C00A79E00B662E0 /* StakekitStakingAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBC5C782C00A79E00B662E0 /* StakekitStakingAPIService.swift */; };
+		EFBC5C8E2C00B8A000B662E0 /* StakekitDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBC5C8D2C00B8A000B662E0 /* StakekitDTO.swift */; };
+		EFBC5C902C00B8B800B662E0 /* StakekitDTO+Yield.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBC5C8F2C00B8B800B662E0 /* StakekitDTO+Yield.swift */; };
 		EFC46F01292669A0003928E3 /* ReceiveCurrencyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC46F00292669A0003928E3 /* ReceiveCurrencyViewModel.swift */; };
 		EFC597BD2AA0B1B7001F6945 /* CommonTokenQuotesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC597BC2AA0B1B7001F6945 /* CommonTokenQuotesRepository.swift */; };
 		EFC6846D2A0FA3C600660690 /* BindingValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC6846C2A0FA3C600660690 /* BindingValue.swift */; };
@@ -3021,6 +3023,8 @@
 		EFBC5C6E2C00A74100B662E0 /* StakingWallet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingWallet.swift; sourceTree = "<group>"; };
 		EFBC5C702C00A74100B662E0 /* StakingAPIService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingAPIService.swift; sourceTree = "<group>"; };
 		EFBC5C782C00A79E00B662E0 /* StakekitStakingAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakekitStakingAPIService.swift; sourceTree = "<group>"; };
+		EFBC5C8D2C00B8A000B662E0 /* StakekitDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakekitDTO.swift; sourceTree = "<group>"; };
+		EFBC5C8F2C00B8B800B662E0 /* StakekitDTO+Yield.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StakekitDTO+Yield.swift"; sourceTree = "<group>"; };
 		EFC46EFD29266982003928E3 /* SendCurrencyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendCurrencyViewModel.swift; sourceTree = "<group>"; };
 		EFC46F00292669A0003928E3 /* ReceiveCurrencyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveCurrencyViewModel.swift; sourceTree = "<group>"; };
 		EFC597BC2AA0B1B7001F6945 /* CommonTokenQuotesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTokenQuotesRepository.swift; sourceTree = "<group>"; };
@@ -7847,6 +7851,8 @@
 		EFBC5C762C00A78700B662E0 /* DTOs */ = {
 			isa = PBXGroup;
 			children = (
+				EFBC5C8D2C00B8A000B662E0 /* StakekitDTO.swift */,
+				EFBC5C8F2C00B8B800B662E0 /* StakekitDTO+Yield.swift */,
 			);
 			path = DTOs;
 			sourceTree = "<group>";
@@ -10299,6 +10305,8 @@
 				EFEE238C2BFF62D50099917E /* TangemStaking.docc in Sources */,
 				EFBC5C732C00A74100B662E0 /* StakingInfo.swift in Sources */,
 				EFBC5C752C00A74100B662E0 /* StakingAPIService.swift in Sources */,
+				EFBC5C902C00B8B800B662E0 /* StakekitDTO+Yield.swift in Sources */,
+				EFBC5C8E2C00B8A000B662E0 /* StakekitDTO.swift in Sources */,
 				EFBC5C792C00A79E00B662E0 /* StakekitStakingAPIService.swift in Sources */,
 				EFBC5C742C00A74100B662E0 /* StakingWallet.swift in Sources */,
 			);
