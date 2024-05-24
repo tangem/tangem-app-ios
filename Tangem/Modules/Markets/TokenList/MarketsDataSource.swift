@@ -1,5 +1,5 @@
 //
-//  ManageTokensDataSource.swift
+//  MarketsDataSource.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-class ManageTokensDataSource {
+class MarketsDataSource {
     // MARK: - Injected
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
