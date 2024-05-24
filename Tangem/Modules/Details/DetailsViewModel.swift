@@ -137,7 +137,11 @@ extension DetailsViewModel {
     }
 
     func openDisclaimer() {
-        coordinator?.openDisclaimer(at: selectedUserWalletModel!.config.tou.url)
+        guard let tos = selectedUserWalletModel?.config.tou.url else {
+            return
+        }
+
+        coordinator?.openDisclaimer(url: tos)
     }
 
     func openSocialNetwork(network: SocialNetwork) {
@@ -148,7 +152,7 @@ extension DetailsViewModel {
         Analytics.log(event: .buttonSocialNetwork, params: [
             .network: network.name,
         ])
-        coordinator?.openInSafari(url: url)
+        coordinator?.openSocialNetwork(url: url)
     }
 
     func openEnvironmentSetup() {
