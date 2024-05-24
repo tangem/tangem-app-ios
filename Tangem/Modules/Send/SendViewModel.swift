@@ -284,12 +284,14 @@ final class SendViewModel: ObservableObject {
             let openingSummary = (nextStep == .summary)
             let stepAnimation: SendView.StepAnimation = openingSummary ? .moveAndFade : .slideForward
 
+            let checkCustomFee = shouldCheckCustomFee(currentStep: step)
             let updateFee = shouldUpdateFee(currentStep: step, nextStep: nextStep)
-            openStep(nextStep, stepAnimation: stepAnimation, updateFee: updateFee)
+            openStep(nextStep, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee, updateFee: updateFee)
         case .continue:
             let nextStep = SendStep.summary
+            let checkCustomFee = shouldCheckCustomFee(currentStep: step)
             let updateFee = shouldUpdateFee(currentStep: step, nextStep: nextStep)
-            openStep(nextStep, stepAnimation: .moveAndFade, updateFee: updateFee)
+            openStep(nextStep, stepAnimation: .moveAndFade, checkCustomFee: checkCustomFee, updateFee: updateFee)
         case .send:
             send()
         case .close:
@@ -362,7 +364,13 @@ final class SendViewModel: ObservableObject {
 
         Publishers.CombineLatest(validSteps, $step)
             .map { validSteps, step in
-                !validSteps.contains(step)
+                #warning("[REDACTED_TODO_COMMENT]")
+                switch step {
+                case .finish:
+                    return false
+                default:
+                    return !validSteps.contains(step)
+                }
             }
             .assign(to: \.mainButtonDisabled, on: self, ownership: .weak)
             .store(in: &bag)
@@ -412,7 +420,7 @@ final class SendViewModel: ObservableObject {
                     alert = SendError(
                         title: Localization.sendAlertTransactionFailedTitle,
                         message: Localization.sendAlertTransactionFailedText(reason, errorCode),
-                        error: error,
+                        error: (error as? SendTxError) ?? SendTxError(error: error),
                         openMailAction: openMail
                     )
                     .alertBinder
@@ -437,8 +445,8 @@ final class SendViewModel: ObservableObject {
                     logTransactionAnalytics()
                 }
 
-                if let address = sendModel.destinationText {
-                    UserWalletFinder().addTokenItem(walletModel.tokenItem, for: address)
+                if let address = sendModel.destinationText, let token = walletModel.tokenItem.token {
+                    UserWalletFinder().addToken(token, in: walletModel.blockchainNetwork.blockchain, for: address)
                 }
             }
             .store(in: &bag)
@@ -496,7 +504,7 @@ final class SendViewModel: ObservableObject {
         return steps[currentStepIndex - 1]
     }
 
-    private func openMail(with error: Error) {
+    private func openMail(with error: SendTxError) {
         guard let transaction = sendModel.currentTransaction() else { return }
 
         Analytics.log(.requestSupport, params: [.source: .transactionSourceSend])
@@ -575,6 +583,15 @@ final class SendViewModel: ObservableObject {
 
     private func cancelUpdatingFee() {
         feeUpdateSubscription = nil
+    }
+
+    private func shouldCheckCustomFee(currentStep: SendStep) -> Bool {
+        switch currentStep {
+        case .fee:
+            return true
+        default:
+            return false
+        }
     }
 
     private func shouldUpdateFee(currentStep: SendStep, nextStep: SendStep) -> Bool {
@@ -779,7 +796,7 @@ extension SendViewModel: NotificationTapDelegate {
                 .sink()
         case .openFeeCurrency:
             openNetworkCurrency()
-        case .reduceAmountBy(let amount, _):
+        case .reduceAmountBy(let amount, _), .leaveAmount(let amount, _):
             reduceAmountBy(amount)
         case .reduceAmountTo(let amount, _):
             reduceAmountTo(amount)
@@ -863,7 +880,17 @@ private extension ValidationError {
         case .invalidAmount, .balanceNotFound:
             // Shouldn't happen as we validate and cover amount errors separately, synchronously
             return nil
-        case .amountExceedsBalance, .invalidFee, .feeExceedsBalance, .maximumUTXO, .reserve, .dustAmount, .dustChange, .minimumBalance, .totalExceedsBalance:
+        case .amountExceedsBalance,
+             .invalidFee,
+             .feeExceedsBalance,
+             .maximumUTXO,
+             .reserve,
+             .dustAmount,
+             .dustChange,
+             .minimumBalance,
+             .totalExceedsBalance,
+             .cardanoHasTokens,
+             .cardanoInsufficientBalanceToSendToken:
             return .summary
         }
     }
