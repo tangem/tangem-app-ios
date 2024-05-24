@@ -17,7 +17,7 @@ class LegacyTokenListViewModel: ObservableObject {
     // I can't use @Published here, because of swiftui redraw perfomance drop
     var enteredSearchText = CurrentValueSubject<String, Never>("")
 
-    @Published var coinViewModels: [LegacyCoinViewModel] = []
+    @Published var coinViewModels: [ManageTokensCoinViewModel] = []
 
     @Published var isSaving: Bool = false
     @Published var alert: AlertBinder?
@@ -133,7 +133,7 @@ private extension LegacyTokenListViewModel {
         let loader = ListDataLoader(supportedBlockchains: supportedBlockchains)
 
         loader.$items
-            .map { [weak self] items -> [LegacyCoinViewModel] in
+            .map { [weak self] items -> [ManageTokensCoinViewModel] in
                 items.compactMap { self?.mapToCoinViewModel(coinModel: $0) }
             }
             .receive(on: DispatchQueue.main)
@@ -240,9 +240,9 @@ private extension LegacyTokenListViewModel {
         return binding
     }
 
-    func mapToCoinViewModel(coinModel: CoinModel) -> LegacyCoinViewModel {
+    func mapToCoinViewModel(coinModel: CoinModel) -> ManageTokensCoinViewModel {
         let currencyItems = coinModel.items.enumerated().map { index, item in
-            LegacyCoinItemViewModel(
+            ManageTokensCoinItemViewModel(
                 tokenItem: item.tokenItem,
                 isReadonly: false,
                 isSelected: bindSelection(item.tokenItem),
@@ -251,7 +251,7 @@ private extension LegacyTokenListViewModel {
             )
         }
 
-        return LegacyCoinViewModel(with: coinModel, items: currencyItems)
+        return ManageTokensCoinViewModel(with: coinModel, items: currencyItems)
     }
 
     func showWarningDeleteAlertIfNeeded(isSelected: Bool, tokenItem: TokenItem) {
