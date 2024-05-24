@@ -55,6 +55,11 @@ class CommonWalletModelsManager {
         let walletModelIdsToAdd = newWalletModelIds.subtracting(existingWalletModelIds)
 
         if walletModelIdsToAdd.isEmpty, walletModelIdsToDelete.isEmpty {
+            if _walletModels.value == nil {
+                // Emit initial list. Case with first card scan start wihout derivations
+                _walletModels.send([])
+            }
+
             return
         }
 
