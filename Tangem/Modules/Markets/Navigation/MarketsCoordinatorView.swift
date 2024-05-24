@@ -1,5 +1,5 @@
 //
-//  ManageTokensCoordinatorView.swift
+//  MarketsCoordinatorView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,13 +9,13 @@
 import Foundation
 import SwiftUI
 
-struct ManageTokensCoordinatorView: CoordinatorView {
-    @ObservedObject var coordinator: ManageTokensCoordinator
+struct MarketsCoordinatorView: CoordinatorView {
+    @ObservedObject var coordinator: MarketsCoordinator
 
     var body: some View {
         ZStack {
             if let model = coordinator.manageTokensViewModel {
-                ManageTokensView(viewModel: model)
+                MarketsView(viewModel: model)
 
                 sheets
             }
