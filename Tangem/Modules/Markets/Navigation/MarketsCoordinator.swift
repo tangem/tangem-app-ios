@@ -1,5 +1,5 @@
 //
-//  ManageTokensCoordinator.swift
+//  MarketsCoordinator.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,17 +10,17 @@ import Foundation
 import Combine
 import UIKit
 
-class ManageTokensCoordinator: CoordinatorObject {
+class MarketsCoordinator: CoordinatorObject {
     // MARK: - Dependencies
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
-    weak var delegate: ManageTokensCoordinatorDelegate?
+    weak var delegate: MarketsCoordinatorDelegate?
 
     // MARK: - Root Published
 
-    @Published private(set) var manageTokensViewModel: ManageTokensViewModel? = nil
+    @Published private(set) var manageTokensViewModel: MarketsViewModel? = nil
 
     // MARK: - Child ViewModels
 
@@ -37,7 +37,7 @@ class ManageTokensCoordinator: CoordinatorObject {
 
     // MARK: - Implmentation
 
-    func start(with options: ManageTokensCoordinator.Options) {
+    func start(with options: MarketsCoordinator.Options) {
         assert(delegate != nil)
         manageTokensViewModel = .init(searchTextPublisher: options.searchTextPublisher, coordinator: self)
     }
@@ -51,14 +51,14 @@ class ManageTokensCoordinator: CoordinatorObject {
     }
 }
 
-extension ManageTokensCoordinator {
+extension MarketsCoordinator {
     struct Options {
         let searchTextPublisher: AnyPublisher<String, Never>
     }
 }
 
-extension ManageTokensCoordinator: ManageTokensRoutable {
-    func openAddCustomToken(dataSource: ManageTokensDataSource) {
+extension MarketsCoordinator: MarketsRoutable {
+    func openAddCustomToken(dataSource: MarketsDataSource) {
         guard let userWalletModel = dataSource.defaultUserWalletModel else { return }
 
         let dismissAction: Action<Void> = { [weak self] _ in
@@ -71,7 +71,7 @@ extension ManageTokensCoordinator: ManageTokensRoutable {
         self.addCustomTokenCoordinator = addCustomTokenCoordinator
     }
 
-    func openTokenSelector(dataSource: ManageTokensDataSource, coinId: String, tokenItems: [TokenItem]) {
+    func openTokenSelector(dataSource: MarketsDataSource, coinId: String, tokenItems: [TokenItem]) {
         networkSelectorViewModel = ManageTokensNetworkSelectorViewModel(
             parentDataSource: dataSource,
             coinId: coinId,
@@ -99,7 +99,7 @@ extension ManageTokensCoordinator: ManageTokensRoutable {
     }
 }
 
-extension ManageTokensCoordinator: ManageTokensNetworkSelectorRoutable {
+extension MarketsCoordinator: ManageTokensNetworkSelectorRoutable {
     func openWalletSelector(with dataSource: WalletSelectorDataSource) {
         walletSelectorViewModel = WalletSelectorViewModel(dataSource: dataSource)
     }
