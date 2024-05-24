@@ -786,9 +786,9 @@ extension SendViewModel: NotificationTapDelegate {
         case .openFeeCurrency:
             openNetworkCurrency()
         case .leaveAmount(let amount, _):
-            reduceAmountBy(amount, from: .total)
+            reduceAmountBy(amount, from: walletInfo.balanceValue)
         case .reduceAmountBy(let amount, _):
-            reduceAmountBy(amount, from: .current)
+            reduceAmountBy(amount, from: sendModel.validatedAmountValue?.value)
         case .reduceAmountTo(let amount, _):
             reduceAmountTo(amount)
         case .generateAddresses,
@@ -802,18 +802,13 @@ extension SendViewModel: NotificationTapDelegate {
         }
     }
 
-    private func reduceAmountBy(_ amount: Decimal, from source: ReduceAmountSource) {
-        let sourceValue: Decimal
-        switch source {
-        case .current:
-            guard let currentValue = sendModel.validatedAmountValue?.value else { return }
-            sourceValue = currentValue
-        case .total:
-            guard let balanceValue = walletInfo.balanceValue else { return }
-            sourceValue = balanceValue
+    private func reduceAmountBy(_ amount: Decimal, from source: Decimal?) {
+        guard let source else {
+            assertionFailure("WHY")
+            return
         }
 
-        var newAmount = sourceValue - amount
+        var newAmount = source - amount
         if sendModel.isFeeIncluded, let feeValue = sendModel.feeValue?.amount.value {
             newAmount = newAmount - feeValue
         }
@@ -823,15 +818,6 @@ extension SendViewModel: NotificationTapDelegate {
 
     private func reduceAmountTo(_ amount: Decimal) {
         fiatCryptoAdapter.setCrypto(amount)
-    }
-}
-
-// MARK: - SendViewModel extensions
-
-extension SendViewModel {
-    enum ReduceAmountSource {
-        case current
-        case total
     }
 }
 
