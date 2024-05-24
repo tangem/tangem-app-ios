@@ -87,7 +87,7 @@ class CommonWalletManagersRepository {
         }
 
         if walletManagers.value == nil {
-            // Emit initial list. Case with first card scan start wihout derivations
+            // Emit initial list. Case with first card scan without derivations
             hasUpdates = true
         }
 
