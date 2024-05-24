@@ -61,30 +61,21 @@ struct SendView: View {
     private var header: some View {
         if let title = viewModel.title {
             HStack {
-                HStack(spacing: 0) {
-                    Button(Localization.commonClose, action: viewModel.dismiss)
-                        .foregroundColor(viewModel.closeButtonColor)
-                        .disabled(viewModel.closeButtonDisabled)
-                        .fixedSize(horizontal: true, vertical: false)
-
-                    Spacer()
-                }
-                .layoutPriority(1)
+                closeButton
 
                 // Making sure the header doesn't jump when changing the visibility of the fields
                 ZStack {
-                    headerText(title: title, subtitle: viewModel.subtitle)
+                    headerText(title: title, subtitle: viewModel.subtitle, titleNamespaceId: SendViewNamespaceId.containerTitle.rawValue)
 
-                    headerText(title: "Title", subtitle: "Subtitle")
+                    headerText(title: "Title", subtitle: "Subtitle", titleNamespaceId: nil)
                         .hidden()
                 }
-                .animation(nil, value: title)
                 .padding(.vertical, 0)
                 .lineLimit(1)
-                .layoutPriority(2)
 
-                HStack(spacing: 0) {
-                    Spacer()
+                ZStack(alignment: .trailing) {
+                    closeButton
+                        .hidden()
 
                     if viewModel.showQRCodeButton {
                         Button(action: viewModel.scanQRCode) {
@@ -94,24 +85,42 @@ struct SendView: View {
                         }
                     }
                 }
-                .layoutPriority(1)
             }
             .padding(.horizontal, 16)
             .padding(.top, 12)
         }
     }
 
+    private var closeButton: some View {
+        Button(Localization.commonClose, action: viewModel.dismiss)
+            .foregroundColor(viewModel.closeButtonColor)
+            .disabled(viewModel.closeButtonDisabled)
+            .fixedSize(horizontal: true, vertical: false)
+    }
+
     @ViewBuilder
-    private func headerText(title: String, subtitle: String?) -> some View {
+    private func headerText(title: String, subtitle: String?, titleNamespaceId: String?) -> some View {
         VStack(spacing: 2) {
-            Text(title)
-                .style(Fonts.Bold.body, color: Colors.Text.primary1)
+            // SwiftUI cannot animate the position and the contents of the same text view at the same time
+            if subtitle != nil {
+                headerTitleText(title: title, titleNamespaceId: titleNamespaceId)
+            } else {
+                headerTitleText(title: title, titleNamespaceId: titleNamespaceId)
+            }
 
             if let subtitle = subtitle {
                 Text(subtitle)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .transition(.opacity)
             }
         }
+    }
+
+    private func headerTitleText(title: String, titleNamespaceId: String?) -> some View {
+        Text(title)
+            .style(Fonts.Bold.body, color: Colors.Text.primary1)
+            .frame(maxWidth: .infinity)
+            .matchedGeometryEffectOptional(id: titleNamespaceId, in: titleNamespaceId != nil ? namespace : nil)
     }
 
     @ViewBuilder
