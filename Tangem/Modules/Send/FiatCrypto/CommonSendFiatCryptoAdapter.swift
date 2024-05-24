@@ -113,20 +113,12 @@ class CommonSendFiatCryptoAdapter: SendFiatCryptoAdapter {
     }
 
     private func formatCryptoAmount(_ amount: Decimal, trimFractions: Bool) -> String? {
-        let formatter = BalanceFormatter()
+        let currencyFormatter = NumberFormatter()
+        currencyFormatter.numberStyle = .currency
+        currencyFormatter.currencySymbol = currencySymbol
 
-        let minCryptoFractionDigits = trimFractions ? 0 : BalanceFormattingOptions.defaultCryptoFormattingOptions.minFractionDigits
-        let cryptoFormattingOption = BalanceFormattingOptions(
-            minFractionDigits: minCryptoFractionDigits,
-            maxFractionDigits: decimals,
-            formatEpsilonAsLowestRepresentableValue: false,
-            roundingType: BalanceFormattingOptions.defaultCryptoFormattingOptions.roundingType
-        )
-        return formatter.formatCryptoBalance(
-            amount,
-            currencyCode: currencySymbol,
-            formattingOptions: cryptoFormattingOption
-        )
+        let formatter = DecimalNumberFormatter(numberFormatter: currencyFormatter, maximumFractionDigits: decimals)
+        return formatter.format(value: amount)
     }
 
     private func formatFiatAmount(_ amount: Decimal?, trimFractions: Bool) -> String {
