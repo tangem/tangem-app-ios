@@ -21,6 +21,7 @@ struct WalletConnectEthTransaction: Codable {
         return """
         to: \(to),
         value: \(value ?? "0"),
+        gas: \(gas ?? gasLimit ?? "not specified"),
         data: \(data.count > 30 ? "\(data.prefix(10))...\(data.suffix(10))" : data),
         nonce: \(nonce ?? "not specified")
         """
