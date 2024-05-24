@@ -17,8 +17,6 @@ class LegacyTokenListViewModel: ObservableObject {
     // I can't use @Published here, because of swiftui redraw perfomance drop
     var enteredSearchText = CurrentValueSubject<String, Never>("")
 
-    var manageTokensListViewModel: ManageTokensListViewModel!
-
     @Published var coinViewModels: [LegacyCoinViewModel] = []
 
     @Published var isSaving: Bool = false
@@ -34,6 +32,10 @@ class LegacyTokenListViewModel: ObservableObject {
         pendingAdd.isEmpty && pendingRemove.isEmpty
     }
 
+    var hasNextPage: Bool {
+        loader.canFetchMore
+    }
+
     private lazy var loader = setupListDataLoader()
     private let settings: LegacyManageTokensSettings
     private let userTokensManager: UserTokensManager
@@ -44,11 +46,6 @@ class LegacyTokenListViewModel: ObservableObject {
         self.settings = settings
         self.userTokensManager = userTokensManager
         self.coordinator = coordinator
-
-        manageTokensListViewModel = .init(
-            loader: self,
-            coinViewModelsPublisher: $coinViewModels
-        )
 
         bind()
     }
@@ -94,12 +91,6 @@ class LegacyTokenListViewModel: ObservableObject {
             self.enteredSearchText.value = ""
         }
     }
-}
-
-extension LegacyTokenListViewModel: ManageTokensListLoader {
-    var hasNextPage: Bool {
-        loader.canFetchMore
-    }
 
     func fetch() {
         loader.fetch(enteredSearchText.value)
@@ -142,9 +133,8 @@ private extension LegacyTokenListViewModel {
         let loader = ListDataLoader(supportedBlockchains: supportedBlockchains)
 
         loader.$items
-            .withWeakCaptureOf(self)
-            .map { viewModel, items -> [LegacyCoinViewModel] in
-                items.compactMap(viewModel.mapToCoinViewModel(coinModel:))
+            .map { [weak self] items -> [LegacyCoinViewModel] in
+                items.compactMap { self?.mapToCoinViewModel(coinModel: $0) }
             }
             .receive(on: DispatchQueue.main)
             .assign(to: \.coinViewModels, on: self, ownership: .weak)

@@ -32,9 +32,8 @@ struct LegacyTokenListView: View {
     }
 
     private var list: some View {
-        ManageTokensListView(
-            viewModel: viewModel.manageTokensListViewModel,
-            header: {
+        ScrollView {
+            LazyVStack {
                 if viewModel.shouldShowAlert {
                     Text(Localization.warningManageTokensLegacyDerivationMessage)
                         .font(.system(size: 13, weight: .medium, design: .default))
@@ -44,10 +43,26 @@ struct LegacyTokenListView: View {
                         .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
                         .padding(.horizontal)
                 }
-            }, footer: {
+
+                divider
+
+                ForEach(viewModel.coinViewModels) {
+                    LegacyCoinView(model: $0)
+                        .padding(.horizontal)
+
+                    divider
+                }
+
+                if viewModel.hasNextPage {
+                    HStack(alignment: .center) {
+                        ActivityIndicatorView(color: .gray)
+                            .onAppear(perform: viewModel.fetch)
+                    }
+                }
+
                 Color.clear.frame(width: 10, height: 58, alignment: .center)
             }
-        )
+        }
     }
 
     private var divider: some View {
