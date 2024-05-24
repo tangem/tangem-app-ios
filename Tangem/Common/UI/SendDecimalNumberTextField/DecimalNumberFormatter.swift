@@ -15,13 +15,12 @@ struct DecimalNumberFormatter {
     private let numberFormatter: NumberFormatter
 
     init(
-        numberFormatter: NumberFormatter = .init(),
+        numberFormatter: NumberFormatter = Self.defaultFormatter,
         maximumFractionDigits: Int
     ) {
         self.numberFormatter = numberFormatter
 
         numberFormatter.roundingMode = .down
-        numberFormatter.numberStyle = .decimal
         numberFormatter.minimumFractionDigits = 0 // Just for case
         numberFormatter.maximumFractionDigits = maximumFractionDigits
     }
@@ -84,6 +83,12 @@ struct DecimalNumberFormatter {
 // MARK: - Private
 
 private extension DecimalNumberFormatter {
+    static var defaultFormatter: NumberFormatter {
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .decimal
+        return numberFormatter
+    }
+
     func separateStringByDecimalSeparator(string: String) -> (beforeComma: String, afterComma: String) {
         guard let commaIndex = string.firstIndex(of: decimalSeparator) else {
             return (beforeComma: string, afterComma: "")
