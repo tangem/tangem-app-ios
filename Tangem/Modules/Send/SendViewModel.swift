@@ -284,12 +284,14 @@ final class SendViewModel: ObservableObject {
             let openingSummary = (nextStep == .summary)
             let stepAnimation: SendView.StepAnimation = openingSummary ? .moveAndFade : .slideForward
 
+            let checkCustomFee = shouldCheckCustomFee(currentStep: step)
             let updateFee = shouldUpdateFee(currentStep: step, nextStep: nextStep)
-            openStep(nextStep, stepAnimation: stepAnimation, updateFee: updateFee)
+            openStep(nextStep, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee, updateFee: updateFee)
         case .continue:
             let nextStep = SendStep.summary
+            let checkCustomFee = shouldCheckCustomFee(currentStep: step)
             let updateFee = shouldUpdateFee(currentStep: step, nextStep: nextStep)
-            openStep(nextStep, stepAnimation: .moveAndFade, updateFee: updateFee)
+            openStep(nextStep, stepAnimation: .moveAndFade, checkCustomFee: checkCustomFee, updateFee: updateFee)
         case .send:
             send()
         case .close:
@@ -581,6 +583,15 @@ final class SendViewModel: ObservableObject {
 
     private func cancelUpdatingFee() {
         feeUpdateSubscription = nil
+    }
+
+    private func shouldCheckCustomFee(currentStep: SendStep) -> Bool {
+        switch currentStep {
+        case .fee:
+            return true
+        default:
+            return false
+        }
     }
 
     private func shouldUpdateFee(currentStep: SendStep, nextStep: SendStep) -> Bool {
