@@ -107,7 +107,7 @@ extension DetailsCoordinator: DetailsRoutable {
         supportChatViewModel = SupportChatViewModel(input: input)
     }
 
-    func openDisclaimer(at url: URL) {
+    func openDisclaimer(url: URL) {
         disclaimerViewModel = .init(url: url, style: .details)
     }
 
@@ -115,8 +115,8 @@ extension DetailsCoordinator: DetailsRoutable {
         safariManager.openURL(TangemBlogUrlBuilder().url(post: .scanCard))
     }
 
-    func openInSafari(url: URL) {
-        safariManager.openURL(url)
+    func openSocialNetwork(url: URL) {
+        UIApplication.shared.open(url)
     }
 
     func openEnvironmentSetup() {
