@@ -290,10 +290,6 @@ extension ExpressInteractor {
 
 private extension ExpressInteractor {
     func mapState(state: ExpressManagerState) async throws -> State {
-        if hasPendingTransaction() {
-            return .restriction(.hasPendingTransaction, quote: state.quote)
-        }
-
         switch state {
         case .idle:
             return .idle
@@ -314,12 +310,24 @@ private extension ExpressInteractor {
             return .restriction(.notEnoughAmountForFee(.idle), quote: quote)
 
         case .permissionRequired(let permissionRequired):
+            if hasPendingTransaction() {
+                return .restriction(.hasPendingTransaction, quote: permissionRequired.quote)
+            }
+
             return try await map(permissionRequired: permissionRequired)
 
         case .previewCEX(let previewCEX):
+            if hasPendingTransaction() {
+                return .restriction(.hasPendingTransaction, quote: previewCEX.quote)
+            }
+
             return try await map(previewCEX: previewCEX)
 
         case .ready(let ready):
+            if hasPendingTransaction() {
+                return .restriction(.hasPendingTransaction, quote: ready.quote)
+            }
+
             return try await map(ready: ready)
         }
     }
