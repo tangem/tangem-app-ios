@@ -86,6 +86,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .reduceAmountBy,
              .reduceAmountTo,
              .addHederaTokenAssociation,
+             .leaveAmount,
              .bookNow,
              .openFeedbackMail,
              .openAppStoreReview:
