@@ -650,6 +650,7 @@ extension ExpressViewModel: NotificationTapDelegate {
              .goToProvider,
              .addHederaTokenAssociation,
              .bookNow,
+             .leaveAmount,
              .openFeedbackMail,
              .openAppStoreReview:
             return
