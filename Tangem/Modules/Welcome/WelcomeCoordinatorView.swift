@@ -48,8 +48,8 @@ struct WelcomeCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.promotionCoordinator) {
                 PromotionCoordinatorView(coordinator: $0)
             }
-            .sheet(item: $coordinator.legacyTokenListCoordinator) {
-                LegacyTokenListCoordinatorView(coordinator: $0)
+            .sheet(item: $coordinator.searchTokensViewModel) {
+                WelcomeSearchTokensView(viewModel: $0)
             }
             .sheet(item: $coordinator.mailViewModel) {
                 MailView(viewModel: $0)
