@@ -1,5 +1,5 @@
 //
-//  ManageTokensViewModel.swift
+//  MarketsViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,14 +10,14 @@ import Foundation
 import SwiftUI
 import Combine
 
-final class ManageTokensViewModel: ObservableObject {
+final class MarketsViewModel: ObservableObject {
     // MARK: - Injected & Published Properties
 
     @Injected(\.quotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
 
     @Published var alert: AlertBinder?
     @Published var isShowAddCustomToken: Bool = false
-    @Published var tokenViewModels: [ManageTokensItemViewModel] = []
+    @Published var tokenViewModels: [MarketsItemViewModel] = []
     @Published var viewDidAppear: Bool = false
 
     // MARK: - Properties
@@ -26,9 +26,9 @@ final class ManageTokensViewModel: ObservableObject {
         loader.canFetchMore
     }
 
-    private weak var coordinator: ManageTokensRoutable?
+    private weak var coordinator: MarketsRoutable?
 
-    private var dataSource: ManageTokensDataSource
+    private var dataSource: MarketsDataSource
     private lazy var loader = setupListDataLoader()
 
     private var bag = Set<AnyCancellable>()
@@ -39,10 +39,10 @@ final class ManageTokensViewModel: ObservableObject {
 
     init(
         searchTextPublisher: some Publisher<String, Never>,
-        coordinator: ManageTokensRoutable
+        coordinator: MarketsRoutable
     ) {
         self.coordinator = coordinator
-        dataSource = ManageTokensDataSource()
+        dataSource = MarketsDataSource()
 
         searchBind(searchTextPublisher: searchTextPublisher)
 
@@ -76,7 +76,7 @@ final class ManageTokensViewModel: ObservableObject {
 
 // MARK: - Private Implementation
 
-private extension ManageTokensViewModel {
+private extension MarketsViewModel {
     func fetch(with searchText: String = "") {
         loader.fetch(searchText)
     }
@@ -194,7 +194,7 @@ private extension ManageTokensViewModel {
     /// Need for display list skeleton view
     private func setNeedDisplayTokensListSkeletonView() {
         tokenViewModels = [Int](0 ... 10).map { _ in
-            ManageTokensItemViewModel(
+            MarketsItemViewModel(
                 coinModel: .dummy,
                 priceValue: "----------",
                 action: .info,
@@ -204,17 +204,17 @@ private extension ManageTokensViewModel {
         }
     }
 
-    private func actionType(for coinId: String) -> ManageTokensItemViewModel.Action {
+    private func actionType(for coinId: String) -> MarketsItemViewModel.Action {
         let isAlreadyExistToken = cacheExistListCoinId.contains(coinId)
         return isAlreadyExistToken ? .edit : .add
     }
 
-    private func mapToTokenViewModel(coinModel: CoinModel) -> ManageTokensItemViewModel {
-        ManageTokensItemViewModel(
+    private func mapToTokenViewModel(coinModel: CoinModel) -> MarketsItemViewModel {
+        MarketsItemViewModel(
             coinModel: coinModel,
             action: actionType(for: coinModel.id),
             state: .loaded,
-            didTapAction: weakify(self, forFunction: ManageTokensViewModel.handle)
+            didTapAction: weakify(self, forFunction: MarketsViewModel.handle)
         )
     }
 
@@ -224,7 +224,7 @@ private extension ManageTokensViewModel {
         }
     }
 
-    private func handle(action: ManageTokensItemViewModel.Action, with coinModel: CoinModel) {
+    private func handle(action: MarketsItemViewModel.Action, with coinModel: CoinModel) {
         switch action {
         case .info:
             // [REDACTED_TODO_COMMENT]
@@ -261,7 +261,7 @@ private extension ManageTokensViewModel {
             numberOfNetworks: pendingDerivationCountByWalletId.map(\.value).reduce(0, +),
             currentWalletNumber: pendingDerivationCountByWalletId.filter { $0.value > 0 }.count,
             totalWalletNumber: dataSource.userWalletModels.count,
-            action: weakify(self, forFunction: ManageTokensViewModel.generateAddressByWalletPendingDerivations)
+            action: weakify(self, forFunction: MarketsViewModel.generateAddressByWalletPendingDerivations)
         )
     }
 
