@@ -8,7 +8,9 @@
 
 import Foundation
 
-// protocol StakingAPIService {
-//    func enabledYields() async throws -> StakekitDTO.Yield.Info.Response
-//    func getYield(request: StakekitDTO.Yield.Info.Request) async throws -> StakekitDTO.Yield.Info.Response
-// }
+protocol StakingAPIService {
+    func enabledYields() async throws -> StakekitDTO.Yield.Enabled.Response
+    func getYield(request: StakekitDTO.Yield.Info.Request) async throws -> StakekitDTO.Yield.Info.Response
+
+    func enterAction(request: StakekitDTO.Actions.Enter.Request) async throws -> StakekitDTO.Actions.Enter.Response
+}
