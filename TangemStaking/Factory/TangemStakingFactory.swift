@@ -14,7 +14,7 @@ public struct TangemStakingFactory {
     public init() {}
 
     public func makeStakingAPIProvider(
-        credential: StakingAPICredential = StakingAPICredential(apiKey: "ccf0a87a-3d6a-41d0-afa4-3dfc1a101335"),
+        credential: StakingAPICredential,
         configuration: URLSessionConfiguration
     ) -> StakingAPIProvider {
         let plugins: [PluginType] = [
