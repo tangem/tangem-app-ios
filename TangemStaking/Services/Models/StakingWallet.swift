@@ -10,6 +10,7 @@ import Foundation
 import BlockchainSdk
 
 protocol StakingWallet {
+    var integrationId: String { get }
     var blockchain: Blockchain { get }
     var defaultAddress: String { get }
 }
