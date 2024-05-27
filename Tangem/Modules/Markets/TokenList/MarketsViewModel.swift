@@ -120,7 +120,12 @@ private extension MarketsViewModel {
                     return
                 }
 
-                tokenViewModels = items.compactMap { self.mapToTokenViewModel(coinModel: $0) }
+                tokenViewModels = items.compactMap {
+                    #warning("Need to replace on GET /v1/market_general/ model MarketTokenModel from response")
+                    let token = MarketTokenModel(coin: $0)
+                    return self.mapToViewModel(token: token)
+                }
+
                 updateQuote(by: items.map { $0.id })
 
                 isShowAddCustomToken = tokenViewModels.isEmpty && !dataSource.userWalletModels.contains(where: { $0.config.hasFeature(.multiCurrency) })
@@ -139,16 +144,14 @@ private extension MarketsViewModel {
     /// Need for display list skeleton view
     private func setNeedDisplayTokensListSkeletonView() {
         tokenViewModels = [Int](0 ... 10).map { _ in
-            MarketsItemViewModel(
-                coinModel: .dummy,
-                priceValue: "----------",
-                state: .loading
-            )
+            let dummyInputData = MarketsItemViewModel.InputData(token: .dummy, state: .loading)
+            return MarketsItemViewModel(dummyInputData)
         }
     }
 
-    private func mapToTokenViewModel(coinModel: CoinModel) -> MarketsItemViewModel {
-        MarketsItemViewModel(coinModel: coinModel, state: .loaded)
+    private func mapToViewModel(token: MarketTokenModel) -> MarketsItemViewModel {
+        let coinInputData = MarketsItemViewModel.InputData(token: token, state: .loaded)
+        return MarketsItemViewModel(coinInputData)
     }
 
     private func updateQuote(by coinIds: [String]) {
