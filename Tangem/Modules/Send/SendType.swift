@@ -18,9 +18,9 @@ extension SendType {
     var steps: [SendStep] {
         switch self {
         case .send:
-            return [.destination, .amount, .fee, .summary]
+            return [.destination, .amount, .summary, .fee]
         case .sell:
-            return [.fee, .summary]
+            return [.summary]
         }
     }
 
@@ -46,8 +46,8 @@ extension SendType {
         switch self {
         case .send:
             return nil
-        case .sell(_, let destination, _):
-            return destination
+        case .sell(_, _, let tag):
+            return tag
         }
     }
 
