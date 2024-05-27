@@ -48,10 +48,10 @@ final class CommonRateAppController {
             DispatchQueue.main.asyncAfter(deadline: .now() + Constants.feedbackRequestDelay) { [weak self] in
                 self?.coordinator?.openAppStoreReview()
             }
-        case .requestAppRate:
-            break // [REDACTED_TODO_COMMENT]
-        case .dismissAppRate:
-            break // [REDACTED_TODO_COMMENT]
+        case .requestAppRate,
+             .dismissAppRate:
+            // These cases are handled by logic in `showAppRateNotificationPublisher`
+            break
         }
     }
 
