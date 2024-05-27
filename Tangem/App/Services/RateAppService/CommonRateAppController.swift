@@ -15,8 +15,6 @@ final class CommonRateAppController {
     private let userWalletModel: UserWalletModel
     private weak var coordinator: RateAppRoutable?
 
-    private let dismissAppRateNotificationSubject = PassthroughSubject<Void, Never>()
-
     private var isBalanceLoadedPublisher: AnyPublisher<Bool, Never> {
         userWalletModel
             .totalBalancePublisher
@@ -51,6 +49,8 @@ final class CommonRateAppController {
                 self?.coordinator?.openAppStoreReview()
             }
         case .requestAppRate:
+            break // [REDACTED_TODO_COMMENT]
+        case .dismissAppRate:
             break // [REDACTED_TODO_COMMENT]
         }
     }
@@ -98,11 +98,11 @@ extension CommonRateAppController: RateAppController {
                 case .requestAppRate:
                     return true
                 case .openAppStoreReview,
-                     .openFeedbackMailWithEmailType:
+                     .openFeedbackMailWithEmailType,
+                     .dismissAppRate:
                     return false
                 }
             }
-            .merge(with: dismissAppRateNotificationSubject.mapToValue(false))
             .eraseToAnyPublisher()
     }
 
@@ -137,17 +137,14 @@ extension CommonRateAppController: RateAppController {
 
     func dismissAppRate() {
         rateAppService.respondToRateAppDialog(with: .dismissed)
-        dismissAppRateNotificationSubject.send(())
     }
 
     func openFeedbackMail(with emailType: EmailType) {
         rateAppService.respondToRateAppDialog(with: .negative)
-        dismissAppRateNotificationSubject.send(())
     }
 
     func openAppStoreReview() {
         rateAppService.respondToRateAppDialog(with: .positive)
-        dismissAppRateNotificationSubject.send(())
     }
 }
 
