@@ -25,7 +25,13 @@ extension Blockchain {
     /// Should be used to get the actual currency rate
     var currencyId: String {
         switch self {
-        case .arbitrum(let testnet), .optimism(let testnet), .aurora(let testnet):
+        case .arbitrum(let testnet),
+             .optimism(let testnet),
+             .aurora(let testnet),
+             .manta(let testnet),
+             .zkSync(let testnet),
+             .polygonZkEVM(let testnet),
+             .base(let testnet):
             return Blockchain.ethereum(testnet: testnet).coinId
         default:
             return coinId
@@ -151,10 +157,8 @@ private extension Blockchain {
             return "areon-network"
         case .playa3ullGames:
             switch type {
-            case .network:
-                return "playa3ull-games"
-            case .coin:
-                return "playa3ull-games-2"
+            case .network: return "playa3ull-games"
+            case .coin: return "playa3ull-games-2"
             }
         case .pulsechain:
             return "pulsechain"
@@ -162,6 +166,39 @@ private extension Blockchain {
             switch type {
             case .network: return "aurora"
             case .coin: return "aurora-ethereum"
+            }
+        case .manta:
+            switch type {
+            case .network: return "manta-network"
+            case .coin: return "manta-network-ethereum"
+            }
+        case .zkSync:
+            switch type {
+            case .network: return "zksync"
+            case .coin: return "zksync-ethereum"
+            }
+        case .moonbeam:
+            return "moonbeam"
+        case .polygonZkEVM:
+            switch type {
+            case .network: return "polygon-zkevm"
+            case .coin: return "polygon-zkevm-ethereum"
+            }
+        case .moonriver:
+            return "moonriver"
+        case .mantle:
+            return "mantle"
+        case .flare:
+            switch type {
+            case .network: return "flare-network"
+            case .coin: return "flare-networks"
+            }
+        case .taraxa:
+            return "taraxa"
+        case .base:
+            switch type {
+            case .network: return "base"
+            case .coin: return "base-ethereum"
             }
         }
     }
@@ -192,7 +229,11 @@ extension Set<Blockchain> {
 extension Blockchain {
     var feeDisplayName: String {
         switch self {
-        case .arbitrum, .optimism:
+        case .arbitrum,
+             .optimism,
+             .base:
+            // [REDACTED_TODO_COMMENT]
+            // Provides a more descriptive display name for the fee currency (ETH) for some Ethereum L2s
             return displayName + " (\(currencySymbol))"
         default:
             return currencySymbol
