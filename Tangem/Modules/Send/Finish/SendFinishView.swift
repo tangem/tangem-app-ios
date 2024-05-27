@@ -13,51 +13,67 @@ struct SendFinishView: View {
 
     @ObservedObject var viewModel: SendFinishViewModel
 
+    let bottomSpacing: CGFloat
+
     var body: some View {
         VStack {
             GroupedScrollView(spacing: 14) {
                 if viewModel.showHeader {
                     header
-                        .padding(.bottom, 24)
+                        .padding(.top, 24)
+                        .padding(.bottom, 12)
                 }
 
                 GroupedSection(viewModel.destinationViewTypes) { type in
                     switch type {
-                    case .address(let address):
-                        SendDestinationAddressSummaryView(address: address)
+                    case .address(let address, let corners):
+                        SendDestinationAddressSummaryView(addressTextViewHeightModel: viewModel.addressTextViewHeightModel, address: address)
                             .setNamespace(namespace)
+                            .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)
+                            .background(
+                                Colors.Background.action
+                                    .cornerRadius(GroupedSectionConstants.defaultCornerRadius, corners: corners)
+                                    .matchedGeometryEffect(id: SendViewNamespaceId.addressBackground.rawValue, in: namespace)
+                            )
                     case .additionalField(let type, let value):
                         if let name = type.name {
                             DefaultTextWithTitleRowView(data: .init(title: name, text: value))
+                                .setNamespace(namespace)
+                                .setTitleNamespaceId(SendViewNamespaceId.addressAdditionalFieldTitle.rawValue)
+                                .setTextNamespaceId(SendViewNamespaceId.addressAdditionalFieldText.rawValue)
+                                .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)
+                                .background(
+                                    Colors.Background.action
+                                        .cornerRadius(GroupedSectionConstants.defaultCornerRadius, corners: [.bottomLeft, .bottomRight])
+                                        .matchedGeometryEffect(id: SendViewNamespaceId.addressAdditionalFieldBackground.rawValue, in: namespace)
+                                )
                         }
                     }
                 }
-                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.addressContainer.rawValue, namespace: namespace)
+                .backgroundColor(.clear, id: SendViewNamespaceId.destinationContainer.rawValue, namespace: namespace)
+                .horizontalPadding(0)
+                .separatorStyle(.single)
 
                 GroupedSection(viewModel.amountSummaryViewData) {
-                    AmountSummaryView(data: $0)
+                    SendAmountSummaryView(data: $0)
                         .setNamespace(namespace)
-                        .setTitleNamespaceId(SendViewNamespaceId.amountTitle.rawValue)
                         .setIconNamespaceId(SendViewNamespaceId.tokenIcon.rawValue)
                         .setAmountCryptoNamespaceId(SendViewNamespaceId.amountCryptoText.rawValue)
                         .setAmountFiatNamespaceId(SendViewNamespaceId.amountFiatText.rawValue)
                 }
-                .innerContentPadding(12)
+                .innerContentPadding(0)
                 .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
 
                 GroupedSection(viewModel.feeSummaryViewData) { data in
-                    DefaultTextWithTitleRowView(data: data)
+                    SendFeeSummaryView(data: data)
                         .setNamespace(namespace)
                         .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
-                        .setTextNamespaceId(SendViewNamespaceId.feeSubtitle.rawValue)
+                        .setOptionNamespaceId(SendViewNamespaceId.feeOption(feeOption: .market).rawValue)
+                        .setAmountNamespaceId(SendViewNamespaceId.feeAmount(feeOption: .market).rawValue)
                 }
                 .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
-            }
 
-            if viewModel.showButtons {
-                bottomButtons
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 14)
+                FixedSpacer(height: bottomSpacing)
             }
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
@@ -80,32 +96,6 @@ struct SendFinishView: View {
                 .padding(.top, 6)
         }
         .transition(.move(edge: .top).combined(with: .opacity))
-    }
-
-    @ViewBuilder
-    private var bottomButtons: some View {
-        VStack(spacing: 10) {
-            HStack(spacing: 8) {
-                MainButton(
-                    title: Localization.commonExplore,
-                    icon: .leading(Assets.globe),
-                    style: .secondary,
-                    action: viewModel.explore
-                )
-                MainButton(
-                    title: Localization.commonShare,
-                    icon: .leading(Assets.share),
-                    style: .secondary,
-                    action: viewModel.share
-                )
-            }
-
-            MainButton(
-                title: Localization.commonClose,
-                action: viewModel.close
-            )
-        }
-        .transition(.opacity)
     }
 }
 
@@ -136,10 +126,19 @@ struct SendFinishView_Previews: PreviewProvider {
         fiatCurrencyCode: "USD",
         amountFractionDigits: 6,
         feeFractionDigits: 6,
-        feeAmountType: .coin
+        feeAmountType: .coin,
+        canUseFiatCalculation: true
     )
 
+    static var viewModel = SendFinishViewModel(
+        input: SendFinishViewModelInputMock(),
+        fiatCryptoValueProvider: SendFiatCryptoValueProviderMock(),
+        addressTextViewHeightModel: .init(),
+        feeTypeAnalyticsParameter: .transactionFeeFixed,
+        walletInfo: walletInfo
+    )!
+
     static var previews: some View {
-        SendFinishView(namespace: namespace, viewModel: SendFinishViewModel(input: SendFinishViewModelInputMock(), walletInfo: walletInfo)!)
+        SendFinishView(namespace: namespace, viewModel: viewModel, bottomSpacing: 0)
     }
 }
