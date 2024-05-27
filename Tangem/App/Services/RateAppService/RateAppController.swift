@@ -24,6 +24,9 @@ protocol RateAppController {
     )
 
     @available(*, deprecated, message: "Test only")
+    func dismissAppRate()
+
+    @available(*, deprecated, message: "Test only")
     func openFeedbackMail(with emailType: EmailType)
 
     @available(*, deprecated, message: "Test only")
