@@ -129,9 +129,10 @@ extension ValidationErrorEvent {
         switch self {
         case .insufficientBalanceForFee(let configuration):
             return .openFeeCurrency(currencySymbol: configuration.feeAmountTypeCurrencySymbol)
-        case .amountExceedMaximumUTXO(let amount, let amountFormatted, _, _),
-             .existentialDeposit(let amount, let amountFormatted):
+        case .amountExceedMaximumUTXO(let amount, let amountFormatted, _, _):
             return .reduceAmountTo(amount: amount, amountFormatted: amountFormatted)
+        case .existentialDeposit(let amount, let amountFormatted):
+            return .leaveAmount(amount: amount, amountFormatted: amountFormatted)
         case .invalidNumber,
              .insufficientBalance,
              .dustRestriction,
