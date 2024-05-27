@@ -9,14 +9,13 @@
 import Foundation
 
 struct DecimalNumberFormatter {
-    public var maximumFractionDigits: Int { numberFormatter.maximumFractionDigits }
+    public var isDecimal: Bool { numberFormatter.maximumFractionDigits > 0 }
     public var decimalSeparator: Character { Character(numberFormatter.decimalSeparator) }
-    public var groupingSeparator: Character { Character(numberFormatter.groupingSeparator) }
 
     private let numberFormatter: NumberFormatter
 
     init(
-        numberFormatter: NumberFormatter = NumberFormatter(),
+        numberFormatter: NumberFormatter = .init(),
         maximumFractionDigits: Int
     ) {
         self.numberFormatter = numberFormatter
@@ -27,7 +26,7 @@ struct DecimalNumberFormatter {
         numberFormatter.maximumFractionDigits = maximumFractionDigits
     }
 
-    mutating func update(maximumFractionDigits: Int) {
+    func update(maximumFractionDigits: Int) {
         numberFormatter.maximumFractionDigits = maximumFractionDigits
     }
 
@@ -39,12 +38,13 @@ struct DecimalNumberFormatter {
             return ""
         }
 
-        // If string contains decimalSeparator will format it separately
-        if value.contains(decimalSeparator) {
-            return formatIntegerAndFractionSeparately(string: value)
+        let (beforeComma, afterComma) = separateStringByDecimalSeparator(string: value)
+
+        if isDecimal {
+            return formatInteger(value: beforeComma) + afterComma
         }
 
-        return formatInteger(value: value)
+        return formatInteger(value: beforeComma)
     }
 
     public func format(value: Decimal) -> String {
@@ -65,7 +65,7 @@ struct DecimalNumberFormatter {
 
         // Convert formatted string to correct decimal number
         let formattedValue = string
-            .replacingOccurrences(of: String(groupingSeparator), with: "")
+            .replacingOccurrences(of: String(numberFormatter.groupingSeparator), with: "")
             .replacingOccurrences(of: String(decimalSeparator), with: ".")
 
         // We can't use here the NumberFormatter because it work with the NSNumber
@@ -84,13 +84,14 @@ struct DecimalNumberFormatter {
 // MARK: - Private
 
 private extension DecimalNumberFormatter {
-    func formatIntegerAndFractionSeparately(string: String) -> String {
+    func separateStringByDecimalSeparator(string: String) -> (beforeComma: String, afterComma: String) {
         guard let commaIndex = string.firstIndex(of: decimalSeparator) else {
-            return string
+            return (beforeComma: string, afterComma: "")
         }
 
         let beforeComma = String(string[string.startIndex ..< commaIndex])
         var afterComma = string[commaIndex ..< string.endIndex]
+        let maximumFractionDigits = numberFormatter.maximumFractionDigits
 
         // Check to maximumFractionDigits and reduce if needed
         let maximumWithComma = maximumFractionDigits + 1
@@ -99,7 +100,7 @@ private extension DecimalNumberFormatter {
             afterComma = afterComma[afterComma.startIndex ... lastAcceptableIndex]
         }
 
-        return format(value: beforeComma) + afterComma
+        return (beforeComma: beforeComma, afterComma: String(afterComma))
     }
 
     /// In this case the NumberFormatter works fine ONLY with integer values
