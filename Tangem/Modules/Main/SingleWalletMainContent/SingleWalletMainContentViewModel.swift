@@ -65,6 +65,17 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         delegate?.displayAddressCopiedToast()
     }
 
+    override func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
+        switch action {
+        case .openFeedbackMail:
+            rateAppController.openFeedbackMail(with: .negativeRateAppFeedback)
+        case .openAppStoreReview:
+            rateAppController.openAppStoreReview()
+        default:
+            super.didTapNotificationButton(with: id, action: action)
+        }
+    }
+
     private func bind() {
         userWalletNotificationManager
             .notificationPublisher
