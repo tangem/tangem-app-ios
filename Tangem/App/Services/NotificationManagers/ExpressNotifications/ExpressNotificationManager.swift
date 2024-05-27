@@ -56,10 +56,10 @@ class ExpressNotificationManager {
             notificationInputsSubject.value = []
 
         case .previewCEX(let preview, _):
-            notificationInputsSubject.value = []
-
-            setupFeeWillBeSubtractFromSendingAmountNotification(subtractFee: preview.subtractFee)
-            setupWithdrawalSuggestion(suggestion: preview.suggestion)
+            notificationInputsSubject.value = [
+                setupFeeWillBeSubtractFromSendingAmountNotification(subtractFee: preview.subtractFee),
+                setupWithdrawalSuggestion(suggestion: preview.suggestion),
+            ].compactMap { $0 }
         }
     }
 
@@ -97,10 +97,9 @@ class ExpressNotificationManager {
             event = .notEnoughReceivedAmountForReserve(amountFormatted: "\(minAmount.formatted()) \(tokenSymbol)")
         case .requiredRefresh(let occurredError as ExpressAPIError):
             // For only a express error we use "Service temporary unavailable"
-            let message = Localization.expressErrorCode(occurredError.errorCode.localizedDescription)
-            event = .refreshRequired(title: Localization.warningExpressRefreshRequiredTitle, message: message)
+            event = .refreshRequired(title: Localization.warningExpressRefreshRequiredTitle, message: occurredError.localizedMessage)
         case .requiredRefresh:
-            event = .refreshRequired(title: Localization.commonError, message: Localization.expressUnknownError)
+            event = .refreshRequired(title: Localization.commonError, message: Localization.commonUnknownError)
         case .noDestinationTokens:
             let sourceTokenItemName = sourceTokenItem.name
             event = .noDestinationTokens(sourceTokenName: sourceTokenItemName)
@@ -168,17 +167,25 @@ class ExpressNotificationManager {
         notificationInputsSubject.value = [notification]
     }
 
-    private func setupFeeWillBeSubtractFromSendingAmountNotification(subtractFee: Decimal) {
-        let event = ExpressNotificationEvent.feeWillBeSubtractFromSendingAmount
-
-        guard subtractFee > 0 else {
-            notificationInputsSubject.value.removeAll(where: { $0.settings.event.id == event.id })
-            return
+    private func setupFeeWillBeSubtractFromSendingAmountNotification(subtractFee: Decimal) -> NotificationViewInput? {
+        guard let interactor = expressInteractor, subtractFee > 0 else {
+            return nil
         }
 
-        let factory = NotificationsFactory()
-        let notification = factory.buildNotificationInput(for: event)
-        notificationInputsSubject.value.appendIfNotContains(notification)
+        let feeTokenItem = interactor.getSender().feeTokenItem
+        let feeFiatValue = BalanceConverter().convertToFiat(value: subtractFee, from: feeTokenItem.currencyId ?? "")
+
+        let formatter = BalanceFormatter()
+        let cryptoAmountFormatted = formatter.formatCryptoBalance(subtractFee, currencyCode: feeTokenItem.currencySymbol)
+        let fiatAmountFormatted = formatter.formatFiatBalance(feeFiatValue)
+
+        let event = ExpressNotificationEvent.feeWillBeSubtractFromSendingAmount(
+            cryptoAmountFormatted: cryptoAmountFormatted,
+            fiatAmountFormatted: fiatAmountFormatted
+        )
+
+        let notification = NotificationsFactory().buildNotificationInput(for: event)
+        return notification
     }
 
     private func makeNotEnoughFeeForTokenTx(sender: WalletModel) -> ExpressNotificationEvent? {
@@ -193,16 +200,40 @@ class ExpressNotificationManager {
         )
     }
 
-    private func setupWithdrawalSuggestion(suggestion: WithdrawalSuggestion?) {
+    private func setupWithdrawalSuggestion(suggestion: WithdrawalSuggestion?) -> NotificationViewInput? {
         switch suggestion {
         case .none:
-            break
+            return nil
         case .feeIsTooHigh(let reduceAmountBy):
-            let event: ExpressNotificationEvent = .withdrawalOptionalAmountChange(amount: reduceAmountBy.value, amountFormatted: reduceAmountBy.string())
+            guard let interactor = expressInteractor else {
+                return nil
+            }
+
+            let sourceTokenItem = interactor.getSender().tokenItem
+            let event: ExpressNotificationEvent = .withdrawalOptionalAmountChange(
+                amount: reduceAmountBy.value,
+                amountFormatted: reduceAmountBy.string(),
+                blockchainName: sourceTokenItem.blockchain.displayName
+            )
             let notification = NotificationsFactory().buildNotificationInput(for: event) { [weak self] id, actionType in
                 self?.delegate?.didTapNotificationButton(with: id, action: actionType)
             }
-            notificationInputsSubject.value.appendIfNotContains(notification)
+            return notification
+        }
+    }
+}
+
+extension ExpressAPIError {
+    var localizedMessage: String {
+        switch errorCode {
+        case .exchangeInternalError:
+            return Localization.expressErrorSwapUnavailable(errorCode.rawValue)
+        case .exchangeProviderNotActiveError, .exchangeProviderNotAvailableError, .exchangeProviderProviderInternalError:
+            return Localization.expressErrorSwapPairUnavailable(errorCode.rawValue)
+        case .exchangeNotPossibleError:
+            return Localization.expressErrorProviderUnavailable(errorCode.rawValue)
+        default:
+            return Localization.expressErrorCode(errorCode.localizedDescription)
         }
     }
 }
