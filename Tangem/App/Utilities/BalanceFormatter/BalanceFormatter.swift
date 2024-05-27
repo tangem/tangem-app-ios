@@ -50,7 +50,6 @@ struct BalanceFormatter {
         formatter.numberStyle = .currency
         formatter.usesGroupingSeparator = true
         formatter.currencySymbol = currencyCode
-        formatter.alwaysShowsDecimalSeparator = true
         formatter.minimumFractionDigits = formattingOptions.minFractionDigits
         formatter.maximumFractionDigits = formattingOptions.maxFractionDigits
 
@@ -105,8 +104,18 @@ struct BalanceFormatter {
             formatter.currencySymbol = "₽"
         }
 
-        let valueToFormat = roundDecimal(balance, with: formattingOptions.roundingType)
-        return formatter.string(from: valueToFormat as NSDecimalNumber) ?? "\(valueToFormat) \(currencyCode)"
+        let lowestRepresentableValue: Decimal = 1 / pow(10, formattingOptions.maxFractionDigits)
+
+        if formattingOptions.formatEpsilonAsLowestRepresentableValue,
+           0 < balance, balance < lowestRepresentableValue {
+            let minimumFormatted = formatter.string(from: lowestRepresentableValue as NSDecimalNumber) ?? "\(lowestRepresentableValue) \(currencyCode)"
+            let nbsp = " "
+            return "<\(nbsp)\(minimumFormatted)"
+        } else {
+            let valueToFormat = roundDecimal(balance, with: formattingOptions.roundingType)
+            let formattedValue = formatter.string(from: valueToFormat as NSDecimalNumber) ?? "\(valueToFormat) \(currencyCode)"
+            return formattedValue
+        }
     }
 
     /// Format fiat balance string for main page with different font for integer and fractional parts.
