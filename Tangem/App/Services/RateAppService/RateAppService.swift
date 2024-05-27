@@ -137,7 +137,7 @@ final class RateAppService {
         case .negative:
             parameterValue = .feedbackEmail
         case .dismissed:
-            parameterValue = .appRateSheetDismissed
+            parameterValue = .appRateDismissed
         }
 
         Analytics.log(.mainNoticeRateTheApp, params: [.result: parameterValue])
