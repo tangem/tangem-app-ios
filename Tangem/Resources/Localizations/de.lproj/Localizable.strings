@@ -432,6 +432,10 @@
 "send_alert_transaction_failed_title" = "The transaction is not completed";
 "send_amount_label" = "Betrag";
 "send_bitcoin_custom_fee_footer" = "You can set your transaction fee by adjusting the value in the Satoshi per vByte field.";
+"send_custom_evm_max_fee" = "Max fee";
+"send_custom_evm_max_fee_footer" = "This is the cost you are willing to pay for each unit of gas. The higher the gas price, the faster your transaction will be processed. (Priority fee included)";
+"send_custom_evm_priority_fee" = "Priority fee";
+"send_custom_evm_priority_fee_footer" = "The fee that a user can pay to miners or validators to expedite the inclusion of their transaction in a block.";
 "send_date_format" = "%1$@, %2$@";
 "send_destination_hint_address" = "Adresse";
 "send_destination_tag_field" = "Destination Tag";
@@ -451,11 +455,9 @@
 "send_from_wallet" = "From **%@**";
 "send_gas_limit" = "Gas limit";
 "send_gas_limit_footer" = "This is the maximum amount of gas that will be spent to complete a transaction or contract. A gas limit prevents unexpected or unlimited charges when executing a transaction.";
-"send_gas_price" = "Gas price";
-"send_gas_price_footer" = "This is the cost you are willing to pay for each unit of gas. The higher the gas price, the faster your transaction will be processed.";
 "send_max_amount" = "Max";
 "send_max_amount_label" = "Höchstbetrag";
-"send_max_fee" = "Max fee";
+"send_max_fee" = "Fee up to";
 "send_memo_destination_tag_error" = "Numbers only for Destination Tag";
 "send_network_fee_warning_title" = "Network fee coverage";
 "send_notification_exceed_balance_text" = "Insufficient funds for the transfer, as the total of the fee and transfer amount exceeds the existing balance";
