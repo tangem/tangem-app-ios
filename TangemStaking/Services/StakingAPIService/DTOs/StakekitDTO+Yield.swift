@@ -8,15 +8,7 @@
 
 import Foundation
 
-// Polygon native
-// ethereum-matic-native-staking
-// 0x29010F8F91B980858EB298A0843264cfF21Fd9c9
-// ccf0a87a-3d6a-41d0-afa4-3dfc1a101335
 extension StakekitDTO {
-    struct Required: Decodable {
-        let required: Bool
-    }
-
     enum Yield {
         enum Enabled {
             struct Response: Decodable {
@@ -32,7 +24,7 @@ extension StakekitDTO {
             struct Response: Decodable {
                 let id: String
                 let token: Token
-                let tokens: [Token]
+                let tokens: [Token]?
                 let args: Actions
                 let status: Status
                 let apy: Decimal
@@ -43,8 +35,8 @@ extension StakekitDTO {
                 let isAvailable: Bool?
 
                 struct Actions: Decodable {
-                    let enter: Action
-                    let exit: Action
+                    let enter: Action?
+                    let exit: Action?
 
                     struct Action: Decodable {
                         let addresses: ActionAddresses
@@ -52,25 +44,28 @@ extension StakekitDTO {
 
                         struct ActionAddresses: Decodable {
                             let address: Address
-                            let additionalAddresses: AdditionalAddresses
+                            let additionalAddresses: AdditionalAddresses?
 
                             struct Address: Decodable {
                                 let required: Bool
                                 let network: String
                             }
 
-                            enum AdditionalAddresses: Decodable {
-                                case binanceBeaconAddress(Required)
+                            struct AdditionalAddresses: Decodable {
+                                let binanceBeaconAddress: Required?
+                                let cAddressBech: Required?
+                                let pAddressBech: Required?
                             }
                         }
 
                         struct ActionArgs: Decodable {
                             let amount: Amount
-                            let validatorAddress: Required
+                            let validatorAddress: Required?
 
                             struct Amount: Decodable {
                                 let required: Bool
                                 let minimum: Decimal
+                                let maximum: Decimal?
                             }
                         }
                     }
@@ -88,23 +83,23 @@ extension StakekitDTO {
                 }
 
                 struct Metadata: Decodable {
-                    let name: String
+                    let name: String?
                     let logoURI: String?
                     let description: String?
                     let documentation: String?
-                    let token: Token
-                    let tokens: [Token]
+                    let token: Token?
+                    let tokens: [Token]?
                     let type: MetadataType
                     let rewardSchedule: RewardScheduleType
-                    let cooldownPeriod: Period?
+                    let cooldownPeriod: Period
                     let warmupPeriod: Period
-                    let withdrawPeriod: Period
+                    let withdrawPeriod: Period?
                     let rewardClaiming: RewardClaiming
                     let defaultValidator: String?
                     let supportsMultipleValidators: Bool?
                     let supportsLedgerWalletApi: Bool?
                     let revshare: Enabled
-                    let fee: Enabled
+                    let fee: Enabled?
 
                     enum MetadataType: String, Decodable {
                         case staking
@@ -124,8 +119,8 @@ extension StakekitDTO {
                         case epoch
                     }
 
-                    enum Period: Decodable {
-                        case days(Int)
+                    struct Period: Decodable {
+                        let days: Int
                     }
 
                     enum RewardClaiming: String, Decodable {
