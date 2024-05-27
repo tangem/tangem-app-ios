@@ -68,7 +68,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     override func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
         switch action {
         case .openFeedbackMail:
-            rateAppController.openFeedbackMail(with: .negativeRateAppFeedback)
+            rateAppController.openFeedbackMail()
         case .openAppStoreReview:
             rateAppController.openAppStoreReview()
         default:
