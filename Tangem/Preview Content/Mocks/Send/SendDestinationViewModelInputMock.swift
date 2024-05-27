@@ -43,16 +43,12 @@ class SendDestinationViewModelInputMock: SendDestinationViewModelInput {
         .memo
     }
 
-    var additionalFieldEmbeddedInAddress: AnyPublisher<Bool, Never> {
+    var canChangeAdditionalField: AnyPublisher<Bool, Never> {
         .just(output: true)
     }
 
     var blockchainNetwork: BlockchainNetwork {
         BlockchainNetwork(.ethereum(testnet: false), derivationPath: nil)
-    }
-
-    var walletPublicKey: Wallet.PublicKey {
-        .init(seedKey: Data(), derivationType: nil)
     }
 
     var currencySymbol: String {
@@ -71,6 +67,6 @@ class SendDestinationViewModelInputMock: SendDestinationViewModelInput {
         []
     }
 
-    func setDestination(_ address: String) {}
+    func setDestination(_ address: SendAddress) {}
     func setDestinationAdditionalField(_ additionalField: String) {}
 }

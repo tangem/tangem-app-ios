@@ -69,8 +69,10 @@ extension Analytics {
 
         // destination address entered
         case destinationAddressSourceQrCode = "QRCode"
-        case destinationAddressPasteButton = "PasteButton"
-        case destinationAddressPastePopup = "PastePopup"
+        case destinationAddressSourcePasteButton = "PasteButton"
+        case destinationAddressSourcePastePopup = "PastePopup"
+        case destinationAddressSourceRecentAddress = "RecentAddress"
+        case destinationAddressSourceMyWallet = "MyWallet"
 
         case success = "Success"
         case fail = "Fail"
@@ -103,6 +105,14 @@ extension Analytics {
         case light = "Light"
         case dark = "Dark"
 
+        // MARK: - Send screens
+
+        case address = "Address"
+        case amount = "Amount"
+        case fee = "Fee"
+        case summary = "Summary"
+        case finish = "Finish"
+
         // MARK: - Actions
 
         case scan = "tap_scan_task"
@@ -119,6 +129,16 @@ extension Analytics {
         case readPrimary = "read_primary"
         case addbackup = "add_backup"
         case proceedBackup = "proceed_backup"
+
+        // MARK: - Promotion banners
+
+        case oneInch = "1inch"
+        case changelly = "Changelly"
+        case changeNow = "ChangeNow"
+        case travala = "Travala"
+
+        case clicked = "Clicked"
+        case closed = "Closed"
 
         // MARK: - Rate the app response
 
