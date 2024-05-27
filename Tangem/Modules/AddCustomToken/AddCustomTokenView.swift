@@ -207,7 +207,7 @@ private struct TextInputWithTitle: View {
 // MARK: - Preview
 
 struct AddCustomTokenView_Preview: PreviewProvider {
-    class PreviewManageTokensDataSource: ManageTokensDataSource {}
+    class PreviewManageTokensDataSource: MarketsDataSource {}
 
     static let userTokensManager: UserTokensManager = {
         let fakeUserTokenListManager = FakeUserTokenListManager(walletManagers: [], isDelayed: false)
