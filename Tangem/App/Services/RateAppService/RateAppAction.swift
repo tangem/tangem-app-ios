@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// Service to controller commands.
 enum RateAppAction {
     case requestAppRate
     case dismissAppRate
