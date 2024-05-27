@@ -88,9 +88,7 @@ extension MainCoordinator: MainRoutable {
         }
 
         let coordinator = DetailsCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        let options = DetailsCoordinator.Options(userWalletModel: userWalletModel)
-        coordinator.start(with: options)
-        coordinator.popToRootAction = popToRootAction
+        coordinator.start(with: .default)
         detailsCoordinator = coordinator
     }
 
