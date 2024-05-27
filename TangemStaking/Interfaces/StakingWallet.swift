@@ -9,8 +9,12 @@
 import Foundation
 import BlockchainSdk
 
-protocol StakingWallet {
-    var integrationId: String { get }
-    var blockchain: Blockchain { get }
+public protocol StakingWallet {
+    var item: StakingTokenItem { get }
     var defaultAddress: String { get }
+}
+
+public struct StakingTokenItem: Hashable {
+    let network: String
+    let contractAdress: String?
 }

@@ -10,7 +10,7 @@ import Foundation
 import BlockchainSdk
 
 public struct YieldInfo {
-    let contractAddress: String?
+    let item: StakingTokenItem
     let apy: Decimal
     let rewardRate: Decimal
     let rewardType: RewardType
@@ -42,6 +42,12 @@ public enum RewardClaimingType: String, Hashable {
 
 public enum RewardScheduleType: String, Hashable {
     case block
+    case hour
+    case day
+    case week
+    case month
+    case era
+    case epoch
 }
 
 public enum RewardType: String, Hashable {
