@@ -8,8 +8,22 @@
 
 import Foundation
 
+// Polygon native
+// ethereum-matic-native-staking
+// 0x29010F8F91B980858EB298A0843264cfF21Fd9c9
+// ccf0a87a-3d6a-41d0-afa4-3dfc1a101335
 extension StakekitDTO {
+    struct Required: Decodable {
+        let required: Bool
+    }
+
     enum Yield {
+        enum Enabled {
+            struct Response: Decodable {
+                let data: [Info.Response]
+            }
+        }
+
         enum Info {
             struct Request: Encodable {
                 let integrationId: String
@@ -29,47 +43,34 @@ extension StakekitDTO {
                 let isAvailable: Bool?
 
                 struct Actions: Decodable {
-                    let enter: Action<EnterActionArgs>
-                    let exit: Action<ExitActionArgs>
+                    let enter: Action
+                    let exit: Action
 
-                    struct Action<Args: Decodable>: Decodable {
-                        let addresses: ActionAddresses?
-                        let args: Args?
+                    struct Action: Decodable {
+                        let addresses: ActionAddresses
+                        let args: ActionArgs
 
                         struct ActionAddresses: Decodable {
-                            let address: Address?
+                            let address: Address
+                            let additionalAddresses: AdditionalAddresses
 
                             struct Address: Decodable {
-                                let required: Bool?
-                                let network: String?
+                                let required: Bool
+                                let network: String
+                            }
+
+                            enum AdditionalAddresses: Decodable {
+                                case binanceBeaconAddress(Required)
                             }
                         }
 
-                        struct EnterActionArgs: Decodable {
-                            let amount: Amount?
-                            let validatorAddress: ValidatorAddress?
+                        struct ActionArgs: Decodable {
+                            let amount: Amount
+                            let validatorAddress: Required
 
                             struct Amount: Decodable {
-                                let required: Bool?
-                                let minimum: Decimal?
-                            }
-
-                            struct ValidatorAddress: Decodable {
-                                let required: Bool?
-                            }
-                        }
-
-                        struct ExitActionArgs: Decodable {
-                            let amount: Amount?
-                            let validatorAddress: ValidatorAddress?
-
-                            struct Amount: Decodable {
-                                let required: Bool?
-                                let minimum: Decimal?
-                            }
-
-                            struct ValidatorAddress: Decodable {
-                                let required: Bool?
+                                let required: Bool
+                                let minimum: Decimal
                             }
                         }
                     }
@@ -97,7 +98,7 @@ extension StakekitDTO {
                     let rewardSchedule: RewardScheduleType
                     let cooldownPeriod: Period?
                     let warmupPeriod: Period
-                    let withdrawPeriod: Period?
+                    let withdrawPeriod: Period
                     let rewardClaiming: RewardClaiming
                     let defaultValidator: String?
                     let supportsMultipleValidators: Bool?
@@ -108,7 +109,9 @@ extension StakekitDTO {
                     enum MetadataType: String, Decodable {
                         case staking
                         case liquidStaking = "liquid-staking"
-                        case lending, restaking, vault
+                        case lending
+                        case restaking
+                        case vault
                     }
 
                     enum RewardScheduleType: String, Decodable {
