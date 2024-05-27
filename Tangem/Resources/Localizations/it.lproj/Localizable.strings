@@ -503,8 +503,6 @@
 "send_validation_invalid_address" = "Indirizzo non valido";
 "send_wallet_balance_format" = "%1$@ (%2$@)";
 "sent_transaction_sent_title" = "Transaction sent";
-"settings_forget_wallet" = "Forget wallet";
-"settings_forget_wallet_footer" = "This will remove the wallet from the application. The wallet itself can be added again.";
 "story_awe_description" = "Store your crypto assets secure while keeping private keys contained in your card";
 "story_awe_title" = "Revolutionary Hardware Wallet";
 "story_backup_description" = "Up to 3 physical cards to one wallet";
