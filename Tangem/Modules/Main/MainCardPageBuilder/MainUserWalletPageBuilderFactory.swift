@@ -141,7 +141,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             tokenRouter: tokenRouter,
             delegate: singleWalletContentDelegate
         )
-        userWalletNotificationManager.setupManager()
+        userWalletNotificationManager.setupManager(with: viewModel)
         singleWalletNotificationManager.setupManager(with: viewModel)
 
         return .singleWallet(
