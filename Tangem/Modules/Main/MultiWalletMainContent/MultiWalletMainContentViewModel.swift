@@ -397,7 +397,7 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
         case .bookNow(let url):
             openTravalaPromotion(url: url)
         case .openFeedbackMail:
-            rateAppController.openFeedbackMail(with: .negativeRateAppFeedback)
+            rateAppController.openFeedbackMail()
         case .openAppStoreReview:
             rateAppController.openAppStoreReview()
         default:
