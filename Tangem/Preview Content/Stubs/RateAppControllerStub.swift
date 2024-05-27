@@ -23,6 +23,7 @@ struct RateAppControllerStub: RateAppController {
         notificationsPublisher: some Publisher<[NotificationViewInput], Never>
     ) {}
 
+    func dismissAppRate() {}
     func openFeedbackMail(with emailType: EmailType) {}
     func openAppStoreReview() {}
 }
