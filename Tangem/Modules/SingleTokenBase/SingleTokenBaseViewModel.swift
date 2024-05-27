@@ -219,7 +219,7 @@ extension SingleTokenBaseViewModel {
         }
 
         let listBuilder = TokenActionListBuilder()
-        let canShowSwap = userWalletModel.config.hasFeature(.swapping)
+        let canShowSwap = userWalletModel.config.isFeatureVisible(.swapping)
         let canShowBuySell = userWalletModel.config.isFeatureVisible(.exchange)
         availableActions = listBuilder.buildActionsForButtonsList(canShowBuySell: canShowBuySell, canShowSwap: canShowSwap)
     }
@@ -335,7 +335,18 @@ extension SingleTokenBaseViewModel {
         }
 
         switch walletModel.sendingRestrictions {
-        case .zeroWalletBalance, .cantSignLongTransactions, .zeroFeeCurrencyBalance:
+        case .zeroFeeCurrencyBalance:
+            guard SendFeatureProvider.shared.isAvailable else {
+                return true
+            }
+
+            if case .token = walletModel.amountType,
+               !walletModel.isFeeCurrency {
+                return false
+            } else {
+                return true
+            }
+        case .zeroWalletBalance, .cantSignLongTransactions:
             return true
         case .none, .hasPendingTransaction:
             return false
@@ -365,8 +376,14 @@ extension SingleTokenBaseViewModel {
             if let message = walletModel.sendingRestrictions?.description {
                 alert = .init(title: Localization.warningSendBlockedPendingTransactionsTitle, message: message)
             }
-        case .cantSignLongTransactions, .zeroWalletBalance, .zeroFeeCurrencyBalance:
+        case .cantSignLongTransactions, .zeroWalletBalance:
             assertionFailure("Send Button have to be disabled")
+        case .zeroFeeCurrencyBalance:
+            guard SendFeatureProvider.shared.isAvailable else {
+                assertionFailure("Send Button have to be disabled")
+                return
+            }
+            tokenRouter.openSend(walletModel: walletModel)
         case .none:
             tokenRouter.openSend(walletModel: walletModel)
         }
@@ -378,11 +395,6 @@ extension SingleTokenBaseViewModel {
     }
 
     func openExchange() {
-        if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .swapping) {
-            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
-            return
-        }
-
         tokenRouter.openExchange(walletModel: walletModel)
     }
 
