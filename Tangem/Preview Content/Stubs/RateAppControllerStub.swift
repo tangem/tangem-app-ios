@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-struct RateAppControllerStub: RateAppController {
+struct RateAppControllerStub: RateAppInteractionController, RateAppNotificationController {
     var showAppRateNotificationPublisher: AnyPublisher<Bool, Never> { fatalError() }
 
     func bind(
