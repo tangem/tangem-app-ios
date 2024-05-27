@@ -15,6 +15,16 @@ final class CommonRateAppController {
     private let userWalletModel: UserWalletModel
     private weak var coordinator: RateAppRoutable?
 
+    private let dismissAppRateNotificationSubject = PassthroughSubject<Void, Never>()
+
+    private var isBalanceLoadedPublisher: AnyPublisher<Bool, Never> {
+        userWalletModel
+            .totalBalancePublisher
+            .map { $0.value != nil }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -44,6 +54,37 @@ final class CommonRateAppController {
             break // [REDACTED_TODO_COMMENT]
         }
     }
+
+    private func bind() {
+        userWalletModel
+            .totalBalancePublisher
+            .compactMap { $0.value }
+            .withWeakCaptureOf(self)
+            .sink { controller, _ in
+                let walletModels = controller.userWalletModel.walletModelsManager.walletModels
+                controller.rateAppService.registerBalances(of: walletModels)
+            }
+            .store(in: &bag)
+
+        rateAppService
+            .rateAppAction
+            .withWeakCaptureOf(self)
+            .sink { controller, rateAppAction in
+                controller.handleRateAppAction(rateAppAction)
+            }
+            .store(in: &bag)
+    }
+
+    private func request(isPageSelected: Bool, isBalanceLoaded: Bool, notifications: [NotificationViewInput]) {
+        let rateAppRequest = RateAppRequest(
+            isLocked: false,
+            isSelected: isPageSelected,
+            isBalanceLoaded: isBalanceLoaded,
+            displayedNotifications: notifications
+        )
+
+        rateAppService.requestRateAppIfAvailable(with: rateAppRequest)
+    }
 }
 
 // MARK: - RateAppController protocol conformance
@@ -61,14 +102,7 @@ extension CommonRateAppController: RateAppController {
                     return false
                 }
             }
-            .eraseToAnyPublisher()
-    }
-
-    private var isBalanceLoadedPublisher: AnyPublisher<Bool, Never> {
-        userWalletModel
-            .totalBalancePublisher
-            .map { $0.value != nil }
-            .removeDuplicates()
+            .merge(with: dismissAppRateNotificationSubject.mapToValue(false))
             .eraseToAnyPublisher()
     }
 
@@ -101,43 +135,19 @@ extension CommonRateAppController: RateAppController {
         bind()
     }
 
+    func dismissAppRate() {
+        rateAppService.respondToRateAppDialog(with: .dismissed)
+        dismissAppRateNotificationSubject.send(())
+    }
+
     func openFeedbackMail(with emailType: EmailType) {
         rateAppService.respondToRateAppDialog(with: .negative)
+        dismissAppRateNotificationSubject.send(())
     }
 
     func openAppStoreReview() {
         rateAppService.respondToRateAppDialog(with: .positive)
-    }
-
-    private func bind() {
-        userWalletModel
-            .totalBalancePublisher
-            .compactMap { $0.value }
-            .withWeakCaptureOf(self)
-            .sink { controller, _ in
-                let walletModels = controller.userWalletModel.walletModelsManager.walletModels
-                controller.rateAppService.registerBalances(of: walletModels)
-            }
-            .store(in: &bag)
-
-        rateAppService
-            .rateAppAction
-            .withWeakCaptureOf(self)
-            .sink { controller, rateAppAction in
-                controller.handleRateAppAction(rateAppAction)
-            }
-            .store(in: &bag)
-    }
-
-    private func request(isPageSelected: Bool, isBalanceLoaded: Bool, notifications: [NotificationViewInput]) {
-        let rateAppRequest = RateAppRequest(
-            isLocked: false,
-            isSelected: isPageSelected,
-            isBalanceLoaded: isBalanceLoaded,
-            displayedNotifications: notifications
-        )
-
-        rateAppService.requestRateAppIfAvailable(with: rateAppRequest)
+        dismissAppRateNotificationSubject.send(())
     }
 }
 
