@@ -14,7 +14,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
     private let header: () -> Header
     private let footer: () -> Footer
 
-    private var horizontalPadding: CGFloat = 14
+    private var horizontalPadding: CGFloat = GroupedSectionConstants.defaultHorizontalPadding
     private var separatorStyle: SeparatorStyle = .minimum
     private var interItemSpacing: CGFloat = 0
     private var innerContentPadding: CGFloat = 0
@@ -52,7 +52,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
 
     var body: some View {
         if !models.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: GroupedSectionConstants.headerFooterSpacing) {
                 header()
                     .padding(.horizontal, horizontalPadding)
 
@@ -69,7 +69,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
                 .padding(.vertical, innerContentPadding)
                 .background(
                     backgroundColor
-                        .cornerRadiusContinuous(14)
+                        .cornerRadiusContinuous(GroupedSectionConstants.defaultCornerRadius)
                         .matchedGeometryEffectOptional(id: backgroundNamespaceId, in: namespace)
                 )
 
@@ -101,6 +101,12 @@ extension GroupedSection {
         case single
         case minimum
     }
+}
+
+enum GroupedSectionConstants {
+    static let defaultHorizontalPadding: CGFloat = 14
+    static let defaultCornerRadius: CGFloat = 14
+    static let headerFooterSpacing: CGFloat = 8
 }
 
 extension GroupedSection: Setupable {
