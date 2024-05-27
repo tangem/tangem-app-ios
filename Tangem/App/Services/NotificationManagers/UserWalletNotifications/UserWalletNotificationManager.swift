@@ -61,7 +61,7 @@ final class UserWalletNotificationManager {
         }
 
         if userWalletModel.config.hasFeature(.multiCurrency) {
-            setupTangemExpressPromotionNotification(dismissAction: dismissAction)
+            setupPromotionNotification(dismissAction: dismissAction)
         }
 
         inputs.append(contentsOf: factory.buildNotificationInputs(
@@ -107,30 +107,48 @@ final class UserWalletNotificationManager {
         validateHashesCount()
     }
 
-    private func setupTangemExpressPromotionNotification(
-        dismissAction: @escaping NotificationView.NotificationAction
-    ) {
+    private func setupPromotionNotification(dismissAction: @escaping NotificationView.NotificationAction) {
         promotionUpdateTask?.cancel()
         promotionUpdateTask = Task { [weak self] in
             guard let self, !Task.isCancelled else {
                 return
             }
 
-            guard let promotion = await bannerPromotionService.activePromotion(place: .main) else {
+            let name: PromotionProgramName = .travala
+            guard let promotion = await bannerPromotionService.activePromotion(promotion: name, on: .main),
+                  let promotionLink = promotion.link else {
                 notificationInputsSubject.value.removeAll { $0.settings.event is BannerNotificationEvent }
                 return
             }
 
-            let input = BannerPromotionNotificationFactory().buildMainBannerNotificationInput(
-                promotion: promotion,
-                dismissAction: dismissAction
-            )
-
-            guard !notificationInputsSubject.value.contains(where: { $0.id == input.id }) else {
+            if Task.isCancelled {
                 return
             }
 
+            let factory = BannerPromotionNotificationFactory()
+            let button = factory.buildNotificationButton(actionType: .bookNow(promotionLink: promotionLink)) { [weak self] id, action in
+                var parameters = BannerNotificationEvent.travala(description: "").analyticsParams
+                parameters[.action] = Analytics.ParameterValue.clicked.rawValue
+                Analytics.log(event: .promotionBannerClicked, params: parameters)
+
+                self?.delegate?.didTapNotificationButton(with: id, action: action)
+            }
+
+            let input = factory.buildBannerNotificationInput(
+                promotion: promotion,
+                button: button,
+                dismissAction: dismissAction
+            )
+
             await runOnMain {
+                if Task.isCancelled {
+                    return
+                }
+
+                guard !self.notificationInputsSubject.value.contains(where: { $0.id == input.id }) else {
+                    return
+                }
+
                 self.notificationInputsSubject.value.insert(input, at: 0)
             }
         }
@@ -153,10 +171,8 @@ final class UserWalletNotificationManager {
 
     // [REDACTED_TODO_COMMENT]
     private func validateHashesCount() {
-        let card = userWalletModel.userWallet.card
         let config = userWalletModel.config
-        let cardId = card.cardId
-        let cardSignedHashes = card.walletSignedHashes
+        let cardSignedHashes = userWalletModel.totalSignedHashes
         let isMultiWallet = config.hasFeature(.multiCurrency)
         let canCountHashes = config.hasFeature(.signedHashesCounter)
 
@@ -164,7 +180,7 @@ final class UserWalletNotificationManager {
             AppLog.shared.debug("⚠️ Hashes counted")
         }
 
-        guard !AppSettings.shared.validatedSignedHashesCards.contains(cardId) else {
+        guard !AppSettings.shared.validatedSignedHashesCards.contains(userWalletModel.userWalletId.stringValue) else {
             didFinishCountingHashes()
             return
         }
@@ -237,8 +253,7 @@ final class UserWalletNotificationManager {
     }
 
     private func recordUserWalletHashesCountValidation() {
-        let cardId = userWalletModel.userWallet.card.cardId
-        AppSettings.shared.validatedSignedHashesCards.append(cardId)
+        AppSettings.shared.validatedSignedHashesCards.append(userWalletModel.userWalletId.stringValue)
     }
 
     private func recordDeprecationNotificationDismissal() {
@@ -282,6 +297,12 @@ extension UserWalletNotificationManager: NotificationManager {
             switch event {
             case .changelly:
                 bannerPromotionService.hide(promotion: .changelly, on: .main)
+            case .travala:
+                var parameters = event.analyticsParams
+                parameters[.action] = Analytics.ParameterValue.closed.rawValue
+                Analytics.log(event: .promotionBannerClicked, params: parameters)
+
+                bannerPromotionService.hide(promotion: .travala, on: .main)
             }
         }
 
