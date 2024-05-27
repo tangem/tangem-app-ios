@@ -13,21 +13,27 @@ struct SendFeeView: View {
 
     @ObservedObject var viewModel: SendFeeViewModel
 
-    let bottomSpacing: CGFloat
+    let bottomButtonsHeight: CGFloat
+
+    private var safeAreaBottomSpacing: CGFloat {
+        bottomButtonsHeight + SendCustomFeeInputField.Constants.fieldPadding + GroupedSectionConstants.headerFooterSpacing
+    }
 
     var body: some View {
         GroupedScrollView(spacing: 20) {
-            GroupedSection(viewModel.feeRowViewModels) {
-                if $0.isSelected.value {
-                    FeeRowView(viewModel: $0)
-                        .setNamespace(namespace)
-                        .setIconNamespaceId(SendViewNamespaceId.feeIcon.rawValue)
-                        .setTitleNamespaceId(SendViewNamespaceId.feeTitle.rawValue)
-                        .setSubtitleNamespaceId(SendViewNamespaceId.feeSubtitle.rawValue)
-                } else {
-                    if !viewModel.animatingAuxiliaryViewsOnAppear {
-                        FeeRowView(viewModel: $0)
-                            .transition(SendView.Constants.auxiliaryViewTransition)
+            GroupedSection(viewModel.feeRowViewModels) { feeRowViewModel in
+                Group {
+                    if feeRowViewModel.isSelected.value {
+                        feeRowView(feeRowViewModel)
+                            .overlay(alignment: .topLeading) {
+                                Text(Localization.commonNetworkFeeTitle)
+                                    .font(Fonts.Regular.footnote)
+                                    .visible(false)
+                                    .matchedGeometryEffect(id: SendViewNamespaceId.feeTitle.rawValue, in: namespace)
+                            }
+                    } else {
+                        feeRowView(feeRowViewModel)
+                            .visible(viewModel.deselectedFeeViewsVisible)
                     }
                 }
             } footer: {
@@ -38,7 +44,7 @@ struct SendFeeView: View {
                             viewModel.openFeeExplanation()
                             return .handled
                         })
-                        .transition(SendView.Constants.auxiliaryViewTransition)
+                        .transition(SendView.Constants.auxiliaryViewTransition(for: .fee))
                 }
             }
             .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
@@ -46,36 +52,43 @@ struct SendFeeView: View {
             if !viewModel.animatingAuxiliaryViewsOnAppear {
                 ForEach(viewModel.feeLevelsNotificationInputs) { input in
                     NotificationView(input: input)
-                        .transition(SendView.Constants.auxiliaryViewTransition)
+                        .transition(SendView.Constants.auxiliaryViewTransition(for: .fee))
                 }
             }
 
             if !viewModel.animatingAuxiliaryViewsOnAppear,
                viewModel.showCustomFeeFields,
-               let customFeeModel = viewModel.customFeeModel,
-               let customFeeGasPriceModel = viewModel.customFeeGasPriceModel,
-               let customFeeGasLimitModel = viewModel.customFeeGasLimitModel {
-                Group {
+               !viewModel.customFeeModels.isEmpty {
+                ForEach(viewModel.customFeeModels) { customFeeModel in
                     SendCustomFeeInputField(viewModel: customFeeModel)
-                    SendCustomFeeInputField(viewModel: customFeeGasPriceModel)
-                    SendCustomFeeInputField(viewModel: customFeeGasLimitModel)
+                        .onFocusChanged(customFeeModel.onFocusChanged)
+                        .transition(SendView.Constants.auxiliaryViewTransition(for: .fee))
                 }
-                .transition(SendView.Constants.auxiliaryViewTransition)
 
                 ForEach(viewModel.customFeeNotificationInputs) { input in
                     NotificationView(input: input)
-                        .transition(SendView.Constants.auxiliaryViewTransition)
+                        .transition(SendView.Constants.auxiliaryViewTransition(for: .fee))
                 }
             }
-
-            Spacer(minLength: bottomSpacing)
         }
-        .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         .onAppear(perform: viewModel.onAppear)
+        .onDisappear(perform: viewModel.onDisappear)
+        .onAppear(perform: viewModel.onAuxiliaryViewAppear)
+        .onDisappear(perform: viewModel.onAuxiliaryViewDisappear)
+        .safeAreaInset(edge: .bottom, spacing: safeAreaBottomSpacing) {
+            EmptyView().frame(height: 0)
+        }
+    }
+
+    private func feeRowView(_ viewModel: FeeRowViewModel) -> FeeRowView {
+        FeeRowView(viewModel: viewModel)
+            .setNamespace(namespace)
+            .setOptionNamespaceId(SendViewNamespaceId.feeOption(feeOption: viewModel.option).rawValue)
+            .setAmountNamespaceId(SendViewNamespaceId.feeAmount(feeOption: viewModel.option).rawValue)
     }
 
     private var feeSelectorFooter: some View {
-        Text(Localization.commonFeeSelectorFooter) + Text(" ") + Text("[\(Localization.commonReadMore)](\(viewModel.feeExplanationUrl.absoluteString))")
+        Text(.init(Localization.commonFeeSelectorFooter("[\(Localization.commonReadMore)](\(viewModel.feeExplanationUrl.absoluteString))")))
     }
 }
 
@@ -106,10 +119,11 @@ struct SendFeeView_Previews: PreviewProvider {
         fiatCurrencyCode: "USD",
         amountFractionDigits: 6,
         feeFractionDigits: 6,
-        feeAmountType: .coin
+        feeAmountType: .coin,
+        canUseFiatCalculation: true
     )
 
     static var previews: some View {
-        SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock(), notificationManager: FakeSendNotificationManager(), walletInfo: walletInfo), bottomSpacing: 150)
+        SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock(), notificationManager: FakeSendNotificationManager(), customFeeService: nil, walletInfo: walletInfo), bottomButtonsHeight: 0)
     }
 }
