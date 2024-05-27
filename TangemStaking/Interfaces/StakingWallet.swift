@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import BlockchainSdk
 
 public protocol StakingWallet {
     var item: StakingTokenItem { get }
