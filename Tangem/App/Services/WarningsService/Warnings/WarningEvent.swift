@@ -223,7 +223,7 @@ extension WarningEvent {
     var analyticsEvent: Analytics.Event? {
         switch self {
         case .numberOfSignedHashesIncorrect: return .mainNoticeCardSignedTransactions
-        case .rateApp: return nil // [REDACTED_TODO_COMMENT]
+        case .rateApp: return nil // Analytics is sent by `RateAppService`
         case .failedToVerifyCard: return .mainNoticeProductSampleCard
         case .testnetCard: return .mainNoticeTestnetCard
         case .demoCard: return .mainNoticeDemoCard
