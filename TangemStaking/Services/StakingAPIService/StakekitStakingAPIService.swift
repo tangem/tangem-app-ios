@@ -9,6 +9,7 @@
 import Foundation
 import Moya
 import BlockchainSdk
+import Combine
 import TangemFoundation
 
 public protocol StakingAPIProvider {
@@ -168,7 +169,7 @@ struct StakekitTarget: Moya.TargetType {
     }
 
     var baseURL: URL {
-        URL(string: "https://api.stakek.it")!
+        URL(string: "https://api.stakek.it/v1/")!
     }
 
     var path: String {
