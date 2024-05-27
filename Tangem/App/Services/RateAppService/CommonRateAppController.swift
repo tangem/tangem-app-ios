@@ -139,7 +139,7 @@ extension CommonRateAppController: RateAppController {
         rateAppService.respondToRateAppDialog(with: .dismissed)
     }
 
-    func openFeedbackMail(with emailType: EmailType) {
+    func openFeedbackMail() {
         rateAppService.respondToRateAppDialog(with: .negative)
     }
 
