@@ -27,7 +27,7 @@ protocol RateAppController {
     func dismissAppRate()
 
     @available(*, deprecated, message: "Test only")
-    func openFeedbackMail(with emailType: EmailType)
+    func openFeedbackMail()
 
     @available(*, deprecated, message: "Test only")
     func openAppStoreReview()
