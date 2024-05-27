@@ -323,6 +323,8 @@ extension UserWalletNotificationManager: NotificationManager {
                 recordDeprecationNotificationDismissal()
             case .numberOfSignedHashesIncorrect:
                 recordUserWalletHashesCountValidation()
+            case .rateApp:
+                rateAppController.dismissAppRate()
             default:
                 break
             }
