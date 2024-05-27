@@ -55,6 +55,8 @@
 		2DCAEE4B2B13E4F800C87E09 /* GetBlockAccessTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCAEE4A2B13E4F800C87E09 /* GetBlockAccessTokens.swift */; };
 		2DD754D72AE1660D0009CA64 /* GenerateAddressesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD754D62AE1660D0009CA64 /* GenerateAddressesViewModel.swift */; };
 		2DDF91942A14DA2700B31113 /* TokenItemMenuActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDF91932A14DA2700B31113 /* TokenItemMenuActions.swift */; };
+		2DF2E5912C04A7E600E15ED9 /* DummyMarketTokenModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF2E5902C04A7E600E15ED9 /* DummyMarketTokenModelFactory.swift */; };
+		2DF2E5942C04AC8E00E15ED9 /* MarketTokenModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF2E5932C04AC8E00E15ED9 /* MarketTokenModel.swift */; };
 		2DF5A81D2B13C33800AA5E73 /* WalletSelectorDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF5A81C2B13C33700AA5E73 /* WalletSelectorDataSource.swift */; };
 		2DF5A81F2B13C33D00AA5E73 /* ManageTokensNetworkDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF5A81E2B13C33C00AA5E73 /* ManageTokensNetworkDataSource.swift */; };
 		4A293696EACF80B666320C1E /* Pods_TangemFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A1E0F0323988A048B922E78 /* Pods_TangemFoundation.framework */; };
@@ -1604,6 +1606,8 @@
 		2DCAEE4A2B13E4F800C87E09 /* GetBlockAccessTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetBlockAccessTokens.swift; sourceTree = "<group>"; };
 		2DD754D62AE1660D0009CA64 /* GenerateAddressesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateAddressesViewModel.swift; sourceTree = "<group>"; };
 		2DDF91932A14DA2700B31113 /* TokenItemMenuActions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemMenuActions.swift; sourceTree = "<group>"; };
+		2DF2E5902C04A7E600E15ED9 /* DummyMarketTokenModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DummyMarketTokenModelFactory.swift; sourceTree = "<group>"; };
+		2DF2E5932C04AC8E00E15ED9 /* MarketTokenModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketTokenModel.swift; sourceTree = "<group>"; };
 		2DF5A81C2B13C33700AA5E73 /* WalletSelectorDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorDataSource.swift; sourceTree = "<group>"; };
 		2DF5A81E2B13C33C00AA5E73 /* ManageTokensNetworkDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensNetworkDataSource.swift; sourceTree = "<group>"; };
 		34299E1AA8B77C9FD9FE515A /* Pods-TangemFoundation.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemFoundation.release(production).xcconfig"; path = "Target Support Files/Pods-TangemFoundation/Pods-TangemFoundation.release(production).xcconfig"; sourceTree = "<group>"; };
@@ -3307,6 +3311,22 @@
 			path = TokenItemMenuActions;
 			sourceTree = "<group>";
 		};
+		2DF2E58F2C04A7CE00E15ED9 /* DummyComponents */ = {
+			isa = PBXGroup;
+			children = (
+				2DF2E5902C04A7E600E15ED9 /* DummyMarketTokenModelFactory.swift */,
+			);
+			path = DummyComponents;
+			sourceTree = "<group>";
+		};
+		2DF2E5922C04AC7200E15ED9 /* Markets */ = {
+			isa = PBXGroup;
+			children = (
+				2DF2E5932C04AC8E00E15ED9 /* MarketTokenModel.swift */,
+			);
+			path = Markets;
+			sourceTree = "<group>";
+		};
 		2E5061A84512B23CCB5F2E17 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -3389,21 +3409,22 @@
 		5D39515725597D89002CC452 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				B01B2D762BD2929800D8A6A1 /* APIList */,
-				EF76733E2B0FD67C0027D8E0 /* Express */,
-				EF75A3D02B06418D0023A60A /* TokenItem */,
-				EFD39C8C2A6A87DD0055D215 /* Config */,
-				DC13D03729DEC0F30003895C /* CardDTO */,
-				DC3B49F22893E4F300C207EA /* UserWallet */,
-				5DBAFD1627E085330008B882 /* Coins */,
-				EF914D482A60388F001F00B2 /* Quotes */,
-				5DDFC1F728129E0C005976FE /* Currencies */,
-				5DDFC1F828129E1F005976FE /* Rates */,
-				DAA153BA2876CBE2002254D1 /* Geo */,
-				B03FF89C2B5E4FAB00202EC0 /* Visa */,
+				DAE0F0592A404CCC006074FF /* AwardToken.swift */,
 				5D96BD2727F60AC5000AA797 /* BlockchainNetwork.swift */,
 				5D4B8BC227EDD601002CE87C /* CardInfo.swift */,
-				DAE0F0592A404CCC006074FF /* AwardToken.swift */,
+				B01B2D762BD2929800D8A6A1 /* APIList */,
+				DC13D03729DEC0F30003895C /* CardDTO */,
+				5DBAFD1627E085330008B882 /* Coins */,
+				EFD39C8C2A6A87DD0055D215 /* Config */,
+				5DDFC1F728129E0C005976FE /* Currencies */,
+				EF76733E2B0FD67C0027D8E0 /* Express */,
+				DAA153BA2876CBE2002254D1 /* Geo */,
+				2DF2E5922C04AC7200E15ED9 /* Markets */,
+				EF914D482A60388F001F00B2 /* Quotes */,
+				5DDFC1F828129E1F005976FE /* Rates */,
+				EF75A3D02B06418D0023A60A /* TokenItem */,
+				DC3B49F22893E4F300C207EA /* UserWallet */,
+				B03FF89C2B5E4FAB00202EC0 /* Visa */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -4394,6 +4415,7 @@
 		B068A7E525678A6E00D28CD2 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				2DF2E58F2C04A7CE00E15ED9 /* DummyComponents */,
 				2D276FEB2BFCD3690099001A /* TokenPriceFormatter */,
 				B0B335E129FA9E9A00E2082E /* BalanceFormatter */,
 				B0AF2DF22B1DF282001A8696 /* Express */,
@@ -9781,8 +9803,10 @@
 				DAB344FD2BB52C0D00DA12A7 /* SendWalletInfoView.swift in Sources */,
 				EF09A309297A9B3F00B869A1 /* BottomSheetContainer.swift in Sources */,
 				B053759126CA3EFA0090FCFC /* CheckmarkSwitch.swift in Sources */,
+				2DF2E5942C04AC8E00E15ED9 /* MarketTokenModel.swift in Sources */,
 				DCDBDA062A27C16C0000EBA2 /* LockedUserWalletModel.swift in Sources */,
 				DC13D04329DF31A60003895C /* WalletOnboardingStepsBuilder.swift in Sources */,
+				2DF2E5912C04A7E600E15ED9 /* DummyMarketTokenModelFactory.swift in Sources */,
 				DCAB57FE295ECA55005D0F4A /* SendError.swift in Sources */,
 				B04CD34229122C7D001EA84A /* ReferralRoutable.swift in Sources */,
 				B644EC272ACBF217007D9F4B /* UIPanGestureRecognizer+Value.swift in Sources */,
