@@ -24,7 +24,7 @@ final class UserWalletNotificationManager {
     private let analyticsService: NotificationsAnalyticsService = .init()
     private let userWalletModel: UserWalletModel
     private let signatureCountValidator: SignatureCountValidator?
-    private let rateAppController: RateAppController
+    private let rateAppController: RateAppNotificationController
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
 
     private weak var delegate: NotificationTapDelegate?
@@ -36,7 +36,7 @@ final class UserWalletNotificationManager {
     init(
         userWalletModel: UserWalletModel,
         signatureCountValidator: SignatureCountValidator?,
-        rateAppController: RateAppController, // [REDACTED_TODO_COMMENT]
+        rateAppController: RateAppNotificationController,
         contextDataProvider: AnalyticsContextDataProvider?
     ) {
         self.userWalletModel = userWalletModel
