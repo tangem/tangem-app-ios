@@ -11,19 +11,25 @@ import SwiftUI
 import Combine
 
 class SendDestinationTextViewModel: ObservableObject, Identifiable {
+    let allowMultilineText: Bool
     let name: String
     let showAddressIcon: Bool
     let description: String
+    let addressTextViewHeightModel: AddressTextViewHeightModel
     let didEnterDestination: (String) -> Void
+    let didPasteDestination: (String) -> Void
 
     @Published var isValidating: Bool = false
     @Published var input: String = ""
     @Published var placeholder: String = ""
     @Published var isDisabled: Bool = true
-    @Published var animatingFooterOnAppear = false
     @Published var errorText: String?
 
     var hasTextInClipboard = false
+
+    var shouldShowPasteButton: Bool {
+        input.isEmpty && !isDisabled
+    }
 
     private var bag: Set<AnyCancellable> = []
 
@@ -32,13 +38,18 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
         input: AnyPublisher<String, Never>,
         isValidating: AnyPublisher<Bool, Never>,
         isDisabled: AnyPublisher<Bool, Never>,
+        addressTextViewHeightModel: AddressTextViewHeightModel,
         errorText: AnyPublisher<Error?, Never>,
-        didEnterDestination: @escaping (String) -> Void
+        didEnterDestination: @escaping (String) -> Void,
+        didPasteDestination: @escaping (String) -> Void
     ) {
+        allowMultilineText = style.allowMultilineText
         name = style.name
         showAddressIcon = style.showAddressIcon
         description = style.description
+        self.addressTextViewHeightModel = addressTextViewHeightModel
         self.didEnterDestination = didEnterDestination
+        self.didPasteDestination = didPasteDestination
         placeholder = style.placeholder(isDisabled: self.isDisabled)
 
         bind(style: style, input: input, isValidating: isValidating, isDisabled: isDisabled, errorText: errorText)
@@ -46,7 +57,10 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
 
     private func bind(style: Style, input: AnyPublisher<String, Never>, isValidating: AnyPublisher<Bool, Never>, isDisabled: AnyPublisher<Bool, Never>, errorText: AnyPublisher<Error?, Never>) {
         input
-            .assign(to: \.input, on: self, ownership: .weak)
+            .sink { [weak self] text in
+                guard self?.input != text else { return }
+                self?.input = text
+            }
             .store(in: &bag)
 
         self.$input
@@ -97,16 +111,6 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
 
     func onAppear() {
         updatePasteButton()
-
-        if animatingFooterOnAppear {
-            withAnimation(SendView.Constants.defaultAnimation) {
-                animatingFooterOnAppear = false
-            }
-        }
-    }
-
-    func setAnimatingFooterOnAppear(_ animatingFooterOnAppear: Bool) {
-        self.animatingFooterOnAppear = animatingFooterOnAppear
     }
 
     func onBecomingActive() {
@@ -115,7 +119,7 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
 
     func didTapPasteButton(_ input: String) {
         provideButtonHapticFeedback()
-        didEnterDestination(input)
+        didPasteDestination(input)
     }
 
     func didTapLegacyPasteButton() {
@@ -124,11 +128,11 @@ class SendDestinationTextViewModel: ObservableObject, Identifiable {
         }
 
         provideButtonHapticFeedback()
-        didEnterDestination(input)
+        didPasteDestination(input)
     }
 
     func clearInput() {
-        didEnterDestination("")
+        input = ""
     }
 
     private func provideButtonHapticFeedback() {
@@ -153,6 +157,15 @@ extension SendDestinationTextViewModel {
 }
 
 private extension SendDestinationTextViewModel.Style {
+    var allowMultilineText: Bool {
+        switch self {
+        case .address:
+            return true
+        case .additionalField:
+            return false
+        }
+    }
+
     var name: String {
         switch self {
         case .address:
