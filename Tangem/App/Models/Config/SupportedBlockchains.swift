@@ -58,7 +58,8 @@ struct SupportedBlockchains {
     /// Blockchains for test. They don't include in supported blockchains by default
     private func testableBlockchains() -> Set<Blockchain> {
         [
-            .playa3ullGames,
+            .mantle(testnet: false),
+            .manta(testnet: false),
         ]
     }
 
@@ -114,6 +115,14 @@ struct SupportedBlockchains {
             .areon(testnet: false),
             .pulsechain(testnet: false),
             .aurora(testnet: false),
+            .base(testnet: false),
+            .playa3ullGames,
+            .zkSync(testnet: false),
+            .moonbeam(testnet: false),
+            .polygonZkEVM(testnet: false),
+            .moonriver(testnet: false),
+            .flare(testnet: false),
+            .taraxa(testnet: false),
         ]
     }
 
@@ -153,6 +162,15 @@ struct SupportedBlockchains {
             .areon(testnet: true),
             .pulsechain(testnet: true),
             .aurora(testnet: true),
+            .manta(testnet: true),
+            .zkSync(testnet: true),
+            .moonbeam(testnet: true),
+            .polygonZkEVM(testnet: true),
+            .moonriver(testnet: true),
+            .mantle(testnet: true),
+            .flare(testnet: true),
+            .taraxa(testnet: true),
+            .base(testnet: true),
         ]
     }
 
