@@ -73,88 +73,22 @@ struct MarketsItemView: View {
     }
 }
 
-struct CurrencyViewNew_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack {
-            MarketsItemView(viewModel: MarketsItemViewModel(
-                coinModel: CoinModel(
-                    id: "",
-                    name: "Bitcoin",
-                    symbol: "BTC",
-                    items: []
-                ),
-                priceValue: "$23,034.83",
-                priceChangeState: .loaded(signType: .positive, text: "10.5%"),
-                priceHistory: [1, 7, 3, 5, 13],
-                state: .loaded
-            ))
+#Preview {
+    let tokens = DummyMarketTokenModelFactory().list()
 
-            MarketsItemView(viewModel: MarketsItemViewModel(
-                coinModel: CoinModel(
-                    id: "",
-                    name: "Ethereum",
-                    symbol: "ETH",
-                    items: []
-                ),
-                priceValue: "$1,340.33",
-                priceChangeState: .loaded(signType: .negative, text: "10.5%"),
-                priceHistory: [1, 7, 3, 5, 13].reversed(),
-                state: .loaded
-            ))
-
-            MarketsItemView(viewModel: MarketsItemViewModel(
-                coinModel: CoinModel(
-                    id: "",
-                    name: "Solana",
-                    symbol: "SOL",
-                    items: []
-                ),
-                priceValue: "$33.00",
-                priceChangeState: .loaded(signType: .positive, text: "1.3%"),
-                priceHistory: [1, 7, 3, 5, 13],
-                state: .loaded
-            ))
-
-            MarketsItemView(viewModel: MarketsItemViewModel(
-                coinModel: CoinModel(
-                    id: "",
-                    name: "Polygon",
-                    symbol: "MATIC",
-                    items: []
-                ),
-                priceValue: "$34.83",
-                priceChangeState: .loaded(signType: .positive, text: "0.0%"),
-                priceHistory: [4, 7, 3, 5, 4],
-                state: .loaded
-            ))
-
-            MarketsItemView(viewModel: MarketsItemViewModel(
-                coinModel: CoinModel(
-                    id: "",
-                    name: "Very long token name is very long",
-                    symbol: "BUS",
-                    items: []
-                ),
-                priceValue: "$23,341,324,034.83",
-                priceChangeState: .loaded(signType: .positive, text: "1,444,340,340.0%"),
-                priceHistory: [1, 7, 3, 5, 13],
-                state: .loaded
-            ))
-
-            MarketsItemView(viewModel: MarketsItemViewModel(
-                coinModel: CoinModel(
-                    id: "",
-                    name: "Custom Token",
-                    symbol: "CT",
-                    items: []
-                ),
-                priceValue: "$100.83",
-                priceChangeState: .loaded(signType: .positive, text: "1.0%"),
-                priceHistory: nil,
-                state: .loaded
-            ))
-
-            Spacer()
+    return ScrollView(.vertical) {
+        ForEach((1 ..< tokens.count).reversed(), id: \.self) {
+            MarketsItemView(
+                viewModel: MarketsItemViewModel(
+                    .init(
+                        token: tokens[$0],
+                        priceValue: Bool.random() ? "$1,340.33" : "$23,341,324,034.83",
+                        priceChangeState: .loaded(signType: Bool.random() ? .positive : .negative, text: "\(Float.random(in: 0 ..< 10))%"),
+                        priceHistory: [1, 7, 3, 5, 13],
+                        state: .loaded
+                    )
+                )
+            )
         }
     }
 }
