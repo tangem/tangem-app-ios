@@ -10,6 +10,7 @@ import Foundation
 
 enum RateAppAction {
     case requestAppRate
+    case dismissAppRate
     case openFeedbackMailWithEmailType(emailType: EmailType)
     case openAppStoreReview
 }
