@@ -24,31 +24,33 @@ protocol SendDestinationViewModelInput {
 
     var networkName: String { get }
     var blockchainNetwork: BlockchainNetwork { get }
-    var walletPublicKey: Wallet.PublicKey { get }
 
     var additionalFieldType: SendAdditionalFields? { get }
-    var additionalFieldEmbeddedInAddress: AnyPublisher<Bool, Never> { get }
+    var canChangeAdditionalField: AnyPublisher<Bool, Never> { get }
 
     var currencySymbol: String { get }
     var walletAddresses: [String] { get }
 
     var transactionHistoryPublisher: AnyPublisher<WalletModel.TransactionHistoryState, Never> { get }
 
-    func setDestination(_ address: String)
+    func setDestination(_ address: SendAddress)
     func setDestinationAdditionalField(_ additionalField: String)
 }
 
 class SendDestinationViewModel: ObservableObject {
     var addressViewModel: SendDestinationTextViewModel?
     var additionalFieldViewModel: SendDestinationTextViewModel?
-    var suggestedDestinationViewModel: SendSuggestedDestinationViewModel?
 
     @Published var destinationErrorText: String?
     @Published var destinationAdditionalFieldErrorText: String?
+    @Published var suggestedDestinationViewModel: SendSuggestedDestinationViewModel?
     @Published var animatingAuxiliaryViewsOnAppear: Bool = false
     @Published var showSuggestedDestinations = true
 
+    var didProperlyDisappear: Bool = false
+
     private let input: SendDestinationViewModelInput
+    private let addressTextViewHeightModel: AddressTextViewHeightModel
     private let transactionHistoryMapper: TransactionHistoryMapper
     private let suggestedWallets: [SendSuggestedDestinationWallet]
 
@@ -60,8 +62,9 @@ class SendDestinationViewModel: ObservableObject {
 
     // MARK: - Methods
 
-    init(input: SendDestinationViewModelInput) {
+    init(input: SendDestinationViewModelInput, addressTextViewHeightModel: AddressTextViewHeightModel) {
         self.input = input
+        self.addressTextViewHeightModel = addressTextViewHeightModel
 
         transactionHistoryMapper = TransactionHistoryMapper(
             currencySymbol: input.currencySymbol,
@@ -69,30 +72,19 @@ class SendDestinationViewModel: ObservableObject {
             showSign: false
         )
 
-        suggestedWallets = Self.userWalletRepository
-            .models
-            .compactMap { userWalletModel in
-                let walletModels = userWalletModel.walletModelsManager.walletModels
-                let walletModel = walletModels.first { walletModel in
-                    walletModel.blockchainNetwork == input.blockchainNetwork &&
-                        walletModel.wallet.publicKey != input.walletPublicKey
-                }
-                guard let walletModel else { return nil }
-
-                return SendSuggestedDestinationWallet(
-                    name: userWalletModel.userWallet.name,
-                    address: walletModel.defaultAddress
-                )
-            }
+        suggestedWallets = Self.suggestedWallets(for: input.blockchainNetwork.blockchain, ignoringAddesses: input.walletAddresses)
 
         addressViewModel = SendDestinationTextViewModel(
             style: .address(networkName: input.networkName),
             input: input.destinationTextPublisher,
             isValidating: input.isValidatingDestination,
             isDisabled: .just(output: false),
+            addressTextViewHeightModel: addressTextViewHeightModel,
             errorText: input.destinationError
         ) { [weak self] in
-            self?.input.setDestination($0)
+            self?.input.setDestination(SendAddress(value: $0, source: .textField))
+        } didPasteDestination: { [weak self] in
+            self?.input.setDestination(SendAddress(value: $0, source: .pasteButton))
         }
 
         if let additionalFieldType = input.additionalFieldType,
@@ -101,9 +93,12 @@ class SendDestinationViewModel: ObservableObject {
                 style: .additionalField(name: name),
                 input: input.destinationAdditionalFieldTextPublisher,
                 isValidating: .just(output: false),
-                isDisabled: input.additionalFieldEmbeddedInAddress,
+                isDisabled: input.canChangeAdditionalField.map { !$0 }.eraseToAnyPublisher(),
+                addressTextViewHeightModel: .init(),
                 errorText: input.destinationAdditionalFieldError
             ) { [weak self] in
+                self?.input.setDestinationAdditionalField($0)
+            } didPasteDestination: { [weak self] in
                 self?.input.setDestinationAdditionalField($0)
             }
         }
@@ -113,9 +108,9 @@ class SendDestinationViewModel: ObservableObject {
 
     func onAppear() {
         if animatingAuxiliaryViewsOnAppear {
-            withAnimation(SendView.Constants.defaultAnimation) {
-                animatingAuxiliaryViewsOnAppear = false
-            }
+            Analytics.log(.sendScreenReopened, params: [.source: .address])
+        } else {
+            Analytics.log(.sendAddressScreenOpened)
         }
     }
 
@@ -156,9 +151,17 @@ class SendDestinationViewModel: ObservableObject {
                     return []
                 }
 
-                return records.compactMap { record in
-                    self.transactionHistoryMapper.mapSuggestedRecord(record)
-                }
+                #warning("[REDACTED_TODO_COMMENT]")
+                let transactions = records
+                    .sorted {
+                        ($0.date ?? Date()) > ($1.date ?? Date())
+                    }
+                    .compactMap { record in
+                        self.transactionHistoryMapper.mapSuggestedRecord(record)
+                    }
+                    .prefix(Constants.numberOfRecentTransactions)
+
+                return Array(transactions)
             }
             .sink { [weak self] recentTransactions in
                 guard let self else { return }
@@ -175,7 +178,7 @@ class SendDestinationViewModel: ObservableObject {
                     let feedbackGenerator = UINotificationFeedbackGenerator()
                     feedbackGenerator.notificationOccurred(.success)
 
-                    self?.input.setDestination(destination.address)
+                    self?.input.setDestination(SendAddress(value: destination.address, source: destination.type.source))
                     if let additionalField = destination.additionalField {
                         self?.input.setDestinationAdditionalField(additionalField)
                     }
@@ -183,11 +186,47 @@ class SendDestinationViewModel: ObservableObject {
             }
             .store(in: &bag)
     }
+
+    private static func suggestedWallets(for blockchain: Blockchain, ignoringAddesses ignoredAddresses: [String]) -> [SendSuggestedDestinationWallet] {
+        var suggestedWallets: [SendSuggestedDestinationWallet] = []
+        for userWalletModel in Self.userWalletRepository.models {
+            let walletModels = userWalletModel.walletModelsManager.walletModels
+            let suggestedDestinationWallets = walletModels
+                .filter { walletModel in
+                    // Disregarding the difference between testnet and mainnet blockchains
+                    // See https://github.com/tangem/tangem-app-ios/pull/3079#discussion_r1553709671
+                    return walletModel.blockchainNetwork.blockchain.networkId == blockchain.networkId
+                        && walletModel.isMainToken
+                        && !ignoredAddresses.contains(walletModel.defaultAddress)
+                }
+                .map { walletModel in
+                    SendSuggestedDestinationWallet(
+                        name: userWalletModel.name,
+                        address: walletModel.defaultAddress
+                    )
+                }
+
+            suggestedWallets.append(contentsOf: suggestedDestinationWallets)
+        }
+        return suggestedWallets
+    }
 }
 
-extension SendDestinationViewModel: AuxiliaryViewAnimatable {
-    func setAnimatingAuxiliaryViewsOnAppear(_ animatingAuxiliaryViewsOnAppear: Bool) {
-        self.animatingAuxiliaryViewsOnAppear = animatingAuxiliaryViewsOnAppear
-        addressViewModel?.setAnimatingFooterOnAppear(animatingAuxiliaryViewsOnAppear)
+extension SendDestinationViewModel: AuxiliaryViewAnimatable {}
+
+private extension SendSuggestedDestination.`Type` {
+    var source: Analytics.DestinationAddressSource {
+        switch self {
+        case .otherWallet:
+            return .myWallet
+        case .recentAddress:
+            return .recentAddress
+        }
+    }
+}
+
+private extension SendDestinationViewModel {
+    enum Constants {
+        static let numberOfRecentTransactions = 10
     }
 }
