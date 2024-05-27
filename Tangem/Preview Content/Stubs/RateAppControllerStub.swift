@@ -24,6 +24,6 @@ struct RateAppControllerStub: RateAppController {
     ) {}
 
     func dismissAppRate() {}
-    func openFeedbackMail(with emailType: EmailType) {}
+    func openFeedbackMail() {}
     func openAppStoreReview() {}
 }
