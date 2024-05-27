@@ -13,45 +13,50 @@ import SwiftUI
 
 class SendCustomFeeInputFieldModel: ObservableObject, Identifiable {
     let title: String
-    let fractionDigits: Int
-    let footer: String
+    let disabled: Bool
+    let footer: String?
     let fieldSuffix: String?
 
-    @Published var amount: DecimalNumberTextField.DecimalValue? = nil
+    @Published var decimalNumberTextFieldViewModel: DecimalNumberTextField.ViewModel
     @Published var amountAlternative: String?
 
+    let onFocusChanged: ((Bool) -> Void)?
+
     private var bag: Set<AnyCancellable> = []
-    private let onFieldChange: (DecimalNumberTextField.DecimalValue?) -> Void
+    private let onFieldChange: (Decimal?) -> Void
 
     init(
         title: String,
-        amountPublisher: AnyPublisher<DecimalNumberTextField.DecimalValue?, Never>,
+        amountPublisher: AnyPublisher<Decimal?, Never>,
+        disabled: Bool = false,
         fieldSuffix: String?,
         fractionDigits: Int,
         amountAlternativePublisher: AnyPublisher<String?, Never>,
-        footer: String,
-        onFieldChange: @escaping (DecimalNumberTextField.DecimalValue?) -> Void
+        footer: String?,
+        onFieldChange: @escaping (Decimal?) -> Void,
+        onFocusChanged: ((Bool) -> Void)? = nil
     ) {
         self.title = title
+        self.disabled = disabled
         self.fieldSuffix = fieldSuffix
-        self.fractionDigits = fractionDigits
         self.footer = footer
         self.onFieldChange = onFieldChange
+        self.onFocusChanged = onFocusChanged
+
+        decimalNumberTextFieldViewModel = .init(maximumFractionDigits: fractionDigits)
 
         amountPublisher
             .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { (self, amount) in
-                guard amount?.value != self.amount?.value else { return }
-                self.amount = amount
+                guard amount != self.decimalNumberTextFieldViewModel.value else { return }
+
+                self.decimalNumberTextFieldViewModel.update(value: amount)
             }
             .store(in: &bag)
 
-        $amount
-            .removeDuplicates { $0?.value == $1?.value }
-            .dropFirst()
-            .filter { $0?.isInternal ?? true }
-            .removeDuplicates()
+        decimalNumberTextFieldViewModel
+            .valuePublisher
             .withWeakCaptureOf(self)
             .sink { (self, value) in
                 self.onFieldChange(value)

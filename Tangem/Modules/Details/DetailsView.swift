@@ -132,7 +132,7 @@ struct SettingsView_Previews: PreviewProvider {
         NavigationView {
             DetailsView(
                 viewModel: DetailsViewModel(
-                    userWalletModel: PreviewCard.tangemWalletEmpty.cardModel,
+                    userWalletModel: PreviewCard.tangemWalletEmpty.userWalletModel,
                     coordinator: DetailsCoordinator()
                 )
             )

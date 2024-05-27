@@ -16,6 +16,7 @@ protocol SendFinishViewModelInput: AnyObject {
     var destinationText: String? { get }
     var additionalField: (SendAdditionalFields, String)? { get }
     var feeValue: Fee? { get }
+    var selectedFeeOption: FeeOption { get }
 
     var transactionTime: Date? { get }
     var transactionURL: URL? { get }
@@ -23,23 +24,22 @@ protocol SendFinishViewModelInput: AnyObject {
 
 class SendFinishViewModel: ObservableObject {
     @Published var showHeader = false
-    @Published var showButtons = false
+    @ObservedObject var addressTextViewHeightModel: AddressTextViewHeightModel
 
     let transactionTime: String
 
     let destinationViewTypes: [SendDestinationSummaryViewType]
-    let amountSummaryViewData: AmountSummaryViewData?
-    let feeSummaryViewData: DefaultTextWithTitleRowViewData?
+    let amountSummaryViewData: SendAmountSummaryViewData?
+    let feeSummaryViewData: SendFeeSummaryViewModel?
 
-    weak var router: SendFinishRoutable?
+    private let feeTypeAnalyticsParameter: Analytics.ParameterValue
+    private let walletInfo: SendWalletInfo
 
-    private let transactionURL: URL
-
-    init?(input: SendFinishViewModelInput, walletInfo: SendWalletInfo) {
+    init?(input: SendFinishViewModelInput, fiatCryptoValueProvider: SendFiatCryptoValueProvider, addressTextViewHeightModel: AddressTextViewHeightModel, feeTypeAnalyticsParameter: Analytics.ParameterValue, walletInfo: SendWalletInfo) {
         guard
             let destinationText = input.destinationText,
             let transactionTime = input.transactionTime,
-            let transactionURL = input.transactionURL
+            let feeValue = input.feeValue
         else {
             return nil
         }
@@ -56,30 +56,30 @@ class SendFinishViewModel: ObservableObject {
             address: destinationText,
             additionalField: input.additionalField
         )
-        amountSummaryViewData = sectionViewModelFactory.makeAmountViewData(from: input.userInputAmountValue)
-        feeSummaryViewData = sectionViewModelFactory.makeFeeViewData(from: input.feeValue)
+        amountSummaryViewData = sectionViewModelFactory.makeAmountViewData(
+            from: fiatCryptoValueProvider.formattedAmount,
+            amountAlternative: fiatCryptoValueProvider.formattedAmountAlternative
+        )
+        feeSummaryViewData = sectionViewModelFactory.makeFeeViewData(from: .loaded(feeValue), feeOption: input.selectedFeeOption)
 
         let formatter = DateFormatter()
         formatter.dateStyle = .long
         formatter.timeStyle = .short
         self.transactionTime = formatter.string(from: transactionTime)
-        self.transactionURL = transactionURL
+
+        self.addressTextViewHeightModel = addressTextViewHeightModel
+        self.feeTypeAnalyticsParameter = feeTypeAnalyticsParameter
+        self.walletInfo = walletInfo
     }
 
     func onAppear() {
-        showHeader = true
-        showButtons = true
-    }
+        Analytics.log(event: .sendTransactionSentScreenOpened, params: [
+            .token: walletInfo.cryptoCurrencyCode,
+            .feeType: feeTypeAnalyticsParameter.rawValue,
+        ])
 
-    func explore() {
-        router?.explore(url: transactionURL)
-    }
-
-    func share() {
-        router?.share(url: transactionURL)
-    }
-
-    func close() {
-        router?.dismiss()
+        withAnimation(SendView.Constants.defaultAnimation) {
+            showHeader = true
+        }
     }
 }
