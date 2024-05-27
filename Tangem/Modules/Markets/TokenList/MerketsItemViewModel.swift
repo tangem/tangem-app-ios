@@ -16,19 +16,23 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
 
     // MARK: - Published
 
+    @Published var marketRaiting: String = ""
+    @Published var marketCap: String = ""
+
     @Published var priceValue: String = ""
     @Published var priceChangeState: TokenPriceChangeView.State = .noData
     @Published var priceHistory: [Double]? = nil
+
     @Published var isLoading: Bool
 
     // MARK: - Properties
 
-    var id: String { coinModel.id }
-    var imageURL: URL? { IconURLBuilder().tokenIconURL(id: coinModel.id, size: .large) }
-    var name: String { coinModel.name }
-    var symbol: String { coinModel.symbol }
+    var id: String
+    var imageURL: URL?
+    var name: String
+    var symbol: String
 
-    let coinModel: CoinModel
+    // MARK: - Private Properties
 
     private var bag = Set<AnyCancellable>()
 
@@ -51,18 +55,16 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
 
     // MARK: - Init
 
-    init(
-        coinModel: CoinModel,
-        priceValue: String = "",
-        priceChangeState: TokenPriceChangeView.State = .loading,
-        priceHistory: [Double]? = nil,
-        state: State
-    ) {
-        self.coinModel = coinModel
-        self.priceValue = priceValue
-        self.priceChangeState = priceChangeState
-        self.priceHistory = priceHistory
-        isLoading = state == .loading
+    init(_ data: InputData) {
+        id = data.id
+        imageURL = IconURLBuilder().tokenIconURL(id: data.id, size: .large)
+        name = data.name
+        symbol = data.symbol
+        priceValue = data.priceValue
+        priceChangeState = data.priceChangeState
+        priceHistory = data.priceHistory
+
+        isLoading = data.state == .loading
 
         bind()
     }
@@ -73,7 +75,7 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
         tokenQuotesRepository.quotesPublisher.sink { [weak self] itemQuote in
             guard let self = self else { return }
 
-            if let quote = itemQuote[coinModel.id] {
+            if let quote = itemQuote[id] {
                 updateView(by: quote)
             }
 
@@ -104,5 +106,43 @@ extension MarketsItemViewModel {
     enum State {
         case loading
         case loaded
+    }
+}
+
+extension MarketsItemViewModel {
+    struct InputData {
+        let id: String
+        let name: String
+        let symbol: String
+        let priceValue: String
+        let priceChangeState: TokenPriceChangeView.State
+        let priceHistory: [Double]?
+        let state: State
+
+        init(id: String, name: String, symbol: String, priceValue: String, priceChangeState: TokenPriceChangeView.State, priceHistory: [Double]?, state: State) {
+            self.id = id
+            self.name = name
+            self.symbol = symbol
+            self.priceValue = priceValue
+            self.priceChangeState = priceChangeState
+            self.priceHistory = priceHistory
+            self.state = state
+        }
+
+        init(
+            token: MarketTokenModel,
+            priceValue: String = "",
+            priceChangeState: TokenPriceChangeView.State = .loading,
+            priceHistory: [Double]? = nil,
+            state: State
+        ) {
+            id = token.id
+            name = token.name
+            symbol = token.symbol
+            self.priceValue = priceValue
+            self.priceChangeState = priceChangeState
+            self.priceHistory = priceHistory
+            self.state = state
+        }
     }
 }
