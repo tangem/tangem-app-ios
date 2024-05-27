@@ -502,6 +502,9 @@
 "send_validation_invalid_address" = "Неверный адрес";
 "send_wallet_balance_format" = "%1$@ (%2$@)";
 "sent_transaction_sent_title" = "Транзакция отправлена";
+"settings_forget_wallet" = "Забыть кошелек";
+"settings_forget_wallet_footer" = "Это приведет к удалению кошелька из приложения. Сам кошелек можно добавить снова.";
+"settings_wallet_name_title" = "Имя";
 "story_awe_description" = "Держите свои криптосбережения в безопасности. Приватные ключи надежно хранятся на карте.";
 "story_awe_title" = "Революционный аппаратный кошелек";
 "story_backup_description" = "До трех карт с одним кошельком";
@@ -625,6 +628,7 @@
 "wallet_marketprice_block_update_time" = "за 24 часа";
 "wallet_network_group_title" = "Сеть %@";
 "wallet_notification_address_copied" = "Адрес скопирован в буфер обмена";
+"wallet_settings_title" = "Настройки кошелька";
 "wallet_title" = "Tangem";
 "warning_access_denied_message" = "Используйте %@ или отсканируйте карту, чтобы разблокировать доступ к вашему кошельку";
 "warning_backup_errors_message" = "Пожалуйста, выведите все средства из этого кошелька, сбросьте его к заводским настройкам и создайте новый. Доступ к текущему кошельку будет утерян.";
