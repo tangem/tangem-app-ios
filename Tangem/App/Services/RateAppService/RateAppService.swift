@@ -150,6 +150,9 @@ final class RateAppService {
     }
 
     private func dismissAppRate() {
+        // We don't have to update neither `userDismissedLastRequestedReviewDate` nor
+        // `userDismissedLastRequestedReviewLaunchCount` here because the logic in this method is driven
+        // by the app rate service itself (in `requestRateAppIfAvailable(with:)` method), not by the user interactions
         rateAppActionSubject.send(.dismissAppRate)
     }
 
