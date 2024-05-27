@@ -16,6 +16,8 @@ struct SendCurrencyPicker: View {
     let fiatIconURL: URL?
     let fiatCurrencyCode: String
 
+    let disabled: Bool
+
     @Binding var useFiatCalculation: Bool
 
     private let iconSize: CGFloat = 18
@@ -44,12 +46,19 @@ struct SendCurrencyPicker: View {
                     selectorItemHitBox(fiatItem: false)
                     selectorItemHitBox(fiatItem: true)
                 }
+                .allowsHitTesting(!disabled)
                 .gesture(handleDragGesture(containerSize: reader.size))
             }
         )
         .background(
             GeometryReader { reader in
-                handle(containerSize: reader.size)
+                if disabled {
+                    handle(containerSize: reader.size)
+                } else {
+                    handle(containerSize: reader.size)
+                        .shadow(color: .black.opacity(0.04), radius: 0.5, y: 3)
+                        .shadow(color: .black.opacity(0.12), radius: 4, y: 3)
+                }
             }
         )
         .padding(2)
@@ -61,6 +70,7 @@ struct SendCurrencyPicker: View {
         ZStack {
             HStack(spacing: 6) {
                 IconView(url: url, size: CGSize(bothDimensions: iconSize), cornerRadius: iconRadius, forceKingfisher: true, placeholder: placeholder)
+                    .saturation(disabled ? 0 : 1)
 
                 ZStack {
                     selectorItemText(with: name, selected: selected)
@@ -77,7 +87,10 @@ struct SendCurrencyPicker: View {
 
     private func selectorItemText(with name: String, selected: Bool) -> some View {
         Text(name)
-            .style(selected ? Fonts.Bold.footnote : Fonts.Regular.footnote, color: Colors.Text.primary1)
+            .style(
+                selected ? Fonts.Bold.footnote : Fonts.Regular.footnote,
+                color: disabled ? Colors.Text.disabled : Colors.Text.primary1
+            )
             .lineLimit(1)
     }
 
@@ -95,8 +108,6 @@ struct SendCurrencyPicker: View {
             .cornerRadiusContinuous(12)
             .offset(x: useFiatCalculation ? containerSize.width / 2 : 0)
             .animation(.easeOut(duration: 0.21), value: useFiatCalculation)
-            .shadow(color: .black.opacity(0.04), radius: 0.5, y: 3)
-            .shadow(color: .black.opacity(0.12), radius: 4, y: 3)
     }
 
     private func handleDragGesture(containerSize: CGSize) -> some Gesture {
@@ -127,6 +138,7 @@ private struct PickerExample: View {
                 cryptoCurrencyCode: "SOL",
                 fiatIconURL: URL(string: "https://vectorflags.s3-us-west-2.amazonaws.com/flags/us-square-01.png")!,
                 fiatCurrencyCode: "USD",
+                disabled: true,
                 useFiatCalculation: $useFiatCalculation
             )
 
@@ -145,6 +157,7 @@ private struct PickerExample: View {
                 cryptoCurrencyCode: "USDT",
                 fiatIconURL: URL(string: "https://vectorflags.s3-us-west-2.amazonaws.com/flags/us-square-01.png")!,
                 fiatCurrencyCode: "USD",
+                disabled: false,
                 useFiatCalculation: $useFiatCalculation
             )
             .frame(maxWidth: 227)
@@ -154,6 +167,7 @@ private struct PickerExample: View {
                 cryptoCurrencyCode: "USDT",
                 fiatIconURL: URL(string: "XXX://vectorflags.s3-us-west-2.amazonaws.com/flags/us-square-01.png")!,
                 fiatCurrencyCode: "USD",
+                disabled: false,
                 useFiatCalculation: $useFiatCalculation
             )
             .frame(maxWidth: 227)

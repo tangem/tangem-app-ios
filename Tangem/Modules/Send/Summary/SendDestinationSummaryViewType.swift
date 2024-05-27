@@ -7,16 +7,17 @@
 //
 
 import Foundation
+import UIKit
 
 enum SendDestinationSummaryViewType {
-    case address(address: String)
+    case address(address: String, corners: UIRectCorner)
     case additionalField(type: SendAdditionalFields, value: String)
 }
 
 extension SendDestinationSummaryViewType: Identifiable {
     var id: String {
         switch self {
-        case .address(let address):
+        case .address(let address, _):
             return address
         case .additionalField(_, let value):
             return value

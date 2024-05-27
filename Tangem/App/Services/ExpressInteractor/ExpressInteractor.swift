@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 import TangemExpress
 import BlockchainSdk
 
@@ -87,6 +88,10 @@ extension ExpressInteractor {
 
     func getDestination() -> WalletModel? {
         _swappingPair.value.destination.value
+    }
+
+    func getDestinationValue() -> LoadingValue<WalletModel> {
+        _swappingPair.value.destination
     }
 
     func getFeeOption() -> FeeOption {
@@ -355,7 +360,11 @@ private extension ExpressInteractor {
     }
 
     func hasPendingTransaction() -> Bool {
-        return getSender().hasPendingTransactions
+        if case .hasPendingTransaction = getSender().sendingRestrictions {
+            return true
+        }
+
+        return false
     }
 
     func map(permissionRequired: ExpressManagerState.PermissionRequired) async throws -> State {
@@ -413,6 +422,9 @@ private extension ExpressInteractor {
         do {
             let transactionValidator = getSender().transactionValidator
             try await transactionValidator.validate(amount: amount, fee: fee, destination: .generate)
+
+        } catch ValidationError.totalExceedsBalance, ValidationError.amountExceedsBalance {
+            return .restriction(.notEnoughBalanceForSwapping(requiredAmount: amount.value), quote: correctState.quote)
 
         } catch ValidationError.feeExceedsBalance {
             return .restriction(.notEnoughAmountForFee(correctState), quote: correctState.quote)
