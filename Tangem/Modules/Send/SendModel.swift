@@ -30,9 +30,10 @@ class SendModel {
     }
 
     var feeValid: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest(fee, _feeError)
-            .map {
-                $0 != nil && $1 == nil
+        fee
+            .map { fee in
+                guard let fee else { return false }
+                return !fee.amount.isZero
             }
             .eraseToAnyPublisher()
     }
@@ -70,7 +71,7 @@ class SendModel {
 
     private var transactionParameters: TransactionParams?
     private let _transactionCreationError = CurrentValueSubject<Error?, Never>(nil)
-    private let _withdrawalSuggestion = CurrentValueSubject<WithdrawalSuggestion?, Never>(nil)
+    private let _withdrawalNotification = CurrentValueSubject<WithdrawalNotification?, Never>(nil)
     private let transaction = CurrentValueSubject<BlockchainSdk.Transaction?, Never>(nil)
 
     // MARK: - Raw data
@@ -297,14 +298,14 @@ class SendModel {
             }
             .store(in: &bag)
 
-        if let withdrawalValidator = walletModel.withdrawalSuggestionProvider {
+        if let withdrawalValidator = walletModel.withdrawalNotificationProvider {
             transaction
                 .map { transaction in
                     guard let transaction else { return nil }
-                    return withdrawalValidator.withdrawalSuggestion(amount: transaction.amount, fee: transaction.fee.amount)
+                    return withdrawalValidator.withdrawalNotification(amount: transaction.amount, fee: transaction.fee.amount)
                 }
                 .sink { [weak self] in
-                    self?._withdrawalSuggestion.send($0)
+                    self?._withdrawalNotification.send($0)
                 }
                 .store(in: &bag)
         }
@@ -406,11 +407,9 @@ class SendModel {
 
         if let newAmount {
             do {
-                let amount: Amount
-                amount = newAmount
-                try walletModel.transactionValidator.validate(amount: amount)
+                try walletModel.transactionValidator.validate(amount: newAmount)
 
-                validatedAmount = amount
+                validatedAmount = newAmount
                 amountError = nil
             } catch let validationError {
                 validatedAmount = nil
@@ -721,8 +720,8 @@ extension SendModel: SendNotificationManagerInput {
         _transactionCreationError.eraseToAnyPublisher()
     }
 
-    var withdrawalSuggestion: AnyPublisher<WithdrawalSuggestion?, Never> {
-        _withdrawalSuggestion.eraseToAnyPublisher()
+    var withdrawalNotification: AnyPublisher<WithdrawalNotification?, Never> {
+        _withdrawalNotification.eraseToAnyPublisher()
     }
 }
 
