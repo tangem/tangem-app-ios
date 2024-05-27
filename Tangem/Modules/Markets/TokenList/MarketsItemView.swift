@@ -1,5 +1,5 @@
 //
-//  ManageTokensItemView.swift
+//  MarketsItemView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,8 +9,8 @@
 import Foundation
 import SwiftUI
 
-struct ManageTokensItemView: View {
-    @ObservedObject var viewModel: ManageTokensItemViewModel
+struct MarketsItemView: View {
+    @ObservedObject var viewModel: MarketsItemViewModel
 
     private let iconSize = CGSize(bothDimensions: 36)
 
@@ -76,7 +76,7 @@ struct ManageTokensItemView: View {
 struct CurrencyViewNew_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
-            ManageTokensItemView(viewModel: ManageTokensItemViewModel(
+            MarketsItemView(viewModel: MarketsItemViewModel(
                 coinModel: CoinModel(
                     id: "",
                     name: "Bitcoin",
@@ -89,7 +89,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 state: .loaded
             ))
 
-            ManageTokensItemView(viewModel: ManageTokensItemViewModel(
+            MarketsItemView(viewModel: MarketsItemViewModel(
                 coinModel: CoinModel(
                     id: "",
                     name: "Ethereum",
@@ -102,7 +102,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 state: .loaded
             ))
 
-            ManageTokensItemView(viewModel: ManageTokensItemViewModel(
+            MarketsItemView(viewModel: MarketsItemViewModel(
                 coinModel: CoinModel(
                     id: "",
                     name: "Solana",
@@ -115,7 +115,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 state: .loaded
             ))
 
-            ManageTokensItemView(viewModel: ManageTokensItemViewModel(
+            MarketsItemView(viewModel: MarketsItemViewModel(
                 coinModel: CoinModel(
                     id: "",
                     name: "Polygon",
@@ -128,7 +128,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 state: .loaded
             ))
 
-            ManageTokensItemView(viewModel: ManageTokensItemViewModel(
+            MarketsItemView(viewModel: MarketsItemViewModel(
                 coinModel: CoinModel(
                     id: "",
                     name: "Very long token name is very long",
@@ -141,7 +141,7 @@ struct CurrencyViewNew_Previews: PreviewProvider {
                 state: .loaded
             ))
 
-            ManageTokensItemView(viewModel: ManageTokensItemViewModel(
+            MarketsItemView(viewModel: MarketsItemViewModel(
                 coinModel: CoinModel(
                     id: "",
                     name: "Custom Token",
