@@ -1,5 +1,5 @@
 //
-//  LegacyCoinView.swift
+//  ManageTokensCoinView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,8 +10,8 @@ import Foundation
 import SwiftUI
 import Kingfisher
 
-struct LegacyCoinView: View {
-    @ObservedObject var model: LegacyCoinViewModel
+struct ManageTokensCoinView: View {
+    @ObservedObject var model: ManageTokensCoinViewModel
     var subtitle: String = Localization.currencySubtitleExpanded
 
     let iconWidth: Double = 46
@@ -61,7 +61,7 @@ struct LegacyCoinView: View {
                                             .background(Colors.Button.secondary)
                                             .cornerRadiusContinuous(10)
                                     } else {
-                                        LegacyCoinItemView(model: model.items[index], arrowWidth: iconWidth).icon
+                                        ManageTokensCoinItemView(model: model.items[index], arrowWidth: iconWidth).icon
                                     }
                                 }
                             }
@@ -80,7 +80,7 @@ struct LegacyCoinView: View {
 
             if isExpanded {
                 VStack(spacing: 0) {
-                    ForEach(model.items) { LegacyCoinItemView(model: $0, arrowWidth: iconWidth) }
+                    ForEach(model.items) { ManageTokensCoinItemView(model: $0, arrowWidth: iconWidth) }
                 }
             }
         }
@@ -101,7 +101,7 @@ struct CurrencyView_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             StatefulPreviewWrapper(false) {
-                LegacyCoinView(model: LegacyCoinViewModel(
+                ManageTokensCoinView(model: ManageTokensCoinViewModel(
                     imageURL: nil,
                     name: "Tether",
                     symbol: "USDT",
@@ -110,7 +110,7 @@ struct CurrencyView_Previews: PreviewProvider {
             }
 
             StatefulPreviewWrapper(false) {
-                LegacyCoinView(model: LegacyCoinViewModel(
+                ManageTokensCoinView(model: ManageTokensCoinViewModel(
                     imageURL: nil,
                     name: "Babananas United",
                     symbol: "BABASDT",
@@ -119,7 +119,7 @@ struct CurrencyView_Previews: PreviewProvider {
             }
 
             StatefulPreviewWrapper(false) {
-                LegacyCoinView(model: LegacyCoinViewModel(
+                ManageTokensCoinView(model: ManageTokensCoinViewModel(
                     imageURL: nil,
                     name: "Binance USD",
                     symbol: "BUS",
@@ -128,7 +128,7 @@ struct CurrencyView_Previews: PreviewProvider {
             }
 
             StatefulPreviewWrapper(false) {
-                LegacyCoinView(model: LegacyCoinViewModel(
+                ManageTokensCoinView(model: ManageTokensCoinViewModel(
                     imageURL: nil,
                     name: "Binance USD very-very-long-name",
                     symbol: "BUS",
@@ -141,8 +141,8 @@ struct CurrencyView_Previews: PreviewProvider {
         .padding()
     }
 
-    private static func itemsList(count: Int, isSelected: Binding<Bool>) -> [LegacyCoinItemViewModel] {
-        Array(repeating: LegacyCoinItemViewModel(
+    private static func itemsList(count: Int, isSelected: Binding<Bool>) -> [ManageTokensCoinItemViewModel] {
+        Array(repeating: ManageTokensCoinItemViewModel(
             tokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)),
             isReadonly: false,
             isSelected: isSelected,
