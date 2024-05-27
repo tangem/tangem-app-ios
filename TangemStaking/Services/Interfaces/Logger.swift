@@ -1,5 +1,5 @@
 //
-//  StakingInfo.swift
+//  Logger.swift
 //  TangemStaking
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,4 +8,7 @@
 
 import Foundation
 
-struct StakingInfo {}
+public protocol Logger {
+    func error(_ error: Error)
+    func debug<T>(_ message: @autoclosure () -> T)
+}
