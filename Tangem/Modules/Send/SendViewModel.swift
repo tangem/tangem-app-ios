@@ -614,13 +614,13 @@ final class SendViewModel: ObservableObject {
 
         if updateFee {
             self.updateFee()
-            keyboardVisibilityService.hideKeyboard(completion: openStepAfterDelay)
-            return
+            keyboardVisibilityService.hideKeyboard(completion: {})
+//            return
         }
 
         if keyboardVisibilityService.keyboardVisible, !step.opensKeyboardByDefault {
-            keyboardVisibilityService.hideKeyboard(completion: openStepAfterDelay)
-            return
+            keyboardVisibilityService.hideKeyboard(completion: {})
+//            return
         }
 
         if case .summary = step {
