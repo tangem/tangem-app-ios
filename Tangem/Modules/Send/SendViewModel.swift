@@ -284,12 +284,14 @@ final class SendViewModel: ObservableObject {
             let openingSummary = (nextStep == .summary)
             let stepAnimation: SendView.StepAnimation = openingSummary ? .moveAndFade : .slideForward
 
+            let checkCustomFee = shouldCheckCustomFee(currentStep: step)
             let updateFee = shouldUpdateFee(currentStep: step, nextStep: nextStep)
-            openStep(nextStep, stepAnimation: stepAnimation, updateFee: updateFee)
+            openStep(nextStep, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee, updateFee: updateFee)
         case .continue:
             let nextStep = SendStep.summary
+            let checkCustomFee = shouldCheckCustomFee(currentStep: step)
             let updateFee = shouldUpdateFee(currentStep: step, nextStep: nextStep)
-            openStep(nextStep, stepAnimation: .moveAndFade, updateFee: updateFee)
+            openStep(nextStep, stepAnimation: .moveAndFade, checkCustomFee: checkCustomFee, updateFee: updateFee)
         case .send:
             send()
         case .close:
@@ -583,6 +585,15 @@ final class SendViewModel: ObservableObject {
         feeUpdateSubscription = nil
     }
 
+    private func shouldCheckCustomFee(currentStep: SendStep) -> Bool {
+        switch currentStep {
+        case .fee:
+            return true
+        default:
+            return false
+        }
+    }
+
     private func shouldUpdateFee(currentStep: SendStep, nextStep: SendStep) -> Bool {
         if nextStep == .summary, currentStep.updateFeeOnLeave {
             return true
@@ -785,8 +796,10 @@ extension SendViewModel: NotificationTapDelegate {
                 .sink()
         case .openFeeCurrency:
             openNetworkCurrency()
-        case .reduceAmountBy(let amount, _), .leaveAmount(let amount, _):
-            reduceAmountBy(amount)
+        case .leaveAmount(let amount, _):
+            reduceAmountBy(amount, from: walletInfo.balanceValue)
+        case .reduceAmountBy(let amount, _):
+            reduceAmountBy(amount, from: sendModel.validatedAmountValue?.value)
         case .reduceAmountTo(let amount, _):
             reduceAmountTo(amount)
         case .generateAddresses,
@@ -800,10 +813,13 @@ extension SendViewModel: NotificationTapDelegate {
         }
     }
 
-    private func reduceAmountBy(_ amount: Decimal) {
-        guard let currentAmount = sendModel.validatedAmountValue?.value else { return }
+    private func reduceAmountBy(_ amount: Decimal, from source: Decimal?) {
+        guard let source else {
+            assertionFailure("WHY")
+            return
+        }
 
-        var newAmount = currentAmount - amount
+        var newAmount = source - amount
         if sendModel.isFeeIncluded, let feeValue = sendModel.feeValue?.amount.value {
             newAmount = newAmount - feeValue
         }
