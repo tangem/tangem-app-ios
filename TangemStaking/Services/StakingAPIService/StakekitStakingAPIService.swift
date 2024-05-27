@@ -8,24 +8,162 @@
 
 import Foundation
 import Moya
+import BlockchainSdk
+import TangemFoundation
 
-class StakekitStakingAPIService: StakingAPIService {
-    let provider: MoyaProvider<StakekitTarget>
-
-    init(provider: MoyaProvider<StakekitTarget>) {
-        self.provider = provider
-    }
-
-    func getStakingInfo(wallet: any StakingWallet) async throws -> StakingInfo {}
+public protocol StakingAPIProvider {
+    func enabledYields() async throws -> [YieldInfo]
+    func yieldInfo(integrationId: String) async throws -> YieldInfo
 }
 
-private extension StakekitStakingAPIService {}
+class CommonStakingAPIProvider: StakingAPIProvider {
+    let service: StakingAPIService
+    let mapper: StakekitMapper
+
+    init(service: StakingAPIService, mapper: StakekitMapper) {
+        self.service = service
+        self.mapper = mapper
+    }
+
+    func enabledYields() async throws -> [YieldInfo] {
+        let response = try await service.enabledYields()
+        let yieldInfos = try response.data.map(mapper.mapToYieldInfo(from:))
+        return yieldInfos
+    }
+
+    func yieldInfo(integrationId: String) async throws -> YieldInfo {
+        let response = try await service.getYield(request: .init(integrationId: integrationId))
+        let yieldInfo = try mapper.mapToYieldInfo(from: response)
+        return yieldInfo
+    }
+}
+
+struct StakekitMapper {
+    func mapToYieldInfo(from response: StakekitDTO.Yield.Info.Response) throws -> YieldInfo {
+        try YieldInfo(
+            contractAddress: response.token.address,
+            apy: response.apy,
+            rewardRate: response.rewardRate,
+            rewardType: mapToRewardType(from: response.rewardType),
+            unbonding: mapToPeriod(from: response.metadata.warmupPeriod),
+            minimumRequirement: response.args.enter.args.amount.minimum,
+            rewardClaimingType: mapToRewardClaimingType(from: response.metadata.rewardClaiming),
+            warmupPeriod: mapToPeriod(from: response.metadata.withdrawPeriod),
+            rewardScheduleType: mapToRewardScheduleType(from: response.metadata.rewardSchedule)
+        )
+    }
+
+    // MARK: - Inner types
+
+    func mapToRewardType(from rewardType: StakekitDTO.Yield.Info.Response.RewardType) -> RewardType {
+        switch rewardType {
+        case .apr: .apr
+        case .apy: .apy
+        case .variable: .variable
+        }
+    }
+
+    func mapToPeriod(from period: StakekitDTO.Yield.Info.Response.Metadata.Period) -> Period {
+        switch period {
+        case .days(let days): .days(days)
+        }
+    }
+
+    func mapToRewardClaimingType(from type: StakekitDTO.Yield.Info.Response.Metadata.RewardClaiming) -> RewardClaimingType {
+        switch type {
+        case .auto: .auto
+        case .manual: .manual
+        }
+    }
+
+    func mapToRewardScheduleType(from type: StakekitDTO.Yield.Info.Response.Metadata.RewardScheduleType) throws -> RewardScheduleType {
+        switch type {
+        case .block: .block
+        case .hour:
+            throw StakekitMapperError.notImplement
+        case .day:
+            throw StakekitMapperError.notImplement
+        case .week:
+            throw StakekitMapperError.notImplement
+        case .month:
+            throw StakekitMapperError.notImplement
+        case .era:
+            throw StakekitMapperError.notImplement
+        case .epoch:
+            throw StakekitMapperError.notImplement
+        }
+    }
+}
+
+enum StakekitMapperError: Error {
+    case notImplement
+    case noData(String)
+}
+
+protocol StakingAPIService {
+    func enabledYields() async throws -> StakekitDTO.Yield.Enabled.Response
+    func getYield(request: StakekitDTO.Yield.Info.Request) async throws -> StakekitDTO.Yield.Info.Response
+}
+
+class StakekitStakingAPIService: StakingAPIService {
+    private let provider: MoyaProvider<StakekitTarget>
+    private let credential: StakingAPICredential
+
+    private let decoder: JSONDecoder = .init()
+
+    init(provider: MoyaProvider<StakekitTarget>, credential: StakingAPICredential) {
+        self.provider = provider
+        self.credential = credential
+    }
+
+    func enabledYields() async throws -> StakekitDTO.Yield.Enabled.Response {
+        try await _request(target: .enabledYields)
+    }
+
+    func getYield(request: StakekitDTO.Yield.Info.Request) async throws -> StakekitDTO.Yield.Info.Response {
+        try await _request(target: .getYield(request))
+    }
+}
+
+private extension StakekitStakingAPIService {
+    func _request<T: Decodable>(target: StakekitTarget.Target) async throws -> T {
+        let request = StakekitTarget(apiKey: credential.apiKey, target: target)
+        var response: Moya.Response
+
+        response = try await provider.requestPublisher(request).async()
+
+        do {
+            response = try response.filterSuccessfulStatusAndRedirectCodes()
+        } catch {
+            if let expressError = tryMapError(target: request, response: response) {
+                throw expressError
+            }
+
+            throw error
+        }
+
+        return try decoder.decode(T.self, from: response.data)
+    }
+
+    func tryMapError(target: StakekitTarget, response: Moya.Response) -> Error? {
+        do {
+            let error = try JSONDecoder().decode(StakekitDTO.APIError.self, from: response.data)
+            return error
+        } catch {
+            return nil
+        }
+    }
+}
 
 struct StakekitTarget: Moya.TargetType {
+    let apiKey: String
     let target: Target
 
     enum Target {
-        case getAction(id: String)
+        // Yields
+        case enabledYields
+        case getYield(StakekitDTO.Yield.Info.Request)
+//        case getAction(id: String)
 //        case createAction()
     }
 
@@ -33,209 +171,30 @@ struct StakekitTarget: Moya.TargetType {
         URL(string: "https://api.stakek.it")!
     }
 
-    var path: String {}
+    var path: String {
+        switch target {
+        case .enabledYields:
+            return "yields/enabled"
+        case .getYield(let stakekitDTO):
+            return "yields/\(stakekitDTO.integrationId)"
+        }
+    }
 
-    var method: Moya.Method {}
+    var method: Moya.Method {
+        switch target {
+        case .getYield, .enabledYields:
+            return .get
+        }
+    }
 
-    var task: Moya.Task {}
+    var task: Moya.Task {
+        switch target {
+        case .getYield, .enabledYields:
+            return .requestPlain
+        }
+    }
 
     var headers: [String: String]? {
-        ["X-API-KEY": "ccf0a87a-3d6a-41d0-afa4-3dfc1a101335"]
-    }
-}
-
-// Polygon native
-// ethereum-matic-native-staking
-// 0x29010F8F91B980858EB298A0843264cfF21Fd9c9
-
-enum StakekitDTO {
-    // MARK: - Common
-
-    struct Token: Codable {
-        let network: String?
-        let name: String?
-        let decimals: Int?
-        let address: String?
-        let symbol: String?
-        let logoURI: String?
-    }
-
-    struct Validator: Decodable {
-        let address: String
-        let status: Status
-        let name: String?
-        let image: String?
-        let website: String?
-        let apr: Double?
-        let commission: Double?
-        let stakedBalance: String?
-        let votingPower: Double?
-        let preferred: Bool?
-
-        enum Status: String, Decodable {
-            case active
-            case jailed
-            case deactivating
-            case inactive
-        }
-    }
-
-    enum Actions {
-        enum Get {
-            struct Request: Encodable {
-                let actionId: String
-            }
-
-            struct Response: Decodable {}
-        }
-
-        enum Enter {
-            struct Request: Encodable {
-                let addresses: [Address]
-                let args: Args
-                let integrationId: String
-
-                struct Address: Encodable {
-                    let address: String
-                }
-
-                struct Args: Encodable {
-                    let inputToken: Token
-                    let amount: String
-                    let validatorAddress: String
-                }
-            }
-
-            struct Response: Decodable {}
-        }
-    }
-
-    enum Yield {
-        enum Get {
-            struct Request: Encodable {
-                let integrationId: String
-            }
-
-            struct Response: Decodable {
-                let id: String
-                let token: Token
-                let tokens: [Token]
-                let args: Actions
-                let status: Status
-                let apy: Decimal
-                let rewardRate: Decimal
-                let rewardType: RewardType
-                let metadata: Metadata
-                let validators: [Validator]
-                let isAvailable: Bool?
-
-                struct Actions: Decodable {
-                    let enter: Action<EnterActionArgs>
-                    let exit: Action<ExitActionArgs>
-
-                    struct Action<Args: Decodable>: Decodable {
-                        let addresses: ActionAddresses?
-                        let args: Args?
-
-                        struct ActionAddresses: Decodable {
-                            let address: Address?
-
-                            struct Address: Decodable {
-                                let required: Bool?
-                                let network: String?
-                            }
-                        }
-
-                        struct EnterActionArgs: Decodable {
-                            let amount: Amount?
-                            let validatorAddress: ValidatorAddress?
-
-                            struct Amount: Decodable {
-                                let required: Bool?
-                                let minimum: Decimal?
-                            }
-
-                            struct ValidatorAddress: Decodable {
-                                let required: Bool?
-                            }
-                        }
-
-                        struct ExitActionArgs: Decodable {
-                            let amount: Amount?
-                            let validatorAddress: ValidatorAddress?
-
-                            struct Amount: Decodable {
-                                let required: Bool?
-                                let minimum: Decimal?
-                            }
-
-                            struct ValidatorAddress: Decodable {
-                                let required: Bool?
-                            }
-                        }
-                    }
-                }
-
-                struct Status: Decodable {
-                    let enter: Bool?
-                    let exit: Bool?
-                }
-
-                enum RewardType: String, Decodable {
-                    case apr
-                    case apy
-                    case variable
-                }
-
-                struct Metadata: Decodable {
-                    let name: String
-                    let logoURI: String?
-                    let description: String?
-                    let documentation: String?
-                    let token: Token
-                    let tokens: [Token]
-                    let type: MetadataType
-                    let rewardSchedule: RewardScheduleType
-                    let cooldownPeriod: Period?
-                    let warmupPeriod: Period
-                    let withdrawPeriod: Period?
-                    let rewardClaiming: RewardClaiming
-                    let defaultValidator: String?
-                    let supportsMultipleValidators: Bool?
-                    let supportsLedgerWalletApi: Bool?
-                    let revshare: Enabled
-                    let fee: Enabled
-
-                    enum MetadataType: String, Decodable {
-                        case staking
-                        case liquidStaking = "liquid-staking"
-                        case lending, restaking, vault
-                    }
-
-                    enum RewardScheduleType: String, Decodable {
-                        case block
-                        case hour
-                        case day
-                        case week
-                        case month
-                        case era
-                        case epoch
-                    }
-
-                    enum Period: Decodable {
-                        case days(Int)
-                    }
-
-                    enum RewardClaiming: String, Decodable {
-                        case auto
-                        case manual
-                    }
-
-                    struct Enabled: Decodable {
-                        let enabled: Bool
-                    }
-                }
-            }
-        }
+        ["X-API-KEY": apiKey]
     }
 }
