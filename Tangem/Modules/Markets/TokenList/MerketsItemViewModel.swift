@@ -1,5 +1,5 @@
 //
-//  ManageTokensItemViewModel.swift
+//  MarketsItemViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-class ManageTokensItemViewModel: Identifiable, ObservableObject {
+class MarketsItemViewModel: Identifiable, ObservableObject {
     // MARK: - Injected Properties
 
     @Injected(\.quotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
@@ -33,7 +33,7 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
     private var bag = Set<AnyCancellable>()
 
     private var percentFormatter = PercentFormatter()
-    private var balanceFormatter = BalanceFormatter()
+    private let priceFormatter = CommonTokenPriceFormatter()
 
     // MARK: - Helpers
 
@@ -88,7 +88,7 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
         }
 
         priceChangeState = getPriceChangeState(by: quote)
-        priceValue = balanceFormatter.formatFiatBalance(quote.price)
+        priceValue = priceFormatter.formatFiatBalance(quote.price)
         priceHistory = quote.prices24h?.map { $0 }
     }
 
@@ -100,7 +100,7 @@ class ManageTokensItemViewModel: Identifiable, ObservableObject {
     }
 }
 
-extension ManageTokensItemViewModel {
+extension MarketsItemViewModel {
     enum State {
         case loading
         case loaded
