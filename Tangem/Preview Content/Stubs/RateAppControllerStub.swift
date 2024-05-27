@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 struct RateAppControllerStub: RateAppInteractionController, RateAppNotificationController {
-    var showAppRateNotificationPublisher: AnyPublisher<Bool, Never> { fatalError() }
+    var showAppRateNotificationPublisher: AnyPublisher<Bool, Never> { .just(output: true) }
 
     func bind(
         isPageSelectedPublisher: some Publisher<Bool, Never>,
