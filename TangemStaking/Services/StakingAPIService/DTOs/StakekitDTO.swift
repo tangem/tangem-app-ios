@@ -8,10 +8,6 @@
 
 import Foundation
 
-// Polygon native
-// ethereum-matic-native-staking
-// 0x29010F8F91B980858EB298A0843264cfF21Fd9c9
-
 enum StakekitDTO {
     // MARK: - Common
 
@@ -21,7 +17,8 @@ enum StakekitDTO {
     }
 
     struct Token: Codable {
-        let network: String?
+        let coinGeckoId: String?
+        let network: String
         let name: String?
         let decimals: Int?
         let address: String?
@@ -53,29 +50,7 @@ enum StakekitDTO {
         let address: String
     }
 
-    enum Actions {
-        enum Get {
-            struct Request: Encodable {
-                let actionId: String
-            }
-
-            struct Response: Decodable {}
-        }
-
-        enum Enter {
-            struct Request: Encodable {
-                let addresses: [Address]
-                let args: Args
-                let integrationId: String
-
-                struct Args: Encodable {
-                    let inputToken: Token
-                    let amount: String
-                    let validatorAddress: String
-                }
-            }
-
-            struct Response: Decodable {}
-        }
+    struct Required: Decodable {
+        let required: Bool
     }
 }
