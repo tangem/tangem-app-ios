@@ -87,25 +87,9 @@ final class CommonRateAppController {
     }
 }
 
-// MARK: - RateAppController protocol conformance
+// MARK: - RateAppInteractionController protocol conformance
 
-extension CommonRateAppController: RateAppController {
-    var showAppRateNotificationPublisher: AnyPublisher<Bool, Never> {
-        return rateAppService
-            .rateAppAction
-            .map { action in
-                switch action {
-                case .requestAppRate:
-                    return true
-                case .openAppStoreReview,
-                     .openFeedbackMailWithEmailType,
-                     .dismissAppRate:
-                    return false
-                }
-            }
-            .eraseToAnyPublisher()
-    }
-
+extension CommonRateAppController: RateAppInteractionController {
     func bind(
         isPageSelectedPublisher: some Publisher<Bool, Never>,
         notificationsPublisher1: some Publisher<[NotificationViewInput], Never>,
@@ -135,16 +119,36 @@ extension CommonRateAppController: RateAppController {
         bind()
     }
 
-    func dismissAppRate() {
-        rateAppService.respondToRateAppDialog(with: .dismissed)
-    }
-
     func openFeedbackMail() {
         rateAppService.respondToRateAppDialog(with: .negative)
     }
 
     func openAppStoreReview() {
         rateAppService.respondToRateAppDialog(with: .positive)
+    }
+}
+
+// MARK: - RateAppNotificationController protocol conformance
+
+extension CommonRateAppController: RateAppNotificationController {
+    var showAppRateNotificationPublisher: AnyPublisher<Bool, Never> {
+        return rateAppService
+            .rateAppAction
+            .map { action in
+                switch action {
+                case .requestAppRate:
+                    return true
+                case .openAppStoreReview,
+                     .openFeedbackMailWithEmailType,
+                     .dismissAppRate:
+                    return false
+                }
+            }
+            .eraseToAnyPublisher()
+    }
+
+    func dismissAppRate() {
+        rateAppService.respondToRateAppDialog(with: .dismissed)
     }
 }
 
