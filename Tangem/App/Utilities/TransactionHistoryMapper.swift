@@ -65,6 +65,7 @@ struct TransactionHistoryMapper {
 
         return TransactionViewModel(
             hash: record.hash,
+            index: record.index,
             interactionAddress: interactionAddress(from: record),
             timeFormatted: timeFormatted,
             amount: transferAmount(from: record),
@@ -75,30 +76,11 @@ struct TransactionHistoryMapper {
     }
 
     func mapSuggestedRecord(_ record: TransactionRecord) -> SendSuggestedDestinationTransactionRecord? {
-        guard record.type == .transfer else {
+        guard
+            transactionType(from: record) == .transfer,
+            case .user(let address) = interactionAddress(from: record)
+        else {
             return nil
-        }
-
-        let address: String
-        if record.isOutgoing {
-            switch record.destination {
-            case .single(let destination):
-                switch destination.address {
-                case .user(let string):
-                    address = string
-                case .contract:
-                    return nil
-                }
-            case .multiple:
-                return nil
-            }
-        } else {
-            switch record.source {
-            case .single(let source):
-                address = source.address
-            case .multiple:
-                return nil
-            }
         }
 
         let amountFormatted = transferAmount(from: record)
@@ -214,21 +196,26 @@ private extension TransactionHistoryMapper {
         switch record.type {
         case .transfer:
             return .transfer
-        case .contractMethod(let id):
+        case .contractMethodIdentifier(let id):
             let name = smartContractMethodMapper.getName(for: id)
+            return transactionType(fromContractMethodName: name)
+        case .contractMethodName(let name):
+            return transactionType(fromContractMethodName: name)
+        }
+    }
 
-            switch name {
-            case "transfer":
-                return .transfer
-            case "approve":
-                return .approve
-            case "swap":
-                return .swap
-            case .none:
-                return .unknownOperation
-            case .some(let name):
-                return .operation(name: name.capitalizingFirstLetter())
-            }
+    func transactionType(fromContractMethodName contractMethodName: String?) -> TransactionViewModel.TransactionType {
+        switch contractMethodName?.nilIfEmpty {
+        case "transfer":
+            return .transfer
+        case "approve":
+            return .approve
+        case "swap":
+            return .swap
+        case .none:
+            return .unknownOperation
+        case .some(let name):
+            return .operation(name: name.capitalizingFirstLetter())
         }
     }
 
