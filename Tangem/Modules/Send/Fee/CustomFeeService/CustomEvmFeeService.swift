@@ -122,38 +122,29 @@ extension CustomEvmFeeService: CustomFeeService {
     }
 
     func inputFieldModels() -> [SendCustomFeeInputFieldModel] {
-        let gweiFractionDigits = 9
-        let maxFeePerGasGweiPublisher = maxFeePerGas
-            .map { $0?.decimal?.shiftOrder(magnitude: -gweiFractionDigits) }
-            .eraseToAnyPublisher()
-
         let maxFeeModel = SendCustomFeeInputFieldModel(
             title: Localization.sendCustomEvmMaxFee,
-            amountPublisher: maxFeePerGasGweiPublisher,
-            fieldSuffix: "GWEI",
-            fractionDigits: gweiFractionDigits,
+            amountPublisher: maxFeePerGas.shiftOrder(-Constants.gweiDigits),
+            fieldSuffix: Constants.gweiSuffix,
+            fractionDigits: Constants.gweiDigits,
             amountAlternativePublisher: .just(output: nil),
             footer: Localization.sendCustomEvmMaxFeeFooter
         ) { [weak self] gweiValue in
-            let weiValue = gweiValue?.shiftOrder(magnitude: gweiFractionDigits)
+            let weiValue = gweiValue?.shiftOrder(magnitude: Constants.gweiDigits)
             self?.didChangeCustomFeeMaxFee(weiValue?.bigUIntValue)
         } onFocusChanged: { [weak self] focused in
             self?.onMaxFeePerGasChanged(focused)
         }
 
-        let priorityFeeGweiPublisher = priorityFee
-            .map { $0?.decimal?.shiftOrder(magnitude: -gweiFractionDigits) }
-            .eraseToAnyPublisher()
-
         let priorityFeeModel = SendCustomFeeInputFieldModel(
             title: Localization.sendCustomEvmPriorityFee,
-            amountPublisher: priorityFeeGweiPublisher,
-            fieldSuffix: "GWEI",
-            fractionDigits: gweiFractionDigits,
+            amountPublisher: priorityFee.shiftOrder(-Constants.gweiDigits),
+            fieldSuffix: Constants.gweiSuffix,
+            fractionDigits: Constants.gweiDigits,
             amountAlternativePublisher: .just(output: nil),
             footer: Localization.sendCustomEvmPriorityFeeFooter
         ) { [weak self] gweiValue in
-            let weiValue = gweiValue?.shiftOrder(magnitude: gweiFractionDigits)
+            let weiValue = gweiValue?.shiftOrder(magnitude: Constants.gweiDigits)
             self?.didChangeCustomFeePriorityFee(weiValue?.bigUIntValue)
         } onFocusChanged: { [weak self] focused in
             self?.onProrityFeeChanged(focused)
@@ -230,6 +221,19 @@ extension CustomEvmFeeService: CustomFeeService {
 }
 
 // MARK: - private extensions
+
+private extension CustomEvmFeeService {
+    enum Constants {
+        static let gweiDigits: Int = 9
+        static let gweiSuffix: String = "GWEI"
+    }
+}
+
+private extension CurrentValueSubject where Output == BigUInt?, Failure == Never {
+    func shiftOrder(_ digits: Int) -> AnyPublisher<Decimal?, Never> {
+        map { $0?.decimal?.shiftOrder(magnitude: digits) }.eraseToAnyPublisher()
+    }
+}
 
 private extension Decimal {
     var bigUIntValue: BigUInt? {
