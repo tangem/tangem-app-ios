@@ -61,6 +61,16 @@ final class RateAppService {
     }
 
     func requestRateAppIfAvailable(with request: RateAppRequest) {
+        var shouldRequestRateApp = false
+
+        defer {
+            if shouldRequestRateApp {
+                requestRateApp()
+            } else {
+                dismissAppRate()
+            }
+        }
+
         if userRespondedToLastRequestedReview {
             return
         }
@@ -99,7 +109,7 @@ final class RateAppService {
             return
         }
 
-        requestRateApp()
+        shouldRequestRateApp = true
     }
 
     func respondToRateAppDialog(with response: RateAppResponse) {
@@ -137,6 +147,10 @@ final class RateAppService {
         userDismissedLastRequestedReviewDate = nil
         userDismissedLastRequestedReviewLaunchCount = nil
         rateAppActionSubject.send(.requestAppRate)
+    }
+
+    private func dismissAppRate() {
+        rateAppActionSubject.send(.dismissAppRate)
     }
 
     private func migrateFromLegacyRateAppIfNeeded() {
