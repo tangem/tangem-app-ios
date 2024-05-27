@@ -75,8 +75,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .goToProvider,
              .reduceAmountBy,
              .reduceAmountTo,
-             .addHederaTokenAssociation,
              .leaveAmount,
+             .addHederaTokenAssociation,
              .bookNow,
              .openFeedbackMail,
              .openAppStoreReview:
