@@ -18,7 +18,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     // MARK: - Dependencies
 
     private let userWalletNotificationManager: NotificationManager
-    private let rateAppController: RateAppController
+    private let rateAppController: RateAppInteractionController
 
     private let isPageSelectedSubject = PassthroughSubject<Bool, Never>()
 
@@ -33,7 +33,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         exchangeUtility: ExchangeCryptoUtility,
         userWalletNotificationManager: NotificationManager,
         tokenNotificationManager: NotificationManager,
-        rateAppController: RateAppController,
+        rateAppController: RateAppInteractionController,
         tokenRouter: SingleTokenRoutable,
         delegate: SingleWalletMainContentDelegate?
     ) {
