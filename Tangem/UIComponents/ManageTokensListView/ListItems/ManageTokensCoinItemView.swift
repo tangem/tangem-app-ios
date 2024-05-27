@@ -1,5 +1,5 @@
 //
-//  LegacyCoinItemView.swift
+//  ManageTokensCoinItemView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,8 +10,8 @@ import Foundation
 import SwiftUI
 import BlockchainSdk
 
-struct LegacyCoinItemView: View {
-    @ObservedObject var model: LegacyCoinItemViewModel
+struct ManageTokensCoinItemView: View {
+    @ObservedObject var model: ManageTokensCoinItemViewModel
 
     let arrowWidth: Double
 
@@ -71,8 +71,8 @@ struct LegacyCoinItemView: View {
 struct CurrencyItemView_Previews: PreviewProvider {
     static var previews: some View {
         VStack(spacing: 0) {
-            LegacyCoinItemView(
-                model: LegacyCoinItemViewModel(
+            ManageTokensCoinItemView(
+                model: ManageTokensCoinItemViewModel(
                     tokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)),
                     isReadonly: false,
                     isSelected: .constant(false)
@@ -80,8 +80,8 @@ struct CurrencyItemView_Previews: PreviewProvider {
                 arrowWidth: 46
             )
 
-            LegacyCoinItemView(
-                model: LegacyCoinItemViewModel(
+            ManageTokensCoinItemView(
+                model: ManageTokensCoinItemViewModel(
                     tokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)),
                     isReadonly: false,
                     isSelected: .constant(true),
@@ -91,8 +91,8 @@ struct CurrencyItemView_Previews: PreviewProvider {
             )
 
             StatefulPreviewWrapper(false) {
-                LegacyCoinItemView(
-                    model: LegacyCoinItemViewModel(
+                ManageTokensCoinItemView(
+                    model: ManageTokensCoinItemViewModel(
                         tokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)),
                         isReadonly: false,
                         isSelected: $0
