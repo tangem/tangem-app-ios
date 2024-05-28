@@ -13,6 +13,7 @@ struct SingleCardOnboardingStepsBuilder {
     private let cardId: String
     private let hasWallets: Bool
     private let touId: String
+    private let isMultiCurrency: Bool
 
     private var userWalletSavingSteps: [SingleCardOnboardingStep] {
         guard BiometricsUtil.isAvailable,
@@ -24,10 +25,11 @@ struct SingleCardOnboardingStepsBuilder {
         return [.saveUserWallet]
     }
 
-    init(cardId: String, hasWallets: Bool, touId: String) {
+    init(cardId: String, hasWallets: Bool, touId: String, isMultiCurrency: Bool) {
         self.cardId = cardId
         self.hasWallets = hasWallets
         self.touId = touId
+        self.isMultiCurrency = isMultiCurrency
     }
 }
 
@@ -39,14 +41,15 @@ extension SingleCardOnboardingStepsBuilder: OnboardingStepsBuilder {
             steps.append(.disclaimer)
         }
 
+        let addTokensSteps: [SingleCardOnboardingStep] = isMultiCurrency ? [.addTokens] : []
         if hasWallets {
-            if !AppSettings.shared.cardsStartedActivation.contains(cardId) {
-                steps.append(contentsOf: userWalletSavingSteps)
+            if AppSettings.shared.cardsStartedActivation.contains(cardId) {
+                steps.append(contentsOf: userWalletSavingSteps + addTokensSteps + [.success])
             } else {
-                steps.append(contentsOf: userWalletSavingSteps + [.success])
+                steps.append(contentsOf: userWalletSavingSteps)
             }
         } else {
-            steps.append(contentsOf: [.createWallet] + userWalletSavingSteps + [.success])
+            steps.append(contentsOf: [.createWallet] + userWalletSavingSteps + addTokensSteps + [.success])
         }
 
         return .singleWallet(steps)
