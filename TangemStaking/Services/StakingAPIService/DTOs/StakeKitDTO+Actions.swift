@@ -1,5 +1,5 @@
 //
-//  StakekitDTO+Actions.swift
+//  StakeKitDTO+Actions.swift
 //  TangemStaking
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension StakekitDTO {
+extension StakeKitDTO {
     // [REDACTED_TODO_COMMENT]
     enum Actions {
         enum Get {
