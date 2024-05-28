@@ -13,7 +13,7 @@ class CommonStakingRepository {
     private let provider: StakingAPIProvider
     private let logger: Logger
 
-    private var updatingTaks: Task<Void, Error>?
+    private var updatingTask: Task<Void, Never>?
     private var availableYields: CurrentValueSubject<[YieldInfo]?, Never> = .init(nil)
 
     init(provider: StakingAPIProvider, logger: Logger) {
@@ -36,9 +36,13 @@ extension CommonStakingRepository: StakingRepository {
             return
         }
 
-        updatingTaks?.cancel()
-        updatingTaks = Task { [weak self] in
-            self?.availableYields.value = try await self?.provider.enabledYields()
+        updatingTask?.cancel()
+        updatingTask = Task { [weak self] in
+            do {
+                self?.availableYields.value = try await self?.provider.enabledYields()
+            } catch {
+                self?.logger.error(error)
+            }
         }
     }
 
