@@ -1,5 +1,5 @@
 //
-//  StakekitMapper.swift
+//  StakeKitMapper.swift
 //  TangemStaking
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,10 +8,10 @@
 
 import Foundation
 
-struct StakekitMapper {
-    func mapToYieldInfo(from response: StakekitDTO.Yield.Info.Response) throws -> YieldInfo {
+struct StakeKitMapper {
+    func mapToYieldInfo(from response: StakeKitDTO.Yield.Info.Response) throws -> YieldInfo {
         guard let enterAction = response.args.enter else {
-            throw StakekitMapperError.noData("EnterAction not found")
+            throw StakeKitMapperError.noData("EnterAction not found")
         }
 
         return try YieldInfo(
@@ -29,11 +29,11 @@ struct StakekitMapper {
 
     // MARK: - Inner types
 
-    func mapToStakingTokenItem(from token: StakekitDTO.Token) -> StakingTokenItem {
+    func mapToStakingTokenItem(from token: StakeKitDTO.Token) -> StakingTokenItem {
         StakingTokenItem(network: token.network, contractAdress: token.address)
     }
 
-    func mapToRewardType(from rewardType: StakekitDTO.Yield.Info.Response.RewardType) -> RewardType {
+    func mapToRewardType(from rewardType: StakeKitDTO.Yield.Info.Response.RewardType) -> RewardType {
         switch rewardType {
         case .apr: .apr
         case .apy: .apy
@@ -41,18 +41,18 @@ struct StakekitMapper {
         }
     }
 
-    func mapToPeriod(from period: StakekitDTO.Yield.Info.Response.Metadata.Period) -> Period {
+    func mapToPeriod(from period: StakeKitDTO.Yield.Info.Response.Metadata.Period) -> Period {
         .days(period.days)
     }
 
-    func mapToRewardClaimingType(from type: StakekitDTO.Yield.Info.Response.Metadata.RewardClaiming) -> RewardClaimingType {
+    func mapToRewardClaimingType(from type: StakeKitDTO.Yield.Info.Response.Metadata.RewardClaiming) -> RewardClaimingType {
         switch type {
         case .auto: .auto
         case .manual: .manual
         }
     }
 
-    func mapToRewardScheduleType(from type: StakekitDTO.Yield.Info.Response.Metadata.RewardScheduleType) throws -> RewardScheduleType {
+    func mapToRewardScheduleType(from type: StakeKitDTO.Yield.Info.Response.Metadata.RewardScheduleType) throws -> RewardScheduleType {
         switch type {
         case .block: .block
         case .hour: .hour
@@ -65,7 +65,7 @@ struct StakekitMapper {
     }
 }
 
-enum StakekitMapperError: Error {
+enum StakeKitMapperError: Error {
     case notImplement
     case noData(String)
 }
