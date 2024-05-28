@@ -7207,7 +7207,6 @@
 		EF407E362C04B08F00366733 /* Interfaces */ = {
 			isa = PBXGroup;
 			children = (
-				EF8DBCD72C0607CC009072CF /* StakingRepository.swift */,
 				EFBC5C6E2C00A74100B662E0 /* StakingWallet.swift */,
 				EF407E372C04B09A00366733 /* Logger.swift */,
 			);
@@ -7795,6 +7794,7 @@
 		EF8DBCED2C061D38009072CF /* StakingRepository */ = {
 			isa = PBXGroup;
 			children = (
+				EF8DBCD72C0607CC009072CF /* StakingRepository.swift */,
 				EF8DBCEE2C061D3F009072CF /* CommonStakingRepository.swift */,
 			);
 			path = StakingRepository;
