@@ -39,6 +39,7 @@ final class StakingDetailsViewModel: ObservableObject {
     }
 
     func userDidTapBanner() {}
+    func userDidTapActionButton() {}
 }
 
 private extension StakingDetailsViewModel {
