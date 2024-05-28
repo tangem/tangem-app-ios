@@ -179,8 +179,8 @@
 		65C9FCAE28644F9D00FDE63E /* DetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCAD28644F9D00FDE63E /* DetailsView.swift */; };
 		65D87499287DA0F6009D0448 /* BottomSheetSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D87498287DA0F6009D0448 /* BottomSheetSettings.swift */; };
 		735DE6BB9FDAFE5A5BCFE5AF /* Pods_TangemStaking.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75994535B8EF936733CA7211 /* Pods_TangemStaking.framework */; };
-		82B1243A9421C5C6FE534B5A /* Pods_TangemStaking_TangemStakingTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E033712449BB4A756E39D25A /* Pods_TangemStaking_TangemStakingTests.framework */; };
 		86D9B9D1A68FFFCAAEDE1210 /* Pods_TangemExpress.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 50B5EC6CCC413553F02DA532 /* Pods_TangemExpress.framework */; };
+		A8655C179DB2CC46C5B1BB15 /* Pods_TangemStakingTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA3C72207CF7A55037336813 /* Pods_TangemStakingTests.framework */; };
 		AB5DE0569C12F3BDA9530564 /* Pods_TangemTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 740F3E19014FB5F75D949862 /* Pods_TangemTests.framework */; };
 		ACD2000CB9A68BB12445D2C4 /* Pods_TangemVisa_TangemVisaTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C4FB2FCF9A12AD916B58511 /* Pods_TangemVisa_TangemVisaTests.framework */; };
 		B00307042AF0E1BA00C13BCA /* Analytics+WalletConnectDebugEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00307032AF0E1BA00C13BCA /* Analytics+WalletConnectDebugEvent.swift */; };
@@ -1596,6 +1596,7 @@
 		04AA141D96DF6EEC6163D9B4 /* Pods-Tangem.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.release(production).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.release(production).xcconfig"; sourceTree = "<group>"; };
 		071053424D6ADD2932A4E994 /* Pods-Tangem.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.debug(production).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.debug(production).xcconfig"; sourceTree = "<group>"; };
 		0A1992A52B5FBDF800344312 /* CurrencyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrencyTests.swift; sourceTree = "<group>"; };
+		0A35044D2E5DF9354751E2DE /* Pods-TangemStakingTests.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemStakingTests.release(alpha).xcconfig"; path = "Target Support Files/Pods-TangemStakingTests/Pods-TangemStakingTests.release(alpha).xcconfig"; sourceTree = "<group>"; };
 		0A81B3722BB2D24A0008F21C /* BlockchainURLSchemesParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainURLSchemesParser.swift; sourceTree = "<group>"; };
 		0BE949936543D22F51E09DBD /* Pods-Tangem-TangemUITests.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release(alpha).xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release(alpha).xcconfig"; sourceTree = "<group>"; };
 		136B5829321AB7962F0F8960 /* Pods-TangemTests.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.release(beta).xcconfig"; sourceTree = "<group>"; };
@@ -1605,6 +1606,7 @@
 		1A1E0F0323988A048B922E78 /* Pods_TangemFoundation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemFoundation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2436D00F85D3DB2F72BDCCD3 /* Pods-TangemStaking.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemStaking.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemStaking/Pods-TangemStaking.release(beta).xcconfig"; sourceTree = "<group>"; };
 		25BF1D8D39E12813480021D4 /* Pods-TangemVisa.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemVisa.release(production).xcconfig"; path = "Target Support Files/Pods-TangemVisa/Pods-TangemVisa.release(production).xcconfig"; sourceTree = "<group>"; };
+		29888E486B6BAA6F8BA40042 /* Pods-TangemStakingTests.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemStakingTests.debug(beta).xcconfig"; path = "Target Support Files/Pods-TangemStakingTests/Pods-TangemStakingTests.debug(beta).xcconfig"; sourceTree = "<group>"; };
 		2D0E4F522A8D114E00001D8E /* GenericWalletManagerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericWalletManagerFactory.swift; sourceTree = "<group>"; };
 		2D1146A42ADD0EDC00DEE827 /* ManageTokensNetworkSelectorItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensNetworkSelectorItemView.swift; sourceTree = "<group>"; };
 		2D1146A52ADD0EDC00DEE827 /* ManageTokensNetworkSelectorItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensNetworkSelectorItemViewModel.swift; sourceTree = "<group>"; };
@@ -1653,6 +1655,7 @@
 		34299E1AA8B77C9FD9FE515A /* Pods-TangemFoundation.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemFoundation.release(production).xcconfig"; path = "Target Support Files/Pods-TangemFoundation/Pods-TangemFoundation.release(production).xcconfig"; sourceTree = "<group>"; };
 		34AA4F246DE3AC2C1D5332A5 /* Pods-TangemVisa-TangemVisaTests.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemVisa-TangemVisaTests.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemVisa-TangemVisaTests/Pods-TangemVisa-TangemVisaTests.release(beta).xcconfig"; sourceTree = "<group>"; };
 		3657682202A687707B9EA3DB /* Pods-Tangem-TangemUITests.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.debug(production).xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.debug(production).xcconfig"; sourceTree = "<group>"; };
+		38E1176CFD83BDC039B9C54F /* Pods-TangemStakingTests.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemStakingTests.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemStakingTests/Pods-TangemStakingTests.debug(production).xcconfig"; sourceTree = "<group>"; };
 		390C5DEB132D752D96BEFC4E /* Pods-TangemExpress.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExpress.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemExpress/Pods-TangemExpress.release(beta).xcconfig"; sourceTree = "<group>"; };
 		3C577F33B73BA1A57F60F06C /* Pods-TangemFoundation.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemFoundation.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemFoundation/Pods-TangemFoundation.release(beta).xcconfig"; sourceTree = "<group>"; };
 		3D77DAD4403B73C4F822951A /* Pods-TangemVisa.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemVisa.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemVisa/Pods-TangemVisa.release(beta).xcconfig"; sourceTree = "<group>"; };
@@ -1829,6 +1832,8 @@
 		A288F1BFECB803354ED21B38 /* Pods-TangemStaking-TangemStakingTests.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemStaking-TangemStakingTests.debug(alpha).xcconfig"; path = "Target Support Files/Pods-TangemStaking-TangemStakingTests/Pods-TangemStaking-TangemStakingTests.debug(alpha).xcconfig"; sourceTree = "<group>"; };
 		A5FA572E69DF6998CA213DF6 /* Pods_TangemVisa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemVisa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA73C4885132BD64B6BF8EDF /* Pods-Tangem-TangemUITests.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release(beta).xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release(beta).xcconfig"; sourceTree = "<group>"; };
+		ADF4666533574F2E62BE9B8A /* Pods-TangemStakingTests.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemStakingTests.release(production).xcconfig"; path = "Target Support Files/Pods-TangemStakingTests/Pods-TangemStakingTests.release(production).xcconfig"; sourceTree = "<group>"; };
+		AE50F7AC921A99B57AB3D215 /* Pods-TangemStakingTests.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemStakingTests.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemStakingTests/Pods-TangemStakingTests.release(beta).xcconfig"; sourceTree = "<group>"; };
 		AF2D7AC7C61A79B33AF6B61E /* Pods-TangemExpressTests.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExpressTests.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemExpressTests/Pods-TangemExpressTests.debug(production).xcconfig"; sourceTree = "<group>"; };
 		B00307032AF0E1BA00C13BCA /* Analytics+WalletConnectDebugEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+WalletConnectDebugEvent.swift"; sourceTree = "<group>"; };
 		B00371BD2A8A5E5900D77A4B /* FakeUserTokensManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeUserTokensManager.swift; sourceTree = "<group>"; };
@@ -2390,6 +2395,7 @@
 		B6FF1EFD2A57E59100B208E4 /* Subject+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Subject+.swift"; sourceTree = "<group>"; };
 		BA1429E6AA03A993E9096405 /* Pods-Tangem.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.release(beta).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.release(beta).xcconfig"; sourceTree = "<group>"; };
 		BA2AC80DA5268ACDCD5323B8 /* Pods-TangemFoundation.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemFoundation.debug(beta).xcconfig"; path = "Target Support Files/Pods-TangemFoundation/Pods-TangemFoundation.debug(beta).xcconfig"; sourceTree = "<group>"; };
+		BA3C72207CF7A55037336813 /* Pods_TangemStakingTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemStakingTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BAABAFC27DBD6457D16C7901 /* Pods-TangemVisa.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemVisa.debug(alpha).xcconfig"; path = "Target Support Files/Pods-TangemVisa/Pods-TangemVisa.debug(alpha).xcconfig"; sourceTree = "<group>"; };
 		C0F0B2863FC391152BAA6B4D /* Pods-TangemStaking-TangemStakingTests.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemStaking-TangemStakingTests.release(alpha).xcconfig"; path = "Target Support Files/Pods-TangemStaking-TangemStakingTests/Pods-TangemStaking-TangemStakingTests.release(alpha).xcconfig"; sourceTree = "<group>"; };
 		C907515EDBF8849C1725C692 /* Pods-TangemStaking-TangemStakingTests.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemStaking-TangemStakingTests.debug(beta).xcconfig"; path = "Target Support Files/Pods-TangemStaking-TangemStakingTests/Pods-TangemStaking-TangemStakingTests.debug(beta).xcconfig"; sourceTree = "<group>"; };
@@ -2397,6 +2403,7 @@
 		D036D895D505229822A53504 /* Pods-TangemTests.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.release(production).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.release(production).xcconfig"; sourceTree = "<group>"; };
 		D09565E11379EAEF60B2C96F /* Pods-TangemFoundationTests.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemFoundationTests.release(alpha).xcconfig"; path = "Target Support Files/Pods-TangemFoundationTests/Pods-TangemFoundationTests.release(alpha).xcconfig"; sourceTree = "<group>"; };
 		D17DFA6564FBD41BCEBC9986 /* Pods-TangemVisa-TangemVisaTests.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemVisa-TangemVisaTests.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemVisa-TangemVisaTests/Pods-TangemVisa-TangemVisaTests.debug(production).xcconfig"; sourceTree = "<group>"; };
+		D223B0C3501A1B50EDE03409 /* Pods-TangemStakingTests.debug(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemStakingTests.debug(alpha).xcconfig"; path = "Target Support Files/Pods-TangemStakingTests/Pods-TangemStakingTests.debug(alpha).xcconfig"; sourceTree = "<group>"; };
 		D30AB026316B780E65C29747 /* Pods-TangemStaking-TangemStakingTests.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemStaking-TangemStakingTests.release(production).xcconfig"; path = "Target Support Files/Pods-TangemStaking-TangemStakingTests/Pods-TangemStaking-TangemStakingTests.release(production).xcconfig"; sourceTree = "<group>"; };
 		D600E3C682E8AB897305ABEE /* Pods-TangemExpress.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExpress.debug(beta).xcconfig"; path = "Target Support Files/Pods-TangemExpress/Pods-TangemExpress.debug(beta).xcconfig"; sourceTree = "<group>"; };
 		D67C35B966539AB4F5CE8C1C /* Pods-TangemStaking.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemStaking.release(alpha).xcconfig"; path = "Target Support Files/Pods-TangemStaking/Pods-TangemStaking.release(alpha).xcconfig"; sourceTree = "<group>"; };
@@ -2775,7 +2782,6 @@
 		DCF8972C28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkConfigFactory.swift; sourceTree = "<group>"; };
 		DCFCA17428F4232F0037586C /* Array+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+.swift"; sourceTree = "<group>"; };
 		DCFE143D294B31C00053106B /* AppPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPresenter.swift; sourceTree = "<group>"; };
-		E033712449BB4A756E39D25A /* Pods_TangemStaking_TangemStakingTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TangemStaking_TangemStakingTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E3B314B4E9F76052898EE269 /* Pods-TangemTests.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.debug(beta).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.debug(beta).xcconfig"; sourceTree = "<group>"; };
 		E41571C8A3492645DEC301E5 /* Pods-TangemFoundationTests.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemFoundationTests.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemFoundationTests/Pods-TangemFoundationTests.release(beta).xcconfig"; sourceTree = "<group>"; };
 		E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyPublisher+.swift"; sourceTree = "<group>"; };
@@ -3237,7 +3243,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EFEE23922BFF62D60099917E /* TangemStaking.framework in Frameworks */,
-				82B1243A9421C5C6FE534B5A /* Pods_TangemStaking_TangemStakingTests.framework in Frameworks */,
+				A8655C179DB2CC46C5B1BB15 /* Pods_TangemStakingTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3404,7 +3410,7 @@
 				A5FA572E69DF6998CA213DF6 /* Pods_TangemVisa.framework */,
 				9C4FB2FCF9A12AD916B58511 /* Pods_TangemVisa_TangemVisaTests.framework */,
 				75994535B8EF936733CA7211 /* Pods_TangemStaking.framework */,
-				E033712449BB4A756E39D25A /* Pods_TangemStaking_TangemStakingTests.framework */,
+				BA3C72207CF7A55037336813 /* Pods_TangemStakingTests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -5849,6 +5855,12 @@
 				D30AB026316B780E65C29747 /* Pods-TangemStaking-TangemStakingTests.release(production).xcconfig */,
 				B4168BD54C4E22ED50BC39F9 /* Pods-TangemStaking-TangemStakingTests.release(beta).xcconfig */,
 				C0F0B2863FC391152BAA6B4D /* Pods-TangemStaking-TangemStakingTests.release(alpha).xcconfig */,
+				38E1176CFD83BDC039B9C54F /* Pods-TangemStakingTests.debug(production).xcconfig */,
+				29888E486B6BAA6F8BA40042 /* Pods-TangemStakingTests.debug(beta).xcconfig */,
+				D223B0C3501A1B50EDE03409 /* Pods-TangemStakingTests.debug(alpha).xcconfig */,
+				ADF4666533574F2E62BE9B8A /* Pods-TangemStakingTests.release(production).xcconfig */,
+				AE50F7AC921A99B57AB3D215 /* Pods-TangemStakingTests.release(beta).xcconfig */,
+				0A35044D2E5DF9354751E2DE /* Pods-TangemStakingTests.release(alpha).xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -8453,7 +8465,6 @@
 				EFEE238D2BFF62D60099917E /* Sources */,
 				EFEE238E2BFF62D60099917E /* Frameworks */,
 				EFEE238F2BFF62D60099917E /* Resources */,
-				EF8B4673F068F2B7BC4AEC03 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -8844,7 +8855,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-TangemStaking-TangemStakingTests-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-TangemStakingTests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -9015,23 +9026,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		EF8B4673F068F2B7BC4AEC03 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-TangemStaking-TangemStakingTests/Pods-TangemStaking-TangemStakingTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-TangemStaking-TangemStakingTests/Pods-TangemStaking-TangemStakingTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-TangemStaking-TangemStakingTests/Pods-TangemStaking-TangemStakingTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		EFA18E73290FBA1B00CF1AE4 /* Run SwiftFormat */ = {
@@ -10774,7 +10768,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
+				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -10918,7 +10912,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
+				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -13164,7 +13158,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
+				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEPLOYMENT_POSTPROCESSING = NO;
@@ -13413,7 +13407,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
+				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -15108,7 +15102,7 @@
 		};
 		EFEE23A52BFF62D60099917E /* Debug(production) */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4712A17B93D5DC8AAEE0372F /* Pods-TangemStaking-TangemStakingTests.debug(production).xcconfig */;
+			baseConfigurationReference = 38E1176CFD83BDC039B9C54F /* Pods-TangemStakingTests.debug(production).xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -15182,7 +15176,7 @@
 		};
 		EFEE23A62BFF62D60099917E /* Debug(beta) */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C907515EDBF8849C1725C692 /* Pods-TangemStaking-TangemStakingTests.debug(beta).xcconfig */;
+			baseConfigurationReference = 29888E486B6BAA6F8BA40042 /* Pods-TangemStakingTests.debug(beta).xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -15256,7 +15250,7 @@
 		};
 		EFEE23A72BFF62D60099917E /* Debug(alpha) */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A288F1BFECB803354ED21B38 /* Pods-TangemStaking-TangemStakingTests.debug(alpha).xcconfig */;
+			baseConfigurationReference = D223B0C3501A1B50EDE03409 /* Pods-TangemStakingTests.debug(alpha).xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -15330,7 +15324,7 @@
 		};
 		EFEE23A82BFF62D60099917E /* Release(production) */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D30AB026316B780E65C29747 /* Pods-TangemStaking-TangemStakingTests.release(production).xcconfig */;
+			baseConfigurationReference = ADF4666533574F2E62BE9B8A /* Pods-TangemStakingTests.release(production).xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -15397,7 +15391,7 @@
 		};
 		EFEE23A92BFF62D60099917E /* Release(beta) */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B4168BD54C4E22ED50BC39F9 /* Pods-TangemStaking-TangemStakingTests.release(beta).xcconfig */;
+			baseConfigurationReference = AE50F7AC921A99B57AB3D215 /* Pods-TangemStakingTests.release(beta).xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -15464,7 +15458,7 @@
 		};
 		EFEE23AA2BFF62D60099917E /* Release(alpha) */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C0F0B2863FC391152BAA6B4D /* Pods-TangemStaking-TangemStakingTests.release(alpha).xcconfig */;
+			baseConfigurationReference = 0A35044D2E5DF9354751E2DE /* Pods-TangemStakingTests.release(alpha).xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -15603,7 +15597,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
+				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEPLOYMENT_POSTPROCESSING = NO;
@@ -15852,7 +15846,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
+				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
