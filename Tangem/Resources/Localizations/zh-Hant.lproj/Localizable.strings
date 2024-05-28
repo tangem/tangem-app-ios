@@ -93,6 +93,7 @@
 "common_generate_addresses" = "Get addresses";
 "common_go_to_provider" = "Go to provider";
 "common_import" = "導入";
+"common_later" = "Later";
 "common_learn_and_earn" = "Learn & Earn";
 "common_locked" = "Locked";
 "common_main_network" = "Main network";
@@ -299,6 +300,7 @@
 "onboarding_access_codes_doesnt_match" = "輸入的訪問密碼與初始訪問密碼不匹配";
 "onboarding_activation_error_message" = "Please repeat the operation. The card will be reset to factory settings.";
 "onboarding_activation_error_title" = "Activation error";
+"onboarding_add_tokens" = "Add tokens";
 "onboarding_alert_message_not_max_backup_cards_added" = "您已添加一張備用卡。備份過程完成後，您將無法添加更多備份卡。如果您還有一張卡，請將其添加到備份中。您想繼續備份過程嗎？";
 "onboarding_alert_message_old_device" = "由於某些系統限制，iPhone 7/7+ 無法為 Tangem 錢包創建備份。請使用另一部手機執行此操作。 所有其他功能穩定運行";
 "onboarding_backup_exit_warning" = "備份過程已部分完成。你現在不能退出";
