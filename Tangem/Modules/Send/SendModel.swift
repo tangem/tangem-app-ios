@@ -30,15 +30,9 @@ class SendModel {
     }
 
     var feeValid: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest(fee, _selectedFeeOption)
-            .map { fee, selectedFeeOption in
-                guard let fee else { return false }
-
-                if case .custom = selectedFeeOption {
-                    return !fee.amount.isZero
-                } else {
-                    return true
-                }
+        fee
+            .map { fee in
+                fee != nil
             }
             .eraseToAnyPublisher()
     }
