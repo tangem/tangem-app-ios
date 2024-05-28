@@ -28,8 +28,12 @@ class FactorySettingsResettingCardInteractor {
 // MARK: - FactorySettingsResetting
 
 extension FactorySettingsResettingCardInteractor: FactorySettingsResetting {
-    func resetCard(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        let initialMessage = Message(header: nil, body: Localization.initialMessagePurgeWalletBody)
+    func resetCard(headerMessage: String? = nil, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+        let initialMessage = Message(
+            header: headerMessage,
+            body: Localization.initialMessagePurgeWalletBody
+        )
+
         let task = ResetToFactorySettingsTask()
 
         tangemSdk.startSession(
