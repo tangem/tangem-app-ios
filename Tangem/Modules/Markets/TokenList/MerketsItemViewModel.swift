@@ -60,6 +60,8 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
         imageURL = IconURLBuilder().tokenIconURL(id: data.id, size: .large)
         name = data.name
         symbol = data.symbol
+        marketCap = data.marketCup
+        marketRaiting = data.marketRaiting
         priceValue = data.priceValue
         priceChangeState = data.priceChangeState
         priceHistory = data.priceHistory
@@ -91,6 +93,7 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
 
         priceChangeState = getPriceChangeState(by: quote)
         priceValue = priceFormatter.formatFiatBalance(quote.price)
+        
         priceHistory = quote.prices24h?.map { $0 }
     }
 
@@ -114,20 +117,12 @@ extension MarketsItemViewModel {
         let id: String
         let name: String
         let symbol: String
+        let marketCup: String
+        let marketRaiting: String
         let priceValue: String
         let priceChangeState: TokenPriceChangeView.State
         let priceHistory: [Double]?
         let state: State
-
-        init(id: String, name: String, symbol: String, priceValue: String, priceChangeState: TokenPriceChangeView.State, priceHistory: [Double]?, state: State) {
-            self.id = id
-            self.name = name
-            self.symbol = symbol
-            self.priceValue = priceValue
-            self.priceChangeState = priceChangeState
-            self.priceHistory = priceHistory
-            self.state = state
-        }
 
         init(
             token: MarketTokenModel,
@@ -139,6 +134,8 @@ extension MarketsItemViewModel {
             id = token.id
             name = token.name
             symbol = token.symbol
+            marketCup = token.marketCup
+            marketRaiting = token.marketRaiting
             self.priceValue = priceValue
             self.priceChangeState = priceChangeState
             self.priceHistory = priceHistory
