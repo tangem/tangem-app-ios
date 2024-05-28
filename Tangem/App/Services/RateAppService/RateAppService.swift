@@ -136,7 +136,6 @@ final class RateAppService {
     private func requestRateApp() {
         userDismissedLastRequestedReviewDate = nil
         userDismissedLastRequestedReviewLaunchCount = nil
-        rateAppActionSubject.send(.openAppRateDialog)
     }
 
     private func migrateFromLegacyRateAppIfNeeded() {
