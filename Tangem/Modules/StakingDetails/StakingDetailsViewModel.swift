@@ -9,6 +9,7 @@
 import Combine
 import BlockchainSdk
 import TangemFoundation
+import TangemStaking
 
 final class StakingDetailsViewModel: ObservableObject {
     // MARK: - ViewState
@@ -37,13 +38,10 @@ final class StakingDetailsViewModel: ObservableObject {
         setupRewardViewData()
     }
 
-    func userDidTapBanner() {
-
-    }
+    func userDidTapBanner() {}
 }
 
 private extension StakingDetailsViewModel {
-
     func aprFormatted() -> String {
         let minAPRFormatted = percentFormatter.percentFormat(value: inputData.minAPR)
         let maxAPRFormatted = percentFormatter.percentFormat(value: inputData.maxAPR)
@@ -66,8 +64,7 @@ private extension StakingDetailsViewModel {
             currencyCode: inputData.tokenItem.currencySymbol
         )
 
-        rewardViewData = .init(state: .noRewards)
-//        rewardViewData = .init(state: .rewards(fiatFormatted: fiatFormatted, cryptoFormatted: cryptoFormatted))
+        rewardViewData = .init(state: .rewards(fiatFormatted: fiatFormatted, cryptoFormatted: cryptoFormatted))
     }
 
     func setupDetailsSection() {
@@ -109,16 +106,14 @@ struct StakingDetailsData {
     let staked: Decimal
     let minAPR: Decimal
     let maxAPR: Decimal
-    let unbonding: StakingPeriod
+    let unbonding: Period
     let minimumRequirement: Decimal
     let rewardClaimingType: RewardClaimingType
-    let warmupPeriod: StakingPeriod
+    let warmupPeriod: Period
     let rewardScheduleType: RewardScheduleType
 }
 
-enum StakingPeriod {
-    case days(_ days: Int)
-
+private extension Period {
     func formatted(formatter: DateComponentsFormatter) -> String {
         switch self {
         case .days(let days):
@@ -129,18 +124,13 @@ enum StakingPeriod {
     }
 }
 
-enum RewardClaimingType: String, Hashable {
-    case auto
-    case manual
-
+private extension RewardClaimingType {
     var title: String {
         rawValue.capitalizingFirstLetter()
     }
 }
 
-enum RewardScheduleType: String, Hashable {
-    case block
-
+private extension RewardScheduleType {
     var title: String {
         rawValue.capitalizingFirstLetter()
     }
