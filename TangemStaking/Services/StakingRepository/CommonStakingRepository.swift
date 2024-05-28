@@ -7,13 +7,14 @@
 //
 
 import Foundation
+import Combine
 
-actor CommonStakingRepository {
+class CommonStakingRepository {
     private let provider: StakingAPIProvider
     private let logger: Logger
 
-    private var availableYields: [YieldInfo] = []
-    private var wasAttemptToLoad = false
+    private var updatingTaks: Task<Void, Error>?
+    private var availableYields: CurrentValueSubject<[YieldInfo]?, Never> = .init(nil)
 
     init(provider: StakingAPIProvider, logger: Logger) {
         self.provider = provider
@@ -22,25 +23,30 @@ actor CommonStakingRepository {
 }
 
 extension CommonStakingRepository: StakingRepository {
-    func updateEnabledYields(withReload: Bool) async throws {
-        guard withReload || !wasAttemptToLoad else {
-            if wasAttemptToLoad {
-                logger.debug("CommonStakingRepository has duplicate request to load the enabled yields")
-            }
+    var enabledYieldsPuiblisher: AnyPublisher<[YieldInfo], Never> {
+        availableYields.compactMap { $0 }.eraseToAnyPublisher()
+    }
+
+    func updateEnabledYields(withReload: Bool) {
+        if withReload {
+            availableYields.value = nil
+        }
+
+        guard availableYields.value == nil else {
             return
         }
 
-        wasAttemptToLoad = true
-        availableYields = try await provider.enabledYields()
+        updatingTaks?.cancel()
+        updatingTaks = Task { [weak self] in
+            self?.availableYields.value = try await self?.provider.enabledYields()
+        }
     }
 
-    func getYield(id: String) async throws -> YieldInfo? {
-        try await updateEnabledYields(withReload: false)
-        return availableYields.first(where: { $0.id == id })
+    func getYield(id: String) -> YieldInfo? {
+        return availableYields.value?.first(where: { $0.id == id })
     }
 
-    func getYield(item: StakingTokenItem) async throws -> YieldInfo? {
-        try await updateEnabledYields(withReload: false)
-        return availableYields.first(where: { $0.item == item })
+    func getYield(item: StakingTokenItem) -> YieldInfo? {
+        return availableYields.value?.first(where: { $0.item == item })
     }
 }
