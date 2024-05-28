@@ -12,17 +12,11 @@ import Combine
 import CombineExt
 
 class OnboardingAddTokensViewModel: ObservableObject {
-    lazy var searchText: Binding<String> = Binding(
-        get: { [weak self] in
-            self?.adapter.enteredSearchText.value ?? ""
-        },
-        set: { [weak self] newValue in
-            self?.adapter.enteredSearchText.send(newValue)
-        }
-    )
+    var manageTokensListViewModel: ManageTokensListViewModel!
 
-    let manageTokensListViewModel: ManageTokensListViewModel
-
+    // We need to use @Published here, because our CustomSearchField doesn't work properly
+    // with bindings created from CurrentValueSubject
+    @Published var searchText: String = ""
     @Published var hasPendingChanges: Bool = false
     @Published var isSavingChanges: Bool = false
 
@@ -55,7 +49,7 @@ class OnboardingAddTokensViewModel: ObservableObject {
     init(adapter: ManageTokensAdapter, delegate: OnboardingAddTokensDelegate?) {
         self.adapter = adapter
         self.delegate = delegate
-        manageTokensListViewModel = .init(loader: adapter, coinViewModelsPublisher: adapter.coinViewModelsPublisher)
+        manageTokensListViewModel = .init(loader: self, coinViewModelsPublisher: adapter.coinViewModelsPublisher)
 
         bind()
     }
@@ -69,6 +63,10 @@ class OnboardingAddTokensViewModel: ObservableObject {
             case .success:
                 self?.delegate?.goToNextStep()
             case .failure(let failure):
+                if failure.isUserCancelled {
+                    return
+                }
+
                 self?.delegate?.showAlert(failure.alertBinder)
             }
         }
@@ -93,5 +91,29 @@ class OnboardingAddTokensViewModel: ObservableObject {
                 viewModel.delegate?.showAlert(alert)
             }
             .store(in: &bag)
+
+        $searchText
+            .dropFirst()
+            .debounce(for: 0.5, scheduler: DispatchQueue.main)
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, searchText in
+                if !searchText.isEmpty {
+                    Analytics.log(.manageTokensSearched)
+                }
+
+                viewModel.adapter.fetch(searchText)
+            }
+            .store(in: &bag)
+    }
+}
+
+extension OnboardingAddTokensViewModel: ManageTokensListLoader {
+    var hasNextPage: Bool {
+        adapter.hasNextPage
+    }
+
+    func fetch() {
+        adapter.fetch(searchText)
     }
 }
