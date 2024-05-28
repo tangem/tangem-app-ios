@@ -14,9 +14,6 @@ import TangemSdk
 import BlockchainSdk
 
 class ManageTokensAdapter {
-    // I can't use @Published here, because of SwiftUI redraw performance drop
-    let enteredSearchText = CurrentValueSubject<String, Never>("")
-
     private let longHashesSupported: Bool
     private let existingCurves: [EllipticCurve]
     private let userTokensManager: UserTokensManager
@@ -30,6 +27,10 @@ class ManageTokensAdapter {
     private var pendingRemove: [TokenItem] = []
 
     private var bag = Set<AnyCancellable>()
+
+    var hasNextPage: Bool {
+        loader.canFetchMore
+    }
 
     var coinViewModelsPublisher: some Publisher<[ManageTokensCoinViewModel], Never> {
         coinViewModelsSubject
@@ -59,18 +60,11 @@ class ManageTokensAdapter {
     func resetAdapter() {
         pendingAdd = []
         pendingRemove = []
-        enteredSearchText.send("")
         isPendingListsEmptySubject.send(true)
     }
-}
 
-extension ManageTokensAdapter: ManageTokensListLoader {
-    var hasNextPage: Bool {
-        loader.canFetchMore
-    }
-
-    func fetch() {
-        loader.fetch(enteredSearchText.value)
+    func fetch(_ text: String) {
+        loader.fetch(text)
     }
 }
 
@@ -83,19 +77,6 @@ private extension ManageTokensAdapter {
             }
             .receive(on: DispatchQueue.main)
             .assign(to: \.value, on: coinViewModelsSubject, ownership: .weak)
-            .store(in: &bag)
-
-        enteredSearchText
-            .dropFirst()
-            .debounce(for: 0.5, scheduler: DispatchQueue.main)
-            .removeDuplicates()
-            .sink { [weak self] string in
-                if !string.isEmpty {
-                    Analytics.log(.manageTokensSearched)
-                }
-
-                self?.loader.fetch(string)
-            }
             .store(in: &bag)
     }
 
