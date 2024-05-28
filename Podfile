@@ -110,7 +110,7 @@ target 'TangemStaking' do
   pod 'Moya'
 
   target 'TangemStakingTests' do
-    blockchain_sdk_pods
+    inherit! :search_paths
   end
 end
 
