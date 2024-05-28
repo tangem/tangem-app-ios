@@ -14,7 +14,7 @@ struct OnboardingAddTokensView: View {
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
-                CustomSearchBar(searchText: viewModel.searchText, placeholder: Localization.commonSearch)
+                CustomSearchBar(searchText: $viewModel.searchText, placeholder: Localization.commonSearch)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
 
@@ -29,10 +29,12 @@ struct OnboardingAddTokensView: View {
                     .padding(.horizontal, 16)
                     .background(
                         ListFooterOverlayShadowView()
-                            .padding(.top, 30)
+                            .padding(.top, -30)
                     )
             }
         }
+        .scrollDismissesKeyboardCompat(.interactively)
+        .keyboardType(.alphabet)
     }
 }
 
