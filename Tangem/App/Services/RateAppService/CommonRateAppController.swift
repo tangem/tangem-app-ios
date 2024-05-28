@@ -28,14 +28,7 @@ final class CommonRateAppController {
     }
 
     private func handleRateAppAction(_ action: RateAppAction) {
-        coordinator?.closeAppRateDialog()
-
         switch action {
-        case .openAppRateDialog:
-            let viewModel = RateAppBottomSheetViewModel { [weak self] response in
-                self?.rateAppService.respondToRateAppDialog(with: response)
-            }
-            coordinator?.openAppRateDialog(with: viewModel)
         case .openFeedbackMailWithEmailType(let emailType):
             let userWallet = userWalletModel
             DispatchQueue.main.asyncAfter(deadline: .now() + Constants.feedbackRequestDelay) { [weak self] in
