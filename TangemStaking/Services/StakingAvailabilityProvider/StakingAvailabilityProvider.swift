@@ -8,6 +8,6 @@
 
 import Foundation
 
-public protocol StakingAvailabilityProvider: Actor {
-    func isAvailableForStaking(item: StakingTokenItem) async throws -> Bool
+public protocol StakingAvailabilityProvider {
+    func isAvailableForStaking(item: StakingTokenItem) -> Bool
 }
