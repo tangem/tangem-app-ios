@@ -40,7 +40,6 @@ class MainCoordinator: CoordinatorObject {
     @Published var modalWebViewModel: WebViewContainerViewModel?
     @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel?
     @Published var organizeTokensViewModel: OrganizeTokensViewModel?
-    @Published var rateAppBottomSheetViewModel: RateAppBottomSheetViewModel?
 
     @Published var visaTransactionDetailsViewModel: VisaTransactionDetailsViewModel? = nil
 
@@ -369,14 +368,6 @@ extension MainCoordinator: VisaWalletRoutable {
 // MARK: - RateAppRoutable protocol conformance
 
 extension MainCoordinator: RateAppRoutable {
-    func openAppRateDialog(with viewModel: RateAppBottomSheetViewModel) {
-        rateAppBottomSheetViewModel = viewModel
-    }
-
-    func closeAppRateDialog() {
-        rateAppBottomSheetViewModel = nil
-    }
-
     func openFeedbackMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String) {
         openMail(with: dataCollector, emailType: emailType, recipient: recipient)
     }
