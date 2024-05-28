@@ -25,7 +25,9 @@ extension WarningEvent {
         switch self {
         case .legacyDerivation:
             return [.manageTokens]
-        case .testnetCard, .oldDeviceOldCard, .demoCard:
+        case .testnetCard,
+             .oldDeviceOldCard,
+             .demoCard:
             return [.main, .send]
         case .numberOfSignedHashesIncorrect,
              .rateApp,
@@ -46,7 +48,8 @@ extension WarningEvent {
 
     var buttons: [WarningView.WarningButton] {
         switch self {
-        case .numberOfSignedHashesIncorrect, .systemDeprecationTemporary:
+        case .numberOfSignedHashesIncorrect,
+             .systemDeprecationTemporary:
             return [.okGotIt]
         case .rateApp,
              .failedToVerifyCard,
@@ -69,7 +72,9 @@ extension WarningEvent {
 
     private var priority: WarningPriority {
         switch self {
-        case .numberOfSignedHashesIncorrect, .oldDeviceOldCard, .oldCard:
+        case .numberOfSignedHashesIncorrect,
+             .oldDeviceOldCard,
+             .oldCard:
             return .info
         case .failedToVerifyCard,
              .testnetCard,
