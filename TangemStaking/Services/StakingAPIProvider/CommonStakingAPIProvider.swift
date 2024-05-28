@@ -10,9 +10,9 @@ import Foundation
 
 class CommonStakingAPIProvider: StakingAPIProvider {
     let service: StakingAPIService
-    let mapper: StakekitMapper
+    let mapper: StakeKitMapper
 
-    init(service: StakingAPIService, mapper: StakekitMapper) {
+    init(service: StakingAPIService, mapper: StakeKitMapper) {
         self.service = service
         self.mapper = mapper
     }
