@@ -14,7 +14,7 @@ import TangemStaking
 final class StakingDetailsViewModel: ObservableObject {
     // MARK: - ViewState
 
-    var title: String { Localization.stakingDetailsTitle(inputData.tokenItem.name) }
+    var title: String { Localization.stakingDetailsTitle(wallet.name) }
     @Published var detailsViewModels: [DefaultRowViewModel] = []
     @Published var averageRewardingViewData: AverageRewardingViewData?
     @Published var rewardViewData: RewardViewData?
@@ -68,6 +68,7 @@ private extension StakingDetailsViewModel {
                 unbonding: yield.unbonding,
                 minimumRequirement: yield.minimumRequirement,
                 rewardClaimingType: yield.rewardClaimingType,
+                rewardType: yield.rewardType,
                 warmupPeriod: yield.warmupPeriod,
                 rewardScheduleType: yield.rewardScheduleType
             )
@@ -93,7 +94,9 @@ private extension StakingDetailsViewModel {
         let periodProfitFormatted = daysFormatter.string(from: DateComponents(day: days)) ?? days.formatted()
 
         averageRewardingViewData = .init(
-            aprFormatted: aprFormatted(inputData: inputData),
+            rewardType: inputData.rewardType.title,
+            rewardFormatted: aprFormatted(inputData: inputData),
+            periodProfitFormatted: periodProfitFormatted,
             profitFormatted: profitFormatted
         )
     }
@@ -130,7 +133,7 @@ private extension StakingDetailsViewModel {
         detailsViewModels = [
             DefaultRowViewModel(title: Localization.stakingDetailsAvailable, detailsType: .text(availableFormatted)),
             DefaultRowViewModel(title: Localization.stakingDetailsOnStake, detailsType: .text(stakedFormatted)),
-            DefaultRowViewModel(title: inputData.rewardType.title, detailsType: .text(aprFormatted())),
+            DefaultRowViewModel(title: inputData.rewardType.title, detailsType: .text(aprFormatted(inputData: inputData))),
             DefaultRowViewModel(title: Localization.stakingDetailsUnbondingPeriod, detailsType: .text(unbondingFormatted)),
             DefaultRowViewModel(title: Localization.stakingDetailsMinimumRequirement, detailsType: .text(minimumFormatted)),
             DefaultRowViewModel(title: Localization.stakingDetailsRewardClaiming, detailsType: .text(inputData.rewardClaimingType.title)),
