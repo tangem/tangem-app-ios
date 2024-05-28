@@ -130,4 +130,3 @@ class PriceChangeFormatterTests: XCTestCase {
         XCTAssertEqual(result13.signType, .neutral)
     }
 }
-
