@@ -20,7 +20,7 @@ struct WelcomeSearchTokensView: View {
 
     private var content: some View {
         ManageTokensListView(viewModel: viewModel.manageTokensListViewModel)
-            .scrollDismissesKeyboardCompat(true)
+            .scrollDismissesKeyboardCompat(.immediately)
             .navigationTitle(Text(Localization.commonSearchTokens))
             .navigationBarTitleDisplayMode(.automatic)
             .searchable(text: $viewModel.enteredSearchText.value, placement: .navigationBarDrawer(displayMode: .always))
