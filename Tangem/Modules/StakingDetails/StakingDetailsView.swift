@@ -10,6 +10,7 @@ import SwiftUI
 
 struct StakingDetailsView: View {
     @ObservedObject private var viewModel: StakingDetailsViewModel
+    @State private var bottomViewHeight: CGFloat = .zero
 
     init(viewModel: StakingDetailsViewModel) {
         self.viewModel = viewModel
@@ -17,18 +18,24 @@ struct StakingDetailsView: View {
 
     var body: some View {
         NavigationView {
-            GroupedScrollView(alignment: .leading, spacing: 14) {
-                banner
+            ZStack(alignment: .bottom) {
+                GroupedScrollView(alignment: .leading, spacing: 14) {
+                    banner
 
-                averageRewardingView
+                    averageRewardingView
 
-                GroupedSection(viewModel.detailsViewModels) {
-                    DefaultRowView(viewModel: $0)
+                    GroupedSection(viewModel.detailsViewModels) {
+                        DefaultRowView(viewModel: $0)
+                    }
+
+                    rewardView
+
+                    FixedSpacer(height: bottomViewHeight)
                 }
+                .interContentPadding(14)
 
-                rewardView
+                actionButton
             }
-            .interContentPadding(14)
             .background(Colors.Background.secondary)
             .navigationTitle("Staking Solana")
             .navigationBarTitleDisplayMode(.inline)
@@ -61,6 +68,15 @@ struct StakingDetailsView: View {
         }
         .interItemSpacing(12)
         .innerContentPadding(12)
+    }
+
+    private var actionButton: some View {
+        MainButton(title: "Stake") {
+            viewModel.userDidTapActionButton()
+        }
+        .padding(.horizontal, 16)
+        .padding(.bottom, 8)
+        .readGeometry(\.size.height, bindTo: $bottomViewHeight)
     }
 }
 
