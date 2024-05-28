@@ -23,9 +23,9 @@ public struct TangemStakingFactory {
                 logOptions: .verbose
             )),
         ]
-        let provider = MoyaProvider<StakekitTarget>(session: Session(configuration: configuration), plugins: plugins)
-        let service = StakekitStakingAPIService(provider: provider, credential: credential)
-        let mapper = StakekitMapper()
+        let provider = MoyaProvider<StakeKitTarget>(session: Session(configuration: configuration), plugins: plugins)
+        let service = StakeKitStakingAPIService(provider: provider, credential: credential)
+        let mapper = StakeKitMapper()
         return CommonStakingAPIProvider(service: service, mapper: mapper)
     }
 }
