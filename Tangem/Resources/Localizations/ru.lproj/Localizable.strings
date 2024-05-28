@@ -93,6 +93,7 @@
 "common_generate_addresses" = "Получить адреса";
 "common_go_to_provider" = "К провайдеру";
 "common_import" = "Импортировать";
+"common_later" = "Позже";
 "common_learn_and_earn" = "Learn & Earn";
 "common_locked" = "Заблокирован";
 "common_main_network" = "Основная сеть";
@@ -299,6 +300,7 @@
 "onboarding_access_codes_doesnt_match" = "Введенные коды доступа не совпадают";
 "onboarding_activation_error_message" = "Необходимо повторить операцию, при этом карта будет сброшена к заводским настройкам";
 "onboarding_activation_error_title" = "Ошибка активации";
+"onboarding_add_tokens" = "Добавление токенов";
 "onboarding_alert_message_not_max_backup_cards_added" = "Вы добавили одну резервную карту. После того, как процесс будет завершен, Вы больше не сможете добавить карт. Если у Вас есть еще одна карта, добавьте ее в резервную копию. Хотите продолжить?";
 "onboarding_alert_message_old_device" = "iPhone 7/7+ не может создать резервную копию для Tangem Wallet из-за системных ограничений. Пожалуйста, используйте другой телефон для выполнения этой операции. Все остальные функции работают стабильно.";
 "onboarding_backup_exit_warning" = "Процесс резервного копирования почти завершен. Вы не можете выйти из него сейчас.";
