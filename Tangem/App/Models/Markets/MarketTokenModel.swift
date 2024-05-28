@@ -28,8 +28,8 @@ struct MarketTokenModel {
         id = coin.id
         name = coin.name
         symbol = coin.symbol
-        marketCup = "\(Int.random(in: 0 ..< 1000))"
-        marketRaiting = "\(Int.random(in: 0 ... 10000))М"
+        marketCup = "\(Int.random(in: 0 ..< 1000))М"
+        marketRaiting = "\(Int.random(in: 0 ... 10000))"
     }
 }
 
