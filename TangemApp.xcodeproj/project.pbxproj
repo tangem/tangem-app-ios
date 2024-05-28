@@ -1168,9 +1168,9 @@
 		EF407E5A2C04D62B00366733 /* CommonStakingAvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E592C04D62B00366733 /* CommonStakingAvailabilityProvider.swift */; };
 		EF407E5D2C04D64B00366733 /* StakingAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E5C2C04D64B00366733 /* StakingAPIProvider.swift */; };
 		EF407E5F2C04D65B00366733 /* CommonStakingAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E5E2C04D65B00366733 /* CommonStakingAPIProvider.swift */; };
-		EF407E622C04D67400366733 /* StakekitMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E612C04D67400366733 /* StakekitMapper.swift */; };
-		EF407E642C04D6A400366733 /* StakekitTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E632C04D6A400366733 /* StakekitTarget.swift */; };
-		EF407E662C04D75100366733 /* StakekitDTO+Actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E652C04D75100366733 /* StakekitDTO+Actions.swift */; };
+		EF407E622C04D67400366733 /* StakeKitMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E612C04D67400366733 /* StakeKitMapper.swift */; };
+		EF407E642C04D6A400366733 /* StakeKitTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E632C04D6A400366733 /* StakeKitTarget.swift */; };
+		EF407E662C04D75100366733 /* StakeKitDTO+Actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E652C04D75100366733 /* StakeKitDTO+Actions.swift */; };
 		EF407E682C04D7E700366733 /* RewardClaimingType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E672C04D7E700366733 /* RewardClaimingType.swift */; };
 		EF407E6A2C04D7F400366733 /* RewardScheduleType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E692C04D7F400366733 /* RewardScheduleType.swift */; };
 		EF407E6C2C04D80100366733 /* RewardType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E6B2C04D80100366733 /* RewardType.swift */; };
@@ -1395,9 +1395,9 @@
 		EFBC5C732C00A74100B662E0 /* YieldInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBC5C6D2C00A74100B662E0 /* YieldInfo.swift */; };
 		EFBC5C742C00A74100B662E0 /* StakingWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBC5C6E2C00A74100B662E0 /* StakingWallet.swift */; };
 		EFBC5C752C00A74100B662E0 /* StakingAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBC5C702C00A74100B662E0 /* StakingAPIService.swift */; };
-		EFBC5C792C00A79E00B662E0 /* StakekitStakingAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBC5C782C00A79E00B662E0 /* StakekitStakingAPIService.swift */; };
-		EFBC5C8E2C00B8A000B662E0 /* StakekitDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBC5C8D2C00B8A000B662E0 /* StakekitDTO.swift */; };
-		EFBC5C902C00B8B800B662E0 /* StakekitDTO+Yield.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBC5C8F2C00B8B800B662E0 /* StakekitDTO+Yield.swift */; };
+		EFBC5C792C00A79E00B662E0 /* StakeKitStakingAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBC5C782C00A79E00B662E0 /* StakeKitStakingAPIService.swift */; };
+		EFBC5C8E2C00B8A000B662E0 /* StakeKitDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBC5C8D2C00B8A000B662E0 /* StakeKitDTO.swift */; };
+		EFBC5C902C00B8B800B662E0 /* StakeKitDTO+Yield.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBC5C8F2C00B8B800B662E0 /* StakeKitDTO+Yield.swift */; };
 		EFC46F01292669A0003928E3 /* ReceiveCurrencyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC46F00292669A0003928E3 /* ReceiveCurrencyViewModel.swift */; };
 		EFC597BD2AA0B1B7001F6945 /* CommonTokenQuotesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC597BC2AA0B1B7001F6945 /* CommonTokenQuotesRepository.swift */; };
 		EFC6846D2A0FA3C600660690 /* BindingValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC6846C2A0FA3C600660690 /* BindingValue.swift */; };
@@ -2838,9 +2838,9 @@
 		EF407E592C04D62B00366733 /* CommonStakingAvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStakingAvailabilityProvider.swift; sourceTree = "<group>"; };
 		EF407E5C2C04D64B00366733 /* StakingAPIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAPIProvider.swift; sourceTree = "<group>"; };
 		EF407E5E2C04D65B00366733 /* CommonStakingAPIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStakingAPIProvider.swift; sourceTree = "<group>"; };
-		EF407E612C04D67400366733 /* StakekitMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakekitMapper.swift; sourceTree = "<group>"; };
-		EF407E632C04D6A400366733 /* StakekitTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakekitTarget.swift; sourceTree = "<group>"; };
-		EF407E652C04D75100366733 /* StakekitDTO+Actions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StakekitDTO+Actions.swift"; sourceTree = "<group>"; };
+		EF407E612C04D67400366733 /* StakeKitMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakeKitMapper.swift; sourceTree = "<group>"; };
+		EF407E632C04D6A400366733 /* StakeKitTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakeKitTarget.swift; sourceTree = "<group>"; };
+		EF407E652C04D75100366733 /* StakeKitDTO+Actions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StakeKitDTO+Actions.swift"; sourceTree = "<group>"; };
 		EF407E672C04D7E700366733 /* RewardClaimingType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardClaimingType.swift; sourceTree = "<group>"; };
 		EF407E692C04D7F400366733 /* RewardScheduleType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardScheduleType.swift; sourceTree = "<group>"; };
 		EF407E6B2C04D80100366733 /* RewardType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardType.swift; sourceTree = "<group>"; };
@@ -3085,9 +3085,9 @@
 		EFBC5C6D2C00A74100B662E0 /* YieldInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = YieldInfo.swift; sourceTree = "<group>"; };
 		EFBC5C6E2C00A74100B662E0 /* StakingWallet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingWallet.swift; sourceTree = "<group>"; };
 		EFBC5C702C00A74100B662E0 /* StakingAPIService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingAPIService.swift; sourceTree = "<group>"; };
-		EFBC5C782C00A79E00B662E0 /* StakekitStakingAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakekitStakingAPIService.swift; sourceTree = "<group>"; };
-		EFBC5C8D2C00B8A000B662E0 /* StakekitDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakekitDTO.swift; sourceTree = "<group>"; };
-		EFBC5C8F2C00B8B800B662E0 /* StakekitDTO+Yield.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StakekitDTO+Yield.swift"; sourceTree = "<group>"; };
+		EFBC5C782C00A79E00B662E0 /* StakeKitStakingAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakeKitStakingAPIService.swift; sourceTree = "<group>"; };
+		EFBC5C8D2C00B8A000B662E0 /* StakeKitDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakeKitDTO.swift; sourceTree = "<group>"; };
+		EFBC5C8F2C00B8B800B662E0 /* StakeKitDTO+Yield.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StakeKitDTO+Yield.swift"; sourceTree = "<group>"; };
 		EFC46EFD29266982003928E3 /* SendCurrencyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendCurrencyViewModel.swift; sourceTree = "<group>"; };
 		EFC46F00292669A0003928E3 /* ReceiveCurrencyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveCurrencyViewModel.swift; sourceTree = "<group>"; };
 		EFC597BC2AA0B1B7001F6945 /* CommonTokenQuotesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTokenQuotesRepository.swift; sourceTree = "<group>"; };
@@ -7073,12 +7073,12 @@
 			path = StakingAPIProvider;
 			sourceTree = "<group>";
 		};
-		EF407E602C04D66E00366733 /* StakekitMapper */ = {
+		EF407E602C04D66E00366733 /* StakeKitMapper */ = {
 			isa = PBXGroup;
 			children = (
-				EF407E612C04D67400366733 /* StakekitMapper.swift */,
+				EF407E612C04D67400366733 /* StakeKitMapper.swift */,
 			);
-			path = StakekitMapper;
+			path = StakeKitMapper;
 			sourceTree = "<group>";
 		};
 		EF46620F2924DEEE00346B6C /* DefaultListViews */ = {
@@ -7981,8 +7981,8 @@
 			isa = PBXGroup;
 			children = (
 				EFBC5C702C00A74100B662E0 /* StakingAPIService.swift */,
-				EFBC5C782C00A79E00B662E0 /* StakekitStakingAPIService.swift */,
-				EF407E632C04D6A400366733 /* StakekitTarget.swift */,
+				EFBC5C782C00A79E00B662E0 /* StakeKitStakingAPIService.swift */,
+				EF407E632C04D6A400366733 /* StakeKitTarget.swift */,
 				EFBC5C762C00A78700B662E0 /* DTOs */,
 			);
 			path = StakingAPIService;
@@ -7993,7 +7993,7 @@
 			children = (
 				EF407E562C04D3BE00366733 /* StakingAvailabilityProvider */,
 				EF407E5B2C04D64300366733 /* StakingAPIProvider */,
-				EF407E602C04D66E00366733 /* StakekitMapper */,
+				EF407E602C04D66E00366733 /* StakeKitMapper */,
 				EFBC5C712C00A74100B662E0 /* StakingAPIService */,
 			);
 			path = Services;
@@ -8002,9 +8002,9 @@
 		EFBC5C762C00A78700B662E0 /* DTOs */ = {
 			isa = PBXGroup;
 			children = (
-				EFBC5C8D2C00B8A000B662E0 /* StakekitDTO.swift */,
-				EFBC5C8F2C00B8B800B662E0 /* StakekitDTO+Yield.swift */,
-				EF407E652C04D75100366733 /* StakekitDTO+Actions.swift */,
+				EFBC5C8D2C00B8A000B662E0 /* StakeKitDTO.swift */,
+				EFBC5C8F2C00B8B800B662E0 /* StakeKitDTO+Yield.swift */,
+				EF407E652C04D75100366733 /* StakeKitDTO+Actions.swift */,
 			);
 			path = DTOs;
 			sourceTree = "<group>";
@@ -10464,20 +10464,20 @@
 				EF407E5D2C04D64B00366733 /* StakingAPIProvider.swift in Sources */,
 				EFBC5C732C00A74100B662E0 /* YieldInfo.swift in Sources */,
 				EFBC5C752C00A74100B662E0 /* StakingAPIService.swift in Sources */,
-				EFBC5C902C00B8B800B662E0 /* StakekitDTO+Yield.swift in Sources */,
+				EFBC5C902C00B8B800B662E0 /* StakeKitDTO+Yield.swift in Sources */,
 				EF407E382C04B09A00366733 /* Logger.swift in Sources */,
 				EF407E682C04D7E700366733 /* RewardClaimingType.swift in Sources */,
 				EF407E6C2C04D80100366733 /* RewardType.swift in Sources */,
-				EFBC5C8E2C00B8A000B662E0 /* StakekitDTO.swift in Sources */,
+				EFBC5C8E2C00B8A000B662E0 /* StakeKitDTO.swift in Sources */,
 				EF407E6E2C04D81100366733 /* Period.swift in Sources */,
-				EF407E662C04D75100366733 /* StakekitDTO+Actions.swift in Sources */,
-				EFBC5C792C00A79E00B662E0 /* StakekitStakingAPIService.swift in Sources */,
+				EF407E662C04D75100366733 /* StakeKitDTO+Actions.swift in Sources */,
+				EFBC5C792C00A79E00B662E0 /* StakeKitStakingAPIService.swift in Sources */,
 				EF407E582C04D3DE00366733 /* StakingAvailabilityProvider.swift in Sources */,
 				EF407E5F2C04D65B00366733 /* CommonStakingAPIProvider.swift in Sources */,
 				EF407E352C04AF6F00366733 /* TangemStakingFactory.swift in Sources */,
 				EFBC5C742C00A74100B662E0 /* StakingWallet.swift in Sources */,
-				EF407E642C04D6A400366733 /* StakekitTarget.swift in Sources */,
-				EF407E622C04D67400366733 /* StakekitMapper.swift in Sources */,
+				EF407E642C04D6A400366733 /* StakeKitTarget.swift in Sources */,
+				EF407E622C04D67400366733 /* StakeKitMapper.swift in Sources */,
 				EF407E5A2C04D62B00366733 /* CommonStakingAvailabilityProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -10768,7 +10768,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -10912,7 +10912,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -13158,7 +13158,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEPLOYMENT_POSTPROCESSING = NO;
@@ -13407,7 +13407,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -15597,7 +15597,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEPLOYMENT_POSTPROCESSING = NO;
@@ -15846,7 +15846,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CODE_SIGN_ENTITLEMENTS = "$ENTITLEMENTS_PATH";
+				CODE_SIGN_ENTITLEMENTS = $ENTITLEMENTS_PATH;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
