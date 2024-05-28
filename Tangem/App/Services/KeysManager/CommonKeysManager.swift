@@ -88,7 +88,9 @@ extension CommonKeysManager: KeysManager {
         keys.walletConnectProjectId
     }
 
-    var stakeKitKey: String {}
+    var stakeKitKey: String {
+        keys.stakeKitApiKey
+    }
 }
 
 extension CommonKeysManager {
@@ -121,5 +123,6 @@ extension CommonKeysManager {
         let sprinklr: SprinklrConfig
         let express: ExpressKeys
         let devExpress: ExpressKeys?
+        let stakeKitApiKey: String
     }
 }
