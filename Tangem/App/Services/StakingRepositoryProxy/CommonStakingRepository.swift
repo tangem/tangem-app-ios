@@ -7,9 +7,10 @@
 //
 
 import Foundation
+import Combine
 import TangemStaking
 
-actor CommonStakingRepositoryProxy {
+struct CommonStakingRepositoryProxy {
     private let repository: StakingRepository
 
     init() {
@@ -19,23 +20,25 @@ actor CommonStakingRepositoryProxy {
 }
 
 extension CommonStakingRepositoryProxy: StakingRepository {
-    func updateEnabledYields(withReload: Bool) async throws {
-        try await repository.updateEnabledYields(withReload: withReload)
+    var enabledYieldsPuiblisher: AnyPublisher<[YieldInfo], Never> {
+        repository.enabledYieldsPuiblisher
     }
 
-    func getYield(id: String) async throws -> YieldInfo? {
-        try await repository.getYield(id: id)
+    func updateEnabledYields(withReload: Bool) {
+        repository.updateEnabledYields(withReload: withReload)
     }
 
-    func getYield(item: StakingTokenItem) async throws -> YieldInfo? {
-        try await repository.getYield(item: item)
+    func getYield(id: String) -> YieldInfo? {
+        repository.getYield(id: id)
+    }
+
+    func getYield(item: StakingTokenItem) -> YieldInfo? {
+        repository.getYield(item: item)
     }
 }
 
 extension CommonStakingRepositoryProxy: Initializable {
-    nonisolated func initialize() {
-        runTask(in: self, code: { repository in
-            try await repository.updateEnabledYields(withReload: true)
-        })
+    func initialize() {
+        repository.updateEnabledYields(withReload: true)
     }
 }

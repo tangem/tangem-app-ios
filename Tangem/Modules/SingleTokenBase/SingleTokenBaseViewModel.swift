@@ -13,9 +13,11 @@ import TangemSdk
 import BlockchainSdk
 import TangemExpress
 import CombineExt
+import TangemStaking
 
 class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Injected(\.swapAvailabilityProvider) private var swapAvailabilityProvider: SwapAvailabilityProvider
+    @Injected(\.stakingRepositoryProxy) private var stakingRepositoryProxy: StakingRepositoryProxy
 
     @Published var alert: AlertBinder? = nil
     @Published var transactionHistoryState: TransactionsListView.State = .loading
@@ -250,7 +252,8 @@ extension SingleTokenBaseViewModel {
         let listBuilder = TokenActionListBuilder()
         let canShowSwap = userWalletModel.config.isFeatureVisible(.swapping)
         let canShowBuySell = userWalletModel.config.isFeatureVisible(.exchange)
-        availableActions = listBuilder.buildActionsForButtonsList(canShowBuySell: canShowBuySell, canShowSwap: canShowSwap)
+        let canShowStake = userWalletModel.config.isFeatureVisible(.staking)
+        availableActions = listBuilder.buildActionsForButtonsList(canShowBuySell: canShowBuySell, canShowSwap: canShowSwap, canShowStake: canShowStake)
     }
 
     private func bind() {
@@ -350,6 +353,8 @@ extension SingleTokenBaseViewModel {
             return isReceiveDisabled()
         case .exchange:
             return isSwapDisabled()
+        case .stake:
+            return isStakingDisabled()
         case .sell:
             return sendIsDisabled() || !exchangeUtility.sellAvailable
         case .copyAddress, .hide, .stake:
@@ -363,6 +368,7 @@ extension SingleTokenBaseViewModel {
         case .send: return openSend
         case .receive: return openReceive
         case .exchange: return openExchangeAndLogAnalytics
+        case .stake: return openStaking
         case .sell: return openSell
         case .copyAddress, .hide, .stake: return nil
         }
@@ -403,6 +409,20 @@ extension SingleTokenBaseViewModel {
         }
 
         return !swapAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem)
+    }
+
+    private func isStakingDisabled() -> Bool {
+        if walletModel.isCustom {
+            return true
+        }
+
+        switch walletModel.sendingRestrictions {
+        case .zeroWalletBalance, .cantSignLongTransactions, .hasPendingTransaction, .blockchainUnreachable:
+            return true
+        case .none, .zeroFeeCurrencyBalance:
+            let stakingAvailabilityProvider = TangemStakingFactory().makeStakingAvailabilityProvider(repository: stakingRepositoryProxy)
+            return !stakingAvailabilityProvider.isAvailableForStaking(item: walletModel.stakingTokenItem)
+        }
     }
 
     private func isReceiveDisabled() -> Bool {
@@ -476,6 +496,10 @@ extension SingleTokenBaseViewModel {
         }
 
         tokenRouter.openExchange(walletModel: walletModel)
+    }
+
+    func openStaking() {
+        tokenRouter.openStaking(walletModel: walletModel)
     }
 
     func openSell() {
