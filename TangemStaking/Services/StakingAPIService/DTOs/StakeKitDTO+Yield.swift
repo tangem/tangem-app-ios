@@ -1,5 +1,5 @@
 //
-//  StakekitDTO+Yield.swift
+//  StakeKitDTO+Yield.swift
 //  TangemStaking
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension StakekitDTO {
+extension StakeKitDTO {
     enum Yield {
         enum Enabled {
             struct Response: Decodable {
