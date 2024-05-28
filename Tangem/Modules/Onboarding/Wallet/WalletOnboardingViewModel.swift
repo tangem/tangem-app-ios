@@ -204,7 +204,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     var isCustomContentVisible: Bool {
         switch currentStep {
-        case .saveUserWallet, .disclaimer, .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseUserValidation, .seedPhraseImport:
+        case .saveUserWallet, .disclaimer, .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseUserValidation, .seedPhraseImport, .addTokens:
             return true
         default: return false
         }
@@ -212,7 +212,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     var isButtonsVisible: Bool {
         switch currentStep {
-        case .saveUserWallet, .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseUserValidation, .seedPhraseImport: return false
+        case .saveUserWallet, .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseUserValidation, .seedPhraseImport, .addTokens: return false
         default: return true
         }
     }
@@ -443,6 +443,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             Analytics.log(.backupSkipped)
             if steps.contains(.saveUserWallet) {
                 goToStep(.saveUserWallet)
+            } else if steps.contains(.addTokens) {
+                goToStep(.addTokens)
             } else {
                 jumpToLatestStep()
             }
@@ -504,10 +506,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                 targetSettings: settings,
                 intermediateSettings: (backupCardsAddedCount > 1 && secondBackupCardStackIndex == backupCardsAddedCount && animated) ? prehideSettings : nil
             )
-        case .saveUserWallet:
-            mainCardSettings = .zero
-            supplementCardSettings = .zero
-            thirdCardSettings = .zero
         default:
             mainCardSettings = WalletOnboardingCardLayout.origin.animSettings(at: currentStep, in: containerSize, fanStackCalculator: fanStackCalculator, animated: animated)
             supplementCardSettings = WalletOnboardingCardLayout.firstBackup.animSettings(at: currentStep, in: containerSize, fanStackCalculator: fanStackCalculator, animated: animated)
