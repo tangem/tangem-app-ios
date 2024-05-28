@@ -1,5 +1,5 @@
 //
-//  StakekitDTO.swift
+//  StakeKitDTO.swift
 //  TangemStaking
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum StakekitDTO {
+enum StakeKitDTO {
     // MARK: - Common
 
     struct APIError: Decodable, Error {
