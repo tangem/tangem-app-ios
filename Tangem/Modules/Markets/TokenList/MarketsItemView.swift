@@ -20,19 +20,23 @@ struct MarketsItemView: View {
                 IconView(url: viewModel.imageURL, size: iconSize, forceKingfisher: true)
                     .skeletonable(isShown: viewModel.isLoading, radius: iconSize.height / 2)
 
-                tokenInfo
+                tokenInfoView
             }
 
-            Spacer(minLength: 24)
+            Spacer(minLength: 12)
 
-            priceHistoryView
+            HStack(spacing: 10) {
+                tokenPriceView
+
+                priceHistoryView
+            }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 15)
         .animation(nil) // Disable animations on scroll reuse
     }
 
-    private var tokenInfo: some View {
+    private var tokenInfoView: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(alignment: .firstBaselineCustom, spacing: 4) {
                 Text(viewModel.name)
@@ -46,16 +50,30 @@ struct MarketsItemView: View {
             }
 
             HStack(spacing: 6) {
-                Text(viewModel.priceValue)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                Text(viewModel.marketRaiting)
+                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                     .skeletonable(isShown: viewModel.isLoading, radius: 3)
+                    .padding(.horizontal, 5)
+                    .background(Colors.Field.primary)
+                    .cornerRadiusContinuous(4)
 
-                if !viewModel.isLoading {
-                    TokenPriceChangeView(state: viewModel.priceChangeState)
-                }
+                Text(viewModel.marketCap)
+                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .skeletonable(isShown: viewModel.isLoading, radius: 3)
             }
+        }
+    }
+
+    private var tokenPriceView: some View {
+        VStack(alignment: .trailing, spacing: 3) {
+            Text(viewModel.priceValue)
+                .lineLimit(1)
+                .truncationMode(.middle)
+                .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                .skeletonable(isShown: viewModel.isLoading, radius: 3)
+
+            TokenPriceChangeView(state: viewModel.priceChangeState)
+                .skeletonable(isShown: viewModel.isLoading, radius: 3)
         }
     }
 
@@ -68,8 +86,7 @@ struct MarketsItemView: View {
                 )
             }
         }
-        .frame(width: 50, height: 37, alignment: .center)
-        .padding(.trailing, 24)
+        .frame(width: 56, height: 32, alignment: .center)
     }
 }
 
