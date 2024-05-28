@@ -42,7 +42,8 @@ extension UserWalletConfig where Self: SingleCardOnboardingStepsBuilderFactory {
         return SingleCardOnboardingStepsBuilder(
             cardId: card.cardId,
             hasWallets: !card.wallets.isEmpty,
-            touId: tou.id
+            touId: tou.id,
+            isMultiCurrency: hasFeature(.multiCurrency)
         )
     }
 }

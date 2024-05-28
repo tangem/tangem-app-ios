@@ -37,15 +37,11 @@ struct ManageTokensListView<Header, Footer>: View where Header: View, Footer: Vi
             LazyVStack {
                 if let header {
                     header
-
-                    divider
                 }
 
                 ForEach(viewModel.coinViewModels) {
                     ManageTokensCoinView(model: $0)
                         .padding(.horizontal)
-
-                    divider
                 }
 
                 if viewModel.hasNextPage {
@@ -60,10 +56,5 @@ struct ManageTokensListView<Header, Footer>: View where Header: View, Footer: Vi
                 }
             }
         }
-    }
-
-    private var divider: some View {
-        Divider()
-            .padding([.leading])
     }
 }
