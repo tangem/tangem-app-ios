@@ -25,6 +25,10 @@ struct SingleCardOnboardingStepsBuilder {
         return [.saveUserWallet]
     }
 
+    private var addTokensSteps: [SingleCardOnboardingStep] {
+        isMultiCurrency && FeatureProvider.isAvailable(.markets) ? [.addTokens] : []
+    }
+
     init(cardId: String, hasWallets: Bool, touId: String, isMultiCurrency: Bool) {
         self.cardId = cardId
         self.hasWallets = hasWallets
@@ -41,7 +45,6 @@ extension SingleCardOnboardingStepsBuilder: OnboardingStepsBuilder {
             steps.append(.disclaimer)
         }
 
-        let addTokensSteps: [SingleCardOnboardingStep] = isMultiCurrency ? [.addTokens] : []
         if hasWallets {
             if AppSettings.shared.cardsStartedActivation.contains(cardId) {
                 steps.append(contentsOf: userWalletSavingSteps + addTokensSteps + [.success])
