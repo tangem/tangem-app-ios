@@ -13,6 +13,7 @@ struct SendCryptoValueFormatter {
     private let decimalNumberFormatter: DecimalNumberFormatter
     private let preffixSuffixOptions: SendDecimalNumberTextField.PrefixSuffixOptions
     private let trimFractions: Bool
+    private let locale: Locale
 
     init(decimals: Int, currencySymbol: String, trimFractions: Bool, locale: Locale = .current) {
         let numberFormatter = NumberFormatter()
@@ -28,6 +29,7 @@ struct SendCryptoValueFormatter {
         preffixSuffixOptions = optionsFactory.makeCryptoOptions()
 
         self.trimFractions = trimFractions
+        self.locale = locale
     }
 
     func string(from value: Decimal) -> String? {
@@ -52,12 +54,13 @@ struct SendCryptoValueFormatter {
 
         if canBeTrimmed {
             let basicFormatter = NumberFormatter()
-            basicFormatter.locale = Locale(identifier: "en_US")
+            basicFormatter.locale = locale
             basicFormatter.minimumFractionDigits = trimFractions ? 0 : 2
             basicFormatter.maximumFractionDigits = 2
             return basicFormatter.string(from: value as NSDecimalNumber)
         } else {
-            return (value as NSDecimalNumber).stringValue
+            let stringNumber = (value as NSDecimalNumber).stringValue
+            return stringNumber.replacingOccurrences(of: ".", with: String(decimalNumberFormatter.decimalSeparator))
         }
     }
 }
