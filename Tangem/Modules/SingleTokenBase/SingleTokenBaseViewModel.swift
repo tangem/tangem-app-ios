@@ -179,6 +179,8 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
             openBuyCryptoIfPossible()
         case .addHederaTokenAssociation:
             fulfillAssetRequirements()
+        case .stake:
+            assertionFailure()
         default:
             break
         }
