@@ -34,7 +34,7 @@ struct SendCryptoValueFormatter {
         guard let formatterInput = formatterInput(from: value) else { return nil }
 
         let formattedAmount = decimalNumberFormatter.format(value: formatterInput)
-        let nbsp = " "
+        let nbsp = AppConstants.unbreakableSpace
 
         switch preffixSuffixOptions {
         case .prefix(let text, let hasSpace):
