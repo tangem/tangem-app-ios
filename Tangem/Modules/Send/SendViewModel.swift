@@ -404,6 +404,8 @@ final class SendViewModel: ObservableObject {
                         type: walletModel.amountType,
                         value: amount
                     ).string()
+
+                    #warning("Use TransactionValidator async validate to get this warning before send tx")
                     let title = Localization.sendNotificationInvalidReserveAmountTitle(amountFormatted)
                     let message = Localization.sendNotificationInvalidReserveAmountText
 
@@ -796,8 +798,10 @@ extension SendViewModel: NotificationTapDelegate {
                 .sink()
         case .openFeeCurrency:
             openNetworkCurrency()
-        case .reduceAmountBy(let amount, _), .leaveAmount(let amount, _):
-            reduceAmountBy(amount)
+        case .leaveAmount(let amount, _):
+            reduceAmountBy(amount, from: walletInfo.balanceValue)
+        case .reduceAmountBy(let amount, _):
+            reduceAmountBy(amount, from: sendModel.validatedAmountValue?.value)
         case .reduceAmountTo(let amount, _):
             reduceAmountTo(amount)
         case .generateAddresses,
@@ -811,10 +815,13 @@ extension SendViewModel: NotificationTapDelegate {
         }
     }
 
-    private func reduceAmountBy(_ amount: Decimal) {
-        guard let currentAmount = sendModel.validatedAmountValue?.value else { return }
+    private func reduceAmountBy(_ amount: Decimal, from source: Decimal?) {
+        guard let source else {
+            assertionFailure("WHY")
+            return
+        }
 
-        var newAmount = currentAmount - amount
+        var newAmount = source - amount
         if sendModel.isFeeIncluded, let feeValue = sendModel.feeValue?.amount.value {
             newAmount = newAmount - feeValue
         }
