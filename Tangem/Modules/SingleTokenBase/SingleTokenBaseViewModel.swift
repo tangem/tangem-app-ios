@@ -352,7 +352,7 @@ extension SingleTokenBaseViewModel {
             return isSwapDisabled()
         case .sell:
             return sendIsDisabled() || !exchangeUtility.sellAvailable
-        case .copyAddress, .hide:
+        case .copyAddress, .hide, .stake:
             return true
         }
     }
@@ -364,7 +364,7 @@ extension SingleTokenBaseViewModel {
         case .receive: return openReceive
         case .exchange: return openExchangeAndLogAnalytics
         case .sell: return openSell
-        case .copyAddress, .hide: return nil
+        case .copyAddress, .hide, .stake: return nil
         }
     }
 
@@ -372,7 +372,7 @@ extension SingleTokenBaseViewModel {
         switch buttonType {
         case .receive:
             return weakify(self, forFunction: SingleTokenBaseViewModel.copyDefaultAddress)
-        case .buy, .send, .exchange, .sell, .copyAddress, .hide:
+        case .buy, .send, .exchange, .sell, .copyAddress, .hide, .stake:
             return nil
         }
     }
