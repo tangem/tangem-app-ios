@@ -323,6 +323,10 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         expressCoordinator = coordinator
     }
 
+    func openStaking(wallet: WalletModel) {
+        assertionFailure()
+    }
+
     func openInSafari(url: URL) {
         safariManager.openURL(url)
     }
