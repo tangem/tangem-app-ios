@@ -53,7 +53,8 @@ private extension StakingDetailsViewModel {
     func setupAverageRewardingViewData() {
         let profitFormatted = balanceFormatter.formatFiatBalance(inputData.monthEstimatedProfit)
         averageRewardingViewData = .init(
-            aprFormatted: aprFormatted(),
+            rewardType: inputData.rewardType.title,
+            rewardFormatted: aprFormatted(),
             profitFormatted: profitFormatted
         )
     }
@@ -88,14 +89,14 @@ private extension StakingDetailsViewModel {
         let warmupFormatted = inputData.warmupPeriod.formatted(formatter: dateComponentsFormatter)
 
         detailsViewModels = [
-            DefaultRowViewModel(title: "Available", detailsType: .text(availableFormatted)),
-            DefaultRowViewModel(title: "On stake", detailsType: .text(stakedFormatted)),
-            DefaultRowViewModel(title: "APR", detailsType: .text(aprFormatted())),
-            DefaultRowViewModel(title: "Unbonding Period", detailsType: .text(unbondingFormatted)),
-            DefaultRowViewModel(title: "Minimum Requirement", detailsType: .text(minimumFormatted)),
-            DefaultRowViewModel(title: "Reward claiming", detailsType: .text(inputData.rewardClaimingType.title)),
-            DefaultRowViewModel(title: "Warmup period", detailsType: .text(warmupFormatted)),
-            DefaultRowViewModel(title: "Reward schedule", detailsType: .text(inputData.rewardScheduleType.title)),
+            DefaultRowViewModel(title: Localization.stakingDetailsAvailable, detailsType: .text(availableFormatted)),
+            DefaultRowViewModel(title: Localization.stakingDetailsOnStake, detailsType: .text(stakedFormatted)),
+            DefaultRowViewModel(title: inputData.rewardType.title, detailsType: .text(aprFormatted())),
+            DefaultRowViewModel(title: Localization.stakingDetailsUnbondingPeriod, detailsType: .text(unbondingFormatted)),
+            DefaultRowViewModel(title: Localization.stakingDetailsMinimumRequirement, detailsType: .text(minimumFormatted)),
+            DefaultRowViewModel(title: Localization.stakingDetailsRewardClaiming, detailsType: .text(inputData.rewardClaimingType.title)),
+            DefaultRowViewModel(title: Localization.stakingDetailsWarmupPeriod, detailsType: .text(warmupFormatted)),
+            DefaultRowViewModel(title: Localization.stakingDetailsRewardSchedule, detailsType: .text(inputData.rewardScheduleType.title)),
         ]
     }
 }
@@ -110,6 +111,7 @@ struct StakingDetailsData {
     let unbonding: Period
     let minimumRequirement: Decimal
     let rewardClaimingType: RewardClaimingType
+    let rewardType: RewardType
     let warmupPeriod: Period
     let rewardScheduleType: RewardScheduleType
 }
@@ -122,6 +124,12 @@ private extension Period {
             formatter.allowedUnits = [.day]
             return formatter.string(from: DateComponents(day: days)) ?? days.formatted()
         }
+    }
+}
+
+private extension RewardType {
+    var title: String {
+        rawValue.uppercased()
     }
 }
 
