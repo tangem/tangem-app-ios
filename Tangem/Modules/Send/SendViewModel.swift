@@ -404,6 +404,8 @@ final class SendViewModel: ObservableObject {
                         type: walletModel.amountType,
                         value: amount
                     ).string()
+
+                    #warning("Use TransactionValidator async validate to get this warning before send tx")
                     let title = Localization.sendNotificationInvalidReserveAmountTitle(amountFormatted)
                     let message = Localization.sendNotificationInvalidReserveAmountText
 
