@@ -93,7 +93,7 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
 
         priceChangeState = getPriceChangeState(by: quote)
         priceValue = priceFormatter.formatFiatBalance(quote.price)
-        
+
         priceHistory = quote.prices24h?.map { $0 }
     }
 
