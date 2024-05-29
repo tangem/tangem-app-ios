@@ -13,5 +13,7 @@ struct AverageRewardingViewData: Hashable, Identifiable {
 
     let rewardType: String
     let rewardFormatted: String
+
+    let periodProfitFormatted: String
     let profitFormatted: String
 }
