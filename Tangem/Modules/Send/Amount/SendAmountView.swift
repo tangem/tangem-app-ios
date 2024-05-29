@@ -16,38 +16,17 @@ struct SendAmountView: View {
     private let iconSize = CGSize(bothDimensions: 36)
 
     var body: some View {
-//        GroupedScrollView(spacing: 14) {
-        VStack(spacing: 14) {
+        GroupedScrollView(spacing: 14) {
+//        VStack {
+            Rectangle()
+                .frame(width: 100, height: 100, alignment: .center)
+                .matchedGeometryEffectOptional(id: "rect", in: namespace)
+
             GroupedSection(viewModel) { viewModel in
                 amountSectionContent
             }
             .contentAlignment(.center)
             .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
-
-//                .background(Colors.Background.action)
-//                .matchedGeometryEffect(id: SendViewNamespaceId.amountContainer.rawValue, in: namespace)
-//                .background(
-//                    Colors.Background.action
-//                        .cornerRadiusContinuous(GroupedSectionConstants.defaultCornerRadius)
-//                        .matchedGeometryEffect(id: SendViewNamespaceId.amountContainer.rawValue, in: namespace)
-//                )
-
-            if !viewModel.animatingAuxiliaryViewsOnAppear {
-                HStack {
-                    SendCurrencyPicker(
-                        cryptoIconURL: viewModel.cryptoIconURL,
-                        cryptoCurrencyCode: viewModel.cryptoCurrencyCode,
-                        fiatIconURL: viewModel.fiatIconURL,
-                        fiatCurrencyCode: viewModel.fiatCurrencyCode,
-                        disabled: viewModel.currencyPickerDisabled,
-                        useFiatCalculation: $viewModel.useFiatCalculation
-                    )
-
-                    MainButton(title: Localization.sendMaxAmount, style: .secondary, action: viewModel.didTapMaxAmount)
-                        .frame(width: 108)
-                }
-                .transition(SendView.Constants.auxiliaryViewTransition(for: .amount))
-            }
 
             Spacer()
         }
@@ -67,7 +46,7 @@ struct SendAmountView: View {
                 tokenIconInfo: viewModel.tokenIconInfo,
                 size: iconSize
             )
-            .matchedGeometryEffect(id: SendViewNamespaceId.tokenIcon.rawValue, in: namespace)
+            .matchedGeometryEffectOptional(id: SendViewNamespaceId.tokenIcon.rawValue, in: namespace)
             .padding(.top, 34)
 
             SendDecimalNumberTextField(viewModel: viewModel.decimalNumberTextFieldViewModel)
@@ -76,14 +55,14 @@ struct SendAmountView: View {
                 .alignment(.center)
                 .prefixSuffixOptions(viewModel.currentFieldOptions)
                 .frame(maxWidth: .infinity)
-                .matchedGeometryEffect(id: SendViewNamespaceId.amountCryptoText.rawValue, in: namespace)
+                .matchedGeometryEffectOptional(id: SendViewNamespaceId.amountCryptoText.rawValue, in: namespace)
                 .padding(.top, 18)
 
             // Keep empty text so that the view maintains its place in the layout
             Text(viewModel.amountAlternative ?? " ")
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .lineLimit(1)
-                .matchedGeometryEffect(id: SendViewNamespaceId.amountFiatText.rawValue, in: namespace)
+                .matchedGeometryEffectOptional(id: SendViewNamespaceId.amountFiatText.rawValue, in: namespace)
                 .padding(.top, 6)
 
             // Keep empty text so that the view maintains its place in the layout
