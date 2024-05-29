@@ -36,8 +36,17 @@ class CommonTangemApiService {
     }
 
     private func request<D: Decodable>(for type: TangemApiTarget.TargetType, decoder: JSONDecoder = .init()) async throws -> D {
-        let target = TangemApiTarget(type: type, authData: authData)
+        let target = TangemApiTarget(type: type, authData: authData, appVersion: appVersion())
         return try await provider.asyncRequest(target).mapAPIResponse(decoder: decoder)
+    }
+
+    func appVersion() -> String {
+        if let appVersion: String = InfoDictionaryUtils.version.value() {
+            return appVersion
+        }
+
+        assertionFailure("Can't get the app version from the app bundle")
+        return .unknown.lowercased()
     }
 }
 
@@ -244,6 +253,14 @@ extension CommonTangemApiService: TangemApiService {
     func loadFeatures() async throws -> [String: Bool] {
         try await request(for: .features)
     }
+
+    // MARK: - Markets Implementation
+
+    func loadMarkets(requestModel: MarketDTO.General.Request) async throws -> MarketDTO.General.Response {
+        try await request(for: .marketGeneral(requestModel))
+    }
+
+    // MARK: - Init
 
     func initialize() {
         provider
