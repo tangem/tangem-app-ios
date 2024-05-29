@@ -93,9 +93,14 @@ extension View {
     }
 
     @ViewBuilder
-    func matchedGeometryEffectOptional<ID>(id: ID?, in namespace: Namespace.ID?, properties: MatchedGeometryProperties = .frame, anchor: UnitPoint = .center, isSource: Bool = true) -> some View where ID: Hashable {
+    func matchedGeometryEffectOptional(id: String?, in namespace: Namespace.ID?, properties: MatchedGeometryProperties = .frame, anchor: UnitPoint = .center, isSource: Bool = true) -> some View {
         if let id, let namespace {
             matchedGeometryEffect(id: id, in: namespace, properties: properties, anchor: anchor, isSource: isSource)
+                .overlay(alignment: .topLeading) {
+                    Text(id)
+                        .font(.caption2)
+                        .foregroundColor(.red)
+                }
         } else if id == nil, namespace == nil {
             self
         } else {
