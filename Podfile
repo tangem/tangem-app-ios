@@ -105,6 +105,15 @@ target 'TangemVisa' do
   end
 end
 
+target 'TangemStaking' do
+  blockchain_sdk_pods
+  pod 'Moya'
+
+  target 'TangemStakingTests' do
+    inherit! :search_paths
+  end
+end
+
 target 'TangemFoundation' do
   pod 'Moya'
 
