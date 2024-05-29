@@ -92,3 +92,11 @@ class FakeTangemApiService: TangemApiService {
 
     func initialize() {}
 }
+
+// MARK: - Markets Implementation
+
+extension FakeTangemApiService {
+    func loadMarkets(requestModel: MarketDTO.General.Request) async throws -> MarketDTO.General.Response {
+        throw "Not implemented"
+    }
+}
