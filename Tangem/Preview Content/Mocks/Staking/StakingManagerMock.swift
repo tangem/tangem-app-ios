@@ -12,15 +12,15 @@ import TangemStaking
 actor StakingManagerMock: StakingManager {
     func getYield(item: StakingTokenItem) async throws -> YieldInfo {
         YieldInfo(
-            id: "ethereum-staking",
-            item: .init(network: "ethereum", contractAdress: nil),
-            apy: 3.54,
-            rewardRate: 5.06,
+            id: "tron-trx-native-staking",
+            apy: 0.03712381,
             rewardType: .apr,
-            unbonding: .days(3),
-            minimumRequirement: 300,
-            rewardClaimingType: .auto,
-            warmupPeriod: .days(3),
+            rewardRate: 0.03712381,
+            minimumRequirement: 1,
+            item: .init(network: "tron", contractAdress: nil),
+            unbondingPeriod: .days(14),
+            warmupPeriod: .days(0),
+            rewardClaimingType: .manual,
             rewardScheduleType: .block
         )
     }
