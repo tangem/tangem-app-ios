@@ -1,0 +1,17 @@
+//
+//  AverageRewardingViewData.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2024 Tangem AG. All rights reserved.
+//
+
+import Foundation
+
+struct AverageRewardingViewData: Hashable, Identifiable {
+    var id: Int { hashValue }
+
+    let rewardType: String
+    let rewardFormatted: String
+    let profitFormatted: String
+}
