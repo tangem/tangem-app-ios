@@ -14,6 +14,7 @@ import TangemStaking
 final class StakingDetailsViewModel: ObservableObject {
     // MARK: - ViewState
 
+    var title: String { Localization.stakingDetailsTitle(inputData.tokenItem.name) }
     @Published var detailsViewModels: [DefaultRowViewModel] = []
     @Published var averageRewardingViewData: AverageRewardingViewData?
     @Published var rewardViewData: RewardViewData?
@@ -24,7 +25,12 @@ final class StakingDetailsViewModel: ObservableObject {
     private weak var coordinator: StakingDetailsRoutable?
     private let balanceFormatter = BalanceFormatter()
     private let percentFormatter = PercentFormatter()
-    private let dateComponentsFormatter = DateComponentsFormatter()
+    private let daysFormatter: DateComponentsFormatter = {
+        let formatter = DateComponentsFormatter()
+        formatter.unitsStyle = .short
+        formatter.allowedUnits = [.day]
+        return formatter
+    }()
 
     init(
         inputData: StakingDetailsData,
@@ -52,9 +58,13 @@ private extension StakingDetailsViewModel {
 
     func setupAverageRewardingViewData() {
         let profitFormatted = balanceFormatter.formatFiatBalance(inputData.monthEstimatedProfit)
+        let days = 30 // [REDACTED_TODO_COMMENT]
+        let periodProfitFormatted = daysFormatter.string(from: DateComponents(day: days)) ?? days.formatted()
+
         averageRewardingViewData = .init(
             rewardType: inputData.rewardType.title,
             rewardFormatted: aprFormatted(),
+            periodProfitFormatted: periodProfitFormatted,
             profitFormatted: profitFormatted
         )
     }
@@ -80,13 +90,13 @@ private extension StakingDetailsViewModel {
             currencyCode: inputData.tokenItem.currencySymbol
         )
 
-        let unbondingFormatted = inputData.unbonding.formatted(formatter: dateComponentsFormatter)
+        let unbondingFormatted = inputData.unbonding.formatted(formatter: daysFormatter)
         let minimumFormatted = balanceFormatter.formatCryptoBalance(
             inputData.minimumRequirement,
             currencyCode: inputData.tokenItem.currencySymbol
         )
 
-        let warmupFormatted = inputData.warmupPeriod.formatted(formatter: dateComponentsFormatter)
+        let warmupFormatted = inputData.warmupPeriod.formatted(formatter: daysFormatter)
 
         detailsViewModels = [
             DefaultRowViewModel(title: Localization.stakingDetailsAvailable, detailsType: .text(availableFormatted)),
@@ -120,10 +130,14 @@ private extension Period {
     func formatted(formatter: DateComponentsFormatter) -> String {
         switch self {
         case .days(let days):
-            formatter.unitsStyle = .short
-            formatter.allowedUnits = [.day]
             return formatter.string(from: DateComponents(day: days)) ?? days.formatted()
         }
+    }
+}
+
+private extension DateComponentsFormatter {
+    func formatted(days: Int) -> String {
+        return string(from: DateComponents(day: days)) ?? days.formatted()
     }
 }
 
