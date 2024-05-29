@@ -23,7 +23,7 @@ struct RewardView: View {
     var content: some View {
         switch data.state {
         case .noRewards:
-            Text("No rewards to claim")
+            Text(Localization.stakingDetailsNoRewardsToClaim)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
         case .rewards(let fiatFormatted, let cryptoFormatted):
             Text(fiatFormatted)
@@ -50,7 +50,7 @@ struct RewardView: View {
                         fiatFormatted: "24.12$",
                         cryptoFormatted: "23.421 SOL"
                     )
-                )
+                ),
             ]
         ) {
             RewardView(data: $0)
