@@ -34,7 +34,7 @@ struct AverageRewardingView: View {
 
     private var trailingView: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("30 day est. profit")
+            Text(Localization.stakingDetailsEstimatedProfit(data.periodProfitFormatted))
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
 
             Text(data.profitFormatted)
@@ -52,6 +52,7 @@ struct AverageRewardingView: View {
         GroupedSection(AverageRewardingViewData(
             rewardType: "APR",
             rewardFormatted: "4.23%",
+            periodProfitFormatted: "30 days",
             profitFormatted: "13.57$"
         )) {
             AverageRewardingView(data: $0)
