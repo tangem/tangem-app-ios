@@ -23,16 +23,18 @@ extension StakeKitDTO {
 
             struct Response: Decodable {
                 let id: String
-                let token: Token
-                let tokens: [Token]?
+//                let token: Token?
+//                let tokens: [Token]?
                 let args: Actions
-                let status: Status
+//                let status: Status
+
                 let apy: Decimal
                 let rewardRate: Decimal
                 let rewardType: RewardType
+
                 let metadata: Metadata
                 let validators: [Validator]
-                let isAvailable: Bool?
+//                let isAvailable: Bool?
 
                 struct Actions: Decodable {
                     let enter: Action?
@@ -71,10 +73,10 @@ extension StakeKitDTO {
                     }
                 }
 
-                struct Status: Decodable {
-                    let enter: Bool?
-                    let exit: Bool?
-                }
+//                struct Status: Decodable {
+//                    let enter: Bool?
+//                    let exit: Bool?
+//                }
 
                 enum RewardType: String, Decodable {
                     case apr
@@ -83,12 +85,12 @@ extension StakeKitDTO {
                 }
 
                 struct Metadata: Decodable {
-                    let name: String?
-                    let logoURI: String?
-                    let description: String?
-                    let documentation: String?
-                    let token: Token?
-                    let tokens: [Token]?
+//                    let name: String?
+//                    let logoURI: String?
+//                    let description: String?
+//                    let documentation: String?
+                    let token: Token
+//                    let tokens: [Token]
                     let type: MetadataType
                     let rewardSchedule: RewardScheduleType
                     let cooldownPeriod: Period
@@ -96,10 +98,10 @@ extension StakeKitDTO {
                     let withdrawPeriod: Period?
                     let rewardClaiming: RewardClaiming
                     let defaultValidator: String?
-                    let supportsMultipleValidators: Bool?
-                    let supportsLedgerWalletApi: Bool?
+                    let supportsMultipleValidators: Bool
+//                    let supportsLedgerWalletApi: Bool?
                     let revshare: Enabled
-                    let fee: Enabled?
+//                    let fee: Enabled?
 
                     enum MetadataType: String, Decodable {
                         case staking
