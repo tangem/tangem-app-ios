@@ -16,12 +16,21 @@ struct SendAmountView: View {
     private let iconSize = CGSize(bothDimensions: 36)
 
     var body: some View {
-        GroupedScrollView(spacing: 14) {
+//        GroupedScrollView(spacing: 14) {
+        VStack(spacing: 14) {
             GroupedSection(viewModel) { viewModel in
                 amountSectionContent
             }
             .contentAlignment(.center)
             .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
+
+//                .background(Colors.Background.action)
+//                .matchedGeometryEffect(id: SendViewNamespaceId.amountContainer.rawValue, in: namespace)
+//                .background(
+//                    Colors.Background.action
+//                        .cornerRadiusContinuous(GroupedSectionConstants.defaultCornerRadius)
+//                        .matchedGeometryEffect(id: SendViewNamespaceId.amountContainer.rawValue, in: namespace)
+//                )
 
             if !viewModel.animatingAuxiliaryViewsOnAppear {
                 HStack {
@@ -39,7 +48,10 @@ struct SendAmountView: View {
                 }
                 .transition(SendView.Constants.auxiliaryViewTransition(for: .amount))
             }
+
+            Spacer()
         }
+        .padding(.horizontal, 14)
         .onAppear(perform: viewModel.onAppear)
         .onAppear(perform: viewModel.onAuxiliaryViewAppear)
         .onDisappear(perform: viewModel.onAuxiliaryViewDisappear)
@@ -60,7 +72,7 @@ struct SendAmountView: View {
 
             SendDecimalNumberTextField(viewModel: viewModel.decimalNumberTextFieldViewModel)
                 // A small delay must be introduced to fix a glitch in a transition animation when changing screens
-                .initialFocusBehavior(.immediateFocus)//.delayedFocus(duration: 2 * SendView.Constants.animationDuration))
+                .initialFocusBehavior(.immediateFocus) // .delayedFocus(duration: 2 * SendView.Constants.animationDuration))
                 .alignment(.center)
                 .prefixSuffixOptions(viewModel.currentFieldOptions)
                 .frame(maxWidth: .infinity)
