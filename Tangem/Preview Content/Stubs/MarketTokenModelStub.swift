@@ -1,5 +1,5 @@
 //
-//  DummyMarketTokenModelFactory.swift
+//  MarketTokenModelStub.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct DummyMarketTokenModelFactory {
+struct MarketTokenModelStub {
     // [REDACTED_TODO_COMMENT]
     func list() -> [MarketTokenModel] {
         [
