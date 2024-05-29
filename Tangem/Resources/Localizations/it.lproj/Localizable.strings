@@ -124,6 +124,7 @@
 "common_share" = "Share";
 "common_sign" = "Sign";
 "common_sign_and_send" = "Sign and send";
+"common_stake" = "Stake";
 "common_start" = "Start";
 "common_submit" = "Submit";
 "common_success" = "Con successo";
@@ -570,6 +571,8 @@
 "token_details_hide_alert_message" = "You are about to hide this token from the main screen. You can add it back anytime through the manage tokens page.";
 "token_details_hide_alert_title" = "Hide %@";
 "token_details_hide_token" = "Hide token";
+"token_details_staking_block_subtitle" = "Staking allows you to earn %1$@ and get rewards every %2$@ days";
+"token_details_staking_block_title" = "Earn up to %@ staking rewards yearly";
 "token_details_token_type_subtitle" = "%1$@ token in %%image%% %2$@ network";
 "token_details_token_type_subtitle_no_standard" = "Token in %%image%% %1$@ network";
 "token_details_unable_hide_alert_message" = "The %1$@ (%2$@) token is the main currency on the %3$@ network and cannot be hidden as long as you have other tokens on this network in the list";
