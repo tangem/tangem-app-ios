@@ -41,11 +41,15 @@ extension FactorySettingsResettingCardInteractor: FactorySettingsResetting {
             filter: filter,
             initialMessage: initialMessage
         ) { result in
-            switch result {
-            case .success:
-                completion(.success(()))
-            case .failure(let error):
-                completion(.failure(error))
+
+            // Fix alerts no-show
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                switch result {
+                case .success:
+                    completion(.success(()))
+                case .failure(let error):
+                    completion(.failure(error))
+                }
             }
 
             withExtendedLifetime(task) {}

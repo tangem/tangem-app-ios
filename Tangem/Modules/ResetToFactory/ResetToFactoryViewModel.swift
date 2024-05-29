@@ -98,8 +98,17 @@ private extension ResetToFactoryViewModel {
                 }
 
             case .failure(let error):
-                AppLog.shared.error(error, params: [.action: .purgeWallet])
-                alert = ResetToFactoryAlertBuilder.makeResetIncompleteAlert(continueAction: resetCardToFactory, cancelAction: resetDidFinish)
+                if resetHelper.resettedCardsCount == 0 {
+                    if !error.isUserCancelled {
+                        alert = error.alertBinder
+                    }
+                } else {
+                    alert = ResetToFactoryAlertBuilder.makeResetIncompleteAlert(continueAction: resetCardToFactory, cancelAction: resetDidFinish)
+                }
+
+                if !error.isUserCancelled {
+                    AppLog.shared.error(error, params: [.action: .purgeWallet])
+                }
             }
         }
     }
