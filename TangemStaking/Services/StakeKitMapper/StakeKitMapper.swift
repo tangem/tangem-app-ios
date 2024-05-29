@@ -16,14 +16,14 @@ struct StakeKitMapper {
 
         return try YieldInfo(
             id: response.id,
-            item: mapToStakingTokenItem(from: response.token),
             apy: response.apy,
-            rewardRate: response.rewardRate,
             rewardType: mapToRewardType(from: response.rewardType),
-            unbonding: mapToPeriod(from: response.metadata.cooldownPeriod),
+            rewardRate: response.rewardRate,
             minimumRequirement: enterAction.args.amount.minimum,
-            rewardClaimingType: mapToRewardClaimingType(from: response.metadata.rewardClaiming),
+            item: mapToStakingTokenItem(from: response.metadata.token),
+            unbondingPeriod: mapToPeriod(from: response.metadata.cooldownPeriod),
             warmupPeriod: mapToPeriod(from: response.metadata.warmupPeriod),
+            rewardClaimingType: mapToRewardClaimingType(from: response.metadata.rewardClaiming),
             rewardScheduleType: mapToRewardScheduleType(from: response.metadata.rewardSchedule)
         )
     }
