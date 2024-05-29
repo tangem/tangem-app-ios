@@ -499,6 +499,16 @@ extension SingleTokenBaseViewModel {
     }
 
     func openStaking() {
+        let alertBuilder = SingleTokenAlertBuilder()
+        if let alertToDisplay = alertBuilder.swapAlert(
+            for: walletModel.tokenItem,
+            tokenItemSwapState: isStakingDisabled() ? .unavailable : .available,
+            isCustom: walletModel.isCustom
+        ) {
+            alert = alertToDisplay
+            return
+        }
+
         tokenRouter.openStaking(walletModel: walletModel)
     }
 
