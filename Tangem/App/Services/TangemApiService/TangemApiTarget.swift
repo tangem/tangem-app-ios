@@ -12,6 +12,15 @@ import TangemSdk
 struct TangemApiTarget: TargetType {
     let type: TargetType
     let authData: AuthData?
+    let appVersion: String?
+
+    init(type: TargetType, authData: AuthData?, appVersion: String? = nil) {
+        self.type = type
+        self.authData = authData
+        self.appVersion = appVersion
+    }
+
+    // MARK: - TargetType
 
     var baseURL: URL {
         AppEnvironment.current.apiBaseUrl
@@ -53,12 +62,14 @@ struct TangemApiTarget: TargetType {
             return "/user-network-account"
         case .apiList:
             return "/networks/providers"
+        case .marketGeneral:
+            return "/market_general"
         }
     }
 
     var method: Moya.Method {
         switch type {
-        case .rates, .currencies, .coins, .quotes, .geo, .getUserWalletTokens, .loadReferralProgramInfo, .promotion, .apiList, .features:
+        case .rates, .currencies, .coins, .quotes, .geo, .getUserWalletTokens, .loadReferralProgramInfo, .promotion, .apiList, .features, .marketGeneral:
             return .get
         case .saveUserWalletTokens:
             return .put
@@ -133,11 +144,21 @@ struct TangemApiTarget: TargetType {
             return .requestJSONEncodable(parameters)
         case .apiList:
             return .requestPlain
+        case .marketGeneral(let requestData):
+            return .requestParameters(parameters: requestData.parameters, encoding: URLEncoding.default)
         }
     }
 
     var headers: [String: String]? {
-        authData?.headers
+        var headers: [String: String] = authData?.headers.reduce(into: [:]) { partialResult, header in
+            partialResult[header.key] = header.value
+        } ?? [:]
+
+        if let appVersion {
+            headers["version"] = appVersion
+        }
+
+        return [:]
     }
 }
 
@@ -162,6 +183,7 @@ extension TangemApiTarget {
         case awardNewUser(walletId: String, address: String, code: String)
         case awardOldUser(walletId: String, address: String, programName: String)
         case resetAward(cardId: String)
+        case marketGeneral(_ requestModel: MarketDTO.General.Request)
 
         // Configs
         case apiList
