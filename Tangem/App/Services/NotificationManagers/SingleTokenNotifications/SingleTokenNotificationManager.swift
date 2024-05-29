@@ -66,6 +66,11 @@ final class SingleTokenNotificationManager {
         let factory = NotificationsFactory()
 
         var events = [TokenNotificationEvent]()
+
+        if let event = makeStakingNotificationEvent() {
+            events.append(event)
+        }
+
         if let existentialWarning = walletModel.existentialDepositWarning {
             events.append(.existentialDepositWarning(message: existentialWarning))
         }
@@ -212,6 +217,25 @@ final class SingleTokenNotificationManager {
         case .none:
             return []
         }
+    }
+
+    func makeStakingNotificationEvent() -> TokenNotificationEvent? {
+        guard FeatureProvider.isAvailable(.staking) else {
+            return nil
+        }
+
+        // [REDACTED_TODO_COMMENT]
+        let earn: Decimal = 0.07523
+        let days = 2
+        let earnUpToFormatted = PercentFormatter().percentFormat(value: earn)
+        let rewardPeriodDaysFormatted = days.formatted()
+
+        return .staking(
+            tokenSymbol: walletModel.tokenItem.currencySymbol,
+            tokenIconInfo: TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom),
+            earnUpToFormatted: earnUpToFormatted,
+            rewardPeriodDaysFormatted: rewardPeriodDaysFormatted
+        )
     }
 }
 
