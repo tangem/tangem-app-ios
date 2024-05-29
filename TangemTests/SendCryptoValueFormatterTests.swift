@@ -57,17 +57,13 @@ class SendCryptoValueFormatterTests: XCTestCase {
         )
 
         let testData = [
-            (value: Decimal(string: "1")!, expectedStandardResult: "1 NEAR", expectedTrimmedFractionsResult: "1 NEAR"),
-            (value: Decimal(string: "2.1")!, expectedStandardResult: "2,1 NEAR", expectedTrimmedFractionsResult: "2,1 NEAR"),
+            (value: Decimal(string: "1")!, expectedStandardResult: "1,00 NEAR", expectedTrimmedFractionsResult: "1 NEAR"),
+            (value: Decimal(string: "2.1")!, expectedStandardResult: "2,10 NEAR", expectedTrimmedFractionsResult: "2,1 NEAR"),
             (value: Decimal(string: "3.21")!, expectedStandardResult: "3,21 NEAR", expectedTrimmedFractionsResult: "3,21 NEAR"),
             (value: Decimal(string: "4.321")!, expectedStandardResult: "4,321 NEAR", expectedTrimmedFractionsResult: "4,321 NEAR"),
-//            (value: Decimal(string: "0.012345678901234567890123456789")!, expectedStandardResult: "0,012345678901234567890123456789 NEAR", expectedTrimmedFractionsResult: "012345678901234567890123456789 NEAR"),
-//            (value: Decimal(string: "12345.012345678901234567890123456789")!, expectedStandardResult: "12 345,012345678901234567890123456789 NEAR", expectedTrimmedFractionsResult: "12 345,012345678901234567890123456789 NEAR"),
+            (value: Decimal(string: "0.012345678901234567890123456789")!, expectedStandardResult: "0,012345678901234567890123456789 NEAR", expectedTrimmedFractionsResult: "0,012345678901234567890123456789 NEAR"),
+            (value: Decimal(string: "12345.012345678901234567890123456789")!, expectedStandardResult: "12 345,012345678901234567890123456789 NEAR", expectedTrimmedFractionsResult: "12 345,012345678901234567890123456789 NEAR"),
         ]
-
-        #warning("❌❌❌❌❌❌❌❌❌❌")
-        #warning("[REDACTED_TODO_COMMENT]")
-        #warning("❌❌❌❌❌❌❌❌❌❌")
 
         testData.forEach { value, expectedStandardResult, expectedTrimmedFractionsResult in
             let standardResult = standardFormatter.string(from: value)!
