@@ -17,7 +17,6 @@ final class SingleTokenNotificationManager {
 
     private let walletModel: WalletModel
     private let walletModelsManager: WalletModelsManager
-    private let expressDestinationService: ExpressDestinationService?
     private weak var delegate: NotificationTapDelegate?
 
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
@@ -29,12 +28,10 @@ final class SingleTokenNotificationManager {
     init(
         walletModel: WalletModel,
         walletModelsManager: WalletModelsManager,
-        expressDestinationService: ExpressDestinationService?,
         contextDataProvider: AnalyticsContextDataProvider?
     ) {
         self.walletModel = walletModel
         self.walletModelsManager = walletModelsManager
-        self.expressDestinationService = expressDestinationService
 
         analyticsService.setup(with: self, contextDataProvider: contextDataProvider)
     }
