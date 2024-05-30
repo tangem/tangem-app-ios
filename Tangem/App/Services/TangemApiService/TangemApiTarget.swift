@@ -12,12 +12,10 @@ import TangemSdk
 struct TangemApiTarget: TargetType {
     let type: TargetType
     let authData: AuthData?
-    let appVersion: String?
 
-    init(type: TargetType, authData: AuthData?, appVersion: String? = nil) {
+    init(type: TargetType, authData: AuthData?) {
         self.type = type
         self.authData = authData
-        self.appVersion = appVersion
     }
 
     // MARK: - TargetType
@@ -154,7 +152,7 @@ struct TangemApiTarget: TargetType {
             partialResult[header.key] = header.value
         } ?? [:]
 
-        if let appVersion {
+        if let appVersion: String = InfoDictionaryUtils.version.value() {
             headers["version"] = appVersion
         }
 
