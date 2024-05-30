@@ -19,7 +19,9 @@ struct SendSummaryView: View {
 
     var body: some View {
         GroupedScrollView(spacing: 14) {
-//            VStack {
+//        VStack {
+//        ScrollView {
+//            LazyVStack(alignment: .center, spacing: 14) {
             Rectangle()
                 .fill(Color.purple)
                 .frame(width: 100, height: 100, alignment: .center)
@@ -46,6 +48,7 @@ struct SendSummaryView: View {
             }
 
             Spacer()
+//            }
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         .alert(item: $viewModel.alert) { $0.alert }

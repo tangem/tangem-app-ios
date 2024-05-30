@@ -19,6 +19,7 @@ struct SendView: View {
     private let bottomGradientHeight: CGFloat = 150
 
     @State private var bottomButtonsHeight: CGFloat = 0
+    @State private var pageContentTransition: AnyTransition = .opacity
 
     var body: some View {
         VStack(spacing: 14) {
@@ -26,7 +27,7 @@ struct SendView: View {
 
             ZStack(alignment: .bottom) {
                 currentPage
-                    .overlay(bottomOverlay, alignment: .bottom)
+//                    .overlay(bottomOverlay, alignment: .bottom)
                     .transition(pageContentTransition)
 
                 bottomButtons
@@ -37,25 +38,28 @@ struct SendView: View {
             }
         }
         .background(backgroundColor.ignoresSafeArea())
-        .animation(Constants.defaultAnimation, value: viewModel.step)
-        .animation(Constants.defaultAnimation, value: viewModel.showTransactionButtons)
+//        .animation(Constants.defaultAnimation, value: viewModel.step)
+//        .animation(Constants.defaultAnimation, value: viewModel.showTransactionButtons)
         .interactiveDismissDisabled(viewModel.shouldShowDismissAlert)
         .scrollDismissesKeyboardCompat(true)
     }
 
-    private var pageContentTransition: AnyTransition {
-        switch viewModel.stepAnimation {
-        case .slideForward:
-            return .asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading))
-        case .slideBackward:
-            return .asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .trailing))
-        case .moveAndFade:
-            return .asymmetric(
-                insertion: .offset(),
-                removal: .opacity.animation(.spring(duration: SendView.Constants.animationDuration / 2))
-            )
-        }
-    }
+//    private var pageContentTransition: AnyTransition {
+//        switch viewModel.stepAnimation {
+//        case .slideForward:
+//            print("zzz [update transition] .slideForward")
+//            return .asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading))
+//        case .slideBackward:
+//            print("zzz [update transition] .slideBackward")
+//            return .asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .trailing))
+//        case .moveAndFade:
+//            print("zzz [update transition] .moveAndFade")
+//            return .asymmetric(
+//                insertion: .offset(),
+//                removal: .opacity.animation(.spring(duration: SendView.Constants.animationDuration / 2))
+//            )
+//        }
+//    }
 
     @ViewBuilder
     private var header: some View {
@@ -83,16 +87,37 @@ struct SendView: View {
                 .lineLimit(1)
                 .layoutPriority(2)
 
-                HStack(spacing: 0) {
+                HStack(spacing: 14) {
                     Spacer()
 
-                    if viewModel.showQRCodeButton {
-                        Button(action: viewModel.scanQRCode) {
-                            Assets.qrCode.image
-                                .renderingMode(.template)
-                                .foregroundColor(Colors.Icon.primary1)
-                        }
+                    Button {
+                        viewModel.stepAnimation = .slideBackward
+                        pageContentTransition = SendViewModel.transition(from: viewModel.stepAnimation)
+                    } label: {
+                        Image(systemName: "arrow.left")
                     }
+
+                    Button {
+                        viewModel.stepAnimation = .slideForward
+                        pageContentTransition = SendViewModel.transition(from: viewModel.stepAnimation)
+                    } label: {
+                        Image(systemName: "arrow.right")
+                    }
+
+                    Button {
+                        viewModel.stepAnimation = .moveAndFade
+                        pageContentTransition = SendViewModel.transition(from: viewModel.stepAnimation)
+                    } label: {
+                        Image(systemName: "sun.max")
+                    }
+
+//                    if viewModel.showQRCodeButton {
+//                        Button(action: viewModel.scanQRCode) {
+//                            Assets.qrCode.image
+//                                .renderingMode(.template)
+//                                .foregroundColor(Colors.Icon.primary1)
+//                        }
+//                    }
                 }
                 .layoutPriority(1)
             }
@@ -172,7 +197,7 @@ struct SendView: View {
                         action: viewModel.back
                     )
                     .transition(.move(edge: .leading).combined(with: .opacity))
-                    .animation(SendView.Constants.backButtonAnimation, value: viewModel.showBackButton)
+//                    .animation(SendView.Constants.backButtonAnimation, value: viewModel.showBackButton)
                 }
 
                 MainButton(
