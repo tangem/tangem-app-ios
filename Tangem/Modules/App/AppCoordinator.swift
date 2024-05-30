@@ -119,7 +119,7 @@ class AppCoordinator: CoordinatorObject {
     /// - Note: The coordinator is set up only once and only when the feature toggle is enabled.
     private func setupMainBottomSheetCoordinatorIfNeeded() {
         guard
-            FeatureProvider.isAvailable(.mainScreenBottomSheet),
+            FeatureProvider.isAvailable(.markets),
             mainBottomSheetCoordinator == nil
         else {
             return
