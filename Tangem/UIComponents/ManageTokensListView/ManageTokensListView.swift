@@ -16,18 +16,26 @@ struct ManageTokensListView<Header, Footer>: View where Header: View, Footer: Vi
     let header: Header?
     let footer: Footer?
 
+    private let bottomPadding: CGFloat
+
     init(
         viewModel: ManageTokensListViewModel,
+        bottomPadding: CGFloat = Constants.bottomPadding,
         @ViewBuilder header: HeaderFactory,
         @ViewBuilder footer: FooterFactory
     ) {
         self.viewModel = viewModel
+        self.bottomPadding = bottomPadding
         self.header = header()
         self.footer = footer()
     }
 
-    init(viewModel: ManageTokensListViewModel) where Header == EmptyView, Footer == EmptyView {
+    init(
+        viewModel: ManageTokensListViewModel,
+        bottomPadding: CGFloat = Constants.bottomPadding
+    ) where Header == EmptyView, Footer == EmptyView {
         self.viewModel = viewModel
+        self.bottomPadding = bottomPadding
         header = nil
         footer = nil
     }
@@ -37,15 +45,11 @@ struct ManageTokensListView<Header, Footer>: View where Header: View, Footer: Vi
             LazyVStack {
                 if let header {
                     header
-
-                    divider
                 }
 
                 ForEach(viewModel.coinViewModels) {
                     ManageTokensCoinView(model: $0)
                         .padding(.horizontal)
-
-                    divider
                 }
 
                 if viewModel.hasNextPage {
@@ -59,11 +63,13 @@ struct ManageTokensListView<Header, Footer>: View where Header: View, Footer: Vi
                     footer
                 }
             }
+            .padding(.bottom, bottomPadding)
         }
     }
+}
 
-    private var divider: some View {
-        Divider()
-            .padding([.leading])
+extension ManageTokensListView {
+    enum Constants {
+        static var bottomPadding: CGFloat { 60 }
     }
 }
