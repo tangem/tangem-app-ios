@@ -1,5 +1,5 @@
 //
-//  MarketTokenModel.swift
+//  MarketsTokenModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct MarketTokenModel: Identifiable, Decodable {
+struct MarketsTokenModel: Identifiable, Decodable {
     let id: String
     let name: String
     let symbol: String
