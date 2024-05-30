@@ -48,6 +48,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         ]
         UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = UIColor.textAccent
 
+        // Sets the background color of the Picker
+        UISegmentedControl.appearance().backgroundColor = .red.withAlphaComponent(0.15)
+        // Disappears the divider
+        UISegmentedControl.appearance().setDividerImage(UIImage(), forLeftSegmentState: .normal, rightSegmentState: .normal, barMetrics: .default)
+        // Changes the color for the selected item
+        UISegmentedControl.appearance().selectedSegmentTintColor = .red
+        // Changes the text color for the selected item
+        UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor.white], for: .selected)
+
         servicesManager.initialize()
         return true
     }
