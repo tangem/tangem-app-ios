@@ -115,7 +115,7 @@ private extension CommonTokenQuotesRepository {
         let currencyCode = AppSettings.shared.selectedCurrencyCode
 
         // [REDACTED_TODO_COMMENT]
-        let fields: [QuotesDTO.Request.Fields] = FeatureStorage().useDevApi ? [.price, .priceChange24h, .prices24h] : [.price, .priceChange24h]
+        let fields: [QuotesDTO.Request.Fields] = FeatureStorage().useDevApi ? [.price, .priceChange24h, .lastUpdatedAt] : [.price, .priceChange24h]
 
         // We get here currencyIds. But on in the API model we named it like coinIds
         let request = QuotesDTO.Request(
