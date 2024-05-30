@@ -17,7 +17,7 @@ actor StakingManagerMock: StakingManager {
             rewardType: .apr,
             rewardRate: 0.03712381,
             minimumRequirement: 1,
-            item: .init(network: "tron", contractAdress: nil),
+            item: .init(coinId: "tron", contractAdress: nil),
             unbondingPeriod: .days(14),
             warmupPeriod: .days(0),
             rewardClaimingType: .manual,
