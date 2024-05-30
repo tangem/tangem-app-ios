@@ -11,6 +11,6 @@ import TangemStaking
 
 extension WalletModel: StakingWallet {
     var stakingTokenItem: TangemStaking.StakingTokenItem {
-        StakingTokenItem(network: tokenItem.networkId, contractAdress: tokenItem.contractAddress)
+        StakingTokenItem(coinId: tokenItem.id!, contractAdress: tokenItem.contractAddress)
     }
 }
