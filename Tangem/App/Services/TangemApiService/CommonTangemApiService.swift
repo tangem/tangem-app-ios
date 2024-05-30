@@ -247,8 +247,8 @@ extension CommonTangemApiService: TangemApiService {
 
     // MARK: - Markets Implementation
 
-    func loadMarkets(requestModel: MarketDTO.General.Request) async throws -> MarketDTO.General.Response {
-        try await request(for: .marketGeneral(requestModel))
+    func loadMarkets(requestModel: MarketsDTO.General.Request) async throws -> MarketsDTO.General.Response {
+        try await request(for: .marketsGeneral(requestModel))
     }
 
     // MARK: - Init
