@@ -64,7 +64,8 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
         marketRaiting = data.marketRaiting
         priceValue = priceFormatter.formatFiatBalance(data.priceValue)
 
-        if let priceChangeResult = priceChangeFormatter.format(value: data.priceChangeStateValue) {
+        if let priceChangeStateValue = data.priceChangeStateValue {
+            let priceChangeResult = priceChangeFormatter.format(value: priceChangeStateValue)
             priceChangeState = .loaded(signType: priceChangeResult.signType, text: priceChangeResult.formattedText)
         }
 
