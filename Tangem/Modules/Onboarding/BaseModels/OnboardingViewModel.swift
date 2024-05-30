@@ -134,6 +134,27 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     lazy var userWalletStorageAgreementViewModel = UserWalletStorageAgreementViewModel(coordinator: self)
+    lazy var addTokensViewModel: OnboardingAddTokensViewModel? = {
+        guard
+            let userWalletModel,
+            userWalletModel.config.hasFeature(.multiCurrency)
+        else {
+            goToNextStep()
+            return nil
+        }
+
+        let manageTokensAdapter = ManageTokensAdapter(settings: .init(
+            longHashesSupported: userWalletModel.config.hasFeature(.longHashes),
+            existingCurves: userWalletModel.config.existingCurves,
+            supportedBlockchains: userWalletModel.config.supportedBlockchains,
+            userTokensManager: userWalletModel.userTokensManager
+        ))
+
+        return OnboardingAddTokensViewModel(
+            adapter: manageTokensAdapter,
+            delegate: self
+        )
+    }()
 
     var disclaimerModel: DisclaimerViewModel? {
         guard let url = input.cardInput.disclaimer?.url else {
@@ -431,5 +452,11 @@ extension OnboardingViewModel: UserWalletStorageAgreementRoutable {
     func didDeclineToSaveUserWallets() {
         didAskToSaveUserWallets(agreed: false)
         goToNextStep()
+    }
+}
+
+extension OnboardingViewModel: OnboardingAddTokensDelegate {
+    func showAlert(_ alert: AlertBinder) {
+        self.alert = alert
     }
 }
