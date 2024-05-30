@@ -15,8 +15,6 @@ final class MarketsViewModel: ObservableObject {
 
     @Injected(\.quotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
 
-    @Published var alert: AlertBinder?
-    @Published var isShowAddCustomToken: Bool = false
     @Published var tokenViewModels: [MarketsItemViewModel] = []
     @Published var viewDidAppear: Bool = false
 
@@ -34,8 +32,6 @@ final class MarketsViewModel: ObservableObject {
     private var dataSource: MarketsDataSource
 
     private var bag = Set<AnyCancellable>()
-    private var cacheExistListCoinId: [String] = []
-    private var pendingDerivationCountByWalletId: [UserWalletId: Int] = [:]
 
     // MARK: - Init
 
@@ -114,10 +110,6 @@ private extension MarketsViewModel {
                     return self.mapToViewModel(token: $0)
                 }
 
-                updateQuote(by: items.map { $0.id })
-
-                isShowAddCustomToken = tokenViewModels.isEmpty && !dataSource.userWalletModels.contains(where: { $0.config.hasFeature(.multiCurrency) })
-
                 if let searchValue = loader.lastSearchTextValue, !searchValue.isEmpty, items.isEmpty {
                     Analytics.log(event: .manageTokensTokenIsNotFound, params: [.input: searchValue])
                 }
@@ -136,10 +128,7 @@ private extension MarketsViewModel {
 
     /// Need for display list skeleton view
     private func setNeedDisplayTokensListSkeletonView() {
-//        tokenViewModels = [Int](0 ... 10).map { _ in
-//            let dummyInputData = MarketsItemViewModel.InputData(token: .dummy, state: .loading)
-//            return MarketsItemViewModel(dummyInputData)
-//        }
+        // [REDACTED_TODO_COMMENT]
     }
 
     private func mapToViewModel(token: MarketTokenModel) -> MarketsItemViewModel {
@@ -157,49 +146,8 @@ private extension MarketsViewModel {
         return MarketsItemViewModel(inputData)
     }
 
-    private func updateQuote(by coinIds: [String]) {
-        runTask(in: self) { root in
-            await root.tokenQuotesRepository.loadQuotes(currencyIds: coinIds)
-        }
-    }
-
-    private func updateGenerateAddressesViewModel() {
-        let countWalletPendingDerivation = pendingDerivationCountByWalletId.filter { $0.value > 0 }.count
-
-        guard countWalletPendingDerivation > 0 else {
-            coordinator?.hideGenerateAddressesWarning()
-            return
-        }
-
-        Analytics.log(
-            event: .manageTokensButtonGetAddresses,
-            params: [
-                .walletCount: String(countWalletPendingDerivation),
-                .source: Analytics.ParameterValue.manageTokens.rawValue,
-            ]
-        )
-
-        coordinator?.showGenerateAddressesWarning(
-            numberOfNetworks: pendingDerivationCountByWalletId.map(\.value).reduce(0, +),
-            currentWalletNumber: pendingDerivationCountByWalletId.filter { $0.value > 0 }.count,
-            totalWalletNumber: dataSource.userWalletModels.count,
-            action: weakify(self, forFunction: MarketsViewModel.generateAddressByWalletPendingDerivations)
-        )
-    }
-
-    private func generateAddressByWalletPendingDerivations() {
-        guard let userWalletId = pendingDerivationCountByWalletId.first(where: { $0.value > 0 })?.key else {
-            return
-        }
-
-        guard let userWalletModel = dataSource.userWalletModels.first(where: { $0.userWalletId == userWalletId }) else {
-            return
-        }
-
-        userWalletModel.userTokensManager.deriveIfNeeded { result in
-            if case .failure(let error) = result, !error.isUserCancelled {
-                self.alert = error.alertBinder
-            }
-        }
+    // [REDACTED_TODO_COMMENT]
+    private func updateCharts() {
+        runTask(in: self) { root in }
     }
 }
