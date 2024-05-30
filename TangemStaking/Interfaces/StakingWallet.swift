@@ -14,11 +14,11 @@ public protocol StakingWallet {
 }
 
 public struct StakingTokenItem: Hashable {
-    let network: String
+    let coinId: String
     let contractAdress: String?
 
-    public init(network: String, contractAdress: String?) {
-        self.network = network
+    public init(coinId: String, contractAdress: String?) {
+        self.coinId = coinId
         self.contractAdress = contractAdress
     }
 }
