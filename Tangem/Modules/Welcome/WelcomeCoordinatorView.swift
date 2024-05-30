@@ -16,6 +16,10 @@ struct WelcomeCoordinatorView: CoordinatorView {
         ZStack {
             content
             sheets
+
+            if let welcomeOnboardingCoordinator = coordinator.welcomeOnboardingCoordinator {
+                WelcomeOnboardingCoordinatorView(coordinator: welcomeOnboardingCoordinator)
+            }
         }
         .navigationBarHidden(coordinator.isNavigationBarHidden)
         .animation(.default, value: coordinator.viewState)
