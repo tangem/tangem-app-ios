@@ -54,7 +54,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
             return .noData
         }
 
-        let result = priceChangeFormatter.format(value: change)
+        let result = priceChangeFormatter.format(change, option: .priceChange)
         return .loaded(signType: result.signType, text: result.formattedText)
     }
 
@@ -182,7 +182,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         case .addHederaTokenAssociation:
             fulfillAssetRequirements()
         case .stake:
-            assertionFailure()
+            openStaking()
         default:
             break
         }
@@ -353,8 +353,6 @@ extension SingleTokenBaseViewModel {
             return isReceiveDisabled()
         case .exchange:
             return isSwapDisabled()
-        case .stake:
-            return isStakingDisabled()
         case .sell:
             return sendIsDisabled() || !exchangeUtility.sellAvailable
         case .copyAddress, .hide, .stake:
@@ -368,7 +366,6 @@ extension SingleTokenBaseViewModel {
         case .send: return openSend
         case .receive: return openReceive
         case .exchange: return openExchangeAndLogAnalytics
-        case .stake: return openStaking
         case .sell: return openSell
         case .copyAddress, .hide, .stake: return nil
         }
@@ -409,20 +406,6 @@ extension SingleTokenBaseViewModel {
         }
 
         return !swapAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem)
-    }
-
-    private func isStakingDisabled() -> Bool {
-        if walletModel.isCustom {
-            return true
-        }
-
-        switch walletModel.sendingRestrictions {
-        case .zeroWalletBalance, .cantSignLongTransactions, .hasPendingTransaction, .blockchainUnreachable:
-            return true
-        case .none, .zeroFeeCurrencyBalance:
-            let stakingAvailabilityProvider = TangemStakingFactory().makeStakingAvailabilityProvider(repository: stakingRepositoryProxy)
-            return !stakingAvailabilityProvider.isAvailableForStaking(item: walletModel.stakingTokenItem)
-        }
     }
 
     private func isReceiveDisabled() -> Bool {
@@ -499,16 +482,6 @@ extension SingleTokenBaseViewModel {
     }
 
     func openStaking() {
-        let alertBuilder = SingleTokenAlertBuilder()
-        if let alertToDisplay = alertBuilder.swapAlert(
-            for: walletModel.tokenItem,
-            tokenItemSwapState: isStakingDisabled() ? .unavailable : .available,
-            isCustom: walletModel.isCustom
-        ) {
-            alert = alertToDisplay
-            return
-        }
-
         tokenRouter.openStaking(walletModel: walletModel)
     }
 
