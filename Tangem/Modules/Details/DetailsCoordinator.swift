@@ -12,31 +12,28 @@ import UIKit
 class DetailsCoordinator: CoordinatorObject {
     // MARK: - Dependencies
 
-    var dismissAction: Action<Void>
-    var popToRootAction: Action<PopToRootOptions>
+    let dismissAction: Action<Void>
+    let popToRootAction: Action<PopToRootOptions>
 
     @Injected(\.safariManager) private var safariManager: SafariManager
 
     // MARK: - Main view model
 
-    @Published private(set) var detailsViewModel: DetailsViewModel? = nil
+    @Published private(set) var detailsViewModel: DetailsViewModel?
 
     // MARK: - Child coordinators
 
-    @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
-    @Published var walletConnectCoordinator: WalletConnectCoordinator? = nil
-    @Published var userWalletSettingsCoordinator: UserWalletSettingsCoordinator? = nil
-    @Published var cardSettingsCoordinator: CardSettingsCoordinator? = nil
-    @Published var appSettingsCoordinator: AppSettingsCoordinator? = nil
-    @Published var referralCoordinator: ReferralCoordinator? = nil
+    @Published var walletConnectCoordinator: WalletConnectCoordinator?
+    @Published var userWalletSettingsCoordinator: UserWalletSettingsCoordinator?
+    @Published var modalOnboardingCoordinator: OnboardingCoordinator?
+    @Published var appSettingsCoordinator: AppSettingsCoordinator?
 
     // MARK: - Child view models
 
-    @Published var mailViewModel: MailViewModel? = nil
-    @Published var disclaimerViewModel: DisclaimerViewModel? = nil
-    @Published var supportChatViewModel: SupportChatViewModel? = nil
-    @Published var scanCardSettingsViewModel: ScanCardSettingsViewModel? = nil
-    @Published var environmentSetupCoordinator: EnvironmentSetupCoordinator? = nil
+    @Published var mailViewModel: MailViewModel?
+    @Published var supportChatViewModel: SupportChatViewModel?
+    @Published var disclaimerViewModel: DisclaimerViewModel?
+    @Published var environmentSetupCoordinator: EnvironmentSetupCoordinator?
 
     // MARK: - Helpers
 
@@ -48,21 +45,38 @@ class DetailsCoordinator: CoordinatorObject {
     }
 
     func start(with options: DetailsCoordinator.Options) {
-        detailsViewModel = DetailsViewModel(userWalletModel: options.userWalletModel, coordinator: self)
+        detailsViewModel = DetailsViewModel(coordinator: self)
     }
 }
 
 // MARK: - Options
 
 extension DetailsCoordinator {
-    struct Options {
-        let userWalletModel: UserWalletModel
+    enum Options {
+        case `default`
     }
 }
 
 // MARK: - DetailsRoutable
 
 extension DetailsCoordinator: DetailsRoutable {
+    func openWalletConnect(with disabledLocalizedReason: String?) {
+        let coordinator = WalletConnectCoordinator()
+        let options = WalletConnectCoordinator.Options(disabledLocalizedReason: disabledLocalizedReason)
+        coordinator.start(with: options)
+        walletConnectCoordinator = coordinator
+    }
+
+    func openWalletSettings(options: UserWalletSettingsCoordinator.Options) {
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.userWalletSettingsCoordinator = nil
+        }
+
+        let coordinator = UserWalletSettingsCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+        coordinator.start(with: options)
+        userWalletSettingsCoordinator = coordinator
+    }
+
     func openOnboardingModal(with input: OnboardingInput) {
         let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] result in
             self?.modalOnboardingCoordinator = nil
@@ -77,36 +91,15 @@ extension DetailsCoordinator: DetailsRoutable {
         modalOnboardingCoordinator = coordinator
     }
 
-    func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType) {
-        let logsComposer = LogsComposer(infoProvider: dataCollector)
-        mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
-    }
-
-    func openWalletConnect(with disabledLocalizedReason: String?) {
-        let coordinator = WalletConnectCoordinator()
-        let options = WalletConnectCoordinator.Options(disabledLocalizedReason: disabledLocalizedReason)
-        coordinator.start(with: options)
-        walletConnectCoordinator = coordinator
-    }
-
-    func openDisclaimer(at url: URL) {
-        disclaimerViewModel = .init(url: url, style: .details)
-    }
-
-    func openScanCardSettings(with cardScanner: CardScanner) {
-        scanCardSettingsViewModel = ScanCardSettingsViewModel(cardScanner: cardScanner, coordinator: self)
-    }
-
-    func openWalletSettings(options: UserWalletSettingsCoordinator.Options) {
-        let coordinator = UserWalletSettingsCoordinator(popToRootAction: popToRootAction)
-        coordinator.start(with: options)
-        userWalletSettingsCoordinator = coordinator
-    }
-
     func openAppSettings() {
         let coordinator = AppSettingsCoordinator(popToRootAction: popToRootAction)
         coordinator.start(with: .init())
         appSettingsCoordinator = coordinator
+    }
+
+    func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType) {
+        let logsComposer = LogsComposer(infoProvider: dataCollector)
+        mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
     }
 
     func openSupportChat(input: SupportChatInputModel) {
@@ -114,7 +107,15 @@ extension DetailsCoordinator: DetailsRoutable {
         supportChatViewModel = SupportChatViewModel(input: input)
     }
 
-    func openInSafari(url: URL) {
+    func openDisclaimer(url: URL) {
+        disclaimerViewModel = .init(url: url, style: .details)
+    }
+
+    func openScanCardManual() {
+        safariManager.openURL(TangemBlogUrlBuilder().url(post: .scanCard))
+    }
+
+    func openSocialNetwork(url: URL) {
         UIApplication.shared.open(url)
     }
 
@@ -123,32 +124,5 @@ extension DetailsCoordinator: DetailsRoutable {
         coordinator.start(with: .init())
 
         environmentSetupCoordinator = coordinator
-    }
-
-    func openReferral(input: ReferralInputModel) {
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.referralCoordinator = nil
-        }
-
-        let coordinator = ReferralCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: .init(input: input))
-        referralCoordinator = coordinator
-        Analytics.log(.referralScreenOpened)
-    }
-
-    func openScanCardManual() {
-        safariManager.openURL(TangemBlogUrlBuilder().url(post: .scanCard))
-    }
-}
-
-// MARK: - ScanCardSettingsRoutable
-
-extension DetailsCoordinator: ScanCardSettingsRoutable {
-    func openCardSettings(with input: CardSettingsViewModel.Input) {
-        scanCardSettingsViewModel = nil
-
-        let coordinator = CardSettingsCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        coordinator.start(with: .init(input: input))
-        cardSettingsCoordinator = coordinator
     }
 }
