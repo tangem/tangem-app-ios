@@ -102,16 +102,15 @@ struct SendView: View {
     private func headerText(title: String, subtitle: String?, titleNamespaceId: String?) -> some View {
         VStack(spacing: 2) {
             // SwiftUI cannot animate the position and the contents of the same text view at the same time
-            if subtitle != nil {
-                headerTitleText(title: title, titleNamespaceId: titleNamespaceId)
-            } else {
-                headerTitleText(title: title, titleNamespaceId: titleNamespaceId)
-            }
-
+            // Hence the duplicate title views
             if let subtitle = subtitle {
+                headerTitleText(title: title, titleNamespaceId: titleNamespaceId)
+
                 Text(subtitle)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                     .transition(.opacity)
+            } else {
+                headerTitleText(title: title, titleNamespaceId: titleNamespaceId)
             }
         }
     }
