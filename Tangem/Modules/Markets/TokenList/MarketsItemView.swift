@@ -18,7 +18,6 @@ struct MarketsItemView: View {
         HStack {
             HStack(spacing: 12) {
                 IconView(url: viewModel.imageURL, size: iconSize, forceKingfisher: true)
-                    .skeletonable(isShown: viewModel.isLoading, radius: iconSize.height / 2)
 
                 tokenInfoView
             }
@@ -42,7 +41,6 @@ struct MarketsItemView: View {
                 Text(viewModel.name)
                     .lineLimit(1)
                     .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-                    .skeletonable(isShown: viewModel.isLoading, radius: 3)
 
                 Text(viewModel.symbol)
                     .lineLimit(1)
@@ -52,14 +50,12 @@ struct MarketsItemView: View {
             HStack(spacing: 6) {
                 Text(viewModel.marketRaiting)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                    .skeletonable(isShown: viewModel.isLoading, radius: 3)
                     .padding(.horizontal, 5)
                     .background(Colors.Field.primary)
                     .cornerRadiusContinuous(4)
 
                 Text(viewModel.marketCap)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                    .skeletonable(isShown: viewModel.isLoading, radius: 3)
             }
         }
     }
@@ -70,10 +66,8 @@ struct MarketsItemView: View {
                 .lineLimit(1)
                 .truncationMode(.middle)
                 .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
-                .skeletonable(isShown: viewModel.isLoading, radius: 3)
 
             TokenPriceChangeView(state: viewModel.priceChangeState)
-                .skeletonable(isShown: viewModel.isLoading, radius: 3)
         }
     }
 
@@ -84,6 +78,8 @@ struct MarketsItemView: View {
                     color: viewModel.priceHistoryChangeType.textColor,
                     data: priceHistory
                 )
+            } else {
+                // [REDACTED_TODO_COMMENT]
             }
         }
         .frame(width: 56, height: 32, alignment: .center)
@@ -94,17 +90,16 @@ struct MarketsItemView: View {
     let tokens = DummyMarketTokenModelFactory().list()
 
     return ScrollView(.vertical) {
-        ForEach((1 ..< tokens.count).reversed(), id: \.self) {
-            MarketsItemView(
-                viewModel: MarketsItemViewModel(
-                    .init(
-                        token: tokens[$0],
-                        priceValue: Bool.random() ? "$1,340.33" : "$23,341,324,034.83",
-                        priceChangeState: .loaded(signType: Bool.random() ? .positive : .negative, text: "\(Float.random(in: 0 ..< 10))%"),
-                        priceHistory: [1, 7, 3, 5, 13],
-                        state: .loaded
-                    )
-                )
+        ForEach(tokens) { token in
+            let inputData = MarketsItemViewModel.InputData(
+                id: token.id,
+                imageURL: token.imageURL,
+                name: token.name,
+                symbol: token.symbol,
+                marketCup: token.marketCup,
+                marketRaiting: token.marketRaiting,
+                priceValue: token.currentPrice,
+                priceChangeStateValue: token.priceChangePercentage[.day]
             )
         }
     }
