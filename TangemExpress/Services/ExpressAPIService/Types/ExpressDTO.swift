@@ -142,6 +142,22 @@ enum ExpressDTO {
         }
     }
 
+    enum ExchangeSent {
+        struct Request: Encodable {
+            let txHash: String
+            let txId: String
+            let fromNetwork: String
+            let fromAddress: String
+            let payinAddress: String
+            let payinExtraId: String?
+        }
+
+        struct Response: Decodable {
+            let txId: String
+            let status: ExpressTransactionStatus
+        }
+    }
+
     // MARK: - Error
 
     enum APIError {
