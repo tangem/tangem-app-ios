@@ -111,18 +111,27 @@ class SendFeeViewModel: ObservableObject {
     private func createCustomFeeModels() {
         guard let customFeeService else { return }
 
+        let editableCustomFeeService = customFeeService as? EditableCustomFeeService
+        let onCustomFeeFieldChange: ((Decimal?) -> Void)?
+        if let editableCustomFeeService {
+            onCustomFeeFieldChange = { [weak self] value in
+                self?.customFeeValue = value
+                editableCustomFeeService.setCustomFee(value: value)
+            }
+        } else {
+            onCustomFeeFieldChange = nil
+        }
+
         let customFeeModel = SendCustomFeeInputFieldModel(
             title: Localization.sendMaxFee,
             amountPublisher: input.customFeePublisher.decimalPublisher,
-            disabled: customFeeService.readOnlyCustomFee,
+            disabled: editableCustomFeeService == nil,
             fieldSuffix: walletInfo.feeCurrencySymbol,
             fractionDigits: walletInfo.feeFractionDigits,
             amountAlternativePublisher: customFeeInFiat.eraseToAnyPublisher(),
-            footer: customFeeService.customFeeDescription
-        ) { [weak self] value in
-            self?.customFeeValue = value
-            customFeeService.setCustomFee(value: value)
-        } onFocusChanged: { [weak self] focused in
+            footer: customFeeService.customFeeDescription,
+            onFieldChange: onCustomFeeFieldChange
+        ) { [weak self] focused in
             self?.onCustomFeeChanged(focused)
         }
 
