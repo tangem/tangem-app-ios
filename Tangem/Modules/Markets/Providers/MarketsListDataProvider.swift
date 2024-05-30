@@ -62,7 +62,20 @@ final class MarketsListDataProvider {
             reset(searchText, with: filter)
         }
 
-        loadItems(searchText, with: filter)
+        runTask(in: self) { provider in
+            let tokens = try await provider.loadItems(searchText, with: filter)
+
+            await runOnMain {
+                AppLog.shared.debug("\(String(describing: self)) loaded market list tokens with count = \(tokens.count)")
+
+                provider.currentPage += 1
+                self.items.append(contentsOf: tokens)
+                // If count of data received is less than perPage value then it is last page.
+                if tokens.count < provider.limitPerPage {
+                    provider.canFetchMore = false
+                }
+            }
+        }
     }
 
     func fetchMore() {
@@ -77,7 +90,7 @@ final class MarketsListDataProvider {
 // MARK: Private
 
 private extension MarketsListDataProvider {
-    func loadItems(_ searchText: String, with filter: Filter) {
+    func loadItems(_ searchText: String, with filter: Filter) async throws -> [MarketTokenModel] {
         let searchText = searchText.trimmed()
 
         let requestModel = MarketDTO.General.Request(
@@ -92,20 +105,8 @@ private extension MarketsListDataProvider {
 
         AppLog.shared.debug("\(String(describing: self)) loading market list tokens with request \(requestModel.parameters.debugDescription)")
 
-        runTask(in: self) { provider in
-            let response = try await provider.tangemApiService.loadMarkets(requestModel: requestModel)
-
-            await runOnMain {
-                AppLog.shared.debug("\(String(describing: self)) loaded market list tokens with count = \(response.tokens.count)")
-
-                provider.currentPage += 1
-                self.items.append(contentsOf: response.tokens)
-                // If count of data received is less than perPage value then it is last page.
-                if response.tokens.count < provider.limitPerPage {
-                    provider.canFetchMore = false
-                }
-            }
-        }
+        let response = try await tangemApiService.loadMarkets(requestModel: requestModel)
+        return response.tokens
     }
 }
 
