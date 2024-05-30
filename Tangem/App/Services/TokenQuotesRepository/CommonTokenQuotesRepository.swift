@@ -143,7 +143,9 @@ private extension CommonTokenQuotesRepository {
         let quotes = quotes.map { quote in
             TokenQuote(
                 currencyId: quote.id,
-                change: quote.priceChange,
+                // We received the value 0.12 which means that it's 0.12%
+                // But more comformatable work with value 0.12 = 12%
+                change: quote.priceChange.map { $0 / 100 },
                 price: quote.price,
                 prices24h: quote.prices24h,
                 currencyCode: currencyCode
