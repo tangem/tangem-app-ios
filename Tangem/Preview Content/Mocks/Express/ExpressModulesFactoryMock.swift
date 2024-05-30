@@ -164,6 +164,7 @@ private extension ExpressModulesFactoryMock {
             expressPendingTransactionRepository: pendingTransactionRepository,
             expressDestinationService: expressDestinationService,
             expressTransactionBuilder: expressTransactionBuilder,
+            expressAPIProvider: expressAPIProvider,
             signer: signer,
             logger: logger
         )
