@@ -15,32 +15,18 @@ struct PercentFormatter {
         self.locale = locale
     }
 
-    func expressRatePercentFormat(value: Decimal) -> String {
+    func format(_ value: Decimal, option: Option) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .percent
-        formatter.maximumFractionDigits = Constants.maximumFractionDigitsExpress
-        formatter.minimumFractionDigits = 1
         formatter.locale = locale
+        formatter.maximumFractionDigits = option.maximumFractionDigits
+        formatter.minimumFractionDigits = option.minimumFractionDigits
 
-        if let formatted = formatter.string(from: value as NSDecimalNumber) {
-            return formatted
+        if option.clearPrefix {
+            formatter.positivePrefix = ""
+            formatter.negativePrefix = ""
         }
 
-        return "\(value)%"
-    }
-
-    func percentFormat(value: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .percent
-        formatter.maximumFractionDigits = Constants.maximumFractionDigits
-        formatter.minimumFractionDigits = 2
-        formatter.positivePrefix = ""
-        formatter.negativePrefix = ""
-        formatter.locale = locale
-
-        // The formatter will format value 0.12 as 12%
-        // But in our case 0.12 it's 0.12%
-        let value = value / 100
         if let formatted = formatter.string(from: value as NSDecimalNumber) {
             return formatted
         }
@@ -50,8 +36,30 @@ struct PercentFormatter {
 }
 
 extension PercentFormatter {
-    enum Constants {
-        static let maximumFractionDigits = 2
-        static let maximumFractionDigitsExpress = 1
+    enum Option {
+        case priceChange
+        case express
+        case staking
+
+        var maximumFractionDigits: Int {
+            switch self {
+            case .priceChange: 2
+            case .express, .staking: 1
+            }
+        }
+
+        var minimumFractionDigits: Int {
+            switch self {
+            case .priceChange: 2
+            case .express, .staking: 1
+            }
+        }
+
+        var clearPrefix: Bool {
+            switch self {
+            case .priceChange: true
+            case .express, .staking: false
+            }
+        }
     }
 }
