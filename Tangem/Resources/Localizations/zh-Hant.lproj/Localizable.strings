@@ -124,6 +124,7 @@
 "common_share" = "分享";
 "common_sign" = "簽署";
 "common_sign_and_send" = "簽署和發送";
+"common_stake" = "Stake";
 "common_start" = "開始";
 "common_submit" = "提交";
 "common_success" = "成功";
@@ -517,6 +518,18 @@
 "settings_forget_wallet" = "Forget wallet";
 "settings_forget_wallet_footer" = "This will remove the wallet from the application. The wallet itself can be added again.";
 "settings_wallet_name_title" = "Name";
+"staking_details_available" = "Available";
+"staking_details_average_reward_rate" = "Average Reward Rate";
+"staking_details_estimated_profit" = "%@ est. profit";
+"staking_details_minimum_requirement" = "Minimum Requirement";
+"staking_details_no_rewards_to_claim" = "No rewards to claim";
+"staking_details_on_stake" = "On stake";
+"staking_details_reward_claiming" = "Reward claiming";
+"staking_details_reward_schedule" = "Reward schedule";
+"staking_details_title" = "Staking %@";
+"staking_details_unbonding_period" = "Unbonding Period";
+"staking_details_warmup_period" = "Warmup period";
+"staking_rewards" = "Rewards";
 "story_awe_description" = "安全地存儲您的加密貨幣，同時將私鑰保存在您的卡中";
 "story_awe_title" = "創新式的硬體錢包";
 "story_backup_description" = "最多 3張實體卡片 到一個錢包";
