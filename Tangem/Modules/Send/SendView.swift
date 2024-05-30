@@ -40,7 +40,7 @@ struct SendView: View {
         .animation(Constants.defaultAnimation, value: viewModel.step)
         .animation(Constants.defaultAnimation, value: viewModel.showTransactionButtons)
         .interactiveDismissDisabled(viewModel.shouldShowDismissAlert)
-        .scrollDismissesKeyboardCompat(true)
+        .scrollDismissesKeyboardCompat(.immediately)
     }
 
     private var pageContentTransition: AnyTransition {
@@ -201,7 +201,7 @@ struct SendView: View {
 
     @ViewBuilder
     private var bottomOverlay: some View {
-        LinearGradient(colors: [.clear, backgroundColor], startPoint: .top, endPoint: .bottom)
+        LinearGradient(colors: [backgroundColor.opacity(0), backgroundColor], startPoint: .top, endPoint: .bottom)
             .ignoresSafeArea()
             .frame(maxHeight: bottomGradientHeight)
             .padding(.horizontal, 16)
