@@ -14,11 +14,11 @@ import BlockchainSdk
 final class MarketsListDataProvider {
     // MARK: Dependencies
 
-    @Injected(\.tangemApiService) var tangemApiService: TangemApiService
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     // MARK: Published Properties
 
-    @Published var items: [MarketTokenModel] = []
+    @Published var items: [MarketsTokenModel] = []
 
     // MARK: - Public Properties
 
@@ -66,7 +66,7 @@ final class MarketsListDataProvider {
             let tokens = try await provider.loadItems(searchText, with: filter)
 
             await runOnMain {
-                AppLog.shared.debug("\(String(describing: self)) loaded market list tokens with count = \(tokens.count)")
+                AppLog.shared.debug("\(String(describing: provider)) loaded market list tokens with count = \(tokens.count)")
 
                 provider.currentPage += 1
                 self.items.append(contentsOf: tokens)
@@ -90,10 +90,10 @@ final class MarketsListDataProvider {
 // MARK: Private
 
 private extension MarketsListDataProvider {
-    func loadItems(_ searchText: String, with filter: Filter) async throws -> [MarketTokenModel] {
+    func loadItems(_ searchText: String, with filter: Filter) async throws -> [MarketsTokenModel] {
         let searchText = searchText.trimmed()
 
-        let requestModel = MarketDTO.General.Request(
+        let requestModel = MarketsDTO.General.Request(
             currency: selectedCurrencyCode,
             offset: currentPage,
             limit: limitPerPage,
@@ -112,8 +112,8 @@ private extension MarketsListDataProvider {
 
 extension MarketsListDataProvider {
     final class Filter: Hashable, Equatable {
-        var interval: MarketPriceIntervalType = .day
-        var order: MarketListOrderType = .rating
+        var interval: MarketsPriceIntervalType = .day
+        var order: MarketsListOrderType = .rating
         var generalCoins: Bool = false
 
         // MARK: - Hashable
