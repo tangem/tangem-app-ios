@@ -33,7 +33,7 @@ extension CoinModel {
     static var dummy: CoinModel {
         CoinModel(
             id: "\(Int.random(in: 0 ... 1000))",
-            name: "----------------", 
+            name: "----------------",
             symbol: "",
             items: []
         )
