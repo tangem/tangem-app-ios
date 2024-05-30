@@ -15,9 +15,7 @@ struct PriceChangeFormatter {
         self.percentFormatter = percentFormatter
     }
 
-    func format(value: Decimal?) -> PriceChangeFormatter.Result? {
-        guard let value else { return nil }
-
+    func format(value: Decimal) -> PriceChangeFormatter.Result {
         let roundedValue = value.rounded(scale: PercentFormatter.Constants.maximumFractionDigits, roundingMode: .plain)
         let formattedText = percentFormatter.percentFormat(value: roundedValue)
         let signType = ChangeSignType(from: roundedValue)
