@@ -16,6 +16,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     case refresh
     case refreshFee
     case goToProvider
+    case leaveAmount(amount: Decimal, amountFormatted: String)
     case reduceAmountBy(amount: Decimal, amountFormatted: String)
     case reduceAmountTo(amount: Decimal, amountFormatted: String)
     case bookNow(promotionLink: URL)
@@ -45,7 +46,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return Localization.commonGoToProvider
         case .reduceAmountBy(_, let amountFormatted):
             return Localization.sendNotificationReduceBy(amountFormatted)
-        case .reduceAmountTo(_, let amountFormatted):
+        case .reduceAmountTo(_, let amountFormatted), .leaveAmount(_, let amountFormatted):
             return Localization.sendNotificationLeaveButton(amountFormatted)
         case .bookNow:
             return Localization.mainTravalaPromotionButton
@@ -66,7 +67,9 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .goToProvider,
              .reduceAmountBy,
              .reduceAmountTo,
+             .leaveAmount,
              .addHederaTokenAssociation,
+             .leaveAmount,
              .bookNow:
             return nil
         }
@@ -84,7 +87,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .goToProvider,
              .reduceAmountBy,
              .reduceAmountTo,
-             .addHederaTokenAssociation:
+             .addHederaTokenAssociation,
+             .leaveAmount:
             return .secondary
         }
     }
