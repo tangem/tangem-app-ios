@@ -20,6 +20,8 @@ final class MarketsViewModel: ObservableObject {
     @Published var tokenViewModels: [MarketsItemViewModel] = []
     @Published var viewDidAppear: Bool = false
 
+    @Published var marketPriceInterval: MarketPriceIntervalType = .day
+
     // MARK: - Properties
 
     var hasNextPage: Bool {
