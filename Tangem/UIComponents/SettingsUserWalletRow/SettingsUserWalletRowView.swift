@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 struct SettingsUserWalletRowView: View {
-    let viewModel: SettingsUserWalletRowViewModel
+    @ObservedObject var viewModel: SettingsUserWalletRowViewModel
 
     var body: some View {
         Button(action: viewModel.tapAction) {
@@ -25,9 +25,14 @@ struct SettingsUserWalletRowView: View {
             icon
 
             textViews
+
+            Spacer()
+
+            Assets.chevron.image
         }
         .infinityFrame(axis: .horizontal, alignment: .leading)
         .padding(.vertical, 12)
+        .contentShape(Rectangle())
     }
 
     @ViewBuilder
@@ -92,9 +97,9 @@ struct SettingsUserWalletRowView: View {
         VStack {
             SettingsUserWalletRowView(
                 viewModel: .init(
-                    name: "My wallet",
                     cardsCount: 3,
                     isUserWalletLocked: false,
+                    userWalletNamePublisher: .just(output: "My wallet"),
                     totalBalancePublisher: .just(output: .loading),
                     cardImagePublisher: .just(output: .embedded(Assets.Onboarding.walletCard.uiImage)),
                     tapAction: {}
@@ -103,9 +108,9 @@ struct SettingsUserWalletRowView: View {
 
             SettingsUserWalletRowView(
                 viewModel: .init(
-                    name: "My wallet",
                     cardsCount: 2,
                     isUserWalletLocked: false,
+                    userWalletNamePublisher: .just(output: "My wallet"),
                     totalBalancePublisher: .just(output: .failedToLoad(error: CommonError.noData)),
                     cardImagePublisher: .just(output: .embedded(Assets.Onboarding.walletCard.uiImage)),
                     tapAction: {}
@@ -114,9 +119,9 @@ struct SettingsUserWalletRowView: View {
 
             SettingsUserWalletRowView(
                 viewModel: .init(
-                    name: "Old wallet",
                     cardsCount: 2,
                     isUserWalletLocked: false,
+                    userWalletNamePublisher: .just(output: "Old wallet"),
                     totalBalancePublisher: .just(output: .loaded(.init(balance: 96.75, currencyCode: "USD", hasError: false))),
                     cardImagePublisher: .just(output: .embedded(Assets.Onboarding.darkCard.uiImage)),
                     tapAction: {}
@@ -125,9 +130,9 @@ struct SettingsUserWalletRowView: View {
 
             SettingsUserWalletRowView(
                 viewModel: .init(
-                    name: "Locked wallet",
                     cardsCount: 2,
                     isUserWalletLocked: true,
+                    userWalletNamePublisher: .just(output: "Locked wallet"),
                     totalBalancePublisher: .just(output: .failedToLoad(error: CommonError.noData)),
                     cardImagePublisher: .just(output: .embedded(Assets.Onboarding.darkCard.uiImage))
                         .delay(for: 4, scheduler: DispatchQueue.main)
