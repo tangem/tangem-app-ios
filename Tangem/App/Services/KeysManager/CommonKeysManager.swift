@@ -87,6 +87,8 @@ extension CommonKeysManager: KeysManager {
     var walletConnectProjectId: String {
         keys.walletConnectProjectId
     }
+
+    var stakeKitKey: String {}
 }
 
 extension CommonKeysManager {
