@@ -113,6 +113,7 @@
 "common_reload" = "Перезагрузить";
 "common_rename" = "Переименовать";
 "common_retry" = "Повторить";
+"common_save" = "Сохранить";
 "common_save_changes" = "Сохранить изменения";
 "common_search" = "Искать";
 "common_search_tokens" = "Поиск токенов";
