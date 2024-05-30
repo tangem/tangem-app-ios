@@ -9,22 +9,13 @@
 import Foundation
 
 actor CommonStakingAvailabilityProvider: StakingAvailabilityProvider {
-    private let provider: StakingAPIProvider
-    private var availableYields: [YieldInfo] = []
+    private let repository: StakingRepository
 
-    init(provider: StakingAPIProvider) {
-        self.provider = provider
-    }
-
-    func updateAvailability() async throws {
-        availableYields = try await provider.enabledYields()
+    init(repository: StakingRepository) {
+        self.repository = repository
     }
 
     func isAvailableForStaking(item: StakingTokenItem) async throws -> Bool {
-        if availableYields.isEmpty {
-            try await updateAvailability()
-        }
-
-        return availableYields.contains(where: { $0.item == item })
+        try await repository.getYield(item: item) != nil
     }
 }
