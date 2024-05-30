@@ -112,13 +112,9 @@ class CustomEvmFeeService {
     }
 }
 
-extension CustomEvmFeeService: CustomFeeService {
+extension CustomEvmFeeService: CustomFeeService, EditableCustomFeeService {
     var customFeeDescription: String? {
         Localization.sendEvmCustomFeeFooter
-    }
-
-    var readOnlyCustomFee: Bool {
-        false
     }
 
     func inputFieldModels() -> [SendCustomFeeInputFieldModel] {
