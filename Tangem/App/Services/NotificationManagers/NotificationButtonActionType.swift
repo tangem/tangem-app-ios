@@ -67,6 +67,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .goToProvider,
              .reduceAmountBy,
              .reduceAmountTo,
+             .leaveAmount,
              .addHederaTokenAssociation,
              .leaveAmount,
              .bookNow:
