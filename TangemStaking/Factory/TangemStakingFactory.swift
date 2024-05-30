@@ -8,10 +8,25 @@
 
 import Foundation
 import Moya
-import BlockchainSdk
+import class BlockchainSdk.TangemNetworkLoggerPlugin
 
 public struct TangemStakingFactory {
     public init() {}
+
+    public func makeStakingManager(
+        provider: StakingAPIProvider,
+        repository: StakingRepository,
+        logger: Logger
+    ) -> StakingManager {
+        CommonStakingManager(provider: provider, repository: repository, logger: logger)
+    }
+
+    public func makeStakingRepository(
+        provider: StakingAPIProvider,
+        logger: Logger
+    ) -> StakingRepository {
+        CommonStakingRepository(provider: provider, logger: logger)
+    }
 
     public func makeStakingAPIProvider(
         credential: StakingAPICredential,
