@@ -14,10 +14,31 @@ import AVFoundation
 final class SendViewModel: ObservableObject {
     // MARK: - ViewState
 
+    static func transition(from stepAnimation: SendView.StepAnimation) -> AnyTransition {
+        switch stepAnimation {
+        case .slideForward:
+            return .asymmetric(
+                insertion: .move(edge: .trailing),
+                removal: .move(edge: .leading)
+            )
+        case .slideBackward:
+            return .asymmetric(
+                insertion: .move(edge: .leading),
+                removal: .move(edge: .trailing)
+            )
+        case .moveAndFade:
+            return .asymmetric(
+                insertion: .offset(),
+                removal: .opacity.animation(.spring(duration: SendView.Constants.animationDuration / 2))
+            )
+        }
+    }
+
+//    [REDACTED_USERNAME] var pageContentTransition: AnyTransition
     @Published var stepAnimation: SendView.StepAnimation
     @Published var step: SendStep
     @Published var closeButtonDisabled = false
-    @Published var showBackButton = false
+    @Published var showBackButton = true
     @Published var showTransactionButtons = false
     @Published var mainButtonType: SendMainButtonType
     @Published var mainButtonLoading: Bool = false
@@ -165,6 +186,7 @@ final class SendViewModel: ObservableObject {
         didReachSummaryScreen = (firstStep == .summary)
         mainButtonType = Self.mainButtonType(for: firstStep, didReachSummaryScreen: didReachSummaryScreen)
         stepAnimation = (firstStep == .summary) ? .moveAndFade : .slideForward
+//        pageContentTransition = Self.transition(from: .slideForward)
 
         let tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
         let cryptoIconURL: URL?
@@ -282,7 +304,7 @@ final class SendViewModel: ObservableObject {
             logNextStepAnalytics()
 
             let openingSummary = (nextStep == .summary)
-            let stepAnimation: SendView.StepAnimation = openingSummary ? .moveAndFade : .slideForward
+            let stepAnimation: SendView.StepAnimation = .moveAndFade // openingSummary ? .moveAndFade : .slideForward
 
             let checkCustomFee = shouldCheckCustomFee(currentStep: step)
             let updateFee = shouldUpdateFee(currentStep: step, nextStep: nextStep)
@@ -351,6 +373,14 @@ final class SendViewModel: ObservableObject {
     }
 
     private func bind() {
+        $step
+            .sink(receiveCompletion: {
+                print("zzz step finish", $0)
+            }, receiveValue: {
+                print("zzz step change", $0)
+            })
+            .store(in: &bag)
+
         sendModel.isSending
             .assign(to: \.closeButtonDisabled, on: self, ownership: .weak)
             .store(in: &bag)
@@ -606,6 +636,20 @@ final class SendViewModel: ObservableObject {
     }
 
     private func openStep(_ step: SendStep, stepAnimation: SendView.StepAnimation, checkCustomFee: Bool = true, updateFee: Bool) {
+        objectWillChange.send()
+        self.step = self.step
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.objectWillChange.send()
+            self.step = self.step
+        }
+
+        // Gotta give some time to update animation variable
+//        self.stepAnimation = stepAnimation
+//        pageContentTransition = Self.transition(from: stepAnimation)
+
+        print("zzz open step with", self.stepAnimation)
+
         let openStepAfterDelay = { [weak self] in
             // Slight delay is needed, otherwise the animation of the keyboard will interfere with the page change
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -624,25 +668,24 @@ final class SendViewModel: ObservableObject {
 //            return
         }
 
-        if case .summary = step {
-            if showSummaryStepAlertIfNeeded(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee) {
-                return
+//        if case .summary = step {
+//            if showSummaryStepAlertIfNeeded(step, stepAnimation: stepAnimation, checkCustomFee: checkCustomFee) {
+//                return
+//            }
+//
+//            didReachSummaryScreen = true
+//
+//            sendSummaryViewModel.setupAnimations(previousStep: self.step)
+//        }
+//
+//        mainButtonType = Self.mainButtonType(for: step, didReachSummaryScreen: didReachSummaryScreen)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//            self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
+//            self.showTransactionButtons = self.sendModel.transactionURL != nil
+            withAnimation(SendView.Constants.defaultAnimation) {
+                self.step = step
             }
-
-            didReachSummaryScreen = true
-
-            sendSummaryViewModel.setupAnimations(previousStep: self.step)
-        }
-
-        // Gotta give some time to update animation variable
-        self.stepAnimation = stepAnimation
-
-        mainButtonType = Self.mainButtonType(for: step, didReachSummaryScreen: didReachSummaryScreen)
-
-        DispatchQueue.main.async {
-            self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
-            self.showTransactionButtons = self.sendModel.transactionURL != nil
-            self.step = step
         }
     }
 
