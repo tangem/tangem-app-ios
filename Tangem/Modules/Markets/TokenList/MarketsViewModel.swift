@@ -26,10 +26,12 @@ final class MarketsViewModel: ObservableObject {
         loader.canFetchMore
     }
 
+    private let loader = MarketsListDataProvider()
+    private var filter = MarketsListDataProvider.Filter()
+
     private weak var coordinator: MarketsRoutable?
 
     private var dataSource: MarketsDataSource
-    private lazy var loader = setupListDataLoader()
 
     private var bag = Set<AnyCancellable>()
     private var cacheExistListCoinId: [String] = []
@@ -59,7 +61,7 @@ final class MarketsViewModel: ObservableObject {
     }
 
     func onBottomDisappear() {
-        loader.reset("")
+        loader.reset("", with: filter)
         fetch(with: "")
         viewDidAppear = false
     }
@@ -78,7 +80,7 @@ final class MarketsViewModel: ObservableObject {
 
 private extension MarketsViewModel {
     func fetch(with searchText: String = "") {
-        loader.fetch(searchText)
+        loader.fetch(searchText, with: filter)
     }
 
     func searchBind(searchTextPublisher: (some Publisher<String, Never>)?) {
@@ -100,18 +102,6 @@ private extension MarketsViewModel {
     }
 
     func bind() {
-        dataSource
-            .userWalletModelsPublisher
-            .sink { [weak self] models in
-                self?.fetch()
-            }
-            .store(in: &bag)
-    }
-
-    func setupListDataLoader() -> ListDataLoader {
-        let supportedBlockchains = SupportedBlockchains.all
-        let loader = ListDataLoader(supportedBlockchains: supportedBlockchains)
-
         loader.$items
             .receive(on: DispatchQueue.main)
             .delay(for: 0.5, scheduler: DispatchQueue.main)
@@ -121,9 +111,7 @@ private extension MarketsViewModel {
                 }
 
                 tokenViewModels = items.compactMap {
-                    #warning("Need to replace on GET /v1/market_general/ model MarketTokenModel from response")
-                    let token = MarketTokenModel(coin: $0)
-                    return self.mapToViewModel(token: token)
+                    return self.mapToViewModel(token: $0)
                 }
 
                 updateQuote(by: items.map { $0.id })
@@ -136,22 +124,37 @@ private extension MarketsViewModel {
             })
             .store(in: &bag)
 
-        return loader
+        dataSource
+            .userWalletModelsPublisher
+            .sink { [weak self] models in
+                self?.fetch()
+            }
+            .store(in: &bag)
     }
 
     // MARK: - Private Implementation
 
     /// Need for display list skeleton view
     private func setNeedDisplayTokensListSkeletonView() {
-        tokenViewModels = [Int](0 ... 10).map { _ in
-            let dummyInputData = MarketsItemViewModel.InputData(token: .dummy, state: .loading)
-            return MarketsItemViewModel(dummyInputData)
-        }
+//        tokenViewModels = [Int](0 ... 10).map { _ in
+//            let dummyInputData = MarketsItemViewModel.InputData(token: .dummy, state: .loading)
+//            return MarketsItemViewModel(dummyInputData)
+//        }
     }
 
     private func mapToViewModel(token: MarketTokenModel) -> MarketsItemViewModel {
-        let coinInputData = MarketsItemViewModel.InputData(token: token, state: .loaded)
-        return MarketsItemViewModel(coinInputData)
+        let inputData = MarketsItemViewModel.InputData(
+            id: token.id,
+            imageURL: token.imageURL,
+            name: token.name,
+            symbol: token.symbol,
+            marketCup: token.marketCup,
+            marketRaiting: token.marketRaiting,
+            priceValue: token.currentPrice,
+            priceChangeStateValue: token.priceChangePercentage[filter.interval]
+        )
+
+        return MarketsItemViewModel(inputData)
     }
 
     private func updateQuote(by coinIds: [String]) {
