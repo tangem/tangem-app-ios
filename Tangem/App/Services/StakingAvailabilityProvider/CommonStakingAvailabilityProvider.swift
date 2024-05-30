@@ -7,13 +7,12 @@
 //
 
 import Foundation
+import TangemStaking
 
 struct CommonStakingAvailabilityProvider: StakingAvailabilityProvider {
-    private let repository: StakingRepository
+    @Injected(\.stakingRepositoryProxy) private var repository: StakingRepositoryProxy
 
-    init(repository: StakingRepository) {
-        self.repository = repository
-    }
+    init() {}
 
     func isAvailableForStaking(item: StakingTokenItem) -> Bool {
         repository.getYield(item: item) != nil
