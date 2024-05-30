@@ -979,6 +979,19 @@
 		DC295B502861D9B3006CB7B6 /* SecurityModeCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B4F2861D9B3006CB7B6 /* SecurityModeCoordinatorView.swift */; };
 		DC295B522861D9BC006CB7B6 /* SecurityModeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B512861D9BC006CB7B6 /* SecurityModeCoordinator.swift */; };
 		DC295B542861F104006CB7B6 /* OnboardingRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B532861F104006CB7B6 /* OnboardingRoutable.swift */; };
+		DC2AB6D22C08CF360050796C /* WelcomeOnboaringStepsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC2AB6D12C08CF360050796C /* WelcomeOnboaringStepsBuilder.swift */; };
+		DC2AB6D82C08CF6C0050796C /* WelcomeOnboardingCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC2AB6D32C08CF6C0050796C /* WelcomeOnboardingCoordinator.swift */; };
+		DC2AB6D92C08CF6C0050796C /* WelcomeOnboardingCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC2AB6D42C08CF6C0050796C /* WelcomeOnboardingCoordinatorView.swift */; };
+		DC2AB6DA2C08CF6C0050796C /* WelcomeOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC2AB6D52C08CF6C0050796C /* WelcomeOnboardingView.swift */; };
+		DC2AB6DB2C08CF6C0050796C /* WelcomeOnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC2AB6D62C08CF6C0050796C /* WelcomeOnboardingViewModel.swift */; };
+		DC2AB6DC2C08CF6C0050796C /* WelcomeOnboardingRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC2AB6D72C08CF6C0050796C /* WelcomeOnboardingRoutable.swift */; };
+		DC2AB6DE2C08CF8F0050796C /* WelcomeOnbordingStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC2AB6DD2C08CF8F0050796C /* WelcomeOnbordingStep.swift */; };
+		DC2AB6E32C08D9C40050796C /* PushNotificationsStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC2AB6E22C08D9C40050796C /* PushNotificationsStepView.swift */; };
+		DC2AB6E52C08D9D10050796C /* TOSStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC2AB6E42C08D9D10050796C /* TOSStepView.swift */; };
+		DC2AB6E72C08D9F80050796C /* TOSStepViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC2AB6E62C08D9F80050796C /* TOSStepViewModel.swift */; };
+		DC2AB6EB2C08DA260050796C /* PushNotificationsStepViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC2AB6EA2C08DA260050796C /* PushNotificationsStepViewModel.swift */; };
+		DC2AB6ED2C08DF730050796C /* WelcomeOnboardingStepRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC2AB6EC2C08DF730050796C /* WelcomeOnboardingStepRoutable.swift */; };
+		DC2AB6EF2C08E46F0050796C /* WelcomeOnboardingStepRoutableStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC2AB6EE2C08E46F0050796C /* WelcomeOnboardingStepRoutableStub.swift */; };
 		DC2CD3432B0FE3D600C0D677 /* SendCurrencyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC2CD3412B0FE3D600C0D677 /* SendCurrencyViewModel.swift */; };
 		DC2CD3442B0FE3D600C0D677 /* SendCurrencyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC2CD3422B0FE3D600C0D677 /* SendCurrencyView.swift */; };
 		DC37A0772A584BD000C2A3F2 /* WalletModelsManagerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC37A0752A584BD000C2A3F2 /* WalletModelsManagerMock.swift */; };
@@ -2683,6 +2696,19 @@
 		DC295B4F2861D9B3006CB7B6 /* SecurityModeCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityModeCoordinatorView.swift; sourceTree = "<group>"; };
 		DC295B512861D9BC006CB7B6 /* SecurityModeCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityModeCoordinator.swift; sourceTree = "<group>"; };
 		DC295B532861F104006CB7B6 /* OnboardingRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingRoutable.swift; sourceTree = "<group>"; };
+		DC2AB6D12C08CF360050796C /* WelcomeOnboaringStepsBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeOnboaringStepsBuilder.swift; sourceTree = "<group>"; };
+		DC2AB6D32C08CF6C0050796C /* WelcomeOnboardingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeOnboardingCoordinator.swift; sourceTree = "<group>"; };
+		DC2AB6D42C08CF6C0050796C /* WelcomeOnboardingCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeOnboardingCoordinatorView.swift; sourceTree = "<group>"; };
+		DC2AB6D52C08CF6C0050796C /* WelcomeOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeOnboardingView.swift; sourceTree = "<group>"; };
+		DC2AB6D62C08CF6C0050796C /* WelcomeOnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeOnboardingViewModel.swift; sourceTree = "<group>"; };
+		DC2AB6D72C08CF6C0050796C /* WelcomeOnboardingRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeOnboardingRoutable.swift; sourceTree = "<group>"; };
+		DC2AB6DD2C08CF8F0050796C /* WelcomeOnbordingStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeOnbordingStep.swift; sourceTree = "<group>"; };
+		DC2AB6E22C08D9C40050796C /* PushNotificationsStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsStepView.swift; sourceTree = "<group>"; };
+		DC2AB6E42C08D9D10050796C /* TOSStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TOSStepView.swift; sourceTree = "<group>"; };
+		DC2AB6E62C08D9F80050796C /* TOSStepViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TOSStepViewModel.swift; sourceTree = "<group>"; };
+		DC2AB6EA2C08DA260050796C /* PushNotificationsStepViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsStepViewModel.swift; sourceTree = "<group>"; };
+		DC2AB6EC2C08DF730050796C /* WelcomeOnboardingStepRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeOnboardingStepRoutable.swift; sourceTree = "<group>"; };
+		DC2AB6EE2C08E46F0050796C /* WelcomeOnboardingStepRoutableStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeOnboardingStepRoutableStub.swift; sourceTree = "<group>"; };
 		DC2CD3412B0FE3D600C0D677 /* SendCurrencyViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendCurrencyViewModel.swift; sourceTree = "<group>"; };
 		DC2CD3422B0FE3D600C0D677 /* SendCurrencyView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendCurrencyView.swift; sourceTree = "<group>"; };
 		DC37A0752A584BD000C2A3F2 /* WalletModelsManagerMock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletModelsManagerMock.swift; sourceTree = "<group>"; };
@@ -5418,6 +5444,7 @@
 				B0FB4EF62A8511A40057F4C2 /* UserTokenListStubs.swift */,
 				B6934E8C2B5EAF88004AA300 /* RateAppControllerStub.swift */,
 				B67DC1E92B7C4C48008ACB0E /* BlockchainAccountCreatorStub.swift */,
+				DC2AB6EE2C08E46F0050796C /* WelcomeOnboardingStepRoutableStub.swift */,
 			);
 			path = Stubs;
 			sourceTree = "<group>";
@@ -6665,6 +6692,49 @@
 			path = App;
 			sourceTree = "<group>";
 		};
+		DC2AB6D02C08CF110050796C /* WelcomeOnboarding */ = {
+			isa = PBXGroup;
+			children = (
+				DC2AB6DF2C08D98A0050796C /* Steps */,
+				DC2AB6DD2C08CF8F0050796C /* WelcomeOnbordingStep.swift */,
+				DC2AB6EC2C08DF730050796C /* WelcomeOnboardingStepRoutable.swift */,
+				DC2AB6D12C08CF360050796C /* WelcomeOnboaringStepsBuilder.swift */,
+				DC2AB6D32C08CF6C0050796C /* WelcomeOnboardingCoordinator.swift */,
+				DC2AB6D42C08CF6C0050796C /* WelcomeOnboardingCoordinatorView.swift */,
+				DC2AB6D52C08CF6C0050796C /* WelcomeOnboardingView.swift */,
+				DC2AB6D62C08CF6C0050796C /* WelcomeOnboardingViewModel.swift */,
+				DC2AB6D72C08CF6C0050796C /* WelcomeOnboardingRoutable.swift */,
+			);
+			path = WelcomeOnboarding;
+			sourceTree = "<group>";
+		};
+		DC2AB6DF2C08D98A0050796C /* Steps */ = {
+			isa = PBXGroup;
+			children = (
+				DC2AB6E82C08DA050050796C /* TOS */,
+				DC2AB6E92C08DA090050796C /* PushNotifications */,
+			);
+			path = Steps;
+			sourceTree = "<group>";
+		};
+		DC2AB6E82C08DA050050796C /* TOS */ = {
+			isa = PBXGroup;
+			children = (
+				DC2AB6E42C08D9D10050796C /* TOSStepView.swift */,
+				DC2AB6E62C08D9F80050796C /* TOSStepViewModel.swift */,
+			);
+			path = TOS;
+			sourceTree = "<group>";
+		};
+		DC2AB6E92C08DA090050796C /* PushNotifications */ = {
+			isa = PBXGroup;
+			children = (
+				DC2AB6E22C08D9C40050796C /* PushNotificationsStepView.swift */,
+				DC2AB6EA2C08DA260050796C /* PushNotificationsStepViewModel.swift */,
+			);
+			path = PushNotifications;
+			sourceTree = "<group>";
+		};
 		DC2CD3402B0FE3D600C0D677 /* SendCurrencyView */ = {
 			isa = PBXGroup;
 			children = (
@@ -6740,6 +6810,7 @@
 		DC66BBE12858DB1900CDF765 /* Welcome */ = {
 			isa = PBXGroup;
 			children = (
+				DC2AB6D02C08CF110050796C /* WelcomeOnboarding */,
 				DAC53CE927BE63830027147D /* Stories */,
 				B08EE5152BFDE0A600E8A07C /* SearchTokens */,
 				DC7DA8182844EAFF00AD6DBD /* WelcomeCoordinator.swift */,
@@ -9341,6 +9412,7 @@
 				EF914D522A612E49001F00B2 /* Wallet2Config.swift in Sources */,
 				B00FC6A92949A6460007ACCA /* CardImageResult.swift in Sources */,
 				EFD32AE729ED93F20026353E /* FeatureStateRowView.swift in Sources */,
+				DC2AB6EB2C08DA260050796C /* PushNotificationsStepViewModel.swift in Sources */,
 				EFF9A2FE2BD6B45E007C63D2 /* UserWalletSettingsRoutable.swift in Sources */,
 				DA559C3D2B0261F400F59584 /* SendSummaryRoutable.swift in Sources */,
 				B691A8C22AFE4A680059D182 /* WalletSwipeDiscoveryHelper.swift in Sources */,
@@ -9483,6 +9555,11 @@
 				B03A9339259877790061FB2D /* WarningsContainer.swift in Sources */,
 				DA1DF04F2BA40D44008310E4 /* HintView.swift in Sources */,
 				B06BB8E72BCD139500C0FBCF /* TokenItemSwapState.swift in Sources */,
+				DC2AB6D82C08CF6C0050796C /* WelcomeOnboardingCoordinator.swift in Sources */,
+				DC2AB6D92C08CF6C0050796C /* WelcomeOnboardingCoordinatorView.swift in Sources */,
+				DC2AB6DA2C08CF6C0050796C /* WelcomeOnboardingView.swift in Sources */,
+				DC2AB6DB2C08CF6C0050796C /* WelcomeOnboardingViewModel.swift in Sources */,
+				DC2AB6DC2C08CF6C0050796C /* WelcomeOnboardingRoutable.swift in Sources */,
 				EF74F50D289BF5AE001034D2 /* Fonts.swift in Sources */,
 				B65CB3FE2A98A93F00C31199 /* UserTokensReorderingAction.swift in Sources */,
 				B67DC1EA2B7C4C48008ACB0E /* BlockchainAccountCreatorStub.swift in Sources */,
@@ -9510,6 +9587,7 @@
 				EF1E176D2BF69065000364AE /* WalletConnectRowViewModel.swift in Sources */,
 				5D17EC7826947ED9002782DE /* SignAndReadTask.swift in Sources */,
 				DAC4F9F02AC314E100BEBCF8 /* SingleWalletMainContentDelegate.swift in Sources */,
+				DC2AB6ED2C08DF730050796C /* WelcomeOnboardingStepRoutable.swift in Sources */,
 				B0C616642AFBA56E00ABADF0 /* ThemeSelectionViewModel.swift in Sources */,
 				B05919022A0BCD0800EB8005 /* MainHeaderView.swift in Sources */,
 				EFE7D5792AA201CB0047D93A /* TokenQuoteFormatter.swift in Sources */,
@@ -9536,6 +9614,7 @@
 				DA5970EC27FC1C1B0050387C /* TangemApiTarget.swift in Sources */,
 				B65D3FCD2A6712BB00FEEFE8 /* CardsInfoPagerContentSwitchingAnimationModifier.swift in Sources */,
 				B0CAFA8D26C6C0FE001238DA /* QRCodeGenerator.swift in Sources */,
+				DC2AB6E52C08D9D10050796C /* TOSStepView.swift in Sources */,
 				B65CB3FC2A98A29500C31199 /* UserTokensReordering.swift in Sources */,
 				DA129DD5292B8EBB004291EC /* UserWalletEncryptionKeyFactory.swift in Sources */,
 				EF9EA96A2B110F4900AC1DA1 /* CommonExpressModulesFactory.swift in Sources */,
@@ -10068,6 +10147,7 @@
 				EF0DC11D2A0CE29E007E3DA7 /* ExpressApproveRoutable.swift in Sources */,
 				B6A8DAA52A4C96C4004CB1E7 /* ObjectDescription.swift in Sources */,
 				B69257E22AFC072000F33B3D /* BottomScrollableSheetCornerRadiusView.swift in Sources */,
+				DC2AB6E32C08D9C40050796C /* PushNotificationsStepView.swift in Sources */,
 				5D78D118261DFEBA00F98B18 /* PurgeWalletsAndReadResponse.swift in Sources */,
 				B6FF1EFE2A57E59100B208E4 /* Subject+.swift in Sources */,
 				DA1D3B792B56DC7800247393 /* QRScanViewRoutable.swift in Sources */,
@@ -10152,6 +10232,7 @@
 				5DCC20BD2500FC58007B467E /* LegacyQRScannerView.swift in Sources */,
 				DC51187A2860B704004FB954 /* AppCoordinator.swift in Sources */,
 				B09381072B2ADE90001C11E4 /* VisaWalletMainHeaderSubtitleProvider.swift in Sources */,
+				DC2AB6D22C08CF360050796C /* WelcomeOnboaringStepsBuilder.swift in Sources */,
 				B06C3A272BFE31BB005E6D40 /* ManageTokensListViewModel.swift in Sources */,
 				B6364F882ACEE9AC00D615B5 /* EmptyMainFooterView.swift in Sources */,
 				DC66BBFE285A389000CDF765 /* View+Navigation.swift in Sources */,
@@ -10172,7 +10253,9 @@
 				B0AF2DF82B1DF42D001A8696 /* PendingExpressTransaction.swift in Sources */,
 				DA6C752C292909B20070EEFD /* UserWalletRepositoryUtil.swift in Sources */,
 				DC295B4E2861D871006CB7B6 /* WalletConnectCoordinatorView.swift in Sources */,
+				DC2AB6EF2C08E46F0050796C /* WelcomeOnboardingStepRoutableStub.swift in Sources */,
 				B0F79C6A2689AC56008C9B30 /* FileEncryptionUtility.swift in Sources */,
+				DC2AB6E72C08D9F80050796C /* TOSStepViewModel.swift in Sources */,
 				DA6C7528292613D00070EEFD /* UserWalletIdFactory.swift in Sources */,
 				DC3DCAD72A40AA4B00F72554 /* WalletModelsFactory.swift in Sources */,
 				DA559C372B0261F400F59584 /* SendRoutable.swift in Sources */,
@@ -10325,6 +10408,7 @@
 				2D535E722A0CB4D20081EB76 /* BottomSheetInfoView.swift in Sources */,
 				0A81B3732BB2D24A0008F21C /* BlockchainURLSchemesParser.swift in Sources */,
 				B008E13A29802157006E0E31 /* WebSocketError.swift in Sources */,
+				DC2AB6DE2C08CF8F0050796C /* WelcomeOnbordingStep.swift in Sources */,
 				B6654ACC2B5EB73200249008 /* CommonRateAppController.swift in Sources */,
 				5D51037127C5360E0025EA55 /* ABIType.swift in Sources */,
 				6596AD4928730F4900508D0A /* WarningBankCardView.swift in Sources */,
