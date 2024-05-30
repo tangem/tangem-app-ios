@@ -8,40 +8,14 @@
 
 import Foundation
 
-struct MarketTokenModel {
+struct MarketTokenModel: Identifiable, Decodable {
     let id: String
     let name: String
     let symbol: String
-    let marketCup: String
+    let active: Bool
+    let imageURL: String
+    let currentPrice: Decimal
+    let priceChangePercentage: [MarketPriceIntervalType: Decimal]
     let marketRaiting: String
-
-    init(id: String, name: String, symbol: String, marketCup: String, marketRaiting: String) {
-        self.id = id
-        self.name = name
-        self.symbol = symbol
-        self.marketCup = marketCup
-        self.marketRaiting = marketRaiting
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    init(coin: CoinModel) {
-        id = coin.id
-        name = coin.name
-        symbol = coin.symbol
-        marketCup = "\(Int.random(in: 0 ..< 1000))М"
-        marketRaiting = "\(Int.random(in: 0 ... 10000))"
-    }
-}
-
-extension MarketTokenModel {
-    // Need for loading state skeleton view
-    static var dummy: MarketTokenModel {
-        MarketTokenModel(
-            id: "\(Int.random(in: 0 ... 1000))",
-            name: "----------------",
-            symbol: "",
-            marketCup: "",
-            marketRaiting: ""
-        )
-    }
+    let marketCup: String
 }
