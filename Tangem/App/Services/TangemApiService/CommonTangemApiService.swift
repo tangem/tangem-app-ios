@@ -36,17 +36,8 @@ class CommonTangemApiService {
     }
 
     private func request<D: Decodable>(for type: TangemApiTarget.TargetType, decoder: JSONDecoder = .init()) async throws -> D {
-        let target = TangemApiTarget(type: type, authData: authData, appVersion: appVersion())
+        let target = TangemApiTarget(type: type, authData: authData)
         return try await provider.asyncRequest(target).mapAPIResponse(decoder: decoder)
-    }
-
-    func appVersion() -> String {
-        if let appVersion: String = InfoDictionaryUtils.version.value() {
-            return appVersion
-        }
-
-        assertionFailure("Can't get the app version from the app bundle")
-        return .unknown.lowercased()
     }
 }
 
