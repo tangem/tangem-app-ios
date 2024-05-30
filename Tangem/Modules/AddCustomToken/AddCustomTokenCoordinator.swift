@@ -47,7 +47,7 @@ class AddCustomTokenCoordinator: CoordinatorObject {
 extension AddCustomTokenCoordinator {
     struct Options {
         let userWalletModel: UserWalletModel
-        let dataSource: ManageTokensDataSource
+        let dataSource: MarketsDataSource
     }
 }
 
