@@ -1,5 +1,5 @@
 //
-//  MarketTokenModel.swift
+//  MarketsTokenModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,14 +8,14 @@
 
 import Foundation
 
-struct MarketTokenModel: Identifiable, Decodable {
+struct MarketsTokenModel: Identifiable, Decodable {
     let id: String
     let name: String
     let symbol: String
     let active: Bool
     let imageUrl: String
     let currentPrice: Decimal
-    let priceChangePercentage: [MarketPriceIntervalType: Float]
+    let priceChangePercentage: [MarketsPriceIntervalType: Float]
     let marketRaiting: String
     let marketCup: String
 }
