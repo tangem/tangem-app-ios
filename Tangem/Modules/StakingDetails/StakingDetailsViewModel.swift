@@ -21,8 +21,10 @@ final class StakingDetailsViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let inputData: StakingDetailsData
+    private let wallet: WalletModel
+    private let manager: StakingManager
     private weak var coordinator: StakingDetailsRoutable?
+
     private let balanceFormatter = BalanceFormatter()
     private let percentFormatter = PercentFormatter()
     private let daysFormatter: DateComponentsFormatter = {
@@ -33,67 +35,94 @@ final class StakingDetailsViewModel: ObservableObject {
     }()
 
     init(
-        inputData: StakingDetailsData,
+        wallet: WalletModel,
+        manager: StakingManager,
         coordinator: StakingDetailsRoutable
     ) {
-        self.inputData = inputData
+        self.wallet = wallet
+        self.manager = manager
         self.coordinator = coordinator
-
-        setupAverageRewardingViewData()
-        setupDetailsSection()
-        setupRewardViewData()
     }
 
     func userDidTapBanner() {}
     func userDidTapActionButton() {}
+
+    func onAppear() {
+        runTask(in: self) { viewModel in
+            let yield = try await viewModel.manager.getYield(item: viewModel.wallet.stakingTokenItem)
+            await viewModel.setupView(yield: yield)
+        }
+    }
 }
 
 private extension StakingDetailsViewModel {
-    func aprFormatted() -> String {
+    @MainActor
+    func setupView(yield: YieldInfo) {
+        setupView(
+            inputData: StakingDetailsData(
+                monthEstimatedProfit: 0,
+                available: 0,
+                staked: 0,
+                minAPR: yield.apy,
+                maxAPR: yield.apy,
+                unbonding: yield.unbonding,
+                minimumRequirement: yield.minimumRequirement,
+                rewardClaimingType: yield.rewardClaimingType,
+                warmupPeriod: yield.warmupPeriod,
+                rewardScheduleType: yield.rewardScheduleType
+            )
+        )
+    }
+
+    func setupView(inputData: StakingDetailsData) {
+        setupAverageRewardingViewData(inputData: inputData)
+        setupDetailsSection(inputData: inputData)
+        setupRewardViewData(inputData: inputData)
+    }
+
+    func aprFormatted(inputData: StakingDetailsData) -> String {
         let minAPRFormatted = percentFormatter.percentFormat(value: inputData.minAPR)
         let maxAPRFormatted = percentFormatter.percentFormat(value: inputData.maxAPR)
         let aprFormatted = "\(minAPRFormatted) - \(maxAPRFormatted)"
         return aprFormatted
     }
 
-    func setupAverageRewardingViewData() {
+    func setupAverageRewardingViewData(inputData: StakingDetailsData) {
         let profitFormatted = balanceFormatter.formatFiatBalance(inputData.monthEstimatedProfit)
         let days = 30 // [REDACTED_TODO_COMMENT]
         let periodProfitFormatted = daysFormatter.string(from: DateComponents(day: days)) ?? days.formatted()
 
         averageRewardingViewData = .init(
-            rewardType: inputData.rewardType.title,
-            rewardFormatted: aprFormatted(),
-            periodProfitFormatted: periodProfitFormatted,
+            aprFormatted: aprFormatted(inputData: inputData),
             profitFormatted: profitFormatted
         )
     }
 
-    func setupRewardViewData() {
+    func setupRewardViewData(inputData: StakingDetailsData) {
         let fiatFormatted = balanceFormatter.formatFiatBalance(inputData.monthEstimatedProfit)
         let cryptoFormatted = balanceFormatter.formatCryptoBalance(
             inputData.staked,
-            currencyCode: inputData.tokenItem.currencySymbol
+            currencyCode: wallet.tokenItem.currencySymbol
         )
 
         rewardViewData = .init(state: .rewards(fiatFormatted: fiatFormatted, cryptoFormatted: cryptoFormatted))
     }
 
-    func setupDetailsSection() {
+    func setupDetailsSection(inputData: StakingDetailsData) {
         let availableFormatted = balanceFormatter.formatCryptoBalance(
             inputData.available,
-            currencyCode: inputData.tokenItem.currencySymbol
+            currencyCode: wallet.tokenItem.currencySymbol
         )
 
         let stakedFormatted = balanceFormatter.formatCryptoBalance(
             inputData.staked,
-            currencyCode: inputData.tokenItem.currencySymbol
+            currencyCode: wallet.tokenItem.currencySymbol
         )
 
         let unbondingFormatted = inputData.unbonding.formatted(formatter: daysFormatter)
         let minimumFormatted = balanceFormatter.formatCryptoBalance(
             inputData.minimumRequirement,
-            currencyCode: inputData.tokenItem.currencySymbol
+            currencyCode: wallet.tokenItem.currencySymbol
         )
 
         let warmupFormatted = inputData.warmupPeriod.formatted(formatter: daysFormatter)
@@ -112,7 +141,6 @@ private extension StakingDetailsViewModel {
 }
 
 struct StakingDetailsData {
-    let tokenItem: TokenItem
     let monthEstimatedProfit: Decimal
     let available: Decimal
     let staked: Decimal
