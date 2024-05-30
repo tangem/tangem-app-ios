@@ -60,7 +60,7 @@ private extension StakingDetailsViewModel {
     func setupView(yield: YieldInfo) {
         setupView(
             inputData: StakingDetailsData(
-                available: 0,
+                available: wallet.balanceValue ?? 0,
                 staked: 0,
                 rewardType: yield.rewardType,
                 rewardRate: yield.rewardRate,
@@ -79,17 +79,23 @@ private extension StakingDetailsViewModel {
     }
 
     func setupAverageRewardingViewData(inputData: StakingDetailsData) {
-        // [REDACTED_TODO_COMMENT]
-
-        let profitFormatted = balanceFormatter.formatFiatBalance(100)
         let days = 30
         let periodProfitFormatted = daysFormatter.string(from: DateComponents(day: days)) ?? days.formatted()
 
+        let profitFormatted = wallet.balanceValue.map { balanceValue in
+            let profit = StakingCalculator().earnValue(
+                invest: balanceValue,
+                apr: inputData.rewardRate,
+                period: .days(days)
+            )
+            return balanceFormatter.formatFiatBalance(profit)
+        }
+
         averageRewardingViewData = .init(
             rewardType: inputData.rewardType.title,
-            rewardFormatted: percentFormatter.percentFormat(value: inputData.rewardRate),
+            rewardFormatted: percentFormatter.format(inputData.rewardRate, option: .staking),
             periodProfitFormatted: periodProfitFormatted,
-            profitFormatted: profitFormatted
+            profitFormatted: profitFormatted.map { .loaded(text: $0) } ?? .noData
         )
     }
 
@@ -104,7 +110,7 @@ private extension StakingDetailsViewModel {
             currencyCode: wallet.tokenItem.currencySymbol
         )
 
-        let rewardRateFormatted = percentFormatter.percentFormat(value: inputData.rewardRate)
+        let rewardRateFormatted = percentFormatter.format(inputData.rewardRate, option: .staking)
 
         let unbondingFormatted = inputData.unbondingPeriod.formatted(formatter: daysFormatter)
         let minimumFormatted = balanceFormatter.formatCryptoBalance(
