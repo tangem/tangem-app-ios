@@ -67,6 +67,9 @@ struct MainCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.visaTransactionDetailsViewModel) {
                 VisaTransactionDetailsView(viewModel: $0)
             }
+            .sheet(item: $coordinator.stakingDetailsCoordinator) {
+                StakingDetailsCoordinatorView(coordinator: $0)
+            }
 
         NavHolder()
             .bottomSheet(
