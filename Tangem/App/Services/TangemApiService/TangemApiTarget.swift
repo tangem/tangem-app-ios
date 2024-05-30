@@ -13,11 +13,6 @@ struct TangemApiTarget: TargetType {
     let type: TargetType
     let authData: AuthData?
 
-    init(type: TargetType, authData: AuthData?) {
-        self.type = type
-        self.authData = authData
-    }
-
     // MARK: - TargetType
 
     var baseURL: URL {
