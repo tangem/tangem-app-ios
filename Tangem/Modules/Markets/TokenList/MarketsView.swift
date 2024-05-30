@@ -20,7 +20,6 @@ struct MarketsView: View {
             list
         }
         .scrollDismissesKeyboardCompat(.immediately)
-        .alert(item: $viewModel.alert, content: { $0.alert })
     }
 
     private var header: some View {
@@ -37,10 +36,6 @@ struct MarketsView: View {
         LazyVStack(spacing: 0) {
             ForEach(viewModel.tokenViewModels) {
                 MarketsItemView(viewModel: $0)
-            }
-
-            if viewModel.isShowAddCustomToken {
-                addCustomTokenView
             }
 
             if viewModel.hasNextPage, viewModel.viewDidAppear {
