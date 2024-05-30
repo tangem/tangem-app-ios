@@ -97,6 +97,7 @@ class FakeTangemApiService: TangemApiService {
 
 extension FakeTangemApiService {
     func loadMarkets(requestModel: MarketDTO.General.Request) async throws -> MarketDTO.General.Response {
+        // Implement in [REDACTED_INFO]
         throw "Not implemented"
     }
 }
