@@ -23,7 +23,7 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
     @Published var priceChangeState: TokenPriceChangeView.State = .noData
     @Published var priceHistory: [Double]? = nil
 
-    @Published var isLoading: Bool
+    @Published var isLoadingCharts: Bool
 
     // MARK: - Properties
 
@@ -57,16 +57,18 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
 
     init(_ data: InputData) {
         id = data.id
-        imageURL = IconURLBuilder().tokenIconURL(id: data.id, size: .large)
+        imageURL = URL(string: data.imageURL)
         name = data.name
         symbol = data.symbol
         marketCap = data.marketCup
         marketRaiting = data.marketRaiting
-        priceValue = data.priceValue
-        priceChangeState = data.priceChangeState
-        priceHistory = data.priceHistory
+        priceValue = priceFormatter.formatFiatBalance(data.priceValue)
 
-        isLoading = data.state == .loading
+        if let priceChangeResult = priceChangeFormatter.format(value: data.priceChangeStateValue) {
+            priceChangeState = .loaded(signType: priceChangeResult.signType, text: priceChangeResult.formattedText)
+        }
+
+        isLoadingCharts = true
 
         bind()
     }
@@ -74,33 +76,7 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
     // MARK: - Private Implementation
 
     private func bind() {
-        tokenQuotesRepository.quotesPublisher.sink { [weak self] itemQuote in
-            guard let self = self else { return }
-
-            if let quote = itemQuote[id] {
-                updateView(by: quote)
-            }
-
-            return
-        }
-        .store(in: &bag)
-    }
-
-    private func updateView(by quote: TokenQuote) {
-        guard priceValue.isEmpty || priceChangeState == .loading || priceChangeState == .noData else {
-            return
-        }
-
-        priceChangeState = getPriceChangeState(by: quote)
-        priceValue = priceFormatter.formatFiatBalance(quote.price)
-
-        priceHistory = quote.prices24h?.map { $0 }
-    }
-
-    private func getPriceChangeState(by quote: TokenQuote) -> TokenPriceChangeView.State {
-        let change = quote.change ?? 0
-        let result = priceChangeFormatter.format(value: change)
-        return .loaded(signType: result.signType, text: result.formattedText)
+        // Need for user update charts
     }
 }
 
@@ -114,31 +90,12 @@ extension MarketsItemViewModel {
 extension MarketsItemViewModel {
     struct InputData {
         let id: String
+        let imageURL: String
         let name: String
         let symbol: String
         let marketCup: String
         let marketRaiting: String
-        let priceValue: String
-        let priceChangeState: TokenPriceChangeView.State
-        let priceHistory: [Double]?
-        let state: State
-
-        init(
-            token: MarketTokenModel,
-            priceValue: String = "",
-            priceChangeState: TokenPriceChangeView.State = .loading,
-            priceHistory: [Double]? = nil,
-            state: State
-        ) {
-            id = token.id
-            name = token.name
-            symbol = token.symbol
-            marketCup = token.marketCup
-            marketRaiting = token.marketRaiting
-            self.priceValue = priceValue
-            self.priceChangeState = priceChangeState
-            self.priceHistory = priceHistory
-            self.state = state
-        }
+        let priceValue: Decimal
+        let priceChangeStateValue: Decimal?
     }
 }
