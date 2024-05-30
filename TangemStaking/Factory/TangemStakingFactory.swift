@@ -43,12 +43,6 @@ public struct TangemStakingFactory {
         let mapper = StakeKitMapper()
         return CommonStakingAPIProvider(service: service, mapper: mapper)
     }
-
-    public func makeStakingAvailabilityProvider(
-        repository: StakingRepository
-    ) -> StakingAvailabilityProvider {
-        CommonStakingAvailabilityProvider(repository: repository)
-    }
 }
 
 // MARK: - Injected configurations and dependencies
