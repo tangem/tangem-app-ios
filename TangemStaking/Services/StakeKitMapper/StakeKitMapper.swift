@@ -15,6 +15,7 @@ struct StakeKitMapper {
         }
 
         return try YieldInfo(
+            id: response.id,
             item: mapToStakingTokenItem(from: response.token),
             apy: response.apy,
             rewardRate: response.rewardRate,
