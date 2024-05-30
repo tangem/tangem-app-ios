@@ -20,7 +20,10 @@ final class MarketsViewModel: ObservableObject {
     @Published var tokenViewModels: [MarketsItemViewModel] = []
     @Published var viewDidAppear: Bool = false
 
+    @Published var marketOrder: MarketPriceIntervalType = .day
     @Published var marketPriceInterval: MarketPriceIntervalType = .day
+
+    @Published var filter = MarketsListDataProvider.Filter()
 
     // MARK: - Properties
 
@@ -61,7 +64,7 @@ final class MarketsViewModel: ObservableObject {
     }
 
     func onBottomDisappear() {
-        loader.reset("")
+        loader.reset(nil, with: filter)
         fetch(with: "")
         viewDidAppear = false
     }
@@ -80,7 +83,7 @@ final class MarketsViewModel: ObservableObject {
 
 private extension MarketsViewModel {
     func fetch(with searchText: String = "") {
-        loader.fetch(searchText)
+        loader.fetch(searchText, with: filter)
     }
 
     /// Obtain supported token list from UserWalletModels to determine the cell action type
@@ -165,9 +168,8 @@ private extension MarketsViewModel {
             .store(in: &bag)
     }
 
-    func setupListDataLoader() -> ListDataLoader {
-        let supportedBlockchains = SupportedBlockchains.all
-        let loader = ListDataLoader(supportedBlockchains: supportedBlockchains)
+    func setupListDataLoader() -> MarketsListDataProvider {
+        let loader = MarketsListDataProvider()
 
         loader.$items
             .receive(on: DispatchQueue.main)
@@ -177,7 +179,7 @@ private extension MarketsViewModel {
                     return
                 }
 
-                tokenViewModels = items.compactMap { self.mapToTokenViewModel(coinModel: $0) }
+                tokenViewModels = [items.compactMap { self.mapToTokenViewModel(coinModel: $0) }]
                 updateQuote(by: items.map { $0.id })
 
                 isShowAddCustomToken = tokenViewModels.isEmpty && !dataSource.userWalletModels.contains(where: { $0.config.hasFeature(.multiCurrency) })
