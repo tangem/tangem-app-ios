@@ -176,6 +176,7 @@ private extension CommonExpressModulesFactory {
             expressPendingTransactionRepository: pendingTransactionRepository,
             expressDestinationService: expressDestinationService,
             expressTransactionBuilder: expressTransactionBuilder,
+            expressAPIProvider: expressAPIProvider,
             signer: signer,
             logger: logger
         )
