@@ -99,8 +99,6 @@ struct DetailsView: View {
     private var environmentSetupSection: some View {
         GroupedSection(viewModel.environmentSetupViewModel) {
             DefaultRowView(viewModel: $0)
-        } header: {
-            DefaultHeaderView("Setup environment in app")
         }
     }
 
