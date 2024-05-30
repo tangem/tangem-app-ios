@@ -100,7 +100,7 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
 
     private func getPriceChangeState(by quote: TokenQuote) -> TokenPriceChangeView.State {
         let change = quote.change ?? 0
-        let result = priceChangeFormatter.format(value: change)
+        let result = priceChangeFormatter.format(change, option: .priceChange)
         return .loaded(signType: result.signType, text: result.formattedText)
     }
 }
