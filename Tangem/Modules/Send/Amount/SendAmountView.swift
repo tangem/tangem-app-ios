@@ -16,8 +16,10 @@ struct SendAmountView: View {
     private let iconSize = CGSize(bothDimensions: 36)
 
     var body: some View {
-        GroupedScrollView(spacing: 14) {
-//        VStack {
+//        GroupedScrollView(spacing: 14) {
+        VStack {
+//        ScrollView {
+//            LazyVStack(alignment: .center, spacing: 14) {
             Rectangle()
                 .frame(width: 100, height: 100, alignment: .center)
                 .matchedGeometryEffectOptional(id: "rect", in: namespace)
@@ -29,6 +31,7 @@ struct SendAmountView: View {
             .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
 
             Spacer()
+//            }
         }
         .padding(.horizontal, 14)
         .onAppear(perform: viewModel.onAppear)
