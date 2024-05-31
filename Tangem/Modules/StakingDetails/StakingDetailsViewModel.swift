@@ -49,7 +49,7 @@ final class StakingDetailsViewModel: ObservableObject {
 
     func onAppear() {
         runTask(in: self) { viewModel in
-            let yield = try await viewModel.manager.getYield(item: viewModel.wallet.stakingTokenItem)
+            let yield = try await viewModel.manager.getYield()
             await viewModel.setupView(yield: yield)
         }
     }
@@ -60,8 +60,8 @@ private extension StakingDetailsViewModel {
     func setupView(yield: YieldInfo) {
         setupView(
             inputData: StakingDetailsData(
-                available: wallet.balanceValue ?? 0,
-                staked: 0,
+                available: wallet.balanceValue ?? 0, // Maybe add skeleton?
+                staked: 0, // TBD
                 rewardType: yield.rewardType,
                 rewardRate: yield.rewardRate,
                 minimumRequirement: yield.minimumRequirement,
