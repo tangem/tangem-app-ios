@@ -34,6 +34,7 @@ class ExpressInteractor {
     private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
     private let expressDestinationService: ExpressDestinationService
     private let expressTransactionBuilder: ExpressTransactionBuilder
+    private let expressAPIProvider: ExpressAPIProvider
     private let signer: TransactionSigner
     private let logger: Logger
 
@@ -55,6 +56,7 @@ class ExpressInteractor {
         expressPendingTransactionRepository: ExpressPendingTransactionRepository,
         expressDestinationService: ExpressDestinationService,
         expressTransactionBuilder: ExpressTransactionBuilder,
+        expressAPIProvider: ExpressAPIProvider,
         signer: TransactionSigner,
         logger: Logger
     ) {
@@ -67,6 +69,7 @@ class ExpressInteractor {
         self.expressPendingTransactionRepository = expressPendingTransactionRepository
         self.expressDestinationService = expressDestinationService
         self.expressTransactionBuilder = expressTransactionBuilder
+        self.expressAPIProvider = expressAPIProvider
         self.signer = signer
         self.logger = logger
 
@@ -209,6 +212,10 @@ extension ExpressInteractor {
             }
         }()
 
+        // Ignore error here
+        let expressSentResult = ExpressTransactionSentResult(hash: result.hash, source: getSender(), data: result.data)
+        try? await expressAPIProvider.exchangeSent(result: expressSentResult)
+
         updateState(.idle)
         let sentTransactionData = SentExpressTransactionData(
             hash: result.hash,
@@ -223,6 +230,7 @@ extension ExpressInteractor {
 
         logTransactionSentAnalyticsEvent(data: sentTransactionData)
         expressPendingTransactionRepository.swapTransactionDidSend(sentTransactionData, userWalletId: userWalletId)
+
         return sentTransactionData
     }
 
