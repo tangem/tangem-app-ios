@@ -10,9 +10,11 @@ import Foundation
 import SwiftUI
 import Combine
 import CombineExt
+import TangemStaking
 
 final class MultiWalletMainContentViewModel: ObservableObject {
     @Injected(\.swapAvailabilityProvider) private var swapAvailabilityProvider: SwapAvailabilityProvider
+    @Injected(\.stakingRepositoryProxy) private var stakingRepository: StakingRepositoryProxy
 
     // MARK: - ViewState
 
@@ -443,6 +445,7 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionsProvider {
         // On the Main view we have to hide send button if we have any sending restrictions
         let canSend = userWalletModel.config.hasFeature(.send) && walletModel.sendingRestrictions == .none
         let canSwap = userWalletModel.config.isFeatureVisible(.swapping) && swapAvailabilityProvider.canSwap(tokenItem: tokenItem.tokenItem) && !walletModel.isCustom
+        let canStake = canStake(walletModel: walletModel)
         let isBlockchainReachable = !walletModel.state.isBlockchainUnreachable
         let canSignTransactions = walletModel.sendingRestrictions != .cantSignLongTransactions
 
@@ -451,10 +454,20 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionsProvider {
             canSignTransactions: canSignTransactions,
             canSend: canSend,
             canSwap: canSwap,
+            canStake: canStake,
             canHide: canManageTokens,
             isBlockchainReachable: isBlockchainReachable,
             exchangeUtility: utility
         )
+    }
+
+    private func canStake(walletModel: WalletModel) -> Bool {
+        [
+            FeatureProvider.isAvailable(.staking),
+            userWalletModel.config.isFeatureVisible(.staking),
+            stakingRepository.getYield(item: walletModel.stakingTokenItem) != nil,
+            !walletModel.isCustom,
+        ].allConforms { $0 }
     }
 }
 
@@ -485,7 +498,9 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
         case .exchange:
             Analytics.log(event: .buttonExchange, params: [.token: walletModel.tokenItem.currencySymbol])
             tokenRouter.openExchange(walletModel: walletModel)
-        case .hide, .stake:
+        case .stake:
+            tokenRouter.openStaking(walletModel: walletModel)
+        case .hide:
             return
         }
     }
