@@ -10,7 +10,7 @@ import Foundation
 import TangemStaking
 
 actor StakingManagerMock: StakingManager {
-    func getYield(item: StakingTokenItem) async throws -> YieldInfo {
+    func getYield() throws -> YieldInfo {
         YieldInfo(
             id: "tron-trx-native-staking",
             apy: 0.03712381,
