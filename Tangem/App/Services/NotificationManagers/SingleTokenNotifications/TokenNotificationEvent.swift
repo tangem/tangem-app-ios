@@ -76,7 +76,7 @@ extension TokenNotificationEvent: NotificationEvent {
         case .solanaHighImpact:
             return .string(Localization.warningSolanaFeeTitle)
         case .bnbBeaconChainRetirement:
-            return .string(Localization.warningBnbRetirementTitle)
+            return .string(Localization.warningBeaconChainRetirementTitle)
         case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation):
             return .string(Localization.warningHederaMissingTokenAssociationTitle)
         }
@@ -105,7 +105,7 @@ extension TokenNotificationEvent: NotificationEvent {
         case .solanaHighImpact:
             return Localization.warningSolanaFeeMessage
         case .bnbBeaconChainRetirement:
-            return Localization.warningBnbRetirementMessage
+            return Localization.warningBeaconChainRetirementContent
         case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation(let associationFee)):
             guard let associationFee else {
                 return Localization.warningHederaMissingTokenAssociationMessageBrief
