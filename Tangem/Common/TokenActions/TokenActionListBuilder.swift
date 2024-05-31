@@ -38,7 +38,6 @@ struct TokenActionListBuilder {
         canSignTransactions: Bool,
         canSend: Bool,
         canSwap: Bool,
-        canStake: Bool,
         canHide: Bool,
         isBlockchainReachable: Bool,
         exchangeUtility: ExchangeCryptoUtility
@@ -56,10 +55,6 @@ struct TokenActionListBuilder {
 
         if canSignTransactions, isBlockchainReachable, canSwap {
             availableActions.append(.exchange)
-        }
-
-        if canSignTransactions, isBlockchainReachable, canStake {
-            availableActions.append(.stake)
         }
 
         // [REDACTED_TODO_COMMENT]
