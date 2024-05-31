@@ -20,7 +20,7 @@ struct StakeKitMapper {
             rewardType: mapToRewardType(from: response.rewardType),
             rewardRate: response.rewardRate,
             minimumRequirement: enterAction.args.amount.minimum,
-            item: mapToStakingTokenItem(from: response.metadata.token),
+            item: mapToStakingTokenItem(from: response.token),
             unbondingPeriod: mapToPeriod(from: response.metadata.cooldownPeriod),
             warmupPeriod: mapToPeriod(from: response.metadata.warmupPeriod),
             rewardClaimingType: mapToRewardClaimingType(from: response.metadata.rewardClaiming),
