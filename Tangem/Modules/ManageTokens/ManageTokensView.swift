@@ -1,5 +1,5 @@
 //
-//  OnboardingAddTokensView.swift
+//  ManageTokensView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-struct OnboardingAddTokensView: View {
-    @ObservedObject var viewModel: OnboardingAddTokensViewModel
+struct ManageTokensView: View {
+    @ObservedObject var viewModel: ManageTokensViewModel
 
     @State private var contentOffset: CGPoint = .zero
 
@@ -31,17 +31,27 @@ struct OnboardingAddTokensView: View {
             VStack {
                 Spacer()
 
-                MainButton(settings: viewModel.buttonSettings)
-                    .padding(.bottom, 10)
-                    .padding(.horizontal, 16)
-                    .background(
-                        ListFooterOverlayShadowView()
-                            .padding(.top, -30)
-                    )
+                MainButton(
+                    title: Localization.commonSave,
+                    icon: .trailing(Assets.tangemIcon),
+                    isLoading: viewModel.isSavingChanges,
+                    action: viewModel.saveChanges
+                )
+                .padding(.bottom, 10)
+                .padding(.horizontal, 16)
+                .background(
+                    ListFooterOverlayShadowView()
+                        .padding(.top, -30)
+                )
+                .hidden(viewModel.isPendingListEmpty)
+                .animation(.default, value: viewModel.isPendingListEmpty)
             }
         }
+        .background(Colors.Background.primary.ignoresSafeArea())
+        .navigationTitle(Text(Localization.addTokensTitle))
         .scrollDismissesKeyboardCompat(.interactively)
         .keyboardType(.alphabet)
+        .bindAlert($viewModel.alert)
     }
 }
 
@@ -56,5 +66,7 @@ struct OnboardingAddTokensView: View {
         userTokensManager: fakeModel.userTokensManager
     ))
 
-    return OnboardingAddTokensView(viewModel: OnboardingAddTokensViewModel(adapter: adapter, delegate: nil))
+    return NavigationView {
+        ManageTokensView(viewModel: .init(adapter: adapter))
+    }
 }
