@@ -10,10 +10,7 @@ import Foundation
 import Combine
 
 class MarketsItemViewModel: Identifiable, ObservableObject {
-    // MARK: - Injected Properties
-
-    @Injected(\.quotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
-
+    
     // MARK: - Published
 
     @Published var marketRaiting: String = ""
@@ -21,9 +18,9 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
 
     @Published var priceValue: String = ""
     @Published var priceChangeState: TokenPriceChangeView.State = .noData
-    @Published var priceHistory: [Double]? = nil
 
-    @Published var isLoadingCharts: Bool
+    // Charts will be implement in [REDACTED_INFO]
+    @Published var charts: [Double]? = nil
 
     // MARK: - Properties
 
@@ -39,20 +36,6 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
     private var priceChangeFormatter = PriceChangeFormatter()
     private let priceFormatter = CommonTokenPriceFormatter()
 
-    // MARK: - Helpers
-
-    var priceHistoryChangeType: ChangeSignType {
-        guard
-            let priceHistory,
-            let firstValue = priceHistory.first,
-            let lastValue = priceHistory.last
-        else {
-            return .positive
-        }
-
-        return ChangeSignType(from: Decimal(lastValue - firstValue))
-    }
-
     // MARK: - Init
 
     init(_ data: InputData) {
@@ -60,16 +43,18 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
         imageURL = URL(string: data.imageURL)
         name = data.name
         symbol = data.symbol
+
         marketCap = data.marketCup
         marketRaiting = data.marketRaiting
+
         priceValue = priceFormatter.formatFiatBalance(data.priceValue)
 
         if let priceChangeStateValue = data.priceChangeStateValue {
             let priceChangeResult = priceChangeFormatter.format(value: priceChangeStateValue)
             priceChangeState = .loaded(signType: priceChangeResult.signType, text: priceChangeResult.formattedText)
+        } else {
+            priceChangeState = .loading
         }
-
-        isLoadingCharts = true
 
         bind()
     }
@@ -82,13 +67,6 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
 }
 
 extension MarketsItemViewModel {
-    enum State {
-        case loading
-        case loaded
-    }
-}
-
-extension MarketsItemViewModel {
     struct InputData {
         let id: String
         let imageURL: String
@@ -96,7 +74,7 @@ extension MarketsItemViewModel {
         let symbol: String
         let marketCup: String
         let marketRaiting: String
-        let priceValue: Decimal
+        let priceValue: Decimal?
         let priceChangeStateValue: Decimal?
     }
 }
