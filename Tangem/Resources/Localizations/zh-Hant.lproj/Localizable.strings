@@ -584,6 +584,8 @@
 "token_details_hide_alert_message" = "您即將在主屏幕上隱藏此代幣。您可以隨時通過管理代幣頁面將其添加回來。";
 "token_details_hide_alert_title" = "隱藏 %@";
 "token_details_hide_token" = "隱藏代幣";
+"token_details_staking_block_subtitle" = "Staking allows you to earn %1$@ and get rewards every %2$@ days";
+"token_details_staking_block_title" = "Earn up to %@ staking rewards yearly";
 "token_details_token_type_subtitle" = "%1$@ token in %%image%% %2$@ network";
 "token_details_token_type_subtitle_no_standard" = "Token in %%image%% %1$@ network";
 "token_details_unable_hide_alert_message" = "%1$@ (%2$@) 代幣是 %3$@ 網絡上的主要貨幣，只要列表中還有該網絡上的其他代幣，它就無法被隱藏。";
