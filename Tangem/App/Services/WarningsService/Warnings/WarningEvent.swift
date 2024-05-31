@@ -128,7 +128,14 @@ extension WarningEvent: NotificationEvent {
         switch self {
         case .failedToVerifyCard, .devCard, .backupErrors:
             return .init(iconType: .image(Assets.redCircleWarning.image))
-        case .numberOfSignedHashesIncorrect, .testnetCard, .oldDeviceOldCard, .oldCard, .lowSignatures, .systemDeprecationPermanent, .missingBackup, .supportedOnlySingleCurrencyWallet:
+        case .numberOfSignedHashesIncorrect, 
+             .testnetCard,
+             .oldDeviceOldCard,
+             .oldCard,
+             .lowSignatures,
+             .systemDeprecationPermanent,
+             .missingBackup,
+             .supportedOnlySingleCurrencyWallet:
             return .init(iconType: .image(Assets.attention.image))
         case .demoCard, .legacyDerivation, .systemDeprecationTemporary, .missingDerivation:
             return .init(iconType: .image(Assets.blueCircleWarning.image))
@@ -166,7 +173,20 @@ extension WarningEvent: NotificationEvent {
 
     var isDismissable: Bool {
         switch self {
-        case .failedToVerifyCard, .testnetCard, .devCard, .oldDeviceOldCard, .oldCard, .demoCard, .lowSignatures, .legacyDerivation, .systemDeprecationPermanent, .missingDerivation, .walletLocked, .missingBackup, .supportedOnlySingleCurrencyWallet, .backupErrors:
+        case .failedToVerifyCard,
+             .testnetCard,
+             .devCard,
+             .oldDeviceOldCard,
+             .oldCard,
+             .demoCard,
+             .lowSignatures,
+             .legacyDerivation,
+             .systemDeprecationPermanent,
+             .missingDerivation,
+             .walletLocked,
+             .missingBackup,
+             .supportedOnlySingleCurrencyWallet,
+             .backupErrors:
             return false
         case .numberOfSignedHashesIncorrect,
              .systemDeprecationTemporary,
