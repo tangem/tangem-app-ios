@@ -229,13 +229,13 @@ final class SingleTokenNotificationManager {
         }
 
         let days = 2
-        let earnUpToFormatted = PercentFormatter().format(yield.rewardRate, option: .staking)
+        let apyFormatted = PercentFormatter().format(yield.apy, option: .staking)
         let rewardPeriodDaysFormatted = days.formatted()
 
         return .staking(
             tokenSymbol: walletModel.tokenItem.currencySymbol,
             tokenIconInfo: TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom),
-            earnUpToFormatted: earnUpToFormatted,
+            earnUpToFormatted: apyFormatted,
             rewardPeriodDaysFormatted: rewardPeriodDaysFormatted
         )
     }
