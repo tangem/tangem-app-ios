@@ -16,36 +16,43 @@ struct ManageTokensListView<Header, Footer>: View where Header: View, Footer: Vi
     let header: Header?
     let footer: Footer?
 
+    private var contentOffsetObserver: Binding<CGPoint>? = nil
+    private let bottomPadding: CGFloat
+
     init(
         viewModel: ManageTokensListViewModel,
+        bottomPadding: CGFloat = Constants.bottomPadding,
         @ViewBuilder header: HeaderFactory,
         @ViewBuilder footer: FooterFactory
     ) {
         self.viewModel = viewModel
+        self.bottomPadding = bottomPadding
         self.header = header()
         self.footer = footer()
     }
 
-    init(viewModel: ManageTokensListViewModel) where Header == EmptyView, Footer == EmptyView {
+    init(
+        viewModel: ManageTokensListViewModel,
+        bottomPadding: CGFloat = Constants.bottomPadding
+    ) where Header == EmptyView, Footer == EmptyView {
         self.viewModel = viewModel
+        self.bottomPadding = bottomPadding
         header = nil
         footer = nil
     }
+
+    private let namespace = UUID()
 
     var body: some View {
         ScrollView {
             LazyVStack {
                 if let header {
                     header
-
-                    divider
                 }
 
                 ForEach(viewModel.coinViewModels) {
                     ManageTokensCoinView(model: $0)
                         .padding(.horizontal)
-
-                    divider
                 }
 
                 if viewModel.hasNextPage {
@@ -59,11 +66,25 @@ struct ManageTokensListView<Header, Footer>: View where Header: View, Footer: Vi
                     footer
                 }
             }
+            .padding(.bottom, bottomPadding)
+            .readContentOffset(inCoordinateSpace: .named(namespace)) { value in
+                contentOffsetObserver?.wrappedValue = value
+            }
+        }
+        .coordinateSpace(name: namespace)
+    }
+}
+
+extension ManageTokensListView: Setupable {
+    func addContentOffsetObserver(_ observer: Binding<CGPoint>) -> Self {
+        map {
+            $0.contentOffsetObserver = observer
         }
     }
+}
 
-    private var divider: some View {
-        Divider()
-            .padding([.leading])
+extension ManageTokensListView {
+    enum Constants {
+        static var bottomPadding: CGFloat { 60 }
     }
 }
