@@ -138,7 +138,7 @@ struct SendSummaryView: View {
 
     private func feeRowViewSeparator(for option: FeeOption) -> some View {
         Separator(height: .minimal, color: Colors.Stroke.primary)
-            .padding(.leading, 14)
+            .padding(.leading, GroupedSectionConstants.defaultHorizontalPadding)
             .opacity(0)
             .matchedGeometryEffect(id: SendViewNamespaceId.feeSeparator(feeOption: option).rawValue, in: namespace)
     }
