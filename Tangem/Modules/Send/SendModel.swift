@@ -32,8 +32,7 @@ class SendModel {
     var feeValid: AnyPublisher<Bool, Never> {
         fee
             .map { fee in
-                guard let fee else { return false }
-                return !fee.amount.isZero
+                fee != nil
             }
             .eraseToAnyPublisher()
     }
@@ -122,6 +121,7 @@ class SendModel {
 
         if let amount = sendType.predefinedAmount {
             setAmount(amount)
+            updateAndValidateAmount(amount)
         }
 
         if let destination = sendType.predefinedDestination {
@@ -137,8 +137,8 @@ class SendModel {
         }
 
         // Update the fees in case we have all prerequisites specified
-        if let predefinedAmount = sendType.predefinedAmount, let predefinedDestination = sendType.predefinedDestination {
-            updateFees(amount: predefinedAmount, destination: predefinedDestination)
+        if let predefinedDestination = sendType.predefinedDestination {
+            updateFees(amount: validatedAmountValue, destination: predefinedDestination)
                 .sink()
                 .store(in: &bag)
         }
@@ -320,7 +320,11 @@ class SendModel {
 
         let oldFee = fee.value
 
-        _feeValues.send([:])
+        let loadingFeeValues: [FeeOption: LoadingValue<Fee>] = Dictionary(
+            feeOptions.map { ($0, LoadingValue<Fee>.loading) },
+            uniquingKeysWith: { value1, _ in value1 }
+        )
+        _feeValues.send(loadingFeeValues)
 
         return walletModel
             .getFee(amount: amount, destination: destination)

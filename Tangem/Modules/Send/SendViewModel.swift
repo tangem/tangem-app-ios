@@ -29,10 +29,6 @@ final class SendViewModel: ObservableObject {
         step.name(for: sendStepParameters)
     }
 
-    var hasSubtitle: Bool {
-        subtitle != nil
-    }
-
     var subtitle: String? {
         step.description(for: sendStepParameters)
     }
@@ -404,6 +400,8 @@ final class SendViewModel: ObservableObject {
                         type: walletModel.amountType,
                         value: amount
                     ).string()
+
+                    #warning("Use TransactionValidator async validate to get this warning before send tx")
                     let title = Localization.sendNotificationInvalidReserveAmountTitle(amountFormatted)
                     let message = Localization.sendNotificationInvalidReserveAmountText
 
