@@ -28,6 +28,7 @@ struct SendSuggestedDestinationView: View {
         }
         .interItemSpacing(0)
         .separatorStyle(.none)
+        .backgroundColor(Colors.Background.action)
     }
 
     @ViewBuilder
