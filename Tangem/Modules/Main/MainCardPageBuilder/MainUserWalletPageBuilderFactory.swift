@@ -122,7 +122,6 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let singleWalletNotificationManager = SingleTokenNotificationManager(
             walletModel: walletModel,
             walletModelsManager: model.walletModelsManager,
-            expressDestinationService: nil,
             contextDataProvider: model
         )
 
