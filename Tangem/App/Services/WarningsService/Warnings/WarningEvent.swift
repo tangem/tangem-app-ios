@@ -115,10 +115,10 @@ extension WarningEvent: NotificationEvent {
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .missingDerivation, .missingBackup:
+        case .rateApp,
+             .missingDerivation,
+             .missingBackup:
             return .primary
-        case .rateApp:
-            return .action
         default:
             return .secondary
         }
