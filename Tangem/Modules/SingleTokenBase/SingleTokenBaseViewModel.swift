@@ -252,8 +252,7 @@ extension SingleTokenBaseViewModel {
         let listBuilder = TokenActionListBuilder()
         let canShowSwap = userWalletModel.config.isFeatureVisible(.swapping)
         let canShowBuySell = userWalletModel.config.isFeatureVisible(.exchange)
-        let canShowStake = userWalletModel.config.isFeatureVisible(.staking)
-        availableActions = listBuilder.buildActionsForButtonsList(canShowBuySell: canShowBuySell, canShowSwap: canShowSwap, canShowStake: canShowStake)
+        availableActions = listBuilder.buildActionsForButtonsList(canShowBuySell: canShowBuySell, canShowSwap: canShowSwap)
     }
 
     private func bind() {
