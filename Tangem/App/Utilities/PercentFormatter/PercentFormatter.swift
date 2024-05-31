@@ -1,5 +1,5 @@
 //
-//  TokenQuoteFormatter.swift
+//  PercentFormatter.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -19,8 +19,8 @@ struct PercentFormatter {
         let formatter = NumberFormatter()
         formatter.numberStyle = .percent
         formatter.locale = locale
-        formatter.maximumFractionDigits = option.maximumFractionDigits
-        formatter.minimumFractionDigits = option.minimumFractionDigits
+        formatter.maximumFractionDigits = option.fractionDigits
+        formatter.minimumFractionDigits = option.fractionDigits
 
         if option.clearPrefix {
             formatter.positivePrefix = ""
@@ -41,14 +41,7 @@ extension PercentFormatter {
         case express
         case staking
 
-        var maximumFractionDigits: Int {
-            switch self {
-            case .priceChange: 2
-            case .express, .staking: 1
-            }
-        }
-
-        var minimumFractionDigits: Int {
+        var fractionDigits: Int {
             switch self {
             case .priceChange: 2
             case .express, .staking: 1
