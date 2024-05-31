@@ -128,7 +128,7 @@ extension WarningEvent: NotificationEvent {
         switch self {
         case .failedToVerifyCard, .devCard, .backupErrors:
             return .init(iconType: .image(Assets.redCircleWarning.image))
-        case .numberOfSignedHashesIncorrect, 
+        case .numberOfSignedHashesIncorrect,
              .testnetCard,
              .oldDeviceOldCard,
              .oldCard,
