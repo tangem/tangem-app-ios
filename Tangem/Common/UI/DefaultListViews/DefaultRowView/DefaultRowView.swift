@@ -64,10 +64,7 @@ struct DefaultRowView: View {
                 state: state,
                 font: appearance.font,
                 textColor: appearance.detailsColor,
-                loaderSize: CGSize(
-                    width: 40,
-                    height: 14
-                )
+                loaderSize: CGSize(width: 60, height: 14)
             )
         case .icon(let imageType):
             imageType.image
@@ -110,21 +107,28 @@ struct DefaultRowView_Preview: PreviewProvider {
         ZStack {
             Colors.Background.secondary.ignoresSafeArea()
 
-            GroupedSection([
-                DefaultRowViewModel(
-                    title: "App settings",
-                    detailsType: .text("A Long long long long long long long text"),
-                    action: nil
-                ),
-                DefaultRowViewModel(
-                    title: "App settings",
-                    detailsType: .loadable(state: .loading),
-                    action: nil
-                ),
-            ]
+            GroupedSection(
+                [
+                    DefaultRowViewModel(
+                        title: "App settings",
+                        detailsType: .text("A Long long long long long long long text"),
+                        action: nil
+                    ),
+                    DefaultRowViewModel(
+                        title: "App settings",
+                        detailsType: .loadable(state: .loading),
+                        action: nil
+                    ),
+                    DefaultRowViewModel(
+                        title: "App settings",
+                        detailsType: .loader,
+                        action: nil
+                    ),
+                ]
             ) {
                 DefaultRowView(viewModel: $0)
             }
+            .padding()
         }
     }
 }
