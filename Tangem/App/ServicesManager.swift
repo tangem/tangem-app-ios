@@ -49,7 +49,9 @@ class ServicesManager {
         accountHealthChecker.initialize()
         apiListProvider.initialize()
         SendFeatureProvider.shared.loadFeaturesAvailability()
-        stakingRepositoryProxy.initialize()
+        if FeatureProvider.isAvailable(.staking) {
+            stakingRepositoryProxy.initialize()
+        }
     }
 
     private func configureFirebase() {
