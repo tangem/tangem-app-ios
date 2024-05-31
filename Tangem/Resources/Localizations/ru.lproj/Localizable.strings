@@ -584,6 +584,8 @@
 "token_details_hide_alert_message" = "Вы скрываете токен с главного экрана, но в любой момент сможете добавить его обратно через страницу управления токенами.";
 "token_details_hide_alert_title" = "Скрыть %@";
 "token_details_hide_token" = "Скрыть токен";
+"token_details_staking_block_subtitle" = "Стейкинг позволяет вам зарабатывать %1$@ и получать вознаграждения каждые %2$@ дней";
+"token_details_staking_block_title" = "Зарабатывайте до %@ вознаграждений за стейкинг ежегодно";
 "token_details_token_type_subtitle" = "%1$@ токен в сети %%image%% %2$@";
 "token_details_token_type_subtitle_no_standard" = "Токен в сети %%image%% %1$@";
 "token_details_unable_hide_alert_message" = "Токен %1$@ (%2$@) является основной валютой в сети %3$@ и не может быть скрыт до тех пор, пока у вас в списке есть другие токены этой сети";
