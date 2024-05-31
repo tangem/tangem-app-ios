@@ -16,18 +16,22 @@ struct MarketsItemView: View {
 
     var body: some View {
         HStack {
-            HStack(spacing: 12) {
-                IconView(url: viewModel.imageURL, size: iconSize, forceKingfisher: true)
+            VStack {
+                HStack(spacing: 12) {
+                    IconView(url: viewModel.imageURL, size: iconSize, forceKingfisher: true)
 
-                tokenInfoView
+                    tokenInfoView
+                }
             }
 
             Spacer(minLength: 12)
 
-            HStack(spacing: 10) {
-                tokenPriceView
+            VStack {
+                HStack(spacing: 10) {
+                    tokenPriceView
 
-                priceHistoryView
+                    priceHistoryView
+                }
             }
         }
         .padding(.horizontal, 16)
@@ -73,10 +77,10 @@ struct MarketsItemView: View {
 
     private var priceHistoryView: some View {
         VStack {
-            if let priceHistory = viewModel.priceHistory {
+            if let charts = viewModel.charts {
                 LineChartView(
-                    color: viewModel.priceHistoryChangeType.textColor,
-                    data: priceHistory
+                    color: viewModel.priceChangeState.signType?.textColor ?? Colors.Text.tertiary,
+                    data: charts
                 )
             } else {
                 // [REDACTED_TODO_COMMENT]
