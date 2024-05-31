@@ -113,6 +113,7 @@
 "common_reload" = "Reload";
 "common_rename" = "重新命名";
 "common_retry" = "重試";
+"common_save" = "Save";
 "common_save_changes" = "保存設置";
 "common_search" = "搜索";
 "common_search_tokens" = "搜尋代幣";
