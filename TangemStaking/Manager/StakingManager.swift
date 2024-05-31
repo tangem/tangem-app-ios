@@ -9,5 +9,5 @@
 import Foundation
 
 public protocol StakingManager: Actor {
-    func getYield(item: StakingTokenItem) async throws -> YieldInfo
+    func getYield() throws -> YieldInfo
 }
