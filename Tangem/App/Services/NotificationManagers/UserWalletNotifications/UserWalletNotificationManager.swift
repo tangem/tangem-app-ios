@@ -176,6 +176,11 @@ final class UserWalletNotificationManager {
         }
     }
 
+    private func showAppRateNotificationIfNeeded(_ shouldShow: Bool) {
+        showAppRateNotification = shouldShow
+        createNotifications()
+    }
+
     private func bind() {
         bag.removeAll()
 
@@ -190,17 +195,9 @@ final class UserWalletNotificationManager {
             .sink(receiveValue: weakify(self, forFunction: UserWalletNotificationManager.addMissingDerivationWarningIfNeeded(pendingDerivationsCount:)))
             .store(in: &bag)
 
-        let showAppRateNotificationPublisher = rateAppController
+        rateAppController
             .showAppRateNotificationPublisher
-            .share(replay: 1)
-
-        showAppRateNotificationPublisher
-            .assign(to: \.showAppRateNotification, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        showAppRateNotificationPublisher
-            .mapToVoid()
-            .sink(receiveValue: weakify(self, forFunction: UserWalletNotificationManager.createNotifications))
+            .sink(receiveValue: weakify(self, forFunction: UserWalletNotificationManager.showAppRateNotificationIfNeeded(_:)))
             .store(in: &bag)
     }
 
