@@ -29,6 +29,7 @@ class StakingModulesFactory {
     func makeStakingManager() -> StakingManager {
         let provider = StakingDependenciesFactory().makeStakingAPIProvider()
         return TangemStakingFactory().makeStakingManager(
+            wallet: wallet,
             provider: provider,
             repository: stakingRepositoryProxy,
             logger: AppLog.shared
