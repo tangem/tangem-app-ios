@@ -9,11 +9,18 @@
 import Foundation
 
 actor CommonStakingManager {
+    private let wallet: StakingWallet
     private let provider: StakingAPIProvider
     private let repository: StakingRepository
     private let logger: Logger
 
-    init(provider: StakingAPIProvider, repository: StakingRepository, logger: Logger) {
+    init(
+        wallet: StakingWallet,
+        provider: StakingAPIProvider,
+        repository: StakingRepository,
+        logger: Logger
+    ) {
+        self.wallet = wallet
         self.provider = provider
         self.repository = repository
         self.logger = logger
@@ -21,8 +28,8 @@ actor CommonStakingManager {
 }
 
 extension CommonStakingManager: StakingManager {
-    func getYield(item: StakingTokenItem) async throws -> YieldInfo {
-        guard let yield = try await repository.getYield(item: item) else {
+    func getYield() throws -> YieldInfo {
+        guard let yield = repository.getYield(item: wallet.stakingTokenItem) else {
             throw StakingManagerError.notFound
         }
 
