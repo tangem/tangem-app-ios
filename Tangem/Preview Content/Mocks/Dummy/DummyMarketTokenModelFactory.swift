@@ -10,9 +10,9 @@ import Foundation
 
 struct DummyMarketTokenModelFactory {
     // [REDACTED_TODO_COMMENT]
-    func list() -> [MarketTokenModel] {
+    func list() -> [MarketsTokenModel] {
         [
-            MarketTokenModel(
+            MarketsTokenModel(
                 id: "bitcoin",
                 name: "Bitcoin",
                 symbol: "BTC",
@@ -23,7 +23,7 @@ struct DummyMarketTokenModelFactory {
                 marketRaiting: "1",
                 marketCup: "$1.259 T"
             ),
-            MarketTokenModel(
+            MarketsTokenModel(
                 id: "ethereum",
                 name: "Ethereum",
                 symbol: "ETH",
@@ -34,7 +34,7 @@ struct DummyMarketTokenModelFactory {
                 marketRaiting: "2",
                 marketCup: "$382.744 B "
             ),
-            MarketTokenModel(
+            MarketsTokenModel(
                 id: "tether",
                 name: "Tether",
                 symbol: "USDT",
@@ -45,7 +45,7 @@ struct DummyMarketTokenModelFactory {
                 marketRaiting: "3",
                 marketCup: "$111.436 B"
             ),
-            MarketTokenModel(
+            MarketsTokenModel(
                 id: "binance",
                 name: "Binance",
                 symbol: "BNB",
@@ -56,7 +56,7 @@ struct DummyMarketTokenModelFactory {
                 marketRaiting: "4",
                 marketCup: "$94.244 B"
             ),
-            MarketTokenModel(
+            MarketsTokenModel(
                 id: "polygon",
                 name: "Polygon",
                 symbol: "MATIC",

@@ -13,8 +13,8 @@ import Combine
 final class MarketsViewModel: ObservableObject {
     // MARK: - Injected & Published Properties
 
-    @Injected(\.quotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
-
+    @Published var alert: AlertBinder?
+    @Published var isShowAddCustomToken: Bool = false
     @Published var tokenViewModels: [MarketsItemViewModel] = []
     @Published var viewDidAppear: Bool = false
 
@@ -24,12 +24,12 @@ final class MarketsViewModel: ObservableObject {
         loader.canFetchMore
     }
 
-    private let loader = MarketsListDataProvider()
-    private var filter = MarketsListDataProvider.Filter()
-
     private weak var coordinator: MarketsRoutable?
 
     private var dataSource: MarketsDataSource
+    private lazy var loader = setupListDataLoader()
+    
+    private var filter: MarketsListDataProvider.Filter = .init()
 
     private var bag = Set<AnyCancellable>()
 
@@ -57,7 +57,7 @@ final class MarketsViewModel: ObservableObject {
     }
 
     func onBottomDisappear() {
-        loader.reset("", with: filter)
+        loader.reset("")
         fetch(with: "")
         viewDidAppear = false
     }
@@ -76,7 +76,7 @@ final class MarketsViewModel: ObservableObject {
 
 private extension MarketsViewModel {
     func fetch(with searchText: String = "") {
-        loader.fetch(searchText, with: filter)
+        loader.fetch(searchText)
     }
 
     func searchBind(searchTextPublisher: (some Publisher<String, Never>)?) {
@@ -98,24 +98,6 @@ private extension MarketsViewModel {
     }
 
     func bind() {
-        loader.$items
-            .receive(on: DispatchQueue.main)
-            .delay(for: 0.5, scheduler: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] items in
-                guard let self = self else {
-                    return
-                }
-
-                tokenViewModels = items.compactMap {
-                    return self.mapToViewModel(token: $0)
-                }
-
-                if let searchValue = loader.lastSearchTextValue, !searchValue.isEmpty, items.isEmpty {
-                    Analytics.log(event: .manageTokensTokenIsNotFound, params: [.input: searchValue])
-                }
-            })
-            .store(in: &bag)
-
         dataSource
             .userWalletModelsPublisher
             .sink { [weak self] models in
@@ -124,30 +106,52 @@ private extension MarketsViewModel {
             .store(in: &bag)
     }
 
+    func setupListDataLoader() -> ListDataLoader {
+        let supportedBlockchains = SupportedBlockchains.all
+        let loader = ListDataLoader(supportedBlockchains: supportedBlockchains)
+
+        loader.$items
+            .receive(on: DispatchQueue.main)
+            .delay(for: 0.5, scheduler: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] items in
+                guard let self = self else {
+                    return
+                }
+
+                tokenViewModels = items.compactMap { self.mapToTokenViewModel(coinModel: $0) }
+
+                isShowAddCustomToken = tokenViewModels.isEmpty && !dataSource.userWalletModels.contains(where: { $0.config.hasFeature(.multiCurrency) })
+
+                if let searchValue = loader.lastSearchTextValue, !searchValue.isEmpty, items.isEmpty {
+                    Analytics.log(event: .manageTokensTokenIsNotFound, params: [.input: searchValue])
+                }
+            })
+            .store(in: &bag)
+
+        return loader
+    }
+
     // MARK: - Private Implementation
 
     /// Need for display list skeleton view
     private func setNeedDisplayTokensListSkeletonView() {
         // [REDACTED_TODO_COMMENT]
+//        tokenViewModels = [Int](0 ... 10).map { _ in }
     }
 
-    private func mapToViewModel(token: MarketTokenModel) -> MarketsItemViewModel {
+    private func mapToTokenViewModel(coinModel: CoinModel) -> MarketsItemViewModel {
+        // [REDACTED_TODO_COMMENT]
         let inputData = MarketsItemViewModel.InputData(
-            id: token.id,
-            imageURL: token.imageURL,
-            name: token.name,
-            symbol: token.symbol,
-            marketCup: token.marketCup,
-            marketRaiting: token.marketRaiting,
-            priceValue: token.currentPrice,
-            priceChangeStateValue: token.priceChangePercentage[filter.interval]
+            id: coinModel.id,
+            imageURL: IconURLBuilder().tokenIconURL(id: coinModel.id, size: .large).absoluteString,
+            name: coinModel.name,
+            symbol: coinModel.symbol,
+            marketCup: "",
+            marketRaiting: "",
+            priceValue: nil,
+            priceChangeStateValue: nil
         )
 
         return MarketsItemViewModel(inputData)
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    private func updateCharts() {
-        runTask(in: self) { root in }
     }
 }
