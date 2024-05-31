@@ -113,6 +113,7 @@
 "common_reload" = "Reload";
 "common_rename" = "Rename";
 "common_retry" = "Retry";
+"common_save" = "Save";
 "common_save_changes" = "Save changes";
 "common_search" = "Search";
 "common_search_tokens" = "Search tokens";
