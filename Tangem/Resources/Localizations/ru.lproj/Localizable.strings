@@ -390,7 +390,6 @@
 "qr_scanner_camera_denied_settings_button" = "Настройки";
 "qr_scanner_camera_denied_text" = "Вы не предоставили доступ к вашей камере";
 "qr_scanner_camera_denied_title" = "Доступ к камере запрещен";
-"receive_bottom_sheet_title" = "%1$@ %2$@ адрес в сети %3$@";
 "receive_bottom_sheet_warning_message" = "%1$@ (%2$@) в сети %3$@";
 "receive_bottom_sheet_warning_message_full" = "Отправляйте только %@ на этот адрес. Использование другой сети может привести к утрате средств.";
 "referral_button_participate" = "Участвовать";
