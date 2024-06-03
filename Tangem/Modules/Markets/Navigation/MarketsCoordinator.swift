@@ -26,6 +26,8 @@ class MarketsCoordinator: CoordinatorObject {
 
     @Published var networkSelectorViewModel: ManageTokensNetworkSelectorViewModel? = nil
     @Published var walletSelectorViewModel: WalletSelectorViewModel? = nil
+    @Published var marketsListOrderBottonSheetViewModel: MarketsListOrderBottonSheetViewModel? = nil
+
     @Published var addCustomTokenCoordinator: AddCustomTokenCoordinator?
 
     // MARK: - Init
@@ -96,6 +98,13 @@ extension MarketsCoordinator: MarketsRoutable {
 
     func hideGenerateAddressesWarning() {
         delegate?.hideGenerateAddressesWarning()
+    }
+
+    func openFilterOrderBottonSheet(
+        with currentOrderType: MarketsListOrderType,
+        action: @escaping ((MarketsListOrderType) -> Void)
+    ) {
+        marketsListOrderBottonSheetViewModel = .init(currentOrderType: currentOrderType, action)
     }
 }
 
