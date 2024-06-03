@@ -304,18 +304,17 @@ final class MainViewModel: ObservableObject {
     private func bind() {
         $selectedCardIndex
             .dropFirst()
-            .sink { [weak self] newIndex in
-                guard let self else { return }
-
-                let pagesIndices = 0 ..< pages.count
+            .withWeakCaptureOf(self)
+            .sink { viewModel, newIndex in
+                let pagesIndices = 0 ..< viewModel.pages.count
                 guard pagesIndices.contains(newIndex) else {
                     return
                 }
 
-                let userWalletId = pages[newIndex].id
+                let userWalletId = viewModel.pages[newIndex].id
 
                 Analytics.log(.walletOpened)
-                userWalletRepository.setSelectedUserWalletId(
+                viewModel.userWalletRepository.setSelectedUserWalletId(
                     userWalletId,
                     reason: .userSelected
                 )
