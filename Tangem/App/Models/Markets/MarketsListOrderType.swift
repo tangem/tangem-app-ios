@@ -8,10 +8,18 @@
 
 import Foundation
 
-enum MarketsListOrderType: String, Encodable {
+enum MarketsListOrderType: String, CaseIterable, Encodable, CustomStringConvertible {
     case rating
     case trending
     case buyers
     case gainers
     case losers
+
+    var description: String {
+        switch self {
+        // [REDACTED_TODO_COMMENT]
+        default:
+            return rawValue
+        }
+    }
 }
