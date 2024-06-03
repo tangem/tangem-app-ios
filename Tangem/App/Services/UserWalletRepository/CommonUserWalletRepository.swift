@@ -420,10 +420,19 @@ class CommonUserWalletRepository: UserWalletRepository {
         scanPublisher(scanner)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] result in
-                guard
-                    let self,
-                    case .success(let userWalletModel) = result
-                else {
+                guard let self else {
+                    completion(result)
+                    return
+                }
+
+                // Scan new card via welcome screen with locked repository.
+                if case .onboarding = result, models.isEmpty, AppSettings.shared.saveUserWallets {
+                    loadModels()
+                    completion(result)
+                    return
+                }
+
+                guard case .success(let userWalletModel) = result else {
                     completion(result)
                     return
                 }
