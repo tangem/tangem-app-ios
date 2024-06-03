@@ -10,7 +10,6 @@ import Foundation
 import Combine
 
 class MarketsItemViewModel: Identifiable, ObservableObject {
-    
     // MARK: - Published
 
     @Published var marketRaiting: String = ""
@@ -24,16 +23,16 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
 
     // MARK: - Properties
 
-    var id: String
-    var imageURL: URL?
-    var name: String
-    var symbol: String
+    let id: String
+    let imageURL: URL?
+    let name: String
+    let symbol: String
 
     // MARK: - Private Properties
 
     private var bag = Set<AnyCancellable>()
 
-    private var priceChangeFormatter = PriceChangeFormatter()
+    private let priceChangeFormatter = PriceChangeFormatter()
     private let priceFormatter = CommonTokenPriceFormatter()
 
     // MARK: - Init
