@@ -98,7 +98,7 @@ class FakeTangemApiService: TangemApiService {
 
     func initialize() {}
 
-    func loadMarkets(requestModel: MarketDTO.General.Request) async throws -> MarketDTO.General.Response {
+    func loadMarkets(requestModel: MarketsDTO.General.Request) async throws -> MarketsDTO.General.Response {
         let provider = FakeMarketListProvider()
         return try provider.parseCoinResponse()
     }
@@ -116,7 +116,7 @@ private struct FakeCoinListProvider {
 // MARK: - Markets Implementation
 
 private struct FakeMarketListProvider {
-    func parseCoinResponse() throws -> MarketDTO.General.Response {
+    func parseCoinResponse() throws -> MarketsDTO.General.Response {
         // Implement in [REDACTED_INFO]
         throw "Not implemented"
     }
