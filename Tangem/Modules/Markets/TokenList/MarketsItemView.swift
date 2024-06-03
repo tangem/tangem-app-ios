@@ -15,16 +15,14 @@ struct MarketsItemView: View {
     private let iconSize = CGSize(bothDimensions: 36)
 
     var body: some View {
-        HStack {
-            VStack {
-                HStack(spacing: 12) {
-                    IconView(url: viewModel.imageURL, size: iconSize, forceKingfisher: true)
+        HStack(spacing: 12) {
+            IconView(url: viewModel.imageURL, size: iconSize, forceKingfisher: true)
 
-                    tokenInfoView
-                }
+            VStack {
+                tokenInfoView
             }
 
-            Spacer(minLength: 12)
+            Spacer()
 
             VStack {
                 HStack(spacing: 10) {
@@ -97,7 +95,7 @@ struct MarketsItemView: View {
         ForEach(tokens) { token in
             let inputData = MarketsItemViewModel.InputData(
                 id: token.id,
-                imageURL: token.imageURL,
+                imageURL: token.imageUrl,
                 name: token.name,
                 symbol: token.symbol,
                 marketCup: token.marketCup,
