@@ -18,7 +18,7 @@ class MultipleAddressTransactionHistoryService {
     private let transactionHistoryProviders: [String: TransactionHistoryProvider]
 
     private var _state = CurrentValueSubject<TransactionHistoryServiceState, Never>(.initial)
-    private let pageSize: Int = 20
+    private let pageSize: Int = 50
     private var cancellable: AnyCancellable?
     private var storage: ThreadSafeContainer<[TransactionRecord]> = []
 
@@ -137,6 +137,8 @@ private extension MultipleAddressTransactionHistoryService {
     }
 
     func loadTransactionHistory(address: String) throws -> LoadingPublisher {
+        // Load 2 pages initially
+        let pageSize = items.isEmpty ? pageSize * 2 : pageSize
         let request = TransactionHistory.Request(address: address, amountType: tokenItem.amountType, limit: pageSize)
 
         guard let provider = transactionHistoryProviders[address] else {
