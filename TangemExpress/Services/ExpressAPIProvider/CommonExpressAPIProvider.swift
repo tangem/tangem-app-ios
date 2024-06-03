@@ -109,4 +109,17 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         let transaction = expressAPIMapper.mapToExpressTransaction(response: response)
         return transaction
     }
+
+    func exchangeSent(result: ExpressTransactionSentResult) async throws {
+        let request = ExpressDTO.ExchangeSent.Request(
+            txHash: result.hash,
+            txId: result.data.expressTransactionId,
+            fromNetwork: result.source.expressCurrency.network,
+            fromAddress: result.source.defaultAddress,
+            payinAddress: result.data.destinationAddress,
+            payinExtraId: result.data.extraDestinationId
+        )
+
+        _ = try await expressAPIService.exchangeSent(request: request)
+    }
 }
