@@ -29,35 +29,8 @@ struct MarketsView: View {
                 .style(Fonts.Bold.title3, color: Colors.Text.primary1)
                 .lineLimit(1)
 
-            HStack {
-                Button {} label: {
-                    HStack {
-                        Text("Raiting")
-                            .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
-
-                        Assets
-                            .arrowDownMini
-                            .image
-                    }
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Colors.Background.secondary)
-                    )
-                }
-
-                Spacer()
-
-                Picker("", selection: $viewModel.marketPriceInterval) {
-                    ForEach(MarketPriceIntervalType.allCases, id: \.self) {
-                        Text($0.rawValue)
-                            .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
-                    }
-                }
-                .colorMultiply(Colors.Background.primary)
-                .pickerStyle(.segmented)
-                .frame(width: 152)
+            if let marketRaitingHeaderViewModel = viewModel.marketRaitingHeaderViewModel {
+                MarketRaitingHeaderView(viewModel: marketRaitingHeaderViewModel)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
