@@ -23,6 +23,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     case addHederaTokenAssociation
     @available(*, unavailable, message: "Token trust lines support not implemented yet")
     case addTokenTrustline
+    case stake
 
     var id: Int { hashValue }
 
@@ -52,6 +53,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return Localization.mainTravalaPromotionButton
         case .addHederaTokenAssociation:
             return Localization.warningHederaMissingTokenAssociationButtonTitle
+        case .stake:
+            return Localization.commonStake
         }
     }
 
@@ -69,8 +72,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .reduceAmountTo,
              .leaveAmount,
              .addHederaTokenAssociation,
-             .leaveAmount,
-             .bookNow:
+             .bookNow,
+             .stake:
             return nil
         }
     }
@@ -88,7 +91,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .reduceAmountBy,
              .reduceAmountTo,
              .addHederaTokenAssociation,
-             .leaveAmount:
+             .leaveAmount,
+             .stake:
             return .secondary
         }
     }

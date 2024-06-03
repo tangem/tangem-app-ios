@@ -19,6 +19,7 @@ enum TokenNotificationEvent: Hashable {
     case solanaHighImpact
     case bnbBeaconChainRetirement
     case hasUnfulfilledRequirements(configuration: UnfulfilledRequirementsConfiguration)
+    case staking(tokenSymbol: String, tokenIconInfo: TokenIconInfo, earnUpToFormatted: String, rewardPeriodDaysFormatted: String)
 
     static func event(
         for reason: TransactionSendAvailabilityProvider.SendingRestrictions,
@@ -54,6 +55,8 @@ enum TokenNotificationEvent: Hashable {
                 : nil
         case .hasUnfulfilledRequirements(.missingHederaTokenAssociation):
             return .addHederaTokenAssociation
+        case .staking:
+            return .stake
         }
     }
 }
@@ -76,9 +79,11 @@ extension TokenNotificationEvent: NotificationEvent {
         case .solanaHighImpact:
             return .string(Localization.warningSolanaFeeTitle)
         case .bnbBeaconChainRetirement:
-            return .string(Localization.warningBnbRetirementTitle)
+            return .string(Localization.warningBeaconChainRetirementTitle)
         case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation):
             return .string(Localization.warningHederaMissingTokenAssociationTitle)
+        case .staking(_, _, let earnUpToFormatted, _):
+            return .string(Localization.tokenDetailsStakingBlockTitle(earnUpToFormatted))
         }
     }
 
@@ -105,7 +110,7 @@ extension TokenNotificationEvent: NotificationEvent {
         case .solanaHighImpact:
             return Localization.warningSolanaFeeMessage
         case .bnbBeaconChainRetirement:
-            return Localization.warningBnbRetirementMessage
+            return Localization.warningBeaconChainRetirementContent
         case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation(let associationFee)):
             guard let associationFee else {
                 return Localization.warningHederaMissingTokenAssociationMessageBrief
@@ -115,6 +120,8 @@ extension TokenNotificationEvent: NotificationEvent {
                 associationFee.formattedValue,
                 associationFee.currencySymbol
             )
+        case .staking(let tokenSymbol, _, _, let rewardPeriodFormatted):
+            return Localization.tokenDetailsStakingBlockSubtitle(tokenSymbol, rewardPeriodFormatted)
         }
     }
 
@@ -130,7 +137,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return .secondary
         // One white notification will be added later
         case .notEnoughFeeForTransaction,
-             .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation):
+             .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation),
+             .staking:
             return .primary
         }
     }
@@ -145,6 +153,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Image(configuration.eventConfiguration.feeAmountTypeIconName)))
         case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation):
             return .init(iconType: .image(Tokens.hederaFill.image))
+        case .staking(_, let tokenIconInfo, _, _):
+            return .init(iconType: .icon(tokenIconInfo))
         }
     }
 
@@ -152,7 +162,8 @@ extension TokenNotificationEvent: NotificationEvent {
         switch self {
         case .noAccount,
              .rentFee,
-             .existentialDepositWarning:
+             .existentialDepositWarning,
+             .staking:
             return .info
         case .networkUnreachable,
              .someNetworksUnreachable,
@@ -175,7 +186,8 @@ extension TokenNotificationEvent: NotificationEvent {
              .noAccount,
              .solanaHighImpact,
              .bnbBeaconChainRetirement,
-             .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation):
+             .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation),
+             .staking:
             return false
         }
     }
@@ -217,6 +229,7 @@ extension TokenNotificationEvent {
         case .solanaHighImpact: return nil
         case .bnbBeaconChainRetirement: return nil
         case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation): return nil
+        case .staking: return nil
         }
     }
 
@@ -232,7 +245,8 @@ extension TokenNotificationEvent {
              .existentialDepositWarning,
              .solanaHighImpact,
              .bnbBeaconChainRetirement,
-             .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation):
+             .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation),
+             .staking:
             return [:]
         }
     }
