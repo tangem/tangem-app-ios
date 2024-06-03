@@ -25,4 +25,9 @@ protocol MarketsRoutable: AnyObject {
     )
 
     func hideGenerateAddressesWarning()
+
+    func openFilterOrderBottonSheet(
+        with currentOrderType: MarketsListOrderType,
+        action: @escaping ((MarketsListOrderType) -> Void)
+    )
 }
