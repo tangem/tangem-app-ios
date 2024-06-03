@@ -18,7 +18,7 @@ class CommonTransactionHistoryService {
     private let transactionHistoryProvider: TransactionHistoryProvider
 
     private var _state = CurrentValueSubject<TransactionHistoryServiceState, Never>(.initial)
-    private let pageSize: Int = 20
+    private let pageSize: Int = 50
     private var cancellable: AnyCancellable?
     private var storage: ThreadSafeContainer<[TransactionRecord]> = []
 
@@ -84,6 +84,8 @@ private extension CommonTransactionHistoryService {
         AppLog.shared.debug("\(self) start loading")
         _state.send(.loading)
 
+        // Load 2 pages initially
+        let pageSize = items.isEmpty ? pageSize * 2 : pageSize
         let request = TransactionHistory.Request(address: address, amountType: tokenItem.amountType, limit: pageSize)
 
         cancellable = transactionHistoryProvider
