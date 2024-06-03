@@ -28,7 +28,7 @@ final class MarketsViewModel: ObservableObject {
 
     private var dataSource: MarketsDataSource
     private lazy var loader = setupListDataLoader()
-    
+
     private var filter: MarketsListDataProvider.Filter = .init()
 
     private var bag = Set<AnyCancellable>()
