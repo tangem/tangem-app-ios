@@ -1,5 +1,5 @@
 //
-//  MarketDTO.swift
+//  MarketsDTO.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,17 +8,17 @@
 
 import Foundation
 
-enum MarketDTO {
+enum MarketsDTO {
     enum General {}
 }
 
-extension MarketDTO.General {
+extension MarketsDTO.General {
     struct Request: Encodable {
         let currency: String
         let offset: Int
         let limit: Int
-        let interval: MarketPriceIntervalType
-        let order: MarketListOrderType
+        let interval: MarketsPriceIntervalType
+        let order: MarketsListOrderType
         let generalCoins: Bool
         let search: String?
 
@@ -26,8 +26,8 @@ extension MarketDTO.General {
             currency: String,
             offset: Int = 0,
             limit: Int = 20,
-            interval: MarketPriceIntervalType,
-            order: MarketListOrderType,
+            interval: MarketsPriceIntervalType,
+            order: MarketsListOrderType,
             generalCoins: Bool = false,
             search: String?
         ) {
@@ -61,6 +61,6 @@ extension MarketDTO.General {
     }
 
     struct Response: Decodable {
-        let tokens: [MarketTokenModel]
+        let tokens: [MarketsTokenModel]
     }
 }
