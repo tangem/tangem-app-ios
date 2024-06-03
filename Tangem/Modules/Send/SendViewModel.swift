@@ -29,10 +29,6 @@ final class SendViewModel: ObservableObject {
         step.name(for: sendStepParameters)
     }
 
-    var hasSubtitle: Bool {
-        subtitle != nil
-    }
-
     var subtitle: String? {
         step.description(for: sendStepParameters)
     }
@@ -810,7 +806,8 @@ extension SendViewModel: NotificationTapDelegate {
              .refresh,
              .goToProvider,
              .addHederaTokenAssociation,
-             .bookNow:
+             .bookNow,
+             .stake:
             assertionFailure("Notification tap not handled")
         }
     }
