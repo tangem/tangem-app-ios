@@ -118,7 +118,7 @@ private extension ResetToFactoryViewModel {
             return nil
         }
 
-        return "Tap the card #\(cardNumber) of the wallet to reset"
+        return Localization.initialMessageResetBackupCardHeader(cardNumber)
     }
 
     func resetDidCancel() {
@@ -160,8 +160,8 @@ extension ResetToFactoryViewModel {
 private enum ResetToFactoryAlertBuilder {
     static func makeContinueResetAlert(continueAction: @escaping () -> Void, cancelAction: @escaping () -> Void) -> AlertBinder {
         AlertBuilder.makeAlert(
-            title: "Card reset",
-            message: "Do you want to reset next card of this wallet?",
+            title: Localization.cardSettingsContinueResetAlertTitle,
+            message: Localization.cardSettingsContinueResetAlertMessage,
             primaryButton: .default(Text(Localization.commonContinue), action: continueAction),
             secondaryButton: .destructive(Text(Localization.commonCancel), action: cancelAction)
         )
@@ -169,16 +169,16 @@ private enum ResetToFactoryAlertBuilder {
 
     static func makeResetDidFinishAlert(continueAction: @escaping () -> Void) -> AlertBinder {
         AlertBuilder.makeAlert(
-            title: "Reseting complete",
-            message: "All cards in the selected wallet have been reset to factory settings, you can create a new wallet now.",
+            title: Localization.cardSettingsCompletedResetAlertTitle,
+            message: Localization.cardSettingsCompletedResetAlertMessage,
             primaryButton: .default(Text(Localization.commonOk), action: continueAction)
         )
     }
 
     static func makeResetIncompleteAlert(continueAction: @escaping () -> Void, cancelAction: @escaping () -> Void) -> AlertBinder {
         AlertBuilder.makeAlert(
-            title: "Reseting incomplete",
-            message: "You didn't reset all your cards. We recommend completing the reset to create a new wallet. A card containing an active wallet cannot participate in the process of creating a new one.",
+            title: Localization.cardSettingsInterruptedResetAlertTitle,
+            message: Localization.cardSettingsInterruptedResetAlertMessage,
             primaryButton: .default(Text(Localization.commonContinue), action: continueAction),
             secondaryButton: .destructive(Text(Localization.commonCancel), action: cancelAction)
         )
