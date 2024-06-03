@@ -309,7 +309,6 @@ final class MainViewModel: ObservableObject {
 
                 let pagesIndices = 0 ..< pages.count
                 guard pagesIndices.contains(newIndex) else {
-                    print("❌❌❌❌❌❌❌❌❌❌❌❌❌❌")
                     return
                 }
 
