@@ -19,11 +19,7 @@ final class MarketsViewModel: ObservableObject {
     @Published var isShowAddCustomToken: Bool = false
     @Published var tokenViewModels: [MarketsItemViewModel] = []
     @Published var viewDidAppear: Bool = false
-
-    @Published var marketOrder: MarketPriceIntervalType = .day
-    @Published var marketPriceInterval: MarketPriceIntervalType = .day
-
-    @Published var filter = MarketsListDataProvider.Filter()
+    @Published var marketRaitingHeaderViewModel: MarketRaitingHeaderViewModel?
 
     // MARK: - Properties
 
@@ -35,6 +31,8 @@ final class MarketsViewModel: ObservableObject {
 
     private var dataSource: MarketsDataSource
     private lazy var loader = setupListDataLoader()
+
+    private let filter = MarketsListDataProvider.Filter()
 
     private var bag = Set<AnyCancellable>()
     private var cacheExistListCoinId: [String] = []
@@ -49,6 +47,7 @@ final class MarketsViewModel: ObservableObject {
         self.coordinator = coordinator
         dataSource = MarketsDataSource()
 
+        marketRaitingHeaderBind()
         searchBind(searchTextPublisher: searchTextPublisher)
 
         bind()
@@ -119,6 +118,22 @@ private extension MarketsViewModel {
             .store(in: &bag)
     }
 
+    func marketRaitingHeaderBind() {
+        marketRaitingHeaderViewModel = .init(
+            from: filter,
+            marketOrderActionButtonDidTap: { [weak self] in
+                guard let self else { return }
+
+                coordinator?.openFilterOrderBottonSheet(with: filter.order) { [weak self] in
+                    self?.filter.order = $0
+                    self?.marketRaitingHeaderViewModel?.marketListOrderType = $0
+                }
+            }, marketPriceIntervalButtonDidTap: { [weak self] in
+                self?.filter.interval = $0
+            }
+        )
+    }
+
     func bind() {
         dataSource
             .userWalletModelsPublisher
@@ -179,8 +194,8 @@ private extension MarketsViewModel {
                     return
                 }
 
-                tokenViewModels = [items.compactMap { self.mapToTokenViewModel(coinModel: $0) }]
-                updateQuote(by: items.map { $0.id })
+//                tokenViewModels = [items.compactMap { self.mapToTokenViewModel(coinModel: $0) }]
+//                updateQuote(by: items.map { $0.id })
 
                 isShowAddCustomToken = tokenViewModels.isEmpty && !dataSource.userWalletModels.contains(where: { $0.config.hasFeature(.multiCurrency) })
 
