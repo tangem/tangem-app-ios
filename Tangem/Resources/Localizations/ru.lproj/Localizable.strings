@@ -46,6 +46,12 @@
 "card_settings_action_sheet_title" = "Вы уверены, что хотите это сделать?";
 "card_settings_change_access_code" = "Смена кода доступа";
 "card_settings_change_access_code_footer" = "Код доступа будет изменен только на данной карте";
+"card_settings_completed_reset_alert_message" = "Все карты выбранного кошелька сброшены до заводских настроек, вы можете создать новый кошелек";
+"card_settings_completed_reset_alert_title" = "Сброс завершён";
+"card_settings_continue_reset_alert_message" = "Хотите сбросить следующую карту от этого кошелька?";
+"card_settings_continue_reset_alert_title" = "Сброс карты";
+"card_settings_interrupted_reset_alert_message" = "Рекомендуем завершить процесс сброса всех карт кошелька";
+"card_settings_interrupted_reset_alert_title" = "Вы сбросили не все карты";
 "card_settings_reset_card_to_factory" = "Заводские настройки";
 "card_settings_security_mode" = "Тип безопасности";
 "card_settings_title" = "Настройки карты";
@@ -260,6 +266,7 @@
 "initial_message_change_passcode_body" = "Чтобы изменить пароль, приложите карту как показано выше и не убирайте до окончания операции";
 "initial_message_create_wallet_body" = "Чтобы создать кошелек, приложите карту как показано выше и не убирайте до окончания операции";
 "initial_message_purge_wallet_body" = "Чтобы сбросить настройки до заводских, приложите карту как показано выше и не убирайте до окончания операции";
+"initial_message_reset_backup_card_header" = "Приложите карту #%@ для сброса";
 "initial_message_sign_body" = "Чтобы подписать транзакцию, приложите карту как показано выше и не убирайте до окончания операции";
 "key_invalidated_warning_description" = "Вы обновили данные биометрии, отсканируйте свою карту для входа";
 "koinos_insufficient_balance_to_send_koin_description" = "Ваш баланс должен быть выше суммы комиссии для осуществления перевода";
@@ -663,7 +670,7 @@
 "warning_access_denied_message" = "Используйте %@ или отсканируйте карту, чтобы разблокировать доступ к вашему кошельку";
 "warning_backup_errors_message" = "Пожалуйста, выведите все средства из этого кошелька, сбросьте его к заводским настройкам и создайте новый. Доступ к текущему кошельку будет утерян.";
 "warning_backup_errors_title" = "Ошибка активации";
-"warning_beacon_chain_retirement_content" = "По решению разработчиков сети BNB, стандарт BEP-2 перестанет поддерживаться в июне 2024 года. Чтобы не потерять свои активы, их необходимо преобразовать в стандарт BEP-20. Используйте функцию обмена  в приложении чтобы перевести их в cеть BNB Smart Chain.";
+"warning_beacon_chain_retirement_content" = "По решению разработчиков сети BNB стандарт BEP-2 перестанет поддерживаться в июне 2024 года. Чтобы не потерять активы, их необходимо преобразовать в стандарт BEP-20. Используйте функцию обмена в приложении или сторонние сервисы, чтобы перевести средства в cеть BNB Smart Chain.";
 "warning_beacon_chain_retirement_title" = "Отключение сети BNB Beacon Chain";
 "warning_button_could_be_better" = "Можно лучше";
 "warning_button_ok" = "Понятно!";
