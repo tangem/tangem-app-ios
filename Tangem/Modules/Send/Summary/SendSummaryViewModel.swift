@@ -204,7 +204,10 @@ class SendSummaryViewModel: ObservableObject {
 
                 self.selectedFeeSummaryViewModel = selectedFeeSummaryViewModel
                 self.deselectedFeeRowViewModels = deselectedFeeRowViewModels
-                canEditFee = feeValues.allSatisfy { $0.value.error == nil }
+
+                let multipleFeeOptions = input.feeOptions.count > 1
+                let noFeeErrors = feeValues.allSatisfy { $0.value.error == nil }
+                canEditFee = multipleFeeOptions && noFeeErrors
             }
             .store(in: &bag)
 

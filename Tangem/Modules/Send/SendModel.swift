@@ -32,8 +32,7 @@ class SendModel {
     var feeValid: AnyPublisher<Bool, Never> {
         fee
             .map { fee in
-                guard let fee else { return false }
-                return !fee.amount.isZero
+                fee != nil
             }
             .eraseToAnyPublisher()
     }
