@@ -46,6 +46,12 @@
 "card_settings_action_sheet_title" = "您確定要這麼做嗎？";
 "card_settings_change_access_code" = "更改訪問密碼";
 "card_settings_change_access_code_footer" = "訪問密碼將僅在此卡上更改";
+"card_settings_completed_reset_alert_message" = "All cards in the selected wallet have been reset to factory settings. You can now create a new wallet.";
+"card_settings_completed_reset_alert_title" = "Reset complete";
+"card_settings_continue_reset_alert_message" = "Do you want to reset the next card in this wallet?";
+"card_settings_continue_reset_alert_title" = "Card reset";
+"card_settings_interrupted_reset_alert_message" = "We recommend completing the reset process for all cards in this wallet";
+"card_settings_interrupted_reset_alert_title" = "You haven't reset all your cards";
 "card_settings_reset_card_to_factory" = "回復至原廠設置";
 "card_settings_security_mode" = "安全模式";
 "card_settings_title" = "卡片設置";
@@ -260,6 +266,7 @@
 "initial_message_change_passcode_body" = "要更改密碼，請完全按照上圖所示連接手機和卡";
 "initial_message_create_wallet_body" = "要創建錢包，請完全按照上圖所示連接手機和卡";
 "initial_message_purge_wallet_body" = "要重置為出廠設置，請完全按照上圖所示連接手機和卡片";
+"initial_message_reset_backup_card_header" = "Tap the card #%@ of the wallet";
 "initial_message_sign_body" = "要簽名，請完全按照上圖所示連接手機和卡";
 "key_invalidated_warning_description" = "您已更新生物識別登入，掃描您的卡進入";
 "koinos_insufficient_balance_to_send_koin_description" = "Your balance should be higher than the fee value to make a transfer";
