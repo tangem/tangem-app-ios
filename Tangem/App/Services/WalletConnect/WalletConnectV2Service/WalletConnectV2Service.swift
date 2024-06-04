@@ -138,7 +138,7 @@ final class WalletConnectV2Service {
     }
 
     private func checkSocketConnection() async -> Bool {
-        guard let socket = factory.lastCreatetSocket else {
+        guard let socket = factory.lastCreatedSocket else {
             return false
         }
 
