@@ -982,6 +982,7 @@
 		DC261CB6292CF6B700875E64 /* UncompletedBackupViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC261CB1292CF6B700875E64 /* UncompletedBackupViewModel.swift */; };
 		DC261CB7292CF6B700875E64 /* UncompletedBackupRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC261CB2292CF6B700875E64 /* UncompletedBackupRoutable.swift */; };
 		DC261CBB292CFBB500875E64 /* StartupProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC261CBA292CFBB500875E64 /* StartupProcessor.swift */; };
+		DC288C002C06553300FF94A0 /* ResetToFactoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC288BFF2C06553300FF94A0 /* ResetToFactoryService.swift */; };
 		DC295B3A28615D03006CB7B6 /* NavHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B3928615D03006CB7B6 /* NavHolder.swift */; };
 		DC295B482861C4BE006CB7B6 /* DetailsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B472861C4BE006CB7B6 /* DetailsCoordinator.swift */; };
 		DC295B4A2861C4CB006CB7B6 /* DetailsCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B492861C4CB006CB7B6 /* DetailsCoordinatorView.swift */; };
@@ -1182,8 +1183,6 @@
 		EF3EC523289AB2DE0071BA7F /* TangemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */; };
 		EF407E352C04AF6F00366733 /* TangemStakingFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E342C04AF6F00366733 /* TangemStakingFactory.swift */; };
 		EF407E382C04B09A00366733 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E372C04B09A00366733 /* Logger.swift */; };
-		EF407E512C04BFDE00366733 /* TangemFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF2D9C862BBDA8790055C485 /* TangemFoundation.framework */; };
-		EF407E522C04BFDE00366733 /* TangemFoundation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EF2D9C862BBDA8790055C485 /* TangemFoundation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		EF407E582C04D3DE00366733 /* StakingAvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E572C04D3DE00366733 /* StakingAvailabilityProvider.swift */; };
 		EF407E5A2C04D62B00366733 /* CommonStakingAvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E592C04D62B00366733 /* CommonStakingAvailabilityProvider.swift */; };
 		EF407E5D2C04D64B00366733 /* StakingAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E5C2C04D64B00366733 /* StakingAPIProvider.swift */; };
@@ -1536,13 +1535,6 @@
 			remoteGlobalIDString = EF2D9C852BBDA8790055C485;
 			remoteInfo = TangemFoundation;
 		};
-		EF407E532C04BFDE00366733 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 5D3F77BA24BF56D800E8695B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = EF2D9C852BBDA8790055C485;
-			remoteInfo = TangemFoundation;
-		};
 		EF9E297C2B4F0C4900418559 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5D3F77BA24BF56D800E8695B /* Project object */;
@@ -1596,17 +1588,6 @@
 			files = (
 			);
 			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EF407E552C04BFDE00366733 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				EF407E522C04BFDE00366733 /* TangemFoundation.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		EF9E29632B4F0BB500418559 /* Embed Frameworks */ = {
@@ -2698,6 +2679,7 @@
 		DC261CB1292CF6B700875E64 /* UncompletedBackupViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UncompletedBackupViewModel.swift; sourceTree = "<group>"; };
 		DC261CB2292CF6B700875E64 /* UncompletedBackupRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UncompletedBackupRoutable.swift; sourceTree = "<group>"; };
 		DC261CBA292CFBB500875E64 /* StartupProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartupProcessor.swift; sourceTree = "<group>"; };
+		DC288BFF2C06553300FF94A0 /* ResetToFactoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetToFactoryService.swift; sourceTree = "<group>"; };
 		DC295B3928615D03006CB7B6 /* NavHolder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavHolder.swift; sourceTree = "<group>"; };
 		DC295B472861C4BE006CB7B6 /* DetailsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsCoordinator.swift; sourceTree = "<group>"; };
 		DC295B492861C4CB006CB7B6 /* DetailsCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsCoordinatorView.swift; sourceTree = "<group>"; };
@@ -3303,7 +3285,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				735DE6BB9FDAFE5A5BCFE5AF /* Pods_TangemStaking.framework in Frameworks */,
-				EF407E512C04BFDE00366733 /* TangemFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -8097,6 +8078,7 @@
 				EFA6B043295334AF0090A92F /* ResetToFactoryViewModel.swift */,
 				EFA6B04629533C860090A92F /* ResetToFactoryViewRoutable.swift */,
 				DC72548B2A02B97A0003FE1B /* ResetToFactoryViewModelInput.swift */,
+				DC288BFF2C06553300FF94A0 /* ResetToFactoryService.swift */,
 			);
 			path = ResetToFactory;
 			sourceTree = "<group>";
@@ -8653,12 +8635,10 @@
 				EFEE23842BFF62D50099917E /* Sources */,
 				EFEE23852BFF62D50099917E /* Frameworks */,
 				EFEE23862BFF62D50099917E /* Resources */,
-				EF407E552C04BFDE00366733 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				EF407E542C04BFDE00366733 /* PBXTargetDependency */,
 			);
 			name = TangemStaking;
 			productName = TangemStaking;
@@ -10342,6 +10322,7 @@
 				B0F318FB2A739418009F131E /* WalletPublicKeyDerivationStubs.swift in Sources */,
 				65B4DEE02885334F001524CF /* View+LegacyBottomSheet.swift in Sources */,
 				B0B335D229FA89EE00E2082E /* BalanceFormatter.swift in Sources */,
+				DC288C002C06553300FF94A0 /* ResetToFactoryService.swift in Sources */,
 				DC7D39FB29E02000007BCD23 /* TangemSdkDefaultFactory.swift in Sources */,
 				DA4371A82A7D1937006215CA /* ManageTokensCoinViewModel.swift in Sources */,
 				EF9EA9632B10D39F00AC1DA1 /* ExpressTokensListAdapter.swift in Sources */,
@@ -10769,11 +10750,6 @@
 			isa = PBXTargetDependency;
 			target = EF2D9C852BBDA8790055C485 /* TangemFoundation */;
 			targetProxy = EF2D9C992BBDA87D0055C485 /* PBXContainerItemProxy */;
-		};
-		EF407E542C04BFDE00366733 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = EF2D9C852BBDA8790055C485 /* TangemFoundation */;
-			targetProxy = EF407E532C04BFDE00366733 /* PBXContainerItemProxy */;
 		};
 		EF9E297D2B4F0C4900418559 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
