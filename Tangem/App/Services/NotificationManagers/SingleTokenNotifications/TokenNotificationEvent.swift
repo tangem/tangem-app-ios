@@ -81,7 +81,7 @@ extension TokenNotificationEvent: NotificationEvent {
         case .solanaHighImpact:
             return .string(Localization.warningSolanaFeeTitle)
         case .bnbBeaconChainRetirement:
-            return .string(Localization.warningBnbRetirementTitle)
+            return .string(Localization.warningBeaconChainRetirementTitle)
         }
     }
 
@@ -110,7 +110,7 @@ extension TokenNotificationEvent: NotificationEvent {
         case .solanaHighImpact:
             return Localization.warningSolanaFeeMessage
         case .bnbBeaconChainRetirement:
-            return Localization.warningBnbRetirementMessage
+            return Localization.warningBeaconChainRetirementContent
         }
     }
 
