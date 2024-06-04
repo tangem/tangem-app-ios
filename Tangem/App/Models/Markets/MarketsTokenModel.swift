@@ -15,7 +15,7 @@ struct MarketsTokenModel: Identifiable, Decodable {
     let active: Bool
     let imageUrl: String
     let currentPrice: Decimal
-    let priceChangePercentage: [MarketsPriceIntervalType: Float]
+    let priceChangePercentage: [MarketsPriceIntervalType: Decimal]
     let marketRaiting: String
     let marketCup: String
 }
