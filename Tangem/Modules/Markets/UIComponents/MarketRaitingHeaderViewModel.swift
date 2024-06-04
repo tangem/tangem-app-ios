@@ -15,34 +15,46 @@ class MarketRaitingHeaderViewModel: ObservableObject {
     @Published var marketListOrderType: MarketsListOrderType
     @Published var marketPriceIntervalType: MarketsPriceIntervalType
 
-    var marketOrderActionButtonDidTap: (() -> Void)?
-    var marketPriceIntervalButtonDidTap: ((MarketsPriceIntervalType) -> Void)?
-
     // MARK: - Private Properties
 
-    private var subscription: AnyCancellable?
+    private weak var delegate: MarketRaitingHeaderViewModelDelegate?
+    private var bag = Set<AnyCancellable>()
 
     // MARK: - Init
 
-    init(
-        from filter: MarketsListDataProvider.Filter,
-        marketOrderActionButtonDidTap: (() -> Void)?,
-        marketPriceIntervalButtonDidTap: ((MarketsPriceIntervalType) -> Void)?
-    ) {
-        marketListOrderType = filter.order
-        marketPriceIntervalType = filter.interval
-
-        self.marketOrderActionButtonDidTap = marketOrderActionButtonDidTap
-        self.marketPriceIntervalButtonDidTap = marketPriceIntervalButtonDidTap
-
-        bind()
+    init(from provider: MarketsListDataFilterProvider) {
+        delegate = provider
+        marketListOrderType = provider.orderType
+        marketPriceIntervalType = provider.intervalType
+        bind(with: provider.filterPublisher)
     }
 
-    func bind() {
-        subscription = $marketPriceIntervalType
+    func bind(with filterPublisher: some Publisher<MarketsListDataProvider.Filter, Never>) {
+        $marketPriceIntervalType
             .removeDuplicates()
-            .sink { [weak self] in
-                self?.marketPriceIntervalButtonDidTap?($0)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, value in
+                viewModel.delegate?.marketPriceIntervalButtonDidTap(value)
             }
+            .store(in: &bag)
+
+        filterPublisher
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, filter in
+                viewModel.marketListOrderType = filter.order
+                viewModel.marketPriceIntervalType = filter.interval
+            }
+            .store(in: &bag)
     }
+
+    func onOrderActionButtonDidTap() {
+        delegate?.marketOrderActionButtonDidTap()
+    }
+}
+
+protocol MarketRaitingHeaderViewModelDelegate: AnyObject {
+    func marketOrderActionButtonDidTap()
+    func marketPriceIntervalButtonDidTap(_ interval: MarketsPriceIntervalType)
 }
