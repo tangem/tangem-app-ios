@@ -137,8 +137,6 @@ private extension MultipleAddressTransactionHistoryService {
     }
 
     func loadTransactionHistory(address: String) throws -> LoadingPublisher {
-        // Load 2 pages initially
-        let pageSize = items.isEmpty ? pageSize * 2 : pageSize
         let request = TransactionHistory.Request(address: address, amountType: tokenItem.amountType, limit: pageSize)
 
         guard let provider = transactionHistoryProviders[address] else {
