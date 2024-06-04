@@ -84,8 +84,6 @@ private extension CommonTransactionHistoryService {
         AppLog.shared.debug("\(self) start loading")
         _state.send(.loading)
 
-        // Load 2 pages initially
-        let pageSize = items.isEmpty ? pageSize * 2 : pageSize
         let request = TransactionHistory.Request(address: address, amountType: tokenItem.amountType, limit: pageSize)
 
         cancellable = transactionHistoryProvider
