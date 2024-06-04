@@ -306,7 +306,7 @@ final class MainViewModel: ObservableObject {
             .dropFirst()
             .withWeakCaptureOf(self)
             .sink { viewModel, newIndex in
-                guard let userWalletId = viewModel.pages[safe: newIndex].id else {
+                guard let userWalletId = viewModel.pages[safe: newIndex]?.id else {
                     return
                 }
                 Analytics.log(.walletOpened)
