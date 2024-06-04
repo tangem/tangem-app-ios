@@ -21,7 +21,7 @@ struct SendAddressServiceFactory {
         let defaultSendAddressService = DefaultSendAddressService(
             walletAddresses: walletModel.wallet.addresses,
             addressService: addressService,
-            supportSameAsWalletAddressTransfer: walletModel.wallet.blockchain.supportsCompound
+            supportsCompound: walletModel.wallet.blockchain.supportsCompound
         )
 
         if let addressResolver = walletModel.addressResolver {
