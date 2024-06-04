@@ -173,7 +173,7 @@
 "details_row_description_flip_to_hide" = "Flip your device screen down to quickly hide and show balances";
 "details_row_subtitle_signed_hashes_format" = "%@ hashes";
 "details_row_title_cid" = "卡號";
-"details_row_title_contact_to_support" = "Contact to Support";
+"details_row_title_contact_to_support" = "Contact support";
 "details_row_title_create_backup" = "連結更多錢包";
 "details_row_title_create_backup_footer" = "您最多可以將三張卡同步到一個錢包中。只能做一次";
 "details_row_title_currency" = "App Currency";
