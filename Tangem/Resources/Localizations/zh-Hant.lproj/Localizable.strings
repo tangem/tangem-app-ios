@@ -46,6 +46,12 @@
 "card_settings_action_sheet_title" = "您確定要這麼做嗎？";
 "card_settings_change_access_code" = "更改訪問密碼";
 "card_settings_change_access_code_footer" = "訪問密碼將僅在此卡上更改";
+"card_settings_completed_reset_alert_message" = "All cards in the selected wallet have been reset to factory settings. You can now create a new wallet.";
+"card_settings_completed_reset_alert_title" = "Reset complete";
+"card_settings_continue_reset_alert_message" = "Do you want to reset the next card in this wallet?";
+"card_settings_continue_reset_alert_title" = "Card reset";
+"card_settings_interrupted_reset_alert_message" = "We recommend completing the reset process for all cards in this wallet";
+"card_settings_interrupted_reset_alert_title" = "You haven't reset all your cards";
 "card_settings_reset_card_to_factory" = "回復至原廠設置";
 "card_settings_security_mode" = "安全模式";
 "card_settings_title" = "卡片設置";
@@ -113,6 +119,7 @@
 "common_reload" = "Reload";
 "common_rename" = "重新命名";
 "common_retry" = "重試";
+"common_save" = "Save";
 "common_save_changes" = "保存設置";
 "common_search" = "搜索";
 "common_search_tokens" = "搜尋代幣";
@@ -259,6 +266,7 @@
 "initial_message_change_passcode_body" = "要更改密碼，請完全按照上圖所示連接手機和卡";
 "initial_message_create_wallet_body" = "要創建錢包，請完全按照上圖所示連接手機和卡";
 "initial_message_purge_wallet_body" = "要重置為出廠設置，請完全按照上圖所示連接手機和卡片";
+"initial_message_reset_backup_card_header" = "Tap the card #%@ of the wallet";
 "initial_message_sign_body" = "要簽名，請完全按照上圖所示連接手機和卡";
 "key_invalidated_warning_description" = "您已更新生物識別登入，掃描您的卡進入";
 "koinos_insufficient_balance_to_send_koin_description" = "Your balance should be higher than the fee value to make a transfer";
@@ -583,6 +591,8 @@
 "token_details_hide_alert_message" = "您即將在主屏幕上隱藏此代幣。您可以隨時通過管理代幣頁面將其添加回來。";
 "token_details_hide_alert_title" = "隱藏 %@";
 "token_details_hide_token" = "隱藏代幣";
+"token_details_staking_block_subtitle" = "Staking allows you to earn %1$@ and get rewards every %2$@ days";
+"token_details_staking_block_title" = "Earn up to %@ staking rewards yearly";
 "token_details_token_type_subtitle" = "%1$@ token in %%image%% %2$@ network";
 "token_details_token_type_subtitle_no_standard" = "Token in %%image%% %1$@ network";
 "token_details_unable_hide_alert_message" = "%1$@ (%2$@) 代幣是 %3$@ 網絡上的主要貨幣，只要列表中還有該網絡上的其他代幣，它就無法被隱藏。";
@@ -660,7 +670,7 @@
 "warning_access_denied_message" = "Use %@ or scan a card to unlock access to your wallet";
 "warning_backup_errors_message" = "Please withdraw all funds from this wallet, reset it to factory settings, and create a new one. Access to the current wallet will be lost.";
 "warning_backup_errors_title" = "Activation error";
-"warning_beacon_chain_retirement_content" = "According to BNB network developers, support for the BEP-2 standard will end in June 2024. To avoid losing assets with this standard, please convert them to the BEP-20 standard. Use our swap service to transfer them to the BNB Smart Chain network.";
+"warning_beacon_chain_retirement_content" = "According to BNB network developers, support for the BEP-2 standard will end in June 2024. To avoid losing assets with this standard, please convert them to the BEP-20 standard. Use our swap service or third-party services to transfer funds to the BNB Smart Chain network.";
 "warning_beacon_chain_retirement_title" = "BNB Beacon Chain will shut down";
 "warning_button_could_be_better" = "可以更好";
 "warning_button_ok" = "了解";
