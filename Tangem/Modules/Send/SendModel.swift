@@ -517,12 +517,11 @@ class SendModel {
     // MARK: - Fees
 
     func didSelectFeeOption(_ feeOption: FeeOption) {
-        guard let newFee = _feeValues.value[feeOption]?.value else {
-            return
-        }
-
         _selectedFeeOption.send(feeOption)
-        fee.send(newFee)
+
+        if let newFee = _feeValues.value[feeOption]?.value {
+            fee.send(newFee)
+        }
     }
 
     func didChangeFeeInclusion(_ isFeeIncluded: Bool) {
