@@ -14,7 +14,7 @@ struct MarketRaitingHeaderView: View {
     var body: some View {
         HStack {
             Button {
-                viewModel.marketOrderActionButtonDidTap?()
+                viewModel.onOrderActionButtonDidTap()
             } label: {
                 HStack {
                     Text(viewModel.marketListOrderType.description)
@@ -40,7 +40,6 @@ struct MarketRaitingHeaderView: View {
                         .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
                 }
             }
-            .colorMultiply(Colors.Background.primary)
             .pickerStyle(.segmented)
             .frame(width: 152)
         }
