@@ -13,13 +13,11 @@ import Combine
 final class MarketsViewModel: ObservableObject {
     // MARK: - Injected & Published Properties
 
-    @Injected(\.quotesRepository) private var tokenQuotesRepository: TokenQuotesRepository
-
     @Published var alert: AlertBinder?
     @Published var isShowAddCustomToken: Bool = false
     @Published var tokenViewModels: [MarketsItemViewModel] = []
     @Published var viewDidAppear: Bool = false
-    @Published var marketRaitingHeaderViewModel: MarketRaitingHeaderViewModel?
+    @Published var marketRaitingHeaderViewModel: MarketRaitingHeaderViewModel
 
     // MARK: - Properties
 
@@ -30,13 +28,10 @@ final class MarketsViewModel: ObservableObject {
     private weak var coordinator: MarketsRoutable?
 
     private var dataSource: MarketsDataSource
+    private let filterProvider = MarketsListDataFilterProvider()
     private lazy var loader = setupListDataLoader()
 
-    private let filter = MarketsListDataProvider.Filter()
-
     private var bag = Set<AnyCancellable>()
-    private var cacheExistListCoinId: [String] = []
-    private var pendingDerivationCountByWalletId: [UserWalletId: Int] = [:]
 
     // MARK: - Init
 
@@ -47,8 +42,13 @@ final class MarketsViewModel: ObservableObject {
         self.coordinator = coordinator
         dataSource = MarketsDataSource()
 
-        marketRaitingHeaderBind()
+        marketRaitingHeaderViewModel = MarketRaitingHeaderViewModel(from: filterProvider)
         searchBind(searchTextPublisher: searchTextPublisher)
+
+        filterProvider.onUpdateOrderAction = { [weak self] in
+            guard let self else { return }
+            coordinator.openFilterOrderBottonSheet(with: filterProvider)
+        }
 
         bind()
     }
@@ -63,7 +63,7 @@ final class MarketsViewModel: ObservableObject {
     }
 
     func onBottomDisappear() {
-        loader.reset(nil, with: filter)
+        loader.reset(nil)
         fetch(with: "")
         viewDidAppear = false
     }
@@ -82,22 +82,7 @@ final class MarketsViewModel: ObservableObject {
 
 private extension MarketsViewModel {
     func fetch(with searchText: String = "") {
-        loader.fetch(searchText, with: filter)
-    }
-
-    /// Obtain supported token list from UserWalletModels to determine the cell action type
-    /// Should be reset after updating the list of tokens
-    func updateAlreadyExistTokenUserList() {
-        let models = dataSource.userWalletModels
-
-        let existEntriesList = models
-            .flatMap {
-                let userTokenListManager = $0.userTokenListManager
-                let entries = userTokenListManager.userTokensList.entries
-                return entries.compactMap { $0.isCustom ? nil : $0.id }
-            }
-
-        cacheExistListCoinId = existEntriesList
+        loader.fetch(searchText)
     }
 
     func searchBind(searchTextPublisher: (some Publisher<String, Never>)?) {
@@ -118,73 +103,18 @@ private extension MarketsViewModel {
             .store(in: &bag)
     }
 
-    func marketRaitingHeaderBind() {
-        marketRaitingHeaderViewModel = .init(
-            from: filter,
-            marketOrderActionButtonDidTap: { [weak self] in
-                guard let self else { return }
-
-                coordinator?.openFilterOrderBottonSheet(with: filter.order) { [weak self] in
-                    self?.filter.order = $0
-                    self?.marketRaitingHeaderViewModel?.marketListOrderType = $0
-                }
-            }, marketPriceIntervalButtonDidTap: { [weak self] in
-                self?.filter.interval = $0
-            }
-        )
-    }
-
     func bind() {
         dataSource
             .userWalletModelsPublisher
             .sink { [weak self] models in
-                self?.updateAlreadyExistTokenUserList()
-                self?.updateDerivationBind()
                 self?.fetch()
             }
             .store(in: &bag)
     }
 
-    func updateDerivationBind() {
-        // Used for update state generateAddressesViewModel property
-        let pendingDerivationsCountPublishers = dataSource.userWalletModels
-            .compactMap { model -> AnyPublisher<(UserWalletId, Int), Never>? in
-                if let derivationManager = model.userTokensManager.derivationManager {
-                    return derivationManager.pendingDerivationsCount
-                        .map { (model.userWalletId, $0) }
-                        .eraseToAnyPublisher()
-                }
-
-                return nil
-            }
-
-        Publishers.MergeMany(pendingDerivationsCountPublishers)
-            .receiveValue { [weak self] id, count in
-                self?.pendingDerivationCountByWalletId[id] = count
-                self?.updateGenerateAddressesViewModel()
-            }
-            .store(in: &bag)
-
-        // Used for update state actionType tokenViewModels list property
-        let userTokensPublishers = dataSource.userWalletModels
-            .map { $0.userTokenListManager.userTokensPublisher }
-
-        Publishers.MergeMany(userTokensPublishers)
-            .receive(on: DispatchQueue.main)
-            .receiveValue { [weak self] value in
-                guard let self = self else { return }
-
-                updateAlreadyExistTokenUserList()
-
-                tokenViewModels.forEach {
-                    $0.action = self.actionType(for: $0.id)
-                }
-            }
-            .store(in: &bag)
-    }
-
-    func setupListDataLoader() -> MarketsListDataProvider {
-        let loader = MarketsListDataProvider()
+    func setupListDataLoader() -> ListDataLoader {
+        let supportedBlockchains = SupportedBlockchains.all
+        let loader = ListDataLoader(supportedBlockchains: supportedBlockchains)
 
         loader.$items
             .receive(on: DispatchQueue.main)
@@ -194,8 +124,7 @@ private extension MarketsViewModel {
                     return
                 }
 
-//                tokenViewModels = [items.compactMap { self.mapToTokenViewModel(coinModel: $0) }]
-//                updateQuote(by: items.map { $0.id })
+                tokenViewModels = items.compactMap { self.mapToTokenViewModel(coinModel: $0) }
 
                 isShowAddCustomToken = tokenViewModels.isEmpty && !dataSource.userWalletModels.contains(where: { $0.config.hasFeature(.multiCurrency) })
 
@@ -212,91 +141,23 @@ private extension MarketsViewModel {
 
     /// Need for display list skeleton view
     private func setNeedDisplayTokensListSkeletonView() {
-        tokenViewModels = [Int](0 ... 10).map { _ in
-            MarketsItemViewModel(
-                coinModel: .dummy,
-                priceValue: "----------",
-                action: .info,
-                state: .loading,
-                didTapAction: { _, _ in }
-            )
-        }
-    }
-
-    private func actionType(for coinId: String) -> MarketsItemViewModel.Action {
-        let isAlreadyExistToken = cacheExistListCoinId.contains(coinId)
-        return isAlreadyExistToken ? .edit : .add
+        // [REDACTED_TODO_COMMENT]
+//        tokenViewModels = [Int](0 ... 10).map { _ in }
     }
 
     private func mapToTokenViewModel(coinModel: CoinModel) -> MarketsItemViewModel {
-        MarketsItemViewModel(
-            coinModel: coinModel,
-            action: actionType(for: coinModel.id),
-            state: .loaded,
-            didTapAction: weakify(self, forFunction: MarketsViewModel.handle)
-        )
-    }
-
-    private func updateQuote(by coinIds: [String]) {
-        runTask(in: self) { root in
-            await root.tokenQuotesRepository.loadQuotes(currencyIds: coinIds)
-        }
-    }
-
-    private func handle(action: MarketsItemViewModel.Action, with coinModel: CoinModel) {
-        switch action {
-        case .info:
-            // [REDACTED_TODO_COMMENT]
-            break
-        case .add, .edit:
-            let event: Analytics.Event = action == .add ? .manageTokensButtonAdd : .manageTokensButtonEdit
-            Analytics.log(event: event, params: [.token: coinModel.id])
-
-            coordinator?.openTokenSelector(
-                dataSource: dataSource,
-                coinId: coinModel.id,
-                tokenItems: coinModel.items.map { $0.tokenItem }
-            )
-        }
-    }
-
-    private func updateGenerateAddressesViewModel() {
-        let countWalletPendingDerivation = pendingDerivationCountByWalletId.filter { $0.value > 0 }.count
-
-        guard countWalletPendingDerivation > 0 else {
-            coordinator?.hideGenerateAddressesWarning()
-            return
-        }
-
-        Analytics.log(
-            event: .manageTokensButtonGetAddresses,
-            params: [
-                .walletCount: String(countWalletPendingDerivation),
-                .source: Analytics.ParameterValue.manageTokens.rawValue,
-            ]
+        // [REDACTED_TODO_COMMENT]
+        let inputData = MarketsItemViewModel.InputData(
+            id: coinModel.id,
+            imageURL: IconURLBuilder().tokenIconURL(id: coinModel.id, size: .large).absoluteString,
+            name: coinModel.name,
+            symbol: coinModel.symbol,
+            marketCup: "",
+            marketRaiting: "",
+            priceValue: nil,
+            priceChangeStateValue: nil
         )
 
-        coordinator?.showGenerateAddressesWarning(
-            numberOfNetworks: pendingDerivationCountByWalletId.map(\.value).reduce(0, +),
-            currentWalletNumber: pendingDerivationCountByWalletId.filter { $0.value > 0 }.count,
-            totalWalletNumber: dataSource.userWalletModels.count,
-            action: weakify(self, forFunction: MarketsViewModel.generateAddressByWalletPendingDerivations)
-        )
-    }
-
-    private func generateAddressByWalletPendingDerivations() {
-        guard let userWalletId = pendingDerivationCountByWalletId.first(where: { $0.value > 0 })?.key else {
-            return
-        }
-
-        guard let userWalletModel = dataSource.userWalletModels.first(where: { $0.userWalletId == userWalletId }) else {
-            return
-        }
-
-        userWalletModel.userTokensManager.deriveIfNeeded { result in
-            if case .failure(let error) = result, !error.isUserCancelled {
-                self.alert = error.alertBinder
-            }
-        }
+        return MarketsItemViewModel(inputData)
     }
 }

@@ -13,33 +13,29 @@ import CombineExt
 import SwiftUI
 
 class MarketsListOrderBottonSheetViewModel: ObservableObject, Identifiable {
-    @Published var listOptionViewModel: [DefaultSelectableRowViewModel<MarketsListOrderType>] = []
+    @Published var listOptionViewModel: [DefaultSelectableRowViewModel<MarketsListOrderType>]
     @Published var currentOrderType: MarketsListOrderType
-
-    var didUpdateOrder: ((_ type: MarketsListOrderType) -> Void)?
 
     // MARK: - Private Properties
 
     private var subscription: AnyCancellable?
+    private weak var delegate: MarketsListOrderBottonSheetViewModelDelegate?
 
     // MARK: - Init
 
-    init(currentOrderType: MarketsListOrderType, _ didUpdateOrder: ((_ type: MarketsListOrderType) -> Void)?) {
-        self.currentOrderType = currentOrderType
-        self.didUpdateOrder = didUpdateOrder
-        setup()
-    }
+    init(from provider: MarketsListDataFilterProvider) {
+        currentOrderType = provider.orderType
+        delegate = provider
 
-    private func setup() {
-        bind()
-
-        listOptionViewModel = MarketsListOrderType.allCases.map {
+        listOptionViewModel = provider.supportedOrderTypes.map {
             DefaultSelectableRowViewModel(
                 id: $0,
                 title: $0.description,
                 subtitle: nil
             )
         }
+
+        bind()
     }
 
     private func bind() {
@@ -54,6 +50,10 @@ class MarketsListOrderBottonSheetViewModel: ObservableObject, Identifiable {
 
     private func update(option: MarketsListOrderType) {
         currentOrderType = option
-        didUpdateOrder?(option)
+        delegate?.didSelect(option: option)
     }
+}
+
+protocol MarketsListOrderBottonSheetViewModelDelegate: AnyObject {
+    func didSelect(option: MarketsListOrderType)
 }
