@@ -250,7 +250,7 @@ extension BottomSheetContainer {
     }
 }
 
-// MARK: - Content horizontal scroll compatibility
+// MARK: - Content horizontal scrolling compatibility
 
 private extension BottomSheetContainer {
     /// Detects horizontal scrolling in the content view, helps resolve conflicts between the bottom sheet
@@ -267,7 +267,7 @@ private extension BottomSheetContainer {
         @GestureState
         private var isContentViewGestureActive = false
 
-        /// A dummy drag gesture used to detect horizontal scrolling in the content view
+        /// A dummy drag gesture used to detect horizontal scrolling in the content view.
         private var dragGesture: some Gesture {
             DragGesture()
                 .updating($isContentViewGestureActive) { value, state, _ in
