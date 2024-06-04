@@ -29,9 +29,7 @@ struct MarketsView: View {
                 .style(Fonts.Bold.title3, color: Colors.Text.primary1)
                 .lineLimit(1)
 
-            if let marketRaitingHeaderViewModel = viewModel.marketRaitingHeaderViewModel {
-                MarketRaitingHeaderView(viewModel: marketRaitingHeaderViewModel)
-            }
+            MarketRaitingHeaderView(viewModel: viewModel.marketRaitingHeaderViewModel)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
@@ -41,10 +39,6 @@ struct MarketsView: View {
         LazyVStack(spacing: 0) {
             ForEach(viewModel.tokenViewModels) {
                 MarketsItemView(viewModel: $0)
-            }
-
-            if viewModel.isShowAddCustomToken {
-                addCustomTokenView
             }
 
             if viewModel.hasNextPage, viewModel.viewDidAppear {
