@@ -100,11 +100,8 @@ extension MarketsCoordinator: MarketsRoutable {
         delegate?.hideGenerateAddressesWarning()
     }
 
-    func openFilterOrderBottonSheet(
-        with currentOrderType: MarketsListOrderType,
-        action: @escaping ((MarketsListOrderType) -> Void)
-    ) {
-        marketsListOrderBottonSheetViewModel = .init(currentOrderType: currentOrderType, action)
+    func openFilterOrderBottonSheet(with provider: MarketsListDataFilterProvider) {
+        marketsListOrderBottonSheetViewModel = .init(from: provider)
     }
 }
 
