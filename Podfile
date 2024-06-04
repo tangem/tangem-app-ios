@@ -24,7 +24,7 @@ use_frameworks!
 inhibit_all_warnings!
 
 def tangem_sdk_pod
-  pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-297'
+  pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-298'
   #pod 'TangemSdk', :path => '../tangem-sdk-ios'
 end
 
@@ -52,7 +52,7 @@ target 'Tangem' do
   
   # Pods for Tangem
   pod 'Moya'
-  pod 'WalletConnectSwiftV2', :git => 'https://github.com/WalletConnect/WalletConnectSwiftV2', :tag => '1.8.4'
+  pod 'WalletConnectSwiftV2', :git => 'https://github.com/WalletConnect/WalletConnectSwiftV2', :tag => '1.18.7'
   pod 'Kingfisher', '~> 7.11.0'
 
   # Helpers
