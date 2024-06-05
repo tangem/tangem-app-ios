@@ -50,7 +50,7 @@ struct MarketsItemView: View {
             }
 
             HStack(spacing: 6) {
-                Text(viewModel.marketRaiting)
+                Text(viewModel.marketRating)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                     .padding(.horizontal, 5)
                     .background(Colors.Field.primary)
@@ -100,8 +100,8 @@ struct MarketsItemView: View {
                         imageURL: token.imageUrl,
                         name: token.name,
                         symbol: token.symbol,
-                        marketCup: token.marketCup,
-                        marketRaiting: token.marketRaiting,
+                        marketCap: token.marketCap,
+                        marketRating: token.marketRating,
                         priceValue: token.currentPrice,
                         priceChangeStateValue: token.priceChangePercentage[.day]
                     )
