@@ -52,7 +52,7 @@ extension MarketsDTO.General {
                 "general_coins": generalCoins,
             ]
 
-            if let search {
+            if let search, !search.isEmpty {
                 params["search"] = search
             }
 
