@@ -93,15 +93,19 @@ struct MarketsItemView: View {
 
     return ScrollView(.vertical) {
         ForEach(tokens) { token in
-            let inputData = MarketsItemViewModel.InputData(
-                id: token.id,
-                imageURL: token.imageUrl,
-                name: token.name,
-                symbol: token.symbol,
-                marketCup: token.marketCup,
-                marketRaiting: token.marketRaiting,
-                priceValue: token.currentPrice,
-                priceChangeStateValue: token.priceChangePercentage[.day]
+            MarketsItemView(
+                viewModel: MarketsItemViewModel(
+                    .init(
+                        id: token.id,
+                        imageURL: token.imageUrl,
+                        name: token.name,
+                        symbol: token.symbol,
+                        marketCup: token.marketCup,
+                        marketRaiting: token.marketRaiting,
+                        priceValue: token.currentPrice,
+                        priceChangeStateValue: token.priceChangePercentage[.day]
+                    )
+                )
             )
         }
     }
