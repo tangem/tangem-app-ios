@@ -26,6 +26,10 @@ final class MarketsListDataProvider {
         return lastSearchText
     }
 
+    var lastFilterValue: Filter? {
+        return lastFilter
+    }
+
     // Tells if all items have been loaded. (Used to hide/show activity spinner)
     private(set) var canFetchMore = true
 
@@ -46,7 +50,7 @@ final class MarketsListDataProvider {
 
     // MARK: - Implementation
 
-    func reset(_ searchText: String?, with filter: Filter) {
+    func reset(_ searchText: String?, with filter: Filter?) {
         AppLog.shared.debug("\(String(describing: self)) reset market list tokens")
 
         lastSearchText = searchText
@@ -63,7 +67,14 @@ final class MarketsListDataProvider {
         }
 
         runTask(in: self) { provider in
-            let tokens = try await provider.loadItems(searchText, with: filter, generalCoins: generalCoins)
+            let tokens: [MarketsTokenModel]
+
+            do {
+                tokens = try await provider.loadItems(searchText, with: filter, generalCoins: generalCoins)
+            } catch {
+                AppLog.shared.debug("\(String(describing: provider)) loaded market list tokens did receive error \(error.localizedDescription)")
+                return
+            }
 
             await runOnMain {
                 AppLog.shared.debug("\(String(describing: provider)) loaded market list tokens with count = \(tokens.count)")
