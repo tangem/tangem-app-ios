@@ -50,14 +50,18 @@ struct MarketsItemView: View {
             }
 
             HStack(spacing: 6) {
-                Text(viewModel.marketRaiting)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                    .padding(.horizontal, 5)
-                    .background(Colors.Field.primary)
-                    .cornerRadiusContinuous(4)
+                if let marketRaiting = viewModel.marketRaiting {
+                    Text(marketRaiting)
+                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                        .padding(.horizontal, 5)
+                        .background(Colors.Field.primary)
+                        .cornerRadiusContinuous(4)
+                }
 
-                Text(viewModel.marketCap)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                if let marketCap = viewModel.marketCap {
+                    Text(marketCap)
+                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                }
             }
         }
     }
@@ -95,13 +99,12 @@ struct MarketsItemView: View {
         ForEach(tokens) { token in
             let inputData = MarketsItemViewModel.InputData(
                 id: token.id,
-                imageURL: token.imageUrl,
                 name: token.name,
                 symbol: token.symbol,
                 marketCup: token.marketCup,
                 marketRaiting: token.marketRaiting,
                 priceValue: token.currentPrice,
-                priceChangeStateValue: token.priceChangePercentage[.day]
+                priceChangeStateValue: nil
             )
         }
     }
