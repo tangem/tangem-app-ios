@@ -13,9 +13,8 @@ struct MarketsTokenModel: Identifiable, Decodable {
     let name: String
     let symbol: String
     let active: Bool
-    let imageUrl: String
     let currentPrice: Decimal
-    let priceChangePercentage: [MarketsPriceIntervalType: Decimal]
-    let marketRaiting: String
-    let marketCup: String
+    let priceChangePercentage: [String: Decimal]
+    let marketRaiting: String?
+    let marketCup: String?
 }
