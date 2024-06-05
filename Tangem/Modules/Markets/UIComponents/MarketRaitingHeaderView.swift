@@ -1,5 +1,5 @@
 //
-//  MarketRaitingHeaderView.swift
+//  MarketsRaitingHeaderView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct MarketRaitingHeaderView: View {
+struct MarketsRaitingHeaderView: View {
     @ObservedObject var viewModel: MarketRaitingHeaderViewModel
 
     var body: some View {
