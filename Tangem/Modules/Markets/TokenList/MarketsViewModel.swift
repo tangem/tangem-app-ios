@@ -14,7 +14,6 @@ final class MarketsViewModel: ObservableObject {
     // MARK: - Injected & Published Properties
 
     @Published var alert: AlertBinder?
-    @Published var isShowAddCustomToken: Bool = false
     @Published var tokenViewModels: [MarketsItemViewModel] = []
     @Published var viewDidAppear: Bool = false
     @Published var marketRaitingHeaderViewModel: MarketRaitingHeaderViewModel
@@ -22,14 +21,17 @@ final class MarketsViewModel: ObservableObject {
     // MARK: - Properties
 
     var hasNextPage: Bool {
-        loader.canFetchMore
+        dataProvider.canFetchMore
     }
 
     private weak var coordinator: MarketsRoutable?
 
     private var dataSource: MarketsDataSource
+
     private let filterProvider = MarketsListDataFilterProvider()
-    private lazy var loader = setupListDataLoader()
+    private let dataProvider = MarketsListDataProvider()
+
+//    private lazy var loader = setupListDataLoader()
 
     private var bag = Set<AnyCancellable>()
 
@@ -43,14 +45,15 @@ final class MarketsViewModel: ObservableObject {
         dataSource = MarketsDataSource()
 
         marketRaitingHeaderViewModel = MarketRaitingHeaderViewModel(from: filterProvider)
-        searchBind(searchTextPublisher: searchTextPublisher)
 
         filterProvider.onUpdateOrderAction = { [weak self] in
             guard let self else { return }
             coordinator.openFilterOrderBottonSheet(with: filterProvider)
         }
 
-        bind()
+        searchBind(searchTextPublisher: searchTextPublisher)
+        searchFilterBind(filterPublisher: filterProvider.filterPublisher)
+        dataProviderBind()
     }
 
     func onBottomAppear() {
@@ -63,13 +66,13 @@ final class MarketsViewModel: ObservableObject {
     }
 
     func onBottomDisappear() {
-        loader.reset(nil)
-        fetch(with: "")
+        dataProvider.reset(nil, with: nil)
+        fetch(with: "", by: filterProvider.filterValue)
         viewDidAppear = false
     }
 
     func fetchMore() {
-        loader.fetchMore()
+        dataProvider.fetchMore()
     }
 
     func addCustomTokenDidTapAction() {
@@ -81,8 +84,8 @@ final class MarketsViewModel: ObservableObject {
 // MARK: - Private Implementation
 
 private extension MarketsViewModel {
-    func fetch(with searchText: String = "") {
-        loader.fetch(searchText)
+    func fetch(with searchText: String = "", by filter: MarketsListDataProvider.Filter) {
+        dataProvider.fetch(searchText, with: filter)
     }
 
     func searchBind(searchTextPublisher: (some Publisher<String, Never>)?) {
@@ -90,33 +93,33 @@ private extension MarketsViewModel {
             .dropFirst()
             .debounce(for: 0.5, scheduler: DispatchQueue.main)
             .removeDuplicates()
-            .sink { [weak self] value in
+            .withWeakCaptureOf(self)
+            .sink { viewModel, value in
                 if !value.isEmpty {
                     Analytics.log(.manageTokensSearched)
 
                     // It is necessary to hide it under this condition for disable to eliminate the flickering of the animation
-                    self?.setNeedDisplayTokensListSkeletonView()
+                    viewModel.setNeedDisplayTokensListSkeletonView()
                 }
 
-                self?.fetch(with: value)
+                viewModel.fetch(with: value, by: viewModel.dataProvider.lastFilterValue ?? viewModel.filterProvider.filterValue)
             }
             .store(in: &bag)
     }
 
-    func bind() {
-        dataSource
-            .userWalletModelsPublisher
-            .sink { [weak self] models in
-                self?.fetch()
+    func searchFilterBind(filterPublisher: (some Publisher<MarketsListDataProvider.Filter, Never>)?) {
+        filterPublisher?
+            .dropFirst()
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, value in
+                viewModel.fetch(with: viewModel.dataProvider.lastSearchTextValue ?? "", by: viewModel.filterProvider.filterValue)
             }
             .store(in: &bag)
     }
 
-    func setupListDataLoader() -> ListDataLoader {
-        let supportedBlockchains = SupportedBlockchains.all
-        let loader = ListDataLoader(supportedBlockchains: supportedBlockchains)
-
-        loader.$items
+    func dataProviderBind() {
+        dataProvider.$items
             .receive(on: DispatchQueue.main)
             .delay(for: 0.5, scheduler: DispatchQueue.main)
             .sink(receiveValue: { [weak self] items in
@@ -124,17 +127,9 @@ private extension MarketsViewModel {
                     return
                 }
 
-                tokenViewModels = items.compactMap { self.mapToTokenViewModel(coinModel: $0) }
-
-                isShowAddCustomToken = tokenViewModels.isEmpty && !dataSource.userWalletModels.contains(where: { $0.config.hasFeature(.multiCurrency) })
-
-                if let searchValue = loader.lastSearchTextValue, !searchValue.isEmpty, items.isEmpty {
-                    Analytics.log(event: .manageTokensTokenIsNotFound, params: [.input: searchValue])
-                }
+                tokenViewModels = items.compactMap { self.mapToTokenViewModel(tokenItemModel: $0) }
             })
             .store(in: &bag)
-
-        return loader
     }
 
     // MARK: - Private Implementation
@@ -145,16 +140,14 @@ private extension MarketsViewModel {
 //        tokenViewModels = [Int](0 ... 10).map { _ in }
     }
 
-    private func mapToTokenViewModel(coinModel: CoinModel) -> MarketsItemViewModel {
-        // [REDACTED_TODO_COMMENT]
+    private func mapToTokenViewModel(tokenItemModel: MarketsTokenModel) -> MarketsItemViewModel {
         let inputData = MarketsItemViewModel.InputData(
-            id: coinModel.id,
-            imageURL: IconURLBuilder().tokenIconURL(id: coinModel.id, size: .large).absoluteString,
-            name: coinModel.name,
-            symbol: coinModel.symbol,
-            marketCup: "",
-            marketRaiting: "",
-            priceValue: nil,
+            id: tokenItemModel.id,
+            name: tokenItemModel.name,
+            symbol: tokenItemModel.symbol,
+            marketCup: tokenItemModel.marketCup,
+            marketRaiting: tokenItemModel.marketRaiting,
+            priceValue: tokenItemModel.currentPrice,
             priceChangeStateValue: nil
         )
 
