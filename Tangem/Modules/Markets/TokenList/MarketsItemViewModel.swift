@@ -12,8 +12,8 @@ import Combine
 class MarketsItemViewModel: Identifiable, ObservableObject {
     // MARK: - Published
 
-    @Published var marketRaiting: String = ""
-    @Published var marketCap: String = ""
+    @Published var marketRaiting: String?
+    @Published var marketCap: String?
 
     @Published var priceValue: String = ""
     @Published var priceChangeState: TokenPriceChangeView.State = .noData
@@ -39,7 +39,7 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
 
     init(_ data: InputData) {
         id = data.id
-        imageURL = URL(string: data.imageURL)
+        imageURL = IconURLBuilder().tokenIconURL(id: id, size: .large)
         name = data.name
         symbol = data.symbol
 
@@ -68,11 +68,10 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
 extension MarketsItemViewModel {
     struct InputData {
         let id: String
-        let imageURL: String
         let name: String
         let symbol: String
-        let marketCup: String
-        let marketRaiting: String
+        let marketCup: String?
+        let marketRaiting: String?
         let priceValue: Decimal?
         let priceChangeStateValue: Decimal?
     }
