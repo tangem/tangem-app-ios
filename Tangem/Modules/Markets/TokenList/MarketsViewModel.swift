@@ -146,8 +146,8 @@ private extension MarketsViewModel {
             imageURL: IconURLBuilder().tokenIconURL(id: coinModel.id, size: .large).absoluteString,
             name: coinModel.name,
             symbol: coinModel.symbol,
-            marketCup: "",
-            marketRaiting: "",
+            marketCap: "",
+            marketRating: "",
             priceValue: nil,
             priceChangeStateValue: nil
         )
