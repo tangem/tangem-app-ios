@@ -10,9 +10,12 @@ import Foundation
 import Combine
 import TangemSdk
 import BlockchainSdk
+import TangemStaking
 
 final class SingleTokenNotificationManager {
     @Injected(\.bannerPromotionService) private var bannerPromotionService: BannerPromotionService
+    @Injected(\.stakingRepositoryProxy) private var stakingRepositoryProxy: StakingRepositoryProxy
+
     private let analyticsService: NotificationsAnalyticsService = .init()
 
     private let walletModel: WalletModel
@@ -221,16 +224,18 @@ final class SingleTokenNotificationManager {
             return nil
         }
 
-        // [REDACTED_TODO_COMMENT]
-        let earn: Decimal = 0.07523
+        guard let yield = stakingRepositoryProxy.getYield(item: walletModel.stakingTokenItem) else {
+            return nil
+        }
+
         let days = 2
-        let earnUpToFormatted = PercentFormatter().percentFormat(value: earn)
+        let apyFormatted = PercentFormatter().format(yield.apy, option: .staking)
         let rewardPeriodDaysFormatted = days.formatted()
 
         return .staking(
             tokenSymbol: walletModel.tokenItem.currencySymbol,
             tokenIconInfo: TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom),
-            earnUpToFormatted: earnUpToFormatted,
+            earnUpToFormatted: apyFormatted,
             rewardPeriodDaysFormatted: rewardPeriodDaysFormatted
         )
     }
