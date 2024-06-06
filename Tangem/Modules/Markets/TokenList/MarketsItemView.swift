@@ -50,7 +50,7 @@ struct MarketsItemView: View {
             }
 
             HStack(spacing: 6) {
-                Text(viewModel.marketRaiting)
+                Text(viewModel.marketRating)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                     .padding(.horizontal, 5)
                     .background(Colors.Field.primary)
@@ -93,15 +93,19 @@ struct MarketsItemView: View {
 
     return ScrollView(.vertical) {
         ForEach(tokens) { token in
-            let inputData = MarketsItemViewModel.InputData(
-                id: token.id,
-                imageURL: token.imageUrl,
-                name: token.name,
-                symbol: token.symbol,
-                marketCup: token.marketCup,
-                marketRaiting: token.marketRaiting,
-                priceValue: token.currentPrice,
-                priceChangeStateValue: token.priceChangePercentage[.day]
+            MarketsItemView(
+                viewModel: MarketsItemViewModel(
+                    .init(
+                        id: token.id,
+                        imageURL: token.imageUrl,
+                        name: token.name,
+                        symbol: token.symbol,
+                        marketCap: token.marketCap,
+                        marketRating: token.marketRating,
+                        priceValue: token.currentPrice,
+                        priceChangeStateValue: token.priceChangePercentage[.day]
+                    )
+                )
             )
         }
     }
