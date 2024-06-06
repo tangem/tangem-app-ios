@@ -20,8 +20,8 @@ struct DummyMarketTokenModelFactory {
                 imageUrl: "",
                 currentPrice: 1234,
                 priceChangePercentage: [.day: 12, .week: 5, .month: 1],
-                marketRaiting: "1",
-                marketCup: "$1.259 T"
+                marketRating: "1",
+                marketCap: "$1.259 T"
             ),
             MarketsTokenModel(
                 id: "ethereum",
@@ -31,8 +31,8 @@ struct DummyMarketTokenModelFactory {
                 imageUrl: "",
                 currentPrice: 1234,
                 priceChangePercentage: [.day: 12, .week: 5, .month: 1],
-                marketRaiting: "2",
-                marketCup: "$382.744 B "
+                marketRating: "2",
+                marketCap: "$382.744 B "
             ),
             MarketsTokenModel(
                 id: "tether",
@@ -42,8 +42,8 @@ struct DummyMarketTokenModelFactory {
                 imageUrl: "",
                 currentPrice: 1234,
                 priceChangePercentage: [.day: 12, .week: 5, .month: 1],
-                marketRaiting: "3",
-                marketCup: "$111.436 B"
+                marketRating: "3",
+                marketCap: "$111.436 B"
             ),
             MarketsTokenModel(
                 id: "binance",
@@ -53,8 +53,8 @@ struct DummyMarketTokenModelFactory {
                 imageUrl: "",
                 currentPrice: 1234,
                 priceChangePercentage: [.day: 12, .week: 5, .month: 1],
-                marketRaiting: "4",
-                marketCup: "$94.244 B"
+                marketRating: "4",
+                marketCap: "$94.244 B"
             ),
             MarketsTokenModel(
                 id: "polygon",
@@ -64,8 +64,8 @@ struct DummyMarketTokenModelFactory {
                 imageUrl: "",
                 currentPrice: 1234,
                 priceChangePercentage: [.day: 12, .week: 5, .month: 1],
-                marketRaiting: "5",
-                marketCup: "$21.690 B"
+                marketRating: "5",
+                marketCap: "$21.690 B"
             ),
         ]
     }
