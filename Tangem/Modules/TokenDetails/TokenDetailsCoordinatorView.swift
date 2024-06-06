@@ -63,7 +63,7 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             }
             .bottomSheet(
                 item: $coordinator.receiveBottomSheetViewModel,
-                backgroundColor: Colors.Background.primary
+                settings: .init(backgroundColor: Colors.Background.primary, contentScrollsHorizontally: true)
             ) {
                 ReceiveBottomSheetView(viewModel: $0)
             }
