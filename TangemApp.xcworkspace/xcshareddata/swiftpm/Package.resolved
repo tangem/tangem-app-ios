@@ -167,8 +167,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/tangem/wallet-core-binaries-ios.git",
       "state" : {
-        "revision" : "144d999008e065276b4e5ccbae2c920d0d62edd3",
-        "version" : "4.0.21-tangem3"
+        "revision" : "b9906e7e5c56706f0fe1ad3545dbf02dcf195b34",
+        "version" : "4.0.21-tangem6"
       }
     },
     {
