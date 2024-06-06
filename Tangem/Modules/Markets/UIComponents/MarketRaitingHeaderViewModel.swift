@@ -24,8 +24,8 @@ class MarketRaitingHeaderViewModel: ObservableObject {
 
     init(from provider: MarketsListDataFilterProvider) {
         delegate = provider
-        marketListOrderType = provider.orderType
-        marketPriceIntervalType = provider.intervalType
+        marketListOrderType = provider.currentFilterValue.order
+        marketPriceIntervalType = provider.currentFilterValue.interval
         bind(with: provider.filterPublisher)
     }
 
