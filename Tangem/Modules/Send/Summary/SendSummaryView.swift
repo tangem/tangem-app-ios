@@ -47,7 +47,8 @@ struct SendSummaryView: View {
                             }
                         }
                     }
-                    .backgroundColor(.clear, id: SendViewNamespaceId.destinationContainer.rawValue, namespace: namespace)
+                    .backgroundColor(.clear)
+                    .geometryEffect(.init(id: SendViewNamespaceId.destinationContainer.rawValue, namespace: namespace))
                     .horizontalPadding(0)
                     .separatorStyle(.single)
                     .contentShape(Rectangle())
@@ -64,7 +65,8 @@ struct SendSummaryView: View {
                         amountSectionContent(data: data)
                     }
                     .innerContentPadding(0)
-                    .backgroundColor(viewModel.amountBackground, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
+                    .backgroundColor(viewModel.amountBackground)
+                    .geometryEffect(.init(id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace))
                     .contentShape(Rectangle())
                     .allowsHitTesting(viewModel.canEditAmount)
                     .onTapGesture {
@@ -95,7 +97,8 @@ struct SendSummaryView: View {
                             }
                     }
                     // Fee uses a regular background regardless of whether it's enabled or not
-                    .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
+                    .backgroundColor(Colors.Background.action)
+                    .geometryEffect(.init(id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace))
                     .contentShape(Rectangle())
                     .allowsHitTesting(viewModel.canEditFee)
                     .onTapGesture {
