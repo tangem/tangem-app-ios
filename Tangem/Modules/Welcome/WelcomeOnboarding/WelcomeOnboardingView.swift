@@ -16,33 +16,29 @@ struct WelcomeOnboardingView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            content
-            footer
-        }
+        content
+            .transition(.opacity.animation(.linear(duration: 0.3)))
+            .environment(\.colorScheme, .dark)
     }
 
     @ViewBuilder
-    var content: some View {
+    private var content: some View {
         switch viewModel.viewState {
-        case .tos(let tosStepViewModel):
-            TOSStepView(viewModel: tosStepViewModel)
-        case .pushNotifications(let pushNotificationsStepViewModel):
-            PushNotificationsStepView(viewModel: pushNotificationsStepViewModel)
+        case .tos(let viewModel):
+            WelcomeOnboardingTOSView(viewModel: viewModel)
+        case .pushNotifications(let viewModel):
+            OnboardingPushNotificationsView(viewModel: viewModel)
         case .none:
             EmptyView()
         }
     }
-
-    var footer: some View {
-        EmptyView()
-    }
 }
 
-struct WelcomeOnboardingView_Preview: PreviewProvider {
-    static let viewModel = WelcomeOnboardingViewModel(steps: [], coordinator: WelcomeOnboardingCoordinator())
-
-    static var previews: some View {
-        WelcomeOnboardingView(viewModel: viewModel)
-    }
+#Preview {
+    WelcomeOnboardingView(
+        viewModel: WelcomeOnboardingViewModel(
+            steps: [.tos, .pushNotifications],
+            coordinator: WelcomeOnboardingCoordinator()
+        )
+    )
 }
