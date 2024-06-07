@@ -9,17 +9,11 @@
 import SwiftUI
 
 struct SendDestinationView: View {
-    let namespace: Namespace.ID
     @ObservedObject var viewModel: SendDestinationViewModel
-
-    let bottomButtonsHeight: CGFloat
-
-    private var safeAreaBottomSpacing: CGFloat {
-        bottomButtonsHeight + SendCustomFeeInputField.Constants.fieldPadding + GroupedSectionConstants.footerSpacing
-    }
+    let namespace: Namespace.ID
 
     var body: some View {
-        GroupedScrollView(spacing: 20) {
+        VStack(spacing: 20) {
             GroupedSection(viewModel.addressViewModel) {
                 SendDestinationTextView(viewModel: $0)
                     .setNamespace(namespace)
@@ -65,7 +59,7 @@ struct SendDestinationView: View {
                 namespace: namespace
             ))
 
-            if let suggestedDestinationViewModel = viewModel.suggestedDestinationViewModel, viewModel.showSuggestedDestinations {
+            if let suggestedDestinationViewModel = viewModel.suggestedDestinationViewModel {
                 SendSuggestedDestinationView(viewModel: suggestedDestinationViewModel)
                     .transition(.opacity)
             }
@@ -73,9 +67,6 @@ struct SendDestinationView: View {
         .onAppear(perform: viewModel.onAppear)
         .onAppear(perform: viewModel.onAuxiliaryViewAppear)
         .onDisappear(perform: viewModel.onAuxiliaryViewDisappear)
-        .safeAreaInset(edge: .bottom, spacing: safeAreaBottomSpacing) {
-            EmptyView().frame(height: 0)
-        }
     }
 }
 
@@ -84,12 +75,11 @@ struct SendDestinationView_Previews: PreviewProvider {
 
     static var previews: some View {
         SendDestinationView(
-            namespace: namespace,
             viewModel: SendDestinationViewModel(
                 input: SendDestinationViewModelInputMock(),
                 addressTextViewHeightModel: .init()
             ),
-            bottomButtonsHeight: 0
+            namespace: namespace
         )
     }
 }
