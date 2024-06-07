@@ -14,6 +14,10 @@ class ManageTokensCoordinator: CoordinatorObject {
 
     @Published var rootViewModel: ManageTokensViewModel? = nil
 
+    @Published var addCustomTokenCoordinator: AddCustomTokenCoordinator? = nil
+
+    private var selectedUserWalletModel: UserWalletModel?
+
     required init(
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions>
@@ -23,6 +27,7 @@ class ManageTokensCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        selectedUserWalletModel = options.userWalletModel
         let userWalletModel = options.userWalletModel
         let config = userWalletModel.config
         let adapter = ManageTokensAdapter(settings: .init(
@@ -32,12 +37,29 @@ class ManageTokensCoordinator: CoordinatorObject {
             userTokensManager: userWalletModel.userTokensManager
         ))
 
-        rootViewModel = .init(adapter: adapter)
+        rootViewModel = .init(adapter: adapter, coordinator: self)
     }
 }
 
 extension ManageTokensCoordinator {
     struct Options {
         let userWalletModel: UserWalletModel
+    }
+}
+
+extension ManageTokensCoordinator: ManageTokensRoutable {
+    func openAddCustomToken() {
+        guard let selectedUserWalletModel else {
+            return
+        }
+
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.addCustomTokenCoordinator = nil
+        }
+
+        let addCustomTokenCoordinator = AddCustomTokenCoordinator(dismissAction: dismissAction)
+        addCustomTokenCoordinator.start(with: .init(userWalletModel: selectedUserWalletModel))
+
+        self.addCustomTokenCoordinator = addCustomTokenCoordinator
     }
 }
