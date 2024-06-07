@@ -1,5 +1,5 @@
 //
-//  AddCustomTokenNetworkSelectorViewModel.swift
+//  AddCustomTokenNetworksListViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,10 +10,10 @@ import Combine
 import SwiftUI
 import BlockchainSdk
 
-final class AddCustomTokenNetworkSelectorViewModel: ObservableObject {
+final class AddCustomTokenNetworksListViewModel: ObservableObject {
     // MARK: - ViewState
 
-    @Published var itemViewModels: [AddCustomTokenNetworkSelectorItemViewModel] = []
+    @Published var itemViewModels: [AddCustomTokenNetworksListItemViewModel] = []
 
     // MARK: - Dependencies
 
@@ -21,7 +21,7 @@ final class AddCustomTokenNetworkSelectorViewModel: ObservableObject {
 
     init(selectedBlockchainNetworkId: String?, blockchains: [Blockchain]) {
         itemViewModels = blockchains.map { blockchain in
-            AddCustomTokenNetworkSelectorItemViewModel(
+            AddCustomTokenNetworksListItemViewModel(
                 networkId: blockchain.networkId,
                 iconName: blockchain.iconNameFilled,
                 networkName: blockchain.displayName,
