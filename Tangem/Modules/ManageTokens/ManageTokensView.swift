@@ -52,6 +52,18 @@ struct ManageTokensView: View {
         .scrollDismissesKeyboardCompat(.interactively)
         .keyboardType(.alphabet)
         .bindAlert($viewModel.alert)
+        .toolbar(content: {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(
+                    action: {
+                        viewModel.openAddCustomToken()
+                    }, label: {
+                        Assets.plus24.image
+                            .foregroundStyle(Colors.Icon.primary1)
+                    }
+                )
+            }
+        })
     }
 }
 
@@ -67,6 +79,6 @@ struct ManageTokensView: View {
     ))
 
     return NavigationView {
-        ManageTokensView(viewModel: .init(adapter: adapter))
+        ManageTokensView(viewModel: .init(adapter: adapter, coordinator: nil))
     }
 }
