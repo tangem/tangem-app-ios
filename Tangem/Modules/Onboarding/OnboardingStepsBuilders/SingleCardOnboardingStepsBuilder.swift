@@ -23,8 +23,7 @@ struct SingleCardOnboardingStepsBuilder {
             steps.append(.saveUserWallet)
         }
 
-        // [REDACTED_TODO_COMMENT]
-        if FeatureProvider.isAvailable(.pushNotifications) {
+        if PushNotificationsProvider.isAvailable {
             steps.append(.pushNotifications)
         }
 
