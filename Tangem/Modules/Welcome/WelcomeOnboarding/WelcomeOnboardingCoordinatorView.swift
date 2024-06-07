@@ -16,10 +16,8 @@ struct WelcomeOnboardingCoordinatorView: CoordinatorView {
     }
 
     var body: some View {
-        ZStack {
-            if let rootViewModel = coordinator.rootViewModel {
-                WelcomeOnboardingView(viewModel: rootViewModel)
-            }
+        if let rootViewModel = coordinator.rootViewModel {
+            WelcomeOnboardingView(viewModel: rootViewModel)
         }
     }
 }
