@@ -34,24 +34,32 @@ final class WelcomeOnboardingViewModel: ObservableObject {
         updateState()
     }
 
+    private func openNextStep() {
+        let nextStepIndex = currentStepIndex + 1
+
+        guard nextStepIndex < steps.count else {
+            coordinator?.dismiss()
+            return
+        }
+
+        currentStepIndex = nextStepIndex
+        updateState()
+    }
+
     private func updateState() {
         guard currentStepIndex < steps.count else {
             return
         }
 
-        viewState = steps[currentStepIndex].makeViewState(with: self)
+        viewState = makeViewState()
     }
-}
 
-// MARK: - WelcomeOnbordingStep+
-
-private extension WelcomeOnbordingStep {
-    func makeViewState(with routable: WelcomeOnboardingStepRoutable) -> WelcomeOnboardingViewModel.ViewState {
-        switch self {
+    private func makeViewState() -> WelcomeOnboardingViewModel.ViewState {
+        switch steps[currentStepIndex] {
         case .tos:
-            return .tos(TOSStepViewModel(routable: routable))
+            return .tos(WelcomeOnboardingTOSViewModel(delegate: self))
         case .pushNotifications:
-            return .pushNotifications(PushNotificationsStepViewModel(routable: routable))
+            return .pushNotifications(OnboardingPushNotificationsViewModel(delegate: self))
         }
     }
 }
@@ -60,8 +68,8 @@ private extension WelcomeOnbordingStep {
 
 extension WelcomeOnboardingViewModel {
     enum ViewState: Equatable {
-        case tos(TOSStepViewModel)
-        case pushNotifications(PushNotificationsStepViewModel)
+        case tos(WelcomeOnboardingTOSViewModel)
+        case pushNotifications(OnboardingPushNotificationsViewModel)
 
         static func == (lhs: WelcomeOnboardingViewModel.ViewState, rhs: WelcomeOnboardingViewModel.ViewState) -> Bool {
             switch (lhs, rhs) {
@@ -74,18 +82,18 @@ extension WelcomeOnboardingViewModel {
     }
 }
 
-// MARK: - WelcomeOnboardingStepRoutable
+// MARK: - OnboardingPushNotificationsDelegate
 
-extension WelcomeOnboardingViewModel: WelcomeOnboardingStepRoutable {
-    func openNextStep() {
-        let nextStepIndex = currentStepIndex + 1
+extension WelcomeOnboardingViewModel: OnboardingPushNotificationsDelegate {
+    func didFinishPushNotificationOnboarding() {
+        openNextStep()
+    }
+}
 
-        guard nextStepIndex < steps.count else {
-            coordinator?.dismiss()
-            return
-        }
+// MARK: - WelcomeOnboardingTOSDelegate
 
-        currentStepIndex = nextStepIndex
-        updateState()
+extension WelcomeOnboardingViewModel: WelcomeOnboardingTOSDelegate {
+    func didAcceptTOS() {
+        openNextStep()
     }
 }
