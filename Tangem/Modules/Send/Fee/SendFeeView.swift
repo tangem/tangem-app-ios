@@ -9,18 +9,11 @@
 import SwiftUI
 
 struct SendFeeView: View {
+    @ObservedObject var viewModel: SendFeeViewModel
     let namespace: Namespace.ID
 
-    @ObservedObject var viewModel: SendFeeViewModel
-
-    let bottomButtonsHeight: CGFloat
-
-    private var safeAreaBottomSpacing: CGFloat {
-        bottomButtonsHeight + SendCustomFeeInputField.Constants.fieldPadding + GroupedSectionConstants.footerSpacing
-    }
-
     var body: some View {
-        GroupedScrollView(spacing: 20) {
+        VStack(spacing: 20) {
             GroupedSection(viewModel.feeRowViewModels) { feeRowViewModel in
                 feeRowView(feeRowViewModel)
                     .visible(feeRowViewModel.isSelected.value || viewModel.deselectedFeeViewsVisible)
@@ -65,9 +58,6 @@ struct SendFeeView: View {
         .onDisappear(perform: viewModel.onDisappear)
         .onAppear(perform: viewModel.onAuxiliaryViewAppear)
         .onDisappear(perform: viewModel.onAuxiliaryViewDisappear)
-        .safeAreaInset(edge: .bottom, spacing: safeAreaBottomSpacing) {
-            EmptyView().frame(height: 0)
-        }
     }
 
     private func feeRowView(_ feeRowViewModel: FeeRowViewModel) -> some View {
@@ -121,6 +111,14 @@ struct SendFeeView_Previews: PreviewProvider {
     )
 
     static var previews: some View {
-        SendFeeView(namespace: namespace, viewModel: SendFeeViewModel(input: SendFeeViewModelInputMock(), notificationManager: FakeSendNotificationManager(), customFeeService: nil, walletInfo: walletInfo), bottomButtonsHeight: 0)
+        SendFeeView(
+            viewModel: SendFeeViewModel(
+                input: SendFeeViewModelInputMock(),
+                notificationManager: FakeSendNotificationManager(),
+                customFeeService: nil,
+                walletInfo: walletInfo
+            ),
+            namespace: namespace
+        )
     }
 }
