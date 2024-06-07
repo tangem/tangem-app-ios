@@ -177,6 +177,7 @@
 "custom_token_validation_error_not_found" = "請注意代幣可以被任何人創造。小心詐騙";
 "custom_token_validation_error_not_found_description" = "Be aware of adding scam tokens, they can cost nothing";
 "custom_token_validation_error_not_found_title" = "Note that tokens can be created by anyone";
+"details_buy_wallet" = "Buy Tangem Wallet";
 "details_chat" = "交談";
 "details_manage_security_access_code" = "訪問密碼";
 "details_manage_security_access_code_description" = "在掃描卡之前，您必須提交正確的訪問密碼";
