@@ -19,20 +19,7 @@ struct WelcomeOnboardingCoordinatorView: CoordinatorView {
         ZStack {
             if let rootViewModel = coordinator.rootViewModel {
                 WelcomeOnboardingView(viewModel: rootViewModel)
-                    .navigationLinks(links)
             }
-
-            sheets
         }
-    }
-
-    @ViewBuilder
-    private var links: some View {
-        EmptyView()
-    }
-
-    @ViewBuilder
-    private var sheets: some View {
-        EmptyView()
     }
 }
