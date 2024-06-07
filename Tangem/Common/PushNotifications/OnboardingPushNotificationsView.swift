@@ -22,7 +22,6 @@ struct OnboardingPushNotificationsView: View {
 
             buttons
         }
-        .background(Colors.Background.secondary)
     }
 
     private var buttons: some View {
