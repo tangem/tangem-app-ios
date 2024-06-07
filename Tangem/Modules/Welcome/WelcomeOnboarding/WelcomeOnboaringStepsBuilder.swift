@@ -12,12 +12,14 @@ struct WelcomeOnboaringStepsBuilder {
     func buildSteps() -> [WelcomeOnbordingStep] {
         var steps = [WelcomeOnbordingStep]()
 
-        //   if !AppSettings.shared.termsOfServicesAccepted.contains(AppConstants.tosURL.absoluteString) {
-        steps.append(.tos)
-        //   }
+        if !AppSettings.shared.termsOfServicesAccepted.contains(AppConstants.tosURL.absoluteString) {
+            steps.append(.tos)
+        }
 
-        // [REDACTED_TODO_COMMENT]
-        // steps.append(.pushNotifications)
+        if FeatureProvider.isAvailable(.pushNotifications) {
+            // [REDACTED_TODO_COMMENT]
+            steps.append(.pushNotifications)
+        }
 
         return steps
     }
