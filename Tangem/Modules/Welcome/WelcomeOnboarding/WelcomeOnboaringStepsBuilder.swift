@@ -16,8 +16,7 @@ struct WelcomeOnboaringStepsBuilder {
             steps.append(.tos)
         }
 
-        if FeatureProvider.isAvailable(.pushNotifications) {
-            // [REDACTED_TODO_COMMENT]
+        if PushNotificationsProvider.isAvailable {
             steps.append(.pushNotifications)
         }
 
