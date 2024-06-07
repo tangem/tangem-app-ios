@@ -30,6 +30,7 @@ class WelcomeCoordinator: CoordinatorObject {
 
     @Published var pushedOnboardingCoordinator: OnboardingCoordinator? = nil
     @Published var promotionCoordinator: PromotionCoordinator? = nil
+    @Published var welcomeOnboardingCoordinator: WelcomeOnboardingCoordinator? = nil
 
     // MARK: - Child view models
 
@@ -46,6 +47,7 @@ class WelcomeCoordinator: CoordinatorObject {
         publishers.append($mailViewModel.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($searchTokensViewModel.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($promotionCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
+        publishers.append($welcomeOnboardingCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
 
         return Publishers.MergeMany(publishers)
             .eraseToAnyPublisher()
@@ -57,8 +59,9 @@ class WelcomeCoordinator: CoordinatorObject {
     }
 
     func start(with options: WelcomeCoordinator.Options) {
-        viewState = getInitialState(options: options)
+        viewState = .welcome(WelcomeViewModel(shouldScanOnAppear: options.shouldScan, coordinator: self))
         subscribeToWelcomeLifecycle()
+        showWelcomeOnboardingIfNeeded()
     }
 
     private func subscribeToWelcomeLifecycle() {
@@ -74,23 +77,17 @@ class WelcomeCoordinator: CoordinatorObject {
             }
     }
 
-    private func getInitialState(options: WelcomeCoordinator.Options) -> ViewState {
+    private func showWelcomeOnboardingIfNeeded() {
         let builder = WelcomeOnboaringStepsBuilder()
         let steps = builder.buildSteps()
 
-        guard !steps.isEmpty else {
-            return .welcome(WelcomeViewModel(shouldScanOnAppear: options.shouldScan, coordinator: self))
-        }
-
         let dismissAction: Action<WelcomeOnboardingCoordinator.OutputOptions> = { [weak self] _ in
-            guard let self else { return }
-
-            viewState = .welcome(WelcomeViewModel(shouldScanOnAppear: false, coordinator: self))
+            self?.welcomeOnboardingCoordinator = nil
         }
 
         let coordinator = WelcomeOnboardingCoordinator(dismissAction: dismissAction)
         coordinator.start(with: .init(steps: steps))
-        return .welcomeOnboarding(coordinator)
+        welcomeOnboardingCoordinator = coordinator
     }
 }
 
@@ -139,10 +136,6 @@ extension WelcomeCoordinator: WelcomeRoutable {
     }
 
     func openTokensList() {
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.searchTokensViewModel = nil
-        }
-
         searchTokensViewModel = .init()
     }
 
@@ -162,7 +155,6 @@ extension WelcomeCoordinator {
     enum ViewState: Equatable {
         case welcome(WelcomeViewModel)
         case main(MainCoordinator)
-        case welcomeOnboarding(WelcomeOnboardingCoordinator)
 
         var isMain: Bool {
             if case .main = self {
