@@ -43,10 +43,13 @@ struct SendAmountView: View {
 
     private var amountSectionContent: some View {
         VStack(spacing: 34) {
-            walletInfoView
-                // Because the top padding have to be is 16 to the white background
-                // But the bottom padding have to be is 12
-                .padding(.top, 4)
+            if !viewModel.animatingAuxiliaryViewsOnAppear {
+                walletInfoView
+                    // Because the top padding have to be is 16 to the white background
+                    // But the bottom padding have to be is 12
+                    .padding(.top, 4)
+                    .transition(.offset(y: -100).combined(with: .opacity))
+            }
 
             amountContent
         }
