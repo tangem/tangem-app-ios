@@ -50,7 +50,8 @@ struct SendFinishView: View {
                         }
                     }
                 }
-                .backgroundColor(.clear, id: SendViewNamespaceId.destinationContainer.rawValue, namespace: namespace)
+                .backgroundColor(.clear)
+                .geometryEffect(.init(id: SendViewNamespaceId.destinationContainer.rawValue, namespace: namespace))
                 .horizontalPadding(0)
                 .separatorStyle(.single)
 
@@ -62,7 +63,8 @@ struct SendFinishView: View {
                         .setAmountFiatNamespaceId(SendViewNamespaceId.amountFiatText.rawValue)
                 }
                 .innerContentPadding(0)
-                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace)
+                .backgroundColor(Colors.Background.action)
+                .geometryEffect(.init(id: SendViewNamespaceId.amountContainer.rawValue, namespace: namespace))
 
                 GroupedSection(viewModel.feeSummaryViewData) { data in
                     SendFeeSummaryView(data: data)
@@ -71,7 +73,8 @@ struct SendFinishView: View {
                         .setOptionNamespaceId(SendViewNamespaceId.feeOption(feeOption: .market).rawValue)
                         .setAmountNamespaceId(SendViewNamespaceId.feeAmount(feeOption: .market).rawValue)
                 }
-                .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
+                .backgroundColor(Colors.Background.action)
+                .geometryEffect(.init(id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace))
 
                 FixedSpacer(height: bottomSpacing)
             }
