@@ -16,10 +16,6 @@ struct WelcomeCoordinatorView: CoordinatorView {
         ZStack {
             content
             sheets
-
-            if let welcomeOnboardingCoordinator = coordinator.welcomeOnboardingCoordinator {
-                WelcomeOnboardingCoordinatorView(coordinator: welcomeOnboardingCoordinator)
-            }
         }
         .navigationBarHidden(coordinator.isNavigationBarHidden)
         .animation(.default, value: coordinator.viewState)
@@ -33,6 +29,8 @@ struct WelcomeCoordinatorView: CoordinatorView {
                 .navigationLinks(links)
         case .main(let mainCoordinator):
             MainCoordinatorView(coordinator: mainCoordinator)
+        case .welcomeOnboarding(let welcomeOnboardingCoordinator):
+            WelcomeOnboardingCoordinatorView(coordinator: welcomeOnboardingCoordinator)
         case .none:
             EmptyView()
         }

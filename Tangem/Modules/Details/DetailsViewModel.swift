@@ -136,12 +136,8 @@ extension DetailsViewModel {
         ))
     }
 
-    func openDisclaimer() {
-        guard let tos = selectedUserWalletModel?.config.tou.url else {
-            return
-        }
-
-        coordinator?.openDisclaimer(url: tos)
+    func openTOS() {
+        coordinator?.openTOS()
     }
 
     func openSocialNetwork(network: SocialNetwork) {
@@ -263,7 +259,7 @@ private extension DetailsViewModel {
             ),
             DefaultRowViewModel(
                 title: Localization.disclaimerTitle,
-                action: weakify(self, forFunction: DetailsViewModel.openDisclaimer)
+                action: weakify(self, forFunction: DetailsViewModel.openTOS)
             ),
         ]
     }
