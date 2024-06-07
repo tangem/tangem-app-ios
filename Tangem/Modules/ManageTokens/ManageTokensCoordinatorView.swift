@@ -23,5 +23,8 @@ struct ManageTokensCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
+            .sheet(item: $coordinator.addCustomTokenCoordinator, content: {
+                AddCustomTokenCoordinatorView(coordinator: $0)
+            })
     }
 }
