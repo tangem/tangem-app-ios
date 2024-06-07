@@ -6791,7 +6791,7 @@
 		DC2AB6D02C08CF110050796C /* WelcomeOnboarding */ = {
 			isa = PBXGroup;
 			children = (
-				DC2AB6DF2C08D98A0050796C /* Steps */,
+				DC2AB6E82C08DA050050796C /* TOS */,
 				DC2AB6DD2C08CF8F0050796C /* WelcomeOnbordingStep.swift */,
 				DC2AB6EC2C08DF730050796C /* WelcomeOnboardingStepRoutable.swift */,
 				DC2AB6D12C08CF360050796C /* WelcomeOnboaringStepsBuilder.swift */,
@@ -6802,14 +6802,6 @@
 				DC2AB6D72C08CF6C0050796C /* WelcomeOnboardingRoutable.swift */,
 			);
 			path = WelcomeOnboarding;
-			sourceTree = "<group>";
-		};
-		DC2AB6DF2C08D98A0050796C /* Steps */ = {
-			isa = PBXGroup;
-			children = (
-				DC2AB6E82C08DA050050796C /* TOS */,
-			);
-			path = Steps;
 			sourceTree = "<group>";
 		};
 		DC2AB6E82C08DA050050796C /* TOS */ = {
