@@ -8,6 +8,6 @@
 
 import Foundation
 
-class WelcomeOnboardingStepRoutableStub: WelcomeOnboardingStepRoutable {
-    func openNextStep() {}
+class WelcomeOnboardingTOSDelegateStub: WelcomeOnboardingTOSDelegate {
+    func didAcceptTOS() {}
 }
