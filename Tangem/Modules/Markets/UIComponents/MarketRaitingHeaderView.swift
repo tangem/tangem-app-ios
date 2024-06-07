@@ -1,5 +1,5 @@
 //
-//  MarketRaitingHeaderView.swift
+//  MarketsRaitingHeaderView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,11 +8,21 @@
 
 import SwiftUI
 
-struct MarketRaitingHeaderView: View {
+struct MarketsRaitingHeaderView: View {
     @ObservedObject var viewModel: MarketRaitingHeaderViewModel
 
     var body: some View {
         HStack {
+            orderButtonView
+
+            Spacer()
+
+            timeIntervalPicker
+        }
+    }
+
+    private var orderButtonView: some View {
+        VStack {
             Button {
                 viewModel.onOrderActionButtonDidTap()
             } label: {
@@ -31,17 +41,17 @@ struct MarketRaitingHeaderView: View {
                         .fill(Colors.Background.secondary)
                 )
             }
+        }
+    }
 
-            Spacer()
-
+    private var timeIntervalPicker: some View {
+        VStack {
             Picker("", selection: $viewModel.marketPriceIntervalType) {
-                ForEach(MarketsPriceIntervalType.allCases, id: \.self) {
-                    Text($0.rawValue)
-                        .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                ForEach(viewModel.marketPriceIntervalTypeOptions) {
+                    Text($0.description)
                 }
             }
             .pickerStyle(.segmented)
-            .frame(width: 152)
         }
     }
 }
