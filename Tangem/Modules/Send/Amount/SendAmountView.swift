@@ -9,14 +9,11 @@
 import SwiftUI
 
 struct SendAmountView: View {
+    @ObservedObject var viewModel: SendAmountViewModel
     let namespace: Namespace.ID
 
-    @ObservedObject var viewModel: SendAmountViewModel
-
-    private let iconSize = CGSize(bothDimensions: 36)
-
     var body: some View {
-        GroupedScrollView(spacing: 14) {
+        VStack(spacing: 14) {
             amountSectionContent
 
             if !viewModel.animatingAuxiliaryViewsOnAppear {
@@ -139,6 +136,6 @@ struct SendAmountView_Previews: PreviewProvider {
     )
 
     static var previews: some View {
-        SendAmountView(namespace: namespace, viewModel: viewModel)
+        SendAmountView(viewModel: viewModel, namespace: namespace)
     }
 }
