@@ -22,20 +22,8 @@ struct SendFeeView: View {
     var body: some View {
         GroupedScrollView(spacing: 20) {
             GroupedSection(viewModel.feeRowViewModels) { feeRowViewModel in
-                Group {
-                    if feeRowViewModel.isSelected.value {
-                        feeRowView(feeRowViewModel)
-                            .overlay(alignment: .topLeading) {
-                                Text(Localization.commonNetworkFeeTitle)
-                                    .font(Fonts.Regular.footnote)
-                                    .visible(false)
-                                    .matchedGeometryEffect(id: SendViewNamespaceId.feeTitle.rawValue, in: namespace)
-                            }
-                    } else {
-                        feeRowView(feeRowViewModel)
-                            .visible(viewModel.deselectedFeeViewsVisible)
-                    }
-                }
+                feeRowView(feeRowViewModel)
+                    .visible(feeRowViewModel.isSelected.value || viewModel.deselectedFeeViewsVisible)
             } footer: {
                 if !viewModel.animatingAuxiliaryViewsOnAppear {
                     feeSelectorFooter
