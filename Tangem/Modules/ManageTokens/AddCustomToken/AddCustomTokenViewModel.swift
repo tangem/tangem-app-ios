@@ -13,10 +13,7 @@ import TangemSdk
 import struct TangemSdk.DerivationPath
 
 final class AddCustomTokenViewModel: ObservableObject, Identifiable {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
-
-    @Published var selectedWalletName = ""
 
     @Published var selectedBlockchainNetworkId: String?
     @Published var selectedBlockchainName: String = ""
@@ -26,7 +23,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     @Published var contractAddress = ""
     @Published var decimals = ""
 
-    @Published var error: AlertBinder?
+    @Published var alert: AlertBinder?
 
     @Published var addButtonDisabled = false
     @Published var isLoading = false
@@ -35,6 +32,8 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     @Published var decimalsError: Error?
 
     @Published var notificationInput: NotificationViewInput?
+
+    let networkSelectorViewModel: AddCustomTokenNetworksListViewModel
 
     var selectedBlockchainSupportsTokens: Bool {
         let blockchain = try? enteredBlockchain()
@@ -45,8 +44,6 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         settings.hdWalletsSupported && selectedBlockchainNetworkId != nil
     }
 
-    let canSelectWallet: Bool
-
     private(set) var selectedDerivationOption: AddCustomTokenDerivationOption?
 
     private var derivationPathByBlockchainName: [String: DerivationPath] = [:]
@@ -55,23 +52,24 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     private var settings: ManageTokensSettings
     private var userWalletModel: UserWalletModel
     private var bag: Set<AnyCancellable> = []
-    private let dataSource: ManageTokensNetworkDataSource
 
     private weak var coordinator: AddCustomTokenRoutable?
 
     init(
+        settings: ManageTokensSettings,
         userWalletModel: UserWalletModel,
-        dataSource: MarketsDataSource,
         coordinator: AddCustomTokenRoutable
     ) {
-        let networkDataSource = ManageTokensNetworkDataSource(dataSource)
-
-        settings = Self.makeSettings(userWalletModel: userWalletModel)
+        self.settings = settings
         self.coordinator = coordinator
-        self.dataSource = networkDataSource
         self.userWalletModel = userWalletModel
-        canSelectWallet = networkDataSource.userWalletModels.count > 1
-        selectedWalletName = userWalletModel.name
+
+        networkSelectorViewModel = .init(
+            selectedBlockchainNetworkId: nil,
+            blockchains: settings.supportedBlockchains
+        )
+
+        networkSelectorViewModel.delegate = self
 
         bind()
     }
@@ -86,41 +84,31 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     func createToken() {
         UIApplication.shared.endEditing()
 
-        let tokenItem: TokenItem
         do {
-            tokenItem = try enteredTokenItem()
-
+            let tokenItem = try enteredTokenItem()
             try checkLocalStorage()
 
-            try userWalletModel.userTokensManager.addTokenItemPrecondition(tokenItem)
-            try userWalletModel.userTokensManager.update(itemsToRemove: [], itemsToAdd: [tokenItem])
+            let tokensManager = userWalletModel.userTokensManager
+
+            try tokensManager.addTokenItemPrecondition(tokenItem)
+            tokensManager.add(tokenItem) { [weak self] result in
+                guard let self else { return }
+
+                switch result {
+                case .success:
+                    logSuccess(tokenItem: tokenItem)
+                    coordinator?.dismiss()
+                case .failure(let error):
+                    if error.isUserCancelled {
+                        return
+                    }
+
+                    alert = error.alertBinder
+                }
+            }
         } catch {
-            self.error = error.alertBinder
-            return
+            alert = error.alertBinder
         }
-
-        logSuccess(tokenItem: tokenItem)
-
-        closeModule()
-    }
-
-    func didTapWalletSelector() {
-        coordinator?.openWalletSelector(with: dataSource)
-    }
-
-    func setSelectedWallet(userWalletModel: UserWalletModel) {
-        selectedWalletName = userWalletModel.name
-        settings = Self.makeSettings(userWalletModel: userWalletModel)
-
-        updateDefaultDerivationOption()
-        validate()
-    }
-
-    func didTapNetworkSelector() {
-        coordinator?.openNetworkSelector(
-            selectedBlockchainNetworkId: selectedBlockchainNetworkId,
-            blockchains: settings.supportedBlockchains
-        )
     }
 
     func setSelectedNetwork(networkId: String) {
@@ -137,28 +125,6 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
 
         updateDefaultDerivationOption()
         validate()
-    }
-
-    func didTapDerivationSelector() {
-        guard
-            let selectedDerivationOption,
-            let selectedBlockchain = try? enteredBlockchain(),
-            let derivationStyle = settings.derivationStyle,
-            let defaultDerivationPath = selectedBlockchain.derivationPath(for: derivationStyle)
-        else {
-            return
-        }
-
-        let blockchainDerivationOptions: [AddCustomTokenDerivationOption] = settings.supportedBlockchains.compactMap {
-            guard let derivationPath = $0.derivationPath(for: derivationStyle) else { return nil }
-            return AddCustomTokenDerivationOption.blockchain(name: $0.displayName, derivationPath: derivationPath)
-        }
-
-        coordinator?.openDerivationSelector(
-            selectedDerivationOption: selectedDerivationOption,
-            defaultDerivationPath: defaultDerivationPath,
-            blockchainDerivationOptions: blockchainDerivationOptions
-        )
     }
 
     func setSelectedDerivationOption(derivationOption: AddCustomTokenDerivationOption) {
@@ -188,22 +154,6 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     // MARK: - Private Implementation
 
     private func bind() {
-        dataSource
-            .selectedUserWalletModelPublisher
-            .sink { [weak self] userWalletId in
-                guard
-                    let self,
-                    let userWalletModel = dataSource.userWalletModels.first(where: { $0.userWalletId == userWalletId })
-                else {
-                    return
-                }
-
-                self.userWalletModel = userWalletModel
-                setSelectedWallet(userWalletModel: userWalletModel)
-                coordinator?.closeWalletSelector()
-            }
-            .store(in: &bag)
-
         $contractAddress
             .removeDuplicates()
             .dropFirst()
@@ -254,19 +204,6 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             self?.validate()
         }
         .store(in: &bag)
-    }
-
-    private static func makeSettings(userWalletModel: UserWalletModel) -> ManageTokensSettings {
-        let supportedBlockchains =
-            Array(userWalletModel.config.supportedBlockchains)
-                .filter { $0.curve.supportsDerivation && $0 != .ducatus }
-                .sorted(by: \.displayName)
-
-        return ManageTokensSettings(
-            supportedBlockchains: supportedBlockchains,
-            hdWalletsSupported: userWalletModel.config.hasFeature(.hdWallets),
-            derivationStyle: userWalletModel.config.derivationStyle
-        )
     }
 
     private func enteredTokenItem() throws -> TokenItem {
@@ -481,11 +418,44 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     }
 }
 
+// MARK: Network selector delegate
+
+extension AddCustomTokenViewModel: AddCustomTokenNetworkSelectorDelegate {
+    func didSelectNetwork(networkId: String) {
+        setSelectedNetwork(networkId: networkId)
+    }
+}
+
 // MARK: - Navigation
 
 extension AddCustomTokenViewModel {
-    func closeModule() {
-        coordinator?.dismiss()
+    func openNetworkSelector() {
+        coordinator?.openNetworkSelector(
+            selectedBlockchainNetworkId: selectedBlockchainNetworkId,
+            blockchains: settings.supportedBlockchains
+        )
+    }
+
+    func openDerivationSelector() {
+        guard
+            let selectedDerivationOption,
+            let selectedBlockchain = try? enteredBlockchain(),
+            let derivationStyle = settings.derivationStyle,
+            let defaultDerivationPath = selectedBlockchain.derivationPath(for: derivationStyle)
+        else {
+            return
+        }
+
+        let blockchainDerivationOptions: [AddCustomTokenDerivationOption] = settings.supportedBlockchains.compactMap {
+            guard let derivationPath = $0.derivationPath(for: derivationStyle) else { return nil }
+            return AddCustomTokenDerivationOption.blockchain(name: $0.displayName, derivationPath: derivationPath)
+        }
+
+        coordinator?.openDerivationSelector(
+            selectedDerivationOption: selectedDerivationOption,
+            defaultDerivationPath: defaultDerivationPath,
+            blockchainDerivationOptions: blockchainDerivationOptions
+        )
     }
 }
 
@@ -575,7 +545,7 @@ private extension AddCustomTokenViewModel {
 
 // MARK: - Settings
 
-private extension AddCustomTokenViewModel {
+extension AddCustomTokenViewModel {
     struct ManageTokensSettings {
         let supportedBlockchains: [Blockchain]
         let hdWalletsSupported: Bool
