@@ -16,6 +16,7 @@ struct WelcomeCoordinatorView: CoordinatorView {
         ZStack {
             content
             sheets
+            welcomeOnboarding
         }
         .navigationBarHidden(coordinator.isNavigationBarHidden)
         .animation(.default, value: coordinator.viewState)
@@ -29,8 +30,6 @@ struct WelcomeCoordinatorView: CoordinatorView {
                 .navigationLinks(links)
         case .main(let mainCoordinator):
             MainCoordinatorView(coordinator: mainCoordinator)
-        case .welcomeOnboarding(let welcomeOnboardingCoordinator):
-            WelcomeOnboardingCoordinatorView(coordinator: welcomeOnboardingCoordinator)
         case .none:
             EmptyView()
         }
@@ -56,5 +55,12 @@ struct WelcomeCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.mailViewModel) {
                 MailView(viewModel: $0)
             }
+    }
+
+    @ViewBuilder
+    private var welcomeOnboarding: some View {
+        if let welcomeOnboardingCoordinator = coordinator.welcomeOnboardingCoordinator {
+            WelcomeOnboardingCoordinatorView(coordinator: welcomeOnboardingCoordinator)
+        }
     }
 }
