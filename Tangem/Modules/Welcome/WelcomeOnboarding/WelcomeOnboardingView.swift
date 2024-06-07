@@ -17,7 +17,8 @@ struct WelcomeOnboardingView: View {
 
     var body: some View {
         content
-            .transition(.opacity.animation(.linear(duration: 0.3)))
+            .background(.regularMaterial)
+            .transition(.opacity)
             .environment(\.colorScheme, .dark)
     }
 
