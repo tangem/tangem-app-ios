@@ -10,20 +10,21 @@ import Foundation
 import TangemSdk
 
 struct VisaOnboardingStepsBuilder {
-    private let touId: String
+    private var otherSteps: [SingleCardOnboardingStep] {
+        var steps: [SingleCardOnboardingStep] = []
 
-    private var userWalletSavingSteps: [SingleCardOnboardingStep] {
-        guard BiometricsUtil.isAvailable,
-              !AppSettings.shared.saveUserWallets,
-              !AppSettings.shared.askedToSaveUserWallets else {
-            return []
+        if BiometricsUtil.isAvailable,
+           !AppSettings.shared.saveUserWallets,
+           !AppSettings.shared.askedToSaveUserWallets {
+            steps.append(.saveUserWallet)
         }
 
-        return [.saveUserWallet]
-    }
+        // [REDACTED_TODO_COMMENT]
+        if FeatureProvider.isAvailable(.pushNotifications) {
+            steps.append(.pushNotifications)
+        }
 
-    init(touId: String) {
-        self.touId = touId
+        return steps
     }
 }
 
@@ -31,10 +32,7 @@ extension VisaOnboardingStepsBuilder: OnboardingStepsBuilder {
     func buildOnboardingSteps() -> OnboardingSteps {
         var steps = [SingleCardOnboardingStep]()
 
-        if !AppSettings.shared.termsOfServicesAccepted.contains(touId) {
-            steps.append(.disclaimer)
-        }
-        steps.append(contentsOf: userWalletSavingSteps)
+        steps.append(contentsOf: otherSteps)
 
         return .singleWallet(steps)
     }
