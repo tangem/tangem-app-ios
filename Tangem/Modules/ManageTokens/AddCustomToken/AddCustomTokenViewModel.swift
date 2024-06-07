@@ -334,8 +334,9 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     }
 
     private func enteredContractAddress(in blockchain: Blockchain) throws -> String {
-        if case .binance = blockchain, !contractAddress.trimmed().isEmpty {
-            return contractAddress // skip validation for binance
+        if blockchain.skipValidation, // skip validation for binance and cardano
+           !contractAddress.trimmed().isEmpty {
+            return contractAddress
         }
 
         let addressService = AddressServiceFactory(blockchain: blockchain).makeAddressService()
@@ -600,6 +601,15 @@ private extension Blockchain {
             return false
         default:
             return canHandleTokens
+        }
+    }
+
+    var skipValidation: Bool {
+        switch self {
+        case .binance, .cardano:
+            return true
+        default:
+            return false
         }
     }
 }
