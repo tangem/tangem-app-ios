@@ -34,6 +34,11 @@ class MarketsListDataFilterProvider {
         MarketsListOrderType.allCases
     }
 
+    // This is necessary to determine the supported values in case of expansion
+    var supportedPriceIntervalTypes: [MarketsPriceIntervalType] {
+        MarketsPriceIntervalType.allCases
+    }
+
     // Since the sorting selection is made in a separate screen, a closure is required
     var onUpdateOrderAction: (() -> Void)?
 }
