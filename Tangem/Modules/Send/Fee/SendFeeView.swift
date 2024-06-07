@@ -47,7 +47,8 @@ struct SendFeeView: View {
                         .transition(SendView.Constants.auxiliaryViewTransition(for: .fee))
                 }
             }
-            .backgroundColor(Colors.Background.action, id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace)
+            .backgroundColor(Colors.Background.action)
+            .geometryEffect(.init(id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace))
             .separatorStyle(.none)
 
             if !viewModel.animatingAuxiliaryViewsOnAppear {
