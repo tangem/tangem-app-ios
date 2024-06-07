@@ -9,17 +9,14 @@
 import SwiftUI
 
 struct SendSummaryView: View {
-    let namespace: Namespace.ID
-
     @ObservedObject var viewModel: SendSummaryViewModel
-
-    let bottomSpacing: CGFloat
+    let namespace: Namespace.ID
 
     private let spacing: CGFloat = 14
 
     var body: some View {
         VStack(spacing: 14) {
-            GroupedScrollView(spacing: 0) {
+            VStack(spacing: 0) {
                 if !viewModel.animatingDestinationOnAppear {
                     GroupedSection(viewModel.destinationViewTypes) { type in
                         switch type {
@@ -123,6 +120,7 @@ struct SendSummaryView: View {
                 }
             }
 
+            // [REDACTED_TODO_COMMENT]
             if let transactionDescription = viewModel.transactionDescription {
                 Text(.init(transactionDescription))
                     .style(Fonts.Regular.caption1, color: Colors.Text.primary1)
@@ -130,8 +128,6 @@ struct SendSummaryView: View {
                     .padding(.horizontal, 16)
                     .visible(viewModel.showTransactionDescription)
             }
-
-            FixedSpacer(height: bottomSpacing)
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         .alert(item: $viewModel.alert) { $0.alert }
@@ -203,6 +199,6 @@ struct SendSummaryView_Previews: PreviewProvider {
     )
 
     static var previews: some View {
-        SendSummaryView(namespace: namespace, viewModel: viewModel, bottomSpacing: 0)
+        SendSummaryView(viewModel: viewModel, namespace: namespace)
     }
 }
