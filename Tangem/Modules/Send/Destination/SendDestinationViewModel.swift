@@ -11,6 +11,19 @@ import SwiftUI
 import Combine
 import BlockchainSdk
 
+struct TransactionBuildingDestinationInput {
+    let predefinedDestination: String?
+}
+
+protocol TransactionBuildingDestinationOutput {}
+
+enum TransactionBuildingStep {
+    case destination(
+        input: TransactionBuildingDestinationInput,
+        output: TransactionBuildingDestinationOutput
+    )
+}
+
 protocol SendDestinationViewModelInput {
     var destinationValid: AnyPublisher<Bool, Never> { get }
 
