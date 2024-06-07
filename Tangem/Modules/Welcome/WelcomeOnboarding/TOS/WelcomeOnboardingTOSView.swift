@@ -13,9 +13,7 @@ struct WelcomeOnboardingTOSView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            NavigationView {
-                TOSView(viewModel: .init())
-            }
+            TOSView(viewModel: .init())
 
             MainButton(
                 title: Localization.commonAccept,
@@ -25,7 +23,6 @@ struct WelcomeOnboardingTOSView: View {
             .padding(.horizontal, 16)
             .padding(.bottom, 8)
         }
-        .background(Colors.Background.secondary)
     }
 }
 
