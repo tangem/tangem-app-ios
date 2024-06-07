@@ -18,11 +18,13 @@ class ManageTokensViewModel: ObservableObject {
     @Published var alert: AlertBinder?
 
     private let adapter: ManageTokensAdapter
+    private weak var coordinator: ManageTokensRoutable?
 
     private var bag = Set<AnyCancellable>()
 
-    init(adapter: ManageTokensAdapter) {
+    init(adapter: ManageTokensAdapter, coordinator: ManageTokensRoutable?) {
         self.adapter = adapter
+        self.coordinator = coordinator
 
         manageTokensListViewModel = .init(
             loader: self,
@@ -42,6 +44,11 @@ class ManageTokensViewModel: ObservableObject {
             switch result {
             case .success:
                 adapter.resetAdapter()
+                Toast(view: SuccessToast(text: Localization.manageTokensToastPortfolioUpdated))
+                    .present(
+                        layout: .top(padding: 20),
+                        type: .temporary()
+                    )
             case .failure(let failure):
                 if failure.isUserCancelled {
                     return
@@ -84,5 +91,13 @@ extension ManageTokensViewModel: ManageTokensListLoader {
 
     func fetch() {
         adapter.fetch(searchText)
+    }
+}
+
+// MARK: - Navigation
+
+extension ManageTokensViewModel {
+    func openAddCustomToken() {
+        coordinator?.openAddCustomToken()
     }
 }
