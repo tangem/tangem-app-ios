@@ -83,11 +83,11 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
                 .padding(.vertical, innerContentPadding)
                 .background(
                     backgroundColor
-                        .cornerRadiusContinuous(GroupedSectionConstants.defaultCornerRadius)
                         .modifier(ifLet: geometryEffect) {
                             $0.matchedGeometryEffect(id: $1.id, in: $1.namespace, isSource: $1.isSource)
                         }
                 )
+                .cornerRadiusContinuous(GroupedSectionConstants.defaultCornerRadius)
 
                 footer()
                     .padding(.horizontal, horizontalPadding)
