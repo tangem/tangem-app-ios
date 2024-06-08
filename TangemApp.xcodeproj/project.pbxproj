@@ -1278,6 +1278,8 @@
 		EF6EDD84296C0EA9001B21A3 /* IncomingActionParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD83296C0EA9001B21A3 /* IncomingActionParser.swift */; };
 		EF6EDD8C296D6B51001B21A3 /* SendDecimalNumberTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD8B296D6B51001B21A3 /* SendDecimalNumberTextField.swift */; };
 		EF7000812A94BE7300C56E8A /* CardanoWalletManagerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7000802A94BE7300C56E8A /* CardanoWalletManagerFactory.swift */; };
+		EF70A3FD2C147C9100805D9F /* TransactionBuildingFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF70A3FC2C147C9100805D9F /* TransactionBuildingFactory.swift */; };
+		EF70A3FF2C147F6000805D9F /* TransactionBuildingStepsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF70A3FE2C147F6000805D9F /* TransactionBuildingStepsBuilder.swift */; };
 		EF729B492AF1091900D80205 /* ExpressFeeSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B442AF1091900D80205 /* ExpressFeeSelectorView.swift */; };
 		EF729B4A2AF1091900D80205 /* ExpressFeeSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B452AF1091900D80205 /* ExpressFeeSelectorViewModel.swift */; };
 		EF729B4B2AF1091900D80205 /* ExpressFeeSelectorRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B462AF1091900D80205 /* ExpressFeeSelectorRoutable.swift */; };
@@ -2993,6 +2995,8 @@
 		EF6EDD88296D4DE1001B21A3 /* TangemAlpha.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = TangemAlpha.entitlements; sourceTree = "<group>"; };
 		EF6EDD8B296D6B51001B21A3 /* SendDecimalNumberTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDecimalNumberTextField.swift; sourceTree = "<group>"; };
 		EF7000802A94BE7300C56E8A /* CardanoWalletManagerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoWalletManagerFactory.swift; sourceTree = "<group>"; };
+		EF70A3FC2C147C9100805D9F /* TransactionBuildingFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionBuildingFactory.swift; sourceTree = "<group>"; };
+		EF70A3FE2C147F6000805D9F /* TransactionBuildingStepsBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionBuildingStepsBuilder.swift; sourceTree = "<group>"; };
 		EF729B3F2AEFC1DA00D80205 /* DebouncedCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebouncedCollector.swift; sourceTree = "<group>"; };
 		EF729B442AF1091900D80205 /* ExpressFeeSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressFeeSelectorView.swift; sourceTree = "<group>"; };
 		EF729B452AF1091900D80205 /* ExpressFeeSelectorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressFeeSelectorViewModel.swift; sourceTree = "<group>"; };
@@ -7576,6 +7580,15 @@
 			path = SendDecimalNumberTextField;
 			sourceTree = "<group>";
 		};
+		EF70A3FB2C147C6F00805D9F /* TransactionBuildingFactories */ = {
+			isa = PBXGroup;
+			children = (
+				EF70A3FC2C147C9100805D9F /* TransactionBuildingFactory.swift */,
+				EF70A3FE2C147F6000805D9F /* TransactionBuildingStepsBuilder.swift */,
+			);
+			path = TransactionBuildingFactories;
+			sourceTree = "<group>";
+		};
 		EF729B412AF108E200D80205 /* ExpressFeeSelector */ = {
 			isa = PBXGroup;
 			children = (
@@ -7820,6 +7833,7 @@
 		EF9241302934C22300C28551 /* Factories */ = {
 			isa = PBXGroup;
 			children = (
+				EF70A3FB2C147C6F00805D9F /* TransactionBuildingFactories */,
 				DCBAF6972A4AEEC90029480A /* WalletManagers */,
 				DC3DCAD52A40AA3200F72554 /* WalletModels */,
 				DC064F8429E4105E008C3315 /* TangemSdkFactories */,
@@ -9481,6 +9495,7 @@
 				DA4333322B5A5B880058D467 /* QRScanViewModel.swift in Sources */,
 				EF46621C2924DEEE00346B6C /* DefaultFooterView.swift in Sources */,
 				5D79D3152555ABE700650DD7 /* CardImageLoader.swift in Sources */,
+				EF70A3FF2C147F6000805D9F /* TransactionBuildingStepsBuilder.swift in Sources */,
 				DA11F9842B2978CC0075F028 /* SendCustomFeeInputField.swift in Sources */,
 				2DC5677B2B0E047700B0244F /* MainBottomSheetHeaderInputView.swift in Sources */,
 				EF92412F2934BB8000C28551 /* MainButton.swift in Sources */,
@@ -10565,6 +10580,7 @@
 				2DBE29C42B3C4A8100109D5E /* View+DetentBottomSheet.swift in Sources */,
 				EF1E17682BF672AC000364AE /* DefaultTextFieldRowView.swift in Sources */,
 				B0F318F92A7393FA009F131E /* WalletStubs.swift in Sources */,
+				EF70A3FD2C147C9100805D9F /* TransactionBuildingFactory.swift in Sources */,
 				B00307042AF0E1BA00C13BCA /* Analytics+WalletConnectDebugEvent.swift in Sources */,
 				B0431B47291A905A00F84DEF /* RoundedBackgroundModifier.swift in Sources */,
 				B6FB04EB2B1FF022000BB59E /* StatusBarStyleConfigurator+Environment.swift in Sources */,
