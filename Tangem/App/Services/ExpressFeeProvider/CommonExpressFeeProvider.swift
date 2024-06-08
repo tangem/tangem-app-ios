@@ -82,14 +82,11 @@ private extension CommonExpressFeeProvider {
         }
 
         let gasLimit = parameters.gasLimit * BigUInt(112) / BigUInt(100)
-        let feeParameters = EthereumFeeParameters(
-            gasLimit: gasLimit,
-            maxFeePerGas: parameters.maxFeePerGas,
-            priorityFee: parameters.priorityFee
-        )
-        let feeValue = feeParameters.caclulateFee(decimalValue: wallet.tokenItem.blockchain.decimalValue)
-        let amount = Amount(with: wallet.tokenItem.blockchain, value: feeValue)
-        return Fee(amount, parameters: feeParameters)
+        let feeValue = gasLimit * parameters.gasPrice
+        let feeValueDecimal = (feeValue.decimal ?? Decimal(Int(feeValue)))
+        let fee = feeValueDecimal / wallet.tokenItem.blockchain.decimalValue
+        let amount = Amount(with: wallet.tokenItem.blockchain, value: fee)
+        return Fee(amount, parameters: EthereumFeeParameters(gasLimit: gasLimit, gasPrice: parameters.gasPrice))
     }
 }
 
