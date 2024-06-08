@@ -21,22 +21,18 @@ protocol AuxiliaryViewAnimatable: AnyObject {
 extension AuxiliaryViewAnimatable {
     func onAuxiliaryViewAppear() {
         didProperlyDisappear = false
-        print(#function, "\(self) ->>", "set didProperlyDisappear true")
         if animatingAuxiliaryViewsOnAppear {
             withAnimation(SendView.Constants.defaultAnimation) {
-                print(#function, "\(self) ->>", "set withAnimation animatingAuxiliaryViewsOnAppear false")
                 animatingAuxiliaryViewsOnAppear = false
             }
         }
     }
 
     func onAuxiliaryViewDisappear() {
-        print(#function, "\(self) ->>", "set didProperlyDisappear true")
         didProperlyDisappear = true
     }
 
     func setAnimatingAuxiliaryViewsOnAppear() {
-        print(#function, "\(self) ->>", "set animatingAuxiliaryViewsOnAppear = didProperlyDisappear = \(didProperlyDisappear)")
         animatingAuxiliaryViewsOnAppear = didProperlyDisappear
     }
 }
