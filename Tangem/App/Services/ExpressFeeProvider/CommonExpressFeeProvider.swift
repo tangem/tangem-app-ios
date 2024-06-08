@@ -28,22 +28,7 @@ extension CommonExpressFeeProvider: ExpressFeeProvider {
 
     func estimatedFee(amount: Decimal) async throws -> ExpressFee {
         let amount = makeAmount(amount: amount)
-        var fees = try await wallet.estimatedFee(amount: amount).async()
-
-        // For EVM networks we've decided increase gas limit for estimatedFee just in case
-        fees = fees.map { fee in
-            guard let parameters = fee.parameters as? EthereumFeeParameters else {
-                return fee
-            }
-
-            let gasLimit = parameters.gasLimit * BigUInt(112) / BigUInt(100)
-            let feeValue = gasLimit * parameters.gasPrice
-            let feeValueDecimal = (feeValue.decimal ?? Decimal(Int(feeValue)))
-            let fee = feeValueDecimal / wallet.tokenItem.blockchain.decimalValue
-            let amount = Amount(with: wallet.tokenItem.blockchain, value: fee)
-            return Fee(amount, parameters: EthereumFeeParameters(gasLimit: gasLimit, gasPrice: parameters.gasPrice))
-        }
-
+        let fees = try await wallet.estimatedFee(amount: amount).async()
         return try mapToExpressFee(fees: fees)
     }
 
@@ -52,11 +37,14 @@ extension CommonExpressFeeProvider: ExpressFeeProvider {
 
         // If EVM network we should pass data in the fee calculation
         if let ethereumNetworkProvider = wallet.ethereumNetworkProvider, let hexData {
-            let fees = try await ethereumNetworkProvider.getFee(
+            var fees = try await ethereumNetworkProvider.getFee(
                 destination: destination,
                 value: amount.encodedForSend,
                 data: hexData
             ).async()
+
+            // For EVM networks increase gas limit
+            fees = fees.map { increaseGasLimit(fee: $0) }
 
             return try mapToExpressFee(fees: fees)
         }
@@ -86,6 +74,22 @@ private extension CommonExpressFeeProvider {
         default:
             throw ExpressFeeProviderError.feeNotFound
         }
+    }
+
+    func increaseGasLimit(fee: Fee) -> Fee {
+        guard let parameters = fee.parameters as? EthereumFeeParameters else {
+            return fee
+        }
+
+        let gasLimit = parameters.gasLimit * BigUInt(112) / BigUInt(100)
+        let feeParameters = EthereumFeeParameters(
+            gasLimit: gasLimit,
+            maxFeePerGas: parameters.maxFeePerGas,
+            priorityFee: parameters.priorityFee
+        )
+        let feeValue = feeParameters.caclulateFee(decimalValue: wallet.tokenItem.blockchain.decimalValue)
+        let amount = Amount(with: wallet.tokenItem.blockchain, value: feeValue)
+        return Fee(amount, parameters: feeParameters)
     }
 }
 
