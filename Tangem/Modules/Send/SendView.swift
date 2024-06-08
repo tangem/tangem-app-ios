@@ -33,12 +33,12 @@ struct SendView: View {
         }
         .background(backgroundColor.ignoresSafeArea())
         .animation(Constants.defaultAnimation, value: viewModel.step)
-        .animation(Constants.defaultAnimation, value: viewModel.showTransactionButtons)
         .interactiveDismissDisabled(viewModel.shouldShowDismissAlert)
         .scrollDismissesKeyboardCompat(.immediately)
         .alert(item: $viewModel.alert) { $0.alert }
         .safeAreaInset(edge: .bottom) {
-            bottomButtons
+            bottomContainer
+                .animation(Constants.defaultAnimation, value: viewModel.showTransactionButtons)
         }
     }
 
@@ -150,6 +150,27 @@ struct SendView: View {
     }
 
     @ViewBuilder
+    private var bottomContainer: some View {
+        VStack(alignment: .center, spacing: 14) {
+            description
+
+            bottomButtons
+        }
+    }
+
+    @ViewBuilder
+    private var description: some View {
+        if let transactionDescription = viewModel.transactionDescription {
+            Text(.init(transactionDescription))
+                .style(Fonts.Regular.caption1, color: Colors.Text.primary1)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 16)
+                .visible(viewModel.step == .summary)
+                .animation(Constants.defaultAnimation, value: viewModel.step)
+        }
+    }
+
+    @ViewBuilder
     private var bottomButtons: some View {
         VStack(spacing: 10) {
             if viewModel.showTransactionButtons {
@@ -232,9 +253,9 @@ private struct SendViewBackButton: View {
 
 extension SendView {
     enum Constants {
-        static let animationDuration: TimeInterval = 2.3
-        static let defaultAnimation: Animation = .spring(duration: 2.3)
-        static let backButtonAnimation: Animation = .easeOut(duration: 2.1)
+        static let animationDuration: TimeInterval = 0.3
+        static let defaultAnimation: Animation = .spring(duration: animationDuration)
+        static let backButtonAnimation: Animation = .easeOut(duration: 0.1)
         static let sectionContentAnimation: Animation = .easeOut(duration: animationDuration)
         static let hintViewTransition: AnyTransition = .asymmetric(insertion: .offset(y: 20), removal: .identity).combined(with: .opacity)
 
