@@ -72,7 +72,6 @@ struct SendFinishView: View {
             .backgroundColor(Colors.Background.action)
             .geometryEffect(.init(id: SendViewNamespaceId.feeContainer.rawValue, namespace: namespace))
         }
-//        .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         .onAppear(perform: viewModel.onAppear)
     }
 
