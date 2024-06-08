@@ -26,7 +26,6 @@ struct SendDestinationView: View {
                 if !viewModel.animatingAuxiliaryViewsOnAppear, let viewModel = viewModel.addressViewModel {
                     Text(viewModel.description)
                         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                        .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)
                         .transition(SendView.Constants.auxiliaryViewTransition(for: .destination))
                 }
             }
@@ -49,7 +48,6 @@ struct SendDestinationView: View {
                 if let additionalFieldViewModel = viewModel.additionalFieldViewModel, !viewModel.animatingAuxiliaryViewsOnAppear {
                     Text(additionalFieldViewModel.description)
                         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                        .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)
                         .transition(SendView.Constants.auxiliaryViewTransition(for: .destination))
                 }
             }
