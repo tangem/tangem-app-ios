@@ -1,3 +1,4 @@
+"add_custom_token_choose_network" = "Choose network";
 "add_custom_token_title" = "添加自定義代幣";
 "add_tokens_title" = "管理代幣";
 "address_qr_code_message_format" = "僅將 %1$@ (%2$@) 從 %3$@ 網絡發送到此地址。使用其他代幣和網絡可能會導致資金損失";
@@ -299,6 +300,7 @@
 "manage_tokens_network_selector_wallet" = "Wallet";
 "manage_tokens_nothing_found" = "Couldn’t find this token, you can add it manually";
 "manage_tokens_search_placeholder" = "e.g. BTC I trust, hodl I must";
+"manage_tokens_toast_portfolio_updated" = "Your portfolio has been updated";
 "manage_tokens_unavailable_description" = "The selected token is currently unavailable for actions within the crypto wallet. But worry not, you can express your interest by upvoting it.";
 "manage_tokens_unavailable_vote" = "Upvote";
 "manage_tokens_wallet_selector_title" = "Choose wallet";
