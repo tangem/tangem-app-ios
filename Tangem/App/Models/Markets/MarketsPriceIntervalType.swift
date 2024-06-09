@@ -8,13 +8,13 @@
 
 import Foundation
 
-enum MarketsPriceIntervalType: String, CaseIterable, Codable, Identifiable, CustomStringConvertible {
+enum MarketsPriceIntervalType: String, CaseIterable, Codable, CustomStringConvertible, Identifiable, Equatable {
     case day = "24h"
     case week = "7d"
     case month = "1m"
 
-    var id: String {
-        rawValue
+    var id: Self {
+        self
     }
 
     var description: String {
