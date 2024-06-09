@@ -11,6 +11,11 @@ import SwiftUI
 struct MarketsRaitingHeaderView: View {
     @ObservedObject var viewModel: MarketRaitingHeaderViewModel
 
+    private let insets: EdgeInsets = .init(top: 2, leading: 2, bottom: 2, trailing: 2)
+    private let interSegmentSpacing: CGFloat = 2
+
+    @State private var containerCornerRadius: CGFloat = 9
+
     var body: some View {
         HStack {
             orderButtonView
@@ -37,7 +42,7 @@ struct MarketsRaitingHeaderView: View {
                 .padding(.horizontal, 10)
                 .padding(.vertical, 5)
                 .background(
-                    RoundedRectangle(cornerRadius: 8)
+                    RoundedRectangle(cornerRadius: containerCornerRadius)
                         .fill(Colors.Background.secondary)
                 )
             }
@@ -45,13 +50,38 @@ struct MarketsRaitingHeaderView: View {
     }
 
     private var timeIntervalPicker: some View {
-        VStack {
-            Picker("", selection: $viewModel.marketPriceIntervalType) {
-                ForEach(viewModel.marketPriceIntervalTypeOptions) {
-                    Text($0.description)
+        VStack(alignment: .trailing, spacing: .zero) {
+            SegmentedPickerView(
+                selection: $viewModel.marketPriceIntervalType,
+                options: viewModel.marketPriceIntervalTypeOptions,
+                selectionView: selectionView(),
+                segmentContent: { option, _ in
+                    segmentView(title: option.description, isSelected: viewModel.marketPriceIntervalType == option)
+                        .colorMultiply(Colors.Text.primary1)
+                        .animation(.none, value: viewModel.marketPriceIntervalType)
                 }
-            }
-            .pickerStyle(.segmented)
+            )
+            .insets(insets)
+            .segmentedControlSlidingAnimation(.default)
+            .segmentedControl(interSegmentSpacing: interSegmentSpacing)
+            .background(Colors.Background.secondary)
+            .clipShape(RoundedRectangle(cornerRadius: containerCornerRadius))
         }
+    }
+
+    private func selectionView(color: Color = Colors.Background.primary) -> some View {
+        color
+            .clipShape(RoundedRectangle(cornerRadius: containerCornerRadius - 2))
+    }
+
+    private func segmentView(title: String, isSelected: Bool) -> some View {
+        HStack(spacing: .zero) {
+            Text(title)
+                .font(isSelected ? Fonts.Bold.footnote : Fonts.Regular.footnote)
+        }
+        .frame(width: 32, height: 16)
+        .lineLimit(1)
+        .padding(.vertical, 4)
+        .padding(.horizontal, 8)
     }
 }
