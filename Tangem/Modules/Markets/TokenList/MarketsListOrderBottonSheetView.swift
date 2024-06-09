@@ -13,7 +13,7 @@ struct MarketsListOrderBottonSheetView: View {
 
     var body: some View {
         VStack(spacing: .zero) {
-            BottomSheetHeaderView(title: "123123123")
+            BottomSheetHeaderView(title: Localization.marketsSortByTitle)
 
             SelectableGropedSection(
                 viewModel.listOptionViewModel,
