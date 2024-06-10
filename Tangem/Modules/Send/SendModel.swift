@@ -207,21 +207,6 @@ class SendModel {
     }
 
     private func bind() {
-//        userInputDestination
-//            .dropFirst()
-//            .sink { [weak self] _ in
-//                self?.validateDestination()
-//            }
-//            .store(in: &bag)
-
-//        _destinationAdditionalFieldText
-//            .dropFirst()
-//            .removeDuplicates()
-//            .sink { [weak self] _ in
-//                self?.validateDestinationAdditionalField()
-//            }
-//            .store(in: &bag)
-
         userInputAmount
             .removeDuplicates()
             .sink { [weak self] amount in
@@ -438,75 +423,6 @@ class SendModel {
         _feeError.send(feeError)
     }
 
-    // MARK: - Destination and memo
-
-//    func setDestination(_ address: SendAddress) {
-//        guard
-//            address.value != userInputDestination.value.value,
-//            let addressValue = address.value
-//        else {
-//            return
-//        }
-//
-//        userInputDestination.send(address)
-//
-//        let canChangeAdditionalField = addressValue.isEmpty || addressService.canEmbedAdditionalField(into: addressValue)
-//        _canChangeAdditionalField.send(canChangeAdditionalField)
-//
-//        if !canChangeAdditionalField {
-//            setDestinationAdditionalField("")
-//        }
-//    }
-//
-//    func setDestinationAdditionalField(_ additionalField: String) {
-//        _destinationAdditionalFieldText.send(additionalField)
-//    }
-//
-//    private func validateDestination() {
-//        destinationResolutionRequest?.cancel()
-//
-//        validatedDestination.send(nil)
-//
-//        destinationResolutionRequest = runTask(in: self) { `self` in
-//            let address: String?
-//            let error: Error?
-//            do {
-//                address = try await self.addressService.validate(address: self.userInputDestination.value.value ?? "")
-//
-//                guard !Task.isCancelled else { return }
-//
-//                error = nil
-//            } catch let addressError {
-//                guard !Task.isCancelled else { return }
-//
-//                address = nil
-//                error = addressError
-//            }
-//
-//            await runOnMain {
-//                let destination = SendAddress(value: address, source: self.userInputDestination.value.source)
-//                self.validatedDestination.send(destination)
-//                self._destinationError.send(error)
-//            }
-//        }
-//    }
-
-//    private func validateDestinationAdditionalField() {
-//        let error: Error?
-//        let transactionParameters: TransactionParams?
-//        do {
-//            let parametersBuilder = SendTransactionParametersBuilder(blockchain: walletModel.blockchainNetwork.blockchain)
-//            transactionParameters = try parametersBuilder.transactionParameters(from: _destinationAdditionalFieldText.value)
-//            error = nil
-//        } catch let transactionParameterError {
-//            transactionParameters = nil
-//            error = transactionParameterError
-//        }
-//
-//        self.transactionParameters = transactionParameters
-//        _destinationAdditionalFieldError.send(error)
-//    }
-
     // MARK: - Fees
 
     func didSelectFeeOption(_ feeOption: FeeOption) {
@@ -565,50 +481,6 @@ extension SendModel: DestinationViewModelInput, DestinationViewModelOutput {
         _destinationAdditionalField.send(type)
     }
 }
-
-/*
- extension SendModel: SendDestinationViewModelInput {
-     var isValidatingDestination: AnyPublisher<Bool, Never> { addressService.validationInProgressPublisher }
-
-     var destinationTextPublisher: AnyPublisher<String, Never> { userInputDestination.compactMap(\.value).eraseToAnyPublisher() }
-     var destinationAdditionalFieldTextPublisher: AnyPublisher<String, Never> { _destinationAdditionalFieldText.eraseToAnyPublisher() }
-
-     var destinationError: AnyPublisher<Error?, Never> { _destinationError.eraseToAnyPublisher() }
-     var destinationAdditionalFieldError: AnyPublisher<Error?, Never> { _destinationAdditionalFieldError.eraseToAnyPublisher() }
-
-     var networkName: String { walletModel.blockchainNetwork.blockchain.displayName }
-
-     var additionalFieldType: SendAdditionalFields? {
-         let field = SendAdditionalFields.fields(for: walletModel.blockchainNetwork.blockchain)
-         switch field {
-         case .destinationTag, .memo:
-             return field
-         case .none:
-             return nil
-         }
-     }
-
-     var canChangeAdditionalField: AnyPublisher<Bool, Never> {
-         _canChangeAdditionalField.eraseToAnyPublisher()
-     }
-
-     var blockchainNetwork: BlockchainNetwork {
-         walletModel.blockchainNetwork
-     }
-
-     var currencySymbol: String {
-         walletModel.tokenItem.currencySymbol
-     }
-
-     var walletAddresses: [String] {
-         walletModel.wallet.addresses.map { $0.value }
-     }
-
-     var transactionHistoryPublisher: AnyPublisher<WalletModel.TransactionHistoryState, Never> {
-         walletModel.transactionHistoryPublisher
-     }
- }
- */
 
 // MARK: - SendFeeViewModelInput
 
