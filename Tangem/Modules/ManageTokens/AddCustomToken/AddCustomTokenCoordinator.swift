@@ -21,7 +21,7 @@ class AddCustomTokenCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
-    @Published var networkSelectorModel: AddCustomTokenNetworkSelectorViewModel?
+    @Published var networkSelectorModel: AddCustomTokenNetworksListViewModel?
     @Published var derivationSelectorModel: AddCustomTokenDerivationPathSelectorViewModel?
     @Published var walletSelectorViewModel: WalletSelectorViewModel?
 
@@ -34,9 +34,20 @@ class AddCustomTokenCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        let userWalletModel = options.userWalletModel
+        let supportedBlockchains = Array(userWalletModel.config.supportedBlockchains)
+            .filter { $0.curve.supportsDerivation }
+            .sorted(by: \.displayName)
+
+        let settings = AddCustomTokenViewModel.ManageTokensSettings(
+            supportedBlockchains: supportedBlockchains,
+            hdWalletsSupported: userWalletModel.config.hasFeature(.hdWallets),
+            derivationStyle: userWalletModel.config.derivationStyle
+        )
+
         rootViewModel = AddCustomTokenViewModel(
+            settings: settings,
             userWalletModel: options.userWalletModel,
-            dataSource: options.dataSource,
             coordinator: self
         )
     }
@@ -47,7 +58,6 @@ class AddCustomTokenCoordinator: CoordinatorObject {
 extension AddCustomTokenCoordinator {
     struct Options {
         let userWalletModel: UserWalletModel
-        let dataSource: MarketsDataSource
     }
 }
 
@@ -64,7 +74,7 @@ extension AddCustomTokenCoordinator: AddCustomTokenRoutable {
     }
 
     func openNetworkSelector(selectedBlockchainNetworkId: String?, blockchains: [Blockchain]) {
-        let networkSelectorModel = AddCustomTokenNetworkSelectorViewModel(
+        let networkSelectorModel = AddCustomTokenNetworksListViewModel(
             selectedBlockchainNetworkId: selectedBlockchainNetworkId,
             blockchains: blockchains
         )
