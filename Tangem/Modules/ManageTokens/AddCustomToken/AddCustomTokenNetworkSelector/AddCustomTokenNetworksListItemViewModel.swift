@@ -8,15 +8,23 @@
 
 import Foundation
 
-class AddCustomTokenNetworkSelectorItemViewModel: ObservableObject {
+class AddCustomTokenNetworksListItemViewModel: ObservableObject {
+    @Published var isSelected: Bool
+
     let networkId: String
     let iconName: String
     let networkName: String
     let currencySymbol: String
-    @Published var isSelected: Bool
     let didTapWallet: () -> Void
 
-    init(networkId: String, iconName: String, networkName: String, currencySymbol: String, isSelected: Bool, didTapWallet: @escaping () -> Void) {
+    init(
+        networkId: String,
+        iconName: String,
+        networkName: String,
+        currencySymbol: String,
+        isSelected: Bool,
+        didTapWallet: @escaping () -> Void
+    ) {
         self.networkId = networkId
         self.iconName = iconName
         self.networkName = networkName
