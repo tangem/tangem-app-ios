@@ -44,4 +44,21 @@ struct TransactionBuildingStepsBuilder {
             canUseFiatCalculation: canUseFiatCalculation
         )
     }
+
+    func makeSuggestedWallets(userWalletModels: [UserWalletModel]) -> [SendDestinationViewModel.InputModel.SuggestedWallet] {
+        userWalletModels.reduce([]) { result, userWalletModel in
+            let walletModels = userWalletModel.walletModelsManager.walletModels
+            return result + walletModels
+                .filter { walletModel in
+                    let ignoredAddresses = self.walletModel.wallet.addresses.map { $0.value }
+
+                    return walletModel.blockchainNetwork.blockchain.networkId == self.walletModel.tokenItem.blockchain.networkId &&
+                        walletModel.isMainToken &&
+                        !ignoredAddresses.contains(walletModel.defaultAddress)
+                }
+                .map { walletModel in
+                    (name: userWalletModel.name, address: walletModel.defaultAddress)
+                }
+        }
+    }
 }
