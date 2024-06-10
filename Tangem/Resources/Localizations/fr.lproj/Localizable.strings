@@ -177,6 +177,7 @@
 "custom_token_validation_error_not_found" = "Note that tokens can be created by anyone. Be aware of adding scam tokens, they can cost nothing.";
 "custom_token_validation_error_not_found_description" = "Be aware of adding scam tokens, they can cost nothing";
 "custom_token_validation_error_not_found_title" = "Note that tokens can be created by anyone";
+"details_buy_wallet" = "Acheter un Portefeuille Tangem";
 "details_chat" = "Chat";
 "details_manage_security_access_code" = "Code d'accès";
 "details_manage_security_access_code_description" = "Vous devrez entrer le mot de passe correct avant de scanner la carte";
