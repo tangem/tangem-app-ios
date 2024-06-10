@@ -65,5 +65,8 @@ extension MarketsDTO.General {
 
     struct Response: Decodable {
         let tokens: [MarketsTokenModel]
+        let total: Int
+        let limit: Int
+        let offset: Int
     }
 }
