@@ -99,7 +99,7 @@ final class MarketsListDataProvider {
             await runOnMain {
                 AppLog.shared.debug("\(String(describing: provider)) loaded market list tokens with count = \(response.tokens.count)")
 
-                provider.currentPage = response.offset
+                provider.currentPage = response.offset + response.limit
                 provider.totalSupply = response.total
 
                 provider.isLoading = false
