@@ -18,29 +18,6 @@ protocol DestinationViewModelOutput: AnyObject {
     func destinationAdditionalParametersDidChanged(_ type: DestinationAdditionalFieldType)
 }
 
-// protocol SendDestinationViewModelInput: AnyObject {
-//    var destinationValid: AnyPublisher<Bool, Never> { get }
-//
-//    var isValidatingDestination: AnyPublisher<Bool, Never> { get }
-//
-//    var destinationTextPublisher: AnyPublisher<String, Never> { get }
-//    var destinationAdditionalFieldTextPublisher: AnyPublisher<String, Never> { get }
-//
-//    var destinationError: AnyPublisher<Error?, Never> { get }
-//    var destinationAdditionalFieldError: AnyPublisher<Error?, Never> { get }
-//
-//    var networkName: String { get }
-//    var blockchainNetwork: BlockchainNetwork { get }
-//
-//    var additionalFieldType: SendAdditionalFields? { get }
-//    var canChangeAdditionalField: AnyPublisher<Bool, Never> { get }
-//
-//    var transactionHistoryPublisher: AnyPublisher<WalletModel.TransactionHistoryState, Never> { get }
-//
-//    func setDestination(_ address: SendAddress)
-//    func setDestinationAdditionalField(_ additionalField: String)
-// }
-
 class SendDestinationViewModel: ObservableObject {
     @Published var addressViewModel: SendDestinationTextViewModel?
     @Published var additionalFieldViewModel: SendDestinationTextViewModel?
@@ -215,23 +192,16 @@ class SendDestinationViewModel: ObservableObject {
             .store(in: &bag)
 
         transactionHistoryPublisher
-            .compactMap { [weak self] state -> [SendSuggestedDestinationTransactionRecord] in
-                guard
-                    let self,
-                    case .loaded(let records) = state
-                else {
+            .withWeakCaptureOf(self)
+            .compactMap { viewModel, state -> [SendSuggestedDestinationTransactionRecord] in
+                guard case .loaded(let records) = state else {
                     return []
                 }
 
-                #warning("[REDACTED_TODO_COMMENT]")
                 let transactions = records
-                    .sorted {
-                        ($0.date ?? Date()) > ($1.date ?? Date())
-                    }
-                    .compactMap { record in
-                        self.transactionHistoryMapper.mapSuggestedRecord(record)
-                    }
+                    .compactMap { viewModel.transactionHistoryMapper.mapSuggestedRecord($0) }
                     .prefix(Constants.numberOfRecentTransactions)
+                    .sorted { $0.date > $1.date }
 
                 return Array(transactions)
             }
