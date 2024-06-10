@@ -16,7 +16,7 @@ final class MarketsViewModel: ObservableObject {
     @Published var alert: AlertBinder?
     @Published var tokenViewModels: [MarketsItemViewModel] = []
     @Published var viewDidAppear: Bool = false
-    @Published var marketRaitingHeaderViewModel: MarketRaitingHeaderViewModel
+    @Published var marketRatingHeaderViewModel: MarketRatingHeaderViewModel
 
     // MARK: - Properties
 
@@ -44,7 +44,7 @@ final class MarketsViewModel: ObservableObject {
         self.coordinator = coordinator
         dataSource = MarketsDataSource()
 
-        marketRaitingHeaderViewModel = MarketRaitingHeaderViewModel(from: filterProvider)
+        marketRatingHeaderViewModel = MarketRatingHeaderViewModel(from: filterProvider)
 
         filterProvider.onUpdateOrderAction = { [weak self] in
             guard let self else { return }
