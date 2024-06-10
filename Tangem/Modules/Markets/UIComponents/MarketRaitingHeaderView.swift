@@ -1,5 +1,5 @@
 //
-//  MarketsRaitingHeaderView.swift
+//  MarketsRatingHeaderView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-struct MarketsRaitingHeaderView: View {
-    @ObservedObject var viewModel: MarketRaitingHeaderViewModel
+struct MarketsRatingHeaderView: View {
+    @ObservedObject var viewModel: MarketRatingHeaderViewModel
 
     private let insets: EdgeInsets = .init(top: 2, leading: 2, bottom: 2, trailing: 2)
     private let interSegmentSpacing: CGFloat = 2
