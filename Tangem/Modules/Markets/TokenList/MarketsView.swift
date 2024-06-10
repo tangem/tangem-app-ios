@@ -29,7 +29,7 @@ struct MarketsView: View {
                 .style(Fonts.Bold.title3, color: Colors.Text.primary1)
                 .lineLimit(1)
 
-            MarketsRaitingHeaderView(viewModel: viewModel.marketRaitingHeaderViewModel)
+            MarketsRatingHeaderView(viewModel: viewModel.marketRatingHeaderViewModel)
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 16)
