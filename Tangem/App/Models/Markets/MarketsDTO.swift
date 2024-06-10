@@ -49,8 +49,11 @@ extension MarketsDTO.General {
                 "limit": limit,
                 "interval": interval.rawValue,
                 "order": order.rawValue,
-                "general_coins": generalCoins,
             ]
+
+            if generalCoins {
+                params["general_coins"] = generalCoins
+            }
 
             if let search, !search.isEmpty {
                 params["search"] = search

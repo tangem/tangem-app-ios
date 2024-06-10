@@ -1,3 +1,4 @@
+"add_custom_token_choose_network" = "Выберите сеть";
 "add_custom_token_title" = "Добавить токен";
 "add_tokens_title" = "Валюты";
 "address_qr_code_message_format" = "Отправляйте только %1$@ (%2$@) в сети %3$@ на этот адрес. Использование другой сети может привести к утрате средств.";
@@ -299,10 +300,13 @@
 "manage_tokens_network_selector_wallet" = "Кошелек";
 "manage_tokens_nothing_found" = "Не удалось найти этот токен, вы можете добавить его вручную.";
 "manage_tokens_search_placeholder" = "например Bitcoin";
+"manage_tokens_toast_portfolio_updated" = "Ваш портфель был обновлен";
 "manage_tokens_unavailable_description" = "Выбранный токен не доступен в кошельке на данный момент. Но не переживайте, вы можете выразить свой интерес проголосовав за его добавление.";
 "manage_tokens_unavailable_vote" = "Голосовать";
 "manage_tokens_wallet_selector_title" = "Выберите кошелек";
 "manage_tokens_wallet_support_only_one_network_title" = "Кошелёк не поддерживает более одной сети";
+"markets_common_title" = "Market";
+"markets_sort_by_title" = "Sort By";
 "onboarding_access_code_feature_1_description" = "Вам необходимо установить единый код доступа для защиты всех ваших карт";
 "onboarding_access_code_feature_1_title" = "Защита";
 "onboarding_access_code_feature_2_description" = "Позже вы сможете установить индивидуальный код доступа для каждой карты";
