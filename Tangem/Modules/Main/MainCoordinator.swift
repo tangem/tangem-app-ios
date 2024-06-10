@@ -32,6 +32,7 @@ class MainCoordinator: CoordinatorObject {
     @Published var sendCoordinator: SendCoordinator? = nil
     @Published var expressCoordinator: ExpressCoordinator? = nil
     @Published var legacyTokenListCoordinator: LegacyTokenListCoordinator? = nil
+    @Published var stakingDetailsCoordinator: StakingDetailsCoordinator? = nil
 
     // MARK: - Child view models
 
@@ -324,7 +325,13 @@ extension MainCoordinator: SingleTokenBaseRoutable {
     }
 
     func openStaking(wallet: WalletModel) {
-        assertionFailure()
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.stakingDetailsCoordinator = nil
+        }
+
+        let coordinator = StakingDetailsCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+        coordinator.start(with: .init(wallet: wallet))
+        stakingDetailsCoordinator = coordinator
     }
 
     func openInSafari(url: URL) {
