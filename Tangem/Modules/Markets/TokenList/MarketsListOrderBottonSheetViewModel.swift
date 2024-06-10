@@ -24,7 +24,7 @@ class MarketsListOrderBottonSheetViewModel: ObservableObject, Identifiable {
     // MARK: - Init
 
     init(from provider: MarketsListDataFilterProvider) {
-        currentOrderType = provider.orderType
+        currentOrderType = provider.currentFilterValue.order
         delegate = provider
 
         listOptionViewModel = provider.supportedOrderTypes.map {
