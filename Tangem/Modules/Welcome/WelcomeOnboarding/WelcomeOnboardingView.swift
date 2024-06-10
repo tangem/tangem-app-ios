@@ -17,7 +17,7 @@ struct WelcomeOnboardingView: View {
 
     var body: some View {
         content
-            .background(.regularMaterial)
+            .background(.ultraThinMaterial)
             .transition(.opacity)
             .environment(\.colorScheme, .dark)
     }
