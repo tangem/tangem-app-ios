@@ -51,7 +51,7 @@ final class MarketsViewModel: ObservableObject {
             coordinator.openFilterOrderBottonSheet(with: filterProvider)
         }
 
-        searchBind(searchTextPublisher: searchTextPublisher)
+        searchTextBind(searchTextPublisher: searchTextPublisher)
         searchFilterBind(filterPublisher: filterProvider.filterPublisher)
         dataProviderBind()
     }
@@ -88,20 +88,13 @@ private extension MarketsViewModel {
         dataProvider.fetch(searchText, with: filter)
     }
 
-    func searchBind(searchTextPublisher: (some Publisher<String, Never>)?) {
+    func searchTextBind(searchTextPublisher: (some Publisher<String, Never>)?) {
         searchTextPublisher?
             .dropFirst()
             .debounce(for: 0.5, scheduler: DispatchQueue.main)
             .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { viewModel, value in
-                if !value.isEmpty {
-                    Analytics.log(.manageTokensSearched)
-
-                    // It is necessary to hide it under this condition for disable to eliminate the flickering of the animation
-                    viewModel.setNeedDisplayTokensListSkeletonView()
-                }
-
                 viewModel.fetch(with: value, by: viewModel.dataProvider.lastFilterValue ?? viewModel.filterProvider.currentFilterValue)
             }
             .store(in: &bag)
@@ -122,12 +115,21 @@ private extension MarketsViewModel {
         dataProvider.$items
             .receive(on: DispatchQueue.main)
             .delay(for: 0.5, scheduler: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] items in
-                guard let self = self else {
-                    return
-                }
+            .withWeakCaptureOf(self)
+            .sink(receiveValue: { provider, items in
+                provider.tokenViewModels = items.compactMap { provider.mapToTokenViewModel(tokenItemModel: $0) }
+            })
+            .store(in: &bag)
 
-                tokenViewModels = items.compactMap { self.mapToTokenViewModel(tokenItemModel: $0) }
+        dataProvider.$isLoading
+            .receive(on: DispatchQueue.main)
+            .delay(for: 0.5, scheduler: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink(receiveValue: { viewModel, isLoading in
+                if isLoading {
+                    // It is necessary to hide it under this condition for disable to eliminate the flickering of the animation
+                    viewModel.setNeedDisplayTokensListSkeletonView()
+                }
             })
             .store(in: &bag)
     }
@@ -136,8 +138,33 @@ private extension MarketsViewModel {
 
     /// Need for display list skeleton view
     private func setNeedDisplayTokensListSkeletonView() {
-        // [REDACTED_TODO_COMMENT]
-//        tokenViewModels = [Int](0 ... 10).map { _ in }
+        let dummyTokenItemModel = MarketsTokenModel(
+            id: "",
+            name: "",
+            symbol: "",
+            active: false,
+            currentPrice: nil,
+            priceChangePercentage: [:],
+            marketRating: nil,
+            marketCup: nil
+        )
+
+        let skeletonTokenViewModels = [Int](0 ... 20).map {
+            let inputData = MarketsItemViewModel.InputData(
+                id: "\($0)",
+                name: dummyTokenItemModel.name,
+                symbol: dummyTokenItemModel.symbol,
+                marketCup: dummyTokenItemModel.marketCup,
+                marketRating: dummyTokenItemModel.marketRating,
+                priceValue: dummyTokenItemModel.currentPrice,
+                priceChangeStateValue: dummyTokenItemModel.priceChangePercentage.first?.value,
+                isLoading: true
+            )
+
+            return MarketsItemViewModel(inputData)
+        }
+
+        tokenViewModels.append(contentsOf: skeletonTokenViewModels)
     }
 
     private func mapToTokenViewModel(tokenItemModel: MarketsTokenModel) -> MarketsItemViewModel {
@@ -146,9 +173,10 @@ private extension MarketsViewModel {
             name: tokenItemModel.name,
             symbol: tokenItemModel.symbol,
             marketCup: tokenItemModel.marketCup,
-            marketRaiting: tokenItemModel.marketRaiting,
+            marketRating: tokenItemModel.marketRating,
             priceValue: tokenItemModel.currentPrice,
-            priceChangeStateValue: nil
+            priceChangeStateValue: nil,
+            isLoading: false
         )
 
         return MarketsItemViewModel(inputData)

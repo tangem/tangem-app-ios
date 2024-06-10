@@ -12,6 +12,8 @@ import Combine
 class MarketsItemViewModel: Identifiable, ObservableObject {
     // MARK: - Published
 
+    @Published var isLoading: Bool
+
     @Published var marketRaiting: String?
     @Published var marketCap: String?
 
@@ -38,13 +40,20 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
     // MARK: - Init
 
     init(_ data: InputData) {
+        isLoading = data.isLoading
+
         id = data.id
         imageURL = IconURLBuilder().tokenIconURL(id: id, size: .large)
         name = data.name
         symbol = data.symbol
 
-        marketCap = data.marketCup
-        marketRaiting = data.marketRaiting
+        if let marketRating = data.marketRating {
+            marketRaiting = "\(marketRating)"
+        }
+
+        if let marketCup = data.marketCup {
+            marketCap = "\(marketCup)"
+        }
 
         priceValue = priceFormatter.formatFiatBalance(data.priceValue)
 
@@ -70,9 +79,10 @@ extension MarketsItemViewModel {
         let id: String
         let name: String
         let symbol: String
-        let marketCup: String?
-        let marketRaiting: String?
+        let marketCup: UInt64?
+        let marketRating: UInt64?
         let priceValue: Decimal?
         let priceChangeStateValue: Decimal?
+        let isLoading: Bool
     }
 }
