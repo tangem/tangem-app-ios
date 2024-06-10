@@ -15,17 +15,10 @@ struct PriceChangeFormatter {
         self.percentFormatter = percentFormatter
     }
 
-    func format(value: Decimal) -> PriceChangeFormatter.Result {
-        let roundedValue = value.rounded(scale: PercentFormatter.Constants.maximumFractionDigits, roundingMode: .plain)
-        let formattedText = percentFormatter.percentFormat(value: roundedValue)
-        let signType = ChangeSignType(from: roundedValue)
-        return Result(formattedText: formattedText, signType: signType)
-    }
-
-    func formatExpress(value: Decimal) -> PriceChangeFormatter.Result {
-        let scale = PercentFormatter.Constants.maximumFractionDigitsExpress + 2 // multiplication by 100 for percents
+    func format(_ value: Decimal, option: PercentFormatter.Option) -> PriceChangeFormatter.Result {
+        let scale = option.fractionDigits + 2 // multiplication by 100 for percents
         let roundedValue = value.rounded(scale: scale, roundingMode: .plain)
-        let formattedText = percentFormatter.expressRatePercentFormat(value: roundedValue)
+        let formattedText = percentFormatter.format(roundedValue, option: option)
         let signType = ChangeSignType(from: roundedValue)
         return Result(formattedText: formattedText, signType: signType)
     }

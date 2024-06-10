@@ -154,6 +154,8 @@ struct TangemApiTarget: TargetType {
             headers["version"] = appVersion
         }
 
+        headers["platform"] = "ios"
+
         return headers
     }
 }
