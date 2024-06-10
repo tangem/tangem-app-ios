@@ -15,6 +15,8 @@ class MarketRaitingHeaderViewModel: ObservableObject {
     @Published var marketListOrderType: MarketsListOrderType
     @Published var marketPriceIntervalType: MarketsPriceIntervalType
 
+    var marketPriceIntervalTypeOptions: [MarketsPriceIntervalType] = []
+
     // MARK: - Private Properties
 
     private weak var delegate: MarketRaitingHeaderViewModelDelegate?
@@ -24,8 +26,10 @@ class MarketRaitingHeaderViewModel: ObservableObject {
 
     init(from provider: MarketsListDataFilterProvider) {
         delegate = provider
-        marketListOrderType = provider.orderType
-        marketPriceIntervalType = provider.intervalType
+        marketListOrderType = provider.currentFilterValue.order
+        marketPriceIntervalType = provider.currentFilterValue.interval
+        marketPriceIntervalTypeOptions = provider.supportedPriceIntervalTypes
+
         bind(with: provider.filterPublisher)
     }
 
