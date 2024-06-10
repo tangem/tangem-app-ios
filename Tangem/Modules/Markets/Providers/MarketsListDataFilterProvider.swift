@@ -43,9 +43,9 @@ class MarketsListDataFilterProvider {
     var onUpdateOrderAction: (() -> Void)?
 }
 
-// MARK: - MarketRaitingHeaderViewModelDelegate
+// MARK: - MarketRatingHeaderViewModelDelegate
 
-extension MarketsListDataFilterProvider: MarketRaitingHeaderViewModelDelegate {
+extension MarketsListDataFilterProvider: MarketOrderHeaderViewModelDelegate {
     func marketOrderActionButtonDidTap() {
         onUpdateOrderAction?()
     }
