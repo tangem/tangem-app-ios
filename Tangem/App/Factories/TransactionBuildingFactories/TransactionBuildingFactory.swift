@@ -11,13 +11,17 @@ import BlockchainSdk
 
 struct TransactionBuildingFactory {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    let userWalletModel: UserWalletModel
-    let walletModel: WalletModel
+    private let userWalletModel: UserWalletModel
+    private let walletModel: WalletModel
+    private let builder: TransactionBuildingStepsBuilder
 
     init(userWalletModel: UserWalletModel, walletModel: WalletModel) {
         self.userWalletModel = userWalletModel
         self.walletModel = walletModel
+
+        builder = .init(userWalletName: userWalletModel.name, walletModel: walletModel)
     }
 
     // MARK: - Modules
@@ -25,7 +29,6 @@ struct TransactionBuildingFactory {
     func makeSendViewModel(type: SendType, coordinator: SendRoutable) -> SendViewModel {
         let sendModel = makeSendModel(type: type)
         let canUseFiatCalculation = quotesRepository.quote(for: walletModel.tokenItem) != nil
-        let builder = TransactionBuildingStepsBuilder(userWalletName: userWalletModel.name, walletModel: walletModel)
         let walletInfo = builder.makeSendWalletInfo(canUseFiatCalculation: canUseFiatCalculation)
 
         return SendViewModel(
@@ -49,9 +52,20 @@ struct TransactionBuildingFactory {
         sendModel: SendModel,
         addressTextViewHeightModel: AddressTextViewHeightModel
     ) -> SendDestinationViewModel {
-        SendDestinationViewModel(
+        let transactionHistoryMapper = TransactionHistoryMapper(
+            currencySymbol: sendModel.currencySymbol,
+            walletAddresses: sendModel.walletAddresses,
+            showSign: false
+        )
+
+        let suggestedWallets = builder.makeSuggestedWallets(userWalletModels: userWalletRepository.models)
+        let inputModel = SendDestinationViewModel.InputModel(suggestedWallets: suggestedWallets)
+
+        return SendDestinationViewModel(
+            inputModel: inputModel,
             input: sendModel,
-            addressTextViewHeightModel: addressTextViewHeightModel
+            addressTextViewHeightModel: addressTextViewHeightModel,
+            transactionHistoryMapper: transactionHistoryMapper
         )
     }
 
@@ -88,12 +102,13 @@ struct TransactionBuildingFactory {
         addressTextViewHeightModel: AddressTextViewHeightModel,
         walletInfo: SendWalletInfo
     ) -> SendSummaryViewModel {
-        SendSummaryViewModel(
+        return SendSummaryViewModel(
             input: sendModel,
             notificationManager: notificationManager,
             fiatCryptoValueProvider: fiatCryptoAdapter,
             addressTextViewHeightModel: addressTextViewHeightModel,
-            walletInfo: walletInfo
+            walletInfo: walletInfo,
+            sectionViewModelFactory: makeSendSummarySectionViewModelFactory(walletInfo: walletInfo)
         )
     }
 
@@ -110,7 +125,8 @@ struct TransactionBuildingFactory {
             fiatCryptoValueProvider: fiatCryptoAdapter,
             addressTextViewHeightModel: addressTextViewHeightModel,
             feeTypeAnalyticsParameter: feeTypeAnalyticsParameter,
-            walletInfo: walletInfo
+            walletInfo: walletInfo,
+            sectionViewModelFactory: makeSendSummarySectionViewModelFactory(walletInfo: walletInfo)
         )
     }
 
@@ -149,6 +165,16 @@ struct TransactionBuildingFactory {
             cryptoCurrencyId: walletInfo.currencyId,
             currencySymbol: walletInfo.cryptoCurrencyCode,
             decimals: walletInfo.amountFractionDigits
+        )
+    }
+
+    func makeSendSummarySectionViewModelFactory(walletInfo: SendWalletInfo) -> SendSummarySectionViewModelFactory {
+        SendSummarySectionViewModelFactory(
+            feeCurrencySymbol: walletInfo.feeCurrencySymbol,
+            feeCurrencyId: walletInfo.feeCurrencyId,
+            isFeeApproximate: walletInfo.isFeeApproximate,
+            currencyId: walletInfo.currencyId,
+            tokenIconInfo: walletInfo.tokenIconInfo
         )
     }
 }
