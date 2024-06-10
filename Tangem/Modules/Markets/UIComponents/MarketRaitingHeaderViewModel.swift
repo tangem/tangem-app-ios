@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-class MarketRaitingHeaderViewModel: ObservableObject {
+class MarketRatingHeaderViewModel: ObservableObject {
     // MARK: - Published Properties
 
     @Published var marketListOrderType: MarketsListOrderType
@@ -19,7 +19,7 @@ class MarketRaitingHeaderViewModel: ObservableObject {
 
     // MARK: - Private Properties
 
-    private weak var delegate: MarketRaitingHeaderViewModelDelegate?
+    private weak var delegate: MarketOrderHeaderViewModelDelegate?
     private var bag = Set<AnyCancellable>()
 
     // MARK: - Init
@@ -58,7 +58,7 @@ class MarketRaitingHeaderViewModel: ObservableObject {
     }
 }
 
-protocol MarketRaitingHeaderViewModelDelegate: AnyObject {
+protocol MarketOrderHeaderViewModelDelegate: AnyObject {
     func marketOrderActionButtonDidTap()
     func marketPriceIntervalButtonDidTap(_ interval: MarketsPriceIntervalType)
 }
