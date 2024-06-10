@@ -12,7 +12,7 @@ class TOSViewModel: ObservableObject {
     let url = AppConstants.tosURL
     let webViewModel: WebViewContainerViewModel
 
-    let bottomOverlayHeight: CGFloat = 115
+    let bottomOverlayHeight: CGFloat = 116
 
     init() {
         webViewModel = .init(
