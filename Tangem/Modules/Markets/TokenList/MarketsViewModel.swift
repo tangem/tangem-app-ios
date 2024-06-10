@@ -17,7 +17,7 @@ final class MarketsViewModel: ObservableObject {
     @Published var isShowAddCustomToken: Bool = false
     @Published var tokenViewModels: [MarketsItemViewModel] = []
     @Published var viewDidAppear: Bool = false
-    @Published var marketRaitingHeaderViewModel: MarketRaitingHeaderViewModel
+    @Published var marketRatingHeaderViewModel: MarketRatingHeaderViewModel
 
     // MARK: - Properties
 
@@ -42,7 +42,7 @@ final class MarketsViewModel: ObservableObject {
         self.coordinator = coordinator
         dataSource = MarketsDataSource()
 
-        marketRaitingHeaderViewModel = MarketRaitingHeaderViewModel(from: filterProvider)
+        marketRatingHeaderViewModel = MarketRatingHeaderViewModel(from: filterProvider)
         searchBind(searchTextPublisher: searchTextPublisher)
 
         filterProvider.onUpdateOrderAction = { [weak self] in
