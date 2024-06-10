@@ -19,9 +19,6 @@ class MarketsListDataFilterProvider {
 
     // MARK: - Public Properties
 
-    var intervalType: MarketsPriceIntervalType { _intervalTypeValue.value }
-    var orderType: MarketsListOrderType { _orderTypeValue.value }
-
     var filterPublisher: some Publisher<MarketsListDataProvider.Filter, Never> {
         Publishers.CombineLatest(_intervalTypeValue, _orderTypeValue)
             .map { interval, order in
@@ -29,14 +26,22 @@ class MarketsListDataFilterProvider {
             }
     }
 
-    var filterValue: MarketsListDataProvider.Filter {
+    // It is necessary to obtain initial values in consumers in order to avoid optionals
+    var currentFilterValue: MarketsListDataProvider.Filter {
         .init(interval: _intervalTypeValue.value, order: _orderTypeValue.value)
     }
 
+    // This is necessary to determine the supported values in case of expansion
     var supportedOrderTypes: [MarketsListOrderType] {
         MarketsListOrderType.allCases
     }
 
+    // This is necessary to determine the supported values in case of expansion
+    var supportedPriceIntervalTypes: [MarketsPriceIntervalType] {
+        MarketsPriceIntervalType.allCases
+    }
+
+    // Since the sorting selection is made in a separate screen, a closure is required
     var onUpdateOrderAction: (() -> Void)?
 }
 
