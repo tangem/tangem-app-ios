@@ -55,7 +55,7 @@ class SendDestinationViewModel: ObservableObject {
 
     private let _destinationValid: CurrentValueSubject<Bool, Never> = .init(false)
 
-    private let _destinationText: CurrentValueSubject<SendAddress?, Never> = .init(nil)
+    private let _destinationText: CurrentValueSubject<String, Never> = .init("")
     private let _isValidatingDestination: CurrentValueSubject<Bool, Never> = .init(false)
     private let _destinationError: CurrentValueSubject<Error?, Never> = .init(nil)
 
@@ -104,7 +104,8 @@ class SendDestinationViewModel: ObservableObject {
         bind()
 
         if let predefinedDestination = initial.predefinedDestination {
-            _destinationText.send(.init(value: predefinedDestination, source: .sellProvider))
+            _destinationText.send(predefinedDestination)
+            destinationDidChange(address: predefinedDestination, source: .sellProvider)
         }
 
         if let type = initial.additionalFieldType, let predefinedTag = initial.predefinedTag {
@@ -124,7 +125,7 @@ class SendDestinationViewModel: ObservableObject {
     private func setupView() {
         addressViewModel = SendDestinationTextViewModel(
             style: .address(networkName: initial.networkName),
-            input: _destinationText.compactMap { $0?.value }.eraseToAnyPublisher(),
+            input: _destinationText.eraseToAnyPublisher(),
             isValidating: _isValidatingDestination.eraseToAnyPublisher(),
             isDisabled: .just(output: false),
             addressTextViewHeightModel: addressTextViewHeightModel,
@@ -132,7 +133,8 @@ class SendDestinationViewModel: ObservableObject {
         ) { [weak self] in
             self?.destinationDidChange(address: $0, source: .textField)
         } didPasteDestination: { [weak self] in
-            self?._destinationText.send(.init(value: $0, source: .pasteButton))
+            self?._destinationText.send($0)
+            self?.destinationDidChange(address: $0, source: .pasteButton)
         }
 
         additionalFieldViewModel = initial.additionalFieldType.map { additionalFieldType in
@@ -251,7 +253,8 @@ class SendDestinationViewModel: ObservableObject {
         ) { [weak self] destination in
             UINotificationFeedbackGenerator().notificationOccurred(.success)
 
-            self?._destinationText.send(.init(value: destination.address, source: destination.type.source))
+            self?._destinationText.send(destination.address)
+            self?.destinationDidChange(address: destination.address, source: destination.type.source)
 
             if let additionalField = destination.additionalField {
                 self?._destinationAdditionalFieldText.send(additionalField)
