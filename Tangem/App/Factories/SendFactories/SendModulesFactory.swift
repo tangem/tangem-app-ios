@@ -17,6 +17,8 @@ struct SendModulesFactory {
     private let walletModel: WalletModel
     private let builder: SendModulesStepsBuilder
 
+    private var tokenItem: TokenItem { walletModel.tokenItem }
+
     init(userWalletModel: UserWalletModel, walletModel: WalletModel) {
         self.userWalletModel = userWalletModel
         self.walletModel = walletModel
@@ -44,26 +46,39 @@ struct SendModulesFactory {
             fiatCryptoAdapter: makeSendFiatCryptoAdapter(walletInfo: walletInfo),
             keyboardVisibilityService: KeyboardVisibilityService(),
             factory: self,
+            processor: makeDestinationViewModelProcessor(),
             coordinator: coordinator
         )
     }
 
     func makeSendDestinationViewModel(
-        sendModel: SendModel,
+        input: DestinationViewModelInput,
+        output: DestinationViewModelOutput,
+        sendType: SendType,
         addressTextViewHeightModel: AddressTextViewHeightModel
     ) -> SendDestinationViewModel {
+        let suggestedWallets = builder.makeSuggestedWallets(userWalletModels: userWalletRepository.models)
+        let additionalFieldType = SendAdditionalFields.fields(for: tokenItem.blockchain)
+        let initial = SendDestinationViewModel.InitialModel(
+            networkName: tokenItem.networkName,
+            additionalFieldType: additionalFieldType,
+            suggestedWallets: suggestedWallets,
+            transactionHistoryPublisher: walletModel.transactionHistoryPublisher,
+            predefinedDestination: sendType.predefinedDestination,
+            predefinedTag: sendType.predefinedTag
+        )
+
         let transactionHistoryMapper = TransactionHistoryMapper(
-            currencySymbol: sendModel.currencySymbol,
-            walletAddresses: sendModel.walletAddresses,
+            currencySymbol: tokenItem.currencySymbol,
+            walletAddresses: walletModel.addresses,
             showSign: false
         )
 
-        let suggestedWallets = builder.makeSuggestedWallets(userWalletModels: userWalletRepository.models)
-        let inputModel = SendDestinationViewModel.InputModel(suggestedWallets: suggestedWallets)
-
         return SendDestinationViewModel(
-            inputModel: inputModel,
-            input: sendModel,
+            initial: initial,
+            input: input,
+            output: output,
+            processor: makeDestinationViewModelProcessor(),
             addressTextViewHeightModel: addressTextViewHeightModel,
             transactionHistoryMapper: transactionHistoryMapper
         )
@@ -135,15 +150,10 @@ struct SendModulesFactory {
     private var emailDataProvider: EmailDataProvider { userWalletModel }
     private var transactionSigner: TransactionSigner { userWalletModel.signer }
 
-    private var sendAddressService: SendAddressService {
-        SendAddressServiceFactory(walletModel: walletModel).makeService()
-    }
-
     private func makeSendModel(type: SendType) -> SendModel {
         SendModel(
             walletModel: walletModel,
             transactionSigner: transactionSigner,
-            addressService: sendAddressService,
             sendType: type
         )
     }
@@ -176,5 +186,45 @@ struct SendModulesFactory {
             currencyId: walletInfo.currencyId,
             tokenIconInfo: walletInfo.tokenIconInfo
         )
+    }
+
+    func makeDestinationViewModelProcessor() -> DestinationViewModelProcessor {
+        let parametersBuilder = SendTransactionParametersBuilder(blockchain: tokenItem.blockchain)
+
+        return CommonDestinationViewModelProcessor(
+            validator: makeDestinationViewModelValidator(),
+            addressResolver: walletModel.addressResolver,
+            additionalFieldType: .fields(for: tokenItem.blockchain),
+            parametersBuilder: parametersBuilder
+        )
+    }
+
+    func makeDestinationViewModelValidator() -> DestinationViewModelValidator {
+        let addressService = AddressServiceFactory(blockchain: walletModel.wallet.blockchain).makeAddressService()
+        let validator = CommonDestinationViewModelValidator(
+            walletAddresses: walletModel.addresses,
+            addressService: addressService,
+            supportsCompound: walletModel.wallet.blockchain.supportsCompound
+        )
+
+        return validator
+    }
+}
+
+private extension Blockchain {
+    var supportsCompound: Bool {
+        switch self {
+        case .bitcoin,
+             .bitcoinCash,
+             .litecoin,
+             .dogecoin,
+             .dash,
+             .kaspa,
+             .ravencoin,
+             .ducatus:
+            return true
+        default:
+            return false
+        }
     }
 }
