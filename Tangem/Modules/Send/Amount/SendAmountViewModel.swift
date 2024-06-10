@@ -156,14 +156,3 @@ extension SendAmountViewModel: SendFiatCryptoAdapterInput {
         decimalNumberTextFieldViewModel.valuePublisher
     }
 }
-
-extension SendAmountViewModel {
-    struct InputModel {
-        let userWalletName: String
-        let tokenItem: TokenItem
-        let tokenIconInfo: TokenIconInfo
-        let balanceValue: Decimal
-        let balanceFormatted: String
-        let currencyPickerData: SendCurrencyPickerData
-    }
-}
