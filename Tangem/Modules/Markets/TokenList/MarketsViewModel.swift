@@ -67,7 +67,7 @@ final class MarketsViewModel: ObservableObject {
 
     func onBottomDisappear() {
         dataProvider.reset(nil, with: nil)
-        fetch(with: "", by: filterProvider.filterValue)
+        fetch(with: "", by: filterProvider.currentFilterValue)
         viewDidAppear = false
     }
 
@@ -102,7 +102,7 @@ private extension MarketsViewModel {
                     viewModel.setNeedDisplayTokensListSkeletonView()
                 }
 
-                viewModel.fetch(with: value, by: viewModel.dataProvider.lastFilterValue ?? viewModel.filterProvider.filterValue)
+                viewModel.fetch(with: value, by: viewModel.dataProvider.lastFilterValue ?? viewModel.filterProvider.currentFilterValue)
             }
             .store(in: &bag)
     }
@@ -113,7 +113,7 @@ private extension MarketsViewModel {
             .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { viewModel, value in
-                viewModel.fetch(with: viewModel.dataProvider.lastSearchTextValue ?? "", by: viewModel.filterProvider.filterValue)
+                viewModel.fetch(with: viewModel.dataProvider.lastSearchTextValue ?? "", by: viewModel.filterProvider.currentFilterValue)
             }
             .store(in: &bag)
     }
