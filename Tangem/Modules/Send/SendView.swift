@@ -165,7 +165,7 @@ struct SendView: View {
                 .style(Fonts.Regular.caption1, color: Colors.Text.primary1)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 16)
-                .visible(viewModel.step == .summary)
+                .visible(viewModel.transactionDescriptionIsVisisble)
                 .animation(Constants.defaultAnimation, value: viewModel.step)
         }
     }
