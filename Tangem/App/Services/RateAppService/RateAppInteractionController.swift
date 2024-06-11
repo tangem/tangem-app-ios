@@ -1,5 +1,5 @@
 //
-//  RateAppController.swift
+//  RateAppInteractionController.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-protocol RateAppController {
+protocol RateAppInteractionController {
     func bind(
         isPageSelectedPublisher: some Publisher<Bool, Never>,
         notificationsPublisher1: some Publisher<[NotificationViewInput], Never>,
@@ -20,4 +20,8 @@ protocol RateAppController {
         isPageSelectedPublisher: some Publisher<Bool, Never>,
         notificationsPublisher: some Publisher<[NotificationViewInput], Never>
     )
+
+    func openFeedbackMail()
+
+    func openAppStoreReview()
 }
