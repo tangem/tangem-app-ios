@@ -13,7 +13,7 @@ struct SendFinishView: View {
     let namespace: Namespace.ID
 
     var body: some View {
-        VStack(spacing: 14) {
+        GroupedScrollView(spacing: 14) {
             if viewModel.showHeader {
                 header
                     .padding(.top, 24)
