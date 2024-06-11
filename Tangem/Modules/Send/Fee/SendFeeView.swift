@@ -13,7 +13,7 @@ struct SendFeeView: View {
     let namespace: Namespace.ID
 
     var body: some View {
-        VStack(spacing: 20) {
+        GroupedScrollView(spacing: 20) {
             GroupedSection(viewModel.feeRowViewModels) { feeRowViewModel in
                 Group {
                     if feeRowViewModel.isSelected.value {
