@@ -177,6 +177,7 @@
 "custom_token_validation_error_not_found" = "請注意代幣可以被任何人創造。小心詐騙";
 "custom_token_validation_error_not_found_description" = "Be aware of adding scam tokens, they can cost nothing";
 "custom_token_validation_error_not_found_title" = "Note that tokens can be created by anyone";
+"details_buy_wallet" = "Buy Tangem Wallet";
 "details_chat" = "交談";
 "details_manage_security_access_code" = "訪問密碼";
 "details_manage_security_access_code_description" = "在掃描卡之前，您必須提交正確的訪問密碼";
@@ -401,10 +402,6 @@
 "qr_scanner_camera_denied_settings_button" = "Settings";
 "qr_scanner_camera_denied_text" = "You have not given access to your camera";
 "qr_scanner_camera_denied_title" = "Camera access denied";
-"rate_app_sheet_negative_response_button_title" = "Share feedback";
-"rate_app_sheet_positive_response_button_title" = "Rate the app 🙌";
-"rate_app_sheet_subtitle" = "Share your app experience – every detail counts.";
-"rate_app_sheet_title" = "Enjoying our app?";
 "receive_bottom_sheet_warning_message" = "%1$@ (%2$@) on %3$@ network";
 "receive_bottom_sheet_warning_message_full" = "Send only %@ to this address. Sending any other currency will result in its irreversible loss.";
 "referral_button_participate" = "參與";
