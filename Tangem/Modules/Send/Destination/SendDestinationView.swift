@@ -13,7 +13,7 @@ struct SendDestinationView: View {
     let namespace: Namespace.ID
 
     var body: some View {
-        VStack(spacing: 20) {
+        GroupedScrollView(spacing: 20) {
             GroupedSection(viewModel.addressViewModel) {
                 SendDestinationTextView(viewModel: $0)
                     .setNamespace(namespace)

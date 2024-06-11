@@ -22,11 +22,8 @@ struct SendView: View {
             header
 
             ZStack(alignment: .bottom) {
-                ScrollView {
-                    currentPage
-                        .padding(.horizontal, 16)
-                        .transition(pageContentTransition)
-                }
+                currentPage
+                    .transition(pageContentTransition)
 
                 bottomOverlay
             }
