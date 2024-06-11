@@ -25,6 +25,7 @@ final class SendViewModel: ObservableObject {
     @Published var updatingFees = false
     @Published var alert: AlertBinder?
     @Published var transactionDescription: String?
+    @Published var transactionDescriptionIsVisisble: Bool = false
 
     var title: String? {
         step.name(for: sendStepParameters)
@@ -162,6 +163,7 @@ final class SendViewModel: ObservableObject {
         didReachSummaryScreen = (firstStep == .summary)
         mainButtonType = Self.mainButtonType(for: firstStep, didReachSummaryScreen: didReachSummaryScreen)
         stepAnimation = (firstStep == .summary) ? .moveAndFade : .slideForward
+        transactionDescriptionIsVisisble = firstStep == .summary
 
         let tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
         let cryptoIconURL: URL?
@@ -662,6 +664,7 @@ final class SendViewModel: ObservableObject {
             self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
             self.showTransactionButtons = self.sendModel.transactionURL != nil
             self.step = step
+            self.transactionDescriptionIsVisisble = step == .summary
         }
     }
 
