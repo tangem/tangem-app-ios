@@ -13,7 +13,7 @@ struct SendAmountView: View {
     let namespace: Namespace.ID
 
     var body: some View {
-        VStack(spacing: 14) {
+        GroupedScrollView(spacing: 14) {
             amountSectionContent
 
             if !viewModel.animatingAuxiliaryViewsOnAppear {
