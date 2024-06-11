@@ -13,7 +13,7 @@ struct SendSummaryView: View {
     let namespace: Namespace.ID
 
     var body: some View {
-        VStack(spacing: 14) {
+        GroupedScrollView(spacing: 14) {
             if !viewModel.animatingDestinationOnAppear {
                 GroupedSection(viewModel.destinationViewTypes) { type in
                     switch type {
