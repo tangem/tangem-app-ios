@@ -711,6 +711,18 @@
                     "exchangeable": false
                 }
             ]
+        },
+        {
+            "id": "radiant",
+            "symbol": "RXD",
+            "name": "Radiant",
+            "networks":
+            [
+                {
+                    "networkId": "radiant/test",
+                    "exchangeable": false
+                }
+            ]
         }
     ],
     "total": 0,
