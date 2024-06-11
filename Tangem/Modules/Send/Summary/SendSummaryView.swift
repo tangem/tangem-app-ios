@@ -79,7 +79,7 @@ struct SendSummaryView: View {
                                     .setOptionNamespaceId(SendViewNamespaceId.feeOption(feeOption: model.option).rawValue)
                                     .setAmountNamespaceId(SendViewNamespaceId.feeAmount(feeOption: model.option).rawValue)
                                     .allowsHitTesting(false)
-                                    .opacity(0)
+                                    .hidden()
                                     .overlay(alignment: .bottom) {
                                         feeRowViewSeparator(for: model.option)
                                     }
