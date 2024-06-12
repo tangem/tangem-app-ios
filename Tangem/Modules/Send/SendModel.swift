@@ -433,10 +433,6 @@ class SendModel {
         }
     }
 
-    func didChangeFeeInclusion(_ isFeeIncluded: Bool) {
-        _isFeeIncluded.send(isFeeIncluded)
-    }
-
     private func feeValues(_ fees: [Fee]) -> [FeeOption: LoadingValue<Fee>] {
         switch fees.count {
         case 1:
