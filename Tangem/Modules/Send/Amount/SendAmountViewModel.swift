@@ -11,13 +11,9 @@ import SwiftUI
 import Combine
 import BlockchainSdk
 
-#warning("[REDACTED_TODO_COMMENT]")
-
 protocol SendAmountViewModelInput {
     var userInputAmountValue: Amount? { get }
     var amountError: AnyPublisher<Error?, Never> { get }
-
-    func didChangeFeeInclusion(_ isFeeIncluded: Bool)
 }
 
 class SendAmountViewModel: ObservableObject, Identifiable {
