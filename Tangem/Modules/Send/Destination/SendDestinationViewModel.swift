@@ -7,14 +7,13 @@
 //
 
 import Foundation
-import SwiftUI
 import Combine
 import BlockchainSdk
 
 protocol DestinationViewModelInput: AnyObject {}
 
 protocol DestinationViewModelOutput: AnyObject {
-    func destinationDidChanged(_ address: SendAddress)
+    func destinationDidChanged(_ address: SendAddress?)
     func destinationAdditionalParametersDidChanged(_ type: DestinationAdditionalFieldType)
 }
 
@@ -43,7 +42,6 @@ class SendDestinationViewModel: ObservableObject {
     private let initial: InitialModel
     private weak var input: DestinationViewModelInput?
     private weak var output: DestinationViewModelOutput?
-
     private let processor: DestinationViewModelProcessor
 
     private let addressTextViewHeightModel: AddressTextViewHeightModel
@@ -133,6 +131,7 @@ class SendDestinationViewModel: ObservableObject {
     private func destinationDidChange(address: String, source: Analytics.DestinationAddressSource) {
         guard !address.isEmpty else {
             _destinationError.send(nil)
+            output?.destinationDidChanged(.none)
             return
         }
 
@@ -145,15 +144,16 @@ class SendDestinationViewModel: ObservableObject {
 
                 await runOnMain {
                     viewModel._destinationValid.send(true)
-                    viewModel._isValidatingDestination.send(false)
+                    viewModel._destinationError.send(.none)
                 }
 
                 Analytics.logDestinationAddress(isAddressValid: true, source: source)
             } catch {
                 if error is CancellationError { return }
 
+                viewModel.output?.destinationDidChanged(.none)
+
                 await runOnMain {
-                    viewModel._isValidatingDestination.send(false)
                     viewModel._destinationValid.send(false)
                     viewModel._destinationError.send(error)
                 }
@@ -167,7 +167,7 @@ class SendDestinationViewModel: ObservableObject {
 
     private func destinationAdditionalDidChange(value: String, type: SendAdditionalFields) {
         guard !value.isEmpty else {
-            output?.destinationAdditionalParametersDidChanged(.supported(type: type))
+            output?.destinationAdditionalParametersDidChanged(.empty(type: type))
             _destinationAdditionalFieldError.send(nil)
             return
         }
@@ -185,9 +185,7 @@ class SendDestinationViewModel: ObservableObject {
             .removeDuplicates()
             .delay(for: 0.01, scheduler: DispatchQueue.main) // HACK: making sure it doesn't interfere with textview's updates
             .sink { [weak self] destinationValid in
-                withAnimation(SendView.Constants.defaultAnimation) {
-                    self?.showSuggestedDestinations = !destinationValid
-                }
+                self?.showSuggestedDestinations = !destinationValid
             }
             .store(in: &bag)
 
