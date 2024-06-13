@@ -39,7 +39,7 @@ class SendCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        let factory = TransactionBuildingFactory(userWalletModel: options.userWalletModel, walletModel: options.walletModel)
+        let factory = SendModulesFactory(userWalletModel: options.userWalletModel, walletModel: options.walletModel)
         rootViewModel = factory.makeSendViewModel(type: options.type, coordinator: self)
     }
 }
