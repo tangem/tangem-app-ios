@@ -93,7 +93,7 @@ final class SendViewModel: ObservableObject {
     private let fiatCryptoAdapter: CommonSendFiatCryptoAdapter
     private let sendStepParameters: SendStep.Parameters
     private let keyboardVisibilityService: KeyboardVisibilityService
-    private let factory: TransactionBuildingFactory
+    private let factory: SendModulesFactory
 
     private weak var coordinator: SendRoutable?
 
@@ -151,7 +151,7 @@ final class SendViewModel: ObservableObject {
         customFeeService: CustomFeeService?,
         fiatCryptoAdapter: CommonSendFiatCryptoAdapter,
         keyboardVisibilityService: KeyboardVisibilityService,
-        factory: TransactionBuildingFactory,
+        factory: SendModulesFactory,
         coordinator: SendRoutable
     ) {
         self.walletInfo = walletInfo
