@@ -1,5 +1,5 @@
 //
-//  TransactionBuildingFactory.swift
+//  SendModulesFactory.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,13 +9,13 @@
 import Foundation
 import BlockchainSdk
 
-struct TransactionBuildingFactory {
+struct SendModulesFactory {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private let userWalletModel: UserWalletModel
     private let walletModel: WalletModel
-    private let builder: TransactionBuildingStepsBuilder
+    private let builder: SendModulesStepsBuilder
 
     init(userWalletModel: UserWalletModel, walletModel: WalletModel) {
         self.userWalletModel = userWalletModel
