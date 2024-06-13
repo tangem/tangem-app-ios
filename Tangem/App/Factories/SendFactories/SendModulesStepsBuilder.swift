@@ -1,5 +1,5 @@
 //
-//  TransactionBuildingStepsBuilder.swift
+//  SendModulesStepsBuilder.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import TangemStaking
 
-struct TransactionBuildingStepsBuilder {
+struct SendModulesStepsBuilder {
     let userWalletName: String
     let walletModel: WalletModel
 
