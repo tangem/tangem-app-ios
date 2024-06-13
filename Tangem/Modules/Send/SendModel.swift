@@ -14,7 +14,7 @@ import BlockchainSdk
 
 enum DestinationAdditionalFieldType {
     case notSupported
-    case supported(type: SendAdditionalFields)
+    case empty(type: SendAdditionalFields)
     case filled(type: SendAdditionalFields, value: String, params: TransactionParams)
 }
 
@@ -28,7 +28,7 @@ class SendModel {
     }
 
     var feeValid: AnyPublisher<Bool, Never> {
-        fee.map { fee in fee != nil }.eraseToAnyPublisher()
+        fee.map { $0 != nil }.eraseToAnyPublisher()
     }
 
     var sendError: AnyPublisher<Error?, Never> {
@@ -56,9 +56,9 @@ class SendModel {
 
     // MARK: - Data
 
-    private let validatedAmount = CurrentValueSubject<Amount?, Never>(nil)
     private let _destination: CurrentValueSubject<SendAddress?, Never>
     private let _destinationAdditionalField: CurrentValueSubject<DestinationAdditionalFieldType, Never>
+    private let validatedAmount = CurrentValueSubject<Amount?, Never>(nil)
     private let fee = CurrentValueSubject<Fee?, Never>(nil)
 
     private let _transactionCreationError = CurrentValueSubject<Error?, Never>(nil)
@@ -113,7 +113,7 @@ class SendModel {
         }
 
         let fields = SendAdditionalFields.fields(for: walletModel.blockchainNetwork.blockchain)
-        let type = fields.map { DestinationAdditionalFieldType.supported(type: $0) } ?? .notSupported
+        let type = fields.map { DestinationAdditionalFieldType.empty(type: $0) } ?? .notSupported
         _destinationAdditionalField = .init(type)
 
         bind()
@@ -122,12 +122,6 @@ class SendModel {
             setAmount(amount)
             updateAndValidateAmount(amount)
         }
-
-//        if let tag = sendType.predefinedTag {
-//            setDestinationAdditionalField(tag)
-//        } else {
-//            validateDestinationAdditionalField()
-//        }
 
         // Update the fees in case we have all prerequisites specified
         if let predefinedDestination = sendType.predefinedDestination {
@@ -469,7 +463,7 @@ extension SendModel: SendAmountViewModelInput {
 }
 
 extension SendModel: DestinationViewModelInput, DestinationViewModelOutput {
-    func destinationDidChanged(_ address: SendAddress) {
+    func destinationDidChanged(_ address: SendAddress?) {
         _destination.send(address)
     }
 
@@ -587,7 +581,7 @@ extension SendModel: SendFinishViewModelInput {
 
     var additionalField: (SendAdditionalFields, String)? {
         switch _destinationAdditionalField.value {
-        case .notSupported, .supported:
+        case .notSupported, .empty:
             return nil
         case .filled(let type, let value, _):
             return (type, value)
