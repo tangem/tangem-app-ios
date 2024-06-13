@@ -876,7 +876,6 @@
 		DAA5E31628D213A4003C0E80 /* CardDTOv4.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA5E31528D213A4003C0E80 /* CardDTOv4.swift */; };
 		DAAA3C6D2B3D64B90002DBB0 /* EmailDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAAA3C6C2B3D64B90002DBB0 /* EmailDataProvider.swift */; };
 		DAAA3C6F2B3D79FA0002DBB0 /* SendTransactionParametersBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAAA3C6E2B3D79FA0002DBB0 /* SendTransactionParametersBuilder.swift */; };
-		DAAA3C722B3D813C0002DBB0 /* CommonDestinationViewModelValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAAA3C702B3D813C0002DBB0 /* CommonDestinationViewModelValidator.swift */; };
 		DAAEC38D2BF31A8800184D7C /* SendFeatureProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAAEC38C2BF31A8800184D7C /* SendFeatureProvider.swift */; };
 		DAB19D482B2C72A100DD08C4 /* AddCustomTokenCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB19D432B2C72A100DD08C4 /* AddCustomTokenCoordinator.swift */; };
 		DAB19D492B2C72A100DD08C4 /* AddCustomTokenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB19D442B2C72A100DD08C4 /* AddCustomTokenViewModel.swift */; };
@@ -2606,7 +2605,6 @@
 		DAA5E31528D213A4003C0E80 /* CardDTOv4.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardDTOv4.swift; sourceTree = "<group>"; };
 		DAAA3C6C2B3D64B90002DBB0 /* EmailDataProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmailDataProvider.swift; sourceTree = "<group>"; };
 		DAAA3C6E2B3D79FA0002DBB0 /* SendTransactionParametersBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendTransactionParametersBuilder.swift; sourceTree = "<group>"; };
-		DAAA3C702B3D813C0002DBB0 /* CommonDestinationViewModelValidator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonDestinationViewModelValidator.swift; sourceTree = "<group>"; };
 		DAAEC38C2BF31A8800184D7C /* SendFeatureProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFeatureProvider.swift; sourceTree = "<group>"; };
 		DAB19D432B2C72A100DD08C4 /* AddCustomTokenCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenCoordinator.swift; sourceTree = "<group>"; };
 		DAB19D442B2C72A100DD08C4 /* AddCustomTokenViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomTokenViewModel.swift; sourceTree = "<group>"; };
@@ -6206,7 +6204,7 @@
 				DA559C302B0261F400F59584 /* SendDestinationViewModel.swift */,
 				EF70A40C2C1758A200805D9F /* SendSuggestedDestinationView */,
 				EF70A40B2C17588500805D9F /* SendDestinationTextView */,
-				EF70A4062C17149400805D9F /* Validator */,
+				EF70A4062C17149400805D9F /* Processor */,
 				DABDF4112BDA2D2100CE475D /* AddressView */,
 			);
 			path = Destination;
@@ -7660,14 +7658,13 @@
 			path = SendFactories;
 			sourceTree = "<group>";
 		};
-		EF70A4062C17149400805D9F /* Validator */ = {
+		EF70A4062C17149400805D9F /* Processor */ = {
 			isa = PBXGroup;
 			children = (
 				EF70A4072C1714A100805D9F /* DestinationViewModelValidator.swift */,
-				DAAA3C702B3D813C0002DBB0 /* CommonDestinationViewModelValidator.swift */,
 				EF70A4092C1753BC00805D9F /* DestinationViewModelProcessor.swift */,
 			);
-			path = Validator;
+			path = Processor;
 			sourceTree = "<group>";
 		};
 		EF70A40B2C17588500805D9F /* SendDestinationTextView */ = {
@@ -9862,7 +9859,6 @@
 				E9C17C5F291951BF00FDE4BC /* AnyPublisher+.swift in Sources */,
 				DCBAF69B2A4AEF3C0029480A /* HDWalletManagerFactory.swift in Sources */,
 				5D39515925597DA5002CC452 /* WalletModel.swift in Sources */,
-				DAAA3C722B3D813C0002DBB0 /* CommonDestinationViewModelValidator.swift in Sources */,
 				EF6EDD8C296D6B51001B21A3 /* SendDecimalNumberTextField.swift in Sources */,
 				DC6D99FE2BAA2481001F620A /* NDEFURLParser.swift in Sources */,
 				B0E7489C2A3C130B0015E3FC /* ReceiveBottomSheetView.swift in Sources */,
