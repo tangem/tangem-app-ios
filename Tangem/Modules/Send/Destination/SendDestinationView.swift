@@ -65,6 +65,7 @@ struct SendDestinationView: View {
         .onAppear(perform: viewModel.onAppear)
         .onAppear(perform: viewModel.onAuxiliaryViewAppear)
         .onDisappear(perform: viewModel.onAuxiliaryViewDisappear)
+        .animation(SendView.Constants.defaultAnimation, value: viewModel.showSuggestedDestinations)
     }
 }
 

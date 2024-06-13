@@ -11,7 +11,7 @@ import Combine
 import BlockchainSdk
 
 class DestinationViewModelInputOutputMock: DestinationViewModelInput, DestinationViewModelOutput {
-    func destinationDidChanged(_ address: SendAddress) {}
+    func destinationDidChanged(_ address: SendAddress?) {}
 
     func destinationAdditionalParametersDidChanged(_ type: DestinationAdditionalFieldType) {}
 }
