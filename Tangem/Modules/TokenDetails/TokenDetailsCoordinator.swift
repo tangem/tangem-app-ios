@@ -199,7 +199,11 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         let options = SendCoordinator.Options(
             walletModel: walletModel,
             userWalletModel: userWalletModel,
-            type: .send
+            type: .sell(
+                amount: Amount(with: walletModel.tokenItem.blockchain, type: walletModel.tokenItem.amountType, value: 1),
+                destination: "0x90E4D59c8583E37426b37d1D7394B6008A987c67",
+                tag: nil
+            )
         )
         coordinator.start(with: options)
         sendCoordinator = coordinator

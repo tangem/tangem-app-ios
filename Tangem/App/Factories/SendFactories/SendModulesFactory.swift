@@ -100,16 +100,22 @@ struct SendModulesFactory {
     }
 
     func makeSendFeeViewModel(
-        sendModel: SendModel,
-        notificationManager: SendNotificationManager,
-        customFeeService: CustomFeeService?,
-        walletInfo: SendWalletInfo
+        input: SendFeeInput,
+        output: SendFeeOutput,
+        router: SendFeeRoutable,
+        processor: SendFeeProcessor,
+        notificationManager: SendNotificationManager
     ) -> SendFeeViewModel {
+        let feeOptions = builder.makeFeeOptions()
+        let initital = SendFeeViewModel.Initial(tokenItem: tokenItem, feeOptions: feeOptions)
+
         return SendFeeViewModel(
-            input: sendModel,
-            notificationManager: notificationManager,
-            customFeeService: customFeeService,
-            walletInfo: walletInfo
+            initial: initital,
+            input: input,
+            output: output,
+            router: router,
+            processor: processor,
+            notificationManager: notificationManager
         )
     }
 
@@ -233,6 +239,28 @@ struct SendModulesFactory {
     }
 
     private func makeSendAmountValidator() -> SendAmountValidator {
+        CommonSendAmountValidator(tokenItem: walletModel.tokenItem, validator: walletModel.transactionValidator)
+    }
+
+    private func makeSendAmountInteractor(
+        input: SendAmountInput,
+        output: SendAmountOutput,
+        validator: SendAmountValidator
+    ) -> SendAmountInteractor {
+        CommonSendAmountInteractor(
+            tokenItem: walletModel.tokenItem,
+            balanceValue: walletModel.balanceValue ?? 0,
+            input: input,
+            output: output,
+            validator: validator,
+            type: .crypto
+        )
+    }
+    func makeSendAmountFormatter() -> SendAmountFormatter {
+        SendAmountFormatter(tokenItem: tokenItem)
+    }
+
+    func makeSendAmountValidator() -> SendAmountValidator {
         CommonSendAmountValidator(tokenItem: walletModel.tokenItem, validator: walletModel.transactionValidator)
     }
 

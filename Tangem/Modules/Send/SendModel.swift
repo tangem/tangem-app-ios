@@ -434,18 +434,18 @@ extension SendModel: SendFeeViewModelInput {
         _selectedFeeOption.value
     }
 
-    #warning("TODO")
-    var feeOptions: [FeeOption] {
-        if walletModel.shouldShowFeeSelector {
-            var options: [FeeOption] = [.slow, .market, .fast]
-            if walletModel.supportsCustomFees {
-                options.append(.custom)
-            }
-            return options
-        } else {
-            return [.market]
-        }
-    }
+//    #warning("TODO")
+//    var feeOptions: [FeeOption] {
+//        if walletModel.shouldShowFeeSelector {
+//            var options: [FeeOption] = [.slow, .market, .fast]
+//            if walletModel.supportsCustomFees {
+//                options.append(.custom)
+//            }
+//            return options
+//        } else {
+//            return [.market]
+//        }
+//    }
 
     var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> {
         _feeValues.eraseToAnyPublisher()

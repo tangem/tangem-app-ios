@@ -112,7 +112,7 @@ class CustomEvmFeeService {
     }
 }
 
-extension CustomEvmFeeService: CustomFeeService, EditableCustomFeeService {
+extension CustomEvmFeeService: EditableCustomFeeService {
     var customFeeDescription: String? {
         Localization.sendEvmCustomFeeFooter
     }

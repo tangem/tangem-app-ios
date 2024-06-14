@@ -21,7 +21,7 @@ struct SendFeeView: View {
                             .overlay(alignment: .topLeading) {
                                 Text(Localization.commonNetworkFeeTitle)
                                     .font(Fonts.Regular.footnote)
-                                    .visible(false)
+                                    .hidden()
                                     .matchedGeometryEffect(id: SendViewNamespaceId.feeTitle.rawValue, in: namespace)
                             }
                     } else {
@@ -32,11 +32,6 @@ struct SendFeeView: View {
             } footer: {
                 if !viewModel.animatingAuxiliaryViewsOnAppear {
                     feeSelectorFooter
-                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                        .environment(\.openURL, OpenURLAction { url in
-                            viewModel.openFeeExplanation()
-                            return .handled
-                        })
                         .transition(SendView.Constants.auxiliaryViewTransition(for: .fee))
                 }
             }
@@ -87,50 +82,57 @@ struct SendFeeView: View {
     }
 
     private var feeSelectorFooter: some View {
-        Text(.init(Localization.commonFeeSelectorFooter("[\(Localization.commonReadMore)](\(viewModel.feeExplanationUrl.absoluteString))")))
+        Text(.init(viewModel.feeSelectorFooterText))
+            .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+            .environment(\.openURL, OpenURLAction { url in
+                viewModel.openFeeExplanation()
+                return .handled
+            })
     }
 }
 
-struct SendFeeView_Previews: PreviewProvider {
-    @Namespace static var namespace
+/*
+ struct SendFeeView_Previews: PreviewProvider {
+     @Namespace static var namespace
 
-    static let tokenIconInfo = TokenIconInfo(
-        name: "Tether",
-        blockchainIconName: "ethereum.fill",
-        imageURL: IconURLBuilder().tokenIconURL(id: "tether"),
-        isCustom: false,
-        customTokenColor: nil
-    )
+     static let tokenIconInfo = TokenIconInfo(
+         name: "Tether",
+         blockchainIconName: "ethereum.fill",
+         imageURL: IconURLBuilder().tokenIconURL(id: "tether"),
+         isCustom: false,
+         customTokenColor: nil
+     )
 
-    static let walletInfo = SendWalletInfo(
-        walletName: "Wallet",
-        balanceValue: 12013,
-        balance: "12013",
-        blockchain: .ethereum(testnet: false),
-        currencyId: "tether",
-        feeCurrencySymbol: "ETH",
-        feeCurrencyId: "ethereum",
-        isFeeApproximate: false,
-        tokenIconInfo: tokenIconInfo,
-        cryptoIconURL: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/coins/large/tether.png")!,
-        cryptoCurrencyCode: "USDT",
-        fiatIconURL: URL(string: "https://vectorflags.s3-us-west-2.amazonaws.com/flags/us-square-01.png")!,
-        fiatCurrencyCode: "USD",
-        amountFractionDigits: 6,
-        feeFractionDigits: 6,
-        feeAmountType: .coin,
-        canUseFiatCalculation: true
-    )
+     static let walletInfo = SendWalletInfo(
+         walletName: "Wallet",
+         balanceValue: 12013,
+         balance: "12013",
+         blockchain: .ethereum(testnet: false),
+         currencyId: "tether",
+         feeCurrencySymbol: "ETH",
+         feeCurrencyId: "ethereum",
+         isFeeApproximate: false,
+         tokenIconInfo: tokenIconInfo,
+         cryptoIconURL: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/coins/large/tether.png")!,
+         cryptoCurrencyCode: "USDT",
+         fiatIconURL: URL(string: "https://vectorflags.s3-us-west-2.amazonaws.com/flags/us-square-01.png")!,
+         fiatCurrencyCode: "USD",
+         amountFractionDigits: 6,
+         feeFractionDigits: 6,
+         feeAmountType: .coin,
+         canUseFiatCalculation: true
+     )
 
-    static var previews: some View {
-        SendFeeView(
-            viewModel: SendFeeViewModel(
-                input: SendFeeViewModelInputMock(),
-                notificationManager: FakeSendNotificationManager(),
-                customFeeService: nil,
-                walletInfo: walletInfo
-            ),
-            namespace: namespace
-        )
-    }
-}
+     static var previews: some View {
+         SendFeeView(
+             viewModel: SendFeeViewModel(
+                 input: SendFeeViewModelInputMock(),
+                 notificationManager: FakeSendNotificationManager(),
+                 customFeeService: nil,
+                 walletInfo: walletInfo
+             ),
+             namespace: namespace
+         )
+     }
+ }
+ */
