@@ -96,7 +96,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
                 options: ExpressAPIType.allCases.map { $0.rawValue },
                 selection: BindingValue<String>(
                     root: featureStorage,
-                    default: "production",
+                    default: ExpressAPIType.production.rawValue,
                     get: { $0.apiExpress },
                     set: { $0.apiExpress = $1 }
                 )
