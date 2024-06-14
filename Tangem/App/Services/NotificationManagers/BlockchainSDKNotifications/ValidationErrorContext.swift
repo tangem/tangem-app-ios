@@ -12,5 +12,5 @@ import Foundation
 struct ValidationErrorContext: Hashable {
     /// `true` when the transaction is denominated in the same currency as the fee currency for the blockchain, `false` otherwise.
     let isFeeCurrency: Bool
-    let feeAmount: Decimal
+    let feeValue: Decimal
 }
