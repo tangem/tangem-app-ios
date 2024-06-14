@@ -123,11 +123,11 @@ class ExpressNotificationManager {
         case .invalidNumber:
             event = .refreshRequired(title: Localization.commonError, message: validationError.localizedDescription)
         case .insufficientBalance:
-            assertionFailure("It had to mapped to ExpressInteractor.RestrictionType.notEnoughBalanceForSwapping")
+            assertionFailure("It have to be mapped to ExpressInteractor.RestrictionType.notEnoughBalanceForSwapping")
             notificationInputsSubject.value = []
             return
         case .insufficientBalanceForFee:
-            assertionFailure("It had to mapped to ExpressInteractor.RestrictionType.notEnoughAmountForFee")
+            assertionFailure("It have to be mapped to ExpressInteractor.RestrictionType.notEnoughAmountForFee")
             guard let notEnoughFeeForTokenTxEvent = makeNotEnoughFeeForTokenTx(sender: sender) else {
                 notificationInputsSubject.value = []
                 return

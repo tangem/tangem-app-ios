@@ -688,7 +688,7 @@ private extension ExpressViewModel {
     func feeValue(from event: ExpressNotificationEvent) -> Decimal? {
         switch event {
         case .validationErrorEvent(_, let context) where context.isFeeCurrency:
-            return context.feeAmount
+            return context.feeValue
         case .permissionNeeded,
              .refreshRequired,
              .hasPendingTransaction,
