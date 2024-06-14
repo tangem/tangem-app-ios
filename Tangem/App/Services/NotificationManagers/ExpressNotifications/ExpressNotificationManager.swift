@@ -83,8 +83,8 @@ class ExpressNotificationManager {
         case .notEnoughBalanceForSwapping:
             notificationInputsSubject.value = []
             return
-        case .validationError(let validationError):
-            setupNotification(for: validationError)
+        case .validationError(let error, let context):
+            setupNotification(for: error, context: context)
             return
         case .notEnoughAmountForFee:
             guard let notEnoughFeeForTokenTxEvent = makeNotEnoughFeeForTokenTx(sender: interactor.getSender()) else {
@@ -111,7 +111,7 @@ class ExpressNotificationManager {
         notificationInputsSubject.value = [notification]
     }
 
-    private func setupNotification(for validationError: ValidationError) {
+    private func setupNotification(for validationError: ValidationError, context: ValidationErrorContext) {
         guard let interactor = expressInteractor else { return }
 
         let sender = interactor.getSender()
@@ -141,7 +141,7 @@ class ExpressNotificationManager {
              .insufficientAmountToReserveAtDestination,
              .cardanoCannotBeSentBecauseHasTokens,
              .cardanoInsufficientBalanceToSendToken:
-            event = .validationErrorEvent(validationErrorEvent)
+            event = .validationErrorEvent(event: validationErrorEvent, context: context)
         }
 
         let notification = NotificationsFactory().buildNotificationInput(for: event) { [weak self] id, actionType in
