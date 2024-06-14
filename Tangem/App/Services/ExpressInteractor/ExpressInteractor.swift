@@ -438,16 +438,12 @@ private extension ExpressInteractor {
         do {
             let transactionValidator = getSender().transactionValidator
             try await transactionValidator.validate(amount: amount, fee: fee, destination: .generate)
-
         } catch ValidationError.totalExceedsBalance, ValidationError.amountExceedsBalance {
             return .restriction(.notEnoughBalanceForSwapping(requiredAmount: amount.value), quote: correctState.quote)
-
         } catch ValidationError.feeExceedsBalance {
             return .restriction(.notEnoughAmountForFee(correctState), quote: correctState.quote)
-
         } catch let error as ValidationError {
-
-            let context = ValidationErrorContext(isFeeCurrency: fee.amount.type == amount.type, feeAmount: fee.amount.value)
+            let context = ValidationErrorContext(isFeeCurrency: fee.amount.type == amount.type, feeValue: fee.amount.value)
             return .restriction(.validationError(error: error, context: context), quote: correctState.quote)
         } catch {
             return .restriction(.requiredRefresh(occurredError: error), quote: correctState.quote)
@@ -494,7 +490,7 @@ private extension ExpressInteractor {
                 return .restriction(.noDestinationTokens, quote: .none)
             }
 
-            // If we have a amount to we will start the full update
+            // If we have an amount to we will start the full update
             if let amount = await interactor.expressManager.getAmount(), amount > 0 {
                 interactor.updateState(.loading(type: .full))
             }
