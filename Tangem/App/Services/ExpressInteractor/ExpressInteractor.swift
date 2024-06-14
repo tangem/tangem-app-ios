@@ -446,8 +446,9 @@ private extension ExpressInteractor {
             return .restriction(.notEnoughAmountForFee(correctState), quote: correctState.quote)
 
         } catch let error as ValidationError {
-            return .restriction(.validationError(error), quote: correctState.quote)
 
+            let context = ValidationErrorContext(isFeeCurrency: fee.amount.type == amount.type, feeAmount: fee.amount.value)
+            return .restriction(.validationError(error: error, context: context), quote: correctState.quote)
         } catch {
             return .restriction(.requiredRefresh(occurredError: error), quote: correctState.quote)
         }
@@ -820,7 +821,7 @@ extension ExpressInteractor {
         case notEnoughAmountForFee(_ returnState: State)
         case requiredRefresh(occurredError: Error)
         case noDestinationTokens
-        case validationError(ValidationError)
+        case validationError(error: ValidationError, context: ValidationErrorContext)
         case notEnoughReceivedAmount(minAmount: Decimal, tokenSymbol: String)
     }
 
