@@ -133,10 +133,10 @@ private extension SegmentedPickerView {
                     .animation(animation, value: isSelected)
             }
             .buttonStyle(SegmentButtonStyle(isPressed: $isPressed))
-//            .accessibilityElement(children: .combine)
-//            .accessibilityAddTraits(isSelected ? .isSelected : [])
-//            .accessibilityRemoveTraits(isSelected ? [] : .isSelected)
-//            .accessibilityValue(accessibiltyValue)
+            .accessibilityElement(children: .combine)
+            .accessibilityAddTraits(isSelected ? .isSelected : [])
+            .accessibilityRemoveTraits(isSelected ? [] : .isSelected)
+            .accessibilityValue(accessibiltyValue)
         }
     }
 }
