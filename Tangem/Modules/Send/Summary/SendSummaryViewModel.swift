@@ -14,14 +14,12 @@ import BlockchainSdk
 protocol SendSummaryViewModelInput: AnyObject {
     var canEditAmount: Bool { get }
     var canEditDestination: Bool { get }
-    var feeOptions: [FeeOption] { get }
 
     var amountPublisher: AnyPublisher<SendAmount?, Never> { get }
     var transactionAmountPublisher: AnyPublisher<Amount?, Never> { get }
     var destinationTextPublisher: AnyPublisher<String, Never> { get }
     var additionalFieldPublisher: AnyPublisher<DestinationAdditionalFieldType, Never> { get }
     var feeValuePublisher: AnyPublisher<Fee?, Never> { get }
-    var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
     var selectedFeeOptionPublisher: AnyPublisher<FeeOption, Never> { get }
 
     var isSending: AnyPublisher<Bool, Never> { get }
@@ -75,6 +73,7 @@ class SendSummaryViewModel: ObservableObject {
     private let tokenItem: TokenItem
     private let walletInfo: SendWalletInfo
     private let notificationManager: SendNotificationManager
+    private let sendFeeProcessor: SendFeeProcessor
     private var isVisible = false
 
     let addressTextViewHeightModel: AddressTextViewHeightModel
@@ -83,6 +82,7 @@ class SendSummaryViewModel: ObservableObject {
         initial: Initial,
         input: SendSummaryViewModelInput,
         notificationManager: SendNotificationManager,
+        sendFeeProcessor: SendFeeProcessor,
         addressTextViewHeightModel: AddressTextViewHeightModel,
         walletInfo: SendWalletInfo,
         sectionViewModelFactory: SendSummarySectionViewModelFactory
@@ -92,6 +92,7 @@ class SendSummaryViewModel: ObservableObject {
         self.input = input
         self.walletInfo = walletInfo
         self.notificationManager = notificationManager
+        self.sendFeeProcessor = sendFeeProcessor
         self.addressTextViewHeightModel = addressTextViewHeightModel
         self.sectionViewModelFactory = sectionViewModelFactory
 
@@ -183,23 +184,18 @@ class SendSummaryViewModel: ObservableObject {
             .assign(to: \.amountSummaryViewData, on: self, ownership: .weak)
             .store(in: &bag)
 
-        Publishers.CombineLatest(input.feeValues, input.selectedFeeOptionPublisher)
+        Publishers.CombineLatest(sendFeeProcessor.feesPublisher(), input.selectedFeeOptionPublisher)
             .sink { [weak self] feeValues, selectedFeeOption in
                 guard let self else { return }
 
                 var selectedFeeSummaryViewModel: SendFeeSummaryViewModel?
                 var deselectedFeeRowViewModels: [FeeRowViewModel] = []
 
-                for feeOption in input.feeOptions {
-                    let feeValue = feeValues[feeOption] ?? .failedToLoad(error: WalletError.failedToGetFee)
-
-                    if feeOption == selectedFeeOption {
-                        selectedFeeSummaryViewModel = sectionViewModelFactory.makeFeeViewData(
-                            from: feeValue,
-                            feeOption: feeOption
-                        )
+                for feeValue in feeValues {
+                    if feeValue.option == selectedFeeOption {
+                        selectedFeeSummaryViewModel = sectionViewModelFactory.makeFeeViewData(from: feeValue)
                     } else {
-                        let model = sectionViewModelFactory.makeDeselectedFeeRowViewModel(from: feeValue, feeOption: feeOption)
+                        let model = sectionViewModelFactory.makeDeselectedFeeRowViewModel(from: feeValue)
                         deselectedFeeRowViewModels.append(model)
                     }
                 }
@@ -207,7 +203,7 @@ class SendSummaryViewModel: ObservableObject {
                 self.selectedFeeSummaryViewModel = selectedFeeSummaryViewModel
                 self.deselectedFeeRowViewModels = deselectedFeeRowViewModels
 
-                let multipleFeeOptions = input.feeOptions.count > 1
+                let multipleFeeOptions = feeValues.count > 1
                 let noFeeErrors = feeValues.allSatisfy { $0.value.error == nil }
                 canEditFee = multipleFeeOptions && noFeeErrors
             }

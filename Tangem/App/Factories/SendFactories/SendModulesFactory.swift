@@ -27,10 +27,12 @@ struct SendModulesFactory {
     // MARK: - ViewModels
 
     func makeSendViewModel(type: SendType, coordinator: SendRoutable) -> SendViewModel {
-        let tokenItem = walletModel.tokenItem
-        let sendModel = makeSendModel(type: type)
-        let canUseFiatCalculation = quotesRepository.quote(for: tokenItem) != nil
+        let sendFeeProcessor = makeSendFeeProcessor()
+        let sendModel = makeSendModel(type: type, sendFeeProcessor: sendFeeProcessor)
+        let canUseFiatCalculation = quotesRepository.quote(for: walletModel.tokenItem) != nil
         let walletInfo = builder.makeSendWalletInfo(canUseFiatCalculation: canUseFiatCalculation)
+
+        sendFeeProcessor.setup(input: sendModel)
 
         return SendViewModel(
             walletInfo: walletInfo,
@@ -41,7 +43,7 @@ struct SendModulesFactory {
             emailDataProvider: emailDataProvider,
             sendModel: sendModel,
             notificationManager: makeSendNotificationManager(sendModel: sendModel),
-            customFeeService: makeCustomFeeService(sendModel: sendModel),
+            sendFeeProcessor: sendFeeProcessor,
             keyboardVisibilityService: KeyboardVisibilityService(),
             sendAmountValidator: makeSendAmountValidator(),
             factory: self,
@@ -103,7 +105,8 @@ struct SendModulesFactory {
         input: SendFeeInput,
         output: SendFeeOutput,
         router: SendFeeRoutable,
-        processor: SendFeeProcessor,
+        processorInput: SendFeeProcessorInput,
+        sendFeeProcessor: SendFeeProcessor,
         notificationManager: SendNotificationManager
     ) -> SendFeeViewModel {
         let feeOptions = builder.makeFeeOptions()
@@ -114,7 +117,7 @@ struct SendModulesFactory {
             input: input,
             output: output,
             router: router,
-            processor: processor,
+            processor: sendFeeProcessor,
             notificationManager: notificationManager
         )
     }
@@ -122,6 +125,7 @@ struct SendModulesFactory {
     func makeSendSummaryViewModel(
         sendModel: SendModel,
         notificationManager: SendNotificationManager,
+        sendFeeProcessor: SendFeeProcessor,
         addressTextViewHeightModel: AddressTextViewHeightModel,
         walletInfo: SendWalletInfo
     ) -> SendSummaryViewModel {
@@ -131,6 +135,7 @@ struct SendModulesFactory {
             initial: initial,
             input: sendModel,
             notificationManager: notificationManager,
+            sendFeeProcessor: sendFeeProcessor,
             addressTextViewHeightModel: addressTextViewHeightModel,
             walletInfo: walletInfo,
             sectionViewModelFactory: makeSendSummarySectionViewModelFactory(walletInfo: walletInfo)
@@ -167,10 +172,14 @@ struct SendModulesFactory {
         return userWalletModel.signer
     }
 
-    private func makeSendModel(type: SendType) -> SendModel {
+    private func makeSendModel(type: SendType, sendFeeProcessor: SendFeeProcessor) -> SendModel {
+        let manager = SendFeeManager(validator: walletModel.transactionValidator)
+
         return SendModel(
             walletModel: walletModel,
             transactionSigner: transactionSigner,
+            sendFeeProcessor: sendFeeProcessor,
+            sendFeeManager: manager,
             sendType: type
         )
     }
@@ -183,12 +192,8 @@ struct SendModulesFactory {
         )
     }
 
-    private func makeCustomFeeService(sendModel: SendModel) -> CustomFeeService? {
-        return CustomFeeServiceFactory(input: sendModel, output: sendModel, walletModel: walletModel).makeService()
-    }
-
-    private func makeSendSummarySectionViewModelFactory(walletInfo: SendWalletInfo) -> SendSummarySectionViewModelFactory {
-        return SendSummarySectionViewModelFactory(
+    func makeSendSummarySectionViewModelFactory(walletInfo: SendWalletInfo) -> SendSummarySectionViewModelFactory {
+        SendSummarySectionViewModelFactory(
             feeCurrencySymbol: walletInfo.feeCurrencySymbol,
             feeCurrencyId: walletInfo.feeCurrencyId,
             isFeeApproximate: walletInfo.isFeeApproximate,

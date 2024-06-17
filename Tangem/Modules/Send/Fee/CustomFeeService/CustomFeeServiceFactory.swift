@@ -26,6 +26,7 @@ struct CustomFeeServiceFactory {
             return CustomBitcoinFeeService(
                 input: input,
                 output: output,
+                feeTokenItem: walletModel.feeTokenItem,
                 bitcoinTransactionFeeCalculator: bitcoinTransactionFeeCalculator
             )
         }
@@ -34,7 +35,6 @@ struct CustomFeeServiceFactory {
             return CustomEvmFeeService(
                 input: input,
                 output: output,
-                blockchain: blockchain,
                 feeTokenItem: walletModel.feeTokenItem
             )
         }

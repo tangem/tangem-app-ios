@@ -7,13 +7,19 @@
 //
 
 import Foundation
+import Combine
+import BlockchainSdk
 
 protocol CustomFeeService: AnyObject {
-    var customFeeDescription: String? { get }
-
+    func initialSetupCustomFee(_ fee: Fee)
     func inputFieldModels() -> [SendCustomFeeInputFieldModel]
 }
 
-protocol EditableCustomFeeService: CustomFeeService {
-    func setCustomFee(value: Decimal?)
+protocol CustomFeeServiceInput: AnyObject {
+    var cryptoAmountPublisher: AnyPublisher<Amount, Never> { get }
+    var destinationPublisher: AnyPublisher<String, Never> { get }
+}
+
+protocol CustomFeeServiceOutput: AnyObject {
+    func customFeeDidChanged(_ customFee: Fee?)
 }

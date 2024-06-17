@@ -10,10 +10,10 @@ import Combine
 import BlockchainSdk
 
 protocol SendNotificationManagerInput {
-    var feeValuePublisher: AnyPublisher<BlockchainSdk.Fee?, Never> { get }
-    var feeValues: AnyPublisher<[FeeOption: LoadingValue<Fee>], Never> { get }
-    var selectedFeeOptionPublisher: AnyPublisher<FeeOption, Never> { get }
-    var customFeePublisher: AnyPublisher<Fee?, Never> { get }
+//    var feeValuePublisher: AnyPublisher<BlockchainSdk.Fee?, Never> { get }
+//    var feeValues: AnyPublisher<[SendFee], Never> { get }
+//    var selectedFeeOptionPublisher: AnyPublisher<FeeOption, Never> { get }
+//    var customFeePublisher: AnyPublisher<Fee?, Never> { get }
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> { get }
     var withdrawalNotification: AnyPublisher<WithdrawalNotification?, Never> { get }
     var amountError: AnyPublisher<Error?, Never> { get }
