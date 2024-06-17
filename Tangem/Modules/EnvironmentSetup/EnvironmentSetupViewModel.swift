@@ -95,6 +95,15 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     set: { $0.isMockedCardScannerEnabled = $1 }
                 )
             ),
+            DefaultToggleRowViewModel(
+                title: "Visa Testnet",
+                isOn: BindingValue<Bool>(
+                    root: featureStorage,
+                    default: false,
+                    get: { $0.isVisaTestnet },
+                    set: { $0.isVisaTestnet = $1 }
+                )
+            ),
         ]
 
         featureStateViewModels = Feature.allCases.reversed().map { feature in
