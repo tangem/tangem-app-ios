@@ -12,6 +12,10 @@ import Combine
 import CombineExt
 import SwiftUI
 
+protocol MarketsListOrderBottonSheetViewModelDelegate: AnyObject {
+    func didSelect(option: MarketsListOrderType)
+}
+
 class MarketsListOrderBottonSheetViewModel: ObservableObject, Identifiable {
     @Published var listOptionViewModel: [DefaultSelectableRowViewModel<MarketsListOrderType>]
     @Published var currentOrderType: MarketsListOrderType
@@ -52,8 +56,4 @@ class MarketsListOrderBottonSheetViewModel: ObservableObject, Identifiable {
         currentOrderType = option
         delegate?.didSelect(option: option)
     }
-}
-
-protocol MarketsListOrderBottonSheetViewModelDelegate: AnyObject {
-    func didSelect(option: MarketsListOrderType)
 }
