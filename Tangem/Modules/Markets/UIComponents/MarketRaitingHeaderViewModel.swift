@@ -9,6 +9,11 @@
 import Foundation
 import Combine
 
+protocol MarketOrderHeaderViewModelDelegate: AnyObject {
+    func marketOrderActionButtonDidTap()
+    func marketPriceIntervalButtonDidTap(_ interval: MarketsPriceIntervalType)
+}
+
 class MarketRatingHeaderViewModel: ObservableObject {
     // MARK: - Published Properties
 
@@ -56,9 +61,4 @@ class MarketRatingHeaderViewModel: ObservableObject {
     func onOrderActionButtonDidTap() {
         delegate?.marketOrderActionButtonDidTap()
     }
-}
-
-protocol MarketOrderHeaderViewModelDelegate: AnyObject {
-    func marketOrderActionButtonDidTap()
-    func marketPriceIntervalButtonDidTap(_ interval: MarketsPriceIntervalType)
 }
