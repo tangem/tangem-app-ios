@@ -27,25 +27,23 @@ struct MarketsRatingHeaderView: View {
     }
 
     private var orderButtonView: some View {
-        VStack {
-            Button {
-                viewModel.onOrderActionButtonDidTap()
-            } label: {
-                HStack {
-                    Text(viewModel.marketListOrderType.description)
-                        .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+        Button {
+            viewModel.onOrderActionButtonDidTap()
+        } label: {
+            HStack(spacing: 6) {
+                Text(viewModel.marketListOrderType.description)
+                    .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
 
-                    Assets
-                        .chevronDownMini
-                        .image
-                }
-                .padding(.horizontal, 10)
-                .padding(.vertical, 5)
-                .background(
-                    RoundedRectangle(cornerRadius: containerCornerRadius)
-                        .fill(Colors.Background.secondary)
-                )
+                Assets
+                    .chevronDownMini
+                    .image
             }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 5)
+            .background(
+                RoundedRectangle(cornerRadius: containerCornerRadius)
+                    .fill(Colors.Background.secondary)
+            )
         }
     }
 
@@ -54,7 +52,7 @@ struct MarketsRatingHeaderView: View {
             SegmentedPickerView(
                 selection: $viewModel.marketPriceIntervalType,
                 options: viewModel.marketPriceIntervalTypeOptions,
-                selectionView: selectionView(),
+                selectionView: selectionView,
                 segmentContent: { option, _ in
                     segmentView(title: option.description, isSelected: viewModel.marketPriceIntervalType == option)
                         .colorMultiply(Colors.Text.primary1)
@@ -69,8 +67,8 @@ struct MarketsRatingHeaderView: View {
         }
     }
 
-    private func selectionView(color: Color = Colors.Background.primary) -> some View {
-        color
+    private var selectionView: some View {
+        Colors.Background.primary
             .clipShape(RoundedRectangle(cornerRadius: containerCornerRadius - 2))
     }
 
@@ -79,7 +77,6 @@ struct MarketsRatingHeaderView: View {
             Text(title)
                 .font(isSelected ? Fonts.Bold.footnote : Fonts.Regular.footnote)
         }
-        .frame(width: 32, height: 16)
         .lineLimit(1)
         .padding(.vertical, 4)
         .padding(.horizontal, 8)
