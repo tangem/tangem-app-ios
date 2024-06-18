@@ -53,7 +53,7 @@ class CommonSwapAvailabilityManager: SwapAvailabilityManager {
                 partialResult[item] = item.expressCurrency
             }
 
-            let expressCurrencies = Array(Set(requestedItems.values))
+            let expressCurrencies = requestedItems.values.unique()
 
             do {
                 let provider = ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, logger: AppLog.shared)
