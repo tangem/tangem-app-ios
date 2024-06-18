@@ -89,6 +89,11 @@ class SendDestinationViewModel: ObservableObject {
         }
     }
 
+    func update(address: SendAddress?, additionalField: String?) {
+        address.map { _destinationText.send($0.value) }
+        additionalField.map { _destinationAdditionalFieldText.send($0) }
+    }
+
     func onAppear() {
         if animatingAuxiliaryViewsOnAppear {
             Analytics.log(.sendScreenReopened, params: [.source: .address])
