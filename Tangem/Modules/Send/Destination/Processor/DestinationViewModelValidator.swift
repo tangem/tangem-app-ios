@@ -1,5 +1,5 @@
 //
-//  DestinationViewModelValidator.swift
+//  SendDestinationValidator.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,12 +10,12 @@ import Foundation
 import Combine
 import BlockchainSdk
 
-protocol DestinationViewModelValidator {
+protocol SendDestinationValidator {
     func validate(destination: String) throws
     func canEmbedAdditionalField(into address: String) -> Bool
 }
 
-class CommonDestinationViewModelValidator {
+class CommonSendDestinationValidator {
     private let walletAddresses: [String]
     private let addressService: AddressService
     private let supportsCompound: Bool
@@ -31,7 +31,7 @@ class CommonDestinationViewModelValidator {
     }
 }
 
-extension CommonDestinationViewModelValidator: DestinationViewModelValidator {
+extension CommonSendDestinationValidator: SendDestinationValidator {
     func validate(destination address: String) throws {
         if address.isEmpty {
             throw SendAddressServiceError.emptyAddress
