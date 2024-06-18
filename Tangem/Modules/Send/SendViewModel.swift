@@ -660,13 +660,8 @@ final class SendViewModel: ObservableObject {
             return
         }
 
-        sendModel.destinationDidChanged(SendAddress(value: result.destination, source: .qrCode))
+        sendDestinationViewModel.update(address: SendAddress(value: result.destination, source: .qrCode), additionalField: result.memo)
         sendModel.setAmount(result.amount)
-
-        if let memo = result.memo,
-           let type = try? processor.proceed(additionalField: memo) {
-            sendModel.destinationAdditionalParametersDidChanged(type)
-        }
     }
 
     private func logNextStepAnalytics() {
