@@ -10,9 +10,9 @@ import Foundation
 import Combine
 import BlockchainSdk
 
-protocol DestinationViewModelInput: AnyObject {}
+protocol SendDestinationInput: AnyObject {}
 
-protocol DestinationViewModelOutput: AnyObject {
+protocol SendDestinationOutput: AnyObject {
     func destinationDidChanged(_ address: SendAddress?)
     func destinationAdditionalParametersDidChanged(_ type: DestinationAdditionalFieldType)
 }
