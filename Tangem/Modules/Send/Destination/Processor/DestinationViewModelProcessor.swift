@@ -16,13 +16,13 @@ protocol SendDestinationProcessor {
 }
 
 class CommonSendDestinationProcessor: SendDestinationProcessor {
-    private let validator: DestinationViewModelValidator
+    private let validator: SendDestinationValidator
     private let addressResolver: AddressResolver?
     private let additionalFieldType: SendAdditionalFields?
     private let parametersBuilder: SendTransactionParametersBuilder
 
     init(
-        validator: DestinationViewModelValidator,
+        validator: SendDestinationValidator,
         addressResolver: AddressResolver?,
         additionalFieldType: SendAdditionalFields?,
         parametersBuilder: SendTransactionParametersBuilder
