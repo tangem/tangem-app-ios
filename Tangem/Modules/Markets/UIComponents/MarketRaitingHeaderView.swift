@@ -77,7 +77,6 @@ struct MarketsRatingHeaderView: View {
             Text(title)
                 .font(isSelected ? Fonts.Bold.footnote : Fonts.Regular.footnote)
         }
-        .frame(width: 32, height: 16)
         .lineLimit(1)
         .padding(.vertical, 4)
         .padding(.horizontal, 8)
