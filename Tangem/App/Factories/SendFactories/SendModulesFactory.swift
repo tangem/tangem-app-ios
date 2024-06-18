@@ -197,16 +197,16 @@ struct SendModulesFactory {
         let parametersBuilder = SendTransactionParametersBuilder(blockchain: tokenItem.blockchain)
 
         return CommonSendDestinationProcessor(
-            validator: makeDestinationViewModelValidator(),
+            validator: makeSendDestinationValidator(),
             addressResolver: walletModel.addressResolver,
             additionalFieldType: .fields(for: tokenItem.blockchain),
             parametersBuilder: parametersBuilder
         )
     }
 
-    private func makeDestinationViewModelValidator() -> DestinationViewModelValidator {
+    private func makeSendDestinationValidator() -> SendDestinationValidator {
         let addressService = AddressServiceFactory(blockchain: walletModel.wallet.blockchain).makeAddressService()
-        let validator = CommonDestinationViewModelValidator(
+        let validator = CommonSendDestinationValidator(
             walletAddresses: walletModel.addresses,
             addressService: addressService,
             supportsCompound: walletModel.wallet.blockchain.supportsCompound
