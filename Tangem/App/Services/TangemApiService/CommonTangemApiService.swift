@@ -250,7 +250,7 @@ extension CommonTangemApiService: TangemApiService {
     func loadMarkets(requestModel: MarketsDTO.General.Request) async throws -> MarketsDTO.General.Response {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
-        return try await request(for: .marketsGeneral(requestModel), decoder: decoder)
+        return try await request(for: .coinsList(requestModel), decoder: decoder)
     }
 
     // MARK: - Init
