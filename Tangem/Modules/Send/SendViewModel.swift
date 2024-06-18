@@ -94,7 +94,7 @@ final class SendViewModel: ObservableObject {
     private let sendStepParameters: SendStep.Parameters
     private let keyboardVisibilityService: KeyboardVisibilityService
     private let factory: SendModulesFactory
-    private let processor: DestinationViewModelProcessor
+    private let processor: SendDestinationProcessor
 
     private weak var coordinator: SendRoutable?
 
@@ -154,7 +154,7 @@ final class SendViewModel: ObservableObject {
         fiatCryptoAdapter: CommonSendFiatCryptoAdapter,
         keyboardVisibilityService: KeyboardVisibilityService,
         factory: SendModulesFactory,
-        processor: DestinationViewModelProcessor,
+        processor: SendDestinationProcessor,
         coordinator: SendRoutable
     ) {
         self.walletInfo = walletInfo
