@@ -1,5 +1,5 @@
 //
-//  SendDestinationViewModelInputMock.swift
+//  SendSendDestinationInputMock.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import SwiftUI
 import Combine
 import BlockchainSdk
 
-class DestinationViewModelInputOutputMock: DestinationViewModelInput, DestinationViewModelOutput {
+class SendDestinationInputOutputMock: SendDestinationInput, SendDestinationOutput {
     func destinationDidChanged(_ address: SendAddress?) {}
 
     func destinationAdditionalParametersDidChanged(_ type: DestinationAdditionalFieldType) {}
