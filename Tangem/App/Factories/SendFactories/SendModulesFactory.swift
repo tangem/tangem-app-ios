@@ -52,8 +52,8 @@ struct SendModulesFactory {
     }
 
     func makeSendDestinationViewModel(
-        input: DestinationViewModelInput,
-        output: DestinationViewModelOutput,
+        input: SendDestinationInput,
+        output: SendDestinationOutput,
         sendType: SendType,
         addressTextViewHeightModel: AddressTextViewHeightModel
     ) -> SendDestinationViewModel {
@@ -147,10 +147,10 @@ struct SendModulesFactory {
 
     // MARK: - Dependencies
 
-    private var emailDataProvider: EmailDataProvider { 
+    private var emailDataProvider: EmailDataProvider {
         return userWalletModel
     }
-    
+
     private var transactionSigner: TransactionSigner {
         return userWalletModel.signer
     }
