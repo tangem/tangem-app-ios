@@ -462,7 +462,7 @@ extension SendModel: SendAmountViewModelInput {
     var amountError: AnyPublisher<Error?, Never> { _amountError.eraseToAnyPublisher() }
 }
 
-extension SendModel: DestinationViewModelInput, DestinationViewModelOutput {
+extension SendModel: SendDestinationInput, SendDestinationOutput {
     func destinationDidChanged(_ address: SendAddress?) {
         _destination.send(address)
     }
