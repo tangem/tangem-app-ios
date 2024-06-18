@@ -9,6 +9,10 @@
 import Foundation
 import Combine
 
+protocol MarketOrderHeaderViewModelOrderDelegate: AnyObject {
+    func marketOrderActionButtonDidTap()
+}
+
 class MarketRatingHeaderViewModel: ObservableObject {
     // MARK: - Published Properties
 
@@ -17,15 +21,19 @@ class MarketRatingHeaderViewModel: ObservableObject {
 
     var marketPriceIntervalTypeOptions: [MarketsPriceIntervalType] = []
 
+    weak var delegate: MarketOrderHeaderViewModelOrderDelegate?
+
     // MARK: - Private Properties
 
-    private weak var delegate: MarketOrderHeaderViewModelDelegate?
     private var bag = Set<AnyCancellable>()
+
+    private let provider: MarketsListDataFilterProvider
 
     // MARK: - Init
 
-    init(from provider: MarketsListDataFilterProvider) {
-        delegate = provider
+    init(provider: MarketsListDataFilterProvider) {
+        self.provider = provider
+
         marketListOrderType = provider.currentFilterValue.order
         marketPriceIntervalType = provider.currentFilterValue.interval
         marketPriceIntervalTypeOptions = provider.supportedPriceIntervalTypes
@@ -38,7 +46,7 @@ class MarketRatingHeaderViewModel: ObservableObject {
             .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { viewModel, value in
-                viewModel.delegate?.marketPriceIntervalButtonDidTap(value)
+                viewModel.provider.didSelectMarketPriceInterval(value)
             }
             .store(in: &bag)
 
@@ -56,9 +64,4 @@ class MarketRatingHeaderViewModel: ObservableObject {
     func onOrderActionButtonDidTap() {
         delegate?.marketOrderActionButtonDidTap()
     }
-}
-
-protocol MarketOrderHeaderViewModelDelegate: AnyObject {
-    func marketOrderActionButtonDidTap()
-    func marketPriceIntervalButtonDidTap(_ interval: MarketsPriceIntervalType)
 }
