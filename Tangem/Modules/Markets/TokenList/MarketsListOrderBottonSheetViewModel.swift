@@ -30,7 +30,7 @@ class MarketsListOrderBottonSheetViewModel: ObservableObject, Identifiable {
 
     // MARK: - Init
 
-    init(from provider: MarketsListDataFilterProvider, dissmis: (() -> Void)?) {
+    init(from provider: MarketsListDataFilterProvider) {
         currentOrderType = provider.currentFilterValue.order
 
         listOptionViewModel = provider.supportedOrderTypes.map {
@@ -59,6 +59,5 @@ class MarketsListOrderBottonSheetViewModel: ObservableObject, Identifiable {
     private func update(option: MarketsListOrderType) {
         currentOrderType = option
         provider.didSelectMarketOrder(option)
-        dissmis?()
     }
 }
