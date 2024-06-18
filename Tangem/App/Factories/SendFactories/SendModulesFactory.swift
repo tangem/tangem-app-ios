@@ -102,7 +102,7 @@ struct SendModulesFactory {
         addressTextViewHeightModel: AddressTextViewHeightModel,
         walletInfo: SendWalletInfo
     ) -> SendSummaryViewModel {
-        return SendSummaryViewModel(
+        SendSummaryViewModel(
             input: sendModel,
             notificationManager: notificationManager,
             fiatCryptoValueProvider: fiatCryptoAdapter,
@@ -120,7 +120,7 @@ struct SendModulesFactory {
         feeTypeAnalyticsParameter: Analytics.ParameterValue,
         walletInfo: SendWalletInfo
     ) -> SendFinishViewModel? {
-        return SendFinishViewModel(
+        SendFinishViewModel(
             input: sendModel,
             fiatCryptoValueProvider: fiatCryptoAdapter,
             addressTextViewHeightModel: addressTextViewHeightModel,
@@ -132,8 +132,13 @@ struct SendModulesFactory {
 
     // MARK: - Dependencies
 
-    private var emailDataProvider: EmailDataProvider { userWalletModel }
-    private var transactionSigner: TransactionSigner { userWalletModel.signer }
+    private var emailDataProvider: EmailDataProvider { 
+        userWalletModel
+    }
+    
+    private var transactionSigner: TransactionSigner {
+        userWalletModel.signer
+    }
 
     private var sendAddressService: SendAddressService {
         SendAddressServiceFactory(walletModel: walletModel).makeService()
@@ -168,7 +173,7 @@ struct SendModulesFactory {
         )
     }
 
-    func makeSendSummarySectionViewModelFactory(walletInfo: SendWalletInfo) -> SendSummarySectionViewModelFactory {
+    private func makeSendSummarySectionViewModelFactory(walletInfo: SendWalletInfo) -> SendSummarySectionViewModelFactory {
         SendSummarySectionViewModelFactory(
             feeCurrencySymbol: walletInfo.feeCurrencySymbol,
             feeCurrencyId: walletInfo.feeCurrencyId,
