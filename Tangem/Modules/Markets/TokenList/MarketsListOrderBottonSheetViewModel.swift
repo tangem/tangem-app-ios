@@ -24,12 +24,14 @@ class MarketsListOrderBottonSheetViewModel: ObservableObject, Identifiable {
 
     private var subscription: AnyCancellable?
     private weak var delegate: MarketsListOrderBottonSheetViewModelDelegate?
+    private var dissmis: (() -> Void)?
+
+    private let provider: MarketsListDataFilterProvider
 
     // MARK: - Init
 
-    init(from provider: MarketsListDataFilterProvider) {
+    init(from provider: MarketsListDataFilterProvider, dissmis: (() -> Void)?) {
         currentOrderType = provider.currentFilterValue.order
-        delegate = provider
 
         listOptionViewModel = provider.supportedOrderTypes.map {
             DefaultSelectableRowViewModel(
@@ -38,6 +40,8 @@ class MarketsListOrderBottonSheetViewModel: ObservableObject, Identifiable {
                 subtitle: nil
             )
         }
+
+        self.provider = provider
 
         bind()
     }
@@ -54,6 +58,7 @@ class MarketsListOrderBottonSheetViewModel: ObservableObject, Identifiable {
 
     private func update(option: MarketsListOrderType) {
         currentOrderType = option
-        delegate?.didSelect(option: option)
+        provider.didSelectMarketOrder(option)
+        dissmis?()
     }
 }
