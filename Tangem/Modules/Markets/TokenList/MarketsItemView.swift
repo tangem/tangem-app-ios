@@ -57,7 +57,7 @@ struct MarketsItemView: View {
                 if viewModel.isLoading {
                     makeSkeletonView(by: Constants.skeletonSmallWidthValue)
                 } else {
-                    if let marketRaiting = viewModel.marketRaiting {
+                    if let marketRaiting = viewModel.marketRating {
                         Text(marketRaiting)
                             .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                             .padding(.horizontal, 5)
@@ -128,7 +128,7 @@ extension MarketsItemView {
                 id: token.id,
                 name: token.name,
                 symbol: token.symbol,
-                marketCup: token.marketCup,
+                marketCap: token.marketCap,
                 marketRating: token.marketRating,
                 priceValue: token.currentPrice,
                 priceChangeStateValue: nil,
