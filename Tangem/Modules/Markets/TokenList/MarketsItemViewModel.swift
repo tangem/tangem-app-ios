@@ -14,7 +14,7 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
 
     @Published var isLoading: Bool
 
-    @Published var marketRaiting: String?
+    @Published var marketRating: String?
     @Published var marketCap: String?
 
     @Published var priceValue: String = ""
@@ -48,17 +48,17 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
         symbol = data.symbol
 
         if let marketRating = data.marketRating {
-            marketRaiting = "\(marketRating)"
+            self.marketRating = "\(marketRating)"
         }
 
-        if let marketCup = data.marketCup {
-            marketCap = "\(marketCup)"
+        if let marketCap = data.marketCap {
+            self.marketCap = "\(marketCap)"
         }
 
         priceValue = priceFormatter.formatFiatBalance(data.priceValue)
 
         if let priceChangeStateValue = data.priceChangeStateValue {
-            let priceChangeResult = priceChangeFormatter.format(priceChangeStateValue, option: .priceChange)
+            let priceChangeResult = priceChangeFormatter.format(priceChangeStateValue * Constants.priceChangeStateValueDevider, option: .priceChange)
             priceChangeState = .loaded(signType: priceChangeResult.signType, text: priceChangeResult.formattedText)
         } else {
             priceChangeState = .loading
@@ -79,10 +79,14 @@ extension MarketsItemViewModel {
         let id: String
         let name: String
         let symbol: String
-        let marketCup: UInt64?
+        let marketCap: UInt64?
         let marketRating: UInt64?
         let priceValue: Decimal?
         let priceChangeStateValue: Decimal?
         let isLoading: Bool
+    }
+
+    enum Constants {
+        static let priceChangeStateValueDevider: Decimal = 0.01
     }
 }
