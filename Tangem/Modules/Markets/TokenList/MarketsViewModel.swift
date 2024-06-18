@@ -44,12 +44,10 @@ final class MarketsViewModel: ObservableObject {
         self.coordinator = coordinator
         dataSource = MarketsDataSource()
 
-        marketRatingHeaderViewModel = MarketRatingHeaderViewModel(from: filterProvider)
+        marketRatingHeaderViewModel = MarketRatingHeaderViewModel(provider: filterProvider)
+        marketRatingHeaderViewModel.delegate = self
 
-        filterProvider.onUpdateOrderAction = { [weak self] in
-            guard let self else { return }
-            coordinator.openFilterOrderBottonSheet(with: filterProvider)
-        }
+        searchBind(searchTextPublisher: searchTextPublisher)
 
         searchTextBind(searchTextPublisher: searchTextPublisher)
         searchFilterBind(filterPublisher: filterProvider.filterPublisher)
@@ -180,5 +178,11 @@ private extension MarketsViewModel {
         )
 
         return MarketsItemViewModel(inputData)
+    }
+}
+
+extension MarketsViewModel: MarketOrderHeaderViewModelOrderDelegate {
+    func marketOrderActionButtonDidTap() {
+        coordinator?.openFilterOrderBottonSheet(with: filterProvider)
     }
 }
