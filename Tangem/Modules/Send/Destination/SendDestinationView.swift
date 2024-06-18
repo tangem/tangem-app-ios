@@ -76,7 +76,7 @@ struct SendDestinationView: View {
      static var previews: some View {
          SendDestinationView(
              viewModel: SendDestinationViewModel(
-                 input: SendDestinationViewModelInputMock(),
+                 input: SendSendDestinationInputMock(),
                  addressTextViewHeightModel: .init()
              ),
              namespace: namespace
