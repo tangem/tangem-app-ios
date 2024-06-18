@@ -46,7 +46,7 @@ struct SendModulesFactory {
             fiatCryptoAdapter: makeSendFiatCryptoAdapter(walletInfo: walletInfo),
             keyboardVisibilityService: KeyboardVisibilityService(),
             factory: self,
-            processor: makeDestinationViewModelProcessor(),
+            processor: makeSendDestinationProcessor(),
             coordinator: coordinator
         )
     }
@@ -78,7 +78,7 @@ struct SendModulesFactory {
             initial: initial,
             input: input,
             output: output,
-            processor: makeDestinationViewModelProcessor(),
+            processor: makeSendDestinationProcessor(),
             addressTextViewHeightModel: addressTextViewHeightModel,
             transactionHistoryMapper: transactionHistoryMapper
         )
@@ -193,10 +193,10 @@ struct SendModulesFactory {
         )
     }
 
-    private func makeDestinationViewModelProcessor() -> DestinationViewModelProcessor {
+    private func makeSendDestinationProcessor() -> SendDestinationProcessor {
         let parametersBuilder = SendTransactionParametersBuilder(blockchain: tokenItem.blockchain)
 
-        return CommonDestinationViewModelProcessor(
+        return CommonSendDestinationProcessor(
             validator: makeDestinationViewModelValidator(),
             addressResolver: walletModel.addressResolver,
             additionalFieldType: .fields(for: tokenItem.blockchain),
