@@ -40,9 +40,9 @@ class SendDestinationViewModel: ObservableObject {
     private let _destinationAdditionalFieldError: CurrentValueSubject<Error?, Never> = .init(nil)
 
     private let initial: InitialModel
-    private weak var input: DestinationViewModelInput?
-    private weak var output: DestinationViewModelOutput?
-    private let processor: DestinationViewModelProcessor
+    private weak var input: SendDestinationInput?
+    private weak var output: SendDestinationOutput?
+    private let processor: SendDestinationProcessor
 
     private let addressTextViewHeightModel: AddressTextViewHeightModel
     private let transactionHistoryMapper: TransactionHistoryMapper
@@ -55,9 +55,9 @@ class SendDestinationViewModel: ObservableObject {
 
     init(
         initial: InitialModel,
-        input: DestinationViewModelInput,
-        output: DestinationViewModelOutput,
-        processor: DestinationViewModelProcessor,
+        input: SendDestinationInput,
+        output: SendDestinationOutput,
+        processor: SendDestinationProcessor,
         addressTextViewHeightModel: AddressTextViewHeightModel,
         transactionHistoryMapper: TransactionHistoryMapper
     ) {
