@@ -101,9 +101,7 @@ extension MarketsCoordinator: MarketsRoutable {
     }
 
     func openFilterOrderBottonSheet(with provider: MarketsListDataFilterProvider) {
-        marketsListOrderBottonSheetViewModel = .init(from: provider, dissmis: { [weak self] in
-            self?.marketsListOrderBottonSheetViewModel = nil
-        })
+        marketsListOrderBottonSheetViewModel = .init(from: provider)
     }
 }
 
