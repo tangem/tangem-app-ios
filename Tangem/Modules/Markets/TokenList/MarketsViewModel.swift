@@ -47,10 +47,9 @@ final class MarketsViewModel: ObservableObject {
         marketRatingHeaderViewModel = MarketRatingHeaderViewModel(provider: filterProvider)
         marketRatingHeaderViewModel.delegate = self
 
-        searchBind(searchTextPublisher: searchTextPublisher)
-
         searchTextBind(searchTextPublisher: searchTextPublisher)
         searchFilterBind(filterPublisher: filterProvider.filterPublisher)
+
         dataProviderBind()
     }
 
@@ -140,11 +139,10 @@ private extension MarketsViewModel {
             id: "",
             name: "",
             symbol: "",
-            active: false,
             currentPrice: nil,
             priceChangePercentage: [:],
             marketRating: nil,
-            marketCup: nil
+            marketCap: nil
         )
 
         let skeletonTokenViewModels = [Int](0 ... 20).map {
@@ -152,7 +150,7 @@ private extension MarketsViewModel {
                 id: "\($0)",
                 name: dummyTokenItemModel.name,
                 symbol: dummyTokenItemModel.symbol,
-                marketCup: dummyTokenItemModel.marketCup,
+                marketCap: dummyTokenItemModel.marketCap,
                 marketRating: dummyTokenItemModel.marketRating,
                 priceValue: dummyTokenItemModel.currentPrice,
                 priceChangeStateValue: dummyTokenItemModel.priceChangePercentage.first?.value,
@@ -170,10 +168,10 @@ private extension MarketsViewModel {
             id: tokenItemModel.id,
             name: tokenItemModel.name,
             symbol: tokenItemModel.symbol,
-            marketCup: tokenItemModel.marketCup,
+            marketCap: tokenItemModel.marketCap,
             marketRating: tokenItemModel.marketRating,
             priceValue: tokenItemModel.currentPrice,
-            priceChangeStateValue: nil,
+            priceChangeStateValue: tokenItemModel.priceChangePercentage[filterProvider.currentFilterValue.interval.rawValue],
             isLoading: false
         )
 
