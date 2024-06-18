@@ -12,6 +12,10 @@ import Combine
 import CombineExt
 import SwiftUI
 
+protocol MarketsListOrderBottonSheetViewModelDelegate: AnyObject {
+    func didSelect(option: MarketsListOrderType)
+}
+
 class MarketsListOrderBottonSheetViewModel: ObservableObject, Identifiable {
     @Published var listOptionViewModel: [DefaultSelectableRowViewModel<MarketsListOrderType>]
     @Published var currentOrderType: MarketsListOrderType
@@ -20,12 +24,14 @@ class MarketsListOrderBottonSheetViewModel: ObservableObject, Identifiable {
 
     private var subscription: AnyCancellable?
     private weak var delegate: MarketsListOrderBottonSheetViewModelDelegate?
+    private var dissmis: (() -> Void)?
+
+    private let provider: MarketsListDataFilterProvider
 
     // MARK: - Init
 
     init(from provider: MarketsListDataFilterProvider) {
         currentOrderType = provider.currentFilterValue.order
-        delegate = provider
 
         listOptionViewModel = provider.supportedOrderTypes.map {
             DefaultSelectableRowViewModel(
@@ -34,6 +40,8 @@ class MarketsListOrderBottonSheetViewModel: ObservableObject, Identifiable {
                 subtitle: nil
             )
         }
+
+        self.provider = provider
 
         bind()
     }
@@ -50,10 +58,6 @@ class MarketsListOrderBottonSheetViewModel: ObservableObject, Identifiable {
 
     private func update(option: MarketsListOrderType) {
         currentOrderType = option
-        delegate?.didSelect(option: option)
+        provider.didSelectMarketOrder(option)
     }
-}
-
-protocol MarketsListOrderBottonSheetViewModelDelegate: AnyObject {
-    func didSelect(option: MarketsListOrderType)
 }

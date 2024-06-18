@@ -9,6 +9,8 @@
 import Foundation
 import Combine
 
+protocol MarketsListDataFilterProviderDelegate {}
+
 class MarketsListDataFilterProvider {
     // MARK: - Private Properties
 
@@ -41,26 +43,11 @@ class MarketsListDataFilterProvider {
         MarketsPriceIntervalType.allCases
     }
 
-    // Since the sorting selection is made in a separate screen, a closure is required
-    var onUpdateOrderAction: (() -> Void)?
-}
-
-// MARK: - MarketRatingHeaderViewModelDelegate
-
-extension MarketsListDataFilterProvider: MarketOrderHeaderViewModelDelegate {
-    func marketOrderActionButtonDidTap() {
-        onUpdateOrderAction?()
-    }
-
-    func marketPriceIntervalButtonDidTap(_ interval: MarketsPriceIntervalType) {
+    func didSelectMarketPriceInterval(_ interval: MarketsPriceIntervalType) {
         _intervalTypeValue.send(interval)
     }
-}
 
-// MARK: - MarketsListOrderBottonSheetViewModelDelegate
-
-extension MarketsListDataFilterProvider: MarketsListOrderBottonSheetViewModelDelegate {
-    func didSelect(option: MarketsListOrderType) {
+    func didSelectMarketOrder(_ option: MarketsListOrderType) {
         _orderTypeValue.send(option)
     }
 }
