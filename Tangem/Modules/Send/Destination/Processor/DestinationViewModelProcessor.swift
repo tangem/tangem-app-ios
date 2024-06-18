@@ -1,5 +1,5 @@
 //
-//  DestinationViewModelProcessor.swift
+//  SendDestinationProcessor.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,13 +9,13 @@
 import Foundation
 import BlockchainSdk
 
-protocol DestinationViewModelProcessor {
+protocol SendDestinationProcessor {
     // Validate and resolve if needed
     func proceed(destination: String) async throws -> String
     func proceed(additionalField: String) throws -> DestinationAdditionalFieldType
 }
 
-class CommonDestinationViewModelProcessor: DestinationViewModelProcessor {
+class CommonSendDestinationProcessor: SendDestinationProcessor {
     private let validator: DestinationViewModelValidator
     private let addressResolver: AddressResolver?
     private let additionalFieldType: SendAdditionalFields?
