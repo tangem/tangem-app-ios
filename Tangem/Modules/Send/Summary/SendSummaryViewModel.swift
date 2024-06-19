@@ -19,8 +19,7 @@ protocol SendSummaryViewModelInput: AnyObject {
     var transactionAmountPublisher: AnyPublisher<Amount?, Never> { get }
     var destinationTextPublisher: AnyPublisher<String, Never> { get }
     var additionalFieldPublisher: AnyPublisher<DestinationAdditionalFieldType, Never> { get }
-    var feeValuePublisher: AnyPublisher<Fee?, Never> { get }
-    var selectedFeeOptionPublisher: AnyPublisher<FeeOption, Never> { get }
+    var selectedFeePublisher: AnyPublisher<SendFee?, Never> { get }
 
     var isSending: AnyPublisher<Bool, Never> { get }
 
@@ -184,15 +183,15 @@ class SendSummaryViewModel: ObservableObject {
             .assign(to: \.amountSummaryViewData, on: self, ownership: .weak)
             .store(in: &bag)
 
-        Publishers.CombineLatest(sendFeeProcessor.feesPublisher(), input.selectedFeeOptionPublisher)
-            .sink { [weak self] feeValues, selectedFeeOption in
+        Publishers.CombineLatest(sendFeeProcessor.feesPublisher(), input.selectedFeePublisher)
+            .sink { [weak self] feeValues, selectedFee in
                 guard let self else { return }
 
                 var selectedFeeSummaryViewModel: SendFeeSummaryViewModel?
                 var deselectedFeeRowViewModels: [FeeRowViewModel] = []
 
                 for feeValue in feeValues {
-                    if feeValue.option == selectedFeeOption {
+                    if feeValue.option == selectedFee?.option {
                         selectedFeeSummaryViewModel = sectionViewModelFactory.makeFeeViewData(from: feeValue)
                     } else {
                         let model = sectionViewModelFactory.makeDeselectedFeeRowViewModel(from: feeValue)

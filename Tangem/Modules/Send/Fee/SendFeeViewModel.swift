@@ -112,6 +112,14 @@ class SendFeeViewModel: ObservableObject {
             }
             .store(in: &bag)
 
+        processor.customFeePublisher()
+            .withWeakCaptureOf(self)
+            .receive(on: DispatchQueue.main)
+            .sink { viewModel, fee in
+                viewModel.updateCustomFee(fee: fee)
+            }
+            .store(in: &bag)
+
         input?.selectedFeePublisher
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
@@ -140,7 +148,19 @@ class SendFeeViewModel: ObservableObject {
         selectedFeeOption = selectedFee?.option
 
         let showCustomFeeFields = selectedFee?.option == .custom
-        customFeeModels = showCustomFeeFields ? processor.customFeeInputFieldModels() : []
+        let models = showCustomFeeFields ? processor.customFeeInputFieldModels() : []
+        if customFeeModels.count != models.count {
+            customFeeModels = models
+        }
+    }
+
+    private func updateCustomFee(fee: SendFee) {
+        guard let customIndex = feeRowViewModels.firstIndex(where: { $0.option == .custom }) else {
+            return
+        }
+
+        feeRowViewModels[customIndex] = mapToFeeRowViewModel(fee: fee)
+        output?.feeDidChanged(fee: fee)
     }
 
     private func updateIfNeeded(values: [SendFee]) {

@@ -31,10 +31,11 @@ struct SendModulesFactory {
         let sendModel = makeSendModel(type: type, sendFeeProcessor: sendFeeProcessor)
         let canUseFiatCalculation = quotesRepository.quote(for: walletModel.tokenItem) != nil
         let walletInfo = builder.makeSendWalletInfo(canUseFiatCalculation: canUseFiatCalculation)
-
+        let initial = SendViewModel.Initial(feeOptions: builder.makeFeeOptions())
         sendFeeProcessor.setup(input: sendModel)
 
         return SendViewModel(
+            initial: initial,
             walletInfo: walletInfo,
             walletModel: walletModel,
             userWalletModel: userWalletModel,
@@ -173,13 +174,13 @@ struct SendModulesFactory {
     }
 
     private func makeSendModel(type: SendType, sendFeeProcessor: SendFeeProcessor) -> SendModel {
-        let manager = SendFeeManager(validator: walletModel.transactionValidator)
+        let feeIncludedCalculator = FeeIncludedCalculator(validator: walletModel.transactionValidator)
 
         return SendModel(
             walletModel: walletModel,
             transactionSigner: transactionSigner,
             sendFeeProcessor: sendFeeProcessor,
-            sendFeeManager: manager,
+            feeIncludedCalculator: feeIncludedCalculator,
             sendType: type
         )
     }

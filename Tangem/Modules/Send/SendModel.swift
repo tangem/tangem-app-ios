@@ -12,49 +12,6 @@ import Combine
 import BigInt
 import BlockchainSdk
 
-class SendFeeManager {
-    private let _selectedFee = CurrentValueSubject<SendFee?, Never>(nil)
-    let _isFeeIncluded = CurrentValueSubject<Bool, Never>(false)
-
-    private let validator: TransactionValidator
-
-    init(validator: TransactionValidator) {
-        self.validator = validator
-    }
-
-    var isFeeIncludedPublisher: AnyPublisher<Bool, Never> {
-        _isFeeIncluded.eraseToAnyPublisher()
-    }
-
-    var customFeePublisher: AnyPublisher<BlockchainSdk.Fee?, Never> {
-        _selectedFee
-            .filter { $0?.option == .custom }
-            .compactMap { $0?.value.value }
-            .eraseToAnyPublisher()
-    }
-
-    func shouldIncludeFee(_ fee: Fee, into amount: Amount) -> Bool {
-        guard fee.amount.type == amount.type, amount >= fee.amount else {
-            return false
-        }
-
-        do {
-            try validator.validate(amount: amount, fee: fee)
-            return false
-        } catch ValidationError.totalExceedsBalance {
-            return true
-        } catch {
-            return false
-        }
-    }
-}
-
-enum DestinationAdditionalFieldType {
-    case notSupported
-    case empty(type: SendAdditionalFields)
-    case filled(type: SendAdditionalFields, value: String, params: TransactionParams)
-}
-
 protocol SendModelUIDelegate: AnyObject {
     func showAlert(_ alert: AlertBinder)
 }
@@ -78,7 +35,7 @@ class SendModel {
 
     /// - Warning: Buggy in some cases and needs to be fixed (IOS-7211)
     var isFeeIncluded: Bool {
-        sendFeeManager._isFeeIncluded.value
+        _isFeeIncluded.value
     }
 
     var transactionFinished: AnyPublisher<Bool, Never> {
@@ -98,6 +55,7 @@ class SendModel {
     private let _destinationAdditionalField: CurrentValueSubject<DestinationAdditionalFieldType, Never>
     private let _amount = CurrentValueSubject<SendAmount?, Never>(nil)
     private let _selectedFee = CurrentValueSubject<SendFee?, Never>(nil)
+    private let _isFeeIncluded = CurrentValueSubject<Bool, Never>(false)
 
     private let _transactionCreationError = CurrentValueSubject<Error?, Never>(nil)
     private let _withdrawalNotification = CurrentValueSubject<WithdrawalNotification?, Never>(nil)
@@ -116,7 +74,7 @@ class SendModel {
     private let walletModel: WalletModel
     private let transactionSigner: TransactionSigner
     private let sendFeeProcessor: SendFeeProcessor
-    private let sendFeeManager: SendFeeManager
+    private let feeIncludedCalculator: FeeIncludedCalculator
     private let sendType: SendType
 
     private var screenIdleStartTime: Date?
@@ -132,13 +90,13 @@ class SendModel {
         walletModel: WalletModel,
         transactionSigner: TransactionSigner,
         sendFeeProcessor: SendFeeProcessor,
-        sendFeeManager: SendFeeManager,
+        feeIncludedCalculator: FeeIncludedCalculator,
         sendType: SendType
     ) {
         self.walletModel = walletModel
         self.transactionSigner = transactionSigner
         self.sendFeeProcessor = sendFeeProcessor
-        self.sendFeeManager = sendFeeManager
+        self.feeIncludedCalculator = feeIncludedCalculator
         self.sendType = sendType
 
         let destination = sendType.predefinedDestination.map { SendAddress(value: $0, source: .sellProvider) }
@@ -254,15 +212,15 @@ class SendModel {
                     let destination = validatedDestination?.value,
                     let fee = fee?.value.value
                 else {
-                    self?.sendFeeManager._isFeeIncluded.send(false)
+                    self?._isFeeIncluded.send(false)
                     return .failure(ValidationError.invalidAmount)
                 }
 
                 do {
                     #warning("TODO: Use await validation")
-                    let includeFee = sendFeeManager.shouldIncludeFee(fee, into: validatedAmount)
+                    let includeFee = feeIncludedCalculator.shouldIncludeFee(fee, into: validatedAmount)
                     let transactionAmount = includeFee ? validatedAmount - fee.amount : validatedAmount
-                    sendFeeManager._isFeeIncluded.send(includeFee)
+                    _isFeeIncluded.send(includeFee)
 
                     try walletModel.transactionValidator.validateTotal(amount: transactionAmount, fee: fee.amount)
 
@@ -357,7 +315,7 @@ extension SendModel: SendFeeInput, SendFeeOutput {
     }
 
     var selectedFeePublisher: AnyPublisher<SendFee?, Never> {
-        _selectedFee.eraseToAnyPublisher()
+        _selectedFee.dropFirst().eraseToAnyPublisher()
     }
 
     func feeDidChanged(fee: SendFee?) {
@@ -400,15 +358,6 @@ extension SendModel: SendSummaryViewModelInput {
         transaction
             .map(\.?.amount)
             .eraseToAnyPublisher()
-    }
-
-    var feeValuePublisher: AnyPublisher<BlockchainSdk.Fee?, Never> {
-        _selectedFee.map { $0?.value.value }.eraseToAnyPublisher()
-    }
-
-    var selectedFeeOptionPublisher: AnyPublisher<FeeOption, Never> {
-        _selectedFee.compactMap { $0?.option }.eraseToAnyPublisher()
-//        _selectedFeeOption.eraseToAnyPublisher()
     }
 
     var canEditAmount: Bool {
@@ -459,15 +408,12 @@ extension SendModel: SendFinishViewModelInput {
 // MARK: - SendNotificationManagerInput
 
 extension SendModel: SendNotificationManagerInput {
-    var customFeePublisher: AnyPublisher<BlockchainSdk.Fee?, Never> {
-        _selectedFee
-            .filter { $0?.option == .custom }
-            .compactMap { $0?.value.value }
-            .eraseToAnyPublisher()
+    var feeValues: AnyPublisher<[SendFee], Never> {
+        sendFeeProcessor.feesPublisher()
     }
 
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> {
-        sendFeeManager.isFeeIncludedPublisher
+        _isFeeIncluded.eraseToAnyPublisher()
     }
 
     var amountError: AnyPublisher<(any Error)?, Never> {

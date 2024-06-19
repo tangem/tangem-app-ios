@@ -80,6 +80,7 @@ final class SendViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
+    private let initial: Initial
     private let sendModel: SendModel
     private let sendType: SendType
     private let steps: [SendStep]
@@ -139,6 +140,7 @@ final class SendViewModel: ObservableObject {
     }
 
     init(
+        initial: Initial,
         walletInfo: SendWalletInfo,
         walletModel: WalletModel,
         userWalletModel: UserWalletModel,
@@ -153,6 +155,7 @@ final class SendViewModel: ObservableObject {
         factory: SendModulesFactory,
         coordinator: SendRoutable
     ) {
+        self.initial = initial
         self.walletInfo = walletInfo
         self.coordinator = coordinator
         self.sendType = sendType
@@ -430,7 +433,7 @@ final class SendViewModel: ObservableObject {
             .store(in: &bag)
 
         Publishers
-            .CombineLatest(sendModel.transactionAmountPublisher, sendModel.feeValuePublisher)
+            .CombineLatest(sendModel.transactionAmountPublisher, sendModel.selectedFeePublisher)
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, args in
@@ -439,7 +442,7 @@ final class SendViewModel: ObservableObject {
                 let helper = SendTransactionSummaryDestinationHelper()
                 viewModel.transactionDescription = helper.makeTransactionDescription(
                     amount: amount?.value,
-                    fee: fee?.amount.value,
+                    fee: fee?.value.value?.amount.value,
                     amountCurrencyId: viewModel.walletInfo.currencyId,
                     feeCurrencyId: viewModel.walletInfo.feeCurrencyId
                 )
@@ -662,7 +665,7 @@ final class SendViewModel: ObservableObject {
     }
 
     private func selectedFeeTypeAnalyticsParameter() -> Analytics.ParameterValue {
-        if sendModel.feeOptions.count == 1 {
+        if initial.feeOptions.count == 1 {
             return .transactionFeeFixed
         }
 
@@ -870,6 +873,12 @@ private extension SendAmountCalculationType {
         case .crypto: .token
         case .fiat: .selectedCurrencyApp
         }
+    }
+}
+
+extension SendViewModel {
+    struct Initial {
+        let feeOptions: [FeeOption]
     }
 }
 

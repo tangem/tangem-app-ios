@@ -17,8 +17,8 @@ class CommonSendFeeProcessor {
     private let _cryptoAmount: CurrentValueSubject<Amount?, Never> = .init(.none)
     private let _destination: CurrentValueSubject<String?, Never> = .init(.none)
     private let _fees: CurrentValueSubject<[SendFee], Never> = .init([])
+    private let _customFee: CurrentValueSubject<Fee?, Never> = .init(.none)
 
-    private let _customFee: CurrentValueSubject<SendFee?, Never> = .init(.none)
     private let defaultFeeOptions: [FeeOption]
     private var feeOptions: [FeeOption] {
         var options = defaultFeeOptions
@@ -75,8 +75,7 @@ extension CommonSendFeeProcessor: CustomFeeServiceInput {
 
 extension CommonSendFeeProcessor: CustomFeeServiceOutput {
     func customFeeDidChanged(_ customFee: Fee?) {
-        let fee = customFee.map { SendFee(option: .custom, value: .loaded($0)) }
-        _customFee.send(fee)
+        _customFee.send(customFee)
     }
 }
 
@@ -124,6 +123,12 @@ extension CommonSendFeeProcessor: SendFeeProcessor {
         _fees.dropFirst().eraseToAnyPublisher()
     }
 
+    func customFeePublisher() -> AnyPublisher<SendFee, Never> {
+        _customFee
+            .compactMap { $0.map { SendFee(option: .custom, value: .loaded($0)) } }
+            .eraseToAnyPublisher()
+    }
+
     func customFeeInputFieldModels() -> [SendCustomFeeInputFieldModel] {
         customFeeService?.inputFieldModels() ?? []
     }
@@ -148,13 +153,12 @@ private extension CommonSendFeeProcessor {
 
         if supportCustomFee {
             var customFee = _customFee.value
-
-            if customFee == nil, let market = defaultOptions.first(where: { $0.option == .market }) {
-                customFee = SendFee(option: .custom, value: market.value)
+            if customFee == nil {
+                customFee = defaultOptions.first(where: { $0.option == .market })?.value.value
             }
 
-            if let custom = customFee {
-                defaultOptions.append(custom)
+            if let customFee {
+                defaultOptions.append(SendFee(option: .custom, value: .loaded(customFee)))
             }
         }
 

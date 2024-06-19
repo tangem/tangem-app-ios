@@ -17,7 +17,10 @@ protocol SendFeeProcessorInput: AnyObject {
 
 protocol SendFeeProcessor {
     func updateFees()
+
     func feesPublisher() -> AnyPublisher<[SendFee], Never>
+
+    func customFeePublisher() -> AnyPublisher<SendFee, Never>
     func customFeeInputFieldModels() -> [SendCustomFeeInputFieldModel]
 
     func setup(input: SendFeeProcessorInput)
