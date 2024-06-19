@@ -226,6 +226,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         }
 
         sendAnalytics(isSuccessful: true)
+
         walletModel
             .fulfillRequirements(signer: userWalletModel.signer)
             .materialize()
