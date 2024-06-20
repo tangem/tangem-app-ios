@@ -200,6 +200,8 @@ private extension Blockchain {
             case .network: return "base"
             case .coin: return "base-ethereum"
             }
+        case .radiant:
+            return "radiant"
         }
     }
 
