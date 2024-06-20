@@ -72,6 +72,7 @@
 		2DD754D72AE1660D0009CA64 /* GenerateAddressesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD754D62AE1660D0009CA64 /* GenerateAddressesViewModel.swift */; };
 		2DDF91942A14DA2700B31113 /* TokenItemMenuActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDF91932A14DA2700B31113 /* TokenItemMenuActions.swift */; };
 		2DDFA7952C230E2F00E51F7F /* CommonMarketCapFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDFA7942C230E2F00E51F7F /* CommonMarketCapFormatter.swift */; };
+		2DDFA7B22C24205900E51F7F /* coinsListResponse.json in Resources */ = {isa = PBXBuildFile; fileRef = 2DDFA7B12C24205900E51F7F /* coinsListResponse.json */; };
 		2DF5A81D2B13C33800AA5E73 /* WalletSelectorDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF5A81C2B13C33700AA5E73 /* WalletSelectorDataSource.swift */; };
 		2DF5A81F2B13C33D00AA5E73 /* ManageTokensNetworkDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF5A81E2B13C33C00AA5E73 /* ManageTokensNetworkDataSource.swift */; };
 		4A293696EACF80B666320C1E /* Pods_TangemFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A1E0F0323988A048B922E78 /* Pods_TangemFoundation.framework */; };
@@ -1724,6 +1725,7 @@
 		2DD754D62AE1660D0009CA64 /* GenerateAddressesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateAddressesViewModel.swift; sourceTree = "<group>"; };
 		2DDF91932A14DA2700B31113 /* TokenItemMenuActions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemMenuActions.swift; sourceTree = "<group>"; };
 		2DDFA7942C230E2F00E51F7F /* CommonMarketCapFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonMarketCapFormatter.swift; sourceTree = "<group>"; };
+		2DDFA7B12C24205900E51F7F /* coinsListResponse.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = coinsListResponse.json; sourceTree = "<group>"; };
 		2DF5A81C2B13C33700AA5E73 /* WalletSelectorDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorDataSource.swift; sourceTree = "<group>"; };
 		2DF5A81E2B13C33C00AA5E73 /* ManageTokensNetworkDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManageTokensNetworkDataSource.swift; sourceTree = "<group>"; };
 		34299E1AA8B77C9FD9FE515A /* Pods-TangemFoundation.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemFoundation.release(production).xcconfig"; path = "Target Support Files/Pods-TangemFoundation/Pods-TangemFoundation.release(production).xcconfig"; sourceTree = "<group>"; };
@@ -5644,6 +5646,7 @@
 			children = (
 				B098F3A12C04B5D300F79989 /* coinsResponse.json */,
 				B0FB4EF92A8511DA0057F4C2 /* walletUserWalletList.json */,
+				2DDFA7B12C24205900E51F7F /* coinsListResponse.json */,
 			);
 			path = APIResponses;
 			sourceTree = "<group>";
@@ -9030,6 +9033,7 @@
 				B03662692B63D7660064E073 /* iso4217Codes.plist in Resources */,
 				DC4512782BD1641900DE6F94 /* ethNoteDemo.json in Resources */,
 				DA6915A62A9CE2BD00DB4339 /* Tokens.xcassets in Resources */,
+				2DDFA7B22C24205900E51F7F /* coinsListResponse.json in Resources */,
 				5D3F77D224BF56DC00E8695B /* LaunchScreen.storyboard in Resources */,
 				5D5CE1A92625FF00009023EC /* config_prod.json in Resources */,
 				5DBBAB0D24D8547F00E78F1C /* Colors.xcassets in Resources */,
