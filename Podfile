@@ -31,7 +31,7 @@ end
 def blockchain_sdk_pods
   # 'TangemWalletCore' dependency must be added via SPM
 
-  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-548.16'
+  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-548.23'
   #pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
 
   pod 'Solana.Swift', :git => 'https://github.com/tangem/Solana.Swift', :tag => '1.2.0-tangem7'
@@ -54,6 +54,7 @@ target 'Tangem' do
   pod 'Moya'
   pod 'WalletConnectSwiftV2', :git => 'https://github.com/WalletConnect/WalletConnectSwiftV2', :tag => '1.8.4'
   pod 'Kingfisher', '~> 7.11.0'
+  pod 'TonSwift', :git => 'https://github.com/tangem/ton-swift.git', :tag => '1.0.10-tangem1'
 
   # Helpers
   pod 'AlertToast', :git => 'https://github.com/elai950/AlertToast', :commit => 'a437862bb6605080a5816e866cbd4ac8c8657b49'
@@ -171,7 +172,7 @@ post_install do |installer|
     "BlockchainSdk",
     "https://github.com/tangem/wallet-core-binaries-ios.git",
     "TangemWalletCoreBinariesWrapper",
-    { :kind => "exactVersion", :version => "4.0.21-tangem3" }
+    { :kind => "exactVersion", :version => "4.0.21-tangem6-xcode-15.2" }
   )
 
   # `SwiftProtobuf` SPM package for `BlockchainSdk` pod
