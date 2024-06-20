@@ -46,7 +46,7 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
         id = data.id
         imageURL = IconURLBuilder().tokenIconURL(id: id, size: .large)
         name = data.name
-        symbol = data.symbol
+        symbol = data.symbol.uppercased()
 
         if let marketRating = data.marketRating {
             self.marketRating = "\(marketRating)"
