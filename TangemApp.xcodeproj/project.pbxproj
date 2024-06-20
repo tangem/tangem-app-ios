@@ -14594,7 +14594,7 @@
 			repositoryURL = "https://github.com/tangem/wallet-core-binaries-ios.git";
 			requirement = {
 				kind = exactVersion;
-				version = "4.0.21-tangem3";
+				version = "4.0.21-tangem6-xcode-15.2";
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
