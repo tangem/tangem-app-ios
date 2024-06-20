@@ -59,8 +59,6 @@ class SendSummaryViewModel: ObservableObject {
     @Published var animatingAmountOnAppear = false
     @Published var animatingFeeOnAppear = false
     @Published var showHint = false
-    @Published var transactionDescription: String?
-    @Published var showTransactionDescription = true
 
     var didProperlyDisappear: Bool = true
 
@@ -78,20 +76,13 @@ class SendSummaryViewModel: ObservableObject {
 
     let addressTextViewHeightModel: AddressTextViewHeightModel
 
-    init(input: SendSummaryViewModelInput, notificationManager: SendNotificationManager, fiatCryptoValueProvider: SendFiatCryptoValueProvider, addressTextViewHeightModel: AddressTextViewHeightModel, walletInfo: SendWalletInfo) {
+    init(input: SendSummaryViewModelInput, notificationManager: SendNotificationManager, fiatCryptoValueProvider: SendFiatCryptoValueProvider, addressTextViewHeightModel: AddressTextViewHeightModel, walletInfo: SendWalletInfo, sectionViewModelFactory: SendSummarySectionViewModelFactory) {
         self.input = input
         self.walletInfo = walletInfo
         self.notificationManager = notificationManager
         self.fiatCryptoValueProvider = fiatCryptoValueProvider
         self.addressTextViewHeightModel = addressTextViewHeightModel
-
-        sectionViewModelFactory = SendSummarySectionViewModelFactory(
-            feeCurrencySymbol: walletInfo.feeCurrencySymbol,
-            feeCurrencyId: walletInfo.feeCurrencyId,
-            isFeeApproximate: walletInfo.isFeeApproximate,
-            currencyId: walletInfo.currencyId,
-            tokenIconInfo: walletInfo.tokenIconInfo
-        )
+        self.sectionViewModelFactory = sectionViewModelFactory
 
         canEditAmount = input.canEditAmount
         canEditDestination = input.canEditDestination
@@ -115,7 +106,6 @@ class SendSummaryViewModel: ObservableObject {
         }
 
         showHint = false
-        showTransactionDescription = false
     }
 
     func onAppear() {
@@ -127,7 +117,6 @@ class SendSummaryViewModel: ObservableObject {
             self.animatingDestinationOnAppear = false
             self.animatingAmountOnAppear = false
             self.animatingFeeOnAppear = false
-            self.showTransactionDescription = self.transactionDescription != nil
         }
 
         Analytics.log(.sendConfirmScreenOpened)
@@ -211,26 +200,6 @@ class SendSummaryViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        Publishers.CombineLatest(input.transactionAmountPublisher, input.feeValuePublisher)
-            .withWeakCaptureOf(self)
-            .map { parameters -> String? in
-                let (thisSendSummaryViewModel, (amount, fee)) = parameters
-
-                return thisSendSummaryViewModel.makeTransactionDescription(amount: amount, fee: fee)
-            }
-            .sink { [weak self] transactionDescription in
-                guard let self else { return }
-
-                self.transactionDescription = transactionDescription
-
-                if isVisible, !showTransactionDescription, transactionDescription != nil {
-                    withAnimation(SendView.Constants.defaultAnimation) {
-                        self.showTransactionDescription = true
-                    }
-                }
-            }
-            .store(in: &bag)
-
         notificationManager
             .notificationPublisher(for: .summary)
             .sink { [weak self] notificationInputs in
@@ -241,39 +210,5 @@ class SendSummaryViewModel: ObservableObject {
 
     private func sectionBackground(canEdit: Bool) -> Color {
         canEdit ? Colors.Background.action : Colors.Button.disabled
-    }
-
-    private func makeTransactionDescription(amount: Amount?, fee: Fee?) -> String? {
-        guard
-            let amount,
-            let fee,
-            let amountCurrencyId = walletInfo.currencyId,
-            let feeCurrencyId = walletInfo.feeCurrencyId
-        else {
-            return nil
-        }
-
-        let converter = BalanceConverter()
-        let amountInFiat = converter.convertToFiat(value: amount.value, from: amountCurrencyId)
-        let feeInFiat = converter.convertToFiat(value: fee.amount.value, from: feeCurrencyId)
-
-        let totalInFiat: Decimal?
-        if let amountInFiat, let feeInFiat {
-            totalInFiat = amountInFiat + feeInFiat
-        } else {
-            totalInFiat = nil
-        }
-
-        let formattingOptions = BalanceFormattingOptions(
-            minFractionDigits: BalanceFormattingOptions.defaultFiatFormattingOptions.minFractionDigits,
-            maxFractionDigits: BalanceFormattingOptions.defaultFiatFormattingOptions.maxFractionDigits,
-            formatEpsilonAsLowestRepresentableValue: true,
-            roundingType: BalanceFormattingOptions.defaultFiatFormattingOptions.roundingType
-        )
-        let formatter = BalanceFormatter()
-        let totalInFiatFormatted = formatter.formatFiatBalance(totalInFiat, formattingOptions: formattingOptions)
-        let feeInFiatFormatted = formatter.formatFiatBalance(feeInFiat, formattingOptions: formattingOptions)
-
-        return Localization.sendSummaryTransactionDescription(totalInFiatFormatted, feeInFiatFormatted)
     }
 }
