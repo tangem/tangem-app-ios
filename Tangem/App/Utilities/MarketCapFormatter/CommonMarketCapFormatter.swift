@@ -28,8 +28,11 @@ struct CommonMarketCapFormatter {
         formatter.minimumFractionDigits = formattingOptions.minFractionDigits
         formatter.maximumFractionDigits = formattingOptions.maxFractionDigits
 
-        let valueToFormat = roundDecimal(value, with: formattingOptions.roundingType)
-        return formatter.string(from: valueToFormat as NSDecimalNumber) ?? "\(valueToFormat)"
+        let formatPointsValue = formatPoints(value)
+        let roundDecimalValue = roundDecimal(formatPointsValue.decimal, with: formattingOptions.roundingType)
+        let stringFormatValue = formatter.string(from: roundDecimalValue as NSDecimalNumber) ?? "\(roundDecimalValue)"
+
+        return "\(stringFormatValue) \(formatPointsValue.suffix)"
     }
 
     // MARK: - Private Implementation
@@ -51,15 +54,30 @@ struct CommonMarketCapFormatter {
         }
     }
 
-    private func formatPoints(_ value: Decimal) -> String {
-        let thousandNum = value / Constants.thousand
-        let millionNum = value / Constants.million
+    private func formatPoints(_ value: Decimal) -> Points {
+        let thousandRate = value / pow(Decimal(10), 3)
+        let millionRate = value / pow(Decimal(10), 6)
+        let billionRate = value / pow(Decimal(10), 9)
+        let trillionRate = value / pow(Decimal(10), 12)
 
-        return ""
+        if value > 0, value <= Constants.million {
+            return .init(decimal: thousandRate, suffix: "K")
+        } else if value > Constants.thousand, value <= Constants.billion {
+            return .init(decimal: millionRate, suffix: "M")
+        } else if value > Constants.billion, value <= Constants.trillion {
+            return .init(decimal: billionRate, suffix: "B")
+        } else {
+            return .init(decimal: trillionRate, suffix: "T")
+        }
     }
 }
 
 extension CommonMarketCapFormatter {
+    struct Points {
+        let decimal: Decimal
+        let suffix: String
+    }
+
     struct Options {
         let minFractionDigits: Int
         let maxFractionDigits: Int
@@ -75,7 +93,9 @@ extension CommonMarketCapFormatter {
     }
 
     private enum Constants {
-        static let thousand: Decimal = 1000
-        static let million: Decimal = 1000000
+        static let thousand: Decimal = 1_000
+        static let million: Decimal = 1_000_000
+        static let billion: Decimal = 1_000_000_000
+        static let trillion: Decimal = 1_000_000_000_000
     }
 }
