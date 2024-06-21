@@ -31,13 +31,7 @@ class CustomEvmFeeService {
 
     private var bag: Set<AnyCancellable> = []
 
-    init(
-        input: CustomFeeServiceInput,
-        output: CustomFeeServiceOutput,
-        feeTokenItem: TokenItem
-    ) {
-        self.input = input
-        self.output = output
+    init(feeTokenItem: TokenItem) {
         self.feeTokenItem = feeTokenItem
 
         bind()
@@ -141,6 +135,11 @@ class CustomEvmFeeService {
 // MARK: - EditableCustomFeeService
 
 extension CustomEvmFeeService: CustomFeeService {
+    func setup(input: any CustomFeeServiceInput, output: any CustomFeeServiceOutput) {
+        self.input = input
+        self.output = output
+    }
+
     func initialSetupCustomFee(_ fee: Fee) {
         updateProperties(fee: fee)
     }

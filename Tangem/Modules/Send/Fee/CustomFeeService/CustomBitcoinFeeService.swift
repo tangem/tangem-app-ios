@@ -24,17 +24,11 @@ class CustomBitcoinFeeService {
     private var bag: Set<AnyCancellable> = []
 
     init(
-        input: CustomFeeServiceInput,
-        output: CustomFeeServiceOutput,
         feeTokenItem: TokenItem,
         bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator
     ) {
-        self.input = input
-        self.output = output
         self.feeTokenItem = feeTokenItem
         self.bitcoinTransactionFeeCalculator = bitcoinTransactionFeeCalculator
-
-        bind(input: input)
     }
 
     private func bind(input: CustomFeeServiceInput) {
@@ -106,6 +100,13 @@ class CustomBitcoinFeeService {
 }
 
 extension CustomBitcoinFeeService: CustomFeeService {
+    func setup(input: any CustomFeeServiceInput, output: any CustomFeeServiceOutput) {
+        self.input = input
+        self.output = output
+
+        bind(input: input)
+    }
+
     func initialSetupCustomFee(_ fee: BlockchainSdk.Fee) {
         assert(customFee.value == nil, "Duplicate initial setup")
 

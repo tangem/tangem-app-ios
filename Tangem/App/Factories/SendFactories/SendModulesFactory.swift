@@ -27,12 +27,16 @@ struct SendModulesFactory {
     // MARK: - ViewModels
 
     func makeSendViewModel(type: SendType, coordinator: SendRoutable) -> SendViewModel {
-        let sendFeeProcessor = makeSendFeeProcessor()
-        let sendModel = makeSendModel(type: type, sendFeeProcessor: sendFeeProcessor)
+        let sendFeeInteractor = makeSendFeeInteractor(
+            predefinedAmount: type.predefinedAmount,
+            predefinedDestination: type.predefinedDestination
+        )
+
+        let sendModel = makeSendModel(type: type, sendFeeInteractor: sendFeeInteractor)
         let canUseFiatCalculation = quotesRepository.quote(for: walletModel.tokenItem) != nil
         let walletInfo = builder.makeSendWalletInfo(canUseFiatCalculation: canUseFiatCalculation)
         let initial = SendViewModel.Initial(feeOptions: builder.makeFeeOptions())
-        sendFeeProcessor.setup(input: sendModel)
+        sendFeeInteractor.setup(input: sendModel, output: sendModel)
 
         return SendViewModel(
             initial: initial,
@@ -44,7 +48,7 @@ struct SendModulesFactory {
             emailDataProvider: emailDataProvider,
             sendModel: sendModel,
             notificationManager: makeSendNotificationManager(sendModel: sendModel),
-            sendFeeProcessor: sendFeeProcessor,
+            sendFeeInteractor: sendFeeInteractor,
             keyboardVisibilityService: KeyboardVisibilityService(),
             sendAmountValidator: makeSendAmountValidator(),
             factory: self,
@@ -103,22 +107,17 @@ struct SendModulesFactory {
     }
 
     func makeSendFeeViewModel(
-        input: SendFeeInput,
-        output: SendFeeOutput,
         router: SendFeeRoutable,
-        processorInput: SendFeeProcessorInput,
-        sendFeeProcessor: SendFeeProcessor,
+        sendFeeInteractor: SendFeeInteractor,
         notificationManager: SendNotificationManager
     ) -> SendFeeViewModel {
         let feeOptions = builder.makeFeeOptions()
-        let initital = SendFeeViewModel.Initial(tokenItem: tokenItem, feeOptions: feeOptions)
+        let initital = SendFeeViewModel.Initial(tokenItem: walletModel.tokenItem, feeOptions: feeOptions)
 
         return SendFeeViewModel(
             initial: initital,
-            input: input,
-            output: output,
             router: router,
-            processor: sendFeeProcessor,
+            interactor: sendFeeInteractor,
             notificationManager: notificationManager
         )
     }
@@ -126,7 +125,7 @@ struct SendModulesFactory {
     func makeSendSummaryViewModel(
         sendModel: SendModel,
         notificationManager: SendNotificationManager,
-        sendFeeProcessor: SendFeeProcessor,
+        sendFeeInteractor: SendFeeInteractor,
         addressTextViewHeightModel: AddressTextViewHeightModel,
         walletInfo: SendWalletInfo
     ) -> SendSummaryViewModel {
@@ -136,7 +135,7 @@ struct SendModulesFactory {
             initial: initial,
             input: sendModel,
             notificationManager: notificationManager,
-            sendFeeProcessor: sendFeeProcessor,
+            sendFeeInteractor: sendFeeInteractor,
             addressTextViewHeightModel: addressTextViewHeightModel,
             walletInfo: walletInfo,
             sectionViewModelFactory: makeSendSummarySectionViewModelFactory(walletInfo: walletInfo)
@@ -173,13 +172,13 @@ struct SendModulesFactory {
         return userWalletModel.signer
     }
 
-    private func makeSendModel(type: SendType, sendFeeProcessor: SendFeeProcessor) -> SendModel {
+    private func makeSendModel(type: SendType, sendFeeInteractor: SendFeeInteractor) -> SendModel {
         let feeIncludedCalculator = FeeIncludedCalculator(validator: walletModel.transactionValidator)
 
         return SendModel(
             walletModel: walletModel,
             transactionSigner: transactionSigner,
-            sendFeeProcessor: sendFeeProcessor,
+            sendFeeInteractor: sendFeeInteractor,
             feeIncludedCalculator: feeIncludedCalculator,
             sendType: type
         )
@@ -262,8 +261,18 @@ struct SendModulesFactory {
             type: .crypto
         )
     }
-    func makeSendAmountFormatter() -> SendAmountFormatter {
-        SendAmountFormatter(tokenItem: tokenItem)
+
+    func makeSendFeeInteractor(predefinedAmount: Amount?, predefinedDestination: String?) -> SendFeeInteractor {
+        let customFeeService = CustomFeeServiceFactory(walletModel: walletModel).makeService()
+        let interactor = CommonSendFeeInteractor(
+            provider: makeSendFeeProvider(),
+            defaultFeeOptions: builder.makeFeeOptions(),
+            customFeeService: customFeeService,
+            predefinedAmount: predefinedAmount,
+            predefinedDestination: predefinedDestination
+        )
+        customFeeService?.setup(input: interactor, output: interactor)
+        return interactor
     }
 
     func makeSendAmountValidator() -> SendAmountValidator {

@@ -15,28 +15,19 @@ struct CustomFeeServiceFactory {
         self.walletModel = walletModel
     }
 
-    func makeService(
-        input: CustomFeeServiceInput,
-        output: CustomFeeServiceOutput
-    ) -> CustomFeeService? {
+    func makeService() -> CustomFeeService? {
         let blockchain = walletModel.blockchainNetwork.blockchain
 
         if case .bitcoin = blockchain,
            let bitcoinTransactionFeeCalculator = walletModel.bitcoinTransactionFeeCalculator {
             return CustomBitcoinFeeService(
-                input: input,
-                output: output,
                 feeTokenItem: walletModel.feeTokenItem,
                 bitcoinTransactionFeeCalculator: bitcoinTransactionFeeCalculator
             )
         }
 
         if blockchain.isEvm {
-            return CustomEvmFeeService(
-                input: input,
-                output: output,
-                feeTokenItem: walletModel.feeTokenItem
-            )
+            return CustomEvmFeeService(feeTokenItem: walletModel.feeTokenItem)
         }
 
         return nil

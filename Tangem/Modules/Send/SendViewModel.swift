@@ -149,7 +149,7 @@ final class SendViewModel: ObservableObject {
         emailDataProvider: EmailDataProvider,
         sendModel: SendModel,
         notificationManager: SendNotificationManager,
-        sendFeeProcessor: SendFeeProcessor,
+        sendFeeInteractor: SendFeeInteractor,
         keyboardVisibilityService: KeyboardVisibilityService,
         sendAmountValidator: SendAmountValidator,
         factory: SendModulesFactory,
@@ -192,18 +192,15 @@ final class SendViewModel: ObservableObject {
         )
 
         sendFeeViewModel = factory.makeSendFeeViewModel(
-            input: sendModel,
-            output: sendModel,
             router: coordinator,
-            processorInput: sendModel,
-            sendFeeProcessor: sendFeeProcessor,
+            sendFeeInteractor: sendFeeInteractor,
             notificationManager: notificationManager
         )
 
         sendSummaryViewModel = factory.makeSendSummaryViewModel(
             sendModel: sendModel,
             notificationManager: notificationManager,
-            sendFeeProcessor: sendFeeProcessor,
+            sendFeeInteractor: sendFeeInteractor,
             addressTextViewHeightModel: addressTextViewHeightModel,
             walletInfo: walletInfo
         )

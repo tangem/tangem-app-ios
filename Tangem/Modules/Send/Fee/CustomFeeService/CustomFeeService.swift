@@ -13,6 +13,8 @@ import BlockchainSdk
 protocol CustomFeeService: AnyObject {
     func initialSetupCustomFee(_ fee: Fee)
     func inputFieldModels() -> [SendCustomFeeInputFieldModel]
+
+    func setup(input: CustomFeeServiceInput, output: CustomFeeServiceOutput)
 }
 
 protocol CustomFeeServiceInput: AnyObject {

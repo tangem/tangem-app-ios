@@ -14,6 +14,8 @@ import BlockchainSdk
 protocol SendFeeInput: AnyObject {
     var selectedFee: SendFee? { get }
     var selectedFeePublisher: AnyPublisher<SendFee?, Never> { get }
+    var cryptoAmountPublisher: AnyPublisher<Amount, Never> { get }
+    var destinationPublisher: AnyPublisher<String, Never> { get }
 }
 
 protocol SendFeeOutput: AnyObject {
@@ -41,11 +43,11 @@ class SendFeeViewModel: ObservableObject {
 
     private let tokenItem: TokenItem
 
-    private weak var input: SendFeeInput?
-    private weak var output: SendFeeOutput?
+//    private weak var input: SendFeeInput?
+//    private weak var output: SendFeeOutput?
     private weak var router: SendFeeRoutable?
 
-    private let processor: SendFeeProcessor
+    private let interactor: SendFeeInteractor
     private let notificationManager: SendNotificationManager
 
     private let feeExplanationUrl = TangemBlogUrlBuilder().url(post: .fee)
@@ -61,19 +63,19 @@ class SendFeeViewModel: ObservableObject {
 
     init(
         initial: Initial,
-        input: SendFeeInput,
-        output: SendFeeOutput,
+//        input: SendFeeInput,
+//        output: SendFeeOutput,
         router: SendFeeRoutable,
-        processor: SendFeeProcessor,
+        interactor: SendFeeInteractor,
         notificationManager: SendNotificationManager
     ) {
         tokenItem = initial.tokenItem
-        selectedFeeOption = input.selectedFee?.option
+//        selectedFeeOption = input.selectedFee?.option
 
-        self.input = input
-        self.output = output
+//        self.input = input
+//        self.output = output
         self.router = router
-        self.processor = processor
+        self.interactor = interactor
         self.notificationManager = notificationManager
 
         bind()
@@ -103,24 +105,23 @@ class SendFeeViewModel: ObservableObject {
     }
 
     private func bind() {
-        processor.feesPublisher()
+        interactor.feesPublisher()
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, values in
-                viewModel.updateIfNeeded(values: values)
                 viewModel.updateViewModels(values: values)
             }
             .store(in: &bag)
 
-        processor.customFeePublisher()
-            .withWeakCaptureOf(self)
-            .receive(on: DispatchQueue.main)
-            .sink { viewModel, fee in
-                viewModel.updateCustomFee(fee: fee)
-            }
-            .store(in: &bag)
+//        interactor.customFeePublisher()
+//            .withWeakCaptureOf(self)
+//            .receive(on: DispatchQueue.main)
+//            .sink { viewModel, fee in
+//                viewModel.updateCustomFee(fee: fee)
+//            }
+//            .store(in: &bag)
 
-        input?.selectedFeePublisher
+        interactor.selectedFeePublisher()
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, selectedFee in
@@ -148,7 +149,7 @@ class SendFeeViewModel: ObservableObject {
         selectedFeeOption = selectedFee?.option
 
         let showCustomFeeFields = selectedFee?.option == .custom
-        let models = showCustomFeeFields ? processor.customFeeInputFieldModels() : []
+        let models = showCustomFeeFields ? interactor.customFeeInputFieldModels() : []
         if customFeeModels.count != models.count {
             customFeeModels = models
         }
@@ -160,17 +161,17 @@ class SendFeeViewModel: ObservableObject {
         }
 
         feeRowViewModels[customIndex] = mapToFeeRowViewModel(fee: fee)
-        output?.feeDidChanged(fee: fee)
+        interactor.update(selectedFee: fee)
     }
 
-    private func updateIfNeeded(values: [SendFee]) {
-        guard input?.selectedFee == nil,
-              let market = values.first(where: { $0.option == .market }) else {
-            return
-        }
-
-        output?.feeDidChanged(fee: market)
-    }
+//    private func updateIfNeeded(values: [SendFee]) {
+//        guard input?.selectedFee == nil,
+//              let market = values.first(where: { $0.option == .market }) else {
+//            return
+//        }
+//
+//        output?.feeDidChanged(fee: market)
+//    }
 
     private func updateViewModels(values: [SendFee]) {
         feeRowViewModels = values.map { fee in
@@ -212,7 +213,7 @@ class SendFeeViewModel: ObservableObject {
         }
 
         selectedFeeOption = fee.option
-        output?.feeDidChanged(fee: fee)
+        interactor.update(selectedFee: fee)
     }
 }
 

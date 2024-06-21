@@ -22,8 +22,6 @@ protocol SendSummaryViewModelInput: AnyObject {
     var selectedFeePublisher: AnyPublisher<SendFee?, Never> { get }
 
     var isSending: AnyPublisher<Bool, Never> { get }
-
-    func amountPublisher() -> AnyPublisher<CryptoFiatAmount?, Never>
 }
 
 class SendSummaryViewModel: ObservableObject {
@@ -72,7 +70,7 @@ class SendSummaryViewModel: ObservableObject {
     private let tokenItem: TokenItem
     private let walletInfo: SendWalletInfo
     private let notificationManager: SendNotificationManager
-    private let sendFeeProcessor: SendFeeProcessor
+    private let sendFeeInteractor: SendFeeInteractor
     private var isVisible = false
 
     let addressTextViewHeightModel: AddressTextViewHeightModel
@@ -81,7 +79,7 @@ class SendSummaryViewModel: ObservableObject {
         initial: Initial,
         input: SendSummaryViewModelInput,
         notificationManager: SendNotificationManager,
-        sendFeeProcessor: SendFeeProcessor,
+        sendFeeInteractor: SendFeeInteractor,
         addressTextViewHeightModel: AddressTextViewHeightModel,
         walletInfo: SendWalletInfo,
         sectionViewModelFactory: SendSummarySectionViewModelFactory
@@ -91,7 +89,7 @@ class SendSummaryViewModel: ObservableObject {
         self.input = input
         self.walletInfo = walletInfo
         self.notificationManager = notificationManager
-        self.sendFeeProcessor = sendFeeProcessor
+        self.sendFeeInteractor = sendFeeInteractor
         self.addressTextViewHeightModel = addressTextViewHeightModel
         self.sectionViewModelFactory = sectionViewModelFactory
 
@@ -183,7 +181,7 @@ class SendSummaryViewModel: ObservableObject {
             .assign(to: \.amountSummaryViewData, on: self, ownership: .weak)
             .store(in: &bag)
 
-        Publishers.CombineLatest(sendFeeProcessor.feesPublisher(), input.selectedFeePublisher)
+        Publishers.CombineLatest(sendFeeInteractor.feesPublisher(), input.selectedFeePublisher)
             .sink { [weak self] feeValues, selectedFee in
                 guard let self else { return }
 
