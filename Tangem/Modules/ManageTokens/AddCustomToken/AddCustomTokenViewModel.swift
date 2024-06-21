@@ -333,7 +333,17 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         }
     }
 
+    private func enteredDerivationPath() -> DerivationPath? {
+        if settings.hdWalletsSupported {
+            return selectedDerivationOption?.derivationPath
+        } else {
+            return nil
+        }
+    }
+
     private func enteredContractAddress(in blockchain: Blockchain) throws -> String {
+        let contractAddress = convertContractAddressIfPossible(contractAddress, in: blockchain)
+
         if blockchain.skipValidation, // skip validation for binance and cardano
            !contractAddress.trimmed().isEmpty {
             return contractAddress
@@ -348,12 +358,14 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         return contractAddress
     }
 
-    private func enteredDerivationPath() -> DerivationPath? {
-        if settings.hdWalletsSupported {
-            return selectedDerivationOption?.derivationPath
-        } else {
-            return nil
+    private func convertContractAddressIfPossible(_ contractAddress: String, in blockchain: Blockchain?) -> String {
+        guard let blockchain else {
+            return contractAddress
         }
+
+        let converter = CustomTokenContractAddressConverter(blockchain: blockchain)
+
+        return converter.convert(contractAddress)
     }
 
     private func checkLocalStorage() throws {
@@ -365,6 +377,9 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     }
 
     private func findToken(contractAddress: String) -> AnyPublisher<[CoinModel], Never> {
+        let blockchain = try? enteredBlockchain()
+        let contractAddress = convertContractAddressIfPossible(contractAddress, in: blockchain)
+
         if let currentCurrencyModel = foundStandardToken,
            let token = currentCurrencyModel.items.first?.token,
            token.contractAddress.caseInsensitiveCompare(contractAddress) == .orderedSame {
