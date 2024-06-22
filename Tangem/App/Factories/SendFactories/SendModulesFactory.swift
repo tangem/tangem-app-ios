@@ -32,7 +32,13 @@ struct SendModulesFactory {
             predefinedDestination: type.predefinedDestination
         )
 
-        let sendModel = makeSendModel(type: type, sendFeeInteractor: sendFeeInteractor)
+        let informationRelevanceService = makeInformationRelevanceService(sendFeeInteractor: sendFeeInteractor)
+
+        let sendModel = makeSendModel(
+            sendFeeInteractor: sendFeeInteractor,
+            informationRelevanceService: informationRelevanceService,
+            type: type
+        )
         let canUseFiatCalculation = quotesRepository.quote(for: walletModel.tokenItem) != nil
         let walletInfo = builder.makeSendWalletInfo(canUseFiatCalculation: canUseFiatCalculation)
         let initial = SendViewModel.Initial(feeOptions: builder.makeFeeOptions())
@@ -107,18 +113,17 @@ struct SendModulesFactory {
     }
 
     func makeSendFeeViewModel(
-        router: SendFeeRoutable,
         sendFeeInteractor: SendFeeInteractor,
-        notificationManager: SendNotificationManager
+        notificationManager: SendNotificationManager,
+        router: SendFeeRoutable
     ) -> SendFeeViewModel {
-        let feeOptions = builder.makeFeeOptions()
-        let initital = SendFeeViewModel.Initial(tokenItem: walletModel.tokenItem, feeOptions: feeOptions)
+        let initital = SendFeeViewModel.Initial(tokenItem: walletModel.tokenItem)
 
         return SendFeeViewModel(
             initial: initital,
-            router: router,
             interactor: sendFeeInteractor,
-            notificationManager: notificationManager
+            notificationManager: notificationManager,
+            router: router
         )
     }
 
@@ -172,7 +177,11 @@ struct SendModulesFactory {
         return userWalletModel.signer
     }
 
-    private func makeSendModel(type: SendType, sendFeeInteractor: SendFeeInteractor) -> SendModel {
+    private func makeSendModel(
+        sendFeeInteractor: SendFeeInteractor,
+        informationRelevanceService: InformationRelevanceService,
+        type: SendType
+    ) -> SendModel {
         let feeIncludedCalculator = FeeIncludedCalculator(validator: walletModel.transactionValidator)
 
         return SendModel(
@@ -180,6 +189,7 @@ struct SendModulesFactory {
             transactionSigner: transactionSigner,
             sendFeeInteractor: sendFeeInteractor,
             feeIncludedCalculator: feeIncludedCalculator,
+            informationRelevanceService: informationRelevanceService,
             sendType: type
         )
     }
@@ -292,6 +302,10 @@ struct SendModulesFactory {
             validator: validator,
             type: .crypto
         )
+    }
+
+    func makeInformationRelevanceService(sendFeeInteractor: SendFeeInteractor) -> InformationRelevanceService {
+        CommonInformationRelevanceService(sendFeeInteractor: sendFeeInteractor)
     }
 }
 

@@ -75,9 +75,9 @@ class SendModel {
     private let transactionSigner: TransactionSigner
     private let sendFeeInteractor: SendFeeInteractor
     private let feeIncludedCalculator: FeeIncludedCalculator
+    private let informationRelevanceService: InformationRelevanceService
     private let sendType: SendType
 
-    private var screenIdleStartTime: Date?
     private var bag: Set<AnyCancellable> = []
 
     var currencySymbol: String {
@@ -91,12 +91,14 @@ class SendModel {
         transactionSigner: TransactionSigner,
         sendFeeInteractor: SendFeeInteractor,
         feeIncludedCalculator: FeeIncludedCalculator,
+        informationRelevanceService: InformationRelevanceService,
         sendType: SendType
     ) {
         self.walletModel = walletModel
         self.transactionSigner = transactionSigner
         self.sendFeeInteractor = sendFeeInteractor
         self.feeIncludedCalculator = feeIncludedCalculator
+        self.informationRelevanceService = informationRelevanceService
         self.sendType = sendType
 
         let destination = sendType.predefinedDestination.map { SendAddress(value: $0, source: .sellProvider) }
@@ -123,19 +125,13 @@ class SendModel {
     }
 
     func send() {
-        guard let screenIdleStartTime else { return }
-
-        let feeValidityInterval: TimeInterval = 60
-        let now = Date()
-        if now.timeIntervalSince(screenIdleStartTime) <= feeValidityInterval {
+        if informationRelevanceService.isActual {
             sendTransaction()
             return
         }
 
-        let oldFee = _selectedFee.value
-
-        // Catch the subscribtions
-        sendFeeInteractor.feesPublisher()
+        informationRelevanceService
+            .updateInformation()
             .sink { [weak self] completion in
                 guard case .failure = completion else {
                     return
@@ -146,22 +142,16 @@ class SendModel {
                 )
 
             } receiveValue: { [weak self] result in
-                self?.screenIdleStartTime = Date()
-
-                guard let oldFeeValue = oldFee?.value.value?.amount.value,
-                      let newFee = result.first(where: { $0.option == oldFee?.option })?.value.value?.amount.value,
-                      newFee > oldFeeValue else {
+                switch result {
+                case .feeWasIncreased:
+                    self?.delegate?.showAlert(
+                        AlertBuilder.makeOkGotItAlert(message: Localization.sendNotificationHighFeeTitle)
+                    )
+                case .ok:
                     self?.sendTransaction()
-                    return
                 }
-
-                self?.delegate?.showAlert(
-                    AlertBuilder.makeOkGotItAlert(message: Localization.sendNotificationHighFeeTitle)
-                )
             }
             .store(in: &bag)
-
-        updateFees()
     }
 
     func sendTransaction() {

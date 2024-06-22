@@ -75,6 +75,10 @@ class CommonSendFeeInteractor {
 // MARK: - SendFeeInteractor
 
 extension CommonSendFeeInteractor: SendFeeInteractor {
+    var selectedFee: SendFee? {
+        input?.selectedFee
+    }
+
     func setup(input: any SendFeeInput, output: any SendFeeOutput) {
         self.input = input
         self.output = output

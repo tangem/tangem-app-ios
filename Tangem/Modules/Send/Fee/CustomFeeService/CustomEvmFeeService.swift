@@ -145,6 +145,8 @@ extension CustomEvmFeeService: CustomFeeService {
     }
 
     func initialSetupCustomFee(_ fee: Fee) {
+        assert(customFee.value == nil, "Duplicate initial setup")
+
         updateProperties(fee: fee)
     }
 

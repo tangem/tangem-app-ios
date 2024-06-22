@@ -81,11 +81,7 @@ struct SendModulesStepsBuilder {
 
     func makeFeeOptions() -> [FeeOption] {
         if walletModel.shouldShowFeeSelector {
-            var options: [FeeOption] = [.slow, .market, .fast]
-//            if walletModel.supportCustomFee {
-//                options.append(.custom)
-//            }
-            return options
+            return [.slow, .market, .fast]
         }
 
         return [.market]

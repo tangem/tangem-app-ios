@@ -9,7 +9,6 @@
 import Combine
 import SwiftUI
 import BlockchainSdk
-import AVFoundation
 
 final class SendViewModel: ObservableObject {
     // MARK: - ViewState
@@ -99,7 +98,6 @@ final class SendViewModel: ObservableObject {
     private var bag: Set<AnyCancellable> = []
     private var feeUpdateSubscription: AnyCancellable? = nil
 
-    private var screenIdleStartTime: Date?
     private var currentPageAnimating: Bool? = nil
     private var didReachSummaryScreen: Bool
 
@@ -192,9 +190,9 @@ final class SendViewModel: ObservableObject {
         )
 
         sendFeeViewModel = factory.makeSendFeeViewModel(
-            router: coordinator,
             sendFeeInteractor: sendFeeInteractor,
-            notificationManager: notificationManager
+            notificationManager: notificationManager,
+            router: coordinator
         )
 
         sendSummaryViewModel = factory.makeSendSummaryViewModel(
@@ -316,13 +314,9 @@ final class SendViewModel: ObservableObject {
         coordinator?.openQRScanner(with: binding, networkName: networkName)
     }
 
-    func onSummaryAppear() {
-        screenIdleStartTime = Date()
-    }
+    func onSummaryAppear() {}
 
-    func onSummaryDisappear() {
-        screenIdleStartTime = nil
-    }
+    func onSummaryDisappear() {}
 
     private func bind() {
         sendModel.isSending
@@ -876,42 +870,5 @@ private extension SendAmountCalculationType {
 extension SendViewModel {
     struct Initial {
         let feeOptions: [FeeOption]
-    }
-}
-
-struct SendTransactionSummaryDestinationHelper {
-    // TODO: Remove optional
-    func makeTransactionDescription(amount: Decimal?, fee: Decimal?, amountCurrencyId: String?, feeCurrencyId: String?) -> String? {
-        guard
-            let amount,
-            let fee,
-            let amountCurrencyId,
-            let feeCurrencyId
-        else {
-            return nil
-        }
-
-        let converter = BalanceConverter()
-        let amountInFiat = converter.convertToFiat(amount, currencyId: amountCurrencyId)
-        let feeInFiat = converter.convertToFiat(fee, currencyId: feeCurrencyId)
-
-        let totalInFiat: Decimal?
-        if let amountInFiat, let feeInFiat {
-            totalInFiat = amountInFiat + feeInFiat
-        } else {
-            totalInFiat = nil
-        }
-
-        let formattingOptions = BalanceFormattingOptions(
-            minFractionDigits: BalanceFormattingOptions.defaultFiatFormattingOptions.minFractionDigits,
-            maxFractionDigits: BalanceFormattingOptions.defaultFiatFormattingOptions.maxFractionDigits,
-            formatEpsilonAsLowestRepresentableValue: true,
-            roundingType: BalanceFormattingOptions.defaultFiatFormattingOptions.roundingType
-        )
-        let formatter = BalanceFormatter()
-        let totalInFiatFormatted = formatter.formatFiatBalance(totalInFiat, formattingOptions: formattingOptions)
-        let feeInFiatFormatted = formatter.formatFiatBalance(feeInFiat, formattingOptions: formattingOptions)
-
-        return Localization.sendSummaryTransactionDescription(totalInFiatFormatted, feeInFiatFormatted)
     }
 }

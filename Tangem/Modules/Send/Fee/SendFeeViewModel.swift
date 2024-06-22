@@ -9,18 +9,7 @@
 import Foundation
 import SwiftUI
 import Combine
-import BlockchainSdk
-
-protocol SendFeeInput: AnyObject {
-    var selectedFee: SendFee? { get }
-    var selectedFeePublisher: AnyPublisher<SendFee?, Never> { get }
-    var cryptoAmountPublisher: AnyPublisher<Amount, Never> { get }
-    var destinationPublisher: AnyPublisher<String, Never> { get }
-}
-
-protocol SendFeeOutput: AnyObject {
-    func feeDidChanged(fee: SendFee)
-}
+import struct BlockchainSdk.Fee
 
 class SendFeeViewModel: ObservableObject {
     @Published private(set) var selectedFeeOption: FeeOption?
@@ -42,13 +31,10 @@ class SendFeeViewModel: ObservableObject {
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
 
     private let tokenItem: TokenItem
-
-//    private weak var input: SendFeeInput?
-//    private weak var output: SendFeeOutput?
-    private weak var router: SendFeeRoutable?
-
     private let interactor: SendFeeInteractor
     private let notificationManager: SendNotificationManager
+
+    private weak var router: SendFeeRoutable?
 
     private let feeExplanationUrl = TangemBlogUrlBuilder().url(post: .fee)
     private let balanceFormatter = BalanceFormatter()
@@ -63,20 +49,15 @@ class SendFeeViewModel: ObservableObject {
 
     init(
         initial: Initial,
-//        input: SendFeeInput,
-//        output: SendFeeOutput,
-        router: SendFeeRoutable,
         interactor: SendFeeInteractor,
-        notificationManager: SendNotificationManager
+        notificationManager: SendNotificationManager,
+        router: SendFeeRoutable
     ) {
         tokenItem = initial.tokenItem
-//        selectedFeeOption = input.selectedFee?.option
 
-//        self.input = input
-//        self.output = output
-        self.router = router
         self.interactor = interactor
         self.notificationManager = notificationManager
+        self.router = router
 
         bind()
     }
@@ -112,14 +93,6 @@ class SendFeeViewModel: ObservableObject {
                 viewModel.updateViewModels(values: values)
             }
             .store(in: &bag)
-
-//        interactor.customFeePublisher()
-//            .withWeakCaptureOf(self)
-//            .receive(on: DispatchQueue.main)
-//            .sink { viewModel, fee in
-//                viewModel.updateCustomFee(fee: fee)
-//            }
-//            .store(in: &bag)
 
         interactor.selectedFeePublisher()
             .withWeakCaptureOf(self)
@@ -163,15 +136,6 @@ class SendFeeViewModel: ObservableObject {
         feeRowViewModels[customIndex] = mapToFeeRowViewModel(fee: fee)
         interactor.update(selectedFee: fee)
     }
-
-//    private func updateIfNeeded(values: [SendFee]) {
-//        guard input?.selectedFee == nil,
-//              let market = values.first(where: { $0.option == .market }) else {
-//            return
-//        }
-//
-//        output?.feeDidChanged(fee: market)
-//    }
 
     private func updateViewModels(values: [SendFee]) {
         feeRowViewModels = values.map { fee in
@@ -222,6 +186,5 @@ extension SendFeeViewModel: AuxiliaryViewAnimatable {}
 extension SendFeeViewModel {
     struct Initial {
         let tokenItem: TokenItem
-        let feeOptions: [FeeOption]
     }
 }

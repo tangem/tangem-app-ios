@@ -11,6 +11,8 @@ import Combine
 import BlockchainSdk
 
 protocol SendFeeInteractor {
+    var selectedFee: SendFee? { get }
+
     func update(selectedFee: SendFee)
     func updateFees()
 
