@@ -19,7 +19,7 @@ protocol SendFeeInput: AnyObject {
 }
 
 protocol SendFeeOutput: AnyObject {
-    func feeDidChanged(fee: SendFee?)
+    func feeDidChanged(fee: SendFee)
 }
 
 class SendFeeViewModel: ObservableObject {

@@ -115,7 +115,7 @@ extension CommonSendFeeInteractor: SendFeeInteractor {
             .store(in: &bag)
     }
 
-    func update(selectedFee: SendFee?) {
+    func update(selectedFee: SendFee) {
         output?.feeDidChanged(fee: selectedFee)
     }
 
@@ -130,12 +130,6 @@ extension CommonSendFeeInteractor: SendFeeInteractor {
                 let (feesValue, customFee) = args
                 return interactor.mapToSendFees(feesValue: feesValue, customFee: customFee)
             }
-            .eraseToAnyPublisher()
-    }
-
-    func customFeePublisher() -> AnyPublisher<SendFee, Never> {
-        _customFee
-            .compactMap { $0.map { SendFee(option: .custom, value: .loaded($0)) } }
             .eraseToAnyPublisher()
     }
 
@@ -159,8 +153,9 @@ extension CommonSendFeeInteractor: CustomFeeServiceInput {
 // MARK: - CustomFeeServiceOutput
 
 extension CommonSendFeeInteractor: CustomFeeServiceOutput {
-    func customFeeDidChanged(_ customFee: Fee?) {
+    func customFeeDidChanged(_ customFee: Fee) {
         _customFee.send(customFee)
+        update(selectedFee: .init(option: .custom, value: .loaded(customFee)))
         _fees.send(_fees.value)
     }
 }
@@ -215,7 +210,7 @@ private extension CommonSendFeeInteractor {
         return market
     }
 
-    private func initialSelectedFeeUpdateIfNeeded(fee: SendFee?) {
+    private func initialSelectedFeeUpdateIfNeeded(fee: SendFee) {
         guard input?.selectedFee == nil else {
             return
         }

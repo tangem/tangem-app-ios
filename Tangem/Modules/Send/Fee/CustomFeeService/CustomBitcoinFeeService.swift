@@ -23,6 +23,10 @@ class CustomBitcoinFeeService {
     private var customFeeBeforeEditing: Fee?
     private var bag: Set<AnyCancellable> = []
 
+    private var zeroFee: Fee {
+        return Fee(Amount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: 0))
+    }
+
     init(
         feeTokenItem: TokenItem,
         bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator
@@ -37,16 +41,23 @@ class CustomBitcoinFeeService {
             input.cryptoAmountPublisher,
             input.destinationAddressPublisher
         )
-        .sink { [weak self] satoshiPerByte, amount, destination in
-            self?.recalculateCustomFee(
+        .withWeakCaptureOf(self)
+        .compactMap { service, args in
+            let (satoshiPerByte, amount, destination) = args
+            return service.recalculateCustomFee(
                 satoshiPerByte: satoshiPerByte,
                 amount: amount,
                 destination: destination
             )
         }
+        .withWeakCaptureOf(self)
+        .sink { service, fee in
+            service.output?.customFeeDidChanged(fee)
+        }
         .store(in: &bag)
 
         customFee
+            .compactMap { $0 }
             .withWeakCaptureOf(self)
             .sink { service, customFee in
                 service.customFeeDidChanged(fee: customFee)
@@ -54,8 +65,8 @@ class CustomBitcoinFeeService {
             .store(in: &bag)
     }
 
-    private func customFeeDidChanged(fee: Fee?) {
-        let fortmatted = fortmatToFiat(value: fee?.amount.value)
+    private func customFeeDidChanged(fee: Fee) {
+        let fortmatted = fortmatToFiat(value: fee.amount.value)
         customFeeInFiat.send(fortmatted)
 
         output?.customFeeDidChanged(fee)
@@ -71,10 +82,9 @@ class CustomBitcoinFeeService {
         return BalanceFormatter().formatFiatBalance(fiat)
     }
 
-    private func recalculateCustomFee(satoshiPerByte: Int?, amount: Amount, destination: String) {
+    private func recalculateCustomFee(satoshiPerByte: Int?, amount: Amount, destination: String) -> Fee {
         guard let satoshiPerByte else {
-            output?.customFeeDidChanged(.none)
-            return
+            return zeroFee
         }
 
         let newFee = bitcoinTransactionFeeCalculator.calculateFee(
@@ -83,7 +93,7 @@ class CustomBitcoinFeeService {
             destination: destination
         )
 
-        output?.customFeeDidChanged(newFee)
+        return newFee
     }
 
     private func onCustomFeeChanged(_ focused: Bool) {

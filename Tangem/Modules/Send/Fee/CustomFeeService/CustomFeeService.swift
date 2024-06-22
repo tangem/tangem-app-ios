@@ -23,5 +23,6 @@ protocol CustomFeeServiceInput: AnyObject {
 }
 
 protocol CustomFeeServiceOutput: AnyObject {
-    func customFeeDidChanged(_ customFee: Fee?)
+    // There is no way to push the nil fee. It causes to deselect the `selected fee`
+    func customFeeDidChanged(_ customFee: Fee)
 }
