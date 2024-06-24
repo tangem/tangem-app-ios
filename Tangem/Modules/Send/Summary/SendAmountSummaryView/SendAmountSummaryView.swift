@@ -28,13 +28,13 @@ struct SendAmountSummaryView: View {
                 .matchedGeometryEffectOptional(id: iconNamespaceId, in: namespace)
 
             VStack(spacing: 6) {
-                Text(data.amount)
+                Text(data.amount ?? " ")
                     .style(Fonts.Regular.title1, color: Colors.Text.primary1)
                     .truncationMode(.tail)
                     .frame(maxWidth: .infinity)
                     .matchedGeometryEffectOptional(id: amountCryptoNamespaceId, in: namespace)
 
-                Text(data.amountAlternative)
+                Text(data.amountAlternative ?? " ")
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     .matchedGeometryEffectOptional(id: amountFiatNamespaceId, in: namespace)
             }

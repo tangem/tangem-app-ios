@@ -142,8 +142,8 @@ struct SendView: View {
                 .onDisappear(perform: viewModel.onSummaryDisappear)
                 .onAppear(perform: viewModel.onCurrentPageAppear)
                 .onDisappear(perform: viewModel.onCurrentPageDisappear)
-        case .finish(let sendFinishViewModel):
-            SendFinishView(viewModel: sendFinishViewModel, namespace: namespace)
+        case .finish:
+            SendSummaryView(viewModel: viewModel.sendFinishViewModel, namespace: namespace)
                 .onAppear(perform: viewModel.onCurrentPageAppear)
                 .onDisappear(perform: viewModel.onCurrentPageDisappear)
         }
@@ -253,7 +253,7 @@ private struct SendViewBackButton: View {
 
 extension SendView {
     enum Constants {
-        static let animationDuration: TimeInterval = 1.3
+        static let animationDuration: TimeInterval = 0.3
         static let defaultAnimation: Animation = .spring(duration: animationDuration)
         static let backButtonAnimation: Animation = .easeOut(duration: 0.1)
         static let sectionContentAnimation: Animation = .easeOut(duration: animationDuration)
