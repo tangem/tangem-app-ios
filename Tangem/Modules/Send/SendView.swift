@@ -253,7 +253,7 @@ private struct SendViewBackButton: View {
 
 extension SendView {
     enum Constants {
-        static let animationDuration: TimeInterval = 0.3
+        static let animationDuration: TimeInterval = 1.3
         static let defaultAnimation: Animation = .spring(duration: animationDuration)
         static let backButtonAnimation: Animation = .easeOut(duration: 0.1)
         static let sectionContentAnimation: Animation = .easeOut(duration: animationDuration)
