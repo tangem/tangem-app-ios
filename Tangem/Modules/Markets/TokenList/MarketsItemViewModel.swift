@@ -12,13 +12,11 @@ import Combine
 class MarketsItemViewModel: Identifiable, ObservableObject {
     // MARK: - Published
 
-    @Published var isLoading: Bool
+    var marketRating: String?
+    var marketCap: String?
 
-    @Published var marketRating: String?
-    @Published var marketCap: String?
-
-    @Published var priceValue: String = ""
-    @Published var priceChangeState: TokenPriceChangeView.State = .noData
+    var priceValue: String = ""
+    var priceChangeState: TokenPriceChangeView.State = .noData
 
     // Charts will be implement in [REDACTED_INFO]
     @Published var charts: [Double]? = nil
@@ -36,13 +34,11 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
 
     private let priceChangeFormatter = PriceChangeFormatter()
     private let priceFormatter = CommonTokenPriceFormatter()
-    private let marketCapFormatter = CommonMarketCapFormatter()
+    private let marketCapFormatter = MarketCapFormatter()
 
     // MARK: - Init
 
     init(_ data: InputData) {
-        isLoading = data.isLoading
-
         id = data.id
         imageURL = IconURLBuilder().tokenIconURL(id: id, size: .large)
         name = data.name
@@ -84,7 +80,6 @@ extension MarketsItemViewModel {
         let marketRating: UInt64?
         let priceValue: Decimal?
         let priceChangeStateValue: Decimal?
-        let isLoading: Bool
     }
 
     enum Constants {
