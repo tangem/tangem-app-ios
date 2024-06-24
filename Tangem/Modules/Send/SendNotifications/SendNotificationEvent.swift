@@ -40,9 +40,9 @@ extension SendNotificationEvent: NotificationEvent {
         case .validationErrorEvent(let event):
             return event.title
         case .notEnoughMana:
-            return .string("Not enough Mana")
+            return .string(Localization.sendNotificationNotEnoughManaTitle)
         case .invalidMaxAmount:
-            return .string("Mana limit")
+            return .string(Localization.sendNotificationManaLimitTitle)
         }
     }
 
@@ -61,9 +61,9 @@ extension SendNotificationEvent: NotificationEvent {
         case .validationErrorEvent(let event):
             return event.description
         case .notEnoughMana(let current, let max):
-            return "You don't have enough MANA for this transaction. Please adjust the transfer amount or wait until the MANA is refilled. Your MANA balance is \(current)/\(max)"
+            return Localization.sendNotificationNotEnoughManaDescription(current, max)
         case .invalidMaxAmount(let validMax):
-            return "You can transfer only \(validMax) KOIN due to the MANA limit imposed by the Koinos network"
+            return Localization.sendNotificationManaLimitDescription(validMax)
         }
     }
 
