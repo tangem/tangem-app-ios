@@ -178,6 +178,20 @@ extension CommonSendFeeInteractor: CustomFeeServiceOutput {
     }
 }
 
+// MARK: - SendStepType
+
+extension CommonSendFeeInteractor: SendStepType {
+    func isValidPublisher() -> AnyPublisher<Bool, Never> {
+        guard let input else {
+            return .just(output: false)
+        }
+
+        return input.selectedFeePublisher()
+            .map { $0 != nil }
+            .eraseToAnyPublisher()
+    }
+}
+
 // MARK: - Private
 
 private extension CommonSendFeeInteractor {

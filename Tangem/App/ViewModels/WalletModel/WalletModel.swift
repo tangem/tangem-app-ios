@@ -35,14 +35,6 @@ class WalletModel {
         transactionHistoryState()
     }
 
-    var transactionHistoryNotLoaded: Bool {
-        if case .initial = _transactionHistoryService?.state {
-            return true
-        } else {
-            return false
-        }
-    }
-
     var isSupportedTransactionHistory: Bool {
         _transactionHistoryService != nil
     }
@@ -519,6 +511,14 @@ extension WalletModel {
 // MARK: - Transaction history
 
 extension WalletModel {
+    func updateTransactionHistoryIfNeeded() -> AnyPublisher<Void, Never>  {
+        guard case .initial = _transactionHistoryService?.state else {
+            return Empty().eraseToAnyPublisher()
+        }
+
+        return updateTransactionsHistory()
+    }
+
     func updateTransactionsHistory() -> AnyPublisher<Void, Never> {
         guard let _transactionHistoryService else {
             AppLog.shared.debug("TransactionsHistory for \(self) not supported")

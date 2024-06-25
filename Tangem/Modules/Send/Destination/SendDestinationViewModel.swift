@@ -142,6 +142,14 @@ class SendDestinationViewModel: ObservableObject {
 
 extension SendDestinationViewModel: AuxiliaryViewAnimatable {}
 
+// MARK: - SendStepType
+
+extension SendDestinationViewModel: SendStepType {
+    func isValidPublisher() -> AnyPublisher<Bool, Never> {
+        _isValidatingDestination.eraseToAnyPublisher()
+    }
+}
+
 extension SendDestinationViewModel {
     struct Settings {
         typealias SuggestedWallet = (name: String, address: String)

@@ -56,66 +56,48 @@ struct SendView: View {
     @ViewBuilder
     private var header: some View {
         if let title = viewModel.title {
-            HStack {
-                closeButton
-
-                // Making sure the header doesn't jump when changing the visibility of the fields
-                ZStack {
-                    headerText(title: title, subtitle: viewModel.subtitle, titleNamespaceId: SendViewNamespaceId.containerTitle.rawValue)
-
-                    headerText(title: "Title", subtitle: "Subtitle", titleNamespaceId: nil)
-                        .hidden()
-                }
-                .padding(.vertical, 0)
-                .lineLimit(1)
-
-                ZStack(alignment: .trailing) {
-                    closeButton
-                        .hidden()
-
-                    if viewModel.showQRCodeButton {
-                        Button(action: viewModel.scanQRCode) {
-                            Assets.qrCode.image
-                                .renderingMode(.template)
-                                .foregroundColor(Colors.Icon.primary1)
-                        }
-                    }
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, 12)
+            headerView(title: title)
         }
-    }
-
-    private var closeButton: some View {
-        Button(Localization.commonClose, action: viewModel.dismiss)
-            .foregroundColor(viewModel.closeButtonColor)
-            .disabled(viewModel.closeButtonDisabled)
-            .fixedSize(horizontal: true, vertical: false)
     }
 
     @ViewBuilder
-    private func headerText(title: String, subtitle: String?, titleNamespaceId: String?) -> some View {
-        VStack(spacing: 2) {
-            // SwiftUI cannot animate the position and the contents of the same text view at the same time
-            // Hence the duplicate title views
-            if let subtitle = subtitle {
-                headerTitleText(title: title, titleNamespaceId: titleNamespaceId)
-
-                Text(subtitle)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                    .transition(.opacity)
-            } else {
-                headerTitleText(title: title, titleNamespaceId: titleNamespaceId)
+    private func headerView(title: String) -> some View {
+        headerText(title: title)
+            .overlay(alignment: .leading) {
+                Button(Localization.commonClose, action: viewModel.dismiss)
+                    .foregroundColor(viewModel.closeButtonColor)
+                    .disabled(viewModel.closeButtonDisabled)
             }
-        }
+            .overlay(alignment: .trailing) {
+                if viewModel.showQRCodeButton {
+                    Button(action: viewModel.scanQRCode) {
+                        Assets.qrCode.image
+                            .renderingMode(.template)
+                            .foregroundColor(Colors.Icon.primary1)
+                    }
+                }
+            }
+            .frame(height: 44)
+            .padding(.top, 8)
+            .padding(.horizontal, 16)
     }
 
-    private func headerTitleText(title: String, titleNamespaceId: String?) -> some View {
-        Text(title)
-            .style(Fonts.Bold.body, color: Colors.Text.primary1)
-            .frame(maxWidth: .infinity)
-            .matchedGeometryEffectOptional(id: titleNamespaceId, in: titleNamespaceId != nil ? namespace : nil)
+    @ViewBuilder
+    private func headerText(title: String) -> some View {
+        VStack(spacing: 2) {
+            Text(title)
+                .multilineTextAlignment(.center)
+                .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                .animation(.default, value: title)
+
+            if let subtitle = viewModel.subtitle {
+                Text(subtitle)
+                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .lineLimit(1)
+        .frame(maxWidth: .infinity)
     }
 
     @ViewBuilder
@@ -138,8 +120,6 @@ struct SendView: View {
                 .onDisappear(perform: viewModel.onCurrentPageDisappear)
         case .summary:
             SendSummaryView(viewModel: viewModel.sendSummaryViewModel, namespace: namespace)
-                .onAppear(perform: viewModel.onSummaryAppear)
-                .onDisappear(perform: viewModel.onSummaryDisappear)
                 .onAppear(perform: viewModel.onCurrentPageAppear)
                 .onDisappear(perform: viewModel.onCurrentPageDisappear)
         case .finish:
@@ -183,8 +163,8 @@ struct SendView: View {
                 }
 
                 MainButton(
-                    title: viewModel.mainButtonTitle,
-                    icon: viewModel.mainButtonIcon,
+                    title: viewModel.mainButtonType.title,
+                    icon: viewModel.mainButtonType.icon,
                     style: .primary,
                     size: .default,
                     isLoading: viewModel.mainButtonLoading,

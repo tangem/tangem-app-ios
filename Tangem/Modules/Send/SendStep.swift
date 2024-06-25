@@ -9,22 +9,25 @@
 import Foundation
 
 enum SendStep {
-    case amount
-    case destination
-    case fee
-    case summary
-    case finish
-}
+    case destination(viewModel: SendDestinationViewModel)
+    case amount(viewModel: SendAmountViewModel)
+    case fee(viewModel: SendFeeViewModel)
+    case summary(viewModel: SendSummaryViewModel)
+    case finish(viewModel: SendFinishViewModel)
 
-extension SendStep {
-    struct Parameters {
-        let currencyName: String
-        let walletName: String
+    func canBeOpen(next: SendStep) -> Bool {
+        return true
+    }
+
+    func willBeOpen(previous step: SendStep) {
+        if case .summary(let viewModel) = self {
+            viewModel.setupAnimations(previousStep: step)
+        }
     }
 }
 
 extension SendStep {
-    func name(for parameters: Parameters) -> String? {
+    func name(currencyName: String) -> String? {
         switch self {
         case .amount:
             return Localization.sendAmountLabel
@@ -33,15 +36,15 @@ extension SendStep {
         case .fee:
             return Localization.commonFeeSelectorTitle
         case .summary:
-            return Localization.sendSummaryTitle(parameters.currencyName)
+            return Localization.sendSummaryTitle(currencyName)
         case .finish:
             return nil
         }
     }
 
-    func description(for parameters: Parameters) -> String? {
+    func description(walletName: String) -> String? {
         if case .summary = self {
-            return parameters.walletName
+            return walletName
         } else {
             return nil
         }

@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-protocol SendAmountInteractor {
+protocol SendAmountInteractor: SendStepType {
     func update(amount: Decimal?) -> SendAmount?
     func update(type: SendAmountCalculationType) -> SendAmount?
     func updateToMaxAmount() -> SendAmount?
@@ -125,6 +125,16 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
 
     func errorPublisher() -> AnyPublisher<String?, Never> {
         _error.map { $0?.localizedDescription }.eraseToAnyPublisher()
+    }
+}
+
+// MARK: - SendStepType
+
+extension CommonSendAmountInteractor: SendStepType {
+    func isValidPublisher() -> AnyPublisher<Bool, Never> {
+        _error
+            .map { $0 == nil }
+            .eraseToAnyPublisher()
     }
 }
 
