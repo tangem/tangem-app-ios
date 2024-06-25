@@ -1,5 +1,5 @@
 //
-//  CommonSendFeeInteractor.swift
+//  SendFeeInteractor.swift
 //  Tangem
 //
 //  Created by Sergey Balashov on 18.06.2024.
@@ -9,6 +9,20 @@
 import Foundation
 import Combine
 import BlockchainSdk
+
+protocol SendFeeInteractor {
+    var selectedFee: SendFee? { get }
+
+    func update(selectedFee: SendFee)
+    func updateFees()
+
+    func feesPublisher() -> AnyPublisher<[SendFee], Never>
+    func selectedFeePublisher() -> AnyPublisher<SendFee?, Never>
+
+    func customFeeInputFieldModels() -> [SendCustomFeeInputFieldModel]
+
+    func setup(input: SendFeeInput, output: SendFeeOutput)
+}
 
 class CommonSendFeeInteractor {
     private weak var input: SendFeeInput?
@@ -90,7 +104,7 @@ extension CommonSendFeeInteractor: SendFeeInteractor {
             }
             .store(in: &bag)
 
-        input.destinationPublisher
+        input.destinationAddressPublisher
             .withWeakCaptureOf(self)
             .sink { processor, destination in
                 processor._destination.send(destination)
@@ -149,7 +163,7 @@ extension CommonSendFeeInteractor: CustomFeeServiceInput {
         _cryptoAmount.compactMap { $0 }.eraseToAnyPublisher()
     }
 
-    var destinationPublisher: AnyPublisher<String, Never> {
+    var destinationAddressPublisher: AnyPublisher<String, Never> {
         _destination.compactMap { $0 }.eraseToAnyPublisher()
     }
 }

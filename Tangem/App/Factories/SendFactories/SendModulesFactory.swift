@@ -117,10 +117,10 @@ struct SendModulesFactory {
         notificationManager: SendNotificationManager,
         router: SendFeeRoutable
     ) -> SendFeeViewModel {
-        let initital = SendFeeViewModel.Initial(tokenItem: walletModel.tokenItem)
+        let settings = SendFeeViewModel.Settings(tokenItem: walletModel.tokenItem)
 
         return SendFeeViewModel(
-            initial: initital,
+            settings: settings,
             interactor: sendFeeInteractor,
             notificationManager: notificationManager,
             router: router
@@ -166,18 +166,20 @@ struct SendModulesFactory {
             sectionViewModelFactory: makeSendSummarySectionViewModelFactory(walletInfo: walletInfo)
         )
     }
+}
 
-    // MARK: - Dependencies
+// MARK: - Dependencies
 
-    private var emailDataProvider: EmailDataProvider {
+private extension SendModulesFactory {
+    var emailDataProvider: EmailDataProvider {
         return userWalletModel
     }
 
-    private var transactionSigner: TransactionSigner {
+    var transactionSigner: TransactionSigner {
         return userWalletModel.signer
     }
 
-    private func makeSendModel(
+    func makeSendModel(
         sendFeeInteractor: SendFeeInteractor,
         informationRelevanceService: InformationRelevanceService,
         type: SendType
@@ -194,7 +196,7 @@ struct SendModulesFactory {
         )
     }
 
-    private func makeSendNotificationManager(sendModel: SendModel) -> SendNotificationManager {
+    func makeSendNotificationManager(sendModel: SendModel) -> SendNotificationManager {
         return CommonSendNotificationManager(
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
@@ -230,7 +232,7 @@ struct SendModulesFactory {
         )
     }
 
-    private func makeSendDestinationValidator() -> SendDestinationValidator {
+    func makeSendDestinationValidator() -> SendDestinationValidator {
         let addressService = AddressServiceFactory(blockchain: walletModel.wallet.blockchain).makeAddressService()
         let validator = CommonSendDestinationValidator(
             walletAddresses: walletModel.addresses,
@@ -253,11 +255,11 @@ struct SendModulesFactory {
         )
     }
 
-    private func makeSendAmountValidator() -> SendAmountValidator {
+    func makeSendAmountValidator() -> SendAmountValidator {
         CommonSendAmountValidator(tokenItem: walletModel.tokenItem, validator: walletModel.transactionValidator)
     }
 
-    private func makeSendAmountInteractor(
+    func makeSendAmountInteractor(
         input: SendAmountInput,
         output: SendAmountOutput,
         validator: SendAmountValidator
@@ -285,23 +287,8 @@ struct SendModulesFactory {
         return interactor
     }
 
-    func makeSendAmountValidator() -> SendAmountValidator {
-        CommonSendAmountValidator(tokenItem: walletModel.tokenItem, validator: walletModel.transactionValidator)
-    }
-
-    private func makeSendAmountInteractor(
-        input: SendAmountInput,
-        output: SendAmountOutput,
-        validator: SendAmountValidator
-    ) -> SendAmountInteractor {
-        CommonSendAmountInteractor(
-            tokenItem: walletModel.tokenItem,
-            balanceValue: walletModel.balanceValue ?? 0,
-            input: input,
-            output: output,
-            validator: validator,
-            type: .crypto
-        )
+    func makeSendFeeProvider() -> SendFeeProvider {
+        CommonSendFeeProvider(walletModel: walletModel)
     }
 
     func makeInformationRelevanceService(sendFeeInteractor: SendFeeInteractor) -> InformationRelevanceService {

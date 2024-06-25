@@ -19,7 +19,7 @@ protocol CustomFeeService: AnyObject {
 
 protocol CustomFeeServiceInput: AnyObject {
     var cryptoAmountPublisher: AnyPublisher<Amount, Never> { get }
-    var destinationPublisher: AnyPublisher<String, Never> { get }
+    var destinationAddressPublisher: AnyPublisher<String, Never> { get }
 }
 
 protocol CustomFeeServiceOutput: AnyObject {

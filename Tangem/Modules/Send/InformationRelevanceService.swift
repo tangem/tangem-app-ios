@@ -20,7 +20,7 @@ class CommonInformationRelevanceService {
     private let sendFeeInteractor: SendFeeInteractor
 
     private var lastUpdateStartTime = Date()
-    private let informationValidityInterval: TimeInterval = 5
+    private let informationValidityInterval: TimeInterval = 60
     private var bag: Set<AnyCancellable> = []
 
     init(sendFeeInteractor: SendFeeInteractor) {

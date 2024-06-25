@@ -48,12 +48,12 @@ class SendFeeViewModel: ObservableObject {
     )
 
     init(
-        initial: Initial,
+        settings: Settings,
         interactor: SendFeeInteractor,
         notificationManager: SendNotificationManager,
         router: SendFeeRoutable
     ) {
-        tokenItem = initial.tokenItem
+        tokenItem = settings.tokenItem
 
         self.interactor = interactor
         self.notificationManager = notificationManager
@@ -184,7 +184,7 @@ class SendFeeViewModel: ObservableObject {
 extension SendFeeViewModel: AuxiliaryViewAnimatable {}
 
 extension SendFeeViewModel {
-    struct Initial {
+    struct Settings {
         let tokenItem: TokenItem
     }
 }

@@ -14,7 +14,7 @@ protocol SendFeeInput: AnyObject {
     var selectedFee: SendFee? { get }
     var selectedFeePublisher: AnyPublisher<SendFee?, Never> { get }
     var cryptoAmountPublisher: AnyPublisher<Amount, Never> { get }
-    var destinationPublisher: AnyPublisher<String, Never> { get }
+    var destinationAddressPublisher: AnyPublisher<String?, Never> { get }
 }
 
 protocol SendFeeOutput: AnyObject {

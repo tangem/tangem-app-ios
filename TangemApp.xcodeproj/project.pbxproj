@@ -1225,7 +1225,6 @@
 		EF2D9CF92BBDAFBB0055C485 /* DebouncedCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B3F2AEFC1DA00D80205 /* DebouncedCollector.swift */; };
 		EF2D9CFA2BBEBD310055C485 /* ThreadSafeContainerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B635EE442A607422008B5F87 /* ThreadSafeContainerTests.swift */; };
 		EF339E492C21FBEC00B5CDC9 /* SendFeeInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF339E482C21FBEC00B5CDC9 /* SendFeeInteractor.swift */; };
-		EF339E4B2C21FC2500B5CDC9 /* CommonSendFeeInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF339E4A2C21FC2500B5CDC9 /* CommonSendFeeInteractor.swift */; };
 		EF339E4F2C21FC9500B5CDC9 /* SendFee.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF339E4E2C21FC9500B5CDC9 /* SendFee.swift */; };
 		EF339E512C21FCCC00B5CDC9 /* SendFeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF339E502C21FCCC00B5CDC9 /* SendFeeProvider.swift */; };
 		EF339E542C22DABD00B5CDC9 /* FeeIncludedCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF339E532C22DABD00B5CDC9 /* FeeIncludedCalculator.swift */; };
@@ -1246,6 +1245,7 @@
 		EF407E6A2C04D7F400366733 /* RewardScheduleType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E692C04D7F400366733 /* RewardScheduleType.swift */; };
 		EF407E6C2C04D80100366733 /* RewardType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E6B2C04D80100366733 /* RewardType.swift */; };
 		EF407E6E2C04D81100366733 /* Period.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E6D2C04D81100366733 /* Period.swift */; };
+		EF41937A2C2DE0CB006A30A5 /* SendAmount.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4193792C2DE0CB006A30A5 /* SendAmount.swift */; };
 		EF435A052C2B124A00B627EB /* SendDestinationInputOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF435A042C2B124A00B627EB /* SendDestinationInputOutput.swift */; };
 		EF435A072C2B1F2300B627EB /* SendDestinationTransactionHistoryProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF435A062C2B1F2300B627EB /* SendDestinationTransactionHistoryProvider.swift */; };
 		EF4535372976C1D80030639A /* FixedSpacer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4535362976C1D80030639A /* FixedSpacer.swift */; };
@@ -1481,7 +1481,6 @@
 		EFAD40AC2A976E7500364D65 /* TransactionListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAD40AB2A976E7500364D65 /* TransactionListItem.swift */; };
 		EFAD40B62A9CB22500364D65 /* SensitiveTextVisibilityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAD40B52A9CB22500364D65 /* SensitiveTextVisibilityViewModel.swift */; };
 		EFAECCF12C1B702D0051710F /* SendAmountValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAECCF02C1B702D0051710F /* SendAmountValidator.swift */; };
-		EFAECCF32C1B713D0051710F /* SendAmount.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAECCF22C1B713D0051710F /* SendAmount.swift */; };
 		EFAF63E92927CA63004B3227 /* Setupable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAF63E82927CA63004B3227 /* Setupable.swift */; };
 		EFB4C1322837C51700E991C1 /* TextHint.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB4C1312837C51700E991C1 /* TextHint.swift */; };
 		EFB6800E2B29BD4B00842BE3 /* SheetModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB6800D2B29BD4B00842BE3 /* SheetModifier.swift */; };
@@ -2984,7 +2983,6 @@
 		EF2EFDE12865C05D00798051 /* Production.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Production.xcconfig; sourceTree = "<group>"; };
 		EF2EFDE22865C07100798051 /* Beta.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Beta.xcconfig; sourceTree = "<group>"; };
 		EF339E482C21FBEC00B5CDC9 /* SendFeeInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFeeInteractor.swift; sourceTree = "<group>"; };
-		EF339E4A2C21FC2500B5CDC9 /* CommonSendFeeInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSendFeeInteractor.swift; sourceTree = "<group>"; };
 		EF339E4E2C21FC9500B5CDC9 /* SendFee.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFee.swift; sourceTree = "<group>"; };
 		EF339E502C21FCCC00B5CDC9 /* SendFeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFeeProvider.swift; sourceTree = "<group>"; };
 		EF339E532C22DABD00B5CDC9 /* FeeIncludedCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeIncludedCalculator.swift; sourceTree = "<group>"; };
@@ -3005,6 +3003,7 @@
 		EF407E692C04D7F400366733 /* RewardScheduleType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardScheduleType.swift; sourceTree = "<group>"; };
 		EF407E6B2C04D80100366733 /* RewardType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardType.swift; sourceTree = "<group>"; };
 		EF407E6D2C04D81100366733 /* Period.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Period.swift; sourceTree = "<group>"; };
+		EF4193792C2DE0CB006A30A5 /* SendAmount.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendAmount.swift; sourceTree = "<group>"; };
 		EF435A042C2B124A00B627EB /* SendDestinationInputOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationInputOutput.swift; sourceTree = "<group>"; };
 		EF435A062C2B1F2300B627EB /* SendDestinationTransactionHistoryProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationTransactionHistoryProvider.swift; sourceTree = "<group>"; };
 		EF4535362976C1D80030639A /* FixedSpacer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FixedSpacer.swift; sourceTree = "<group>"; };
@@ -3788,6 +3787,7 @@
 				5D3F77C324BF56D800E8695B /* Products */,
 				BBA154748909F0AB4121528D /* Pods */,
 				2E5061A84512B23CCB5F2E17 /* Frameworks */,
+				EF4193782C2DE05E006A30A5 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -5639,6 +5639,16 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		B0E1C2402C2430B2005309E1 /* AlertBuilders */ = {
+			isa = PBXGroup;
+			children = (
+				B0E1C2412C2430C6005309E1 /* AlertBuilder.swift */,
+				B06BB8E42BCD0F6C00C0FBCF /* SingleTokenAlertBuilder.swift */,
+				B002416E2C2441EF00416397 /* HideTokenAlertBuilder.swift */,
+			);
+			path = AlertBuilders;
+			sourceTree = "<group>";
+		};
 		B0E20E0D2C2AF0AC00213580 /* Subviews */ = {
 			isa = PBXGroup;
 			children = (
@@ -5653,16 +5663,6 @@
 				B0E20E112C2B01F600213580 /* PriceChangeUtility.swift */,
 			);
 			path = PriceChange;
-			sourceTree = "<group>";
-		};         
-		B0E1C2402C2430B2005309E1 /* AlertBuilders */ = {
-			isa = PBXGroup;
-			children = (
-				B0E1C2412C2430C6005309E1 /* AlertBuilder.swift */,
-				B06BB8E42BCD0F6C00C0FBCF /* SingleTokenAlertBuilder.swift */,
-				B002416E2C2441EF00416397 /* HideTokenAlertBuilder.swift */,
-			);
-			path = AlertBuilders;
 			sourceTree = "<group>";
 		};
 		B0E7489A2A3C12920015E3FC /* ReceiveBottomSheetView */ = {
@@ -6320,7 +6320,7 @@
 				EF1D1ADD2C270DDE000CB941 /* SendFeeInputOutput.swift */,
 				DA19EF5E2B8CBB2600F7BDFD /* SendFeeRoutable.swift */,
 				EF339E4C2C21FC6800B5CDC9 /* SendCustomFeeInputField */,
-				EF339E472C21FBE000B5CDC9 /* Processor */,
+				EF339E472C21FBE000B5CDC9 /* Interactor */,
 				DADBECD92BBE910C007E7885 /* CustomFeeService */,
 			);
 			path = Fee;
@@ -7297,6 +7297,7 @@
 				EF339E742C24820B00B5CDC9 /* SendAmountInteractor.swift */,
 				EF031A7E2C0DD243001535C9 /* SendAmountConverter.swift */,
 				EFAECCF02C1B702D0051710F /* SendAmountValidator.swift */,
+				EF4193792C2DE0CB006A30A5 /* SendAmount.swift */,
 			);
 			path = Interactor;
 			sourceTree = "<group>";
@@ -7459,14 +7460,14 @@
 			path = Configurations;
 			sourceTree = "<group>";
 		};
-		EF339E472C21FBE000B5CDC9 /* Processor */ = {
+		EF339E472C21FBE000B5CDC9 /* Interactor */ = {
 			isa = PBXGroup;
 			children = (
 				EF339E482C21FBEC00B5CDC9 /* SendFeeInteractor.swift */,
-				EF339E4A2C21FC2500B5CDC9 /* CommonSendFeeInteractor.swift */,
 				EF339E502C21FCCC00B5CDC9 /* SendFeeProvider.swift */,
+				EF339E4E2C21FC9500B5CDC9 /* SendFee.swift */,
 			);
-			path = Processor;
+			path = Interactor;
 			sourceTree = "<group>";
 		};
 		EF339E4C2C21FC6800B5CDC9 /* SendCustomFeeInputField */ = {
@@ -7481,8 +7482,6 @@
 		EF339E4D2C21FC8C00B5CDC9 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				EF339E4E2C21FC9500B5CDC9 /* SendFee.swift */,
-				EFAECCF22C1B713D0051710F /* SendAmount.swift */,
 				EF339E552C22DADC00B5CDC9 /* DestinationAdditionalFieldType.swift */,
 			);
 			path = Models;
@@ -7547,6 +7546,14 @@
 				EF407E612C04D67400366733 /* StakeKitMapper.swift */,
 			);
 			path = StakeKitMapper;
+			sourceTree = "<group>";
+		};
+		EF4193782C2DE05E006A30A5 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				EFAECCF22C1B713D0051710F /* SendAmount.swift */,
+			);
+			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 		EF46620F2924DEEE00346B6C /* DefaultListViews */ = {
@@ -9936,7 +9943,6 @@
 				B0BB97312B18654300053954 /* ExpressPendingTransactionRecord.swift in Sources */,
 				EF6EDD84296C0EA9001B21A3 /* IncomingActionParser.swift in Sources */,
 				EF6A8B032B278A6200CA3535 /* CommonExpressRepository.swift in Sources */,
-				EF339E4B2C21FC2500B5CDC9 /* CommonSendFeeInteractor.swift in Sources */,
 				B09BB865259A075600B92000 /* TextInputField.swift in Sources */,
 				B037B1EE256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift in Sources */,
 				EF8DBD442C073116009072CF /* AverageRewardingView.swift in Sources */,
@@ -10518,7 +10524,6 @@
 				B046EE182578D38E00EA38A5 /* SceneDelegate.swift in Sources */,
 				DA7046172AAA180A00808FA8 /* LineChartView.swift in Sources */,
 				B06A828029C81E3A00B6160E /* SeedPhraseTextView.swift in Sources */,
-				EFAECCF32C1B713D0051710F /* SendAmount.swift in Sources */,
 				DAF72F432B0F480A0006B44F /* SendFinishView.swift in Sources */,
 				DC51186128609F71004FB954 /* CardOperationRoutable.swift in Sources */,
 				B0B8670626DF60E7008DAA67 /* CardStackAnimator.swift in Sources */,
@@ -10977,6 +10982,7 @@
 				B63457772A3A097C00E164C5 /* View+ReadGeometry.swift in Sources */,
 				2DBE29C42B3C4A8100109D5E /* View+DetentBottomSheet.swift in Sources */,
 				EF1E17682BF672AC000364AE /* DefaultTextFieldRowView.swift in Sources */,
+				EF41937A2C2DE0CB006A30A5 /* SendAmount.swift in Sources */,
 				B0F318F92A7393FA009F131E /* WalletStubs.swift in Sources */,
 				EF70A3FD2C147C9100805D9F /* SendModulesFactory.swift in Sources */,
 				B00307042AF0E1BA00C13BCA /* Analytics+WalletConnectDebugEvent.swift in Sources */,

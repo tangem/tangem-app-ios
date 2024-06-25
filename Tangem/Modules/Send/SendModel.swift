@@ -33,7 +33,6 @@ class SendModel {
         _sendError.eraseToAnyPublisher()
     }
 
-    /// - Warning: Buggy in some cases and needs to be fixed (IOS-7211)
     var isFeeIncluded: Bool {
         _isFeeIncluded.value
     }
@@ -317,8 +316,8 @@ extension SendModel: SendFeeInput {
             .eraseToAnyPublisher()
     }
 
-    var destinationPublisher: AnyPublisher<String, Never> {
-        _destination.compactMap { $0?.value }.eraseToAnyPublisher()
+    var destinationAddressPublisher: AnyPublisher<String?, Never> {
+        _destination.map { $0?.value }.eraseToAnyPublisher()
     }
 }
 

@@ -345,7 +345,7 @@ final class SendViewModel: ObservableObject {
             .store(in: &bag)
 
         sendModel
-            .destination
+            .destinationPublisher
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, destination in
