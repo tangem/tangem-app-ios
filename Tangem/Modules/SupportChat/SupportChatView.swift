@@ -15,7 +15,6 @@ struct SupportChatView: View {
 
     var body: some View {
         VStack {
-            //        SprinklrSupportChatView(viewModel: viewModel.sprinklrViewModel)
             Text("Not implemented")
 
             Button(action: { dismissAction() }, label: {
