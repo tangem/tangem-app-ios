@@ -44,6 +44,9 @@ PODS:
   - Firebase/Crashlytics (10.24.0):
     - Firebase/CoreOnly
     - FirebaseCrashlytics (~> 10.24.0)
+  - Firebase/Messaging (10.24.0):
+    - Firebase/CoreOnly
+    - FirebaseMessaging (~> 10.24.0)
   - FirebaseAnalytics (10.24.0):
     - FirebaseAnalytics/AdIdSupport (= 10.24.0)
     - FirebaseCore (~> 10.0)
@@ -84,6 +87,15 @@ PODS:
     - GoogleUtilities/Environment (~> 7.8)
     - GoogleUtilities/UserDefaults (~> 7.8)
     - PromisesObjC (~> 2.1)
+  - FirebaseMessaging (10.24.0):
+    - FirebaseCore (~> 10.0)
+    - FirebaseInstallations (~> 10.0)
+    - GoogleDataTransport (~> 9.3)
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.8)
+    - GoogleUtilities/Environment (~> 7.8)
+    - GoogleUtilities/Reachability (~> 7.8)
+    - GoogleUtilities/UserDefaults (~> 7.8)
+    - nanopb (< 2.30911.0, >= 2.30908.0)
   - FirebaseRemoteConfigInterop (10.24.0)
   - FirebaseSessions (10.24.0):
     - FirebaseCore (~> 10.5)
@@ -225,6 +237,7 @@ DEPENDENCIES:
   - CombineExt (~> 1.8.0)
   - Firebase/Analytics
   - Firebase/Crashlytics
+  - Firebase/Messaging
   - GDPerformanceView-Swift (~> 2.1)
   - Kingfisher (~> 7.11.0)
   - Moya
@@ -250,6 +263,7 @@ SPEC REPOS:
     - FirebaseCoreInternal
     - FirebaseCrashlytics
     - FirebaseInstallations
+    - FirebaseMessaging
     - FirebaseRemoteConfigInterop
     - FirebaseSessions
     - GDPerformanceView-Swift
@@ -339,6 +353,7 @@ SPEC CHECKSUMS:
   FirebaseCoreInternal: bcb5acffd4ea05e12a783ecf835f2210ce3dc6af
   FirebaseCrashlytics: af38ea4adfa606f6e63fcc22091b61e7938fcf66
   FirebaseInstallations: 8f581fca6478a50705d2bd2abd66d306e0f5736e
+  FirebaseMessaging: 4d52717dd820707cc4eadec5eb981b4832ec8d5d
   FirebaseRemoteConfigInterop: 6c349a466490aeace3ce9c091c86be1730711634
   FirebaseSessions: 2651b464e241c93fd44112f995d5ab663c970487
   GDPerformanceView-Swift: 22d964fe40b19e3d914dba2586237d064de8fd77
@@ -363,6 +378,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   WalletConnectSwiftV2: 5ea47db4d86e39fc749b66a05a661af9e87b277d
 
-PODFILE CHECKSUM: 68be3db8ac619ea4688bd9e0421b4db8f4629d28
+PODFILE CHECKSUM: 105720c3cc299e281c3098a9170a6b62d608a60d
 
 COCOAPODS: 1.15.2
