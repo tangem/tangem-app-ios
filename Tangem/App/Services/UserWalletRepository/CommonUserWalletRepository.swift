@@ -100,7 +100,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                 let config = UserWalletConfigFactory(cardInfo).makeConfig()
                 Analytics.endLoggingCardScan()
 
-                cardInfo.name = config.cardName
+                cardInfo.name = suggestedUserWalletName(defaultName: config.cardName)
 
                 let userWalletModel = CommonUserWalletModel(cardInfo: cardInfo)
                 if let userWalletModel {
@@ -146,6 +146,13 @@ class CommonUserWalletRepository: UserWalletRepository {
                 withExtendedLifetime(scanner) {}
             })
             .eraseToAnyPublisher()
+    }
+
+    private func suggestedUserWalletName(defaultName: String) -> String {
+        let otherNames = models.map(\.name)
+        let helper = UserWalletNameIndexationHelper(mode: .newName, names: otherNames)
+
+        return helper.suggestedName(defaultName)
     }
 
     func unlock(with method: UserWalletRepositoryUnlockMethod, completion: @escaping (UserWalletRepositoryResult?) -> Void) {
@@ -489,7 +496,8 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func loadModels() {
-        let savedUserWallets = savedUserWallets(withSensitiveData: true)
+        var savedUserWallets = savedUserWallets(withSensitiveData: true)
+        migrateNamesIfNeeded(&savedUserWallets)
 
         models = savedUserWallets.map { userWalletStorageItem in
             if let userWallet = CommonUserWalletModel(userWallet: userWalletStorageItem) {
@@ -518,6 +526,31 @@ class CommonUserWalletRepository: UserWalletRepository {
         guard let selectedModel else { return }
 
         initializeServices(for: selectedModel)
+    }
+
+    private func migrateNamesIfNeeded(_ wallets: inout [StoredUserWallet]) {
+        if AppSettings.shared.didMigrateUserWalletNames {
+            return
+        }
+
+        let oldNames = wallets.map(\.name)
+        let helper = UserWalletNameIndexationHelper(mode: .migration, names: oldNames)
+
+        var didChangeNames = true
+        for i in 0 ..< wallets.count {
+            let oldName = wallets[i].name
+            let newName = helper.suggestedName(oldName)
+            if newName != oldName {
+                wallets[i].name = newName
+                didChangeNames = true
+            }
+        }
+
+        if didChangeNames {
+            UserWalletRepositoryUtil().saveUserWallets(wallets)
+        }
+
+        AppSettings.shared.didMigrateUserWalletNames = true
     }
 
     private func sendEvent(_ event: UserWalletRepositoryEvent) {
