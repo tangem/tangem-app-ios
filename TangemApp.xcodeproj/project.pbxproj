@@ -619,6 +619,8 @@
 		B61980102AB8BD5200153886 /* PreviewContentShapeModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B619800F2AB8BD5200153886 /* PreviewContentShapeModifier.swift */; };
 		B61980122AB98ACE00153886 /* HighlightableViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61980112AB98ACE00153886 /* HighlightableViewModifier.swift */; };
 		B61D2A202B1947E6004F2C2D /* TokenDetailsScrollState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61D2A1F2B1947E6004F2C2D /* TokenDetailsScrollState.swift */; };
+		B61E999D2C2C6AFB00031011 /* PushNotificationsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61E999C2C2C6AFB00031011 /* PushNotificationsService.swift */; };
+		B61E999F2C2C6B0300031011 /* CommonPushNotificationsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61E999E2C2C6B0300031011 /* CommonPushNotificationsService.swift */; };
 		B6210DEF2A94708700F885D5 /* OrganizeTokensListFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6210DEE2A94708700F885D5 /* OrganizeTokensListFactory.swift */; };
 		B62E42512A79328A0045AB31 /* Collection+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62E42502A79328A0045AB31 /* Collection+.swift */; };
 		B62EE31C2B28977B006BA412 /* RateAppResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62EE31B2B28977B006BA412 /* RateAppResponse.swift */; };
@@ -2346,6 +2348,8 @@
 		B619800F2AB8BD5200153886 /* PreviewContentShapeModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewContentShapeModifier.swift; sourceTree = "<group>"; };
 		B61980112AB98ACE00153886 /* HighlightableViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighlightableViewModifier.swift; sourceTree = "<group>"; };
 		B61D2A1F2B1947E6004F2C2D /* TokenDetailsScrollState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenDetailsScrollState.swift; sourceTree = "<group>"; };
+		B61E999C2C2C6AFB00031011 /* PushNotificationsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsService.swift; sourceTree = "<group>"; };
+		B61E999E2C2C6B0300031011 /* CommonPushNotificationsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonPushNotificationsService.swift; sourceTree = "<group>"; };
 		B6210DEE2A94708700F885D5 /* OrganizeTokensListFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListFactory.swift; sourceTree = "<group>"; };
 		B62E42502A79328A0045AB31 /* Collection+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Collection+.swift"; sourceTree = "<group>"; };
 		B62EE31B2B28977B006BA412 /* RateAppResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateAppResponse.swift; sourceTree = "<group>"; };
@@ -5698,6 +5702,15 @@
 			path = TokenSectionsAdapter;
 			sourceTree = "<group>";
 		};
+		B61E999B2C2C6AE800031011 /* PushNotifications */ = {
+			isa = PBXGroup;
+			children = (
+				B61E999C2C2C6AFB00031011 /* PushNotificationsService.swift */,
+				B61E999E2C2C6B0300031011 /* CommonPushNotificationsService.swift */,
+			);
+			path = PushNotifications;
+			sourceTree = "<group>";
+		};
 		B6209E5D2A2F1BBF0066ACFE /* OrganizeTokens */ = {
 			isa = PBXGroup;
 			children = (
@@ -6543,6 +6556,7 @@
 		DC0A57DA2822A4DC0031BECC /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				B61E999B2C2C6AE800031011 /* PushNotifications */,
 				B098F3972C0474AD00F79989 /* ManageTokens */,
 				EF8DBCE32C0618A3009072CF /* StakingRepositoryProxy */,
 				DAC5A5272BBEB5A4003CFC1D /* KeyboardVisibilityService */,
@@ -10446,6 +10460,7 @@
 				B029C1DC270229530017C848 /* OnboardingAccessCodeView.swift in Sources */,
 				DAE324162B986F9A00C5D335 /* SendAddress.swift in Sources */,
 				B0FC72EB29B7991A001930D4 /* OnboardingSeedPhraseIntroView.swift in Sources */,
+				B61E999F2C2C6B0300031011 /* CommonPushNotificationsService.swift in Sources */,
 				B0F62C5525DE4F6B005C8BA0 /* DeviceInfoProvider.swift in Sources */,
 				EF8D780F2981458500B67418 /* UserTokenListManagerMock.swift in Sources */,
 				DA4055262ABDD3A300353F8A /* AddCustomTokenNetworksListItemView.swift in Sources */,
@@ -10549,6 +10564,7 @@
 				EFF466E32ACC337500ACC3EA /* FakeTokenQuotesRepository.swift in Sources */,
 				5D43E2D72514D5B700697E5B /* CardOperationView.swift in Sources */,
 				B0DD162A2A331C2100CB23AA /* TokenDetailsView.swift in Sources */,
+				B61E999D2C2C6AFB00031011 /* PushNotificationsService.swift in Sources */,
 				DAC53CFA27BE63830027147D /* StoriesView.swift in Sources */,
 				B6805B722A32F8C90015EC96 /* OrganizeTokensListItemPreviewProvider.swift in Sources */,
 				5DE2038E24EE8A510044EF46 /* ActivityIndicatorView.swift in Sources */,
