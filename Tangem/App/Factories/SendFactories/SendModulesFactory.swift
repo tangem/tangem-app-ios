@@ -214,7 +214,7 @@ private extension SendModulesFactory {
         )
     }
 
-    private func makeSendDestinationInteractor(
+    func makeSendDestinationInteractor(
         input: SendDestinationInput,
         output: SendDestinationOutput
     ) -> SendDestinationInteractor {
@@ -243,11 +243,11 @@ private extension SendModulesFactory {
         return validator
     }
 
-    private func makeSendDestinationTransactionHistoryProvider() -> SendDestinationTransactionHistoryProvider {
+    func makeSendDestinationTransactionHistoryProvider() -> SendDestinationTransactionHistoryProvider {
         CommonSendDestinationTransactionHistoryProvider(walletModel: walletModel)
     }
 
-    private func makeTransactionHistoryMapper() -> TransactionHistoryMapper {
+    func makeTransactionHistoryMapper() -> TransactionHistoryMapper {
         TransactionHistoryMapper(
             currencySymbol: walletModel.tokenItem.currencySymbol,
             walletAddresses: walletModel.addresses,
