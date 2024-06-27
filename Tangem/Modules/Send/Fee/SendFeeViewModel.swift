@@ -18,6 +18,7 @@ class SendFeeViewModel: ObservableObject {
 
     @Published private(set) var deselectedFeeViewsVisible: Bool = false
     @Published var animatingAuxiliaryViewsOnAppear: Bool = false
+    @Published var alert: AlertBinder?
 
     var feeSelectorFooterText: String {
         Localization.commonFeeSelectorFooter("[\(Localization.commonReadMore)](\(feeExplanationUrl.absoluteString))")

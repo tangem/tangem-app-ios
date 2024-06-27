@@ -511,7 +511,7 @@ extension WalletModel {
 // MARK: - Transaction history
 
 extension WalletModel {
-    func updateTransactionHistoryIfNeeded() -> AnyPublisher<Void, Never>  {
+    func updateTransactionHistoryIfNeeded() -> AnyPublisher<Void, Never> {
         guard case .initial = _transactionHistoryService?.state else {
             return Empty().eraseToAnyPublisher()
         }

@@ -87,7 +87,13 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         alternativeAmount = amount?.formatAlternative(currencySymbol: tokenItem.currencySymbol)
     }
 
-    func setExternalAmount(_ amount: Decimal?) {
+    private func setExternalAmount(_ amount: Decimal?) {
+        guard decimalNumberTextFieldViewModel.value != amount else {
+            return
+        }
+
+        AppLog.shared.debug("Amount text field will be updated externally")
+
         decimalNumberTextFieldViewModel.update(value: amount)
         textFieldValueDidChanged(amount: amount)
     }
@@ -121,6 +127,15 @@ private extension SendAmountViewModel {
             .withWeakCaptureOf(self)
             .sink { viewModel, error in
                 viewModel.error = error?.localizedDescription
+            }
+            .store(in: &bag)
+
+        interactor
+            .externalAmountPublisher()
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, amount in
+                viewModel.setExternalAmount(amount)
             }
             .store(in: &bag)
     }

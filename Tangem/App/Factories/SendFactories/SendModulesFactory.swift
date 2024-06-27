@@ -26,89 +26,163 @@ struct SendModulesFactory {
 
     // MARK: - ViewModels
 
-    func makeSendViewModel(type: SendType, coordinator: SendRoutable) -> SendViewModel {
-        let sendFeeInteractor = makeSendFeeInteractor(
-            predefinedAmount: type.predefinedAmount,
-            predefinedDestination: type.predefinedDestination
-        )
-
+    func makeSendViewModel(sendType: SendType, router: SendRoutable) -> SendViewModel {
+        let sendAmountInteractor = makeSendAmountInteractor()
+        let sendFeeInteractor = makeSendFeeInteractor()
         let informationRelevanceService = makeInformationRelevanceService(sendFeeInteractor: sendFeeInteractor)
         let sendTransactionSender = makeSendTransactionSender()
 
         let sendModel = makeSendModel(
+            sendAmountInteractor: sendAmountInteractor,
             sendFeeInteractor: sendFeeInteractor,
             informationRelevanceService: informationRelevanceService,
             sendTransactionSender: sendTransactionSender,
             type: type
         )
-        let canUseFiatCalculation = quotesRepository.quote(for: walletModel.tokenItem) != nil
-        let walletInfo = builder.makeSendWalletInfo(canUseFiatCalculation: canUseFiatCalculation)
-        let initial = SendViewModel.Initial(feeOptions: builder.makeFeeOptions())
-        sendFeeInteractor.setup(input: sendModel, output: sendModel)
 
         let notificationManager = makeSendNotificationManager(sendModel: sendModel)
 
-        let addressTextViewHeightModel: AddressTextViewHeightModel = .init()
-        let sendDestinationViewModel = makeSendDestinationViewModel(
+        sendAmountInteractor.setup(input: sendModel, output: sendModel)
+        sendFeeInteractor.setup(input: sendModel, output: sendModel)
+
+        let destinationStep = makeSendDestinationStep(
             input: sendModel,
             output: sendModel,
-            sendType: type,
+            sendAmountInteractor: sendAmountInteractor,
+            sendFeeInteractor: sendFeeInteractor,
+            addressTextViewHeightModel: addressTextViewHeightModel,
+            router: router
+        )
+
+        let amountStep = makeSendAmountStep(sendAmountInteractor: sendAmountInteractor, sendFeeInteractor: sendFeeInteractor)
+        let feeStep = makeFeeSendStep(sendFeeInteractor: sendFeeInteractor, notificationManager: notificationManager, router: router)
+        let summaryStep = makeSendSummaryStep(
+            input: sendModel,
+            output: sendModel,
+            sendTransactionSender: sendTransactionSender,
+            notificationManager: notificationManager,
+            addressTextViewHeightModel: addressTextViewHeightModel,
+            sendType: sendType
+        )
+
+        summaryStep.viewModel.setup(sendDestinationInput: sendModel)
+        summaryStep.viewModel.setup(sendAmountInput: sendModel)
+        summaryStep.viewModel.setup(sendFeeInteractor: sendFeeInteractor)
+
+        let finishStep = makeSendFinishStep(
+            sendModel: sendModel,
+            sendFeeInteractor: sendFeeInteractor,
+            notificationManager: notificationManager,
             addressTextViewHeightModel: addressTextViewHeightModel
         )
 
-        let sendAmountInteractor = makeSendAmountInteractor(input: sendModel, output: sendModel, validator: makeSendAmountValidator())
-        let sendAmountViewModel = makeSendAmountViewModel(
-            interactor: sendAmountInteractor,
-            predefinedAmount: type.predefinedAmount?.value
+        let stepsManager = CommonSendStepsManager(
+            destinationStep: destinationStep,
+            amountStep: amountStep,
+            feeStep: feeStep,
+            summaryStep: summaryStep,
+            finishStep: finishStep
         )
 
-        let sendFeeViewModel = makeSendFeeViewModel(
+        let sendBaseInteractor = CommonSendBaseInteractor(input: sendModel, output: sendModel, sendDestinationInput: sendModel)
+        let viewModel = SendViewModel(
+            interactor: sendBaseInteractor,
+            stepsManager: stepsManager,
+            router: router
+        )
+        sendModel.delegate = viewModel
+        return viewModel
+    }
+
+    /*
+     func makeStepManager(sendType: SendType, router: SendRoutable) -> SendStepsManager {
+         let sendAmountInteractor = makeSendAmountInteractor()
+         let sendFeeInteractor = makeSendFeeInteractor()
+         let informationRelevanceService = makeInformationRelevanceService(sendFeeInteractor: sendFeeInteractor)
+         let addressTextViewHeightModel: AddressTextViewHeightModel = .init()
+
+         let sendModel = makeSendModel(
+             sendAmountInteractor: sendAmountInteractor,
+             sendFeeInteractor: sendFeeInteractor,
+             informationRelevanceService: informationRelevanceService,
+             type: sendType,
+             router: router
+         )
+
+         let notificationManager = makeSendNotificationManager(sendModel: sendModel)
+
+         sendAmountInteractor.setup(input: sendModel, output: sendModel)
+         sendFeeInteractor.setup(input: sendModel, output: sendModel)
+
+         let destinationStep = makeSendDestinationStep(
+             input: sendModel,
+             output: sendModel,
+             sendFeeInteractor: sendFeeInteractor,
+             addressTextViewHeightModel: addressTextViewHeightModel
+         )
+
+         let amountStep = makeSendAmountStep(sendAmountInteractor: sendAmountInteractor, sendFeeInteractor: sendFeeInteractor)
+         let feeStep = makeFeeSendStep(sendFeeInteractor: sendFeeInteractor, notificationManager: notificationManager, router: router)
+         let summaryStep = makeSendSummaryStep(
+             interactor: sendModel,
+             notificationManager: notificationManager,
+             addressTextViewHeightModel: addressTextViewHeightModel,
+             sendType: sendType
+         )
+
+         summaryStep.viewModel.setup(sendDestinationInput: sendModel)
+         summaryStep.viewModel.setup(sendAmountInput: sendModel)
+         summaryStep.viewModel.setup(sendFeeInteractor: sendFeeInteractor)
+
+         let finishStep = makeSendFinishStep(
+             sendModel: sendModel,
+             notificationManager: notificationManager,
+             addressTextViewHeightModel: addressTextViewHeightModel
+         )
+
+         return CommonSendStepsManager(
+             destinationStep: destinationStep,
+             amountStep: amountStep,
+             feeStep: feeStep,
+             summaryStep: summaryStep,
+             finishStep: finishStep
+         )
+     }
+     */
+
+    // MARK: - DestinationStep
+
+    func makeSendDestinationStep(
+        input: any SendDestinationInput,
+        output: any SendDestinationOutput,
+        sendAmountInteractor: any SendAmountInteractor,
+        sendFeeInteractor: any SendFeeInteractor,
+        addressTextViewHeightModel: AddressTextViewHeightModel,
+        router: SendDestinationRoutable
+    ) -> SendDestinationStep {
+        let sendDestinationInteractor = makeSendDestinationInteractor(input: input, output: output)
+
+        let viewModel = makeSendDestinationViewModel(
+            input: input,
+            output: output,
+//            sendType: <#T##SendType#>,
+            addressTextViewHeightModel: addressTextViewHeightModel
+        )
+
+        return SendDestinationStep(
+            viewModel: viewModel,
+            interactor: sendDestinationInteractor,
+            sendAmountInteractor: sendAmountInteractor,
             sendFeeInteractor: sendFeeInteractor,
-            notificationManager: notificationManager,
-            router: coordinator
-        )
-
-        let sendSummaryViewModel = makeSendSummaryViewModel(
-            interactor: sendModel,
-            notificationManager: notificationManager,
-            addressTextViewHeightModel: addressTextViewHeightModel,
-            sendType: type
-        )
-
-        sendSummaryViewModel.setup(sendDestinationInput: sendModel)
-        sendSummaryViewModel.setup(sendAmountInput: sendModel)
-        sendSummaryViewModel.setup(sendFeeInteractor: sendFeeInteractor)
-
-        let steps: [SendStep] = [
-            .destination(viewModel: sendDestinationViewModel),
-            .amount(viewModel: sendAmountViewModel),
-            .fee(viewModel: sendFeeViewModel),
-            .summary(viewModel: sendSummaryViewModel)
-        ]
-
-        return SendViewModel(
-            initial: initial,
-            walletInfo: walletInfo,
-            walletModel: walletModel,
-            userWalletModel: userWalletModel,
-            transactionSigner: transactionSigner,
-            sendType: type,
-            emailDataProvider: emailDataProvider,
-            sendModel: sendModel,
-            notificationManager: makeSendNotificationManager(sendModel: sendModel),
-            sendFeeInteractor: sendFeeInteractor,
-            sendSummaryInteractor: makeSendSummaryInteractor(input: sendModel, output: sendModel, sendTransactionSender: sendTransactionSender),
-            keyboardVisibilityService: KeyboardVisibilityService(),
-            sendAmountValidator: makeSendAmountValidator(),
-            factory: self,
-            coordinator: coordinator
+            tokenItem: walletModel.tokenItem,
+            router: router
         )
     }
 
     func makeSendDestinationViewModel(
         input: SendDestinationInput,
         output: SendDestinationOutput,
-        sendType: SendType,
+//        sendType: SendType,
         addressTextViewHeightModel: AddressTextViewHeightModel
     ) -> SendDestinationViewModel {
         let tokenItem = walletModel.tokenItem
@@ -128,10 +202,28 @@ struct SendModulesFactory {
             addressTextViewHeightModel: addressTextViewHeightModel
         )
 
-        let address = sendType.predefinedDestination.map { SendAddress(value: $0, source: .sellProvider) }
-        viewModel.setExternally(address: address, additionalField: sendType.predefinedTag)
+//        let address = sendType.predefinedDestination.map { SendAddress(value: $0, source: .sellProvider) }
+//        viewModel.setExternally(address: address, additionalField: sendType.predefinedTag)
 
         return viewModel
+    }
+
+    // MARK: - AmountStep
+
+    func makeSendAmountStep(
+        sendAmountInteractor: any SendAmountInteractor,
+        sendFeeInteractor: any SendFeeInteractor
+    ) -> SendAmountStep {
+        let viewModel = makeSendAmountViewModel(
+            interactor: sendAmountInteractor,
+            predefinedAmount: nil
+        )
+
+        return SendAmountStep(
+            viewModel: viewModel,
+            interactor: sendAmountInteractor,
+            sendFeeInteractor: sendFeeInteractor
+        )
     }
 
     func makeSendAmountViewModel(
@@ -151,6 +243,28 @@ struct SendModulesFactory {
         return SendAmountViewModel(initial: initital, interactor: interactor)
     }
 
+    // MARK: - FeeStep
+
+    func makeFeeSendStep(
+        sendFeeInteractor: any SendFeeInteractor,
+        notificationManager: SendNotificationManager,
+        router: SendFeeRoutable
+    ) -> SendFeeStep {
+        let viewModel = makeSendFeeViewModel(
+            sendFeeInteractor: sendFeeInteractor,
+            notificationManager: notificationManager,
+            router: router
+        )
+
+        return SendFeeStep(
+            viewModel: viewModel,
+            interactor: sendFeeInteractor,
+            notificationManager: notificationManager,
+            tokenItem: walletModel.tokenItem,
+            feeAnalyticsParameterBuilder: makeFeeAnalyticsParameterBuilder()
+        )
+    }
+
     func makeSendFeeViewModel(
         sendFeeInteractor: SendFeeInteractor,
         notificationManager: SendNotificationManager,
@@ -163,6 +277,38 @@ struct SendModulesFactory {
             interactor: sendFeeInteractor,
             notificationManager: notificationManager,
             router: router
+        )
+    }
+
+    // MARK: - SummaryStep
+
+    func makeSendSummaryStep(
+        input: SendSummaryInput,
+        output: SendSummaryOutput,
+        sendTransactionSender: any SendTransactionSender,
+        notificationManager: SendNotificationManager,
+        addressTextViewHeightModel: AddressTextViewHeightModel,
+        sendType: SendType
+    ) -> SendSummaryStep {
+        let interactor = CommonSendSummaryInteractor(
+            input: input,
+            output: output,
+            sendTransactionSender: sendTransactionSender,
+            descriptionBuilder: makeSendTransactionSummaryDescriptionBuilder()
+        )
+
+        let viewModel = makeSendSummaryViewModel(
+            interactor: interactor,
+            notificationManager: notificationManager,
+            addressTextViewHeightModel: addressTextViewHeightModel,
+            sendType: sendType
+        )
+
+        return SendSummaryStep(
+            viewModel: viewModel,
+            interactor: interactor,
+            tokenItem: walletModel.tokenItem,
+            walletName: userWalletModel.name
         )
     }
 
@@ -211,30 +357,43 @@ private extension SendModulesFactory {
         return userWalletModel.signer
     }
 
-    func makeSendModel(
+    private func makeSendModel(
+        sendAmountInteractor: SendAmountInteractor,
         sendFeeInteractor: SendFeeInteractor,
         informationRelevanceService: InformationRelevanceService,
         sendTransactionSender: any SendTransactionSender,
-        type: SendType
+        type: SendType,
+        router: SendRoutable
     ) -> SendModel {
         let feeIncludedCalculator = FeeIncludedCalculator(validator: walletModel.transactionValidator)
 
         return SendModel(
+            userWalletModel: userWalletModel,
             walletModel: walletModel,
             sendTransactionSender: sendTransactionSender,
+            transactionCreator: walletModel.transactionCreator,
+            transactionSigner: transactionSigner,
+            sendAmountInteractor: sendAmountInteractor,
             sendFeeInteractor: sendFeeInteractor,
             feeIncludedCalculator: feeIncludedCalculator,
             informationRelevanceService: informationRelevanceService,
-            sendType: type
+            emailDataProvider: emailDataProvider,
+            feeAnalyticsParameterBuilder: makeFeeAnalyticsParameterBuilder(),
+            sendType: type,
+            coordinator: router
         )
     }
 
-    func makeSendNotificationManager(sendModel: SendModel) -> SendNotificationManager {
-        return CommonSendNotificationManager(
+    private func makeSendNotificationManager(sendModel: SendModel) -> SendNotificationManager {
+        let manager = CommonSendNotificationManager(
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
             input: sendModel
         )
+
+        manager.setupManager(with: sendModel)
+
+        return manager
     }
 
     func makeSendSummarySectionViewModelFactory() -> SendSummarySectionViewModelFactory {
@@ -292,30 +451,25 @@ private extension SendModulesFactory {
         CommonSendAmountValidator(tokenItem: walletModel.tokenItem, validator: walletModel.transactionValidator)
     }
 
-    func makeSendAmountInteractor(
-        input: SendAmountInput,
-        output: SendAmountOutput,
-        validator: SendAmountValidator
-    ) -> SendAmountInteractor {
+    private func makeSendAmountInteractor() -> SendAmountInteractor {
         CommonSendAmountInteractor(
             tokenItem: walletModel.tokenItem,
             balanceValue: walletModel.balanceValue ?? 0,
-            input: input,
-            output: output,
-            validator: validator,
+            validator: makeSendAmountValidator(),
             type: .crypto
         )
     }
 
-    func makeSendFeeInteractor(predefinedAmount: Amount?, predefinedDestination: String?) -> SendFeeInteractor {
+    private func makeSendFeeInteractor() -> SendFeeInteractor { // predefinedAmount: Amount?, predefinedDestination: String?
         let customFeeService = CustomFeeServiceFactory(walletModel: walletModel).makeService()
         let interactor = CommonSendFeeInteractor(
             provider: makeSendFeeProvider(),
             defaultFeeOptions: builder.makeFeeOptions(),
-            customFeeService: customFeeService,
-            predefinedAmount: predefinedAmount,
-            predefinedDestination: predefinedDestination
+            customFeeService: customFeeService
+//            predefinedAmount: predefinedAmount,
+//            predefinedDestination: predefinedDestination
         )
+
         customFeeService?.setup(input: interactor, output: interactor)
         return interactor
     }
@@ -328,7 +482,23 @@ private extension SendModulesFactory {
         CommonInformationRelevanceService(sendFeeInteractor: sendFeeInteractor)
     }
 
-    func makeSendTransactionSummaryDescriptionBuilder() -> SendTransactionSummaryDescriptionBuilder {
+    private func makeSendDestinationTransactionHistoryProvider() -> SendDestinationTransactionHistoryProvider {
+        CommonSendDestinationTransactionHistoryProvider(walletModel: walletModel)
+    }
+
+    private func makeTransactionHistoryMapper() -> TransactionHistoryMapper {
+        TransactionHistoryMapper(
+            currencySymbol: walletModel.tokenItem.currencySymbol,
+            walletAddresses: walletModel.addresses,
+            showSign: false
+        )
+    }
+
+    private func makeFeeAnalyticsParameterBuilder() -> FeeAnalyticsParameterBuilder {
+        FeeAnalyticsParameterBuilder(isFixedFee: builder.makeFeeOptions().count == 1)
+    }
+
+    private func makeSendTransactionSummaryDescriptionBuilder() -> SendTransactionSummaryDescriptionBuilder {
         SendTransactionSummaryDescriptionBuilder(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem)
     }
 

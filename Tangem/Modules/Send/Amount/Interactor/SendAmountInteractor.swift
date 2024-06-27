@@ -9,12 +9,15 @@
 import Foundation
 import Combine
 
-protocol SendAmountInteractor: SendStepType {
+protocol SendAmountInteractor {
     func update(amount: Decimal?) -> SendAmount?
     func update(type: SendAmountCalculationType) -> SendAmount?
     func updateToMaxAmount() -> SendAmount?
 
+    func externalAmountPublisher() -> AnyPublisher<Decimal?, Never>
     func errorPublisher() -> AnyPublisher<String?, Never>
+
+    func setup(input: SendAmountInput, output: SendAmountOutput)
 }
 
 class CommonSendAmountInteractor {
@@ -31,15 +34,11 @@ class CommonSendAmountInteractor {
     init(
         tokenItem: TokenItem,
         balanceValue: Decimal,
-        input: SendAmountInput,
-        output: SendAmountOutput,
         validator: SendAmountValidator,
         type: SendAmountCalculationType
     ) {
         self.tokenItem = tokenItem
         self.balanceValue = balanceValue
-        self.input = input
-        self.output = output
         self.validator = validator
         self.type = type
     }
@@ -86,6 +85,11 @@ class CommonSendAmountInteractor {
 }
 
 extension CommonSendAmountInteractor: SendAmountInteractor {
+    func setup(input: any SendAmountInput, output: any SendAmountOutput) {
+        self.input = input
+        self.output = output
+    }
+
     func update(amount: Decimal?) -> SendAmount? {
         guard let amount else {
             validateAndUpdate(amount: nil)
@@ -126,14 +130,15 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
     func errorPublisher() -> AnyPublisher<String?, Never> {
         _error.map { $0?.localizedDescription }.eraseToAnyPublisher()
     }
-}
 
-// MARK: - SendStepType
+    func externalAmountPublisher() -> AnyPublisher<Decimal?, Never> {
+        guard let input else {
+            return Empty().eraseToAnyPublisher()
+        }
 
-extension CommonSendAmountInteractor: SendStepType {
-    func isValidPublisher() -> AnyPublisher<Bool, Never> {
-        _error
-            .map { $0 == nil }
+        return input
+            .amountPublisher()
+            .compactMap { $0?.main }
             .eraseToAnyPublisher()
     }
 }

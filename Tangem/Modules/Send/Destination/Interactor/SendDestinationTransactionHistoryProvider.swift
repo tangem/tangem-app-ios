@@ -16,9 +16,18 @@ protocol SendDestinationTransactionHistoryProvider {
 
 class CommonSendDestinationTransactionHistoryProvider {
     private let walletModel: WalletModel
+    private var bag: Set<AnyCancellable> = []
 
     init(walletModel: WalletModel) {
         self.walletModel = walletModel
+
+        updateTransactionHistoryIfNeeded()
+    }
+
+    private func updateTransactionHistoryIfNeeded() {
+        walletModel.updateTransactionHistoryIfNeeded()
+            .sink()
+            .store(in: &bag)
     }
 }
 

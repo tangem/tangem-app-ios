@@ -23,7 +23,6 @@ class SendSummaryViewModel: ObservableObject {
     @Published var editableType: EditableType
     @Published var canEditFee: Bool = false
 
-    @Published var isSending = false
     @Published var alert: AlertBinder?
 
     @Published var destinationViewTypes: [SendDestinationSummaryViewType] = []
@@ -74,7 +73,7 @@ class SendSummaryViewModel: ObservableObject {
         bind()
     }
 
-    func setupAnimations(previousStep: SendStep) {
+    func setupAnimations(previousStep: SendStepType) {
         switch previousStep {
         case .destination:
             animatingAmountOnAppear = true
@@ -119,11 +118,7 @@ class SendSummaryViewModel: ObservableObject {
         isVisible = false
     }
 
-    func didTapSummary(for step: SendStep) {
-        if isSending {
-            return
-        }
-
+    func didTapSummary(for step: SendStepType) {
         AppSettings.shared.userDidTapSendScreenSummary = true
         showHint = false
 

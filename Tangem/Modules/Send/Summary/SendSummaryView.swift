@@ -32,14 +32,7 @@ struct SendSummaryView: View {
                 }
 
                 if viewModel.showHint {
-                    HintView(
-                        text: Localization.sendSummaryTapHint,
-                        font: Fonts.Regular.footnote,
-                        textColor: Colors.Text.secondary,
-                        backgroundColor: Colors.Button.secondary
-                    )
-                    .padding(.top, 8)
-                    .transition(SendView.Constants.hintViewTransition)
+                    hintView
                 }
 
                 ForEach(viewModel.notificationInputs) { input in
@@ -185,6 +178,33 @@ struct SendSummaryView: View {
         case .disable:
             Colors.Button.disabled
         }
+    }
+
+    // MARK: - Description
+
+    @ViewBuilder
+    private var descriptionView: some View {
+        if let transactionDescription = viewModel.transactionDescription {
+            Text(.init(transactionDescription))
+                .style(Fonts.Regular.caption1, color: Colors.Text.primary1)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 16)
+                .visible(viewModel.transactionDescriptionIsVisisble)
+                .animation(SendView.Constants.defaultAnimation, value: viewModel.transactionDescriptionIsVisisble)
+        }
+    }
+
+    // MARK: - HintView
+
+    var hintView: some View {
+        HintView(
+            text: Localization.sendSummaryTapHint,
+            font: Fonts.Regular.footnote,
+            textColor: Colors.Text.secondary,
+            backgroundColor: Colors.Button.secondary
+        )
+        .padding(.top, 8)
+        .transition(SendView.Constants.hintViewTransition)
     }
 
     // MARK: - Description

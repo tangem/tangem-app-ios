@@ -30,8 +30,8 @@ class CommonSendFeeInteractor {
 
     private let provider: SendFeeProvider
     private var customFeeService: CustomFeeService?
-    private let _cryptoAmount: CurrentValueSubject<Amount?, Never>
-    private let _destination: CurrentValueSubject<String?, Never>
+    private let _cryptoAmount: CurrentValueSubject<Amount?, Never> = .init(nil)
+    private let _destination: CurrentValueSubject<String?, Never> = .init(nil)
 
     private let _fees: CurrentValueSubject<LoadingValue<[Fee]>, Never> = .init(.loading)
     private let _customFee: CurrentValueSubject<Fee?, Never> = .init(.none)
@@ -54,15 +54,15 @@ class CommonSendFeeInteractor {
     init(
         provider: SendFeeProvider,
         defaultFeeOptions: [FeeOption],
-        customFeeService: CustomFeeService?,
-        predefinedAmount: Amount? = nil,
-        predefinedDestination: String? = nil
+        customFeeService: CustomFeeService?
+//        predefinedAmount: Amount? = nil,
+//        predefinedDestination: String? = nil
     ) {
         self.provider = provider
         self.defaultFeeOptions = defaultFeeOptions
         self.customFeeService = customFeeService
-        _cryptoAmount = .init(predefinedAmount)
-        _destination = .init(predefinedDestination)
+//        _cryptoAmount = .init(predefinedAmount)
+//        _destination = .init(predefinedDestination)
 
         bind()
     }
@@ -175,20 +175,6 @@ extension CommonSendFeeInteractor: CustomFeeServiceOutput {
         _customFee.send(customFee)
         update(selectedFee: .init(option: .custom, value: .loaded(customFee)))
         _fees.send(_fees.value)
-    }
-}
-
-// MARK: - SendStepType
-
-extension CommonSendFeeInteractor: SendStepType {
-    func isValidPublisher() -> AnyPublisher<Bool, Never> {
-        guard let input else {
-            return .just(output: false)
-        }
-
-        return input.selectedFeePublisher()
-            .map { $0 != nil }
-            .eraseToAnyPublisher()
     }
 }
 
