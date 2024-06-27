@@ -27,4 +27,8 @@ extension Decimal {
     var stringValue: String {
         (self as NSDecimalNumber).stringValue
     }
+
+    var intValue: Int {
+        (self as NSDecimalNumber).intValue
+    }
 }
