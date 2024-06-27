@@ -9,9 +9,17 @@
 import Foundation
 
 class OnboardingPushNotificationsViewModel: ObservableObject {
+    @Published var allowButtonTitle: String
+    @Published var laterButtonTitle: String
+
     private weak var delegate: OnboardingPushNotificationsDelegate?
 
-    init(delegate: any OnboardingPushNotificationsDelegate) {
+    init(
+        canPostpone: Bool = false,
+        delegate: any OnboardingPushNotificationsDelegate
+    ) {
+        allowButtonTitle = Localization.commonAllow
+        laterButtonTitle = canPostpone ? Localization.commonLater : Localization.commonCancel
         self.delegate = delegate
     }
 
