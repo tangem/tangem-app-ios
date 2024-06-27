@@ -27,12 +27,12 @@ struct OnboardingPushNotificationsView: View {
     private var buttons: some View {
         VStack {
             MainButton(
-                title: "Allow", // [REDACTED_TODO_COMMENT]
+                title: viewModel.allowButtonTitle,
                 action: viewModel.didTapAllow
             )
 
             MainButton(
-                title: Localization.commonLater,
+                title: viewModel.laterButtonTitle,
                 style: .secondary,
                 action: viewModel.didTapLater
             )
@@ -44,5 +44,5 @@ struct OnboardingPushNotificationsView: View {
 }
 
 #Preview {
-    OnboardingPushNotificationsView(viewModel: .init(delegate: OnboardingPushNotificationsDelegateStub()))
+    OnboardingPushNotificationsView(viewModel: .init(canPostpone: false, delegate: OnboardingPushNotificationsDelegateStub()))
 }
