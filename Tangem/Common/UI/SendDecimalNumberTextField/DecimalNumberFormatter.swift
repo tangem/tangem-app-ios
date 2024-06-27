@@ -8,6 +8,7 @@
 
 import Foundation
 
+// [REDACTED_TODO_COMMENT]
 struct DecimalNumberFormatter {
     public var isDecimal: Bool { numberFormatter.maximumFractionDigits > 0 }
     public var decimalSeparator: Character { Character(numberFormatter.decimalSeparator) }
@@ -49,6 +50,10 @@ struct DecimalNumberFormatter {
 
     public func format(value: Decimal) -> String {
         return format(value: mapToString(decimal: value))
+    }
+
+    public func format(value: Decimal) -> Decimal? {
+        mapToDecimal(string: format(value: mapToString(decimal: value)))
     }
 
     // MARK: - Mapping
