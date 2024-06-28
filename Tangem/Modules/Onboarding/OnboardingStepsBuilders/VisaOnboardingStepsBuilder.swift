@@ -10,6 +10,8 @@ import Foundation
 import TangemSdk
 
 struct VisaOnboardingStepsBuilder {
+    private let pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider
+
     private var otherSteps: [SingleCardOnboardingStep] {
         var steps: [SingleCardOnboardingStep] = []
 
@@ -24,6 +26,12 @@ struct VisaOnboardingStepsBuilder {
         }
 
         return steps
+    }
+
+    init(
+        pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider
+    ) {
+        self.pushNotificationsAvailabilityProvider = pushNotificationsAvailabilityProvider
     }
 }
 
