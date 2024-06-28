@@ -23,7 +23,7 @@ struct NoteOnboardingStepsBuilder {
             steps.append(.saveUserWallet)
         }
 
-        if PushNotificationsProvider.isAvailable {
+        if pushNotificationsAvailabilityProvider.isAvailable {
             steps.append(.pushNotifications)
         }
 
