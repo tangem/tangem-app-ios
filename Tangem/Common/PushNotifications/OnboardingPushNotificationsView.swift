@@ -43,6 +43,18 @@ struct OnboardingPushNotificationsView: View {
     }
 }
 
+// MARK: - Previews
+
 #Preview {
-    OnboardingPushNotificationsView(viewModel: .init(canPostpone: false, delegate: OnboardingPushNotificationsDelegateStub()))
+    let permissionManager = PushNotificationsInteractorTrampoline(
+        isAvailable: { true },
+        canPostponePermissionRequest: { true },
+        allowRequest: {},
+        postponeRequest: {}
+    )
+    let viewModel = OnboardingPushNotificationsViewModel(
+        permissionManager: permissionManager,
+        delegate: OnboardingPushNotificationsDelegateStub()
+    )
+    return OnboardingPushNotificationsView(viewModel: viewModel)
 }
