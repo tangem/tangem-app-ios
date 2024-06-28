@@ -9,7 +9,5 @@
 import Foundation
 
 protocol PushNotificationsService {
-    var isAvailable: Bool { get async }
-
     func requestAuthorizationAndRegister() async -> Bool
 }
