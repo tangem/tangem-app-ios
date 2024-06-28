@@ -17,15 +17,14 @@ struct WelcomeOnboaringStepsBuilder {
         self.pushNotificationsAvailabilityProvider = pushNotificationsAvailabilityProvider
     }
 
-    @MainActor
-    func buildSteps() async -> [WelcomeOnbordingStep] {
+    func buildSteps() -> [WelcomeOnbordingStep] {
         var steps = [WelcomeOnbordingStep]()
 
         if !AppSettings.shared.termsOfServicesAccepted.contains(AppConstants.tosURL.absoluteString) {
             steps.append(.tos)
         }
 
-        if await pushNotificationsAvailabilityProvider.isAvailable {
+        if pushNotificationsAvailabilityProvider.isAvailable {
             steps.append(.pushNotifications)
         }
 

@@ -9,8 +9,8 @@
 import Foundation
 
 final class PushNotificationsInteractorTrampoline {
-    typealias IsAvailable = () async -> Bool
-    typealias CanPostponePermissionRequest = () -> Bool
+    typealias IsAvailable = () -> Bool
+    typealias CanPostponePermissionRequest = IsAvailable
     typealias AllowRequest = () async -> Void
     typealias PostponeRequest = () -> Void
 
@@ -36,9 +36,7 @@ final class PushNotificationsInteractorTrampoline {
 
 extension PushNotificationsInteractorTrampoline: PushNotificationsAvailabilityProvider {
     var isAvailable: Bool {
-        get async {
-            return await _isAvailable()
-        }
+        _isAvailable()
     }
 }
 
