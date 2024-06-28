@@ -8,27 +8,36 @@
 
 import Foundation
 
-class OnboardingPushNotificationsViewModel: ObservableObject {
-    @Published var allowButtonTitle: String
-    @Published var laterButtonTitle: String
+final class OnboardingPushNotificationsViewModel: ObservableObject {
+    @Published private(set) var allowButtonTitle: String
+    @Published private(set) var laterButtonTitle: String
+
+    private let permissionManager: PushNotificationsPermissionManager
 
     private weak var delegate: OnboardingPushNotificationsDelegate?
 
     init(
-        canPostpone: Bool = false,
-        delegate: any OnboardingPushNotificationsDelegate
+        permissionManager: PushNotificationsPermissionManager,
+        delegate: OnboardingPushNotificationsDelegate
     ) {
-        allowButtonTitle = Localization.commonAllow
-        laterButtonTitle = canPostpone ? Localization.commonLater : Localization.commonCancel
+        self.permissionManager = permissionManager
         self.delegate = delegate
+
+        allowButtonTitle = Localization.commonAllow
+        laterButtonTitle = permissionManager.canPostponePermissionRequest ? Localization.commonLater : Localization.commonCancel
     }
 
     func didTapAllow() {
-        // [REDACTED_TODO_COMMENT]
-        delegate?.didFinishPushNotificationOnboarding()
+        runTask(in: self) { viewModel in
+            await viewModel.permissionManager.allowPermissionRequest()
+            await runOnMain {
+                viewModel.delegate?.didFinishPushNotificationOnboarding()
+            }
+        }
     }
 
     func didTapLater() {
+        permissionManager.postponePermissionRequest()
         delegate?.didFinishPushNotificationOnboarding()
     }
 }
