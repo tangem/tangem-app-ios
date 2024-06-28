@@ -1,5 +1,5 @@
 //
-//  OnboardingViewModel.swift
+//  SingleCardOnboardingViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
