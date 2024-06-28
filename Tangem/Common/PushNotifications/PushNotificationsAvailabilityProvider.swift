@@ -9,5 +9,5 @@
 import Foundation
 
 protocol PushNotificationsAvailabilityProvider {
-    var isAvailable: Bool { get async }
+    var isAvailable: Bool { get }
 }
