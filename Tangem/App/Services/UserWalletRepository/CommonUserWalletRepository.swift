@@ -85,18 +85,15 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         return scanner.scanCardPublisher()
             .eraseError()
-            .flatMap { [weak self] response -> AnyPublisher<UserWalletRepositoryResult?, Error> in
-                guard let self else {
-                    return .justWithError(output: nil)
-                }
-
-                failedCardScanTracker.resetCounter()
-                sendEvent(.scan(isScanning: false))
+            .withWeakCaptureOf(self)
+            .map { repository, response in
+                repository.failedCardScanTracker.resetCounter()
+                repository.sendEvent(.scan(isScanning: false))
 
                 var cardInfo = response.getCardInfo()
-                updateAssociatedCard(for: cardInfo)
-                resetServices()
-                initializeAnalyticsContext(with: cardInfo)
+                repository.updateAssociatedCard(for: cardInfo)
+                repository.resetServices()
+                repository.initializeAnalyticsContext(with: cardInfo)
                 let config = UserWalletConfigFactory(cardInfo).makeConfig()
                 Analytics.endLoggingCardScan()
 
@@ -104,7 +101,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
                 let userWalletModel = CommonUserWalletModel(cardInfo: cardInfo)
                 if let userWalletModel {
-                    initializeServices(for: userWalletModel)
+                    repository.initializeServices(for: userWalletModel)
                 }
 
                 let factory = OnboardingInputFactory(
@@ -114,14 +111,18 @@ class CommonUserWalletRepository: UserWalletRepository {
                     onboardingStepsBuilderFactory: config
                 )
 
-                if let onboardingInput = factory.makeOnboardingInput() {
-                    return .justWithError(output: .onboarding(onboardingInput))
+                return (userWalletModel, factory)
+            }
+            .asyncMap { userWalletModel, factory -> UserWalletRepositoryResult in
+                if let onboardingInput = await factory.makeOnboardingInput() {
+                    return .onboarding(onboardingInput)
                 } else if let userWalletModel {
-                    return .justWithError(output: .success(userWalletModel))
+                    return .success(userWalletModel)
                 }
 
-                return .anyFail(error: "Unknown error")
+                throw "Unknown error"
             }
+            .receive(on: DispatchQueue.main)
             .catch { [weak self] error -> Just<UserWalletRepositoryResult?> in
                 guard let self else {
                     return Just(nil)
