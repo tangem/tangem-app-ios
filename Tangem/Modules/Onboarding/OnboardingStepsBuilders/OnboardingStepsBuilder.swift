@@ -9,6 +9,6 @@
 import Foundation
 
 protocol OnboardingStepsBuilder {
-    func buildOnboardingSteps() async -> OnboardingSteps
+    func buildOnboardingSteps() -> OnboardingSteps
     func buildBackupSteps() -> OnboardingSteps?
 }
