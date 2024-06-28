@@ -32,7 +32,7 @@ struct PushNotificationsHelperFactory {
         _ flow: CommonPushNotificationsInteractor.PermissionRequestFlow
     ) -> PushNotificationsInteractorTrampoline {
         return PushNotificationsInteractorTrampoline(
-            isAvailable: { await pushNotificationsInteractor.isAvailable(in: flow) },
+            isAvailable: { pushNotificationsInteractor.isAvailable(in: flow) },
             canPostponePermissionRequest: { pushNotificationsInteractor.canPostponeRequest(in: flow) },
             allowRequest: { await pushNotificationsInteractor.allowRequest(in: flow) },
             postponeRequest: { pushNotificationsInteractor.postponeRequest(in: flow) }
