@@ -59,7 +59,11 @@ final class WelcomeOnboardingViewModel: ObservableObject {
         case .tos:
             return .tos(WelcomeOnboardingTOSViewModel(delegate: self))
         case .pushNotifications:
-            return .pushNotifications(OnboardingPushNotificationsViewModel(delegate: self))
+            let factory = PushNotificationsHelperFactory()
+            let permissionManager = factory.makePermissionManagerForWelcomeOnboarding()
+            let viewModel = OnboardingPushNotificationsViewModel(permissionManager: permissionManager, delegate: self)
+
+            return .pushNotifications(viewModel)
         }
     }
 }

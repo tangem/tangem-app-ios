@@ -9,14 +9,23 @@
 import Foundation
 
 struct WelcomeOnboaringStepsBuilder {
-    func buildSteps() -> [WelcomeOnbordingStep] {
+    private let pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider
+
+    init(
+        pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider
+    ) {
+        self.pushNotificationsAvailabilityProvider = pushNotificationsAvailabilityProvider
+    }
+
+    @MainActor
+    func buildSteps() async -> [WelcomeOnbordingStep] {
         var steps = [WelcomeOnbordingStep]()
 
         if !AppSettings.shared.termsOfServicesAccepted.contains(AppConstants.tosURL.absoluteString) {
             steps.append(.tos)
         }
 
-        if PushNotificationsProvider.isAvailable {
+        if await pushNotificationsAvailabilityProvider.isAvailable {
             steps.append(.pushNotifications)
         }
 
