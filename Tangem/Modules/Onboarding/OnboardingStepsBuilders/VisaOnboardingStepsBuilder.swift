@@ -21,7 +21,7 @@ struct VisaOnboardingStepsBuilder {
             steps.append(.saveUserWallet)
         }
 
-        if PushNotificationsProvider.isAvailable {
+        if pushNotificationsAvailabilityProvider.isAvailable {
             steps.append(.pushNotifications)
         }
 
