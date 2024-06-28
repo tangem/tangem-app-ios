@@ -28,24 +28,6 @@ final class CommonPushNotificationsService {
 // MARK: - PushNotificationsService protocol conformance
 
 extension CommonPushNotificationsService: PushNotificationsService {
-    var isAvailable: Bool {
-        get async {
-            let notificationSettings = await userNotificationCenter.notificationSettings()
-
-            switch notificationSettings.authorizationStatus {
-            case .notDetermined,
-                 .provisional:
-                return true
-            case .denied,
-                 .authorized,
-                 .ephemeral:
-                return false
-            @unknown default:
-                return false
-            }
-        }
-    }
-
     func requestAuthorizationAndRegister() async -> Bool {
         do {
             if try await userNotificationCenter.requestAuthorization(options: authorizationOptions) {
@@ -65,7 +47,7 @@ extension CommonPushNotificationsService: PushNotificationsService {
     }
 
     @MainActor
-    private func registerForRemoteNotifications() {
+    private func registerForRemoteNotifications() async {
         application.registerForRemoteNotifications()
     }
 }

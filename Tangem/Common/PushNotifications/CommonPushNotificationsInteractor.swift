@@ -9,6 +9,9 @@
 import Foundation
 
 final class CommonPushNotificationsInteractor {
+    @AppStorageCompat(StorageKeys.didRequestAuthorization)
+    private var didRequestAuthorization: Bool = false
+
     private var isFeatureFlagEnabled: Bool { FeatureProvider.isAvailable(.pushNotifications) }
 
     private var didPostponeRequest = false
@@ -19,18 +22,15 @@ final class CommonPushNotificationsInteractor {
         self.pushNotificationsService = pushNotificationsService
     }
 
-    func isAvailable(in flow: PermissionRequestFlow) async -> Bool {
-        // Apparently, short-circuit operators like `&&` don't work with async-await, and since we want to preserve
-        // short-circuit semantics here - the first condition is checked using plain guard
-        guard isFeatureFlagEnabled else {
-            return false
-        }
-
-        return await pushNotificationsService.isAvailable
+    func isAvailable(in flow: PermissionRequestFlow) -> Bool {
+        return isFeatureFlagEnabled && !didRequestAuthorization
     }
 
     func allowRequest(in flow: PermissionRequestFlow) async {
         await pushNotificationsService.requestAuthorizationAndRegister()
+        runOnMain {
+            didRequestAuthorization = true
+        }
     }
 
     func canPostponeRequest(in flow: PermissionRequestFlow) -> Bool {
@@ -58,6 +58,10 @@ extension CommonPushNotificationsInteractor {
 
         case newUser(state: NewUserState)
         case existingUser
+    }
+
+    private enum StorageKeys: String, RawRepresentable {
+        case didRequestAuthorization = "did_request_push_notifications_authorization"
     }
 }
 
