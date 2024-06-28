@@ -30,11 +30,17 @@ class OnboardingInputFactory {
     func makeOnboardingInput() -> OnboardingInput? {
         let backupService = sdkFactory.makeBackupService()
 
+        let pushNotificationsHelperFactory = PushNotificationsHelperFactory()
+        let pushNotificationsAvailabilityProvider = pushNotificationsHelperFactory.makeAvailabilityProviderForWalletOnboarding()
+
         if let primaryCard = cardInfo.primaryCard {
             backupService.setPrimaryCard(primaryCard)
         }
 
-        let stepsBuilder = onboardingStepsBuilderFactory.makeOnboardingStepsBuilder(backupService: backupService)
+        let stepsBuilder = onboardingStepsBuilderFactory.makeOnboardingStepsBuilder(
+            backupService: backupService,
+            pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider
+        )
         let steps = stepsBuilder.buildOnboardingSteps()
 
         guard steps.needOnboarding else {
@@ -59,11 +65,17 @@ class OnboardingInputFactory {
 
         let backupService = sdkFactory.makeBackupService()
 
+        let pushNotificationsHelperFactory = PushNotificationsHelperFactory()
+        let pushNotificationsAvailabilityProvider = pushNotificationsHelperFactory.makeAvailabilityProviderForWalletOnboarding()
+
         if let primaryCard = cardInfo.primaryCard {
             backupService.setPrimaryCard(primaryCard)
         }
 
-        let stepsBuilder = onboardingStepsBuilderFactory.makeOnboardingStepsBuilder(backupService: backupService)
+        let stepsBuilder = onboardingStepsBuilderFactory.makeOnboardingStepsBuilder(
+            backupService: backupService,
+            pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider
+        )
         guard let steps = stepsBuilder.buildBackupSteps() else {
             return nil
         }
