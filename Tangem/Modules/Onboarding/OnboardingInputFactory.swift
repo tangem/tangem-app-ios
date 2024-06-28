@@ -27,7 +27,7 @@ class OnboardingInputFactory {
         self.onboardingStepsBuilderFactory = onboardingStepsBuilderFactory
     }
 
-    func makeOnboardingInput() async -> OnboardingInput? {
+    func makeOnboardingInput() -> OnboardingInput? {
         let backupService = sdkFactory.makeBackupService()
 
         let pushNotificationsHelperFactory = PushNotificationsHelperFactory()
@@ -41,25 +41,23 @@ class OnboardingInputFactory {
             backupService: backupService,
             pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider
         )
-        let steps = await stepsBuilder.buildOnboardingSteps()
+        let steps = stepsBuilder.buildOnboardingSteps()
 
-        return await runOnMain {
-            guard steps.needOnboarding else {
-                return nil
-            }
-
-            let tangemSdk = sdkFactory.makeTangemSdk()
-            let cardInitializer = CommonCardInitializer(tangemSdk: tangemSdk, cardInfo: cardInfo)
-
-            return .init(
-                backupService: backupService,
-                primaryCardId: cardInfo.card.cardId,
-                cardInitializer: cardInitializer,
-                steps: steps,
-                cardInput: makeCardInput(),
-                twinData: cardInfo.walletData.twinData
-            )
+        guard steps.needOnboarding else {
+            return nil
         }
+
+        let tangemSdk = sdkFactory.makeTangemSdk()
+        let cardInitializer = CommonCardInitializer(tangemSdk: tangemSdk, cardInfo: cardInfo)
+
+        return .init(
+            backupService: backupService,
+            primaryCardId: cardInfo.card.cardId,
+            cardInitializer: cardInitializer,
+            steps: steps,
+            cardInput: makeCardInput(),
+            twinData: cardInfo.walletData.twinData
+        )
     }
 
     func makeBackupInput() -> OnboardingInput? {
