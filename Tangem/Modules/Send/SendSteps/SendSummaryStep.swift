@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import SwiftUI
 
-struct SendSummaryStep {
+class SendSummaryStep {
     private let _viewModel: SendSummaryViewModel
     private let interactor: SendSummaryInteractor
     private let tokenItem: TokenItem
@@ -29,6 +29,8 @@ struct SendSummaryStep {
     }
 }
 
+// MARK: - SendStep
+
 extension SendSummaryStep: SendStep {
     var title: String? { Localization.sendSummaryTitle(tokenItem.currencySymbol) }
     var subtitle: String? { walletName }
@@ -43,5 +45,25 @@ extension SendSummaryStep: SendStep {
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
         .just(output: true)
+    }
+}
+
+// MARK: - SendSummaryViewModelSetupable
+
+extension SendSummaryStep: SendSummaryViewModelSetupable {
+    func setup(sendFinishInput: any SendFinishInput) {
+        viewModel.setup(sendFinishInput: sendFinishInput)
+    }
+
+    func setup(sendDestinationInput: any SendDestinationInput) {
+        viewModel.setup(sendDestinationInput: sendDestinationInput)
+    }
+
+    func setup(sendAmountInput: any SendAmountInput) {
+        viewModel.setup(sendAmountInput: sendAmountInput)
+    }
+
+    func setup(sendFeeInteractor: any SendFeeInteractor) {
+        viewModel.setup(sendFeeInteractor: sendFeeInteractor)
     }
 }

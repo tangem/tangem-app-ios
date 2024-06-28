@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import SwiftUI
 
-struct SendFeeStep {
+class SendFeeStep {
     private let _viewModel: SendFeeViewModel
     private let interactor: SendFeeInteractor
     private let notificationManager: SendNotificationManager

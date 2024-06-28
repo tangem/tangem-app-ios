@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import SwiftUI
 
-struct SendDestinationStep {
+class SendDestinationStep {
     private let _viewModel: SendDestinationViewModel
     private let interactor: SendDestinationInteractor
     private let sendAmountInteractor: any SendAmountInteractor

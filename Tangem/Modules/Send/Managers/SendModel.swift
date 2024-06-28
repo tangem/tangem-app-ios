@@ -312,13 +312,13 @@ private extension SendModel {
 // MARK: - SendDestinationInput
 
 extension SendModel: SendDestinationInput {
-    func destinationPublisher() -> AnyPublisher<SendAddress, Never> {
+    var destinationPublisher: AnyPublisher<SendAddress, Never> {
         _destination
             .compactMap { $0 }
             .eraseToAnyPublisher()
     }
 
-    func additionalFieldPublisher() -> AnyPublisher<DestinationAdditionalFieldType, Never> {
+    var additionalFieldPublisher: AnyPublisher<DestinationAdditionalFieldType, Never> {
         _destinationAdditionalField.eraseToAnyPublisher()
     }
 }
@@ -340,7 +340,7 @@ extension SendModel: SendDestinationOutput {
 extension SendModel: SendAmountInput {
     var amount: SendAmount? { _amount.value }
 
-    func amountPublisher() -> AnyPublisher<SendAmount?, Never> {
+    var amountPublisher: AnyPublisher<SendAmount?, Never> {
         _amount.dropFirst().eraseToAnyPublisher()
     }
 }
@@ -360,11 +360,11 @@ extension SendModel: SendFeeInput {
         _selectedFee.value
     }
 
-    func selectedFeePublisher() -> AnyPublisher<SendFee?, Never> {
+    var selectedFeePublisher: AnyPublisher<SendFee?, Never> {
         _selectedFee.eraseToAnyPublisher()
     }
 
-    func cryptoAmountPublisher() -> AnyPublisher<BlockchainSdk.Amount, Never> {
+    var cryptoAmountPublisher: AnyPublisher<BlockchainSdk.Amount, Never> {
         _amount
             .withWeakCaptureOf(self)
             .compactMap { model, amount in
@@ -373,7 +373,7 @@ extension SendModel: SendFeeInput {
             .eraseToAnyPublisher()
     }
 
-    func destinationAddressPublisher() -> AnyPublisher<String, Never> {
+    var destinationAddressPublisher: AnyPublisher<String?, Never> {
         _destination.compactMap { $0?.value }.eraseToAnyPublisher()
     }
 }
@@ -389,8 +389,16 @@ extension SendModel: SendFeeOutput {
 // MARK: - SendSummaryInput, SendSummaryOutput
 
 extension SendModel: SendSummaryInput, SendSummaryOutput {
-    var transaction: AnyPublisher<BlockchainSdk.Transaction?, Never> {
+    var transactionPublisher: AnyPublisher<BlockchainSdk.Transaction?, Never> {
         _transaction.eraseToAnyPublisher()
+    }
+}
+
+// MARK: - SendFinishInput
+
+extension SendModel: SendFinishInput {
+    var transactionSentDate: AnyPublisher<Date, Never> {
+        Empty().eraseToAnyPublisher()
     }
 }
 
@@ -411,7 +419,7 @@ extension SendModel: SendBaseInput, SendBaseOutput {
 extension SendModel: SendNotificationManagerInput {
     // TODO: Refactoring in https://tangem.atlassian.net/browse/IOS-7196
     var selectedSendFeePublisher: AnyPublisher<SendFee?, Never> {
-        selectedFeePublisher()
+        selectedFeePublisher
     }
 
     var feeValues: AnyPublisher<[SendFee], Never> {

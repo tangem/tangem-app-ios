@@ -184,6 +184,14 @@ extension SendViewModel: SendModelUIDelegate {
     }
 }
 
+// MARK: - SendStepsManagerInput
+
+extension SendViewModel: SendStepsManagerInput {
+    var currentStep: any SendStep {
+        return step
+    }
+}
+
 // MARK: - SendStepsManagerOutput
 
 extension SendViewModel: SendStepsManagerOutput {

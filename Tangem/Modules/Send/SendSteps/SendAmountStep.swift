@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import SwiftUI
 
-struct SendAmountStep {
+class SendAmountStep {
     private let _viewModel: SendAmountViewModel
     private let interactor: SendAmountInteractor
     private let sendFeeInteractor: SendFeeInteractor
@@ -44,7 +44,7 @@ extension SendAmountStep: SendStep {
     }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
-        interactor.errorPublisher().map { $0 != nil }.eraseToAnyPublisher()
+        interactor.errorPublisher().map { $0 == nil }.eraseToAnyPublisher()
     }
 
     func willClose(next step: any SendStep) {

@@ -20,6 +20,8 @@ protocol SendNotificationManagerInput {
 }
 
 protocol SendNotificationManager: NotificationManager {
+    func setup(input: SendNotificationManagerInput)
+
     func notificationPublisher(for location: SendNotificationEvent.Location) -> AnyPublisher<[NotificationViewInput], Never>
     func hasNotifications(with severity: NotificationView.Severity) -> AnyPublisher<Bool, Never>
 }
@@ -27,7 +29,6 @@ protocol SendNotificationManager: NotificationManager {
 class CommonSendNotificationManager: SendNotificationManager {
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
-    private let input: SendNotificationManagerInput
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
     private let validationErrorInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
     private var bag: Set<AnyCancellable> = []
@@ -45,10 +46,13 @@ class CommonSendNotificationManager: SendNotificationManager {
 
     private weak var delegate: NotificationTapDelegate?
 
-    init(tokenItem: TokenItem, feeTokenItem: TokenItem, input: SendNotificationManagerInput) {
+    init(tokenItem: TokenItem, feeTokenItem: TokenItem) {
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
-        self.input = input
+    }
+
+    func setup(input: any SendNotificationManagerInput) {
+        bind(input: input)
     }
 
     func notificationPublisher(for location: SendNotificationEvent.Location) -> AnyPublisher<[NotificationViewInput], Never> {
@@ -81,7 +85,7 @@ class CommonSendNotificationManager: SendNotificationManager {
         }
     }
 
-    private func bind() {
+    private func bind(input: SendNotificationManagerInput) {
         input
             .feeValues
             .map {
@@ -279,7 +283,6 @@ extension CommonSendNotificationManager: NotificationManager {
 
     func setupManager(with delegate: NotificationTapDelegate?) {
         self.delegate = delegate
-        bind()
     }
 
     func dismissNotification(with id: NotificationViewId) {}

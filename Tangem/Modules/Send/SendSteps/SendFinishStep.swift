@@ -10,14 +10,14 @@ import Foundation
 import Combine
 import SwiftUI
 
-struct SendFinishStep {
-    private let _viewModel: SendFinishViewModel
+class SendFinishStep {
+    private let _viewModel: SendSummaryViewModel
     private let tokenItem: TokenItem
     private let sendFeeInteractor: SendFeeInteractor
     private let feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder
 
     init(
-        viewModel: SendFinishViewModel,
+        viewModel: SendSummaryViewModel,
         tokenItem: TokenItem,
         sendFeeInteractor: SendFeeInteractor,
         feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder
@@ -37,21 +37,43 @@ struct SendFinishStep {
     }
 }
 
+// MARK: - SendStep
+
 extension SendFinishStep: SendStep {
     var title: String? { nil }
 
     var type: SendStepType { .finish }
 
-    var viewModel: SendFinishViewModel { _viewModel }
+    var viewModel: SendSummaryViewModel { _viewModel }
 
     func makeView(namespace: Namespace.ID) -> AnyView {
         AnyView(
-            SendFinishView(viewModel: viewModel, namespace: namespace)
+            SendSummaryView(viewModel: viewModel, namespace: namespace)
                 .onAppear(perform: onAppear)
         )
     }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
         .just(output: true)
+    }
+}
+
+// MARK: - SendSummaryViewModelSetupable
+
+extension SendFinishStep: SendSummaryViewModelSetupable {
+    func setup(sendFinishInput: any SendFinishInput) {
+        viewModel.setup(sendFinishInput: sendFinishInput)
+    }
+
+    func setup(sendDestinationInput: any SendDestinationInput) {
+        viewModel.setup(sendDestinationInput: sendDestinationInput)
+    }
+
+    func setup(sendAmountInput: any SendAmountInput) {
+        viewModel.setup(sendAmountInput: sendAmountInput)
+    }
+
+    func setup(sendFeeInteractor: any SendFeeInteractor) {
+        viewModel.setup(sendFeeInteractor: sendFeeInteractor)
     }
 }

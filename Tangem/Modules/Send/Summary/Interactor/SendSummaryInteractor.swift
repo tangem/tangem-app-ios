@@ -17,48 +17,54 @@ protocol SendSummaryInput: AnyObject {
 protocol SendSummaryOutput: AnyObject {}
 
 protocol SendSummaryInteractor: AnyObject {
+    func setup(input: SendSummaryInput, output: SendSummaryOutput)
+
     var transactionDescription: AnyPublisher<String?, Never> { get }
 }
 
 class CommonSendSummaryInteractor {
-    private weak var input: SendSummaryInput?
-    private weak var output: SendSummaryOutput?
-
     private let sendTransactionSender: SendTransactionSender
     private let descriptionBuilder: SendTransactionSummaryDescriptionBuilder
 
+    private let _transactionDescription: CurrentValueSubject<String?, Never> = .init(.none)
+    private var bag: Set<AnyCancellable> = []
+
     init(
-        input: SendSummaryInput,
-        output: SendSummaryOutput,
         sendTransactionSender: SendTransactionSender,
         descriptionBuilder: SendTransactionSummaryDescriptionBuilder
     ) {
-        self.input = input
-        self.output = output
         self.sendTransactionSender = sendTransactionSender
         self.descriptionBuilder = descriptionBuilder
     }
-}
 
-extension CommonSendSummaryInteractor: SendSummaryInteractor {
-    var isSending: AnyPublisher<Bool, Never> {
-        sendTransactionSender.isSending
-    }
-
-    var transactionDescription: AnyPublisher<String?, Never> {
-        guard let input else { return Empty().eraseToAnyPublisher() }
-
-        return input
+    private func bind(input: any SendSummaryInput) {
+        input
             .transactionPublisher
             .withWeakCaptureOf(self)
-            .map { interactor, transaction in
-                transaction.flatMap { transaction in
+            .sink { interactor, transaction in
+                let description = transaction.flatMap { transaction in
                     interactor.descriptionBuilder.makeDescription(
                         amount: transaction.amount.value,
                         fee: transaction.fee.amount.value
                     )
                 }
+
+                interactor._transactionDescription.send(description)
             }
-            .eraseToAnyPublisher()
+            .store(in: &bag)
+    }
+}
+
+extension CommonSendSummaryInteractor: SendSummaryInteractor {
+    func setup(input: any SendSummaryInput, output: any SendSummaryOutput) {
+        bind(input: input)
+    }
+
+    var isSending: AnyPublisher<Bool, Never> {
+        sendTransactionSender.isSending
+    }
+
+    var transactionDescription: AnyPublisher<String?, Never> {
+        return _transactionDescription.eraseToAnyPublisher()
     }
 }

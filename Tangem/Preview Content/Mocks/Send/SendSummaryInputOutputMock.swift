@@ -15,6 +15,8 @@ class SendSummaryInputOutputMock: SendSummaryInput, SendSummaryOutput {
 }
 
 class SendSummaryInteractorMock: SendSummaryInteractor {
+    func setup(input: any SendSummaryInput, output: any SendSummaryOutput) {}
+
     var transactionDescription: AnyPublisher<String?, Never> { .just(output: "123124$ (34151 USDT)") }
 
     var isSending: AnyPublisher<Bool, Never> { .just(output: false) }

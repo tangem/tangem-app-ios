@@ -137,7 +137,7 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
         }
 
         return input
-            .amountPublisher()
+            .amountPublisher
             .compactMap { $0?.main }
             .eraseToAnyPublisher()
     }

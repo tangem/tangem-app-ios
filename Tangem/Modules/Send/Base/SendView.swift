@@ -70,9 +70,7 @@ struct SendView: View {
                     .disabled(viewModel.closeButtonDisabled)
             }
             .overlay(alignment: .trailing) {
-                if let trailingView = viewModel.step.makeNavigationTrailingView(namespace: namespace) {
-                    AnyView(trailingView)
-                }
+                viewModel.step.makeNavigationTrailingView(namespace: namespace)
             }
             .frame(height: 44)
             .padding(.top, 8)
