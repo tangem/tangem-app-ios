@@ -741,7 +741,9 @@
 		B6CF16822B22548A004925CC /* PropertyListObjectRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6CF16812B22548A004925CC /* PropertyListObjectRepresentable.swift */; };
 		B6D107AD2C2CE3530011D172 /* CommonPushNotificationsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D107AC2C2CE3530011D172 /* CommonPushNotificationsInteractor.swift */; };
 		B6D107C12C2DB0A20011D172 /* PushNotificationsInteractorTrampoline.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D107C02C2DB0A20011D172 /* PushNotificationsInteractorTrampoline.swift */; };
-		B6D107C32C2DB0C60011D172 /* PushNotificationsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D107C22C2DB0C60011D172 /* PushNotificationsInteractor.swift */; };
+		B6D107CB2C2E2F7E0011D172 /* PushNotificationsHelperFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D107CA2C2E2F7E0011D172 /* PushNotificationsHelperFactory.swift */; };
+		B6D107CD2C2E4A630011D172 /* PushNotificationsAvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D107CC2C2E4A630011D172 /* PushNotificationsAvailabilityProvider.swift */; };
+		B6D107CF2C2E4ADC0011D172 /* PushNotificationsPermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D107CE2C2E4ADC0011D172 /* PushNotificationsPermissionManager.swift */; };
 		B6DD245E2B1A77860097F674 /* BottomScrollableSheetStateObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6DD245D2B1A77860097F674 /* BottomScrollableSheetStateObserver.swift */; };
 		B6DF7E792AA95DBB007C92BD /* ListFooterOverlayShadowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6DF7E782AA95DBB007C92BD /* ListFooterOverlayShadowView.swift */; };
 		B6E8BBFB2A2F209B0012E7D3 /* InfinityFrameModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E8BBFA2A2F209B0012E7D3 /* InfinityFrameModifier.swift */; };
@@ -2471,7 +2473,9 @@
 		B6CF16812B22548A004925CC /* PropertyListObjectRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyListObjectRepresentable.swift; sourceTree = "<group>"; };
 		B6D107AC2C2CE3530011D172 /* CommonPushNotificationsInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonPushNotificationsInteractor.swift; sourceTree = "<group>"; };
 		B6D107C02C2DB0A20011D172 /* PushNotificationsInteractorTrampoline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsInteractorTrampoline.swift; sourceTree = "<group>"; };
-		B6D107C22C2DB0C60011D172 /* PushNotificationsInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsInteractor.swift; sourceTree = "<group>"; };
+		B6D107CA2C2E2F7E0011D172 /* PushNotificationsHelperFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsHelperFactory.swift; sourceTree = "<group>"; };
+		B6D107CC2C2E4A630011D172 /* PushNotificationsAvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsAvailabilityProvider.swift; sourceTree = "<group>"; };
+		B6D107CE2C2E4ADC0011D172 /* PushNotificationsPermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsPermissionManager.swift; sourceTree = "<group>"; };
 		B6DD245D2B1A77860097F674 /* BottomScrollableSheetStateObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomScrollableSheetStateObserver.swift; sourceTree = "<group>"; };
 		B6DF7E782AA95DBB007C92BD /* ListFooterOverlayShadowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListFooterOverlayShadowView.swift; sourceTree = "<group>"; };
 		B6E8BBFA2A2F209B0012E7D3 /* InfinityFrameModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfinityFrameModifier.swift; sourceTree = "<group>"; };
@@ -7117,9 +7121,11 @@
 		DCC5C9922C1248AC001B970A /* PushNotifications */ = {
 			isa = PBXGroup;
 			children = (
-				B6D107C22C2DB0C60011D172 /* PushNotificationsInteractor.swift */,
+				B6D107CC2C2E4A630011D172 /* PushNotificationsAvailabilityProvider.swift */,
+				B6D107CE2C2E4ADC0011D172 /* PushNotificationsPermissionManager.swift */,
 				B6D107AC2C2CE3530011D172 /* CommonPushNotificationsInteractor.swift */,
 				B6D107C02C2DB0A20011D172 /* PushNotificationsInteractorTrampoline.swift */,
+				B6D107CA2C2E2F7E0011D172 /* PushNotificationsHelperFactory.swift */,
 				DCC5C9932C1248C5001B970A /* OnboardingPushNotificationsView.swift */,
 				DCC5C9992C136C52001B970A /* OnboardingPushNotificationsViewModel.swift */,
 				DCC5C99B2C136D8F001B970A /* OnboardingPushNotificationsDelegate.swift */,
@@ -10572,6 +10578,7 @@
 				DC66BC08285B6E6400CDF765 /* DetailsRoutable.swift in Sources */,
 				2D535E702A0CB4D20081EB76 /* NotificationView.swift in Sources */,
 				B031AAB126C1443E00015003 /* Confetti.swift in Sources */,
+				B6D107CD2C2E4A630011D172 /* PushNotificationsAvailabilityProvider.swift in Sources */,
 				EF729B542AF12B1500D80205 /* BottomSheetHeaderView.swift in Sources */,
 				2DC567682B0DFFAF00B0244F /* MarketsCoordinatorView.swift in Sources */,
 				B0A2B3E925D6B5BD0001EEB4 /* TokenBalanceViewModel.swift in Sources */,
@@ -10600,6 +10607,7 @@
 				B050F5032B613A6F00B2E53C /* VisaTransactionHistoryService.swift in Sources */,
 				EF8EF52F2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift in Sources */,
 				5D80ED472550186A0008DEF0 /* View+.swift in Sources */,
+				B6D107CB2C2E2F7E0011D172 /* PushNotificationsHelperFactory.swift in Sources */,
 				6563B8B92858B92A009A8A7D /* SupportChatView.swift in Sources */,
 				5D51036927C534A60025EA55 /* JSON.swift in Sources */,
 				DCBAF69D2A4AF0500029480A /* SimpleWalletManagerFactory.swift in Sources */,
@@ -10625,6 +10633,7 @@
 				EF57693E2A8BAF6700901571 /* TransactionHistoryService.swift in Sources */,
 				B0CAE5AB2AAB275C00670C2B /* MultiWalletMainContentDelegate.swift in Sources */,
 				B0F319022A7394AA009F131E /* FakeUserWalletRepository.swift in Sources */,
+				B6D107CF2C2E4ADC0011D172 /* PushNotificationsPermissionManager.swift in Sources */,
 				B61D2A202B1947E6004F2C2D /* TokenDetailsScrollState.swift in Sources */,
 				B691A8C02AFE43CE0059D182 /* CardsInfoPagerSwipeDiscoveryAnimationModifier.swift in Sources */,
 				EFEE236A2BFE20860099917E /* StakingDetailsCoordinator.swift in Sources */,
@@ -10794,7 +10803,6 @@
 				EF39A6532AD5A70D00AAB518 /* SmartContractMethodMapper.swift in Sources */,
 				B0F7D75E2A4048D5007FEB2E /* ReceiveAddressInfo.swift in Sources */,
 				DCE61E452B5EE05E005A8D2E /* SafariConfiguration.swift in Sources */,
-				B6D107C32C2DB0C60011D172 /* PushNotificationsInteractor.swift in Sources */,
 				EF9E2A472B5532A600418559 /* ExpressCurrencyViewModel.swift in Sources */,
 				DA559C4A2B02622600F59584 /* SendRoutableMock.swift in Sources */,
 				DC66BC0A285B755800CDF765 /* PushTxRoutable.swift in Sources */,
