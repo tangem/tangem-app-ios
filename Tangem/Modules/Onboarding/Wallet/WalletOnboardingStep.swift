@@ -51,20 +51,26 @@ enum WalletOnboardingStep: Equatable {
 
     var navbarTitle: String {
         switch self {
-        case .createWallet, .backupIntro: return Localization.onboardingGettingStarted
-        case .scanPrimaryCard, .selectBackupCards: return Localization.onboardingNavbarTitleCreatingBackup
-        case .backupCards: return Localization.onboardingButtonFinalizeBackup
-        case .saveUserWallet: return Localization.onboardingNavbarSaveWallet
-        case .success: return Localization.commonDone
         case .pushNotifications:
             return Localization.onboardingTitleNotifications
+        case .createWallet, .backupIntro:
+            return Localization.onboardingGettingStarted
+        case .scanPrimaryCard, .selectBackupCards:
+            return Localization.onboardingNavbarTitleCreatingBackup
+        case .backupCards:
+            return Localization.onboardingButtonFinalizeBackup
+        case .saveUserWallet:
+            return Localization.onboardingNavbarSaveWallet
+        case .success:
+            return Localization.commonDone
         case .createWalletSelector:
             return Localization.walletTitle
         case .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseUserValidation:
             return Localization.onboardingCreateWalletButtonCreateWallet
         case .seedPhraseImport:
             return Localization.onboardingSeedIntroButtonImport
-        case .addTokens: return Localization.onboardingAddTokens
+        case .addTokens:
+            return Localization.onboardingAddTokens
         }
     }
 
