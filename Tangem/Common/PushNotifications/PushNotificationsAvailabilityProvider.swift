@@ -1,5 +1,5 @@
 //
-//  PushNotificationsInteractor.swift
+//  PushNotificationsAvailabilityProvider.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,9 +8,6 @@
 
 import Foundation
 
-protocol PushNotificationsInteractor {
+protocol PushNotificationsAvailabilityProvider {
     var isAvailable: Bool { get async }
-
-    func allowRequest()
-    func postponeRequest()
 }
