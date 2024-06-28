@@ -19,7 +19,7 @@ final class PushNotificationsInteractorTrampoline {
     private let _allowRequest: AllowRequest
     private let _postponeRequest: PostponeRequest
 
-    internal init(
+    init(
         isAvailable: @escaping IsAvailable,
         canPostponePermissionRequest: @escaping CanPostponePermissionRequest,
         allowRequest: @escaping AllowRequest,
