@@ -51,12 +51,13 @@ enum WalletOnboardingStep: Equatable {
 
     var navbarTitle: String {
         switch self {
-        case .pushNotifications: return "Push Notifications" // [REDACTED_TODO_COMMENT]
         case .createWallet, .backupIntro: return Localization.onboardingGettingStarted
         case .scanPrimaryCard, .selectBackupCards: return Localization.onboardingNavbarTitleCreatingBackup
         case .backupCards: return Localization.onboardingButtonFinalizeBackup
         case .saveUserWallet: return Localization.onboardingNavbarSaveWallet
         case .success: return Localization.commonDone
+        case .pushNotifications:
+            return Localization.onboardingTitleNotifications
         case .createWalletSelector:
             return Localization.walletTitle
         case .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseUserValidation:
