@@ -18,6 +18,7 @@ struct WalletOnboardingStepsBuilder {
     private let hasBackup: Bool
     private let canSkipBackup: Bool
     private let backupService: BackupService
+    private let pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider
 
     private var otherSteps: [WalletOnboardingStep] {
         var steps: [WalletOnboardingStep] = []
@@ -75,7 +76,8 @@ struct WalletOnboardingStepsBuilder {
         canBackup: Bool,
         hasBackup: Bool,
         canSkipBackup: Bool,
-        backupService: BackupService
+        backupService: BackupService,
+        pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider
     ) {
         self.cardId = cardId
         self.hasWallets = hasWallets
@@ -85,6 +87,7 @@ struct WalletOnboardingStepsBuilder {
         self.hasBackup = hasBackup
         self.canSkipBackup = canSkipBackup
         self.backupService = backupService
+        self.pushNotificationsAvailabilityProvider = pushNotificationsAvailabilityProvider
     }
 }
 
