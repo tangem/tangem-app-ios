@@ -19,8 +19,7 @@ final class CommonPushNotificationsInteractor {
         self.pushNotificationsService = pushNotificationsService
     }
 
-    @MainActor
-    func isAvailable() async -> Bool {
+    func isAvailable(in flow: PermissionRequestFlow) async -> Bool {
         // Apparently, short-circuit operators like `&&` don't work with async-await, and since we want to preserve
         // short-circuit semantics here - the first condition is checked using plain guard
         guard isFeatureFlagEnabled else {
@@ -30,8 +29,13 @@ final class CommonPushNotificationsInteractor {
         return await pushNotificationsService.isAvailable
     }
 
-    func allowRequest(in flow: PermissionRequestFlow) {
+    func allowRequest(in flow: PermissionRequestFlow) async {
+        await pushNotificationsService.requestAuthorizationAndRegister()
+    }
+
+    func canPostponeRequest(in flow: PermissionRequestFlow) -> Bool {
         // [REDACTED_TODO_COMMENT]
+        return true
     }
 
     func postponeRequest(in flow: PermissionRequestFlow) {
@@ -45,7 +49,7 @@ extension CommonPushNotificationsInteractor {
     enum PermissionRequestFlow {
         enum NewUserState {
             /// User starts the app for the first time, accept TOS, etc.
-            case userOnboarding
+            case welcomeOnboarding
             /// User adds first wallet to the app, performs backup, etc.
             case walletOnboarding
             /// User completed all onboarding procedures and using app normally.
@@ -55,4 +59,14 @@ extension CommonPushNotificationsInteractor {
         case newUser(state: NewUserState)
         case existingUser
     }
+}
+
+// MARK: - Test extensions
+
+extension CommonPushNotificationsInteractor {
+    // [REDACTED_TODO_COMMENT]
+    @available(*, deprecated, message: "Inject as a dependency instead")
+    static let shared = CommonPushNotificationsInteractor(
+        pushNotificationsService: CommonPushNotificationsService(application: .shared)
+    )
 }
