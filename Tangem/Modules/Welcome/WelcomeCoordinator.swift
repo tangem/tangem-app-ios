@@ -81,20 +81,15 @@ class WelcomeCoordinator: CoordinatorObject {
         let factory = PushNotificationsHelperFactory()
         let availabilityProvider = factory.makeAvailabilityProviderForWelcomeOnboarding()
         let builder = WelcomeOnboaringStepsBuilder(pushNotificationsAvailabilityProvider: availabilityProvider)
+        let steps = builder.buildSteps()
 
         let dismissAction: Action<WelcomeOnboardingCoordinator.OutputOptions> = { [weak self] _ in
             self?.welcomeOnboardingCoordinator = nil
         }
 
-        let welcomeOnboardingCoordinator = WelcomeOnboardingCoordinator(dismissAction: dismissAction)
-
-        runTask(in: self) { coordinator in
-            let steps = await builder.buildSteps()
-            await runOnMain {
-                welcomeOnboardingCoordinator.start(with: .init(steps: steps))
-                coordinator.welcomeOnboardingCoordinator = welcomeOnboardingCoordinator
-            }
-        }
+        let coordinator = WelcomeOnboardingCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: .init(steps: steps))
+        welcomeOnboardingCoordinator = coordinator
     }
 }
 
