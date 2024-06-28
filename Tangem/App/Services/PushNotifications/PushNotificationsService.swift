@@ -9,8 +9,7 @@
 import Foundation
 
 protocol PushNotificationsService {
-    // [REDACTED_TODO_COMMENT]
-    // https://forums.swift.org/t/use-a-protocol-of-mainactor-instead-of-concrete-mainactor-class-produces-an-error/72542
-    /*@MainActor*/
     var isAvailable: Bool { get async }
+
+    func requestAuthorizationAndRegister() async -> Bool
 }
