@@ -11,6 +11,7 @@ import TangemSdk
 
 struct Start2CoinOnboardingStepsBuilder {
     private let hasWallets: Bool
+    private let pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider
 
     private var otherSteps: [SingleCardOnboardingStep] {
         var steps: [SingleCardOnboardingStep] = []
@@ -28,8 +29,12 @@ struct Start2CoinOnboardingStepsBuilder {
         return steps
     }
 
-    init(hasWallets: Bool) {
+    init(
+        hasWallets: Bool,
+        pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider
+    ) {
         self.hasWallets = hasWallets
+        self.pushNotificationsAvailabilityProvider = pushNotificationsAvailabilityProvider
     }
 }
 

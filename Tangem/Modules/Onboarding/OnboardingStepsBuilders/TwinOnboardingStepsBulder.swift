@@ -13,6 +13,7 @@ struct TwinOnboardingStepsBulder {
     private let cardId: String
     private let hasWallets: Bool
     private let twinData: TwinData
+    private let pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider
 
     private var otherSteps: [TwinsOnboardingStep] {
         var steps: [TwinsOnboardingStep] = []
@@ -30,10 +31,16 @@ struct TwinOnboardingStepsBulder {
         return steps
     }
 
-    init(cardId: String, hasWallets: Bool, twinData: TwinData) {
+    init(
+        cardId: String,
+        hasWallets: Bool,
+        twinData: TwinData,
+        pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider
+    ) {
         self.cardId = cardId
         self.hasWallets = hasWallets
         self.twinData = twinData
+        self.pushNotificationsAvailabilityProvider = pushNotificationsAvailabilityProvider
     }
 }
 
