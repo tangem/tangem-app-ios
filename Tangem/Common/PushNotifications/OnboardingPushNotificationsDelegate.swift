@@ -9,5 +9,5 @@
 import Foundation
 
 protocol OnboardingPushNotificationsDelegate: AnyObject {
-    func didFinishPushNotificationOnboarding() -> Void
+    func didFinishPushNotificationOnboarding()
 }
