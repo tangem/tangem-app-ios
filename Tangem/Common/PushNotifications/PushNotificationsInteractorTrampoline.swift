@@ -10,38 +10,50 @@ import Foundation
 
 final class PushNotificationsInteractorTrampoline {
     typealias IsAvailable = () async -> Bool
-    typealias AllowRequest = () -> Void
-    typealias PostponeRequest = AllowRequest
+    typealias CanPostponePermissionRequest = () -> Bool
+    typealias AllowRequest = () async -> Void
+    typealias PostponeRequest = () -> Void
 
     private let _isAvailable: IsAvailable
+    private let _canPostponePermissionRequest: CanPostponePermissionRequest
     private let _allowRequest: AllowRequest
     private let _postponeRequest: PostponeRequest
 
     internal init(
         isAvailable: @escaping IsAvailable,
+        canPostponePermissionRequest: @escaping CanPostponePermissionRequest,
         allowRequest: @escaping AllowRequest,
         postponeRequest: @escaping PostponeRequest
     ) {
         _isAvailable = isAvailable
+        _canPostponePermissionRequest = canPostponePermissionRequest
         _allowRequest = allowRequest
         _postponeRequest = postponeRequest
     }
 }
 
-// MARK: - PushNotificationsInteractor protocol conformance
+// MARK: - PushNotificationsAvailabilityProvider protocol conformance
 
-extension PushNotificationsInteractorTrampoline: PushNotificationsInteractor {
+extension PushNotificationsInteractorTrampoline: PushNotificationsAvailabilityProvider {
     var isAvailable: Bool {
         get async {
             return await _isAvailable()
         }
     }
+}
 
-    func allowRequest() {
-        _allowRequest()
+// MARK: - PushNotificationsPermissionManager protocol conformance
+
+extension PushNotificationsInteractorTrampoline: PushNotificationsPermissionManager {
+    var canPostponePermissionRequest: Bool {
+        _canPostponePermissionRequest()
     }
 
-    func postponeRequest() {
+    func allowPermissionRequest() async {
+        await _allowRequest()
+    }
+
+    func postponePermissionRequest() {
         _postponeRequest()
     }
 }
