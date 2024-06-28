@@ -33,10 +33,12 @@ struct SendModulesFactory {
         )
 
         let informationRelevanceService = makeInformationRelevanceService(sendFeeInteractor: sendFeeInteractor)
+        let sendTransactionSender = makeSendTransactionSender()
 
         let sendModel = makeSendModel(
             sendFeeInteractor: sendFeeInteractor,
             informationRelevanceService: informationRelevanceService,
+            sendTransactionSender: sendTransactionSender,
             type: type
         )
         let canUseFiatCalculation = quotesRepository.quote(for: walletModel.tokenItem) != nil
@@ -55,6 +57,7 @@ struct SendModulesFactory {
             sendModel: sendModel,
             notificationManager: makeSendNotificationManager(sendModel: sendModel),
             sendFeeInteractor: sendFeeInteractor,
+            sendSummaryInteractor: makeSendSummaryInteractor(input: sendModel, output: sendModel, sendTransactionSender: sendTransactionSender),
             keyboardVisibilityService: KeyboardVisibilityService(),
             sendAmountValidator: makeSendAmountValidator(),
             factory: self,
@@ -128,42 +131,35 @@ struct SendModulesFactory {
     }
 
     func makeSendSummaryViewModel(
-        sendModel: SendModel,
+        interactor: SendSummaryInteractor,
         notificationManager: SendNotificationManager,
-        sendFeeInteractor: SendFeeInteractor,
         addressTextViewHeightModel: AddressTextViewHeightModel,
-        walletInfo: SendWalletInfo
+        editableType: SendSummaryViewModel.EditableType
     ) -> SendSummaryViewModel {
-        let initial = SendSummaryViewModel.Initial(tokenItem: walletModel.tokenItem)
+        let settings = SendSummaryViewModel.Settings(
+            tokenItem: walletModel.tokenItem,
+            editableType: editableType
+        )
 
         return SendSummaryViewModel(
-            initial: initial,
-            input: sendModel,
+            settings: settings,
+            interactor: interactor,
             notificationManager: notificationManager,
-            sendFeeInteractor: sendFeeInteractor,
             addressTextViewHeightModel: addressTextViewHeightModel,
-            walletInfo: walletInfo,
-            sectionViewModelFactory: makeSendSummarySectionViewModelFactory(walletInfo: walletInfo)
+            sectionViewModelFactory: makeSendSummarySectionViewModelFactory()
         )
     }
 
-    func makeSendFinishViewModel(
-        amount: SendAmount?,
-        sendModel: SendModel,
-        notificationManager: SendNotificationManager,
-        addressTextViewHeightModel: AddressTextViewHeightModel,
-        feeTypeAnalyticsParameter: Analytics.ParameterValue,
-        walletInfo: SendWalletInfo
-    ) -> SendFinishViewModel? {
-        let initial = SendFinishViewModel.Initial(tokenItem: walletModel.tokenItem, amount: amount)
-
-        return SendFinishViewModel(
-            initial: initial,
-            input: sendModel,
-            addressTextViewHeightModel: addressTextViewHeightModel,
-            feeTypeAnalyticsParameter: feeTypeAnalyticsParameter,
-            walletInfo: walletInfo,
-            sectionViewModelFactory: makeSendSummarySectionViewModelFactory(walletInfo: walletInfo)
+    func makeSendSummaryInteractor(
+        input: SendSummaryInput,
+        output: SendSummaryOutput,
+        sendTransactionSender: any SendTransactionSender
+    ) -> SendSummaryInteractor {
+        CommonSendSummaryInteractor(
+            input: input,
+            output: output,
+            sendTransactionSender: sendTransactionSender,
+            descriptionBuilder: makeSendTransactionSummaryDescriptionBuilder()
         )
     }
 }
@@ -182,13 +178,14 @@ private extension SendModulesFactory {
     func makeSendModel(
         sendFeeInteractor: SendFeeInteractor,
         informationRelevanceService: InformationRelevanceService,
+        sendTransactionSender: any SendTransactionSender,
         type: SendType
     ) -> SendModel {
         let feeIncludedCalculator = FeeIncludedCalculator(validator: walletModel.transactionValidator)
 
         return SendModel(
             walletModel: walletModel,
-            transactionSigner: transactionSigner,
+            sendTransactionSender: sendTransactionSender,
             sendFeeInteractor: sendFeeInteractor,
             feeIncludedCalculator: feeIncludedCalculator,
             informationRelevanceService: informationRelevanceService,
@@ -204,13 +201,13 @@ private extension SendModulesFactory {
         )
     }
 
-    func makeSendSummarySectionViewModelFactory(walletInfo: SendWalletInfo) -> SendSummarySectionViewModelFactory {
-        SendSummarySectionViewModelFactory(
-            feeCurrencySymbol: walletInfo.feeCurrencySymbol,
-            feeCurrencyId: walletInfo.feeCurrencyId,
-            isFeeApproximate: walletInfo.isFeeApproximate,
-            currencyId: walletInfo.currencyId,
-            tokenIconInfo: walletInfo.tokenIconInfo
+    func makeSendSummarySectionViewModelFactory() -> SendSummarySectionViewModelFactory {
+        return SendSummarySectionViewModelFactory(
+            feeCurrencySymbol: walletModel.feeTokenItem.currencySymbol,
+            feeCurrencyId: walletModel.feeTokenItem.currencyId,
+            isFeeApproximate: builder.isFeeApproximate(),
+            currencyId: walletModel.tokenItem.currencyId,
+            tokenIconInfo: builder.makeTokenIconInfo()
         )
     }
 
@@ -293,6 +290,17 @@ private extension SendModulesFactory {
 
     func makeInformationRelevanceService(sendFeeInteractor: SendFeeInteractor) -> InformationRelevanceService {
         CommonInformationRelevanceService(sendFeeInteractor: sendFeeInteractor)
+    }
+
+    func makeSendTransactionSummaryDescriptionBuilder() -> SendTransactionSummaryDescriptionBuilder {
+        SendTransactionSummaryDescriptionBuilder(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem)
+    }
+
+    func makeSendTransactionSender() -> SendTransactionSender {
+        CommonSendTransactionSender(
+            walletModel: walletModel,
+            transactionSigner: transactionSigner
+        )
     }
 }
 

@@ -23,8 +23,6 @@ final class SendViewModel: ObservableObject {
     @Published var mainButtonDisabled: Bool = false
     @Published var updatingFees = false
     @Published var alert: AlertBinder?
-    @Published var transactionDescription: String?
-    @Published var transactionDescriptionIsVisisble: Bool = false
 
     var title: String? {
         step.name(for: sendStepParameters)
@@ -67,15 +65,8 @@ final class SendViewModel: ObservableObject {
     let sendDestinationViewModel: SendDestinationViewModel
     let sendFeeViewModel: SendFeeViewModel
     let sendSummaryViewModel: SendSummaryViewModel
-
-    lazy var sendFinishViewModel: SendFinishViewModel? = factory.makeSendFinishViewModel(
-        amount: sendModel.amount,
-        sendModel: sendModel,
-        notificationManager: notificationManager,
-        addressTextViewHeightModel: addressTextViewHeightModel,
-        feeTypeAnalyticsParameter: selectedFeeTypeAnalyticsParameter(),
-        walletInfo: walletInfo
-    )
+    // TODO: Will be separated on steps with equal viewModels
+    let sendFinishViewModel: SendSummaryViewModel
 
     // MARK: - Dependencies
 
@@ -148,6 +139,7 @@ final class SendViewModel: ObservableObject {
         sendModel: SendModel,
         notificationManager: SendNotificationManager,
         sendFeeInteractor: SendFeeInteractor,
+        sendSummaryInteractor: SendSummaryInteractor,
         keyboardVisibilityService: KeyboardVisibilityService,
         sendAmountValidator: SendAmountValidator,
         factory: SendModulesFactory,
@@ -168,7 +160,6 @@ final class SendViewModel: ObservableObject {
         steps = sendType.steps
         step = sendType.firstStep
         didReachSummaryScreen = sendType.firstStep == .summary
-        transactionDescriptionIsVisisble = sendType.firstStep == .summary
         mainButtonType = Self.mainButtonType(for: sendType.firstStep, didReachSummaryScreen: didReachSummaryScreen)
         stepAnimation = sendType.firstStep == .summary ? .moveAndFade : .slideForward
         sendStepParameters = SendStep.Parameters(currencyName: walletModel.tokenItem.name, walletName: walletInfo.walletName)
@@ -196,14 +187,29 @@ final class SendViewModel: ObservableObject {
         )
 
         sendSummaryViewModel = factory.makeSendSummaryViewModel(
-            sendModel: sendModel,
+            interactor: sendSummaryInteractor,
             notificationManager: notificationManager,
-            sendFeeInteractor: sendFeeInteractor,
             addressTextViewHeightModel: addressTextViewHeightModel,
-            walletInfo: walletInfo
+            editableType: sendType.isSend ? .editable : .disable
+        )
+
+        sendFinishViewModel = factory.makeSendSummaryViewModel(
+            interactor: sendSummaryInteractor,
+            notificationManager: notificationManager,
+            addressTextViewHeightModel: addressTextViewHeightModel,
+            editableType: .notEditable
         )
 
         sendSummaryViewModel.router = self
+        sendSummaryViewModel.setup(sendDestinationInput: sendModel)
+        sendSummaryViewModel.setup(sendAmountInput: sendModel)
+        sendSummaryViewModel.setup(sendFeeInteractor: sendFeeInteractor)
+
+        sendFinishViewModel.setup(sendDestinationInput: sendModel)
+        sendFinishViewModel.setup(sendAmountInput: sendModel)
+        sendFinishViewModel.setup(sendFeeInteractor: sendFeeInteractor)
+        sendFinishViewModel.setup(sendFinishInput: sendModel)
+
         sendModel.delegate = self
         notificationManager.setupManager(with: self)
 
@@ -417,26 +423,9 @@ final class SendViewModel: ObservableObject {
                     logTransactionAnalytics()
                 }
 
-                if let address = sendModel.destinationText, let token = walletModel.tokenItem.token {
+                if let address = sendModel.destination?.value, let token = walletModel.tokenItem.token {
                     UserWalletFinder().addToken(token, in: walletModel.blockchainNetwork.blockchain, for: address)
                 }
-            }
-            .store(in: &bag)
-
-        Publishers
-            .CombineLatest(sendModel.transactionAmountPublisher, sendModel.selectedFeePublisher)
-            .withWeakCaptureOf(self)
-            .receive(on: DispatchQueue.main)
-            .sink { viewModel, args in
-                let (amount, fee) = args
-
-                let helper = SendTransactionSummaryDestinationHelper()
-                viewModel.transactionDescription = helper.makeTransactionDescription(
-                    amount: amount?.value,
-                    fee: fee?.value.value?.amount.value,
-                    amountCurrencyId: viewModel.walletInfo.currencyId,
-                    feeCurrencyId: viewModel.walletInfo.feeCurrencyId
-                )
             }
             .store(in: &bag)
     }
@@ -616,16 +605,11 @@ final class SendViewModel: ObservableObject {
             self.showBackButton = self.previousStep(before: step) != nil && !self.didReachSummaryScreen
             self.showTransactionButtons = self.sendModel.transactionURL != nil
             self.step = step
-            self.transactionDescriptionIsVisisble = step == .summary
         }
     }
 
     private func openFinishPage() {
-        guard let sendFinishViewModel = sendFinishViewModel else {
-            return
-        }
-
-        openStep(.finish(model: sendFinishViewModel), stepAnimation: .moveAndFade, updateFee: false)
+        openStep(.finish, stepAnimation: .moveAndFade, updateFee: false)
     }
 
     private func parseQRCode(_ code: String) {
@@ -660,7 +644,7 @@ final class SendViewModel: ObservableObject {
             return .transactionFeeFixed
         }
 
-        switch sendModel.feeValue?.option {
+        switch sendModel.selectedFee?.option {
         case .none:
             assertionFailure("selectedFeeTypeAnalyticsParameter not found")
             return .null
@@ -678,7 +662,7 @@ final class SendViewModel: ObservableObject {
     private func additionalFieldAnalyticsParameter() -> Analytics.ParameterValue {
         // If the blockchain doesn't support additional field -- return null
         // Otherwise return full / empty
-        switch sendModel.additionalField {
+        switch sendModel.destinationAdditionalField {
         case .notSupported: .null
         case .empty: .empty
         case .filled: .full
@@ -777,7 +761,7 @@ extension SendViewModel: NotificationTapDelegate {
         }
 
         var newAmount = source - amount
-        if sendModel.isFeeIncluded, let feeValue = sendModel.feeValue?.value.value?.amount.value {
+        if sendModel.isFeeIncluded, let feeValue = sendModel.selectedFee?.value.value?.amount.value {
             newAmount = newAmount - feeValue
         }
 

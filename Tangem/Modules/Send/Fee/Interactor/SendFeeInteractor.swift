@@ -99,15 +99,15 @@ extension CommonSendFeeInteractor: SendFeeInteractor {
 
         input.cryptoAmountPublisher
             .withWeakCaptureOf(self)
-            .sink { processor, amount in
-                processor._cryptoAmount.send(amount)
+            .sink { interactor, amount in
+                interactor._cryptoAmount.send(amount)
             }
             .store(in: &bag)
 
         input.destinationAddressPublisher
             .withWeakCaptureOf(self)
-            .sink { processor, destination in
-                processor._destination.send(destination)
+            .sink { interactor, destination in
+                interactor._destination.send(destination)
             }
             .store(in: &bag)
     }
