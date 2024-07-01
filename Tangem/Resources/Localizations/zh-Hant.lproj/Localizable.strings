@@ -628,6 +628,9 @@
 "twins_recreate_warning" = "這個動作是不可逆的。您將無法訪問舊錢包";
 "twins_scan_twin_with_number" = "將您的 iPhone 靠近編號為 %@ 的雙胞胎卡";
 "unlock_wallet_description_full" = "Use %@ or scan a card to have an access to your wallet";
+"user_push_notification_agreement_argument_one" = "Stay up to date with the latest features and news";
+"user_push_notification_agreement_argument_two" = "Be able to get important market notifications";
+"user_push_notification_agreement_header" = "Would you like to use Push-notifications?";
 "user_wallet_list_add_button" = "添加新錢包";
 "user_wallet_list_delete_prompt" = "您確定要刪除此錢包?";
 "user_wallet_list_error_wallet_already_saved" = "此錢包已保存，您可以再添加一個";
