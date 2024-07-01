@@ -15,9 +15,15 @@ struct OnboardingFeatureDescriptionView: View {
 
     private let iconSize: Double = 42
 
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var iconBackgroundColor: Color {
+        return colorScheme == .light ? Colors.Background.secondary : Colors.Text.disabled
+    }
+
     var body: some View {
         HStack(spacing: 16) {
-            Colors.Background.secondary
+            iconBackgroundColor
                 .frame(width: iconSize, height: iconSize)
                 .cornerRadius(iconSize / 2)
                 .overlay(
