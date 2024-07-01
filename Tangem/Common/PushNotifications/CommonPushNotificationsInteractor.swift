@@ -51,7 +51,31 @@ final class CommonPushNotificationsInteractor {
         self.pushNotificationsService = pushNotificationsService
     }
 
-    func isAvailable(in flow: PermissionRequestFlow) -> Bool {
+    private func saveLaunchCountAndDateOfPostponedRequest() {
+        postponedAuthorizationRequestLaunchCount = currentLaunchCount
+        postponedAuthorizationRequestDate = .now
+    }
+
+    private func updateSavedWalletsStatusIfNeeded() {
+        // Runs only once per installation
+        guard hasSavedWalletsFromPreviousVersion == nil else {
+            return
+        }
+
+        hasSavedWalletsFromPreviousVersion = userWalletRepository.hasSavedWallets
+    }
+
+    private func registerIfPossible() {
+        runTask(in: self) { interactor in
+            await interactor.pushNotificationsService.registerIfPossible()
+        }
+    }
+}
+
+// MARK: - PushNotificationsInteractor protocol conformance
+
+extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
+    func isAvailable(in flow: PushNotificationsPermissionRequestFlow) -> Bool {
         guard
             isFeatureFlagEnabled,
             canRequestAuthorization
@@ -85,14 +109,14 @@ final class CommonPushNotificationsInteractor {
         }
     }
 
-    func allowRequest(in _: PermissionRequestFlow) async {
+    func allowRequest(in _: PushNotificationsPermissionRequestFlow) async {
         await pushNotificationsService.requestAuthorizationAndRegister()
         runOnMain {
             canRequestAuthorization = false
         }
     }
 
-    func canPostponeRequest(in flow: PermissionRequestFlow) -> Bool {
+    func canPostponeRequest(in flow: PushNotificationsPermissionRequestFlow) -> Bool {
         switch flow {
         case .welcomeOnboarding, .walletOnboarding:
             return true
@@ -104,7 +128,7 @@ final class CommonPushNotificationsInteractor {
         }
     }
 
-    func postponeRequest(in flow: PermissionRequestFlow) {
+    func postponeRequest(in flow: PushNotificationsPermissionRequestFlow) {
         switch flow {
         case .welcomeOnboarding:
             saveLaunchCountAndDateOfPostponedRequest()
@@ -125,26 +149,6 @@ final class CommonPushNotificationsInteractor {
             canRequestAuthorization = false
         }
     }
-
-    private func saveLaunchCountAndDateOfPostponedRequest() {
-        postponedAuthorizationRequestLaunchCount = currentLaunchCount
-        postponedAuthorizationRequestDate = .now
-    }
-
-    private func updateSavedWalletsStatusIfNeeded() {
-        // Runs only once per installation
-        guard hasSavedWalletsFromPreviousVersion == nil else {
-            return
-        }
-
-        hasSavedWalletsFromPreviousVersion = userWalletRepository.hasSavedWallets
-    }
-
-    private func registerIfPossible() {
-        runTask(in: self) { interactor in
-            await interactor.pushNotificationsService.registerIfPossible()
-        }
-    }
 }
 
 // MARK: - Initializable protocol conformance
@@ -153,19 +157,6 @@ extension CommonPushNotificationsInteractor: Initializable {
     func initialize() {
         updateSavedWalletsStatusIfNeeded()
         registerIfPossible()
-    }
-}
-
-// MARK: - Auxiliary types
-
-extension CommonPushNotificationsInteractor {
-    enum PermissionRequestFlow {
-        /// User starts the app for the first time, accept TOS, etc.
-        case welcomeOnboarding
-        /// User adds first wallet to the app, performs backup, etc.
-        case walletOnboarding
-        /// User completed all onboarding procedures and using app normally.
-        case afterLogin
     }
 }
 
@@ -188,14 +179,4 @@ private extension CommonPushNotificationsInteractor {
         /// Three days.
         static let finalAuthorizationRequestTimeIntervalDiff: TimeInterval = 3600 * 24 * 3
     }
-}
-
-// MARK: - Test extensions
-
-extension CommonPushNotificationsInteractor {
-    // [REDACTED_TODO_COMMENT]
-    @available(*, deprecated, message: "Inject as a dependency instead")
-    static let shared = CommonPushNotificationsInteractor(
-        pushNotificationsService: CommonPushNotificationsService(application: .shared)
-    )
 }

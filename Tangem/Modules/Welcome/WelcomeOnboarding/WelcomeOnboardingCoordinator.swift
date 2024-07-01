@@ -30,7 +30,11 @@ class WelcomeOnboardingCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = .init(steps: options.steps, coordinator: self)
+        rootViewModel = .init(
+            steps: options.steps,
+            pushNotificationsPermissionManager: options.pushNotificationsPermissionManager,
+            coordinator: self
+        )
     }
 }
 
@@ -39,6 +43,7 @@ class WelcomeOnboardingCoordinator: CoordinatorObject {
 extension WelcomeOnboardingCoordinator {
     struct Options {
         let steps: [WelcomeOnbordingStep]
+        let pushNotificationsPermissionManager: PushNotificationsPermissionManager
     }
 }
 
