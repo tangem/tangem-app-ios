@@ -32,8 +32,9 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
     private let swipeDiscoveryHelper: WalletSwipeDiscoveryHelper
+    private let mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
+    private let pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider
     private weak var coordinator: MainRoutable?
 
     // MARK: - Internal state
@@ -51,11 +52,13 @@ final class MainViewModel: ObservableObject {
     init(
         coordinator: MainRoutable,
         swipeDiscoveryHelper: WalletSwipeDiscoveryHelper,
-        mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
+        mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory,
+        pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider
     ) {
         self.coordinator = coordinator
         self.swipeDiscoveryHelper = swipeDiscoveryHelper
         self.mainUserWalletPageBuilderFactory = mainUserWalletPageBuilderFactory
+        self.pushNotificationsAvailabilityProvider = pushNotificationsAvailabilityProvider
 
         pages = mainUserWalletPageBuilderFactory.createPages(
             from: userWalletRepository.models,
@@ -73,12 +76,14 @@ final class MainViewModel: ObservableObject {
         selectedUserWalletId: UserWalletId,
         coordinator: MainRoutable,
         swipeDiscoveryHelper: WalletSwipeDiscoveryHelper,
-        mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
+        mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory,
+        pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider
     ) {
         self.init(
             coordinator: coordinator,
             swipeDiscoveryHelper: swipeDiscoveryHelper,
-            mainUserWalletPageBuilderFactory: mainUserWalletPageBuilderFactory
+            mainUserWalletPageBuilderFactory: mainUserWalletPageBuilderFactory,
+            pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider
         )
 
         if let selectedIndex = pages.firstIndex(where: { $0.id == selectedUserWalletId }) {
@@ -417,9 +422,7 @@ final class MainViewModel: ObservableObject {
     }
 
     private func openPushNotificationsAuthorizationIfNeeded() {
-        let factory = PushNotificationsHelperFactory()
-        let availabilityProvider = factory.makeAvailabilityProviderForAfterLogin()
-        if availabilityProvider.isAvailable {
+        if pushNotificationsAvailabilityProvider.isAvailable {
             DispatchQueue.main.asyncAfter(deadline: .now() + Constants.pushNotificationAuthorizationRequestDelay) { [weak self] in
                 self?.coordinator?.openPushNotificationsAuthorization()
             }

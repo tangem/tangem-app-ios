@@ -156,12 +156,10 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         )
     }()
 
-    lazy var pushNotificationsViewModel: OnboardingPushNotificationsViewModel = {
-        let factory = PushNotificationsHelperFactory()
-        let permissionManager = factory.makePermissionManagerForWalletOnboarding()
-
-        return OnboardingPushNotificationsViewModel(permissionManager: permissionManager, delegate: self)
-    }()
+    lazy var pushNotificationsViewModel = OnboardingPushNotificationsViewModel(
+        permissionManager: input.pushNotificationsPermissionManager,
+        delegate: self
+    )
 
     let input: OnboardingInput
 
