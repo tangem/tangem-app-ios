@@ -49,7 +49,6 @@ final class CommonPushNotificationsInteractor {
         pushNotificationsService: PushNotificationsService
     ) {
         self.pushNotificationsService = pushNotificationsService
-        updateSavedWalletsStatusIfNeeded()
     }
 
     func isAvailable(in flow: PermissionRequestFlow) -> Bool {
@@ -139,6 +138,21 @@ final class CommonPushNotificationsInteractor {
         }
 
         hasSavedWalletsFromPreviousVersion = userWalletRepository.hasSavedWallets
+    }
+
+    private func registerIfPossible() {
+        runTask(in: self) { interactor in
+            await interactor.pushNotificationsService.registerIfPossible()
+        }
+    }
+}
+
+// MARK: - Initializable protocol conformance
+
+extension CommonPushNotificationsInteractor: Initializable {
+    func initialize() {
+        updateSavedWalletsStatusIfNeeded()
+        registerIfPossible()
     }
 }
 
