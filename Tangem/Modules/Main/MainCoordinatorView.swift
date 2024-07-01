@@ -70,6 +70,9 @@ struct MainCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.stakingDetailsCoordinator) {
                 StakingDetailsCoordinatorView(coordinator: $0)
             }
+            .sheet(item: $coordinator.pushNotificationsViewModel) { viewModel in
+                OnboardingPushNotificationsView(viewModel: viewModel, buttonsAxis: .vertical)
+            }
 
         NavHolder()
             .bottomSheet(
