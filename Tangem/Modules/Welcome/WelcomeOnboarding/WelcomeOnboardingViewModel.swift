@@ -22,14 +22,18 @@ final class WelcomeOnboardingViewModel: ObservableObject {
 
     private weak var coordinator: WelcomeOnboardingRoutable?
 
+    private let pushNotificationsPermissionManager: PushNotificationsPermissionManager
+
     private let steps: [WelcomeOnbordingStep]
     private var currentStepIndex = 0
 
     init(
         steps: [WelcomeOnbordingStep],
+        pushNotificationsPermissionManager: PushNotificationsPermissionManager,
         coordinator: WelcomeOnboardingRoutable
     ) {
         self.steps = steps
+        self.pushNotificationsPermissionManager = pushNotificationsPermissionManager
         self.coordinator = coordinator
         updateState()
     }
@@ -59,9 +63,10 @@ final class WelcomeOnboardingViewModel: ObservableObject {
         case .tos:
             return .tos(WelcomeOnboardingTOSViewModel(delegate: self))
         case .pushNotifications:
-            let factory = PushNotificationsHelperFactory()
-            let permissionManager = factory.makePermissionManagerForWelcomeOnboarding()
-            let viewModel = OnboardingPushNotificationsViewModel(permissionManager: permissionManager, delegate: self)
+            let viewModel = OnboardingPushNotificationsViewModel(
+                permissionManager: pushNotificationsPermissionManager,
+                delegate: self
+            )
 
             return .pushNotifications(viewModel)
         }
