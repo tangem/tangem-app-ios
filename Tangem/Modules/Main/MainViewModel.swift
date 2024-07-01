@@ -107,6 +107,8 @@ final class MainViewModel: ObservableObject {
         addPendingUserWalletModelsIfNeeded { [weak self] in
             self?.swipeDiscoveryHelper.scheduleSwipeDiscoveryIfNeeded()
         }
+
+        openPushNotificationsAuthorizationIfNeeded()
     }
 
     func onViewDisappear() {
@@ -413,6 +415,16 @@ final class MainViewModel: ObservableObject {
     private func log(_ message: String) {
         AppLog.shared.debug("[Main V2] \(message)")
     }
+
+    private func openPushNotificationsAuthorizationIfNeeded() {
+        let factory = PushNotificationsHelperFactory()
+        let availabilityProvider = factory.makeAvailabilityProviderForAfterLogin()
+        if availabilityProvider.isAvailable {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.pushNotificationAuthorizationRequestDelay) { [weak self] in
+                self?.coordinator?.openPushNotificationsAuthorization()
+            }
+        }
+    }
 }
 
 // MARK: - Navigation
@@ -498,5 +510,6 @@ private extension MainViewModel {
         /// A small delay for animated addition of newly inserted wallet(s) after the main view becomes visible.
         static let pendingWalletsInsertionDelay = 1.0
         static let feedbackRequestDelay = 0.7
+        static let pushNotificationAuthorizationRequestDelay = 0.5
     }
 }
