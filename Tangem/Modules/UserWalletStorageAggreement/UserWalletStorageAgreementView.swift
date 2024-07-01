@@ -22,7 +22,7 @@ struct UserWalletStorageAgreementView: View {
             VStack(spacing: 0) {
                 BiometryLogoImage.image.image
                     .renderingMode(.template)
-                    .foregroundColor(Colors.Icon.inactive)
+                    .foregroundColor(Colors.Icon.onboarding)
 
                 FixedSpacer(height: 28.0)
 
