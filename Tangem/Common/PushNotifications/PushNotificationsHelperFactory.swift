@@ -13,19 +13,19 @@ struct PushNotificationsHelperFactory {
     private var pushNotificationsInteractor: CommonPushNotificationsInteractor { CommonPushNotificationsInteractor.shared }
 
     func makeAvailabilityProviderForWelcomeOnboarding() -> PushNotificationsAvailabilityProvider {
-        return makeTrampolineForFlow(.newUser(state: .welcomeOnboarding))
+        return makeTrampolineForFlow(.welcomeOnboarding)
     }
 
     func makeAvailabilityProviderForWalletOnboarding() -> PushNotificationsAvailabilityProvider {
-        return makeTrampolineForFlow(.newUser(state: .walletOnboarding))
+        return makeTrampolineForFlow(.walletOnboarding)
     }
 
     func makePermissionManagerForWelcomeOnboarding() -> PushNotificationsPermissionManager {
-        return makeTrampolineForFlow(.newUser(state: .welcomeOnboarding))
+        return makeTrampolineForFlow(.welcomeOnboarding)
     }
 
     func makePermissionManagerForWalletOnboarding() -> PushNotificationsPermissionManager {
-        return makeTrampolineForFlow(.newUser(state: .walletOnboarding))
+        return makeTrampolineForFlow(.walletOnboarding)
     }
 
     private func makeTrampolineForFlow(
