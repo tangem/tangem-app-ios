@@ -9,6 +9,14 @@
 import Foundation
 
 final class CommonPushNotificationsInteractor {
+    @Injected(\.userWalletRepository)
+    private var userWalletRepository: UserWalletRepository
+
+    /// Optional bool because this property is updated only once,
+    /// on the very first launch of the app version with push notifications support.
+    @AppStorageCompat(StorageKeys.hasSavedWalletsFromPreviousVersion)
+    private var hasSavedWalletsFromPreviousVersion: Bool? = nil
+
     @AppStorageCompat(StorageKeys.canRequestAuthorization)
     private var canRequestAuthorization = true
 
@@ -37,8 +45,11 @@ final class CommonPushNotificationsInteractor {
 
     private let pushNotificationsService: PushNotificationsService
 
-    init(pushNotificationsService: PushNotificationsService) {
+    init(
+        pushNotificationsService: PushNotificationsService
+    ) {
         self.pushNotificationsService = pushNotificationsService
+        updateSavedWalletsStatusIfNeeded()
     }
 
     func isAvailable(in flow: PermissionRequestFlow) -> Bool {
@@ -50,17 +61,18 @@ final class CommonPushNotificationsInteractor {
         }
 
         switch flow {
-        case .newUser(state: .welcomeOnboarding):
+        case .welcomeOnboarding:
             return !didPostponeAuthorizationRequestOnWelcomeOnboarding
-        case .newUser(state: .walletOnboarding):
+        case .walletOnboarding:
             return !didPostponeAuthorizationRequestOnWelcomeOnboardingInCurrentSession
                 && !didPostponeAuthorizationRequestOnWalletOnboarding
-        case .newUser(state: .afterLogin),
-             .existingUser:
+        case .afterLogin:
             guard
                 let postponedAuthorizationRequestLaunchCount,
                 let postponedAuthorizationRequestDate
             else {
+                // `postponedAuthorizationRequestLaunchCount` and `postponedAuthorizationRequestDate` can be nil in some cases,
+                // for example on the first call with `PermissionRequestFlow.afterLogin` if user has saved wallets
                 return true
             }
 
@@ -83,36 +95,35 @@ final class CommonPushNotificationsInteractor {
 
     func canPostponeRequest(in flow: PermissionRequestFlow) -> Bool {
         switch flow {
-        case .newUser(state: .welcomeOnboarding),
-             .newUser(state: .walletOnboarding):
+        case .welcomeOnboarding, .walletOnboarding:
             return true
-        case .newUser(state: .afterLogin):
-            return false
-        case .existingUser:
-            // Only the first permissions authorization request can be postponed
+        case .afterLogin where hasSavedWalletsFromPreviousVersion == true:
+            // In this case only the first permissions authorization request can be postponed
             return numberOfRequestsPostponedByExistingUser == 0
+        case .afterLogin:
+            return false
         }
     }
 
     func postponeRequest(in flow: PermissionRequestFlow) {
         switch flow {
-        case .newUser(state: .welcomeOnboarding):
+        case .welcomeOnboarding:
             saveLaunchCountAndDateOfPostponedRequest()
             didPostponeAuthorizationRequestOnWelcomeOnboarding = true
             didPostponeAuthorizationRequestOnWelcomeOnboardingInCurrentSession = true
-        case .newUser(state: .walletOnboarding):
+        case .walletOnboarding:
             saveLaunchCountAndDateOfPostponedRequest()
             didPostponeAuthorizationRequestOnWalletOnboarding = true
-        case .newUser(state: .afterLogin):
-            // Stop all future authorization requests
-            canRequestAuthorization = false
-        case .existingUser:
+        case .afterLogin where hasSavedWalletsFromPreviousVersion == true:
             saveLaunchCountAndDateOfPostponedRequest()
             numberOfRequestsPostponedByExistingUser += 1
             // Stop all future authorization requests if the user postpones the request for the 2nd time
             if numberOfRequestsPostponedByExistingUser > 1 {
                 canRequestAuthorization = false
             }
+        case .afterLogin:
+            // Stop all future authorization requests
+            canRequestAuthorization = false
         }
     }
 
@@ -120,26 +131,27 @@ final class CommonPushNotificationsInteractor {
         postponedAuthorizationRequestLaunchCount = currentLaunchCount
         postponedAuthorizationRequestDate = .now
     }
+
+    private func updateSavedWalletsStatusIfNeeded() {
+        // Runs only once per installation
+        guard hasSavedWalletsFromPreviousVersion == nil else {
+            return
+        }
+
+        hasSavedWalletsFromPreviousVersion = userWalletRepository.hasSavedWallets
+    }
 }
 
 // MARK: - Auxiliary types
 
 extension CommonPushNotificationsInteractor {
     enum PermissionRequestFlow {
-        enum NewUserState {
-            /// User starts the app for the first time, accept TOS, etc.
-            case welcomeOnboarding
-            /// User adds first wallet to the app, performs backup, etc.
-            case walletOnboarding
-            /// User completed all onboarding procedures and using app normally.
-            case afterLogin
-        }
-
-        /// I.e. fresh install of app version with push notifications support.
-        case newUser(state: NewUserState)
-
-        /// Update from an old app version to the version with push notifications support.
-        case existingUser
+        /// User starts the app for the first time, accept TOS, etc.
+        case welcomeOnboarding
+        /// User adds first wallet to the app, performs backup, etc.
+        case walletOnboarding
+        /// User completed all onboarding procedures and using app normally.
+        case afterLogin
     }
 }
 
@@ -147,6 +159,7 @@ extension CommonPushNotificationsInteractor {
 
 private extension CommonPushNotificationsInteractor {
     enum StorageKeys: String, RawRepresentable {
+        case hasSavedWalletsFromPreviousVersion = "has_saved_wallets_from_previous_version"
         case canRequestAuthorization = "can_request_authorization"
         case didPostponeAuthorizationRequestOnWelcomeOnboarding = "did_postpone_authorization_request_on_welcome_onboarding"
         case didPostponeAuthorizationRequestOnWalletOnboarding = "did_postpone_authorization_request_on_wallet_onboarding"
