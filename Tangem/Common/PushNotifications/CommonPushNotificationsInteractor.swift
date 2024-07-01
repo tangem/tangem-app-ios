@@ -74,7 +74,7 @@ final class CommonPushNotificationsInteractor {
         }
     }
 
-    func allowRequest(in flow: PermissionRequestFlow) async {
+    func allowRequest(in _: PermissionRequestFlow) async {
         await pushNotificationsService.requestAuthorizationAndRegister()
         runOnMain {
             canRequestAuthorization = false
@@ -135,7 +135,10 @@ extension CommonPushNotificationsInteractor {
             case afterLogin
         }
 
+        /// I.e. fresh install of app version with push notifications support.
         case newUser(state: NewUserState)
+
+        /// Update from an old app version to the version with push notifications support.
         case existingUser
     }
 }
