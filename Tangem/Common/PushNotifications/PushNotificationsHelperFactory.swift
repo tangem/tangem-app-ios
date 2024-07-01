@@ -20,12 +20,20 @@ struct PushNotificationsHelperFactory {
         return makeTrampolineForFlow(.walletOnboarding)
     }
 
+    func makeAvailabilityProviderForAfterLogin() -> PushNotificationsAvailabilityProvider {
+        return makeTrampolineForFlow(.afterLogin)
+    }
+
     func makePermissionManagerForWelcomeOnboarding() -> PushNotificationsPermissionManager {
         return makeTrampolineForFlow(.welcomeOnboarding)
     }
 
     func makePermissionManagerForWalletOnboarding() -> PushNotificationsPermissionManager {
         return makeTrampolineForFlow(.walletOnboarding)
+    }
+
+    func makePermissionManagerForAfterLogin() -> PushNotificationsPermissionManager {
+        return makeTrampolineForFlow(.afterLogin)
     }
 
     private func makeTrampolineForFlow(
