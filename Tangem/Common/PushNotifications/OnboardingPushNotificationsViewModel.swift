@@ -8,7 +8,7 @@
 
 import Foundation
 
-final class OnboardingPushNotificationsViewModel: ObservableObject {
+final class OnboardingPushNotificationsViewModel: ObservableObject, Identifiable {
     @Published private(set) var allowButtonTitle: String
     @Published private(set) var laterButtonTitle: String
 
