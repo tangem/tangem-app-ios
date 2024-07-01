@@ -628,6 +628,9 @@
 "twins_recreate_warning" = "Это действие необратимо. У вас не будет доступа к старому кошельку.";
 "twins_scan_twin_with_number" = "Приложите twin-карту с номером %@ и не убирайте до окончания операции";
 "unlock_wallet_description_full" = "Используйте %@ или отсканируйте карту, чтобы получить доступ к своему кошельку";
+"user_push_notification_agreement_argument_one" = "Stay up to date with the latest features and news";
+"user_push_notification_agreement_argument_two" = "Be able to get important market notifications";
+"user_push_notification_agreement_header" = "Would you like to use Push-notifications?";
 "user_wallet_list_add_button" = "Добавить новый кошелек";
 "user_wallet_list_delete_prompt" = "Вы уверены, что хотите удалить этот кошелек?";
 "user_wallet_list_error_wallet_already_saved" = "Этот кошелек уже был сохранен, вы можете добавить другой";
