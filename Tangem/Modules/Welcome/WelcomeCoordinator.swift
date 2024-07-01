@@ -21,6 +21,7 @@ class WelcomeCoordinator: CoordinatorObject {
     // MARK: - Dependencies
 
     @Injected(\.safariManager) private var safariManager: SafariManager
+    @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
 
     // MARK: - Main view model
 
@@ -78,8 +79,9 @@ class WelcomeCoordinator: CoordinatorObject {
     }
 
     private func showWelcomeOnboardingIfNeeded() {
-        let factory = PushNotificationsHelperFactory()
-        let availabilityProvider = factory.makeAvailabilityProviderForWelcomeOnboarding()
+        let factory = PushNotificationsHelpersFactory()
+        let availabilityProvider = factory.makeAvailabilityProviderForWelcomeOnboarding(using: pushNotificationsInteractor)
+        let permissionManager = factory.makePermissionManagerForWelcomeOnboarding(using: pushNotificationsInteractor)
         let builder = WelcomeOnboaringStepsBuilder(pushNotificationsAvailabilityProvider: availabilityProvider)
         let steps = builder.buildSteps()
 
@@ -88,7 +90,7 @@ class WelcomeCoordinator: CoordinatorObject {
         }
 
         let coordinator = WelcomeOnboardingCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: .init(steps: steps))
+        coordinator.start(with: .init(steps: steps, pushNotificationsPermissionManager: permissionManager))
         welcomeOnboardingCoordinator = coordinator
     }
 }
