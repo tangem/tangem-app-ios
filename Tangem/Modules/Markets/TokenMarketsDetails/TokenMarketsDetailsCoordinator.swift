@@ -13,6 +13,7 @@ class TokenMarketsDetailsCoordinator: CoordinatorObject {
     let popToRootAction: Action<PopToRootOptions>
 
     @Published var rootViewModel: TokenMarketsDetailsViewModel? = nil
+    @Published var networkSelectorViewModel: MarketsTokensNetworkSelectorViewModel? = nil
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -33,4 +34,12 @@ extension TokenMarketsDetailsCoordinator {
     }
 }
 
-extension TokenMarketsDetailsCoordinator: TokenMarketsDetailsRoutable {}
+extension TokenMarketsDetailsCoordinator: TokenMarketsDetailsRoutable {
+    func openTokenSelector(dataSource: MarketsDataSource, coinId: String, tokenItems: [TokenItem]) {
+        networkSelectorViewModel = MarketsTokensNetworkSelectorViewModel(
+            parentDataSource: dataSource,
+            coinId: coinId,
+            tokenItems: tokenItems
+        )
+    }
+}

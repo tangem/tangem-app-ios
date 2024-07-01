@@ -59,6 +59,10 @@ class TokenMarketsDetailsViewModel: ObservableObject {
     @Published private var loadedHistoryInfo: [TimeInterval: Decimal] = [:]
     @Published private var loadedPriceChangeInfo: [String: Decimal] = [:]
 
+    private weak var coordinator: TokenMarketsDetailsRoutable?
+
+    private var dataSource = MarketsDataSource()
+
     private let balanceFormatter = BalanceFormatter()
     private let priceChangeUtility = PriceChangeUtility()
     private let dateFormatter: DateFormatter = {
@@ -124,7 +128,7 @@ class TokenMarketsDetailsViewModel: ObservableObject {
     // MARK: - Actions
 
     func onAddToPortfolioTapAction() {
-        // TODO: - Need to implement bottom sheet token portfolio
+        coordinator?.openTokenSelector(dataSource: dataSource, coinId: tokenInfo.id, tokenItems: [])
     }
 }
 
