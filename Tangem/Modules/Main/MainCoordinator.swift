@@ -41,8 +41,8 @@ class MainCoordinator: CoordinatorObject {
     @Published var modalWebViewModel: WebViewContainerViewModel?
     @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel?
     @Published var organizeTokensViewModel: OrganizeTokensViewModel?
-
-    @Published var visaTransactionDetailsViewModel: VisaTransactionDetailsViewModel? = nil
+    @Published var pushNotificationsViewModel: OnboardingPushNotificationsViewModel?
+    @Published var visaTransactionDetailsViewModel: VisaTransactionDetailsViewModel?
 
     // MARK: - Helpers
 
@@ -115,6 +115,12 @@ extension MainCoordinator: MainRoutable {
 
     func openScanCardManual() {
         safariManager.openURL(TangemBlogUrlBuilder().url(post: .scanCard))
+    }
+
+    func openPushNotificationsAuthorization() {
+        let factory = PushNotificationsHelperFactory()
+        let permissionManager = factory.makePermissionManagerForAfterLogin()
+        pushNotificationsViewModel = OnboardingPushNotificationsViewModel(permissionManager: permissionManager, delegate: self)
     }
 }
 
@@ -379,5 +385,13 @@ extension MainCoordinator: RateAppRoutable {
 
     func openAppStoreReview() {
         isAppStoreReviewRequested = true
+    }
+}
+
+// MARK: - OnboardingPushNotificationsDelegate protocol conformance
+
+extension MainCoordinator: OnboardingPushNotificationsDelegate {
+    func didFinishPushNotificationOnboarding() {
+        pushNotificationsViewModel = nil
     }
 }
