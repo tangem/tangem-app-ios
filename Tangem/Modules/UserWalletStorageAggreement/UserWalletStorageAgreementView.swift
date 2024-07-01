@@ -24,28 +24,28 @@ struct UserWalletStorageAgreementView: View {
                     .renderingMode(.template)
                     .foregroundColor(Colors.Icon.inactive)
 
-                FlexibleSpacer(maxHeight: 28)
+                FixedSpacer(height: 28.0)
 
                 Text(Localization.saveUserWalletAgreementHeader(BiometricAuthorizationUtils.biometryType.name))
                     .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
 
-                FlexibleSpacer(maxHeight: 28)
+                FixedSpacer(height: 28.0)
             }
 
             Spacer()
 
             VStack(spacing: 0) {
-                FeatureDescriptionView(
+                OnboardingFeatureDescriptionView(
                     icon: BiometryLogoImage.image,
                     title: Localization.saveUserWalletAgreementAccessTitle,
                     description: Localization.saveUserWalletAgreementAccessDescription
                 )
 
-                FlexibleSpacer(maxHeight: 28)
+                FixedSpacer(height: 28.0)
 
-                FeatureDescriptionView(
+                OnboardingFeatureDescriptionView(
                     icon: Assets.lock,
                     title: Localization.saveUserWalletAgreementCodeTitle,
                     description: Localization.saveUserWalletAgreementCodeDescription(BiometricAuthorizationUtils.biometryType.name)
@@ -69,49 +69,5 @@ struct UserWalletStorageAgreementView: View {
             }
         }
         .padding()
-    }
-}
-
-private extension UserWalletStorageAgreementView {
-    struct FlexibleSpacer: View {
-        let maxHeight: CGFloat
-
-        var body: some View {
-            Spacer()
-                .frame(maxHeight: maxHeight)
-        }
-    }
-
-    struct FeatureDescriptionView: View {
-        let icon: ImageType
-        let title: String
-        let description: String
-
-        private let iconSize: Double = 42
-
-        var body: some View {
-            HStack(spacing: 16) {
-                Colors.Background.secondary
-                    .frame(width: iconSize, height: iconSize)
-                    .cornerRadius(iconSize / 2)
-                    .overlay(
-                        icon.image
-                            .resizable()
-                            .renderingMode(.template)
-                            .foregroundColor(Colors.Text.primary1)
-                            .padding(.all, 11)
-                    )
-
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(title)
-                        .style(Fonts.Bold.callout, color: Colors.Text.primary1)
-
-                    Text(description)
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 16)
-        }
     }
 }
