@@ -36,7 +36,7 @@ struct SingleCardOnboardingView: View {
                 OnboardingAddTokensView(viewModel: addTokensViewModel)
             }
         case .pushNotifications:
-            OnboardingPushNotificationsView(viewModel: viewModel.pushNotificationsViewModel)
+            OnboardingPushNotificationsView(viewModel: viewModel.pushNotificationsViewModel, buttonsAxis: .vertical)
         default:
             EmptyView()
         }
