@@ -92,24 +92,25 @@ struct MainView: View {
     }
 }
 
-struct MainView_Preview: PreviewProvider {
-    static let viewModel: MainViewModel = {
-        InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
-        let coordinator = MainCoordinator()
-        let swipeDiscoveryHelper = WalletSwipeDiscoveryHelper()
-        let viewModel = MainViewModel(
-            coordinator: coordinator,
-            swipeDiscoveryHelper: swipeDiscoveryHelper,
-            mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: coordinator)
-        )
-        swipeDiscoveryHelper.delegate = viewModel
-
-        return viewModel
-    }()
-
-    static var previews: some View {
-        NavigationView {
-            MainView(viewModel: viewModel)
-        }
-    }
-}
+// struct MainView_Preview: PreviewProvider {
+//    static let viewModel: MainViewModel = {
+//        InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
+//        let coordinator = MainCoordinator()
+//        let swipeDiscoveryHelper = WalletSwipeDiscoveryHelper()
+//        let viewModel = MainViewModel(
+//            coordinator: coordinator,
+//            swipeDiscoveryHelper: swipeDiscoveryHelper,
+//            mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: coordinator),
+//            pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider
+//        )
+//        swipeDiscoveryHelper.delegate = viewModel
+//
+//        return viewModel
+//    }()
+//
+//    static var previews: some View {
+//        NavigationView {
+//            MainView(viewModel: viewModel)
+//        }
+//    }
+// }
