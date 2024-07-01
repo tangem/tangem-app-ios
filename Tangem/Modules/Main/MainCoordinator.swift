@@ -18,6 +18,7 @@ class MainCoordinator: CoordinatorObject {
     // MARK: - Dependencies
 
     @Injected(\.safariManager) private var safariManager: SafariManager
+    @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
 
     // MARK: - Root view model
 
@@ -60,11 +61,14 @@ class MainCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         let swipeDiscoveryHelper = WalletSwipeDiscoveryHelper()
+        let factory = PushNotificationsHelpersFactory()
+        let pushNotificationsAvailabilityProvider = factory.makeAvailabilityProviderForAfterLogin(using: pushNotificationsInteractor)
         let viewModel = MainViewModel(
             selectedUserWalletId: options.userWalletModel.userWalletId,
             coordinator: self,
             swipeDiscoveryHelper: swipeDiscoveryHelper,
-            mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: self)
+            mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: self),
+            pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider
         )
 
         swipeDiscoveryHelper.delegate = viewModel
@@ -118,8 +122,8 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openPushNotificationsAuthorization() {
-        let factory = PushNotificationsHelperFactory()
-        let permissionManager = factory.makePermissionManagerForAfterLogin()
+        let factory = PushNotificationsHelpersFactory()
+        let permissionManager = factory.makePermissionManagerForAfterLogin(using: pushNotificationsInteractor)
         pushNotificationsViewModel = OnboardingPushNotificationsViewModel(permissionManager: permissionManager, delegate: self)
     }
 }
