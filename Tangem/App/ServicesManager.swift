@@ -19,6 +19,7 @@ class ServicesManager {
     @Injected(\.accountHealthChecker) private var accountHealthChecker: AccountHealthChecker
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
     @Injected(\.stakingRepositoryProxy) private var stakingRepositoryProxy: StakingRepositoryProxy
+    private var pushNotificationsInteractor: CommonPushNotificationsInteractor { CommonPushNotificationsInteractor.shared } // [REDACTED_TODO_COMMENT]
 
     private var bag = Set<AnyCancellable>()
 
@@ -47,6 +48,7 @@ class ServicesManager {
         tangemApiService.initialize()
         accountHealthChecker.initialize()
         apiListProvider.initialize()
+        pushNotificationsInteractor.initialize()
         SendFeatureProvider.shared.loadFeaturesAvailability()
         if FeatureProvider.isAvailable(.staking) {
             stakingRepositoryProxy.initialize()
