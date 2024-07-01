@@ -9,5 +9,6 @@
 import Foundation
 
 protocol PushNotificationsService {
+    @discardableResult
     func requestAuthorizationAndRegister() async -> Bool
 }
