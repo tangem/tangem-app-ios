@@ -120,8 +120,9 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
         case .welcomeOnboarding, .walletOnboarding:
             return true
         case .afterLogin where hasSavedWalletsFromPreviousVersion == true:
-            // In this case only the first permissions authorization request can be postponed
-            return numberOfRequestsPostponedByExistingUser == 0
+            // In this case only the first `Constants.maxNumberOfRequestsCanBePostponed`-th
+            // permissions authorization requests can be postponed
+            return numberOfRequestsPostponedByExistingUser < Constants.maxNumberOfRequestsCanBePostponed
         case .afterLogin:
             return false
         }
@@ -139,8 +140,9 @@ extension CommonPushNotificationsInteractor: PushNotificationsInteractor {
         case .afterLogin where hasSavedWalletsFromPreviousVersion == true:
             saveLaunchCountAndDateOfPostponedRequest()
             numberOfRequestsPostponedByExistingUser += 1
-            // Stop all future authorization requests if the user postpones the request for the 2nd time
-            if numberOfRequestsPostponedByExistingUser > 1 {
+            // Stop all future authorization requests if the user postpones the request
+            // for the `Constants.maxNumberOfPostponedRequests`-th times
+            if numberOfRequestsPostponedByExistingUser >= Constants.maxNumberOfPostponedRequests {
                 canRequestAuthorization = false
             }
         case .afterLogin:
@@ -177,5 +179,9 @@ private extension CommonPushNotificationsInteractor {
         static let finalAuthorizationRequestNumberOfLaunchesDiff = 5
         /// Three days.
         static let finalAuthorizationRequestTimeIntervalDiff: TimeInterval = 3600 * 24 * 3
+        /// Note: Only applicable if user has saved wallets.
+        static let maxNumberOfRequestsCanBePostponed = 1
+        /// Note: Only applicable if user has saved wallets.
+        static let maxNumberOfPostponedRequests = 2
     }
 }
