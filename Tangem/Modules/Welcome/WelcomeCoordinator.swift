@@ -82,7 +82,7 @@ class WelcomeCoordinator: CoordinatorObject {
         let factory = PushNotificationsHelpersFactory()
         let availabilityProvider = factory.makeAvailabilityProviderForWelcomeOnboarding(using: pushNotificationsInteractor)
         let permissionManager = factory.makePermissionManagerForWelcomeOnboarding(using: pushNotificationsInteractor)
-        let builder = WelcomeOnboaringStepsBuilder(pushNotificationsAvailabilityProvider: availabilityProvider)
+        let builder = WelcomeOnboaringStepsBuilder(isPushNotificationsAvailable: availabilityProvider.isAvailable)
         let steps = builder.buildSteps()
 
         let dismissAction: Action<WelcomeOnboardingCoordinator.OutputOptions> = { [weak self] _ in

@@ -156,10 +156,12 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         )
     }()
 
-    lazy var pushNotificationsViewModel = OnboardingPushNotificationsViewModel(
-        permissionManager: input.pushNotificationsPermissionManager,
-        delegate: self
-    )
+    lazy var pushNotificationsViewModel: OnboardingPushNotificationsViewModel? = {
+        guard let permissionManager = input.pushNotificationsPermissionManager else {
+            return nil
+        }
+        return OnboardingPushNotificationsViewModel(permissionManager: permissionManager, delegate: self)
+    }()
 
     let input: OnboardingInput
 
