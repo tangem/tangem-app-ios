@@ -28,7 +28,7 @@ struct WelcomeOnboardingView: View {
         case .tos(let viewModel):
             WelcomeOnboardingTOSView(viewModel: viewModel)
         case .pushNotifications(let viewModel):
-            OnboardingPushNotificationsView(viewModel: viewModel, buttonsAxis: .vertical)
+            PushNotificationsPermissionRequestView(viewModel: viewModel, buttonsAxis: .vertical)
         case .none:
             EmptyView()
         }
