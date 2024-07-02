@@ -1,5 +1,5 @@
 //
-//  OnboardingPushNotificationsView.swift
+//  PushNotificationsPermissionRequestView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-struct OnboardingPushNotificationsView: View {
-    @ObservedObject var viewModel: OnboardingPushNotificationsViewModel
+struct PushNotificationsPermissionRequestView: View {
+    @ObservedObject var viewModel: PushNotificationsPermissionRequestViewModel
 
     let buttonsAxis: Axis
 
@@ -87,16 +87,16 @@ struct OnboardingPushNotificationsView: View {
 // MARK: - Previews
 
 #Preview {
-    let viewModel = OnboardingPushNotificationsViewModel(
+    let viewModel = PushNotificationsPermissionRequestViewModel(
         permissionManager: PushNotificationsPermissionManagerStub(),
-        delegate: OnboardingPushNotificationsDelegateStub()
+        delegate: PushNotificationsPermissionRequestDelegateStub()
     )
 
     return VStack {
-        OnboardingPushNotificationsView(viewModel: viewModel, buttonsAxis: .vertical)
+        PushNotificationsPermissionRequestView(viewModel: viewModel, buttonsAxis: .vertical)
 
         Spacer()
 
-        OnboardingPushNotificationsView(viewModel: viewModel, buttonsAxis: .horizontal)
+        PushNotificationsPermissionRequestView(viewModel: viewModel, buttonsAxis: .horizontal)
     }
 }
