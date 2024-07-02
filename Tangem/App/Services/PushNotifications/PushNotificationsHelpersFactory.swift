@@ -60,6 +60,8 @@ struct PushNotificationsHelpersFactory {
 // MARK: - Auxiliary types
 
 private extension PushNotificationsHelpersFactory {
+    /// Proxy that forwards all calls from `PushNotificationsAvailabilityProvider` and `PushNotificationsPermissionManager`
+    /// interfaces to the opaque wrapped underlying entity using closures.
     final class InteractorTrampoline: PushNotificationsAvailabilityProvider, PushNotificationsPermissionManager {
         typealias IsAvailable = () -> Bool
         typealias CanPostponePermissionRequest = IsAvailable
