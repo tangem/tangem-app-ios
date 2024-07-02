@@ -9,8 +9,7 @@
 import Foundation
 
 final class CommonPushNotificationsInteractor {
-    @Injected(\.userWalletRepository)
-    private var userWalletRepository: UserWalletRepository
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     /// Optional bool because this property is updated only once,
     /// on the very first launch of the app version with push notifications support.
