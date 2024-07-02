@@ -42,7 +42,7 @@ class MainCoordinator: CoordinatorObject {
     @Published var modalWebViewModel: WebViewContainerViewModel?
     @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel?
     @Published var organizeTokensViewModel: OrganizeTokensViewModel?
-    @Published var pushNotificationsViewModel: OnboardingPushNotificationsViewModel?
+    @Published var pushNotificationsViewModel: PushNotificationsPermissionRequestViewModel?
     @Published var visaTransactionDetailsViewModel: VisaTransactionDetailsViewModel?
 
     // MARK: - Helpers
@@ -124,7 +124,7 @@ extension MainCoordinator: MainRoutable {
     func openPushNotificationsAuthorization() {
         let factory = PushNotificationsHelpersFactory()
         let permissionManager = factory.makePermissionManagerForAfterLogin(using: pushNotificationsInteractor)
-        pushNotificationsViewModel = OnboardingPushNotificationsViewModel(permissionManager: permissionManager, delegate: self)
+        pushNotificationsViewModel = PushNotificationsPermissionRequestViewModel(permissionManager: permissionManager, delegate: self)
     }
 }
 
@@ -392,9 +392,9 @@ extension MainCoordinator: RateAppRoutable {
     }
 }
 
-// MARK: - OnboardingPushNotificationsDelegate protocol conformance
+// MARK: - PushNotificationsPermissionRequestDelegate protocol conformance
 
-extension MainCoordinator: OnboardingPushNotificationsDelegate {
+extension MainCoordinator: PushNotificationsPermissionRequestDelegate {
     func didFinishPushNotificationOnboarding() {
         pushNotificationsViewModel = nil
     }
