@@ -37,7 +37,7 @@ struct SingleCardOnboardingView: View {
             }
         case .pushNotifications:
             if let viewModel = viewModel.pushNotificationsViewModel {
-                OnboardingPushNotificationsView(viewModel: viewModel, buttonsAxis: .vertical)
+                PushNotificationsPermissionRequestView(viewModel: viewModel, buttonsAxis: .vertical)
             }
         default:
             EmptyView()
