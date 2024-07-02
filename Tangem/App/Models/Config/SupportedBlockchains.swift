@@ -59,6 +59,7 @@ struct SupportedBlockchains {
     private func testableBlockchains() -> Set<Blockchain> {
         [
             .mantle(testnet: false),
+            .koinos(testnet: false),
         ]
     }
 
@@ -174,6 +175,7 @@ struct SupportedBlockchains {
             .flare(testnet: true),
             .taraxa(testnet: true),
             .base(testnet: true),
+            .koinos(testnet: true),
         ]
     }
 
