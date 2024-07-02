@@ -11,7 +11,7 @@ import TangemSdk
 
 struct Start2CoinOnboardingStepsBuilder {
     private let hasWallets: Bool
-    private let pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider
+    private let isPushNotificationsAvailable: Bool
 
     private var otherSteps: [SingleCardOnboardingStep] {
         var steps: [SingleCardOnboardingStep] = []
@@ -22,7 +22,7 @@ struct Start2CoinOnboardingStepsBuilder {
             steps.append(.saveUserWallet)
         }
 
-        if pushNotificationsAvailabilityProvider.isAvailable {
+        if isPushNotificationsAvailable {
             steps.append(.pushNotifications)
         }
 
@@ -31,10 +31,10 @@ struct Start2CoinOnboardingStepsBuilder {
 
     init(
         hasWallets: Bool,
-        pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider
+        isPushNotificationsAvailable: Bool
     ) {
         self.hasWallets = hasWallets
-        self.pushNotificationsAvailabilityProvider = pushNotificationsAvailabilityProvider
+        self.isPushNotificationsAvailable = isPushNotificationsAvailable
     }
 }
 
