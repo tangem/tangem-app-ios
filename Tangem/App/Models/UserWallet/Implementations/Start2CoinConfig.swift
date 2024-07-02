@@ -151,7 +151,7 @@ extension Start2CoinConfig: UserWalletConfig {
     ) -> OnboardingStepsBuilder {
         return Start2CoinOnboardingStepsBuilder(
             hasWallets: !card.wallets.isEmpty,
-            pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider
+            isPushNotificationsAvailable: pushNotificationsAvailabilityProvider.isAvailable
         )
     }
 
