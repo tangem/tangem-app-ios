@@ -317,6 +317,11 @@
 "markets_common_my_portfolio" = "My portfolio";
 "markets_common_title" = "Market";
 "markets_sort_by_title" = "Sort By";
+"markets_token_details_insights" = "Insights";
+"markets_token_details_links" = "Links";
+"markets_token_details_metrics" = "Metrics";
+"markets_token_details_price_performance" = "Price performance";
+"markets_token_details_security_score" = "Security score";
 "onboarding_access_code_feature_1_description" = "Вам необходимо установить единый код доступа для защиты всех ваших карт";
 "onboarding_access_code_feature_1_title" = "Защита";
 "onboarding_access_code_feature_2_description" = "Позже вы сможете установить индивидуальный код доступа для каждой карты";
@@ -484,6 +489,8 @@
 "send_from_wallet" = "From **%@**";
 "send_gas_limit" = "Лимит газа";
 "send_gas_limit_footer" = "Это максимальное количество газа, которое будет потрачено на выполнение транзакции или контракта. Лимит газа предотвращает неожиданные или неограниченные расходы при выполнении транзакции.";
+"send_gas_price" = "Цена газа";
+"send_gas_price_footer" = "Это стоимость, которую вы готовы заплатить за каждую единицу газа. Чем выше цена газа, тем быстрее ваша транзакция будет обработана.";
 "send_max_amount" = "Всё";
 "send_max_amount_label" = "Максимальная сумма";
 "send_max_fee" = "Комиссия не превысит";
