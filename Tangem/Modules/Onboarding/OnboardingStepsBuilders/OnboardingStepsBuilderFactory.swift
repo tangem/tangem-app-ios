@@ -33,8 +33,8 @@ extension UserWalletConfig where Self: WalletOnboardingStepsBuilderFactory {
             canBackup: card.backupStatus?.canBackup ?? false,
             hasBackup: card.backupStatus?.isActive ?? false,
             canSkipBackup: canSkipBackup,
-            backupService: backupService,
-            pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider
+            isPushNotificationsAvailable: pushNotificationsAvailabilityProvider.isAvailable,
+            backupService: backupService
         )
     }
 }
@@ -52,7 +52,7 @@ extension UserWalletConfig where Self: SingleCardOnboardingStepsBuilderFactory {
             cardId: card.cardId,
             hasWallets: !card.wallets.isEmpty,
             isMultiCurrency: hasFeature(.multiCurrency),
-            pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider
+            isPushNotificationsAvailable: pushNotificationsAvailabilityProvider.isAvailable
         )
     }
 }
@@ -69,7 +69,7 @@ extension UserWalletConfig where Self: NoteCardOnboardingStepsBuilderFactory {
         return NoteOnboardingStepsBuilder(
             cardId: card.cardId,
             hasWallets: !card.wallets.isEmpty,
-            pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider
+            isPushNotificationsAvailable: pushNotificationsAvailabilityProvider.isAvailable
         )
     }
 }
@@ -83,8 +83,6 @@ extension UserWalletConfig where Self: VisaCardOnboardingStepsBuilderFactory {
         backupService: BackupService,
         pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider
     ) -> OnboardingStepsBuilder {
-        return VisaOnboardingStepsBuilder(
-            pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider
-        )
+        return VisaOnboardingStepsBuilder(isPushNotificationsAvailable: pushNotificationsAvailabilityProvider.isAvailable)
     }
 }

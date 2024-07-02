@@ -191,7 +191,7 @@ extension TwinConfig: UserWalletConfig {
             cardId: card.cardId,
             hasWallets: !card.wallets.isEmpty,
             twinData: twinData,
-            pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider
+            isPushNotificationsAvailable: pushNotificationsAvailabilityProvider.isAvailable
         )
     }
 
