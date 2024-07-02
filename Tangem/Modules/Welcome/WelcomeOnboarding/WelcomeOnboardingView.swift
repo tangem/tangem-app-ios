@@ -35,11 +35,12 @@ struct WelcomeOnboardingView: View {
     }
 }
 
-// #Preview {
-//    WelcomeOnboardingView(
-//        viewModel: WelcomeOnboardingViewModel(
-//            steps: [.tos, .pushNotifications],
-//            coordinator: WelcomeOnboardingCoordinator()
-//        )
-//    )
-// }
+#Preview {
+    WelcomeOnboardingView(
+        viewModel: WelcomeOnboardingViewModel(
+            steps: [.tos, .pushNotifications],
+            pushNotificationsPermissionManager: PushNotificationsPermissionManagerStub(),
+            coordinator: WelcomeOnboardingCoordinator()
+        )
+    )
+}
