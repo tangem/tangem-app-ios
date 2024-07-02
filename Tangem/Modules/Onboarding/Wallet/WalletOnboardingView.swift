@@ -64,7 +64,9 @@ struct WalletOnboardingView: View {
                 OnboardingAddTokensView(viewModel: model)
             }
         case .pushNotifications:
-            OnboardingPushNotificationsView(viewModel: viewModel.pushNotificationsViewModel, buttonsAxis: .vertical)
+            if let viewModel = viewModel.pushNotificationsViewModel {
+                OnboardingPushNotificationsView(viewModel: viewModel, buttonsAxis: .vertical)
+            }
         default:
             EmptyView()
         }
