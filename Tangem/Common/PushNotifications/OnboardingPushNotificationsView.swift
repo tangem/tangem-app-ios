@@ -86,23 +86,17 @@ struct OnboardingPushNotificationsView: View {
 
 // MARK: - Previews
 
-// #Preview {
-//    let permissionManager = PushNotificationsInteractorTrampoline(
-//        isAvailable: { true },
-//        canPostponePermissionRequest: { true },
-//        allowRequest: {},
-//        postponeRequest: {}
-//    )
-//    let viewModel = OnboardingPushNotificationsViewModel(
-//        permissionManager: permissionManager,
-//        delegate: OnboardingPushNotificationsDelegateStub()
-//    )
-//
-//    return VStack {
-//        OnboardingPushNotificationsView(viewModel: viewModel, buttonsAxis: .vertical)
-//
-//        Spacer()
-//
-//        OnboardingPushNotificationsView(viewModel: viewModel, buttonsAxis: .horizontal)
-//    }
-// }
+#Preview {
+    let viewModel = OnboardingPushNotificationsViewModel(
+        permissionManager: PushNotificationsPermissionManagerStub(),
+        delegate: OnboardingPushNotificationsDelegateStub()
+    )
+
+    return VStack {
+        OnboardingPushNotificationsView(viewModel: viewModel, buttonsAxis: .vertical)
+
+        Spacer()
+
+        OnboardingPushNotificationsView(viewModel: viewModel, buttonsAxis: .horizontal)
+    }
+}
