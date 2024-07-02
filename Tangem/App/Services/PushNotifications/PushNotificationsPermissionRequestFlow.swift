@@ -8,7 +8,6 @@
 
 import Foundation
 
-// [REDACTED_TODO_COMMENT]
 enum PushNotificationsPermissionRequestFlow {
     /// User starts the app for the first time, accept TOS, etc.
     case welcomeOnboarding
