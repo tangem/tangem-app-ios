@@ -71,7 +71,7 @@ struct MainCoordinatorView: CoordinatorView {
                 StakingDetailsCoordinatorView(coordinator: $0)
             }
             .sheet(item: $coordinator.pushNotificationsViewModel) { viewModel in
-                OnboardingPushNotificationsView(viewModel: viewModel, buttonsAxis: .vertical)
+                PushNotificationsPermissionRequestView(viewModel: viewModel, buttonsAxis: .vertical)
             }
 
         NavHolder()

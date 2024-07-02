@@ -1,5 +1,5 @@
 //
-//  OnboardingPushNotificationsViewModel.swift
+//  PushNotificationsPermissionRequestViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,17 +8,17 @@
 
 import Foundation
 
-final class OnboardingPushNotificationsViewModel: ObservableObject, Identifiable {
+final class PushNotificationsPermissionRequestViewModel: ObservableObject, Identifiable {
     @Published private(set) var allowButtonTitle: String
     @Published private(set) var laterButtonTitle: String
 
     private let permissionManager: PushNotificationsPermissionManager
 
-    private weak var delegate: OnboardingPushNotificationsDelegate?
+    private weak var delegate: PushNotificationsPermissionRequestDelegate?
 
     init(
         permissionManager: PushNotificationsPermissionManager,
-        delegate: OnboardingPushNotificationsDelegate
+        delegate: PushNotificationsPermissionRequestDelegate
     ) {
         self.permissionManager = permissionManager
         self.delegate = delegate
