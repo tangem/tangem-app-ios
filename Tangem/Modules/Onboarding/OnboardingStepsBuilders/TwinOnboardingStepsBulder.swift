@@ -13,7 +13,7 @@ struct TwinOnboardingStepsBulder {
     private let cardId: String
     private let hasWallets: Bool
     private let twinData: TwinData
-    private let pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider
+    private let isPushNotificationsAvailable: Bool
 
     private var otherSteps: [TwinsOnboardingStep] {
         var steps: [TwinsOnboardingStep] = []
@@ -24,7 +24,7 @@ struct TwinOnboardingStepsBulder {
             steps.append(.saveUserWallet)
         }
 
-        if pushNotificationsAvailabilityProvider.isAvailable {
+        if isPushNotificationsAvailable {
             steps.append(.pushNotifications)
         }
 
@@ -35,12 +35,12 @@ struct TwinOnboardingStepsBulder {
         cardId: String,
         hasWallets: Bool,
         twinData: TwinData,
-        pushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider
+        isPushNotificationsAvailable: Bool
     ) {
         self.cardId = cardId
         self.hasWallets = hasWallets
         self.twinData = twinData
-        self.pushNotificationsAvailabilityProvider = pushNotificationsAvailabilityProvider
+        self.isPushNotificationsAvailable = isPushNotificationsAvailable
     }
 }
 
