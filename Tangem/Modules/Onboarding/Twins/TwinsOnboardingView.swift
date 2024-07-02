@@ -40,7 +40,7 @@ struct TwinsOnboardingView: View {
             UserWalletStorageAgreementView(viewModel: viewModel.userWalletStorageAgreementViewModel)
         case .pushNotifications:
             if let viewModel = viewModel.pushNotificationsViewModel {
-                OnboardingPushNotificationsView(viewModel: viewModel, buttonsAxis: .vertical)
+                PushNotificationsPermissionRequestView(viewModel: viewModel, buttonsAxis: .vertical)
             }
         default:
             EmptyView()
