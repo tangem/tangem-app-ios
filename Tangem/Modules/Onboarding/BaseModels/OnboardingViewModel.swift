@@ -156,11 +156,11 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         )
     }()
 
-    lazy var pushNotificationsViewModel: OnboardingPushNotificationsViewModel? = {
+    lazy var pushNotificationsViewModel: PushNotificationsPermissionRequestViewModel? = {
         guard let permissionManager = input.pushNotificationsPermissionManager else {
             return nil
         }
-        return OnboardingPushNotificationsViewModel(permissionManager: permissionManager, delegate: self)
+        return PushNotificationsPermissionRequestViewModel(permissionManager: permissionManager, delegate: self)
     }()
 
     let input: OnboardingInput
@@ -452,7 +452,7 @@ extension OnboardingViewModel: OnboardingAddTokensDelegate {
     }
 }
 
-extension OnboardingViewModel: OnboardingPushNotificationsDelegate {
+extension OnboardingViewModel: PushNotificationsPermissionRequestDelegate {
     func didFinishPushNotificationOnboarding() {
         goToNextStep()
     }
