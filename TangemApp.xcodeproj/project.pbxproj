@@ -635,12 +635,14 @@
 		B60B9FDB2A95D96B00A7E905 /* OrganizeTokensListSectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60B9FDA2A95D96B00A7E905 /* OrganizeTokensListSectionViewModel.swift */; };
 		B60C13B32A530C500003F68F /* ScrollDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60C13B22A530C500003F68F /* ScrollDetector.swift */; };
 		B612AFD42B2884B80058A13A /* RateAppRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B612AFD32B2884B80058A13A /* RateAppRequest.swift */; };
+		B6157AAD2C322733000640B4 /* OnboardingFeatureDescriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6157AAC2C322733000640B4 /* OnboardingFeatureDescriptionView.swift */; };
 		B6176A7A2A5B743A0062C399 /* CGRect+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6176A792A5B743A0062C399 /* CGRect+.swift */; };
 		B6180C862A80F76300144452 /* OrganizeTokensPreviewViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6180C852A80F76300144452 /* OrganizeTokensPreviewViewModelFactory.swift */; };
 		B618370A2A8398BE00F07C17 /* Transaction+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61837092A8398BE00F07C17 /* Transaction+.swift */; };
 		B61980102AB8BD5200153886 /* PreviewContentShapeModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B619800F2AB8BD5200153886 /* PreviewContentShapeModifier.swift */; };
 		B61980122AB98ACE00153886 /* HighlightableViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61980112AB98ACE00153886 /* HighlightableViewModifier.swift */; };
 		B61D2A202B1947E6004F2C2D /* TokenDetailsScrollState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61D2A1F2B1947E6004F2C2D /* TokenDetailsScrollState.swift */; };
+		B61E999F2C2C6B0300031011 /* PushNotificationsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61E999E2C2C6B0300031011 /* PushNotificationsService.swift */; };
 		B6210DEF2A94708700F885D5 /* OrganizeTokensListFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6210DEE2A94708700F885D5 /* OrganizeTokensListFactory.swift */; };
 		B62E42512A79328A0045AB31 /* Collection+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62E42502A79328A0045AB31 /* Collection+.swift */; };
 		B62EE31C2B28977B006BA412 /* RateAppResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62EE31B2B28977B006BA412 /* RateAppResponse.swift */; };
@@ -680,6 +682,8 @@
 		B66C259E2A801CAB002ADFBD /* FakeOrganizeTokensOptionsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B66C259D2A801CAB002ADFBD /* FakeOrganizeTokensOptionsManager.swift */; };
 		B66E5BDE2C1BC47C00778B13 /* ValidationErrorContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = B66E5BDD2C1BC47C00778B13 /* ValidationErrorContext.swift */; };
 		B673FC3D2B1BF4220089944C /* BottomScrollableSheetConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B673FC3C2B1BF4220089944C /* BottomScrollableSheetConfiguration.swift */; };
+		B674257A2C3316DA00BCDA74 /* PushNotificationsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67425792C3316DA00BCDA74 /* PushNotificationsInteractor.swift */; };
+		B674257C2C331B7100BCDA74 /* PushNotificationsPermissionRequestFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B674257B2C331B7100BCDA74 /* PushNotificationsPermissionRequestFlow.swift */; };
 		B674D6D72A96A90000172491 /* StoredUserTokenList.swift in Sources */ = {isa = PBXBuildFile; fileRef = B674D6D62A96A90000172491 /* StoredUserTokenList.swift */; };
 		B674D6D92A96AC8800172491 /* Sequence+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B674D6D82A96AC8800172491 /* Sequence+.swift */; };
 		B674D6DD2A97556F00172491 /* StorageEntryConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B674D6DC2A97556F00172491 /* StorageEntryConverter.swift */; };
@@ -758,7 +762,13 @@
 		B6C957A32ACBDDBE00671B37 /* IOS15AndBelowScrollDisabledModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6C957A22ACBDDBE00671B37 /* IOS15AndBelowScrollDisabledModifier.swift */; };
 		B6CA91352BB55F4400752999 /* PolkadotAccountHealthBackgroundTaskManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6CA91342BB55F4300752999 /* PolkadotAccountHealthBackgroundTaskManager.swift */; };
 		B6CA91372BB5616C00752999 /* AccountHealthCheckBackgroundTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6CA91362BB5616C00752999 /* AccountHealthCheckBackgroundTask.swift */; };
+		B6CD68952C339357004A9D70 /* PushNotificationsPermissionManagerStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6CD68942C339357004A9D70 /* PushNotificationsPermissionManagerStub.swift */; };
+		B6CD68972C3393BD004A9D70 /* PushNotificationsAvailabilityProviderStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6CD68962C3393BD004A9D70 /* PushNotificationsAvailabilityProviderStub.swift */; };
 		B6CF16822B22548A004925CC /* PropertyListObjectRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6CF16812B22548A004925CC /* PropertyListObjectRepresentable.swift */; };
+		B6D107AD2C2CE3530011D172 /* CommonPushNotificationsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D107AC2C2CE3530011D172 /* CommonPushNotificationsInteractor.swift */; };
+		B6D107CB2C2E2F7E0011D172 /* PushNotificationsHelpersFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D107CA2C2E2F7E0011D172 /* PushNotificationsHelpersFactory.swift */; };
+		B6D107CD2C2E4A630011D172 /* PushNotificationsAvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D107CC2C2E4A630011D172 /* PushNotificationsAvailabilityProvider.swift */; };
+		B6D107CF2C2E4ADC0011D172 /* PushNotificationsPermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D107CE2C2E4ADC0011D172 /* PushNotificationsPermissionManager.swift */; };
 		B6DD245E2B1A77860097F674 /* BottomScrollableSheetStateObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6DD245D2B1A77860097F674 /* BottomScrollableSheetStateObserver.swift */; };
 		B6DF7E792AA95DBB007C92BD /* ListFooterOverlayShadowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6DF7E782AA95DBB007C92BD /* ListFooterOverlayShadowView.swift */; };
 		B6E8BBFB2A2F209B0012E7D3 /* InfinityFrameModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E8BBFA2A2F209B0012E7D3 /* InfinityFrameModifier.swift */; };
@@ -786,9 +796,6 @@
 		B6FE5B282B93C0FF00B7A76B /* UserCodeRecoveringMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DCD02829DFF04B00C36C84 /* UserCodeRecoveringMock.swift */; };
 		B6FF1EFE2A57E59100B208E4 /* Subject+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FF1EFD2A57E59100B208E4 /* Subject+.swift */; };
 		C2DBF9FD1A18628296A2C808 /* Pods_TangemVisa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5FA572E69DF6998CA213DF6 /* Pods_TangemVisa.framework */; };
-		DA070DE22ADD4F0F00F7C0E4 /* SprinklrSupportChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA070DE02ADD4F0F00F7C0E4 /* SprinklrSupportChatView.swift */; };
-		DA070DE32ADD4F0F00F7C0E4 /* SprinklrSupportChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA070DE12ADD4F0F00F7C0E4 /* SprinklrSupportChatViewModel.swift */; };
-		DA070DE52ADD4F6600F7C0E4 /* SprinklrConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA070DE42ADD4F6500F7C0E4 /* SprinklrConfig.swift */; };
 		DA11F9842B2978CC0075F028 /* SendCustomFeeInputField.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA11F9822B2978CC0075F028 /* SendCustomFeeInputField.swift */; };
 		DA11F9852B2978CC0075F028 /* SendCustomFeeInputFieldModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA11F9832B2978CC0075F028 /* SendCustomFeeInputFieldModel.swift */; };
 		DA129DD5292B8EBB004291EC /* UserWalletEncryptionKeyFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA129DD4292B8EBB004291EC /* UserWalletEncryptionKeyFactory.swift */; };
@@ -1152,16 +1159,15 @@
 		DCBC94572993FF330050BC35 /* Analytics+ProductType.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCBC94562993FF330050BC35 /* Analytics+ProductType.swift */; };
 		DCBC945D299404510050BC35 /* CommonAnalyticsContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCBC945C299404510050BC35 /* CommonAnalyticsContext.swift */; };
 		DCBC945F2994F9BF0050BC35 /* AnalyticsContextScope.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCBC945E2994F9BF0050BC35 /* AnalyticsContextScope.swift */; };
-		DCC5C9942C1248C5001B970A /* OnboardingPushNotificationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5C9932C1248C5001B970A /* OnboardingPushNotificationsView.swift */; };
-		DCC5C99A2C136C52001B970A /* OnboardingPushNotificationsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5C9992C136C52001B970A /* OnboardingPushNotificationsViewModel.swift */; };
-		DCC5C99C2C136D8F001B970A /* OnboardingPushNotificationsDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5C99B2C136D8F001B970A /* OnboardingPushNotificationsDelegate.swift */; };
-		DCC5C99E2C136EFD001B970A /* OnboardingPushNotificationsDelegateStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5C99D2C136EFD001B970A /* OnboardingPushNotificationsDelegateStub.swift */; };
+		DCC5C9942C1248C5001B970A /* PushNotificationsPermissionRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5C9932C1248C5001B970A /* PushNotificationsPermissionRequestView.swift */; };
+		DCC5C99A2C136C52001B970A /* PushNotificationsPermissionRequestViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5C9992C136C52001B970A /* PushNotificationsPermissionRequestViewModel.swift */; };
+		DCC5C99C2C136D8F001B970A /* PushNotificationsPermissionRequestDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5C99B2C136D8F001B970A /* PushNotificationsPermissionRequestDelegate.swift */; };
+		DCC5C99E2C136EFD001B970A /* PushNotificationsPermissionRequestDelegateStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5C99D2C136EFD001B970A /* PushNotificationsPermissionRequestDelegateStub.swift */; };
 		DCD221F72B3EF6C100F4FF6A /* CurvesValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD221F62B3EF6C100F4FF6A /* CurvesValidator.swift */; };
 		DCD9CBA329F7F4D800440C93 /* LogsComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD9CBA229F7F4D800440C93 /* LogsComposer.swift */; };
 		DCD9CBA529F7F4EF00440C93 /* LogFileProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD9CBA429F7F4EF00440C93 /* LogFileProvider.swift */; };
 		DCDBDA062A27C16C0000EBA2 /* LockedUserWalletModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCDBDA052A27C16C0000EBA2 /* LockedUserWalletModel.swift */; };
 		DCDE745C2C1374AC00C19A23 /* WelcomeOnboardingTOSDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCDE745B2C1374AC00C19A23 /* WelcomeOnboardingTOSDelegate.swift */; };
-		DCDE747B2C1397DD00C19A23 /* PushNotificationsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCDE747A2C1397DD00C19A23 /* PushNotificationsProvider.swift */; };
 		DCE402B82A31E69100D40C77 /* Analytics+DestinationAddressSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE402B72A31E69100D40C77 /* Analytics+DestinationAddressSource.swift */; };
 		DCE5C66C28898B7F000C7F67 /* TangemApiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE5C66B28898B7F000C7F67 /* TangemApiService.swift */; };
 		DCE5C66E28898BB6000C7F67 /* CommonTangemApiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE5C66D28898BB6000C7F67 /* CommonTangemApiService.swift */; };
@@ -2385,12 +2391,14 @@
 		B60B9FDA2A95D96B00A7E905 /* OrganizeTokensListSectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListSectionViewModel.swift; sourceTree = "<group>"; };
 		B60C13B22A530C500003F68F /* ScrollDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollDetector.swift; sourceTree = "<group>"; };
 		B612AFD32B2884B80058A13A /* RateAppRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateAppRequest.swift; sourceTree = "<group>"; };
+		B6157AAC2C322733000640B4 /* OnboardingFeatureDescriptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFeatureDescriptionView.swift; sourceTree = "<group>"; };
 		B6176A792A5B743A0062C399 /* CGRect+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGRect+.swift"; sourceTree = "<group>"; };
 		B6180C852A80F76300144452 /* OrganizeTokensPreviewViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensPreviewViewModelFactory.swift; sourceTree = "<group>"; };
 		B61837092A8398BE00F07C17 /* Transaction+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Transaction+.swift"; sourceTree = "<group>"; };
 		B619800F2AB8BD5200153886 /* PreviewContentShapeModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewContentShapeModifier.swift; sourceTree = "<group>"; };
 		B61980112AB98ACE00153886 /* HighlightableViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighlightableViewModifier.swift; sourceTree = "<group>"; };
 		B61D2A1F2B1947E6004F2C2D /* TokenDetailsScrollState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenDetailsScrollState.swift; sourceTree = "<group>"; };
+		B61E999E2C2C6B0300031011 /* PushNotificationsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsService.swift; sourceTree = "<group>"; };
 		B6210DEE2A94708700F885D5 /* OrganizeTokensListFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListFactory.swift; sourceTree = "<group>"; };
 		B62E42502A79328A0045AB31 /* Collection+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Collection+.swift"; sourceTree = "<group>"; };
 		B62EE31B2B28977B006BA412 /* RateAppResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateAppResponse.swift; sourceTree = "<group>"; };
@@ -2431,6 +2439,8 @@
 		B66C259D2A801CAB002ADFBD /* FakeOrganizeTokensOptionsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeOrganizeTokensOptionsManager.swift; sourceTree = "<group>"; };
 		B66E5BDD2C1BC47C00778B13 /* ValidationErrorContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidationErrorContext.swift; sourceTree = "<group>"; };
 		B673FC3C2B1BF4220089944C /* BottomScrollableSheetConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomScrollableSheetConfiguration.swift; sourceTree = "<group>"; };
+		B67425792C3316DA00BCDA74 /* PushNotificationsInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsInteractor.swift; sourceTree = "<group>"; };
+		B674257B2C331B7100BCDA74 /* PushNotificationsPermissionRequestFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsPermissionRequestFlow.swift; sourceTree = "<group>"; };
 		B674D6D62A96A90000172491 /* StoredUserTokenList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredUserTokenList.swift; sourceTree = "<group>"; };
 		B674D6D82A96AC8800172491 /* Sequence+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sequence+.swift"; sourceTree = "<group>"; };
 		B674D6DC2A97556F00172491 /* StorageEntryConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageEntryConverter.swift; sourceTree = "<group>"; };
@@ -2509,7 +2519,13 @@
 		B6C957A22ACBDDBE00671B37 /* IOS15AndBelowScrollDisabledModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOS15AndBelowScrollDisabledModifier.swift; sourceTree = "<group>"; };
 		B6CA91342BB55F4300752999 /* PolkadotAccountHealthBackgroundTaskManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkadotAccountHealthBackgroundTaskManager.swift; sourceTree = "<group>"; };
 		B6CA91362BB5616C00752999 /* AccountHealthCheckBackgroundTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountHealthCheckBackgroundTask.swift; sourceTree = "<group>"; };
+		B6CD68942C339357004A9D70 /* PushNotificationsPermissionManagerStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsPermissionManagerStub.swift; sourceTree = "<group>"; };
+		B6CD68962C3393BD004A9D70 /* PushNotificationsAvailabilityProviderStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsAvailabilityProviderStub.swift; sourceTree = "<group>"; };
 		B6CF16812B22548A004925CC /* PropertyListObjectRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyListObjectRepresentable.swift; sourceTree = "<group>"; };
+		B6D107AC2C2CE3530011D172 /* CommonPushNotificationsInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonPushNotificationsInteractor.swift; sourceTree = "<group>"; };
+		B6D107CA2C2E2F7E0011D172 /* PushNotificationsHelpersFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsHelpersFactory.swift; sourceTree = "<group>"; };
+		B6D107CC2C2E4A630011D172 /* PushNotificationsAvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsAvailabilityProvider.swift; sourceTree = "<group>"; };
+		B6D107CE2C2E4ADC0011D172 /* PushNotificationsPermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsPermissionManager.swift; sourceTree = "<group>"; };
 		B6DD245D2B1A77860097F674 /* BottomScrollableSheetStateObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomScrollableSheetStateObserver.swift; sourceTree = "<group>"; };
 		B6DF7E782AA95DBB007C92BD /* ListFooterOverlayShadowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListFooterOverlayShadowView.swift; sourceTree = "<group>"; };
 		B6E8BBFA2A2F209B0012E7D3 /* InfinityFrameModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfinityFrameModifier.swift; sourceTree = "<group>"; };
@@ -2549,9 +2565,6 @@
 		D30AB026316B780E65C29747 /* Pods-TangemStaking-TangemStakingTests.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemStaking-TangemStakingTests.release(production).xcconfig"; path = "Target Support Files/Pods-TangemStaking-TangemStakingTests/Pods-TangemStaking-TangemStakingTests.release(production).xcconfig"; sourceTree = "<group>"; };
 		D600E3C682E8AB897305ABEE /* Pods-TangemExpress.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemExpress.debug(beta).xcconfig"; path = "Target Support Files/Pods-TangemExpress/Pods-TangemExpress.debug(beta).xcconfig"; sourceTree = "<group>"; };
 		D67C35B966539AB4F5CE8C1C /* Pods-TangemStaking.release(alpha).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemStaking.release(alpha).xcconfig"; path = "Target Support Files/Pods-TangemStaking/Pods-TangemStaking.release(alpha).xcconfig"; sourceTree = "<group>"; };
-		DA070DE02ADD4F0F00F7C0E4 /* SprinklrSupportChatView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprinklrSupportChatView.swift; sourceTree = "<group>"; };
-		DA070DE12ADD4F0F00F7C0E4 /* SprinklrSupportChatViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprinklrSupportChatViewModel.swift; sourceTree = "<group>"; };
-		DA070DE42ADD4F6500F7C0E4 /* SprinklrConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprinklrConfig.swift; sourceTree = "<group>"; };
 		DA11F9822B2978CC0075F028 /* SendCustomFeeInputField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendCustomFeeInputField.swift; sourceTree = "<group>"; };
 		DA11F9832B2978CC0075F028 /* SendCustomFeeInputFieldModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendCustomFeeInputFieldModel.swift; sourceTree = "<group>"; };
 		DA129DD4292B8EBB004291EC /* UserWalletEncryptionKeyFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletEncryptionKeyFactory.swift; sourceTree = "<group>"; };
@@ -2916,16 +2929,15 @@
 		DCBC94562993FF330050BC35 /* Analytics+ProductType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+ProductType.swift"; sourceTree = "<group>"; };
 		DCBC945C299404510050BC35 /* CommonAnalyticsContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonAnalyticsContext.swift; sourceTree = "<group>"; };
 		DCBC945E2994F9BF0050BC35 /* AnalyticsContextScope.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsContextScope.swift; sourceTree = "<group>"; };
-		DCC5C9932C1248C5001B970A /* OnboardingPushNotificationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPushNotificationsView.swift; sourceTree = "<group>"; };
-		DCC5C9992C136C52001B970A /* OnboardingPushNotificationsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPushNotificationsViewModel.swift; sourceTree = "<group>"; };
-		DCC5C99B2C136D8F001B970A /* OnboardingPushNotificationsDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPushNotificationsDelegate.swift; sourceTree = "<group>"; };
-		DCC5C99D2C136EFD001B970A /* OnboardingPushNotificationsDelegateStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPushNotificationsDelegateStub.swift; sourceTree = "<group>"; };
+		DCC5C9932C1248C5001B970A /* PushNotificationsPermissionRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsPermissionRequestView.swift; sourceTree = "<group>"; };
+		DCC5C9992C136C52001B970A /* PushNotificationsPermissionRequestViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsPermissionRequestViewModel.swift; sourceTree = "<group>"; };
+		DCC5C99B2C136D8F001B970A /* PushNotificationsPermissionRequestDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsPermissionRequestDelegate.swift; sourceTree = "<group>"; };
+		DCC5C99D2C136EFD001B970A /* PushNotificationsPermissionRequestDelegateStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsPermissionRequestDelegateStub.swift; sourceTree = "<group>"; };
 		DCD221F62B3EF6C100F4FF6A /* CurvesValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurvesValidator.swift; sourceTree = "<group>"; };
 		DCD9CBA229F7F4D800440C93 /* LogsComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogsComposer.swift; sourceTree = "<group>"; };
 		DCD9CBA429F7F4EF00440C93 /* LogFileProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogFileProvider.swift; sourceTree = "<group>"; };
 		DCDBDA052A27C16C0000EBA2 /* LockedUserWalletModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockedUserWalletModel.swift; sourceTree = "<group>"; };
 		DCDE745B2C1374AC00C19A23 /* WelcomeOnboardingTOSDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeOnboardingTOSDelegate.swift; sourceTree = "<group>"; };
-		DCDE747A2C1397DD00C19A23 /* PushNotificationsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsProvider.swift; sourceTree = "<group>"; };
 		DCE402B72A31E69100D40C77 /* Analytics+DestinationAddressSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+DestinationAddressSource.swift"; sourceTree = "<group>"; };
 		DCE5C66B28898B7F000C7F67 /* TangemApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemApiService.swift; sourceTree = "<group>"; };
 		DCE5C66D28898BB6000C7F67 /* CommonTangemApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTangemApiService.swift; sourceTree = "<group>"; };
@@ -4127,7 +4139,6 @@
 			isa = PBXGroup;
 			children = (
 				5D011A222530776A00758010 /* TOS */,
-				DCC5C9922C1248AC001B970A /* PushNotifications */,
 				B06C94CA2A3B70C200D17E85 /* TokenActions */,
 				EF3EC51D289A7A1B0071BA7F /* Appearance */,
 				DC5118672860B36C004FB954 /* Preview */,
@@ -4174,7 +4185,6 @@
 				6563B8B82858B92A009A8A7D /* SupportChatView.swift */,
 				65C9FCB92869CC3E00FDE63E /* SupportChatViewModel.swift */,
 				EF9F908F299FAE84006F638F /* SupportChatInputModel.swift */,
-				DA070DDF2ADD4F0F00F7C0E4 /* Sprinklr */,
 			);
 			path = SupportChat;
 			sourceTree = "<group>";
@@ -4771,7 +4781,6 @@
 				DA6C752329225F9B0070EEFD /* MinimizedAppTimer.swift */,
 				EFF466E92ACD928800ACC3EA /* PendingTransactionRecordMapper.swift */,
 				B643B8062B1965EA002DE401 /* PerformanceMonitorConfigurator.swift */,
-				DCDE747A2C1397DD00C19A23 /* PushNotificationsProvider.swift */,
 				B0DE006B2A431BA6005A77D4 /* LocalizationIconParser.swift */,
 				B034785F2B0F6C08004FECA0 /* HighPriceImpactCalculator.swift */,
 				B69A140A2B7EC3FB00EF0825 /* TokenInteractionAvailabilityProvider.swift */,
@@ -5053,6 +5062,7 @@
 		B0958BA529F6B698007CD76D /* UIComponents */ = {
 			isa = PBXGroup;
 			children = (
+				B6157AAB2C3226FD000640B4 /* Onboarding */,
 				EF1E17662BF67292000364AE /* DefaultTextFieldRowView */,
 				EF1E172C2BF50DDA000364AE /* SettingsUserWalletRow */,
 				EF6600512B6D187600B65449 /* PendingTransactionsListView */,
@@ -5724,7 +5734,9 @@
 				B0F318FA2A739418009F131E /* WalletPublicKeyDerivationStubs.swift */,
 				B0F318F82A7393FA009F131E /* WalletStubs.swift */,
 				DC2AB6EE2C08E46F0050796C /* WelcomeOnboardingStepRoutableStub.swift */,
-				DCC5C99D2C136EFD001B970A /* OnboardingPushNotificationsDelegateStub.swift */,
+				DCC5C99D2C136EFD001B970A /* PushNotificationsPermissionRequestDelegateStub.swift */,
+				B6CD68942C339357004A9D70 /* PushNotificationsPermissionManagerStub.swift */,
+				B6CD68962C3393BD004A9D70 /* PushNotificationsAvailabilityProviderStub.swift */,
 			);
 			path = Stubs;
 			sourceTree = "<group>";
@@ -5819,6 +5831,28 @@
 				B63B72882AF5F23B004B80BF /* TokenSectionsSourcePublisherFactory.swift */,
 			);
 			path = TokenSectionsAdapter;
+			sourceTree = "<group>";
+		};
+		B6157AAB2C3226FD000640B4 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				B6157AAC2C322733000640B4 /* OnboardingFeatureDescriptionView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		B61E999B2C2C6AE800031011 /* PushNotifications */ = {
+			isa = PBXGroup;
+			children = (
+				B6D107CC2C2E4A630011D172 /* PushNotificationsAvailabilityProvider.swift */,
+				B6D107CE2C2E4ADC0011D172 /* PushNotificationsPermissionManager.swift */,
+				B67425792C3316DA00BCDA74 /* PushNotificationsInteractor.swift */,
+				B6D107AC2C2CE3530011D172 /* CommonPushNotificationsInteractor.swift */,
+				B674257B2C331B7100BCDA74 /* PushNotificationsPermissionRequestFlow.swift */,
+				B6D107CA2C2E2F7E0011D172 /* PushNotificationsHelpersFactory.swift */,
+				B61E999E2C2C6B0300031011 /* PushNotificationsService.swift */,
+			);
+			path = PushNotifications;
 			sourceTree = "<group>";
 		};
 		B6209E5D2A2F1BBF0066ACFE /* OrganizeTokens */ = {
@@ -6122,6 +6156,16 @@
 			path = MainBottomSheet;
 			sourceTree = "<group>";
 		};
+		B6CD68982C33A041004A9D70 /* PushNotifications */ = {
+			isa = PBXGroup;
+			children = (
+				DCC5C9932C1248C5001B970A /* PushNotificationsPermissionRequestView.swift */,
+				DCC5C9992C136C52001B970A /* PushNotificationsPermissionRequestViewModel.swift */,
+				DCC5C99B2C136D8F001B970A /* PushNotificationsPermissionRequestDelegate.swift */,
+			);
+			path = PushNotifications;
+			sourceTree = "<group>";
+		};
 		B6E9721C2AA0262D00D2B1D1 /* TokenSectionView */ = {
 			isa = PBXGroup;
 			children = (
@@ -6228,15 +6272,6 @@
 				0A35044D2E5DF9354751E2DE /* Pods-TangemStakingTests.release(alpha).xcconfig */,
 			);
 			path = Pods;
-			sourceTree = "<group>";
-		};
-		DA070DDF2ADD4F0F00F7C0E4 /* Sprinklr */ = {
-			isa = PBXGroup;
-			children = (
-				DA070DE02ADD4F0F00F7C0E4 /* SprinklrSupportChatView.swift */,
-				DA070DE12ADD4F0F00F7C0E4 /* SprinklrSupportChatViewModel.swift */,
-			);
-			path = Sprinklr;
 			sourceTree = "<group>";
 		};
 		DA19D8C42B39AE3C001C91C4 /* QRCodeParser */ = {
@@ -6667,6 +6702,7 @@
 		DC0A57DA2822A4DC0031BECC /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				B61E999B2C2C6AE800031011 /* PushNotifications */,
 				B098F3972C0474AD00F79989 /* ManageTokens */,
 				EF8DBCE32C0618A3009072CF /* StakingRepositoryProxy */,
 				DAC5A5272BBEB5A4003CFC1D /* KeyboardVisibilityService */,
@@ -6794,7 +6830,6 @@
 				2DB43916296EBC6000CBBB1E /* AppsFlyerConfig.swift */,
 				B0E1D174257DE75D00A3AB98 /* CommonKeysManager.swift */,
 				DC0A5807282501CA0031BECC /* MoonPayKeys.swift */,
-				DA070DE42ADD4F6500F7C0E4 /* SprinklrConfig.swift */,
 				EF92E2B929963E7400DD9B06 /* ExpressKeys.swift */,
 				B0CA52F829C04FA10076E2EF /* TonCenterApiKeys.swift */,
 				2DCAEE4A2B13E4F800C87E09 /* GetBlockAccessTokens.swift */,
@@ -7189,6 +7224,7 @@
 				DAA5E2FB28D21368003C0E80 /* UserWalletStorageAggreement */,
 				DA91770F2A25F14A006CD67B /* Promotion */,
 				B6FB04E32B1FEED9000BB59E /* StatusBarConfiguration */,
+				B6CD68982C33A041004A9D70 /* PushNotifications */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
@@ -7223,16 +7259,6 @@
 				B045708C2B2AF75600B0794F /* VisaWalletManagerFactory.swift */,
 			);
 			path = WalletManagers;
-			sourceTree = "<group>";
-		};
-		DCC5C9922C1248AC001B970A /* PushNotifications */ = {
-			isa = PBXGroup;
-			children = (
-				DCC5C9932C1248C5001B970A /* OnboardingPushNotificationsView.swift */,
-				DCC5C9992C136C52001B970A /* OnboardingPushNotificationsViewModel.swift */,
-				DCC5C99B2C136D8F001B970A /* OnboardingPushNotificationsDelegate.swift */,
-			);
-			path = PushNotifications;
 			sourceTree = "<group>";
 		};
 		DCE5C66A28898B4D000C7F67 /* TangemApiService */ = {
@@ -7280,13 +7306,6 @@
 				EFE7D5782AA201CB0047D93A /* PercentFormatter.swift */,
 			);
 			path = PercentFormatter;
-			sourceTree = "<group>";
-		};
-		EF031A462C0A2782001535C9 /* Steps */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Steps;
 			sourceTree = "<group>";
 		};
 		EF031A632C0A32AB001535C9 /* Namespace */ = {
@@ -8714,7 +8733,6 @@
 				EFEE23452BFE01CC0099917E /* StakingView.swift */,
 				EFEE23462BFE01CC0099917E /* StakingViewModel.swift */,
 				EFEE23472BFE01CC0099917E /* StakingRoutable.swift */,
-				EF031A462C0A2782001535C9 /* Steps */,
 			);
 			path = Staking;
 			sourceTree = "<group>";
@@ -9646,7 +9664,6 @@
 			files = (
 				DC70C0312B96129E002205BA /* KeysDerivingProvider.swift in Sources */,
 				B6FE5B282B93C0FF00B7A76B /* UserCodeRecoveringMock.swift in Sources */,
-				DA070DE52ADD4F6600F7C0E4 /* SprinklrConfig.swift in Sources */,
 				DA43719D2A7D1937006215CA /* ManageTokensCoinItemViewModel.swift in Sources */,
 				DC37A0782A584BD000C2A3F2 /* UserTokensManagerMock.swift in Sources */,
 				EF70A4082C1714A100805D9F /* SendDestinationValidator.swift in Sources */,
@@ -9848,6 +9865,7 @@
 				DA559C4F2B02622600F59584 /* SendSummaryRoutableMock.swift in Sources */,
 				DAF72F422B0F480A0006B44F /* SendFinishViewModel.swift in Sources */,
 				B04BA23426F0837C0036784C /* OnboardingTopupLayoutCalculator.swift in Sources */,
+				B674257C2C331B7100BCDA74 /* PushNotificationsPermissionRequestFlow.swift in Sources */,
 				B06C084E2A73FB4D00D982BC /* MainView.swift in Sources */,
 				DC5DBBC9289B951600C21E35 /* DemoUtil.swift in Sources */,
 				DA559C4E2B02622600F59584 /* SendAmountInputMock.swift in Sources */,
@@ -9885,7 +9903,7 @@
 				DC858A3928AA48B000D58EE7 /* CardEmailDataFactory.swift in Sources */,
 				B06C084F2A73FB4E00D982BC /* MainViewModel.swift in Sources */,
 				5D51037327C5371D0025EA55 /* EthereumAddress.swift in Sources */,
-				DCC5C99C2C136D8F001B970A /* OnboardingPushNotificationsDelegate.swift in Sources */,
+				DCC5C99C2C136D8F001B970A /* PushNotificationsPermissionRequestDelegate.swift in Sources */,
 				B04719012B4E7C4800444734 /* VisaBalancesLimitsBottomSheetViewModel.swift in Sources */,
 				DC70C0172B95EEC3002205BA /* FactorySettingsResetting.swift in Sources */,
 				EF729B712AF3E86300D80205 /* ExpressProvidersSelectorView.swift in Sources */,
@@ -9929,6 +9947,7 @@
 				B6E9AEAB2B0E3B6D003183C8 /* MarketsCoordinatorDelegate.swift in Sources */,
 				2D788E882ADD657000E0884B /* WalletSelectorView.swift in Sources */,
 				EFE5EC532AEC1BB100C5ADC3 /* UndoToastView.swift in Sources */,
+				B6CD68972C3393BD004A9D70 /* PushNotificationsAvailabilityProviderStub.swift in Sources */,
 				DC66BC02285B537A00CDF765 /* WalletOnboardingRoutable.swift in Sources */,
 				EF4662202924DEEE00346B6C /* DefaultWarningRowViewModel.swift in Sources */,
 				DC261CAA292CF56600875E64 /* AuthView.swift in Sources */,
@@ -10181,7 +10200,6 @@
 				2D788E852ADD657000E0884B /* WalletSelectorViewModel.swift in Sources */,
 				B0BA266E2BAD71630055C6C1 /* OnboardingAccessCodeViewModel.swift in Sources */,
 				EFA580632893E6AA00110DB0 /* BiometricAuthorizationUtils.swift in Sources */,
-				DCDE747B2C1397DD00C19A23 /* PushNotificationsProvider.swift in Sources */,
 				DAA5E30228D21369003C0E80 /* UserWalletStorageAgreementView.swift in Sources */,
 				EF7B9CF5286C7023004C33A9 /* CardSettingsCoordinator.swift in Sources */,
 				B0E20E122C2B01F600213580 /* PriceChangeUtility.swift in Sources */,
@@ -10189,6 +10207,7 @@
 				DCBC94532993FEC80050BC35 /* Analytics+CardScanSource.swift in Sources */,
 				B6CF16822B22548A004925CC /* PropertyListObjectRepresentable.swift in Sources */,
 				EFF034B128B6523F00F70FF7 /* CommonWalletModelsManager.swift in Sources */,
+				B6D107AD2C2CE3530011D172 /* CommonPushNotificationsInteractor.swift in Sources */,
 				B02B74B429879F2A006473F2 /* WalletConnectV2HandlersService.swift in Sources */,
 				B696109A2A428CA300CF88B7 /* OrganizeTokensListItemView.swift in Sources */,
 				DCF8972D28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift in Sources */,
@@ -10206,7 +10225,6 @@
 				B099339F2B554B1000240CDB /* MainHeaderProviderFactory.swift in Sources */,
 				B0541DC226FB301A0043893E /* WalletOnboardingCardLayout.swift in Sources */,
 				5D958E1424F513D9006BD932 /* RefreshableScrollView.swift in Sources */,
-				DA070DE22ADD4F0F00F7C0E4 /* SprinklrSupportChatView.swift in Sources */,
 				B0BDF9B82B4D267F00EEBE4F /* MainHeaderTotalBalanceProvider.swift in Sources */,
 				B06C08682A73FCDE00D982BC /* SingleWalletMainContentViewModel.swift in Sources */,
 				DADD18F82AA7516B0044AA66 /* UITraitCollection+.swift in Sources */,
@@ -10227,11 +10245,10 @@
 				DC3DCAE52A41FA6A00F72554 /* KeysRepository.swift in Sources */,
 				DAB19D4A2B2C72A100DD08C4 /* AddCustomTokenView.swift in Sources */,
 				B0DCC81B2A8A1B4900D85E53 /* NotificationsFactory.swift in Sources */,
-				DCC5C99E2C136EFD001B970A /* OnboardingPushNotificationsDelegateStub.swift in Sources */,
+				DCC5C99E2C136EFD001B970A /* PushNotificationsPermissionRequestDelegateStub.swift in Sources */,
 				B0625A2529CB3D2700EDD245 /* OnboardingSeedPhraseImportViewModel.swift in Sources */,
 				2DC5677D2B0E047700B0244F /* MainBottomSheetHeaderView.swift in Sources */,
 				DC66BC10285C405C00CDF765 /* CoordinatorObject.swift in Sources */,
-				DA070DE32ADD4F0F00F7C0E4 /* SprinklrSupportChatViewModel.swift in Sources */,
 				B0120A962A0E0FB900F485F1 /* Text+NSAttributedString.swift in Sources */,
 				EF914D4C2A603F2F001F00B2 /* Quote.swift in Sources */,
 				EF4B41BB2864491B003911F6 /* TangemSkeletonModifier.swift in Sources */,
@@ -10249,7 +10266,7 @@
 				DC2CD3432B0FE3D600C0D677 /* SendCurrencyViewModel.swift in Sources */,
 				B09409932A3B7E9800787432 /* NavbarDotsImage.swift in Sources */,
 				B0BF631B2A0D1C6F009EB975 /* TotalBalanceFormattingOptions.swift in Sources */,
-				DCC5C99A2C136C52001B970A /* OnboardingPushNotificationsViewModel.swift in Sources */,
+				DCC5C99A2C136C52001B970A /* PushNotificationsPermissionRequestViewModel.swift in Sources */,
 				DAB19D492B2C72A100DD08C4 /* AddCustomTokenViewModel.swift in Sources */,
 				DC3B49F42893E50700C207EA /* StoredUserWallet.swift in Sources */,
 				B01B2D7A2BD2935000D8A6A1 /* APIType.swift in Sources */,
@@ -10620,6 +10637,7 @@
 				B029C1DC270229530017C848 /* OnboardingAccessCodeView.swift in Sources */,
 				DAE324162B986F9A00C5D335 /* SendAddress.swift in Sources */,
 				B0FC72EB29B7991A001930D4 /* OnboardingSeedPhraseIntroView.swift in Sources */,
+				B61E999F2C2C6B0300031011 /* PushNotificationsService.swift in Sources */,
 				B0F62C5525DE4F6B005C8BA0 /* DeviceInfoProvider.swift in Sources */,
 				EF8D780F2981458500B67418 /* UserTokenListManagerMock.swift in Sources */,
 				DA4055262ABDD3A300353F8A /* AddCustomTokenNetworksListItemView.swift in Sources */,
@@ -10672,6 +10690,7 @@
 				B6364F882ACEE9AC00D615B5 /* EmptyMainFooterView.swift in Sources */,
 				DC66BBFE285A389000CDF765 /* View+Navigation.swift in Sources */,
 				B6EAA5F72A399853003909F0 /* View+onTouchesBegan.swift in Sources */,
+				B674257A2C3316DA00BCDA74 /* PushNotificationsInteractor.swift in Sources */,
 				DA34BDF52B26F1AD00F606C2 /* SendWalletInfo.swift in Sources */,
 				B04090C42AF3969700DF8DD5 /* NotificationsAnalyticsService.swift in Sources */,
 				EF1E97FD2B03F93300D4B511 /* CommonExpressDestinationService.swift in Sources */,
@@ -10732,6 +10751,7 @@
 				DC66BC08285B6E6400CDF765 /* DetailsRoutable.swift in Sources */,
 				2D535E702A0CB4D20081EB76 /* NotificationView.swift in Sources */,
 				B031AAB126C1443E00015003 /* Confetti.swift in Sources */,
+				B6D107CD2C2E4A630011D172 /* PushNotificationsAvailabilityProvider.swift in Sources */,
 				EF729B542AF12B1500D80205 /* BottomSheetHeaderView.swift in Sources */,
 				2DC567682B0DFFAF00B0244F /* MarketsCoordinatorView.swift in Sources */,
 				B0A2B3E925D6B5BD0001EEB4 /* TokenBalanceViewModel.swift in Sources */,
@@ -10760,6 +10780,7 @@
 				B050F5032B613A6F00B2E53C /* VisaTransactionHistoryService.swift in Sources */,
 				EF8EF52F2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift in Sources */,
 				5D80ED472550186A0008DEF0 /* View+.swift in Sources */,
+				B6D107CB2C2E2F7E0011D172 /* PushNotificationsHelpersFactory.swift in Sources */,
 				6563B8B92858B92A009A8A7D /* SupportChatView.swift in Sources */,
 				5D51036927C534A60025EA55 /* JSON.swift in Sources */,
 				B0A1BC132C296B6200DECCFD /* TokenMarketsDetailsViewModel.swift in Sources */,
@@ -10787,6 +10808,7 @@
 				EF57693E2A8BAF6700901571 /* TransactionHistoryService.swift in Sources */,
 				B0CAE5AB2AAB275C00670C2B /* MultiWalletMainContentDelegate.swift in Sources */,
 				B0F319022A7394AA009F131E /* FakeUserWalletRepository.swift in Sources */,
+				B6D107CF2C2E4ADC0011D172 /* PushNotificationsPermissionManager.swift in Sources */,
 				B61D2A202B1947E6004F2C2D /* TokenDetailsScrollState.swift in Sources */,
 				B691A8C02AFE43CE0059D182 /* CardsInfoPagerSwipeDiscoveryAnimationModifier.swift in Sources */,
 				EFEE236A2BFE20860099917E /* StakingDetailsCoordinator.swift in Sources */,
@@ -10820,6 +10842,7 @@
 				B004A3E82B17672000C66CA9 /* PendingExpressTransactionView.swift in Sources */,
 				B0C4F77526F08CDE0086D815 /* OnboardingProgressStateIndicatable.swift in Sources */,
 				B63442612AFE90A700C87481 /* CardsInfoPagerSwipeDiscoveryAnimationTrigger.swift in Sources */,
+				B6157AAD2C322733000640B4 /* OnboardingFeatureDescriptionView.swift in Sources */,
 				B0E20E0A2C2AEA5B00213580 /* SheetHandleView.swift in Sources */,
 				B67688EF2B078EDB006C94F7 /* MainBottomSheetOverlayViewModel.swift in Sources */,
 				EF9E2A442B55329800418559 /* ExpressCurrencyView.swift in Sources */,
@@ -10963,6 +10986,7 @@
 				EF9E2A472B5532A600418559 /* ExpressCurrencyViewModel.swift in Sources */,
 				DA559C4A2B02622600F59584 /* SendRoutableMock.swift in Sources */,
 				DC66BC0A285B755800CDF765 /* PushTxRoutable.swift in Sources */,
+				B6CD68952C339357004A9D70 /* PushNotificationsPermissionManagerStub.swift in Sources */,
 				B050F5082B6283CF00B2E53C /* VisaTransactionHistoryMapper.swift in Sources */,
 				DC7D3A0729E06365007BCD23 /* GenericBackupServiceFactory.swift in Sources */,
 				B03662652B6385C70064E073 /* VisaTransactionDetailsViewModelMock.swift in Sources */,
@@ -10971,7 +10995,7 @@
 				EF0F99AC289028F8008B01DF /* AppSettingsViewModel.swift in Sources */,
 				DCBC944F2993FE720050BC35 /* Analytics+ParameterValue.swift in Sources */,
 				EF9EA96C2B1113B800AC1DA1 /* ExpressAllowanceProvider.swift in Sources */,
-				DCC5C9942C1248C5001B970A /* OnboardingPushNotificationsView.swift in Sources */,
+				DCC5C9942C1248C5001B970A /* PushNotificationsPermissionRequestView.swift in Sources */,
 				B03FF8A02B5E4FC700202EC0 /* AppVisaLimits.swift in Sources */,
 				B0625A2229CB3C6500EDD245 /* SeedPhraseInputProcessor.swift in Sources */,
 				B0DD162B2A331C2100CB23AA /* TokenDetailsViewModel.swift in Sources */,

@@ -14,17 +14,20 @@ class OnboardingInputFactory {
     private let userWalletModel: UserWalletModel?
     private let sdkFactory: TangemSdkFactory & BackupServiceFactory
     private let onboardingStepsBuilderFactory: OnboardingStepsBuilderFactory
+    private let pushNotificationsInteractor: PushNotificationsInteractor
 
     init(
         cardInfo: CardInfo,
         userWalletModel: UserWalletModel?,
         sdkFactory: TangemSdkFactory & BackupServiceFactory,
-        onboardingStepsBuilderFactory: OnboardingStepsBuilderFactory
+        onboardingStepsBuilderFactory: OnboardingStepsBuilderFactory,
+        pushNotificationsInteractor: PushNotificationsInteractor
     ) {
         self.cardInfo = cardInfo
         self.userWalletModel = userWalletModel
         self.sdkFactory = sdkFactory
         self.onboardingStepsBuilderFactory = onboardingStepsBuilderFactory
+        self.pushNotificationsInteractor = pushNotificationsInteractor
     }
 
     func makeOnboardingInput() -> OnboardingInput? {
@@ -34,7 +37,14 @@ class OnboardingInputFactory {
             backupService.setPrimaryCard(primaryCard)
         }
 
-        let stepsBuilder = onboardingStepsBuilderFactory.makeOnboardingStepsBuilder(backupService: backupService)
+        let factory = PushNotificationsHelpersFactory()
+        let availabilityProvider = factory.makeAvailabilityProviderForWalletOnboarding(using: pushNotificationsInteractor)
+        let permissionManager = factory.makePermissionManagerForWalletOnboarding(using: pushNotificationsInteractor)
+
+        let stepsBuilder = onboardingStepsBuilderFactory.makeOnboardingStepsBuilder(
+            backupService: backupService,
+            pushNotificationsAvailabilityProvider: availabilityProvider
+        )
         let steps = stepsBuilder.buildOnboardingSteps()
 
         guard steps.needOnboarding else {
@@ -48,6 +58,7 @@ class OnboardingInputFactory {
             backupService: backupService,
             primaryCardId: cardInfo.card.cardId,
             cardInitializer: cardInitializer,
+            pushNotificationsPermissionManager: permissionManager,
             steps: steps,
             cardInput: makeCardInput(),
             twinData: cardInfo.walletData.twinData
@@ -63,7 +74,12 @@ class OnboardingInputFactory {
             backupService.setPrimaryCard(primaryCard)
         }
 
-        let stepsBuilder = onboardingStepsBuilderFactory.makeOnboardingStepsBuilder(backupService: backupService)
+        let availabilityProvider = DummyPushNotificationsAvailabilityProvider()
+
+        let stepsBuilder = onboardingStepsBuilderFactory.makeOnboardingStepsBuilder(
+            backupService: backupService,
+            pushNotificationsAvailabilityProvider: availabilityProvider
+        )
         guard let steps = stepsBuilder.buildBackupSteps() else {
             return nil
         }
@@ -72,6 +88,7 @@ class OnboardingInputFactory {
             backupService: backupService,
             primaryCardId: cardInfo.card.cardId,
             cardInitializer: nil,
+            pushNotificationsPermissionManager: nil,
             steps: steps,
             cardInput: .userWalletModel(userWalletModel),
             twinData: nil,
@@ -114,6 +131,7 @@ class TwinInputFactory {
             backupService: sdkFactory.makeBackupService(),
             primaryCardId: firstCardId,
             cardInitializer: nil,
+            pushNotificationsPermissionManager: nil,
             steps: .twins(TwinsOnboardingStep.twinningSteps),
             cardInput: cardInput,
             twinData: twinData,
@@ -139,10 +157,15 @@ class ResumeBackupInputFactory {
             backupService: backupServiceFactory.makeBackupService(),
             primaryCardId: cardId,
             cardInitializer: nil,
+            pushNotificationsPermissionManager: nil,
             steps: .wallet(WalletOnboardingStep.resumeBackupSteps),
             cardInput: .cardId(cardId),
             twinData: nil,
             isStandalone: true
         )
     }
+}
+
+private final class DummyPushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider {
+    var isAvailable: Bool { false }
 }
