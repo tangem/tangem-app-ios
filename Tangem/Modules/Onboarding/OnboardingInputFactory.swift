@@ -43,7 +43,7 @@ class OnboardingInputFactory {
 
         let stepsBuilder = onboardingStepsBuilderFactory.makeOnboardingStepsBuilder(
             backupService: backupService,
-            pushNotificationsAvailabilityProvider: availabilityProvider
+            isPushNotificationsAvailable: availabilityProvider.isAvailable
         )
         let steps = stepsBuilder.buildOnboardingSteps()
 
@@ -74,11 +74,9 @@ class OnboardingInputFactory {
             backupService.setPrimaryCard(primaryCard)
         }
 
-        let availabilityProvider = DummyPushNotificationsAvailabilityProvider()
-
         let stepsBuilder = onboardingStepsBuilderFactory.makeOnboardingStepsBuilder(
             backupService: backupService,
-            pushNotificationsAvailabilityProvider: availabilityProvider
+            isPushNotificationsAvailable: false
         )
         guard let steps = stepsBuilder.buildBackupSteps() else {
             return nil
@@ -164,8 +162,4 @@ class ResumeBackupInputFactory {
             isStandalone: true
         )
     }
-}
-
-private final class DummyPushNotificationsAvailabilityProvider: PushNotificationsAvailabilityProvider {
-    var isAvailable: Bool { false }
 }
