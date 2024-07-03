@@ -16,6 +16,7 @@ protocol KeysManager {
     var mercuryoSecret: String { get }
     var blockchainConfig: BlockchainSdkConfig { get }
     var tangemComAuthorization: String? { get }
+    var sprinklr: SprinklrConfig { get }
     var infuraProjectId: String { get }
     var utorgSID: String { get }
     var walletConnectProjectId: String { get }
