@@ -60,6 +60,10 @@ extension CommonKeysManager: KeysManager {
         keys.tangemComAuthorization
     }
 
+    var sprinklr: SprinklrConfig {
+        keys.sprinklr
+    }
+
     var amplitudeApiKey: String {
         keys.amplitudeApiKey
     }
@@ -116,6 +120,7 @@ extension CommonKeysManager {
         let polygonScanApiKey: String
         let tangemComAuthorization: String?
         let walletConnectProjectId: String
+        let sprinklr: SprinklrConfig
         let express: ExpressKeys
         let devExpress: ExpressKeys?
         let stakeKitApiKey: String
