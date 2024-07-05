@@ -51,7 +51,9 @@ struct PushNotificationsPermissionRequestView: View {
             }
             .padding(.horizontal, 22.0)
 
-            Spacer()
+            // We have more vertical space when buttons are laid out horizontally,
+            // so the minimal height for this spacer can be increased
+            Spacer(minLength: buttonsAxis == .horizontal ? 44.0 : nil)
 
             buttonsContainer
                 .layoutPriority(101) // Higher layout priority causes spacers to collapse if there is not enough vertical space
@@ -68,7 +70,7 @@ struct PushNotificationsPermissionRequestView: View {
                 VStack(spacing: 8.0) { buttons }
             }
         }
-        .padding(.vertical, 14.0)
+        .padding(.bottom, 14.0)
         .padding(.horizontal, 16.0)
     }
 
