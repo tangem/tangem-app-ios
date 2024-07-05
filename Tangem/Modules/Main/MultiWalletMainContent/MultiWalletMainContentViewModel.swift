@@ -20,6 +20,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published var sections: [Section] = []
     @Published var notificationInputs: [NotificationViewInput] = []
     @Published var tokensNotificationInputs: [NotificationViewInput] = []
+    @Published var bannerNotificationInputs: [NotificationViewInput] = []
 
     @Published var isScannerBusy = false
     @Published var error: AlertBinder? = nil
@@ -54,6 +55,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let userWalletModel: UserWalletModel
     private let userWalletNotificationManager: NotificationManager
     private let tokensNotificationManager: NotificationManager
+    private let bannerNotificationManager: NotificationManager?
     private let tokenSectionsAdapter: TokenSectionsAdapter
     private let tokenRouter: SingleTokenRoutable
     private let optionsEditing: OrganizeTokensOptionsEditing
@@ -78,6 +80,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         userWalletModel: UserWalletModel,
         userWalletNotificationManager: NotificationManager,
         tokensNotificationManager: NotificationManager,
+        bannerNotificationManager: NotificationManager?,
         rateAppController: RateAppController,
         tokenSectionsAdapter: TokenSectionsAdapter,
         tokenRouter: SingleTokenRoutable,
@@ -87,6 +90,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.userWalletModel = userWalletModel
         self.userWalletNotificationManager = userWalletNotificationManager
         self.tokensNotificationManager = tokensNotificationManager
+        self.bannerNotificationManager = bannerNotificationManager
         self.rateAppController = rateAppController
         self.tokenSectionsAdapter = tokenSectionsAdapter
         self.tokenRouter = tokenRouter
@@ -180,6 +184,13 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .assign(to: \.tokensNotificationInputs, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        bannerNotificationManager?
+            .notificationPublisher
+            .receive(on: DispatchQueue.main)
+            .removeDuplicates()
+            .assign(to: \.bannerNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
         rateAppController.bind(
@@ -344,7 +355,7 @@ extension MultiWalletMainContentViewModel {
         coordinator?.openManageTokens(with: settings, userTokensManager: userWalletModel.userTokensManager)
     }
 
-    private func openTravalaPromotion(url: URL) {
+    private func openURL(_ url: URL) {
         coordinator?.openInSafari(url: url)
     }
 
@@ -374,28 +385,27 @@ extension MultiWalletMainContentViewModel {
 // MARK: - Notification tap delegate
 
 extension MultiWalletMainContentViewModel: NotificationTapDelegate {
-    func didTapNotification(with id: NotificationViewId) {
-        guard let notification = notificationInputs.first(where: { $0.id == id }) else {
-            userWalletNotificationManager.dismissNotification(with: id)
-            return
-        }
-
-        switch notification.settings.event {
-        case let userWalletEvent as WarningEvent:
-            handleUserWalletNotificationTap(event: userWalletEvent, id: id)
-        default:
-            break
-        }
-    }
-
-    func didTapNotificationButton(with id: NotificationViewId, action: NotificationButtonActionType) {
+    func didTapNotification(with id: NotificationViewId, action: NotificationButtonActionType) {
         switch action {
+        case .empty:
+            guard let notification = notificationInputs.first(where: { $0.id == id }) else {
+                userWalletNotificationManager.dismissNotification(with: id)
+                return
+            }
+
+            switch notification.settings.event {
+            case let userWalletEvent as WarningEvent:
+                handleUserWalletNotificationTap(event: userWalletEvent, id: id)
+            default:
+                break
+            }
+
         case .generateAddresses:
             deriveEntriesWithoutDerivation()
         case .backupCard:
             startBackupProcess()
-        case .bookNow(let url):
-            openTravalaPromotion(url: url)
+        case .openLink(let url, _):
+            openURL(url)
         default:
             return
         }
