@@ -49,7 +49,7 @@ struct PushNotificationsPermissionRequestView: View {
                 }
                 .layoutPriority(100) // Higher layout priority causes spacers to collapse if there is not enough vertical space
             }
-            .padding(.horizontal, 20.0)
+            .padding(.horizontal, 22.0)
 
             Spacer()
 
