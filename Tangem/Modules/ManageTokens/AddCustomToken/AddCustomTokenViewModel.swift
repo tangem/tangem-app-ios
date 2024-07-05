@@ -359,7 +359,8 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
 
         let converter = CustomTokenContractAddressConverter(blockchain: blockchain)
 
-        return converter.convert(contractAddress)
+        let enteredSymbol = symbol.isEmpty ? nil : symbol
+        return converter.convert(contractAddress, symbol: enteredSymbol)
     }
 
     private func checkLocalStorage() throws {
