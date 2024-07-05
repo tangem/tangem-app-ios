@@ -13,6 +13,7 @@ struct OnboardingInput { // [REDACTED_TODO_COMMENT]
     let backupService: BackupService
     let primaryCardId: String
     let cardInitializer: CardInitializer?
+    let pushNotificationsPermissionManager: PushNotificationsPermissionManager?
     let steps: OnboardingSteps
     let cardInput: CardInput
     let twinData: TwinData?
