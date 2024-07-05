@@ -1,5 +1,5 @@
 //
-//  OnboardingPushNotificationsDelegateStub.swift
+//  PushNotificationsPermissionRequestDelegateStub.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,6 +8,6 @@
 
 import Foundation
 
-class OnboardingPushNotificationsDelegateStub: OnboardingPushNotificationsDelegate {
+class PushNotificationsPermissionRequestDelegateStub: PushNotificationsPermissionRequestDelegate {
     func didFinishPushNotificationOnboarding() {}
 }
