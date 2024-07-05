@@ -78,7 +78,7 @@ enum TwinsOnboardingStep: Equatable {
     var navbarTitle: String {
         switch self {
         case .pushNotifications:
-            return "Push Notifications" // [REDACTED_TODO_COMMENT]
+            return Localization.onboardingTitleNotifications
         default:
             return Localization.twinsRecreateToolbar
         }
