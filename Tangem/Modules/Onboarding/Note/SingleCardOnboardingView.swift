@@ -30,7 +30,10 @@ struct SingleCardOnboardingView: View {
     var customContent: some View {
         switch viewModel.currentStep {
         case .saveUserWallet:
-            UserWalletStorageAgreementView(viewModel: viewModel.userWalletStorageAgreementViewModel)
+            UserWalletStorageAgreementView(
+                viewModel: viewModel.userWalletStorageAgreementViewModel,
+                topInset: -progressBarPadding
+            )
         case .addTokens:
             if let addTokensViewModel = viewModel.addTokensViewModel {
                 OnboardingAddTokensView(viewModel: addTokensViewModel)
