@@ -13,10 +13,7 @@ struct WelcomeOnboardingPushNotificationsView: View {
 
     var body: some View {
         VStack(spacing: 0.0) {
-            FixedSpacer(
-                height: 20.0 + OnboardingLayoutConstants.navbarSize.height,
-                length: 20.0
-            )
+            FixedSpacer.vertical(20.0 + OnboardingLayoutConstants.navbarSize.height)
 
             PushNotificationsPermissionRequestView(
                 viewModel: viewModel,
