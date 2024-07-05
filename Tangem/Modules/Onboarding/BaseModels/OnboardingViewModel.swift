@@ -13,7 +13,9 @@ import TangemSdk
 class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable> {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    let navbarSize: CGSize = .init(width: UIScreen.main.bounds.width, height: 44)
+    var navbarSize: CGSize { OnboardingLayoutConstants.navbarSize }
+    var progressBarHeight: CGFloat { OnboardingLayoutConstants.progressBarHeight }
+    var progressBarPadding: CGFloat { OnboardingLayoutConstants.progressBarPadding }
     let resetAnimDuration: Double = 0.3
 
     @Published var steps: [Step] = []
