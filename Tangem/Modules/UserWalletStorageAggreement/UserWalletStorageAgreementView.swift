@@ -11,13 +11,19 @@ import SwiftUI
 struct UserWalletStorageAgreementView: View {
     @ObservedObject private var viewModel: UserWalletStorageAgreementViewModel
 
-    init(viewModel: UserWalletStorageAgreementViewModel) {
+    private let topInset: CGFloat
+
+    init(
+        viewModel: UserWalletStorageAgreementViewModel,
+        topInset: CGFloat
+    ) {
         self.viewModel = viewModel
+        self.topInset = topInset
     }
 
     var body: some View {
         VStack(spacing: 0) {
-            Spacer()
+            FixedSpacer(height: 62.0 + topInset)
 
             VStack(spacing: 0) {
                 BiometryLogoImage.image.image
@@ -30,11 +36,10 @@ struct UserWalletStorageAgreementView: View {
                     .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
-
-                FixedSpacer(height: 28.0)
             }
 
-            Spacer()
+            Spacer(minLength: 8.0)
+                .frame(maxHeight: 44.0)
 
             VStack(spacing: 0) {
                 OnboardingFeatureDescriptionView(
@@ -51,8 +56,9 @@ struct UserWalletStorageAgreementView: View {
                     description: Localization.saveUserWalletAgreementCodeDescription(BiometricAuthorizationUtils.biometryType.name)
                 )
             }
+            .layoutPriority(100) // Higher layout priority causes spacers to collapse if there is not enough vertical space
 
-            Spacer()
+            Spacer(minLength: 8.0)
 
             VStack(spacing: 10) {
                 MainButton(title: BiometricAuthorizationUtils.allowButtonTitle, action: viewModel.accept)
@@ -67,7 +73,9 @@ struct UserWalletStorageAgreementView: View {
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                     .multilineTextAlignment(.center)
             }
+            .layoutPriority(101) // Higher layout priority causes spacers to collapse if there is not enough vertical space
         }
-        .padding()
+        .padding(.horizontal)
+        .padding(.bottom)
     }
 }
