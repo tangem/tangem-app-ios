@@ -70,9 +70,6 @@ struct MainCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.stakingDetailsCoordinator) {
                 StakingDetailsCoordinatorView(coordinator: $0)
             }
-            .sheet(item: $coordinator.pushNotificationsViewModel) { viewModel in
-                PushNotificationsPermissionRequestView(viewModel: viewModel, buttonsAxis: .vertical)
-            }
 
         NavHolder()
             .bottomSheet(
@@ -87,6 +84,12 @@ struct MainCoordinatorView: CoordinatorView {
                 settings: .init(backgroundColor: Colors.Background.primary, contentScrollsHorizontally: true)
             ) {
                 ReceiveBottomSheetView(viewModel: $0)
+            }
+            .bottomSheet(
+                item: $coordinator.pushNotificationsViewModel,
+                backgroundColor: Colors.Background.primary
+            ) {
+                PushNotificationsBottomSheetView(viewModel: $0)
             }
 
         NavHolder()
