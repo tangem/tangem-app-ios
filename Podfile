@@ -69,13 +69,13 @@ target 'Tangem' do
     release_beta_configuration,
   ]
 
-  # support chat
-#  pod 'SPRMessengerClient', :git => 'https://github.com/tangem/SPRMessengerClient-binaries-ios.git', :tag => 'sprinklr-3.6.2-tangem1'
-  
   # Analytics
   pod 'AmplitudeSwift'
   pod 'Firebase/Crashlytics'
   pod 'Firebase/Analytics'
+
+  # Push notifications
+  pod 'Firebase/Messaging'
 
   target 'TangemTests' do
     inherit! :search_paths

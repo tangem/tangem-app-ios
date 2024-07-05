@@ -247,8 +247,9 @@ class SendModel {
 
         if let withdrawalValidator = walletModel.withdrawalNotificationProvider {
             transaction
-                .map { transaction in
+                .map { transaction -> WithdrawalNotification? in
                     guard let transaction else { return nil }
+
                     return withdrawalValidator.withdrawalNotification(amount: transaction.amount, fee: transaction.fee)
                 }
                 .sink { [weak self] in
