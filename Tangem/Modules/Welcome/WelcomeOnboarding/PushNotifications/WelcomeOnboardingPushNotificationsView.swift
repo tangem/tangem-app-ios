@@ -13,15 +13,14 @@ struct WelcomeOnboardingPushNotificationsView: View {
 
     var body: some View {
         VStack(spacing: 0.0) {
-            // Invisible navigation bar is used here to replicate layout from wallet onboarding
-            NavigationBar(title: "")
-                .hidden()
-
-            FixedSpacer(height: 20.0, length: 20.0)
+            FixedSpacer(
+                height: 20.0 + OnboardingLayoutConstants.navbarSize.height,
+                length: 20.0
+            )
 
             PushNotificationsPermissionRequestView(
                 viewModel: viewModel,
-                topInset: -Constants.pushNotificationsPermissionRequestViewTopInset,
+                topInset: -OnboardingLayoutConstants.progressBarPadding,
                 buttonsAxis: .vertical
             )
         }
@@ -29,16 +28,6 @@ struct WelcomeOnboardingPushNotificationsView: View {
 
     init(viewModel: PushNotificationsPermissionRequestViewModel) {
         self.viewModel = viewModel
-    }
-}
-
-// MARK: - Constants
-
-private extension WelcomeOnboardingPushNotificationsView {
-    enum Constants {
-        /// - Warning: must match `WalletOnboardingView.progressBarPadding`, `SingleCardOnboardingView.progressBarPadding`,
-        /// `TwinsOnboardingView.progressBarPadding` and so on.
-        static let pushNotificationsPermissionRequestViewTopInset = 10.0
     }
 }
 
