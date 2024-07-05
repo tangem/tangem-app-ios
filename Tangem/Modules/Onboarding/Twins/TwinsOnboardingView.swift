@@ -43,7 +43,11 @@ struct TwinsOnboardingView: View {
             )
         case .pushNotifications:
             if let viewModel = viewModel.pushNotificationsViewModel {
-                PushNotificationsPermissionRequestView(viewModel: viewModel, buttonsAxis: .vertical)
+                PushNotificationsPermissionRequestView(
+                    viewModel: viewModel,
+                    topInset: -progressBarPadding,
+                    buttonsAxis: .vertical
+                )
             }
         default:
             EmptyView()
