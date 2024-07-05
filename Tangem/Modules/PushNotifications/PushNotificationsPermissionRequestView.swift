@@ -9,13 +9,14 @@
 import SwiftUI
 
 struct PushNotificationsPermissionRequestView: View {
-    @ObservedObject var viewModel: PushNotificationsPermissionRequestViewModel
+    @ObservedObject private var viewModel: PushNotificationsPermissionRequestViewModel
 
-    let buttonsAxis: Axis
+    private let topInset: CGFloat
+    private let buttonsAxis: Axis
 
     var body: some View {
         VStack(spacing: 0.0) {
-            Spacer()
+            FixedSpacer(height: 62.0 + topInset)
 
             Group {
                 VStack(spacing: 0.0) {
@@ -29,9 +30,9 @@ struct PushNotificationsPermissionRequestView: View {
                         .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
-
-                    FixedSpacer(height: 44.0)
                 }
+
+                FixedSpacer(height: 44.0)
 
                 VStack(spacing: 0.0) {
                     OnboardingFeatureDescriptionView(
@@ -46,12 +47,14 @@ struct PushNotificationsPermissionRequestView: View {
                         description: Localization.userPushNotificationAgreementArgumentTwo
                     )
                 }
+                .layoutPriority(100) // Higher layout priority causes spacers to collapse if there is not enough vertical space
             }
             .padding(.horizontal, 20.0)
 
             Spacer()
 
             buttonsContainer
+                .layoutPriority(101) // Higher layout priority causes spacers to collapse if there is not enough vertical space
         }
     }
 
@@ -82,6 +85,16 @@ struct PushNotificationsPermissionRequestView: View {
             action: viewModel.didTapLater
         )
     }
+
+    init(
+        viewModel: PushNotificationsPermissionRequestViewModel,
+        topInset: CGFloat,
+        buttonsAxis: Axis
+    ) {
+        self.viewModel = viewModel
+        self.topInset = topInset
+        self.buttonsAxis = buttonsAxis
+    }
 }
 
 // MARK: - Previews
@@ -93,10 +106,10 @@ struct PushNotificationsPermissionRequestView: View {
     )
 
     return VStack {
-        PushNotificationsPermissionRequestView(viewModel: viewModel, buttonsAxis: .vertical)
+        PushNotificationsPermissionRequestView(viewModel: viewModel, topInset: 0.0, buttonsAxis: .vertical)
 
         Spacer()
 
-        PushNotificationsPermissionRequestView(viewModel: viewModel, buttonsAxis: .horizontal)
+        PushNotificationsPermissionRequestView(viewModel: viewModel, topInset: 0.0, buttonsAxis: .horizontal)
     }
 }
