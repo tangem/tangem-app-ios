@@ -134,6 +134,7 @@ private extension CommonExpressModulesFactory {
     var userWalletId: String { userWalletModel.userWalletId.stringValue }
     var signer: TransactionSigner { userWalletModel.signer }
     var logger: Logger { AppLog.shared }
+    var analyticsLogger: ExpressAnalyticsLogger { CommonExpressAnalyticsLogger() }
     var userTokensManager: UserTokensManager { userWalletModel.userTokensManager }
 
     var expressTokensListAdapter: ExpressTokensListAdapter {
@@ -163,7 +164,8 @@ private extension CommonExpressModulesFactory {
             allowanceProvider: allowanceProvider,
             feeProvider: expressFeeProvider,
             expressRepository: expressRepository,
-            logger: logger
+            logger: logger,
+            analyticsLogger: analyticsLogger
         )
 
         let interactor = ExpressInteractor(
