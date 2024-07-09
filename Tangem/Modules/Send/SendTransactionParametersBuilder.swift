@@ -94,6 +94,7 @@ struct SendTransactionParametersBuilder {
              .taraxa,
              .radiant,
              .base,
+             .bittensor,
              .joystream:
             return nil
         }
