@@ -57,7 +57,7 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
             backgroundView
 
             sheet
-                .infinityFrame(axis: .vertical, alignment: .bottom)
+            // .infinityFrame(axis: .vertical, alignment: .bottom) // [REDACTED_TODO_COMMENT]
         }
         .ignoresSafeArea(edges: .bottom)
         .onAppear(perform: stateObject.onAppear)
@@ -144,10 +144,13 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
         ZStack {
             Colors.Background.primary
 
-            VStack(spacing: 0.0) {
-                headerView
+            // [REDACTED_TODO_COMMENT]
+            NavigationView {
+                VStack(spacing: 0.0) {
+                    headerView
 
-                scrollView
+                    scrollView
+                }
             }
             .layoutPriority(1000.0) // This child defines the layout of the outer container, so a higher layout priority is used
         }
