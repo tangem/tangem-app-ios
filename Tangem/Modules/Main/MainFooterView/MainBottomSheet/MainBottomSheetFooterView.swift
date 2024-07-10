@@ -24,5 +24,6 @@ struct MainBottomSheetFooterView: View {
             .bottomScrollableSheetGrabber()
             .bottomScrollableSheetShadow()
         }
+        .overlay(Color.red.opacity(0.5))
     }
 }

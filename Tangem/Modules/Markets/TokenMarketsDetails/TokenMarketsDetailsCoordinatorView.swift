@@ -15,6 +15,7 @@ struct TokenMarketsDetailsCoordinatorView: CoordinatorView {
         ZStack {
             if let viewModel = coordinator.rootViewModel {
                 TokenMarketsDetailsView(viewModel: viewModel)
+//                    .debugBorder(color: .red, width: 3.0)
             }
 
             sheets
