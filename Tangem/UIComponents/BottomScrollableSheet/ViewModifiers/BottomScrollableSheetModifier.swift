@@ -25,11 +25,16 @@ private struct BottomScrollableSheetModifier<
     @Environment(\.bottomScrollableSheetConfiguration) private var configuration
 
     func body(content: Content) -> some View {
-        ZStack(alignment: .bottom) {
-            content
-                .cornerRadius(14.0)
-                .scaleEffect(stateObject.scale, anchor: .bottom)
-                .edgesIgnoringSafeArea(.all)
+        ZStack {
+            UIAppearanceBoundaryContainerView(boundaryMarker: TestTest.self, scale: stateObject.scale) {
+                content
+                    .cornerRadius(14.0)
+                    .edgesIgnoringSafeArea(.all)
+            }
+            .cornerRadius(14.0)
+            .edgesIgnoringSafeArea(.all)
+            .layoutPriority(1000.0)
+            .printSize("size_content")
 
             BottomScrollableSheet(
                 stateObject: stateObject,
@@ -41,8 +46,10 @@ private struct BottomScrollableSheetModifier<
             .isHiddenWhenCollapsed(configuration.isHiddenWhenCollapsed)
             .allowsHitTesting(configuration.allowsHitTesting)
             .environment(\.bottomScrollableSheetStateController, stateObject)
+            .printSize("size_sheet")
         }
-        .background(Color.black.edgesIgnoringSafeArea(.all))
+        .printSize("size_zstack")
+        .background { Color.black.ignoresSafeArea(edges: .vertical) }
     }
 }
 
@@ -81,3 +88,5 @@ extension View {
         )
     }
 }
+
+private class TestTest: UIViewController {}
