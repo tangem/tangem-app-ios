@@ -18,11 +18,14 @@ final class BottomScrollableSheetStateObject: ObservableObject {
 
     @Published private(set) var preferredStatusBarColorScheme: ColorScheme?
 
-    @Published private(set) var visibleHeight: CGFloat = .zero
+    @Published private(set) var verticalInset: CGFloat = .zero
 
-    var maxHeight: CGFloat { UIScreen.main.bounds.height }
+    var sheetContainerHeight: CGFloat { UIScreen.main.bounds.height }
 
-    var minHeight: CGFloat { height(for: .top(trigger: .dragGesture)) + Constants.sheetTopInset }
+    @available(*, deprecated, message: "Test only")
+    let diff = 44.0
+
+    var sheetHeight: CGFloat { UIScreen.main.bounds.height - diff } // [REDACTED_TODO_COMMENT]
 
     var headerHeight: CGFloat = .zero {
         didSet {
@@ -41,15 +44,16 @@ final class BottomScrollableSheetStateObject: ObservableObject {
     private var contentOffset: CGPoint { _contentOffsetSubject.value }
 
     var progress: CGFloat {
-        let maxHeight = height(for: .top(trigger: .dragGesture))
-        let minHeight = height(for: .bottom)
-        let progress = (visibleHeight - minHeight) / (maxHeight - minHeight)
+        let minInset = inset(for: .top(trigger: .dragGesture))
+        let maxInset = inset(for: .bottom)
+        let progress = (maxInset - verticalInset) / (maxInset - minInset)
         return clamp(progress, min: 0.0, max: 1.0)
     }
 
     var scale: CGFloat {
         let minScale = 1.0
-        let maxScale = minHeight / maxHeight
+        let maxScale = 0.92
+//        let maxScale = minHeight / maxHeight
         return minScale - (minScale - maxScale) * progress
     }
 
@@ -59,6 +63,10 @@ final class BottomScrollableSheetStateObject: ObservableObject {
     func onAppear() {
         bind()
         updateToState(state)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+//            self.expand()
+        }
     }
 
     func onHeaderTap() {
@@ -100,24 +108,23 @@ final class BottomScrollableSheetStateObject: ObservableObject {
         let animation = makeAnimation(velocity: velocity, remainingProgress: remainingProgress)
 
         withAnimation(animation) {
-            visibleHeight = height(for: state)
+            verticalInset = inset(for: state)
             updateStatusBarAppearance(to: state)
         }
     }
 
-    /// Use for change height when user is dragging
-    private func updateVisibleHeight(_ height: CGFloat) {
+    private func updateVerticalInset(_ height: CGFloat) {
         withAnimation(.interactiveSpring()) {
-            self.visibleHeight = height
+            self.verticalInset = height
         }
     }
 
-    private func height(for state: BottomScrollableSheetState) -> CGFloat {
+    private func inset(for state: BottomScrollableSheetState) -> CGFloat {
         switch state {
         case .bottom:
-            return headerHeight
+            return sheetContainerHeight - headerHeight - 10.0 // [REDACTED_TODO_COMMENT]
         case .top:
-            return geometryInfo.size.height + geometryInfo.safeAreaInsets.bottom - Constants.sheetTopInset
+            return diff // [REDACTED_TODO_COMMENT]
         }
     }
 
@@ -138,7 +145,7 @@ final class BottomScrollableSheetStateObject: ObservableObject {
     }
 
     func headerDragGesture(onEnded value: DragGesture.Value) {
-        let hidingLine = height(for: .top(trigger: .dragGesture)) * Constants.hidingLineMultiplicator
+        let hidingLine = sheetContainerHeight * Constants.hidingLineMultiplicator
         let velocity = value.velocityCompat.height
 
         // If the ended location below the hiding line
@@ -166,57 +173,59 @@ final class BottomScrollableSheetStateObject: ObservableObject {
 
     func scrollViewContentDragGesture(onEnded value: UIPanGestureRecognizer.Value) {
         // If the dragging was started from the top of the ScrollView
-        if contentOffset.y <= .zero {
-            // The user made a quick enough swipe to hide sheet
-            let isHighVelocity = value.velocity.y > geometryInfo.size.height
-
-            // The user stop swipe below hiding line
-            let hidingLine = height(for: .top(trigger: .dragGesture)) * Constants.hidingLineMultiplicator
-            let isStoppedBelowHidingLine = visibleHeight < hidingLine
-            let velocity = value.velocity.y
-
-            if isHighVelocity || isStoppedBelowHidingLine {
-                updateToState(.bottom, velocity: velocity, remainingProgress: progress)
-            } else {
-                updateToState(.top(trigger: .dragGesture), velocity: velocity, remainingProgress: 1.0 - progress)
-            }
-        }
-
-        if scrollViewIsDragging {
-            scrollViewIsDragging = false
-        }
+//        if contentOffset.y <= .zero {
+//            // The user made a quick enough swipe to hide sheet
+//            let isHighVelocity = value.velocity.y > geometryInfo.size.height
+//
+//            // The user stop swipe below hiding line
+//            let hidingLine = height(for: .top(trigger: .dragGesture)) * Constants.hidingLineMultiplicator
+//            let isStoppedBelowHidingLine = visibleHeight < hidingLine
+//            let velocity = value.velocity.y
+//
+//            if isHighVelocity || isStoppedBelowHidingLine {
+//                updateToState(.bottom, velocity: velocity, remainingProgress: progress)
+//            } else {
+//                updateToState(.top(trigger: .dragGesture), velocity: velocity, remainingProgress: 1.0 - progress)
+//            }
+//        }
+//
+//        if scrollViewIsDragging {
+//            scrollViewIsDragging = false
+//        }
     }
 
     private func dragView(translation: CGFloat) {
-        var visibleHeight = height(for: state) - translation
-        let maxVisibleHeight = height(for: .top(trigger: .dragGesture))
-        let minVisibleHeight = height(for: .bottom)
+        let _ = print("\(#function) called at \(CACurrentMediaTime()) verticalInset: \(verticalInset), sheetContainerHeight: \(sheetContainerHeight), sheetHeight: \(sheetHeight), headerHeight: \(headerHeight), progress \(progress)")
+        var verticalInset = inset(for: state) + translation
+//        let maxVisibleHeight = inset(for: .top(trigger: .dragGesture))
+//        let minVisibleHeight = inset(for: .bottom)
 
         // Applying a rubberbanding effect when the view is dragged too much
         // (the min/max allowed value for visible height is exceeded)
-        if visibleHeight > maxVisibleHeight {
-            visibleHeight = maxVisibleHeight + (visibleHeight - maxVisibleHeight).withRubberbanding()
-        } else if visibleHeight < minVisibleHeight {
-            visibleHeight = minVisibleHeight - (minVisibleHeight - visibleHeight).withRubberbanding()
-        }
+//        if visibleHeight > maxVisibleHeight {
+//            visibleHeight = maxVisibleHeight + (visibleHeight - maxVisibleHeight).withRubberbanding()
+//        } else if visibleHeight < minVisibleHeight {
+//            visibleHeight = minVisibleHeight - (minVisibleHeight - visibleHeight).withRubberbanding()
+//        }
 
-        updateVisibleHeight(visibleHeight)
+        updateVerticalInset(verticalInset)
     }
 
     private func makeAnimation(velocity: CGFloat?, remainingProgress: CGFloat?) -> Animation {
-        guard let velocity, let remainingProgress else {
-            return Constants.defaultAnimation
-        }
-
-        let totalDistance = minHeight - headerHeight
-        let remainingDistance = totalDistance * remainingProgress
-        let duration = remainingDistance / abs(velocity)
-
-        guard duration.isFinite else {
-            return Constants.defaultAnimation
-        }
-
-        return .easeOut(duration: clamp(duration, min: Constants.minAnimationDuration, max: Constants.maxAnimationDuration))
+        return .linear
+//        guard let velocity, let remainingProgress else {
+//            return Constants.defaultAnimation
+//        }
+//
+//        let totalDistance = minHeight - headerHeight
+//        let remainingDistance = totalDistance * remainingProgress
+//        let duration = remainingDistance / abs(velocity)
+//
+//        guard duration.isFinite else {
+//            return Constants.defaultAnimation
+//        }
+//
+//        return .easeOut(duration: clamp(duration, min: Constants.minAnimationDuration, max: Constants.maxAnimationDuration))
     }
 }
 
