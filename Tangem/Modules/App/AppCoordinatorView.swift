@@ -47,8 +47,8 @@ struct AppCoordinatorView: CoordinatorView {
                     overlay: MainBottomSheetOverlayCoordinatorView.init
                 )
                 .bottomScrollableSheetConfiguration(
-                    isHiddenWhenCollapsed: true,
-                    allowsHitTesting: coordinator.isMainBottomSheetShown
+                    isHiddenWhenCollapsed: false,
+                    allowsHitTesting: true
                 )
                 .onBottomScrollableSheetStateChange(
                     weakify(mainBottomSheetCoordinator, forFunction: MainBottomSheetCoordinator.onBottomScrollableSheetStateChange)
