@@ -46,12 +46,10 @@ private struct BottomScrollableSheetModifier<
             .isHiddenWhenCollapsed(configuration.isHiddenWhenCollapsed)
             .allowsHitTesting(configuration.allowsHitTesting)
             .environment(\.bottomScrollableSheetStateController, stateObject)
-            .debugBorder(color: .red.opacity(0.5), width: 3.0)
 //            .infinityFrame()
             .printSize("size_sheet")
         }
         .printSize("size_zstack")
-//        .debugBorder(color: .blue.opacity(0.5), width: 3.0)
         .background { Color.black.ignoresSafeArea(edges: .vertical) }
     }
 }
