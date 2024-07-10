@@ -20,7 +20,7 @@ class CommonTangemApiService {
             output: TangemNetworkLoggerPlugin.tangemSdkLoggerOutput,
             logOptions: .verbose
         )),
-    ])
+    ].filter { !($0 is NetworkLoggerPlugin) || UserDefaults.standard.bool(forKey: "com.tangem.NetworkLoggingEnabled") })
 
     private var bag: Set<AnyCancellable> = []
 
