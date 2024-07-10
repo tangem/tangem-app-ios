@@ -1,5 +1,5 @@
 //
-//  TokenMarketsDetailsDataProvider.swift
+//  MarketsTokenDetailsDataProvider.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-final class TokenMarketsDetailsDataProvider {
+final class MarketsTokenDetailsDataProvider {
     @Injected(\.tangemApiService) private var tangemAPIService: TangemApiService
 
     private let mapper = TokenMarketsDetailsMapper(supportedBlockchains: SupportedBlockchains.all)
