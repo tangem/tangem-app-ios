@@ -21,7 +21,7 @@ struct OrganizeTokensContainerView: View {
                         .toolbarBackground(.hidden, for: .navigationBar)
                 }
             } else {
-                UIAppearanceBoundaryContainerView(boundaryMarker: OrganizeTokensContainerViewUIAppearanceBoundaryMarker.self) {
+                UIAppearanceBoundaryContainerView(boundaryMarker: OrganizeTokensContainerViewUIAppearanceBoundaryMarker.self, scale: .zero) {
                     NavigationView {
                         organizeTokensView
                             .onAppear { Self.setupUIAppearanceIfNeeded() }
