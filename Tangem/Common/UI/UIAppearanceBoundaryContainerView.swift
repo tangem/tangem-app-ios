@@ -46,16 +46,20 @@ struct UIAppearanceBoundaryContainerView<BoundaryMarker, Content>: UIViewControl
     Content: View,
     BoundaryMarker: UIViewController {
     private let content: () -> Content
+    private let scale: Double
 
     /// Convenience constructor to avoid explicit generic specialization by the caller.
     init(
         boundaryMarker: BoundaryMarker.Type,
+        scale: Double,
         content: @escaping () -> Content
     ) {
+        self.scale = scale
         self.content = content
     }
 
     func makeUIViewController(context: Context) -> BoundaryMarker {
+        let _ = print("\(#function) called at \(CACurrentMediaTime())")
         let containerController = BoundaryMarker()
         let hostingController = UIHostingController(rootView: content())
         containerController.addChild(hostingController)
@@ -63,7 +67,9 @@ struct UIAppearanceBoundaryContainerView<BoundaryMarker, Content>: UIViewControl
         let containerView = containerController.view!
         let hostingView = hostingController.view!
         hostingView.translatesAutoresizingMaskIntoConstraints = false
+        hostingView.layer.cornerRadius = 14.0
         containerView.addSubview(hostingView)
+        containerView.layer.cornerRadius = 14.0
 
         NSLayoutConstraint.activate([
             hostingView.topAnchor.constraint(equalTo: containerView.topAnchor),
@@ -77,5 +83,11 @@ struct UIAppearanceBoundaryContainerView<BoundaryMarker, Content>: UIViewControl
         return containerController
     }
 
-    func updateUIViewController(_ uiViewController: BoundaryMarker, context: Context) {}
+    func updateUIViewController(_ uiViewController: BoundaryMarker, context: Context) {
+        let _ = print("\(#function) called at \(CACurrentMediaTime()) with \(scale)")
+        if abs(scale - 0.92) <= .ulpOfOne || abs(scale - 1.0) <= .ulpOfOne {
+            uiViewController.children.first?.view.layer.add(CABasicAnimation(keyPath: "transform"), forKey: "trans_anim")
+        }
+        uiViewController.children.first?.view.layer.setAffineTransform(.init(scaleX: scale, y: scale))
+    }
 }
