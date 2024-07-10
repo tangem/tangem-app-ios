@@ -20,9 +20,11 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
 
     @State private var overlayHeight: CGFloat = .zero
 
-//    private var overlayBottomInset: CGFloat {
-//        return overlayHeight.isZero ? 0.0 : max(stateObject.maxHeight - stateObject.minHeight, 0.0)
-//    }
+    /*
+     private var overlayBottomInset: CGFloat {
+         return overlayHeight.isZero ? 0.0 : max(stateObject.maxHeight - stateObject.minHeight, 0.0)
+     }
+     */
 
     @State private var isHidden = true
     private var isHiddenWhenCollapsed = false
@@ -37,16 +39,23 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
 
     private var scrollViewBottomContentInset: CGFloat {
         return 0
-//        return max(
-        //            overlayHeight + overlayBottomInset,
-//            UIApplication.safeAreaInsets.bottom + sheetVerticalOffset,
-//            Constants.notchlessDevicesBottomInset + sheetVerticalOffset
-//        )
+        /*
+         return max(
+             overlayHeight + overlayBottomInset,
+             UIApplication.safeAreaInsets.bottom + sheetVerticalOffset,
+             Constants.notchlessDevicesBottomInset + sheetVerticalOffset
+         )
+          */
     }
 
     private let coordinateSpaceName = UUID()
 
-    init(stateObject: BottomScrollableSheetStateObject, header: Header, content: Content, overlay: Overlay) {
+    init(
+        stateObject: BottomScrollableSheetStateObject,
+        header: Header,
+        content: Content,
+        overlay: Overlay
+    ) {
         self.stateObject = stateObject
         self.header = header
         self.content = content
@@ -54,25 +63,24 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
     }
 
     var body: some View {
-        ZStack {
+//        ZStack {
 //            backgroundView
 //                .printSize("size_backgroundView")
 
-            sheet
-                .printSize("size_sheet")
-            // .infinityFrame(axis: .vertical, alignment: .bottom) // [REDACTED_TODO_COMMENT]
-        }
-        .ignoresSafeArea(edges: .bottom)
-        .onAppear(perform: stateObject.onAppear)
-        .onDisappear(perform: restoreStatusBarColorScheme)
-        .onChange(of: stateObject.state) { newValue in
-            bottomScrollableSheetStateObserver?(newValue)
-        }
-        .onChange(of: stateObject.preferredStatusBarColorScheme) { newValue in
-            statusBarStyleConfigurator.setSelectedStatusBarColorScheme(newValue, animated: true)
-        }
-        .readGeometry(bindTo: stateObject.geometryInfoSubject.asWriteOnlyBinding(.zero))
-        .debugBorder(color: .green, width: 2.0)
+        sheet
+            .printSize("size_sheet")
+//            .infinityFrame(axis: .vertical, alignment: .bottom) // [REDACTED_TODO_COMMENT]
+//        }
+//        .ignoresSafeArea(edges: .bottom)
+            .onAppear(perform: stateObject.onAppear)
+            .onDisappear(perform: restoreStatusBarColorScheme)
+            .onChange(of: stateObject.state) { newValue in
+                bottomScrollableSheetStateObserver?(newValue)
+            }
+            .onChange(of: stateObject.preferredStatusBarColorScheme) { newValue in
+                statusBarStyleConfigurator.setSelectedStatusBarColorScheme(newValue, animated: true)
+            }
+            .readGeometry(bindTo: stateObject.geometryInfoSubject.asWriteOnlyBinding(.zero))
     }
 
     private var headerDragGesture: some Gesture {
@@ -136,51 +144,51 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
             .ios15AndBelowScrollDisabledCompat(stateObject.scrollViewIsDragging)
         }
         .ios16AndAboveScrollDisabledCompat(stateObject.scrollViewIsDragging)
-//        .overlay(alignment: .bottom) {
-//            overlay
-//                .offset(y: -overlayBottomInset)
-//                .readGeometry(\.size.height, bindTo: $overlayHeight)
-//        }
+        /*
+         .overlay(alignment: .bottom) {
+             overlay
+                 .offset(y: -overlayBottomInset)
+                 .readGeometry(\.size.height, bindTo: $overlayHeight)
+         }
+          */
         .coordinateSpace(name: coordinateSpaceName)
     }
 
     @ViewBuilder private var sheet: some View {
-        ZStack {
-//            Colors.Background.primary
+        // [REDACTED_TODO_COMMENT]
+        NavigationView {
+        VStack(spacing: 0.0) {
+            headerView
+                .debugBorder(color: .green.opacity(0.5), width: 3.0)
 
-            VStack(spacing: 0.0) {
-                Color
-                    .cyan
-                    .frame(height: stateObject.verticalInset)
-
-                // [REDACTED_TODO_COMMENT]
-                NavigationView {
-                    VStack(spacing: 0.0) {
-                        headerView
-
-                        scrollView
-                    }
-                }
-            }
-            .frame(height: stateObject.sheetHeight)
-            .bottomScrollableSheetCornerRadius()
-            .bottomScrollableSheetShadow()
-            .hidden(isHiddenWhenCollapsed ? isHidden : false)
-            .onAnimationStarted(for: stateObject.progress) {
-                if isHidden {
-                    isHidden = false
-                }
-            }
-            .onAnimationCompleted(for: stateObject.progress) {
-                if !isHidden, stateObject.progress < .ulpOfOne {
-                    isHidden = true
-                }
-            }
-            .overlay(headerGestureOverlayView, alignment: .top) // Mustn't be hidden (by the 'isHidden' flag applied above)
-            .layoutPriority(1000.0) // This child defines the layout of the outer container, so a higher layout priority is used
-            //        .offset(y: stateObject.verticalInset)
-            //        .debugBorder(color: .blue, width: 2.0)
+            scrollView
+                .debugBorder(color: .red.opacity(0.5), width: 3.0)
         }
+        // Required because Navigation view adds some space on the top
+        .offset(y: -12.0)   // [REDACTED_TODO_COMMENT]
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarHidden(true)
+        }
+        .navigationViewStyle(.stack)
+        .debugBorder(color: .purple.opacity(0.5), width: 3.0)
+        .frame(height: stateObject.sheetHeight)
+        .bottomScrollableSheetCornerRadius()
+        .bottomScrollableSheetShadow()
+        .hidden(isHiddenWhenCollapsed ? isHidden : false)
+        .onAnimationStarted(for: stateObject.progress) {
+            if isHidden {
+                isHidden = false
+            }
+        }
+        .onAnimationCompleted(for: stateObject.progress) {
+            if !isHidden, stateObject.progress < .ulpOfOne {
+                isHidden = true
+            }
+        }
+        .overlay(headerGestureOverlayView, alignment: .top) // Mustn't be hidden (by the 'isHidden' flag applied above)
+//        .debugBorder(color: .blue.opacity(0.5), width: 3.0)
+        //            .layoutPriority(1000.0) // This child defines the layout of the outer container, so a higher layout priority is used
+        //            .offset(y: stateObject.verticalInset)
     }
 
     /// Restores default (system-driven) appearance of the status bar.

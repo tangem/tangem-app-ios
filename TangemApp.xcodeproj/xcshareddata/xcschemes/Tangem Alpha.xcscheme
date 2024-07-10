@@ -125,7 +125,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-com.tangem.PerformanceMonitorEnabled YES"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-com.tangem.NetworkLoggingEnabled NO"
