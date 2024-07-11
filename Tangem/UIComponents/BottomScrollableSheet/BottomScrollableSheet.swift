@@ -157,17 +157,17 @@ struct BottomScrollableSheet<Header, Content, Overlay>: View where Header: View,
     @ViewBuilder private var sheet: some View {
         // [REDACTED_TODO_COMMENT]
         NavigationView {
-        VStack(spacing: 0.0) {
-            headerView
-                .debugBorder(color: .green.opacity(0.5), width: 3.0)
+            VStack(spacing: 0.0) {
+                headerView
+                    .debugBorder(color: .green.opacity(0.5), width: 3.0)
 
-            scrollView
-                .debugBorder(color: .red.opacity(0.5), width: 3.0)
-        }
-        // Required because Navigation view adds some space on the top
-        .offset(y: -12.0)   // [REDACTED_TODO_COMMENT]
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarHidden(true)
+                scrollView
+                    .debugBorder(color: .red.opacity(0.5), width: 3.0)
+            }
+            // Required because Navigation view adds some space on the top
+            .offset(y: -12.0) // [REDACTED_TODO_COMMENT]
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarHidden(true)
         }
         .navigationViewStyle(.stack)
         .debugBorder(color: .purple.opacity(0.5), width: 3.0)
