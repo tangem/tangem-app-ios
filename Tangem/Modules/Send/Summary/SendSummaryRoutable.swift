@@ -1,5 +1,5 @@
 //
-//  SendSummaryRoutable.swift
+//  SendSummaryStepsRoutable.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,6 +8,8 @@
 
 import Foundation
 
-protocol SendSummaryRoutable: AnyObject {
-    func openStep(_ step: SendStepType)
+protocol SendSummaryStepsRoutable: AnyObject {
+    func summaryStepRequestEditDestination()
+    func summaryStepRequestEditAmount()
+    func summaryStepRequestEditFee()
 }
