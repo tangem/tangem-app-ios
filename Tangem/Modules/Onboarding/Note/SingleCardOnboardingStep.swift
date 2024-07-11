@@ -20,7 +20,7 @@ enum SingleCardOnboardingStep: Equatable {
     var navbarTitle: String {
         switch self {
         case .pushNotifications:
-            return "Push Notifications" // [REDACTED_TODO_COMMENT]
+            return Localization.onboardingTitleNotifications
         case .addTokens:
             return Localization.onboardingAddTokens
         default:
