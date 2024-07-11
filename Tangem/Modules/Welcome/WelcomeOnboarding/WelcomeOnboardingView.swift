@@ -28,7 +28,7 @@ struct WelcomeOnboardingView: View {
         case .tos(let viewModel):
             WelcomeOnboardingTOSView(viewModel: viewModel)
         case .pushNotifications(let viewModel):
-            EmptyView() // [REDACTED_TODO_COMMENT]
+            WelcomeOnboardingPushNotificationsView(viewModel: viewModel)
         case .none:
             EmptyView()
         }
