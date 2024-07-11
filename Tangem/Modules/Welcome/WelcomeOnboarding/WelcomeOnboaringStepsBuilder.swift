@@ -9,6 +9,14 @@
 import Foundation
 
 struct WelcomeOnboaringStepsBuilder {
+    private let isPushNotificationsAvailable: Bool
+
+    init(
+        isPushNotificationsAvailable: Bool
+    ) {
+        self.isPushNotificationsAvailable = isPushNotificationsAvailable
+    }
+
     func buildSteps() -> [WelcomeOnbordingStep] {
         var steps = [WelcomeOnbordingStep]()
 
@@ -16,7 +24,7 @@ struct WelcomeOnboaringStepsBuilder {
             steps.append(.tos)
         }
 
-        if PushNotificationsProvider.isAvailable {
+        if isPushNotificationsAvailable {
             steps.append(.pushNotifications)
         }
 
