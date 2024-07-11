@@ -317,6 +317,7 @@
 "markets_available networks" = "Available networks";
 "markets_common_my_portfolio" = "My portfolio";
 "markets_common_title" = "Market";
+"markets_generate_addresses_notification" = "To generate addresses for selected networks, you need to attach a Tangem card";
 "markets_select_network" = "Select network";
 "markets_select_wallet" = "Select wallet";
 "markets_sort_by_title" = "Sort By";
