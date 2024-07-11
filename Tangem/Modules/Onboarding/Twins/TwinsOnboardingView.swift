@@ -39,7 +39,7 @@ struct TwinsOnboardingView: View {
         case .saveUserWallet:
             UserWalletStorageAgreementView(viewModel: viewModel.userWalletStorageAgreementViewModel)
         case .pushNotifications:
-            OnboardingPushNotificationsView(viewModel: viewModel.pushNotificationsViewModel)
+            EmptyView() // [REDACTED_TODO_COMMENT]
         default:
             EmptyView()
         }
