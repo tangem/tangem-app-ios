@@ -64,7 +64,7 @@ struct WalletOnboardingView: View {
                 OnboardingAddTokensView(viewModel: model)
             }
         case .pushNotifications:
-            OnboardingPushNotificationsView(viewModel: viewModel.pushNotificationsViewModel)
+            EmptyView() // [REDACTED_TODO_COMMENT]
         default:
             EmptyView()
         }
