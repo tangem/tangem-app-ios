@@ -23,6 +23,7 @@ class TokenMarketsDetailsViewModel: ObservableObject {
     @Published var metricsViewModel: MarketsTokenDetailsMetricsViewModel?
     @Published var pricePerformanceViewModel: MarketsTokenDetailsPricePerformanceViewModel?
     @Published var linksSections: [TokenMarketsDetailsLinkSection] = []
+    @Published var portfolioViewModel: MarketsPortfolioContainerViewModel?
 
     @Injected(\.safariManager) var safariManager: SafariManager
 
@@ -88,6 +89,7 @@ class TokenMarketsDetailsViewModel: ObservableObject {
 
     private let tokenInfo: MarketsTokenModel
     private let dataProvider: MarketsTokenDetailsDataProvider
+    private let walletDataProvider = MarketsWalletDataProvider()
     private var loadedInfo: TokenMarketsDetailsModel?
     private var bag = Set<AnyCancellable>()
 
@@ -106,6 +108,8 @@ class TokenMarketsDetailsViewModel: ObservableObject {
         loadedHistoryInfo = [Date().timeIntervalSince1970: tokenInfo.priceChangePercentage[MarketsPriceIntervalType.day.marketsListId] ?? 0]
         loadedPriceChangeInfo = tokenInfo.priceChangePercentage
         loadDetailedInfo()
+
+        makePreloadBlocksViewModels()
     }
 
     private func bind() {
@@ -148,6 +152,14 @@ class TokenMarketsDetailsViewModel: ObservableObject {
         makeBlocksViewModels(using: model)
     }
 
+    private func makePreloadBlocksViewModels() {
+        portfolioViewModel = .init(
+            userWalletModels: walletDataProvider.userWalletModels,
+            coinId: tokenInfo.id,
+            addTapAction: weakify(self, forFunction: TokenMarketsDetailsViewModel.onAddToPortfolioTapAction)
+        )
+    }
+
     private func makeBlocksViewModels(using model: TokenMarketsDetailsModel) {
         if let insights = model.insights {
             insightsViewModel = .init(insights: insights, infoRouter: self)
@@ -176,7 +188,7 @@ class TokenMarketsDetailsViewModel: ObservableObject {
             return
         }
 
-        coordinator?.openTokenSelector(with: coinModel)
+        coordinator?.openTokenSelector(with: coinModel, with: walletDataProvider)
     }
 
     func openLinkAction(_ link: String) {
