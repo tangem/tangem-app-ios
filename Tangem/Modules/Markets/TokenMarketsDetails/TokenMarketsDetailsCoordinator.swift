@@ -37,8 +37,8 @@ extension TokenMarketsDetailsCoordinator {
 }
 
 extension TokenMarketsDetailsCoordinator: TokenMarketsDetailsRoutable {
-    func openTokenSelector(with coinModel: CoinModel) {
-        networkSelectorViewModel = MarketsTokensNetworkSelectorViewModel(coinModel: coinModel)
+    func openTokenSelector(with coinModel: CoinModel, with walletDataProvider: MarketsWalletDataProvider) {
+        networkSelectorViewModel = MarketsTokensNetworkSelectorViewModel(coinModel: coinModel, walletDataProvider: walletDataProvider)
     }
 
     func openURL(_ url: URL) {
