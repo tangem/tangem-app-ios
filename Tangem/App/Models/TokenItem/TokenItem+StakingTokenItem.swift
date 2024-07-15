@@ -1,5 +1,5 @@
 //
-//  WalletModel+StakingWallet.swift
+//  TokenItem+StakingTokenItem.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,8 +9,11 @@
 import Foundation
 import TangemStaking
 
-extension WalletModel: StakingWallet {
+extension TokenItem {
     var stakingTokenItem: TangemStaking.StakingTokenItem {
-        tokenItem.stakingTokenItem
+        StakingTokenItem(
+            coinId: id ?? blockchain.coinId,
+            contractAdress: contractAddress
+        )
     }
 }
