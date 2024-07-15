@@ -1,5 +1,5 @@
 //
-//  StakingManager.swift
+//  EnterAction.swift
 //  TangemStaking
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,6 +8,6 @@
 
 import Foundation
 
-public protocol StakingManager: Actor {
-    func getYield() throws -> YieldInfo
+public struct EnterAction {
+    let transactions: [TransactionInfo]
 }
