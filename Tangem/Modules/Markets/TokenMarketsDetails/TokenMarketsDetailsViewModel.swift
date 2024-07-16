@@ -25,6 +25,8 @@ class TokenMarketsDetailsViewModel: ObservableObject {
     @Published var linksSections: [TokenMarketsDetailsLinkSection] = []
     @Published var portfolioViewModel: MarketsPortfolioContainerViewModel?
 
+    @Published var descriptionBottomSheetInfo: DescriptionBottomSheetInfo?
+
     @Injected(\.safariManager) var safariManager: SafariManager
 
     let priceChangeIntervalOptions = MarketsPriceIntervalType.allCases
@@ -203,13 +205,16 @@ class TokenMarketsDetailsViewModel: ObservableObject {
 
 extension TokenMarketsDetailsViewModel {
     func openFullDescription() {
-        // [REDACTED_TODO_COMMENT]
-        print("Open full description tapped")
+        guard let fullDescription else {
+            return
+        }
+
+        openInfoBottomSheet(title: Localization.marketsTokenDetailsAboutTokenTitle(tokenInfo.name), message: fullDescription)
     }
 }
 
 extension TokenMarketsDetailsViewModel: MarketsTokenDetailsBottomSheetRouter {
     func openInfoBottomSheet(title: String, message: String) {
-        // [REDACTED_TODO_COMMENT]
+        descriptionBottomSheetInfo = .init(title: title, description: message)
     }
 }
