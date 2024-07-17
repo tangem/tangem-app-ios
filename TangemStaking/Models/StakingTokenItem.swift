@@ -1,5 +1,5 @@
 //
-//  StakingWallet.swift
+//  StakingTokenItem.swift
 //  TangemStaking
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,11 +7,6 @@
 //
 
 import Foundation
-
-public protocol StakingWallet {
-    var stakingTokenItem: StakingTokenItem { get }
-    var defaultAddress: String { get }
-}
 
 public struct StakingTokenItem: Hashable {
     public let coinId: String
