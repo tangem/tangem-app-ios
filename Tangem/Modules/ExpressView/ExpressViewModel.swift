@@ -666,7 +666,8 @@ extension ExpressViewModel: NotificationTapDelegate {
              .goToProvider,
              .addHederaTokenAssociation,
              .bookNow,
-             .stake:
+             .stake,
+             .support:
             return
         }
     }
