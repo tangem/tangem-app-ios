@@ -47,8 +47,7 @@ class SendCoordinator: CoordinatorObject {
         case .sell(let parameters):
             rootViewModel = factory.makeSellViewModel(sellParameters: parameters, router: self)
         case .staking(let manager):
-            // [REDACTED_TODO_COMMENT]
-            break
+            rootViewModel = factory.makeStakingViewModel(manager: manager, router: self)
         }
     }
 }
