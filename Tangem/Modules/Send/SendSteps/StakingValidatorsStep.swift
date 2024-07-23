@@ -31,6 +31,6 @@ extension StakingValidatorsStep: SendStep {
     var type: SendStepType { .validators(viewModel) }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
-        .just(output: false) // [REDACTED_TODO_COMMENT]
+        .just(output: true)
     }
 }
