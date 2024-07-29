@@ -60,9 +60,7 @@ extension CommonStakingManager: StakingManager {
         switch (state, action) {
         case (.availableToStake(let yieldInfo), .stake(let amount, let validator)):
             try await getTransactionToStake(amount: amount, validator: validator, integrationId: yieldInfo.id)
-        case (.availableToUnstake(_, _), .unstake):
-            throw StakingManagerError.notImplemented // [REDACTED_TODO_COMMENT]
-        case (.availableToClaimRewards(_, _), .claimRewards):
+        case (.staked(_, _), .unstake):
             throw StakingManagerError.notImplemented // [REDACTED_TODO_COMMENT]
         default:
             throw StakingManagerError.stakingManagerStateNotSupportTransactionAction(action: action)
@@ -79,8 +77,15 @@ private extension CommonStakingManager {
     }
 
     func state(balance: StakingBalanceInfo?, yield: YieldInfo) -> StakingManagerState {
-        // [REDACTED_TODO_COMMENT]
-        return .availableToStake(yield)
+        guard let balance else {
+            return .availableToStake(yield)
+        }
+
+        if balance.balanceGroupType.isActiveOrUnstaked {
+            return .staked(balance, yield)
+        } else {
+            return .availableToStake(yield)
+        }
     }
 
     func getTransactionToStake(amount: Decimal, validator: String, integrationId: String) async throws -> StakingTransactionInfo {
