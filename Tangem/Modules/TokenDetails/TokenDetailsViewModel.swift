@@ -96,6 +96,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .addHederaTokenAssociation,
              .leaveAmount,
              .openLink,
+             .support,
              .stake:
             super.didTapNotification(with: id, action: action)
         }
