@@ -808,6 +808,7 @@ extension SendViewModel: NotificationTapDelegate {
              .addHederaTokenAssociation,
              .openLink,
              .stake,
+             .support,
              .swap:
             assertionFailure("Notification tap not handled")
         }
