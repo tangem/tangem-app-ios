@@ -92,7 +92,6 @@ enum NotificationButtonActionType: Identifiable, Hashable {
         switch self {
         case .generateAddresses,
              .openLink,
-             .swap,
              .empty:
             return .primary
         case .backupCard,
@@ -105,7 +104,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .reduceAmountTo,
              .addHederaTokenAssociation,
              .leaveAmount,
-             .stake:
+             .stake,
+             .swap:
             return .secondary
         }
     }
