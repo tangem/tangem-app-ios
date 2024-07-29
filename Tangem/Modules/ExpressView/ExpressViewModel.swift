@@ -686,6 +686,7 @@ extension ExpressViewModel: NotificationTapDelegate {
              .addHederaTokenAssociation,
              .openLink,
              .stake,
+             .support,
              .swap:
             return
         }
