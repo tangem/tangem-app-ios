@@ -27,6 +27,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     case stake
     /// No action
     case empty
+    case support
 
     var id: Int { hashValue }
 
@@ -62,6 +63,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return Localization.tokenSwapPromotionButton
         case .empty:
             return ""
+        case .support:
+            return Localization.detailsRowTitleContactToSupport
         }
     }
 
@@ -83,6 +86,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .addHederaTokenAssociation,
              .openLink,
              .stake,
+             .support,
              .empty:
             return nil
         }
@@ -105,7 +109,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .addHederaTokenAssociation,
              .leaveAmount,
              .stake,
-             .swap:
+             .swap,
+             .support:
             return .secondary
         }
     }
