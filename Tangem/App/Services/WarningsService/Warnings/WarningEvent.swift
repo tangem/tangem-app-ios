@@ -69,7 +69,7 @@ extension WarningEvent: NotificationEvent {
         case .supportedOnlySingleCurrencyWallet:
             return .string(Localization.manageTokensWalletSupportOnlyOneNetworkTitle)
         case .backupErrors:
-            return .string(Localization.warningBackupErrorsTitle)
+            return .string(Localization.commonAttention)
         }
     }
 
@@ -195,6 +195,15 @@ extension WarningEvent: NotificationEvent {
             return .withButtons([
                 .init(action: buttonAction, actionType: .generateAddresses, isWithLoader: true),
             ])
+        case .backupErrors:
+            guard let buttonAction else {
+                break
+            }
+
+            return .withButtons([
+                .init(action: buttonAction, actionType: .support, isWithLoader: false),
+            ])
+
         default: break
         }
         return .plain
