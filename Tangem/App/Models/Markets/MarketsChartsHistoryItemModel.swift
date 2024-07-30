@@ -8,6 +8,8 @@
 
 import Foundation
 
+// [REDACTED_TODO_COMMENT]
 struct MarketsChartsHistoryItemModel: Decodable {
+    /// `[timestamp (in milliseconds): price]`
     let prices: [String: Decimal]
 }
