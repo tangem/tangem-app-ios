@@ -9,6 +9,5 @@
 import Foundation
 
 protocol MarketsHistoryChartProvider {
-    // [REDACTED_TODO_COMMENT]
-    func loadHistoryChart(for interval: MarketsPriceIntervalType) async throws -> MarketsChartsHistoryItemModel
+    func loadHistoryChart(for interval: MarketsPriceIntervalType) async throws -> LineChartViewData
 }
