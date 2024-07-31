@@ -809,7 +809,8 @@ extension SendViewModel: NotificationTapDelegate {
              .openLink,
              .stake,
              .support,
-             .swap:
+             .swap,
+             .openCurrency:
             assertionFailure("Notification tap not handled")
         }
     }

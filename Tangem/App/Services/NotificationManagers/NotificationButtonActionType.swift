@@ -28,6 +28,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     /// No action
     case empty
     case support
+    case openCurrency
 
     var id: Int { hashValue }
 
@@ -65,6 +66,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return ""
         case .support:
             return Localization.detailsRowTitleContactToSupport
+        case .openCurrency:
+            return Localization.commonGoToToken
         }
     }
 
@@ -87,7 +90,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .openLink,
              .stake,
              .support,
-             .empty:
+             .empty,
+             .openCurrency:
             return nil
         }
     }
@@ -110,7 +114,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .leaveAmount,
              .stake,
              .swap,
-             .support:
+             .support,
+             .openCurrency:
             return .secondary
         }
     }
