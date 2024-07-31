@@ -687,7 +687,8 @@ extension ExpressViewModel: NotificationTapDelegate {
              .openLink,
              .stake,
              .support,
-             .swap:
+             .swap,
+             .openCurrency:
             return
         }
     }
@@ -725,7 +726,8 @@ private extension ExpressViewModel {
              .withdrawalNotificationEvent,
              .validationErrorEvent,
              .verificationRequired,
-             .cexOperationFailed:
+             .cexOperationFailed,
+             .refunded:
             return nil
         }
     }
