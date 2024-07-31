@@ -97,7 +97,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .leaveAmount,
              .openLink,
              .support,
-             .stake:
+             .stake,
+             .openCurrency:
             super.didTapNotification(with: id, action: action)
         }
     }
