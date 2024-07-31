@@ -1,5 +1,5 @@
 //
-//  MarketsChartsHistoryItemModel.swift
+//  MarketsChartModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,8 +8,7 @@
 
 import Foundation
 
-// [REDACTED_TODO_COMMENT]
-struct MarketsChartsHistoryItemModel: Decodable {
+struct MarketsChartModel: Decodable {
     /// `[timestamp (in milliseconds): price]`
     let prices: [String: Decimal]
 }
