@@ -55,6 +55,9 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
         coinModel.items.map { $0.tokenItem }
     }
 
+    // The cache of the proper state storage
+    private var readonlyTokens: [TokenItem] = []
+
     private var selectedUserWalletModel: UserWalletModel? {
         walletDataProvider.selectedUserWalletModel
     }
@@ -73,8 +76,6 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
 
         bind()
         setup()
-
-        reloadSelectorItemsFromTokenItems()
     }
 
     // MARK: - Implementation
@@ -92,18 +93,36 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
         }
 
         isSaving = true
-        saveChanges(with: userWalletModel.userTokensManager)
+
+        do {
+            try applyChanges(with: userWalletModel.userTokensManager)
+        } catch {
+            AppLog.shared.debug("\(String(describing: self)) undefined error applyChanges \(error.localizedDescription)")
+            return
+        }
+
+        isSaving = true
 
         userWalletModel.userTokensManager.deriveIfNeeded { [weak self] result in
-            self?.isSaving = false
+            DispatchQueue.main.async {
+                self?.isSaving = false
 
-            if case .failure(let error) = result, !error.isUserCancelled {
-                self?.alert = error.alertBinder
-                return
+                if case .failure(let error) = result {
+                    // Need to reset state selection, set the current values
+                    self?.reset(with: userWalletModel.userTokensManager)
+
+                    if !error.isUserCancelled {
+                        self?.alert = error.alertBinder
+                    }
+
+                    return
+                }
+
+                // Copy tokens to readonly state, which have been success added
+                self?.readonlyTokens.append(contentsOf: self?.pendingAdd ?? [])
+                self?.pendingAdd = []
+                self?.updateSelectionByTokenItems()
             }
-
-            self?.pendingAdd = []
-            self?.updateSelectionByTokenItems()
         }
     }
 
@@ -118,8 +137,20 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
                 }
 
                 viewModel.setNeedSelectWallet(userWalletModel)
+                viewModel.readonlyTokens = viewModel.tokenItems.filter { viewModel.isAdded($0) }
+                viewModel.reloadSelectorItemsFromTokenItems()
             }
             .store(in: &bag)
+    }
+
+    private func reset(with userTokensManager: UserTokensManager) {
+        do {
+            try userTokensManager.update(itemsToRemove: pendingAdd, itemsToAdd: [])
+            pendingAdd = []
+            updateSelectionByTokenItems()
+        } catch {
+            AppLog.shared.debug("\(String(describing: self)) undefined error reset \(error.localizedDescription)")
+        }
     }
 
     private func reloadSelectorItemsFromTokenItems() {
@@ -128,7 +159,7 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
             .map { index, element in
                 MarketsTokensNetworkSelectorItemViewModel(
                     tokenItem: element,
-                    isReadonly: isAdded(element),
+                    isReadonly: isReadonly(element),
                     isSelected: bindSelection(element),
                     position: .init(with: index, total: tokenItems.count)
                 )
@@ -142,33 +173,23 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
         }
     }
 
-    private func saveChanges(with userTokensManager: UserTokensManager) {
-        do {
-            try userTokensManager.update(itemsToRemove: [], itemsToAdd: pendingAdd)
-        } catch let error as TangemSdkError {
-            if error.isUserCancelled {
-                return
-            }
-
-            alert = error.alertBinder
-        } catch {
-            AppLog.shared.debug("\(String(describing: self)) undefined error saveChanges \(error.localizedDescription)")
-            return
-        }
+    private func applyChanges(with userTokensManager: UserTokensManager) throws {
+        try userTokensManager.update(itemsToRemove: [], itemsToAdd: pendingAdd)
     }
 
     private func onSelect(_ selected: Bool, _ tokenItem: TokenItem) throws {
-        guard let userTokensManager = walletDataProvider.selectedUserWalletModel?.userTokensManager else {
+        guard
+            let userTokensManager = walletDataProvider.selectedUserWalletModel?.userTokensManager
+        else {
             return
-        }
-
-        if selected {
-            try userTokensManager.addTokenItemPrecondition(tokenItem)
         }
 
         sendAnalyticsOnChangeTokenState(tokenIsSelected: selected, tokenItem: tokenItem)
 
         if selected {
+            guard !isAdded(tokenItem) else { return }
+
+            try userTokensManager.addTokenItemPrecondition(tokenItem)
             pendingAdd.append(tokenItem)
         } else {
             pendingAdd.remove(tokenItem)
@@ -206,7 +227,7 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
     private func updateSelection(_ tokenItem: TokenItem) {
         tokenItemViewModels
             .first(where: { $0.tokenItem == tokenItem })?
-            .updateSelection(with: bindSelection(tokenItem), isReadonly: isAdded(tokenItem))
+            .updateSelection(with: bindSelection(tokenItem), isReadonly: isReadonly(tokenItem))
     }
 
     private func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool, tokenItem: TokenItem) {
@@ -256,6 +277,10 @@ private extension MarketsTokensNetworkSelectorViewModel {
         let alreadyAdded = isAdded(tokenItem)
 
         return isWaitingToBeAdded || alreadyAdded
+    }
+
+    func isReadonly(_ tokenItem: TokenItem) -> Bool {
+        readonlyTokens.contains(tokenItem) && isAdded(tokenItem)
     }
 }
 
