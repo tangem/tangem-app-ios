@@ -187,10 +187,11 @@ extension SendSummaryViewModel: SendSummaryViewModelSetupable {
         input.amountPublisher
             .withWeakCaptureOf(self)
             .compactMap { viewModel, amount in
-                guard let formattedAmount = amount?.format(currencySymbol: viewModel.tokenItem.currencySymbol),
-                      let formattedAlternativeAmount = amount?.formatAlternative(currencySymbol: viewModel.tokenItem.currencySymbol) else {
+                guard let formattedAmount = amount?.format(currencySymbol: viewModel.tokenItem.currencySymbol, decimalCount: viewModel.tokenItem.decimalCount) else {
                     return nil
                 }
+
+                let formattedAlternativeAmount = amount?.formatAlternative(currencySymbol: viewModel.tokenItem.currencySymbol, decimalCount: viewModel.tokenItem.decimalCount)
 
                 return viewModel.sectionViewModelFactory.makeAmountViewData(
                     amount: formattedAmount,
