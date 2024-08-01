@@ -82,8 +82,8 @@ extension SendFinishViewModel: SendFinishViewModelSetupable {
         input.amountPublisher
             .withWeakCaptureOf(self)
             .compactMap { viewModel, amount in
-                guard let formattedAmount = amount?.format(currencySymbol: viewModel.tokenItem.currencySymbol),
-                      let formattedAlternativeAmount = amount?.formatAlternative(currencySymbol: viewModel.tokenItem.currencySymbol) else {
+                guard let formattedAmount = amount?.format(currencySymbol: viewModel.tokenItem.currencySymbol, decimalCount: viewModel.tokenItem.decimalCount),
+                      let formattedAlternativeAmount = amount?.formatAlternative(currencySymbol: viewModel.tokenItem.currencySymbol, decimalCount: viewModel.tokenItem.decimalCount) else {
                     return nil
                 }
 
