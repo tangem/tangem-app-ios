@@ -130,6 +130,7 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
 
     private func bind() {
         walletDataProvider.selectedUserWalletModelPublisher
+            .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { viewModel, userWalletId in
                 guard let userWalletModel = viewModel.walletDataProvider.userWalletModels.first(where: { $0.userWalletId == userWalletId }) else {
@@ -238,18 +239,13 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
     }
 
     private func setNeedSelectWallet(_ userWalletModel: UserWalletModel?) {
-        guard selectedUserWalletModel?.userWalletId != userWalletModel?.userWalletId else {
-            return
-        }
-
         Analytics.log(
             event: .manageTokensWalletSelected,
             params: [.source: Analytics.ParameterValue.mainToken.rawValue]
         )
 
         pendingAdd = []
-
-        updateSelectionByTokenItems()
+        reloadSelectorItemsFromTokenItems()
     }
 
     private func updateSelectionByTokenItems() {
@@ -265,7 +261,7 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
 
 private extension MarketsTokensNetworkSelectorViewModel {
     func isAdded(_ tokenItem: TokenItem) -> Bool {
-        if let userTokensManager = walletDataProvider.selectedUserWalletModel?.userTokensManager {
+        if let userTokensManager = selectedUserWalletModel?.userTokensManager {
             return userTokensManager.contains(tokenItem)
         }
 
