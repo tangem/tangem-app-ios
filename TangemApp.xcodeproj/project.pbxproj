@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -852,6 +852,7 @@
 		B6DA215E2C52BC790047B1A0 /* FakeMarketsHistoryChartViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6DA215D2C52BC790047B1A0 /* FakeMarketsHistoryChartViewModelFactory.swift */; };
 		B6DD245E2B1A77860097F674 /* BottomScrollableSheetStateObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6DD245D2B1A77860097F674 /* BottomScrollableSheetStateObserver.swift */; };
 		B6DF7E792AA95DBB007C92BD /* ListFooterOverlayShadowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6DF7E782AA95DBB007C92BD /* ListFooterOverlayShadowView.swift */; };
+		B6E298CF2C5D9CC3004336BC /* DGCharts in Frameworks */ = {isa = PBXBuildFile; productRef = B6E298CE2C5D9CC3004336BC /* DGCharts */; };
 		B6E8BBFB2A2F209B0012E7D3 /* InfinityFrameModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E8BBFA2A2F209B0012E7D3 /* InfinityFrameModifier.swift */; };
 		B6E932B12A2F26BB0068D466 /* OrganizeTokensHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E932B02A2F26BB0068D466 /* OrganizeTokensHeaderViewModel.swift */; };
 		B6E932C22A2F2D860068D466 /* OrganizeTokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E932BD2A2F2D860068D466 /* OrganizeTokensView.swift */; };
@@ -3703,6 +3704,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B6E298CF2C5D9CC3004336BC /* DGCharts in Frameworks */,
 				B6C1BE6D2B6C2F4E008FE5A0 /* secp256k1 in Frameworks */,
 				EF2D9C9B2BBDA87D0055C485 /* TangemFoundation.framework in Frameworks */,
 				EF9E29A82B4F0C9900418559 /* TangemExpress.framework in Frameworks */,
@@ -9811,6 +9813,7 @@
 				0ABC61142C410AFD00065EBA /* TweetNacl */,
 				B620FC9F2C5D326D00AD0FD1 /* DGCharts */,
 				B620FCAD2C5D337900AD0FD1 /* DGCharts */,
+				B6E298CE2C5D9CC3004336BC /* DGCharts */,
 			);
 			productName = "Tangem Tap";
 			productReference = 5D3F77C224BF56D800E8695B /* Tangem.app */;
@@ -10085,7 +10088,7 @@
 				B6F525902B6C05210079ADD1 /* XCRemoteSwiftPackageReference "wallet-core-binaries-ios" */,
 				0A81B38C2BB3018E0008F21C /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
 				0ABC61132C410AFD00065EBA /* XCRemoteSwiftPackageReference "tweetnacl-swiftwrap" */,
-				B620FCAC2C5D337900AD0FD1 /* XCLocalSwiftPackageReference "../../DGCharts" */,
+				B6E298CD2C5D9CC2004336BC /* XCRemoteSwiftPackageReference "DGCharts" */,
 			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
@@ -17974,13 +17977,6 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		B620FCAC2C5D337900AD0FD1 /* XCLocalSwiftPackageReference "../../DGCharts" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../DGCharts;
-		};
-/* End XCLocalSwiftPackageReference section */
-
 /* Begin XCRemoteSwiftPackageReference section */
 		0A81B38C2BB3018E0008F21C /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -18004,6 +18000,14 @@
 			requirement = {
 				kind = upToNextMinorVersion;
 				minimumVersion = 0.12.0;
+			};
+		};
+		B6E298CD2C5D9CC2004336BC /* XCRemoteSwiftPackageReference "DGCharts" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tangem/DGCharts";
+			requirement = {
+				branch = "feature/IOS-6745_add_support_for_point_selection";
+				kind = branch;
 			};
 		};
 		B6F525902B6C05210079ADD1 /* XCRemoteSwiftPackageReference "wallet-core-binaries-ios" */ = {
@@ -18044,6 +18048,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B6C1BE6B2B6C2F4E008FE5A0 /* XCRemoteSwiftPackageReference "secp256k1.swift" */;
 			productName = secp256k1;
+		};
+		B6E298CE2C5D9CC3004336BC /* DGCharts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B6E298CD2C5D9CC2004336BC /* XCRemoteSwiftPackageReference "DGCharts" */;
+			productName = DGCharts;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
