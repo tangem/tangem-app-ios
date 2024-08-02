@@ -1,5 +1,5 @@
 {
-  "originHash" : "429d2fbc0b85798e9e9ce5631501650d8a6aa9fb47becfbf597dda16c5d30e16",
+  "originHash" : "12a47db45f7ca82be457e681253c14b05f08b4c225698d32c09215bfc8c2eb75",
   "pins" : [
     {
       "identity" : "anyasyncsequence",
@@ -26,6 +26,15 @@
       "state" : {
         "revision" : "7892a123f7e8d0fe62f9f03728b17bbd4f94df5c",
         "version" : "1.8.1"
+      }
+    },
+    {
+      "identity" : "dgcharts",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tangem/DGCharts",
+      "state" : {
+        "branch" : "feature/IOS-6745_add_support_for_point_selection",
+        "revision" : "2f59c4504a0cde699774492dea48322488f0c971"
       }
     },
     {
