@@ -43,7 +43,9 @@ struct LineChartViewWrapper: UIViewRepresentable {
         let configurator = LineChartViewConfigurator(chartData: chartData)
         configurator.configure(uiView)
 
-        context.coordinator.setSelectedPriceInterval(selectedPriceInterval)
+        let coordinator = context.coordinator
+        coordinator.prepareFeedbackGeneratorIfNeeded()
+        coordinator.setSelectedPriceInterval(selectedPriceInterval)
     }
 
     func makeCoordinator() -> Coordinator {
@@ -61,6 +63,9 @@ extension LineChartViewWrapper {
         private let view: LineChartViewWrapper
         private let chartFillAlpha: CGFloat
 
+        private let feedbackGenerator = UIImpactFeedbackGenerator(style: .rigid)
+        private var didPrepareFeedbackGenerator = false
+
         fileprivate init(
             view: LineChartViewWrapper,
             selectedPriceInterval: PriceInterval,
@@ -69,6 +74,15 @@ extension LineChartViewWrapper {
             self.view = view
             self.chartFillAlpha = chartFillAlpha
             _xAxisValueFormatter = MarketsHistoryChartXAxisValueFormatter(selectedPriceInterval: selectedPriceInterval)
+        }
+
+        fileprivate func prepareFeedbackGeneratorIfNeeded() {
+            if didPrepareFeedbackGenerator {
+                return
+            }
+
+            feedbackGenerator.prepare()
+            didPrepareFeedbackGenerator = true
         }
 
         fileprivate func setSelectedPriceInterval(_ interval: PriceInterval) {
@@ -96,6 +110,7 @@ extension LineChartViewWrapper.Coordinator: ChartViewDelegate {
         let chartLineColor = utility.selectedChartLineColor(for: chartTrend)
 
         chartView.setColorSplitLineChartHighlightColor(chartLineColor)
+        feedbackGenerator.impactOccurred(intensity: 0.55)
     }
 
     func chartViewDidEndPanning(_ chartView: ChartViewBase) {
