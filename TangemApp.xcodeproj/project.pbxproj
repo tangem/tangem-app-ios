@@ -3675,8 +3675,6 @@
 		EFF466E12AC709BE00ACC3EA /* BalanceTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceTitleView.swift; sourceTree = "<group>"; };
 		EFF466E92ACD928800ACC3EA /* PendingTransactionRecordMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransactionRecordMapper.swift; sourceTree = "<group>"; };
 		EFF5CF1928C796B1000EE8DB /* Alpha.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Alpha.xcconfig; sourceTree = "<group>"; };
-		EFF763DB2C4AD08700E846F4 /* SendAmountCompactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAmountCompactView.swift; sourceTree = "<group>"; };
-		EFF763DE2C4AD0B700E846F4 /* SendAmountCompactViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAmountCompactViewModel.swift; sourceTree = "<group>"; };
 		EFF763E02C4E38B500E846F4 /* SendStepViewAnimatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendStepViewAnimatable.swift; sourceTree = "<group>"; };
 		EFF763E22C4E38D200E846F4 /* SendStepNavigationTrailingViewType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendStepNavigationTrailingViewType.swift; sourceTree = "<group>"; };
 		EFF763F02C4E60BA00E846F4 /* Result+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Result+.swift"; sourceTree = "<group>"; };
@@ -4214,7 +4212,6 @@
 				5D3F77C324BF56D800E8695B /* Products */,
 				BBA154748909F0AB4121528D /* Pods */,
 				2E5061A84512B23CCB5F2E17 /* Frameworks */,
-				EF0FBB7A2C53C1100095A6BD /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -8122,15 +8119,6 @@
 				EF0FBB762C53BE630095A6BD /* SendFeeCompactViewModel.swift */,
 			);
 			path = SendFeeCompactView;
-			sourceTree = "<group>";
-		};
-		EF0FBB7A2C53C1100095A6BD /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				EFF763DB2C4AD08700E846F4 /* SendAmountCompactView.swift */,
-				EFF763DE2C4AD0B700E846F4 /* SendAmountCompactViewModel.swift */,
-			);
-			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 		EF1D1AE42C296D82000CB941 /* HintView */ = {
