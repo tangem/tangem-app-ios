@@ -95,6 +95,14 @@ extension LineChartViewWrapper {
 
 extension LineChartViewWrapper.Coordinator: ChartViewDelegate {
     func chartValueSelected(_ chartView: ChartViewBase, entry: ChartDataEntry, highlight: Highlight) {
+        // In some cases, when the user starts panning at high velocity immediately after touching down the finger, 
+        // the view doesn't receive any touches at all, and `chartViewDidReceiveTouches(_:)` is not called
+        //
+        // Therefore, we must enable vertical highlight line here, in the `chartValueSelected(_:entry:highlight:)` delegate method call
+        if !chartView.drawVerticalHighlightIndicatorEnabled {
+            chartView.drawVerticalHighlightIndicatorEnabled = true
+        }
+
         guard let lastValue = view.chartData.xAxis.values.last else {
             assertionFailure("Unable to last value for X axis")
             return
@@ -119,7 +127,9 @@ extension LineChartViewWrapper.Coordinator: ChartViewDelegate {
     }
 
     func chartViewDidReceiveTouches(_ chartView: ChartViewBase) {
-        chartView.drawVerticalHighlightIndicatorEnabled = true
+        if !chartView.drawVerticalHighlightIndicatorEnabled {
+            chartView.drawVerticalHighlightIndicatorEnabled = true
+        }
     }
 
     func chartViewDidEndTouches(_ chartView: ChartViewBase) {
