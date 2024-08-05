@@ -12,11 +12,13 @@ import DGCharts
 /// Wrapper for `DGCharts.LineChartView` view.
 struct LineChartViewWrapper: UIViewRepresentable {
     typealias UIViewType = DGCharts.LineChartView
+    typealias ChartValue = LineChartViewData.Value
     typealias PriceInterval = MarketsPriceIntervalType
 
     let selectedPriceInterval: PriceInterval
     let chartData: LineChartViewData
-    let onMake: (_ chartView: UIViewType) -> Void
+    let onValueSelection: (_ chartValue: ChartValue?) -> Void
+    let onViewMake: (_ chartView: UIViewType) -> Void
 
     func makeUIView(context: Context) -> UIViewType {
         let coordinator = context.coordinator
@@ -31,7 +33,7 @@ struct LineChartViewWrapper: UIViewRepresentable {
         chartView.delegate = coordinator
         chartView.xAxis.valueFormatter = coordinator.xAxisValueFormatter
 
-        onMake(chartView)
+        onViewMake(chartView)
 
         let configurator = LineChartViewConfigurator(chartData: chartData)
         configurator.configure(chartView)
@@ -88,6 +90,12 @@ extension LineChartViewWrapper {
         fileprivate func setSelectedPriceInterval(_ interval: PriceInterval) {
             _xAxisValueFormatter.setSelectedPriceInterval(interval)
         }
+
+        private func endHighlighting(in chartView: ChartViewBase) {
+            chartView.drawVerticalHighlightIndicatorEnabled = false
+            chartView.clearHighlights()
+            view.onValueSelection(nil)
+        }
     }
 }
 
@@ -108,7 +116,7 @@ extension LineChartViewWrapper.Coordinator: ChartViewDelegate {
             return
         }
 
-        guard let selectedValue = entry.data as? LineChartViewData.Value else {
+        guard let selectedValue = entry.data as? LineChartViewWrapper.ChartValue else {
             assertionFailure("Unable to get value for selected chart data entry \(entry)")
             return
         }
@@ -118,12 +126,12 @@ extension LineChartViewWrapper.Coordinator: ChartViewDelegate {
         let chartLineColor = utility.selectedChartLineColor(for: chartTrend)
 
         chartView.setColorSplitLineChartHighlightColor(chartLineColor)
+        view.onValueSelection(selectedValue)
         feedbackGenerator.impactOccurred(intensity: 0.55)
     }
 
     func chartViewDidEndPanning(_ chartView: ChartViewBase) {
-        chartView.drawVerticalHighlightIndicatorEnabled = false
-        chartView.clearHighlights()
+        endHighlighting(in: chartView)
     }
 
     func touchesBegan(in chartView: ChartViewBase, touches: Set<NSUITouch>, withEvent event: NSUIEvent?) {
@@ -140,8 +148,7 @@ extension LineChartViewWrapper.Coordinator: ChartViewDelegate {
         // If there is an active pan gesture in the chart view (i.e. `hasPanGestureBegun` equals true),
         // vertical highlight indicator will be disabled in the `chartViewDidEndPanning(_:)` method call
         if !chartView.hasPanGestureBegun {
-            chartView.drawVerticalHighlightIndicatorEnabled = false
-            chartView.clearHighlights()
+            endHighlighting(in: chartView)
         }
     }
 
@@ -153,8 +160,7 @@ extension LineChartViewWrapper.Coordinator: ChartViewDelegate {
         // If there is an active pan gesture in the chart view (i.e. `hasPanGestureBegun` equals true),
         // vertical highlight indicator will be disabled in the `chartViewDidEndPanning(_:)` method call
         if !chartView.hasPanGestureBegun {
-            chartView.drawVerticalHighlightIndicatorEnabled = false
-            chartView.clearHighlights()
+            endHighlighting(in: chartView)
         }
     }
 }
@@ -188,7 +194,7 @@ extension LineChartViewWrapper.Coordinator: ColorSplitLineChartRendererDelegate 
             return nil
         }
 
-        guard let highlightedValue = highlightedEntry.data as? LineChartViewData.Value else {
+        guard let highlightedValue = highlightedEntry.data as? LineChartViewWrapper.ChartValue else {
             assertionFailure("Unable to get value for highlighted chart data entry \(highlightedEntry)")
             return nil
         }
