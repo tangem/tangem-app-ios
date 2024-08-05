@@ -95,7 +95,7 @@ extension LineChartViewWrapper {
 
 extension LineChartViewWrapper.Coordinator: ChartViewDelegate {
     func chartValueSelected(_ chartView: ChartViewBase, entry: ChartDataEntry, highlight: Highlight) {
-        // In some cases, when the user starts panning at high velocity immediately after touching down the finger, 
+        // In some cases, when the user starts panning at high velocity immediately after touching down the finger,
         // the view doesn't receive any touches at all, and `chartViewDidReceiveTouches(_:)` is not called
         //
         // Therefore, we must enable vertical highlight line here, in the `chartValueSelected(_:entry:highlight:)` delegate method call
@@ -126,33 +126,33 @@ extension LineChartViewWrapper.Coordinator: ChartViewDelegate {
         chartView.clearHighlights()
     }
 
-    func chartViewDidReceiveTouches(_ chartView: ChartViewBase) {
+    func touchesBegan(in chartView: ChartViewBase, touches: Set<NSUITouch>, withEvent event: NSUIEvent?) {
         if !chartView.drawVerticalHighlightIndicatorEnabled {
             chartView.drawVerticalHighlightIndicatorEnabled = true
         }
     }
 
-    func chartViewDidEndTouches(_ chartView: ChartViewBase) {
+    func touchesEnded(in chartView: ChartViewBase, touches: Set<NSUITouch>, withEvent event: NSUIEvent?) {
         guard let chartView = chartView as? LineChartViewWrapper.UIViewType else {
             return
         }
 
-        // If there is an active pan gesture in the chart view (i.e. `isPanGestureBegan` equals true),
+        // If there is an active pan gesture in the chart view (i.e. `hasPanGestureBegun` equals true),
         // vertical highlight indicator will be disabled in the `chartViewDidEndPanning(_:)` method call
-        if !chartView.isPanGestureBegan {
+        if !chartView.hasPanGestureBegun {
             chartView.drawVerticalHighlightIndicatorEnabled = false
             chartView.clearHighlights()
         }
     }
 
-    func chartViewDidCancelTouches(_ chartView: ChartViewBase) {
+    func touchesCancelled(in chartView: ChartViewBase, touches: Set<NSUITouch>?, withEvent event: NSUIEvent?) {
         guard let chartView = chartView as? LineChartViewWrapper.UIViewType else {
             return
         }
 
-        // If there is an active pan gesture in the chart view (i.e. `isPanGestureBegan` equals true),
+        // If there is an active pan gesture in the chart view (i.e. `hasPanGestureBegun` equals true),
         // vertical highlight indicator will be disabled in the `chartViewDidEndPanning(_:)` method call
-        if !chartView.isPanGestureBegan {
+        if !chartView.hasPanGestureBegun {
             chartView.drawVerticalHighlightIndicatorEnabled = false
             chartView.clearHighlights()
         }
