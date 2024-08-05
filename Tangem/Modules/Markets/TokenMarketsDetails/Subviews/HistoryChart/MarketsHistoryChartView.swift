@@ -89,6 +89,7 @@ struct MarketsHistoryChartView: View {
             onViewMake: { chartView in
                 chartView.minOffset = 0.0
                 chartView.extraTopOffset = 26.0
+                chartView.setScaleEnabled(false)
                 chartView.pinchZoomEnabled = false
                 chartView.doubleTapToZoomEnabled = false
                 chartView.highlightPerTapEnabled = false
