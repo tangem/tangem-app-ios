@@ -14,6 +14,10 @@ class StakingDetailsCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
+    // MARK: - Dependencies
+
+    @Injected(\.safariManager) private var safariManager: SafariManager
+
     // MARK: - Root view model
 
     @Published private(set) var rootViewModel: StakingDetailsViewModel?
@@ -119,5 +123,9 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
 
     func openClaimRewardsFlow() {
         // TBD: [REDACTED_INFO]
+    }
+
+    func openWhatIsStaking() {
+        safariManager.openURL(TangemBlogUrlBuilder().url(post: .whatIsStaking))
     }
 }
