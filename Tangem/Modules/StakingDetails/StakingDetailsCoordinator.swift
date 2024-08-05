@@ -14,6 +14,10 @@ class StakingDetailsCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
+    // MARK: - Dependencies
+
+    @Injected(\.safariManager) private var safariManager: SafariManager
+
     // MARK: - Root view model
 
     @Published private(set) var rootViewModel: StakingDetailsViewModel?
@@ -103,10 +107,25 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
     }
 
     func openUnstakingFlow() {
-        // TBD: [REDACTED_INFO]
+        guard let options else { return }
+
+        let coordinator = SendCoordinator(dismissAction: { [weak self] _ in
+            self?.sendCoordinator = nil
+        })
+
+        coordinator.start(with: .init(
+            walletModel: options.walletModel,
+            userWalletModel: options.userWalletModel,
+            type: .unstaking(manager: options.manager)
+        ))
+        sendCoordinator = coordinator
     }
 
     func openClaimRewardsFlow() {
         // TBD: [REDACTED_INFO]
+    }
+
+    func openWhatIsStaking() {
+        safariManager.openURL(TangemBlogUrlBuilder().url(post: .whatIsStaking))
     }
 }
