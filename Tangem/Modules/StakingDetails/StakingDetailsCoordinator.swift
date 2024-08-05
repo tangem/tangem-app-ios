@@ -103,7 +103,18 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
     }
 
     func openUnstakingFlow() {
-        // TBD: [REDACTED_INFO]
+        guard let options else { return }
+
+        let coordinator = SendCoordinator(dismissAction: { [weak self] _ in
+            self?.sendCoordinator = nil
+        })
+
+        coordinator.start(with: .init(
+            walletModel: options.walletModel,
+            userWalletModel: options.userWalletModel,
+            type: .unstaking(manager: options.manager)
+        ))
+        sendCoordinator = coordinator
     }
 
     func openClaimRewardsFlow() {
