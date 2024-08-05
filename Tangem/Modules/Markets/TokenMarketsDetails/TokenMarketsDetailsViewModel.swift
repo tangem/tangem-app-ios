@@ -12,9 +12,10 @@ import Combine
 class TokenMarketsDetailsViewModel: ObservableObject {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
 
-    @Published var price: String
+    @Published private(set) var price: String?
+    @Published private(set) var priceChangeState: TokenPriceChangeView.State?
     @Published var priceChangeAnimation: ForegroundBlinkAnimationModifier.Change = .neutral
-    @Published var selectedPriceChangeIntervalType = MarketsPriceIntervalType.day
+    @Published var selectedPriceChangeIntervalType: MarketsPriceIntervalType
     @Published var isLoading = true
     @Published var alert: AlertBinder?
     @Published var state: ViewState = .loading
@@ -33,19 +34,6 @@ class TokenMarketsDetailsViewModel: ObservableObject {
     @Published private var pickedTimeInterval: TimeInterval?
     @Published private var loadedHistoryInfo: [TimeInterval: Decimal] = [:]
     @Published private var loadedPriceChangeInfo: [String: Decimal] = [:]
-
-    let priceChangeIntervalOptions = MarketsPriceIntervalType.allCases
-
-    var priceChangeState: TokenPriceChangeView.State {
-        guard let pickedDate else {
-            let changePercent = loadedPriceChangeInfo[selectedPriceChangeIntervalType.rawValue]
-            return priceChangeUtility.convertToPriceChangeState(changePercent: changePercent)
-        }
-
-        // [REDACTED_TODO_COMMENT]
-        print("Price change state for picked date: \(pickedDate)")
-        return .noData
-    }
 
     var tokenName: String {
         tokenInfo.name
@@ -70,6 +58,10 @@ class TokenMarketsDetailsViewModel: ObservableObject {
     var iconURL: URL {
         let iconBuilder = IconURLBuilder()
         return iconBuilder.tokenIconURL(id: tokenInfo.id, size: .large)
+    }
+
+    var priceChangeIntervalOptions: [MarketsPriceIntervalType] {
+        return MarketsPriceIntervalType.allCases
     }
 
     var allDataLoadFailed: Bool {
@@ -110,20 +102,18 @@ class TokenMarketsDetailsViewModel: ObservableObject {
         self.tokenInfo = tokenInfo
         self.dataProvider = dataProvider
         self.coordinator = coordinator
-
-        price = balanceFormatter.formatFiatBalance(
-            tokenInfo.currentPrice,
-            formattingOptions: fiatBalanceFormattingOptions
-        )
-
-        bind()
-        loadedHistoryInfo = [Date().timeIntervalSince1970: tokenInfo.priceChangePercentage[MarketsPriceIntervalType.day.marketsListId] ?? 0]
+        selectedPriceChangeIntervalType = .day
         loadedPriceChangeInfo = tokenInfo.priceChangePercentage
-        loadDetailedInfo()
+        loadedHistoryInfo = [
+            Date().timeIntervalSince1970: loadedPriceChangeInfo[selectedPriceChangeIntervalType.marketsListId, default: .zero],
+        ]
 
+        setupInternalPriceInfo(selectedPriceChangeIntervalType: selectedPriceChangeIntervalType)
+        bind()
+        loadDetailedInfo()
         makePreloadBlocksViewModels()
         makeHistoryChartViewModel()
-        bindToChartStateUpdates()
+        bindToHistoryChartViewModel()
     }
 
     deinit {
@@ -249,9 +239,17 @@ private extension TokenMarketsDetailsViewModel {
                 viewModel.portfolioViewModel?.isLoading = isLoading
             }
             .store(in: &bag)
+
+        $selectedPriceChangeIntervalType
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, intervalType in
+                viewModel.setupInternalPriceInfo(selectedPriceChangeIntervalType: intervalType)
+            }
+            .store(in: &bag)
     }
 
-    func bindToChartStateUpdates() {
+    func bindToHistoryChartViewModel() {
         historyChartViewModel?.$viewState
             .receive(on: DispatchQueue.main)
             .withPrevious()
@@ -283,6 +281,16 @@ private extension TokenMarketsDetailsViewModel {
                     break
                 }
             })
+            .store(in: &bag)
+
+        historyChartViewModel?
+            .selectedChartValuePublisher
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, selectedChartValue in
+                viewModel.setupExternalPriceInfo(selectedPrice: selectedChartValue?.price)
+                viewModel.setupExternalDate(selectedDate: selectedChartValue?.date)
+            }
             .store(in: &bag)
     }
 
@@ -330,6 +338,49 @@ private extension TokenMarketsDetailsViewModel {
         linksSections = MarketsTokenDetailsLinksMapper(
             openLinkAction: weakify(self, forFunction: TokenMarketsDetailsViewModel.openLinkAction(_:))
         ).mapToSections(model.links)
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    private func setupInternalPriceInfo(selectedPriceChangeIntervalType: MarketsPriceIntervalType) {
+        if let pickedDate {
+            // [REDACTED_TODO_COMMENT]
+            priceChangeState = .noData
+        } else {
+            let changePercent = loadedPriceChangeInfo[selectedPriceChangeIntervalType.rawValue]
+            priceChangeState = priceChangeUtility.convertToPriceChangeState(changePercent: changePercent)
+        }
+
+        price = balanceFormatter.formatFiatBalance(
+            tokenInfo.currentPrice,
+            formattingOptions: fiatBalanceFormattingOptions
+        )
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    private func setupExternalPriceInfo(selectedPrice: Decimal?) {
+        guard
+            let selectedPrice,
+            let currentPrice = tokenInfo.currentPrice
+        else {
+            // Fallback to the internal info
+            setupInternalPriceInfo(selectedPriceChangeIntervalType: selectedPriceChangeIntervalType)
+            return
+        }
+
+        priceChangeState = priceChangeUtility.calculatePriceChangeStateBetween(
+            currentPrice: currentPrice,
+            previousPrice: selectedPrice
+        )
+
+        price = balanceFormatter.formatFiatBalance(
+            selectedPrice,
+            formattingOptions: fiatBalanceFormattingOptions
+        )
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    private func setupExternalDate(selectedDate: Date?) {
+        // [REDACTED_TODO_COMMENT]
     }
 }
 
