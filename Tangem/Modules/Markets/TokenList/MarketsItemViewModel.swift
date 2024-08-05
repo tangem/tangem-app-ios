@@ -78,7 +78,9 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
     }
 
     deinit {
+        #if DEBUG
         print("MarketsItemViewModel deinitialized - index: \(index)")
+        #endif
     }
 
     func onAppear() {
@@ -93,7 +95,7 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
 
     private func setupPriceInfo(price: Decimal?, priceChangeValue: Decimal?) {
         priceValue = priceFormatter.formatFiatBalance(price)
-        priceChangeState = priceChangeUtility.convertToPriceChangeState(changePercent: priceChangeValue)
+        priceChangeState = priceChangeUtility.convertToPriceChangeState(changePercent: priceChangeValue, isDevide: false)
     }
 
     private func bindToIntervalUpdates() {
