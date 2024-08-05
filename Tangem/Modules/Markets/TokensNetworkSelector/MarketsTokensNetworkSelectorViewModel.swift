@@ -98,30 +98,31 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
             try applyChanges(with: userWalletModel.userTokensManager)
         } catch {
             AppLog.shared.debug("\(String(describing: self)) undefined error applyChanges \(error.localizedDescription)")
+            isSaving = false
             return
         }
 
-        isSaving = true
-
         userWalletModel.userTokensManager.deriveIfNeeded { [weak self] result in
             DispatchQueue.main.async {
-                self?.isSaving = false
+                guard let self else { return }
+                
+                self.isSaving = false
 
                 if case .failure(let error) = result {
                     // Need to reset state selection, set the current values
-                    self?.reset(with: userWalletModel.userTokensManager)
+                    self.reset(with: userWalletModel.userTokensManager)
 
                     if !error.isUserCancelled {
-                        self?.alert = error.alertBinder
+                        self.alert = error.alertBinder
                     }
 
                     return
                 }
 
                 // Copy tokens to readonly state, which have been success added
-                self?.readonlyTokens.append(contentsOf: self?.pendingAdd ?? [])
-                self?.pendingAdd = []
-                self?.updateSelectionByTokenItems()
+                self.readonlyTokens.append(contentsOf: self.pendingAdd)
+                self.pendingAdd = []
+                self.updateSelectionByTokenItems()
             }
         }
     }
