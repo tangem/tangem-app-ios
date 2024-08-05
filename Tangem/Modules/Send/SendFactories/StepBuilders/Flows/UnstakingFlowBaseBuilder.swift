@@ -1,5 +1,5 @@
 //
-//  StakingFlowBaseBuilder.swift
+//  UnstakingFlowBaseBuilder.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,11 +9,10 @@
 import Foundation
 import TangemStaking
 
-struct StakingFlowBaseBuilder {
+struct UnstakingFlowBaseBuilder {
     let userWalletModel: UserWalletModel
     let walletModel: WalletModel
     let sendAmountStepBuilder: SendAmountStepBuilder
-    let stakingValidatorsStepBuilder: StakingValidatorsStepBuilder
     let sendFeeStepBuilder: SendFeeStepBuilder
     let sendSummaryStepBuilder: SendSummaryStepBuilder
     let sendFinishStepBuilder: SendFinishStepBuilder
@@ -22,55 +21,48 @@ struct StakingFlowBaseBuilder {
     func makeSendViewModel(manager: any StakingManager, router: SendRoutable) -> SendViewModel {
         let notificationManager = builder.makeSendNotificationManager()
         let sendTransactionDispatcher = builder.makeSendTransactionDispatcher()
-        let stakingModel = builder.makeStakingModel(
+        let unstakingModel = builder.makeUnstakingModel(
             stakingManager: manager,
             sendTransactionDispatcher: sendTransactionDispatcher
         )
 
-        let sendFeeCompactViewModel = sendFeeStepBuilder.makeSendFeeCompactViewModel(input: stakingModel)
-        sendFeeCompactViewModel.bind(input: stakingModel)
+        let sendFeeCompactViewModel = sendFeeStepBuilder.makeSendFeeCompactViewModel(input: unstakingModel)
+        sendFeeCompactViewModel.bind(input: unstakingModel)
 
-        let amount = sendAmountStepBuilder.makeSendAmountStep(
-            io: (input: stakingModel, output: stakingModel),
-            sendFeeLoader: stakingModel,
-            sendQRCodeService: .none
-        )
-
-        let validators = stakingValidatorsStepBuilder.makeStakingValidatorsStep(
-            io: (input: stakingModel, output: stakingModel),
-            manager: manager
-        )
+        let sendAmountCompactViewModel = sendAmountStepBuilder.makeSendAmountCompactViewModel(input: unstakingModel)
 
         let summary = sendSummaryStepBuilder.makeSendSummaryStep(
-            io: (input: stakingModel, output: stakingModel),
-            actionType: .stake,
+            io: (input: unstakingModel, output: unstakingModel),
+            actionType: .unstake,
             sendTransactionDispatcher: sendTransactionDispatcher,
             notificationManager: notificationManager,
-            editableType: .editable,
+            editableType: .noEditable,
             sendDestinationCompactViewModel: .none,
-            sendAmountCompactViewModel: amount.compact,
-            stakingValidatorsCompactViewModel: validators.compact,
+            sendAmountCompactViewModel: sendAmountCompactViewModel,
+            stakingValidatorsCompactViewModel: .none,
             sendFeeCompactViewModel: sendFeeCompactViewModel
         )
 
         let finish = sendFinishStepBuilder.makeSendFinishStep(
-            input: stakingModel,
+            input: unstakingModel,
             sendDestinationCompactViewModel: .none,
-            sendAmountCompactViewModel: amount.compact,
-            stakingValidatorsCompactViewModel: validators.compact,
+            sendAmountCompactViewModel: sendAmountCompactViewModel,
+            stakingValidatorsCompactViewModel: .none,
             sendFeeCompactViewModel: sendFeeCompactViewModel
         )
 
-        let stepsManager = CommonStakingStepsManager(
-            amountStep: amount.step,
-            validatorsStep: validators.step,
+        let stepsManager = CommonUnstakingStepsManager(
             summaryStep: summary.step,
             finishStep: finish
         )
 
-        summary.step.set(router: stepsManager)
+        let interactor = CommonSendBaseInteractor(
+            input: unstakingModel,
+            output: unstakingModel,
+            walletModel: walletModel,
+            emailDataProvider: userWalletModel
+        )
 
-        let interactor = CommonSendBaseInteractor(input: stakingModel, output: stakingModel, walletModel: walletModel, emailDataProvider: userWalletModel)
         let viewModel = SendViewModel(
             interactor: interactor,
             stepsManager: stepsManager,
