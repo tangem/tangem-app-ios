@@ -95,7 +95,10 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
 
     private func setupPriceInfo(price: Decimal?, priceChangeValue: Decimal?) {
         priceValue = priceFormatter.formatFiatBalance(price)
-        priceChangeState = priceChangeUtility.convertToPriceChangeState(changePercent: priceChangeValue, isDevide: false)
+
+        if let priceChangeValue {
+            priceChangeState = priceChangeUtility.convertToPriceChangeState(changePercent: priceChangeValue * Constants.percentageConvertConstant)
+        }
     }
 
     private func bindToIntervalUpdates() {
@@ -104,7 +107,7 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
             .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { viewModel, filter in
-                guard let newQuote = viewModel.quotesRepository.quotes.first(where: { $0.key == viewModel.tokenId })?.value else {
+                guard let newQuote = viewModel.quotesRepository.quotes[viewModel.tokenId] else {
                     return
                 }
 
@@ -205,5 +208,11 @@ extension MarketsItemViewModel {
         let marketRating: Int?
         let priceValue: Decimal?
         let priceChangeStateValue: Decimal?
+    }
+}
+
+extension MarketsItemViewModel {
+    enum Constants {
+        static let percentageConvertConstant: Decimal = 100
     }
 }

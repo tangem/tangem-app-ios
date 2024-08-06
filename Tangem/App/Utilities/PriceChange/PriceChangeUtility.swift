@@ -19,10 +19,10 @@ struct PriceChangeUtility {
         return .loaded(signType: result.signType, text: result.formattedText)
     }
 
-    func convertToPriceChangeState(changePercent: Decimal?, isDevide: Bool = true) -> TokenPriceChangeView.State {
+    func convertToPriceChangeState(changePercent: Decimal?) -> TokenPriceChangeView.State {
         guard
             let changePercent,
-            let result = formatPriceChange(isDevide ? changePercent * Constants.percentDivider : changePercent)
+            let result = formatPriceChange(changePercent * Constants.percentDivider)
         else {
             return .noData
         }
