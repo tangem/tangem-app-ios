@@ -239,7 +239,7 @@ private extension TokenMarketsDetailsViewModel {
             .withWeakCaptureOf(self)
             .sink { viewModel, intervalType in
                 viewModel.setupInternalPriceInfo(selectedPriceChangeIntervalType: intervalType)
-                viewModel.setupInternalDate(selectedPriceChangeIntervalType: intervalType)
+                viewModel.updateSelectedDate(externallySelectedDate: nil, selectedPriceChangeIntervalType: intervalType)
             }
             .store(in: &bag)
     }
@@ -284,7 +284,10 @@ private extension TokenMarketsDetailsViewModel {
             .withWeakCaptureOf(self)
             .sink { viewModel, selectedChartValue in
                 viewModel.setupExternalPriceInfo(selectedPrice: selectedChartValue?.price)
-                viewModel.setupExternalDate(selectedDate: selectedChartValue?.date)
+                viewModel.updateSelectedDate(
+                    externallySelectedDate: selectedChartValue?.date,
+                    selectedPriceChangeIntervalType: viewModel.selectedPriceChangeIntervalType
+                )
             }
             .store(in: &bag)
     }
@@ -368,39 +371,12 @@ private extension TokenMarketsDetailsViewModel {
         )
     }
 
-    // [REDACTED_TODO_COMMENT]
-    private func setupExternalDate(selectedDate: Date?) {
-        guard
-            let selectedDate
-        else {
-            // Fallback to the internal date
-            setupInternalDate(selectedPriceChangeIntervalType: selectedPriceChangeIntervalType)
-            return
-        }
-
-        self.selectedDate = selectedDate
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    private func setupInternalDate(selectedPriceChangeIntervalType: MarketsPriceIntervalType) {
-        switch selectedPriceChangeIntervalType {
-        case .day:
-            // Causes fallback to the `Localization.commonToday`
-            selectedDate = nil
-        case .week:
-            selectedDate = initialDate.dateByAdding(-7, .day).date
-        case .month:
-            selectedDate = initialDate.dateByAdding(-1, .month).date
-        case .quarter:
-            selectedDate = initialDate.dateByAdding(-3, .month).date
-        case .halfYear:
-            selectedDate = initialDate.dateByAdding(-6, .month).date
-        case .year:
-            selectedDate = initialDate.dateByAdding(-1, .year).date
-        case .all:
-            // [REDACTED_TODO_COMMENT]
-            selectedDate = nil
-        }
+    private func updateSelectedDate(externallySelectedDate: Date?, selectedPriceChangeIntervalType: MarketsPriceIntervalType) {
+        let dateHelper = TokenMarketsDetailsDateHelper(initialDate: initialDate)
+        selectedDate = dateHelper.makeDate(
+            selectedDate: externallySelectedDate,
+            selectedPriceChangeIntervalType: selectedPriceChangeIntervalType
+        )
     }
 }
 
