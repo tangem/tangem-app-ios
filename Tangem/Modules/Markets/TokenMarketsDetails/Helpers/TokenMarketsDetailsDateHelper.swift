@@ -11,7 +11,9 @@ import Foundation
 struct TokenMarketsDetailsDateHelper {
     private let initialDate: Date
 
-    init(initialDate: Date) {
+    init(
+        initialDate: Date
+    ) {
         self.initialDate = initialDate
     }
 
