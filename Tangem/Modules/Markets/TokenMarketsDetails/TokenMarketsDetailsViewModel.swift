@@ -238,6 +238,7 @@ private extension TokenMarketsDetailsViewModel {
             .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { viewModel, intervalType in
+                // The order of calling these two methods matters, do not change
                 viewModel.updatePriceInfo(externallySelectedPrice: nil, selectedPriceChangeIntervalType: intervalType)
                 viewModel.updateSelectedDate(externallySelectedDate: nil, selectedPriceChangeIntervalType: intervalType)
             }
@@ -284,6 +285,7 @@ private extension TokenMarketsDetailsViewModel {
             .withWeakCaptureOf(self)
             .sink { viewModel, selectedChartValue in
                 let intervalType = viewModel.selectedPriceChangeIntervalType
+                // The order of calling these two methods matters, do not change
                 viewModel.updatePriceInfo(
                     externallySelectedPrice: selectedChartValue?.price,
                     selectedPriceChangeIntervalType: intervalType
@@ -342,7 +344,7 @@ private extension TokenMarketsDetailsViewModel {
         ).mapToSections(model.links)
     }
 
-    private func updatePriceInfo(externallySelectedPrice: Decimal?, selectedPriceChangeIntervalType: MarketsPriceIntervalType) {
+    func updatePriceInfo(externallySelectedPrice: Decimal?, selectedPriceChangeIntervalType: MarketsPriceIntervalType) {
         let priceHelper = TokenMarketsDetailsPriceInfoHelper(
             tokenInfo: tokenInfo,
             priceChangeInfo: loadedPriceChangeInfo,
@@ -356,7 +358,7 @@ private extension TokenMarketsDetailsViewModel {
         priceChangeState = priceInfo.priceChangeState
     }
 
-    private func updateSelectedDate(externallySelectedDate: Date?, selectedPriceChangeIntervalType: MarketsPriceIntervalType) {
+    func updateSelectedDate(externallySelectedDate: Date?, selectedPriceChangeIntervalType: MarketsPriceIntervalType) {
         let dateHelper = TokenMarketsDetailsDateHelper(initialDate: initialDate)
         selectedDate = dateHelper.makeDate(
             selectedDate: externallySelectedDate,
