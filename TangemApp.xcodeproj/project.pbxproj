@@ -5737,11 +5737,10 @@
 			isa = PBXGroup;
 			children = (
 				2D1400D32C44260500B75A42 /* Common */,
+				B696AD0E2C61E015009632EF /* Helpers */,
 				B0AF9BFA2C32D01200EC5830 /* Subviews */,
 				B0A1BC102C296B5700DECCFD /* TokenMarketsDetailsView.swift */,
 				B0A1BC122C296B6200DECCFD /* TokenMarketsDetailsViewModel.swift */,
-				B6323E372C61D38F00C1CE60 /* TokenMarketsDetailsDateHelper.swift */,
-				B6323E392C61D8FD00C1CE60 /* TokenMarketsDetailsPriceInfoHelper.swift */,
 				B0A1BC142C296B6E00DECCFD /* TokenMarketsDetailsCoordinator.swift */,
 				B0A1BC162C296B7800DECCFD /* TokenMarketsDetailsCoordinatorView.swift */,
 				B0A1BC182C296B9F00DECCFD /* TokenMarketsDetailsRoutable.swift */,
@@ -6677,6 +6676,15 @@
 				B654B6412A8513D4002553F4 /* CardsInfoPagerAnimationFactory.swift */,
 			);
 			path = Animations;
+			sourceTree = "<group>";
+		};
+		B696AD0E2C61E015009632EF /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				B6323E372C61D38F00C1CE60 /* TokenMarketsDetailsDateHelper.swift */,
+				B6323E392C61D8FD00C1CE60 /* TokenMarketsDetailsPriceInfoHelper.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 		B6AA135D2A2A36CF00B53937 /* Views */ = {
