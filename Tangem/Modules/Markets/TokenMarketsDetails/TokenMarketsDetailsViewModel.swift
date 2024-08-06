@@ -31,8 +31,7 @@ class TokenMarketsDetailsViewModel: ObservableObject {
 
     @Published var descriptionBottomSheetInfo: DescriptionBottomSheetInfo?
 
-    @Published private var pickedTimeInterval: TimeInterval?
-    @Published private var loadedHistoryInfo: [TimeInterval: Decimal] = [:]
+    @Published private var selectedDate: Date?
     @Published private var loadedPriceChangeInfo: [String: Decimal] = [:]
 
     var tokenName: String {
@@ -40,19 +39,12 @@ class TokenMarketsDetailsViewModel: ObservableObject {
     }
 
     var priceDate: String {
-        guard let pickedDate else {
-            return Localization.commonToday
+        guard let selectedDate else {
+            // [REDACTED_TODO_COMMENT]
+            return selectedPriceChangeIntervalType == .all ? Localization.commonAll : Localization.commonToday
         }
 
-        return "\(dateFormatter.string(from: pickedDate)) – \(Localization.commonNow)"
-    }
-
-    var pickedDate: Date? {
-        guard let pickedTimeInterval else {
-            return nil
-        }
-
-        return Date(timeIntervalSince1970: pickedTimeInterval)
+        return "\(dateFormatter.string(from: selectedDate)) – \(Localization.commonNow)"
     }
 
     var iconURL: URL {
@@ -72,9 +64,14 @@ class TokenMarketsDetailsViewModel: ObservableObject {
 
     private let balanceFormatter = BalanceFormatter()
     private let priceChangeUtility = PriceChangeUtility()
+
+    // The date when this VM was initialized (i.e. the screen was opened)
+    private let initialDate = Date()
+
+    // [REDACTED_TODO_COMMENT]
     private let dateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd MMMM, HH:MM"
+        dateFormatter.dateFormat = "dd MMMM, HH:mm"
         return dateFormatter
     }()
 
@@ -104,9 +101,6 @@ class TokenMarketsDetailsViewModel: ObservableObject {
         self.coordinator = coordinator
         selectedPriceChangeIntervalType = .day
         loadedPriceChangeInfo = tokenInfo.priceChangePercentage
-        loadedHistoryInfo = [
-            Date().timeIntervalSince1970: loadedPriceChangeInfo[selectedPriceChangeIntervalType.marketsListId, default: .zero],
-        ]
 
         setupInternalPriceInfo(selectedPriceChangeIntervalType: selectedPriceChangeIntervalType)
         bind()
@@ -245,6 +239,7 @@ private extension TokenMarketsDetailsViewModel {
             .withWeakCaptureOf(self)
             .sink { viewModel, intervalType in
                 viewModel.setupInternalPriceInfo(selectedPriceChangeIntervalType: intervalType)
+                viewModel.setupInternalDate(selectedPriceChangeIntervalType: intervalType)
             }
             .store(in: &bag)
     }
@@ -342,13 +337,8 @@ private extension TokenMarketsDetailsViewModel {
 
     // [REDACTED_TODO_COMMENT]
     private func setupInternalPriceInfo(selectedPriceChangeIntervalType: MarketsPriceIntervalType) {
-        if let pickedDate {
-            // [REDACTED_TODO_COMMENT]
-            priceChangeState = .noData
-        } else {
-            let changePercent = loadedPriceChangeInfo[selectedPriceChangeIntervalType.rawValue]
-            priceChangeState = priceChangeUtility.convertToPriceChangeState(changePercent: changePercent)
-        }
+        let changePercent = loadedPriceChangeInfo[selectedPriceChangeIntervalType.rawValue]
+        priceChangeState = priceChangeUtility.convertToPriceChangeState(changePercent: changePercent)
 
         price = balanceFormatter.formatFiatBalance(
             tokenInfo.currentPrice,
@@ -380,7 +370,37 @@ private extension TokenMarketsDetailsViewModel {
 
     // [REDACTED_TODO_COMMENT]
     private func setupExternalDate(selectedDate: Date?) {
-        // [REDACTED_TODO_COMMENT]
+        guard
+            let selectedDate
+        else {
+            // Fallback to the internal date
+            setupInternalDate(selectedPriceChangeIntervalType: selectedPriceChangeIntervalType)
+            return
+        }
+
+        self.selectedDate = selectedDate
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    private func setupInternalDate(selectedPriceChangeIntervalType: MarketsPriceIntervalType) {
+        switch selectedPriceChangeIntervalType {
+        case .day:
+            // Causes fallback to the `Localization.commonToday`
+            selectedDate = nil
+        case .week:
+            selectedDate = initialDate.dateByAdding(-7, .day).date
+        case .month:
+            selectedDate = initialDate.dateByAdding(-1, .month).date
+        case .quarter:
+            selectedDate = initialDate.dateByAdding(-3, .month).date
+        case .halfYear:
+            selectedDate = initialDate.dateByAdding(-6, .month).date
+        case .year:
+            selectedDate = initialDate.dateByAdding(-1, .year).date
+        case .all:
+            // [REDACTED_TODO_COMMENT]
+            selectedDate = nil
+        }
     }
 }
 
