@@ -86,12 +86,6 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
         bindWithProviders(charts: chartsProvider, filter: filterProvider)
     }
 
-    deinit {
-        #if DEBUG
-        print("MarketsItemViewModel deinitialized - index: \(index)")
-        #endif
-    }
-
     func onAppear() {
         prefetchDataSource?.prefetchRows(at: index)
     }
