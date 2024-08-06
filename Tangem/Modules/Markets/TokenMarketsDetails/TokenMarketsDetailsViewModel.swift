@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import UIKit // [REDACTED_TODO_COMMENT]
 
 class TokenMarketsDetailsViewModel: ObservableObject {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
@@ -27,7 +28,7 @@ class TokenMarketsDetailsViewModel: ObservableObject {
     @Published var pricePerformanceViewModel: MarketsTokenDetailsPricePerformanceViewModel?
     @Published var linksSections: [TokenMarketsDetailsLinkSection] = []
     @Published var portfolioViewModel: MarketsPortfolioContainerViewModel?
-    @Published private(set) var historyChartViewModel: MarketsHistoryChartViewModel?
+    @Published private(set) var historyChartViewModel: MarketsHistoryChartViewModel? // [REDACTED_TODO_COMMENT]
 
     @Published var descriptionBottomSheetInfo: DescriptionBottomSheetInfo?
 
@@ -63,7 +64,6 @@ class TokenMarketsDetailsViewModel: ObservableObject {
     private weak var coordinator: TokenMarketsDetailsRoutable?
 
     private let balanceFormatter = BalanceFormatter()
-    private let priceChangeUtility = PriceChangeUtility()
 
     // The date when this VM was initialized (i.e. the screen was opened)
     private let initialDate = Date()
@@ -102,7 +102,7 @@ class TokenMarketsDetailsViewModel: ObservableObject {
         selectedPriceChangeIntervalType = .day
         loadedPriceChangeInfo = tokenInfo.priceChangePercentage
 
-        setupInternalPriceInfo(selectedPriceChangeIntervalType: selectedPriceChangeIntervalType)
+        updatePriceInfo(externallySelectedPrice: nil, selectedPriceChangeIntervalType: selectedPriceChangeIntervalType)
         bind()
         loadDetailedInfo()
         makePreloadBlocksViewModels()
@@ -238,7 +238,7 @@ private extension TokenMarketsDetailsViewModel {
             .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { viewModel, intervalType in
-                viewModel.setupInternalPriceInfo(selectedPriceChangeIntervalType: intervalType)
+                viewModel.updatePriceInfo(externallySelectedPrice: nil, selectedPriceChangeIntervalType: intervalType)
                 viewModel.updateSelectedDate(externallySelectedDate: nil, selectedPriceChangeIntervalType: intervalType)
             }
             .store(in: &bag)
@@ -283,10 +283,14 @@ private extension TokenMarketsDetailsViewModel {
             .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { viewModel, selectedChartValue in
-                viewModel.setupExternalPriceInfo(selectedPrice: selectedChartValue?.price)
+                let intervalType = viewModel.selectedPriceChangeIntervalType
+                viewModel.updatePriceInfo(
+                    externallySelectedPrice: selectedChartValue?.price,
+                    selectedPriceChangeIntervalType: intervalType
+                )
                 viewModel.updateSelectedDate(
                     externallySelectedDate: selectedChartValue?.date,
-                    selectedPriceChangeIntervalType: viewModel.selectedPriceChangeIntervalType
+                    selectedPriceChangeIntervalType: intervalType
                 )
             }
             .store(in: &bag)
@@ -338,37 +342,18 @@ private extension TokenMarketsDetailsViewModel {
         ).mapToSections(model.links)
     }
 
-    // [REDACTED_TODO_COMMENT]
-    private func setupInternalPriceInfo(selectedPriceChangeIntervalType: MarketsPriceIntervalType) {
-        let changePercent = loadedPriceChangeInfo[selectedPriceChangeIntervalType.rawValue]
-        priceChangeState = priceChangeUtility.convertToPriceChangeState(changePercent: changePercent)
-
-        price = balanceFormatter.formatFiatBalance(
-            tokenInfo.currentPrice,
-            formattingOptions: fiatBalanceFormattingOptions
+    private func updatePriceInfo(externallySelectedPrice: Decimal?, selectedPriceChangeIntervalType: MarketsPriceIntervalType) {
+        let priceHelper = TokenMarketsDetailsPriceInfoHelper(
+            tokenInfo: tokenInfo,
+            priceChangeInfo: loadedPriceChangeInfo,
+            fiatBalanceFormattingOptions: fiatBalanceFormattingOptions
         )
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    private func setupExternalPriceInfo(selectedPrice: Decimal?) {
-        guard
-            let selectedPrice,
-            let currentPrice = tokenInfo.currentPrice
-        else {
-            // Fallback to the internal info
-            setupInternalPriceInfo(selectedPriceChangeIntervalType: selectedPriceChangeIntervalType)
-            return
-        }
-
-        priceChangeState = priceChangeUtility.calculatePriceChangeStateBetween(
-            currentPrice: currentPrice,
-            previousPrice: selectedPrice
+        let priceInfo = priceHelper.makePriceInfo(
+            selectedPrice: externallySelectedPrice,
+            selectedPriceChangeIntervalType: selectedPriceChangeIntervalType
         )
-
-        price = balanceFormatter.formatFiatBalance(
-            selectedPrice,
-            formattingOptions: fiatBalanceFormattingOptions
-        )
+        price = priceInfo.price
+        priceChangeState = priceInfo.priceChangeState
     }
 
     private func updateSelectedDate(externallySelectedDate: Date?, selectedPriceChangeIntervalType: MarketsPriceIntervalType) {
