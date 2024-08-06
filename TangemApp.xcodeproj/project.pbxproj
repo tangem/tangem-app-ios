@@ -725,6 +725,7 @@
 		B63127D82A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63127D72A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift */; };
 		B63140F32A808B45009CAB12 /* OrganizeTokensRoutableStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63140F22A808B45009CAB12 /* OrganizeTokensRoutableStub.swift */; };
 		B6323E382C61D38F00C1CE60 /* TokenMarketsDetailsDateHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6323E372C61D38F00C1CE60 /* TokenMarketsDetailsDateHelper.swift */; };
+		B6323E3A2C61D8FD00C1CE60 /* TokenMarketsDetailsPriceInfoHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6323E392C61D8FD00C1CE60 /* TokenMarketsDetailsPriceInfoHelper.swift */; };
 		B63442612AFE90A700C87481 /* CardsInfoPagerSwipeDiscoveryAnimationTrigger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63442602AFE90A700C87481 /* CardsInfoPagerSwipeDiscoveryAnimationTrigger.swift */; };
 		B63457772A3A097C00E164C5 /* View+ReadGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63457762A3A097C00E164C5 /* View+ReadGeometry.swift */; };
 		B6364F882ACEE9AC00D615B5 /* EmptyMainFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6364F872ACEE9AC00D615B5 /* EmptyMainFooterView.swift */; };
@@ -2657,6 +2658,7 @@
 		B63127D72A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListItemViewModel.swift; sourceTree = "<group>"; };
 		B63140F22A808B45009CAB12 /* OrganizeTokensRoutableStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensRoutableStub.swift; sourceTree = "<group>"; };
 		B6323E372C61D38F00C1CE60 /* TokenMarketsDetailsDateHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenMarketsDetailsDateHelper.swift; sourceTree = "<group>"; };
+		B6323E392C61D8FD00C1CE60 /* TokenMarketsDetailsPriceInfoHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenMarketsDetailsPriceInfoHelper.swift; sourceTree = "<group>"; };
 		B63442602AFE90A700C87481 /* CardsInfoPagerSwipeDiscoveryAnimationTrigger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPagerSwipeDiscoveryAnimationTrigger.swift; sourceTree = "<group>"; };
 		B63457762A3A097C00E164C5 /* View+ReadGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+ReadGeometry.swift"; sourceTree = "<group>"; };
 		B635EE442A607422008B5F87 /* ThreadSafeContainerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadSafeContainerTests.swift; sourceTree = "<group>"; };
@@ -5739,6 +5741,7 @@
 				B0A1BC102C296B5700DECCFD /* TokenMarketsDetailsView.swift */,
 				B0A1BC122C296B6200DECCFD /* TokenMarketsDetailsViewModel.swift */,
 				B6323E372C61D38F00C1CE60 /* TokenMarketsDetailsDateHelper.swift */,
+				B6323E392C61D8FD00C1CE60 /* TokenMarketsDetailsPriceInfoHelper.swift */,
 				B0A1BC142C296B6E00DECCFD /* TokenMarketsDetailsCoordinator.swift */,
 				B0A1BC162C296B7800DECCFD /* TokenMarketsDetailsCoordinatorView.swift */,
 				B0A1BC182C296B9F00DECCFD /* TokenMarketsDetailsRoutable.swift */,
@@ -11036,6 +11039,7 @@
 				B65CB3FC2A98A29500C31199 /* UserTokensReordering.swift in Sources */,
 				DA129DD5292B8EBB004291EC /* UserWalletEncryptionKeyFactory.swift in Sources */,
 				EF9EA96A2B110F4900AC1DA1 /* CommonExpressModulesFactory.swift in Sources */,
+				B6323E3A2C61D8FD00C1CE60 /* TokenMarketsDetailsPriceInfoHelper.swift in Sources */,
 				DC939F992C3C0323002D0326 /* CommonXPUBGenerator.swift in Sources */,
 				EF46623B2924E02A00346B6C /* Binding+.swift in Sources */,
 				DC742C342BC8667A00BECF09 /* CardScanner.swift in Sources */,
