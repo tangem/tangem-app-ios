@@ -18050,8 +18050,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tangem/DGCharts";
 			requirement = {
-				branch = "feature/IOS-6745_add_support_for_point_selection";
-				kind = branch;
+				kind = exactVersion;
+				version = "5.1.0-tangem1";
 			};
 		};
 		B6F525902B6C05210079ADD1 /* XCRemoteSwiftPackageReference "wallet-core-binaries-ios" */ = {
