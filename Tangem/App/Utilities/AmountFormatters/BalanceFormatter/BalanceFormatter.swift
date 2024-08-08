@@ -11,6 +11,7 @@ import SwiftUI
 
 struct BalanceFormatter {
     static var defaultEmptyBalanceString: String { "–" }
+
     private let decimalRoundingUtility = DecimalRoundingUtility()
 
     /// Format any decimal number using `BalanceFormattingOptions`
@@ -94,21 +95,7 @@ struct BalanceFormatter {
         }
 
         let formatter = NumberFormatter()
-        formatter.locale = Locale.current
-        formatter.numberStyle = .currency
-        formatter.usesGroupingSeparator = true
-        formatter.currencyCode = currencyCode
-        formatter.minimumFractionDigits = formattingOptions.minFractionDigits
-        formatter.maximumFractionDigits = formattingOptions.maxFractionDigits
-
-        switch currencyCode {
-        case AppConstants.rubCurrencyCode:
-            formatter.currencySymbol = AppConstants.rubSign
-        case AppConstants.usdCurrencyCode:
-            formatter.currencySymbol = AppConstants.usdSign
-        default:
-            break
-        }
+        prepareFiatFormatter(for: currencyCode, formatter: formatter)
 
         let lowestRepresentableValue: Decimal = 1 / pow(10, formattingOptions.maxFractionDigits)
 
@@ -145,5 +132,27 @@ struct BalanceFormatter {
         }
 
         return attributedString
+    }
+
+    func prepareFiatFormatter(
+        for currencyCode: String,
+        formatter: NumberFormatter,
+        formattingOptions: BalanceFormattingOptions = .defaultFiatFormattingOptions
+    ) {
+        formatter.locale = Locale.current
+        formatter.numberStyle = .currency
+        formatter.usesGroupingSeparator = true
+        formatter.currencyCode = currencyCode
+        formatter.minimumFractionDigits = formattingOptions.minFractionDigits
+        formatter.maximumFractionDigits = formattingOptions.maxFractionDigits
+
+        switch currencyCode {
+        case AppConstants.rubCurrencyCode:
+            formatter.currencySymbol = AppConstants.rubSign
+        case AppConstants.usdCurrencyCode:
+            formatter.currencySymbol = AppConstants.usdSign
+        default:
+            break
+        }
     }
 }
