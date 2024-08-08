@@ -11,14 +11,25 @@ import Foundation
 struct MarketsTokenDetailsMetricsViewModel {
     let records: [MarketsTokenDetailsMetricsView.RecordInfo]
 
+    private let notationFormatter: DefaultAmountNotationFormatter
     private weak var infoRouter: MarketsTokenDetailsBottomSheetRouter?
 
-    init(metrics: MarketsTokenDetailsMetrics, infoRouter: MarketsTokenDetailsBottomSheetRouter?) {
+    init(
+        metrics: MarketsTokenDetailsMetrics,
+        notationFormatter: DefaultAmountNotationFormatter,
+        cryptoCurrencyCode: String,
+        infoRouter: MarketsTokenDetailsBottomSheetRouter?
+    ) {
+        self.notationFormatter = notationFormatter
         self.infoRouter = infoRouter
 
+        let amountNotationFormatter = AmountNotationSuffixFormatter(divisorsList: AmountNotationSuffixFormatter.Divisor.withHundredThousands)
         let formatter = BalanceFormatter()
+        let fiatFormatter = NumberFormatter()
         let options = BalanceFormattingOptions(minFractionDigits: 0, maxFractionDigits: 0, formatEpsilonAsLowestRepresentableValue: false, roundingType: .default(roundingMode: .plain, scale: 0))
-        let emptyValue = AppConstants.dashSign
+        formatter.prepareFiatFormatter(for: AppSettings.shared.selectedCurrencyCode, formatter: fiatFormatter, formattingOptions: options)
+        let fiatCurrencySymbol = fiatFormatter.currencySymbol ?? ""
+        let emptyValue = BalanceFormatter.defaultEmptyBalanceString
 
         func formatFiatValue(_ value: Decimal?) -> String {
             guard let value, value > 0 else {
@@ -28,17 +39,21 @@ struct MarketsTokenDetailsMetricsViewModel {
             return formatter.formatFiatBalance(value, formattingOptions: options)
         }
 
+        func formatCryptoValue(_ value: Decimal?) -> String {
+            formatter.formatCryptoBalance(value, currencyCode: cryptoCurrencyCode)
+        }
+
         var rating = emptyValue
         if let marketRating = metrics.marketRating, marketRating > 0 {
             rating = formatter.formatCryptoBalance(Decimal(marketRating), currencyCode: "", formattingOptions: options)
         }
         records = [
-            .init(type: .marketCapitalization, recordData: formatFiatValue(metrics.marketCap)),
+            .init(type: .marketCapitalization, recordData: notationFormatter.format(metrics.marketCap, currencySymbol: fiatCurrencySymbol)),
             .init(type: .marketRating, recordData: rating),
-            .init(type: .tradingVolume, recordData: formatFiatValue(metrics.volume24H)),
-            .init(type: .fullyDilutedValuation, recordData: formatFiatValue(metrics.fullyDilutedValuation)),
-            .init(type: .circulatingSupply, recordData: formatFiatValue(metrics.circulatingSupply)),
-            .init(type: .totalSupply, recordData: formatFiatValue(metrics.totalSupply)),
+            .init(type: .tradingVolume, recordData: notationFormatter.format(metrics.volume24H, currencySymbol: fiatCurrencySymbol)),
+            .init(type: .fullyDilutedValuation, recordData: notationFormatter.format(metrics.fullyDilutedValuation, currencySymbol: fiatCurrencySymbol)),
+            .init(type: .circulatingSupply, recordData: notationFormatter.format(metrics.circulatingSupply, currencySymbol: cryptoCurrencyCode)),
+            .init(type: .totalSupply, recordData: notationFormatter.format(metrics.totalSupply, currencySymbol: cryptoCurrencyCode)),
         ]
     }
 
