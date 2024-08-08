@@ -133,17 +133,22 @@ extension StakeKitDTO {
 
         enum Pending {
             struct Request: Encodable {
-                let type: ActionType
+                let type: Actions.ActionType
+                let integrationId: String
                 let passthrough: String
+                let addresses: Address
                 let args: Args
+            }
 
-                struct Args: Encodable {
-                    // [REDACTED_TODO_COMMENT]
-                }
+            struct Args: Encodable {
+                let amount: String
+                let validatorAddress: String
             }
 
             struct Response: Decodable {
-                // [REDACTED_TODO_COMMENT]
+                let amount: String?
+                let token: Token
+                let gasLimit: String
             }
         }
     }
