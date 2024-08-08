@@ -112,12 +112,12 @@ extension LineChartViewWrapper.Coordinator: ChartViewDelegate {
         }
 
         guard let lastValue = view.chartData.xAxis.values.last else {
-            assertionFailure("Unable to last value for X axis")
+            assertionFailure("Unable to get the last value for the X axis")
             return
         }
 
         guard let selectedValue = entry.data as? LineChartViewWrapper.ChartValue else {
-            assertionFailure("Unable to get value for selected chart data entry \(entry)")
+            assertionFailure("Unable to get a value for the selected chart data entry \(entry)")
             return
         }
 
@@ -190,12 +190,12 @@ extension LineChartViewWrapper.Coordinator: ColorSplitLineChartRendererDelegate 
         renderer: ColorSplitLineChartRenderer
     ) -> ColorSplitLineChartSegmentAppearance? {
         guard let lastValue = view.chartData.xAxis.values.last else {
-            assertionFailure("Unable to last value for X axis")
+            assertionFailure("Unable to get the last value for the X axis")
             return nil
         }
 
         guard let highlightedValue = highlightedEntry.data as? LineChartViewWrapper.ChartValue else {
-            assertionFailure("Unable to get value for highlighted chart data entry \(highlightedEntry)")
+            assertionFailure("Unable to get a value for the highlighted chart data entry \(highlightedEntry)")
             return nil
         }
 
