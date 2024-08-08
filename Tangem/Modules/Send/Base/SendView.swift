@@ -116,6 +116,7 @@ struct SendView: View {
                 viewModel: sendSummaryViewModel,
                 namespace: .init(id: namespace, names: SendGeometryEffectNames())
             )
+            .amountMinTextScale(Constants.amountMinTextScale)
         case .finish(let sendFinishViewModel):
             SendFinishView(
                 viewModel: sendFinishViewModel,
@@ -211,7 +212,7 @@ extension SendView {
         static let amountMinTextScale = 0.5
         static let animationDuration: TimeInterval = 0.3
         static let defaultAnimation: Animation = .spring(duration: animationDuration)
-        static let backButtonAnimation: Animation = .easeOut(duration: 0.1)
+        fileprivate static let backButtonAnimation: Animation = .easeOut(duration: 0.1)
     }
 }
 
