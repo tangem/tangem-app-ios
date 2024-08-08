@@ -42,8 +42,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/tangem/DGCharts",
       "state" : {
-        "branch" : "feature/IOS-6745_add_support_for_point_selection",
-        "revision" : "fa206aa6992c99a43a0e56064aa9eef68df998af"
+        "revision" : "d3a5133be92153dc581ed653ea3a6950b18d5eb1",
+        "version" : "5.1.0-tangem1"
       }
     },
     {
