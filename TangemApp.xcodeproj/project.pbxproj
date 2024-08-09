@@ -6581,9 +6581,7 @@
 		B669136E2C4194D10016B0EE /* SwiftUI */ = {
 			isa = PBXGroup;
 			children = (
-				B66913632C4179400016B0EE /* OverlayContentContainer.swift */,
-				B656FCED2C47546C002B5BF2 /* OverlayContentStateObserver.swift */,
-				B69A48662C47BA2A003497E1 /* OverlayContentStateController.swift */,
+				B67703152C6656BE00C7D093 /* Interface */,
 				B66913612C41790E0016B0EE /* OverlayContentContainer+Environment.swift */,
 				B669136F2C41958D0016B0EE /* OverlayContentContainerViewControllerAdapter.swift */,
 				B669136B2C417C9A0016B0EE /* OverlayContentContainerViewModifier.swift */,
@@ -6633,6 +6631,16 @@
 				B67688F02B078F71006C94F7 /* MainBottomSheetOverlayView.swift */,
 			);
 			path = Overlay;
+			sourceTree = "<group>";
+		};
+		B67703152C6656BE00C7D093 /* Interface */ = {
+			isa = PBXGroup;
+			children = (
+				B66913632C4179400016B0EE /* OverlayContentContainer.swift */,
+				B656FCED2C47546C002B5BF2 /* OverlayContentStateObserver.swift */,
+				B69A48662C47BA2A003497E1 /* OverlayContentStateController.swift */,
+			);
+			path = Interface;
 			sourceTree = "<group>";
 		};
 		B6805B702A32F89E0015EC96 /* OrganizeTokens */ = {
