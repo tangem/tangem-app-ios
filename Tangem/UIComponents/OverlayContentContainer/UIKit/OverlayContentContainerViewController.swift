@@ -57,7 +57,7 @@ final class OverlayContentContainerViewController: UIViewController {
     // MARK: - IBOutlets/UI
 
     private var overlayViewTopAnchorConstraint: NSLayoutConstraint?
-    private var backgroundShadowView: UIView?
+    private lazy var backgroundShadowView = UIView(frame: screenBounds)
 
     // MARK: - Initialization/Deinitialization
 
@@ -159,13 +159,11 @@ final class OverlayContentContainerViewController: UIViewController {
     /// - Note: The order in which this method is called matters. Must be called between `setupContent` and `setupOverlay`.
     private func setupBackgroundShadowView() {
         // [REDACTED_TODO_COMMENT]
-        let backgroundShadowView = UIView(frame: screenBounds)
         backgroundShadowView.backgroundColor = .black
         backgroundShadowView.alpha = Constants.minBackgroundShadowViewAlpha
         backgroundShadowView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         backgroundShadowView.isUserInteractionEnabled = false
         view.addSubview(backgroundShadowView)
-        self.backgroundShadowView = backgroundShadowView
     }
 
     private func setupContent() {
@@ -267,10 +265,10 @@ final class OverlayContentContainerViewController: UIViewController {
 
         if isFinalState {
             UIView.animate(withDuration: Constants.animationDuration) { // [REDACTED_TODO_COMMENT]
-                self.backgroundShadowView?.alpha = alpha
+                self.backgroundShadowView.alpha = alpha
             }
         } else {
-            backgroundShadowView?.alpha = alpha
+            backgroundShadowView.alpha = alpha
         }
     }
 
