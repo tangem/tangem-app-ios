@@ -132,7 +132,7 @@ private extension StakingDetailsViewModel {
                 rewardType: yield.rewardType,
                 rewardRate: yield.rewardRate,
                 rewardRateValues: RewardRateValues(aprs: aprs, rewardRate: yield.rewardRate),
-                minimumRequirement: yield.minimumRequirement,
+                minimumRequirement: yield.enterMinimumRequirement,
                 warmupPeriod: yield.warmupPeriod,
                 unbondingPeriod: yield.unbondingPeriod,
                 rewardClaimingType: yield.rewardClaimingType,
