@@ -21,6 +21,7 @@ struct RootViewControllerFactory {
         let rootView = rootView
             .environment(\.overlayContentContainer, adapter)
             .environment(\.overlayContentStateObserver, adapter)
+            .environment(\.overlayContentStateController, adapter)
             .environment(\.mainWindowSize, window.screen.bounds.size)
 
         let contentViewController = UIHostingController(rootView: rootView)
