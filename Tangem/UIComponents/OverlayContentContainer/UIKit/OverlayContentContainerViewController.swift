@@ -22,6 +22,7 @@ final class OverlayContentContainerViewController: UIViewController {
     private var overlayViewController: UIViewController?
     private var panGestureStartLocation: CGPoint = .zero
     private var shouldIgnorePanGestureRecognizer = false
+    private var didTap = false
     private var scrollViewContentOffsetLocker: ScrollViewContentOffsetLocker?
 
     private var progress: CGFloat = .zero {
@@ -58,6 +59,7 @@ final class OverlayContentContainerViewController: UIViewController {
 
     private var overlayViewTopAnchorConstraint: NSLayoutConstraint?
     private lazy var backgroundShadowView = UIView(frame: screenBounds)
+    private lazy var tapGestureRecognizerHostingView = TouchPassthroughView()
 
     // MARK: - Initialization/Deinitialization
 
@@ -83,10 +85,13 @@ final class OverlayContentContainerViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        // The order in which all these methods are called matters, change it with caution
         setupView()
+        setupTapGestureRecognizer()
         setupPanGestureRecognizer()
         setupContent()
         setupBackgroundShadowView()
+        setupTapGestureRecognizerHostingView()
         setupOverlayIfAvailable()
     }
 
@@ -199,7 +204,8 @@ final class OverlayContentContainerViewController: UIViewController {
         let overlayView = overlayViewController.view!
         containerView.translatesAutoresizingMaskIntoConstraints = false
         overlayView.translatesAutoresizingMaskIntoConstraints = false
-        containerView.addSubview(overlayView)
+        // `overlayView` always must be placed under `tapGestureRecognizerHostingView`
+        containerView.insertSubview(overlayView, belowSubview: tapGestureRecognizerHostingView)
 
         let overlayViewTopAnchorConstraint = overlayView
             .topAnchor
@@ -216,6 +222,23 @@ final class OverlayContentContainerViewController: UIViewController {
         overlayView.layer.masksToBounds = true
 
         overlayViewController.didMove(toParent: self)
+    }
+
+    private func setupTapGestureRecognizerHostingView() {
+        tapGestureRecognizerHostingView.delegate = self
+        tapGestureRecognizerHostingView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(tapGestureRecognizerHostingView)
+        NSLayoutConstraint.activate([
+            tapGestureRecognizerHostingView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tapGestureRecognizerHostingView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tapGestureRecognizerHostingView.topAnchor.constraint(equalTo: view.topAnchor),
+            tapGestureRecognizerHostingView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
+    }
+
+    private func setupTapGestureRecognizer() {
+        let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onTapGesture(_:)))
+        tapGestureRecognizerHostingView.addGestureRecognizer(gestureRecognizer)
     }
 
     private func setupPanGestureRecognizer() {
@@ -277,8 +300,8 @@ final class OverlayContentContainerViewController: UIViewController {
             if isCollapsedState {
                 stateObserver(.bottom)
             } else if isExpandedState {
-                // [REDACTED_TODO_COMMENT]
-                stateObserver(.top(trigger: .dragGesture))
+                let trigger: BottomScrollableSheetState.Trigger = didTap ? .tapGesture : .dragGesture
+                stateObserver(.top(trigger: trigger))
             } else {
                 // No-op
             }
@@ -301,18 +324,32 @@ final class OverlayContentContainerViewController: UIViewController {
         updateContentScale()
         updateBackgroundShadowViewAlpha()
         notifyStateObserversIfNeeded()
+
+        if didTap {
+            didTap = false
+        }
+    }
+
+    @objc
+    private func onTapGesture(_ gestureRecognizer: UITapGestureRecognizer) {
+        didTap = true
+        expand()
     }
 
     @objc
     private func onPanGesture(_ gestureRecognizer: UIPanGestureRecognizer) {
         switch gestureRecognizer.state {
+        case .began:
+            if didTap {
+                didTap = false
+            }
         case .changed:
             onPanGestureChanged(gestureRecognizer)
         case .ended:
             onPanGestureEnded(gestureRecognizer)
         case .cancelled, .failed:
             reset()
-        case .possible, .began, .recognized:
+        case .possible, .recognized:
             break
         @unknown default:
             assertionFailure("Unknown state received \(gestureRecognizer.state)")
@@ -422,6 +459,31 @@ extension OverlayContentContainerViewController: UIGestureRecognizerDelegate {
         }
 
         return true
+    }
+}
+
+// MARK: - TouchPassthroughViewDelegate protocol conformance
+
+extension OverlayContentContainerViewController: TouchPassthroughViewDelegate {
+    func touchPassthroughView(
+        _ passthroughView: TouchPassthroughView,
+        shouldPassthroughTouchAt point: CGPoint,
+        with event: UIEvent?
+    ) -> Bool {
+        guard
+            let overlayViewController,
+            overlayViewController.isViewLoaded
+        else {
+            return true
+        }
+
+        let overlayViewFrame = overlayViewController.view.frame
+        let touchPoint = view.convert(point, from: passthroughView)
+
+        // Tap gesture recognizer should only be triggered if the touch location is within the collapsed overlay view
+        let shouldRecognizeTouch = overlayViewFrame.contains(touchPoint) && isCollapsedState
+
+        return !shouldRecognizeTouch
     }
 }
 
