@@ -20,6 +20,11 @@ extension EnvironmentValues {
         get { self[OverlayContentStateObserverEnvironmentKey.self] }
         set { self[OverlayContentStateObserverEnvironmentKey.self] = newValue }
     }
+
+    var overlayContentStateController: OverlayContentStateController {
+        get { self[OverlayContentStateControllerEnvironmentKey.self] }
+        set { self[OverlayContentStateControllerEnvironmentKey.self] = newValue }
+    }
 }
 
 // MARK: - Private implementation
@@ -36,7 +41,16 @@ private enum OverlayContentStateObserverEnvironmentKey: EnvironmentKey {
     }
 }
 
-private struct DummyOverlayContentContainerViewControllerAdapter: OverlayContentContainer, OverlayContentStateObserver {
+private enum OverlayContentStateControllerEnvironmentKey: EnvironmentKey {
+    static var defaultValue: OverlayContentStateController {
+        return DummyOverlayContentContainerViewControllerAdapter()
+    }
+}
+
+private struct DummyOverlayContentContainerViewControllerAdapter:
+    OverlayContentContainer,
+    OverlayContentStateObserver,
+    OverlayContentStateController {
     func installOverlay(_ overlayView: some View) {
         assertIfNeeded(for: OverlayContentContainer.self)
     }
@@ -51,6 +65,14 @@ private struct DummyOverlayContentContainerViewControllerAdapter: OverlayContent
 
     func removeObserver(forToken token: any Hashable) {
         assertIfNeeded(for: OverlayContentStateObserver.self)
+    }
+
+    func collapse() {
+        assertIfNeeded(for: OverlayContentStateController.self)
+    }
+
+    func expand() {
+        assertIfNeeded(for: OverlayContentStateController.self)
     }
 
     private func assertIfNeeded<T>(for type: T) {
