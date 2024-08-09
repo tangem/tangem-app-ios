@@ -16,7 +16,8 @@ extension YieldInfo {
         apy: 0.03712381,
         rewardType: .apr,
         rewardRate: 0.03712381,
-        minimumRequirement: 1,
+        enterMinimumRequirement: 1,
+        exitMinimumRequirement: 1,
         validators: [
             .init(
                 address: UUID().uuidString,
