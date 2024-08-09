@@ -59,8 +59,7 @@ private extension StakingModel {
                 _amount.compactMap { $0?.crypto },
                 _selectedValidator.compactMap { $0.value }
             )
-            .sink { [weak self] args in
-                let (amount, validator) = args
+            .sink { [weak self] amount, validator in
                 self?.estimateFee(amount: amount, validator: validator.address)
             }
             .store(in: &bag)
