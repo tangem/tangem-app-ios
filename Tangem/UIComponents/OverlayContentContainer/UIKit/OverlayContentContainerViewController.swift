@@ -134,6 +134,22 @@ final class OverlayContentContainerViewController: UIViewController {
         stateObservers.removeValue(forKey: AnyHashable(token))
     }
 
+    func expand() {
+        overlayViewTopAnchorConstraint?.constant = overlayExpandedVerticalOffset
+        UIView.animate(withDuration: Constants.animationDuration) { // [REDACTED_TODO_COMMENT]
+            self.view.layoutIfNeeded()
+            self.progress = 1.0
+        }
+    }
+
+    func collapse() {
+        overlayViewTopAnchorConstraint?.constant = overlayCollapsedVerticalOffset
+        UIView.animate(withDuration: Constants.animationDuration) { // [REDACTED_TODO_COMMENT]
+            self.view.layoutIfNeeded()
+            self.progress = 0.0
+        }
+    }
+
     // MARK: - Setup
 
     private func setupView() {
