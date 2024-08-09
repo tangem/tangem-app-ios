@@ -377,7 +377,7 @@ final class OverlayContentContainerViewController: UIViewController {
             // so we lock it and then use default logic
             scrollViewContentOffsetLocker?.lock()
         case .down where adjustedContentOffset.y <= Constants.minAdjustedContentOffsetToLockScrollView:
-            // Dismissing overlay using pan gesture, the scroll view content offset should remain intact,
+            // Collapsing overlay using pan gesture, the scroll view content offset should remain intact,
             // so we lock it and then use default logic
             scrollViewContentOffsetLocker?.lock()
         case .down where adjustedContentOffset != .zero && scrollViewContentOffsetLocker?.isLocked == false:
@@ -454,6 +454,17 @@ extension OverlayContentContainerViewController: UIGestureRecognizerDelegate {
 
         // The gesture is completely disabled if no overlay view controller is set
         return overlayViewController?.view.frame.contains(location) ?? false
+    }
+
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        guard let panGestureRecognizer = gestureRecognizer as? UIPanGestureRecognizer else {
+            return true
+        }
+
+        let velocity = panGestureRecognizer.velocity(in: nil)
+
+        // Trigger pan-to-collapse logic only on a vertical pan gesture
+        return abs(velocity.y) > abs(velocity.x)
     }
 
     func gestureRecognizer(
