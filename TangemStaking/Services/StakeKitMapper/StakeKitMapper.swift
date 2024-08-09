@@ -103,8 +103,9 @@ struct StakeKitMapper {
     // MARK: - Yield
 
     func mapToYieldInfo(from response: StakeKitDTO.Yield.Info.Response) throws -> YieldInfo {
-        guard let enterAction = response.args.enter else {
-            throw StakeKitMapperError.noData("EnterAction not found")
+        guard let enterAction = response.args.enter,
+              let exitAction = response.args.exit else {
+            throw StakeKitMapperError.noData("Enter or exit action is not found")
         }
 
         return try YieldInfo(
@@ -113,7 +114,8 @@ struct StakeKitMapper {
             apy: response.apy,
             rewardType: mapToRewardType(from: response.rewardType),
             rewardRate: response.rewardRate,
-            minimumRequirement: enterAction.args.amount.minimum,
+            enterMinimumRequirement: enterAction.args.amount.minimum,
+            exitMinimumRequirement: exitAction.args.amount.minimum,
             validators: response.validators.compactMap(mapToValidatorInfo),
             defaultValidator: response.metadata.defaultValidator,
             item: mapToStakingTokenItem(from: response.token),
