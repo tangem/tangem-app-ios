@@ -390,7 +390,13 @@ final class OverlayContentContainerViewController: UIViewController {
         }
 
         let translation = gestureRecognizer.translation(in: nil)
-        overlayViewTopAnchorConstraint?.constant += translation.y
+        let currentVerticalOffset = overlayViewTopAnchorConstraint?.constant ?? .zero
+        let newVerticalOffset = clamp(
+            currentVerticalOffset + translation.y,
+            min: overlayExpandedVerticalOffset,
+            max: overlayCollapsedVerticalOffset
+        )
+        overlayViewTopAnchorConstraint?.constant = newVerticalOffset // [REDACTED_TODO_COMMENT]
         gestureRecognizer.setTranslation(.zero, in: nil)
 
         updateProgress()
