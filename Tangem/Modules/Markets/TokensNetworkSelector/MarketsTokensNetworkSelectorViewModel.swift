@@ -23,6 +23,7 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
     @Published var alert: AlertBinder?
     @Published var pendingAdd: [TokenItem] = []
 
+    @Published var isShowWalletSelector: Bool = false
     @Published var isSaving: Bool = false
 
     var isSaveDisabled: Bool {
@@ -135,11 +136,9 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
             }
     }
 
-    /// This method that shows a configure notification input result if the condition is single currency by coinId
+    /// This is the method that determines whether to display the wallet selection
     private func setup() {
-        guard walletDataProvider.userWalletModels.isEmpty else {
-            return
-        }
+        isShowWalletSelector = walletDataProvider.userWalletModels.count > 1
     }
 
     private func saveChanges(with userTokensManager: UserTokensManager) {
