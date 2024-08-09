@@ -23,11 +23,14 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
     @Published var alert: AlertBinder?
     @Published var pendingAdd: [TokenItem] = []
 
-    @Published var isShowWalletSelector: Bool = false
     @Published var isSaving: Bool = false
 
     var isSaveDisabled: Bool {
         pendingAdd.isEmpty
+    }
+
+    var isShowWalletSelector: Bool {
+        walletDataProvider.userWalletModels.count > 1
     }
 
     // MARK: - Private Implementation
@@ -73,7 +76,6 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
         walletSelectorViewModel = MarketsWalletSelectorViewModel(provider: walletDataProvider)
 
         bind()
-        setup()
 
         reloadSelectorItemsFromTokenItems()
     }
@@ -134,11 +136,6 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
                     position: .init(with: index, total: tokenItems.count)
                 )
             }
-    }
-
-    /// This is the method that determines whether to display the wallet selection
-    private func setup() {
-        isShowWalletSelector = walletDataProvider.userWalletModels.count > 1
     }
 
     private func saveChanges(with userTokensManager: UserTokensManager) {
