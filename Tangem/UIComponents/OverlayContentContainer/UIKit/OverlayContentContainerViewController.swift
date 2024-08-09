@@ -300,7 +300,7 @@ final class OverlayContentContainerViewController: UIViewController {
             if isCollapsedState {
                 stateObserver(.bottom)
             } else if isExpandedState {
-                let trigger: BottomScrollableSheetState.Trigger = didTap ? .tapGesture : .dragGesture
+                let trigger: OverlayContentStateObserver.State.Trigger = didTap ? .tapGesture : .dragGesture
                 stateObserver(.top(trigger: trigger))
             } else {
                 // No-op
