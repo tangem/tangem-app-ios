@@ -137,11 +137,6 @@ private extension StakingDetailsViewModel {
             currencyCode: walletModel.tokenItem.currencySymbol
         )
 
-        let stakedFormatted = balanceFormatter.formatCryptoBalance(
-            inputData.staked,
-            currencyCode: walletModel.tokenItem.currencySymbol
-        )
-
         let rewardRateFormatted = inputData.rewardRateValues.formatted(formatter: percentFormatter)
 
         let unbondingFormatted = inputData.unbondingPeriod.formatted(formatter: daysFormatter)
@@ -161,7 +156,6 @@ private extension StakingDetailsViewModel {
 
         detailsViewModels = [
             DefaultRowViewModel(title: Localization.stakingDetailsAvailable, detailsType: .text(availableFormatted)),
-            DefaultRowViewModel(title: Localization.stakingDetailsOnStake, detailsType: .text(stakedFormatted)),
             DefaultRowViewModel(
                 title: inputData.rewardType.title,
                 detailsType: .text(
@@ -246,7 +240,7 @@ private extension RewardType {
         case .apr:
             Localization.stakingDetailsApr
         case .apy:
-            Localization.stakingDetailsApy
+            Localization.stakingDetailsAnnualPercentageRate
         case .variable:
             rawValue.uppercased()
         }
@@ -256,7 +250,7 @@ private extension RewardType {
         guard case .apy = self else {
             return nil
         }
-        return Localization.stakingDetailsApyInfo
+        return Localization.stakingDetailsAnnualPercentageRateInfo
     }
 }
 
