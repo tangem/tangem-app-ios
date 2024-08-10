@@ -60,6 +60,10 @@ final class OverlayContentContainerViewController: UIViewController {
     private lazy var backgroundShadowView = UIView(frame: screenBounds)
     private lazy var tapGestureRecognizerHostingView = TouchPassthroughView()
 
+    // MARK: - Helpers
+
+    private lazy var appLifecycleHelper = OverlayContentContainerAppLifecycleHelper()
+
     // MARK: - Initialization/Deinitialization
 
     /// - Note: All height/offset parameters (`overlayCollapsedHeight`, `overlayExpandedVerticalOffset`, etc)
@@ -92,6 +96,7 @@ final class OverlayContentContainerViewController: UIViewController {
         setupBackgroundShadowView()
         setupTapGestureRecognizerHostingView()
         setupOverlayIfAvailable()
+        setupAppLifecycleHelper()
     }
 
     // MARK: - Public API
@@ -247,6 +252,11 @@ final class OverlayContentContainerViewController: UIViewController {
         let gestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(onPanGesture(_:)))
         gestureRecognizer.delegate = self
         view.addGestureRecognizer(gestureRecognizer)
+    }
+
+    private func setupAppLifecycleHelper() {
+        appLifecycleHelper.delegate = self
+        appLifecycleHelper.observeLifecycleIfNeeded()
     }
 
     // MARK: - State update
@@ -503,6 +513,22 @@ extension OverlayContentContainerViewController: TouchPassthroughViewDelegate {
         let shouldRecognizeTouch = overlayViewFrame.contains(touchPoint) && isCollapsedState
 
         return !shouldRecognizeTouch
+    }
+}
+
+// MARK: - OverlayContentContainerAppLifecycleHelperDelegate protocol conformance
+
+extension OverlayContentContainerViewController: OverlayContentContainerAppLifecycleHelperDelegate {
+    func currentProgress(for appLifecycleHelper: OverlayContentContainerAppLifecycleHelper) -> CGFloat {
+        return progress
+    }
+
+    func appLifecycleHelperDidTriggerExpand(_ appLifecycleHelper: OverlayContentContainerAppLifecycleHelper) {
+        expand()
+    }
+
+    func appLifecycleHelperDidTriggerCollapse(_ appLifecycleHelper: OverlayContentContainerAppLifecycleHelper) {
+        collapse()
     }
 }
 
