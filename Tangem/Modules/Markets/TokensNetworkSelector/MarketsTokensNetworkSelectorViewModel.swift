@@ -79,7 +79,6 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
         walletSelectorViewModel = MarketsWalletSelectorViewModel(provider: walletDataProvider)
 
         bind()
-        setup()
         reloadSelectorItemsFromTokenItems()
     }
 
@@ -106,7 +105,7 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
         userWalletModel.userTokensManager.deriveIfNeeded { [weak self] result in
             DispatchQueue.main.async {
                 guard let self else { return }
-                
+
                 self.isSaving = false
 
                 if case .failure(let error) = result {
@@ -182,6 +181,10 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
             AppLog.shared.debug("\(String(describing: self)) undefined error saveChanges \(error.localizedDescription)")
             return
         }
+    }
+
+    private func applyChanges(with userTokensManager: UserTokensManager) throws {
+        try userTokensManager.update(itemsToRemove: [], itemsToAdd: pendingAdd)
     }
 
     private func onSelect(_ selected: Bool, _ tokenItem: TokenItem) throws {
