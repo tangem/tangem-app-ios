@@ -27,8 +27,6 @@ class MarketsTokenDetailsInsightsViewModel: ObservableObject {
         intervalInsights[selectedInterval] ?? []
     }
 
-    private let tokenSymbol: String
-
     private var bag = Set<AnyCancellable>()
 
     private let fiatAmountFormatter: NumberFormatter = {
@@ -118,7 +116,6 @@ class MarketsTokenDetailsInsightsViewModel: ObservableObject {
                 Analytics.log(
                     event: .marketsButtonPeriod,
                     params: [
-                        .token: weakSelf.tokenSymbol,
                         .period: interval.rawValue,
                         .source: Analytics.MarketsIntervalTypeSourceType.insights.rawValue,
                     ]
