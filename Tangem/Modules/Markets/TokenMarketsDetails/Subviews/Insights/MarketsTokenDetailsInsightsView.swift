@@ -131,6 +131,7 @@ extension MarketsTokenDetailsInsightsView {
                 buyPressureChange: [:],
                 experiencedBuyerChange: [:]
             ))!,
+            notationFormatter: .init(),
             infoRouter: nil
         )
     )
