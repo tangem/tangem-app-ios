@@ -12,9 +12,10 @@ import Combine
 class TokenMarketsDetailsViewModel: ObservableObject {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
 
-    @Published var price: String
+    @Published private(set) var price: String?
+    @Published private(set) var priceChangeState: TokenPriceChangeView.State?
     @Published var priceChangeAnimation: ForegroundBlinkAnimationModifier.Change = .neutral
-    @Published var selectedPriceChangeIntervalType = MarketsPriceIntervalType.day
+    @Published var selectedPriceChangeIntervalType: MarketsPriceIntervalType
     @Published var isLoading = true
     @Published var alert: AlertBinder?
     @Published var state: ViewState = .loading
@@ -30,46 +31,29 @@ class TokenMarketsDetailsViewModel: ObservableObject {
 
     @Published var descriptionBottomSheetInfo: DescriptionBottomSheetInfo?
 
-    @Published private var pickedTimeInterval: TimeInterval?
-    @Published private var loadedHistoryInfo: [TimeInterval: Decimal] = [:]
+    @Published private var selectedDate: Date?
     @Published private var loadedPriceChangeInfo: [String: Decimal] = [:]
-
-    let priceChangeIntervalOptions = MarketsPriceIntervalType.allCases
-
-    var priceChangeState: TokenPriceChangeView.State {
-        guard let pickedDate else {
-            let changePercent = loadedPriceChangeInfo[selectedPriceChangeIntervalType.rawValue]
-            return priceChangeUtility.convertToPriceChangeState(changePercent: changePercent)
-        }
-
-        // [REDACTED_TODO_COMMENT]
-        print("Price change state for picked date: \(pickedDate)")
-        return .noData
-    }
 
     var tokenName: String {
         tokenInfo.name
     }
 
     var priceDate: String {
-        guard let pickedDate else {
-            return Localization.commonToday
+        guard let selectedDate else {
+            // [REDACTED_TODO_COMMENT]
+            return selectedPriceChangeIntervalType == .all ? Localization.commonAll : Localization.commonToday
         }
 
-        return "\(dateFormatter.string(from: pickedDate)) – \(Localization.commonNow)"
-    }
-
-    var pickedDate: Date? {
-        guard let pickedTimeInterval else {
-            return nil
-        }
-
-        return Date(timeIntervalSince1970: pickedTimeInterval)
+        return "\(dateFormatter.string(from: selectedDate)) – \(Localization.commonNow)"
     }
 
     var iconURL: URL {
         let iconBuilder = IconURLBuilder()
         return iconBuilder.tokenIconURL(id: tokenInfo.id, size: .large)
+    }
+
+    var priceChangeIntervalOptions: [MarketsPriceIntervalType] {
+        return MarketsPriceIntervalType.allCases
     }
 
     var allDataLoadFailed: Bool {
@@ -79,10 +63,14 @@ class TokenMarketsDetailsViewModel: ObservableObject {
     private weak var coordinator: TokenMarketsDetailsRoutable?
 
     private let balanceFormatter = BalanceFormatter()
-    private let priceChangeUtility = PriceChangeUtility()
+
+    // The date when this VM was initialized (i.e. the screen was opened)
+    private let initialDate = Date()
+
+    // [REDACTED_TODO_COMMENT]
     private let dateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd MMMM, HH:MM"
+        dateFormatter.dateFormat = "dd MMMM, HH:mm"
         return dateFormatter
     }()
 
@@ -110,20 +98,15 @@ class TokenMarketsDetailsViewModel: ObservableObject {
         self.tokenInfo = tokenInfo
         self.dataProvider = dataProvider
         self.coordinator = coordinator
-
-        price = balanceFormatter.formatFiatBalance(
-            tokenInfo.currentPrice,
-            formattingOptions: fiatBalanceFormattingOptions
-        )
-
-        bind()
-        loadedHistoryInfo = [Date().timeIntervalSince1970: tokenInfo.priceChangePercentage[MarketsPriceIntervalType.day.marketsListId] ?? 0]
+        selectedPriceChangeIntervalType = .day
         loadedPriceChangeInfo = tokenInfo.priceChangePercentage
-        loadDetailedInfo()
 
+        updatePriceInfo(externallySelectedPrice: nil, selectedPriceChangeIntervalType: selectedPriceChangeIntervalType)
+        bind()
+        loadDetailedInfo()
         makePreloadBlocksViewModels()
         makeHistoryChartViewModel()
-        bindToChartStateUpdates()
+        bindToHistoryChartViewModel()
     }
 
     deinit {
@@ -254,9 +237,19 @@ private extension TokenMarketsDetailsViewModel {
                 viewModel.portfolioViewModel?.isLoading = isLoading
             }
             .store(in: &bag)
+
+        $selectedPriceChangeIntervalType
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, intervalType in
+                // The order of calling these two methods matters, do not change
+                viewModel.updatePriceInfo(externallySelectedPrice: nil, selectedPriceChangeIntervalType: intervalType)
+                viewModel.updateSelectedDate(externallySelectedDate: nil, selectedPriceChangeIntervalType: intervalType)
+            }
+            .store(in: &bag)
     }
 
-    func bindToChartStateUpdates() {
+    func bindToHistoryChartViewModel() {
         historyChartViewModel?.$viewState
             .receive(on: DispatchQueue.main)
             .withPrevious()
@@ -288,6 +281,24 @@ private extension TokenMarketsDetailsViewModel {
                     break
                 }
             })
+            .store(in: &bag)
+
+        historyChartViewModel?
+            .selectedChartValuePublisher
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, selectedChartValue in
+                let intervalType = viewModel.selectedPriceChangeIntervalType
+                // The order of calling these two methods matters, do not change
+                viewModel.updatePriceInfo(
+                    externallySelectedPrice: selectedChartValue?.price,
+                    selectedPriceChangeIntervalType: intervalType
+                )
+                viewModel.updateSelectedDate(
+                    externallySelectedDate: selectedChartValue?.date,
+                    selectedPriceChangeIntervalType: intervalType
+                )
+            }
             .store(in: &bag)
     }
 
@@ -339,6 +350,28 @@ private extension TokenMarketsDetailsViewModel {
         linksSections = MarketsTokenDetailsLinksMapper(
             openLinkAction: weakify(self, forFunction: TokenMarketsDetailsViewModel.openLinkAction(_:))
         ).mapToSections(model.links)
+    }
+
+    func updatePriceInfo(externallySelectedPrice: Decimal?, selectedPriceChangeIntervalType: MarketsPriceIntervalType) {
+        let priceHelper = TokenMarketsDetailsPriceInfoHelper(
+            tokenInfo: tokenInfo,
+            priceChangeInfo: loadedPriceChangeInfo,
+            fiatBalanceFormattingOptions: fiatBalanceFormattingOptions
+        )
+        let priceInfo = priceHelper.makePriceInfo(
+            selectedPrice: externallySelectedPrice,
+            selectedPriceChangeIntervalType: selectedPriceChangeIntervalType
+        )
+        price = priceInfo.price
+        priceChangeState = priceInfo.priceChangeState
+    }
+
+    func updateSelectedDate(externallySelectedDate: Date?, selectedPriceChangeIntervalType: MarketsPriceIntervalType) {
+        let dateHelper = TokenMarketsDetailsDateHelper(initialDate: initialDate)
+        selectedDate = dateHelper.makeDate(
+            selectedDate: externallySelectedDate,
+            selectedPriceChangeIntervalType: selectedPriceChangeIntervalType
+        )
     }
 }
 
