@@ -80,6 +80,8 @@ class TokenMarketsDetailsViewModel: ObservableObject {
         formatEpsilonAsLowestRepresentableValue: false,
         roundingType: .defaultFiat(roundingMode: .bankers)
     )
+    private let defaultAmountNotationFormatter = DefaultAmountNotationFormatter()
+
     private let currentPriceSubject: CurrentValueSubject<Decimal, Never>
     private let quotesUpdateTimeInterval: TimeInterval = 60.0
 
@@ -334,11 +336,11 @@ private extension TokenMarketsDetailsViewModel {
 
     func makeBlocksViewModels(using model: TokenMarketsDetailsModel) {
         if let insights = model.insights {
-            insightsViewModel = .init(tokenSymbol: model.symbol, insights: insights, infoRouter: self)
+            insightsViewModel = .init(insights: insights, notationFormatter: defaultAmountNotationFormatter, infoRouter: self)
         }
 
         if let metrics = model.metrics {
-            metricsViewModel = .init(metrics: metrics, infoRouter: self)
+            metricsViewModel = .init(metrics: metrics, notationFormatter: defaultAmountNotationFormatter, cryptoCurrencyCode: model.symbol, infoRouter: self)
         }
 
         pricePerformanceViewModel = .init(
