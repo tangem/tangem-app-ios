@@ -14,28 +14,20 @@ struct MarketsCoordinatorView: CoordinatorView {
 
     var body: some View {
         if let model = coordinator.rootViewModel {
-            VStack(spacing: 0.0) {
-                // This spacer is required to make the system navigation bar on the 'Details' view
-                // look like it does on mockups (higher than the default one, 44pt)
-                FixedSpacer.vertical(Constants.topInset)
+            NavigationView {
+                ZStack {
+                    VStack(spacing: 0.0) {
+                        header
 
-                NavigationView {
-                    ZStack {
-                        VStack(spacing: 0.0) {
-                            header
-
-                            MarketsView(viewModel: model)
-                                .navigationLinks(links)
-                        }
-
-                        sheets
+                        MarketsView(viewModel: model)
+                            .navigationLinks(links)
                     }
-                    .offset(y: -Constants.topInset)
-                    .onOverlayContentStateChange { state in
-                        coordinator.onOverlayContentStateChange(state)
-                    }
+
+                    sheets
                 }
-                .tint(Colors.Text.primary1)
+                .onOverlayContentStateChange { state in
+                    coordinator.onOverlayContentStateChange(state)
+                }
             }
         }
     }
@@ -66,16 +58,5 @@ struct MarketsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tokenMarketsDetailsCoordinator) {
                 TokenMarketsDetailsCoordinatorView(coordinator: $0)
             }
-    }
-}
-
-// MARK: - Constants
-
-private extension MarketsCoordinatorView {
-    enum Constants {
-        /// Based on mockups.
-        static let customNavigationBarHeight = 64.0
-        static let defaultCompactNavigationBarHeight = 44.0
-        static var topInset: CGFloat { max(customNavigationBarHeight - defaultCompactNavigationBarHeight, .zero) }
     }
 }
