@@ -128,6 +128,7 @@ final class OverlayContentContainerViewController: UIViewController {
 
         overlayViewController.removeFromParent()
         self.overlayViewController = nil
+        progress = 0.0
     }
 
     /// - Warning: This method maintains strong reference to the given `observer` closure.
