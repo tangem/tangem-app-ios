@@ -28,6 +28,12 @@ final class MarketsHistoryChartViewModel: ObservableObject {
         }
     }
 
+    // MARK: - Chart value selection
+
+    var selectedChartValuePublisher: some Publisher<SelectedChartValue?, Never> { selectedChartValueSubject }
+
+    private let selectedChartValueSubject = PassthroughSubject<SelectedChartValue?, Never>()
+
     // MARK: - Dependencies & internal state
 
     private let tokenSymbol: String
@@ -59,6 +65,20 @@ final class MarketsHistoryChartViewModel: ObservableObject {
             didAppear = true
             loadHistoryChart(selectedPriceInterval: selectedPriceInterval)
         }
+    }
+
+    func onValueSelection(_ chartValue: LineChartViewWrapper.ChartValue?) {
+        guard let chartValue else {
+            selectedChartValueSubject.send(nil)
+            return
+        }
+
+        let selectedChartValue = SelectedChartValue(
+            date: Date(milliseconds: chartValue.timeStamp),
+            price: chartValue.price
+        )
+
+        selectedChartValueSubject.send(selectedChartValue)
     }
 
     func reload() {
@@ -162,6 +182,11 @@ extension MarketsHistoryChartViewModel {
         case loading(previousData: LineChartViewData?)
         case loaded(data: LineChartViewData)
         case failed
+    }
+
+    struct SelectedChartValue: Equatable {
+        let date: Date
+        let price: Decimal
     }
 }
 
