@@ -29,6 +29,10 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
         pendingAdd.isEmpty
     }
 
+    var isShowWalletSelector: Bool {
+        walletDataProvider.userWalletModels.count > 1
+    }
+
     // MARK: - Private Implementation
 
     private var bag = Set<AnyCancellable>()
@@ -76,6 +80,7 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
 
         bind()
         setup()
+        reloadSelectorItemsFromTokenItems()
     }
 
     // MARK: - Implementation
@@ -164,15 +169,19 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
             }
     }
 
-    /// This method that shows a configure notification input result if the condition is single currency by coinId
-    private func setup() {
-        guard walletDataProvider.userWalletModels.isEmpty else {
+    private func saveChanges(with userTokensManager: UserTokensManager) {
+        do {
+            try userTokensManager.update(itemsToRemove: [], itemsToAdd: pendingAdd)
+        } catch let error as TangemSdkError {
+            if error.isUserCancelled {
+                return
+            }
+
+            alert = error.alertBinder
+        } catch {
+            AppLog.shared.debug("\(String(describing: self)) undefined error saveChanges \(error.localizedDescription)")
             return
         }
-    }
-
-    private func applyChanges(with userTokensManager: UserTokensManager) throws {
-        try userTokensManager.update(itemsToRemove: [], itemsToAdd: pendingAdd)
     }
 
     private func onSelect(_ selected: Bool, _ tokenItem: TokenItem) throws {
