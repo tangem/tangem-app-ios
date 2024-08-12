@@ -11,19 +11,12 @@ import SwiftUI
 // MARK: - Convenience extensions
 
 extension View {
+    /// - Warning: This method maintains strong reference to the given `observer` closure.
     @ViewBuilder
     func onOverlayContentStateChange(
         _ observer: @escaping OverlayContentStateObserver.Observer
     ) -> some View {
-        // It's very uncommon for `SwiftUI.View` methods to strongly capture closures passed as arguments;
-        // Therefore, this dummy holder is used to maintain the more common in this case 'weak' semantics
-        let holder = OverlayContentStateObserverHolder(observer: observer)
-
-        modifier(
-            OverlayContentStateObserverViewModifier { [weak holder] state in
-                holder?.observer(state)
-            }
-        )
+        modifier(OverlayContentStateObserverViewModifier(observer: observer))
     }
 }
 
@@ -72,13 +65,5 @@ private struct OverlayContentStateObserverViewModifier: ViewModifier {
     private func updateObserver(oldToken: UUID, newToken: UUID) {
         overlayContentStateObserver.removeObserver(forToken: oldToken)
         overlayContentStateObserver.addObserver(observer, forToken: newToken)
-    }
-}
-
-private final class OverlayContentStateObserverHolder {
-    let observer: OverlayContentStateObserver.Observer
-
-    init(observer: @escaping BottomScrollableSheetStateObserver) {
-        self.observer = observer
     }
 }

@@ -25,8 +25,8 @@ struct MarketsCoordinatorView: CoordinatorView {
 
                     sheets
                 }
-                .onOverlayContentStateChange { state in
-                    coordinator.onOverlayContentStateChange(state)
+                .onOverlayContentStateChange { [weak coordinator] state in
+                    coordinator?.onOverlayContentStateChange(state)
                 }
             }
             .tint(Colors.Text.primary1)
