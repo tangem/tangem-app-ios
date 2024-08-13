@@ -8,81 +8,104 @@
 
 import Foundation
 import Combine
+import CombineExt
 
 class TokenMarketsDetailsViewModel: ObservableObject {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
 
-    @Published var price: String
-    @Published var priceChangeAnimation: ForegroundBlinkAnimationModifier.Change = .neutral
-    @Published var selectedPriceChangeIntervalType = MarketsPriceIntervalType.day
-    @Published var isLoading = true
+    @Published private(set) var priceChangeAnimation: ForegroundBlinkAnimationModifier.Change = .neutral
+    @Published var selectedPriceChangeIntervalType: MarketsPriceIntervalType
+    @Published private(set) var isLoading = true
     @Published var alert: AlertBinder?
-    @Published var state: ViewState = .loading
+    @Published private(set) var state: ViewState = .loading
 
     // MARK: Blocks
 
-    @Published var insightsViewModel: MarketsTokenDetailsInsightsViewModel?
-    @Published var metricsViewModel: MarketsTokenDetailsMetricsViewModel?
-    @Published var pricePerformanceViewModel: MarketsTokenDetailsPricePerformanceViewModel?
-    @Published var linksSections: [TokenMarketsDetailsLinkSection] = []
-    @Published var portfolioViewModel: MarketsPortfolioContainerViewModel?
+    @Published private(set) var insightsViewModel: MarketsTokenDetailsInsightsViewModel?
+    @Published private(set) var metricsViewModel: MarketsTokenDetailsMetricsViewModel?
+    @Published private(set) var pricePerformanceViewModel: MarketsTokenDetailsPricePerformanceViewModel?
+    @Published private(set) var linksSections: [TokenMarketsDetailsLinkSection] = []
+    @Published private(set) var portfolioViewModel: MarketsPortfolioContainerViewModel?
     @Published private(set) var historyChartViewModel: MarketsHistoryChartViewModel?
 
     @Published var descriptionBottomSheetInfo: DescriptionBottomSheetInfo?
 
-    @Published private var pickedTimeInterval: TimeInterval?
-    @Published private var loadedHistoryInfo: [TimeInterval: Decimal] = [:]
+    // Private published properties used for calculation `price`, `priceChangeState` and `priceDate` properties
+
+    @Published private var selectedDate: Date?
+    @Published private var priceFromQuoteRepository: Decimal?
+    @Published private var priceFromSelectedChartValue: Decimal?
     @Published private var loadedPriceChangeInfo: [String: Decimal] = [:]
+    @Published private var tokenInsights: TokenMarketsDetailsInsights?
 
-    let priceChangeIntervalOptions = MarketsPriceIntervalType.allCases
+    var price: String? { priceInfo?.price }
 
-    var priceChangeState: TokenPriceChangeView.State {
-        guard let pickedDate else {
-            let changePercent = loadedPriceChangeInfo[selectedPriceChangeIntervalType.rawValue]
-            return priceChangeUtility.convertToPriceChangeState(changePercent: changePercent)
-        }
+    var priceChangeState: TokenPriceChangeView.State? { priceInfo?.priceChangeState }
 
-        // [REDACTED_TODO_COMMENT]
-        print("Price change state for picked date: \(pickedDate)")
-        return .noData
-    }
-
-    var tokenName: String {
-        tokenInfo.name
-    }
-
-    var priceDate: String {
-        guard let pickedDate else {
-            return Localization.commonToday
-        }
-
-        return "\(dateFormatter.string(from: pickedDate)) – \(Localization.commonNow)"
-    }
-
-    var pickedDate: Date? {
-        guard let pickedTimeInterval else {
+    private var priceInfo: TokenMarketsDetailsPriceInfoHelper.PriceInfo? {
+        guard let currentPrice = priceFromQuoteRepository else {
             return nil
         }
 
-        return Date(timeIntervalSince1970: pickedTimeInterval)
+        if let selectedPrice = priceFromSelectedChartValue {
+            return priceHelper.makePriceInfo(currentPrice: currentPrice, selectedPrice: selectedPrice)
+        }
+
+        return priceHelper.makePriceInfo(
+            currentPrice: currentPrice,
+            priceChangeInfo: loadedPriceChangeInfo,
+            selectedPriceChangeIntervalType: selectedPriceChangeIntervalType
+        )
     }
+
+    var priceDate: String {
+        guard let priceDate = dateHelper.makeDate(
+            selectedDate: selectedDate,
+            selectedPriceChangeIntervalType: selectedPriceChangeIntervalType
+        ) else {
+            // [REDACTED_TODO_COMMENT]
+            return selectedPriceChangeIntervalType == .all ? Localization.commonAll : Localization.commonToday
+        }
+
+        return "\(dateFormatter.string(from: priceDate)) – \(Localization.commonNow)"
+    }
+
+    var tokenName: String { tokenInfo.name }
 
     var iconURL: URL {
         let iconBuilder = IconURLBuilder()
         return iconBuilder.tokenIconURL(id: tokenInfo.id, size: .large)
     }
 
-    var allDataLoadFailed: Bool {
-        state == .failedToLoadAllData
-    }
+    var priceChangeIntervalOptions: [MarketsPriceIntervalType] { MarketsPriceIntervalType.allCases }
+
+    var allDataLoadFailed: Bool { state == .failedToLoadAllData }
 
     private weak var coordinator: TokenMarketsDetailsRoutable?
 
+    private lazy var currentPricePublisher: some Publisher<Decimal?, Never> = {
+        let currencyId = tokenInfo.id
+
+        return quotesRepository
+            .quotesPublisher
+            .receive(on: DispatchQueue.main)
+            .map { $0[currencyId]?.price }
+            .prepend(tokenInfo.currentPrice)
+            .share(replay: 1)
+    }()
+
     private let balanceFormatter = BalanceFormatter()
-    private let priceChangeUtility = PriceChangeUtility()
+
+    private lazy var priceHelper = TokenMarketsDetailsPriceInfoHelper(fiatBalanceFormattingOptions: fiatBalanceFormattingOptions)
+    private lazy var dateHelper = TokenMarketsDetailsDateHelper(initialDate: initialDate)
+
+    // The date when this VM was initialized (i.e. the screen was opened)
+    private let initialDate = Date()
+
+    // [REDACTED_TODO_COMMENT]
     private let dateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd MMMM, HH:MM"
+        dateFormatter.dateFormat = "dd MMMM, HH:mm"
         return dateFormatter
     }()
 
@@ -92,8 +115,7 @@ class TokenMarketsDetailsViewModel: ObservableObject {
         formatEpsilonAsLowestRepresentableValue: false,
         roundingType: .defaultFiat(roundingMode: .bankers)
     )
-    private let currentPriceSubject: CurrentValueSubject<Decimal, Never>
-    private let quotesUpdateTimeInterval: TimeInterval = 60.0
+    private let defaultAmountNotationFormatter = DefaultAmountNotationFormatter()
 
     private let tokenInfo: MarketsTokenModel
     private let dataProvider: MarketsTokenDetailsDataProvider
@@ -105,25 +127,22 @@ class TokenMarketsDetailsViewModel: ObservableObject {
 
     // MARK: - Init
 
-    init(tokenInfo: MarketsTokenModel, dataProvider: MarketsTokenDetailsDataProvider, coordinator: TokenMarketsDetailsRoutable?) {
-        currentPriceSubject = .init(tokenInfo.currentPrice ?? 0.0)
+    init(
+        tokenInfo: MarketsTokenModel,
+        dataProvider: MarketsTokenDetailsDataProvider,
+        coordinator: TokenMarketsDetailsRoutable?
+    ) {
         self.tokenInfo = tokenInfo
         self.dataProvider = dataProvider
         self.coordinator = coordinator
-
-        price = balanceFormatter.formatFiatBalance(
-            tokenInfo.currentPrice,
-            formattingOptions: fiatBalanceFormattingOptions
-        )
+        selectedPriceChangeIntervalType = .day
+        loadedPriceChangeInfo = tokenInfo.priceChangePercentage
 
         bind()
-        loadedHistoryInfo = [Date().timeIntervalSince1970: tokenInfo.priceChangePercentage[MarketsPriceIntervalType.day.marketsListId] ?? 0]
-        loadedPriceChangeInfo = tokenInfo.priceChangePercentage
         loadDetailedInfo()
-
         makePreloadBlocksViewModels()
         makeHistoryChartViewModel()
-        bindToChartStateUpdates()
+        bindToHistoryChartViewModel()
     }
 
     deinit {
@@ -135,11 +154,6 @@ class TokenMarketsDetailsViewModel: ObservableObject {
 
     func onAppear() {
         Analytics.log(event: .marketsTokenChartScreenOpened, params: [.token: tokenInfo.symbol])
-    }
-
-    func reloadAllData() {
-        loadDetailedInfo()
-        historyChartViewModel?.reload()
     }
 
     func loadDetailedInfo() {
@@ -224,27 +238,21 @@ private extension TokenMarketsDetailsViewModel {
 
 private extension TokenMarketsDetailsViewModel {
     func bind() {
-        quotesRepository.quotesPublisher
-            .receive(on: DispatchQueue.main)
-            .withWeakCaptureOf(self)
-            .compactMap { viewModel, quotes in
-                quotes[viewModel.tokenInfo.id]?.price
-            }
-            .assign(to: \.value, on: currentPriceSubject, ownership: .weak)
+        currentPricePublisher
+            .assign(to: \.priceFromQuoteRepository, on: self, ownership: .weak)
             .store(in: &bag)
 
-        currentPriceSubject
-            .receive(on: DispatchQueue.main)
-            .withPrevious()
+        currentPricePublisher
+            .compactMap { $0 }
             .withWeakCaptureOf(self)
-            .sink { elements in
-                let (viewModel, (previousValue, newValue)) = elements
-                viewModel.price = viewModel.balanceFormatter.formatFiatBalance(
-                    newValue,
-                    formattingOptions: viewModel.fiatBalanceFormattingOptions
-                )
-                viewModel.priceChangeAnimation = .calculateChange(from: previousValue, to: newValue)
+            .filter { viewModel, _ in
+                // Filtered out if the chart is being dragged at the moment
+                viewModel.priceFromSelectedChartValue == nil
             }
+            .map(\.1)
+            .withPrevious()
+            .map(ForegroundBlinkAnimationModifier.Change.calculateChange(from:to:))
+            .assign(to: \.priceChangeAnimation, on: self, ownership: .weak)
             .store(in: &bag)
 
         $isLoading
@@ -254,10 +262,24 @@ private extension TokenMarketsDetailsViewModel {
                 viewModel.portfolioViewModel?.isLoading = isLoading
             }
             .store(in: &bag)
+
+        AppSettings.shared.$selectedCurrencyCode
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                viewModel.loadDetailedInfo()
+            }
+            .store(in: &bag)
     }
 
-    func bindToChartStateUpdates() {
-        historyChartViewModel?.$viewState
+    func bindToHistoryChartViewModel() {
+        guard let historyChartViewModel else {
+            return
+        }
+
+        historyChartViewModel
+            .$viewState
             .receive(on: DispatchQueue.main)
             .withPrevious()
             .withWeakCaptureOf(self)
@@ -266,7 +288,7 @@ private extension TokenMarketsDetailsViewModel {
 
                 switch (previousChartState, newChartState) {
                 case (.failed, .failed):
-                    // We need to process this cases before other so that view state remains unchanged.
+                    // We need to process these cases before other so that view state remains unchanged.
                     return
                 case (.failed, .loading):
                     if case .failedToLoadAllData = viewModel.state {
@@ -288,6 +310,21 @@ private extension TokenMarketsDetailsViewModel {
                     break
                 }
             })
+            .store(in: &bag)
+
+        let selectedChartValuePublisher = historyChartViewModel
+            .selectedChartValuePublisher
+            .removeDuplicates()
+            .share(replay: 1)
+
+        selectedChartValuePublisher
+            .map(\.?.date)
+            .assign(to: \.selectedDate, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        selectedChartValuePublisher
+            .map(\.?.price)
+            .assign(to: \.priceFromSelectedChartValue, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
@@ -322,23 +359,51 @@ private extension TokenMarketsDetailsViewModel {
     }
 
     func makeBlocksViewModels(using model: TokenMarketsDetailsModel) {
-        if let insights = model.insights {
-            insightsViewModel = .init(tokenSymbol: model.symbol, insights: insights, infoRouter: self)
-        }
+        setupInsights(model.insights)
 
         if let metrics = model.metrics {
-            metricsViewModel = .init(metrics: metrics, infoRouter: self)
+            metricsViewModel = .init(
+                metrics: metrics,
+                notationFormatter: defaultAmountNotationFormatter,
+                cryptoCurrencyCode: model.symbol,
+                infoRouter: self
+            )
         }
+
+        let pricePerformanceCurrentPricePublisher = currentPricePublisher
+            .compactMap { $0 }
+            .eraseToAnyPublisher()
 
         pricePerformanceViewModel = .init(
             tokenSymbol: model.symbol,
             pricePerformanceData: model.pricePerformance,
-            currentPricePublisher: currentPriceSubject.eraseToAnyPublisher()
+            currentPricePublisher: pricePerformanceCurrentPricePublisher
         )
 
         linksSections = MarketsTokenDetailsLinksMapper(
             openLinkAction: weakify(self, forFunction: TokenMarketsDetailsViewModel.openLinkAction(_:))
         ).mapToSections(model.links)
+    }
+
+    func setupInsights(_ insights: TokenMarketsDetailsInsights?) {
+        defer {
+            tokenInsights = insights
+        }
+
+        guard let insights else {
+            insightsViewModel = nil
+            return
+        }
+
+        if insightsViewModel == nil {
+            insightsViewModel = .init(
+                tokenSymbol: tokenInfo.symbol,
+                insights: insights,
+                insightsPublisher: $tokenInsights,
+                notationFormatter: defaultAmountNotationFormatter,
+                infoRouter: self
+            )
+        }
     }
 }
 
