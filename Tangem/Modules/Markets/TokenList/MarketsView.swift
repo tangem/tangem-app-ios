@@ -54,7 +54,7 @@ struct MarketsView: View {
         case .loading, .allDataLoaded, .idle:
             VStack(spacing: 12) {
                 Text(Localization.marketsSearchResultTitle)
-                    .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.title3, color: Colors.Text.primary1)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 16)
 
