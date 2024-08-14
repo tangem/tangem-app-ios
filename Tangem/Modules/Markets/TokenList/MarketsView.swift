@@ -52,7 +52,10 @@ struct MarketsView: View {
 
     @ViewBuilder
     private var defaultMarketsView: some View {
-        makeList(shouldDisplayHeader: true)
+        list
+            .safeAreaInset(edge: .top, spacing: 0.0) {
+                listOverlay
+            }
 
         if case .error = viewModel.tokenListLoadingState {
             errorStateView
@@ -79,7 +82,53 @@ struct MarketsView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 16)
 
-                makeList(shouldDisplayHeader: false)
+                list
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var listOverlay: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(Localization.marketsCommonTitle)
+                .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+
+            MarketsRatingHeaderView(viewModel: viewModel.marketsRatingHeaderViewModel)
+        }
+        .infinityFrame(axis: .horizontal)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 12.0)
+        .background(Colors.Background.primary)
+    }
+
+    @ViewBuilder
+    private var list: some View {
+        ScrollView(showsIndicators: false) {
+            ScrollViewReader { proxy in
+                // ScrollView inserts default spacing between its content views.
+                // Wrapping content into a `VStack` prevents it.
+                VStack(spacing: 0.0) {
+                    Color.clear.frame(height: 0)
+                        .id(scrollTopAnchorID)
+
+                    LazyVStack(spacing: 0) {
+                        ForEach(viewModel.tokenViewModels) {
+                            MarketsItemView(viewModel: $0)
+                        }
+
+                        // Need for display list skeleton view
+                        if case .loading = viewModel.tokenListLoadingState {
+                            loadingSkeletons
+                        }
+
+                        if viewModel.shouldDisplayShowTokensUnderCapView {
+                            showTokensUnderCapView
+                        }
+                    }
+                    .onReceive(viewModel.resetScrollPositionPublisher) { _ in
+                        proxy.scrollTo(scrollTopAnchorID)
+                    }
+                }
             }
         }
     }
@@ -120,50 +169,6 @@ struct MarketsView: View {
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.horizontal, 16)
-    }
-
-    @ViewBuilder
-    private func makeList(shouldDisplayHeader: Bool) -> some View {
-        ScrollView(showsIndicators: false) {
-            ScrollViewReader { proxy in
-                // ScrollView inserts default spacing between its content views.
-                // Wrapping content into a `VStack` prevents it.
-                VStack(spacing: 0.0) {
-                    Color.clear.frame(height: 0)
-                        .id(scrollTopAnchorID)
-
-                    if shouldDisplayHeader {
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text(Localization.marketsCommonTitle)
-                                .style(Fonts.Bold.title3, color: Colors.Text.primary1)
-
-                            MarketsRatingHeaderView(viewModel: viewModel.marketsRatingHeaderViewModel)
-                        }
-                        .infinityFrame(axis: .horizontal)
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 12.0)
-                    }
-
-                    LazyVStack(spacing: 0) {
-                        ForEach(viewModel.tokenViewModels) {
-                            MarketsItemView(viewModel: $0)
-                        }
-
-                        // Need for display list skeleton view
-                        if case .loading = viewModel.tokenListLoadingState {
-                            loadingSkeletons
-                        }
-
-                        if viewModel.shouldDisplayShowTokensUnderCapView {
-                            showTokensUnderCapView
-                        }
-                    }
-                    .onReceive(viewModel.resetScrollPositionPublisher) { _ in
-                        proxy.scrollTo(scrollTopAnchorID)
-                    }
-                }
-            }
-        }
     }
 }
 
