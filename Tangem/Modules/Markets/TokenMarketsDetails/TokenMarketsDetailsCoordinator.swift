@@ -26,7 +26,7 @@ class TokenMarketsDetailsCoordinator: CoordinatorObject {
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
 
-    // MARK: - Child Coordiantors
+    // MARK: - Child Coordinators
 
     @Published var sendCoordinator: SendCoordinator? = nil
     @Published var expressCoordinator: ExpressCoordinator? = nil
@@ -64,6 +64,10 @@ extension TokenMarketsDetailsCoordinator: TokenMarketsDetailsRoutable {
 
     func openURL(_ url: URL) {
         safariManager.openURL(url)
+    }
+
+    func closeModule() {
+        dismiss()
     }
 }
 
