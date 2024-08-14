@@ -192,6 +192,7 @@ class TokenMarketsDetailsViewModel: ObservableObject {
     }
 
     func onBackButtonTap() {
+        coordinator?.closeModule()
     }
 }
 
