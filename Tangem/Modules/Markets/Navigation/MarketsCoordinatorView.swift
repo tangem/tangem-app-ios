@@ -18,6 +18,7 @@ struct MarketsCoordinatorView: CoordinatorView {
                 ZStack {
                     VStack(spacing: 0.0) {
                         header
+                            .zIndex(100)
 
                         MarketsView(viewModel: model)
                             .navigationLinks(links)

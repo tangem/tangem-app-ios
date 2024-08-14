@@ -13,9 +13,13 @@ import BlockchainSdk
 struct MarketsView: View {
     @ObservedObject var viewModel: MarketsViewModel
 
+    @State private var listOverlayTotalHeight: CGFloat = .zero
+    @State private var listOverlayRatingHeaderHeight: CGFloat = .zero
+    @State private var listOverlayVerticalOffset: CGFloat = .zero
     @State private var responderChainIntrospectionTrigger = UUID()
 
     private let scrollTopAnchorId = UUID()
+    private let scrollViewFrameCoordinateSpaceName = UUID()
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -52,7 +56,7 @@ struct MarketsView: View {
     @ViewBuilder
     private var defaultMarketsView: some View {
         list
-            .safeAreaInset(edge: .top, spacing: 0.0) {
+            .safeAreaInset(edge: .top, spacing: 12.0) {
                 listOverlay
             }
 
@@ -93,11 +97,14 @@ struct MarketsView: View {
                 .style(Fonts.Bold.title3, color: Colors.Text.primary1)
 
             MarketsRatingHeaderView(viewModel: viewModel.marketsRatingHeaderViewModel)
+                .readGeometry(\.size.height, bindTo: $listOverlayRatingHeaderHeight)
         }
         .infinityFrame(axis: .horizontal)
+        .padding(.top, 10.0)
         .padding(.horizontal, 16)
-        .padding(.bottom, 12.0)
         .background(Colors.Background.primary)
+        .readGeometry(\.size.height, bindTo: $listOverlayTotalHeight)
+        .offset(y: listOverlayVerticalOffset)
     }
 
     @ViewBuilder
@@ -128,7 +135,12 @@ struct MarketsView: View {
                         proxy.scrollTo(scrollTopAnchorId)
                     }
                 }
+                .readContentOffset(
+                    inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName),
+                    onChange: updateListOverlayVerticalOffset(contentOffset:)
+                )
             }
+            .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
         }
     }
 
@@ -168,6 +180,11 @@ struct MarketsView: View {
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.horizontal, 16)
+    }
+
+    private func updateListOverlayVerticalOffset(contentOffset: CGPoint) {
+        let maxOffset = max(listOverlayTotalHeight - listOverlayRatingHeaderHeight, .zero)
+        listOverlayVerticalOffset = -clamp(contentOffset.y, min: .zero, max: maxOffset)
     }
 }
 
