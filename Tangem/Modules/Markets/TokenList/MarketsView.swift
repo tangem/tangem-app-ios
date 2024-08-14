@@ -13,6 +13,8 @@ import BlockchainSdk
 struct MarketsView: View {
     @ObservedObject var viewModel: MarketsViewModel
 
+    @State private var introspectResponderChainId = UUID()
+
     private let scrollTopAnchorID = "markets_scroll_view_top_anchor_id"
 
     var body: some View {
@@ -27,6 +29,25 @@ struct MarketsView: View {
         .background(Colors.Background.primary)
         .alert(item: $viewModel.alert, content: { $0.alert })
         .background(Colors.Background.primary)
+        // This dummy title won't be shown in the UI, but it's required since without it UIKit will allocate
+        // another `UINavigationBar` instance for use on the `Markets Token Details` page, and the code below
+        // (`navigationController.navigationBar.isHidden = true`) won't hide the navigation bar on that page
+        // (`Markets Token Details`).
+        .navigationTitle("Markets")
+        .navigationBarTitleDisplayMode(.inline)
+        .onWillAppear {
+            // `UINavigationBar` can be installed into the view hierarchy quite late;
+            // therefore, we're triggering introspection in the `viewWillAppear` callback
+            introspectResponderChainId = UUID()
+        }
+        .introspectResponderChain(
+            introspectedType: UINavigationController.self,
+            updateOnChangeOf: introspectResponderChainId
+        ) { navigationController in
+            // Unlike `UINavigationController.setNavigationBarHidden(_:animated:)` from UIKit and `navigationBarHidden(_:)`
+            // from SwiftUI, this approach will hide the navigation bar without breaking the swipe-to-pop gesture
+            navigationController.navigationBar.isHidden = true
+        }
     }
 
     @ViewBuilder
