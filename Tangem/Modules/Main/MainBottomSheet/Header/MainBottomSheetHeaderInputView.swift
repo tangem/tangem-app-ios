@@ -32,6 +32,7 @@ struct MainBottomSheetHeaderInputView: View {
         .allowsHitTesting(allowsHitTestingForTextField)
         .padding(.top, Constants.topInset)
         .padding(.bottom, Constants.bottomInset)
+        .background(Colors.Background.primary)
     }
 }
 
