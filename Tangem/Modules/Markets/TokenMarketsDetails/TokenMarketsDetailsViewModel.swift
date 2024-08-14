@@ -190,6 +190,9 @@ class TokenMarketsDetailsViewModel: ObservableObject {
 
         openInfoBottomSheet(title: Localization.marketsTokenDetailsAboutTokenTitle(tokenInfo.name), message: fullDescription)
     }
+
+    func onBackButtonTap() {
+    }
 }
 
 // MARK: - Details response processing
