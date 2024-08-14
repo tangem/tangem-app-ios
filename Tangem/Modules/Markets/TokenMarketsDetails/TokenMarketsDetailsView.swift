@@ -14,6 +14,23 @@ struct TokenMarketsDetailsView: View {
     @State private var descriptionBottomSheetHeight: CGFloat = 0
 
     var body: some View {
+        VStack(spacing: 0.0) {
+            NavigationBar(
+                title: viewModel.tokenName,
+                settings: .init(height: 64.0, alignment: .bottom),
+                leftItems: {
+                    BackButton(height: 44.0, isVisible: true, isEnabled: true, action: viewModel.onBackButtonTap)
+                },
+                rightItems: {}
+            )
+
+            scrollView
+        }
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    @ViewBuilder
+    private var scrollView: some View {
         ScrollView {
             VStack(alignment: .center, spacing: 24) {
                 Group {
@@ -41,8 +58,6 @@ struct TokenMarketsDetailsView: View {
             }
             .padding(.top, 14)
         }
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationTitle(Text(viewModel.tokenName))
         .background(Colors.Background.tertiary.ignoresSafeArea())
         .bindAlert($viewModel.alert)
         .descriptionBottomSheet(
