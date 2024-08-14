@@ -67,7 +67,11 @@ extension MarketsCoordinator: MarketsRoutable {
     }
 
     func openTokenMarketsDetails(for tokenInfo: MarketsTokenModel) {
-        let tokenMarketsDetailsCoordinator = TokenMarketsDetailsCoordinator()
+        let tokenMarketsDetailsCoordinator = TokenMarketsDetailsCoordinator(
+            dismissAction: { [weak self] in
+                self?.tokenMarketsDetailsCoordinator = nil
+            }
+        )
         tokenMarketsDetailsCoordinator.start(with: .init(info: tokenInfo))
 
         self.tokenMarketsDetailsCoordinator = tokenMarketsDetailsCoordinator
