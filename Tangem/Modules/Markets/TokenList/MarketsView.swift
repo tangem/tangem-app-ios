@@ -13,9 +13,9 @@ import BlockchainSdk
 struct MarketsView: View {
     @ObservedObject var viewModel: MarketsViewModel
 
-    @State private var introspectResponderChainId = UUID()
+    @State private var responderChainIntrospectionTrigger = UUID()
 
-    private let scrollTopAnchorID = "markets_scroll_view_top_anchor_id"
+    private let scrollTopAnchorId = UUID()
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -26,7 +26,6 @@ struct MarketsView: View {
             }
         }
         .scrollDismissesKeyboardCompat(.immediately)
-        .background(Colors.Background.primary)
         .alert(item: $viewModel.alert, content: { $0.alert })
         .background(Colors.Background.primary)
         // This dummy title won't be shown in the UI, but it's required since without it UIKit will allocate
@@ -38,11 +37,11 @@ struct MarketsView: View {
         .onWillAppear {
             // `UINavigationBar` can be installed into the view hierarchy quite late;
             // therefore, we're triggering introspection in the `viewWillAppear` callback
-            introspectResponderChainId = UUID()
+            responderChainIntrospectionTrigger = UUID()
         }
         .introspectResponderChain(
             introspectedType: UINavigationController.self,
-            updateOnChangeOf: introspectResponderChainId
+            updateOnChangeOf: responderChainIntrospectionTrigger
         ) { navigationController in
             // Unlike `UINavigationController.setNavigationBarHidden(_:animated:)` from UIKit and `navigationBarHidden(_:)`
             // from SwiftUI, this approach will hide the navigation bar without breaking the swipe-to-pop gesture
@@ -103,13 +102,13 @@ struct MarketsView: View {
 
     @ViewBuilder
     private var list: some View {
-        ScrollView(showsIndicators: false) {
-            ScrollViewReader { proxy in
+        ScrollViewReader { proxy in
+            ScrollView(showsIndicators: false) {
                 // ScrollView inserts default spacing between its content views.
                 // Wrapping content into a `VStack` prevents it.
                 VStack(spacing: 0.0) {
                     Color.clear.frame(height: 0)
-                        .id(scrollTopAnchorID)
+                        .id(scrollTopAnchorId)
 
                     LazyVStack(spacing: 0) {
                         ForEach(viewModel.tokenViewModels) {
@@ -126,7 +125,7 @@ struct MarketsView: View {
                         }
                     }
                     .onReceive(viewModel.resetScrollPositionPublisher) { _ in
-                        proxy.scrollTo(scrollTopAnchorID)
+                        proxy.scrollTo(scrollTopAnchorId)
                     }
                 }
             }
@@ -171,6 +170,8 @@ struct MarketsView: View {
         .padding(.horizontal, 16)
     }
 }
+
+// MARK: - Auxiliary types
 
 extension MarketsView {
     enum ListLoadingState: String, Identifiable, Hashable {
