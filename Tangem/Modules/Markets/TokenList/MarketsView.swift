@@ -16,6 +16,7 @@ struct MarketsView: View {
     @State private var listOverlayTotalHeight: CGFloat = .zero
     @State private var listOverlayRatingHeaderHeight: CGFloat = .zero
     @State private var listOverlayVerticalOffset: CGFloat = .zero
+    @State private var isListOverlayShadowLineViewVisible = false
     @State private var responderChainIntrospectionTrigger = UUID()
 
     private let scrollTopAnchorId = UUID()
@@ -56,7 +57,7 @@ struct MarketsView: View {
     @ViewBuilder
     private var defaultMarketsView: some View {
         list
-            .safeAreaInset(edge: .top, spacing: 12.0) {
+            .safeAreaInset(edge: .top, spacing: 0.0) {
                 listOverlay
             }
 
@@ -101,8 +102,13 @@ struct MarketsView: View {
         }
         .infinityFrame(axis: .horizontal)
         .padding(.top, 10.0)
+        .padding(.bottom, Constants.listOverlayBottomInset)
         .padding(.horizontal, 16)
         .background(Colors.Background.primary)
+        .overlay(alignment: .bottom) {
+            Separator(color: Colors.Stroke.primary)
+                .hidden(!isListOverlayShadowLineViewVisible)
+        }
         .readGeometry(\.size.height, bindTo: $listOverlayTotalHeight)
         .offset(y: listOverlayVerticalOffset)
     }
@@ -137,7 +143,7 @@ struct MarketsView: View {
                 }
                 .readContentOffset(
                     inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName),
-                    onChange: updateListOverlayVerticalOffset(contentOffset:)
+                    onChange: updateListOverlayAppearance(contentOffset:)
                 )
             }
             .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
@@ -182,9 +188,19 @@ struct MarketsView: View {
         .padding(.horizontal, 16)
     }
 
-    private func updateListOverlayVerticalOffset(contentOffset: CGPoint) {
-        let maxOffset = max(listOverlayTotalHeight - listOverlayRatingHeaderHeight, .zero)
-        listOverlayVerticalOffset = -clamp(contentOffset.y, min: .zero, max: maxOffset)
+    private func updateListOverlayAppearance(contentOffset: CGPoint) {
+        let maxOffset = max(listOverlayTotalHeight - listOverlayRatingHeaderHeight - Constants.listOverlayBottomInset, .zero)
+        let offset = -clamp(contentOffset.y, min: .zero, max: maxOffset)
+        listOverlayVerticalOffset = offset
+        isListOverlayShadowLineViewVisible = contentOffset.y >= (maxOffset + Constants.listOverlayBottomInset)
+    }
+}
+
+// MARK: - Constants
+
+private extension MarketsView {
+    enum Constants {
+        static let listOverlayBottomInset = 12.0
     }
 }
 
