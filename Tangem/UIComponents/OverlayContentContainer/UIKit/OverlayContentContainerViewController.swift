@@ -20,7 +20,8 @@ final class OverlayContentContainerViewController: UIViewController {
     // MARK: - Mutable state
 
     private var overlayViewController: UIViewController?
-    private var panGestureStartLocation: CGPoint = .zero
+    private var panGestureStartLocationInScreenCoordinateSpace: CGPoint = .zero
+    private var panGestureStartLocationInOverlayViewCoordinateSpace: CGPoint = .zero
     private var shouldIgnorePanGestureRecognizer = false
     private var didTap = false
     private var scrollViewContentOffsetLocker: ScrollViewContentOffsetLocker?
@@ -148,7 +149,7 @@ final class OverlayContentContainerViewController: UIViewController {
 
     func expand() {
         overlayViewTopAnchorConstraint?.constant = overlayExpandedVerticalOffset
-        UIView.animate(withDuration: Constants.animationDuration) { // [REDACTED_TODO_COMMENT]
+        UIView.animate(withDuration: Constants.defaultAnimationDuration) { // [REDACTED_TODO_COMMENT]
             self.view.layoutIfNeeded()
             self.progress = 1.0
         }
@@ -156,7 +157,7 @@ final class OverlayContentContainerViewController: UIViewController {
 
     func collapse() {
         overlayViewTopAnchorConstraint?.constant = overlayCollapsedVerticalOffset
-        UIView.animate(withDuration: Constants.animationDuration) { // [REDACTED_TODO_COMMENT]
+        UIView.animate(withDuration: Constants.defaultAnimationDuration) { // [REDACTED_TODO_COMMENT]
             self.view.layoutIfNeeded()
             self.progress = 0.0
         }
@@ -280,7 +281,7 @@ final class OverlayContentContainerViewController: UIViewController {
         if isFinalState {
             let keyPath = String(_sel: #selector(getter: CALayer.transform)) // [REDACTED_TODO_COMMENT]
             let animation = CABasicAnimation(keyPath: keyPath)
-            animation.duration = Constants.animationDuration
+            animation.duration = Constants.defaultAnimationDuration
             contentLayer.add(animation, forKey: #function)
         }
 
@@ -299,7 +300,7 @@ final class OverlayContentContainerViewController: UIViewController {
             + (Constants.maxBackgroundShadowViewAlpha - Constants.minBackgroundShadowViewAlpha) * progress
 
         if isFinalState {
-            UIView.animate(withDuration: Constants.animationDuration) { // [REDACTED_TODO_COMMENT]
+            UIView.animate(withDuration: Constants.defaultAnimationDuration) { // [REDACTED_TODO_COMMENT]
                 self.backgroundShadowView.alpha = alpha
             }
         } else {
@@ -321,7 +322,8 @@ final class OverlayContentContainerViewController: UIViewController {
     }
 
     private func reset() {
-        panGestureStartLocation = .zero
+        panGestureStartLocationInScreenCoordinateSpace = .zero
+        panGestureStartLocationInOverlayViewCoordinateSpace = .zero
         shouldIgnorePanGestureRecognizer = false
         scrollViewContentOffsetLocker = nil
     }
@@ -423,16 +425,23 @@ final class OverlayContentContainerViewController: UIViewController {
             return
         }
 
-        // [REDACTED_TODO_COMMENT]
-        let translation = gestureRecognizer.predictedTranslation(in: nil, atDecelerationRate: .fast)
-        let overlayOrigin = overlayViewController?.view.frame.origin ?? .zero
-        let predictedOverlayOriginY = abs(overlayOrigin.y + translation.y)
-        let finalOffset = predictedOverlayOriginY > screenBounds.height / 2.0
-            ? overlayCollapsedVerticalOffset
-            : overlayExpandedVerticalOffset
+        let velocity = gestureRecognizer.velocity(in: nil)
+        let verticalDirection = verticalDirection(for: gestureRecognizer)
+        let decelerationRate = calculateDecelerationRate(gestureVerticalDirection: verticalDirection)
+        let predictedEndLocation = gestureRecognizer.predictedEndLocation(in: nil, atDecelerationRate: decelerationRate)
+        let overlayViewFramePredictedOrigin = predictedEndLocation - panGestureStartLocationInOverlayViewCoordinateSpace
+        let isCollapsing = overlayViewFramePredictedOrigin.y > screenBounds.height / 2.0
 
+        let animationDuration = calculateAnimationDuration(
+            isCollapsing: isCollapsing,
+            gestureVelocity: velocity,
+            gestureVerticalDirection: verticalDirection
+        )
+
+        let finalOffset = isCollapsing ? overlayCollapsedVerticalOffset : overlayExpandedVerticalOffset
         overlayViewTopAnchorConstraint?.constant = finalOffset
-        UIView.animate(withDuration: Constants.animationDuration) { // [REDACTED_TODO_COMMENT]
+
+        UIView.animate(withDuration: animationDuration, delay: .zero, options: .curveEaseOut) {
             self.view.layoutIfNeeded()
         }
 
@@ -444,16 +453,53 @@ final class OverlayContentContainerViewController: UIViewController {
     private func verticalDirection(for gestureRecognizer: UIPanGestureRecognizer) -> VerticalDirection? {
         let location = gestureRecognizer.location(in: nil)
 
-        if panGestureStartLocation.y > location.y {
+        if panGestureStartLocationInScreenCoordinateSpace.y > location.y {
             return .up
         }
 
-        if panGestureStartLocation.y < location.y {
+        if panGestureStartLocationInScreenCoordinateSpace.y < location.y {
             return .down
         }
 
         // Edge case (is it even possible?), unable to determine
         return nil
+    }
+
+    private func calculateDecelerationRate(
+        gestureVerticalDirection: VerticalDirection?
+    ) -> UIScrollView.DecelerationRate {
+        // Makes the overlay view easier to expand and a bit harder to collapse
+        switch gestureVerticalDirection {
+        case .down:
+            return .fast
+        case .up,
+             .none:
+            return .normal
+        }
+    }
+
+    private func calculateAnimationDuration(
+        isCollapsing: Bool,
+        gestureVelocity: CGPoint,
+        gestureVerticalDirection: VerticalDirection?
+    ) -> TimeInterval {
+        // Equals `true` when a user tries to collapse or expand the overlay view with a pan gesture
+        // but ultimately fails to do so (e.g., the velocity of the pan gesture is too low)
+        let isGestureFailed = (isCollapsing && gestureVerticalDirection == .up)
+            || (!isCollapsing && gestureVerticalDirection == .down)
+
+        if isGestureFailed {
+            // We don't take gesture velocity into account if the gesture fails
+            return Constants.defaultAnimationDuration
+        }
+
+        let overlayViewFrame = overlayViewController?.view.frame ?? .zero
+
+        let remainingDistance = isCollapsing
+            ? max(screenBounds.height - overlayCollapsedHeight - overlayViewFrame.minY, .zero)
+            : max(overlayViewFrame.minY - overlayExpandedVerticalOffset, .zero)
+
+        return min(remainingDistance / abs(gestureVelocity.y), Constants.defaultAnimationDuration)
     }
 }
 
@@ -461,11 +507,13 @@ final class OverlayContentContainerViewController: UIViewController {
 
 extension OverlayContentContainerViewController: UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        let location = touch.location(in: nil)
-        panGestureStartLocation = location
+        let locationInScreenCoordinateSpace = touch.location(in: nil)
+
+        panGestureStartLocationInScreenCoordinateSpace = locationInScreenCoordinateSpace
+        panGestureStartLocationInOverlayViewCoordinateSpace = touch.location(in: overlayViewController?.view)
 
         // The gesture is completely disabled if no overlay view controller is set
-        return overlayViewController?.view.frame.contains(location) ?? false
+        return overlayViewController?.view.frame.contains(locationInScreenCoordinateSpace) ?? false
     }
 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -550,7 +598,7 @@ private extension OverlayContentContainerViewController {
         static let minBackgroundShadowViewAlpha = 0.0
         static let maxBackgroundShadowViewAlpha = 0.5
         static let cornerRadius = 24.0
-        static let animationDuration = 0.3
+        static let defaultAnimationDuration = 0.3
         static let contentViewTranslationCoefficient = 0.5
         static let minAdjustedContentOffsetToLockScrollView = 10.0
     }
