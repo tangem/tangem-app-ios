@@ -227,7 +227,7 @@ struct MarketsView: View {
 
 private extension MarketsView {
     enum Constants {
-        static let listOverlayTopInset = 10.0
+        static let listOverlayTopInset = /* 10.0 */ 18.0 // Temporarily increased until fade in/out logic is implemented ([REDACTED_INFO])
         static let listOverlayBottomInset = 12.0
     }
 }
