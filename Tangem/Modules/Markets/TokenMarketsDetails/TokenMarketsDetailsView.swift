@@ -12,6 +12,9 @@ struct TokenMarketsDetailsView: View {
     @ObservedObject var viewModel: TokenMarketsDetailsViewModel
 
     @State private var descriptionBottomSheetHeight: CGFloat = 0
+    @State private var isNavigationBarShadowLineViewVisible = false
+
+    private let scrollViewFrameCoordinateSpaceName = UUID()
 
     var body: some View {
         VStack(spacing: 0.0) {
@@ -23,6 +26,10 @@ struct TokenMarketsDetailsView: View {
                 },
                 rightItems: {}
             )
+            .overlay(alignment: .bottom) {
+                Separator(color: Colors.Stroke.primary)
+                    .hidden(!isNavigationBarShadowLineViewVisible)
+            }
 
             scrollView
         }
@@ -56,8 +63,12 @@ struct TokenMarketsDetailsView: View {
                     .padding(.horizontal, 16.0)
                     .transition(.opacity)
             }
-            .padding(.top, 14)
+            .padding(.top, Constants.scrollViewContentTopInset)
+            .readContentOffset(inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName)) { contentOffset in
+                isNavigationBarShadowLineViewVisible = contentOffset.y > Constants.scrollViewContentTopInset
+            }
         }
+        .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
         .background(Colors.Background.tertiary.ignoresSafeArea())
         .bindAlert($viewModel.alert)
         .descriptionBottomSheet(
@@ -202,9 +213,12 @@ struct TokenMarketsDetailsView: View {
     }
 }
 
+// MARK: - Constants
+
 private extension TokenMarketsDetailsView {
     enum Constants {
         static let chartHeight: CGFloat = 200.0
+        static let scrollViewContentTopInset = 14.0
     }
 }
 
