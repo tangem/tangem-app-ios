@@ -13,8 +13,9 @@ import BlockchainSdk
 struct MarketsView: View {
     @ObservedObject var viewModel: MarketsViewModel
 
-    @State private var listOverlayTotalHeight: CGFloat = .zero
-    @State private var listOverlayRatingHeaderHeight: CGFloat = .zero
+    @State private var defaultListOverlayTotalHeight: CGFloat = .zero
+    @State private var defaultListOverlayRatingHeaderHeight: CGFloat = .zero
+    @State private var searchResultListOverlayTotalHeight: CGFloat = .zero
     @State private var listOverlayVerticalOffset: CGFloat = .zero
     @State private var isListOverlayShadowLineViewVisible = false
     @State private var responderChainIntrospectionTrigger = UUID()
@@ -22,9 +23,11 @@ struct MarketsView: View {
     private let scrollTopAnchorId = UUID()
     private let scrollViewFrameCoordinateSpaceName = UUID()
 
+    private var showSearchResult: Bool { viewModel.isSearching }
+
     var body: some View {
         ZStack(alignment: .topLeading) {
-            if viewModel.isSearching {
+            if showSearchResult {
                 searchResultView
             } else {
                 defaultMarketsView
@@ -40,7 +43,7 @@ struct MarketsView: View {
         .navigationTitle("Markets")
         .navigationBarTitleDisplayMode(.inline)
         .onWillAppear {
-            // `UINavigationBar` can be installed into the view hierarchy quite late;
+            // `UINavigationBar` may be installed into the view hierarchy quite late;
             // therefore, we're triggering introspection in the `viewWillAppear` callback
             responderChainIntrospectionTrigger = UUID()
         }
@@ -58,7 +61,7 @@ struct MarketsView: View {
     private var defaultMarketsView: some View {
         list
             .safeAreaInset(edge: .top, spacing: 0.0) {
-                listOverlay
+                defaultListOverlay
             }
 
         if case .error = viewModel.tokenListLoadingState {
@@ -80,28 +83,28 @@ struct MarketsView: View {
         case .error:
             errorStateView
         case .loading, .allDataLoaded, .idle:
-            VStack(spacing: 12) {
-                Text(Localization.marketsSearchResultTitle)
-                    .style(Fonts.Bold.title3, color: Colors.Text.primary1)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 16)
-
-                list
-            }
+            list
+                .safeAreaInset(edge: .top, spacing: 0.0) {
+                    searchResultListOverlay
+                }
+                .overlay(alignment: .top) {
+                    Separator(color: Colors.Stroke.primary)
+                        .hidden(!isListOverlayShadowLineViewVisible)
+                }
         }
     }
 
     @ViewBuilder
-    private var listOverlay: some View {
+    private var defaultListOverlay: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(Localization.marketsCommonTitle)
                 .style(Fonts.Bold.title3, color: Colors.Text.primary1)
 
             MarketsRatingHeaderView(viewModel: viewModel.marketsRatingHeaderViewModel)
-                .readGeometry(\.size.height, bindTo: $listOverlayRatingHeaderHeight)
+                .readGeometry(\.size.height, bindTo: $defaultListOverlayRatingHeaderHeight)
         }
         .infinityFrame(axis: .horizontal)
-        .padding(.top, 10.0)
+        .padding(.top, Constants.listOverlayTopInset)
         .padding(.bottom, Constants.listOverlayBottomInset)
         .padding(.horizontal, 16)
         .background(Colors.Background.primary)
@@ -109,8 +112,20 @@ struct MarketsView: View {
             Separator(color: Colors.Stroke.primary)
                 .hidden(!isListOverlayShadowLineViewVisible)
         }
-        .readGeometry(\.size.height, bindTo: $listOverlayTotalHeight)
+        .readGeometry(\.size.height, bindTo: $defaultListOverlayTotalHeight)
         .offset(y: listOverlayVerticalOffset)
+    }
+
+    @ViewBuilder
+    private var searchResultListOverlay: some View {
+        Text(Localization.marketsSearchResultTitle)
+            .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.top, Constants.listOverlayTopInset)
+            .padding(.horizontal, 16)
+            .background(Colors.Background.primary)
+            .readGeometry(\.size.height, bindTo: $searchResultListOverlayTotalHeight)
+            .offset(y: listOverlayVerticalOffset)
     }
 
     @ViewBuilder
@@ -189,9 +204,21 @@ struct MarketsView: View {
     }
 
     private func updateListOverlayAppearance(contentOffset: CGPoint) {
-        let maxOffset = max(listOverlayTotalHeight - listOverlayRatingHeaderHeight - Constants.listOverlayBottomInset, .zero)
-        let offset = -clamp(contentOffset.y, min: .zero, max: maxOffset)
-        listOverlayVerticalOffset = offset
+        let maxOffset: CGFloat
+        let offSet: CGFloat
+
+        if showSearchResult {
+            maxOffset = searchResultListOverlayTotalHeight
+            offSet = -clamp(contentOffset.y, min: .zero, max: maxOffset)
+        } else {
+            maxOffset = max(
+                defaultListOverlayTotalHeight - defaultListOverlayRatingHeaderHeight - Constants.listOverlayBottomInset,
+                .zero
+            )
+            offSet = -clamp(contentOffset.y, min: .zero, max: maxOffset)
+        }
+
+        listOverlayVerticalOffset = offSet
         isListOverlayShadowLineViewVisible = contentOffset.y >= (maxOffset + Constants.listOverlayBottomInset)
     }
 }
@@ -200,6 +227,7 @@ struct MarketsView: View {
 
 private extension MarketsView {
     enum Constants {
+        static let listOverlayTopInset = 10.0
         static let listOverlayBottomInset = 12.0
     }
 }
