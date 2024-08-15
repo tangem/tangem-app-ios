@@ -11,13 +11,10 @@ import Foundation
 public enum Period: Hashable {
     case days(_ days: Int)
 
-    // [REDACTED_TODO_COMMENT]
-    func formatted(formatter: DateComponentsFormatter) -> String {
+    public var isZero: Bool {
         switch self {
         case .days(let days):
-            formatter.unitsStyle = .short
-            formatter.allowedUnits = [.day]
-            return formatter.string(from: DateComponents(day: days)) ?? days.formatted()
+            return days == 0
         }
     }
 }
