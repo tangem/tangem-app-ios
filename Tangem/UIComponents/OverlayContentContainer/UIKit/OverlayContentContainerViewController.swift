@@ -496,7 +496,7 @@ final class OverlayContentContainerViewController: UIViewController {
         let overlayViewFrame = overlayViewController?.view.frame ?? .zero
 
         let remainingDistance = isCollapsing
-            ? max(screenBounds.height - overlayCollapsedHeight - overlayViewFrame.minY, .zero)
+            ? max(overlayCollapsedVerticalOffset - overlayViewFrame.minY, .zero)
             : max(overlayViewFrame.minY - overlayExpandedVerticalOffset, .zero)
 
         return min(remainingDistance / abs(gestureVelocity.y), Constants.defaultAnimationDuration)
