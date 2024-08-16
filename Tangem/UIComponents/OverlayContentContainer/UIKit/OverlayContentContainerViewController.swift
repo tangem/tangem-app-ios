@@ -26,7 +26,7 @@ final class OverlayContentContainerViewController: UIViewController {
     private var didTap = false
     private var scrollViewContentOffsetLocker: ScrollViewContentOffsetLocker?
 
-    private var progress: CGFloat = .zero {
+    private var progress: OverlayContentContainerProgress = .zero {
         didSet { onProgressChange(oldValue: oldValue, newValue: progress) }
     }
 
@@ -43,11 +43,11 @@ final class OverlayContentContainerViewController: UIViewController {
     }
 
     private var isExpandedState: Bool {
-        return abs(1.0 - progress) <= .ulpOfOne
+        return abs(1.0 - progress.value) <= .ulpOfOne
     }
 
     private var isCollapsedState: Bool {
-        return abs(progress) <= .ulpOfOne
+        return abs(progress.value) <= .ulpOfOne
     }
 
     /// I.e. either collapsed or expanded.
@@ -134,7 +134,8 @@ final class OverlayContentContainerViewController: UIViewController {
 
         overlayViewController.removeFromParent()
         self.overlayViewController = nil
-        progress = 0.0
+
+        updateProgress(verticalOffset: overlayCollapsedVerticalOffset, animationContext: nil)
     }
 
     /// - Warning: This method maintains strong reference to the given `observer` closure.
@@ -149,18 +150,32 @@ final class OverlayContentContainerViewController: UIViewController {
 
     func expand() {
         overlayViewTopAnchorConstraint?.constant = overlayExpandedVerticalOffset
-        UIView.animate(withDuration: Constants.defaultAnimationDuration) { // [REDACTED_TODO_COMMENT]
+
+        let animationContext = OverlayContentContainerProgress.AnimationContext(
+            duration: Constants.defaultAnimationDuration,
+            curve: Constants.defaultAnimationCurve
+        )
+
+        UIView.animate(with: animationContext) {
             self.view.layoutIfNeeded()
-            self.progress = 1.0
         }
+
+        updateProgress(verticalOffset: overlayExpandedVerticalOffset, animationContext: animationContext)
     }
 
     func collapse() {
         overlayViewTopAnchorConstraint?.constant = overlayCollapsedVerticalOffset
-        UIView.animate(withDuration: Constants.defaultAnimationDuration) { // [REDACTED_TODO_COMMENT]
+
+        let animationContext = OverlayContentContainerProgress.AnimationContext(
+            duration: Constants.defaultAnimationDuration,
+            curve: Constants.defaultAnimationCurve
+        )
+
+        UIView.animate(with: animationContext) {
             self.view.layoutIfNeeded()
-            self.progress = 0.0
         }
+
+        updateProgress(verticalOffset: overlayCollapsedVerticalOffset, animationContext: animationContext)
     }
 
     // MARK: - Setup
@@ -262,26 +277,27 @@ final class OverlayContentContainerViewController: UIViewController {
 
     // MARK: - State update
 
-    private func updateProgress() {
-        let verticalOffset = overlayViewTopAnchorConstraint?.constant ?? .zero
-
-        progress = clamp(
+    private func updateProgress(verticalOffset: CGFloat, animationContext: OverlayContentContainerProgress.AnimationContext?) {
+        let value = clamp(
             (overlayCollapsedVerticalOffset - verticalOffset) / (overlayCollapsedVerticalOffset - overlayExpandedVerticalOffset),
             min: 0.0,
             max: 1.0
         )
+
+        progress = OverlayContentContainerProgress(value: value, context: animationContext)
     }
 
     private func updateContentScale() {
         let contentLayer = contentViewController.view.layer
-        let invertedProgress = 1.0 - progress
+        let invertedProgress = 1.0 - progress.value
         let scale = Constants.minContentViewScale
             + (Constants.maxContentViewScale - Constants.minContentViewScale) * invertedProgress
 
-        if isFinalState {
-            let keyPath = String(_sel: #selector(getter: CALayer.transform)) // [REDACTED_TODO_COMMENT]
+        if isFinalState, let animationContext = progress.context {
+            let keyPath = String(_sel: #selector(getter: CALayer.transform))
             let animation = CABasicAnimation(keyPath: keyPath)
-            animation.duration = Constants.defaultAnimationDuration
+            animation.duration = animationContext.duration
+            animation.timingFunction = animationContext.curve.toMediaTimingFunction()
             contentLayer.add(animation, forKey: #function)
         }
 
@@ -297,10 +313,10 @@ final class OverlayContentContainerViewController: UIViewController {
 
     private func updateBackgroundShadowViewAlpha() {
         let alpha = Constants.minBackgroundShadowViewAlpha
-            + (Constants.maxBackgroundShadowViewAlpha - Constants.minBackgroundShadowViewAlpha) * progress
+            + (Constants.maxBackgroundShadowViewAlpha - Constants.minBackgroundShadowViewAlpha) * progress.value
 
-        if isFinalState {
-            UIView.animate(withDuration: Constants.defaultAnimationDuration) { // [REDACTED_TODO_COMMENT]
+        if isFinalState, let animationContext = progress.context {
+            UIView.animate(with: animationContext) {
                 self.backgroundShadowView.alpha = alpha
             }
         } else {
@@ -330,7 +346,7 @@ final class OverlayContentContainerViewController: UIViewController {
 
     // MARK: - Handlers
 
-    private func onProgressChange(oldValue: CGFloat, newValue: CGFloat) {
+    private func onProgressChange(oldValue: OverlayContentContainerProgress, newValue: OverlayContentContainerProgress) {
         guard oldValue != newValue else {
             return
         }
@@ -413,7 +429,7 @@ final class OverlayContentContainerViewController: UIViewController {
         overlayViewTopAnchorConstraint?.constant = newVerticalOffset // [REDACTED_TODO_COMMENT]
         gestureRecognizer.setTranslation(.zero, in: nil)
 
-        updateProgress()
+        updateProgress(verticalOffset: newVerticalOffset, animationContext: nil)
     }
 
     func onPanGestureEnded(_ gestureRecognizer: UIPanGestureRecognizer) {
@@ -438,14 +454,19 @@ final class OverlayContentContainerViewController: UIViewController {
             gestureVerticalDirection: verticalDirection
         )
 
-        let finalOffset = isCollapsing ? overlayCollapsedVerticalOffset : overlayExpandedVerticalOffset
-        overlayViewTopAnchorConstraint?.constant = finalOffset
+        let animationContext = OverlayContentContainerProgress.AnimationContext(
+            duration: animationDuration,
+            curve: Constants.defaultAnimationCurve
+        )
 
-        UIView.animate(withDuration: animationDuration, delay: .zero, options: .curveEaseOut) {
+        let newVerticalOffset = isCollapsing ? overlayCollapsedVerticalOffset : overlayExpandedVerticalOffset
+        overlayViewTopAnchorConstraint?.constant = newVerticalOffset
+
+        UIView.animate(with: animationContext) {
             self.view.layoutIfNeeded()
         }
 
-        updateProgress()
+        updateProgress(verticalOffset: newVerticalOffset, animationContext: animationContext)
     }
 
     // MARK: - Helpers
@@ -568,7 +589,7 @@ extension OverlayContentContainerViewController: TouchPassthroughViewDelegate {
 
 extension OverlayContentContainerViewController: OverlayContentContainerAppLifecycleHelperDelegate {
     func currentProgress(for appLifecycleHelper: OverlayContentContainerAppLifecycleHelper) -> CGFloat {
-        return progress
+        return progress.value
     }
 
     func appLifecycleHelperDidTriggerExpand(_ appLifecycleHelper: OverlayContentContainerAppLifecycleHelper) {
@@ -583,7 +604,7 @@ extension OverlayContentContainerViewController: OverlayContentContainerAppLifec
 // MARK: - Auxiliary types
 
 private extension OverlayContentContainerViewController {
-    private enum VerticalDirection {
+    enum VerticalDirection {
         case up
         case down
     }
@@ -599,6 +620,7 @@ private extension OverlayContentContainerViewController {
         static let maxBackgroundShadowViewAlpha = 0.5
         static let cornerRadius = 24.0
         static let defaultAnimationDuration = 0.3
+        static let defaultAnimationCurve: UIView.AnimationCurve = .easeOut
         static let contentViewTranslationCoefficient = 0.5
         static let minAdjustedContentOffsetToLockScrollView = 10.0
     }
