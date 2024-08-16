@@ -88,8 +88,7 @@ struct MarketsView: View {
                     searchResultListOverlay
                 }
                 .overlay(alignment: .top) {
-                    Separator(color: Colors.Stroke.primary)
-                        .hidden(!isListOverlayShadowLineViewVisible)
+                    listOverlaySeparator
                 }
         }
     }
@@ -109,8 +108,7 @@ struct MarketsView: View {
         .padding(.horizontal, 16)
         .background(Colors.Background.primary)
         .overlay(alignment: .bottom) {
-            Separator(color: Colors.Stroke.primary)
-                .hidden(!isListOverlayShadowLineViewVisible)
+            listOverlaySeparator
         }
         .readGeometry(\.size.height, bindTo: $defaultListOverlayTotalHeight)
         .offset(y: listOverlayVerticalOffset)
@@ -126,6 +124,12 @@ struct MarketsView: View {
             .background(Colors.Background.primary)
             .readGeometry(\.size.height, bindTo: $searchResultListOverlayTotalHeight)
             .offset(y: listOverlayVerticalOffset)
+    }
+
+    @ViewBuilder
+    private var listOverlaySeparator: some View {
+        Separator(color: Colors.Stroke.primary)
+            .hidden(!isListOverlayShadowLineViewVisible)
     }
 
     @ViewBuilder
