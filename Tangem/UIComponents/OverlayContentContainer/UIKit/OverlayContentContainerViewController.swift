@@ -370,6 +370,8 @@ final class OverlayContentContainerViewController: UIViewController {
     // MARK: - Handlers
 
     private func onProgressChange(oldValue: OverlayContentContainerProgress, newValue: OverlayContentContainerProgress) {
+        _overlayContentContainerViewControllerProgress = newValue.value
+
         guard oldValue != newValue else {
             return
         }
@@ -630,3 +632,7 @@ private extension OverlayContentContainerViewController {
         static let defaultAnimationContext = OverlayContentContainerProgress.AnimationContext(duration: 0.3, curve: .easeOut)
     }
 }
+
+// [REDACTED_TODO_COMMENT]
+@available(*, deprecated, message: "Test only, pass current progress to state observers")
+var _overlayContentContainerViewControllerProgress: CGFloat = .zero
