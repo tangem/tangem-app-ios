@@ -149,33 +149,27 @@ final class OverlayContentContainerViewController: UIViewController {
     }
 
     func expand() {
-        overlayViewTopAnchorConstraint?.constant = overlayExpandedVerticalOffset
+        let newVerticalOffset = overlayExpandedVerticalOffset
+        overlayViewTopAnchorConstraint?.constant = newVerticalOffset
 
-        let animationContext = OverlayContentContainerProgress.AnimationContext(
-            duration: Constants.defaultAnimationDuration,
-            curve: Constants.defaultAnimationCurve
-        )
-
+        let animationContext = Constants.defaultAnimationContext
         UIView.animate(with: animationContext) {
             self.view.layoutIfNeeded()
         }
 
-        updateProgress(verticalOffset: overlayExpandedVerticalOffset, animationContext: animationContext)
+        updateProgress(verticalOffset: newVerticalOffset, animationContext: animationContext)
     }
 
     func collapse() {
-        overlayViewTopAnchorConstraint?.constant = overlayCollapsedVerticalOffset
+        let newVerticalOffset = overlayCollapsedVerticalOffset
+        overlayViewTopAnchorConstraint?.constant = newVerticalOffset
 
-        let animationContext = OverlayContentContainerProgress.AnimationContext(
-            duration: Constants.defaultAnimationDuration,
-            curve: Constants.defaultAnimationCurve
-        )
-
+        let animationContext = Constants.defaultAnimationContext
         UIView.animate(with: animationContext) {
             self.view.layoutIfNeeded()
         }
 
-        updateProgress(verticalOffset: overlayCollapsedVerticalOffset, animationContext: animationContext)
+        updateProgress(verticalOffset: newVerticalOffset, animationContext: animationContext)
     }
 
     // MARK: - Setup
@@ -456,7 +450,7 @@ final class OverlayContentContainerViewController: UIViewController {
 
         let animationContext = OverlayContentContainerProgress.AnimationContext(
             duration: animationDuration,
-            curve: Constants.defaultAnimationCurve
+            curve: Constants.defaultAnimationContext.curve
         )
 
         let newVerticalOffset = isCollapsing ? overlayCollapsedVerticalOffset : overlayExpandedVerticalOffset
@@ -511,7 +505,7 @@ final class OverlayContentContainerViewController: UIViewController {
 
         if isGestureFailed {
             // We don't take gesture velocity into account if the gesture fails
-            return Constants.defaultAnimationDuration
+            return Constants.defaultAnimationContext.duration
         }
 
         let overlayViewFrame = overlayViewController?.view.frame ?? .zero
@@ -520,7 +514,7 @@ final class OverlayContentContainerViewController: UIViewController {
             ? max(overlayCollapsedVerticalOffset - overlayViewFrame.minY, .zero)
             : max(overlayViewFrame.minY - overlayExpandedVerticalOffset, .zero)
 
-        return min(remainingDistance / abs(gestureVelocity.y), Constants.defaultAnimationDuration)
+        return min(remainingDistance / abs(gestureVelocity.y), Constants.defaultAnimationContext.duration)
     }
 }
 
@@ -619,9 +613,8 @@ private extension OverlayContentContainerViewController {
         static let minBackgroundShadowViewAlpha = 0.0
         static let maxBackgroundShadowViewAlpha = 0.5
         static let cornerRadius = 24.0
-        static let defaultAnimationDuration = 0.3
-        static let defaultAnimationCurve: UIView.AnimationCurve = .easeOut
         static let contentViewTranslationCoefficient = 0.5
         static let minAdjustedContentOffsetToLockScrollView = 10.0
+        static let defaultAnimationContext = OverlayContentContainerProgress.AnimationContext(duration: 0.3, curve: .easeOut)
     }
 }
