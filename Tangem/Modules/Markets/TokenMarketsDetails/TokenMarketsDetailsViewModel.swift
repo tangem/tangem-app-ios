@@ -237,6 +237,7 @@ private extension TokenMarketsDetailsViewModel {
         state = .loaded(model: model)
 
         makeBlocksViewModels(using: model)
+        portfolioViewModel?.updateState(with: model.coinModel)
     }
 
     @MainActor
@@ -282,14 +283,6 @@ private extension TokenMarketsDetailsViewModel {
                 return mergedData
             }
             .assign(to: \.priceChangeInfo, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        $isLoading
-            .receive(on: DispatchQueue.main)
-            .withWeakCaptureOf(self)
-            .sink { viewModel, isLoading in
-                viewModel.portfolioViewModel?.isLoading = isLoading
-            }
             .store(in: &bag)
 
         AppSettings.shared.$selectedCurrencyCode
@@ -359,11 +352,11 @@ private extension TokenMarketsDetailsViewModel {
 
     func makePreloadBlocksViewModels() {
         portfolioViewModel = .init(
-            userWalletModels: walletDataProvider.userWalletModels,
             coinId: tokenInfo.id,
+            walletDataProvider: walletDataProvider,
             coordinator: coordinator,
             addTokenTapAction: { [weak self] in
-                guard let self, let coinModel = loadedInfo?.coinModel, !coinModel.items.isEmpty else {
+                guard let self, let coinModel = loadedInfo?.coinModel else {
                     return
                 }
 
