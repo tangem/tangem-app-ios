@@ -11,8 +11,6 @@ import TangemStaking
 import BlockchainSdk
 
 struct SendDependenciesBuilder {
-    @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
-
     private let walletModel: WalletModel
     private let userWalletModel: UserWalletModel
 
