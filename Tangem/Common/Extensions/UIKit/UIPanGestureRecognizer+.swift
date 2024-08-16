@@ -10,6 +10,26 @@ import Foundation
 import UIKit
 
 extension UIPanGestureRecognizer {
+    enum VerticalDirection {
+        case up
+        case down
+    }
+
+    func verticalDirection(in view: UIView?, relativeToGestureStartLocation startLocation: CGPoint) -> VerticalDirection? {
+        let location = location(in: view)
+
+        if startLocation.y > location.y {
+            return .up
+        }
+
+        if startLocation.y < location.y {
+            return .down
+        }
+
+        // Edge case (is it even possible?), unable to determine
+        return nil
+    }
+
     /// Based on this WWDC session https://developer.apple.com/videos/play/wwdc2018/803/
     func predictedEndLocation(
         in view: UIView?,
