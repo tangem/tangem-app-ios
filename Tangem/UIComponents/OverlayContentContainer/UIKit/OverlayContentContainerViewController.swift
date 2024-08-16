@@ -138,7 +138,7 @@ final class OverlayContentContainerViewController: UIViewController {
         updateProgress(verticalOffset: overlayCollapsedVerticalOffset, animationContext: nil)
     }
 
-    /// - Warning: This method maintains strong reference to the given `observer` closure.
+    /// - Warning: This method maintains a strong reference to the given `observer` closure.
     /// Remove this reference by using `removeObserver(forToken:)` method.
     func addObserver(_ observer: @escaping OverlayContentStateObserver.Observer, forToken token: any Hashable) {
         stateObservers[AnyHashable(token)] = observer
