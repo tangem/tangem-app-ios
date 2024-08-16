@@ -208,6 +208,12 @@ struct MarketsView: View {
     }
 
     private func updateListOverlayAppearance(contentOffset: CGPoint) {
+        guard abs(1.0 - _overlayContentContainerViewControllerProgress) <= .ulpOfOne else {
+            listOverlayVerticalOffset = .zero
+            isListOverlayShadowLineViewVisible = false
+            return
+        }
+
         let maxOffset: CGFloat
         let offSet: CGFloat
 
