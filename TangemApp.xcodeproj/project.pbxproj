@@ -1313,7 +1313,7 @@
 		EF08A0EF283D1914008BD923 /* Moya+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0EE283D1914008BD923 /* Moya+.swift */; };
 		EF08A0F1283D2382008BD923 /* CoinsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0F0283D2382008BD923 /* CoinsList.swift */; };
 		EF09A309297A9B3F00B869A1 /* BottomSheetContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF09A308297A9B3F00B869A1 /* BottomSheetContainer.swift */; };
-		EF0B173529F2CDF4002A3C6D /* UIDevice+IPhoneModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0B173429F2CDF4002A3C6D /* UIDevice+IPhoneModel.swift */; };
+		EF0B173529F2CDF4002A3C6D /* UIDevice+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0B173429F2CDF4002A3C6D /* UIDevice+.swift */; };
 		EF0B553B2C38346F007BDE83 /* SendSummaryInputOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0B553A2C38346F007BDE83 /* SendSummaryInputOutput.swift */; };
 		EF0B63F42C54116000365A50 /* UnstakingFlowBaseBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0B63F32C54116000365A50 /* UnstakingFlowBaseBuilder.swift */; };
 		EF0B63F62C5411C900365A50 /* UnstakingModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0B63F52C5411C900365A50 /* UnstakingModel.swift */; };
@@ -3291,7 +3291,7 @@
 		EF08A0EE283D1914008BD923 /* Moya+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Moya+.swift"; sourceTree = "<group>"; };
 		EF08A0F0283D2382008BD923 /* CoinsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinsList.swift; sourceTree = "<group>"; };
 		EF09A308297A9B3F00B869A1 /* BottomSheetContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetContainer.swift; sourceTree = "<group>"; };
-		EF0B173429F2CDF4002A3C6D /* UIDevice+IPhoneModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIDevice+IPhoneModel.swift"; sourceTree = "<group>"; };
+		EF0B173429F2CDF4002A3C6D /* UIDevice+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIDevice+.swift"; sourceTree = "<group>"; };
 		EF0B553A2C38346F007BDE83 /* SendSummaryInputOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendSummaryInputOutput.swift; sourceTree = "<group>"; };
 		EF0B63F32C54116000365A50 /* UnstakingFlowBaseBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnstakingFlowBaseBuilder.swift; sourceTree = "<group>"; };
 		EF0B63F52C5411C900365A50 /* UnstakingModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnstakingModel.swift; sourceTree = "<group>"; };
@@ -4532,7 +4532,7 @@
 				B68907842A32482F00A0D246 /* ForEach+.swift */,
 				B668D2572A685DD800D9A12A /* BinaryFloatingPoint+.swift */,
 				B0DC10CC2927505300BBE854 /* SwiftConcurrency+.swift */,
-				EF0B173429F2CDF4002A3C6D /* UIDevice+IPhoneModel.swift */,
+				EF0B173429F2CDF4002A3C6D /* UIDevice+.swift */,
 				DADD18F72AA7516B0044AA66 /* UITraitCollection+.swift */,
 				DAF1EB9A2A9F83EF00467490 /* KingfisherImageProcessors.swift */,
 				B0A948FE2ACD999C00C80B0A /* WeakifyFuncion.swift */,
@@ -6634,10 +6634,10 @@
 			isa = PBXGroup;
 			children = (
 				B67703152C6656BE00C7D093 /* Interface */,
-				B66913612C41790E0016B0EE /* OverlayContentContainer+Environment.swift */,
 				B669136F2C41958D0016B0EE /* OverlayContentContainerViewControllerAdapter.swift */,
 				B669136B2C417C9A0016B0EE /* OverlayContentContainerViewModifier.swift */,
 				B656FCE52C46F3E8002B5BF2 /* OverlayContentStateObserverViewModifier.swift */,
+				B66913612C41790E0016B0EE /* OverlayContentContainer+Environment.swift */,
 			);
 			path = SwiftUI;
 			sourceTree = "<group>";
@@ -11566,7 +11566,7 @@
 				B003BDAC2A029C4300B282F7 /* BalanceConverter.swift in Sources */,
 				DCBAF6992A4AEEDD0029480A /* AnyWalletManagerFactory.swift in Sources */,
 				EFF9A2FD2BD6B45E007C63D2 /* UserWalletSettingsViewModel.swift in Sources */,
-				EF0B173529F2CDF4002A3C6D /* UIDevice+IPhoneModel.swift in Sources */,
+				EF0B173529F2CDF4002A3C6D /* UIDevice+.swift in Sources */,
 				B6C921C62A49FF960057811F /* VisualEffectView.swift in Sources */,
 				EF61837F2B4F04F10064B7CD /* SwappingSuccessCoordinator.swift in Sources */,
 				B0EBBB222924C42E00020EC2 /* ReferralParticipationRequestBody.swift in Sources */,
