@@ -31,7 +31,15 @@ extension StakingNotificationEvent: NotificationEvent {
     var description: String? {
         switch self {
         case .stake(let tokenSymbol, let periodFormatted):
-            return Localization.stakingNotificationEarnRewardsText(tokenSymbol, periodFormatted)
+            /*
+             TODO: replace to
+             staking_notification_earn_rewards_text_period_day
+             staking_notification_earn_rewards_text_period_hour
+             staking_notification_earn_rewards_text_period_month
+             staking_notification_earn_rewards_text_period_week
+             */
+            return "UNDEFINED"
+        //  return Localization.stakingNotificationEarnRewardsText(tokenSymbol, periodFormatted)
         case .unstake(let periodFormatted):
             return Localization.stakingNotificationUnstakeText(periodFormatted)
         }
