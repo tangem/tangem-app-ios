@@ -87,7 +87,7 @@ private extension CommonTransactionHistoryService {
         let request = TransactionHistory.Request(address: address, amountType: tokenItem.amountType, limit: pageSize)
 
         cancellable = transactionHistoryProvider
-            .loadTransactionHistoryExcludingZeroTransactions(request: request)
+            .loadTransactionHistory(request: request)
             .handleEvents(receiveCancel: {
                 // Resolves conflicting requests for tracking history from different consumers so as not to lose output from the update process
                 AppLog.shared.debug("\(String(describing: self)) canceled")
