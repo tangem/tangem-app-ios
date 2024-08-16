@@ -24,7 +24,6 @@ final class OverlayContentContainerViewController: UIViewController {
     private var panGestureStartLocationInOverlayViewCoordinateSpace: CGPoint = .zero
     private var shouldIgnorePanGestureRecognizer = false
     private var didTap = false
-    private var scrollViewContentOffsetLocker: ScrollViewContentOffsetLocker?
 
     private var progress: OverlayContentContainerProgress = .zero {
         didSet { onProgressChange(oldValue: oldValue, newValue: progress) }
@@ -63,6 +62,7 @@ final class OverlayContentContainerViewController: UIViewController {
 
     // MARK: - Helpers
 
+    private var scrollViewContentOffsetLocker: ScrollViewContentOffsetLocker?
     private lazy var appLifecycleHelper = OverlayContentContainerAppLifecycleHelper()
 
     // MARK: - Initialization/Deinitialization
@@ -202,8 +202,11 @@ final class OverlayContentContainerViewController: UIViewController {
             contentView.widthAnchor.constraint(equalToConstant: screenBounds.width),
         ])
 
-        contentView.layer.cornerRadius = Constants.cornerRadius // [REDACTED_TODO_COMMENT]
         contentView.layer.masksToBounds = true
+        contentView.layer.maskedCorners = [
+            .layerMinXMinYCorner,
+            .layerMaxXMinYCorner,
+        ]
 
         contentViewController.didMove(toParent: self)
     }
@@ -235,8 +238,12 @@ final class OverlayContentContainerViewController: UIViewController {
             overlayView.widthAnchor.constraint(equalToConstant: screenBounds.width),
         ])
 
-        overlayView.layer.cornerRadius = Constants.cornerRadius
         overlayView.layer.masksToBounds = true
+        overlayView.layer.cornerRadius = Constants.cornerRadius
+        overlayView.layer.maskedCorners = [
+            .layerMinXMinYCorner,
+            .layerMaxXMinYCorner,
+        ]
 
         overlayViewController.didMove(toParent: self)
     }
@@ -305,6 +312,28 @@ final class OverlayContentContainerViewController: UIViewController {
         contentLayer.setAffineTransform(transform)
     }
 
+    private func updateCornerRadius() {
+        let contentLayer = contentViewController.view.layer
+
+        // On devices with notch, the corner radius property isn't animated and always has a constant value
+        guard !UIDevice.current.hasTopNotch else {
+            if contentLayer.cornerRadius != Constants.cornerRadius {
+                contentLayer.cornerRadius = Constants.cornerRadius
+            }
+            return
+        }
+
+        if isFinalState, let animationContext = progress.context {
+            let keyPath = String(_sel: #selector(getter: CALayer.cornerRadius))
+            let animation = CABasicAnimation(keyPath: keyPath)
+            animation.duration = animationContext.duration
+            animation.timingFunction = animationContext.curve.toMediaTimingFunction()
+            contentLayer.add(animation, forKey: #function)
+        }
+
+        contentLayer.cornerRadius = Constants.cornerRadius * progress.value
+    }
+
     private func updateBackgroundShadowViewAlpha() {
         let alpha = Constants.minBackgroundShadowViewAlpha
             + (Constants.maxBackgroundShadowViewAlpha - Constants.minBackgroundShadowViewAlpha) * progress.value
@@ -346,6 +375,7 @@ final class OverlayContentContainerViewController: UIViewController {
         }
 
         updateContentScale()
+        updateCornerRadius()
         updateBackgroundShadowViewAlpha()
         notifyStateObserversIfNeeded()
 
