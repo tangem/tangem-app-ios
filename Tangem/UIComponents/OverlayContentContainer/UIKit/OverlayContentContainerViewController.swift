@@ -612,7 +612,7 @@ private extension OverlayContentContainerViewController {
         static let maxContentViewScale = 1.0
         static let minBackgroundShadowViewAlpha = 0.0
         static let maxBackgroundShadowViewAlpha = 0.5
-        static let cornerRadius = 24.0
+        static var cornerRadius: CGFloat { UIDevice.current.hasTopNotch ? 24.0 : 16.0 }
         static let contentViewTranslationCoefficient = 0.5
         static let minAdjustedContentOffsetToLockScrollView = 10.0
         static let defaultAnimationContext = OverlayContentContainerProgress.AnimationContext(duration: 0.3, curve: .easeOut)
