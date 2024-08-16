@@ -515,10 +515,14 @@ final class OverlayContentContainerViewController: UIViewController {
         gestureVelocity: CGPoint,
         gestureVerticalDirection: UIPanGestureRecognizer.VerticalDirection?
     ) -> TimeInterval {
+        let gestureVelocityVerticalDirection: UIPanGestureRecognizer.VerticalDirection = gestureVelocity.y < .zero
+            ? .up
+            : .down
+
         // Equals `true` when a user tries to collapse or expand the overlay view with a pan gesture
         // but ultimately fails to do so (e.g., the velocity of the pan gesture is too low)
-        let isGestureFailed = (isCollapsing && gestureVerticalDirection == .up)
-            || (!isCollapsing && gestureVerticalDirection == .down)
+        let isGestureFailed = (isCollapsing && gestureVerticalDirection == .up && gestureVelocityVerticalDirection == .up)
+            || (!isCollapsing && gestureVerticalDirection == .down && gestureVelocityVerticalDirection == .down)
 
         if isGestureFailed {
             // We don't take gesture velocity into account if the gesture fails
