@@ -144,7 +144,7 @@ private extension MultipleAddressTransactionHistoryService {
         }
 
         return provider
-            .loadTransactionHistoryExcludingZeroTransactions(request: request)
+            .loadTransactionHistory(request: request)
             .map { response in
                 return (address: address, response: response)
             }
