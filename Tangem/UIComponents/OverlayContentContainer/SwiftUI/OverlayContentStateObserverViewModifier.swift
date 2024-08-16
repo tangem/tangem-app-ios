@@ -11,7 +11,7 @@ import SwiftUI
 // MARK: - Convenience extensions
 
 extension View {
-    /// - Warning: This method maintains strong reference to the given `observer` closure.
+    /// - Warning: This method maintains a strong reference to the given `observer` closure.
     @ViewBuilder
     func onOverlayContentStateChange(
         _ observer: @escaping OverlayContentStateObserver.Observer
