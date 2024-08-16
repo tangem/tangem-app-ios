@@ -415,7 +415,8 @@ final class OverlayContentContainerViewController: UIViewController {
             return
         }
 
-        let verticalDirection = verticalDirection(for: gestureRecognizer)
+        let startLocation = panGestureStartLocationInScreenCoordinateSpace
+        let verticalDirection = gestureRecognizer.verticalDirection(in: nil, relativeToGestureStartLocation: startLocation)
 
         switch verticalDirection {
         case _ where scrollViewContentOffsetLocker == nil:
@@ -466,7 +467,8 @@ final class OverlayContentContainerViewController: UIViewController {
         }
 
         let velocity = gestureRecognizer.velocity(in: nil)
-        let verticalDirection = verticalDirection(for: gestureRecognizer)
+        let startLocation = panGestureStartLocationInScreenCoordinateSpace
+        let verticalDirection = gestureRecognizer.verticalDirection(in: nil, relativeToGestureStartLocation: startLocation)
         let decelerationRate = calculateDecelerationRate(gestureVerticalDirection: verticalDirection)
         let predictedEndLocation = gestureRecognizer.predictedEndLocation(in: nil, atDecelerationRate: decelerationRate)
         let overlayViewFramePredictedOrigin = predictedEndLocation - panGestureStartLocationInOverlayViewCoordinateSpace
@@ -495,23 +497,8 @@ final class OverlayContentContainerViewController: UIViewController {
 
     // MARK: - Helpers
 
-    private func verticalDirection(for gestureRecognizer: UIPanGestureRecognizer) -> VerticalDirection? {
-        let location = gestureRecognizer.location(in: nil)
-
-        if panGestureStartLocationInScreenCoordinateSpace.y > location.y {
-            return .up
-        }
-
-        if panGestureStartLocationInScreenCoordinateSpace.y < location.y {
-            return .down
-        }
-
-        // Edge case (is it even possible?), unable to determine
-        return nil
-    }
-
     private func calculateDecelerationRate(
-        gestureVerticalDirection: VerticalDirection?
+        gestureVerticalDirection: UIPanGestureRecognizer.VerticalDirection?
     ) -> UIScrollView.DecelerationRate {
         // Makes the overlay view easier to expand and a bit harder to collapse
         switch gestureVerticalDirection {
@@ -526,7 +513,7 @@ final class OverlayContentContainerViewController: UIViewController {
     private func calculateAnimationDuration(
         isCollapsing: Bool,
         gestureVelocity: CGPoint,
-        gestureVerticalDirection: VerticalDirection?
+        gestureVerticalDirection: UIPanGestureRecognizer.VerticalDirection?
     ) -> TimeInterval {
         // Equals `true` when a user tries to collapse or expand the overlay view with a pan gesture
         // but ultimately fails to do so (e.g., the velocity of the pan gesture is too low)
@@ -622,15 +609,6 @@ extension OverlayContentContainerViewController: OverlayContentContainerAppLifec
 
     func appLifecycleHelperDidTriggerCollapse(_ appLifecycleHelper: OverlayContentContainerAppLifecycleHelper) {
         collapse()
-    }
-}
-
-// MARK: - Auxiliary types
-
-private extension OverlayContentContainerViewController {
-    enum VerticalDirection {
-        case up
-        case down
     }
 }
 
