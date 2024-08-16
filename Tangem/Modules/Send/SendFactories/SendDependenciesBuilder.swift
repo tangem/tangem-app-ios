@@ -26,6 +26,7 @@ struct SendDependenciesBuilder {
         case .send: Localization.sendSummaryTitle(walletModel.tokenItem.currencySymbol)
         case .stake: "\(action.title) \(walletModel.tokenItem.currencySymbol)"
         case .unstake: action.title
+        case .withdraw: action.title
         case .claimRewards: action.title
         case .restakeRewards: action.title
         }
@@ -36,6 +37,7 @@ struct SendDependenciesBuilder {
         case .send: walletName()
         case .stake: walletName()
         case .unstake: nil
+        case .withdraw: nil
         case .claimRewards: nil
         case .restakeRewards: nil
         }
@@ -198,12 +200,12 @@ struct SendDependenciesBuilder {
     func makeUnstakingModel(
         stakingManager: any StakingManager,
         sendTransactionDispatcher: any SendTransactionDispatcher,
-        validator: String
+        balanceInfo: StakingBalanceInfo
     ) -> UnstakingModel {
         UnstakingModel(
             stakingManager: stakingManager,
             sendTransactionDispatcher: sendTransactionDispatcher,
-            validator: validator,
+            balanceInfo: balanceInfo,
             amountTokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem
         )
