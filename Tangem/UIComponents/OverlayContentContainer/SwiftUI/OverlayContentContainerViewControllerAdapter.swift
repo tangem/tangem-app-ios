@@ -21,6 +21,10 @@ final class OverlayContentContainerViewControllerAdapter {
 // MARK: - OverlayContentContainer protocol conformance
 
 extension OverlayContentContainerViewControllerAdapter: OverlayContentContainer {
+    var cornerRadius: CGFloat {
+        return containerViewController?.overlayCornerRadius ?? .zero
+    }
+
     func installOverlay(_ overlayView: some View) {
         // [REDACTED_TODO_COMMENT]
         let overlayViewController = UIHostingController(rootView: overlayView.bottomScrollableSheetGrabber())
