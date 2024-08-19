@@ -30,7 +30,8 @@ struct RootViewControllerFactory {
         let containerViewController = OverlayContentContainerViewController(
             contentViewController: contentViewController,
             overlayCollapsedHeight: 102.0, // [REDACTED_INFO]
-            overlayExpandedVerticalOffset: 54.0 // [REDACTED_INFO]
+            overlayExpandedVerticalOffset: 54.0, // [REDACTED_INFO]
+            overlayCornerRadius: UIDevice.current.hasTopNotch ? 24.0 : 16.0
         )
 
         adapter.set(containerViewController)
