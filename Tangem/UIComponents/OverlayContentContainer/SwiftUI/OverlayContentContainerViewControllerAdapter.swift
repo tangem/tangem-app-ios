@@ -26,8 +26,7 @@ extension OverlayContentContainerViewControllerAdapter: OverlayContentContainer 
     }
 
     func installOverlay(_ overlayView: some View) {
-        // [REDACTED_TODO_COMMENT]
-        let overlayViewController = UIHostingController(rootView: overlayView.bottomScrollableSheetGrabber())
+        let overlayViewController = UIHostingController(rootView: overlayView)
         containerViewController?.installOverlay(overlayViewController)
     }
 
