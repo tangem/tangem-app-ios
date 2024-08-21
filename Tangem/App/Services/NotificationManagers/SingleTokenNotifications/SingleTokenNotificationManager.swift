@@ -96,7 +96,7 @@ final class SingleTokenNotificationManager {
         /// We can't use `Blockchain.polygon(testnet: false).currencySymbol` here
         /// because it will be changed after some time to `"POL"`
         // [REDACTED_TODO_COMMENT]
-        if walletModel.tokenItem.currencySymbol == CurrencySymbol.matic {
+        if walletModel.tokenItem.currencySymbol == CurrencySymbol.matic, walletModel.tokenItem.isToken {
             events.append(.maticMigration)
         }
 
