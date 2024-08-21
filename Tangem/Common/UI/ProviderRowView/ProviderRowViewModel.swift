@@ -68,7 +68,7 @@ extension ProviderRowViewModel {
     }
 
     enum TitleFormat {
-        case prefixAndName
+        case prefixAndName // [REDACTED_TODO_COMMENT]
         case name
     }
 
@@ -82,6 +82,7 @@ extension ProviderRowViewModel {
     enum Badge: String, Hashable {
         case permissionNeeded
         case bestRate
+        case recommended
     }
 
     enum Subtitle: Hashable, Identifiable {
