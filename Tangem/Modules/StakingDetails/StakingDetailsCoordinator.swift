@@ -121,10 +121,6 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
         sendCoordinator = coordinator
     }
 
-    func openClaimRewardsFlow() {
-        // TBD: [REDACTED_INFO]
-    }
-
     func openWhatIsStaking() {
         safariManager.openURL(TangemBlogUrlBuilder().url(post: .whatIsStaking))
     }
