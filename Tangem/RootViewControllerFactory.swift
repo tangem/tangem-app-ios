@@ -21,6 +21,7 @@ struct RootViewControllerFactory {
         let rootView = rootView
             .environment(\.overlayContentContainer, adapter)
             .environment(\.overlayContentStateObserver, adapter)
+            .environment(\.overlayContentStateController, adapter)
             .environment(\.mainWindowSize, window.screen.bounds.size)
 
         let contentViewController = UIHostingController(rootView: rootView)
@@ -29,7 +30,8 @@ struct RootViewControllerFactory {
         let containerViewController = OverlayContentContainerViewController(
             contentViewController: contentViewController,
             overlayCollapsedHeight: 102.0, // [REDACTED_INFO]
-            overlayExpandedVerticalOffset: 54.0 // [REDACTED_INFO]
+            overlayExpandedVerticalOffset: 54.0, // [REDACTED_INFO]
+            overlayCornerRadius: UIDevice.current.hasTopNotch ? 24.0 : 16.0
         )
 
         adapter.set(containerViewController)
