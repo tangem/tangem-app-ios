@@ -1,5 +1,5 @@
 //
-//  StakingDetailsCoordinatorView.swift
+//  MultipleRewardsCoordinatorView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,17 +8,17 @@
 
 import SwiftUI
 
-struct StakingDetailsCoordinatorView: CoordinatorView {
-    @ObservedObject var coordinator: StakingDetailsCoordinator
+struct MultipleRewardsCoordinatorView: CoordinatorView {
+    @ObservedObject var coordinator: MultipleRewardsCoordinator
 
-    init(coordinator: StakingDetailsCoordinator) {
+    init(coordinator: MultipleRewardsCoordinator) {
         self.coordinator = coordinator
     }
 
     var body: some View {
         ZStack {
             if let rootViewModel = coordinator.rootViewModel {
-                StakingDetailsView(viewModel: rootViewModel)
+                MultipleRewardsView(viewModel: rootViewModel)
                     .navigationLinks(links)
             }
 
@@ -28,10 +28,7 @@ struct StakingDetailsCoordinatorView: CoordinatorView {
 
     @ViewBuilder
     private var links: some View {
-        NavHolder()
-            .navigation(item: $coordinator.tokenDetailsCoordinator) {
-                TokenDetailsCoordinatorView(coordinator: $0)
-            }
+        EmptyView()
     }
 
     @ViewBuilder
@@ -39,9 +36,6 @@ struct StakingDetailsCoordinatorView: CoordinatorView {
         NavHolder()
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
-            }
-            .sheet(item: $coordinator.multipleRewardsCoordinator) {
-                MultipleRewardsCoordinatorView(coordinator: $0)
             }
     }
 }
