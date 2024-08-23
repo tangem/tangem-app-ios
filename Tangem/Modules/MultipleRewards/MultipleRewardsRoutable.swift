@@ -1,5 +1,5 @@
 //
-//  StakingDetailsRoutable.swift
+//  MultipleRewardsRoutable.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,9 +9,7 @@
 import Foundation
 import TangemStaking
 
-protocol StakingDetailsRoutable: AnyObject {
-    func openStakingFlow()
-    func openMultipleRewards()
+protocol MultipleRewardsRoutable: AnyObject {
     func openUnstakingFlow(balanceInfo: StakingBalanceInfo)
-    func openWhatIsStaking()
+    func dismiss()
 }
