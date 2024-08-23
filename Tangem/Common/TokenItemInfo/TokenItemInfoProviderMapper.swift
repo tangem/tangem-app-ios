@@ -1,5 +1,5 @@
 //
-//  TokenItemInfoProviderFactory.swift
+//  TokenItemInfoProviderMapper.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
