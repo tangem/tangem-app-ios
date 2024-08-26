@@ -32,7 +32,7 @@ enum SendFlowActionType: Hashable {
         case .unstake: Localization.commonUnstake
         case .withdraw: Localization.stakingWithdraw
         case .claimRewards: Localization.commonClaimRewards
-        case .restakeRewards: Localization.commonClaimRewards // [REDACTED_TODO_COMMENT]
+        case .restakeRewards: Localization.stakingRestakeRewards
         }
     }
 }
