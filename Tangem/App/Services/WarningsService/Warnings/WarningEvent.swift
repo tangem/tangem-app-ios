@@ -195,6 +195,11 @@ extension WarningEvent: NotificationEvent {
         }
     }
 
+    var buttonAction: NotificationButtonAction? {
+        // [REDACTED_TODO_COMMENT]
+        nil
+    }
+
     func style(
         tapAction: NotificationView.NotificationAction? = nil,
         buttonAction: NotificationView.NotificationButtonTapAction? = nil
