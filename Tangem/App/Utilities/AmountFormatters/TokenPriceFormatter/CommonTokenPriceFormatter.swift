@@ -8,6 +8,9 @@
 
 import Foundation
 
+// [REDACTED_TODO_COMMENT]
+typealias MarketsTokenPriceFormatter = CommonTokenPriceFormatter
+
 struct CommonTokenPriceFormatter {
     private let balanceFormatter = BalanceFormatter()
 }
