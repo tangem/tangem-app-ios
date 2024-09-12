@@ -1,5 +1,5 @@
 //
-//  MarketsRaitingHeaderViewModel.swift
+//  MarketsRatingHeaderViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
