@@ -1,14 +1,14 @@
 //
 //  Collection+.swift
-//  Tangem
+//  TangemFoundation
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2022 Tangem AG. All rights reserved.
+//  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
 import Foundation
 
-extension Swift.Collection {
+public extension Swift.Collection {
     var nilIfEmpty: Self? {
         return isEmpty ? nil : self
     }
