@@ -1,5 +1,5 @@
 //
-//  CommonSendTransactionSummaryDescriptionBuilder.swift
+//  TronSendTransactionSummaryDescriptionBuilder.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,8 +7,10 @@
 //
 
 import Foundation
+import BlockchainSdk
+import TangemSdk
 
-struct CommonSendTransactionSummaryDescriptionBuilder {
+struct TronSendTransactionSummaryDescriptionBuilder {
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
 
@@ -20,9 +22,14 @@ struct CommonSendTransactionSummaryDescriptionBuilder {
 
 // MARK: - SendTransactionSummaryDescriptionBuilder
 
-extension CommonSendTransactionSummaryDescriptionBuilder: SendTransactionSummaryDescriptionBuilder {
+extension TronSendTransactionSummaryDescriptionBuilder: SendTransactionSummaryDescriptionBuilder {
     func makeDescription(transactionType: SendSummaryTransactionData) -> String? {
         guard case .send(let amount, let fee) = transactionType else {
+            return nil
+        }
+
+        guard let feeParameters = fee.parameters as? TronFeeParameters else {
+            Log.error("Fee paramenters must be set for TronSendTransactionSummaryDescriptionBuilder")
             return nil
         }
 
@@ -39,8 +46,22 @@ extension CommonSendTransactionSummaryDescriptionBuilder: SendTransactionSummary
 
         let formatter = BalanceFormatter()
         let totalInFiatFormatted = formatter.formatFiatBalance(totalInFiat, formattingOptions: formattingOptions)
+
+        let prefix = Localization.sendSummaryTransactionDescriptionPrefix(totalInFiatFormatted)
         let feeInFiatFormatted = formatter.formatFiatBalance(feeInFiat, formattingOptions: formattingOptions)
 
-        return Localization.sendSummaryTransactionDescription(totalInFiatFormatted, feeInFiatFormatted)
+        let energySpentString = String(feeParameters.energySpent)
+
+        let suffix = if feeParameters.energySpent > 0 {
+            if feeParameters.energyFullyCoversFee {
+                Localization.sendSummaryTransactionDescriptionSuffixFeeCovered(energySpentString)
+            } else {
+                Localization.sendSummaryTransactionDescriptionSuffixFeeReduced(energySpentString)
+            }
+        } else {
+            Localization.sendSummaryTransactionDescriptionSuffixIncluding(feeInFiatFormatted)
+        }
+
+        return [prefix, suffix].joined(separator: ", ")
     }
 }
