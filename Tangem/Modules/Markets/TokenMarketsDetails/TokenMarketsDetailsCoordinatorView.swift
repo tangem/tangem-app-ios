@@ -31,13 +31,17 @@ struct TokenMarketsDetailsCoordinatorView: CoordinatorView {
             .iOS16UIKitSheet(item: $coordinator.expressCoordinator) {
                 ExpressCoordinatorView(coordinator: $0)
             }
-            .detentBottomSheet(
-                item: $coordinator.tokenNetworkSelectorCoordinator,
-                detents: [.large],
-                settings: .init(background: Colors.Background.tertiary)
-            ) {
+            .sheet(item: $coordinator.tokenNetworkSelectorCoordinator) {
                 MarketsTokenNetworkSelectorCoordinatorView(coordinator: $0)
+                    .adaptivePresentationDetents()
             }
+//            .detentBottomSheet(
+//                item: $coordinator.tokenNetworkSelectorCoordinator,
+//                detents: [.large],
+//                settings: .init(background: Colors.Background.tertiary)
+//            ) {
+//                MarketsTokenNetworkSelectorCoordinatorView(coordinator: $0)
+//            }
 
         NavHolder()
             .bottomSheet(

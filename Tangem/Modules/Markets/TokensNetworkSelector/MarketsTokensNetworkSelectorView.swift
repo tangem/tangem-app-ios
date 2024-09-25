@@ -13,24 +13,41 @@ struct MarketsTokensNetworkSelectorView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            ScrollView {
-                VStack(spacing: 14) {
-                    if let walletSelectorViewModel = viewModel.walletSelectorViewModel {
-                        MarketsWalletSelectorView(viewModel: walletSelectorViewModel)
-                            .onTapGesture {
-                                viewModel.selectWalletActionDidTap()
-                            }
-                    }
+//            ScrollView {
+//                VStack(spacing: 14) {
+//                    if let walletSelectorViewModel = viewModel.walletSelectorViewModel {
+//                        MarketsWalletSelectorView(viewModel: walletSelectorViewModel)
+//                            .onTapGesture {
+//                                viewModel.selectWalletActionDidTap()
+//                            }
+//                    }
+//
+//                    contentView
+//
+//                    if !viewModel.pendingAdd.isEmpty {
+//                        MarketsGeneratedAddressView()
+//                    }
+//                }
+//                .padding(.horizontal, 16)
+//                .padding(.bottom, 72)
+//            }
 
-                    contentView
-
-                    if !viewModel.pendingAdd.isEmpty {
-                        MarketsGeneratedAddressView()
-                    }
+            VStack(spacing: 14) {
+                if let walletSelectorViewModel = viewModel.walletSelectorViewModel {
+                    MarketsWalletSelectorView(viewModel: walletSelectorViewModel)
+                        .onTapGesture {
+                            viewModel.selectWalletActionDidTap()
+                        }
                 }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 72)
+
+                contentView
+
+                if !viewModel.pendingAdd.isEmpty {
+                    MarketsGeneratedAddressView()
+                }
             }
+            .padding(.horizontal, 16)
+            .padding(.bottom, 72)
 
             overlayButtonView
         }
