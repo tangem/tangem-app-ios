@@ -29,7 +29,6 @@ class MainCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators (Push presentation)
 
-    // [REDACTED_TODO_COMMENT]
     @Published var detailsCoordinator: DetailsCoordinator?
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator?
     @Published var marketsTokenDetailsCoordinator: TokenMarketsDetailsCoordinator?
