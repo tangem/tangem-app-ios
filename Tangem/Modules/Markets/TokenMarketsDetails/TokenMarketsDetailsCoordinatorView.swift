@@ -33,7 +33,6 @@ struct TokenMarketsDetailsCoordinatorView: CoordinatorView {
             }
             .sheet(item: $coordinator.tokenNetworkSelectorCoordinator) {
                 MarketsTokenNetworkSelectorCoordinatorView(coordinator: $0)
-                    .adaptivePresentationDetents()
             }
 //            .detentBottomSheet(
 //                item: $coordinator.tokenNetworkSelectorCoordinator,

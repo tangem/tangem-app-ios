@@ -16,7 +16,7 @@ extension View {
     ) -> some View {
         sheet(item: info) { info in
             DescriptionBottomSheetView(info: info)
-                .adaptivePresentationDetents()
+                .adaptivePresentationDetents(isNavigationRequired: false)
                 .background(backgroundColor.ignoresSafeArea(.all, edges: .bottom))
         }
     }

@@ -10,28 +10,10 @@ import SwiftUI
 
 struct MarketsTokensNetworkSelectorView: View {
     @ObservedObject var viewModel: MarketsTokensNetworkSelectorViewModel
+    @Binding var walletSelectorViewModel: WalletSelectorViewModel?
 
     var body: some View {
         ZStack(alignment: .bottom) {
-//            ScrollView {
-//                VStack(spacing: 14) {
-//                    if let walletSelectorViewModel = viewModel.walletSelectorViewModel {
-//                        MarketsWalletSelectorView(viewModel: walletSelectorViewModel)
-//                            .onTapGesture {
-//                                viewModel.selectWalletActionDidTap()
-//                            }
-//                    }
-//
-//                    contentView
-//
-//                    if !viewModel.pendingAdd.isEmpty {
-//                        MarketsGeneratedAddressView()
-//                    }
-//                }
-//                .padding(.horizontal, 16)
-//                .padding(.bottom, 72)
-//            }
-
             VStack(spacing: 14) {
                 if let walletSelectorViewModel = viewModel.walletSelectorViewModel {
                     MarketsWalletSelectorView(viewModel: walletSelectorViewModel)
@@ -46,14 +28,16 @@ struct MarketsTokensNetworkSelectorView: View {
                     MarketsGeneratedAddressView()
                 }
             }
+            .navigationBarTitle(Text(Localization.manageTokensNetworkSelectorTitle), displayMode: .inline)
             .padding(.horizontal, 16)
             .padding(.bottom, 72)
+            .navigationLinks(links)
+            .adaptivePresentationDetents(isNavigationRequired: true)
 
             overlayButtonView
         }
         .alert(item: $viewModel.alert, content: { $0.alert })
-        .navigationBarTitle(Text(Localization.manageTokensNetworkSelectorTitle), displayMode: .inline)
-        .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
+        .background(Colors.Background.action, ignoresSafeAreaEdges: .vertical)
     }
 
     private var contentView: some View {
@@ -122,6 +106,15 @@ struct MarketsTokensNetworkSelectorView: View {
                 MarketsTokensNetworkSelectorItemView(viewModel: $0, arrowWidth: 36)
             }
         }
+    }
+}
+
+private extension MarketsTokensNetworkSelectorView {
+    var links: some View {
+        NavHolder()
+            .navigation(item: $walletSelectorViewModel) {
+                WalletSelectorView(viewModel: $0)
+            }
     }
 }
 

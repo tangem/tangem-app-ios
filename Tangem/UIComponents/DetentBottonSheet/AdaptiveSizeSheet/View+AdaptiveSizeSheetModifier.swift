@@ -10,6 +10,13 @@ import SwiftUI
 
 struct AdaptiveSizeSheetModifier: ViewModifier {
     @StateObject private var viewModel = AdaptiveSizeSheetViewModel()
+
+    private let isNavigationRequired: Bool
+
+    init(isNavigationRequired: Bool) {
+        self.isNavigationRequired = isNavigationRequired
+    }
+
     func body(content: Content) -> some View {
         VStack(spacing: 0) {
             handler
@@ -28,7 +35,7 @@ struct AdaptiveSizeSheetModifier: ViewModifier {
     }
 
     private func scrollableSheetContent(content: Content) -> some View {
-        ScrollView(viewModel.scrollViewAxis, showsIndicators: false) {
+        ScrollView(.vertical, showsIndicators: false) {
             content
                 .padding(.bottom, viewModel.defaultBottomPadding)
                 .presentationDetents(contentHeight: viewModel.contentHeight, cornerRadius: viewModel.cornerRadius)
@@ -36,10 +43,13 @@ struct AdaptiveSizeSheetModifier: ViewModifier {
                     viewModel.contentHeight = $0
                 }
                 .padding(.bottom, viewModel.scrollableContentBottomPadding)
+                .clipped()
         }
+        .scrollDisabledBackport(viewModel.containerHeight >= viewModel.contentHeight)
         .readGeometry(\.size.height) {
             viewModel.containerHeight = $0
         }
+        .isNavigationRequired(isNavigationRequired)
     }
 }
 
@@ -71,9 +81,33 @@ private extension View {
     }
 }
 
+private extension View {
+    @ViewBuilder
+    func scrollDisabledBackport(_ isDisabled: Bool) -> some View {
+        if #available(iOS 16.0, *) {
+            scrollDisabled(isDisabled)
+        } else {
+            self
+        }
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func isNavigationRequired(_ isRequired: Bool) -> some View {
+        if isRequired {
+            NavigationView {
+                self
+            }
+        } else {
+            self
+        }
+    }
+}
+
 extension View {
     @ViewBuilder
-    func adaptivePresentationDetents() -> some View {
-        modifier(AdaptiveSizeSheetModifier())
+    func adaptivePresentationDetents(isNavigationRequired: Bool) -> some View {
+        modifier(AdaptiveSizeSheetModifier(isNavigationRequired: isNavigationRequired))
     }
 }
