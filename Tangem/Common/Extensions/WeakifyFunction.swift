@@ -1,5 +1,5 @@
 //
-//  WeakifyFuncion.swift
+//  WeakifyFunction.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
