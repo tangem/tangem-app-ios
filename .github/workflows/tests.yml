@@ -5,6 +5,7 @@ on:
     branches: 
     - 'releases/**'
     - 'release'
+    - 'test'
     - 'develop'
     - 'master'
     types:
@@ -16,6 +17,7 @@ on:
     types:
       - checks_requested
   workflow_dispatch:
+  
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -24,20 +26,10 @@ concurrency:
 jobs:
   test:
     name: Test
-    runs-on: self-hosted
     if: github.event.pull_request.draft == false
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        submodules: true
-        token: ${{ secrets.GH_MOBILE_PAT }}
-        
-    - name: Bundle install
-      run: |
-        bundle config path vendor/bundle
-        bundle install --jobs 4 --retry 3
-        
-    - name: Tests
-      run: bundle exec fastlane test
-      
+    uses: tangem/actions/.github/workflows/test.yml@main
+    with:
+     channel: "${{vars.SLACK_CHANNEL_DEPLOYMENTS_IOS}}"
+    secrets:
+     SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN}}
+     GH_MOBILE_PAT: ${{ secrets.GH_MOBILE_PAT}}
