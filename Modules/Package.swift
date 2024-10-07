@@ -8,6 +8,9 @@ let shimPackageName = "TangemDependenciesShim"
 // [REDACTED_TODO_COMMENT]
 let package = Package(
     name: shimPackageName,
+    platforms: [
+        .iOS(.v15),
+    ],
     products: [
         .library(
             name: shimPackageName,
@@ -22,10 +25,18 @@ let package = Package(
             dependencies: [
                 "TangemModule1",
                 "TangemModule2",
+                "TangemFoundationSPM",
             ]
         ),
         .tangemTarget(name: "TangemModule1"),
         .tangemTarget(name: "TangemModule2"),
+        .tangemTarget(name: "TangemFoundationSPM"), // [REDACTED_TODO_COMMENT]
+        .tangemTestTarget(
+            name: "TangemFoundationTestsSPM", // [REDACTED_TODO_COMMENT]
+            dependencies: [
+                "TangemFoundationSPM",
+            ]
+        ),
     ]
 )
 
