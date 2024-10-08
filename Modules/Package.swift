@@ -25,16 +25,22 @@ let package = Package(
             dependencies: [
                 "TangemModule1",
                 "TangemModule2",
-                "TangemFoundationSPM",
+                "TangemFoundation",
             ]
         ),
-        .tangemTarget(name: "TangemModule1"),
-        .tangemTarget(name: "TangemModule2"),
-        .tangemTarget(name: "TangemFoundationSPM"), // [REDACTED_TODO_COMMENT]
+        .tangemTarget(
+            name: "TangemModule1"
+        ),
+        .tangemTarget(
+            name: "TangemModule2"
+        ),
+        .tangemTarget(
+            name: "TangemFoundation"
+        ),
         .tangemTestTarget(
-            name: "TangemFoundationTestsSPM", // [REDACTED_TODO_COMMENT]
+            name: "TangemFoundationTests",
             dependencies: [
-                "TangemFoundationSPM",
+                "TangemFoundation",
             ]
         ),
     ]
