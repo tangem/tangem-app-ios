@@ -1,5 +1,5 @@
 //
-//  TokenMarketsDetailsRoutable.swift
+//  MarketsTokenDetailsRoutable.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,9 +8,9 @@
 
 import Foundation
 
-protocol TokenMarketsDetailsRoutable: AnyObject, MarketsPortfolioContainerRoutable {
+protocol MarketsTokenDetailsRoutable: AnyObject, MarketsPortfolioContainerRoutable {
     func openURL(_ url: URL)
-    func openTokenSelector(with model: TokenMarketsDetailsModel, walletDataProvider: MarketsWalletDataProvider)
+    func openTokenSelector(with model: MarketsTokenDetailsModel, walletDataProvider: MarketsWalletDataProvider)
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType)
     func closeModule()
     func openExchangesList(tokenId: String, numberOfExchangesListedOn: Int, presentationStyle: MarketsTokenDetailsPresentationStyle)
