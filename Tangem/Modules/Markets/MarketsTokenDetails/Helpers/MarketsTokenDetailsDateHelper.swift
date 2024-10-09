@@ -1,5 +1,5 @@
 //
-//  TokenMarketsDetailsDateHelper.swift
+//  MarketsTokenDetailsDateHelper.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct TokenMarketsDetailsDateHelper {
+struct MarketsTokenDetailsDateHelper {
     private let initialDate: Date
 
     init(
