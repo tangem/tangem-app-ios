@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import struct BlockchainSdk.Token
+import struct BlockchainSdkLocal.Token
 
 // [REDACTED_TODO_COMMENT]
 protocol TokenItemsRepository {

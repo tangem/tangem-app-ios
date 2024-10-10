@@ -8,7 +8,7 @@
 
 import Foundation
 import TangemSdk
-import BlockchainSdk
+import BlockchainSdkLocal
 
 // [REDACTED_TODO_COMMENT]
 struct Wallet2Config {
