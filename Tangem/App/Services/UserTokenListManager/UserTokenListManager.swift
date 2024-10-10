@@ -7,7 +7,7 @@
 //
 
 import Combine
-import BlockchainSdk
+import BlockchainSdkLocal
 
 // [REDACTED_TODO_COMMENT]
 protocol UserTokenListManager: UserTokensSyncService {
