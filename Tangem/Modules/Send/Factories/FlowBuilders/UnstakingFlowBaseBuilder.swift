@@ -80,7 +80,7 @@ struct UnstakingFlowBaseBuilder {
             stepsManager: stepsManager,
             userWalletModel: userWalletModel,
             alertBuilder: builder.makeStakingAlertBuilder(),
-            dataBuilder: builder.makeSendBaseDataBuilder(input: unstakingModel),
+            dataBuilder: builder.makeStakingBaseDataBuilder(input: unstakingModel),
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
             coordinator: router
