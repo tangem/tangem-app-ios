@@ -165,6 +165,6 @@ extension SendCoordinator: OnrampCountryRoutable {
     }
 
     func userDidTapClose() {
-        onrampCountryViewModel = nil
+        dismiss()
     }
 }
