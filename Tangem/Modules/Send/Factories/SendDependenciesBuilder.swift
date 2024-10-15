@@ -9,6 +9,7 @@
 import Foundation
 import TangemStaking
 import BlockchainSdk
+import TangemExpress
 
 struct SendDependenciesBuilder {
     private let walletModel: WalletModel
@@ -142,10 +143,6 @@ struct SendDependenciesBuilder {
         CommonFeeIncludedCalculator(validator: walletModel.transactionValidator)
     }
 
-    func makeSendBaseDataBuilder(input: SendBaseDataBuilderInput) -> SendBaseDataBuilder {
-        SendBaseDataBuilder(input: input, walletModel: walletModel, emailDataProvider: userWalletModel)
-    }
-
     // MARK: - Send, Sell
 
     func makeSendModel(
@@ -219,6 +216,10 @@ struct SendDependenciesBuilder {
 
     func makeSendAlertBuilder() -> SendAlertBuilder {
         CommonSendAlertBuilder()
+    }
+
+    func makeSendBaseDataBuilder(input: SendBaseDataBuilderInput) -> SendBaseDataBuilder {
+        CommonSendBaseDataBuilder(input: input, walletModel: walletModel, emailDataProvider: userWalletModel)
     }
 
     // MARK: - Staking
@@ -307,5 +308,28 @@ struct SendDependenciesBuilder {
 
     func makeStakingAmountModifier() -> SendAmountModifier {
         StakingAmountModifier(tokenItem: walletModel.tokenItem)
+    }
+
+    func makeStakingBaseDataBuilder(input: StakingBaseDataBuilderInput) -> StakingBaseDataBuilder {
+        CommonStakingBaseDataBuilder(input: input, walletModel: walletModel, emailDataProvider: userWalletModel)
+    }
+
+    // MARK: - Onramp
+
+    func makeOnrampModel(onrampManager: some OnrampManager) -> OnrampModel {
+        OnrampModel(onrampManager: onrampManager)
+    }
+
+    func makeOnrampManager(userWalletId: String) -> OnrampManager {
+        let expressAPIProvider = ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, logger: AppLog.shared)
+        return TangemExpressFactory().makeOnrampManager(expressAPIProvider: expressAPIProvider, logger: AppLog.shared)
+    }
+
+    func makeOnrampAmountValidator() -> SendAmountValidator {
+        OnrampAmountValidator()
+    }
+
+    func makeOnrampBaseDataBuilder(input: OnrampBaseDataBuilderInput, onrampRepository: OnrampRepository) -> OnrampBaseDataBuilder {
+        CommonOnrampBaseDataBuilder(input: input, walletModel: walletModel, onrampRepository: onrampRepository)
     }
 }
