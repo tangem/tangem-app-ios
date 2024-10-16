@@ -51,7 +51,7 @@ jobs:
       - name: Fetch and update BSDK localizations
         if: ${{ github.event.inputs.update_bsdk_localizations == 'true' }}
         env:
-          LOKALISE_PROJECT_ID: ${{ secrets.LOKALISE_BSDK_PROJECT_ID }}
+          LOKALISE_PROJECT_ID: ${{ secrets.LOKALISE_APP_PROJECT_ID }}
           LOKALISE_API_TOKEN: ${{ secrets.LOKALISE_ACCESS_TOKEN }}
         run: |
           bundle exec fastlane update_translations languages:${{ github.event.inputs.langs }} destination:${{ env.BSDK_LOCALIZATIONS_DESTINATION }}
