@@ -10,12 +10,20 @@ import Foundation
 import TangemExpress
 import Combine
 
+protocol OnrampModelRoutable: AnyObject {
+    func openOnrampCountryBottomSheet(country: OnrampCountry)
+}
+
 class OnrampModel {
     // MARK: - Data
 
     private let _amount = CurrentValueSubject<SendAmount?, Never>(nil)
     private let _transactionTime = PassthroughSubject<Date?, Never>()
     private let _isLoading = CurrentValueSubject<Bool, Never>(false)
+
+    // MARK: - Dependencies
+
+    weak var router: OnrampModelRoutable?
 
     // MARK: - Private injections
 
@@ -27,6 +35,16 @@ class OnrampModel {
         self.onrampManager = onrampManager
 
         bind()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.router!.openOnrampCountryBottomSheet(
+                country: .init(
+                    identity: .usa,
+                    currency: .init(identity: .usa),
+                    onrampAvailable: true
+                )
+            )
+        }
     }
 }
 
