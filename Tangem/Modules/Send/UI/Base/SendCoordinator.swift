@@ -155,7 +155,8 @@ extension SendCoordinator: ExpressApproveRoutable {
 
 extension SendCoordinator: OnrampCountryRoutable {
     func userDidTapChangeCountry() {
-        onrampCountryViewModel = nil
+        // Uncomment when add `OnrampCountriesSelector`
+        // onrampCountryViewModel = nil
         rootViewModel?.openOnrampCountriesSelector()
     }
 

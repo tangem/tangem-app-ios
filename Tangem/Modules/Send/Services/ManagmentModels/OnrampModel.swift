@@ -51,9 +51,13 @@ private extension OnrampModel {
         task = runTask(in: self) { model in
             do {
                 let country = try await model.onrampManager.getCountry()
-                model.router?.openOnrampCountryBottomSheet(country: country)
+                await runOnMain {
+                    model.router?.openOnrampCountryBottomSheet(country: country)
+                }
             } catch {
-                model.alertPresenter?.showAlert(error.alertBinder)
+                await runOnMain {
+                    model.alertPresenter?.showAlert(error.alertBinder)
+                }
             }
         }
     }

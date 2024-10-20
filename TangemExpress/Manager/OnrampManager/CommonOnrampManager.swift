@@ -34,7 +34,7 @@ extension CommonOnrampManager: OnrampManager {
 
         try await Task.sleep(nanoseconds: 1 * NSEC_PER_SEC)
 
-        let country = OnrampCountry.usa
+        let country = OnrampCountry.rus
         return country
     }
 
