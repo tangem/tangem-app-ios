@@ -25,18 +25,17 @@ class OnrampModel {
     // MARK: - Dependencies
 
     weak var router: OnrampModelRoutable?
+    weak var alertPresenter: SendViewAlertPresenter?
 
     // MARK: - Private injections
 
-    private let repository: OnrampRepository
-    private let manager: OnrampManager
+    private let onrampManager: OnrampManager
 
     private var task: Task<Void, Never>?
     private var bag: Set<AnyCancellable> = []
 
-    init(repository: OnrampRepository, manager: OnrampManager) {
-        self.repository = repository
-        self.manager = manager
+    init(onrampManager: OnrampManager) {
+        self.onrampManager = onrampManager
 
         bind()
         updateCountry()
@@ -51,10 +50,10 @@ private extension OnrampModel {
     func updateCountry() {
         task = runTask(in: self) { model in
             do {
-                let country = try await model.manager.getCountry()
+                let country = try await model.onrampManager.getCountry()
                 model.router?.openOnrampCountryBottomSheet(country: country)
             } catch {
-                print(error.localizedDescription)
+                model.alertPresenter?.showAlert(error.alertBinder)
             }
         }
     }
@@ -150,8 +149,4 @@ extension OnrampModel: SendBaseOutput {
 
 // MARK: - OnrampBaseDataBuilderInput
 
-extension OnrampModel: OnrampBaseDataBuilderInput {
-    var onrampRepository: any TangemExpress.OnrampRepository {
-        repository
-    }
-}
+extension OnrampModel: OnrampBaseDataBuilderInput {}

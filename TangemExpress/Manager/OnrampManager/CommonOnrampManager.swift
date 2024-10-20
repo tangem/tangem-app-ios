@@ -32,7 +32,9 @@ extension CommonOnrampManager: OnrampManager {
             return country
         }
 
-        let country = try await provider.onrampCountryByIP()
+        try await Task.sleep(nanoseconds: 1 * NSEC_PER_SEC)
+
+        let country = OnrampCountry.usa
         return country
     }
 
@@ -57,4 +59,25 @@ extension CommonOnrampManager: OnrampManager {
         // Load data from API
         throw OnrampManagerError.notImplement
     }
+}
+
+// TEMP MOCK
+
+extension OnrampCountry {
+    static let usa = OnrampCountry(identity: .usa, currency: .init(identity: .usa), onrampAvailable: true)
+    static let rus = OnrampCountry(identity: .rus, currency: .init(identity: .rus), onrampAvailable: false)
+}
+
+extension OnrampIdentity {
+    static let usa = OnrampIdentity(
+        name: "USA",
+        code: "US",
+        image: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/currencies/medium/usd.png")!
+    )
+
+    static let rus = OnrampIdentity(
+        name: "Russia",
+        code: "RU",
+        image: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/currencies/medium/rub.png")!
+    )
 }

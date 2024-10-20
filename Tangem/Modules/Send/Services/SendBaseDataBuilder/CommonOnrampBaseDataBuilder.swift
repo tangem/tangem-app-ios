@@ -8,26 +8,24 @@
 
 import TangemExpress
 
-protocol OnrampBaseDataBuilderInput {
-    var onrampRepository: OnrampRepository { get }
-}
+protocol OnrampBaseDataBuilderInput {}
 
 struct CommonOnrampBaseDataBuilder: OnrampBaseDataBuilder {
     private let input: OnrampBaseDataBuilderInput
     private let walletModel: WalletModel
-    private let emailDataProvider: EmailDataProvider
+    private let onrampRepository: OnrampRepository
 
     init(
         input: OnrampBaseDataBuilderInput,
         walletModel: WalletModel,
-        emailDataProvider: EmailDataProvider
+        onrampRepository: OnrampRepository
     ) {
         self.input = input
         self.walletModel = walletModel
-        self.emailDataProvider = emailDataProvider
+        self.onrampRepository = onrampRepository
     }
 
     func makeDataForOnrampCountryBottomSheet() -> any TangemExpress.OnrampRepository {
-        input.onrampRepository
+        onrampRepository
     }
 }
