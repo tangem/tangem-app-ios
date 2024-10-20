@@ -11,6 +11,7 @@ import TangemExpress
 import Combine
 
 protocol OnrampModelRoutable: AnyObject {
+    func openOnrampCountriesSelector()
     func openOnrampCountryBottomSheet(country: OnrampCountry)
 }
 
@@ -27,25 +28,35 @@ class OnrampModel {
 
     // MARK: - Private injections
 
-    private let onrampManager: OnrampManager
+    private let repository: OnrampRepository
+    private let manager: OnrampManager
 
+    private var task: Task<Void, Never>?
     private var bag: Set<AnyCancellable> = []
 
-    init(onrampManager: OnrampManager) {
-        self.onrampManager = onrampManager
+    init(repository: OnrampRepository, manager: OnrampManager) {
+        self.repository = repository
+        self.manager = manager
 
         bind()
+        updateCountry()
     }
 }
 
 // MARK: - Bind
 
 private extension OnrampModel {
-    func bind() {
-        _amount
-            .print("OnrampModel ->>")
-            .sink()
-            .store(in: &bag)
+    func bind() {}
+
+    func updateCountry() {
+        task = runTask(in: self) { model in
+            do {
+                let country = try await model.manager.getCountry()
+                model.router?.openOnrampCountryBottomSheet(country: country)
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
     }
 }
 
@@ -137,12 +148,10 @@ extension OnrampModel: SendBaseOutput {
     }
 }
 
-// MARK: - SendBaseDataBuilderInput
+// MARK: - OnrampBaseDataBuilderInput
 
-extension OnrampModel: SendBaseDataBuilderInput {
-    var bsdkAmount: BSDKAmount? { nil }
-
-    var bsdkFee: BSDKFee? { nil }
-
-    var isFeeIncluded: Bool { false }
+extension OnrampModel: OnrampBaseDataBuilderInput {
+    var onrampRepository: any TangemExpress.OnrampRepository {
+        repository
+    }
 }

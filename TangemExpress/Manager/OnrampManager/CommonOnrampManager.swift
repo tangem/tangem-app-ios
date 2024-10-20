@@ -27,11 +27,13 @@ public actor CommonOnrampManager {
 // MARK: - OnrampManager
 
 extension CommonOnrampManager: OnrampManager {
-    public func updateCountry() async throws -> OnrampCountry {
-        // Define country by ip or get from repository
-        // https://tangem.atlassian.net/browse/IOS-8267
+    public func getCountry() async throws -> OnrampCountry {
+        if let country = onrampRepository.savedCountry {
+            return country
+        }
 
-        throw OnrampManagerError.notImplement
+        let country = try await provider.onrampCountryByIP()
+        return country
     }
 
     public func updatePaymentMethod() async throws -> OnrampPaymentMethod {

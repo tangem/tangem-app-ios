@@ -143,10 +143,6 @@ struct SendDependenciesBuilder {
         CommonFeeIncludedCalculator(validator: walletModel.transactionValidator)
     }
 
-    func makeSendBaseDataBuilder(input: SendBaseDataBuilderInput) -> SendBaseDataBuilder {
-        SendBaseDataBuilder(input: input, walletModel: walletModel, emailDataProvider: userWalletModel)
-    }
-
     // MARK: - Send, Sell
 
     func makeSendModel(
@@ -220,6 +216,10 @@ struct SendDependenciesBuilder {
 
     func makeSendAlertBuilder() -> SendAlertBuilder {
         CommonSendAlertBuilder()
+    }
+
+    func makeSendBaseDataBuilder(input: SendBaseDataBuilderInput) -> SendBaseDataBuilder {
+        CommonSendBaseDataBuilder(input: input, walletModel: walletModel, emailDataProvider: userWalletModel)
     }
 
     // MARK: - Staking
@@ -310,6 +310,10 @@ struct SendDependenciesBuilder {
         StakingAmountModifier(tokenItem: walletModel.tokenItem)
     }
 
+    func makeStakingBaseDataBuilder(input: StakingBaseDataBuilderInput) -> StakingBaseDataBuilder {
+        CommonStakingBaseDataBuilder(input: input, walletModel: walletModel, emailDataProvider: userWalletModel)
+    }
+
     // MARK: - Onramp
 
     func makeOnrampModel(onrampManager: some OnrampManager) -> OnrampModel {
@@ -323,5 +327,9 @@ struct SendDependenciesBuilder {
 
     func makeOnrampAmountValidator() -> SendAmountValidator {
         OnrampAmountValidator()
+    }
+
+    func makeOnrampBaseDataBuilder(input: OnrampBaseDataBuilderInput) -> OnrampBaseDataBuilder {
+        CommonOnrampBaseDataBuilder(input: input, walletModel: walletModel, emailDataProvider: userWalletModel)
     }
 }

@@ -17,7 +17,8 @@ struct OnrampFlowBaseBuilder {
     let sendFinishStepBuilder: SendFinishStepBuilder
     let builder: SendDependenciesBuilder
 
-    func makeSendViewModel(onrampManager: some OnrampManager, router: SendRoutable) -> SendViewModel {
+    func makeSendViewModel(router: SendRoutable) -> SendViewModel {
+        let onrampManager = builder.makeOnrampManager(userWalletId: userWalletModel.userWalletId.stringValue)
         let onrampModel = builder.makeOnrampModel(onrampManager: onrampManager)
 
         let onrampAmountViewModel = sendAmountStepBuilder.makeOnrampAmountViewModel(
@@ -57,7 +58,7 @@ struct OnrampFlowBaseBuilder {
             stepsManager: stepsManager,
             userWalletModel: userWalletModel,
             alertBuilder: builder.makeSendAlertBuilder(),
-            dataBuilder: builder.makeSendBaseDataBuilder(input: onrampModel),
+            dataBuilder: builder.makeOnrampBaseDataBuilder(input: onrampModel),
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
             coordinator: router

@@ -130,8 +130,12 @@ extension SendCoordinator: SendRoutable {
         )
     }
 
-    func openOnrampCountry(settings: OnrampCountryViewModel.Settings) {
-        onrampCountryViewModel = .init(settings: settings, coordinator: self)
+    func openOnrampCountry(country: OnrampCountry, repository: OnrampRepository) {
+        onrampCountryViewModel = .init(
+            country: country,
+            repository: repository,
+            coordinator: self
+        )
     }
 }
 
@@ -152,9 +156,15 @@ extension SendCoordinator: ExpressApproveRoutable {
 extension SendCoordinator: OnrampCountryRoutable {
     func userDidTapChangeCountry() {
         onrampCountryViewModel = nil
+        rootViewModel?.openOnrampCountriesSelector()
     }
 
     func userDidTapConfirmCountry() {
         onrampCountryViewModel = nil
+    }
+
+    func userDidTapClose() {
+        onrampCountryViewModel = nil
+        dismiss()
     }
 }

@@ -25,6 +25,7 @@ struct OnrampCountryView: View {
         }
         .padding(.horizontal, 16)
         .background(Colors.Background.tertiary)
+        .alert(item: $viewModel.alert) { $0.alert }
     }
 
     private var contentView: some View {
@@ -35,7 +36,7 @@ struct OnrampCountryView: View {
                 Text(viewModel.title)
                     .style(Fonts.Bold.callout, color: Colors.Text.primary1)
 
-                switch viewModel.subtitle {
+                switch viewModel.style {
                 case .info:
                     Text("Change or confirm it")
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
@@ -60,60 +61,5 @@ struct OnrampCountryView: View {
                 action: viewModel.didTapMainButton
             )
         }
-    }
-}
-
-struct OnrampCountryView_Preview: PreviewProvider {
-    struct StatableContainer: View {
-        @ObservedObject private var coordinator = BottomSheetCoordinator()
-
-        var body: some View {
-            ZStack {
-                Colors.Background.primary
-                    .edgesIgnoringSafeArea(.all)
-
-                Button("Bottom sheet isShowing \((coordinator.item != nil).description)") {
-                    coordinator.toggleItem()
-                }
-                .font(Fonts.Bold.body)
-                .offset(y: -200)
-
-                NavHolder()
-                    .bottomSheet(item: $coordinator.item, backgroundColor: Colors.Background.tertiary) {
-                        OnrampCountryView(viewModel: $0)
-                    }
-            }
-        }
-    }
-
-    class BottomSheetCoordinator: ObservableObject, OnrampCountryRoutable {
-        @Published var item: OnrampCountryViewModel?
-
-        func toggleItem() {
-            if item == nil {
-                item = .init(
-                    settings: .init(countryIconURL: nil, countryName: "Portugal", isOnrampSupported: true),
-                    coordinator: self
-                )
-            } else {
-                item = nil
-            }
-        }
-
-        func userDidTapChangeCountry() {
-            item = nil
-        }
-
-        func userDidTapConfirmCountry() {
-            item = nil
-        }
-    }
-
-    static var previews: some View {
-        StatableContainer()
-            .preferredColorScheme(.light)
-
-        StatableContainer()
-            .preferredColorScheme(.dark)
     }
 }
