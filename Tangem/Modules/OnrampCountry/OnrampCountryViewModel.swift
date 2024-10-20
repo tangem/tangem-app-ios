@@ -17,7 +17,9 @@ final class OnrampCountryViewModel: ObservableObject, Identifiable {
     @Published var style: Subtitle
     @Published var alert: AlertBinder?
 
-    var mainButtonTitle: String { style == .info ? "Confirm" : "Close" }
+    var mainButtonTitle: String {
+        style == .info ? Localization.commonConfirm : Localization.commonClose
+    }
 
     // MARK: - Dependencies
 

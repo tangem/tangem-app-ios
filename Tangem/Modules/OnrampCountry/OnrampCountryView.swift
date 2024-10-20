@@ -17,7 +17,7 @@ struct OnrampCountryView: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            BottomSheetHeaderView(title: "Your residence has been identified as")
+            BottomSheetHeaderView(title: Localization.onrampResidencyBottomsheetTitle)
 
             contentView
 
@@ -38,10 +38,10 @@ struct OnrampCountryView: View {
 
                 switch viewModel.style {
                 case .info:
-                    Text("Change or confirm it")
+                    Text(Localization.onrampResidencyBottomsheetCountrySubtitle)
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 case .notSupport:
-                    Text("Our services are not available in this country")
+                    Text(Localization.onrampResidencyBottomsheetCountryNotSupported)
                         .style(Fonts.Regular.footnote, color: Colors.Text.warning)
                 }
             }
@@ -51,7 +51,7 @@ struct OnrampCountryView: View {
     private var buttons: some View {
         VStack(spacing: 10) {
             MainButton(
-                title: "Change",
+                title: Localization.commonChange,
                 style: .secondary,
                 action: viewModel.didTapChangeButton
             )
