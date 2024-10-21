@@ -28,6 +28,7 @@ struct SendDependenciesBuilder {
         case .pending(.restakeRewards): .restakeRewards
         case .pending(.voteLocked): .voteLocked
         case .pending(.unlockLocked): .unlockLocked
+        case .pending(.restake): .restake
         }
     }
 
@@ -40,6 +41,7 @@ struct SendDependenciesBuilder {
         case .claimRewards: action.title
         case .restakeRewards: action.title
         case .unlockLocked: action.title
+        case .restake: action.title
         default: action.title
         }
     }
@@ -47,7 +49,7 @@ struct SendDependenciesBuilder {
     func summarySubtitle(action: SendFlowActionType) -> String? {
         switch action {
         case .send: walletName()
-        case .approve, .stake: walletName()
+        case .approve, .stake, .restake: walletName()
         case .unstake: nil
         case .withdraw: nil
         case .claimRewards: nil
@@ -278,6 +280,17 @@ struct SendDependenciesBuilder {
         StakingSendAmountValidator(
             tokenItem: walletModel.tokenItem,
             validator: walletModel.transactionValidator,
+            stakingManagerStatePublisher: stakingManager.statePublisher
+        )
+    }
+
+    func makeUnstakingSendAmountValidator(
+        stakingManager: some StakingManager,
+        stakedAmount: Decimal
+    ) -> SendAmountValidator {
+        UnstakingSendAmountValidator(
+            tokenItem: walletModel.tokenItem,
+            stakedAmount: stakedAmount,
             stakingManagerStatePublisher: stakingManager.statePublisher
         )
     }
