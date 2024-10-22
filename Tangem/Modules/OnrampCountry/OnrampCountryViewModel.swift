@@ -52,12 +52,8 @@ final class OnrampCountryViewModel: ObservableObject, Identifiable {
     func didTapMainButton() {
         switch style {
         case .info:
-            do {
-                try repository.save(country: country)
-                coordinator?.userDidTapConfirmCountry()
-            } catch {
-                alert = error.alertBinder
-            }
+            repository.saveChanges()
+            coordinator?.userDidTapConfirmCountry()
         case .notSupport:
             coordinator?.userDidTapClose()
         }
