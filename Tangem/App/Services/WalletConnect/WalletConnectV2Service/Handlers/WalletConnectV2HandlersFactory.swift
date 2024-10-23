@@ -75,6 +75,20 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
                 walletModelProvider: walletModelProvider,
                 uiDelegate: uiDelegate
             )
+        case .solanaSignMessage:
+            return try WalletConnectSolanaSignMessageHandler(
+                request: params,
+                signer: SolanaWalletConnectSigner(signer: signer),
+                blockchainId: blockchainId,
+                walletModelProvider: walletModelProvider
+            )
+        case .solanaSignTransaction:
+            return try WalletConnectSolanaSignTransactionHandler(
+                request: params,
+                blockchainId: blockchainId,
+                signer: SolanaWalletConnectSigner(signer: signer),
+                walletModelProvider: walletModelProvider
+            )
         case .bnbSign, .bnbTxConfirmation:
             // [REDACTED_TODO_COMMENT]
             // Initially this methods was found occasionally and supported without any request
