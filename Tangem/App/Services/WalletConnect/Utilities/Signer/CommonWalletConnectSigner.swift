@@ -1,16 +1,12 @@
 //
-//  WalletConnectSigner.swift
+//  CommonWalletConnectSigner.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2023 Tangem AG. All rights reserved.
+//  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
 import TangemSdk
-
-protocol WalletConnectSigner {
-    func sign(data: Data, using walletModel: WalletModel) async throws -> String
-}
 
 struct CommonWalletConnectSigner: WalletConnectSigner {
     let signer: TangemSigner
