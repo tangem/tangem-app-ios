@@ -155,6 +155,40 @@ lane :refresh_dsyms do |options|
   clean_build_artifacts
 end
 
+lane :dev do |options|
+  build_development(
+    scheme: PRODUCTION_SCHEME, 
+    export_method: "development"
+  )
+end
+
+lane :dex do |options|
+  ipa_output_path = "builds/" + PRODUCTION_SCHEME + ".ipa"
+  protected_ipa_path = "builds/" + PRODUCTION_SCHEME + "-protected.ipa"
+
+  sh("java -cp #{ENV["DEX_PROTECTOR_HOME"]}/dexprotector.jar com.licel.dexprotector.ios.ConsoleTask \
+      -configFile dex-debug-config.xml \
+      #{ipa_output_path} \
+      #{protected_ipa_path}")
+end
+
+private_lane :build_development do |options|
+  app_identifier = "com.tangem.Tangem" # Setting the app identifier directly for development
+  build_app(
+    xcargs: "-allowProvisioningUpdates",
+    output_directory: BUILD_PATH,
+    output_name: options[:scheme],
+    scheme: options[:scheme],
+    clean: true,
+    silent: false,
+    export_method: "development", # Set to development for a development build
+    export_options: {
+      distributionBundleIdentifier: app_identifier,
+      iCloudContainerEnvironment: "Development" # Set the environment to Development
+    }
+  )
+end
+
 private_lane :build do |options|
   app_identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
   build_app(

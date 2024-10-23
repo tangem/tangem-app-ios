@@ -97,6 +97,22 @@ Options:
 - build: build number
 
 
+### dev
+
+```sh
+[bundle exec] fastlane dev
+```
+
+
+
+### dex
+
+```sh
+[bundle exec] fastlane dex
+```
+
+
+
 ----
 
 This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.

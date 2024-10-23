@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<dexprotector>
+    <verbose>true</verbose>
+    <optimize>true</optimize>
+    <signMode>debug</signMode>
+    <certificate>B2343D5A8E5E7D38A7277F256E660FF9F6DEE5BD</certificate>
+    <stringEncryption mode="all"/>
+    <classEncryption mode="all"/>
+    <resourceEncryption mode="all">
+        <assets mode="all">
+            <filters>
+                <filter><![CDATA[config_alpha.json]]></filter>
+                <filter><![CDATA[config_beta.json]]></filter>
+                <filter><![CDATA[config_dev.json]]></filter>
+                <filter><![CDATA[config_prod.json]]></filter>
+                <filter><![CDATA[issuers.json]]></filter>
+                <filter><![CDATA[providers_order.json]]></filter>
+                <filter><![CDATA[visa.json]]></filter>
+                <filter><![CDATA[visaTestnet.json]]></filter>
+                <filter><![CDATA[visa_config.json]]></filter>
+                <filter><![CDATA[GoogleService-Info-Alpha.plist]]></filter>
+                <filter><![CDATA[GoogleService-Info-Beta.plist]]></filter>
+                <filter><![CDATA[GoogleService-Info-Production.plist]]></filter>
+            </filters>
+        </assets>
+    </resourceEncryption>
+    <antiDebug>false</antiDebug>
+    <antiEmulator>true</antiEmulator>
+    <antiManualInstall>false</antiManualInstall>
+    <runtimeChecks>
+        <paranoidMode>true</paranoidMode>
+    </runtimeChecks>
+    <uiProtection/>
+    <ios checkBCSymbolMap="on" generateEnvironmentChecksFramework="off" mode="all" objcUtilClass="on" protectSimulator="off" saveTemps="off" stripBitcode="on" swiftEnvCheckMode="off" trace="0"/>
+</dexprotector>
