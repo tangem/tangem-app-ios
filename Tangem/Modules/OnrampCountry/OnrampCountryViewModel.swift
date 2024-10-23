@@ -15,7 +15,6 @@ final class OnrampCountryViewModel: ObservableObject, Identifiable {
     @Published var iconURL: URL?
     @Published var title: String
     @Published var style: Subtitle
-    @Published var alert: AlertBinder?
 
     var mainButtonTitle: String {
         style == .info ? Localization.commonConfirm : Localization.commonClose

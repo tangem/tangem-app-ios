@@ -25,7 +25,6 @@ struct OnrampCountryView: View {
         }
         .padding(.horizontal, 16)
         .background(Colors.Background.tertiary)
-        .alert(item: $viewModel.alert) { $0.alert }
     }
 
     private var contentView: some View {
