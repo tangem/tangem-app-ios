@@ -83,15 +83,13 @@ private extension CommonOnrampProviderManager {
         provider.paymentMethods.contains(where: { $0 == paymentMethod.identity.code })
     }
 
-    func makeOnrampSwappableItem(paymentMethod: OnrampPaymentMethod) throws -> OnrampSwappableItem {
+    func makeOnrampSwappableItem(paymentMethod: OnrampPaymentMethod) throws -> OnrampQuotesRequestItem {
         guard let amount = _amount, amount > 0 else {
             throw OnrampProviderManagerError.amountNotFound
         }
 
-        return OnrampSwappableItem(
-            fiatCurrency: item.fiatCurrency,
-            country: item.country,
-            destination: item.wallet,
+        return OnrampQuotesRequestItem(
+            pairItem: item,
             paymentMethod: paymentMethod,
             providerInfo: .init(id: provider.id),
             amount: amount
@@ -106,9 +104,8 @@ extension CommonOnrampProviderManager: OnrampProviderManager {
         _amount = amount
         await updateState()
     }
-    
+
     func state() -> OnrampProviderManagerState {
         _state
     }
 }
-

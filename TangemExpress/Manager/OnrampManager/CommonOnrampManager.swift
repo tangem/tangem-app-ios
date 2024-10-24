@@ -45,7 +45,7 @@ extension CommonOnrampManager: OnrampManager {
     public func loadProviders(request: OnrampPairRequestItem) async throws {
         let pairs = try await apiProvider.onrampPairs(
             from: request.fiatCurrency,
-            to: [request.wallet.expressCurrency],
+            to: [request.destination.expressCurrency],
             country: request.country
         )
 
@@ -64,7 +64,7 @@ extension CommonOnrampManager: OnrampManager {
         }
     }
 
-    public func loadOnrampData(request: OnrampSwappableItem) async throws -> OnrampRedirectData {
+    public func loadOnrampData(request: OnrampQuotesRequestItem) async throws -> OnrampRedirectData {
         // Load data from API
         throw OnrampManagerError.notImplement
     }

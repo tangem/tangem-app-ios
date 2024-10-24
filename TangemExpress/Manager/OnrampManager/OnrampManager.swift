@@ -6,7 +6,7 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-public protocol OnrampManager {
+public protocol OnrampManager: Actor {
     // Load country by IP or get from repository
     func getCountry() async throws -> OnrampCountry
 
@@ -17,7 +17,7 @@ public protocol OnrampManager {
     func loadQuotes(amount: Decimal) async throws
 
     // load data to make onramp
-    func loadOnrampData(request: OnrampSwappableItem) async throws -> OnrampRedirectData
+    func loadOnrampData(request: OnrampQuotesRequestItem) async throws -> OnrampRedirectData
 }
 
 public enum OnrampManagerError: LocalizedError {
