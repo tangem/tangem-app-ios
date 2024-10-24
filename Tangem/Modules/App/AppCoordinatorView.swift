@@ -15,23 +15,13 @@ struct AppCoordinatorView: CoordinatorView {
 
     @Environment(\.mainWindowSize) var mainWindowSize: CGSize
     @Environment(\.overlayContentContainer) private var overlayContentContainer
+    @Namespace private var namespace
 
     var body: some View {
         NavigationView {
-            switch coordinator.viewState {
-            case .welcome(let welcomeCoordinator):
-                WelcomeCoordinatorView(coordinator: welcomeCoordinator)
-            case .uncompleteBackup(let uncompletedBackupCoordinator):
-                UncompletedBackupCoordinatorView(coordinator: uncompletedBackupCoordinator)
-            case .auth(let authCoordinator):
-                AuthCoordinatorView(coordinator: authCoordinator)
-            case .main(let mainCoordinator):
-                MainCoordinatorView(coordinator: mainCoordinator)
-            case .none:
-                EmptyView()
-            }
+            content
+                .navigationLinks(links)
         }
-        .animation(.default, value: coordinator.viewState)
         .navigationViewStyle(.stack)
         .accentColor(Colors.Text.primary1)
         .overlayContentContainer(item: $coordinator.marketsCoordinator) { coordinator in
@@ -58,5 +48,45 @@ struct AppCoordinatorView: CoordinatorView {
         .onChange(of: coordinator.isOverlayContentContainerShown) { isShown in
             overlayContentContainer.setOverlayHidden(!isShown)
         }
+        .overlay {
+            if coordinator.lockViewVisible {
+                LockView()
+                    .setNamespace(namespace)
+                    .transition(.asymmetric(insertion: .identity, removal: .opacity.animation(.easeOut(duration: 0.3))))
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        ZStack {
+            switch coordinator.viewState {
+            case .welcome(let welcomeCoordinator):
+                WelcomeCoordinatorView(coordinator: welcomeCoordinator)
+                    .navigationBarHidden(true)
+            case .uncompleteBackup(let uncompletedBackupCoordinator):
+                UncompletedBackupCoordinatorView(coordinator: uncompletedBackupCoordinator)
+                    .navigationBarHidden(true)
+            case .auth(let authCoordinator):
+                AuthCoordinatorView(coordinator: authCoordinator)
+                    .setNamespace(namespace)
+                    .navigationBarHidden(true)
+            case .main(let mainCoordinator):
+                MainCoordinatorView(coordinator: mainCoordinator)
+                    .navigationBarHidden(false)
+            case .none:
+                EmptyView()
+            }
+        }
+        .transition(.opacity)
+        .animation(.easeInOut, value: coordinator.viewState)
+    }
+
+    @ViewBuilder
+    private var links: some View {
+        NavHolder()
+            .navigation(item: $coordinator.pushedOnboardingCoordinator) {
+                OnboardingCoordinatorView(coordinator: $0)
+            }
     }
 }
