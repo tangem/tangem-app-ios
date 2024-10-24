@@ -1,6 +1,6 @@
 //
 //  DebouncedCollector.swift
-//  Tangem
+//  TangemFoundation
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2023 Tangem AG. All rights reserved.
