@@ -7,19 +7,22 @@
 //
 
 public actor CommonOnrampManager {
-    private let provider: ExpressAPIProvider
+    private let apiProvider: ExpressAPIProvider
     private let onrampRepository: OnrampRepository
+    private let dataRepository: OnrampDataRepository
     private let logger: Logger
 
-    private var _providers: [OnrampProvider] = []
+    private var _providers: [Provider] = []
 
     public init(
-        provider: ExpressAPIProvider,
+        apiProvider: ExpressAPIProvider,
         onrampRepository: OnrampRepository,
+        dataRepository: OnrampDataRepository,
         logger: Logger
     ) {
-        self.provider = provider
+        self.apiProvider = apiProvider
         self.onrampRepository = onrampRepository
+        self.dataRepository = dataRepository
         self.logger = logger
     }
 }
@@ -39,26 +42,46 @@ extension CommonOnrampManager: OnrampManager {
         return country
     }
 
-    public func updatePaymentMethod() async throws -> OnrampPaymentMethod {
-        // Load payment methods
-        // Or get it from repository (?)
-        throw OnrampManagerError.notImplement
+    public func loadProviders(request: OnrampPairRequestItem) async throws {
+        let pairs = try await apiProvider.onrampPairs(
+            from: request.fiatCurrency,
+            to: [request.wallet.expressCurrency],
+            country: request.country
+        )
+
+        _providers = pairs.flatMap { $0.providers }.map { provider in
+            makeProvider(item: request, provider: provider)
+        }
     }
 
-    public func update(pair: OnrampPair) async throws -> [OnrampProvider] {
-        // Load providers from API
-        // Make provides
-        // Save providers
-        throw OnrampManagerError.notImplement
-    }
-
-    public func update(amount: Decimal) async throws -> [OnrampProvider] {
-        return _providers
+    public func loadQuotes(amount: Decimal) async throws {
+        await withTaskGroup(of: Void.self) { [weak self] group in
+            await self?._providers.forEach { provider in
+                _ = group.addTaskUnlessCancelled {
+                    await provider.manager.update(amount: amount)
+                }
+            }
+        }
     }
 
     public func loadOnrampData(request: OnrampSwappableItem) async throws -> OnrampRedirectData {
         // Load data from API
         throw OnrampManagerError.notImplement
+    }
+}
+
+// MARK: - Private
+
+private extension CommonOnrampManager {
+    func makeProvider(item: OnrampPairRequestItem, provider: OnrampProvider) -> Provider {
+        Provider(
+            manager: CommonOnrampProviderManager(
+                item: item,
+                provider: provider,
+                dataRepository: dataRepository,
+                apiProvider: apiProvider
+            )
+        )
     }
 }
 
@@ -93,4 +116,10 @@ extension OnrampIdentity {
         code: "RUB",
         image: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/currencies/medium/rub.png")!
     )
+}
+
+extension CommonOnrampManager {
+    struct Provider {
+        let manager: OnrampProviderManager
+    }
 }

@@ -13,7 +13,7 @@ public struct OnrampSwappableItem {
     public let paymentMethod: OnrampPaymentMethod
     public let providerInfo: ProviderInfo
     public let amount: Decimal
-    public let redirectSettings: OnrampRedirectSettings
+    public let redirectSettings: OnrampRedirectSettings?
 
     public init(
         fiatCurrency: OnrampFiatCurrency,
@@ -22,7 +22,7 @@ public struct OnrampSwappableItem {
         paymentMethod: OnrampPaymentMethod,
         providerInfo: ProviderInfo,
         amount: Decimal,
-        redirectSettings: OnrampRedirectSettings
+        redirectSettings: OnrampRedirectSettings? = .none
     ) {
         self.fiatCurrency = fiatCurrency
         self.country = country
