@@ -42,6 +42,21 @@ public struct TangemExpressFactory {
         )
     }
 
+    public func makeOnrampManager(
+        expressAPIProvider: ExpressAPIProvider,
+        logger: Logger? = nil,
+        analyticsLogger: ExpressAnalyticsLogger? = nil
+    ) -> OnrampManager {
+        let logger: Logger = logger ?? CommonLogger()
+        let repository = CommonOnrampRepository(provider: expressAPIProvider)
+
+        return CommonOnrampManager(
+            provider: expressAPIProvider,
+            onrampRepository: repository,
+            logger: logger
+        )
+    }
+
     public func makeExpressAPIProvider(
         credential: ExpressAPICredential,
         deviceInfo: ExpressDeviceInfo,
