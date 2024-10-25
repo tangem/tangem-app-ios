@@ -30,7 +30,6 @@ extension CommonOnrampManager: OnrampManager {
     public func updateCountry() async throws -> OnrampCountry {
         // Define country by ip or get from repository
         // [REDACTED_INFO]
-
         throw OnrampManagerError.notImplement
     }
 
