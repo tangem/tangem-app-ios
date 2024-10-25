@@ -8,5 +8,6 @@
 
 import Foundation
 
-/// Mark-only protocol; represents an account entity created by [REDACTED_AUTHOR]
+// MARK: - only protocol; represents an account entity created by [REDACTED_AUTHOR]
+
 public protocol CreatedAccount {}
