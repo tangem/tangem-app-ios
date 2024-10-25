@@ -78,7 +78,8 @@ class MainCoordinator: CoordinatorObject {
             coordinator: self,
             swipeDiscoveryHelper: swipeDiscoveryHelper,
             mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: self),
-            pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider
+            pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider,
+            actionButtonsViewModel: makeActionButtonsViewModel()
         )
 
         swipeDiscoveryHelper.delegate = viewModel
@@ -451,6 +452,33 @@ extension MainCoordinator: RateAppRoutable {
 extension MainCoordinator: PushNotificationsPermissionRequestDelegate {
     func didFinishPushNotificationOnboarding() {
         pushNotificationsViewModel = nil
+    }
+}
+
+// MARK: - Action buttons
+
+extension MainCoordinator: ActionButtonsRoutable {
+    func openBuy() {
+        // [REDACTED_INFO]
+    }
+
+    func openSwap() {
+        // [REDACTED_INFO]
+    }
+
+    func openSell() {
+        // [REDACTED_INFO]
+    }
+}
+
+extension MainCoordinator {
+    private func makeActionButtonsViewModel() -> ActionButtonsViewModel {
+        ActionButtonsViewModel(
+            actionButtonFactory: CommonActionButtonsFactory(
+                coordinator: self,
+                actionButtons: [.buy, .swap, .sell]
+            )
+        )
     }
 }
 
