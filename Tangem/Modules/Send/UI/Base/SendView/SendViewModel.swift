@@ -9,6 +9,7 @@
 import Combine
 import SwiftUI
 import BlockchainSdk
+import TangemExpress
 
 protocol SendViewAlertPresenter: AnyObject {
     func showAlert(_ alert: AlertBinder)
@@ -294,6 +295,14 @@ extension SendViewModel: SendModelRoutable {
         }
 
         coordinator?.openFeeCurrency(for: feeCurrencyWalletModel, userWalletModel: userWalletModel)
+    }
+}
+
+// MARK: - SendModelRoutable
+
+extension SendViewModel: OnrampModelRoutable {
+    func openOnrampCountryBottomSheet(country: OnrampCountry) {
+        // [REDACTED_TODO_COMMENT]
     }
 }
 
