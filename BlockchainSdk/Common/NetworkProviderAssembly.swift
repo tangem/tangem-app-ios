@@ -36,7 +36,7 @@ struct NetworkProviderAssembly {
             )
         }
     }
-    
+
     // [REDACTED_TODO_COMMENT]
     func makeBitcoinCashNowNodesNetworkProvider(
         input: NetworkProviderAssemblyInput,
@@ -47,7 +47,7 @@ struct NetworkProviderAssembly {
             bitcoinCashAddressService: bitcoinCashAddressService
         ).eraseToAnyBitcoinNetworkProvider()
     }
-    
+
     // [REDACTED_TODO_COMMENT]
     func makeBlockcypherNetworkProvider(endpoint: BlockcypherEndpoint, with input: NetworkProviderAssemblyInput) -> BlockcypherNetworkProvider {
         return BlockcypherNetworkProvider(
@@ -56,17 +56,17 @@ struct NetworkProviderAssembly {
             configuration: input.networkConfig
         )
     }
-    
+
     // [REDACTED_TODO_COMMENT]
     func makeBlockchairNetworkProviders(endpoint: BlockchairEndpoint, with input: NetworkProviderAssemblyInput) -> [AnyBitcoinNetworkProvider] {
         let apiKeys: [String?] = [nil] + input.blockchainSdkConfig.blockchairApiKeys
-        
+
         return apiKeys.map {
             BlockchairNetworkProvider(endpoint: endpoint, apiKey: $0, configuration: input.networkConfig)
                 .eraseToAnyBitcoinNetworkProvider()
         }
     }
-    
+
     func makeEthereumJsonRpcProviders(with input: NetworkProviderAssemblyInput) -> [EthereumJsonRpcProvider] {
         return APIResolver(blockchain: input.blockchain, config: input.blockchainSdkConfig)
             .resolveProviders(apiInfos: input.apiInfo) { nodeInfo, _ in
