@@ -7,7 +7,8 @@
 //
 
 import Foundation
-import SwiftProtobuf
+
+@preconcurrency import SwiftProtobuf // [REDACTED_TODO_COMMENT]
 import CryptoSwift
 
 class TronTransactionBuilder {
