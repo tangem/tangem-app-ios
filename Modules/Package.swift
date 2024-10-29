@@ -1,7 +1,7 @@
-// swift-tools-version: 5.10
+// swift-tools-version: 6.0
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
-import PackageDescription // [REDACTED_TODO_COMMENT]
+import PackageDescription
 
 // MARK: - Package
 
@@ -31,13 +31,21 @@ let package = Package(
 var serviceModules: [PackageDescription.Target] {
     [
         .tangemTarget(
-            name: "TangemFoundation"
+            name: "TangemFoundation",
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
         ),
         .tangemTarget(
             name: "TangemNetworkUtils",
             dependencies: [
                 "Moya",
                 "Alamofire",
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
             ]
         ),
     ]
