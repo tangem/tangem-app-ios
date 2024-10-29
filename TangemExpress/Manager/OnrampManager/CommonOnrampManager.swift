@@ -27,10 +27,14 @@ public actor CommonOnrampManager {
 // MARK: - OnrampManager
 
 extension CommonOnrampManager: OnrampManager {
-    public func updateCountry() async throws -> OnrampCountry {
-        // Define country by ip or get from repository
-        // [REDACTED_INFO]
-        throw OnrampManagerError.notImplement
+    public func getCountry() async throws -> OnrampCountry {
+        if let country = onrampRepository.savedCountry {
+            return country
+        }
+
+        let country: OnrampCountry = try await provider.onrampCountryByIP()
+        onrampRepository.updatePreference(country: country)
+        return country
     }
 
     public func updatePaymentMethod() async throws -> OnrampPaymentMethod {
