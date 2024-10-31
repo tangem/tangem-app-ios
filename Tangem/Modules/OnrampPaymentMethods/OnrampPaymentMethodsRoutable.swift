@@ -1,5 +1,5 @@
 //
-//  OnrampProvidersRoutable.swift
+//  OnrampPaymentMethodsRoutable.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,6 +8,4 @@
 
 import Foundation
 
-protocol OnrampProvidersRoutable: AnyObject {
-    func openOnrampPaymentMethods()
-}
+protocol OnrampPaymentMethodsRoutable: AnyObject {}
