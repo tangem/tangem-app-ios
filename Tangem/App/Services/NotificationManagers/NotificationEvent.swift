@@ -16,6 +16,7 @@ protocol NotificationEvent: Identifiable {
     var icon: NotificationView.MessageIcon { get }
     var severity: NotificationView.Severity { get }
     var isDismissable: Bool { get }
+    var buttonAction: NotificationButtonAction? { get }
     // [REDACTED_TODO_COMMENT]
     var analyticsEvent: Analytics.Event? { get }
     var analyticsParams: [Analytics.ParameterKey: String] { get }
