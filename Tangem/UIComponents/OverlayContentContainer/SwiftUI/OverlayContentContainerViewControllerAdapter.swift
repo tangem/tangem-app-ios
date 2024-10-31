@@ -21,21 +21,32 @@ final class OverlayContentContainerViewControllerAdapter {
 // MARK: - OverlayContentContainer protocol conformance
 
 extension OverlayContentContainerViewControllerAdapter: OverlayContentContainer {
+    var cornerRadius: CGFloat { containerViewController?.overlayCornerRadius ?? .zero }
+
+    var isScrollViewLocked: Bool { containerViewController?.isScrollViewLocked ?? false }
+
     func installOverlay(_ overlayView: some View) {
-        // [REDACTED_TODO_COMMENT]
-        let overlayViewController = UIHostingController(rootView: overlayView.bottomScrollableSheetGrabber())
+        let overlayViewController = UIHostingController(rootView: overlayView)
         containerViewController?.installOverlay(overlayViewController)
     }
 
     func removeOverlay() {
         containerViewController?.removeOverlay()
     }
+
+    func setOverlayHidden(_ isHidden: Bool) {
+        containerViewController?.setOverlayHidden(isHidden)
+    }
 }
 
 // MARK: - OverlayContentStateObserver protocol conformance
 
 extension OverlayContentContainerViewControllerAdapter: OverlayContentStateObserver {
-    func addObserver(_ observer: @escaping Observer, forToken token: any Hashable) {
+    func addObserver(_ observer: @escaping OverlayContentStateObserver.StateObserver, forToken token: any Hashable) {
+        containerViewController?.addObserver(observer, forToken: token)
+    }
+
+    func addObserver(_ observer: @escaping OverlayContentStateObserver.ProgressObserver, forToken token: any Hashable) {
         containerViewController?.addObserver(observer, forToken: token)
     }
 
@@ -48,10 +59,10 @@ extension OverlayContentContainerViewControllerAdapter: OverlayContentStateObser
 
 extension OverlayContentContainerViewControllerAdapter: OverlayContentStateController {
     func collapse() {
-        // [REDACTED_TODO_COMMENT]
+        containerViewController?.collapse()
     }
 
     func expand() {
-        // [REDACTED_TODO_COMMENT]
+        containerViewController?.expand()
     }
 }
