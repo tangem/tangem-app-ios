@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 @preconcurrency import SwiftProtobuf // [REDACTED_TODO_COMMENT]
 import CryptoSwift
