@@ -36,6 +36,7 @@ struct TokenActionListBuilder {
         canSignTransactions: Bool,
         canSend: Bool,
         canSwap: Bool,
+        canOnramp: Bool,
         canStake: Bool,
         isBlockchainReachable: Bool,
         exchangeUtility: ExchangeCryptoUtility
@@ -55,9 +56,16 @@ struct TokenActionListBuilder {
             availableActions.append(.exchange)
         }
 
-        // [REDACTED_TODO_COMMENT]
-        if canExchange, canBuy {
-            availableActions.append(.buy)
+        if FeatureProvider.isAvailable(.onramp) {
+            if canOnramp {
+                availableActions.append(.buy)
+            }
+        } else {
+            // Old code
+            // [REDACTED_TODO_COMMENT]
+            if canExchange, canBuy {
+                availableActions.append(.buy)
+            }
         }
 
         if canSend, canExchange, canSell {
