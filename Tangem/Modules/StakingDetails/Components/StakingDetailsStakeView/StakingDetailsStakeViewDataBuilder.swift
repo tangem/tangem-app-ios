@@ -70,7 +70,8 @@ class StakingDetailsStakeViewDataBuilder {
 
         let balanceCryptoFormatted = balanceFormatter.formatCryptoBalance(
             balance.amount,
-            currencyCode: tokenItem.currencySymbol
+            currencyCode: tokenItem.currencySymbol,
+            formattingOptions: .stakingBalanceCryptoFormattingOptions(scale: tokenItem.blockchain.decimalCount)
         )
         let balanceFiat = tokenItem.currencyId.flatMap {
             BalanceConverter().convertToFiat(balance.amount, currencyId: $0)

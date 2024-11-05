@@ -45,4 +45,11 @@ struct BalanceFormattingOptions: Hashable {
 
         return options
     }
+
+    static func stakingBalanceCryptoFormattingOptions(scale: Int) -> BalanceFormattingOptions {
+        var options = Self.defaultCryptoFormattingOptions
+        options.roundingType = .default(roundingMode: .up, scale: scale)
+
+        return options
+    }
 }
