@@ -1,5 +1,5 @@
 //
-//  OnrampProvidersCompactViewModel.swift
+//  OnrampProvidersCompactProviderViewData.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct OnrampProvidersCompactViewData {
+struct OnrampProvidersCompactProviderViewData {
     let iconURL: URL?
     let paymentMethodName: String
     let providerName: String
@@ -16,10 +16,10 @@ struct OnrampProvidersCompactViewData {
     let action: () -> Void
 }
 
-extension OnrampProvidersCompactViewData: Hashable, Identifiable {
+extension OnrampProvidersCompactProviderViewData: Hashable, Identifiable {
     var id: Int { hashValue }
 
-    static func == (lhs: OnrampProvidersCompactViewData, rhs: OnrampProvidersCompactViewData) -> Bool {
+    static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.hashValue == rhs.hashValue
     }
 
@@ -31,7 +31,7 @@ extension OnrampProvidersCompactViewData: Hashable, Identifiable {
     }
 }
 
-extension OnrampProvidersCompactViewData {
+extension OnrampProvidersCompactProviderViewData {
     enum Badge: Hashable {
         case bestRate
     }
