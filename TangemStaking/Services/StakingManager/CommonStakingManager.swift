@@ -196,7 +196,7 @@ private extension CommonStakingManager {
 
         return balances
     }
-    
+
     private func balanceIndexByType(
         balances: inout [StakingBalance],
         action: PendingAction,
