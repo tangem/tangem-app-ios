@@ -7,6 +7,6 @@
 //
 
 public struct OnrampProvider: Hashable {
-    public let id: String
-    public let paymentMethods: [String]
+    // [REDACTED_TODO_COMMENT]
+    public let provider: OnrampPair.Provider
 }
