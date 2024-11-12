@@ -1,5 +1,5 @@
 //
-//  VisaAPIService.swift
+//  VisaTransactionHistoryAPIService.swift
 //  TangemVisa
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,6 +8,6 @@
 
 import Foundation
 
-public protocol VisaAPIService {
+public protocol VisaTransactionHistoryAPIService {
     func loadHistoryPage(request: VisaTransactionHistoryDTO.APIRequest) async throws -> VisaTransactionHistoryDTO
 }
