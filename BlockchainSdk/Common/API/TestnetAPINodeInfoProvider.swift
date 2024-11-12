@@ -236,6 +236,10 @@ struct TestnetAPINodeInfoProvider {
             return [
                 .init(url: URL(string: "https://rpc.test.btcs.network")!),
             ]
+        case .casper:
+            return [
+                .init(url: URL(string: "https://testnet.phantom-rpc.com/rpc")!),
+            ]
         // [REDACTED_TODO_COMMENT]
         case .bitcoin, .litecoin, .disChain, .rsk, .bitcoinCash, .binance, .cardano,
              .xrp, .ducatus, .tezos, .dogecoin, .solana, .kusama, .dash, .gnosis,
