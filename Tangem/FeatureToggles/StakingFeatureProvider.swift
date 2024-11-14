@@ -77,6 +77,7 @@ extension StakingFeatureProvider {
     static var testableBlockchainItems: Set<StakingItem> {
         [
             StakingItem(network: .ethereum, contractAddress: nil),
+            StakingItem(network: .polkadot, contractAddress: nil),
         ]
     }
 
@@ -98,6 +99,8 @@ extension StakingFeatureProvider {
             return StakingIntegrationId.cardano.rawValue
         case (.ethereum, .none):
             return StakingIntegrationId.ethereumP2P.rawValue // dummy id for consistency
+        case (.polkadot, .none):
+            return "polkadot-dot-validator-staking"
         default:
             return nil
         }
