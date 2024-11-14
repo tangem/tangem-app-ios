@@ -42,6 +42,7 @@
 		0A3080B02F152A6000CAA658 /* StakingIntegrationId.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3080AF2F152A6000CAA658 /* StakingIntegrationId.swift */; };
 		0A3083DE2F17A07800CAA658 /* EthereumPendingTransactionsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3083DD2F17A07800CAA658 /* EthereumPendingTransactionsManager.swift */; };
 		0A3B4A362EFD32CB0054E884 /* ApyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3B4A352EFD32CB0054E884 /* ApyFormatter.swift */; };
+		0A33ADA02CE5C2F200CF44C1 /* PolkadotStakeKitTransactionHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A33AD9F2CE5C2F200CF44C1 /* PolkadotStakeKitTransactionHelper.swift */; };
 		0A3BF9692C6CDAD900163492 /* AdditionalAddresses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3BF9682C6CDAD900163492 /* AdditionalAddresses.swift */; };
 		0A3BF96B2C6CE96B00163492 /* StakingAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3BF96A2C6CE96B00163492 /* StakingAction.swift */; };
 		0A3C78752D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3C78742D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift */; };
@@ -5170,6 +5171,7 @@
 		0A3080AF2F152A6000CAA658 /* StakingIntegrationId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingIntegrationId.swift; sourceTree = "<group>"; };
 		0A3083DD2F17A07800CAA658 /* EthereumPendingTransactionsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumPendingTransactionsManager.swift; sourceTree = "<group>"; };
 		0A3B4A352EFD32CB0054E884 /* ApyFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApyFormatter.swift; sourceTree = "<group>"; };
+		0A33AD9F2CE5C2F200CF44C1 /* PolkadotStakeKitTransactionHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkadotStakeKitTransactionHelper.swift; sourceTree = "<group>"; };
 		0A3BF9682C6CDAD900163492 /* AdditionalAddresses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdditionalAddresses.swift; sourceTree = "<group>"; };
 		0A3BF96A2C6CE96B00163492 /* StakingAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAction.swift; sourceTree = "<group>"; };
 		0A3C78742D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HederaNetworkResult.TokensCustomFees.swift; sourceTree = "<group>"; };
@@ -17258,6 +17260,7 @@
 			children = (
 				B62D3DC12CBC79D900C2460E /* OtherChains */,
 				B62D3DC22CBC79D900C2460E /* PolkadotAddress.swift */,
+				0A33AD9F2CE5C2F200CF44C1 /* PolkadotStakeKitTransactionHelper.swift */,
 				B62D3DC32CBC79D900C2460E /* PolkadotAddressService.swift */,
 				B62D3DC42CBC79D900C2460E /* PolkadotBlockchainMeta.swift */,
 				B62D3DC52CBC79D900C2460E /* PolkadotExternalLinkProvider.swift */,
@@ -31875,6 +31878,7 @@
 				B62D3FB32CBC79DA00C2460E /* AptosAddressService.swift in Sources */,
 				B62D40612CBC79DA00C2460E /* ChiaTransactionBuilder.swift in Sources */,
 				B62D40B32CBC79DA00C2460E /* MantaExternalLinkProvider.swift in Sources */,
+				0A33ADA02CE5C2F200CF44C1 /* PolkadotStakeKitTransactionHelper.swift in Sources */,
 				B62D42232CBC79DB00C2460E /* XRPWalletAssembly.swift in Sources */,
 				EF197B0D2D8C91ED0004B575 /* BranchAndBoundPreImageTransactionBuilder.swift in Sources */,
 				B62D3FF42CBC79DA00C2460E /* OP_ELSE.swift in Sources */,
