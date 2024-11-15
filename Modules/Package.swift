@@ -1,4 +1,4 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 5.10
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -34,7 +34,7 @@ var serviceModules: [PackageDescription.Target] {
             name: "TangemFoundation",
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
-                .swiftLanguageMode(.v5),
+//                .swiftLanguageMode(.v5),
             ]
         ),
         .tangemTarget(
@@ -45,7 +45,7 @@ var serviceModules: [PackageDescription.Target] {
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
-                .swiftLanguageMode(.v5),
+//                .swiftLanguageMode(.v5),
             ]
         ),
     ]
