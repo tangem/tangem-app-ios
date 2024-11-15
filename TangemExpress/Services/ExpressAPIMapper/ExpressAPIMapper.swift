@@ -203,7 +203,6 @@ struct ExpressAPIMapper {
             throw ExpressAPIMapperError.requestIdNotEqual
         }
 
-        // [REDACTED_TODO_COMMENT]
         return redirectData
     }
 }
