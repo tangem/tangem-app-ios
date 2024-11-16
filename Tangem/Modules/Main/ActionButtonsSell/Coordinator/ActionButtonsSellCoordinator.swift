@@ -1,5 +1,5 @@
 //
-//  ActionButtonsBuyCoordinator.swift
+//  ActionButtonsSellCoordinator.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,33 +8,36 @@
 
 import Foundation
 
-final class ActionButtonsBuyCoordinator: CoordinatorObject {
+final class ActionButtonsSellCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
 
-    @Published private(set) var actionButtonsBuyViewModel: ActionButtonsBuyViewModel?
+    @Published private(set) var actionButtonsSellViewModel: ActionButtonsSellViewModel?
+
+    let dismissAction: Action<ActionButtonsSendToSellModel?>
+    let popToRootAction: Action<PopToRootOptions>
 
     private var safariHandle: SafariHandle?
 
-    let dismissAction: Action<Void>
-    let popToRootAction: Action<PopToRootOptions>
-
     private let expressTokensListAdapter: ExpressTokensListAdapter
     private let tokenSorter: TokenAvailabilitySorter
+    private let userWalletModel: UserWalletModel
 
     required init(
         expressTokensListAdapter: some ExpressTokensListAdapter,
-        tokenSorter: some TokenAvailabilitySorter = CommonBuyTokenAvailabilitySorter(),
-        dismissAction: @escaping Action<Void>,
-        popToRootAction: @escaping Action<PopToRootOptions> = { _ in }
+        tokenSorter: some TokenAvailabilitySorter = CommonSellTokenAvailabilitySorter(),
+        dismissAction: @escaping Action<ActionButtonsSendToSellModel?>,
+        popToRootAction: @escaping Action<PopToRootOptions> = { _ in },
+        userWalletModel: some UserWalletModel
     ) {
         self.expressTokensListAdapter = expressTokensListAdapter
         self.tokenSorter = tokenSorter
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
+        self.userWalletModel = userWalletModel
     }
 
     func start(with options: Options) {
-        actionButtonsBuyViewModel = ActionButtonsBuyViewModel(
+        actionButtonsSellViewModel = ActionButtonsSellViewModel(
             coordinator: self,
             tokenSelectorViewModel: makeTokenSelectorViewModel()
         )
@@ -46,23 +49,32 @@ final class ActionButtonsBuyCoordinator: CoordinatorObject {
     > {
         TokenSelectorViewModel(
             tokenSelectorItemBuilder: ActionButtonsTokenSelectorItemBuilder(),
-            strings: BuyTokenSelectorStrings(),
+            strings: SellTokenSelectorStrings(),
             expressTokensListAdapter: expressTokensListAdapter,
             tokenSorter: tokenSorter
         )
     }
 }
 
-extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
-    func openBuyCrypto(at url: URL) {
-        safariHandle = safariManager.openURL(url) { [weak self] _ in
+extension ActionButtonsSellCoordinator: ActionButtonsSellRoutable {
+    func openSellCrypto(
+        at url: URL,
+        makeSellToSendToModel: @escaping (String) -> ActionButtonsSendToSellModel?
+    ) {
+        safariHandle = safariManager.openURL(url) { [weak self] closeURL in
+            let sendToSellModel = makeSellToSendToModel(closeURL.absoluteString)
+
             self?.safariHandle = nil
-            self?.dismiss()
+            self?.dismiss(with: sendToSellModel)
         }
+    }
+
+    func dismiss() {
+        dismiss(with: nil)
     }
 }
 
-extension ActionButtonsBuyCoordinator {
+extension ActionButtonsSellCoordinator {
     enum Options {
         case `default`
     }
