@@ -1,5 +1,5 @@
 //
-//  TokenMarketsNetworkSelectorCoordinatorView.swift
+//  MarketsTokenNetworkSelectorCoordinatorView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
