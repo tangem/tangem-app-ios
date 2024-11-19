@@ -1,6 +1,6 @@
 //
 //  AsyncTaskScheduler.swift
-//  Tangem
+//  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2024 Tangem AG. All rights reserved.
@@ -8,14 +8,16 @@
 
 import Foundation
 
-class AsyncTaskScheduler {
+public class AsyncTaskScheduler {
     private var task: Task<Void, Error>?
 
-    var isScheduled: Bool {
+    public var isScheduled: Bool {
         !(task?.isCancelled ?? true)
     }
 
-    func scheduleJob(interval: TimeInterval, repeats: Bool, action: @escaping () async throws -> Void) {
+    public init() {}
+
+    public func scheduleJob(interval: TimeInterval, repeats: Bool, action: @escaping () async throws -> Void) {
         task?.cancel()
         task = Task {
             repeat {
@@ -26,7 +28,7 @@ class AsyncTaskScheduler {
         }
     }
 
-    func cancel() {
+    public func cancel() {
         task?.cancel()
         task = nil
     }
