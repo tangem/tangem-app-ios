@@ -193,7 +193,9 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         return data
     }
 
-    func onrampStatus(transactionId: String) async throws {
-        // [REDACTED_TODO_COMMENT]
+    func onrampStatus(transactionId: String) async throws -> OnrampTransaction {
+        let request = ExpressDTO.Onramp.Status.Request(txId: transactionId)
+        let response = try await expressAPIService.onrampStatus(request: request)
+        return try expressAPIMapper.mapToOnrampTransaction(response: response)
     }
 }
