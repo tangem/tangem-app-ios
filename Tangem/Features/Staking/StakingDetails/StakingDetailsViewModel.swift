@@ -437,7 +437,7 @@ private extension StakingDetailsViewModel {
         case .stake,
              .pending(.stake) where stakingParams.isStakingAmountEditable:
             coordinator?.openStakingFlow()
-        case .pending(.voteLocked):
+        case .pending(.voteLocked), .pending(.vote):
             coordinator?.openRestakingFlow(action: action)
         case .unstake where stakingParams.reservedFee > 0:
             if checkIfTokenBalanceIsSufficient(for: stakingParams.reservedFee) {
@@ -611,10 +611,11 @@ extension StakingAction.ActionType {
         case .pending(.withdraw): Localization.stakingWithdraw
         case .pending(.claimRewards): Localization.commonClaimRewards
         case .pending(.restakeRewards): Localization.stakingRestakeRewards
-        case .pending(.voteLocked): Localization.stakingVote
+        case .pending(.voteLocked), .pending(.vote): Localization.stakingVote
         case .pending(.unlockLocked): Localization.stakingUnlockedLocked
         case .pending(.restake): Localization.stakingRestake
         case .pending(.claimUnstaked): Localization.stakingWithdraw
+        case .pending(.rebond): Localization.stakingRebond
         }
     }
 }
