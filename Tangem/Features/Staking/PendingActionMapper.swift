@@ -94,6 +94,16 @@ struct PendingActionMapper {
             default:
                 throw PendingActionMapperError.notFound("Pending withdraw/claimUnstaked action")
             }
+        case .unbonding:
+            guard let rebondAction = balance.actions.first(where: { $0.type == .rebond }) else {
+                throw PendingActionMapperError.notFound("Pending rebond action")
+            }
+
+            let rebond: StakingAction = stakingAction(
+                type: .pending(.rebond(passthrough: rebondAction.passthrough))
+            )
+
+            return .single(rebond)
         case .locked:
             guard let unlockLockedAction = balance.actions.first(where: { $0.type == .unlockLocked }) else {
                 throw PendingActionMapperError.notFound("Pending unlockLocked action")
@@ -103,12 +113,24 @@ struct PendingActionMapper {
                 type: .pending(.unlockLocked(passthrough: unlockLockedAction.passthrough))
             )
 
-            if let voteLockedAction = balance.actions.first(where: { $0.type == .voteLocked }) {
+            if let voteLockedAction = balance.actions.first(
+                where: { $0.type == .voteLocked }
+            ) {
                 let voteLocked = stakingAction(
                     type: .pending(.voteLocked(passthrough: voteLockedAction.passthrough))
                 )
 
                 return .multiple([unlockLocked, voteLocked])
+            }
+
+            if let voteLockedAction = balance.actions.first(
+                where: { $0.type == .vote }
+            ) {
+                let vote = stakingAction(
+                    type: .pending(.vote(passthrough: voteLockedAction.passthrough))
+                )
+
+                return .multiple([unlockLocked, vote])
             }
 
             return .single(unlockLocked)

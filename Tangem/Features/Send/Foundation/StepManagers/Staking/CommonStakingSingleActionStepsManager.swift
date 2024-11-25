@@ -70,6 +70,10 @@ extension CommonStakingSingleActionStepsManager: SendStepsManager {
             return .restake
         case .pending(.claimUnstaked):
             return .claimUnstaked
+        case .pending(.rebond):
+            return .rebond
+        case .pending(.vote):
+            return .vote
         case .stake, .pending(.stake):
             assertionFailure("Doesn't support in StakingSingleAction flow")
             return .unstake
