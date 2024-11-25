@@ -28,7 +28,7 @@ final class StakeKitStakingManager {
 
     private var canStakeMore: Bool {
         switch wallet.item.network {
-        case .solana, .cosmos, .tron, .ethereum, .bsc, .ton: true
+        case .solana, .cosmos, .tron, .ethereum, .bsc, .ton, .polkadot: true
         default: false
         }
     }
@@ -290,7 +290,9 @@ private extension StakeKitStakingManager {
         case .claimRewards(let passthrough),
              .restakeRewards(let passthrough),
              .voteLocked(let passthrough),
+             .vote(let passthrough),
              .unlockLocked(let passthrough),
+             .rebond(let passthrough),
              .restake(let passthrough),
              .stake(let passthrough):
             let request = PendingActionRequest(request: request, passthrough: passthrough, type: type)
@@ -344,7 +346,9 @@ private extension StakeKitStakingManager {
         case .claimRewards(let passthrough),
              .restakeRewards(let passthrough),
              .voteLocked(let passthrough),
+             .vote(let passthrough),
              .unlockLocked(let passthrough),
+             .rebond(let passthrough),
              .restake(let passthrough),
              .stake(let passthrough):
             let request = PendingActionRequest(request: request, passthrough: passthrough, type: type)
