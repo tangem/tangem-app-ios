@@ -722,10 +722,20 @@ public indirect enum Blockchain: Equatable, Hashable {
     // [REDACTED_TODO_COMMENT]
     var allowsFeeSelection: Bool {
         switch self {
-        case .telos:
+        case .telos, .xodex:
             return false
         default:
             return true
+        }
+    }
+
+    /// This parameter is used to process the commission parameter when sending the token
+    public var allowsZeroFeePaid: Bool {
+        switch self {
+        case .xodex:
+            return true
+        default:
+            return false
         }
     }
 }
