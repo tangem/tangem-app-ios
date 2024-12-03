@@ -157,6 +157,18 @@ struct WalletConnectV2Utils {
         )
     }
 
+    /// Attempts to create `Blockchain` for each session namespace. This is used to track analytics
+    /// - Returns:
+    /// Array of BlockchainSdk's `Blockchain` objects
+    func getBlockchainsFromNamespaces(
+        _ namespaces: [String: SessionNamespace],
+        walletModelProvider: WalletConnectWalletModelProvider
+    ) -> [BlockchainSdk.Blockchain] {
+        let blockchainNetworks = mapBlockchainNetworks(from: namespaces, walletModelProvider: walletModelProvider)
+
+        return blockchainNetworks.map { $0.blockchain }
+    }
+
     func createBlockchain(for wcBlockchain: WalletConnectUtils.Blockchain) -> BlockchainMeta? {
         guard WalletConnectSupportedNamespaces(rawValue: wcBlockchain.namespace) != nil else {
             return nil

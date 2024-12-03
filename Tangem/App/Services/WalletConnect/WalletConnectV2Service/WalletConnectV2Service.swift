@@ -247,12 +247,22 @@ final class WalletConnectV2Service {
                     with: infoProvider?.userWalletId.stringValue ?? ""
                 )
 
+                var params: [Analytics.ParameterKey: String] = [
+                    .dAppName: session.peer.name,
+                    .dAppUrl: session.peer.url,
+                ]
+
+                if let infoProvider {
+                    let blockchains = WalletConnectV2Utils().getBlockchainsFromNamespaces(
+                        session.namespaces,
+                        walletModelProvider: infoProvider.wcWalletModelProvider
+                    )
+                    params[.blockchain] = blockchains.map(\.currencySymbol).joined(separator: ",")
+                }
+
                 Analytics.log(
                     event: .newSessionEstablished,
-                    params: [
-                        .dAppName: session.peer.name,
-                        .dAppUrl: session.peer.url,
-                    ]
+                    params: params
                 )
 
                 canEstablishNewSessionSubject.send(true)
