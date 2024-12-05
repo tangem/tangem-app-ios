@@ -24,7 +24,7 @@ class OnrampModel {
     private let _currency: CurrentValueSubject<LoadingResult<OnrampFiatCurrency, Error>, Never>
     private let _amount: CurrentValueSubject<Decimal?, Never> = .init(.none)
     private let _onrampProviders: CurrentValueSubject<LoadingResult<ProvidersList, Error>?, Never> = .init(.none)
-    private let _selectedOnrampProvider: CurrentValueSubject<LoadingResult<OnrampProvider, Never>?, Never> = .init(.none)
+    private let _selectedOnrampProvider: CurrentValueSubject<LoadingResult<SelectedProviderType, Never>?, Never> = .init(.none)
     private let _isLoading: CurrentValueSubject<Bool, Never> = .init(false)
     private let _transactionTime = PassthroughSubject<Date?, Never>()
 
@@ -170,14 +170,26 @@ private extension OnrampModel {
     func clearOnrampManager() async throws {
         let provider = try await onrampManager.setupQuotes(in: providersList(), amount: .clear)
         try Task.checkCancellation()
-        _selectedOnrampProvider.send(.success(provider))
+        _selectedOnrampProvider.resend() // .send(.success(.auto(provider)))
     }
 
     func updateOnrampManager(amount: Decimal) async throws {
+        let shouldAutoupdate = _selectedOnrampProvider.value?.value?.shouldAutoupdate ?? true
+        // Save provider before set the `.loading` state
+        let selectedProvider = selectedOnrampProvider
+
         _selectedOnrampProvider.send(.loading)
         let provider = try await onrampManager.setupQuotes(in: providersList(), amount: .amount(amount))
         try Task.checkCancellation()
-        _selectedOnrampProvider.send(.success(provider))
+
+        // If selected provider has non showable state then autoupdate it
+        if shouldAutoupdate || selectedProvider?.isShowable == false {
+            _selectedOnrampProvider.send(.success(.auto(provider)))
+        } else if let provider = selectedProvider {
+            _selectedOnrampProvider.send(.success(.manual(provider)))
+        } else {
+            _selectedOnrampProvider.send(.success(.auto(provider)))
+        }
 
         // Do not start autoupdating for all error cases
         if provider.isSuccessfullyLoaded {
@@ -191,7 +203,7 @@ private extension OnrampModel {
         mainTask {
             let provider = try await $0.onrampManager.suggestProvider(in: $0.providersList(), paymentMethod: method)
             try Task.checkCancellation()
-            $0._selectedOnrampProvider.send(.success(provider))
+            $0._selectedOnrampProvider.send(.success(.auto(provider)))
         }
     }
 }
@@ -254,7 +266,7 @@ private extension OnrampModel {
     }
 
     func autoupdateTask() async throws {
-        guard _selectedOnrampProvider.value?.value?.isSuccessfullyLoaded == true else {
+        guard selectedOnrampProvider?.isSuccessfullyLoaded == true else {
             log("Selected provider has an error. Do not start autoupdate")
             return
         }
@@ -270,9 +282,9 @@ private extension OnrampModel {
         let providerForReselect = try await onrampManager.setupQuotes(in: providersList(), amount: .same)
 
         // Check after reloading
-        guard _selectedOnrampProvider.value?.value?.isSuccessfullyLoaded == true else {
+        guard selectedOnrampProvider?.isSuccessfullyLoaded == true else {
             log("Selected provider has a error. Will update to \(providerForReselect)")
-            _selectedOnrampProvider.send(.success(providerForReselect))
+            _selectedOnrampProvider.send(.success(.auto(providerForReselect)))
             try await autoupdateTask()
             return
         }
@@ -318,11 +330,11 @@ extension OnrampModel: OnrampAmountOutput {
 
 extension OnrampModel: OnrampProvidersInput {
     var selectedOnrampProvider: OnrampProvider? {
-        _selectedOnrampProvider.value?.value
+        _selectedOnrampProvider.value?.value?.provider
     }
 
     var selectedOnrampProviderPublisher: AnyPublisher<LoadingResult<OnrampProvider, Never>?, Never> {
-        _selectedOnrampProvider.eraseToAnyPublisher()
+        _selectedOnrampProvider.map { $0?.mapValue { $0.provider } }.eraseToAnyPublisher()
     }
 
     var onrampProvidersPublisher: AnyPublisher<LoadingResult<ProvidersList, Error>?, Never> {
@@ -334,7 +346,7 @@ extension OnrampModel: OnrampProvidersInput {
 
 extension OnrampModel: OnrampProvidersOutput {
     func userDidSelect(provider: OnrampProvider) {
-        _selectedOnrampProvider.send(.success(provider))
+        _selectedOnrampProvider.send(.success(.manual(provider)))
     }
 }
 
@@ -342,11 +354,11 @@ extension OnrampModel: OnrampProvidersOutput {
 
 extension OnrampModel: OnrampPaymentMethodsInput {
     var selectedPaymentMethod: OnrampPaymentMethod? {
-        _selectedOnrampProvider.value?.value?.paymentMethod
+        _selectedOnrampProvider.value?.value?.provider.paymentMethod
     }
 
     var selectedPaymentMethodPublisher: AnyPublisher<OnrampPaymentMethod?, Never> {
-        _selectedOnrampProvider.map { $0?.value?.paymentMethod }.eraseToAnyPublisher()
+        _selectedOnrampProvider.map { $0?.value?.provider.paymentMethod }.eraseToAnyPublisher()
     }
 
     var paymentMethodsPublisher: AnyPublisher<[OnrampPaymentMethod], Never> {
@@ -404,7 +416,7 @@ extension OnrampModel: OnrampRedirectingOutput {
 extension OnrampModel: OnrampInput {
     var isValidToRedirectPublisher: AnyPublisher<Bool, Never> {
         _selectedOnrampProvider
-            .map { $0?.value?.isSuccessfullyLoaded ?? false }
+            .map { $0?.value?.provider.isSuccessfullyLoaded ?? false }
             .eraseToAnyPublisher()
     }
 }
@@ -461,7 +473,7 @@ extension OnrampModel: OnrampNotificationManagerInput {
             .compactMap { $0 }
             // Here we clear error on `loading` state
             // Because we have the LoadingView
-            .map { $0?.value?.error }
+            .map { $0?.value?.provider.error }
 
         return Publishers.Merge3(
             currencyErrorPublisher,
@@ -484,7 +496,7 @@ extension OnrampModel: OnrampNotificationManagerInput {
             }
         }
 
-        if case .failed = _selectedOnrampProvider.value?.value?.state {
+        if case .failed = selectedOnrampProvider?.state {
             mainTask {
                 try await $0.updateQuotes()
             }
@@ -501,6 +513,29 @@ extension OnrampModel: NotificationTapDelegate {
             refreshError()
         default:
             assertionFailure("Action not supported: \(action)")
+        }
+    }
+}
+
+// MARK: - SelectedProviderType
+
+extension OnrampModel {
+    enum SelectedProviderType: Hashable {
+        case auto(OnrampProvider)
+        case manual(OnrampProvider)
+
+        var shouldAutoupdate: Bool {
+            switch self {
+            case .auto: true
+            case .manual: false
+            }
+        }
+
+        var provider: OnrampProvider {
+            switch self {
+            case .auto(let provider): provider
+            case .manual(let provider): provider
+            }
         }
     }
 }

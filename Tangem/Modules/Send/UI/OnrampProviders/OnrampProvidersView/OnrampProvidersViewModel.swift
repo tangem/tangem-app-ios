@@ -50,7 +50,7 @@ private extension OnrampProvidersViewModel {
     func bind() {
         Publishers.CombineLatest(
             interactor.providesPublisher,
-            interactor.selectedProviderPublisher.compactMap { $0 }
+            interactor.selectedProviderPublisher.compactMap { $0 }.filter { !$0.isLoading }
         )
         .withWeakCaptureOf(self)
         .receive(on: DispatchQueue.main)
