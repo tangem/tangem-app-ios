@@ -72,7 +72,8 @@ class CommonPendingOnrampTransactionsManager {
     }
 
     private func bind() {
-        onrampPendingTransactionsRepository.transactionsPublisher
+        onrampPendingTransactionsRepository
+            .transactionsPublisher
             .withWeakCaptureOf(self)
             .map { manager, txRecords in
                 manager.filterRelatedTokenTransactions(list: txRecords)
