@@ -121,6 +121,11 @@ class CommonPendingOnrampTransactionsManager {
                 return false
             }
 
+            // Don't show record with this status
+            guard [.created, .canceled, .paused].contains(record.transactionStatus) else {
+                return false
+            }
+
             guard record.userWalletId == userWalletId else {
                 return false
             }
