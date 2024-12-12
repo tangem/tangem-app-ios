@@ -72,7 +72,8 @@ class CommonPendingOnrampTransactionsManager {
     }
 
     private func bind() {
-        onrampPendingTransactionsRepository.transactionsPublisher
+        onrampPendingTransactionsRepository
+            .transactionsPublisher
             .withWeakCaptureOf(self)
             .map { manager, txRecords in
                 manager.filterRelatedTokenTransactions(list: txRecords)
@@ -117,6 +118,11 @@ class CommonPendingOnrampTransactionsManager {
     private func filterRelatedTokenTransactions(list: [OnrampPendingTransactionRecord]) -> [OnrampPendingTransactionRecord] {
         list.filter { record in
             guard !record.isHidden else {
+                return false
+            }
+
+            // Don't show record with this status
+            guard [.created, .canceled, .paused].contains(record.transactionStatus) else {
                 return false
             }
 
