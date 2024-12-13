@@ -1,6 +1,6 @@
 //
 //  TangemNetworkLoggerPlugin.swift
-//  BlockchainSdk
+//  TangemNetworkUtils
 //
 //  Created by [REDACTED_AUTHOR]
 //
