@@ -1,6 +1,6 @@
 //
 //  InfoDictionaryUtils.swift
-//  Tangem
+//  TangemFoundation
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2022 Tangem AG. All rights reserved.
@@ -10,7 +10,7 @@ import Foundation
 
 private let infoDictionary = Bundle.main.infoDictionary ?? [:]
 
-enum InfoDictionaryUtils {
+public enum InfoDictionaryUtils {
     case appName
     case version
     case bundleVersion
@@ -21,7 +21,7 @@ enum InfoDictionaryUtils {
     case suiteName
     case bsdkSuiteName
 
-    func value<T>() -> T? {
+    public func value<T>() -> T? {
         switch self {
         case .appName:
             return infoDictionary["CFBundleDisplayName"] as? T
