@@ -48,6 +48,13 @@ var serviceModules: [PackageDescription.Target] {
                 .swiftLanguageMode(.v5),
             ]
         ),
+        .tangemTarget(
+            name: "TangemUIKitUtils",
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
     ]
 }
 
