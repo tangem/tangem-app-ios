@@ -17,10 +17,13 @@ protocol NetworkProviderAssemblyInput {
 
 struct NetworkProviderAssembly {
     // [REDACTED_TODO_COMMENT]
-    func makeBlockBookUtxoProvider(with input: NetworkProviderAssemblyInput, for type: BlockBookProviderType) -> BlockBookUtxoProvider {
+    func makeBlockBookUTXOProvider(
+        with input: NetworkProviderAssemblyInput,
+        for type: BlockBookProviderType
+    ) -> BlockBookUTXOProvider {
         switch type {
         case .nowNodes:
-            return BlockBookUtxoProvider(
+            return BlockBookUTXOProvider(
                 blockchain: input.blockchain,
                 blockBookConfig: NowNodesBlockBookConfig(
                     apiKeyHeaderName: Constants.nowNodesApiKeyHeaderName,
@@ -29,28 +32,38 @@ struct NetworkProviderAssembly {
                 networkConfiguration: input.networkConfig
             )
         case .getBlock:
-            return BlockBookUtxoProvider(
+            return BlockBookUTXOProvider(
                 blockchain: input.blockchain,
                 blockBookConfig: GetBlockBlockBookConfig(input.blockchainSdkConfig.getBlockCredentials),
+                networkConfiguration: input.networkConfig
+            )
+        case .clore(let url):
+            return BlockBookUTXOProvider(
+                blockchain: input.blockchain,
+                blockBookConfig: CloreBlockBookConfig(urlNode: url),
                 networkConfiguration: input.networkConfig
             )
         }
     }
 
     // [REDACTED_TODO_COMMENT]
-    func makeBitcoinCashNowNodesNetworkProvider(
-        input: NetworkProviderAssemblyInput,
+    func makeBitcoinCashBlockBookUTXOProvider(
+        with input: NetworkProviderAssemblyInput,
+        for type: BlockBookProviderType,
         bitcoinCashAddressService: BitcoinCashAddressService
     ) -> AnyBitcoinNetworkProvider {
-        return BitcoinCashNowNodesNetworkProvider(
-            blockBookUtxoProvider: makeBlockBookUtxoProvider(with: input, for: .nowNodes),
+        BitcoinCashBlockBookUTXOProvider(
+            blockBookUTXOProvider: makeBlockBookUTXOProvider(
+                with: input,
+                for: type
+            ),
             bitcoinCashAddressService: bitcoinCashAddressService
         ).eraseToAnyBitcoinNetworkProvider()
     }
 
     // [REDACTED_TODO_COMMENT]
     func makeBlockcypherNetworkProvider(endpoint: BlockcypherEndpoint, with input: NetworkProviderAssemblyInput) -> BlockcypherNetworkProvider {
-        return BlockcypherNetworkProvider(
+        BlockcypherNetworkProvider(
             endpoint: endpoint,
             tokens: input.blockchainSdkConfig.blockcypherTokens,
             configuration: input.networkConfig
