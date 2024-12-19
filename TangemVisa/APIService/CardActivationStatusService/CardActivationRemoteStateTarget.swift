@@ -1,6 +1,6 @@
 //
-//  CustomerInfoManagementAPITarget.swift
-//  TangemApp
+//  CardActivationRemoteStateTarget.swift
+//  TangemVisa
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2024 Tangem AG. All rights reserved.
@@ -9,30 +9,29 @@
 import Foundation
 import Moya
 
-struct CustomerInfoManagementAPITarget: TargetType {
-    let authorizationToken: String
+struct CardActivationRemoteStateTarget: TargetType {
     let target: Target
+    let authorizationToken: String
 
-    var baseURL: URL {
-        URL(string: "https://api-s.tangem.org/")!
-    }
+    var baseURL: URL { URL(string: "https://bff.tangem.com")! }
 
     var path: String {
         switch target {
-        case .getCustomerInfo(let customerId):
-            return "cim/api/v1/customers/\(customerId)"
+        case .activationStatus:
+            return "activation-status"
         }
     }
 
     var method: Moya.Method {
         switch target {
-        case .getCustomerInfo: return .get
+        case .activationStatus:
+            return .get
         }
     }
 
     var task: Moya.Task {
         switch target {
-        case .getCustomerInfo:
+        case .activationStatus:
             return .requestPlain
         }
     }
@@ -40,13 +39,12 @@ struct CustomerInfoManagementAPITarget: TargetType {
     var headers: [String: String]? {
         [
             VisaConstants.authorizationHeaderKey: authorizationToken,
-            "Content-Type": "application/json",
         ]
     }
 }
 
-extension CustomerInfoManagementAPITarget {
+extension CardActivationRemoteStateTarget {
     enum Target {
-        case getCustomerInfo(customerId: String)
+        case activationStatus
     }
 }
