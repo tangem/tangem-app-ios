@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 class MarketsTokenDetailsExchangesListViewModel: MarketsBaseViewModel {
-    @Published var exchangesList: LoadingValue<[MarketsTokenDetailsExchangeItemInfo]> = .loading
+    @Published var exchangesList: LoadingValue<[MarketsTokenDetailsExchangeItemInfo]>
 
     /// For unknown reasons, the `@self` and `@identity` of our view change when push navigation is performed in other
     /// navigation controllers in the application (on the main screen for example), which causes the state of
@@ -19,6 +19,7 @@ class MarketsTokenDetailsExchangesListViewModel: MarketsBaseViewModel {
     ///
     /// Our view is initially presented when the sheet is expanded, hence the `1.0` initial value.
     @Published private(set) var overlayContentHidingInitialProgress = 1.0
+
     var isMarketsSheetStyle: Bool { presentationStyle == .marketsSheet }
     let numberOfExchangesListedOn: Int
     let onBackButtonAction: () -> Void
@@ -45,9 +46,13 @@ class MarketsTokenDetailsExchangesListViewModel: MarketsBaseViewModel {
         self.exchangesListLoader = exchangesListLoader
         self.onBackButtonAction = onBackButtonAction
 
-        super.init(overlayContentProgressInitialValue: 1.0)
+        if let cachedResponse = exchangesListLoader.cachedTokenExchangesListDetails(for: tokenId) {
+            exchangesList = .loaded(cachedResponse)
+        } else {
+            exchangesList = .loading
+        }
 
-        loadExchangesList()
+        super.init(overlayContentProgressInitialValue: 1.0)
     }
 
     func reloadExchangesList() {
@@ -55,16 +60,8 @@ class MarketsTokenDetailsExchangesListViewModel: MarketsBaseViewModel {
         loadExchangesList()
     }
 
-    func onOverlayContentStateChange(_ state: OverlayContentState) {
-        // Our view can be recreated when the bottom sheet is in a collapsed state
-        // In this case, content should be hidden (i.e. the initial progress should be zero)
-        overlayContentHidingInitialProgress = state.isCollapsed ? 0.0 : 1.0
-    }
-}
-
-private extension MarketsTokenDetailsExchangesListViewModel {
     func loadExchangesList() {
-        guard loadingCancellable == nil else {
+        guard loadingCancellable == nil, exchangesList.value == nil else {
             return
         }
 
@@ -89,6 +86,14 @@ private extension MarketsTokenDetailsExchangesListViewModel {
         }.eraseToAnyCancellable()
     }
 
+    func onOverlayContentStateChange(_ state: OverlayContentState) {
+        // Our view can be recreated when the bottom sheet is in a collapsed state
+        // In this case, content should be hidden (i.e. the initial progress should be zero)
+        overlayContentHidingInitialProgress = state.isCollapsed ? 0.0 : 1.0
+    }
+}
+
+private extension MarketsTokenDetailsExchangesListViewModel {
     @MainActor
     func handleLoadResult(_ result: Result<[MarketsTokenDetailsExchangeItemInfo], Error>) async {
         lastLoadAttemptDate = Date()
