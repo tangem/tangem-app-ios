@@ -318,6 +318,10 @@ extension CommonUserWalletModel: MainHeaderUserWalletStateInfoProvider {
     var isUserWalletLocked: Bool { false }
 
     var isTokensListEmpty: Bool { userTokenListManager.userTokensList.entries.isEmpty }
+
+    var hasImportedWallets: Bool {
+        keysRepository.keys.contains(where: { $0.isImported ?? false })
+    }
 }
 
 // [REDACTED_TODO_COMMENT]
