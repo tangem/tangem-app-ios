@@ -112,9 +112,7 @@ struct EstimationFeeAddressFactory {
         case .clore:
             return "AJfAu7RJxiTowM9qVaTbVuS5JCPCpV3p7M"
         case .fact0rn:
-            // [REDACTED_TODO_COMMENT]
-            // [REDACTED_INFO]
-            return ""
+            return "fact1q69h3nzh7rl2uv09zp5pw26vw58wdcl2j4lyag0"
         }
     }
 }
