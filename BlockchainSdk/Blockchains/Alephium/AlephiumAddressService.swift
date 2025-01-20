@@ -14,10 +14,12 @@ struct AlephiumAddressService {}
 
 extension AlephiumAddressService: AddressProvider, AddressValidator {
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> any Address {
+        // [REDACTED_TODO_COMMENT]
         throw WalletError.empty
     }
 
     func validate(_ address: String) -> Bool {
-        return false
+        // [REDACTED_TODO_COMMENT]
+        false
     }
 }
