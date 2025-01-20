@@ -1,0 +1,14 @@
+//
+//  AlephiumBalanceInfo.swift
+//  BlockchainSdk
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2025 Tangem AG. All rights reserved.
+//
+
+import Foundation
+
+struct AlephiumBalanceInfo {
+    let value: Decimal
+    let lockedValue: Decimal
+}
