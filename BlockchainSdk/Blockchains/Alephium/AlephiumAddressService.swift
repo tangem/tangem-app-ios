@@ -29,7 +29,8 @@ extension AlephiumAddressService: AddressProvider, AddressValidator {
     }
 
     func validate(_ address: String) -> Bool {
-        return false
+        // [REDACTED_TODO_COMMENT]
+        false
     }
 }
 
