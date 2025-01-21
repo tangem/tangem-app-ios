@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemSdk
 
 struct AlephiumAddressService {}
 
@@ -14,12 +15,33 @@ struct AlephiumAddressService {}
 
 extension AlephiumAddressService: AddressProvider, AddressValidator {
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> any Address {
-        // [REDACTED_TODO_COMMENT]
-        throw WalletError.empty
+        let compressedKey = try Secp256k1Key(with: publicKey.blockchainKey).compress()
+
+        guard let blake2bHash = compressedKey.hashBlake2b(outputLength: 32) else {
+            throw Error.undefinedBlake2bHash
+        }
+
+        let hashData = Data(hexString: Constants.prefixAddressValue.addHexPrefix()) + blake2bHash
+        let address = hashData.base58EncodedString
+
+        return PlainAddress(value: address, publicKey: publicKey, type: addressType)
     }
 
     func validate(_ address: String) -> Bool {
-        // [REDACTED_TODO_COMMENT]
-        false
+        let hexDataString = address.base58DecodedData.hexString
+        let withoutHexString = hexDataString.removeHexPrefix()
+        return withoutHexString.hasPrefix(Constants.prefixAddressValue) && withoutHexString.count == 66
+    }
+}
+
+// MARK: - Helpers
+
+extension AlephiumAddressService {
+    enum Constants {
+        static let prefixAddressValue = "00"
+    }
+
+    enum Error: LocalizedError {
+        case undefinedBlake2bHash
     }
 }
