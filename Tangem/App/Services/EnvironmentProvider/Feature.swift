@@ -13,7 +13,7 @@ enum Feature: String, Hashable, CaseIterable {
     case learnToEarn
     case onramp
     case actionButtons
-    case visa
+    case visa // [REDACTED_TODO_COMMENT]
 
     var name: String {
         switch self {
