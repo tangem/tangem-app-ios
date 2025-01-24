@@ -34,12 +34,31 @@ class AlephiumWalletManager: BaseManager, WalletManager {
     // MARK: - Manager Implementation
 
     override func update(completion: @escaping (Result<Void, any Error>) -> Void) {
-        // [REDACTED_TODO_COMMENT]
+        let accountInfoPublisher = networkService
+            .getAccountInfo(for: wallet.address)
+
+        cancellable = accountInfoPublisher
+            .withWeakCaptureOf(self)
+            .sink(receiveCompletion: { [weak self] result in
+                switch result {
+                case .failure(let error):
+                    self?.wallet.clearAmounts()
+                    completion(.failure(error))
+                case .finished:
+                    completion(.success(()))
+                }
+            }, receiveValue: { walletManager, accountInfo in
+                walletManager.updateWallet(accountInfo: accountInfo)
+            })
     }
 
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], any Error> {
-        // [REDACTED_TODO_COMMENT]
-        return .anyFail(error: WalletError.failedToBuildTx)
+        networkService.getFee(
+            from: wallet.publicKey.blockchainKey.hexString,
+            destination: destination,
+            amount: amount.value.stringValue
+        )
+        .eraseToAnyPublisher()
     }
 
     func send(_ transaction: Transaction, signer: any TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
@@ -48,4 +67,25 @@ class AlephiumWalletManager: BaseManager, WalletManager {
     }
 
     // MARK: - Private Implementation
+
+    private func updateWallet(accountInfo: AlephiumAccountInfo) {
+        wallet.add(coinValue: accountInfo.balance.value)
+        transactionBuilder.update(utxo: accountInfo.utxo)
+    }
+}
+
+// MARK: - Constants
+
+extension AlephiumWalletManager {
+    enum Constants {
+        static let dustAmountValue = Decimal(stringValue: "0.001")!
+    }
+}
+
+// MARK: - DustRestrictable
+
+extension AlephiumWalletManager: DustRestrictable {
+    var dustValue: Amount {
+        return Amount(with: wallet.blockchain, type: .coin, value: Constants.dustAmountValue)
+    }
 }
