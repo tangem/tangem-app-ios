@@ -257,6 +257,10 @@ struct TestnetAPINodeInfoProvider {
             return [
                 .init(url: URL(string: "https://curtis.rpc.caldera.xyz/http")!),
             ]
+        case .sonic:
+            return [
+                .init(url: URL(string: "https://sonic-blaze-rpc.publicnode.com")!),
+            ]
         // [REDACTED_TODO_COMMENT]
         case .bitcoin, .litecoin, .disChain, .rsk, .bitcoinCash, .binance, .cardano,
              .xrp, .ducatus, .tezos, .dogecoin, .solana, .kusama, .dash, .gnosis,
