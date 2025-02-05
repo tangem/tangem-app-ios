@@ -19,7 +19,9 @@ public extension View {
         if #available(iOS 16.0, *) {
             modifier(ScreenCaptureProtectionIOS16AndAboveViewModifier())
         } else {
-            modifier(ScreenCaptureProtectionIOS15AndBelowViewModifier())
+            // [REDACTED_INFO]
+            // modifier(ScreenCaptureProtectionIOS15AndBelowViewModifier())
+            self
         }
     }
 }
