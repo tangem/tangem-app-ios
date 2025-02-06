@@ -38,6 +38,13 @@ var serviceModules: [PackageDescription.Target] {
             ]
         ),
         .tangemTarget(
+            name: "TangemLogger",
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
+        .tangemTarget(
             name: "TangemNetworkUtils",
             dependencies: [
                 "Moya",
