@@ -1,5 +1,5 @@
 //
-//  AccessTokenHolder.swift
+//  AuthorizationTokensHolder.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-actor AccessTokenHolder {
+actor AuthorizationTokensHolder {
     private var jwtTokens: DecodedAuthorizationJWTTokens?
     private var authTokens: VisaAuthorizationTokens?
 
