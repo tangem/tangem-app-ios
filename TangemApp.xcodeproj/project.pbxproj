@@ -26218,10 +26218,10 @@
 		};
 		B62C24852CF48327003377F1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tangem/firebase-ios-sdk.git";
+			repositoryURL = "git@github.com:tangem-developments/firebase-ios-sdk.git";
 			requirement = {
 				kind = exactVersion;
-				version = "11.7.0-tangem1";
+				version = "11.7.0-tangem2";
 			};
 		};
 		B62D343B2CBC4FD000C2460E /* XCRemoteSwiftPackageReference "swift-sodium" */ = {
@@ -26258,7 +26258,7 @@
 		};
 		B67E38B72CC7147600D660EB /* XCRemoteSwiftPackageReference "tangem-sdk-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Tangem/tangem-sdk-ios.git";
+			repositoryURL = "git@github.com:tangem-developments/tangem-sdk-ios.git";
 			requirement = {
 				kind = revision;
 				revision = f429d3b3d6e3916bce33bf1fef229cb9f9d04753;
@@ -26266,10 +26266,10 @@
 		};
 		B68E1F882CBC44910043E598 /* XCRemoteSwiftPackageReference "hedera-sdk-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tangem/hedera-sdk-swift.git";
+			repositoryURL = "git@github.com:tangem-developments/hedera-sdk-swift.git";
 			requirement = {
 				kind = exactVersion;
-				version = "0.26.0-tangem4";
+				version = "0.26.0-tangem5";
 			};
 		};
 		B68E1F8B2CBC44AA0043E598 /* XCRemoteSwiftPackageReference "CryptoSwift" */ = {
@@ -26282,7 +26282,7 @@
 		};
 		B68E1F8E2CBC44E30043E598 /* XCRemoteSwiftPackageReference "swift-protobuf-binaries" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tangem/swift-protobuf-binaries.git";
+			repositoryURL = "git@github.com:tangem-developments/swift-protobuf-binaries.git";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = "1.25.2-tangem1";
@@ -26290,7 +26290,7 @@
 		};
 		B68E1F912CBC44FF0043E598 /* XCRemoteSwiftPackageReference "ton-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tangem/ton-swift.git";
+			repositoryURL = "git@github.com:tangem-developments/ton-swift.git";
 			requirement = {
 				kind = exactVersion;
 				version = "1.0.10-tangem3";
@@ -26306,7 +26306,7 @@
 		};
 		B68E1F972CBC453E0043E598 /* XCRemoteSwiftPackageReference "IcpKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tangem/IcpKit.git";
+			repositoryURL = "git@github.com:tangem-developments/IcpKit.git";
 			requirement = {
 				kind = exactVersion;
 				version = "0.1.2-tangem4";
@@ -26322,10 +26322,10 @@
 		};
 		B6C0D3EA2CBDC3E0001113ED /* XCRemoteSwiftPackageReference "SwiftBinanceChain" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tangem/SwiftBinanceChain.git";
+			repositoryURL = "git@github.com:tangem-developments/SwiftBinanceChain.git";
 			requirement = {
 				kind = exactVersion;
-				version = 0.0.13;
+				version = 0.0.14;
 			};
 		};
 		B6C0D3F02CBDC52D001113ED /* XCRemoteSwiftPackageReference "Moya" */ = {
@@ -26338,7 +26338,7 @@
 		};
 		B6C0D3F72CBDC5A3001113ED /* XCRemoteSwiftPackageReference "SwiftyJSON" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tangem/SwiftyJSON.git";
+			repositoryURL = "git@github.com:tangem-developments/SwiftyJSON.git";
 			requirement = {
 				kind = exactVersion;
 				version = "5.0.1-tangem1";
@@ -26354,7 +26354,7 @@
 		};
 		B6CAC1C82CC3352D0001A427 /* XCRemoteSwiftPackageReference "Solana.Swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tangem/Solana.Swift.git";
+			repositoryURL = "git@github.com:tangem-developments/Solana.Swift.git";
 			requirement = {
 				kind = exactVersion;
 				version = "1.2.0-tangem13";
@@ -26362,7 +26362,7 @@
 		};
 		B6DDDE732CF39079008DEA94 /* XCRemoteSwiftPackageReference "BlockiesSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tangem/BlockiesSwift.git";
+			repositoryURL = "git@github.com:tangem-developments/BlockiesSwift.git";
 			requirement = {
 				kind = exactVersion;
 				version = "0.1.2-tangem1";
@@ -26402,15 +26402,15 @@
 		};
 		B6F525902B6C05210079ADD1 /* XCRemoteSwiftPackageReference "wallet-core-binaries-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tangem/wallet-core-binaries-ios.git";
+			repositoryURL = "git@github.com:tangem-developments/wallet-core-binaries-ios.git";
 			requirement = {
 				kind = exactVersion;
-				version = "4.1.20-tangem4";
+				version = "4.1.20-tangem5";
 			};
 		};
 		B6F6252E2C85E1A600DEF098 /* XCRemoteSwiftPackageReference "DGCharts" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tangem/DGCharts";
+			repositoryURL = "git@github.com:tangem-developments/DGCharts.git";
 			requirement = {
 				kind = exactVersion;
 				version = "5.1.0-tangem3";
@@ -26418,7 +26418,7 @@
 		};
 		B6FFC31D2CC70E1D00F4400E /* XCRemoteSwiftPackageReference "bitcoincore" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tangem/bitcoincore.git";
+			repositoryURL = "git@github.com:tangem-developments/bitcoincore.git";
 			requirement = {
 				kind = exactVersion;
 				version = 0.0.23;
