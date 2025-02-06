@@ -154,7 +154,7 @@ class EthereumTransactionBuilder {
         // It's strange but we can't use `unmarshal.v` here because WalletCore throw a error.
         // And we have to add one zero byte to the signature because
         // WalletCore has a validation on the signature count.
-        // // https://github.com/tangem/wallet-core/blob/996bd5ab37f27e7f6e240a4ec9d0788dfb124e89/src/PublicKey.h#L35
+        // https://github.com/tangem-developments/wallet-core/blob/996bd5ab37f27e7f6e240a4ec9d0788dfb124e89/src/PublicKey.h#L35
         let v = BigUInt(unmarshal.v) - 27
         let encodedV = v == .zero ? Data([UInt8.zero]) : v.serialize()
         let signature = unmarshal.r + unmarshal.s + encodedV
