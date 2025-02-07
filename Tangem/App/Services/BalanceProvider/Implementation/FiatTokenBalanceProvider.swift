@@ -11,7 +11,7 @@ import TangemFoundation
 import TangemStaking
 
 struct FiatTokenBalanceProvider {
-    private let walletModel: WalletModel
+    private unowned let walletModel: WalletModel
     private let cryptoBalanceProvider: TokenBalanceProvider
 
     private let balanceFormatter = BalanceFormatter()

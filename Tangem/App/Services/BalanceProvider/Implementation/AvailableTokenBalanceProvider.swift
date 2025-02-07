@@ -11,7 +11,7 @@ import Combine
 
 /// Just simple available to use (e.g. send) balance
 struct AvailableTokenBalanceProvider {
-    private let walletModel: WalletModel
+    private unowned let walletModel: WalletModel
     private let tokenBalancesRepository: TokenBalancesRepository
     private let balanceFormatter = BalanceFormatter()
 

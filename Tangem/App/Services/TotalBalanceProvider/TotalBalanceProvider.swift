@@ -57,7 +57,7 @@ private extension TotalBalanceProvider {
             .removeDuplicates()
             .receive(on: queue)
             .withWeakCaptureOf(self)
-            .flatMap { balanceProvider, walletModels in
+            .flatMapLatest { balanceProvider, walletModels in
                 if walletModels.isEmpty {
                     return Just(TotalBalanceState.loaded(balance: 0)).eraseToAnyPublisher()
                 }
@@ -65,7 +65,8 @@ private extension TotalBalanceProvider {
                 return walletModels.map { walletModel in
                     walletModel.fiatTotalTokenBalanceProvider
                         .balanceTypePublisher
-                        .map { (item: walletModel.tokenItem, balance: $0) }
+                        .withWeakCaptureOf(walletModel)
+                        .map { (item: $0.tokenItem, balance: $1) }
                 }
                 // Collect any/all changes in wallet models
                 .combineLatest()
@@ -205,7 +206,7 @@ private extension TotalBalanceProvider {
         case .loading: .none
         case .failed: .blockchainError
         case .loaded(let balance) where balance > .zero: .full
-        case .loaded(let balance): .empty
+        case .loaded: .empty
         }
     }
 
