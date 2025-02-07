@@ -12,7 +12,7 @@ import TangemStaking
 
 /// Total crypto balance (available+staking)
 struct TotalTokenBalanceProvider {
-    private let walletModel: WalletModel
+    private unowned let walletModel: WalletModel
     private let availableBalanceProvider: TokenBalanceProvider
     private let stakingBalanceProvider: TokenBalanceProvider
 
