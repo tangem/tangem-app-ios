@@ -71,7 +71,7 @@ final class ActionButtonsViewModel: ObservableObject {
     }
 
     deinit {
-        AppLog.shared.debug("deinit \(objectDescription(self))")
+        AppLog.shared.debug("deinit \(self)")
     }
 
     func refresh() {
@@ -323,5 +323,13 @@ private extension ActionButtonsViewModel {
         case .countryNotSupported:
             sellActionButtonViewModel.updateState(to: .idle)
         }
+    }
+}
+
+// MARK: - CustomStringConvertible
+
+extension ActionButtonsViewModel: CustomStringConvertible {
+    var description: String {
+        TangemFoundation.objectDescription(self)
     }
 }
