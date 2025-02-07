@@ -70,6 +70,10 @@ final class ActionButtonsViewModel: ObservableObject {
         bind()
     }
 
+    deinit {
+        AppLog.shared.debug("deinit \(objectDescription(self))")
+    }
+
     func refresh() {
         // do nothing if already iniitialized
         exchangeService.initialize()
@@ -102,7 +106,7 @@ private extension ActionButtonsViewModel {
             .walletModelsPublisher
             .withWeakCaptureOf(self)
             .sink { viewModel, walletModels in
-                TangemFoundation.runTask(in: self) { @MainActor viewModel in
+                TangemFoundation.runTask(in: viewModel) { @MainActor viewModel in
                     if walletModels.isEmpty {
                         viewModel.disabledAllButtons()
                     } else {
