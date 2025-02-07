@@ -11,7 +11,7 @@ import Combine
 import TangemStaking
 
 struct StakingTokenBalanceProvider {
-    private let walletModel: WalletModel
+    private unowned let walletModel: WalletModel
     private let tokenBalancesRepository: TokenBalancesRepository
     private let balanceFormatter = BalanceFormatter()
 
