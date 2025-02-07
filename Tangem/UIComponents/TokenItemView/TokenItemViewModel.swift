@@ -9,6 +9,7 @@
 import Combine
 import SwiftUI
 import BlockchainSdk
+import TangemFoundation
 
 protocol TokenItemContextActionsProvider: AnyObject {
     func buildContextActions(for tokenItemViewModel: TokenItemViewModel) -> [TokenContextActionsSection]
@@ -85,6 +86,10 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
 
         setupView(infoProvider.balance)
         bind()
+    }
+
+    deinit {
+        AppLog.shared.debug("deinit \(self)")
     }
 
     func tapAction() {
@@ -181,5 +186,13 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
 
     private func buildContextActions() {
         contextActionSections = contextActionsProvider?.buildContextActions(for: self) ?? []
+    }
+}
+
+// MARK: - CustomStringConvertible
+
+extension TokenItemViewModel: CustomStringConvertible {
+    var description: String {
+        TangemFoundation.objectDescription(self, userInfo: ["id": id])
     }
 }
