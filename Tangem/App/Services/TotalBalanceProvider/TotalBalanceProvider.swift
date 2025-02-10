@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import CombineExt
+import TangemFoundation
 
 class TotalBalanceProvider {
     private let userWalletId: UserWalletId
@@ -31,6 +32,10 @@ class TotalBalanceProvider {
         self.derivationManager = derivationManager
 
         bind()
+    }
+
+    deinit {
+        AppLog.shared.debug("deinit \(self)")
     }
 }
 
@@ -64,7 +69,8 @@ private extension TotalBalanceProvider {
                 }
                 // Collect any/all changes in wallet models
                 .combineLatest()
-                .map { balanceProvider.mapToTotalBalance(balances: $0) }
+                .withWeakCaptureOf(balanceProvider)
+                .map { $0.mapToTotalBalance(balances: $1) }
                 .eraseToAnyPublisher()
             }
 
@@ -253,5 +259,13 @@ private extension TokenBalanceType {
         case .empty(let emptyReason): emptyReason == reason
         default: false
         }
+    }
+}
+
+// MARK: - CustomStringConvertible
+
+extension TotalBalanceProvider: CustomStringConvertible {
+    var description: String {
+        TangemFoundation.objectDescription(self)
     }
 }
