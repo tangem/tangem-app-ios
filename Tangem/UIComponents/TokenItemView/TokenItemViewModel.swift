@@ -33,13 +33,14 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     @Published private var missingDerivation: Bool = false
     @Published private var networkUnreachable: Bool = false
 
+    let tokenItem: TokenItem
+
     var name: String { tokenIcon.name }
     var imageURL: URL? { tokenIcon.imageURL }
     var blockchainIconName: String? { tokenIcon.blockchainIconName }
-    var hasMonochromeIcon: Bool { networkUnreachable || missingDerivation || isTestnetToken }
+    var hasMonochromeIcon: Bool { networkUnreachable || missingDerivation || tokenItem.blockchain.isTestnet }
     var isCustom: Bool { tokenIcon.isCustom }
     var customTokenColor: Color? { tokenIcon.customTokenColor }
-    var tokenItem: TokenItem { infoProvider.tokenItem }
 
     var hasError: Bool { missingDerivation || networkUnreachable }
     var errorMessage: String? {
@@ -56,33 +57,33 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     }
 
     private let tokenIcon: TokenIconInfo
-    private let isTestnetToken: Bool
-    private let tokenTapped: (WalletModelId) -> Void
-    private let infoProvider: TokenItemInfoProvider
     private let priceChangeUtility = PriceChangeUtility()
     private let loadableTokenBalanceViewStateBuilder = LoadableTokenBalanceViewStateBuilder()
     private let priceFormatter = TokenItemPriceFormatter()
-
     private var bag = Set<AnyCancellable>()
+
+    private weak var infoProvider: TokenItemInfoProvider?
     private weak var contextActionsProvider: TokenItemContextActionsProvider?
     private weak var contextActionsDelegate: TokenItemContextActionDelegate?
 
+    private let tokenTapped: (WalletModelId) -> Void
+
     init(
         id: WalletModelId,
+        tokenItem: TokenItem,
         tokenIcon: TokenIconInfo,
-        isTestnetToken: Bool,
         infoProvider: TokenItemInfoProvider,
-        tokenTapped: @escaping (WalletModelId) -> Void,
         contextActionsProvider: TokenItemContextActionsProvider,
-        contextActionsDelegate: TokenItemContextActionDelegate
+        contextActionsDelegate: TokenItemContextActionDelegate,
+        tokenTapped: @escaping (WalletModelId) -> Void
     ) {
         self.id = id
         self.tokenIcon = tokenIcon
-        self.isTestnetToken = isTestnetToken
+        self.tokenItem = tokenItem
         self.infoProvider = infoProvider
-        self.tokenTapped = tokenTapped
         self.contextActionsProvider = contextActionsProvider
         self.contextActionsDelegate = contextActionsDelegate
+        self.tokenTapped = tokenTapped
 
         setupView(infoProvider.balance)
         bind()
@@ -101,14 +102,14 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     }
 
     private func bind() {
-        infoProvider.balancePublisher
+        infoProvider?.balancePublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] type in
                 self?.setupView(type)
             })
             .store(in: &bag)
 
-        infoProvider
+        infoProvider?
             .balanceTypePublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] type in
@@ -116,7 +117,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
             })
             .store(in: &bag)
 
-        infoProvider
+        infoProvider?
             .fiatBalanceTypePublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] type in
@@ -124,7 +125,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
             })
             .store(in: &bag)
 
-        infoProvider
+        infoProvider?
             .quotePublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] type in
@@ -132,7 +133,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
             })
             .store(in: &bag)
 
-        infoProvider.actionsUpdatePublisher
+        infoProvider?.actionsUpdatePublisher
             .receive(on: DispatchQueue.global())
             .withWeakCaptureOf(self)
             .map { $0.0.contextActionsProvider?.buildContextActions(for: $0.0) }
@@ -142,7 +143,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
             }
             .store(in: &bag)
 
-        infoProvider.isStakedPublisher
+        infoProvider?.isStakedPublisher
             .receive(on: DispatchQueue.main)
             .assign(to: \.isStaked, on: self, ownership: .weak)
             .store(in: &bag)
@@ -181,7 +182,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     }
 
     private func updatePendingTransactionsStateIfNeeded() {
-        hasPendingTransactions = infoProvider.hasPendingTransactions
+        hasPendingTransactions = infoProvider?.hasPendingTransactions ?? false
     }
 
     private func buildContextActions() {
