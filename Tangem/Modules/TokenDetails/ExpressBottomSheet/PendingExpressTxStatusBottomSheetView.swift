@@ -17,6 +17,17 @@ struct PendingExpressTxStatusBottomSheetView: View {
     }
 
     var body: some View {
+        content
+            .onAppear(perform: viewModel.onAppear)
+            // This animations are set explicitly to synchronise them with the delayed appearance of the notification
+            .animation(animation, value: viewModel.statusesList)
+            .animation(animation, value: viewModel.currentStatusIndex)
+            .animation(animation, value: viewModel.notificationViewInputs)
+            .animation(animation, value: viewModel.showGoToProviderHeaderButton)
+            .bindAlert($viewModel.hideTransactionAlert)
+    }
+
+    private var content: some View {
         VStack(spacing: 0) {
             VStack(spacing: 12) {
                 Text(viewModel.sheetTitle)
@@ -40,16 +51,13 @@ struct PendingExpressTxStatusBottomSheetView: View {
                     NotificationView(input: $0)
                         .transition(.bottomNotificationTransition)
                 }
+
+                hideTransaction
+                    .padding(.top, 10)
             }
             .padding(.vertical, 22)
             .padding(.horizontal, 16)
         }
-        .onAppear(perform: viewModel.onAppear)
-        // This animations are set explicitly to synchronise them with the delayed appearance of the notification
-        .animation(animation, value: viewModel.statusesList)
-        .animation(animation, value: viewModel.currentStatusIndex)
-        .animation(animation, value: viewModel.notificationViewInputs)
-        .animation(animation, value: viewModel.showGoToProviderHeaderButton)
     }
 
     private var amountsView: some View {
@@ -126,6 +134,23 @@ struct PendingExpressTxStatusBottomSheetView: View {
         )
         // This prevents notification to appear and disappear on top of the statuses list
         .zIndex(5)
+    }
+}
+
+// Hide transaction manually
+
+private extension PendingExpressTxStatusBottomSheetView {
+    @ViewBuilder
+    var hideTransaction: some View {
+        if viewModel.isHideButtonShowed {
+            Button(
+                action: viewModel.showHideTransactionAlert,
+                label: {
+                    Text(Localization.expressStatusHideButtonText)
+                        .style(Fonts.Bold.subheadline, color: Colors.Text.tertiary)
+                }
+            )
+        }
     }
 }
 
