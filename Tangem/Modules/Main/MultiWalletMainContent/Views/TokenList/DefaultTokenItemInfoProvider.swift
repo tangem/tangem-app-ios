@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-struct DefaultTokenItemInfoProvider {
+class DefaultTokenItemInfoProvider {
     private let walletModel: WalletModel
 
     private let balanceProvider: TokenBalanceProvider
