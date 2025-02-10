@@ -13,7 +13,7 @@ struct MarketsPortfolioTokenItemFactory {
     private let contextActionsProvider: MarketsPortfolioContextActionsProvider
     private let contextActionsDelegate: MarketsPortfolioContextActionsDelegate
 
-    private let tokenItemInfoProviderMapper = TokenItemInfoProviderMapper()
+    private let tokenItemInfoProviderItemBuilder = TokenItemInfoProviderItemBuilder()
 
     // MARK: - Init
 
@@ -77,14 +77,16 @@ struct MarketsPortfolioTokenItemFactory {
         from tokenItemType: TokenItemType,
         with userWalletInfo: UserWalletInfo
     ) -> MarketsPortfolioTokenItemViewModel {
-        let infoProviderItem = tokenItemInfoProviderMapper.mapTokenItemViewModel(from: tokenItemType)
-        let tokenIcon = TokenIconInfoBuilder().build(from: infoProviderItem.provider.tokenItem, isCustom: infoProviderItem.isCustom)
+        let (id, provider, tokenItem, tokenIcon) = tokenItemInfoProviderItemBuilder
+            .mapTokenItemViewModel(from: tokenItemType)
 
         return MarketsPortfolioTokenItemViewModel(
+            id: id,
             userWalletId: userWalletInfo.userWalletId,
             walletName: userWalletInfo.userWalletName,
             tokenIcon: tokenIcon,
-            tokenItemInfoProvider: infoProviderItem.provider,
+            tokenItem: tokenItem,
+            tokenItemInfoProvider: provider,
             contextActionsProvider: contextActionsProvider,
             contextActionsDelegate: contextActionsDelegate
         )
