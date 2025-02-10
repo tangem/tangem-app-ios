@@ -8,36 +8,41 @@
 
 import Foundation
 
-typealias TokenItemInfoProviderItem = (provider: TokenItemInfoProvider, isCustom: Bool)
+typealias TokenItemInfoProviderItem = (id: WalletModelId, provider: TokenItemInfoProvider, tokenItem: TokenItem, tokenIconInfo: TokenIconInfo)
 
-struct TokenItemInfoProviderMapper {
+struct TokenItemInfoProviderItemBuilder {
     func mapTokenItemViewModel(from tokenItemType: TokenItemType) -> TokenItemInfoProviderItem {
-        let tokenInfoProvider: TokenItemInfoProvider
-        let isCustom: Bool
-
         switch tokenItemType {
         case .default(let walletModel):
-            tokenInfoProvider = DefaultTokenItemInfoProvider(walletModel: walletModel)
-            isCustom = walletModel.isCustom
+            let tokenItem = walletModel.tokenItem
+            let tokenIconInfo = TokenIconInfoBuilder().build(from: tokenItem, isCustom: walletModel.isCustom)
+
+            return (
+                id: walletModel.id,
+                provider: DefaultTokenItemInfoProvider(walletModel: walletModel),
+                tokenItem: tokenItem,
+                tokenIconInfo: tokenIconInfo
+            )
         case .withoutDerivation(let userToken):
-            isCustom = userToken.isCustom
-            let converter = StorageEntryConverter()
-            let walletModelId = userToken.walletModelId
-            let blockchainNetwork = userToken.blockchainNetwork
+            let tokenItem: TokenItem = {
+                let converter = StorageEntryConverter()
+                let blockchainNetwork = userToken.blockchainNetwork
 
-            if let token = converter.convertToToken(userToken) {
-                tokenInfoProvider = TokenWithoutDerivationInfoProvider(
-                    id: walletModelId,
-                    tokenItem: .token(token, blockchainNetwork)
-                )
-            } else {
-                tokenInfoProvider = TokenWithoutDerivationInfoProvider(
-                    id: walletModelId,
-                    tokenItem: .blockchain(blockchainNetwork)
-                )
-            }
+                if let token = converter.convertToToken(userToken) {
+                    return .token(token, blockchainNetwork)
+                }
+
+                return .blockchain(blockchainNetwork)
+            }()
+
+            let tokenIconInfo = TokenIconInfoBuilder().build(from: tokenItem, isCustom: userToken.isCustom)
+
+            return (
+                id: userToken.walletModelId,
+                provider: TokenWithoutDerivationInfoProvider(),
+                tokenItem: tokenItem,
+                tokenIconInfo: tokenIconInfo
+            )
         }
-
-        return TokenItemInfoProviderItem(tokenInfoProvider, isCustom)
     }
 }
