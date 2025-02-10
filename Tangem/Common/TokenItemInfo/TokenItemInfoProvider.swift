@@ -9,7 +9,7 @@
 import Combine
 import BlockchainSdk
 
-protocol TokenItemInfoProvider: AnyObject {
+protocol TokenItemInfoProvider {
     var id: WalletModel.ID { get }
     var tokenItem: TokenItem { get }
     var hasPendingTransactions: Bool { get }

@@ -20,22 +20,6 @@ class WalletModel {
 
     private(set) lazy var walletModelId: WalletModel.Id = .init(tokenItem: tokenItem)
 
-    var state: State {
-        _state.value
-    }
-
-    var statePublisher: AnyPublisher<State, Never> {
-        _state.eraseToAnyPublisher()
-    }
-
-    var rate: WalletModel.Rate {
-        _rate.value
-    }
-
-    var ratePublisher: AnyPublisher<WalletModel.Rate, Never> {
-        _rate.eraseToAnyPublisher()
-    }
-
     /// Listen tx history changes
     var transactionHistoryPublisher: AnyPublisher<TransactionHistoryState, Never> {
         transactionHistoryState()
@@ -43,14 +27,6 @@ class WalletModel {
 
     var isSupportedTransactionHistory: Bool {
         _transactionHistoryService != nil
-    }
-
-    var stakingManagerStatePublisher: AnyPublisher<StakingManagerState, Never> {
-        _stakingManager.map { $0.statePublisher } ?? .just(output: .notEnabled)
-    }
-
-    var stakingManagerState: StakingManagerState {
-        _stakingManager?.state ?? .notEnabled
     }
 
     var shouldShowFeeSelector: Bool {
@@ -484,35 +460,81 @@ extension WalletModel {
     }
 }
 
+// MARK: - AvailableTokenBalanceProviderInput
+
+extension WalletModel: AvailableTokenBalanceProviderInput {
+    var state: State {
+        _state.value
+    }
+
+    var statePublisher: AnyPublisher<State, Never> {
+        _state.eraseToAnyPublisher()
+    }
+}
+
+// MARK: - StakingTokenBalanceProviderInput
+
+extension WalletModel: StakingTokenBalanceProviderInput {
+    var stakingManagerState: StakingManagerState {
+        _stakingManager?.state ?? .notEnabled
+    }
+
+    var stakingManagerStatePublisher: AnyPublisher<StakingManagerState, Never> {
+        _stakingManager.map { $0.statePublisher } ?? .just(output: .notEnabled)
+    }
+}
+
+// MARK: - FiatTokenBalanceProviderInput
+
+extension WalletModel: FiatTokenBalanceProviderInput {
+    var rate: WalletModel.Rate {
+        _rate.value
+    }
+
+    var ratePublisher: AnyPublisher<WalletModel.Rate, Never> {
+        _rate.eraseToAnyPublisher()
+    }
+}
+
 // MARK: - Balance Provider
 
 extension WalletModel {
     func makeAvailableBalanceProvider() -> TokenBalanceProvider {
-        AvailableTokenBalanceProvider(walletModel: self, tokenBalancesRepository: tokenBalancesRepository)
+        AvailableTokenBalanceProvider(
+            input: self,
+            walletModelId: id,
+            tokenItem: tokenItem,
+            tokenBalancesRepository: tokenBalancesRepository
+        )
     }
 
     func makeStakingBalanceProvider() -> TokenBalanceProvider {
-        StakingTokenBalanceProvider(walletModel: self, tokenBalancesRepository: tokenBalancesRepository)
+        StakingTokenBalanceProvider(
+            input: self,
+            walletModelId: id,
+            tokenItem: tokenItem,
+            tokenBalancesRepository: tokenBalancesRepository
+        )
     }
 
     func makeTotalTokenBalanceProvider() -> TokenBalanceProvider {
         TotalTokenBalanceProvider(
-            walletModel: self,
+            tokenItem: tokenItem,
             availableBalanceProvider: availableBalanceProvider,
             stakingBalanceProvider: stakingBalanceProvider
         )
     }
 
     func makeFiatAvailableBalanceProvider() -> TokenBalanceProvider {
-        FiatTokenBalanceProvider(walletModel: self, cryptoBalanceProvider: availableBalanceProvider)
+        FiatTokenBalanceProvider(input: self, cryptoBalanceProvider: availableBalanceProvider)
     }
 
     func makeFiatStakingBalanceProvider() -> TokenBalanceProvider {
-        FiatTokenBalanceProvider(walletModel: self, cryptoBalanceProvider: stakingBalanceProvider)
+        FiatTokenBalanceProvider(input: self, cryptoBalanceProvider: stakingBalanceProvider)
     }
 
     func makeFiatTotalTokenBalanceProvider() -> TokenBalanceProvider {
-        FiatTokenBalanceProvider(walletModel: self, cryptoBalanceProvider: totalTokenBalanceProvider)
+        FiatTokenBalanceProvider(input: self, cryptoBalanceProvider: totalTokenBalanceProvider)
     }
 }
 
