@@ -10,13 +10,27 @@ import Foundation
 import Combine
 import TangemStaking
 
+protocol StakingTokenBalanceProviderInput: AnyObject {
+    var stakingManagerState: StakingManagerState { get }
+    var stakingManagerStatePublisher: AnyPublisher<StakingManagerState, Never> { get }
+}
+
 struct StakingTokenBalanceProvider {
-    private unowned let walletModel: WalletModel
+    private weak var input: StakingTokenBalanceProviderInput?
+    private let walletModelId: WalletModelId
+    private let tokenItem: TokenItem
     private let tokenBalancesRepository: TokenBalancesRepository
     private let balanceFormatter = BalanceFormatter()
 
-    init(walletModel: WalletModel, tokenBalancesRepository: TokenBalancesRepository) {
-        self.walletModel = walletModel
+    init(
+        input: StakingTokenBalanceProviderInput,
+        walletModelId: WalletModelId,
+        tokenItem: TokenItem,
+        tokenBalancesRepository: TokenBalancesRepository
+    ) {
+        self.input = input
+        self.walletModelId = walletModelId
+        self.tokenItem = tokenItem
         self.tokenBalancesRepository = tokenBalancesRepository
     }
 }
@@ -25,11 +39,21 @@ struct StakingTokenBalanceProvider {
 
 extension StakingTokenBalanceProvider: TokenBalanceProvider {
     var balanceType: TokenBalanceType {
-        mapToTokenBalance(state: walletModel.stakingManagerState)
+        guard let input else {
+            assertionFailure("StakingTokenBalanceProviderInput not found")
+            return .empty(.noData)
+        }
+
+        return mapToTokenBalance(state: input.stakingManagerState)
     }
 
     var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> {
-        walletModel.stakingManagerStatePublisher
+        guard let input else {
+            assertionFailure("StakingTokenBalanceProviderInput not found")
+            return Empty().eraseToAnyPublisher()
+        }
+
+        return input.stakingManagerStatePublisher
             .map { self.mapToTokenBalance(state: $0) }
             .eraseToAnyPublisher()
     }
@@ -49,17 +73,14 @@ extension StakingTokenBalanceProvider: TokenBalanceProvider {
 
 extension StakingTokenBalanceProvider {
     func storeBalance(balance: Decimal) {
-        tokenBalancesRepository.store(
-            balance: .init(balance: balance, date: .now),
-            for: walletModel,
-            type: .staked
-        )
+        let balance = CachedBalance(balance: balance, date: .now)
+        tokenBalancesRepository.store(balance: balance, for: walletModelId, type: .staked)
     }
 
     func cachedBalance() -> TokenBalanceType.Cached? {
-        tokenBalancesRepository.balance(walletModel: walletModel, type: .staked).map {
-            .init(balance: $0.balance, date: $0.date)
-        }
+        tokenBalancesRepository
+            .balance(walletModelId: walletModelId, type: .staked)
+            .map { .init(balance: $0.balance, date: $0.date) }
     }
 
     func mapToTokenBalance(state: StakingManagerState) -> TokenBalanceType {
@@ -82,7 +103,7 @@ extension StakingTokenBalanceProvider {
 
     func mapToFormattedTokenBalanceType(type: TokenBalanceType) -> FormattedTokenBalanceType {
         let builder = FormattedTokenBalanceTypeBuilder(format: { value in
-            balanceFormatter.formatCryptoBalance(value, currencyCode: walletModel.tokenItem.currencySymbol)
+            balanceFormatter.formatCryptoBalance(value, currencyCode: tokenItem.currencySymbol)
         })
 
         return builder.mapToFormattedTokenBalanceType(type: type)
