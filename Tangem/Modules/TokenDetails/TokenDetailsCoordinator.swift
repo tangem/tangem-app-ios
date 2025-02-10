@@ -137,6 +137,10 @@ extension TokenDetailsCoordinator: PendingExpressTxStatusRoutable {
 
         openTokenDetails(for: walletModel)
     }
+
+    func dismissPendingTxSheet() {
+        pendingExpressTxStatusBottomSheetViewModel = nil
+    }
 }
 
 extension TokenDetailsCoordinator: SingleTokenBaseRoutable {

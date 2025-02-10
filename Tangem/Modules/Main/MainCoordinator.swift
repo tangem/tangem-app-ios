@@ -539,6 +539,10 @@ extension MainCoordinator: PendingExpressTxStatusRoutable {
 
         openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
     }
+
+    func dismissPendingTxSheet() {
+        pendingExpressTxStatusBottomSheetViewModel = nil
+    }
 }
 
 extension MainCoordinator {
