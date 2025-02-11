@@ -200,7 +200,6 @@
 "common_yes" = "はい";
 "contract_address_copied_message" = "コントラクトアドレスをコピーしました!";
 "currency_subtitle_expanded" = "利用可能なネットワーク";
-"custom_token_add_token" = "トークンを追加";
 "custom_token_contract_address_input_title" = "コントラクトアドレス";
 "custom_token_creation_error_empty_fields" = "すべての欄にご記入ください";
 "custom_token_creation_error_invalid_contract_address" = "コントラクトアドレスが無効です";
@@ -386,7 +385,6 @@
 "markets_add_to_my_portfolio_description" = "このアセットを購入・交換・受け取るには、ポートフォリオに追加してください。";
 "markets_add_to_my_portfolio_unavailable_description" = "このアセットは現在ウォレットで利用できません";
 "markets_add_to_my_portfolio_unavailable_for_wallet_description" = "このアセットはこのウォレットでは使用できません。";
-"markets_add_to_portfolio_button" = "ポートフォリオに追加";
 "markets_add_token" = "追加";
 "markets_available networks" = "利用可能なネットワーク";
 "markets_common_my_portfolio" = "私のポートフォリオ";
