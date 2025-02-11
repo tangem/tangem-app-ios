@@ -200,7 +200,6 @@
 "common_yes" = "Так";
 "contract_address_copied_message" = "Адреса контракту скопійована!";
 "currency_subtitle_expanded" = "Доступні мережі";
-"custom_token_add_token" = "Додати токен";
 "custom_token_contract_address_input_title" = "Адреса контракту";
 "custom_token_creation_error_empty_fields" = "Будь ласка, заповніть усі поля";
 "custom_token_creation_error_invalid_contract_address" = "Адреса контракту недійсна";
@@ -386,7 +385,6 @@
 "markets_add_to_my_portfolio_description" = "Щоб купити, обміняти або отримати цей актив, додайте його до свого портфоліо";
 "markets_add_to_my_portfolio_unavailable_description" = "Цей актив наразі не підтримується в гаманці";
 "markets_add_to_my_portfolio_unavailable_for_wallet_description" = "Цей токен недоступний для цього гаманця";
-"markets_add_to_portfolio_button" = "Додати в портфоліо";
 "markets_add_token" = "Додати";
 "markets_available networks" = "Доступні мережі";
 "markets_common_my_portfolio" = "Моє портфоліо";
@@ -864,7 +862,7 @@
 "swap_story_first_subtitle" = "Trusted exchange providers let you swap assets effortlessly, keeping everything safe in your wallet";
 "swap_story_first_title" = "Exchange With Us";
 "swap_story_forth_subtitle" = "Top-level security and verified providers ensure your assets are protected during every swap";
-"swap_story_forth_title" = "Safer Then Ever";
+"swap_story_forth_title" = "Safer Than Ever";
 "swap_story_second_subtitle" = "Maximize your value with rates sourced from a wide network of trusted providers, always choosing the best one";
 "swap_story_second_title" = "Best Rates";
 "swap_story_third_subtitle" = "Hassle-free and intuitive, allowing you to swap tokens in just a few taps";
