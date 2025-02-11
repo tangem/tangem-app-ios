@@ -13,10 +13,11 @@ import SwiftUI
 extension View {
     func overlayContentContainer<Item, Overlay>(
         item: Binding<Item?>,
+        overlayContentContainer: OverlayContentContainer,
         @ViewBuilder overlayFactory: @escaping (_ item: Item) -> Overlay
     ) -> some View where Item: Identifiable, Overlay: View {
         modifier(
-            OverlayContentContainerViewModifier(item: item, overlayFactory: overlayFactory)
+            OverlayContentContainerViewModifier(item: item, overlayContentContainer: overlayContentContainer, overlayFactory: overlayFactory)
         )
     }
 }
@@ -26,6 +27,7 @@ extension View {
 private struct OverlayContentContainerViewModifier<
     Item, Overlay
 >: ViewModifier where Item: Identifiable, Overlay: View {
+    private weak var overlayContentContainer: OverlayContentContainer?
     private let overlayFactory: (_ item: Item) -> Overlay
 
     @Binding private var item: Item?
@@ -33,15 +35,13 @@ private struct OverlayContentContainerViewModifier<
     @available(iOS, deprecated: 17.0, message: "Not needed if `View.onChange(of:initial:_:)` is available (iOS 17+)")
     @State private var isAppeared = false
 
-    @Environment(\.overlayContentContainer) private var overlayContentContainer
-    @Environment(\.overlayContentStateObserver) private var overlayContentStateObserver
-    @Environment(\.overlayContentStateController) private var overlayContentStateController
-
     init(
         item: Binding<Item?>,
+        overlayContentContainer: OverlayContentContainer,
         overlayFactory: @escaping (_ item: Item) -> Overlay
     ) {
         _item = item
+        self.overlayContentContainer = overlayContentContainer
         self.overlayFactory = overlayFactory
     }
 
@@ -73,18 +73,15 @@ private struct OverlayContentContainerViewModifier<
 
     private func updateOverlay() {
         // Always removing previous overlay since this is a requirement of `OverlayContentContainerViewController`' API
-        overlayContentContainer.removeOverlay()
+        overlayContentContainer?.removeOverlay()
 
         if let item {
             // `overlay` is a completely different branch of the SwiftUI view hierarchy,
             // so we must explicitly re-inject `overlayContentContainer`, `overlayContentStateObserver`
             // and `overlayContentStateController` environment objects into this branch
             let overlay = overlayFactory(item)
-                .environment(\.overlayContentContainer, overlayContentContainer)
-                .environment(\.overlayContentStateObserver, overlayContentStateObserver)
-                .environment(\.overlayContentStateController, overlayContentStateController)
 
-            overlayContentContainer.installOverlay(overlay)
+            overlayContentContainer?.installOverlay(overlay)
         }
     }
 }
