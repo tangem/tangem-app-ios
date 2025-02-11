@@ -30,12 +30,20 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
 
     var hasPendingTransactions: Bool { walletModel.hasPendingTransactions }
 
-    var isZeroBalanceValue: Bool {
-        walletModel.balanceState != .positive
+    var quote: TokenQuote? {
+        walletModel.quote
     }
 
     var balance: TokenBalanceType {
         balanceProvider.balanceType
+    }
+
+    var balanceType: FormattedTokenBalanceType {
+        balanceProvider.formattedBalanceType
+    }
+
+    var fiatBalanceType: FormattedTokenBalanceType {
+        fiatBalanceProvider.formattedBalanceType
     }
 
     var quotePublisher: AnyPublisher<TokenQuote?, Never> {
