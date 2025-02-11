@@ -21,6 +21,8 @@ class UserWalletModelMock: UserWalletModel {
     var config: UserWalletConfig { fatalError("UserWalletConfigMock doesn't exist") }
     var userWalletId: UserWalletId { .init(value: Data()) }
 
+    var totalBalance: TotalBalanceState { .empty }
+
     var walletModelsManager: WalletModelsManager { WalletModelsManagerMock() }
 
     var userTokensManager: UserTokensManager { UserTokensManagerMock() }
