@@ -60,8 +60,12 @@ class LockedUserWalletModel: UserWalletModel {
         )
     }
 
+    var totalBalance: TotalBalanceState {
+        .loading(cached: .none)
+    }
+
     var totalBalancePublisher: AnyPublisher<TotalBalanceState, Never> {
-        .just(output: .loaded(balance: 0))
+        .just(output: totalBalance)
     }
 
     var analyticsContextData: AnalyticsContextData {
