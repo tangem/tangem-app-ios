@@ -15,6 +15,8 @@ struct MainCoordinatorView: CoordinatorView {
 
     @StateObject private var navigationAssertion = MainCoordinatorNavigationAssertion()
 
+    @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
+
     var body: some View {
         NavigationView {
             content
@@ -33,7 +35,7 @@ struct MainCoordinatorView: CoordinatorView {
 
             sheets
         }
-        .onOverlayContentStateChange { [weak coordinator] state in
+        .onOverlayContentStateChange(overlayContentStateObserver: overlayContentStateObserver) { [weak coordinator] state in
             if !state.isCollapsed {
                 coordinator?.hideMarketsTooltip()
             } else {
