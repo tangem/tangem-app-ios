@@ -22,8 +22,8 @@ protocol TokenItemContextActionDelegate: AnyObject {
 final class TokenItemViewModel: ObservableObject, Identifiable {
     let id: WalletModelId
 
-    @Published var balanceCrypto: LoadableTokenBalanceView.State = .loading()
-    @Published var balanceFiat: LoadableTokenBalanceView.State = .loading()
+    @Published var balanceCrypto: LoadableTokenBalanceView.State
+    @Published var balanceFiat: LoadableTokenBalanceView.State
     @Published var priceChangeState: TokenPriceChangeView.State = .loading
     @Published var tokenPrice: LoadableTextView.State = .loading
     @Published var hasPendingTransactions: Bool = false
@@ -58,7 +58,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
 
     private let tokenIcon: TokenIconInfo
     private let priceChangeUtility = PriceChangeUtility()
-    private let loadableTokenBalanceViewStateBuilder = LoadableTokenBalanceViewStateBuilder()
+    private let loadableTokenBalanceViewStateBuilder: LoadableTokenBalanceViewStateBuilder
     private let priceFormatter = TokenItemPriceFormatter()
     private var bag = Set<AnyCancellable>()
 
@@ -85,7 +85,12 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         self.contextActionsDelegate = contextActionsDelegate
         self.tokenTapped = tokenTapped
 
+        loadableTokenBalanceViewStateBuilder = .init()
+        balanceCrypto = loadableTokenBalanceViewStateBuilder.build(type: infoProvider.balanceType)
+        balanceFiat = loadableTokenBalanceViewStateBuilder.build(type: infoProvider.fiatBalanceType)
+
         setupView(infoProvider.balance)
+        setupPrice(infoProvider.quote)
         bind()
     }
 
