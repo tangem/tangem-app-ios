@@ -76,7 +76,7 @@ class VisaOnboardingWelcomeViewModel: ObservableObject {
                 try await viewModel.delegate?.continueActivation()
             } catch {
                 if !error.isCancellationError {
-                    await viewModel.delegate?.showAlert(error.alertBinder)
+                    await viewModel.delegate?.showAlertAsync(error.alertBinder)
                 }
             }
             await runOnMain {
