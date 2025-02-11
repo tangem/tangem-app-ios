@@ -200,7 +200,6 @@
 "common_yes" = "Sí";
 "contract_address_copied_message" = "Dirección del contract copiada";
 "currency_subtitle_expanded" = "Redes disponibles";
-"custom_token_add_token" = "Agregue un token";
 "custom_token_contract_address_input_title" = "Dirección del contract";
 "custom_token_creation_error_empty_fields" = "Por favor, rellene todos los campos";
 "custom_token_creation_error_invalid_contract_address" = "La dirección del contract no es válida";
@@ -386,7 +385,6 @@
 "markets_add_to_my_portfolio_description" = "Para comprar, intercambiar o recibir este activo, agréguelo a su portafolio";
 "markets_add_to_my_portfolio_unavailable_description" = "Este activo no está disponible en la billetera";
 "markets_add_to_my_portfolio_unavailable_for_wallet_description" = "Este activo no está disponible para esta billetera";
-"markets_add_to_portfolio_button" = "Añadir al portafolio";
 "markets_add_token" = "Añadir";
 "markets_available networks" = "Redes disponibles";
 "markets_common_my_portfolio" = "Mi portafolio";
@@ -864,7 +862,7 @@
 "swap_story_first_subtitle" = "Trusted exchange providers let you swap assets effortlessly, keeping everything safe in your wallet";
 "swap_story_first_title" = "Exchange With Us";
 "swap_story_forth_subtitle" = "Top-level security and verified providers ensure your assets are protected during every swap";
-"swap_story_forth_title" = "Safer Then Ever";
+"swap_story_forth_title" = "Safer Than Ever";
 "swap_story_second_subtitle" = "Maximize your value with rates sourced from a wide network of trusted providers, always choosing the best one";
 "swap_story_second_title" = "Best Rates";
 "swap_story_third_subtitle" = "Hassle-free and intuitive, allowing you to swap tokens in just a few taps";
