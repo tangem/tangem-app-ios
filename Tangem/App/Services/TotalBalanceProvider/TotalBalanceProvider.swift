@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import CombineExt
+import TangemFoundation
 
 class TotalBalanceProvider {
     private let userWalletId: UserWalletId
@@ -32,6 +33,10 @@ class TotalBalanceProvider {
 
         bind()
     }
+
+    deinit {
+        AppLog.shared.debug("deinit \(self)")
+    }
 }
 
 // MARK: - TotalBalanceProviding protocol conformance
@@ -52,7 +57,7 @@ private extension TotalBalanceProvider {
             .removeDuplicates()
             .receive(on: queue)
             .withWeakCaptureOf(self)
-            .flatMap { balanceProvider, walletModels in
+            .flatMapLatest { balanceProvider, walletModels in
                 if walletModels.isEmpty {
                     return Just(TotalBalanceState.loaded(balance: 0)).eraseToAnyPublisher()
                 }
@@ -60,11 +65,13 @@ private extension TotalBalanceProvider {
                 return walletModels.map { walletModel in
                     walletModel.fiatTotalTokenBalanceProvider
                         .balanceTypePublisher
-                        .map { (item: walletModel.tokenItem, balance: $0) }
+                        .withWeakCaptureOf(walletModel)
+                        .map { (item: $0.tokenItem, balance: $1) }
                 }
                 // Collect any/all changes in wallet models
                 .combineLatest()
-                .map { balanceProvider.mapToTotalBalance(balances: $0) }
+                .withWeakCaptureOf(balanceProvider)
+                .map { $0.mapToTotalBalance(balances: $1) }
                 .eraseToAnyPublisher()
             }
 
@@ -199,7 +206,7 @@ private extension TotalBalanceProvider {
         case .loading: .none
         case .failed: .blockchainError
         case .loaded(let balance) where balance > .zero: .full
-        case .loaded(let balance): .empty
+        case .loaded: .empty
         }
     }
 
@@ -253,5 +260,13 @@ private extension TokenBalanceType {
         case .empty(let emptyReason): emptyReason == reason
         default: false
         }
+    }
+}
+
+// MARK: - CustomStringConvertible
+
+extension TotalBalanceProvider: CustomStringConvertible {
+    var description: String {
+        TangemFoundation.objectDescription(self)
     }
 }
