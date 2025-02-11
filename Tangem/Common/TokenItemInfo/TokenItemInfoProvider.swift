@@ -11,7 +11,11 @@ import BlockchainSdk
 
 protocol TokenItemInfoProvider: AnyObject {
     var hasPendingTransactions: Bool { get }
+
+    var quote: TokenQuote? { get }
     var balance: TokenBalanceType { get }
+    var balanceType: FormattedTokenBalanceType { get }
+    var fiatBalanceType: FormattedTokenBalanceType { get }
 
     var quotePublisher: AnyPublisher<TokenQuote?, Never> { get }
     var balancePublisher: AnyPublisher<TokenBalanceType, Never> { get }
