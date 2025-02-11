@@ -112,8 +112,6 @@ public class VisaMocksManager {
     }
 
     func changeCustomerWalletAddress(_ presenter: VisaMockMenuPresenter) {
-        let actions: [UIAlertAction] = [
-        ]
         let alertController = UIAlertController(
             title: "Enter new customer wallet address",
             message: "Current Customer Wallet Address is: \(customerWalletAddress)",
@@ -136,7 +134,6 @@ public class VisaMocksManager {
 
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in }
 
-        // Add actions to the alert controller
         alertController.addAction(confirmAction)
         alertController.addAction(cancelAction)
 
