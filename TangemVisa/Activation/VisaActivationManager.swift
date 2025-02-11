@@ -63,6 +63,7 @@ final class CommonVisaActivationManager {
     private let cardActivationStatusService: VisaCardActivationStatusService
     private let productActivationService: ProductActivationService
     private let otpRepository: VisaOTPRepository
+    private let pinCodeProcessor: PINCodeProcessor
 
     private let logger: InternalLogger
 
@@ -91,6 +92,7 @@ final class CommonVisaActivationManager {
         cardActivationStatusService: VisaCardActivationStatusService,
         productActivationService: ProductActivationService,
         otpRepository: VisaOTPRepository,
+        pinCodeProcessor: PINCodeProcessor,
         logger: InternalLogger
     ) {
         activationLocalState = initialActivationStatus
@@ -104,6 +106,7 @@ final class CommonVisaActivationManager {
         self.cardActivationStatusService = cardActivationStatusService
         self.productActivationService = productActivationService
         self.otpRepository = otpRepository
+        self.pinCodeProcessor = pinCodeProcessor
 
         self.logger = logger
     }
@@ -276,13 +279,13 @@ extension CommonVisaActivationManager: VisaActivationManager {
 
         log("Attempting to send selected PIN code")
         do {
-            try? await Task.sleep(seconds: 3)
-            // [REDACTED_TODO_COMMENT]
+            let processedPINCode = try await pinCodeProcessor.processSelectedPINCode(pinCode)
+
             try await productActivationService.sendSelectedPINCodeToIssuer(
                 activationOrderId: activationOrderId,
-                sessionKey: "[REDACTED_INFO]",
-                iv: "[REDACTED_INFO]",
-                encryptedPin: "[REDACTED_INFO]"
+                sessionKey: processedPINCode.sessionKey,
+                iv: processedPINCode.iv,
+                encryptedPin: processedPINCode.encryptedPIN
             )
         } catch {
             log("Failed to send selected PIN to issuer. Error: \(error)")
