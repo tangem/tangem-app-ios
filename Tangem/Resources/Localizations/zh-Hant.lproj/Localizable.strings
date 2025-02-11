@@ -200,7 +200,6 @@
 "common_yes" = "是";
 "contract_address_copied_message" = "已複製代幣地址";
 "currency_subtitle_expanded" = "支持的網路";
-"custom_token_add_token" = "添加代幣";
 "custom_token_contract_address_input_title" = "代幣地址";
 "custom_token_creation_error_empty_fields" = "請填入所有空格";
 "custom_token_creation_error_invalid_contract_address" = "無效地址";
@@ -386,7 +385,6 @@
 "markets_add_to_my_portfolio_description" = "To buy, exchange, or receive this asset, add it to your portfolio";
 "markets_add_to_my_portfolio_unavailable_description" = "This asset is currently not supported in the wallet";
 "markets_add_to_my_portfolio_unavailable_for_wallet_description" = "This asset is not available for this wallet";
-"markets_add_to_portfolio_button" = "Add to portfolio";
 "markets_add_token" = "Add";
 "markets_available networks" = "Available networks";
 "markets_common_my_portfolio" = "My portfolio";
@@ -864,7 +862,7 @@
 "swap_story_first_subtitle" = "Trusted exchange providers let you swap assets effortlessly, keeping everything safe in your wallet";
 "swap_story_first_title" = "Exchange With Us";
 "swap_story_forth_subtitle" = "Top-level security and verified providers ensure your assets are protected during every swap";
-"swap_story_forth_title" = "Safer Then Ever";
+"swap_story_forth_title" = "Safer Than Ever";
 "swap_story_second_subtitle" = "Maximize your value with rates sourced from a wide network of trusted providers, always choosing the best one";
 "swap_story_second_title" = "Best Rates";
 "swap_story_third_subtitle" = "Hassle-free and intuitive, allowing you to swap tokens in just a few taps";
