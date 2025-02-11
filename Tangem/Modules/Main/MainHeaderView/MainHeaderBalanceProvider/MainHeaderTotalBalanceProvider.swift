@@ -11,16 +11,14 @@ import Combine
 import TangemFoundation
 
 protocol MainHeaderBalanceProvider {
-    var balanceProvider: AnyPublisher<LoadableTokenBalanceView.State, Never> { get }
+    var balance: LoadableTokenBalanceView.State { get }
+    var balancePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never> { get }
 }
 
 class CommonMainHeaderBalanceProvider {
     private let totalBalanceProvider: TotalBalanceProviding
     private let userWalletStateInfoProvider: MainHeaderUserWalletStateInfoProvider
     private let mainBalanceFormatter: MainHeaderBalanceFormatter
-
-    private let headerBalanceSubject = CurrentValueSubject<LoadableTokenBalanceView.State, Never>(.loading())
-    private var balanceSubscription: AnyCancellable?
 
     init(
         totalBalanceProvider: TotalBalanceProviding,
@@ -30,25 +28,14 @@ class CommonMainHeaderBalanceProvider {
         self.totalBalanceProvider = totalBalanceProvider
         self.userWalletStateInfoProvider = userWalletStateInfoProvider
         self.mainBalanceFormatter = mainBalanceFormatter
-
-        bind()
-    }
-
-    private func bind() {
-        balanceSubscription = totalBalanceProvider
-            .totalBalancePublisher
-            .withWeakCaptureOf(self)
-            .sink(receiveValue: { provider, state in
-                if provider.userWalletStateInfoProvider.isUserWalletLocked {
-                    return
-                }
-
-                let state = provider.mapToLoadableTokenBalanceViewState(state: state)
-                provider.headerBalanceSubject.send(state)
-            })
     }
 
     private func mapToLoadableTokenBalanceViewState(state: TotalBalanceState) -> LoadableTokenBalanceView.State {
+        if userWalletStateInfoProvider.isUserWalletLocked {
+            // Show endless shimmer for locked wallet
+            return .loading(cached: .none)
+        }
+
         switch state {
         case .empty, .failed(.none, _):
             let formatted = mainBalanceFormatter.formatBalance(balance: .none)
@@ -69,7 +56,15 @@ class CommonMainHeaderBalanceProvider {
 // MARK: - MainHeaderBalanceProvider
 
 extension CommonMainHeaderBalanceProvider: MainHeaderBalanceProvider {
-    var balanceProvider: AnyPublisher<LoadableTokenBalanceView.State, Never> {
-        headerBalanceSubject.eraseToAnyPublisher()
+    var balance: LoadableTokenBalanceView.State {
+        mapToLoadableTokenBalanceViewState(state: totalBalanceProvider.totalBalance)
+    }
+
+    var balancePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never> {
+        totalBalanceProvider
+            .totalBalancePublisher
+            .withWeakCaptureOf(self)
+            .map { $0.mapToLoadableTokenBalanceViewState(state: $1) }
+            .eraseToAnyPublisher()
     }
 }
