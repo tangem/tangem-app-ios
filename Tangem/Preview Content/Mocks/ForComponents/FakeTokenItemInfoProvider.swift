@@ -26,14 +26,17 @@ class FakeTokenItemInfoProvider: ObservableObject {
     init(walletManagers: [FakeWalletManager]) {
         walletModels = walletManagers.flatMap { $0.walletModels }
         viewModels = walletModels.map { walletModel in
-            TokenItemViewModel(
-                id: walletModel.id,
-                tokenIcon: makeTokenIconInfo(for: walletModel),
-                isTestnetToken: walletModel.blockchainNetwork.blockchain.isTestnet,
-                infoProvider: DefaultTokenItemInfoProvider(walletModel: walletModel),
-                tokenTapped: modelTapped(with:),
+            let (id, provider, tokenItem, tokenIconInfo) = TokenItemInfoProviderItemBuilder()
+                .mapTokenItemViewModel(from: .default(walletModel))
+
+            return TokenItemViewModel(
+                id: id,
+                tokenItem: tokenItem,
+                tokenIcon: tokenIconInfo,
+                infoProvider: provider,
                 contextActionsProvider: self,
-                contextActionsDelegate: self
+                contextActionsDelegate: self,
+                tokenTapped: modelTapped(with:)
             )
         }
     }
@@ -49,15 +52,6 @@ class FakeTokenItemInfoProvider: ObservableObject {
                 print("Receive new state \(newState) for \(tappedWalletManager)")
                 withExtendedLifetime(updateSubscription) {}
             }
-    }
-
-    private func makeTokenIconInfo(for walletModel: WalletModel) -> TokenIconInfo {
-        return TokenIconInfoBuilder()
-            .build(
-                for: walletModel.tokenItem.amountType,
-                in: walletModel.blockchainNetwork.blockchain,
-                isCustom: walletModel.isCustom
-            )
     }
 }
 
