@@ -11,6 +11,7 @@ import Combine
 
 class DefaultTokenItemInfoProvider {
     private let walletModel: WalletModel
+
     private let balanceProvider: TokenBalanceProvider
     private let fiatBalanceProvider: TokenBalanceProvider
 
