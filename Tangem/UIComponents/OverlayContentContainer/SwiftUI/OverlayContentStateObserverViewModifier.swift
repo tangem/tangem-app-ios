@@ -14,10 +14,11 @@ extension View {
     /// - Warning: This method maintains a strong reference to the given `observer` closure.
     @ViewBuilder
     func onOverlayContentStateChange(
+        overlayContentStateObserver: OverlayContentStateObserver,
         _ observer: @escaping OverlayContentStateObserver.StateObserver
     ) -> some View {
         modifier(
-            OverlayContentStateObserverViewModifier { stateObserver, token in
+            OverlayContentStateObserverViewModifier(overlayContentStateObserver: overlayContentStateObserver) { stateObserver, token in
                 stateObserver.addObserver(observer, forToken: token)
             }
         )
@@ -26,10 +27,11 @@ extension View {
     /// - Warning: This method maintains a strong reference to the given `observer` closure.
     @ViewBuilder
     func onOverlayContentProgressChange(
+        overlayContentStateObserver: OverlayContentStateObserver,
         _ observer: @escaping OverlayContentStateObserver.ProgressObserver
     ) -> some View {
         modifier(
-            OverlayContentStateObserverViewModifier { stateObserver, token in
+            OverlayContentStateObserverViewModifier(overlayContentStateObserver: overlayContentStateObserver) { stateObserver, token in
                 stateObserver.addObserver(observer, forToken: token)
             }
         )
@@ -41,6 +43,7 @@ extension View {
 private struct OverlayContentStateObserverViewModifier: ViewModifier {
     typealias Selector = (_ stateObserver: OverlayContentStateObserver, _ token: UUID) -> Void
 
+    private weak var overlayContentStateObserver: OverlayContentStateObserver?
     private let selector: Selector
 
     @State private var token = UUID()
@@ -48,9 +51,8 @@ private struct OverlayContentStateObserverViewModifier: ViewModifier {
     @available(iOS, deprecated: 17.0, message: "Not needed if `View.onChange(of:initial:_:)` is available (iOS 17+)")
     @State private var isAppeared = false
 
-    @Environment(\.overlayContentStateObserver) private var overlayContentStateObserver
-
-    init(selector: @escaping Selector) {
+    init(overlayContentStateObserver: OverlayContentStateObserver, selector: @escaping Selector) {
+        self.overlayContentStateObserver = overlayContentStateObserver
         self.selector = selector
     }
 
@@ -81,7 +83,9 @@ private struct OverlayContentStateObserverViewModifier: ViewModifier {
     }
 
     private func updateObserver(oldToken: UUID, newToken: UUID) {
-        overlayContentStateObserver.removeObserver(forToken: oldToken)
-        selector(overlayContentStateObserver, newToken)
+        overlayContentStateObserver?.removeObserver(forToken: oldToken)
+        if let overlayContentStateObserver {
+            selector(overlayContentStateObserver, newToken)
+        }
     }
 }
