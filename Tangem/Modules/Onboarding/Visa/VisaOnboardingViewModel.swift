@@ -14,7 +14,8 @@ import TangemVisa
 
 protocol VisaOnboardingAlertPresenter: AnyObject {
     @MainActor
-    func showAlert(_ alert: AlertBinder) async
+    func showAlertAsync(_ alert: AlertBinder) async
+    func showAlert(_ alert: AlertBinder)
     @MainActor
     func showContactSupportAlert(for error: Error) async
 }
@@ -118,6 +119,10 @@ class VisaOnboardingViewModel: ObservableObject {
 
         if case .userWalletModel(let userWalletModel) = input.cardInput {
             self.userWalletModel = userWalletModel
+        }
+
+        if steps.first == .selectWalletForApprove {
+            proceedToApproveWalletSelection(animated: false)
         }
 
         loadImage(input.cardInput.imageLoadInput)
@@ -240,7 +245,7 @@ private extension VisaOnboardingViewModel {
         }
     }
 
-    func goToStep(_ step: VisaOnboardingStep) {
+    func goToStep(_ step: VisaOnboardingStep, animated: Bool = true) {
         guard let stepIndex = steps.firstIndex(of: step) else {
             AppLog.shared.debug("Failed to find step \(step)")
             return
@@ -249,7 +254,7 @@ private extension VisaOnboardingViewModel {
         let step = steps[stepIndex]
 
         DispatchQueue.main.async {
-            withAnimation {
+            withAnimation(animated ? .default : nil) {
                 self.currentStep = step
                 self.currentProgress = CGFloat(stepIndex + 1) / CGFloat(self.steps.count)
             }
@@ -285,7 +290,7 @@ extension VisaOnboardingViewModel: VisaOnboardingInProgressDelegate {
             goToNextStep()
         case .blockedForActivation:
             // [REDACTED_TODO_COMMENT]
-            await showAlert("This card was blocked... Is this even possible?..".alertBinder)
+            await showAlertAsync("This card was blocked... Is this even possible?..".alertBinder)
         case .paymentAccountDeploying:
             inProgressViewModel = VisaOnboardingViewModelsBuilder().buildInProgressModel(
                 activationRemoteState: .paymentAccountDeploying,
@@ -300,7 +305,7 @@ extension VisaOnboardingViewModel: VisaOnboardingInProgressDelegate {
             goToStep(.issuerProcessingInProgress)
         case .cardWalletSignatureRequired, .customerWalletSignatureRequired:
             // [REDACTED_TODO_COMMENT]
-            await showAlert("Invalid card activation state. Please contact support".alertBinder)
+            await showAlertAsync("Invalid card activation state. Please contact support".alertBinder)
         case .waitingPinCode:
             goToStep(.pinSelection)
         }
@@ -355,8 +360,14 @@ extension VisaOnboardingViewModel: PushNotificationsPermissionRequestDelegate {
 extension VisaOnboardingViewModel: VisaOnboardingAccessCodeSetupDelegate {
     /// We need to show alert in parent view, otherwise it won't be presented
     @MainActor
-    func showAlert(_ alert: AlertBinder) async {
+    func showAlertAsync(_ alert: AlertBinder) async {
         self.alert = alert
+    }
+
+    func showAlert(_ alert: AlertBinder) {
+        DispatchQueue.main.async {
+            self.alert = alert
+        }
     }
 
     @MainActor
@@ -378,14 +389,14 @@ extension VisaOnboardingViewModel: VisaOnboardingAccessCodeSetupDelegate {
             )
         )
 
-        await showAlert(alert)
+        await showAlertAsync(alert)
     }
 
     func useSelectedCode(accessCode: String) async throws {
         try visaActivationManager.saveAccessCode(accessCode: accessCode)
         let activationResponse = try await visaActivationManager.startActivation()
         updateUserWalletModel(with: .init(card: activationResponse.signedActivationOrder.cardSignedOrder))
-        await proceedToApproveWalletSelection()
+        proceedToApproveWalletSelection()
     }
 
     func closeOnboarding() {
@@ -404,21 +415,21 @@ extension VisaOnboardingViewModel: VisaOnboardingWelcomeDelegate {
     func continueActivation() async throws {
         let activationResponse = try await visaActivationManager.startActivation()
         updateUserWalletModel(with: .init(card: activationResponse.signedActivationOrder.cardSignedOrder))
-        await proceedToApproveWalletSelection()
+        proceedToApproveWalletSelection()
     }
 }
 
 // MARK: - Approve pair search
 
 private extension VisaOnboardingViewModel {
-    func proceedToApproveWalletSelection() async {
+    func proceedToApproveWalletSelection(animated: Bool = true) {
         guard let targetAddress = visaActivationManager.targetApproveAddress else {
-            await showAlert(OnboardingError.missingTargetApproveAddress.alertBinder)
+            showAlert(OnboardingError.missingTargetApproveAddress.alertBinder)
             return
         }
 
         guard visaActivationManager.activationRemoteState == .customerWalletSignatureRequired else {
-            await showAlert(OnboardingError.missingTargetApproveAddress.alertBinder)
+            showAlert(OnboardingError.missingTargetApproveAddress.alertBinder)
             return
         }
 
@@ -430,7 +441,7 @@ private extension VisaOnboardingViewModel {
                 userWalletModels: userWalletRepository.models
             )
         else {
-            goToStep(.selectWalletForApprove)
+            goToStep(.selectWalletForApprove, animated: animated)
             return
         }
 
@@ -440,7 +451,7 @@ private extension VisaOnboardingViewModel {
             dataProvider: self,
             approvePair: approvePair
         )
-        goToStep(.approveUsingTangemWallet)
+        goToStep(.approveUsingTangemWallet, animated: animated)
     }
 }
 
