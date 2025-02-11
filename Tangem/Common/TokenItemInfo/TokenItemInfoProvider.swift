@@ -10,10 +10,7 @@ import Combine
 import BlockchainSdk
 
 protocol TokenItemInfoProvider: AnyObject {
-    var id: WalletModel.ID { get }
-    var tokenItem: TokenItem { get }
     var hasPendingTransactions: Bool { get }
-    var isZeroBalanceValue: Bool { get }
     var balance: TokenBalanceType { get }
 
     var quotePublisher: AnyPublisher<TokenQuote?, Never> { get }
