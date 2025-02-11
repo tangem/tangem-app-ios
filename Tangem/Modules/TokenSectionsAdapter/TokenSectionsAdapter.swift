@@ -209,7 +209,7 @@ final class TokenSectionsAdapter {
 
             // We don't sort section items by balance if some of them don't have balance information
             let hasWalletModelsWithoutBalanceInfo = allWalletModels
-                .contains { $0.balanceState == .none }
+                .contains { $0.totalTokenBalanceProvider.balanceType.value == .none }
 
             if hasWalletModelsWithoutBalanceInfo {
                 return sectionItems

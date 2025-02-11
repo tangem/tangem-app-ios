@@ -267,30 +267,34 @@ extension VisaWalletModel: VisaWalletMainHeaderSubtitleDataSource {
 }
 
 extension VisaWalletModel: MainHeaderBalanceProvider {
-    var balanceProvider: AnyPublisher<LoadableTokenBalanceView.State, Never> {
-        stateSubject.combineLatest(balancesSubject)
-            .map { [weak self] state, balances in
-                guard let self else {
-                    return .loading()
-                }
+    var balance: LoadableTokenBalanceView.State {
+        mapToLoadableTokenBalanceViewState(state: stateSubject.value, balances: balancesSubject.value)
+    }
 
-                switch state {
-                case .notInitialized, .loading:
-                    return .loading()
-                case .failedToInitialize(let error):
-                    return .failed(cached: .string(BalanceFormatter.defaultEmptyBalanceString))
-                case .idle:
-                    if let balances, let tokenItem {
-                        let balanceFormatter = BalanceFormatter()
-                        let formattedBalance = balanceFormatter.formatCryptoBalance(balances.available, currencyCode: tokenItem.currencySymbol)
-                        let formattedForMain = balanceFormatter.formatAttributedTotalBalance(fiatBalance: formattedBalance)
-                        return .loaded(text: .attributed(formattedForMain))
-                    } else {
-                        return .loading()
-                    }
-                }
-            }
+    var balancePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never> {
+        stateSubject
+            .combineLatest(balancesSubject)
+            .withWeakCaptureOf(self)
+            .map { $0.mapToLoadableTokenBalanceViewState(state: $1.0, balances: $1.1) }
             .eraseToAnyPublisher()
+    }
+
+    private func mapToLoadableTokenBalanceViewState(state: State, balances: AppVisaBalances?) -> LoadableTokenBalanceView.State {
+        switch state {
+        case .notInitialized, .loading:
+            return .loading()
+        case .failedToInitialize(let error):
+            return .failed(cached: .string(BalanceFormatter.defaultEmptyBalanceString))
+        case .idle:
+            if let balances, let tokenItem {
+                let balanceFormatter = BalanceFormatter()
+                let formattedBalance = balanceFormatter.formatCryptoBalance(balances.available, currencyCode: tokenItem.currencySymbol)
+                let formattedForMain = balanceFormatter.formatAttributedTotalBalance(fiatBalance: formattedBalance)
+                return .loaded(text: .attributed(formattedForMain))
+            } else {
+                return .loading()
+            }
+        }
     }
 }
 
