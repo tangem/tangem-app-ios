@@ -35,14 +35,15 @@ public struct Shimmer: ViewModifier {
             .mask {
                 LinearGradient(gradient: gradient, startPoint: gradientPoints.start, endPoint: gradientPoints.end)
             }
-            .animation(isAppeared ? activeAnimation : stopAnimation, value: gradientPoints)
             .onAppear {
                 guard !isAppeared else {
                     return
                 }
 
                 isAppeared = true
-                gradientPoints = animationPoints
+                withAnimation(activeAnimation) {
+                    gradientPoints = animationPoints
+                }
             }
             .onDisappear {
                 guard isAppeared else {
@@ -50,7 +51,9 @@ public struct Shimmer: ViewModifier {
                 }
 
                 isAppeared = false
-                gradientPoints = idlePoints
+                withAnimation(stopAnimation) {
+                    gradientPoints = idlePoints
+                }
             }
     }
 }
