@@ -200,7 +200,6 @@
 "common_yes" = "Ja";
 "contract_address_copied_message" = "Vertragsadresse kopiert!";
 "currency_subtitle_expanded" = "Verfügbare Netzwerke";
-"custom_token_add_token" = "Token hinzufügen";
 "custom_token_contract_address_input_title" = "Vertragsadresse";
 "custom_token_creation_error_empty_fields" = "Bitte fülle alle Felder aus";
 "custom_token_creation_error_invalid_contract_address" = "Vertragsadresse ist ungültig";
@@ -386,7 +385,6 @@
 "markets_add_to_my_portfolio_description" = "Um dieses Asset zu kaufen, zu tauschen oder zu erhalten, füge diesen Deinem Portfolio hinzu";
 "markets_add_to_my_portfolio_unavailable_description" = "Dieses Asset wird derzeit in der Wallet nicht unterstützt.";
 "markets_add_to_my_portfolio_unavailable_for_wallet_description" = "Dieses Asset ist für dieses Wallet nicht verfügbar";
-"markets_add_to_portfolio_button" = "Zum Portfolio hinzufügen";
 "markets_add_token" = "Hinzufügen";
 "markets_available networks" = "Verfügbare Netzwerke";
 "markets_common_my_portfolio" = "Mein Portfolio";
