@@ -9,7 +9,7 @@
 import SwiftUI
 
 /// Interface that exposes `OverlayContentContainerViewController`'s API into SwiftUI.
-protocol OverlayContentContainer {
+protocol OverlayContentContainer: AnyObject {
     var cornerRadius: CGFloat { get }
     var isScrollViewLocked: Bool { get }
 
