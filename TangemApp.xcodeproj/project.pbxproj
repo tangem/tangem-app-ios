@@ -2720,6 +2720,7 @@
 		EF6CB17E292E1190001335EA /* EnvironmentSetupViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6CB17D292E1190001335EA /* EnvironmentSetupViewModel.swift */; };
 		EF6CCBEB2C91D7C70002D2B4 /* CommonSendAlertBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6CCBEA2C91D7C50002D2B4 /* CommonSendAlertBuilder.swift */; };
 		EF6CCBED2C91D7DF0002D2B4 /* StakingSendAlertBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6CCBEC2C91D7DE0002D2B4 /* StakingSendAlertBuilder.swift */; };
+		EF6D642A2D56459400EA2BF2 /* TotalBalanceStateBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6D64292D56459400EA2BF2 /* TotalBalanceStateBuilder.swift */; };
 		EF6EDD7E296C0D40001B21A3 /* CommonIncomingActionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD7C296C0D40001B21A3 /* CommonIncomingActionManager.swift */; };
 		EF6EDD7F296C0D40001B21A3 /* IncomingActionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD7D296C0D40001B21A3 /* IncomingActionManager.swift */; };
 		EF6EDD81296C0D61001B21A3 /* OrderedWeakObjectsCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD80296C0D61001B21A3 /* OrderedWeakObjectsCollection.swift */; };
@@ -5959,6 +5960,7 @@
 		EF6CB17D292E1190001335EA /* EnvironmentSetupViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnvironmentSetupViewModel.swift; sourceTree = "<group>"; };
 		EF6CCBEA2C91D7C50002D2B4 /* CommonSendAlertBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSendAlertBuilder.swift; sourceTree = "<group>"; };
 		EF6CCBEC2C91D7DE0002D2B4 /* StakingSendAlertBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingSendAlertBuilder.swift; sourceTree = "<group>"; };
+		EF6D64292D56459400EA2BF2 /* TotalBalanceStateBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalBalanceStateBuilder.swift; sourceTree = "<group>"; };
 		EF6EDD7C296C0D40001B21A3 /* CommonIncomingActionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonIncomingActionManager.swift; sourceTree = "<group>"; };
 		EF6EDD7D296C0D40001B21A3 /* IncomingActionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IncomingActionManager.swift; sourceTree = "<group>"; };
 		EF6EDD80296C0D61001B21A3 /* OrderedWeakObjectsCollection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderedWeakObjectsCollection.swift; sourceTree = "<group>"; };
@@ -14891,6 +14893,7 @@
 			children = (
 				EF5A5ACD28D86089002544AC /* TotalBalanceProvider.swift */,
 				EF5A5ACE28D86089002544AC /* TotalBalanceProviding.swift */,
+				EF6D64292D56459400EA2BF2 /* TotalBalanceStateBuilder.swift */,
 			);
 			path = TotalBalanceProvider;
 			sourceTree = "<group>";
@@ -18817,6 +18820,7 @@
 				EFAECCF12C1B702D0051710F /* SendAmountValidator.swift in Sources */,
 				5D51036D27C535AB0025EA55 /* ABIEncoder.swift in Sources */,
 				EFE255FA2C3D8C7C00B17DAC /* SendQRCodeService.swift in Sources */,
+				EF6D642A2D56459400EA2BF2 /* TotalBalanceStateBuilder.swift in Sources */,
 				2D5DCC2D2C3309F1000EE379 /* MarketsTokensNetworkSelectorAlertBuilder.swift in Sources */,
 				B6E932C32A2F2D860068D466 /* OrganizeTokensViewModel.swift in Sources */,
 				EF0DD7A12B02B3230099527D /* ExpressFeeRow.swift in Sources */,

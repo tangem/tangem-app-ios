@@ -58,6 +58,18 @@ extension TokenBalanceType {
     }
 }
 
+// MARK: - isEmpty
+
+extension TokenBalanceType {
+    /// Don't loaded balance for some reason (Haven't call update yet / noDerivation state)
+    func isEmpty(for reason: EmptyReason) -> Bool {
+        switch self {
+        case .empty(let emptyReason): emptyReason == reason
+        default: false
+        }
+    }
+}
+
 // MARK: - CustomStringConvertible
 
 extension TokenBalanceType: CustomStringConvertible {
