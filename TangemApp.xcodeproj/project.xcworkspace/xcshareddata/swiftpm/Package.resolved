@@ -339,8 +339,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/reown-com/reown-swift.git",
       "state" : {
-        "revision" : "8c1a43e28358a30dc03367dca2f38476f1573ece",
-        "version" : "1.0.4"
+        "revision" : "b51cc1d267b64a682e5bdb95960be4132b4e5e78",
+        "version" : "1.1.1"
       }
     },
     {
