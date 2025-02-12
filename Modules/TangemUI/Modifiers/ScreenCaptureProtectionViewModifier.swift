@@ -107,7 +107,11 @@ private struct ScreenCaptureProtectionContainerView<Content>: UIViewControllerRe
             contentViewController = UIHostingController(rootView: rootView)
         }
 
-        containerViewController.addChild(contentViewController)
+        // UIKit Container view controllers APIs are intentionally not used on iOS 15 because the presence of child VCs
+        // causes various layout bugs in SwiftUI NavigationView, see [REDACTED_INFO]
+        if #available(iOS 16.0, *) {
+            containerViewController.addChild(contentViewController)
+        }
 
         let containerView = containerViewController.view!
         let contentView = contentViewController.view!
@@ -122,7 +126,12 @@ private struct ScreenCaptureProtectionContainerView<Content>: UIViewControllerRe
             contentView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
             contentView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
         ])
-        contentViewController.didMove(toParent: containerViewController)
+
+        // UIKit Container view controllers APIs are intentionally not used on iOS 15 because the presence of child VCs
+        // causes various layout bugs in SwiftUI NavigationView, see [REDACTED_INFO]
+        if #available(iOS 16.0, *) {
+            contentViewController.didMove(toParent: containerViewController)
+        }
 
         return containerViewController
     }
@@ -161,6 +170,7 @@ private final class ScreenCaptureProtectionContainerViewController: UIViewContro
 
     override func loadView() {
         view = screenCaptureProtectionView
+        view.isUserInteractionEnabled = true
     }
 
     override func preferredContentSizeDidChange(forChildContentContainer container: any UIContentContainer) {
