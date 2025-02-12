@@ -413,49 +413,42 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    private func unlockStoragesWithBiometryContext(
-        _ context: LAContext,
-        completion: @escaping (UserWalletRepositoryResult?) -> Void
-    ) {
+    private func unlockStoragesWithBiometryContext(_ context: LAContext, completion: @escaping (UserWalletRepositoryResult?) -> Void) {
         visaRefreshTokenRepository.fetch(using: context)
+        do {
+            let keys = try encryptionKeyStorage.fetch(context: context)
 
-        queue.async {
-            do {
-                let keys = try self.encryptionKeyStorage.fetch(context: context)
-
-                if keys.isEmpty {
-                    // clean to prevent double tap
-                    AccessCodeRepository().clear()
-                    completion(.error(UserWalletRepositoryError.biometricsChanged))
-                    return
-                }
-
-                self.encryptionKeyByUserWalletId = keys
-                self.loadModels()
-                self.initializeServicesForSelectedModel()
-
-                self.sendEvent(.biometryUnlocked)
-
-                if let selectedModel = self.selectedModel { // [REDACTED_TODO_COMMENT]
-                    let savedUserWallets = self.savedUserWallets(withSensitiveData: false)
-                    if keys.count == savedUserWallets.count {
-                        completion(.success(selectedModel))
-                    } else {
-                        completion(.partial(selectedModel, UserWalletRepositoryError.biometricsChanged))
-                    }
-                } else {
-                    completion(nil) // [REDACTED_TODO_COMMENT]
-                }
-            } catch {
-                AppLog.shared.error(error)
-                completion(.error(error))
+            if keys.isEmpty {
+                // clean to prevent double tap
+                AccessCodeRepository().clear()
+                completion(.error(UserWalletRepositoryError.biometricsChanged))
+                return
             }
+
+            encryptionKeyByUserWalletId = keys
+            loadModels()
+            initializeServicesForSelectedModel()
+
+            sendEvent(.biometryUnlocked)
+
+            if let selectedModel = selectedModel { // [REDACTED_TODO_COMMENT]
+                let savedUserWallets = savedUserWallets(withSensitiveData: false)
+                if keys.count == savedUserWallets.count {
+                    completion(.success(selectedModel))
+                } else {
+                    completion(.partial(selectedModel, UserWalletRepositoryError.biometricsChanged))
+                }
+            } else {
+                completion(nil) // [REDACTED_TODO_COMMENT]
+            }
+        } catch {
+            AppLog.shared.error(error)
+            completion(.error(error))
         }
     }
 
     private func unlockWithCard(scanner: CardScanner, _ requiredUserWalletId: UserWalletId?, completion: @escaping (UserWalletRepositoryResult?) -> Void) {
         scanPublisher(scanner)
-            .receive(on: queue)
             .sink { [weak self] result in
                 guard let self else {
                     completion(result)
@@ -528,13 +521,15 @@ class CommonUserWalletRepository: UserWalletRepository {
     /// Method `loadModels` in case when we have 100+ wallets/tokens on main screen will be heavy for main thread
     /// Be sure that you call it on the background queue / thread
     private func loadModels() {
-        var savedUserWallets = savedUserWallets(withSensitiveData: true)
-        migrateNamesIfNeeded(&savedUserWallets)
+        queue.sync {
+            var savedUserWallets = savedUserWallets(withSensitiveData: true)
+            migrateNamesIfNeeded(&savedUserWallets)
 
-        models = savedUserWallets.map { userWalletStorageItem in
-            if let userWallet = CommonUserWalletModelFactory().makeModel(userWallet: userWalletStorageItem) {
-                return userWallet
-            } else {
+            models = savedUserWallets.map { userWalletStorageItem in
+                if let userWallet = CommonUserWalletModelFactory().makeModel(userWallet: userWalletStorageItem) {
+                    return userWallet
+                }
+
                 return LockedUserWalletModel(with: userWalletStorageItem)
             }
         }
