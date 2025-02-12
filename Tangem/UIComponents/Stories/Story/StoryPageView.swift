@@ -1,6 +1,6 @@
 //
 //  StoryPageView.swift
-//  TangemModules
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -8,6 +8,7 @@
 
 import SwiftUI
 
+// [REDACTED_TODO_COMMENT]
 struct StoryPageView: View {
     private let screenBounds = UIScreen.main.bounds
 
