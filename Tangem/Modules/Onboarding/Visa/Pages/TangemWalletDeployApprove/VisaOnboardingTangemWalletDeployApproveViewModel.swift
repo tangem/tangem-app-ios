@@ -92,7 +92,7 @@ final class VisaOnboardingTangemWalletDeployApproveViewModel: ObservableObject {
         case .failure(let error):
             log("Failed to sign approve data. Error: \(error)")
             if !error.isCancellationError {
-                await delegate?.showAlert(error.alertBinder)
+                await delegate?.showAlertAsync(error.alertBinder)
             }
         }
         isLoading = false
