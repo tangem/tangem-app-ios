@@ -17,11 +17,18 @@ struct TangemApiTarget: TargetType {
     // MARK: - TargetType
 
     var baseURL: URL {
-        AppEnvironment.current.apiBaseUrl
+        switch type {
+        case .rawData(let fullURL):
+            fullURL
+        default:
+            AppEnvironment.current.apiBaseUrl
+        }
     }
 
     var path: String {
         switch type {
+        case .rawData:
+            return ""
         case .currencies:
             return "/currencies"
         case .coins:
@@ -54,6 +61,8 @@ struct TangemApiTarget: TargetType {
             return "/user-network-account"
         case .apiList:
             return "/networks/providers"
+        case .story(let storyId):
+            return "/stories/\(storyId)"
 
             // MARK: - Markets paths
 
@@ -84,7 +93,8 @@ struct TangemApiTarget: TargetType {
 
     var method: Moya.Method {
         switch type {
-        case .currencies,
+        case .rawData,
+             .currencies,
              .coins,
              .quotes,
              .geo,
@@ -99,7 +109,8 @@ struct TangemApiTarget: TargetType {
              .historyChart,
              .tokenExchangesList,
              .hotCrypto,
-             .seedNotifyGetStatus:
+             .seedNotifyGetStatus,
+             .story:
             return .get
         case .saveUserWalletTokens,
              .seedNotifySetStatus:
@@ -119,6 +130,8 @@ struct TangemApiTarget: TargetType {
 
     var task: Task {
         switch type {
+        case .rawData:
+            return .requestPlain
         case .coins(let pageModel):
             return .requestParameters(pageModel)
         case .quotes(let pageModel):
@@ -168,6 +181,8 @@ struct TangemApiTarget: TargetType {
             return .requestJSONEncodable(parameters)
         case .apiList:
             return .requestPlain
+        case .story:
+            return .requestPlain
 
             // MARK: - Markets tasks
 
@@ -206,6 +221,10 @@ struct TangemApiTarget: TargetType {
     }
 
     var headers: [String: String]? {
+        if case .rawData = type {
+            return nil
+        }
+
         var headers: [String: String] = [:]
 
         if let authData {
@@ -219,6 +238,9 @@ struct TangemApiTarget: TargetType {
 
 extension TangemApiTarget {
     enum TargetType {
+        /// Used to fetch binary data (images, documents, etc.) from a given `URL`.
+        case rawData(url: URL)
+
         case currencies
         case coins(_ requestModel: CoinsList.Request)
         case quotes(_ requestModel: QuotesDTO.Request)
@@ -237,6 +259,8 @@ extension TangemApiTarget {
         case awardNewUser(walletId: String, address: String, code: String)
         case awardOldUser(walletId: String, address: String, programName: String)
         case resetAward(cardId: String)
+
+        case story(_ id: String)
 
         // MARK: - Markets Targets
 
@@ -283,7 +307,8 @@ extension TangemApiTarget: TargetTypeLogConvertible {
 
     var shouldLogResponseBody: Bool {
         switch type {
-        case .currencies, .coins, .quotes, .apiList, .coinsList, .coinsHistoryChartPreview, .historyChart, .tokenMarketsDetails, .tokenExchangesList, .hotCrypto:
+        case .currencies, .coins, .quotes, .apiList, .coinsList, .coinsHistoryChartPreview,
+             .historyChart, .tokenMarketsDetails, .tokenExchangesList, .hotCrypto, .story, .rawData:
             return false
         case .geo, .features, .getUserWalletTokens, .saveUserWalletTokens, .loadReferralProgramInfo, .participateInReferralProgram, .createAccount, .promotion, .validateNewUserPromotionEligibility, .validateOldUserPromotionEligibility, .awardNewUser, .awardOldUser, .resetAward, .seedNotifyGetStatus, .seedNotifySetStatus, .walletInitialized:
             return true
