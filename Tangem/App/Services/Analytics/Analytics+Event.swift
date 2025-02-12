@@ -180,7 +180,7 @@ extension Analytics {
         // MARK: - Seed phrase
 
         case onboardingSeedButtonOtherCreateWalletOptions = "[Onboarding / Create Wallet] Button - Other Options"
-        case onboarindgSeedButtonGenerateSeedPhrase = "[Onboarding / Seed Phrase] Button - Generate Seed Phrase"
+        case onboardingSeedButtonGenerateSeedPhrase = "[Onboarding / Seed Phrase] Button - Generate Seed Phrase"
         case onboardingSeedButtonImportWallet = "[Onboarding / Seed Phrase] Button - Import Wallet"
         case onboardingSeedButtonReadMore = "[Onboarding / Seed Phrase] Button - Read More"
         case onboardingSeedButtonImport = "[Onboarding / Seed Phrase] Button - Import"

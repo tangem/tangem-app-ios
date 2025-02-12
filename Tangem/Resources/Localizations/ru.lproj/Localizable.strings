@@ -86,7 +86,7 @@
 "common_accept" = "Принять";
 "common_access_denied" = "Доступ запрещен";
 "common_add_to_portfolio" = "Add to portfolio";
-"common_add_token" = "Add token";
+"common_add_token" = "Добавить токен";
 "common_all" = "Все";
 "common_allow" = "Разрешить";
 "common_analytics" = "Аналитика";
@@ -133,6 +133,7 @@
 "common_generate_addresses" = "Синхронизировать адреса";
 "common_go_to_provider" = "К провайдеру";
 "common_go_to_token" = "Перейти в токен";
+"common_hide" = "Скрыть";
 "common_hour" = "час";
 "common_import" = "Импортировать";
 "common_in_progress" = "В процессе";
@@ -199,7 +200,6 @@
 "common_yes" = "Да";
 "contract_address_copied_message" = "Адрес контракта скопирован!";
 "currency_subtitle_expanded" = "Доступные сети";
-"custom_token_add_token" = "Добавить токен";
 "custom_token_contract_address_input_title" = "Адрес контракта";
 "custom_token_creation_error_empty_fields" = "Пожалуйста, заполните все поля";
 "custom_token_creation_error_invalid_contract_address" = "Адрес контракта некорректен";
@@ -309,6 +309,9 @@
 "express_status_bought" = "Куплено %@";
 "express_status_buying" = "Покупка %@";
 "express_status_buying_active" = "Покупка %@...";
+"express_status_hide_button_text" = "Скрыть эту транзакцию";
+"express_status_hide_dialog_text" = "После скрытия статус транзакции нельзя будет просмотреть снова. Вместо этого вы можете просто свайпнуть плашку вниз, чтобы закрыть её.";
+"express_status_hide_dialog_title" = "Скрыть статус транзакции?";
 "express_token_list_empty_search" = "Токены не найдены. Пожалуйста, попробуйте другой запрос";
 "express_transaction_id" = "ID: %@";
 "express_transaction_id_copied" = "ID транзакции скопирован";
@@ -335,8 +338,8 @@
 "give_permission_unlimited" = "Безлимитно";
 "home_button_order" = "Купить";
 "home_button_scan" = "Сканировать";
-"hot_crypto_add_token_subtitle" = "to %@";
-"hot_crypto_token_network" = "In %@";
+"hot_crypto_add_token_subtitle" = "в %@";
+"hot_crypto_token_network" = "В сети %@";
 "information_generated_with_ai" = "Эта информация была сгенерирована ИИ.\nНажмите здесь, если обнаружили ошибку.";
 "initial_message_change_access_code_body" = "Чтобы изменить код доступа, приложите карту или кольцо как показано выше и не убирайте до окончания операции";
 "initial_message_change_passcode_body" = "Чтобы изменить пароль, приложите карту как показано выше и не убирайте до окончания операции";
@@ -382,7 +385,6 @@
 "markets_add_to_my_portfolio_description" = "Чтобы купить, обменять или получить данный токен, вам нужно добавить его к себе в портфель";
 "markets_add_to_my_portfolio_unavailable_description" = "Этот актив в настоящее время не поддерживается в кошельке";
 "markets_add_to_my_portfolio_unavailable_for_wallet_description" = "Этот токен не доступен для данного кошелька";
-"markets_add_to_portfolio_button" = "Добавить в портфель";
 "markets_add_token" = "Добавить";
 "markets_available networks" = "Доступные сети";
 "markets_common_my_portfolio" = "Мой портфель";
@@ -755,12 +757,16 @@
 "staking_details_warmup_period" = "Период прогрева";
 "staking_details_warmup_period_info" = "Время, необходимое для начала процесса стейкинга и активации процесса начисления наград";
 "staking_dismiss_message" = "Вы действительно хотите закрыть окно стейкинга?";
+"staking_error_no_validators_message" = "No available validators at the moment. Please try again later.";
+"staking_error_no_validators_title" = "Staking Unavailable";
 "staking_give_permission_fee_footer" = "Комиссия сети за одобрение токена будет взиматься за подтверждение того, что именно вы разрешаете использовать ваш токен для стейкинга.";
 "staking_legal" = "Пользуясь стейкинг сервисом, вы соглашаетесь с %1$@ и %2$@";
 "staking_locked" = "Заблокировано";
 "staking_migrate" = "Переместить";
 "staking_native" = "Нативный стейкинг";
 "staking_no_validators_error_message" = "В данный момент нет доступных активных валидаторов для стейкинга. Пожалуйста, попробуйте позже.";
+"staking_notification_additional_ada_deposit_text" = "When staking on the Cardano network, your entire balance is used. An additional 2 ADA will be reserved and returned after unstaking. Your ADA remains unlocked while staking.";
+"staking_notification_additional_ada_deposit_title" = "ADA Staking Details";
 "staking_notification_claim_rewards_text" = "Полученная награда отправится на ваш кошелек и сразу станет доступна для использования";
 "staking_notification_earn_rewards_text" = "Стейкайте безопасно и начинайте получать ваши награды.";
 "staking_notification_earn_rewards_text_daily" = "Стейкайте безопасно и начинайте получать ежедневные награды.";
@@ -774,6 +780,8 @@
 "staking_notification_earn_rewards_title" = "Получите награду за стейкинг";
 "staking_notification_low_staked_balance_text" = "Оставшийся застейканный баланс будет слишком мал для вывода. Вам потребуется застейкать больше средств, чтобы достичь минимальной суммы для вывода.";
 "staking_notification_low_staked_balance_title" = "Низкий баланс стейкинга";
+"staking_notification_minimum_balance_error_text" = "A minimum of %1$@ %2$@ is required for restaking. Please top up your balance.";
+"staking_notification_minimum_balance_error_title" = "Недостаточно %@";
 "staking_notification_network_error_text" = "Стейкинг временно недоступен из-за проблем в сети. Пожалуйста, попробуйте позже.";
 "staking_notification_new_validator_funds_transfer" = "Стейкинг в сети %1$@ с новым валидатором автоматически переведет ваши текущие застейканные средства на него.";
 "staking_notification_restake_rewards_text" = "Реинвестируйте свои заработанные награды в вашу застейканную сумму, увеличивая потенциальный доход";
@@ -849,6 +857,16 @@
 "swap_give_permission_fee_footer" = "Комиссия сети за одобрение токена будет взиматься за подтверждение того, что именно вы разрешаете использовать ваш токен для обмена.";
 "swap_promo_text" = "Обменивайте больше токенов по лучшим курсам прямо в вашем кошельке.";
 "swap_promo_title" = "Новый провайдер обмена!";
+"swap_story_fifth_subtitle" = "Надёжная поддержка 24/7, чтобы ваши финансовые операции были быстрыми и безопасными!";
+"swap_story_fifth_title" = "Круглосуточная поддержка";
+"swap_story_first_subtitle" = "Надёжные провайдеры позволяют легко обменивать активы, обеспечивая полную безопасность в вашем кошельке";
+"swap_story_first_title" = "Обменивайте с нами";
+"swap_story_forth_subtitle" = "Высший уровень безопасности и проверенные поставщики гарантируют защиту ваших активов при каждой сделке";
+"swap_story_forth_title" = "Безопаснее, чем когда-либо";
+"swap_story_second_subtitle" = "Получайте максимальную выгоду с лучшими курсами от надёжных поставщиков";
+"swap_story_second_title" = "Лучшие курсы";
+"swap_story_third_subtitle" = "Просто и удобно — обмен токенов всего в несколько касаний";
+"swap_story_third_title" = "Проще, чем когда-либо";
 "swapping_alert_cex_description" = "В сумму включено: \n• комиссия провайдера сервиса\n• комиссия сети за отправку %@ от биржи обратно на адрес пользователя.";
 "swapping_alert_cex_description_with_slippage" = "В сумму включено: \n• комиссия провайдера сервиса\n• комиссия сети за отправку %1$@ от биржи обратно на адрес пользователя \n\nПроскальзывание провайдера составляет до %2$@";
 "swapping_alert_dex_description" = "В сумму включена комиссия провайдера сервиса.";
