@@ -21,6 +21,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/Moya/Moya.git", .upToNextMajor(from: "15.0.0")),
         .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.0.0")),
+        .package(url: "https://github.com/onevcat/Kingfisher.git", .upToNextMajor(from: "7.11.0")),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
 )
@@ -64,6 +65,9 @@ var serviceModules: [PackageDescription.Target] {
         ),
         .tangemTarget(
             name: "TangemUI",
+            dependencies: [
+                "TangemFoundation",
+            ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
                 .swiftLanguageMode(.v5),
@@ -77,7 +81,17 @@ var serviceModules: [PackageDescription.Target] {
 /// Valid examples are `Onboarding`, `Auth`, `Catalog`, etc.
 var featureModules: [PackageDescription.Target] {
     [
-        // Currently there are no feature modules
+        .tangemTarget(
+            name: "TangemStories",
+            dependencies: [
+                "TangemUI",
+                "Kingfisher",
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
     ]
 }
 
