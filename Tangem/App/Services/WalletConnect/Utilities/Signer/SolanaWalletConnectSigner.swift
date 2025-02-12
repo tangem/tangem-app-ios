@@ -21,7 +21,7 @@ struct SolanaWalletConnectSigner: WalletConnectSigner {
 
     func sign(hashes: [Data], using walletModel: WalletModel) async throws -> [Data] {
         let pubKey = walletModel.wallet.publicKey
-        
+
         return try await signer.sign(hashes: hashes, walletPublicKey: pubKey)
             .eraseToAnyPublisher()
             .async()
