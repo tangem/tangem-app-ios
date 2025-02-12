@@ -10,6 +10,7 @@ import Combine
 import Foundation
 
 protocol TotalBalanceProviding {
+    var totalBalance: TotalBalanceState { get }
     var totalBalancePublisher: AnyPublisher<TotalBalanceState, Never> { get }
 }
 
