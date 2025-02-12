@@ -18,6 +18,8 @@ struct MarketsTokenDetailsExchangesListView: View {
     @State private var headerHeight: CGFloat = .zero
     @State private var safeArea: EdgeInsets = .init()
 
+    @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
+
     private var isDarkColorScheme: Bool { colorScheme == .dark }
     private var defaultBackgroundColor: Color { Colors.Background.primary }
 
@@ -30,10 +32,10 @@ struct MarketsTokenDetailsExchangesListView: View {
             .if(!viewModel.isMarketsSheetStyle) { view in
                 view.navigationTitle(navigationBarTitle)
             }
-            .onOverlayContentStateChange { [weak viewModel] state in
+            .onOverlayContentStateChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] state in
                 viewModel?.onOverlayContentStateChange(state)
             }
-            .onOverlayContentProgressChange { [weak viewModel] progress in
+            .onOverlayContentProgressChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] progress in
                 viewModel?.onOverlayContentProgressChange(progress)
             }
             .background(defaultBackgroundColor.ignoresSafeArea())

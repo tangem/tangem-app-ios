@@ -133,6 +133,7 @@
 "common_generate_addresses" = "Adressen synchronisieren";
 "common_go_to_provider" = "Zum Anbieter gehen";
 "common_go_to_token" = "Zum Token";
+"common_hide" = "Ausblenden";
 "common_hour" = "stunde";
 "common_import" = "Importieren";
 "common_in_progress" = "In Arbeit";
@@ -199,7 +200,6 @@
 "common_yes" = "Ja";
 "contract_address_copied_message" = "Vertragsadresse kopiert!";
 "currency_subtitle_expanded" = "Verfügbare Netzwerke";
-"custom_token_add_token" = "Token hinzufügen";
 "custom_token_contract_address_input_title" = "Vertragsadresse";
 "custom_token_creation_error_empty_fields" = "Bitte fülle alle Felder aus";
 "custom_token_creation_error_invalid_contract_address" = "Vertragsadresse ist ungültig";
@@ -309,6 +309,9 @@
 "express_status_bought" = "Gekauft %@";
 "express_status_buying" = "Kauf %@";
 "express_status_buying_active" = "Kauf %@…";
+"express_status_hide_button_text" = "Diese Transaktion ausblenden";
+"express_status_hide_dialog_text" = "Sobald der Transaktionsstatus ausgeblendet ist, kann er nicht mehr angezeigt werden. Stattdessen kannst Du ihn durch einfaches Wischen schließen.";
+"express_status_hide_dialog_title" = "Diese Transaktion ausblenden";
 "express_token_list_empty_search" = "Keine Token gefunden. Bitte versuche eine andere Anfrage";
 "express_transaction_id" = "ID: %@";
 "express_transaction_id_copied" = "Transaktions-ID kopiert";
@@ -336,7 +339,7 @@
 "home_button_order" = "Karte oder Ring bestellen";
 "home_button_scan" = "Karte oder Ring scannen";
 "hot_crypto_add_token_subtitle" = "An %@";
-"hot_crypto_token_network" = "In %@";
+"hot_crypto_token_network" = "Im %@ Netzwerk";
 "information_generated_with_ai" = "Diese Informationen wurden mithilfe von KI generiert.\nTippe hier, wenn Du Fehler finden.";
 "initial_message_change_access_code_body" = "Um den Zugangscode zu ändern, halte die Karte oder Ring wie oben gezeigt an das Gerät und entferne sie erst am Ende des Vorgangs.";
 "initial_message_change_passcode_body" = "Um den Passcode zu ändern, halte die Karte oder Ring wie oben gezeigt an das Gerät und entferne sie erst am Ende des Vorgangs.";
@@ -382,7 +385,6 @@
 "markets_add_to_my_portfolio_description" = "Um dieses Asset zu kaufen, zu tauschen oder zu erhalten, füge diesen Deinem Portfolio hinzu";
 "markets_add_to_my_portfolio_unavailable_description" = "Dieses Asset wird derzeit in der Wallet nicht unterstützt.";
 "markets_add_to_my_portfolio_unavailable_for_wallet_description" = "Dieses Asset ist für dieses Wallet nicht verfügbar";
-"markets_add_to_portfolio_button" = "Zum Portfolio hinzufügen";
 "markets_add_token" = "Hinzufügen";
 "markets_available networks" = "Verfügbare Netzwerke";
 "markets_common_my_portfolio" = "Mein Portfolio";
@@ -544,7 +546,7 @@
 "onboarding_title_notifications" = "Benachrichtigungen";
 "onboarding_title_one_backup_card" = "Eine Backupgerät hinzugefügt";
 "onboarding_title_scan_origin_card" = "Bereite deine Karte oder Ring vor";
-"onboarding_title_two_backup_cards" = "Zweis Backupgerät hinzugefügt";
+"onboarding_title_two_backup_cards" = "Zweites Backupgerät hinzugefügt";
 "onboarding_top_up_body" = "Um zu beginnen, lade einfach die wallet mit einem beliebigen Betrag auf";
 "onboarding_top_up_body_no_account_error" = "Um zu beginnen, lade die Wallet einfach mit mehr als %1$@ %2$@ auf.";
 "onboarding_top_up_button_but_crypto" = "Krypto kaufen";
@@ -755,12 +757,16 @@
 "staking_details_warmup_period" = "Aufwärmphase";
 "staking_details_warmup_period_info" = "Die zugewiesene Zeit für die Aktivierung der Teilnahme am Staking.";
 "staking_dismiss_message" = "Möchtest du den Staking-Bildschirm wirklich schließen?";
+"staking_error_no_validators_message" = "Zurzeit sind keine Validierer verfügbar. Bitte versuche es später noch einmal.";
+"staking_error_no_validators_title" = "Staking nicht verfügbar";
 "staking_give_permission_fee_footer" = "Das Netzwerk erhebt eine Token-Genehmigungsgebühr, um zu überprüfen, ob Du die Verwendung Deines Tokens für das Staking genehmigst.";
 "staking_legal" = "Indem Du die Staking-Funktionalität nutzt, stimmst Du den %1$@ und %2$@ des Anbieters zu.";
 "staking_locked" = "Gesperrt";
 "staking_migrate" = "Migrieren";
 "staking_native" = "Natives Staking";
 "staking_no_validators_error_message" = "Derzeit sind keine aktiven Validatoren für das Staking verfügbar. Bitte versuchen Sie es später erneut.";
+"staking_notification_additional_ada_deposit_text" = "Beim Staking im Cardano-Netzwerk wird Dein gesamtes Guthaben verwendet. Weitere 2 ADA werden reserviert und nach dem Unstaking zurückgegeben. Deine ADA bleiben während des Stakings freigeschaltet.";
+"staking_notification_additional_ada_deposit_title" = "Einzelheiten zum ADA-Staking";
 "staking_notification_claim_rewards_text" = "Verdiente Belohnungen werden an Deine Wallet gesendet und stehen Dir sofort zur Verfügung";
 "staking_notification_earn_rewards_text" = "Stake sicher und verdienen Belohnungen";
 "staking_notification_earn_rewards_text_daily" = "Sicher staken und tägliche Belohnungen verdienen.";
@@ -774,8 +780,10 @@
 "staking_notification_earn_rewards_title" = "Verdiene Staking-Belohnungen";
 "staking_notification_low_staked_balance_text" = "Dein verbleibender Stakingbetrag ist zu niedrig, um den Einsatz aufzuheben. Du musst mehr Staken, um den Mindestbetrag zum Aufheben des Einsatzes zu erreichen.";
 "staking_notification_low_staked_balance_title" = "Niedriges Stakingguthaben";
+"staking_notification_minimum_balance_error_text" = "Für erneutes Staking sind mindestens %1$@ %2$@ erforderlich. Bitte lade Dein Guthaben auf.";
+"staking_notification_minimum_balance_error_title" = "Nicht genug %@";
 "staking_notification_network_error_text" = "Aufgrund von Netzwerkproblemen ist Staking derzeit nicht verfügbar. Bitte versuche es später erneut.";
-"staking_notification_new_validator_funds_transfer" = "Beim Staking im %1$@ -Netzwerk mit einem neuen Validator werden alle zuvor eingesetzten Kryptos automatisch an diesen Validator übertragen";
+"staking_notification_new_validator_funds_transfer" = "Wenn Du im %1$@ -Netzwerk mit einem neuen Validator stakest, werden alle zuvor eingesetzten Gelder automatisch an diesen Validator übertragen.";
 "staking_notification_restake_rewards_text" = "Reinvestiert Deine verdienten Prämien in Deinen Einsatzbetrag und erhöht so den potenziellen Gewinn.";
 "staking_notification_restake_text" = "Mit Restake kannst Du Dein Guthaben von einem Validator zu einem anderen verschieben, ohne dass Du den Stake aufheben musst.";
 "staking_notification_stake_entire_balance_text" = "Du bist dabei, Dein gesamtes Guthaben zu staken. Wir empfehlen, einen kleinen Betrag übrig zu lassen, um die Netzwerkgebühren für die Aufhebung des Stakes oder das Einfordern von Prämien abzudecken.";
@@ -849,6 +857,16 @@
 "swap_give_permission_fee_footer" = "Das Netzwerk erhebt eine Token-Genehmigungsgebühr, um zu überprüfen, ob Sie die Verwendung Ihres Tokens für den Swap genehmigen.";
 "swap_promo_text" = "Tausche mehr Token zu besseren Kursen direkt in deiner Brieftasche.";
 "swap_promo_title" = "Neuer Swap-Anbieter verfügbar!";
+"swap_story_fifth_subtitle" = "Du kannst Dich darauf verlassen, dass Deine Transaktionen jederzeit reibungslos ablaufen, da Sie ständig geprüft werden";
+"swap_story_fifth_title" = "Hilfe rund um die Uhr";
+"swap_story_first_subtitle" = "Mit vertrauenswürdigen Börsenanbietern kannst Du mühelos Vermögenswerte tauschen, wobei alles sicher in Deiner Wallet verbleibt";
+"swap_story_first_title" = "Tausche sich mit uns";
+"swap_story_forth_subtitle" = "Höchste Sicherheit und geprüfte Anbieter gewährleisten, dass Deine Vermögenswerte bei jedem Swap geschützt sind";
+"swap_story_forth_title" = "Sicherer denn je";
+"swap_story_second_subtitle" = "Maximiere Deine Wert mit Tarifen aus einem breiten Netzwerk vertrauenswürdiger Anbieter und wähle immer den Besten aus";
+"swap_story_second_title" = "Bester Preis";
+"swap_story_third_subtitle" = "Problemlos und intuitiv, sodass Deine Token mit nur wenigen Handgriffen getauscht werden können";
+"swap_story_third_title" = "Einfacher als je zuvor";
 "swapping_alert_cex_description" = "Der Betrag umfasst:\n- Gebühr des Dienstanbieters\n- Netzgebühr für die Rücksendung von %@ von der Vermittlungsstelle an die Adresse des Nutzers.";
 "swapping_alert_cex_description_with_slippage" = "Der Betrag beinhaltet:\n• Honorar des Dienstleisters\n• Netzwerkgebühr für das Senden %1$@ von der Börse zurück an die Adresse des Benutzers. \n\n Provider-Slippage kann bis zu %2$@";
 "swapping_alert_dex_description" = "Der Betrag enthält die Gebühren des Dienstleisters.";
@@ -876,7 +894,7 @@
 "token_button_unavailability_reason_empty_balance_sell" = "Du hast kein Guthaben um dies zu Verkaufen. Lade dein Konto auf, um Geld von dort zu verkaufen.";
 "token_button_unavailability_reason_empty_balance_send" = "Du hast kein Guthaben zum Versenden. Lade dein Konto auf, um Geld von dort aus senden zu können.";
 "token_button_unavailability_reason_not_exchangeable" = "Das Tauschen von %@ wird von aktuellen Anbietern nicht unterstützt, aber wir arbeiten daran, weitere Optionen hinzuzufügen.";
-"token_button_unavailability_reason_pending_transaction_sell" = "Das Geld für den Verkauf steht zur Verfügung, sobald die ausstehende(n) Transaktion(en) im Netzwerk %@ abgeschlossen ist/sind.";
+"token_button_unavailability_reason_pending_transaction_sell" = "Der Verkauf von Geldmitteln ist möglich, sobald die ausstehende(n) Transaktion(en) im %@ -Netzwerk abgeschlossen ist/sind.";
 "token_button_unavailability_reason_pending_transaction_send" = "Die Geldsendung wird verfügbar, sobald die ausstehende(n) Transaktion(en) im Netzwerk %@ abgeschlossen ist/sind.";
 "token_button_unavailability_reason_sell_unavailable" = "Der Verkauf von %@ wird von aktuellen Anbietern nicht unterstützt, aber wir arbeiten daran, weitere Optionen hinzuzufügen.";
 "token_button_unavailability_reason_staking_unavailable" = "Staking %@ wird von aktuellen Anbietern nicht unterstützt, aber wir arbeiten daran, weitere Optionen hinzuzufügen.";
