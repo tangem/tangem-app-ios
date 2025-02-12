@@ -71,16 +71,15 @@ class VisaOnboardingViewModel: ObservableObject {
         currentStep.navigationTitle
     }
 
-    var isBackButtonVisible: Bool {
-        if currentStep == .success {
-            return false
+    var leftButtonType: VisaOnboardingView.LeftButtonType? {
+        switch currentStep {
+        case .success:
+            return nil
+        case .paymentAccountDeployInProgress, .issuerProcessingInProgress:
+            return .close
+        default:
+            return .back
         }
-
-        return true
-    }
-
-    var isBackButtonEnabled: Bool {
-        return true
     }
 
     var isSupportButtonVisible: Bool {
@@ -146,6 +145,11 @@ class VisaOnboardingViewModel: ObservableObject {
         case .success:
             break
         }
+    }
+
+    func closeButtonAction() {
+        // Subject to change later
+        showCloseOnboardingAlert()
     }
 
     func openSupport() {
