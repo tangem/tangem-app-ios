@@ -70,6 +70,10 @@ final class ActionButtonsViewModel: ObservableObject {
         bind()
     }
 
+    deinit {
+        AppLog.shared.debug("deinit \(self)")
+    }
+
     func refresh() {
         // do nothing if already iniitialized
         exchangeService.initialize()
@@ -102,7 +106,7 @@ private extension ActionButtonsViewModel {
             .walletModelsPublisher
             .withWeakCaptureOf(self)
             .sink { viewModel, walletModels in
-                TangemFoundation.runTask(in: self) { @MainActor viewModel in
+                TangemFoundation.runTask(in: viewModel) { @MainActor viewModel in
                     if walletModels.isEmpty {
                         viewModel.disabledAllButtons()
                     } else {
@@ -319,5 +323,13 @@ private extension ActionButtonsViewModel {
         case .countryNotSupported:
             sellActionButtonViewModel.updateState(to: .idle)
         }
+    }
+}
+
+// MARK: - CustomStringConvertible
+
+extension ActionButtonsViewModel: CustomStringConvertible {
+    var description: String {
+        TangemFoundation.objectDescription(self)
     }
 }
