@@ -1,11 +1,12 @@
 //
 //  StoryViewEvent.swift
-//  TangemModules
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+// [REDACTED_TODO_COMMENT]
 enum StoryViewEvent {
     case viewDidAppear
     case viewDidDisappear
