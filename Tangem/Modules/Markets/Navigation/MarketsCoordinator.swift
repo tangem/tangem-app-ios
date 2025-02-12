@@ -35,6 +35,10 @@ class MarketsCoordinator: CoordinatorObject {
         self.popToRootAction = popToRootAction
     }
 
+    deinit {
+        AppLog.shared.debug("MarketsCoordinator deinit")
+    }
+
     // MARK: - Implementation
 
     func start(with options: MarketsCoordinator.Options) {
