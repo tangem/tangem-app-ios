@@ -931,7 +931,7 @@ extension WalletOnboardingViewModel {
     }
 
     func generateSeedPhrase() {
-        Analytics.log(.onboarindgSeedButtonGenerateSeedPhrase)
+        Analytics.log(.onboardingSeedButtonGenerateSeedPhrase)
         do {
             try seedPhraseManager.generateSeedPhrase()
             generateSeedPhraseModel = .init(seedPhraseManager: seedPhraseManager, delegate: self)
