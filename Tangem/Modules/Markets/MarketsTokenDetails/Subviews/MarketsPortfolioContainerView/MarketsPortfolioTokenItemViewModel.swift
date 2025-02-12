@@ -28,9 +28,8 @@ class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
     var hasMonochromeIcon: Bool { networkUnreachable || missingDerivation }
     var isCustom: Bool { tokenIcon.isCustom }
     var customTokenColor: Color? { tokenIcon.customTokenColor }
-    var tokenItem: TokenItem { tokenItemInfoProvider.tokenItem }
-
     var hasError: Bool { missingDerivation || networkUnreachable }
+    var hasZeroBalance: Bool { tokenItemInfoProvider?.balance.value ?? 0 == 0 }
 
     var errorMessage: String? {
         // Don't forget to add check in trailing item in `TokenItemView` when adding new error here
@@ -45,15 +44,15 @@ class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
         return nil
     }
 
-    let id = UUID()
+    let id: WalletModelId
     let userWalletId: UserWalletId
     let walletName: String
-
     let tokenIcon: TokenIconInfo
-    let tokenItemInfoProvider: TokenItemInfoProvider
+    let tokenItem: TokenItem
 
     // MARK: - Private Properties
 
+    private weak var tokenItemInfoProvider: TokenItemInfoProvider?
     private weak var contextActionsProvider: MarketsPortfolioContextActionsProvider?
     private weak var contextActionsDelegate: MarketsPortfolioContextActionsDelegate?
 
@@ -62,16 +61,20 @@ class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
     // MARK: - Init
 
     init(
+        id: WalletModelId,
         userWalletId: UserWalletId,
         walletName: String,
         tokenIcon: TokenIconInfo,
+        tokenItem: TokenItem,
         tokenItemInfoProvider: TokenItemInfoProvider,
-        contextActionsProvider: MarketsPortfolioContextActionsProvider?,
-        contextActionsDelegate: MarketsPortfolioContextActionsDelegate?
+        contextActionsProvider: MarketsPortfolioContextActionsProvider,
+        contextActionsDelegate: MarketsPortfolioContextActionsDelegate
     ) {
+        self.id = id
         self.userWalletId = userWalletId
         self.walletName = walletName
         self.tokenIcon = tokenIcon
+        self.tokenItem = tokenItem
         self.tokenItemInfoProvider = tokenItemInfoProvider
         self.contextActionsProvider = contextActionsProvider
         self.contextActionsDelegate = contextActionsDelegate
@@ -87,13 +90,13 @@ class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
     }
 
     func didTapContextAction(_ actionType: TokenActionType) {
-        contextActionsDelegate?.didTapContextAction(actionType, walletModelId: tokenItemInfoProvider.id, userWalletId: userWalletId)
+        contextActionsDelegate?.didTapContextAction(actionType, walletModelId: id, userWalletId: userWalletId)
     }
 
     // MARK: - Private Implementation
 
     private func bind() {
-        tokenItemInfoProvider
+        tokenItemInfoProvider?
             .balancePublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] type in
@@ -101,7 +104,7 @@ class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
             })
             .store(in: &bag)
 
-        tokenItemInfoProvider
+        tokenItemInfoProvider?
             .balanceTypePublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] type in
@@ -109,7 +112,7 @@ class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
             })
             .store(in: &bag)
 
-        tokenItemInfoProvider
+        tokenItemInfoProvider?
             .fiatBalanceTypePublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] type in
@@ -117,7 +120,7 @@ class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
             })
             .store(in: &bag)
 
-        tokenItemInfoProvider
+        tokenItemInfoProvider?
             .actionsUpdatePublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
@@ -147,13 +150,13 @@ class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
     }
 
     private func updatePendingTransactionsStateIfNeeded() {
-        hasPendingTransactions = tokenItemInfoProvider.hasPendingTransactions
+        hasPendingTransactions = tokenItemInfoProvider?.hasPendingTransactions ?? false
     }
 
     private func buildContextActions() {
         contextActions = contextActionsProvider?.buildContextActions(
             tokenItem: tokenItem,
-            walletModelId: tokenItemInfoProvider.id,
+            walletModelId: id,
             userWalletId: userWalletId
         ) ?? []
     }

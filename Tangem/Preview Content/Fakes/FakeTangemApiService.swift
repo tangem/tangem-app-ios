@@ -17,6 +17,10 @@ class FakeTangemApiService: TangemApiService {
         self.geoIpRegionCode = geoIpRegionCode
     }
 
+    func getRawData(fromURL url: URL) async throws -> Data {
+        throw "Not implemented"
+    }
+
     func loadGeo() -> AnyPublisher<String, any Error> {
         return .justWithError(output: geoIpRegionCode)
     }
@@ -92,6 +96,10 @@ class FakeTangemApiService: TangemApiService {
     }
 
     func resetAwardForCurrentWallet(cardId: String) async throws -> PromotionAwardResetResult {
+        throw "Not implemented"
+    }
+
+    func loadStory(storyId: String) async throws -> StoryDTO.Response {
         throw "Not implemented"
     }
 

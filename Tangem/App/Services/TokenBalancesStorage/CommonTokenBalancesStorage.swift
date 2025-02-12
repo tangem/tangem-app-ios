@@ -25,8 +25,8 @@ class CommonTokenBalancesStorage {
      ```
      */
     private typealias Balances = [String: [String: [String: CachedBalance]]]
-    @Injected(\.persistentStorage) private var storage: PersistentStorageProtocol
 
+    private let storage = CachesDirectoryStorage(file: .cachedBalances)
     private let queue = DispatchQueue(label: "com.tangem.TokenBalancesStorage", attributes: .concurrent)
     private let balances: CurrentValueSubject<Balances, Never> = .init([:])
     private var bag: Set<AnyCancellable> = []
@@ -65,7 +65,7 @@ private extension CommonTokenBalancesStorage {
             .dropFirst()
             .removeDuplicates()
             // Add small debounce to reduce impact to write to disk operation
-            .debounce(for: 0.5, scheduler: queue)
+            .debounce(for: 0.1, scheduler: DispatchQueue.global())
             .withWeakCaptureOf(self)
             .receiveValue { $0.save(balances: $1) }
             .store(in: &bag)
@@ -73,7 +73,7 @@ private extension CommonTokenBalancesStorage {
 
     func loadBalances() {
         do {
-            try balances.send(storage.value(for: .cachedBalances) ?? [:])
+            try balances.send(storage.value())
             log("Storage load successfully")
         } catch {
             log("Storage load error \(error.localizedDescription)")
@@ -83,8 +83,7 @@ private extension CommonTokenBalancesStorage {
 
     private func save(balances: Balances) {
         do {
-            try storage.store(value: balances, for: .cachedBalances)
-            log("Storage save successfully")
+            try storage.store(value: balances)
         } catch {
             log("Storage save error \(error.localizedDescription)")
             AppLog.shared.error(error)
