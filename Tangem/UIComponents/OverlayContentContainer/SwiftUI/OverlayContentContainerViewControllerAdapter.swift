@@ -12,7 +12,9 @@ import SwiftUI
 /// SwiftUI-compatible adapter for `OverlayContentContainerViewController`.
 final class OverlayContentContainerViewControllerAdapter {
     private weak var containerViewController: OverlayContentContainerViewController?
+}
 
+extension OverlayContentContainerViewControllerAdapter: OverlayContentContainerInitializable {
     func set(_ containerViewController: OverlayContentContainerViewController) {
         self.containerViewController = containerViewController
     }

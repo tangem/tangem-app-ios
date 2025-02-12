@@ -9,8 +9,8 @@
 import Foundation
 
 protocol TokenBalancesRepository {
-    func balance(walletModel: WalletModel, type: CachedBalanceType) -> CachedBalance?
-    func store(balance: CachedBalance, for walletModel: WalletModel, type: CachedBalanceType)
+    func balance(walletModelId: WalletModelId, type: CachedBalanceType) -> CachedBalance?
+    func store(balance: CachedBalance, for walletModelId: WalletModelId, type: CachedBalanceType)
 }
 
 struct CachedBalance: Hashable, Codable {
