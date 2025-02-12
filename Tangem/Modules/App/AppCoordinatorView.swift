@@ -13,20 +13,25 @@ struct AppCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: AppCoordinator
     @ObservedObject var sensitiveTextVisibilityViewModel = SensitiveTextVisibilityViewModel.shared
 
+    @Injected(\.overlayContentContainer) private var overlayContentContainer: OverlayContentContainer
+    @Injected(\.viewHierarchySnapshotterInitializer) private var viewHierarchySnapshotterInitializer: ViewHierarchySnapshottingInitializable
+
     @Environment(\.mainWindowSize) var mainWindowSize: CGSize
-    @Environment(\.overlayContentContainer) private var overlayContentContainer
     @Namespace private var namespace
 
     var body: some View {
         content
             .accentColor(Colors.Text.primary1)
-            .overlayContentContainer(item: $coordinator.marketsCoordinator) { coordinator in
-                let viewHierarchySnapshotter = ViewHierarchySnapshottingContainerViewController()
-                viewHierarchySnapshotter.shouldPropagateOverriddenUserInterfaceStyleToChildren = true
-                let adapter = ViewHierarchySnapshottingWeakifyAdapter(adaptee: viewHierarchySnapshotter)
+            .overlayContentContainer(
+                item: $coordinator.marketsCoordinator,
+                overlayContentContainer: overlayContentContainer
+            ) { coordinator in
                 let marketsCoordinatorView = MarketsCoordinatorView(coordinator: coordinator)
                     .environment(\.mainWindowSize, mainWindowSize)
-                    .environment(\.viewHierarchySnapshotter, adapter)
+
+                let viewHierarchySnapshotter = ViewHierarchySnapshottingContainerViewController()
+                viewHierarchySnapshotter.shouldPropagateOverriddenUserInterfaceStyleToChildren = true
+                viewHierarchySnapshotterInitializer.set(viewHierarchySnapshotter)
 
                 return UIAppearanceBoundaryContainerView(
                     boundaryMarker: { viewHierarchySnapshotter },
@@ -40,9 +45,6 @@ struct AppCoordinatorView: CoordinatorView {
                 backgroundColor: Colors.Background.primary
             ) {
                 InformationHiddenBalancesView(viewModel: $0)
-            }
-            .onChange(of: coordinator.isOverlayContentContainerShown) { isShown in
-                overlayContentContainer.setOverlayHidden(!isShown)
             }
     }
 
