@@ -9,14 +9,28 @@
 import Foundation
 import Combine
 
+protocol AvailableTokenBalanceProviderInput: AnyObject {
+    var state: WalletModel.State { get }
+    var statePublisher: AnyPublisher<WalletModel.State, Never> { get }
+}
+
 /// Just simple available to use (e.g. send) balance
 struct AvailableTokenBalanceProvider {
-    private let walletModel: WalletModel
+    private weak var input: AvailableTokenBalanceProviderInput?
+    private let walletModelId: WalletModelId
+    private let tokenItem: TokenItem
     private let tokenBalancesRepository: TokenBalancesRepository
     private let balanceFormatter = BalanceFormatter()
 
-    init(walletModel: WalletModel, tokenBalancesRepository: TokenBalancesRepository) {
-        self.walletModel = walletModel
+    init(
+        input: AvailableTokenBalanceProviderInput,
+        walletModelId: WalletModelId,
+        tokenItem: TokenItem,
+        tokenBalancesRepository: TokenBalancesRepository
+    ) {
+        self.input = input
+        self.walletModelId = walletModelId
+        self.tokenItem = tokenItem
         self.tokenBalancesRepository = tokenBalancesRepository
     }
 }
@@ -25,11 +39,21 @@ struct AvailableTokenBalanceProvider {
 
 extension AvailableTokenBalanceProvider: TokenBalanceProvider {
     var balanceType: TokenBalanceType {
-        mapToTokenBalance(state: walletModel.state)
+        guard let input else {
+            assertionFailure("StakingTokenBalanceProviderInput not found")
+            return .empty(.noData)
+        }
+
+        return mapToTokenBalance(state: input.state)
     }
 
     var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> {
-        walletModel.statePublisher
+        guard let input else {
+            assertionFailure("StakingTokenBalanceProviderInput not found")
+            return Empty().eraseToAnyPublisher()
+        }
+
+        return input.statePublisher
             .map { self.mapToTokenBalance(state: $0) }
             .eraseToAnyPublisher()
     }
@@ -49,22 +73,19 @@ extension AvailableTokenBalanceProvider: TokenBalanceProvider {
 
 private extension AvailableTokenBalanceProvider {
     func storeBalance(balance: Decimal) {
-        tokenBalancesRepository.store(
-            balance: .init(balance: balance, date: .now),
-            for: walletModel,
-            type: .available
-        )
+        let balance = CachedBalance(balance: balance, date: .now)
+        tokenBalancesRepository.store(balance: balance, for: walletModelId, type: .available)
     }
 
     func cachedBalance() -> TokenBalanceType.Cached? {
-        tokenBalancesRepository.balance(walletModel: walletModel, type: .available).map {
-            .init(balance: $0.balance, date: $0.date)
-        }
+        tokenBalancesRepository
+            .balance(walletModelId: walletModelId, type: .available)
+            .map { .init(balance: $0.balance, date: $0.date) }
     }
 
     func mapToTokenBalance(state: WalletModel.State) -> TokenBalanceType {
         // The `binance` always has zero balance
-        if case .binance = walletModel.tokenItem.blockchain {
+        if case .binance = tokenItem.blockchain {
             return .loaded(0)
         }
 
@@ -86,7 +107,7 @@ private extension AvailableTokenBalanceProvider {
 
     func mapToFormattedTokenBalanceType(type: TokenBalanceType) -> FormattedTokenBalanceType {
         let builder = FormattedTokenBalanceTypeBuilder(format: { value in
-            balanceFormatter.formatCryptoBalance(value, currencyCode: walletModel.tokenItem.currencySymbol)
+            balanceFormatter.formatCryptoBalance(value, currencyCode: tokenItem.currencySymbol)
         })
 
         return builder.mapToFormattedTokenBalanceType(type: type)

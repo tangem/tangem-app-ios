@@ -12,13 +12,10 @@ import SwiftUI
 import TangemUIUtils
 
 struct RootViewControllerFactory {
-    func makeRootViewController(for rootView: some View, window: UIWindow) -> UIViewController {
-        let adapter = OverlayContentContainerViewControllerAdapter()
+    @Injected(\.overlayContentContainerInitializer) private var overlayContentContainer: OverlayContentContainerInitializable
 
+    func makeRootViewController(for rootView: some View, coordinator: AppCoordinator, window: UIWindow) -> UIViewController {
         let rootView = rootView
-            .environment(\.overlayContentContainer, adapter)
-            .environment(\.overlayContentStateObserver, adapter)
-            .environment(\.overlayContentStateController, adapter)
             .environment(\.mainWindowSize, window.screen.bounds.size)
 
         let contentViewController = UIHostingController(rootView: rootView)
@@ -41,7 +38,7 @@ struct RootViewControllerFactory {
             overlayCornerRadius: overlayCornerRadius
         )
 
-        adapter.set(containerViewController)
+        overlayContentContainer.set(containerViewController)
 
         return containerViewController
     }
