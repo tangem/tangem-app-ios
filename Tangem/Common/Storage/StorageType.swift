@@ -35,4 +35,5 @@ enum StorageType: String {
     case forcedDemoCardId = "forced_demo_card_id"
     case didMigrateUserWalletNames = "did_migrate_user_wallet_names_again"
     case userWalletIdsWithRing = "tangem_userwalletIds_with_ring"
+    case shownStoryIds = "shown_story_ids"
 }
