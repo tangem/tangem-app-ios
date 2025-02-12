@@ -178,7 +178,7 @@ private extension VisaOnboardingAccessCodeSetupViewModel {
                 }
             )
         )
-        await delegate?.showAlert(AlertBinder(alert: alert))
+        await delegate?.showAlertAsync(AlertBinder(alert: alert))
     }
 }
 
