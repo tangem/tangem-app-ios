@@ -1,9 +1,9 @@
 //
-//  WalletConnectSolanaSignTransactionHandler.swift
-//  Tangem
+//  WCSolanaSignAllTransactionsHandler.swift
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
 import Foundation
@@ -11,10 +11,10 @@ import BlockchainSdk
 import struct Commons.AnyCodable
 import enum JSONRPC.RPCResult
 
-final class WalletConnectSolanaSignTransactionHandler {
+final class WCSolanaSignAllTransactionsHandler {
     private let walletModel: WalletModel
     private let signer: WalletConnectSigner
-    private let transaction: String
+    private let hashesToSign: [String]
 
     init(
         request: AnyCodable,
@@ -22,7 +22,7 @@ final class WalletConnectSolanaSignTransactionHandler {
         signer: WalletConnectSigner,
         walletModelProvider: WalletConnectWalletModelProvider
     ) throws {
-        let parameters = try request.get(WalletConnectSolanaSignTransactionDTO.Response.self)
+        let parameters = try request.get(WCSolanaSignAllTransactionsDTO.Response.self)
 
         do {
             guard let walletModel = walletModelProvider.getModel(with: blockchainId) else {
@@ -30,7 +30,7 @@ final class WalletConnectSolanaSignTransactionHandler {
             }
 
             self.walletModel = walletModel
-            transaction = parameters.transaction
+            hashesToSign = parameters.transactions
         } catch {
             let stringRepresentation = request.stringRepresentation
             AppLog.shared.debug("[WC 2.0] Failed to create sign handler. Raised error: \(error)")
@@ -41,25 +41,31 @@ final class WalletConnectSolanaSignTransactionHandler {
     }
 
     /// Remove signature placeholder from raw transaction
-    func prepareTransactionToSign() throws -> Data {
-        try Data(transaction.base64Decoded()).dropFirst(Constants.signaturePlaceholderPrefixLength)
+    func prepareTransactionToSign(hash: String) throws -> Data {
+        try Data(hash.base64Decoded()).dropFirst(Constants.signaturePlaceholderPrefixLength)
     }
 }
 
-extension WalletConnectSolanaSignTransactionHandler: WalletConnectMessageHandler {
+extension WCSolanaSignAllTransactionsHandler: WalletConnectMessageHandler {
     var event: WalletConnectEvent { .sign }
 
     func messageForUser(from dApp: WalletConnectSavedSession.DAppInfo) async throws -> String {
-        return transaction
+        return hashesToSign.reduce("", +)
     }
 
     func handle() async throws -> RPCResult {
-        let unsignedHash = try prepareTransactionToSign()
-        let signedHash = try await signer.sign(data: unsignedHash, using: walletModel)
-
-        return .response(
-            AnyCodable(WalletConnectSolanaSignTransactionDTO.Body(signature: signedHash.base58EncodedString))
+        let signedHashes = try await signer.sign(
+            hashes: hashesToSign.map { try prepareTransactionToSign(hash: $0) },
+            using: walletModel
         )
+
+        let preparedToSendHashes: [String] = try hashesToSign.enumerated().map { index, hashToSign in
+            let hashToSignData = try prepareTransactionToSign(hash: hashToSign)
+            let data = Data(1) + signedHashes[index] + hashToSignData
+            return data.base64EncodedString()
+        }
+
+        return .response(AnyCodable(WCSolanaSignAllTransactionsDTO.Body(transactions: preparedToSendHashes)))
     }
 }
 
