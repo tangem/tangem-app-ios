@@ -1,6 +1,6 @@
 //
 //  StoryView.swift
-//  TangemModules
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -8,9 +8,15 @@
 
 import SwiftUI
 
+// [REDACTED_TODO_COMMENT]
 struct StoryView: View {
     @ObservedObject var viewModel: StoryViewModel
     let pageViews: [StoryPageView]
+
+    init(viewModel: StoryViewModel, pageViews: [StoryPageView]) {
+        self.viewModel = viewModel
+        self.pageViews = pageViews
+    }
 
     var body: some View {
         GeometryReader { proxy in
@@ -26,8 +32,15 @@ struct StoryView: View {
             .overlay(alignment: .top) {
                 progressBar
             }
-            .background {
-                cubicTransitionTracker
+            .readGeometry(inCoordinateSpace: .global) { geometryInfo in
+                let leftAnchor = geometryInfo.frame.minX / geometryInfo.size.width
+                let isDuringTransition = leftAnchor != 0
+
+                let viewEvent: StoryViewEvent = isDuringTransition
+                    ? .viewInteractionPaused
+                    : .viewInteractionResumed
+
+                viewModel.handle(viewEvent: viewEvent)
             }
             .cubicRotationEffect(proxy)
         }
@@ -36,15 +49,6 @@ struct StoryView: View {
         }
         .onDisappear {
             viewModel.handle(viewEvent: .viewDidDisappear)
-        }
-        .onPreferenceChange(CubicTransitionProgressKey.self) { newValue in
-            let isDuringTransition = newValue != 0
-
-            let viewEvent: StoryViewEvent = isDuringTransition
-                ? .viewInteractionPaused
-                : .viewInteractionResumed
-
-            viewModel.handle(viewEvent: viewEvent)
         }
     }
 
@@ -60,23 +64,13 @@ struct StoryView: View {
     private func pageProgressView(_ pageIndex: Int) -> some View {
         GeometryReader { proxy in
             Capsule()
-                .fill(.white.opacity(0.5))
+                .fill(.white.opacity(0.2))
                 .overlay(alignment: .leading) {
                     Capsule()
                         .fill(.white)
                         .frame(width: pageProgressWidth(for: pageIndex, proxy: proxy))
                 }
                 .clipped()
-        }
-    }
-
-    private var cubicTransitionTracker: some View {
-        GeometryReader { proxy in
-            Color.clear
-                .preference(
-                    key: CubicTransitionProgressKey.self,
-                    value: proxy.frame(in: .global).minX / proxy.size.width
-                )
         }
     }
 
@@ -167,13 +161,6 @@ extension StoryView {
         }
     }
 
-    private struct CubicTransitionProgressKey: PreferenceKey {
-        static var defaultValue: CGFloat = 0
-        static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-            value += nextValue()
-        }
-    }
-
     private enum Constants {
         /// 0.25
         static let tapToBackThresholdPercentage: CGFloat = 0.25
@@ -244,7 +231,7 @@ extension StoryView {
             addGestureRecognizer(tapGesture)
 
             let longTapGesture = UILongPressGestureRecognizer(target: self, action: #selector(Self.handleLongTapGesture))
-            longTapGesture.minimumPressDuration = 0.2
+            longTapGesture.minimumPressDuration = Constants.longPressMinimumDuration
             addGestureRecognizer(longTapGesture)
         }
 
