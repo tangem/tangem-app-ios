@@ -36,13 +36,6 @@ extension WalletModel {
         case failure(cached: TokenQuote?)
         case loaded(TokenQuote)
 
-        var isLoading: Bool {
-            switch self {
-            case .loading: true
-            case .custom, .failure, .loaded: false
-            }
-        }
-
         var quote: TokenQuote? {
             switch self {
             case .custom: nil

@@ -18,6 +18,10 @@ final class ViewHierarchySnapshottingContainerViewController: UIViewController {
     /// Enable this property to perform manual propagation of `overrideUserInterfaceStyle` to all child view controllers.
     var shouldPropagateOverriddenUserInterfaceStyleToChildren = false
 
+    deinit {
+        print("ViewHierarchySnapshottingContainerViewController deinit")
+    }
+
     @discardableResult
     private func performWithOverridingUserInterfaceStyleIfNeeded<T>(
         _ overrideUserInterfaceStyle: UIUserInterfaceStyle?,
