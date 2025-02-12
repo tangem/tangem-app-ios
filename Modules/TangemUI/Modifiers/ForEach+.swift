@@ -1,6 +1,6 @@
 //
 //  ForEach+.swift
-//  Tangem
+//  TangemUI
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2023 Tangem AG. All rights reserved.
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-extension ForEach {
+public extension ForEach {
     /// Useful for cases like `SwiftUI.ForEach` + non-zero-based integer-indexed collections.
     /// See https://onmyway133.com/posts/how-to-use-foreach-with-indices-in-swiftui/ for details.
     init<Index, Element>(
