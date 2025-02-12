@@ -2413,6 +2413,8 @@
 		DC9A4A2D2AB4ADD30031C7C2 /* UserCodeRecovering.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9A4A2C2AB4ADD30031C7C2 /* UserCodeRecovering.swift */; };
 		DC9A4A302AB4AE320031C7C2 /* UserCodeRecoveringCardInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9A4A2F2AB4AE320031C7C2 /* UserCodeRecoveringCardInteractor.swift */; };
 		DCA21D942BA1C77A000A3C1A /* ValidationMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA21D932BA1C77A000A3C1A /* ValidationMode.swift */; };
+		DCA2B9162D5A216300F9D358 /* WCSolanaSignAllTransactionsDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA2B9152D5A216300F9D358 /* WCSolanaSignAllTransactionsDTO.swift */; };
+		DCA2B9182D5A22AC00F9D358 /* WCSolanaSignAllTransactionsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA2B9172D5A22AC00F9D358 /* WCSolanaSignAllTransactionsHandler.swift */; };
 		DCA54D8F2C05E0BA00FBF99F /* PriceChangeFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA54D8E2C05E0BA00FBF99F /* PriceChangeFormatterTests.swift */; };
 		DCAB5800295EE820005D0F4A /* AppLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAB57FF295EE820005D0F4A /* AppLog.swift */; };
 		DCB385182D240AE100105DD4 /* SeedNotifyDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB385172D240ADB00105DD4 /* SeedNotifyDTO.swift */; };
@@ -5635,6 +5637,8 @@
 		DC9A4A2C2AB4ADD30031C7C2 /* UserCodeRecovering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCodeRecovering.swift; sourceTree = "<group>"; };
 		DC9A4A2F2AB4AE320031C7C2 /* UserCodeRecoveringCardInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCodeRecoveringCardInteractor.swift; sourceTree = "<group>"; };
 		DCA21D932BA1C77A000A3C1A /* ValidationMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidationMode.swift; sourceTree = "<group>"; };
+		DCA2B9152D5A216300F9D358 /* WCSolanaSignAllTransactionsDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCSolanaSignAllTransactionsDTO.swift; sourceTree = "<group>"; };
+		DCA2B9172D5A22AC00F9D358 /* WCSolanaSignAllTransactionsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCSolanaSignAllTransactionsHandler.swift; sourceTree = "<group>"; };
 		DCA54D8E2C05E0BA00FBF99F /* PriceChangeFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceChangeFormatterTests.swift; sourceTree = "<group>"; };
 		DCAB57FF295EE820005D0F4A /* AppLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLog.swift; sourceTree = "<group>"; };
 		DCB385172D240ADB00105DD4 /* SeedNotifyDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedNotifyDTO.swift; sourceTree = "<group>"; };
@@ -7668,6 +7672,7 @@
 		B02B74AB29879D8B006473F2 /* Handlers */ = {
 			isa = PBXGroup;
 			children = (
+				DCA2B9142D5A213B00F9D358 /* SignAllTransactionsHandling */,
 				DCE317B92CC4F8020069C641 /* SignTransactionHandling */,
 				B0ADFD3C298A70BD00EF2869 /* TransactionHandling */,
 				B02B74AC29879D91006473F2 /* SignHandling */,
@@ -13947,6 +13952,15 @@
 			path = UserCodeRecovering;
 			sourceTree = "<group>";
 		};
+		DCA2B9142D5A213B00F9D358 /* SignAllTransactionsHandling */ = {
+			isa = PBXGroup;
+			children = (
+				DCA2B9172D5A22AC00F9D358 /* WCSolanaSignAllTransactionsHandler.swift */,
+				DCA2B9152D5A216300F9D358 /* WCSolanaSignAllTransactionsDTO.swift */,
+			);
+			path = SignAllTransactionsHandling;
+			sourceTree = "<group>";
+		};
 		DCBAF6972A4AEEC90029480A /* WalletManagers */ = {
 			isa = PBXGroup;
 			children = (
@@ -18250,6 +18264,7 @@
 				DC2911B62C623DE300DF53CC /* DemoSendTransactionDispatcher.swift in Sources */,
 				B66C8CC12D42F0F600A91763 /* PerformanceTracker+Metric.swift in Sources */,
 				EF6600532B6D187600B65449 /* PendingTransactionsListView.swift in Sources */,
+				DCA2B9182D5A22AC00F9D358 /* WCSolanaSignAllTransactionsHandler.swift in Sources */,
 				DA1D3B772B56C8A000247393 /* PhotoSelectorViewModel.swift in Sources */,
 				EFB999B42C3D9EC000F6A987 /* SellFlowBaseBuilder.swift in Sources */,
 				EFC692752D424FFD00A3CD44 /* BalanceFormatted.swift in Sources */,
@@ -18859,6 +18874,7 @@
 				EFC990082CD3A6D90098B7C8 /* OnrampPaymentMethodsInteractor.swift in Sources */,
 				EF7B9CEF286C6BD7004C33A9 /* CardSettingsView.swift in Sources */,
 				B6FB04E92B1FEF4E000BB59E /* StatusBarStyleConfiguratorWeakifyAdapter.swift in Sources */,
+				DCA2B9162D5A216300F9D358 /* WCSolanaSignAllTransactionsDTO.swift in Sources */,
 				B0ED3F042C3D6F0300311DE2 /* DecimalRoundingUtility.swift in Sources */,
 				DCBE4CF82CCA0E2B00855904 /* ActionButtonView.swift in Sources */,
 				B67263402C7FC49C00F120E6 /* TokenItemPriceFormatter.swift in Sources */,
@@ -26465,7 +26481,7 @@
 			repositoryURL = "https://github.com/reown-com/reown-swift.git";
 			requirement = {
 				kind = exactVersion;
-				version = 1.0.4;
+				version = 1.1.1;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
