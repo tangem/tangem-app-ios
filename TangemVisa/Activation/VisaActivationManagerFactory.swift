@@ -73,6 +73,8 @@ public struct VisaActivationManagerFactory {
                 authorizationTokensHandler: authorizationTokensHandler,
                 logger: logger
             )
+        let key = (try? VisaConfigProvider.shared().getRSAPublicKey()) ?? ""
+        let pinCodeProcessor = PaymentologyPINCodeProcessor(rsaPublicKey: key)
 
         return CommonVisaActivationManager(
             initialActivationStatus: initialActivationStatus,
@@ -84,6 +86,7 @@ public struct VisaActivationManagerFactory {
             cardActivationStatusService: cardActivationStatusService,
             productActivationService: productActivationService,
             otpRepository: CommonVisaOTPRepository(),
+            pinCodeProcessor: pinCodeProcessor,
             logger: internalLogger
         )
     }
