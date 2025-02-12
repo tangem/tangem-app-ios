@@ -72,7 +72,7 @@ extension WalletConnectV2PersonalSignHandler: WalletConnectMessageHandler {
         let hash = personalMessageData.sha3(.keccak256)
         do {
             let signedMessage = try await signer.sign(data: hash, using: walletModel)
-            return .response(AnyCodable(signedMessage))
+            return .response(AnyCodable(signedMessage.hexString.addHexPrefix()))
         } catch {
             AppLog.shared.debug("[WC 2.0] Failed to sign message. \(error)")
             return .error(.internalError)

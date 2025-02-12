@@ -15,7 +15,7 @@ final class MainHeaderViewModel: ObservableObject {
     @Published private(set) var cardImage: ImageType?
     @Published private(set) var userWalletName: String = ""
     @Published private(set) var subtitleInfo: MainHeaderSubtitleInfo = .empty
-    @Published private(set) var balance: LoadableTokenBalanceView.State = .loading()
+    @Published private(set) var balance: LoadableTokenBalanceView.State
     @Published var isLoadingSubtitle: Bool = true
 
     var subtitleContainsSensitiveInfo: Bool {
@@ -39,6 +39,8 @@ final class MainHeaderViewModel: ObservableObject {
         self.supplementInfoProvider = supplementInfoProvider
         self.subtitleProvider = subtitleProvider
         self.balanceProvider = balanceProvider
+
+        balance = balanceProvider.balance
 
         bind()
     }
@@ -64,7 +66,7 @@ final class MainHeaderViewModel: ObservableObject {
             .assign(to: \.subtitleInfo, on: self, ownership: .weak)
             .store(in: &bag)
 
-        balanceProvider.balanceProvider
+        balanceProvider.balancePublisher
             .receive(on: DispatchQueue.main)
             .assign(to: \.balance, on: self, ownership: .weak)
             .store(in: &bag)
