@@ -10,14 +10,22 @@ import Combine
 import TangemFoundation
 import TangemStaking
 
+protocol FiatTokenBalanceProviderInput: AnyObject {
+    var rate: WalletModel.Rate { get }
+    var ratePublisher: AnyPublisher<WalletModel.Rate, Never> { get }
+}
+
 struct FiatTokenBalanceProvider {
-    private let walletModel: WalletModel
+    private weak var input: FiatTokenBalanceProviderInput?
     private let cryptoBalanceProvider: TokenBalanceProvider
 
     private let balanceFormatter = BalanceFormatter()
 
-    init(walletModel: WalletModel, cryptoBalanceProvider: TokenBalanceProvider) {
-        self.walletModel = walletModel
+    init(
+        input: FiatTokenBalanceProviderInput?,
+        cryptoBalanceProvider: TokenBalanceProvider
+    ) {
+        self.input = input
         self.cryptoBalanceProvider = cryptoBalanceProvider
     }
 }
@@ -26,15 +34,25 @@ struct FiatTokenBalanceProvider {
 
 extension FiatTokenBalanceProvider: TokenBalanceProvider {
     var balanceType: TokenBalanceType {
-        mapToTokenBalance(
-            rate: walletModel.rate,
+        guard let input else {
+            assertionFailure("FiatTokenBalanceProviderInput not found")
+            return .empty(.noData)
+        }
+
+        return mapToTokenBalance(
+            rate: input.rate,
             balanceType: cryptoBalanceProvider.balanceType
         )
     }
 
     var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> {
-        Publishers.CombineLatest(
-            walletModel.ratePublisher.removeDuplicates(),
+        guard let input else {
+            assertionFailure("FiatTokenBalanceProviderInput not found")
+            return Empty().eraseToAnyPublisher()
+        }
+
+        return Publishers.CombineLatest(
+            input.ratePublisher.removeDuplicates(),
             cryptoBalanceProvider.balanceTypePublisher.removeDuplicates()
         )
         .map { self.mapToTokenBalance(rate: $0, balanceType: $1) }
