@@ -28,4 +28,5 @@ enum WalletConnectAction: String {
 
     case solanaSignTransaction = "solana_signTransaction"
     case solanaSignMessage = "solana_signMessage"
+    case solanaSignAllTransactions = "solana_signAllTransactions"
 }
