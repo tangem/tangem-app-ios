@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -1832,7 +1832,6 @@
 		B687286F2B7D48E90090C24F /* BlockchainAccountCreateParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687286E2B7D48E90090C24F /* BlockchainAccountCreateParameters.swift */; };
 		B68728712B7D48F10090C24F /* BlockchainAccountCreateResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68728702B7D48F10090C24F /* BlockchainAccountCreateResult.swift */; };
 		B687E9492A2D881C00BFF604 /* View+ReadContentOffset.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687E9482A2D881C00BFF604 /* View+ReadContentOffset.swift */; };
-		B68907852A32482F00A0D246 /* ForEach+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68907842A32482F00A0D246 /* ForEach+.swift */; };
 		B68B356B2A4B0FAB0069129F /* UIAppearanceBoundaryContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68B356A2A4B0FAB0069129F /* UIAppearanceBoundaryContainerView.swift */; };
 		B68B442C2B6C7C9C00CF95AB /* OptionalProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68B442B2B6C7C9C00CF95AB /* OptionalProtocol.swift */; };
 		B68E1F6D2CBC44060043E598 /* BlockchainSdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B68E1F652CBC44050043E598 /* BlockchainSdk.framework */; };
@@ -2799,7 +2798,6 @@
 		EF9448E02ADFD4F800F4AFAC /* InformationHiddenBalancesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9448DB2ADFD4F800F4AFAC /* InformationHiddenBalancesView.swift */; };
 		EF9448E12ADFD4F800F4AFAC /* InformationHiddenBalancesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9448DC2ADFD4F800F4AFAC /* InformationHiddenBalancesViewModel.swift */; };
 		EF9448E22ADFD4F800F4AFAC /* InformationHiddenBalancesRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9448DD2ADFD4F800F4AFAC /* InformationHiddenBalancesRoutable.swift */; };
-		EF94A89C29927C50008F2C3F /* CachedAsyncImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF94A89B29927C4F008F2C3F /* CachedAsyncImage.swift */; };
 		EF95441F2C3C43B600041FCD /* FeeAnalyticsParameterBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF95441E2C3C43B600041FCD /* FeeAnalyticsParameterBuilder.swift */; };
 		EF9544292C3C528900041FCD /* SendBaseInputOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9544262C3C528900041FCD /* SendBaseInputOutput.swift */; };
 		EF95442A2C3C528900041FCD /* SendBaseInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9544272C3C528900041FCD /* SendBaseInteractor.swift */; };
@@ -5079,7 +5077,6 @@
 		B687286E2B7D48E90090C24F /* BlockchainAccountCreateParameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainAccountCreateParameters.swift; sourceTree = "<group>"; };
 		B68728702B7D48F10090C24F /* BlockchainAccountCreateResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainAccountCreateResult.swift; sourceTree = "<group>"; };
 		B687E9482A2D881C00BFF604 /* View+ReadContentOffset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+ReadContentOffset.swift"; sourceTree = "<group>"; };
-		B68907842A32482F00A0D246 /* ForEach+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ForEach+.swift"; sourceTree = "<group>"; };
 		B68B356A2A4B0FAB0069129F /* UIAppearanceBoundaryContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIAppearanceBoundaryContainerView.swift; sourceTree = "<group>"; };
 		B68B442B2B6C7C9C00CF95AB /* OptionalProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalProtocol.swift; sourceTree = "<group>"; };
 		B68E1F652CBC44050043E598 /* BlockchainSdk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = BlockchainSdk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -6045,7 +6042,6 @@
 		EF9448DB2ADFD4F800F4AFAC /* InformationHiddenBalancesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InformationHiddenBalancesView.swift; sourceTree = "<group>"; };
 		EF9448DC2ADFD4F800F4AFAC /* InformationHiddenBalancesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InformationHiddenBalancesViewModel.swift; sourceTree = "<group>"; };
 		EF9448DD2ADFD4F800F4AFAC /* InformationHiddenBalancesRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InformationHiddenBalancesRoutable.swift; sourceTree = "<group>"; };
-		EF94A89B29927C4F008F2C3F /* CachedAsyncImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedAsyncImage.swift; sourceTree = "<group>"; };
 		EF95441E2C3C43B600041FCD /* FeeAnalyticsParameterBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeAnalyticsParameterBuilder.swift; sourceTree = "<group>"; };
 		EF9544262C3C528900041FCD /* SendBaseInputOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendBaseInputOutput.swift; sourceTree = "<group>"; };
 		EF9544272C3C528900041FCD /* SendBaseInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendBaseInteractor.swift; sourceTree = "<group>"; };
@@ -6327,6 +6323,12 @@
 		F99007052CD3E1C700DFE2D3 /* KaspaNetworkProviderKRC20.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KaspaNetworkProviderKRC20.swift; sourceTree = "<group>"; };
 		F990070B2CD3E1D800DFE2D3 /* KaspaUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KaspaUtils.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		C244C2862D5B96E1006DF666 /* Stories */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Stories; sourceTree = "<group>"; };
+		C244C2AB2D5B975F006DF666 /* Stories */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Stories; sourceTree = "<group>"; };
+		C2C4822D2D5547C700877910 /* StoriesService */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = StoriesService; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		5D3F77BF24BF56D800E8695B /* Frameworks */ = {
@@ -7379,7 +7381,6 @@
 				B674D6D82A96AC8800172491 /* Sequence+.swift */,
 				B69E7FC72B220C3300B78D9A /* Dictionary+.swift */,
 				DA28D57C290AAE2000F0C335 /* ScrollView+.swift */,
-				B68907842A32482F00A0D246 /* ForEach+.swift */,
 				B668D2572A685DD800D9A12A /* BinaryFloatingPoint+.swift */,
 				B0DC10CC2927505300BBE854 /* SwiftConcurrency+.swift */,
 				DADD18F72AA7516B0044AA66 /* UITraitCollection+.swift */,
@@ -8586,6 +8587,7 @@
 		B0958BA529F6B698007CD76D /* UIComponents */ = {
 			isa = PBXGroup;
 			children = (
+				C244C2862D5B96E1006DF666 /* Stories */,
 				DC2891772CD9107E00F57F59 /* CloseToolbarButton */,
 				DCC05A5E2CD17DE6004CE6A4 /* TokenSelectorView */,
 				EF0E1DAE2CE3A2A5003D47AA /* ProgressDots */,
@@ -13000,6 +13002,7 @@
 			children = (
 				EFDEF34F2D5A1305005F8F2F /* CachesDirectoryStorage */,
 				DC1DA92F2D555407003638ED /* UIEnvironment */,
+				C2C4822D2D5547C700877910 /* StoriesService */,
 				DC25DDE62D4236EF00845E4C /* HotCryptoServices */,
 				EF41A3CD2D3808AF00FA7020 /* TokenBalancesStorage */,
 				EF5256502D301E5D00ADCA7E /* TokenBalancesRepository */,
@@ -13787,6 +13790,7 @@
 		DC7DA81A2844EED800AD6DBD /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				C244C2AB2D5B975F006DF666 /* Stories */,
 				EF9CA60C2D424049009549E2 /* LogsView */,
 				EFD68F2E2CC2D01B00693C97 /* OnrampCountryDetection */,
 				DAE4BB002CD795760020CE3F /* OnrampCountrySelector */,
@@ -16412,7 +16416,6 @@
 			isa = PBXGroup;
 			children = (
 				EF5A16712937972A00BEC2F4 /* IconView.swift */,
-				EF94A89B29927C4F008F2C3F /* CachedAsyncImage.swift */,
 				B0D9FDC92A9336920047A1C0 /* IconViewSizeSettings.swift */,
 			);
 			path = IconView;
@@ -16626,6 +16629,11 @@
 				B09933892B5517EC00240CDB /* PBXTargetDependency */,
 				EFEE239C2BFF62D60099917E /* PBXTargetDependency */,
 				B68E1F772CBC44060043E598 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				C244C2862D5B96E1006DF666 /* Stories */,
+				C244C2AB2D5B975F006DF666 /* Stories */,
+				C2C4822D2D5547C700877910 /* StoriesService */,
 			);
 			name = Tangem;
 			packageProductDependencies = (
@@ -17528,7 +17536,6 @@
 				EF7B9CF1286C6BE2004C33A9 /* CardSettingsViewModel.swift in Sources */,
 				B68728712B7D48F10090C24F /* BlockchainAccountCreateResult.swift in Sources */,
 				EFEE23B02BFF69790099917E /* ScanCardSettingsRoutable.swift in Sources */,
-				EF94A89C29927C50008F2C3F /* CachedAsyncImage.swift in Sources */,
 				B01B2D7C2BD2936A00D8A6A1 /* APIProviderType.swift in Sources */,
 				EF5E5AAD2B73E9AD00D19BBB /* Timeline.swift in Sources */,
 				B66913642C4179400016B0EE /* OverlayContentContainer.swift in Sources */,
@@ -17817,7 +17824,6 @@
 				DC295B3A28615D03006CB7B6 /* NavHolder.swift in Sources */,
 				DCFE143E294B31C00053106B /* AppPresenter.swift in Sources */,
 				2D3E1DF52C9ACE80006AF975 /* CardsInfoPagerBottomOverlayFactoryParams.swift in Sources */,
-				B68907852A32482F00A0D246 /* ForEach+.swift in Sources */,
 				B6ED082C2A7D9DCD0090E51F /* UserTokensReorderingOptions.swift in Sources */,
 				2DD754D72AE1660D0009CA64 /* GenerateAddressesViewModel.swift in Sources */,
 				DA559C322B0261F400F59584 /* SendModel.swift in Sources */,
