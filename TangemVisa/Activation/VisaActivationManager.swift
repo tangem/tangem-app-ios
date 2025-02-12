@@ -37,7 +37,13 @@ public protocol VisaAccessCodeValidator: AnyObject {
 final class CommonVisaActivationManager {
     public private(set) var activationLocalState: VisaCardActivationLocalState
 
-    public private(set) var targetApproveAddress: String?
+    public var targetApproveAddress: String? {
+        guard let activationStatus else {
+            return nil
+        }
+
+        return activationStatus.activationOrder.customerWalletAddress
+    }
 
     public var activationRemoteState: VisaCardActivationRemoteState {
         switch activationLocalState {
@@ -468,8 +474,6 @@ private extension CommonVisaActivationManager {
     }
 
     func handleCardActivation(using activationResponse: CardActivationResponse, activationInput: VisaCardActivationInput) async throws (VisaActivationError) {
-        targetApproveAddress = activationResponse.signedActivationOrder.order.activationOrder.customerWalletAddress
-
         guard let tokens = await authorizationTokensHandler.authorizationTokens else {
             throw .missingAccessToken
         }
