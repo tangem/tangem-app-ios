@@ -117,6 +117,10 @@ extension FakeCardHeaderPreviewProvider {
             self.tapAction = tapAction
         }
 
+        var totalBalance: TotalBalanceState {
+            balance
+        }
+
         var totalBalancePublisher: AnyPublisher<TotalBalanceState, Never> {
             $balance.eraseToAnyPublisher()
         }

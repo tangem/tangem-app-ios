@@ -10,6 +10,8 @@ import Foundation
 import Combine
 
 protocol TangemApiService: AnyObject {
+    func getRawData(fromURL url: URL) async throws -> Data
+
     // MARK: - Geo
 
     func loadGeo() -> AnyPublisher<String, Error>
@@ -77,6 +79,8 @@ protocol TangemApiService: AnyObject {
     func awardOldUser(walletId: String, address: String, programName: String) async throws -> PromotionAwardResult
     @discardableResult
     func resetAwardForCurrentWallet(cardId: String) async throws -> PromotionAwardResetResult
+
+    func loadStory(storyId: String) async throws -> StoryDTO.Response
 
     // MARK: - Seed Notify
 
