@@ -365,7 +365,7 @@ class WalletModel {
     private func updateQuote(quote: TokenQuote?) {
         switch quote {
         // Don't have quote because we don't have currency id
-        case .none where !canUseQuotes:
+        case .none where tokenItem.currencyId == nil:
             _rate.send(.custom)
         // Don't have quote because of error. Update with saving the previous one
         case .none:
