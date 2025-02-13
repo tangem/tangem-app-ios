@@ -153,42 +153,7 @@ final class WalletConnectV2Service {
         }
     }
 
-    private func checkSocketConnection() async -> Bool {
-        guard let socket = factory.lastCreatedSocket else {
-            return false
-        }
-
-        if socket.currentState == .connected || socket.currentState == .readyToConnect {
-            return true
-        }
-
-        do {
-            let newState = try await WalletKit.instance.socketConnectionStatusPublisher
-                .filter {
-                    $0 == .connected
-                }
-                .eraseError()
-                .timeout(.seconds(10), scheduler: DispatchQueue.main, customError: {
-                    WalletConnectV2Error.socketConnectionTimeout
-                })
-                .eraseToAnyPublisher()
-                .async()
-
-            return newState == .connected
-        } catch {
-            log("Failed to get new connection state.\nError: \(error)")
-            return false
-        }
-    }
-
     private func pairClient(with url: WalletConnectURI) async {
-        guard await checkSocketConnection() else {
-            Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.webSocketConnectionTimeout)
-            displayErrorUI(WalletConnectV2Error.socketIsNotConnected)
-            canEstablishNewSessionSubject.send(true)
-            return
-        }
-
         log("Trying to pair client: \(url)")
         do {
             try await WalletKit.instance.pair(uri: url)
@@ -547,6 +512,7 @@ private struct DApps {
         "pro.apex.exchange",
         "services.dfx.swiss",
         "sandbox.game",
+        "app.paradex.trade",
     ]
 
     func isSupported(_ dAppURL: String) -> Bool {
