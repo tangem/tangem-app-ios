@@ -108,7 +108,7 @@ enum PendingExpressTransactionStatus: String, Equatable, Codable {
     // Required for verification the ability to hide the transaction status bottom sheet
     func isCanBeHideAutomatically(branch: ExpressBranch) -> Bool {
         switch self {
-        case .done, .failed, .txFailed:
+        case .done:
             true
         case .created,
              .awaitingDeposit,
@@ -116,8 +116,8 @@ enum PendingExpressTransactionStatus: String, Equatable, Codable {
              .exchanging,
              .buying,
              .sendingToUser,
-             .failed where branch == .onramp,
-             .txFailed where branch == .swap,
+             .failed,
+             .txFailed,
              .verificationRequired,
              .awaitingHash,
              .unknown,
