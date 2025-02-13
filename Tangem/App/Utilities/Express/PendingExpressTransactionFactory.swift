@@ -44,8 +44,11 @@ struct PendingExpressTransactionFactory {
         case .unknown:
             currentStatus = .unknown
             statusesList = unknownHashStatusesList
-        case .failed, .txFailed, .exchangeTxSent:
+        case .failed, .exchangeTxSent:
             currentStatus = .failed
+            statusesList = failedStatusesList
+        case .txFailed:
+            currentStatus = .txFailed
             statusesList = failedStatusesList
         case .refunded:
             currentStatus = .refunded
@@ -77,7 +80,7 @@ struct PendingExpressTransactionFactory {
                 return defaultStatusesList
             case .canceled:
                 return canceledStatusesList
-            case .failed, .refunded:
+            case .failed, .refunded, .txFailed:
                 return failedStatusesList
             case .paused:
                 return pausedStatusesList
