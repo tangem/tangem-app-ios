@@ -12,6 +12,7 @@ import TangemExpress
 struct PendingExpressTransactionFactory {
     private let defaultStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .confirming, .exchanging, .sendingToUser]
     private let failedStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .confirming, .failed, .refunded]
+    private let txFailedStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .confirming, .txFailed, .refunded]
     private let verifyingStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .confirming, .verificationRequired, .sendingToUser]
     private let canceledStatusesList: [PendingExpressTransactionStatus] = [.canceled]
     private let awaitingHashStatusesList: [PendingExpressTransactionStatus] = [.awaitingHash]
@@ -49,7 +50,7 @@ struct PendingExpressTransactionFactory {
             statusesList = failedStatusesList
         case .txFailed:
             currentStatus = .txFailed
-            statusesList = failedStatusesList
+            statusesList = txFailedStatusesList
         case .refunded:
             currentStatus = .refunded
             statusesList = failedStatusesList
@@ -80,8 +81,10 @@ struct PendingExpressTransactionFactory {
                 return defaultStatusesList
             case .canceled:
                 return canceledStatusesList
-            case .failed, .refunded, .txFailed:
+            case .failed, .refunded:
                 return failedStatusesList
+            case .txFailed:
+                return txFailedStatusesList
             case .paused:
                 return pausedStatusesList
             case .awaitingHash:
