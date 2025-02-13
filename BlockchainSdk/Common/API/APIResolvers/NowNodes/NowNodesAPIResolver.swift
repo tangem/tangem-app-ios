@@ -98,6 +98,8 @@ struct NowNodesAPIResolver {
             link = "https://odyssey.nownodes.io/ext/bc/D/rpc"
         case .sonic:
             link = "https://ftm-sonic.nownodes.io"
+        case .alephium:
+            link = "https://alephium.nownodes.io/\(apiKey)"
         default:
             return nil
         }
