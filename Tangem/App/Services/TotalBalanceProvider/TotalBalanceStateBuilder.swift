@@ -9,7 +9,7 @@
 import Foundation
 
 struct TotalBalanceStateBuilder {
-    typealias Balance = (item: WalletModel, balance: TokenBalanceType)
+    typealias Balance = (item: TokenItem, balance: TokenBalanceType)
 
     private let walletModelsManager: WalletModelsManager
 
@@ -19,7 +19,7 @@ struct TotalBalanceStateBuilder {
 
     func buildTotalBalanceState() -> TotalBalanceState {
         let balances = walletModelsManager.walletModels.map {
-            TotalBalanceStateBuilder.Balance(item: $0, balance: $0.fiatTotalTokenBalanceProvider.balanceType)
+            TotalBalanceStateBuilder.Balance(item: $0.tokenItem, balance: $0.fiatTotalTokenBalanceProvider.balanceType)
         }
 
         return mapToTotalBalance(balances: balances)
@@ -53,7 +53,7 @@ private extension TotalBalanceStateBuilder {
         if hasError {
             // If has error and cached balance then show the failed state with cached balances
             let cachedBalance = failedBalance(balances: balances.map(\.balance))
-            return .failed(cached: cachedBalance, failedItems: failureBalances.map(\.item.tokenItem))
+            return .failed(cached: cachedBalance, failedItems: failureBalances.map(\.item))
         }
 
         guard let loadedBalance = loadedBalance(balances: balances) else {
