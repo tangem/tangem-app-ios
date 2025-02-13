@@ -74,7 +74,7 @@ struct AddCustomTokenView: View {
             }
 
             MainButton(
-                title: Localization.customTokenAddToken,
+                title: Localization.commonAddToken,
                 icon: viewModel.showDerivationPaths ? .trailing(Assets.tangemIcon) : nil,
                 isLoading: viewModel.isLoading,
                 isDisabled: viewModel.addButtonDisabled,

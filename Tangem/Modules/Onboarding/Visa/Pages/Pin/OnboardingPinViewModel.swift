@@ -41,7 +41,7 @@ class OnboardingPinViewModel: ObservableObject {
                 try await viewModel.delegate?.useSelectedPin(pinCode: selectedPinCode)
             } catch {
                 if !error.isCancellationError {
-                    await viewModel.delegate?.showAlert(error.alertBinder)
+                    await viewModel.delegate?.showAlertAsync(error.alertBinder)
                 }
             }
 
