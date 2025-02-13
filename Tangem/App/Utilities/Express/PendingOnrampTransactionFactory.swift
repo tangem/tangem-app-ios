@@ -72,7 +72,7 @@ struct PendingOnrampTransactionFactory {
                 return defaultStatusesList
             case .canceled:
                 return canceledStatusesList
-            case .failed, .refunded:
+            case .failed, .refunded, .txFailed:
                 return failedStatusesList
             case .paused:
                 return pausedStatusesList

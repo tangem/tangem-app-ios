@@ -40,7 +40,12 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
 
     var isHideButtonShowed: Bool {
         switch pendingTransaction.transactionStatus {
-        case .paused, .refunded, .failed, .unknown:
+        case .paused,
+             .refunded,
+             .unknown,
+             .canceled,
+             .failed where pendingTransaction.type.branch == .onramp,
+             .txFailed where pendingTransaction.type.branch == .swap:
             true
         case .created,
              .awaitingDeposit,
@@ -51,7 +56,8 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
              .sendingToUser,
              .done,
              .verificationRequired,
-             .canceled:
+             .failed,
+             .txFailed:
             false
         }
     }
@@ -244,7 +250,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
                 }
 
                 // We will hide it via separate notification in case of refunded token
-                if pendingTx.transactionStatus.isCanBeHideAutomatically, pendingTx.refundedTokenItem == nil {
+                if pendingTx.transactionStatus.isCanBeHideAutomatically(branch: pendingTx.type.branch), pendingTx.refundedTokenItem == nil {
                     viewModel.hidePendingTx(expressTransactionId: pendingTx.expressTransactionId)
                 }
 
