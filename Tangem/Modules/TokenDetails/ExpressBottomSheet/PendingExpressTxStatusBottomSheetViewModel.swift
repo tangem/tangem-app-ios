@@ -36,6 +36,25 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     @Published var currentStatusIndex = 0
     @Published var showGoToProviderHeaderButton = true
     @Published var notificationViewInputs: [NotificationViewInput] = []
+    @Published var hideTransactionAlert: AlertBinder?
+
+    var isHideButtonShowed: Bool {
+        switch pendingTransaction.transactionStatus {
+        case .paused, .refunded, .failed, .unknown:
+            true
+        case .created,
+             .awaitingDeposit,
+             .awaitingHash,
+             .confirming,
+             .buying,
+             .exchanging,
+             .sendingToUser,
+             .done,
+             .verificationRequired,
+             .canceled:
+            false
+        }
+    }
 
     private let expressProviderFormatter = ExpressProviderFormatter(balanceFormatter: .init())
     private weak var pendingTransactionsManager: (any PendingExpressTransactionsManager)?
@@ -225,8 +244,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
                 }
 
                 // We will hide it via separate notification in case of refunded token
-                if pendingTx.transactionStatus.isTerminated(branch: pendingTx.type.branch),
-                   pendingTx.refundedTokenItem == nil {
+                if pendingTx.transactionStatus.isCanBeHideAutomatically, pendingTx.refundedTokenItem == nil {
                     viewModel.hidePendingTx(expressTransactionId: pendingTx.expressTransactionId)
                 }
 
@@ -352,12 +370,31 @@ extension PendingExpressTxStatusBottomSheetViewModel {
             openProvider()
 
         case .refunded(let tokenItem):
-            hidePendingTx(expressTransactionId: pendingTransaction.expressTransactionId)
             openCurrency(tokenItem: tokenItem)
 
         default:
             break
         }
+    }
+}
+
+// MARK: - Hide transaction manually
+
+extension PendingExpressTxStatusBottomSheetViewModel {
+    func showHideTransactionAlert() {
+        hideTransactionAlert = .init(
+            alert: .init(
+                title: .init(Localization.expressStatusHideDialogTitle),
+                message: .init(Localization.expressStatusHideDialogText),
+                primaryButton: .default(.init(Localization.commonCancel), action: { [weak self] in self?.hideTransactionAlert = nil }),
+                secondaryButton: .default(.init(Localization.commonHide), action: hideTransactionManually)
+            )
+        )
+    }
+
+    private func hideTransactionManually() {
+        hidePendingTx(expressTransactionId: pendingTransaction.expressTransactionId)
+        router?.dismissPendingTxSheet()
     }
 }
 

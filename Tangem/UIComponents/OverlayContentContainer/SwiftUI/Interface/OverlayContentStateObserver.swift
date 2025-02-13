@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-protocol OverlayContentStateObserver {
+protocol OverlayContentStateObserver: AnyObject {
     typealias StateObserver = (_ state: OverlayContentState) -> Void
     typealias ProgressObserver = (_ progress: CGFloat) -> Void
 
