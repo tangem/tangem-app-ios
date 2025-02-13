@@ -40,11 +40,11 @@ class CommonStakingNotificationManager {
     init(wallet: WalletModel) {
         self.wallet = wallet
     }
-    
+
     var tokenItem: TokenItem {
         wallet.tokenItem
     }
-    
+
     var feeTokenItem: TokenItem {
         wallet.feeTokenItem
     }
@@ -293,7 +293,7 @@ extension CommonStakingNotificationManager: StakingNotificationManager {
         if yieldInfo.validators.allSatisfy(\.isFull) {
             // [REDACTED_TODO_COMMENT]
         }
-        
+
         if !wallet.isAccountInitialized {
             // [REDACTED_TODO_COMMENT]
         }
