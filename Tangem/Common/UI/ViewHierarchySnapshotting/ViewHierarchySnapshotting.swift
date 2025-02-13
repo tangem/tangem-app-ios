@@ -11,7 +11,7 @@ import UIKit
 
 /// - Note: Always choose proper snapshotting methods; they differ in terms of capabilities and performance.
 /// See https://developer.apple.com/library/archive/qa/qa1817/_index.html for details
-protocol ViewHierarchySnapshotting {
+protocol ViewHierarchySnapshotting: AnyObject {
     func makeSnapshotView(afterScreenUpdates: Bool, overrideUserInterfaceStyle: UIUserInterfaceStyle?) -> UIView?
     func makeSnapshotViewImage(afterScreenUpdates: Bool, isOpaque: Bool, overrideUserInterfaceStyle: UIUserInterfaceStyle?) -> UIImage?
     /// - Note: Core Animation ignores `view.overrideUserInterfaceStyle` setting, impossible to override user interface style.
