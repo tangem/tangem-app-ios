@@ -16,9 +16,10 @@ struct MarketsView: View {
 
     @StateObject private var navigationControllerConfigurator = MarketsViewNavigationControllerConfigurator()
 
-    @Environment(\.overlayContentContainer) private var overlayContentContainer
-    @Environment(\.viewHierarchySnapshotter) private var viewHierarchySnapshotter
     @Environment(\.mainWindowSize) private var mainWindowSize
+
+    @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
+    @Injected(\.overlayContentContainer) private var overlayContentContainer: OverlayContentContainer
 
     @State private var headerHeight: CGFloat = .zero
     @State private var defaultListOverlayTotalHeight: CGFloat = .zero
@@ -40,18 +41,17 @@ struct MarketsView: View {
     var body: some View {
         rootView
             .onAppear {
-                viewModel.setViewHierarchySnapshotter(viewHierarchySnapshotter)
                 viewModel.onViewAppear()
             }
             .onDisappear(perform: viewModel.onViewDisappear)
-            .onOverlayContentProgressChange { [weak viewModel] progress in
+            .onOverlayContentProgressChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] progress in
                 viewModel?.onOverlayContentProgressChange(progress)
 
                 if progress < 1 {
                     UIResponder.current?.resignFirstResponder()
                 }
             }
-            .onOverlayContentStateChange { [weak viewModel] state in
+            .onOverlayContentStateChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] state in
                 viewModel?.onOverlayContentStateChange(state)
             }
     }

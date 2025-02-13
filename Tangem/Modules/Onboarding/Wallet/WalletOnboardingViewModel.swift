@@ -803,6 +803,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                     if !sdkError.isUserCancelled {
                         self?.alert = sdkError.alertBinder
                     }
+
+                    Analytics.tryLogCardVerificationError(error, source: .backup)
                     self?.isMainButtonBusy = false
                 }
                 self?.stepPublisher = nil
@@ -929,7 +931,7 @@ extension WalletOnboardingViewModel {
     }
 
     func generateSeedPhrase() {
-        Analytics.log(.onboarindgSeedButtonGenerateSeedPhrase)
+        Analytics.log(.onboardingSeedButtonGenerateSeedPhrase)
         do {
             try seedPhraseManager.generateSeedPhrase()
             generateSeedPhraseModel = .init(seedPhraseManager: seedPhraseManager, delegate: self)

@@ -13,6 +13,7 @@ import TangemSdk
 
 protocol BindableError {
     var binder: AlertBinder { get }
+    func alertBinder(okAction: @escaping () -> Void) -> AlertBinder
 }
 
 // MARK: - TangemSdkError + BindableError
@@ -21,8 +22,6 @@ extension TangemSdkError: BindableError {
     var binder: AlertBinder {
         switch self {
         case .cardVerificationFailed:
-            Analytics.log(.onboardingOfflineAttestationFailed)
-
             return AlertBinder(alert: Alert(
                 title: Text(Localization.securityAlertTitle),
                 message: Text(TangemSdkError.cardVerificationFailed.localizedDescription),
@@ -30,8 +29,7 @@ extension TangemSdkError: BindableError {
                     openSupport()
                 }),
                 secondaryButton: Alert.Button.cancel(Text(Localization.commonCancel))
-            )
-            )
+            ))
         default:
             return AlertBinder(alert: Alert(
                 title: Text(Localization.commonError),
