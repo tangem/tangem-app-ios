@@ -1,5 +1,5 @@
 {
-  "originHash" : "b8805d4d54ffe4cc4606cb03fb14b46bcb39fc2237de97ed851d34d7d0234b13",
+  "originHash" : "689920a1d17f801c9a942564d3605f7753d298468085a2782ce766cda41857f0",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -85,7 +85,7 @@
     {
       "identity" : "bitcoincore",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tangem/bitcoincore.git",
+      "location" : "git@github.com:tangem-developments/bitcoincore.git",
       "state" : {
         "revision" : "4ec53e5e223885a4c0884d80985cf43677434eb0",
         "version" : "0.0.23"
@@ -94,7 +94,7 @@
     {
       "identity" : "blockiesswift",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tangem/BlockiesSwift.git",
+      "location" : "git@github.com:tangem-developments/BlockiesSwift.git",
       "state" : {
         "revision" : "c262694df4e5290a711cff291124ae4da76d8bd4",
         "version" : "0.1.2-tangem1"
@@ -121,7 +121,7 @@
     {
       "identity" : "dgcharts",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tangem/DGCharts",
+      "location" : "git@github.com:tangem-developments/DGCharts.git",
       "state" : {
         "revision" : "a2c1aa43650995d5139ad9e3ad4fd9c93d41776d",
         "version" : "5.1.0-tangem3"
@@ -130,10 +130,10 @@
     {
       "identity" : "firebase-ios-sdk",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tangem/firebase-ios-sdk.git",
+      "location" : "git@github.com:tangem-developments/firebase-ios-sdk.git",
       "state" : {
-        "revision" : "36b7a2a3ea363584b0744c5677a1dff4a8cd9eed",
-        "version" : "11.7.0-tangem1"
+        "revision" : "3c8b191212cfa10750f281bb245b3583f3cebc06",
+        "version" : "11.7.0-tangem2"
       }
     },
     {
@@ -193,10 +193,10 @@
     {
       "identity" : "grpc-swift",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tangem/grpc-swift.git",
+      "location" : "git@github.com:tangem-developments/grpc-swift.git",
       "state" : {
-        "revision" : "db2f35c1a02e6480afe936949f6e739576cad622",
-        "version" : "1.21.0-tangem2"
+        "revision" : "85b7e023993d535e1936f40e5a0e5909d3af8ad6",
+        "version" : "1.21.0-tangem3"
       }
     },
     {
@@ -211,16 +211,16 @@
     {
       "identity" : "hedera-sdk-swift",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tangem/hedera-sdk-swift.git",
+      "location" : "git@github.com:tangem-developments/hedera-sdk-swift.git",
       "state" : {
-        "revision" : "601ed82daac59bbd0050073adea057c20bcd73ef",
-        "version" : "0.26.0-tangem4"
+        "revision" : "c2fa6bf2f470db5bc31fc4b3e23c6b327ee7b6a8",
+        "version" : "0.26.0-tangem5"
       }
     },
     {
       "identity" : "icpkit",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tangem/IcpKit.git",
+      "location" : "git@github.com:tangem-developments/IcpKit.git",
       "state" : {
         "revision" : "48d906f7a3eca66dd4cbc239f21fd829dfc9decf",
         "version" : "0.1.2-tangem4"
@@ -339,8 +339,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/reown-com/reown-swift.git",
       "state" : {
-        "revision" : "8c1a43e28358a30dc03367dca2f38476f1573ece",
-        "version" : "1.0.4"
+        "revision" : "b51cc1d267b64a682e5bdb95960be4132b4e5e78",
+        "version" : "1.1.1"
       }
     },
     {
@@ -373,7 +373,7 @@
     {
       "identity" : "solana.swift",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tangem/Solana.Swift.git",
+      "location" : "git@github.com:tangem-developments/Solana.Swift.git",
       "state" : {
         "revision" : "7ac651bcad8bea4ec192d7e7602a0fe1161a85f0",
         "version" : "1.2.0-tangem13"
@@ -517,10 +517,10 @@
     {
       "identity" : "swift-protobuf-binaries",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tangem/swift-protobuf-binaries.git",
+      "location" : "git@github.com:tangem-developments/swift-protobuf-binaries.git",
       "state" : {
-        "revision" : "594a9b8c47df13087ee0a1f25dbc64173604d0e9",
-        "version" : "1.25.2-tangem3"
+        "revision" : "2e9fbb639e4c70334d48b9bfcc2a343e731bf208",
+        "version" : "1.25.2-tangem4"
       }
     },
     {
@@ -553,10 +553,10 @@
     {
       "identity" : "swiftbinancechain",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tangem/SwiftBinanceChain.git",
+      "location" : "git@github.com:tangem-developments/SwiftBinanceChain.git",
       "state" : {
-        "revision" : "beaa96aee991b744c6f0e48b19238767e89a22d2",
-        "version" : "0.0.13"
+        "revision" : "5fd14e1f0a95e77ea92a382a50615272ab104cb6",
+        "version" : "0.0.14"
       }
     },
     {
@@ -589,7 +589,7 @@
     {
       "identity" : "swiftyjson",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tangem/SwiftyJSON.git",
+      "location" : "git@github.com:tangem-developments/SwiftyJSON.git",
       "state" : {
         "revision" : "acff55ab1a8b138a49477ff523287b18833fc1a0",
         "version" : "5.0.1-tangem1"
@@ -598,7 +598,7 @@
     {
       "identity" : "tangem-sdk-ios",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Tangem/tangem-sdk-ios.git",
+      "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
         "revision" : "f429d3b3d6e3916bce33bf1fef229cb9f9d04753"
       }
@@ -606,7 +606,7 @@
     {
       "identity" : "ton-swift",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tangem/ton-swift.git",
+      "location" : "git@github.com:tangem-developments/ton-swift.git",
       "state" : {
         "revision" : "723cfeb8da0ea024158b4274fced8a1891bff88e",
         "version" : "1.0.10-tangem3"
@@ -624,10 +624,10 @@
     {
       "identity" : "wallet-core-binaries-ios",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tangem/wallet-core-binaries-ios.git",
+      "location" : "git@github.com:tangem-developments/wallet-core-binaries-ios.git",
       "state" : {
-        "revision" : "64eac18714238266c7737ddd0bd94cf79b5b2d94",
-        "version" : "4.1.20-tangem4"
+        "revision" : "caf628e17c1d35044d5c00bf24449912d0cc0cab",
+        "version" : "4.1.20-tangem5"
       }
     },
     {
