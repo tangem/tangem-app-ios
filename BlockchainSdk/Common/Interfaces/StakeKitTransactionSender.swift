@@ -12,7 +12,12 @@ public protocol StakeKitTransactionSender {
     /// Return stream with tx which was sent one by one
     /// If catch error stream will be stopped
     /// In case when manager already implemented the `StakeKitTransactionSenderProvider` method will be not required
-    func sendStakeKit(transactions: [StakeKitTransaction], signer: TransactionSigner, delay second: UInt64?) -> AsyncThrowingStream<StakeKitTransactionSendResult, Error>
+    func sendStakeKit(
+        transactions: [StakeKitTransaction],
+        signer: TransactionSigner,
+        transactionStatusProvider: some StakeKitTransactionStatusProvider,
+        delay second: UInt64?
+    ) -> AsyncThrowingStream<StakeKitTransactionSendResult, Error>
 }
 
 protocol StakeKitTransactionSenderProvider {
@@ -55,8 +60,13 @@ extension StakeKitTransactionBuilder where Self: StakeKitTransactionSenderProvid
 
 // MARK: - Common implementation for StakeKitTransactionSenderProvider
 
-extension StakeKitTransactionSender where Self: StakeKitTransactionBuilder, Self: WalletProvider, RawTransaction: CustomStringConvertible {
-    func sendStakeKit(transactions: [StakeKitTransaction], signer: TransactionSigner, delay second: UInt64?) -> AsyncThrowingStream<StakeKitTransactionSendResult, Error> {
+extension StakeKitTransactionSender where Self: StakeKitTransactionSenderProvider, Self: WalletProvider, RawTransaction: CustomStringConvertible {
+    func sendStakeKit(
+        transactions: [StakeKitTransaction],
+        signer: TransactionSigner,
+        transactionStatusProvider: some StakeKitTransactionStatusProvider,
+        delay second: UInt64?
+    ) -> AsyncThrowingStream<StakeKitTransactionSendResult, Error> {
         .init { [weak self] continuation in
             let task = Task { [weak self] in
                 guard let self else {
@@ -74,9 +84,14 @@ extension StakeKitTransactionSender where Self: StakeKitTransactionBuilder, Self
                     _ = try await withThrowingTaskGroup(of: (TransactionSendResult, StakeKitTransaction).self) { group in
                         var results = [TransactionSendResult]()
 
-                        for (transaction, rawTransaction) in zip(transactions, rawTransactions) {
+                        for (index, ((transaction, rawTransaction)) in zip(transactions, rawTransactions).enumerated() {
                             group.addTask {
                                 try Task.checkCancellation()
+                                if transactions.count > 1, let second {
+                                    Log.log("\(self) start \(second) second delay between the transactions sending")
+                                    try await Task.sleep(nanoseconds: UInt64(index) * second * NSEC_PER_SEC)
+                                    try Task.checkCancellation()
+                                }
                                 let result: TransactionSendResult = try await self.broadcast(
                                     transaction: transaction,
                                     rawTransaction: rawTransaction
@@ -85,15 +100,16 @@ extension StakeKitTransactionSender where Self: StakeKitTransactionBuilder, Self
                                 return (result, transaction)
                             }
 
-                            if transactions.count > 1, let second {
-                                // Wait for the current task to complete before adding the next one
+                            if transaction.requiresWaitingToComplete {
                                 guard let result = try await group.next() else { continue }
-
                                 results.append(result.0)
+
                                 continuation.yield(.init(transaction: result.1, result: result.0))
-                                // temporary code, will be removed as part of transition to transaction status tracking
-                                let delay = result.1.type == .split ? 20 : second
-                                try await Task.sleep(nanoseconds: delay * NSEC_PER_SEC)
+
+                                try await self.waitForTransactionToComplete(
+                                    transaction,
+                                    transactionStatusProvider: transactionStatusProvider
+                                )
                             }
                         }
 
@@ -136,8 +152,32 @@ extension StakeKitTransactionSender where Self: StakeKitTransactionBuilder, Self
         }
     }
 
+    private func waitForTransactionToComplete(
+        _ transaction: StakeKitTransaction,
+        transactionStatusProvider: StakeKitTransactionStatusProvider
+    ) async throws {
+        var status: StakeKitTransaction.Status?
+        let startPollingDate = Date()
+        while status != .confirmed,
+              Date().timeIntervalSince(startPollingDate) < StakeKitTransactionSenderConstants.pollingTimeout {
+            try await Task.sleep(nanoseconds: StakeKitTransactionSenderConstants.pollingDelayInSeconds * NSEC_PER_SEC)
+            status = try await transactionStatusProvider.transactionStatus(transaction)
+        }
+    }
+
     @MainActor
     private func addPendingTransaction(_ record: PendingTransactionRecord) {
         wallet.addPendingTransaction(record)
     }
+}
+
+extension StakeKitTransaction {
+    var requiresWaitingToComplete: Bool {
+        type == .split
+    }
+}
+
+private enum StakeKitTransactionSenderConstants {
+    static let pollingDelayInSeconds: UInt64 = 3
+    static let pollingTimeout: TimeInterval = 30
 }
