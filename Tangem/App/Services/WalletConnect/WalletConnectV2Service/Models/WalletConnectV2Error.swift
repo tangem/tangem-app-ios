@@ -29,7 +29,6 @@ enum WalletConnectV2Error: LocalizedError {
     case userWalletIsLocked
     case pairClientError(String)
     case symmetricKeyForTopicNotFound
-    case socketIsNotConnected
     case socketConnectionTimeout
     case unsupportedWCVersion
 
@@ -57,7 +56,6 @@ enum WalletConnectV2Error: LocalizedError {
         case .userWalletIsLocked: return 8018
         case .pairClientError: return 8019
         case .symmetricKeyForTopicNotFound: return 8020
-        case .socketIsNotConnected: return 8021
         case .socketConnectionTimeout: return 8022
         case .unsupportedWCVersion: return 8023
 

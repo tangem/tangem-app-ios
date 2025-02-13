@@ -46,11 +46,20 @@ class CommonTangemApiService {
         let target = TangemApiTarget(type: type, authData: authData)
         return try await provider.asyncRequest(target).mapAPIResponse(decoder: decoder)
     }
+
+    private func requestRawData(for type: TangemApiTarget.TargetType) async throws -> Data {
+        let target = TangemApiTarget(type: type, authData: authData)
+        return try await provider.asyncRequest(target).data
+    }
 }
 
 // MARK: - TangemApiService
 
 extension CommonTangemApiService: TangemApiService {
+    func getRawData(fromURL url: URL) async throws -> Data {
+        try await requestRawData(for: .rawData(url: url))
+    }
+
     func loadGeo() -> AnyPublisher<String, any Error> {
         provider
             .requestPublisher(TangemApiTarget(type: .geo, authData: authData))
@@ -233,6 +242,10 @@ extension CommonTangemApiService: TangemApiService {
         try await request(for: .resetAward(cardId: cardId))
     }
 
+    func loadStory(storyId: String) async throws -> StoryDTO.Response {
+        try await request(for: .story(storyId))
+    }
+
     func loadAPIList() async throws -> APIListDTO {
         try await request(for: .apiList)
     }
@@ -267,6 +280,12 @@ extension CommonTangemApiService: TangemApiService {
         requestModel: MarketsDTO.ExchangesRequest
     ) async throws -> MarketsDTO.ExchangesResponse {
         return try await request(for: .tokenExchangesList(requestModel), decoder: decoder)
+    }
+
+    // MARK: - Action Buttons
+
+    func loadHotCrypto(requestModel: HotCryptoDTO.Request) async throws -> HotCryptoDTO.Response {
+        try await request(for: .hotCrypto(requestModel))
     }
 
     func getSeedNotifyStatus(userWalletId: String) async throws -> SeedNotifyDTO {
