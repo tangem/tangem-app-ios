@@ -120,6 +120,83 @@
 		2DA57BC32CD650E900C890DF /* CasperAddressService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D616FE62CD1414000581EA6 /* CasperAddressService.swift */; };
 		2DA8AB122A433BDB00C75D85 /* Analytics+BlockchainExceptionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA8AB112A433BDB00C75D85 /* Analytics+BlockchainExceptionHandler.swift */; };
 		2DAB6B6F2CE28E8500B4A10C /* MinimumAmountRestrictable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DAB6B6E2CE28E8500B4A10C /* MinimumAmountRestrictable.swift */; };
+		2DAD346A2D57CD5500C4BDA5 /* AlephiumTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DAD34692D57CD5500C4BDA5 /* AlephiumTests.swift */; };
+		2DB1D6BE2D56978D00AD43A3 /* ALPH+AssetOutputRef.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6692D56978D00AD43A3 /* ALPH+AssetOutputRef.swift */; };
+		2DB1D6BF2D56978D00AD43A3 /* AlephiumNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6B42D56978D00AD43A3 /* AlephiumNetworkService.swift */; };
+		2DB1D6C02D56978D00AD43A3 /* ALPH+Blake2b.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6A42D56978D00AD43A3 /* ALPH+Blake2b.swift */; };
+		2DB1D6C12D56978D00AD43A3 /* ALPH+AssetOutputSerde.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D69E2D56978D00AD43A3 /* ALPH+AssetOutputSerde.swift */; };
+		2DB1D6C22D56978D00AD43A3 /* ALPH+Bytes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D66B2D56978D00AD43A3 /* ALPH+Bytes.swift */; };
+		2DB1D6C32D56978D00AD43A3 /* ALPH+Serializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6982D56978D00AD43A3 /* ALPH+Serializer.swift */; };
+		2DB1D6C42D56978D00AD43A3 /* ALPH+AssetOutputInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6682D56978D00AD43A3 /* ALPH+AssetOutputInfo.swift */; };
+		2DB1D6C52D56978D00AD43A3 /* AlephiumTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6BA2D56978D00AD43A3 /* AlephiumTransactionBuilder.swift */; };
+		2DB1D6C62D56978D00AD43A3 /* AlephiumNetworkResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6B12D56978D00AD43A3 /* AlephiumNetworkResponse.swift */; };
+		2DB1D6C72D56978D00AD43A3 /* ALPH+CalculateTxUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6A52D56978D00AD43A3 /* ALPH+CalculateTxUtils.swift */; };
+		2DB1D6C82D56978D00AD43A3 /* ALPH+UnlockScriptWithAssets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6812D56978D00AD43A3 /* ALPH+UnlockScriptWithAssets.swift */; };
+		2DB1D6C92D56978D00AD43A3 /* ALPH+AnySerde.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D68C2D56978D00AD43A3 /* ALPH+AnySerde.swift */; };
+		2DB1D6CA2D56978D00AD43A3 /* ALPH+AVectorSerde.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D68D2D56978D00AD43A3 /* ALPH+AVectorSerde.swift */; };
+		2DB1D6CB2D56978D00AD43A3 /* AlephiumNetworkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6B32D56978D00AD43A3 /* AlephiumNetworkProvider.swift */; };
+		2DB1D6CC2D56978D00AD43A3 /* ALPH+Staging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6992D56978D00AD43A3 /* ALPH+Staging.swift */; };
+		2DB1D6CD2D56978D00AD43A3 /* ALPH+TxOutputRefKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D67D2D56978D00AD43A3 /* ALPH+TxOutputRefKey.swift */; };
+		2DB1D6CF2D56978D00AD43A3 /* ALPH+TokenId.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6792D56978D00AD43A3 /* ALPH+TokenId.swift */; };
+		2DB1D6D02D56978D00AD43A3 /* AlephiumFeeParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6B92D56978D00AD43A3 /* AlephiumFeeParameters.swift */; };
+		2DB1D6D12D56978D00AD43A3 /* ALPH+Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D66C2D56978D00AD43A3 /* ALPH+Constants.swift */; };
+		2DB1D6D22D56978D00AD43A3 /* ALPH+Serde.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6962D56978D00AD43A3 /* ALPH+Serde.swift */; };
+		2DB1D6D32D56978D00AD43A3 /* ALPH+Hint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6732D56978D00AD43A3 /* ALPH+Hint.swift */; };
+		2DB1D6D42D56978D00AD43A3 /* ALPH+UnlockP2PKH.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6802D56978D00AD43A3 /* ALPH+UnlockP2PKH.swift */; };
+		2DB1D6D52D56978D00AD43A3 /* ALPH+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6A92D56978D00AD43A3 /* ALPH+.swift */; };
+		2DB1D6D62D56978D00AD43A3 /* ALPH+PremitiveSerde.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6952D56978D00AD43A3 /* ALPH+PremitiveSerde.swift */; };
+		2DB1D6D72D56978D00AD43A3 /* AlephiumProviderTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6B52D56978D00AD43A3 /* AlephiumProviderTarget.swift */; };
+		2DB1D6D82D56978D00AD43A3 /* ALPH+UnlockScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D68A2D56978D00AD43A3 /* ALPH+UnlockScript.swift */; };
+		2DB1D6D92D56978D00AD43A3 /* ALPH+CompactInteger+Unsigned.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6912D56978D00AD43A3 /* ALPH+CompactInteger+Unsigned.swift */; };
+		2DB1D6DA2D56978D00AD43A3 /* ALPH+U256.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D67F2D56978D00AD43A3 /* ALPH+U256.swift */; };
+		2DB1D6DB2D56978D00AD43A3 /* ALPH+LockupScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6852D56978D00AD43A3 /* ALPH+LockupScript.swift */; };
+		2DB1D6DC2D56978D00AD43A3 /* ALPH+NetworkId.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6742D56978D00AD43A3 /* ALPH+NetworkId.swift */; };
+		2DB1D6DD2D56978D00AD43A3 /* ALPH+UTXO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6832D56978D00AD43A3 /* ALPH+UTXO.swift */; };
+		2DB1D6DE2D56978D00AD43A3 /* ALPH+LockupScriptSerde.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D69F2D56978D00AD43A3 /* ALPH+LockupScriptSerde.swift */; };
+		2DB1D6DF2D56978D00AD43A3 /* ALPH+UnlockScriptSerde.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6A12D56978D00AD43A3 /* ALPH+UnlockScriptSerde.swift */; };
+		2DB1D6E02D56978D00AD43A3 /* ALPH+TxOutputInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D67C2D56978D00AD43A3 /* ALPH+TxOutputInfo.swift */; };
+		2DB1D6E12D56978D00AD43A3 /* ALPH+TimeStamp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6782D56978D00AD43A3 /* ALPH+TimeStamp.swift */; };
+		2DB1D6E22D56978D00AD43A3 /* ALPH+SameAsPrevious.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6762D56978D00AD43A3 /* ALPH+SameAsPrevious.swift */; };
+		2DB1D6E32D56978D00AD43A3 /* ALPH+Duration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D66E2D56978D00AD43A3 /* ALPH+Duration.swift */; };
+		2DB1D6E42D56978D00AD43A3 /* AlephiumExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6B82D56978D00AD43A3 /* AlephiumExternalLinkProvider.swift */; };
+		2DB1D6E52D56978D00AD43A3 /* AlephiumAddressService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6B72D56978D00AD43A3 /* AlephiumAddressService.swift */; };
+		2DB1D6E62D56978D00AD43A3 /* ALPH+OutputInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6862D56978D00AD43A3 /* ALPH+OutputInfo.swift */; };
+		2DB1D6E72D56978D00AD43A3 /* ALPH+TxOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6882D56978D00AD43A3 /* ALPH+TxOutput.swift */; };
+		2DB1D6E82D56978D00AD43A3 /* ALPH+TransactionId.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D67A2D56978D00AD43A3 /* ALPH+TransactionId.swift */; };
+		2DB1D6E92D56978D00AD43A3 /* ALPH+SerdeError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6972D56978D00AD43A3 /* ALPH+SerdeError.swift */; };
+		2DB1D6EA2D56978D00AD43A3 /* AlephiumBalanceInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6AD2D56978D00AD43A3 /* AlephiumBalanceInfo.swift */; };
+		2DB1D6EB2D56978D00AD43A3 /* ALPH+U32.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D67E2D56978D00AD43A3 /* ALPH+U32.swift */; };
+		2DB1D6EC2D56978D00AD43A3 /* ALPH+AVector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D66A2D56978D00AD43A3 /* ALPH+AVector.swift */; };
+		2DB1D6ED2D56978D00AD43A3 /* ALPH+Flags.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6942D56978D00AD43A3 /* ALPH+Flags.swift */; };
+		2DB1D6EE2D56978D00AD43A3 /* AlephiumUTXO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6AE2D56978D00AD43A3 /* AlephiumUTXO.swift */; };
+		2DB1D6EF2D56978D00AD43A3 /* ALPH+TxOutputRef.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6892D56978D00AD43A3 /* ALPH+TxOutputRef.swift */; };
+		2DB1D6F02D56978D00AD43A3 /* ALPH+Persistent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6752D56978D00AD43A3 /* ALPH+Persistent.swift */; };
+		2DB1D6F12D56978D00AD43A3 /* ALPH+TokenIdSerde.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D69A2D56978D00AD43A3 /* ALPH+TokenIdSerde.swift */; };
+		2DB1D6F22D56978D00AD43A3 /* ALPH+UnsignedTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6822D56978D00AD43A3 /* ALPH+UnsignedTransaction.swift */; };
+		2DB1D6F32D56978D00AD43A3 /* ALPH+TxInputInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D67B2D56978D00AD43A3 /* ALPH+TxInputInfo.swift */; };
+		2DB1D6F42D56978D00AD43A3 /* ALPH+AssetOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6672D56978D00AD43A3 /* ALPH+AssetOutput.swift */; };
+		2DB1D6F52D56978D00AD43A3 /* ALPH+CheckTxUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6A62D56978D00AD43A3 /* ALPH+CheckTxUtils.swift */; };
+		2DB1D6F62D56978D00AD43A3 /* ALPH+GasPrice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6712D56978D00AD43A3 /* ALPH+GasPrice.swift */; };
+		2DB1D6F72D56978D00AD43A3 /* ALPH+Tuples.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D69C2D56978D00AD43A3 /* ALPH+Tuples.swift */; };
+		2DB1D6F82D56978D00AD43A3 /* ALPH+CompactInteger+Signed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6902D56978D00AD43A3 /* ALPH+CompactInteger+Signed.swift */; };
+		2DB1D6F92D56978D00AD43A3 /* ALPH+FixedSizeSerde.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6932D56978D00AD43A3 /* ALPH+FixedSizeSerde.swift */; };
+		2DB1D6FA2D56978D00AD43A3 /* AlephiumWalletAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6BB2D56978D00AD43A3 /* AlephiumWalletAssembly.swift */; };
+		2DB1D6FB2D56978D00AD43A3 /* ALPH+GasEstimationMultiplier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6702D56978D00AD43A3 /* ALPH+GasEstimationMultiplier.swift */; };
+		2DB1D6FC2D56978D00AD43A3 /* ALPH+CompactInteger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D68E2D56978D00AD43A3 /* ALPH+CompactInteger.swift */; };
+		2DB1D6FD2D56978D00AD43A3 /* AlephiumAccountInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6AC2D56978D00AD43A3 /* AlephiumAccountInfo.swift */; };
+		2DB1D6FE2D56978D00AD43A3 /* ALPH+TransactionInputDataSerde.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6A02D56978D00AD43A3 /* ALPH+TransactionInputDataSerde.swift */; };
+		2DB1D6FF2D56978D00AD43A3 /* ALPH+DjbHash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D66D2D56978D00AD43A3 /* ALPH+DjbHash.swift */; };
+		2DB1D7002D56978D00AD43A3 /* AlephiumNetworkRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6B02D56978D00AD43A3 /* AlephiumNetworkRequest.swift */; };
+		2DB1D7012D56978D00AD43A3 /* AlephiumWalletManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6BC2D56978D00AD43A3 /* AlephiumWalletManager.swift */; };
+		2DB1D7022D56978D00AD43A3 /* ALPH+CompactInteger+Mode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D68F2D56978D00AD43A3 /* ALPH+CompactInteger+Mode.swift */; };
+		2DB1D7032D56978D00AD43A3 /* ALPH+Tuple2Serde.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D69B2D56978D00AD43A3 /* ALPH+Tuple2Serde.swift */; };
+		2DB1D7042D56978D00AD43A3 /* ALPH+TxUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6A72D56978D00AD43A3 /* ALPH+TxUtils.swift */; };
+		2DB1D7052D56978D00AD43A3 /* ALPH+OutputType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6872D56978D00AD43A3 /* ALPH+OutputType.swift */; };
+		2DB1D7062D56978D00AD43A3 /* ALPH+ScriptHint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6772D56978D00AD43A3 /* ALPH+ScriptHint.swift */; };
+		2DB1D7072D56978D00AD43A3 /* ALPH+Deserializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6922D56978D00AD43A3 /* ALPH+Deserializer.swift */; };
+		2DB1D7082D56978D00AD43A3 /* ALPH+GroupIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6722D56978D00AD43A3 /* ALPH+GroupIndex.swift */; };
+		2DB1D7092D56978D00AD43A3 /* ALPH+GasBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D66F2D56978D00AD43A3 /* ALPH+GasBox.swift */; };
+		2DB1D70A2D56978D00AD43A3 /* ALPH+UnsignedTransactionSerde.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB1D6A22D56978D00AD43A3 /* ALPH+UnsignedTransactionSerde.swift */; };
 		2DB200632D34F57700E499A3 /* Fact0rnNetworkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB200612D34F57700E499A3 /* Fact0rnNetworkProvider.swift */; };
 		2DB200662D380C9A00E499A3 /* Fact0rnWalletManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB200652D380C9A00E499A3 /* Fact0rnWalletManager.swift */; };
 		2DB3614B2C14FBAB00BB1D38 /* SegmentedPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB3614A2C14FBAB00BB1D38 /* SegmentedPickerView.swift */; };
@@ -3368,6 +3445,83 @@
 		2D92E6562D0C2088008FDECF /* SolanaDummyNetworkRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaDummyNetworkRouter.swift; sourceTree = "<group>"; };
 		2DA8AB112A433BDB00C75D85 /* Analytics+BlockchainExceptionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+BlockchainExceptionHandler.swift"; sourceTree = "<group>"; };
 		2DAB6B6E2CE28E8500B4A10C /* MinimumAmountRestrictable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinimumAmountRestrictable.swift; sourceTree = "<group>"; };
+		2DAD34692D57CD5500C4BDA5 /* AlephiumTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlephiumTests.swift; sourceTree = "<group>"; };
+		2DB1D6672D56978D00AD43A3 /* ALPH+AssetOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+AssetOutput.swift"; sourceTree = "<group>"; };
+		2DB1D6682D56978D00AD43A3 /* ALPH+AssetOutputInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+AssetOutputInfo.swift"; sourceTree = "<group>"; };
+		2DB1D6692D56978D00AD43A3 /* ALPH+AssetOutputRef.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+AssetOutputRef.swift"; sourceTree = "<group>"; };
+		2DB1D66A2D56978D00AD43A3 /* ALPH+AVector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+AVector.swift"; sourceTree = "<group>"; };
+		2DB1D66B2D56978D00AD43A3 /* ALPH+Bytes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+Bytes.swift"; sourceTree = "<group>"; };
+		2DB1D66C2D56978D00AD43A3 /* ALPH+Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+Constants.swift"; sourceTree = "<group>"; };
+		2DB1D66D2D56978D00AD43A3 /* ALPH+DjbHash.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+DjbHash.swift"; sourceTree = "<group>"; };
+		2DB1D66E2D56978D00AD43A3 /* ALPH+Duration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+Duration.swift"; sourceTree = "<group>"; };
+		2DB1D66F2D56978D00AD43A3 /* ALPH+GasBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+GasBox.swift"; sourceTree = "<group>"; };
+		2DB1D6702D56978D00AD43A3 /* ALPH+GasEstimationMultiplier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+GasEstimationMultiplier.swift"; sourceTree = "<group>"; };
+		2DB1D6712D56978D00AD43A3 /* ALPH+GasPrice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+GasPrice.swift"; sourceTree = "<group>"; };
+		2DB1D6722D56978D00AD43A3 /* ALPH+GroupIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+GroupIndex.swift"; sourceTree = "<group>"; };
+		2DB1D6732D56978D00AD43A3 /* ALPH+Hint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+Hint.swift"; sourceTree = "<group>"; };
+		2DB1D6742D56978D00AD43A3 /* ALPH+NetworkId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+NetworkId.swift"; sourceTree = "<group>"; };
+		2DB1D6752D56978D00AD43A3 /* ALPH+Persistent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+Persistent.swift"; sourceTree = "<group>"; };
+		2DB1D6762D56978D00AD43A3 /* ALPH+SameAsPrevious.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+SameAsPrevious.swift"; sourceTree = "<group>"; };
+		2DB1D6772D56978D00AD43A3 /* ALPH+ScriptHint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+ScriptHint.swift"; sourceTree = "<group>"; };
+		2DB1D6782D56978D00AD43A3 /* ALPH+TimeStamp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+TimeStamp.swift"; sourceTree = "<group>"; };
+		2DB1D6792D56978D00AD43A3 /* ALPH+TokenId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+TokenId.swift"; sourceTree = "<group>"; };
+		2DB1D67A2D56978D00AD43A3 /* ALPH+TransactionId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+TransactionId.swift"; sourceTree = "<group>"; };
+		2DB1D67B2D56978D00AD43A3 /* ALPH+TxInputInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+TxInputInfo.swift"; sourceTree = "<group>"; };
+		2DB1D67C2D56978D00AD43A3 /* ALPH+TxOutputInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+TxOutputInfo.swift"; sourceTree = "<group>"; };
+		2DB1D67D2D56978D00AD43A3 /* ALPH+TxOutputRefKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+TxOutputRefKey.swift"; sourceTree = "<group>"; };
+		2DB1D67E2D56978D00AD43A3 /* ALPH+U32.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+U32.swift"; sourceTree = "<group>"; };
+		2DB1D67F2D56978D00AD43A3 /* ALPH+U256.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+U256.swift"; sourceTree = "<group>"; };
+		2DB1D6802D56978D00AD43A3 /* ALPH+UnlockP2PKH.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+UnlockP2PKH.swift"; sourceTree = "<group>"; };
+		2DB1D6812D56978D00AD43A3 /* ALPH+UnlockScriptWithAssets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+UnlockScriptWithAssets.swift"; sourceTree = "<group>"; };
+		2DB1D6822D56978D00AD43A3 /* ALPH+UnsignedTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+UnsignedTransaction.swift"; sourceTree = "<group>"; };
+		2DB1D6832D56978D00AD43A3 /* ALPH+UTXO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+UTXO.swift"; sourceTree = "<group>"; };
+		2DB1D6852D56978D00AD43A3 /* ALPH+LockupScript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+LockupScript.swift"; sourceTree = "<group>"; };
+		2DB1D6862D56978D00AD43A3 /* ALPH+OutputInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+OutputInfo.swift"; sourceTree = "<group>"; };
+		2DB1D6872D56978D00AD43A3 /* ALPH+OutputType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+OutputType.swift"; sourceTree = "<group>"; };
+		2DB1D6882D56978D00AD43A3 /* ALPH+TxOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+TxOutput.swift"; sourceTree = "<group>"; };
+		2DB1D6892D56978D00AD43A3 /* ALPH+TxOutputRef.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+TxOutputRef.swift"; sourceTree = "<group>"; };
+		2DB1D68A2D56978D00AD43A3 /* ALPH+UnlockScript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+UnlockScript.swift"; sourceTree = "<group>"; };
+		2DB1D68C2D56978D00AD43A3 /* ALPH+AnySerde.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+AnySerde.swift"; sourceTree = "<group>"; };
+		2DB1D68D2D56978D00AD43A3 /* ALPH+AVectorSerde.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+AVectorSerde.swift"; sourceTree = "<group>"; };
+		2DB1D68E2D56978D00AD43A3 /* ALPH+CompactInteger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+CompactInteger.swift"; sourceTree = "<group>"; };
+		2DB1D68F2D56978D00AD43A3 /* ALPH+CompactInteger+Mode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+CompactInteger+Mode.swift"; sourceTree = "<group>"; };
+		2DB1D6902D56978D00AD43A3 /* ALPH+CompactInteger+Signed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+CompactInteger+Signed.swift"; sourceTree = "<group>"; };
+		2DB1D6912D56978D00AD43A3 /* ALPH+CompactInteger+Unsigned.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+CompactInteger+Unsigned.swift"; sourceTree = "<group>"; };
+		2DB1D6922D56978D00AD43A3 /* ALPH+Deserializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+Deserializer.swift"; sourceTree = "<group>"; };
+		2DB1D6932D56978D00AD43A3 /* ALPH+FixedSizeSerde.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+FixedSizeSerde.swift"; sourceTree = "<group>"; };
+		2DB1D6942D56978D00AD43A3 /* ALPH+Flags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+Flags.swift"; sourceTree = "<group>"; };
+		2DB1D6952D56978D00AD43A3 /* ALPH+PremitiveSerde.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+PremitiveSerde.swift"; sourceTree = "<group>"; };
+		2DB1D6962D56978D00AD43A3 /* ALPH+Serde.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+Serde.swift"; sourceTree = "<group>"; };
+		2DB1D6972D56978D00AD43A3 /* ALPH+SerdeError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+SerdeError.swift"; sourceTree = "<group>"; };
+		2DB1D6982D56978D00AD43A3 /* ALPH+Serializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+Serializer.swift"; sourceTree = "<group>"; };
+		2DB1D6992D56978D00AD43A3 /* ALPH+Staging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+Staging.swift"; sourceTree = "<group>"; };
+		2DB1D69A2D56978D00AD43A3 /* ALPH+TokenIdSerde.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+TokenIdSerde.swift"; sourceTree = "<group>"; };
+		2DB1D69B2D56978D00AD43A3 /* ALPH+Tuple2Serde.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+Tuple2Serde.swift"; sourceTree = "<group>"; };
+		2DB1D69C2D56978D00AD43A3 /* ALPH+Tuples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+Tuples.swift"; sourceTree = "<group>"; };
+		2DB1D69E2D56978D00AD43A3 /* ALPH+AssetOutputSerde.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+AssetOutputSerde.swift"; sourceTree = "<group>"; };
+		2DB1D69F2D56978D00AD43A3 /* ALPH+LockupScriptSerde.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+LockupScriptSerde.swift"; sourceTree = "<group>"; };
+		2DB1D6A02D56978D00AD43A3 /* ALPH+TransactionInputDataSerde.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+TransactionInputDataSerde.swift"; sourceTree = "<group>"; };
+		2DB1D6A12D56978D00AD43A3 /* ALPH+UnlockScriptSerde.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+UnlockScriptSerde.swift"; sourceTree = "<group>"; };
+		2DB1D6A22D56978D00AD43A3 /* ALPH+UnsignedTransactionSerde.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+UnsignedTransactionSerde.swift"; sourceTree = "<group>"; };
+		2DB1D6A42D56978D00AD43A3 /* ALPH+Blake2b.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+Blake2b.swift"; sourceTree = "<group>"; };
+		2DB1D6A52D56978D00AD43A3 /* ALPH+CalculateTxUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+CalculateTxUtils.swift"; sourceTree = "<group>"; };
+		2DB1D6A62D56978D00AD43A3 /* ALPH+CheckTxUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+CheckTxUtils.swift"; sourceTree = "<group>"; };
+		2DB1D6A72D56978D00AD43A3 /* ALPH+TxUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+TxUtils.swift"; sourceTree = "<group>"; };
+		2DB1D6A92D56978D00AD43A3 /* ALPH+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALPH+.swift"; sourceTree = "<group>"; };
+		2DB1D6AC2D56978D00AD43A3 /* AlephiumAccountInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlephiumAccountInfo.swift; sourceTree = "<group>"; };
+		2DB1D6AD2D56978D00AD43A3 /* AlephiumBalanceInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlephiumBalanceInfo.swift; sourceTree = "<group>"; };
+		2DB1D6AE2D56978D00AD43A3 /* AlephiumUTXO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlephiumUTXO.swift; sourceTree = "<group>"; };
+		2DB1D6B02D56978D00AD43A3 /* AlephiumNetworkRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlephiumNetworkRequest.swift; sourceTree = "<group>"; };
+		2DB1D6B12D56978D00AD43A3 /* AlephiumNetworkResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlephiumNetworkResponse.swift; sourceTree = "<group>"; };
+		2DB1D6B32D56978D00AD43A3 /* AlephiumNetworkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlephiumNetworkProvider.swift; sourceTree = "<group>"; };
+		2DB1D6B42D56978D00AD43A3 /* AlephiumNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlephiumNetworkService.swift; sourceTree = "<group>"; };
+		2DB1D6B52D56978D00AD43A3 /* AlephiumProviderTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlephiumProviderTarget.swift; sourceTree = "<group>"; };
+		2DB1D6B72D56978D00AD43A3 /* AlephiumAddressService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlephiumAddressService.swift; sourceTree = "<group>"; };
+		2DB1D6B82D56978D00AD43A3 /* AlephiumExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlephiumExternalLinkProvider.swift; sourceTree = "<group>"; };
+		2DB1D6B92D56978D00AD43A3 /* AlephiumFeeParameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlephiumFeeParameters.swift; sourceTree = "<group>"; };
+		2DB1D6BA2D56978D00AD43A3 /* AlephiumTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlephiumTransactionBuilder.swift; sourceTree = "<group>"; };
+		2DB1D6BB2D56978D00AD43A3 /* AlephiumWalletAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlephiumWalletAssembly.swift; sourceTree = "<group>"; };
+		2DB1D6BC2D56978D00AD43A3 /* AlephiumWalletManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlephiumWalletManager.swift; sourceTree = "<group>"; };
 		2DB200612D34F57700E499A3 /* Fact0rnNetworkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fact0rnNetworkProvider.swift; sourceTree = "<group>"; };
 		2DB200652D380C9A00E499A3 /* Fact0rnWalletManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fact0rnWalletManager.swift; sourceTree = "<group>"; };
 		2DB3614A2C14FBAB00BB1D38 /* SegmentedPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentedPickerView.swift; sourceTree = "<group>"; };
@@ -6791,12 +6945,175 @@
 			path = Utils;
 			sourceTree = "<group>";
 		};
+		2DAD34682D57CD4300C4BDA5 /* Alephium */ = {
+			isa = PBXGroup;
+			children = (
+				2DAD34692D57CD5500C4BDA5 /* AlephiumTests.swift */,
+			);
+			path = Alephium;
+			sourceTree = "<group>";
+		};
 		2DADFF9E2C98A9F30029F390 /* Tooltip */ = {
 			isa = PBXGroup;
 			children = (
 				2DC46B9F2C945C4400749F7C /* BasicTooltipView.swift */,
 			);
 			path = Tooltip;
+			sourceTree = "<group>";
+		};
+		2DB1D6842D56978D00AD43A3 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				2DB1D6672D56978D00AD43A3 /* ALPH+AssetOutput.swift */,
+				2DB1D6682D56978D00AD43A3 /* ALPH+AssetOutputInfo.swift */,
+				2DB1D6692D56978D00AD43A3 /* ALPH+AssetOutputRef.swift */,
+				2DB1D66A2D56978D00AD43A3 /* ALPH+AVector.swift */,
+				2DB1D66B2D56978D00AD43A3 /* ALPH+Bytes.swift */,
+				2DB1D66C2D56978D00AD43A3 /* ALPH+Constants.swift */,
+				2DB1D66D2D56978D00AD43A3 /* ALPH+DjbHash.swift */,
+				2DB1D66E2D56978D00AD43A3 /* ALPH+Duration.swift */,
+				2DB1D66F2D56978D00AD43A3 /* ALPH+GasBox.swift */,
+				2DB1D6702D56978D00AD43A3 /* ALPH+GasEstimationMultiplier.swift */,
+				2DB1D6712D56978D00AD43A3 /* ALPH+GasPrice.swift */,
+				2DB1D6722D56978D00AD43A3 /* ALPH+GroupIndex.swift */,
+				2DB1D6732D56978D00AD43A3 /* ALPH+Hint.swift */,
+				2DB1D6742D56978D00AD43A3 /* ALPH+NetworkId.swift */,
+				2DB1D6752D56978D00AD43A3 /* ALPH+Persistent.swift */,
+				2DB1D6762D56978D00AD43A3 /* ALPH+SameAsPrevious.swift */,
+				2DB1D6772D56978D00AD43A3 /* ALPH+ScriptHint.swift */,
+				2DB1D6782D56978D00AD43A3 /* ALPH+TimeStamp.swift */,
+				2DB1D6792D56978D00AD43A3 /* ALPH+TokenId.swift */,
+				2DB1D67A2D56978D00AD43A3 /* ALPH+TransactionId.swift */,
+				2DB1D67B2D56978D00AD43A3 /* ALPH+TxInputInfo.swift */,
+				2DB1D67C2D56978D00AD43A3 /* ALPH+TxOutputInfo.swift */,
+				2DB1D67D2D56978D00AD43A3 /* ALPH+TxOutputRefKey.swift */,
+				2DB1D67E2D56978D00AD43A3 /* ALPH+U32.swift */,
+				2DB1D67F2D56978D00AD43A3 /* ALPH+U256.swift */,
+				2DB1D6802D56978D00AD43A3 /* ALPH+UnlockP2PKH.swift */,
+				2DB1D6812D56978D00AD43A3 /* ALPH+UnlockScriptWithAssets.swift */,
+				2DB1D6822D56978D00AD43A3 /* ALPH+UnsignedTransaction.swift */,
+				2DB1D6832D56978D00AD43A3 /* ALPH+UTXO.swift */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		2DB1D68B2D56978D00AD43A3 /* Interfaces */ = {
+			isa = PBXGroup;
+			children = (
+				2DB1D6852D56978D00AD43A3 /* ALPH+LockupScript.swift */,
+				2DB1D6862D56978D00AD43A3 /* ALPH+OutputInfo.swift */,
+				2DB1D6872D56978D00AD43A3 /* ALPH+OutputType.swift */,
+				2DB1D6882D56978D00AD43A3 /* ALPH+TxOutput.swift */,
+				2DB1D6892D56978D00AD43A3 /* ALPH+TxOutputRef.swift */,
+				2DB1D68A2D56978D00AD43A3 /* ALPH+UnlockScript.swift */,
+			);
+			path = Interfaces;
+			sourceTree = "<group>";
+		};
+		2DB1D69D2D56978D00AD43A3 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				2DB1D68C2D56978D00AD43A3 /* ALPH+AnySerde.swift */,
+				2DB1D68D2D56978D00AD43A3 /* ALPH+AVectorSerde.swift */,
+				2DB1D68E2D56978D00AD43A3 /* ALPH+CompactInteger.swift */,
+				2DB1D68F2D56978D00AD43A3 /* ALPH+CompactInteger+Mode.swift */,
+				2DB1D6902D56978D00AD43A3 /* ALPH+CompactInteger+Signed.swift */,
+				2DB1D6912D56978D00AD43A3 /* ALPH+CompactInteger+Unsigned.swift */,
+				2DB1D6922D56978D00AD43A3 /* ALPH+Deserializer.swift */,
+				2DB1D6932D56978D00AD43A3 /* ALPH+FixedSizeSerde.swift */,
+				2DB1D6942D56978D00AD43A3 /* ALPH+Flags.swift */,
+				2DB1D6952D56978D00AD43A3 /* ALPH+PremitiveSerde.swift */,
+				2DB1D6962D56978D00AD43A3 /* ALPH+Serde.swift */,
+				2DB1D6972D56978D00AD43A3 /* ALPH+SerdeError.swift */,
+				2DB1D6982D56978D00AD43A3 /* ALPH+Serializer.swift */,
+				2DB1D6992D56978D00AD43A3 /* ALPH+Staging.swift */,
+				2DB1D69A2D56978D00AD43A3 /* ALPH+TokenIdSerde.swift */,
+				2DB1D69B2D56978D00AD43A3 /* ALPH+Tuple2Serde.swift */,
+				2DB1D69C2D56978D00AD43A3 /* ALPH+Tuples.swift */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
+		2DB1D6A32D56978D00AD43A3 /* Serde */ = {
+			isa = PBXGroup;
+			children = (
+				2DB1D69E2D56978D00AD43A3 /* ALPH+AssetOutputSerde.swift */,
+				2DB1D69F2D56978D00AD43A3 /* ALPH+LockupScriptSerde.swift */,
+				2DB1D6A02D56978D00AD43A3 /* ALPH+TransactionInputDataSerde.swift */,
+				2DB1D6A12D56978D00AD43A3 /* ALPH+UnlockScriptSerde.swift */,
+				2DB1D6A22D56978D00AD43A3 /* ALPH+UnsignedTransactionSerde.swift */,
+				2DB1D69D2D56978D00AD43A3 /* Common */,
+			);
+			path = Serde;
+			sourceTree = "<group>";
+		};
+		2DB1D6A82D56978D00AD43A3 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				2DB1D6A42D56978D00AD43A3 /* ALPH+Blake2b.swift */,
+				2DB1D6A52D56978D00AD43A3 /* ALPH+CalculateTxUtils.swift */,
+				2DB1D6A62D56978D00AD43A3 /* ALPH+CheckTxUtils.swift */,
+				2DB1D6A72D56978D00AD43A3 /* ALPH+TxUtils.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		2DB1D6AA2D56978D00AD43A3 /* Assembly */ = {
+			isa = PBXGroup;
+			children = (
+				2DB1D6842D56978D00AD43A3 /* Data */,
+				2DB1D68B2D56978D00AD43A3 /* Interfaces */,
+				2DB1D6A32D56978D00AD43A3 /* Serde */,
+				2DB1D6A82D56978D00AD43A3 /* Utils */,
+				2DB1D6A92D56978D00AD43A3 /* ALPH+.swift */,
+			);
+			path = Assembly;
+			sourceTree = "<group>";
+		};
+		2DB1D6AF2D56978D00AD43A3 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				2DB1D6AC2D56978D00AD43A3 /* AlephiumAccountInfo.swift */,
+				2DB1D6AD2D56978D00AD43A3 /* AlephiumBalanceInfo.swift */,
+				2DB1D6AE2D56978D00AD43A3 /* AlephiumUTXO.swift */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		2DB1D6B22D56978D00AD43A3 /* DTO */ = {
+			isa = PBXGroup;
+			children = (
+				2DB1D6B02D56978D00AD43A3 /* AlephiumNetworkRequest.swift */,
+				2DB1D6B12D56978D00AD43A3 /* AlephiumNetworkResponse.swift */,
+			);
+			path = DTO;
+			sourceTree = "<group>";
+		};
+		2DB1D6B62D56978D00AD43A3 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				2DB1D6B32D56978D00AD43A3 /* AlephiumNetworkProvider.swift */,
+				2DB1D6B42D56978D00AD43A3 /* AlephiumNetworkService.swift */,
+				2DB1D6B52D56978D00AD43A3 /* AlephiumProviderTarget.swift */,
+			);
+			path = Network;
+			sourceTree = "<group>";
+		};
+		2DB1D6BD2D56978D00AD43A3 /* Alephium */ = {
+			isa = PBXGroup;
+			children = (
+				2DB1D6B72D56978D00AD43A3 /* AlephiumAddressService.swift */,
+				2DB1D6B82D56978D00AD43A3 /* AlephiumExternalLinkProvider.swift */,
+				2DB1D6B92D56978D00AD43A3 /* AlephiumFeeParameters.swift */,
+				2DB1D6BA2D56978D00AD43A3 /* AlephiumTransactionBuilder.swift */,
+				2DB1D6BB2D56978D00AD43A3 /* AlephiumWalletAssembly.swift */,
+				2DB1D6BC2D56978D00AD43A3 /* AlephiumWalletManager.swift */,
+				2DB1D6AA2D56978D00AD43A3 /* Assembly */,
+				2DB1D6AF2D56978D00AD43A3 /* Domain */,
+				2DB1D6B22D56978D00AD43A3 /* DTO */,
+				2DB1D6B62D56978D00AD43A3 /* Network */,
+			);
+			path = Alephium;
 			sourceTree = "<group>";
 		};
 		2DB200622D34F57700E499A3 /* Network */ = {
@@ -11150,6 +11467,7 @@
 		B62D3EA92CBC79D900C2460E /* Blockchains */ = {
 			isa = PBXGroup;
 			children = (
+				2DB1D6BD2D56978D00AD43A3 /* Alephium */,
 				B62D3BBC2CBC79D900C2460E /* Algorand */,
 				B62D3BCF2CBC79D900C2460E /* Aptos */,
 				B62D3BD72CBC79D900C2460E /* Binance */,
@@ -12227,6 +12545,7 @@
 		B68E1F722CBC44060043E598 /* BlockchainSdkTests */ = {
 			isa = PBXGroup;
 			children = (
+				2DAD34682D57CD4300C4BDA5 /* Alephium */,
 				B62D42FF2CBC79E100C2460E /* Algorand */,
 				B62D430D2CBC79E200C2460E /* Aptos */,
 				B62D43172CBC79E300C2460E /* Bitcoin */,
@@ -19610,6 +19929,82 @@
 				B62D40C92CBC79DA00C2460E /* EthereumWalletAssembly.swift in Sources */,
 				B62D41342CBC79DA00C2460E /* NEARNetworkParams.swift in Sources */,
 				B62D42092CBC79DB00C2460E /* XRPKeypair.swift in Sources */,
+				2DB1D6BE2D56978D00AD43A3 /* ALPH+AssetOutputRef.swift in Sources */,
+				2DB1D6BF2D56978D00AD43A3 /* AlephiumNetworkService.swift in Sources */,
+				2DB1D6C02D56978D00AD43A3 /* ALPH+Blake2b.swift in Sources */,
+				2DB1D6C12D56978D00AD43A3 /* ALPH+AssetOutputSerde.swift in Sources */,
+				2DB1D6C22D56978D00AD43A3 /* ALPH+Bytes.swift in Sources */,
+				2DB1D6C32D56978D00AD43A3 /* ALPH+Serializer.swift in Sources */,
+				2DB1D6C42D56978D00AD43A3 /* ALPH+AssetOutputInfo.swift in Sources */,
+				2DB1D6C52D56978D00AD43A3 /* AlephiumTransactionBuilder.swift in Sources */,
+				2DB1D6C62D56978D00AD43A3 /* AlephiumNetworkResponse.swift in Sources */,
+				2DB1D6C72D56978D00AD43A3 /* ALPH+CalculateTxUtils.swift in Sources */,
+				2DB1D6C82D56978D00AD43A3 /* ALPH+UnlockScriptWithAssets.swift in Sources */,
+				2DB1D6C92D56978D00AD43A3 /* ALPH+AnySerde.swift in Sources */,
+				2DB1D6CA2D56978D00AD43A3 /* ALPH+AVectorSerde.swift in Sources */,
+				2DB1D6CB2D56978D00AD43A3 /* AlephiumNetworkProvider.swift in Sources */,
+				2DB1D6CC2D56978D00AD43A3 /* ALPH+Staging.swift in Sources */,
+				2DB1D6CD2D56978D00AD43A3 /* ALPH+TxOutputRefKey.swift in Sources */,
+				2DB1D6CF2D56978D00AD43A3 /* ALPH+TokenId.swift in Sources */,
+				2DB1D6D02D56978D00AD43A3 /* AlephiumFeeParameters.swift in Sources */,
+				2DB1D6D12D56978D00AD43A3 /* ALPH+Constants.swift in Sources */,
+				2DB1D6D22D56978D00AD43A3 /* ALPH+Serde.swift in Sources */,
+				2DB1D6D32D56978D00AD43A3 /* ALPH+Hint.swift in Sources */,
+				2DB1D6D42D56978D00AD43A3 /* ALPH+UnlockP2PKH.swift in Sources */,
+				2DB1D6D52D56978D00AD43A3 /* ALPH+.swift in Sources */,
+				2DB1D6D62D56978D00AD43A3 /* ALPH+PremitiveSerde.swift in Sources */,
+				2DB1D6D72D56978D00AD43A3 /* AlephiumProviderTarget.swift in Sources */,
+				2DB1D6D82D56978D00AD43A3 /* ALPH+UnlockScript.swift in Sources */,
+				2DB1D6D92D56978D00AD43A3 /* ALPH+CompactInteger+Unsigned.swift in Sources */,
+				2DB1D6DA2D56978D00AD43A3 /* ALPH+U256.swift in Sources */,
+				2DB1D6DB2D56978D00AD43A3 /* ALPH+LockupScript.swift in Sources */,
+				2DB1D6DC2D56978D00AD43A3 /* ALPH+NetworkId.swift in Sources */,
+				2DB1D6DD2D56978D00AD43A3 /* ALPH+UTXO.swift in Sources */,
+				2DB1D6DE2D56978D00AD43A3 /* ALPH+LockupScriptSerde.swift in Sources */,
+				2DB1D6DF2D56978D00AD43A3 /* ALPH+UnlockScriptSerde.swift in Sources */,
+				2DB1D6E02D56978D00AD43A3 /* ALPH+TxOutputInfo.swift in Sources */,
+				2DB1D6E12D56978D00AD43A3 /* ALPH+TimeStamp.swift in Sources */,
+				2DB1D6E22D56978D00AD43A3 /* ALPH+SameAsPrevious.swift in Sources */,
+				2DB1D6E32D56978D00AD43A3 /* ALPH+Duration.swift in Sources */,
+				2DB1D6E42D56978D00AD43A3 /* AlephiumExternalLinkProvider.swift in Sources */,
+				2DB1D6E52D56978D00AD43A3 /* AlephiumAddressService.swift in Sources */,
+				2DB1D6E62D56978D00AD43A3 /* ALPH+OutputInfo.swift in Sources */,
+				2DB1D6E72D56978D00AD43A3 /* ALPH+TxOutput.swift in Sources */,
+				2DB1D6E82D56978D00AD43A3 /* ALPH+TransactionId.swift in Sources */,
+				2DB1D6E92D56978D00AD43A3 /* ALPH+SerdeError.swift in Sources */,
+				2DB1D6EA2D56978D00AD43A3 /* AlephiumBalanceInfo.swift in Sources */,
+				2DB1D6EB2D56978D00AD43A3 /* ALPH+U32.swift in Sources */,
+				2DB1D6EC2D56978D00AD43A3 /* ALPH+AVector.swift in Sources */,
+				2DB1D6ED2D56978D00AD43A3 /* ALPH+Flags.swift in Sources */,
+				2DB1D6EE2D56978D00AD43A3 /* AlephiumUTXO.swift in Sources */,
+				2DB1D6EF2D56978D00AD43A3 /* ALPH+TxOutputRef.swift in Sources */,
+				2DB1D6F02D56978D00AD43A3 /* ALPH+Persistent.swift in Sources */,
+				2DB1D6F12D56978D00AD43A3 /* ALPH+TokenIdSerde.swift in Sources */,
+				2DB1D6F22D56978D00AD43A3 /* ALPH+UnsignedTransaction.swift in Sources */,
+				2DB1D6F32D56978D00AD43A3 /* ALPH+TxInputInfo.swift in Sources */,
+				2DB1D6F42D56978D00AD43A3 /* ALPH+AssetOutput.swift in Sources */,
+				2DB1D6F52D56978D00AD43A3 /* ALPH+CheckTxUtils.swift in Sources */,
+				2DB1D6F62D56978D00AD43A3 /* ALPH+GasPrice.swift in Sources */,
+				2DB1D6F72D56978D00AD43A3 /* ALPH+Tuples.swift in Sources */,
+				2DB1D6F82D56978D00AD43A3 /* ALPH+CompactInteger+Signed.swift in Sources */,
+				2DB1D6F92D56978D00AD43A3 /* ALPH+FixedSizeSerde.swift in Sources */,
+				2DB1D6FA2D56978D00AD43A3 /* AlephiumWalletAssembly.swift in Sources */,
+				2DB1D6FB2D56978D00AD43A3 /* ALPH+GasEstimationMultiplier.swift in Sources */,
+				2DB1D6FC2D56978D00AD43A3 /* ALPH+CompactInteger.swift in Sources */,
+				2DB1D6FD2D56978D00AD43A3 /* AlephiumAccountInfo.swift in Sources */,
+				2DB1D6FE2D56978D00AD43A3 /* ALPH+TransactionInputDataSerde.swift in Sources */,
+				2DB1D6FF2D56978D00AD43A3 /* ALPH+DjbHash.swift in Sources */,
+				2DB1D7002D56978D00AD43A3 /* AlephiumNetworkRequest.swift in Sources */,
+				2DB1D7012D56978D00AD43A3 /* AlephiumWalletManager.swift in Sources */,
+				2DB1D7022D56978D00AD43A3 /* ALPH+CompactInteger+Mode.swift in Sources */,
+				2DB1D7032D56978D00AD43A3 /* ALPH+Tuple2Serde.swift in Sources */,
+				2DB1D7042D56978D00AD43A3 /* ALPH+TxUtils.swift in Sources */,
+				2DB1D7052D56978D00AD43A3 /* ALPH+OutputType.swift in Sources */,
+				2DB1D7062D56978D00AD43A3 /* ALPH+ScriptHint.swift in Sources */,
+				2DB1D7072D56978D00AD43A3 /* ALPH+Deserializer.swift in Sources */,
+				2DB1D7082D56978D00AD43A3 /* ALPH+GroupIndex.swift in Sources */,
+				2DB1D7092D56978D00AD43A3 /* ALPH+GasBox.swift in Sources */,
+				2DB1D70A2D56978D00AD43A3 /* ALPH+UnsignedTransactionSerde.swift in Sources */,
 				B62D42C12CBC79DB00C2460E /* WalletManagerAssembly.swift in Sources */,
 				B62D423D2CBC79DB00C2460E /* AddressService.swift in Sources */,
 				B62D41D02CBC79DB00C2460E /* vote_asset_contract.pb.swift in Sources */,
@@ -20099,6 +20494,7 @@
 				B62D43442CBC79E400C2460E /* DecodableVectors.swift in Sources */,
 				B62D43662CBC79E400C2460E /* TWPublicKeyType+.swift in Sources */,
 				B62D43412CBC79E400C2460E /* Bech32Tests.swift in Sources */,
+				2DAD346A2D57CD5500C4BDA5 /* AlephiumTests.swift in Sources */,
 				B62D43452CBC79E400C2460E /* KeysServiceManagerUtility.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
