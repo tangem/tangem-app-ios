@@ -151,6 +151,7 @@ struct SupportedBlockchains {
             .fact0rn,
             .apeChain(testnet: false),
             .sonic(testnet: false),
+            .alephium(testnet: false),
         ]
     }
 

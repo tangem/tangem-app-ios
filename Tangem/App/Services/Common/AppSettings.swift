@@ -8,7 +8,7 @@
 
 import Foundation
 
-class AppSettings {
+final class AppSettings {
     @AppStorageCompat(StorageType.twinCardOnboardingDisplayed)
     var isTwinCardOnboardingWasDisplayed: Bool = false
 
@@ -80,6 +80,9 @@ class AppSettings {
 
     @AppStorageCompat(StorageType.userWalletIdsWithRing)
     var userWalletIdsWithRing: [String] = []
+
+    @AppStorageCompat(StorageType.shownStoryIds)
+    var shownStoryIds: [String] = []
 
     static let shared: AppSettings = .init()
 
