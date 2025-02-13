@@ -101,6 +101,7 @@ public indirect enum Blockchain: Equatable, Hashable {
     case bitrock(testnet: Bool)
     case apeChain(testnet: Bool)
     case sonic(testnet: Bool)
+    case alephium(testnet: Bool)
 
     public var isTestnet: Bool {
         switch self {
@@ -149,7 +150,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .odysseyChain(let testnet),
              .bitrock(let testnet),
              .apeChain(let testnet),
-             .sonic(let testnet):
+             .sonic(let testnet),
+             .alephium(let testnet):
             return testnet
         case .litecoin,
              .ducatus,
@@ -327,7 +329,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .odysseyChain,
              .bitrock,
              .apeChain,
-             .sonic:
+             .sonic,
+             .alephium:
             return 18
         case .cardano,
              .xrp,
@@ -516,6 +519,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "APE"
         case .sonic:
             return "S"
+        case .alephium:
+            return "ALPH"
         }
     }
 
@@ -1092,6 +1097,7 @@ extension Blockchain: Codable {
         case .bitrock: return "bitrock"
         case .apeChain: return "apechain"
         case .sonic: return "sonic"
+        case .alephium: return "alephium"
         }
     }
 
@@ -1198,6 +1204,7 @@ extension Blockchain: Codable {
         case "bitrock": self = .bitrock(testnet: isTestnet)
         case "apechain": self = .apeChain(testnet: isTestnet)
         case "sonic": self = .sonic(testnet: isTestnet)
+        case "alephium": self = .alephium(testnet: isTestnet)
         default:
             throw BlockchainSdkError.decodingFailed
         }
@@ -1465,6 +1472,8 @@ private extension Blockchain {
             case .network: return "sonic"
             case .coin: return "sonic-3"
             }
+        case .alephium:
+            return "alephium"
         }
     }
 
@@ -1592,6 +1601,8 @@ extension Blockchain {
             return CloreWalletAssembly()
         case .fact0rn:
             return Fact0rnWalletAssembly()
+        case .alephium:
+            return AlephiumWalletAssembly()
         }
     }
 }
