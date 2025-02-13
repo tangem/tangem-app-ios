@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Kingfisher
+import TangemUI
 
 struct IconView<Placeholder: View>: View {
     private let url: URL?
