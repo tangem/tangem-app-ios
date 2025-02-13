@@ -14,7 +14,8 @@ import TangemVisa
 
 protocol VisaOnboardingAlertPresenter: AnyObject {
     @MainActor
-    func showAlert(_ alert: AlertBinder) async
+    func showAlertAsync(_ alert: AlertBinder) async
+    func showAlert(_ alert: AlertBinder)
     @MainActor
     func showContactSupportAlert(for error: Error) async
 }
@@ -48,7 +49,7 @@ class VisaOnboardingViewModel: ObservableObject {
 
     // [REDACTED_TODO_COMMENT]
     lazy var welcomeViewModel: VisaOnboardingWelcomeViewModel = VisaOnboardingViewModelsBuilder().buildWelcomeModel(
-        activationStatus: visaActivationManager.activationStatus,
+        activationStatus: visaActivationManager.activationLocalState,
         isAccessCodeSet: visaActivationManager.isAccessCodeSet,
         cardImage: $cardImage,
         delegate: self
@@ -70,16 +71,15 @@ class VisaOnboardingViewModel: ObservableObject {
         currentStep.navigationTitle
     }
 
-    var isBackButtonVisible: Bool {
-        if currentStep == .success {
-            return false
+    var leftButtonType: VisaOnboardingView.LeftButtonType? {
+        switch currentStep {
+        case .success:
+            return nil
+        case .paymentAccountDeployInProgress, .issuerProcessingInProgress:
+            return .close
+        default:
+            return .back
         }
-
-        return true
-    }
-
-    var isBackButtonEnabled: Bool {
-        return true
     }
 
     var isSupportButtonVisible: Bool {
@@ -120,6 +120,10 @@ class VisaOnboardingViewModel: ObservableObject {
             self.userWalletModel = userWalletModel
         }
 
+        if steps.first == .selectWalletForApprove {
+            proceedToApproveWalletSelection(animated: false)
+        }
+
         loadImage(input.cardInput.imageLoadInput)
     }
 
@@ -143,12 +147,21 @@ class VisaOnboardingViewModel: ObservableObject {
         }
     }
 
+    func closeButtonAction() {
+        // Subject to change later
+        showCloseOnboardingAlert()
+    }
+
     func openSupport() {
-        if FeatureStorage.instance.isVisaAPIMocksEnabled {
-            VisaMocksManager.instance.showMocksMenu(presenter: self)
-        } else {
+        guard FeatureStorage.instance.isVisaAPIMocksEnabled else {
             openSupportSheet()
+            return
         }
+
+        VisaMocksManager.instance.showMocksMenu(
+            openSupportAction: weakify(self, forFunction: VisaOnboardingViewModel.openSupportSheet),
+            presenter: self
+        )
     }
 
     func finishOnboarding() {
@@ -180,7 +193,7 @@ class VisaOnboardingViewModel: ObservableObject {
     }
 
     private func updateUserWalletModel(with card: CardDTO) {
-        let activationStatus = visaActivationManager.activationStatus
+        let activationStatus = visaActivationManager.activationLocalState
         let cardInfo = CardInfo(
             card: card,
             walletData: .visa(activationStatus),
@@ -236,7 +249,7 @@ private extension VisaOnboardingViewModel {
         }
     }
 
-    func goToStep(_ step: VisaOnboardingStep) {
+    func goToStep(_ step: VisaOnboardingStep, animated: Bool = true) {
         guard let stepIndex = steps.firstIndex(of: step) else {
             AppLog.shared.debug("Failed to find step \(step)")
             return
@@ -245,7 +258,7 @@ private extension VisaOnboardingViewModel {
         let step = steps[stepIndex]
 
         DispatchQueue.main.async {
-            withAnimation {
+            withAnimation(animated ? .default : nil) {
                 self.currentStep = step
                 self.currentProgress = CGFloat(stepIndex + 1) / CGFloat(self.steps.count)
             }
@@ -281,7 +294,7 @@ extension VisaOnboardingViewModel: VisaOnboardingInProgressDelegate {
             goToNextStep()
         case .blockedForActivation:
             // [REDACTED_TODO_COMMENT]
-            await showAlert("This card was blocked... Is this even possible?..".alertBinder)
+            await showAlertAsync("This card was blocked... Is this even possible?..".alertBinder)
         case .paymentAccountDeploying:
             inProgressViewModel = VisaOnboardingViewModelsBuilder().buildInProgressModel(
                 activationRemoteState: .paymentAccountDeploying,
@@ -295,7 +308,8 @@ extension VisaOnboardingViewModel: VisaOnboardingInProgressDelegate {
             )
             goToStep(.issuerProcessingInProgress)
         case .cardWalletSignatureRequired, .customerWalletSignatureRequired:
-            await showAlert("Invalid card activation state. Please contact support".alertBinder)
+            // [REDACTED_TODO_COMMENT]
+            await showAlertAsync("Invalid card activation state. Please contact support".alertBinder)
         case .waitingPinCode:
             goToStep(.pinSelection)
         }
@@ -350,8 +364,14 @@ extension VisaOnboardingViewModel: PushNotificationsPermissionRequestDelegate {
 extension VisaOnboardingViewModel: VisaOnboardingAccessCodeSetupDelegate {
     /// We need to show alert in parent view, otherwise it won't be presented
     @MainActor
-    func showAlert(_ alert: AlertBinder) async {
+    func showAlertAsync(_ alert: AlertBinder) async {
         self.alert = alert
+    }
+
+    func showAlert(_ alert: AlertBinder) {
+        DispatchQueue.main.async {
+            self.alert = alert
+        }
     }
 
     @MainActor
@@ -373,14 +393,14 @@ extension VisaOnboardingViewModel: VisaOnboardingAccessCodeSetupDelegate {
             )
         )
 
-        await showAlert(alert)
+        await showAlertAsync(alert)
     }
 
     func useSelectedCode(accessCode: String) async throws {
         try visaActivationManager.saveAccessCode(accessCode: accessCode)
         let activationResponse = try await visaActivationManager.startActivation()
         updateUserWalletModel(with: .init(card: activationResponse.signedActivationOrder.cardSignedOrder))
-        await proceedToApproveWalletSelection()
+        proceedToApproveWalletSelection()
     }
 
     func closeOnboarding() {
@@ -399,16 +419,21 @@ extension VisaOnboardingViewModel: VisaOnboardingWelcomeDelegate {
     func continueActivation() async throws {
         let activationResponse = try await visaActivationManager.startActivation()
         updateUserWalletModel(with: .init(card: activationResponse.signedActivationOrder.cardSignedOrder))
-        await proceedToApproveWalletSelection()
+        proceedToApproveWalletSelection()
     }
 }
 
 // MARK: - Approve pair search
 
 private extension VisaOnboardingViewModel {
-    func proceedToApproveWalletSelection() async {
+    func proceedToApproveWalletSelection(animated: Bool = true) {
         guard let targetAddress = visaActivationManager.targetApproveAddress else {
-            await showAlert(OnboardingError.missingTargetApproveAddress.alertBinder)
+            showAlert(OnboardingError.missingTargetApproveAddress.alertBinder)
+            return
+        }
+
+        guard visaActivationManager.activationRemoteState == .customerWalletSignatureRequired else {
+            showAlert(OnboardingError.missingTargetApproveAddress.alertBinder)
             return
         }
 
@@ -420,7 +445,7 @@ private extension VisaOnboardingViewModel {
                 userWalletModels: userWalletRepository.models
             )
         else {
-            goToStep(.selectWalletForApprove)
+            goToStep(.selectWalletForApprove, animated: animated)
             return
         }
 
@@ -430,7 +455,7 @@ private extension VisaOnboardingViewModel {
             dataProvider: self,
             approvePair: approvePair
         )
-        goToStep(.approveUsingTangemWallet)
+        goToStep(.approveUsingTangemWallet, animated: animated)
     }
 }
 
@@ -462,19 +487,14 @@ extension VisaOnboardingViewModel: VisaOnboardingApproveWalletSelectorDelegate {
 
 extension VisaOnboardingViewModel: VisaOnboardingTangemWalletApproveDelegate {
     func processSignedData(_ signedData: Data) async throws {
-        /// Backend not ready... Even requirements. So right now we will return to Welcome Page
-        goToStep(.welcome)
+        try await visaActivationManager.sendSignedCustomerWalletApprove(signedData)
+        await proceedFromCurrentRemoteState()
     }
 }
 
 extension VisaOnboardingViewModel: VisaOnboardingTangemWalletApproveDataProvider {
     func loadDataToSign() async throws -> Data {
-        /// Backend not ready... Even requirements. So for now just generate random bytes with proper length for sign
-        /// Later all data will be requested from `VisaActivationManager`
-        let array = (0 ..< 32).map { _ -> UInt8 in
-            UInt8(arc4random_uniform(255))
-        }
-        return Data(array)
+        return try await visaActivationManager.getCustomerWalletApproveHash()
     }
 }
 
@@ -518,11 +538,14 @@ private extension VisaOnboardingViewModel {
 private extension VisaOnboardingViewModel {
     enum OnboardingError: String, LocalizedError {
         case missingTargetApproveAddress
+        case wrongRemoteState
 
         var localizedDescription: String {
             switch self {
             case .missingTargetApproveAddress:
                 return "Failed to find approve address. Please contact support"
+            case .wrongRemoteState:
+                return "Wrong activation state. Please contact support"
             }
         }
     }
@@ -545,12 +568,12 @@ extension VisaOnboardingViewModel {
     static var mock: VisaOnboardingViewModel {
         let cardMock = CardMock.visa
         let visaUserWalletModelMock = CommonUserWalletModel.visaMock
-        let activationStatus = VisaCardActivationStatus.notStartedActivation(activationInput: .init(
+        let activationStatus = VisaCardActivationLocalState.notStartedActivation(activationInput: .init(
             cardId: cardMock.card.cardId,
             cardPublicKey: cardMock.card.cardPublicKey,
             isAccessCodeSet: cardMock.cardInfo.card.isAccessCodeSet
         ))
-        let cardMockConfig = VisaConfig(card: cardMock.cardInfo.card, activationStatus: activationStatus)
+        let cardMockConfig = VisaConfig(card: cardMock.cardInfo.card, activationLocalState: activationStatus)
         let inputFactory = OnboardingInputFactory(
             cardInfo: cardMock.cardInfo,
             userWalletModel: visaUserWalletModelMock,
