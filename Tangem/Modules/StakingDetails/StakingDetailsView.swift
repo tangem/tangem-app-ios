@@ -160,8 +160,7 @@ struct StakingDetailsView_Preview: PreviewProvider {
         stakingManager: StakingManagerMock(),
         coordinator: StakingDetailsCoordinator(),
         notificationManager: CommonStakingNotificationManager(
-            tokenItem: WalletModel.mockETH.tokenItem,
-            feeTokenItem: WalletModel.mockETH.tokenItem
+            wallet: WalletModel.mockETH
         )
     )
 

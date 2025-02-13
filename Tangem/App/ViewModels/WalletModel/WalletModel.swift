@@ -161,7 +161,7 @@ class WalletModel {
         )
         .eraseToAnyPublisher()
     }
-    
+
     var isAccountInitialized: Bool {
         walletManager.isAccountInitialized
     }
