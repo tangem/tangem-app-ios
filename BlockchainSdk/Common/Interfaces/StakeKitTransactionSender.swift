@@ -27,6 +27,10 @@ protocol StakeKitTransactionSenderProvider {
     func prepareDataForSend(transaction: StakeKitTransaction, signature: SignatureInfo) throws -> RawTransaction
 }
 
+public protocol StakeKitTransactionStatusProvider {
+    func transactionStatus(_ transaction: StakeKitTransaction) async throws -> StakeKitTransaction.Status?
+}
+
 protocol StakeKitTransactionBuilder {
     associatedtype RawTransaction
 
@@ -60,7 +64,7 @@ extension StakeKitTransactionBuilder where Self: StakeKitTransactionSenderProvid
 
 // MARK: - Common implementation for StakeKitTransactionSenderProvider
 
-extension StakeKitTransactionSender where Self: StakeKitTransactionSenderProvider, Self: WalletProvider, RawTransaction: CustomStringConvertible {
+extension StakeKitTransactionSender where Self: StakeKitTransactionBuilder, Self: WalletProvider, RawTransaction: CustomStringConvertible {
     func sendStakeKit(
         transactions: [StakeKitTransaction],
         signer: TransactionSigner,
@@ -81,10 +85,12 @@ extension StakeKitTransactionSender where Self: StakeKitTransactionSenderProvide
                         signer: signer
                     )
 
-                    _ = try await withThrowingTaskGroup(of: (TransactionSendResult, StakeKitTransaction).self) { group in
+                    _ = try await withThrowingTaskGroup(
+                        of: (TransactionSendResult, StakeKitTransaction).self
+                    ) { group in
                         var results = [TransactionSendResult]()
 
-                        for (index, ((transaction, rawTransaction)) in zip(transactions, rawTransactions).enumerated() {
+                        for (index, (transaction, rawTransaction)) in zip(transactions, rawTransactions).enumerated() {
                             group.addTask {
                                 try Task.checkCancellation()
                                 if transactions.count > 1, let second {
