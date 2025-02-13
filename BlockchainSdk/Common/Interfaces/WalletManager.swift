@@ -22,7 +22,7 @@ public protocol WalletManager: WalletProvider, BlockchainDataProvider, Transacti
     var isAccountInitialized: Bool { get }
 }
 
-extension WalletManager {
+public extension WalletManager {
     var isAccountInitialized: Bool { true }
 }
 
