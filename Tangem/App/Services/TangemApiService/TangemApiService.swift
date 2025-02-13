@@ -10,6 +10,8 @@ import Foundation
 import Combine
 
 protocol TangemApiService: AnyObject {
+    func getRawData(fromURL url: URL) async throws -> Data
+
     // MARK: - Geo
 
     func loadGeo() -> AnyPublisher<String, Error>
@@ -47,6 +49,10 @@ protocol TangemApiService: AnyObject {
     func loadTokens(for key: String) -> AnyPublisher<UserTokenList?, TangemAPIError>
     func saveTokens(list: UserTokenList, for key: String) -> AnyPublisher<Void, TangemAPIError>
 
+    // MARK: - Action Buttons
+
+    func loadHotCrypto(requestModel: HotCryptoDTO.Request) async throws -> HotCryptoDTO.Response
+
     // MARK: - BSDK
 
     func createAccount(networkId: String, publicKey: String) -> AnyPublisher<BlockchainAccountCreateResult, TangemAPIError>
@@ -73,6 +79,8 @@ protocol TangemApiService: AnyObject {
     func awardOldUser(walletId: String, address: String, programName: String) async throws -> PromotionAwardResult
     @discardableResult
     func resetAwardForCurrentWallet(cardId: String) async throws -> PromotionAwardResetResult
+
+    func loadStory(storyId: String) async throws -> StoryDTO.Response
 
     // MARK: - Seed Notify
 
