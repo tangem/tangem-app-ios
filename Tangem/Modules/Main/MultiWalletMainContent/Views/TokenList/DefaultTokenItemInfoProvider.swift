@@ -11,6 +11,7 @@ import Combine
 
 class DefaultTokenItemInfoProvider {
     private let walletModel: WalletModel
+
     private let balanceProvider: TokenBalanceProvider
     private let fiatBalanceProvider: TokenBalanceProvider
 
@@ -29,12 +30,20 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
 
     var hasPendingTransactions: Bool { walletModel.hasPendingTransactions }
 
-    var isZeroBalanceValue: Bool {
-        walletModel.balanceState != .positive
+    var quote: TokenQuote? {
+        walletModel.quote
     }
 
     var balance: TokenBalanceType {
         balanceProvider.balanceType
+    }
+
+    var balanceType: FormattedTokenBalanceType {
+        balanceProvider.formattedBalanceType
+    }
+
+    var fiatBalanceType: FormattedTokenBalanceType {
+        fiatBalanceProvider.formattedBalanceType
     }
 
     var quotePublisher: AnyPublisher<TokenQuote?, Never> {
@@ -65,5 +74,11 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
                 }
             }
             .eraseToAnyPublisher()
+    }
+}
+
+extension DefaultTokenItemInfoProvider: Equatable {
+    static func == (lhs: DefaultTokenItemInfoProvider, rhs: DefaultTokenItemInfoProvider) -> Bool {
+        lhs.id == rhs.id
     }
 }
