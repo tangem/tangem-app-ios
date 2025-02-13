@@ -289,6 +289,9 @@ extension Wallet2Config: UserWalletConfig {
         // HODL (dreams come true)
         case "BB000009":
             return cardsCount == 2 ? Assets.Cards.hodlDouble : Assets.Cards.hodlTriple
+        // Locked Money
+        case "AF63":
+            return cardsCount == 2 ? Assets.Cards.lockedMoneyDouble : Assets.Cards.lockedMoneyTriple
 
         // Tangem Wallet 2.0
         default:
