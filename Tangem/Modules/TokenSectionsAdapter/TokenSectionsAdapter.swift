@@ -16,16 +16,11 @@ final class TokenSectionsAdapter {
     typealias UserToken = StoredUserTokenList.Entry
     typealias GroupingOption = UserTokensReorderingOptions.Grouping
     typealias SortingOption = UserTokensReorderingOptions.Sorting
+    typealias SectionItem = TokenItemType
 
     enum SectionType {
         case plain
         case group(by: BlockchainNetwork)
-    }
-
-    enum SectionItem: Equatable {
-        /// `Default` means `coin/token with derivation`,  unlike `withoutDerivation` case.
-        case `default`(WalletModel)
-        case withoutDerivation(TokenSectionsAdapter.UserToken)
     }
 
     private let userTokenListManager: UserTokenListManager
@@ -214,7 +209,7 @@ final class TokenSectionsAdapter {
 
             // We don't sort section items by balance if some of them don't have balance information
             let hasWalletModelsWithoutBalanceInfo = allWalletModels
-                .contains { $0.balanceState == .none }
+                .contains { $0.totalTokenBalanceProvider.balanceType.value == .none }
 
             if hasWalletModelsWithoutBalanceInfo {
                 return sectionItems
