@@ -83,14 +83,16 @@ struct PendingExpressTransactionsConverter {
         lastStatusIndex: Int,
         branch: ExpressBranch
     ) -> PendingExpressTxStatusRow.StatusRowData {
-        let isFinished = currentStatus.isTerminated(branch: branch)
+        let isCurrentStatus = index == currentStatusIndex
+        let isFinished = currentStatus.isTerminated(branch: branch) && isCurrentStatus
+
         if isFinished {
             // Always display cross for failed state
             // [REDACTED_TODO_COMMENT]
             switch status {
             case .failed:
                 return .init(title: status.passedStatusTitle, state: .cross(passed: true))
-            case .canceled, .unknown, .refunded:
+            case .canceled, .unknown, .refunded, .txFailed:
                 return .init(title: status.passedStatusTitle, state: .cross(passed: false))
             case .awaitingHash:
                 return .init(title: status.passedStatusTitle, state: .exclamationMark)
@@ -99,7 +101,6 @@ struct PendingExpressTransactionsConverter {
             }
         }
 
-        let isCurrentStatus = index == currentStatusIndex
         let isPendingStatus = index > currentStatusIndex
 
         let title: String = isCurrentStatus ? status.activeStatusTitle : isPendingStatus ? status.pendingStatusTitle : status.passedStatusTitle
@@ -107,7 +108,7 @@ struct PendingExpressTransactionsConverter {
 
         switch status {
         case .failed, .unknown, .paused, .txFailed:
-            state = .cross(passed: false)
+            state = .cross(passed: status != currentStatus)
         case .verificationRequired, .awaitingHash:
             state = .exclamationMark
         case .refunded:
