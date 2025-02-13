@@ -33,7 +33,7 @@ class DetailsViewModel: ObservableObject {
     @Published var buyWalletViewModel: DefaultRowViewModel?
     @Published var appSettingsViewModel: DefaultRowViewModel?
     @Published var supportSectionModels: [DefaultRowViewModel] = []
-    @Published var environmentSetupViewModel: DefaultRowViewModel?
+    @Published var environmentSetupViewModel: [DefaultRowViewModel] = []
     @Published var alert: AlertBinder?
     @Published var showTroubleshootingView: Bool = false
 
@@ -167,10 +167,6 @@ extension DetailsViewModel {
         coordinator?.openSocialNetwork(url: url)
     }
 
-    func openEnvironmentSetup() {
-        coordinator?.openEnvironmentSetup()
-    }
-
     func onAppear() {
         Analytics.log(.settingsScreenOpened)
     }
@@ -289,12 +285,15 @@ private extension DetailsViewModel {
     }
 
     func setupEnvironmentSetupSection() {
-        if !AppEnvironment.current.isProduction {
-            environmentSetupViewModel = DefaultRowViewModel(
-                title: "Environment setup",
-                action: weakify(self, forFunction: DetailsViewModel.openEnvironmentSetup)
-            )
+        guard !AppEnvironment.current.isProduction else {
+            environmentSetupViewModel = []
+            return
         }
+
+        environmentSetupViewModel = [
+            DefaultRowViewModel(title: "Environment setup", action: { [weak self] in self?.coordinator?.openEnvironmentSetup() }),
+            DefaultRowViewModel(title: "Logs", action: { [weak self] in self?.coordinator?.openLogs() }),
+        ]
     }
 
     func addOrScanNewUserWallet() {
@@ -317,6 +316,11 @@ private extension DetailsViewModel {
             case .onboarding(let input):
                 coordinator?.openOnboardingModal(with: input)
             case .error(let error):
+                if error.isCancellationError {
+                    return
+                }
+
+                Analytics.tryLogCardVerificationError(error, source: .settings)
                 alert = error.alertBinder
             case .success, .partial:
                 coordinator?.dismiss()

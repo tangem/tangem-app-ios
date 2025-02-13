@@ -30,27 +30,46 @@ class VisaOnboardingInProgressViewModel: ObservableObject {
 
     private let state: State
     private weak var delegate: VisaOnboardingInProgressDelegate?
+    private let scheduler = AsyncTaskScheduler()
+
+    private var checkInterval: TimeInterval {
+        switch state {
+        case .accountDeployment:
+            return 10
+        case .issuerProcessing:
+            return 2
+        }
+    }
 
     init(state: VisaOnboardingInProgressViewModel.State, delegate: VisaOnboardingInProgressDelegate?) {
         self.state = state
         self.delegate = delegate
+        setupRefresh()
     }
 
-    func refreshAction() {
-        isLoading = true
-        runTask(in: self, isDetached: false) { viewModel in
-            do {
-                if try await viewModel.delegate?.canProceedOnboarding() ?? false {
-                    await viewModel.delegate?.proceedFromCurrentRemoteState()
-                }
-            } catch {
-                if !error.isCancellationError {
-                    await viewModel.delegate?.showAlert(error.alertBinder)
-                }
-            }
+    private func setupRefresh() {
+        scheduler.cancel()
+        scheduler.scheduleJob(
+            interval: checkInterval,
+            repeats: true,
+            action: weakify(self, forFunction: VisaOnboardingInProgressViewModel.canProceedOnboarding)
+        )
+    }
 
-            await runOnMain {
-                viewModel.isLoading = false
+    private func canProceedOnboarding() async {
+        do {
+            if try await delegate?.canProceedOnboarding() ?? false {
+                scheduler.cancel()
+                await delegate?.proceedFromCurrentRemoteState()
+            }
+        } catch {
+            if !error.isCancellationError {
+                scheduler.cancel()
+                await delegate?.showAlertAsync(
+                    error.alertBinder(
+                        okAction: weakify(self, forFunction: VisaOnboardingInProgressViewModel.setupRefresh)
+                    )
+                )
             }
         }
     }
