@@ -363,18 +363,16 @@ class WalletModel {
     }
 
     private func updateQuote(quote: TokenQuote?) {
-        if isCustom {
+        switch quote {
+        // Don't have quote because we don't have currency id
+        case .none where tokenItem.currencyId == nil:
             _rate.send(.custom)
-            return
-        }
-
-        if let quote {
+        // Don't have quote because of error. Update with saving the previous one
+        case .none:
+            _rate.send(.failure(cached: rate.quote))
+        case .some(let quote):
             _rate.send(.loaded(quote))
-            return
         }
-
-        // Set to failure with saving cached value
-        _rate.send(.failure(cached: rate.quote))
     }
 
     // MARK: - Timer
