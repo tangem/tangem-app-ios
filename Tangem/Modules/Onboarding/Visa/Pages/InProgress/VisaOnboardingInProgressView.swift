@@ -30,13 +30,6 @@ struct VisaOnboardingInProgressView: View {
             .padding(.horizontal, 54)
 
             Spacer()
-
-            MainButton(
-                title: Localization.warningButtonRefresh,
-                isLoading: viewModel.isLoading,
-                action: viewModel.refreshAction
-            )
-            .padding(.horizontal, 16)
         }
         .padding(.bottom, 10)
     }
