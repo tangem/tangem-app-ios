@@ -49,8 +49,7 @@ class StakingDetailsCoordinator: CoordinatorObject {
             stakingManager: options.manager,
             coordinator: self,
             notificationManager: CommonStakingNotificationManager(
-                tokenItem: options.walletModel.tokenItem,
-                feeTokenItem: options.walletModel.feeTokenItem
+                wallet: options.walletModel
             )
         )
     }
