@@ -41,12 +41,23 @@ struct VisaOnboardingView: View {
                     backgroundColor: .clear
                 ),
                 leftButtons: {
-                    BackButton(
-                        height: viewModel.navigationBarHeight,
-                        isVisible: viewModel.isBackButtonVisible,
-                        isEnabled: viewModel.isBackButtonEnabled,
-                        action: viewModel.backButtonAction
-                    )
+                    switch viewModel.leftButtonType {
+                    case .back:
+                        BackButton(
+                            height: viewModel.navigationBarHeight,
+                            isVisible: true,
+                            isEnabled: true,
+                            action: viewModel.backButtonAction
+                        )
+                    case .close:
+                        OnboardingCloseButton(
+                            height: viewModel.navigationBarHeight,
+                            action: viewModel.closeButtonAction
+                        )
+                    case .none:
+                        EmptyView()
+                    }
+
                 },
                 rightButtons: {
                     SupportButton(
@@ -109,6 +120,13 @@ struct VisaOnboardingView: View {
                 finishAction: viewModel.finishOnboarding
             )
         }
+    }
+}
+
+extension VisaOnboardingView {
+    enum LeftButtonType {
+        case back
+        case close
     }
 }
 

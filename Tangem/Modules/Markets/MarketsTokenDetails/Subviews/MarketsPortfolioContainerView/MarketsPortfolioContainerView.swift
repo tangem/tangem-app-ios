@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 struct MarketsPortfolioContainerView: View {
     @ObservedObject var viewModel: MarketsPortfolioContainerViewModel
@@ -83,7 +84,7 @@ struct MarketsPortfolioContainerView: View {
                 .lineLimit(2)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
 
-            MainButton(title: Localization.marketsAddToPortfolioButton) {
+            MainButton(title: Localization.commonAddToPortfolio) {
                 viewModel.onAddTapAction()
             }
         }
