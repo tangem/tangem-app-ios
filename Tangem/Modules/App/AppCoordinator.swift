@@ -30,6 +30,7 @@ class AppCoordinator: CoordinatorObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
     @Injected(\.appLockController) private var appLockController: AppLockController
+    @Injected(\.overlayContentContainer) private var overlayContentContainer: OverlayContentContainer
 
     // MARK: - Child coordinators
 
@@ -50,6 +51,10 @@ class AppCoordinator: CoordinatorObject {
 
     init() {
         bind()
+    }
+
+    deinit {
+        AppLog.shared.debug("AppCoordinator deinit")
     }
 
     func start(with options: AppCoordinator.Options = .default) {
@@ -170,10 +175,19 @@ class AppCoordinator: CoordinatorObject {
             .isShownPublisher
             .assign(to: \.isOverlayContentContainerShown, on: self, ownership: .weak)
             .store(in: &bag)
+
+        $isOverlayContentContainerShown
+            .withWeakCaptureOf(self)
+            .sink { coordinator, isShown in
+                coordinator.overlayContentContainer.setOverlayHidden(!isShown)
+            }
+            .store(in: &bag)
     }
 
     private func setState(_ newViewState: AppCoordinator.ViewState) {
-        viewState = newViewState
+        DispatchQueue.main.async {
+            self.viewState = newViewState
+        }
     }
 }
 
