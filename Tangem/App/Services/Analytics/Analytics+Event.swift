@@ -180,7 +180,7 @@ extension Analytics {
         // MARK: - Seed phrase
 
         case onboardingSeedButtonOtherCreateWalletOptions = "[Onboarding / Create Wallet] Button - Other Options"
-        case onboarindgSeedButtonGenerateSeedPhrase = "[Onboarding / Seed Phrase] Button - Generate Seed Phrase"
+        case onboardingSeedButtonGenerateSeedPhrase = "[Onboarding / Seed Phrase] Button - Generate Seed Phrase"
         case onboardingSeedButtonImportWallet = "[Onboarding / Seed Phrase] Button - Import Wallet"
         case onboardingSeedButtonReadMore = "[Onboarding / Seed Phrase] Button - Read More"
         case onboardingSeedButtonImport = "[Onboarding / Seed Phrase] Button - Import"
@@ -191,8 +191,6 @@ extension Analytics {
         case onboardingSeedImportScreenOpened = "[Onboarding / Seed Phrase] Import Seed Phrase Screen Opened"
 
         case onboardingSeedScreenCapture = "[Onboarding / Seed Phrase] Screen Capture"
-
-        case onboardingOfflineAttestationFailed = "[Onboarding] Offline Attestation Failed"
 
         // MARK: Express
 
@@ -262,6 +260,8 @@ extension Analytics {
         case cantScanTheCard = "[Errors] Cant Scan The Card"
         case cantScanTheCardButtonBlog = "[Errors] Cant Scan The Card - Button Blog"
         case cantScanTheCardTryAgainButton = "[Errors] Cant Scan The Card - Try Again Button"
+
+        case errorOfflineAttestationFailed = "[Error] Offline Attestation Failed"
 
         // MARK: - Promo
 
@@ -389,5 +389,7 @@ extension Analytics {
         case actionButtonsReceiveTokenClicked = "[Main Screen] Receive Token Clicked"
         case actionButtonsRemoveButtonClicked = "[Main Screen] Remove Button Clicked"
         case actionButtonsButtonClose = "[Main Screen] Button - Close"
+        case actionButtonsHotTokenClicked = "[Main Screen] Hot Token Clicked"
+        case actionButtonsHotTokenError = "[Main Screen] Hot Token Error"
     }
 }

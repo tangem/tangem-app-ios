@@ -91,9 +91,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         let window = UIWindow(windowScene: windowScene)
         let appCoordinator = AppCoordinator()
-        let appView = AppCoordinatorView(coordinator: appCoordinator)
+        let appCoordinatorView = AppCoordinatorView(coordinator: appCoordinator)
         let factory = RootViewControllerFactory()
-        let rootViewController = factory.makeRootViewController(for: appView, window: window)
+        let rootViewController = factory.makeRootViewController(
+            for: appCoordinatorView,
+            coordinator: appCoordinator,
+            window: window
+        )
         window.rootViewController = rootViewController
         appCoordinator.start(with: appCoordinatorOptions)
         self.appCoordinator = appCoordinator
