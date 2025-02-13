@@ -106,7 +106,7 @@ enum PendingExpressTransactionStatus: String, Equatable, Codable {
     }
 
     // Required for verification the ability to hide the transaction status bottom sheet
-    func isCanBeHideAutomatically(branch: ExpressBranch) -> Bool {
+    var isCanBeHideAutomatically: Bool {
         switch self {
         case .done:
             true
