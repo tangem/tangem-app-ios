@@ -42,6 +42,8 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
         walletModelProvider: WalletConnectWalletModelProvider
     ) throws -> WalletConnectMessageHandler {
         switch action {
+            // MARK: - ETH
+
         case .personalSign:
             return try WalletConnectV2PersonalSignHandler(
                 request: params,
@@ -75,6 +77,9 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
                 walletModelProvider: walletModelProvider,
                 uiDelegate: uiDelegate
             )
+
+            // MARK: - Solana
+
         case .solanaSignMessage:
             return try WalletConnectSolanaSignMessageHandler(
                 request: params,
@@ -89,6 +94,16 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
                 signer: SolanaWalletConnectSigner(signer: signer),
                 walletModelProvider: walletModelProvider
             )
+        case .solanaSignAllTransactions:
+            return try WCSolanaSignAllTransactionsHandler(
+                request: params,
+                blockchainId: blockchainId,
+                signer: SolanaWalletConnectSigner(signer: signer),
+                walletModelProvider: walletModelProvider
+            )
+
+            // MARK: - BNB
+
         case .bnbSign, .bnbTxConfirmation:
             // [REDACTED_TODO_COMMENT]
             // Initially this methods was found occasionally and supported without any request

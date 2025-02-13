@@ -345,6 +345,10 @@ extension CommonUserWalletModel: KeysDerivingProvider {
 }
 
 extension CommonUserWalletModel: TotalBalanceProviding {
+    var totalBalance: TotalBalanceState {
+        totalBalanceProvider.totalBalance
+    }
+
     var totalBalancePublisher: AnyPublisher<TotalBalanceState, Never> {
         totalBalanceProvider.totalBalancePublisher
     }
