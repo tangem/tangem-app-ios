@@ -11,6 +11,7 @@ import Combine
 import FirebaseCore
 import BlockchainSdk
 import TangemStaking
+import TangemStories
 
 class ServicesManager {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
@@ -20,9 +21,11 @@ class ServicesManager {
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
+    private let storyDataPrefetchService: StoryDataPrefetchService
 
     init() {
         stakingPendingHashesSender = StakingDependenciesFactory().makePendingHashesSender()
+        storyDataPrefetchService = StoryDataPrefetchService()
     }
 
     func initialize() {
@@ -53,6 +56,7 @@ class ServicesManager {
         SendFeatureProvider.shared.loadFeaturesAvailability()
         stakingPendingHashesSender?.sendHashesIfNeeded()
         MailZipFileManager.shared.cleanZipData()
+        storyDataPrefetchService.prefetchStoryIfNeeded(.swap(.initialWithoutImages))
     }
 
     private func configureFirebase() {
