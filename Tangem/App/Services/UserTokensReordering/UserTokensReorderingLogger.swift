@@ -37,7 +37,7 @@ struct UserTokensReorderingLogger {
             output.append(description)
         }
 
-        AppLog.shared.debug(output.joined(separator: "\n"))
+        AppLogger.info(output.joined(separator: "\n"))
     }
 
     private func description(
