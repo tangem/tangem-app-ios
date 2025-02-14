@@ -13,6 +13,7 @@ extension OSLogCategory {
     static let logFileWriter = OSLogCategory(name: "LogFileWriter")
 }
 
+#if ALPHA || BETA || DEBUG
 class OSLogFileWriter {
     static let shared = OSLogFileWriter()
 
@@ -50,15 +51,6 @@ extension OSLogFileWriter {
     func write(_ message: String, category: OSLog.Category, level: OSLog.Level, date: Date = .now) throws {
         var message = message.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        if message.contains("\n") {
-            try message.components(separatedBy: "\n").forEach {
-                try write($0, category: category, level: level, date: date)
-            }
-            return
-        }
-
-        assert(!message.contains("\n"), "Should be separated by a few messages")
-
         if message.isEmpty {
             // Message can not be empty
             return
@@ -68,7 +60,7 @@ extension OSLogFileWriter {
             // The symbol `,` will be replaced to `¸`
             .replacingOccurrences(of: OSLogConstants.separator, with: OSLogConstants.cedilla)
             // Should checked above but replace it just in case
-            .replacingOccurrences(of: "\n", with: "@new-line@")
+            .replacingOccurrences(of: "\n", with: OSLogConstants.enter)
 
         let entry = OSLogEntry(
             date: dateFormatter.string(from: date),
@@ -81,12 +73,17 @@ extension OSLogFileWriter {
         let row = "\n\(entry.encoded(separator: OSLogConstants.separator))"
         try write(row: row)
     }
+
+    func clear() throws {
+        try fileManager.removeItem(at: logFileURL)
+    }
 }
 
 // MARK: - Private
 
 private extension OSLogFileWriter {
     func write(row: String) throws {
+        try createLogFileIfNeeded()
         try loggerSerialQueue.sync {
             guard let data = row.data(using: .utf8) else {
                 throw Errors.wrongRow
@@ -137,3 +134,4 @@ extension OSLogFileWriter {
         }
     }
 }
+#endif
