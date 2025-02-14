@@ -204,8 +204,12 @@ class VisaOnboardingViewModel: ObservableObject {
     }
 
     private func log<T>(_ message: @autoclosure () -> T) {
-        AppLog.shared.debug("[VisaOnboardingViewModel] - \(message())")
+        VisaLogger.info(self, message())
     }
+}
+
+extension VisaOnboardingViewModel: CustomStringConvertible {
+    var description: String { "VisaOnboardingViewModel" }
 }
 
 // MARK: - Steps navigation logic
@@ -251,7 +255,7 @@ private extension VisaOnboardingViewModel {
 
     func goToStep(_ step: VisaOnboardingStep, animated: Bool = true) {
         guard let stepIndex = steps.firstIndex(of: step) else {
-            AppLog.shared.debug("Failed to find step \(step)")
+            AppLogger.error(self, error: "Failed to find step \(step)")
             return
         }
 
@@ -591,8 +595,7 @@ extension VisaOnboardingViewModel {
                 cardId: cardInput.primaryCardId,
                 initialActivationStatus: activationStatus,
                 tangemSdk: TangemSdkDefaultFactory().makeTangemSdk(),
-                urlSessionConfiguration: .default,
-                logger: AppLog.shared
+                urlSessionConfiguration: .default
             ),
             coordinator: coordinator
         )
