@@ -29,7 +29,7 @@ extension StakeKitTransactionSender where Self: StakeKitTransactionBuilder,
         transactions: [StakeKitTransaction],
         signer: TransactionSigner,
         transactionStatusProvider: some StakeKitTransactionStatusProvider,
-        delay second: UInt64?
+        delay: UInt64?
     ) -> AsyncThrowingStream<StakeKitTransactionSendResult, Error> {
         .init { [weak self] continuation in
             let task = Task { [weak self] in
@@ -55,7 +55,8 @@ extension StakeKitTransactionSender where Self: StakeKitTransactionBuilder,
                                 let result: TransactionSendResult = try await self.broadcast(
                                     transaction: transaction,
                                     rawTransaction: rawTransaction,
-                                    at: index
+                                    at: UInt64(index),
+                                    delay: delay
                                 )
                                 return (result, transaction)
                             }
@@ -97,12 +98,13 @@ extension StakeKitTransactionSender where Self: StakeKitTransactionBuilder,
     private func broadcast(
         transaction: StakeKitTransaction,
         rawTransaction: RawTransaction,
-        at index: Int
+        at index: UInt64,
+        delay: UInt64? = nil
     ) async throws -> TransactionSendResult {
         try Task.checkCancellation()
-        if index > 0 {
+        if index > 0, let delay {
             Log.log("\(self) start \(index) second delay between the transactions sending")
-            try await Task.sleep(nanoseconds: UInt64(index) * NSEC_PER_SEC)
+            try await Task.sleep(nanoseconds: index * delay * NSEC_PER_SEC)
             try Task.checkCancellation()
         }
 
