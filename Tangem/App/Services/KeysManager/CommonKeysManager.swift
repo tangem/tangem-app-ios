@@ -55,7 +55,8 @@ extension CommonKeysManager: KeysManager {
             defaultNetworkProviderConfiguration: .init(logOptions: .verbose, urlSessionConfiguration: .standard),
             networkProviderConfigurations: [:],
             bittensorDwellirKey: keys.bittensorDwellirKey,
-            bittensorOnfinalityKey: keys.bittensorOnfinalityKey
+            bittensorOnfinalityKey: keys.bittensorOnfinalityKey,
+            tangemAlephiumApiKey: keys.alephiumTangemApiKey
         )
     }
 
@@ -124,5 +125,6 @@ extension CommonKeysManager {
         let stakeKitApiKey: String
         let bittensorDwellirKey: String
         let bittensorOnfinalityKey: String
+        let alephiumTangemApiKey: String
     }
 }
