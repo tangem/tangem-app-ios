@@ -63,10 +63,6 @@ extension CommonKeysManager: KeysManager {
         keys.tangemComAuthorization
     }
 
-    var sprinklr: SprinklrConfig {
-        keys.sprinklr
-    }
-
     var amplitudeApiKey: String {
         keys.amplitudeApiKey
     }
@@ -106,7 +102,6 @@ extension CommonKeysManager {
         let blockcypherTokens: [String]
         let infuraProjectId: String
         let nowNodesApiKey: String
-        let getBlockApiKey: String
         let getBlockAccessTokens: [String: [String: String]]
         let kaspaSecondaryApiUrl: String
         let tonCenterApiKey: TonCenterApiKeys
@@ -124,7 +119,6 @@ extension CommonKeysManager {
         let koinosProApiKey: String
         let tangemComAuthorization: String?
         let walletConnectProjectId: String
-        let sprinklr: SprinklrConfig
         let express: ExpressKeys
         let devExpress: ExpressKeys?
         let stakeKitApiKey: String
