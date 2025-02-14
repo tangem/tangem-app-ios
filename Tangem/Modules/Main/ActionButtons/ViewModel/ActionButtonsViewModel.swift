@@ -74,7 +74,7 @@ final class ActionButtonsViewModel: ObservableObject {
     }
 
     deinit {
-        AppLog.shared.debug("deinit \(self)")
+        AppLogger.debug(self, "deinit")
     }
 
     func refresh() {

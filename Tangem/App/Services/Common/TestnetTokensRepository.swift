@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemSdk
 import Combine
 
 class TestnetTokensRepository {
@@ -39,7 +38,7 @@ class TestnetTokensRepository {
                         type: CoinsList.Response.self
                     )
                 } catch {
-                    Log.error("Unable to read testnet mock file due to error: \"\(error)\"")
+                    AppLogger.error("Unable to read testnet mock file due to error", error: error)
                     throw error
                 }
             }
