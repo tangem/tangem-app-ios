@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -2049,6 +2049,24 @@
 		C27A0EEE2D3648D400AC2336 /* OdysseyChainExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C27A0EED2D3648D100AC2336 /* OdysseyChainExternalLinkProvider.swift */; };
 		C287C61D2D410D640068B899 /* ApeChainExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C287C61C2D410D620068B899 /* ApeChainExternalLinkProvider.swift */; };
 		C2DD0E042D3EBA3200B45935 /* SonicExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2DD0E032D3EBA3000B45935 /* SonicExternalLinkProvider.swift */; };
+		C2E3ADB72D5F5D310042ADDA /* StoryPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADAF2D5F5D310042ADDA /* StoryPageView.swift */; };
+		C2E3ADB82D5F5D310042ADDA /* StoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADB02D5F5D310042ADDA /* StoryView.swift */; };
+		C2E3ADB92D5F5D310042ADDA /* StoryViewEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADB12D5F5D310042ADDA /* StoryViewEvent.swift */; };
+		C2E3ADBA2D5F5D310042ADDA /* StoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADB22D5F5D310042ADDA /* StoryViewModel.swift */; };
+		C2E3ADBB2D5F5D310042ADDA /* StoriesHostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADB42D5F5D310042ADDA /* StoriesHostView.swift */; };
+		C2E3ADBC2D5F5D310042ADDA /* StoriesHostViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADB52D5F5D310042ADDA /* StoriesHostViewModel.swift */; };
+		C2E3ADC52D5F5D390042ADDA /* TangemStoriesHostManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADBD2D5F5D390042ADDA /* TangemStoriesHostManager.swift */; };
+		C2E3ADC62D5F5D390042ADDA /* TangemStoriesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADBE2D5F5D390042ADDA /* TangemStoriesViewModel.swift */; };
+		C2E3ADC72D5F5D390042ADDA /* SwapStoryPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADC02D5F5D390042ADDA /* SwapStoryPageView.swift */; };
+		C2E3ADC82D5F5D390042ADDA /* TangemStoriesHostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADC22D5F5D390042ADDA /* TangemStoriesHostView.swift */; };
+		C2E3ADD22D5F5D410042ADDA /* AppSettingsStoryAvailabilityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADC92D5F5D410042ADDA /* AppSettingsStoryAvailabilityService.swift */; };
+		C2E3ADD32D5F5D410042ADDA /* CommonStoryDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADCA2D5F5D410042ADDA /* CommonStoryDataService.swift */; };
+		C2E3ADD42D5F5D410042ADDA /* StoryDataPrefetchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADCB2D5F5D410042ADDA /* StoryDataPrefetchService.swift */; };
+		C2E3ADD52D5F5D410042ADDA /* StoryDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADCC2D5F5D410042ADDA /* StoryDTO.swift */; };
+		C2E3ADD62D5F5D410042ADDA /* StoryMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADCD2D5F5D410042ADDA /* StoryMapper.swift */; };
+		C2E3ADD72D5F5D410042ADDA /* SwapStoryData+Initial.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADCE2D5F5D410042ADDA /* SwapStoryData+Initial.swift */; };
+		C2E3ADD82D5F5D410042ADDA /* TangemStoriesEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADCF2D5F5D410042ADDA /* TangemStoriesEnvironment.swift */; };
+		C2E3ADD92D5F5D410042ADDA /* TangemStoriesPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADD02D5F5D410042ADDA /* TangemStoriesPresenter.swift */; };
 		DA10101D2CDA4D7F00EE0D05 /* OnrampCountryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA10101C2CDA4D7F00EE0D05 /* OnrampCountryView.swift */; };
 		DA1010202CDA4DC200EE0D05 /* OnrampCountrySkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA10101F2CDA4DC200EE0D05 /* OnrampCountrySkeletonView.swift */; };
 		DA1010222CDA55D400EE0D05 /* OnrampCountryViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1010212CDA55D400EE0D05 /* OnrampCountryViewData.swift */; };
@@ -5342,6 +5360,24 @@
 		C27A0EED2D3648D100AC2336 /* OdysseyChainExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdysseyChainExternalLinkProvider.swift; sourceTree = "<group>"; };
 		C287C61C2D410D620068B899 /* ApeChainExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApeChainExternalLinkProvider.swift; sourceTree = "<group>"; };
 		C2DD0E032D3EBA3000B45935 /* SonicExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SonicExternalLinkProvider.swift; sourceTree = "<group>"; };
+		C2E3ADAF2D5F5D310042ADDA /* StoryPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryPageView.swift; sourceTree = "<group>"; };
+		C2E3ADB02D5F5D310042ADDA /* StoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryView.swift; sourceTree = "<group>"; };
+		C2E3ADB12D5F5D310042ADDA /* StoryViewEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryViewEvent.swift; sourceTree = "<group>"; };
+		C2E3ADB22D5F5D310042ADDA /* StoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryViewModel.swift; sourceTree = "<group>"; };
+		C2E3ADB42D5F5D310042ADDA /* StoriesHostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesHostView.swift; sourceTree = "<group>"; };
+		C2E3ADB52D5F5D310042ADDA /* StoriesHostViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesHostViewModel.swift; sourceTree = "<group>"; };
+		C2E3ADBD2D5F5D390042ADDA /* TangemStoriesHostManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemStoriesHostManager.swift; sourceTree = "<group>"; };
+		C2E3ADBE2D5F5D390042ADDA /* TangemStoriesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemStoriesViewModel.swift; sourceTree = "<group>"; };
+		C2E3ADC02D5F5D390042ADDA /* SwapStoryPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapStoryPageView.swift; sourceTree = "<group>"; };
+		C2E3ADC22D5F5D390042ADDA /* TangemStoriesHostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemStoriesHostView.swift; sourceTree = "<group>"; };
+		C2E3ADC92D5F5D410042ADDA /* AppSettingsStoryAvailabilityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsStoryAvailabilityService.swift; sourceTree = "<group>"; };
+		C2E3ADCA2D5F5D410042ADDA /* CommonStoryDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStoryDataService.swift; sourceTree = "<group>"; };
+		C2E3ADCB2D5F5D410042ADDA /* StoryDataPrefetchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryDataPrefetchService.swift; sourceTree = "<group>"; };
+		C2E3ADCC2D5F5D410042ADDA /* StoryDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryDTO.swift; sourceTree = "<group>"; };
+		C2E3ADCD2D5F5D410042ADDA /* StoryMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryMapper.swift; sourceTree = "<group>"; };
+		C2E3ADCE2D5F5D410042ADDA /* SwapStoryData+Initial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SwapStoryData+Initial.swift"; sourceTree = "<group>"; };
+		C2E3ADCF2D5F5D410042ADDA /* TangemStoriesEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemStoriesEnvironment.swift; sourceTree = "<group>"; };
+		C2E3ADD02D5F5D410042ADDA /* TangemStoriesPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemStoriesPresenter.swift; sourceTree = "<group>"; };
 		DA10101C2CDA4D7F00EE0D05 /* OnrampCountryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampCountryView.swift; sourceTree = "<group>"; };
 		DA10101F2CDA4DC200EE0D05 /* OnrampCountrySkeletonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampCountrySkeletonView.swift; sourceTree = "<group>"; };
 		DA1010212CDA55D400EE0D05 /* OnrampCountryViewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampCountryViewData.swift; sourceTree = "<group>"; };
@@ -6475,12 +6511,6 @@
 		F99007052CD3E1C700DFE2D3 /* KaspaNetworkProviderKRC20.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KaspaNetworkProviderKRC20.swift; sourceTree = "<group>"; };
 		F990070B2CD3E1D800DFE2D3 /* KaspaUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KaspaUtils.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		C244C2862D5B96E1006DF666 /* Stories */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Stories; sourceTree = "<group>"; };
-		C244C2AB2D5B975F006DF666 /* Stories */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Stories; sourceTree = "<group>"; };
-		C2C4822D2D5547C700877910 /* StoriesService */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = StoriesService; sourceTree = "<group>"; };
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		5D3F77BF24BF56D800E8695B /* Frameworks */ = {
@@ -8901,7 +8931,7 @@
 			isa = PBXGroup;
 			children = (
 				C244C5682D5E6C9D006DF666 /* MainWindow.swift */,
-				C244C2862D5B96E1006DF666 /* Stories */,
+				C2E3ADB62D5F5D310042ADDA /* Stories */,
 				DC2891772CD9107E00F57F59 /* CloseToolbarButton */,
 				DCC05A5E2CD17DE6004CE6A4 /* TokenSelectorView */,
 				EF0E1DAE2CE3A2A5003D47AA /* ProgressDots */,
@@ -12822,6 +12852,77 @@
 			path = OverlayContentContainer;
 			sourceTree = "<group>";
 		};
+		C2E3ADB32D5F5D310042ADDA /* Story */ = {
+			isa = PBXGroup;
+			children = (
+				C2E3ADAF2D5F5D310042ADDA /* StoryPageView.swift */,
+				C2E3ADB02D5F5D310042ADDA /* StoryView.swift */,
+				C2E3ADB12D5F5D310042ADDA /* StoryViewEvent.swift */,
+				C2E3ADB22D5F5D310042ADDA /* StoryViewModel.swift */,
+			);
+			path = Story;
+			sourceTree = "<group>";
+		};
+		C2E3ADB62D5F5D310042ADDA /* Stories */ = {
+			isa = PBXGroup;
+			children = (
+				C2E3ADB32D5F5D310042ADDA /* Story */,
+				C2E3ADB42D5F5D310042ADDA /* StoriesHostView.swift */,
+				C2E3ADB52D5F5D310042ADDA /* StoriesHostViewModel.swift */,
+			);
+			path = Stories;
+			sourceTree = "<group>";
+		};
+		C2E3ADBF2D5F5D390042ADDA /* Presentation */ = {
+			isa = PBXGroup;
+			children = (
+				C2E3ADBD2D5F5D390042ADDA /* TangemStoriesHostManager.swift */,
+				C2E3ADBE2D5F5D390042ADDA /* TangemStoriesViewModel.swift */,
+			);
+			path = Presentation;
+			sourceTree = "<group>";
+		};
+		C2E3ADC12D5F5D390042ADDA /* SwapStoryPages */ = {
+			isa = PBXGroup;
+			children = (
+				C2E3ADC02D5F5D390042ADDA /* SwapStoryPageView.swift */,
+			);
+			path = SwapStoryPages;
+			sourceTree = "<group>";
+		};
+		C2E3ADC32D5F5D390042ADDA /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				C2E3ADC12D5F5D390042ADDA /* SwapStoryPages */,
+				C2E3ADC22D5F5D390042ADDA /* TangemStoriesHostView.swift */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		C2E3ADC42D5F5D390042ADDA /* Stories */ = {
+			isa = PBXGroup;
+			children = (
+				C2E3ADBF2D5F5D390042ADDA /* Presentation */,
+				C2E3ADC32D5F5D390042ADDA /* UI */,
+			);
+			path = Stories;
+			sourceTree = "<group>";
+		};
+		C2E3ADD12D5F5D410042ADDA /* StoriesService */ = {
+			isa = PBXGroup;
+			children = (
+				C2E3ADC92D5F5D410042ADDA /* AppSettingsStoryAvailabilityService.swift */,
+				C2E3ADCA2D5F5D410042ADDA /* CommonStoryDataService.swift */,
+				C2E3ADCB2D5F5D410042ADDA /* StoryDataPrefetchService.swift */,
+				C2E3ADCC2D5F5D410042ADDA /* StoryDTO.swift */,
+				C2E3ADCD2D5F5D410042ADDA /* StoryMapper.swift */,
+				C2E3ADCE2D5F5D410042ADDA /* SwapStoryData+Initial.swift */,
+				C2E3ADCF2D5F5D410042ADDA /* TangemStoriesEnvironment.swift */,
+				C2E3ADD02D5F5D410042ADDA /* TangemStoriesPresenter.swift */,
+			);
+			path = StoriesService;
+			sourceTree = "<group>";
+		};
 		DA10101E2CDA4D9C00EE0D05 /* Subviews */ = {
 			isa = PBXGroup;
 			children = (
@@ -13310,7 +13411,7 @@
 			children = (
 				EFDEF34F2D5A1305005F8F2F /* CachesDirectoryStorage */,
 				DC1DA92F2D555407003638ED /* UIEnvironment */,
-				C2C4822D2D5547C700877910 /* StoriesService */,
+				C2E3ADD12D5F5D410042ADDA /* StoriesService */,
 				DC25DDE62D4236EF00845E4C /* HotCryptoServices */,
 				EF89FC1B2D492BFD00DF0B73 /* TangemLogger */,
 				EF41A3CD2D3808AF00FA7020 /* TokenBalancesStorage */,
@@ -14097,7 +14198,7 @@
 		DC7DA81A2844EED800AD6DBD /* Modules */ = {
 			isa = PBXGroup;
 			children = (
-				C244C2AB2D5B975F006DF666 /* Stories */,
+				C2E3ADC42D5F5D390042ADDA /* Stories */,
 				EF9CA60C2D424049009549E2 /* LogsView */,
 				EFD68F2E2CC2D01B00693C97 /* OnrampCountryDetection */,
 				DAE4BB002CD795760020CE3F /* OnrampCountrySelector */,
@@ -16930,11 +17031,6 @@
 				EFEE239C2BFF62D60099917E /* PBXTargetDependency */,
 				B68E1F772CBC44060043E598 /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				C244C2862D5B96E1006DF666 /* Stories */,
-				C244C2AB2D5B975F006DF666 /* Stories */,
-				C2C4822D2D5547C700877910 /* StoriesService */,
-			);
 			name = Tangem;
 			packageProductDependencies = (
 				B6C1BE6C2B6C2F4E008FE5A0 /* secp256k1 */,
@@ -17636,6 +17732,10 @@
 				DAC53CFC27BE63830027147D /* AweStoryPage.swift in Sources */,
 				B60976AD2C738AE100778E71 /* UIRectCorner+.swift in Sources */,
 				B65591ED2A2FF1B20066A13B /* OrganizeTokensHeaderView.swift in Sources */,
+				C2E3ADC52D5F5D390042ADDA /* TangemStoriesHostManager.swift in Sources */,
+				C2E3ADC62D5F5D390042ADDA /* TangemStoriesViewModel.swift in Sources */,
+				C2E3ADC72D5F5D390042ADDA /* SwapStoryPageView.swift in Sources */,
+				C2E3ADC82D5F5D390042ADDA /* TangemStoriesHostView.swift in Sources */,
 				EF339E542C22DABD00B5CDC9 /* FeeIncludedCalculator.swift in Sources */,
 				EFC84B2D2C37FBB300546882 /* SendSummaryStep.swift in Sources */,
 				EFB6800E2B29BD4B00842BE3 /* SheetModifier.swift in Sources */,
@@ -18373,6 +18473,12 @@
 				B63FDB182A5F09F10080240F /* CardsInfoPagerFlexibleFooterView.swift in Sources */,
 				B0C87B482566492000F861DE /* TwinData.swift in Sources */,
 				2DE0BA992CA93100002C09D9 /* BlockHeaderTitleButtonView.swift in Sources */,
+				C2E3ADB72D5F5D310042ADDA /* StoryPageView.swift in Sources */,
+				C2E3ADB82D5F5D310042ADDA /* StoryView.swift in Sources */,
+				C2E3ADB92D5F5D310042ADDA /* StoryViewEvent.swift in Sources */,
+				C2E3ADBA2D5F5D310042ADDA /* StoryViewModel.swift in Sources */,
+				C2E3ADBB2D5F5D310042ADDA /* StoriesHostView.swift in Sources */,
+				C2E3ADBC2D5F5D310042ADDA /* StoriesHostViewModel.swift in Sources */,
 				EFF2A52D2C60BA0F007DB0C1 /* StakingNotificationEvent.swift in Sources */,
 				B0FAD00E26BAC51F00F45E88 /* CircledCheckmarkView.swift in Sources */,
 				5D12D21325B60AA4006060A1 /* SearchBar.swift in Sources */,
@@ -18605,6 +18711,14 @@
 				DA4055252ABDD3A300353F8A /* AddCustomTokenNetworksListItemViewModel.swift in Sources */,
 				B0BA7BCB26C5684E00D7066F /* AddressQrBottomSheetView.swift in Sources */,
 				B62C65CE2C38D06B00189AD4 /* PushNotificationsService.swift in Sources */,
+				C2E3ADD22D5F5D410042ADDA /* AppSettingsStoryAvailabilityService.swift in Sources */,
+				C2E3ADD32D5F5D410042ADDA /* CommonStoryDataService.swift in Sources */,
+				C2E3ADD42D5F5D410042ADDA /* StoryDataPrefetchService.swift in Sources */,
+				C2E3ADD52D5F5D410042ADDA /* StoryDTO.swift in Sources */,
+				C2E3ADD62D5F5D410042ADDA /* StoryMapper.swift in Sources */,
+				C2E3ADD72D5F5D410042ADDA /* SwapStoryData+Initial.swift in Sources */,
+				C2E3ADD82D5F5D410042ADDA /* TangemStoriesEnvironment.swift in Sources */,
+				C2E3ADD92D5F5D410042ADDA /* TangemStoriesPresenter.swift in Sources */,
 				B05919042A0BCD1100EB8005 /* MainHeaderViewModel.swift in Sources */,
 				B0406BB62A402462006452C2 /* PagerWithDots.swift in Sources */,
 				EFD68F372CC2F58900693C97 /* OnrampIdentityMock.swift in Sources */,
