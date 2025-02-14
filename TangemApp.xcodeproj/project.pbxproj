@@ -2050,9 +2050,6 @@
 		C27A0EEE2D3648D400AC2336 /* OdysseyChainExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C27A0EED2D3648D100AC2336 /* OdysseyChainExternalLinkProvider.swift */; };
 		C287C61D2D410D640068B899 /* ApeChainExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C287C61C2D410D620068B899 /* ApeChainExternalLinkProvider.swift */; };
 		C2DD0E042D3EBA3200B45935 /* SonicExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2DD0E032D3EBA3000B45935 /* SonicExternalLinkProvider.swift */; };
-		DA070DE22ADD4F0F00F7C0E4 /* SprinklrSupportChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA070DE02ADD4F0F00F7C0E4 /* SprinklrSupportChatView.swift */; };
-		DA070DE32ADD4F0F00F7C0E4 /* SprinklrSupportChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA070DE12ADD4F0F00F7C0E4 /* SprinklrSupportChatViewModel.swift */; };
-		DA070DE52ADD4F6600F7C0E4 /* SprinklrConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA070DE42ADD4F6500F7C0E4 /* SprinklrConfig.swift */; };
 		DA10101D2CDA4D7F00EE0D05 /* OnrampCountryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA10101C2CDA4D7F00EE0D05 /* OnrampCountryView.swift */; };
 		DA1010202CDA4DC200EE0D05 /* OnrampCountrySkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA10101F2CDA4DC200EE0D05 /* OnrampCountrySkeletonView.swift */; };
 		DA1010222CDA55D400EE0D05 /* OnrampCountryViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1010212CDA55D400EE0D05 /* OnrampCountryViewData.swift */; };
@@ -5345,9 +5342,6 @@
 		C27A0EED2D3648D100AC2336 /* OdysseyChainExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdysseyChainExternalLinkProvider.swift; sourceTree = "<group>"; };
 		C287C61C2D410D620068B899 /* ApeChainExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApeChainExternalLinkProvider.swift; sourceTree = "<group>"; };
 		C2DD0E032D3EBA3000B45935 /* SonicExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SonicExternalLinkProvider.swift; sourceTree = "<group>"; };
-		DA070DE02ADD4F0F00F7C0E4 /* SprinklrSupportChatView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprinklrSupportChatView.swift; sourceTree = "<group>"; };
-		DA070DE12ADD4F0F00F7C0E4 /* SprinklrSupportChatViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprinklrSupportChatViewModel.swift; sourceTree = "<group>"; };
-		DA070DE42ADD4F6500F7C0E4 /* SprinklrConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SprinklrConfig.swift; sourceTree = "<group>"; };
 		DA10101C2CDA4D7F00EE0D05 /* OnrampCountryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampCountryView.swift; sourceTree = "<group>"; };
 		DA10101F2CDA4DC200EE0D05 /* OnrampCountrySkeletonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampCountrySkeletonView.swift; sourceTree = "<group>"; };
 		DA1010212CDA55D400EE0D05 /* OnrampCountryViewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampCountryViewData.swift; sourceTree = "<group>"; };
@@ -7799,7 +7793,6 @@
 				6563B8B82858B92A009A8A7D /* SupportChatView.swift */,
 				65C9FCB92869CC3E00FDE63E /* SupportChatViewModel.swift */,
 				EF9F908F299FAE84006F638F /* SupportChatInputModel.swift */,
-				DA070DDF2ADD4F0F00F7C0E4 /* Sprinklr */,
 			);
 			path = SupportChat;
 			sourceTree = "<group>";
@@ -12827,15 +12820,6 @@
 			path = OverlayContentContainer;
 			sourceTree = "<group>";
 		};
-		DA070DDF2ADD4F0F00F7C0E4 /* Sprinklr */ = {
-			isa = PBXGroup;
-			children = (
-				DA070DE02ADD4F0F00F7C0E4 /* SprinklrSupportChatView.swift */,
-				DA070DE12ADD4F0F00F7C0E4 /* SprinklrSupportChatViewModel.swift */,
-			);
-			path = Sprinklr;
-			sourceTree = "<group>";
-		};
 		DA10101E2CDA4D9C00EE0D05 /* Subviews */ = {
 			isa = PBXGroup;
 			children = (
@@ -13453,7 +13437,6 @@
 				2DB43916296EBC6000CBBB1E /* AppsFlyerConfig.swift */,
 				B0E1D174257DE75D00A3AB98 /* CommonKeysManager.swift */,
 				DC0A5807282501CA0031BECC /* MoonPayKeys.swift */,
-				DA070DE42ADD4F6500F7C0E4 /* SprinklrConfig.swift */,
 				EF92E2B929963E7400DD9B06 /* ExpressKeys.swift */,
 				B0CA52F829C04FA10076E2EF /* TonCenterApiKeys.swift */,
 				2DCAEE4A2B13E4F800C87E09 /* GetBlockAccessTokens.swift */,
@@ -17585,7 +17568,6 @@
 				B0E479C22C3EB39D0043B239 /* MarketsTokenDetailsMetrics.swift in Sources */,
 				B60976A92C7384C100778E71 /* MarketsViewNavigationControllerConfigurator.swift in Sources */,
 				B6FE5B282B93C0FF00B7A76B /* UserCodeRecoveringMock.swift in Sources */,
-				DA070DE52ADD4F6600F7C0E4 /* SprinklrConfig.swift in Sources */,
 				DC37A0782A584BD000C2A3F2 /* UserTokensManagerMock.swift in Sources */,
 				EF70A4082C1714A100805D9F /* SendDestinationValidator.swift in Sources */,
 				2DB4EADA2C41938E00F9E860 /* MarketsPortfolioContainerViewModel.swift in Sources */,
@@ -18319,7 +18301,6 @@
 				DC2891672CD4AB9000F57F59 /* ActionButtonsBuyCoordinator.swift in Sources */,
 				B0541DC226FB301A0043893E /* WalletOnboardingCardLayout.swift in Sources */,
 				5D958E1424F513D9006BD932 /* RefreshableScrollView.swift in Sources */,
-				DA070DE22ADD4F0F00F7C0E4 /* SprinklrSupportChatView.swift in Sources */,
 				B0BDF9B82B4D267F00EEBE4F /* MainHeaderTotalBalanceProvider.swift in Sources */,
 				B06C08682A73FCDE00D982BC /* SingleWalletMainContentViewModel.swift in Sources */,
 				DADD18F82AA7516B0044AA66 /* UITraitCollection+.swift in Sources */,
@@ -18346,7 +18327,6 @@
 				B0625A2529CB3D2700EDD245 /* OnboardingSeedPhraseImportViewModel.swift in Sources */,
 				2DC5677D2B0E047700B0244F /* MainBottomSheetHeaderView.swift in Sources */,
 				DC66BC10285C405C00CDF765 /* CoordinatorObject.swift in Sources */,
-				DA070DE32ADD4F0F00F7C0E4 /* SprinklrSupportChatViewModel.swift in Sources */,
 				DC77F2552CD50917001B2929 /* SUILabel.swift in Sources */,
 				EF1D1ADE2C270DDE000CB941 /* SendFeeInputOutput.swift in Sources */,
 				B0120A962A0E0FB900F485F1 /* Text+NSAttributedString.swift in Sources */,
@@ -26719,7 +26699,7 @@
 			repositoryURL = "git@github.com:tangem-developments/tangem-sdk-ios.git";
 			requirement = {
 				kind = revision;
-				revision = f429d3b3d6e3916bce33bf1fef229cb9f9d04753;
+				revision = 2d1c7c29f984d890161826d90bef0e88ae14addb;
 			};
 		};
 		B68E1F882CBC44910043E598 /* XCRemoteSwiftPackageReference "hedera-sdk-swift" */ = {
