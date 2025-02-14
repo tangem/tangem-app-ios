@@ -11,6 +11,7 @@ import Combine
 import SwiftUI
 import BlockchainSdk
 import TangemFoundation
+import enum TangemStories.TangemStory
 
 class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
@@ -336,6 +337,13 @@ extension SingleTokenBaseViewModel {
             .receive(on: DispatchQueue.main)
             .assign(to: \.pendingExpressTransactions, on: self, ownership: .weak)
             .store(in: &bag)
+
+        AppSettings.shared.$shownStoryIds
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.updateActionButtons()
+            }
+            .store(in: &bag)
     }
 
     private func setupMiniChart() {
@@ -374,12 +382,14 @@ extension SingleTokenBaseViewModel {
     private func updateActionButtons() {
         let buttons = availableActions.map { type in
             let isDisabled = isButtonDisabled(with: type)
+            let showBadge = shouldShowUnreadNotificationBadge(for: type) && !isDisabled
 
             return FixedSizeButtonWithIconInfo(
                 title: type.title,
                 icon: type.icon,
                 disabled: false,
                 style: isDisabled ? .disabled : .default,
+                shouldShowBadge: showBadge,
                 action: { [weak self] in
                     self?.action(for: type)?()
                 },
@@ -442,6 +452,15 @@ extension SingleTokenBaseViewModel {
             return isSellDisabled()
         case .copyAddress, .hide, .stake, .marketsDetails:
             return true
+        }
+    }
+
+    private func shouldShowUnreadNotificationBadge(for type: TokenActionType) -> Bool {
+        switch type {
+        case .exchange:
+            !AppSettings.shared.shownStoryIds.contains(TangemStory.ID.swap.rawValue)
+        default:
+            false
         }
     }
 
