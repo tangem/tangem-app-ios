@@ -14,11 +14,12 @@ struct HotCryptoAddToPortfolioModel: Identifiable {
     let token: HotCryptoToken
     let userWalletName: String
     let tokenNetworkName: String
+    let tokenIconInfo: TokenIconInfo?
 
     init(token: HotCryptoToken, userWalletName: String) {
         self.token = token
         self.userWalletName = userWalletName
-
+        tokenIconInfo = token.tokenIconInfo
         tokenNetworkName = {
             let blockchain = Blockchain.allMainnetCases.first { $0.networkId == token.networkId }
 
