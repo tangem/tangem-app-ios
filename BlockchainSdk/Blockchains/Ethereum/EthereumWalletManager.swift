@@ -408,7 +408,7 @@ extension EthereumWalletManager: EthereumTransactionDataBuilder {
 
 // MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
 
-extension EthereumWalletManager: StakeKitTransactionBuilder, StakeKitTransactionSender, StakeKitTransactionSenderProvider {
+extension EthereumWalletManager: StakeKitTransactionBuilder, StakeKitTransactionSender, StakeKitTransactionDataPrepare {
     typealias RawTransaction = String
 
     func prepareDataForSign(transaction: StakeKitTransaction) throws -> Data {
@@ -422,7 +422,9 @@ extension EthereumWalletManager: StakeKitTransactionBuilder, StakeKitTransaction
             .lowercased()
             .addHexPrefix()
     }
+}
 
+extension EthereumWalletManager: StakeKitTransactionBroadcast {
     func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
         try await networkService.send(transaction: rawTransaction).async()
     }
