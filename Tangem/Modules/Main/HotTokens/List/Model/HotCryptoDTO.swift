@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 enum HotCryptoDTO {
     struct Request: Encodable {
@@ -14,15 +15,16 @@ enum HotCryptoDTO {
     }
 
     struct Response: Decodable {
-        let tokens: [HotToken]
+        let imageHost: String
+        @LossyArray private(set) var tokens: [HotToken]
 
         struct HotToken: Decodable {
             let id: String
             let name: String
             let symbol: String
             let networkId: String
-            let currentPrice: Decimal
-            let priceChangePercentage24h: Decimal
+            let currentPrice: Decimal?
+            let priceChangePercentage24h: Decimal?
             let decimalCount: Int?
             let contractAddress: String?
 
