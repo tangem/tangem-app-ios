@@ -11,20 +11,31 @@ import UIKit
 
 extension UIApplication {
     func endEditing() {
-        windows.first { $0.isKeyWindow }?.endEditing(true)
+        _keyWindow?.endEditing(true)
     }
 }
 
 extension UIApplication {
+    private var _keyWindow: UIWindow? {
+        activeScene?
+            .windows
+            .filter { $0 is MainWindow }
+            .first
+    }
+
     static var keyWindow: UIWindow? {
-        return UIApplication.shared.windows.first { $0.isKeyWindow }
+        UIApplication.shared._keyWindow
+    }
+
+    private var activeScene: UIWindowScene? {
+        connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .filter { $0.activationState == .foregroundActive }
+            .first
     }
 
     static var activeScene: UIWindowScene? {
-        return UIApplication
-            .shared
-            .connectedScenes.first { $0.activationState == .foregroundActive && $0 is UIWindowScene }
-            .flatMap { $0 as? UIWindowScene }
+        UIApplication.shared.activeScene
     }
 
     static var topViewController: UIViewController? {
