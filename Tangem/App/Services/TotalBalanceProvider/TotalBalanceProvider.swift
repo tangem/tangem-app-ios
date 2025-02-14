@@ -35,7 +35,7 @@ class TotalBalanceProvider {
     }
 
     deinit {
-        AppLog.shared.debug("deinit \(self)")
+        AppLogger.debug("deinit \(self)")
     }
 }
 
