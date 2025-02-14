@@ -186,7 +186,6 @@ struct Keys: Decodable {
     let blockcypherTokens: [String]
     let infuraProjectId: String
     let nowNodesApiKey: String
-    let getBlockApiKey: String
     let getBlockAccessTokens: [String: [String: String]]
     let kaspaSecondaryApiUrl: String
     let tonCenterApiKey: TonCenterApiKeys
