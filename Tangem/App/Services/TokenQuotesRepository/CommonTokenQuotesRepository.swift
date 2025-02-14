@@ -56,7 +56,7 @@ extension CommonTokenQuotesRepository: TokenQuotesRepository {
     }
 
     func loadQuotes(currencyIds: [String]) -> AnyPublisher<[String: TokenQuote], Never> {
-        log("Request loading quotes for ids: \(currencyIds)")
+        AppLogger.info(self, "Request loading quotes for ids: \(currencyIds)")
 
         let outputPublisher = PassthroughSubject<[String: TokenQuote], Never>()
         let item = QueueItem(ids: currencyIds, didLoadPublisher: outputPublisher)
@@ -180,7 +180,7 @@ private extension CommonTokenQuotesRepository {
     }
 
     func loadAndSaveQuotes(currencyIds: [String]) -> AnyPublisher<[String: TokenQuote], Never> {
-        log("Start loading quotes for ids: \(currencyIds)")
+        AppLogger.info(self, "Start loading quotes for ids: \(currencyIds)")
 
         let currencyCode = AppSettings.shared.selectedCurrencyCode
 
@@ -196,7 +196,7 @@ private extension CommonTokenQuotesRepository {
         return tangemApiService
             .loadQuotes(requestModel: request)
             .map { [weak self] quotes in
-                self?.log("Finish loading quotes for ids: \(currencyIds)")
+                AppLogger.info(self, "Finish loading quotes for ids: \(currencyIds)")
                 let quotes = quotes.compactMap {
                     self?.mapToTokenQuote(quote: $0, currencyCode: currencyCode)
                 }
@@ -204,8 +204,7 @@ private extension CommonTokenQuotesRepository {
                 return quotes.reduce(into: [:]) { $0[$1.currencyId] = $1 }
             }
             .catch { [weak self] error -> AnyPublisher<[String: TokenQuote], Never> in
-                self?.log("Loading quotes catch error")
-                AppLog.shared.error(error: error, params: [:])
+                AppLogger.error(self, "Loading quotes catch error", error: error)
                 return Just([:]).eraseToAnyPublisher()
             }
             .eraseToAnyPublisher()
@@ -223,12 +222,14 @@ private extension CommonTokenQuotesRepository {
     }
 
     func clearRepository() {
-        log("Start repository cleanup")
+        AppLogger.info(self, "Start repository cleanup")
         _quotes.value.removeAll()
     }
+}
 
-    func log<T>(_ message: @autoclosure () -> T) {
-        AppLog.shared.debug("[CommonTokenQuotesRepository] \(message())")
+extension CommonTokenQuotesRepository: CustomStringConvertible {
+    var description: String {
+        TangemFoundation.objectDescription(self)
     }
 }
 
