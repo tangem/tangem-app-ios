@@ -20,14 +20,18 @@
 		0A7FF63D2C888D380072C2E8 /* StakingAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A7FF63C2C888D380072C2E8 /* StakingAnalyticsLogger.swift */; };
 		0A81B3732BB2D24A0008F21C /* BlockchainURLSchemesParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A81B3722BB2D24A0008F21C /* BlockchainURLSchemesParser.swift */; };
 		0A81B38E2BB3018E0008F21C /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 0A81B38D2BB3018E0008F21C /* ZIPFoundation */; };
-		0A917D822D4A54E3008A3C8F /* TONStakeKitTransactionHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A917D812D4A54E3008A3C8F /* TONStakeKitTransactionHelper.swift */; };
 		0A917D802D4A1EF4008A3C8F /* CommonStakeKitTransactionStatusProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A917D7F2D4A1EF4008A3C8F /* CommonStakeKitTransactionStatusProvider.swift */; };
+		0A917D822D4A54E3008A3C8F /* TONStakeKitTransactionHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A917D812D4A54E3008A3C8F /* TONStakeKitTransactionHelper.swift */; };
 		0A94FAAB2CF9D25900FD6C2F /* RentExtemptionRestrictable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A94FAAA2CF9D25900FD6C2F /* RentExtemptionRestrictable.swift */; };
 		0AB5A4732C5267CB00491764 /* SegmentedPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB5A4722C5267CB00491764 /* SegmentedPicker.swift */; };
 		0ABC61152C410AFD00065EBA /* TweetNacl in Frameworks */ = {isa = PBXBuildFile; productRef = 0ABC61142C410AFD00065EBA /* TweetNacl */; };
 		0AC9EFF52CAE8515005F868F /* StakingSingleActionFlowBaseBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC9EFF42CAE8515005F868F /* StakingSingleActionFlowBaseBuilder.swift */; };
 		0AC9EFF72CAE857C005F868F /* StakingSingleActionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC9EFF62CAE857C005F868F /* StakingSingleActionModel.swift */; };
 		0AC9EFF92CAE9B2C005F868F /* CommonStakingSingleActionStepsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC9EFF82CAE9B2C005F868F /* CommonStakingSingleActionStepsManager.swift */; };
+		0ACB00092D5F0D1900C86172 /* StakeKitTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACB00082D5F0D1900C86172 /* StakeKitTransactionBuilder.swift */; };
+		0ACB000B2D5F0DB000C86172 /* StakeKitTransactionBroadcast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACB000A2D5F0DB000C86172 /* StakeKitTransactionBroadcast.swift */; };
+		0ACB000D2D5F0E4500C86172 /* StakeKitTransactionDataPrepare.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACB000C2D5F0E4500C86172 /* StakeKitTransactionDataPrepare.swift */; };
+		0ACB000F2D5F0E4E00C86172 /* StakeKitTransactionStatusProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACB000E2D5F0E4E00C86172 /* StakeKitTransactionStatusProvider.swift */; };
 		0AD13F952C8AD76800C2EE16 /* CommonStakingAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD13F942C8AD76800C2EE16 /* CommonStakingAnalyticsLogger.swift */; };
 		0AE3EE0B2D018CAE003BC687 /* ScrollViewOffsetHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE3EE0A2D018CAE003BC687 /* ScrollViewOffsetHandler.swift */; };
 		0AE3EE0D2D018D23003BC687 /* MarketsNavigationBarTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE3EE0C2D018D23003BC687 /* MarketsNavigationBarTitle.swift */; };
@@ -3344,13 +3348,17 @@
 		0A713CEF2CAA76530042FC27 /* CommonRestakingStepsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonRestakingStepsManager.swift; sourceTree = "<group>"; };
 		0A7FF63C2C888D380072C2E8 /* StakingAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAnalyticsLogger.swift; sourceTree = "<group>"; };
 		0A81B3722BB2D24A0008F21C /* BlockchainURLSchemesParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainURLSchemesParser.swift; sourceTree = "<group>"; };
-		0A917D812D4A54E3008A3C8F /* TONStakeKitTransactionHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TONStakeKitTransactionHelper.swift; sourceTree = "<group>"; };
 		0A917D7F2D4A1EF4008A3C8F /* CommonStakeKitTransactionStatusProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStakeKitTransactionStatusProvider.swift; sourceTree = "<group>"; };
+		0A917D812D4A54E3008A3C8F /* TONStakeKitTransactionHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TONStakeKitTransactionHelper.swift; sourceTree = "<group>"; };
 		0A94FAAA2CF9D25900FD6C2F /* RentExtemptionRestrictable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RentExtemptionRestrictable.swift; sourceTree = "<group>"; };
 		0AB5A4722C5267CB00491764 /* SegmentedPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentedPicker.swift; sourceTree = "<group>"; };
 		0AC9EFF42CAE8515005F868F /* StakingSingleActionFlowBaseBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingSingleActionFlowBaseBuilder.swift; sourceTree = "<group>"; };
 		0AC9EFF62CAE857C005F868F /* StakingSingleActionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingSingleActionModel.swift; sourceTree = "<group>"; };
 		0AC9EFF82CAE9B2C005F868F /* CommonStakingSingleActionStepsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStakingSingleActionStepsManager.swift; sourceTree = "<group>"; };
+		0ACB00082D5F0D1900C86172 /* StakeKitTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakeKitTransactionBuilder.swift; sourceTree = "<group>"; };
+		0ACB000A2D5F0DB000C86172 /* StakeKitTransactionBroadcast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakeKitTransactionBroadcast.swift; sourceTree = "<group>"; };
+		0ACB000C2D5F0E4500C86172 /* StakeKitTransactionDataPrepare.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakeKitTransactionDataPrepare.swift; sourceTree = "<group>"; };
+		0ACB000E2D5F0E4E00C86172 /* StakeKitTransactionStatusProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakeKitTransactionStatusProvider.swift; sourceTree = "<group>"; };
 		0AD13F942C8AD76800C2EE16 /* CommonStakingAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStakingAnalyticsLogger.swift; sourceTree = "<group>"; };
 		0AD9EF0E2CC2A9B600466191 /* UnstakingSendAmountValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnstakingSendAmountValidator.swift; sourceTree = "<group>"; };
 		0AE3EE0A2D018CAE003BC687 /* ScrollViewOffsetHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollViewOffsetHandler.swift; sourceTree = "<group>"; };
@@ -11773,7 +11781,11 @@
 				B62D3F032CBC79D900C2460E /* BlockchainNotifications */,
 				B62D3F0C2CBC79D900C2460E /* TransactionValidator */,
 				B62D3F0D2CBC79D900C2460E /* BitcoinTransactionFeeCalculator.swift */,
+				0ACB000C2D5F0E4500C86172 /* StakeKitTransactionDataPrepare.swift */,
+				0ACB000A2D5F0DB000C86172 /* StakeKitTransactionBroadcast.swift */,
+				0ACB00082D5F0D1900C86172 /* StakeKitTransactionBuilder.swift */,
 				B62D3F0E2CBC79D900C2460E /* StakeKitTransactionSender.swift */,
+				0ACB000E2D5F0E4E00C86172 /* StakeKitTransactionStatusProvider.swift */,
 				B62D3F0F2CBC79D900C2460E /* TransactionCreator.swift */,
 				B62D3F102CBC79D900C2460E /* TransactionFeeProvider.swift */,
 				B62D3F112CBC79D900C2460E /* WalletManager.swift */,
@@ -19590,6 +19602,7 @@
 				B62D40612CBC79DA00C2460E /* ChiaTransactionBuilder.swift in Sources */,
 				B62D40B32CBC79DA00C2460E /* MantaExternalLinkProvider.swift in Sources */,
 				B62D42232CBC79DB00C2460E /* XRPWalletAssembly.swift in Sources */,
+				0ACB000D2D5F0E4500C86172 /* StakeKitTransactionDataPrepare.swift in Sources */,
 				B62D42622CBC79DB00C2460E /* SendTxErrorFactory.swift in Sources */,
 				B62D3FF42CBC79DA00C2460E /* OP_ELSE.swift in Sources */,
 				B62D40932CBC79DA00C2460E /* IdentityEthereumAddressConverter.swift in Sources */,
@@ -19826,6 +19839,7 @@
 				B62D405B2CBC79DA00C2460E /* ChiaProviderResponses.swift in Sources */,
 				B62D40302CBC79DA00C2460E /* BitcoinTransactionParams.swift in Sources */,
 				B62D408E2CBC79DA00C2460E /* TokenBalanceERC20TokenMethod.swift in Sources */,
+				0ACB000F2D5F0E4E00C86172 /* StakeKitTransactionStatusProvider.swift in Sources */,
 				B62D40A32CBC79DA00C2460E /* AvalancheExternalLinkProvider.swift in Sources */,
 				B62D3FFA2CBC79DA00C2460E /* OP_VER.swift in Sources */,
 				B62D425A2CBC79DB00C2460E /* JSONRPC.swift in Sources */,
@@ -20066,6 +20080,7 @@
 				F9F62C842CBFE21E008A3EE6 /* (null) in Sources */,
 				B62D3FB62CBC79DA00C2460E /* AptosTransactionBuilder.swift in Sources */,
 				B62D3FA02CBC79DA00C2460E /* AlgorandResponse+Transaction.swift in Sources */,
+				0ACB00092D5F0D1900C86172 /* StakeKitTransactionBuilder.swift in Sources */,
 				B62D3FA72CBC79DA00C2460E /* AlgorandTransactionBuilder.swift in Sources */,
 				B62D40062CBC79DA00C2460E /* OP_PUSHDATA.swift in Sources */,
 				B62D41552CBC79DA00C2460E /* SubscanAPIResult.ExtrinsicInfo.swift in Sources */,
@@ -20115,6 +20130,7 @@
 				B62D41112CBC79DA00C2460E /* KoinosTransactionParams.swift in Sources */,
 				B62D40852CBC79DA00C2460E /* DucatusNetworkService.swift in Sources */,
 				B62D3FB72CBC79DA00C2460E /* AptosWalletAssembly.swift in Sources */,
+				0ACB000B2D5F0DB000C86172 /* StakeKitTransactionBroadcast.swift in Sources */,
 				B62D40A92CBC79DA00C2460E /* CyberExternalLinkProvider.swift in Sources */,
 				B62D40F32CBC79DA00C2460E /* HederaTransactionBuilder.swift in Sources */,
 				B62D42302CBC79DB00C2460E /* BlockchairNetworkProvider.swift in Sources */,
