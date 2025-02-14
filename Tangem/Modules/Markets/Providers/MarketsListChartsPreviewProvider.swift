@@ -84,7 +84,7 @@ private extension MarketsListChartsHistoryProvider {
 
 private extension MarketsListChartsHistoryProvider {
     func log<T>(_ message: @autoclosure () -> T) {
-        AppLog.shared.debug("[\(String(describing: self))] - \(message())")
+        AppLogger.tag(String(describing: self)).info(message())
     }
 
     func filterItemsToRequest(_ newItemsToRequest: [String], interval: MarketsPriceIntervalType) -> [String] {
