@@ -60,7 +60,7 @@ extension MultipleAddressTransactionHistoryService: TransactionHistoryService {
         cancellable = nil
         transactionHistoryProviders.forEach { _, provider in provider.reset() }
         cleanStorage()
-        AppLog.shared.debug("\(self) was reset")
+        AppLogger.info(self, "was reset")
     }
 
     func update() -> AnyPublisher<Void, Never> {
@@ -81,7 +81,7 @@ private extension MultipleAddressTransactionHistoryService {
 
     func fetch(result: @escaping (Result<Void, Never>) -> Void) {
         if _state.value.isLoading {
-            AppLog.shared.debug("\(self) already is loading")
+            AppLogger.info(self, "already is loading")
             return
         }
 
@@ -90,25 +90,25 @@ private extension MultipleAddressTransactionHistoryService {
         // Collect publishers for the next page if the page is exist
         let publishers: [LoadingPublisher] = addresses.compactMap { address in
             guard canFetchHistory else {
-                AppLog.shared.debug("Address in \(self) reached the end of list")
+                AppLogger.info(self, "Reached the end of list")
                 return nil
             }
 
             do {
                 return try loadTransactionHistory(address: address)
             } catch {
-                AppLog.shared.debug("Provider exception: \(error) publisher set be nil")
+                AppLogger.error(self, "Provider exception. Publisher's set will be nil", error: error)
                 return nil
             }
         }
 
         if publishers.isEmpty {
-            AppLog.shared.debug("\(self) all addresses reached the end of list")
+            AppLogger.info(self, "all addresses reached the end of list")
             result(.success(()))
             return
         }
 
-        AppLog.shared.debug("\(self) start loading")
+        AppLogger.info(self, "start loading")
         _state.send(.loading)
 
         cancellable = Publishers
@@ -120,16 +120,15 @@ private extension MultipleAddressTransactionHistoryService {
                 switch completion {
                 case .failure(let error):
                     self?._state.send(.failedToLoad(error))
-                    AppLog.shared.debug("\(String(describing: self)) error: \(error)")
+                    AppLogger.error(self, error: error)
                     result(.success(()))
                 case .finished:
                     self?._state.send(.loaded)
                 }
-            } receiveValue: { service, responses in
+            } receiveValue: { [weak self] service, responses in
                 for response in responses {
                     service.addToStorage(records: response.response.records)
-
-                    AppLog.shared.debug("Address in \(String(describing: self)) loaded")
+                    AppLogger.info(self, "loaded")
                 }
 
                 result(.success(()))
@@ -170,7 +169,7 @@ private extension MultipleAddressTransactionHistoryService {
                     tokenTransfers: oldRecord.tokenTransfers
                 )
 
-                AppLog.shared.debug("TransactionRecord with hash: \(record.hash) was zipped")
+                AppLogger.info(self, "TransactionRecord with hash: \(record.hash) was zipped")
             } else {
                 records.append(record)
             }
@@ -200,14 +199,12 @@ extension MultipleAddressTransactionHistoryService {
 
 extension MultipleAddressTransactionHistoryService: CustomStringConvertible {
     var description: String {
-        objectDescription(
+        TangemFoundation.objectDescription(
             self,
             userInfo: [
                 "name": tokenItem.name,
                 "type": tokenItem.isToken ? "Token" : "Coin",
-                "requests": transactionHistoryProviders.map { _, provider in
-                    provider.description
-                }.joined(separator: ", "),
+                "requests": transactionHistoryProviders.map { $1.description }.joined(separator: ", "),
             ]
         )
     }
