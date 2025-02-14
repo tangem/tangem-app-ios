@@ -78,9 +78,9 @@ final class ActionButtonsViewModel: ObservableObject {
     }
 
     func refresh() {
+        hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
         // do nothing if already iniitialized
         exchangeService.initialize()
-        hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
     }
 
     func makeBuyButtonViewModel(_ coordinator: ActionButtonsBuyFlowRoutable) {
