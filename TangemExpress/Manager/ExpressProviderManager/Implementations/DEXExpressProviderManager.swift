@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 actor DEXExpressProviderManager {
     // MARK: - Dependencies
@@ -15,7 +16,6 @@ actor DEXExpressProviderManager {
     private let expressAPIProvider: ExpressAPIProvider
     private let allowanceProvider: ExpressAllowanceProvider
     private let feeProvider: FeeProvider
-    private let logger: Logger
     private let mapper: ExpressManagerMapper
 
     // MARK: - State
@@ -27,14 +27,12 @@ actor DEXExpressProviderManager {
         expressAPIProvider: ExpressAPIProvider,
         allowanceProvider: ExpressAllowanceProvider,
         feeProvider: FeeProvider,
-        logger: Logger,
         mapper: ExpressManagerMapper
     ) {
         self.provider = provider
         self.expressAPIProvider = expressAPIProvider
         self.allowanceProvider = allowanceProvider
         self.feeProvider = feeProvider
-        self.logger = logger
         self.mapper = mapper
     }
 }
@@ -48,7 +46,7 @@ extension DEXExpressProviderManager: ExpressProviderManager {
 
     func update(request: ExpressManagerSwappingPairRequest) async {
         let state = await getState(request: request)
-        log("Update to \(state)")
+        ExpressLogger.info(self, "Update to \(state)")
         _state = state
     }
 
@@ -180,7 +178,7 @@ private extension DEXExpressProviderManager {
         try Task.checkCancellation()
         if let otherNativeFee = data.otherNativeFee {
             variants = include(otherNativeFee: otherNativeFee, in: variants)
-            log("The fee was increased by otherNativeFee \(otherNativeFee)")
+            ExpressLogger.info(self, "The fee was increased by otherNativeFee \(otherNativeFee)")
         }
 
         // better to make the quote from the data
@@ -204,8 +202,12 @@ private extension DEXExpressProviderManager {
     func add(value: Decimal, to fee: Fee) -> Fee {
         Fee(.init(with: fee.amount, value: fee.amount.value + value), parameters: fee.parameters)
     }
+}
 
-    func log(_ args: Any) {
-        logger.debug("[Express] \(self) \(args)")
+// MARK: - CustomStringConvertible
+
+extension DEXExpressProviderManager: @preconcurrency CustomStringConvertible {
+    var description: String {
+        objectDescription(self)
     }
 }
