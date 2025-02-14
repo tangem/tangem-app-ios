@@ -10,7 +10,7 @@ import UIKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-    var window: UIWindow? // Do not remove, this is needed by Sprinklr
+    var window: UIWindow?
 
     private lazy var servicesManager = ServicesManager()
 
