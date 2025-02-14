@@ -51,13 +51,11 @@ class SecurityOptionChangingCardInteractor {
                 _currentSecurityOption.value = .accessCode
                 completion(.success(()))
             case .failure(let error):
-                AppLog.shared.error(
-                    error,
-                    params: [
-                        .newSecOption: .accessCode,
-                        .action: .changeSecOptions,
-                    ]
-                )
+                AppLogger.error(error: error)
+                Analytics.error(error: error, params: [
+                    .newSecOption: .accessCode,
+                    .action: .changeSecOptions,
+                ])
                 completion(.failure(error))
             }
         }
@@ -76,13 +74,11 @@ class SecurityOptionChangingCardInteractor {
                 _currentSecurityOption.value = .passCode
                 completion(.success(()))
             case .failure(let error):
-                AppLog.shared.error(
-                    error,
-                    params: [
-                        .newSecOption: .passcode,
-                        .action: .changeSecOptions,
-                    ]
-                )
+                AppLogger.error(error: error)
+                Analytics.error(error: error, params: [
+                    .newSecOption: .passcode,
+                    .action: .changeSecOptions,
+                ])
                 completion(.failure(error))
             }
         }
@@ -100,13 +96,11 @@ class SecurityOptionChangingCardInteractor {
                 _currentSecurityOption.value = .longTap
                 completion(.success(()))
             case .failure(let error):
-                AppLog.shared.error(
-                    error,
-                    params: [
-                        .newSecOption: .longTap,
-                        .action: .changeSecOptions,
-                    ]
-                )
+                AppLogger.error(error: error)
+                Analytics.error(error: error, params: [
+                    .newSecOption: .longTap,
+                    .action: .changeSecOptions,
+                ])
                 completion(.failure(error))
             }
         }
