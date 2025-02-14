@@ -16,6 +16,8 @@ struct LogsView: View {
             content
         }
         .background(Colors.Background.tertiary.ignoresSafeArea())
+        .alert(item: $viewModel.alert) { $0.alert }
+        .actionSheet(item: $viewModel.sheet) { $0.sheet }
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Menu {
@@ -36,8 +38,8 @@ struct LogsView: View {
             }
 
             ToolbarItem(placement: .topBarTrailing) {
-                Button(action: viewModel.share) {
-                    Image(systemName: "square.and.arrow.up")
+                Button(action: viewModel.openSheet) {
+                    Assets.verticalDots.image
                 }
             }
         }
@@ -55,6 +57,7 @@ struct LogsView: View {
 
                 Divider()
             }
+            .infinityFrame()
         case .failure(let failure):
             Text(failure.localizedDescription)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)

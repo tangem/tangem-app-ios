@@ -16,7 +16,6 @@ class CommonOnrampProviderManager {
     private let paymentMethod: OnrampPaymentMethod
     private let apiProvider: ExpressAPIProvider
     private let analyticsLogger: ExpressAnalyticsLogger
-    private let logger: Logger
 
     // Private state
 
@@ -29,7 +28,6 @@ class CommonOnrampProviderManager {
         paymentMethod: OnrampPaymentMethod,
         apiProvider: ExpressAPIProvider,
         analyticsLogger: ExpressAnalyticsLogger,
-        logger: Logger,
         state: OnrampProviderManagerState
     ) {
         self.pairItem = pairItem
@@ -37,7 +35,6 @@ class CommonOnrampProviderManager {
         self.paymentMethod = paymentMethod
         self.apiProvider = apiProvider
         self.analyticsLogger = analyticsLogger
-        self.logger = logger
 
         _state = state
     }
@@ -118,7 +115,7 @@ private extension CommonOnrampProviderManager {
     }
 
     func update(state: OnrampProviderManagerState) {
-        logger.debug("[\(self)] state was updated")
+        OnrampLogger.info(self, "State was updated")
         _state = state
     }
 }
