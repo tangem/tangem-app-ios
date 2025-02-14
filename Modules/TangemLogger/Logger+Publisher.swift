@@ -10,31 +10,27 @@ import Combine
 
 public extension Publisher {
     func logging(
-        _ prefix: String = "",
+        _ tag: String? = nil,
         to logger: Logger = CombineLog,
         options: Publishers.LogOptions = .default,
-        mapOutput: ((Output) -> String)? = nil
+        mapOutput: ((Output) -> Any)? = nil
     ) -> Publishers.HandleEvents<Self> {
-        handleEvents { subscription in
-            if options.contains(.subscription) {
-                logger.debug("\(prefix)subscription: \(subscription)")
-            }
+        func log(_ action: String, _ value: Any? = nil) {
+            let taggedLogger = tag.map { logger.tag($0) } ?? logger
+            let args = [action, value.map(String.init(describing:))]
+            taggedLogger.debug(args.compactMap { $0 }.joined(separator: ": "))
+        }
+
+        return handleEvents { subscription in
+            options.contains(.subscription) ? log("subscription") : ()
         } receiveOutput: { value in
-            if options.contains(.output) {
-                logger.debug("\(prefix)value: \(mapOutput.map { $0(value) } ?? "\(value)")")
-            }
+            options.contains(.output) ? log("value", mapOutput.map { $0(value) } ?? value) : ()
         } receiveCompletion: { completion in
-            if options.contains(.completion) {
-                logger.debug("\(prefix)completion: \(completion)")
-            }
+            options.contains(.completion) ? log("completion", completion) : ()
         } receiveCancel: {
-            if options.contains(.cancel) {
-                logger.debug("\(prefix)cancel")
-            }
+            options.contains(.cancel) ? log("cancel") : ()
         } receiveRequest: { request in
-            if options.contains(.request) {
-                logger.debug("\(prefix)request: \(request)")
-            }
+            options.contains(.request) ? log("request", request) : ()
         }
     }
 }
