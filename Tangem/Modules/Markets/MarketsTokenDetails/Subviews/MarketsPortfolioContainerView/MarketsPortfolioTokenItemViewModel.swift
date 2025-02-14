@@ -9,8 +9,9 @@
 import Foundation
 import Combine
 import SwiftUI
+import enum TangemStories.TangemStory
 
-class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
+final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
     // MARK: - Public Properties
 
     @Published var balanceCrypto: LoadableTokenBalanceView.State = .loading()
@@ -93,6 +94,15 @@ class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
         contextActionsDelegate?.didTapContextAction(actionType, walletModelId: id, userWalletId: userWalletId)
     }
 
+    func shouldShowUnreadNotificationBadge(for actionType: TokenActionType) -> Bool {
+        switch actionType {
+        case .exchange:
+            !AppSettings.shared.shownStoryIds.contains(TangemStory.ID.swap.rawValue)
+        default:
+            false
+        }
+    }
+
     // MARK: - Private Implementation
 
     private func bind() {
@@ -125,6 +135,14 @@ class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 self?.buildContextActions()
+            }
+            .store(in: &bag)
+
+        AppSettings.shared.$shownStoryIds
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
             }
             .store(in: &bag)
     }
