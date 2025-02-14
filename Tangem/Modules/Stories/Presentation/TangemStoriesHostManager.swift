@@ -10,6 +10,7 @@ import Combine
 import SwiftUI
 import enum TangemStories.TangemStory
 
+@MainActor
 final class TangemStoriesHostManager {
     @Injected(\.tangemStoriesViewModel) private var tangemStoriesViewModel: TangemStoriesViewModel
     private var storiesWindow: UIWindow?
@@ -42,6 +43,10 @@ final class TangemStoriesHostManager {
                     mainWindow?.makeKey()
                 }
             }
+    }
+
+    func forceDismiss() {
+        tangemStoriesViewModel.forceDismiss()
     }
 
     private func checkIfThereAreStoriesToShow() -> Bool {
