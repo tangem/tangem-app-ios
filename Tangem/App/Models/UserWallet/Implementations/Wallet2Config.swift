@@ -292,6 +292,9 @@ extension Wallet2Config: UserWalletConfig {
         // Locked Money
         case "AF63":
             return cardsCount == 2 ? Assets.Cards.lockedMoneyDouble : Assets.Cards.lockedMoneyTriple
+        // Ghoad
+        case "AF89":
+            return cardsCount == 2 ? Assets.Cards.ghoadDouble : Assets.Cards.ghoadTriple
 
         // Tangem Wallet 2.0
         default:
