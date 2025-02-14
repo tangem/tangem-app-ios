@@ -61,6 +61,12 @@ final class TangemStoriesViewModel: ObservableObject {
         enrichStory(story)
     }
 
+    @MainActor
+    func forceDismiss() {
+        storyEnrichTask?.cancel()
+        finalizeActiveStory()
+    }
+
     // MARK: - Private methods
 
     @MainActor
