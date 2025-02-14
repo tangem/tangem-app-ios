@@ -11,7 +11,7 @@ import Combine
 import TangemExpress
 import UIKit
 
-class ExpressCoordinator: CoordinatorObject {
+final class ExpressCoordinator: CoordinatorObject {
     let dismissAction: Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?>
     let popToRootAction: Action<PopToRootOptions>
 
