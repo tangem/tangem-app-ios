@@ -37,7 +37,7 @@ extension ALPH {
             gas: GasBox,
             gasPrice: GasPrice
         ) -> Result<U256, Error> {
-            guard gas <= Constants.minimalGasBox else {
+            guard gas >= Constants.minimalGasBox else {
                 return .failure(TxError.runtime("gas < minimalGas"))
             }
 
@@ -67,11 +67,5 @@ extension ALPH {
             }
             return true
         }
-    }
-
-    // MARK: - Error
-
-    enum CheckTxUtilsError: Error {
-        case overloadManyTokens
     }
 }
