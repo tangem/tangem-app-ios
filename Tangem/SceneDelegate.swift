@@ -52,6 +52,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         if appLockController.isLocked {
             mainBottomSheetUIManager.hide(shouldUpdateFooterSnapshot: false)
+            tangemStoriesHostManager.forceDismiss()
             startApp(scene: scene, appCoordinatorOptions: .locked)
             hideLockView()
         } else {
