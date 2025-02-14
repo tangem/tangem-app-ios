@@ -107,6 +107,7 @@
 		2D665C342CDCA46C00C9BA85 /* CasperNetworkResponse.Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D665C332CDCA46C00C9BA85 /* CasperNetworkResponse.Transaction.swift */; };
 		2D6E67E72D0C8CC6003B4D5C /* Solana+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6E67E62D0C8CC6003B4D5C /* Solana+.swift */; };
 		2D70C61D2B21E90A00BD1DAB /* MarketsAddCustomItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D70C61B2B21E90A00BD1DAB /* MarketsAddCustomItemView.swift */; };
+		2D8D5EA42D5F2FA1005AECC9 /* AlephiumAPIResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8D5EA32D5F2FA1005AECC9 /* AlephiumAPIResolver.swift */; };
 		2D8F9E742CF9B280007434A4 /* CloreMainNetworkParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8F9E712CF9B280007434A4 /* CloreMainNetworkParams.swift */; };
 		2D8F9E752CF9B280007434A4 /* CloreWalletAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8F9E722CF9B280007434A4 /* CloreWalletAssembly.swift */; };
 		2D8F9E762CF9B280007434A4 /* CloreExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8F9E702CF9B280007434A4 /* CloreExternalLinkProvider.swift */; };
@@ -3454,6 +3455,7 @@
 		2D70C61B2B21E90A00BD1DAB /* MarketsAddCustomItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsAddCustomItemView.swift; sourceTree = "<group>"; };
 		2D788E7F2ADD657000E0884B /* WalletSelectorViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorViewModel.swift; sourceTree = "<group>"; };
 		2D788E822ADD657000E0884B /* WalletSelectorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorView.swift; sourceTree = "<group>"; };
+		2D8D5EA32D5F2FA1005AECC9 /* AlephiumAPIResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlephiumAPIResolver.swift; sourceTree = "<group>"; };
 		2D8F9E702CF9B280007434A4 /* CloreExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreExternalLinkProvider.swift; sourceTree = "<group>"; };
 		2D8F9E712CF9B280007434A4 /* CloreMainNetworkParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreMainNetworkParams.swift; sourceTree = "<group>"; };
 		2D8F9E722CF9B280007434A4 /* CloreWalletAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreWalletAssembly.swift; sourceTree = "<group>"; };
@@ -7131,6 +7133,7 @@
 			isa = PBXGroup;
 			children = (
 				2DB1D6B72D56978D00AD43A3 /* AlephiumAddressService.swift */,
+				2D8D5EA32D5F2FA1005AECC9 /* AlephiumAPIResolver.swift */,
 				2DB1D6B82D56978D00AD43A3 /* AlephiumExternalLinkProvider.swift */,
 				2DB1D6B92D56978D00AD43A3 /* AlephiumFeeParameters.swift */,
 				2DB1D6BA2D56978D00AD43A3 /* AlephiumTransactionBuilder.swift */,
@@ -20505,6 +20508,7 @@
 				B62D3FE02CBC79DA00C2460E /* OP_SUB.swift in Sources */,
 				B62D40FA2CBC79DA00C2460E /* ICPExternalLinkProvider.swift in Sources */,
 				B62D41B82CBC79DB00C2460E /* TONProviderModels.swift in Sources */,
+				2D8D5EA42D5F2FA1005AECC9 /* AlephiumAPIResolver.swift in Sources */,
 				B62D425E2CBC79DB00C2460E /* ContractAddressValidatorFactory.swift in Sources */,
 				B62D41732CBC79DA00C2460E /* RadiantExternalLinkProvider.swift in Sources */,
 				B62D41FF2CBC79DB00C2460E /* XDCAddressConverter.swift in Sources */,
