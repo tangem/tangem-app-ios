@@ -55,7 +55,8 @@ struct ConfigUtils {
                 defaultNetworkProviderConfiguration: .init(logOptions: .verbose, urlSessionConfiguration: .standard),
                 networkProviderConfigurations: [:],
                 bittensorDwellirKey: keys.bittensorDwellirKey,
-                bittensorOnfinalityKey: keys.bittensorOnfinalityKey
+                bittensorOnfinalityKey: keys.bittensorOnfinalityKey,
+                tangemAlephiumApiKey: keys.alephiumTangemApiKey
             )
         } catch {
             return .init(
@@ -76,7 +77,8 @@ struct ConfigUtils {
                 quickNodeBscCredentials: .init(apiKey: "", subdomain: ""),
                 defaultNetworkProviderConfiguration: .init(logOptions: .verbose, urlSessionConfiguration: .standard),
                 bittensorDwellirKey: "",
-                bittensorOnfinalityKey: ""
+                bittensorOnfinalityKey: "",
+                tangemAlephiumApiKey: ""
             )
         }
     }
@@ -201,6 +203,7 @@ struct Keys: Decodable {
     let koinosProApiKey: String
     let bittensorDwellirKey: String
     let bittensorOnfinalityKey: String
+    let alephiumTangemApiKey: String
 }
 
 struct TonCenterApiKeys: Decodable {
