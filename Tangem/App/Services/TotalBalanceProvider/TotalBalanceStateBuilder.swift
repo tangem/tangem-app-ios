@@ -9,7 +9,27 @@
 import Foundation
 
 struct TotalBalanceStateBuilder {
-    func mapToTotalBalance(balances: [(item: TokenItem, balance: TokenBalanceType)]) -> TotalBalanceState {
+    typealias Balance = (item: TokenItem, balance: TokenBalanceType)
+
+    private let walletModelsManager: WalletModelsManager
+
+    init(walletModelsManager: WalletModelsManager) {
+        self.walletModelsManager = walletModelsManager
+    }
+
+    func buildTotalBalanceState() -> TotalBalanceState {
+        let balances = walletModelsManager.walletModels.map {
+            TotalBalanceStateBuilder.Balance(item: $0.tokenItem, balance: $0.fiatTotalTokenBalanceProvider.balanceType)
+        }
+
+        return mapToTotalBalance(balances: balances)
+    }
+}
+
+// MARK: - TotalBalanceStateBuilder
+
+private extension TotalBalanceStateBuilder {
+    func mapToTotalBalance(balances: [Balance]) -> TotalBalanceState {
         // Some not start loading yet
         let hasEmpty = balances.contains { $0.balance.isEmpty(for: .noData) }
         if hasEmpty {
@@ -85,7 +105,7 @@ struct TotalBalanceStateBuilder {
         return cachedBalances.reduce(0, +)
     }
 
-    func loadedBalance(balances: [(item: TokenItem, balance: TokenBalanceType)]) -> Decimal? {
+    func loadedBalance(balances: [Balance]) -> Decimal? {
         let loadedBalance = balances.compactMap { balance in
             switch balance.balance {
             case .loaded(let balance):
