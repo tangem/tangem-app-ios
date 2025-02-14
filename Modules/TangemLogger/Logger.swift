@@ -94,29 +94,52 @@ public extension Logger {
 
 private extension Logger {
     func log<M>(_ level: OSLog.Level, message: @autoclosure () -> M, option: PrefixOption) {
-        guard Logger.configuration.isLoggable() else {
-            return
-        }
-
-        guard checkIfConsoleLogAllowed() else {
-            return
-        }
+        guard checkIfConsoleLogAllowed() else { return }
 
         let message: String = {
             if let prefix = category.prefix?(level, option) {
+                if prefix.contains("Optional") {
+                    ConsoleLog.warning("Check why OSLogCategory.prefix \(prefix) contains the `Optional` word. Maybe you use `String(describing:)` to make message")
+                }
+
                 return [prefix, message()].describing()
             }
 
             return String(describing: message())
         }()
 
+        #if DEBUG
+        writeToConsole(level, message: message)
+        #endif
+
+        #if ALPHA || BETA || DEBUG
+        writeToFile(level, message: message)
+        #endif
+    }
+
+    #if DEBUG
+    func writeToConsole(_ level: OSLog.Level, message: @autoclosure () -> String) {
+        guard Logger.configuration.isLoggable() else {
+            return
+        }
+
+        OSLog.logger(for: category).log(level: level, message: message())
+    }
+    #endif
+
+    #if ALPHA || BETA || DEBUG
+    func writeToFile(_ level: OSLog.Level, message: @autoclosure () -> String) {
+        guard Logger.configuration.isWritable() else {
+            return
+        }
+
         do {
-            OSLog.logger(for: category).log(level: level, message: "\(message)")
-            try OSLogFileWriter.shared.write(message, category: category, level: level)
+            try OSLogFileWriter.shared.write(message(), category: category, level: level)
         } catch {
             OSLog.logger(for: .logFileWriter).fault("\(error.localizedDescription)")
         }
     }
+    #endif
 
     func checkIfConsoleLogAllowed() -> Bool {
         guard category == .console else {

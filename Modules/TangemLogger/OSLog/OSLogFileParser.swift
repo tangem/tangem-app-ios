@@ -33,4 +33,8 @@ public enum OSLogFileParser {
                 )
             }
     }
+
+    public static func removeFile() throws {
+        try OSLogFileWriter.shared.clear()
+    }
 }
