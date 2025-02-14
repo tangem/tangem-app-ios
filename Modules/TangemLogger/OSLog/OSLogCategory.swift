@@ -27,7 +27,7 @@ public struct OSLogCategory {
 
 extension OSLogCategory: Logger.Tagable {
     public func tag(_ tag: String) -> Self {
-        OSLogCategory(name: "\(name) [\(tag)]")
+        OSLogCategory(name: "\(name) [\(tag)]", prefix: prefix)
     }
 }
 
