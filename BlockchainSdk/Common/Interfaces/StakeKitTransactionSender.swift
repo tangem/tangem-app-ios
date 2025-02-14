@@ -20,51 +20,11 @@ public protocol StakeKitTransactionSender {
     ) -> AsyncThrowingStream<StakeKitTransactionSendResult, Error>
 }
 
-protocol StakeKitTransactionSenderProvider {
-    associatedtype RawTransaction
-
-    func prepareDataForSign(transaction: StakeKitTransaction) throws -> Data
-    func prepareDataForSend(transaction: StakeKitTransaction, signature: SignatureInfo) throws -> RawTransaction
-}
-
-public protocol StakeKitTransactionStatusProvider {
-    func transactionStatus(_ transaction: StakeKitTransaction) async throws -> StakeKitTransaction.Status?
-}
-
-protocol StakeKitTransactionBuilder {
-    associatedtype RawTransaction
-
-    func buildRawTransactions(
-        from transactions: [StakeKitTransaction],
-        wallet: Wallet,
-        signer: TransactionSigner
-    ) async throws -> [RawTransaction]
-
-    func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String
-}
-
-extension StakeKitTransactionBuilder where Self: StakeKitTransactionSenderProvider {
-    func buildRawTransactions(
-        from transactions: [StakeKitTransaction],
-        wallet: Wallet,
-        signer: TransactionSigner
-    ) async throws -> [RawTransaction] {
-        let preparedHashes = try transactions.map { try self.prepareDataForSign(transaction: $0) }
-
-        let signatures: [SignatureInfo] = try await signer.sign(
-            hashes: preparedHashes,
-            walletPublicKey: wallet.publicKey
-        ).async()
-
-        return try zip(transactions, signatures).map { transaction, signature in
-            try prepareDataForSend(transaction: transaction, signature: signature)
-        }
-    }
-}
-
 // MARK: - Common implementation for StakeKitTransactionSenderProvider
 
-extension StakeKitTransactionSender where Self: StakeKitTransactionBuilder, Self: WalletProvider, RawTransaction: CustomStringConvertible {
+extension StakeKitTransactionSender where Self: StakeKitTransactionBuilder,
+    Self: WalletProvider, RawTransaction: CustomStringConvertible,
+    Self: StakeKitTransactionBroadcast {
     func sendStakeKit(
         transactions: [StakeKitTransaction],
         signer: TransactionSigner,
@@ -92,17 +52,11 @@ extension StakeKitTransactionSender where Self: StakeKitTransactionBuilder, Self
 
                         for (index, (transaction, rawTransaction)) in zip(transactions, rawTransactions).enumerated() {
                             group.addTask {
-                                try Task.checkCancellation()
-                                if transactions.count > 1, let second {
-                                    Log.log("\(self) start \(second) second delay between the transactions sending")
-                                    try await Task.sleep(nanoseconds: UInt64(index) * second * NSEC_PER_SEC)
-                                    try Task.checkCancellation()
-                                }
                                 let result: TransactionSendResult = try await self.broadcast(
                                     transaction: transaction,
-                                    rawTransaction: rawTransaction
+                                    rawTransaction: rawTransaction,
+                                    at: index
                                 )
-                                try Task.checkCancellation()
                                 return (result, transaction)
                             }
 
@@ -140,9 +94,21 @@ extension StakeKitTransactionSender where Self: StakeKitTransactionBuilder, Self
     }
 
     /// Convenience method with adding the `PendingTransaction` to the wallet  and `SendTxError` mapping
-    private func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> TransactionSendResult {
+    private func broadcast(
+        transaction: StakeKitTransaction,
+        rawTransaction: RawTransaction,
+        at index: Int
+    ) async throws -> TransactionSendResult {
+        try Task.checkCancellation()
+        if index > 0 {
+            Log.log("\(self) start \(index) second delay between the transactions sending")
+            try await Task.sleep(nanoseconds: UInt64(index) * NSEC_PER_SEC)
+            try Task.checkCancellation()
+        }
+
         do {
             let hash: String = try await broadcast(transaction: transaction, rawTransaction: rawTransaction)
+            try Task.checkCancellation()
             let mapper = PendingTransactionRecordMapper()
             let record = mapper.mapToPendingTransactionRecord(
                 stakeKitTransaction: transaction,
