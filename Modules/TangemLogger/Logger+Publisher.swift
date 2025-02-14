@@ -9,6 +9,24 @@
 import Combine
 
 public extension Publisher {
+    /// Log to console wth specify logger.
+    /// ```
+    /// Just(1, 2, 3)
+    ///     .logging()
+    ///
+    ///     // Will print to console as
+    ///     // value: 1
+    ///     // value: 2
+    ///     // value: 3
+    /// ```
+    /// - Parameters:
+    ///   - tag: Some which will be added to category. For default `CombineLog` the category will be `Combine [your tag]`
+    ///   - logger: The logger which one will be use. Default  - `CombineLog`
+    ///   - options: Supports two way
+    ///   1. `.default` - will be logged any event like `[output, completion, cancel]`
+    ///   2. `.verbose` - will be logged all events `[subscription, output, completion, cancel, request]`
+    ///   - mapOutput: You can map an `Output` to see most needed value.
+    /// - Returns: A publisher that performs the specified closures when publisher events occur.
     func logging(
         _ tag: String? = nil,
         to logger: Logger = CombineLog,
