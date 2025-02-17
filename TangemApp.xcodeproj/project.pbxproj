@@ -254,6 +254,8 @@
 		2DFC27932C78E833009B247E /* TokenItemInfoProviderMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC278F2C78E833009B247E /* TokenItemInfoProviderMapper.swift */; };
 		2DFC27942C78E833009B247E /* TokenItemType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC27902C78E833009B247E /* TokenItemType.swift */; };
 		2DFC27962C78E881009B247E /* MarketsPortfolioTokenItemFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC27952C78E881009B247E /* MarketsPortfolioTokenItemFactory.swift */; };
+		304D34CD2D5F4AA7003CCAE5 /* local_tos.html in Resources */ = {isa = PBXBuildFile; fileRef = 304D34CC2D5F4A9C003CCAE5 /* local_tos.html */; };
+		304D34CF2D5F4ADD003CCAE5 /* WebViewTimeoutSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 304D34CE2D5F4AD6003CCAE5 /* WebViewTimeoutSettings.swift */; };
 		5D00FCD1261738C5004626DE /* WalletConnectEthTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D00FCD0261738C5004626DE /* WalletConnectEthTransaction.swift */; };
 		5D06E040250A5D54004218D0 /* NSRegualrExpression+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D06E03F250A5D54004218D0 /* NSRegualrExpression+.swift */; };
 		5D09383225E7A9820049B8F0 /* Wallet+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D09383125E7A9820049B8F0 /* Wallet+.swift */; };
@@ -3595,6 +3597,8 @@
 		2DFC278F2C78E833009B247E /* TokenItemInfoProviderMapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemInfoProviderMapper.swift; sourceTree = "<group>"; };
 		2DFC27902C78E833009B247E /* TokenItemType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemType.swift; sourceTree = "<group>"; };
 		2DFC27952C78E881009B247E /* MarketsPortfolioTokenItemFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsPortfolioTokenItemFactory.swift; sourceTree = "<group>"; };
+		304D34CC2D5F4A9C003CCAE5 /* local_tos.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = local_tos.html; sourceTree = "<group>"; };
+		304D34CE2D5F4AD6003CCAE5 /* WebViewTimeoutSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewTimeoutSettings.swift; sourceTree = "<group>"; };
 		5D00FCD0261738C5004626DE /* WalletConnectEthTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectEthTransaction.swift; sourceTree = "<group>"; };
 		5D011A262530E76000758010 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5D06E03F250A5D54004218D0 /* NSRegualrExpression+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSRegualrExpression+.swift"; sourceTree = "<group>"; };
@@ -7355,6 +7359,7 @@
 		5D011A222530776A00758010 /* TOS */ = {
 			isa = PBXGroup;
 			children = (
+				304D34CC2D5F4A9C003CCAE5 /* local_tos.html */,
 				B09536FD26D3D2460040A90D /* TOSView.swift */,
 				DC66BBEA2859AB8600CDF765 /* TOSViewModel.swift */,
 			);
@@ -16308,6 +16313,7 @@
 		EF9F907B299CFCB1006F638F /* WebViewContainer */ = {
 			isa = PBXGroup;
 			children = (
+				304D34CE2D5F4AD6003CCAE5 /* WebViewTimeoutSettings.swift */,
 				EF9F907C299CFCBE006F638F /* WebViewContainer.swift */,
 				EF9F907E299CFCC7006F638F /* WebViewContainerViewModel.swift */,
 				EF9F9080299CFCE9006F638F /* WebView.swift */,
@@ -17495,6 +17501,7 @@
 				DC261C9F292CD3B800875E64 /* GoogleService-Info-Beta.plist in Resources */,
 				5D3F77CF24BF56DC00E8695B /* Preview Assets.xcassets in Resources */,
 				5D5CE1A82625FF00009023EC /* config_dev.json in Resources */,
+				304D34CD2D5F4AA7003CCAE5 /* local_tos.html in Resources */,
 				EF48288F28D1C99D002809C6 /* Localizable.stringsdict in Resources */,
 				5D3F77CC24BF56DC00E8695B /* Assets.xcassets in Resources */,
 			);
@@ -18067,6 +18074,7 @@
 				5DFE855724EF051400194106 /* Error+.swift in Sources */,
 				DC261CB6292CF6B700875E64 /* UncompletedBackupViewModel.swift in Sources */,
 				B0BDF9BC2B4D3D9C00EEBE4F /* MainHeaderBalanceFormatter.swift in Sources */,
+				304D34CF2D5F4ADD003CCAE5 /* WebViewTimeoutSettings.swift in Sources */,
 				DC742C312BC863D400BECF09 /* CommonCardInitializer.swift in Sources */,
 				2D6167222C763505006FCEA6 /* MarketsTokenNetworkSelectorCoordinatorView.swift in Sources */,
 				EFD143852CC5517E00B5BA57 /* CommonSendBaseDataBuilder.swift in Sources */,
