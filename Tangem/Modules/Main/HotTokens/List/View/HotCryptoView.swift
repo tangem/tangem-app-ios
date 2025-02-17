@@ -36,7 +36,9 @@ struct HotCryptoView: View {
 
     private func tokenItem(item: HotCryptoToken) -> some View {
         HStack(spacing: 12) {
-            IconView(url: item.imageURL, size: Constants.iconSize)
+            if let tokenIconInfo = item.tokenIconInfo {
+                TokenIcon(tokenIconInfo: tokenIconInfo, size: Constants.iconSize)
+            }
 
             infoView(item: item)
         }

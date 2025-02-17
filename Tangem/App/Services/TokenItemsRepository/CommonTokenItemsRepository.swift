@@ -22,7 +22,7 @@ class CommonTokenItemsRepository {
     }
 
     deinit {
-        AppLog.shared.debug("\(#function) \(objectDescription(self))")
+        AppLogger.debug(self)
     }
 }
 
@@ -198,6 +198,10 @@ private extension CommonTokenItemsRepository {
             assertionFailure("TokenItemsRepository saving error \(error)")
         }
     }
+}
+
+extension CommonTokenItemsRepository: CustomStringConvertible {
+    var description: String { objectDescription(self) }
 }
 
 // MARK: - Legacy storage

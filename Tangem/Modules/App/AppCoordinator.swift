@@ -54,7 +54,7 @@ class AppCoordinator: CoordinatorObject {
     }
 
     deinit {
-        AppLog.shared.debug("AppCoordinator deinit")
+        AppLogger.debug("AppCoordinator deinit")
     }
 
     func start(with options: AppCoordinator.Options = .default) {

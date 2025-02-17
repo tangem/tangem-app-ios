@@ -94,10 +94,6 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         bind()
     }
 
-    deinit {
-        AppLog.shared.debug("deinit \(self)")
-    }
-
     func tapAction() {
         tokenTapped(id)
     }
