@@ -17,10 +17,7 @@ class TotalBalanceProvider {
     private let derivationManager: DerivationManager?
     private let totalBalanceStateBuilder: TotalBalanceStateBuilder
 
-    private let queue = DispatchQueue(label: "com.tangem.TotalBalanceProvider")
     private let totalBalanceSubject: CurrentValueSubject<TotalBalanceState, Never>
-
-    private var walletModelsSubscription: AnyCancellable?
     private var updateSubscription: AnyCancellable?
 
     init(
@@ -31,18 +28,14 @@ class TotalBalanceProvider {
         self.userWalletId = userWalletId
         self.walletModelsManager = walletModelsManager
         self.derivationManager = derivationManager
-        totalBalanceStateBuilder = .init()
 
-        let balances = walletModelsManager.walletModels.map {
-            (item: $0.tokenItem, balance: $0.fiatTotalTokenBalanceProvider.balanceType)
-        }
-
-        totalBalanceSubject = .init(totalBalanceStateBuilder.mapToTotalBalance(balances: balances))
+        totalBalanceStateBuilder = .init(walletModelsManager: walletModelsManager)
+        totalBalanceSubject = .init(totalBalanceStateBuilder.buildTotalBalanceState())
         bind()
     }
 
     deinit {
-        AppLog.shared.debug("deinit \(self)")
+        AppLogger.debug("deinit \(self)")
     }
 }
 
@@ -66,27 +59,35 @@ private extension TotalBalanceProvider {
         let balanceStatePublisher = walletModelsManager
             .walletModelsPublisher
             .removeDuplicates()
-            .receive(on: queue)
+            .receive(on: DispatchQueue.global())
             .withWeakCaptureOf(self)
             .flatMapLatest { balanceProvider, walletModels in
                 if walletModels.isEmpty {
                     return Just(TotalBalanceState.loaded(balance: 0)).eraseToAnyPublisher()
                 }
 
-                return walletModels.map { walletModel in
-                    walletModel.fiatTotalTokenBalanceProvider
+                let publishers: [AnyPublisher<Void, Never>] = walletModels.map {
+                    $0.fiatTotalTokenBalanceProvider
                         .balanceTypePublisher
-                        .withWeakCaptureOf(walletModel)
-                        .map { (item: $0.tokenItem, balance: $1) }
+                        .mapToVoid()
+                        .eraseToAnyPublisher()
                 }
-                // Collect any/all changes in wallet models
-                .combineLatest()
-                .withWeakCaptureOf(balanceProvider)
-                .map { $0.totalBalanceStateBuilder.mapToTotalBalance(balances: $1) }
-                .eraseToAnyPublisher()
+
+                return publishers
+                    // 1. Listen every change in all wallet models
+                    .merge()
+                    // 2. Add a small debounce to reduce the count of calculation
+                    .debounce(for: 0.1, scheduler: DispatchQueue.global())
+                    // 3. The latest data will be get from wallets in `totalBalanceStateBuilder`
+                    // Because the data from the publishers can be outdated
+                    // Why? I believe it can be race condition because
+                    // `WalletModel` and `TotalBalanceProvider` working via background queue
+                    .withWeakCaptureOf(balanceProvider)
+                    .map { $0.0.totalBalanceStateBuilder.buildTotalBalanceState() }
+                    .eraseToAnyPublisher()
             }
 
-        walletModelsSubscription = Publishers.CombineLatest(
+        updateSubscription = Publishers.CombineLatest(
             balanceStatePublisher,
             hasEntriesWithoutDerivationPublisher
         )
