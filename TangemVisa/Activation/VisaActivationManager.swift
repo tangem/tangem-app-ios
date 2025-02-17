@@ -191,8 +191,6 @@ extension CommonVisaActivationManager: VisaActivationManager {
 
         let loadedStatus: VisaCardActivationStatus
         do {
-            // [REDACTED_TODO_COMMENT]
-            try await Task.sleep(seconds: 3)
             loadedStatus = try await cardActivationStatusService.getCardActivationStatus(
                 authorizationTokens: authorizationTokens,
                 cardId: activationInput.cardId,
