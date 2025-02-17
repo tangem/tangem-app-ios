@@ -196,7 +196,7 @@ class WalletModel {
     lazy var fiatTotalTokenBalanceProvider = makeFiatTotalTokenBalanceProvider()
 
     deinit {
-        AppLog.shared.debug("🗑 \(self) deinit")
+        AppLogger.debug(self)
     }
 
     init(
@@ -338,7 +338,7 @@ class WalletModel {
     }
 
     private func updateState(_ state: State) {
-        AppLog.shared.debug("🔄 Updating state for \(self). New state is \(state)")
+        AppLogger.info(self, "Updating state. New state is \(state)")
         DispatchQueue.main.async { [weak self] in // captured as weak at call stack
             self?._state.value = state
         }
@@ -363,25 +363,23 @@ class WalletModel {
     }
 
     private func updateQuote(quote: TokenQuote?) {
-        if isCustom {
+        switch quote {
+        // Don't have quote because we don't have currency id
+        case .none where tokenItem.currencyId == nil:
             _rate.send(.custom)
-            return
-        }
-
-        if let quote {
+        // Don't have quote because of error. Update with saving the previous one
+        case .none:
+            _rate.send(.failure(cached: rate.quote))
+        case .some(let quote):
             _rate.send(.loaded(quote))
-            return
         }
-
-        // Set to failure with saving cached value
-        _rate.send(.failure(cached: rate.quote))
     }
 
     // MARK: - Timer
 
     func startUpdatingTimer() {
         walletManager.setNeedsUpdate()
-        AppLog.shared.debug("⏰ Starting updating timer for \(self)")
+        AppLogger.info(self, "⏰ Starting updating timer")
         updateTimer = Timer.TimerPublisher(
             interval: 10.0,
             tolerance: 0.1,
@@ -391,7 +389,7 @@ class WalletModel {
         .autoconnect()
         .withWeakCaptureOf(self)
         .flatMap { root, _ in
-            AppLog.shared.debug("⏰ Updating timer alarm ‼️ \(String(describing: self)) will be updated")
+            AppLogger.info(root, "⏰ Updating timer alarm ‼️. WalletModel will be updated")
             return root.generalUpdate(silent: false)
         }
         .sink { [weak self] in
@@ -545,7 +543,7 @@ extension WalletModel {
 extension WalletModel {
     func updateTransactionsHistory() -> AnyPublisher<Void, Never> {
         guard let _transactionHistoryService else {
-            AppLog.shared.debug("TransactionsHistory for \(self) not supported")
+            AppLogger.info(self, "TransactionsHistory not supported")
             return .just(output: ())
         }
 
@@ -580,19 +578,19 @@ extension WalletModel {
 
     private func insertPendingTransactionRecordIfNeeded(into items: inout [TransactionRecord]) {
         guard !pendingTransactions.isEmpty else {
-            AppLog.shared.debug("\(self) has not local pending transactions")
+            AppLogger.info(self, "has not local pending transactions")
             return
         }
 
-        AppLog.shared.debug("\(self) has pending local transactions. Try to insert it to transaction history")
+        AppLogger.info(self, "has pending local transactions. Try to insert it to transaction history")
         let mapper = PendingTransactionRecordMapper(formatter: formatter)
 
         pendingTransactions.forEach { pending in
             if items.contains(where: { $0.hash == pending.hash }) {
-                AppLog.shared.debug("\(self) Transaction history already contains hash")
+                AppLogger.info(self, "Transaction history already contains pending transaction")
             } else {
                 let record = mapper.mapToTransactionRecord(pending: pending)
-                AppLog.shared.debug("\(self) Inserted to transaction history hash")
+                AppLogger.info(self, "Inserted to transaction history transaction")
                 items.insert(record, at: 0)
             }
         }
