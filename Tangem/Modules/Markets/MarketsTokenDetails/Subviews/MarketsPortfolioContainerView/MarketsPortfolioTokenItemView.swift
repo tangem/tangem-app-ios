@@ -150,6 +150,7 @@ struct MarketsPortfolioTokenItemView: View {
                             .fill(Colors.Background.tertiary)
                     )
                     .padding(.leading, 2)
+                    .unreadNotificationBadge(viewModel.shouldShowUnreadNotificationBadge(for: actionType), badgeColor: Colors.Icon.accent)
             }
 
             VStack(alignment: .leading, spacing: 2) {

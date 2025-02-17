@@ -9,8 +9,9 @@
 import Foundation
 import Combine
 import SwiftUI
+import enum TangemStories.TangemStory
 
-class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
+final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
     // MARK: - Public Properties
 
     @Published var balanceCrypto: LoadableTokenBalanceView.State = .loading()
@@ -44,7 +45,7 @@ class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
         return nil
     }
 
-    let id: WalletModelId
+    let walletModelId: WalletModelId
     let userWalletId: UserWalletId
     let walletName: String
     let tokenIcon: TokenIconInfo
@@ -61,7 +62,7 @@ class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
     // MARK: - Init
 
     init(
-        id: WalletModelId,
+        walletModelId: WalletModelId,
         userWalletId: UserWalletId,
         walletName: String,
         tokenIcon: TokenIconInfo,
@@ -70,7 +71,7 @@ class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
         contextActionsProvider: MarketsPortfolioContextActionsProvider,
         contextActionsDelegate: MarketsPortfolioContextActionsDelegate
     ) {
-        self.id = id
+        self.walletModelId = walletModelId
         self.userWalletId = userWalletId
         self.walletName = walletName
         self.tokenIcon = tokenIcon
@@ -90,7 +91,16 @@ class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
     }
 
     func didTapContextAction(_ actionType: TokenActionType) {
-        contextActionsDelegate?.didTapContextAction(actionType, walletModelId: id, userWalletId: userWalletId)
+        contextActionsDelegate?.didTapContextAction(actionType, walletModelId: walletModelId, userWalletId: userWalletId)
+    }
+
+    func shouldShowUnreadNotificationBadge(for actionType: TokenActionType) -> Bool {
+        switch actionType {
+        case .exchange:
+            !AppSettings.shared.shownStoryIds.contains(TangemStory.ID.swap.rawValue)
+        default:
+            false
+        }
     }
 
     // MARK: - Private Implementation
@@ -127,6 +137,14 @@ class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
                 self?.buildContextActions()
             }
             .store(in: &bag)
+
+        AppSettings.shared.$shownStoryIds
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &bag)
     }
 
     private func setupView(_ type: TokenBalanceType) {
@@ -156,7 +174,7 @@ class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
     private func buildContextActions() {
         contextActions = contextActionsProvider?.buildContextActions(
             tokenItem: tokenItem,
-            walletModelId: id,
+            walletModelId: walletModelId,
             userWalletId: userWalletId
         ) ?? []
     }

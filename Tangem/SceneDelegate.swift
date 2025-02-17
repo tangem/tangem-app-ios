@@ -6,12 +6,11 @@
 //  Copyright © 2020 Tangem AG. All rights reserved.
 //
 
-import UIKit
 import SwiftUI
 import TangemSdk
 import BlockchainSdk
 
-class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     @Injected(\.incomingActionHandler) private var incomingActionHandler: IncomingActionHandler
     @Injected(\.appLockController) private var appLockController: AppLockController
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
@@ -20,6 +19,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var lockWindow: UIWindow?
 
     private lazy var servicesManager = KeychainSensitiveServicesManager()
+    private lazy var tangemStoriesHostManager = TangemStoriesHostManager()
 
     private var appCoordinator: AppCoordinator?
     private var isSceneStarted = false
@@ -34,6 +34,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         servicesManager.initialize()
         startApp(scene: scene, appCoordinatorOptions: .default)
+        tangemStoriesHostManager.setup(with: scene, mainWindow: window)
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
@@ -51,6 +52,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         if appLockController.isLocked {
             mainBottomSheetUIManager.hide(shouldUpdateFooterSnapshot: false)
+            tangemStoriesHostManager.forceDismiss()
             startApp(scene: scene, appCoordinatorOptions: .locked)
             hideLockView()
         } else {
@@ -89,7 +91,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             return
         }
 
-        let window = UIWindow(windowScene: windowScene)
+        let window = MainWindow(windowScene: windowScene)
         let appCoordinator = AppCoordinator()
         let appCoordinatorView = AppCoordinatorView(coordinator: appCoordinator)
         let factory = RootViewControllerFactory()

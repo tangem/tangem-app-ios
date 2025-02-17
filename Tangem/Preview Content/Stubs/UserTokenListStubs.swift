@@ -18,16 +18,16 @@ struct UserTokenListStubs {
     }
 
     private static func decodeFromURL(_ url: URL) -> UserTokenList? {
-        print("Attempt to decode file at url: \(url)")
+        AppLogger.debug("Attempt to decode file at url: \(url)")
         let dataStr = try! String(contentsOf: url)
         let decoder = JSONDecoder.tangemSdkDecoder
         decoder.keyDecodingStrategy = .useDefaultKeys
         do {
-            print(dataStr)
-            print("Data count: \(String(describing: dataStr.data(using: .utf8)?.count))")
+            AppLogger.debug(dataStr)
+            AppLogger.debug("Data count: \(String(describing: dataStr.data(using: .utf8)?.count))")
             return try decoder.decode(UserTokenList.self, from: dataStr.data(using: .utf8)!)
         } catch {
-            print("Failed to decode card. Reason: \(error)")
+            AppLogger.debug("Failed to decode card. Reason: \(error)")
         }
         return nil
     }
