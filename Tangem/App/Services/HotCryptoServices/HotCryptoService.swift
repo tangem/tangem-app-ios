@@ -7,6 +7,7 @@
 //
 
 import Combine
+import BlockchainSdk
 
 protocol HotCryptoService: AnyObject {
     var hotCryptoItemsPublisher: AnyPublisher<[HotCryptoToken], Never> { get }
@@ -31,8 +32,8 @@ final class CommonHotCryptoService {
     }
 
     func bind() {
-        // Don't uses .dropFirst(), because loading required when we create instance of service
         currencyCodeBag = AppSettings.shared.$selectedCurrencyCode
+            .dropFirst()
             .withWeakCaptureOf(self)
             .receiveValue { service, currencyCode in
                 service.loadHotCrypto(currencyCode)
@@ -51,18 +52,27 @@ extension CommonHotCryptoService: HotCryptoService {
         loadTask?.cancel()
 
         loadTask = Task { [weak self] in
-            guard
-                let self,
-                let fetchedHotCryptoItems = try? await tangemApiService.loadHotCrypto(
+            guard let self else { return }
+
+            do {
+                let fetchedHotCryptoItems = try await tangemApiService.loadHotCrypto(
                     requestModel: .init(currency: AppSettings.shared.selectedCurrencyCode)
                 )
-            else {
-                return
+
+                guard !Task.isCancelled else { return }
+
+                let tokenMapper = TokenItemMapper(supportedBlockchains: Blockchain.allMainnetCases.toSet())
+
+                hotCryptoItemsSubject.send(
+                    fetchedHotCryptoItems.tokens.map {
+                        .init(from: $0, tokenMapper: tokenMapper, imageHost: nil)
+                    }
+                )
+            } catch let error as TangemAPIError {
+                ActionButtonsAnalyticsService.hotTokenError(errorCode: error.code.description ?? "")
+            } catch {
+                ActionButtonsAnalyticsService.hotTokenError(errorCode: .unknown)
             }
-
-            guard !Task.isCancelled else { return }
-
-            hotCryptoItemsSubject.send(fetchedHotCryptoItems.tokens.map { .init(from: $0) })
         }
     }
 }

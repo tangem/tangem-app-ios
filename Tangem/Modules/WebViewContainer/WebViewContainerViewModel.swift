@@ -17,4 +17,5 @@ struct WebViewContainerViewModel: Identifiable {
     var withNavigationBar: Bool = true
     var urlActions: [String: (String) -> Void] = [:]
     var contentInset: UIEdgeInsets?
+    var timeoutSettings: WebViewTimeoutSettings?
 }
