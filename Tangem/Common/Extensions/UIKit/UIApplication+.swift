@@ -11,35 +11,25 @@ import UIKit
 
 extension UIApplication {
     func endEditing() {
-        _keyWindow?.endEditing(true)
+        windows.first { $0.isKeyWindow }?.endEditing(true)
     }
 }
 
 extension UIApplication {
-    private var _keyWindow: UIWindow? {
-        activeScene?
-            .windows
-            .filter { $0 is MainWindow }
-            .first
-    }
-
     static var keyWindow: UIWindow? {
-        UIApplication.shared._keyWindow
-    }
-
-    private var activeScene: UIWindowScene? {
-        connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .filter { $0.activationState == .foregroundActive }
-            .first
+        return UIApplication.shared.windows.first { $0.isKeyWindow }
     }
 
     static var activeScene: UIWindowScene? {
-        UIApplication.shared.activeScene
+        return UIApplication
+            .shared
+            .connectedScenes.first { $0.activationState == .foregroundActive && $0 is UIWindowScene }
+            .flatMap { $0 as? UIWindowScene }
     }
 
     static var topViewController: UIViewController? {
-        return keyWindow?.topViewController
+        let mainWindow = UIApplication.shared.windows.first { $0 is MainWindow }
+        return mainWindow?.topViewController
     }
 
     static func modalFromTop(_ vc: UIViewController, animated: Bool = true, completion: (() -> Void)? = nil) {
