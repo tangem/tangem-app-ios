@@ -124,7 +124,8 @@ struct TransactionParamsBuilder {
              .odysseyChain,
              .bitrock,
              .apeChain,
-             .sonic:
+             .sonic,
+             .alephium:
             throw TransactionParamsBuilderError.extraIdNotSupported
         }
     }
