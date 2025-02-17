@@ -28,6 +28,7 @@ public struct BlockchainSdkConfig {
     let networkProviderConfigurations: [Blockchain: NetworkProviderConfiguration]
     let bittensorDwellirKey: String
     let bittensorOnfinalityKey: String
+    let tangemAlephiumApiKey: String
 
     public init(
         blockchairApiKeys: [String],
@@ -48,7 +49,8 @@ public struct BlockchainSdkConfig {
         defaultNetworkProviderConfiguration: NetworkProviderConfiguration = .init(),
         networkProviderConfigurations: [Blockchain: NetworkProviderConfiguration] = [:],
         bittensorDwellirKey: String,
-        bittensorOnfinalityKey: String
+        bittensorOnfinalityKey: String,
+        tangemAlephiumApiKey: String
     ) {
         self.blockchairApiKeys = blockchairApiKeys
         self.blockcypherTokens = blockcypherTokens
@@ -69,6 +71,7 @@ public struct BlockchainSdkConfig {
         self.networkProviderConfigurations = networkProviderConfigurations
         self.bittensorDwellirKey = bittensorDwellirKey
         self.bittensorOnfinalityKey = bittensorOnfinalityKey
+        self.tangemAlephiumApiKey = tangemAlephiumApiKey
     }
 
     func networkProviderConfiguration(for blockchain: Blockchain) -> NetworkProviderConfiguration {

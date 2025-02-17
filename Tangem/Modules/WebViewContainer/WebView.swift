@@ -18,6 +18,7 @@ struct WebView: UIViewRepresentable {
     var urlActions: [String: (String) -> Void] = [:]
     var isLoading: Binding<Bool>?
     var contentInset: UIEdgeInsets?
+    var timeoutSettings: WebViewTimeoutSettings?
 
     func makeUIView(context: Context) -> WKWebView {
         let preferences = WKPreferences()
@@ -36,9 +37,12 @@ struct WebView: UIViewRepresentable {
             view.scrollView.contentInset = contentInset
         }
 
-        if let url = url {
-            AppLog.shared.debug("Loading request with url: \(url)")
-            var request = URLRequest(url: url)
+        if let url {
+            AppLogger.info("Loading request with url: \(url)")
+            var request = URLRequest(
+                url: url,
+                timeoutInterval: timeoutSettings?.interval ?? Constants.defaultWebViewTimeoutInterval
+            )
             request.allHTTPHeaderFields = headers
             view.load(request)
         }
@@ -52,15 +56,22 @@ struct WebView: UIViewRepresentable {
         let urlActions: [String: (String) -> Void]
         var popupUrl: Binding<URL?>?
         var isLoading: Binding<Bool>?
+        let fallbackURL: URL?
 
-        init(urlActions: [String: (String) -> Void] = [:], popupUrl: Binding<URL?>?, isLoading: Binding<Bool>?) {
+        init(
+            urlActions: [String: (String) -> Void] = [:],
+            popupUrl: Binding<URL?>?,
+            isLoading: Binding<Bool>?,
+            fallbackURL: URL?
+        ) {
             self.urlActions = urlActions
             self.popupUrl = popupUrl
             self.isLoading = isLoading
+            self.fallbackURL = fallbackURL
         }
 
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-            AppLog.shared.debug("decide for url \(String(describing: navigationAction.request.url?.absoluteString))")
+            AppLogger.info("Start to find decide for url \(String(describing: navigationAction.request.url?.absoluteString))")
             if let url = navigationAction.request.url?.absoluteString.split(separator: "?").first,
                let actionForURL = urlActions[String(url).removeLatestSlash()] {
                 decisionHandler(.cancel)
@@ -83,9 +94,29 @@ struct WebView: UIViewRepresentable {
             popupUrl?.wrappedValue = navigationAction.request.url
             return nil
         }
+
+        func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: any Error) {
+            guard let fallbackURL else {
+                return
+            }
+
+            isLoading?.wrappedValue = false
+            webView.load(URLRequest(url: fallbackURL))
+        }
     }
 
     func makeCoordinator() -> Coordinator {
-        return Coordinator(urlActions: urlActions, popupUrl: popupUrl, isLoading: isLoading)
+        Coordinator(
+            urlActions: urlActions,
+            popupUrl: popupUrl,
+            isLoading: isLoading,
+            fallbackURL: timeoutSettings?.fallbackURL
+        )
+    }
+}
+
+private extension WebView {
+    enum Constants {
+        static let defaultWebViewTimeoutInterval: TimeInterval = 60
     }
 }
