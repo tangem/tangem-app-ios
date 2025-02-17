@@ -17,7 +17,7 @@ class APIURLValidator {
         do {
             regex = try NSRegularExpression(pattern: pattern, options: .caseInsensitive)
         } catch {
-            AppLog.shared.debug("[APIURLValidator] Failed to initialize Regular Expression. Error: \(error)")
+            AppLogger.error("Failed to initialize Regular Expression", error: error)
             regex = nil
         }
     }
@@ -35,7 +35,7 @@ class APIURLValidator {
         }
 
         if !isValid {
-            AppLog.shared.debug("[APIURLValidator] Found invalid link: \(link)")
+            AppLogger.warning("Found invalid link: \(link)")
         }
         return isValid
     }
