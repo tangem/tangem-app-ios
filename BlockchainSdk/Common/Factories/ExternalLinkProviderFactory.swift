@@ -181,6 +181,8 @@ public struct ExternalLinkProviderFactory {
             return ApeChainExternalLinkProvider(isTestnet: isTestnet)
         case .sonic:
             return SonicExternalLinkProvider(isTestnet: isTestnet)
+        case .alephium:
+            return AlephiumExternalLinkProvider()
         }
     }
 }
