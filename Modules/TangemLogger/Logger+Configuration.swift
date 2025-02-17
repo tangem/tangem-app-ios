@@ -13,12 +13,14 @@ import Foundation
 public extension Logger {
     protocol Configuration {
         func isLoggable() -> Bool
+        func isWritable() -> Bool
     }
 
     struct DefaultConfiguration: Configuration {
         public init() {}
 
         public func isLoggable() -> Bool { false }
+        public func isWritable() -> Bool { false }
     }
 }
 
