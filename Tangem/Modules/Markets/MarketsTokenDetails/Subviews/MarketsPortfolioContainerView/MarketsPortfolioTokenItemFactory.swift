@@ -81,7 +81,7 @@ struct MarketsPortfolioTokenItemFactory {
             .mapTokenItemViewModel(from: tokenItemType)
 
         return MarketsPortfolioTokenItemViewModel(
-            id: id,
+            walletModelId: id,
             userWalletId: userWalletInfo.userWalletId,
             walletName: userWalletInfo.userWalletName,
             tokenIcon: tokenIcon,
