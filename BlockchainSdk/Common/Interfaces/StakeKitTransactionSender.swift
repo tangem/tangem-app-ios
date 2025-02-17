@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import TangemSdk
 
 public protocol StakeKitTransactionSender {
     /// Return stream with tx which was sent one by one
@@ -66,7 +65,7 @@ extension StakeKitTransactionSender where Self: StakeKitTransactionSenderProvide
                             group.addTask {
                                 try Task.checkCancellation()
                                 if transactions.count > 1, let second {
-                                    Log.log("\(self) start \(second) second delay between the transactions sending")
+                                    BSDKLogger.info("Start \(second) second delay between the transactions sending")
                                     try await Task.sleep(nanoseconds: UInt64(index) * second * NSEC_PER_SEC)
                                     try Task.checkCancellation()
                                 }
@@ -100,7 +99,7 @@ extension StakeKitTransactionSender where Self: StakeKitTransactionSenderProvide
                     continuation.finish()
 
                 } catch {
-                    Log.log("\(self) catch \(error) when sent staking transaction")
+                    BSDKLogger.error("Staking transaction sent", error: error)
                     continuation.finish(throwing: error)
                 }
             }
