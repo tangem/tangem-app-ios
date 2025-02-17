@@ -22,8 +22,10 @@ struct HotCryptoAddToPortfolioBottomSheet: View {
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .padding(.bottom, 28)
 
-            IconView(url: info.token.imageURL, size: .init(bothDimensions: 36))
-                .padding(.bottom, 16)
+            if let tokenIconInfo = info.tokenIconInfo {
+                TokenIcon(tokenIconInfo: tokenIconInfo, size: .init(bothDimensions: 36))
+                    .padding(.bottom, 16)
+            }
 
             Text(info.token.name)
                 .style(Fonts.Bold.caption1, color: Colors.Text.primary1)

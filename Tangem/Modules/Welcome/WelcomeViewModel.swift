@@ -32,7 +32,7 @@ class WelcomeViewModel: ObservableObject {
     }
 
     deinit {
-        AppLog.shared.debug("WelcomeViewModel deinit")
+        AppLogger.debug(self)
     }
 
     func scanCardTapped() {

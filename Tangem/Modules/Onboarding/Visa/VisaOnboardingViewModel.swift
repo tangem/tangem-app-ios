@@ -71,16 +71,15 @@ class VisaOnboardingViewModel: ObservableObject {
         currentStep.navigationTitle
     }
 
-    var isBackButtonVisible: Bool {
-        if currentStep == .success {
-            return false
+    var leftButtonType: VisaOnboardingView.LeftButtonType? {
+        switch currentStep {
+        case .success:
+            return nil
+        case .paymentAccountDeployInProgress, .issuerProcessingInProgress:
+            return .close
+        default:
+            return .back
         }
-
-        return true
-    }
-
-    var isBackButtonEnabled: Bool {
-        return true
     }
 
     var isSupportButtonVisible: Bool {
@@ -148,6 +147,11 @@ class VisaOnboardingViewModel: ObservableObject {
         }
     }
 
+    func closeButtonAction() {
+        // Subject to change later
+        showCloseOnboardingAlert()
+    }
+
     func openSupport() {
         guard FeatureStorage.instance.isVisaAPIMocksEnabled else {
             openSupportSheet()
@@ -200,8 +204,12 @@ class VisaOnboardingViewModel: ObservableObject {
     }
 
     private func log<T>(_ message: @autoclosure () -> T) {
-        AppLog.shared.debug("[VisaOnboardingViewModel] - \(message())")
+        VisaLogger.info(self, message())
     }
+}
+
+extension VisaOnboardingViewModel: CustomStringConvertible {
+    var description: String { "VisaOnboardingViewModel" }
 }
 
 // MARK: - Steps navigation logic
@@ -247,7 +255,7 @@ private extension VisaOnboardingViewModel {
 
     func goToStep(_ step: VisaOnboardingStep, animated: Bool = true) {
         guard let stepIndex = steps.firstIndex(of: step) else {
-            AppLog.shared.debug("Failed to find step \(step)")
+            AppLogger.error(self, error: "Failed to find step \(step)")
             return
         }
 
@@ -587,8 +595,7 @@ extension VisaOnboardingViewModel {
                 cardId: cardInput.primaryCardId,
                 initialActivationStatus: activationStatus,
                 tangemSdk: TangemSdkDefaultFactory().makeTangemSdk(),
-                urlSessionConfiguration: .default,
-                logger: AppLog.shared
+                urlSessionConfiguration: .default
             ),
             coordinator: coordinator
         )
