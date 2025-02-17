@@ -9,15 +9,18 @@
 import Combine
 import TangemStories
 
-@MainActor
 final class TangemStoriesViewModel: ObservableObject {
     private let checkStoryAvailabilityUseCase: CheckStoryAvailabilityUseCase
     private let enrichStoryUseCase: EnrichStoryUseCase
     private let finalizeStoryUseCase: FinalizeStoryUseCase
 
+    @MainActor
     private var storyEnrichTask: Task<Void, Never>?
+
+    @MainActor
     private var storyFinalizeTask: Task<Void, Never>?
 
+    @MainActor
     @Published private(set) var state: State?
 
     init(
@@ -35,8 +38,12 @@ final class TangemStoriesViewModel: ObservableObject {
         storyFinalizeTask?.cancel()
     }
 
-    func present(story: TangemStory) {
-        guard checkStoryAvailabilityUseCase(story.id) else { return }
+    @MainActor
+    func present(story: TangemStory, presentCompletion: @escaping () -> Void) {
+        guard checkStoryAvailabilityUseCase(story.id) else {
+            presentCompletion()
+            return
+        }
 
         storyEnrichTask?.cancel()
         storyFinalizeTask?.cancel()
@@ -45,11 +52,24 @@ final class TangemStoriesViewModel: ObservableObject {
             self?.finalizeActiveStory()
         }
 
+        Task {
+            let extraDelay = 0.3
+            try await Task.sleep(seconds: TangemStoriesHostView.Constants.animationDuration + extraDelay)
+            presentCompletion()
+        }
+
         enrichStory(story)
+    }
+
+    @MainActor
+    func forceDismiss() {
+        storyEnrichTask?.cancel()
+        finalizeActiveStory()
     }
 
     // MARK: - Private methods
 
+    @MainActor
     private func enrichStory(_ story: TangemStory) {
         storyEnrichTask = Task { [enrichStoryUseCase, weak self] in
             let enrichedStory = await enrichStoryUseCase(story)
@@ -57,6 +77,7 @@ final class TangemStoriesViewModel: ObservableObject {
         }
     }
 
+    @MainActor
     private func finalizeActiveStory() {
         defer { state = nil }
 
@@ -68,8 +89,13 @@ final class TangemStoriesViewModel: ObservableObject {
     }
 }
 
+// MARK: - TangemStoriesPresenter conformance
+
+extension TangemStoriesViewModel: TangemStoriesPresenter {}
+
 // MARK: - Factory methods
 
+@MainActor
 extension TangemStoriesViewModel {
     private static func makeState(for story: TangemStory, onStoriesFinished: @escaping () -> Void) -> State {
         // [REDACTED_TODO_COMMENT]

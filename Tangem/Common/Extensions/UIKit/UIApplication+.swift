@@ -28,7 +28,8 @@ extension UIApplication {
     }
 
     static var topViewController: UIViewController? {
-        return keyWindow?.topViewController
+        let mainWindow = UIApplication.shared.windows.first { $0 is MainWindow }
+        return mainWindow?.topViewController
     }
 
     static func modalFromTop(_ vc: UIViewController, animated: Bool = true, completion: (() -> Void)? = nil) {

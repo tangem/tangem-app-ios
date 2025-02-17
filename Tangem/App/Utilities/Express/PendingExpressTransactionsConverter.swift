@@ -40,7 +40,7 @@ struct PendingExpressTransactionsConverter {
             switch record.transactionStatus {
             case .created, .awaitingDeposit, .confirming, .exchanging, .buying, .sendingToUser, .done, .refunded:
                 state = .inProgress
-            case .failed, .canceled, .unknown, .paused:
+            case .failed, .canceled, .unknown, .paused, .txFailed:
                 state = .error
             case .verificationRequired, .awaitingHash:
                 state = .warning
@@ -83,14 +83,16 @@ struct PendingExpressTransactionsConverter {
         lastStatusIndex: Int,
         branch: ExpressBranch
     ) -> PendingExpressTxStatusRow.StatusRowData {
-        let isFinished = currentStatus.isTerminated(branch: branch)
+        let isCurrentStatus = index == currentStatusIndex
+        let isFinished = currentStatus.isTerminated(branch: branch) && isCurrentStatus
+
         if isFinished {
             // Always display cross for failed state
             // [REDACTED_TODO_COMMENT]
             switch status {
             case .failed:
                 return .init(title: status.passedStatusTitle, state: .cross(passed: true))
-            case .canceled, .unknown, .refunded:
+            case .canceled, .unknown, .refunded, .txFailed:
                 return .init(title: status.passedStatusTitle, state: .cross(passed: false))
             case .awaitingHash:
                 return .init(title: status.passedStatusTitle, state: .exclamationMark)
@@ -99,15 +101,14 @@ struct PendingExpressTransactionsConverter {
             }
         }
 
-        let isCurrentStatus = index == currentStatusIndex
         let isPendingStatus = index > currentStatusIndex
 
         let title: String = isCurrentStatus ? status.activeStatusTitle : isPendingStatus ? status.pendingStatusTitle : status.passedStatusTitle
         var state: PendingExpressTxStatusRow.State = isCurrentStatus ? .loader : isPendingStatus ? .empty : .checkmark
 
         switch status {
-        case .failed, .unknown, .paused:
-            state = .cross(passed: false)
+        case .failed, .unknown, .paused, .txFailed:
+            state = .cross(passed: status != currentStatus)
         case .verificationRequired, .awaitingHash:
             state = .exclamationMark
         case .refunded:
