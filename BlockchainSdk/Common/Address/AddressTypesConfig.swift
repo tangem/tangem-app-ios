@@ -98,7 +98,8 @@ struct AddressTypesConfig {
              .odysseyChain,
              .bitrock,
              .apeChain,
-             .sonic:
+             .sonic,
+             .alephium:
             return [.default]
         }
     }
