@@ -94,7 +94,7 @@ class MoonPayService {
     private let darkThemeName = "dark"
 
     deinit {
-        AppLog.shared.debug("MoonPay deinit")
+        AppLogger.debug(self)
     }
 
     private func makeSignature(for components: URLComponents) -> URLQueryItem {
@@ -252,13 +252,12 @@ extension MoonPayService: ExchangeService {
                 switch result {
                 case .finished: break
                 case .failure(let error):
-                    AppLog.shared.debug("Failed both requests: \(error.localizedDescription)")
+                    AppLogger.error("Failed both requests", error: error)
                     self.initializeState = .failed(.networkError)
                 }
             },
             receiveValue: { [weak self] ipOutput, currenciesOutput in
                 guard let self else { return }
-                let decoder = JSONDecoder()
 
                 let (countryCode, stateCode) = handleIPResponse(ipOutput: ipOutput.data)
 
@@ -274,8 +273,9 @@ extension MoonPayService: ExchangeService {
 
                     initializeState = canSellCrypto ? .initialized : .failed(.countryNotSupported)
                 } catch {
-                    AppLog.shared.debug("Failed to load currencies")
-                    AppLog.shared.error(error)
+                    AppLogger.error("Failed to load currencies", error: error)
+                    Analytics.error(error: error)
+
                     initializeState = .failed(.networkError)
                 }
             }
@@ -292,8 +292,8 @@ extension MoonPayService: ExchangeService {
 
             return (decodedResponse.countryCode, decodedResponse.stateCode)
         } catch {
-            AppLog.shared.debug("Failed to check IP address")
-            AppLog.shared.error(error)
+            AppLogger.error("Failed to check IP address", error: error)
+            Analytics.error(error: error)
 
             return ("", "")
         }
@@ -440,6 +440,7 @@ private extension Blockchain {
         case .bitrock: return nil
         case .apeChain: return nil
         case .sonic: return nil
+        case .alephium: return nil
             // Did you get a compilation error here? If so, check whether the network is supported at https://api.moonpay.com/v3/currencies
         }
     }
@@ -530,6 +531,7 @@ private extension Blockchain {
         case .bitrock: return nil
         case .apeChain: return nil
         case .sonic: return nil
+        case .alephium: return nil
             // Did you get a compilation error here? If so, check whether the network is supported at https://api.moonpay.com/v3/currencies
         }
     }
