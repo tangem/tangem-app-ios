@@ -30,6 +30,17 @@ private enum DefaultNavigationBarSettings {
     static let padding = 16.0
 }
 
+struct OnboardingCloseButton: View {
+    let height: CGFloat
+    var hPadding: CGFloat = DefaultNavigationBarSettings.padding
+    let action: () -> Void
+
+    var body: some View {
+        CloseButton(dismiss: action)
+            .padding(.horizontal, hPadding)
+    }
+}
+
 struct BackButton: View {
     let height: CGFloat
     let isVisible: Bool
