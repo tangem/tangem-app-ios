@@ -2059,7 +2059,6 @@
 		C2E3ADC52D5F5D390042ADDA /* TangemStoriesHostManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADBD2D5F5D390042ADDA /* TangemStoriesHostManager.swift */; };
 		C2E3ADC62D5F5D390042ADDA /* TangemStoriesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADBE2D5F5D390042ADDA /* TangemStoriesViewModel.swift */; };
 		C2E3ADC72D5F5D390042ADDA /* SwapStoryPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADC02D5F5D390042ADDA /* SwapStoryPageView.swift */; };
-		C2E3ADC82D5F5D390042ADDA /* TangemStoriesHostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADC22D5F5D390042ADDA /* TangemStoriesHostView.swift */; };
 		C2E3ADD22D5F5D410042ADDA /* AppSettingsStoryAvailabilityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADC92D5F5D410042ADDA /* AppSettingsStoryAvailabilityService.swift */; };
 		C2E3ADD32D5F5D410042ADDA /* CommonStoryDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADCA2D5F5D410042ADDA /* CommonStoryDataService.swift */; };
 		C2E3ADD42D5F5D410042ADDA /* StoryDataPrefetchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3ADCB2D5F5D410042ADDA /* StoryDataPrefetchService.swift */; };
@@ -5371,7 +5370,6 @@
 		C2E3ADBD2D5F5D390042ADDA /* TangemStoriesHostManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemStoriesHostManager.swift; sourceTree = "<group>"; };
 		C2E3ADBE2D5F5D390042ADDA /* TangemStoriesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemStoriesViewModel.swift; sourceTree = "<group>"; };
 		C2E3ADC02D5F5D390042ADDA /* SwapStoryPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapStoryPageView.swift; sourceTree = "<group>"; };
-		C2E3ADC22D5F5D390042ADDA /* TangemStoriesHostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemStoriesHostView.swift; sourceTree = "<group>"; };
 		C2E3ADC92D5F5D410042ADDA /* AppSettingsStoryAvailabilityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsStoryAvailabilityService.swift; sourceTree = "<group>"; };
 		C2E3ADCA2D5F5D410042ADDA /* CommonStoryDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStoryDataService.swift; sourceTree = "<group>"; };
 		C2E3ADCB2D5F5D410042ADDA /* StoryDataPrefetchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryDataPrefetchService.swift; sourceTree = "<group>"; };
@@ -12897,7 +12895,6 @@
 			isa = PBXGroup;
 			children = (
 				C2E3ADC12D5F5D390042ADDA /* SwapStoryPages */,
-				C2E3ADC22D5F5D390042ADDA /* TangemStoriesHostView.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -17738,7 +17735,6 @@
 				C2E3ADC52D5F5D390042ADDA /* TangemStoriesHostManager.swift in Sources */,
 				C2E3ADC62D5F5D390042ADDA /* TangemStoriesViewModel.swift in Sources */,
 				C2E3ADC72D5F5D390042ADDA /* SwapStoryPageView.swift in Sources */,
-				C2E3ADC82D5F5D390042ADDA /* TangemStoriesHostView.swift in Sources */,
 				EF339E542C22DABD00B5CDC9 /* FeeIncludedCalculator.swift in Sources */,
 				EFC84B2D2C37FBB300546882 /* SendSummaryStep.swift in Sources */,
 				EFB6800E2B29BD4B00842BE3 /* SheetModifier.swift in Sources */,
