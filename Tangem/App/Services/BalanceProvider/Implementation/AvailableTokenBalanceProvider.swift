@@ -91,7 +91,10 @@ private extension AvailableTokenBalanceProvider {
 
         switch state {
         case .created:
-            return .empty(.noData)
+            // Return `.loading` because we assume
+            // that loading should start anyway
+            // and to avoid any UI empty states
+            return .loading(cachedBalance())
         case .loading:
             return .loading(cachedBalance())
         case .loaded(let balance):
