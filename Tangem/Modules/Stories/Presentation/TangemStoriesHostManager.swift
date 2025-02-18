@@ -8,52 +8,60 @@
 
 import Combine
 import SwiftUI
-import enum TangemStories.TangemStory
+import TangemStories
 
 @MainActor
 final class TangemStoriesHostManager {
+    @Injected(\.storyAvailabilityService) private var storyAvailableService: any StoryAvailabilityService
     @Injected(\.tangemStoriesViewModel) private var tangemStoriesViewModel: TangemStoriesViewModel
-    private var storiesWindow: UIWindow?
 
-    private var storiesViewModelStateCancellable: (any Cancellable)?
+    private var storiesWindow: UIWindow?
+    private var cancellables = Set<AnyCancellable>()
 
     // [REDACTED_TODO_COMMENT]
     func setup(with scene: UIScene, mainWindow: UIWindow?) {
-        guard
-            let windowScene = scene as? UIWindowScene,
-            checkIfThereAreStoriesToShow()
-        else {
-            return
-        }
+        guard let windowScene = scene as? UIWindowScene else { return }
 
-        storiesWindow = makeWindow(for: windowScene)
-
-        storiesViewModelStateCancellable = tangemStoriesViewModel.$state
-            .dropFirst()
+        storyAvailableService
+            .availableStoriesPublisher
             .removeDuplicates()
-            .sink { [weak storiesWindow, weak mainWindow] state in
-                let isPresentingStories = state != nil
-                storiesWindow?.isUserInteractionEnabled = isPresentingStories
+            .combineLatest(
+                tangemStoriesViewModel
+                    .$state
+                    .removeDuplicates()
+            )
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] availableStoryIdentifiers, state in
+                guard let self else { return }
 
-                if isPresentingStories {
-                    // forces keyboard to hide if showing stories window
-                    storiesWindow?.makeKey()
-                } else {
-                    // restores keyboard for main window if it was previously visible
-                    mainWindow?.makeKey()
-                }
+                let hasAnyStoryToShow = !availableStoryIdentifiers.isEmpty
+                let isPresentingStories = state != nil
+
+                setupStoriesWindowIfNeeded(hasAnyStoryToShow: hasAnyStoryToShow, windowScene: windowScene)
+                updateWindowsState(isPresentingStories: isPresentingStories, mainWindow: mainWindow)
             }
+            .store(in: &cancellables)
     }
 
     func forceDismiss() {
         tangemStoriesViewModel.forceDismiss()
     }
 
-    private func checkIfThereAreStoriesToShow() -> Bool {
-        let allStoryIDs = TangemStory.ID.allCases.map(\.rawValue).toSet()
-        let shownStories = AppSettings.shared.shownStoryIds.toSet()
-        let remainingStoriesToShow = allStoryIDs.subtracting(shownStories)
-        return !remainingStoriesToShow.isEmpty
+    private func setupStoriesWindowIfNeeded(hasAnyStoryToShow: Bool, windowScene: UIWindowScene) {
+        guard storiesWindow == nil, hasAnyStoryToShow else { return }
+        storiesWindow = makeWindow(for: windowScene)
+    }
+
+    private func updateWindowsState(isPresentingStories: Bool, mainWindow: UIWindow?) {
+        storiesWindow?.isUserInteractionEnabled = isPresentingStories
+
+        if isPresentingStories {
+            // forces keyboard to hide if showing stories window
+            storiesWindow?.makeKey()
+        } else {
+            // restores keyboard for main window if it was previously visible
+            mainWindow?.makeKey()
+        }
     }
 
     private func makeWindow(for windowScene: UIWindowScene) -> UIWindow {
