@@ -213,6 +213,7 @@ struct SupportedBlockchains {
             .apeChain(testnet: true),
             .sonic(testnet: true),
             .vanar(testnet: true),
+            .zkLinkNova(testnet: true),
         ]
     }
 
