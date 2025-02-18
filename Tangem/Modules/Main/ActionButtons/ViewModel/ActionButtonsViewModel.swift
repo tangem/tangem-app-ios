@@ -9,7 +9,7 @@
 import Combine
 import Foundation
 import TangemFoundation
-import enum TangemStories.TangemStory
+import TangemStories
 
 typealias ActionButtonsRoutable = ActionButtonsBuyFlowRoutable & ActionButtonsSellFlowRoutable & ActionButtonsSwapFlowRoutable
 
@@ -24,6 +24,9 @@ final class ActionButtonsViewModel: ObservableObject {
 
     @Injected(\.hotCryptoService)
     private var hotCryptoService: HotCryptoService
+
+    @Injected(\.storyAvailabilityService)
+    private var storyAvailabilityService: any StoryAvailabilityService
 
     // MARK: Button ViewModels
 
@@ -233,13 +236,14 @@ private extension ActionButtonsViewModel {
     }
 
     func bindSwapUnreadNotificationBadge() {
-        AppSettings.shared.$shownStoryIds
+        storyAvailabilityService
+            .availableStoriesPublisher
             .combineLatest(swapActionButtonViewModel.$viewState)
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] shownStoryIds, swapButtonViewState in
-                let swapStoryShown = shownStoryIds.contains(TangemStory.ID.swap.rawValue)
+            .sink { [weak self] availableStoryIds, swapButtonViewState in
+                let swapStoryAvailable = availableStoryIds.contains(.swap)
                 let buttonStateIsValid = swapButtonViewState == .idle || swapButtonViewState == .initial
-                self?.shouldShowSwapUnreadNotificationBadge = buttonStateIsValid && !swapStoryShown
+                self?.shouldShowSwapUnreadNotificationBadge = buttonStateIsValid && swapStoryAvailable
             }
             .store(in: &bag)
     }

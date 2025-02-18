@@ -7,14 +7,22 @@
 //
 
 import struct Foundation.URL
-import protocol TangemStories.StoryDataService
-import enum TangemStories.TangemStory
+import TangemStories
 
 final class CommonStoryDataService: StoryDataService {
-    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    @Injected(\.tangemApiService) private var tangemApiService: any TangemApiService
+    @Injected(\.storyAvailabilityService) private var storyAvailabilityService: any StoryAvailabilityService
 
     func fetchStoryImages(with storyId: TangemStory.ID) async throws -> [TangemStory.Image] {
-        let storyDTO = try await fetchStory(storyId: storyId)
+        let storyDTO: StoryDTO.Response
+
+        do {
+            storyDTO = try await fetchStory(storyId: storyId)
+        } catch {
+            storyAvailabilityService.markStoryAsUnavailableForCurrentSession(storyId)
+            throw error
+        }
+
         let imageURLs = StoryMapper.mapToImageURLs(storyDTO)
         return try await fetchStoryImages(using: imageURLs)
     }
