@@ -20,17 +20,15 @@ struct StoryView: View {
 
     var body: some View {
         GeometryReader { proxy in
-            ZStack {
+            ZStack(alignment: .top) {
                 preiOS18Gestures(proxy)
                 pageViews[viewModel.visiblePageIndex]
+                overlayElements
             }
             .modifier(if: Self.iOS18Available) { content in
                 content
                     .gesture(longTapGesture)
                     .gesture(shortTapGesture(proxy))
-            }
-            .overlay(alignment: .top) {
-                progressBar
             }
             .readGeometry(inCoordinateSpace: .global) { geometryInfo in
                 let leftAnchor = geometryInfo.frame.minX / geometryInfo.size.width
@@ -43,6 +41,7 @@ struct StoryView: View {
                 viewModel.handle(viewEvent: viewEvent)
             }
             .cubicRotationEffect(proxy)
+            .preferredColorScheme(.dark)
         }
         .onAppear {
             viewModel.handle(viewEvent: .viewDidAppear)
@@ -52,22 +51,29 @@ struct StoryView: View {
         }
     }
 
+    private var overlayElements: some View {
+        VStack(spacing: .zero) {
+            progressBar
+            logoAndCloseButton
+        }
+        .padding(.top, 10)
+    }
+
     private var progressBar: some View {
-        HStack(spacing: 4) {
+        HStack(alignment: .top, spacing: 4) {
             ForEach(Array(pageViews.indices), id: \.self, content: pageProgressView)
         }
         .frame(height: 2)
-        .padding(.top, 8)
-        .padding(.horizontal, 8)
+        .padding(.horizontal, 16)
     }
 
     private func pageProgressView(_ pageIndex: Int) -> some View {
         GeometryReader { proxy in
             Capsule()
-                .fill(.white.opacity(0.2))
+                .fill(Colors.Icon.primary1.opacity(0.2))
                 .overlay(alignment: .leading) {
                     Capsule()
-                        .fill(.white)
+                        .fill(Colors.Icon.primary1)
                         .frame(width: pageProgressWidth(for: pageIndex, proxy: proxy))
                 }
                 .clipped()
@@ -76,6 +82,38 @@ struct StoryView: View {
 
     private func pageProgressWidth(for index: Int, proxy: GeometryProxy) -> CGFloat {
         return proxy.size.width * viewModel.pageProgress(for: index)
+    }
+
+    private var logoAndCloseButton: some View {
+        HStack(alignment: .top, spacing: .zero) {
+            tangemLogo
+            Spacer(minLength: .zero)
+            closeButton
+        }
+        .foregroundStyle(Colors.Icon.primary1)
+        .padding(.top, 12)
+    }
+
+    private var tangemLogo: some View {
+        Assets.newTangemLogo.image
+            .padding(.leading, 16)
+    }
+
+    private var closeButton: some View {
+        Button {
+            viewModel.handle(viewEvent: .closeButtonTapped)
+        } label: {
+            Assets.close.image
+                .resizable()
+                .frame(width: 14, height: 14)
+                .padding(.top, 2)
+                .padding(.bottom, 16)
+                .padding(.horizontal, 16)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        // [REDACTED_USERNAME], this is a fix for iOS 18 gesture interference with ScrollView that is used under the hood in host view.
+        .gesture(DragGesture(minimumDistance: 0))
     }
 
     private static var iOS18Available: Bool {
