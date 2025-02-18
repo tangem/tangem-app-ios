@@ -11,10 +11,11 @@ import Combine
 import SwiftUI
 import BlockchainSdk
 import TangemFoundation
-import enum TangemStories.TangemStory
+import TangemStories
 
 class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
+    @Injected(\.storyAvailabilityService) private var storyAvailabilityService: any StoryAvailabilityService
 
     @Published var alert: AlertBinder? = nil
     @Published var transactionHistoryState: TransactionsListView.State = .loading
@@ -338,7 +339,8 @@ extension SingleTokenBaseViewModel {
             .assign(to: \.pendingExpressTransactions, on: self, ownership: .weak)
             .store(in: &bag)
 
-        AppSettings.shared.$shownStoryIds
+        storyAvailabilityService
+            .availableStoriesPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.updateActionButtons()
@@ -458,7 +460,7 @@ extension SingleTokenBaseViewModel {
     private func shouldShowUnreadNotificationBadge(for type: TokenActionType) -> Bool {
         switch type {
         case .exchange:
-            !AppSettings.shared.shownStoryIds.contains(TangemStory.ID.swap.rawValue)
+            storyAvailabilityService.checkStoryAvailability(storyId: .swap)
         default:
             false
         }
