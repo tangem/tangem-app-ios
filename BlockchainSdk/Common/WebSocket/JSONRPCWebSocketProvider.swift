@@ -86,13 +86,18 @@ private extension JSONRPCWebSocketProvider {
     func proceedReceive(data: Data) async {
         do {
             let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+            guard let id = json?["id"] as? Int else {
+                BSDKLogger.error(self, error: "Received json: \(String(describing: json)) has wrong id")
+                return
+            }
 
-            if let id = json?["id"] as? Int, let continuation = requests[id] {
+            if let continuation = requests[id] {
                 await continuation.resume(returning: data)
+            } else if id == WebSocketConnection.Ping.Constants.id {
+                BSDKLogger.info(self, "The ping message response received: \(String(describing: json))")
             } else {
                 BSDKLogger.warning(self, "Received json: \(String(describing: json)) is not handled")
             }
-
         } catch {
             BSDKLogger.error(self, "Receive catch parse error", error: error)
         }
