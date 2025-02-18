@@ -18,6 +18,9 @@ final class TangemStoriesViewModel: ObservableObject {
     private var storyEnrichTask: Task<Void, Never>?
 
     @MainActor
+    private var delayedPresentCompletionTask: Task<Void, Error>?
+
+    @MainActor
     private var storyFinalizeTask: Task<Void, Never>?
 
     @MainActor
@@ -35,6 +38,7 @@ final class TangemStoriesViewModel: ObservableObject {
 
     deinit {
         storyEnrichTask?.cancel()
+        delayedPresentCompletionTask?.cancel()
         storyFinalizeTask?.cancel()
     }
 
@@ -46,15 +50,16 @@ final class TangemStoriesViewModel: ObservableObject {
         }
 
         storyEnrichTask?.cancel()
+        delayedPresentCompletionTask?.cancel()
         storyFinalizeTask?.cancel()
 
         state = Self.makeState(for: story) { [weak self] in
             self?.finalizeActiveStory()
         }
 
-        Task {
-            let extraDelay = 0.3
-            try await Task.sleep(seconds: TangemStoriesHostView.Constants.animationDuration + extraDelay)
+        delayedPresentCompletionTask = Task {
+            let extraDelay = 0.7
+            try await Task.sleep(seconds: TangemStoriesHostManager.Animation.appearingDuration + extraDelay)
             presentCompletion()
         }
 
@@ -79,7 +84,10 @@ final class TangemStoriesViewModel: ObservableObject {
 
     @MainActor
     private func finalizeActiveStory() {
-        defer { state = nil }
+        defer {
+            state = nil
+            delayedPresentCompletionTask?.cancel()
+        }
 
         guard let lastActiveStory = state?.activeStory else { return }
 
@@ -116,12 +124,8 @@ extension TangemStoriesViewModel {
 // MARK: - Nested types
 
 extension TangemStoriesViewModel {
-    struct State: Equatable {
+    struct State {
         let storiesHostViewModel: StoriesHostViewModel
         var activeStory: TangemStory
-
-        static func == (lhs: TangemStoriesViewModel.State, rhs: TangemStoriesViewModel.State) -> Bool {
-            lhs.activeStory.id == rhs.activeStory.id
-        }
     }
 }
