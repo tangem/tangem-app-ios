@@ -9,6 +9,7 @@
 import Combine
 
 protocol WalletModelsManager {
+    var isInitialized: Bool { get }
     var walletModels: [WalletModel] { get }
     var walletModelsPublisher: AnyPublisher<[WalletModel], Never> { get }
 
