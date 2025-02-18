@@ -13,6 +13,7 @@ import TangemStories
 struct SwapStoryPageView: View {
     let page: TangemStory.SwapStoryData.Page
 
+    @Injected(\.storyKingfisherImageCache) private var storyKingfisherImageCache: ImageCache
     @State private var startPoint = UnitPoint(x: -1, y: -1)
     @State private var endPoint = UnitPoint(x: 0.0, y: 0.0)
 
@@ -59,6 +60,8 @@ struct SwapStoryPageView: View {
 
             if let imageURL = page.image?.url {
                 KFImage(imageURL)
+                    .targetCache(storyKingfisherImageCache)
+                    .cancelOnDisappear(true)
                     .resizable()
                     .scaledToFill()
                     .frame(width: proxy.size.width)
