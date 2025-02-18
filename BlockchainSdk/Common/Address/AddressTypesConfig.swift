@@ -100,7 +100,8 @@ struct AddressTypesConfig {
              .apeChain,
              .sonic,
              .alephium,
-             .vanar:
+             .vanar,
+             .zkLinkNova:
             return [.default]
         }
     }
