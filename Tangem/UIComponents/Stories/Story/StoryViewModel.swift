@@ -20,6 +20,7 @@ final class StoryViewModel: ObservableObject {
     private var timerCancellable: (any Cancellable)?
 
     private let storyTransitionSubject: PassthroughSubject<StoryTransition, Never>
+    private let storyDismissIntentSubject: PassthroughSubject<Void, Never>
 
     private var timerIsRunning: Bool {
         timerCancellable != nil
@@ -30,11 +31,12 @@ final class StoryViewModel: ObservableObject {
     }
 
     let storyTransitionPublisher: AnyPublisher<StoryTransition, Never>
+    let storyDismissIntentPublisher: AnyPublisher<Void, Never>
 
     @Published private(set) var visiblePageProgress: CGFloat
     @Published private(set) var visiblePageIndex: Int
 
-    init(pagesCount: Int, pageDuration: TimeInterval = 6) {
+    init(pagesCount: Int, pageDuration: TimeInterval = 8) {
         assert(pagesCount > 0, "Expected to have at least one page. Developer mistake")
 
         self.pagesCount = pagesCount
@@ -45,6 +47,9 @@ final class StoryViewModel: ObservableObject {
 
         storyTransitionSubject = PassthroughSubject()
         storyTransitionPublisher = storyTransitionSubject.eraseToAnyPublisher()
+
+        storyDismissIntentSubject = PassthroughSubject()
+        storyDismissIntentPublisher = storyDismissIntentSubject.eraseToAnyPublisher()
     }
 
     // MARK: - Internal methods
@@ -74,6 +79,9 @@ final class StoryViewModel: ObservableObject {
 
         case .tappedBackward:
             handleTappedBackward()
+
+        case .closeButtonTapped:
+            handleCloseButtonTapped()
 
         case .willTransitionBackFromOtherStory:
             handleWillTransitionBackFromOtherStory()
@@ -191,6 +199,10 @@ extension StoryViewModel {
         }
 
         visiblePageIndex -= 1
+    }
+
+    private func handleCloseButtonTapped() {
+        storyDismissIntentSubject.send()
     }
 
     private func handleWillTransitionBackFromOtherStory() {
