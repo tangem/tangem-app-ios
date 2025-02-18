@@ -11,11 +11,12 @@ import Kingfisher
 import TangemStories
 
 struct SwapStoryPageView: View {
-    let page: TangemStory.SwapStoryData.Page
-
+    private static let iOS18Available: Bool = if #available(iOS 18.0, *) { true } else { false }
     @Injected(\.storyKingfisherImageCache) private var storyKingfisherImageCache: ImageCache
     @State private var startPoint = UnitPoint(x: -1, y: -1)
     @State private var endPoint = UnitPoint(x: 0.0, y: 0.0)
+
+    let page: TangemStory.SwapStoryData.Page
 
     var body: some View {
         GeometryReader { proxy in
@@ -50,8 +51,7 @@ struct SwapStoryPageView: View {
                 endPoint = UnitPoint(x: 3.0, y: 1.2)
             }
         }
-        .preferredColorScheme(.dark)
-        .allowsHitTesting(false)
+        .allowsHitTesting(Self.iOS18Available)
     }
 
     private func backgroundImage(_ proxy: GeometryProxy) -> some View {
