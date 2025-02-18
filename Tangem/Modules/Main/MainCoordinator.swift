@@ -329,9 +329,15 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             popToRootAction: popToRootAction
         )
 
-        coordinator.start(with: .default)
+        let openExpressBlock = { [weak self] in
+            guard let self else { return }
+            coordinator.start(with: .default)
+            expressCoordinator = coordinator
+        }
 
-        expressCoordinator = coordinator
+        Task { @MainActor [tangemStoriesPresenter] in
+            tangemStoriesPresenter.present(story: .swap(.initialWithoutImages), presentCompletion: openExpressBlock)
+        }
     }
 
     func openStaking(options: StakingDetailsCoordinator.Options) {
