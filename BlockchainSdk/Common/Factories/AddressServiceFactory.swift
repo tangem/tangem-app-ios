@@ -69,7 +69,8 @@ public struct AddressServiceFactory {
              .bitrock,
              .apeChain,
              .sonic,
-             .vanar:
+             .vanar,
+             .zkLinkNova:
             return EthereumAddressService()
         case .rsk:
             return RskAddressService()
