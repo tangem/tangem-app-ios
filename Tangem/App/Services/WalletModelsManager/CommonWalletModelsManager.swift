@@ -118,6 +118,8 @@ class CommonWalletModelsManager {
 // MARK: - WalletListManager
 
 extension CommonWalletModelsManager: WalletModelsManager {
+    var isInitialized: Bool { _walletModels.value != nil }
+
     var walletModels: [WalletModel] {
         _walletModels.value ?? []
     }
