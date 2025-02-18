@@ -10,6 +10,7 @@ import Foundation
 import Combine
 
 struct LockedWalletModelsManager: WalletModelsManager {
+    var isInitialized: Bool { true }
     var walletModels: [WalletModel] { [] }
     var walletModelsPublisher: AnyPublisher<[WalletModel], Never> { .just(output: []) }
 
