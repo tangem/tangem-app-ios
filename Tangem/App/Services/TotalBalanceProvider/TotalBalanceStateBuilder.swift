@@ -18,6 +18,11 @@ struct TotalBalanceStateBuilder {
     }
 
     func buildTotalBalanceState() -> TotalBalanceState {
+        guard walletModelsManager.isInitialized else {
+            // We are still waiting when list of wallet models will be created
+            return .loading(cached: .none)
+        }
+
         let balances = walletModelsManager.walletModels.map {
             TotalBalanceStateBuilder.Balance(item: $0.tokenItem, balance: $0.fiatTotalTokenBalanceProvider.balanceType)
         }
@@ -44,7 +49,7 @@ private extension TotalBalanceStateBuilder {
 
         // Show it in loading state if only one is in loading process
         if hasLoading {
-            let loadingBalance = loadingBalance(balances: balances.map(\.balance))
+            let loadingBalance = cachedBalance(balances: balances.map(\.balance))
             return .loading(cached: loadingBalance)
         }
 
@@ -52,7 +57,7 @@ private extension TotalBalanceStateBuilder {
         let hasError = !failureBalances.isEmpty
         if hasError {
             // If has error and cached balance then show the failed state with cached balances
-            let cachedBalance = failedBalance(balances: balances.map(\.balance))
+            let cachedBalance = cachedBalance(balances: balances.map(\.balance))
             return .failed(cached: cachedBalance, failedItems: failureBalances.map(\.item))
         }
 
@@ -64,7 +69,7 @@ private extension TotalBalanceStateBuilder {
         return .loaded(balance: loadedBalance)
     }
 
-    func loadingBalance(balances: [TokenBalanceType]) -> Decimal? {
+    func cachedBalance(balances: [TokenBalanceType]) -> Decimal? {
         let cachedBalances = balances.compactMap { balanceType in
             switch balanceType {
             case .empty(.custom), .empty(.noAccount):
@@ -78,31 +83,16 @@ private extension TotalBalanceStateBuilder {
             }
         }
 
-        // Show loading balance only if all tokens have balance value
+        if cachedBalances.isEmpty {
+            return nil
+        }
+
+        // The cached balance is showable only if all tokens have some balance value
         if cachedBalances.count == balances.count {
             return cachedBalances.reduce(0, +)
         }
 
         return nil
-    }
-
-    func failedBalance(balances: [TokenBalanceType]) -> Decimal? {
-        let cachedBalances = balances.compactMap { balanceType in
-            switch balanceType {
-            case .loading(.some(let cached)), .failure(.some(let cached)):
-                return cached.balance
-            case .loaded(let balance):
-                return balance
-            default:
-                return nil
-            }
-        }
-
-        if cachedBalances.isEmpty {
-            return nil
-        }
-
-        return cachedBalances.reduce(0, +)
     }
 
     func loadedBalance(balances: [Balance]) -> Decimal? {
