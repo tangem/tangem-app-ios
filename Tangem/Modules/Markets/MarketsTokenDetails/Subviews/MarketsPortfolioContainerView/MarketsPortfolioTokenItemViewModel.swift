@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 import SwiftUI
-import enum TangemStories.TangemStory
+import TangemStories
 
 final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
     // MARK: - Public Properties
@@ -22,6 +22,8 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
 
     @Published private var missingDerivation: Bool = false
     @Published private var networkUnreachable: Bool = false
+
+    @Injected(\.storyAvailabilityService) private var storyAvailabilityService: any StoryAvailabilityService
 
     var name: String { tokenIcon.name }
     var imageURL: URL? { tokenIcon.imageURL }
@@ -97,7 +99,7 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
     func shouldShowUnreadNotificationBadge(for actionType: TokenActionType) -> Bool {
         switch actionType {
         case .exchange:
-            !AppSettings.shared.shownStoryIds.contains(TangemStory.ID.swap.rawValue)
+            storyAvailabilityService.checkStoryAvailability(storyId: .swap)
         default:
             false
         }
@@ -138,8 +140,8 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
             }
             .store(in: &bag)
 
-        AppSettings.shared.$shownStoryIds
-            .dropFirst()
+        storyAvailabilityService
+            .availableStoriesPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.objectWillChange.send()
