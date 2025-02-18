@@ -8,16 +8,17 @@
 
 import Combine
 import BlockchainSdk
+import TangemFoundation
 
 protocol TokenItemInfoProvider: AnyObject {
     var hasPendingTransactions: Bool { get }
 
-    var quote: TokenQuote? { get }
+    var quote: WalletModel.Rate { get }
     var balance: TokenBalanceType { get }
     var balanceType: FormattedTokenBalanceType { get }
     var fiatBalanceType: FormattedTokenBalanceType { get }
 
-    var quotePublisher: AnyPublisher<TokenQuote?, Never> { get }
+    var quotePublisher: AnyPublisher<WalletModel.Rate, Never> { get }
     var balancePublisher: AnyPublisher<TokenBalanceType, Never> { get }
     var balanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { get }
     var fiatBalanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { get }
