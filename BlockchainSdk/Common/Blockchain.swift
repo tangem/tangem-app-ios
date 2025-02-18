@@ -904,7 +904,8 @@ public extension Blockchain {
              .polygonZkEVM,
              .base,
              .cyber,
-             .blast:
+             .blast,
+             .zkLinkNova:
             return true
         default:
             return false
