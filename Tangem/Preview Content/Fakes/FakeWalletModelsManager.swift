@@ -11,6 +11,8 @@ import Combine
 import TangemSdk
 
 class FakeWalletModelsManager: WalletModelsManager {
+    var isInitialized: Bool { true }
+
     var walletModels: [WalletModel] {
         walletModelsSubject.value
     }
