@@ -20,5 +20,7 @@ enum StoryViewEvent {
     case tappedForward
     case tappedBackward
 
+    case closeButtonTapped
+
     case willTransitionBackFromOtherStory
 }
