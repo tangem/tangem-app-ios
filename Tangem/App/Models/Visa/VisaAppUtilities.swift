@@ -12,16 +12,18 @@ import BlockchainSdk
 import TangemVisa
 
 struct VisaAppUtilities {
-    var blockchainNetwork: BlockchainNetwork {
-        .init(VisaUtilities().visaBlockchain, derivationPath: nil)
+    private let utils: VisaUtilities
+
+    init() {
+        utils = .init()
     }
 
-    private var curve: EllipticCurve {
-        .secp256k1
+    var blockchainNetwork: BlockchainNetwork {
+        .init(utils.visaBlockchain, derivationPath: utils.visaDefaultDerivationPath)
     }
 
     func getPublicKeyData(from list: [CardDTO.Wallet]) -> Data? {
-        list.first(where: { $0.curve == curve })?.publicKey
+        list.first(where: { $0.curve == utils.mandatoryCurve })?.publicKey
     }
 
     func makeBlockchainKey(using list: [CardDTO.Wallet]) -> Wallet.PublicKey? {
