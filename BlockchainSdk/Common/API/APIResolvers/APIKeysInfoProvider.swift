@@ -59,7 +59,7 @@ struct APIKeysInfoProvider {
             )
         case .tangemAlephium:
             return .init(
-                headerName: "api-key",
+                headerName: "x-api-key",
                 headerValue: config.tangemAlephiumApiKey
             )
         case .public, .quickNode, .getBlock, .blockchair, .blockcypher, .infura, .adalite, .tangemRosetta, .solana, .kaspa, .dwellir, .none:
