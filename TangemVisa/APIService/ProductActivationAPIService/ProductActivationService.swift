@@ -41,11 +41,11 @@ protocol ProductActivationService {
 
 struct CommonProductActivationService {
     typealias ActivationAPIService = APIService<ProductActivationAPITarget, VisaAPIError>
-    private let authorizationTokensHandler: AuthorizationTokensHandler
+    private let authorizationTokensHandler: VisaAuthorizationTokensHandler
     private let apiService: ActivationAPIService
 
     init(
-        authorizationTokensHandler: AuthorizationTokensHandler,
+        authorizationTokensHandler: VisaAuthorizationTokensHandler,
         apiService: ActivationAPIService
     ) {
         self.authorizationTokensHandler = authorizationTokensHandler
