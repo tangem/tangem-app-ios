@@ -265,6 +265,10 @@ struct TestnetAPINodeInfoProvider {
             return [
                 .init(url: URL(string: "https://node.testnet.alephium.org/")!),
             ]
+        case .vanar:
+            return [
+                .init(url: URL(string: "https://rpc-vanguard.vanarchain.com")!),
+            ]
         // [REDACTED_TODO_COMMENT]
         case .bitcoin, .litecoin, .disChain, .rsk, .bitcoinCash, .binance, .cardano,
              .xrp, .ducatus, .tezos, .dogecoin, .solana, .kusama, .dash, .gnosis,
