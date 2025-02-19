@@ -29,7 +29,8 @@ extension GetAmountMethod {
         case availableForPayment = "availableForPayment()"
         case blocked = "blockedAmount()"
         case debt = "debtAmount()"
-        case pendingRefund = "pendingRefundTotal()"
         case limits = "limits()"
+        case cards = "cards()"
+        case activeCardAddresses = "activeCardAddresses()"
     }
 }
