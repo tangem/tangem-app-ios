@@ -49,6 +49,7 @@ struct VisaWalletMainContentView: View {
     private var balancesAndLimitsView: some View {
         if let input = viewModel.failedToLoadInfoNotificationInput {
             NotificationView(input: input)
+                .setButtonsLoadingState(to: viewModel.isScannerBusy)
                 .transition(.notificationTransition)
         } else {
             Button(action: viewModel.openBalancesAndLimits, label: {
