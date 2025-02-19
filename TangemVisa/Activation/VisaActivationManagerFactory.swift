@@ -25,33 +25,20 @@ public struct VisaActivationManagerFactory {
     ) -> VisaActivationManager {
         let internalLogger = InternalLogger(logger: logger)
 
+        let authorizationTokensHandler = VisaAuthorizationTokensHandlerBuilder(isMockedAPIEnabled: isMockedAPIEnabled)
+            .build(
+                cardId: cardId,
+                cardActivationStatus: initialActivationStatus,
+                refreshTokenSaver: nil,
+                urlSessionConfiguration: urlSessionConfiguration,
+                logger: logger
+            )
+
         let authorizationService = VisaAPIServiceBuilder(mockedAPI: isMockedAPIEnabled)
             .buildAuthorizationService(
                 urlSessionConfiguration: urlSessionConfiguration,
                 logger: logger
             )
-
-        let authorizationTokensHolder: AuthorizationTokensHolder
-        if case .activationStarted(_, let authorizationTokens, _) = initialActivationStatus {
-            authorizationTokensHolder = .init(authorizationTokens: authorizationTokens)
-        } else {
-            authorizationTokensHolder = .init()
-        }
-
-        let authorizationTokenRefreshService = VisaAPIServiceBuilder(mockedAPI: isMockedAPIEnabled)
-            .buildAuthorizationTokenRefreshService(
-                urlSessionConfiguration: urlSessionConfiguration,
-                logger: logger
-            )
-
-        let authorizationTokensHandler = CommonVisaAuthorizationTokensHandler(
-            cardId: cardId,
-            authorizationTokensHolder: authorizationTokensHolder,
-            tokenRefreshService: authorizationTokenRefreshService,
-            logger: internalLogger,
-            refreshTokenSaver: nil
-        )
-
         let authorizationProcessor = CommonCardAuthorizationProcessor(
             authorizationService: authorizationService,
             logger: internalLogger
@@ -78,7 +65,6 @@ public struct VisaActivationManagerFactory {
 
         return CommonVisaActivationManager(
             initialActivationStatus: initialActivationStatus,
-            authorizationService: authorizationService,
             authorizationTokensHandler: authorizationTokensHandler,
             tangemSdk: tangemSdk,
             authorizationProcessor: authorizationProcessor,
