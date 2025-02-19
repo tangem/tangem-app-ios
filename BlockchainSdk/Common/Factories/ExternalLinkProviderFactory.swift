@@ -183,6 +183,8 @@ public struct ExternalLinkProviderFactory {
             return SonicExternalLinkProvider(isTestnet: isTestnet)
         case .alephium:
             return AlephiumExternalLinkProvider()
+        case .vanar:
+            return VanarExternalLinkProvider(isTestnet: isTestnet)
         }
     }
 }
