@@ -21,7 +21,10 @@ struct HederaWalletAssembly: WalletManagerAssembly {
                 HederaRESTNetworkProvider(targetConfiguration: nodeInfo, providerConfiguration: networkConfig)
             }
 
-        let consensusProvider = HederaConsensusNetworkProvider(isTestnet: isTestnet)
+        let consensusProvider = HederaConsensusNetworkProvider(
+            isTestnet: isTestnet,
+            timeout: networkConfig.urlSessionConfiguration.timeoutIntervalForRequest
+        )
 
         let networkService = HederaNetworkService(
             consensusProvider: consensusProvider,
@@ -31,7 +34,8 @@ struct HederaWalletAssembly: WalletManagerAssembly {
         let transactionBuilder = HederaTransactionBuilder(
             publicKey: wallet.publicKey.blockchainKey,
             curve: blockchain.curve,
-            isTestnet: isTestnet
+            isTestnet: isTestnet,
+            timeout: networkConfig.urlSessionConfiguration.timeoutIntervalForRequest
         )
 
         return HederaWalletManager(
