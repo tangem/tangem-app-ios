@@ -20,7 +20,7 @@ final class HederaTransactionBuilder {
 
     private lazy var client: Client = isTestnet ? Client.forTestnet() : Client.forMainnet()
 
-    init(publicKey: Data, curve: EllipticCurve, isTestnet: Bool, timeout: TimeInterval) {
+    init(publicKey: Data, curve: EllipticCurve, isTestnet: Bool, timeout: TimeInterval = 60) {
         self.publicKey = publicKey
         self.curve = curve
         self.isTestnet = isTestnet
