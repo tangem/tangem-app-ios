@@ -1117,7 +1117,7 @@ extension Blockchain: Codable {
         case .sonic: return "sonic"
         case .alephium: return "alephium"
         case .vanar: return "vanar"
-        case .zkLinkNova: return "zklink-nova"
+        case .zkLinkNova: return "zklink"
         }
     }
 
@@ -1226,7 +1226,7 @@ extension Blockchain: Codable {
         case "sonic": self = .sonic(testnet: isTestnet)
         case "alephium": self = .alephium(testnet: isTestnet)
         case "vanar": self = .vanar(testnet: isTestnet)
-        case "zklink-nova": self = .zkLinkNova(testnet: isTestnet)
+        case "zklink": self = .zkLinkNova(testnet: isTestnet)
         default:
             throw BlockchainSdkError.decodingFailed
         }
