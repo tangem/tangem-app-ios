@@ -68,7 +68,8 @@ public struct AddressServiceFactory {
              .odysseyChain,
              .bitrock,
              .apeChain,
-             .sonic:
+             .sonic,
+             .vanar:
             return EthereumAddressService()
         case .rsk:
             return RskAddressService()
