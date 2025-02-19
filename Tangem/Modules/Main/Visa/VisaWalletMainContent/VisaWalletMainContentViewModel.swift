@@ -26,6 +26,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
     @Published private(set) var numberOfDaysLimitText: String = ""
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
     @Published private(set) var failedToLoadInfoNotificationInput: NotificationViewInput?
+    @Published private(set) var isScannerBusy: Bool = false
 
     var isBalancesAndLimitsBlockLoading: Bool {
         cryptoLimitText.isEmpty || numberOfDaysLimitText.isEmpty
@@ -145,7 +146,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
                 case .idle:
                     self.updateLimits()
                 case .failedToInitialize(let error):
-                    self.failedToLoadInfoNotificationInput = NotificationsFactory().buildNotificationInput(for: error.notificationEvent)
+                    self.setupNotifications(error)
                 }
             }
             .store(in: &bag)
@@ -168,6 +169,37 @@ class VisaWalletMainContentViewModel: ObservableObject {
             }
             .assign(to: \.transactionListViewState, on: self, ownership: .weak)
             .store(in: &bag)
+    }
+
+    private func setupNotifications(_ modelError: VisaWalletModel.ModelError) {
+        switch modelError {
+        case .missingValidRefreshToken:
+            failedToLoadInfoNotificationInput = .init(
+                style: .withButtons([.init(
+                    action: weakify(self, forFunction: VisaWalletMainContentViewModel.notificationButtonTapped),
+                    actionType: .scanCard,
+                    isWithLoader: true
+                )]),
+                severity: .info,
+                settings: .init(event: VisaNotificationEvent.missingValidRefreshToken, dismissAction: nil)
+            )
+        default:
+            failedToLoadInfoNotificationInput = NotificationsFactory().buildNotificationInput(for: modelError.notificationEvent)
+        }
+    }
+
+    private func notificationButtonTapped(notificationId: NotificationViewId, buttonActionType: NotificationButtonActionType) {
+        switch buttonActionType {
+        case .scanCard:
+            isScannerBusy = true
+            visaWalletModel.authorizeCard { [weak self] in
+                DispatchQueue.main.async {
+                    self?.isScannerBusy = false
+                }
+            }
+        default:
+            return
+        }
     }
 
     private func updateLimits() {
