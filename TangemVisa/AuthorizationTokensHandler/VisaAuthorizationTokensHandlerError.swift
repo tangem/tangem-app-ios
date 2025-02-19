@@ -1,5 +1,5 @@
 //
-//  VisaAccessTokenHandlerError.swift
+//  VisaAuthorizationTokensHandlerError.swift
 //  TangemVisa
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum VisaAccessTokenHandlerError: String, LocalizedError {
+public enum VisaAuthorizationTokensHandlerError: String, LocalizedError {
     case authorizationTokensNotFound
     case refreshTokenExpired
     case missingMandatoryInfoInAccessToken
