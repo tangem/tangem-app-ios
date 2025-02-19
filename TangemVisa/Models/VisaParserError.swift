@@ -10,11 +10,13 @@ import Foundation
 
 public enum VisaParserError: String, LocalizedError {
     case addressResponseDoesntContainAddress
+    case addressesResponseHasWrongLength
     case noValidAddress
     case limitsResponseWrongLength
     case limitWrongLength
     case limitWrongSingleLimitItemsCount
     case limitWrongSingleLimitAmountsCount
+    case notEnoughOTPData
 
     public var errorDescription: String? {
         rawValue
