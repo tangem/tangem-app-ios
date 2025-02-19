@@ -39,6 +39,10 @@ extension String {
         return hexPrefix.appending(self)
     }
 
+    public func stripLeadingZeroes() -> String {
+        replacingOccurrences(of: "^0+", with: "", options: .regularExpression)
+    }
+
     func removeBchPrefix() -> String {
         if let index = firstIndex(where: { $0 == ":" }) {
             let startIndex = self.index(index, offsetBy: 1)
@@ -46,10 +50,6 @@ extension String {
         }
 
         return self
-    }
-
-    func stripLeadingZeroes() -> String {
-        replacingOccurrences(of: "^0+", with: "", options: .regularExpression)
     }
 
     func leftPadding(toLength: Int, withPad character: Character) -> String {
