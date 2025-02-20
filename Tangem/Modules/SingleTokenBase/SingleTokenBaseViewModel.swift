@@ -11,6 +11,7 @@ import Combine
 import SwiftUI
 import BlockchainSdk
 import TangemFoundation
+import enum TangemStories.TangemStory
 
 class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
@@ -143,7 +144,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
                     return
                 }
 
-                AppLog.shared.debug("♻️ \(self) loading state changed")
+                AppLogger.info(self, "♻️ loading state changed")
                 isReloadingTransactionHistory = false
                 updateSubscription = nil
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -284,7 +285,7 @@ extension SingleTokenBaseViewModel {
             .removeDuplicates()
             .filter { !$0.isLoading }
             .receiveValue { [weak self] newState in
-                AppLog.shared.debug("Token details receive new wallet model state: \(newState)")
+                AppLogger.info(self, "Token details receive new wallet model state: \(newState)")
                 self?.updateActionButtons()
             }
             .store(in: &bag)
@@ -292,7 +293,7 @@ extension SingleTokenBaseViewModel {
         walletModel.transactionHistoryPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] newState in
-                AppLog.shared.debug("New transaction history state: \(newState)")
+                AppLogger.info(self, "New transaction history state: \(newState)")
                 self?.updateHistoryState(to: newState)
             }
             .store(in: &bag)
@@ -336,6 +337,13 @@ extension SingleTokenBaseViewModel {
             .receive(on: DispatchQueue.main)
             .assign(to: \.pendingExpressTransactions, on: self, ownership: .weak)
             .store(in: &bag)
+
+        AppSettings.shared.$shownStoryIds
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.updateActionButtons()
+            }
+            .store(in: &bag)
     }
 
     private func setupMiniChart() {
@@ -374,12 +382,14 @@ extension SingleTokenBaseViewModel {
     private func updateActionButtons() {
         let buttons = availableActions.map { type in
             let isDisabled = isButtonDisabled(with: type)
+            let showBadge = shouldShowUnreadNotificationBadge(for: type) && !isDisabled
 
             return FixedSizeButtonWithIconInfo(
                 title: type.title,
                 icon: type.icon,
                 disabled: false,
                 style: isDisabled ? .disabled : .default,
+                shouldShowBadge: showBadge,
                 action: { [weak self] in
                     self?.action(for: type)?()
                 },
@@ -423,7 +433,7 @@ extension SingleTokenBaseViewModel {
                 .map(\.price.doubleValue)
             miniChartData = .loaded(chartPoints)
         } catch {
-            AppLog.shared.error(error)
+            AppLogger.error(error: error)
             miniChartData = .failedToLoad(error: error)
         }
     }
@@ -442,6 +452,15 @@ extension SingleTokenBaseViewModel {
             return isSellDisabled()
         case .copyAddress, .hide, .stake, .marketsDetails:
             return true
+        }
+    }
+
+    private func shouldShowUnreadNotificationBadge(for type: TokenActionType) -> Bool {
+        switch type {
+        case .exchange:
+            !AppSettings.shared.shownStoryIds.contains(TangemStory.ID.swap.rawValue)
+        default:
+            false
         }
     }
 

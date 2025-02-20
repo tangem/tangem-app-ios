@@ -38,23 +38,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     @Published var notificationViewInputs: [NotificationViewInput] = []
     @Published var hideTransactionAlert: AlertBinder?
 
-    var isHideButtonShowed: Bool {
-        switch pendingTransaction.transactionStatus {
-        case .paused, .refunded, .failed, .unknown:
-            true
-        case .created,
-             .awaitingDeposit,
-             .awaitingHash,
-             .confirming,
-             .buying,
-             .exchanging,
-             .sendingToUser,
-             .done,
-             .verificationRequired,
-             .canceled:
-            false
-        }
-    }
+    @Published private(set) var isHideButtonShowed = false
 
     private let expressProviderFormatter = ExpressProviderFormatter(balanceFormatter: .init())
     private weak var pendingTransactionsManager: (any PendingExpressTransactionsManager)?
@@ -322,6 +306,8 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
             inputs.append(input)
         }
 
+        updateHideButtonState(txStatus: currentStatus)
+
         scheduleNotificationUpdate(inputs, delay: delay)
     }
 
@@ -395,6 +381,30 @@ extension PendingExpressTxStatusBottomSheetViewModel {
     private func hideTransactionManually() {
         hidePendingTx(expressTransactionId: pendingTransaction.expressTransactionId)
         router?.dismissPendingTxSheet()
+    }
+
+    private func updateHideButtonState(txStatus: PendingExpressTransactionStatus) {
+        switch pendingTransaction.transactionStatus {
+        case .paused,
+             .refunded,
+             .unknown,
+             .canceled,
+             .failed where pendingTransaction.type.branch == .onramp,
+             .txFailed where pendingTransaction.type.branch == .swap:
+            isHideButtonShowed = true
+        case .created,
+             .awaitingDeposit,
+             .awaitingHash,
+             .confirming,
+             .buying,
+             .exchanging,
+             .sendingToUser,
+             .done,
+             .verificationRequired,
+             .failed,
+             .txFailed:
+            isHideButtonShowed = false
+        }
     }
 }
 
