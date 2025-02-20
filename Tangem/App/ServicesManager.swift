@@ -11,6 +11,7 @@ import Combine
 import FirebaseCore
 import BlockchainSdk
 import TangemStaking
+import TangemStories
 
 class ServicesManager {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
@@ -18,27 +19,25 @@ class ServicesManager {
     @Injected(\.accountHealthChecker) private var accountHealthChecker: AccountHealthChecker
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
+    @Injected(\.hotCryptoService) private var hotCryptoService: HotCryptoService
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
+    private let storyDataPrefetchService: StoryDataPrefetchService
 
     init() {
         stakingPendingHashesSender = StakingDependenciesFactory().makePendingHashesSender()
+        storyDataPrefetchService = StoryDataPrefetchService()
     }
 
     func initialize() {
-        AppLog.shared.configure()
-
-        let initialLaunches = AppSettings.shared.numberOfLaunches
-        let currentLaunches = initialLaunches + 1
-        AppSettings.shared.numberOfLaunches = currentLaunches
-
-        AppLog.shared.logAppLaunch(currentLaunches)
+        TangemLoggerConfigurator().initialize()
+        let initialLaunches = recordAppLaunch()
 
         if initialLaunches == 0 {
             userWalletRepository.initialClean()
         }
 
-        AppLog.shared.debug("Start services initializing")
+        AppLogger.info("Start services initializing")
 
         if !AppEnvironment.current.isDebug {
             configureFirebase()
@@ -53,6 +52,8 @@ class ServicesManager {
         SendFeatureProvider.shared.loadFeaturesAvailability()
         stakingPendingHashesSender?.sendHashesIfNeeded()
         MailZipFileManager.shared.cleanZipData()
+        hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
+        storyDataPrefetchService.prefetchStoryIfNeeded(.swap(.initialWithoutImages))
     }
 
     private func configureFirebase() {
@@ -69,6 +70,19 @@ class ServicesManager {
 
     private func configureBlockchainSdkExceptionHandler() {
         ExceptionHandler.shared.append(output: Analytics.BlockchainExceptionHandler())
+    }
+
+    private func recordAppLaunch() -> Int {
+        let initialLaunches = AppSettings.shared.numberOfLaunches
+        let currentLaunches = initialLaunches + 1
+        AppSettings.shared.numberOfLaunches = currentLaunches
+
+        let sessionMessage = "New session. Session id: \(AppConstants.sessionId)"
+        let launchNumberMessage = "Current launch number: \(currentLaunches)"
+        let deviceInfoMessage = "\(DeviceInfoProvider.Subject.allCases.map { $0.description }.joined(separator: ", "))"
+//        AppLogger.info(sessionMessage, launchNumberMessage, deviceInfoMessage)
+
+        return initialLaunches
     }
 }
 

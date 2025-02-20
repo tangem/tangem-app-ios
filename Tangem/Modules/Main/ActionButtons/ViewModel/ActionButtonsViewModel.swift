@@ -9,6 +9,7 @@
 import Combine
 import Foundation
 import TangemFoundation
+import enum TangemStories.TangemStory
 
 typealias ActionButtonsRoutable = ActionButtonsBuyFlowRoutable & ActionButtonsSellFlowRoutable & ActionButtonsSwapFlowRoutable
 
@@ -30,6 +31,8 @@ final class ActionButtonsViewModel: ObservableObject {
     let swapActionButtonViewModel: SwapActionButtonViewModel
 
     private(set) var buyActionButtonViewModel: BuyActionButtonViewModel?
+
+    @Published private(set) var shouldShowSwapUnreadNotificationBadge = false
 
     // MARK: Private properties
 
@@ -71,13 +74,13 @@ final class ActionButtonsViewModel: ObservableObject {
     }
 
     deinit {
-        AppLog.shared.debug("deinit \(self)")
+        AppLogger.debug(self, "deinit")
     }
 
     func refresh() {
+        hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
         // do nothing if already iniitialized
         exchangeService.initialize()
-        hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
     }
 
     func makeBuyButtonViewModel(_ coordinator: ActionButtonsBuyFlowRoutable) {
@@ -97,6 +100,7 @@ private extension ActionButtonsViewModel {
         bindWalletModels()
         bindBuyAvailability()
         bindSwapAvailability()
+        bindSwapUnreadNotificationBadge()
         bindSellAvailability()
     }
 
@@ -224,6 +228,18 @@ private extension ActionButtonsViewModel {
             .withWeakCaptureOf(self)
             .sink { viewModel, expressUpdateState in
                 viewModel.updateSwapButtonState(expressUpdateState)
+            }
+            .store(in: &bag)
+    }
+
+    func bindSwapUnreadNotificationBadge() {
+        AppSettings.shared.$shownStoryIds
+            .combineLatest(swapActionButtonViewModel.$viewState)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] shownStoryIds, swapButtonViewState in
+                let swapStoryShown = shownStoryIds.contains(TangemStory.ID.swap.rawValue)
+                let buttonStateIsValid = swapButtonViewState == .idle || swapButtonViewState == .initial
+                self?.shouldShowSwapUnreadNotificationBadge = buttonStateIsValid && !swapStoryShown
             }
             .store(in: &bag)
     }
