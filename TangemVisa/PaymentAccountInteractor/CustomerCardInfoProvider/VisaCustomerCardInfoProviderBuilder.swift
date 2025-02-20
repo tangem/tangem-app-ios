@@ -24,33 +24,29 @@ public struct VisaCustomerCardInfoProviderBuilder {
         cardActivationState: VisaCardActivationLocalState,
         refreshTokenSaver: VisaRefreshTokenSaver,
         evmSmartContractInteractor: EVMSmartContractInteractor,
-        urlSessionConfiguration: URLSessionConfiguration,
-        logger: VisaLogger
+        urlSessionConfiguration: URLSessionConfiguration
     ) -> VisaCustomerCardInfoProvider {
         let authorizationTokensHandler = VisaAuthorizationTokensHandlerBuilder(isMockedAPIEnabled: isMockedAPIEnabled)
             .build(
                 cardId: cardId,
                 cardActivationStatus: cardActivationState,
                 refreshTokenSaver: refreshTokenSaver,
-                urlSessionConfiguration: urlSessionConfiguration,
-                logger: logger
+                urlSessionConfiguration: urlSessionConfiguration
             )
 
         return build(
             authorizationTokensHandler: authorizationTokensHandler,
             evmSmartContractInteractor: evmSmartContractInteractor,
-            urlSessionConfiguration: urlSessionConfiguration,
-            logger: logger
+            urlSessionConfiguration: urlSessionConfiguration
         )
     }
 
     public func build(
         authorizationTokensHandler: VisaAuthorizationTokensHandler?,
         evmSmartContractInteractor: EVMSmartContractInteractor,
-        urlSessionConfiguration: URLSessionConfiguration,
-        logger: VisaLogger
+        urlSessionConfiguration: URLSessionConfiguration
     ) -> VisaCustomerCardInfoProvider {
-        let internalLogger = InternalLogger(logger: logger)
+        let internalLogger = InternalLogger()
         var customerInfoManagementService: CustomerInfoManagementService?
         if let authorizationTokensHandler {
             customerInfoManagementService = CommonCustomerInfoManagementService(
