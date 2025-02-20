@@ -26,7 +26,7 @@ public enum TangemStory: Identifiable {
 }
 
 public extension TangemStory {
-    enum ID: String {
+    enum ID: String, CaseIterable {
         case swap
     }
 
@@ -44,6 +44,7 @@ public extension TangemStory {
 // MARK: - Swap story
 
 public extension TangemStory {
+    // do not forget to update SwapStoryData.Property enum if you add / remove pages
     struct SwapStoryData {
         public var firstPage: Page
         public var secondPage: Page
