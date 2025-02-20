@@ -99,7 +99,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     deinit {
-        AppLog.shared.debug("MultiWalletMainContentViewModel for \(userWalletModel.name) deinit")
+        AppLogger.debug("\(userWalletModel.name) deinit")
     }
 
     func onPullToRefresh(completionHandler: @escaping RefreshCompletionHandler) {

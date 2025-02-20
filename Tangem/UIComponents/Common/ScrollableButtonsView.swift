@@ -7,13 +7,21 @@
 //
 
 import SwiftUI
+import TangemUI
 
 struct ScrollableButtonsView: View {
-    /// Use this property to expand scroll view beyond parent view
+    /// Use this properties to expand scroll view beyond parent view
     /// This is usefull when your parent view has paddings, but scroll must
     /// go to the edge of the scree
     let itemsHorizontalOffset: CGFloat
+    let itemsVerticalOffset: CGFloat
     let buttonsInfo: [FixedSizeButtonWithIconInfo]
+
+    init(itemsHorizontalOffset: CGFloat, itemsVerticalOffset: CGFloat = 0, buttonsInfo: [FixedSizeButtonWithIconInfo]) {
+        self.itemsHorizontalOffset = itemsHorizontalOffset
+        self.itemsVerticalOffset = itemsVerticalOffset
+        self.buttonsInfo = buttonsInfo
+    }
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -27,11 +35,14 @@ struct ScrollableButtonsView: View {
                         longPressAction: button.longPressAction
                     )
                     .disabled(button.disabled)
+                    .unreadNotificationBadge(button.shouldShowBadge, badgeColor: Colors.Icon.accent)
                 }
             }
             .padding(.horizontal, itemsHorizontalOffset)
+            .padding(.vertical, itemsVerticalOffset)
         }
         .padding(.horizontal, -itemsHorizontalOffset)
+        .padding(.vertical, -itemsVerticalOffset)
     }
 }
 
