@@ -13,20 +13,18 @@ public struct VisaPaymentAccountInteractorBuilder {
     private let isTestnet: Bool
     private let evmSmartContractInteractor: EVMSmartContractInteractor
     private let urlSessionConfiguration: URLSessionConfiguration
-    private let logger: InternalLogger
     private let isMockedAPIEnabled: Bool
+    private let logger: InternalLogger = .init()
 
     public init(
         isTestnet: Bool,
         evmSmartContractInteractor: EVMSmartContractInteractor,
         urlSessionConfiguration: URLSessionConfiguration,
-        logger: VisaLogger,
         isMockedAPIEnabled: Bool
     ) {
         self.isTestnet = isTestnet
         self.evmSmartContractInteractor = evmSmartContractInteractor
         self.urlSessionConfiguration = urlSessionConfiguration
-        self.logger = .init(logger: logger)
         self.isMockedAPIEnabled = isMockedAPIEnabled
     }
 
