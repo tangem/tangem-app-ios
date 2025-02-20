@@ -17,4 +17,8 @@ struct AnyEncodable: Encodable {
     func encode(to encoder: Encoder) throws {
         try encodable.encode(to: encoder)
     }
+
+    func isArray() -> Bool {
+        encodable is [Any]
+    }
 }
