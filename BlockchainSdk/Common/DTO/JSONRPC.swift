@@ -51,10 +51,14 @@ extension JSONRPC.Request {
         let messageData = try encoder.encode(self)
 
         guard let string = String(bytes: messageData, encoding: .utf8) else {
-            throw NSError(domain: "Invalid request", code: -1, userInfo: nil)
+            throw Errors.invalidRequest
         }
 
         return string
+    }
+
+    enum Errors: LocalizedError {
+        case invalidRequest
     }
 }
 
@@ -89,5 +93,18 @@ extension JSONRPC.Response: Decodable {
         case id
         case result
         case error
+    }
+}
+
+// MARK: - Request + Encoding
+
+extension JSONRPC.Request {
+    static func ping(
+        jsonrpc: JSONRPC.Version? = .v2,
+        id: Int = WebSocketConnection.Ping.Constants.id,
+        method: String
+    ) -> JSONRPC.Request<[String]> {
+        // Empty params
+        .init(jsonrpc: jsonrpc, id: id, method: method, params: [])
     }
 }

@@ -13,6 +13,7 @@ class MarketsTokenDetailsCoordinator: CoordinatorObject {
     let popToRootAction: Action<PopToRootOptions>
 
     @Injected(\.safariManager) private var safariManager: SafariManager
+    @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
 
     // MARK: - Root ViewModels
 
@@ -144,12 +145,19 @@ extension MarketsTokenDetailsCoordinator {
             self?.expressCoordinator = nil
         }
 
-        expressCoordinator = portfolioCoordinatorFactory.makeExpressCoordinator(
-            for: walletModel,
-            with: userWalletModel,
-            dismissAction: dismissAction,
-            popToRootAction: popToRootAction
-        )
+        let openSwapBlock = { [weak self] in
+            guard let self else { return }
+            expressCoordinator = portfolioCoordinatorFactory.makeExpressCoordinator(
+                for: walletModel,
+                with: userWalletModel,
+                dismissAction: dismissAction,
+                popToRootAction: popToRootAction
+            )
+        }
+
+        Task { @MainActor [tangemStoriesPresenter] in
+            tangemStoriesPresenter.present(story: .swap(.initialWithoutImages), presentCompletion: openSwapBlock)
+        }
     }
 
     func openOnramp(for walletModel: WalletModel, with userWalletModel: UserWalletModel) {
