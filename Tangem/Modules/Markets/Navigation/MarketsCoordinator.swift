@@ -36,7 +36,7 @@ class MarketsCoordinator: CoordinatorObject {
     }
 
     deinit {
-        AppLog.shared.debug("MarketsCoordinator deinit")
+        AppLogger.debug("MarketsCoordinator deinit")
     }
 
     // MARK: - Implementation

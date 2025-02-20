@@ -19,10 +19,9 @@ public struct VisaAuthorizationTokensHandlerBuilder {
         cardId: String,
         cardActivationStatus: VisaCardActivationLocalState,
         refreshTokenSaver: VisaRefreshTokenSaver?,
-        urlSessionConfiguration: URLSessionConfiguration,
-        logger: VisaLogger
+        urlSessionConfiguration: URLSessionConfiguration
     ) -> VisaAuthorizationTokensHandler {
-        let internalLogger = InternalLogger(logger: logger)
+        let internalLogger = InternalLogger()
 
         let authorizationTokensHolder: AuthorizationTokensHolder
         if let authorizationTokens = cardActivationStatus.authTokens {
@@ -32,10 +31,7 @@ public struct VisaAuthorizationTokensHandlerBuilder {
         }
 
         let authorizationTokenRefreshService = VisaAPIServiceBuilder(mockedAPI: isMockedAPIEnabled)
-            .buildAuthorizationTokenRefreshService(
-                urlSessionConfiguration: urlSessionConfiguration,
-                logger: logger
-            )
+            .buildAuthorizationTokenRefreshService(urlSessionConfiguration: urlSessionConfiguration)
 
         let authorizationTokensHandler = CommonVisaAuthorizationTokensHandler(
             cardId: cardId,

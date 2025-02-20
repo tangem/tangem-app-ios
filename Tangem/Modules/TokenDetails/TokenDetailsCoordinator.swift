@@ -36,6 +36,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
     @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel? = nil
     @Published var pendingExpressTxStatusBottomSheetViewModel: PendingExpressTxStatusBottomSheetViewModel? = nil
 
+    @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
     private var safariHandle: SafariHandle?
     private var options: Options?
 
@@ -245,9 +246,15 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             popToRootAction: popToRootAction
         )
 
-        coordinator.start(with: .default)
+        let showExpressBlock = { [weak self] in
+            guard let self else { return }
+            coordinator.start(with: .default)
+            expressCoordinator = coordinator
+        }
 
-        expressCoordinator = coordinator
+        Task { @MainActor [tangemStoriesPresenter] in
+            tangemStoriesPresenter.present(story: .swap(.initialWithoutImages), presentCompletion: showExpressBlock)
+        }
     }
 
     func openStaking(options: StakingDetailsCoordinator.Options) {

@@ -92,6 +92,7 @@ class VisaWalletModel {
     private let stateSubject = CurrentValueSubject<State, Never>(.notInitialized)
     private let refreshTokenNotificationSubject = CurrentValueSubject<NotificationViewInput?, Never>(nil)
     private let alertSubject = CurrentValueSubject<AlertBinder?, Never>(nil)
+    private let logger = VisaLogger
 
     private var updateTask: Task<Void, Never>?
     private var historyReloadTask: Task<Void, Never>?
@@ -101,8 +102,7 @@ class VisaWalletModel {
 
         let apiService = VisaAPIServiceBuilder().buildTransactionHistoryService(
             isTestnet: FeatureStorage.instance.isVisaTestnet,
-            urlSessionConfiguration: .defaultConfiguration,
-            logger: AppLog.shared
+            urlSessionConfiguration: .defaultConfiguration
         )
 
         let appUtilities = VisaAppUtilities()
@@ -203,7 +203,7 @@ class VisaWalletModel {
             stateSubject.send(.failedToInitialize(modelError))
             return
         } catch {
-            log("Failed to setup authorization tokens handler. Proceeding to payment account interactor setup. Error: \(error)")
+            logger.debug("Failed to setup authorization tokens handler. Proceeding to payment account interactor setup. Error: \(error)")
         }
 
         await setupPaymentAccountInteractorAsync()
@@ -226,7 +226,7 @@ class VisaWalletModel {
             let apiList = try await apiListProvider.apiListPublisher.async()
             smartContractInteractor = try factory.makeInteractor(for: blockchain, apiInfo: apiList[blockchain.networkId] ?? [])
         } catch {
-            log("Failed to setup bridge. Error: \(error)")
+            VisaLogger.error(self, "Failed to setup bridge", error: error)
             stateSubject.send(.failedToInitialize(.invalidBlockchain))
             return
         }
@@ -245,8 +245,7 @@ class VisaWalletModel {
             let customerCardInfoProvider = customerCardInfoProviderBuilder.build(
                 authorizationTokensHandler: authorizationTokensHandler,
                 evmSmartContractInteractor: smartContractInteractor,
-                urlSessionConfiguration: .defaultConfiguration,
-                logger: AppLog.shared
+                urlSessionConfiguration: .defaultConfiguration
             )
 
             let customerCardInfo = try await customerCardInfoProvider.loadPaymentAccount(
@@ -259,7 +258,6 @@ class VisaWalletModel {
                 isTestnet: blockchain.isTestnet,
                 evmSmartContractInteractor: smartContractInteractor,
                 urlSessionConfiguration: .defaultConfiguration,
-                logger: AppLog.shared,
                 isMockedAPIEnabled: FeatureStorage.instance.isVisaAPIMocksEnabled
             )
             let interactor = try await builder.build(customerCardInfo: customerCardInfo)
@@ -270,11 +268,11 @@ class VisaWalletModel {
             if error == .refreshTokenExpired {
                 showRefreshTokenExpiredNotification()
             } else {
-                log("Authorization error. Error: \(error)")
+                logger.debug("Authorization error. Error: \(error)")
                 stateSubject.send(.failedToInitialize(.authorizationError))
             }
         } catch {
-            log("Failed to create address from provided public key. Error: \(error)")
+            VisaLogger.error(self, "Failed to create address from provided public key", error: error)
             stateSubject.send(.failedToInitialize(.failedToGenerateAddress))
         }
     }
@@ -320,17 +318,13 @@ class VisaWalletModel {
             let cardSettings = try await visaPaymentAccountInteractor.loadCardSettings()
             cardSettingsSubject.send(cardSettings)
         } catch {
-            log("Failed to load card settings. Error: \(error)")
+            logger.debug("Failed to load card settings. Error: \(error)")
             cardSettingsSubject.send(nil)
         }
     }
 
     private func reloadHistoryAsync() async {
         await transactionHistoryService.reloadHistory()
-    }
-
-    private func log(_ message: @autoclosure () -> String) {
-        AppLog.shared.debug("\n\n[VisaWalletModel] \(message())\n\n")
     }
 }
 
@@ -368,8 +362,7 @@ extension VisaWalletModel {
             cardId: cardId,
             cardActivationStatus: .activated(authTokens: tokens),
             refreshTokenSaver: self,
-            urlSessionConfiguration: .defaultConfiguration,
-            logger: AppLog.shared
+            urlSessionConfiguration: .defaultConfiguration
         )
 
         if await authorizationTokensHandler.refreshTokenExpired {
@@ -476,6 +469,12 @@ extension VisaWalletModel: MainHeaderBalanceProvider {
                 return .loading()
             }
         }
+    }
+}
+
+extension VisaWalletModel: CustomStringConvertible {
+    var description: String {
+        objectDescription(self)
     }
 }
 
