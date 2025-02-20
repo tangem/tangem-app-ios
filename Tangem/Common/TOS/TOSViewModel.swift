@@ -22,7 +22,8 @@ class TOSViewModel: ObservableObject {
             addLoadingIndicator: true,
             withCloseButton: false,
             withNavigationBar: false,
-            contentInset: .init(top: 0, left: 0, bottom: bottomOverlayHeight / 2, right: 0)
+            contentInset: .init(top: 0, left: 0, bottom: bottomOverlayHeight / 2, right: 0),
+            timeoutSettings: .init(interval: 30, fallbackURL: Bundle.main.url(forResource: "local_tos", withExtension: "html"))
         )
     }
 }

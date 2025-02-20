@@ -15,7 +15,6 @@ class CommonStakingManager {
     private let integrationId: String
     private let wallet: StakingWallet
     private let provider: StakingAPIProvider
-    private let logger: Logger
     private let analyticsLogger: StakingAnalyticsLogger
 
     private(set) var balances: [StakingBalance]?
@@ -34,13 +33,11 @@ class CommonStakingManager {
         integrationId: String,
         wallet: StakingWallet,
         provider: StakingAPIProvider,
-        logger: Logger,
         analyticsLogger: StakingAnalyticsLogger
     ) {
         self.integrationId = integrationId
         self.wallet = wallet
         self.provider = provider
-        self.logger = logger
         self.analyticsLogger = analyticsLogger
     }
 }
@@ -73,11 +70,8 @@ extension CommonStakingManager: StakingManager {
             async let actions = loadActions ? provider.actions(wallet: wallet) : []
             try await updateState(state(balances: balances, yield: yield, actions: actions))
         } catch {
-            analyticsLogger.logError(
-                error,
-                currencySymbol: wallet.item.symbol
-            )
-            logger.error(error)
+            analyticsLogger.logError(error, currencySymbol: wallet.item.symbol)
+            StakingLogger.error(self, error: error)
             updateState(.loadingError(error.localizedDescription))
         }
     }
@@ -105,7 +99,7 @@ extension CommonStakingManager: StakingManager {
                 type: type
             )
         default:
-            log("Invalid staking manager state: \(state), for action: \(action)")
+            StakingLogger.info(self, "Invalid staking manager state: \(state), for action: \(action)")
             throw StakingManagerError.stakingManagerStateNotSupportEstimateFeeAction(action: action, state: state)
         }
     }
@@ -148,7 +142,7 @@ extension CommonStakingManager: StakingManager {
 
 private extension CommonStakingManager {
     func updateState(_ state: StakingManagerState) {
-        log("Update state to \(state)")
+        StakingLogger.info(self, "Update state to \(state)")
         _state.send(state)
         updateBalances(state)
     }
@@ -251,7 +245,7 @@ private extension CommonStakingManager {
 
     private func isFullAmountUnstaking(for balances: [StakingBalance], action: PendingAction) -> Bool {
         guard let index = balanceIndexByType(balances: balances, action: action, type: .active) else {
-            logger.debug("Couldn't find corresponding staked balance for unstake action")
+            StakingLogger.info("Couldn't find corresponding staked balance for unstake action")
             return false
         }
         let balance = balances[index]
@@ -547,9 +541,9 @@ private extension CommonStakingManager {
 
 // MARK: - Log
 
-private extension CommonStakingManager {
-    func log(_ args: Any) {
-        logger.debug("[Staking] \(self) \(wallet.item) \(args)")
+extension CommonStakingManager: CustomStringConvertible {
+    var description: String {
+        objectDescription(self, userInfo: ["item": wallet.item])
     }
 }
 
