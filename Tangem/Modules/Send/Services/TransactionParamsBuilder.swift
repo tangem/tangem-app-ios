@@ -125,7 +125,8 @@ struct TransactionParamsBuilder {
              .bitrock,
              .apeChain,
              .sonic,
-             .alephium:
+             .alephium,
+             .vanar:
             throw TransactionParamsBuilderError.extraIdNotSupported
         }
     }

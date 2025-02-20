@@ -11,23 +11,17 @@ import enum TangemStories.TangemStory
 
 struct TangemStoriesHostView: View {
     @ObservedObject var viewModel: TangemStoriesViewModel
-    let animation: Animation
-
-    init(viewModel: TangemStoriesViewModel, animation: Animation) {
-        self.viewModel = viewModel
-        self.animation = animation
-    }
 
     var body: some View {
         ZStack {
-            dimmingBackground(viewModel.state != nil)
+            dimmingBackground(isPresented: viewModel.state != nil)
             storiesHostView(viewModel)
         }
-        .animation(animation, value: viewModel.state != nil)
+        .animation(Constants.animation, value: viewModel.state)
     }
 
     @ViewBuilder
-    private func dimmingBackground(_ isPresented: Bool) -> some View {
+    private func dimmingBackground(isPresented: Bool) -> some View {
         if isPresented {
             Color.black
                 .ignoresSafeArea()
@@ -53,10 +47,20 @@ struct TangemStoriesHostView: View {
 
     private static func makePages(for story: TangemStory, using viewModel: StoriesHostViewModel) -> [any View] {
         switch story {
-        case .swap:
-            [
-                // [REDACTED_TODO_COMMENT]
-            ]
+        case .swap(let swapStoryData):
+            swapStoryData
+                .pagesKeyPaths
+                .map { pageKeyPath in
+                    let page = swapStoryData[keyPath: pageKeyPath]
+                    return SwapStoryPageView(page: page)
+                }
         }
+    }
+}
+
+extension TangemStoriesHostView {
+    enum Constants {
+        static let animationDuration: TimeInterval = 0.3
+        static let animation = Animation.easeInOut(duration: Self.animationDuration)
     }
 }

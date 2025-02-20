@@ -56,6 +56,9 @@ struct APINodeInfoResolver {
         case .koinos:
             return KoinosAPIResolver(config: config)
                 .resolve(blockchain: blockchain)
+        case .tangemAlephium:
+            return AlephiumAPIResolver(config: config)
+                .resolve(providerType: .tangemAlephium, blockchain: blockchain)
         case .blockchair, .blockcypher, .solana:
             return nil
         }

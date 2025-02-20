@@ -57,6 +57,11 @@ struct APIKeysInfoProvider {
                 headerName: "apikey",
                 headerValue: config.koinosProApiKey
             )
+        case .tangemAlephium:
+            return .init(
+                headerName: "api-key",
+                headerValue: config.tangemAlephiumApiKey
+            )
         case .public, .quickNode, .getBlock, .blockchair, .blockcypher, .infura, .adalite, .tangemRosetta, .solana, .kaspa, .dwellir, .none:
             return nil
         }

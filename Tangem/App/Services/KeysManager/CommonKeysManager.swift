@@ -52,19 +52,16 @@ extension CommonKeysManager: KeysManager {
             // [REDACTED_TODO_COMMENT]
             quickNodeSolanaCredentials: .init(apiKey: keys.quiknodeApiKey, subdomain: keys.quiknodeSubdomain),
             quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
-            defaultNetworkProviderConfiguration: .init(logger: .verbose, urlSessionConfiguration: .standard),
+            defaultNetworkProviderConfiguration: .init(logOptions: .verbose, urlSessionConfiguration: .standard),
             networkProviderConfigurations: [:],
             bittensorDwellirKey: keys.bittensorDwellirKey,
-            bittensorOnfinalityKey: keys.bittensorOnfinalityKey
+            bittensorOnfinalityKey: keys.bittensorOnfinalityKey,
+            tangemAlephiumApiKey: keys.alephiumTangemApiKey
         )
     }
 
     var tangemComAuthorization: String? {
         keys.tangemComAuthorization
-    }
-
-    var sprinklr: SprinklrConfig {
-        keys.sprinklr
     }
 
     var amplitudeApiKey: String {
@@ -106,7 +103,6 @@ extension CommonKeysManager {
         let blockcypherTokens: [String]
         let infuraProjectId: String
         let nowNodesApiKey: String
-        let getBlockApiKey: String
         let getBlockAccessTokens: [String: [String: String]]
         let kaspaSecondaryApiUrl: String
         let tonCenterApiKey: TonCenterApiKeys
@@ -124,11 +120,11 @@ extension CommonKeysManager {
         let koinosProApiKey: String
         let tangemComAuthorization: String?
         let walletConnectProjectId: String
-        let sprinklr: SprinklrConfig
         let express: ExpressKeys
         let devExpress: ExpressKeys?
         let stakeKitApiKey: String
         let bittensorDwellirKey: String
         let bittensorOnfinalityKey: String
+        let alephiumTangemApiKey: String
     }
 }

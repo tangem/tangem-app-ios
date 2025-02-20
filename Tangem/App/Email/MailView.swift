@@ -79,16 +79,16 @@ struct MailView: UIViewControllerRepresentable {
 
          logFiles.forEach { originalURL in
              guard originalURL.lastPathComponent != LogFilesNames.infoLogs else {
-                 attachPlainTextData(at: originalURL, to: vc)
+                 attachCSVData(at: originalURL, to: vc)
                  return
              }
              do {
                  try MailZipFileManager.shared.attachZipData(at: originalURL, to: vc)
              } catch {
-                 attachPlainTextData(at: originalURL, to: vc)
+                 attachCSVData(at: originalURL, to: vc)
              }
          }
-          */
+         */
 
         return vc
     }
@@ -98,11 +98,13 @@ struct MailView: UIViewControllerRepresentable {
         context: UIViewControllerRepresentableContext<MailView>
     ) {}
 
-    private func attachPlainTextData(at url: URL, to viewController: MFMailComposeViewController) {
-        if let data = try? Data(contentsOf: url) {
-            viewController.addAttachmentData(data, mimeType: "text/plain", fileName: url.lastPathComponent)
-        }
-    }
+    /*
+     private func attachCSVData(at url: URL, to viewController: MFMailComposeViewController) {
+         if let data = try? Data(contentsOf: url) {
+             viewController.addAttachmentData(data, mimeType: "text/csv", fileName: url.lastPathComponent)
+         }
+     }
+     */
 }
 
 private struct MailViewPlaceholder: View {
