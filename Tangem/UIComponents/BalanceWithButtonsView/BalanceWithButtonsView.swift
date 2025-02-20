@@ -36,7 +36,7 @@ struct BalanceWithButtonsView: View {
                 )
             }
 
-            ScrollableButtonsView(itemsHorizontalOffset: 14, buttonsInfo: viewModel.buttons)
+            ScrollableButtonsView(itemsHorizontalOffset: 14, itemsVerticalOffset: 3, buttonsInfo: viewModel.buttons)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 14)
