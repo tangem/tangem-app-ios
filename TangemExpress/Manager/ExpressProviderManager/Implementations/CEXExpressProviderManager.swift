@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 actor CEXExpressProviderManager {
     // MARK: - Dependencies
@@ -14,7 +15,6 @@ actor CEXExpressProviderManager {
     private let provider: ExpressProvider
     private let expressAPIProvider: ExpressAPIProvider
     private let feeProvider: FeeProvider
-    private let logger: Logger
     private let mapper: ExpressManagerMapper
 
     // MARK: - State
@@ -25,13 +25,11 @@ actor CEXExpressProviderManager {
         provider: ExpressProvider,
         expressAPIProvider: ExpressAPIProvider,
         feeProvider: FeeProvider,
-        logger: Logger,
         mapper: ExpressManagerMapper
     ) {
         self.provider = provider
         self.expressAPIProvider = expressAPIProvider
         self.feeProvider = feeProvider
-        self.logger = logger
         self.mapper = mapper
     }
 }
@@ -45,7 +43,7 @@ extension CEXExpressProviderManager: ExpressProviderManager {
 
     func update(request: ExpressManagerSwappingPairRequest) async {
         let state = await getState(request: request)
-        log("Update to \(state)")
+        ExpressLogger.info(self, "Update to \(state)")
         _state = state
     }
 
@@ -168,11 +166,15 @@ private extension CEXExpressProviderManager {
         }
 
         // We're decreasing amount on the fee value
-        log("Subtract fee - \(fee) from amount - \(request.amount)")
+        ExpressLogger.info(self, "Subtract fee - \(fee) from amount - \(request.amount)")
         return fee
     }
+}
 
-    func log(_ args: Any) {
-        logger.debug("[Express] \(self) \(args)")
+// MARK: - CustomStringConvertible
+
+extension CEXExpressProviderManager: @preconcurrency CustomStringConvertible {
+    var description: String {
+        objectDescription(self)
     }
 }

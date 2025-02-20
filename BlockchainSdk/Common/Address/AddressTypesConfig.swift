@@ -99,7 +99,8 @@ struct AddressTypesConfig {
              .bitrock,
              .apeChain,
              .sonic,
-             .alephium:
+             .alephium,
+             .vanar:
             return [.default]
         }
     }
