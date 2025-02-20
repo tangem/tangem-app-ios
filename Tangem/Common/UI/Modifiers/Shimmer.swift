@@ -22,7 +22,7 @@ public struct Shimmer: ViewModifier {
         isAppeared ? animationPoints : idlePoints
     }
 
-    init(bandSize: CGFloat = 1) {
+    init(bandSize: CGFloat = 0.5) {
         let topLeading = UnitPoint.topLeading // 0, 0
         let bottomLeading = UnitPoint.bottomTrailing // 1, 1
 
@@ -34,9 +34,7 @@ public struct Shimmer: ViewModifier {
         content
             .mask {
                 LinearGradient(gradient: gradient, startPoint: gradientPoints.start, endPoint: gradientPoints.end)
-            }
-            .transaction { transaction in
-                transaction.animation = isAppeared ? activeAnimation : .none
+                    .animation(isAppeared ? activeAnimation : .none, value: isAppeared)
             }
             .onAppear {
                 guard !isAppeared else {
