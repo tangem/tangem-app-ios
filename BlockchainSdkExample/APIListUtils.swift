@@ -52,10 +52,11 @@ struct ConfigUtils {
                 chiaTangemApiKeys: .init(mainnetApiKey: keys.chiaTangemApiKey),
                 quickNodeSolanaCredentials: .init(apiKey: keys.quiknodeApiKey, subdomain: keys.quiknodeSubdomain),
                 quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
-                defaultNetworkProviderConfiguration: .init(logger: .verbose, urlSessionConfiguration: .standard),
+                defaultNetworkProviderConfiguration: .init(logOptions: .verbose, urlSessionConfiguration: .standard),
                 networkProviderConfigurations: [:],
                 bittensorDwellirKey: keys.bittensorDwellirKey,
-                bittensorOnfinalityKey: keys.bittensorOnfinalityKey
+                bittensorOnfinalityKey: keys.bittensorOnfinalityKey,
+                tangemAlephiumApiKey: keys.alephiumTangemApiKey
             )
         } catch {
             return .init(
@@ -74,9 +75,10 @@ struct ConfigUtils {
                 chiaTangemApiKeys: .init(mainnetApiKey: ""),
                 quickNodeSolanaCredentials: .init(apiKey: "", subdomain: ""),
                 quickNodeBscCredentials: .init(apiKey: "", subdomain: ""),
-                defaultNetworkProviderConfiguration: .init(logger: .verbose),
+                defaultNetworkProviderConfiguration: .init(logOptions: .verbose, urlSessionConfiguration: .standard),
                 bittensorDwellirKey: "",
-                bittensorOnfinalityKey: ""
+                bittensorOnfinalityKey: "",
+                tangemAlephiumApiKey: ""
             )
         }
     }
@@ -186,7 +188,6 @@ struct Keys: Decodable {
     let blockcypherTokens: [String]
     let infuraProjectId: String
     let nowNodesApiKey: String
-    let getBlockApiKey: String
     let getBlockAccessTokens: [String: [String: String]]
     let kaspaSecondaryApiUrl: String
     let tonCenterApiKey: TonCenterApiKeys
@@ -202,6 +203,7 @@ struct Keys: Decodable {
     let koinosProApiKey: String
     let bittensorDwellirKey: String
     let bittensorOnfinalityKey: String
+    let alephiumTangemApiKey: String
 }
 
 struct TonCenterApiKeys: Decodable {

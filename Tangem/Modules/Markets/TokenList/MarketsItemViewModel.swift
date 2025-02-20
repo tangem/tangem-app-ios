@@ -169,7 +169,7 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
                 .mapAndSortValues(from: model)
                 .map(\.price.doubleValue)
         } catch {
-            AppLog.shared.error(error)
+            AppLogger.error(error: error)
             return nil
         }
     }
