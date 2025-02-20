@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 struct ActionButtonsView: View {
     @ObservedObject var viewModel: ActionButtonsViewModel
@@ -17,6 +18,8 @@ struct ActionButtonsView: View {
                 ActionButtonView(viewModel: buyActionButtonViewModel)
             }
             ActionButtonView(viewModel: viewModel.swapActionButtonViewModel)
+                .unreadNotificationBadge(viewModel.shouldShowSwapUnreadNotificationBadge, badgeColor: Colors.Icon.accent)
+
             ActionButtonView(viewModel: viewModel.sellActionButtonViewModel)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

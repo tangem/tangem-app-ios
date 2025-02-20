@@ -20,45 +20,39 @@ public struct VisaActivationManagerFactory {
         cardId: String,
         initialActivationStatus: VisaCardActivationLocalState,
         tangemSdk: TangemSdk,
-        urlSessionConfiguration: URLSessionConfiguration,
-        logger: VisaLogger
+        urlSessionConfiguration: URLSessionConfiguration
     ) -> VisaActivationManager {
-        let internalLogger = InternalLogger(logger: logger)
+        let internalLogger = InternalLogger()
 
         let authorizationTokensHandler = VisaAuthorizationTokensHandlerBuilder(isMockedAPIEnabled: isMockedAPIEnabled)
             .build(
                 cardId: cardId,
                 cardActivationStatus: initialActivationStatus,
                 refreshTokenSaver: nil,
-                urlSessionConfiguration: urlSessionConfiguration,
-                logger: logger
+                urlSessionConfiguration: urlSessionConfiguration
             )
 
         let authorizationService = VisaAPIServiceBuilder(mockedAPI: isMockedAPIEnabled)
-            .buildAuthorizationService(
-                urlSessionConfiguration: urlSessionConfiguration,
-                logger: logger
-            )
+            .buildAuthorizationService(urlSessionConfiguration: urlSessionConfiguration)
+
         let authorizationProcessor = CommonCardAuthorizationProcessor(
             authorizationService: authorizationService,
             logger: internalLogger
         )
 
         let cardActivationStatusService = VisaCardActivationStatusServiceBuilder(isMockedAPIEnabled: isMockedAPIEnabled)
-            .build(urlSessionConfiguration: urlSessionConfiguration, logger: logger)
+            .build(urlSessionConfiguration: urlSessionConfiguration)
 
         let activationOrderProvider = CardActivationOrderProviderBuilder(isMockedAPIEnabled: isMockedAPIEnabled)
             .build(
                 urlSessionConfiguration: urlSessionConfiguration,
                 tokensHandler: authorizationTokensHandler,
-                cardActivationStatusService: cardActivationStatusService,
-                logger: logger
+                cardActivationStatusService: cardActivationStatusService
             )
         let productActivationService = ProductActivationServiceBuilder(isMockAPIEnabled: isMockedAPIEnabled)
             .build(
                 urlSessionConfiguration: urlSessionConfiguration,
-                authorizationTokensHandler: authorizationTokensHandler,
-                logger: logger
+                authorizationTokensHandler: authorizationTokensHandler
             )
         let key = (try? VisaConfigProvider.shared().getRSAPublicKey()) ?? ""
         let pinCodeProcessor = PaymentologyPINCodeProcessor(rsaPublicKey: key)
