@@ -98,14 +98,16 @@ class PolkadotNetworkService: MultiNetworkProvider {
         }
     }
 
-    func fee(for extrinsic: Data) -> AnyPublisher<UInt64, Error> {
+    func fee(for extrinsic: Data) -> AnyPublisher<PolkadotQueriedInfo, Error> {
         providerPublisher { provider in
-            provider.queryInfo(extrinsic.hexString.addHexPrefix())
-                .tryMap {
-                    guard let fee = UInt64($0.partialFee) else {
-                        throw WalletError.failedToGetFee
-                    }
-                    return fee
+            // Payload length param is redundant, but required
+            // https://forum.polkadot.network/t/new-json-rpc-api-mega-q-a/3048/2#how-do-i-get-the-metadata-the-account-nonce-or-the-payment-fees-with-the-new-api-6
+            let payload = extrinsic + extrinsic.count.bytes4LE
+            return provider
+                .queryInfo(payload.hexString.addHexPrefix())
+                .withWeakCaptureOf(self)
+                .tryMap { networkService, output in
+                    try networkService.codec.decode(PolkadotQueriedInfo.self, from: Data(hexString: output))
                 }
                 .eraseToAnyPublisher()
         }
