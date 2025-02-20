@@ -150,3 +150,17 @@ enum TokenItem: Hashable, Codable {
         }
     }
 }
+
+// MARK: - CustomStringConvertible
+
+extension TokenItem: CustomStringConvertible {
+    var description: String {
+        ObjectDescriptionFormatter.format(
+            objectDescription: "TokenItem",
+            userInfo: [
+                "name": name,
+                "derivation": blockchainNetwork.derivationPath?.rawPath ?? "nil",
+            ]
+        )
+    }
+}
