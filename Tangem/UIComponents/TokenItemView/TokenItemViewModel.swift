@@ -94,10 +94,6 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         bind()
     }
 
-    deinit {
-        AppLog.shared.debug("deinit \(self)")
-    }
-
     func tapAction() {
         tokenTapped(id)
     }
@@ -173,17 +169,20 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         balanceFiat = loadableTokenBalanceViewStateBuilder.build(type: type, icon: .leading)
     }
 
-    private func setupPrice(_ quote: TokenQuote?) {
-        guard let quote else {
+    private func setupPrice(_ rate: WalletModel.Rate) {
+        switch rate {
+        case .loading(.none):
+            tokenPrice = .loading
+            priceChangeState = .loading
+        // If we have a cached rate we just show it
+        // Exactly the loading animation will show on fiat balance
+        case .loading(.some(let quote)), .failure(.some(let quote)), .loaded(let quote):
+            tokenPrice = .loaded(text: priceFormatter.formatPrice(quote.price))
+            priceChangeState = priceChangeUtility.convertToPriceChangeState(changePercent: quote.priceChange24h)
+        case .custom, .failure(.none):
             tokenPrice = .noData
             priceChangeState = .empty
-            return
         }
-
-        priceChangeState = priceChangeUtility.convertToPriceChangeState(changePercent: quote.priceChange24h)
-
-        let priceText = priceFormatter.formatPrice(quote.price)
-        tokenPrice = .loaded(text: priceText)
     }
 
     private func updatePendingTransactionsStateIfNeeded() {

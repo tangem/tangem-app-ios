@@ -22,6 +22,7 @@ class MainCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
+    @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
 
     // MARK: - Root view model
 
@@ -328,9 +329,15 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             popToRootAction: popToRootAction
         )
 
-        coordinator.start(with: .default)
+        let openExpressBlock = { [weak self] in
+            guard let self else { return }
+            coordinator.start(with: .default)
+            expressCoordinator = coordinator
+        }
 
-        expressCoordinator = coordinator
+        Task { @MainActor [tangemStoriesPresenter] in
+            tangemStoriesPresenter.present(story: .swap(.initialWithoutImages), presentCompletion: openExpressBlock)
+        }
     }
 
     func openStaking(options: StakingDetailsCoordinator.Options) {
@@ -512,9 +519,15 @@ extension MainCoordinator: ActionButtonsSwapFlowRoutable {
             dismissAction: dismissAction
         )
 
-        coordinator.start(with: .default)
+        let openExpressBlock = { [weak self] in
+            guard let self else { return }
+            coordinator.start(with: .default)
+            actionButtonsSwapCoordinator = coordinator
+        }
 
-        actionButtonsSwapCoordinator = coordinator
+        Task { @MainActor [tangemStoriesPresenter] in
+            tangemStoriesPresenter.present(story: .swap(.initialWithoutImages), presentCompletion: openExpressBlock)
+        }
     }
 }
 
