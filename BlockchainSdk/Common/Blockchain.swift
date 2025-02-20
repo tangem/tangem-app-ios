@@ -1500,6 +1500,7 @@ private extension Blockchain {
             switch type {
             case .network: return "vanar"
             case .coin: return "vanry"
+            }
         case .zkLinkNova:
             switch type {
             case .network: return "zklink-nova"
