@@ -13,12 +13,14 @@ import Hedera
 /// Provider for Hedera Consensus Nodes (GRPC) https://docs.hedera.com/hedera/networks/mainnet/mainnet-nodes
 final class HederaConsensusNetworkProvider {
     private let isTestnet: Bool
+    private let timeout: TimeInterval
     private let callbackQueue: DispatchQueue
 
     private lazy var client: Client = isTestnet ? Client.forTestnet() : Client.forMainnet()
 
-    init(isTestnet: Bool, callbackQueue: DispatchQueue = .main) {
+    init(isTestnet: Bool, timeout: TimeInterval = 60, callbackQueue: DispatchQueue = .main) {
         self.isTestnet = isTestnet
+        self.timeout = timeout
         self.callbackQueue = callbackQueue
     }
 
@@ -33,7 +35,7 @@ final class HederaConsensusNetworkProvider {
         .asyncMap { networkProvider, accountId in
             return try await AccountBalanceQuery()
                 .accountId(accountId)
-                .execute(networkProvider.client)
+                .execute(networkProvider.client, networkProvider.timeout)
         }
         .map { accountBalance in
             let hbarBalance = Int(accountBalance.hbars.tinybars)
@@ -69,7 +71,7 @@ final class HederaConsensusNetworkProvider {
         .asyncMap { networkProvider, transactionId in
             let transactionReceipt = try await TransactionReceiptQuery()
                 .transactionId(transactionId)
-                .execute(networkProvider.client)
+                .execute(networkProvider.client, networkProvider.timeout)
 
             return (transactionReceipt, transactionId)
         }
