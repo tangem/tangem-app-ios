@@ -12,12 +12,14 @@ import Combine
 class DefaultTokenItemInfoProvider {
     private let walletModel: WalletModel
 
+    private let stakingBalanceProvider: TokenBalanceProvider
     private let balanceProvider: TokenBalanceProvider
     private let fiatBalanceProvider: TokenBalanceProvider
 
     init(walletModel: WalletModel) {
         self.walletModel = walletModel
 
+        stakingBalanceProvider = walletModel.stakingBalanceProvider
         balanceProvider = walletModel.totalTokenBalanceProvider
         fiatBalanceProvider = walletModel.fiatTotalTokenBalanceProvider
     }
@@ -30,8 +32,8 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
 
     var hasPendingTransactions: Bool { walletModel.hasPendingTransactions }
 
-    var quote: TokenQuote? {
-        walletModel.quote
+    var quote: WalletModel.Rate {
+        walletModel.rate
     }
 
     var balance: TokenBalanceType {
@@ -46,8 +48,8 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
         fiatBalanceProvider.formattedBalanceType
     }
 
-    var quotePublisher: AnyPublisher<TokenQuote?, Never> {
-        walletModel.ratePublisher.map { $0.quote }.eraseToAnyPublisher()
+    var quotePublisher: AnyPublisher<WalletModel.Rate, Never> {
+        walletModel.ratePublisher.eraseToAnyPublisher()
     }
 
     var balancePublisher: AnyPublisher<TokenBalanceType, Never> {
@@ -65,14 +67,9 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { walletModel.actionsUpdatePublisher }
 
     var isStakedPublisher: AnyPublisher<Bool, Never> {
-        walletModel.stakingManagerStatePublisher
-            .filter { $0 != .loading }
-            .map { state in
-                switch state {
-                case .staked: true
-                case .loading, .availableToStake, .notEnabled, .temporaryUnavailable, .loadingError: false
-                }
-            }
+        stakingBalanceProvider
+            .balanceTypePublisher
+            .map { ($0.value ?? 0) > 0 }
             .eraseToAnyPublisher()
     }
 }
