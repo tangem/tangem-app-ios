@@ -45,7 +45,8 @@ struct WebViewContainer: View {
             popupUrl: $popupUrl,
             urlActions: viewModel.urlActions,
             isLoading: $isLoading,
-            contentInset: viewModel.contentInset
+            contentInset: viewModel.contentInset,
+            timeoutSettings: viewModel.timeoutSettings
         )
     }
 
