@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 actor JSONRPCWebSocketProvider {
     private let url: URL
@@ -47,7 +48,7 @@ actor JSONRPCWebSocketProvider {
         let response = try decoder.decode(JSONRPC.Response<Result, JSONRPC.APIError>.self, from: data)
 
         assert(request.id == response.id, "The response contains wrong id")
-        log("Return result \(response.result)")
+        BSDKLogger.info(self, "Return result \(response.result)")
 
         return try response.result.get()
     }
@@ -76,7 +77,7 @@ private extension JSONRPCWebSocketProvider {
                 // Handle next message
                 await setupReceiveTask()
             } catch {
-                log("ReceiveTask catch error: \(error)")
+                BSDKLogger.error(self, "ReceiveTask catch error", error: error)
                 await cancel()
             }
         }
@@ -85,20 +86,21 @@ private extension JSONRPCWebSocketProvider {
     func proceedReceive(data: Data) async {
         do {
             let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
-
-            if let id = json?["id"] as? Int, let continuation = requests[id] {
-                await continuation.resume(returning: data)
-            } else {
-                log("Received json: \(String(describing: json)) is not handled")
+            guard let id = json?["id"] as? Int else {
+                BSDKLogger.error(self, error: "Received json: \(String(describing: json)) has wrong id")
+                return
             }
 
+            if let continuation = requests[id] {
+                await continuation.resume(returning: data)
+            } else if id == WebSocketConnection.Ping.Constants.id {
+                BSDKLogger.info(self, "The ping message response received: \(String(describing: json))")
+            } else {
+                BSDKLogger.warning(self, "Received json: \(String(describing: json)) is not handled")
+            }
         } catch {
-            log("Receive catch parse error: \(error)")
+            BSDKLogger.error(self, "Receive catch parse error", error: error)
         }
-    }
-
-    nonisolated func log(_ args: Any) {
-        print("\(self) [\(args)]")
     }
 }
 
@@ -112,7 +114,7 @@ extension JSONRPCWebSocketProvider: HostProvider {
 
 extension JSONRPCWebSocketProvider: CustomStringConvertible {
     nonisolated var description: String {
-        objectDescription(self)
+        TangemFoundation.objectDescription(self)
     }
 }
 

@@ -125,7 +125,8 @@ class Analytics {
     fileprivate static func log(error: Error, params: [ParameterKey: String] = [:]) {
         var params = params
 
-        if error is WalletConnectV2Error || error is WalletConnectServiceError {
+        switch error {
+        case is WalletConnectV2Error, is WalletConnectServiceError:
             params[.errorDescription] = error.localizedDescription
             let nsError = NSError(
                 domain: "WalletConnect Error",
@@ -133,7 +134,8 @@ class Analytics {
                 userInfo: params.dictionaryParams
             )
             Crashlytics.crashlytics().record(error: nsError)
-        } else if let sdkError = error as? TangemSdkError {
+
+        case let sdkError as TangemSdkError:
             params[.errorKey] = String(describing: sdkError)
             let nsError = NSError(
                 domain: "Tangem SDK Error #\(sdkError.code)",
@@ -141,7 +143,9 @@ class Analytics {
                 userInfo: params.dictionaryParams
             )
             Crashlytics.crashlytics().record(error: nsError)
-        } else if let detailedDescription = (error as? DetailedError)?.detailedDescription {
+
+        case let error as DetailedError:
+            let detailedDescription = error.detailedDescription
             params[.errorDescription] = detailedDescription
             let nsError = NSError(
                 domain: "DetailedError",
@@ -149,7 +153,8 @@ class Analytics {
                 userInfo: params.dictionaryParams
             )
             Crashlytics.crashlytics().record(error: nsError)
-        } else {
+
+        default:
             Crashlytics.crashlytics().record(error: error)
         }
     }
@@ -225,7 +230,7 @@ class Analytics {
         if let data = try? JSONSerialization.data(withJSONObject: printableParams, options: .sortedKeys),
            let paramsString = String(data: data, encoding: .utf8)?.replacingOccurrences(of: ",\"", with: ", \"") {
             let logMessage = "Analytics event: \(event). Params: \(paramsString)"
-            AppLog.shared.debug(logMessage)
+            AnalyticsLogger.info(logMessage)
         }
     }
 
@@ -265,19 +270,22 @@ private extension Analytics.Event {
     }
 }
 
-// MARK: - AppLog error extension
+// MARK: - Error extension
 
-extension AppLog {
-    func error(_ error: Error, params: [Analytics.ParameterKey: Analytics.ParameterValue] = [:]) {
+extension Analytics {
+    static func error(error: Error) {
+        self.error(error: error, params: [Analytics.ParameterKey: String]())
+    }
+
+    static func error(error: Error, params: [Analytics.ParameterKey: Analytics.ParameterValue]) {
         self.error(error: error, params: params.mapValues { $0.rawValue })
     }
 
-    func error(error: Error, params: [Analytics.ParameterKey: String]) {
+    static func error(error: Error, params: [Analytics.ParameterKey: String]) {
         guard !error.toTangemSdkError().isUserCancelled else {
             return
         }
 
-        Log.error(error)
         Analytics.log(error: error, params: params)
     }
 }

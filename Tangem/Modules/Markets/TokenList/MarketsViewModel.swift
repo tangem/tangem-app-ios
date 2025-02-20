@@ -106,7 +106,7 @@ final class MarketsViewModel: MarketsBaseViewModel {
     }
 
     deinit {
-        AppLog.shared.debug("MarketsViewModel deinit")
+        AppLogger.debug("MarketsViewModel deinit")
     }
 
     /// Handles `SwiftUI.View.onAppear(perform:)`.
