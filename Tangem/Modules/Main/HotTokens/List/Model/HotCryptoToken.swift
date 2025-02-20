@@ -10,19 +10,22 @@ import Foundation
 
 struct HotCryptoToken: Identifiable {
     let id: String
+    let coinId: String
     let name: String
     let networkId: String
-    let currentPrice: Decimal
-    let priceChangePercentage24h: Decimal
+    let currentPrice: Decimal?
+    let priceChangePercentage24h: Decimal?
     let symbol: String
     let decimalCount: Int?
     let contractAddress: String?
-    let imageURL: URL?
+    let tokenIconInfo: TokenIconInfo?
 }
 
 extension HotCryptoToken {
-    init(from dto: HotCryptoDTO.Response.HotToken) {
-        id = dto.id
+    // [REDACTED_TODO_COMMENT]
+    init(from dto: HotCryptoDTO.Response.HotToken, tokenMapper: TokenItemMapper, imageHost: URL?) {
+        id = dto.id + dto.networkId
+        coinId = dto.id
         name = dto.name
         symbol = dto.symbol
         networkId = dto.networkId
@@ -31,6 +34,18 @@ extension HotCryptoToken {
         decimalCount = dto.decimalCount
         contractAddress = dto.contractAddress
 
-        imageURL = IconURLBuilder().tokenIconURL(id: dto.id, size: .large)
+        guard
+            let mappedTokenItem = tokenMapper.mapToTokenItem(
+                id: coinId,
+                name: name,
+                symbol: symbol,
+                network: .init(networkId: networkId, contractAddress: contractAddress, decimalCount: decimalCount)
+            )
+        else {
+            tokenIconInfo = nil
+            return
+        }
+
+        tokenIconInfo = TokenIconInfoBuilder().build(from: mappedTokenItem, isCustom: false)
     }
 }

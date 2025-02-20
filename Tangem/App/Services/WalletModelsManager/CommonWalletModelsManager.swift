@@ -44,7 +44,7 @@ class CommonWalletModelsManager {
     }
 
     private func updateWalletModels(with walletManagers: [BlockchainNetwork: WalletManager]) {
-        AppLog.shared.debug("🔄 Updating Wallet models")
+        AppLogger.info("🔄 Updating Wallet models")
 
         let existingWalletModelIds = Set(walletModels.map { $0.walletModelId })
 
@@ -118,6 +118,8 @@ class CommonWalletModelsManager {
 // MARK: - WalletListManager
 
 extension CommonWalletModelsManager: WalletModelsManager {
+    var isInitialized: Bool { _walletModels.value != nil }
+
     var walletModels: [WalletModel] {
         _walletModels.value ?? []
     }
@@ -152,10 +154,6 @@ extension CommonWalletModelsManager: WalletModelsManager {
 
 private extension CommonWalletModelsManager {
     func log(walletModels: [WalletModel]) {
-        let printList = walletModels.map {
-            return "\($0.name)"
-        }
-
-        AppLog.shared.debug("✅ Actual List of WalletModels [\(printList.joined(separator: ", "))]")
+        AppLogger.info("✅ Actual List of WalletModels [\(walletModels.map(\.name))]")
     }
 }
