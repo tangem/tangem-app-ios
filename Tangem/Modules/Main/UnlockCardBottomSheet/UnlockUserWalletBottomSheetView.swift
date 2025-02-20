@@ -59,19 +59,19 @@ struct UnlockUserWalletBottomSheetView: View {
 struct UnlockUserWalletBottomSheetView_Previews: PreviewProvider {
     class FakeUnlockUserWalletDelegate: UnlockUserWalletBottomSheetDelegate {
         func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType) {
-            print("Open mail")
+            AppLogger.debug("Open mail")
         }
 
         func unlockedWithBiometry() {
-            print("Unlocked with biometry")
+            AppLogger.debug("Unlocked with biometry")
         }
 
         func userWalletUnlocked(_ userWalletModel: UserWalletModel) {
-            print("Unlocked with card: \(userWalletModel.userWalletId.stringValue)")
+            AppLogger.debug("Unlocked with card: \(userWalletModel.userWalletId.stringValue)")
         }
 
         func openScanCardManual() {
-            print("Open card scan manual")
+            AppLogger.debug("Open card scan manual")
         }
     }
 
