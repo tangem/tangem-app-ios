@@ -93,7 +93,9 @@ private extension CommonExpressAvailabilityProvider {
                 provider.save(states: availabilityStates)
                 provider._state.send(.updated)
             } catch {
-                AppLog.shared.error("Failed to load availability states: \(error)")
+                ExpressLogger.error("Failed to load availability states", error: error)
+                Analytics.error(error: error)
+
                 provider._state.send(.failed(error: error))
             }
         }
@@ -155,7 +157,7 @@ private extension CommonExpressAvailabilityProvider {
             return
         }
 
-        let provider = ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, logger: AppLog.shared)
+        let provider = ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId)
         apiProvider = provider
     }
 }
