@@ -7,12 +7,13 @@
 //
 
 import Moya
+import TangemFoundation
 
 protocol JSONRPCTargetType: TargetType {
-    static var id: Int { get set }
+    static var id: ThreadSafeContainer<Int> { get set }
 
     var rpcMethod: String { get }
-    var params: AnyEncodable { get }
+    var params: [AnyEncodable] { get }
 }
 
 extension JSONRPCTargetType {
@@ -20,13 +21,8 @@ extension JSONRPCTargetType {
     var method: Moya.Method { .post }
 
     var task: Task {
-        assert(params.isArray(), "The JSONRPC `params` must be wrapped to array")
-        Self.id += 1
-        let request = JSONRPC.Request(id: Self.id, method: rpcMethod, params: params)
+        Self.id.mutate { $0 += 1 }
+        let request = JSONRPC.Request(id: Self.id.read(), method: rpcMethod, params: params)
         return .requestJSONEncodable(request)
     }
-}
-
-extension AnyEncodable {
-    static let emptyArray = AnyEncodable([Int]())
 }
