@@ -58,7 +58,7 @@ extension CommonCardActivationStatusService: VisaCardActivationStatusService {
             throw VisaAuthorizationTokensHandlerError.missingAccessToken
         }
 
-        let ids = try VisaActivationUtility().getEssentialActivationIds(from: accessToken)
+        let ids = try VisaBFFUtility().getEssentialBFFIds(from: accessToken)
 
         let request = ProductActivationAPITarget.ActivationStatusRequest(
             customerId: ids.customerId,
