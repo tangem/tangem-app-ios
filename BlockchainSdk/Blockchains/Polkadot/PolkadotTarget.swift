@@ -9,6 +9,7 @@
 import Foundation
 import Moya
 import TangemNetworkUtils
+import TangemFoundation
 
 enum PolkadotBlockhashType {
     case genesis
@@ -16,7 +17,7 @@ enum PolkadotBlockhashType {
 }
 
 struct PolkadotTarget: JSONRPCTargetType {
-    static var id: Int = 0
+    static var id: ThreadSafeContainer<Int> = .init(0)
 
     enum Target {
         case storage(key: String)
@@ -35,30 +36,22 @@ struct PolkadotTarget: JSONRPCTargetType {
         node.url
     }
 
-    var path: String {
-        return ""
-    }
-
-    var method: Moya.Method {
-        return .post
-    }
-
-    var params: AnyEncodable {
+    var params: [AnyEncodable] {
         switch target {
         case .storage(let key):
-            return AnyEncodable([key])
+            return [AnyEncodable(key)]
         case .blockhash(.genesis):
-            return AnyEncodable([0])
+            return [AnyEncodable(0)]
         case .header(let hash):
-            return AnyEncodable([hash])
+            return [AnyEncodable(hash)]
         case .accountNextIndex(let address):
-            return AnyEncodable([address])
+            return [AnyEncodable(address)]
         case .runtimeVersion, .blockhash(.latest):
-            return .emptyArray
+            return []
         case .queryInfo(let extrinsic):
-            return AnyEncodable(["TransactionPaymentApi_query_info", extrinsic])
+            return [AnyEncodable("TransactionPaymentApi_query_info"), AnyEncodable(extrinsic)]
         case .submitExtrinsic(let extrinsic):
-            return AnyEncodable([extrinsic])
+            return [AnyEncodable(extrinsic)]
         }
     }
 
