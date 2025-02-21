@@ -18,7 +18,7 @@ class VisaWalletModel {
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
 
-    private let transactionHistoryService: VisaTransactionHistoryService
+    private var transactionHistoryService: VisaTransactionHistoryService?
     private var visaPaymentAccountInteractor: VisaPaymentAccountInteractor?
 
     var accountAddress: String { visaPaymentAccountInteractor?.accountAddress ?? .unknown }
@@ -56,16 +56,20 @@ class VisaWalletModel {
     }
 
     var transactionHistoryStatePublisher: AnyPublisher<TransactionHistoryServiceState, Never> {
-        transactionHistoryService.statePublisher
+        transactionHistoryService?.statePublisher ?? Just(.failedToLoad(ModelError.authorizationError)).eraseToAnyPublisher()
     }
 
     var transactionHistoryItems: [TransactionListItem] {
+        guard let transactionHistoryService else {
+            return []
+        }
+
         let historyMapper = VisaTransactionHistoryMapper(currencySymbol: currencySymbol)
         return historyMapper.mapTransactionListItem(from: transactionHistoryService.items)
     }
 
     var canFetchMoreTransactionHistory: Bool {
-        transactionHistoryService.canFetchMoreHistory
+        transactionHistoryService?.canFetchMoreHistory ?? false
     }
 
     var currencySymbol: String {
@@ -100,11 +104,6 @@ class VisaWalletModel {
     init(userWalletModel: UserWalletModel) {
         self.userWalletModel = userWalletModel
 
-        let apiService = VisaAPIServiceBuilder().buildTransactionHistoryService(
-            isTestnet: FeatureStorage.instance.isVisaTestnet,
-            urlSessionConfiguration: .defaultConfiguration
-        )
-
         let appUtilities = VisaAppUtilities()
         if let walletPublicKey = appUtilities.makeBlockchainKey(using: userWalletModel.keysRepository.keys) {
             cardWalletAddress = try? AddressServiceFactory(blockchain: appUtilities.blockchainNetwork.blockchain)
@@ -112,18 +111,6 @@ class VisaWalletModel {
                 .makeAddress(for: walletPublicKey, with: .default)
                 .value
         }
-
-        let cardPublicKey: String
-        if let publicKey = VisaAppUtilities().getPublicKeyData(from: userWalletModel.keysRepository.keys) {
-            cardPublicKey = publicKey.hexString
-        } else {
-            cardPublicKey = "Failed to find secp256k1 key"
-        }
-
-        transactionHistoryService = VisaTransactionHistoryService(
-            cardPublicKey: cardPublicKey,
-            apiService: apiService
-        )
 
         initialSetup()
     }
@@ -134,7 +121,7 @@ class VisaWalletModel {
     }
 
     func transaction(with id: UInt64) -> VisaTransactionRecord? {
-        transactionHistoryService.items.first(where: { $0.id == id })
+        transactionHistoryService?.items.first(where: { $0.id == id })
     }
 
     func generalUpdateAsync() async {
@@ -181,7 +168,7 @@ class VisaWalletModel {
         }
 
         historyReloadTask = Task { [weak self] in
-            await self?.transactionHistoryService.loadNextPage()
+            await self?.transactionHistoryService?.loadNextPage()
             self?.historyReloadTask = nil
         }
     }
@@ -324,7 +311,7 @@ class VisaWalletModel {
     }
 
     private func reloadHistoryAsync() async {
-        await transactionHistoryService.reloadHistory()
+        await transactionHistoryService?.reloadHistory()
     }
 }
 
@@ -374,6 +361,7 @@ extension VisaWalletModel {
         }
 
         self.authorizationTokensHandler = authorizationTokensHandler
+        setupTransactionHistoryService(with: authorizationTokensHandler)
     }
 
     func authorizeCard(completion: @escaping () -> Void) {
@@ -409,6 +397,15 @@ extension VisaWalletModel {
             try await walletModel.setupTokensHandler(with: tokens)
             await walletModel.setupPaymentAccountInteractorAsync()
         }
+    }
+
+    private func setupTransactionHistoryService(with authorizationTokensHandler: VisaAuthorizationTokensHandler) {
+        let apiService = VisaAPIServiceBuilder().buildTransactionHistoryService(
+            authorizationTokensHandler: authorizationTokensHandler,
+            isTestnet: FeatureStorage.instance.isVisaTestnet,
+            urlSessionConfiguration: .defaultConfiguration
+        )
+        transactionHistoryService = VisaTransactionHistoryService(apiService: apiService)
     }
 }
 
