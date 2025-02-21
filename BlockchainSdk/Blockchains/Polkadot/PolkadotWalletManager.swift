@@ -98,8 +98,7 @@ extension PolkadotWalletManager: TransactionSender {
     }
 
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
-        let blockchain = wallet.blockchain
-        return networkService
+        networkService
             .blockchainMeta(for: destination)
             .withWeakCaptureOf(self)
             .flatMap { walletManager, meta in
