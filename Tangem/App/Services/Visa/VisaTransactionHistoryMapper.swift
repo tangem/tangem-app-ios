@@ -68,7 +68,6 @@ struct VisaTransactionHistoryMapper {
             type: prepareSnakeCaseString(transaction.type),
             status: prepareSnakeCaseString(transaction.status),
             blockchainAmount: balanceFormatter.formatCryptoBalance(transaction.blockchainAmount, currencyCode: currencySymbol),
-            blockchainFee: balanceFormatter.formatCryptoBalance(transaction.blockchainFee, currencyCode: currencySymbol),
             transactionAmount: balanceFormatter.formatFiatBalance(transaction.transactionAmount, numericCurrencyCode: transaction.transactionCurrencyCode),
             currencyCode: ISO4217CodeConverter.shared.convertToStringCode(numericCode: transaction.transactionCurrencyCode) ?? "\(transaction.transactionCurrencyCode)"
         )
@@ -83,7 +82,6 @@ struct VisaTransactionHistoryMapper {
             type: prepareSnakeCaseString(request.type),
             status: prepareSnakeCaseString(request.status),
             blockchainAmount: balanceFormatter.formatCryptoBalance(request.blockchainAmount, currencyCode: currencySymbol),
-            blockchainFee: balanceFormatter.formatCryptoBalance(request.blockchainFee, currencyCode: currencySymbol),
             transactionAmount: balanceFormatter.formatFiatBalance(request.transactionAmount, numericCurrencyCode: request.transactionCurrencyCode),
             currencyCode: ISO4217CodeConverter.shared.convertToStringCode(numericCode: request.transactionCurrencyCode) ?? "\(request.transactionCurrencyCode)"
         )

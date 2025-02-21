@@ -15,15 +15,13 @@ class VisaTransactionHistoryService {
     private let apiService: VisaTransactionHistoryAPIService
     private let storage: ThreadSafeContainer<[VisaTransactionRecord]> = []
 
-    private let cardPublicKey: String
     private let numberOfItemsOnPage: Int = 20
     private var currentOffset = 0
     private var reachEndOfHistoryList = false
 
     private let stateSubject = CurrentValueSubject<TransactionHistoryServiceState, Never>(.initial)
 
-    init(cardPublicKey: String, apiService: VisaTransactionHistoryAPIService) {
-        self.cardPublicKey = cardPublicKey
+    init(apiService: VisaTransactionHistoryAPIService) {
         self.apiService = apiService
     }
 }
@@ -48,17 +46,17 @@ extension VisaTransactionHistoryService {
     func reloadHistory() async {
         stateSubject.send(.loading)
         let firstItemsInStorage = Array(items.prefix(numberOfItemsOnPage))
-        AppLogger.info("Attempting to reload history. Is storage empty: \(firstItemsInStorage.isEmpty)")
+        VisaLogger.info("Attempting to reload history. Is storage empty: \(firstItemsInStorage.isEmpty)")
 
         do {
             let itemsOnServer = try await loadRecordsPage(offset: 0)
             if firstItemsInStorage == itemsOnServer {
-                AppLogger.info("First \(firstItemsInStorage.count) items in storage are the same as first items on server, no need to update history")
+                VisaLogger.info("First \(firstItemsInStorage.count) items in storage are the same as first items on server, no need to update history")
                 stateSubject.send(.loaded)
                 return
             }
 
-            AppLogger.info("History on server is not same as history on device. Clearing storage and saving new loaded history. New number of items in storage: \(itemsOnServer.count)")
+            VisaLogger.info("History on server is not same as history on device. Clearing storage and saving new loaded history. New number of items in storage: \(itemsOnServer.count)")
             clearHistory()
             currentOffset = itemsOnServer.count
             reachEndOfHistoryList = currentOffset % numberOfItemsOnPage != 0
@@ -66,7 +64,7 @@ extension VisaTransactionHistoryService {
             AppLogger.info("Reach end of history: \(reachEndOfHistoryList)")
             stateSubject.send(.loaded)
         } catch {
-            AppLogger.error("Failed to reload history", error: error)
+            VisaLogger.error("Failed to reload history", error: error)
             stateSubject.send(.failedToLoad(error))
         }
     }
@@ -77,13 +75,13 @@ extension VisaTransactionHistoryService {
         }
 
         stateSubject.send(.loading)
-        AppLogger.info("Attempting to load next page. Current history offset: \(currentOffset)")
+        VisaLogger.info("Attempting to load next page. Current history offset: \(currentOffset)")
         do {
             let loadedRecords = try await loadRecordsPage(offset: currentOffset)
             reachEndOfHistoryList = loadedRecords.count != numberOfItemsOnPage
             currentOffset += loadedRecords.count
             saveRecordsInStorage(records: loadedRecords)
-            AppLogger.info("History loaded sucessfully. Number of new items: \(loadedRecords.count). New offset: \(currentOffset)")
+            VisaLogger.info("History loaded sucessfully. Number of new items: \(loadedRecords.count). New offset: \(currentOffset)")
             stateSubject.send(.loaded)
         } catch {
             stateSubject.send(.failedToLoad(error))
@@ -105,13 +103,8 @@ extension VisaTransactionHistoryService {
 
 private extension VisaTransactionHistoryService {
     func loadRecordsPage(offset: Int) async throws -> [VisaTransactionRecord] {
-        let request = VisaTransactionHistoryDTO.APIRequest(
-            cardPublicKey: cardPublicKey,
-            offset: offset,
-            numberOfItems: numberOfItemsOnPage
-        )
-        AppLogger.info("Attempting to load history page with request: \(request)")
-        let response = try await apiService.loadHistoryPage(request: request)
+        VisaLogger.info("Attempting to load history page with request, offset: \(offset), numberOfItemsOnPage: \(numberOfItemsOnPage)")
+        let response = try await apiService.loadHistoryPage(offset: offset, numberOfItemsPerPage: numberOfItemsOnPage)
         return response.transactions
     }
 }
