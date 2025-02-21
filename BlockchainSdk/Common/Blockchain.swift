@@ -1503,7 +1503,7 @@ private extension Blockchain {
             }
         case .zkLinkNova:
             switch type {
-            case .network: return "zklink-nova"
+            case .network: return "zklink"
             case .coin: return "zklink"
             }
         }
