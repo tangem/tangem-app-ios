@@ -11,7 +11,7 @@ import TangemStories
 import Kingfisher
 
 private final class TangemStoriesEnvironment {
-    let kingfisherCache: ImageCache = {
+    lazy var kingfisherCache: ImageCache = {
         let countLimit = 10
         let tenMinutesInSeconds: TimeInterval = 600
 
@@ -24,13 +24,22 @@ private final class TangemStoriesEnvironment {
     }()
 
     lazy var storyDataCache = InMemoryStoryDataCache(kingfisherCache: kingfisherCache)
-    let storyAvailabilityService = AppSettingsStoryAvailabilityService(appSettings: AppSettings.shared)
+    lazy var storyAvailabilityService = AppSettingsStoryAvailabilityService(appSettings: AppSettings.shared)
+    lazy var storyAnalyticsService = StoryAnalyticsService()
 
-    lazy var enrichStoryUseCase = EnrichStoryUseCase(storyDataCache: storyDataCache, storyDataService: CommonStoryDataService())
+    lazy var enrichStoryUseCase = EnrichStoryUseCase(
+        storyDataCache: storyDataCache,
+        storyDataService: CommonStoryDataService(
+            storyAvailabilityService: storyAvailabilityService,
+            storyAnalyticsService: storyAnalyticsService
+        )
+    )
+
     lazy var tangemStoriesViewModel = TangemStoriesViewModel(
         checkStoryAvailabilityUseCase: CheckStoryAvailabilityUseCase(storyAvailabilityService: storyAvailabilityService),
         enrichStoryUseCase: enrichStoryUseCase,
-        finalizeStoryUseCase: FinalizeStoryUseCase(storyAvailabilityService: storyAvailabilityService, storyDataCache: storyDataCache)
+        finalizeStoryUseCase: FinalizeStoryUseCase(storyAvailabilityService: storyAvailabilityService, storyDataCache: storyDataCache),
+        analyticsService: storyAnalyticsService
     )
 }
 
