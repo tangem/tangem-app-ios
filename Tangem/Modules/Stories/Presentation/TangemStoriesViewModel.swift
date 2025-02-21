@@ -13,6 +13,7 @@ final class TangemStoriesViewModel: ObservableObject {
     private let checkStoryAvailabilityUseCase: CheckStoryAvailabilityUseCase
     private let enrichStoryUseCase: EnrichStoryUseCase
     private let finalizeStoryUseCase: FinalizeStoryUseCase
+    private let analyticsService: StoryAnalyticsService
 
     @MainActor
     private var storyEnrichTask: Task<Void, Never>?
@@ -29,11 +30,13 @@ final class TangemStoriesViewModel: ObservableObject {
     init(
         checkStoryAvailabilityUseCase: CheckStoryAvailabilityUseCase,
         enrichStoryUseCase: EnrichStoryUseCase,
-        finalizeStoryUseCase: FinalizeStoryUseCase
+        finalizeStoryUseCase: FinalizeStoryUseCase,
+        analyticsService: StoryAnalyticsService
     ) {
         self.checkStoryAvailabilityUseCase = checkStoryAvailabilityUseCase
         self.enrichStoryUseCase = enrichStoryUseCase
         self.finalizeStoryUseCase = finalizeStoryUseCase
+        self.analyticsService = analyticsService
     }
 
     deinit {
@@ -43,7 +46,7 @@ final class TangemStoriesViewModel: ObservableObject {
     }
 
     @MainActor
-    func present(story: TangemStory, presentCompletion: @escaping () -> Void) {
+    func present(story: TangemStory, analyticsSource: Analytics.StoriesSource, presentCompletion: @escaping () -> Void) {
         guard checkStoryAvailabilityUseCase(story.id) else {
             presentCompletion()
             return
@@ -54,7 +57,7 @@ final class TangemStoriesViewModel: ObservableObject {
         storyFinalizeTask?.cancel()
 
         state = Self.makeState(for: story) { [weak self] in
-            self?.finalizeActiveStory()
+            self?.finalizeActiveStory(analyticsSource: analyticsSource)
         }
 
         delayedPresentCompletionTask = Task {
@@ -69,7 +72,7 @@ final class TangemStoriesViewModel: ObservableObject {
     @MainActor
     func forceDismiss() {
         storyEnrichTask?.cancel()
-        finalizeActiveStory()
+        finalizeActiveStory(analyticsSource: nil)
     }
 
     // MARK: - Private methods
@@ -83,17 +86,27 @@ final class TangemStoriesViewModel: ObservableObject {
     }
 
     @MainActor
-    private func finalizeActiveStory() {
+    private func finalizeActiveStory(analyticsSource: Analytics.StoriesSource?) {
         defer {
             state = nil
             delayedPresentCompletionTask?.cancel()
         }
 
-        guard let lastActiveStory = state?.activeStory else { return }
+        guard let state else { return }
 
         storyFinalizeTask = Task { [finalizeStoryUseCase] in
-            await finalizeStoryUseCase(lastActiveStory.id)
+            await finalizeStoryUseCase(state.activeStory.id)
         }
+
+        guard
+            let analyticsSource,
+            let viewedPageIndexes = state.storiesHostViewModel.storyViewModels.first?.viewedPageIndexes,
+            let lastViewedIndex = viewedPageIndexes.max()
+        else {
+            return
+        }
+
+        analyticsService.reportShown(state.activeStory.id, lastViewedPageIndex: lastViewedIndex, source: analyticsSource)
     }
 }
 
