@@ -391,5 +391,10 @@ extension Analytics {
         case actionButtonsButtonClose = "[Main Screen] Button - Close"
         case actionButtonsHotTokenClicked = "[Main Screen] Hot Token Clicked"
         case actionButtonsHotTokenError = "[Main Screen] Hot Token Error"
+
+        // MARK: - Stories
+
+        case storiesSwapShown = "[Stories] Swap Stories"
+        case storiesError = "[Stories] Error"
     }
 }
