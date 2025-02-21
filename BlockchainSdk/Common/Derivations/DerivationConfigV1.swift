@@ -53,7 +53,8 @@ struct DerivationConfigV1: DerivationConfig {
              .canxium,
              .chiliz,
              .xodex,
-             .apeChain:
+             .apeChain,
+             .vanar:
             return "m/44'/60'/0'/0/0"
         case .ethereumClassic:
             return "m/44'/61'/0'/0/0"
