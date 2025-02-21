@@ -1,5 +1,5 @@
 //
-//  VisaActivationUtility.swift
+//  VisaBFFUtility.swift
 //  TangemVisa
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,13 +9,13 @@
 import Foundation
 import JWTDecode
 
-struct VisaActivationUtility {
-    func getEssentialActivationIds(from accessToken: String) throws -> (customerId: String, productInstanceId: String) {
+struct VisaBFFUtility {
+    func getEssentialBFFIds(from accessToken: String) throws -> (customerId: String, productInstanceId: String) {
         let jwtToken = try decode(jwt: accessToken)
-        return try getEssentialActivationIds(from: jwtToken)
+        return try getEssentialBFFIds(from: jwtToken)
     }
 
-    func getEssentialActivationIds(from accessToken: JWT) throws -> (customerId: String, productInstanceId: String) {
+    func getEssentialBFFIds(from accessToken: JWT) throws -> (customerId: String, productInstanceId: String) {
         let jwtHelper = JWTTokenHelper()
         guard
             let customerId = jwtHelper.getCustomerID(from: accessToken),
