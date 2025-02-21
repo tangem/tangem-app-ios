@@ -9,13 +9,16 @@
 import Foundation
 import Moya
 import TangemNetworkUtils
+import TangemFoundation
 
 enum PolkadotBlockhashType {
     case genesis
     case latest
 }
 
-struct PolkadotTarget: TargetType {
+struct PolkadotTarget: JSONRPCTargetType {
+    static var id: ThreadSafeContainer<Int> = .init(0)
+
     enum Target {
         case storage(key: String)
         case blockhash(type: PolkadotBlockhashType)
@@ -33,47 +36,23 @@ struct PolkadotTarget: TargetType {
         node.url
     }
 
-    var path: String {
-        return ""
-    }
-
-    var method: Moya.Method {
-        return .post
-    }
-
-    var task: Task {
-        var parameters: [String: Any] = [
-            "id": 1,
-            "jsonrpc": "2.0",
-            "method": rpcMethod,
-        ]
-
-        var params: [Any] = []
+    var params: [AnyEncodable] {
         switch target {
         case .storage(let key):
-            params.append(key)
-        case .blockhash(let type):
-            switch type {
-            case .genesis:
-                params.append(0)
-            case .latest:
-                break
-            }
+            return [AnyEncodable(key)]
+        case .blockhash(.genesis):
+            return [AnyEncodable(0)]
         case .header(let hash):
-            params.append(hash)
+            return [AnyEncodable(hash)]
         case .accountNextIndex(let address):
-            params.append(address)
-        case .runtimeVersion:
-            break
+            return [AnyEncodable(address)]
+        case .runtimeVersion, .blockhash(.latest):
+            return []
         case .queryInfo(let extrinsic):
-            params.append(extrinsic)
+            return [AnyEncodable("TransactionPaymentApi_query_info"), AnyEncodable(extrinsic)]
         case .submitExtrinsic(let extrinsic):
-            params.append(extrinsic)
+            return [AnyEncodable(extrinsic)]
         }
-
-        parameters["params"] = params
-
-        return .requestParameters(parameters: parameters, encoding: JSONEncoding.default)
     }
 
     var headers: [String: String]? {
@@ -97,7 +76,7 @@ struct PolkadotTarget: TargetType {
         case .runtimeVersion:
             return "state_getRuntimeVersion"
         case .queryInfo:
-            return "payment_queryInfo"
+            return "state_call"
         case .submitExtrinsic:
             return "author_submitExtrinsic"
         }
