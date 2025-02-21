@@ -133,7 +133,8 @@ extension CoinType {
              .bitrock,
              .apeChain,
              .sonic,
-             .alephium:
+             .alephium,
+             .vanar:
             // Blockchains that are not in WalletCore yet
             return nil
         }
