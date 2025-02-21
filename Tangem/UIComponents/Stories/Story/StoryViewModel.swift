@@ -32,6 +32,7 @@ final class StoryViewModel: ObservableObject {
 
     let storyTransitionPublisher: AnyPublisher<StoryTransition, Never>
     let storyDismissIntentPublisher: AnyPublisher<Void, Never>
+    private(set) var viewedPageIndexes: Set<Int>
 
     @Published private(set) var visiblePageProgress: CGFloat
     @Published private(set) var visiblePageIndex: Int
@@ -50,6 +51,8 @@ final class StoryViewModel: ObservableObject {
 
         storyDismissIntentSubject = PassthroughSubject()
         storyDismissIntentPublisher = storyDismissIntentSubject.eraseToAnyPublisher()
+
+        viewedPageIndexes = []
     }
 
     // MARK: - Internal methods
@@ -135,9 +138,14 @@ final class StoryViewModel: ObservableObject {
         if storyHasFurtherPages {
             visiblePageIndex += 1
             visiblePageProgress = 0
+            recordCurrentVisiblePageAsViewed()
         } else {
             visiblePageProgress = maxProgressValue
         }
+    }
+
+    private func recordCurrentVisiblePageAsViewed() {
+        viewedPageIndexes.insert(visiblePageIndex)
     }
 }
 
@@ -147,6 +155,7 @@ extension StoryViewModel {
     private func handleViewDidAppear() {
         hasAppeared = true
         visiblePageProgress = 0
+        recordCurrentVisiblePageAsViewed()
         startTimer()
     }
 
@@ -184,6 +193,8 @@ extension StoryViewModel {
 
         visiblePageIndex += 1
         visiblePageProgress = 0
+
+        recordCurrentVisiblePageAsViewed()
     }
 
     private func handleTappedBackward() {
