@@ -114,6 +114,15 @@ struct PendingExpressTransactionsConverter {
         case .refunded:
             // Refunded state is the final state and it can't be pending (with loader)
             state = isFinished ? .checkmark : .empty
+        case .awaitingDeposit where currentStatus == .done:
+            // Required ultimate refactoring
+            return .init(title: status.passedStatusTitle, state: .checkmark)
+        case .confirming where currentStatus == .done:
+            return .init(title: status.passedStatusTitle, state: .checkmark)
+        case .exchanging where currentStatus == .done:
+            return .init(title: status.passedStatusTitle, state: .checkmark)
+        case .sendingToUser where currentStatus == .done:
+            return .init(title: status.passedStatusTitle, state: .checkmark)
         case .created, .awaitingDeposit, .confirming, .exchanging, .buying, .sendingToUser, .done, .canceled:
             break
         }
