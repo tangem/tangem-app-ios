@@ -11,7 +11,14 @@ import TangemStories
 
 final class CommonStoryDataService: StoryDataService {
     @Injected(\.tangemApiService) private var tangemApiService: any TangemApiService
-    @Injected(\.storyAvailabilityService) private var storyAvailabilityService: any StoryAvailabilityService
+
+    private let storyAvailabilityService: any StoryAvailabilityService
+    private let storyAnalyticsService: StoryAnalyticsService
+
+    init(storyAvailabilityService: some StoryAvailabilityService, storyAnalyticsService: StoryAnalyticsService) {
+        self.storyAvailabilityService = storyAvailabilityService
+        self.storyAnalyticsService = storyAnalyticsService
+    }
 
     func fetchStoryImages(with storyId: TangemStory.ID) async throws -> [TangemStory.Image] {
         let storyDTO: StoryDTO.Response
@@ -20,6 +27,7 @@ final class CommonStoryDataService: StoryDataService {
             storyDTO = try await fetchStory(storyId: storyId)
         } catch {
             storyAvailabilityService.markStoryAsUnavailableForCurrentSession(storyId)
+            storyAnalyticsService.reportLoadingFailed(storyId)
             throw error
         }
 

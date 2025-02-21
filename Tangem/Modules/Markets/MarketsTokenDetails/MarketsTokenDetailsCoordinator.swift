@@ -156,7 +156,11 @@ extension MarketsTokenDetailsCoordinator {
         }
 
         Task { @MainActor [tangemStoriesPresenter] in
-            tangemStoriesPresenter.present(story: .swap(.initialWithoutImages), presentCompletion: openSwapBlock)
+            tangemStoriesPresenter.present(
+                story: .swap(.initialWithoutImages),
+                analyticsSource: .markets,
+                presentCompletion: openSwapBlock
+            )
         }
     }
 
