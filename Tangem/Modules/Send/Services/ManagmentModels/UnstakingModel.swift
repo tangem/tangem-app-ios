@@ -418,3 +418,14 @@ extension UnstakingModel.Action.ActionType {
         }
     }
 }
+
+extension UnstakingModel {
+    var isPartialUnstakeAllowed: Bool {
+        guard case .validator(let validatorInfo) = initialAction.validatorType else {
+            return false
+        }
+        // disable partial unstake for disabled validators,
+        // preferred == false means it's disabled in admin tool
+        return validatorInfo.preferred
+    }
+}
