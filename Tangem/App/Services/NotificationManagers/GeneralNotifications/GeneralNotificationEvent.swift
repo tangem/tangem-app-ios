@@ -27,6 +27,7 @@ enum GeneralNotificationEvent: Equatable, Hashable {
     case supportedOnlySingleCurrencyWallet
     case backupErrors
     case seedSupport
+    case seedSupport2
 }
 
 // For Notifications
@@ -73,6 +74,8 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .string(Localization.commonAttention)
         case .seedSupport:
             return .string(Localization.warningSeedphraseIssueTitle)
+        case .seedSupport2:
+            return .string(Localization.warningSeedphraseActionRequiredTitle)
         }
     }
 
@@ -115,6 +118,8 @@ extension GeneralNotificationEvent: NotificationEvent {
             return Localization.warningBackupErrorsMessage
         case .seedSupport:
             return Localization.warningSeedphraseIssueMessage
+        case .seedSupport2:
+            return Localization.warningSeedphraseContactedSupport
         }
     }
 
@@ -133,7 +138,7 @@ extension GeneralNotificationEvent: NotificationEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .failedToVerifyCard, .devCard, .backupErrors, .seedSupport:
+        case .failedToVerifyCard, .devCard, .backupErrors, .seedSupport, .seedSupport2:
             return .init(iconType: .image(Assets.redCircleWarning.image))
         case .numberOfSignedHashesIncorrect,
              .testnetCard,
@@ -159,7 +164,8 @@ extension GeneralNotificationEvent: NotificationEvent {
              .failedToVerifyCard,
              .devCard,
              .backupErrors,
-             .seedSupport:
+             .seedSupport,
+             .seedSupport2:
             return .critical
         case .demoCard,
              .legacyDerivation,
@@ -195,7 +201,8 @@ extension GeneralNotificationEvent: NotificationEvent {
              .missingBackup,
              .supportedOnlySingleCurrencyWallet,
              .backupErrors,
-             .seedSupport:
+             .seedSupport,
+             .seedSupport2:
             return false
         case .numberOfSignedHashesIncorrect,
              .systemDeprecationTemporary,
@@ -283,6 +290,7 @@ extension GeneralNotificationEvent {
         case .supportedOnlySingleCurrencyWallet: return nil
         case .backupErrors: return .mainNoticeBackupErrors
         case .seedSupport: return .mainNoticeSeedSupport
+        case .seedSupport2: return .mainNoticeSeedSupport2
         }
     }
 
