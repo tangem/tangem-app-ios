@@ -42,7 +42,7 @@ struct MarketsTokenDetailsLinksMapper {
 
     private func mapLinkToChips(_ linkInfo: MarketsTokenDetailsLinks.LinkInfo) -> MarketsTokenDetailsLinkChipsData? {
         let icon: ImageType = if let id = linkInfo.id {
-           .init(name: id)
+            .init(name: id)
         } else {
             defaultIcon
         }
@@ -53,17 +53,35 @@ struct MarketsTokenDetailsLinksMapper {
             linkInfo.title
         }
 
-        guard let url = URL(string: linkInfo.link), UIApplication.shared.canOpenURL(url) else {
+        let urlLink = if linkInfo.link.hasPrefix(Constants.defaultScheme) {
+            linkInfo.link
+        } else {
+            Constants.defaultScheme + linkInfo.link
+        }
+
+        guard let url = URL(string: urlLink), UIApplication.shared.canOpenURL(url) else {
             return nil
         }
 
         return .init(
             text: title,
             icon: .leading(icon),
-            link: linkInfo.link,
+            link: urlLink,
             action: {
-                openLinkAction(linkInfo)
+                openLinkAction(
+                    .init(
+                        id: linkInfo.id,
+                        title: linkInfo.title,
+                        link: urlLink
+                    )
+                )
             }
         )
+    }
+}
+
+extension MarketsTokenDetailsLinksMapper {
+    private enum Constants {
+        static let defaultScheme = "https://"
     }
 }
