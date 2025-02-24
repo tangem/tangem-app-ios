@@ -1502,10 +1502,7 @@ private extension Blockchain {
             case .coin: return "vanry"
             }
         case .zkLinkNova:
-            switch type {
-            case .network: return "zklink"
-            case .coin: return "zklink"
-            }
+            return "zklink"
         }
     }
 
