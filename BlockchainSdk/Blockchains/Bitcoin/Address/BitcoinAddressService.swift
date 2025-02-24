@@ -37,11 +37,9 @@ extension BitcoinAddressService: AddressProvider {
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
         switch addressType {
         case .default:
-            let bech32AddressString = try bech32.makeAddress(from: publicKey.blockchainKey).value
-            return PlainAddress(value: bech32AddressString, publicKey: publicKey, type: addressType)
+            return try bech32.makeAddress(for: publicKey, with: addressType)
         case .legacy:
-            let legacyAddressString = try legacy.makeAddress(from: publicKey.blockchainKey).value
-            return PlainAddress(value: legacyAddressString, publicKey: publicKey, type: addressType)
+            return try legacy.makeAddress(for: publicKey, with: addressType)
         }
     }
 }
