@@ -2663,6 +2663,7 @@
 		EF0FBB892C53FFC10095A6BD /* ActionTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0FBB882C53FFC10095A6BD /* ActionTransaction.swift */; };
 		EF0FBB8B2C53FFCD0095A6BD /* ActionStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0FBB8A2C53FFCD0095A6BD /* ActionStatus.swift */; };
 		EF0FF8712866021B00B7CEAF /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0FF8702866021B00B7CEAF /* AppEnvironment.swift */; };
+		EF11D8BB2D75D18B00AF10FF /* LockingScriptAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF11D8BA2D75D18A00AF10FF /* LockingScriptAddress.swift */; };
 		EF13996C2CBCFD1700AC9E2B /* OnrampQuote.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF13996B2CBCFD1700AC9E2B /* OnrampQuote.swift */; };
 		EF13996E2CBCFD2500AC9E2B /* OnrampPaymentMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF13996D2CBCFD2500AC9E2B /* OnrampPaymentMethod.swift */; };
 		EF1399702CBCFD3100AC9E2B /* OnrampProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF13996F2CBCFD3100AC9E2B /* OnrampProvider.swift */; };
@@ -6026,6 +6027,7 @@
 		EF0FBB882C53FFC10095A6BD /* ActionTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionTransaction.swift; sourceTree = "<group>"; };
 		EF0FBB8A2C53FFCD0095A6BD /* ActionStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionStatus.swift; sourceTree = "<group>"; };
 		EF0FF8702866021B00B7CEAF /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
+		EF11D8BA2D75D18A00AF10FF /* LockingScriptAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockingScriptAddress.swift; sourceTree = "<group>"; };
 		EF13996B2CBCFD1700AC9E2B /* OnrampQuote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampQuote.swift; sourceTree = "<group>"; };
 		EF13996D2CBCFD2500AC9E2B /* OnrampPaymentMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampPaymentMethod.swift; sourceTree = "<group>"; };
 		EF13996F2CBCFD3100AC9E2B /* OnrampProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampProvider.swift; sourceTree = "<group>"; };
@@ -11759,6 +11761,7 @@
 				B62D3ECD2CBC79D900C2460E /* AddressType.swift */,
 				B62D3ECE2CBC79D900C2460E /* AddressTypesConfig.swift */,
 				B62D3ECF2CBC79D900C2460E /* PlainAddress.swift */,
+				EF11D8BA2D75D18A00AF10FF /* LockingScriptAddress.swift */,
 			);
 			path = Address;
 			sourceTree = "<group>";
@@ -20655,6 +20658,7 @@
 				B62D40F12CBC79DA00C2460E /* HederaPendingTransactionRecordMapper.swift in Sources */,
 				B62D42852CBC79DB00C2460E /* PolygonTransactionHistoryResult.swift in Sources */,
 				B62D40C42CBC79DA00C2460E /* SmartContractRequest.swift in Sources */,
+				EF11D8BB2D75D18B00AF10FF /* LockingScriptAddress.swift in Sources */,
 				B62D41C82CBC79DB00C2460E /* balance_contract.pb.swift in Sources */,
 				B62D420C2CBC79DB00C2460E /* XRPWallet.swift in Sources */,
 				B62D41A02CBC79DA00C2460E /* SuiResponse.swift in Sources */,
