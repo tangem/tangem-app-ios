@@ -644,6 +644,8 @@
 "scan_card_settings_message" = "Відскануйте картку або кільце, щоб змінити її налаштування. Зміни торкнуться лише тої картки або кільця, які ви відсканували, і не вплинуть на інші пристрої, прив'язані до вашого гаманця.";
 "scan_card_settings_title" = "Підготуйте свій Tangem!";
 "security_alert_title" = "Оповіщення безпеки";
+"seed_warning_no" = "No, I did not";
+"seed_warning_yes" = "Yes, guide me";
 "selling_insufficient_balance_alert_message" = "На вашому балансі недостатньо коштів для продажу криптовалюти. Будь ласка, внесіть бажаний актив, щоб продовжити.";
 "selling_insufficient_balance_alert_title" = "Недостатній баланс";
 "selling_regional_restriction_alert_message" = "Продаж криптовалюти у вашому регіоні тимчасово недоступний. Ми активно працюємо над тим, щоб додати цю можливість. Слідкуйте за нашими новинами!";
@@ -1065,6 +1067,8 @@
 "warning_rate_app_title" = "Подобається Tangem?";
 "warning_receive_blocked_hedera_token_association_required_message" = "Вам необхідно провести асоціацію токена, щоб мати можливість приймати його";
 "warning_rent_fee_title" = "Необхідна плата за оренду мережі";
+"warning_seedphrase_action_required_title" = "Action required";
+"warning_seedphrase_contacted_support" = "Did you contact support via the app or email within 7 days of creating a wallet? If you did or are unsure, follow and complete the instructions.";
 "warning_seedphrase_issue_answer_no" = "Дякуємо! Все добре! Подальших дій не потрібно.";
 "warning_seedphrase_issue_answer_yes" = "Ви будете перенаправлені на офіційний сайт Tangem. Будь ласка, прочитайте та виконайте вказані там інструкції.";
 "warning_seedphrase_issue_message" = "Ви коли-небудь зверталися до служби підтримки Tangem безпосередньо з цього додатку?";
