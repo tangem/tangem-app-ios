@@ -240,6 +240,9 @@ extension Analytics {
         case mainNoticeSeedSupport = "[Main Screen] Notice - Seed Phrase Support"
         case mainNoticeSeedSupportButtonYes = "[Main Screen] Button - Support Yes"
         case mainNoticeSeedSupportButtonNo = "[Main Screen] Button - Support No"
+        case mainNoticeSeedSupport2 = "[Main Screen] Notice - Seed Phrase Support2"
+        case mainNoticeSeedSupportButtonUsed = "[Main Screen] Button - Support Used"
+        case mainNoticeSeedSupportButtonDeclined = "[Main Screen] Button - Support Declined"
 
         // MARK: - BlockchainSdk exceptions
 
