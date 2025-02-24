@@ -381,7 +381,9 @@ extension SendModel: NotificationTapDelegate {
              .support,
              .openCurrency,
              .seedSupportYes,
-             .seedSupportNo:
+             .seedSupportNo,
+             .seedSupport2Yes,
+             .seedSupport2No:
             assertionFailure("Notification tap not handled")
         }
     }
