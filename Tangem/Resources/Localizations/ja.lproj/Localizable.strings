@@ -644,6 +644,8 @@
 "scan_card_settings_message" = "カードまたはリングをスキャンして設定を変更します。変更はスキャンしたカードまたはリングにのみ影響し、ウォレットに関連付けられている他のデバイスには影響しません。";
 "scan_card_settings_title" = "Tangemを準備してください！";
 "security_alert_title" = "セキュリティ警告";
+"seed_warning_no" = "いいえ、しませんでした";
+"seed_warning_yes" = "はい、案内してください";
 "selling_insufficient_balance_alert_message" = "暗号通貨を売却するための十分な資金が残高にありません。続行するには希望の資産を入金してください。";
 "selling_insufficient_balance_alert_title" = "残高不足";
 "selling_regional_restriction_alert_message" = "現在、お住まいの地域では暗号資産の売却はご利用いただけません。このオプションをすぐにご利用いただけるよう積極的に取り組んでいますので、お楽しみに！";
@@ -1065,6 +1067,8 @@
 "warning_rate_app_title" = "Tangemを楽しんでいますか?";
 "warning_receive_blocked_hedera_token_association_required_message" = "トークンを受け取る前に、トークンを関連付ける必要があります。";
 "warning_rent_fee_title" = "ネットワーク使用料が必要です";
+"warning_seedphrase_action_required_title" = "対応が必要です";
+"warning_seedphrase_contacted_support" = "ウォレットを作成してから7日以内にアプリまたはEメール経由でサポートに連絡しましたか？連絡したか不明な場合は、手順に従って完了してください。";
 "warning_seedphrase_issue_answer_no" = "ありがとうございます。準備完了です。これ以上の操作は必要ありません。";
 "warning_seedphrase_issue_answer_yes" = "Tangemの公式ウェブサイトに移動します。そちらの指示に従ってください。";
 "warning_seedphrase_issue_message" = "このアプリ経由でTangemサポートチームに直接連絡したことがありますか？";
