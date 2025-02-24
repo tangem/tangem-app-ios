@@ -126,7 +126,8 @@ struct TransactionParamsBuilder {
              .apeChain,
              .sonic,
              .alephium,
-             .vanar:
+             .vanar,
+             .zkLinkNova:
             throw TransactionParamsBuilderError.extraIdNotSupported
         }
     }
