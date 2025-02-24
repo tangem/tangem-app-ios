@@ -46,6 +46,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     case openCurrency
     case seedSupportYes
     case seedSupportNo
+    case seedSupport2Yes
+    case seedSupport2No
 
     var id: Int { hashValue }
 
@@ -95,6 +97,10 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return Localization.commonYes
         case .seedSupportNo:
             return Localization.commonNo
+        case .seedSupport2Yes:
+            return Localization.seedWarningYes
+        case .seedSupport2No:
+            return Localization.seedWarningNo
         }
     }
 
@@ -123,7 +129,9 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .support,
              .openCurrency,
              .seedSupportYes,
-             .seedSupportNo:
+             .seedSupportNo,
+             .seedSupport2Yes,
+             .seedSupport2No:
             return nil
         }
     }
@@ -152,7 +160,9 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .openCurrency,
              .swap,
              .seedSupportNo,
-             .seedSupportYes:
+             .seedSupportYes,
+             .seedSupport2Yes,
+             .seedSupport2No:
             return .secondary
         }
     }
