@@ -112,22 +112,6 @@ class WalletModel {
         wallet.blockchain.isTestnet
     }
 
-    var pendingTransactions: [PendingTransactionRecord] {
-        wallet.pendingTransactions.filter { !$0.isDummy && $0.amount.type == amountType }
-    }
-
-    var incomingPendingTransactions: [PendingTransactionRecord] {
-        wallet.pendingTransactions.filter { $0.isIncoming && $0.amount.type == amountType }
-    }
-
-    var outgoingPendingTransactions: [PendingTransactionRecord] {
-        wallet.pendingTransactions.filter { !$0.isIncoming }
-    }
-
-    var isEmptyIncludingPendingIncomingTxs: Bool {
-        wallet.isEmpty && incomingPendingTransactions.isEmpty
-    }
-
     var blockchainNetwork: BlockchainNetwork {
         if wallet.publicKey.derivationPath == nil { // cards without hd wallet
             return BlockchainNetwork(wallet.blockchain, derivationPath: nil)
@@ -594,6 +578,40 @@ extension WalletModel {
                 items.insert(record, at: 0)
             }
         }
+    }
+}
+
+// MARK: - Pending Transactions
+
+extension WalletModel {
+    var pendingTransactions: [PendingTransactionRecord] {
+        pendingTransaction(for: wallet)
+    }
+
+    var pendingTransactionPublisher: AnyPublisher<[PendingTransactionRecord], Never> {
+        walletManager
+            .walletPublisher
+            .withWeakCaptureOf(self)
+            .map {
+                $0.pendingTransaction(for: $1)
+            }
+            .eraseToAnyPublisher()
+    }
+
+    var incomingPendingTransactions: [PendingTransactionRecord] {
+        wallet.pendingTransactions.filter { $0.isIncoming && $0.amount.type == amountType }
+    }
+
+    var outgoingPendingTransactions: [PendingTransactionRecord] {
+        wallet.pendingTransactions.filter { !$0.isIncoming }
+    }
+
+    var isEmptyIncludingPendingIncomingTxs: Bool {
+        wallet.isEmpty && incomingPendingTransactions.isEmpty
+    }
+
+    private func pendingTransaction(for wallet: Wallet) -> [PendingTransactionRecord] {
+        wallet.pendingTransactions.filter { !$0.isDummy && $0.amount.type == amountType }
     }
 }
 
