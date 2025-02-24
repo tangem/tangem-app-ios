@@ -74,7 +74,8 @@ struct DerivationConfigV2: DerivationConfig {
              .bitrock,
              .apeChain,
              .sonic,
-             .vanar:
+             .vanar,
+             .zkLinkNova:
             return "m/44'/60'/0'/0/0"
         case .binance:
             return "m/44'/714'/0'/0/0"
