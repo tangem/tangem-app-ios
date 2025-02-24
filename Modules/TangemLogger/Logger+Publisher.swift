@@ -20,7 +20,7 @@ public extension Publisher {
     ///     // value: 3
     /// ```
     /// - Parameters:
-    ///   - tag: Some which will be added to category. For default `CombineLog` the category will be `Combine [your tag]`
+    ///   - prefix: Some which will be added before message
     ///   - logger: The logger which one will be use. Default  - `CombineLog`
     ///   - options: Supports two way
     ///   1. `.default` - will be logged any event like `[output, completion, cancel]`
@@ -28,15 +28,14 @@ public extension Publisher {
     ///   - mapOutput: You can map an `Output` to see most needed value.
     /// - Returns: A publisher that performs the specified closures when publisher events occur.
     func logging(
-        _ tag: String? = nil,
+        _ prefix: String? = nil,
         to logger: Logger = CombineLog,
         options: Publishers.LogOptions = .default,
         mapOutput: ((Output) -> Any)? = nil
     ) -> Publishers.HandleEvents<Self> {
         func log(_ action: String, _ value: Any? = nil) {
-            let taggedLogger = tag.map { logger.tag($0) } ?? logger
-            let args = [action, value.map(String.init(describing:))]
-            taggedLogger.debug(args.compactMap { $0 }.joined(separator: ": "))
+            let args = [prefix, action, value.map(String.init(describing:))]
+            logger.debug(args.compactMap { $0 }.joined(separator: ": "))
         }
 
         return handleEvents { subscription in
