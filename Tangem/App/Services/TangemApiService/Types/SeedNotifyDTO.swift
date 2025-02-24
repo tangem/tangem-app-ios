@@ -10,6 +10,8 @@ enum SeedNotifyStatus: String, Codable {
     case notified
     case declined
     case confirmed
+    case accepted
+    case rejected
     case notNeeded = "notneeded"
 }
 

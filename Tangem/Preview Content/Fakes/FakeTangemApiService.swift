@@ -149,6 +149,14 @@ class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
+    func getSeedNotifyStatusConfirmed(userWalletId: String) async throws -> SeedNotifyDTO {
+        throw "Not implemented"
+    }
+
+    func setSeedNotifyStatusConfirmed(userWalletId: String, status: SeedNotifyStatus) async throws {
+        throw "Not implemented"
+    }
+
     func setWalletInitialized(userWalletId: String) async throws {
         throw "Not implemented"
     }
