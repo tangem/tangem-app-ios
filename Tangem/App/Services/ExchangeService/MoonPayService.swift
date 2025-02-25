@@ -442,6 +442,7 @@ private extension Blockchain {
         case .sonic: return nil
         case .alephium: return nil
         case .vanar: return nil
+        case .zkLinkNova: return nil
             // Did you get a compilation error here? If so, check whether the network is supported at https://api.moonpay.com/v3/currencies
         }
     }
@@ -534,6 +535,7 @@ private extension Blockchain {
         case .sonic: return nil
         case .alephium: return nil
         case .vanar: return nil
+        case .zkLinkNova: return nil
             // Did you get a compilation error here? If so, check whether the network is supported at https://api.moonpay.com/v3/currencies
         }
     }
