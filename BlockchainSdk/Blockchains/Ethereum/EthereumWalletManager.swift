@@ -376,22 +376,6 @@ extension EthereumWalletManager: TransactionSender {
     }
 }
 
-// MARK: - SignatureCountValidator
-
-extension EthereumWalletManager: SignatureCountValidator {
-    func validateSignatureCount(signedHashes: Int) -> AnyPublisher<Void, Error> {
-        addressConverter.convertToETHAddressPublisher(wallet.address)
-            .withWeakCaptureOf(self)
-            .flatMap { walletManager, convertedAddress in
-                walletManager.networkService.getSignatureCount(address: convertedAddress)
-            }
-            .tryMap {
-                if signedHashes != $0 { throw BlockchainSdkError.signatureCountNotMatched }
-            }
-            .eraseToAnyPublisher()
-    }
-}
-
 // MARK: - EthereumTransactionDataBuilder
 
 extension EthereumWalletManager: EthereumTransactionDataBuilder {
