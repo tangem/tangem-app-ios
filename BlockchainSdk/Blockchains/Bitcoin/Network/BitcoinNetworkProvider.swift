@@ -10,7 +10,6 @@ import Foundation
 import Combine
 
 protocol BitcoinNetworkProvider: AnyObject, HostProvider {
-    var supportsTransactionPush: Bool { get }
     func getInfo(addresses: [String]) -> AnyPublisher<[BitcoinResponse], Error>
     func getInfo(address: String) -> AnyPublisher<BitcoinResponse, Error>
     func getFee() -> AnyPublisher<BitcoinFee, Error>
