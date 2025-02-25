@@ -34,6 +34,8 @@ final class VisaOnboardingApproveWalletSelectorViewModel: ObservableObject {
     private weak var remoteStateProvider: VisaOnboardingRemoteStateProvider?
     private weak var delegate: VisaOnboardingApproveWalletSelectorDelegate?
 
+    private let logger = VisaAppLogger(tag: .onboarding)
+
     init(
         remoteStateProvider: VisaOnboardingRemoteStateProvider?,
         delegate: VisaOnboardingApproveWalletSelectorDelegate?
@@ -66,13 +68,9 @@ final class VisaOnboardingApproveWalletSelectorViewModel: ObservableObject {
                     await viewModel.delegate?.proceedFromCurrentRemoteState()
                 }
             } catch {
-                VisaLogger.error(self, "Failed to load current remote state on Approve Wallet Selector", error: error)
+                viewModel.logger.error("Failed to load current remote state on Approve Wallet Selector", error: error)
                 await viewModel.delegate?.showContactSupportAlert(for: error)
             }
         }
     }
-}
-
-extension VisaOnboardingApproveWalletSelectorViewModel: CustomStringConvertible {
-    var description: String { objectDescription(self) }
 }

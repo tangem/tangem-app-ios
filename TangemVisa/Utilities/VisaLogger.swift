@@ -9,31 +9,37 @@
 import Foundation
 import TangemLogger
 
-public let VisaLogger = Logger(category: OSLogCategory(name: "Visa"))
+public let VisaLogCategory = OSLogCategory(name: "Visa")
 
 struct InternalLogger {
-    func error(error: Error) {
-        VisaLogger.error(error: error)
+    private let logger: Logger
+
+    init(tag: Tag) {
+        logger = Logger(category: VisaLogCategory).tag(tag.rawValue)
     }
 
-    func debug<T>(subsystem: Subsystem, _ message: @autoclosure () -> T) {
-        VisaLogger.tag(subsystem.rawValue).info(message())
+    func error<T>(_ message: @autoclosure () -> T, error: Error) {
+        logger.error(message(), error: error)
+    }
+
+    func info<T>(_ message: @autoclosure () -> T) {
+        logger.info(message())
     }
 }
 
 extension InternalLogger {
-    enum Subsystem: String {
-        case paymentAccountInteractorBuilder = "[Visa] [PaymentAccountInteractorBuilder]: "
-        case paymentAccountInteractor = "[Visa] [PaymentAccountInteractor]: "
-        case apiService = "[Visa] [API Service]: "
-        case tokenInfoLoader = "[Visa] [TokenInfoLoader]: "
-        case authorizationTokenHandler = "[Visa] [AuthorizationTokenHandler]: "
-        case activationManager = "[Visa] [ActivationManager]: "
-        case cardSetupHandler = "[Visa] [CardSetupHandler]: "
-        case cardActivationOrderProvider = "[Visa] [CommonCardActivationOrderProvider]: "
-        case cardAuthorizationProcessor = "[Visa] [CardAuthorizationProcessor]: "
-        case cardActivationTask = "[Visa] [CardActivationTask]: "
-        case paymentAccountAddressProvider = "[Visa] [PaymentAccountAddressProvider]: "
-        case cardAuthorizationScanHandler = "[Visa] [VisaCardAuthorizationScanHandler]: "
+    enum Tag: String {
+        case paymentAccountInteractorBuilder = "PaymentAccountInteractorBuilder"
+        case paymentAccountInteractor = "PaymentAccountInteractor"
+        case apiService = "API Service"
+        case tokenInfoLoader = "TokenInfoLoader"
+        case authorizationTokenHandler = "AuthorizationTokenHandler"
+        case activationManager = "ActivationManager"
+        case cardSetupHandler = "CardSetupHandler"
+        case cardActivationOrderProvider = "CommonCardActivationOrderProvider"
+        case cardAuthorizationProcessor = "CardAuthorizationProcessor"
+        case cardActivationTask = "CardActivationTask"
+        case paymentAccountAddressProvider = "PaymentAccountAddressProvider"
+        case cardAuthorizationScanHandler = "VisaCardAuthorizationScanHandler"
     }
 }
