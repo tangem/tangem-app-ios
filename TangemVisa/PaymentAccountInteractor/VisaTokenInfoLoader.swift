@@ -14,12 +14,11 @@ import TangemFoundation
 struct VisaTokenInfoLoader {
     private let isTestnet: Bool
     private let evmSmartContractInteractor: EVMSmartContractInteractor
-    private let logger: InternalLogger
+    private let logger = InternalLogger(tag: .tokenInfoLoader)
 
-    init(isTestnet: Bool, evmSmartContractInteractor: EVMSmartContractInteractor, logger: InternalLogger) {
+    init(isTestnet: Bool, evmSmartContractInteractor: EVMSmartContractInteractor) {
         self.isTestnet = isTestnet
         self.evmSmartContractInteractor = evmSmartContractInteractor
-        self.logger = logger
     }
 
     func loadTokenInfo(for paymentAccount: String) async throws -> Token {
@@ -44,10 +43,10 @@ struct VisaTokenInfoLoader {
         do {
             let contractAddressResponse = try await evmSmartContractInteractor.ethCall(request: contractAddressRequest).async()
             let contractAddress = try AddressParser(isTestnet: isTestnet).parseAddressResponse(contractAddressResponse)
-            log("Token contract address loaded and parsed. \n\(contractAddress)")
+            logger.info("Token contract address loaded and parsed successfully")
             return contractAddress
         } catch {
-            log("Failed to load token contract address. Error: \(error)")
+            logger.error("Failed to load token contract address", error: error)
             throw Errors.failedToLoadInfo(method: .contractAddress)
         }
     }
@@ -79,10 +78,6 @@ struct VisaTokenInfoLoader {
         // We need to remove all null characters before usage.
         // For some reason, the smart contract sends strings cluttered with null characters.
         string.trimmingCharacters(in: .whitespacesAndNewlines.union(["\0"]))
-    }
-
-    private func log<T>(_ message: @autoclosure () -> T) {
-        logger.debug(subsystem: .tokenInfoLoader, message())
     }
 }
 
