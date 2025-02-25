@@ -129,6 +129,7 @@ extension GeneralNotificationEvent: NotificationEvent {
              .missingDerivation,
              .missingBackup,
              .seedSupport,
+             .seedSupport2,
              .backupErrors:
             return .primary
         default:
