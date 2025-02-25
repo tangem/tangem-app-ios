@@ -13,12 +13,14 @@ public struct VisaTransactionHistoryDTO: Decodable {
     public let transactions: [VisaTransactionRecord]
 
     public struct APIRequest: Encodable {
-        public let cardPublicKey: String
-        public let offset: Int
-        public let numberOfItems: Int
+        let customerId: String
+        let productInstanceId: String
+        let offset: Int
+        let numberOfItems: Int
 
-        public init(cardPublicKey: String, offset: Int, numberOfItems: Int) {
-            self.cardPublicKey = cardPublicKey
+        public init(customerId: String, productInstanceId: String, offset: Int, numberOfItems: Int) {
+            self.customerId = customerId
+            self.productInstanceId = productInstanceId
             self.offset = offset
             self.numberOfItems = numberOfItems
         }
@@ -32,7 +34,6 @@ public struct VisaTransactionRecord: Decodable, Equatable {
     public let date: Date?
 
     public let blockchainAmount: Decimal
-    public let blockchainFee: Decimal
     public let blockchainCoinName: String
     public let transactionAmount: Decimal
     public let transactionCurrencyCode: Int
@@ -54,7 +55,6 @@ public struct VisaTransactionRecord: Decodable, Equatable {
         case date = "transactionDt"
         case localDate = "localDt"
         case blockchainAmount
-        case blockchainFee
         case blockchainCoinName
         case transactionAmount
         case transactionCurrencyCode
@@ -75,7 +75,6 @@ public struct VisaTransactionRecordBlockchainRequest: Decodable, Equatable {
     public let type: String
     public let status: String
     public let blockchainAmount: Decimal
-    public let blockchainFee: Decimal
     public let transactionAmount: Decimal
     public let transactionCurrencyCode: Int
     public let billingAmount: Decimal
@@ -90,7 +89,6 @@ public struct VisaTransactionRecordBlockchainRequest: Decodable, Equatable {
         case type = "requestType"
         case status = "requestStatus"
         case blockchainAmount
-        case blockchainFee
         case transactionAmount
         case transactionCurrencyCode
         case billingAmount
