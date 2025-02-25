@@ -10,27 +10,24 @@ import Foundation
 import BlockchainSdk
 
 struct CommonPaymentAccountInteractor {
-    private let logger: InternalLogger
-
     let visaToken: Token
 
     private let customerCardInfo: VisaCustomerCardInfo
     private let isTestnet: Bool
 
     private let evmSmartContractInteractor: EVMSmartContractInteractor
+    private let logger = InternalLogger(tag: .paymentAccountInteractor)
 
     init(
         customerCardInfo: VisaCustomerCardInfo,
         visaToken: Token,
         isTestnet: Bool,
-        evmSmartContractInteractor: EVMSmartContractInteractor,
-        logger: InternalLogger
+        evmSmartContractInteractor: EVMSmartContractInteractor
     ) {
         self.customerCardInfo = customerCardInfo
         self.visaToken = visaToken
         self.isTestnet = isTestnet
         self.evmSmartContractInteractor = evmSmartContractInteractor
-        self.logger = logger
     }
 }
 
@@ -39,7 +36,7 @@ extension CommonPaymentAccountInteractor: VisaPaymentAccountInteractor {
     var cardWalletAddress: String { customerCardInfo.cardWalletAddress }
 
     func loadBalances() async throws -> VisaBalances {
-        log("Attempting to load all balances for: \(accountAddress)")
+        logger.info("Attempting to load all balances from balances")
         let loadedBalances: VisaBalances
         do {
             async let totalBalance = try await evmSmartContractInteractor.ethCall(
@@ -62,24 +59,24 @@ extension CommonPaymentAccountInteractor: VisaPaymentAccountInteractor {
                 debt: convertToDecimal(debtAmount)
             )
 
-            log("All balances sucessfully loaded: \(loadedBalances)")
+            logger.info("All balances sucessfully loaded")
             return loadedBalances
         } catch {
-            log("Failed to load balances for \(accountAddress).\n\nReason: \(error)")
+            logger.error("Failed to load balances", error: error)
             throw error
         }
     }
 
     func loadCardSettings() async throws -> VisaPaymentAccountCardSettings {
-        log("Attempting to load limits for:")
+        logger.info("Attempting to load card settings from payment account")
         do {
             try await checkWalletAddressAssociation()
 
             let cardSettings = try await loadCardSettingsFromBlockchain()
-            log("Card settings sucessfully loaded: \(cardSettings)")
+            logger.info("Card settings sucessfully loaded")
             return cardSettings
         } catch {
-            log("Failed to load card settings for: \(accountAddress). Reason: \(error)")
+            logger.error("Failed to load card settings", error: error)
             throw error
         }
     }
@@ -113,7 +110,7 @@ private extension CommonPaymentAccountInteractor {
         do {
             return try await evmSmartContractInteractor.ethCall(request: amountRequest(for: type)).async()
         } catch {
-            log("Failed to load amount of type: \(type.rawValue). Error: \(error)")
+            logger.error("Failed to load amount of type: \(type.rawValue)", error: error)
             throw error
         }
     }
@@ -125,12 +122,7 @@ private extension CommonPaymentAccountInteractor {
 
     func convertToDecimal(_ value: String) -> Decimal? {
         let decimal = EthereumUtils.parseEthereumDecimal(value, decimalsCount: visaToken.decimalCount)
-        log("Reponse \(value) converted into \(String(describing: decimal))")
         return decimal
-    }
-
-    func log<T>(_ message: @autoclosure () -> T) {
-        logger.debug(subsystem: .paymentAccountInteractor, message())
     }
 }
 
