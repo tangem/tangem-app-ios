@@ -185,6 +185,8 @@ public struct ExternalLinkProviderFactory {
             return AlephiumExternalLinkProvider()
         case .vanar:
             return VanarExternalLinkProvider(isTestnet: isTestnet)
+        case .zkLinkNova:
+            return ZKLinkNovaExternalLinkProvider(isTestnet: isTestnet)
         }
     }
 }
