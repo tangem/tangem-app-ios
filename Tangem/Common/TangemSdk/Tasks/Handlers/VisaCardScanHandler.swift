@@ -11,10 +11,11 @@ import TangemFoundation
 import TangemSdk
 import TangemVisa
 
-class VisaCardScanHandler {
+class VisaCardScanHandler: CardSessionRunnable {
+    typealias Response = VisaCardActivationLocalState
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
 
-    typealias CompletionHandler = CompletionResult<DefaultWalletData>
+    typealias CompletionHandler = CompletionResult<VisaCardActivationLocalState>
     private let authorizationService: VisaAuthorizationService
     private let cardActivationStateProvider: VisaCardActivationStatusService
     private let visaUtilities = VisaUtilities()
@@ -31,7 +32,7 @@ class VisaCardScanHandler {
         log("Scan handler deinitialized")
     }
 
-    func handleVisaCardScan(session: CardSession, completion: @escaping CompletionHandler) {
+    func run(in session: CardSession, completion: @escaping CompletionHandler) {
         log("Attempting to handle Visa card scan")
         guard let card = session.environment.card else {
             completion(.failure(.missingPreflightRead))
@@ -42,7 +43,7 @@ class VisaCardScanHandler {
         guard let wallet = card.wallets.first(where: { $0.curve == mandatoryCurve }) else {
             let activationInput = VisaCardActivationInput(cardId: card.cardId, cardPublicKey: card.cardPublicKey, isAccessCodeSet: card.isAccessCodeSet)
             let activationStatus = VisaCardActivationLocalState.notStartedActivation(activationInput: activationInput)
-            completion(.success(.visa(activationStatus)))
+            completion(.success(activationStatus))
             return
         }
 
@@ -133,7 +134,7 @@ class VisaCardScanHandler {
             if let authorizationTokensResponse {
                 log("Authorized using Wallet public key successfully")
                 try visaRefreshTokenRepository.save(refreshToken: authorizationTokensResponse.refreshToken, cardId: card.cardId)
-                completion(.success(.visa(.activated(authTokens: authorizationTokensResponse))))
+                completion(.success(.activated(authTokens: authorizationTokensResponse)))
             } else {
                 log("Failed to get Access token for Wallet public key authoziation. Authorizing using Card Pub key")
                 await handleCardAuthorization(
@@ -201,12 +202,11 @@ class VisaCardScanHandler {
                 isAccessCodeSet: card.isAccessCodeSet,
                 walletAddress: walletAddress
             )
-            let visaWalletData = DefaultWalletData.visa(.activationStarted(
+            completion(.success(.activationStarted(
                 activationInput: activationInput,
                 authTokens: authorizationTokensResponse,
                 activationStatus: cardActivationStatus
-            ))
-            completion(.success(visaWalletData))
+            )))
         } catch let error as TangemSdkError {
             log("Failed to handle challenge signing. Tangem SDK error: \(error.localizedDescription)")
             completion(.failure(error))
