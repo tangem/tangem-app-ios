@@ -19,7 +19,6 @@ class VisaBalancesLimitsBottomSheetViewModel: ObservableObject, Identifiable {
     let availableAmount: String
     let blockedAmount: String
     let debtAmount: String
-    let pendingRefundAmount: String
 
     // MARK: Limits related
 
@@ -40,7 +39,6 @@ class VisaBalancesLimitsBottomSheetViewModel: ObservableObject, Identifiable {
         availableAmount = formatter.formatCryptoBalance(balances.available, currencyCode: currencySymbol, formattingOptions: balanceFormattingOptions)
         blockedAmount = formatter.formatCryptoBalance(balances.blocked, currencyCode: currencySymbol, formattingOptions: balanceFormattingOptions)
         debtAmount = formatter.formatCryptoBalance(balances.debt, currencyCode: currencySymbol, formattingOptions: balanceFormattingOptions)
-        pendingRefundAmount = formatter.formatCryptoBalance(balances.pendingRefund, currencyCode: currencySymbol, formattingOptions: balanceFormattingOptions)
 
         singleTransactionAmount = formatter.formatCryptoBalance(limit.singleTransaction, currencyCode: currencySymbol, formattingOptions: balanceFormattingOptions)
 
