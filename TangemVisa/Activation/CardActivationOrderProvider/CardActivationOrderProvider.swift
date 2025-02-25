@@ -19,7 +19,7 @@ protocol CardActivationOrderProvider {
 }
 
 final class CommonCardActivationOrderProvider {
-    private let accessTokenProvider: AuthorizationTokensHandler
+    private let accessTokenProvider: VisaAuthorizationTokensHandler
     private let activationStatusService: VisaCardActivationStatusService
     private let productActivationService: ProductActivationService
     private let logger: InternalLogger
@@ -27,7 +27,7 @@ final class CommonCardActivationOrderProvider {
     private var loadedOrder: VisaCardAcceptanceOrderInfo?
 
     init(
-        accessTokenProvider: AuthorizationTokensHandler,
+        accessTokenProvider: VisaAuthorizationTokensHandler,
         activationStatusService: VisaCardActivationStatusService,
         productActivationService: ProductActivationService,
         logger: InternalLogger
