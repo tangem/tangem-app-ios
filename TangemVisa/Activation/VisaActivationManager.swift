@@ -70,7 +70,7 @@ final class CommonVisaActivationManager {
     private let otpRepository: VisaOTPRepository
     private let pinCodeProcessor: PINCodeProcessor
 
-    private let logger: InternalLogger
+    private let logger = InternalLogger(tag: .activationManager)
 
     private var activationTask: AnyCancellable?
 
@@ -96,8 +96,7 @@ final class CommonVisaActivationManager {
         cardActivationStatusService: VisaCardActivationStatusService,
         productActivationService: ProductActivationService,
         otpRepository: VisaOTPRepository,
-        pinCodeProcessor: PINCodeProcessor,
-        logger: InternalLogger
+        pinCodeProcessor: PINCodeProcessor
     ) {
         activationLocalState = initialActivationStatus
 
@@ -110,12 +109,6 @@ final class CommonVisaActivationManager {
         self.productActivationService = productActivationService
         self.otpRepository = otpRepository
         self.pinCodeProcessor = pinCodeProcessor
-
-        self.logger = logger
-    }
-
-    private func log<T>(_ message: @autoclosure () -> T) {
-        logger.debug(subsystem: .activationManager, message())
     }
 }
 
@@ -224,7 +217,7 @@ extension CommonVisaActivationManager: VisaActivationManager {
             throw .missingWalletAddressInInput
         }
 
-        log("Attempting to get challenge to approve by customer wallet")
+        logger.info("Attempting to get challenge to approve by customer wallet")
         do {
             let customerWalletApproveResponse = try await productActivationService.getCustomerWalletDeployAcceptance(
                 activationOrderId: activationOrderId,
@@ -232,7 +225,7 @@ extension CommonVisaActivationManager: VisaActivationManager {
             )
             return Data(hexString: customerWalletApproveResponse)
         } catch {
-            log("Failed to load customer wallet approve hash. Error: \(error)")
+            logger.error("Failed to load customer wallet approve hash", error: error)
             throw .underlyingError(error)
         }
     }
@@ -250,7 +243,7 @@ extension CommonVisaActivationManager: VisaActivationManager {
             throw .missingAccessToken
         }
 
-        log("Receive signed approve by customer wallet. Attempting to send it")
+        logger.info("Receive signed approve by customer wallet. Attempting to send it")
         do {
             try await productActivationService.sendSignedCustomerWalletDeployAcceptance(
                 activationOrderId: activationOrder.id,
@@ -258,7 +251,7 @@ extension CommonVisaActivationManager: VisaActivationManager {
                 deployAcceptanceSignature: signedData.hexString
             )
         } catch {
-            log("Failed to send signed customer wallet approve data. Error: \(error)")
+            logger.error("Failed to send signed customer wallet approve data", error: error)
             throw .underlyingError(error)
         }
 
@@ -278,7 +271,7 @@ extension CommonVisaActivationManager: VisaActivationManager {
             throw .missingAccessToken
         }
 
-        log("Attempting to send selected PIN code")
+        logger.info("Attempting to send selected PIN code")
         do {
             let processedPINCode = try await pinCodeProcessor.processSelectedPINCode(pinCode)
 
@@ -289,7 +282,7 @@ extension CommonVisaActivationManager: VisaActivationManager {
                 encryptedPin: processedPINCode.encryptedPIN
             )
         } catch {
-            log("Failed to send selected PIN to issuer. Error: \(error)")
+            logger.error("Failed to send selected PIN to issuer", error: error)
             throw .underlyingError(error)
         }
 
@@ -319,7 +312,7 @@ extension CommonVisaActivationManager: CardActivationTaskOrderProvider {
                 let activationOrderResponse = try await manager.cardActivationOrderProvider.provideActivationOrderForSign(activationInput: cardInput)
                 completion(.success(activationOrderResponse))
             } catch {
-                manager.log("Failed to load authorization tokens: \(error)")
+                manager.logger.error("Failed to load authorization tokens", error: error)
                 completion(.failure(error))
             }
         }
@@ -335,7 +328,7 @@ extension CommonVisaActivationManager: CardActivationTaskOrderProvider {
                 let activationOrder = try await manager.cardActivationOrderProvider.provideActivationOrderForSign(activationInput: cardInput)
                 completion(.success(activationOrder))
             } catch {
-                manager.log("Failed to load activation order. \nError:\(error)")
+                manager.logger.error("Failed to load activation order", error: error)
                 completion(.failure(error))
             }
         }
@@ -358,8 +351,7 @@ private extension CommonVisaActivationManager {
                 activationInput: activationInput,
                 challengeToSign: authorizationChallenge,
                 delegate: self,
-                otpRepository: otpRepository,
-                logger: logger
+                otpRepository: otpRepository
             )
 
             let activationResponse: CardActivationResponse = try await withCheckedThrowingContinuation { [weak self] continuation in
@@ -398,7 +390,7 @@ private extension CommonVisaActivationManager {
             try await handleCardActivation(using: activationResponse, activationInput: newInput)
             return activationResponse
         } catch {
-            log("Failed to activate card. Generic error: \(error)")
+            logger.error("Failed to activate card", error: error)
             throw .underlyingError(error)
         }
     }
@@ -450,7 +442,7 @@ private extension CommonVisaActivationManager {
             otp = storedOTP.rootOTP
             otpCounter = storedOTP.rootOTPCounter
         } else {
-            log("Failed to find stored OTP in repository. Continuing activation without OTP.")
+            logger.info("Failed to find stored OTP in repository. Continuing activation without OTP.")
             otp = Data()
             otpCounter = 0
         }
@@ -477,7 +469,7 @@ private extension CommonVisaActivationManager {
             throw .missingWalletAddressInInput
         }
 
-        log("Attempting to send deploy acceptance signed by card")
+        logger.info("Attempting to send deploy acceptance signed by card")
         do {
             let order = activationResponse.signedActivationOrder.order.activationOrder
             try await productActivationService.sendSignedVisaCardDeployAcceptance(
@@ -488,7 +480,7 @@ private extension CommonVisaActivationManager {
                 rootOtpCounter: activationResponse.rootOTPCounter
             )
         } catch {
-            log("Failed to send deploy acceptance signed by card. Error: \(error)")
+            logger.error("Failed to send deploy acceptance signed by card", error: error)
             throw .underlyingError(error)
         }
 
@@ -506,7 +498,7 @@ private extension CommonVisaActivationManager {
         do {
             try await authorizationTokensHandler.forceRefreshToken()
         } catch {
-            log("Failed to retreive activated card refresh token. Error: \(error)")
+            logger.error("Failed to retreive activated card refresh token", error: error)
             throw .underlyingError(error)
         }
     }
