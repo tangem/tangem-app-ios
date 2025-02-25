@@ -89,7 +89,7 @@ public struct VisaUtilities {
         }
     }
 
-    func makeAddress(using cardActivationResponse: CardActivationResponse) throws -> Address {
+    public func makeAddress(using cardActivationResponse: CardActivationResponse) throws -> Address {
         guard let derivationPath = visaDefaultDerivationPath else {
             throw VisaActivationError.missingDerivationPath
         }
