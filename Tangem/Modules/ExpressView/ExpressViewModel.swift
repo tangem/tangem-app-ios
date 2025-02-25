@@ -758,7 +758,8 @@ extension ExpressViewModel: NotificationTapDelegate {
              .support,
              .openCurrency,
              .seedSupportNo,
-             .seedSupportYes:
+             .seedSupportYes,
+             .scanCard:
             return
         }
     }
