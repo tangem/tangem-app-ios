@@ -142,17 +142,11 @@ class PolkadotTransactionBuilder {
         }
     }
 
-    private func encodeEraNonceTip(era: PolkadotBlockchainMeta.Era?, nonce: UInt64, tip: UInt64) throws -> Data {
+    private func encodeEraNonceTip(era: PolkadotBlockchainMeta.Era, nonce: UInt64, tip: UInt64) throws -> Data {
         var data = Data()
 
-        if let era = era {
-            let encodedEra = encodeEra(era)
-            data.append(encodedEra)
-        } else {
-            // [REDACTED_TODO_COMMENT]
-            // [REDACTED_TODO_COMMENT]
-            data.append(try codec.encode(UInt64(0), .compact))
-        }
+        let encodedEra = encodeEra(era)
+        data.append(encodedEra)
 
         let nonce = try codec.encode(nonce, .compact)
         data.append(nonce)
