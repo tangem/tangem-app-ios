@@ -27,6 +27,7 @@ final class VisaOnboardingTangemWalletDeployApproveViewModel: ObservableObject {
     @Published private(set) var isLoading: Bool = false
 
     private let targetWalletAddress: String
+    private let logger = VisaAppLogger(tag: .onboarding)
     private var approvePair: ApprovePair?
 
     private weak var delegate: VisaOnboardingTangemWalletApproveDelegate?
@@ -48,7 +49,7 @@ final class VisaOnboardingTangemWalletDeployApproveViewModel: ObservableObject {
 
     func approveAction() {
         guard approveCancellableTask == nil else {
-            log("Approve task already exists")
+            logger.info("Approve task already exists")
             return
         }
 
@@ -66,7 +67,7 @@ final class VisaOnboardingTangemWalletDeployApproveViewModel: ObservableObject {
 
                 try Task.checkCancellation()
 
-                log("Attempt to sign loaded data: \(dataToSign.hexString)")
+                logger.info("Attempt to sign loaded data: \(dataToSign.hexString)")
                 let signHashResponse: SignHashResponse
                 if let approvePair {
                     signHashResponse = try await signDataWithTargetPair(approvePair, dataToSign: dataToSign)
@@ -74,7 +75,7 @@ final class VisaOnboardingTangemWalletDeployApproveViewModel: ObservableObject {
                     signHashResponse = try await signData(dataToSign)
                 }
 
-                log("Receive sign hash response. Sending data to delegate")
+                logger.info("Receive sign hash response. Sending data to delegate")
                 try await delegate?.processSignedData(signHashResponse.signature)
                 await processApproveActionResult(.success(()))
             } catch {
@@ -90,7 +91,7 @@ final class VisaOnboardingTangemWalletDeployApproveViewModel: ObservableObject {
             // Right now we don't have any specific UI updates for successful scenario
             break
         case .failure(let error):
-            log("Failed to sign approve data. Error: \(error)")
+            logger.error("Failed to sign approve data", error: error)
             if !error.isCancellationError {
                 await delegate?.showAlertAsync(error.alertBinder)
             }
@@ -98,19 +99,11 @@ final class VisaOnboardingTangemWalletDeployApproveViewModel: ObservableObject {
         isLoading = false
         approveCancellableTask = nil
     }
-
-    private func log<T>(_ message: @autoclosure () -> T) {
-        VisaLogger.info(self, message())
-    }
-}
-
-extension VisaOnboardingTangemWalletDeployApproveViewModel: CustomStringConvertible {
-    var description: String { "VisaOnboardingTangemWalletDeployApproveViewModel" }
 }
 
 private extension VisaOnboardingTangemWalletDeployApproveViewModel {
     func signData(_ dataToSign: Data) async throws -> SignHashResponse {
-        log("Attempt to sign data with unknown wallet pair. Creating VisaCustomerWalletApproveTask")
+        logger.info("Attempt to sign data with unknown wallet pair. Creating VisaCustomerWalletApproveTask")
         let task = VisaCustomerWalletApproveTask(targetAddress: targetWalletAddress, approveData: dataToSign)
         let tangemSdk = TangemSdkDefaultFactory().makeTangemSdk()
         let signResponse: SignHashResponse = try await withCheckedThrowingContinuation { continuation in
@@ -124,12 +117,12 @@ private extension VisaOnboardingTangemWalletDeployApproveViewModel {
             }
         }
 
-        log("Sign approve data successfully finished")
+        logger.info("Sign approve data successfully finished")
         return signResponse
     }
 
     func signDataWithTargetPair(_ approvePair: ApprovePair, dataToSign: Data) async throws -> SignHashResponse {
-        log("Attempt to sign data with saved in repository wallet pair. Creating plain SignHashCommand")
+        logger.info("Attempt to sign data with saved in repository wallet pair. Creating plain SignHashCommand")
         let signHashTask = SignHashCommand(hash: dataToSign, walletPublicKey: approvePair.publicKey, derivationPath: approvePair.derivationPath)
         let signResponse: SignHashResponse = try await withCheckedThrowingContinuation { continuation in
             approvePair.tangemSdk.startSession(with: signHashTask, filter: approvePair.sessionFilter) { result in
@@ -142,7 +135,7 @@ private extension VisaOnboardingTangemWalletDeployApproveViewModel {
             }
         }
 
-        log("Sign approve data with known approve pair successfully finished")
+        logger.info("Sign approve data with known approve pair successfully finished")
         return signResponse
     }
 }
