@@ -15,7 +15,6 @@ struct AppVisaBalances {
     let available: Decimal?
     let blocked: Decimal?
     let debt: Decimal?
-    let pendingRefund: Decimal?
 
     init(balances: VisaBalances) {
         totalBalance = balances.totalBalance
@@ -23,7 +22,6 @@ struct AppVisaBalances {
         available = balances.available
         blocked = balances.blocked
         debt = balances.debt
-        pendingRefund = balances.pendingRefund
     }
 
     init(
@@ -31,14 +29,12 @@ struct AppVisaBalances {
         verifiedBalance: Decimal?,
         available: Decimal?,
         blocked: Decimal?,
-        debt: Decimal?,
-        pendingRefund: Decimal?
+        debt: Decimal?
     ) {
         self.totalBalance = totalBalance
         self.verifiedBalance = verifiedBalance
         self.available = available
         self.blocked = blocked
         self.debt = debt
-        self.pendingRefund = pendingRefund
     }
 }
