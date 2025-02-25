@@ -57,7 +57,7 @@ struct CommonProductActivationService {
             throw VisaActivationError.missingAccessToken
         }
 
-        return try VisaActivationUtility().getEssentialActivationIds(from: accessToken)
+        return try VisaBFFUtility().getEssentialBFFIds(from: accessToken)
     }
 
     private func sendRequest<T: Decodable>(target: ProductActivationAPITarget.Target) async throws -> T {
