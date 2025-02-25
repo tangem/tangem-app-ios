@@ -25,7 +25,6 @@ public struct VisaAPIServiceBuilder {
             authorizationTokensHandler: authorizationTokensHandler,
             apiService: .init(
                 provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
-                logger: InternalLogger(),
                 decoder: JSONDecoderFactory().makePayAPIDecoder()
             )
         )
