@@ -29,7 +29,7 @@ final class CardActivationTask: CardSessionRunnable {
 
     private weak var orderProvider: CardActivationTaskOrderProvider?
     private var otpRepository: VisaOTPRepository
-    private let logger: InternalLogger
+    private let logger = InternalLogger(tag: .cardActivationTask)
 
     private let selectedAccessCode: String
     private let activationInput: VisaCardActivationInput
@@ -45,8 +45,7 @@ final class CardActivationTask: CardSessionRunnable {
         activationInput: VisaCardActivationInput,
         challengeToSign: String?,
         delegate: CardActivationTaskOrderProvider,
-        otpRepository: VisaOTPRepository,
-        logger: InternalLogger
+        otpRepository: VisaOTPRepository
     ) {
         self.selectedAccessCode = selectedAccessCode
         self.activationInput = activationInput
@@ -55,7 +54,6 @@ final class CardActivationTask: CardSessionRunnable {
 
         orderProvider = delegate
         self.otpRepository = otpRepository
-        self.logger = logger
     }
 
     func run(in session: CardSession, completion: @escaping CompletionHandler) {
@@ -75,10 +73,6 @@ final class CardActivationTask: CardSessionRunnable {
         } else {
             getActivationOrder(in: session, completion: completion)
         }
-    }
-
-    private func log<T>(_ message: @autoclosure () -> T) {
-        logger.debug(subsystem: .cardActivationTask, message())
     }
 }
 
