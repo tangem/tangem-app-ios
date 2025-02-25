@@ -29,7 +29,6 @@ public struct EVMSmartContractInteractorFactory {
                 networkConfig: config.networkProviderConfiguration(for: blockchain),
                 apiInfo: apiInfo
             )),
-            blockcypherProvider: nil,
             abiEncoder: WalletCoreABIEncoder()
         )
 
