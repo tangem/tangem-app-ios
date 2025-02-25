@@ -87,6 +87,8 @@ extension CoinType {
             self = .filecoin
         case .sei:
             self = .sei
+        case .zkLinkNova:
+            self = .zkLinkNova
         case .ethereumPoW,
              .disChain,
              .rsk,
