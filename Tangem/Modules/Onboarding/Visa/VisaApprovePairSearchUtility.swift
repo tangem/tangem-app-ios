@@ -13,6 +13,7 @@ import TangemVisa
 struct VisaApprovePairSearchUtility {
     let visaUtilities: VisaUtilities
     let visaWalletPublicKeyUtility: VisaWalletPublicKeyUtility
+    private let logger = VisaAppLogger(tag: .onboarding)
 
     init(isTestnet: Bool) {
         visaUtilities = .init(isTestnet: isTestnet)
@@ -48,7 +49,7 @@ struct VisaApprovePairSearchUtility {
                     tangemSdk: config.makeTangemSdk()
                 )
             } catch {
-                AppLogger.error("Failed to find wallet", error: error)
+                logger.error("Failed to find approve pair in user wallet models list", error: error)
             }
         }
 
