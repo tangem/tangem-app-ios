@@ -85,14 +85,6 @@ extension RavencoinNetworkProvider: BitcoinNetworkProvider {
             .map { $0.txid }
             .eraseToAnyPublisher()
     }
-
-    func push(transaction: String) -> AnyPublisher<String, Error> {
-        .anyFail(error: BlockchainSdkError.networkProvidersNotSupportsRbf)
-    }
-
-    func getSignatureCount(address: String) -> AnyPublisher<Int, Error> {
-        .anyFail(error: BlockchainSdkError.notImplemented)
-    }
 }
 
 // MARK: - Mapping
