@@ -11,16 +11,14 @@ import Moya
 
 struct APIService<Target: TargetType, ErrorType: Error & Decodable> {
     private let provider: MoyaProvider<Target>
-    private let logger: InternalLogger
     private var decoder: JSONDecoder
+    private let logger = InternalLogger(tag: .apiService)
 
     init(
         provider: MoyaProvider<Target>,
-        logger: InternalLogger,
         decoder: JSONDecoder
     ) {
         self.provider = provider
-        self.logger = logger
         self.decoder = decoder
     }
 
@@ -69,14 +67,8 @@ struct APIService<Target: TargetType, ErrorType: Error & Decodable> {
             info = String(data: response.data, encoding: .utf8)!
         }
 
-        logger.debug(
-            subsystem: .apiService,
-            """
-            Request target: \(target.path)
-            Task: \(target.task)
-            Response: \(info)
-            Error: \(String(describing: error))
-            """
+        logger.info(
+            "Request target: \(target.path), Task: \(target.task), Response: \(info), Error: \(String(describing: error))"
         )
     }
 }
