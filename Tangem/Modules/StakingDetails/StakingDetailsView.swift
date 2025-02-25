@@ -152,7 +152,7 @@ struct StakingDetailsView: View {
 struct StakingDetailsView_Preview: PreviewProvider {
     static let viewModel = StakingDetailsViewModel(
         tokenItem: WalletModel.mockETH.tokenItem,
-        tokenBalanceProvider: WalletModel.mockETH.fiatTotalTokenBalanceProvider,
+        tokenBalanceProvider: WalletModel.mockETH.availableBalanceProvider,
         stakingManager: StakingManagerMock(),
         coordinator: StakingDetailsCoordinator()
     )
