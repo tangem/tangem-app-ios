@@ -60,8 +60,7 @@ final class CommonVisaActivationManager {
 
     private var selectedAccessCode: String?
 
-    private let authorizationService: VisaAuthorizationService
-    private let authorizationTokensHandler: AuthorizationTokensHandler
+    private let authorizationTokensHandler: VisaAuthorizationTokensHandler
     private let tangemSdk: TangemSdk
 
     private let authorizationProcessor: CardAuthorizationProcessor
@@ -90,8 +89,7 @@ final class CommonVisaActivationManager {
 
     init(
         initialActivationStatus: VisaCardActivationLocalState,
-        authorizationService: VisaAuthorizationService,
-        authorizationTokensHandler: AuthorizationTokensHandler,
+        authorizationTokensHandler: VisaAuthorizationTokensHandler,
         tangemSdk: TangemSdk,
         authorizationProcessor: CardAuthorizationProcessor,
         cardActivationOrderProvider: CardActivationOrderProvider,
@@ -103,7 +101,6 @@ final class CommonVisaActivationManager {
     ) {
         activationLocalState = initialActivationStatus
 
-        self.authorizationService = authorizationService
         self.authorizationTokensHandler = authorizationTokensHandler
         self.tangemSdk = tangemSdk
 
