@@ -24,26 +24,16 @@ public struct VisaActivationManagerFactory {
     ) -> VisaActivationManager {
         let internalLogger = InternalLogger()
 
+        let authorizationTokensHandler = VisaAuthorizationTokensHandlerBuilder(isMockedAPIEnabled: isMockedAPIEnabled)
+            .build(
+                cardId: cardId,
+                cardActivationStatus: initialActivationStatus,
+                refreshTokenSaver: nil,
+                urlSessionConfiguration: urlSessionConfiguration
+            )
+
         let authorizationService = VisaAPIServiceBuilder(mockedAPI: isMockedAPIEnabled)
             .buildAuthorizationService(urlSessionConfiguration: urlSessionConfiguration)
-
-        let authorizationTokensHolder: AuthorizationTokensHolder
-        if case .activationStarted(_, let authorizationTokens, _) = initialActivationStatus {
-            authorizationTokensHolder = .init(authorizationTokens: authorizationTokens)
-        } else {
-            authorizationTokensHolder = .init()
-        }
-
-        let authorizationTokenRefreshService = VisaAPIServiceBuilder(mockedAPI: isMockedAPIEnabled)
-            .buildAuthorizationTokenRefreshService(urlSessionConfiguration: urlSessionConfiguration)
-
-        let authorizationTokensHandler = CommonVisaAuthorizationTokensHandler(
-            cardId: cardId,
-            authorizationTokensHolder: authorizationTokensHolder,
-            tokenRefreshService: authorizationTokenRefreshService,
-            logger: internalLogger,
-            refreshTokenSaver: nil
-        )
 
         let authorizationProcessor = CommonCardAuthorizationProcessor(
             authorizationService: authorizationService,
@@ -69,7 +59,6 @@ public struct VisaActivationManagerFactory {
 
         return CommonVisaActivationManager(
             initialActivationStatus: initialActivationStatus,
-            authorizationService: authorizationService,
             authorizationTokensHandler: authorizationTokensHandler,
             tangemSdk: tangemSdk,
             authorizationProcessor: authorizationProcessor,
