@@ -16,16 +16,16 @@ public struct VisaAPIServiceBuilder {
         self.mockedAPI = mockedAPI
     }
 
-    public func buildTransactionHistoryService(isTestnet: Bool, urlSessionConfiguration: URLSessionConfiguration) -> VisaTransactionHistoryAPIService {
-        let logger = InternalLogger()
-        let additionalAPIHeaders = (try? VisaConfigProvider.shared().getTxHistoryAPIAdditionalHeaders()) ?? [:]
-
-        return PayAPIService(
-            isTestnet: isTestnet,
-            additionalAPIHeaders: additionalAPIHeaders,
+    public func buildTransactionHistoryService(
+        authorizationTokensHandler: VisaAuthorizationTokensHandler,
+        isTestnet: Bool,
+        urlSessionConfiguration: URLSessionConfiguration
+    ) -> VisaTransactionHistoryAPIService {
+        return CommonTransactionHistoryService(
+            authorizationTokensHandler: authorizationTokensHandler,
             apiService: .init(
                 provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
-                logger: logger,
+                logger: InternalLogger(),
                 decoder: JSONDecoderFactory().makePayAPIDecoder()
             )
         )
