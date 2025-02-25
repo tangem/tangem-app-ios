@@ -15,7 +15,7 @@ struct ProductActivationServiceBuilder {
         self.isMockAPIEnabled = isMockAPIEnabled
     }
 
-    func build(urlSessionConfiguration: URLSessionConfiguration, authorizationTokensHandler: AuthorizationTokensHandler) -> ProductActivationService {
+    func build(urlSessionConfiguration: URLSessionConfiguration, authorizationTokensHandler: VisaAuthorizationTokensHandler) -> ProductActivationService {
         if isMockAPIEnabled {
             return ProductActivationServiceMock()
         }
