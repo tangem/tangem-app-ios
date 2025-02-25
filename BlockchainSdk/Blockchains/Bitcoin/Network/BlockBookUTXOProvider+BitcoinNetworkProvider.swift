@@ -55,23 +55,6 @@ extension BlockBookUTXOProvider: BitcoinNetworkProvider {
     func send(transaction: String) -> AnyPublisher<String, Error> {
         sendTransaction(hex: transaction)
     }
-
-    func push(transaction: String) -> AnyPublisher<String, Error> {
-        .anyFail(error: "RBF not supported")
-    }
-
-    func getSignatureCount(address: String) -> AnyPublisher<Int, Error> {
-        addressData(address: address, parameters: addressParameters)
-            .tryMap { response in
-                let outgoingTxsCount = response.transactions?.filter { transaction in
-                    return transaction.compat.vin.contains(where: { inputs in
-                        inputs.addresses.contains(address)
-                    })
-                }.count ?? 0
-                return outgoingTxsCount
-            }
-            .eraseToAnyPublisher()
-    }
 }
 
 // MARK: - Mapping
