@@ -1,5 +1,5 @@
 //
-//  AuthorizationTokensHandler.swift
+//  VisaAuthorizationTokensHandler.swift
 //  TangemVisa
 //
 //  Created by [REDACTED_AUTHOR]
@@ -15,8 +15,10 @@ public protocol VisaRefreshTokenSaver: AnyObject {
     func saveRefreshTokenToStorage(refreshToken: String, cardId: String) throws
 }
 
-protocol AuthorizationTokensHandler {
+public protocol VisaAuthorizationTokensHandler {
     var accessToken: JWT? { get async }
+    var accessTokenExpired: Bool { get async }
+    var refreshTokenExpired: Bool { get async }
     var containsAccessToken: Bool { get async }
     var authorizationHeader: String { get async throws }
     var authorizationTokens: VisaAuthorizationTokens? { get async }
@@ -81,20 +83,21 @@ class CommonVisaAuthorizationTokensHandler {
     private func setupAccessTokenRefresher() async throws {
         log("Attempting to setup token refresher")
         guard let jwtTokens = await authorizationTokensHolder.tokens else {
-            throw VisaAccessTokenHandlerError.authorizationTokensNotFound
+            throw VisaAuthorizationTokensHandlerError.authorizationTokensNotFound
         }
 
         log("JWT tokens found. Checking expiration date.")
         guard
-            let expirationDate = jwtTokens.accessToken.expiresAt,
-            let issuedAtDate = jwtTokens.accessToken.issuedAt
+            let accessToken = jwtTokens.accessToken,
+            let expirationDate = accessToken.expiresAt,
+            let issuedAtDate = accessToken.issuedAt
         else {
-            throw VisaAccessTokenHandlerError.missingMandatoryInfoInAccessToken
+            throw VisaAuthorizationTokensHandlerError.missingMandatoryInfoInAccessToken
         }
 
         let now = Date()
         let timeBeforeExpiration = expirationDate.timeIntervalSince(now)
-        let shouldRefreshToken = timeBeforeExpiration < minSecondsBeforeExpiration || jwtTokens.accessToken.expired
+        let shouldRefreshToken = timeBeforeExpiration < minSecondsBeforeExpiration || accessToken.expired
 
         // We need to refresh token before setup token update with fixed interval
         if shouldRefreshToken {
@@ -145,14 +148,18 @@ class CommonVisaAuthorizationTokensHandler {
         log("Refreshing access token")
         if refreshJWTToken.expired {
             log("Refresh token expired, cant refresh")
-            throw VisaAccessTokenHandlerError.refreshTokenExpired
+            throw VisaAuthorizationTokensHandlerError.refreshTokenExpired
         }
 
         let visaTokens = try await tokenRefreshService.refreshAccessToken(refreshToken: refreshJWTToken.string)
         let newJWTTokens = try AuthorizationTokensUtility().decodeAuthTokens(visaTokens)
 
-        if newJWTTokens.accessToken.expired {
-            throw VisaAccessTokenHandlerError.failedToUpdateAccessToken
+        guard let accessToken = newJWTTokens.accessToken else {
+            throw VisaAuthorizationTokensHandlerError.missingAccessToken
+        }
+
+        if accessToken.expired {
+            throw VisaAuthorizationTokensHandlerError.failedToUpdateAccessToken
         }
 
         await authorizationTokensHolder.setTokens(newJWTTokens)
@@ -161,9 +168,17 @@ class CommonVisaAuthorizationTokensHandler {
     }
 }
 
-extension CommonVisaAuthorizationTokensHandler: AuthorizationTokensHandler {
+extension CommonVisaAuthorizationTokensHandler: VisaAuthorizationTokensHandler {
     var accessToken: JWT? {
         get async { await authorizationTokensHolder.tokens?.accessToken }
+    }
+
+    var accessTokenExpired: Bool {
+        get async { await authorizationTokensHolder.tokens?.accessToken?.expired ?? true }
+    }
+
+    var refreshTokenExpired: Bool {
+        get async { await authorizationTokensHolder.tokens?.refreshToken.expired ?? true }
     }
 
     var containsAccessToken: Bool {
@@ -173,10 +188,10 @@ extension CommonVisaAuthorizationTokensHandler: AuthorizationTokensHandler {
     var authorizationHeader: String {
         get async throws {
             guard let jwtTokens = await authorizationTokensHolder.tokens else {
-                throw VisaAccessTokenHandlerError.missingAccessToken
+                throw VisaAuthorizationTokensHandlerError.missingAccessToken
             }
 
-            return AuthorizationTokensUtility().getAuthorizationHeader(from: jwtTokens)
+            return try AuthorizationTokensUtility().getAuthorizationHeader(from: jwtTokens)
         }
     }
 
@@ -200,6 +215,7 @@ extension CommonVisaAuthorizationTokensHandler: AuthorizationTokensHandler {
         }
 
         let newTokens = try await refreshAccessToken(refreshJWTToken: tokens.refreshToken)
+        setupRefresherTask()
         try refreshTokenSaver?.saveRefreshTokenToStorage(refreshToken: newTokens.refreshToken.string, cardId: cardId)
     }
 

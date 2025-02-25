@@ -17,7 +17,7 @@ struct CardActivationOrderProviderBuilder {
 
     func build(
         urlSessionConfiguration: URLSessionConfiguration,
-        tokensHandler: AuthorizationTokensHandler,
+        tokensHandler: VisaAuthorizationTokensHandler,
         cardActivationStatusService: VisaCardActivationStatusService?
     ) -> CardActivationOrderProvider {
         if isMockedAPIEnabled {
