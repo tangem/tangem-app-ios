@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 struct MarketsTokenDetailsLinksMapper {
     private let defaultIcon = Assets.arrowRightUp
@@ -36,26 +37,51 @@ struct MarketsTokenDetailsLinksMapper {
     }
 
     private func mapLinksToChips(_ links: [MarketsTokenDetailsLinks.LinkInfo]) -> [MarketsTokenDetailsLinkChipsData] {
-        return links.map { mapLinkToChips($0) }
+        links.compactMap(mapLinkToChips)
     }
 
-    private func mapLinkToChips(_ linkInfo: MarketsTokenDetailsLinks.LinkInfo) -> MarketsTokenDetailsLinkChipsData {
-        var icon: ImageType = defaultIcon
-        if let id = linkInfo.id {
-            icon = .init(name: id)
+    private func mapLinkToChips(_ linkInfo: MarketsTokenDetailsLinks.LinkInfo) -> MarketsTokenDetailsLinkChipsData? {
+        let icon: ImageType = if let id = linkInfo.id {
+            .init(name: id)
+        } else {
+            defaultIcon
         }
 
-        var title = linkInfo.title
-        if let url = URL(string: linkInfo.title), let hostTitle = url.host {
-            title = hostTitle
+        let title = if let url = URL(string: linkInfo.title), let hostTitle = url.host {
+            hostTitle
+        } else {
+            linkInfo.title
         }
+
+        let urlLink = if linkInfo.link.hasPrefix(Constants.defaultScheme) {
+            linkInfo.link
+        } else {
+            Constants.defaultScheme + linkInfo.link
+        }
+
+        guard let url = URL(string: urlLink), UIApplication.shared.canOpenURL(url) else {
+            return nil
+        }
+
         return .init(
             text: title,
             icon: .leading(icon),
-            link: linkInfo.link,
+            link: urlLink,
             action: {
-                openLinkAction(linkInfo)
+                openLinkAction(
+                    .init(
+                        id: linkInfo.id,
+                        title: linkInfo.title,
+                        link: urlLink
+                    )
+                )
             }
         )
+    }
+}
+
+extension MarketsTokenDetailsLinksMapper {
+    private enum Constants {
+        static let defaultScheme = "https://"
     }
 }
