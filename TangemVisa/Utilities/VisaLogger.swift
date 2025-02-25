@@ -22,16 +22,18 @@ struct InternalLogger {
 }
 
 extension InternalLogger {
-    enum Subsystem: String, CustomStringConvertible {
-        case bridgeInteractorBuilder = "[Visa] [Bridge Interactor Builder]:\n"
-        case bridgeInteractor = "[Visa] [Bridge Interactor]:\n"
-        case apiService = "[Visa] [API Service]\n"
-        case tokenInfoLoader = "[Visa] [TokenInfoLoader]:\n"
+    enum Subsystem: String {
+        case paymentAccountInteractorBuilder = "[Visa] [PaymentAccountInteractorBuilder]: "
+        case paymentAccountInteractor = "[Visa] [PaymentAccountInteractor]: "
+        case apiService = "[Visa] [API Service]: "
+        case tokenInfoLoader = "[Visa] [TokenInfoLoader]: "
         case authorizationTokenHandler = "[Visa] [AuthorizationTokenHandler]: "
         case activationManager = "[Visa] [ActivationManager]: "
         case cardSetupHandler = "[Visa] [CardSetupHandler]: "
         case cardActivationOrderProvider = "[Visa] [CommonCardActivationOrderProvider]: "
         case cardAuthorizationProcessor = "[Visa] [CardAuthorizationProcessor]: "
         case cardActivationTask = "[Visa] [CardActivationTask]: "
+        case paymentAccountAddressProvider = "[Visa] [PaymentAccountAddressProvider]: "
+        case cardAuthorizationScanHandler = "[Visa] [VisaCardAuthorizationScanHandler]: "
     }
 }
