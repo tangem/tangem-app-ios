@@ -96,7 +96,6 @@ class VisaOnboardingViewModel: ObservableObject {
 
     private let input: OnboardingInput
 
-    private let logger = VisaAppLogger(tag: .onboarding)
     private let visaActivationManager: VisaActivationManager
     private var userWalletModel: UserWalletModel?
     private weak var coordinator: VisaOnboardingRoutable?
@@ -248,7 +247,7 @@ private extension VisaOnboardingViewModel {
 
     func goToStep(_ step: VisaOnboardingStep, animated: Bool = true) {
         guard let stepIndex = steps.firstIndex(of: step) else {
-            logger.info("Failed to find step \(step)")
+            VisaLogger.info("Failed to find step \(step)")
             return
         }
 
@@ -526,7 +525,7 @@ private extension VisaOnboardingViewModel {
                     viewModel.cardImage = image
                 }
             } catch {
-                viewModel.logger.error("Failed to load card image", error: error)
+                VisaLogger.error("Failed to load card image", error: error)
             }
         }
     }
