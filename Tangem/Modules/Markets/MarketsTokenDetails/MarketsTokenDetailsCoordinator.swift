@@ -23,7 +23,6 @@ class MarketsTokenDetailsCoordinator: CoordinatorObject {
     // MARK: - Child ViewModels
 
     @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel? = nil
-    @Published var modalWebViewModel: WebViewContainerViewModel? = nil
     @Published var exchangesListViewModel: MarketsTokenDetailsExchangesListViewModel? = nil
 
     // MARK: - Child Coordinators
