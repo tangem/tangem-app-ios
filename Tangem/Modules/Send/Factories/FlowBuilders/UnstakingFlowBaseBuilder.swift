@@ -51,12 +51,14 @@ struct UnstakingFlowBaseBuilder {
         let sendFeeCompactViewModel = sendFeeStepBuilder.makeSendFeeCompactViewModel(input: unstakingModel)
         sendFeeCompactViewModel.bind(input: unstakingModel)
 
+        let isPartialUnstakeAllowed = unstakingModel.isPartialUnstakeAllowed
+
         let summary = sendSummaryStepBuilder.makeSendSummaryStep(
             io: io,
             actionType: actionType,
             descriptionBuilder: builder.makeStakingTransactionSummaryDescriptionBuilder(),
             notificationManager: notificationManager,
-            editableType: .editable,
+            editableType: isPartialUnstakeAllowed ? .editable : .noEditable,
             sendDestinationCompactViewModel: .none,
             sendAmountCompactViewModel: amount.compact,
             stakingValidatorsCompactViewModel: .none,
@@ -78,10 +80,15 @@ struct UnstakingFlowBaseBuilder {
             amountStep: amount.step,
             summaryStep: summary.step,
             finishStep: finish,
-            action: action
+            action: action,
+            isPartialUnstakeAllowed: isPartialUnstakeAllowed
         )
 
         summary.step.set(router: stepsManager)
+
+        if !isPartialUnstakeAllowed {
+            unstakingModel.updateFees()
+        }
 
         let interactor = CommonSendBaseInteractor(input: unstakingModel, output: unstakingModel)
 
