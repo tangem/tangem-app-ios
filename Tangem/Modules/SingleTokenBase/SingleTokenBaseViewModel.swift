@@ -492,7 +492,7 @@ extension SingleTokenBaseViewModel {
 
     private func isSendDisabled() -> Bool {
         switch walletModel.sendingRestrictions {
-        case .zeroWalletBalance, .cantSignLongTransactions, .hasPendingTransaction, .blockchainUnreachable, .oldCard:
+        case .zeroWalletBalance, .cantSignLongTransactions, .hasPendingTransaction, .blockchainUnreachable, .oldCard, .hasOnlyCachedBalance:
             return true
         case .none, .zeroFeeCurrencyBalance:
             return false
@@ -517,7 +517,7 @@ extension SingleTokenBaseViewModel {
         }
 
         switch walletModel.sendingRestrictions {
-        case .cantSignLongTransactions, .blockchainUnreachable:
+        case .cantSignLongTransactions, .blockchainUnreachable, .hasOnlyCachedBalance:
             return true
         default:
             break
@@ -764,6 +764,8 @@ private extension TransactionSendAvailabilityProvider.SendingRestrictions? {
         switch self {
         case .zeroWalletBalance:
             return Analytics.ParameterValue.empty.rawValue
+        case .hasOnlyCachedBalance:
+            return Analytics.ParameterValue.caching.rawValue
         case .none:
             return Analytics.ParameterValue.null.rawValue
         default:
