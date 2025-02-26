@@ -6,18 +6,40 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import typealias Foundation.TimeInterval
 import TangemStories
-import class Kingfisher.KingfisherManager
+import Kingfisher
 
 private final class TangemStoriesEnvironment {
-    let storyDataCache = InMemoryStoryDataCache(kingfisherCache: KingfisherManager.shared.cache)
-    let storyAvailabilityService = AppSettingsStoryAvailabilityService(appSettings: AppSettings.shared)
+    lazy var kingfisherCache: ImageCache = {
+        let countLimit = 10
+        let tenMinutesInSeconds: TimeInterval = 600
 
-    lazy var enrichStoryUseCase = EnrichStoryUseCase(storyDataCache: storyDataCache, storyDataService: CommonStoryDataService())
+        let cache = ImageCache(name: "com.tangem.stories")
+        cache.memoryStorage.config.countLimit = countLimit
+        cache.memoryStorage.config.expiration = .seconds(tenMinutesInSeconds)
+        cache.memoryStorage.config.keepWhenEnteringBackground = true
+
+        return cache
+    }()
+
+    lazy var storyDataCache = InMemoryStoryDataCache(kingfisherCache: kingfisherCache)
+    lazy var storyAvailabilityService = AppSettingsStoryAvailabilityService(appSettings: AppSettings.shared)
+    lazy var storyAnalyticsService = StoryAnalyticsService()
+
+    lazy var enrichStoryUseCase = EnrichStoryUseCase(
+        storyDataCache: storyDataCache,
+        storyDataService: CommonStoryDataService(
+            storyAvailabilityService: storyAvailabilityService,
+            storyAnalyticsService: storyAnalyticsService
+        )
+    )
+
     lazy var tangemStoriesViewModel = TangemStoriesViewModel(
         checkStoryAvailabilityUseCase: CheckStoryAvailabilityUseCase(storyAvailabilityService: storyAvailabilityService),
         enrichStoryUseCase: enrichStoryUseCase,
-        finalizeStoryUseCase: FinalizeStoryUseCase(storyAvailabilityService: storyAvailabilityService, storyDataCache: storyDataCache)
+        finalizeStoryUseCase: FinalizeStoryUseCase(storyAvailabilityService: storyAvailabilityService, storyDataCache: storyDataCache),
+        analyticsService: storyAnalyticsService
     )
 }
 
@@ -31,6 +53,14 @@ extension InjectedValues {
     private var tangemStoriesEnvironment: TangemStoriesEnvironment {
         get { Self[TangemStoriesEnvironmentKey.self] }
         set { Self[TangemStoriesEnvironmentKey.self] = newValue }
+    }
+
+    var storyKingfisherImageCache: ImageCache {
+        tangemStoriesEnvironment.kingfisherCache
+    }
+
+    var storyAvailabilityService: any StoryAvailabilityService {
+        tangemStoriesEnvironment.storyAvailabilityService
     }
 
     var enrichStoryUseCase: EnrichStoryUseCase {
