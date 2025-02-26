@@ -904,7 +904,7 @@
 "token_button_unavailability_reason_empty_balance_sell" = "Du hast kein Guthaben um dies zu Verkaufen. Lade dein Konto auf, um Geld von dort zu verkaufen.";
 "token_button_unavailability_reason_empty_balance_send" = "Du hast kein Guthaben zum Versenden. Lade dein Konto auf, um Geld von dort aus senden zu können.";
 "token_button_unavailability_reason_not_exchangeable" = "Das Tauschen von %@ wird von aktuellen Anbietern nicht unterstützt, aber wir arbeiten daran, weitere Optionen hinzuzufügen.";
-"token_button_unavailability_reason_out_od_date_balance" = "The displayed balance might be outdated due to caching.";
+"token_button_unavailability_reason_out_of_date_balance" = "The displayed balance might be outdated due to caching.";
 "token_button_unavailability_reason_pending_transaction_sell" = "Der Verkauf von Geldmitteln ist möglich, sobald die ausstehende(n) Transaktion(en) im %@ -Netzwerk abgeschlossen ist/sind.";
 "token_button_unavailability_reason_pending_transaction_send" = "Die Geldsendung wird verfügbar, sobald die ausstehende(n) Transaktion(en) im Netzwerk %@ abgeschlossen ist/sind.";
 "token_button_unavailability_reason_sell_unavailable" = "Der Verkauf von %@ wird von aktuellen Anbietern nicht unterstützt, aber wir arbeiten daran, weitere Optionen hinzuzufügen.";
