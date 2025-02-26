@@ -72,7 +72,7 @@ class CommonSendAmountInteractor {
     }
 
     private func validateAndUpdate(amount: SendAmount?) {
-        guard let crypto = amount?.crypto, crypto > 0 else {
+        guard let amount, let crypto = amount.crypto, crypto > 0 else {
             // Field is empty or zero
             update(amount: .none, isValid: false, error: .none)
             return
@@ -81,10 +81,14 @@ class CommonSendAmountInteractor {
         do {
             try validator.validate(amount: crypto)
 
-            guard let crypto = modifyIfNeeded(amount: amount)?.crypto else { return }
+            let modifiedAmount = modifyIfNeeded(amount: amount)
 
-            try validator.validate(amount: crypto)
-            update(amount: amount, isValid: true, error: .none)
+            if let modifiedCryptoAmount = modifiedAmount.crypto, modifiedCryptoAmount != amount.crypto {
+                // additional validation if amount has changed
+                try validator.validate(amount: modifiedCryptoAmount)
+            }
+
+            update(amount: modifiedAmount, isValid: true, error: .none)
         } catch {
             update(amount: .none, isValid: false, error: error)
         }
@@ -96,8 +100,8 @@ class CommonSendAmountInteractor {
         output?.amountDidChanged(amount: amount)
     }
 
-    private func modifyIfNeeded(amount: SendAmount?) -> SendAmount? {
-        guard let crypto = amountModifier?.modify(cryptoAmount: amount?.crypto) else {
+    private func modifyIfNeeded(amount: SendAmount) -> SendAmount {
+        guard let crypto = amountModifier?.modify(cryptoAmount: amount.crypto) else {
             return amount
         }
 

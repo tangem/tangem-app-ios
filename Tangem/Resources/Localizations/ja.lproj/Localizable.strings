@@ -267,6 +267,8 @@
 "express_exchange_by" = "%@による交換";
 "express_exchange_notification_failed_text" = "返金を受けるには、プロバイダーのウェブサイトにアクセスしてください。";
 "express_exchange_notification_failed_title" = "プロバイダーによる操作が失敗しました。";
+"express_exchange_notification_long_transaction_time_text" = "スワップに予想以上の時間がかかっています。プロバイダーサポートにお問い合わせください。";
+"express_exchange_notification_long_transaction_time_title" = "長い取引時間";
 "express_exchange_notification_refund_text" = "OKXまたはブリッジのルールにより、取引金額は%1$@でウォレットに返金されました。%2$@";
 "express_exchange_notification_refund_title" = "金額は %1$@（%2$@ネットワーク）で返金されました";
 "express_exchange_notification_verification_text" = "確認するには、プロバイダーのウェブサイトにアクセスしてください。";
@@ -644,6 +646,8 @@
 "scan_card_settings_message" = "カードまたはリングをスキャンして設定を変更します。変更はスキャンしたカードまたはリングにのみ影響し、ウォレットに関連付けられている他のデバイスには影響しません。";
 "scan_card_settings_title" = "Tangemを準備してください！";
 "security_alert_title" = "セキュリティ警告";
+"seed_warning_no" = "いいえ、しませんでした";
+"seed_warning_yes" = "はい、案内してください";
 "selling_insufficient_balance_alert_message" = "暗号通貨を売却するための十分な資金が残高にありません。続行するには希望の資産を入金してください。";
 "selling_insufficient_balance_alert_title" = "残高不足";
 "selling_regional_restriction_alert_message" = "現在、お住まいの地域では暗号資産の売却はご利用いただけません。このオプションをすぐにご利用いただけるよう積極的に取り組んでいますので、お楽しみに！";
@@ -782,6 +786,10 @@
 "staking_notification_low_staked_balance_title" = "ステーキング残高が低いです";
 "staking_notification_minimum_balance_error_text" = "再ステーキングには最低%1$@ %2$@が必要です。残高を補充してください。";
 "staking_notification_minimum_balance_error_title" = "%@が足りません";
+"staking_notification_minimum_balance_title" = "ステーキングのための残高が不足しています";
+"staking_notification_minimum_restake_ada_text" = "リステーキングには最低3ADA が必要です。残高を補充してください。";
+"staking_notification_minimum_restake_ada_title" = "ADAが不足しています";
+"staking_notification_minimum_stake_ada_text" = "ステーキングに必要な最小金額は5ADAを超える必要があります。ステーキングを開始するには残高を補充してください。";
 "staking_notification_network_error_text" = "ネットワークの状態により、現在ステーキングはご利用いただけません。しばらくしてからもう一度お試しください。";
 "staking_notification_new_validator_funds_transfer" = "新しいバリデーターを使用して%1$@ネットワークにステーキングすると、以前にステーキングされた資金がすべてこのバリデーターに自動的に転送されます。";
 "staking_notification_restake_rewards_text" = "獲得した報酬をステーキングに再投資し、潜在的な収益を増やします。";
@@ -854,6 +862,8 @@
 "story_meet_title" = "Tangemのご紹介";
 "story_web3_description" = "100種類以上の分散型サービスで、NFTの交換・購入や、借入・預金を行うことができます。";
 "story_web3_title" = "Web3.0対応";
+"sui_not_enough_coin_for_fee_description" = "続行するには少なくとも%1$@の受信取引が必要です";
+"sui_not_enough_coin_for_fee_title" = "残高不足";
 "swap_give_permission_fee_footer" = "ネットワークは、あなたがトークンのスワップを承認していることを確認するために、トークン承認手数料を請求します。";
 "swap_promo_text" = "より多くのトークンをより良いレートで、ウォレット内にて直接交換します。";
 "swap_promo_title" = "新しいスワッププロバイダーが利用可能になりました！";
@@ -894,6 +904,7 @@
 "token_button_unavailability_reason_empty_balance_sell" = "売却できる資金がありません。アカウントに入金して、売却できるようにしてください。";
 "token_button_unavailability_reason_empty_balance_send" = "送金する資金がありません。アカウントに入金して、送金できるようにしてください。";
 "token_button_unavailability_reason_not_exchangeable" = "%@のスワップは、現在のプロバイダーではサポートされていませんが、より多くのオプションを追加できるよう取り組んでいます。";
+"token_button_unavailability_reason_out_od_date_balance" = "表示残高はキャッシュにより古くなっている可能性があります。";
 "token_button_unavailability_reason_pending_transaction_sell" = "%@ネットワーク上の保留中の取引が完了すると、資金の売却が可能になります。";
 "token_button_unavailability_reason_pending_transaction_send" = "ネットワーク%@内の保留中の取引が完了すると、送金が可能になります。";
 "token_button_unavailability_reason_sell_unavailable" = "%@の売却は、現在のプロバイダーではサポートされていませんが、より多くのオプションを追加できるよう取り組んでいます。";
@@ -953,6 +964,9 @@
 "user_wallet_list_rename_popup_placeholder" = "ウォレット名";
 "user_wallet_list_rename_popup_title" = "ウォレット名の変更";
 "user_wallet_list_unlock_all_with" = "%@ですべてをロック解除";
+"visa_unlock_notification_button" = "ロック解除";
+"visa_unlock_notification_subtitle" = "カードをスキャンしてアクセスロックを解除する";
+"visa_unlock_notification_title" = "ロック解除が必要";
 "voice_over_open_card_details" = "デバイスの詳細を開く";
 "voice_over_open_new_wallet_connect_session" = "QRコードをスキャンして、新しいWalletConnectセッションを開く";
 "wallet_balance_missing_derivation" = "カードまたはリングをスキャン";
@@ -1065,6 +1079,8 @@
 "warning_rate_app_title" = "Tangemを楽しんでいますか?";
 "warning_receive_blocked_hedera_token_association_required_message" = "トークンを受け取る前に、トークンを関連付ける必要があります。";
 "warning_rent_fee_title" = "ネットワーク使用料が必要です";
+"warning_seedphrase_action_required_title" = "対応が必要です";
+"warning_seedphrase_contacted_support" = "ウォレットの作成後、7日以内にアプリ経由でサポートに連絡しましたか？連絡した場合、あるいは連絡したかわからない場合は、「はい」をクリックして指示に従ってください。";
 "warning_seedphrase_issue_answer_no" = "ありがとうございます。準備完了です。これ以上の操作は必要ありません。";
 "warning_seedphrase_issue_answer_yes" = "Tangemの公式ウェブサイトに移動します。そちらの指示に従ってください。";
 "warning_seedphrase_issue_message" = "このアプリ経由でTangemサポートチームに直接連絡したことがありますか？";
