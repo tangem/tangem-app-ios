@@ -97,5 +97,7 @@ extension Analytics {
         case reason = "Reason"
         case residence = "Residence"
         case paymentMethod = "Payment Method"
+
+        case watched = "Watched"
     }
 }
