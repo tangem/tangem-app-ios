@@ -32,7 +32,8 @@ enum TokenNotificationEvent: Hashable {
              .hasPendingTransaction,
              .blockchainUnreachable,
              .cantSignLongTransactions,
-             .oldCard:
+             .oldCard,
+             .hasOnlyCachedBalance:
             return nil
         case .zeroFeeCurrencyBalance(let eventConfiguration):
             let configuration = NotEnoughFeeConfiguration(
