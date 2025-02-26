@@ -86,6 +86,8 @@ protocol TangemApiService: AnyObject {
 
     func getSeedNotifyStatus(userWalletId: String) async throws -> SeedNotifyDTO
     func setSeedNotifyStatus(userWalletId: String, status: SeedNotifyStatus) async throws
+    func getSeedNotifyStatusConfirmed(userWalletId: String) async throws -> SeedNotifyDTO
+    func setSeedNotifyStatusConfirmed(userWalletId: String, status: SeedNotifyStatus) async throws
     func setWalletInitialized(userWalletId: String) async throws
 
     // MARK: - Configs
