@@ -14,7 +14,7 @@ import TangemFoundation
 // [REDACTED_TODO_COMMENT]
 @MainActor
 final class StoriesHostViewModel: ObservableObject {
-    private let onStoriesFinished: (() -> Void)?
+    private let onStoriesFinished: () -> Void
     private var cancellables = Set<AnyCancellable>()
 
     let storyViewModels: [StoryViewModel]
@@ -24,7 +24,7 @@ final class StoriesHostViewModel: ObservableObject {
     init(
         storyViewModels: [StoryViewModel],
         visibleStoryIndex: Int = 0,
-        onStoriesFinished: (() -> Void)? = nil
+        onStoriesFinished: @escaping () -> Void
     ) {
         assert(visibleStoryIndex < storyViewModels.count)
 
@@ -32,7 +32,7 @@ final class StoriesHostViewModel: ObservableObject {
         self.visibleStoryIndex = visibleStoryIndex
         self.onStoriesFinished = onStoriesFinished
 
-        subscribeToStoriesTransitionEvents()
+        subscribeToStoriesEvents()
         subscribeToApplicationLifecycleEvents()
     }
 
@@ -44,13 +44,19 @@ final class StoriesHostViewModel: ObservableObject {
         storyViewModels[visibleStoryIndex].handle(viewEvent: .viewInteractionResumed)
     }
 
-    private func subscribeToStoriesTransitionEvents() {
+    private func subscribeToStoriesEvents() {
         storyViewModels
             .enumerated()
             .forEach { index, viewModel in
                 viewModel.storyTransitionPublisher
                     .sink { [weak self] transition in
                         self?.handleStoryTransition(index, transition: transition)
+                    }
+                    .store(in: &cancellables)
+
+                viewModel.storyDismissIntentPublisher
+                    .sink { [weak self] in
+                        self?.onStoriesFinished()
                     }
                     .store(in: &cancellables)
             }
@@ -74,7 +80,7 @@ final class StoriesHostViewModel: ObservableObject {
         switch transition {
         case .forward:
             guard index < storyViewModels.count - 1 else {
-                onStoriesFinished?()
+                onStoriesFinished()
                 return
             }
             updateVisibleStory(index: index + 1)
