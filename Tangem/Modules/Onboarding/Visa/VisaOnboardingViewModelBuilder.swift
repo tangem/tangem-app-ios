@@ -10,8 +10,6 @@ import Foundation
 import TangemVisa
 
 struct VisaOnboardingViewModelBuilder {
-    private let logger = VisaAppLogger(tag: .onboardingViewModelBuilder)
-
     func makeOnboardingViewModel(onboardingInput: OnboardingInput, coordinator: VisaOnboardingRoutable) -> VisaOnboardingViewModel {
         var initialActivationStatus: VisaCardActivationLocalState?
         switch onboardingInput.cardInput {
@@ -56,7 +54,7 @@ struct VisaOnboardingViewModelBuilder {
     }
 
     private func logInvalidInput(_ error: Error) {
-        logger.error(
+        VisaLogger.error(
             "Invalid card input was received while creating onboarding view model",
             error: error
         )
