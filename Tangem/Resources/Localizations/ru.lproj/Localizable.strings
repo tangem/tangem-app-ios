@@ -904,7 +904,7 @@
 "token_button_unavailability_reason_empty_balance_sell" = "У вас нет средств для продажи. Пополните счет, чтобы иметь возможность продать с него средства.";
 "token_button_unavailability_reason_empty_balance_send" = "У вас нет средств для отправки. Пополните счет, чтобы иметь возможность отправить с него средства.";
 "token_button_unavailability_reason_not_exchangeable" = "Обмен %@ в данный момент не поддерживается ни одним провайдером. Мы работаем над добавлением новых возможностей. Следите за нашими новостями.";
-"token_button_unavailability_reason_out_od_date_balance" = "The displayed balance might be outdated due to caching.";
+"token_button_unavailability_reason_out_of_date_balance" = "The displayed balance might be outdated due to caching.";
 "token_button_unavailability_reason_pending_transaction_sell" = "Продажа средств станет доступной после завершения транзакции(-ий) в сети %@";
 "token_button_unavailability_reason_pending_transaction_send" = "Отправка средств станет доступной после завершения транзакции(-ий) в сети %@";
 "token_button_unavailability_reason_sell_unavailable" = "Продажа %@ в данный момент не поддерживается ни одним провайдером. Мы работаем над добавлением новых возможностей. Следите за нашими новостями.";
