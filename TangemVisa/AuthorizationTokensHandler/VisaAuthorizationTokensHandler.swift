@@ -33,7 +33,6 @@ class CommonVisaAuthorizationTokensHandler {
 
     private let cardId: String
     private let scheduler: AsyncTaskScheduler = .init()
-    private let logger = InternalLogger(tag: .authorizationTokenHandler)
 
     private let authorizationTokensHolder: AuthorizationTokensHolder
     private var refresherTask: AnyCancellable?
@@ -55,7 +54,7 @@ class CommonVisaAuthorizationTokensHandler {
     }
 
     private func setupRefresherTask() {
-        logger.info("Setup refresher task. Current refresher task is nil: \(refresherTask == nil)")
+        VisaLogger.info("Setup refresher task. Current refresher task is nil: \(refresherTask == nil)")
         refresherTask?.cancel()
         refresherTask = Task { [weak self] in
             do {
@@ -66,21 +65,21 @@ class CommonVisaAuthorizationTokensHandler {
                 try await self?.setupAccessTokenRefresher()
             } catch {
                 if error is CancellationError {
-                    self?.logger.info("Refresher task was cancelled")
+                    VisaLogger.info("Refresher task was cancelled")
                     return
                 }
-                self?.logger.error("Failed to update access token", error: error)
+                VisaLogger.error("Failed to update access token", error: error)
             }
         }.eraseToAnyCancellable()
     }
 
     private func setupAccessTokenRefresher() async throws {
-        logger.info("Attempting to setup token refresher")
+        VisaLogger.info("Attempting to setup token refresher")
         guard let jwtTokens = await authorizationTokensHolder.tokens else {
             throw VisaAuthorizationTokensHandlerError.authorizationTokensNotFound
         }
 
-        logger.info("JWT tokens found. Checking expiration date.")
+        VisaLogger.info("JWT tokens found. Checking expiration date.")
         guard
             let accessToken = jwtTokens.accessToken,
             let expirationDate = accessToken.expiresAt,
@@ -95,7 +94,7 @@ class CommonVisaAuthorizationTokensHandler {
 
         // We need to refresh token before setup token update with fixed interval
         if shouldRefreshToken {
-            logger.info("Access token needs to be refreshed.")
+            VisaLogger.info("Access token needs to be refreshed.")
             // Token already expired or will expire very soon. Refreshing
             try await refreshAccessToken(refreshJWTToken: jwtTokens.refreshToken)
         } else {
@@ -117,7 +116,7 @@ class CommonVisaAuthorizationTokensHandler {
         let tokenRefreshTimeInterval = tokenLifeTime - minSecondsBeforeExpiration
         scheduler.scheduleJob(interval: tokenRefreshTimeInterval, repeats: true) { [weak self] in
             guard let jwtTokens = await self?.authorizationTokensHolder.tokens else {
-                self?.logger.info("Failed to find access token. Canceling scheduled refresh job.")
+                VisaLogger.info("Failed to find access token. Canceling scheduled refresh job.")
                 self?.scheduler.cancel()
                 return
             }
@@ -125,16 +124,16 @@ class CommonVisaAuthorizationTokensHandler {
             do {
                 try await self?.refreshAccessToken(refreshJWTToken: jwtTokens.refreshToken)
             } catch {
-                self?.logger.error("Failed to refresh access token", error: error)
+                VisaLogger.error("Failed to refresh access token", error: error)
             }
         }
     }
 
     @discardableResult
     private func refreshAccessToken(refreshJWTToken: JWT) async throws -> DecodedAuthorizationJWTTokens {
-        logger.info("Refreshing access token")
+        VisaLogger.info("Refreshing access token")
         if refreshJWTToken.expired {
-            logger.info("Refresh token expired, cant refresh")
+            VisaLogger.info("Refresh token expired, cant refresh")
             throw VisaAuthorizationTokensHandlerError.refreshTokenExpired
         }
 
@@ -189,7 +188,7 @@ extension CommonVisaAuthorizationTokensHandler: VisaAuthorizationTokensHandler {
     }
 
     func setupTokens(_ tokens: VisaAuthorizationTokens) async throws {
-        logger.info("Setup new authorization tokens in token handler")
+        VisaLogger.info("Setup new authorization tokens in token handler")
         try await authorizationTokensHolder.setTokens(authorizationTokens: tokens)
         /// We need to use `setupRefresherTask` to prevent blocking current task
         setupRefresherTask()
@@ -197,7 +196,7 @@ extension CommonVisaAuthorizationTokensHandler: VisaAuthorizationTokensHandler {
 
     func forceRefreshToken() async throws {
         guard let tokens = await authorizationTokensHolder.tokens else {
-            logger.info("Nothing to refresh")
+            VisaLogger.info("Nothing to refresh")
             return
         }
 
@@ -211,7 +210,7 @@ extension CommonVisaAuthorizationTokensHandler: VisaAuthorizationTokensHandler {
         runTask(in: self) { handler in
             do {
                 guard let tokens = await handler.authorizationTokensHolder.tokens else {
-                    handler.logger.info("Nothing to save in refresh token storage")
+                    VisaLogger.info("Nothing to save in refresh token storage")
                     return
                 }
 
@@ -220,7 +219,7 @@ extension CommonVisaAuthorizationTokensHandler: VisaAuthorizationTokensHandler {
                     cardId: handler.cardId
                 )
             } catch {
-                handler.logger.error("Failed to save refresh token after saver setup", error: error)
+                VisaLogger.error("Failed to save refresh token after saver setup", error: error)
             }
         }
     }
