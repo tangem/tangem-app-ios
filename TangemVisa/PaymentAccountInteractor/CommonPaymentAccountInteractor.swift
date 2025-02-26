@@ -16,7 +16,6 @@ struct CommonPaymentAccountInteractor {
     private let isTestnet: Bool
 
     private let evmSmartContractInteractor: EVMSmartContractInteractor
-    private let logger = InternalLogger(tag: .paymentAccountInteractor)
 
     init(
         customerCardInfo: VisaCustomerCardInfo,
@@ -36,7 +35,7 @@ extension CommonPaymentAccountInteractor: VisaPaymentAccountInteractor {
     var cardWalletAddress: String { customerCardInfo.cardWalletAddress }
 
     func loadBalances() async throws -> VisaBalances {
-        logger.info("Attempting to load all balances from balances")
+        VisaLogger.info("Attempting to load all balances from balances")
         let loadedBalances: VisaBalances
         do {
             async let totalBalance = try await evmSmartContractInteractor.ethCall(
@@ -59,24 +58,24 @@ extension CommonPaymentAccountInteractor: VisaPaymentAccountInteractor {
                 debt: convertToDecimal(debtAmount)
             )
 
-            logger.info("All balances sucessfully loaded")
+            VisaLogger.info("All balances sucessfully loaded")
             return loadedBalances
         } catch {
-            logger.error("Failed to load balances", error: error)
+            VisaLogger.error("Failed to load balances", error: error)
             throw error
         }
     }
 
     func loadCardSettings() async throws -> VisaPaymentAccountCardSettings {
-        logger.info("Attempting to load card settings from payment account")
+        VisaLogger.info("Attempting to load card settings from payment account")
         do {
             try await checkWalletAddressAssociation()
 
             let cardSettings = try await loadCardSettingsFromBlockchain()
-            logger.info("Card settings sucessfully loaded")
+            VisaLogger.info("Card settings sucessfully loaded")
             return cardSettings
         } catch {
-            logger.error("Failed to load card settings", error: error)
+            VisaLogger.error("Failed to load card settings", error: error)
             throw error
         }
     }
@@ -110,7 +109,7 @@ private extension CommonPaymentAccountInteractor {
         do {
             return try await evmSmartContractInteractor.ethCall(request: amountRequest(for: type)).async()
         } catch {
-            logger.error("Failed to load amount of type: \(type.rawValue)", error: error)
+            VisaLogger.error("Failed to load amount of type: \(type.rawValue)", error: error)
             throw error
         }
     }

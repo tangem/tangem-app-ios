@@ -14,7 +14,6 @@ public struct VisaPaymentAccountInteractorBuilder {
     private let evmSmartContractInteractor: EVMSmartContractInteractor
     private let urlSessionConfiguration: URLSessionConfiguration
     private let isMockedAPIEnabled: Bool
-    private let logger: InternalLogger = .init(tag: .paymentAccountInteractorBuilder)
 
     public init(
         isTestnet: Bool,
@@ -29,14 +28,14 @@ public struct VisaPaymentAccountInteractorBuilder {
     }
 
     public func build(customerCardInfo: VisaCustomerCardInfo) async throws -> VisaPaymentAccountInteractor {
-        logger.info("Start loading token info")
+        VisaLogger.info("Start loading token info")
         let tokenInfoLoader = VisaTokenInfoLoader(
             isTestnet: isTestnet,
             evmSmartContractInteractor: evmSmartContractInteractor
         )
         let visaToken = try await tokenInfoLoader.loadTokenInfo(for: customerCardInfo.paymentAccount)
 
-        logger.info("Creating Payment account interactor for founded PaymentAccount")
+        VisaLogger.info("Creating Payment account interactor for founded PaymentAccount")
         return CommonPaymentAccountInteractor(
             customerCardInfo: customerCardInfo,
             visaToken: visaToken,
