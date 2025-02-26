@@ -336,7 +336,11 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         }
 
         Task { @MainActor [tangemStoriesPresenter] in
-            tangemStoriesPresenter.present(story: .swap(.initialWithoutImages), presentCompletion: openExpressBlock)
+            tangemStoriesPresenter.present(
+                story: .swap(.initialWithoutImages),
+                analyticsSource: .tokenListContextMenu,
+                presentCompletion: openExpressBlock
+            )
         }
     }
 
@@ -526,7 +530,11 @@ extension MainCoordinator: ActionButtonsSwapFlowRoutable {
         }
 
         Task { @MainActor [tangemStoriesPresenter] in
-            tangemStoriesPresenter.present(story: .swap(.initialWithoutImages), presentCompletion: openExpressBlock)
+            tangemStoriesPresenter.present(
+                story: .swap(.initialWithoutImages),
+                analyticsSource: .main,
+                presentCompletion: openExpressBlock
+            )
         }
     }
 }
