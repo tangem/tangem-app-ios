@@ -12,7 +12,6 @@ import Moya
 struct APIService<Target: TargetType, ErrorType: Error & Decodable> {
     private let provider: MoyaProvider<Target>
     private var decoder: JSONDecoder
-    private let logger = InternalLogger(tag: .apiService)
 
     init(
         provider: MoyaProvider<Target>,
@@ -62,13 +61,8 @@ struct APIService<Target: TargetType, ErrorType: Error & Decodable> {
     }
 
     func log(target: Target, response: Response?, error: Error?) {
-        var info = ""
-        if let response {
-            info = String(data: response.data, encoding: .utf8)!
-        }
-
-        logger.info(
-            "Request target: \(target.path), Task: \(target.task), Response: \(info), Error: \(String(describing: error))"
+        VisaLogger.info(
+            "Request target: \(target.path), Task: \(target.task), Response: \(response?.data.count ?? -1) Error: \(String(describing: error))"
         )
     }
 }
