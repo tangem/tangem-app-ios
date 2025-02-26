@@ -11,10 +11,11 @@ import Combine
 import SwiftUI
 import BlockchainSdk
 import TangemFoundation
-import enum TangemStories.TangemStory
+import TangemStories
 
 class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
+    @Injected(\.storyAvailabilityService) private var storyAvailabilityService: any StoryAvailabilityService
 
     @Published var alert: AlertBinder? = nil
     @Published var transactionHistoryState: TransactionsListView.State = .loading
@@ -260,7 +261,6 @@ extension SingleTokenBaseViewModel {
         setupActionButtons()
         setupMiniChart()
         updateActionButtons()
-        updatePendingTransactionView()
         performLoadHistory()
     }
 
@@ -279,14 +279,31 @@ extension SingleTokenBaseViewModel {
         walletModel.totalTokenBalanceProvider
             .balanceTypePublisher
             .receive(on: DispatchQueue.main)
-            .handleEvents(receiveOutput: { [weak self] _ in
-                self?.updatePendingTransactionView()
-            })
             .removeDuplicates()
             .filter { !$0.isLoading }
             .receiveValue { [weak self] newState in
                 AppLogger.info(self, "Token details receive new wallet model state: \(newState)")
                 self?.updateActionButtons()
+            }
+            .store(in: &bag)
+
+        walletModel
+            .pendingTransactionPublisher
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .map { owner, transactions in
+                // Only if the transaction history isn't supported
+                guard !owner.walletModel.isSupportedTransactionHistory else {
+                    return []
+                }
+
+                return transactions.map { transaction in
+                    owner.pendingTransactionRecordMapper.mapToTransactionViewModel(transaction)
+                }
+            }
+            .withWeakCaptureOf(self)
+            .sink { owner, viewModels in
+                owner.pendingTransactionViews = viewModels
             }
             .store(in: &bag)
 
@@ -338,7 +355,8 @@ extension SingleTokenBaseViewModel {
             .assign(to: \.pendingExpressTransactions, on: self, ownership: .weak)
             .store(in: &bag)
 
-        AppSettings.shared.$shownStoryIds
+        storyAvailabilityService
+            .availableStoriesPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.updateActionButtons()
@@ -365,18 +383,6 @@ extension SingleTokenBaseViewModel {
                 viewModel.updateMiniChartState(using: chartsData)
             }
             .store(in: &bag)
-    }
-
-    private func updatePendingTransactionView() {
-        // Only if the transaction history isn't supported
-        guard !walletModel.isSupportedTransactionHistory else {
-            pendingTransactionViews = []
-            return
-        }
-
-        pendingTransactionViews = walletModel.pendingTransactions.map { transaction in
-            pendingTransactionRecordMapper.mapToTransactionViewModel(transaction)
-        }
     }
 
     private func updateActionButtons() {
@@ -458,7 +464,7 @@ extension SingleTokenBaseViewModel {
     private func shouldShowUnreadNotificationBadge(for type: TokenActionType) -> Bool {
         switch type {
         case .exchange:
-            !AppSettings.shared.shownStoryIds.contains(TangemStory.ID.swap.rawValue)
+            storyAvailabilityService.checkStoryAvailability(storyId: .swap)
         default:
             false
         }
