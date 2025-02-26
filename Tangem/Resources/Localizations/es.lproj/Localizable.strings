@@ -904,7 +904,7 @@
 "token_button_unavailability_reason_empty_balance_sell" = "No tiene fondos para vender. Recargue su cuenta para poder vender fondos desde ella.";
 "token_button_unavailability_reason_empty_balance_send" = "No tienes fondos para enviar. Recarga tu cuenta para poder enviar fondos desde ella.";
 "token_button_unavailability_reason_not_exchangeable" = "El servicio de intercambio %@ no está compatible con los proveedores actuales pero estamos trabajando para agregar más opciones.";
-"token_button_unavailability_reason_out_od_date_balance" = "The displayed balance might be outdated due to caching.";
+"token_button_unavailability_reason_out_of_date_balance" = "The displayed balance might be outdated due to caching.";
 "token_button_unavailability_reason_pending_transaction_sell" = "La venta de fondos estará disponible una vez que la(s) transacción(es) pendiente(s) en la red %@ se complete";
 "token_button_unavailability_reason_pending_transaction_send" = "El envío de fondos estará disponible una vez que se completen las transacciones pendientes en la red %@.";
 "token_button_unavailability_reason_sell_unavailable" = "Vender %@ no es compatible con los proveedores actuales, pero estamos trabajando para agregar más opciones.";
