@@ -1185,7 +1185,6 @@
 		B62D40912CBC79DA00C2460E /* EthereumAddressConverterError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3CCA2CBC79D900C2460E /* EthereumAddressConverterError.swift */; };
 		B62D40922CBC79DA00C2460E /* EthereumAddressConverterFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3CCB2CBC79D900C2460E /* EthereumAddressConverterFactory.swift */; };
 		B62D40932CBC79DA00C2460E /* IdentityEthereumAddressConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3CCC2CBC79D900C2460E /* IdentityEthereumAddressConverter.swift */; };
-		B62D40942CBC79DA00C2460E /* EthereumAdditionalInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3CCE2CBC79D900C2460E /* EthereumAdditionalInfoProvider.swift */; };
 		B62D40952CBC79DA00C2460E /* EthereumNetworkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3CCF2CBC79D900C2460E /* EthereumNetworkProvider.swift */; };
 		B62D40962CBC79DA00C2460E /* EthereumTransactionDataBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3CD02CBC79D900C2460E /* EthereumTransactionDataBuilder.swift */; };
 		B62D40972CBC79DA00C2460E /* EthereumTransactionSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3CD12CBC79D900C2460E /* EthereumTransactionSigner.swift */; };
@@ -4545,7 +4544,6 @@
 		B62D3CCA2CBC79D900C2460E /* EthereumAddressConverterError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthereumAddressConverterError.swift; sourceTree = "<group>"; };
 		B62D3CCB2CBC79D900C2460E /* EthereumAddressConverterFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthereumAddressConverterFactory.swift; sourceTree = "<group>"; };
 		B62D3CCC2CBC79D900C2460E /* IdentityEthereumAddressConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IdentityEthereumAddressConverter.swift; sourceTree = "<group>"; };
-		B62D3CCE2CBC79D900C2460E /* EthereumAdditionalInfoProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthereumAdditionalInfoProvider.swift; sourceTree = "<group>"; };
 		B62D3CCF2CBC79D900C2460E /* EthereumNetworkProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthereumNetworkProvider.swift; sourceTree = "<group>"; };
 		B62D3CD02CBC79D900C2460E /* EthereumTransactionDataBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthereumTransactionDataBuilder.swift; sourceTree = "<group>"; };
 		B62D3CD12CBC79D900C2460E /* EthereumTransactionSigner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthereumTransactionSigner.swift; sourceTree = "<group>"; };
@@ -10566,7 +10564,6 @@
 		B62D3CD22CBC79D900C2460E /* Interfaces */ = {
 			isa = PBXGroup;
 			children = (
-				B62D3CCE2CBC79D900C2460E /* EthereumAdditionalInfoProvider.swift */,
 				B62D3CCF2CBC79D900C2460E /* EthereumNetworkProvider.swift */,
 				B62D3CD02CBC79D900C2460E /* EthereumTransactionDataBuilder.swift */,
 				B62D3CD12CBC79D900C2460E /* EthereumTransactionSigner.swift */,
@@ -19977,7 +19974,6 @@
 				B62D40BF2CBC79DA00C2460E /* TelosExternalLinkProvider.swift in Sources */,
 				B62D40F52CBC79DA00C2460E /* HederaWalletAssembly.swift in Sources */,
 				B62D40C02CBC79DA00C2460E /* ZkSyncExternalLinkProvider.swift in Sources */,
-				B62D40942CBC79DA00C2460E /* EthereumAdditionalInfoProvider.swift in Sources */,
 				B62D429E2CBC79DB00C2460E /* Amount.swift in Sources */,
 				B62D3F992CBC79DA00C2460E /* AlgorandAccountStatus.swift in Sources */,
 				B62D40D42CBC79DA00C2460E /* FilecoinExternalLinkProvider.swift in Sources */,
