@@ -16,7 +16,6 @@ class VisaOnboardingWalletConnectViewModel: ObservableObject {
     private var delegate: VisaOnboardingInProgressDelegate?
 
     private let statusUpdateTimeIntervalSec: TimeInterval = 10
-    private let logger = VisaAppLogger(tag: .onboarding)
 
     private var scheduler = AsyncTaskScheduler()
 
@@ -53,7 +52,7 @@ class VisaOnboardingWalletConnectViewModel: ObservableObject {
 
                 await self?.proceedOnboarding()
             } catch {
-                self?.logger.error("Failed to check if onboarding can proceed", error: error)
+                VisaLogger.error("Failed to check if onboarding can proceed", error: error)
                 self?.scheduler.cancel()
                 await self?.delegate?.showContactSupportAlert(for: error)
             }
@@ -69,7 +68,7 @@ class VisaOnboardingWalletConnectViewModel: ObservableObject {
                     viewModel.setupStatusUpdateTask()
                 }
             } catch {
-                viewModel.logger.error("Failed to check if onboarding can proceed", error: error)
+                VisaLogger.error("Failed to check if onboarding can proceed", error: error)
                 await viewModel.delegate?.showContactSupportAlert(for: error)
             }
         }
