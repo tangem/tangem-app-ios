@@ -16,6 +16,7 @@ struct HotCryptoView: View {
 
     var body: some View {
         content
+            .animation(.default, value: items.count)
     }
 
     @ViewBuilder
