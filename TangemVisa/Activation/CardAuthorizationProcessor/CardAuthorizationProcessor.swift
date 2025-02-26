@@ -27,7 +27,6 @@ final class CommonCardAuthorizationProcessor {
     private var authorizationChallengeInput: (sessionId: String, cardInput: VisaCardActivationInput)?
 
     private let authorizationService: VisaAuthorizationService
-    private let logger = InternalLogger(tag: .cardAuthorizationProcessor)
 
     init(authorizationService: VisaAuthorizationService) {
         self.authorizationService = authorizationService
@@ -36,13 +35,13 @@ final class CommonCardAuthorizationProcessor {
 
 extension CommonCardAuthorizationProcessor: CardAuthorizationProcessor {
     func getAuthorizationChallenge(for input: VisaCardActivationInput) async throws -> String {
-        logger.info("Attempting to load authorization challenge")
+        VisaLogger.info("Attempting to load authorization challenge")
         let challengeResponse = try await authorizationService.getCardAuthorizationChallenge(
             cardId: input.cardId,
             cardPublicKey: input.cardPublicKey.hexString
         )
 
-        logger.info("Challenge loaded, saving session id")
+        VisaLogger.info("Challenge loaded, saving session id")
         authorizationChallengeInput = (sessionId: challengeResponse.sessionId, cardInput: input)
         return challengeResponse.nonce
     }
@@ -54,17 +53,17 @@ extension CommonCardAuthorizationProcessor: CardAuthorizationProcessor {
     ) async throws -> VisaAuthorizationTokens {
         guard let authorizationChallengeInput else {
             let error = CardAuthorizationProcessorError.authorizationChallengeNotFound
-            logger.error("Failed to find saved authorization challenge input and session", error: error)
+            VisaLogger.error("Failed to find saved authorization challenge input and session", error: error)
             throw error
         }
 
         guard authorizationChallengeInput.cardInput == cardInput else {
             let error = CardAuthorizationProcessorError.invalidCardInput
-            logger.error("Card input in authorization challenge input didn't match with input provided", error: error)
+            VisaLogger.error("Card input in authorization challenge input didn't match with input provided", error: error)
             throw error
         }
 
-        logger.info("Attempting to load access tokens for signed challenge")
+        VisaLogger.info("Attempting to load access tokens for signed challenge")
         do {
             let accessTokens = try await authorizationService.getAccessTokensForCardAuth(
                 signedChallenge: signedChallenge.hexString,
@@ -73,7 +72,7 @@ extension CommonCardAuthorizationProcessor: CardAuthorizationProcessor {
             )
             return accessTokens
         } catch {
-            logger.error("Failed to get access tokens for card authorization", error: error)
+            VisaLogger.error("Failed to get access tokens for card authorization", error: error)
             throw CardAuthorizationProcessorError.networkError(error)
         }
     }
