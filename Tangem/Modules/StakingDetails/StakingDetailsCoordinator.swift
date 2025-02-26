@@ -45,7 +45,7 @@ class StakingDetailsCoordinator: CoordinatorObject {
 
         rootViewModel = StakingDetailsViewModel(
             tokenItem: options.walletModel.tokenItem,
-            tokenBalanceProvider: options.walletModel.fiatAvailableBalanceProvider,
+            tokenBalanceProvider: options.walletModel.availableBalanceProvider,
             stakingManager: options.manager,
             coordinator: self
         )
