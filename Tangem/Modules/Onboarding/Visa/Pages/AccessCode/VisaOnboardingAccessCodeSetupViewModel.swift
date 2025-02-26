@@ -32,8 +32,6 @@ class VisaOnboardingAccessCodeSetupViewModel: ObservableObject {
     private var accessCodeValidator: VisaAccessCodeValidator
     private weak var delegate: VisaOnboardingAccessCodeSetupDelegate?
 
-    private let logger = VisaAppLogger(tag: .onboarding)
-
     init(
         accessCodeValidator: VisaAccessCodeValidator,
         delegate: VisaOnboardingAccessCodeSetupDelegate
@@ -136,7 +134,7 @@ private extension VisaOnboardingAccessCodeSetupViewModel {
 
     func finishAccessCodeSetup() {
         if selectedAccessCode.isEmpty {
-            logger.info("Main button on access code setup is enabled while error is present. State: \(viewState.title)")
+            VisaLogger.info("Main button on access code setup is enabled while error is present. State: \(viewState.title)")
             return
         }
 
@@ -150,7 +148,7 @@ private extension VisaOnboardingAccessCodeSetupViewModel {
                 try await viewModel.delegate?.useSelectedCode(accessCode: viewModel.selectedAccessCode)
             } catch {
                 if !error.isCancellationError {
-                    viewModel.logger.error("Failed to use selected access code", error: error)
+                    VisaLogger.error("Failed to use selected access code", error: error)
                     await viewModel.showRetryAlert(for: error)
                 }
             }
