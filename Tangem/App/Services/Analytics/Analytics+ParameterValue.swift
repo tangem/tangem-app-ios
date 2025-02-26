@@ -104,6 +104,9 @@ extension Analytics {
         // Transaction is sent
         case sent = "Sent"
 
+        // Balance caching
+        case caching = "Caching"
+
         // MARK: - Express
 
         case status = "Status"
