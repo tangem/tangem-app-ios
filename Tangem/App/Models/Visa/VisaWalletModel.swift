@@ -96,7 +96,6 @@ class VisaWalletModel {
     private let stateSubject = CurrentValueSubject<State, Never>(.notInitialized)
     private let refreshTokenNotificationSubject = CurrentValueSubject<NotificationViewInput?, Never>(nil)
     private let alertSubject = CurrentValueSubject<AlertBinder?, Never>(nil)
-    private let logger = VisaAppLogger(tag: .walletModel)
 
     private var updateTask: Task<Void, Never>?
     private var historyReloadTask: Task<Void, Never>?
@@ -190,7 +189,7 @@ class VisaWalletModel {
             stateSubject.send(.failedToInitialize(modelError))
             return
         } catch {
-            logger.error("Failed to setup authorization tokens handler. Proceeding to payment account interactor setup.", error: error)
+            VisaLogger.error("Failed to setup authorization tokens handler. Proceeding to payment account interactor setup.", error: error)
         }
 
         await setupPaymentAccountInteractorAsync()
@@ -213,7 +212,7 @@ class VisaWalletModel {
             let apiList = try await apiListProvider.apiListPublisher.async()
             smartContractInteractor = try factory.makeInteractor(for: blockchain, apiInfo: apiList[blockchain.networkId] ?? [])
         } catch {
-            logger.error("Failed to setup bridge", error: error)
+            VisaLogger.error("Failed to setup bridge", error: error)
             stateSubject.send(.failedToInitialize(.invalidBlockchain))
             return
         }
@@ -255,11 +254,11 @@ class VisaWalletModel {
             if error == .refreshTokenExpired {
                 showRefreshTokenExpiredNotification()
             } else {
-                logger.error("Authorization error", error: error)
+                VisaLogger.error("Authorization error", error: error)
                 stateSubject.send(.failedToInitialize(.authorizationError))
             }
         } catch {
-            logger.error("Failed to create address from provided public key", error: error)
+            VisaLogger.error("Failed to create address from provided public key", error: error)
             stateSubject.send(.failedToInitialize(.failedToGenerateAddress))
         }
     }
@@ -305,7 +304,7 @@ class VisaWalletModel {
             let cardSettings = try await visaPaymentAccountInteractor.loadCardSettings()
             cardSettingsSubject.send(cardSettings)
         } catch {
-            logger.error("Failed to load card settings", error: error)
+            VisaLogger.error("Failed to load card settings", error: error)
             cardSettingsSubject.send(nil)
         }
     }
