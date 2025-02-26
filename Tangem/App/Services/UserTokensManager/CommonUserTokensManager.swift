@@ -159,6 +159,23 @@ extension CommonUserTokensManager: UserTokensManager {
         }
     }
 
+    func containsDerivationInsensitive(_ tokenItem: TokenItem) -> Bool {
+        let tokenItem = withBlockchainNetwork(tokenItem)
+
+        let targetsEntry = userTokenListManager.userTokens.filter {
+            $0.blockchainNetwork.blockchain.networkId == tokenItem.blockchainNetwork.blockchain.networkId
+        }
+        
+        guard targetsEntry.isNotEmpty else { return false }
+
+        switch tokenItem {
+        case .blockchain:
+            return true
+        case .token(let token, _):
+            return targetsEntry.flatMap(\.tokens).contains(token)
+        }
+    }
+
     func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [Token] {
         let items = userTokenListManager.userTokens
 

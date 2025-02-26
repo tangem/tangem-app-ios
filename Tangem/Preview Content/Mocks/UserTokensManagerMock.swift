@@ -34,6 +34,10 @@ struct UserTokensManagerMock: UserTokensManager {
         return false
     }
 
+    func containsDerivationInsensitive(_ tokenItem: TokenItem) -> Bool {
+        return false
+    }
+
     func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [Token] {
         []
     }
