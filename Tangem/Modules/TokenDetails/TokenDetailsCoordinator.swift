@@ -253,7 +253,11 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         }
 
         Task { @MainActor [tangemStoriesPresenter] in
-            tangemStoriesPresenter.present(story: .swap(.initialWithoutImages), presentCompletion: showExpressBlock)
+            tangemStoriesPresenter.present(
+                story: .swap(.initialWithoutImages),
+                analyticsSource: .token,
+                presentCompletion: showExpressBlock
+            )
         }
     }
 
