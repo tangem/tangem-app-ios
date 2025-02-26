@@ -14,7 +14,6 @@ import TangemFoundation
 struct VisaTokenInfoLoader {
     private let isTestnet: Bool
     private let evmSmartContractInteractor: EVMSmartContractInteractor
-    private let logger = InternalLogger(tag: .tokenInfoLoader)
 
     init(isTestnet: Bool, evmSmartContractInteractor: EVMSmartContractInteractor) {
         self.isTestnet = isTestnet
@@ -43,10 +42,10 @@ struct VisaTokenInfoLoader {
         do {
             let contractAddressResponse = try await evmSmartContractInteractor.ethCall(request: contractAddressRequest).async()
             let contractAddress = try AddressParser(isTestnet: isTestnet).parseAddressResponse(contractAddressResponse)
-            logger.info("Token contract address loaded and parsed successfully")
+            VisaLogger.info("Token contract address loaded and parsed successfully")
             return contractAddress
         } catch {
-            logger.error("Failed to load token contract address", error: error)
+            VisaLogger.error("Failed to load token contract address", error: error)
             throw Errors.failedToLoadInfo(method: .contractAddress)
         }
     }
