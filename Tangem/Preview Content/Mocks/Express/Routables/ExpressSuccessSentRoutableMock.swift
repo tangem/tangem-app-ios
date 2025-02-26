@@ -9,7 +9,7 @@
 import Foundation
 
 class ExpressSuccessSentRoutableMock: ExpressSuccessSentRoutable {
-    func openWebView(url: URL?) {}
+    func openWebView(url: URL) {}
 
     func close() {}
 }
