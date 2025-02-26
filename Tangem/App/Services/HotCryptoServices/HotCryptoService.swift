@@ -8,9 +8,10 @@
 
 import Combine
 import BlockchainSdk
+import enum Moya.MoyaError
 
 protocol HotCryptoService: AnyObject {
-    var hotCryptoItemsPublisher: AnyPublisher<[HotCryptoToken], Never> { get }
+    var hotCryptoItemsPublisher: AnyPublisher<[HotCryptoDTO.Response.HotToken], Never> { get }
 
     func loadHotCrypto(_ currencyCode: String)
 }
@@ -23,7 +24,7 @@ final class CommonHotCryptoService {
 
     // MARK: - Private properties
 
-    private var hotCryptoItemsSubject = CurrentValueSubject<[HotCryptoToken], Never>([])
+    private var hotCryptoItemsSubject = CurrentValueSubject<[HotCryptoDTO.Response.HotToken], Never>([])
     private var currencyCodeBag: AnyCancellable?
     private var loadTask: Task<Void, Never>?
 
@@ -44,7 +45,7 @@ final class CommonHotCryptoService {
 // MARK: - HotCryptoService
 
 extension CommonHotCryptoService: HotCryptoService {
-    var hotCryptoItemsPublisher: AnyPublisher<[HotCryptoToken], Never> {
+    var hotCryptoItemsPublisher: AnyPublisher<[HotCryptoDTO.Response.HotToken], Never> {
         hotCryptoItemsSubject.eraseToAnyPublisher()
     }
 
@@ -61,15 +62,11 @@ extension CommonHotCryptoService: HotCryptoService {
 
                 guard !Task.isCancelled else { return }
 
-                let tokenMapper = TokenItemMapper(supportedBlockchains: Blockchain.allMainnetCases.toSet())
-
-                hotCryptoItemsSubject.send(
-                    fetchedHotCryptoItems.tokens.map {
-                        .init(from: $0, tokenMapper: tokenMapper, imageHost: nil)
-                    }
-                )
+                hotCryptoItemsSubject.send(fetchedHotCryptoItems.tokens)
             } catch let error as TangemAPIError {
-                ActionButtonsAnalyticsService.hotTokenError(errorCode: error.code.description ?? "")
+                ActionButtonsAnalyticsService.hotTokenError(errorCode: String(error.code.rawValue))
+            } catch let error as MoyaError {
+                ActionButtonsAnalyticsService.hotTokenError(errorCode: String(error.response?.statusCode ?? 999))
             } catch {
                 ActionButtonsAnalyticsService.hotTokenError(errorCode: .unknown)
             }
