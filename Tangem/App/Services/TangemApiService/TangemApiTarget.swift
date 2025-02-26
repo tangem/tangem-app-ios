@@ -86,6 +86,8 @@ struct TangemApiTarget: TargetType {
 
         case .seedNotifyGetStatus(let userWalletId), .seedNotifySetStatus(let userWalletId, _):
             return "/seedphrase-notification/\(userWalletId)"
+        case .seedNotifyGetStatusConfirmed(let userWalletId), .seedNotifySetStatusConfirmed(let userWalletId, _):
+            return "/seedphrase-notification/\(userWalletId)/confirmed"
         case .walletInitialized:
             return "/user-tokens"
         }
@@ -110,10 +112,12 @@ struct TangemApiTarget: TargetType {
              .tokenExchangesList,
              .hotCrypto,
              .seedNotifyGetStatus,
+             .seedNotifyGetStatusConfirmed,
              .story:
             return .get
         case .saveUserWalletTokens,
-             .seedNotifySetStatus:
+             .seedNotifySetStatus,
+             .seedNotifySetStatusConfirmed:
             return .put
         case .participateInReferralProgram,
              .validateNewUserPromotionEligibility,
@@ -203,10 +207,10 @@ struct TangemApiTarget: TargetType {
                 ],
                 encoding: URLEncoding.default
             )
-        case .seedNotifySetStatus(_, let status):
+        case .seedNotifySetStatus(_, let status), .seedNotifySetStatusConfirmed(_, let status):
             let requestModel = SeedNotifyDTO(status: status)
             return .requestParameters(requestModel, encoding: URLEncoding.default)
-        case .tokenExchangesList, .seedNotifyGetStatus:
+        case .tokenExchangesList, .seedNotifyGetStatus, .seedNotifyGetStatusConfirmed:
             return .requestPlain
         case .hotCrypto(let requestModel):
             return .requestParameters(parameters: ["currency": requestModel.currency], encoding: URLEncoding.default)
@@ -280,6 +284,8 @@ extension TangemApiTarget {
         // Seed notification
         case seedNotifyGetStatus(userWalletId: String)
         case seedNotifySetStatus(userWalletId: String, status: SeedNotifyStatus)
+        case seedNotifyGetStatusConfirmed(userWalletId: String)
+        case seedNotifySetStatusConfirmed(userWalletId: String, status: SeedNotifyStatus)
         case walletInitialized(userWalletId: String)
     }
 
@@ -310,7 +316,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
         case .currencies, .coins, .quotes, .apiList, .coinsList, .coinsHistoryChartPreview,
              .historyChart, .tokenMarketsDetails, .tokenExchangesList, .hotCrypto, .story, .rawData:
             return false
-        case .geo, .features, .getUserWalletTokens, .saveUserWalletTokens, .loadReferralProgramInfo, .participateInReferralProgram, .createAccount, .promotion, .validateNewUserPromotionEligibility, .validateOldUserPromotionEligibility, .awardNewUser, .awardOldUser, .resetAward, .seedNotifyGetStatus, .seedNotifySetStatus, .walletInitialized:
+        case .geo, .features, .getUserWalletTokens, .saveUserWalletTokens, .loadReferralProgramInfo, .participateInReferralProgram, .createAccount, .promotion, .validateNewUserPromotionEligibility, .validateOldUserPromotionEligibility, .awardNewUser, .awardOldUser, .resetAward, .seedNotifyGetStatus, .seedNotifySetStatus, .seedNotifyGetStatusConfirmed, .seedNotifySetStatusConfirmed, .walletInitialized:
             return true
         }
     }
