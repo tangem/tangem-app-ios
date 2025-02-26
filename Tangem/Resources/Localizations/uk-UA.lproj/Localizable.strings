@@ -904,7 +904,7 @@
 "token_button_unavailability_reason_empty_balance_sell" = "У вас немає коштів для продажу. Поповніть рахунок, щоб мати змогу продати з нього кошти.";
 "token_button_unavailability_reason_empty_balance_send" = "У вас немає коштів для відправлення. Поповніть рахунок, щоб мати змогу надіслати з нього кошти.";
 "token_button_unavailability_reason_not_exchangeable" = "Наразі обмін монети %@ недоступний. Слідкуйте за нашими оновленнями.";
-"token_button_unavailability_reason_out_od_date_balance" = "The displayed balance might be outdated due to caching.";
+"token_button_unavailability_reason_out_of_date_balance" = "The displayed balance might be outdated due to caching.";
 "token_button_unavailability_reason_pending_transaction_sell" = "Продаж коштів стане доступним після завершення транзакції(-ій) в мережі %@";
 "token_button_unavailability_reason_pending_transaction_send" = "Надсилання коштів стане доступним після завершення транзакції(-ій) в мережі %@";
 "token_button_unavailability_reason_sell_unavailable" = "Наразі продаж %@ недоступний. Слідкуйте за нашими оновленнями.";
