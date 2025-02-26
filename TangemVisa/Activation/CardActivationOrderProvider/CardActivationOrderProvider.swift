@@ -22,7 +22,6 @@ final class CommonCardActivationOrderProvider {
     private let accessTokenProvider: VisaAuthorizationTokensHandler
     private let activationStatusService: VisaCardActivationStatusService
     private let productActivationService: ProductActivationService
-    private let logger = InternalLogger(tag: .cardActivationOrderProvider)
 
     private var loadedOrder: VisaCardAcceptanceOrderInfo?
 
@@ -44,7 +43,7 @@ extension CommonCardActivationOrderProvider: CardActivationOrderProvider {
         }
 
         guard let authorizationTokens = await accessTokenProvider.authorizationTokens else {
-            logger.error("Missing access token, can't load activation order data", error: VisaActivationError.missingAccessToken)
+            VisaLogger.error("Missing access token, can't load activation order data", error: VisaActivationError.missingAccessToken)
             throw VisaActivationError.missingAccessToken
         }
 
@@ -59,7 +58,7 @@ extension CommonCardActivationOrderProvider: CardActivationOrderProvider {
             customerWalletAddress: activationStatus.activationOrder.customerWalletAddress
         )
 
-        logger.info("Order loaded and can be processed by card")
+        VisaLogger.info("Order loaded and can be processed by card")
         return .init(activationOrder: activationStatus.activationOrder, hashToSignByWallet: Data(hexString: hashToSign))
     }
 }

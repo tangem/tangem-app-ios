@@ -50,7 +50,6 @@ class CommonVisaRefreshTokenRepository: VisaRefreshTokenRepository {
 
     private let secureStorage = SecureStorage()
     private let biometricsStorage = BiometricsStorage()
-    private let logger = VisaAppLogger(tag: .refreshTokenRepository)
 
     func save(refreshToken: String, cardId: String) throws {
         if tokens[cardId] == refreshToken {
@@ -115,7 +114,7 @@ class CommonVisaRefreshTokenRepository: VisaRefreshTokenRepository {
                 try save(refreshToken: tokenToKeep, cardId: cardIdTokenToKeep)
             }
         } catch {
-            logger.error("Failed to clear repository", error: error)
+            VisaLogger.error("Failed to clear repository", error: error)
         }
     }
 
@@ -134,13 +133,13 @@ class CommonVisaRefreshTokenRepository: VisaRefreshTokenRepository {
             tokens = loadedTokens
             storeCardsIds(Set(loadedTokens.keys))
         } catch {
-            logger.error("Failted to fetch token from storage", error: error)
+            VisaLogger.error("Failted to fetch token from storage", error: error)
         }
     }
 
     func lock() {
         tokens.removeAll()
-        logger.info("Repository locked")
+        VisaLogger.info("Repository locked")
     }
 
     func getToken(forCardId cardId: String) -> String? {
@@ -160,7 +159,7 @@ class CommonVisaRefreshTokenRepository: VisaRefreshTokenRepository {
             let cards = try JSONDecoder().decode(Set<String>.self, from: data)
             return cards
         } catch {
-            logger.error("Failed to load and decode stored card ids", error: error)
+            VisaLogger.error("Failed to load and decode stored card ids", error: error)
             return []
         }
     }
@@ -170,7 +169,7 @@ class CommonVisaRefreshTokenRepository: VisaRefreshTokenRepository {
             let data = try JSONEncoder().encode(cardIds)
             try secureStorage.store(data, forKey: StorageKey.visaCardIds.rawValue)
         } catch {
-            logger.error("Failed to encode and store card ids", error: error)
+            VisaLogger.error("Failed to encode and store card ids", error: error)
         }
     }
 }
