@@ -16,6 +16,13 @@ enum WithdrawalNotificationEvent: Hashable {
 }
 
 extension WithdrawalNotificationEvent: NotificationEvent {
+    var id: Int {
+        switch self {
+        case .reduceAmountBecauseFeeIsTooHigh: "reduceAmountBecauseFeeIsTooHigh".hashValue
+        case .cardanoWillBeSendAlongToken: "cardanoWillBeSendAlongToken".hashValue
+        }
+    }
+
     var title: NotificationView.Title? {
         switch self {
         case .reduceAmountBecauseFeeIsTooHigh:
