@@ -27,12 +27,15 @@ struct TransactionSendAvailabilityProvider {
             return .cantSignLongTransactions
         }
 
-        if walletModel.state.isBlockchainUnreachable {
+        switch walletModel.availableBalanceProvider.balanceType {
+        case .empty, .loading(.none), .failure(.none):
             return .blockchainUnreachable
-        }
-
-        guard let currentAmount = wallet.amounts[walletModel.amountType], currentAmount.value > 0 else {
+        case .loading(.some), .failure(.some):
+            return .hasOnlyCachedBalance
+        case .loaded(let value) where value == .zero:
             return .zeroWalletBalance
+        case .loaded:
+            break
         }
 
         // has pending tx
@@ -41,7 +44,7 @@ struct TransactionSendAvailabilityProvider {
         }
 
         // no fee
-        if !wallet.hasFeeCurrency(amountType: walletModel.amountType), !currentAmount.isZero {
+        if !wallet.hasFeeCurrency(amountType: walletModel.amountType) {
             return .zeroFeeCurrencyBalance(
                 configuration: .init(
                     transactionAmountTypeName: walletModel.tokenItem.name,
@@ -71,6 +74,7 @@ struct TransactionSendAvailabilityProvider {
 extension TransactionSendAvailabilityProvider {
     enum SendingRestrictions: Hashable {
         case zeroWalletBalance
+        case hasOnlyCachedBalance
         case cantSignLongTransactions
         case hasPendingTransaction(blockchain: Blockchain)
         case zeroFeeCurrencyBalance(configuration: NotEnoughFeeConfiguration)
