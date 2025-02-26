@@ -267,6 +267,8 @@
 "express_exchange_by" = "Обмін через %@";
 "express_exchange_notification_failed_text" = "Щоб повернути ваші кошти, відвідайте сайт провайдера";
 "express_exchange_notification_failed_title" = "Операція не виконана провайдером";
+"express_exchange_notification_long_transaction_time_text" = "Your swap is taking longer than expected. Please go to provider support for assistance.";
+"express_exchange_notification_long_transaction_time_title" = "Long transaction time";
 "express_exchange_notification_refund_text" = "Сума транзакції була повернута в %1$@ на ваш гаманець відповідно до правил OKX або мосту обміну. %2$@";
 "express_exchange_notification_refund_title" = "Сума була повернута в %1$@ (%2$@ мережі)";
 "express_exchange_notification_verification_text" = "Відвідайте сайт провайдера для перевірки";
@@ -644,6 +646,8 @@
 "scan_card_settings_message" = "Відскануйте картку або кільце, щоб змінити її налаштування. Зміни торкнуться лише тої картки або кільця, які ви відсканували, і не вплинуть на інші пристрої, прив'язані до вашого гаманця.";
 "scan_card_settings_title" = "Підготуйте свій Tangem!";
 "security_alert_title" = "Оповіщення безпеки";
+"seed_warning_no" = "No, I did not";
+"seed_warning_yes" = "Yes, guide me";
 "selling_insufficient_balance_alert_message" = "На вашому балансі недостатньо коштів для продажу криптовалюти. Будь ласка, внесіть бажаний актив, щоб продовжити.";
 "selling_insufficient_balance_alert_title" = "Недостатній баланс";
 "selling_regional_restriction_alert_message" = "Продаж криптовалюти у вашому регіоні тимчасово недоступний. Ми активно працюємо над тим, щоб додати цю можливість. Слідкуйте за нашими новинами!";
@@ -782,6 +786,10 @@
 "staking_notification_low_staked_balance_title" = "Низький баланс стейкінгу";
 "staking_notification_minimum_balance_error_text" = "Мінімум %1$@ %2$@ потрібно для рестейкінгу. Будь ласка, поповніть баланс.";
 "staking_notification_minimum_balance_error_title" = "Недостатньо %@";
+"staking_notification_minimum_balance_title" = " Insufficient Balance for Staking";
+"staking_notification_minimum_restake_ada_text" = "A minimum of 3 ADA is required for restaking. Please top up your balance.";
+"staking_notification_minimum_restake_ada_title" = "Not enough ADA";
+"staking_notification_minimum_stake_ada_text" = "The minimum amount required for staking must exceed 5 ADA. Please top up your balance to start staking.";
 "staking_notification_network_error_text" = "Стейкінг тимчасово недоступний через проблеми в мережі. Будь ласка, спробуйте пізніше.";
 "staking_notification_new_validator_funds_transfer" = "Стейкінг в мережі %1$@ з новим валідатором автоматично переведе всі раніше застейкані кошти до цього валідатора";
 "staking_notification_restake_rewards_text" = "Реінвестуйте зароблені винагороди у суму стейкінгу, щоб збільшити потенційний прибуток.";
@@ -854,6 +862,8 @@
 "story_meet_title" = "Зустрічайте Tangem";
 "story_web3_description" = "Обмінюйте, купуйте NFT, отримуйте позики та робіть депозити у понад 100 різних децентралізованих сервісах";
 "story_web3_title" = "Web 3.0 сумісність";
+"sui_not_enough_coin_for_fee_description" = "An incoming transaction of at least %1$@ is required to proceed";
+"sui_not_enough_coin_for_fee_title" = "Insufficient funds";
 "swap_give_permission_fee_footer" = "Мережа стягує комісію за схвалення токену за підтвердження, що саме ви дозволяєте використовувати ваш токен для обміну.";
 "swap_promo_text" = "Обмінюйте більше токенів за вигіднішим курсом прямо у своєму гаманці.";
 "swap_promo_title" = "З'явився новий провайдер обмінів!";
@@ -894,6 +904,7 @@
 "token_button_unavailability_reason_empty_balance_sell" = "У вас немає коштів для продажу. Поповніть рахунок, щоб мати змогу продати з нього кошти.";
 "token_button_unavailability_reason_empty_balance_send" = "У вас немає коштів для відправлення. Поповніть рахунок, щоб мати змогу надіслати з нього кошти.";
 "token_button_unavailability_reason_not_exchangeable" = "Наразі обмін монети %@ недоступний. Слідкуйте за нашими оновленнями.";
+"token_button_unavailability_reason_out_od_date_balance" = "The displayed balance might be outdated due to caching.";
 "token_button_unavailability_reason_pending_transaction_sell" = "Продаж коштів стане доступним після завершення транзакції(-ій) в мережі %@";
 "token_button_unavailability_reason_pending_transaction_send" = "Надсилання коштів стане доступним після завершення транзакції(-ій) в мережі %@";
 "token_button_unavailability_reason_sell_unavailable" = "Наразі продаж %@ недоступний. Слідкуйте за нашими оновленнями.";
@@ -953,6 +964,9 @@
 "user_wallet_list_rename_popup_placeholder" = "Назва гаманця";
 "user_wallet_list_rename_popup_title" = "Перейменування гаманця";
 "user_wallet_list_unlock_all_with" = "Розблокувати все з %@";
+"visa_unlock_notification_button" = "Unlock";
+"visa_unlock_notification_subtitle" = "Scan your card to unlock access";
+"visa_unlock_notification_title" = "Needed unlock";
 "voice_over_open_card_details" = "Відкрити деталі пристрою";
 "voice_over_open_new_wallet_connect_session" = "Відскануйте QR-код, щоб відкрити новий сеанс WalletConnect";
 "wallet_balance_missing_derivation" = "Відскануйте картку або кільце";
@@ -1065,6 +1079,8 @@
 "warning_rate_app_title" = "Подобається Tangem?";
 "warning_receive_blocked_hedera_token_association_required_message" = "Вам необхідно провести асоціацію токена, щоб мати можливість приймати його";
 "warning_rent_fee_title" = "Необхідна плата за оренду мережі";
+"warning_seedphrase_action_required_title" = "Action required";
+"warning_seedphrase_contacted_support" = "Чи зверталися в службу підтримки через додаток протягом 7 днів після створення гаманця? Якщо зверталися або не впевнені, натисніть «Так» і дотримуйтесь інструкцій.";
 "warning_seedphrase_issue_answer_no" = "Дякуємо! Все добре! Подальших дій не потрібно.";
 "warning_seedphrase_issue_answer_yes" = "Ви будете перенаправлені на офіційний сайт Tangem. Будь ласка, прочитайте та виконайте вказані там інструкції.";
 "warning_seedphrase_issue_message" = "Ви коли-небудь зверталися до служби підтримки Tangem безпосередньо з цього додатку?";
