@@ -187,29 +187,6 @@ class BlockchairNetworkProvider: BitcoinNetworkProvider {
             .eraseToAnyPublisher()
     }
 
-    func push(transaction: String) -> AnyPublisher<String, Error> {
-        send(transaction: transaction)
-    }
-
-    func getSignatureCount(address: String) -> AnyPublisher<Int, Error> {
-        publisher(for: .address(address: address, limit: 1000, endpoint: endpoint, transactionDetails: false))
-            .tryMap { [weak self] json -> Int in
-                guard let self = self else { throw WalletError.empty }
-
-                let addr = mapAddressBlock(address, json: json)
-                let address = addr["address"]
-
-                guard
-                    let outputCount = address["output_count"].int,
-                    let unspentOutputCount = address["unspent_output_count"].int
-                else { return 0 }
-
-                return outputCount - unspentOutputCount
-            }
-            .mapError { $0 as Error }
-            .eraseToAnyPublisher()
-    }
-
     func getTransactionInfo(hash: String, address: String) -> AnyPublisher<PendingTransaction, Error> {
         publisher(for: .txDetails(txHash: hash, endpoint: endpoint))
             .tryMap { [weak self] json -> PendingTransaction in
