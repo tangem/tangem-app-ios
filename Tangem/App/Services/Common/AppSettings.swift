@@ -84,6 +84,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.shownStoryIds)
     var shownStoryIds: [String] = []
 
+    @AppStorageCompat(StorageType.supportSeedNotificationShownDate)
+    var supportSeedNotificationShownDate: Date? = nil
+
     static let shared: AppSettings = .init()
 
     private init() {}
