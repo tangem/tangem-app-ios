@@ -32,6 +32,25 @@ enum ValidationErrorEvent: Hashable {
 }
 
 extension ValidationErrorEvent: NotificationEvent {
+    var id: Int {
+        switch self {
+        case .invalidNumber: "invalidNumber".hashValue
+        case .insufficientBalance: "insufficientBalance".hashValue
+        case .insufficientBalanceForFee: "insufficientBalanceForFee".hashValue
+        case .dustRestriction: "dustRestriction".hashValue
+        case .existentialDeposit: "existentialDeposit".hashValue
+        case .amountExceedMaximumUTXO: "amountExceedMaximumUTXO".hashValue
+        case .insufficientAmountToReserveAtDestination: "insufficientAmountToReserveAtDestination".hashValue
+        case .cardanoCannotBeSentBecauseHasTokens: "cardanoCannotBeSentBecauseHasTokens".hashValue
+        case .cardanoInsufficientBalanceToSendToken: "cardanoInsufficientBalanceToSendToken".hashValue
+        case .notEnoughMana: "notEnoughMana".hashValue
+        case .manaLimit: "manaLimit".hashValue
+        case .koinosInsufficientBalanceToSendKoin: "koinosInsufficientBalanceToSendKoin".hashValue
+        case .minimumRestrictAmount: "minimumRestrictAmount".hashValue
+        case .remainingAmountIsLessThanRentExtemption: "remainingAmountIsLessThanRentExtemption".hashValue
+        }
+    }
+
     var title: NotificationView.Title? {
         switch self {
         case .invalidNumber:

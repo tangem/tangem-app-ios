@@ -407,7 +407,7 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             rateAppController.openAppStoreReview()
         case .support:
             openSupport()
-        case .seedSupportYes:
+        case .seedSupportYes, .seedSupport2Yes:
             error = AlertBuilder.makeSeedNotifyAlert(message: Localization.warningSeedphraseIssueAnswerYes) { [weak self] in
                 self?.openURL(TangemBlogUrlBuilder().url(post: .seedNotify))
                 self?.userWalletNotificationManager.dismissNotification(with: id)
@@ -416,6 +416,8 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             error = AlertBuilder.makeSeedNotifyAlert(message: Localization.warningSeedphraseIssueAnswerNo) { [weak self] in
                 self?.userWalletNotificationManager.dismissNotification(with: id)
             }
+        case .seedSupport2No:
+            userWalletNotificationManager.dismissNotification(with: id)
         default:
             break
         }
