@@ -904,7 +904,7 @@
 "token_button_unavailability_reason_empty_balance_sell" = "売却できる資金がありません。アカウントに入金して、売却できるようにしてください。";
 "token_button_unavailability_reason_empty_balance_send" = "送金する資金がありません。アカウントに入金して、送金できるようにしてください。";
 "token_button_unavailability_reason_not_exchangeable" = "%@のスワップは、現在のプロバイダーではサポートされていませんが、より多くのオプションを追加できるよう取り組んでいます。";
-"token_button_unavailability_reason_out_od_date_balance" = "表示残高はキャッシュにより古くなっている可能性があります。";
+"token_button_unavailability_reason_out_of_date_balance" = "表示残高はキャッシュにより古くなっている可能性があります。";
 "token_button_unavailability_reason_pending_transaction_sell" = "%@ネットワーク上の保留中の取引が完了すると、資金の売却が可能になります。";
 "token_button_unavailability_reason_pending_transaction_send" = "ネットワーク%@内の保留中の取引が完了すると、送金が可能になります。";
 "token_button_unavailability_reason_sell_unavailable" = "%@の売却は、現在のプロバイダーではサポートされていませんが、より多くのオプションを追加できるよう取り組んでいます。";
