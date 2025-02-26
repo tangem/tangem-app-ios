@@ -37,6 +37,8 @@ struct SingleTokenAlertBuilder {
             return .init(title: "", message: Localization.tokenButtonUnavailabilityReasonPendingTransactionSend(blockchain.displayName))
         case .cantSignLongTransactions:
             return cantSignLongTransactionAlert
+        case .hasOnlyCachedBalance:
+            return .init(title: "", message: Localization.tokenButtonUnavailabilityReasonOutOfDateBalance)
         case .zeroWalletBalance:
             return .init(title: "", message: Localization.tokenButtonUnavailabilityReasonEmptyBalanceSend)
         case .blockchainUnreachable:
