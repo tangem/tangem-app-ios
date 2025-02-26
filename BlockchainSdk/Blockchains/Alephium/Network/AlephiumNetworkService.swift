@@ -26,8 +26,8 @@ class AlephiumNetworkService: MultiNetworkProvider {
 
     func getAccountInfo(for address: String) -> AnyPublisher<AlephiumAccountInfo, Error> {
         getUTXO(address: address)
-            .tryMap {
-                AlephiumAccountInfo(utxo: $0)
+            .tryMap { args in
+                AlephiumAccountInfo(utxo: args)
             }
             .eraseToAnyPublisher()
     }
