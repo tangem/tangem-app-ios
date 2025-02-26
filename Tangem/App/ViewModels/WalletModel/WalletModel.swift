@@ -708,10 +708,6 @@ extension WalletModel {
         walletManager as? EthereumTransactionDataBuilder
     }
 
-    var signatureCountValidator: SignatureCountValidator? {
-        walletManager as? SignatureCountValidator
-    }
-
     var addressResolver: AddressResolver? {
         walletManager as? AddressResolver
     }

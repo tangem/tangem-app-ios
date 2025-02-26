@@ -24,7 +24,6 @@ final class UserWalletNotificationManager {
 
     private let analyticsService: NotificationsAnalyticsService = .init()
     private let userWalletModel: UserWalletModel
-    private let signatureCountValidator: SignatureCountValidator?
     private let rateAppController: RateAppNotificationController
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
 
@@ -39,12 +38,10 @@ final class UserWalletNotificationManager {
 
     init(
         userWalletModel: UserWalletModel,
-        signatureCountValidator: SignatureCountValidator?,
         rateAppController: RateAppNotificationController,
         contextDataProvider: AnalyticsContextDataProvider?
     ) {
         self.userWalletModel = userWalletModel
-        self.signatureCountValidator = signatureCountValidator
         self.rateAppController = rateAppController
 
         analyticsService.setup(with: self, contextDataProvider: contextDataProvider)
@@ -116,9 +113,6 @@ final class UserWalletNotificationManager {
         notificationInputsSubject.send(inputs)
 
         showAppRateNotificationIfNeeded()
-
-        validateHashesCount()
-
         createIfNeededAndShowSupportSeedNotification()
     }
 
@@ -213,80 +207,6 @@ final class UserWalletNotificationManager {
                 manager.showAppRateNotificationIfNeeded()
             })
             .store(in: &bag)
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    private func validateHashesCount() {
-        let config = userWalletModel.config
-        let cardSignedHashes = userWalletModel.totalSignedHashes
-        let isMultiWallet = config.hasFeature(.multiCurrency)
-        let canCountHashes = config.hasFeature(.signedHashesCounter)
-
-        func didFinishCountingHashes() {
-            AppLogger.info("⚠️ Hashes counted")
-        }
-
-        guard !AppSettings.shared.validatedSignedHashesCards.contains(userWalletModel.userWalletId.stringValue) else {
-            didFinishCountingHashes()
-            return
-        }
-
-        guard canCountHashes else {
-            recordUserWalletHashesCountValidation()
-            didFinishCountingHashes()
-            return
-        }
-
-        guard cardSignedHashes > 0 else {
-            recordUserWalletHashesCountValidation()
-            didFinishCountingHashes()
-            return
-        }
-
-        let factory = NotificationsFactory()
-        guard !isMultiWallet else {
-            didFinishCountingHashes()
-            return
-        }
-
-        guard let signatureCountValidator else {
-            didFinishCountingHashes()
-            let notification = factory.buildNotificationInput(
-                for: .numberOfSignedHashesIncorrect,
-                action: { [weak self] id in
-                    self?.delegate?.didTapNotification(with: id, action: .empty)
-                },
-                buttonAction: { _, _ in },
-                dismissAction: weakify(self, forFunction: UserWalletNotificationManager.dismissNotification(with:))
-            )
-            notificationInputsSubject.value.append(notification)
-            return
-        }
-
-        var validatorSubscription: AnyCancellable?
-        validatorSubscription = signatureCountValidator.validateSignatureCount(signedHashes: cardSignedHashes)
-            .subscribe(on: DispatchQueue.global())
-            .handleEvents(receiveCancel: {
-                AppLogger.info("⚠️ Hash counter subscription cancelled")
-            })
-            .receive(on: DispatchQueue.main)
-            .receiveCompletion { [weak self] completion in
-                switch completion {
-                case .finished:
-                    break
-                case .failure:
-                    let notification = factory.buildNotificationInput(
-                        for: .numberOfSignedHashesIncorrect,
-                        action: { id in self?.delegate?.didTapNotification(with: id, action: .empty) },
-                        buttonAction: { _, _ in },
-                        dismissAction: { id in self?.dismissNotification(with: id) }
-                    )
-                    self?.notificationInputsSubject.value.append(notification)
-                }
-                didFinishCountingHashes()
-
-                withExtendedLifetime(validatorSubscription) {}
-            }
     }
 
     private func addMissingDerivationWarningIfNeeded(pendingDerivationsCount: Int) {
