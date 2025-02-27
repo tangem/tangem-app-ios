@@ -47,14 +47,23 @@ final class CommonSupportSeedNotificationManager: SupportSeedNotificationManager
     func showSupportSeedNotificationIfNeeded() {
         TangemFoundation.runTask(in: self) { manager in
             do {
-                let status = try await manager.tangemApiService.getSeedNotifyStatus(
-                    userWalletId: manager.userWalletId.stringValue
-                ).status
+                let shownDate = await AppSettings.shared.supportSeedNotificationShownDate
+                let status: SeedNotifyStatus
+
+                if shownDate == nil {
+                    status = try await manager.tangemApiService.getSeedNotifyStatus(
+                        userWalletId: manager.userWalletId.stringValue
+                    ).status
+                } else {
+                    status = try await manager.tangemApiService.getSeedNotifyStatusConfirmed(
+                        userWalletId: manager.userWalletId.stringValue
+                    ).status
+                }
 
                 TangemFoundation.runTask(in: self) { @MainActor manager in
                     switch status {
                     case .confirmed:
-                        if let shownDate = AppSettings.shared.supportSeedNotificationShownDate,
+                        if let shownDate,
                            Date().timeIntervalSince(shownDate) > Constants.durationDisplayNotification {
                             manager.showConfirmedSupportSeedNotification()
                         }
@@ -82,6 +91,8 @@ final class CommonSupportSeedNotificationManager: SupportSeedNotificationManager
     private func showSupportSeedNotification() {
         let buttonActionYes: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
             guard let self else { return }
+            
+            AppSettings.shared.supportSeedNotificationShownDate = Date()
 
             Analytics.log(.mainNoticeSeedSupportButtonYes)
             notificationTapDelegate?.didTapNotification(with: id, action: action)
@@ -96,6 +107,8 @@ final class CommonSupportSeedNotificationManager: SupportSeedNotificationManager
 
         let buttonActionNo: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
             guard let self else { return }
+            
+            AppSettings.shared.supportSeedNotificationShownDate = Date()
 
             Analytics.log(.mainNoticeSeedSupportButtonNo)
             notificationTapDelegate?.didTapNotification(with: id, action: action)
@@ -124,8 +137,6 @@ final class CommonSupportSeedNotificationManager: SupportSeedNotificationManager
             severity: .critical,
             settings: .init(event: GeneralNotificationEvent.seedSupport, dismissAction: nil)
         )
-
-        AppSettings.shared.supportSeedNotificationShownDate = Date()
 
         displayDelegate?.showSupportSeedNotification(input: input)
     }
