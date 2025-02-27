@@ -13,6 +13,7 @@ import TangemSdk
 import SwiftyJSON
 import BitcoinCore
 import TangemFoundation
+import TangemNetworkUtils
 
 class BlockchairNetworkProvider: BitcoinNetworkProvider {
     var supportsTransactionPush: Bool {

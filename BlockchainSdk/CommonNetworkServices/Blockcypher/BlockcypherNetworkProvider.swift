@@ -10,6 +10,7 @@ import Foundation
 import Moya
 import Combine
 import BitcoinCore
+import TangemNetworkUtils
 
 class BlockcypherNetworkProvider: BitcoinNetworkProvider {
     var supportsTransactionPush: Bool { false }

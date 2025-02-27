@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemNetworkUtils
 
 final class PolygonTransactionHistoryProvider<Mapper> where
     Mapper: TransactionHistoryMapper,
