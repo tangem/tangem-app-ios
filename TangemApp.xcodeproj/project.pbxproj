@@ -265,6 +265,7 @@
 		304D34CD2D5F4AA7003CCAE5 /* local_tos.html in Resources */ = {isa = PBXBuildFile; fileRef = 304D34CC2D5F4A9C003CCAE5 /* local_tos.html */; };
 		304D34CF2D5F4ADD003CCAE5 /* WebViewTimeoutSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 304D34CE2D5F4AD6003CCAE5 /* WebViewTimeoutSettings.swift */; };
 		305F5AF02D63797C00AB90EC /* ZKLinkNovaExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 305F5AEF2D63796900AB90EC /* ZKLinkNovaExternalLinkProvider.swift */; };
+		30E0388B2D6DD7D600D9AD18 /* BinanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30E0388A2D6DD7D200D9AD18 /* BinanceTests.swift */; };
 		5D00FCD1261738C5004626DE /* WalletConnectEthTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D00FCD0261738C5004626DE /* WalletConnectEthTransaction.swift */; };
 		5D06E040250A5D54004218D0 /* NSRegualrExpression+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D06E03F250A5D54004218D0 /* NSRegualrExpression+.swift */; };
 		5D09383225E7A9820049B8F0 /* Wallet+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D09383125E7A9820049B8F0 /* Wallet+.swift */; };
@@ -3621,6 +3622,7 @@
 		304D34CC2D5F4A9C003CCAE5 /* local_tos.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = local_tos.html; sourceTree = "<group>"; };
 		304D34CE2D5F4AD6003CCAE5 /* WebViewTimeoutSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewTimeoutSettings.swift; sourceTree = "<group>"; };
 		305F5AEF2D63796900AB90EC /* ZKLinkNovaExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZKLinkNovaExternalLinkProvider.swift; sourceTree = "<group>"; };
+		30E0388A2D6DD7D200D9AD18 /* BinanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinanceTests.swift; sourceTree = "<group>"; };
 		5D00FCD0261738C5004626DE /* WalletConnectEthTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectEthTransaction.swift; sourceTree = "<group>"; };
 		5D011A262530E76000758010 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5D06E03F250A5D54004218D0 /* NSRegualrExpression+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSRegualrExpression+.swift"; sourceTree = "<group>"; };
@@ -7389,6 +7391,14 @@
 				B066822F26564ADB00CB86CF /* IntentsUI.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		30E038892D6DD78A00D9AD18 /* Binance */ = {
+			isa = PBXGroup;
+			children = (
+				30E0388A2D6DD7D200D9AD18 /* BinanceTests.swift */,
+			);
+			path = Binance;
 			sourceTree = "<group>";
 		};
 		5D011A222530776A00758010 /* TOS */ = {
@@ -12634,6 +12644,7 @@
 		B68E1F722CBC44060043E598 /* BlockchainSdkTests */ = {
 			isa = PBXGroup;
 			children = (
+				30E038892D6DD78A00D9AD18 /* Binance */,
 				2DAD34682D57CD4300C4BDA5 /* Alephium */,
 				B62D42FF2CBC79E100C2460E /* Algorand */,
 				B62D430D2CBC79E200C2460E /* Aptos */,
@@ -20652,6 +20663,7 @@
 				B62D43492CBC79E400C2460E /* WalletCoreSignerTesterUtility.swift in Sources */,
 				B62D433A2CBC79E400C2460E /* SeiTransactionTests.swift in Sources */,
 				B62D43692CBC79E400C2460E /* CardanoTests.swift in Sources */,
+				30E0388B2D6DD7D600D9AD18 /* BinanceTests.swift in Sources */,
 				B62D43552CBC79E400C2460E /* SolanaStakeKitTransactionHelperTests.swift in Sources */,
 				B62D43632CBC79E400C2460E /* NSError+.swift in Sources */,
 				B62D436C2CBC79E400C2460E /* ChiaTests.swift in Sources */,
