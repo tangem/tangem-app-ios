@@ -23,7 +23,6 @@ public struct VisaCardActivationStatusServiceBuilder {
         return CommonCardActivationStatusService(
             apiService: .init(
                 provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
-                logger: InternalLogger(),
                 decoder: JSONDecoder()
             ))
     }
