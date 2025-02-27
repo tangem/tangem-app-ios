@@ -20,13 +20,10 @@ struct ProductActivationServiceBuilder {
             return ProductActivationServiceMock()
         }
 
-        let internalLogger = InternalLogger()
-
         return CommonProductActivationService(
             authorizationTokensHandler: authorizationTokensHandler,
             apiService: .init(
                 provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
-                logger: internalLogger,
                 decoder: JSONDecoder()
             )
         )
