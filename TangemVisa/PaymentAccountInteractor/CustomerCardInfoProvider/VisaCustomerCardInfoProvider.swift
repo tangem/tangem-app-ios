@@ -18,24 +18,17 @@ struct CommonCustomerCardInfoProvider {
     private let authorizationTokensHandler: VisaAuthorizationTokensHandler?
     private let customerInfoManagementService: CustomerInfoManagementService?
     private let evmSmartContractInteractor: EVMSmartContractInteractor
-    private let logger: InternalLogger
 
     init(
         isTestnet: Bool,
         authorizationTokensHandler: VisaAuthorizationTokensHandler?,
         customerInfoManagementService: CustomerInfoManagementService?,
-        evmSmartContractInteractor: EVMSmartContractInteractor,
-        logger: InternalLogger
+        evmSmartContractInteractor: EVMSmartContractInteractor
     ) {
         self.isTestnet = isTestnet
         self.authorizationTokensHandler = authorizationTokensHandler
         self.customerInfoManagementService = customerInfoManagementService
         self.evmSmartContractInteractor = evmSmartContractInteractor
-        self.logger = logger
-    }
-
-    private func log<T>(_ message: @autoclosure () -> T) {
-        logger.debug(subsystem: .paymentAccountAddressProvider, message())
     }
 }
 
@@ -44,12 +37,12 @@ extension CommonCustomerCardInfoProvider: VisaCustomerCardInfoProvider {
         do {
             return try await loadPaymentAccountFromCIM(cardId: cardId, cardWalletAddress: cardWalletAddress)
         } catch let error as VisaPaymentAccountAddressProviderError {
-            log("Missing information for selected card. Error: \(error)")
+            VisaLogger.error("Missing information for selected card", error: error)
             if error != .bffIsNotAvailable {
                 throw error
             }
         } catch {
-            log("Failed to load payment account info from CIM. Error: \(error). Continuing with registry")
+            VisaLogger.error("Failed to load payment account info from CIM. Continuing with registry", error: error)
         }
 
         let paymentAccount = try await loadPaymentAccountFromRegistry(cardWalletAddress: cardWalletAddress)
@@ -108,9 +101,9 @@ extension CommonCustomerCardInfoProvider: VisaCustomerCardInfoProvider {
     }
 
     private func loadPaymentAccountFromRegistry(cardWalletAddress: String) async throws -> String {
-        log("Start searching PaymentAccount for card with address: \(cardWalletAddress)")
+        VisaLogger.info("Start searching PaymentAccount for card")
         let registryAddress = try VisaConfigProvider.shared().getRegistryAddress(isTestnet: isTestnet)
-        log("Requesting PaymentAccount from bridge with address \(registryAddress)")
+        VisaLogger.info("Requesting PaymentAccount from bridge")
 
         let request = VisaSmartContractRequest(
             contractAddress: registryAddress,
@@ -120,10 +113,10 @@ extension CommonCustomerCardInfoProvider: VisaCustomerCardInfoProvider {
         do {
             let response = try await evmSmartContractInteractor.ethCall(request: request).async()
             let paymentAccount = try AddressParser(isTestnet: isTestnet).parseAddressResponse(response)
-            log("PaymentAccount founded: \(paymentAccount)")
+            VisaLogger.info("PaymentAccount founded")
             return paymentAccount
         } catch {
-            log("Failed to receive PaymentAccount. Reason: \(error)")
+            VisaLogger.error("Failed to receive PaymentAccount", error: error)
             throw error
         }
     }
