@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 
 public struct EVMSmartContractInteractorFactory {
     private let config: BlockchainSdkConfig
