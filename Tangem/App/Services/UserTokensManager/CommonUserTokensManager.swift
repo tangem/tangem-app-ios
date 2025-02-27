@@ -165,7 +165,7 @@ extension CommonUserTokensManager: UserTokensManager {
         let targetsEntry = userTokenListManager.userTokens.filter {
             $0.blockchainNetwork.blockchain.networkId == tokenItem.blockchainNetwork.blockchain.networkId
         }
-        
+
         guard targetsEntry.isNotEmpty else { return false }
 
         switch tokenItem {
