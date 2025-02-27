@@ -223,3 +223,45 @@ private extension TONWalletManager {
         static let transactionLifetimeInSec: TimeInterval = 60
     }
 }
+
+// MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
+
+extension TONWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSender {
+    typealias RawTransaction = String
+
+    // we need to pass the same signing input into prepareForSend method
+    func buildRawTransactions(
+        from transactions: [StakeKitTransaction],
+        publicKey: Wallet.PublicKey,
+        signer: any TransactionSigner
+    ) async throws -> [String] {
+        let expireAt = createExpirationTimestampSecs()
+
+        let helper = TONStakeKitTransactionHelper(transactionBuilder: transactionBuilder)
+
+        let preSignData = try transactions.map {
+            try helper.prepareForSign($0, expireAt: expireAt)
+        }
+
+        let signatures: [SignatureInfo] = try await signer.sign(
+            hashes: preSignData.map(\.dataToSign),
+            walletPublicKey: publicKey
+        ).async()
+
+        return try signatures.enumerated().compactMap { index, signature -> RawTransaction? in
+            guard let transaction = transactions[safe: index],
+                  let preSignData = preSignData[safe: index] else { return nil }
+            return try helper.prepareForSend(
+                stakingTransaction: transaction,
+                preSignData: preSignData,
+                signatureInfo: signature
+            )
+        }
+    }
+}
+
+extension TONWalletManager: StakeKitTransactionDataBroadcaster {
+    func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
+        try await networkService.send(message: rawTransaction).async()
+    }
+}
