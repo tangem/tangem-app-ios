@@ -313,7 +313,7 @@ private extension SolanaWalletManager {
 
 // MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
 
-extension SolanaWalletManager: StakeKitTransactionSender, StakeKitTransactionSenderProvider {
+extension SolanaWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSender, StakeKitTransactionDataProvider {
     struct RawTransactionData: CustomStringConvertible {
         let serializedData: String
         let blockhashDate: Date
@@ -339,7 +339,9 @@ extension SolanaWalletManager: StakeKitTransactionSender, StakeKitTransactionSen
             blockhashDate: transaction.params.solanaBlockhashDate
         )
     }
+}
 
+extension SolanaWalletManager: StakeKitTransactionDataBroadcaster {
     func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
         try await networkService.sendRaw(
             base64serializedTransaction: rawTransaction.serializedData,
