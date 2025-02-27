@@ -202,14 +202,6 @@ class VisaOnboardingViewModel: ObservableObject {
         let userWalletModel = CommonUserWalletModelFactory().makeModel(cardInfo: cardInfo)
         self.userWalletModel = userWalletModel
     }
-
-    private func log<T>(_ message: @autoclosure () -> T) {
-        VisaLogger.info(self, message())
-    }
-}
-
-extension VisaOnboardingViewModel: CustomStringConvertible {
-    var description: String { "VisaOnboardingViewModel" }
 }
 
 // MARK: - Steps navigation logic
@@ -255,7 +247,7 @@ private extension VisaOnboardingViewModel {
 
     func goToStep(_ step: VisaOnboardingStep, animated: Bool = true) {
         guard let stepIndex = steps.firstIndex(of: step) else {
-            AppLogger.error(self, error: "Failed to find step \(step)")
+            VisaLogger.info("Failed to find step \(step)")
             return
         }
 
@@ -533,7 +525,7 @@ private extension VisaOnboardingViewModel {
                     viewModel.cardImage = image
                 }
             } catch {
-                viewModel.log("Failed to load card image. Error: \(error)")
+                VisaLogger.error("Failed to load card image", error: error)
             }
         }
     }
