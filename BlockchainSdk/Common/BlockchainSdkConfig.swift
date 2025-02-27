@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 
 public struct BlockchainSdkConfig {
     let blockchairApiKeys: [String]
