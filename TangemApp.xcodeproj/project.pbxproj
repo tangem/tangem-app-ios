@@ -1620,7 +1620,6 @@
 		B62D424D2CBC79DB00C2460E /* HostProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3EE12CBC79D900C2460E /* HostProvider.swift */; };
 		B62D424E2CBC79DB00C2460E /* MultiNetworkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3EE22CBC79D900C2460E /* MultiNetworkProvider.swift */; };
 		B62D424F2CBC79DB00C2460E /* NetworkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3EE32CBC79D900C2460E /* NetworkProvider.swift */; };
-		B62D42502CBC79DB00C2460E /* NetworkProviderConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3EE42CBC79D900C2460E /* NetworkProviderConfiguration.swift */; };
 		B62D42512CBC79DB00C2460E /* TestnetAPINodeInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3EE52CBC79D900C2460E /* TestnetAPINodeInfoProvider.swift */; };
 		B62D42522CBC79DB00C2460E /* Blockchain+AllCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3EE72CBC79D900C2460E /* Blockchain+AllCases.swift */; };
 		B62D42532CBC79DB00C2460E /* BlockchainDataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3EE92CBC79D900C2460E /* BlockchainDataStorage.swift */; };
@@ -1706,7 +1705,6 @@
 		B62D42A32CBC79DB00C2460E /* BlockchainSdkConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3F552CBC79D900C2460E /* BlockchainSdkConfig.swift */; };
 		B62D42A42CBC79DB00C2460E /* BlockchainSdkError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3F562CBC79D900C2460E /* BlockchainSdkError.swift */; };
 		B62D42A62CBC79DB00C2460E /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3F582CBC79D900C2460E /* Constants.swift */; };
-		B62D42A72CBC79DB00C2460E /* Credentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3F592CBC79D900C2460E /* Credentials.swift */; };
 		B62D42A82CBC79DB00C2460E /* DetailedError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3F5A2CBC79D900C2460E /* DetailedError.swift */; };
 		B62D42A92CBC79DB00C2460E /* ErrorCodeProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3F5B2CBC79D900C2460E /* ErrorCodeProviding.swift */; };
 		B62D42AA2CBC79DB00C2460E /* EthereumApiKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3F5C2CBC79D900C2460E /* EthereumApiKeys.swift */; };
@@ -4985,7 +4983,6 @@
 		B62D3EE12CBC79D900C2460E /* HostProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HostProvider.swift; sourceTree = "<group>"; };
 		B62D3EE22CBC79D900C2460E /* MultiNetworkProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultiNetworkProvider.swift; sourceTree = "<group>"; };
 		B62D3EE32CBC79D900C2460E /* NetworkProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkProvider.swift; sourceTree = "<group>"; };
-		B62D3EE42CBC79D900C2460E /* NetworkProviderConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkProviderConfiguration.swift; sourceTree = "<group>"; };
 		B62D3EE52CBC79D900C2460E /* TestnetAPINodeInfoProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestnetAPINodeInfoProvider.swift; sourceTree = "<group>"; };
 		B62D3EE72CBC79D900C2460E /* Blockchain+AllCases.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Blockchain+AllCases.swift"; sourceTree = "<group>"; };
 		B62D3EE92CBC79D900C2460E /* BlockchainDataStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockchainDataStorage.swift; sourceTree = "<group>"; };
@@ -5071,7 +5068,6 @@
 		B62D3F552CBC79D900C2460E /* BlockchainSdkConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockchainSdkConfig.swift; sourceTree = "<group>"; };
 		B62D3F562CBC79D900C2460E /* BlockchainSdkError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockchainSdkError.swift; sourceTree = "<group>"; };
 		B62D3F582CBC79D900C2460E /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
-		B62D3F592CBC79D900C2460E /* Credentials.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Credentials.swift; sourceTree = "<group>"; };
 		B62D3F5A2CBC79D900C2460E /* DetailedError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailedError.swift; sourceTree = "<group>"; };
 		B62D3F5B2CBC79D900C2460E /* ErrorCodeProviding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorCodeProviding.swift; sourceTree = "<group>"; };
 		B62D3F5C2CBC79D900C2460E /* EthereumApiKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthereumApiKeys.swift; sourceTree = "<group>"; };
@@ -11755,7 +11751,6 @@
 				B62D3EE12CBC79D900C2460E /* HostProvider.swift */,
 				B62D3EE22CBC79D900C2460E /* MultiNetworkProvider.swift */,
 				B62D3EE32CBC79D900C2460E /* NetworkProvider.swift */,
-				B62D3EE42CBC79D900C2460E /* NetworkProviderConfiguration.swift */,
 				B62D3EE52CBC79D900C2460E /* TestnetAPINodeInfoProvider.swift */,
 			);
 			path = API;
@@ -12012,7 +12007,6 @@
 				B62D3F552CBC79D900C2460E /* BlockchainSdkConfig.swift */,
 				B62D3F562CBC79D900C2460E /* BlockchainSdkError.swift */,
 				B62D3F582CBC79D900C2460E /* Constants.swift */,
-				B62D3F592CBC79D900C2460E /* Credentials.swift */,
 				B62D3F5A2CBC79D900C2460E /* DetailedError.swift */,
 				B62D3F5B2CBC79D900C2460E /* ErrorCodeProviding.swift */,
 				B62D3F5C2CBC79D900C2460E /* EthereumApiKeys.swift */,
@@ -20091,7 +20085,6 @@
 				B62D41082CBC79DA00C2460E /* KaspaTransaction.swift in Sources */,
 				B62D41EB2CBC79DB00C2460E /* VeChainNetworkParams.ContractCall.swift in Sources */,
 				B62D42C22CBC79DB00C2460E /* Bech32.swift in Sources */,
-				B62D42502CBC79DB00C2460E /* NetworkProviderConfiguration.swift in Sources */,
 				B62D42DB2CBC79DB00C2460E /* TWCoin+.swift in Sources */,
 				B62D40C92CBC79DA00C2460E /* EthereumWalletAssembly.swift in Sources */,
 				B62D41342CBC79DA00C2460E /* NEARNetworkParams.swift in Sources */,
@@ -20295,7 +20288,6 @@
 				B62D41A32CBC79DA00C2460E /* SuiAddressService.swift in Sources */,
 				B62D40142CBC79DA00C2460E /* OP_DEPTH.swift in Sources */,
 				B62D41472CBC79DA00C2460E /* NEARProtocolConfigCache.swift in Sources */,
-				B62D42A72CBC79DB00C2460E /* Credentials.swift in Sources */,
 				B62D410B2CBC79DA00C2460E /* KaspaWalletManager.swift in Sources */,
 				B62D42A42CBC79DB00C2460E /* BlockchainSdkError.swift in Sources */,
 				B62D41F52CBC79DB00C2460E /* VeChainNetworkProvider.swift in Sources */,
