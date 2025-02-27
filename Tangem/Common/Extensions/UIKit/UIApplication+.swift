@@ -28,7 +28,7 @@ extension UIApplication {
     }
 
     static var topViewController: UIViewController? {
-        let mainWindow = UIApplication.shared.windows.first { $0 is MainWindow }
+        let mainWindow = UIApplication.shared.windows.last { $0 is MainWindow }
         return mainWindow?.topViewController
     }
 
