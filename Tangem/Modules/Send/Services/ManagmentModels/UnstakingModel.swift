@@ -426,6 +426,11 @@ extension UnstakingModel {
         }
         // disable partial unstake for disabled validators,
         // preferred == false means it's disabled in admin tool
-        return validatorInfo.preferred
+        guard validatorInfo.preferred else { return false }
+
+        return switch tokenItem.blockchain {
+        case .ton: false // ton does not support partial unstake
+        default: true
+        }
     }
 }
