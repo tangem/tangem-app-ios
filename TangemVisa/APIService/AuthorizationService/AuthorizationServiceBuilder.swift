@@ -12,7 +12,6 @@ struct AuthorizationServiceBuilder {
     func build(urlSessionConfiguration: URLSessionConfiguration) -> CommonVisaAuthorizationService {
         CommonVisaAuthorizationService(apiService: .init(
             provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
-            logger: InternalLogger(),
             decoder: JSONDecoderFactory().makePayAPIDecoder()
         ))
     }
