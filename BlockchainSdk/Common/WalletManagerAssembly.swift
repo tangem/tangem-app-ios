@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemSdk
+import TangemNetworkUtils
 
 /// Input data for assembly wallet manager
 struct WalletManagerAssemblyInput {

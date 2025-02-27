@@ -1,24 +1,21 @@
 //
 //  NetworkProviderConfiguration.swift
-//  BlockchainSdk
+//  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2022 Tangem AG. All rights reserved.
+//  Copyright © 2025 Tangem AG. All rights reserved.
 //
-
 import Foundation
 import Moya
-import TangemSdk
-import TangemNetworkUtils
 
 public struct NetworkProviderConfiguration {
-    let logOptions: TangemNetworkLoggerPlugin.LogOptions?
-    let urlSessionConfiguration: URLSessionConfiguration
-    let credentials: Credentials?
+    public let logOptions: TangemNetworkLoggerPlugin.LogOptions?
+    public let urlSessionConfiguration: URLSessionConfiguration
+    public let credentials: Credentials?
 
     public init(
         logOptions: TangemNetworkLoggerPlugin.LogOptions? = .default,
-        urlSessionConfiguration: URLSessionConfiguration = .standard,
+        urlSessionConfiguration: URLSessionConfiguration = .defaultConfiguration,
         credentials: Credentials? = nil
     ) {
         self.logOptions = logOptions
@@ -26,7 +23,7 @@ public struct NetworkProviderConfiguration {
         self.credentials = credentials
     }
 
-    var plugins: [PluginType] {
+    public var plugins: [PluginType] {
         var plugins: [PluginType] = []
 
         if let logOptions = logOptions {
@@ -47,11 +44,14 @@ public struct NetworkProviderConfiguration {
     }
 }
 
-public extension URLSessionConfiguration {
-    static let standard: URLSessionConfiguration = {
-        let configuration = URLSessionConfiguration.default
-        configuration.timeoutIntervalForRequest = 10
-        configuration.timeoutIntervalForResource = 30
-        return configuration
-    }()
+public extension NetworkProviderConfiguration {
+    struct Credentials: Decodable {
+        let user: String
+        let password: String
+
+        public init(login: String, password: String) {
+            user = login
+            self.password = password
+        }
+    }
 }
