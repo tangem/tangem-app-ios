@@ -251,6 +251,19 @@ class AddressesTests: XCTestCase {
         XCTAssertThrowsError(try service.makeAddress(from: edKey))
     }
 
+    func testRskAddressValidation() throws {
+        let addressService = RskAddressService()
+
+        XCTAssertTrue(addressService.validate("0x2090bDBB7fdC25A0F2D39fAB9577029253bbAF92"))
+        XCTAssertTrue(addressService.validate("0x7E9b7a4132c20f7EB1EDa928f7Bb6d86181aC9d5"))
+        XCTAssertTrue(addressService.validate("0xb9c5F14Fb9b00978738868EEdF93Ca93aFEaA1Ef"))
+
+        XCTAssertFalse(addressService.validate("0x6eca00c52afc728cdbf42e817d712e175bb23c"))
+        XCTAssertFalse(addressService.validate("GCP6LOZMY7MDYHNBBBC27WFDJMKB7WH5OJIAXFNRKR7BFON3RKWD3XYA"))
+        XCTAssertFalse(addressService.validate("0x"))
+        XCTAssertFalse(addressService.validate(""))
+    }
+
     // MARK: - Bitcoin Cash
 
     func testBch() throws {
