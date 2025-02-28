@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 
+@available(*, deprecated, renamed: "UTXONetworkProvider", message: "Use UTXONetworkProvider")
 protocol BitcoinNetworkProvider: AnyObject, HostProvider {
     func getInfo(addresses: [String]) -> AnyPublisher<[BitcoinResponse], Error>
     func getInfo(address: String) -> AnyPublisher<BitcoinResponse, Error>
