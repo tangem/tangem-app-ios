@@ -53,7 +53,10 @@ struct VisaOnboardingViewModelBuilder {
         return model
     }
 
-    private func logInvalidInput(_ message: String) {
-        VisaLogger.error("Invalid card input was received while creating onboarding view model", error: message)
+    private func logInvalidInput(_ error: Error) {
+        VisaLogger.error(
+            "Invalid card input was received while creating onboarding view model",
+            error: error
+        )
     }
 }
