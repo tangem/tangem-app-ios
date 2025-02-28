@@ -40,6 +40,10 @@ class FakeUserTokensManager: UserTokensManager {
         userTokenListManager.userTokens.contains(where: { $0.blockchainNetwork == tokenItem.blockchainNetwork })
     }
 
+    func containsDerivationInsensitive(_ tokenItem: TokenItem) -> Bool {
+        userTokenListManager.userTokens.contains { $0.blockchainNetwork.blockchain == tokenItem.blockchain }
+    }
+
     func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [BlockchainSdk.Token] {
         userTokenListManager.userTokens.first(where: { $0.blockchainNetwork == blockchainNetwork })?.tokens ?? []
     }
