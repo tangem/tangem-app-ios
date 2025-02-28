@@ -2699,6 +2699,8 @@
 		EF339E562C22DADC00B5CDC9 /* DestinationAdditionalFieldType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF339E552C22DADC00B5CDC9 /* DestinationAdditionalFieldType.swift */; };
 		EF339E752C24820B00B5CDC9 /* SendAmountInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF339E742C24820B00B5CDC9 /* SendAmountInteractor.swift */; };
 		EF38050E2D6F938100273B1B /* BlockBookTransactionTransactionRecordMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF38050D2D6F938100273B1B /* BlockBookTransactionTransactionRecordMapper.swift */; };
+		EF3805102D706A1700273B1B /* RadiantNetworkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF38050F2D706A1700273B1B /* RadiantNetworkProvider.swift */; };
+		EF3805122D70917B00273B1B /* ElectrumTransactionRecordMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3805112D70917B00273B1B /* ElectrumTransactionRecordMapper.swift */; };
 		EF39A6532AD5A70D00AAB518 /* SmartContractMethodMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF39A6522AD5A70D00AAB518 /* SmartContractMethodMapper.swift */; };
 		EF39A6562AD5A90300AAB518 /* contract_methods.json in Resources */ = {isa = PBXBuildFile; fileRef = EF39A6552AD5A90300AAB518 /* contract_methods.json */; };
 		EF39A6582AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF39A6572AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift */; };
@@ -6053,6 +6055,8 @@
 		EF339E552C22DADC00B5CDC9 /* DestinationAdditionalFieldType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestinationAdditionalFieldType.swift; sourceTree = "<group>"; };
 		EF339E742C24820B00B5CDC9 /* SendAmountInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAmountInteractor.swift; sourceTree = "<group>"; };
 		EF38050D2D6F938100273B1B /* BlockBookTransactionTransactionRecordMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockBookTransactionTransactionRecordMapper.swift; sourceTree = "<group>"; };
+		EF38050F2D706A1700273B1B /* RadiantNetworkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadiantNetworkProvider.swift; sourceTree = "<group>"; };
+		EF3805112D70917B00273B1B /* ElectrumTransactionRecordMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElectrumTransactionRecordMapper.swift; sourceTree = "<group>"; };
 		EF39A6522AD5A70D00AAB518 /* SmartContractMethodMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartContractMethodMapper.swift; sourceTree = "<group>"; };
 		EF39A6552AD5A90300AAB518 /* contract_methods.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = contract_methods.json; sourceTree = "<group>"; };
 		EF39A6572AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSmartContractMethodMapper.swift; sourceTree = "<group>"; };
@@ -11184,6 +11188,7 @@
 			isa = PBXGroup;
 			children = (
 				B62D3DD52CBC79D900C2460E /* RadiantNetworkService.swift */,
+				EF38050F2D706A1700273B1B /* RadiantNetworkProvider.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -15953,6 +15958,7 @@
 			children = (
 				EF798FEA2D6F8E4000B9B4A1 /* TransactionRecordMapper.swift */,
 				EF38050D2D6F938100273B1B /* BlockBookTransactionTransactionRecordMapper.swift */,
+				EF3805112D70917B00273B1B /* ElectrumTransactionRecordMapper.swift */,
 			);
 			path = TransactionRecordMapper;
 			sourceTree = "<group>";
@@ -19725,6 +19731,7 @@
 				B62D42552CBC79DB00C2460E /* DerivationConfigV1.swift in Sources */,
 				B62D41AC2CBC79DA00C2460E /* TezosAddress.swift in Sources */,
 				B62D3FD52CBC79DA00C2460E /* OP_LSHIFT.swift in Sources */,
+				EF3805102D706A1700273B1B /* RadiantNetworkProvider.swift in Sources */,
 				B62D40462CBC79DA00C2460E /* CardanoAddressService.swift in Sources */,
 				B62D40222CBC79DA00C2460E /* BitcoinScript.swift in Sources */,
 				B62D403D2CBC79DA00C2460E /* AdaliteUnspentOutputResponseDTO.swift in Sources */,
@@ -20445,6 +20452,7 @@
 				B62D42612CBC79DB00C2460E /* ExternalLinkProviderFactory.swift in Sources */,
 				B62D41822CBC79DA00C2460E /* RavencoinTestNetworkParams.swift in Sources */,
 				B62D40162CBC79DA00C2460E /* OP_DUP.swift in Sources */,
+				EF3805122D70917B00273B1B /* ElectrumTransactionRecordMapper.swift in Sources */,
 				B62D40132CBC79DA00C2460E /* OP_3DUP.swift in Sources */,
 				B62D42752CBC79DB00C2460E /* WalletManager.swift in Sources */,
 				B62D40632CBC79DA00C2460E /* ChiaWalletManager.swift in Sources */,
