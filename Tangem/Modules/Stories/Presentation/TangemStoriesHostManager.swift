@@ -14,10 +14,12 @@ import TangemStories
 final class TangemStoriesHostManager {
     @Injected(\.tangemStoriesViewModel) private var tangemStoriesViewModel: TangemStoriesViewModel
 
+    weak var mainWindow: MainWindow?
+
     private var storiesWindow: UIWindow?
     private var cancellables = Set<AnyCancellable>()
 
-    func setup(with scene: UIScene, mainWindow: UIWindow?) {
+    func setup(with scene: UIScene) {
         guard let windowScene = scene as? UIWindowScene else { return }
 
         tangemStoriesViewModel
@@ -29,7 +31,7 @@ final class TangemStoriesHostManager {
                     self?.dismissStoriesWindow(
                         completion: {
                             // restores keyboard for main window if it was previously visible
-                            mainWindow?.makeKey()
+                            self?.mainWindow?.makeKey()
                         }
                     )
                 }

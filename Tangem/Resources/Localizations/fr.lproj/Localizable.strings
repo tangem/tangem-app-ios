@@ -901,8 +901,10 @@
 "toast_undo" = "Annuler";
 "token_button_unavailability_generic_description" = "Cette opération est actuellement indisponible. Veuillez réessayer plus tard.";
 "token_button_unavailability_reason_buy_unavailable" = "L'achat de %@ n'est pas pris en charge par les fournisseurs actuels mais nous travaillons à ajouter davantage d'options.";
+"token_button_unavailability_reason_custom_token" = "Action is not available for custom tokens.";
 "token_button_unavailability_reason_empty_balance_sell" = "Vous n'avez pas de fonds à vendre. Renflouez votre compte pour pouvoir vendre des fonds à partir de celui-ci.";
 "token_button_unavailability_reason_empty_balance_send" = "Vous n'avez pas de fonds à envoyer. Renflouez votre compte pour pouvoir envoyer des fonds à partir de celui-ci.";
+"token_button_unavailability_reason_loading" = "The data has not loaded yet. This may take a few seconds. Please try again later.";
 "token_button_unavailability_reason_not_exchangeable" = "Le service d'échange %@ n'est pas pris en charge par les fournisseurs actuels mais nous travaillons à ajouter plus d'options.";
 "token_button_unavailability_reason_out_of_date_balance" = "The displayed balance might be outdated due to caching.";
 "token_button_unavailability_reason_pending_transaction_sell" = "La vente de fonds sera disponible une fois que la ou les transactions en attente dans le réseau %@ seront terminées";
