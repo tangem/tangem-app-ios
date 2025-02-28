@@ -121,6 +121,8 @@
 		2D92E6542D0C1E9D008FDECF /* SolanaSignerTestUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D92E6532D0C1E9D008FDECF /* SolanaSignerTestUtility.swift */; };
 		2D92E6572D0C2088008FDECF /* SolanaDummyNetworkRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D92E6562D0C2088008FDECF /* SolanaDummyNetworkRouter.swift */; };
 		2D93C4E02D661459002BCCE2 /* SupportSeedNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D93C4DE2D661459002BCCE2 /* SupportSeedNotificationManager.swift */; };
+		2D93C4E92D7043B7002BCCE2 /* RefcodeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D93C4E72D7043B7002BCCE2 /* RefcodeProvider.swift */; };
+		2D93C4EB2D7043E8002BCCE2 /* CommonExpressRefcodeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D93C4EA2D7043E8002BCCE2 /* CommonExpressRefcodeProvider.swift */; };
 		2DA57BBF2CD650E900C890DF /* CasperWalletAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D616FE92CD1414000581EA6 /* CasperWalletAssembly.swift */; };
 		2DA57BC02CD650E900C890DF /* CasperExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D616FE82CD1414000581EA6 /* CasperExternalLinkProvider.swift */; };
 		2DA57BC12CD650E900C890DF /* CasperAddressUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D616FE72CD1414000581EA6 /* CasperAddressUtils.swift */; };
@@ -3494,6 +3496,8 @@
 		2D92E6532D0C1E9D008FDECF /* SolanaSignerTestUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaSignerTestUtility.swift; sourceTree = "<group>"; };
 		2D92E6562D0C2088008FDECF /* SolanaDummyNetworkRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaDummyNetworkRouter.swift; sourceTree = "<group>"; };
 		2D93C4DE2D661459002BCCE2 /* SupportSeedNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportSeedNotificationManager.swift; sourceTree = "<group>"; };
+		2D93C4E72D7043B7002BCCE2 /* RefcodeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefcodeProvider.swift; sourceTree = "<group>"; };
+		2D93C4EA2D7043E8002BCCE2 /* CommonExpressRefcodeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonExpressRefcodeProvider.swift; sourceTree = "<group>"; };
 		2DA8AB112A433BDB00C75D85 /* Analytics+BlockchainExceptionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+BlockchainExceptionHandler.swift"; sourceTree = "<group>"; };
 		2DAB6B6E2CE28E8500B4A10C /* MinimumAmountRestrictable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinimumAmountRestrictable.swift; sourceTree = "<group>"; };
 		2DAD34692D57CD5500C4BDA5 /* AlephiumTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlephiumTests.swift; sourceTree = "<group>"; };
@@ -7031,6 +7035,14 @@
 				2D93C4DE2D661459002BCCE2 /* SupportSeedNotificationManager.swift */,
 			);
 			path = SupportSeedNotificationManager;
+			sourceTree = "<group>";
+		};
+		2D93C4E82D7043B7002BCCE2 /* RefcodeProvider */ = {
+			isa = PBXGroup;
+			children = (
+				2D93C4E72D7043B7002BCCE2 /* RefcodeProvider.swift */,
+			);
+			path = RefcodeProvider;
 			sourceTree = "<group>";
 		};
 		2DAD34682D57CD4300C4BDA5 /* Alephium */ = {
@@ -13578,6 +13590,7 @@
 				B050F5012B613A5300B2E53C /* Visa */,
 				2DC46C342C97905C00749F7C /* Tooltips */,
 				2D93C4DF2D661459002BCCE2 /* SupportSeedNotificationManager */,
+				2D93C4E82D7043B7002BCCE2 /* RefcodeProvider */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -16436,9 +16449,10 @@
 		EF9EA9662B110EDD00AC1DA1 /* ExpressModulesFactory */ = {
 			isa = PBXGroup;
 			children = (
+				EF9EA9692B110F4900AC1DA1 /* CommonExpressModulesFactory.swift */,
+				2D93C4EA2D7043E8002BCCE2 /* CommonExpressRefcodeProvider.swift */,
 				B06B62DF2B10D20C00042A39 /* ExpressAPIProviderFactory.swift */,
 				EF9EA9672B110EEB00AC1DA1 /* ExpressModulesFactory.swift */,
-				EF9EA9692B110F4900AC1DA1 /* CommonExpressModulesFactory.swift */,
 			);
 			path = ExpressModulesFactory;
 			sourceTree = "<group>";
@@ -18327,6 +18341,7 @@
 				B0958BA429F6A796007CD76D /* TokenItemView.swift in Sources */,
 				B6ACD0122AD6A888005A6CA3 /* OrganizeTokensDragAndDropGestureContextProvider.swift in Sources */,
 				B04CD34029122C6E001EA84A /* ReferralCoordinator.swift in Sources */,
+				2D93C4EB2D7043E8002BCCE2 /* CommonExpressRefcodeProvider.swift in Sources */,
 				EFFE2CE928B8E0B300B9F279 /* UserWalletModel.swift in Sources */,
 				B079DB722AEB937D00D2D0D5 /* Analytics+DebugEvent.swift in Sources */,
 				B085154D26D7797400E1A836 /* TwinsOnboardingView.swift in Sources */,
@@ -18886,6 +18901,7 @@
 				EFB23F3A2CBE8703005A6719 /* OnrampAmountView.swift in Sources */,
 				B0BA7BC726C4F9A300D7066F /* OnboardingCircleButton.swift in Sources */,
 				B0FF51C82C3C0FA800746705 /* MarketsTokenDetailsStatisticsRecordView.swift in Sources */,
+				2D93C4E92D7043B7002BCCE2 /* RefcodeProvider.swift in Sources */,
 				B09FA3442C259FF500A608C9 /* ManageTokensListItemViewModel.swift in Sources */,
 				B04BA23126F07ECE0036784C /* OnboardingTextButtonView.swift in Sources */,
 				DAE4BB062CD795AE0020CE3F /* OnrampCountrySelectorRoutable.swift in Sources */,
