@@ -9,9 +9,20 @@
 import TangemExpress
 
 struct ExpressAPIProviderFactory {
+    // MARK: - Injected
+
     @Injected(\.keysManager) private var keysManager: KeysManager
 
-    func makeExpressAPIProvider(userId: String) -> ExpressAPIProvider {
+    // MARK: - Implementation
+
+    func makeExpressAPIProvider(userWalletModel: UserWalletModel) -> ExpressAPIProvider {
+        makeExpressAPIProvider(
+            userId: userWalletModel.userWalletId.stringValue,
+            refcodeProvider: userWalletModel.refcodeProvider
+        )
+    }
+
+    func makeExpressAPIProvider(userId: String, refcodeProvider: RefcodeProvider?) -> ExpressAPIProvider {
         let factory = TangemExpressFactory()
         let expressAPIType: ExpressAPIType = {
             if AppEnvironment.current.isProduction {
@@ -25,14 +36,11 @@ struct ExpressAPIProviderFactory {
         let publicKey = signVerifierPublicKey(expressAPIType: expressAPIType)
         let exchangeDataDecoder = CommonExpressExchangeDataDecoder(publicKey: publicKey)
 
-        let containsRing = AppSettings.shared.userWalletIdsWithRing.contains(userId)
-        let refcode = containsRing ? Refcodes.ring.rawValue : nil
-
         let credentials = ExpressAPICredential(
             apiKey: apiKey,
             userId: userId,
             sessionId: AppConstants.sessionId,
-            refcode: refcode
+            refcode: refcodeProvider?.getRefcode()?.rawValue
         )
 
         return factory.makeExpressAPIProvider(
@@ -71,11 +79,5 @@ private extension ExpressAPIProviderFactory {
         case .production:
             return keysManager.expressKeys.signVerifierPublicKey
         }
-    }
-}
-
-private extension ExpressAPIProviderFactory {
-    enum Refcodes: String {
-        case ring
     }
 }
