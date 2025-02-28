@@ -901,8 +901,10 @@
 "toast_undo" = "Скасувати";
 "token_button_unavailability_generic_description" = "Обрана операція наразі недоступна. Спробуйте пізніше.";
 "token_button_unavailability_reason_buy_unavailable" = "Наразі купівля монети %@ недоступна. Слідкуйте за нашими оновленнями.";
+"token_button_unavailability_reason_custom_token" = "Action is not available for custom tokens.";
 "token_button_unavailability_reason_empty_balance_sell" = "У вас немає коштів для продажу. Поповніть рахунок, щоб мати змогу продати з нього кошти.";
 "token_button_unavailability_reason_empty_balance_send" = "У вас немає коштів для відправлення. Поповніть рахунок, щоб мати змогу надіслати з нього кошти.";
+"token_button_unavailability_reason_loading" = "The data has not loaded yet. This may take a few seconds. Please try again later.";
 "token_button_unavailability_reason_not_exchangeable" = "Наразі обмін монети %@ недоступний. Слідкуйте за нашими оновленнями.";
 "token_button_unavailability_reason_out_of_date_balance" = "The displayed balance might be outdated due to caching.";
 "token_button_unavailability_reason_pending_transaction_sell" = "Продаж коштів стане доступним після завершення транзакції(-ій) в мережі %@";
