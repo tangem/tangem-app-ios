@@ -24,7 +24,6 @@ struct CardActivationOrderProviderBuilder {
             return CardActivationTaskOrderProviderMock()
         }
 
-        let internalLogger = InternalLogger()
         let cardActivationStatusService = cardActivationStatusService ?? VisaCardActivationStatusServiceBuilder(
             isMockedAPIEnabled: isMockedAPIEnabled).build(urlSessionConfiguration: urlSessionConfiguration)
 
@@ -32,7 +31,6 @@ struct CardActivationOrderProviderBuilder {
             authorizationTokensHandler: tokensHandler,
             apiService: .init(
                 provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
-                logger: internalLogger,
                 decoder: JSONDecoder()
             )
         )
@@ -40,8 +38,7 @@ struct CardActivationOrderProviderBuilder {
         return CommonCardActivationOrderProvider(
             accessTokenProvider: tokensHandler,
             activationStatusService: cardActivationStatusService,
-            productActivationService: productActivationService,
-            logger: internalLogger
+            productActivationService: productActivationService
         )
     }
 }
