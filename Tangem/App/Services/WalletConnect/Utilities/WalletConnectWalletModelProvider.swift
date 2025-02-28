@@ -54,3 +54,17 @@ struct CommonWalletConnectWalletModelProvider: WalletConnectWalletModelProvider 
         mainWalletModels.first { $0.blockchainNetwork.blockchain.networkId == blockchainId }
     }
 }
+
+struct NotSupportedWalletConnectWalletModelProvider: WalletConnectWalletModelProvider {
+    func getModel(with address: String, blockchainId: String) throws -> WalletModel {
+        throw WalletConnectV2Error.wrongCardSelected
+    }
+
+    func getModels(with blockchainId: String) -> [WalletModel] {
+        return []
+    }
+
+    func getModel(with blockchainId: String) -> WalletModel? {
+        return nil
+    }
+}
