@@ -84,6 +84,7 @@ extension VisaTransactionHistoryService {
             VisaLogger.info("History loaded sucessfully. Number of new items: \(loadedRecords.count). New offset: \(currentOffset)")
             stateSubject.send(.loaded)
         } catch {
+            VisaLogger.error("Failed to load tx history page", error: error)
             stateSubject.send(.failedToLoad(error))
         }
     }
