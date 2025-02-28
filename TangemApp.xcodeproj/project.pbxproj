@@ -7423,6 +7423,13 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		30B74A252D71D7010066C07B /* New Group */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = "New Group";
+			sourceTree = "<group>";
+		};
 		30BA4FE52D7085E900C2B108 /* Tezos */ = {
 			isa = PBXGroup;
 			children = (
@@ -12685,6 +12692,7 @@
 		B68E1F722CBC44060043E598 /* BlockchainSdkTests */ = {
 			isa = PBXGroup;
 			children = (
+				30B74A252D71D7010066C07B /* New Group */,
 				30BA4FE52D7085E900C2B108 /* Tezos */,
 				30E038892D6DD78A00D9AD18 /* Binance */,
 				2DAD34682D57CD4300C4BDA5 /* Alephium */,
