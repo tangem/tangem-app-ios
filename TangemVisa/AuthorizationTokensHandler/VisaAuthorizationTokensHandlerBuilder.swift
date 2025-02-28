@@ -21,8 +21,6 @@ public struct VisaAuthorizationTokensHandlerBuilder {
         refreshTokenSaver: VisaRefreshTokenSaver?,
         urlSessionConfiguration: URLSessionConfiguration
     ) -> VisaAuthorizationTokensHandler {
-        let internalLogger = InternalLogger()
-
         let authorizationTokensHolder: AuthorizationTokensHolder
         if let authorizationTokens = cardActivationStatus.authTokens {
             authorizationTokensHolder = .init(authorizationTokens: authorizationTokens)
@@ -37,7 +35,6 @@ public struct VisaAuthorizationTokensHandlerBuilder {
             cardId: cardId,
             authorizationTokensHolder: authorizationTokensHolder,
             tokenRefreshService: authorizationTokenRefreshService,
-            logger: internalLogger,
             refreshTokenSaver: refreshTokenSaver
         )
 
