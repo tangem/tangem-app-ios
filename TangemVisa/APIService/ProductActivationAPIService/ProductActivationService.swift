@@ -109,7 +109,7 @@ extension CommonProductActivationService: ProductActivationService {
                 counter: rootOtpCounter
             )
         )
-        let response: ProductActivationAPITarget.ProductActivationEmptyResponse = try await sendRequest(
+        let _: ProductActivationAPITarget.ProductActivationEmptyResponse = try await sendRequest(
             target: .approveDeployByVisaCard(request: .init(
                 customerId: ids.customerId,
                 productInstanceId: ids.productInstanceId,
