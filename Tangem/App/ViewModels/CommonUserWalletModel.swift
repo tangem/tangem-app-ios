@@ -212,6 +212,10 @@ extension CommonUserWalletModel: UserWalletModel {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
     }
 
+    var refcodeProvider: RefcodeProvider {
+        CommonExpressRefcodeProvider(userId: userWalletId.stringValue, batchId: cardInfo.card.batchId)
+    }
+
     var tangemApiAuthData: TangemApiTarget.AuthData {
         .init(cardId: card.cardId, cardPublicKey: card.cardPublicKey)
     }
