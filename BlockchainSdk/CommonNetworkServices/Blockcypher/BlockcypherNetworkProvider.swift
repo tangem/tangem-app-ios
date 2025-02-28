@@ -10,6 +10,7 @@ import Foundation
 import Moya
 import Combine
 import BitcoinCore
+import TangemNetworkUtils
 
 class BlockcypherNetworkProvider: BitcoinNetworkProvider {
     var supportsTransactionPush: Bool { false }
@@ -98,10 +99,6 @@ class BlockcypherNetworkProvider: BitcoinNetworkProvider {
             .eraseToAnyPublisher()
     }
 
-    func push(transaction: String) -> AnyPublisher<String, Error> {
-        .anyFail(error: "RBF not supported")
-    }
-
     func getTransaction(with hash: String) -> AnyPublisher<BitcoinTransaction, Error> {
         let endpoint = endpoint
 
@@ -122,18 +119,6 @@ class BlockcypherNetworkProvider: BitcoinNetworkProvider {
 
                 return BitcoinTransaction(hash: hash, isConfirmed: tx.block ?? 0 > 0, time: date, inputs: inputs, outputs: outputs)
             }
-            .eraseToAnyPublisher()
-    }
-
-    func getSignatureCount(address: String) -> AnyPublisher<Int, Error> {
-        publisher(for: getTarget(for: .address(address: address, unspentsOnly: false, limit: 2000, isFull: false)))
-            .map(BlockcypherAddressResponse.self)
-            .map { addressResponse -> Int in
-                var sigCount = addressResponse.txrefs?.filter { $0.outputIndex == -1 }.count ?? 0
-                sigCount += addressResponse.unconfirmedTxrefs?.filter { $0.outputIndex == -1 }.count ?? 0
-                return sigCount
-            }
-            .mapError { $0 }
             .eraseToAnyPublisher()
     }
 
@@ -183,41 +168,5 @@ class BlockcypherNetworkProvider: BitcoinNetworkProvider {
         if case MoyaError.statusCode(let response) = error, response.statusCode == 429 {
             token = getRandomToken()
         }
-    }
-}
-
-extension BlockcypherNetworkProvider: EthereumAdditionalInfoProvider {
-    func getEthTxsInfo(address: String) -> AnyPublisher<EthereumTransactionResponse, Error> {
-        getFullInfo(address: address)
-            .tryMap { [weak self] (response: BlockcypherFullAddressResponse<BlockcypherEthereumTransaction>) -> EthereumTransactionResponse in
-                guard let self = self else { throw WalletError.empty }
-
-                guard let balance = response.balance else {
-                    throw WalletError.failedToParseNetworkResponse()
-                }
-
-                let ethBalance = balance / endpoint.blockchain.decimalValue
-                var pendingTxs: [PendingTransaction] = []
-
-                let croppedAddress = address.removeHexPrefix().lowercased()
-
-                response.txs?.forEach { tx in
-                    guard tx.blockHeight == -1 else { return }
-
-                    var pendingTx = tx.toPendingTx(userAddress: croppedAddress, decimalValue: self.endpoint.blockchain.decimalValue)
-                    if pendingTx.source == croppedAddress {
-                        pendingTx.source = address
-                        pendingTx.destination = pendingTx.destination.addHexPrefix()
-                    } else if pendingTx.destination == croppedAddress {
-                        pendingTx.destination = address
-                        pendingTx.source = pendingTx.source.addHexPrefix()
-                    }
-                    pendingTxs.append(pendingTx)
-                }
-
-                let ethResp = EthereumTransactionResponse(balance: ethBalance, pendingTxs: pendingTxs)
-                return ethResp
-            }
-            .eraseToAnyPublisher()
     }
 }
