@@ -24,7 +24,6 @@ final class UserWalletNotificationManager {
 
     private let analyticsService: NotificationsAnalyticsService = .init()
     private let userWalletModel: UserWalletModel
-    private let signatureCountValidator: SignatureCountValidator?
     private let rateAppController: RateAppNotificationController
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
 
@@ -35,14 +34,14 @@ final class UserWalletNotificationManager {
     private var showAppRateNotification = false
     private var shownAppRateNotificationId: NotificationViewId?
 
+    private var supportSeedNotificationInteractor: SupportSeedNotificationManager?
+
     init(
         userWalletModel: UserWalletModel,
-        signatureCountValidator: SignatureCountValidator?,
         rateAppController: RateAppNotificationController,
         contextDataProvider: AnalyticsContextDataProvider?
     ) {
         self.userWalletModel = userWalletModel
-        self.signatureCountValidator = signatureCountValidator
         self.rateAppController = rateAppController
 
         analyticsService.setup(with: self, contextDataProvider: contextDataProvider)
@@ -114,10 +113,26 @@ final class UserWalletNotificationManager {
         notificationInputsSubject.send(inputs)
 
         showAppRateNotificationIfNeeded()
+        createIfNeededAndShowSupportSeedNotification()
+    }
 
-        validateHashesCount()
+    private func createIfNeededAndShowSupportSeedNotification() {
+        guard userWalletModel.hasImportedWallets else {
+            return
+        }
 
-        showSupportSeedNotificationIfNeeded()
+        // demo cards
+        if case .disabled = userWalletModel.config.getFeatureAvailability(.backup) {
+            return
+        }
+
+        supportSeedNotificationInteractor = CommonSupportSeedNotificationManager(
+            userWalletId: userWalletModel.userWalletId,
+            displayDelegate: self,
+            notificationTapDelegate: delegate
+        )
+
+        supportSeedNotificationInteractor?.showSupportSeedNotificationIfNeeded()
     }
 
     private func hideNotification(with id: NotificationViewId) {
@@ -194,80 +209,6 @@ final class UserWalletNotificationManager {
             .store(in: &bag)
     }
 
-    // [REDACTED_TODO_COMMENT]
-    private func validateHashesCount() {
-        let config = userWalletModel.config
-        let cardSignedHashes = userWalletModel.totalSignedHashes
-        let isMultiWallet = config.hasFeature(.multiCurrency)
-        let canCountHashes = config.hasFeature(.signedHashesCounter)
-
-        func didFinishCountingHashes() {
-            AppLogger.info("⚠️ Hashes counted")
-        }
-
-        guard !AppSettings.shared.validatedSignedHashesCards.contains(userWalletModel.userWalletId.stringValue) else {
-            didFinishCountingHashes()
-            return
-        }
-
-        guard canCountHashes else {
-            recordUserWalletHashesCountValidation()
-            didFinishCountingHashes()
-            return
-        }
-
-        guard cardSignedHashes > 0 else {
-            recordUserWalletHashesCountValidation()
-            didFinishCountingHashes()
-            return
-        }
-
-        let factory = NotificationsFactory()
-        guard !isMultiWallet else {
-            didFinishCountingHashes()
-            return
-        }
-
-        guard let signatureCountValidator else {
-            didFinishCountingHashes()
-            let notification = factory.buildNotificationInput(
-                for: .numberOfSignedHashesIncorrect,
-                action: { [weak self] id in
-                    self?.delegate?.didTapNotification(with: id, action: .empty)
-                },
-                buttonAction: { _, _ in },
-                dismissAction: weakify(self, forFunction: UserWalletNotificationManager.dismissNotification(with:))
-            )
-            notificationInputsSubject.value.append(notification)
-            return
-        }
-
-        var validatorSubscription: AnyCancellable?
-        validatorSubscription = signatureCountValidator.validateSignatureCount(signedHashes: cardSignedHashes)
-            .subscribe(on: DispatchQueue.global())
-            .handleEvents(receiveCancel: {
-                AppLogger.info("⚠️ Hash counter subscription cancelled")
-            })
-            .receive(on: DispatchQueue.main)
-            .receiveCompletion { [weak self] completion in
-                switch completion {
-                case .finished:
-                    break
-                case .failure:
-                    let notification = factory.buildNotificationInput(
-                        for: .numberOfSignedHashesIncorrect,
-                        action: { id in self?.delegate?.didTapNotification(with: id, action: .empty) },
-                        buttonAction: { _, _ in },
-                        dismissAction: { id in self?.dismissNotification(with: id) }
-                    )
-                    self?.notificationInputsSubject.value.append(notification)
-                }
-                didFinishCountingHashes()
-
-                withExtendedLifetime(validatorSubscription) {}
-            }
-    }
-
     private func addMissingDerivationWarningIfNeeded(pendingDerivationsCount: Int) {
         guard numberOfPendingDerivations != pendingDerivationsCount else {
             return
@@ -283,83 +224,6 @@ final class UserWalletNotificationManager {
 
     private func recordDeprecationNotificationDismissal() {
         deprecationService.didDismissSystemDeprecationWarning()
-    }
-
-    private func showSupportSeedNotificationIfNeeded() {
-        let userWalletId = userWalletModel.userWalletId.stringValue
-
-        guard userWalletModel.hasImportedWallets else {
-            return
-        }
-
-        // demo cards
-        if case .disabled = userWalletModel.config.getFeatureAvailability(.backup) {
-            return
-        }
-
-        TangemFoundation.runTask(in: self) { manager in
-            do {
-                let status = try await manager.tangemApiService.getSeedNotifyStatus(userWalletId: userWalletId).status
-
-                switch status {
-                case .confirmed, .declined, .notNeeded:
-                    break
-                case .notified:
-                    manager.showSupportSeedNotification()
-                }
-            } catch {
-                if case .statusCode(let response) = error as? MoyaError,
-                   response.statusCode == 404 {
-                    manager.showSupportSeedNotification()
-                    try? await manager.tangemApiService.setSeedNotifyStatus(userWalletId: userWalletId, status: .notified)
-                }
-            }
-        }
-    }
-
-    private func showSupportSeedNotification() {
-        let userWalletId = userWalletModel.userWalletId.stringValue
-
-        let buttonActionYes: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
-            guard let self else { return }
-
-            Analytics.log(.mainNoticeSeedSupportButtonYes)
-            delegate?.didTapNotification(with: id, action: action)
-
-            TangemFoundation.runTask(in: self) { manager in
-                try? await manager.tangemApiService.setSeedNotifyStatus(userWalletId: userWalletId, status: .confirmed)
-            }
-        }
-
-        let buttonActionNo: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
-            guard let self else { return }
-
-            Analytics.log(.mainNoticeSeedSupportButtonNo)
-            delegate?.didTapNotification(with: id, action: action)
-
-            TangemFoundation.runTask(in: self) { manager in
-                try? await manager.tangemApiService.setSeedNotifyStatus(userWalletId: userWalletId, status: .declined)
-            }
-        }
-
-        let input = NotificationViewInput(
-            style: .withButtons([
-                NotificationView.NotificationButton(
-                    action: buttonActionNo,
-                    actionType: .seedSupportNo,
-                    isWithLoader: false
-                ),
-                NotificationView.NotificationButton(
-                    action: buttonActionYes,
-                    actionType: .seedSupportYes,
-                    isWithLoader: false
-                ),
-            ]),
-            severity: .critical,
-            settings: .init(event: GeneralNotificationEvent.seedSupport, dismissAction: nil)
-        )
-
-        addInputIfNeeded(input)
     }
 }
 
@@ -398,5 +262,11 @@ extension UserWalletNotificationManager: NotificationManager {
         }
 
         hideNotification(with: id)
+    }
+}
+
+extension UserWalletNotificationManager: SupportSeedNotificationDelegate {
+    func showSupportSeedNotification(input: NotificationViewInput) {
+        addInputIfNeeded(input)
     }
 }
