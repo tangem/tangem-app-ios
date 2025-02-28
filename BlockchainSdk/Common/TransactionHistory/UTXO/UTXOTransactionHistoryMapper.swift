@@ -8,6 +8,7 @@
 import Foundation
 import TangemFoundation
 
+
 struct UTXOTransactionHistoryMapper {
     private let blockchain: Blockchain
     private var decimalValue: Decimal {
