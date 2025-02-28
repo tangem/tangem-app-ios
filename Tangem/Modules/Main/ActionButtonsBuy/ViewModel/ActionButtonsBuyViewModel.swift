@@ -142,6 +142,7 @@ extension ActionButtonsBuyViewModel {
 
         userWalletModel.userTokensManager.add(mappedToken) { [weak self] result in
             guard let self, result.error == nil else { return }
+
             expressAvailabilityProvider.updateExpressAvailability(
                 for: [mappedToken],
                 forceReload: false,
