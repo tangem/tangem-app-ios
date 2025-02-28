@@ -901,8 +901,10 @@
 "toast_undo" = "Undo";
 "token_button_unavailability_generic_description" = "This operation is currently unavailable. Please try again later.";
 "token_button_unavailability_reason_buy_unavailable" = "Buying %@ is not supported by current providers, but we are working to add more options.";
+"token_button_unavailability_reason_custom_token" = "Action is not available for custom tokens.";
 "token_button_unavailability_reason_empty_balance_sell" = "You do not have funds to sell. Top up your account to be able to sell funds from it.";
 "token_button_unavailability_reason_empty_balance_send" = "You do not have funds to send. Top up your account to be able to send funds from it.";
+"token_button_unavailability_reason_loading" = "The data has not loaded yet. This may take a few seconds. Please try again later.";
 "token_button_unavailability_reason_not_exchangeable" = "Swapping %@ is not supported by current providers, but we are working to add more options.";
 "token_button_unavailability_reason_out_of_date_balance" = "The displayed balance might be outdated due to caching.";
 "token_button_unavailability_reason_pending_transaction_sell" = "Selling funds will be available once the pending transaction(s) on the %@ network is complete.";
