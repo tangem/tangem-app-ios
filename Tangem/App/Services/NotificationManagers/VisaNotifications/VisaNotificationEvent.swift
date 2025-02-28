@@ -28,7 +28,7 @@ extension VisaNotificationEvent: NotificationEvent {
         case .missingRequiredBlockchain, .notValidBlockchain, .failedToLoadPaymentAccount, .missingPublicKey, .failedToGenerateAddress, .authorizationError, .missingCardId, .invalidConfig, .invalidActivationState:
             return .string("Error")
         case .missingValidRefreshToken:
-            return .string("Attention")
+            return .string("Needed unlock")
         case .onboardingAccountActivationInfo:
             return nil
         }
@@ -51,7 +51,7 @@ extension VisaNotificationEvent: NotificationEvent {
         case .authorizationError:
             return "Failed to authorize, please contact support"
         case .missingValidRefreshToken:
-            return "To access this wallet you need to scan card first"
+            return "Scan your card to unlock access"
         case .missingCardId:
             return "Failed to identify card, please contact support"
         case .invalidConfig:
@@ -62,7 +62,12 @@ extension VisaNotificationEvent: NotificationEvent {
     }
 
     var colorScheme: NotificationView.ColorScheme {
-        return .secondary
+        switch self {
+        case .missingValidRefreshToken:
+            return .primary
+        default:
+            return .secondary
+        }
     }
 
     var icon: NotificationView.MessageIcon {
@@ -70,7 +75,7 @@ extension VisaNotificationEvent: NotificationEvent {
         case .missingRequiredBlockchain, .notValidBlockchain, .failedToLoadPaymentAccount, .missingPublicKey, .failedToGenerateAddress, .authorizationError, .missingCardId, .invalidConfig, .invalidActivationState:
             return .init(iconType: .image(Assets.redCircleWarning.image))
         case .missingValidRefreshToken:
-            return .init(iconType: .image(Assets.warningIcon.image))
+            return .init(iconType: .image(Assets.lock.image))
         case .onboardingAccountActivationInfo:
             return .init(iconType: .image(Assets.blueCircleWarning.image))
         }
@@ -87,7 +92,7 @@ extension VisaNotificationEvent: NotificationEvent {
     var buttonAction: NotificationButtonAction? {
         switch self {
         case .missingValidRefreshToken:
-            return .init(.scanCard, withLoader: true)
+            return .init(.unlock, withLoader: true)
         default:
             return nil
         }
