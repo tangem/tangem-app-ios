@@ -583,7 +583,7 @@ enum CLTypeHelper {
                 let errCLType = CLTypeHelper.jsonToCLType(from: resultCLType, keyStr: "err")
                 return .resultClType(okCLType, errCLType)
             } else {
-                NSLog("parse result cltype error")
+                BSDKLogger.error(error: "parse result cltype error")
             }
         }
         return .none
