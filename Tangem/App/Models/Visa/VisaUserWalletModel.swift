@@ -1,5 +1,5 @@
 //
-//  VisaWalletModel.swift
+//  VisaUserWalletModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,14 +12,11 @@ import BlockchainSdk
 import TangemVisa
 import TangemFoundation
 
-class VisaWalletModel {
+class VisaUserWalletModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
     @Injected(\.keysManager) private var keysManager: KeysManager
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
-
-    private var transactionHistoryService: VisaTransactionHistoryService?
-    private var visaPaymentAccountInteractor: VisaPaymentAccountInteractor?
 
     var accountAddress: String { visaPaymentAccountInteractor?.accountAddress ?? .unknown }
 
@@ -76,19 +73,26 @@ class VisaWalletModel {
         tokenItem?.currencySymbol ?? "Not loaded"
     }
 
-    var cardId: String? {
-        guard let visaConfig = userWalletModel.config as? VisaConfig else {
+    var tokenItem: TokenItem?
+
+    private var cardId: String {
+        cardInfo.card.cardId
+    }
+
+    private var cardInfoAuthorizationTokens: VisaAuthorizationTokens? {
+        guard case .visa(let tokens) = cardInfo.walletData else {
             return nil
         }
 
-        return visaConfig.card.cardId
+        return tokens.authTokens
     }
 
-    var tokenItem: TokenItem?
-
     private var cardWalletAddress: String?
-    private var userWalletModel: UserWalletModel
+    private let userWalletModel: UserWalletModel
+    private var cardInfo: CardInfo
     private var authorizationTokensHandler: VisaAuthorizationTokensHandler?
+    private var transactionHistoryService: VisaTransactionHistoryService?
+    private var visaPaymentAccountInteractor: VisaPaymentAccountInteractor?
 
     private let balancesSubject = CurrentValueSubject<AppVisaBalances?, Never>(nil)
     private let customerCardInfoSubject = CurrentValueSubject<VisaCustomerCardInfo?, Never>(nil)
@@ -101,8 +105,9 @@ class VisaWalletModel {
     private var updateTask: Task<Void, Never>?
     private var historyReloadTask: Task<Void, Never>?
 
-    init(userWalletModel: UserWalletModel) {
+    init(userWalletModel: UserWalletModel, cardInfo: CardInfo) {
         self.userWalletModel = userWalletModel
+        self.cardInfo = cardInfo
 
         let appUtilities = VisaAppUtilities()
         if let walletPublicKey = appUtilities.makeBlockchainKey(using: userWalletModel.keysRepository.keys) {
@@ -198,11 +203,6 @@ class VisaWalletModel {
 
     private func setupPaymentAccountInteractorAsync() async {
         stateSubject.send(.loading)
-
-        guard let cardId else {
-            stateSubject.send(.failedToInitialize(.missingCardId))
-            return
-        }
 
         let visaUtilities = VisaUtilities()
         let blockchain = visaUtilities.visaBlockchain
@@ -317,33 +317,23 @@ class VisaWalletModel {
 
 // MARK: - Authorization
 
-extension VisaWalletModel {
+extension VisaUserWalletModel {
     private func setupAuthorizationTokensHandler() async throws {
-        guard let visaConfig = userWalletModel.config as? VisaConfig else {
-            throw ModelError.invalidConfig
-        }
-
-        let cardId = visaConfig.card.cardId
-
-        guard case .activated(let configAuthorizationTokens) = visaConfig.activationLocalState else {
+        guard let cardInfoAuthorizationTokens else {
             throw ModelError.invalidActivationState
         }
 
         let authorizationTokens: VisaAuthorizationTokens
-        if let savedRefreshToken = visaRefreshTokenRepository.getToken(forCardId: cardId), savedRefreshToken != configAuthorizationTokens.refreshToken {
+        if let savedRefreshToken = visaRefreshTokenRepository.getToken(forCardId: cardId), savedRefreshToken != cardInfoAuthorizationTokens.refreshToken {
             authorizationTokens = .init(accessToken: nil, refreshToken: savedRefreshToken)
         } else {
-            authorizationTokens = configAuthorizationTokens
+            authorizationTokens = cardInfoAuthorizationTokens
         }
 
         try await setupTokensHandler(with: authorizationTokens)
     }
 
     private func setupTokensHandler(with tokens: VisaAuthorizationTokens) async throws {
-        guard let cardId else {
-            throw ModelError.missingCardId
-        }
-
         let authorizationTokensHandlerBuilder = await VisaAuthorizationTokensHandlerBuilder(isMockedAPIEnabled: FeatureStorage.instance.isVisaAPIMocksEnabled)
         let authorizationTokensHandler = authorizationTokensHandlerBuilder.build(
             cardId: cardId,
@@ -409,13 +399,13 @@ extension VisaWalletModel {
     }
 }
 
-extension VisaWalletModel: VisaRefreshTokenSaver {
+extension VisaUserWalletModel: VisaRefreshTokenSaver {
     func saveRefreshTokenToStorage(refreshToken: String, cardId: String) throws {
         try visaRefreshTokenRepository.save(refreshToken: refreshToken, cardId: cardId)
     }
 }
 
-extension VisaWalletModel: VisaWalletMainHeaderSubtitleDataSource {
+extension VisaUserWalletModel: VisaWalletMainHeaderSubtitleDataSource {
     var fiatBalance: String {
         BalanceFormatter().formatFiatBalance(fiatValue)
     }
@@ -437,7 +427,7 @@ extension VisaWalletModel: VisaWalletMainHeaderSubtitleDataSource {
     }
 }
 
-extension VisaWalletModel: MainHeaderBalanceProvider {
+extension VisaUserWalletModel: MainHeaderBalanceProvider {
     var balance: LoadableTokenBalanceView.State {
         mapToLoadableTokenBalanceViewState(state: stateSubject.value, balances: balancesSubject.value)
     }
@@ -469,13 +459,13 @@ extension VisaWalletModel: MainHeaderBalanceProvider {
     }
 }
 
-extension VisaWalletModel: CustomStringConvertible {
+extension VisaUserWalletModel: CustomStringConvertible {
     var description: String {
         objectDescription(self)
     }
 }
 
-extension VisaWalletModel {
+extension VisaUserWalletModel {
     enum State: Hashable {
         case notInitialized
         case loading
@@ -509,5 +499,91 @@ extension VisaWalletModel {
             case .invalidActivationState: return .invalidActivationState
             }
         }
+    }
+}
+
+/// - Note: for now this model will proxy request to nested UserWalletModel
+/// We need to refactor `CommonUserWalletModel` and `UserWalletConfig` creation
+/// This is complex task, so it will be made later.
+extension VisaUserWalletModel: UserWalletModel {
+    var hasBackupCards: Bool { false }
+
+    var config: any UserWalletConfig { userWalletModel.config }
+
+    var userWalletId: UserWalletId { userWalletModel.userWalletId }
+
+    var tangemApiAuthData: TangemApiTarget.AuthData { userWalletModel.tangemApiAuthData }
+
+    var walletModelsManager: any WalletModelsManager { userWalletModel.walletModelsManager }
+
+    var userTokensManager: any UserTokensManager { userWalletModel.userTokensManager }
+
+    var userTokenListManager: any UserTokenListManager { userWalletModel.userTokenListManager }
+
+    var keysRepository: any KeysRepository { userWalletModel.keysRepository }
+
+    var signer: TangemSigner { userWalletModel.signer }
+
+    var updatePublisher: AnyPublisher<Void, Never> { userWalletModel.updatePublisher }
+
+    var backupInput: OnboardingInput? { nil }
+
+    var cardImagePublisher: AnyPublisher<CardImageResult, Never> { userWalletModel.cardImagePublisher }
+
+    var totalSignedHashes: Int { userWalletModel.totalSignedHashes }
+
+    var name: String { userWalletModel.name }
+
+    var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> { userWalletModel.cardHeaderImagePublisher }
+
+    var userWalletNamePublisher: AnyPublisher<String, Never> { userWalletModel.userWalletNamePublisher }
+
+    var totalBalance: TotalBalanceState { userWalletModel.totalBalance }
+
+    var totalBalancePublisher: AnyPublisher<TotalBalanceState, Never> { userWalletModel.totalBalancePublisher }
+
+    var cardsCount: Int { 1 }
+
+    var hasImportedWallets: Bool { false }
+
+    var analyticsContextData: AnalyticsContextData { userWalletModel.analyticsContextData }
+
+    var isUserWalletLocked: Bool { false }
+
+    var isTokensListEmpty: Bool { userWalletModel.isTokensListEmpty }
+
+    var emailData: [EmailCollectedData] { userWalletModel.emailData }
+
+    var emailConfig: EmailConfig? { userWalletModel.emailConfig }
+
+    var wcWalletModelProvider: any WalletConnectWalletModelProvider { NotSupportedWalletConnectWalletModelProvider() }
+
+    var keysDerivingInteractor: any KeysDeriving { userWalletModel.keysDerivingInteractor }
+
+    func validate() -> Bool { userWalletModel.validate() }
+
+    func onBackupUpdate(type: BackupUpdateType) {}
+
+    func updateWalletName(_ name: String) {
+        userWalletModel.updateWalletName(name)
+    }
+
+    func addAssociatedCard(_ cardId: String) {}
+}
+
+extension VisaUserWalletModel: UserWalletSerializable {
+    func serialize() -> StoredUserWallet {
+        let name = name.isEmpty ? config.cardName : name
+
+        let newStoredUserWallet = StoredUserWallet(
+            userWalletId: userWalletId.value,
+            name: name,
+            card: cardInfo.card,
+            associatedCardIds: [],
+            walletData: cardInfo.walletData,
+            artwork: cardInfo.artwork.artworkInfo
+        )
+
+        return newStoredUserWallet
     }
 }
