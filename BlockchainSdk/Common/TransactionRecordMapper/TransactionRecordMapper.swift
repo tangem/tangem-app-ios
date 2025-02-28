@@ -11,3 +11,13 @@ protocol TransactionRecordMapper {
     associatedtype Transaction
     func mapToTransactionRecord(transaction: Transaction, address: String) throws -> TransactionRecord
 }
+
+enum TransactionRecordMapperError: LocalizedError {
+    case valueNotFound(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .valueNotFound(let value): "Value not found: \(value)"
+        }
+    }
+}
