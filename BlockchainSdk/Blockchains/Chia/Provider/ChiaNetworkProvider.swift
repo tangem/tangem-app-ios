@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import Moya
+import TangemNetworkUtils
 
 struct ChiaNetworkProvider: HostProvider {
     // MARK: - HostProvider

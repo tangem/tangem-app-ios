@@ -47,7 +47,6 @@ class MainCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var mailViewModel: MailViewModel?
-    @Published var modalWebViewModel: WebViewContainerViewModel?
     @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel?
     @Published var organizeTokensViewModel: OrganizeTokensViewModel?
     @Published var pushNotificationsViewModel: PushNotificationsPermissionRequestViewModel?
@@ -336,7 +335,11 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         }
 
         Task { @MainActor [tangemStoriesPresenter] in
-            tangemStoriesPresenter.present(story: .swap(.initialWithoutImages), presentCompletion: openExpressBlock)
+            tangemStoriesPresenter.present(
+                story: .swap(.initialWithoutImages),
+                analyticsSource: .tokenListContextMenu,
+                presentCompletion: openExpressBlock
+            )
         }
     }
 
@@ -526,7 +529,11 @@ extension MainCoordinator: ActionButtonsSwapFlowRoutable {
         }
 
         Task { @MainActor [tangemStoriesPresenter] in
-            tangemStoriesPresenter.present(story: .swap(.initialWithoutImages), presentCompletion: openExpressBlock)
+            tangemStoriesPresenter.present(
+                story: .swap(.initialWithoutImages),
+                analyticsSource: .main,
+                presentCompletion: openExpressBlock
+            )
         }
     }
 }

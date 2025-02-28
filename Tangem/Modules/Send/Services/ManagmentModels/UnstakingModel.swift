@@ -418,3 +418,19 @@ extension UnstakingModel.Action.ActionType {
         }
     }
 }
+
+extension UnstakingModel {
+    var isPartialUnstakeAllowed: Bool {
+        guard case .validator(let validatorInfo) = initialAction.validatorType else {
+            return false
+        }
+        // disable partial unstake for disabled validators,
+        // preferred == false means it's disabled in admin tool
+        guard validatorInfo.preferred else { return false }
+
+        return switch tokenItem.blockchain {
+        case .ton: false // ton does not support partial unstake
+        default: true
+        }
+    }
+}

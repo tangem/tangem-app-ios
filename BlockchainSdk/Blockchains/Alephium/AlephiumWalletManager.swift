@@ -117,10 +117,10 @@ class AlephiumWalletManager: BaseManager, WalletManager {
     // MARK: - Private Implementation
 
     private func updateWallet(accountInfo: AlephiumAccountInfo) {
-        let balanceValue = accountInfo.utxo
-            .filter { $0.isConfirmed }
-            .map { $0.value }
-            .reduce(0, +)
+        let utils = AlephiumUtils()
+
+        let filteredUTXO = accountInfo.utxo.filter { utils.isNotFromFuture(lockTime: Double($0.lockTime)) }
+        let balanceValue = filteredUTXO.map { $0.value }.reduce(0, +)
 
         let convertedBalance = balanceValue / wallet.blockchain.decimalValue
 

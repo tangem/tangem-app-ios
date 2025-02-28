@@ -9,6 +9,7 @@
 import Foundation
 import Moya
 import Combine
+import TangemNetworkUtils
 
 class TezosJsonRpcProvider: HostProvider {
     let host: String
