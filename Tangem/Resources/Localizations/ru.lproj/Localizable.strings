@@ -267,6 +267,8 @@
 "express_exchange_by" = "Обмен через %@";
 "express_exchange_notification_failed_text" = "Чтобы вернуть ваши деньги, посетите сайт провайдера";
 "express_exchange_notification_failed_title" = "Операция не выполнена провайдером";
+"express_exchange_notification_long_transaction_time_text" = "Your swap is taking longer than expected. Please go to provider support for assistance.";
+"express_exchange_notification_long_transaction_time_title" = "Long transaction time";
 "express_exchange_notification_refund_text" = "Отправленные средства были возвращены в %1$@ на ваш кошелек в соответствии с правилами OKX или моста обмена. %2$@";
 "express_exchange_notification_refund_title" = "Сумма была возвращена в %1$@ (%2$@ сети)";
 "express_exchange_notification_verification_text" = "Посетите сайт провайдера для проверки";
@@ -644,6 +646,8 @@
 "scan_card_settings_message" = "Отсканируйте карту или кольцо, чтобы изменить ее настройки. Изменения затронут только ту карту или кольцо, которые вы отсканировали, и не повлияют на другие устройства, привязанные к вашему кошельку.";
 "scan_card_settings_title" = "Приготовьте свой Tangem!";
 "security_alert_title" = "Уведомление безопасности";
+"seed_warning_no" = "No, I did not";
+"seed_warning_yes" = "Да";
 "selling_insufficient_balance_alert_message" = "На вашем балансе недостаточно средств для продажи криптовалюты. Пожалуйста, пополните нужный актив, чтобы продолжить.";
 "selling_insufficient_balance_alert_title" = "Недостаточно средств";
 "selling_regional_restriction_alert_message" = "Продажа криптовалюты в вашем регионе временно недоступна. Мы активно работаем над тем, чтобы добавить эту возможность. Следите за нашими новостями!";
@@ -782,6 +786,10 @@
 "staking_notification_low_staked_balance_title" = "Низкий баланс стейкинга";
 "staking_notification_minimum_balance_error_text" = "Для рестейкинга необходимо %1$@%2$@. Пожалуйста, пополните баланс.";
 "staking_notification_minimum_balance_error_title" = "Недостаточно %@";
+"staking_notification_minimum_balance_title" = " Insufficient Balance for Staking";
+"staking_notification_minimum_restake_ada_text" = "A minimum of 3 ADA is required for restaking. Please top up your balance.";
+"staking_notification_minimum_restake_ada_title" = "Not enough ADA";
+"staking_notification_minimum_stake_ada_text" = "The minimum amount required for staking must exceed 5 ADA. Please top up your balance to start staking.";
 "staking_notification_network_error_text" = "Стейкинг временно недоступен из-за проблем в сети. Пожалуйста, попробуйте позже.";
 "staking_notification_new_validator_funds_transfer" = "Стейкинг в сети %1$@ с новым валидатором автоматически переведет ваши текущие застейканные средства на него.";
 "staking_notification_restake_rewards_text" = "Реинвестируйте свои заработанные награды в вашу застейканную сумму, увеличивая потенциальный доход";
@@ -854,6 +862,8 @@
 "story_meet_title" = "Встречайте Tangem";
 "story_web3_description" = "Обменивайте, покупайте NFT, получайте займы и делайте вклады в более чем 100 различных децентрализованных сервисах";
 "story_web3_title" = "Поддержка Web 3.0";
+"sui_not_enough_coin_for_fee_description" = "Для отправки требуется входящая транзакция на сумму не менее %1$@";
+"sui_not_enough_coin_for_fee_title" = "Недостаточно средств";
 "swap_give_permission_fee_footer" = "Комиссия сети за одобрение токена будет взиматься за подтверждение того, что именно вы разрешаете использовать ваш токен для обмена.";
 "swap_promo_text" = "Обменивайте больше токенов по лучшим курсам прямо в вашем кошельке.";
 "swap_promo_title" = "Новый провайдер обмена!";
@@ -894,6 +904,7 @@
 "token_button_unavailability_reason_empty_balance_sell" = "У вас нет средств для продажи. Пополните счет, чтобы иметь возможность продать с него средства.";
 "token_button_unavailability_reason_empty_balance_send" = "У вас нет средств для отправки. Пополните счет, чтобы иметь возможность отправить с него средства.";
 "token_button_unavailability_reason_not_exchangeable" = "Обмен %@ в данный момент не поддерживается ни одним провайдером. Мы работаем над добавлением новых возможностей. Следите за нашими новостями.";
+"token_button_unavailability_reason_out_of_date_balance" = "The displayed balance might be outdated due to caching.";
 "token_button_unavailability_reason_pending_transaction_sell" = "Продажа средств станет доступной после завершения транзакции(-ий) в сети %@";
 "token_button_unavailability_reason_pending_transaction_send" = "Отправка средств станет доступной после завершения транзакции(-ий) в сети %@";
 "token_button_unavailability_reason_sell_unavailable" = "Продажа %@ в данный момент не поддерживается ни одним провайдером. Мы работаем над добавлением новых возможностей. Следите за нашими новостями.";
@@ -953,6 +964,9 @@
 "user_wallet_list_rename_popup_placeholder" = "Имя кошелька";
 "user_wallet_list_rename_popup_title" = "Переименование кошелька";
 "user_wallet_list_unlock_all_with" = "Разблокировать все с %@";
+"visa_unlock_notification_button" = "Unlock";
+"visa_unlock_notification_subtitle" = "Scan your card to unlock access";
+"visa_unlock_notification_title" = "Needed unlock";
 "voice_over_open_card_details" = "Открыть детали устройства";
 "voice_over_open_new_wallet_connect_session" = "Отсканируйте QR-код, чтобы открыть новую сессию WalletConnect";
 "wallet_balance_missing_derivation" = "Отсканируйте карту или кольцо";
@@ -1065,6 +1079,8 @@
 "warning_rate_app_title" = "Нравится Tangem?";
 "warning_receive_blocked_hedera_token_association_required_message" = "Вам необходимо провести ассоциацию токена для того, чтобы иметь возможность принимать его";
 "warning_rent_fee_title" = "Необходима плата за аренду сети";
+"warning_seedphrase_action_required_title" = "Action required";
+"warning_seedphrase_contacted_support" = "Вы обращались в службу поддержки через приложение в течение 7 дней после создания кошелька? Если обращались или не уверены, нажмите «Да» и следуйте инструкциям.";
 "warning_seedphrase_issue_answer_no" = "Спасибо! Всё в порядке! Дальнейшие действия не требуются.";
 "warning_seedphrase_issue_answer_yes" = "Вы будете перенаправлены на официальный сайт Tangem. Пожалуйста, прочитайте и выполните указанные там инструкции.";
 "warning_seedphrase_issue_message" = "Вы когда-либо обращались в службу поддержки Tangem напрямую из этого приложения?";
