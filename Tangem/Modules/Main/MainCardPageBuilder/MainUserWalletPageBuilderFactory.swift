@@ -60,10 +60,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             coordinator: coordinator
         )
 
-        let signatureCountValidator = selectSignatureCountValidator(for: model)
         let userWalletNotificationManager = UserWalletNotificationManager(
             userWalletModel: model,
-            signatureCountValidator: signatureCountValidator,
             rateAppController: rateAppController,
             contextDataProvider: model
         )
@@ -178,14 +176,6 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 multiWalletContentDelegate: multiWalletContentDelegate
             )
         }
-    }
-
-    private func selectSignatureCountValidator(for userWalletModel: UserWalletModel) -> SignatureCountValidator? {
-        if userWalletModel.config.hasFeature(.multiCurrency) {
-            return nil
-        }
-
-        return userWalletModel.walletModelsManager.walletModels.first?.signatureCountValidator
     }
 
     private func createVisaPage(visaUserWalletModel: VisaUserWalletModel, lockedUserWalletDelegate: MainLockedUserWalletDelegate?) -> MainUserWalletPageBuilder {
