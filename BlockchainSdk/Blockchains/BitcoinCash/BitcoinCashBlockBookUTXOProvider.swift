@@ -57,14 +57,6 @@ final class BitcoinCashBlockBookUTXOProvider: BitcoinNetworkProvider {
         .eraseToAnyPublisher()
     }
 
-    func push(transaction: String) -> AnyPublisher<String, Error> {
-        blockBookUTXOProvider.push(transaction: transaction)
-    }
-
-    func getSignatureCount(address: String) -> AnyPublisher<Int, Error> {
-        blockBookUTXOProvider.getSignatureCount(address: addAddressPrefixIfNeeded(address))
-    }
-
     private func addAddressPrefixIfNeeded(_ address: String) -> String {
         if bitcoinCashAddressService.isLegacy(address) {
             return address
