@@ -99,7 +99,7 @@ final class OverlayContentContainerViewController: UIViewController {
     }
 
     deinit {
-        print("OverlayContentContainerViewController deinit")
+        AppLogger.info("OverlayContentContainerViewController deinit")
     }
 
     @available(*, unavailable, message: "init(coder:) has not been implemented")
