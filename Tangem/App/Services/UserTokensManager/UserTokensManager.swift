@@ -22,6 +22,7 @@ protocol UserTokensManager: UserTokensReordering {
     func deriveIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void)
 
     func contains(_ tokenItem: TokenItem) -> Bool
+    func containsDerivationInsensitive(_ tokenItem: TokenItem) -> Bool
     func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [Token]
 
     /// Update storage with derivation
