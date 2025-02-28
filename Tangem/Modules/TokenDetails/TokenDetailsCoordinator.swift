@@ -32,7 +32,6 @@ class TokenDetailsCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
-    @Published var modalWebViewModel: WebViewContainerViewModel? = nil
     @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel? = nil
     @Published var pendingExpressTxStatusBottomSheetViewModel: PendingExpressTxStatusBottomSheetViewModel? = nil
 
@@ -253,7 +252,11 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         }
 
         Task { @MainActor [tangemStoriesPresenter] in
-            tangemStoriesPresenter.present(story: .swap(.initialWithoutImages), presentCompletion: showExpressBlock)
+            tangemStoriesPresenter.present(
+                story: .swap(.initialWithoutImages),
+                analyticsSource: .token,
+                presentCompletion: showExpressBlock
+            )
         }
     }
 

@@ -98,7 +98,6 @@ class VisaWalletMainContentViewModel: ObservableObject {
         }
 
         coordinator?.openTransactionDetails(tokenItem: tokenItem, for: transactionRecord)
-        VisaLogger.info("[Visa Main Content View Model] Explore transaction with id: \(transactionId)")
     }
 
     func reloadTransactionHistory() {
