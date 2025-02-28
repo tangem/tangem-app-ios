@@ -314,7 +314,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
     var shouldLogResponseBody: Bool {
         switch type {
         case .currencies, .coins, .quotes, .apiList, .coinsList, .coinsHistoryChartPreview,
-             .historyChart, .tokenMarketsDetails, .tokenExchangesList, .hotCrypto, .story, .rawData:
+             .historyChart, .tokenMarketsDetails, .tokenExchangesList, .story, .rawData, .hotCrypto:
             return false
         case .geo, .features, .getUserWalletTokens, .saveUserWalletTokens, .loadReferralProgramInfo, .participateInReferralProgram, .createAccount, .promotion, .validateNewUserPromotionEligibility, .validateOldUserPromotionEligibility, .awardNewUser, .awardOldUser, .resetAward, .seedNotifyGetStatus, .seedNotifySetStatus, .seedNotifyGetStatusConfirmed, .seedNotifySetStatusConfirmed, .walletInitialized:
             return true
