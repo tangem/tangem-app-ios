@@ -64,7 +64,7 @@ extension BinanceWalletManager: TransactionSender {
             .tryMap { [weak self] signature -> Message in
                 guard let self = self else { throw WalletError.empty }
 
-                guard let tx = txBuilder.buildForSend(signature: signature, hash: hash) else {
+                guard let tx = txBuilder.buildForSend(signature: signature) else {
                     throw WalletError.failedToBuildTx
                 }
                 return tx

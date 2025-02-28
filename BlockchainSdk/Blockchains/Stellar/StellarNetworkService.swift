@@ -41,10 +41,4 @@ class StellarNetworkService: MultiNetworkProvider {
             $0.getFee()
         }
     }
-
-    func getSignatureCount(accountId: String) -> AnyPublisher<Int, Error> {
-        providerPublisher {
-            $0.getSignatureCount(accountId: accountId)
-        }
-    }
 }

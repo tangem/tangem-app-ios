@@ -26,13 +26,11 @@ struct StoriesHostView: View {
                     storyView
                         .tag(index)
                 }
-                .ignoresSafeArea(.all, edges: .bottom)
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
         .animation(.default, value: viewModel.visibleStoryIndex)
         .allowsHitTesting(viewModel.allowsHitTesting)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .ignoresSafeArea(.all, edges: .bottom)
     }
 }
