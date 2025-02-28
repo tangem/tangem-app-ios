@@ -10,6 +10,7 @@ import Foundation
 import Moya
 import Combine
 import TangemFoundation
+import TangemNetworkUtils
 
 class XRPNetworkProvider: XRPNetworkServiceType, HostProvider {
     var host: String {
