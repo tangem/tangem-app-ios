@@ -84,19 +84,6 @@ final class Fact0rnNetworkProvider: BitcoinNetworkProvider {
         .eraseToAnyPublisher()
     }
 
-    func push(transaction: String) -> AnyPublisher<String, any Error> {
-        assertionFailure("This method marked as deprecated")
-        return .anyFail(error: BlockchainSdkError.noAPIInfo)
-    }
-
-    func getSignatureCount(address: String) -> AnyPublisher<Int, any Error> {
-        Future.async {
-            let txHistory = try await self.provider.getTxHistory(identifier: .scriptHash(address))
-            return txHistory.count
-        }
-        .eraseToAnyPublisher()
-    }
-
     // MARK: - Private Implementation
 
     private func getAddressInfo(identifier: ElectrumWebSocketProvider.Identifier) -> AnyPublisher<ElectrumAddressInfo, Error> {
