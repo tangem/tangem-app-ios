@@ -384,7 +384,7 @@ extension SendModel: NotificationTapDelegate {
              .seedSupportNo,
              .seedSupport2Yes,
              .seedSupport2No,
-             .scanCard:
+             .unlock:
             assertionFailure("Notification tap not handled")
         }
     }
