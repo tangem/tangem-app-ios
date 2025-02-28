@@ -2701,6 +2701,8 @@
 		EF38050E2D6F938100273B1B /* BlockBookTransactionTransactionRecordMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF38050D2D6F938100273B1B /* BlockBookTransactionTransactionRecordMapper.swift */; };
 		EF3805102D706A1700273B1B /* RadiantNetworkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF38050F2D706A1700273B1B /* RadiantNetworkProvider.swift */; };
 		EF3805122D70917B00273B1B /* ElectrumTransactionRecordMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3805112D70917B00273B1B /* ElectrumTransactionRecordMapper.swift */; };
+		EF3805142D709B9B00273B1B /* BlockchairTransactionRecordMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3805132D709B9B00273B1B /* BlockchairTransactionRecordMapper.swift */; };
+		EF3805162D70B30A00273B1B /* BlockcypherTransactionRecordMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3805152D70B30A00273B1B /* BlockcypherTransactionRecordMapper.swift */; };
 		EF39A6532AD5A70D00AAB518 /* SmartContractMethodMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF39A6522AD5A70D00AAB518 /* SmartContractMethodMapper.swift */; };
 		EF39A6562AD5A90300AAB518 /* contract_methods.json in Resources */ = {isa = PBXBuildFile; fileRef = EF39A6552AD5A90300AAB518 /* contract_methods.json */; };
 		EF39A6582AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF39A6572AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift */; };
@@ -6057,6 +6059,8 @@
 		EF38050D2D6F938100273B1B /* BlockBookTransactionTransactionRecordMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockBookTransactionTransactionRecordMapper.swift; sourceTree = "<group>"; };
 		EF38050F2D706A1700273B1B /* RadiantNetworkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadiantNetworkProvider.swift; sourceTree = "<group>"; };
 		EF3805112D70917B00273B1B /* ElectrumTransactionRecordMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElectrumTransactionRecordMapper.swift; sourceTree = "<group>"; };
+		EF3805132D709B9B00273B1B /* BlockchairTransactionRecordMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchairTransactionRecordMapper.swift; sourceTree = "<group>"; };
+		EF3805152D70B30A00273B1B /* BlockcypherTransactionRecordMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockcypherTransactionRecordMapper.swift; sourceTree = "<group>"; };
 		EF39A6522AD5A70D00AAB518 /* SmartContractMethodMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartContractMethodMapper.swift; sourceTree = "<group>"; };
 		EF39A6552AD5A90300AAB518 /* contract_methods.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = contract_methods.json; sourceTree = "<group>"; };
 		EF39A6572AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSmartContractMethodMapper.swift; sourceTree = "<group>"; };
@@ -15959,6 +15963,8 @@
 				EF798FEA2D6F8E4000B9B4A1 /* TransactionRecordMapper.swift */,
 				EF38050D2D6F938100273B1B /* BlockBookTransactionTransactionRecordMapper.swift */,
 				EF3805112D70917B00273B1B /* ElectrumTransactionRecordMapper.swift */,
+				EF3805132D709B9B00273B1B /* BlockchairTransactionRecordMapper.swift */,
+				EF3805152D70B30A00273B1B /* BlockcypherTransactionRecordMapper.swift */,
 			);
 			path = TransactionRecordMapper;
 			sourceTree = "<group>";
@@ -20200,6 +20206,7 @@
 				B62D40C92CBC79DA00C2460E /* EthereumWalletAssembly.swift in Sources */,
 				B62D41342CBC79DA00C2460E /* NEARNetworkParams.swift in Sources */,
 				B62D42092CBC79DB00C2460E /* XRPKeypair.swift in Sources */,
+				EF3805162D70B30A00273B1B /* BlockcypherTransactionRecordMapper.swift in Sources */,
 				2DB1D6BE2D56978D00AD43A3 /* ALPH+AssetOutputRef.swift in Sources */,
 				2DB1D6BF2D56978D00AD43A3 /* AlephiumNetworkService.swift in Sources */,
 				2DB1D6C02D56978D00AD43A3 /* ALPH+Blake2b.swift in Sources */,
@@ -20272,6 +20279,7 @@
 				2DB1D7042D56978D00AD43A3 /* ALPH+TxUtils.swift in Sources */,
 				2DB1D7052D56978D00AD43A3 /* ALPH+OutputType.swift in Sources */,
 				2DB1D7062D56978D00AD43A3 /* ALPH+ScriptHint.swift in Sources */,
+				EF3805142D709B9B00273B1B /* BlockchairTransactionRecordMapper.swift in Sources */,
 				2DB1D7072D56978D00AD43A3 /* ALPH+Deserializer.swift in Sources */,
 				2DB1D7082D56978D00AD43A3 /* ALPH+GroupIndex.swift in Sources */,
 				2DB1D7092D56978D00AD43A3 /* ALPH+GasBox.swift in Sources */,
