@@ -114,7 +114,9 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .support,
              .openCurrency,
              .seedSupportNo,
-             .seedSupportYes:
+             .seedSupportYes,
+             .seedSupport2No,
+             .seedSupport2Yes:
             super.didTapNotification(with: id, action: action)
         }
     }

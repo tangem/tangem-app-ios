@@ -26,9 +26,6 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
     @ViewBuilder
     var sheets: some View {
         NavHolder()
-            .sheet(item: $coordinator.modalWebViewModel) {
-                WebViewContainer(viewModel: $0)
-            }
             .sheet(item: $coordinator.mailViewModel) {
                 MailView(viewModel: $0)
             }
