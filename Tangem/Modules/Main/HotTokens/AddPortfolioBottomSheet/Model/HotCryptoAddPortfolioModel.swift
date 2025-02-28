@@ -20,10 +20,6 @@ struct HotCryptoAddToPortfolioModel: Identifiable {
         self.token = token
         self.userWalletName = userWalletName
         tokenIconInfo = token.tokenIconInfo
-        tokenNetworkName = {
-            let blockchain = Blockchain.allMainnetCases.first { $0.networkId == token.networkId }
-
-            return blockchain?.displayName ?? ""
-        }()
+        tokenNetworkName = token.tokenItem?.blockchain.displayName ?? ""
     }
 }
