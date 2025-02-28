@@ -8,6 +8,7 @@
 
 import Combine
 import Foundation
+import TangemNetworkUtils
 
 final class CasperNetworkProvider: HostProvider {
     var host: String {

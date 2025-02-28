@@ -46,14 +46,12 @@ public struct VisaCustomerCardInfoProviderBuilder {
         evmSmartContractInteractor: EVMSmartContractInteractor,
         urlSessionConfiguration: URLSessionConfiguration
     ) -> VisaCustomerCardInfoProvider {
-        let internalLogger = InternalLogger()
         var customerInfoManagementService: CustomerInfoManagementService?
         if let authorizationTokensHandler {
             customerInfoManagementService = CommonCustomerInfoManagementService(
                 authorizationTokenHandler: authorizationTokensHandler,
                 apiService: .init(
                     provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
-                    logger: internalLogger,
                     decoder: JSONDecoderFactory().makeCIMDecoder()
                 )
             )
@@ -63,8 +61,7 @@ public struct VisaCustomerCardInfoProviderBuilder {
             isTestnet: isTestnet,
             authorizationTokensHandler: authorizationTokensHandler,
             customerInfoManagementService: customerInfoManagementService,
-            evmSmartContractInteractor: evmSmartContractInteractor,
-            logger: internalLogger
+            evmSmartContractInteractor: evmSmartContractInteractor
         )
     }
 }
