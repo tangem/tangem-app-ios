@@ -29,10 +29,7 @@ extension UTXONetworkProvider {
                 }
 
                 return Publishers.MergeMany(pending).collect()
-                    .withWeakCaptureOf(provider)
-                    .tryMap { provider, transactions in
-                        UTXOResponse(outputs: outputs, pending: transactions)
-                    }
+                    .map { UTXOResponse(outputs: outputs, pending: $0) }
             }
             .eraseToAnyPublisher()
     }
