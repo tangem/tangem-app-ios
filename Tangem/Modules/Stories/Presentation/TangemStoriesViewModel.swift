@@ -13,9 +13,13 @@ final class TangemStoriesViewModel: ObservableObject {
     private let checkStoryAvailabilityUseCase: CheckStoryAvailabilityUseCase
     private let enrichStoryUseCase: EnrichStoryUseCase
     private let finalizeStoryUseCase: FinalizeStoryUseCase
+    private let analyticsService: StoryAnalyticsService
 
     @MainActor
     private var storyEnrichTask: Task<Void, Never>?
+
+    @MainActor
+    private var delayedPresentCompletionTask: Task<Void, Error>?
 
     @MainActor
     private var storyFinalizeTask: Task<Void, Never>?
@@ -26,35 +30,39 @@ final class TangemStoriesViewModel: ObservableObject {
     init(
         checkStoryAvailabilityUseCase: CheckStoryAvailabilityUseCase,
         enrichStoryUseCase: EnrichStoryUseCase,
-        finalizeStoryUseCase: FinalizeStoryUseCase
+        finalizeStoryUseCase: FinalizeStoryUseCase,
+        analyticsService: StoryAnalyticsService
     ) {
         self.checkStoryAvailabilityUseCase = checkStoryAvailabilityUseCase
         self.enrichStoryUseCase = enrichStoryUseCase
         self.finalizeStoryUseCase = finalizeStoryUseCase
+        self.analyticsService = analyticsService
     }
 
     deinit {
         storyEnrichTask?.cancel()
+        delayedPresentCompletionTask?.cancel()
         storyFinalizeTask?.cancel()
     }
 
     @MainActor
-    func present(story: TangemStory, presentCompletion: @escaping () -> Void) {
+    func present(story: TangemStory, analyticsSource: Analytics.StoriesSource, presentCompletion: @escaping () -> Void) {
         guard checkStoryAvailabilityUseCase(story.id) else {
             presentCompletion()
             return
         }
 
         storyEnrichTask?.cancel()
+        delayedPresentCompletionTask?.cancel()
         storyFinalizeTask?.cancel()
 
         state = Self.makeState(for: story) { [weak self] in
-            self?.finalizeActiveStory()
+            self?.finalizeActiveStory(analyticsSource: analyticsSource)
         }
 
-        Task {
-            let extraDelay = 0.3
-            try await Task.sleep(seconds: TangemStoriesHostView.Constants.animationDuration + extraDelay)
+        delayedPresentCompletionTask = Task {
+            let extraDelay = 0.7
+            try await Task.sleep(seconds: TangemStoriesHostManager.Animation.appearingDuration + extraDelay)
             presentCompletion()
         }
 
@@ -64,7 +72,7 @@ final class TangemStoriesViewModel: ObservableObject {
     @MainActor
     func forceDismiss() {
         storyEnrichTask?.cancel()
-        finalizeActiveStory()
+        finalizeActiveStory(analyticsSource: nil)
     }
 
     // MARK: - Private methods
@@ -78,14 +86,27 @@ final class TangemStoriesViewModel: ObservableObject {
     }
 
     @MainActor
-    private func finalizeActiveStory() {
-        defer { state = nil }
+    private func finalizeActiveStory(analyticsSource: Analytics.StoriesSource?) {
+        defer {
+            state = nil
+            delayedPresentCompletionTask?.cancel()
+        }
 
-        guard let lastActiveStory = state?.activeStory else { return }
+        guard let state else { return }
 
         storyFinalizeTask = Task { [finalizeStoryUseCase] in
-            await finalizeStoryUseCase(lastActiveStory.id)
+            await finalizeStoryUseCase(state.activeStory.id)
         }
+
+        guard
+            let analyticsSource,
+            let viewedPageIndexes = state.storiesHostViewModel.storyViewModels.first?.viewedPageIndexes,
+            let lastViewedIndex = viewedPageIndexes.max()
+        else {
+            return
+        }
+
+        analyticsService.reportShown(state.activeStory.id, lastViewedPageIndex: lastViewedIndex, source: analyticsSource)
     }
 }
 
@@ -116,12 +137,8 @@ extension TangemStoriesViewModel {
 // MARK: - Nested types
 
 extension TangemStoriesViewModel {
-    struct State: Equatable {
+    struct State {
         let storiesHostViewModel: StoriesHostViewModel
         var activeStory: TangemStory
-
-        static func == (lhs: TangemStoriesViewModel.State, rhs: TangemStoriesViewModel.State) -> Bool {
-            lhs.activeStory.id == rhs.activeStory.id
-        }
     }
 }
