@@ -32,14 +32,14 @@ class VisaWalletMainContentViewModel: ObservableObject {
         cryptoLimitText.isEmpty || numberOfDaysLimitText.isEmpty
     }
 
-    private let visaWalletModel: VisaWalletModel
+    private let visaWalletModel: VisaUserWalletModel
     private weak var coordinator: VisaWalletRoutable?
 
     private var bag = Set<AnyCancellable>()
     private var updateTask: Task<Void, Error>?
 
     init(
-        visaWalletModel: VisaWalletModel,
+        visaWalletModel: VisaUserWalletModel,
         coordinator: VisaWalletRoutable?
     ) {
         self.visaWalletModel = visaWalletModel
@@ -171,7 +171,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
             .store(in: &bag)
     }
 
-    private func setupNotifications(_ modelError: VisaWalletModel.ModelError) {
+    private func setupNotifications(_ modelError: VisaUserWalletModel.ModelError) {
         switch modelError {
         case .missingValidRefreshToken:
             failedToLoadInfoNotificationInput = .init(
