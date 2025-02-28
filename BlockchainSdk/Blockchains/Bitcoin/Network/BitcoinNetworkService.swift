@@ -19,8 +19,6 @@ class BitcoinNetworkService: MultiNetworkProvider, BitcoinNetworkProvider {
         self.providers = providers
     }
 
-    var supportsTransactionPush: Bool { !providers.filter { $0.supportsTransactionPush }.isEmpty }
-
     func getInfo(addresses: [String]) -> AnyPublisher<[BitcoinResponse], Error> {
         providerPublisher {
             $0.getInfo(addresses: addresses)
@@ -80,17 +78,6 @@ class BitcoinNetworkService: MultiNetworkProvider, BitcoinNetworkProvider {
     func send(transaction: String) -> AnyPublisher<String, Error> {
         providerPublisher {
             $0.send(transaction: transaction)
-        }
-    }
-
-    func push(transaction: String) -> AnyPublisher<String, Error> {
-        providers.first(where: { $0.supportsTransactionPush })?
-            .push(transaction: transaction) ?? .anyFail(error: BlockchainSdkError.networkProvidersNotSupportsRbf)
-    }
-
-    func getSignatureCount(address: String) -> AnyPublisher<Int, Error> {
-        providerPublisher {
-            $0.getSignatureCount(address: address)
         }
     }
 }
