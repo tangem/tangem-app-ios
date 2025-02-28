@@ -1593,7 +1593,6 @@
 		B62D42292CBC79DB00C2460E /* BlockBookResponse+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3EB02CBC79D900C2460E /* BlockBookResponse+.swift */; };
 		B62D422A2CBC79DB00C2460E /* BlockBookTarget.AddressRequestParameters.FilterType+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3EB12CBC79D900C2460E /* BlockBookTarget.AddressRequestParameters.FilterType+.swift */; };
 		B62D422B2CBC79DB00C2460E /* BlockBookResponses.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3EB32CBC79D900C2460E /* BlockBookResponses.swift */; };
-		B62D422C2CBC79DB00C2460E /* NodeRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3EB42CBC79D900C2460E /* NodeRequest.swift */; };
 		B62D422D2CBC79DB00C2460E /* BlockBookTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3EB62CBC79D900C2460E /* BlockBookTarget.swift */; };
 		B62D422E2CBC79DB00C2460E /* BlockBookUTXOProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3EB72CBC79D900C2460E /* BlockBookUTXOProvider.swift */; };
 		B62D422F2CBC79DB00C2460E /* BlockchairAddressBlockMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3EB92CBC79D900C2460E /* BlockchairAddressBlockMapper.swift */; };
@@ -2699,6 +2698,7 @@
 		EF339E542C22DABD00B5CDC9 /* FeeIncludedCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF339E532C22DABD00B5CDC9 /* FeeIncludedCalculator.swift */; };
 		EF339E562C22DADC00B5CDC9 /* DestinationAdditionalFieldType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF339E552C22DADC00B5CDC9 /* DestinationAdditionalFieldType.swift */; };
 		EF339E752C24820B00B5CDC9 /* SendAmountInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF339E742C24820B00B5CDC9 /* SendAmountInteractor.swift */; };
+		EF38050E2D6F938100273B1B /* BlockBookTransactionTransactionRecordMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF38050D2D6F938100273B1B /* BlockBookTransactionTransactionRecordMapper.swift */; };
 		EF39A6532AD5A70D00AAB518 /* SmartContractMethodMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF39A6522AD5A70D00AAB518 /* SmartContractMethodMapper.swift */; };
 		EF39A6562AD5A90300AAB518 /* contract_methods.json in Resources */ = {isa = PBXBuildFile; fileRef = EF39A6552AD5A90300AAB518 /* contract_methods.json */; };
 		EF39A6582AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF39A6572AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift */; };
@@ -4973,7 +4973,6 @@
 		B62D3EB02CBC79D900C2460E /* BlockBookResponse+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "BlockBookResponse+.swift"; sourceTree = "<group>"; };
 		B62D3EB12CBC79D900C2460E /* BlockBookTarget.AddressRequestParameters.FilterType+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "BlockBookTarget.AddressRequestParameters.FilterType+.swift"; sourceTree = "<group>"; };
 		B62D3EB32CBC79D900C2460E /* BlockBookResponses.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockBookResponses.swift; sourceTree = "<group>"; };
-		B62D3EB42CBC79D900C2460E /* NodeRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NodeRequest.swift; sourceTree = "<group>"; };
 		B62D3EB62CBC79D900C2460E /* BlockBookTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockBookTarget.swift; sourceTree = "<group>"; };
 		B62D3EB72CBC79D900C2460E /* BlockBookUTXOProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockBookUTXOProvider.swift; sourceTree = "<group>"; };
 		B62D3EB92CBC79D900C2460E /* BlockchairAddressBlockMapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockchairAddressBlockMapper.swift; sourceTree = "<group>"; };
@@ -6053,6 +6052,7 @@
 		EF339E532C22DABD00B5CDC9 /* FeeIncludedCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeIncludedCalculator.swift; sourceTree = "<group>"; };
 		EF339E552C22DADC00B5CDC9 /* DestinationAdditionalFieldType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestinationAdditionalFieldType.swift; sourceTree = "<group>"; };
 		EF339E742C24820B00B5CDC9 /* SendAmountInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAmountInteractor.swift; sourceTree = "<group>"; };
+		EF38050D2D6F938100273B1B /* BlockBookTransactionTransactionRecordMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockBookTransactionTransactionRecordMapper.swift; sourceTree = "<group>"; };
 		EF39A6522AD5A70D00AAB518 /* SmartContractMethodMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartContractMethodMapper.swift; sourceTree = "<group>"; };
 		EF39A6552AD5A90300AAB518 /* contract_methods.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = contract_methods.json; sourceTree = "<group>"; };
 		EF39A6572AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSmartContractMethodMapper.swift; sourceTree = "<group>"; };
@@ -11666,21 +11666,12 @@
 			path = Config;
 			sourceTree = "<group>";
 		};
-		B62D3EB22CBC79D900C2460E /* Extensions */ = {
-			isa = PBXGroup;
-			children = (
-				B62D3EB02CBC79D900C2460E /* BlockBookResponse+.swift */,
-				B62D3EB12CBC79D900C2460E /* BlockBookTarget.AddressRequestParameters.FilterType+.swift */,
-			);
-			path = Extensions;
-			sourceTree = "<group>";
-		};
 		B62D3EB52CBC79D900C2460E /* DTO */ = {
 			isa = PBXGroup;
 			children = (
-				B62D3EB22CBC79D900C2460E /* Extensions */,
 				B62D3EB32CBC79D900C2460E /* BlockBookResponses.swift */,
-				B62D3EB42CBC79D900C2460E /* NodeRequest.swift */,
+				B62D3EB02CBC79D900C2460E /* BlockBookResponse+.swift */,
+				B62D3EB12CBC79D900C2460E /* BlockBookTarget.AddressRequestParameters.FilterType+.swift */,
 			);
 			path = DTO;
 			sourceTree = "<group>";
@@ -15961,6 +15952,7 @@
 			isa = PBXGroup;
 			children = (
 				EF798FEA2D6F8E4000B9B4A1 /* TransactionRecordMapper.swift */,
+				EF38050D2D6F938100273B1B /* BlockBookTransactionTransactionRecordMapper.swift */,
 			);
 			path = TransactionRecordMapper;
 			sourceTree = "<group>";
@@ -20418,7 +20410,6 @@
 				B62D414B2CBC79DA00C2460E /* NEARWalletManager.swift in Sources */,
 				B62D42862CBC79DB00C2460E /* PolygonTransactionHistoryTarget.swift in Sources */,
 				B62D42052CBC79DB00C2460E /* XRPAmount.swift in Sources */,
-				B62D422C2CBC79DB00C2460E /* NodeRequest.swift in Sources */,
 				B62D41302CBC79DA00C2460E /* NEARTransactionsInfo.swift in Sources */,
 				B62D403F2CBC79DA00C2460E /* AdaliteResponse.swift in Sources */,
 				B62D41932CBC79DA00C2460E /* SolanaWalletManager.swift in Sources */,
@@ -20562,6 +20553,7 @@
 				B62D40962CBC79DA00C2460E /* EthereumTransactionDataBuilder.swift in Sources */,
 				B62D41842CBC79DA00C2460E /* RavencoinWalletManager.swift in Sources */,
 				B62D3FD72CBC79DA00C2460E /* OP_MIN.swift in Sources */,
+				EF38050E2D6F938100273B1B /* BlockBookTransactionTransactionRecordMapper.swift in Sources */,
 				B62D401E2CBC79DA00C2460E /* OP_SWAP.swift in Sources */,
 				B62D41C12CBC79DB00C2460E /* TONTransactionBuilder.swift in Sources */,
 				B62D41DC2CBC79DB00C2460E /* TronNetworkProvider.swift in Sources */,
