@@ -104,7 +104,7 @@ enum ExecutableDeployItemSerializaton {
                 argStr = argStr + CLTypeSerializeHelper.uInt32Serialize(input: clValueSerializeSize) + clValueSerialize // nameArg.argsItem.bytes
                 argStr = argStr + CLTypeSerializeHelper.CLTypeSerialize(input: nameArg.argsItem.clType)
             } catch {
-                NSLog("Error serialize NameArgs \(error)")
+                BSDKLogger.error("Error serialize NameArgs", error: error)
             }
         }
         return argStr
