@@ -77,14 +77,3 @@ struct VisaWalletMainContentView: View {
         }
     }
 }
-
-#Preview {
-    let userWalletModel = FakeUserWalletModel.visa
-    let coordinator = MainCoordinator()
-    let viewModel = VisaWalletMainContentViewModel(
-        visaWalletModel: .init(userWalletModel: userWalletModel),
-        coordinator: coordinator
-    )
-
-    return VisaWalletMainContentView(viewModel: viewModel)
-}
