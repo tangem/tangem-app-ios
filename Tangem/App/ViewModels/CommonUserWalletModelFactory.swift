@@ -9,12 +9,12 @@
 import Foundation
 
 struct CommonUserWalletModelFactory {
-    func makeModel(userWallet: StoredUserWallet) -> CommonUserWalletModel? {
+    func makeModel(userWallet: StoredUserWallet) -> UserWalletModel? {
         let cardInfo = userWallet.cardInfo()
         return makeModel(cardInfo: cardInfo, associatedCardIds: userWallet.associatedCardIds)
     }
 
-    func makeModel(cardInfo: CardInfo, associatedCardIds: Set<String> = []) -> CommonUserWalletModel? {
+    func makeModel(cardInfo: CardInfo, associatedCardIds: Set<String> = []) -> UserWalletModel? {
         let config = UserWalletConfigFactory(cardInfo).makeConfig()
 
         guard let userWalletIdSeed = config.userWalletIdSeed,
@@ -91,7 +91,12 @@ struct CommonUserWalletModelFactory {
 
         derivationManager?.delegate = model
         userTokensManager.keysDerivingProvider = model
-
-        return model
+ 
+        switch cardInfo.walletData {
+        case .visa:
+            return VisaUserWalletModel(userWalletModel: model, cardInfo: cardInfo)
+        default:
+            return model
+        }
     }
 }
