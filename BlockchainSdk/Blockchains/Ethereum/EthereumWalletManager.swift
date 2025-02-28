@@ -376,22 +376,6 @@ extension EthereumWalletManager: TransactionSender {
     }
 }
 
-// MARK: - SignatureCountValidator
-
-extension EthereumWalletManager: SignatureCountValidator {
-    func validateSignatureCount(signedHashes: Int) -> AnyPublisher<Void, Error> {
-        addressConverter.convertToETHAddressPublisher(wallet.address)
-            .withWeakCaptureOf(self)
-            .flatMap { walletManager, convertedAddress in
-                walletManager.networkService.getSignatureCount(address: convertedAddress)
-            }
-            .tryMap {
-                if signedHashes != $0 { throw BlockchainSdkError.signatureCountNotMatched }
-            }
-            .eraseToAnyPublisher()
-    }
-}
-
 // MARK: - EthereumTransactionDataBuilder
 
 extension EthereumWalletManager: EthereumTransactionDataBuilder {
@@ -408,7 +392,7 @@ extension EthereumWalletManager: EthereumTransactionDataBuilder {
 
 // MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
 
-extension EthereumWalletManager: StakeKitTransactionSender, StakeKitTransactionSenderProvider {
+extension EthereumWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSender, StakeKitTransactionDataProvider {
     typealias RawTransaction = String
 
     func prepareDataForSign(transaction: StakeKitTransaction) throws -> Data {
@@ -422,7 +406,9 @@ extension EthereumWalletManager: StakeKitTransactionSender, StakeKitTransactionS
             .lowercased()
             .addHexPrefix()
     }
+}
 
+extension EthereumWalletManager: StakeKitTransactionDataBroadcaster {
     func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
         try await networkService.send(transaction: rawTransaction).async()
     }
