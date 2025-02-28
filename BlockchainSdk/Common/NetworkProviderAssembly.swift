@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 
 protocol NetworkProviderAssemblyInput {
     var blockchain: Blockchain { get }
