@@ -17,7 +17,6 @@ class TONStakeKitTransactionHelper {
     }
 
     func prepareForSign(_ stakingTransaction: StakeKitTransaction, expireAt: UInt32) throws -> TONPreSignData {
-        print(stakingTransaction)
         guard let data = stakingTransaction.unsignedData.data(using: .utf8) else {
             throw WalletError.failedToBuildTx
         }
