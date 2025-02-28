@@ -92,6 +92,10 @@ public extension TransactionRecord {
             case .multiple(let sources): sources
             }
         }
+
+        static func from(_ sources: [Source]) -> Self {
+            sources.count == 1 ? .single(sources.first!) : .multiple(sources)
+        }
     }
 
     struct Source: Hashable {
@@ -117,6 +121,10 @@ public extension TransactionRecord {
             case .single(let destination): [destination]
             case .multiple(let destinations): destinations
             }
+        }
+
+        static func from(_ destinations: [Destination]) -> Self {
+            destinations.count == 1 ? .single(destinations.first!) : .multiple(destinations)
         }
     }
 
