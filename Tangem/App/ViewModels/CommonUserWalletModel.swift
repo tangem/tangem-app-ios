@@ -199,15 +199,6 @@ extension CommonUserWalletModel: UserWalletModel {
         cardInfo.card.wallets.compactMap { $0.totalSignedHashes }.reduce(0, +)
     }
 
-    var analyticsContextData: AnalyticsContextData {
-        AnalyticsContextData(
-            card: cardInfo.card,
-            productType: config.productType,
-            embeddedEntry: config.embeddedBlockchain,
-            userWalletId: userWalletId
-        )
-    }
-
     var wcWalletModelProvider: WalletConnectWalletModelProvider {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
     }
@@ -247,10 +238,6 @@ extension CommonUserWalletModel: UserWalletModel {
 
     var updatePublisher: AnyPublisher<Void, Never> {
         _updatePublisher.eraseToAnyPublisher()
-    }
-
-    var tokensCount: Int? {
-        walletModelsManager.walletModels.count
     }
 
     var cardImagePublisher: AnyPublisher<CardImageResult, Never> {
@@ -355,9 +342,9 @@ extension CommonUserWalletModel: TotalBalanceProviding {
 }
 
 extension CommonUserWalletModel: AnalyticsContextDataProvider {
-    func getAnalyticsContextData() -> AnalyticsContextData? {
-        return AnalyticsContextData(
-            card: card,
+    var analyticsContextData: AnalyticsContextData {
+        AnalyticsContextData(
+            card: cardInfo.card,
             productType: config.productType,
             embeddedEntry: config.embeddedBlockchain,
             userWalletId: userWalletId
