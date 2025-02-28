@@ -114,8 +114,12 @@ class CardanoTests: XCTestCase {
         let dataForSign = try transactionBuilder.buildForSign(transaction: transaction)
         XCTAssertEqual(dataForSign.hexString.lowercased(), "03946fe122634d05e93219fde628ce55a5e0d06f23afa456864897357c5dade8")
 
+        // Validate hash size
+        TransactionSizeTesterUtility().testTxSizes([dataForSign])
+
         // Sign
         let signature = Data(hex: "d0cd5a183e63dce8f0d5bc6d617bbc2f3aa982fd24ece4e29eb10abb69c00bc8dd9d353f35084c5bcc9f81d4599e9c67980ebce32e3462951116ee39da1da406")
+
         let publicKey = Data(hex: "de60f41ab5045ce1b9b37e386570ed63499a53ee93ca3073e54a80065678384d")
 
         let signatureInfo = SignatureInfo(signature: signature, publicKey: publicKey, hash: dataForSign)
