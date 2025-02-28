@@ -9,5 +9,5 @@
 // Will be supported in BTC-like / Fact0rn / Radiant and etc.
 protocol TransactionRecordMapper {
     associatedtype Transaction
-    func mapToTransactionRecord(transaction: Transaction) throws -> TransactionRecord
+    func mapToTransactionRecord(transaction: Transaction, address: String) throws -> TransactionRecord
 }
