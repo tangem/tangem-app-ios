@@ -23,7 +23,6 @@ class MarketsTokenDetailsCoordinator: CoordinatorObject {
     // MARK: - Child ViewModels
 
     @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel? = nil
-    @Published var modalWebViewModel: WebViewContainerViewModel? = nil
     @Published var exchangesListViewModel: MarketsTokenDetailsExchangesListViewModel? = nil
 
     // MARK: - Child Coordinators
@@ -156,7 +155,11 @@ extension MarketsTokenDetailsCoordinator {
         }
 
         Task { @MainActor [tangemStoriesPresenter] in
-            tangemStoriesPresenter.present(story: .swap(.initialWithoutImages), presentCompletion: openSwapBlock)
+            tangemStoriesPresenter.present(
+                story: .swap(.initialWithoutImages),
+                analyticsSource: .markets,
+                presentCompletion: openSwapBlock
+            )
         }
     }
 
