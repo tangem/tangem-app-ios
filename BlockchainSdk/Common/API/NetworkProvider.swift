@@ -8,6 +8,7 @@
 
 import Foundation
 import Moya
+import TangemNetworkUtils
 
 class NetworkProvider<Target: TargetType>: MoyaProvider<Target> {
     init(configuration: NetworkProviderConfiguration = NetworkProviderConfiguration()) {
