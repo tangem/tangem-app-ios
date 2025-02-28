@@ -21,6 +21,7 @@ protocol UserWalletModel: MainHeaderSupplementInfoProvider, TotalBalanceProvidin
     var userTokensManager: UserTokensManager { get }
     var userTokenListManager: UserTokenListManager { get }
     var keysRepository: KeysRepository { get }
+    var refcodeProvider: RefcodeProvider { get }
     var signer: TangemSigner { get }
     var updatePublisher: AnyPublisher<Void, Never> { get }
     var emailData: [EmailCollectedData] { get }
