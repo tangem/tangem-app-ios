@@ -89,8 +89,8 @@ class UserWalletRepositoryUtil {
             }
 
             let publicData = try encoder.encode(userWalletsWithoutSensitiveInformation)
-            let publicDataEncoded = try encrypt(publicData, with: publicDataEncryptionKey())
-            try publicDataEncoded.write(to: userWalletListPath(), options: .atomic)
+            let publicDataEncrypted = try encrypt(publicData, with: publicDataEncryptionKey())
+            try publicDataEncrypted.write(to: userWalletListPath(), options: .atomic)
             try excludeFromBackup(url: userWalletListPath())
 
             for userWallet in userWallets {
@@ -100,9 +100,9 @@ class UserWalletRepositoryUtil {
                 }
 
                 let sensitiveInformation = StoredUserWallet.SensitiveInformation(wallets: userWallet.card.wallets)
-                let sensitiveDataEncoded = try encrypt(encoder.encode(sensitiveInformation), with: encryptionKey)
+                let sensitiveDataEncrypted = try encrypt(encoder.encode(sensitiveInformation), with: encryptionKey)
                 let sensitiveDataPath = userWalletPath(for: UserWalletId(value: userWallet.userWalletId))
-                try sensitiveDataEncoded.write(to: sensitiveDataPath, options: .atomic)
+                try sensitiveDataEncrypted.write(to: sensitiveDataPath, options: .atomic)
                 try excludeFromBackup(url: sensitiveDataPath)
             }
             AppLogger.info("User wallets were saved successfully")
@@ -115,7 +115,7 @@ class UserWalletRepositoryUtil {
         let secureStorage = SecureStorage()
 
         let encryptionKeyData = try secureStorage.get(publicDataEncryptionKeyStorageKey)
-        if let encryptionKeyData = encryptionKeyData {
+        if let encryptionKeyData {
             let symmetricKey: SymmetricKey = .init(data: encryptionKeyData)
             return UserWalletEncryptionKey(symmetricKey: symmetricKey)
         }
