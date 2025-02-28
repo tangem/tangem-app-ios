@@ -10,6 +10,8 @@ import Foundation
 import XCTest
 import Combine
 import CryptoKit
+import WalletCore
+import TangemSdk
 @testable import BlockchainSdk
 
 class XRPTests: XCTestCase {
@@ -55,5 +57,46 @@ class XRPTests: XCTestCase {
         XCTAssertEqual(xrpAddress2.rAddress, "rGWrZyQqhTp9Xu7G5Pkayo7bXjH4k4QYpf")
         XCTAssertEqual(xrpAddress2.xAddress, "XVLhHMPHU98es4dbozjVtdWzVrDjtV1kAsixQTdMjbWi39u")
         XCTAssertEqual(xrpAddress2.tag, 4294967294)
+    }
+
+    func testTxSize() throws {
+        try testTxSize(curve: .ed25519)
+        try testTxSize(curve: .ed25519_slip0010)
+    }
+
+    func testTxSize(curve: EllipticCurve) throws {
+        // given
+        let edPrivateKey = try! Curve25519.Signing.PrivateKey(
+            rawRepresentation: Data(hexString: "0x85fca134b3fe3fd523d8b528608d803890e26c93c86dc3d97b8d59c7b3540c97")
+        )
+        let publicKey = edPrivateKey.publicKey.rawRepresentation
+
+        let transaction = try makeTransaction(publickKey: publicKey, curve: curve)
+        let builder = try XRPTransactionBuilder(walletPublicKey: publicKey, curve: curve)
+        builder.account = ""
+        builder.sequence = 1
+
+        // when
+        let (tx, messageToSign) = try builder.buildForSign(transaction: transaction)!
+
+        // then
+        TransactionSizeTesterUtility().testTxSize(messageToSign)
+    }
+
+    private func makeTransaction(publickKey: Data, curve: EllipticCurve) throws -> Transaction {
+        let blockchain = Blockchain.xrp(curve: curve)
+
+        let address = try XRPAddressService(curve: curve).makeAddress(
+            for: Wallet.PublicKey(seedKey: publickKey, derivationType: .none),
+            with: .default
+        )
+
+        return Transaction(
+            amount: .init(with: blockchain, value: Decimal(stringValue: "0.5")!),
+            fee: .init(.init(with: blockchain, value: Decimal(stringValue: "0.001")!)),
+            sourceAddress: address.value,
+            destinationAddress: "rDTXLQ7ZKZVKz33zJbHjgVShjsBnqMBhmN", // Random address from explorer
+            changeAddress: address.value
+        )
     }
 }
