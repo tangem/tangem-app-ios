@@ -543,7 +543,6 @@ class Serializer {
         let combined = bytes.reduce(Data()) { result, newData -> Data in
             return result + newData
         }
-        print(combined.hexadecimal)
-        print("\n")
+        BSDKLogger.info(combined.hexadecimal)
     }
 }
