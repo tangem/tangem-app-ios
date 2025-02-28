@@ -262,6 +262,7 @@ public indirect enum Blockchain: Equatable, Hashable {
              .kaspa,
              .ravencoin,
              .ducatus,
+             .radiant,
              .fact0rn:
             return true
         default:

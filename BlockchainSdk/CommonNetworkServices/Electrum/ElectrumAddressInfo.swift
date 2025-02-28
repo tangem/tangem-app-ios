@@ -8,12 +8,14 @@
 
 import Foundation
 
+@available(*, deprecated, message: "Use UTXOResponse")
 struct ElectrumAddressInfo {
     let balance: Decimal
     let unconfirmed: Decimal
     let outputs: [ElectrumUTXO]
 }
 
+@available(*, deprecated, message: "Use UnspentOutput")
 struct ElectrumUTXO {
     let position: Int
     let hash: String
