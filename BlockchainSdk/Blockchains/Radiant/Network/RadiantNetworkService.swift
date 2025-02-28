@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 
+@available(*, deprecated, message: "Will be replaced to MultiUTXOProvider with RadiantNetworkProvider inside")
 class RadiantNetworkService {
     let electrumProvider: ElectrumNetworkProvider
 
