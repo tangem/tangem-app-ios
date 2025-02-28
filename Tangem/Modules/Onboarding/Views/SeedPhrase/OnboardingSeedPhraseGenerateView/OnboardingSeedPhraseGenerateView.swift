@@ -24,28 +24,24 @@ struct OnboardingSeedPhraseGenerateView: View {
             .pickerStyle(.segmented)
             .padding(.horizontal, 52)
 
-            VStack(spacing: 0) {
-                VStack {
-                    switch viewModel.selectedLength {
-                    case .twelveWords:
-                        twelveWordsContent
-                    case .twentyFourWords:
-                        twentyFourWordsContent
-                    }
+            ScrollView(.vertical, showsIndicators: false) {
+                switch viewModel.selectedLength {
+                case .twelveWords:
+                    twelveWordsContent
+                case .twentyFourWords:
+                    twentyFourWordsContent
                 }
-
-                Spacer()
-
-                MainButton(
-                    title: Localization.commonContinue,
-                    style: .primary,
-                    action: {
-                        viewModel.continueAction()
-                    }
-                )
-                .padding(.horizontal, 16)
-                .padding(.bottom, AppConstants.isSmallScreen ? 10 : 6)
             }
+
+            MainButton(
+                title: Localization.commonContinue,
+                style: .primary,
+                action: {
+                    viewModel.continueAction()
+                }
+            )
+            .padding(.horizontal, 16)
+            .padding(.bottom, AppConstants.isSmallScreen ? 10 : 6)
         }
         .animation(.default, value: viewModel.selectedLength)
         .padding(.top, 20)
@@ -82,22 +78,20 @@ struct OnboardingSeedPhraseGenerateView: View {
     }
 
     private var twentyFourWordsContent: some View {
-        ScrollView(.vertical, showsIndicators: false) {
-            VStack(spacing: 24) {
-                header
-                    .padding(.top, 24)
+        VStack(spacing: 24) {
+            header
+                .padding(.top, 24)
 
-                HStack(alignment: .top, spacing: 8) {
-                    let verticalSpacing: CGFloat = 12
-                    let wordsHalfCount = viewModel.words.count / 2
+            HStack(alignment: .top, spacing: 8) {
+                let verticalSpacing: CGFloat = 12
+                let wordsHalfCount = viewModel.words.count / 2
 
-                    wordsVerticalView(indexRange: 0 ..< wordsHalfCount, verticalSpacing: verticalSpacing)
+                wordsVerticalView(indexRange: 0 ..< wordsHalfCount, verticalSpacing: verticalSpacing)
 
-                    wordsVerticalView(indexRange: wordsHalfCount ..< viewModel.words.count, verticalSpacing: verticalSpacing)
-                }
-                .padding(.horizontal, 48)
-                .padding(.bottom, 26)
+                wordsVerticalView(indexRange: wordsHalfCount ..< viewModel.words.count, verticalSpacing: verticalSpacing)
             }
+            .padding(.horizontal, 48)
+            .padding(.bottom, 26)
         }
     }
 
