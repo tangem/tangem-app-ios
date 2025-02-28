@@ -66,13 +66,9 @@ final class VisaOnboardingApproveWalletSelectorViewModel: ObservableObject {
                     await viewModel.delegate?.proceedFromCurrentRemoteState()
                 }
             } catch {
-                VisaLogger.error(self, "Failed to load current remote state on Approve Wallet Selector", error: error)
+                VisaLogger.error("Failed to load current remote state on Approve Wallet Selector", error: error)
                 await viewModel.delegate?.showContactSupportAlert(for: error)
             }
         }
     }
-}
-
-extension VisaOnboardingApproveWalletSelectorViewModel: CustomStringConvertible {
-    var description: String { objectDescription(self) }
 }
