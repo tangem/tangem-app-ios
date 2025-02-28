@@ -14,6 +14,7 @@ import WalletCore
 
 final class AptosTests: XCTestCase {
     private let coinType: CoinType = .aptos
+    private let sizeTester = TransactionSizeTesterUtility()
 
     /*
      - Use private key for aptos coin at tests in wallet-code aptos
@@ -87,15 +88,17 @@ final class AptosTests: XCTestCase {
 
         let buildForSign = try transactionBuilder.buildForSign(transaction: transaction, expirationTimestamp: 3664390082)
 
+        // Validate hash size
+        XCTAssertFalse(sizeTester.isValidForiPhone7(buildForSign))
+        XCTAssertTrue(sizeTester.isValidForCosBelow4_52(buildForSign))
+        XCTAssertTrue(sizeTester.isValidForCos4_52AndAbove(buildForSign))
+
         let expectedBuildForSign = "b5e97db07fa0bd0e5598aa3643a9bc6f6693bddc1a9fec9e674a461eaa00b19307968dab936c1bad187c60ce4082f307d030d780e91e694ae03aef16aba73f3063000000000000000200000000000000000000000000000000000000000000000000000000000000010d6170746f735f6163636f756e74087472616e7366657200022007968dab936c1bad187c60ce4082f307d030d780e91e694ae03aef16aba73f3008e803000000000000fe4d3200000000006400000000000000c2276ada0000000021"
 
         XCTAssertEqual(buildForSign.hexString.lowercased(), expectedBuildForSign)
 
         let signature = privateKey.sign(digest: buildForSign, curve: .ed25519)
         XCTAssertNotNil(signature)
-
-        // Validate hash size
-        TransactionSizeTesterUtility().testTxSizes([signature ?? Data()])
 
         XCTAssertEqual(buildForSign.hexString.lowercased(), expectedBuildForSign)
 
