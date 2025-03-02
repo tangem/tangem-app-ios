@@ -91,7 +91,7 @@ final class CommonSupportSeedNotificationManager: SupportSeedNotificationManager
     private func showSupportSeedNotification() {
         let buttonActionYes: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
             guard let self else { return }
-            
+
             AppSettings.shared.supportSeedNotificationShownDate = Date()
 
             Analytics.log(.mainNoticeSeedSupportButtonYes)
@@ -107,7 +107,7 @@ final class CommonSupportSeedNotificationManager: SupportSeedNotificationManager
 
         let buttonActionNo: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
             guard let self else { return }
-            
+
             AppSettings.shared.supportSeedNotificationShownDate = Date()
 
             Analytics.log(.mainNoticeSeedSupportButtonNo)
