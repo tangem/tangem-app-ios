@@ -33,10 +33,7 @@ final class NFTDataProvider {
         switch event {
         case .deleted(let userWalletIds):
             for userWalletId in userWalletIds {
-                guard let userWallet = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) else {
-                    return
-                }
-                nftAvailabilityProvider.setNFTEnabled(false, for: userWallet)
+                nftAvailabilityProvider.setNFTEnabled(false, forUserWalletWithId: userWalletId)
             }
         default:
             break
