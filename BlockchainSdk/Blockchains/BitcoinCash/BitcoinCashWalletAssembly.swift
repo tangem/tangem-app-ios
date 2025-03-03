@@ -21,7 +21,12 @@ struct BitcoinCashWalletAssembly: WalletManagerAssembly {
             bip: .bip44
         )
 
-        let txBuilder = BitcoinTransactionBuilder(bitcoinManager: bitcoinManager, addresses: input.wallet.addresses)
+        let unspentOutputManager = CommonUnspentOutputManager()
+        let txBuilder = BitcoinTransactionBuilder(
+            bitcoinManager: bitcoinManager,
+            unspentOutputManager: unspentOutputManager,
+            addresses: input.wallet.addresses
+        )
 
         // [REDACTED_TODO_COMMENT]
         // Maybe https://developers.cryptoapis.io/technical-documentation/general-information/what-we-support
@@ -64,6 +69,6 @@ struct BitcoinCashWalletAssembly: WalletManagerAssembly {
         }
 
         let networkService = BitcoinCashNetworkService(providers: providers)
-        return BitcoinWalletManager(wallet: input.wallet, txBuilder: txBuilder, networkService: networkService)
+        return BitcoinWalletManager(wallet: input.wallet, txBuilder: txBuilder, unspentOutputManager: unspentOutputManager, networkService: networkService)
     }
 }
