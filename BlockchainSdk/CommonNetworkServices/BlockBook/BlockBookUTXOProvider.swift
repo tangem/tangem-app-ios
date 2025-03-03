@@ -37,11 +37,6 @@ class BlockBookUTXOProvider {
         provider = NetworkProvider<BlockBookTarget>(configuration: networkConfiguration)
     }
 
-    /// https://docs.syscoin.org/docs/dev-resources/documentation/javascript-sdk-ref/blockbook/#get-utxo
-    func unspentTxData(address: String) -> AnyPublisher<[BlockBookUnspentTxResponse], Error> {
-        executeRequest(.utxo(address: address), responseType: [BlockBookUnspentTxResponse].self)
-    }
-
     func addressData(
         address: String,
         parameters: BlockBookTarget.AddressRequestParameters
@@ -57,16 +52,6 @@ class BlockBookUTXOProvider {
         BlockBookUTXOProvider.rpcRequestId += 1
         let request = JSONRPC.Request(id: BlockBookUTXOProvider.rpcRequestId, method: method, params: params)
         return executeRequest(.rpc(request), responseType: JSONRPC.Response<Response, JSONRPC.APIError>.self)
-    }
-
-    func sendTransaction(hex: String) -> AnyPublisher<String, Error> {
-        guard let transactionData = hex.data(using: .utf8) else {
-            return .anyFail(error: WalletError.failedToSendTx)
-        }
-
-        return executeRequest(.sendBlockBook(tx: transactionData), responseType: SendResponse.self)
-            .map { $0.result }
-            .eraseToAnyPublisher()
     }
 
     func convertFeeRate(_ fee: Decimal) throws -> Decimal {
@@ -103,20 +88,20 @@ extension BlockBookUTXOProvider: UTXONetworkProvider {
     func getFee() -> AnyPublisher<UTXOFee, any Error> {
         // Number of blocks we want the transaction to be confirmed in.
         // The lower the number the bigger the fee returned by 'estimatesmartfee'.
-        let confirmationBlocks = [8, 4, 1]
-
-        return Publishers
-            .MergeMany(confirmationBlocks.map { getFeeRatePerByte(for: $0) })
-            .collect()
-            .map { $0.sorted() }
-            .map { fees -> UTXOFee in
-                UTXOFee(
-                    slowSatoshiPerByte: fees[0],
-                    marketSatoshiPerByte: fees[1],
-                    prioritySatoshiPerByte: fees[2]
-                )
-            }
-            .eraseToAnyPublisher()
+        return Publishers.Zip3(
+            getFeeRatePerByte(for: 8),
+            getFeeRatePerByte(for: 4),
+            getFeeRatePerByte(for: 1)
+        )
+        .map { first, second, third -> UTXOFee in
+            let fees = [first, second, third].sorted()
+            return UTXOFee(
+                slowSatoshiPerByte: fees[0],
+                marketSatoshiPerByte: fees[1],
+                prioritySatoshiPerByte: fees[2]
+            )
+        }
+        .eraseToAnyPublisher()
     }
 
     func send(transaction: String) -> AnyPublisher<TransactionSendResult, any Error> {

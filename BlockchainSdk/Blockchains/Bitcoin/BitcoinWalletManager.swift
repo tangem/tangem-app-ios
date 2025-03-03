@@ -63,6 +63,7 @@ class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
         responses.forEach { response in
             unspentOutputManager.update(outputs: response.response.outputs, for: response.address)
         }
+        txBuilder.fillBitcoinManager()
 
         let balance = Decimal(unspentOutputManager.confirmedBalance()) / wallet.blockchain.decimalValue
         wallet.add(coinValue: balance)
