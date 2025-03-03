@@ -145,6 +145,8 @@ extension NoteConfig: UserWalletConfig {
             return .hidden
         case .promotion:
             return .hidden
+        case .nft:
+            return .hidden
         }
     }
 
