@@ -1927,6 +1927,7 @@
 		B687E9492A2D881C00BFF604 /* View+ReadContentOffset.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687E9482A2D881C00BFF604 /* View+ReadContentOffset.swift */; };
 		B68B356B2A4B0FAB0069129F /* UIAppearanceBoundaryContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68B356A2A4B0FAB0069129F /* UIAppearanceBoundaryContainerView.swift */; };
 		B68B442C2B6C7C9C00CF95AB /* OptionalProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68B442B2B6C7C9C00CF95AB /* OptionalProtocol.swift */; };
+		B68BE0B92D761D0000779F84 /* NFTDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68BE0B82D761D0000779F84 /* NFTDataProvider.swift */; };
 		B68E1F6D2CBC44060043E598 /* BlockchainSdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B68E1F652CBC44050043E598 /* BlockchainSdk.framework */; };
 		B68E1F752CBC44060043E598 /* BlockchainSdk.h in Headers */ = {isa = PBXBuildFile; fileRef = B68E1F672CBC44060043E598 /* BlockchainSdk.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B68E1F782CBC44060043E598 /* BlockchainSdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B68E1F652CBC44050043E598 /* BlockchainSdk.framework */; };
@@ -5301,6 +5302,7 @@
 		B687E9482A2D881C00BFF604 /* View+ReadContentOffset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+ReadContentOffset.swift"; sourceTree = "<group>"; };
 		B68B356A2A4B0FAB0069129F /* UIAppearanceBoundaryContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIAppearanceBoundaryContainerView.swift; sourceTree = "<group>"; };
 		B68B442B2B6C7C9C00CF95AB /* OptionalProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalProtocol.swift; sourceTree = "<group>"; };
+		B68BE0B82D761D0000779F84 /* NFTDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTDataProvider.swift; sourceTree = "<group>"; };
 		B68E1F652CBC44050043E598 /* BlockchainSdk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = BlockchainSdk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B68E1F672CBC44060043E598 /* BlockchainSdk.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BlockchainSdk.h; sourceTree = "<group>"; };
 		B68E1F6C2CBC44060043E598 /* BlockchainSdkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BlockchainSdkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -10016,6 +10018,7 @@
 			isa = PBXGroup;
 			children = (
 				B68BE0B72D761CD900779F84 /* Availability */,
+				B68BE0B62D761CC700779F84 /* DataSource */,
 			);
 			path = NFT;
 			sourceTree = "<group>";
@@ -12680,6 +12683,14 @@
 				B67DC1E52B7C45DD008ACB0E /* UserDefaultsBlockchainDataStorage.swift */,
 			);
 			path = BlockchainDataStorage;
+			sourceTree = "<group>";
+		};
+		B68BE0B62D761CC700779F84 /* DataSource */ = {
+			isa = PBXGroup;
+			children = (
+				B68BE0B82D761D0000779F84 /* NFTDataProvider.swift */,
+			);
+			path = DataSource;
 			sourceTree = "<group>";
 		};
 		B68BE0B72D761CD900779F84 /* Availability */ = {
@@ -18256,6 +18267,7 @@
 				2D6167222C763505006FCEA6 /* MarketsTokenNetworkSelectorCoordinatorView.swift in Sources */,
 				EFD143852CC5517E00B5BA57 /* CommonSendBaseDataBuilder.swift in Sources */,
 				B6AA13662A2A372500B53937 /* CardsInfoPagerPreviewProvider.swift in Sources */,
+				B68BE0B92D761D0000779F84 /* NFTDataProvider.swift in Sources */,
 				EFC84B2A2C37FBB300546882 /* SendDestinationStep.swift in Sources */,
 				B62C65D12C38D06B00189AD4 /* PushNotificationsAvailabilityProvider.swift in Sources */,
 				EFE5EC532AEC1BB100C5ADC3 /* UndoToastView.swift in Sources */,
