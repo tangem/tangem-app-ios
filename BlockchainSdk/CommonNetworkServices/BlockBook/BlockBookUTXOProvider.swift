@@ -59,36 +59,6 @@ class BlockBookUTXOProvider {
         return executeRequest(.rpc(request), responseType: JSONRPC.Response<Response, JSONRPC.APIError>.self)
     }
 
-    func getFeeRatePerByte(for confirmationBlocks: Int) -> AnyPublisher<Decimal, Error> {
-        switch blockchain {
-        case .clore:
-            executeRequest(
-                .getFees(confirmationBlocks: confirmationBlocks),
-                responseType: BlockBookFeeResultResponse.self
-            )
-            .withWeakCaptureOf(self)
-            .tryMap { provider, response in
-                guard let decimalFeeResult = Decimal(stringValue: response.result) else {
-                    throw WalletError.failedToGetFee
-                }
-
-                return try provider.convertFeeRate(decimalFeeResult)
-            }
-            .eraseToAnyPublisher()
-        default:
-            rpcCall(
-                method: "estimatesmartfee",
-                params: AnyEncodable([confirmationBlocks]),
-                responseType: BlockBookFeeRateResponse.Result.self
-            )
-            .withWeakCaptureOf(self)
-            .tryMap { provider, response -> Decimal in
-                try provider.convertFeeRate(response.result.get().feerate)
-            }
-            .eraseToAnyPublisher()
-        }
-    }
-
     func sendTransaction(hex: String) -> AnyPublisher<String, Error> {
         guard let transactionData = hex.data(using: .utf8) else {
             return .anyFail(error: WalletError.failedToSendTx)
@@ -135,14 +105,18 @@ extension BlockBookUTXOProvider: UTXONetworkProvider {
         // The lower the number the bigger the fee returned by 'estimatesmartfee'.
         let confirmationBlocks = [8, 4, 1]
 
-        return mapBitcoinFee(confirmationBlocks.map { getFeeRatePerByte(for: $0) }).map {
-            UTXOFee(
-                slowSatoshiPerByte: $0.minimalSatoshiPerByte,
-                marketSatoshiPerByte: $0.normalSatoshiPerByte,
-                prioritySatoshiPerByte: $0.prioritySatoshiPerByte
-            )
-        }
-        .eraseToAnyPublisher()
+        return Publishers
+            .MergeMany(confirmationBlocks.map { getFeeRatePerByte(for: $0) })
+            .collect()
+            .map { $0.sorted() }
+            .map { fees -> UTXOFee in
+                UTXOFee(
+                    slowSatoshiPerByte: fees[0],
+                    marketSatoshiPerByte: fees[1],
+                    prioritySatoshiPerByte: fees[2]
+                )
+            }
+            .eraseToAnyPublisher()
     }
 
     func send(transaction: String) -> AnyPublisher<TransactionSendResult, any Error> {
@@ -172,22 +146,34 @@ extension BlockBookUTXOProvider {
         BlockBookTarget(request: request, config: config, blockchain: blockchain)
     }
 
-    func mapBitcoinFee(_ feeRatePublishers: [AnyPublisher<Decimal, Error>]) -> AnyPublisher<BitcoinFee, Error> {
-        Publishers.MergeMany(feeRatePublishers)
-            .collect()
-            .map { $0.sorted() }
-            .tryMap { fees -> BitcoinFee in
-                guard fees.count == feeRatePublishers.count else {
-                    throw BlockchainSdkError.failedToLoadFee
+    func getFeeRatePerByte(for confirmationBlocks: Int) -> AnyPublisher<Decimal, Error> {
+        switch blockchain {
+        case .clore:
+            executeRequest(
+                .getFees(confirmationBlocks: confirmationBlocks),
+                responseType: BlockBookFeeResultResponse.self
+            )
+            .withWeakCaptureOf(self)
+            .tryMap { provider, response in
+                guard let decimalFeeResult = Decimal(stringValue: response.result) else {
+                    throw WalletError.failedToGetFee
                 }
 
-                return BitcoinFee(
-                    minimalSatoshiPerByte: fees[0],
-                    normalSatoshiPerByte: fees[1],
-                    prioritySatoshiPerByte: fees[2]
-                )
+                return try provider.convertFeeRate(decimalFeeResult)
             }
             .eraseToAnyPublisher()
+        default:
+            rpcCall(
+                method: "estimatesmartfee",
+                params: AnyEncodable([confirmationBlocks]),
+                responseType: BlockBookFeeRateResponse.Result.self
+            )
+            .withWeakCaptureOf(self)
+            .tryMap { provider, response -> Decimal in
+                try provider.convertFeeRate(response.result.get().feerate)
+            }
+            .eraseToAnyPublisher()
+        }
     }
 }
 
@@ -197,7 +183,7 @@ private extension BlockBookUTXOProvider {
     func mapToUnspentOutput(outputs: [BlockBookUnspentTxResponse]) -> [UnspentOutput] {
         outputs.compactMap { output in
             Decimal(stringValue: output.value).map { value in
-                .init(blockId: output.height ?? 0, hash: output.txid, index: output.vout, amount: value.uint64Value)
+                .init(blockId: output.height ?? 0, hash: Data(hex: output.txid), index: output.vout, amount: value.uint64Value)
             }
         }
     }
