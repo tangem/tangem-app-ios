@@ -236,6 +236,7 @@
 "details_manage_security_long_tap_shorter" = "Tenez la carte fermement";
 "details_manage_security_passcode" = "Mot de passe";
 "details_manage_security_passcode_description" = "Avant d'exécuter une commande qui modifie l'état de la carte, vous devrez entrer un mot de passe.";
+"details_nft_title" = "NFT";
 "details_referral_title" = "Programme de parrainage";
 "details_row_description_flip_to_hide" = "Retournez l'écran de votre appareil vers le bas pour masquer et afficher rapidement les soldes";
 "details_row_subtitle_signed_hashes_format" = "%@ hashes";
