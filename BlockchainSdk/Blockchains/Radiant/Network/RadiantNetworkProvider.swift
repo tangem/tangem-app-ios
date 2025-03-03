@@ -75,7 +75,7 @@ extension RadiantNetworkProvider: UTXONetworkProvider {
 private extension RadiantNetworkProvider {
     func mapToUnspentOutputs(outputs: [ElectrumDTO.Response.ListUnspent]) -> [UnspentOutput] {
         outputs.map {
-            UnspentOutput(blockId: $0.height.intValue(), hash: $0.txHash, index: $0.txPos, amount: $0.value.uint64Value)
+            UnspentOutput(blockId: $0.height.intValue(), hash: Data(hexString: $0.txHash), index: $0.txPos, amount: $0.value.uint64Value)
         }
     }
 
