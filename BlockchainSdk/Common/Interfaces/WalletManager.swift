@@ -19,6 +19,11 @@ public protocol WalletManager: WalletProvider, BlockchainDataProvider, Transacti
     func removeToken(_ token: Token)
     func addToken(_ token: Token)
     func addTokens(_ tokens: [Token])
+    var isAccountInitialized: Bool { get }
+}
+
+public extension WalletManager {
+    var isAccountInitialized: Bool { true }
 }
 
 @available(iOS 13.0, *)
