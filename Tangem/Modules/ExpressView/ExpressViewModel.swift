@@ -515,8 +515,8 @@ private extension ExpressViewModel {
 
     func updateFeeValue(state: ExpressInteractor.State) {
         switch state {
-        case .restriction(.notEnoughAmountForTxValue(let estimatedFee), _):
-            // Signle estimated fee just for UI
+        case .restriction(.notEnoughAmountForTxValue, _):
+            // Single estimated fee just for UI
             updateExpressFeeRowViewModel(fees: .loading)
         case .restriction(.notEnoughAmountForFee(let state), _):
             updateExpressFeeRowViewModel(fees: .success(state.fees))
