@@ -14,6 +14,7 @@ import TangemFoundation
 
 class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
     let txBuilder: BitcoinTransactionBuilder
+    let unspentOutputManager: UnspentOutputManager
     let networkService: BitcoinNetworkProvider
 
     /*
@@ -31,8 +32,9 @@ class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
 
     var currentHost: String { networkService.host }
 
-    init(wallet: Wallet, txBuilder: BitcoinTransactionBuilder, networkService: BitcoinNetworkProvider) {
+    init(wallet: Wallet, txBuilder: BitcoinTransactionBuilder, unspentOutputManager: UnspentOutputManager, networkService: BitcoinNetworkProvider) {
         self.txBuilder = txBuilder
+        self.unspentOutputManager = unspentOutputManager
         self.networkService = networkService
 
         super.init(wallet: wallet)
