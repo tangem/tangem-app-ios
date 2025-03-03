@@ -47,31 +47,17 @@ final class CommonSupportSeedNotificationManager: SupportSeedNotificationManager
     func showSupportSeedNotificationIfNeeded() {
         TangemFoundation.runTask(in: self) { manager in
             do {
-                let shownDate = await AppSettings.shared.supportSeedNotificationShownDate
-                let status: SeedNotifyStatus
+                let firstSeedVersionStatus = try await manager.tangemApiService.getSeedNotifyStatus(
+                    userWalletId: manager.userWalletId.stringValue
+                ).status
 
-                if shownDate == nil {
-                    status = try await manager.tangemApiService.getSeedNotifyStatus(
-                        userWalletId: manager.userWalletId.stringValue
-                    ).status
-                } else {
-                    status = try await manager.tangemApiService.getSeedNotifyStatusConfirmed(
-                        userWalletId: manager.userWalletId.stringValue
-                    ).status
-                }
-
-                TangemFoundation.runTask(in: self) { @MainActor manager in
-                    switch status {
-                    case .confirmed:
-                        if let shownDate,
-                           Date().timeIntervalSince(shownDate) > Constants.durationDisplayNotification {
-                            manager.showConfirmedSupportSeedNotification()
-                        }
-                    case .declined, .notNeeded, .accepted, .rejected:
-                        break
-                    case .notified:
-                        manager.showSupportSeedNotification()
-                    }
+                switch firstSeedVersionStatus {
+                case .confirmed:
+                    try await manager.showSecondSupportSeedNotificationIfNeeded()
+                case .declined, .notNeeded, .accepted, .rejected:
+                    break
+                case .notified:
+                    manager.showSupportSeedNotification()
                 }
             } catch {
                 if case .statusCode(let response) = error as? MoyaError,
@@ -88,10 +74,29 @@ final class CommonSupportSeedNotificationManager: SupportSeedNotificationManager
 
     // MARK: - Private Implementation
 
+    private func showSecondSupportSeedNotificationIfNeeded() async throws {
+        let shownDate = await AppSettings.shared.supportSeedNotificationShownDate
+
+        // If user previosly interact with first support seed notification and the time has not come yet for display
+        if let shownDate, Date().timeIntervalSince(shownDate) < Constants.durationDisplayNotification {
+            return
+        }
+
+        let secondSeedVersionStatus = try await tangemApiService.getSeedNotifyStatusConfirmed(
+            userWalletId: userWalletId.stringValue
+        ).status
+
+        guard secondSeedVersionStatus == .confirmed else {
+            return
+        }
+
+        showConfirmedSupportSeedNotification()
+    }
+
     private func showSupportSeedNotification() {
         let buttonActionYes: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
             guard let self else { return }
-            
+
             AppSettings.shared.supportSeedNotificationShownDate = Date()
 
             Analytics.log(.mainNoticeSeedSupportButtonYes)
@@ -107,7 +112,7 @@ final class CommonSupportSeedNotificationManager: SupportSeedNotificationManager
 
         let buttonActionNo: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
             guard let self else { return }
-            
+
             AppSettings.shared.supportSeedNotificationShownDate = Date()
 
             Analytics.log(.mainNoticeSeedSupportButtonNo)
