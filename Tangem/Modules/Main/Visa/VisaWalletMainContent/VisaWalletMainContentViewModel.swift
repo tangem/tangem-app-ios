@@ -231,10 +231,8 @@ class VisaWalletMainContentViewModel: ObservableObject {
 
 private extension VisaWalletMainContentViewModel {
     private func setupButtons() {
-        var tokenActionInfo: TokenActionInfo?
-        do {
-            tokenActionInfo = try makeTokenActionInfo()
-        } catch {}
+        let tokenActionInfo = try? makeTokenActionInfo()
+
         buttons = buttonActionTypes.map { action in
             let isActionButtonDisabled = isButtonDisabled(for: action, tokenActionInfo: tokenActionInfo)
 
