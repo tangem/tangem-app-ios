@@ -65,6 +65,7 @@ extension StakingFeatureProvider {
             StakingItem(network: .tron, contractAddress: nil),
             StakingItem(network: .ethereum, contractAddress: StakingConstants.polygonContractAddress),
             StakingItem(network: .binance, contractAddress: nil),
+            StakingItem(network: .ton, contractAddress: nil),
         ]
     }
 
