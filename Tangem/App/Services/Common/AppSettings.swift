@@ -87,6 +87,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.supportSeedNotificationShownDate)
     var supportSeedNotificationShownDate: Date? = nil
 
+    @AppStorageCompat(StorageType.userWalletIdsWithNFTEnabled)
+    var userWalletIdsWithNFTEnabled: [String] = []
+
     static let shared: AppSettings = .init()
 
     private init() {}
