@@ -15,7 +15,7 @@ import TangemFoundation
 class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
     let txBuilder: BitcoinTransactionBuilder
     let unspentOutputManager: UnspentOutputManager
-    let networkService: BitcoinNetworkProvider
+    let networkService: UTXONetworkProvider
 
     /*
      The current default minimum relay fee is 1 sat/vbyte.
@@ -28,11 +28,9 @@ class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
         Amount(with: wallet.blockchain, value: minimalFee)
     }
 
-    var loadedUnspents: [BitcoinUnspentOutput] = []
-
     var currentHost: String { networkService.host }
 
-    init(wallet: Wallet, txBuilder: BitcoinTransactionBuilder, unspentOutputManager: UnspentOutputManager, networkService: BitcoinNetworkProvider) {
+    init(wallet: Wallet, txBuilder: BitcoinTransactionBuilder, unspentOutputManager: UnspentOutputManager, networkService: UTXONetworkProvider) {
         self.txBuilder = txBuilder
         self.unspentOutputManager = unspentOutputManager
         self.networkService = networkService
@@ -41,9 +39,15 @@ class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
     }
 
     override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        cancellable = networkService.getInfo(addresses: wallet.addresses.map { $0.value })
-            .eraseToAnyPublisher()
-            .subscribe(on: DispatchQueue.global())
+        let publishers = wallet.addresses
+            .compactMap { $0 as? LockingScriptAddress }
+            .map { address in
+                networkService.getInfo(address: address.value)
+                .map { UpdatingResponse(address: address, response: $0) }
+            }
+
+        cancellable = Publishers.MergeMany(publishers).collect()
+            .receive(on: DispatchQueue.global())
             .sink(receiveCompletion: { [weak self] completionSubscription in
                 if case .failure(let error) = completionSubscription {
                     self?.wallet.clearAmounts()
@@ -55,85 +59,43 @@ class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
             })
     }
 
-    func updateWallet(with response: [BitcoinResponse]) {
-        let balance = response.reduce(into: 0) { $0 += $1.balance }
-        let hasUnconfirmed = response.contains(where: { $0.hasUnconfirmed })
-        let unspents = response.flatMap { $0.unspentOutputs }
-
-        wallet.add(coinValue: balance)
-        loadedUnspents = unspents
-        txBuilder.unspentOutputs = unspents
-
-        wallet.clearPendingTransaction()
-        if hasUnconfirmed {
-            response
-                .flatMap { $0.pendingTxRefs }
-                .forEach {
-                    let mapper = PendingTransactionRecordMapper()
-                    let transaction = mapper.mapToPendingTransactionRecord($0, blockchain: wallet.blockchain)
-                    wallet.addPendingTransaction(transaction)
-                }
+    func updateWallet(with responses: [UpdatingResponse]) {
+        responses.forEach { response in
+            unspentOutputManager.update(outputs: response.response.outputs, for: response.address)
         }
+
+        let balance = Decimal(unspentOutputManager.confirmedBalance()) / wallet.blockchain.decimalValue
+        wallet.add(coinValue: balance)
+
+        let mapper = PendingTransactionRecordMapper()
+        let pending = responses.flatMap { response in
+            response.response.pending.map {
+                mapper.mapToPendingTransactionRecord(record: $0, blockchain: wallet.blockchain, address: response.address.value)
+            }
+        }
+
+        wallet.updatePendingTransaction(pending)
     }
 
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
-        return networkService.getFee()
-            .tryMap { [weak self] response throws -> [Fee] in
-                guard let self = self else { throw WalletError.empty }
-
-                return self.processFee(response, amount: amount, destination: destination)
-            }
+        networkService.getFee()
+            .withWeakCaptureOf(self)
+            .map { $0.processFee($1, amount: amount, destination: destination) }
             .eraseToAnyPublisher()
     }
 
-    private func send(_ transaction: Transaction, signer: TransactionSigner, sequence: Int) -> AnyPublisher<TransactionSendResult, SendTxError> {
-        guard let hashes = txBuilder.buildForSign(transaction: transaction, sequence: sequence) else {
-            return .sendTxFail(error: SendTxError(error: WalletError.failedToBuildTx))
-        }
-
-        return signer.sign(
-            hashes: hashes,
-            walletPublicKey: wallet.publicKey
-        )
-        .tryMap { [weak self] signatures -> (String) in
-            guard let self = self else { throw WalletError.empty }
-
-            guard let tx = txBuilder.buildForSend(transaction: transaction, signatures: signatures, sequence: sequence) else {
-                throw WalletError.failedToBuildTx
-            }
-
-            return tx.hexString.lowercased()
-        }
-        .flatMap { [weak self] tx -> AnyPublisher<TransactionSendResult, Error> in
-            guard let self else { return .emptyFail }
-
-            return networkService.send(transaction: tx).tryMap { [weak self] hash in
-                guard let self = self else { throw WalletError.empty }
-
-                let mapper = PendingTransactionRecordMapper()
-                let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
-                wallet.addPendingTransaction(record)
-                return TransactionSendResult(hash: hash)
-            }
-            .mapSendError(tx: tx)
-            .eraseToAnyPublisher()
-        }
-        .eraseSendError()
-        .eraseToAnyPublisher()
-    }
-
-    func processFee(_ response: BitcoinFee, amount: Amount, destination: String) -> [Fee] {
+    func processFee(_ response: UTXOFee, amount: Amount, destination: String) -> [Fee] {
         // Don't remove `.rounded` from here, intValue can sometimes go crazy
         // e.g. with the Decimal of (662701 / 3), producing 0 integer
-        var minRate = (max(response.minimalSatoshiPerByte, minimalFeePerByte).rounded(roundingMode: .up) as NSDecimalNumber).intValue
-        var normalRate = (max(response.normalSatoshiPerByte, minimalFeePerByte).rounded(roundingMode: .up) as NSDecimalNumber).intValue
-        var maxRate = (max(response.prioritySatoshiPerByte, minimalFeePerByte).rounded(roundingMode: .up) as NSDecimalNumber).intValue
+        var minRate = max(response.slowSatoshiPerByte, minimalFeePerByte).intValue(roundingMode: .up)
+        var normalRate = max(response.marketSatoshiPerByte, minimalFeePerByte).intValue(roundingMode: .up)
+        var maxRate = max(response.prioritySatoshiPerByte, minimalFeePerByte).intValue(roundingMode: .up)
 
         var minFee = txBuilder.bitcoinManager.fee(for: amount.value, address: destination, feeRate: minRate, senderPay: false, changeScript: nil, sequence: .max)
         var normalFee = txBuilder.bitcoinManager.fee(for: amount.value, address: destination, feeRate: normalRate, senderPay: false, changeScript: nil, sequence: .max)
         var maxFee = txBuilder.bitcoinManager.fee(for: amount.value, address: destination, feeRate: maxRate, senderPay: false, changeScript: nil, sequence: .max)
 
-        let minimalFeeRate = (((minimalFee * Decimal(minRate)) / minFee).rounded(scale: 0, roundingMode: .up) as NSDecimalNumber).intValue
+        let minimalFeeRate = ((minimalFee * Decimal(minRate)) / minFee).intValue(roundingMode: .up)
         let minimalFee = txBuilder.bitcoinManager.fee(for: amount.value, address: destination, feeRate: minimalFeeRate, senderPay: false, changeScript: nil, sequence: .max)
         if minFee < minimalFee {
             minRate = minimalFeeRate
@@ -158,7 +120,8 @@ class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
     }
 }
 
-@available(iOS 13.0, *)
+// MARK: - BitcoinTransactionFeeCalculator
+
 extension BitcoinWalletManager: BitcoinTransactionFeeCalculator {
     func calculateFee(satoshiPerByte: Int, amount: Amount, destination: String) -> Fee {
         let fee = txBuilder.bitcoinManager.fee(
@@ -173,10 +136,47 @@ extension BitcoinWalletManager: BitcoinTransactionFeeCalculator {
     }
 }
 
-@available(iOS 13.0, *)
+// MARK: - TransactionSender
+
 extension BitcoinWalletManager: TransactionSender {
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
-        txBuilder.unspentOutputs = loadedUnspents
-        return send(transaction, signer: signer, sequence: SequenceValues.default.rawValue)
+        let sequence: Int = SequenceValues.default.rawValue
+
+        guard let hashes = txBuilder.buildForSign(transaction: transaction, sequence: sequence) else {
+            return .sendTxFail(error: SendTxError(error: WalletError.failedToBuildTx))
+        }
+
+        return signer
+            .sign(hashes: hashes, walletPublicKey: wallet.publicKey)
+            .withWeakCaptureOf(self)
+            .tryMap { manager, signatures -> String in
+                guard let tx = manager.txBuilder.buildForSend(transaction: transaction, signatures: signatures, sequence: sequence) else {
+                    throw WalletError.failedToBuildTx
+                }
+
+                return tx.hexString.lowercased()
+            }
+            .withWeakCaptureOf(self)
+            .flatMap { manager, transaction in
+                manager.networkService
+                    .send(transaction: transaction)
+                    .mapSendError(tx: transaction)
+            }
+            .withWeakCaptureOf(self)
+            .map { manager, result in
+                let mapper = PendingTransactionRecordMapper()
+                let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: result.hash)
+                manager.wallet.addPendingTransaction(record)
+                return result
+            }
+            .eraseSendError()
+            .eraseToAnyPublisher()
+    }
+}
+
+extension BitcoinWalletManager {
+    struct UpdatingResponse {
+        let address: LockingScriptAddress
+        let response: UTXOResponse
     }
 }
