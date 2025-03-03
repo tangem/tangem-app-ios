@@ -12,7 +12,7 @@ import BitcoinCore
 
 class BitcoinTransactionBuilder {
     let bitcoinManager: BitcoinManager
-    let unspentOutputManager: UnspentOutputManager
+    private let unspentOutputManager: UnspentOutputManager
 
     private(set) var changeScript: Data?
     private let walletScripts: [BitcoinScript]
