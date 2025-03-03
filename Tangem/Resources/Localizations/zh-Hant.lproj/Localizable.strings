@@ -3,7 +3,7 @@
 "action_buttons_sell_empty_search_message" = "Can’t find your token? Go to the Market section on the main page and add it to your portfolio for selling.";
 "action_buttons_sell_navigation_bar_title" = "Sell";
 "action_buttons_something_wrong_alert_message" = "The action is currently unavailable. Please try again later or refresh the data by swiping down on the screen.";
-"action_buttons_something_wrong_alert_title" = "Button is unavailable";
+"action_buttons_something_wrong_alert_title" = "Action is unavailable";
 "action_buttons_swap_choose_token" = "Choose the Token";
 "action_buttons_swap_empty_search_message" = "Can’t find your token? Go to the Market section on the main page and add it to your portfolio for swapping.";
 "action_buttons_swap_navigation_bar_title" = "Swap";
@@ -236,6 +236,7 @@
 "details_manage_security_long_tap_shorter" = "長按";
 "details_manage_security_passcode" = "密碼";
 "details_manage_security_passcode_description" = "在執行任何需要更改卡狀態的命令之前，您必須輸入密碼";
+"details_nft_title" = "NFT";
 "details_referral_title" = "推薦計畫";
 "details_row_description_flip_to_hide" = "Flip your device screen down to quickly hide and show balances";
 "details_row_subtitle_signed_hashes_format" = "%@ hashes";
