@@ -21,7 +21,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
     @Published var backupViewModel: DefaultRowViewModel?
 
     var commonSectionModels: [DefaultRowViewModel] {
-        [manageTokensViewModel, cardSettingsViewModel, refferalViewModel].compactMap { $0 }
+        [manageTokensViewModel, cardSettingsViewModel, referralViewModel].compactMap { $0 }
     }
 
     @Published var forgetViewModel: DefaultRowViewModel?
@@ -33,7 +33,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
     @Published private var manageTokensViewModel: DefaultRowViewModel?
     @Published private var cardSettingsViewModel: DefaultRowViewModel?
-    @Published private var refferalViewModel: DefaultRowViewModel?
+    @Published private var referralViewModel: DefaultRowViewModel?
 
     // MARK: - Dependencies
 
@@ -104,13 +104,13 @@ private extension UserWalletSettingsViewModel {
         )
 
         if !userWalletModel.config.getFeatureAvailability(.referralProgram).isHidden {
-            refferalViewModel =
+            referralViewModel =
                 DefaultRowViewModel(
                     title: Localization.detailsReferralTitle,
                     action: weakify(self, forFunction: UserWalletSettingsViewModel.openReferral)
                 )
         } else {
-            refferalViewModel = nil
+            referralViewModel = nil
         }
 
         forgetViewModel = DefaultRowViewModel(
