@@ -17,3 +17,9 @@ protocol UnspentOutputManager {
     func confirmedBalance() -> UInt64
     func unconfirmedBalance() -> UInt64
 }
+
+extension UnspentOutputManager {
+    func update(outputs: [UnspentOutput], for address: LockingScriptAddress) {
+        update(outputs: outputs, for: address.scriptPubKey)
+    }
+}
