@@ -13,4 +13,7 @@ protocol UnspentOutputManager {
     func outputs(for amount: UInt64, script: Data) throws -> [UnspentOutput]
 
     func allOutputs() -> [ScriptUnspentOutput]
+
+    func confirmedBalance() -> UInt64
+    func unconfirmedBalance() -> UInt64
 }
