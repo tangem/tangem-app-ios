@@ -398,6 +398,8 @@ extension Wallet2Config: UserWalletConfig {
             return .available
         case .promotion:
             return .available
+        case .nft:
+            return .available
         }
     }
 
