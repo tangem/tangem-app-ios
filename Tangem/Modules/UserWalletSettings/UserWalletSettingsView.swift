@@ -23,6 +23,8 @@ struct UserWalletSettingsView: View {
 
             commonSection
 
+            nftSection
+
             forgetSection
         }
         .interContentPadding(8)
@@ -48,6 +50,12 @@ struct UserWalletSettingsView: View {
     private var backupSection: some View {
         GroupedSection(viewModel.backupViewModel) {
             DefaultRowView(viewModel: $0)
+        }
+    }
+
+    private var nftSection: some View {
+        GroupedSection(viewModel.nftViewModel) {
+            DefaultToggleRowView(viewModel: $0)
         }
     }
 
