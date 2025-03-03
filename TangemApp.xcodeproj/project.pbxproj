@@ -1406,12 +1406,6 @@
 		B62D41752CBC79DA00C2460E /* RadiantTransactionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3DDB2CBC79D900C2460E /* RadiantTransactionUtils.swift */; };
 		B62D41762CBC79DA00C2460E /* RadiantWalletAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3DDC2CBC79D900C2460E /* RadiantWalletAssembly.swift */; };
 		B62D41772CBC79DA00C2460E /* RadiantWalletManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3DDD2CBC79D900C2460E /* RadiantWalletManager.swift */; };
-		B62D41782CBC79DA00C2460E /* RavencoinFee.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3DDF2CBC79D900C2460E /* RavencoinFee.swift */; };
-		B62D41792CBC79DA00C2460E /* RavencoinRawTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3DE02CBC79D900C2460E /* RavencoinRawTransaction.swift */; };
-		B62D417A2CBC79DA00C2460E /* RavencoinTransactionHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3DE12CBC79D900C2460E /* RavencoinTransactionHistory.swift */; };
-		B62D417B2CBC79DA00C2460E /* RavencoinTransactionInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3DE22CBC79D900C2460E /* RavencoinTransactionInfo.swift */; };
-		B62D417C2CBC79DA00C2460E /* RavencoinWalletInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3DE32CBC79D900C2460E /* RavencoinWalletInfo.swift */; };
-		B62D417D2CBC79DA00C2460E /* RavencoinWalletUTXO.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3DE42CBC79D900C2460E /* RavencoinWalletUTXO.swift */; };
 		B62D417E2CBC79DA00C2460E /* RavencoinExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3DE62CBC79D900C2460E /* RavencoinExternalLinkProvider.swift */; };
 		B62D417F2CBC79DA00C2460E /* RavencoinMainNetworkParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3DE72CBC79D900C2460E /* RavencoinMainNetworkParams.swift */; };
 		B62D41802CBC79DA00C2460E /* RavencoinNetworkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3DE82CBC79D900C2460E /* RavencoinNetworkProvider.swift */; };
@@ -4788,12 +4782,6 @@
 		B62D3DDB2CBC79D900C2460E /* RadiantTransactionUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadiantTransactionUtils.swift; sourceTree = "<group>"; };
 		B62D3DDC2CBC79D900C2460E /* RadiantWalletAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadiantWalletAssembly.swift; sourceTree = "<group>"; };
 		B62D3DDD2CBC79D900C2460E /* RadiantWalletManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadiantWalletManager.swift; sourceTree = "<group>"; };
-		B62D3DDF2CBC79D900C2460E /* RavencoinFee.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RavencoinFee.swift; sourceTree = "<group>"; };
-		B62D3DE02CBC79D900C2460E /* RavencoinRawTransaction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RavencoinRawTransaction.swift; sourceTree = "<group>"; };
-		B62D3DE12CBC79D900C2460E /* RavencoinTransactionHistory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RavencoinTransactionHistory.swift; sourceTree = "<group>"; };
-		B62D3DE22CBC79D900C2460E /* RavencoinTransactionInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RavencoinTransactionInfo.swift; sourceTree = "<group>"; };
-		B62D3DE32CBC79D900C2460E /* RavencoinWalletInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RavencoinWalletInfo.swift; sourceTree = "<group>"; };
-		B62D3DE42CBC79D900C2460E /* RavencoinWalletUTXO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RavencoinWalletUTXO.swift; sourceTree = "<group>"; };
 		B62D3DE62CBC79D900C2460E /* RavencoinExternalLinkProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RavencoinExternalLinkProvider.swift; sourceTree = "<group>"; };
 		B62D3DE72CBC79D900C2460E /* RavencoinMainNetworkParams.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RavencoinMainNetworkParams.swift; sourceTree = "<group>"; };
 		B62D3DE82CBC79D900C2460E /* RavencoinNetworkProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RavencoinNetworkProvider.swift; sourceTree = "<group>"; };
@@ -11178,12 +11166,6 @@
 			isa = PBXGroup;
 			children = (
 				EF3805202D71F47300273B1B /* RavencoinDTO.swift */,
-				B62D3DDF2CBC79D900C2460E /* RavencoinFee.swift */,
-				B62D3DE02CBC79D900C2460E /* RavencoinRawTransaction.swift */,
-				B62D3DE12CBC79D900C2460E /* RavencoinTransactionHistory.swift */,
-				B62D3DE22CBC79D900C2460E /* RavencoinTransactionInfo.swift */,
-				B62D3DE32CBC79D900C2460E /* RavencoinWalletInfo.swift */,
-				B62D3DE42CBC79D900C2460E /* RavencoinWalletUTXO.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -20069,7 +20051,6 @@
 				B62D3FD22CBC79DA00C2460E /* OP_GREATERTHANOREQUAL.swift in Sources */,
 				B62D42042CBC79DB00C2460E /* XRPAddress.swift in Sources */,
 				B62D42172CBC79DB00C2460E /* URandom.swift in Sources */,
-				B62D417B2CBC79DA00C2460E /* RavencoinTransactionInfo.swift in Sources */,
 				B62D40F22CBC79DA00C2460E /* HederaTokenContractAddressConverter.swift in Sources */,
 				B62D423F2CBC79DB00C2460E /* AddressTypesConfig.swift in Sources */,
 				B62D426D2CBC79DB00C2460E /* MinimumBalanceRestrictable.swift in Sources */,
@@ -20171,7 +20152,6 @@
 				B62D3FBC2CBC79DA00C2460E /* BinanceTransactionBuilder.swift in Sources */,
 				B62D406B2CBC79DA00C2460E /* CosmosNetworkService.swift in Sources */,
 				B62D40652CBC79DA00C2460E /* TerraV1ExternalLinkProvider.swift in Sources */,
-				B62D417A2CBC79DA00C2460E /* RavencoinTransactionHistory.swift in Sources */,
 				B62D41E12CBC79DB00C2460E /* TronTransactionDataBuilder.swift in Sources */,
 				EF38051A2D71E9F100273B1B /* BitcoreTransactionRecordMapper.swift in Sources */,
 				B62D41DF2CBC79DB00C2460E /* TronTarget.swift in Sources */,
@@ -20328,7 +20308,6 @@
 				B62D40342CBC79DA00C2460E /* BitcoinCashExternalLinkProvider.swift in Sources */,
 				B62D42512CBC79DB00C2460E /* TestnetAPINodeInfoProvider.swift in Sources */,
 				B62D41F62CBC79DB00C2460E /* VeChainNetworkService.swift in Sources */,
-				B62D417C2CBC79DA00C2460E /* RavencoinWalletInfo.swift in Sources */,
 				B62D400C2CBC79DA00C2460E /* OP_SIZE.swift in Sources */,
 				B62D41C72CBC79DB00C2460E /* asset_issue_contract.pb.swift in Sources */,
 				B62D40AE2CBC79DA00C2460E /* FantomExternalLinkProvider.swift in Sources */,
@@ -20402,7 +20381,6 @@
 				B62D40792CBC79DA00C2460E /* DecimalAddressService.swift in Sources */,
 				B62D40082CBC79DA00C2460E /* OP_NOPN.swift in Sources */,
 				B62D3FD42CBC79DA00C2460E /* OP_LESSTHANOREQUAL.swift in Sources */,
-				B62D41782CBC79DA00C2460E /* RavencoinFee.swift in Sources */,
 				B62D40E12CBC79DA00C2460E /* HederaNetworkResult.AccountsInfo.swift in Sources */,
 				B62D40392CBC79DA00C2460E /* CashAddrService.swift in Sources */,
 				B62D41A32CBC79DA00C2460E /* SuiAddressService.swift in Sources */,
@@ -20484,7 +20462,6 @@
 				B62D42CA2CBC79DB00C2460E /* Collection+.swift in Sources */,
 				B62D41E72CBC79DB00C2460E /* VeChainBlockInfo.swift in Sources */,
 				B62D41592CBC79DA00C2460E /* SubscanPolkadotAccountHealthNetworkService.swift in Sources */,
-				B62D417D2CBC79DA00C2460E /* RavencoinWalletUTXO.swift in Sources */,
 				B62D41622CBC79DA00C2460E /* PolkadotExternalLinkProvider.swift in Sources */,
 				B62D40642CBC79DA00C2460E /* SeiExternalLinkProvider.swift in Sources */,
 				B62D3FCC2CBC79DA00C2460E /* OP_ABS.swift in Sources */,
@@ -20541,7 +20518,6 @@
 				EF3805182D71BC4B00273B1B /* RavencoinTransactionRecordMapper.swift in Sources */,
 				B62D42002CBC79DB00C2460E /* XDCAddressService.swift in Sources */,
 				B62D40912CBC79DA00C2460E /* EthereumAddressConverterError.swift in Sources */,
-				B62D41792CBC79DA00C2460E /* RavencoinRawTransaction.swift in Sources */,
 				2DB200632D34F57700E499A3 /* Fact0rnNetworkProvider.swift in Sources */,
 				B62D41CB2CBC79DB00C2460E /* market_contract.pb.swift in Sources */,
 				B62D3FB52CBC79DA00C2460E /* AptosNetworkService.swift in Sources */,
