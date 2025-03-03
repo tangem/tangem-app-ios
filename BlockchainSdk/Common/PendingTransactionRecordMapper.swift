@@ -80,7 +80,7 @@ struct PendingTransactionRecordMapper {
         )
     }
 
-    func mapPendingTransactionRecord(record transaction: TransactionRecord, blockchain: Blockchain, address: String) throws -> PendingTransactionRecord {
+    func mapToPendingTransactionRecord(record transaction: TransactionRecord, blockchain: Blockchain, address: String) -> PendingTransactionRecord {
         let isIncoming = !transaction.isOutgoing
         let outs = transaction.destination.destinations
         let destination = outs.first(where: { $0.address.string != address })?.address.string ?? .unknown
