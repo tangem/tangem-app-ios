@@ -21,8 +21,10 @@ struct Fact0rnWalletAssembly: WalletManagerAssembly {
             bip: .bip84
         )
 
+        let unspentOutputManager = CommonUnspentOutputManager()
         let txBuilder = BitcoinTransactionBuilder(
             bitcoinManager: bitcoinManager,
+            unspentOutputManager: unspentOutputManager,
             addresses: input.wallet.addresses
         )
 
@@ -35,6 +37,6 @@ struct Fact0rnWalletAssembly: WalletManagerAssembly {
             })
 
         let networkService = BitcoinNetworkService(providers: providers)
-        return Fact0rnWalletManager(wallet: input.wallet, txBuilder: txBuilder, networkService: networkService)
+        return Fact0rnWalletManager(wallet: input.wallet, txBuilder: txBuilder, unspentOutputManager: unspentOutputManager, networkService: networkService)
     }
 }
