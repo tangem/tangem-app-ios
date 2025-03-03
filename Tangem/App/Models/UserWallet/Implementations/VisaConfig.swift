@@ -53,11 +53,11 @@ extension VisaConfig: UserWalletConfig {
     }
 
     var persistentBlockchains: [StorageEntry]? {
-        return defaultBlockchains
+        defaultBlockchains
     }
 
     var embeddedBlockchain: StorageEntry? {
-        return defaultBlockchains.first
+        defaultBlockchains.first
     }
 
     var generalNotificationEvents: [GeneralNotificationEvent] {
@@ -93,7 +93,7 @@ extension VisaConfig: UserWalletConfig {
         case .passcode:
             return .hidden
         case .longTap:
-            return card.settings.isRemovingUserCodesAllowed ? .available : .hidden
+            return .hidden
         case .send:
             return .hidden
         case .longHashes:
