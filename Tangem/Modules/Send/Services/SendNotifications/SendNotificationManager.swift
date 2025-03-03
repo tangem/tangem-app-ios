@@ -187,7 +187,7 @@ private extension CommonSendNotificationManager {
             guard let event = input.settings.event as? ValidationErrorEvent else {
                 return false
             }
-            if case .remainingAmountIsLessThanRentExtemption = event {
+            if case .remainingAmountIsLessThanRentExemption = event {
                 return true
             }
             return false
@@ -251,7 +251,7 @@ private extension CommonSendNotificationManager {
             let validationErrorEvent = factory.mapToValidationErrorEvent(validationError)
 
             switch validationErrorEvent {
-            case .remainingAmountIsLessThanRentExtemption:
+            case .remainingAmountIsLessThanRentExemption:
                 hideFeeWillBeSubtractedNotification()
                 fallthrough
             case .dustRestriction,
