@@ -23,19 +23,19 @@ class KaspaTests: XCTestCase {
 
     func testBuildSchnorrTransaction() {
         txBuilder.setUnspentOutputs([
-            BlockchainSdk.BitcoinUnspentOutput(
+            BlockchainSdk.ScriptUnspentOutput(
                 transactionHash: "deb88e7dd734437c6232a636085ef917d1d13cc549fe14749765508b2782f2fb",
                 outputIndex: 0,
                 amount: 10000000,
                 outputScript: "21034c88a1a83469ddf20d0c07e5c4a1e7b83734e721e60d642b94a53222c47c670dab"
             ),
-            BlockchainSdk.BitcoinUnspentOutput(
+            BlockchainSdk.ScriptUnspentOutput(
                 transactionHash: "304db39069dc409acedf544443dcd4a4f02bfad4aeb67116f8bf087822c456af",
                 outputIndex: 0,
                 amount: 10000000,
                 outputScript: "21034c88a1a83469ddf20d0c07e5c4a1e7b83734e721e60d642b94a53222c47c670dab"
             ),
-            BlockchainSdk.BitcoinUnspentOutput(
+            BlockchainSdk.ScriptUnspentOutput(
                 transactionHash: "ae96e819429e9da538e84cb213f62fbc8ad32e932d7c7f1fb9bd2fedf8fd7b4a",
                 outputIndex: 0,
                 amount: 500000000,
@@ -121,7 +121,7 @@ class KaspaTests: XCTestCase {
 
     func testP2SHTransaction() {
         txBuilder.setUnspentOutputs([
-            BlockchainSdk.BitcoinUnspentOutput(
+            BlockchainSdk.ScriptUnspentOutput(
                 transactionHash: "ae96e819429e9da538e84cb213f62fbc8ad32e932d7c7f1fb9bd2fedf8fd7b4a",
                 outputIndex: 0,
                 amount: 500000000,
@@ -190,7 +190,7 @@ class KaspaTests: XCTestCase {
     func testTransactionHash() {
         let tx1 = KaspaTransaction(
             inputs: [
-                BitcoinUnspentOutput(
+                ScriptUnspentOutput(
                     transactionHash: "4df1f7923708f6fa98f8d192cdb511666fc93c858d86fb7bc61bc7c13d54c9f4",
                     outputIndex: 2,
                     amount: 0, // not used
@@ -211,31 +211,31 @@ class KaspaTests: XCTestCase {
 
         let tx2 = KaspaTransaction(
             inputs: [
-                BitcoinUnspentOutput(
+                ScriptUnspentOutput(
                     transactionHash: "03f30878b05fdfd6c47f749538f77629fd5e48c93233c36e737493caf6c67915",
                     outputIndex: 0,
                     amount: 0, // not used
                     outputScript: "412fe34c676f75602942c9e63dc554e2f8abe4929436e8debf0cc5bd2efde012541afa6a300867742728390c73e0ac39b4778c314734f92806f9d236fa1c48f94301"
                 ),
-                BitcoinUnspentOutput(
+                ScriptUnspentOutput(
                     transactionHash: "c69a424df624c9c235f23afc0ce20afbfd56ea042f3123e9c464ffb8b2b2f33c",
                     outputIndex: 0,
                     amount: 0, // not used
                     outputScript: "41596c4bb99592c5637accfaf9e3793b934ece1402e267f8d1e309d73cd5139c544305662442fdfe298bfd65bd884199ec83482f801bbc3dee76903ca5187b6deb01"
                 ),
-                BitcoinUnspentOutput(
+                ScriptUnspentOutput(
                     transactionHash: "2958f73001b95a36d8e51697fcb6d842b6068f49e9e46a73550e35527a40d878",
                     outputIndex: 0,
                     amount: 0, // not used
                     outputScript: "414c35049eb692e2596c00541fb0812cd3a05a11b6cc368476272702295ba8252b27c077c4a256a30979d27d21d0ea99139581d0646c1162ec52535d2568c8995301"
                 ),
-                BitcoinUnspentOutput(
+                ScriptUnspentOutput(
                     transactionHash: "705624bb67706ddc1351868ee19d7642262810cd072acbf0b08fed6050283079",
                     outputIndex: 0,
                     amount: 0, // not used
                     outputScript: "41de193ea21790d577bdbb29574cbfaf6444459e42de711cb60156f459ee725edb4fc223518ea77c60bc637256e1597e9681565d01f08195f8a8d071caee0d786301"
                 ),
-                BitcoinUnspentOutput(
+                ScriptUnspentOutput(
                     transactionHash: "7b5035caf767c7173915bfb880031e7222b1affa175343a9ca2a924e314a226d",
                     outputIndex: 0,
                     amount: 0, // not used

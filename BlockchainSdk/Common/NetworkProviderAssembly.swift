@@ -52,14 +52,11 @@ struct NetworkProviderAssembly {
         with input: NetworkProviderAssemblyInput,
         for type: BlockBookProviderType,
         bitcoinCashAddressService: BitcoinCashAddressService
-    ) -> AnyBitcoinNetworkProvider {
+    ) -> UTXONetworkProvider {
         BitcoinCashBlockBookUTXOProvider(
-            blockBookUTXOProvider: makeBlockBookUTXOProvider(
-                with: input,
-                for: type
-            ),
+            blockBookUTXOProvider: makeBlockBookUTXOProvider(with: input, for: type),
             bitcoinCashAddressService: bitcoinCashAddressService
-        ).eraseToAnyBitcoinNetworkProvider()
+        )
     }
 
     // [REDACTED_TODO_COMMENT]
@@ -73,12 +70,11 @@ struct NetworkProviderAssembly {
     }
 
     // [REDACTED_TODO_COMMENT]
-    func makeBlockchairNetworkProviders(endpoint: BlockchairEndpoint, with input: NetworkProviderAssemblyInput) -> [AnyBitcoinNetworkProvider] {
+    func makeBlockchairNetworkProviders(endpoint: BlockchairEndpoint, with input: NetworkProviderAssemblyInput) -> [UTXONetworkProvider] {
         let apiKeys: [String?] = [nil] + input.blockchainSdkConfig.blockchairApiKeys
 
         return apiKeys.map {
             BlockchairNetworkProvider(endpoint: endpoint, apiKey: $0, blockchain: input.blockchain, configuration: input.networkConfig)
-                .eraseToAnyBitcoinNetworkProvider()
         }
     }
 
