@@ -24,11 +24,6 @@ struct CommonUserWalletModelFactory {
 
         let userWalletId = UserWalletId(with: userWalletIdSeed)
 
-        let refcodeProvider = CommonExpressRefcodeProvider(
-            userId: userWalletId.stringValue,
-            batchId: cardInfo.card.batchId
-        )
-
         let keysRepository = CommonKeysRepository(with: cardInfo.card.wallets)
 
         let userTokenListManager = CommonUserTokenListManager(
