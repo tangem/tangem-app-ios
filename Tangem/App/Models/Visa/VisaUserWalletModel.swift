@@ -499,6 +499,8 @@ extension VisaUserWalletModel {
 /// We need to refactor `CommonUserWalletModel` and `UserWalletConfig` creation
 /// This is complex task, so it will be made later.
 extension VisaUserWalletModel: UserWalletModel {
+    var refcodeProvider: any RefcodeProvider { userWalletModel.refcodeProvider }
+
     var hasBackupCards: Bool { false }
 
     var config: any UserWalletConfig { userWalletModel.config }
