@@ -35,23 +35,26 @@ class KaspaNetworkService: MultiNetworkProvider {
             .eraseToAnyPublisher()
     }
 
-    func getUnspentOutputs(address: String) -> AnyPublisher<[BitcoinUnspentOutput], Error> {
+    func getUnspentOutputs(address: String) -> AnyPublisher<[ScriptUnspentOutput], Error> {
         providerPublisher {
             $0.utxos(address: address)
                 .retry(2)
                 .map { utxos in
-                    return utxos.compactMap { utxo -> BitcoinUnspentOutput? in
+                    return utxos.compactMap { utxo -> ScriptUnspentOutput? in
                         guard
                             let amount = UInt64(utxo.utxoEntry.amount)
                         else {
                             return nil
                         }
 
-                        return BitcoinUnspentOutput(
-                            transactionHash: utxo.outpoint.transactionId,
-                            outputIndex: utxo.outpoint.index,
-                            amount: amount,
-                            outputScript: utxo.utxoEntry.scriptPublicKey.scriptPublicKey
+                        return ScriptUnspentOutput(
+                            output: .init(
+                                blockId: -1,
+                                hash: Data(hexString: utxo.outpoint.transactionId),
+                                index: utxo.outpoint.index,
+                                amount: amount
+                            ),
+                            script: Data(hexString: utxo.utxoEntry.scriptPublicKey.scriptPublicKey)
                         )
                     }
                 }
