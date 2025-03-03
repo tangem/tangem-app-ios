@@ -165,7 +165,7 @@ private extension UnstakingModel {
             Analytics.log(event: analyticsEvent, params: [.validator: initialAction.validatorInfo?.name ?? ""])
         }
 
-        guard let amountCrypto = amount?.crypto else {
+        guard amount?.crypto != nil else {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
 
