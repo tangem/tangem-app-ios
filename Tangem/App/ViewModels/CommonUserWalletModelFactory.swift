@@ -91,7 +91,7 @@ struct CommonUserWalletModelFactory {
 
         derivationManager?.delegate = model
         userTokensManager.keysDerivingProvider = model
- 
+
         switch cardInfo.walletData {
         case .visa:
             return VisaUserWalletModel(userWalletModel: model, cardInfo: cardInfo)
