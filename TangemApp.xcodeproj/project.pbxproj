@@ -1989,6 +1989,9 @@
 		B6AEF9742A796713004663C3 /* TokenSectionsAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AEF9732A796713004663C3 /* TokenSectionsAdapter.swift */; };
 		B6B1BC292C6CCE88003EDB47 /* IntrospectResponderChainViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B1BC282C6CCE88003EDB47 /* IntrospectResponderChainViewModifier.swift */; };
 		B6B1CCCA2C460BB9006C1B44 /* UIPanGestureRecognizer+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B1CCC92C460BB9006C1B44 /* UIPanGestureRecognizer+.swift */; };
+		B6B3BB5D2D70D385002EBB56 /* NFTAvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B3BB5C2D70D385002EBB56 /* NFTAvailabilityProvider.swift */; };
+		B6B3BB5F2D7140C4002EBB56 /* CommonNFTAvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B3BB5E2D7140C4002EBB56 /* CommonNFTAvailabilityProvider.swift */; };
+		B6B3BB612D7149BA002EBB56 /* NFTAvailabilityProvider+InjectedValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B3BB602D7149B9002EBB56 /* NFTAvailabilityProvider+InjectedValues.swift */; };
 		B6B7B6052CDAC6F500479729 /* MarketsTokenDetailsSecurityScoreViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B7B6042CDAC6F500479729 /* MarketsTokenDetailsSecurityScoreViewModel.swift */; };
 		B6B7D4E22CED637000567C4B /* SingleTokenNotificationManagerInteractionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B7D4E12CED637000567C4B /* SingleTokenNotificationManagerInteractionDelegate.swift */; };
 		B6C0D3E12CBDC2E3001113ED /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = B6C0D3E02CBDC2E3001113ED /* TangemModules */; };
@@ -5352,6 +5355,9 @@
 		B6AEF9732A796713004663C3 /* TokenSectionsAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenSectionsAdapter.swift; sourceTree = "<group>"; };
 		B6B1BC282C6CCE88003EDB47 /* IntrospectResponderChainViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntrospectResponderChainViewModifier.swift; sourceTree = "<group>"; };
 		B6B1CCC92C460BB9006C1B44 /* UIPanGestureRecognizer+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIPanGestureRecognizer+.swift"; sourceTree = "<group>"; };
+		B6B3BB5C2D70D385002EBB56 /* NFTAvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTAvailabilityProvider.swift; sourceTree = "<group>"; };
+		B6B3BB5E2D7140C4002EBB56 /* CommonNFTAvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonNFTAvailabilityProvider.swift; sourceTree = "<group>"; };
+		B6B3BB602D7149B9002EBB56 /* NFTAvailabilityProvider+InjectedValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NFTAvailabilityProvider+InjectedValues.swift"; sourceTree = "<group>"; };
 		B6B7B6042CDAC6F500479729 /* MarketsTokenDetailsSecurityScoreViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenDetailsSecurityScoreViewModel.swift; sourceTree = "<group>"; };
 		B6B7D4E12CED637000567C4B /* SingleTokenNotificationManagerInteractionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleTokenNotificationManagerInteractionDelegate.swift; sourceTree = "<group>"; };
 		B6C1B9FE2AE1627500A98D2F /* OrganizeTokensScrollState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensScrollState.swift; sourceTree = "<group>"; };
@@ -10006,6 +10012,16 @@
 			path = Onboarding;
 			sourceTree = "<group>";
 		};
+		B61EBDE32D70D058008BA0A7 /* NFT */ = {
+			isa = PBXGroup;
+			children = (
+				B6B3BB5C2D70D385002EBB56 /* NFTAvailabilityProvider.swift */,
+				B6B3BB602D7149B9002EBB56 /* NFTAvailabilityProvider+InjectedValues.swift */,
+				B6B3BB5E2D7140C4002EBB56 /* CommonNFTAvailabilityProvider.swift */,
+			);
+			path = NFT;
+			sourceTree = "<group>";
+		};
 		B6209E5D2A2F1BBF0066ACFE /* OrganizeTokens */ = {
 			isa = PBXGroup;
 			children = (
@@ -13591,6 +13607,7 @@
 				2DC46C342C97905C00749F7C /* Tooltips */,
 				2D93C4DF2D661459002BCCE2 /* SupportSeedNotificationManager */,
 				2D93C4E82D7043B7002BCCE2 /* RefcodeProvider */,
+				B61EBDE32D70D058008BA0A7 /* NFT */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -17850,6 +17867,7 @@
 				DC66BBE52858EB6300CDF765 /* OnboardingCoordinator.swift in Sources */,
 				B012A11C2AA617000079BAB4 /* NotificationManager.swift in Sources */,
 				5DDE22F52609022D008657C6 /* WalletConnectView.swift in Sources */,
+				B6B3BB5D2D70D385002EBB56 /* NFTAvailabilityProvider.swift in Sources */,
 				2DB8E1162B29068C0044BF7D /* CustomSearchBar.swift in Sources */,
 				EFB932032C3EAF7900C999E9 /* SendStepType.swift in Sources */,
 				EF4BEFDF28AD3EE500C5D1BE /* ContentState.swift in Sources */,
@@ -18044,6 +18062,7 @@
 				EFC98FFF2CD3A3F80098B7C8 /* OnrampPaymentMethodsViewModel.swift in Sources */,
 				EFC990002CD3A3F80098B7C8 /* OnrampPaymentMethodsRoutable.swift in Sources */,
 				EFC990012CD3A3F80098B7C8 /* OnrampPaymentMethodRowViewData.swift in Sources */,
+				B6B3BB5F2D7140C4002EBB56 /* CommonNFTAvailabilityProvider.swift in Sources */,
 				B08F05F42C36D99A0066E833 /* MarketsTokenDetailsLinksView.swift in Sources */,
 				2DFC27962C78E881009B247E /* MarketsPortfolioTokenItemFactory.swift in Sources */,
 				2D22765D2C0F0A4F006BB6A1 /* MarketsListOrderBottomSheetViewModel.swift in Sources */,
@@ -18603,6 +18622,7 @@
 				DCE5C66E28898BB6000C7F67 /* CommonTangemApiService.swift in Sources */,
 				B645BF3E2C59239700D8A2A5 /* CommonMarketsHistoryChartProvider.swift in Sources */,
 				5DF2522724F914E30015B429 /* AppScanTask.swift in Sources */,
+				B6B3BB612D7149BA002EBB56 /* NFTAvailabilityProvider+InjectedValues.swift in Sources */,
 				DC2CD3432B0FE3D600C0D677 /* SendCurrencyViewModel.swift in Sources */,
 				B09409932A3B7E9800787432 /* NavbarDotsImage.swift in Sources */,
 				B0BF631B2A0D1C6F009EB975 /* TotalBalanceFormattingOptions.swift in Sources */,
