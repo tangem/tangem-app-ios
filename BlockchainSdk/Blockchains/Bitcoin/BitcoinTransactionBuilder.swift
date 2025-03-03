@@ -33,13 +33,15 @@ class BitcoinTransactionBuilder {
         }
     }
 
-    var bitcoinManager: BitcoinManager
+    let bitcoinManager: BitcoinManager
+    let unspentOutputManager: UnspentOutputManager
 
     private(set) var changeScript: Data?
     private let walletScripts: [BitcoinScript]
 
-    init(bitcoinManager: BitcoinManager, addresses: [Address]) {
+    init(bitcoinManager: BitcoinManager, unspentOutputManager: UnspentOutputManager, addresses: [Address]) {
         self.bitcoinManager = bitcoinManager
+        self.unspentOutputManager = unspentOutputManager
 
         let scriptAddresses = addresses.compactMap { $0 as? BitcoinScriptAddress }
         let scripts = scriptAddresses.map { $0.script }

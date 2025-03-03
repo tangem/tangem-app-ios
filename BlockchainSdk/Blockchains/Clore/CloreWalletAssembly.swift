@@ -21,8 +21,10 @@ struct CloreWalletAssembly: WalletManagerAssembly {
             bip: .bip44
         )
 
+        let unspentOutputManager = CommonUnspentOutputManager()
         let txBuilder = BitcoinTransactionBuilder(
             bitcoinManager: bitcoinManager,
+            unspentOutputManager: unspentOutputManager,
             addresses: input.wallet.addresses
         )
 
@@ -32,6 +34,6 @@ struct CloreWalletAssembly: WalletManagerAssembly {
             }
 
         let networkService = BitcoinNetworkService(providers: providers)
-        return RavencoinWalletManager(wallet: input.wallet, txBuilder: txBuilder, networkService: networkService)
+        return RavencoinWalletManager(wallet: input.wallet, txBuilder: txBuilder, unspentOutputManager: unspentOutputManager, networkService: networkService)
     }
 }
