@@ -28,7 +28,6 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     let exchangeUtility: ExchangeCryptoUtility
     let notificationManager: NotificationManager
-    private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
     let userWalletModel: UserWalletModel
     let walletModel: WalletModel
 
@@ -36,6 +35,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     private let tokenRouter: SingleTokenRoutable
     private let priceFormatter = MarketsTokenPriceFormatter()
+    private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
 
     private var priceChangeFormatter = PriceChangeFormatter()
     private var transactionHistoryBag: AnyCancellable?
