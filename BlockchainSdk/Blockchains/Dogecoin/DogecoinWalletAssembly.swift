@@ -19,7 +19,12 @@ struct DogecoinWalletAssembly: WalletManagerAssembly {
             bip: .bip44
         )
 
-        let txBuilder = BitcoinTransactionBuilder(bitcoinManager: bitcoinManager, addresses: input.wallet.addresses)
+        let unspentOutputManager = CommonUnspentOutputManager()
+        let txBuilder = BitcoinTransactionBuilder(
+            bitcoinManager: bitcoinManager,
+            unspentOutputManager: unspentOutputManager,
+            addresses: input.wallet.addresses
+        )
 
         let providers: [AnyBitcoinNetworkProvider] = input.apiInfo.reduce(into: []) { partialResult, providerType in
             switch providerType {
@@ -57,6 +62,6 @@ struct DogecoinWalletAssembly: WalletManagerAssembly {
         }
 
         let networkService = BitcoinNetworkService(providers: providers)
-        return DogecoinWalletManager(wallet: input.wallet, txBuilder: txBuilder, networkService: networkService)
+        return DogecoinWalletManager(wallet: input.wallet, txBuilder: txBuilder, unspentOutputManager: unspentOutputManager, networkService: networkService)
     }
 }
