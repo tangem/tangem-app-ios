@@ -1117,7 +1117,7 @@ extension Blockchain: Codable {
         case .apeChain: return "apechain"
         case .sonic: return "sonic"
         case .alephium: return "alephium"
-        case .vanar: return "vanar"
+        case .vanar: return "vanar-chain"
         case .zkLinkNova: return "zklink"
         }
     }
@@ -1226,7 +1226,7 @@ extension Blockchain: Codable {
         case "apechain": self = .apeChain(testnet: isTestnet)
         case "sonic": self = .sonic(testnet: isTestnet)
         case "alephium": self = .alephium(testnet: isTestnet)
-        case "vanar": self = .vanar(testnet: isTestnet)
+        case "vanar-chain": self = .vanar(testnet: isTestnet)
         case "zklink": self = .zkLinkNova(testnet: isTestnet)
         default:
             throw BlockchainSdkError.decodingFailed
