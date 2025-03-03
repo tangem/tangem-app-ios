@@ -43,27 +43,27 @@ extension CommonNFTAvailabilityProvider: NFTAvailabilityProvider {
         return userWalletModel.config.hasFeature(.nft)
     }
 
-    func isNFTEnabled(for userWalletModel: any UserWalletModel) -> Bool {
+    func isNFTEnabled(forUserWalletWithId userWalletId: UserWalletId) -> Bool {
         ensureOnMainQueue()
 
         guard isFeatureToggleEnabled else {
             return false
         }
 
-        let userWalletIdString = userWalletModel.userWalletId.stringValue
+        let userWalletIdString = userWalletId.stringValue
 
         return userWalletIdsWithNFTEnabled.value.contains(userWalletIdString)
             || appSettings.userWalletIdsWithNFTEnabled.contains(userWalletIdString)
     }
 
-    func setNFTEnabled(_ enabled: Bool, for userWalletModel: UserWalletModel) {
+    func setNFTEnabled(_ enabled: Bool, forUserWalletWithId userWalletId: UserWalletId) {
         ensureOnMainQueue()
 
         guard isFeatureToggleEnabled else {
             return
         }
 
-        let userWalletIdString = userWalletModel.userWalletId.stringValue
+        let userWalletIdString = userWalletId.stringValue
 
         if enabled {
             userWalletIdsWithNFTEnabled.value.insert(userWalletIdString)
