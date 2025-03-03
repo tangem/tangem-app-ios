@@ -28,14 +28,14 @@ struct DashWalletAssembly: WalletManagerAssembly {
             addresses: input.wallet.addresses
         )
 
-        let providers: [AnyBitcoinNetworkProvider] = input.apiInfo.reduce(into: []) { partialResult, providerType in
+        let providers: [UTXONetworkProvider] = input.apiInfo.reduce(into: []) { partialResult, providerType in
             switch providerType {
             case .nowNodes:
                 partialResult.append(
                     networkProviderAssembly.makeBlockBookUTXOProvider(
                         with: input,
                         for: .nowNodes
-                    ).eraseToAnyBitcoinNetworkProvider()
+                    )
                 )
             case .blockchair:
                 partialResult.append(
@@ -49,21 +49,26 @@ struct DashWalletAssembly: WalletManagerAssembly {
                     networkProviderAssembly.makeBlockcypherNetworkProvider(
                         endpoint: .dash,
                         with: input
-                    ).eraseToAnyBitcoinNetworkProvider()
+                    )
                 )
             case .getBlock:
                 partialResult.append(
                     networkProviderAssembly.makeBlockBookUTXOProvider(
                         with: input,
                         for: .getBlock
-                    ).eraseToAnyBitcoinNetworkProvider()
+                    )
                 )
             default:
                 return
             }
         }
 
-        let networkService = BitcoinNetworkService(providers: providers)
-        return BitcoinWalletManager(wallet: input.wallet, txBuilder: txBuilder, unspentOutputManager: unspentOutputManager, networkService: networkService)
+        let networkService = MultiUTXONetworkProvider(providers: providers)
+        return BitcoinWalletManager(
+            wallet: input.wallet,
+            txBuilder: txBuilder,
+            unspentOutputManager: unspentOutputManager,
+            networkService: networkService
+        )
     }
 }
