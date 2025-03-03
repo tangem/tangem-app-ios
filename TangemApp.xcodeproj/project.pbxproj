@@ -10015,9 +10015,7 @@
 		B61EBDE32D70D058008BA0A7 /* NFT */ = {
 			isa = PBXGroup;
 			children = (
-				B6B3BB5C2D70D385002EBB56 /* NFTAvailabilityProvider.swift */,
-				B6B3BB602D7149B9002EBB56 /* NFTAvailabilityProvider+InjectedValues.swift */,
-				B6B3BB5E2D7140C4002EBB56 /* CommonNFTAvailabilityProvider.swift */,
+				B68BE0B72D761CD900779F84 /* Availability */,
 			);
 			path = NFT;
 			sourceTree = "<group>";
@@ -12682,6 +12680,16 @@
 				B67DC1E52B7C45DD008ACB0E /* UserDefaultsBlockchainDataStorage.swift */,
 			);
 			path = BlockchainDataStorage;
+			sourceTree = "<group>";
+		};
+		B68BE0B72D761CD900779F84 /* Availability */ = {
+			isa = PBXGroup;
+			children = (
+				B6B3BB5C2D70D385002EBB56 /* NFTAvailabilityProvider.swift */,
+				B6B3BB602D7149B9002EBB56 /* NFTAvailabilityProvider+InjectedValues.swift */,
+				B6B3BB5E2D7140C4002EBB56 /* CommonNFTAvailabilityProvider.swift */,
+			);
+			path = Availability;
 			sourceTree = "<group>";
 		};
 		B68E1F662CBC44060043E598 /* BlockchainSdk */ = {
