@@ -30,30 +30,26 @@ struct BitcoinCashWalletAssembly: WalletManagerAssembly {
 
         // [REDACTED_TODO_COMMENT]
         // Maybe https://developers.cryptoapis.io/technical-documentation/general-information/what-we-support
-        let providers: [AnyBitcoinNetworkProvider] = input.apiInfo.reduce(into: []) { partialResult, providerType in
+        let providers: [UTXONetworkProvider] = input.apiInfo.reduce(into: []) { partialResult, providerType in
             switch providerType {
             case .nowNodes:
-                if let addressService = AddressServiceFactory(
-                    blockchain: input.blockchain
-                ).makeAddressService() as? BitcoinCashAddressService {
+                if let addressService = AddressServiceFactory(blockchain: input.blockchain).makeAddressService() as? BitcoinCashAddressService {
                     partialResult.append(
                         networkProviderAssembly.makeBitcoinCashBlockBookUTXOProvider(
                             with: input,
                             for: .nowNodes,
                             bitcoinCashAddressService: addressService
-                        ).eraseToAnyBitcoinNetworkProvider()
+                        )
                     )
                 }
             case .getBlock:
-                if let addressService = AddressServiceFactory(
-                    blockchain: input.blockchain
-                ).makeAddressService() as? BitcoinCashAddressService {
+                if let addressService = AddressServiceFactory(blockchain: input.blockchain).makeAddressService() as? BitcoinCashAddressService {
                     partialResult.append(
                         networkProviderAssembly.makeBitcoinCashBlockBookUTXOProvider(
                             with: input,
                             for: .getBlock,
                             bitcoinCashAddressService: addressService
-                        ).eraseToAnyBitcoinNetworkProvider()
+                        )
                     )
                 }
             case .blockchair:
