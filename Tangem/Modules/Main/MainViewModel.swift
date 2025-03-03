@@ -37,6 +37,8 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Internal state
 
+    private let nftDataProvider = NFTDataProvider()
+
     private var pendingUserWalletIdsToUpdate: Set<UserWalletId> = []
     private var pendingUserWalletModelsToAdd: [UserWalletModel] = []
     private var shouldRecreatePagesAfterAddingPendingWalletModels = false
