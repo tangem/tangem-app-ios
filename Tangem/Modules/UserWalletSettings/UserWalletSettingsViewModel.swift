@@ -13,6 +13,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
     // MARK: - Injected
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.nftAvailabilityProvider) private var nftAvailabilityProvider: NFTAvailabilityProvider
 
     // MARK: - ViewState
 
@@ -24,6 +25,8 @@ final class UserWalletSettingsViewModel: ObservableObject {
         [manageTokensViewModel, cardSettingsViewModel, referralViewModel].compactMap { $0 }
     }
 
+    @Published var nftViewModel: DefaultToggleRowViewModel?
+
     @Published var forgetViewModel: DefaultRowViewModel?
 
     @Published var alert: AlertBinder?
@@ -34,6 +37,11 @@ final class UserWalletSettingsViewModel: ObservableObject {
     @Published private var manageTokensViewModel: DefaultRowViewModel?
     @Published private var cardSettingsViewModel: DefaultRowViewModel?
     @Published private var referralViewModel: DefaultRowViewModel?
+
+    private var isNFTEnabled: Bool {
+        get { nftAvailabilityProvider.isNFTEnabled(for: userWalletModel) }
+        set { nftAvailabilityProvider.setNFTEnabled(newValue, for: userWalletModel) }
+    }
 
     // MARK: - Dependencies
 
@@ -111,6 +119,20 @@ private extension UserWalletSettingsViewModel {
                 )
         } else {
             referralViewModel = nil
+        }
+
+        if nftAvailabilityProvider.isNFTAvailable(for: userWalletModel) {
+            nftViewModel = DefaultToggleRowViewModel(
+                title: Localization.detailsNftTitle,
+                isOn: .init(
+                    root: self,
+                    default: false,
+                    get: { $0.isNFTEnabled },
+                    set: { $0.isNFTEnabled = $1 }
+                )
+            )
+        } else {
+            nftViewModel = nil
         }
 
         forgetViewModel = DefaultRowViewModel(
