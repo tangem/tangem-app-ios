@@ -25,7 +25,7 @@ extension UTXONetworkProvider {
             .withWeakCaptureOf(self)
             .flatMap { provider, outputs in
                 let pending = outputs.filter { !$0.isConfirmed }.map {
-                    provider.getTransactionInfo(hash: $0.hash, address: address)
+                    provider.getTransactionInfo(hash: $0.txId, address: address)
                 }
 
                 return Publishers.MergeMany(pending).collect()
