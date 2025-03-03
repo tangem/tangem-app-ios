@@ -26,21 +26,21 @@ struct DogecoinWalletAssembly: WalletManagerAssembly {
             addresses: input.wallet.addresses
         )
 
-        let providers: [AnyBitcoinNetworkProvider] = input.apiInfo.reduce(into: []) { partialResult, providerType in
+        let providers: [UTXONetworkProvider] = input.apiInfo.reduce(into: []) { partialResult, providerType in
             switch providerType {
             case .nowNodes:
                 partialResult.append(
                     networkProviderAssembly.makeBlockBookUTXOProvider(
                         with: input,
                         for: .nowNodes
-                    ).eraseToAnyBitcoinNetworkProvider()
+                    )
                 )
             case .getBlock:
                 partialResult.append(
                     networkProviderAssembly.makeBlockBookUTXOProvider(
                         with: input,
                         for: .getBlock
-                    ).eraseToAnyBitcoinNetworkProvider()
+                    )
                 )
             case .blockchair:
                 partialResult.append(
@@ -54,14 +54,19 @@ struct DogecoinWalletAssembly: WalletManagerAssembly {
                     networkProviderAssembly.makeBlockcypherNetworkProvider(
                         endpoint: .dogecoin,
                         with: input
-                    ).eraseToAnyBitcoinNetworkProvider()
+                    )
                 )
             default:
                 return
             }
         }
 
-        let networkService = BitcoinNetworkService(providers: providers)
-        return DogecoinWalletManager(wallet: input.wallet, txBuilder: txBuilder, unspentOutputManager: unspentOutputManager, networkService: networkService)
+        let networkService = MultiUTXONetworkProvider(providers: providers)
+        return DogecoinWalletManager(
+            wallet: input.wallet,
+            txBuilder: txBuilder,
+            unspentOutputManager: unspentOutputManager,
+            networkService: networkService
+        )
     }
 }
