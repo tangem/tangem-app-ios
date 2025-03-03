@@ -646,7 +646,7 @@
 "scan_card_settings_message" = "Отсканируйте карту или кольцо, чтобы изменить ее настройки. Изменения затронут только ту карту или кольцо, которые вы отсканировали, и не повлияют на другие устройства, привязанные к вашему кошельку.";
 "scan_card_settings_title" = "Приготовьте свой Tangem!";
 "security_alert_title" = "Уведомление безопасности";
-"seed_warning_no" = "No, I did not";
+"seed_warning_no" = "Нет";
 "seed_warning_yes" = "Да";
 "selling_insufficient_balance_alert_message" = "На вашем балансе недостаточно средств для продажи криптовалюты. Пожалуйста, пополните нужный актив, чтобы продолжить.";
 "selling_insufficient_balance_alert_title" = "Недостаточно средств";
