@@ -66,7 +66,7 @@ class XRPTests: XCTestCase {
 
     func testTxSize(curve: EllipticCurve) throws {
         // given
-        let edPrivateKey = try! Curve25519.Signing.PrivateKey(
+        let edPrivateKey = try Curve25519.Signing.PrivateKey(
             rawRepresentation: Data(hexString: "0x85fca134b3fe3fd523d8b528608d803890e26c93c86dc3d97b8d59c7b3540c97")
         )
         let publicKey = edPrivateKey.publicKey.rawRepresentation
@@ -77,7 +77,7 @@ class XRPTests: XCTestCase {
         builder.sequence = 1
 
         // when
-        let (tx, messageToSign) = try builder.buildForSign(transaction: transaction)!
+        let (_, messageToSign) = try XCTUnwrap(try builder.buildForSign(transaction: transaction))
 
         // then
         TransactionSizeTesterUtility().testTxSize(messageToSign)
