@@ -38,16 +38,16 @@ struct RadiantScriptUtils {
         WalletCore.BitcoinScript.lockScriptForAddress(address: address, coin: .bitcoinCash).data
     }
 
-    func writePrevoutHash(_ unspents: [RadiantUnspentOutput], into txToSign: inout Data) {
+    func writePrevoutHash(_ unspents: [ScriptUnspentOutput], into txToSign: inout Data) {
         let prevouts = Data(unspents.map {
-            Data($0.hash.reversed()) + $0.outputIndex.bytes4LE
+            Data($0.hash.reversed()) + $0.index.bytes4LE
         }.joined())
 
         let hashPrevouts = prevouts.getDoubleSha256()
         txToSign.append(contentsOf: hashPrevouts)
     }
 
-    func writeSequenceHash(_ unspents: [RadiantUnspentOutput], into txToSign: inout Data) {
+    func writeSequenceHash(_ unspents: [ScriptUnspentOutput], into txToSign: inout Data) {
         let sequence = Data(repeating: UInt8(0xFF), count: 4 * unspents.count)
         let hashSequence = sequence.getDoubleSha256()
         txToSign.append(contentsOf: hashSequence)
