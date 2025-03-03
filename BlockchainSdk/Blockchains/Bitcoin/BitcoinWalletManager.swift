@@ -43,7 +43,7 @@ class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
             .compactMap { $0 as? LockingScriptAddress }
             .map { address in
                 networkService.getInfo(address: address.value)
-                .map { UpdatingResponse(address: address, response: $0) }
+                    .map { UpdatingResponse(address: address, response: $0) }
             }
 
         cancellable = Publishers.MergeMany(publishers).collect()
