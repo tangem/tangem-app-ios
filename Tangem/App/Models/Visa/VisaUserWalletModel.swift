@@ -18,10 +18,14 @@ class VisaUserWalletModel {
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
 
-    var accountAddress: String { visaPaymentAccountInteractor?.accountAddress ?? .unknown }
+    var accountAddress: String? { visaPaymentAccountInteractor?.accountAddress }
 
     var walletDidChangePublisher: AnyPublisher<State, Never> {
         stateSubject.eraseToAnyPublisher()
+    }
+
+    var currentModelState: State {
+        stateSubject.value
     }
 
     var balancesPublisher: AnyPublisher<AppVisaBalances?, Never> {
@@ -120,6 +124,10 @@ class VisaUserWalletModel {
     }
 
     func exploreURL() -> URL? {
+        guard let accountAddress else {
+            return nil
+        }
+
         let linkProvider = ExternalLinkProviderFactory().makeProvider(for: VisaUtilities().visaBlockchain)
         return linkProvider.url(address: accountAddress, contractAddress: tokenItem?.token?.contractAddress)
     }
