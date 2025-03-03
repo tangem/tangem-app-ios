@@ -97,7 +97,7 @@ class StellarTests: XCTestCase {
         )
         let amount = Amount(with: token, value: Decimal(stringValue: "0.1")!)
 
-        let walletAddress = try! addressService.makeAddress(from: walletPubkey)
+        let walletAddress = try addressService.makeAddress(from: walletPubkey)
 
         let txBuilder = makeTxBuilder()
 
