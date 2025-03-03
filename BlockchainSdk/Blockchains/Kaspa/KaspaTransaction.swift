@@ -10,7 +10,7 @@ import Foundation
 import Sodium
 
 struct KaspaTransaction {
-    let inputs: [BitcoinUnspentOutput]
+    let inputs: [ScriptUnspentOutput]
     let outputs: [KaspaOutput]
 
     private let blake2bDigestKey = "TransactionSigningHash".data(using: .utf8)?.bytes ?? []
@@ -29,8 +29,8 @@ struct KaspaTransaction {
         data.append(hashPrevouts())
         data.append(hashSequence())
         data.append(hashSigOpCounts())
-        data.append(Data(hexString: inputs[inputIndex].transactionHash))
-        data.append(UInt32(inputs[inputIndex].outputIndex).data)
+        data.append(inputs[inputIndex].hash)
+        data.append(UInt32(inputs[inputIndex].index).data)
         data.append(UInt16(0).data) // script version
         data.append(UInt64(connectedScript.count).data)
         data.append(connectedScript)
@@ -56,8 +56,8 @@ struct KaspaTransaction {
     private func hashPrevouts() -> Data {
         var data = Data()
         for input in inputs {
-            data.append(Data(hexString: input.transactionHash))
-            data.append(UInt32(input.outputIndex).data)
+            data.append(input.hash)
+            data.append(UInt32(input.index).data)
         }
         return blake2bDigest(for: data)
     }
@@ -96,13 +96,13 @@ struct KaspaTransaction {
     }
 
     private func hashTransaction(_ hashType: KaspaUtils.KaspaHashType) -> Data? {
-        func encodedInputsSigScript(for input: BitcoinUnspentOutput, type: KaspaUtils.KaspaHashType) -> Data {
+        func encodedInputsSigScript(for input: ScriptUnspentOutput, type: KaspaUtils.KaspaHashType) -> Data {
             switch type {
             case .TransactionID:
                 return UInt64(0).data
 
             case .TransactionHash:
-                let script = Data(hex: input.outputScript)
+                let script = input.script
                 return UInt64(script.count).data + script + UInt8(0x01).data
 
             default:
@@ -112,8 +112,8 @@ struct KaspaTransaction {
 
         let encodedInputs: [Data] = inputs.map {
             [
-                Data(hex: $0.transactionHash),
-                UInt32($0.outputIndex).data,
+                $0.hash,
+                UInt32($0.index).data,
                 encodedInputsSigScript(for: $0, type: hashType),
                 UInt64(0).data, // Sequence
             ].reduce(Data(), +)

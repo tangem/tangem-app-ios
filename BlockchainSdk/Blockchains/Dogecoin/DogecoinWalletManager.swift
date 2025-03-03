@@ -32,9 +32,9 @@ class DogecoinWalletManager: BitcoinWalletManager {
         let normalRate = recommendedSatoshiPerByte * 10
         let maxRate = recommendedSatoshiPerByte * 100
 
-        let ratesModel = BitcoinFee(
-            minimalSatoshiPerByte: minRate,
-            normalSatoshiPerByte: normalRate,
+        let ratesModel = UTXOFee(
+            slowSatoshiPerByte: minRate,
+            marketSatoshiPerByte: normalRate,
             prioritySatoshiPerByte: maxRate
         )
 
