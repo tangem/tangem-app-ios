@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 protocol VisaWalletMainHeaderSubtitleDataSource: AnyObject {
-    var walletDidChangePublisher: AnyPublisher<VisaWalletModel.State, Never> { get }
+    var walletDidChangePublisher: AnyPublisher<VisaUserWalletModel.State, Never> { get }
     var fiatBalance: String { get }
     var blockchainName: String { get }
 }
