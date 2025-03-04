@@ -33,7 +33,7 @@ private extension TokenItem {
         switch blockchain {
         case .solana:
             return isToken ? false : true
-        case .chia:
+        case .chia, .aptos, .algorand:
             return false
         default:
             return true

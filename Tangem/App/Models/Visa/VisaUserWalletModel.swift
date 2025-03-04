@@ -559,6 +559,8 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var wcWalletModelProvider: any WalletConnectWalletModelProvider { NotSupportedWalletConnectWalletModelProvider() }
 
+    var refcodeProvider: any RefcodeProvider { userWalletModel.refcodeProvider }
+
     var keysDerivingInteractor: any KeysDeriving { userWalletModel.keysDerivingInteractor }
 
     func validate() -> Bool { userWalletModel.validate() }
