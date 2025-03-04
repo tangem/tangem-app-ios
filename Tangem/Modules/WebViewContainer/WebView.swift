@@ -126,12 +126,12 @@ struct WebView: UIViewRepresentable {
         }
 
         func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: any Error) {
-            guard let fallbackURL else {
+            guard let fallbackURL, let htmlString = try? String(contentsOf: fallbackURL, encoding: .utf8) else {
                 return
             }
 
             isLoading?.wrappedValue = false
-            webView.load(URLRequest(url: fallbackURL))
+            webView.loadHTMLString(htmlString, baseURL: nil)
         }
     }
 
