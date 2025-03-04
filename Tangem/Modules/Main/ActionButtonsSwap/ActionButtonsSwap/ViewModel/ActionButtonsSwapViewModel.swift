@@ -73,7 +73,7 @@ final class ActionButtonsSwapViewModel: ObservableObject {
         sourceSwapTokenSelectorViewModel = sourceSwapTokeSelectorViewModel
 
         let expressAPIProviderFactory = ExpressAPIProviderFactory().makeExpressAPIProvider(
-            userId: userWalletModel.userWalletId.stringValue
+            userWalletModel: userWalletModel
         )
 
         expressRepository = CommonExpressRepository(
