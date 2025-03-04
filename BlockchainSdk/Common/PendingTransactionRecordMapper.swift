@@ -79,4 +79,39 @@ struct PendingTransactionRecordMapper {
             transactionParams: pendingTransaction.transactionParams
         )
     }
+
+    func mapPendingTransactionRecord(record transaction: TransactionRecord, blockchain: Blockchain, address: String) throws -> PendingTransactionRecord {
+        let isIncoming = !transaction.isOutgoing
+        let outs = transaction.destination.destinations
+        let destination = outs.first(where: { $0.address.string != address })?.address.string ?? .unknown
+
+        let value: Decimal = {
+            if isIncoming {
+                // All outs which was sent only to `wallet` address
+                return outs.filter { $0.address.string == address }.reduce(0) { $0 + $1.amount }
+            }
+
+            // All outs which was sent only to `other` addresses
+            return outs.filter { $0.address.string != address }.reduce(0) { $0 + $1.amount }
+        }()
+
+        let type: PendingTransactionRecord.TransactionType = {
+            switch transaction.type {
+            case .transfer: .transfer
+            case .contractMethodIdentifier, .contractMethodName: .operation
+            case .staking(_, let validator): .stake(validator: validator)
+            }
+        }()
+
+        return PendingTransactionRecord(
+            hash: transaction.hash,
+            source: isIncoming ? destination : address,
+            destination: isIncoming ? address : destination,
+            amount: .init(with: blockchain, type: .coin, value: value),
+            fee: transaction.fee,
+            date: transaction.date ?? Date(),
+            isIncoming: isIncoming,
+            transactionType: type
+        )
+    }
 }
