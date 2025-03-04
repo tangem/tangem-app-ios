@@ -150,8 +150,9 @@ extension MercuryoService: ExchangeService {
             .sink(
                 receiveCompletion: { [weak self] completion in
                     switch completion {
-                    case .finished: break
-                    case .failure(let error):
+                    case .finished:
+                        break
+                    case .failure:
                         self?.initializeState = .failed(.networkError)
                     }
                 },
