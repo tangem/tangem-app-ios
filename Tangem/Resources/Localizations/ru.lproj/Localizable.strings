@@ -3,7 +3,7 @@
 "action_buttons_sell_empty_search_message" = "Не нашли свой токен? Перейдите в раздел «Рынок» на главной странице и добавьте его в свой портфель для продажи.";
 "action_buttons_sell_navigation_bar_title" = "Продать";
 "action_buttons_something_wrong_alert_message" = "Это действие в данный момент недоступно, пожалуйста, попробуйте позже или обновите данные, сделав свайп экрана вниз.";
-"action_buttons_something_wrong_alert_title" = "Кнопка недоступна";
+"action_buttons_something_wrong_alert_title" = "Действие недоступно";
 "action_buttons_swap_choose_token" = "Выберите токен";
 "action_buttons_swap_empty_search_message" = "Не нашли свой токен? Перейдите в раздел «Рынок» на главной странице и добавьте его в свой портфель для обмена.";
 "action_buttons_swap_navigation_bar_title" = "Обменять";
@@ -646,7 +646,7 @@
 "scan_card_settings_message" = "Отсканируйте карту или кольцо, чтобы изменить ее настройки. Изменения затронут только ту карту или кольцо, которые вы отсканировали, и не повлияют на другие устройства, привязанные к вашему кошельку.";
 "scan_card_settings_title" = "Приготовьте свой Tangem!";
 "security_alert_title" = "Уведомление безопасности";
-"seed_warning_no" = "No, I did not";
+"seed_warning_no" = "Нет";
 "seed_warning_yes" = "Да";
 "selling_insufficient_balance_alert_message" = "На вашем балансе недостаточно средств для продажи криптовалюты. Пожалуйста, пополните нужный актив, чтобы продолжить.";
 "selling_insufficient_balance_alert_title" = "Недостаточно средств";
@@ -1081,7 +1081,7 @@
 "warning_rate_app_title" = "Нравится Tangem?";
 "warning_receive_blocked_hedera_token_association_required_message" = "Вам необходимо провести ассоциацию токена для того, чтобы иметь возможность принимать его";
 "warning_rent_fee_title" = "Необходима плата за аренду сети";
-"warning_seedphrase_action_required_title" = "Action required";
+"warning_seedphrase_action_required_title" = "Требуется действие";
 "warning_seedphrase_contacted_support" = "Вы обращались в службу поддержки через приложение в течение 7 дней после создания кошелька? Если обращались или не уверены, нажмите «Да» и следуйте инструкциям.";
 "warning_seedphrase_issue_answer_no" = "Спасибо! Всё в порядке! Дальнейшие действия не требуются.";
 "warning_seedphrase_issue_answer_yes" = "Вы будете перенаправлены на официальный сайт Tangem. Пожалуйста, прочитайте и выполните указанные там инструкции.";
