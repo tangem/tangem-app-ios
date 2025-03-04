@@ -153,12 +153,16 @@ private extension CommonExpressAvailabilityProvider {
     }
 
     func makeApiProviderIfNeeded(userWalletId: String) {
-        guard apiProvider == nil else {
+        guard self.apiProvider == nil else {
             return
         }
 
-        let provider = ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId)
-        apiProvider = provider
+        let apiProvider = ExpressAPIProviderFactory().makeExpressAPIProvider(
+            userId: userWalletId,
+            refcodeProvider: nil
+        )
+
+        self.apiProvider = apiProvider
     }
 }
 
