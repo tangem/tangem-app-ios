@@ -22,12 +22,12 @@ struct ElectrumTransactionRecordMapper {
 
 extension ElectrumTransactionRecordMapper: TransactionRecordMapper {
     func mapToTransactionRecord(transaction: Transaction, address: String) throws -> TransactionRecord {
-        let isOutgoing = transaction.inputs.contains(where: { $0.scriptPubKey.addresses.contains(address) })
+        let isOutgoing = transaction.inputs.contains(where: { $0.recipient == address })
         let sources: [TransactionRecord.Source] = transaction.inputs.map {
-            .init(address: $0.scriptPubKey.addresses.first ?? .unknown, amount: $0.value)
+            .init(address: $0.recipient ?? .unknown, amount: $0.value)
         }
         let destinations: [TransactionRecord.Destination] = transaction.transaction.vout.map {
-            .init(address: .user($0.scriptPubKey.addresses.first ?? .unknown), amount: $0.value)
+            .init(address: .user($0.recipient ?? .unknown), amount: $0.value)
         }
 
         let fee: Decimal = sources.reduce(0) { $0 + $1.amount } - destinations.reduce(0) { $0 + $1.amount }
@@ -46,5 +46,11 @@ extension ElectrumTransactionRecordMapper: TransactionRecordMapper {
             date: date,
             tokenTransfers: nil
         )
+    }
+}
+
+extension ElectrumDTO.Response.Vout {
+    var recipient: String? {
+        scriptPubKey.addresses?.first ?? scriptPubKey.address
     }
 }
