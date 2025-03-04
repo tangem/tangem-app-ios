@@ -46,7 +46,7 @@ class CSPRDeploy {
                 return jsonData
             }
         } catch {
-            NSLog("Error: \(error)")
+            BSDKLogger.error("JSON serialization failed", error: error)
         }
         return Data()
     }
