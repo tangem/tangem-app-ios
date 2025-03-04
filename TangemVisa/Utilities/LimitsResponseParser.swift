@@ -47,7 +47,7 @@ struct LimitsResponseParser {
 
     private func parseLimit(_ chunks: [String], decimalCount: Int) throws -> VisaLimit {
         var limitItems = chunks
-        chunks.forEach { print($0) }
+        chunks.forEach { VisaLogger.info($0) }
         guard limitItems.count == itemsForEachLimit else {
             throw VisaParserError.limitWrongSingleLimitItemsCount
         }
