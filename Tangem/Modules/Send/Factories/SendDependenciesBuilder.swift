@@ -320,7 +320,7 @@ struct SendDependenciesBuilder {
     }
 
     func makeStakingNotificationManager() -> StakingNotificationManager {
-        CommonStakingNotificationManager(wallet: walletModel)
+        CommonStakingNotificationManager(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem)
     }
 
     func makeStakingSendAmountValidator(stakingManager: some StakingManager) -> SendAmountValidator {
