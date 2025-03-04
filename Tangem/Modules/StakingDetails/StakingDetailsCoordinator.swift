@@ -48,9 +48,7 @@ class StakingDetailsCoordinator: CoordinatorObject {
             tokenBalanceProvider: options.walletModel.availableBalanceProvider,
             stakingManager: options.manager,
             coordinator: self,
-            notificationManager: CommonStakingNotificationManager(
-                wallet: options.walletModel
-            )
+            isAccountInitialized: options.walletModel.isAccountInitialized
         )
     }
 }
