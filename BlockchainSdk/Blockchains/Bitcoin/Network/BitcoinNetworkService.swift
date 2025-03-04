@@ -11,6 +11,7 @@ import Moya
 import Combine
 import TangemSdk
 
+@available(*, deprecated, renamed: "UTXONetworkProvider", message: "Use UTXONetworkProvider")
 class BitcoinNetworkService: MultiNetworkProvider, BitcoinNetworkProvider {
     let providers: [AnyBitcoinNetworkProvider]
     var currentProviderIndex: Int = 0

@@ -85,6 +85,17 @@ public extension TransactionRecord {
     enum SourceType: Hashable {
         case single(Source)
         case multiple([Source])
+
+        var sources: [Source] {
+            switch self {
+            case .single(let source): [source]
+            case .multiple(let sources): sources
+            }
+        }
+
+        static func from(_ sources: [Source]) -> Self {
+            sources.count == 1 ? .single(sources.first!) : .multiple(sources)
+        }
     }
 
     struct Source: Hashable {
@@ -104,6 +115,17 @@ public extension TransactionRecord {
     enum DestinationType: Hashable {
         case single(Destination)
         case multiple([Destination])
+
+        var destinations: [Destination] {
+            switch self {
+            case .single(let destination): [destination]
+            case .multiple(let destinations): destinations
+            }
+        }
+
+        static func from(_ destinations: [Destination]) -> Self {
+            destinations.count == 1 ? .single(destinations.first!) : .multiple(destinations)
+        }
     }
 
     struct Destination: Hashable {
