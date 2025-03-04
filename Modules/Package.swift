@@ -92,6 +92,7 @@ var featureModules: [PackageDescription.Target] {
                 .swiftLanguageMode(.v5),
             ]
         ),
+        .tangemTarget(name: "TangemNFT"),
     ]
 }
 
