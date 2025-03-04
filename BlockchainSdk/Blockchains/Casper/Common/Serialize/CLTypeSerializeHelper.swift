@@ -251,7 +251,7 @@ enum CLTypeSerializeHelper {
                             let valueSeiralize = try CLTypeSerializeHelper.CLValueSerialize(input: valueForKey)
                             result = result + keySerialize + valueSeiralize
                         } catch {
-                            NSLog("Error when serialize map: \(error)")
+                            BSDKLogger.error("Error when serialize map", error: error)
                         }
                     }
                     return result
@@ -272,7 +272,7 @@ enum CLTypeSerializeHelper {
                             let valueSeiralize = try CLTypeSerializeHelper.CLValueSerialize(input: valueForKey)
                             result = result + keySerialize + valueSeiralize
                         } catch {
-                            NSLog("Error when serialize map: \(error)")
+                            BSDKLogger.error("Error when serialize map", error: error)
                         }
                     }
                     return result
@@ -293,7 +293,7 @@ enum CLTypeSerializeHelper {
                             let valueSeiralize = try CLTypeSerializeHelper.CLValueSerialize(input: valueForKey)
                             result = result + keySerialize + valueSeiralize
                         } catch {
-                            NSLog("Error when serialize map: \(error)")
+                            BSDKLogger.error("Error when serialize map", error: error)
                         }
                     }
                     return result
@@ -314,7 +314,7 @@ enum CLTypeSerializeHelper {
                             let valueSeiralize = try CLTypeSerializeHelper.CLValueSerialize(input: valueForKey)
                             result = result + keySerialize + valueSeiralize
                         } catch {
-                            NSLog("Error when serialize map: \(error)")
+                            BSDKLogger.error("Error when serialize map", error: error)
                         }
                     }
                     return result
@@ -335,7 +335,7 @@ enum CLTypeSerializeHelper {
                             let valueSeiralize = try CLTypeSerializeHelper.CLValueSerialize(input: valueForKey)
                             result = result + keySerialize + valueSeiralize
                         } catch {
-                            NSLog("Error when serialize map: \(error)")
+                            BSDKLogger.error("Error when serialize map", error: error)
                         }
                     }
                     return result
@@ -356,7 +356,7 @@ enum CLTypeSerializeHelper {
                             let valueSeiralize = try CLTypeSerializeHelper.CLValueSerialize(input: valueForKey)
                             result = result + keySerialize + valueSeiralize
                         } catch {
-                            NSLog("Error when serialize map: \(error)")
+                            BSDKLogger.error("Error when serialize map", error: error)
                         }
                     }
                     return result
@@ -377,7 +377,7 @@ enum CLTypeSerializeHelper {
                             let valueSeiralize = try CLTypeSerializeHelper.CLValueSerialize(input: valueForKey)
                             result = result + keySerialize + valueSeiralize
                         } catch {
-                            NSLog("Error when serialize map: \(error)")
+                            BSDKLogger.error("Error when serialize map", error: error)
                         }
                     }
                     return result
@@ -398,7 +398,7 @@ enum CLTypeSerializeHelper {
                             let valueSeiralize = try CLTypeSerializeHelper.CLValueSerialize(input: valueForKey)
                             result = result + keySerialize + valueSeiralize
                         } catch {
-                            NSLog("Error when serialize map: \(error)")
+                            BSDKLogger.error("Error when serialize map", error: error)
                         }
                     }
                     return result
@@ -419,7 +419,7 @@ enum CLTypeSerializeHelper {
                             let valueSeiralize = try CLTypeSerializeHelper.CLValueSerialize(input: valueForKey)
                             result = result + keySerialize + valueSeiralize
                         } catch {
-                            NSLog("Error when serialize map: \(error)")
+                            BSDKLogger.error("Error when serialize map", error: error)
                         }
                     }
                     return result
