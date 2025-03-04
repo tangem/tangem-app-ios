@@ -175,14 +175,15 @@ class ChiaTests: XCTestCase {
         }
 
         let buildToSignResult = try transactionBuilder.buildForSign(transaction: transactionData)
+
+        buildToSignResult.forEach {
+            sizeUtility.testTxSizes([$0])
+        }
+
         let signedTransaction = try transactionBuilder.buildToSend(signatures: signatures)
 
         XCTAssertEqual(buildToSignResult, hashToSignes)
         try XCTAssertEqual(jsonEncoder.encode(signedTransaction).hexString, jsonEncoder.encode(expectedSignedTransaction).hexString)
-    }
-
-    func testSizeTransaction() {
-        sizeUtility.testTxSizes(testSignatures)
     }
 
     func testNegativeChiaEncoded() {

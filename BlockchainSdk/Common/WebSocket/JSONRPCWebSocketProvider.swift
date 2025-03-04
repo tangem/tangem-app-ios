@@ -48,7 +48,11 @@ actor JSONRPCWebSocketProvider {
         let response = try decoder.decode(JSONRPC.Response<Result, JSONRPC.APIError>.self, from: data)
 
         assert(request.id == response.id, "The response contains wrong id")
-        BSDKLogger.info(self, "Return result \(response.result)")
+
+        switch response.result {
+        case .success: BSDKLogger.info(self, "Return success for id \(response.id)")
+        case .failure: BSDKLogger.info(self, "Return failure for id \(response.id)")
+        }
 
         return try response.result.get()
     }
