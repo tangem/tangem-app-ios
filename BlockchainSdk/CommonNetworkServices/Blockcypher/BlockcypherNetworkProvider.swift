@@ -50,7 +50,7 @@ extension BlockcypherNetworkProvider: UTXONetworkProvider {
             response: BlockcypherDTO.Address.Response.self
         )
         .withWeakCaptureOf(self)
-        .map { $0.mapToUnspentOutputs(outputs: $1.txrefs) }
+        .map { $0.mapToUnspentOutputs(response: $1) }
         .eraseToAnyPublisher()
     }
 
@@ -123,8 +123,9 @@ private extension BlockcypherNetworkProvider {
 // MARK: - Mapping
 
 private extension BlockcypherNetworkProvider {
-    func mapToUnspentOutputs(outputs: [BlockcypherDTO.Address.Response.Txref]) -> [UnspentOutput] {
-        outputs.map {
+    func mapToUnspentOutputs(response: BlockcypherDTO.Address.Response) -> [UnspentOutput] {
+        let outputs = [response.unconfirmedTxrefs, response.txrefs].compactMap { $0 }.flatMap { $0 }
+        return outputs.map {
             // From docs:
             // Height of the block that contains this transaction input/output. If it's unconfirmed, this will equal -1.
             UnspentOutput(blockId: $0.blockHeight ?? -1, hash: Data(hex: $0.txHash), index: $0.txOutputN, amount: $0.value)
