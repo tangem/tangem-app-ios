@@ -34,6 +34,10 @@ struct LockedUserTokensManager: UserTokensManager {
         return false
     }
 
+    func containsDerivationInsensitive(_ tokenItem: TokenItem) -> Bool {
+        return false
+    }
+
     func getAllTokens(for blockchainNetwork: BlockchainNetwork) -> [Token] {
         return []
     }
