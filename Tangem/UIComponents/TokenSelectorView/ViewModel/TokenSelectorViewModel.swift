@@ -53,7 +53,7 @@ final class TokenSelectorViewModel<
         bind()
     }
 
-    func bind() {
+    private func bind() {
         bindWalletModels()
         bindSearchText()
     }

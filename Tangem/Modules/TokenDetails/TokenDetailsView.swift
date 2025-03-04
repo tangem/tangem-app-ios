@@ -140,6 +140,7 @@ private extension TokenDetailsView {
 #Preview {
     let userWalletModel = FakeUserWalletModel.wallet3Cards
     let walletModel = userWalletModel.walletModelsManager.walletModels.first ?? .mockETH
+
     let exchangeUtility = ExchangeCryptoUtility(
         blockchain: walletModel.blockchainNetwork.blockchain,
         address: walletModel.defaultAddress,
@@ -150,14 +151,17 @@ private extension TokenDetailsView {
         walletModelsManager: userWalletModel.walletModelsManager,
         contextDataProvider: nil
     )
+    let expressAPIProvider = ExpressAPIProviderFactory().makeExpressAPIProvider(userWalletModel: userWalletModel)
     let pendingExpressTxsManager = CommonPendingExpressTransactionsManager(
         userWalletId: userWalletModel.userWalletId.stringValue,
         walletModel: walletModel,
+        expressAPIProvider: expressAPIProvider,
         expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
     )
     let pendingOnrampTxsManager = CommonPendingOnrampTransactionsManager(
         userWalletId: userWalletModel.userWalletId.stringValue,
-        walletModel: walletModel
+        walletModel: walletModel,
+        expressAPIProvider: expressAPIProvider
     )
     let pendingTxsManager = CompoundPendingTransactionsManager(
         first: pendingExpressTxsManager,
