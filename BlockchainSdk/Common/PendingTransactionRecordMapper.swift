@@ -83,7 +83,21 @@ struct PendingTransactionRecordMapper {
     func mapToPendingTransactionRecord(record transaction: TransactionRecord, blockchain: Blockchain, address: String) -> PendingTransactionRecord {
         let isIncoming = !transaction.isOutgoing
         let outs = transaction.destination.destinations
-        let destination = outs.first(where: { $0.address.string != address })?.address.string ?? .unknown
+        let source: String = {
+            if transaction.isOutgoing {
+                return address
+            }
+
+            return transaction.source.sources.first(where: { $0.address != address })?.address ?? .unknown
+        }()
+
+        let destination: String = {
+            if isIncoming {
+                return address
+            }
+
+            return outs.first(where: { $0.address.string != address })?.address.string ?? .unknown
+        }()
 
         let value: Decimal = {
             if isIncoming {
@@ -103,8 +117,8 @@ struct PendingTransactionRecordMapper {
 
         return PendingTransactionRecord(
             hash: transaction.hash,
-            source: isIncoming ? destination : address,
-            destination: isIncoming ? address : destination,
+            source: source,
+            destination: destination,
             amount: .init(with: blockchain, type: .coin, value: value),
             fee: transaction.fee,
             date: transaction.date ?? Date(),

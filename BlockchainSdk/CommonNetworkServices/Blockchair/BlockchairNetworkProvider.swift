@@ -65,7 +65,9 @@ extension BlockchairNetworkProvider: UTXONetworkProvider {
         execute(type: .txDetails(txHash: hash, endpoint: endpoint), response: BlockchairDTO.TransactionInfo.Response.self)
             .withWeakCaptureOf(self)
             .tryMap { provider, response -> TransactionRecord in
-                guard let transaction = response.data[hash] else {
+                // We have to find key ignore case type
+                let transaction = response.data.first(where: { $0.key.caseInsensitiveEquals(to: hash) })?.value
+                guard let transaction else {
                     throw WalletError.failedToParseNetworkResponse()
                 }
 
