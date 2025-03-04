@@ -41,8 +41,11 @@ extension Fact0rnNetworkProvider: UTXONetworkProvider {
             let transaction = try await self.provider.getTransaction(hash: hash)
             // We have to load the previous tx for every input that get full info about input
             // Because the original input doesn't have address and amount
-            let inputs = try await transaction.vin.asyncMap { input in
-                try await self.provider.getTransaction(hash: input.txid).vout[input.vout]
+            let inputs = try await transaction.vin.asyncCompactMap { input in
+                if let txid = input.txid, let vout = input.vout {
+                    return try await self.provider.getTransaction(hash: txid).vout[vout]
+                }
+                return nil
             }
 
             return try self.mapToTransactionRecord(transaction: transaction, inputs: inputs, address: address)
