@@ -106,7 +106,8 @@ extension BlockBookAddressResponse {
         let txid: String?
         let sequence: Int?
         let n: Int
-        let addresses: [String]
+        // Might be `nil` if it is coinbase transaction
+        let addresses: [String]?
         let isAddress: Bool
         let value: String?
         let hex: String?
@@ -118,7 +119,8 @@ extension BlockBookAddressResponse {
         let value: String
         let n: Int
         let hex: String?
-        let addresses: [String]
+        // Might be `nil` if it is coinbase transaction
+        let addresses: [String]?
         let isAddress: Bool
         let spent: Bool?
         let isOwn: Bool?
