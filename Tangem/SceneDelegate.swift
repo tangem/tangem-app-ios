@@ -34,7 +34,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         servicesManager.initialize()
         startApp(scene: scene, appCoordinatorOptions: .default)
-        tangemStoriesHostManager.setup(with: scene, mainWindow: window)
+        tangemStoriesHostManager.setup(with: scene)
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
@@ -104,6 +104,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         appCoordinator.start(with: appCoordinatorOptions)
         self.appCoordinator = appCoordinator
         self.window = window
+        tangemStoriesHostManager.mainWindow = window
         window.overrideUserInterfaceStyle = AppSettings.shared.appTheme.interfaceStyle
         window.makeKeyAndVisible()
     }
