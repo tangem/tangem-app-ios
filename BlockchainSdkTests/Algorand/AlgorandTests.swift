@@ -14,6 +14,7 @@ import WalletCore
 
 final class AlgorandTests: XCTestCase {
     private let coinType: CoinType = .algorand
+    private let sizeTester = TransactionSizeTesterUtility()
 
     /*
      - Use private key for Algorand coin at test mnemonic
@@ -76,11 +77,13 @@ final class AlgorandTests: XCTestCase {
 
         XCTAssertEqual(buildForSign.hexString, expectedBuildForSign)
 
+        // Validate hash size
+        XCTAssertFalse(sizeTester.isValidForiPhone7(buildForSign))
+        XCTAssertTrue(sizeTester.isValidForCosBelow4_52(buildForSign))
+        XCTAssertTrue(sizeTester.isValidForCos4_52AndAbove(buildForSign))
+
         let signature = privateKey.sign(digest: buildForSign, curve: .ed25519)
         XCTAssertNotNil(signature)
-
-        // Validate hash size
-        TransactionSizeTesterUtility().testTxSizes([signature ?? Data()])
 
         let buildForSend = try transactionBuilder.buildForSend(
             transaction: transaction,
