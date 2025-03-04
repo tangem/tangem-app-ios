@@ -93,6 +93,8 @@ final class ActionButtonsBuyViewModel: ObservableObject {
 
 extension ActionButtonsBuyViewModel {
     private func bind() {
+        let tokenMapper = TokenItemMapper(supportedBlockchains: userWalletModel.config.supportedBlockchains)
+
         userWalletModel
             .walletModelsManager
             .walletModelsPublisher
@@ -107,7 +109,7 @@ extension ActionButtonsBuyViewModel {
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { viewModel, hotTokens in
-                viewModel.updateHotTokens(hotTokens)
+                viewModel.updateHotTokens(hotTokens.map { .init(from: $0, tokenMapper: tokenMapper, imageHost: nil) })
             }
             .store(in: &bag)
     }
@@ -118,17 +120,25 @@ extension ActionButtonsBuyViewModel {
 extension ActionButtonsBuyViewModel {
     func updateHotTokens(_ hotTokens: [HotCryptoToken]) {
         hotCryptoItems = hotTokens.filter { hotToken in
-            guard let mappedToken = mapTokenItem(from: hotToken) else { return false }
+            guard let tokenItem = hotToken.tokenItem else { return false }
 
             do {
-                try userWalletModel.userTokensManager.addTokenItemPrecondition(mappedToken)
+                try userWalletModel.userTokensManager.addTokenItemPrecondition(tokenItem)
 
-                let isNotAddedToken = !userWalletModel.userTokensManager.contains(mappedToken)
+                let isNotAddedToken = !userWalletModel.userTokensManager.containsDerivationInsensitive(tokenItem)
 
                 return isNotAddedToken
             } catch {
                 return false
             }
+        }
+
+        if hotCryptoItems.isNotEmpty {
+            expressAvailabilityProvider.updateExpressAvailability(
+                for: hotCryptoItems.compactMap(\.tokenItem),
+                forceReload: false,
+                userWalletId: userWalletModel.userWalletId.stringValue
+            )
         }
     }
 
@@ -138,17 +148,18 @@ extension ActionButtonsBuyViewModel {
             return
         }
 
-        guard let mappedToken = mapTokenItem(from: hotToken) else { return }
+        guard let tokenItem = hotToken.tokenItem else { return }
 
-        userWalletModel.userTokensManager.add(mappedToken) { [weak self] result in
+        userWalletModel.userTokensManager.add(tokenItem) { [weak self] result in
             guard let self, result.error == nil else { return }
+
             expressAvailabilityProvider.updateExpressAvailability(
-                for: [mappedToken],
-                forceReload: false,
+                for: [tokenItem],
+                forceReload: true,
                 userWalletId: userWalletModel.userWalletId.stringValue
             )
 
-            handleTokenAdding(tokenItem: mappedToken)
+            handleTokenAdding(tokenItem: tokenItem)
         }
     }
 
@@ -173,21 +184,6 @@ extension ActionButtonsBuyViewModel {
         coordinator?.closeAddToPortfolio()
 
         openBuy(for: walletModel)
-    }
-
-    private func mapTokenItem(from hotToken: HotCryptoToken) -> TokenItem? {
-        let tokenItemMapper = TokenItemMapper(supportedBlockchains: userWalletModel.config.supportedBlockchains)
-
-        return tokenItemMapper.mapToTokenItem(
-            id: hotToken.coinId,
-            name: hotToken.name,
-            symbol: hotToken.symbol,
-            network: .init(
-                networkId: hotToken.networkId,
-                contractAddress: hotToken.contractAddress,
-                decimalCount: hotToken.decimalCount
-            )
-        )
     }
 }
 
