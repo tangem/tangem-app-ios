@@ -12,7 +12,8 @@ enum BlockcypherDTO {
     enum Address {
         struct Response: Decodable {
             let address: String?
-            let txrefs: [Txref]
+            let txrefs: [Txref]?
+            let unconfirmedTxrefs: [Txref]?
 
             struct Txref: Decodable {
                 // tx_hash
