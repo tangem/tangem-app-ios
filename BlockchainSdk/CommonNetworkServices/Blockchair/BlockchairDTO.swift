@@ -82,7 +82,6 @@ enum BlockchairDTO {
             let data: Data
 
             struct Data: Decodable {
-                /// suggested_transaction_fee_per_byte_sat
                 let suggestedTransactionFeePerByteSat: Int
             }
         }
@@ -93,7 +92,6 @@ enum BlockchairDTO {
             let data: Data
 
             struct Data: Decodable {
-                /// transaction_hash
                 let transactionHash: String
             }
         }
@@ -101,7 +99,6 @@ enum BlockchairDTO {
 
     enum TransactionInfo {
         struct Response: Decodable {
-            /// Key is hash
             let data: [String: Transaction]
 
             struct Transaction: Decodable {
