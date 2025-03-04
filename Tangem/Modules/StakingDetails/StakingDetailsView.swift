@@ -40,10 +40,6 @@ struct StakingDetailsView: View {
 
                     rewardView
 
-                    ForEach(viewModel.notificationInputs) { input in
-                        NotificationView(input: input)
-                    }
-
                     GroupedSection(viewModel.stakes) { data in
                         StakingDetailsStakeView(data: data)
                     } header: {
@@ -159,9 +155,7 @@ struct StakingDetailsView_Preview: PreviewProvider {
         tokenBalanceProvider: WalletModel.mockETH.availableBalanceProvider,
         stakingManager: StakingManagerMock(),
         coordinator: StakingDetailsCoordinator(),
-        notificationManager: CommonStakingNotificationManager(
-            wallet: WalletModel.mockETH
-        )
+        isAccountInitialized: true
     )
 
     static var previews: some View {
