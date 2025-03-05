@@ -76,7 +76,7 @@ final class AlgorandTransactionBuilder {
         return signingOutput.encoded
     }
 
-    /*
+    /**
      This links describe basic structure of pay type transaction Algorand Blockchain
      - https://developer.algorand.org/docs/get-details/transactions/
      - https://developer.algorand.org/docs/get-details/transactions/#genesis-hash
