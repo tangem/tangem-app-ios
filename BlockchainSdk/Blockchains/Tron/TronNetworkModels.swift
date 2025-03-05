@@ -41,8 +41,8 @@ struct TronGetAccountRequest: Encodable {
 
 struct TronGetAccountResponse: Decodable {
     let balance: UInt64?
-    // We don't use this field but we can't have just one optional `balance` field
-    // Otherwise an empty JSON will conform to this structure
+    /// We don't use this field but we can't have just one optional `balance` field
+    /// Otherwise an empty JSON will conform to this structure
     let address: String
 }
 

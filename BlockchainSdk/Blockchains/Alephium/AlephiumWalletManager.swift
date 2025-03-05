@@ -54,7 +54,7 @@ class AlephiumWalletManager: BaseManager, WalletManager {
             })
     }
 
-    /*
+    /**
      We calculate the fee on our own, but we need the gasPrice value. If we throw the Amount from the transaction values, the api will throw an error that is not enough for the coms if we output it completely. Therefore, the logic is this, we throw it, take the gasLimit, count the gasAmount and multiply. Described in the documentation for the blockchain is Notion
      */
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], any Error> {
