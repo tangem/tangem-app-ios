@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct RavencoinRawTransaction {
+enum RavencoinRawTransaction {
     struct Request: Encodable {
         let rawtx: String
     }
