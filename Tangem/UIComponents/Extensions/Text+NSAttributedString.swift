@@ -9,7 +9,7 @@
 import SwiftUI
 
 extension Text {
-    // Taken from https://swiftui-lab.com/attributed-strings-with-swiftui/
+    /// Taken from https://swiftui-lab.com/attributed-strings-with-swiftui/
     @available(*, deprecated, message: "Use AttributedString instead of NSAttributedString")
     init(_ attributedString: NSAttributedString) {
         self.init("")
