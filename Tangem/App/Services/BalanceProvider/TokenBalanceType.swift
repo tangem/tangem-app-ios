@@ -11,14 +11,14 @@ import Foundation
 // MARK: - TokenBalanceType
 
 enum TokenBalanceType: Hashable {
-    // No derivation / Don't start loading yet
+    /// No derivation / Don't start loading yet
     case empty(EmptyReason)
-    // "Skeleton" or "New animation"
+    /// "Skeleton" or "New animation"
     case loading(Cached?)
-    // "Cached" or "-"
-    // The date on which the balance would be relevant
+    /// "Cached" or "-"
+    /// The date on which the balance would be relevant
     case failure(Cached?)
-    // All good
+    /// All good
     case loaded(Decimal)
 }
 

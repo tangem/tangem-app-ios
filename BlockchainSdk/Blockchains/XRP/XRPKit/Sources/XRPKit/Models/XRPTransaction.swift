@@ -54,7 +54,7 @@ class XRPTransaction {
 //        })
 //    }
 
-    // autofills account address, ledger sequence, fee, and sequence
+    /// autofills account address, ledger sequence, fee, and sequence
     @available(iOS 10.0, *)
     func autofill(address: String, completion: @escaping ((Result<XRPTransaction, Error>) -> Void)) {
         // network calls to retrive current account and ledger info
