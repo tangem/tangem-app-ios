@@ -64,8 +64,7 @@ struct TangemApiTarget: TargetType {
         case .story(let storyId):
             return "/stories/\(storyId)"
 
-            // MARK: - Markets paths
-
+        // MARK: - Markets paths
         case .coinsList:
             return "/coins/list"
         case .coinsHistoryChartPreview:
@@ -78,12 +77,10 @@ struct TangemApiTarget: TargetType {
             return "/coins/\(requestModel.tokenId)/exchanges"
 
         // MARK: - Action Buttons
-
         case .hotCrypto:
             return "/hot_crypto"
 
         // MARK: SeedNotify
-
         case .seedNotifyGetStatus(let userWalletId), .seedNotifySetStatus(let userWalletId, _):
             return "/seedphrase-notification/\(userWalletId)"
         case .seedNotifyGetStatusConfirmed(let userWalletId), .seedNotifySetStatusConfirmed(let userWalletId, _):
@@ -188,8 +185,7 @@ struct TangemApiTarget: TargetType {
         case .story:
             return .requestPlain
 
-            // MARK: - Markets tasks
-
+        // MARK: - Markets tasks
         case .coinsList(let requestData):
             return .requestParameters(parameters: requestData.parameters, encoding: URLEncoding.default)
         case .coinsHistoryChartPreview(let requestData):
@@ -278,7 +274,7 @@ extension TangemApiTarget {
 
         case hotCrypto(_ requestModel: HotCryptoDTO.Request)
 
-        // Configs
+        /// Configs
         case apiList
 
         // Seed notification

@@ -137,7 +137,7 @@ class SolanaNetworkService {
             .eraseToAnyPublisher()
     }
 
-    // This fee is deducted from the transaction amount itself (!)
+    /// This fee is deducted from the transaction amount itself (!)
     func mainAccountCreationFee() -> AnyPublisher<Decimal, Error> {
         minimalBalanceForRentExemption(dataLength: 0)
     }

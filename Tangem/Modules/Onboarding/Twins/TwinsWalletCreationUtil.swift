@@ -32,7 +32,6 @@ class TwinsWalletCreationUtil {
         }
     }
 
-    private let twinFileEncoder: TwinCardFileEncoder = TwinCardTlvFileEncoder()
     private var twinData: TwinData
 
     private var firstTwinPublicKey: Data?
@@ -128,16 +127,6 @@ class TwinsWalletCreationUtil {
                 occuredError.send(error)
             }
             isServiceBusy.send(false)
-        }
-    }
-
-    private func twinFileToWrite(publicKey: Data) -> Result<Data, Error> {
-        do {
-            let data = try twinFileEncoder.encode(TwinCardFile(publicKey: publicKey, fileTypeName: TwinsWalletCreationUtil.twinFileName))
-            return .success(data)
-        } catch {
-            AppLogger.error(error: error)
-            return .failure(error)
         }
     }
 

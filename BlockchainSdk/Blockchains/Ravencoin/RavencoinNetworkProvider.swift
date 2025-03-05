@@ -90,8 +90,8 @@ extension RavencoinNetworkProvider: BitcoinNetworkProvider {
 
 // MARK: - Mapping
 
-/// Incoming 0.88
-/// Outgoing 0.77
+// Incoming 0.88
+// Outgoing 0.77
 
 private extension RavencoinNetworkProvider {
     func mapToBitcoinResponse(
