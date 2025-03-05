@@ -61,7 +61,7 @@ class LockedWalletMainContentViewModel: ObservableObject {
         self.isMultiWallet = isMultiWallet
         self.lockedUserWalletDelegate = lockedUserWalletDelegate
 
-        contextData = userWalletModel.getAnalyticsContextData()
+        contextData = userWalletModel.analyticsContextData
 
         if isMultiWallet {
             actionButtonsViewModel = makeActionButtonsViewModel()
