@@ -570,12 +570,10 @@ extension KaspaWalletManager: DustRestrictable {
         }
 
         // Max amount available to send
-        let maxAmount: Amount? = {
-            switch amount.type {
-            case .coin: txBuilder.availableAmount()
-            default: wallet.amounts[amount.type]
-            }
-        }()
+        let maxAmount: Amount? = switch amount.type {
+        case .coin: txBuilder.availableAmount()
+        default: wallet.amounts[amount.type]
+        }
 
         guard let maxAmount else {
             throw ValidationError.balanceNotFound
@@ -602,7 +600,7 @@ extension KaspaWalletManager: DustRestrictable {
 // MARK: - WithdrawalNotificationProvider
 
 extension KaspaWalletManager: WithdrawalNotificationProvider {
-    // Chia, kaspa have the same logic
+    /// Chia, kaspa have the same logic
     @available(*, deprecated, message: "Use MaximumAmountRestrictable")
     func validateWithdrawalWarning(amount: Amount, fee: Amount) -> WithdrawalWarning? {
         let amountAvailableToSend = txBuilder.availableAmount() - fee
