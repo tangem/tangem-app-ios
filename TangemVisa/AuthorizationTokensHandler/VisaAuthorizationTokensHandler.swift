@@ -190,7 +190,7 @@ extension CommonVisaAuthorizationTokensHandler: VisaAuthorizationTokensHandler {
     func setupTokens(_ tokens: VisaAuthorizationTokens) async throws {
         VisaLogger.info("Setup new authorization tokens in token handler")
         try await authorizationTokensHolder.setTokens(authorizationTokens: tokens)
-        /// We need to use `setupRefresherTask` to prevent blocking current task
+        // We need to use `setupRefresherTask` to prevent blocking current task
         setupRefresherTask()
     }
 
