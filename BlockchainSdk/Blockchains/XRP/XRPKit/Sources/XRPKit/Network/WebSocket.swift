@@ -20,7 +20,7 @@ protocol XRPWebSocket {
         set
     }
 
-    // convenience methods
+    /// convenience methods
     func subscribe(account: String)
 }
 

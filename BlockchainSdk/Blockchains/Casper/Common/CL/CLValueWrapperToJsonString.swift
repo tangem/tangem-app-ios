@@ -10,7 +10,7 @@ enum CLValueWrapperToJsonString {
         }
     }
 
-    /**
+    /*
         Function to get  json data from CLValue object
        - Parameter: none
        - Returns: json data representing the current CLValue object, in form of [String: Any]

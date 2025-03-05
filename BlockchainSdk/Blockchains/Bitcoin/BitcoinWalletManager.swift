@@ -13,9 +13,8 @@ import BitcoinCore
 import TangemFoundation
 
 class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
-    var allowsFeeSelection: Bool { true }
-    var txBuilder: BitcoinTransactionBuilder!
-    var networkService: BitcoinNetworkProvider!
+    let txBuilder: BitcoinTransactionBuilder
+    let networkService: BitcoinNetworkProvider
 
     /*
      The current default minimum relay fee is 1 sat/vbyte.
@@ -23,6 +22,7 @@ class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
      */
     var minimalFeePerByte: Decimal { 1 }
     var minimalFee: Decimal { 0.00001 }
+    var allowsFeeSelection: Bool { true }
     var dustValue: Amount {
         Amount(with: wallet.blockchain, value: minimalFee)
     }
@@ -30,7 +30,13 @@ class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
     var loadedUnspents: [BitcoinUnspentOutput] = []
 
     var currentHost: String { networkService.host }
-    var outputsCount: Int? { loadedUnspents.count }
+
+    init(wallet: Wallet, txBuilder: BitcoinTransactionBuilder, networkService: BitcoinNetworkProvider) {
+        self.txBuilder = txBuilder
+        self.networkService = networkService
+
+        super.init(wallet: wallet)
+    }
 
     override func update(completion: @escaping (Result<Void, Error>) -> Void) {
         cancellable = networkService.getInfo(addresses: wallet.addresses.map { $0.value })
@@ -172,5 +178,3 @@ extension BitcoinWalletManager: TransactionSender {
         return send(transaction, signer: signer, sequence: SequenceValues.default.rawValue)
     }
 }
-
-extension BitcoinWalletManager: ThenProcessable {}

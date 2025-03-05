@@ -95,13 +95,11 @@ struct PendingTransactionRecordMapper {
             return outs.filter { $0.address.string != address }.reduce(0) { $0 + $1.amount }
         }()
 
-        let type: PendingTransactionRecord.TransactionType = {
-            switch transaction.type {
-            case .transfer: .transfer
-            case .contractMethodIdentifier, .contractMethodName: .operation
-            case .staking(_, let validator): .stake(validator: validator)
-            }
-        }()
+        let type: PendingTransactionRecord.TransactionType = switch transaction.type {
+        case .transfer: .transfer
+        case .contractMethodIdentifier, .contractMethodName: .operation
+        case .staking(_, let validator): .stake(validator: validator)
+        }
 
         return PendingTransactionRecord(
             hash: transaction.hash,

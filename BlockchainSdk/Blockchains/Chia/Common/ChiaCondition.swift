@@ -46,7 +46,7 @@ extension CreateCoinCondition {
     }
 }
 
-// always valid condition
+/// always valid condition
 struct RemarkCondition: ChiaCondition {
     var conditionCode: Int64 = 1
 
