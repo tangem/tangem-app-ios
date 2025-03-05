@@ -14,8 +14,6 @@ struct BackupStoryPage: View {
     let scanCard: () -> Void
     let orderCard: () -> Void
 
-    private let descriptionFontSize: CGFloat = 16
-
     var body: some View {
         VStack {
             StoriesTangemLogo()
