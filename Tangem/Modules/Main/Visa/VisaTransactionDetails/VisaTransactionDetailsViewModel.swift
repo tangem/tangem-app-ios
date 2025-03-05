@@ -13,7 +13,7 @@ import TangemVisa
 class VisaTransactionDetailsViewModel: ObservableObject, Identifiable {
     typealias TransactionHash = String
 
-    // Exception. This should be in the coordinator.
+    /// Exception. This should be in the coordinator.
     @Injected(\.safariManager) private var safariManager: SafariManager
 
     var fiatTransactionInfo: VisaTransactionDetailsView.CommonTransactionInfo {
