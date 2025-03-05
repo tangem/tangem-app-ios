@@ -100,8 +100,6 @@ class VisaOnboardingViewModel: ObservableObject {
     private var userWalletModel: UserWalletModel?
     private weak var coordinator: VisaOnboardingRoutable?
 
-    private var activationManagerTask: AnyCancellable?
-
     init(
         input: OnboardingInput,
         visaActivationManager: VisaActivationManager,
@@ -218,7 +216,7 @@ private extension VisaOnboardingViewModel {
             goToStep(.accessCode)
         case .welcomeBack(let isAccessCodeSet):
             if isAccessCodeSet {
-                /// Should be decided in `proceedToApproveWalletSelection()`
+                // Should be decided in `proceedToApproveWalletSelection()`
                 break
             } else {
                 goToStep(.accessCode)
