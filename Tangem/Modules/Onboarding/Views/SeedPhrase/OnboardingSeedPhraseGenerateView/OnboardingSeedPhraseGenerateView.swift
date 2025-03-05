@@ -97,7 +97,10 @@ struct OnboardingSeedPhraseGenerateView: View {
 
     @ViewBuilder
     private func wordsVerticalView(indexRange: Range<Int>, verticalSpacing: CGFloat) -> some View {
-        VStack(alignment: .leading, spacing: verticalSpacing) {
+        // Do not remove Lazy Stack here; it updates its child views when they enter into the visible viewport,
+        // which in turn fixes an incorrect layout of `wordView` when `wordView` is initially placed outside
+        // the visible viewport. See [REDACTED_INFO] for details
+        LazyVStack(alignment: .leading, spacing: verticalSpacing) {
             ForEach(indexRange, id: \.self) { index in
                 HStack(alignment: .center, spacing: 0) {
                     Text("\(index + 1). ") // The space character after the dot is 'U+2009 THIN SPACE'
