@@ -231,7 +231,7 @@ extension Analytics {
         case mainNoticeBackupErrors = "[Main Screen] Notice - Backup Errors"
         case tokenNoticeNetworkUnreachable = "[Token] Notice - Network Unreachable"
         case tokenNoticeNotEnoughFee = "[Token] Notice - Not Enough Fee"
-        case tokenNoticeActionInactive = "[Token] Notice - Action Inactive"
+        case tokenActionButtonDisabled = "[Token] Action Button Disabled"
         case tokenNoticeRevealTransaction = "[Token] Notice - Reveal Transaction"
         case tokenButtonRevealCancel = "[Token] Button - Reveal Cancel"
         case tokenButtonRevealTryAgain = "[Token] Button - Reveal Try Again"
