@@ -27,8 +27,8 @@ struct MarketsTokenDetailsModel: Identifiable {
 }
 
 extension MarketsTokenDetailsModel: Equatable {
-    // This model won't be reloaded for now (no PTR or some kind of refresh mechanism),
-    // so it is safe to compare this fields.
+    /// This model won't be reloaded for now (no PTR or some kind of refresh mechanism),
+    /// so it is safe to compare this fields.
     static func == (lhs: MarketsTokenDetailsModel, rhs: MarketsTokenDetailsModel) -> Bool {
         return lhs.id == rhs.id
             && lhs.insights == rhs.insights
