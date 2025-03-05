@@ -53,7 +53,7 @@ struct MarketsTokenDetailsLinksMapper {
             linkInfo.title
         }
 
-        let urlLink = if linkInfo.link.hasPrefix(Constants.defaultScheme) {
+        let urlLink = if linkInfo.link.hasPrefix(Constants.httpPrefix) {
             linkInfo.link
         } else {
             Constants.defaultScheme + linkInfo.link
@@ -82,6 +82,7 @@ struct MarketsTokenDetailsLinksMapper {
 
 extension MarketsTokenDetailsLinksMapper {
     private enum Constants {
+        static let httpPrefix = "http"
         static let defaultScheme = "https://"
     }
 }
