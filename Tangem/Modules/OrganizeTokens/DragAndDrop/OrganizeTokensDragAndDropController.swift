@@ -267,7 +267,7 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
         return !intersection.isNull && intersection.height > candidateItemFrame.height * ratio
     }
 
-    // Maybe not so memory-efficient, but definitely safer than manual clearing of `itemsFrames` cache
+    /// Maybe not so memory-efficient, but definitely safer than manual clearing of `itemsFrames` cache
     private func isIndexPathValid(_ indexPath: IndexPath) -> Bool {
         guard let dataSource = dataSource else {
             assertionFailure("DataSource required, but not set for \(self)")

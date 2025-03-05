@@ -87,9 +87,9 @@ final class HederaTransactionBuilder {
 
         logTransferTransaction(transferTransaction)
 
-        /// Capturing an existing `Hedera.Client` instance here is not required but may come in handy
-        /// because the client may already have some useful internal state at this point
-        /// (like the list of ready-to-use GRCP nodes with health checks already performed)
+        // Capturing an existing `Hedera.Client` instance here is not required but may come in handy
+        // because the client may already have some useful internal state at this point
+        // (like the list of ready-to-use GRCP nodes with health checks already performed)
         return CompiledTransaction(curve: curve, timeout: timeout, client: client, innerTransaction: transferTransaction)
     }
 
