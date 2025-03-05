@@ -83,7 +83,6 @@ class BlockchainSdkExampleViewModel: ObservableObject {
     private let amountKey = "amount"
     private let blockchainNameKey = "blockchainName"
     private let isTestnetKey = "isTestnet"
-    private let isShelleyKey = "isShelley"
     private let curveKey = "curve"
     private let tokenEnabledKey = "tokenEnabled"
     private let tokenSymbolKey = "tokenSymbol"
