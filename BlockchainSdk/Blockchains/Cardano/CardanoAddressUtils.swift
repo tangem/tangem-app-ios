@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct CardanoAddressUtils {
+enum CardanoAddressUtils {
     static let bech32Hrp = "addr"
     static let bech32Separator = "1"
 

@@ -149,7 +149,7 @@ struct BalanceFormatter {
         attributedString.foregroundColor = formattingOptions.integerPartColor
 
         if let separatorRange = attributedString.range(of: decimalSeparator) {
-            let fractionalPartRange = Range<AttributedString.Index>.init(uncheckedBounds: (lower: separatorRange.upperBound, upper: attributedString.endIndex))
+            let fractionalPartRange = Range<AttributedString.Index>(uncheckedBounds: (lower: separatorRange.upperBound, upper: attributedString.endIndex))
             attributedString[fractionalPartRange].font = formattingOptions.fractionalPartFont
             attributedString[fractionalPartRange].foregroundColor = formattingOptions.fractionalPartColor
         }

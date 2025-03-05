@@ -9,8 +9,8 @@
 import Foundation
 
 extension Locale {
-    // Copyright https://github.com/mattt
-    // https://gist.github.com/mattt/6d022b66f08ea8c1b99ebe7e48b95c4b
+    /// Copyright https://github.com/mattt
+    /// https://gist.github.com/mattt/6d022b66f08ea8c1b99ebe7e48b95c4b
     func localizedCurrencySymbol(forCurrencyCode currencyCode: String) -> String? {
         switch currencyCode {
         case AppConstants.rubCurrencyCode:
