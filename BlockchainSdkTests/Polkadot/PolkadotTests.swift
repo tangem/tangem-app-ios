@@ -13,7 +13,7 @@ import TangemSdk
 @testable import BlockchainSdk
 
 class PolkadotTests: XCTestCase {
-    // Taken from trust wallet, `SignerTests.cpp`
+    /// Taken from trust wallet, `SignerTests.cpp`
     private let sizeTester = TransactionSizeTesterUtility()
 
     // MARK: - Polkadot substrate runtime v14
@@ -228,7 +228,7 @@ class PolkadotTests: XCTestCase {
         try testTransactionRuntimeV15(curve: .ed25519_slip0010)
     }
 
-    // https://westend.subscan.io/extrinsic/21410256-2
+    /// https://westend.subscan.io/extrinsic/21410256-2
     private func testTransactionRuntimeV15(curve: EllipticCurve) throws {
         let privateKey = Data(hexString: "0x360B498C9157BAA460790AB4AC03D74166C6ED993A1D3C871E30AF3D86150F49")
         let publicKey = try XCTUnwrap(Curve25519.Signing.PrivateKey(rawRepresentation: privateKey).publicKey.rawRepresentation)
