@@ -8,7 +8,7 @@
 
 import Foundation
 
-/*
+/**
  This model is needed to synchronize the heights of the address text field on
  destination and summary pages
 

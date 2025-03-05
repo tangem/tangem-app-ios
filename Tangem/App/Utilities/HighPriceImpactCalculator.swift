@@ -13,7 +13,7 @@ struct HighPriceImpactCalculator {
     let destinationCurrencyId: String
 
     private let balanceConverter = BalanceConverter()
-    // 10% in the 0..1 range
+    /// 10% in the 0..1 range
     private let highPriceImpactWarningLimit: Decimal = 0.1
 
     func isHighPriceImpact(converting sourceAmount: Decimal, to destinationAmount: Decimal) async throws -> Result {
