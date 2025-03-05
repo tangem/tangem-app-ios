@@ -34,8 +34,7 @@ struct CloreWalletAssembly: WalletManagerAssembly {
             }
 
         let networkService = MultiUTXONetworkProvider(providers: providers)
-        // [REDACTED_TODO_COMMENT]
-        return BitcoinWalletManager(
+        return RavencoinWalletManager(
             wallet: input.wallet,
             txBuilder: txBuilder,
             unspentOutputManager: unspentOutputManager,

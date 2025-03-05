@@ -16,7 +16,7 @@ class KaspaTransactionBuilder {
 
     private let blockchain: Blockchain
     private let walletPublicKey: Wallet.PublicKey
-    private var unspentOutputs: [ScriptUnspentOutput] = []
+    private var unspentOutputs: [BitcoinUnspentOutput] = []
     private let addressService: KaspaAddressService
 
     init(walletPublicKey: Wallet.PublicKey, blockchain: Blockchain) {
@@ -31,7 +31,7 @@ class KaspaTransactionBuilder {
         return Amount(with: blockchain, value: Decimal(availableAmountInSatoshi) / blockchain.decimalValue)
     }
 
-    func setUnspentOutputs(_ unspentOutputs: [ScriptUnspentOutput]) {
+    func setUnspentOutputs(_ unspentOutputs: [BitcoinUnspentOutput]) {
         let sortedOutputs = unspentOutputs.sorted {
             $0.amount > $1.amount
         }
@@ -81,7 +81,7 @@ class KaspaTransactionBuilder {
             let value = unspentOutput.amount
             return kaspaTransaction.hashForSignatureWitness(
                 inputIndex: index,
-                connectedScript: unspentOutput.script,
+                connectedScript: Data(hexString: unspentOutput.outputScript),
                 prevValue: value
             )
         }
@@ -96,7 +96,7 @@ class KaspaTransactionBuilder {
             let size = UInt8(script.count)
 
             let signatureScript = (size.data + script).hexadecimal
-            let outpoint = KaspaPreviousOutpoint(transactionId: input.hash.hexString, index: input.index)
+            let outpoint = KaspaPreviousOutpoint(transactionId: input.transactionHash, index: input.outputIndex)
             return KaspaInput(previousOutpoint: outpoint, signatureScript: signatureScript)
         }
 
@@ -109,7 +109,7 @@ class KaspaTransactionBuilder {
             let script = signatures[index] + sigHashAll.data
             let size = UInt8(script.count)
 
-            let outpoint = KaspaPreviousOutpoint(transactionId: input.hash.hexString, index: input.index)
+            let outpoint = KaspaPreviousOutpoint(transactionId: input.transactionHash, index: input.outputIndex)
 
             switch index {
             case 0:
@@ -159,7 +159,7 @@ class KaspaTransactionBuilder {
         return ((transaction.amount.value * blockchain.decimalValue) as NSDecimalNumber).uint64Value
     }
 
-    private func change(_ transaction: Transaction, unspentOutputs: [ScriptUnspentOutput]) throws -> UInt64? {
+    private func change(_ transaction: Transaction, unspentOutputs: [BitcoinUnspentOutput]) throws -> UInt64? {
         let fullAmount = unspentOutputs.map { $0.amount }.reduce(0, +)
         let transactionAmount = ((transaction.amount.value * blockchain.decimalValue).rounded() as NSDecimalNumber).uint64Value
         let feeAmount = ((transaction.fee.amount.value * blockchain.decimalValue).rounded() as NSDecimalNumber).uint64Value
@@ -342,7 +342,7 @@ extension KaspaTransactionBuilder {
             let value = unspentOutput.amount
             return commitTransaction.hashForSignatureWitness(
                 inputIndex: index,
-                connectedScript: unspentOutput.script,
+                connectedScript: Data(hexString: unspentOutput.outputScript),
                 prevValue: value
             )
         }
@@ -378,14 +378,11 @@ extension KaspaTransactionBuilder {
         let sourceAddressScript = try scriptPublicKey(address: sourceAddress).hexString.lowercased()
 
         let utxo = [
-            ScriptUnspentOutput(
-                output: .init(
-                    blockId: -1,
-                    hash: Data(hexString: params.transactionId),
-                    index: 0,
-                    amount: params.targetOutputAmount
-                ),
-                script: redeemScript.redeemScriptHash
+            BitcoinUnspentOutput(
+                transactionHash: params.transactionId,
+                outputIndex: 0,
+                amount: params.targetOutputAmount,
+                outputScript: redeemScript.redeemScriptHash.hexadecimal
             ),
         ]
 
@@ -400,7 +397,7 @@ extension KaspaTransactionBuilder {
             let value = unspentOutput.amount
             return transaction.hashForSignatureWitness(
                 inputIndex: index,
-                connectedScript: unspentOutput.script,
+                connectedScript: Data(hexString: unspentOutput.outputScript),
                 prevValue: value
             )
         }
@@ -408,7 +405,7 @@ extension KaspaTransactionBuilder {
         return KaspaKRC20.RevealTransaction(transaction: transaction, hashes: hashes, redeemScript: redeemScript)
     }
 
-    private func change(amount: Decimal, fee: Decimal, unspentOutputs: [ScriptUnspentOutput]) throws -> UInt64? {
+    private func change(amount: Decimal, fee: Decimal, unspentOutputs: [BitcoinUnspentOutput]) throws -> UInt64? {
         let fullAmount = unspentOutputs.map { $0.amount }.reduce(0, +)
         let transactionAmount = (amount as NSDecimalNumber).uint64Value
         let feeAmount = (fee as NSDecimalNumber).uint64Value
