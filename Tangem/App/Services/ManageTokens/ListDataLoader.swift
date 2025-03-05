@@ -23,7 +23,7 @@ class TokensListDataLoader {
         return lastSearchText
     }
 
-    // Tells if all items have been loaded. (Used to hide/show activity spinner)
+    /// Tells if all items have been loaded. (Used to hide/show activity spinner)
     private(set) var canFetchMore = true
 
     // MARK: Input
@@ -33,13 +33,13 @@ class TokensListDataLoader {
 
     // MARK: Private Properties
 
-    // Tracks last page loaded. Used to load next page (current + 1)
+    /// Tracks last page loaded. Used to load next page (current + 1)
     private var currentPageIndex = 0
 
-    // Limit of records per page
+    /// Limit of records per page
     private let perPage = 50
 
-    // Total pages
+    /// Total pages
     private var totalPages: Int = 1
 
     private var cached: [CoinModel] = []

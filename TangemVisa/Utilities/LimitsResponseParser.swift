@@ -12,10 +12,8 @@ import TangemFoundation
 
 struct LimitsResponseParser {
     private let responseLength = 960
-    private let singleValueLength = 64
     private let itemsForEachLimit = 7
     private let amountsCount = 5
-    private let numberOfLimits = 3
     private let parser = EthereumDataParser()
 
     func parseResponse(_ response: String, decimalCount: Int) throws -> VisaLimits {
