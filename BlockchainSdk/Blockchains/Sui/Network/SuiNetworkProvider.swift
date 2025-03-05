@@ -20,7 +20,7 @@ final class SuiNetworkProvider: HostProvider {
 
     init(node: NodeInfo, networkConfiguration: NetworkProviderConfiguration) {
         self.node = node
-        provider = NetworkProvider<SuiTarget>.init(configuration: networkConfiguration)
+        provider = NetworkProvider<SuiTarget>(configuration: networkConfiguration)
     }
 
     func getBalance(address: String, coin: String, cursor: String?) -> AnyPublisher<SuiGetCoins, Error> {
