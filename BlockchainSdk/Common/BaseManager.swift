@@ -14,7 +14,7 @@ private extension DispatchQueue {
 }
 
 @available(iOS 13.0, *)
-class BaseManager: WalletProvider {
+class BaseManager: WalletProvider, TransactionValidator {
     var wallet: Wallet {
         get { _wallet.value }
         set { _wallet.value = newValue }
