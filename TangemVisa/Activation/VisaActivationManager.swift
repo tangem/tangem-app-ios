@@ -18,20 +18,20 @@ public protocol VisaActivationManager: VisaAccessCodeValidator {
     var activationLocalState: VisaCardActivationLocalState { get }
     var activationRemoteState: VisaCardActivationRemoteState { get }
 
-    func saveAccessCode(accessCode: String) throws (VisaAccessCodeValidationError)
+    func saveAccessCode(accessCode: String) throws(VisaAccessCodeValidationError)
     func resetAccessCode()
     func setupRefreshTokenSaver(_ refreshTokenSaver: VisaRefreshTokenSaver)
 
-    func startActivation() async throws (VisaActivationError) -> CardActivationResponse
-    func refreshActivationRemoteState() async throws (VisaActivationError) -> VisaCardActivationRemoteState
-    func getCustomerWalletApproveHash() async throws (VisaActivationError) -> Data
-    func sendSignedCustomerWalletApprove(_ signedData: Data) async throws (VisaActivationError)
+    func startActivation() async throws(VisaActivationError) -> CardActivationResponse
+    func refreshActivationRemoteState() async throws(VisaActivationError) -> VisaCardActivationRemoteState
+    func getCustomerWalletApproveHash() async throws(VisaActivationError) -> Data
+    func sendSignedCustomerWalletApprove(_ signedData: Data) async throws(VisaActivationError)
 
-    func setPINCode(_ pinCode: String) async throws (VisaActivationError)
+    func setPINCode(_ pinCode: String) async throws(VisaActivationError)
 }
 
 public protocol VisaAccessCodeValidator: AnyObject {
-    func validateAccessCode(accessCode: String) throws (VisaAccessCodeValidationError)
+    func validateAccessCode(accessCode: String) throws(VisaAccessCodeValidationError)
 }
 
 final class CommonVisaActivationManager {
@@ -69,8 +69,6 @@ final class CommonVisaActivationManager {
     private let productActivationService: ProductActivationService
     private let otpRepository: VisaOTPRepository
     private let pinCodeProcessor: PINCodeProcessor
-
-    private var activationTask: AnyCancellable?
 
     private var activationStatus: VisaCardActivationStatus? {
         switch activationLocalState {
@@ -127,13 +125,13 @@ extension CommonVisaActivationManager: VisaActivationManager {
         return true
     }
 
-    func validateAccessCode(accessCode: String) throws (VisaAccessCodeValidationError) {
+    func validateAccessCode(accessCode: String) throws(VisaAccessCodeValidationError) {
         guard accessCode.count >= 4 else {
             throw .accessCodeIsTooShort
         }
     }
 
-    func saveAccessCode(accessCode: String) throws (VisaAccessCodeValidationError) {
+    func saveAccessCode(accessCode: String) throws(VisaAccessCodeValidationError) {
         try validateAccessCode(accessCode: accessCode)
 
         selectedAccessCode = accessCode
@@ -147,7 +145,7 @@ extension CommonVisaActivationManager: VisaActivationManager {
         authorizationTokensHandler.setupRefreshTokenSaver(refreshTokenSaver)
     }
 
-    func startActivation() async throws (VisaActivationError) -> CardActivationResponse {
+    func startActivation() async throws(VisaActivationError) -> CardActivationResponse {
         switch activationLocalState {
         case .activated:
             throw .alreadyActivated
@@ -168,7 +166,7 @@ extension CommonVisaActivationManager: VisaActivationManager {
         }
     }
 
-    func refreshActivationRemoteState() async throws (VisaActivationError) -> VisaCardActivationRemoteState {
+    func refreshActivationRemoteState() async throws(VisaActivationError) -> VisaCardActivationRemoteState {
         guard let authorizationTokens = await authorizationTokensHandler.authorizationTokens else {
             throw .missingAccessToken
         }
@@ -206,7 +204,7 @@ extension CommonVisaActivationManager: VisaActivationManager {
         return loadedState
     }
 
-    func getCustomerWalletApproveHash() async throws (VisaActivationError) -> Data {
+    func getCustomerWalletApproveHash() async throws(VisaActivationError) -> Data {
         guard let activationOrderId = activationStatus?.activationOrder.id else {
             throw .missingActivationStatusInfo
         }
@@ -228,7 +226,7 @@ extension CommonVisaActivationManager: VisaActivationManager {
         }
     }
 
-    func sendSignedCustomerWalletApprove(_ signedData: Data) async throws (VisaActivationError) {
+    func sendSignedCustomerWalletApprove(_ signedData: Data) async throws(VisaActivationError) {
         guard let activationInput else {
             throw .missingActivationInput
         }
@@ -260,7 +258,7 @@ extension CommonVisaActivationManager: VisaActivationManager {
         )
     }
 
-    func setPINCode(_ pinCode: String) async throws (VisaActivationError) {
+    func setPINCode(_ pinCode: String) async throws(VisaActivationError) {
         guard
             let activationInput,
             let authorizationTokens = await authorizationTokensHandler.authorizationTokens,
@@ -337,7 +335,7 @@ private extension CommonVisaActivationManager {
     func startFullActivationFlow(
         activationInput: VisaCardActivationInput,
         withAccessCode accessCode: String
-    ) async throws (VisaActivationError) -> CardActivationResponse {
+    ) async throws(VisaActivationError) -> CardActivationResponse {
         do {
             var authorizationChallenge: String?
             if await !authorizationTokensHandler.containsAccessToken {
@@ -396,7 +394,7 @@ private extension CommonVisaActivationManager {
     func continueActivation(
         activationInput: VisaCardActivationInput,
         authorizationTokens: VisaAuthorizationTokens
-    ) async throws (VisaActivationError) -> CardActivationResponse {
+    ) async throws(VisaActivationError) -> CardActivationResponse {
         do {
             if activationInput.isAccessCodeSet {
                 return try await signActivationOrder(activationInput: activationInput)
@@ -458,7 +456,7 @@ private extension CommonVisaActivationManager {
         return activationResponse
     }
 
-    func handleCardActivation(using activationResponse: CardActivationResponse, activationInput: VisaCardActivationInput) async throws (VisaActivationError) {
+    func handleCardActivation(using activationResponse: CardActivationResponse, activationInput: VisaCardActivationInput) async throws(VisaActivationError) {
         guard let tokens = await authorizationTokensHandler.authorizationTokens else {
             throw .missingAccessToken
         }
@@ -492,7 +490,7 @@ private extension CommonVisaActivationManager {
         )
     }
 
-    func saveActivatedCardRefreshToken() async throws (VisaActivationError) {
+    func saveActivatedCardRefreshToken() async throws(VisaActivationError) {
         do {
             try await authorizationTokensHandler.forceRefreshToken()
         } catch {
