@@ -55,7 +55,7 @@ struct VisaApprovePairSearchUtility {
         return nil
     }
 
-    private func findPublicKey(for targetAddress: String, derivationPath: DerivationPath?, in wallet: CardDTO.Wallet) throws (VisaWalletPublicKeyUtility.SearchError) -> Data {
+    private func findPublicKey(for targetAddress: String, derivationPath: DerivationPath?, in wallet: CardDTO.Wallet) throws(VisaWalletPublicKeyUtility.SearchError) -> Data {
         guard let derivationPath else {
             return try findPublicKey(for: targetAddress, in: wallet)
         }
@@ -69,7 +69,7 @@ struct VisaApprovePairSearchUtility {
         return wallet.publicKey
     }
 
-    private func findPublicKey(for targetAddress: String, in wallet: CardDTO.Wallet) throws (VisaWalletPublicKeyUtility.SearchError) -> Data {
+    private func findPublicKey(for targetAddress: String, in wallet: CardDTO.Wallet) throws(VisaWalletPublicKeyUtility.SearchError) -> Data {
         let publicKey = wallet.publicKey
 
         try visaWalletPublicKeyUtility.validatePublicKey(targetAddress: targetAddress, publicKey: publicKey)
