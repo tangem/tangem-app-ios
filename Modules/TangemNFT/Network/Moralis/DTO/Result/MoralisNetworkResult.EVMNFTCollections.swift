@@ -9,7 +9,7 @@
 import Foundation
 
 extension MoralisNetworkResult {
-    struct EVMNFTCollections: Codable {
+    struct EVMNFTCollections: Decodable {
         let status: String // [REDACTED_TODO_COMMENT]
         let page: Int
         let cursor: String?
@@ -21,7 +21,7 @@ extension MoralisNetworkResult {
 // MARK: - Nested DTOs
 
 extension MoralisNetworkResult.EVMNFTCollections {
-    struct Collection: Codable {
+    struct Collection: Decodable {
         let tokenAddress: String
         let possibleSpam: Bool
         let contractType: String // [REDACTED_TODO_COMMENT]
