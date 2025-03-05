@@ -12,18 +12,18 @@ import Combine
 private struct PagerView<Data, Content>: View
     where Data: RandomAccessCollection, Data.Element: Hashable, Content: View {
     let indexUpdateNotifier: PassthroughSubject<Void, Never>
-    // the source data to render, can be a range, an array, or any other collection of Hashable
+    /// the source data to render, can be a range, an array, or any other collection of Hashable
     private let data: Data
-    // the index currently displayed page
+    /// the index currently displayed page
     @Binding var currentIndex: Int
-    // maps data to page views
+    /// maps data to page views
     private let content: (Data.Element) -> Content
 
-    // keeps track of how much did user swipe left or right
+    /// keeps track of how much did user swipe left or right
     @GestureState private var translation: CGFloat = 0
 
-    // the custom init is here to allow for @ViewBuilder for
-    // defining content mapping
+    /// the custom init is here to allow for @ViewBuilder for
+    /// defining content mapping
     init(
         _ data: Data,
         indexUpdateNotifier: PassthroughSubject<Void, Never>,
