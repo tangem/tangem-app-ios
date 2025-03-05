@@ -59,7 +59,7 @@ class TONNetworkService: MultiNetworkProvider {
                         throw WalletError.empty
                     }
 
-                    /// Make rounded digits by correct for max amount Fee
+                    // Make rounded digits by correct for max amount Fee
                     let fee = fee.sourceFees.totalFee / blockchain.decimalValue
                     let roundedValue = fee.rounded(scale: 2, roundingMode: .up)
                     let feeAmount = Amount(with: blockchain, value: roundedValue)

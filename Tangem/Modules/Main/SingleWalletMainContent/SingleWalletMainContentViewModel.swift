@@ -25,7 +25,6 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
 
     private let isPageSelectedSubject = PassthroughSubject<Bool, Never>()
 
-    private var updateSubscription: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
     private weak var delegate: SingleWalletMainContentDelegate?
