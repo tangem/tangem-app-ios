@@ -16,7 +16,7 @@ extension AlgorandResponse {
         let minBalance: UInt64
         let round: UInt64
 
-        /*
+        /**
          [onl] delegation status of the account's MicroAlgos
          * Offline - indicates that the associated account is delegated.
          * Online - indicates that the associated account used as part of the delegation pool.
