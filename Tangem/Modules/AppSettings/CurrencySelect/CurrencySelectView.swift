@@ -33,6 +33,7 @@ struct CurrencySelectView: View {
         case .loading:
             ProgressView()
                 .controlSize(.regular)
+
         case .loaded(let currencies):
             GroupedScrollView(alignment: .leading, spacing: 0) {
                 GroupedSection(filter(currencies: currencies)) { currency in
