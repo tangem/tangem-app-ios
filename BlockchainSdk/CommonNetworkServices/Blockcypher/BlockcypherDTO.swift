@@ -16,9 +16,9 @@ enum BlockcypherDTO {
             let unconfirmedTxrefs: [Txref]?
 
             struct Txref: Decodable {
-                // tx_hash
+                /// tx_hash
                 let txHash: String
-                // tx_output_n
+                /// tx_output_n
                 let txOutputN: Int
                 // block_height
                 let blockHeight: Int?
