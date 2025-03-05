@@ -25,8 +25,6 @@ final class MultipleRewardsViewModel: ObservableObject, Identifiable {
 
     private let percentFormatter = PercentFormatter()
     private let balanceFormatter = BalanceFormatter()
-    private let balanceConverter = BalanceConverter()
-
     private var bag: Set<AnyCancellable> = []
 
     init(

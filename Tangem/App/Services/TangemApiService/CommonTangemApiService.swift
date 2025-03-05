@@ -22,7 +22,6 @@ class CommonTangemApiService {
         TangemNetworkLoggerPlugin(logOptions: .verbose),
     ])
 
-    private var bag: Set<AnyCancellable> = []
     private var authData: TangemApiTarget.AuthData?
 
     private let coinsQueue = DispatchQueue(label: "coins_request_queue", qos: .default)
