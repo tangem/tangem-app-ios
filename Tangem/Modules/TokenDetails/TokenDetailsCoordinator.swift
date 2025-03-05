@@ -51,12 +51,6 @@ class TokenDetailsCoordinator: CoordinatorObject {
     func start(with options: Options) {
         self.options = options
 
-        let exchangeUtility = ExchangeCryptoUtility(
-            blockchain: options.walletModel.blockchainNetwork.blockchain,
-            address: options.walletModel.wallet.address,
-            amountType: options.walletModel.amountType
-        )
-
         let notificationManager = SingleTokenNotificationManager(
             walletModel: options.walletModel,
             walletModelsManager: options.userWalletModel.walletModelsManager,
@@ -90,7 +84,6 @@ class TokenDetailsCoordinator: CoordinatorObject {
         tokenDetailsViewModel = .init(
             userWalletModel: options.userWalletModel,
             walletModel: options.walletModel,
-            exchangeUtility: exchangeUtility,
             notificationManager: notificationManager,
             bannerNotificationManager: bannerNotificationManager,
             pendingExpressTransactionsManager: pendingTransactionsManager,
