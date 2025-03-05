@@ -92,7 +92,7 @@ public struct GeometryInfo: Equatable {
 
 public extension GeometryInfo {
     struct ThrottleInterval: ExpressibleByFloatLiteral {
-        // No throttling at all.
+        /// No throttling at all.
         public static let zero = ThrottleInterval(0.0)
         /// Aggressive throttling, use for non-precision tasks.
         public static let aggressive = ThrottleInterval(1.0 / 30.0)
