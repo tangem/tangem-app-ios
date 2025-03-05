@@ -58,12 +58,10 @@ struct AllowanceChecker {
             throw AllowanceCheckerError.contractAddressNotFound
         }
 
-        let approveAmount: Decimal = {
-            switch policy {
-            case .specified: amount * walletModel.tokenItem.decimalValue
-            case .unlimited: .greatestFiniteMagnitude
-            }
-        }()
+        let approveAmount: Decimal = switch policy {
+        case .specified: amount * walletModel.tokenItem.decimalValue
+        case .unlimited: .greatestFiniteMagnitude
+        }
 
         let data = try ethereumTransactionDataBuilder.buildForApprove(spender: spender, amount: approveAmount)
         let amount = BSDKAmount(

@@ -16,16 +16,16 @@ extension Data: PropertyListObjectRepresentable {}
 
 extension String: PropertyListObjectRepresentable {}
 
-// Bridged to a `NSNumber`.
+/// Bridged to a `NSNumber`.
 extension Bool: PropertyListObjectRepresentable {}
 
-// Bridged to a `NSNumber`.
+/// Bridged to a `NSNumber`.
 extension Int: PropertyListObjectRepresentable {}
 
-// Bridged to a `NSNumber`.
+/// Bridged to a `NSNumber`.
 extension Float: PropertyListObjectRepresentable {}
 
-// Bridged to a `NSNumber`.
+/// Bridged to a `NSNumber`.
 extension Double: PropertyListObjectRepresentable {}
 
 extension Date: PropertyListObjectRepresentable {}
