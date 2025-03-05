@@ -25,7 +25,7 @@ struct NEARTarget {
 
 extension NEARTarget {
     enum Target {
-        // Returns most recent protocol configuration.
+        /// Returns most recent protocol configuration.
         case protocolConfig
         /// Returns gas price for the most recent block.
         case gasPrice

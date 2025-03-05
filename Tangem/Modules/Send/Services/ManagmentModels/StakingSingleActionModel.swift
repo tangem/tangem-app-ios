@@ -39,8 +39,6 @@ class StakingSingleActionModel {
     private let feeTokenItem: TokenItem
 
     private var estimatedFeeTask: Task<Void, Never>?
-    private var bag: Set<AnyCancellable> = []
-
     init(
         stakingManager: StakingManager,
         transactionDispatcher: TransactionDispatcher,
