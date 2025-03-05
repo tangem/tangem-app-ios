@@ -4,7 +4,7 @@
 // terms governing use, modification, and redistribution, is contained in the
 // file LICENSE at the root of the source code distribution tree.
 
-/// https://github.com/zoul/generic-json-swift
+// https://github.com/zoul/generic-json-swift
 import Foundation
 
 /// A JSON value representation. This is a bit more useful than the naïve `[String:Any]` type
