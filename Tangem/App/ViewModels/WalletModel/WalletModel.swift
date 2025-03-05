@@ -246,8 +246,8 @@ class WalletModel {
             .eraseToAnyPublisher()
     }
 
-    @discardableResult
     /// Do not use with flatMap.
+    @discardableResult
     func update(silent: Bool) -> AnyPublisher<State, Never> {
         // If updating already in process return updating Publisher
         if let updatePublisher = updatePublisher {

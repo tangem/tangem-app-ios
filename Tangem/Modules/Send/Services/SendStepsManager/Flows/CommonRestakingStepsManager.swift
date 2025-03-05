@@ -15,7 +15,6 @@ class CommonRestakingStepsManager {
     private let actionType: SendFlowActionType
 
     private var stack: [SendStep]
-    private var bag: Set<AnyCancellable> = []
     private weak var output: SendStepsManagerOutput?
 
     init(

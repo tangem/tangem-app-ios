@@ -109,15 +109,6 @@ class SendFeeViewModel: ObservableObject, Identifiable {
         }
     }
 
-    private func updateCustomFee(fee: SendFee) {
-        guard let customIndex = feeRowViewModels.firstIndex(where: { $0.option == .custom }) else {
-            return
-        }
-
-        feeRowViewModels[customIndex] = mapToFeeRowViewModel(fee: fee)
-        interactor.update(selectedFee: fee)
-    }
-
     private func updateViewModels(values: [SendFee]) {
         feeRowViewModels = values.map { fee in
             mapToFeeRowViewModel(fee: fee)
