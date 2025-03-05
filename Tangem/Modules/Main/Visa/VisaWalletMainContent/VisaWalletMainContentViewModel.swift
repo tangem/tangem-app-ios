@@ -229,7 +229,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
 
 // MARK: - Buttons setup logic
 
-// [REDACTED_TODO_COMMENT]
+#warning("[REDACTED_TODO_COMMENT]")
 private extension VisaWalletMainContentViewModel {
     private func setupButtons() {
         let tokenActionInfo = try? makeTokenActionInfo()
@@ -318,7 +318,7 @@ private extension VisaWalletMainContentViewModel {
 
 // MARK: - Buttons actions
 
-// [REDACTED_TODO_COMMENT]
+#warning("[REDACTED_TODO_COMMENT]")
 private extension VisaWalletMainContentViewModel {
     func openReceive() {
         let info: TokenActionInfo
