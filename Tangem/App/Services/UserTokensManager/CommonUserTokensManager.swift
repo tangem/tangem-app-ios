@@ -28,8 +28,6 @@ class CommonUserTokensManager {
     weak var keysDerivingProvider: KeysDerivingProvider?
 
     private var pendingUserTokensSyncCompletions: [() -> Void] = []
-    private var bag: Set<AnyCancellable> = []
-
     init(
         userWalletId: UserWalletId,
         shouldLoadExpressAvailability: Bool,
