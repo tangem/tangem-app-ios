@@ -26,7 +26,7 @@ extension ProductActivationAPITarget {
 // MARK: - Visa card deploy acceptance requests - 2 tap related
 
 extension ProductActivationAPITarget {
-    // Requests
+    /// Requests
     struct DataToSignByVisaCardRequest {
         let customerId: String
         let productInstanceId: String
@@ -41,7 +41,7 @@ extension ProductActivationAPITarget {
         let data: DeployAcceptanceDataContainer
     }
 
-    // Responses
+    /// Responses
     struct DataToSignByVisaCardResponse: Decodable {
         let dataForCardWallet: DataToSignByCardResponseData
     }
@@ -56,7 +56,7 @@ extension ProductActivationAPITarget {
 }
 
 extension ProductActivationAPITarget.VisaCardDeployAcceptanceRequest {
-    // Related data
+    /// Related data
     struct DeployAcceptanceDataContainer: Encodable {
         let cardWallet: DeployAcceptanceData
         let otp: OTPData
