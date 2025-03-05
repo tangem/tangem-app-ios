@@ -4,7 +4,7 @@ import Foundation
  Class for turning CLValue to Json String
  */
 enum CLValueToJson {
-    /**
+    /*
         Function to get  json string from CLValue object
        - Parameter: CLValue object
        - Returns: json string representing the CLValue object
