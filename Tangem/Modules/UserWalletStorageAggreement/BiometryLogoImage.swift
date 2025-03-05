@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct BiometryLogoImage {
+enum BiometryLogoImage {
     static var image: ImageType {
         switch BiometricAuthorizationUtils.biometryType {
         case .faceID:
