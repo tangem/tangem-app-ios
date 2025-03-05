@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct SuiError {
+enum SuiError {
     enum CodingError: Error {
         case failedEncoding
         case failedDecoding
