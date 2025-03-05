@@ -92,7 +92,12 @@ var featureModules: [PackageDescription.Target] {
                 .swiftLanguageMode(.v5),
             ]
         ),
-        .tangemTarget(name: "TangemNFT"),
+        .tangemTarget(
+            name: "TangemNFT",
+            dependencies: [
+                "Moya",
+            ]
+        ),
     ]
 }
 
