@@ -233,29 +233,15 @@ class MarketsPortfolioContainerViewModel: ObservableObject {
 
 extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsProvider {
     func buildContextActions(tokenItem: TokenItem, walletModelId: WalletModelId, userWalletId: UserWalletId) -> [TokenActionType] {
-        guard let userWalletModel = walletDataProvider.userWalletModels.first(where: { $0.userWalletId == userWalletId }) else {
+        guard let userWalletModel = walletDataProvider.userWalletModels.first(where: { $0.userWalletId == userWalletId }),
+              let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == walletModelId }) else {
             return []
         }
 
-        guard
-            let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == walletModelId }),
-            TokenInteractionAvailabilityProvider(walletModel: walletModel).isContextMenuAvailable()
-        else {
-            return []
-        }
+        let tokenActionAvailabilityProvider = TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel)
 
-        let baseActions = TokenContextActionsBuilder().makeBaseContextActions(
-            tokenItem: walletModel.tokenItem,
-            walletModel: walletModel,
-            userWalletModel: userWalletModel,
-            canNavigateToMarketsDetails: false,
-            canHideToken: false
-        )
-
-        // This is what business logic requires
-        let filteredActions: [TokenActionType] = [.buy, .exchange, .receive]
-
-        return filteredActions.filter { baseActions.contains($0) }
+        let marketsActions = tokenActionAvailabilityProvider.buildMarketsTokenContextActions()
+        return marketsActions
     }
 }
 
