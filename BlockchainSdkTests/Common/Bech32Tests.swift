@@ -14,7 +14,7 @@ import Sodium
 @testable import BlockchainSdk
 
 final class Bech32Tests: XCTestCase {
-    // https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#user-content-Test_vectors
+    /// https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#user-content-Test_vectors
     func testBech32() throws {
         let bech32 = Bech32()
         let validStrings = [
@@ -58,7 +58,7 @@ final class Bech32Tests: XCTestCase {
         }
     }
 
-    // https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki#user-content-Test_vectors
+    /// https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki#user-content-Test_vectors
     func testBech32Mtests() {
         let bech32 = Bech32(variant: .bech32m)
 
@@ -98,7 +98,7 @@ final class Bech32Tests: XCTestCase {
         }
     }
 
-    // https://github.com/bitcoincashorg/bitcoincash.org/blob/master/spec/cashaddr.md
+    /// https://github.com/bitcoincashorg/bitcoincash.org/blob/master/spec/cashaddr.md
     func testCashaddrBech32() throws {
         let valid = [
             "bitcoincash:qpm2qsznhks23z7629mms6s4cwef74vcwvy22gdx6a",

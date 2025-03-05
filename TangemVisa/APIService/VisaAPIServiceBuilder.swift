@@ -30,7 +30,7 @@ public struct VisaAPIServiceBuilder {
         )
     }
 
-    // Requirements are changed so this function will be also changed, but for now it is used for testing purposes
+    /// Requirements are changed so this function will be also changed, but for now it is used for testing purposes
     public func buildAuthorizationService(urlSessionConfiguration: URLSessionConfiguration) -> VisaAuthorizationService {
         if mockedAPI {
             return AuthorizationServiceMock()

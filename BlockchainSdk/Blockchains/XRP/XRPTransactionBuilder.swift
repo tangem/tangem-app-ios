@@ -16,7 +16,7 @@ class XRPTransactionBuilder {
     let walletPublicKey: Data
     let curve: EllipticCurve
 
-    internal init(walletPublicKey: Data, curve: EllipticCurve) throws {
+    init(walletPublicKey: Data, curve: EllipticCurve) throws {
         var key: Data
         switch curve {
         case .secp256k1:

@@ -184,7 +184,6 @@ extension RefreshableScrollView {
 
 struct RefreshableScrollViewView_Previews: PreviewProvider {
     struct _ScrollView: View {
-        @State private var text = "0"
         @State private var updatesCounter = 0
 
         var body: some View {
