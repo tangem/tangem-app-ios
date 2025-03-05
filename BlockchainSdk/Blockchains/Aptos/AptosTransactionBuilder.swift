@@ -113,7 +113,7 @@ final class AptosTransactionBuilder {
 
     // MARK: - Private Implementation
 
-    /*
+    /**
      This links describe basic structure transaction Aptos Blockchain
      - https://aptos.dev/concepts/txns-states
      */
@@ -148,7 +148,7 @@ final class AptosTransactionBuilder {
 }
 
 extension AptosTransactionBuilder {
-    /*
+    /**
      - For chainId documentation link https://aptos.dev/nodes/networks/
      */
     enum Constants {
