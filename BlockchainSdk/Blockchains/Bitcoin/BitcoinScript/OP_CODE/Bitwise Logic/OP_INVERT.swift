@@ -24,7 +24,7 @@
 
 import Foundation
 
-// Flips all of the bits in the input. disabled.
+/// Flips all of the bits in the input. disabled.
 struct OpInvert: OpCodeProtocol {
     var value: UInt8 { return 0x83 }
     var name: String { return "OP_INVERT" }
