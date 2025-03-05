@@ -280,9 +280,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         return backupService.currentState
     }
 
-    @Published private var previewBackupCardsAdded: Int = 0
-    @Published private var previewBackupState: BackupService.State = .finalizingPrimaryCard
-
     private let backupService: BackupService
     private var cardInitializer: CardInitializer?
     private let pendingBackupManager = PendingBackupManager()
@@ -827,13 +824,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         AccessCodeSaveUtility().trySave(accessCode: accessCode, cardIds: cardIds)
     }
 
-    private func previewGoToNextStepDelayed(_ delay: TimeInterval = 2) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-            self.goToNextStep()
-            self.isMainButtonBusy = false
-        }
-    }
-
     private func processBackupError(_ error: Error) {
         AppLogger.error(error: error)
         Analytics.error(error: error, params: [.action: .addbackup])
@@ -1046,7 +1036,7 @@ private extension BackupService {
         [primaryCard?.cardId].compactMap { $0 } + backupCards.map { $0.cardId }
     }
 
-    // for ring onboarding
+    /// for ring onboarding
     var allBatchIds: [String] {
         [primaryCard?.batchId].compactMap { $0 } + backupCards.compactMap { $0.batchId }
     }
@@ -1068,7 +1058,7 @@ private extension BackupService {
         return false
     }
 
-    // for ring onboarding
+    /// for ring onboarding
     private var finalizingBatchId: String? {
         if currentState == .finalizingPrimaryCard,
            let batchId = primaryCard?.batchId {
