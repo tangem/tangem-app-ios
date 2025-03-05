@@ -84,10 +84,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         currentStep.infoText
     }
 
-    private var previewUpdateCounter: Int = 0
     private var walletCreatedWhileOnboarding: Bool = false
-    private var scheduledUpdate: DispatchWorkItem?
-
     private var canBuyCrypto: Bool {
         if let blockchain = userWalletModel?.walletModelsManager.walletModels.first?.blockchainNetwork.blockchain,
            exchangeService.canBuy(blockchain.currencySymbol, amountType: .coin, blockchain: blockchain) {
@@ -246,6 +243,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             case .failure(let error) where error.toTangemSdkError().isUserCancelled:
                 // Do nothing
                 break
+
             case .failure(let error):
                 AppLogger.error(error: error)
                 Analytics.error(error: error, params: [.action: .createWallet])

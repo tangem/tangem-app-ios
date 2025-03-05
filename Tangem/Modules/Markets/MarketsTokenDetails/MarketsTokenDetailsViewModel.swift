@@ -115,7 +115,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
     private let defaultAmountNotationFormatter = DefaultAmountNotationFormatter()
 
-    // The date when this VM was initialized (i.e. the screen was opened)
+    /// The date when this VM was initialized (i.e. the screen was opened)
     private let initialDate = Date()
 
     private let tokenInfo: MarketsTokenModel
@@ -144,7 +144,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
         self.coordinator = coordinator
         selectedPriceChangeIntervalType = .day
 
-        /// Our view is initially presented when the sheet is expanded, hence the `1.0` initial value.
+        // Our view is initially presented when the sheet is expanded, hence the `1.0` initial value.
         super.init(overlayContentProgressInitialValue: 1.0)
 
         let tokenQuoteHelper = MarketsTokenQuoteHelper()
