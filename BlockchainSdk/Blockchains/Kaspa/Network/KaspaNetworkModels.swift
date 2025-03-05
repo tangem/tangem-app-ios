@@ -12,7 +12,7 @@ import Foundation
 
 struct KaspaAddressInfo {
     let balance: Decimal
-    let unspentOutputs: [ScriptUnspentOutput]
+    let unspentOutputs: [BitcoinUnspentOutput]
     let confirmedTransactionHashes: [String]
 }
 
