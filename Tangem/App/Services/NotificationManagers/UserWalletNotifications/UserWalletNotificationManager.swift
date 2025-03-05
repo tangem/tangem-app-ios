@@ -35,7 +35,7 @@ final class UserWalletNotificationManager {
     private var showAppRateNotification = false
     private var shownAppRateNotificationId: NotificationViewId?
 
-    private var supportSeedNotificationInteractor: SupportSeedNotificationManager?
+    private lazy var supportSeedNotificationInteractor: SupportSeedNotificationManager = makeSupportSeedNotificationsManager()
 
     init(
         userWalletModel: UserWalletModel,
@@ -132,13 +132,7 @@ final class UserWalletNotificationManager {
             return
         }
 
-        supportSeedNotificationInteractor = CommonSupportSeedNotificationManager(
-            userWalletId: userWalletModel.userWalletId,
-            displayDelegate: self,
-            notificationTapDelegate: delegate
-        )
-
-        supportSeedNotificationInteractor?.showSupportSeedNotificationIfNeeded()
+        supportSeedNotificationInteractor.showSupportSeedNotificationIfNeeded()
     }
 
     private func hideNotification(with id: NotificationViewId) {
@@ -304,6 +298,14 @@ final class UserWalletNotificationManager {
 
     private func recordDeprecationNotificationDismissal() {
         deprecationService.didDismissSystemDeprecationWarning()
+    }
+
+    private func makeSupportSeedNotificationsManager() -> SupportSeedNotificationManager {
+        CommonSupportSeedNotificationManager(
+            userWalletId: userWalletModel.userWalletId,
+            displayDelegate: self,
+            notificationTapDelegate: delegate
+        )
     }
 }
 
