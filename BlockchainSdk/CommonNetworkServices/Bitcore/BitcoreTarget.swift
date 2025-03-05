@@ -12,6 +12,8 @@ import Moya
 enum BitcoreTarget: TargetType {
     case balance(address: String)
     case unspents(address: String)
+    case tx(hash: String)
+    case inputsOutputs(txHash: String)
     case send(txHex: String)
 
     var baseURL: URL {
@@ -24,6 +26,10 @@ enum BitcoreTarget: TargetType {
             return "/address/\(address)/balance"
         case .unspents(let address):
             return "/address/\(address)/"
+        case .tx(let hash):
+            return "/tx/\(hash)/"
+        case .inputsOutputs(let hash):
+            return "/tx/\(hash)/coins"
         case .send:
             return "tx/send"
         }
@@ -31,20 +37,16 @@ enum BitcoreTarget: TargetType {
 
     var method: Moya.Method {
         switch self {
-        case .balance, .unspents:
+        case .balance, .unspents, .tx, .inputsOutputs:
             return .get
         case .send:
             return .post
         }
     }
 
-    var sampleData: Data {
-        return Data()
-    }
-
     var task: Task {
         switch self {
-        case .balance:
+        case .balance, .tx, .inputsOutputs:
             return .requestPlain
         case .unspents:
             return .requestParameters(parameters: ["unspent": "true"], encoding: URLEncoding.default)
