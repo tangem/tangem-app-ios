@@ -12,7 +12,7 @@ struct BlockchairTransactionRecordMapper {
     private let blockchain: Blockchain
 
     init(blockchain: Blockchain) {
-        assert(blockchain.isUTXO, "BlockBookTransactionTransactionRecordMapper support only UTXO blockchains")
+        assert(blockchain.isUTXO, "BlockchairTransactionRecordMapper support only UTXO blockchains")
         self.blockchain = blockchain
     }
 }
