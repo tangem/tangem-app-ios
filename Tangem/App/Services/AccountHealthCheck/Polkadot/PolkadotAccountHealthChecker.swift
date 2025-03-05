@@ -88,7 +88,7 @@ final class PolkadotAccountHealthChecker {
 
     // MARK: - Account health check
 
-    // This overload schedules background task (UIKit).
+    /// This overload schedules background task (UIKit).
     private func performAccountCheck(_ account: String) {
         let backgroundTaskName = "com.tangem.PolkadotAccountHealthChecker_\(account)_\(UUID().uuidString)"
 
@@ -109,7 +109,7 @@ final class PolkadotAccountHealthChecker {
         performAccountCheck(account, backgroundTask: backgroundTask)
     }
 
-    // This overload uses given background task (hidden behind `AccountHealthCheckBackgroundTask` interface).
+    /// This overload uses given background task (hidden behind `AccountHealthCheckBackgroundTask` interface).
     private func performAccountCheck(_ account: String, backgroundTask: AccountHealthCheckBackgroundTask) {
         AppLogger.info("Starting checking account '\(account)'")
 

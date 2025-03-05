@@ -24,7 +24,7 @@
 
 import Foundation
 
-// The item n back in the stack is moved to the top.
+/// The item n back in the stack is moved to the top.
 struct OpRoll: OpCodeProtocol {
     var value: UInt8 { return 0x7a }
     var name: String { return "OP_ROLL" }

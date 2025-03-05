@@ -30,7 +30,6 @@ struct PendingExpressTransactionFactory {
         switch currentExpressStatus {
         case .created, .waiting:
             currentStatus = .awaitingDeposit
-
         case .confirming:
             currentStatus = .confirming
         case .exchanging:

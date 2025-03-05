@@ -21,10 +21,10 @@ class DashMainNetworkParams: INetwork {
     let scriptHash: UInt8 = 0x10
     let bech32PrefixPattern: String = "bc"
 
-    //  https://github.com/dashpay/dash/blob/master/src/chainparams.cpp#L457
+    ///  https://github.com/dashpay/dash/blob/master/src/chainparams.cpp#L457
     let xPubKey: UInt32 = 0x0488b21e
 
-    //  https://github.com/dashpay/dash/blob/master/src/chainparams.cpp#L459
+    ///  https://github.com/dashpay/dash/blob/master/src/chainparams.cpp#L459
     let xPrivKey: UInt32 = 0x0488ade4
 
     /// Protocol message header bytes

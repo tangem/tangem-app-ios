@@ -10,11 +10,11 @@ import Foundation
 
 extension Analytics {
     enum EventLimit {
-        // One time per app session. Use extraEventId to limit repeating events with different params
+        /// One time per app session. Use extraEventId to limit repeating events with different params
         case appSession(extraEventId: String? = nil)
-        // One time per app session and per user wallet. Use extraEventId to limit repeating events with different params
+        /// One time per app session and per user wallet. Use extraEventId to limit repeating events with different params
         case userWalletSession(userWalletId: UserWalletId, extraEventId: String? = nil)
-        // No limits
+        /// No limits
         case unlimited
     }
 }
