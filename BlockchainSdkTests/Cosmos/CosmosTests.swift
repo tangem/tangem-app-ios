@@ -11,7 +11,7 @@ import WalletCore
 @testable import BlockchainSdk
 
 class CosmosTests: XCTestCase {
-    // From TrustWallet
+    /// From TrustWallet
     func testTransaction() throws {
         let cosmosChain = CosmosChain.gaia
         let blockchain = cosmosChain.blockchain
@@ -133,7 +133,7 @@ class CosmosTests: XCTestCase {
         XCTAssertJSONEqual(transactionString, expectedOutput)
     }
 
-    // From TrustWallet
+    /// From TrustWallet
     func testTerraV2Transaction() throws {
         let cosmosChain = CosmosChain.terraV2
         let blockchain = cosmosChain.blockchain
