@@ -30,7 +30,6 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 
     private let firstTwinCardId: String?
     private var fileToWrite: Data?
-    private var walletManager: WalletManager?
     private var scanCommand: AppScanTask?
 
     init(firstTwinCardId: String?, fileToWrite: Data?) {
