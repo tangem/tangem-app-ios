@@ -11,8 +11,6 @@ import SwiftUI
 struct WalletSelectorItemView: View {
     @ObservedObject var viewModel: WalletSelectorItemViewModel
 
-    private let maxImageWidth = 50.0
-
     var body: some View {
         Button {
             viewModel.onTapAction()
@@ -89,6 +87,7 @@ struct WalletSelectorItemView: View {
         switch viewModel.icon {
         case .loading:
             Color.clear
+
         case .loaded(let image):
             image.image
                 .resizable()
