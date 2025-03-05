@@ -31,7 +31,7 @@ class OnboardingCoordinator: CoordinatorObject {
 
     // MARK: - Helpers
 
-    // For non-dismissable presentation
+    /// For non-dismissable presentation
     var onDismissalAttempt: () -> Void = {}
 
     // MARK: - Private

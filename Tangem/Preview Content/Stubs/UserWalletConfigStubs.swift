@@ -10,7 +10,7 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 
-struct UserWalletConfigStubs {
+enum UserWalletConfigStubs {
     static var walletV2Stub: UserWalletConfig = Wallet2Config(
         card: .init(card: CardMock.wallet2.card),
         isDemo: false

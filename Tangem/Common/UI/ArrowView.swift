@@ -35,15 +35,6 @@ enum ItemPosition: Equatable {
     case last
     case single
 
-    fileprivate var startOffset: CGFloat {
-        switch self {
-        case .single:
-            return 6
-        default:
-            return 0
-        }
-    }
-
     fileprivate var isLast: Bool {
         switch self {
         case .single, .last:

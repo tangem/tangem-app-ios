@@ -72,7 +72,7 @@ private struct OverlayContentStateObserverViewModifier: ViewModifier {
                         return
                     }
 
-                    /// Prevents warnings like "Modifying state during view update, this will cause undefined behavior."
+                    // Prevents warnings like "Modifying state during view update, this will cause undefined behavior."
                     DispatchQueue.main.async {
                         isAppeared = true
                     }
