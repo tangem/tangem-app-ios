@@ -24,14 +24,14 @@
 
 import Foundation
 
-// Compares the first signature against each key until it finds an ECDSA match. Starting
-// with the subsequent key, it compares the second signature against each remaining key
-// until it finds an ECDSA match. The process is repeated until all signatures have been checked or not
-// enough keys remain to produce a successful result. All signatures need to match a key.
-// Because keys are not checked again if they fail any signature comparison, signatures must be
-// placed in the scriptSig using the same order as their corresponding keys were placed in the
-// scriptPubKey or redeemScript. If all signatures are valid, 1 is returned, 0 otherwise. Due to a bug,
-// one extra unused value is removed from the stack.
+/// Compares the first signature against each key until it finds an ECDSA match. Starting
+/// with the subsequent key, it compares the second signature against each remaining key
+/// until it finds an ECDSA match. The process is repeated until all signatures have been checked or not
+/// enough keys remain to produce a successful result. All signatures need to match a key.
+/// Because keys are not checked again if they fail any signature comparison, signatures must be
+/// placed in the scriptSig using the same order as their corresponding keys were placed in the
+/// scriptPubKey or redeemScript. If all signatures are valid, 1 is returned, 0 otherwise. Due to a bug,
+/// one extra unused value is removed from the stack.
 struct OpCheckMultiSig: OpCodeProtocol {
     var value: UInt8 { return 0xae }
     var name: String { return "OP_CHECKMULTISIG" }
