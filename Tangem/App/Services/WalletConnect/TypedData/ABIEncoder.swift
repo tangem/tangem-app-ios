@@ -177,7 +177,7 @@ private extension BigInt {
         return data
     }
 
-    // Computes the two's complement for a `BigInt` with 256 bits
+    /// Computes the two's complement for a `BigInt` with 256 bits
     private func twosComplement() -> Data {
         if sign == .plus {
             return magnitude.serialize()

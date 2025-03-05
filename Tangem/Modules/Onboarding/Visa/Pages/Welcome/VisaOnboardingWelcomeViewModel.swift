@@ -87,8 +87,8 @@ class VisaOnboardingWelcomeViewModel: ObservableObject {
 }
 
 extension VisaOnboardingWelcomeViewModel {
-    // NOTE: All text messages will be changed later they are not final,
-    // some of them right now is: "Bla bla bla bla"
+    /// NOTE: All text messages will be changed later they are not final,
+    /// some of them right now is: "Bla bla bla bla"
     enum State {
         case newActivation
         case continueActivation
