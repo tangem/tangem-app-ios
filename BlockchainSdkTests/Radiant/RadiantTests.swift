@@ -52,7 +52,7 @@ final class RadiantTests: XCTestCase {
         XCTAssertEqual(adapterAddress.description, legacyAddress.value)
     }
 
-    /*
+    /**
      https://radiantexplorer.com/tx/4190920ce863b70174e476d45c39b5b505dd244157a38dbaf3ce3c8794cd5789
      */
     func testSignRawTransaction() throws {

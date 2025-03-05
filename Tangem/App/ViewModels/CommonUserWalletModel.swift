@@ -52,13 +52,11 @@ class CommonUserWalletModel {
     let userWalletId: UserWalletId
 
     private(set) var cardInfo: CardInfo
-    private var tangemSdk: TangemSdk?
     var config: UserWalletConfig
 
     private let _updatePublisher: PassthroughSubject<Void, Never> = .init()
     private let _userWalletNamePublisher: CurrentValueSubject<String, Never>
     private let _cardHeaderImagePublisher: CurrentValueSubject<ImageType?, Never>
-    private var bag = Set<AnyCancellable>()
     private var signSubscription: AnyCancellable?
 
     private var _signer: TangemSigner {

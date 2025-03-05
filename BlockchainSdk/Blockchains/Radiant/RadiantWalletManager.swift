@@ -158,7 +158,7 @@ extension RadiantWalletManager: WalletManager {
 
 extension RadiantWalletManager {
     enum Constants {
-        /*
+        /**
          - We use 1000, because Electrum node return fee for per 1000 bytes.
          */
         static let perKbRate: Decimal = 1000

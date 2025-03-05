@@ -89,8 +89,8 @@ final class SingleTokenNotificationManager {
             )
         }
 
-        /// We can't use `Blockchain.polygon(testnet: false).currencySymbol` here
-        /// because it will be changed after some time to `"POL"`
+        // We can't use `Blockchain.polygon(testnet: false).currencySymbol` here
+        // because it will be changed after some time to `"POL"`
         // [REDACTED_TODO_COMMENT]
         if walletModel.tokenItem.currencySymbol == CurrencySymbol.matic,
            walletModel.tokenItem.isToken,
@@ -98,7 +98,7 @@ final class SingleTokenNotificationManager {
             events.append(.maticMigration)
         }
 
-        /// We need display alert for user with Kaspa token is beta feature
+        // We need display alert for user with Kaspa token is beta feature
         if walletModel.blockchainNetwork.blockchain == .kaspa(testnet: false), walletModel.tokenItem.isToken {
             events.append(.kaspaTokensBeta)
         }
