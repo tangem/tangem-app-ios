@@ -9,9 +9,9 @@
 import XCTest
 @testable import BlockchainSdk
 
-// Hardcoded addresses provided via 'subkey' command line tool
-// either 'subkey generate -n <network>'
-// or 'subkey inspect --public <hex address> -n <network>'
+/// Hardcoded addresses provided via 'subkey' command line tool
+/// either 'subkey generate -n <network>'
+/// or 'subkey inspect --public <hex address> -n <network>'
 final class SS58Tests: XCTestCase {
     private let ss58 = SS58()
 

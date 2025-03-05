@@ -4,7 +4,7 @@ import Foundation
  class for CLType and CLValue serialization
  */
 enum CLTypeSerializeHelper {
-    /**
+    /*
      Serialize for CLType
      - Parameter: CLType
      - Returns: String represent the serialization of the CLType of the input
@@ -65,7 +65,7 @@ enum CLTypeSerializeHelper {
         }
     }
 
-    /**
+    /*
      Serialize for CLValue
      - Parameters:
         - CLValue, wrapped in a CLValueWrapper object
@@ -474,7 +474,7 @@ enum CLTypeSerializeHelper {
         return ""
     }
 
-    /**
+    /*
      Serialize for CLValue of CLType Bool
      - Parameters: bool value
      - Returns: String with value "01" if input == true,  "00" if input == false
@@ -487,7 +487,7 @@ enum CLTypeSerializeHelper {
         return "00"
     }
 
-    /**
+    /*
      Serialize for CLValue of CLType Int32
      - Parameters: Int32 value
      - Returns: Serialization of UInt32 if input >= 0.
@@ -504,7 +504,7 @@ enum CLTypeSerializeHelper {
         }
     }
 
-    /**
+    /*
      Serialize for CLValue of CLType Int64
      - Parameters: Int64 value
      - Returns: Serialization of UInt64 if input >= 0.
@@ -521,7 +521,7 @@ enum CLTypeSerializeHelper {
         }
     }
 
-    /**
+    /*
      Serialize for CLValue of CLType UInt8
      - Parameters: UInt8 value
      - Returns: String represents the serialization of UInt8, which is a String of size 2. Example: Input UInt8(15) then output is "0f"
@@ -536,7 +536,7 @@ enum CLTypeSerializeHelper {
         }
     }
 
-    /**
+    /*
      Serialize for CLValue of CLType UInt32
      - Parameters: UInt32 value
      - Returns: String represents the serialization of UInt32 in little endian, which is a String of size 8. Example: Input UInt32(15) then output is "0f000000"
@@ -551,7 +551,7 @@ enum CLTypeSerializeHelper {
         }
     }
 
-    /**
+    /*
      Serialize for CLValue of CLType UInt64
      - Parameters: UInt64 value
      - Returns: String represents the serialization of UInt64 in little endian, which is a String of size 16. Example: Input UInt32(15) then output is "0f00000000000000"
@@ -642,7 +642,7 @@ enum CLTypeSerializeHelper {
         }
     }
 
-    /**
+    /*
      Serialize for CLValue of CLType U512 - big number
      - Parameters: U512 value in String format
      - Throws: CasperError.invalidNumber if the input String can not convert to number
@@ -658,7 +658,7 @@ enum CLTypeSerializeHelper {
         }
     }
 
-    /**
+    /*
      Serialize for CLValue of CLType U256 - big number
      - Parameters: U256 value in String format
      - Throws: CasperError.invalidNumber if the input String can not convert to number
@@ -674,7 +674,7 @@ enum CLTypeSerializeHelper {
         }
     }
 
-    /**
+    /*
      Serialize for CLValue of CLType U128 - big number
      - Parameters: U128 value in String format
      - Throws: CasperError.invalidNumber if the input String can not convert to number
@@ -690,7 +690,7 @@ enum CLTypeSerializeHelper {
         }
     }
 
-    /**
+    /*
      Serialize for  big number in general - this function is used to deal with U512, U256 and U128 Serialization
      - Parameters: Big number value in String format
      - Throws: CasperError.invalidNumber if the String can not convert to number
@@ -718,7 +718,7 @@ enum CLTypeSerializeHelper {
         return result
     }
 
-    /**
+    /*
      Serialize for big number to hexa String
      - Parameters: Big number in String format
      - Returns: String represents the serialization of Big number in little endian. Example: Input ("999888666555444999887988887777666655556666777888999666999") then output is "37f578fca55492f299ea354eaca52b6e9de47d592453c728"
@@ -818,7 +818,7 @@ enum CLTypeSerializeHelper {
         return result
     }
 
-    /**
+    /*
      Serialize for CLValue of CLType String
      - Parameters: String value
      - Returns: String represents the serialization of the input String, with the Serialization of UInt32(String.length) of the input concatenated with the String serialization itself.
@@ -837,7 +837,7 @@ enum CLTypeSerializeHelper {
         return result
     }
 
-    /**
+    /*
      Serialize for CLValue of CLType Unit
         Just return emtpy String
      */

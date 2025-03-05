@@ -16,7 +16,7 @@ final class AptosTests: XCTestCase {
     private let coinType: CoinType = .aptos
     private let sizeTester = TransactionSizeTesterUtility()
 
-    /*
+    /**
      - Use private key for aptos coin at tests in wallet-code aptos
      - Address for sender 0x07968dab936c1bad187c60ce4082f307d030d780e91e694ae03aef16aba73f30
      */
@@ -53,7 +53,7 @@ final class AptosTests: XCTestCase {
         try testTransactionBuilder(curve: .ed25519_slip0010)
     }
 
-    /*
+    /**
      - https://github.com/trustwallet/wallet-core/blob/master/tests/chains/Aptos/CompilerTests.cpp
      */
     func testTransactionBuilder(curve: EllipticCurve) throws {
