@@ -104,8 +104,7 @@ class BlockchainSdkTests: XCTestCase {
             )]
         )
 
-        let walletManager: WalletManager = BitcoinWalletManager(wallet: wallet)
-
+        let walletManager: TransactionValidator = BaseManager(wallet: wallet)
         walletManager.wallet.add(coinValue: 10)
 
         XCTAssertNoThrow(
