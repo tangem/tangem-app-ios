@@ -37,6 +37,7 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Internal state
 
+    // swiftformat:disable:next unusedPrivateDeclarations
     private let nftDataProvider = NFTDataProvider()
 
     private var pendingUserWalletIdsToUpdate: Set<UserWalletId> = []
