@@ -99,7 +99,6 @@ extension VisaOnboardingStepsBuilder: OnboardingStepsBuilder {
                     + [.paymentAccountDeployInProgress]
                     + pinSelectionSteps
             )
-
         case .activated:
             return .visa(otherSteps)
         case .blocked:
