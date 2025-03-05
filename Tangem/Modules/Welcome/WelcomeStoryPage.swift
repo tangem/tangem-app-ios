@@ -15,7 +15,7 @@ enum WelcomeStoryPage: CaseIterable {
     case awe
     case backup
     case currencies
-    // case web3
+    /// case web3
     case finish
 
     var duration: Double {

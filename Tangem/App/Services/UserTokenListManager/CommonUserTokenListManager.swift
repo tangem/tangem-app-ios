@@ -264,7 +264,7 @@ private extension CommonUserTokenListManager {
             .eraseToAnyPublisher()
     }
 
-    // Remove tokens with derivation for cards without derivation
+    /// Remove tokens with derivation for cards without derivation
     func removeInvalidTokens() {
         guard !hdWalletsSupported else {
             return
