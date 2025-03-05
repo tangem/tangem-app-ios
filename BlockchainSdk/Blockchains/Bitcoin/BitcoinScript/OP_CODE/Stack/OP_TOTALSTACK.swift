@@ -24,7 +24,7 @@
 
 import Foundation
 
-// Puts the input onto the top of the alt stack. Removes it from the main stack.
+/// Puts the input onto the top of the alt stack. Removes it from the main stack.
 struct OpToAltStack: OpCodeProtocol {
     var value: UInt8 { return 0x6b }
     var name: String { return "OP_TOALTSTACK" }
