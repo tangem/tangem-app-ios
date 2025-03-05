@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemNetworkUtils
 
+/// https://api.kaspa.org/docs#/
 class KaspaNetworkProvider: HostProvider {
     var host: String {
         url.hostOrUnknown
