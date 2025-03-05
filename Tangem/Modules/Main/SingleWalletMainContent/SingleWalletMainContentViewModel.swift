@@ -33,7 +33,6 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     init(
         userWalletModel: UserWalletModel,
         walletModel: WalletModel,
-        exchangeUtility: ExchangeCryptoUtility,
         userWalletNotificationManager: NotificationManager,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
         tokenNotificationManager: NotificationManager,
@@ -55,7 +54,6 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         super.init(
             userWalletModel: userWalletModel,
             walletModel: walletModel,
-            exchangeUtility: exchangeUtility,
             notificationManager: tokenNotificationManager,
             pendingExpressTransactionsManager: pendingExpressTransactionsManager,
             tokenRouter: tokenRouter
