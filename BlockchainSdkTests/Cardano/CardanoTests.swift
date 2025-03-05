@@ -21,8 +21,8 @@ class CardanoTests: XCTestCase {
         transactionBuilder = CardanoTransactionBuilder()
     }
 
-    // Successful transaction
-    // https://cardanoscan.io/transaction/db2306d819d848f67f70ab898028d9827e5d1fccc7033531534fdd39e93a796e
+    /// Successful transaction
+    /// https://cardanoscan.io/transaction/db2306d819d848f67f70ab898028d9827e5d1fccc7033531534fdd39e93a796e
     func testSignTransfer() throws {
         let utxos = [
             CardanoUnspentOutput(
@@ -75,8 +75,8 @@ class CardanoTests: XCTestCase {
         )
     }
 
-    // Successful transaction
-    // https://cardanoscan.io/transaction/03946fe122634d05e93219fde628ce55a5e0d06f23afa456864897357c5dade8
+    /// Successful transaction
+    /// https://cardanoscan.io/transaction/03946fe122634d05e93219fde628ce55a5e0d06f23afa456864897357c5dade8
     func testSignTransferFromLegacy() throws {
         let utxos = [
             CardanoUnspentOutput(
@@ -131,8 +131,8 @@ class CardanoTests: XCTestCase {
         )
     }
 
-    // Successful transaction
-    // https://cardanoscan.io/transaction/3ac6b76c63e109494823fe13e6f6d52544896a5ab81ae711ce56f039d6777bd1
+    /// Successful transaction
+    /// https://cardanoscan.io/transaction/3ac6b76c63e109494823fe13e6f6d52544896a5ab81ae711ce56f039d6777bd1
     func testSignTransferToken() throws {
         let utxos = [
             CardanoUnspentOutput(
