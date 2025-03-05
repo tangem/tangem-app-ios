@@ -20,8 +20,6 @@ final class SolanaEd25519Tests: XCTestCase {
     private let feeParameters = SolanaFeeParameters(computeUnitLimit: nil, computeUnitPrice: nil, accountCreationFee: 0)
 
     private let coinSigner = SolanaSignerTestUtility.CoinSigner()
-    private let tokenSigner = SolanaSignerTestUtility.TokenSigner()
-
     override func setUp() {
         super.setUp()
         let networkingRouter = SolanaDummyNetworkRouter(
