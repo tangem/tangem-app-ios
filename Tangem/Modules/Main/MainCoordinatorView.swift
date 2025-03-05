@@ -139,7 +139,7 @@ struct MainCoordinatorView: CoordinatorView {
             .requestAppStoreReviewCompat($coordinator.isAppStoreReviewRequested)
     }
 
-    // Tooltip is placed on top of the other views
+    /// Tooltip is placed on top of the other views
     private var marketsTooltipView: some View {
         BasicTooltipView(
             isShowBindingValue: $coordinator.isMarketsTooltipVisible,
