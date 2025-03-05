@@ -69,7 +69,7 @@ private enum ImageError: Error {
     case badNdef
 }
 
-// can't move it out from here due to compile error
+/// can't move it out from here due to compile error
 extension Publisher where Output == String {
     func replaceEmptyString(with error: Error) -> AnyPublisher<String, Error> {
         tryMap { string -> String in

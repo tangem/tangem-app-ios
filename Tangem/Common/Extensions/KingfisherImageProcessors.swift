@@ -17,10 +17,10 @@ struct ContrastBackgroundImageProcessor: ImageProcessor {
 
     let backgroundColor: UIColor
 
-    // An image that is 100% black on a clear background would have the average color of 0.
-    // A low-contrast image on a clear background would have the average color of 0.03-0.06 even if it's not black but
-    // a shade of blue, for example. 7% was chosen to update as many low-contrast images as possible
-    // without breaking those that already look good
+    /// An image that is 100% black on a clear background would have the average color of 0.
+    /// A low-contrast image on a clear background would have the average color of 0.03-0.06 even if it's not black but
+    /// a shade of blue, for example. 7% was chosen to update as many low-contrast images as possible
+    /// without breaking those that already look good
     private let averageColorPercentageThreshold = 0.07
 
     func process(item: ImageProcessItem, options: KingfisherParsedOptionsInfo) -> KFCrossPlatformImage? {

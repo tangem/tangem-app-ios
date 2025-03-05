@@ -241,6 +241,7 @@ extension SendSummaryViewModel: SendStepViewAnimatable {
 
             showHint = false
             transactionDescriptionIsVisible = false
+
         case .appearing(.fee(_)):
             destinationEditMode = false
             amountEditMode = false
@@ -254,6 +255,7 @@ extension SendSummaryViewModel: SendStepViewAnimatable {
 
             showHint = false
             transactionDescriptionIsVisible = false
+
         default:
             // Do not update ids
             return

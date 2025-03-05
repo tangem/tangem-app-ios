@@ -19,7 +19,7 @@ struct DragAndDropGestureView<
     typealias OnCancel = (_ context: U.Context) -> Void
 
     var minimumPressDuration: TimeInterval = 0.5 // Same default value as `UILongPressGestureRecognizer` has
-    var allowableMovement: CGFloat = 10.0 /// Same default value as `UILongPressGestureRecognizer` has
+    var allowableMovement: CGFloat = 10.0 // Same default value as `UILongPressGestureRecognizer` has
 
     var gesturePredicate: T
     var contextProvider: U
