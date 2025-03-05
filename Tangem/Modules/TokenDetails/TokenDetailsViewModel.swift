@@ -54,7 +54,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     init(
         userWalletModel: UserWalletModel,
         walletModel: WalletModel,
-        exchangeUtility: ExchangeCryptoUtility,
         notificationManager: NotificationManager,
         bannerNotificationManager: NotificationManager?,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
@@ -68,7 +67,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         super.init(
             userWalletModel: userWalletModel,
             walletModel: walletModel,
-            exchangeUtility: exchangeUtility,
             notificationManager: notificationManager,
             pendingExpressTransactionsManager: pendingExpressTransactionsManager,
             tokenRouter: tokenRouter
@@ -321,7 +319,7 @@ extension TokenDetailsViewModel: SingleTokenNotificationManagerInteractionDelega
         with configuration: TokenNotificationEvent.UnfulfilledRequirementsConfiguration,
         confirmationAction: @escaping () -> Void
     ) {
-        let alertBuilder = SingleTokenAlertBuilder()
+        let alertBuilder = AssetRequirementsAlertBuilder()
         alert = alertBuilder.fulfillAssetRequirementsDiscardedAlert(confirmationAction: confirmationAction)
     }
 }
