@@ -19,7 +19,7 @@ protocol UTXONetworkProvider: AnyObject, HostProvider {
 }
 
 extension UTXONetworkProvider {
-    // Default implementation
+    /// Default implementation
     func getInfo(address: String) -> AnyPublisher<UTXOResponse, any Error> {
         getUnspentOutputs(address: address)
             .withWeakCaptureOf(self)

@@ -81,7 +81,7 @@ enum CSPRUtils {
         return ret
     }
 
-    // Supporter method for sorting U128 Array
+    /// Supporter method for sorting U128 Array
     static func sortU128Array(array: inout [U128Class]) {
         let total = array.count
         for _ in 0 ... total {
@@ -95,7 +95,7 @@ enum CSPRUtils {
         }
     }
 
-    // Supporter method for sorting U256 Array
+    /// Supporter method for sorting U256 Array
     static func sortU256Array(array: inout [U256Class]) {
         let total = array.count
         for _ in 0 ... total {
@@ -109,7 +109,7 @@ enum CSPRUtils {
         }
     }
 
-    // Supporter method for sorting U512 Array
+    /// Supporter method for sorting U512 Array
     static func sortU512Array(array: inout [U512Class]) {
         let total = array.count
         for _ in 0 ... total {
@@ -123,7 +123,7 @@ enum CSPRUtils {
         }
     }
 
-    // Support function to compare two big number, such as U128 or U256 or U512, return true if num1 < num2 and vice versa
+    /// Support function to compare two big number, such as U128 or U256 or U512, return true if num1 < num2 and vice versa
     static func isBigNum1SmallerThanBigNum2(num1: String, num2: String) -> Bool {
         // if num1 < num2 return true
         let num1Length = num1.count
