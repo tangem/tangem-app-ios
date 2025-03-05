@@ -96,26 +96,26 @@ struct AptosProviderTarget: TargetType {
 
 extension AptosProviderTarget {
     enum TargetType {
-        /*
+        /**
          Return the authentication key and the sequence number for an account address. Optionally, a ledger version can be specified. If the ledger version is not specified in the request, the latest ledger version is used.
          */
         case accounts(address: String)
 
-        /*
+        /**
          Retrieves all account resources for a given account and a specific ledger version. If the ledger version is not specified in the request, the latest ledger version is used.
 
          The Aptos nodes prune account state history, via a configurable time window. If the requested ledger version has been pruned, the server responds with a 410.
          */
         case accountsResources(address: String)
 
-        /*
+        /**
          Gives an estimate of the gas unit price required to get a transaction on chain in a reasonable amount of time. The gas unit price is the amount that each transaction commits to pay for each unit of gas consumed in executing the transaction. The estimate is based on recent history: it gives the minimum gas that would have been required to get into recent blocks, for blocks that were full. (When blocks are not full, the estimate will match the minimum gas unit price.)
 
          The estimation is given in three values: de-prioritized (low), regular, and prioritized (aggressive). Using a more aggressive value increases the likelihood that the transaction will make it into the next block; more aggressive values are computed with a larger history and higher percentile statistics. More details are in AIP-34.
          */
         case estimateGasPrice
 
-        /*
+        /**
          The output of the transaction will have the exact transaction outputs and events that running an actual signed transaction would have. However, it will not have the associated state hashes, as they are not updated in storage. This can be used to estimate the maximum gas units for a submitted transaction.
 
          To use this, you must:
@@ -127,7 +127,7 @@ extension AptosProviderTarget {
          */
         case simulateTransaction(data: Data)
 
-        /*
+        /**
          This endpoint accepts transaction submissions in two formats.
 
          To submit a transaction as JSON, you must submit a SubmitTransactionRequest. To build this request, do the following:
