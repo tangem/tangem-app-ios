@@ -295,7 +295,12 @@ extension Wallet2Config: UserWalletConfig {
         // Ghoad
         case "AF89":
             return cardsCount == 2 ? Assets.Cards.ghoadDouble : Assets.Cards.ghoadTriple
-
+        // Spring Bloom
+        case "AF990001", "AF990002", "AF990004":
+            return cardsCount == 2 ? Assets.Cards.springBloomDouble : Assets.Cards.springBloomTriple
+        // Sun Drop
+        case "AF990003", "AF990005":
+            return cardsCount == 2 ? Assets.Cards.sunDropDouble : Assets.Cards.sunDropTriple
         // Tangem Wallet 2.0
         default:
 

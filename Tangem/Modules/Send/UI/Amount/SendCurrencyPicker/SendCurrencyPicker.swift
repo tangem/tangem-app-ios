@@ -24,7 +24,7 @@ struct SendCurrencyPicker: View {
 
     private let iconSize: CGFloat = 18
 
-    // Can't use buttons because that interferes with the drag gesture
+    /// Can't use buttons because that interferes with the drag gesture
     var body: some View {
         HStack(spacing: 0) {
             selectorItem(with: data.cryptoCurrencyCode, url: data.cryptoIconURL, iconRadius: 2, selected: !useFiatCalculation) {
@@ -126,7 +126,6 @@ struct SendCurrencyPicker: View {
 }
 
 private struct PickerExample: View {
-    @State private var currency = 0
     @State private var useFiatCalculation = false
 
     var body: some View {

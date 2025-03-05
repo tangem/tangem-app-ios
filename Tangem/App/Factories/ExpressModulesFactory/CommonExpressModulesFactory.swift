@@ -175,8 +175,8 @@ private extension CommonExpressModulesFactory {
     var userWalletId: String { userWalletModel.userWalletId.stringValue }
     var signer: TangemSigner { userWalletModel.signer }
 
-    // Be careful to use tokenItem in CommonExpressAnalyticsLogger
-    // Becase there will be inly initial tokenItem without updating
+    /// Be careful to use tokenItem in CommonExpressAnalyticsLogger
+    /// Becase there will be inly initial tokenItem without updating
     var analyticsLogger: ExpressAnalyticsLogger { CommonExpressAnalyticsLogger(tokenItem: initialWalletModel.tokenItem) }
 
     var expressTokensListAdapter: ExpressTokensListAdapter {

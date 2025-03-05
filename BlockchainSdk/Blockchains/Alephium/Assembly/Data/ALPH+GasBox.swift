@@ -10,11 +10,11 @@ import Foundation
 import BigInt
 
 extension ALPH {
-    // Define the GasBox struct
+    /// Define the GasBox struct
     struct GasBox: Comparable {
         let value: Int
 
-        // Use gas and return a Result
+        /// Use gas and return a Result
         func use(amount: GasBox) throws -> GasBox {
             if self >= amount {
                 return GasBox(value: value - amount.value)
@@ -23,12 +23,12 @@ extension ALPH {
             }
         }
 
-        // Convert to U256 (assuming U256 is a custom type)
+        /// Convert to U256 (assuming U256 is a custom type)
         func toU256() -> U256 {
             return U256.unsafe(BigUInt(value))
         }
 
-        // Comparable conformance
+        /// Comparable conformance
         static func < (lhs: GasBox, rhs: GasBox) -> Bool {
             return lhs.value < rhs.value
         }
@@ -37,7 +37,7 @@ extension ALPH {
             return lhs.value == rhs.value
         }
 
-        // Unsafe initializer
+        /// Unsafe initializer
         static func unsafe(initialGas: Int) -> GasBox {
             precondition(initialGas >= 0, "Initial gas must be non-negative")
             return GasBox(value: initialGas)

@@ -19,8 +19,6 @@ class MarketsWalletSelectorViewModel: ObservableObject {
 
     private var bag: Set<AnyCancellable> = []
 
-    private let balanceFomatter = BalanceFormatter()
-
     // MARK: - Init
 
     init(
