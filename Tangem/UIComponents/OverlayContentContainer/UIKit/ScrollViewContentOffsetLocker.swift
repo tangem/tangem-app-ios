@@ -14,7 +14,7 @@ import TangemFoundation
 /// A simple helper with RAII semantics to 'disable' scroll inside `UIScrollView` without using `isScrollEnabled`
 /// property and hence without breaking the entire pan gesture.
 final class ScrollViewContentOffsetLocker {
-    // Strong ref to the scroll view instance is mandatory, because we're using KVO to observe this instance
+    /// Strong ref to the scroll view instance is mandatory, because we're using KVO to observe this instance
     let scrollView: UIScrollView
 
     private(set) var isLocked = false
