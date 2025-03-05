@@ -20,8 +20,6 @@ class CardOperationViewModel: ObservableObject {
     let actionButtonPressed: (_ completion: @escaping (Result<Void, Error>) -> Void) -> Void
 
     private weak var coordinator: CardOperationRoutable?
-    private var bag: Set<AnyCancellable> = []
-
     init(
         title: String,
         buttonTitle: String = Localization.commonSaveChanges,

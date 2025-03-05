@@ -208,16 +208,24 @@ final class WalletConnectV2Service {
                 }
 
                 WCLogger.info("Session established: \(session)")
+
                 let savedSession = WalletConnectV2Utils().createSavedSession(
                     from: session,
                     with: infoProvider?.userWalletId.stringValue ?? ""
                 )
+
+                let blockChainReferences = session.accounts.compactMap { account in
+                    Blockchain.allMainnetCases.first { blockChain in
+                        blockChain.wcChainID?.contains(account.reference) == true
+                    }?.currencySymbol
+                }.toSet().sorted()
 
                 Analytics.log(
                     event: .newSessionEstablished,
                     params: [
                         .dAppName: session.peer.name,
                         .dAppUrl: session.peer.url,
+                        .blockchain: blockChainReferences.joined(separator: "/"),
                     ]
                 )
 

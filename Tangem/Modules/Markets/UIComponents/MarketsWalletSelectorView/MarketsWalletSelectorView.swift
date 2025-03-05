@@ -12,9 +12,6 @@ import Combine
 struct MarketsWalletSelectorView: View {
     @ObservedObject var viewModel: MarketsWalletSelectorViewModel
 
-    private let maxImageWidth = 50.0
-    private let imageHeight = 30.0
-
     var body: some View {
         HStack(spacing: 12) {
             icon
@@ -51,6 +48,7 @@ struct MarketsWalletSelectorView: View {
         switch viewModel.icon {
         case .loading:
             Color.clear
+
         case .loaded(let image):
             image.image
                 .resizable()

@@ -216,7 +216,7 @@ class UIQRScannerView: UIView {
     /// capture settion which allows us to start and stop scanning.
     var captureSession: AVCaptureSession?
     private var feedbackGenerator: UINotificationFeedbackGenerator?
-    // Init methods..
+    /// Init methods..
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         doInitialSetup()

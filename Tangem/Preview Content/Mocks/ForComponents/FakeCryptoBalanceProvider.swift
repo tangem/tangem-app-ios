@@ -28,32 +28,6 @@ class FakeTokenBalanceProvider {
         self.delay = delay
         self.cryptoBalanceInfo = cryptoBalanceInfo
     }
-
-    private func scheduleSendingValue() {
-        guard delay > 0 else {
-            sendInfo()
-            return
-        }
-
-        DispatchQueue.global().asyncAfter(deadline: .now() + delay) {
-            self.sendInfo()
-        }
-    }
-
-    private func sendInfo() {
-        if cryptoBalanceInfo.crypto.contains("-1") {
-            valueSubject.send(.success(nil))
-            buttonsSubject.send(disabledButtons())
-        } else {
-            valueSubject.send(.success(cryptoBalanceInfo))
-        }
-    }
-
-    private func disabledButtons() -> [FixedSizeButtonWithIconInfo] {
-        buttons.map { button in
-            .init(title: button.title, icon: button.icon, disabled: true, action: button.action)
-        }
-    }
 }
 
 extension FakeTokenBalanceProvider: BalanceWithButtonsViewModelBalanceProvider {
