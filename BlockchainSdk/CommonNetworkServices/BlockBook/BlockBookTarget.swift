@@ -94,7 +94,7 @@ extension BlockBookTarget {
         case txDetails(txHash: String)
         case utxo(address: String)
 
-        /*
+        /**
          It is also a request to receive a fee for confirmation blocks.
          Some blockchains use this method. Such blockchains:
             - CloreAI
