@@ -43,7 +43,7 @@ class TONTests: XCTestCase {
         try testCorrectCoinTransaction(curve: .ed25519_slip0010)
     }
 
-    // https://tonscan.org/tx/77f72e4096f2ae315ff7b0906569f9aa450686b11a40e65c9adb8690587bffa4
+    /// https://tonscan.org/tx/77f72e4096f2ae315ff7b0906569f9aa450686b11a40e65c9adb8690587bffa4
     func testCorrectCoinTransaction(curve: EllipticCurve) throws {
         let blockchain = Blockchain.ton(curve: curve, testnet: false)
         let walletManager = try makeWalletManager(blockchain: blockchain)
@@ -79,7 +79,7 @@ class TONTests: XCTestCase {
         try testCorrectTokenTransaction(curve: .ed25519_slip0010)
     }
 
-    // https://tonviewer.com/transaction/a274b0bd0f6a90c1296c8a7ee305488852e9335e47230dcee0d6495dcad71692
+    /// https://tonviewer.com/transaction/a274b0bd0f6a90c1296c8a7ee305488852e9335e47230dcee0d6495dcad71692
     func testCorrectTokenTransaction(curve: EllipticCurve) throws {
         let blockchain = Blockchain.ton(curve: curve, testnet: false)
         let walletManager = try makeWalletManager(blockchain: blockchain)

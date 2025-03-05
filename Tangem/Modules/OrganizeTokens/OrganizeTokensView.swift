@@ -18,10 +18,10 @@ struct OrganizeTokensView: View {
 
     // MARK: - Coordinate spaces
 
-    // Semantically, this is the same as `UIScrollView.frameLayoutGuide` from UIKit
+    /// Semantically, this is the same as `UIScrollView.frameLayoutGuide` from UIKit
     private let scrollViewFrameCoordinateSpaceName = UUID()
 
-    // Semantically, this is the same as `UIScrollView.contentLayoutGuide` from UIKit
+    /// Semantically, this is the same as `UIScrollView.contentLayoutGuide` from UIKit
     private let scrollViewContentCoordinateSpaceName = UUID()
 
     // MARK: - Content insets and overlay views
@@ -47,31 +47,31 @@ struct OrganizeTokensView: View {
 
     @State private var dragAndDropDestinationIndexPath: IndexPath?
 
-    // In a `scrollViewContentCoordinateSpaceName` coordinate space
+    /// In a `scrollViewContentCoordinateSpaceName` coordinate space
     @State private var dragAndDropSourceItemFrame: CGRect?
 
-    // Stable identity, independent of changes in the underlying model (unlike index paths)
+    /// Stable identity, independent of changes in the underlying model (unlike index paths)
     @State private var dragAndDropSourceViewModelIdentifier: AnyHashable?
 
     @State private var dragGestureTranslation: CGSize?
 
-    // Semantically, this is the same as `UITableView.hasActiveDrag` from UIKit
+    /// Semantically, this is the same as `UITableView.hasActiveDrag` from UIKit
     private var hasActiveDrag: Bool { dragAndDropSourceIndexPath != nil }
 
     // MARK: - Auto scrolling support
 
-    // Viewport insetted by `contentInset` (i.e. by `scrollViewTopContentInset` and `scrollViewBottomContentInset`)
+    /// Viewport insetted by `contentInset` (i.e. by `scrollViewTopContentInset` and `scrollViewBottomContentInset`)
     @State private var visibleViewportFrame: CGRect = .zero
 
-    // In a `.global` coordinate space
+    /// In a `.global` coordinate space
     @State private var draggedItemFrame: CGRect = .zero
 
-    // `Initial` here means 'at the beginning of the drag and drop gesture'.
+    /// `Initial` here means 'at the beginning of the drag and drop gesture'.
     @State private var scrollViewInitialContentOffset: CGPoint = .zero
 
-    // Adopts changes in scroll view content offset (`scrollViewContentCoordinateSpaceName` coordinate space)
-    // to the drag gesture translation (`scrollViewFrameCoordinateSpaceName` coordinate space).
-    // Changes can be made by drag-and-drop auto scroll, for example.
+    /// Adopts changes in scroll view content offset (`scrollViewContentCoordinateSpaceName` coordinate space)
+    /// to the drag gesture translation (`scrollViewFrameCoordinateSpaceName` coordinate space).
+    /// Changes can be made by drag-and-drop auto scroll, for example.
     private var dragGestureTranslationFix: CGSize {
         return CGSize(
             width: 0.0,
