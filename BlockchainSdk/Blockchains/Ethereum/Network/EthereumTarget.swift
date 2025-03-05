@@ -74,7 +74,7 @@ private extension EthereumTarget {
         }
     }
 
-    // the params have to be nested in an array
+    /// the params have to be nested in an array
     var params: AnyEncodable {
         switch targetType {
         case .balance(let address):

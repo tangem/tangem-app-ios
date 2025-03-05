@@ -20,7 +20,7 @@ class TestnetTokensRepository {
             .eraseToAnyPublisher()
     }
 
-    // Copy load coins method via async await implementation
+    /// Copy load coins method via async await implementation
     func loadCoins(requestModel: CoinsList.Request) throws -> [CoinModel] {
         let response = try JsonUtils.readBundleFile(with: Constants.testFilename, type: CoinsList.Response.self)
         let mapper = CoinsResponseMapper(supportedBlockchains: requestModel.supportedBlockchains)
