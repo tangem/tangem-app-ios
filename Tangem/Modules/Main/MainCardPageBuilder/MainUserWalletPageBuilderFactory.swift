@@ -131,12 +131,6 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             contextDataProvider: model
         )
 
-        let exchangeUtility = ExchangeCryptoUtility(
-            blockchain: walletModel.blockchainNetwork.blockchain,
-            address: walletModel.wallet.address,
-            amountType: walletModel.amountType
-        )
-
         let expressFactory = CommonExpressModulesFactory(
             inputModel: .init(userWalletModel: model, initialWalletModel: walletModel)
         )
@@ -146,7 +140,6 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let viewModel = SingleWalletMainContentViewModel(
             userWalletModel: model,
             walletModel: walletModel,
-            exchangeUtility: exchangeUtility,
             userWalletNotificationManager: userWalletNotificationManager,
             pendingExpressTransactionsManager: pendingTransactionsManager,
             tokenNotificationManager: singleWalletNotificationManager,
