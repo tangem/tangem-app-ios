@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct RavencoinTransactionHistory {
+enum RavencoinTransactionHistory {
     struct Request: Encodable {
         let address: String
         /// Counting from zero
