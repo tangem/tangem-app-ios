@@ -19,7 +19,7 @@ class ManageTokensAdapter {
     private let userTokensManager: UserTokensManager
     private let loader: TokensListDataLoader
 
-    // This parameter is required due to the fact that the adapter is used in various places
+    /// This parameter is required due to the fact that the adapter is used in various places
     private let analyticsSourceRawValue: String
 
     private let listItemsViewModelsSubject = CurrentValueSubject<[ManageTokensListItemViewModel], Never>([])
