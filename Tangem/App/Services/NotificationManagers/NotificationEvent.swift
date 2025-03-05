@@ -25,7 +25,7 @@ protocol NotificationEvent: Identifiable {
 }
 
 extension NotificationEvent where Self: Hashable {
-    // Unique ID. Overwrite if hash value is not enough (may be influenced by associated values)
+    /// Unique ID. Overwrite if hash value is not enough (may be influenced by associated values)
     var id: NotificationViewId {
         hashValue
     }
