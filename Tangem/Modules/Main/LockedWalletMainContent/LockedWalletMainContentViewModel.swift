@@ -25,8 +25,7 @@ class LockedWalletMainContentViewModel: ObservableObject {
         )
     }()
 
-    lazy var singleWalletButtonsInfo: [FixedSizeButtonWithIconInfo] = TokenActionListBuilder()
-        .buildActionsForLockedSingleWallet()
+    lazy var singleWalletButtonsInfo: [FixedSizeButtonWithIconInfo] = TokenActionAvailabilityProvider.buildActionsForLockedSingleWallet()
         .map {
             FixedSizeButtonWithIconInfo(
                 title: $0.title,
