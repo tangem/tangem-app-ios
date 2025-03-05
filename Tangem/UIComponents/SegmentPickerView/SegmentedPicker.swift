@@ -72,8 +72,8 @@ private extension SegmentedPicker {
         static var insets: EdgeInsets { .init(top: 2, leading: 2, bottom: 2, trailing: 2) }
         static var interSegmentSpacing: CGFloat { 0 }
         static var containerCornerRadius: CGFloat { 8 }
-        // We need to use an odd value, otherwise the rounding curvature of the selection
-        // will be noticeably different from the background rounding curvature
+        /// We need to use an odd value, otherwise the rounding curvature of the selection
+        /// will be noticeably different from the background rounding curvature
         static var selectionViewCornerRadius: CGFloat { 7 }
     }
 }
