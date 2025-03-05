@@ -58,6 +58,7 @@ class EthereumTransactionBuilder {
             )
 
             return try buildTxCompilerPreSigningOutput(input: input).data
+
         case .reserve, .feeResource:
             throw BlockchainSdkError.notImplemented
         }
@@ -210,6 +211,7 @@ private extension EthereumTransactionBuilder {
                 nonce: nonce,
                 data: parameters.data
             )
+
         case .token(let token):
             let contract = transaction.contractAddress ?? token.contractAddress
             let method = TransferERC20TokenMethod(destination: transaction.destinationAddress, amount: amountValue)
