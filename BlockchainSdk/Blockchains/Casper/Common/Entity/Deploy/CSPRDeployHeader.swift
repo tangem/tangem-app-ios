@@ -18,7 +18,7 @@ class CSPRDeployHeader: Codable {
     var ttl: String = ""
     /// Deploy Header list of dependencies
     var dependencies: [String] = .init()
-    /**
+    /*
      Get DeployHeader object from Json string
      - Parameter : a Json String represent the DeployHeader object
      - Returns: DeployHeader object
