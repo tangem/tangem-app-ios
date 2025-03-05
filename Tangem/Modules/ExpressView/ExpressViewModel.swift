@@ -23,13 +23,13 @@ final class ExpressViewModel: ObservableObject {
     @Published var receiveCurrencyViewModel: ReceiveCurrencyViewModel?
     @Published var isMaxAmountButtonHidden: Bool = false
 
-    // Warnings
+    /// Warnings
     @Published var notificationInputs: [NotificationViewInput] = []
 
-    // Provider
+    /// Provider
     @Published var providerState: ProviderState?
 
-    // Fee
+    /// Fee
     @Published var expressFeeRowViewModel: ExpressFeeRowData?
 
     // Main button
@@ -187,13 +187,11 @@ private extension ExpressViewModel {
     }
 
     func formSlippageMessage(tokenItemSymbol: String, slippage: String?, isBigLoss: Bool) -> String {
-        let swappingAlertDexDescription: String = {
-            if let slippage {
-                Localization.swappingAlertDexDescriptionWithSlippage("\(slippage)%")
-            } else {
-                Localization.swappingAlertDexDescription
-            }
-        }()
+        let swappingAlertDexDescription: String = if let slippage {
+            Localization.swappingAlertDexDescriptionWithSlippage("\(slippage)%")
+        } else {
+            Localization.swappingAlertDexDescription
+        }
 
         if isBigLoss {
             return "\(Localization.swappingHighPriceImpactDescription)\n\n\(swappingAlertDexDescription)"
@@ -592,11 +590,9 @@ private extension ExpressViewModel {
             }
 
             mainButtonIsEnabled = false
-
         case .permissionRequired:
             mainButtonState = .givePermission
             mainButtonIsEnabled = true
-
         case .readyToSwap, .previewCEX:
             mainButtonState = .swap
             mainButtonIsEnabled = true

@@ -2703,6 +2703,11 @@
 		EF3805122D70917B00273B1B /* ElectrumTransactionRecordMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3805112D70917B00273B1B /* ElectrumTransactionRecordMapper.swift */; };
 		EF3805142D709B9B00273B1B /* BlockchairTransactionRecordMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3805132D709B9B00273B1B /* BlockchairTransactionRecordMapper.swift */; };
 		EF3805162D70B30A00273B1B /* BlockcypherTransactionRecordMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3805152D70B30A00273B1B /* BlockcypherTransactionRecordMapper.swift */; };
+		EF3805182D71BC4B00273B1B /* RavencoinTransactionRecordMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3805172D71BC4B00273B1B /* RavencoinTransactionRecordMapper.swift */; };
+		EF38051A2D71E9F100273B1B /* BitcoreTransactionRecordMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3805192D71E9F100273B1B /* BitcoreTransactionRecordMapper.swift */; };
+		EF38051D2D71F3FC00273B1B /* BitcoreDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF38051C2D71F3FC00273B1B /* BitcoreDTO.swift */; };
+		EF38051F2D71F41100273B1B /* BitcoreNetwrokProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF38051E2D71F41100273B1B /* BitcoreNetwrokProvider.swift */; };
+		EF3805212D71F47300273B1B /* RavencoinDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3805202D71F47300273B1B /* RavencoinDTO.swift */; };
 		EF39A6532AD5A70D00AAB518 /* SmartContractMethodMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF39A6522AD5A70D00AAB518 /* SmartContractMethodMapper.swift */; };
 		EF39A6562AD5A90300AAB518 /* contract_methods.json in Resources */ = {isa = PBXBuildFile; fileRef = EF39A6552AD5A90300AAB518 /* contract_methods.json */; };
 		EF39A6582AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF39A6572AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift */; };
@@ -6061,6 +6066,11 @@
 		EF3805112D70917B00273B1B /* ElectrumTransactionRecordMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElectrumTransactionRecordMapper.swift; sourceTree = "<group>"; };
 		EF3805132D709B9B00273B1B /* BlockchairTransactionRecordMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchairTransactionRecordMapper.swift; sourceTree = "<group>"; };
 		EF3805152D70B30A00273B1B /* BlockcypherTransactionRecordMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockcypherTransactionRecordMapper.swift; sourceTree = "<group>"; };
+		EF3805172D71BC4B00273B1B /* RavencoinTransactionRecordMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RavencoinTransactionRecordMapper.swift; sourceTree = "<group>"; };
+		EF3805192D71E9F100273B1B /* BitcoreTransactionRecordMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoreTransactionRecordMapper.swift; sourceTree = "<group>"; };
+		EF38051C2D71F3FC00273B1B /* BitcoreDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoreDTO.swift; sourceTree = "<group>"; };
+		EF38051E2D71F41100273B1B /* BitcoreNetwrokProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoreNetwrokProvider.swift; sourceTree = "<group>"; };
+		EF3805202D71F47300273B1B /* RavencoinDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RavencoinDTO.swift; sourceTree = "<group>"; };
 		EF39A6522AD5A70D00AAB518 /* SmartContractMethodMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartContractMethodMapper.swift; sourceTree = "<group>"; };
 		EF39A6552AD5A90300AAB518 /* contract_methods.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = contract_methods.json; sourceTree = "<group>"; };
 		EF39A6572AD5AC3800AAB518 /* CommonSmartContractMethodMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSmartContractMethodMapper.swift; sourceTree = "<group>"; };
@@ -10574,7 +10584,6 @@
 			children = (
 				B62D3CB42CBC79D900C2460E /* BitcoreProvider.swift */,
 				B62D3CB52CBC79D900C2460E /* BitcoreResponse.swift */,
-				B62D3CB62CBC79D900C2460E /* BitcoreTarget.swift */,
 			);
 			path = Bitcore;
 			sourceTree = "<group>";
@@ -11216,6 +11225,7 @@
 		B62D3DE52CBC79D900C2460E /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				EF3805202D71F47300273B1B /* RavencoinDTO.swift */,
 				B62D3DDF2CBC79D900C2460E /* RavencoinFee.swift */,
 				B62D3DE02CBC79D900C2460E /* RavencoinRawTransaction.swift */,
 				B62D3DE12CBC79D900C2460E /* RavencoinTransactionHistory.swift */,
@@ -11731,6 +11741,7 @@
 		B62D3EC72CBC79D900C2460E /* CommonNetworkServices */ = {
 			isa = PBXGroup;
 			children = (
+				EF38051B2D71F3F600273B1B /* Bitcore */,
 				B62D3EB82CBC79D900C2460E /* BlockBook */,
 				B62D3EBD2CBC79D900C2460E /* Blockchair */,
 				B62D3EC12CBC79D900C2460E /* Blockcypher */,
@@ -15094,6 +15105,16 @@
 			path = SendCustomFeeInputField;
 			sourceTree = "<group>";
 		};
+		EF38051B2D71F3F600273B1B /* Bitcore */ = {
+			isa = PBXGroup;
+			children = (
+				EF38051E2D71F41100273B1B /* BitcoreNetwrokProvider.swift */,
+				EF38051C2D71F3FC00273B1B /* BitcoreDTO.swift */,
+				B62D3CB62CBC79D900C2460E /* BitcoreTarget.swift */,
+			);
+			path = Bitcore;
+			sourceTree = "<group>";
+		};
 		EF39A6542AD5A8A600AAB518 /* SmartContractMethodMapper */ = {
 			isa = PBXGroup;
 			children = (
@@ -15965,6 +15986,8 @@
 				EF3805112D70917B00273B1B /* ElectrumTransactionRecordMapper.swift */,
 				EF3805132D709B9B00273B1B /* BlockchairTransactionRecordMapper.swift */,
 				EF3805152D70B30A00273B1B /* BlockcypherTransactionRecordMapper.swift */,
+				EF3805172D71BC4B00273B1B /* RavencoinTransactionRecordMapper.swift */,
+				EF3805192D71E9F100273B1B /* BitcoreTransactionRecordMapper.swift */,
 			);
 			path = TransactionRecordMapper;
 			sourceTree = "<group>";
@@ -20173,6 +20196,7 @@
 				B62D40652CBC79DA00C2460E /* TerraV1ExternalLinkProvider.swift in Sources */,
 				B62D417A2CBC79DA00C2460E /* RavencoinTransactionHistory.swift in Sources */,
 				B62D41E12CBC79DB00C2460E /* TronTransactionDataBuilder.swift in Sources */,
+				EF38051A2D71E9F100273B1B /* BitcoreTransactionRecordMapper.swift in Sources */,
 				B62D41DF2CBC79DB00C2460E /* TronTarget.swift in Sources */,
 				B62D40252CBC79DA00C2460E /* Opcode.swift in Sources */,
 				B62D40832CBC79DA00C2460E /* DucatusAddressService.swift in Sources */,
@@ -20211,6 +20235,7 @@
 				2DB1D6BF2D56978D00AD43A3 /* AlephiumNetworkService.swift in Sources */,
 				2DB1D6C02D56978D00AD43A3 /* ALPH+Blake2b.swift in Sources */,
 				2DB1D6C12D56978D00AD43A3 /* ALPH+AssetOutputSerde.swift in Sources */,
+				EF38051D2D71F3FC00273B1B /* BitcoreDTO.swift in Sources */,
 				2DB1D6C22D56978D00AD43A3 /* ALPH+Bytes.swift in Sources */,
 				2DB1D6C32D56978D00AD43A3 /* ALPH+Serializer.swift in Sources */,
 				2DB1D6C42D56978D00AD43A3 /* ALPH+AssetOutputInfo.swift in Sources */,
@@ -20505,6 +20530,7 @@
 				B62D3FA92CBC79DA00C2460E /* AlgorandWalletManager.swift in Sources */,
 				B62D40D72CBC79DA00C2460E /* FilecoinTransactionBuilder.swift in Sources */,
 				2D4C5E922CE7B676001346E4 /* XodexExternalLinkProvider.swift in Sources */,
+				EF3805212D71F47300273B1B /* RavencoinDTO.swift in Sources */,
 				B62D429C2CBC79DB00C2460E /* URLSessionWebSocketTaskWrapper.swift in Sources */,
 				B62D41A12CBC79DA00C2460E /* SuiTarget.swift in Sources */,
 				B62D41EC2CBC79DB00C2460E /* VeChainNetworkParams.swift in Sources */,
@@ -20537,6 +20563,7 @@
 				B62D3FC52CBC79DA00C2460E /* BitcoinScriptAddressProvider.swift in Sources */,
 				B62D41DD2CBC79DB00C2460E /* TronNetworkService.swift in Sources */,
 				B62D42062CBC79DB00C2460E /* XRPCurrentLedgerInfo.swift in Sources */,
+				EF3805182D71BC4B00273B1B /* RavencoinTransactionRecordMapper.swift in Sources */,
 				B62D42002CBC79DB00C2460E /* XDCAddressService.swift in Sources */,
 				B62D40912CBC79DA00C2460E /* EthereumAddressConverterError.swift in Sources */,
 				B62D41792CBC79DA00C2460E /* RavencoinRawTransaction.swift in Sources */,
@@ -20687,6 +20714,7 @@
 				B62D42732CBC79DB00C2460E /* TransactionCreator.swift in Sources */,
 				B62D41722CBC79DA00C2460E /* RadiantAddressUtils.swift in Sources */,
 				B62D41252CBC79DA00C2460E /* KoinosWalletAssembly.swift in Sources */,
+				EF38051F2D71F41100273B1B /* BitcoreNetwrokProvider.swift in Sources */,
 				B62D40E22CBC79DA00C2460E /* HederaNetworkResult.AccountTokensBalance.swift in Sources */,
 				B62D3F9E2CBC79DA00C2460E /* AlgorandResponse+Error.swift in Sources */,
 				B62D42252CBC79DB00C2460E /* GetBlockBlockBookConfig.swift in Sources */,

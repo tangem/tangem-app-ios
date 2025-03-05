@@ -9,7 +9,7 @@
 import Foundation
 import SwiftUI
 
-// Warning/Information Notifications
+/// Warning/Information Notifications
 enum WithdrawalNotificationEvent: Hashable {
     case reduceAmountBecauseFeeIsTooHigh(amount: Decimal, amountFormatted: String, blockchainName: String)
     case cardanoWillBeSendAlongToken(cardanoAmountFormatted: String, tokenSymbol: String)
