@@ -241,7 +241,6 @@ extension ExpressInteractor {
                     throw ExpressInteractorError.providerNotFound
                 }
                 return try await sendCEXTransaction(state: state, provider: provider.provider)
-
             case .readyToSwap(let state, _):
                 guard let provider = await expressManager.getSelectedProvider() else {
                     throw ExpressInteractorError.providerNotFound
@@ -611,12 +610,10 @@ private extension ExpressInteractor {
     }
 
     func mapToFees(fee: ExpressFee) -> Fees {
-        let selected: FeeOption = {
-            switch fee.option {
-            case .fast: .fast
-            case .market: .market
-            }
-        }()
+        let selected: FeeOption = switch fee.option {
+        case .fast: .fast
+        case .market: .market
+        }
 
         switch fee.variants {
         case .single(let fee):
