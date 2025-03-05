@@ -164,26 +164,6 @@ struct OnrampProviderRowView: View {
                 .style(Fonts.Regular.caption1, color: Colors.Text.warning)
         }
     }
-
-    @ViewBuilder
-    private func timeView(time: String) -> some View {
-        HStack(spacing: 4) {
-            Assets.speedMiniIcon.image
-                .renderingMode(.template)
-                .resizable()
-                .frame(width: 10, height: 10)
-                .foregroundColor(Colors.Icon.informative)
-
-            Text(time)
-                .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
-        }
-        .padding(.vertical, 2)
-        .padding(.horizontal, 4)
-        .overlay(
-            RoundedRectangle(cornerRadius: 6)
-                .stroke(Colors.Stroke.primary, lineWidth: 1)
-        )
-    }
 }
 
 #Preview {

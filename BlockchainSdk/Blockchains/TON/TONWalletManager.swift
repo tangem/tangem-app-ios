@@ -229,7 +229,7 @@ private extension TONWalletManager {
 extension TONWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSender {
     typealias RawTransaction = String
 
-    // we need to pass the same signing input into prepareForSend method
+    /// we need to pass the same signing input into prepareForSend method
     func buildRawTransactions(
         from transactions: [StakeKitTransaction],
         publicKey: Wallet.PublicKey,
