@@ -105,7 +105,7 @@ struct AddressQrBottomSheet_Previews: PreviewProvider {
         AddressQrBottomSheetPreviewView()
             .previewGroup(devices: [.iPhoneX], withZoomed: false)
 
-        Self.makeBottomSheetContent()
+        makeBottomSheetContent()
     }
 
     fileprivate static func makeBottomSheetContent() -> some View {
