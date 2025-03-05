@@ -147,8 +147,8 @@ private final class ScreenCaptureProtectionContainerViewController: UIViewContro
         "View",
     ].joined()
 
-    // This property also maintains a strong reference to the `UITextField` instance
-    // (necessary since this instance isn't embedded into the view hierarchy).
+    /// This property also maintains a strong reference to the `UITextField` instance
+    /// (necessary since this instance isn't embedded into the view hierarchy).
     private lazy var uiTextField: UITextField = {
         let uiTextField = UITextField()
         uiTextField.isSecureTextEntry = true

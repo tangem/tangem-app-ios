@@ -27,8 +27,6 @@ final class CommonPushNotificationsInteractor {
 
     private var didPostponeAuthorizationRequestOnWelcomeOnboardingInCurrentSession = false
 
-    private var currentLaunchCount: Int { AppSettings.shared.numberOfLaunches }
-
     private let pushNotificationsService: PushNotificationsService
 
     init(

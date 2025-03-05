@@ -8,7 +8,7 @@
 
 import Foundation
 
-// https://nownodes.io/nodes
+/// https://nownodes.io/nodes
 struct NowNodesBlockBookConfig: BlockBookConfig {
     let apiKeyHeaderName: String?
     let apiKeyHeaderValue: String?
