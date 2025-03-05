@@ -45,6 +45,7 @@ class CommonStakingStepsManager {
                 switch state {
                 case .loading, .networkError, .validationError:
                     break
+
                 case .readyToApprove:
                     stepsManager.output?.update(flowActionType: .approve)
 

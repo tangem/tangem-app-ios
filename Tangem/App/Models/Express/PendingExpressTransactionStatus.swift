@@ -105,7 +105,7 @@ enum PendingExpressTransactionStatus: String, Equatable, Codable {
         self == .done
     }
 
-    // Required for verification the ability to hide the transaction status bottom sheet
+    /// Required for verification the ability to hide the transaction status bottom sheet
     var isCanBeHideAutomatically: Bool {
         switch self {
         case .done:
