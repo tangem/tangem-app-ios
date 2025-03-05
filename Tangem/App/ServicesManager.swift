@@ -88,7 +88,7 @@ class ServicesManager {
     }
 }
 
-// Some services should be initialized later, in SceneDelegate to bypass locked keychain during preheating
+/// Some services should be initialized later, in SceneDelegate to bypass locked keychain during preheating
 class KeychainSensitiveServicesManager {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
