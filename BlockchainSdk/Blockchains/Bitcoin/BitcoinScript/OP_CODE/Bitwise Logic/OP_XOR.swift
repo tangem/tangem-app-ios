@@ -24,7 +24,7 @@
 
 import Foundation
 
-// Boolean EXCLUSIVE OR between each bit of the inputs
+/// Boolean EXCLUSIVE OR between each bit of the inputs
 struct OpXor: OpCodeProtocol {
     var value: UInt8 { return 0x86 }
     var name: String { return "OP_XOR" }

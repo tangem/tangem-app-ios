@@ -19,7 +19,7 @@ struct BlockchainNetwork: Codable, Hashable, Equatable {
         self.derivationPath = derivationPath
     }
 
-    // Get all derivation paths for current Blockchain
+    /// Get all derivation paths for current Blockchain
     func derivationPaths() -> [DerivationPath] {
         guard let derivationPath else {
             return []
