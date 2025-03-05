@@ -29,8 +29,7 @@ class RadiantTransactionBuilder {
     // MARK: - Implementation
 
     func buildForSign(transaction: Transaction) throws -> [Data] {
-        let outputScript = scriptUtils.buildOutputScript(address: transaction.sourceAddress)
-        let unspents = buildUnspents(with: [outputScript])
+        let unspents = unspentOutputManager.allOutputs()
 
         let txForPreimage = UnspentTransaction(
             decimalValue: decimalValue,
@@ -40,7 +39,7 @@ class RadiantTransactionBuilder {
         )
 
         let hashes = try unspents.enumerated().map { index, _ in
-            let preImageHash = try buildPreImageHashe(
+            let preImageHash = try buildPreImageHashes(
                 with: txForPreimage,
                 targetAddress: transaction.destinationAddress,
                 sourceAddress: transaction.sourceAddress,
@@ -60,7 +59,7 @@ class RadiantTransactionBuilder {
             isDer: false
         )
 
-        let unspents = buildUnspents(with: outputScripts)
+        let unspents = buildUnspents(signedOutputScripts: outputScripts)
 
         let txForSigned = UnspentTransaction(
             decimalValue: decimalValue,
@@ -96,7 +95,7 @@ class RadiantTransactionBuilder {
     ///   - sourceAddress
     ///   - index: position image for output
     /// - Returns: Hash of one preimage
-    private func buildPreImageHashe(
+    private func buildPreImageHashes(
         with tx: UnspentTransaction,
         targetAddress: String,
         sourceAddress: String,
@@ -224,13 +223,12 @@ class RadiantTransactionBuilder {
         return txBody
     }
 
-    private func buildUnspents(with outputScripts: [Data]) -> [ScriptUnspentOutput] {
-        unspentOutputManager.allOutputs()
-            .enumerated()
-            .compactMap { index, output in
-                let outputScript = outputScripts.count == 1 ? outputScripts.first! : outputScripts[index]
-                // [REDACTED_TODO_COMMENT]
-                return ScriptUnspentOutput(output: output.output, script: outputScript)
+    private func buildUnspents(signedOutputScripts: [Data]) -> [ScriptUnspentOutput] {
+        assert(unspentOutputManager.allOutputs().count == signedOutputScripts.count)
+
+        return zip(unspentOutputManager.allOutputs(), signedOutputScripts)
+            .map { output, signedOutputScript in
+                ScriptUnspentOutput(output: output.output, script: signedOutputScript)
             }
     }
 }
