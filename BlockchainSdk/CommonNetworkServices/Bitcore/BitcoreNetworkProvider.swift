@@ -1,5 +1,5 @@
 //
-//  BitcoreNetwrokProvider.swift
+//  BitcoreNetworkProvider.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Combine
 import TangemNetworkUtils
 
 /// https://github.com/bitpay/bitcore/blob/master/packages/bitcore-node/docs/api-documentation.md
-class BitcoreNetwrokProvider {
+class BitcoreNetworkProvider {
     private let blockchain: Blockchain = .ducatus
     private let provider: NetworkProvider<BitcoreTarget>
 
@@ -21,7 +21,7 @@ class BitcoreNetwrokProvider {
 
 // MARK: - UTXONetworkProvider
 
-extension BitcoreNetwrokProvider: UTXONetworkProvider {
+extension BitcoreNetworkProvider: UTXONetworkProvider {
     var host: String {
         BitcoreTarget.balance(address: "").baseURL.hostOrUnknown
     }
@@ -62,7 +62,7 @@ extension BitcoreNetwrokProvider: UTXONetworkProvider {
 
 // MARK: - Private
 
-private extension BitcoreNetwrokProvider {
+private extension BitcoreNetworkProvider {
     func execute<T: Decodable>(target: BitcoreTarget, response: T.Type) -> AnyPublisher<T, Error> {
         provider
             .requestPublisher(target)
@@ -75,7 +75,7 @@ private extension BitcoreNetwrokProvider {
 
 // MARK: - Mapping
 
-private extension BitcoreNetwrokProvider {
+private extension BitcoreNetworkProvider {
     func mapToUnspentOutputs(outputs: [BitcoreDTO.UTXO.Response]) -> [UnspentOutput] {
         outputs.map {
             UnspentOutput(blockId: $0.mintHeight ?? 0, hash: Data(hex: $0.mintTxid), index: $0.mintIndex, amount: $0.value)
