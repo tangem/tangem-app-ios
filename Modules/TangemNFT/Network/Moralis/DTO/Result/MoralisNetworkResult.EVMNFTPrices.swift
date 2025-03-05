@@ -9,7 +9,7 @@
 import Foundation
 
 extension MoralisNetworkResult {
-    struct EVMNFTPrices {
+    struct EVMNFTPrices: Decodable {
         let lastSale: Sale?
         let lowestSale: Sale?
         let highestSale: Sale?
@@ -21,7 +21,7 @@ extension MoralisNetworkResult {
 // MARK: - Nested DTOs
 
 extension MoralisNetworkResult.EVMNFTPrices {
-    struct Sale: Codable {
+    struct Sale: Decodable {
         let transactionHash: String
         let blockTimestamp: String
         let buyerAddress: String
@@ -34,13 +34,13 @@ extension MoralisNetworkResult.EVMNFTPrices {
         let paymentToken: PaymentToken
     }
 
-    struct AverageSale: Codable {
+    struct AverageSale: Decodable {
         let price: String
         let priceFormatted: String
         let currentUSDValue: String // [REDACTED_TODO_COMMENT]
     }
 
-    struct PaymentToken: Codable {
+    struct PaymentToken: Decodable {
         let tokenName: String
         let tokenSymbol: String
         let tokenLogo: String
