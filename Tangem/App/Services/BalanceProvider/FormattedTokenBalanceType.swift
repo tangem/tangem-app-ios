@@ -11,12 +11,12 @@ import Foundation
 // MARK: - FormattedTokenBalanceType
 
 enum FormattedTokenBalanceType: Hashable {
-    // "Skeleton" or "New animation"
+    /// "Skeleton" or "New animation"
     case loading(CachedType)
-    // "Cached" or "-"
-    // The date on which the balance would be relevant
+    /// "Cached" or "-"
+    /// The date on which the balance would be relevant
     case failure(CachedType)
-    // All good
+    /// All good
     case loaded(String)
 }
 
