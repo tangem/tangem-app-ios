@@ -176,7 +176,6 @@ struct PaymentAccountCardSettingsParser {
 }
 
 struct OTPSettingsParser {
-    private let otpDataLength = 32
     private let numberOfOTPFields = 2
     private let parser = EthereumDataParser()
 
