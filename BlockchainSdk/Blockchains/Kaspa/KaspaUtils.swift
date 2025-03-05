@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct KaspaUtils {
+enum KaspaUtils {
     enum KaspaHashType: String {
         case TransactionSigningHashECDSA
         case TransactionID
