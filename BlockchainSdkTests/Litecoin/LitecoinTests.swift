@@ -53,13 +53,26 @@ class LitecoinTests: XCTestCase {
         XCTAssertNotNil(address)
 
         let bitcoinCoreManager = BitcoinManager(networkParams: networkParams, walletPublicKey: walletPubkey, compressedWalletPublicKey: compressedPubkey, bip: .bip44)
-        let txBuilder = BitcoinTransactionBuilder(bitcoinManager: bitcoinCoreManager, addresses: addresses)
-        txBuilder.unspentOutputs =
-            [
-                ScriptUnspentOutput(transactionHash: "bcacfe1bc1323e8e421486e4b334b91163925d7edd87133673c3efbd4e3fedae", outputIndex: 0, amount: 10000, outputScript: "76a914ccd4649cdb4c9f8fdb54869cff112a4e75fda2bb88ac"),
-                ScriptUnspentOutput(transactionHash: "fa16fbd7f8a150dc723091fd2305eaa07189e869f9133bf3d429efc5ef3f86ff", outputIndex: 0, amount: 10000, outputScript: "76a914ccd4649cdb4c9f8fdb54869cff112a4e75fda2bb88ac"),
-            ]
+        let unspentOutputManager = CommonUnspentOutputManager()
+        unspentOutputManager.update(
+            outputs: [
+                .init(
+                    blockId: .random(in: 1 ... 10000),
+                    hash: Data(hexString: "bcacfe1bc1323e8e421486e4b334b91163925d7edd87133673c3efbd4e3fedae"),
+                    index: 0,
+                    amount: 10000
+                ),
+                .init(
+                    blockId: .random(in: 1 ... 10000),
+                    hash: Data(hexString: "fa16fbd7f8a150dc723091fd2305eaa07189e869f9133bf3d429efc5ef3f86ff"),
+                    index: 0,
+                    amount: 10000
+                ),
 
+            ],
+            for: Data(hexString: "76a914ccd4649cdb4c9f8fdb54869cff112a4e75fda2bb88ac")
+        )
+        let txBuilder = BitcoinTransactionBuilder(bitcoinManager: bitcoinCoreManager, unspentOutputManager: unspentOutputManager, addresses: addresses)
         let amountToSend = Amount(with: blockchain, type: .coin, value: sendValue)
         let feeAmount = Amount(with: blockchain, type: .coin, value: feeValue)
         let fee = Fee(feeAmount, parameters: BitcoinFeeParameters(rate: feeRate))

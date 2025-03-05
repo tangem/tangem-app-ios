@@ -120,15 +120,11 @@ extension BlockBookUTXOProvider: UTXONetworkProvider {
 extension BlockBookUTXOProvider {
     func executeRequest<T: Decodable>(_ request: BlockBookTarget.Request, responseType: T.Type) -> AnyPublisher<T, Error> {
         provider
-            .requestPublisher(target(for: request))
+            .requestPublisher(BlockBookTarget(request: request, config: config, blockchain: blockchain))
             .filterSuccessfulStatusAndRedirectCodes()
             .map(responseType.self)
             .eraseError()
             .eraseToAnyPublisher()
-    }
-
-    func target(for request: BlockBookTarget.Request) -> BlockBookTarget {
-        BlockBookTarget(request: request, config: config, blockchain: blockchain)
     }
 
     func getFeeRatePerByte(for confirmationBlocks: Int) -> AnyPublisher<Decimal, Error> {
