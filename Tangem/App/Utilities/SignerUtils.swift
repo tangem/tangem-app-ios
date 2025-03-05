@@ -9,7 +9,7 @@
 import Foundation
 import TangemSdk
 
-struct SignerUtils {
+enum SignerUtils {
     private static var issuers: [KeyPair] = {
         let path = Bundle.main.url(forResource: "issuers", withExtension: "json")!
         let fileData = try! Data(contentsOf: path)
