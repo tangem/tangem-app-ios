@@ -17,8 +17,8 @@ class SendFeeStep {
     private let feeTokenItem: TokenItem
     private let feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder
 
-    // We have to use this `SendViewAlertPresenter`
-    // Because .alert(item:) doesn't work in the nested views
+    /// We have to use this `SendViewAlertPresenter`
+    /// Because .alert(item:) doesn't work in the nested views
     private weak var alertPresenter: SendViewAlertPresenter?
 
     init(

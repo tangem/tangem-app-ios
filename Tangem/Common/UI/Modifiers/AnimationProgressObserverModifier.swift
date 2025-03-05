@@ -43,15 +43,15 @@ struct AnimationProgressObserverModifier<Value>: AnimatableModifier where Value:
     private func notifyIfNeeded() {
         guard valueComparator(animatableData, targetValue) else { return }
 
-        /// Dispatching is needed to take the next runloop for the action callback.
-        /// This prevents errors like "Modifying state during view update, this will cause undefined behavior."
+        // Dispatching is needed to take the next runloop for the action callback.
+        // This prevents errors like "Modifying state during view update, this will cause undefined behavior."
         DispatchQueue.main.async {
             action()
         }
     }
 
     func body(content: Content) -> some View {
-        /// We're not really modifying the view so we can directly return the original input value.
+        // We're not really modifying the view so we can directly return the original input value.
         return content
     }
 }

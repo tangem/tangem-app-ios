@@ -28,8 +28,6 @@ class SendModel {
     private let _transactionTime = PassthroughSubject<Date?, Never>()
     private let _isSending = CurrentValueSubject<Bool, Never>(false)
 
-    private let _withdrawalNotification = CurrentValueSubject<WithdrawalNotification?, Never>(nil)
-
     // MARK: - Dependencies
 
     var sendAmountInteractor: SendAmountInteractor!
@@ -439,6 +437,7 @@ private extension SendModel {
         switch amount?.type {
         case .none:
             break
+
         case .typical:
             Analytics.log(.sendSelectedCurrency, params: [.commonType: .token])
 

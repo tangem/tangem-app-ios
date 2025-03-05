@@ -23,7 +23,7 @@
 //
 import Foundation
 
-// Returns 1 if the numbers are not equal, 0 otherwise.
+/// Returns 1 if the numbers are not equal, 0 otherwise.
 struct OpNumNotEqual: OpCodeProtocol {
     var value: UInt8 { return 0xe }
     var name: String { return "OP_NUMNOTEQUAL" }

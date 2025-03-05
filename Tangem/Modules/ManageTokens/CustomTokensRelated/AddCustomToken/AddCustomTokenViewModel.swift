@@ -46,7 +46,6 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
 
     private(set) var selectedDerivationOption: AddCustomTokenDerivationOption?
 
-    private var derivationPathByBlockchainName: [String: DerivationPath] = [:]
     private var didLogScreenAnalytics = false
     private var foundStandardToken: CoinModel?
     private var settings: ManageTokensSettings
@@ -584,7 +583,7 @@ extension AddCustomTokenViewModel {
         let hdWalletsSupported: Bool
         let derivationStyle: DerivationStyle?
 
-        // This parameter is required due to the fact that the adapter is used in various places
+        /// This parameter is required due to the fact that the adapter is used in various places
         let analyticsSourceRawValue: String
     }
 }

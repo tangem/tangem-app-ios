@@ -13,7 +13,6 @@ import TangemSdk
 
 class KaspaTests: XCTestCase {
     private let blockchain = Blockchain.kaspa(testnet: false)
-    private let sizeTester = TransactionSizeTesterUtility()
     private var txBuilder: KaspaTransactionBuilder!
 
     override func setUp() {

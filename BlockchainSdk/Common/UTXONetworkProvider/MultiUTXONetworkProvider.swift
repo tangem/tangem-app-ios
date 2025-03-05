@@ -8,7 +8,7 @@
 
 import Combine
 
-// Wrapper to support a switch between providers
+/// Wrapper to support a switch between providers
 class MultiUTXONetworkProvider: MultiNetworkProvider, UTXONetworkProvider {
     var providers: [AnyUTXONetworkProvider]
     var currentProviderIndex: Int = 0
@@ -41,7 +41,7 @@ class MultiUTXONetworkProvider: MultiNetworkProvider, UTXONetworkProvider {
 // MARK: - AnyUTXONetworkProvider
 
 extension MultiUTXONetworkProvider {
-    // Wrapper to conform `MultiNetworkProvider.Provider`
+    /// Wrapper to conform `MultiNetworkProvider.Provider`
     class AnyUTXONetworkProvider: UTXONetworkProvider {
         private let provider: UTXONetworkProvider
 

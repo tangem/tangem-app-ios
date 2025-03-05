@@ -79,14 +79,14 @@ private class BitcoinCashVersionByte {
         }
     }
 
-    // First 1 bit is zero
-    // Next 4bits
+    /// First 1 bit is zero
+    /// Next 4bits
     enum TypeBits: UInt8 {
         case pubkeyHash = 0
         case scriptHash = 8
     }
 
-    // The least 3bits
+    /// The least 3bits
     enum SizeBits: UInt8 {
         case size160 = 0
         case size192 = 1
