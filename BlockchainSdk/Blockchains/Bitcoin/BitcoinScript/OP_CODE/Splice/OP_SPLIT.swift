@@ -24,7 +24,7 @@
 
 import Foundation
 
-// Split the operand at the given position.
+/// Split the operand at the given position.
 struct OpSplit: OpCodeProtocol {
     var value: UInt8 { return 0x7f }
     var name: String { return "OP_SPLIT" }
