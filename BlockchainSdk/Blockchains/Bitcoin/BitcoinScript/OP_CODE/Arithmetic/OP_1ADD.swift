@@ -23,7 +23,7 @@
 //
 import Foundation
 
-// 1 is added to the input.
+/// 1 is added to the input.
 struct Op1Add: OpCodeProtocol {
     var value: UInt8 { return 0x8b }
     var name: String { return "OP_1ADD" }
