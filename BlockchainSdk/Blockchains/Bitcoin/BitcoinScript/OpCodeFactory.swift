@@ -27,7 +27,7 @@ import Foundation
 /**
  This struct represents a factory that creates OpCodes from integers or strings.
  */
-struct OpCodeFactory {
+enum OpCodeFactory {
     /**
      Returns the OpCode which a given UInt8 value.
      Returns OP_INVALIDOPCODE for outranged value.

@@ -109,7 +109,7 @@ class EthereumTests: XCTestCase {
         XCTAssertEqual(signedTransaction.hexString, expectedSignedTransaction.hexString)
     }
 
-    // https://polygonscan.com/tx/0x8f7c7ffddfc9f45370cc5fbeb49df65bdf8976ba606d20705eea965ba96a1e8d
+    /// https://polygonscan.com/tx/0x8f7c7ffddfc9f45370cc5fbeb49df65bdf8976ba606d20705eea965ba96a1e8d
     func testEIP1559TokenTransfer() throws {
         // given
         let walletPublicKey = Data(hex: "043b08e56e38404199eb3320f32fdc7557029d4a4c39adae01cc47afd86cfa9a25fcbfaa2acda3ab33560a1d482a2088f3bb2c7b313fd11f50dd8fe508165d4ecf")
@@ -153,7 +153,7 @@ class EthereumTests: XCTestCase {
         XCTAssertEqual(signedTransaction.hexString, expectedSignedTransaction.hexString)
     }
 
-    // https://polygonscan.com/tx/0x2cb6831f4c1cb7b888707489cd60c42ff222b5b3230d74f25434d936c2ba7419
+    /// https://polygonscan.com/tx/0x2cb6831f4c1cb7b888707489cd60c42ff222b5b3230d74f25434d936c2ba7419
     func testEIP1559CoinTransfer() throws {
         // given
         let walletPublicKey = Data(hex: "043b08e56e38404199eb3320f32fdc7557029d4a4c39adae01cc47afd86cfa9a25fcbfaa2acda3ab33560a1d482a2088f3bb2c7b313fd11f50dd8fe508165d4ecf")
@@ -195,7 +195,7 @@ class EthereumTests: XCTestCase {
         XCTAssertEqual(signedTransaction.hexString, expectedSignedTransaction.hexString)
     }
 
-    // https://basescan.org/tx/0xb0df52cacd4a8d283e7f5ffe7b3f6d867fc5cb496f679b69b0b09a59651eb0e5
+    /// https://basescan.org/tx/0xb0df52cacd4a8d283e7f5ffe7b3f6d867fc5cb496f679b69b0b09a59651eb0e5
     func testEIP1559TokenApprove() throws {
         // given
         let walletPublicKey = Data(hex: "0x04c0b0bebaf7cec052a1fb2919c83a3d192713a65c3675a22ad9a2f76d5da1cfb0d4fec9da0bc71b5a405758a2e0349e2d151bfff6ec3d50441f0adb947a8a44a1")
@@ -244,7 +244,7 @@ class EthereumTests: XCTestCase {
         XCTAssertEqual(signedTransaction.hexString, expectedSignedTransaction.hexString)
     }
 
-    // https://basescan.org/tx/0x4648aee1b8498245eb425c94efcc7e4df8c1524be977fc43862b6a67038dcefb
+    /// https://basescan.org/tx/0x4648aee1b8498245eb425c94efcc7e4df8c1524be977fc43862b6a67038dcefb
     func testEIP1559TokenSwap() throws {
         // given
         let walletPublicKey = Data(hex: "0x04c0b0bebaf7cec052a1fb2919c83a3d192713a65c3675a22ad9a2f76d5da1cfb0d4fec9da0bc71b5a405758a2e0349e2d151bfff6ec3d50441f0adb947a8a44a1")
