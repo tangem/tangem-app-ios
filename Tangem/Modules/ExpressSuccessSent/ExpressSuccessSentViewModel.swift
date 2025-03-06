@@ -81,7 +81,7 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
     }
 
     func openCEXStatus() {
-        guard let externalTxUrl = data.expressTransactionData.externalTxUrl.map(URL.init(string:)) else {
+        guard let externalTxUrl = data.expressTransactionData.externalTxUrl.flatMap(URL.init(string:)) else {
             return
         }
 
