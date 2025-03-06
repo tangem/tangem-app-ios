@@ -28,12 +28,12 @@ struct AppUtils {
 }
 
 private extension TokenItem {
-    // We can't sign transactions at legacy devices fot these blockchains
+    /// We can't sign transactions at legacy devices fot these blockchains
     var canBeSignedOnPoorNfcQualityDevice: Bool {
         switch blockchain {
         case .solana:
             return isToken ? false : true
-        case .chia:
+        case .chia, .aptos, .algorand:
             return false
         default:
             return true
