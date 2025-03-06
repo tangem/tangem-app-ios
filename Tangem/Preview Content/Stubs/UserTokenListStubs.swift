@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct UserTokenListStubs {
+enum UserTokenListStubs {
     private static var walletUserWalletListURL: URL {
         Bundle.main.url(forResource: "walletUserWalletList", withExtension: "json")!
     }
