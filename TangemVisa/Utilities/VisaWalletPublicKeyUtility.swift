@@ -17,7 +17,7 @@ public struct VisaWalletPublicKeyUtility {
         visaUtilities = .init(isTestnet: isTestnet)
     }
 
-    public func findKeyWithoutDerivation(targetAddress: String, on card: Card) throws (SearchError) -> Data {
+    public func findKeyWithoutDerivation(targetAddress: String, on card: Card) throws(SearchError) -> Data {
         let wallet = try findWalletOnVisaCurve(on: card)
 
         try validatePublicKey(targetAddress: targetAddress, publicKey: wallet.publicKey)
@@ -25,7 +25,7 @@ public struct VisaWalletPublicKeyUtility {
         return wallet.publicKey
     }
 
-    public func findKeyWithDerivation(targetAddress: String, derivationPath: DerivationPath, on card: Card) throws (SearchError) -> Data {
+    public func findKeyWithDerivation(targetAddress: String, derivationPath: DerivationPath, on card: Card) throws(SearchError) -> Data {
         let wallet = try findWalletOnVisaCurve(on: card)
 
         guard let extendedPublicKey = wallet.derivedKeys.keys[derivationPath] else {
@@ -37,7 +37,7 @@ public struct VisaWalletPublicKeyUtility {
         return wallet.publicKey
     }
 
-    public func validatePublicKey(targetAddress: String, publicKey: Data) throws (SearchError) {
+    public func validatePublicKey(targetAddress: String, publicKey: Data) throws(SearchError) {
         let addressService = visaUtilities.addressService
 
         let createdAddress: Address
@@ -57,7 +57,7 @@ public struct VisaWalletPublicKeyUtility {
         targetAddress: String,
         extendedPublicKey: ExtendedPublicKey,
         derivationPath: DerivationPath
-    ) throws (SearchError) {
+    ) throws(SearchError) {
         let addressService = visaUtilities.addressService
 
         let createdAddress: Address
@@ -79,13 +79,13 @@ public struct VisaWalletPublicKeyUtility {
         try validateCreatedAddress(targetAddress: targetAddress, createdAddress: createdAddress)
     }
 
-    private func validateCreatedAddress(targetAddress: String, createdAddress: any Address) throws (SearchError) {
+    private func validateCreatedAddress(targetAddress: String, createdAddress: any Address) throws(SearchError) {
         guard createdAddress.value == targetAddress else {
             throw .addressesNotMatch
         }
     }
 
-    private func findWalletOnVisaCurve(on card: Card) throws (SearchError) -> Card.Wallet {
+    private func findWalletOnVisaCurve(on card: Card) throws(SearchError) -> Card.Wallet {
         guard let wallet = card.wallets.first(where: { $0.curve == visaUtilities.visaBlockchain.curve }) else {
             throw .missingWalletOnTargetCurve
         }
