@@ -130,7 +130,7 @@ private extension CasperTransactionBuilder {
         DeploySerialization.getBodyHash(fromDeploy: deploy)
     }
 
-    // Deploy payment initialization
+    /// Deploy payment initialization
     func buildPayment(with fee: Fee) throws -> ExecutableDeployItem {
         let feeStringValue = (fee.amount.value * blockchainDecimalValue).roundedDownDecimalNumber.stringValue
 

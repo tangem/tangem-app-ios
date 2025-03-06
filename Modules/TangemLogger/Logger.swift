@@ -112,9 +112,7 @@ private extension Logger {
         writeToConsole(level, message: message)
         #endif
 
-        #if ALPHA || BETA || DEBUG
         writeToFile(level, message: message)
-        #endif
     }
 
     #if DEBUG
@@ -127,7 +125,6 @@ private extension Logger {
     }
     #endif
 
-    #if ALPHA || BETA || DEBUG
     func writeToFile(_ level: OSLog.Level, message: @autoclosure () -> String) {
         guard Logger.configuration.isWritable() else {
             return
@@ -139,7 +136,6 @@ private extension Logger {
             OSLog.logger(for: .logFileWriter).fault("\(error.localizedDescription)")
         }
     }
-    #endif
 
     func checkIfConsoleLogAllowed() -> Bool {
         guard category == .console else {

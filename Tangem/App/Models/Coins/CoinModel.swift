@@ -28,7 +28,7 @@ extension CoinModel {
 }
 
 extension CoinModel {
-    // Need for loading state skeleton view
+    /// Need for loading state skeleton view
     static var dummy: CoinModel {
         CoinModel(id: "\(Int.random(in: 0 ... 1000))", name: "----------------", symbol: "", items: [])
     }

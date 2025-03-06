@@ -22,8 +22,6 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
     private let cardImagePublisher: AnyPublisher<CardImageResult, Never>
     private var bag: Set<AnyCancellable> = []
 
-    private let balanceFormatter = BalanceFormatter()
-
     convenience init(userWallet: UserWalletModel, tapAction: @escaping () -> Void) {
         self.init(
             cardsCount: userWallet.cardsCount,

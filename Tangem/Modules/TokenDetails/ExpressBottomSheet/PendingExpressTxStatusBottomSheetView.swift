@@ -11,7 +11,7 @@ import SwiftUI
 struct PendingExpressTxStatusBottomSheetView: View {
     @ObservedObject var viewModel: PendingExpressTxStatusBottomSheetViewModel
 
-    // This animation is created explicitly to synchronise them with the delayed appearance of the notification
+    /// This animation is created explicitly to synchronise them with the delayed appearance of the notification
     private var animation: Animation {
         .easeInOut(duration: viewModel.animationDuration)
     }
