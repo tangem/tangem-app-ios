@@ -293,6 +293,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
 
         case .canceled:
             showGoToProviderHeaderButton = false
+
         default:
             showGoToProviderHeaderButton = externalProviderTxURL != nil
         }
