@@ -29,7 +29,6 @@ final class CardActivationTask: CardSessionRunnable {
 
     private weak var orderProvider: CardActivationTaskOrderProvider?
     private var otpRepository: VisaOTPRepository
-    private let logger: InternalLogger
 
     private let selectedAccessCode: String
     private let activationInput: VisaCardActivationInput
@@ -45,8 +44,7 @@ final class CardActivationTask: CardSessionRunnable {
         activationInput: VisaCardActivationInput,
         challengeToSign: String?,
         delegate: CardActivationTaskOrderProvider,
-        otpRepository: VisaOTPRepository,
-        logger: InternalLogger
+        otpRepository: VisaOTPRepository
     ) {
         self.selectedAccessCode = selectedAccessCode
         self.activationInput = activationInput
@@ -55,7 +53,6 @@ final class CardActivationTask: CardSessionRunnable {
 
         orderProvider = delegate
         self.otpRepository = otpRepository
-        self.logger = logger
     }
 
     func run(in session: CardSession, completion: @escaping CompletionHandler) {
@@ -71,14 +68,12 @@ final class CardActivationTask: CardSessionRunnable {
 
         if let challengeToSign {
             let challengeDataToSign = Data(hexString: challengeToSign)
+            VisaLogger.info("Contains challenge to sign. Start authorization flow")
             signAuthorizationChallenge(challengeToSign: challengeDataToSign, in: session, completion: completion)
         } else {
+            VisaLogger.info("No authorization challenge, attempting to load activation order")
             getActivationOrder(in: session, completion: completion)
         }
-    }
-
-    private func log<T>(_ message: @autoclosure () -> T) {
-        logger.debug(subsystem: .cardActivationTask, message())
     }
 }
 
@@ -110,10 +105,12 @@ private extension CardActivationTask {
 
         let utils = VisaUtilities(isTestnet: false)
         if card.wallets.contains(where: { $0.curve == utils.mandatoryCurve }) {
+            VisaLogger.info("Wallet already created. Moving to OTP creation")
             createOTP(in: session, completion: completion)
             return
         }
 
+        VisaLogger.info("Wallet not created. Creating wallet")
         let createWallet = CreateWalletTask(curve: utils.mandatoryCurve)
         createWallet.run(in: session) { result in
             switch result {
@@ -137,10 +134,12 @@ private extension CardActivationTask {
         }
 
         if let otp = otpRepository.getOTP(cardId: card.cardId) {
+            VisaLogger.info("OTP already created. Moving to awaiting activcation order")
             waitForOrder(rootOTP: otp, in: session, completion: completion)
             return
         }
 
+        VisaLogger.info("OTP not created. Creating OTP")
         let otpCommand = GenerateOTPCommand()
         otpCommand.run(in: session) { result in
             switch result {
@@ -168,6 +167,7 @@ private extension CardActivationTask {
 
                 self?.orderSubscription = nil
             }, receiveValue: { activationOrder in
+                VisaLogger.info("Activation order received. Continue with order signing")
                 self.signOrder(
                     orderToSign: activationOrder,
                     in: session,
@@ -184,6 +184,7 @@ private extension CardActivationTask {
     func signOrder(orderToSign: VisaCardAcceptanceOrderInfo, in session: CardSession, completion: @escaping CompletionHandler) {
         let signOrderTask = SignActivationOrderTask(orderToSign: orderToSign)
 
+        VisaLogger.info("Starting activation order sign task")
         signOrderTask.run(in: session, completion: { result in
             switch result {
             case .success(let signedOrder):
@@ -211,6 +212,7 @@ private extension CardActivationTask {
             return
         }
 
+        VisaLogger.info("Received signed order and OTP, moving to Access Code setup")
         let cardActivationResponse = CardActivationResponse(
             signedActivationOrder: signedOrder,
             rootOTP: otp.rootOTP,
@@ -230,14 +232,17 @@ private extension CardActivationTask {
         }
 
         if card.isAccessCodeSet {
+            VisaLogger.info("Access code already set. Finishing activation task")
             completion(.success(signResponse))
             return
         }
 
+        VisaLogger.info("Access code not set. Starting commnand")
         let setAccessCodeCommand = SetUserCodeCommand(accessCode: selectedAccessCode)
         setAccessCodeCommand.run(in: session) { result in
             switch result {
             case .success:
+                VisaLogger.info("Access code setup finished")
                 completion(.success(signResponse))
             case .failure(let error):
                 completion(.failure(error))
@@ -264,6 +269,7 @@ private extension CardActivationTask {
         orderProvider.getOrderForSignedAuthorizationChallenge(signedAuthorizationChallenge: signResponse) { [weak self] result in
             self?.processActivationOrder(result)
         }
+        VisaLogger.info("Processing signed authorization challenge finished. Starting create wallet process")
         createWallet(in: session, completion: completion)
     }
 
@@ -278,6 +284,7 @@ private extension CardActivationTask {
         orderProvider.getActivationOrder { [weak self] result in
             self?.processActivationOrder(result)
         }
+        VisaLogger.info("Loading activation order started. Creating wallet")
         createWallet(in: session, completion: completion)
     }
 

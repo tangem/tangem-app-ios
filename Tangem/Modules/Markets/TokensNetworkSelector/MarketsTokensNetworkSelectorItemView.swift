@@ -71,12 +71,6 @@ struct MarketsTokensNetworkSelectorItemView: View {
             size: .init(bothDimensions: Constants.iconWidth)
         )
     }
-
-    private var selectedCheckmark: some View {
-        viewModel
-            .checkedImage
-            .frame(size: Constants.checkedSelectedIconSize)
-    }
 }
 
 extension MarketsTokensNetworkSelectorItemView {

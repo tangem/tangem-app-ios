@@ -80,8 +80,8 @@ private extension TotalBalanceProvider {
                     .debounce(for: 0.1, scheduler: DispatchQueue.global())
                     // 3. The latest data will be get from wallets in `totalBalanceStateBuilder`
                     // Because the data from the publishers can be outdated
-                    // Why? I believe it can be race condition because
-                    // `WalletModel` and `TotalBalanceProvider` working via background queue
+                    // Why? I believe there can be race condition because
+                    // `WalletModel` and `TotalBalanceProvider` working via their own background queue
                     .withWeakCaptureOf(balanceProvider)
                     .map { $0.0.totalBalanceStateBuilder.buildTotalBalanceState() }
                     .eraseToAnyPublisher()

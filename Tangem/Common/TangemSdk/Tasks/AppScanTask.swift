@@ -234,10 +234,10 @@ final class AppScanTask: CardSessionRunnable {
 
     private func readVisaCard(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
         let handler = VisaCardScanHandler()
-        handler.handleVisaCardScan(session: session) { result in
+        handler.run(in: session) { result in
             switch result {
             case .success(let success):
-                self.walletData = success
+                self.walletData = .visa(success)
                 self.runScanTask(session, completion)
             case .failure(let error):
                 completion(.failure(error))
