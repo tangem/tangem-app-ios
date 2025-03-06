@@ -83,19 +83,6 @@ class RosettaNetworkProvider: CardanoNetworkProvider {
             .eraseToAnyPublisher()
     }
 
-    private func balancePublisher(for address: String) -> AnyPublisher<RosettaBalanceResponse, Error> {
-        provider
-            .requestPublisher(request(for: .address(addressBody: RosettaAddressBody(
-                networkIdentifier: .mainNet,
-                accountIdentifier: RosettaAccountIdentifier(address: address)
-            )
-            )))
-            .filterSuccessfulStatusAndRedirectCodes()
-            .map(RosettaBalanceResponse.self, using: decoder)
-            .eraseError()
-            .eraseToAnyPublisher()
-    }
-
     private func coinsPublisher(for address: String) -> AnyPublisher<RosettaCoinsResponse, Error> {
         provider
             .requestPublisher(request(for: .coins(

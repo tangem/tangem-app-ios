@@ -15,7 +15,6 @@ actor CommonExpressRepository {
 
     private var providers: [ExpressProvider] = []
     private var pairs: Set<ExpressPair> = []
-    private var updateTask: Task<Void, Error>?
     private var walletModels: [WalletModel] {
         walletModelsManager.walletModels.filter { !$0.isCustom }
     }
