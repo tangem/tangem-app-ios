@@ -84,7 +84,6 @@ private extension CommonStakingNotificationManager {
 
             show(events: events)
             hideErrorNotifications()
-
         case .validationError(let validationError, _):
             hideApproveInProgressNotification()
             let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem, feeTokenItem: feeTokenItem)
