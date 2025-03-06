@@ -86,7 +86,7 @@ final class MarketsViewModel: MarketsBaseViewModel {
         headerViewModel = MainBottomSheetHeaderViewModel()
         marketsRatingHeaderViewModel = MarketsRatingHeaderViewModel(provider: filterProvider)
 
-        /// Our view is initially presented when the sheet is collapsed, hence the `0.0` initial value.
+        // Our view is initially presented when the sheet is collapsed, hence the `0.0` initial value.
         super.init(overlayContentProgressInitialValue: 0.0)
 
         headerViewModel.delegate = self
@@ -170,7 +170,7 @@ private extension MarketsViewModel {
         publisher
             .dropFirst()
             .debounce(for: 0.5, scheduler: DispatchQueue.main)
-            /// Ensure that clear input event will be delivered immediately
+            // Ensure that clear input event will be delivered immediately
             .merge(with: publisher.filter { $0 == .clearInput })
             .removeDuplicates()
             .withWeakCaptureOf(self)
