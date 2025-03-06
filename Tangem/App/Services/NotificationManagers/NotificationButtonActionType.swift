@@ -48,6 +48,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     case seedSupportNo
     case seedSupport2Yes
     case seedSupport2No
+    case unlock
 
     var id: Int { hashValue }
 
@@ -101,13 +102,16 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return Localization.seedWarningYes
         case .seedSupport2No:
             return Localization.seedWarningNo
+        case .unlock:
+            return "Unlock"
         }
     }
 
     var icon: MainButton.Icon? {
         switch self {
         case .generateAddresses,
-             .retryKaspaTokenTransaction:
+             .retryKaspaTokenTransaction,
+             .unlock:
             return .trailing(Assets.tangemIcon)
         case .swap:
             return .leading(Assets.exchangeMini)
@@ -141,7 +145,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
         case .generateAddresses,
              .openLink,
              .openAppStoreReview,
-             .empty:
+             .empty,
+             .unlock:
             return .primary
         case .backupCard,
              .buyCrypto,
