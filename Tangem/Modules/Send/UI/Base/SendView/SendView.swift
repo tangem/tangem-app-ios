@@ -78,6 +78,7 @@ struct SendView: View {
         switch viewModel.step.navigationTrailingViewType {
         case .none:
             EmptyView()
+
         case .qrCodeButton(let action):
             Button(action: action) {
                 Assets.qrCode.image
@@ -120,7 +121,6 @@ struct SendView: View {
             )
             .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
             .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
-
         case .amount(let sendAmountViewModel):
             SendAmountView(
                 viewModel: sendAmountViewModel,
