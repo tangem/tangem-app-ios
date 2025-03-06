@@ -6,16 +6,18 @@ set -eo pipefail
 # Install Homebrew -> https://brew.sh
 
 usage() {
-	echo "Usage: $0 [additional options]"
-	echo
-	echo "  Options:"
-	echo
-	echo "    --skip-ruby             -  Skip Ruby install"
-	echo "    --update-submodule      -  Git submodule update with --remote option"
-	exit 1;
+    echo "Usage: $0 [additional options]"
+    echo
+    echo "  Options:"
+    echo
+    echo "    --skip-ruby             -  Skip Ruby install"
+    echo "    --skip-mint             -  Skip installing dependencies via Mint"
+    echo "    --update-submodule      -  Git submodule update with --remote option"
+    exit 1;
 }
 
 OPT_RUBY=true
+OPT_MINT=true
 OPT_SUBMODULE=false
 
 while test $# -gt 0
@@ -24,11 +26,14 @@ do
         --skip-ruby)
             OPT_RUBY=false
             ;;
+        --skip-mint)
+            OPT_MINT=false
+            ;;
         --update-submodule)
-			OPT_SUBMODULE=true
+            OPT_SUBMODULE=true
             ;;
         *)
-		usage 1>&2
+        usage 1>&2
         ;;
     esac
     shift
@@ -70,19 +75,30 @@ gem install bundler
 bundle install
 echo "✅ Required Ruby gems succesfully installed"
 
-echo "🔄 Mint bootstrap dependencies"
-mint bootstrap --mintfile ${MINTFILE}
-echo "✅ Dependencies succesfully installed"
+# Mint is still used for some dependencies because it's extremely difficult 
+# to install a particular dependency version using Homebrew
+# See https://github.com/nicklockwood/SwiftFormat/issues/695 for details
+if [ "$OPT_MINT" = true ] ; then
+    echo "🔄 Mint bootstrap dependencies"
+    mint bootstrap --mintfile ${MINTFILE}
+    echo "✅ Dependencies succesfully installed"
+else
+    echo "ℹ️ Skipping Mint dependencies installation"
+fi
 
-if [ "${CI}" = true ] ; then
+if [[ "$CI" = true || "$OPT_MINT" = false ]] ; then
     echo "ℹ️ Skipping SwiftFormat"
 else
     echo "🚀 Running SwiftFormat"
-    mint run swiftformat@0.52.8 . --config .swiftformat
+    mint run swiftformat@0.55.5 . --config .swiftformat
 fi
 
-echo "🚀 Running SwiftGen"
-mint run swiftgen@6.6.2 config run --config swiftgen.yml 
+if [ "$OPT_MINT" = false ] ; then
+    echo "ℹ️ Skipping SwiftGen"
+else
+    echo "🚀 Running SwiftGen"
+    mint run swiftgen@6.6.3 config run --config swiftgen.yml 
+fi
 
 if [ "$OPT_SUBMODULE" = true ] ; then
     echo "🚀 Running submodule remote update"
