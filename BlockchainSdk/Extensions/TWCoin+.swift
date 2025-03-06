@@ -87,6 +87,8 @@ extension CoinType {
             self = .filecoin
         case .sei:
             self = .sei
+        case .zkLinkNova:
+            self = .zkLinkNova
         case .ethereumPoW,
              .disChain,
              .rsk,
@@ -133,7 +135,8 @@ extension CoinType {
              .bitrock,
              .apeChain,
              .sonic,
-             .alephium:
+             .alephium,
+             .vanar:
             // Blockchains that are not in WalletCore yet
             return nil
         }
