@@ -18,7 +18,7 @@ protocol SupportSeedNotificationManager: AnyObject {
     func showSupportSeedNotificationIfNeeded()
 }
 
-// Agregate logic support seed notification in one union structure
+/// Agregate logic support seed notification in one union structure
 final class CommonSupportSeedNotificationManager: SupportSeedNotificationManager {
     // MARK: Injected
 
