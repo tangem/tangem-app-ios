@@ -36,8 +36,6 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
     // MARK: - Private Implementation
 
     private var bag = Set<AnyCancellable>()
-    private let alertBuilder = MarketsTokensNetworkSelectorAlertBuilder()
-
     private let coinId: String
     private let networks: [NetworkModel]
 
@@ -70,15 +68,11 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
         return tokenItems
     }
 
-    // The cache of the proper state storage
+    /// The cache of the proper state storage
     private var readonlyTokens: [TokenItem] = []
 
     private var selectedUserWalletModel: UserWalletModel? {
         walletDataProvider.selectedUserWalletModel
-    }
-
-    private var canTokenItemBeToggled: Bool {
-        selectedUserWalletModel != nil
     }
 
     // MARK: - Init
@@ -225,20 +219,6 @@ final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObjec
             } catch {
                 self?.displayAlertAndUpdateSelection(for: tokenItem, error: error)
             }
-        }
-
-        return binding
-    }
-
-    private func bindCopy() -> Binding<Bool> {
-        let binding = Binding<Bool> {
-            false
-        } set: { _ in
-            Toast(view: SuccessToast(text: Localization.contractAddressCopiedMessage))
-                .present(
-                    layout: .bottom(padding: 80),
-                    type: .temporary()
-                )
         }
 
         return binding
