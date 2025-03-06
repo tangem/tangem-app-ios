@@ -9,6 +9,7 @@
 import Foundation
 import TangemSdk
 import BitcoinCore
+import TangemNetworkUtils
 
 struct TezosWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
