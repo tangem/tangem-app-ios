@@ -53,8 +53,12 @@ extension CommonCardActivationStatusService: VisaCardActivationStatusService {
         cardPublicKey: String
     ) async throws -> VisaCardActivationStatus {
         let tokensUtility = AuthorizationTokensUtility()
-        let accessToken = authorizationTokens.accessToken
-        let ids = try VisaActivationUtility().getEssentialActivationIds(from: accessToken)
+
+        guard let accessToken = authorizationTokens.accessToken else {
+            throw VisaAuthorizationTokensHandlerError.missingAccessToken
+        }
+
+        let ids = try VisaBFFUtility().getEssentialBFFIds(from: accessToken)
 
         let request = ProductActivationAPITarget.ActivationStatusRequest(
             customerId: ids.customerId,
@@ -62,7 +66,7 @@ extension CommonCardActivationStatusService: VisaCardActivationStatusService {
             cardId: cardId,
             cardPublicKey: cardPublicKey
         )
-        let authorizationToken = tokensUtility.getAuthorizationHeader(from: authorizationTokens)
+        let authorizationToken = try tokensUtility.getAuthorizationHeader(from: authorizationTokens)
         return try await apiService.request(.init(
             target: .activationStatus(request: request),
             authorizationToken: authorizationToken

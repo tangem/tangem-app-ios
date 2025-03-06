@@ -15,6 +15,7 @@ import class WalletCore.PrivateKey
 @testable import BlockchainSdk
 
 class AddressesTests: XCTestCase {
+    // swiftformat:disable:next unusedPrivateDeclarations
     private let secpPrivKey = Data(hexString: "83686EF30173D2A05FD7E2C8CB30941534376013B903A2122CF4FF3E8668355A")
     private let secpDecompressedKey = Data(hexString: "0441DCD64B5F4A039FC339A16300A833A883B218909F2EBCAF3906651C76842C45E3D67E8D2947E6FEE8B62D3D3B6A4D5F212DA23E478DD69A2C6CCC851F300D80")
     private let secpCompressedKey = Data(hexString: "0241DCD64B5F4A039FC339A16300A833A883B218909F2EBCAF3906651C76842C45")
@@ -249,6 +250,19 @@ class AddressesTests: XCTestCase {
         XCTAssertEqual(addr_dec.value, "0x6ECA00c52afC728CDbf42E817d712E175Bb23C7d")
 
         XCTAssertThrowsError(try service.makeAddress(from: edKey))
+    }
+
+    func testRskAddressValidation() throws {
+        let addressService = RskAddressService()
+
+        XCTAssertTrue(addressService.validate("0x2090bDBB7fdC25A0F2D39fAB9577029253bbAF92"))
+        XCTAssertTrue(addressService.validate("0x7E9b7a4132c20f7EB1EDa928f7Bb6d86181aC9d5"))
+        XCTAssertTrue(addressService.validate("0xb9c5F14Fb9b00978738868EEdF93Ca93aFEaA1Ef"))
+
+        XCTAssertFalse(addressService.validate("0x6eca00c52afc728cdbf42e817d712e175bb23c"))
+        XCTAssertFalse(addressService.validate("GCP6LOZMY7MDYHNBBBC27WFDJMKB7WH5OJIAXFNRKR7BFON3RKWD3XYA"))
+        XCTAssertFalse(addressService.validate("0x"))
+        XCTAssertFalse(addressService.validate(""))
     }
 
     // MARK: - Bitcoin Cash
@@ -1339,7 +1353,7 @@ class AddressesTests: XCTestCase {
         XCTAssertEqual(expectedAddress, address.value)
     }
 
-    // Includes account IDs with checksums from https://hips.hedera.com/hip/hip-15
+    /// Includes account IDs with checksums from https://hips.hedera.com/hip/hip-15
     private func testHederaAddressValidation(blockchain: Blockchain) throws {
         let addressServiceFactory = AddressServiceFactory(blockchain: blockchain)
         let addressService = addressServiceFactory.makeAddressService()
@@ -1371,7 +1385,7 @@ class AddressesTests: XCTestCase {
 
     // MARK: - Radiant
 
-    // Validate by https://github.com/RadiantBlockchain/radiantjs
+    /// Validate by https://github.com/RadiantBlockchain/radiantjs
     func testRadiantAddressGeneration() throws {
         let addressServiceFactory = AddressServiceFactory(blockchain: .radiant(testnet: false))
         let addressService = addressServiceFactory.makeAddressService()
@@ -1397,7 +1411,7 @@ class AddressesTests: XCTestCase {
         XCTAssertThrowsError(try addressService.makeAddress(from: edPublicKey))
     }
 
-    // https://github.com/RadiantBlockchain/radiantjs/blob/master/test/address.js
+    /// https://github.com/RadiantBlockchain/radiantjs/blob/master/test/address.js
     func testRadiantAddressValidation() throws {
         let addressServiceFactory = AddressServiceFactory(blockchain: .radiant(testnet: false))
         let addressService = addressServiceFactory.makeAddressService()

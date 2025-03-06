@@ -150,8 +150,9 @@ extension MercuryoService: ExchangeService {
             .sink(
                 receiveCompletion: { [weak self] completion in
                     switch completion {
-                    case .finished: break
-                    case .failure(let error):
+                    case .finished:
+                        break
+                    case .failure:
                         self?.initializeState = .failed(.networkError)
                     }
                 },
@@ -305,7 +306,9 @@ private extension Blockchain {
              .bitrock,
              .apeChain,
              .sonic,
-             .alephium:
+             .alephium,
+             .vanar,
+             .zkLinkNova:
             // Did you get a compilation error here? If so, check whether the network is supported at https://api.mercuryo.io/v1.6/lib/currencies
             return nil
         }

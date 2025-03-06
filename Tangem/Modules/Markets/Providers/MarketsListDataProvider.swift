@@ -31,7 +31,7 @@ final class MarketsListDataProvider {
         lastFilter
     }
 
-    // Tells if all items have been loaded
+    /// Tells if all items have been loaded
     var canFetchMore: Bool {
         if isLoading {
             return false
@@ -48,15 +48,15 @@ final class MarketsListDataProvider {
 
     private(set) var isLoading: Bool = false
 
-    // Tracks last page offset loaded. Used to load next page (current + 1)
+    /// Tracks last page offset loaded. Used to load next page (current + 1)
     private var currentOffset: Int = 0
 
-    // Limit of records per page
+    /// Limit of records per page
     private let limitPerPage: Int = 40
 
     private let repeatRequestDelayInSeconds: TimeInterval = 10
 
-    // Total tokens value by pages
+    /// Total tokens value by pages
     private var totalTokensCount: Int?
 
     private var lastSearchText: String?
