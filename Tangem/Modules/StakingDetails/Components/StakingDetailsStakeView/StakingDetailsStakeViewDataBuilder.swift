@@ -73,10 +73,10 @@ class StakingDetailsStakeViewDataBuilder {
 
         let action: (() -> Void)? = {
             switch balance.balanceType {
-            case .rewards, .warmup, .unbonding, .pending:
+            case .rewards, .unbonding, .pending:
                 return nil
-            case .active, .unstaked, .locked:
-                return inProgress ? nil : action
+            case .active, .unstaked, .locked, .warmup: return
+                inProgress || balance.actions.isEmpty ? nil : action
             }
         }()
 
