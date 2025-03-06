@@ -11,20 +11,19 @@ import Combine
 import TangemNetworkUtils
 
 final class SuiNetworkProvider: HostProvider {
-    var host: String {
-        node.url.hostOrUnknown
-    }
-
     private let node: NodeInfo
     private let provider: NetworkProvider<SuiTarget>
 
+    let host: String
+
     init(node: NodeInfo, networkConfiguration: NetworkProviderConfiguration) {
         self.node = node
-        provider = NetworkProvider<SuiTarget>.init(configuration: networkConfiguration)
+        provider = NetworkProvider<SuiTarget>(configuration: networkConfiguration)
+        host = node.url.hostOrUnknown
     }
 
     func getBalance(address: String, coin: String, cursor: String?) -> AnyPublisher<SuiGetCoins, Error> {
-        requestPublisher(for: .getBalance(address: address, coin: coin, cursor: cursor))
+        requestPublisher(for: .getBalance(address: address, cursor: cursor))
     }
 
     func getReferenceGasPrice() -> AnyPublisher<SuiReferenceGasPrice, Error> {
