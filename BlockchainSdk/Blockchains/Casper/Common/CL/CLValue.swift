@@ -57,7 +57,7 @@ class CLValue {
         }
     }
 
-    /**
+    /*
         Function to get  parsed value in form of string from CLValueWrapper object
        - Parameter: CLValueWrapper object
        - Returns: CLValueWrapper.parsed value in form of string
@@ -88,7 +88,7 @@ class CLValue {
         }
     }
 
-    /**
+    /*
         Function to check if a CLType is primitive, which means no recursive call to CLType inside
        - Parameter: a CLType object
        - Returns: true if the CLType is primitive, false if not.
@@ -153,7 +153,7 @@ class CLValue {
         return ret
     }
 
-    /**
+    /*
         Function to get json data from CLType if the CLType is primitive, which mean the CLType does not contain recursive declaration to other CLType
        - Parameter: a CLType object
        - Returns: String representation for that CLType
@@ -161,7 +161,7 @@ class CLValue {
      The following CLType is primitive: Bool, I32, I64, U8, U32, U64, U128, U256, U512, Unit, String, Key, URef, PublicKey, Any
      The following CLType is compound: BytesArray, Option, List, FixedList,Map,Tuple1, Tuple2, Tuple3, Result
      */
-    /**
+    /*
         Function to get  CLValueWrapper type in String
        - Parameter: CLValueWrapper
        - Returns: string represent the CLType of CLValueWrapper
@@ -224,7 +224,7 @@ class CLValue {
         }
     }
 
-    /**
+    /*
      Get CLValue from Json string, with given CLType for that CLValue. The Json string is from the input with name "from", and you have to know what CLType to parse to get the corresponding CLValue for that such CLType, retrieve from the input parameter
      - Parameter:
         - from: AnyObject, in this case a Json holding the CLType and CLValue
@@ -243,7 +243,7 @@ class CLValue {
         return ret
     }
 
-    /**
+    /*
      Get raw value for CLValueWrapper, of type .String(value). Use this function for CLValue Map serialization. This function unwrap the CLValueWrapper with value .String(value) to just value
      - Parameter:
         - clValue of String CLValueWrapper type
@@ -259,7 +259,7 @@ class CLValue {
         }
     }
 
-    /**
+    /*
      Get raw value for CLValueWrapper, of type .PublicKey(value). Use this function for CLValue json exporter. This function unwrap the CLValueWrapper with value .PublicKey(value) to just value
      - Parameter:
         - clValue of PublicKey CLValueWrapper type
@@ -275,7 +275,7 @@ class CLValue {
         }
     }
 
-    /**
+    /*
      Get raw value for CLValueWrapper, of type .URef(value). Use this function for CLValue json exporter. This function unwrap the CLValueWrapper with value .URef(value) to just value
      - Parameter:
         - clValue of URef CLValueWrapper type
@@ -291,7 +291,7 @@ class CLValue {
         }
     }
 
-    /**
+    /*
      Get raw value for CLValueWrapper, of type .Key. Use this function for CLValue json exporter. This function unwrap the CLValueWrapper with value .Key(String) to just value inside of the Key
      - Parameter:
         - clValue of Key CLValueWrapper type
@@ -317,7 +317,7 @@ class CLValue {
         }
     }
 
-    /**
+    /*
      Get raw value for CLValueWrapper, of type .I32(value). Use this function for CLValue Map serialization. This function unwrap the CLValueWrapper with value .I32(value) to just value
      - Parameter:
         - clValue of CLValueWrapper type
@@ -333,7 +333,7 @@ class CLValue {
         }
     }
 
-    /**
+    /*
      Get raw value for CLValueWrapper, of type .I64(value). Use this function for CLValue Map serialization. This function unwrap the CLValueWrapper with value .I64(value) to just value
      - Parameter:
         - clValue of CLValueWrapper type
@@ -349,7 +349,7 @@ class CLValue {
         }
     }
 
-    /**
+    /*
      Get raw value for CLValueWrapper, of type .UInt8(value). Use this function for CLValue Map serialization. This function unwrap the CLValueWrapper with value .UInt8(value) to just value
      - Parameter:
         - clValue of CLValueWrapper type
@@ -365,7 +365,7 @@ class CLValue {
         }
     }
 
-    /**
+    /*
      Get raw value for CLValueWrapper, of type .UInt32(value). Use this function for CLValue Map serialization. This function unwrap the CLValueWrapper with value .UInt32(value) to just value
      - Parameter:
         - clValue of CLValueWrapper type
@@ -381,7 +381,7 @@ class CLValue {
         }
     }
 
-    /**
+    /*
      Get raw value for CLValueWrapper, of type .UInt64(value). Use this function for CLValue Map serialization. This function unwrap the CLValueWrapper with value .UInt64(value) to just value
      - Parameter:
         - clValue of CLValueWrapper type
@@ -397,7 +397,7 @@ class CLValue {
         }
     }
 
-    /**
+    /*
      Get raw value for CLValueWrapper, of type .U128(value). Use this function for CLValue Map serialization. This function unwrap the CLValueWrapper with value .U128(value) to just value
      - Parameter:
         - clValue of CLValueWrapper type
@@ -413,7 +413,7 @@ class CLValue {
         }
     }
 
-    /**
+    /*
      Get raw value for CLValueWrapper, of type .U256(value). Use this function for CLValue Map serialization. This function unwrap the CLValueWrapper with value .U256(value) to just value
      - Parameter:
         - clValue of CLValueWrapper type
@@ -429,7 +429,7 @@ class CLValue {
         }
     }
 
-    /**
+    /*
      Get raw value for CLValueWrapper, of type .U512(value). Use this function for CLValue Map serialization. This function unwrap the CLValueWrapper with value .U512(value) to just value
      - Parameter:
         - clValue of CLValueWrapper type
@@ -445,7 +445,7 @@ class CLValue {
         }
     }
 
-    /**
+    /*
      Check if the clValue is comparable, for example Int, String can be compare to sort ascending, but List or Map or Tuple can not. Use this function for CLValue Map serialization.
      - Parameter:
         - clValue of CLValueWrapper type, to check if the clValue can be comparable
@@ -510,7 +510,7 @@ class CLValue {
         }
     }
 
-    /**
+    /*
      Get CLValue from Json string, with given CLType for that CLValue. The Json string is from the input with name "from", and you have to know what CLType to parse to get the corresponding CLValue for that such CLType, retrieve from the input parameter
      - Parameter:
         - from: AnyObject, in this case a Json holding the CLType and CLValue
@@ -534,7 +534,7 @@ class CLValue {
         }
     }
 
-    /**
+    /*
      Get CLValue primitive from Json string, with given CLType for that CLValue. The Json string is from the input with name "from", and you have to know what CLType to parse to get the corresponding CLValue for that such CLType, retrieve from the input parameter. This function deal with CLType primitive of no recursive part in side that CLType, such as Bool, String, Int
      - Parameter:
         - from: AnyObject, in this case a Json holding the CLType and CLValue
@@ -608,7 +608,7 @@ class CLValue {
         return .none
     }
 
-    /**
+    /*
      Get CLValue primitive from  a parameter of type primitive (with no recursive part inside), with given CLType for that CLValue. The string is from the input with name "from", and you have to know what CLType to parse to get the corresponding CLValue for that such CLType, retrieve from the input parameter. This function deal with CLType primitive of no recursive part in side that CLType, such as Bool, String, Int
      - Parameter:
         - from: AnyObject, in this case a Json holding the CLType and CLValue
@@ -695,7 +695,7 @@ class CLValue {
         return .none
     }
 
-    /**
+    /*
      Get CLValue from  a parameter of type compound (with  recursive part inside), with given CLType for that CLValue. The string is from the input with name "from", and you have to know what CLType to parse to get the corresponding CLValue for that such CLType, retrieve from the input parameter. This function deal with CLType compound with recursive part in side that CLType, such as List, Map, Tuple1, Tuple2, Tuple3 ...
      - Parameter:
         - from: AnyObject, in this case a Json holding the CLType and CLValue
@@ -739,7 +739,7 @@ class CLValue {
                 return .listWrapper(retList)
             }
         case .mapClType(let cLType1, let cLType2):
-            var counter: Int = 0
+            var counter = 0
             var mapList1: [CLValueWrapper] = .init()
             var mapList2: [CLValueWrapper] = .init()
             if let fromList = from as? [AnyObject] {
@@ -806,7 +806,7 @@ class CLValue {
         return .none
     }
 
-    /**
+    /*
      Get CLValue with full value: bytes, parsed and cl_type. This function do the task of retrieving information of bytes,parsed and cl_type from the string map [String: Any] from the input.
      - Parameter:
         - from: a map of [String: Any] to hold the 3 kinds of value: bytes, parsed and cl_type
