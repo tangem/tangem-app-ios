@@ -57,13 +57,13 @@ class LitecoinTests: XCTestCase {
         unspentOutputManager.update(
             outputs: [
                 .init(
-                    blockId: .random(in: 1 ... 10000),
+                    blockId: .random(in: 1 ... 100_000),
                     hash: Data(hexString: "bcacfe1bc1323e8e421486e4b334b91163925d7edd87133673c3efbd4e3fedae"),
                     index: 0,
                     amount: 10000
                 ),
                 .init(
-                    blockId: .random(in: 1 ... 10000),
+                    blockId: .random(in: 1 ... 100_000),
                     hash: Data(hexString: "fa16fbd7f8a150dc723091fd2305eaa07189e869f9133bf3d429efc5ef3f86ff"),
                     index: 0,
                     amount: 10000
@@ -73,6 +73,7 @@ class LitecoinTests: XCTestCase {
             for: Data(hexString: "76a914ccd4649cdb4c9f8fdb54869cff112a4e75fda2bb88ac")
         )
         let txBuilder = BitcoinTransactionBuilder(bitcoinManager: bitcoinCoreManager, unspentOutputManager: unspentOutputManager, addresses: addresses)
+        txBuilder.fillBitcoinManager()
         let amountToSend = Amount(with: blockchain, type: .coin, value: sendValue)
         let feeAmount = Amount(with: blockchain, type: .coin, value: feeValue)
         let fee = Fee(feeAmount, parameters: BitcoinFeeParameters(rate: feeRate))
