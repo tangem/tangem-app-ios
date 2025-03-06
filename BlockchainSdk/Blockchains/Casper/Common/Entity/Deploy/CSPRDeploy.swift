@@ -14,7 +14,7 @@ class CSPRDeploy {
     var payment: ExecutableDeployItem?
     /// Deploy Session, which is object of class ExecutableDeployItem
     var session: ExecutableDeployItem?
-    /**
+    /*
         Function to get  json string from Deploy object
        - Parameter: none
        - Returns: json string representing the current deploy object
@@ -31,7 +31,7 @@ class CSPRDeploy {
         return deployJsonStr
     }
 
-    /**
+    /*
         Function to get  json data from Deploy object
        - Parameter: none
        - Returns: json data representing the current deploy object, in form of [String: Any], used to send to http method to implement the account_put_deploy RPC call
@@ -58,7 +58,7 @@ class CSPRNamedArgJson: Codable {
     var parsed: String
 }
 
-/**
+/*
  Class for DeployApprovalItem object
  */
 

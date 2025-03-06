@@ -71,6 +71,7 @@ struct ScanCardSettingsView: View {
         switch viewModel.icon {
         case .loading:
             Color.clear
+
         case .loaded(let image):
             image.image
                 .resizable()
