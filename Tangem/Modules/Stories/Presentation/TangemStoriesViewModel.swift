@@ -122,7 +122,7 @@ extension TangemStoriesViewModel {
         // [REDACTED_TODO_COMMENT]
         State(
             storiesHostViewModel: StoriesHostViewModel(
-                storyViewModels: [Self.makeStoryViewModel(for: story)],
+                storyViewModels: [makeStoryViewModel(for: story)],
                 onStoriesFinished: onStoriesFinished
             ),
             activeStory: story

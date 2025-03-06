@@ -30,7 +30,7 @@ enum GeneralNotificationEvent: Equatable, Hashable {
     case seedSupport2
 }
 
-// For Notifications
+/// For Notifications
 extension GeneralNotificationEvent: NotificationEvent {
     var defaultTitle: String {
         Localization.commonWarning
@@ -261,7 +261,6 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .withButtons([
                 .init(action: buttonAction, actionType: .support, isWithLoader: false),
             ])
-
         default: break
         }
         return .plain
@@ -302,9 +301,9 @@ extension GeneralNotificationEvent {
     /// Determine if analytics event should be sent only once and tracked by service
     var isOneShotAnalyticsEvent: Bool {
         switch self {
-        /// Missing derivation notification can be tracked multiple times because if user make changes for
-        /// one card on different devices the `Missing derivation` notification will be updated
-        /// and we need to track this update after PTR
+        // Missing derivation notification can be tracked multiple times because if user make changes for
+        // one card on different devices the `Missing derivation` notification will be updated
+        // and we need to track this update after PTR
         case .missingDerivation: return false
         default: return true
         }
