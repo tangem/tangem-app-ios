@@ -16,10 +16,10 @@ import TangemUI
 /// - `Suffix`
 /// - Different `Alignment`
 struct SendDecimalNumberTextField: View {
-    // Public
+    /// Public
     @ObservedObject private var viewModel: DecimalNumberTextField.ViewModel
 
-    // Internal state
+    /// Internal state
     @FocusState private var isInputActive: Bool
 
     // Setupable
