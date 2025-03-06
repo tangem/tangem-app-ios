@@ -10,16 +10,16 @@ import Foundation
 import struct AnyCodable.AnyDecodable
 
 extension NEARNetworkResult {
-    // There are many more fields in this response, but we only
-    // care about the hash and status of the transaction.
+    /// There are many more fields in this response, but we only
+    /// care about the hash and status of the transaction.
     struct TransactionStatus: Decodable {
         struct TransactionOutcome: Decodable {
             /// Hash of the transaction.
             let id: String
         }
 
-        // API specs don't list all possible transaction statuses, but it's likely that there are
-        // other statuses except 'success' and 'failure' - like 'pending' or something like that.
+        /// API specs don't list all possible transaction statuses, but it's likely that there are
+        /// other statuses except 'success' and 'failure' - like 'pending' or something like that.
         enum Status: Decodable {
             private enum CodingKeys: String, CodingKey {
                 case success = "SuccessValue"

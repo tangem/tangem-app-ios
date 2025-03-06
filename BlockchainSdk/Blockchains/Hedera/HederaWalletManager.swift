@@ -30,7 +30,7 @@ final class HederaWalletManager: BaseManager {
             .hexString
     }
 
-    // Public key as a masked string (only the last four characters are revealed), suitable for use in logs
+    /// Public key as a masked string (only the last four characters are revealed), suitable for use in logs
     private lazy var maskedPublicKey: String = {
         let length = 4
         let publicKey = wallet.publicKey.blockchainKey.hexString

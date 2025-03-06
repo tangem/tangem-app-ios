@@ -47,8 +47,6 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
         userWalletModel?.walletModelsManager.walletModels.first?.qrReceiveMessage ?? ""
     }
 
-    private var refreshButtonDispatchWork: DispatchWorkItem?
-
     func updateCardBalance(shouldGoToNextStep: Bool = true) {
         guard
             let walletModel = userWalletModel?.walletModelsManager.walletModels.first,
