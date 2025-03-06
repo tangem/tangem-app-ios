@@ -67,7 +67,7 @@ extension RavencoinTarget: TargetType {
         }
     }
 
-    // Workaround for API
+    /// Workaround for API
     var headers: [String: String]? {
         ["User-Agent": "Mozilla/5.0 Version/16.1 Safari/605.1.15"]
     }
