@@ -6,12 +6,10 @@
 // Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Foundation
-
-struct SUIUtils {
-    static let SuiGasBudgetScaleUpConstant = Decimal(1_000_000)
-    static let SuiGasMinimumGasBudgetComputationUnits = Decimal(1000)
-    static let SuiGasBudgetMaxValue = Decimal(50_000_000_000)
+enum SUIUtils {
+    static let suiGasBudgetScaleUpConstant = Decimal(stringValue: "1000000")!
+    static let suiGasMinimumGasBudgetComputationUnits = Decimal(stringValue: "1000")!
+    static let suiGasBudgetMaxValue = Decimal(stringValue: "50000000000")!
 
     enum EllipticCurveID: UInt8 {
         case ed25519 = 0x00
@@ -45,7 +43,7 @@ struct SUIUtils {
             let elements = string.components(separatedBy: Self.separator)
 
             guard elements.count == 3 else {
-                throw SuiError.CodingError.failedDecoding
+                throw SuiError.failedDecoding
             }
 
             contract = elements[0]

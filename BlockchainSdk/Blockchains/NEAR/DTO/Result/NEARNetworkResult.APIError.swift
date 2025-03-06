@@ -11,8 +11,8 @@ import struct AnyCodable.AnyDecodable
 
 extension NEARNetworkResult {
     struct APIError: Decodable, Error {
-        // There are many more types of errors, but we only care about the ones
-        // that can be returned from API endpoints in the 'NEARTarget.swift' file.
+        /// There are many more types of errors, but we only care about the ones
+        /// that can be returned from API endpoints in the 'NEARTarget.swift' file.
         enum ErrorTypeName: String, Decodable {
             case handlerError = "HANDLER_ERROR"
             case requestValidationError = "REQUEST_VALIDATION_ERROR"
@@ -26,8 +26,8 @@ extension NEARNetworkResult {
             }
         }
 
-        //  There are many more causes of errors, but we only care about the ones
-        // that can be returned from API endpoints in the 'NEARTarget.swift' file.
+        ///  There are many more causes of errors, but we only care about the ones
+        /// that can be returned from API endpoints in the 'NEARTarget.swift' file.
         enum ErrorCauseName: String, Decodable {
             case unknownBlock = "UNKNOWN_BLOCK"
             case invalidAccount = "INVALID_ACCOUNT"
