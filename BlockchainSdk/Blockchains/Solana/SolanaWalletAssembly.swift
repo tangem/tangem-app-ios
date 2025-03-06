@@ -66,7 +66,7 @@ struct SolanaWalletAssembly: WalletManagerAssembly {
             }
 
             let apiLogger = SolanaApiLoggerUtil()
-            let configuration = URLSessionConfiguration.standard
+            let configuration = URLSessionConfiguration.defaultConfiguration
             let session = URLSession(configuration: configuration)
             let networkRouter = NetworkingRouter(endpoints: endpoints, session: session, apiLogger: apiLogger)
             let accountStorage = SolanaDummyAccountStorage()
