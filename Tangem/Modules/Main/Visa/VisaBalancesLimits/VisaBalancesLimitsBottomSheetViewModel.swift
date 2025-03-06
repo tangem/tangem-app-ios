@@ -29,7 +29,6 @@ class VisaBalancesLimitsBottomSheetViewModel: ObservableObject, Identifiable {
     let remainingNoOtpAmount: String
     let singleTransactionAmount: String
 
-    private let emptyAmount = BalanceFormatter.defaultEmptyBalanceString
     private let formatter: BalanceFormatter = .init()
     private let balanceFormattingOptions: BalanceFormattingOptions = .init(minFractionDigits: 2, maxFractionDigits: 2, formatEpsilonAsLowestRepresentableValue: false, roundingType: .default(roundingMode: .down, scale: 2))
 
