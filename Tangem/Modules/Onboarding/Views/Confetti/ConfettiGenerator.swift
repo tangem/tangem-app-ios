@@ -193,25 +193,6 @@ class ConfettiGenerator {
         addOpacityAnimation(to: layer, confettiLifetime: confettiLifetime)
     }
 
-    private func dragBehavior() -> Any {
-        let behavior = createBehavior(type: "drag")
-        behavior.setValue("drag", forKey: "name")
-        behavior.setValue(3, forKey: "drag")
-
-        return behavior
-    }
-
-    private func addDragAnimation(to layer: CALayer, generationDuration: Double) {
-        let animation = CAKeyframeAnimation()
-        animation.duration = 6 * (generationDuration / 2 + 0.5)
-        animation.keyTimes = [1, 0.3, 0.5, 0.501, 1]
-        animation.values = [3, 2, 0, 0, 0]
-//        animation.fromValue = 0
-//        animation.toValue = 3
-
-        layer.add(animation, forKey: "emitterBehaviors.drag.drag")
-    }
-
     private func addGravityAnimation(to layer: CALayer, generationDuration: Double) {
         let animation = CAKeyframeAnimation()
         animation.duration = 6 * (generationDuration / 2 + 0.5)
