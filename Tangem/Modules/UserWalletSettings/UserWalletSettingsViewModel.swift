@@ -39,8 +39,6 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
     private let userWalletModel: UserWalletModel
     private weak var coordinator: UserWalletSettingsRoutable?
-    private var bag: Set<AnyCancellable> = []
-
     init(
         userWalletModel: UserWalletModel,
         coordinator: UserWalletSettingsRoutable
