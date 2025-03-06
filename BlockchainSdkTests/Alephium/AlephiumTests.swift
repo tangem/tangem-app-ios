@@ -38,7 +38,6 @@ final class AlephiumTests: XCTestCase {
     // MARK: - Private Properties
 
     private let secp256k1PublicKey = "039BBD8C96ADA3D42648FBE52FB40F3DAE106E7552EFE42A3F51583300AD5E74AB"
-    private let secp256k1Signature = ""
 
     // MARK: - Transaction Tests
 
@@ -49,7 +48,7 @@ final class AlephiumTests: XCTestCase {
         XCTAssertEqual(hashForSign.hexString.lowercased(), "3a939f591a551830c19ca88ffc63a51d5f2328aee994d5e6013406aea2831b65")
     }
 
-    // Validate by https://wallet.mainnet.alephium.org/docs/#/Transactions/postTransactionsBuild
+    /// Validate by https://wallet.mainnet.alephium.org/docs/#/Transactions/postTransactionsBuild
     func testBuildForSend() throws {
         let transaction = transactionData()
         let hashForSend = try txBuilder.buildForSend(transaction: transaction)

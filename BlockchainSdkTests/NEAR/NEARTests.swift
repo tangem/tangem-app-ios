@@ -21,7 +21,7 @@ final class NEARTests: XCTestCase {
         sizeTester = .init()
     }
 
-    // Using example values from https://nomicon.io/DataStructures/Account#examples
+    /// Using example values from https://nomicon.io/DataStructures/Account#examples
     func testAddressUtilImplicitAccountsDetection() {
         XCTAssertTrue(NEARAddressUtil.isImplicitAccount(accountId: "f69cd39f654845e2059899a888681187f2cda95f29256329aea1700f50f8ae86"))
         XCTAssertTrue(NEARAddressUtil.isImplicitAccount(accountId: "75149e81ac9ea0bcb6f00faee922f71a11271f6cbc55bac97753603504d7bf27"))
@@ -65,7 +65,7 @@ final class NEARTests: XCTestCase {
         XCTAssertFalse(NEARAddressUtil.isImplicitAccount(accountId: "abcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyz"))
     }
 
-    // Using example values from https://nomicon.io/DataStructures/Account#examples
+    /// Using example values from https://nomicon.io/DataStructures/Account#examples
     func testAddressUtilNamedAccountValidation() {
         XCTAssertTrue(NEARAddressUtil.isValidNamedAccount(accountId: "f69cd39f654845e2059899a888681187f2cda95f29256329aea1700f50f8ae86"))
         XCTAssertTrue(NEARAddressUtil.isValidNamedAccount(accountId: "f69cd39f654845e2059899a88868.1187f2cda95f29256329aea1700f50f8ae8"))
@@ -105,8 +105,8 @@ final class NEARTests: XCTestCase {
         XCTAssertFalse(NEARAddressUtil.isValidNamedAccount(accountId: "abcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyz"))
     }
 
-    // NEAR transfer transaction https://testnet.nearblocks.io/txns/Cr3QyJoFNtQvFTfc45WDTM4GvLxQtFigSjP7wcRrwiwW
-    // Made using NEAR JS API, see https://github.com/deprecated-near-examples/transaction-examples for examples
+    /// NEAR transfer transaction https://testnet.nearblocks.io/txns/Cr3QyJoFNtQvFTfc45WDTM4GvLxQtFigSjP7wcRrwiwW
+    /// Made using NEAR JS API, see https://github.com/deprecated-near-examples/transaction-examples for examples
     func testSigningTransaction() throws {
         // Private key for the "tiny escape drive pupil flavor endless love walk gadget match filter luxury" mnemonic
         let privateKeyRawRepresentation = "4z9uzXnZHE6huxMbnV7egjpvQk6ov7eji3FM12buV8DDtkARhiDqiCoDxSa3VpBMKYzzjmJcVXXyw8qhYgTs6MfH"

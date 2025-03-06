@@ -13,10 +13,6 @@ import BlockchainSdk
 class FakeTokenItemInfoProvider: ObservableObject {
     let pendingTransactionNotifier = PassthroughSubject<(WalletModelId, Bool), Never>()
 
-    private var amountsIndex = 0
-    private var previouslyTappedModelId: Int?
-    private var bag = Set<AnyCancellable>()
-
     var hasPendingTransactions: Bool { false }
 
     private(set) var viewModels: [TokenItemViewModel] = []

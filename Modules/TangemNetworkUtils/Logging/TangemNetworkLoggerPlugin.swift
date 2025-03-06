@@ -19,7 +19,7 @@ public final class TangemNetworkLoggerPlugin {
 
 extension TangemNetworkLoggerPlugin: PluginType {
     public func willSend(_ request: RequestType, target: TargetType) {
-        logNetworkRequest(request, target: target) { [weak self] output in
+        logNetworkRequest(request, target: target) { output in
             NetworkLogger.info(output)
         }
     }

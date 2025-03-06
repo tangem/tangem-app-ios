@@ -10,16 +10,16 @@ import Foundation
 import Moya
 
 protocol CustomerInfoManagementService {
-    func loadCustomerInfo(customerId: String) async throws -> CustomerResponse
+    func loadCustomerInfo(customerId: String) async throws -> VisaCustomerInfoResponse
 }
 
 class CommonCustomerInfoManagementService {
     typealias CIMAPIService = APIService<CustomerInfoManagementAPITarget, VisaAPIError>
-    private let authorizationTokenHandler: AuthorizationTokensHandler
+    private let authorizationTokenHandler: VisaAuthorizationTokensHandler
     private let apiService: CIMAPIService
 
     init(
-        authorizationTokenHandler: AuthorizationTokensHandler,
+        authorizationTokenHandler: VisaAuthorizationTokensHandler,
         apiService: CIMAPIService
     ) {
         self.authorizationTokenHandler = authorizationTokenHandler
@@ -37,7 +37,7 @@ class CommonCustomerInfoManagementService {
 }
 
 extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
-    func loadCustomerInfo(customerId: String) async throws -> CustomerResponse {
+    func loadCustomerInfo(customerId: String) async throws -> VisaCustomerInfoResponse {
         return try await apiService.request(
             makeRequest(for: .getCustomerInfo(customerId: customerId))
         )

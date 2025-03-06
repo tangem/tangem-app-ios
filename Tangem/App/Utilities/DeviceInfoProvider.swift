@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 import TangemFoundation
 
-struct DeviceInfoProvider {
+enum DeviceInfoProvider {
     enum Subject: CaseIterable {
         case deviceModel
         case osVersion

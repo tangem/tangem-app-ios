@@ -26,19 +26,20 @@ class VisaWalletMainContentViewModel: ObservableObject {
     @Published private(set) var numberOfDaysLimitText: String = ""
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
     @Published private(set) var failedToLoadInfoNotificationInput: NotificationViewInput?
+    @Published private(set) var isScannerBusy: Bool = false
 
     var isBalancesAndLimitsBlockLoading: Bool {
         cryptoLimitText.isEmpty || numberOfDaysLimitText.isEmpty
     }
 
-    private let visaWalletModel: VisaWalletModel
+    private let visaWalletModel: VisaUserWalletModel
     private weak var coordinator: VisaWalletRoutable?
 
     private var bag = Set<AnyCancellable>()
     private var updateTask: Task<Void, Error>?
 
     init(
-        visaWalletModel: VisaWalletModel,
+        visaWalletModel: VisaUserWalletModel,
         coordinator: VisaWalletRoutable?
     ) {
         self.visaWalletModel = visaWalletModel
@@ -97,7 +98,6 @@ class VisaWalletMainContentViewModel: ObservableObject {
         }
 
         coordinator?.openTransactionDetails(tokenItem: tokenItem, for: transactionRecord)
-        VisaLogger.info("[Visa Main Content View Model] Explore transaction with id: \(transactionId)")
     }
 
     func reloadTransactionHistory() {
@@ -145,7 +145,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
                 case .idle:
                     self.updateLimits()
                 case .failedToInitialize(let error):
-                    self.failedToLoadInfoNotificationInput = NotificationsFactory().buildNotificationInput(for: error.notificationEvent)
+                    self.setupNotifications(error)
                 }
             }
             .store(in: &bag)
@@ -168,6 +168,37 @@ class VisaWalletMainContentViewModel: ObservableObject {
             }
             .assign(to: \.transactionListViewState, on: self, ownership: .weak)
             .store(in: &bag)
+    }
+
+    private func setupNotifications(_ modelError: VisaUserWalletModel.ModelError) {
+        switch modelError {
+        case .missingValidRefreshToken:
+            failedToLoadInfoNotificationInput = .init(
+                style: .withButtons([.init(
+                    action: weakify(self, forFunction: VisaWalletMainContentViewModel.notificationButtonTapped),
+                    actionType: .unlock,
+                    isWithLoader: true
+                )]),
+                severity: .info,
+                settings: .init(event: VisaNotificationEvent.missingValidRefreshToken, dismissAction: nil)
+            )
+        default:
+            failedToLoadInfoNotificationInput = NotificationsFactory().buildNotificationInput(for: modelError.notificationEvent)
+        }
+    }
+
+    private func notificationButtonTapped(notificationId: NotificationViewId, buttonActionType: NotificationButtonActionType) {
+        switch buttonActionType {
+        case .unlock:
+            isScannerBusy = true
+            visaWalletModel.authorizeCard { [weak self] in
+                DispatchQueue.main.async {
+                    self?.isScannerBusy = false
+                }
+            }
+        default:
+            return
+        }
     }
 
     private func updateLimits() {

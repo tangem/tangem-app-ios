@@ -146,14 +146,17 @@ private extension TokenDetailsView {
         walletModelsManager: userWalletModel.walletModelsManager,
         contextDataProvider: nil
     )
+    let expressAPIProvider = ExpressAPIProviderFactory().makeExpressAPIProvider(userWalletModel: userWalletModel)
     let pendingExpressTxsManager = CommonPendingExpressTransactionsManager(
         userWalletId: userWalletModel.userWalletId.stringValue,
         walletModel: walletModel,
+        expressAPIProvider: expressAPIProvider,
         expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
     )
     let pendingOnrampTxsManager = CommonPendingOnrampTransactionsManager(
         userWalletId: userWalletModel.userWalletId.stringValue,
-        walletModel: walletModel
+        walletModel: walletModel,
+        expressAPIProvider: expressAPIProvider
     )
     let pendingTxsManager = CompoundPendingTransactionsManager(
         first: pendingExpressTxsManager,
