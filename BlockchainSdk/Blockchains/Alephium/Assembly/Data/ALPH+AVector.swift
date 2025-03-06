@@ -9,7 +9,7 @@
 import Foundation
 
 extension ALPH {
-    // Define AVector as a typealias for Array
+    /// Define AVector as a typealias for Array
     typealias AVector<Element> = [Element]
 
     /// Creates an empty array of the specified element type
