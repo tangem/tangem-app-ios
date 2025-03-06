@@ -74,7 +74,7 @@ class BitcoinTests: XCTestCase {
 
     func testBtcTxBuilder() throws {
         let pubkey = Data(hex: "046DB397495FA03FE263EE4021B77C49496E5C7DB8266E6E33A03D5B3A370C3D6D744A863B14DE2457D82BEE322416523E336530760C4533AEE980F4A4CDB9A98D")
-        let compressedPubkey = try! Secp256k1Key(with: pubkey).compress()
+        let compressedPubkey = try Secp256k1Key(with: pubkey).compress()
         XCTAssertNotNil(compressedPubkey)
 
         let signature1 = Data(hex: "00325BF907137BB6ED0A84D78C12F9680DD57AE374F45D43CDC7068ABF56F5B93C08BC1F9CD1E91E7A496DA2ECD54597B11AE0DDA4F6672235853C0CEF6BF8B4")
@@ -92,11 +92,11 @@ class BitcoinTests: XCTestCase {
         let segwit = addresses.first(where: { $0.type == .default })!
         let manager = BitcoinManager(networkParams: networkParams, walletPublicKey: pubkey, compressedWalletPublicKey: compressedPubkey)
         let converter = SegWitBech32AddressConverter(prefix: networkParams.bech32PrefixPattern, scriptConverter: ScriptConverter())
-        let seg: SegWitAddress = try! converter.convert(address: segwit.value) as! SegWitAddress
+        let seg: SegWitAddress = try converter.convert(address: segwit.value) as! SegWitAddress
         XCTAssertEqual(seg.stringValue, segwit.value)
-        let unspentOutputManager = prepareFilledUnspentOutputManager(for: [seg])
+        let unspentOutputManager = try prepareFilledUnspentOutputManager(address: seg)
         let txBuilder = BitcoinTransactionBuilder(bitcoinManager: manager, unspentOutputManager: unspentOutputManager, addresses: addresses)
-
+        txBuilder.fillBitcoinManager()
         let amountToSend = Amount(with: blockchain, type: .coin, value: sendValue)
         let feeAmount = Amount(with: blockchain, type: .coin, value: feeValue)
         let fee = Fee(feeAmount, parameters: BitcoinFeeParameters(rate: 21))
@@ -127,38 +127,31 @@ class BitcoinTests: XCTestCase {
         )
     }
 
-    private func prepareFilledUnspentOutputManager(for addresses: [BitcoinCore.Address]) -> UnspentOutputManager {
-        XCTAssertTrue(!addresses.isEmpty)
-        let utxo1Script = try? ScriptBuilder.createOutputScriptData(for: addresses[0])
-        XCTAssertNotNil(utxo1Script)
-        XCTAssertEqual("0014309a0c6efa0da7966d5c42dc5a928f6baf0e47ef", utxo1Script?.hexString.lowercased())
-        let utxo2Script = try? ScriptBuilder.createOutputScriptData(for: addresses.count > 1 ? addresses[1] : addresses[0])
-        XCTAssertNotNil(utxo2Script)
-        XCTAssertEqual("0014309a0c6efa0da7966d5c42dc5a928f6baf0e47ef", utxo2Script?.hexString.lowercased())
+    private func prepareFilledUnspentOutputManager(address: BitcoinCore.Address) throws -> UnspentOutputManager {
+        let utxo1Script = try ScriptBuilder.createOutputScriptData(for: address)
+        XCTAssertFalse(utxo1Script.isEmpty)
+        XCTAssertEqual("0014309a0c6efa0da7966d5c42dc5a928f6baf0e47ef", utxo1Script.hexString.lowercased())
+        let utxo2Script = try ScriptBuilder.createOutputScriptData(for: address)
+        XCTAssertFalse(utxo2Script.isEmpty)
+        XCTAssertEqual("0014309a0c6efa0da7966d5c42dc5a928f6baf0e47ef", utxo2Script.hexString.lowercased())
 
         let unspentOutputManager = CommonUnspentOutputManager()
         unspentOutputManager.update(
             outputs: [
                 .init(
-                    blockId: .random(),
+                    blockId: .random(in: 1 ... 100_000),
                     hash: Data(hexString: "8b907ad6ee8c6b1d25375ce9696089fec400851ca46260927d04892ec88807ef"),
                     index: 0,
                     amount: 39920000
                 ),
-            ],
-            for: utxo1Script
-        )
-
-        unspentOutputManager.update(
-            outputs: [
                 .init(
-                    blockId: .random(),
+                    blockId: .random(in: 1 ... 100_000),
                     hash: Data(hexString: "cffea3f46c73d61c6ed1296494b3c85e9f498629a32d67367a0d9e1bafdd05df"),
                     index: 1,
                     amount: 12210000
                 ),
             ],
-            for: utxo2Script
+            for: utxo1Script
         )
 
         return unspentOutputManager
