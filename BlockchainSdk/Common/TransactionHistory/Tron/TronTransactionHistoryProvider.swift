@@ -131,7 +131,7 @@ extension TronTransactionHistoryProvider: TransactionHistoryProvider {
 
 private extension TronTransactionHistoryProvider {
     enum Constants {
-        // - Note: Tx history API has 1-based indexing (not 0-based indexing)
+        /// - Note: Tx history API has 1-based indexing (not 0-based indexing)
         static var initialPageNumber: Int { 1 }
     }
 }
