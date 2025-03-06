@@ -193,10 +193,8 @@ struct BlockBookUnspentTxResponse: Decodable {
 
 struct BlockBookFeeRateResponse: Decodable {
     struct Result: Decodable {
-        let feerate: Double
+        let feerate: Decimal
     }
-
-    let result: Result
 }
 
 struct BlockBookFeeResultResponse: Decodable {
