@@ -26,7 +26,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     // MARK: - Lifecycle
 
-    // This method can be called during app close, so we have to move out the one-time initialization code outside.
+    /// This method can be called during app close, so we have to move out the one-time initialization code outside.
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         if !handleUrlContexts(connectionOptions.urlContexts) {
             handleActivities(connectionOptions.userActivities)
@@ -70,8 +70,8 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard AppEnvironment.current.isProduction else { return }
     }
 
-    // Additional view to fix no-refresh in bg issue for iOS prior to 17.
-    // Just keep this code to unify behavior between different ios versions
+    /// Additional view to fix no-refresh in bg issue for iOS prior to 17.
+    /// Just keep this code to unify behavior between different ios versions
     private func addLockViewIfNeeded(scene: UIScene) {
         guard appCoordinator?.viewState?.shouldAddLockView == true,
               let windowScene = scene as? UIWindowScene else {

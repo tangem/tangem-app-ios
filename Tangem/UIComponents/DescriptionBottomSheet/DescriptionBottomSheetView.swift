@@ -53,7 +53,7 @@ struct DescriptionBottomSheetView: View {
     }
 }
 
-// View components
+/// View components
 private extension DescriptionBottomSheetView {
     @ViewBuilder
     var headerView: some View {
