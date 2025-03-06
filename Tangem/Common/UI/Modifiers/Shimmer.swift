@@ -15,7 +15,6 @@ public struct Shimmer: ViewModifier {
     // Because we use `.mask` in `body` and it just add transparency to center of the view
     private let gradient = Gradient(colors: [.black, .black.opacity(0.4), .black])
     private let activeAnimation = Animation.linear(duration: 1).repeatForever(autoreverses: false)
-    private let stopAnimation = Animation.linear(duration: 0)
     private let idlePoints: GradientPoints
     private let animationPoints: GradientPoints
     private var gradientPoints: GradientPoints {
