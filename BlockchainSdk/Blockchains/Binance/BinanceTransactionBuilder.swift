@@ -38,8 +38,8 @@ class BinanceTransactionBuilder {
         return message!
     }
 
-    func buildForSend(signature: Data, hash: Data) -> Message? {
-        guard let message = message else {
+    func buildForSend(signature: Data) -> Message? {
+        guard let message else {
             return nil
         }
 
