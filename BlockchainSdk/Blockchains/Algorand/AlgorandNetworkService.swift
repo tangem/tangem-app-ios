@@ -61,7 +61,7 @@ class AlgorandNetworkService: MultiNetworkProvider {
             provider
                 .getTransactionParams()
                 .tryMap { response in
-                    /// This paramenter mast be writen for building transaction
+                    // This paramenter mast be writen for building transaction
                     guard let genesisHash = Data(base64Encoded: response.genesisHash) else {
                         throw WalletError.failedToParseNetworkResponse()
                     }
@@ -140,7 +140,7 @@ private extension AlgorandNetworkService {
 
 private extension AlgorandNetworkService {
     enum Constants {
-        /*
+        /**
          https://developer.algorand.org/docs/get-details/transactions/
          This parameter descripe transaction is valid if submitted between rounds. Look at this doc.
          */
