@@ -54,25 +54,4 @@ final class VisaOnboardingApproveWalletSelectorViewModel: ObservableObject {
             delegate?.useExternalWallet()
         }
     }
-
-    private func navigateToExternalWalletConnectionIfNeeded() {
-        isLoadingRemoteState = true
-        runTask(in: self, isDetached: false) { viewModel in
-            do {
-                let currentRemoteState = try await viewModel.remoteStateProvider?.loadCurrentRemoteState()
-                if currentRemoteState == .customerWalletSignatureRequired {
-                    viewModel.delegate?.useExternalWallet()
-                } else {
-                    await viewModel.delegate?.proceedFromCurrentRemoteState()
-                }
-            } catch {
-                VisaLogger.error(self, "Failed to load current remote state on Approve Wallet Selector", error: error)
-                await viewModel.delegate?.showContactSupportAlert(for: error)
-            }
-        }
-    }
-}
-
-extension VisaOnboardingApproveWalletSelectorViewModel: CustomStringConvertible {
-    var description: String { objectDescription(self) }
 }

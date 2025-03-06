@@ -84,9 +84,6 @@ struct MainCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }
-            .sheet(item: $coordinator.modalWebViewModel) {
-                WebViewContainer(viewModel: $0)
-            }
             .iOS16UIKitSheet(item: $coordinator.expressCoordinator) { coordinator in
                 ExpressCoordinatorView(coordinator: coordinator)
                     .expressNavigationView()
@@ -142,7 +139,7 @@ struct MainCoordinatorView: CoordinatorView {
             .requestAppStoreReviewCompat($coordinator.isAppStoreReviewRequested)
     }
 
-    // Tooltip is placed on top of the other views
+    /// Tooltip is placed on top of the other views
     private var marketsTooltipView: some View {
         BasicTooltipView(
             isShowBindingValue: $coordinator.isMarketsTooltipVisible,

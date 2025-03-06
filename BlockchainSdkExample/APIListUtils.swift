@@ -52,7 +52,7 @@ struct ConfigUtils {
                 chiaTangemApiKeys: .init(mainnetApiKey: keys.chiaTangemApiKey),
                 quickNodeSolanaCredentials: .init(apiKey: keys.quiknodeApiKey, subdomain: keys.quiknodeSubdomain),
                 quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
-                defaultNetworkProviderConfiguration: .init(logOptions: .verbose, urlSessionConfiguration: .standard),
+                defaultNetworkProviderConfiguration: .init(logOptions: .verbose, urlSessionConfiguration: .defaultConfiguration),
                 networkProviderConfigurations: [:],
                 bittensorDwellirKey: keys.bittensorDwellirKey,
                 bittensorOnfinalityKey: keys.bittensorOnfinalityKey,
@@ -75,7 +75,7 @@ struct ConfigUtils {
                 chiaTangemApiKeys: .init(mainnetApiKey: ""),
                 quickNodeSolanaCredentials: .init(apiKey: "", subdomain: ""),
                 quickNodeBscCredentials: .init(apiKey: "", subdomain: ""),
-                defaultNetworkProviderConfiguration: .init(logOptions: .verbose, urlSessionConfiguration: .standard),
+                defaultNetworkProviderConfiguration: .init(logOptions: .verbose, urlSessionConfiguration: .defaultConfiguration),
                 bittensorDwellirKey: "",
                 bittensorOnfinalityKey: "",
                 tangemAlephiumApiKey: ""

@@ -21,17 +21,6 @@ class ChiaTests: XCTestCase {
 
     private let blockchain = Blockchain.chia(testnet: false)
     private let addressService = ChiaAddressService(isTestnet: false)
-    private var decimals: Int { blockchain.decimalCount }
-
-    private var testSignatures: [Data] {
-        [
-            "8C7470BEE98156B48A0909F6EF321DE86F073101399ACD160ACFEF57B943B6E76E22DC89D9C75ABBFAC97DC317FEA3CC0AD744F55E2EAA3AE3C099AFC89FE652B8B054C5AB1F6A11559A9BCFD132EE0F434BA4D7968A33EA1807CFAB097789B7",
-            "93CFBA81239EAD3358E780073DCC9553097F377B217A8FE04CB07D4FC634F2A094425D8A9E8E2373880AD944EDB55ECF16D59F031986E9EFEB92290C3E7285227890E7FC3EAFFC84B84F225E62CFA5ED681DCE6993C9845543AA493180B28B04",
-        ].map {
-            Data(hexString: $0)
-        }
-    }
-
     func testConditionSpend() throws {
         let address = "txch14gxuvfmw2xdxqnws5agt3ma483wktd2lrzwvpj3f6jvdgkmf5gtq8g3aw3"
         let amount: Int64 = 235834596465
@@ -175,14 +164,15 @@ class ChiaTests: XCTestCase {
         }
 
         let buildToSignResult = try transactionBuilder.buildForSign(transaction: transactionData)
+
+        buildToSignResult.forEach {
+            sizeUtility.testTxSizes([$0])
+        }
+
         let signedTransaction = try transactionBuilder.buildToSend(signatures: signatures)
 
         XCTAssertEqual(buildToSignResult, hashToSignes)
         try XCTAssertEqual(jsonEncoder.encode(signedTransaction).hexString, jsonEncoder.encode(expectedSignedTransaction).hexString)
-    }
-
-    func testSizeTransaction() {
-        sizeUtility.testTxSizes(testSignatures)
     }
 
     func testNegativeChiaEncoded() {

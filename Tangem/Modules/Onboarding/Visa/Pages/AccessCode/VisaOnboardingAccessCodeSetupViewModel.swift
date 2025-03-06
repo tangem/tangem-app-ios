@@ -117,10 +117,6 @@ class VisaOnboardingAccessCodeSetupViewModel: ObservableObject {
             }
         }
     }
-
-    private func log<T>(_ message: @autoclosure () -> T) {
-        VisaLogger.info(self, message())
-    }
 }
 
 extension VisaOnboardingAccessCodeSetupViewModel: CustomStringConvertible {
@@ -138,7 +134,7 @@ private extension VisaOnboardingAccessCodeSetupViewModel {
 
     func finishAccessCodeSetup() {
         if selectedAccessCode.isEmpty {
-            log("Main button on access code setup is enabled while error is present. State: \(viewState.title)")
+            VisaLogger.info("Main button on access code setup is enabled while error is present. State: \(viewState.title)")
             return
         }
 
@@ -152,7 +148,7 @@ private extension VisaOnboardingAccessCodeSetupViewModel {
                 try await viewModel.delegate?.useSelectedCode(accessCode: viewModel.selectedAccessCode)
             } catch {
                 if !error.isCancellationError {
-                    viewModel.log("Failed to use selected access code. Reason: \(error)")
+                    VisaLogger.error("Failed to use selected access code", error: error)
                     await viewModel.showRetryAlert(for: error)
                 }
             }

@@ -18,7 +18,7 @@ class PolkadotTransactionBuilder {
     private let runtimeVersionProvider: SubstrateRuntimeVersionProvider
     private let codec = SCALE.default
 
-    /*
+    /**
      Polkadot and Kusama indexes are taken from TrustWallet:
      https://github.com/trustwallet/wallet-core/blob/a771f38d3af112db7098730a5b0b9a1a9b65ca86/src/Polkadot/Extrinsic.cpp#L30
 
@@ -125,7 +125,7 @@ class PolkadotTransactionBuilder {
         return call
     }
 
-    // Use experimentally obtained values
+    /// Use experimentally obtained values
     private func encodingRawAddress(specVersion: UInt32) -> Bool {
         switch network {
         case .polkadot:
@@ -142,17 +142,11 @@ class PolkadotTransactionBuilder {
         }
     }
 
-    private func encodeEraNonceTip(era: PolkadotBlockchainMeta.Era?, nonce: UInt64, tip: UInt64) throws -> Data {
+    private func encodeEraNonceTip(era: PolkadotBlockchainMeta.Era, nonce: UInt64, tip: UInt64) throws -> Data {
         var data = Data()
 
-        if let era = era {
-            let encodedEra = encodeEra(era)
-            data.append(encodedEra)
-        } else {
-            // [REDACTED_TODO_COMMENT]
-            // [REDACTED_TODO_COMMENT]
-            data.append(try codec.encode(UInt64(0), .compact))
-        }
+        let encodedEra = encodeEra(era)
+        data.append(encodedEra)
 
         let nonce = try codec.encode(nonce, .compact)
         data.append(nonce)

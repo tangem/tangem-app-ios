@@ -16,7 +16,7 @@ struct BlockBookTarget: TargetType {
 
     var baseURL: URL {
         switch request {
-        case .fees, .sendNode:
+        case .rpc:
             return URL(string: config.node(for: blockchain).rpcNode)!
         default:
             return URL(string: config.node(for: blockchain).restNode)!
@@ -35,7 +35,7 @@ struct BlockBookTarget: TargetType {
             return basePath + "/tx/\(txHash)"
         case .utxo(let address):
             return basePath + "/utxo/\(address)"
-        case .fees, .sendNode:
+        case .rpc:
             return basePath
         case .getFees(let confirmationBlocks):
             return basePath + "/estimatefee/\(confirmationBlocks)"
@@ -46,7 +46,7 @@ struct BlockBookTarget: TargetType {
         switch request {
         case .address, .utxo, .getFees:
             return .get
-        case .sendBlockBook, .sendNode, .txDetails, .fees:
+        case .sendBlockBook, .rpc, .txDetails:
             return .post
         }
     }
@@ -57,9 +57,7 @@ struct BlockBookTarget: TargetType {
             return .requestPlain
         case .sendBlockBook(let tx):
             return .requestData(tx)
-        case .sendNode(let request):
-            return .requestJSONEncodable(request)
-        case .fees(let request):
+        case .rpc(let request):
             return .requestJSONEncodable(request)
         case .address(_, let parameters):
             let parameters = try? parameters.asDictionary()
@@ -92,12 +90,11 @@ extension BlockBookTarget {
     enum Request {
         case address(address: String, parameters: AddressRequestParameters)
         case sendBlockBook(tx: Data)
-        case sendNode(_ request: NodeRequest<String>)
+        case rpc(_ request: JSONRPC.Request<AnyEncodable>)
         case txDetails(txHash: String)
         case utxo(address: String)
-        case fees(_ request: NodeRequest<Int>)
 
-        /*
+        /**
          It is also a request to receive a fee for confirmation blocks.
          Some blockchains use this method. Such blockchains:
             - CloreAI

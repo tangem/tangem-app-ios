@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import Moya
+import TangemNetworkUtils
 
 class TronJsonRpcProvider: HostProvider {
     var host: String {
