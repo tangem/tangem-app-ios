@@ -25,8 +25,7 @@ class LockedWalletMainContentViewModel: ObservableObject {
         )
     }()
 
-    lazy var singleWalletButtonsInfo: [FixedSizeButtonWithIconInfo] = TokenActionListBuilder()
-        .buildActionsForLockedSingleWallet()
+    lazy var singleWalletButtonsInfo: [FixedSizeButtonWithIconInfo] = TokenActionAvailabilityProvider.buildActionsForLockedSingleWallet()
         .map {
             FixedSizeButtonWithIconInfo(
                 title: $0.title,
@@ -49,7 +48,6 @@ class LockedWalletMainContentViewModel: ObservableObject {
     private let userWalletModel: UserWalletModel
     private let contextData: AnalyticsContextData?
 
-    private var canManageTokens: Bool { userWalletModel.config.hasFeature(.multiCurrency) }
     private weak var lockedUserWalletDelegate: MainLockedUserWalletDelegate?
 
     init(
