@@ -8,6 +8,7 @@
 
 import Combine
 import Foundation
+import TangemNetworkUtils
 
 final class FilecoinNetworkProvider: HostProvider {
     var host: String {
