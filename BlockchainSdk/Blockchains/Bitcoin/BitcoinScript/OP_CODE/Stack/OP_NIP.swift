@@ -24,7 +24,7 @@
 
 import Foundation
 
-// Removes the second-to-top stack item.
+/// Removes the second-to-top stack item.
 struct OpNip: OpCodeProtocol {
     var value: UInt8 { return 0x77 }
     var name: String { return "OP_NIP" }
