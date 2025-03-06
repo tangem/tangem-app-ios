@@ -14,5 +14,4 @@ public struct VisaBalances {
     public let available: Decimal?
     public let blocked: Decimal?
     public let debt: Decimal?
-    public let pendingRefund: Decimal?
 }
