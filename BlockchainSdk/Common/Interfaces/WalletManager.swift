@@ -99,18 +99,6 @@ extension TransactionSigner {
 }
 
 @available(iOS 13.0, *)
-protocol TransactionPusher {
-    func isPushAvailable(for transactionHash: String) -> Bool
-    func getPushFee(for transactionHash: String) -> AnyPublisher<[Fee], Error>
-    func pushTransaction(with transactionHash: String, newTransaction: Transaction, signer: TransactionSigner) -> AnyPublisher<Void, SendTxError>
-}
-
-@available(iOS 13.0, *)
-public protocol SignatureCountValidator {
-    func validateSignatureCount(signedHashes: Int) -> AnyPublisher<Void, Error>
-}
-
-@available(iOS 13.0, *)
 public protocol AddressResolver {
     func resolve(_ address: String) async throws -> String
 }
