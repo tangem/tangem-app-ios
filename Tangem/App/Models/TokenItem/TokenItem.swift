@@ -130,7 +130,7 @@ enum TokenItem: Hashable, Codable {
         pow(10, decimalCount)
     }
 
-    // We can't sign hashes on firmware prior 4.52
+    /// We can't sign hashes on firmware prior 4.52
     var hasLongHashes: Bool {
         switch blockchain {
         case .solana:
@@ -140,7 +140,7 @@ enum TokenItem: Hashable, Codable {
         }
     }
 
-    // We can't sign hashes on firmware prior 4.52
+    /// We can't sign hashes on firmware prior 4.52
     var hasLongHashesForStaking: Bool {
         switch blockchain {
         case .solana:
