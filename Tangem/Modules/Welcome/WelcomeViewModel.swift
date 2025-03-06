@@ -22,8 +22,6 @@ class WelcomeViewModel: ObservableObject {
 
     let isScanningCard: CurrentValueSubject<Bool, Never> = .init(false)
 
-    private var shouldScanOnAppear: Bool = false
-
     private weak var coordinator: WelcomeRoutable?
 
     init(coordinator: WelcomeRoutable, storiesModel: StoriesViewModel) {
@@ -72,7 +70,7 @@ class WelcomeViewModel: ObservableObject {
         incomingActionManager.resignFirstResponder(self)
     }
 
-    internal func scanCard() {
+    func scanCard() {
         isScanningCard.send(true)
         Analytics.beginLoggingCardScan(source: .welcome)
 

@@ -10,7 +10,7 @@ import Foundation
 import WalletCore
 import BigInt
 
-// You can decode your CBOR transaction here: https://cbor.me
+/// You can decode your CBOR transaction here: https://cbor.me
 class CardanoTransactionBuilder {
     typealias FeeResult = (fee: UInt64, parameters: CardanoFeeParameters)
 
