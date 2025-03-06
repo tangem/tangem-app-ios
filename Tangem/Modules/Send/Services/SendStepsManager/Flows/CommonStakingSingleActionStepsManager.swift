@@ -16,7 +16,6 @@ class CommonStakingSingleActionStepsManager {
     private let action: UnstakingModel.Action
 
     private var stack: [SendStep]
-    private var bag: Set<AnyCancellable> = []
     private weak var output: SendStepsManagerOutput?
 
     init(
