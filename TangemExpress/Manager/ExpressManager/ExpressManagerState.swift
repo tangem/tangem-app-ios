@@ -11,18 +11,18 @@ import Foundation
 public enum ExpressManagerState {
     case idle
 
-    // Final states
-    // Restrictions -> Notifications
-    // Will be returned after the quote request
+    /// Final states
+    /// Restrictions -> Notifications
+    /// Will be returned after the quote request
     case restriction(_ restriction: ExpressRestriction, quote: ExpressQuote?)
 
-    // Will be returned if there's not enough allowance
+    /// Will be returned if there's not enough allowance
     case permissionRequired(PermissionRequired)
 
-    // Will be returned for a CEX provider
+    /// Will be returned for a CEX provider
     case previewCEX(PreviewCEX)
 
-    // Will be returned after the swap request
+    /// Will be returned after the swap request
     case ready(Ready)
 
     public var quote: ExpressQuote? {
