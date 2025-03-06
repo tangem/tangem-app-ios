@@ -89,7 +89,7 @@ extension VisaOnboardingInProgressViewModel {
             }
         }
 
-        // Temp texts
+        /// Temp texts
         var description: String {
             switch self {
             case .accountDeployment:
