@@ -18,7 +18,7 @@ class TezosTransactionBuilder {
     private let walletPublicKey: Data
     private let curve: EllipticCurve
 
-    internal init(walletPublicKey: Data, curve: EllipticCurve) throws {
+    init(walletPublicKey: Data, curve: EllipticCurve) throws {
         switch curve {
         case .ed25519, .ed25519_slip0010:
             self.walletPublicKey = walletPublicKey
@@ -143,7 +143,7 @@ class TezosTransactionBuilder {
 }
 
 private extension String {
-    // Zarith encoding
+    /// Zarith encoding
     func encodeInt() throws -> String {
         guard var nn = UInt64(self) else {
             throw WalletError.failedToBuildTx
