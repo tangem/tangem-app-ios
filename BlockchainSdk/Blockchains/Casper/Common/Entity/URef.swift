@@ -6,7 +6,7 @@ import Foundation
 class URef {
     let uREFPREFIX: String = "uref"
     var value: String?
-    /**
+    /*
      Get URef object from  string
      - Parameter :  a  String represents the URef object
      - Returns:  URef object
