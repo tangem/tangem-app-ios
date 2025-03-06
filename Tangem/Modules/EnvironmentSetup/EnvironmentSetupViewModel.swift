@@ -22,10 +22,10 @@ final class EnvironmentSetupViewModel: ObservableObject {
     @Published var additionalSettingsViewModels: [DefaultRowViewModel] = []
     @Published var alert: AlertBinder?
 
-    // Demo
+    /// Demo
     @Published var forcedDemoCardId: String = ""
 
-    // FirebaseMessaging
+    /// FirebaseMessaging
     @Published private(set) var fcmToken: String = ""
 
     // Promotion
