@@ -29,7 +29,7 @@ extension MoralisNetworkResult.EVMNFTPrices {
         let price: String?
         let priceFormatted: String?
         let usdPriceAtSale: String?
-        let currentUSDValue: String?
+        let currentUsdValue: String?
         let tokenId: String?
         let paymentToken: PaymentToken?
     }
@@ -37,7 +37,7 @@ extension MoralisNetworkResult.EVMNFTPrices {
     struct AverageSale: Decodable {
         let price: String?
         let priceFormatted: String?
-        let currentUSDValue: String?
+        let currentUsdValue: String?
     }
 
     struct PaymentToken: Decodable {

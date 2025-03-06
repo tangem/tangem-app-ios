@@ -19,7 +19,7 @@ extension MoralisNetworkResult {
         let collectionLogo: String?
         let collectionBannerImage: String?
         let floorPrice: String?
-        let floorPriceUSD: String?
+        let floorPriceUsd: String?
         let floorPriceCurrency: String?
         let count: Int?
     }
