@@ -14,12 +14,12 @@ enum ExecutableDeployItem {
     case none
 }
 
-/**
+/*
  Class supports the getting of ExecutableDeployItem from Json String
  */
 
 enum ExecutableDeployItemHelper {
-    /**
+    /*
         Function to get  json string from ExecutableDeployItem enum type
        - Parameter: a ExecutableDeployItem enum type  value
        - Returns: json string representing the ExecutableDeployItem enum type value
@@ -75,7 +75,7 @@ enum ExecutableDeployItemHelper {
         return retStr
     }
 
-    /**
+    /*
      Get ExecutableDeployItem object from Json string
      - Parameter: a Json String represents the ExecutableDeployItem object
      - Returns: ExecutableDeployItem object
@@ -246,7 +246,7 @@ enum ExecutableDeployItemHelper {
         return retExecutionDeployItem
     }
 
-    /**
+    /*
         Function to get  json string from RuntimeArgs object
        - Parameter: a RuntimeArgs object
        - Returns: json string representing the RuntimeArgs object

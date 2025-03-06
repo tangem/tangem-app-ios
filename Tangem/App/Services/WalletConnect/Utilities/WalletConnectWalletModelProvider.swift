@@ -10,9 +10,9 @@ import Foundation
 import BlockchainSdk
 
 protocol WalletConnectWalletModelProvider {
-    // This info is based on information from WC and they didn't know anything about derivation
-    // So we need to compare blockchain and address to simulate comparision of derivation path
-    // Information about address is encoded in request params and info about blockchain - request chainId
+    /// This info is based on information from WC and they didn't know anything about derivation
+    /// So we need to compare blockchain and address to simulate comparision of derivation path
+    /// Information about address is encoded in request params and info about blockchain - request chainId
     func getModel(with address: String, blockchainId: String) throws -> WalletModel
 
     func getModels(with blockchainId: String) -> [WalletModel]
@@ -52,5 +52,19 @@ struct CommonWalletConnectWalletModelProvider: WalletConnectWalletModelProvider 
 
     func getModel(with blockchainId: String) -> WalletModel? {
         mainWalletModels.first { $0.blockchainNetwork.blockchain.networkId == blockchainId }
+    }
+}
+
+struct NotSupportedWalletConnectWalletModelProvider: WalletConnectWalletModelProvider {
+    func getModel(with address: String, blockchainId: String) throws -> WalletModel {
+        throw WalletConnectV2Error.wrongCardSelected
+    }
+
+    func getModels(with blockchainId: String) -> [WalletModel] {
+        return []
+    }
+
+    func getModel(with blockchainId: String) -> WalletModel? {
+        return nil
     }
 }

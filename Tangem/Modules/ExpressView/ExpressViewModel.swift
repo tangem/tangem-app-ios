@@ -23,13 +23,13 @@ final class ExpressViewModel: ObservableObject {
     @Published var receiveCurrencyViewModel: ReceiveCurrencyViewModel?
     @Published var isMaxAmountButtonHidden: Bool = false
 
-    // Warnings
+    /// Warnings
     @Published var notificationInputs: [NotificationViewInput] = []
 
-    // Provider
+    /// Provider
     @Published var providerState: ProviderState?
 
-    // Fee
+    /// Fee
     @Published var expressFeeRowViewModel: ExpressFeeRowData?
 
     // Main button
@@ -187,13 +187,11 @@ private extension ExpressViewModel {
     }
 
     func formSlippageMessage(tokenItemSymbol: String, slippage: String?, isBigLoss: Bool) -> String {
-        let swappingAlertDexDescription: String = {
-            if let slippage {
-                Localization.swappingAlertDexDescriptionWithSlippage("\(slippage)%")
-            } else {
-                Localization.swappingAlertDexDescription
-            }
-        }()
+        let swappingAlertDexDescription: String = if let slippage {
+            Localization.swappingAlertDexDescriptionWithSlippage("\(slippage)%")
+        } else {
+            Localization.swappingAlertDexDescription
+        }
 
         if isBigLoss {
             return "\(Localization.swappingHighPriceImpactDescription)\n\n\(swappingAlertDexDescription)"
@@ -515,8 +513,8 @@ private extension ExpressViewModel {
 
     func updateFeeValue(state: ExpressInteractor.State) {
         switch state {
-        case .restriction(.notEnoughAmountForTxValue(let estimatedFee), _):
-            // Signle estimated fee just for UI
+        case .restriction(.notEnoughAmountForTxValue, _):
+            // Single estimated fee just for UI
             updateExpressFeeRowViewModel(fees: .loading)
         case .restriction(.notEnoughAmountForFee(let state), _):
             updateExpressFeeRowViewModel(fees: .success(state.fees))
@@ -592,11 +590,9 @@ private extension ExpressViewModel {
             }
 
             mainButtonIsEnabled = false
-
         case .permissionRequired:
             mainButtonState = .givePermission
             mainButtonIsEnabled = true
-
         case .readyToSwap, .previewCEX:
             mainButtonState = .swap
             mainButtonIsEnabled = true
@@ -760,7 +756,8 @@ extension ExpressViewModel: NotificationTapDelegate {
              .seedSupportNo,
              .seedSupportYes,
              .seedSupport2No,
-             .seedSupport2Yes:
+             .seedSupport2Yes,
+             .unlock:
             return
         }
     }

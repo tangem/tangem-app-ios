@@ -11,8 +11,6 @@ import Combine
 import TangemSdk
 
 protocol UserWalletModel: MainHeaderSupplementInfoProvider, TotalBalanceProviding, MultiWalletMainHeaderSubtitleDataSource, AnalyticsContextDataProvider, MainHeaderUserWalletStateInfoProvider, EmailDataProvider, WalletConnectUserWalletInfoProvider, KeysDerivingProvider, AnyObject {
-    var tokensCount: Int? { get }
-    var analyticsContextData: AnalyticsContextData { get }
     var hasBackupCards: Bool { get }
     var config: UserWalletConfig { get }
     var userWalletId: UserWalletId { get }
@@ -21,9 +19,9 @@ protocol UserWalletModel: MainHeaderSupplementInfoProvider, TotalBalanceProvidin
     var userTokensManager: UserTokensManager { get }
     var userTokenListManager: UserTokenListManager { get }
     var keysRepository: KeysRepository { get }
+    var refcodeProvider: RefcodeProvider { get }
     var signer: TangemSigner { get }
     var updatePublisher: AnyPublisher<Void, Never> { get }
-    var emailData: [EmailCollectedData] { get }
     var backupInput: OnboardingInput? { get } // [REDACTED_TODO_COMMENT]
     var cardImagePublisher: AnyPublisher<CardImageResult, Never> { get }
     var totalSignedHashes: Int { get }

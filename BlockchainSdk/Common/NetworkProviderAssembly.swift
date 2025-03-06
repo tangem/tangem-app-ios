@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 
 protocol NetworkProviderAssemblyInput {
     var blockchain: Blockchain { get }
@@ -66,6 +67,7 @@ struct NetworkProviderAssembly {
         BlockcypherNetworkProvider(
             endpoint: endpoint,
             tokens: input.blockchainSdkConfig.blockcypherTokens,
+            blockchain: input.blockchain,
             configuration: input.networkConfig
         )
     }
@@ -75,7 +77,7 @@ struct NetworkProviderAssembly {
         let apiKeys: [String?] = [nil] + input.blockchainSdkConfig.blockchairApiKeys
 
         return apiKeys.map {
-            BlockchairNetworkProvider(endpoint: endpoint, apiKey: $0, configuration: input.networkConfig)
+            BlockchairNetworkProvider(endpoint: endpoint, apiKey: $0, blockchain: input.blockchain, configuration: input.networkConfig)
                 .eraseToAnyBitcoinNetworkProvider()
         }
     }

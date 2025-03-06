@@ -273,8 +273,8 @@ extension ReferralViewModel {
 }
 
 private struct TangemRichTextFormatter {
-    // Formatting rich text as NSAttributedString
-    // Supported formats: ^^color^^ for the highlight color
+    /// Formatting rich text as NSAttributedString
+    /// Supported formats: ^^color^^ for the highlight color
     private let highlightColor: UIColor
 
     init(highlightColor: UIColor) {

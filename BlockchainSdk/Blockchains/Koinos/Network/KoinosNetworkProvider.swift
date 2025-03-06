@@ -8,6 +8,7 @@
 
 import BigInt
 import Combine
+import TangemNetworkUtils
 
 class KoinosNetworkProvider: HostProvider {
     var host: String {

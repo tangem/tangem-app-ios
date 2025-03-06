@@ -18,7 +18,6 @@ class CommonUnstakingStepsManager {
     private let isPartialUnstakeAllowed: Bool
 
     private var stack: [SendStep]
-    private var bag: Set<AnyCancellable> = []
     private weak var output: SendStepsManagerOutput?
 
     init(
