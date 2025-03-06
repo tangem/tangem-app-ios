@@ -43,10 +43,6 @@ class VisaOnboardingWalletConnectViewModel: ObservableObject {
         scheduler.cancel()
     }
 
-    private func log<T>(_ message: @autoclosure () -> T) {
-        VisaLogger.info(self, message())
-    }
-
     private func setupStatusUpdateTask() {
         scheduler.scheduleJob(interval: statusUpdateTimeIntervalSec, repeats: true) { [weak self] in
             do {
@@ -56,7 +52,7 @@ class VisaOnboardingWalletConnectViewModel: ObservableObject {
 
                 await self?.proceedOnboarding()
             } catch {
-                self?.log("Failed to check if onboarding can proceed: \(error)")
+                VisaLogger.error("Failed to check if onboarding can proceed", error: error)
                 self?.scheduler.cancel()
                 await self?.delegate?.showContactSupportAlert(for: error)
             }
@@ -72,7 +68,7 @@ class VisaOnboardingWalletConnectViewModel: ObservableObject {
                     viewModel.setupStatusUpdateTask()
                 }
             } catch {
-                viewModel.log("Failed to check if onboarding can proceed: \(error)")
+                VisaLogger.error("Failed to check if onboarding can proceed", error: error)
                 await viewModel.delegate?.showContactSupportAlert(for: error)
             }
         }
@@ -83,8 +79,4 @@ class VisaOnboardingWalletConnectViewModel: ObservableObject {
         cancelStatusUpdates()
         await delegate?.proceedFromCurrentRemoteState()
     }
-}
-
-extension VisaOnboardingWalletConnectViewModel: CustomStringConvertible {
-    var description: String { "VisaOnboardingWalletConnectViewModel" }
 }

@@ -69,6 +69,10 @@ class UserWalletModelMock: UserWalletModel {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
     }
 
+    var refcodeProvider: RefcodeProvider {
+        CommonExpressRefcodeProvider(userId: userWalletId.stringValue, batchId: "")
+    }
+
     var totalSignedHashes: Int { 0 }
 
     func updateWalletName(_ name: String) {}
