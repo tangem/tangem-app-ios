@@ -7,7 +7,7 @@
 
 import Foundation
 
-// High-level protocol for preparing, signing and sending staking transactions
+/// High-level protocol for preparing, signing and sending staking transactions
 public protocol StakeKitTransactionSender {
     /// Return stream with tx which was sent one by one
     /// If catch error stream will be stopped
