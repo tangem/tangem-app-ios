@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-class SuiWalletManager: BaseManager, WalletManager {
+final class SuiWalletManager: BaseManager, WalletManager {
     let networkService: SuiNetworkService
     let transactionBuilder: SuiTransactionBuilder
 
@@ -43,14 +43,27 @@ class SuiWalletManager: BaseManager, WalletManager {
             SuiCoinObject.from($0)
         }
 
-        let totalBalance = objects.reduce(into: Decimal(0)) { partialResult, coin in
-            partialResult += coin.balance
-        }
+        let totalBalance = objects
+            .filter { $0.coinType == SUIUtils.CoinType.sui.string }
+            .reduce(into: Decimal.zero) { partialResult, coin in
+                partialResult += coin.balance
+            }
 
         let coinValue = totalBalance / wallet.blockchain.decimalValue
 
         if coinValue != wallet.amounts[.coin]?.value {
             wallet.clearPendingTransaction()
+        }
+
+        for token in cardTokens {
+            let tokenBalance = objects
+                .filter { $0.coinType == token.contractAddress }
+                .reduce(into: Decimal.zero) { partialResult, coin in
+                    partialResult += coin.balance
+                }
+
+            let decimalTokenBalance = tokenBalance / token.decimalValue
+            wallet.add(tokenValue: decimalTokenBalance, for: token)
         }
 
         wallet.add(coinValue: coinValue)
@@ -83,9 +96,11 @@ extension SuiWalletManager: TransactionFeeProvider {
                     throw WalletError.failedToGetFee
                 }
 
-                guard let usedGasPrice = Decimal(stringValue: inspectTransaction.input.gasData.price),
-                      let computationCost = Decimal(stringValue: inspectTransaction.effects.gasUsed.computationCost),
-                      let storageCost = Decimal(stringValue: inspectTransaction.effects.gasUsed.storageCost) else {
+                guard
+                    let usedGasPrice = Decimal(stringValue: inspectTransaction.input.gasData.price),
+                    let computationCost = Decimal(stringValue: inspectTransaction.effects.gasUsed.computationCost),
+                    let storageCost = Decimal(stringValue: inspectTransaction.effects.gasUsed.storageCost)
+                else {
                     throw WalletError.failedToParseNetworkResponse()
                 }
 
@@ -106,6 +121,16 @@ extension SuiWalletManager: TransactionFeeProvider {
         .withWeakCaptureOf(self)
         .flatMap { (manager, base64tx: String) -> AnyPublisher<SuiInspectTransaction, Error> in
             manager.networkService.dryTransaction(transaction: base64tx)
+        }
+        .mapError { [weak self] error in
+            guard
+                let self,
+                transactionBuilder.checkIfCoinGasBalanceIsNotEnoughForTokenTransaction()
+            else {
+                return error
+            }
+
+            return SuiError.oneSuiCoinIsRequiredForTokenTransaction
         }
         .eraseToAnyPublisher()
     }
