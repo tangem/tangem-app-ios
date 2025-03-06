@@ -9,7 +9,7 @@
 import Foundation
 
 struct LoadingSingleWalletMainContentViewModel {
-    let buttonsInfo: [FixedSizeButtonWithIconInfo] = TokenActionListBuilder()
+    let buttonsInfo: [FixedSizeButtonWithIconInfo] = TokenActionAvailabilityProvider
         .buildActionsForLockedSingleWallet()
         .map {
             FixedSizeButtonWithIconInfo(
