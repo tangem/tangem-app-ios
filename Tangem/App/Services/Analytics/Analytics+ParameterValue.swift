@@ -89,7 +89,7 @@ extension Analytics {
         case success = "Success"
         case fail = "Fail"
 
-        // SelectedCurrency
+        /// SelectedCurrency
         case selectedCurrencyApp = "App Currency"
 
         // Client Type
@@ -101,10 +101,10 @@ extension Analytics {
 
         case balance = "Balance"
 
-        // Transaction is sent
+        /// Transaction is sent
         case sent = "Sent"
 
-        // Balance caching
+        /// Balance caching
         case caching = "Caching"
 
         // MARK: - Express
