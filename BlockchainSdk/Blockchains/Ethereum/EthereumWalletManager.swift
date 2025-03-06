@@ -53,7 +53,7 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
             })
     }
 
-    // It can't be into extension because it will be overridden in the `OptimismWalletManager`
+    /// It can't be into extension because it will be overridden in the `OptimismWalletManager`
     func getFee(destination: String, value: String?, data: Data?) -> AnyPublisher<[Fee], Error> {
         let fromPublisher = addressConverter.convertToETHAddressPublisher(defaultSourceAddress)
         let destinationPublisher = addressConverter.convertToETHAddressPublisher(destination)
@@ -72,7 +72,7 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
             .eraseToAnyPublisher()
     }
 
-    // It can't be into extension because it will be overridden in the `MantleWalletManager`
+    /// It can't be into extension because it will be overridden in the `MantleWalletManager`
     /// Build and sign transaction
     /// - Parameters:
     /// - Returns: The hex of the raw transaction ready to be sent over the network
@@ -112,7 +112,7 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
         .eraseToAnyPublisher()
     }
 
-    // It can't be into extension because it will be overridden in the `MantleWalletManager`
+    /// It can't be into extension because it will be overridden in the `MantleWalletManager`
     func getGasLimit(to: String, from: String, value: String?, data: String?) -> AnyPublisher<BigUInt, Error> {
         let toPublisher = addressConverter.convertToETHAddressPublisher(to)
         let fromPublisher = addressConverter.convertToETHAddressPublisher(from)
