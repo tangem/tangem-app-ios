@@ -20,7 +20,6 @@ struct MarketsTokenDetailsExchangesListView: View {
 
     @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
 
-    private var isDarkColorScheme: Bool { colorScheme == .dark }
     private var defaultBackgroundColor: Color { Colors.Background.primary }
 
     private let scrollViewFrameCoordinateSpaceName = UUID()

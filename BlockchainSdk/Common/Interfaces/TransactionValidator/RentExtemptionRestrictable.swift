@@ -35,7 +35,7 @@ extension RentExtemptionRestrictable where Self: WalletProvider {
         }
 
         if remainingBalance > 0, remainingBalance < minimalAmountForRentExemption.value {
-            throw ValidationError.remainingAmountIsLessThanRentExtemption(amount: minimalAmountForRentExemption)
+            throw ValidationError.remainingAmountIsLessThanRentExemption(amount: minimalAmountForRentExemption)
         }
     }
 }

@@ -18,18 +18,12 @@ class ElectrumWebSocketProvider: HostProvider {
         return decoder
     }()
 
-    init(url: URL) {
-        let ping: WebSocketConnection.Ping = {
-            do {
-                let request = JSONRPC.Request(jsonrpc: .none, id: -1, method: Method.Server.ping.rawValue, params: [String]()) // Empty params
-                let message = try request.string(encoder: .init())
-                return .message(interval: Constants.pingInterval, message: .string(message))
-            } catch {
-                return .plain(interval: Constants.pingInterval)
-            }
-        }()
-
-        webSocketProvider = JSONRPCWebSocketProvider(url: url, ping: ping, timeoutInterval: Constants.timeoutInterval)
+    init(
+        url: URL,
+        ping: WebSocketConnection.Ping = ElectrumWebSocketProvider.ping(),
+        timeoutInterval: TimeInterval = Constants.timeoutInterval
+    ) {
+        webSocketProvider = JSONRPCWebSocketProvider(url: url, ping: ping, timeoutInterval: timeoutInterval)
     }
 
     func getBalance(identifier: Identifier) async throws -> ElectrumDTO.Response.Balance {
@@ -67,13 +61,15 @@ class ElectrumWebSocketProvider: HostProvider {
         try await send(method: Method.Blockchain.Transaction.broadcast, parameter: transactionHex)
     }
 
-    /*
+    /**
      Use for specify Radiant blockchain answer for example
+     ```
      {
          "jsonrpc": "2.0",
          "result": "8827bae7cc2409b2a49b38ca5482a0a1cb296f458e6e7eb669a30def0c9b63ee",
          "id": 5
      }
+     ```
      */
     func send(transactionHex: String) async throws -> String {
         try await send(method: Method.Blockchain.Transaction.broadcast, parameter: [transactionHex])
@@ -105,13 +101,27 @@ private extension ElectrumWebSocketProvider {
 
 extension ElectrumWebSocketProvider {
     private enum Constants {
-        static let pingInterval: TimeInterval = 5
         static let timeoutInterval: TimeInterval = 30
     }
 
     enum Identifier {
         case address(_ address: String)
         case scriptHash(_ hash: String)
+    }
+}
+
+// MARK: - Ping
+
+extension ElectrumWebSocketProvider {
+    static func ping() -> WebSocketConnection.Ping {
+        do {
+            let request: JSONRPC.Request = .ping(method: Method.Server.ping.rawValue)
+            let message = try request.string(encoder: .init())
+            return .message(message: .string(message))
+        } catch {
+            BSDKLogger.error(error: error)
+            return .plain()
+        }
     }
 }
 

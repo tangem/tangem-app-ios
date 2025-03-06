@@ -19,7 +19,6 @@ struct MantleWalletAssembly: WalletManagerAssembly {
         let networkService = EthereumNetworkService(
             decimals: input.blockchain.decimalCount,
             providers: providers,
-            blockcypherProvider: nil,
             abiEncoder: WalletCoreABIEncoder()
         )
 

@@ -8,6 +8,7 @@
 
 import Foundation
 
+@available(*, deprecated, message: "Use UTXOFee")
 struct BitcoinFee {
     let minimalSatoshiPerByte: Decimal
     let normalSatoshiPerByte: Decimal
@@ -15,6 +16,7 @@ struct BitcoinFee {
 }
 
 /// Unified bitcoin response that contain all information for blockchain sdk. Maps information from API's responses
+@available(*, deprecated, message: "Use UTXOResponse")
 struct BitcoinResponse {
     let balance: Decimal
     let hasUnconfirmed: Bool
@@ -49,6 +51,7 @@ struct BitcoinTransactionOutput {
     let recipient: String
 }
 
+@available(*, deprecated, message: "Use UnspentOutput")
 struct BitcoinUnspentOutput {
     let transactionHash: String
     let outputIndex: Int
