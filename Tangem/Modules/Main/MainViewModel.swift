@@ -129,10 +129,10 @@ final class MainViewModel: ObservableObject {
         }
 
         let uiManager = mainBottomSheetUIManager
-        /// On a `cold start` (e.g., after launching the app or after coming back from the background in a `locked` state:
-        /// in both cases a new VM is created), the bottom sheet should become visible with some delay to prevent it from
-        /// being placed over the authorization screen.
-        /// This is a workaround until [REDACTED_INFO] is implemented.
+        // On a `cold start` (e.g., after launching the app or after coming back from the background in a `locked` state:
+        // in both cases a new VM is created), the bottom sheet should become visible with some delay to prevent it from
+        // being placed over the authorization screen.
+        // This is a workaround until [REDACTED_INFO] is implemented.
         if shouldDelayBottomSheetVisibility {
             shouldDelayBottomSheetVisibility = false
             DispatchQueue.main.asyncAfter(deadline: .now() + Constants.bottomSheetVisibilityColdStartDelay) {
