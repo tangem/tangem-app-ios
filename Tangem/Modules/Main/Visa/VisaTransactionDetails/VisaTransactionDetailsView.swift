@@ -96,7 +96,6 @@ struct VisaTransactionDetailsView: View {
             recordLine(title: "Type", value: info.type)
             recordLine(title: "Status", value: info.status)
             recordLine(title: "Blockchain amount", value: info.blockchainAmount)
-            recordLine(title: "Blockchain fee", value: info.blockchainFee)
             recordLine(title: "Transaction Amount", value: info.transactionAmount)
             recordLine(title: "Currency code", value: info.currencyCode)
         }
@@ -126,7 +125,6 @@ extension VisaTransactionDetailsView {
         let type: String
         let status: String
         let blockchainAmount: String
-        let blockchainFee: String
         let transactionAmount: String
         let currencyCode: String
 

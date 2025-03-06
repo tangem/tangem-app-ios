@@ -80,13 +80,15 @@ class ServicesManager {
         let sessionMessage = "New session. Session id: \(AppConstants.sessionId)"
         let launchNumberMessage = "Current launch number: \(currentLaunches)"
         let deviceInfoMessage = "\(DeviceInfoProvider.Subject.allCases.map { $0.description }.joined(separator: ", "))"
-//        AppLogger.info(sessionMessage, launchNumberMessage, deviceInfoMessage)
+        AppLogger.info(sessionMessage)
+        AppLogger.info(launchNumberMessage)
+        AppLogger.info(deviceInfoMessage)
 
         return initialLaunches
     }
 }
 
-// Some services should be initialized later, in SceneDelegate to bypass locked keychain during preheating
+/// Some services should be initialized later, in SceneDelegate to bypass locked keychain during preheating
 class KeychainSensitiveServicesManager {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
