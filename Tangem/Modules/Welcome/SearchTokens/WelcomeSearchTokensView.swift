@@ -30,9 +30,4 @@ struct WelcomeSearchTokensView: View {
             .onAppear { viewModel.onAppear() }
             .onDisappear { viewModel.onDisappear() }
     }
-
-    private var divider: some View {
-        Divider()
-            .padding([.leading])
-    }
 }

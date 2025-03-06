@@ -81,6 +81,7 @@ struct MainButton: View {
 
                     titleView
                 }
+
             case .trailing(let icon):
                 HStack(alignment: .center, spacing: 6) {
                     titleView
