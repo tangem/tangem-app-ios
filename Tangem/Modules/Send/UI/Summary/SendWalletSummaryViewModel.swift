@@ -35,8 +35,8 @@ class SendWalletSummaryViewModel: ObservableObject, Identifiable {
 // MARK: - Rich text formatter
 
 private struct TangemRichTextFormatter {
-    // Formatting rich text as NSAttributedString
-    // Supported formats: **bold**
+    /// Formatting rich text as NSAttributedString
+    /// Supported formats: **bold**
     func format(_ string: String, font: UIFont) -> NSAttributedString {
         var originalString = string
 

@@ -20,6 +20,9 @@ enum SendNotificationEvent {
     // Generic notifications is received from BSDK
     case withdrawalNotificationEvent(WithdrawalNotificationEvent)
     case validationErrorEvent(ValidationErrorEvent)
+
+    /// Blockchain specific
+    case oneSuiCoinIsRequiredForTokenTransaction(currencySymbol: String)
 }
 
 extension SendNotificationEvent: NotificationEvent {
@@ -32,6 +35,7 @@ extension SendNotificationEvent: NotificationEvent {
         case .withdrawalNotificationEvent(let withdrawalNotificationEvent): withdrawalNotificationEvent.id
         case .validationErrorEvent(let validationErrorEvent): validationErrorEvent.id
         case .accountNotActivated: "accountNotActivated".hashValue
+        case .oneSuiCoinIsRequiredForTokenTransaction: "oneSuiCoinIsRequiredForTokenTransaction".hashValue
         }
     }
 
@@ -51,6 +55,8 @@ extension SendNotificationEvent: NotificationEvent {
             return event.title
         case .accountNotActivated:
             return .string(Localization.sendFeeUnreachableErrorTitle)
+        case .oneSuiCoinIsRequiredForTokenTransaction:
+            return .string(Localization.suiNotEnoughCoinForFeeTitle)
         }
     }
 
@@ -70,6 +76,9 @@ extension SendNotificationEvent: NotificationEvent {
             return event.description
         case .accountNotActivated(let assetName):
             return Localization.sendTronAccountActivationError(assetName)
+        case .oneSuiCoinIsRequiredForTokenTransaction(let currencySymbol):
+            let oneSui = "1 \(currencySymbol)"
+            return Localization.suiNotEnoughCoinForFeeDescription(oneSui)
         }
     }
 
@@ -86,7 +95,7 @@ extension SendNotificationEvent: NotificationEvent {
             return event.colorScheme
         case .validationErrorEvent(let event):
             return event.colorScheme
-        case .accountNotActivated:
+        case .accountNotActivated, .oneSuiCoinIsRequiredForTokenTransaction:
             return .action
         }
     }
@@ -102,7 +111,7 @@ extension SendNotificationEvent: NotificationEvent {
             return event.icon
         case .validationErrorEvent(let event):
             return event.icon
-        case .accountNotActivated:
+        case .accountNotActivated, .oneSuiCoinIsRequiredForTokenTransaction:
             return .init(iconType: .image(Assets.redCircleWarning.image))
         }
     }
@@ -118,7 +127,7 @@ extension SendNotificationEvent: NotificationEvent {
             return event.severity
         case .validationErrorEvent(let event):
             return event.severity
-        case .accountNotActivated:
+        case .accountNotActivated, .oneSuiCoinIsRequiredForTokenTransaction:
             return .critical
         }
     }
@@ -159,6 +168,8 @@ extension SendNotificationEvent {
             return event.buttonAction
         case .validationErrorEvent(let event):
             return event.buttonAction
+        case .oneSuiCoinIsRequiredForTokenTransaction(let currencySymbol):
+            return .init(.openFeeCurrency(currencySymbol: currencySymbol))
         }
     }
 }
