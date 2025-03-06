@@ -41,11 +41,11 @@ protocol ProductActivationService {
 
 struct CommonProductActivationService {
     typealias ActivationAPIService = APIService<ProductActivationAPITarget, VisaAPIError>
-    private let authorizationTokensHandler: AuthorizationTokensHandler
+    private let authorizationTokensHandler: VisaAuthorizationTokensHandler
     private let apiService: ActivationAPIService
 
     init(
-        authorizationTokensHandler: AuthorizationTokensHandler,
+        authorizationTokensHandler: VisaAuthorizationTokensHandler,
         apiService: ActivationAPIService
     ) {
         self.authorizationTokensHandler = authorizationTokensHandler
@@ -57,7 +57,7 @@ struct CommonProductActivationService {
             throw VisaActivationError.missingAccessToken
         }
 
-        return try VisaActivationUtility().getEssentialActivationIds(from: accessToken)
+        return try VisaBFFUtility().getEssentialBFFIds(from: accessToken)
     }
 
     private func sendRequest<T: Decodable>(target: ProductActivationAPITarget.Target) async throws -> T {
@@ -109,7 +109,7 @@ extension CommonProductActivationService: ProductActivationService {
                 counter: rootOtpCounter
             )
         )
-        let response: ProductActivationAPITarget.ProductActivationEmptyResponse = try await sendRequest(
+        let _: ProductActivationAPITarget.ProductActivationEmptyResponse = try await sendRequest(
             target: .approveDeployByVisaCard(request: .init(
                 customerId: ids.customerId,
                 productInstanceId: ids.productInstanceId,

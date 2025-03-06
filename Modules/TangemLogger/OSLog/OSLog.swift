@@ -18,10 +18,10 @@ extension OSLog {
 extension OSLog {
     func log(level: Level, message: String) {
         switch level {
-        case .debug: debug("\(message, privacy: .auto)")
-        case .info: info("\(message, privacy: .auto)")
-        case .warning: error("\(message, privacy: .auto)")
-        case .error: fault("\(message, privacy: .auto))")
+        case .debug: debug("\(message, privacy: .private)")
+        case .info: info("\(message, privacy: .private)")
+        case .warning: error("\(message, privacy: .private)")
+        case .error: fault("\(message, privacy: .private)")
         }
     }
 }
