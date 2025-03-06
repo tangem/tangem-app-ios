@@ -87,7 +87,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     override func didTapNotification(with id: NotificationViewId, action: NotificationButtonActionType) {
         switch action {
-        case .empty:
+        case .empty,
+             .unlock:
             break
         case .openFeeCurrency:
             openFeeCurrency()

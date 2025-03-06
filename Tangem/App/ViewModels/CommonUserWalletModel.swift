@@ -52,13 +52,11 @@ class CommonUserWalletModel {
     let userWalletId: UserWalletId
 
     private(set) var cardInfo: CardInfo
-    private var tangemSdk: TangemSdk?
     var config: UserWalletConfig
 
     private let _updatePublisher: PassthroughSubject<Void, Never> = .init()
     private let _userWalletNamePublisher: CurrentValueSubject<String, Never>
     private let _cardHeaderImagePublisher: CurrentValueSubject<ImageType?, Never>
-    private var bag = Set<AnyCancellable>()
     private var signSubscription: AnyCancellable?
 
     private var _signer: TangemSigner {
@@ -199,17 +197,12 @@ extension CommonUserWalletModel: UserWalletModel {
         cardInfo.card.wallets.compactMap { $0.totalSignedHashes }.reduce(0, +)
     }
 
-    var analyticsContextData: AnalyticsContextData {
-        AnalyticsContextData(
-            card: cardInfo.card,
-            productType: config.productType,
-            embeddedEntry: config.embeddedBlockchain,
-            userWalletId: userWalletId
-        )
-    }
-
     var wcWalletModelProvider: WalletConnectWalletModelProvider {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
+    }
+
+    var refcodeProvider: RefcodeProvider {
+        CommonExpressRefcodeProvider(userId: userWalletId.stringValue, batchId: cardInfo.card.batchId)
     }
 
     var tangemApiAuthData: TangemApiTarget.AuthData {
@@ -247,10 +240,6 @@ extension CommonUserWalletModel: UserWalletModel {
 
     var updatePublisher: AnyPublisher<Void, Never> {
         _updatePublisher.eraseToAnyPublisher()
-    }
-
-    var tokensCount: Int? {
-        walletModelsManager.walletModels.count
     }
 
     var cardImagePublisher: AnyPublisher<CardImageResult, Never> {
@@ -355,9 +344,9 @@ extension CommonUserWalletModel: TotalBalanceProviding {
 }
 
 extension CommonUserWalletModel: AnalyticsContextDataProvider {
-    func getAnalyticsContextData() -> AnalyticsContextData? {
-        return AnalyticsContextData(
-            card: card,
+    var analyticsContextData: AnalyticsContextData {
+        AnalyticsContextData(
+            card: cardInfo.card,
             productType: config.productType,
             embeddedEntry: config.embeddedBlockchain,
             userWalletId: userWalletId

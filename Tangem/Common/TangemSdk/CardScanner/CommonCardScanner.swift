@@ -21,7 +21,7 @@ class CommonCardScanner: CardScanner {
         self.parameters = parameters
     }
 
-    // Make default scanner
+    /// Make default scanner
     convenience init() {
         var config = TangemSdkConfigFactory().makeDefaultConfig()
 

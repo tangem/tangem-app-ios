@@ -182,8 +182,8 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         heavyImpactGenerator.impactOccurred()
     }
 
-    // We need to keep this not in extension because we may want to override this logic and
-    // implementation from extensions can't be overridden
+    /// We need to keep this not in extension because we may want to override this logic and
+    /// implementation from extensions can't be overridden
     func didTapNotification(with id: NotificationViewId, action: NotificationButtonActionType) {
         switch action {
         case .buyCrypto:
