@@ -281,7 +281,6 @@ struct ReferralView: View {
 }
 
 struct ReferralView_Previews: PreviewProvider {
-    private static let demoCard = PreviewCard.tangemWalletBackuped
     static var previews: some View {
         NavigationView {
             ReferralView(

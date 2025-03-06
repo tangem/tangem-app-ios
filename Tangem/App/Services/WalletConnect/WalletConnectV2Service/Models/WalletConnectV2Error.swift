@@ -58,7 +58,6 @@ enum WalletConnectV2Error: LocalizedError {
         case .symmetricKeyForTopicNotFound: return 8020
         case .socketConnectionTimeout: return 8022
         case .unsupportedWCVersion: return 8023
-
         case .unknown: return 8999
         }
     }
