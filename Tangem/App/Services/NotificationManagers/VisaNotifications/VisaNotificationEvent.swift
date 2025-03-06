@@ -15,13 +15,20 @@ enum VisaNotificationEvent: Hashable {
     case missingPublicKey
     case failedToGenerateAddress
     case onboardingAccountActivationInfo
+    case authorizationError
+    case missingValidRefreshToken
+    case missingCardId
+    case invalidConfig
+    case invalidActivationState
 }
 
 extension VisaNotificationEvent: NotificationEvent {
     var title: NotificationView.Title? {
         switch self {
-        case .missingRequiredBlockchain, .notValidBlockchain, .failedToLoadPaymentAccount, .missingPublicKey, .failedToGenerateAddress:
+        case .missingRequiredBlockchain, .notValidBlockchain, .failedToLoadPaymentAccount, .missingPublicKey, .failedToGenerateAddress, .authorizationError, .missingCardId, .invalidConfig, .invalidActivationState:
             return .string("Error")
+        case .missingValidRefreshToken:
+            return .string("Needed unlock")
         case .onboardingAccountActivationInfo:
             return nil
         }
@@ -41,17 +48,34 @@ extension VisaNotificationEvent: NotificationEvent {
             return "Failed to generate address with provided Public key"
         case .onboardingAccountActivationInfo:
             return "Please choose the wallet you started the registration process with to sign the transaction for creating your account on the Blockchain"
+        case .authorizationError:
+            return "Failed to authorize, please contact support"
+        case .missingValidRefreshToken:
+            return "Scan your card to unlock access"
+        case .missingCardId:
+            return "Failed to identify card, please contact support"
+        case .invalidConfig:
+            return "Failed to identify card configuration, please contact support"
+        case .invalidActivationState:
+            return "This card is not available for use, please contact support"
         }
     }
 
     var colorScheme: NotificationView.ColorScheme {
-        return .secondary
+        switch self {
+        case .missingValidRefreshToken:
+            return .primary
+        default:
+            return .secondary
+        }
     }
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .missingRequiredBlockchain, .notValidBlockchain, .failedToLoadPaymentAccount, .missingPublicKey, .failedToGenerateAddress:
+        case .missingRequiredBlockchain, .notValidBlockchain, .failedToLoadPaymentAccount, .missingPublicKey, .failedToGenerateAddress, .authorizationError, .missingCardId, .invalidConfig, .invalidActivationState:
             return .init(iconType: .image(Assets.redCircleWarning.image))
+        case .missingValidRefreshToken:
+            return .init(iconType: .image(Assets.lock.image))
         case .onboardingAccountActivationInfo:
             return .init(iconType: .image(Assets.blueCircleWarning.image))
         }
@@ -66,7 +90,12 @@ extension VisaNotificationEvent: NotificationEvent {
     }
 
     var buttonAction: NotificationButtonAction? {
-        nil
+        switch self {
+        case .missingValidRefreshToken:
+            return .init(.unlock, withLoader: true)
+        default:
+            return nil
+        }
     }
 }
 
