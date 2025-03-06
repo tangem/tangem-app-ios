@@ -92,7 +92,7 @@ class MarketsPortfolioContainerViewModel: ObservableObject {
         }
     }
 
-    /*
+    /**
      - We are joined the list of available blockchains so far, all user wallet models
      - We get a list of available blockchains that came in the coin model
      - Checking the lists of available networks

@@ -65,7 +65,7 @@ private struct FieldInfo {
 }
 
 class Serializer {
-    // instance variables
+    /// instance variables
     private var definitions: Definitions!
 
     init() {
@@ -537,12 +537,5 @@ class Serializer {
         return fieldAsBytes.reduce(Data()) { result, newData -> Data in
             return result + newData
         }
-    }
-
-    private func printBytes(_ bytes: [Data]) {
-        let combined = bytes.reduce(Data()) { result, newData -> Data in
-            return result + newData
-        }
-        BSDKLogger.info(combined.hexadecimal)
     }
 }
