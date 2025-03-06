@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 actor WebSocketConnection {
     private let url: URL
@@ -146,16 +147,16 @@ private extension WebSocketConnection {
 
 extension WebSocketConnection: CustomStringConvertible {
     nonisolated var description: String {
-        objectDescription(self)
+        TangemFoundation.objectDescription(self)
     }
 }
 
-// MARK: - Model
+// MARK: - Ping
 
 extension WebSocketConnection {
     enum Ping {
-        case plain(interval: TimeInterval)
-        case message(interval: TimeInterval, message: URLSessionWebSocketTask.Message)
+        case plain(interval: TimeInterval = Constants.interval)
+        case message(interval: TimeInterval = Constants.interval, message: URLSessionWebSocketTask.Message)
 
         var interval: TimeInterval {
             switch self {
@@ -165,6 +166,15 @@ extension WebSocketConnection {
                 return interval
             }
         }
+    }
+}
+
+// MARK: - Ping + Constants
+
+extension WebSocketConnection.Ping {
+    enum Constants {
+        static let id: Int = -1
+        static let interval: TimeInterval = 5
     }
 }
 
