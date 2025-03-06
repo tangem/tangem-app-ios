@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemNetworkUtils
 
 /// Provider for Hedera Mirror Nodes (REST) https://docs.hedera.com/hedera/sdks-and-apis/rest-api
 struct HederaRESTNetworkProvider {

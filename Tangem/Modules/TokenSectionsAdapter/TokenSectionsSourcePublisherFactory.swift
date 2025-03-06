@@ -34,7 +34,7 @@ struct TokenSectionsSourcePublisherFactory {
         return walletModelsPublisher(for: userWalletModel)
     }
 
-    // The contents of the coins and tokens collection for the user wallet
+    /// The contents of the coins and tokens collection for the user wallet
     private func walletModelsPublisher(for userWalletModel: UserWalletModel) -> some Publisher<[WalletModel], Never> {
         userWalletModel
             .walletModelsManager
