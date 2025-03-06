@@ -38,6 +38,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
     }
 
     private let visaWalletModel: VisaUserWalletModel
+    private let tokenActionAvailabilityAlertBuilder = TokenActionAvailabilityAlertBuilder()
     private weak var coordinator: VisaWalletRoutable?
     private let buttonActionTypes: [TokenActionType] = [
         .receive,
@@ -286,7 +287,7 @@ private extension VisaWalletMainContentViewModel {
         }
     }
 
-    private func makeTokenActionInfo() throws (ViewModelError) -> TokenActionInfo {
+    private func makeTokenActionInfo() throws(ViewModelError) -> TokenActionInfo {
         switch visaWalletModel.currentModelState {
         case .notInitialized, .loading:
             throw .infoIsLoading
@@ -362,7 +363,11 @@ private extension VisaWalletMainContentViewModel {
             info.exchangeUtility.buyAvailable,
             let url = info.exchangeUtility.buyURL
         else {
-            alert = SingleTokenAlertBuilder().buyUnavailableAlert(for: info.tokenItem)
+            alert = tokenActionAvailabilityAlertBuilder.alert(
+                for: TokenActionAvailabilityProvider
+                    .BuyActionAvailabilityStatus
+                    .unavailable(tokenName: info.tokenItem.name)
+            )
             return
         }
 
