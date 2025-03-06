@@ -9,14 +9,12 @@
 import Foundation
 import Combine
 
+@available(*, deprecated, renamed: "UTXONetworkProvider", message: "Use UTXONetworkProvider")
 protocol BitcoinNetworkProvider: AnyObject, HostProvider {
-    var supportsTransactionPush: Bool { get }
     func getInfo(addresses: [String]) -> AnyPublisher<[BitcoinResponse], Error>
     func getInfo(address: String) -> AnyPublisher<BitcoinResponse, Error>
     func getFee() -> AnyPublisher<BitcoinFee, Error>
     func send(transaction: String) -> AnyPublisher<String, Error>
-    func push(transaction: String) -> AnyPublisher<String, Error>
-    func getSignatureCount(address: String) -> AnyPublisher<Int, Error>
 }
 
 extension BitcoinNetworkProvider {
@@ -32,7 +30,6 @@ extension BitcoinNetworkProvider {
 }
 
 class AnyBitcoinNetworkProvider: BitcoinNetworkProvider {
-    var supportsTransactionPush: Bool { provider.supportsTransactionPush }
     var host: String { provider.host }
 
     private let provider: BitcoinNetworkProvider
@@ -51,13 +48,5 @@ class AnyBitcoinNetworkProvider: BitcoinNetworkProvider {
 
     func send(transaction: String) -> AnyPublisher<String, Error> {
         provider.send(transaction: transaction)
-    }
-
-    func push(transaction: String) -> AnyPublisher<String, Error> {
-        provider.push(transaction: transaction)
-    }
-
-    func getSignatureCount(address: String) -> AnyPublisher<Int, Error> {
-        provider.getSignatureCount(address: address)
     }
 }

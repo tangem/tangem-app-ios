@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct JsonUtils {
+enum JsonUtils {
     static func readBundleFile<T: Decodable>(with name: String, type: T.Type) throws -> T {
         guard let path = Bundle.main.url(forResource: name, withExtension: "json") else {
             throw NSError(domain: "Failed to find json file with name: \"\(name)\"", code: -9999, userInfo: nil)

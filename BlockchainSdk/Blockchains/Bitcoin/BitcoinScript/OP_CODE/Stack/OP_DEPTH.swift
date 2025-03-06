@@ -24,7 +24,7 @@
 
 import Foundation
 
-// Puts the number of stack items onto the stack.
+/// Puts the number of stack items onto the stack.
 struct OpDepth: OpCodeProtocol {
     var value: UInt8 { return 0x74 }
     var name: String { return "OP_DEPTH" }
