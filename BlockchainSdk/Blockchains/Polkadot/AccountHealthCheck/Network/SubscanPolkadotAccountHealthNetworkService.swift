@@ -194,7 +194,7 @@ private extension SubscanPolkadotAccountHealthNetworkService {
 // MARK: - Convenience extensions
 
 private extension MoyaError {
-    // Just a copy-paste from MoyaError.swift (it has `internal` access level)
+    /// Just a copy-paste from MoyaError.swift (it has `internal` access level)
     var underlyingError: Swift.Error? {
         switch self {
         case .imageMapping,
