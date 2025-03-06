@@ -95,6 +95,7 @@ var featureModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemNFT",
             dependencies: [
+                "TangemNetworkUtils",
                 "Moya",
             ]
         ),
