@@ -13,8 +13,8 @@ import enum WalletCore.CoinType
 
 // MARK: - Base
 
+/// This enum should be indirect because of memory issues on iOS15
 @available(iOS 13.0, *)
-// This enum should be indirect because of memory issues on iOS15
 public indirect enum Blockchain: Equatable, Hashable {
     case bitcoin(testnet: Bool)
     case litecoin
@@ -239,7 +239,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .kaspa,
              .ravencoin,
              .ducatus,
-             .fact0rn:
+             .fact0rn,
+             .sui:
             return true
         default:
             return false
@@ -263,7 +264,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .ravencoin,
              .ducatus,
              .radiant,
-             .fact0rn:
+             .fact0rn,
+             .sui:
             return true
         default:
             return false
@@ -720,7 +722,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .hedera,
              .ton,
              .cardano,
-             .kaspa:
+             .kaspa,
+             .sui:
             return true
         case _ where isEvm:
             return true
@@ -841,8 +844,8 @@ public indirect enum Blockchain: Equatable, Hashable {
 public extension Blockchain {
     var isEvm: Bool { chainId != nil }
 
-    // Only for Ethereum compatible blockchains
-    // https://chainlist.org
+    /// Only for Ethereum compatible blockchains
+    /// https://chainlist.org
     var chainId: Int? {
         switch self {
         case .ethereum: return isTestnet ? 5 : 1
@@ -913,7 +916,7 @@ public extension Blockchain {
         }
     }
 
-    // Only for Ethereum compatible blockchains
+    /// Only for Ethereum compatible blockchains
     var supportsEIP1559: Bool {
         guard isEvm else {
             return false
@@ -954,10 +957,10 @@ public extension Blockchain {
         case .base: return true
         case .cyber: return false
         case .blast: return false
-        /// By default, eth_feeHistory returns the error:
-        /// "Invalid params: invalid type: integer 5, expected a 0x-prefixed hex string with length between (0; 64]."
-        /// To fix this, the integer 5 in the EthereumTarget's params for .feeHistory should be replaced with "0x5".
-        /// This change hasn't been made to avoid impacting other functionality, especially since the .energyWebEVM request isn't currently used.
+        // By default, eth_feeHistory returns the error:
+        // "Invalid params: invalid type: integer 5, expected a 0x-prefixed hex string with length between (0; 64]."
+        // To fix this, the integer 5 in the EthereumTarget's params for .feeHistory should be replaced with "0x5".
+        // This change hasn't been made to avoid impacting other functionality, especially since the .energyWebEVM request isn't currently used.
         case .energyWebEVM: return false // eth_feeHistory all zeroes
         case .core: return false
         case .chiliz: return false

@@ -63,7 +63,7 @@ public extension ExpressAPIError {
         case requestLoggerError = 2040
         case rateLimitError = 2050
 
-        // CoreError
+        /// CoreError
         case coreError = 2100
 
         // External error

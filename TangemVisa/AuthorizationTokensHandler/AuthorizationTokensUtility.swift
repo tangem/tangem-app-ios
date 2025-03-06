@@ -20,7 +20,7 @@ struct AuthorizationTokensUtility {
         return .init(accessToken: accessToken, refreshToken: refreshToken)
     }
 
-    func getAuthorizationHeader(from tokens: VisaAuthorizationTokens) throws (VisaAuthorizationTokensHandlerError) -> String {
+    func getAuthorizationHeader(from tokens: VisaAuthorizationTokens) throws(VisaAuthorizationTokensHandlerError) -> String {
         guard let accessToken = tokens.accessToken else {
             throw .missingAccessToken
         }
@@ -28,7 +28,7 @@ struct AuthorizationTokensUtility {
         return VisaConstants.authorizationHeaderValuePrefix + accessToken
     }
 
-    func getAuthorizationHeader(from tokens: DecodedAuthorizationJWTTokens) throws (VisaAuthorizationTokensHandlerError) -> String {
+    func getAuthorizationHeader(from tokens: DecodedAuthorizationJWTTokens) throws(VisaAuthorizationTokensHandlerError) -> String {
         guard let accessToken = tokens.accessToken?.string else {
             throw .missingAccessToken
         }
