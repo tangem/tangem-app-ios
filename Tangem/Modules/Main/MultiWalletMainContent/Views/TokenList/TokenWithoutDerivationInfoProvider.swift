@@ -11,7 +11,6 @@ import Combine
 import BlockchainSdk
 
 class TokenWithoutDerivationInfoProvider: TokenItemInfoProvider {
-    let hasPendingTransactions: Bool = false
     var quote: WalletModel.Rate { .failure(cached: .none) }
     var balance: TokenBalanceType { .empty(.noDerivation) }
     var balanceType: FormattedTokenBalanceType { .loaded("-") }
@@ -23,4 +22,5 @@ class TokenWithoutDerivationInfoProvider: TokenItemInfoProvider {
     var fiatBalanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { .just(output: fiatBalanceType) }
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { .just(output: ()) }
     var isStakedPublisher: AnyPublisher<Bool, Never> { .just(output: false) }
+    var hasPendingTransactions: AnyPublisher<Bool, Never> { .just(output: false) }
 }
