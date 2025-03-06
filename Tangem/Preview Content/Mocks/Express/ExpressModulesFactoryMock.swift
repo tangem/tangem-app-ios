@@ -108,11 +108,13 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
             first: CommonPendingExpressTransactionsManager(
                 userWalletId: userWalletModel.userWalletId.stringValue,
                 walletModel: initialWalletModel,
+                expressAPIProvider: makeExpressAPIProvider(),
                 expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
             ),
             second: CommonPendingOnrampTransactionsManager(
                 userWalletId: userWalletModel.userWalletId.stringValue,
-                walletModel: initialWalletModel
+                walletModel: initialWalletModel,
+                expressAPIProvider: makeExpressAPIProvider()
             )
         )
     }
@@ -163,7 +165,9 @@ private extension ExpressModulesFactoryMock {
     // MARK: - Methods
 
     func makeExpressAPIProvider() -> ExpressAPIProvider {
-        expressAPIProviderFactory.makeExpressAPIProvider(userId: userWalletId)
+        expressAPIProviderFactory.makeExpressAPIProvider(
+            userWalletModel: userWalletModel
+        )
     }
 
     func makeExpressInteractor() -> ExpressInteractor {

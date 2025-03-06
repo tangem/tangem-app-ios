@@ -17,24 +17,10 @@ struct EthereumWalletAssembly: WalletManagerAssembly {
             throw EthereumWalletAssemblyError.chainIdNotFound
         }
 
-        let blockcypherProvider: BlockcypherNetworkProvider? = {
-            switch input.blockchain {
-            case .ethereum:
-                return BlockcypherNetworkProvider(
-                    endpoint: .ethereum,
-                    tokens: input.blockchainSdkConfig.blockcypherTokens,
-                    configuration: input.networkConfig
-                )
-            default:
-                return nil
-            }
-        }()
-
         let txBuilder = EthereumTransactionBuilder(chainId: chainId)
         let networkService = EthereumNetworkService(
             decimals: input.blockchain.decimalCount,
             providers: networkProviderAssembly.makeEthereumJsonRpcProviders(with: input),
-            blockcypherProvider: blockcypherProvider,
             abiEncoder: WalletCoreABIEncoder()
         )
 

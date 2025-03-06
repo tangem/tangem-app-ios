@@ -13,9 +13,9 @@ import WalletCore
 @testable import BlockchainSdk
 
 final class AlgorandTests: XCTestCase {
-    private let coinType: CoinType = .algorand
+    private let sizeTester = TransactionSizeTesterUtility()
 
-    /*
+    /**
      - Use private key for Algorand coin at test mnemonic
      - tiny escape drive pupil flavor endless love walk gadget match filter luxury
      - Address for coin EH5I3KCDCTB4AOML3E4W5BIGQMPA7GT5Q3PUMK3AIXNFYQHMX5KOJBOJRM
@@ -32,7 +32,7 @@ final class AlgorandTests: XCTestCase {
         try testTransactionBuilder(curve: .ed25519_slip0010)
     }
 
-    /*
+    /**
      https://algoexplorer.io/tx/GMS3DRWDCL3SC57BCKCTOBV2SBIZZMTHNYEUZEV6A6WWH4DOS6TQ
      */
     func testTransactionBuilder(curve: EllipticCurve) throws {
@@ -76,11 +76,13 @@ final class AlgorandTests: XCTestCase {
 
         XCTAssertEqual(buildForSign.hexString, expectedBuildForSign)
 
+        // Validate hash size
+        XCTAssertFalse(sizeTester.isValidForiPhone7(buildForSign))
+        XCTAssertTrue(sizeTester.isValidForCosBelow4_52(buildForSign))
+        XCTAssertTrue(sizeTester.isValidForCos4_52AndAbove(buildForSign))
+
         let signature = privateKey.sign(digest: buildForSign, curve: .ed25519)
         XCTAssertNotNil(signature)
-
-        // Validate hash size
-        TransactionSizeTesterUtility().testTxSizes([signature ?? Data()])
 
         let buildForSend = try transactionBuilder.buildForSend(
             transaction: transaction,
