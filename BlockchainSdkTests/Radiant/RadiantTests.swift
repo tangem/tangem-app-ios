@@ -88,7 +88,7 @@ final class RadiantTests: XCTestCase {
                 hash: Data(hexString: "aba3aefb04a43dc026adc35972e4a20f8bdacd48074c143372f1b99cfb6bf8bc"),
                 index: 0,
                 amount: 10000000
-            )
+            ),
             UnspentOutput(
                 blockId: 203500,
                 hash: Data(hexString: "ffaae960d8107cf4043dc32980c9634c9ff78fc69b2c6eb9b9c69a04a52ed179"),
