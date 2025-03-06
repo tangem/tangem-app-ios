@@ -96,16 +96,6 @@ class XRPSeedWallet: XRPWallet {
         self.address = address
     }
 
-    private static func encodeSeed(entropy: Entropy, type: SeedType) throws -> String {
-        // [0x01, 0xE1, 0x4B] = sEd, [0x21] = s
-        // see ripple/ripple-keypairs
-        let version: [UInt8] = type == .ed25519 ? [0x01, 0xE1, 0x4B] : [0x21]
-        let versionEntropy: [UInt8] = version + entropy.bytes
-        let check = [UInt8](Data(versionEntropy).sha256().sha256().prefix(through: 3))
-        let versionEntropyCheck: [UInt8] = versionEntropy + check
-        return XRPBase58.getString(from: Data(versionEntropyCheck))
-    }
-
     static func getSeedTypeFrom(publicKey: String) -> SeedType {
         let data = [UInt8](publicKey.hexadecimal!)
         // [REDACTED_TODO_COMMENT]

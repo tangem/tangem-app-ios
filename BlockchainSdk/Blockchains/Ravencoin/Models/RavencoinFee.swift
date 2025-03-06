@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct RavencoinFee {
+enum RavencoinFee {
     struct Request: Encodable {
         let nbBlocks: Int
         let mode: RavencoinFeeMode
