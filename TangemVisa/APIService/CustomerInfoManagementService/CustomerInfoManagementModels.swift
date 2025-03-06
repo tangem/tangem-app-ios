@@ -1,5 +1,5 @@
 //
-//  CustomerResponse.swift
+//  VisaCustomerInfoResponse.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,51 +8,51 @@
 
 import Foundation
 
-struct CustomerResponse: Decodable {
-    let customerId: String
-    let customerNumber: String?
-    let customerStatus: String
-    let createdAt: Date
-    let paymentAccounts: [PaymentAccount]?
-    let productInstances: [ProductInstance]?
-    let kyc: KYC?
-    let kyt: KYT?
-    let profile: Profile?
+public struct VisaCustomerInfoResponse: Decodable {
+    public let customerId: String
+    public let customerNumber: String?
+    public let customerStatus: String
+    public let createdAt: Date
+    public let paymentAccounts: [PaymentAccount]?
+    public let productInstances: [ProductInstance]?
+    public let kyc: KYC?
+    public let kyt: KYT?
+    public let profile: Profile?
 }
 
-extension CustomerResponse {
+public extension VisaCustomerInfoResponse {
     struct PaymentAccount: Decodable {
-        let id: String
-        let customerWalletAddress: String
-        let paymentAccountAddress: String
+        public let id: String
+        public let customerWalletAddress: String
+        public let paymentAccountAddress: String
     }
 
     struct ProductInstance: Decodable {
-        let id: String
-        let paymentAccountId: String
-        let cid: String?
-        let status: String
-        let issuer: String
+        public let id: String
+        public let paymentAccountId: String
+        public let cid: String?
+        public let status: String
+        public let issuer: String
     }
 
     struct KYC: Decodable {
-        let status: String
-        let risk: String
-        let updatedAt: String
+        public let status: String
+        public let risk: String
+        public let updatedAt: String
     }
 
     struct KYT: Decodable {
-        let risk: String
-        let updatedAt: String
+        public let risk: String
+        public let updatedAt: String
     }
 
     struct Profile: Decodable {
-        let firstName: String
-        let lastName: String
+        public let firstName: String
+        public let lastName: String
     }
 }
 
-enum KYCStatus: String {
+public enum KYCStatus: String {
     case required = "REQUIRED"
     case inProgress = "IN_PROGRESS"
     case passed = "PASSED"
@@ -60,7 +60,7 @@ enum KYCStatus: String {
     case blocked = "BLOCKED"
 }
 
-enum KYCRisk: String {
+public enum KYCRisk: String {
     case low = "LOW"
     case medium = "MEDIUM"
     case high = "HIGH"
@@ -68,7 +68,7 @@ enum KYCRisk: String {
     case unknown = "UNKNOWN"
 }
 
-enum KYTRisk: String {
+public enum KYTRisk: String {
     case low = "LOW"
     case medium = "MEDIUM"
     case high = "HIGH"

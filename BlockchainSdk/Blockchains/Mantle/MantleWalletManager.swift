@@ -10,9 +10,9 @@ import BigInt
 import Combine
 import TangemFoundation
 
-// This is a workaround for sending a Mantle transaction.
-// Unfortunately, Mantle's current implementation does not conform to our existing fee calculation rules.
-// [REDACTED_INFO]
+/// This is a workaround for sending a Mantle transaction.
+/// Unfortunately, Mantle's current implementation does not conform to our existing fee calculation rules.
+/// [REDACTED_INFO]
 final class MantleWalletManager: EthereumWalletManager {
     override func getFee(destination: String, value: String?, data: Data?) -> AnyPublisher<[Fee], any Error> {
         super.getFee(
