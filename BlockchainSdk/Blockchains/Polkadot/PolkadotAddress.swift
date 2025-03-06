@@ -25,7 +25,7 @@ struct PolkadotAddress {
         string = ss58.address(from: accountData, type: network.addressPrefix)
     }
 
-    // Raw representation (without the prefix) was used in the older protocol versions
+    /// Raw representation (without the prefix) was used in the older protocol versions
     func bytes(raw: Bool) -> Data? {
         ss58.bytes(string: string, raw: raw)
     }
