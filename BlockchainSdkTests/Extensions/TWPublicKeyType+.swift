@@ -72,7 +72,9 @@ extension PublicKeyType {
              .odysseyChain,
              .bitrock,
              .apeChain,
-             .sonic:
+             .sonic,
+             .vanar,
+             .zkLinkNova:
             self = PublicKeyType.secp256k1Extended
         case .stellar,
              .ton,

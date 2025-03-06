@@ -73,7 +73,7 @@ extension NotificationView {
         case secondary
         case action
 
-        // Customs
+        /// Customs
         case ring
 
         @ViewBuilder

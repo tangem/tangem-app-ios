@@ -15,18 +15,15 @@ struct ProductActivationServiceBuilder {
         self.isMockAPIEnabled = isMockAPIEnabled
     }
 
-    func build(urlSessionConfiguration: URLSessionConfiguration, authorizationTokensHandler: AuthorizationTokensHandler) -> ProductActivationService {
+    func build(urlSessionConfiguration: URLSessionConfiguration, authorizationTokensHandler: VisaAuthorizationTokensHandler) -> ProductActivationService {
         if isMockAPIEnabled {
             return ProductActivationServiceMock()
         }
-
-        let internalLogger = InternalLogger()
 
         return CommonProductActivationService(
             authorizationTokensHandler: authorizationTokensHandler,
             apiService: .init(
                 provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
-                logger: internalLogger,
                 decoder: JSONDecoder()
             )
         )

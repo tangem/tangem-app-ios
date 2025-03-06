@@ -14,17 +14,17 @@ enum CosmosChain {
     case terraV1
     case terraV2
     case sei(testnet: Bool)
-    // ancient testnet network, we only use it for unit tests
+    /// ancient testnet network, we only use it for unit tests
     case gaia
 }
 
-// Keplr is a Cosmos network software wallet
-// Keplr registry contains lots of goodies, for example:
-// https://github.com/chainapsis/keplr-chain-registry/blob/main/cosmos/cosmoshub.json
+/// Keplr is a Cosmos network software wallet
+/// Keplr registry contains lots of goodies, for example:
+/// https://github.com/chainapsis/keplr-chain-registry/blob/main/cosmos/cosmoshub.json
 extension CosmosChain {
-    // Either feeCurrencies/coinMinimalDenom from Keplr registry
-    // or
-    // params/bond_denom field from /cosmos/staking/v1beta1/params request
+    /// Either feeCurrencies/coinMinimalDenom from Keplr registry
+    /// or
+    /// params/bond_denom field from /cosmos/staking/v1beta1/params request
     var smallestDenomination: String {
         switch self {
         case .cosmos:
@@ -53,9 +53,9 @@ extension CosmosChain {
         }
     }
 
-    // Either chainId from Keplr registry
-    // or
-    // node_info/network field from /node_info request
+    /// Either chainId from Keplr registry
+    /// or
+    /// node_info/network field from /node_info request
     var chainID: String {
         switch self {
         case .cosmos(let testnet):
@@ -71,7 +71,7 @@ extension CosmosChain {
         }
     }
 
-    // For some chains gas prices are hardcoded with the same value for all fee levels
+    /// For some chains gas prices are hardcoded with the same value for all fee levels
     var allowsFeeSelection: Bool {
         switch self {
         case .cosmos, .gaia, .terraV2, .sei:
@@ -81,7 +81,7 @@ extension CosmosChain {
         }
     }
 
-    // feeCurrencies/gasPriceStep field from Keplr registry
+    /// feeCurrencies/gasPriceStep field from Keplr registry
     func gasPrices(for amountType: Amount.AmountType) -> [Double] {
         switch self {
         case .cosmos:
@@ -113,10 +113,10 @@ extension CosmosChain {
         }
     }
 
-    // Often times the value specified in Keplr is not enough:
-    // >>> out of gas in location: WriteFlat; gasWanted: 76012, gasUsed: 76391: out of gas
-    // >>> out of gas in location: ReadFlat; gasWanted: 124626, gasUsed: 125279: out of gas
-    // Default multiplier value is 1
+    /// Often times the value specified in Keplr is not enough:
+    /// >>> out of gas in location: WriteFlat; gasWanted: 76012, gasUsed: 76391: out of gas
+    /// >>> out of gas in location: ReadFlat; gasWanted: 124626, gasUsed: 125279: out of gas
+    /// Default multiplier value is 1
     var gasMultiplier: UInt64 {
         switch self {
         case .cosmos, .gaia:
@@ -133,10 +133,10 @@ extension CosmosChain {
         }
     }
 
-    // We use a formula to calculate the fee, by multiplying estimated gas by gas price.
-    // But sometimes this is not enough:
-    // >>> insufficient fees; got: 1005uluna required: 1006uluna: insufficient fee
-    // Default multiplier value is 1
+    /// We use a formula to calculate the fee, by multiplying estimated gas by gas price.
+    /// But sometimes this is not enough:
+    /// >>> insufficient fees; got: 1005uluna required: 1006uluna: insufficient fee
+    /// Default multiplier value is 1
     var feeMultiplier: Double {
         switch self {
         case .cosmos, .gaia:

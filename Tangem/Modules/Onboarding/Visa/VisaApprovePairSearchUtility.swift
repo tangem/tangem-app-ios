@@ -48,14 +48,14 @@ struct VisaApprovePairSearchUtility {
                     tangemSdk: config.makeTangemSdk()
                 )
             } catch {
-                AppLogger.error("Failed to find wallet", error: error)
+                VisaLogger.error("Failed to find approve pair in user wallet models list", error: error)
             }
         }
 
         return nil
     }
 
-    private func findPublicKey(for targetAddress: String, derivationPath: DerivationPath?, in wallet: CardDTO.Wallet) throws (VisaWalletPublicKeyUtility.SearchError) -> Data {
+    private func findPublicKey(for targetAddress: String, derivationPath: DerivationPath?, in wallet: CardDTO.Wallet) throws(VisaWalletPublicKeyUtility.SearchError) -> Data {
         guard let derivationPath else {
             return try findPublicKey(for: targetAddress, in: wallet)
         }
@@ -69,7 +69,7 @@ struct VisaApprovePairSearchUtility {
         return wallet.publicKey
     }
 
-    private func findPublicKey(for targetAddress: String, in wallet: CardDTO.Wallet) throws (VisaWalletPublicKeyUtility.SearchError) -> Data {
+    private func findPublicKey(for targetAddress: String, in wallet: CardDTO.Wallet) throws(VisaWalletPublicKeyUtility.SearchError) -> Data {
         let publicKey = wallet.publicKey
 
         try visaWalletPublicKeyUtility.validatePublicKey(targetAddress: targetAddress, publicKey: publicKey)
