@@ -25,48 +25,42 @@ class StakingDetailsStakeViewDataBuilder {
         let validator = balance.validatorType.validator
         let inProgress = balance.inProgress
 
-        let title: String = {
-            switch balance.balanceType {
-            case .rewards: Localization.stakingRewards
-            case .locked: inProgress ? Localization.stakingUnlocking : Localization.stakingLocked
-            case .warmup, .active, .pending: validator?.name ?? Localization.stakingValidator
-            case .unbonding: Localization.stakingUnstaking
-            case .unstaked: Localization.stakingUnstaked
-            }
-        }()
+        let title: String = switch balance.balanceType {
+        case .rewards: Localization.stakingRewards
+        case .locked: inProgress ? Localization.stakingUnlocking : Localization.stakingLocked
+        case .warmup, .active, .pending: validator?.name ?? Localization.stakingValidator
+        case .unbonding: Localization.stakingUnstaking
+        case .unstaked: Localization.stakingUnstaked
+        }
 
-        let subtitle: StakingDetailsStakeViewData.SubtitleType? = {
-            switch balance.balanceType {
-            case .rewards: .none
-            case .locked:
-                .locked(hasVoteLocked: balance.actions.contains(where: { $0.type == .voteLocked }))
-            case .unstaked: .withdraw
-            case .warmup: .warmup(period: yield.warmupPeriod.formatted(formatter: dateFormatter))
-            case .active, .pending:
-                validator?.apr.map { .active(apr: percentFormatter.format($0, option: .staking)) }
-            case .unbonding(let date):
-                date.map { .unbonding(until: $0) } ?? .unbondingPeriod(period: yield.unbondingPeriod.formatted(formatter: dateFormatter))
-            }
-        }()
+        let subtitle: StakingDetailsStakeViewData.SubtitleType? = switch balance.balanceType {
+        case .rewards: .none
+        case .locked:
+            .locked(hasVoteLocked: balance.actions.contains(where: { $0.type == .voteLocked }))
+        case .unstaked: .withdraw
+        case .warmup: .warmup(period: yield.warmupPeriod.formatted(formatter: dateFormatter))
+        case .active, .pending:
+            validator?.apr.map { .active(apr: percentFormatter.format($0, option: .staking)) }
+        case .unbonding(let date):
+            date.map { .unbonding(until: $0) } ?? .unbondingPeriod(period: yield.unbondingPeriod.formatted(formatter: dateFormatter))
+        }
 
-        let icon: StakingDetailsStakeViewData.IconType = {
-            switch balance.balanceType {
-            case .rewards, .warmup, .active, .pending:
-                balance.validatorType == .disabled
-                    ? .icon(
-                        Assets.stakingIconFilled,
-                        colors: .init(foreground: Colors.Icon.inactive, background: Colors.Icon.primary1)
-                    )
-                    : .image(url: validator?.iconURL)
-            case .locked:
-                .icon(
-                    inProgress ? Assets.stakingUnlockingIcon : Assets.stakingLockIcon,
-                    colors: .init(foreground: inProgress ? Colors.Icon.accent : Colors.Icon.informative)
+        let icon: StakingDetailsStakeViewData.IconType = switch balance.balanceType {
+        case .rewards, .warmup, .active, .pending:
+            balance.validatorType == .disabled
+                ? .icon(
+                    Assets.stakingIconFilled,
+                    colors: .init(foreground: Colors.Icon.inactive, background: Colors.Icon.primary1)
                 )
-            case .unbonding: .icon(Assets.unstakedIcon, colors: .init(foreground: Colors.Icon.accent))
-            case .unstaked: .icon(Assets.unstakedIcon, colors: .init(foreground: Colors.Icon.informative))
-            }
-        }()
+                : .image(url: validator?.iconURL)
+        case .locked:
+            .icon(
+                inProgress ? Assets.stakingUnlockingIcon : Assets.stakingLockIcon,
+                colors: .init(foreground: inProgress ? Colors.Icon.accent : Colors.Icon.informative)
+            )
+        case .unbonding: .icon(Assets.unstakedIcon, colors: .init(foreground: Colors.Icon.accent))
+        case .unstaked: .icon(Assets.unstakedIcon, colors: .init(foreground: Colors.Icon.informative))
+        }
 
         let balanceCryptoFormatted = balanceFormatter.formatCryptoBalance(
             balance.amount,
