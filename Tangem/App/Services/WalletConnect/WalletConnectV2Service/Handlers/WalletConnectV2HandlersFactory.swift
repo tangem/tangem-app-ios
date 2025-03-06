@@ -78,8 +78,7 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
                 uiDelegate: uiDelegate
             )
 
-            // MARK: - Solana
-
+        // MARK: - Solana
         case .solanaSignMessage:
             return try WalletConnectSolanaSignMessageHandler(
                 request: params,
@@ -102,8 +101,7 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
                 walletModelProvider: walletModelProvider
             )
 
-            // MARK: - BNB
-
+        // MARK: - BNB
         case .bnbSign, .bnbTxConfirmation:
             // [REDACTED_TODO_COMMENT]
             // Initially this methods was found occasionally and supported without any request
