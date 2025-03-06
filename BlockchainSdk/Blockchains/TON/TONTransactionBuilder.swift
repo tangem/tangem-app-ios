@@ -66,7 +66,7 @@ final class TONTransactionBuilder {
         return try preSignData(from: input)
     }
 
-    // Creates PreSignData from transaction input
+    /// Creates PreSignData from transaction input
     private func preSignData(from txInput: TheOpenNetworkSigningInput) throws -> TONPreSignData {
         let txInputData = try txInput.serializedData()
 
@@ -237,9 +237,9 @@ final class TONTransactionBuilder {
 }
 
 struct TONPreSignData {
-    // pre-image data obtained from TxCompilerPreSigningOutput -> data
+    /// pre-image data obtained from TxCompilerPreSigningOutput -> data
     let dataToSign: Data
-    // TheOpenNetworkSigningInput -> serializedData()
+    /// TheOpenNetworkSigningInput -> serializedData()
     let serializedTransactionInput: Data
 }
 
