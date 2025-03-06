@@ -109,7 +109,7 @@ extension SendTransitionService {
         static let animationDuration: TimeInterval = 0.3
         static let defaultAnimation: Animation = .easeIn(duration: animationDuration)
 
-        // Just x2 faster
+        /// Just x2 faster
         static let auxiliaryViewAnimation: Animation = defaultAnimation.speed(2)
     }
 }
