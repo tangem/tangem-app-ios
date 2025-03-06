@@ -9,7 +9,7 @@
 import Foundation
 
 struct LegacyFileLogger {
-    // Remove the legacy log file
+    /// Remove the legacy log file
     func remove() {
         do {
             let fileName = "scanLogs.txt"
