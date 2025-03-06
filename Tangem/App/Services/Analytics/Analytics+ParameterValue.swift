@@ -21,6 +21,7 @@ extension Analytics {
         case full = "Full"
         case null = "Null"
         case empty = "Empty"
+        case available = "Available"
         case unavailable = "Unavailable"
         case mainToken = "Main Token"
         case customToken = "Custom Token"
@@ -104,8 +105,18 @@ extension Analytics {
         /// Transaction is sent
         case sent = "Sent"
 
-        /// Balance caching
+        // Token Action Availability Status
         case caching = "Caching"
+        case oldPhone = "OldPhone"
+        case demo = "Demo"
+        case oldCard = "OldCard"
+        case blockchainUnreachable = "Blockchain Unreachable"
+        case assetsError = "Assets Error"
+        case assetsLoading = "Assets Loading"
+        case assetsNotFound = "Asset NotFound"
+        case pending = "Pending"
+        case noAddress = "NoAddress"
+        case assetRequirement = "AssetRequirement"
 
         // MARK: - Express
 
