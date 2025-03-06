@@ -173,10 +173,6 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         return PushNotificationsPermissionRequestViewModel(permissionManager: permissionManager, delegate: self)
     }()
 
-    private var analyticsSourceParameterValue: Analytics.ParameterValue {
-        .onboarding
-    }
-
     let input: OnboardingInput
 
     var isFromMain: Bool = false

@@ -13,8 +13,8 @@ class DefaultAmountNotationFormatter {
     let defaultEmptyValue: String = BalanceFormatter.defaultEmptyBalanceString
 
     init(locale: Locale = .current) {
-        /// This part is used to determine if currency symbol for selected locale is placed after amount value or before.
-        /// https://forums.swift.org/t/format-currency-using-a-compact-notation/69443/4
+        // This part is used to determine if currency symbol for selected locale is placed after amount value or before.
+        // https://forums.swift.org/t/format-currency-using-a-compact-notation/69443/4
         let currencyStyle = Decimal.FormatStyle.Currency(code: "USD", locale: locale).attributed
         let formattedString = Decimal(1).formatted(currencyStyle)
 

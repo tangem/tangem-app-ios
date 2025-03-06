@@ -9,7 +9,7 @@
 import Foundation
 
 public protocol ExpressAnalyticsLogger {
-    // Swap
+    /// Swap
     func bestProviderSelected(_ provider: ExpressAvailableProvider)
 
     // Onramp
