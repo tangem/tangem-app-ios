@@ -147,6 +147,11 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
                 self?.objectWillChange.send()
             }
             .store(in: &bag)
+
+        tokenItemInfoProvider?.hasPendingTransactions
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.hasPendingTransactions, on: self, ownership: .weak)
+            .store(in: &bag)
     }
 
     private func setupView(_ type: TokenBalanceType) {
@@ -157,7 +162,6 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
             missingDerivation = false
         }
 
-        updatePendingTransactionsStateIfNeeded()
         buildContextActions()
     }
 
@@ -167,10 +171,6 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
 
     private func setupFiatBalance(_ type: FormattedTokenBalanceType) {
         balanceFiat = LoadableTokenBalanceViewStateBuilder().build(type: type, icon: .leading)
-    }
-
-    private func updatePendingTransactionsStateIfNeeded() {
-        hasPendingTransactions = tokenItemInfoProvider?.hasPendingTransactions ?? false
     }
 
     private func buildContextActions() {
