@@ -47,7 +47,7 @@ class NotificationsAnalyticsService {
         }
 
         var notificationParams = notification.settings.event.analyticsParams
-        if let contextData = contextDataProvider?.getAnalyticsContextData() {
+        if let contextData = contextDataProvider?.analyticsContextData {
             notificationParams.merge(contextData.analyticsParams, uniquingKeysWith: { old, new in old })
         }
 

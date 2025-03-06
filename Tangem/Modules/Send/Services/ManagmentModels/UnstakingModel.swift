@@ -42,8 +42,6 @@ class UnstakingModel {
     private let feeTokenItem: TokenItem
 
     private var estimatedFeeTask: Task<Void, Never>?
-    private var bag: Set<AnyCancellable> = []
-
     init(
         stakingManager: StakingManager,
         transactionDispatcher: TransactionDispatcher,
@@ -165,7 +163,7 @@ private extension UnstakingModel {
             Analytics.log(event: analyticsEvent, params: [.validator: initialAction.validatorInfo?.name ?? ""])
         }
 
-        guard let amountCrypto = amount?.crypto else {
+        guard amount?.crypto != nil else {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
 
@@ -426,6 +424,11 @@ extension UnstakingModel {
         }
         // disable partial unstake for disabled validators,
         // preferred == false means it's disabled in admin tool
-        return validatorInfo.preferred
+        guard validatorInfo.preferred else { return false }
+
+        return switch tokenItem.blockchain {
+        case .ton: false // ton does not support partial unstake
+        default: true
+        }
     }
 }

@@ -13,8 +13,8 @@ import enum WalletCore.CoinType
 
 // MARK: - Base
 
+/// This enum should be indirect because of memory issues on iOS15
 @available(iOS 13.0, *)
-// This enum should be indirect because of memory issues on iOS15
 public indirect enum Blockchain: Equatable, Hashable {
     case bitcoin(testnet: Bool)
     case litecoin
@@ -102,6 +102,8 @@ public indirect enum Blockchain: Equatable, Hashable {
     case apeChain(testnet: Bool)
     case sonic(testnet: Bool)
     case alephium(testnet: Bool)
+    case vanar(testnet: Bool)
+    case zkLinkNova(testnet: Bool)
 
     public var isTestnet: Bool {
         switch self {
@@ -151,7 +153,9 @@ public indirect enum Blockchain: Equatable, Hashable {
              .bitrock(let testnet),
              .apeChain(let testnet),
              .sonic(let testnet),
-             .alephium(let testnet):
+             .alephium(let testnet),
+             .vanar(let testnet),
+             .zkLinkNova(let testnet):
             return testnet
         case .litecoin,
              .ducatus,
@@ -258,6 +262,7 @@ public indirect enum Blockchain: Equatable, Hashable {
              .kaspa,
              .ravencoin,
              .ducatus,
+             .radiant,
              .fact0rn:
             return true
         default:
@@ -330,7 +335,9 @@ public indirect enum Blockchain: Equatable, Hashable {
              .bitrock,
              .apeChain,
              .sonic,
-             .alephium:
+             .alephium,
+             .vanar,
+             .zkLinkNova:
             return 18
         case .cardano,
              .xrp,
@@ -377,7 +384,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .polygonZkEVM,
              .base,
              .cyber,
-             .blast:
+             .blast,
+             .zkLinkNova:
             return "ETH"
         case .ethereumClassic:
             return "ETC"
@@ -521,6 +529,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "S"
         case .alephium:
             return "ALPH"
+        case .vanar:
+            return isTestnet ? "VG" : "VANRY"
         }
     }
 
@@ -611,6 +621,10 @@ public indirect enum Blockchain: Equatable, Hashable {
             return isTestnet ? "Curtis Testnet" : "ApeChain"
         case .sonic:
             return "Sonic" + (isTestnet ? " Blaze Testnet" : "")
+        case .vanar:
+            return isTestnet ? "Vanguard Testnet" : "Vanar Chain"
+        case .zkLinkNova:
+            return isTestnet ? "zkLink Nova Sepolia Testnet" : "zkLink Nova"
         default:
             var name = "\(self)".capitalizingFirstLetter()
             if let index = name.firstIndex(of: "(") {
@@ -827,8 +841,8 @@ public indirect enum Blockchain: Equatable, Hashable {
 public extension Blockchain {
     var isEvm: Bool { chainId != nil }
 
-    // Only for Ethereum compatible blockchains
-    // https://chainlist.org
+    /// Only for Ethereum compatible blockchains
+    /// https://chainlist.org
     var chainId: Int? {
         switch self {
         case .ethereum: return isTestnet ? 5 : 1
@@ -874,6 +888,8 @@ public extension Blockchain {
         case .bitrock: return isTestnet ? 7771 : 7171
         case .apeChain: return isTestnet ? 33111 : 33139
         case .sonic: return isTestnet ? 57054 : 146
+        case .vanar: return isTestnet ? 78600 : 2040
+        case .zkLinkNova: return isTestnet ? 810181 : 810180
         default:
             return nil
         }
@@ -889,14 +905,15 @@ public extension Blockchain {
              .polygonZkEVM,
              .base,
              .cyber,
-             .blast:
+             .blast,
+             .zkLinkNova:
             return true
         default:
             return false
         }
     }
 
-    // Only for Ethereum compatible blockchains
+    /// Only for Ethereum compatible blockchains
     var supportsEIP1559: Bool {
         guard isEvm else {
             return false
@@ -937,10 +954,10 @@ public extension Blockchain {
         case .base: return true
         case .cyber: return false
         case .blast: return false
-        /// By default, eth_feeHistory returns the error:
-        /// "Invalid params: invalid type: integer 5, expected a 0x-prefixed hex string with length between (0; 64]."
-        /// To fix this, the integer 5 in the EthereumTarget's params for .feeHistory should be replaced with "0x5".
-        /// This change hasn't been made to avoid impacting other functionality, especially since the .energyWebEVM request isn't currently used.
+        // By default, eth_feeHistory returns the error:
+        // "Invalid params: invalid type: integer 5, expected a 0x-prefixed hex string with length between (0; 64]."
+        // To fix this, the integer 5 in the EthereumTarget's params for .feeHistory should be replaced with "0x5".
+        // This change hasn't been made to avoid impacting other functionality, especially since the .energyWebEVM request isn't currently used.
         case .energyWebEVM: return false // eth_feeHistory all zeroes
         case .core: return false
         case .chiliz: return false
@@ -949,7 +966,9 @@ public extension Blockchain {
         case .odysseyChain: return true
         case .bitrock: return false // eth_feeHistory all zeroes
         case .apeChain: return true
+        case .vanar: return false // eth_feeHistory baseFeePerGas is zeroes
         case .sonic: return true
+        case .zkLinkNova: return false // eth_feeHistory method returns error
         default:
             assertionFailure("Don't forget about evm here")
             return false
@@ -1098,6 +1117,8 @@ extension Blockchain: Codable {
         case .apeChain: return "apechain"
         case .sonic: return "sonic"
         case .alephium: return "alephium"
+        case .vanar: return "vanar"
+        case .zkLinkNova: return "zklink"
         }
     }
 
@@ -1205,6 +1226,8 @@ extension Blockchain: Codable {
         case "apechain": self = .apeChain(testnet: isTestnet)
         case "sonic": self = .sonic(testnet: isTestnet)
         case "alephium": self = .alephium(testnet: isTestnet)
+        case "vanar": self = .vanar(testnet: isTestnet)
+        case "zklink": self = .zkLinkNova(testnet: isTestnet)
         default:
             throw BlockchainSdkError.decodingFailed
         }
@@ -1474,6 +1497,13 @@ private extension Blockchain {
             }
         case .alephium:
             return "alephium"
+        case .vanar:
+            switch type {
+            case .network: return "vanar"
+            case .coin: return "vanry"
+            }
+        case .zkLinkNova:
+            return "zklink"
         }
     }
 
@@ -1535,7 +1565,9 @@ extension Blockchain {
              .odysseyChain,
              .bitrock,
              .apeChain,
-             .sonic:
+             .sonic,
+             .vanar,
+             .zkLinkNova:
             return EthereumWalletAssembly()
         case .optimism,
              .manta,

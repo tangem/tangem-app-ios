@@ -45,10 +45,8 @@ extension SwappingSuccessCoordinator {
 // MARK: - ExpressSuccessSentRoutable
 
 extension SwappingSuccessCoordinator: ExpressSuccessSentRoutable {
-    func openWebView(url: URL?) {
-        if let url {
-            safariManager.openURL(url)
-        }
+    func openWebView(url: URL) {
+        safariManager.openURL(url)
     }
 
     func close() {
