@@ -21,7 +21,7 @@ struct AddressParser {
         addressService = AddressServiceFactory(blockchain: blockchain).makeAddressService()
     }
 
-    func parseAddressResponse(_ response: String) throws (VisaParserError) -> String {
+    func parseAddressResponse(_ response: String) throws(VisaParserError) -> String {
         guard
             response.hasHexPrefix(),
             response.count >= addressLength
@@ -41,7 +41,7 @@ struct AddressParser {
         return parsedAddress
     }
 
-    func parseAddressesResponse(_ response: String) throws (VisaParserError) -> [String] {
+    func parseAddressesResponse(_ response: String) throws(VisaParserError) -> [String] {
         guard response.count >= addressLength else {
             throw .addressResponseDoesntContainAddress
         }
