@@ -28,8 +28,6 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
 
     private var bag: Set<AnyCancellable> = []
 
-    private let balanceFormatter = BalanceFormatter()
-
     // MARK: - Init
 
     init(

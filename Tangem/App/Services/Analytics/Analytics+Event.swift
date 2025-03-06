@@ -208,10 +208,6 @@ extension Analytics {
         case cardSettingsButtonAccessCodeRecovery = "[Settings / Card Settings] Button - Access Code Recovery"
         case cardSettingsAccessCodeRecoveryChanged = "[Settings / Card Settings] Access Code Recovery Changed"
 
-        fileprivate static var nfcError: String {
-            "nfc_error"
-        }
-
         // MARK: - Notifications
 
         case mainNoticeBackupWalletTapped = "[Main Screen] Notice - Backup Your Wallet Tapped"
@@ -231,7 +227,7 @@ extension Analytics {
         case mainNoticeBackupErrors = "[Main Screen] Notice - Backup Errors"
         case tokenNoticeNetworkUnreachable = "[Token] Notice - Network Unreachable"
         case tokenNoticeNotEnoughFee = "[Token] Notice - Not Enough Fee"
-        case tokenNoticeActionInactive = "[Token] Notice - Action Inactive"
+        case tokenActionButtonDisabled = "[Token] Action Button Disabled"
         case tokenNoticeRevealTransaction = "[Token] Notice - Reveal Transaction"
         case tokenButtonRevealCancel = "[Token] Button - Reveal Cancel"
         case tokenButtonRevealTryAgain = "[Token] Button - Reveal Try Again"
