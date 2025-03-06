@@ -9,16 +9,16 @@
 import Foundation
 
 protocol BitcoinScriptChunk {
-    // Reference to the whole script binary data.
+    /// Reference to the whole script binary data.
     var scriptData: Data { get }
-    // A range of scriptData represented by this chunk.
+    /// A range of scriptData represented by this chunk.
     var range: Range<Int> { get }
 
-    // Portion of scriptData defined by range.
+    /// Portion of scriptData defined by range.
     var chunkData: Data { get }
-    // OP_CODE of scriptData defined by range.
+    /// OP_CODE of scriptData defined by range.
     var opCode: OpCode { get }
-    // String representation of a chunk.
+    /// String representation of a chunk.
     var string: String { get }
 
     // OP_1NEGATE, OP_0, OP_1..OP_16 are represented as a decimal number.
@@ -150,7 +150,7 @@ struct DataChunk: BitcoinScriptChunk {
         return string
     }
 
-    // Returns true if the data is represented with the most compact opcode.
+    /// Returns true if the data is represented with the most compact opcode.
     var isDataCompact: Bool {
         switch opCode.value {
         case ...OpCode.OP_PUSHDATA1.value:

@@ -44,7 +44,7 @@ enum PolkadotNetwork {
         }
     }
 
-    // https://wiki.polkadot.network/docs/build-protocol-info#addresses
+    /// https://wiki.polkadot.network/docs/build-protocol-info#addresses
     var addressPrefix: UInt {
         switch self {
         case .polkadot:
@@ -59,7 +59,7 @@ enum PolkadotNetwork {
     }
 }
 
-// https://support.polkadot.network/support/solutions/articles/65000168651-what-is-the-existential-deposit-
+/// https://support.polkadot.network/support/solutions/articles/65000168651-what-is-the-existential-deposit-
 extension PolkadotNetwork {
     var existentialDeposit: Amount {
         switch self {
