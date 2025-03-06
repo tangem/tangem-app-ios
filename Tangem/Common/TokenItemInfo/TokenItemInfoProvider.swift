@@ -11,8 +11,6 @@ import BlockchainSdk
 import TangemFoundation
 
 protocol TokenItemInfoProvider: AnyObject {
-    var hasPendingTransactions: Bool { get }
-
     var quote: WalletModel.Rate { get }
     var balance: TokenBalanceType { get }
     var balanceType: FormattedTokenBalanceType { get }
@@ -24,5 +22,6 @@ protocol TokenItemInfoProvider: AnyObject {
     var fiatBalanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { get }
 
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { get }
+    var hasPendingTransactions: AnyPublisher<Bool, Never> { get }
     var isStakedPublisher: AnyPublisher<Bool, Never> { get }
 }
