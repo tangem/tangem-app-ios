@@ -30,7 +30,7 @@ class PaymentologyPINCodeProcessor {
         self.rsaPublicKey = rsaPublicKey
     }
 
-    private func makePublicKey() throws (PaymentologyError) -> SecKey {
+    private func makePublicKey() throws(PaymentologyError) -> SecKey {
         guard let der = Data(base64Encoded: rsaPublicKey, options: .ignoreUnknownCharacters) else {
             throw .invalidRSAKeyFormat
         }
@@ -48,7 +48,7 @@ class PaymentologyPINCodeProcessor {
         return publicKey
     }
 
-    private func makeSessionId() throws (PaymentologyError) -> String {
+    private func makeSessionId() throws(PaymentologyError) -> String {
         let publicKey = try makePublicKey()
 
         let base64SessionKey = sessionKey.base64Representation
