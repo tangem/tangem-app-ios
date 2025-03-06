@@ -45,9 +45,6 @@ class StakingModel {
 
     private var timerTask: Task<Void, Error>?
     private var estimatedFeeTask: Task<Void, Never>?
-    private var sendTransactionTask: Task<Void, Never>?
-    private var bag: Set<AnyCancellable> = []
-
     init(
         stakingManager: StakingManager,
         transactionCreator: TransactionCreator,
@@ -575,6 +572,7 @@ private extension StakingModel {
         switch amount?.type {
         case .none:
             break
+
         case .typical:
             Analytics.log(.stakingSelectedCurrency, params: [.commonType: .token])
 
