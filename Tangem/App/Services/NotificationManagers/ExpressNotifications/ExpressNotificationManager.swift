@@ -38,8 +38,10 @@ class ExpressNotificationManager {
         switch state {
         case .idle:
             notificationInputsSubject.value = []
+
         case .loading(.refreshRates), .loading(.fee):
             break
+
         case .loading(.full):
             notificationInputsSubject.value = notificationInputsSubject.value.filter {
                 guard let event = $0.settings.event as? ExpressNotificationEvent else {
@@ -48,6 +50,7 @@ class ExpressNotificationManager {
 
                 return !event.removingOnFullLoadingState
             }
+
         case .restriction(let restrictions, _):
             TangemFoundation.runTask(in: self) { manager in
                 await manager.setupNotification(for: restrictions)
@@ -145,10 +148,12 @@ class ExpressNotificationManager {
         switch validationErrorEvent {
         case .invalidNumber:
             event = .refreshRequired(title: Localization.commonError, message: validationError.localizedDescription)
+
         case .insufficientBalance:
             assertionFailure("It have to be mapped to ExpressInteractor.RestrictionType.notEnoughBalanceForSwapping")
             notificationInputsSubject.value = []
             return
+
         case .insufficientBalanceForFee:
             assertionFailure("It have to be mapped to ExpressInteractor.RestrictionType.notEnoughAmountForFee")
             guard let notEnoughFeeForTokenTxEvent = makeNotEnoughFeeForTokenTx(sender: sender) else {
@@ -170,7 +175,7 @@ class ExpressNotificationManager {
              .cardanoInsufficientBalanceToSendToken,
              .notEnoughMana,
              .manaLimit,
-             .remainingAmountIsLessThanRentExtemption,
+             .remainingAmountIsLessThanRentExemption,
              .koinosInsufficientBalanceToSendKoin:
             event = .validationErrorEvent(event: validationErrorEvent, context: context)
         }
