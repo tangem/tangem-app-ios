@@ -17,9 +17,9 @@ enum BlockcypherDTO {
             let txrefs: [Txref]
 
             struct Txref: Decodable {
-                // tx_hash
+                /// tx_hash
                 let txHash: String
-                // tx_output_n
+                /// tx_output_n
                 let txOutputN: Int
                 // block_height
                 let blockHeight: Int?
@@ -113,7 +113,7 @@ struct BlockcypherFullAddressResponse<EndpointTx: Codable & BlockcypherPendingTx
     }
 }
 
-// Transaction for standart address request
+/// Transaction for standart address request
 struct BlockcypherTxref: Codable {
     let hash: String?
     let outputIndex: Int?
