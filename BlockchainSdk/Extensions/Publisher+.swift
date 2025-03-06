@@ -104,7 +104,7 @@ extension Publisher {
 }
 
 extension Publisher where Failure == Error {
-    /*
+    /**
      This method is used to override a network error when sending a transaction.
      Use only pair with send method for {{Blockchain}}NetworkService.
      */
@@ -114,7 +114,7 @@ extension Publisher where Failure == Error {
         }
     }
 
-    /*
+    /**
      This method is used to override a network error when sending a transaction after all chains publishers.
      */
     func eraseSendError() -> Publishers.MapError<Self, SendTxError> {
