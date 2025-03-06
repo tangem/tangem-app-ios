@@ -98,10 +98,8 @@ class VisaUserWalletModel {
     private let customerCardInfoSubject = CurrentValueSubject<VisaCustomerCardInfo?, Never>(nil)
     private let cardSettingsSubject = CurrentValueSubject<VisaPaymentAccountCardSettings?, Never>(nil)
     private let stateSubject = CurrentValueSubject<State, Never>(.notInitialized)
-    private let refreshTokenNotificationSubject = CurrentValueSubject<NotificationViewInput?, Never>(nil)
     private let alertSubject = CurrentValueSubject<AlertBinder?, Never>(nil)
 
-    private var updateTask: Task<Void, Never>?
     private var historyReloadTask: Task<Void, Never>?
 
     init(userWalletModel: UserWalletModel, cardInfo: CardInfo) {
@@ -265,12 +263,6 @@ class VisaUserWalletModel {
 
     private func showRefreshTokenExpiredNotification() {
         stateSubject.send(.failedToInitialize(.missingValidRefreshToken))
-    }
-
-    private func updateBalanceAndLimits() {
-        Task { [weak self] in
-            await self?.loadBalancesAndLimits()
-        }
     }
 
     private func loadBalancesAndLimits() async {
@@ -551,6 +543,8 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var wcWalletModelProvider: any WalletConnectWalletModelProvider { NotSupportedWalletConnectWalletModelProvider() }
 
+    var refcodeProvider: any RefcodeProvider { userWalletModel.refcodeProvider }
+
     var keysDerivingInteractor: any KeysDeriving { userWalletModel.keysDerivingInteractor }
 
     func validate() -> Bool { userWalletModel.validate() }
@@ -568,7 +562,7 @@ extension VisaUserWalletModel: UserWalletSerializable {
     func serialize() -> StoredUserWallet {
         let name = name.isEmpty ? config.cardName : name
 
-        let newStoredUserWallet = StoredUserWallet(
+        return StoredUserWallet(
             userWalletId: userWalletId.value,
             name: name,
             card: cardInfo.card,
@@ -576,7 +570,5 @@ extension VisaUserWalletModel: UserWalletSerializable {
             walletData: cardInfo.walletData,
             artwork: cardInfo.artwork.artworkInfo
         )
-
-        return newStoredUserWallet
     }
 }
