@@ -25,9 +25,9 @@
 import Foundation
 
 struct ScriptChunkHelper {
-    // If encoding is -1, then the most compact will be chosen.
-    // Valid values: -1, 0, 1, 2, 4.
-    // Returns nil if preferredLengthEncoding can't be used for data, or data is nil or too big.
+    /// If encoding is -1, then the most compact will be chosen.
+    /// Valid values: -1, 0, 1, 2, 4.
+    /// Returns nil if preferredLengthEncoding can't be used for data, or data is nil or too big.
     func scriptData(for data: Data, preferredLengthEncoding: Int) -> Data? {
         var scriptData = Data()
 
