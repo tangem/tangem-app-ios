@@ -12,13 +12,6 @@ struct MarketsTokenDetailsLinksView: View {
     let viewWidth: CGFloat
     let sections: [MarketsTokenDetailsLinkSection]
 
-    private let chipsSettings = MarketsTokenDetailsLinkChipsView.StyleSettings(
-        iconColor: Colors.Icon.secondary,
-        textColor: Colors.Text.secondary,
-        backgroundColor: Colors.Field.focused,
-        font: Fonts.Bold.caption1
-    )
-
     var body: some View {
         if sections.isEmpty {
             EmptyView()
