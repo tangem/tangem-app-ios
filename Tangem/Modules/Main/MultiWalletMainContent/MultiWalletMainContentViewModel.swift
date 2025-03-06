@@ -284,7 +284,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private func tokenItemTapped(_ walletModelId: WalletModelId) {
         guard
             let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == walletModelId }),
-            TokenInteractionAvailabilityProvider(walletModel: walletModel).isTokenDetailsAvailable()
+            TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel).isTokenInteractionAvailable()
         else {
             return
         }
@@ -445,8 +445,8 @@ extension MultiWalletMainContentViewModel: MainViewPage {
 
 extension MultiWalletMainContentViewModel: TokenItemContextActionsProvider {
     func buildContextActions(for tokenItemViewModel: TokenItemViewModel) -> [TokenContextActionsSection] {
-        let actionBuilder = TokenContextActionsBuilder()
-        return actionBuilder.buildContextActions(
+        let actionBuilder = TokenContextActionsSectionBuilder()
+        return actionBuilder.buildContextActionsSections(
             tokenItem: tokenItemViewModel.tokenItem,
             walletModelId: tokenItemViewModel.id,
             userWalletModel: userWalletModel,
