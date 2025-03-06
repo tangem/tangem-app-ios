@@ -10,7 +10,7 @@ import Foundation
 
 enum RavencoinDTO {
     enum UTXO {
-        // https://github.com/RavenDevKit/insight-api/blob/master/docs/example_responses/utxo_with_assets.md
+        /// https://github.com/RavenDevKit/insight-api/blob/master/docs/example_responses/utxo_with_assets.md
         struct Response: Decodable {
             let txid: String
             let vout: Int
