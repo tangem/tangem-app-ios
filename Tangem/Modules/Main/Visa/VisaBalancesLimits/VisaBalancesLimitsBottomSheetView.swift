@@ -44,8 +44,6 @@ struct VisaBalancesLimitsBottomSheetView: View {
             recordLine(with: "Blocked", amount: viewModel.blockedAmount)
 
             recordLine(with: "Debt", amount: viewModel.debtAmount)
-
-            recordLine(with: "Pending refund", amount: viewModel.pendingRefundAmount)
         }
     }
 
@@ -116,8 +114,7 @@ private struct PreviewBottomSheet: View {
                 verifiedBalance: 392.45,
                 available: 356.45,
                 blocked: 36.00,
-                debt: 0.0,
-                pendingRefund: 20.99
+                debt: 0.0
             ),
             limit: .init(
                 limitExpirationDate: Date().addingTimeInterval(3600 * 24 * 1.5),
