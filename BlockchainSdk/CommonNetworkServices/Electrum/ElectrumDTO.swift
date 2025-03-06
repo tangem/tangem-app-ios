@@ -45,7 +45,7 @@ enum ElectrumDTO {
 
         struct Transaction: Decodable {
             let blockhash: String?
-            let blocktime: UInt64?
+            let blocktime: Int?
             let confirmations: Int?
             let hash: String
             let hex: String
@@ -65,7 +65,6 @@ enum ElectrumDTO {
             let sequence: UInt64
             let txid: String
             let vout: Int
-            let address: String?
         }
 
         struct Vout: Decodable {
@@ -80,7 +79,7 @@ enum ElectrumDTO {
         }
 
         struct ScriptPubKey: Decodable {
-            let address: String
+            let addresses: [String]
             let asm: String
             let hex: String
             let reqSigs: Int?
