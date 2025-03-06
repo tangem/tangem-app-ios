@@ -24,7 +24,7 @@
 
 import Foundation
 
-// Boolean AND between each bit of the inputs
+/// Boolean AND between each bit of the inputs
 struct OpAnd: OpCodeProtocol {
     var value: UInt8 { return 0x84 }
     var name: String { return "OP_AND" }

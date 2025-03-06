@@ -38,7 +38,7 @@ struct TokenItemPriceFormatter {
 
 private extension TokenItemPriceFormatter {
     enum Constants {
-        // Need use for token with low very price, when display 2-6 digits with scale 6
+        /// Need use for token with low very price, when display 2-6 digits with scale 6
         static let boundaryLowDigitOptions: Decimal = 0.01
     }
 }

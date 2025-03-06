@@ -311,8 +311,8 @@ class WebSocket {
         }
     }
 
-    // Some crash logs and debug events indicating that there are multiple sequentials disconnect/connect requests
-    // This function attempting to address this issue. Added debug log events to see if it helps...
+    /// Some crash logs and debug events indicating that there are multiple sequentials disconnect/connect requests
+    /// This function attempting to address this issue. Added debug log events to see if it helps...
     private func scheduleConnectionSetup() {
         log("Attempting to schedule connection setup: \(String(describing: request.url))")
         Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.connectionSetupMessage(message: "Attempting to schedule connection setup"))
