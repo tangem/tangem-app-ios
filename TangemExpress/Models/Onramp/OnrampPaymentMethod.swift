@@ -27,10 +27,10 @@ public extension OnrampPaymentMethod {
         case applePay = "apple-pay"
         case card
 
-        // Google Pay doesn't support on iOS
+        /// Google Pay doesn't support on iOS
         case googlePay = "google-pay"
 
-        // Generic for other not so important methods
+        /// Generic for other not so important methods
         case other
 
         public var priority: Int {

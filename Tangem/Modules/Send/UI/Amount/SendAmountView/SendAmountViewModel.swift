@@ -192,7 +192,6 @@ extension SendAmountViewModel: SendStepViewAnimatable {
             } else {
                 auxiliaryViewsVisible = false
             }
-
         default:
             break
         }
