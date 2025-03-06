@@ -357,7 +357,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         walletConnectService.initialize(with: userWalletModel)
     }
 
-    // we can initialize it right after scan for more accurate analytics
+    /// we can initialize it right after scan for more accurate analytics
     func initializeAnalyticsContext(with cardInfo: CardInfo) {
         let config = UserWalletConfigFactory(cardInfo).makeConfig()
         let userWalletId = UserWalletIdFactory().userWalletId(config: config)

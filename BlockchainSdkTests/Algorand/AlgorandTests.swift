@@ -13,10 +13,9 @@ import WalletCore
 @testable import BlockchainSdk
 
 final class AlgorandTests: XCTestCase {
-    private let coinType: CoinType = .algorand
     private let sizeTester = TransactionSizeTesterUtility()
 
-    /*
+    /**
      - Use private key for Algorand coin at test mnemonic
      - tiny escape drive pupil flavor endless love walk gadget match filter luxury
      - Address for coin EH5I3KCDCTB4AOML3E4W5BIGQMPA7GT5Q3PUMK3AIXNFYQHMX5KOJBOJRM
@@ -33,7 +32,7 @@ final class AlgorandTests: XCTestCase {
         try testTransactionBuilder(curve: .ed25519_slip0010)
     }
 
-    /*
+    /**
      https://algoexplorer.io/tx/GMS3DRWDCL3SC57BCKCTOBV2SBIZZMTHNYEUZEV6A6WWH4DOS6TQ
      */
     func testTransactionBuilder(curve: EllipticCurve) throws {

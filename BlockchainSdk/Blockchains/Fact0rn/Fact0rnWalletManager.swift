@@ -11,7 +11,7 @@ import Foundation
 final class Fact0rnWalletManager: BitcoinWalletManager {
     override var minimalFee: Decimal { 0.000001 }
 
-    // It needs to be override, as there is no reliable way to reset the pending transactions.
+    /// It needs to be override, as there is no reliable way to reset the pending transactions.
     override func updateWallet(with response: [BitcoinResponse]) {
         let balance = response.reduce(into: 0) { $0 += $1.balance }
         let hasUnconfirmed = response.filter { $0.hasUnconfirmed }.count > 0
