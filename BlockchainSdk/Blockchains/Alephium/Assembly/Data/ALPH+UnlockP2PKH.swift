@@ -15,7 +15,7 @@ extension ALPH {
 
             static let length: Int = 33
 
-            // We don't use Serde[Int] here as the value of Hint is random, no need of serde optimization
+            /// We don't use Serde[Int] here as the value of Hint is random, no need of serde optimization
             static var unlockSerde: ALPH.AnySerde<UnlockScript> {
                 ALPH.BytesSerde(length: length).xmap(to: { P2PKH(publicKeyData: $0) }, from: { $0.publicKeyData })
             }
