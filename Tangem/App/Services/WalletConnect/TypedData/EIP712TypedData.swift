@@ -87,7 +87,7 @@ public extension EIP712TypedData {
                     let typeToEncode = extractArrayTypeIfNeeded(from: field.type)
 
                     if isPrimitiveType(typeToEncode) {
-                        /// We need to pass to `encodePrimitiveData` `field.type` instead of `typeToEncode` to properly handle array of primitives
+                        // We need to pass to `encodePrimitiveData` `field.type` instead of `typeToEncode` to properly handle array of primitives
                         guard let encodedPrimitive = try encodePrimitiveData(json: data[field.name], with: field.type) else {
                             return
                         }
