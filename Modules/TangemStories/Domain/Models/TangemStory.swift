@@ -44,7 +44,7 @@ public extension TangemStory {
 // MARK: - Swap story
 
 public extension TangemStory {
-    // do not forget to update SwapStoryData.Property enum if you add / remove pages
+    /// do not forget to update SwapStoryData.Property enum if you add / remove pages
     struct SwapStoryData {
         public var firstPage: Page
         public var secondPage: Page

@@ -18,10 +18,10 @@ extension RavencoinTarget: TargetType {
     enum Target {
         case wallet(address: String)
         case utxo(address: String)
-        case fees(request: RavencoinFee.Request)
+        case fees(request: RavencoinDTO.Fee.Request)
         case transactions(request: RavencoinTransactionHistory.Request)
         case transaction(id: String)
-        case send(transaction: RavencoinRawTransaction.Request)
+        case send(transaction: RavencoinDTO.Send.Request)
     }
 
     var baseURL: URL {
@@ -57,11 +57,9 @@ extension RavencoinTarget: TargetType {
     var task: Moya.Task {
         switch target {
         case .fees(let request):
-            let parameters = try? request.asDictionary()
-            return .requestParameters(parameters: parameters ?? [:], encoding: URLEncoding.default)
+            return .requestParameters(request)
         case .transactions(let request):
-            let parameters = try? request.asDictionary()
-            return .requestParameters(parameters: parameters ?? [:], encoding: URLEncoding.default)
+            return .requestParameters(request)
         case .send(let transaction):
             return .requestJSONEncodable(transaction)
         case .wallet, .utxo, .transaction:
@@ -69,7 +67,7 @@ extension RavencoinTarget: TargetType {
         }
     }
 
-    // Workaround for API
+    /// Workaround for API
     var headers: [String: String]? {
         ["User-Agent": "Mozilla/5.0 Version/16.1 Safari/605.1.15"]
     }
