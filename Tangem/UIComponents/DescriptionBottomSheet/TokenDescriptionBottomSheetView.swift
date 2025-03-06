@@ -14,9 +14,7 @@ struct TokenDescriptionBottomSheetView: View {
     let info: DescriptionBottomSheetInfo
     var generatedWithAIAction: (() -> Void)? = nil
 
-    @Environment(\.dismiss) private var dismissSheetAction
-
-    // No additional padding is needed on devices with a notch, native safe area works fine.
+    /// No additional padding is needed on devices with a notch, native safe area works fine.
     private var bottomInset: CGFloat { UIDevice.current.hasHomeScreenIndicator ? 0.0 : 10.0 }
 
     var body: some View {
@@ -35,7 +33,7 @@ struct TokenDescriptionBottomSheetView: View {
     }
 }
 
-// View components
+/// View components
 private extension TokenDescriptionBottomSheetView {
     var generatedWithAILabel: some View {
         HStack(spacing: 12) {
