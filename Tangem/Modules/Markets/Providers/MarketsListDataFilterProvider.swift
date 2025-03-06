@@ -24,17 +24,17 @@ class MarketsListDataFilterProvider {
             }
     }
 
-    // It is necessary to obtain initial values in consumers in order to avoid optionals
+    /// It is necessary to obtain initial values in consumers in order to avoid optionals
     var currentFilterValue: MarketsListDataProvider.Filter {
         .init(interval: _intervalTypeValue.value, order: _orderTypeValue.value)
     }
 
-    // This is necessary to determine the supported values in case of expansion
+    /// This is necessary to determine the supported values in case of expansion
     var supportedOrderTypes: [MarketsListOrderType] {
         MarketsListOrderType.allCases
     }
 
-    // This is necessary to determine the supported values in case of expansion
+    /// This is necessary to determine the supported values in case of expansion
     var supportedPriceIntervalTypes: [MarketsPriceIntervalType] {
         [.day, .week, .month]
     }
