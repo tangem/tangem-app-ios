@@ -16,7 +16,7 @@ extension MoralisNetworkResult {
         let contractType: String?
         let ownerOf: String?
         let lastMetadataSync: String?
-        let lastTokenURISync: String?
+        let lastTokenUriSync: String?
         /// Embedded JSON string.
         let metadata: String?
         let normalizedMetadata: NormalizedMetadata?
@@ -25,7 +25,7 @@ extension MoralisNetworkResult {
         let name: String?
         let symbol: String?
         let tokenHash: String?
-        let tokenURI: String?
+        let tokenUri: String?
         let minterAddress: String?
         let rarityRank: Int?
         let rarityPercentage: Double?
@@ -36,7 +36,7 @@ extension MoralisNetworkResult {
         let collectionLogo: String?
         let collectionBannerImage: String?
         let floorPrice: String?
-        let floorPriceUSD: String?
+        let floorPriceUsd: String?
         let floorPriceCurrency: String?
     }
 }
@@ -47,7 +47,7 @@ extension MoralisNetworkResult.EVMNFTAsset {
     struct NormalizedMetadata: Decodable {
         let name: String?
         let description: String?
-        let animationURL: String?
+        let animationUrl: String?
         let externalLink: String?
         let image: String?
         let attributes: [Attribute]?
@@ -71,7 +71,7 @@ extension MoralisNetworkResult.EVMNFTAsset {
         let mimeType: String?
         let parentHash: String?
         let mediaCollection: MediaCollection?
-        let originalMediaURL: String?
+        let originalMediaUrl: String?
     }
 
     struct MediaCollection: Decodable {
