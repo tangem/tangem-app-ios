@@ -148,6 +148,11 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
             .receive(on: DispatchQueue.main)
             .assign(to: \.isStaked, on: self, ownership: .weak)
             .store(in: &bag)
+
+        infoProvider?.hasPendingTransactions
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.hasPendingTransactions, on: self, ownership: .weak)
+            .store(in: &bag)
     }
 
     private func setupView(_ type: TokenBalanceType) {
@@ -157,8 +162,6 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         default:
             missingDerivation = false
         }
-
-        updatePendingTransactionsStateIfNeeded()
     }
 
     private func setupBalance(_ type: FormattedTokenBalanceType) {
@@ -183,10 +186,6 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
             tokenPrice = .noData
             priceChangeState = .empty
         }
-    }
-
-    private func updatePendingTransactionsStateIfNeeded() {
-        hasPendingTransactions = infoProvider?.hasPendingTransactions ?? false
     }
 
     private func buildContextActions() {
