@@ -20,12 +20,10 @@ class SolanaWalletManager: BaseManager, WalletManager {
 
     var usePriorityFees = !NFCUtils.isPoorNfcQualityDevice
 
-    // It is taken into account in the calculation of the account rent commission for the sender
+    /// It is taken into account in the calculation of the account rent commission for the sender
     private var mainAccountRentExemption: Decimal = 0
 
     override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        let transactionIDs = wallet.pendingTransactions.map { $0.hash }
-
         cancellable = networkService.getInfo(accountId: wallet.address, tokens: cardTokens)
             .sink { [weak self] in
                 switch $0 {
@@ -313,7 +311,7 @@ private extension SolanaWalletManager {
 
 // MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
 
-extension SolanaWalletManager: StakeKitTransactionSender, StakeKitTransactionSenderProvider {
+extension SolanaWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSender, StakeKitTransactionDataProvider {
     struct RawTransactionData: CustomStringConvertible {
         let serializedData: String
         let blockhashDate: Date
@@ -339,7 +337,9 @@ extension SolanaWalletManager: StakeKitTransactionSender, StakeKitTransactionSen
             blockhashDate: transaction.params.solanaBlockhashDate
         )
     }
+}
 
+extension SolanaWalletManager: StakeKitTransactionDataBroadcaster {
     func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
         try await networkService.sendRaw(
             base64serializedTransaction: rawTransaction.serializedData,

@@ -49,6 +49,7 @@ struct VisaWalletMainContentView: View {
     private var balancesAndLimitsView: some View {
         if let input = viewModel.failedToLoadInfoNotificationInput {
             NotificationView(input: input)
+                .setButtonsLoadingState(to: viewModel.isScannerBusy)
                 .transition(.notificationTransition)
         } else {
             Button(action: viewModel.openBalancesAndLimits, label: {
@@ -75,15 +76,4 @@ struct VisaWalletMainContentView: View {
             })
         }
     }
-}
-
-#Preview {
-    let userWalletModel = FakeUserWalletModel.visa
-    let coordinator = MainCoordinator()
-    let viewModel = VisaWalletMainContentViewModel(
-        visaWalletModel: .init(userWalletModel: userWalletModel),
-        coordinator: coordinator
-    )
-
-    return VisaWalletMainContentView(viewModel: viewModel)
 }

@@ -34,7 +34,7 @@ struct OrganizeTokensDragAndDropGestureMarkView: UIViewRepresentable {
     }
 
     static func dismantleUIView(_ uiView: UIViewType, coordinator: Void) {
-        Self.allInstances.remove(uiView)
+        allInstances.remove(uiView)
     }
 }
 
