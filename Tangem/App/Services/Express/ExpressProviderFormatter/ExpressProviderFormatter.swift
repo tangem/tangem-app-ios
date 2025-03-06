@@ -124,10 +124,10 @@ private extension ExpressPendingTransactionRecord.ProviderType {
 
 extension ExpressProviderFormatter {
     enum RateSubtitleFormattingOption {
-        // How many destination's tokens user will get for the 1 token of source
+        /// How many destination's tokens user will get for the 1 token of source
         case exchangeRate
 
-        // How many destination's tokens user will get at the end of swap
+        /// How many destination's tokens user will get at the end of swap
         case exchangeReceivedAmount
     }
 }
