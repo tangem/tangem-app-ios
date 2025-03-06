@@ -34,6 +34,10 @@ class CommonExpressAvailabilityProvider {
 // MARK: - ExpressAvailabilityProvider
 
 extension CommonExpressAvailabilityProvider: ExpressAvailabilityProvider {
+    var expressAvailabilityUpdateStateValue: ExpressAvailabilityUpdateState {
+        _state.value
+    }
+
     var expressAvailabilityUpdateState: AnyPublisher<ExpressAvailabilityUpdateState, Never> {
         _state.eraseToAnyPublisher()
     }
@@ -72,7 +76,7 @@ extension CommonExpressAvailabilityProvider: ExpressAvailabilityProvider {
 private extension CommonExpressAvailabilityProvider {
     func bind() {
         loadingQueue
-            .collect(debouncedTime: 0.5, scheduler: DispatchQueue.global())
+            .collect(debouncedTime: 0.3, scheduler: DispatchQueue.global())
             .withWeakCaptureOf(self)
             .sink(receiveValue: { provider, queueItems in
 

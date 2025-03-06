@@ -152,7 +152,7 @@ extension DecimalNumberTextField {
         @Published var textFieldText: String = ""
         @Published var measuredTextSize: CGSize = .zero
 
-        // Public properties
+        /// Public properties
         var value: Decimal? {
             decimalValue?.value
         }
@@ -184,10 +184,10 @@ extension DecimalNumberTextField {
                 .eraseToAnyPublisher()
         }
 
-        // Fileprivate
+        /// Fileprivate
         @Published fileprivate var decimalValue: DecimalValue?
 
-        // Private
+        /// Private
         private let decimalNumberFormatter: DecimalNumberFormatter
 
         init(maximumFractionDigits: Int) {
