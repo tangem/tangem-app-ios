@@ -156,16 +156,6 @@ extension StellarWalletManager: TransactionSender {
     }
 }
 
-extension StellarWalletManager: SignatureCountValidator {
-    func validateSignatureCount(signedHashes: Int) -> AnyPublisher<Void, Error> {
-        networkService.getSignatureCount(accountId: wallet.address)
-            .tryMap {
-                if signedHashes != $0 { throw BlockchainSdkError.signatureCountNotMatched }
-            }
-            .eraseToAnyPublisher()
-    }
-}
-
 extension StellarWalletManager: ThenProcessable {}
 
 extension StellarWalletManager: ReserveAmountRestrictable {
