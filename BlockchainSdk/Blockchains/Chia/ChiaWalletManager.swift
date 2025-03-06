@@ -128,7 +128,7 @@ private extension ChiaWalletManager {
 // MARK: - WithdrawalNotificationProvider
 
 extension ChiaWalletManager: WithdrawalNotificationProvider {
-    // Chia, kaspa have the same logic
+    /// Chia, kaspa have the same logic
     @available(*, deprecated, message: "Use MaximumAmountRestrictable")
     func validateWithdrawalWarning(amount: Amount, fee: Amount) -> WithdrawalWarning? {
         let availableAmount = txBuilder.availableAmount()

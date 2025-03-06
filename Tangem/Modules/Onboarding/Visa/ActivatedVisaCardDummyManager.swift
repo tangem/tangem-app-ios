@@ -23,27 +23,27 @@ class ActivatedVisaCardDummyManager: VisaActivationManager {
         .activated
     }
 
-    func saveAccessCode(accessCode: String) throws (TangemVisa.VisaAccessCodeValidationError) {}
+    func saveAccessCode(accessCode: String) throws(TangemVisa.VisaAccessCodeValidationError) {}
 
-    func startActivation() async throws (TangemVisa.VisaActivationError) -> CardActivationResponse {
+    func startActivation() async throws(TangemVisa.VisaActivationError) -> CardActivationResponse {
         throw .alreadyActivated
     }
 
-    func validateAccessCode(accessCode: String) throws (TangemVisa.VisaAccessCodeValidationError) {}
+    func validateAccessCode(accessCode: String) throws(TangemVisa.VisaAccessCodeValidationError) {}
 
     func resetAccessCode() {}
 
     func setupRefreshTokenSaver(_ refreshTokenSaver: any TangemVisa.VisaRefreshTokenSaver) {}
 
-    func refreshActivationRemoteState() async throws (TangemVisa.VisaActivationError) -> TangemVisa.VisaCardActivationRemoteState {
+    func refreshActivationRemoteState() async throws(TangemVisa.VisaActivationError) -> TangemVisa.VisaCardActivationRemoteState {
         .activated
     }
 
-    func getCustomerWalletApproveHash() async throws (TangemVisa.VisaActivationError) -> Data {
+    func getCustomerWalletApproveHash() async throws(TangemVisa.VisaActivationError) -> Data {
         return Data()
     }
 
-    func sendSignedCustomerWalletApprove(_ signedData: Data) async throws (TangemVisa.VisaActivationError) {}
+    func sendSignedCustomerWalletApprove(_ signedData: Data) async throws(TangemVisa.VisaActivationError) {}
 
-    func setPINCode(_ pinCode: String) async throws (TangemVisa.VisaActivationError) {}
+    func setPINCode(_ pinCode: String) async throws(TangemVisa.VisaActivationError) {}
 }
