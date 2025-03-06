@@ -247,7 +247,7 @@ private extension VisaWalletMainContentViewModel {
                 action: { [weak self] in
                     self?.executeButtonAction(for: action)
                 },
-                longPressAction: longTapAction(for: action)
+                longPressAction: makeLongTapAction(for: action)
             )
         }
     }
@@ -278,7 +278,7 @@ private extension VisaWalletMainContentViewModel {
         }
     }
 
-    private func longTapAction(for actionType: TokenActionType) -> (() -> Void)? {
+    private func makeLongTapAction(for actionType: TokenActionType) -> (() -> Void)? {
         switch actionType {
         case .receive:
             return weakify(self, forFunction: VisaWalletMainContentViewModel.copyPaymentAccountAddress)
