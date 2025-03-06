@@ -18,13 +18,12 @@ final class Fact0rnNetworkProvider: BitcoinNetworkProvider {
     // MARK: - Private Properties
 
     private let provider: ElectrumWebSocketProvider
-    private let decimalValue: Decimal
+    private let blockchain: Blockchain = .fact0rn
 
     // MARK: - Init
 
-    init(provider: ElectrumWebSocketProvider, decimalValue: Decimal) {
+    init(provider: ElectrumWebSocketProvider) {
         self.provider = provider
-        self.decimalValue = decimalValue
     }
 
     // MARK: - BitcoinNetworkProvider Implementation
@@ -84,19 +83,6 @@ final class Fact0rnNetworkProvider: BitcoinNetworkProvider {
         .eraseToAnyPublisher()
     }
 
-    func push(transaction: String) -> AnyPublisher<String, any Error> {
-        assertionFailure("This method marked as deprecated")
-        return .anyFail(error: BlockchainSdkError.noAPIInfo)
-    }
-
-    func getSignatureCount(address: String) -> AnyPublisher<Int, any Error> {
-        Future.async {
-            let txHistory = try await self.provider.getTxHistory(identifier: .scriptHash(address))
-            return txHistory.count
-        }
-        .eraseToAnyPublisher()
-    }
-
     // MARK: - Private Implementation
 
     private func getAddressInfo(identifier: ElectrumWebSocketProvider.Identifier) -> AnyPublisher<ElectrumAddressInfo, Error> {
@@ -105,8 +91,8 @@ final class Fact0rnNetworkProvider: BitcoinNetworkProvider {
             async let unspents = self.provider.getUnspents(identifier: identifier)
 
             return try await ElectrumAddressInfo(
-                balance: Decimal(balance.confirmed) / self.decimalValue,
-                unconfirmed: Decimal(balance.unconfirmed) / self.decimalValue,
+                balance: Decimal(balance.confirmed) / self.blockchain.decimalValue,
+                unconfirmed: Decimal(balance.unconfirmed) / self.blockchain.decimalValue,
                 outputs: unspents.map { unspent in
                     ElectrumUTXO(
                         position: unspent.txPos,
@@ -164,6 +150,75 @@ final class Fact0rnNetworkProvider: BitcoinNetworkProvider {
                 outputScript: outputScript
             )
         }
+    }
+}
+
+// MARK: - UTXONetworkProvider
+
+extension Fact0rnNetworkProvider: UTXONetworkProvider {
+    func getUnspentOutputs(address: String) -> AnyPublisher<[UnspentOutput], any Error> {
+        Future.async {
+            let scriptHash = try Fact0rnAddressService.addressToScriptHash(address: address)
+            let outputs = try await self.provider.getUnspents(identifier: .scriptHash(scriptHash))
+            return self.mapToUnspentOutputs(outputs: outputs)
+        }
+        .eraseToAnyPublisher()
+    }
+
+    func getTransactionInfo(hash: String, address: String) -> AnyPublisher<TransactionRecord, any Error> {
+        Future.async {
+            let transaction = try await self.provider.getTransaction(hash: hash)
+            // We have to load the previous tx for every input that get full info about input
+            // Because the original input doesn't have address and amount
+            let inputs = try await transaction.vin.asyncMap { input in
+                try await self.provider.getTransaction(hash: input.txid).vout[input.vout]
+            }
+
+            return try self.mapToTransactionRecord(transaction: transaction, inputs: inputs, address: address)
+        }
+        .eraseToAnyPublisher()
+    }
+
+    func getFee() -> AnyPublisher<UTXOFee, any Error> {
+        Future.async {
+            async let minimalEstimateFee = self.provider.estimateFee(block: Constants.minimalFeeBlockAmount)
+            async let normalEstimateFee = self.provider.estimateFee(block: Constants.normalFeeBlockAmount)
+            async let priorityEstimateFee = self.provider.estimateFee(block: Constants.priorityFeeBlockAmount)
+
+            let minimalSatoshiPerByte = try await minimalEstimateFee / Constants.perKbRate
+            let normalSatoshiPerByte = try await normalEstimateFee / Constants.perKbRate
+            let prioritySatoshiPerByte = try await priorityEstimateFee / Constants.perKbRate
+
+            return UTXOFee(slowSatoshiPerByte: minimalSatoshiPerByte, marketSatoshiPerByte: normalSatoshiPerByte, prioritySatoshiPerByte: prioritySatoshiPerByte)
+        }
+        .eraseToAnyPublisher()
+    }
+
+    func send(transaction: String) -> AnyPublisher<TransactionSendResult, any Error> {
+        Future.async {
+            let hash: String = try await self.provider.send(transactionHex: transaction)
+            return TransactionSendResult(hash: hash)
+        }
+        .eraseToAnyPublisher()
+    }
+}
+
+// MARK: - Private
+
+private extension Fact0rnNetworkProvider {
+    func mapToUnspentOutputs(outputs: [ElectrumDTO.Response.ListUnspent]) -> [UnspentOutput] {
+        outputs.map {
+            UnspentOutput(blockId: $0.height.intValue(), hash: $0.txHash, index: $0.txPos, amount: $0.value.uint64Value)
+        }
+    }
+
+    func mapToTransactionRecord(
+        transaction: ElectrumDTO.Response.Transaction,
+        inputs: [ElectrumDTO.Response.Vout],
+        address: String
+    ) throws -> TransactionRecord {
+        try ElectrumTransactionRecordMapper(blockchain: blockchain)
+            .mapToTransactionRecord(transaction: (transaction: transaction, inputs: inputs), address: address)
     }
 }
 
