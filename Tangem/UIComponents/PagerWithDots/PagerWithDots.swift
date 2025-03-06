@@ -14,12 +14,12 @@ struct PagerWithDots<Data, Content>: View
     where Data: RandomAccessCollection, Data.Element: Hashable, Data.Element: Identifiable, Content: View {
     let indexUpdateNotifier: PassthroughSubject<Int, Never>
 
-    // the index currently displayed page
+    /// the index currently displayed page
     @State private var currentIndex: Int = 0
-    // keeps track of how much did user swipe left or right
+    /// keeps track of how much did user swipe left or right
     @GestureState private var translation: CGFloat = 0
 
-    // the source data to render, can be a range, an array, or any other collection of Hashable
+    /// the source data to render, can be a range, an array, or any other collection of Hashable
     private let data: Data
     // maps data to page views
     private let content: (Data.Element) -> Content
