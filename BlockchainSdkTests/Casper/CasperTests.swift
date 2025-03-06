@@ -12,13 +12,12 @@ import XCTest
 @testable import BlockchainSdk
 
 final class CasperTests: XCTestCase {
-    private let sizeUtility = TransactionSizeTesterUtility()
-
     private let blockchain = Blockchain.casper(curve: .secp256k1, testnet: false)
     private lazy var txBuilder = CasperTransactionBuilder(curve: .secp256k1, blockchainDecimalValue: blockchain.decimalValue)
 
     // MARK: - Private Properties
 
+    // swiftformat:disable:next unusedPrivateDeclarations
     private let secp256k1PublicKey = "03ae9bdc765678be0ef74c3845f1f506fa8dbbef7a57aaa39a40daafc13dc9ac60"
     private let secp256k1Signature = "020d735191dbc378a30d9c122384bf77169d165d0123ce16c31cf3d86cb213aa1b26842d9e204f0c2c5f6719f1371fd9710d01b766bd724a099c45305fae776185"
     private let sourceAddress = "0203ae9bdc765678be0ef74c3845f1f506fa8dbbef7a57aaa39a40daafc13dc9ac60"
@@ -34,7 +33,7 @@ final class CasperTests: XCTestCase {
         XCTAssertEqual(hashForSign.hexString.lowercased(), "951f30645f15e5955750d7aa3b50cadd8ca4044f46aa49cfe389d90825f8122f")
     }
 
-    /*
+    /**
      https://cspr.live/deploy/951f30645f15e5955750d7aa3b50cadd8ca4044f46aa49cfe389d90825f8122f
      */
     func testBuildForSend() throws {
