@@ -13,7 +13,6 @@ import TangemNetworkUtils
 struct MoralisAPITarget {
     let version: Version
     let target: Target
-    let encoder: JSONEncoder
 }
 
 // MARK: - Nested types
@@ -27,7 +26,7 @@ extension MoralisAPITarget {
         case getNFTAssetsByWallet(address: String, params: MoralisNetworkParams.NFTAssetsByWallet)
 
         /// https://docs.moralis.com/web3-data-api/evm/reference/get-multiple-nfts
-        case getNFTAssets(tokens: [MoralisNetworkParams.NFTToken], params: MoralisNetworkParams.NFTAssets)
+        case getNFTAssets(queryParams: MoralisNetworkParams.NFTAssetsQuery?, bodyParams: MoralisNetworkParams.NFTAssetsBody)
 
         /// https://docs.moralis.com/web3-data-api/evm/reference/get-nft-sale-prices
         case getNFTSalePrice(address: String, tokenId: String, params: MoralisNetworkParams.NFTSalePrice)
@@ -79,13 +78,13 @@ extension MoralisAPITarget: TargetType {
     var task: Moya.Task {
         switch target {
         case .getNFTCollectionsByWallet(_, let params):
-            return .requestParameters(params, encoder: encoder)
+            return .requestParameters(params)
         case .getNFTAssetsByWallet(_, let params):
-            return .requestParameters(params, encoder: encoder)
-        case .getNFTAssets(let tokens, let params):
-            return .requestCompositeParameters(body: tokens, urlParameters: params, encoder: encoder)
+            return .requestParameters(params)
+        case .getNFTAssets(let queryParams, let bodyParams):
+            return .requestCompositeParameters(body: bodyParams, urlParameters: queryParams)
         case .getNFTSalePrice(_, _, let params):
-            return .requestParameters(params, encoder: encoder)
+            return .requestParameters(params)
         }
     }
 
