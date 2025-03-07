@@ -23,7 +23,7 @@ struct KaspaTarget: TargetType {
             return "addresses/\(address)/utxos"
         case .transactions:
             return "transactions"
-        case .transaction(let hash):
+        case .transaction(let hash, _):
             return "transactions/\(hash)"
         case .mass:
             return "transactions/mass"
@@ -43,8 +43,12 @@ struct KaspaTarget: TargetType {
 
     var task: Moya.Task {
         switch request {
-        case .blueScore, .balance, .utxos, .transaction, .feeEstimate:
+        case .blueScore, .balance, .utxos, .feeEstimate:
             return .requestPlain
+        case .transaction(_, let options):
+            let encoder = JSONEncoder()
+            encoder.keyEncodingStrategy = .convertToSnakeCase
+            return .requestParameters(options, encoder: encoder)
         case .transactions(let transaction):
             return .requestJSONEncodable(transaction)
         case .mass(let data):
@@ -63,7 +67,7 @@ extension KaspaTarget {
         case balance(address: String)
         case utxos(address: String)
         case transactions(transaction: KaspaDTO.Send.Request)
-        case transaction(hash: String)
+        case transaction(hash: String, request: KaspaDTO.TransactionInfo.Request)
         case mass(data: KaspaDTO.Send.Request.Transaction)
         case feeEstimate
     }
