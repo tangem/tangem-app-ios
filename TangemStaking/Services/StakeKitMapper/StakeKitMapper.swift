@@ -337,8 +337,18 @@ struct StakeKitMapper {
             partner: validator.name?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == StakingConstants.partnerName,
             iconURL: validator.image.flatMap { URL(string: $0) },
             apr: validator.apr,
-            isFull: validator.status == .full
+            status: mapValidatorStatus(validator.status)
         )
+    }
+
+    private func mapValidatorStatus(_ status: StakeKitDTO.Validator.Status) -> ValidatorInfoStatus {
+        switch status {
+        case .active: .active
+        case .jailed: .jailed
+        case .deactivating: .deactivating
+        case .inactive: .inactive
+        case .full: .full
+        }
     }
 
     // MARK: - Inner types
