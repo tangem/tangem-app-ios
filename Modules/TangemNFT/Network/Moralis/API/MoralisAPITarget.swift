@@ -13,6 +13,8 @@ import TangemNetworkUtils
 struct MoralisAPITarget {
     let version: Version
     let target: Target
+
+    private let urlEncoding = URLEncoding(boolEncoding: .literal)
 }
 
 // MARK: - Nested types
@@ -78,13 +80,13 @@ extension MoralisAPITarget: TargetType {
     var task: Moya.Task {
         switch target {
         case .getNFTCollectionsByWallet(_, let params):
-            return .requestParameters(params)
+            return .requestParameters(params, encoding: urlEncoding)
         case .getNFTAssetsByWallet(_, let params):
-            return .requestParameters(params)
+            return .requestParameters(params, encoding: urlEncoding)
         case .getNFTAssets(let queryParams, let bodyParams):
             return .requestCompositeParameters(body: bodyParams, urlParameters: queryParams)
         case .getNFTSalePrice(_, _, let params):
-            return .requestParameters(params)
+            return .requestParameters(params, encoding: urlEncoding)
         }
     }
 
