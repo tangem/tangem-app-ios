@@ -82,17 +82,23 @@ if [ "$OPT_MINT" = true ] ; then
     echo "🔄 Mint bootstrap dependencies"
     mint bootstrap --mintfile ${MINTFILE}
     echo "✅ Dependencies succesfully installed"
+else
+    echo "ℹ️ Skipping Mint dependencies installation"
 fi
 
-if [ "${CI}" = true ] ; then
+if [[ "$CI" = true || "$OPT_MINT" = false ]] ; then
     echo "ℹ️ Skipping SwiftFormat"
 else
     echo "🚀 Running SwiftFormat"
     mint run swiftformat@0.55.5 . --config .swiftformat
 fi
 
-echo "🚀 Running SwiftGen"
-mint run swiftgen@6.6.3 config run --config swiftgen.yml 
+if [ "$OPT_MINT" = false ] ; then
+    echo "ℹ️ Skipping SwiftGen"
+else
+    echo "🚀 Running SwiftGen"
+    mint run swiftgen@6.6.3 config run --config swiftgen.yml 
+fi
 
 if [ "$OPT_SUBMODULE" = true ] ; then
     echo "🚀 Running submodule remote update"
