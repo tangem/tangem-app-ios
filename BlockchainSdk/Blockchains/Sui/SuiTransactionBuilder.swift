@@ -9,16 +9,26 @@
 import Foundation
 import WalletCore
 
-class SuiTransactionBuilder {
+final class SuiTransactionBuilder {
+    private static let signatureMock = Data(repeating: 0x01, count: 64)
+
     private let walletAddress: String
     private let publicKey: Wallet.PublicKey
     private let decimalValue: Decimal
-    private var coins: [SuiCoinObject] = []
+    private var coins: [SuiCoinObject]
 
-    init(walletAddress: String, publicKey: Wallet.PublicKey, decimalValue: Decimal) throws {
+    private var coinGas: SuiCoinObject? {
+        coins
+            .filter { $0.coinType == SUIUtils.CoinType.sui.string }
+            .max { $0.balance < $1.balance }
+    }
+
+    init(walletAddress: String, publicKey: Wallet.PublicKey, decimalValue: Decimal) {
         self.walletAddress = walletAddress
         self.publicKey = publicKey
         self.decimalValue = decimalValue
+
+        coins = []
     }
 
     func update(coins: [SuiCoinObject]) {
@@ -26,31 +36,16 @@ class SuiTransactionBuilder {
     }
 
     func buildForInspect(amount: Amount, destination: String, referenceGasPrice: Decimal) throws -> String {
-        let totalAmount = coins.reduce(into: Decimal(0)) { partialResult, coin in
-            partialResult += coin.balance
+        switch amount.type {
+        case .coin:
+            try buildForInspectCoinTransaction(amount: amount, destination: destination, referenceGasPrice: referenceGasPrice)
+
+        case .token(let token):
+            try buildForInspectTokenTransaction(amount: amount, token: token, destination: destination, referenceGasPrice: referenceGasPrice)
+
+        default:
+            throw WalletError.failedToBuildTx
         }
-
-        let decimalAmount = amount.value * decimalValue
-        let isSendMax = decimalAmount == totalAmount
-
-        let availableBudget = isSendMax ? totalAmount - Decimal(1) : totalAmount - decimalAmount
-        let budget = min(availableBudget, SUIUtils.SuiGasBudgetMaxValue)
-
-        let inputAmount = isSendMax ? totalAmount - budget : decimalAmount
-
-        let input = try makeInput(amount: inputAmount / decimalValue, destination: destination, fee: .init(gasPrice: referenceGasPrice, gasBudget: budget))
-
-        let signatureMock = Data(repeating: 0x01, count: 64)
-
-        let compiled = try TransactionCompiler.compileWithSignatures(
-            coinType: .sui,
-            txInputData: input.serializedData(),
-            signatures: signatureMock.asDataVector(),
-            publicKeys: publicKey.blockchainKey.asDataVector()
-        )
-
-        let output = try SuiSigningOutput(serializedData: compiled)
-        return output.unsignedTx
     }
 
     func buildForSign(transaction: Transaction) throws -> Data {
@@ -58,9 +53,29 @@ class SuiTransactionBuilder {
             throw WalletError.failedToBuildTx
         }
 
-        let input = try makeInput(amount: transaction.amount.value, destination: transaction.destinationAddress, fee: suiFeeParameters)
+        let signingInput: WalletCore.SuiSigningInput
 
-        let preImageHashes = try TransactionCompiler.preImageHashes(coinType: .sui, txInputData: input.serializedData())
+        switch transaction.amount.type {
+        case .coin:
+            signingInput = makeCoinSigningInput(
+                amount: transaction.amount.value,
+                destination: transaction.destinationAddress,
+                fee: suiFeeParameters
+            )
+
+        case .token(let token):
+            signingInput = try makeTokenSigningInput(
+                amount: transaction.amount.value,
+                token: token,
+                destination: transaction.destinationAddress,
+                fee: suiFeeParameters
+            )
+
+        default:
+            throw WalletError.failedToBuildTx
+        }
+
+        let preImageHashes = try TransactionCompiler.preImageHashes(coinType: .sui, txInputData: signingInput.serializedData())
         let preSigningOutput = try TxCompilerPreSigningOutput(serializedData: preImageHashes)
 
         guard preSigningOutput.error == .ok else {
@@ -76,11 +91,31 @@ class SuiTransactionBuilder {
             throw WalletError.failedToBuildTx
         }
 
-        let input = try makeInput(amount: transaction.amount.value, destination: transaction.destinationAddress, fee: suiFeeParameters)
+        let signingInput: WalletCore.SuiSigningInput
+
+        switch transaction.amount.type {
+        case .coin:
+            signingInput = makeCoinSigningInput(
+                amount: transaction.amount.value,
+                destination: transaction.destinationAddress,
+                fee: suiFeeParameters
+            )
+
+        case .token(let token):
+            signingInput = try makeTokenSigningInput(
+                amount: transaction.amount.value,
+                token: token,
+                destination: transaction.destinationAddress,
+                fee: suiFeeParameters
+            )
+
+        default:
+            throw WalletError.failedToBuildTx
+        }
 
         let compiled = try TransactionCompiler.compileWithSignaturesAndPubKeyType(
             coinType: .sui,
-            txInputData: input.serializedData(),
+            txInputData: signingInput.serializedData(),
             signatures: signature.asDataVector(),
             publicKeys: publicKey.blockchainKey.asDataVector(),
             pubKeyType: .ed25519
@@ -90,9 +125,67 @@ class SuiTransactionBuilder {
         return (output.unsignedTx, output.signature)
     }
 
-    private func makeInput(amount: Decimal, destination: String, fee: SuiFeeParameters) throws -> WalletCore.SuiSigningInput {
+    func checkIfCoinGasBalanceIsNotEnoughForTokenTransaction() -> Bool {
+        let coinGasBalance = coinGas?.balance ?? .zero
+        return coinGasBalance < decimalValue
+    }
+
+    // MARK: - Private methods
+
+    private func buildForInspectCoinTransaction(amount: Amount, destination: String, referenceGasPrice: Decimal) throws -> String {
+        let totalAmount = coins
+            .filter { $0.coinType == SUIUtils.CoinType.sui.string }
+            .reduce(into: Decimal.zero) { partialResult, coin in
+                partialResult += coin.balance
+            }
+
+        let decimalAmount = amount.value * decimalValue
+        let isSendMax = decimalAmount == totalAmount
+
+        let availableBudget = isSendMax ? totalAmount - Decimal(1) : totalAmount - decimalAmount
+        let budget = min(availableBudget, SUIUtils.suiGasBudgetMaxValue)
+        let inputAmount = isSendMax ? totalAmount - budget : decimalAmount
+
+        let signingInput = makeCoinSigningInput(
+            amount: inputAmount / decimalValue,
+            destination: destination,
+            fee: .init(gasPrice: referenceGasPrice, gasBudget: budget)
+        )
+
+        let compiled = try TransactionCompiler.compileWithSignatures(
+            coinType: .sui,
+            txInputData: signingInput.serializedData(),
+            signatures: Self.signatureMock.asDataVector(),
+            publicKeys: publicKey.blockchainKey.asDataVector()
+        )
+
+        return try SuiSigningOutput(serializedData: compiled).unsignedTx
+    }
+
+    private func buildForInspectTokenTransaction(amount: Amount, token: Token, destination: String, referenceGasPrice: Decimal) throws -> String {
+        let availableBudget = coinGas?.balance ?? .zero
+        let gasBudget = min(availableBudget, SUIUtils.suiGasBudgetMaxValue)
+
+        let signingInput = try makeTokenSigningInput(
+            amount: amount.value,
+            token: token,
+            destination: destination,
+            fee: .init(gasPrice: referenceGasPrice, gasBudget: gasBudget)
+        )
+
+        let compiled = try TransactionCompiler.compileWithSignatures(
+            coinType: .sui,
+            txInputData: signingInput.serializedData(),
+            signatures: Self.signatureMock.asDataVector(),
+            publicKeys: publicKey.blockchainKey.asDataVector()
+        )
+
+        return try SuiSigningOutput(serializedData: compiled).unsignedTx
+    }
+
+    private func makeCoinSigningInput(amount: Decimal, destination: String, fee: SuiFeeParameters) -> WalletCore.SuiSigningInput {
         let decimalAmount = amount * decimalValue
-        let coinToUse = getCoins(for: decimalAmount + fee.gasBudget)
+        let coinToUse = getCoins(for: decimalAmount + fee.gasBudget, coinType: SUIUtils.CoinType.sui.string)
 
         return WalletCore.SuiSigningInput.with { input in
             let inputCoins = coinToUse.map { coin in
@@ -115,12 +208,49 @@ class SuiTransactionBuilder {
         }
     }
 
-    private func getCoins(for amount: Decimal) -> [SuiCoinObject] {
-        var inputs: [SuiCoinObject] = []
-        var total: Decimal = 0
+    private func makeTokenSigningInput(
+        amount: Decimal,
+        token: Token,
+        destination: String,
+        fee: SuiFeeParameters
+    ) throws -> WalletCore.SuiSigningInput {
+        guard let coinGas else { throw WalletError.failedToBuildTx }
 
-        for coin in coins {
-            inputs.append(coin)
+        let coinsToUse = getCoins(for: amount, coinType: token.contractAddress)
+        let decimalAmount = amount * token.decimalValue
+
+        return WalletCore.SuiSigningInput.with { input in
+            let inputCoins = coinsToUse.map { coin in
+                SuiObjectRef.with {
+                    $0.version = coin.version
+                    $0.objectID = coin.coinObjectId
+                    $0.objectDigest = coin.digest
+                }
+            }
+
+            input.pay = WalletCore.SuiPay.with { pay in
+                pay.inputCoins = inputCoins
+                pay.recipients = [destination]
+                pay.amounts = [decimalAmount.uint64Value]
+                pay.gas = WalletCore.SuiObjectRef.with { gas in
+                    gas.version = coinGas.version
+                    gas.objectID = coinGas.coinObjectId
+                    gas.objectDigest = coinGas.digest
+                }
+            }
+
+            input.signer = walletAddress
+            input.gasBudget = fee.gasBudget.uint64Value
+            input.referenceGasPrice = fee.gasPrice.uint64Value
+        }
+    }
+
+    private func getCoins(for amount: Decimal, coinType: String) -> [SuiCoinObject] {
+        var suitableCoins = [SuiCoinObject]()
+        var total = Decimal.zero
+
+        for coin in coins where coin.coinType == coinType {
+            suitableCoins.append(coin)
             total += coin.balance
 
             if total >= amount {
@@ -128,6 +258,6 @@ class SuiTransactionBuilder {
             }
         }
 
-        return inputs
+        return suitableCoins
     }
 }
