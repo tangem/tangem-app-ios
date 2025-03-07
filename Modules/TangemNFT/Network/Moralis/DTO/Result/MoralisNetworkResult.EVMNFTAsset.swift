@@ -68,7 +68,7 @@ extension MoralisNetworkResult.EVMNFTAsset {
     struct Media: Decodable {
         let status: String?
         let updatedAt: String?
-        let mimeType: String?
+        let mimetype: String?
         let parentHash: String?
         let mediaCollection: MediaCollection?
         let originalMediaUrl: URL?
