@@ -141,11 +141,6 @@ private extension TokenDetailsView {
     let userWalletModel = FakeUserWalletModel.wallet3Cards
     let walletModel = userWalletModel.walletModelsManager.walletModels.first ?? .mockETH
 
-    let exchangeUtility = ExchangeCryptoUtility(
-        blockchain: walletModel.blockchainNetwork.blockchain,
-        address: walletModel.defaultAddress,
-        amountType: walletModel.tokenItem.amountType
-    )
     let notifManager = SingleTokenNotificationManager(
         walletModel: walletModel,
         walletModelsManager: userWalletModel.walletModelsManager,
@@ -174,7 +169,6 @@ private extension TokenDetailsView {
     return TokenDetailsView(viewModel: .init(
         userWalletModel: userWalletModel,
         walletModel: walletModel,
-        exchangeUtility: exchangeUtility,
         notificationManager: notifManager,
         bannerNotificationManager: bannerNotificationManager,
         pendingExpressTransactionsManager: pendingTxsManager,
