@@ -1,5 +1,5 @@
 //
-//  MoralisNetworkParams.NFTToken.swift
+//  MoralisNetworkParams.NFTAssetsQuery.swift
 //  TangemNFT
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,8 +9,7 @@
 import Foundation
 
 extension MoralisNetworkParams {
-    struct NFTToken: Encodable {
-        let tokenAddress: String
-        let tokenId: String
+    struct NFTAssetsQuery: Encodable {
+        let chain: NFTChain
     }
 }
