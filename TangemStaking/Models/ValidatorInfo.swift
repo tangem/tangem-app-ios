@@ -15,7 +15,7 @@ public struct ValidatorInfo: Hashable {
     public let partner: Bool
     public let iconURL: URL?
     public let apr: Decimal?
-    public let isFull: Bool
+    public let status: ValidatorInfoStatus
 
     public init(
         address: String,
@@ -24,7 +24,7 @@ public struct ValidatorInfo: Hashable {
         partner: Bool,
         iconURL: URL?,
         apr: Decimal?,
-        isFull: Bool
+        status: ValidatorInfoStatus
     ) {
         self.address = address
         self.name = name
@@ -32,6 +32,6 @@ public struct ValidatorInfo: Hashable {
         self.preferred = preferred
         self.iconURL = iconURL
         self.apr = apr
-        self.isFull = isFull
+        self.status = status
     }
 }
