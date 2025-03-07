@@ -48,7 +48,7 @@ extension KaspaNetworkProvider: UTXONetworkAddressInfoProvider {
     }
 
     func getTransactionInfo(hash: String, address: String) -> AnyPublisher<TransactionRecord, any Error> {
-        requestPublisher(for: .transaction(hash: address))
+        requestPublisher(for: .transaction(hash: hash, request: .init()))
             .withWeakCaptureOf(self)
             .tryMap { try $0.mapToTransactionRecord(transaction: $1, address: address) }
             .eraseToAnyPublisher()
@@ -65,13 +65,7 @@ private extension KaspaNetworkProvider {
         return provider.requestPublisher(KaspaTarget(request: request, baseURL: url))
             .filterSuccessfulStatusAndRedirectCodes()
             .map(T.self, using: decoder)
-            .mapError { moyaError in
-                if case .objectMapping = moyaError {
-                    return WalletError.failedToParseNetworkResponse()
-                }
-                return moyaError
-            }
-            .eraseToAnyPublisher()
+            .eraseError()
     }
 }
 

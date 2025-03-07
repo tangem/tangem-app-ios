@@ -26,7 +26,7 @@ extension KaspaTransactionRecordMapper: TransactionRecordMapper {
             .init(address: $0.previousOutpointAddress, amount: Decimal($0.previousOutpointAmount) / blockchain.decimalValue)
         }
         let destinations: [TransactionRecord.Destination] = transaction.outputs.map {
-            .init(address: .user($0.scriptPublicScriptPublicKeyAddress), amount: Decimal($0.amount) / blockchain.decimalValue)
+            .init(address: .user($0.scriptPublicKeyAddress), amount: Decimal($0.amount) / blockchain.decimalValue)
         }
         let fee = (Decimal(stringValue: transaction.mass) ?? 0) / blockchain.decimalValue
         let date = transaction.blockTime.map { Date(timeIntervalSince1970: TimeInterval($0)) } ?? Date()

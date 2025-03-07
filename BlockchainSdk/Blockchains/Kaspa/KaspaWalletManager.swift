@@ -52,7 +52,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
         cancellable = loadCachedIncompleteTokenTransactionsIfNeeded()
             .withWeakCaptureOf(self)
             .flatMap { manager, _ in
-                let coinResponse = Just(manager.wallet.address)
+                let coinResponse = Just(manager.wallet.defaultAddress)
                     .compactMap { $0 as? LockingScriptAddress }
                     .flatMap { address in
                         manager.networkService.getInfo(address: address.value)
