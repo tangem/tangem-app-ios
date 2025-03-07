@@ -35,11 +35,12 @@ class CommonPendingOnrampTransactionsManager {
 
     init(
         userWalletId: String,
-        walletModel: WalletModel
+        walletModel: WalletModel,
+        expressAPIProvider: ExpressAPIProvider
     ) {
         self.userWalletId = userWalletId
         self.walletModel = walletModel
-        expressAPIProvider = ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId)
+        self.expressAPIProvider = expressAPIProvider
 
         bind()
     }

@@ -127,15 +127,19 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
             tokenFinder: tokenFinder
         )
 
+        let expressAPIProvider = makeExpressAPIProvider()
+
         let pendingExpressTransactionsManager = CommonPendingExpressTransactionsManager(
             userWalletId: userWalletModel.userWalletId.stringValue,
             walletModel: initialWalletModel,
+            expressAPIProvider: expressAPIProvider,
             expressRefundedTokenHandler: expressRefundedTokenHandler
         )
 
         let pendingOnrampTransactionsManager = CommonPendingOnrampTransactionsManager(
             userWalletId: userWalletModel.userWalletId.stringValue,
-            walletModel: initialWalletModel
+            walletModel: initialWalletModel,
+            expressAPIProvider: expressAPIProvider
         )
 
         return CompoundPendingTransactionsManager(
@@ -193,7 +197,7 @@ private extension CommonExpressModulesFactory {
     // MARK: - Methods
 
     func makeExpressAPIProvider() -> ExpressAPIProvider {
-        expressAPIProviderFactory.makeExpressAPIProvider(userId: userWalletId)
+        expressAPIProviderFactory.makeExpressAPIProvider(userWalletModel: userWalletModel)
     }
 
     func makeExpressInteractor() -> ExpressInteractor {

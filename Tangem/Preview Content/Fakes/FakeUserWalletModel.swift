@@ -49,6 +49,10 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
     }
 
+    var refcodeProvider: RefcodeProvider {
+        CommonExpressRefcodeProvider(userId: userWalletId.stringValue, batchId: "")
+    }
+
     var userWalletName: String { _userWalletNamePublisher.value }
 
     var tokensCount: Int? { walletModelsManager.walletModels.filter { !$0.isMainToken }.count }
