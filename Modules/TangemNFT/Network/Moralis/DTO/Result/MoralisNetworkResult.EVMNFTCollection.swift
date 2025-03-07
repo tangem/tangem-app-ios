@@ -16,8 +16,8 @@ extension MoralisNetworkResult {
         let name: String?
         let symbol: String?
         let verifiedCollection: Bool?
-        let collectionLogo: String?
-        let collectionBannerImage: String?
+        let collectionLogo: URL?
+        let collectionBannerImage: URL?
         let floorPrice: String?
         let floorPriceUsd: String?
         let floorPriceCurrency: String?
