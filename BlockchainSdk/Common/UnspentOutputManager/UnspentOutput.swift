@@ -20,7 +20,7 @@ struct UnspentOutput {
     let amount: UInt64
 
     var isConfirmed: Bool { blockId > 0 }
-    var txId: String { hash.hexString.removeHexPrefix() }
+    var txId: String { hash.hexString.lowercased().removeHexPrefix() }
 }
 
 struct ScriptUnspentOutput {
