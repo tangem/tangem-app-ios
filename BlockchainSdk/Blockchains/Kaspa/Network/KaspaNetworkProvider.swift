@@ -24,35 +24,41 @@ class KaspaNetworkProvider: HostProvider {
         provider = NetworkProvider<KaspaTarget>(configuration: networkConfiguration)
     }
 
-    func currentBlueScore() -> AnyPublisher<KaspaBlueScoreResponse, Error> {
-        requestPublisher(for: .blueScore)
-    }
-
-    func balance(address: String) -> AnyPublisher<KaspaBalanceResponse, Error> {
-        requestPublisher(for: .balance(address: address))
-    }
-
-    func utxos(address: String) -> AnyPublisher<[KaspaUnspentOutputResponse], Error> {
-        requestPublisher(for: .utxos(address: address))
-    }
-
-    func send(transaction: KaspaTransactionRequest) -> AnyPublisher<KaspaTransactionResponse, Error> {
+    func send(transaction: KaspaDTO.Send.Request) -> AnyPublisher<KaspaDTO.Send.Response, Error> {
         requestPublisher(for: .transactions(transaction: transaction))
     }
 
-    func transactionInfo(hash: String) -> AnyPublisher<KaspaTransactionInfoResponse, Error> {
-        requestPublisher(for: .transaction(hash: hash))
-    }
-
-    func mass(data: KaspaTransactionData) -> AnyPublisher<KaspaMassResponse, Error> {
+    func mass(data: KaspaDTO.Send.Request.Transaction) -> AnyPublisher<KaspaDTO.Mass.Response, Error> {
         requestPublisher(for: .mass(data: data))
     }
 
-    func feeEstimate() -> AnyPublisher<KaspaFeeEstimateResponse, Error> {
+    func feeEstimate() -> AnyPublisher<KaspaDTO.EstimateFee.Response, Error> {
         requestPublisher(for: .feeEstimate)
     }
+}
 
-    private func requestPublisher<T: Decodable>(for request: KaspaTarget.Request) -> AnyPublisher<T, Error> {
+// MARK: - UTXONetworkAddressInfoProvider
+
+extension KaspaNetworkProvider: UTXONetworkAddressInfoProvider {
+    func getUnspentOutputs(address: String) -> AnyPublisher<[UnspentOutput], any Error> {
+        requestPublisher(for: .utxos(address: address))
+            .withWeakCaptureOf(self)
+            .map { $0.mapToUnspentOutputs(outputs: $1) }
+            .eraseToAnyPublisher()
+    }
+
+    func getTransactionInfo(hash: String, address: String) -> AnyPublisher<TransactionRecord, any Error> {
+        requestPublisher(for: .transaction(hash: address))
+            .withWeakCaptureOf(self)
+            .tryMap { try $0.mapToTransactionRecord(transaction: $1, address: address) }
+            .eraseToAnyPublisher()
+    }
+}
+
+// MARK: - Private
+
+private extension KaspaNetworkProvider {
+    func requestPublisher<T: Decodable>(for request: KaspaTarget.Request) -> AnyPublisher<T, Error> {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
 
@@ -66,5 +72,34 @@ class KaspaNetworkProvider: HostProvider {
                 return moyaError
             }
             .eraseToAnyPublisher()
+    }
+}
+
+// MARK: - Mapping
+
+private extension KaspaNetworkProvider {
+    func mapToUnspentOutputs(outputs: [KaspaDTO.UTXO.Response]) -> [UnspentOutput] {
+        outputs.compactMap { output in
+            Decimal(stringValue: output.utxoEntry.amount).map { amount in
+                UnspentOutput(
+                    blockId: output.utxoEntry.blockDaaScore.flatMap { Int($0) } ?? -1,
+                    hash: Data(hexString: output.outpoint.transactionId),
+                    index: output.outpoint.index,
+                    amount: amount.uint64Value
+                )
+            }
+        }
+    }
+
+    func mapToTransactionRecord(
+        transaction: KaspaDTO.TransactionInfo.Response,
+        address: String
+    ) throws -> TransactionRecord {
+        try KaspaTransactionRecordMapper(blockchain: .kaspa(testnet: false))
+            .mapToTransactionRecord(transaction: transaction, address: address)
+    }
+
+    func mapToTransactionSendResult(transaction: KaspaDTO.Send.Response) -> TransactionSendResult {
+        TransactionSendResult(hash: transaction.transactionId)
     }
 }
