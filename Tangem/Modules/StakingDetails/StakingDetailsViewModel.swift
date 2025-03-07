@@ -73,13 +73,16 @@ final class StakingDetailsViewModel: ObservableObject {
     }
 
     func userDidTapActionButton() {
-        guard isAccountInitialized else {
-            alert = .init(title: Localization.commonWarning, message: Localization.stakingNoValidatorsErrorMessage)
+        if case .ton = tokenItem.blockchain, !isAccountInitialized {
+            alert = .init(
+                title: Localization.commonAttention,
+                message: Localization.stakingNotificationTonActivateAccount
+            )
             return
         }
 
-        guard stakingManager.state.yieldInfo?.preferredValidators.allSatisfy(\.isFull) == false else {
-            alert = .init(title: Localization.commonWarning, message: Localization.stakingNoValidatorsErrorMessage)
+        guard stakingManager.state.yieldInfo?.preferredValidators.allSatisfy({ $0.status == .full }) == false else {
+            alert = .init(title: Localization.stakingErrorNoValidatorsTitle, message: Localization.stakingNoValidatorsErrorMessage)
             return
         }
 
