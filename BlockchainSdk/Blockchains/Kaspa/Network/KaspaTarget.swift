@@ -62,9 +62,9 @@ extension KaspaTarget {
         case blueScore
         case balance(address: String)
         case utxos(address: String)
-        case transactions(transaction: KaspaTransactionRequest)
+        case transactions(transaction: KaspaDTO.Send.Request)
         case transaction(hash: String)
-        case mass(data: KaspaTransactionData)
+        case mass(data: KaspaDTO.Send.Request.Transaction)
         case feeEstimate
     }
 }
