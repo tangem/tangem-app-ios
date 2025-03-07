@@ -10,7 +10,6 @@ import Foundation
 import TangemSdk
 import BitcoinCore
 
-@available(iOS 13.0, *)
 class KaspaAddressService {
     private let isTestnet: Bool
     private let prefix: String
@@ -22,14 +21,12 @@ class KaspaAddressService {
         prefix = isTestnet ? "kaspatest" : "kaspa"
     }
 
-    func parse(_ address: String) -> KaspaAddressComponents? {
-        guard
-            let (prefix, data) = CashAddrBech32.decode(address),
-            !data.isEmpty,
-            let firstByte = data.first,
-            let type = KaspaAddressComponents.KaspaAddressType(rawValue: firstByte)
-        else {
-            return nil
+    func parse(_ address: String) throws -> KaspaAddressComponents {
+        guard let (prefix, data) = CashAddrBech32.decode(address),
+              !data.isEmpty,
+              let firstByte = data.first,
+              let type = KaspaAddressComponents.KaspaAddressType(rawValue: firstByte) else {
+            throw Error.wrongAddress
         }
 
         return KaspaAddressComponents(
@@ -37,6 +34,36 @@ class KaspaAddressService {
             type: type,
             hash: data.dropFirst()
         )
+    }
+
+    func scriptPublicKey(address: String) throws -> Data {
+        let components = try parse(address)
+
+        let startOpCode: OpCode?
+        let endOpCode: OpCode
+
+        switch components.type {
+        case .P2PK_Schnorr:
+            startOpCode = nil
+            endOpCode = OpCode.OP_CHECKSIG
+        case .P2PK_ECDSA:
+            startOpCode = nil
+            endOpCode = OpCode.OP_CODESEPARATOR
+        case .P2SH:
+            startOpCode = OpCode.OP_HASH256
+            endOpCode = OpCode.OP_EQUAL
+        }
+
+        let startOpCodeData: Data
+        if let startOpCode {
+            startOpCodeData = startOpCode.value.data
+        } else {
+            startOpCodeData = Data()
+        }
+        let endOpCodeData = endOpCode.value.data
+        let size = UInt8(components.hash.count)
+
+        return startOpCodeData + size.data + components.hash + endOpCodeData
     }
 }
 
@@ -47,7 +74,8 @@ extension KaspaAddressService: AddressProvider {
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
         let compressedKey = try Secp256k1Key(with: publicKey.blockchainKey).compress()
         let address = CashAddrBech32.encode(version.rawValue.data + compressedKey, prefix: prefix)
-        return PlainAddress(value: address, publicKey: publicKey, type: addressType)
+        let scriptPublicKey = try scriptPublicKey(address: address)
+        return LockingScriptAddress(value: address, publicKey: publicKey, type: addressType, scriptPubKey: scriptPublicKey)
     }
 }
 
@@ -57,7 +85,7 @@ extension KaspaAddressService: AddressProvider {
 extension KaspaAddressService: AddressValidator {
     func validate(_ address: String) -> Bool {
         guard
-            let components = parse(address),
+            let components = try? parse(address),
             components.prefix == self.prefix
         else {
             return false
@@ -72,5 +100,17 @@ extension KaspaAddressService: AddressValidator {
         }
 
         return true
+    }
+}
+
+extension KaspaAddressService {
+    enum Error: LocalizedError {
+        case wrongAddress
+
+        var errorDescription: String? {
+            switch self {
+            case .wrongAddress: "Wrong KASPA address"
+            }
+        }
     }
 }
