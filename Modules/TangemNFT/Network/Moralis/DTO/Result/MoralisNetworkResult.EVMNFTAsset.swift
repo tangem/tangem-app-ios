@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import AnyCodable
 
 extension MoralisNetworkResult {
     struct EVMNFTAsset: Decodable {
@@ -55,9 +56,9 @@ extension MoralisNetworkResult.EVMNFTAsset {
 
     struct Attribute: Decodable {
         let traitType: String?
-        let value: String?
+        let value: AnyDecodable?
+        let maxValue: AnyDecodable?
         let displayType: String?
-        let maxValue: String?
         let traitCount: Int?
         let order: String?
         let rarityLabel: String?
