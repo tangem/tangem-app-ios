@@ -32,6 +32,18 @@ enum KaspaDTO {
     }
 
     enum TransactionInfo {
+        struct Request: Encodable {
+            let inputs: Bool = true
+            let outputs: Bool = true
+            let resolvePreviousOutpoints: Resolve = .light
+
+            enum Resolve: String, Encodable {
+                case no
+                case light
+                case full
+            }
+        }
+
         struct Response: Decodable {
             let transactionId: String
             let mass: String
@@ -68,7 +80,7 @@ enum KaspaDTO {
             struct Output: Decodable {
                 let transactionId: String
                 let amount: UInt64
-                let scriptPublicScriptPublicKeyAddress: String
+                let scriptPublicKeyAddress: String
 
                 /*
                  let index: Int?
