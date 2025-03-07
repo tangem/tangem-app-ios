@@ -29,11 +29,15 @@ struct KaspaWalletAssembly: WalletManagerAssembly {
             ),
         ]
 
+        let unspentOutputManager = CommonUnspentOutputManager()
+        let txBuilder = KaspaTransactionBuilder(blockchain: blockchain, walletPublicKey: input.wallet.publicKey, unspentOutputManager: unspentOutputManager)
+
         return KaspaWalletManager(
             wallet: input.wallet,
-            networkService: KaspaNetworkService(providers: providers, blockchain: blockchain),
+            networkService: KaspaNetworkService(providers: providers),
             networkServiceKRC20: KaspaNetworkServiceKRC20(providers: providersKRC20),
-            txBuilder: KaspaTransactionBuilder(walletPublicKey: input.wallet.publicKey, blockchain: blockchain),
+            txBuilder: txBuilder,
+            unspentOutputManager: unspentOutputManager,
             dataStorage: input.blockchainSdkDependencies.dataStorage
         )
     }
