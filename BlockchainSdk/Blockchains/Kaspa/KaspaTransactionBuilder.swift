@@ -62,7 +62,10 @@ class KaspaTransactionBuilder {
             let size = UInt8(script.count)
 
             let signatureScript = (size.data + script).hexadecimal
-            let outpoint = KaspaDTO.Send.Request.Transaction.Input.PreviousOutpoint(transactionId: input.hash.hexString, index: input.index)
+            let outpoint = KaspaDTO.Send.Request.Transaction.Input.PreviousOutpoint(
+                transactionId: input.hash.hexString.lowercased(),
+                index: input.index
+            )
             return KaspaDTO.Send.Request.Transaction.Input(previousOutpoint: outpoint, signatureScript: signatureScript)
         }
 
@@ -157,6 +160,7 @@ extension KaspaTransactionBuilder {
             throw WalletError.failedToBuildTx
         }
 
+        let unspentOutputs = unspentOutputs
         let destinationAddressScript = try scriptPublicKey(address: transaction.destinationAddress)
 
         var outputs: [KaspaTransaction.Output] = [
@@ -166,8 +170,8 @@ extension KaspaTransactionBuilder {
             ),
         ]
 
-        let amount = transaction.amount.value
-        let fee = transaction.fee.amount.value
+        let amount = transaction.amount.value * blockchain.decimalValue
+        let fee = transaction.fee.amount.value * blockchain.decimalValue
         let fullAmount = unspentOutputs.sum(by: \.amount)
 
         if let change = try change(amount: amount, fee: fee, fullAmount: fullAmount) {
@@ -190,6 +194,20 @@ extension KaspaTransactionBuilder {
         }
 
         return (kaspaTransaction, hashes)
+    }
+
+    private func change(_ transaction: Transaction, fullAmount: UInt64) throws -> UInt64? {
+        let transactionAmount = ((transaction.amount.value * blockchain.decimalValue).rounded() as NSDecimalNumber).uint64Value
+        let feeAmount = ((transaction.fee.amount.value * blockchain.decimalValue).rounded() as NSDecimalNumber).uint64Value
+
+        let amountCharged = transactionAmount + feeAmount
+        if fullAmount > amountCharged {
+            return fullAmount - amountCharged
+        } else if fullAmount == amountCharged {
+            return nil
+        } else {
+            throw WalletError.failedToBuildTx
+        }
     }
 }
 
