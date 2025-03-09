@@ -19,7 +19,6 @@ class KaspaTransactionBuilder {
     private let unspentOutputManager: UnspentOutputManager
     private let addressService: KaspaAddressService
 
-    /// All outputs
     var unspentOutputs: [KaspaTransaction.Input] {
         let sortedOutputs = unspentOutputManager.allOutputs().sorted { $0.amount > $1.amount }
         let maxOutputs = sortedOutputs.prefix(maxInputCount)
