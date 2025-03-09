@@ -47,8 +47,6 @@ final class KaspaWalletManager: BaseManager, WalletManager {
     }
 
     override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        let unconfirmedTransactionHashes = wallet.pendingTransactions.map { $0.hash }
-
         cancellable = loadCachedIncompleteTokenTransactionsIfNeeded()
             .withWeakCaptureOf(self)
             .flatMap { manager, _ in
@@ -409,13 +407,6 @@ final class KaspaWalletManager: BaseManager, WalletManager {
     }
 
     private func updateWallet(_ response: UpdatingResponse, tokensInfo: [Token: Result<KaspaBalanceResponseKRC20, Error>]) {
-//        wallet.add(amount: Amount(with: wallet.blockchain, value: info.balance))
-//        txBuilder.setUnspentOutputs(info.unspentOutputs)
-//        var confirmedTransactionHashes = response.outputs.filter({ $0.isConfirmed }).map { $0.txId }.toSet()
-//        guard let lockingScriptAddress = wallet.defaultAddress as? LockingScriptAddress else {
-//            return
-//        }
-
         unspentOutputManager.update(outputs: response.response.outputs, for: response.address)
         let balance = Decimal(unspentOutputManager.confirmedBalance()) / wallet.blockchain.decimalValue
         wallet.add(coinValue: balance)
@@ -424,11 +415,6 @@ final class KaspaWalletManager: BaseManager, WalletManager {
             switch value {
             case .success(let tokenBalance):
                 let decimalTokenBalance = (Decimal(stringValue: tokenBalance.result.first?.balance) ?? 0) / token.decimalValue
-                // Currently, KRC20 doesn't provide an API endpoint to fetch the status of the transaction;
-                // therefore, we manage pending transactions using this ugly and fragile approach
-//                if wallet.amounts[.token(value: token)]?.value != decimalTokenBalance, let pending = pendingTokenTransactionHashes[token] {
-//                    confirmedTransactionHashes.formUnion(pending)
-//                }
                 wallet.add(tokenValue: decimalTokenBalance, for: token)
             case .failure:
                 wallet.clearAmount(for: token)
@@ -444,10 +430,6 @@ final class KaspaWalletManager: BaseManager, WalletManager {
         }
 
         wallet.updatePendingTransaction(pendingTransactions)
-//
-//        wallet.removePendingTransaction { hash in
-//            confirmedTransactionHashes.contains(hash)
-//        }
     }
 
     /// A workaround for a badly designed Kaspa transaction builder, which has a stateful implementation
@@ -458,8 +440,9 @@ final class KaspaWalletManager: BaseManager, WalletManager {
             .getUnspentOutputs(address: wallet.address)
             .withWeakCaptureOf(self)
             .handleEvents(receiveOutput: { walletManager, unspentOutputs in
-                let address = walletManager.wallet.defaultAddress as! LockingScriptAddress
-                walletManager.unspentOutputManager.update(outputs: unspentOutputs, for: address)
+                if let address = walletManager.wallet.defaultAddress as? LockingScriptAddress {
+                    walletManager.unspentOutputManager.update(outputs: unspentOutputs, for: address)
+                }
             })
             .mapToVoid()
             .eraseToAnyPublisher()
