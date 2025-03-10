@@ -15,7 +15,6 @@ class CustomBitcoinFeeService {
     private weak var input: CustomFeeServiceInput?
     private weak var output: CustomFeeServiceOutput?
 
-    private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
     private let bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator
 
@@ -30,11 +29,9 @@ class CustomBitcoinFeeService {
     }
 
     init(
-        tokenItem: TokenItem,
         feeTokenItem: TokenItem,
         bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator
     ) {
-        self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
         self.bitcoinTransactionFeeCalculator = bitcoinTransactionFeeCalculator
     }
@@ -95,14 +92,16 @@ class CustomBitcoinFeeService {
             return zeroFee
         }
 
-        let amount = Amount(with: tokenItem.blockchain, type: tokenItem.amountType, value: amount)
-        let newFee = bitcoinTransactionFeeCalculator.calculateFee(
-            satoshiPerByte: satoshiPerByte,
-            amount: amount,
-            destination: destination
-        )
-
-        return newFee
+        do {
+            let newFee = try bitcoinTransactionFeeCalculator.calculateFee(
+                satoshiPerByte: satoshiPerByte,
+                amount: amount,
+                destination: destination
+            )
+            return newFee
+        } catch {
+            return zeroFee
+        }
     }
 
     private func onCustomFeeChanged(_ focused: Bool) {
