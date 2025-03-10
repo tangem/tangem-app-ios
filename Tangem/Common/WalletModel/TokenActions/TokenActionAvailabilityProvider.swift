@@ -163,6 +163,7 @@ extension TokenActionAvailabilityProvider {
         case available
         case unavailable(tokenName: String)
         case customToken
+        case blockchainLoading
         case blockchainUnreachable
         case hasOnlyCachedBalance
         case cantSignLongTransactions
@@ -189,6 +190,8 @@ extension TokenActionAvailabilityProvider {
             return .cantSignLongTransactions
         case .blockchainUnreachable:
             return .blockchainUnreachable
+        case .blockchainLoading:
+            return .blockchainLoading
         case .hasOnlyCachedBalance:
             return .hasOnlyCachedBalance
         case .zeroWalletBalance,
@@ -230,6 +233,7 @@ extension TokenActionAvailabilityProvider {
         case cantSignLongTransactions
         case hasPendingTransaction(blockchainDisplayName: String)
         case blockchainUnreachable
+        case blockchainLoading
         case oldCard
         case hasOnlyCachedBalance
     }
@@ -252,6 +256,8 @@ extension TokenActionAvailabilityProvider {
             return .hasPendingTransaction(blockchainDisplayName: blockchain.displayName)
         case .blockchainUnreachable:
             return .blockchainUnreachable
+        case .blockchainLoading:
+            return .blockchainLoading
         case .oldCard:
             return .oldCard
         case .hasOnlyCachedBalance:
@@ -272,6 +278,7 @@ extension TokenActionAvailabilityProvider {
         case cantSignLongTransactions
         case hasPendingTransaction(blockchainDisplayName: String)
         case blockchainUnreachable
+        case blockchainLoading
         case oldCard
         case hasOnlyCachedBalance
         case demo(disabledLocalizedReason: String)
@@ -295,6 +302,8 @@ extension TokenActionAvailabilityProvider {
             return .hasPendingTransaction(blockchainDisplayName: blockchain.displayName)
         case .blockchainUnreachable:
             return .blockchainUnreachable
+        case .blockchainLoading:
+            return .blockchainLoading
         case .oldCard:
             return .oldCard
         case .hasOnlyCachedBalance:
