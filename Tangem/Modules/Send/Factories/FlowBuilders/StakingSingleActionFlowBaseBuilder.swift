@@ -11,7 +11,7 @@ import TangemStaking
 
 struct StakingSingleActionFlowBaseBuilder {
     let userWalletModel: UserWalletModel
-    let walletModel: WalletModel
+    let walletModel: any WalletModel
     let source: SendCoordinator.Source
     let sendAmountStepBuilder: SendAmountStepBuilder
     let sendFeeStepBuilder: SendFeeStepBuilder
