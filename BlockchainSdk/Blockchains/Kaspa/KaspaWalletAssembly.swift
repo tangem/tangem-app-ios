@@ -29,7 +29,7 @@ struct KaspaWalletAssembly: WalletManagerAssembly {
             ),
         ]
 
-        let unspentOutputManager = CommonUnspentOutputManager()
+        let unspentOutputManager = CommonUnspentOutputManager(decimalValue: input.blockchain.decimalValue)
         let txBuilder = KaspaTransactionBuilder(blockchain: blockchain, walletPublicKey: input.wallet.publicKey, unspentOutputManager: unspentOutputManager)
 
         return KaspaWalletManager(
