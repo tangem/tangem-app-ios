@@ -10,5 +10,5 @@ import Foundation
 import Combine
 
 protocol ExpressTokensListAdapter {
-    func walletModels() -> AnyPublisher<[WalletModel], Never>
+    func walletModels() -> AnyPublisher<[any WalletModel], Never>
 }
