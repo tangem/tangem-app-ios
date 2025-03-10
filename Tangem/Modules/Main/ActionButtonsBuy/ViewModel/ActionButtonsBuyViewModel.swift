@@ -190,7 +190,7 @@ extension ActionButtonsBuyViewModel {
 // MARK: - Helpers
 
 private extension ActionButtonsBuyViewModel {
-    func openBuy(for walletModel: WalletModel) {
+    func openBuy(for walletModel: any WalletModel) {
         if FeatureProvider.isAvailable(.onramp) {
             coordinator?.openOnramp(walletModel: walletModel, userWalletModel: userWalletModel)
         } else if let buyUrl = makeBuyUrl(from: walletModel) {
@@ -198,22 +198,22 @@ private extension ActionButtonsBuyViewModel {
         }
     }
 
-    func canBuy(_ walletModel: WalletModel) -> Bool {
+    func canBuy(_ walletModel: any WalletModel) -> Bool {
         let canOnramp = FeatureProvider.isAvailable(.onramp) && expressAvailabilityProvider.canOnramp(tokenItem: walletModel.tokenItem)
         let canBuy = !FeatureProvider.isAvailable(.onramp) && exchangeService.canBuy(
             walletModel.tokenItem.currencySymbol,
-            amountType: walletModel.amountType,
-            blockchain: walletModel.blockchainNetwork.blockchain
+            amountType: walletModel.tokenItem.amountType,
+            blockchain: walletModel.tokenItem.blockchain
         )
 
         return canOnramp || canBuy
     }
 
-    func makeBuyUrl(from walletModel: WalletModel) -> URL? {
+    func makeBuyUrl(from walletModel: any WalletModel) -> URL? {
         let buyUrl = exchangeService.getBuyUrl(
             currencySymbol: walletModel.tokenItem.currencySymbol,
-            amountType: walletModel.amountType,
-            blockchain: walletModel.blockchainNetwork.blockchain,
+            amountType: walletModel.tokenItem.amountType,
+            blockchain: walletModel.tokenItem.blockchain,
             walletAddress: walletModel.defaultAddress
         )
 

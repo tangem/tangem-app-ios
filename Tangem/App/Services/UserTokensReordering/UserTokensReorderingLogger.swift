@@ -9,14 +9,14 @@
 import Foundation
 
 struct UserTokensReorderingLogger {
-    let walletModels: [WalletModel]
+    let walletModels: [any WalletModel]
 
     func logReorder(
         existingList: StoredUserTokenList,
         editedList: StoredUserTokenList,
         source: UserTokensReorderingSource
     ) {
-        let walletModelsKeyedByIds = walletModels.keyedFirst(by: \.walletModelId.id)
+        let walletModelsKeyedByIds = walletModels.keyedFirst(by: \.id)
 
         var output: [String] = []
         output.append("Performing reordering (initiated by \(source))")
@@ -42,7 +42,7 @@ struct UserTokensReorderingLogger {
 
     private func description(
         for item: StoredUserTokenList.Entry,
-        walletModelsKeyedByIds: [WalletModel.ID: WalletModel]
+        walletModelsKeyedByIds: [WalletModelId: any WalletModel]
     ) -> String {
         let walletModel = walletModelsKeyedByIds[item.walletModelId]
         let objectDescription = "Token: \(item.name)"
@@ -57,7 +57,7 @@ struct UserTokensReorderingLogger {
         )
     }
 
-    private func description(for state: WalletModel.State?) -> String {
+    private func description(for state: WalletModelState?) -> String {
         guard let state else {
             return .unknown
         }

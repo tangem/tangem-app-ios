@@ -9,14 +9,14 @@
 import Foundation
 
 struct CustomFeeServiceFactory {
-    private let walletModel: WalletModel
+    private let walletModel: any WalletModel
 
-    init(walletModel: WalletModel) {
+    init(walletModel: any WalletModel) {
         self.walletModel = walletModel
     }
 
     func makeService() -> CustomFeeService? {
-        let blockchain = walletModel.blockchainNetwork.blockchain
+        let blockchain = walletModel.tokenItem.blockchain
 
         if case .bitcoin = blockchain,
            let bitcoinTransactionFeeCalculator = walletModel.bitcoinTransactionFeeCalculator {

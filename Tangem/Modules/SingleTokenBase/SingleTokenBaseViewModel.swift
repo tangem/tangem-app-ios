@@ -27,7 +27,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     let notificationManager: NotificationManager
     let userWalletModel: UserWalletModel
-    let walletModel: WalletModel
+    let walletModel: any WalletModel
 
     var availableActions: [TokenActionType] = []
 
@@ -43,9 +43,9 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private var updateSubscription: AnyCancellable?
     private var bag = Set<AnyCancellable>()
 
-    var blockchainNetwork: BlockchainNetwork { walletModel.blockchainNetwork }
+    var blockchainNetwork: BlockchainNetwork { walletModel.tokenItem.blockchainNetwork }
 
-    var amountType: Amount.AmountType { walletModel.amountType }
+    var amountType: Amount.AmountType { walletModel.tokenItem.amountType }
 
     var rateFormatted: String {
         priceFormatter.formatPrice(walletModel.quote?.price)
@@ -78,7 +78,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     init(
         userWalletModel: UserWalletModel,
-        walletModel: WalletModel,
+        walletModel: any WalletModel,
         notificationManager: NotificationManager,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
         tokenRouter: SingleTokenRoutable
@@ -417,7 +417,7 @@ extension SingleTokenBaseViewModel {
         })
     }
 
-    private func updateHistoryState(to newState: WalletModel.TransactionHistoryState) {
+    private func updateHistoryState(to newState: WalletModelTransactionHistoryState) {
         switch newState {
         case .notSupported:
             transactionHistoryState = .notSupported
