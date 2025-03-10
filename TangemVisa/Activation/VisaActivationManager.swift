@@ -150,11 +150,10 @@ extension CommonVisaActivationManager: VisaActivationManager {
         case .activated:
             throw .alreadyActivated
         case .activationStarted(let activationInput, let authorizationTokens, let status):
-            guard status.activationRemoteState == .cardWalletSignatureRequired else {
-                throw .invalidActivationState
-            }
-
-            return try await continueActivation(activationInput: activationInput, authorizationTokens: authorizationTokens)
+            throw .invalidActivationState
+//            guard status.activationRemoteState == .cardWalletSignatureRequired else {
+//            }
+//            return try await continueActivation(activationInput: activationInput, authorizationTokens: authorizationTokens)
         case .notStartedActivation(let activationInput):
             guard let selectedAccessCode else {
                 throw .missingAccessCode
