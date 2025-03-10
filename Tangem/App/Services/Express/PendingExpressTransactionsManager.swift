@@ -22,7 +22,7 @@ class CommonPendingExpressTransactionsManager {
     @Injected(\.pendingExpressTransactionAnalayticsTracker) private var pendingExpressTransactionAnalyticsTracker: PendingExpressTransactionAnalyticsTracker
 
     private let userWalletId: String
-    private let walletModel: WalletModel
+    private let walletModel: any WalletModel
     private let expressAPIProvider: ExpressAPIProvider
     private let expressRefundedTokenHandler: ExpressRefundedTokenHandler
 
@@ -37,7 +37,7 @@ class CommonPendingExpressTransactionsManager {
 
     init(
         userWalletId: String,
-        walletModel: WalletModel,
+        walletModel: any WalletModel,
         expressAPIProvider: ExpressAPIProvider,
         expressRefundedTokenHandler: ExpressRefundedTokenHandler
     ) {
@@ -209,13 +209,21 @@ class CommonPendingExpressTransactionsManager {
             let expressTransaction = try await expressAPIProvider.exchangeStatus(transactionId: transactionRecord.expressTransactionId)
             let refundedTokenItem = await handleRefundedTokenIfNeeded(for: expressTransaction, providerType: transactionRecord.provider.type)
 
+            let transactionParams = PendingExpressTransactionParams(
+                externalStatus: expressTransaction.externalStatus,
+                averageDuration: expressTransaction.averageDuration,
+                createdAt: expressTransaction.createdAt
+            )
+
             let pendingTransaction = pendingTransactionFactory.buildPendingExpressTransaction(
-                currentExpressStatus: expressTransaction.externalStatus,
+                with: transactionParams,
                 refundedTokenItem: refundedTokenItem,
                 for: transactionRecord
             )
+
             ExpressLogger.info("Transaction external status: \(expressTransaction.externalStatus.rawValue)")
             ExpressLogger.info("Refunded token: \(String(describing: refundedTokenItem))")
+
             pendingExpressTransactionAnalyticsTracker.trackStatusForSwapTransaction(
                 transactionId: pendingTransaction.transactionRecord.expressTransactionId,
                 tokenSymbol: tokenItem.currencySymbol,
