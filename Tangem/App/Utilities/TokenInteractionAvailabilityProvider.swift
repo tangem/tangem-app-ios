@@ -11,9 +11,9 @@ import BlockchainSdk
 
 /// Determines which UI (user) interactions are available for a given token.
 struct TokenInteractionAvailabilityProvider {
-    private let walletModel: WalletModel
+    private let walletModel: any WalletModel
 
-    init(walletModel: WalletModel) {
+    init(walletModel: any WalletModel) {
         self.walletModel = walletModel
     }
 
@@ -26,7 +26,7 @@ struct TokenInteractionAvailabilityProvider {
             return true
         }
 
-        switch assetRequirementsManager.requirementsCondition(for: walletModel.amountType) {
+        switch assetRequirementsManager.requirementsCondition(for: walletModel.tokenItem.amountType) {
         case .paidTransactionWithFee(blockchain: .hedera, _, _):
             return false
         case .paidTransactionWithFee,
@@ -44,7 +44,7 @@ struct TokenInteractionAvailabilityProvider {
             return true
         }
 
-        switch assetRequirementsManager.requirementsCondition(for: walletModel.amountType) {
+        switch assetRequirementsManager.requirementsCondition(for: walletModel.tokenItem.amountType) {
         case .paidTransactionWithFee(blockchain: .hedera, _, _):
             return false
         case .paidTransactionWithFee,
@@ -54,7 +54,7 @@ struct TokenInteractionAvailabilityProvider {
     }
 
     private func defaultInteractionAvailability() -> Bool {
-        switch walletModel.wallet.blockchain {
+        switch walletModel.tokenItem.blockchain {
         case .bitcoin,
              .litecoin,
              .stellar,
