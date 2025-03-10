@@ -31,7 +31,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
 
     init(
         userWalletModel: UserWalletModel,
-        walletModel: WalletModel,
+        walletModel: any WalletModel,
         userWalletNotificationManager: NotificationManager,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
         tokenNotificationManager: NotificationManager,
