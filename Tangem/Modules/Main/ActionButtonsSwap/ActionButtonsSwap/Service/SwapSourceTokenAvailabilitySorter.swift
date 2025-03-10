@@ -16,9 +16,9 @@ struct SwapSourceTokenAvailabilitySorter {
 // MARK: - TokenAvailabilitySorter
 
 extension SwapSourceTokenAvailabilitySorter: TokenAvailabilitySorter {
-    func sortModels(walletModels: [WalletModel]) -> (availableModels: [WalletModel], unavailableModels: [WalletModel]) {
+    func sortModels(walletModels: [any WalletModel]) -> (availableModels: [any WalletModel], unavailableModels: [any WalletModel]) {
         walletModels.reduce(
-            into: (availableModels: [WalletModel](), unavailableModels: [WalletModel]())
+            into: (availableModels: [any WalletModel](), unavailableModels: [any WalletModel]())
         ) { result, walletModel in
 
             if expressAvailabilityProvider.canSwap(tokenItem: walletModel.tokenItem), !walletModel.isCustom, !walletModel.state.isBlockchainUnreachable {
