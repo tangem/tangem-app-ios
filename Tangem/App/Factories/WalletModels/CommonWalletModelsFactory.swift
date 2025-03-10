@@ -80,14 +80,14 @@ struct CommonWalletModelsFactory {
 }
 
 extension CommonWalletModelsFactory: WalletModelsFactory {
-    func makeWalletModels(from walletManager: WalletManager) -> [WalletModel] {
+    func makeWalletModels(from walletManager: WalletManager) -> [any WalletModel] {
         var types: [Amount.AmountType] = [.coin]
         types += walletManager.cardTokens.map { Amount.AmountType.token(value: $0) }
         return makeWalletModels(for: types, walletManager: walletManager)
     }
 
-    func makeWalletModels(for types: [Amount.AmountType], walletManager: WalletManager) -> [WalletModel] {
-        var models: [WalletModel] = []
+    func makeWalletModels(for types: [Amount.AmountType], walletManager: WalletManager) -> [any WalletModel] {
+        var models: [any WalletModel] = []
 
         let currentBlockchain = walletManager.wallet.blockchain
         let currentDerivation = walletManager.wallet.publicKey.derivationPath
@@ -103,7 +103,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                 addresses: walletManager.wallet.addresses.map { $0.value }
             )
             let shouldPerformHealthCheck = shouldPerformHealthCheck(blockchain: currentBlockchain, amountType: .coin)
-            let mainCoinModel = WalletModel(
+            let mainCoinModel = CommonWalletModel(
                 walletManager: walletManager,
                 stakingManager: makeStakingManager(
                     publicKey: walletManager.wallet.publicKey.blockchainKey,
@@ -130,7 +130,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                     addresses: walletManager.wallet.addresses.map { $0.value }
                 )
                 let shouldPerformHealthCheck = shouldPerformHealthCheck(blockchain: currentBlockchain, amountType: amountType)
-                let tokenModel = WalletModel(
+                let tokenModel = CommonWalletModel(
                     walletManager: walletManager,
                     stakingManager: makeStakingManager(
                         publicKey: walletManager.wallet.publicKey.blockchainKey,

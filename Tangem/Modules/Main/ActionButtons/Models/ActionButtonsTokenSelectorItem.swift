@@ -13,7 +13,7 @@ struct ActionButtonsTokenSelectorItem: Identifiable {
     let isDisabled: Bool
     let tokenIconInfo: TokenIconInfo
     let infoProvider: DefaultTokenItemInfoProvider
-    let walletModel: WalletModel
+    let walletModel: any WalletModel
 }
 
 extension ActionButtonsTokenSelectorItem: Equatable {
