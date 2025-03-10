@@ -11,7 +11,7 @@ import TangemExpress
 
 struct OnrampFlowBaseBuilder {
     let userWalletModel: UserWalletModel
-    let walletModel: WalletModel
+    let walletModel: any WalletModel
     let source: SendCoordinator.Source
     let onrampAmountBuilder: OnrampAmountBuilder
     let onrampStepBuilder: OnrampStepBuilder

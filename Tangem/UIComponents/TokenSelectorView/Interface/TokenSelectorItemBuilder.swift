@@ -9,5 +9,5 @@
 protocol TokenSelectorItemBuilder {
     associatedtype TokenModel
 
-    func map(from walletModel: WalletModel, isDisabled: Bool) -> TokenModel
+    func map(from walletModel: any WalletModel, isDisabled: Bool) -> TokenModel
 }
