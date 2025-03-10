@@ -1932,6 +1932,7 @@
 		B687E9492A2D881C00BFF604 /* View+ReadContentOffset.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687E9482A2D881C00BFF604 /* View+ReadContentOffset.swift */; };
 		B68B356B2A4B0FAB0069129F /* UIAppearanceBoundaryContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68B356A2A4B0FAB0069129F /* UIAppearanceBoundaryContainerView.swift */; };
 		B68B442C2B6C7C9C00CF95AB /* OptionalProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68B442B2B6C7C9C00CF95AB /* OptionalProtocol.swift */; };
+		B68BE0B92D761D0000779F84 /* NFTDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68BE0B82D761D0000779F84 /* NFTDataProvider.swift */; };
 		B68E1F6D2CBC44060043E598 /* BlockchainSdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B68E1F652CBC44050043E598 /* BlockchainSdk.framework */; };
 		B68E1F752CBC44060043E598 /* BlockchainSdk.h in Headers */ = {isa = PBXBuildFile; fileRef = B68E1F672CBC44060043E598 /* BlockchainSdk.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B68E1F782CBC44060043E598 /* BlockchainSdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B68E1F652CBC44050043E598 /* BlockchainSdk.framework */; };
@@ -1993,6 +1994,9 @@
 		B6AEF9742A796713004663C3 /* TokenSectionsAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AEF9732A796713004663C3 /* TokenSectionsAdapter.swift */; };
 		B6B1BC292C6CCE88003EDB47 /* IntrospectResponderChainViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B1BC282C6CCE88003EDB47 /* IntrospectResponderChainViewModifier.swift */; };
 		B6B1CCCA2C460BB9006C1B44 /* UIPanGestureRecognizer+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B1CCC92C460BB9006C1B44 /* UIPanGestureRecognizer+.swift */; };
+		B6B3BB5D2D70D385002EBB56 /* NFTAvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B3BB5C2D70D385002EBB56 /* NFTAvailabilityProvider.swift */; };
+		B6B3BB5F2D7140C4002EBB56 /* CommonNFTAvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B3BB5E2D7140C4002EBB56 /* CommonNFTAvailabilityProvider.swift */; };
+		B6B3BB612D7149BA002EBB56 /* NFTAvailabilityProvider+InjectedValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B3BB602D7149B9002EBB56 /* NFTAvailabilityProvider+InjectedValues.swift */; };
 		B6B7B6052CDAC6F500479729 /* MarketsTokenDetailsSecurityScoreViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B7B6042CDAC6F500479729 /* MarketsTokenDetailsSecurityScoreViewModel.swift */; };
 		B6B7D4E22CED637000567C4B /* SingleTokenNotificationManagerInteractionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B7D4E12CED637000567C4B /* SingleTokenNotificationManagerInteractionDelegate.swift */; };
 		B6C0D3E12CBDC2E3001113ED /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = B6C0D3E02CBDC2E3001113ED /* TangemModules */; };
@@ -5317,6 +5321,7 @@
 		B687E9482A2D881C00BFF604 /* View+ReadContentOffset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+ReadContentOffset.swift"; sourceTree = "<group>"; };
 		B68B356A2A4B0FAB0069129F /* UIAppearanceBoundaryContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIAppearanceBoundaryContainerView.swift; sourceTree = "<group>"; };
 		B68B442B2B6C7C9C00CF95AB /* OptionalProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalProtocol.swift; sourceTree = "<group>"; };
+		B68BE0B82D761D0000779F84 /* NFTDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTDataProvider.swift; sourceTree = "<group>"; };
 		B68E1F652CBC44050043E598 /* BlockchainSdk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = BlockchainSdk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B68E1F672CBC44060043E598 /* BlockchainSdk.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BlockchainSdk.h; sourceTree = "<group>"; };
 		B68E1F6C2CBC44060043E598 /* BlockchainSdkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BlockchainSdkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -5370,6 +5375,9 @@
 		B6AEF9732A796713004663C3 /* TokenSectionsAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenSectionsAdapter.swift; sourceTree = "<group>"; };
 		B6B1BC282C6CCE88003EDB47 /* IntrospectResponderChainViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntrospectResponderChainViewModifier.swift; sourceTree = "<group>"; };
 		B6B1CCC92C460BB9006C1B44 /* UIPanGestureRecognizer+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIPanGestureRecognizer+.swift"; sourceTree = "<group>"; };
+		B6B3BB5C2D70D385002EBB56 /* NFTAvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTAvailabilityProvider.swift; sourceTree = "<group>"; };
+		B6B3BB5E2D7140C4002EBB56 /* CommonNFTAvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonNFTAvailabilityProvider.swift; sourceTree = "<group>"; };
+		B6B3BB602D7149B9002EBB56 /* NFTAvailabilityProvider+InjectedValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NFTAvailabilityProvider+InjectedValues.swift"; sourceTree = "<group>"; };
 		B6B7B6042CDAC6F500479729 /* MarketsTokenDetailsSecurityScoreViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenDetailsSecurityScoreViewModel.swift; sourceTree = "<group>"; };
 		B6B7D4E12CED637000567C4B /* SingleTokenNotificationManagerInteractionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleTokenNotificationManagerInteractionDelegate.swift; sourceTree = "<group>"; };
 		B6C1B9FE2AE1627500A98D2F /* OrganizeTokensScrollState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensScrollState.swift; sourceTree = "<group>"; };
@@ -10044,6 +10052,15 @@
 			path = Onboarding;
 			sourceTree = "<group>";
 		};
+		B61EBDE32D70D058008BA0A7 /* NFT */ = {
+			isa = PBXGroup;
+			children = (
+				B68BE0B72D761CD900779F84 /* Availability */,
+				B68BE0B62D761CC700779F84 /* DataSource */,
+			);
+			path = NFT;
+			sourceTree = "<group>";
+		};
 		B6209E5D2A2F1BBF0066ACFE /* OrganizeTokens */ = {
 			isa = PBXGroup;
 			children = (
@@ -12709,6 +12726,24 @@
 			path = BlockchainDataStorage;
 			sourceTree = "<group>";
 		};
+		B68BE0B62D761CC700779F84 /* DataSource */ = {
+			isa = PBXGroup;
+			children = (
+				B68BE0B82D761D0000779F84 /* NFTDataProvider.swift */,
+			);
+			path = DataSource;
+			sourceTree = "<group>";
+		};
+		B68BE0B72D761CD900779F84 /* Availability */ = {
+			isa = PBXGroup;
+			children = (
+				B6B3BB5C2D70D385002EBB56 /* NFTAvailabilityProvider.swift */,
+				B6B3BB602D7149B9002EBB56 /* NFTAvailabilityProvider+InjectedValues.swift */,
+				B6B3BB5E2D7140C4002EBB56 /* CommonNFTAvailabilityProvider.swift */,
+			);
+			path = Availability;
+			sourceTree = "<group>";
+		};
 		B68E1F662CBC44060043E598 /* BlockchainSdk */ = {
 			isa = PBXGroup;
 			children = (
@@ -13631,6 +13666,7 @@
 				2DC46C342C97905C00749F7C /* Tooltips */,
 				2D93C4DF2D661459002BCCE2 /* SupportSeedNotificationManager */,
 				2D93C4E82D7043B7002BCCE2 /* RefcodeProvider */,
+				B61EBDE32D70D058008BA0A7 /* NFT */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -17932,6 +17968,7 @@
 				DC66BBE52858EB6300CDF765 /* OnboardingCoordinator.swift in Sources */,
 				B012A11C2AA617000079BAB4 /* NotificationManager.swift in Sources */,
 				5DDE22F52609022D008657C6 /* WalletConnectView.swift in Sources */,
+				B6B3BB5D2D70D385002EBB56 /* NFTAvailabilityProvider.swift in Sources */,
 				2DB8E1162B29068C0044BF7D /* CustomSearchBar.swift in Sources */,
 				EFB932032C3EAF7900C999E9 /* SendStepType.swift in Sources */,
 				EF4BEFDF28AD3EE500C5D1BE /* ContentState.swift in Sources */,
@@ -18128,6 +18165,7 @@
 				EFC98FFF2CD3A3F80098B7C8 /* OnrampPaymentMethodsViewModel.swift in Sources */,
 				EFC990002CD3A3F80098B7C8 /* OnrampPaymentMethodsRoutable.swift in Sources */,
 				EFC990012CD3A3F80098B7C8 /* OnrampPaymentMethodRowViewData.swift in Sources */,
+				B6B3BB5F2D7140C4002EBB56 /* CommonNFTAvailabilityProvider.swift in Sources */,
 				B08F05F42C36D99A0066E833 /* MarketsTokenDetailsLinksView.swift in Sources */,
 				2DFC27962C78E881009B247E /* MarketsPortfolioTokenItemFactory.swift in Sources */,
 				2D22765D2C0F0A4F006BB6A1 /* MarketsListOrderBottomSheetViewModel.swift in Sources */,
@@ -18314,6 +18352,7 @@
 				2D6167222C763505006FCEA6 /* MarketsTokenNetworkSelectorCoordinatorView.swift in Sources */,
 				EFD143852CC5517E00B5BA57 /* CommonSendBaseDataBuilder.swift in Sources */,
 				B6AA13662A2A372500B53937 /* CardsInfoPagerPreviewProvider.swift in Sources */,
+				B68BE0B92D761D0000779F84 /* NFTDataProvider.swift in Sources */,
 				EFC84B2A2C37FBB300546882 /* SendDestinationStep.swift in Sources */,
 				B62C65D12C38D06B00189AD4 /* PushNotificationsAvailabilityProvider.swift in Sources */,
 				EFE5EC532AEC1BB100C5ADC3 /* UndoToastView.swift in Sources */,
@@ -18689,6 +18728,7 @@
 				DCE5C66E28898BB6000C7F67 /* CommonTangemApiService.swift in Sources */,
 				B645BF3E2C59239700D8A2A5 /* CommonMarketsHistoryChartProvider.swift in Sources */,
 				5DF2522724F914E30015B429 /* AppScanTask.swift in Sources */,
+				B6B3BB612D7149BA002EBB56 /* NFTAvailabilityProvider+InjectedValues.swift in Sources */,
 				DC2CD3432B0FE3D600C0D677 /* SendCurrencyViewModel.swift in Sources */,
 				B09409932A3B7E9800787432 /* NavbarDotsImage.swift in Sources */,
 				B0BF631B2A0D1C6F009EB975 /* TotalBalanceFormattingOptions.swift in Sources */,
