@@ -10,8 +10,8 @@ import Foundation
 import BlockchainSdk
 import Combine
 
-extension WalletModel {
-    static let mockETH = WalletModel(
+extension CommonWalletModel {
+    static let mockETH = CommonWalletModel(
         walletManager: EthereumWalletManagerMock(),
         stakingManager: StakingManagerMock(),
         transactionHistoryService: nil,
