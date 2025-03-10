@@ -20,12 +20,12 @@ protocol StakingBaseDataBuilderInput: SendBaseDataBuilderInput {
 
 struct CommonStakingBaseDataBuilder: StakingBaseDataBuilder {
     private let input: StakingBaseDataBuilderInput
-    private let walletModel: WalletModel
+    private let walletModel: any WalletModel
     private let emailDataProvider: EmailDataProvider
 
     init(
         input: StakingBaseDataBuilderInput,
-        walletModel: WalletModel,
+        walletModel: any WalletModel,
         emailDataProvider: EmailDataProvider
     ) {
         self.input = input
@@ -62,7 +62,7 @@ struct CommonStakingBaseDataBuilder: StakingBaseDataBuilder {
     func makeMailData(action: StakingTransactionAction, error: SendTxError) -> (dataCollector: EmailDataCollector, recipient: String) {
         let feeValue = action.transactions.reduce(0) { $0 + $1.fee }
         let fee = Amount(with: walletModel.feeTokenItem.blockchain, type: walletModel.feeTokenItem.amountType, value: feeValue)
-        let amount = Amount(with: walletModel.tokenItem.blockchain, type: walletModel.amountType, value: action.amount)
+        let amount = Amount(with: walletModel.tokenItem.blockchain, type: walletModel.tokenItem.amountType, value: action.amount)
 
         let emailDataCollector = SendScreenDataCollector(
             userWalletEmailData: emailDataProvider.emailData,
