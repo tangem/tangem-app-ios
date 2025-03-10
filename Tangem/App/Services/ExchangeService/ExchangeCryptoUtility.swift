@@ -15,6 +15,10 @@ struct ExchangeCryptoUtility {
     private let address: String
     private let amountType: Amount.AmountType
 
+    init(tokenItem: TokenItem, address: String) {
+        self.init(blockchain: tokenItem.blockchain, address: address, amountType: tokenItem.amountType)
+    }
+
     init(blockchain: Blockchain, address: String, amountType: Amount.AmountType) {
         self.blockchain = blockchain
         self.address = address
