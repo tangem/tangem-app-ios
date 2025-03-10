@@ -22,7 +22,7 @@ class CommonPendingExpressTransactionsManager {
     @Injected(\.pendingExpressTransactionAnalayticsTracker) private var pendingExpressTransactionAnalyticsTracker: PendingExpressTransactionAnalyticsTracker
 
     private let userWalletId: String
-    private let walletModel: WalletModel
+    private let walletModel: any WalletModel
     private let expressAPIProvider: ExpressAPIProvider
     private let expressRefundedTokenHandler: ExpressRefundedTokenHandler
 
@@ -37,7 +37,7 @@ class CommonPendingExpressTransactionsManager {
 
     init(
         userWalletId: String,
-        walletModel: WalletModel,
+        walletModel: any WalletModel,
         expressAPIProvider: ExpressAPIProvider,
         expressRefundedTokenHandler: ExpressRefundedTokenHandler
     ) {
