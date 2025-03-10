@@ -11,10 +11,10 @@ import TangemExpress
 import BlockchainSdk
 
 class CommonAllowanceProvider {
-    private var walletModel: WalletModel
+    private var walletModel: any WalletModel
     private var spendersAwaitingApprove: Set<String> = []
 
-    init(walletModel: WalletModel) {
+    init(walletModel: any WalletModel) {
         self.walletModel = walletModel
     }
 }
@@ -68,7 +68,7 @@ extension CommonAllowanceProvider: ExpressAllowanceProvider {
 // MARK: - UpdatableAllowanceProvider
 
 extension CommonAllowanceProvider: UpdatableAllowanceProvider {
-    func setup(wallet: WalletModel) {
+    func setup(wallet: any WalletModel) {
         walletModel = wallet
     }
 }
