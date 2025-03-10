@@ -13,17 +13,17 @@ protocol WalletConnectWalletModelProvider {
     /// This info is based on information from WC and they didn't know anything about derivation
     /// So we need to compare blockchain and address to simulate comparision of derivation path
     /// Information about address is encoded in request params and info about blockchain - request chainId
-    func getModel(with address: String, blockchainId: String) throws -> WalletModel
+    func getModel(with address: String, blockchainId: String) throws -> any WalletModel
 
-    func getModels(with blockchainId: String) -> [WalletModel]
+    func getModels(with blockchainId: String) -> [any WalletModel]
 
-    func getModel(with blockchainId: String) -> WalletModel?
+    func getModel(with blockchainId: String) -> (any WalletModel)?
 }
 
 struct CommonWalletConnectWalletModelProvider: WalletConnectWalletModelProvider {
     private let walletModelsManager: WalletModelsManager
 
-    private var mainWalletModels: [WalletModel] {
+    private var mainWalletModels: [any WalletModel] {
         walletModelsManager.walletModels.filter {
             $0.isMainToken
         }
@@ -33,11 +33,11 @@ struct CommonWalletConnectWalletModelProvider: WalletConnectWalletModelProvider 
         self.walletModelsManager = walletModelsManager
     }
 
-    func getModel(with address: String, blockchainId: String) throws -> WalletModel {
+    func getModel(with address: String, blockchainId: String) throws -> any WalletModel {
         guard
             let model = mainWalletModels.first(where: {
-                $0.blockchainNetwork.blockchain.networkId == blockchainId
-                    && $0.wallet.address.caseInsensitiveCompare(address) == .orderedSame
+                $0.tokenItem.blockchain.networkId == blockchainId
+                    && $0.defaultAddress.caseInsensitiveCompare(address) == .orderedSame
             })
         else {
             throw WalletConnectV2Error.walletModelNotFound(blockchainId)
@@ -46,25 +46,25 @@ struct CommonWalletConnectWalletModelProvider: WalletConnectWalletModelProvider 
         return model
     }
 
-    func getModels(with blockchainId: String) -> [WalletModel] {
-        return mainWalletModels.filter { $0.blockchainNetwork.blockchain.networkId == blockchainId }
+    func getModels(with blockchainId: String) -> [any WalletModel] {
+        return mainWalletModels.filter { $0.tokenItem.blockchain.networkId == blockchainId }
     }
 
-    func getModel(with blockchainId: String) -> WalletModel? {
-        mainWalletModels.first { $0.blockchainNetwork.blockchain.networkId == blockchainId }
+    func getModel(with blockchainId: String) -> (any WalletModel)? {
+        mainWalletModels.first { $0.tokenItem.blockchain.networkId == blockchainId }
     }
 }
 
 struct NotSupportedWalletConnectWalletModelProvider: WalletConnectWalletModelProvider {
-    func getModel(with address: String, blockchainId: String) throws -> WalletModel {
+    func getModel(with address: String, blockchainId: String) throws -> any WalletModel {
         throw WalletConnectV2Error.wrongCardSelected
     }
 
-    func getModels(with blockchainId: String) -> [WalletModel] {
+    func getModels(with blockchainId: String) -> [any WalletModel] {
         return []
     }
 
-    func getModel(with blockchainId: String) -> WalletModel? {
+    func getModel(with blockchainId: String) -> (any WalletModel)? {
         return nil
     }
 }
