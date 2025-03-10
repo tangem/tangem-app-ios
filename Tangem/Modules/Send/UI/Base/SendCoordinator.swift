@@ -13,7 +13,7 @@ import BlockchainSdk
 import TangemExpress
 
 class SendCoordinator: CoordinatorObject {
-    let dismissAction: Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?>
+    let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?>
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Dependencies
@@ -43,7 +43,7 @@ class SendCoordinator: CoordinatorObject {
     private var safariHandle: SafariHandle?
 
     required init(
-        dismissAction: @escaping Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?>,
+        dismissAction: @escaping Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?>,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) {
         self.dismissAction = dismissAction
@@ -80,7 +80,7 @@ class SendCoordinator: CoordinatorObject {
 
 extension SendCoordinator {
     struct Options {
-        let walletModel: WalletModel
+        let walletModel: any WalletModel
         let userWalletModel: UserWalletModel
         let type: SendType
         let source: Source
@@ -143,7 +143,7 @@ extension SendCoordinator: SendRoutable {
         self.qrScanViewCoordinator = qrScanViewCoordinator
     }
 
-    func openFeeCurrency(for walletModel: WalletModel, userWalletModel: UserWalletModel) {
+    func openFeeCurrency(for walletModel: any WalletModel, userWalletModel: UserWalletModel) {
         dismiss(with: (walletModel, userWalletModel))
     }
 

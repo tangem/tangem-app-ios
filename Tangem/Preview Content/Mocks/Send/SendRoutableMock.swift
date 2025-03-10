@@ -17,7 +17,7 @@ class SendRoutableMock: SendRoutable {
     func openExplorer(url: URL) {}
     func openShareSheet(url: URL) {}
     func openQRScanner(with codeBinding: Binding<String>, networkName: String) {}
-    func openFeeCurrency(for walletModel: WalletModel, userWalletModel: UserWalletModel) {}
+    func openFeeCurrency(for walletModel: any WalletModel, userWalletModel: UserWalletModel) {}
     func openApproveView(settings: ExpressApproveViewModel.Settings, approveViewModelInput: any ApproveViewModelInput) {}
     func openOnrampCountryDetection(country: OnrampCountry, repository: any OnrampRepository, dataRepository: any OnrampDataRepository) {}
     func openOnrampCountrySelector(repository: any OnrampRepository, dataRepository: any OnrampDataRepository) {}
