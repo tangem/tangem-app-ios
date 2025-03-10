@@ -19,8 +19,8 @@ class KaspaTransactionBuilder {
     private let unspentOutputManager: UnspentOutputManager
     private let addressService: KaspaAddressService
 
-    var unspentOutputs: [KaspaTransaction.Input] {
-        let sortedOutputs = unspentOutputManager.allOutputs().sorted { $0.amount > $1.amount }
+    func selectOutputs(amount: Decimal, fee: Decimal) throws -> [KaspaTransaction.Input] {
+        let sortedOutputs = try unspentOutputManager.selectOutputs(amount: amount, fee: fee)
         let maxOutputs = sortedOutputs.prefix(maxInputCount)
 
         return maxOutputs.map {
@@ -37,7 +37,7 @@ class KaspaTransactionBuilder {
     }
 
     func availableAmount() -> Amount {
-        let availableAmountInSatoshi = unspentOutputs.sum(by: \.amount)
+        let availableAmountInSatoshi = unspentOutputManager.allOutputs().sum(by: \.amount)
         return Amount(with: blockchain, value: Decimal(availableAmountInSatoshi) / blockchain.decimalValue)
     }
 
@@ -115,7 +115,7 @@ extension KaspaTransactionBuilder {
         }
 
         // Count only once
-        let unspentOutputs = unspentOutputs
+        let unspentOutputs = try selectOutputs(amount: transaction.amount.value, fee: transaction.fee.amount.value)
         let destinationAddressScript = try scriptPublicKey(address: transaction.destinationAddress)
 
         var outputs: [KaspaTransaction.Output] = [
@@ -299,7 +299,7 @@ extension KaspaTransactionBuilder {
         )
 
         // Calculate outputs only once
-        let unspentOutputs = unspentOutputs
+        let unspentOutputs = try selectOutputs(amount: transaction.amount.value, fee: transaction.fee.amount.value)
 
         // Some older cards use uncompressed secp256k1 public keys, while Kaspa only works with compressed ones
         let publicKey = try Secp256k1Key(with: walletPublicKey.blockchainKey).compress()
