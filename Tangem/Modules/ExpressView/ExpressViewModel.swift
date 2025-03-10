@@ -796,7 +796,8 @@ private extension ExpressViewModel {
              .validationErrorEvent,
              .verificationRequired,
              .cexOperationFailed,
-             .refunded:
+             .refunded,
+             .longTimeAverageDuration:
             return nil
         }
     }
