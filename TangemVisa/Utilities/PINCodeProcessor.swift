@@ -9,6 +9,7 @@
 import Foundation
 import CryptoKit
 import CryptoSwift
+import TangemFoundation
 
 protocol PINCodeProcessor {
     func processSelectedPINCode(_ pinCode: String) async throws -> ProcessedPIN
@@ -109,13 +110,15 @@ extension PaymentologyPINCodeProcessor: PINCodeProcessor {
 }
 
 extension PaymentologyPINCodeProcessor {
-    enum PaymentologyError: String, LocalizedError {
-        case invalidSessionKeyFormat
+    enum PaymentologyError: Int, TangemError {
+        case invalidSessionKeyFormat = 1
         case invalidRSAKeyFormat
         case failedToCreateRSAKey
         case failedToCreateSessionIdData
         case failedToCreateSessionId
         case invalidMessageFormat
+
+        var subsystemCode: Int { VisaSubsystem.paymentology.rawValue }
     }
 }
 
