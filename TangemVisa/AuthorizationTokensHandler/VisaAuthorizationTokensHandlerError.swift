@@ -6,14 +6,16 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Foundation
+import TangemFoundation
 
-public enum VisaAuthorizationTokensHandlerError: String, LocalizedError {
-    case authorizationTokensNotFound
+public enum VisaAuthorizationTokensHandlerError: Int, TangemError {
+    case authorizationTokensNotFound = 1
     case refreshTokenExpired
     case missingMandatoryInfoInAccessToken
     case missingAccessToken
     case missingRefreshToken
     case accessTokenExpired
     case failedToUpdateAccessToken
+
+    public var subsystemCode: Int { VisaSubsystem.authorizationTokensHandler.rawValue }
 }

@@ -6,9 +6,9 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Foundation
+import TangemFoundation
 
-public enum VisaActivationError: LocalizedError {
+public enum VisaActivationError: TangemError {
     case notImplemented
     case missingAccessCode
     case missingAccessToken
@@ -55,8 +55,50 @@ public enum VisaActivationError: LocalizedError {
             return "Underlying Visa Activation Error: \(error.localizedDescription)"
         }
     }
+
+    public var subsystemCode: Int {
+        if case .underlyingError(let error) = self, let tangemError = error as? TangemError {
+            return tangemError.subsystemCode
+        }
+
+        return VisaSubsystem.activation.rawValue
+    }
+
+    public var errorCode: Int {
+        switch self {
+        case .notImplemented: return 1
+        case .missingAccessCode: return 2
+        case .missingAccessToken: return 3
+        case .missingActiveCardSession: return 4
+        case .missingCustomerInformationInAccessToken: return 5
+        case .wrongCard: return 6
+        case .missingOrderDataToSign: return 7
+        case .missingWallet: return 8
+        case .missingRootOTP: return 9
+        case .taskMissingDelegate: return 10
+        case .missingOTPRepository: return 11
+        case .alreadyActivated: return 12
+        case .accessCodeAlreadySet: return 13
+        case .blockedForActivation: return 14
+        case .invalidActivationState: return 15
+        case .missingDerivationPath: return 16
+        case .missingActivationStatusInfo: return 17
+        case .missingWalletAddressInInput: return 18
+        case .missingActivationInput: return 19
+        case .underlyingError(let error):
+            if let tangemError = error as? TangemError {
+                return tangemError.errorCode
+            }
+
+            return 20
+        }
+    }
 }
 
-public enum VisaAccessCodeValidationError: String, Error {
+public enum VisaAccessCodeValidationError: Int, TangemError {
     case accessCodeIsTooShort
+
+    public var subsystemCode: Int {
+        VisaSubsystem.accessCodeValidation.rawValue
+    }
 }
