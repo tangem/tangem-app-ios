@@ -13,10 +13,10 @@ struct OnrampAmountBuilder {
     typealias IO = (input: OnrampAmountInput, output: OnrampAmountOutput)
     typealias ReturnValue = (viewModel: OnrampAmountViewModel, interactor: OnrampAmountInteractor)
 
-    private let walletModel: WalletModel
+    private let walletModel: any WalletModel
     private let builder: SendDependenciesBuilder
 
-    init(walletModel: WalletModel, builder: SendDependenciesBuilder) {
+    init(walletModel: any WalletModel, builder: SendDependenciesBuilder) {
         self.walletModel = walletModel
         self.builder = builder
     }
