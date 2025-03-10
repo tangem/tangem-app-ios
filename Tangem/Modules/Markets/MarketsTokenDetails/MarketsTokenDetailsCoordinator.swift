@@ -109,7 +109,7 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
 // MARK: - MarketsPortfolioContainerRoutable
 
 extension MarketsTokenDetailsCoordinator {
-    func openReceive(walletModel: WalletModel) {
+    func openReceive(walletModel: any WalletModel) {
         let infos = walletModel.wallet.addresses.map { address in
             ReceiveAddressInfo(
                 address: address.value,
@@ -126,7 +126,7 @@ extension MarketsTokenDetailsCoordinator {
         )
     }
 
-    func openBuyCryptoIfPossible(for walletModel: WalletModel, with userWalletModel: UserWalletModel) {
+    func openBuyCryptoIfPossible(for walletModel: any WalletModel, with userWalletModel: UserWalletModel) {
         if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
             error = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
@@ -139,8 +139,8 @@ extension MarketsTokenDetailsCoordinator {
         openBuyCrypto(at: url, with: walletModel)
     }
 
-    func openExchange(for walletModel: WalletModel, with userWalletModel: UserWalletModel) {
-        let dismissAction: Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
+    func openExchange(for walletModel: any WalletModel, with userWalletModel: UserWalletModel) {
+        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
             self?.expressCoordinator = nil
         }
 
@@ -163,8 +163,8 @@ extension MarketsTokenDetailsCoordinator {
         }
     }
 
-    func openOnramp(for walletModel: WalletModel, with userWalletModel: UserWalletModel) {
-        let dismissAction: Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
+    func openOnramp(for walletModel: any WalletModel, with userWalletModel: UserWalletModel) {
+        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
             self?.sendCoordinator = nil
         }
 
@@ -183,7 +183,7 @@ extension MarketsTokenDetailsCoordinator {
 // MARK: - Utilities functions
 
 extension MarketsTokenDetailsCoordinator {
-    func openBuyCrypto(at url: URL, with walletModel: WalletModel) {
+    func openBuyCrypto(at url: URL, with walletModel: any WalletModel) {
         safariHandle = safariManager.openURL(url) { [weak self] _ in
             self?.safariHandle = nil
 
