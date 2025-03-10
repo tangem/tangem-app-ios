@@ -10,5 +10,5 @@ import Foundation
 import TangemExpress
 
 protocol ExpressFeeProvider: FeeProvider {
-    func setup(wallet: WalletModel)
+    func setup(wallet: any WalletModel)
 }
