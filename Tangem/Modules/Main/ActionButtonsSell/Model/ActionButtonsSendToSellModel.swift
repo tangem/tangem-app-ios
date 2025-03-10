@@ -12,5 +12,5 @@ struct ActionButtonsSendToSellModel {
     let amountToSend: Amount
     let destination: String
     let tag: String?
-    let walletModel: WalletModel
+    let walletModel: any WalletModel
 }
