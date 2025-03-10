@@ -209,7 +209,9 @@ extension LegacyConfig: UserWalletConfig {
             return .available
         case .topup:
             return .available
-        case .tokenSynchronization, .swapping:
+        case .tokenSynchronization,
+             .swapping,
+             .nft:
             return isMultiwallet ? .available : .hidden
         case .referralProgram:
             return .hidden
