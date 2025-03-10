@@ -12,7 +12,7 @@ import Combine
 
 class TransactionValidatorTests: XCTestCase {
     class BaseTransactionValidator: TransactionValidator {
-        let wallet: Wallet
+        var wallet: Wallet
         var walletPublisher: AnyPublisher<Wallet, Never> { .justWithError(output: wallet) }
         var statePublisher: AnyPublisher<WalletManagerState, Never> { .justWithError(output: .initial) }
 
