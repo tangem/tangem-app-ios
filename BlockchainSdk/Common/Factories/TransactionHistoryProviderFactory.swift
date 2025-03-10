@@ -90,6 +90,11 @@ public struct TransactionHistoryProviderFactory {
                 networkConfig: input.networkConfig,
                 mapper: AlgorandTransactionHistoryMapper(blockchain: input.blockchain)
             )
+        case .kaspa:
+            return KaspaTransactionHistoryProvider(
+                networkConfiguration: input.networkConfig,
+                mapper: KaspaTransactionHistoryMapper(blockchain: input.blockchain)
+            )
         default:
             return nil
         }
