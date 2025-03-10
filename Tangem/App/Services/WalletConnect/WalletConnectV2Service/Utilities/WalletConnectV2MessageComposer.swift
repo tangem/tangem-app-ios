@@ -13,7 +13,7 @@ protocol WalletConnectV2MessageComposable {
     func makeMessage(for proposal: Session.Proposal, targetBlockchains: [String]) -> String
     func makeMessage(
         for transaction: BlockchainSdk.Transaction,
-        walletModel: WalletModel,
+        walletModel: any WalletModel,
         dApp: WalletConnectSavedSession.DAppInfo
     ) -> String
 }
@@ -40,7 +40,7 @@ struct WalletConnectV2MessageComposer: WalletConnectV2MessageComposable {
 
     func makeMessage(
         for transaction: BlockchainSdk.Transaction,
-        walletModel: WalletModel,
+        walletModel: any WalletModel,
         dApp: WalletConnectSavedSession.DAppInfo
     ) -> String {
         let totalAmount = transaction.amount + transaction.fee.amount
