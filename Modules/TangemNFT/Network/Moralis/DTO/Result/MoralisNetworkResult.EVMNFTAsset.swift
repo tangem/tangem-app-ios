@@ -28,7 +28,7 @@ extension MoralisNetworkResult {
         let tokenHash: String?
         let tokenUri: URL?
         let minterAddress: String?
-        let rarityRank: Int?
+        let rarityRank: Double?
         let rarityPercentage: Double?
         let rarityLabel: String?
         let verifiedCollection: Bool?
