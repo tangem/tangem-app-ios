@@ -13,14 +13,10 @@ struct VisaWalletMainContentView: View {
 
     var body: some View {
         VStack(spacing: 14) {
-            MainButton(
-                title: "Deposit",
-                icon: .leading(Assets.arrowDownMini),
-                style: .primary,
-                size: .default,
-                isLoading: false,
-                isDisabled: false,
-                action: viewModel.openDeposit
+            ScrollableButtonsView(
+                itemsHorizontalOffset: 14,
+                itemsVerticalOffset: 3,
+                buttonsInfo: viewModel.buttons
             )
 
             balancesAndLimitsView
@@ -43,6 +39,7 @@ struct VisaWalletMainContentView: View {
         .bottomSheet(item: $viewModel.balancesAndLimitsViewModel, backgroundColor: Colors.Background.tertiary) { model in
             VisaBalancesLimitsBottomSheetView(viewModel: model)
         }
+        .bindAlert($viewModel.alert)
     }
 
     @ViewBuilder
