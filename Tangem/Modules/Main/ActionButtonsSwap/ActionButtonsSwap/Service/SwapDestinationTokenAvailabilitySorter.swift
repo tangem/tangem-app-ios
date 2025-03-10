@@ -16,11 +16,11 @@ struct SwapDestinationTokenAvailabilitySorter {
 
     // MARK: - Private property
 
-    private let sourceTokenWalletModel: WalletModel
+    private let sourceTokenWalletModel: any WalletModel
     private let expressRepository: ExpressRepository
 
     init(
-        sourceTokenWalletModel: WalletModel,
+        sourceTokenWalletModel: any WalletModel,
         expressRepository: ExpressRepository
     ) {
         self.sourceTokenWalletModel = sourceTokenWalletModel
@@ -31,11 +31,11 @@ struct SwapDestinationTokenAvailabilitySorter {
 // MARK: - TokenAvailabilitySorter
 
 extension SwapDestinationTokenAvailabilitySorter: TokenAvailabilitySorter {
-    func sortModels(walletModels: [WalletModel]) async -> (availableModels: [WalletModel], unavailableModels: [WalletModel]) {
+    func sortModels(walletModels: [any WalletModel]) async -> (availableModels: [any WalletModel], unavailableModels: [any WalletModel]) {
         let availablePairs = await expressRepository.getPairs(from: sourceTokenWalletModel)
 
-        let result = walletModels.filter { $0 != sourceTokenWalletModel }.reduce(
-            into: (availableModels: [WalletModel](), unavailableModels: [WalletModel]())
+        let result = walletModels.filter { $0.id != sourceTokenWalletModel.id }.reduce(
+            into: (availableModels: [any WalletModel](), unavailableModels: [any WalletModel]())
         ) { result, walletModel in
             if availablePairs.map(\.destination).contains(walletModel.expressCurrency), !walletModel.isCustom {
                 result.availableModels.append(walletModel)

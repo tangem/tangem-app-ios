@@ -65,7 +65,7 @@ struct SendScreenDataCollector: EmailDataCollector {
 
         data.append(EmailCollectedData(
             type: .card(.blockchain),
-            data: walletModel.blockchainNetwork.blockchain.displayName
+            data: walletModel.tokenItem.blockchainNetwork.blockchain.displayName
         ))
 
         switch amount.type {
@@ -94,7 +94,7 @@ struct SendScreenDataCollector: EmailDataCollector {
         data.append(.separator(.dashes))
 
         data.append(contentsOf: [
-            EmailCollectedData(type: .send(.sourceAddress), data: walletModel.wallet.address),
+            EmailCollectedData(type: .send(.sourceAddress), data: walletModel.defaultAddress),
             EmailCollectedData(type: .send(.destinationAddress), data: destination),
             EmailCollectedData(type: .send(.amount), data: amount.description),
             EmailCollectedData(type: .send(.fee), data: fee.description),
@@ -122,7 +122,7 @@ struct SendScreenDataCollector: EmailDataCollector {
     }
 
     private let userWalletEmailData: [EmailCollectedData]
-    private let walletModel: WalletModel
+    private let walletModel: any WalletModel
     private let fee: Amount
     private let destination: String
     private let amount: Amount
@@ -133,7 +133,7 @@ struct SendScreenDataCollector: EmailDataCollector {
 
     init(
         userWalletEmailData: [EmailCollectedData],
-        walletModel: WalletModel,
+        walletModel: any WalletModel,
         fee: Amount,
         destination: String,
         amount: Amount,
@@ -185,7 +185,7 @@ struct PushScreenDataCollector: EmailDataCollector {
     }
 
     private let userWalletEmailData: [EmailCollectedData]
-    private let walletModel: WalletModel
+    private let walletModel: any WalletModel
     private let fee: Amount?
     private let pushingFee: Amount?
     private let destination: String
@@ -194,7 +194,7 @@ struct PushScreenDataCollector: EmailDataCollector {
     private let pushingTxHash: String
     private let lastError: Error?
 
-    init(userWalletEmailData: [EmailCollectedData], walletModel: WalletModel, fee: Amount?, pushingFee: Amount?, destination: String, source: String, amount: Amount, pushingTxHash: String, lastError: Error?) {
+    init(userWalletEmailData: [EmailCollectedData], walletModel: any WalletModel, fee: Amount?, pushingFee: Amount?, destination: String, source: String, amount: Amount, pushingTxHash: String, lastError: Error?) {
         self.userWalletEmailData = userWalletEmailData
         self.walletModel = walletModel
         self.fee = fee
@@ -218,7 +218,7 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
 
             for walletModel in dataItem.walletModels {
                 dataToFormat.append(.separator(.dashes))
-                dataToFormat.append(EmailCollectedData(type: .card(.blockchain), data: walletModel.wallet.blockchain.displayName))
+                dataToFormat.append(EmailCollectedData(type: .card(.blockchain), data: walletModel.tokenItem.blockchain.displayName))
 
                 let derivationPath = walletModel.wallet.publicKey.derivationPath
                 dataToFormat.append(EmailCollectedData(type: .wallet(.derivationPath), data: derivationPath?.rawPath ?? "[default]"))
@@ -227,7 +227,7 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
                     dataToFormat.append(EmailCollectedData(type: .wallet(.outputsCount), data: outputsDescription))
                 }
 
-                if let token = walletModel.amountType.token {
+                if let token = walletModel.tokenItem.amountType.token {
                     dataToFormat.append(EmailCollectedData(type: .token(.id), data: token.id ?? "[custom token]"))
                     dataToFormat.append(EmailCollectedData(type: .token(.decimals), data: "\(token.decimalCount)"))
                     dataToFormat.append(EmailCollectedData(type: .token(.name), data: token.name))
@@ -273,7 +273,7 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
 
 struct DetailsFeedbackData {
     let userWalletEmailData: [EmailCollectedData]
-    let walletModels: [WalletModel]
+    let walletModels: [any WalletModel]
 }
 
 // MARK: - TokenErrorDescriptionDataCollector
