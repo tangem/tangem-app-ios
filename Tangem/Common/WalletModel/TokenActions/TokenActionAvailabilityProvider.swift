@@ -11,19 +11,18 @@ struct TokenActionAvailabilityProvider {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
 
     private let userWalletConfig: UserWalletConfig
-    private let walletModel: WalletModel
+    private let walletModel: any WalletModel
     private let exchangeCryptoUtility: ExchangeCryptoUtility
 
     init(
         userWalletConfig: UserWalletConfig,
-        walletModel: WalletModel
+        walletModel: any WalletModel
     ) {
         self.userWalletConfig = userWalletConfig
         self.walletModel = walletModel
         exchangeCryptoUtility = ExchangeCryptoUtility(
-            blockchain: walletModel.blockchainNetwork.blockchain,
-            address: walletModel.defaultAddress,
-            amountType: walletModel.amountType
+            tokenItem: walletModel.tokenItem,
+            address: walletModel.defaultAddress
         )
     }
 
@@ -39,7 +38,7 @@ struct TokenActionAvailabilityProvider {
             return true
         }
 
-        switch assetRequirementsManager.requirementsCondition(for: walletModel.amountType) {
+        switch assetRequirementsManager.requirementsCondition(for: walletModel.tokenItem.amountType) {
         case .paidTransactionWithFee(blockchain: .hedera, _, _):
             return false
         case .paidTransactionWithFee,
@@ -388,7 +387,7 @@ extension TokenActionAvailabilityProvider {
     }
 
     var receiveAvailablity: ReceiveActionAvailabilityStatus {
-        let requirementsCondition = walletModel.assetRequirementsManager?.requirementsCondition(for: walletModel.amountType)
+        let requirementsCondition = walletModel.assetRequirementsManager?.requirementsCondition(for: walletModel.tokenItem.amountType)
 
         switch requirementsCondition {
         case .paidTransactionWithFee(let blockchain, _, _):
