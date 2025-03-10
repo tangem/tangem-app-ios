@@ -63,8 +63,6 @@ class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
         responses.forEach { response in
             unspentOutputManager.update(outputs: response.response.outputs, for: response.address)
         }
-        txBuilder.fillBitcoinManager()
-
         let balance = Decimal(unspentOutputManager.confirmedBalance()) / wallet.blockchain.decimalValue
         wallet.add(coinValue: balance)
 
@@ -81,23 +79,23 @@ class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
         networkService.getFee()
             .withWeakCaptureOf(self)
-            .map { $0.processFee($1, amount: amount, destination: destination) }
+            .tryMap { try $0.processFee($1, amount: amount, destination: destination) }
             .eraseToAnyPublisher()
     }
 
-    func processFee(_ response: UTXOFee, amount: Amount, destination: String) -> [Fee] {
+    func processFee(_ response: UTXOFee, amount: Amount, destination: String) throws -> [Fee] {
         // Don't remove `.rounded` from here, intValue can sometimes go crazy
         // e.g. with the Decimal of (662701 / 3), producing 0 integer
         var minRate = max(response.slowSatoshiPerByte, minimalFeePerByte).intValue(roundingMode: .up)
         var normalRate = max(response.marketSatoshiPerByte, minimalFeePerByte).intValue(roundingMode: .up)
         var maxRate = max(response.prioritySatoshiPerByte, minimalFeePerByte).intValue(roundingMode: .up)
 
-        var minFee = txBuilder.bitcoinManager.fee(for: amount.value, address: destination, feeRate: minRate, senderPay: false, changeScript: nil, sequence: .max)
-        var normalFee = txBuilder.bitcoinManager.fee(for: amount.value, address: destination, feeRate: normalRate, senderPay: false, changeScript: nil, sequence: .max)
-        var maxFee = txBuilder.bitcoinManager.fee(for: amount.value, address: destination, feeRate: maxRate, senderPay: false, changeScript: nil, sequence: .max)
+        var minFee = try txBuilder.fee(amount: amount.value, destination: destination, feeRate: minRate)
+        var normalFee = try txBuilder.fee(amount: amount.value, destination: destination, feeRate: normalRate)
+        var maxFee = try txBuilder.fee(amount: amount.value, destination: destination, feeRate: maxRate)
 
         let minimalFeeRate = ((minimalFee * Decimal(minRate)) / minFee).intValue(roundingMode: .up)
-        let minimalFee = txBuilder.bitcoinManager.fee(for: amount.value, address: destination, feeRate: minimalFeeRate, senderPay: false, changeScript: nil, sequence: .max)
+        let minimalFee = try txBuilder.fee(amount: amount.value, destination: destination, feeRate: minimalFeeRate)
         if minFee < minimalFee {
             minRate = minimalFeeRate
             minFee = minimalFee
@@ -124,15 +122,8 @@ class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
 // MARK: - BitcoinTransactionFeeCalculator
 
 extension BitcoinWalletManager: BitcoinTransactionFeeCalculator {
-    func calculateFee(satoshiPerByte: Int, amount: Amount, destination: String) -> Fee {
-        let fee = txBuilder.bitcoinManager.fee(
-            for: amount.value,
-            address: destination,
-            feeRate: satoshiPerByte,
-            senderPay: false,
-            changeScript: nil,
-            sequence: .max
-        )
+    func calculateFee(satoshiPerByte: Int, amount: Decimal, destination: String) throws -> Fee {
+        let fee = try txBuilder.fee(amount: amount, destination: destination, feeRate: satoshiPerByte)
         return Fee(Amount(with: wallet.blockchain, value: fee), parameters: BitcoinFeeParameters(rate: satoshiPerByte))
     }
 }
@@ -143,17 +134,15 @@ extension BitcoinWalletManager: TransactionSender {
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
         let sequence: Int = SequenceValues.default.rawValue
 
-        guard let hashes = txBuilder.buildForSign(transaction: transaction, sequence: sequence) else {
-            return .sendTxFail(error: SendTxError(error: WalletError.failedToBuildTx))
-        }
-
-        return signer
-            .sign(hashes: hashes, walletPublicKey: wallet.publicKey)
+        return Result { try txBuilder.buildForSign(transaction: transaction, sequence: sequence) }
+            .publisher
+            .withWeakCaptureOf(self)
+            .flatMap { manager, hashes in
+                signer.sign(hashes: hashes, walletPublicKey: manager.wallet.publicKey)
+            }
             .withWeakCaptureOf(self)
             .tryMap { manager, signatures -> String in
-                guard let tx = manager.txBuilder.buildForSend(transaction: transaction, signatures: signatures, sequence: sequence) else {
-                    throw WalletError.failedToBuildTx
-                }
+                let tx = try manager.txBuilder.buildForSend(transaction: transaction, signatures: signatures, sequence: sequence)
 
                 return tx.hexString.lowercased()
             }

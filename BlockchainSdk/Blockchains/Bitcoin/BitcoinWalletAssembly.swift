@@ -13,7 +13,7 @@ struct BitcoinWalletAssembly: WalletManagerAssembly {
             bip: input.pairPublicKey == nil ? .bip84 : .bip141
         )
 
-        let unspentOutputManager = CommonUnspentOutputManager()
+        let unspentOutputManager = CommonUnspentOutputManager(decimalValue: input.blockchain.decimalValue)
         let txBuilder = BitcoinTransactionBuilder(
             bitcoinManager: bitcoinManager,
             unspentOutputManager: unspentOutputManager,
