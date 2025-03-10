@@ -103,6 +103,11 @@ private extension CommonSendNotificationManager {
 private extension CommonSendNotificationManager {
     func updateNetworkFeeUnreachable(errors: [Error]) {
         if !errors.isEmpty {
+            if let oneSuiCoinRequiredError = errors.first(where: { ($0 as? SuiError) == .oneSuiCoinIsRequiredForTokenTransaction }) {
+                updateNotification(error: oneSuiCoinRequiredError)
+                return
+            }
+
             let hasActivationError = errors.contains { error in
                 if case WalletError.accountNotActivated = error {
                     return true
@@ -270,6 +275,9 @@ private extension CommonSendNotificationManager {
             case .invalidNumber:
                 hideAllValidationErrorEvent()
             }
+        case .some(SuiError.oneSuiCoinIsRequiredForTokenTransaction):
+            let currencySymbol = tokenItem.blockchain.currencySymbol
+            show(notification: .oneSuiCoinIsRequiredForTokenTransaction(currencySymbol: currencySymbol))
         case .some(let error):
             AppLogger.error("Transaction error will not show to user", error: error)
             hideAllValidationErrorEvent()

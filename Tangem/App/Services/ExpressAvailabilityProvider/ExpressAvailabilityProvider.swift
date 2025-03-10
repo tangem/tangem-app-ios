@@ -16,6 +16,8 @@ enum ExpressAvailabilityUpdateState {
 
 protocol ExpressAvailabilityProvider {
     var availabilityDidChangePublisher: AnyPublisher<Void, Never> { get }
+
+    var expressAvailabilityUpdateStateValue: ExpressAvailabilityUpdateState { get }
     var expressAvailabilityUpdateState: AnyPublisher<ExpressAvailabilityUpdateState, Never> { get }
 
     func swapState(for tokenItem: TokenItem) -> TokenItemExpressState
