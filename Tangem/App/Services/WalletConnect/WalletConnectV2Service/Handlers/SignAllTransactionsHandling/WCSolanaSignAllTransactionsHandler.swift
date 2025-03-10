@@ -12,7 +12,7 @@ import struct Commons.AnyCodable
 import enum JSONRPC.RPCResult
 
 final class WCSolanaSignAllTransactionsHandler {
-    private let walletModel: WalletModel
+    private let walletModel: any WalletModel
     private let signer: WalletConnectSigner
     private let hashesToSign: [String]
 
