@@ -11,7 +11,7 @@ import BlockchainSdk
 import BigInt
 
 protocol WalletConnectEthTransactionBuilder {
-    func buildTx(from transaction: WalletConnectEthTransaction, for walletModel: WalletModel) async throws -> Transaction
+    func buildTx(from transaction: WalletConnectEthTransaction, for walletModel: any WalletModel) async throws -> Transaction
 }
 
 struct CommonWalletConnectEthTransactionBuilder {
@@ -72,14 +72,14 @@ struct CommonWalletConnectEthTransactionBuilder {
 }
 
 extension CommonWalletConnectEthTransactionBuilder: WalletConnectEthTransactionBuilder {
-    func buildTx(from wcTransaction: WalletConnectEthTransaction, for walletModel: WalletModel) async throws -> Transaction {
+    func buildTx(from wcTransaction: WalletConnectEthTransaction, for walletModel: any WalletModel) async throws -> Transaction {
         guard let ethereumNetworkProvider = walletModel.ethereumNetworkProvider else {
             let error = WalletConnectV2Error.missingGasLoader
             WCLogger.error(error: error)
             throw error
         }
 
-        let blockchain = walletModel.wallet.blockchain
+        let blockchain = walletModel.tokenItem.blockchain
         let rawValue = wcTransaction.value ?? zeroString
         guard let value = EthereumUtils.parseEthereumDecimal(rawValue, decimalsCount: blockchain.decimalCount) else {
             let error = ETHError.failedToParseBalance(value: rawValue, address: "", decimals: blockchain.decimalCount)
