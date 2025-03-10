@@ -31,7 +31,7 @@ extension MoralisAPITarget {
         case getNFTAssets(queryParams: MoralisNetworkParams.NFTAssetsQuery?, bodyParams: MoralisNetworkParams.NFTAssetsBody)
 
         /// https://docs.moralis.com/web3-data-api/evm/reference/get-nft-sale-prices
-        case getNFTSalePrice(address: String, tokenId: String, params: MoralisNetworkParams.NFTSalePrice)
+        case getNFTSalePrice(collectionAddress: String, tokenId: String, params: MoralisNetworkParams.NFTSalePrice)
     }
 
     enum Version {
@@ -61,8 +61,8 @@ extension MoralisAPITarget: TargetType {
             return "\(address)/nft"
         case .getNFTAssets:
             return "nft/getMultipleNFTs"
-        case .getNFTSalePrice(let address, let tokenId, _):
-            return "nft/\(address)/\(tokenId)/price"
+        case .getNFTSalePrice(let collectionAddress, let tokenId, _):
+            return "nft/\(collectionAddress)/\(tokenId)/price"
         }
     }
 
