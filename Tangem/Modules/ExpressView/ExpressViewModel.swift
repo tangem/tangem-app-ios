@@ -42,7 +42,7 @@ final class ExpressViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let initialWallet: WalletModel
+    private let initialWallet: any WalletModel
     private let userWalletModel: UserWalletModel
     private let feeFormatter: FeeFormatter
     private let balanceFormatter: BalanceFormatter
@@ -59,7 +59,7 @@ final class ExpressViewModel: ObservableObject {
     private var bag: Set<AnyCancellable> = []
 
     init(
-        initialWallet: WalletModel,
+        initialWallet: any WalletModel,
         userWalletModel: UserWalletModel,
         feeFormatter: FeeFormatter,
         balanceFormatter: BalanceFormatter,
@@ -330,11 +330,11 @@ private extension ExpressViewModel {
             .receive(on: DispatchQueue.main)
             .pairwise()
             .sink { [weak self] prev, pair in
-                if pair.sender != prev.sender {
+                if pair.sender.id != prev.sender.id {
                     self?.updateSendView(wallet: pair.sender)
                 }
 
-                if pair.destination != prev.destination {
+                if pair.destination.value?.id != prev.destination.value?.id {
                     self?.updateReceiveView(wallet: pair.destination)
                 }
 
@@ -370,7 +370,7 @@ private extension ExpressViewModel {
 
     // MARK: - Send view bubble
 
-    func updateSendView(wallet: WalletModel) {
+    func updateSendView(wallet: any WalletModel) {
         sendCurrencyViewModel?.update(wallet: wallet, initialWalletId: initialWallet.id)
 
         // If we have amount then we should round and update it with new decimalCount
@@ -412,7 +412,7 @@ private extension ExpressViewModel {
 
     // MARK: - Receive view bubble
 
-    func updateReceiveView(wallet: LoadingValue<WalletModel>) {
+    func updateReceiveView(wallet: LoadingValue<any WalletModel>) {
         receiveCurrencyViewModel?.update(wallet: wallet, initialWalletId: initialWallet.id)
     }
 
@@ -435,7 +435,7 @@ private extension ExpressViewModel {
 
     func updateMaxButtonVisibility(pair: ExpressInteractor.SwappingPair) {
         let sendingMainToken = pair.sender.isMainToken
-        let isSameNetwork = pair.sender.blockchainNetwork == pair.destination.value?.blockchainNetwork
+        let isSameNetwork = pair.sender.tokenItem.blockchainNetwork == pair.destination.value?.tokenItem.blockchainNetwork
 
         isMaxAmountButtonHidden = sendingMainToken && isSameNetwork
     }
