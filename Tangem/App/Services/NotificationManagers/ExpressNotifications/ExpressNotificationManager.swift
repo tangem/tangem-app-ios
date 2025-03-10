@@ -227,7 +227,7 @@ class ExpressNotificationManager {
         return notification
     }
 
-    private func makeNotEnoughFeeForTokenTx(sender: WalletModel) -> ExpressNotificationEvent? {
+    private func makeNotEnoughFeeForTokenTx(sender: any WalletModel) -> ExpressNotificationEvent? {
         guard !sender.isFeeCurrency else {
             return nil
         }
