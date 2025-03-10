@@ -22,7 +22,7 @@ class ReceiveCurrencyViewModel: ObservableObject, Identifiable {
         self.cryptoAmountState = cryptoAmountState
     }
 
-    func update(wallet: LoadingValue<WalletModel>, initialWalletId: WalletModelId) {
+    func update(wallet: LoadingValue<any WalletModel>, initialWalletId: WalletModelId) {
         expressCurrencyViewModel.update(wallet: wallet, initialWalletId: initialWalletId)
     }
 

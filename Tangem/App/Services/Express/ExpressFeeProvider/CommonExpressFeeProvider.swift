@@ -12,9 +12,9 @@ import BlockchainSdk
 import BigInt
 
 class CommonExpressFeeProvider {
-    var wallet: WalletModel
+    var wallet: any WalletModel
 
-    init(wallet: WalletModel) {
+    init(wallet: any WalletModel) {
         self.wallet = wallet
     }
 }
@@ -22,7 +22,7 @@ class CommonExpressFeeProvider {
 // MARK: - ExpressFeeProvider
 
 extension CommonExpressFeeProvider: ExpressFeeProvider {
-    func setup(wallet: WalletModel) {
+    func setup(wallet: any WalletModel) {
         self.wallet = wallet
     }
 

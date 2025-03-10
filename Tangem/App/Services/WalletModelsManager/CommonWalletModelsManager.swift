@@ -18,7 +18,7 @@ class CommonWalletModelsManager {
     /// This state can happen while app awaiting API list from server, because and Wallet managers can't be created without this info
     /// Nil state is not the same as an empty state, because user can remove all tokens from main and the array will be empty
     /// Also if we initialize CurrentValueSubject with empty array recipients will evaluate this state as an empty list
-    private var _walletModels = CurrentValueSubject<[WalletModel]?, Never>(nil)
+    private var _walletModels = CurrentValueSubject<[any WalletModel]?, Never>(nil)
     private var bag = Set<AnyCancellable>()
     private var updateAllSubscription: AnyCancellable?
 
@@ -46,11 +46,11 @@ class CommonWalletModelsManager {
     private func updateWalletModels(with walletManagers: [BlockchainNetwork: WalletManager]) {
         AppLogger.info("🔄 Updating Wallet models")
 
-        let existingWalletModelIds = Set(walletModels.map { $0.walletModelId })
+        let existingWalletModelIds = Set(walletModels.map { $0.id })
 
         let newWalletModelIds = Set(walletManagers.flatMap { network, walletManager in
-            let mainId = WalletModel.Id(tokenItem: .blockchain(network))
-            let tokenIds = walletManager.cardTokens.map { WalletModel.Id(tokenItem: .token($0, network)) }
+            let mainId = WalletModelId(tokenItem: .blockchain(network))
+            let tokenIds = walletManager.cardTokens.map { WalletModelId(tokenItem: .token($0, network)) }
             return [mainId] + tokenIds
         })
 
@@ -69,12 +69,12 @@ class CommonWalletModelsManager {
         var existingWalletModels = walletModels
 
         existingWalletModels.removeAll {
-            walletModelIdsToDelete.contains($0.walletModelId)
+            walletModelIdsToDelete.contains($0.id)
         }
 
         let dataToAdd = Dictionary(grouping: walletModelIdsToAdd, by: { $0.tokenItem.blockchainNetwork })
 
-        let walletModelsToAdd: [WalletModel] = dataToAdd.flatMap {
+        let walletModelsToAdd: [any WalletModel] = dataToAdd.flatMap {
             if let walletManager = walletManagers[$0.key] {
                 let types = $0.value.map { $0.tokenItem.amountType }
                 return walletModelsFactory.makeWalletModels(for: types, walletManager: walletManager)
@@ -92,7 +92,7 @@ class CommonWalletModelsManager {
         _walletModels.send(existingWalletModels)
     }
 
-    private func updateWalletModelsWithPerformanceTrackingIfNeeded(walletModels: [WalletModel]) {
+    private func updateWalletModelsWithPerformanceTrackingIfNeeded(walletModels: [any WalletModel]) {
         var token: PerformanceMetricToken?
 
         if shouldTrackWalletModelsUpdate, walletModels.isNotEmpty {
@@ -120,11 +120,11 @@ class CommonWalletModelsManager {
 extension CommonWalletModelsManager: WalletModelsManager {
     var isInitialized: Bool { _walletModels.value != nil }
 
-    var walletModels: [WalletModel] {
+    var walletModels: [any WalletModel] {
         _walletModels.value ?? []
     }
 
-    var walletModelsPublisher: AnyPublisher<[WalletModel], Never> {
+    var walletModelsPublisher: AnyPublisher<[any WalletModel], Never> {
         _walletModels
             .compactMap { $0 }
             .eraseToAnyPublisher()
@@ -153,7 +153,7 @@ extension CommonWalletModelsManager: WalletModelsManager {
 }
 
 private extension CommonWalletModelsManager {
-    func log(walletModels: [WalletModel]) {
+    func log(walletModels: [any WalletModel]) {
         AppLogger.info("✅ Actual List of WalletModels [\(walletModels.map(\.name))]")
     }
 }

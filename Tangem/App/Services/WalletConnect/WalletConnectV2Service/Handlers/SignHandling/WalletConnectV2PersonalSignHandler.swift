@@ -15,7 +15,7 @@ import enum JSONRPC.RPCResult
 struct WalletConnectV2PersonalSignHandler {
     private let message: String
     private let signer: WalletConnectSigner
-    private let walletModel: WalletModel
+    private let walletModel: any WalletModel
 
     private var dataToSign: Data {
         let hexData = Data(hex: message)
