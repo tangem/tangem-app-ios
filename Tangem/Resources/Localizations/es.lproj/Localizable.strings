@@ -236,6 +236,7 @@
 "details_manage_security_long_tap_shorter" = "Sostenga la tarjeta firmemente";
 "details_manage_security_passcode" = "Contraseña";
 "details_manage_security_passcode_description" = "Antes de ejecutar un comando que cambie el estado de la tarjeta, deberá ingresar una contraseña.";
+"details_nft_title" = "NFT";
 "details_referral_title" = "Programa de referidos";
 "details_row_description_flip_to_hide" = "Gire la pantalla de su dispositivo hacia abajo para ocultar y mostrar rápidamente los saldos";
 "details_row_subtitle_signed_hashes_format" = "%@ hashes";
