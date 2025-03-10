@@ -7,73 +7,18 @@
 //
 
 import Foundation
-import BlockchainSdk
+import Combine
 import TangemFoundation
 
-typealias WalletModelId = WalletModel.ID
-
-extension WalletModel: Equatable {
-    static func == (lhs: WalletModel, rhs: WalletModel) -> Bool {
-        lhs.id == rhs.id
-    }
-}
-
 extension WalletModel {
-    struct Id: Hashable, Identifiable, Equatable {
-        let id: String
-        let tokenItem: TokenItem
-
-        init(tokenItem: TokenItem) {
-            self.tokenItem = tokenItem
-
-            let network = tokenItem.networkId
-            let contract = tokenItem.contractAddress ?? "coin"
-            let path = tokenItem.blockchainNetwork.derivationPath?.rawPath ?? "no_derivation"
-            id = "\(network)_\(contract)_\(path)"
-        }
-    }
-}
-
-extension WalletModel: Identifiable {
-    var id: String {
-        walletModelId.id
-    }
-}
-
-extension WalletModel: Hashable {
     func hash(into hasher: inout Hasher) {
-        hasher.combine(walletModelId)
-    }
-}
-
-extension WalletModel {
-    enum TransactionHistoryState: CustomStringConvertible {
-        case notSupported
-        case notLoaded
-        case loading
-        case loaded(items: [TransactionRecord])
-        case error(Error)
-
-        var description: String {
-            switch self {
-            case .notSupported:
-                return "TransactionHistoryState.notSupported"
-            case .notLoaded:
-                return "TransactionHistoryState.notLoaded"
-            case .loading:
-                return "TransactionHistoryState.loading"
-            case .loaded(let items):
-                return "TransactionHistoryState.loaded with items: \(items.count)"
-            case .error(let error):
-                return "TransactionHistoryState.error with \(error.localizedDescription)"
-            }
-        }
+        hasher.combine(id)
     }
 }
 
 // MARK: - CustomStringConvertible protocol conformance
 
-extension WalletModel: CustomStringConvertible {
+extension WalletModel {
     var description: String {
         TangemFoundation.objectDescription(
             self,
@@ -83,5 +28,23 @@ extension WalletModel: CustomStringConvertible {
                 "tokenItem": "\(tokenItem.name) (\(tokenItem.networkName))",
             ]
         )
+    }
+}
+
+extension Publisher where Output == [any WalletModel] {
+    func removeDuplicates() -> some Publisher<Output, Failure> {
+        removeDuplicates(by: { prev, new in
+            guard prev.count == new.count else {
+                return false
+            }
+
+            for (prevModel, newModel) in Swift.zip(prev, new) {
+                guard prevModel.id == newModel.id else {
+                    return false
+                }
+            }
+
+            return true
+        })
     }
 }
