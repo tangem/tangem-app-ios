@@ -37,6 +37,9 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Internal state
 
+    // swiftformat:disable:next unusedPrivateDeclarations
+    private let nftDataProvider = NFTDataProvider()
+
     private var pendingUserWalletIdsToUpdate: Set<UserWalletId> = []
     private var pendingUserWalletModelsToAdd: [UserWalletModel] = []
     private var shouldRecreatePagesAfterAddingPendingWalletModels = false
