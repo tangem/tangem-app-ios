@@ -17,12 +17,12 @@ protocol SendBaseDataBuilderInput {
 
 struct CommonSendBaseDataBuilder: SendBaseDataBuilder {
     private let input: SendBaseDataBuilderInput
-    private let walletModel: WalletModel
+    private let walletModel: any WalletModel
     private let emailDataProvider: EmailDataProvider
 
     init(
         input: SendBaseDataBuilderInput,
-        walletModel: WalletModel,
+        walletModel: any WalletModel,
         emailDataProvider: EmailDataProvider
     ) {
         self.input = input
