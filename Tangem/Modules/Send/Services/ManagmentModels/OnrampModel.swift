@@ -38,7 +38,7 @@ class OnrampModel {
     // MARK: - Private injections
 
     private let userWalletId: String
-    private let walletModel: WalletModel
+    private let walletModel: any WalletModel
     private let onrampManager: OnrampManager
     private let onrampDataRepository: OnrampDataRepository
     private let onrampRepository: OnrampRepository
@@ -50,7 +50,7 @@ class OnrampModel {
 
     init(
         userWalletId: String,
-        walletModel: WalletModel,
+        walletModel: any WalletModel,
         onrampManager: OnrampManager,
         onrampDataRepository: OnrampDataRepository,
         onrampRepository: OnrampRepository

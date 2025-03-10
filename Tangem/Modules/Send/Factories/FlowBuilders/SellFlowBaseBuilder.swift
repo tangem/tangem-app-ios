@@ -10,7 +10,7 @@ import Foundation
 
 struct SellFlowBaseBuilder {
     let userWalletModel: UserWalletModel
-    let walletModel: WalletModel
+    let walletModel: any WalletModel
     let source: SendCoordinator.Source
     let sendDestinationStepBuilder: SendDestinationStepBuilder
     let sendAmountStepBuilder: SendAmountStepBuilder
