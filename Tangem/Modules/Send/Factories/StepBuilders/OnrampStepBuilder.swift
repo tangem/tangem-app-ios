@@ -13,9 +13,9 @@ struct OnrampStepBuilder {
     typealias IO = (input: OnrampInput, output: OnrampOutput)
     typealias ReturnValue = (step: OnrampStep, interactor: OnrampInteractor)
 
-    private let walletModel: WalletModel
+    private let walletModel: any WalletModel
 
-    init(walletModel: WalletModel) {
+    init(walletModel: any WalletModel) {
         self.walletModel = walletModel
     }
 
