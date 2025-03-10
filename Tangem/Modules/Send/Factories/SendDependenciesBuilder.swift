@@ -12,10 +12,10 @@ import BlockchainSdk
 import TangemExpress
 
 struct SendDependenciesBuilder {
-    private let walletModel: WalletModel
+    private let walletModel: any WalletModel
     private let userWalletModel: UserWalletModel
 
-    init(userWalletModel: UserWalletModel, walletModel: WalletModel) {
+    init(userWalletModel: UserWalletModel, walletModel: any WalletModel) {
         self.userWalletModel = userWalletModel
         self.walletModel = walletModel
     }
@@ -101,7 +101,7 @@ struct SendDependenciesBuilder {
     }
 
     func isFeeApproximate() -> Bool {
-        walletModel.tokenItem.blockchain.isFeeApproximate(for: walletModel.amountType)
+        walletModel.tokenItem.blockchain.isFeeApproximate(for: walletModel.tokenItem.amountType)
     }
 
     func makeTokenIconInfo() -> TokenIconInfo {
@@ -215,7 +215,7 @@ struct SendDependenciesBuilder {
 
         // the additionalField is requried. Other can be optional
         let additionalField: SendDestinationAdditionalField = {
-            guard let type = SendDestinationAdditionalFieldType.type(for: walletModel.blockchainNetwork.blockchain) else {
+            guard let type = SendDestinationAdditionalFieldType.type(for: walletModel.tokenItem.blockchain) else {
                 return .notSupported
             }
 

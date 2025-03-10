@@ -17,7 +17,7 @@ class FakeTokenItemInfoProvider: ObservableObject {
 
     private(set) var viewModels: [TokenItemViewModel] = []
 
-    private var walletModels: [WalletModel] = []
+    private var walletModels: [any WalletModel] = []
 
     init(walletManagers: [FakeWalletManager]) {
         walletModels = walletManagers.flatMap { $0.walletModels }
@@ -37,8 +37,8 @@ class FakeTokenItemInfoProvider: ObservableObject {
         }
     }
 
-    func modelTapped(with id: WalletModelId) {
-        guard let tappedWalletManager = walletModels.first(where: { $0.id == id }) else {
+    func modelTapped(with id: WalletModelId.ID) {
+        guard let tappedWalletManager = walletModels.first(where: { $0.id.id == id }) else {
             return
         }
         AppLogger.debug("Tapped wallet model: \(tappedWalletManager)")
