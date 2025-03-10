@@ -15,7 +15,7 @@ class CommonPendingOnrampTransactionsManager {
     @Injected(\.pendingExpressTransactionAnalayticsTracker) private var pendingExpressTransactionAnalyticsTracker: PendingExpressTransactionAnalyticsTracker
 
     private let userWalletId: String
-    private let walletModel: WalletModel
+    private let walletModel: any WalletModel
     private let expressAPIProvider: ExpressAPIProvider
 
     private let pendingOnrampTransactionFactory = PendingOnrampTransactionFactory()
@@ -35,7 +35,7 @@ class CommonPendingOnrampTransactionsManager {
 
     init(
         userWalletId: String,
-        walletModel: WalletModel,
+        walletModel: any WalletModel,
         expressAPIProvider: ExpressAPIProvider
     ) {
         self.userWalletId = userWalletId

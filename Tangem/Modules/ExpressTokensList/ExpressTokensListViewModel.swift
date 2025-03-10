@@ -31,12 +31,12 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
 
     // MARK: - Internal
 
-    private var availableWalletModels: [WalletModel] = []
-    private var unavailableWalletModels: [WalletModel] = []
+    private var availableWalletModels: [any WalletModel] = []
+    private var unavailableWalletModels: [any WalletModel] = []
     private var bag: Set<AnyCancellable> = []
 
     // For Analytics
-    private var selectedWallet: WalletModel?
+    private var selectedWallet: (any WalletModel)?
     private var updateTask: Task<Void, Never>?
 
     init(
@@ -105,7 +105,7 @@ private extension ExpressTokensListViewModel {
             .store(in: &bag)
     }
 
-    func updateAvailablePairs(walletModels: [WalletModel]) {
+    func updateAvailablePairs(walletModels: [any WalletModel]) {
         updateTask?.cancel()
         updateTask = TangemFoundation.runTask(in: self) { viewModel in
             let availablePairs = await viewModel.loadAvailablePairs()
@@ -129,7 +129,7 @@ private extension ExpressTokensListViewModel {
         }
     }
 
-    func updateWalletModels(walletModels: [WalletModel], availableCurrencies: [ExpressCurrency]) {
+    func updateWalletModels(walletModels: [any WalletModel], availableCurrencies: [ExpressCurrency]) {
         availableWalletModels.removeAll()
         unavailableWalletModels.removeAll()
 
@@ -138,7 +138,7 @@ private extension ExpressTokensListViewModel {
 
         walletModels
             .forEach { walletModel in
-                guard walletModel != swapDirection.wallet else { return }
+                guard walletModel.id != swapDirection.wallet.id else { return }
 
                 let isAvailable = availableCurrenciesSet.contains(walletModel.expressCurrency)
                 let isNotCustom = !walletModel.isCustom
@@ -183,13 +183,13 @@ private extension ExpressTokensListViewModel {
         return isContainsName || isContainsCurrencySymbol
     }
 
-    func mapToExpressTokenItemViewModel(walletModel: WalletModel, isDisable: Bool) -> ExpressTokenItemViewModel {
+    func mapToExpressTokenItemViewModel(walletModel: any WalletModel, isDisable: Bool) -> ExpressTokenItemViewModel {
         let tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
         let balance = walletModel.availableBalanceProvider.formattedBalanceType.value
         let fiatBalance = walletModel.fiatAvailableBalanceProvider.formattedBalanceType.value
 
         return ExpressTokenItemViewModel(
-            id: walletModel.id,
+            id: walletModel.id.id,
             tokenIconInfo: tokenIconInfo,
             name: walletModel.name,
             symbol: walletModel.tokenItem.currencySymbol,
@@ -202,7 +202,7 @@ private extension ExpressTokensListViewModel {
         )
     }
 
-    func userDidTap(on walletModel: WalletModel) {
+    func userDidTap(on walletModel: any WalletModel) {
         switch swapDirection {
         case .fromSource:
             expressInteractor.update(destination: walletModel)
@@ -224,8 +224,8 @@ extension ExpressTokensListViewModel {
     }
 
     enum SwapDirection {
-        case fromSource(WalletModel)
-        case toDestination(WalletModel)
+        case fromSource(any WalletModel)
+        case toDestination(any WalletModel)
 
         var name: String {
             switch self {
@@ -236,7 +236,7 @@ extension ExpressTokensListViewModel {
             }
         }
 
-        var wallet: WalletModel {
+        var wallet: any WalletModel {
             switch self {
             case .fromSource(let walletModel):
                 return walletModel
