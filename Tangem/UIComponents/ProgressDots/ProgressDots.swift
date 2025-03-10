@@ -24,15 +24,14 @@ struct ProgressDots: View {
             }
         }
         .onAppear {
-            // We have to use the `DispatchQueue.main.async` because
-            // It will be called after UI layout is ready on the next tick
-            // Otherwise it will broke view position
-            DispatchQueue.main.async {
+            if !loading {
                 loading = true
             }
         }
         .onDisappear {
-            loading = false
+            if loading {
+                loading = false
+            }
         }
     }
 
