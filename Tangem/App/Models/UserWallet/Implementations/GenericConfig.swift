@@ -200,6 +200,8 @@ extension GenericConfig: UserWalletConfig {
             return .hidden
         case .promotion:
             return .available
+        case .nft:
+            return .available
         }
     }
 
