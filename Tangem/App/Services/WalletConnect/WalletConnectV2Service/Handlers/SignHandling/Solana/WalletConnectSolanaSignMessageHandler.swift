@@ -13,7 +13,7 @@ import Commons
 struct WalletConnectSolanaSignMessageHandler {
     private let message: String
     private let signer: WalletConnectSigner
-    private let walletModel: WalletModel
+    private let walletModel: any WalletModel
 
     init(
         request: AnyCodable,

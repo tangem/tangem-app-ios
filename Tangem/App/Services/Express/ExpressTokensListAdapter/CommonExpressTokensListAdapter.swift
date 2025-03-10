@@ -24,13 +24,13 @@ struct CommonExpressTokensListAdapter {
 }
 
 extension CommonExpressTokensListAdapter: ExpressTokensListAdapter {
-    func walletModels() -> AnyPublisher<[WalletModel], Never> {
+    func walletModels() -> AnyPublisher<[any WalletModel], Never> {
         let sourcePublisherFactory = TokenSectionsSourcePublisherFactory()
         let tokenSectionsSourcePublisher = sourcePublisherFactory.makeSourcePublisher(for: userWalletModel)
 
         return adapter
             .organizedSections(from: tokenSectionsSourcePublisher, on: .global())
-            .map { section -> [WalletModel] in
+            .map { section -> [any WalletModel] in
                 section.flatMap { $0.items.compactMap { $0.walletModel } }
             }
             .eraseToAnyPublisher()

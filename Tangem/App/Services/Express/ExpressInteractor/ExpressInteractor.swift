@@ -26,8 +26,8 @@ class ExpressInteractor {
     // MARK: - Dependencies
 
     private let userWalletId: String
-    private let initialWallet: WalletModel
-    private let destinationWallet: WalletModel?
+    private let initialWallet: any WalletModel
+    private let destinationWallet: (any WalletModel)?
     private let expressManager: ExpressManager
     private let allowanceProvider: UpdatableAllowanceProvider
     private let feeProvider: ExpressFeeProvider
@@ -47,8 +47,8 @@ class ExpressInteractor {
 
     init(
         userWalletId: String,
-        initialWallet: WalletModel,
-        destinationWallet: WalletModel?,
+        initialWallet: any WalletModel,
+        destinationWallet: (any WalletModel)?,
         expressManager: ExpressManager,
         allowanceProvider: UpdatableAllowanceProvider,
         feeProvider: ExpressFeeProvider,
@@ -75,7 +75,7 @@ class ExpressInteractor {
         _swappingPair = .init(
             SwappingPair(
                 sender: initialWallet,
-                destination: { () -> LoadingValue<WalletModel> in
+                destination: { () -> LoadingValue<any WalletModel> in
                     if let destinationWallet {
                         return .loaded(destinationWallet)
                     }
@@ -96,15 +96,15 @@ extension ExpressInteractor {
         _state.value
     }
 
-    func getSender() -> WalletModel {
+    func getSender() -> any WalletModel {
         _swappingPair.value.sender
     }
 
-    func getDestination() -> WalletModel? {
+    func getDestination() -> (any WalletModel)? {
         _swappingPair.value.destination.value
     }
 
-    func getDestinationValue() -> LoadingValue<WalletModel> {
+    func getDestinationValue() -> LoadingValue<any WalletModel> {
         _swappingPair.value.destination
     }
 
@@ -134,14 +134,14 @@ extension ExpressInteractor {
         swappingPairDidChange()
     }
 
-    func update(sender wallet: WalletModel) {
+    func update(sender wallet: any WalletModel) {
         log("Will update sender to \(wallet)")
 
         _swappingPair.value.sender = wallet
         swappingPairDidChange()
     }
 
-    func update(destination wallet: WalletModel) {
+    func update(destination wallet: any WalletModel) {
         log("Will update destination to \(wallet)")
 
         _swappingPair.value.destination = .loaded(wallet)
@@ -565,7 +565,7 @@ private extension ExpressInteractor {
         }
     }
 
-    func initialLoading(wallet: WalletModel) {
+    func initialLoading(wallet: any WalletModel) {
         updateTask { interactor in
             if let restriction = await interactor.initialLoading(wallet: wallet) {
                 return .restriction(restriction, quote: .none)
@@ -584,7 +584,7 @@ private extension ExpressInteractor {
         return await initialLoading(wallet: wallet)
     }
 
-    func initialLoading(wallet: WalletModel) async -> RestrictionType? {
+    func initialLoading(wallet: any WalletModel) async -> RestrictionType? {
         do {
             try await expressRepository.updatePairs(for: wallet)
 
@@ -625,7 +625,7 @@ private extension ExpressInteractor {
 
     func makeAmount(value: Decimal) -> Amount {
         let wallet = getSender()
-        return Amount(with: wallet.tokenItem.blockchain, type: wallet.amountType, value: value)
+        return Amount(with: wallet.tokenItem.blockchain, type: wallet.tokenItem.amountType, value: value)
     }
 }
 
@@ -840,8 +840,8 @@ extension ExpressInteractor {
     // Manager models
 
     struct SwappingPair {
-        var sender: WalletModel
-        var destination: LoadingValue<WalletModel>
+        var sender: any WalletModel
+        var destination: LoadingValue<any WalletModel>
     }
 
     struct TransactionSendResultState {
