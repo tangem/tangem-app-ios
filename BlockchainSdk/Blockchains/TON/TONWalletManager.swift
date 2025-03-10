@@ -15,9 +15,6 @@ final class TONWalletManager: BaseManager, WalletManager {
     // MARK: - Properties
 
     var currentHost: String { networkService.host }
-    var isAccountInitialized: Bool {
-        isAvailable
-    }
 
     // MARK: - Private Properties
 
@@ -266,5 +263,11 @@ extension TONWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSend
 extension TONWalletManager: StakeKitTransactionDataBroadcaster {
     func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
         try await networkService.send(message: rawTransaction).async()
+    }
+}
+
+extension TONWalletManager: StakingAccountInitializationStateProvider {
+    var isAccountInitialized: Bool {
+        isAvailable
     }
 }
