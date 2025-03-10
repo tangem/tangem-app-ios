@@ -146,10 +146,6 @@ class WalletModel {
         .eraseToAnyPublisher()
     }
 
-    var isAccountInitialized: Bool {
-        walletManager.isAccountInitialized
-    }
-
     var isDemo: Bool { demoBalance != nil }
     var demoBalance: Decimal?
 
@@ -760,5 +756,16 @@ enum WalletModelError: LocalizedError {
         switch self {
         case .balanceNotFound: "Balance not found"
         }
+    }
+}
+
+// MARK: - StakingAccountInitializationStateProvider
+
+extension WalletModel: StakingAccountInitializationStateProvider {
+    var isAccountInitialized: Bool {
+        guard let walletManager = walletManager as? StakingAccountInitializationStateProvider else {
+            return true
+        }
+        return walletManager.isAccountInitialized
     }
 }
