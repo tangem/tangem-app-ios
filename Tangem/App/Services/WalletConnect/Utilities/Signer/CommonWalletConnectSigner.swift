@@ -12,7 +12,7 @@ import TangemSdk
 struct CommonWalletConnectSigner: WalletConnectSigner {
     let signer: TangemSigner
 
-    func sign(data: Data, using walletModel: WalletModel) async throws -> Data {
+    func sign(data: Data, using walletModel: any WalletModel) async throws -> Data {
         let pubKey = walletModel.wallet.publicKey
         return try await signer.sign(hash: data, walletPublicKey: pubKey)
             .tryMap { response -> Data in
@@ -29,7 +29,7 @@ struct CommonWalletConnectSigner: WalletConnectSigner {
             .async()
     }
 
-    func sign(hashes: [Data], using walletModel: WalletModel) async throws -> [Data] {
+    func sign(hashes: [Data], using walletModel: any WalletModel) async throws -> [Data] {
         let pubKey = walletModel.wallet.publicKey
         return try await signer.sign(hashes: hashes, walletPublicKey: pubKey)
             .tryMap { responses -> [Data] in
