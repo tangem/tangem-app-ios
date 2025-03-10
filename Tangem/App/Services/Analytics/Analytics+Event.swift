@@ -229,6 +229,7 @@ extension Analytics {
         case tokenNoticeNotEnoughFee = "[Token] Notice - Not Enough Fee"
         case tokenActionButtonDisabled = "[Token] Action Button Disabled"
         case tokenNoticeRevealTransaction = "[Token] Notice - Reveal Transaction"
+        case tokenNoticeLongTimeTransaction = "[Token] Notice - Long Time Transaction"
         case tokenButtonRevealCancel = "[Token] Button - Reveal Cancel"
         case tokenButtonRevealTryAgain = "[Token] Button - Reveal Try Again"
         case walletPromoButtonClicked = "[Main Screen] Note Promo Button"
