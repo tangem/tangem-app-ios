@@ -10,10 +10,15 @@ import Foundation
 import Moya
 import TangemFoundation
 
-struct CommonExpressAPIService {
+class CommonExpressAPIService {
     private let provider: MoyaProvider<ExpressAPITarget>
     private let expressAPIType: ExpressAPIType
-    private let decoder = JSONDecoder()
+
+    private let decoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601WithFractionalSeconds
+        return decoder
+    }()
 
     init(provider: MoyaProvider<ExpressAPITarget>, expressAPIType: ExpressAPIType) {
         assert(
