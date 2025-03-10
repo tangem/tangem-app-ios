@@ -11,20 +11,20 @@ import Foundation
 struct MarketsTokenDetailsPortfolioCoordinatorFactory {
     // MARK: - Utils
 
-    private func buildExchangeCryptoUtility(for walletModel: WalletModel) -> ExchangeCryptoUtility {
+    private func buildExchangeCryptoUtility(for walletModel: any WalletModel) -> ExchangeCryptoUtility {
         return ExchangeCryptoUtility(
-            blockchain: walletModel.blockchainNetwork.blockchain,
+            blockchain: walletModel.tokenItem.blockchain,
             address: walletModel.defaultAddress,
-            amountType: walletModel.amountType
+            amountType: walletModel.tokenItem.amountType
         )
     }
 
     // MARK: - Make
 
     func makeExpressCoordinator(
-        for walletModel: WalletModel,
+        for walletModel: any WalletModel,
         with userWalletModel: UserWalletModel,
-        dismissAction: @escaping Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?>,
+        dismissAction: @escaping Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?>,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) -> ExpressCoordinator {
         let input = CommonExpressModulesFactory.InputModel(userWalletModel: userWalletModel, initialWalletModel: walletModel)
@@ -41,14 +41,14 @@ struct MarketsTokenDetailsPortfolioCoordinatorFactory {
     }
 
     func makeBuyURL(
-        for walletModel: WalletModel,
+        for walletModel: any WalletModel,
         with userWalletModel: UserWalletModel
     ) -> URL? {
         let exchangeUtility = buildExchangeCryptoUtility(for: walletModel)
         return exchangeUtility.buyURL
     }
 
-    func makeSellCryptoRequest(from closeURL: URL, with walletModel: WalletModel) -> SellCryptoRequest? {
+    func makeSellCryptoRequest(from closeURL: URL, with walletModel: any WalletModel) -> SellCryptoRequest? {
         let exchangeUtility = buildExchangeCryptoUtility(for: walletModel)
         return exchangeUtility.extractSellCryptoRequest(from: closeURL.absoluteString)
     }
