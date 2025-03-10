@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 protocol UserTokensReordering {
-    var orderedWalletModelIds: AnyPublisher<[WalletModel.ID], Never> { get }
+    var orderedWalletModelIds: AnyPublisher<[WalletModelId.ID], Never> { get }
     var groupingOption: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> { get }
     var sortingOption: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> { get }
 
