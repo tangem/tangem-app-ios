@@ -65,16 +65,10 @@ struct SingleWalletContentView_Preview: PreviewProvider {
         let userWalletModel = FakeUserWalletModel.xrpNote
         let walletModel = userWalletModel.walletModelsManager.walletModels.first!
         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository(models: [userWalletModel])
-        let cryptoUtility = ExchangeCryptoUtility(
-            blockchain: walletModel.blockchainNetwork.blockchain,
-            address: walletModel.wallet.address,
-            amountType: walletModel.amountType
-        )
 
         return SingleWalletMainContentViewModel(
             userWalletModel: userWalletModel,
             walletModel: userWalletModel.walletModelsManager.walletModels.first!,
-            exchangeUtility: cryptoUtility,
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
             pendingExpressTransactionsManager: FakePendingExpressTransactionsManager(),
             tokenNotificationManager: FakeUserWalletNotificationManager(),
