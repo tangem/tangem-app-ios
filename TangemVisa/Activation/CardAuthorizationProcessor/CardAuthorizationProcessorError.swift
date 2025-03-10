@@ -6,9 +6,9 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Foundation
+import TangemFoundation
 
-public enum CardAuthorizationProcessorError: Error {
+public enum CardAuthorizationProcessorError: TangemError {
     case authorizationChallengeNotFound
     case invalidCardInput
     case networkError(Error)
@@ -21,6 +21,27 @@ public enum CardAuthorizationProcessorError: Error {
             return "Invalid card input"
         case .networkError(let error):
             return "Underlying network error: \(error)"
+        }
+    }
+
+    public var subsystemCode: Int {
+        if case .networkError(let error) = self, let tangemError = error as? TangemError {
+            return tangemError.subsystemCode
+        }
+
+        return VisaSubsystem.cardAuthoriationProcessor.rawValue
+    }
+
+    public var errorCode: Int {
+        switch self {
+        case .authorizationChallengeNotFound: return 1
+        case .invalidCardInput: return 2
+        case .networkError(let error):
+            if let tangemError = error as? TangemError {
+                return tangemError.errorCode
+            }
+
+            return 2
         }
     }
 }
