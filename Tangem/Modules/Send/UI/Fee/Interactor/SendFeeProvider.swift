@@ -15,9 +15,9 @@ protocol SendFeeProvider {
 }
 
 class CommonSendFeeProvider: SendFeeProvider {
-    private let walletModel: WalletModel
+    private let walletModel: any WalletModel
 
-    init(walletModel: WalletModel) {
+    init(walletModel: any WalletModel) {
         self.walletModel = walletModel
     }
 
