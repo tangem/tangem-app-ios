@@ -28,7 +28,9 @@ struct TransactionSendAvailabilityProvider {
         }
 
         switch walletModel.availableBalanceProvider.balanceType {
-        case .empty, .loading(.none), .failure(.none):
+        case .loading(.none):
+            return .blockchainLoading
+        case .empty, .failure(.none):
             return .blockchainUnreachable
         case .loading(.some), .failure(.some):
             return .hasOnlyCachedBalance
@@ -79,6 +81,7 @@ extension TransactionSendAvailabilityProvider {
         case hasPendingTransaction(blockchain: Blockchain)
         case zeroFeeCurrencyBalance(configuration: NotEnoughFeeConfiguration)
         case blockchainUnreachable
+        case blockchainLoading
         case oldCard
 
         struct NotEnoughFeeConfiguration: Hashable {
