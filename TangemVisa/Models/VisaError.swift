@@ -6,9 +6,9 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import Foundation
+import TangemFoundation
 
-public enum VisaError: LocalizedError {
+public enum VisaError: TangemError {
     case failedToCreateDerivation
     case failedToCreateAddress(Error)
 
@@ -18,6 +18,19 @@ public enum VisaError: LocalizedError {
             return "Derivation error. Please contact support"
         case .failedToCreateAddress:
             return "Address creation error. Please contact support"
+        }
+    }
+
+    public var subsystemCode: Int {
+        VisaSubsystem.common.rawValue
+    }
+
+    public var errorCode: Int {
+        switch self {
+        case .failedToCreateDerivation:
+            return 1
+        case .failedToCreateAddress:
+            return 2
         }
     }
 }
