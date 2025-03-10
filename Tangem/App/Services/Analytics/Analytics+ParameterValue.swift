@@ -111,6 +111,7 @@ extension Analytics {
         case demo = "Demo"
         case oldCard = "OldCard"
         case blockchainUnreachable = "Blockchain Unreachable"
+        case blockchainLoading = "Blockchain Loading"
         case assetsError = "Assets Error"
         case assetsLoading = "Assets Loading"
         case assetsNotFound = "Asset NotFound"
