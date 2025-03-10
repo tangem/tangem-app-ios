@@ -11,10 +11,10 @@ import TangemStaking
 
 struct SendFlowFactory {
     private let userWalletModel: UserWalletModel
-    private let walletModel: WalletModel
+    private let walletModel: any WalletModel
     private let source: SendCoordinator.Source
 
-    init(userWalletModel: UserWalletModel, walletModel: WalletModel, source: SendCoordinator.Source) {
+    init(userWalletModel: UserWalletModel, walletModel: any WalletModel, source: SendCoordinator.Source) {
         self.userWalletModel = userWalletModel
         self.walletModel = walletModel
         self.source = source
