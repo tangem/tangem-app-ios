@@ -62,17 +62,17 @@ struct OrganizeTokensListFactory {
     }
 
     private func makeListItemViewModel(
-        walletModel: WalletModel,
+        walletModel: any WalletModel,
         isDraggable: Bool,
         inGroupedSection: Bool
     ) -> OrganizeTokensListItemViewModel {
         let identifier = OrganizeTokensListItemViewModel.Identifier(
-            walletModelId: walletModel.id,
+            walletModelId: walletModel.id.id,
             inGroupedSection: inGroupedSection
         )
         let tokenIcon = tokenIconInfoBuilder.build(
-            for: walletModel.amountType,
-            in: walletModel.blockchainNetwork.blockchain,
+            for: walletModel.tokenItem.amountType,
+            in: walletModel.tokenItem.blockchain,
             isCustom: walletModel.isCustom
         )
 
@@ -81,7 +81,7 @@ struct OrganizeTokensListFactory {
             tokenIcon: tokenIcon,
             balance: fiatBalance(for: walletModel),
             hasDerivation: true,
-            isTestnet: walletModel.blockchainNetwork.blockchain.isTestnet,
+            isTestnet: walletModel.tokenItem.blockchain.isTestnet,
             isNetworkUnreachable: walletModel.state.isBlockchainUnreachable,
             isDraggable: isDraggable
         )
@@ -95,7 +95,7 @@ struct OrganizeTokensListFactory {
         let blockchain = userToken.blockchainNetwork.blockchain
         let isTestnet = blockchain.isTestnet
         let identifier = OrganizeTokensListItemViewModel.Identifier(
-            walletModelId: userToken.walletModelId,
+            walletModelId: userToken.walletModelId.id,
             inGroupedSection: inGroupedSection
         )
 
@@ -148,7 +148,7 @@ struct OrganizeTokensListFactory {
         )
     }
 
-    private func fiatBalance(for walletModel: WalletModel) -> LoadableTokenBalanceView.State {
+    private func fiatBalance(for walletModel: any WalletModel) -> LoadableTokenBalanceView.State {
         LoadableTokenBalanceViewStateBuilder()
             .build(type: walletModel.fiatTotalTokenBalanceProvider.formattedBalanceType, icon: .trailing)
     }
