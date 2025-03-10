@@ -7,8 +7,9 @@
 //
 
 import Foundation
+import TangemFoundation
 
-struct VisaAPIError: Decodable, LocalizedError {
+struct VisaAPIError: Decodable {
     let status: Int
     let message: String
     let timestamp: String
@@ -23,5 +24,15 @@ struct VisaAPIError: Decodable, LocalizedError {
         Path: \(path ?? "nil")
         Error: \(error ?? "nil")
         """
+    }
+}
+
+extension VisaAPIError: TangemError {
+    var subsystemCode: Int {
+        VisaSubsystem.api.rawValue
+    }
+
+    var errorCode: Int {
+        1
     }
 }
