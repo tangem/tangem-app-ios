@@ -10,7 +10,7 @@ import Foundation
 
 protocol UnspentOutputManager {
     func update(outputs: [UnspentOutput], for script: Data)
-    func outputs(for amount: UInt64, script: Data) throws -> [UnspentOutput]
+    func selectOutputs(amount: Decimal, fee: Decimal) throws -> [ScriptUnspentOutput]
 
     func allOutputs() -> [ScriptUnspentOutput]
 
