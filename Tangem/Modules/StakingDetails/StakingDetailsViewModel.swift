@@ -82,7 +82,10 @@ final class StakingDetailsViewModel: ObservableObject {
         }
 
         guard stakingManager.state.yieldInfo?.preferredValidators.allSatisfy({ $0.status == .full }) == false else {
-            alert = .init(title: Localization.stakingErrorNoValidatorsTitle, message: Localization.stakingNoValidatorsErrorMessage)
+            alert = .init(
+                title: Localization.stakingErrorNoValidatorsTitle,
+                message: Localization.stakingNoValidatorsErrorMessage
+            )
             return
         }
 
