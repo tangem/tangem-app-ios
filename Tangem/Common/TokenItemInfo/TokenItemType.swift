@@ -10,6 +10,19 @@ import Foundation
 
 enum TokenItemType: Equatable {
     /// `Default` means `coin/token with derivation`,  unlike `withoutDerivation` case.
-    case `default`(WalletModel)
+    case `default`(any WalletModel)
     case withoutDerivation(StoredUserTokenList.Entry)
+}
+
+extension TokenItemType {
+    static func == (lhs: TokenItemType, rhs: TokenItemType) -> Bool {
+        switch (lhs, rhs) {
+        case (let .default(lhsModel), .default(let rhsModel)):
+            return lhsModel.id == rhsModel.id
+        case (let .withoutDerivation(lhsEntry), .withoutDerivation(let rhsEntry)):
+            return lhsEntry == rhsEntry
+        default:
+            return false
+        }
+    }
 }
