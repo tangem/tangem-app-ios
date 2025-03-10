@@ -13,7 +13,7 @@ import enum JSONRPC.RPCResult
 
 class WalletConnectV2SendTransactionHandler {
     private let wcTransaction: WalletConnectEthTransaction
-    private let walletModel: WalletModel
+    private let walletModel: any WalletModel
     private let transactionBuilder: WalletConnectEthTransactionBuilder
     private let messageComposer: WalletConnectV2MessageComposable
     private let uiDelegate: WalletConnectUIDelegate
