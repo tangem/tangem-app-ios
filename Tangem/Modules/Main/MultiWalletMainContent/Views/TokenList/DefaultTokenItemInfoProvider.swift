@@ -30,8 +30,6 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
 
     var tokenItem: TokenItem { walletModel.tokenItem }
 
-    var hasPendingTransactions: Bool { walletModel.hasPendingTransactions }
-
     var quote: WalletModel.Rate {
         walletModel.rate
     }
@@ -70,6 +68,13 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
         stakingBalanceProvider
             .balanceTypePublisher
             .map { ($0.value ?? 0) > 0 }
+            .eraseToAnyPublisher()
+    }
+
+    var hasPendingTransactions: AnyPublisher<Bool, Never> {
+        walletModel
+            .pendingTransactionPublisher
+            .map { !$0.isEmpty }
             .eraseToAnyPublisher()
     }
 }
