@@ -53,7 +53,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     init(
         userWalletModel: UserWalletModel,
-        walletModel: WalletModel,
+        walletModel: any WalletModel,
         notificationManager: NotificationManager,
         bannerNotificationManager: NotificationManager?,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
