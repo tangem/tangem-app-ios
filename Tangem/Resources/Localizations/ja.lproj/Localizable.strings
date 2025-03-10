@@ -236,6 +236,7 @@
 "details_manage_security_long_tap_shorter" = "長くタップ";
 "details_manage_security_passcode" = "パスコード";
 "details_manage_security_passcode_description" = "カードの状態の変更を伴うコマンドを実行する前に、パスコードを入力する必要があります。";
+"details_nft_title" = "NFT";
 "details_referral_title" = "紹介プログラム";
 "details_row_description_flip_to_hide" = "デバイスの画面を下に向けると、残高をすばやく非表示にしたり表示したりできます。";
 "details_row_subtitle_signed_hashes_format" = "%@ハッシュ";
