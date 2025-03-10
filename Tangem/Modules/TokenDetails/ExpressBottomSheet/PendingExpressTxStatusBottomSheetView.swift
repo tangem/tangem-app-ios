@@ -202,7 +202,7 @@ struct ExpressPendingTxStatusBottomSheetView_Preview: PreviewProvider {
             userWalletModel: CommonUserWalletModel.mock!,
             pendingTransactionsManager: CommonPendingExpressTransactionsManager(
                 userWalletId: userWalletId,
-                walletModel: .mockETH,
+                walletModel: CommonWalletModel.mockETH,
                 expressAPIProvider: expressAPIProvider,
                 expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
             ),

@@ -57,7 +57,7 @@ class StakingDetailsCoordinator: CoordinatorObject {
 extension StakingDetailsCoordinator {
     struct Options {
         let userWalletModel: UserWalletModel
-        let walletModel: WalletModel
+        let walletModel: any WalletModel
         let manager: StakingManager
     }
 }
@@ -65,7 +65,7 @@ extension StakingDetailsCoordinator {
 // MARK: - Private
 
 private extension StakingDetailsCoordinator {
-    func openFeeCurrency(for model: WalletModel, userWalletModel: UserWalletModel) {
+    func openFeeCurrency(for model: any WalletModel, userWalletModel: UserWalletModel) {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.tokenDetailsCoordinator = nil
         }
@@ -89,7 +89,7 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
     func openStakingFlow() {
         guard let options else { return }
 
-        let dismissAction: Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
+        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
             self?.sendCoordinator = nil
 
             if let navigationInfo {

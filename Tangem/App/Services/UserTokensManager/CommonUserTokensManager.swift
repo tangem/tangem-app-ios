@@ -208,9 +208,9 @@ extension CommonUserTokensManager: UserTokensManager {
         // wait for walletModelsManager to be updated
         try await Task.sleep(seconds: 0.1)
 
-        let walletModelId = WalletModel.Id(tokenItem: tokenItem)
+        let walletModelId = WalletModelId(tokenItem: tokenItem)
 
-        guard let walletModel = walletModelsManager.walletModels.first(where: { $0.id == walletModelId.id }) else {
+        guard let walletModel = walletModelsManager.walletModels.first(where: { $0.id == walletModelId }) else {
             throw CommonUserTokensManager.Error.addressNotFound
         }
 
@@ -297,10 +297,10 @@ extension CommonUserTokensManager: UserTokensManager {
 // MARK: - UserTokensReordering protocol conformance
 
 extension CommonUserTokensManager: UserTokensReordering {
-    var orderedWalletModelIds: AnyPublisher<[WalletModel.ID], Never> {
+    var orderedWalletModelIds: AnyPublisher<[WalletModelId.ID], Never> {
         return userTokenListManager
             .userTokensListPublisher
-            .map { $0.entries.map(\.walletModelId) }
+            .map { $0.entries.map(\.walletModelId.id) }
             .eraseToAnyPublisher()
     }
 
@@ -340,7 +340,7 @@ extension CommonUserTokensManager: UserTokensReordering {
                     case .setSortingOption(let option):
                         sorting = converter.convert(option)
                     case .reorder(let reorderedWalletModelIds):
-                        let userTokensKeyedByIds = entries.keyedFirst(by: \.walletModelId)
+                        let userTokensKeyedByIds = entries.keyedFirst(by: \.walletModelId.id)
                         let reorderedEntries = reorderedWalletModelIds.compactMap { userTokensKeyedByIds[$0] }
 
                         // [REDACTED_TODO_COMMENT]
