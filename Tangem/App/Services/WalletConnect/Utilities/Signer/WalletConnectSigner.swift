@@ -10,6 +10,6 @@ import Foundation
 import TangemSdk
 
 protocol WalletConnectSigner {
-    func sign(data: Data, using walletModel: WalletModel) async throws -> Data
-    func sign(hashes: [Data], using walletModel: WalletModel) async throws -> [Data]
+    func sign(data: Data, using walletModel: any WalletModel) async throws -> Data
+    func sign(hashes: [Data], using walletModel: any WalletModel) async throws -> [Data]
 }
