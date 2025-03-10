@@ -15,7 +15,7 @@ struct SendDestinationStepBuilder {
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    let walletModel: WalletModel
+    let walletModel: any WalletModel
     let builder: SendDependenciesBuilder
 
     func makeSendDestinationStep(
@@ -103,7 +103,7 @@ private extension SendDestinationStepBuilder {
         let validator = CommonSendDestinationValidator(
             walletAddresses: walletModel.addresses,
             addressService: addressService,
-            supportsCompound: walletModel.wallet.blockchain.supportsCompound
+            supportsCompound: walletModel.tokenItem.blockchain.supportsCompound
         )
 
         return validator
@@ -130,7 +130,7 @@ private extension SendDestinationStepBuilder {
 
                     let shouldBeIncluded = walletModel.wallet.blockchain.supportsCompound || !ignoredAddresses.contains(walletModel.defaultAddress)
 
-                    return walletModel.blockchainNetwork.blockchain.networkId == self.walletModel.tokenItem.blockchain.networkId
+                    return walletModel.tokenItem.blockchain.networkId == self.walletModel.tokenItem.blockchain.networkId
                         && walletModel.isMainToken
                         && shouldBeIncluded
                 }
