@@ -37,6 +37,9 @@ enum ExpressNotificationEvent: Hashable {
     case cexOperationFailed
 
     case refunded(tokenItem: TokenItem)
+
+    /// If the client's transaction takes longer than the average time by x5 times
+    case longTimeAverageDuration
 }
 
 extension ExpressNotificationEvent: NotificationEvent {
@@ -72,6 +75,8 @@ extension ExpressNotificationEvent: NotificationEvent {
             return event.title
         case .refunded(tokenItem: let tokenItem):
             return .string(Localization.expressExchangeNotificationRefundTitle(tokenItem.currencySymbol, tokenItem.networkName))
+        case .longTimeAverageDuration:
+            return .string(Localization.expressExchangeNotificationLongTransactionTimeTitle)
         }
     }
 
@@ -110,6 +115,8 @@ extension ExpressNotificationEvent: NotificationEvent {
             let url = TangemBlogUrlBuilder().url(post: .refundedDex)
             let readMore = "[\(Localization.commonReadMore)](\(url.absoluteString))"
             return Localization.expressExchangeNotificationRefundText(tokenItem.currencySymbol, readMore)
+        case .longTimeAverageDuration:
+            return Localization.expressExchangeNotificationLongTransactionTimeText
         }
     }
 
@@ -121,7 +128,8 @@ extension ExpressNotificationEvent: NotificationEvent {
              .tooSmallAmountToSwap,
              .tooBigAmountToSwap,
              .noDestinationTokens,
-             .feeWillBeSubtractFromSendingAmount:
+             .feeWillBeSubtractFromSendingAmount,
+             .longTimeAverageDuration:
             return .secondary
         case .notEnoughFeeForTokenTx,
              .refreshRequired,
@@ -144,7 +152,8 @@ extension ExpressNotificationEvent: NotificationEvent {
         case .refreshRequired,
              .noDestinationTokens,
              .verificationRequired,
-             .feeWillBeSubtractFromSendingAmount:
+             .feeWillBeSubtractFromSendingAmount,
+             .longTimeAverageDuration:
             return .init(iconType: .image(Assets.attention.image))
         case .hasPendingApproveTransaction,
              .hasPendingTransaction:
@@ -173,7 +182,8 @@ extension ExpressNotificationEvent: NotificationEvent {
              .hasPendingApproveTransaction,
              .verificationRequired,
              .feeWillBeSubtractFromSendingAmount,
-             .refunded:
+             .refunded,
+             .longTimeAverageDuration:
             return .info
         case .notEnoughFeeForTokenTx,
              .tooSmallAmountToSwap,
@@ -197,7 +207,7 @@ extension ExpressNotificationEvent: NotificationEvent {
             return .init(.openFeeCurrency(currencySymbol: mainTokenSymbol))
         case .refreshRequired:
             return .init(.refresh, withLoader: true)
-        case .verificationRequired, .cexOperationFailed:
+        case .verificationRequired, .cexOperationFailed, .longTimeAverageDuration:
             return .init(.goToProvider)
         case .validationErrorEvent(let event, _):
             return event.buttonAction
@@ -212,7 +222,7 @@ extension ExpressNotificationEvent: NotificationEvent {
 
     var removingOnFullLoadingState: Bool {
         switch self {
-        case .noDestinationTokens, .refreshRequired, .verificationRequired, .cexOperationFailed, .refunded:
+        case .noDestinationTokens, .refreshRequired, .verificationRequired, .cexOperationFailed, .refunded, .longTimeAverageDuration:
             return false
         case .permissionNeeded,
              .hasPendingTransaction,
@@ -241,6 +251,8 @@ extension ExpressNotificationEvent {
         switch self {
         case .refreshRequired(_, _, .exchangeNotPossibleError, _):
             .swapNoticeExpressError
+        case .longTimeAverageDuration:
+            .tokenNoticeLongTimeTransaction
         default:
             nil
         }
