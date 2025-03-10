@@ -20,6 +20,11 @@ class SolanaWalletManager: BaseManager, WalletManager {
 
     var usePriorityFees = !NFCUtils.isPoorNfcQualityDevice
 
+    /// Dictionary storing token account space requirements for each mint address.
+    /// Used when sending tokens to accounts that don't exist yet to calculate minimum rent.
+    /// Key is mint address, value is required space in bytes.
+    var ownerTokenAccountSpacesByMint: [String: UInt64] = [:]
+
     /// It is taken into account in the calculation of the account rent commission for the sender
     private var mainAccountRentExemption: Decimal = 0
 
@@ -40,6 +45,9 @@ class SolanaWalletManager: BaseManager, WalletManager {
 
     private func updateWallet(info: SolanaAccountInfoResponse) {
         mainAccountRentExemption = info.mainAccountRentExemption
+
+        // Store token account sizes for define minimal rent when destination token account is not created
+        ownerTokenAccountSpacesByMint = info.tokensByMint.reduce(into: [:]) { $0[$1.key] = $1.value.space }
 
         wallet.add(coinValue: info.balance)
 
@@ -87,18 +95,11 @@ extension SolanaWalletManager: TransactionSender {
         destinationAccountInfo(destination: destination, amount: amount)
             .withWeakCaptureOf(self)
             .flatMap { walletManager, destinationAccountInfo in
-                let feeParameters = walletManager.feeParameters(destinationAccountInfo: destinationAccountInfo)
-                let decimalValue: Decimal = pow(10, amount.decimals)
-                let intAmount = (amount.value * decimalValue).rounded().uint64Value
-
-                return walletManager.networkService.getFeeForMessage(
-                    amount: intAmount,
-                    computeUnitLimit: feeParameters.computeUnitLimit,
-                    computeUnitPrice: feeParameters.computeUnitPrice,
-                    destinationAddress: destination,
-                    fromPublicKey: PublicKey(data: walletManager.wallet.publicKey.blockchainKey)!
+                walletManager.getNetworkFee(
+                    amount: amount,
+                    destination: destination,
+                    destinationAccountInfo: destinationAccountInfo
                 )
-                .map { (feeForMessage: $0, feeParameters: feeParameters) }
             }
             .withWeakCaptureOf(self)
             .map { walletManager, feeInfo -> [Fee] in
@@ -214,13 +215,19 @@ private extension SolanaWalletManager {
 
         return networkService
             .getInfo(accountId: destination, tokens: tokens)
-            .map { info in
+            .withWeakCaptureOf(self)
+            .map { manager, info in
                 switch amountType {
                 case .coin:
                     return AccountExistsInfo(isExist: info.accountExists, space: nil)
                 case .token(let token):
-                    let existingTokenAccount = info.tokensByMint[token.contractAddress]
-                    return AccountExistsInfo(isExist: existingTokenAccount != nil, space: existingTokenAccount?.space)
+                    if let existingTokenAccount = info.tokensByMint[token.contractAddress] {
+                        return AccountExistsInfo(isExist: true, space: existingTokenAccount.space)
+                    } else {
+                        // The size of every token account for the same token will be the same
+                        // Therefore, we take the sender's token account size
+                        return AccountExistsInfo(isExist: false, space: manager.ownerTokenAccountSpacesByMint[token.contractAddress])
+                    }
                 case .reserve, .feeResource:
                     return AccountExistsInfo(isExist: false, space: nil)
                 }
@@ -246,6 +253,22 @@ private extension SolanaWalletManager {
         case .reserve, .feeResource:
             return .anyFail(error: BlockchainSdkError.failedToLoadFee)
         }
+    }
+
+    private func getNetworkFee(amount: Amount, destination: String, destinationAccountInfo: DestinationAccountInfo) -> AnyPublisher<(feeForMessage: Decimal, feeParameters: SolanaFeeParameters), Error> {
+        let feeParameters = feeParameters(destinationAccountInfo: destinationAccountInfo)
+        let decimalValue: Decimal = pow(10, amount.decimals)
+        let intAmount = (amount.value * decimalValue).rounded().uint64Value
+
+        return networkService.getFeeForMessage(
+            amount: intAmount,
+            computeUnitLimit: feeParameters.computeUnitLimit,
+            computeUnitPrice: feeParameters.computeUnitPrice,
+            destinationAddress: destination,
+            fromPublicKey: PublicKey(data: wallet.publicKey.blockchainKey)!
+        )
+        .map { (feeForMessage: $0, feeParameters: feeParameters) }
+        .eraseToAnyPublisher()
     }
 
     func feeParameters(destinationAccountInfo: DestinationAccountInfo) -> SolanaFeeParameters {
