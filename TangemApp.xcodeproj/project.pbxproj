@@ -785,6 +785,8 @@
 		B0C8A0D42562C86A00DEEAC7 /* View+PreviewDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C8A0D32562C86A00DEEAC7 /* View+PreviewDevice.swift */; };
 		B0C9559A2D13FF4B00ABD5E8 /* VisaOnboardingInProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C955992D13FF4B00ABD5E8 /* VisaOnboardingInProgressView.swift */; };
 		B0C9D2842A03A640001A2D6D /* seaportTypedData.json in Resources */ = {isa = PBXBuildFile; fileRef = B0C9D2832A03A3C1001A2D6D /* seaportTypedData.json */; };
+		B0CADA0E2D7EC9900037C203 /* VisaSubsystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CADA0D2D7EC9900037C203 /* VisaSubsystem.swift */; };
+		B0CADA102D7EDF600037C203 /* AppSubsystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CADA0F2D7EDF600037C203 /* AppSubsystem.swift */; };
 		B0CAE5A92AAB193300670C2B /* SingleTokenRoutableMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CAE5A82AAB193300670C2B /* SingleTokenRoutableMock.swift */; };
 		B0CAE5AB2AAB275C00670C2B /* MultiWalletMainContentDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CAE5AA2AAB275C00670C2B /* MultiWalletMainContentDelegate.swift */; };
 		B0CAFA8D26C6C0FE001238DA /* QRCodeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CAFA8C26C6C0FE001238DA /* QRCodeGenerator.swift */; };
@@ -4182,6 +4184,8 @@
 		B0C955992D13FF4B00ABD5E8 /* VisaOnboardingInProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaOnboardingInProgressView.swift; sourceTree = "<group>"; };
 		B0C9D2832A03A3C1001A2D6D /* seaportTypedData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = seaportTypedData.json; sourceTree = "<group>"; };
 		B0CA52F829C04FA10076E2EF /* TonCenterApiKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonCenterApiKeys.swift; sourceTree = "<group>"; };
+		B0CADA0D2D7EC9900037C203 /* VisaSubsystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaSubsystem.swift; sourceTree = "<group>"; };
+		B0CADA0F2D7EDF600037C203 /* AppSubsystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSubsystem.swift; sourceTree = "<group>"; };
 		B0CAE5A82AAB193300670C2B /* SingleTokenRoutableMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleTokenRoutableMock.swift; sourceTree = "<group>"; };
 		B0CAE5AA2AAB275C00670C2B /* MultiWalletMainContentDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiWalletMainContentDelegate.swift; sourceTree = "<group>"; };
 		B0CAFA8C26C6C0FE001238DA /* QRCodeGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeGenerator.swift; sourceTree = "<group>"; };
@@ -7928,6 +7932,7 @@
 				EF661E3328C0ADC6005769E5 /* Types */,
 				5D958E1224F513C1006BD932 /* UI */,
 				B03AEEAE29596D9100212267 /* WebSocket */,
+				B0CADA0F2D7EDF600037C203 /* AppSubsystem.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -8506,6 +8511,7 @@
 				B050F4F52B60E7F400B2E53C /* VisaTransactionRecord.swift */,
 				B050F4F92B60F60600B2E53C /* VisaAPIError.swift */,
 				B086AE0A2D51E0260042B955 /* VisaError.swift */,
+				B0CADA0D2D7EC9900037C203 /* VisaSubsystem.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -18528,6 +18534,7 @@
 				EF729B4A2AF1091900D80205 /* ExpressFeeSelectorViewModel.swift in Sources */,
 				EF0FBB6E2C53BE300095A6BD /* SendAmountCompactView.swift in Sources */,
 				EFAD40AC2A976E7500364D65 /* TransactionListItem.swift in Sources */,
+				B0CADA102D7EDF600037C203 /* AppSubsystem.swift in Sources */,
 				B06C3A292BFE31E3005E6D40 /* ManageTokensListLoader.swift in Sources */,
 				DC9090512D393B2F00BF7A43 /* HotCryptoAddPortfolioBottomSheet.swift in Sources */,
 				B03574C82B1F876300118786 /* PendingExpressTxStatusRow.swift in Sources */,
@@ -19694,6 +19701,7 @@
 				B08D3C162BF628A500C83299 /* VisaConfigProvider.swift in Sources */,
 				B03C19A62CF071B500CCB4F1 /* VisaCardActivationInput.swift in Sources */,
 				B05145172B5934FD00EDAD1E /* VisaAddressParser.swift in Sources */,
+				B0CADA0E2D7EC9900037C203 /* VisaSubsystem.swift in Sources */,
 				B07232472D10216500E30614 /* VisaConstants.swift in Sources */,
 				B05145192B59351E00EDAD1E /* VisaPaymentAccountInteractorBuilder.swift in Sources */,
 				B05E36922CDA0F2C00CE44F2 /* VisaAuthorizationService.swift in Sources */,

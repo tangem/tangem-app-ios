@@ -955,6 +955,7 @@
 "twins_recreate_toolbar" = "Tangem Twin";
 "twins_recreate_warning" = "Esta acción es irreversible. No tendrá acceso la billetera antigua.";
 "twins_scan_twin_with_number" = "Toque la tarjeta gemela con el número %@ y no la retira hasta el final de la operación";
+"universal_error" = "We've encountered an error. Error code: %@. Please contact our support.";
 "unlock_wallet_description_full" = "Use %@ o escanee una tarjeta/anillo para tener acceso a su billetera";
 "unsupported_wc_version" = "Error de conexión: Esta dApp utiliza la versión 1.0 de Wallet Connect, que no es compatible. Asegúrese de que la dApp sea compatible con la versión 2.0 de Wallet Connect para conectarse correctamente.";
 "user_push_notification_agreement_argument_one" = "Manténgase actualizado con las últimas funciones y noticias";
