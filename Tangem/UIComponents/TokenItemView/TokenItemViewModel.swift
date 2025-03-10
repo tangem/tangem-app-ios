@@ -66,7 +66,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     private weak var contextActionsProvider: TokenItemContextActionsProvider?
     private weak var contextActionsDelegate: TokenItemContextActionDelegate?
 
-    private let tokenTapped: (WalletModelId) -> Void
+    private let tokenTapped: (WalletModelId.ID) -> Void
 
     init(
         id: WalletModelId,
@@ -75,7 +75,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         infoProvider: TokenItemInfoProvider,
         contextActionsProvider: TokenItemContextActionsProvider,
         contextActionsDelegate: TokenItemContextActionDelegate,
-        tokenTapped: @escaping (WalletModelId) -> Void
+        tokenTapped: @escaping (WalletModelId.ID) -> Void
     ) {
         self.id = id
         self.tokenIcon = tokenIcon
@@ -95,7 +95,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     }
 
     func tapAction() {
-        tokenTapped(id)
+        tokenTapped(id.id)
     }
 
     func didTapContextAction(_ actionType: TokenActionType) {
@@ -172,7 +172,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         balanceFiat = loadableTokenBalanceViewStateBuilder.build(type: type, icon: .leading)
     }
 
-    private func setupPrice(_ rate: WalletModel.Rate) {
+    private func setupPrice(_ rate: WalletModelRate) {
         switch rate {
         case .loading(.none):
             tokenPrice = .loading
