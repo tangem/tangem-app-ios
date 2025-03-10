@@ -106,8 +106,8 @@ struct ActionButtonsChooseTokenView: View {
                                 isCustom: false,
                                 customTokenColor: .black
                             ),
-                            infoProvider: DefaultTokenItemInfoProvider(walletModel: .mockETH),
-                            walletModel: .mockETH
+                            infoProvider: DefaultTokenItemInfoProvider(walletModel: CommonWalletModel.mockETH),
+                            walletModel: CommonWalletModel.mockETH
                         )
                     )
                 )
