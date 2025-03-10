@@ -53,7 +53,7 @@ class LitecoinTests: XCTestCase {
         XCTAssertNotNil(address)
 
         let bitcoinCoreManager = BitcoinManager(networkParams: networkParams, walletPublicKey: walletPubkey, compressedWalletPublicKey: compressedPubkey, bip: .bip44)
-        let unspentOutputManager = CommonUnspentOutputManager()
+        let unspentOutputManager = CommonUnspentOutputManager(decimalValue: input.blockchain.decimalValue)
         unspentOutputManager.update(
             outputs: [
                 .init(
