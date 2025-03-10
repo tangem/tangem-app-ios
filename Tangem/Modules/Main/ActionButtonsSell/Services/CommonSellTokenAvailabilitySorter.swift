@@ -15,16 +15,16 @@ struct CommonSellTokenAvailabilitySorter {
 // MARK: - TokenAvailabilitySorter
 
 extension CommonSellTokenAvailabilitySorter: TokenAvailabilitySorter {
-    func sortModels(walletModels: [WalletModel]) async -> (availableModels: [WalletModel], unavailableModels: [WalletModel]) {
+    func sortModels(walletModels: [any WalletModel]) async -> (availableModels: [any WalletModel], unavailableModels: [any WalletModel]) {
         walletModels.reduce(
-            into: (availableModels: [WalletModel](), unavailableModels: [WalletModel]())
+            into: (availableModels: [any WalletModel](), unavailableModels: [any WalletModel]())
         ) { result, walletModel in
 
             guard
                 exchangeService.canSell(
                     walletModel.tokenItem.currencySymbol,
-                    amountType: walletModel.amountType,
-                    blockchain: walletModel.blockchainNetwork.blockchain
+                    amountType: walletModel.tokenItem.amountType,
+                    blockchain: walletModel.tokenItem.blockchain
                 ),
                 !walletModel.state.isBlockchainUnreachable,
                 walletModel.balanceState == .positive
