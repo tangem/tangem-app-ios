@@ -31,13 +31,13 @@ struct UserWalletFinder {
 
             guard let walletModel = walletModels.first(where: {
                 $0.isMainToken &&
-                    $0.blockchainNetwork.blockchain == blockchain &&
+                    $0.tokenItem.blockchain == blockchain &&
                     $0.defaultAddress == address
             }) else {
                 continue
             }
 
-            let tokenItem = TokenItem.token(token, walletModel.blockchainNetwork)
+            let tokenItem = TokenItem.token(token, walletModel.tokenItem.blockchainNetwork)
 
             if walletModels.contains(where: { $0.tokenItem == tokenItem }) {
                 return nil
