@@ -10,7 +10,7 @@ import Foundation
 
 struct BalanceViewModel {
     let hasTransactionInProgress: Bool
-    let state: WalletModel.State
+    let state: WalletModelState
     let name: String
     let fiatBalance: String
     let balance: String
