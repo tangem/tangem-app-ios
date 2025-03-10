@@ -29,6 +29,8 @@ class TransactionValidatorTests: XCTestCase {
     }
 
     func testTxValidation() {
+        transactionValidator.wallet.add(coinValue: 10)
+
         XCTAssertNoThrow(
             try transactionValidator.validate(
                 amount: Amount(with: transactionValidator.wallet.amounts[.coin]!, value: 3),
