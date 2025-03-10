@@ -192,7 +192,7 @@ extension MainCoordinator: MainRoutable {
 // MARK: - MultiWalletMainContentRoutable protocol conformance
 
 extension MainCoordinator: MultiWalletMainContentRoutable {
-    func openTokenDetails(for model: WalletModel, userWalletModel: UserWalletModel) {
+    func openTokenDetails(for model: any WalletModel, userWalletModel: UserWalletModel) {
         mainBottomSheetUIManager.hide()
 
         let dismissAction: Action<Void> = { [weak self] _ in
@@ -258,12 +258,12 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         }
     }
 
-    func openSend(userWalletModel: UserWalletModel, walletModel: WalletModel) {
+    func openSend(userWalletModel: UserWalletModel, walletModel: any WalletModel) {
         guard SendFeatureProvider.shared.isAvailable else {
             return
         }
 
-        let dismissAction: Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
+        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
             self?.sendCoordinator = nil
 
             if let navigationInfo {
@@ -284,12 +284,12 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         sendCoordinator = coordinator
     }
 
-    func openSendToSell(amountToSend: Amount, destination: String, tag: String?, userWalletModel: UserWalletModel, walletModel: WalletModel) {
+    func openSendToSell(amountToSend: Amount, destination: String, tag: String?, userWalletModel: UserWalletModel, walletModel: any WalletModel) {
         guard SendFeatureProvider.shared.isAvailable else {
             return
         }
 
-        let dismissAction: Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
+        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
             self?.sendCoordinator = nil
 
             if let navigationInfo {
@@ -311,7 +311,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
     }
 
     func openExpress(input: CommonExpressModulesFactory.InputModel) {
-        let dismissAction: Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
+        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
             self?.expressCoordinator = nil
 
             guard let navigationInfo else {
@@ -359,7 +359,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         safariManager.openURL(url)
     }
 
-    func openFeeCurrency(for model: WalletModel, userWalletModel: UserWalletModel) {
+    func openFeeCurrency(for model: any WalletModel, userWalletModel: UserWalletModel) {
         #warning("[REDACTED_TODO_COMMENT]")
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.tokenDetailsCoordinator = nil
@@ -386,8 +386,8 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         marketsTokenDetailsCoordinator = coordinator
     }
 
-    func openOnramp(walletModel: WalletModel, userWalletModel: UserWalletModel) {
-        let dismissAction: Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] _ in
+    func openOnramp(walletModel: any WalletModel, userWalletModel: UserWalletModel) {
+        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] _ in
             self?.sendCoordinator = nil
         }
 
