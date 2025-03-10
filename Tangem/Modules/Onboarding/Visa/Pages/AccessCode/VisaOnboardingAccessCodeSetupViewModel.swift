@@ -164,7 +164,7 @@ private extension VisaOnboardingAccessCodeSetupViewModel {
     func showRetryAlert(for error: Error) async {
         let alert = Alert(
             title: Text(Localization.commonError),
-            message: Text("Failed to activate card. Error: \(error.localizedDescription)"),
+            message: Text(error.makeUniversalErrorMessage(for: .visa)),
             primaryButton: .default(
                 Text(Localization.alertButtonTryAgain),
                 action: { [weak self] in
