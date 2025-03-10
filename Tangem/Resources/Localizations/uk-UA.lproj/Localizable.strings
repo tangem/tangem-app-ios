@@ -955,6 +955,7 @@
 "twins_recreate_toolbar" = "Tangem Twin";
 "twins_recreate_warning" = "Ця дія є незворотною. Ви не матимете доступу до старого гаманця.";
 "twins_scan_twin_with_number" = "Прикладіть twin-картку з номером %@ та не прибирайте її до завершення операції";
+"universal_error" = "We've encountered an error. Error code: %@. Please contact our support.";
 "unlock_wallet_description_full" = "Використовуйте %@ або відскануйте картку/кільце, щоб отримати доступ до свого гаманця";
 "unsupported_wc_version" = "Не вдалося встановити з'єднання: Цей dApp використовує Wallet Connect версії 1.0, яка не підтримується. Будь ласка, переконайтеся, що dApp підтримує Wallet Connect версії 2.0 для успішного підключення.";
 "user_push_notification_agreement_argument_one" = "Будьте в курсі останніх функцій та новин";
