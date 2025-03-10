@@ -63,11 +63,11 @@ extension ActionButtonsSwapCoordinator {
 
 extension ActionButtonsSwapCoordinator: ActionButtonsSwapRoutable {
     func openExpress(
-        for sourceWalletModel: WalletModel,
-        and destinationWalletModel: WalletModel,
+        for sourceWalletModel: any WalletModel,
+        and destinationWalletModel: any WalletModel,
         with userWalletModel: UserWalletModel
     ) {
-        let dismissAction: Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] _ in
+        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] _ in
             self?.dismiss()
         }
 
@@ -99,10 +99,10 @@ private extension ActionButtonsSwapCoordinator {
     }
 
     func makeExpressCoordinator(
-        for walletModel: WalletModel,
-        and destinationWalletModel: WalletModel,
+        for walletModel: any WalletModel,
+        and destinationWalletModel: any WalletModel,
         with userWalletModel: UserWalletModel,
-        dismissAction: @escaping Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?>,
+        dismissAction: @escaping Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?>,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) -> ExpressCoordinator {
         let input = CommonExpressModulesFactory.InputModel(
