@@ -185,10 +185,16 @@ struct ExpressPendingTxStatusBottomSheetView_Preview: PreviewProvider {
             date: Date(),
             externalTxId: "a34883e049a416",
             externalTxURL: "https://changenow.io/exchange/txs/a34883e049a416",
+            averageDuration: nil,
             isHidden: false,
             transactionStatus: .awaitingDeposit
         )
-        let pendingTransaction = factory.buildPendingExpressTransaction(currentExpressStatus: .sending, refundedTokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)), for: record)
+        let transactionParams = PendingExpressTransactionParams(
+            externalStatus: .sending,
+            averageDuration: nil,
+            createdAt: nil
+        )
+        let pendingTransaction = factory.buildPendingExpressTransaction(with: transactionParams, refundedTokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)), for: record)
         let expressAPIProvider = ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcodeProvider: refcodeProvider)
         return .init(
             pendingTransaction: pendingTransaction.pendingTransaction,
@@ -196,7 +202,7 @@ struct ExpressPendingTxStatusBottomSheetView_Preview: PreviewProvider {
             userWalletModel: CommonUserWalletModel.mock!,
             pendingTransactionsManager: CommonPendingExpressTransactionsManager(
                 userWalletId: userWalletId,
-                walletModel: .mockETH,
+                walletModel: CommonWalletModel.mockETH,
                 expressAPIProvider: expressAPIProvider,
                 expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
             ),
