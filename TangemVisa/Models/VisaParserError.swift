@@ -6,10 +6,10 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Foundation
+import TangemFoundation
 
-public enum VisaParserError: String, LocalizedError {
-    case addressResponseDoesntContainAddress
+public enum VisaParserError: Int, TangemError {
+    case addressResponseDoesntContainAddress = 1
     case addressesResponseHasWrongLength
     case noValidAddress
     case limitsResponseWrongLength
@@ -18,7 +18,7 @@ public enum VisaParserError: String, LocalizedError {
     case limitWrongSingleLimitAmountsCount
     case notEnoughOTPData
 
-    public var errorDescription: String? {
-        rawValue
+    public var subsystemCode: Int {
+        VisaSubsystem.paymentAccountResponseParser.rawValue
     }
 }
