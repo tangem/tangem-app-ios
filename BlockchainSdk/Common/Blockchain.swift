@@ -239,7 +239,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .kaspa,
              .ravencoin,
              .ducatus,
-             .fact0rn:
+             .fact0rn,
+             .sui:
             return true
         default:
             return false
@@ -263,7 +264,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .ravencoin,
              .ducatus,
              .radiant,
-             .fact0rn:
+             .fact0rn,
+             .sui:
             return true
         default:
             return false
@@ -720,7 +722,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .hedera,
              .ton,
              .cardano,
-             .kaspa:
+             .kaspa,
+             .sui:
             return true
         case _ where isEvm:
             return true
