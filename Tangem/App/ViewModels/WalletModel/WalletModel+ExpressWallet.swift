@@ -10,7 +10,7 @@ import Foundation
 import TangemExpress
 import BlockchainSdk
 
-extension WalletModel: ExpressWallet {
+extension WalletModel {
     var expressCurrency: TangemExpress.ExpressCurrency {
         tokenItem.expressCurrency
     }
@@ -33,9 +33,5 @@ extension WalletModel: ExpressWallet {
         }
 
         return balanceValue
-    }
-
-    func getFeeCurrencyBalance() -> Decimal {
-        wallet.feeCurrencyBalance(amountType: amountType)
     }
 }
