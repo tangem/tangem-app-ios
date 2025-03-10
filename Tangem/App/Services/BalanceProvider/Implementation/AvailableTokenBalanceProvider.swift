@@ -10,8 +10,8 @@ import Foundation
 import Combine
 
 protocol AvailableTokenBalanceProviderInput: AnyObject {
-    var state: WalletModel.State { get }
-    var statePublisher: AnyPublisher<WalletModel.State, Never> { get }
+    var state: WalletModelState { get }
+    var statePublisher: AnyPublisher<WalletModelState, Never> { get }
 }
 
 /// Just simple available to use (e.g. send) balance
@@ -83,7 +83,7 @@ private extension AvailableTokenBalanceProvider {
             .map { .init(balance: $0.balance, date: $0.date) }
     }
 
-    func mapToTokenBalance(state: WalletModel.State) -> TokenBalanceType {
+    func mapToTokenBalance(state: WalletModelState) -> TokenBalanceType {
         // The `binance` always has zero balance
         if case .binance = tokenItem.blockchain {
             return .loaded(0)
