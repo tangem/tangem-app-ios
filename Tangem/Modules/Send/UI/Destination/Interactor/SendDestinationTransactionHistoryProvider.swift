@@ -15,9 +15,9 @@ protocol SendDestinationTransactionHistoryProvider {
 }
 
 class CommonSendDestinationTransactionHistoryProvider {
-    private let walletModel: WalletModel
+    private let walletModel: any WalletModel
 
-    init(walletModel: WalletModel) {
+    init(walletModel: any WalletModel) {
         self.walletModel = walletModel
     }
 }
