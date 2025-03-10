@@ -12,7 +12,7 @@ import BlockchainSdk
 import TangemStaking
 
 class StakingTransactionDispatcher {
-    private let walletModel: WalletModel
+    private let walletModel: any WalletModel
     private let transactionSigner: TangemSigner
     private let pendingHashesSender: StakingPendingHashesSender
     private let stakingTransactionMapper: StakingTransactionMapper
@@ -21,7 +21,7 @@ class StakingTransactionDispatcher {
     private var stuck: DispatchProgressStuck? = .none
 
     init(
-        walletModel: WalletModel,
+        walletModel: any WalletModel,
         transactionSigner: TangemSigner,
         pendingHashesSender: StakingPendingHashesSender,
         stakingTransactionMapper: StakingTransactionMapper,
@@ -127,7 +127,7 @@ private extension StakingTransactionDispatcher {
         }
 
         let signer = transactionSigner.latestSigner.value
-        return TransactionDispatcherResultMapper().mapResult(result.result, blockchain: walletModel.blockchainNetwork.blockchain, signer: signer)
+        return TransactionDispatcherResultMapper().mapResult(result.result, blockchain: walletModel.tokenItem.blockchain, signer: signer)
     }
 }
 

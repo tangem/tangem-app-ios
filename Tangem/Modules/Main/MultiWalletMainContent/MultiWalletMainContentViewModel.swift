@@ -281,9 +281,9 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             }
     }
 
-    private func tokenItemTapped(_ walletModelId: WalletModelId) {
+    private func tokenItemTapped(_ walletModelId: WalletModelId.ID) {
         guard
-            let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == walletModelId }),
+            let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id.id == walletModelId }),
             TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel).isTokenInteractionAvailable()
         else {
             return
@@ -353,7 +353,7 @@ extension MultiWalletMainContentViewModel {
         )
     }
 
-    private func openBuy(for walletModel: WalletModel) {
+    private func openBuy(for walletModel: any WalletModel) {
         if FeatureProvider.isAvailable(.onramp) {
             tokenRouter.openOnramp(walletModel: walletModel)
         } else {
@@ -366,7 +366,7 @@ extension MultiWalletMainContentViewModel {
         }
     }
 
-    private func openSell(for walletModel: WalletModel) {
+    private func openSell(for walletModel: any WalletModel) {
         if let disabledLocalizedReason = userWalletModel.config.getDisabledLocalizedReason(for: .exchange) {
             error = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
@@ -518,7 +518,7 @@ extension MultiWalletMainContentViewModel {
 // MARK: - Convenience extensions
 
 private extension TokenSectionsAdapter.Section {
-    var walletModels: [WalletModel] {
+    var walletModels: [any WalletModel] {
         return items.compactMap(\.walletModel)
     }
 }
