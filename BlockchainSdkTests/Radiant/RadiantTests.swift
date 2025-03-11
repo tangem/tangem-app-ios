@@ -96,7 +96,7 @@ final class RadiantTests: XCTestCase {
                 amount: 10000000
             ),
         ]
-        let unspentOutputManager = CommonUnspentOutputManager(decimalValue: input.blockchain.decimalValue)
+        let unspentOutputManager = CommonUnspentOutputManager(decimalValue: blockchain.decimalValue)
         unspentOutputManager.update(outputs: utxo, for: address.keyhash)
         let txBuilder = try RadiantTransactionBuilder(
             walletPublicKey: publicKey.data,
