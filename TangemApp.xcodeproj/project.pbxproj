@@ -2898,6 +2898,7 @@
 		EF8DBD4C2C07318F009072CF /* RewardViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8DBD4B2C07318F009072CF /* RewardViewData.swift */; };
 		EF8DBE4E2D7B10A80050DBFB /* KaspaDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8DBE4D2D7B10A80050DBFB /* KaspaDTO.swift */; };
 		EF8DBE522D7E27550050DBFB /* UTXOSelectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8DBE512D7E27550050DBFB /* UTXOSelectorTests.swift */; };
+		EF8DBE562D8032AC0050DBFB /* UTXOSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8DBE552D8032AC0050DBFB /* UTXOSelector.swift */; };
 		EF8EF52F2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8EF52E2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift */; };
 		EF914D4C2A603F2F001F00B2 /* Quote.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF914D4B2A603F2F001F00B2 /* Quote.swift */; };
 		EF914D4E2A604615001F00B2 /* QuotesDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF914D4D2A604615001F00B2 /* QuotesDTO.swift */; };
@@ -6259,6 +6260,7 @@
 		EF8DBD4B2C07318F009072CF /* RewardViewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardViewData.swift; sourceTree = "<group>"; };
 		EF8DBE4D2D7B10A80050DBFB /* KaspaDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaDTO.swift; sourceTree = "<group>"; };
 		EF8DBE512D7E27550050DBFB /* UTXOSelectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTXOSelectorTests.swift; sourceTree = "<group>"; };
+		EF8DBE552D8032AC0050DBFB /* UTXOSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTXOSelector.swift; sourceTree = "<group>"; };
 		EF8EF52E2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingApproveRoutableMock.swift; sourceTree = "<group>"; };
 		EF914D4B2A603F2F001F00B2 /* Quote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Quote.swift; sourceTree = "<group>"; };
 		EF914D4D2A604615001F00B2 /* QuotesDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuotesDTO.swift; sourceTree = "<group>"; };
@@ -15925,6 +15927,7 @@
 		EF798FE52D6F8D3000B9B4A1 /* UnspentOutputManager */ = {
 			isa = PBXGroup;
 			children = (
+				EF8DBE552D8032AC0050DBFB /* UTXOSelector.swift */,
 				EF798FE22D6F8D3000B9B4A1 /* CommonUnspentOutputManager.swift */,
 				EF798FE32D6F8D3000B9B4A1 /* UnspentOutput.swift */,
 				EF798FE42D6F8D3000B9B4A1 /* UnspentOutputManager.swift */,
@@ -20651,6 +20654,7 @@
 				B62D40BB2CBC79DA00C2460E /* PolygonZkEvmExternalLinkProvider.swift in Sources */,
 				B62D3FE02CBC79DA00C2460E /* OP_SUB.swift in Sources */,
 				B62D40FA2CBC79DA00C2460E /* ICPExternalLinkProvider.swift in Sources */,
+				EF8DBE562D8032AC0050DBFB /* UTXOSelector.swift in Sources */,
 				B62D41B82CBC79DB00C2460E /* TONProviderModels.swift in Sources */,
 				2D8D5EA42D5F2FA1005AECC9 /* AlephiumAPIResolver.swift in Sources */,
 				B62D425E2CBC79DB00C2460E /* ContractAddressValidatorFactory.swift in Sources */,
