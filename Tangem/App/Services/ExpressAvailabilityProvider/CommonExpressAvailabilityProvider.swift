@@ -163,7 +163,7 @@ private extension CommonExpressAvailabilityProvider {
 
         let apiProvider = ExpressAPIProviderFactory().makeExpressAPIProvider(
             userId: userWalletId,
-            refcodeProvider: nil
+            refcode: nil
         )
 
         self.apiProvider = apiProvider
