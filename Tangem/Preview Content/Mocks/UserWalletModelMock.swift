@@ -69,8 +69,8 @@ class UserWalletModelMock: UserWalletModel {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
     }
 
-    var refcodeProvider: RefcodeProvider {
-        CommonExpressRefcodeProvider(userId: userWalletId.stringValue, batchId: "")
+    var refcodeProvider: RefcodeProvider? {
+        return nil
     }
 
     var totalSignedHashes: Int { 0 }
