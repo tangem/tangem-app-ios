@@ -120,8 +120,6 @@ struct TokenActionAvailabilityAlertBuilder {
         switch status {
         case .available:
             return nil
-        case .noAddress:
-            return tryAgainLaterAlert
         case .assetRequirement(let blockchain):
             switch blockchain {
             case .hedera:
