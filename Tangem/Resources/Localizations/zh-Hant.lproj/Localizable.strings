@@ -236,6 +236,7 @@
 "details_manage_security_long_tap_shorter" = "長按";
 "details_manage_security_passcode" = "密碼";
 "details_manage_security_passcode_description" = "在執行任何需要更改卡狀態的命令之前，您必須輸入密碼";
+"details_nft_title" = "NFT";
 "details_referral_title" = "推薦計畫";
 "details_row_description_flip_to_hide" = "Flip your device screen down to quickly hide and show balances";
 "details_row_subtitle_signed_hashes_format" = "%@ hashes";
