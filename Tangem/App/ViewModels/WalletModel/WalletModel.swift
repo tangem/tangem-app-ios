@@ -41,6 +41,7 @@ protocol WalletModel:
     // Staking
     var stakingManager: StakingManager? { get }
     var stakeKitTransactionSender: StakeKitTransactionSender? { get }
+    var accountInitializationStateProvider: StakingAccountInitializationStateProvider? { get }
 }
 
 extension WalletModel {
@@ -129,15 +130,4 @@ protocol WalletModelRentProvider {
 protocol ExistentialDepositInfoProvider {
     ///    var existentialDeposit: Amount? { get }
     var existentialDepositWarning: String? { get }
-}
-
-// MARK: - StakingAccountInitializationStateProvider
-
-extension WalletModel: StakingAccountInitializationStateProvider {
-    var isAccountInitialized: Bool {
-        guard let walletManager = walletManager as? StakingAccountInitializationStateProvider else {
-            return true
-        }
-        return walletManager.isAccountInitialized
-    }
 }
