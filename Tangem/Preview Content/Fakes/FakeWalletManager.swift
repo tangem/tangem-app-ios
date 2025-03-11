@@ -14,7 +14,7 @@ import TangemVisa
 class FakeWalletManager: WalletManager {
     @Published var wallet: Wallet
     @Published var state: WalletManagerState = .loading
-    @Published var walletModels: [WalletModel] = []
+    @Published var walletModels: [any WalletModel] = []
 
     var cardTokens: [BlockchainSdk.Token] = []
     var currentHost: String = "tangem.com"
