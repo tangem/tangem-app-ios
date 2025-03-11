@@ -726,6 +726,8 @@
 "send_summary_transaction_description_suffix_including" = "ネットワーク手数料%1$@を含む";
 "send_transaction_success" = "取引は正常に署名され、ブロックチェーンノードに送信されました。ウォレットの残高はしばらくして更新されます。";
 "send_tron_account_activation_error" = "%1$@はTronネットワークのアセットです。手数料を計算して取引を行うには、アカウントにTron（TRX）を入金する必要があります。";
+"send_validation_destination_tag_required_description" = "A destination tag (memo) is required to complete this transaction for the specified address.";
+"send_validation_destination_tag_required_title" = "Destination Tag Required";
 "sent_transaction_sent_title" = "取引が送信されました";
 "settings_card_settings_footer" = "設定したいカードまたはリングをスキャンするために準備してください。";
 "settings_forget_wallet" = "ウォレット削除";
@@ -749,6 +751,7 @@
 "staking_details_estimated_profit" = "%@ 推定利益";
 "staking_details_market_rating" = "市場評価";
 "staking_details_metrics_block_header" = "指標";
+"staking_details_min_rewards_notification" = "%1$@ネットワークルールによれば、 %2$@からの請求が可能です。以下の金額は、ステーキング解除時にアカウントに入金されます。";
 "staking_details_minimum_requirement" = "最低要件";
 "staking_details_no_rewards_to_claim" = "報酬はありません";
 "staking_details_reward_claiming" = "請求中の報酬";
@@ -796,6 +799,7 @@
 "staking_notification_restake_rewards_text" = "獲得した報酬をステーキングに再投資し、潜在的な収益を増やします。";
 "staking_notification_restake_text" = "再ステーキングを使うと、ステーキングを解除することなく、あるバリデータから別のバリデータに資金を移動できます。";
 "staking_notification_stake_entire_balance_text" = "残高のすべてをステーキングしようとしています。ステーキング解除や報酬請求にかかるネットワーク手数料をカバーするために、少額を残しておくことをお勧めします。";
+"staking_notification_ton_activate_account" = "TONでステーキングを開始するには、まず任意の金額の送金を行ってください。これにより、ウォレットがアクティブになります。";
 "staking_notification_unlock_text" = "資金をステーキングから引き出すには、ロックを解除してください。ロック解除には%@かかります。";
 "staking_notification_unstake_cosmos_text" = "資金は、21日間のロック解除期間後に使用可能になります。報酬は、ロック解除後の資金とともに引き出されます。";
 "staking_notification_unstake_text" = "%@のステーキング解除期間後、資金はすぐ利用可能となります。";
@@ -825,6 +829,7 @@
 "staking_rewards" = "報酬";
 "staking_stake_locked" = "ステーキングはロックされています";
 "staking_stake_more" = "もっとステーキングする";
+"staking_stake_more_button_unavailability_reason" = "When staking %1$@, your entire %2$@ balance is staked. Any additional %2$@ you deposit to your Tangem Wallet will also be automatically staked.";
 "staking_staked_amount" = "ステーキング中の金額";
 "staking_summary_description_text" = "%1$@をステーキングし、報酬%2$@を受け取ります";
 "staking_tap_to_unlock" = "タップしてロック解除";
@@ -905,7 +910,7 @@
 "token_button_unavailability_reason_custom_token" = "カスタムトークンでは使用できません。";
 "token_button_unavailability_reason_empty_balance_sell" = "売却できる資金がありません。アカウントに入金して、売却できるようにしてください。";
 "token_button_unavailability_reason_empty_balance_send" = "送金する資金がありません。アカウントに入金して、送金できるようにしてください。";
-"token_button_unavailability_reason_loading" = "データはまだ読み込まれていません。数秒かかる場合があります。しばらくしてからもう一度お試しください。";
+"token_button_unavailability_reason_loading" = "現在データを読み込んでいます。これには数秒かかる場合があります。しばらくしてからもう一度お試しください。";
 "token_button_unavailability_reason_not_exchangeable" = "%@のスワップは、現在のプロバイダーではサポートされていませんが、より多くのオプションを追加できるよう取り組んでいます。";
 "token_button_unavailability_reason_out_of_date_balance" = "表示残高はキャッシュにより古くなっている可能性があります。";
 "token_button_unavailability_reason_pending_transaction_sell" = "%@ネットワーク上の保留中の取引が完了すると、資金の売却が可能になります。";
@@ -956,6 +961,7 @@
 "twins_recreate_toolbar" = "Tangemツイン";
 "twins_recreate_warning" = "この操作は元に戻せません。古いウォレットにはアクセスできなくなります。";
 "twins_scan_twin_with_number" = "番号%@のツインカードをタップし、操作が終了するまで取り外さないでください。";
+"universal_error" = "エラーが発生しました。エラー コード：%@。サポートにお問い合わせください。";
 "unlock_wallet_description_full" = "%@を使用するか、カード / リングをスキャンしてウォレットにアクセスしてください";
 "unsupported_wc_version" = "接続に失敗しました：このdAppは、サポートされていないWallet Connectバージョン1.0を使用しています。正常に接続するには、dAppがWallet Connectバージョン2.0をサポートしていることを確認してください。";
 "user_push_notification_agreement_argument_one" = "最新の機能とニュースをお届けします";
@@ -983,6 +989,7 @@
 "wallet_connect_create_tx_not_enough_funds" = "取引を送信できません。資金が足りません。";
 "wallet_connect_error_failed_to_connect" = "WalletConnect セッションを確立できませんでした。しばらくしてからもう一度お試しください。";
 "wallet_connect_error_missing_blockchains" = "すべてのトークンがリストには追加されませんでした。まず追加してから、もう一度お試しください。不足しているトークン: \n";
+"wallet_connect_error_missing_optional_blockchains" = "このdAppに接続するため、オプションのネットワークを1つ追加する：%@";
 "wallet_connect_error_sing_failed" = "メッセージの署名に失敗しました。\nもう一度お試しください。";
 "wallet_connect_error_timeout" = "WalletConnectセッションの確立に失敗しました：タイムアウトエラー。しばらくしてもう一度お試しください。";
 "wallet_connect_error_unsupported_blockchains" = "セッションリクエストには、WalletConnect接続でサポートされていないブロックチェーンが含まれています。サポートされていないブロックチェーン: \n";
