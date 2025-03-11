@@ -29,7 +29,7 @@ struct CommonExpressDestinationService {
 // MARK: - ExpressDestinationService
 
 extension CommonExpressDestinationService: ExpressDestinationService {
-    func getDestination(source: WalletModel) async throws -> WalletModel {
+    func getDestination(source: any WalletModel) async throws -> any WalletModel {
         let availablePairs = await expressRepository.getPairs(from: source)
         let searchableWalletModels = walletModelsManager.walletModels.filter { wallet in
             let isNotSource = wallet.id != source.id
@@ -39,7 +39,7 @@ extension CommonExpressDestinationService: ExpressDestinationService {
 
             return isNotSource && isAvailable && isNotCustom && hasPair
         }
-        .map { walletModel -> (walletModel: WalletModel, fiatBalance: Decimal?) in
+        .map { walletModel -> (walletModel: any WalletModel, fiatBalance: Decimal?) in
             (walletModel: walletModel, fiatBalance: walletModel.fiatAvailableBalanceProvider.balanceType.value)
         }
 
@@ -77,7 +77,7 @@ extension CommonExpressDestinationService: ExpressDestinationService {
 // MARK: - Private
 
 private extension CommonExpressDestinationService {
-    func isLastTransactionWith(walletModel: WalletModel) -> Bool {
+    func isLastTransactionWith(walletModel: any WalletModel) -> Bool {
         let transactions = pendingTransactionRepository.transactions
         let lastCurrency = transactions.last?.destinationTokenTxInfo.tokenItem.expressCurrency
 
