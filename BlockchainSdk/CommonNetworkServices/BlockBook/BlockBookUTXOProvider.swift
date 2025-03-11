@@ -44,14 +44,27 @@ class BlockBookUTXOProvider {
         executeRequest(.address(address: address, parameters: parameters), responseType: BlockBookAddressResponse.self)
     }
 
-    func rpcCall<Response: Decodable>(
+    func rpcCall<Result: Decodable>(
         method: String,
         params: AnyEncodable,
-        responseType: Response.Type
-    ) -> AnyPublisher<JSONRPC.Response<Response, JSONRPC.APIError>, Error> {
+        resultType: Result.Type
+    ) -> AnyPublisher<JSONRPC.DefaultResponse<Result>, Error> {
         BlockBookUTXOProvider.rpcRequestId += 1
         let request = JSONRPC.Request(id: BlockBookUTXOProvider.rpcRequestId, method: method, params: params)
-        return executeRequest(.rpc(request), responseType: JSONRPC.Response<Response, JSONRPC.APIError>.self)
+        return executeRequest(.rpc(request), responseType: JSONRPC.DefaultResponse<Result>.self)
+    }
+
+    func getFeeRatePerByte(for confirmationBlocks: Int) -> AnyPublisher<Decimal, Error> {
+        rpcCall(
+            method: "estimatesmartfee",
+            params: AnyEncodable([confirmationBlocks]),
+            resultType: BlockBookFeeRateResponse.Result.self
+        )
+        .withWeakCaptureOf(self)
+        .tryMap { provider, response -> Decimal in
+            try provider.convertFeeRate(response.result.get().feerate)
+        }
+        .eraseToAnyPublisher()
     }
 
     func convertFeeRate(_ fee: Decimal) throws -> Decimal {
@@ -109,8 +122,8 @@ extension BlockBookUTXOProvider: UTXONetworkProvider {
             return .anyFail(error: WalletError.failedToSendTx)
         }
 
-        return executeRequest(.sendBlockBook(tx: transactionData), responseType: SendResponse.self)
-            .map { TransactionSendResult(hash: $0.result) }
+        return executeRequest(.sendBlockBook(tx: transactionData), responseType: JSONRPC.DefaultResponse<String>.self)
+            .tryMap { try TransactionSendResult(hash: $0.result.get()) }
             .eraseToAnyPublisher()
     }
 }
@@ -125,36 +138,6 @@ extension BlockBookUTXOProvider {
             .map(responseType.self)
             .eraseError()
             .eraseToAnyPublisher()
-    }
-
-    func getFeeRatePerByte(for confirmationBlocks: Int) -> AnyPublisher<Decimal, Error> {
-        switch blockchain {
-        case .clore:
-            executeRequest(
-                .getFees(confirmationBlocks: confirmationBlocks),
-                responseType: BlockBookFeeResultResponse.self
-            )
-            .withWeakCaptureOf(self)
-            .tryMap { provider, response in
-                guard let decimalFeeResult = Decimal(stringValue: response.result) else {
-                    throw WalletError.failedToGetFee
-                }
-
-                return try provider.convertFeeRate(decimalFeeResult)
-            }
-            .eraseToAnyPublisher()
-        default:
-            rpcCall(
-                method: "estimatesmartfee",
-                params: AnyEncodable([confirmationBlocks]),
-                responseType: BlockBookFeeRateResponse.Result.self
-            )
-            .withWeakCaptureOf(self)
-            .tryMap { provider, response -> Decimal in
-                try provider.convertFeeRate(response.result.get().feerate)
-            }
-            .eraseToAnyPublisher()
-        }
     }
 }
 
