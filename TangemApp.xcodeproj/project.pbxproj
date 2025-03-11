@@ -2913,6 +2913,7 @@
 		EF8DBD4A2C07317B009072CF /* RewardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8DBD492C07317B009072CF /* RewardView.swift */; };
 		EF8DBD4C2C07318F009072CF /* RewardViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8DBD4B2C07318F009072CF /* RewardViewData.swift */; };
 		EF8DBE502D7DFBDB0050DBFB /* TransactionValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8DBE4F2D7DFBDB0050DBFB /* TransactionValidatorTests.swift */; };
+		EF8DBE582D8095890050DBFB /* CloreBlockBookUTXOProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8DBE572D8095890050DBFB /* CloreBlockBookUTXOProvider.swift */; };
 		EF8EF52F2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8EF52E2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift */; };
 		EF914D4C2A603F2F001F00B2 /* Quote.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF914D4B2A603F2F001F00B2 /* Quote.swift */; };
 		EF914D4E2A604615001F00B2 /* QuotesDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF914D4D2A604615001F00B2 /* QuotesDTO.swift */; };
@@ -6287,6 +6288,7 @@
 		EF8DBD492C07317B009072CF /* RewardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardView.swift; sourceTree = "<group>"; };
 		EF8DBD4B2C07318F009072CF /* RewardViewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardViewData.swift; sourceTree = "<group>"; };
 		EF8DBE4F2D7DFBDB0050DBFB /* TransactionValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionValidatorTests.swift; sourceTree = "<group>"; };
+		EF8DBE572D8095890050DBFB /* CloreBlockBookUTXOProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreBlockBookUTXOProvider.swift; sourceTree = "<group>"; };
 		EF8EF52E2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingApproveRoutableMock.swift; sourceTree = "<group>"; };
 		EF914D4B2A603F2F001F00B2 /* Quote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Quote.swift; sourceTree = "<group>"; };
 		EF914D4D2A604615001F00B2 /* QuotesDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuotesDTO.swift; sourceTree = "<group>"; };
@@ -7040,6 +7042,7 @@
 				2D8F9E702CF9B280007434A4 /* CloreExternalLinkProvider.swift */,
 				2D8F9E712CF9B280007434A4 /* CloreMainNetworkParams.swift */,
 				2D8F9E722CF9B280007434A4 /* CloreWalletAssembly.swift */,
+				EF8DBE572D8095890050DBFB /* CloreBlockBookUTXOProvider.swift */,
 			);
 			path = Clore;
 			sourceTree = "<group>";
@@ -20035,6 +20038,7 @@
 				B62D3FDC2CBC79DA00C2460E /* OP_NUMEQUAL.swift in Sources */,
 				B62D40CD2CBC79DA00C2460E /* EthereumOptimisticRollupWalletManager.swift in Sources */,
 				B62D410D2CBC79DA00C2460E /* KoinosAccountNonce.swift in Sources */,
+				EF8DBE582D8095890050DBFB /* CloreBlockBookUTXOProvider.swift in Sources */,
 				B62D41E62CBC79DB00C2460E /* VeChainAccountInfo.swift in Sources */,
 				B62D413C2CBC79DA00C2460E /* NEARNetworkResult.ProtocolConfig.swift in Sources */,
 				B62D423A2CBC79DB00C2460E /* AccountCreator.swift in Sources */,
