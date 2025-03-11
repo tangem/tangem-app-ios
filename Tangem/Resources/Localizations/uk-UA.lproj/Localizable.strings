@@ -236,6 +236,7 @@
 "details_manage_security_long_tap_shorter" = "Затримка";
 "details_manage_security_passcode" = "Пароль";
 "details_manage_security_passcode_description" = "Перед виконанням будь-якої команди, що тягне за собою зміну стану картки, вам необхідно буде ввести пароль.";
+"details_nft_title" = "NFT";
 "details_referral_title" = "Реферальна програма";
 "details_row_description_flip_to_hide" = "Переверніть екран пристрою вниз, щоб швидко приховати та відобразити баланси";
 "details_row_subtitle_signed_hashes_format" = "%@ хешів";
