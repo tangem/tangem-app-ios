@@ -15,7 +15,7 @@ class WalletConnectCoordinator: CoordinatorObject {
 
     // MARK: - Main view model
 
-    @Published private(set) var walletConnectViewModel: WalletConnectViewModel? = nil
+    @Published private(set) var walletConnectViewModel: OldWalletConnectViewModel? = nil
 
     // MARK: - Child coordinators
 
@@ -27,7 +27,7 @@ class WalletConnectCoordinator: CoordinatorObject {
     }
 
     func start(with options: WalletConnectCoordinator.Options) {
-        walletConnectViewModel = WalletConnectViewModel(disabledLocalizedReason: options.disabledLocalizedReason, coordinator: self)
+        walletConnectViewModel = OldWalletConnectViewModel(disabledLocalizedReason: options.disabledLocalizedReason, coordinator: self)
     }
 }
 
