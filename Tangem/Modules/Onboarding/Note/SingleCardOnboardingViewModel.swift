@@ -21,7 +21,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
     override var subtitle: String? {
         if currentStep == .topup,
-           case .xrp = userWalletModel?.walletModelsManager.walletModels.first?.blockchainNetwork.blockchain {
+           case .xrp = userWalletModel?.walletModelsManager.walletModels.first?.tokenItem.blockchain {
             return Localization.onboardingTopUpBodyNoAccountError("10", "XRP")
         } else {
             return super.subtitle
@@ -86,7 +86,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
     private var walletCreatedWhileOnboarding: Bool = false
     private var canBuyCrypto: Bool {
-        if let blockchain = userWalletModel?.walletModelsManager.walletModels.first?.blockchainNetwork.blockchain,
+        if let blockchain = userWalletModel?.walletModelsManager.walletModels.first?.tokenItem.blockchain,
            exchangeService.canBuy(blockchain.currencySymbol, amountType: .coin, blockchain: blockchain) {
             return true
         }
