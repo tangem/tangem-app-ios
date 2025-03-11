@@ -17,6 +17,8 @@ struct TokenActionAvailabilityAnalyticsMapper {
             return Analytics.ParameterValue.customToken
         case .blockchainUnreachable:
             return Analytics.ParameterValue.blockchainUnreachable
+        case .blockchainLoading:
+            return Analytics.ParameterValue.blockchainLoading
         case .hasOnlyCachedBalance:
             return Analytics.ParameterValue.caching
         case .cantSignLongTransactions:
@@ -42,6 +44,8 @@ struct TokenActionAvailabilityAnalyticsMapper {
             return Analytics.ParameterValue.pending
         case .blockchainUnreachable:
             return Analytics.ParameterValue.blockchainUnreachable
+        case .blockchainLoading:
+            return Analytics.ParameterValue.blockchainLoading
         case .oldCard:
             return Analytics.ParameterValue.oldCard
         case .hasOnlyCachedBalance:
@@ -53,8 +57,6 @@ struct TokenActionAvailabilityAnalyticsMapper {
         switch status {
         case .available:
             return Analytics.ParameterValue.available
-        case .noAddress:
-            return Analytics.ParameterValue.noAddress
         case .assetRequirement:
             return Analytics.ParameterValue.assetRequirement
         }
@@ -89,6 +91,8 @@ struct TokenActionAvailabilityAnalyticsMapper {
             return Analytics.ParameterValue.pending
         case .blockchainUnreachable:
             return Analytics.ParameterValue.blockchainUnreachable
+        case .blockchainLoading:
+            return Analytics.ParameterValue.blockchainLoading
         case .oldCard:
             return Analytics.ParameterValue.oldCard
         case .hasOnlyCachedBalance:
