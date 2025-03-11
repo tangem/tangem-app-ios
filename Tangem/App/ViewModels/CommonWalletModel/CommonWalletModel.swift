@@ -327,6 +327,10 @@ extension CommonWalletModel: WalletModel {
     var stakeKitTransactionSender: StakeKitTransactionSender? {
         walletManager as? StakeKitTransactionSender
     }
+
+    var accountInitializationStateProvider: (any StakingAccountInitializationStateProvider)? {
+        walletManager as? StakingAccountInitializationStateProvider
+    }
 }
 
 // MARK: - AvailableTokenBalanceProviderInput
