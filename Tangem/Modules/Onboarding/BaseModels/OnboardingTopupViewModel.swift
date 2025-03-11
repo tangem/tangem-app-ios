@@ -21,12 +21,13 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
     var walletModelUpdateCancellable: AnyCancellable?
 
     var buyCryptoURL: URL? {
-        if let wallet = userWalletModel?.walletModelsManager.walletModels.first?.wallet {
+        if let walletModel = userWalletModel?.walletModelsManager.walletModels.first {
+            let blockchain = walletModel.tokenItem.blockchain
             return exchangeService.getBuyUrl(
-                currencySymbol: wallet.blockchain.currencySymbol,
+                currencySymbol: blockchain.currencySymbol,
                 amountType: .coin,
-                blockchain: wallet.blockchain,
-                walletAddress: wallet.address
+                blockchain: blockchain,
+                walletAddress: walletModel.defaultAddress
             )
         }
 
@@ -93,14 +94,14 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
             }
     }
 
-    func updateCardBalanceText(for model: WalletModel) {
+    func updateCardBalanceText(for model: any WalletModel) {
         if case .failed = model.state {
             cardBalance = "–"
             return
         }
 
         if model.wallet.amounts.isEmpty {
-            let zeroAmount = Amount(with: model.wallet.blockchain, type: .coin, value: 0)
+            let zeroAmount = Amount(with: model.tokenItem.blockchain, type: .coin, value: 0)
             cardBalance = zeroAmount.string(with: 8)
         } else {
             cardBalance = model.availableBalanceProvider.formattedBalanceType.value
