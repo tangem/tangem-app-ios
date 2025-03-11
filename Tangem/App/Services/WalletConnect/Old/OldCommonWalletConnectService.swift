@@ -9,17 +9,17 @@
 import Foundation
 import Combine
 
-class CommonWalletConnectService {
+class OldCommonWalletConnectService {
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
-    private var v2Service: WalletConnectV2Service
+    private var v2Service: OldWalletConnectV2Service
 
     init() {
-        v2Service = WalletConnectFactory().createWCService()
+        v2Service = OldWalletConnectFactory().createWCService()
     }
 }
 
-extension CommonWalletConnectService: WalletConnectService {
+extension OldCommonWalletConnectService: OldWalletConnectService {
     var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> {
         v2Service.canEstablishNewSessionPublisher.eraseToAnyPublisher()
     }
@@ -30,7 +30,7 @@ extension CommonWalletConnectService: WalletConnectService {
         }
     }
 
-    func initialize(with infoProvider: WalletConnectUserWalletInfoProvider) {
+    func initialize(with infoProvider: OldWalletConnectUserWalletInfoProvider) {
         v2Service.initialize(with: infoProvider)
         incomingActionManager.becomeFirstResponder(self)
     }
@@ -57,7 +57,7 @@ extension CommonWalletConnectService: WalletConnectService {
 
 // MARK: - IncomingActionResponder
 
-extension CommonWalletConnectService: IncomingActionResponder {
+extension OldCommonWalletConnectService: IncomingActionResponder {
     func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
         guard case .walletConnect(let uri) = action else {
             return false

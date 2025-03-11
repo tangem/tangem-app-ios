@@ -11,7 +11,7 @@ import WalletConnectUtils
 import BlockchainSdk
 import WalletConnectSign
 
-struct WalletConnectV2Utils {
+struct OldWalletConnectV2Utils {
     /// Validates that all blockchains are supported by BlockchainSdk. Currently (24 Jan 2023) we support only EVM blockchains
     /// All other blockchains such as Solana, Tron, Polkadot using different methods, not `eth_sign`, `eth_sendTransaction` etc.
     /// - Returns:
@@ -203,7 +203,7 @@ struct WalletConnectV2Utils {
 
 // MARK: - Supported Namespaces
 
-extension WalletConnectV2Utils {
+extension OldWalletConnectV2Utils {
     enum WalletConnectSupportedNamespaces: String, CaseIterable {
         case eip155
         case solana
