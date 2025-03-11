@@ -25,7 +25,7 @@ struct BitcoinWalletAssembly: WalletManagerAssembly {
                 partialResult.append(
                     networkProviderAssembly.makeBlockBookUTXOProvider(with: input, for: .nowNodes)
                 )
-            case .getBlock where input.blockchain.isTestnet:
+            case .getBlock where !input.blockchain.isTestnet:
                 partialResult.append(
                     networkProviderAssembly.makeBlockBookUTXOProvider(with: input, for: .getBlock)
                 )
