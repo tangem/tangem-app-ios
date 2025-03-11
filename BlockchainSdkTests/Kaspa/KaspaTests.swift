@@ -18,8 +18,7 @@ class KaspaTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-
-        unspentOutputManager = CommonUnspentOutputManager(decimalValue: input.blockchain.decimalValue)
+        unspentOutputManager = CommonUnspentOutputManager(decimalValue: blockchain.decimalValue)
         txBuilder = KaspaTransactionBuilder(
             blockchain: blockchain,
             walletPublicKey: .init(seedKey: Data(), derivationType: .none),
