@@ -19,7 +19,7 @@ class KaspaTransactionBuilder {
     private let unspentOutputManager: UnspentOutputManager
     private let addressService: KaspaAddressService
 
-    func selectOutputs(amount: Decimal, fee: Decimal) throws -> [KaspaTransaction.Input] {
+    func selectOutputs(amount: UInt64, fee: UTXOSelector.Fee) throws -> [KaspaTransaction.Input] {
         let sortedOutputs = try unspentOutputManager.selectOutputs(amount: amount, fee: fee)
         let maxOutputs = sortedOutputs.prefix(maxInputCount)
 
@@ -114,8 +114,9 @@ extension KaspaTransactionBuilder {
             throw WalletError.failedToBuildTx
         }
 
-        // Count only once
-        let unspentOutputs = try selectOutputs(amount: transaction.amount.value, fee: transaction.fee.amount.value)
+        let amount = transaction.amount.value * blockchain.decimalValue
+        let fee = transaction.fee.amount.value * blockchain.decimalValue
+        let unspentOutputs = try selectOutputs(amount: amount.uint64Value, fee: .exactly(fee: fee.uint64Value))
         let destinationAddressScript = try scriptPublicKey(address: transaction.destinationAddress)
 
         var outputs: [KaspaTransaction.Output] = [
@@ -125,8 +126,6 @@ extension KaspaTransactionBuilder {
             ),
         ]
 
-        let amount = transaction.amount.value * blockchain.decimalValue
-        let fee = transaction.fee.amount.value * blockchain.decimalValue
         let fullAmount = unspentOutputs.sum(by: \.amount)
 
         if let change = try change(amount: amount, fee: fee, fullAmount: fullAmount) {
@@ -299,7 +298,9 @@ extension KaspaTransactionBuilder {
         )
 
         // Calculate outputs only once
-        let unspentOutputs = try selectOutputs(amount: transaction.amount.value, fee: transaction.fee.amount.value)
+        let amount = dust + feeEstimationRevealTransactionValue
+        let fee = (commitFeeAmount.value * blockchain.decimalValue).rounded()
+        let unspentOutputs = try selectOutputs(amount: amount.uint64Value, fee: .exactly(fee: fee.uint64Value))
 
         // Some older cards use uncompressed secp256k1 public keys, while Kaspa only works with compressed ones
         let publicKey = try Secp256k1Key(with: walletPublicKey.blockchainKey).compress()
@@ -318,8 +319,8 @@ extension KaspaTransactionBuilder {
 
         // 2nd output of the Commit transaction, create it if we still have funds that need to be returned to the source address.
         // Change = all available funds - (dust + estimated reveal transaction fee + estimated commit transaction fee)
-        let amount = dust + feeEstimationRevealTransactionValue
-        let fee = (commitFeeAmount.value * blockchain.decimalValue).rounded()
+//        let amount = dust + feeEstimationRevealTransactionValue
+//        let fee = (commitFeeAmount.value * blockchain.decimalValue).rounded()
         let fullAmount = unspentOutputs.sum(by: \.amount)
         if let change = try change(amount: amount, fee: fee, fullAmount: fullAmount) {
             let sourceAddressScript = try scriptPublicKey(address: transaction.sourceAddress)
