@@ -197,7 +197,7 @@ struct WalletConnectV2Utils {
             return nil
         }
 
-        return walletModel.blockchainNetwork
+        return walletModel.tokenItem.blockchainNetwork
     }
 }
 
