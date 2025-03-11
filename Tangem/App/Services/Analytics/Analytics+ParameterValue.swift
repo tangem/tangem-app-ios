@@ -116,7 +116,6 @@ extension Analytics {
         case assetsLoading = "Assets Loading"
         case assetsNotFound = "Asset NotFound"
         case pending = "Pending"
-        case noAddress = "NoAddress"
         case assetRequirement = "AssetRequirement"
 
         // MARK: - Express
