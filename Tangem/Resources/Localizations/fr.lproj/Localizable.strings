@@ -236,6 +236,7 @@
 "details_manage_security_long_tap_shorter" = "Tenez la carte fermement";
 "details_manage_security_passcode" = "Mot de passe";
 "details_manage_security_passcode_description" = "Avant d'exécuter une commande qui modifie l'état de la carte, vous devrez entrer un mot de passe.";
+"details_nft_title" = "NFT";
 "details_referral_title" = "Programme de parrainage";
 "details_row_description_flip_to_hide" = "Retournez l'écran de votre appareil vers le bas pour masquer et afficher rapidement les soldes";
 "details_row_subtitle_signed_hashes_format" = "%@ hashes";
@@ -748,6 +749,7 @@
 "staking_details_estimated_profit" = "%@ profit estimatif";
 "staking_details_market_rating" = "Cote du marché";
 "staking_details_metrics_block_header" = "Métriques";
+"staking_details_min_rewards_notification" = "According to %1$@ network rules, claims are possible from %2$@. Amounts below will be credited to your account upon unstaking.";
 "staking_details_minimum_requirement" = "Minimum requis";
 "staking_details_no_rewards_to_claim" = "Aucune récompense à réclamer";
 "staking_details_reward_claiming" = "Réclamation de récompense";
@@ -795,6 +797,7 @@
 "staking_notification_restake_rewards_text" = "Réinvestissez vos récompenses gagnées dans le montant que vous avez staké, augmentant ainsi vos gains potentiels.";
 "staking_notification_restake_text" = "L'option de restaker vous permet de déplacer vos fonds d'un validateur à un autre sans avoir besoin de les déstaker.";
 "staking_notification_stake_entire_balance_text" = "Vous êtes sur le point de staker l'intégralité de votre solde. Nous vous recommandons de laisser un petit montant pour couvrir les frais de réseau pour unstaking ou la réclamation des récompenses.";
+"staking_notification_ton_activate_account" = "To start staking in TON, first make an outgoing transaction of any amount — this will activate your wallet.";
 "staking_notification_unlock_text" = "Débloquez votre argent pour le retirer du processus de staking. Le déverrouillage prend %@.";
 "staking_notification_unstake_cosmos_text" = "Vos fonds seront disponibles à l'utilisation après la période de déblocage de 21 jours. La récompense sera retirée en même temps que vos fonds de déblocage.";
 "staking_notification_unstake_text" = "Vos fonds seront disponibles pour utilisation après la période de désengagement %@.";
@@ -824,6 +827,7 @@
 "staking_rewards" = "Récompenses";
 "staking_stake_locked" = "Stake verrouillé";
 "staking_stake_more" = "Staker plus";
+"staking_stake_more_button_unavailability_reason" = "When staking %1$@, your entire %2$@ balance is staked. Any additional %2$@ you deposit to your Tangem Wallet will also be automatically staked.";
 "staking_staked_amount" = "Montant staké";
 "staking_summary_description_text" = "Vous stakez %1$@ et recevrez %2$@";
 "staking_tap_to_unlock" = "Appuyez pour déverrouiller";
@@ -904,7 +908,7 @@
 "token_button_unavailability_reason_custom_token" = "Action is not available for custom tokens.";
 "token_button_unavailability_reason_empty_balance_sell" = "Vous n'avez pas de fonds à vendre. Renflouez votre compte pour pouvoir vendre des fonds à partir de celui-ci.";
 "token_button_unavailability_reason_empty_balance_send" = "Vous n'avez pas de fonds à envoyer. Renflouez votre compte pour pouvoir envoyer des fonds à partir de celui-ci.";
-"token_button_unavailability_reason_loading" = "The data has not loaded yet. This may take a few seconds. Please try again later.";
+"token_button_unavailability_reason_loading" = "Die Daten wurden noch nicht geladen. Dies kann einige Sekunden dauern. Bitte versuchen Sie es später noch einmal.";
 "token_button_unavailability_reason_not_exchangeable" = "Le service d'échange %@ n'est pas pris en charge par les fournisseurs actuels mais nous travaillons à ajouter plus d'options.";
 "token_button_unavailability_reason_out_of_date_balance" = "The displayed balance might be outdated due to caching.";
 "token_button_unavailability_reason_pending_transaction_sell" = "La vente de fonds sera disponible une fois que la ou les transactions en attente dans le réseau %@ seront terminées";
@@ -955,6 +959,7 @@
 "twins_recreate_toolbar" = "Tangem Twin";
 "twins_recreate_warning" = "Cette action est irréversible. Vous n'aurez plus accès à l'ancien portefeuille.";
 "twins_scan_twin_with_number" = "Appuyez sur la carte jumelle avec le numéro %@ et ne la retirez pas jusqu'à la fin de l'opération";
+"universal_error" = "We've encountered an error. Error code: %@. Please contact our support.";
 "unlock_wallet_description_full" = "Utilisez %@ ou scannez une carte/bague pour avoir accès à votre portefeuille";
 "unsupported_wc_version" = "Échec de la connexion : Cette dApp utilise Wallet Connect version1.0, qui n'est pas prise en charge. Veuillez vous assurer que la dApp prend en charge Wallet Connect version2.0 pour réussir la connexion.";
 "user_push_notification_agreement_argument_one" = "Restez à jour avec les dernières fonctionnalités et actualités";
@@ -982,6 +987,7 @@
 "wallet_connect_create_tx_not_enough_funds" = "Impossible d'effectuer la transaction. Fonds insuffisants.";
 "wallet_connect_error_failed_to_connect" = "Échec de l'établissement de la session WalletConnect. Veuillez réessayer plus tard.";
 "wallet_connect_error_missing_blockchains" = "Tous les jetons n'ont pas été ajoutés à votre liste. Veuillez d'abord les ajouter et essayez à nouveau. Jetons manquants :\n";
+"wallet_connect_error_missing_optional_blockchains" = "Add one of the optional networks to connect to this dApp: %@";
 "wallet_connect_error_sing_failed" = "Échec de la signature du message. Veuillez réessayer";
 "wallet_connect_error_timeout" = "Échec de l'établissement de la session WalletConnect : erreur de délai d'attente. Veuillez réessayer plus tard.";
 "wallet_connect_error_unsupported_blockchains" = "La demande de session contient des blockchains non prises en charge pour la connexion WalletConnect. Blockchains non prises en charge :\n";
