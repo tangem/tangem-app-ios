@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemStaking
+import BlockchainSdk
 
 class StakingDetailsCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
@@ -48,7 +49,7 @@ class StakingDetailsCoordinator: CoordinatorObject {
             tokenBalanceProvider: options.walletModel.availableBalanceProvider,
             stakingManager: options.manager,
             coordinator: self,
-            isAccountInitialized: options.walletModel.isAccountInitialized
+            accountInitializedStateProvider: options.walletModel.accountInitializationStateProvider
         )
     }
 }
