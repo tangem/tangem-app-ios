@@ -106,12 +106,15 @@ private extension TotalBalanceProvider {
 
         totalBalanceSubject.send(state)
 
-        // Analytics
-        trackBalanceLoaded(state: state, tokensCount: walletModelsManager.walletModels.count)
-        trackTokenBalanceLoaded(walletModels: walletModelsManager.walletModels)
+        // We use serial queue to avoid crashes describing in
+        // [REDACTED_INFO]
+        DispatchQueue.main.async {
+            self.trackBalanceLoaded(state: state, tokensCount: self.walletModelsManager.walletModels.count)
+            self.trackTokenBalanceLoaded(walletModels: self.walletModelsManager.walletModels)
 
-        if case .loaded(let loadedBalance) = state {
-            Analytics.logTopUpIfNeeded(balance: loadedBalance, for: userWalletId)
+            if case .loaded(let loadedBalance) = state {
+                Analytics.logTopUpIfNeeded(balance: loadedBalance, for: self.userWalletId)
+            }
         }
     }
 
