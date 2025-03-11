@@ -10,6 +10,7 @@ import Foundation
 import TangemSdk
 
 struct CommonExpressRefcodeProvider: RefcodeProvider {
+    private let cardInfo: CardInfo
 
     // MARK: - Init
 
