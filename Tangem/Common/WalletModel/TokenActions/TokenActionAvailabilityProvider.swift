@@ -42,9 +42,8 @@ struct TokenActionAvailabilityProvider {
         switch assetRequirementsManager.requirementsCondition(for: walletModel.amountType) {
         case .paidTransactionWithFee(blockchain: .hedera, _, _):
             return false
-        case .paidTransactionWithFee,
-             .none:
-            return isTokenInteractionAvailable()
+        case .paidTransactionWithFee, .none:
+            return true
         }
     }
 }
@@ -84,7 +83,7 @@ extension TokenActionAvailabilityProvider {
 
     /// Uses for decide visibility on the long tap menu action buttons list on `TokenItemView`
     func buildTokenContextActions() -> [TokenActionType] {
-        guard isContextMenuAvailable() else {
+        guard isTokenInteractionAvailable(), isContextMenuAvailable() else {
             return []
         }
 
@@ -123,7 +122,7 @@ extension TokenActionAvailabilityProvider {
 
     /// Limited actions for Markets
     func buildMarketsTokenContextActions() -> [TokenActionType] {
-        guard isContextMenuAvailable() else {
+        guard isTokenInteractionAvailable(), isContextMenuAvailable() else {
             return []
         }
 
@@ -248,8 +247,8 @@ extension TokenActionAvailabilityProvider {
 
     var sendAvailability: SendActionAvailabilityStatus {
         switch walletModel.sendingRestrictions {
-        case .zeroWalletBalance:
-            return .zeroWalletBalance
+        case .oldCard:
+            return .oldCard
         case .cantSignLongTransactions:
             return .cantSignLongTransactions
         case .hasPendingTransaction(let blockchain):
@@ -258,10 +257,10 @@ extension TokenActionAvailabilityProvider {
             return .blockchainUnreachable
         case .blockchainLoading:
             return .blockchainLoading
-        case .oldCard:
-            return .oldCard
         case .hasOnlyCachedBalance:
             return .hasOnlyCachedBalance
+        case .zeroWalletBalance:
+            return .zeroWalletBalance
         case .none, .zeroFeeCurrencyBalance:
             return .available
         }
@@ -293,9 +292,17 @@ extension TokenActionAvailabilityProvider {
     }
 
     var sellAvailability: SellActionAvailabilityStatus {
+        if let disabledLocalizedReason = userWalletConfig.getDisabledLocalizedReason(for: .exchange) {
+            return .demo(disabledLocalizedReason: disabledLocalizedReason)
+        }
+
+        if !exchangeCryptoUtility.sellAvailable {
+            return .unavailable(tokenName: walletModel.tokenItem.name)
+        }
+
         switch walletModel.sendingRestrictions {
-        case .zeroWalletBalance:
-            return .zeroWalletBalance
+        case .oldCard:
+            return .oldCard
         case .cantSignLongTransactions:
             return .cantSignLongTransactions
         case .hasPendingTransaction(let blockchain):
@@ -304,20 +311,12 @@ extension TokenActionAvailabilityProvider {
             return .blockchainUnreachable
         case .blockchainLoading:
             return .blockchainLoading
-        case .oldCard:
-            return .oldCard
         case .hasOnlyCachedBalance:
             return .hasOnlyCachedBalance
+        case .zeroWalletBalance:
+            return .zeroWalletBalance
         case .none, .zeroFeeCurrencyBalance:
             break
-        }
-
-        if let disabledLocalizedReason = userWalletConfig.getDisabledLocalizedReason(for: .exchange) {
-            return .demo(disabledLocalizedReason: disabledLocalizedReason)
-        }
-
-        if !exchangeCryptoUtility.sellAvailable {
-            return .unavailable(tokenName: walletModel.tokenItem.name)
         }
 
         return .available
@@ -384,7 +383,6 @@ extension TokenActionAvailabilityProvider {
 extension TokenActionAvailabilityProvider {
     enum ReceiveActionAvailabilityStatus {
         case available
-        case noAddress
         case assetRequirement(blockchain: Blockchain)
     }
 
@@ -411,10 +409,6 @@ extension TokenActionAvailabilityProvider {
 
         case .none:
             break
-        }
-
-        if !hasAddressToInteract() {
-            return .noAddress
         }
 
         return .available
