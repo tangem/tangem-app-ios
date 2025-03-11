@@ -67,7 +67,7 @@ extension OrganizeTokensListItemViewModel {
     struct Identifier: Hashable {
         var asAnyHashable: AnyHashable { self as AnyHashable }
 
-        let walletModelId: WalletModel.ID
+        let walletModelId: WalletModelId.ID
         let inGroupedSection: Bool
     }
 }

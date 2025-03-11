@@ -11,7 +11,7 @@ import TangemExpress
 import BlockchainSdk
 
 class ExpressModulesFactoryMock: ExpressModulesFactory {
-    private let initialWalletModel: WalletModel = .mockETH
+    private let initialWalletModel: any WalletModel = CommonWalletModel.mockETH
     private let userWalletModel: UserWalletModel = UserWalletModelMock()
     private let expressAPIProviderFactory = ExpressAPIProviderFactory()
 
