@@ -46,6 +46,11 @@ class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
                     .map { UpdatingResponse(address: address, response: $0) }
             }
 
+        if publishers.isEmpty {
+            completion(.failure(WalletError.addressesIsEmpty))
+            return
+        }
+
         cancellable = Publishers.MergeMany(publishers).collect()
             .receive(on: DispatchQueue.global())
             .sink(receiveCompletion: { [weak self] completionSubscription in
