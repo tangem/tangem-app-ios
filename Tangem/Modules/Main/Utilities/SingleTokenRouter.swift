@@ -12,17 +12,17 @@ import BlockchainSdk
 import TangemExpress
 
 protocol SingleTokenRoutable {
-    func openReceive(walletModel: WalletModel)
-    func openBuy(walletModel: WalletModel)
-    func openSend(walletModel: WalletModel)
-    func openExchange(walletModel: WalletModel)
-    func openStaking(walletModel: WalletModel)
-    func openSell(for walletModel: WalletModel)
-    func openSendToSell(with request: SellCryptoRequest, for walletModel: WalletModel)
-    func openExplorer(at url: URL, for walletModel: WalletModel)
+    func openReceive(walletModel: any WalletModel)
+    func openBuy(walletModel: any WalletModel)
+    func openSend(walletModel: any WalletModel)
+    func openExchange(walletModel: any WalletModel)
+    func openStaking(walletModel: any WalletModel)
+    func openSell(for walletModel: any WalletModel)
+    func openSendToSell(with request: SellCryptoRequest, for walletModel: any WalletModel)
+    func openExplorer(at url: URL, for walletModel: any WalletModel)
     func openMarketsTokenDetails(for tokenItem: TokenItem)
     func openInSafari(url: URL)
-    func openOnramp(walletModel: WalletModel)
+    func openOnramp(walletModel: any WalletModel)
     func openPendingExpressTransactionDetails(
         pendingTransaction: PendingTransaction,
         tokenItem: TokenItem,
@@ -42,7 +42,7 @@ final class SingleTokenRouter: SingleTokenRoutable {
         self.coordinator = coordinator
     }
 
-    func openReceive(walletModel: WalletModel) {
+    func openReceive(walletModel: any WalletModel) {
         let infos = walletModel.wallet.addresses.map { address in
             ReceiveAddressInfo(
                 address: address.value,
@@ -57,7 +57,7 @@ final class SingleTokenRouter: SingleTokenRoutable {
         )
     }
 
-    func openBuy(walletModel: WalletModel) {
+    func openBuy(walletModel: any WalletModel) {
         assert(!FeatureProvider.isAvailable(.onramp), "Use open openOnramp(for:) instead")
 
         let exchangeUtility = buildExchangeCryptoUtility(for: walletModel)
@@ -73,23 +73,23 @@ final class SingleTokenRouter: SingleTokenRoutable {
         }
     }
 
-    func openOnramp(walletModel: WalletModel) {
+    func openOnramp(walletModel: any WalletModel) {
         coordinator?.openOnramp(walletModel: walletModel, userWalletModel: userWalletModel)
     }
 
-    func openSend(walletModel: WalletModel) {
+    func openSend(walletModel: any WalletModel) {
         coordinator?.openSend(
             userWalletModel: userWalletModel,
             walletModel: walletModel
         )
     }
 
-    func openExchange(walletModel: WalletModel) {
+    func openExchange(walletModel: any WalletModel) {
         let input = CommonExpressModulesFactory.InputModel(userWalletModel: userWalletModel, initialWalletModel: walletModel)
         coordinator?.openExpress(input: input)
     }
 
-    func openStaking(walletModel: WalletModel) {
+    func openStaking(walletModel: any WalletModel) {
         sendAnalyticsEvent(.stakingClicked, for: walletModel)
         guard let stakingManager = walletModel.stakingManager else {
             return
@@ -104,7 +104,7 @@ final class SingleTokenRouter: SingleTokenRoutable {
         )
     }
 
-    func openSell(for walletModel: WalletModel) {
+    func openSell(for walletModel: any WalletModel) {
         let exchangeUtility = buildExchangeCryptoUtility(for: walletModel)
         guard let url = exchangeUtility.sellURL else {
             return
@@ -117,9 +117,9 @@ final class SingleTokenRouter: SingleTokenRoutable {
         }
     }
 
-    func openSendToSell(with request: SellCryptoRequest, for walletModel: WalletModel) {
+    func openSendToSell(with request: SellCryptoRequest, for walletModel: any WalletModel) {
         // [REDACTED_TODO_COMMENT]
-        guard var amountToSend = walletModel.wallet.amounts[walletModel.amountType] else {
+        guard var amountToSend = walletModel.wallet.amounts[walletModel.tokenItem.amountType] else {
             return
         }
 
@@ -133,7 +133,7 @@ final class SingleTokenRouter: SingleTokenRoutable {
         )
     }
 
-    func openExplorer(at url: URL, for walletModel: WalletModel) {
+    func openExplorer(at url: URL, for walletModel: any WalletModel) {
         sendAnalyticsEvent(.buttonExplore, for: walletModel)
         coordinator?.openInSafari(url: url)
     }
@@ -183,15 +183,15 @@ final class SingleTokenRouter: SingleTokenRoutable {
 // MARK: - Utilities functions
 
 extension SingleTokenRouter {
-    private func sendAnalyticsEvent(_ event: Analytics.Event, for walletModel: WalletModel) {
+    private func sendAnalyticsEvent(_ event: Analytics.Event, for walletModel: any WalletModel) {
         Analytics.log(event: event, params: [.token: walletModel.tokenItem.currencySymbol])
     }
 
-    private func buildExchangeCryptoUtility(for walletModel: WalletModel) -> ExchangeCryptoUtility {
+    private func buildExchangeCryptoUtility(for walletModel: any WalletModel) -> ExchangeCryptoUtility {
         return ExchangeCryptoUtility(
-            blockchain: walletModel.blockchainNetwork.blockchain,
+            blockchain: walletModel.tokenItem.blockchain,
             address: walletModel.defaultAddress,
-            amountType: walletModel.amountType
+            amountType: walletModel.tokenItem.amountType
         )
     }
 }
