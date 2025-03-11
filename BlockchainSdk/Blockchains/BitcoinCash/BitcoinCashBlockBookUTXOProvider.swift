@@ -48,11 +48,12 @@ extension BitcoinCashBlockBookUTXOProvider: UTXONetworkProvider {
             .rpcCall(
                 method: "estimatefee",
                 params: AnyEncodable([Int]()),
-                responseType: NodeEstimateFeeResponse.self
+                resultType: Decimal.self
             )
             .withWeakCaptureOf(self)
             .tryMap { provider, response in
-                let feeRate = try provider.blockBookUTXOProvider.convertFeeRate(response.result.get().result)
+                let result = try response.result.get()
+                let feeRate = try provider.blockBookUTXOProvider.convertFeeRate(result)
 
                 // fee for BCH is constant
                 return UTXOFee(slowSatoshiPerByte: feeRate, marketSatoshiPerByte: feeRate, prioritySatoshiPerByte: feeRate)
@@ -65,9 +66,9 @@ extension BitcoinCashBlockBookUTXOProvider: UTXONetworkProvider {
             .rpcCall(
                 method: "sendrawtransaction",
                 params: AnyEncodable([transaction]),
-                responseType: SendResponse.self
+                resultType: String.self
             )
-            .tryMap { try TransactionSendResult(hash: $0.result.get().result) }
+            .tryMap { try TransactionSendResult(hash: $0.result.get()) }
             .eraseToAnyPublisher()
     }
 }
