@@ -236,6 +236,7 @@
 "details_manage_security_long_tap_shorter" = "Затримка";
 "details_manage_security_passcode" = "Пароль";
 "details_manage_security_passcode_description" = "Перед виконанням будь-якої команди, що тягне за собою зміну стану картки, вам необхідно буде ввести пароль.";
+"details_nft_title" = "NFT";
 "details_referral_title" = "Реферальна програма";
 "details_row_description_flip_to_hide" = "Переверніть екран пристрою вниз, щоб швидко приховати та відобразити баланси";
 "details_row_subtitle_signed_hashes_format" = "%@ хешів";
@@ -748,6 +749,7 @@
 "staking_details_estimated_profit" = "~ прибуток за %@";
 "staking_details_market_rating" = "Рейтинг ринку";
 "staking_details_metrics_block_header" = "Метрики";
+"staking_details_min_rewards_notification" = "According to %1$@ network rules, claims are possible from %2$@. Amounts below will be credited to your account upon unstaking.";
 "staking_details_minimum_requirement" = "Мінімальні вимоги";
 "staking_details_no_rewards_to_claim" = "Немає винагород, до отримання";
 "staking_details_reward_claiming" = "Отримати винагороду";
@@ -795,6 +797,7 @@
 "staking_notification_restake_rewards_text" = "Реінвестуйте зароблені винагороди у суму стейкінгу, щоб збільшити потенційний прибуток.";
 "staking_notification_restake_text" = "Рестейк дозволяє вам перемістити ваші кошти від одного валідатора до іншого без необхідності виводити кошти зі стейкінгу";
 "staking_notification_stake_entire_balance_text" = "Ви збираєтеся застейкати весь свій баланс. Ми рекомендуємо залишити невелику суму, щоб покрити комісію мережі за зняття коштів або отримання винагороди.";
+"staking_notification_ton_activate_account" = "To start staking in TON, first make an outgoing transaction of any amount — this will activate your wallet.";
 "staking_notification_unlock_text" = "Розблокуйте свої кошти, щоб вивести їх зі стейкінгу. Розблокування займе %@.";
 "staking_notification_unstake_cosmos_text" = "Ваші кошти будуть доступні для використання після закінчення 21-денного періоду розблокування. Винагорода буде отримана разом з вашими незастейканими коштами.";
 "staking_notification_unstake_text" = "Ваші кошти будуть доступні після %@ періоду розблокування.";
@@ -824,6 +827,7 @@
 "staking_rewards" = "Винагороди";
 "staking_stake_locked" = "Стейкінг закрито";
 "staking_stake_more" = "Застейкати більше";
+"staking_stake_more_button_unavailability_reason" = "When staking %1$@, your entire %2$@ balance is staked. Any additional %2$@ you deposit to your Tangem Wallet will also be automatically staked.";
 "staking_staked_amount" = "Застейканий залишок";
 "staking_summary_description_text" = "Ви стейкаєте %1$@ і будете отримуватиме винагороду %2$@";
 "staking_tap_to_unlock" = "Натисніть, щоб розблокувати";
@@ -904,7 +908,7 @@
 "token_button_unavailability_reason_custom_token" = "Action is not available for custom tokens.";
 "token_button_unavailability_reason_empty_balance_sell" = "У вас немає коштів для продажу. Поповніть рахунок, щоб мати змогу продати з нього кошти.";
 "token_button_unavailability_reason_empty_balance_send" = "У вас немає коштів для відправлення. Поповніть рахунок, щоб мати змогу надіслати з нього кошти.";
-"token_button_unavailability_reason_loading" = "The data has not loaded yet. This may take a few seconds. Please try again later.";
+"token_button_unavailability_reason_loading" = "Дані ще не завантажені. Це може зайняти кілька секунд. Будь ласка, спробуйте пізніше.";
 "token_button_unavailability_reason_not_exchangeable" = "Наразі обмін монети %@ недоступний. Слідкуйте за нашими оновленнями.";
 "token_button_unavailability_reason_out_of_date_balance" = "The displayed balance might be outdated due to caching.";
 "token_button_unavailability_reason_pending_transaction_sell" = "Продаж коштів стане доступним після завершення транзакції(-ій) в мережі %@";
@@ -955,6 +959,7 @@
 "twins_recreate_toolbar" = "Tangem Twin";
 "twins_recreate_warning" = "Ця дія є незворотною. Ви не матимете доступу до старого гаманця.";
 "twins_scan_twin_with_number" = "Прикладіть twin-картку з номером %@ та не прибирайте її до завершення операції";
+"universal_error" = "We've encountered an error. Error code: %@. Please contact our support.";
 "unlock_wallet_description_full" = "Використовуйте %@ або відскануйте картку/кільце, щоб отримати доступ до свого гаманця";
 "unsupported_wc_version" = "Не вдалося встановити з'єднання: Цей dApp використовує Wallet Connect версії 1.0, яка не підтримується. Будь ласка, переконайтеся, що dApp підтримує Wallet Connect версії 2.0 для успішного підключення.";
 "user_push_notification_agreement_argument_one" = "Будьте в курсі останніх функцій та новин";
@@ -982,6 +987,7 @@
 "wallet_connect_create_tx_not_enough_funds" = "Неможливо відправити транзакцію. Недостатньо коштів.";
 "wallet_connect_error_failed_to_connect" = "Не вдалося встановити сеанс WalletConnect. Будь ласка, спробуйте пізніше.";
 "wallet_connect_error_missing_blockchains" = "Не всі токени додано до вашого списку. Будь ласка, додайте їх спочатку і спробуйте ще раз. Відсутні токени:\n";
+"wallet_connect_error_missing_optional_blockchains" = "Add one of the optional networks to connect to this dApp: %@";
 "wallet_connect_error_sing_failed" = "Не вдалося підписати повідомлення.\nБудь ласка, спробуйте ще раз";
 "wallet_connect_error_timeout" = "Не вдалося створити сеанс WalletConnect за відведений час. Будь ласка, спробуйте пізніше.";
 "wallet_connect_error_unsupported_blockchains" = "Запит на підключення сеансу WalletConnect містить непідтримувані блокчейни. Непідтримувані блокчейни:\n";
