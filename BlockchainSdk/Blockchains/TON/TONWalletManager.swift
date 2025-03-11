@@ -267,7 +267,10 @@ extension TONWalletManager: StakeKitTransactionDataBroadcaster {
 }
 
 extension TONWalletManager: StakingAccountInitializationStateProvider {
-    var isAccountInitialized: Bool {
-        isAvailable
+    func isAccountInitialized() async throws -> Bool {
+        try await TONStakingAccountInitializationStateProvider(
+            address: wallet.address,
+            networkService: networkService
+        ).isAccountInitialized()
     }
 }
