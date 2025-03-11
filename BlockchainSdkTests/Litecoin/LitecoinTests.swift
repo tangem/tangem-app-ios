@@ -53,7 +53,7 @@ class LitecoinTests: XCTestCase {
         XCTAssertNotNil(address)
 
         let bitcoinCoreManager = BitcoinManager(networkParams: networkParams, walletPublicKey: walletPubkey, compressedWalletPublicKey: compressedPubkey, bip: .bip44)
-        let unspentOutputManager = CommonUnspentOutputManager(decimalValue: input.blockchain.decimalValue)
+        let unspentOutputManager = CommonUnspentOutputManager(decimalValue: blockchain.decimalValue)
         unspentOutputManager.update(
             outputs: [
                 .init(
@@ -73,7 +73,6 @@ class LitecoinTests: XCTestCase {
             for: Data(hexString: "76a914ccd4649cdb4c9f8fdb54869cff112a4e75fda2bb88ac")
         )
         let txBuilder = BitcoinTransactionBuilder(bitcoinManager: bitcoinCoreManager, unspentOutputManager: unspentOutputManager, addresses: addresses)
-        txBuilder.fillBitcoinManager()
         let amountToSend = Amount(with: blockchain, type: .coin, value: sendValue)
         let feeAmount = Amount(with: blockchain, type: .coin, value: feeValue)
         let fee = Fee(feeAmount, parameters: BitcoinFeeParameters(rate: feeRate))
@@ -83,7 +82,7 @@ class LitecoinTests: XCTestCase {
         let expectedHashToSign2 = Data(hex: "E84A90E9E9DAE1EACAA2F12B79FF8824F868EA77C35272ADE0DFF8D2DAA8391E")
         let expectedSignedTx = Data(hex: "0100000002AEED3F4EBDEFC373361387DD7E5D926311B934B3E48614428E3E32C11BFEACBC000000008B483045022100F4E41BBE57B306529EBE797ABCE8CBA399F391B0804B8CD52C329F398E815FB40220183CEBBC8C66346EA556A7FBA7223DBAAC0AF6D49285C985CA0BEC5A1A8034ED014104AC17063C443E9DC00C090733A0A76FF18A322D8484495FDF65BE5922EA6C1F5EDC0A802D505BFF664E32E9082DC934D60A4B4E83572A0818F1D73F8FB4D100EAFAFFFFFFFF863FEFC5EF29D4F33B13F969E88971A0EA0523FD913072DC50A1F8D7FB16FA000000008B483045022100B6DC3A0163FADB5B4FF70F1BD8165C03CC7D474C45942B81B841BE2E747CE301022005AF501D55D1BA6E433745F3AD04243EEF53435AD32AA2E523DC413F1F5D7BCC014104AC17063C443E9DC00C090733A0A76FF18A322D8484495FDF65BE5922EA6C1F5EDC0A802D505BFF664E32E9082DC934D60A4B4E83572A0818F1D73F8FB4D100EAFAFFFFFF02983A0000000000001976A9147E3618C4A80997D5F836FA17A10FCC17B4A9245188ACB00C0000000000001976A914CCD4649CDB4C9F8FDB54869CFF112A4E75FDA2BB88AC00000000")
 
-        testTransaction(
+        try testTransaction(
             tx,
             signatures: [signature1, signature2],
             txBuilder: txBuilder,
@@ -95,7 +94,7 @@ class LitecoinTests: XCTestCase {
         let expectedHashToSign1Sorted = Data(hex: "0eb63431fbe70eb30d8ef8d788c5a7971d1bbd319b54dd8252578f3f84311e2f")
         let expectedHashToSign2Sorted = Data(hex: "eb7b158f86c6fc825f199d7addcb0003e7c5474abe515f466cbd8c54daf4e123")
         let expectedSignedSortedTransaction = Data(hex: "0100000002AEED3F4EBDEFC373361387DD7E5D926311B934B3E48614428E3E32C11BFEACBC000000008B483045022100F4E41BBE57B306529EBE797ABCE8CBA399F391B0804B8CD52C329F398E815FB40220183CEBBC8C66346EA556A7FBA7223DBAAC0AF6D49285C985CA0BEC5A1A8034ED014104AC17063C443E9DC00C090733A0A76FF18A322D8484495FDF65BE5922EA6C1F5EDC0A802D505BFF664E32E9082DC934D60A4B4E83572A0818F1D73F8FB4D100EAFAFFFFFFFF863FEFC5EF29D4F33B13F969E88971A0EA0523FD913072DC50A1F8D7FB16FA000000008B483045022100B6DC3A0163FADB5B4FF70F1BD8165C03CC7D474C45942B81B841BE2E747CE301022005AF501D55D1BA6E433745F3AD04243EEF53435AD32AA2E523DC413F1F5D7BCC014104AC17063C443E9DC00C090733A0A76FF18A322D8484495FDF65BE5922EA6C1F5EDC0A802D505BFF664E32E9082DC934D60A4B4E83572A0818F1D73F8FB4D100EAFAFFFFFF02B00C0000000000001976A914CCD4649CDB4C9F8FDB54869CFF112A4E75FDA2BB88AC983A0000000000001976A9147E3618C4A80997D5F836FA17A10FCC17B4A9245188AC00000000")
-        testTransaction(
+        try testTransaction(
             tx,
             signatures: [signature1, signature2],
             txBuilder: txBuilder,
@@ -105,11 +104,11 @@ class LitecoinTests: XCTestCase {
         )
     }
 
-    private func testTransaction(_ transaction: BlockchainSdk.Transaction, signatures: [Data], txBuilder: BitcoinTransactionBuilder, sortType: TransactionDataSortType, expectedHashes: [Data], expectedSignedTransaction: Data) {
-        let buildToSignResult = txBuilder.buildForSign(transaction: transaction, sequence: 4294967290, sortType: sortType)!
+    private func testTransaction(_ transaction: BlockchainSdk.Transaction, signatures: [Data], txBuilder: BitcoinTransactionBuilder, sortType: TransactionDataSortType, expectedHashes: [Data], expectedSignedTransaction: Data) throws {
+        let buildToSignResult = try txBuilder.buildForSign(transaction: transaction, sequence: 4294967290, sortType: sortType)
         sizeTester.testTxSizes(buildToSignResult)
-        let signedTx = txBuilder.buildForSend(transaction: transaction, signatures: signatures, sequence: 4294967290, sortType: sortType)
+        let signedTx = try txBuilder.buildForSend(transaction: transaction, signatures: signatures, sequence: 4294967290, sortType: sortType)
         XCTAssertEqual(buildToSignResult.map { $0.hexString }, expectedHashes.map { $0.hexString })
-        XCTAssertEqual(signedTx?.hexString, expectedSignedTransaction.hexString)
+        XCTAssertEqual(signedTx.hexString, expectedSignedTransaction.hexString)
     }
 }

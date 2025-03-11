@@ -189,6 +189,14 @@ extension Amount.AmountType: Hashable {
 }
 
 public extension Amount {
+    func asSmallest() -> Amount {
+        let decimalValue = pow(10, decimals)
+        let value = value / decimalValue
+        return Amount(with: self, value: value)
+    }
+}
+
+public extension Amount {
     static func zeroCoin(for blockchain: Blockchain) -> Amount {
         .init(with: blockchain, type: .coin, value: 0)
     }

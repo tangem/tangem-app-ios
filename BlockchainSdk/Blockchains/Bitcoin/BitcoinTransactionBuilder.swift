@@ -9,6 +9,7 @@
 import Foundation
 import TangemSdk
 import BitcoinCore
+import WalletCore
 
 class BitcoinTransactionBuilder {
     private let bitcoinManager: BitcoinManager
@@ -32,7 +33,7 @@ class BitcoinTransactionBuilder {
     }
 
     func fee(amount: Decimal, destination: String?, feeRate: Int) throws -> Decimal {
-        let outputs = try unspentOutputManager.selectOutputs(amount: amount, fee: .zero)
+        let outputs = try unspentOutputManager.selectOutputs(amount: amount.uint64Value, fee: .calculate(feeRate: UInt64(feeRate)))
         fillBitcoinManager(outputs: outputs)
 
         return bitcoinManager.fee(for: amount, address: destination, feeRate: feeRate, senderPay: false, changeScript: nil, sequence: .max)
@@ -43,7 +44,9 @@ class BitcoinTransactionBuilder {
             throw WalletError.failedToBuildTx
         }
 
-        let outputs = try unspentOutputManager.selectOutputs(amount: transaction.amount.value, fee: transaction.fee.amount.value)
+        let amount = transaction.amount.asSmallest().value
+        let fee = transaction.fee.amount.asSmallest().value
+        let outputs = try unspentOutputManager.selectOutputs(amount: amount.uint64Value, fee: .exactly(fee: fee.uint64Value))
         fillBitcoinManager(outputs: outputs)
 
         let hashes = try bitcoinManager.buildForSign(
@@ -63,7 +66,9 @@ class BitcoinTransactionBuilder {
             throw WalletError.failedToBuildTx
         }
 
-        let outputs = try unspentOutputManager.selectOutputs(amount: transaction.amount.value, fee: transaction.fee.amount.value)
+        let amount = transaction.amount.asSmallest().value
+        let fee = transaction.fee.amount.asSmallest().value
+        let outputs = try unspentOutputManager.selectOutputs(amount: amount.uint64Value, fee: .exactly(fee: fee.uint64Value))
         fillBitcoinManager(outputs: outputs)
 
         return try bitcoinManager.buildForSend(
