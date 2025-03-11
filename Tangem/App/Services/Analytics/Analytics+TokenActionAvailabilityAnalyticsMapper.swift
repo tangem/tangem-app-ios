@@ -57,8 +57,6 @@ struct TokenActionAvailabilityAnalyticsMapper {
         switch status {
         case .available:
             return Analytics.ParameterValue.available
-        case .noAddress:
-            return Analytics.ParameterValue.noAddress
         case .assetRequirement:
             return Analytics.ParameterValue.assetRequirement
         }
