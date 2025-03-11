@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-struct WalletConnectView: View {
-    @ObservedObject var viewModel: WalletConnectViewModel
+struct OldWalletConnectView: View {
+    @ObservedObject var viewModel: OldWalletConnectViewModel
 
     @ViewBuilder
     var navBarButton: some View {
@@ -73,7 +73,7 @@ struct WalletConnectView: View {
 
 struct WalletConnectView_Previews: PreviewProvider {
     static var previews: some View {
-        WalletConnectView(viewModel: .init(disabledLocalizedReason: nil, coordinator: WalletConnectCoordinator()))
+        OldWalletConnectView(viewModel: .init(disabledLocalizedReason: nil, coordinator: WalletConnectCoordinator()))
             .previewGroup(devices: [.iPhone12Pro])
     }
 }
