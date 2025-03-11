@@ -8,8 +8,8 @@
 
 protocol ActionButtonsSwapRoutable: AnyObject {
     func openExpress(
-        for sourceWalletModel: WalletModel,
-        and destinationWalletModel: WalletModel,
+        for sourceWalletModel: any WalletModel,
+        and destinationWalletModel: any WalletModel,
         with userWalletModel: UserWalletModel
     )
     func dismiss()
