@@ -30,10 +30,10 @@ struct StorageEntry: Hashable {
 }
 
 extension StorageEntry {
-    var walletModelIds: [WalletModel.ID] {
-        let mainCoinId = WalletModel.Id(tokenItem: .blockchain(blockchainNetwork)).id
+    var walletModelIds: [WalletModelId] {
+        let mainCoinId = WalletModelId(tokenItem: .blockchain(blockchainNetwork))
         let tokenCoinIds = tokens.map {
-            WalletModel.Id(tokenItem: .token($0, blockchainNetwork)).id
+            WalletModelId(tokenItem: .token($0, blockchainNetwork))
         }
         return [mainCoinId] + tokenCoinIds
     }
