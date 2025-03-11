@@ -236,6 +236,7 @@
 "details_manage_security_long_tap_shorter" = "Lange Tippen";
 "details_manage_security_passcode" = "Passcode";
 "details_manage_security_passcode_description" = "Bevor du einen Befehl ausführst, der eine Änderung des Kartenstatus zur Folge hat, musst du den Passcode eingeben.";
+"details_nft_title" = "NFT";
 "details_referral_title" = "Empfehlungsprogramm";
 "details_row_description_flip_to_hide" = "Flippe den Bildschirm deines Geräts nach unten, um Salden schnell ein- und auszublenden";
 "details_row_subtitle_signed_hashes_format" = "%@ Hasch";
