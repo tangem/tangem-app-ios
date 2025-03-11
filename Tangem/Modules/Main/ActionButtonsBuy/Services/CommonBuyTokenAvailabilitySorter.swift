@@ -19,9 +19,9 @@ struct CommonBuyTokenAvailabilitySorter {
 // MARK: - TokenAvailabilitySorter
 
 extension CommonBuyTokenAvailabilitySorter: TokenAvailabilitySorter {
-    func sortModels(walletModels: [WalletModel]) async -> (availableModels: [WalletModel], unavailableModels: [WalletModel]) {
+    func sortModels(walletModels: [any WalletModel]) async -> (availableModels: [any WalletModel], unavailableModels: [any WalletModel]) {
         walletModels.reduce(
-            into: (availableModels: [WalletModel](), unavailableModels: [WalletModel]())
+            into: (availableModels: [any WalletModel](), unavailableModels: [any WalletModel]())
         ) { result, walletModel in
             if tokenAvailableToBuy(walletModel) {
                 result.availableModels.append(walletModel)
@@ -31,14 +31,14 @@ extension CommonBuyTokenAvailabilitySorter: TokenAvailabilitySorter {
         }
     }
 
-    private func tokenAvailableToBuy(_ walletModel: WalletModel) -> Bool {
+    private func tokenAvailableToBuy(_ walletModel: any WalletModel) -> Bool {
         if FeatureProvider.isAvailable(.onramp) {
             expressAvailabilityProvider.canOnramp(tokenItem: walletModel.tokenItem)
         } else {
             exchangeService.canBuy(
                 walletModel.tokenItem.currencySymbol,
-                amountType: walletModel.amountType,
-                blockchain: walletModel.blockchainNetwork.blockchain
+                amountType: walletModel.tokenItem.amountType,
+                blockchain: walletModel.tokenItem.blockchain
             )
         }
     }

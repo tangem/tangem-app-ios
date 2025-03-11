@@ -11,8 +11,8 @@ import TangemFoundation
 import TangemStaking
 
 protocol FiatTokenBalanceProviderInput: AnyObject {
-    var rate: WalletModel.Rate { get }
-    var ratePublisher: AnyPublisher<WalletModel.Rate, Never> { get }
+    var rate: WalletModelRate { get }
+    var ratePublisher: AnyPublisher<WalletModelRate, Never> { get }
 }
 
 struct FiatTokenBalanceProvider {
@@ -73,7 +73,7 @@ extension FiatTokenBalanceProvider: TokenBalanceProvider {
 // MARK: - Private
 
 extension FiatTokenBalanceProvider {
-    func mapToTokenBalance(rate: WalletModel.Rate, balanceType: TokenBalanceType) -> TokenBalanceType {
+    func mapToTokenBalance(rate: WalletModelRate, balanceType: TokenBalanceType) -> TokenBalanceType {
         switch (rate, balanceType) {
         // There is no rate because token is custom
         case (.custom, _):

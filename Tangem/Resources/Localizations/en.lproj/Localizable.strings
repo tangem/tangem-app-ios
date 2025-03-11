@@ -236,6 +236,7 @@
 "details_manage_security_long_tap_shorter" = "Long Tap";
 "details_manage_security_passcode" = "Passcode";
 "details_manage_security_passcode_description" = "Before executing any command entailing a change of the card state, you will have to enter the passcode.";
+"details_nft_title" = "NFT";
 "details_referral_title" = "Referral program";
 "details_row_description_flip_to_hide" = "Flip your device screen down to quickly hide and show balances";
 "details_row_subtitle_signed_hashes_format" = "%@ hashes";

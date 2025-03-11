@@ -11,7 +11,7 @@ import BlockchainSdk
 import TangemExpress
 
 struct CommonExpressTransactionBuilder: ExpressTransactionBuilder {
-    func makeTransaction(wallet: WalletModel, data: ExpressTransactionData, fee: Fee) async throws -> BlockchainSdk.Transaction {
+    func makeTransaction(wallet: any WalletModel, data: ExpressTransactionData, fee: Fee) async throws -> BlockchainSdk.Transaction {
         let destination: TransactionCreatorDestination = try {
             switch data.transactionType {
             case .send:
@@ -41,7 +41,7 @@ struct CommonExpressTransactionBuilder: ExpressTransactionBuilder {
         return transaction
     }
 
-    func makeApproveTransaction(wallet: WalletModel, data: ApproveTransactionData, fee: Fee) async throws -> BlockchainSdk.Transaction {
+    func makeApproveTransaction(wallet: any WalletModel, data: ApproveTransactionData, fee: Fee) async throws -> BlockchainSdk.Transaction {
         guard wallet.ethereumNetworkProvider != nil else {
             throw ExpressTransactionBuilderError.approveImpossibleInNotEvmBlockchain
         }
@@ -59,7 +59,7 @@ struct CommonExpressTransactionBuilder: ExpressTransactionBuilder {
 
 private extension CommonExpressTransactionBuilder {
     func buildTransaction(
-        wallet: WalletModel,
+        wallet: any WalletModel,
         amount: Decimal,
         fee: Fee,
         destination: TransactionCreatorDestination
