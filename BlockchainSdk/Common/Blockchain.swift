@@ -1501,10 +1501,7 @@ private extension Blockchain {
         case .alephium:
             return "alephium"
         case .vanar:
-            switch type {
-            case .network: return "vanar"
-            case .coin: return "vanry"
-            }
+            return "vanar-chain"
         case .zkLinkNova:
             return "zklink"
         }
