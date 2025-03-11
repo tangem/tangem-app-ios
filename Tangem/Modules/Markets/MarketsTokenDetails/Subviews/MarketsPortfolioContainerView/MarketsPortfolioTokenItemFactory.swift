@@ -29,13 +29,13 @@ struct MarketsPortfolioTokenItemFactory {
 
     func makeViewModels(
         coinId: String,
-        walletModels: [WalletModel],
+        walletModels: [any WalletModel],
         entries: [StoredUserTokenList.Entry],
         userWalletInfo: UserWalletInfo
     ) -> [MarketsPortfolioTokenItemViewModel] {
         let walletModelsKeyedByIds = walletModels.keyedFirst(by: \.id)
         let blockchainNetworksFromWalletModels = walletModels
-            .map(\.blockchainNetwork)
+            .map(\.tokenItem.blockchainNetwork)
             .toSet()
 
         let l2BlockchainsIds = SupportedBlockchains.l2Blockchains.map { $0.coinId }

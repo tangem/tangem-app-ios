@@ -236,6 +236,7 @@
 "details_manage_security_long_tap_shorter" = "Mantenimento della carta";
 "details_manage_security_passcode" = "Password";
 "details_manage_security_passcode_description" = "Dovrai inserire una password prima di eseguire qualsiasi comando che modifichi lo stato della carta.";
+"details_nft_title" = "NFT";
 "details_referral_title" = "Referral program";
 "details_row_description_flip_to_hide" = "Flip your device screen down to quickly hide and show balances";
 "details_row_subtitle_signed_hashes_format" = "Hash %@";

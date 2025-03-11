@@ -11,5 +11,5 @@ import BlockchainSdk
 
 protocol TokenDetailsRoutable: AnyObject {
     func dismiss()
-    func openFeeCurrency(for model: WalletModel, userWalletModel: UserWalletModel)
+    func openFeeCurrency(for model: any WalletModel, userWalletModel: UserWalletModel)
 }

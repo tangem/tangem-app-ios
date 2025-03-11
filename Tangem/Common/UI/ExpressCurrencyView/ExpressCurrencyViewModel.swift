@@ -46,7 +46,7 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
         self.canChangeCurrency = canChangeCurrency
     }
 
-    func update(wallet: LoadingValue<WalletModel>, initialWalletId: WalletModelId) {
+    func update(wallet: LoadingValue<any WalletModel>, initialWalletId: WalletModelId) {
         switch wallet {
         case .loading:
             canChangeCurrency = false
