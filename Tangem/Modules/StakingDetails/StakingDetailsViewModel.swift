@@ -10,6 +10,8 @@ import Foundation
 import Combine
 import SwiftUI
 import TangemStaking
+import TangemFoundation
+import BlockchainSdk
 
 final class StakingDetailsViewModel: ObservableObject {
     // MARK: - ViewState
@@ -35,8 +37,10 @@ final class StakingDetailsViewModel: ObservableObject {
     private let tokenItem: TokenItem
     private let tokenBalanceProvider: TokenBalanceProvider
     private let stakingManager: StakingManager
+    private let accountInitializedStateProvider: StakingAccountInitializationStateProvider?
     private weak var coordinator: StakingDetailsRoutable?
-    private let isAccountInitialized: Bool
+
+    private var isAccountInitialized = true
 
     private lazy var balanceFormatter = BalanceFormatter()
     private lazy var percentFormatter = PercentFormatter()
@@ -50,20 +54,32 @@ final class StakingDetailsViewModel: ObservableObject {
         tokenBalanceProvider: TokenBalanceProvider,
         stakingManager: StakingManager,
         coordinator: StakingDetailsRoutable,
-        isAccountInitialized: Bool
+        accountInitializedStateProvider: StakingAccountInitializationStateProvider?
     ) {
         self.tokenItem = tokenItem
         self.tokenBalanceProvider = tokenBalanceProvider
         self.stakingManager = stakingManager
         self.coordinator = coordinator
-        self.isAccountInitialized = isAccountInitialized
+        self.accountInitializedStateProvider = accountInitializedStateProvider
 
         bind()
     }
 
     func refresh(completion: @escaping () -> Void = {}) {
-        Task {
-            await stakingManager.updateState(loadActions: true)
+        TangemFoundation.runTask(in: self) { viewModel in
+            async let updateState: Void = viewModel.stakingManager.updateState(loadActions: true)
+
+            guard let accountInitializedStateProvider = viewModel.accountInitializedStateProvider else {
+                await updateState
+                completion()
+                return
+            }
+
+            async let isAccountInitialized = try? await accountInitializedStateProvider.isAccountInitialized()
+            let result = await (isAccountInitialized, updateState)
+
+            viewModel.isAccountInitialized = result.0 ?? true
+
             completion()
         }
     }
