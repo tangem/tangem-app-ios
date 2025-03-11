@@ -31,6 +31,7 @@ enum TokenNotificationEvent: Hashable {
         case .zeroWalletBalance,
              .hasPendingTransaction,
              .blockchainUnreachable,
+             .blockchainLoading,
              .cantSignLongTransactions,
              .oldCard,
              .hasOnlyCachedBalance:
