@@ -158,7 +158,6 @@ struct ExpressPendingTxStatusBottomSheetView_Preview: PreviewProvider {
     static var defaultViewModel: PendingExpressTxStatusBottomSheetViewModel = {
         let factory = PendingExpressTransactionFactory()
         let userWalletId = "21321"
-        let refcodeProvider = CommonExpressRefcodeProvider(userId: userWalletId, batchId: "")
         let tokenItem = TokenItem.blockchain(.init(.polygon(testnet: false), derivationPath: nil))
         let record = ExpressPendingTransactionRecord(
             userWalletId: userWalletId,
@@ -202,7 +201,7 @@ struct ExpressPendingTxStatusBottomSheetView_Preview: PreviewProvider {
             userWalletModel: CommonUserWalletModel.mock!,
             pendingTransactionsManager: CommonPendingExpressTransactionsManager(
                 userWalletId: userWalletId,
-                walletModel: .mockETH,
+                walletModel: CommonWalletModel.mockETH,
                 expressAPIProvider: expressAPIProvider,
                 expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
             ),
