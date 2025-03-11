@@ -11,11 +11,11 @@ import Combine
 import BlockchainSdk
 
 class SendTransactionDispatcher {
-    private let walletModel: WalletModel
+    private let walletModel: any WalletModel
     private let transactionSigner: TangemSigner
 
     init(
-        walletModel: WalletModel,
+        walletModel: any WalletModel,
         transactionSigner: TangemSigner
     ) {
         self.walletModel = walletModel
@@ -37,7 +37,7 @@ extension SendTransactionDispatcher: TransactionDispatcher {
             let hash = try await walletModel.transactionSender.send(transferTransaction, signer: transactionSigner).async()
             walletModel.updateAfterSendingTransaction()
             let signer = transactionSigner.latestSigner.value
-            return mapper.mapResult(hash, blockchain: walletModel.blockchainNetwork.blockchain, signer: signer)
+            return mapper.mapResult(hash, blockchain: walletModel.tokenItem.blockchain, signer: signer)
         } catch {
             throw mapper.mapError(error, transaction: transaction)
         }

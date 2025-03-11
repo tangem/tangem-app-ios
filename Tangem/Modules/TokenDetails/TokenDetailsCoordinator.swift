@@ -76,7 +76,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
 
         let factory = XPUBGeneratorFactory(cardInteractor: options.userWalletModel.keysDerivingInteractor)
         let xpubGenerator = factory.makeXPUBGenerator(
-            for: options.walletModel.blockchainNetwork.blockchain,
+            for: options.walletModel.tokenItem.blockchain,
             publicKey: options.walletModel.wallet.publicKey
         )
 
@@ -100,7 +100,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
 extension TokenDetailsCoordinator {
     struct Options {
         let userWalletModel: UserWalletModel
-        let walletModel: WalletModel
+        let walletModel: any WalletModel
         let userTokensManager: UserTokensManager
     }
 }
@@ -155,7 +155,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     }
 
     // [REDACTED_TODO_COMMENT]
-    func openFeeCurrency(for model: WalletModel, userWalletModel: UserWalletModel) {
+    func openFeeCurrency(for model: any WalletModel, userWalletModel: UserWalletModel) {
         openTokenDetails(for: model)
     }
 
@@ -168,12 +168,12 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         }
     }
 
-    func openSend(userWalletModel: UserWalletModel, walletModel: WalletModel) {
+    func openSend(userWalletModel: UserWalletModel, walletModel: any WalletModel) {
         guard SendFeatureProvider.shared.isAvailable else {
             return
         }
 
-        let dismissAction: Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
+        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
             self?.sendCoordinator = nil
 
             if let navigationInfo {
@@ -194,12 +194,12 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         sendCoordinator = coordinator
     }
 
-    func openSendToSell(amountToSend: Amount, destination: String, tag: String?, userWalletModel: UserWalletModel, walletModel: WalletModel) {
+    func openSendToSell(amountToSend: Amount, destination: String, tag: String?, userWalletModel: UserWalletModel, walletModel: any WalletModel) {
         guard SendFeatureProvider.shared.isAvailable else {
             return
         }
 
-        let dismissAction: Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
+        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
             self?.sendCoordinator = nil
 
             if let navigationInfo {
@@ -221,7 +221,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     }
 
     func openExpress(input: CommonExpressModulesFactory.InputModel) {
-        let dismissAction: Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
+        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] navigationInfo in
             self?.expressCoordinator = nil
 
             guard let navigationInfo else {
@@ -277,8 +277,8 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         marketsTokenDetailsCoordinator = coordinator
     }
 
-    func openOnramp(walletModel: WalletModel, userWalletModel: UserWalletModel) {
-        let dismissAction: Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] _ in
+    func openOnramp(walletModel: any WalletModel, userWalletModel: UserWalletModel) {
+        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] _ in
             self?.sendCoordinator = nil
         }
 
@@ -312,7 +312,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
 // MARK: - Private
 
 private extension TokenDetailsCoordinator {
-    func openTokenDetails(for walletModel: WalletModel) {
+    func openTokenDetails(for walletModel: any WalletModel) {
         guard let options = options,
               walletModel.tokenItem != options.walletModel.tokenItem else {
             return
