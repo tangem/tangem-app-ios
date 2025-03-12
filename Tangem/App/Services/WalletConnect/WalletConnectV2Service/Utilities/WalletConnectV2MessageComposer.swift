@@ -44,7 +44,6 @@ struct WalletConnectV2MessageComposer: WalletConnectV2MessageComposable {
         dApp: WalletConnectSavedSession.DAppInfo
     ) -> String {
         let totalAmount = transaction.amount + transaction.fee.amount
-        let balance = walletModel.wallet.amounts[.coin] ?? .zeroCoin(for: walletModel.wallet.blockchain)
 
         let message: String = {
             var m = ""
@@ -56,7 +55,7 @@ struct WalletConnectV2MessageComposer: WalletConnectV2MessageComposable {
                 totalAmount.description,
                 walletModel.availableBalanceProvider.formattedBalanceType.value
             )
-            if balance < totalAmount {
+            if walletModel.availableMainCoinBalance < totalAmount.value {
                 m += "\n\n" + Localization.walletConnectCreateTxNotEnoughFunds
             }
             return m
