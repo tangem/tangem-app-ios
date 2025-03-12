@@ -9,7 +9,7 @@
 import BlockchainSdk
 
 struct ActionButtonsSendToSellModel {
-    let amountToSend: Amount
+    let amountToSend: Decimal
     let destination: String
     let tag: String?
     let walletModel: any WalletModel
