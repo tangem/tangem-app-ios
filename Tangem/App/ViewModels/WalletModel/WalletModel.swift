@@ -20,14 +20,19 @@ protocol WalletModel:
     ExpressWallet, StakingTokenBalanceProviderInput, FiatTokenBalanceProviderInput, ExistentialDepositInfoProvider {
     var id: WalletModelId { get }
     var name: String { get }
-    var wallet: Wallet { get }
-    var addresses: [String] { get }
+    var addresses: [Address] { get }
+    var defaultAddress: Address { get }
     var addressNames: [String] { get }
     var isMainToken: Bool { get }
     var tokenItem: TokenItem { get }
     var feeTokenItem: TokenItem { get }
     var canUseQuotes: Bool { get }
     var quote: TokenQuote? { get }
+
+    var isEmpty: Bool { get }
+    var publicKey: Wallet.PublicKey { get }
+    var availableMainCoinBalance: Decimal { get }
+
     var shouldShowFeeSelector: Bool { get }
     var isCustom: Bool { get }
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { get }
@@ -129,4 +134,8 @@ protocol WalletModelRentProvider {
 protocol ExistentialDepositInfoProvider {
     ///    var existentialDeposit: Amount? { get }
     var existentialDepositWarning: String? { get }
+}
+
+protocol FeeResourceInfoProvider {
+    var feeResourceBalance: Decimal? { get }
 }
