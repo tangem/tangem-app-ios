@@ -602,7 +602,7 @@
 "receive_bottom_sheet_warning_message_description" = "Использование другой сети может привести к утрате средств.";
 "receive_bottom_sheet_warning_message_full" = "Отправляйте только %@ на этот адрес. Использование другой сети может привести к утрате средств.";
 "receive_bottom_sheet_warning_message_title" = "Отправляйте только %@ на этот адрес";
-"receive_bottom_sheet_warning_title" = "Отправляйте только %1$@ в сети %2$@ ";
+"receive_bottom_sheet_warning_title" = "Отправляйте только %1$@ в сети %2$@";
 "receive_token_description" = "Переводите средства с любого кошелька или биржи";
 "referral_button_participate" = "Участвовать";
 "referral_error_failed_to_load_info" = "Не удалось загрузить информацию по реферальной программе. Пожалуйста, попробуйте позже.";
@@ -726,6 +726,8 @@
 "send_summary_transaction_description_suffix_including" = "включая комиссию сети в размере %1$@";
 "send_transaction_success" = "Транзакция успешно подписана и отправлена в блокчейн. Баланс будет обновлен через некоторое время";
 "send_tron_account_activation_error" = "%1$@ — это монета в сети Tron. Чтобы рассчитать комиссию и совершить транзакцию, вам необходимо внести немного Tron (TRX) на свой адрес.";
+"send_validation_destination_tag_required_description" = "A destination tag (memo) is required to complete this transaction for the specified address.";
+"send_validation_destination_tag_required_title" = "Destination Tag Required";
 "sent_transaction_sent_title" = "Транзакция отправлена";
 "settings_card_settings_footer" = "Подготовьтесь к сканированию кольца или карты, которую вы хотите настроить.";
 "settings_forget_wallet" = "Забыть кошелек";
@@ -749,6 +751,7 @@
 "staking_details_estimated_profit" = "%@ оценка доходности";
 "staking_details_market_rating" = "Позиция в рынке";
 "staking_details_metrics_block_header" = "Метрики";
+"staking_details_min_rewards_notification" = "According to %1$@ network rules, claims are possible from %2$@. Amounts below will be credited to your account upon unstaking.";
 "staking_details_minimum_requirement" = "Минимальное количество";
 "staking_details_no_rewards_to_claim" = "Нет вознаграждений к получению";
 "staking_details_reward_claiming" = "Способ вознаграждения";
@@ -796,6 +799,7 @@
 "staking_notification_restake_rewards_text" = "Реинвестируйте свои заработанные награды в вашу застейканную сумму, увеличивая потенциальный доход";
 "staking_notification_restake_text" = "Рестейк позволяет вам переместить средства из одного валидатора в другого без необходимости выхода из стейкинга.";
 "staking_notification_stake_entire_balance_text" = "Вы собираетесь застейкать весь баланс, рекомендуем оставить небольшую сумму для оплаты комиссии сети при выходе из стейкинга или получении награды.";
+"staking_notification_ton_activate_account" = "Чтобы начать стейкинг в TON, сначала осуществите исходящую транзакцию на любую сумму — это активирует ваш кошелек.";
 "staking_notification_unlock_text" = "Разблокируйте свои средства, чтобы вывести их из стейкинга. Разблокировка займёт %@.";
 "staking_notification_unstake_cosmos_text" = "Ваши средства будут доступны для использования после 21-дневного периода отзыва. Награда будет выведена вместе с вашими выводими средствами.";
 "staking_notification_unstake_text" = "Ваши средства будут доступны после %@ периода отзыва.";
@@ -825,6 +829,7 @@
 "staking_rewards" = "Вознаграждения";
 "staking_stake_locked" = "Стейкинг закрыт";
 "staking_stake_more" = "Застейкать еще";
+"staking_stake_more_button_unavailability_reason" = "When staking %1$@, your entire %2$@ balance is staked. Any additional %2$@ you deposit to your Tangem Wallet will also be automatically staked.";
 "staking_staked_amount" = "Застейканная сумма";
 "staking_summary_description_text" = "Вы стейкаете %1$@ и будете получать награду %2$@";
 "staking_tap_to_unlock" = "Нажмите для разблокировки";
@@ -905,7 +910,7 @@
 "token_button_unavailability_reason_custom_token" = "Action is not available for custom tokens.";
 "token_button_unavailability_reason_empty_balance_sell" = "У вас нет средств для продажи. Пополните счет, чтобы иметь возможность продать с него средства.";
 "token_button_unavailability_reason_empty_balance_send" = "У вас нет средств для отправки. Пополните счет, чтобы иметь возможность отправить с него средства.";
-"token_button_unavailability_reason_loading" = "The data has not loaded yet. This may take a few seconds. Please try again later.";
+"token_button_unavailability_reason_loading" = "Данные в процессе загрузки. Это может занять несколько секунд. Пожалуйста, попробуйте позже.";
 "token_button_unavailability_reason_not_exchangeable" = "Обмен %@ в данный момент не поддерживается ни одним провайдером. Мы работаем над добавлением новых возможностей. Следите за нашими новостями.";
 "token_button_unavailability_reason_out_of_date_balance" = "The displayed balance might be outdated due to caching.";
 "token_button_unavailability_reason_pending_transaction_sell" = "Продажа средств станет доступной после завершения транзакции(-ий) в сети %@";
@@ -956,6 +961,7 @@
 "twins_recreate_toolbar" = "Tangem Twin";
 "twins_recreate_warning" = "Это действие необратимо. У вас не будет доступа к старому кошельку.";
 "twins_scan_twin_with_number" = "Приложите twin-карту с номером %@ и не убирайте до окончания операции";
+"universal_error" = "Произошла ошибка. Код ошибки: %@. Попробуйте, пожалуйста, снова. Если проблема будет продолжать возникать — обратитесь в службу поддержки.";
 "unlock_wallet_description_full" = "Используйте %@ или отсканируйте карту/кольцо, чтобы получить доступ к своему кошельку";
 "unsupported_wc_version" = "Соединение не удалось: это dApp использует Wallet Connect версии 1.0, которая не поддерживается. Убедитесь, что dApp поддерживает Wallet Connect версии 2.0 для успешного подключения.";
 "user_push_notification_agreement_argument_one" = "Будьте в курсе новых функций и новостей";
@@ -983,6 +989,7 @@
 "wallet_connect_create_tx_not_enough_funds" = "Невозможно отправить транзакцию. Недостаточно средств.";
 "wallet_connect_error_failed_to_connect" = "Не удалось установить сессию WalletConnect. Пожалуйста, повторите попытку позже.";
 "wallet_connect_error_missing_blockchains" = "Не все токены добавлены в ваш список. Пожалуйста, добавьте их в начале, а потом попробуйте снова. Недостающие токены: \n";
+"wallet_connect_error_missing_optional_blockchains" = "Добавьте одну из опциональных сетей для подключения к этому dApp: %@";
 "wallet_connect_error_sing_failed" = "Не удалось подписать сообщение.\nПожалуйста, попробуйте еще раз";
 "wallet_connect_error_timeout" = "Не удалось установить сессию WalletConnect за отведённое время. Пожалуйста, повторите попытку позже.";
 "wallet_connect_error_unsupported_blockchains" = "Запрос на подключение через WalletConnect содержит неподдерживаемые блокчеины. Неподдерживаемые блокчеины:\n";
