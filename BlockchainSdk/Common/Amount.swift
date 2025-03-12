@@ -191,7 +191,7 @@ extension Amount.AmountType: Hashable {
 public extension Amount {
     func asSmallest() -> Amount {
         let decimalValue = pow(10, decimals)
-        let value = value / decimalValue
+        let value = value * decimalValue
         return Amount(with: self, value: value)
     }
 }
