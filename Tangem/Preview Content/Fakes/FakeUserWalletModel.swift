@@ -49,8 +49,8 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
     }
 
-    var refcodeProvider: RefcodeProvider {
-        CommonExpressRefcodeProvider(userId: userWalletId.stringValue, batchId: "")
+    var refcodeProvider: RefcodeProvider? {
+        return nil
     }
 
     var userWalletName: String { _userWalletNamePublisher.value }
