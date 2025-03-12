@@ -41,6 +41,7 @@ protocol WalletModel:
     // Staking
     var stakingManager: StakingManager? { get }
     var stakeKitTransactionSender: StakeKitTransactionSender? { get }
+    var accountInitializationStateProvider: StakingAccountInitializationStateProvider? { get }
 }
 
 extension WalletModel {
