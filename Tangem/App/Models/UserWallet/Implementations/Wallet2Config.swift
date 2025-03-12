@@ -301,6 +301,9 @@ extension Wallet2Config: UserWalletConfig {
         // Sun Drop
         case "AF990003", "AF990005":
             return cardsCount == 2 ? Assets.Cards.sunDropDouble : Assets.Cards.sunDropTriple
+        // Chiliz
+        case "BB000016":
+            return cardsCount == 2 ? Assets.Cards.chilizDouble : Assets.Cards.chilizTriple
         // Tangem Wallet 2.0
         default:
 
