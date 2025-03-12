@@ -94,11 +94,3 @@ public enum VisaActivationError: TangemError {
         }
     }
 }
-
-public enum VisaAccessCodeValidationError: Int, TangemError {
-    case accessCodeIsTooShort
-
-    public var subsystemCode: Int {
-        VisaSubsystem.accessCodeValidation.rawValue
-    }
-}
