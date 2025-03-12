@@ -304,6 +304,9 @@ extension Wallet2Config: UserWalletConfig {
         // Chiliz
         case "BB000016":
             return cardsCount == 2 ? Assets.Cards.chilizDouble : Assets.Cards.chilizTriple
+        // Ramen Cat
+        case "AF990006", "AF990007", "AF990008":
+            return cardsCount == 2 ? Assets.Cards.ramenCatDouble : Assets.Cards.ramenCatTriple
         // Tangem Wallet 2.0
         default:
 
