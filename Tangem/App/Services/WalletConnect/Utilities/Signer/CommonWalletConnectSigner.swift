@@ -13,7 +13,7 @@ struct CommonWalletConnectSigner: WalletConnectSigner {
     let signer: TangemSigner
 
     func sign(data: Data, using walletModel: any WalletModel) async throws -> Data {
-        let pubKey = walletModel.wallet.publicKey
+        let pubKey = walletModel.publicKey
         return try await signer.sign(hash: data, walletPublicKey: pubKey)
             .tryMap { response -> Data in
                 if let unmarshalledSig = try? Secp256k1Signature(with: response).unmarshal(
@@ -30,7 +30,7 @@ struct CommonWalletConnectSigner: WalletConnectSigner {
     }
 
     func sign(hashes: [Data], using walletModel: any WalletModel) async throws -> [Data] {
-        let pubKey = walletModel.wallet.publicKey
+        let pubKey = walletModel.publicKey
         return try await signer.sign(hashes: hashes, walletPublicKey: pubKey)
             .tryMap { responses -> [Data] in
                 try responses.enumerated().map { index, signedHash in
