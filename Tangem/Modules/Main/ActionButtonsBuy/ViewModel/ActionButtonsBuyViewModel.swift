@@ -214,7 +214,7 @@ private extension ActionButtonsBuyViewModel {
             currencySymbol: walletModel.tokenItem.currencySymbol,
             amountType: walletModel.tokenItem.amountType,
             blockchain: walletModel.tokenItem.blockchain,
-            walletAddress: walletModel.defaultAddress
+            walletAddress: walletModel.defaultAddressString
         )
 
         return buyUrl
