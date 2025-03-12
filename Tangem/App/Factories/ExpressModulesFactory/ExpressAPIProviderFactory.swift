@@ -18,11 +18,11 @@ struct ExpressAPIProviderFactory {
     func makeExpressAPIProvider(userWalletModel: UserWalletModel) -> ExpressAPIProvider {
         makeExpressAPIProvider(
             userId: userWalletModel.userWalletId.stringValue,
-            refcodeProvider: userWalletModel.refcodeProvider
+            refcode: userWalletModel.refcodeProvider?.getRefcode()
         )
     }
 
-    func makeExpressAPIProvider(userId: String, refcodeProvider: RefcodeProvider?) -> ExpressAPIProvider {
+    func makeExpressAPIProvider(userId: String, refcode: Refcode?) -> ExpressAPIProvider {
         let factory = TangemExpressFactory()
         let expressAPIType: ExpressAPIType = {
             if AppEnvironment.current.isProduction {
@@ -40,7 +40,7 @@ struct ExpressAPIProviderFactory {
             apiKey: apiKey,
             userId: userId,
             sessionId: AppConstants.sessionId,
-            refcode: refcodeProvider?.getRefcode()?.rawValue
+            refcode: refcode?.rawValue
         )
 
         return factory.makeExpressAPIProvider(

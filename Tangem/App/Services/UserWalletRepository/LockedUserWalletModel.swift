@@ -81,11 +81,8 @@ class LockedUserWalletModel: UserWalletModel {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
     }
 
-    var refcodeProvider: RefcodeProvider {
-        CommonExpressRefcodeProvider(
-            userId: userWalletId.stringValue,
-            batchId: userWallet.cardInfo().card.batchId
-        )
+    var refcodeProvider: RefcodeProvider? {
+        return nil
     }
 
     var totalSignedHashes: Int {
