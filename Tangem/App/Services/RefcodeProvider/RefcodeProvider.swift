@@ -12,17 +12,6 @@ enum Refcode: String, CaseIterable {
     case ring
     case partner
     case changeNow = "ChangeNow"
-
-    var batchId: String? {
-        switch self {
-        case .partner:
-            return "AF990015"
-        case .changeNow:
-            return "BB000013"
-        case .ring:
-            return nil
-        }
-    }
 }
 
 protocol RefcodeProvider {
