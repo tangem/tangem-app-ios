@@ -694,6 +694,7 @@
 		B0A1BC172C296B7800DECCFD /* MarketsTokenDetailsCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A1BC162C296B7800DECCFD /* MarketsTokenDetailsCoordinatorView.swift */; };
 		B0A1BC192C296B9F00DECCFD /* MarketsTokenDetailsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A1BC182C296B9F00DECCFD /* MarketsTokenDetailsRoutable.swift */; };
 		B0A1D1502D47C6D0006D7044 /* OnboardingUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A1D14F2D47C6D0006D7044 /* OnboardingUtils.swift */; };
+		B0A2A0B42D8078BA007A90B5 /* VisaAccessCodeValidationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2A0B32D8078BA007A90B5 /* VisaAccessCodeValidationError.swift */; };
 		B0A2B3E925D6B5BD0001EEB4 /* TokenBalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2B3E825D6B5BD0001EEB4 /* TokenBalanceViewModel.swift */; };
 		B0A359AA2CE6FCA10001499E /* VisaAuthorizationTokensHandlerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A359A92CE6FCA10001499E /* VisaAuthorizationTokensHandlerError.swift */; };
 		B0A359AC2CE6FD7B0001499E /* AuthorizationServiceBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A359AB2CE6FD7B0001499E /* AuthorizationServiceBuilder.swift */; };
@@ -4093,6 +4094,7 @@
 		B0A1BC162C296B7800DECCFD /* MarketsTokenDetailsCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenDetailsCoordinatorView.swift; sourceTree = "<group>"; };
 		B0A1BC182C296B9F00DECCFD /* MarketsTokenDetailsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenDetailsRoutable.swift; sourceTree = "<group>"; };
 		B0A1D14F2D47C6D0006D7044 /* OnboardingUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingUtils.swift; sourceTree = "<group>"; };
+		B0A2A0B32D8078BA007A90B5 /* VisaAccessCodeValidationError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaAccessCodeValidationError.swift; sourceTree = "<group>"; };
 		B0A2B3E825D6B5BD0001EEB4 /* TokenBalanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenBalanceViewModel.swift; sourceTree = "<group>"; };
 		B0A359A92CE6FCA10001499E /* VisaAuthorizationTokensHandlerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaAuthorizationTokensHandlerError.swift; sourceTree = "<group>"; };
 		B0A359AB2CE6FD7B0001499E /* AuthorizationServiceBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthorizationServiceBuilder.swift; sourceTree = "<group>"; };
@@ -8867,6 +8869,7 @@
 				B0EC86092CEE2524003E5B67 /* VisaActivationManagerFactory.swift */,
 				B03C19A52CF071B500CCB4F1 /* VisaCardActivationInput.swift */,
 				B097B9232D09A642008A074F /* VisaOTPRepository.swift */,
+				B0A2A0B32D8078BA007A90B5 /* VisaAccessCodeValidationError.swift */,
 			);
 			path = Activation;
 			sourceTree = "<group>";
@@ -19708,6 +19711,7 @@
 				B086AE0D2D51EA230042B955 /* ProductActivationServiceBuilder.swift in Sources */,
 				B01168BA2D4CC8AC001DCC6E /* ProductActivationAPIModels.swift in Sources */,
 				B0731E372D6470CD00816DD5 /* EthereumDataParser.swift in Sources */,
+				B0A2A0B42D8078BA007A90B5 /* VisaAccessCodeValidationError.swift in Sources */,
 				B0BB3A882CF472C800631829 /* CardAuthorizationProcessor.swift in Sources */,
 				B0E826E72D661765008182FF /* VisaCustomerCardInfoModels.swift in Sources */,
 				B051450E2B59346500EDAD1E /* GetTotalBalanceMethod.swift in Sources */,
