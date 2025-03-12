@@ -87,7 +87,7 @@ extension StakingFeatureProvider {
         case (.binance, .none):
             return "bsc-bnb-native-staking"
         case (.ton, .none):
-            return "ton-ton-tonwhales-pools-staking"
+            return "ton-ton-chorus-one-pools-staking"
         default:
             return nil
         }
