@@ -27,7 +27,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
                 currencySymbol: blockchain.currencySymbol,
                 amountType: .coin,
                 blockchain: blockchain,
-                walletAddress: walletModel.defaultAddress
+                walletAddress: walletModel.defaultAddressString
             )
         }
 
@@ -100,7 +100,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
             return
         }
 
-        if model.wallet.amounts.isEmpty {
+        if model.isEmpty {
             let zeroAmount = Amount(with: model.tokenItem.blockchain, type: .coin, value: 0)
             cardBalance = zeroAmount.string(with: 8)
         } else {
