@@ -726,6 +726,8 @@
 "send_summary_transaction_description_suffix_including" = "including a network fee of %1$@";
 "send_transaction_success" = "交易已成功簽署並發送至區塊鏈節點。錢包餘額稍後更新";
 "send_tron_account_activation_error" = "%1$@ is an asset in the Tron network. To calculate the fee and make a transaction you need to deposit some Tron (TRX) in your account.";
+"send_validation_destination_tag_required_description" = "A destination tag (memo) is required to complete this transaction for the specified address.";
+"send_validation_destination_tag_required_title" = "Destination Tag Required";
 "sent_transaction_sent_title" = "Transaction sent";
 "settings_card_settings_footer" = "Prepare to scan card or ring you want to set up.";
 "settings_forget_wallet" = "Forget wallet";
@@ -749,6 +751,7 @@
 "staking_details_estimated_profit" = "%@ est. profit";
 "staking_details_market_rating" = "Market rating";
 "staking_details_metrics_block_header" = "Metrics";
+"staking_details_min_rewards_notification" = "According to %1$@ network rules, claims are possible from %2$@. Amounts below will be credited to your account upon unstaking.";
 "staking_details_minimum_requirement" = "Minimum Requirement";
 "staking_details_no_rewards_to_claim" = "No rewards available";
 "staking_details_reward_claiming" = "Reward claiming";
@@ -796,6 +799,7 @@
 "staking_notification_restake_rewards_text" = "Reinvests your earned rewards in your staked amount, increasing potential earnings.";
 "staking_notification_restake_text" = "Restake lets you move your funds from one validator to another without the need to unstake";
 "staking_notification_stake_entire_balance_text" = "You’re about to stake your entire balance. We recommend leaving a small amount to cover network fees for unstaking or claiming rewards.";
+"staking_notification_ton_activate_account" = "To start staking in TON, first make an outgoing transaction of any amount — this will activate your wallet.";
 "staking_notification_unlock_text" = "Unlock your money to withdraw it from staking process. Unlocking takes %@.";
 "staking_notification_unstake_cosmos_text" = "Your funds will be available for use after the 21-day unbonding period. Reward will be withdrawn along with your unstaking funds.";
 "staking_notification_unstake_text" = "Your funds will be available for use after the %@ unbonding period.";
@@ -825,6 +829,7 @@
 "staking_rewards" = "Rewards";
 "staking_stake_locked" = "Stake locked";
 "staking_stake_more" = "Stake more";
+"staking_stake_more_button_unavailability_reason" = "When staking %1$@, your entire %2$@ balance is staked. Any additional %2$@ you deposit to your Tangem Wallet will also be automatically staked.";
 "staking_staked_amount" = "Staked amount";
 "staking_summary_description_text" = "You stake %1$@ and will be receiving your reward %2$@";
 "staking_tap_to_unlock" = "Tap to unlock";
@@ -905,7 +910,7 @@
 "token_button_unavailability_reason_custom_token" = "Action is not available for custom tokens.";
 "token_button_unavailability_reason_empty_balance_sell" = "You do not have funds to sell. Top up your account to be able to sell funds from it.";
 "token_button_unavailability_reason_empty_balance_send" = "You do not have funds to send. Top up your account to be able to send funds from it.";
-"token_button_unavailability_reason_loading" = "The data has not loaded yet. This may take a few seconds. Please try again later.";
+"token_button_unavailability_reason_loading" = "The data is currently loading. This may take a few seconds. Please try again later.";
 "token_button_unavailability_reason_not_exchangeable" = "Swapping %@ is not supported by current providers, but we are working to add more options.";
 "token_button_unavailability_reason_out_of_date_balance" = "The displayed balance might be outdated due to caching.";
 "token_button_unavailability_reason_pending_transaction_sell" = "Selling funds will be available once the pending transaction(s) on the %@ network is complete.";
@@ -956,6 +961,7 @@
 "twins_recreate_toolbar" = "Tangem Twin";
 "twins_recreate_warning" = "這個動作是不可逆的。您將無法訪問舊錢包";
 "twins_scan_twin_with_number" = "將您的 iPhone 靠近編號為 %@ 的雙胞胎卡";
+"universal_error" = "We've encountered an error. Error code: %@. Please contact our support.";
 "unlock_wallet_description_full" = "Use %@ or scan a card/ring to have access to your wallet";
 "unsupported_wc_version" = "Connection failed: This dApp uses Wallet Connect version 1.0, which is not supported. Please ensure the dApp supports Wallet Connect version 2.0 to connect successfully.";
 "user_push_notification_agreement_argument_one" = "Stay up to date with the latest features and news";
@@ -983,6 +989,7 @@
 "wallet_connect_create_tx_not_enough_funds" = "無法交易，無足夠資金";
 "wallet_connect_error_failed_to_connect" = "未能建立 WalletConnect 連接。請稍後再試";
 "wallet_connect_error_missing_blockchains" = "並非所有代幣都已添加到您的列表中。請先添加它們，然後重試。缺少標記:\n";
+"wallet_connect_error_missing_optional_blockchains" = "Add one of the optional networks to connect to this dApp: %@";
 "wallet_connect_error_sing_failed" = "無法簽署消息。請重試";
 "wallet_connect_error_timeout" = "無法建立 WalletConnect 連接:超時錯誤。請稍後再試";
 "wallet_connect_error_unsupported_blockchains" = "會話請求包含不支持 WalletConnect 連接的區塊鏈。不支持的區塊鏈：\n";
