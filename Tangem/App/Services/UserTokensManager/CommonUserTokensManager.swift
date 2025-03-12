@@ -214,7 +214,7 @@ extension CommonUserTokensManager: UserTokensManager {
             throw CommonUserTokensManager.Error.addressNotFound
         }
 
-        return walletModel.defaultAddress
+        return walletModel.defaultAddressString
     }
 
     func add(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
