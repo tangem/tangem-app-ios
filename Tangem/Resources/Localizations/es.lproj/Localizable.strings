@@ -726,6 +726,8 @@
 "send_summary_transaction_description_suffix_including" = "incluida una tarifa de red de %1$@";
 "send_transaction_success" = "La transacción se firmó con éxito y se envió al nodo blockchain. El saldo de la billetera se actualizará después de un tiempo.";
 "send_tron_account_activation_error" = "%1$@  es un activo en la red Tron. Para calcular la tarifa y realizar una transacción, deba depositar algo de Tron (TRX) en su cuenta.";
+"send_validation_destination_tag_required_description" = "A destination tag (memo) is required to complete this transaction for the specified address.";
+"send_validation_destination_tag_required_title" = "Destination Tag Required";
 "sent_transaction_sent_title" = "Transacción enviada";
 "settings_card_settings_footer" = "Escanee la tarjeta/anillo que quiere configurar";
 "settings_forget_wallet" = "Olvidar la billetera";
@@ -749,6 +751,7 @@
 "staking_details_estimated_profit" = "%@ beneficio estimado";
 "staking_details_market_rating" = "Calificación de mercado";
 "staking_details_metrics_block_header" = "Métrica";
+"staking_details_min_rewards_notification" = "According to %1$@ network rules, claims are possible from %2$@. Amounts below will be credited to your account upon unstaking.";
 "staking_details_minimum_requirement" = "Mínimo requerido";
 "staking_details_no_rewards_to_claim" = "No hay recompensas para reclamar";
 "staking_details_reward_claiming" = "Reclamo de recompensa";
@@ -796,6 +799,7 @@
 "staking_notification_restake_rewards_text" = "Reinvierta las recompensas obtenidas en el monto apostado, aumentando las ganancias potenciales.";
 "staking_notification_restake_text" = "La opción de volver a staking le permite mover sus fondos de un validador a otro sin necesidad de retirarlos.";
 "staking_notification_stake_entire_balance_text" = "Está a punto de hacer staking con todo su saldo. Recomendamos dejar una cantidad para cubrir las tarifas de la red por unstaking o reclamo de recompensas.";
+"staking_notification_ton_activate_account" = "To start staking in TON, first make an outgoing transaction of any amount — this will activate your wallet.";
 "staking_notification_unlock_text" = "Desbloquee su dinero para retirarlo del proceso de staking. El desbloqueo demora %@ minuto.";
 "staking_notification_unstake_cosmos_text" = "Sus fondos estarán disponibles para su uso después del período de desvinculación de 21 días. La recompensa se retirará junto con los fondos de desvinculación.";
 "staking_notification_unstake_text" = "Sus fondos estarán disponibles para su uso después del período de desvinculación de %@.";
@@ -825,6 +829,7 @@
 "staking_rewards" = "Recompensas";
 "staking_stake_locked" = "El stake está bloqueado";
 "staking_stake_more" = "Hacer más staking";
+"staking_stake_more_button_unavailability_reason" = "When staking %1$@, your entire %2$@ balance is staked. Any additional %2$@ you deposit to your Tangem Wallet will also be automatically staked.";
 "staking_staked_amount" = "Monto del staking";
 "staking_summary_description_text" = "Ud hace el staking de %1$@ y recibirá %2$@";
 "staking_tap_to_unlock" = "Toque para desbloquear";
@@ -905,7 +910,7 @@
 "token_button_unavailability_reason_custom_token" = "Action is not available for custom tokens.";
 "token_button_unavailability_reason_empty_balance_sell" = "No tiene fondos para vender. Recargue su cuenta para poder vender fondos desde ella.";
 "token_button_unavailability_reason_empty_balance_send" = "No tienes fondos para enviar. Recarga tu cuenta para poder enviar fondos desde ella.";
-"token_button_unavailability_reason_loading" = "The data has not loaded yet. This may take a few seconds. Please try again later.";
+"token_button_unavailability_reason_loading" = "Los datos aún no se han cargado. Esto puede tardar unos segundos. Por favor, inténtelo de nuevo más tarde.";
 "token_button_unavailability_reason_not_exchangeable" = "El servicio de intercambio %@ no está compatible con los proveedores actuales pero estamos trabajando para agregar más opciones.";
 "token_button_unavailability_reason_out_of_date_balance" = "The displayed balance might be outdated due to caching.";
 "token_button_unavailability_reason_pending_transaction_sell" = "La venta de fondos estará disponible una vez que la(s) transacción(es) pendiente(s) en la red %@ se complete";
@@ -928,7 +933,7 @@
 "tokens_list_available_to_buy_header" = "Seleccione el token que desea comprar";
 "tokens_list_available_to_sell_header" = "Seleccione el token que desea vender";
 "tokens_list_available_to_swap_header" = "Seleccione el token que desea intercambiar";
-"tokens_list_hot_crypto_header" = "Crypto-monnaies populaire 🔥";
+"tokens_list_hot_crypto_header" = "Criptomonedas populares 🔥";
 "tokens_list_unavailable_to_purchase_header" = "No disponible para compra";
 "tokens_list_unavailable_to_sell_header" = "No disponible para vender";
 "tokens_list_unavailable_to_swap_header" = "No disponible para cambio desde %@";
@@ -956,6 +961,7 @@
 "twins_recreate_toolbar" = "Tangem Twin";
 "twins_recreate_warning" = "Esta acción es irreversible. No tendrá acceso la billetera antigua.";
 "twins_scan_twin_with_number" = "Toque la tarjeta gemela con el número %@ y no la retira hasta el final de la operación";
+"universal_error" = "We've encountered an error. Error code: %@. Please contact our support.";
 "unlock_wallet_description_full" = "Use %@ o escanee una tarjeta/anillo para tener acceso a su billetera";
 "unsupported_wc_version" = "Error de conexión: Esta dApp utiliza la versión 1.0 de Wallet Connect, que no es compatible. Asegúrese de que la dApp sea compatible con la versión 2.0 de Wallet Connect para conectarse correctamente.";
 "user_push_notification_agreement_argument_one" = "Manténgase actualizado con las últimas funciones y noticias";
@@ -983,6 +989,7 @@
 "wallet_connect_create_tx_not_enough_funds" = "No se puede completar la transacción. Fondos insuficientes.";
 "wallet_connect_error_failed_to_connect" = "Error al establecer la sesión de WalletConnect. Por favor, inténtelo más tarde.";
 "wallet_connect_error_missing_blockchains" = "No todos los tokens se han agregado a su lista. Añádelos primero y vuelve a intentarlo. Tokens faltantes :\n";
+"wallet_connect_error_missing_optional_blockchains" = "Add one of the optional networks to connect to this dApp: %@";
 "wallet_connect_error_sing_failed" = "Error al firmar el mensaje.\nPor favor, inténtalo de nuevo";
 "wallet_connect_error_timeout" = "Error al establecer la sesión de WalletConnect: error de tiempo de espera. Por favor, inténtelo más tarde.";
 "wallet_connect_error_unsupported_blockchains" = "La solicitud de sesión contiene blockchains no compatibles para la conexión WalletConnect. Blockchains no compatibles:\n";
