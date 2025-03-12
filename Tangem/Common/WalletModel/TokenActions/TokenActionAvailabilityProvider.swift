@@ -201,24 +201,20 @@ extension TokenActionAvailabilityProvider {
             break
         }
 
-        let state = expressAvailabilityProvider.expressAvailabilityUpdateStateValue
+        let assetsState = expressAvailabilityProvider.expressAvailabilityUpdateStateValue
+        let tokenState = expressAvailabilityProvider.swapState(for: walletModel.tokenItem)
 
-        switch state {
-        case .updating:
+        switch (tokenState, assetsState) {
+        case (.available, _):
+            return .available
+        case (.unavailable, .updating), (.notLoaded, .updating):
             return .expressLoading
-        case .failed:
+        case (.notLoaded, .updated):
+            return .expressNotLoaded
+        case (.unavailable, .updated):
+            return .unavailable(tokenName: walletModel.tokenItem.name)
+        case (.notLoaded, .failed), (.unavailable, .failed):
             return .expressUnreachable
-        case .updated:
-            let swapState = expressAvailabilityProvider.swapState(for: walletModel.tokenItem)
-
-            switch swapState {
-            case .available:
-                return .available
-            case .unavailable:
-                return .unavailable(tokenName: walletModel.tokenItem.name)
-            case .notLoaded:
-                return .expressNotLoaded
-            }
         }
     }
 }
@@ -345,24 +341,20 @@ extension TokenActionAvailabilityProvider {
 
     var buyAvailablity: BuyActionAvailabilityStatus {
         if FeatureProvider.isAvailable(.onramp) {
-            let state = expressAvailabilityProvider.expressAvailabilityUpdateStateValue
+            let assetsState = expressAvailabilityProvider.expressAvailabilityUpdateStateValue
+            let tokenState = expressAvailabilityProvider.onrampState(for: walletModel.tokenItem)
 
-            switch state {
-            case .updating:
+            switch (tokenState, assetsState) {
+            case (.available, _):
+                return .available
+            case (.unavailable, .updating), (.notLoaded, .updating):
                 return .expressLoading
-            case .failed:
+            case (.notLoaded, .updated):
+                return .expressNotLoaded
+            case (.unavailable, .updated):
+                return .unavailable(tokenName: walletModel.tokenItem.name)
+            case (.notLoaded, .failed), (.unavailable, .failed):
                 return .expressUnreachable
-            case .updated:
-                let onrampState = expressAvailabilityProvider.onrampState(for: walletModel.tokenItem)
-
-                switch onrampState {
-                case .available:
-                    return .available
-                case .unavailable:
-                    return .unavailable(tokenName: walletModel.tokenItem.name)
-                case .notLoaded:
-                    return .expressNotLoaded
-                }
             }
         } else {
             if let disabledLocalizedReason = userWalletConfig.getDisabledLocalizedReason(for: .exchange) {
