@@ -531,7 +531,7 @@ private extension VisaOnboardingViewModel {
 
 private extension VisaOnboardingViewModel {
     enum OnboardingError: Int, TangemError {
-        case missingTargetApproveAddress
+        case missingTargetApproveAddress = 1
         case wrongRemoteState
 
         var localizedDescription: String {
