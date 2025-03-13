@@ -44,19 +44,3 @@ public struct VisaPaymentAccountInteractorBuilder {
         )
     }
 }
-
-public extension VisaPaymentAccountInteractorBuilder {
-    enum VisaBridgeInteractorBuilderError: LocalizedError {
-        case failedToFindPaymentAccount
-        case failedToLoadTokenInfo(error: LocalizedError)
-
-        public var errorDescription: String? {
-            switch self {
-            case .failedToFindPaymentAccount:
-                return "Failed to find payment account"
-            case .failedToLoadTokenInfo(let error):
-                return "Failed to load token info: \(error.errorDescription ?? "unknown")"
-            }
-        }
-    }
-}
