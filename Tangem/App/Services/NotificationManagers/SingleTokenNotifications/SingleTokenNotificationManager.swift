@@ -77,16 +77,16 @@ final class SingleTokenNotificationManager {
         }
 
         if let feeResourceInfoProvider = walletModel as? FeeResourceInfoProvider,
-           let currentResource = feeResourceInfoProvider.feeResourceBalance {
+           let currentResource = feeResourceInfoProvider.feeResourceBalance,
+           let maxResource = feeResourceInfoProvider.maxResourceBalance {
             let formatter = BalanceFormatter()
 
             switch walletModel.tokenItem.blockchain {
             case .koinos:
-                let maxMana = walletModel.availableMainCoinBalance
                 events.append(
                     .manaLevel(
                         currentMana: formatter.formatDecimal(currentResource, formattingOptions: .defaultFiatFormattingOptions),
-                        maxMana: formatter.formatDecimal(maxMana, formattingOptions: .defaultFiatFormattingOptions)
+                        maxMana: formatter.formatDecimal(maxResource, formattingOptions: .defaultFiatFormattingOptions)
                     )
                 )
             default:
