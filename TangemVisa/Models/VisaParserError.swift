@@ -6,8 +6,6 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import TangemFoundation
-
 public enum VisaParserError {
     case addressResponseDoesntContainAddress
     case addressesResponseHasWrongLength
