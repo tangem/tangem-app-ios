@@ -20,7 +20,6 @@ final class TONWalletManager: BaseManager, WalletManager {
 
     private let networkService: TONNetworkService
     private let transactionBuilder: TONTransactionBuilder
-    private var isAvailable: Bool = true
     private var jettonWalletAddressCache: [Token: String] = [:]
 
     // MARK: - Init
@@ -40,7 +39,6 @@ final class TONWalletManager: BaseManager, WalletManager {
                 receiveCompletion: { [weak self] completionSubscription in
                     if case .failure(let error) = completionSubscription {
                         self?.wallet.clearAmounts()
-                        self?.isAvailable = false
                         completion(.failure(error))
                     }
                 },
@@ -180,7 +178,6 @@ private extension TONWalletManager {
         }
 
         transactionBuilder.sequenceNumber = info.sequenceNumber
-        isAvailable = info.isAvailable
         completion(.success(()))
     }
 
@@ -263,5 +260,14 @@ extension TONWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSend
 extension TONWalletManager: StakeKitTransactionDataBroadcaster {
     func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
         try await networkService.send(message: rawTransaction).async()
+    }
+}
+
+extension TONWalletManager: StakingAccountInitializationStateProvider {
+    func isAccountInitialized() async throws -> Bool {
+        try await TONStakingAccountInitializationStateProvider(
+            address: wallet.address,
+            networkService: networkService
+        ).isAccountInitialized()
     }
 }

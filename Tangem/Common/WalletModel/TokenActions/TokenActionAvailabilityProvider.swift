@@ -11,19 +11,18 @@ struct TokenActionAvailabilityProvider {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
 
     private let userWalletConfig: UserWalletConfig
-    private let walletModel: WalletModel
+    private let walletModel: any WalletModel
     private let exchangeCryptoUtility: ExchangeCryptoUtility
 
     init(
         userWalletConfig: UserWalletConfig,
-        walletModel: WalletModel
+        walletModel: any WalletModel
     ) {
         self.userWalletConfig = userWalletConfig
         self.walletModel = walletModel
         exchangeCryptoUtility = ExchangeCryptoUtility(
-            blockchain: walletModel.blockchainNetwork.blockchain,
-            address: walletModel.defaultAddress,
-            amountType: walletModel.amountType
+            tokenItem: walletModel.tokenItem,
+            address: walletModel.defaultAddress
         )
     }
 
@@ -39,12 +38,11 @@ struct TokenActionAvailabilityProvider {
             return true
         }
 
-        switch assetRequirementsManager.requirementsCondition(for: walletModel.amountType) {
+        switch assetRequirementsManager.requirementsCondition(for: walletModel.tokenItem.amountType) {
         case .paidTransactionWithFee(blockchain: .hedera, _, _):
             return false
-        case .paidTransactionWithFee,
-             .none:
-            return isTokenInteractionAvailable()
+        case .paidTransactionWithFee, .none:
+            return true
         }
     }
 }
@@ -84,7 +82,7 @@ extension TokenActionAvailabilityProvider {
 
     /// Uses for decide visibility on the long tap menu action buttons list on `TokenItemView`
     func buildTokenContextActions() -> [TokenActionType] {
-        guard isContextMenuAvailable() else {
+        guard isTokenInteractionAvailable(), isContextMenuAvailable() else {
             return []
         }
 
@@ -123,7 +121,7 @@ extension TokenActionAvailabilityProvider {
 
     /// Limited actions for Markets
     func buildMarketsTokenContextActions() -> [TokenActionType] {
-        guard isContextMenuAvailable() else {
+        guard isTokenInteractionAvailable(), isContextMenuAvailable() else {
             return []
         }
 
@@ -163,6 +161,7 @@ extension TokenActionAvailabilityProvider {
         case available
         case unavailable(tokenName: String)
         case customToken
+        case blockchainLoading
         case blockchainUnreachable
         case hasOnlyCachedBalance
         case cantSignLongTransactions
@@ -189,6 +188,8 @@ extension TokenActionAvailabilityProvider {
             return .cantSignLongTransactions
         case .blockchainUnreachable:
             return .blockchainUnreachable
+        case .blockchainLoading:
+            return .blockchainLoading
         case .hasOnlyCachedBalance:
             return .hasOnlyCachedBalance
         case .zeroWalletBalance,
@@ -230,6 +231,7 @@ extension TokenActionAvailabilityProvider {
         case cantSignLongTransactions
         case hasPendingTransaction(blockchainDisplayName: String)
         case blockchainUnreachable
+        case blockchainLoading
         case oldCard
         case hasOnlyCachedBalance
     }
@@ -244,18 +246,20 @@ extension TokenActionAvailabilityProvider {
 
     var sendAvailability: SendActionAvailabilityStatus {
         switch walletModel.sendingRestrictions {
-        case .zeroWalletBalance:
-            return .zeroWalletBalance
+        case .oldCard:
+            return .oldCard
         case .cantSignLongTransactions:
             return .cantSignLongTransactions
         case .hasPendingTransaction(let blockchain):
             return .hasPendingTransaction(blockchainDisplayName: blockchain.displayName)
         case .blockchainUnreachable:
             return .blockchainUnreachable
-        case .oldCard:
-            return .oldCard
+        case .blockchainLoading:
+            return .blockchainLoading
         case .hasOnlyCachedBalance:
             return .hasOnlyCachedBalance
+        case .zeroWalletBalance:
+            return .zeroWalletBalance
         case .none, .zeroFeeCurrencyBalance:
             return .available
         }
@@ -272,6 +276,7 @@ extension TokenActionAvailabilityProvider {
         case cantSignLongTransactions
         case hasPendingTransaction(blockchainDisplayName: String)
         case blockchainUnreachable
+        case blockchainLoading
         case oldCard
         case hasOnlyCachedBalance
         case demo(disabledLocalizedReason: String)
@@ -286,29 +291,31 @@ extension TokenActionAvailabilityProvider {
     }
 
     var sellAvailability: SellActionAvailabilityStatus {
-        switch walletModel.sendingRestrictions {
-        case .zeroWalletBalance:
-            return .zeroWalletBalance
-        case .cantSignLongTransactions:
-            return .cantSignLongTransactions
-        case .hasPendingTransaction(let blockchain):
-            return .hasPendingTransaction(blockchainDisplayName: blockchain.displayName)
-        case .blockchainUnreachable:
-            return .blockchainUnreachable
-        case .oldCard:
-            return .oldCard
-        case .hasOnlyCachedBalance:
-            return .hasOnlyCachedBalance
-        case .none, .zeroFeeCurrencyBalance:
-            break
-        }
-
         if let disabledLocalizedReason = userWalletConfig.getDisabledLocalizedReason(for: .exchange) {
             return .demo(disabledLocalizedReason: disabledLocalizedReason)
         }
 
         if !exchangeCryptoUtility.sellAvailable {
             return .unavailable(tokenName: walletModel.tokenItem.name)
+        }
+
+        switch walletModel.sendingRestrictions {
+        case .oldCard:
+            return .oldCard
+        case .cantSignLongTransactions:
+            return .cantSignLongTransactions
+        case .hasPendingTransaction(let blockchain):
+            return .hasPendingTransaction(blockchainDisplayName: blockchain.displayName)
+        case .blockchainUnreachable:
+            return .blockchainUnreachable
+        case .blockchainLoading:
+            return .blockchainLoading
+        case .hasOnlyCachedBalance:
+            return .hasOnlyCachedBalance
+        case .zeroWalletBalance:
+            return .zeroWalletBalance
+        case .none, .zeroFeeCurrencyBalance:
+            break
         }
 
         return .available
@@ -375,7 +382,6 @@ extension TokenActionAvailabilityProvider {
 extension TokenActionAvailabilityProvider {
     enum ReceiveActionAvailabilityStatus {
         case available
-        case noAddress
         case assetRequirement(blockchain: Blockchain)
     }
 
@@ -388,7 +394,7 @@ extension TokenActionAvailabilityProvider {
     }
 
     var receiveAvailablity: ReceiveActionAvailabilityStatus {
-        let requirementsCondition = walletModel.assetRequirementsManager?.requirementsCondition(for: walletModel.amountType)
+        let requirementsCondition = walletModel.assetRequirementsManager?.requirementsCondition(for: walletModel.tokenItem.amountType)
 
         switch requirementsCondition {
         case .paidTransactionWithFee(let blockchain, _, _):
@@ -402,10 +408,6 @@ extension TokenActionAvailabilityProvider {
 
         case .none:
             break
-        }
-
-        if !hasAddressToInteract() {
-            return .noAddress
         }
 
         return .available

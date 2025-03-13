@@ -151,10 +151,11 @@ struct StakingDetailsView: View {
 
 struct StakingDetailsView_Preview: PreviewProvider {
     static let viewModel = StakingDetailsViewModel(
-        tokenItem: WalletModel.mockETH.tokenItem,
-        tokenBalanceProvider: WalletModel.mockETH.availableBalanceProvider,
+        tokenItem: CommonWalletModel.mockETH.tokenItem,
+        tokenBalanceProvider: CommonWalletModel.mockETH.availableBalanceProvider,
         stakingManager: StakingManagerMock(),
-        coordinator: StakingDetailsCoordinator()
+        coordinator: StakingDetailsCoordinator(),
+        accountInitializedStateProvider: nil
     )
 
     static var previews: some View {
