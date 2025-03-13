@@ -164,7 +164,7 @@ private extension VisaOnboardingAccessCodeSetupViewModel {
     func showRetryAlert(for error: Error) async {
         let alert = Alert(
             title: Text(Localization.commonError),
-            message: Text(error.makeUniversalErrorMessage(for: .visa)),
+            message: Text(error.universalErrorMessage),
             primaryButton: .default(
                 Text(Localization.alertButtonTryAgain),
                 action: { [weak self] in
