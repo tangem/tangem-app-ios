@@ -9,24 +9,24 @@
 import Foundation
 import Combine
 
-protocol WalletConnectService {
+protocol OldWalletConnectService {
     var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> { get }
     var newSessions: AsyncStream<[WalletConnectSavedSession]> { get async }
 
-    func initialize(with infoProvider: WalletConnectUserWalletInfoProvider)
+    func initialize(with infoProvider: OldWalletConnectUserWalletInfoProvider)
     func reset()
     func openSession(with uri: WalletConnectRequestURI)
     func disconnectSession(with id: Int) async
     func disconnectAllSessionsForUserWallet(with userWalletId: String)
 }
 
-private struct WalletConnectServicingKey: InjectionKey {
-    static var currentValue: WalletConnectService = CommonWalletConnectService()
+private struct OldWalletConnectServicingKey: InjectionKey {
+    static var currentValue: OldWalletConnectService = OldCommonWalletConnectService()
 }
 
 extension InjectedValues {
-    var walletConnectService: WalletConnectService {
-        get { Self[WalletConnectServicingKey.self] }
-        set { Self[WalletConnectServicingKey.self] = newValue }
+    var walletConnectService: OldWalletConnectService {
+        get { Self[OldWalletConnectServicingKey.self] }
+        set { Self[OldWalletConnectServicingKey.self] = newValue }
     }
 }
