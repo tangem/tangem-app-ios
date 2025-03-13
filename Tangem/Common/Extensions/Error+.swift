@@ -109,13 +109,13 @@ extension Error {
     func makeUniversalErrorAlertBinder(okAction: @escaping () -> Void) -> AlertBinder {
         universalErrorMessage.alertBinder(okAction: okAction)
     }
-    
+
     private func getTangemSdkErrorCode(from error: TangemSdkError) -> Int {
-        if case let .underlying(underlyingError) = error,
+        if case .underlying(let underlyingError) = error,
            let tangemError = underlyingError as? TangemError {
             return tangemError.errorCode
         }
-        
+
         let baseErrorCode = 101000000
         return baseErrorCode + error.code
     }
