@@ -8,8 +8,8 @@
 
 import Foundation
 
-struct WalletConnectFactory {
-    func createWCService() -> WalletConnectV2Service {
+struct OldWalletConnectFactory {
+    func createWCService() -> OldWalletConnectV2Service {
         let uiDelegate = WalletConnectAlertUIDelegate()
         let messageComposer = WalletConnectV2MessageComposer()
         let ethTransactionBuilder = CommonWalletConnectEthTransactionBuilder()
@@ -23,7 +23,7 @@ struct WalletConnectFactory {
             uiDelegate: uiDelegate,
             handlersCreator: handlersFactory
         )
-        let v2Service = WalletConnectV2Service(
+        let v2Service = OldWalletConnectV2Service(
             uiDelegate: uiDelegate,
             messageComposer: messageComposer,
             wcHandlersService: wcHandlersService
