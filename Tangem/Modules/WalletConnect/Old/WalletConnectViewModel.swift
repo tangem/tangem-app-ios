@@ -11,8 +11,8 @@ import Combine
 import SwiftUI
 import AVFoundation
 
-class WalletConnectViewModel: ObservableObject {
-    @Injected(\.walletConnectService) private var walletConnectService: WalletConnectService
+class OldWalletConnectViewModel: ObservableObject {
+    @Injected(\.walletConnectService) private var walletConnectService: OldWalletConnectService
 
     @Published var isActionSheetVisible: Bool = false
     @Published var showCameraDeniedAlert: Bool = false
@@ -150,7 +150,7 @@ class WalletConnectViewModel: ObservableObject {
 
 // MARK: - Navigation
 
-extension WalletConnectViewModel {
+extension OldWalletConnectViewModel {
     func openQRScanner() {
         if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
             showCameraDeniedAlert = true
