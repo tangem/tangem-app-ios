@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemFoundation
 
 struct VisaAPIError: Decodable {
     let status: Int
