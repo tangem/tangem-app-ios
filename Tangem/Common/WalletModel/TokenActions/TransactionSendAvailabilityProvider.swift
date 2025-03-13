@@ -16,19 +16,19 @@ struct TransactionSendAvailabilityProvider {
         self.isSendingSupportedByCard = isSendingSupportedByCard
     }
 
-    func sendingRestrictions(walletModel: WalletModel) -> SendingRestrictions? {
+    func sendingRestrictions(walletModel: any WalletModel) -> SendingRestrictions? {
         guard isSendingSupportedByCard else {
             return .oldCard
         }
-
-        let wallet = walletModel.wallet
 
         if !AppUtils().canSignTransaction(for: walletModel.tokenItem) {
             return .cantSignLongTransactions
         }
 
         switch walletModel.availableBalanceProvider.balanceType {
-        case .empty, .loading(.none), .failure(.none):
+        case .loading(.none):
+            return .blockchainLoading
+        case .empty, .failure(.none):
             return .blockchainUnreachable
         case .loading(.some), .failure(.some):
             return .hasOnlyCachedBalance
@@ -39,12 +39,12 @@ struct TransactionSendAvailabilityProvider {
         }
 
         // has pending tx
-        if hasPendingTransactions(walletModel: walletModel), !wallet.blockchain.isParallelTransactionAllowed {
+        if walletModel.hasPendingTransactions, !walletModel.tokenItem.blockchain.isParallelTransactionAllowed {
             return .hasPendingTransaction(blockchain: walletModel.tokenItem.blockchain)
         }
 
         // no fee
-        if !wallet.hasFeeCurrency(amountType: walletModel.amountType) {
+        if !walletModel.hasFeeCurrency(amountType: walletModel.tokenItem.amountType) {
             return .zeroFeeCurrencyBalance(
                 configuration: .init(
                     transactionAmountTypeName: walletModel.tokenItem.name,
@@ -59,16 +59,6 @@ struct TransactionSendAvailabilityProvider {
 
         return nil
     }
-
-    func hasPendingTransactions(walletModel: WalletModel) -> Bool {
-        // For bitcoin we check only outgoing transaction
-        // because we will not use unconfirmed utxo
-        if case .bitcoin = walletModel.blockchainNetwork.blockchain {
-            return walletModel.wallet.pendingTransactions.contains { !$0.isIncoming }
-        }
-
-        return !walletModel.wallet.pendingTransactions.isEmpty
-    }
 }
 
 extension TransactionSendAvailabilityProvider {
@@ -79,6 +69,7 @@ extension TransactionSendAvailabilityProvider {
         case hasPendingTransaction(blockchain: Blockchain)
         case zeroFeeCurrencyBalance(configuration: NotEnoughFeeConfiguration)
         case blockchainUnreachable
+        case blockchainLoading
         case oldCard
 
         struct NotEnoughFeeConfiguration: Hashable {
