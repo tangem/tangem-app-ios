@@ -7,6 +7,7 @@
 //
 
 import Foundation
+
 extension NFTScanNetworkResult {
     struct Asset: Decodable {
         let blockNumber: Int
