@@ -66,10 +66,7 @@ class VisaOnboardingInProgressViewModel: ObservableObject {
             if !error.isCancellationError {
                 scheduler.cancel()
                 await delegate?.showAlertAsync(
-                    error.makeUniversalErrorAlertBinder(
-                        for: .visa,
-                        okAction: weakify(self, forFunction: VisaOnboardingInProgressViewModel.setupRefresh)
-                    )
+                    error.makeUniversalErrorAlertBinder(okAction: weakify(self, forFunction: VisaOnboardingInProgressViewModel.setupRefresh))
                 )
             }
         }
