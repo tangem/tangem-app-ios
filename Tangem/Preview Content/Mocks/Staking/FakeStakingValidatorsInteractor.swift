@@ -19,7 +19,8 @@ struct FakeStakingValidatorsInteractor: StakingValidatorsInteractor {
                 preferred: true,
                 partner: false,
                 iconURL: URL(string: "https://assets.stakek.it/validators/infstones.png")!,
-                apr: 0.008
+                apr: 0.008,
+                status: .active
             ),
             .init(
                 address: UUID().uuidString,
@@ -27,7 +28,8 @@ struct FakeStakingValidatorsInteractor: StakingValidatorsInteractor {
                 preferred: true,
                 partner: false,
                 iconURL: URL(string: "https://assets.stakek.it/validators/coinbase.png")!,
-                apr: 0.023
+                apr: 0.023,
+                status: .active
             ),
         ])
     }

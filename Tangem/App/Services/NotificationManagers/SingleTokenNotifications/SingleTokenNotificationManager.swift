@@ -17,7 +17,7 @@ final class SingleTokenNotificationManager {
 
     private let analyticsService: NotificationsAnalyticsService = .init()
 
-    private let walletModel: WalletModel
+    private let walletModel: any WalletModel
     private let walletModelsManager: WalletModelsManager
     private weak var delegate: NotificationTapDelegate?
 
@@ -28,7 +28,7 @@ final class SingleTokenNotificationManager {
     private var notificationsUpdateTask: Task<Void, Never>?
 
     init(
-        walletModel: WalletModel,
+        walletModel: any WalletModel,
         walletModelsManager: WalletModelsManager,
         contextDataProvider: AnalyticsContextDataProvider?
     ) {
@@ -99,13 +99,13 @@ final class SingleTokenNotificationManager {
         }
 
         // We need display alert for user with Kaspa token is beta feature
-        if walletModel.blockchainNetwork.blockchain == .kaspa(testnet: false), walletModel.tokenItem.isToken {
+        if walletModel.tokenItem.blockchainNetwork.blockchain == .kaspa(testnet: false), walletModel.tokenItem.isToken {
             events.append(.kaspaTokensBeta)
         }
 
         if let sendingRestrictions = walletModel.sendingRestrictions {
             let isFeeCurrencyPurchaseAllowed = walletModelsManager.walletModels.contains {
-                $0.tokenItem == walletModel.feeTokenItem && $0.blockchainNetwork == walletModel.blockchainNetwork
+                $0.tokenItem == walletModel.feeTokenItem && $0.tokenItem.blockchainNetwork == walletModel.tokenItem.blockchainNetwork
             }
 
             if let event = TokenNotificationEvent.event(for: sendingRestrictions, isFeeCurrencyPurchaseAllowed: isFeeCurrencyPurchaseAllowed) {
@@ -170,7 +170,7 @@ final class SingleTokenNotificationManager {
             notificationInputsSubject
                 .send([
                     factory.buildNotificationInput(
-                        for: TokenNotificationEvent.networkUnreachable(currencySymbol: walletModel.blockchainNetwork.blockchain.currencySymbol),
+                        for: TokenNotificationEvent.networkUnreachable(currencySymbol: walletModel.tokenItem.blockchain.currencySymbol),
                         dismissAction: weakify(self, forFunction: SingleTokenNotificationManager.dismissNotification(with:))
                     ),
                 ])
@@ -229,7 +229,7 @@ final class SingleTokenNotificationManager {
     }
 
     private func makeAssetRequirementsNotificationEvents() -> [TokenNotificationEvent] {
-        let asset = walletModel.amountType
+        let asset = walletModel.tokenItem.amountType
 
         guard
             !walletModel.hasPendingTransactions,
