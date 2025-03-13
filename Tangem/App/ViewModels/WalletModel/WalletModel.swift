@@ -31,7 +31,6 @@ protocol WalletModel:
 
     var isEmpty: Bool { get }
     var publicKey: Wallet.PublicKey { get }
-    var availableMainCoinBalance: Decimal { get }
 
     var shouldShowFeeSelector: Bool { get }
     var isCustom: Bool { get }
@@ -138,4 +137,5 @@ protocol ExistentialDepositInfoProvider {
 
 protocol FeeResourceInfoProvider {
     var feeResourceBalance: Decimal? { get }
+    var maxResourceBalance: Decimal? { get }
 }
