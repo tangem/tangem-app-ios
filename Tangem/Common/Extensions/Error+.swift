@@ -88,26 +88,26 @@ extension Error {
         }
     }
 
-    func makeUniversalErrorMessage(for feature: UniversalErrorCodeBuilder.Feature) -> String {
-        if let tangemSdkError = self as? TangemSdkError {
-            let builder = UniversalErrorCodeBuilder(for: .tangemSdk)
-            let universalErrorCode = builder.prependFeatureCode(toSubsystemErrorCode: tangemSdkError.code)
-            return Localization.universalError(universalErrorCode)
+    var universalErrorMessage: String {
+        let errorCode: Int
+        switch self {
+        case let tangemSdkError as TangemSdkError:
+            let baseErrorCode = 101000000
+            errorCode = baseErrorCode + tangemSdkError.code
+        case let tangemError as TangemError:
+            errorCode = tangemError.errorCode
+        default:
+            errorCode = -1
         }
 
-        let builder = UniversalErrorCodeBuilder(for: feature)
-        let universalErrorCode = builder.makeUniversalErrorCode(error: self)
-        return Localization.universalError(universalErrorCode)
+        return Localization.universalError(errorCode)
     }
 
-    func makeUniversalErrorAlertBinder(for feature: UniversalErrorCodeBuilder.Feature) -> AlertBinder {
-        return makeUniversalErrorMessage(for: feature).alertBinder
+    var universalErrorAlertBinder: AlertBinder {
+        universalErrorMessage.alertBinder
     }
 
-    func makeUniversalErrorAlertBinder(
-        for feature: UniversalErrorCodeBuilder.Feature,
-        okAction: @escaping () -> Void
-    ) -> AlertBinder {
-        return makeUniversalErrorMessage(for: feature).alertBinder(okAction: okAction)
+    func makeUniversalErrorAlertBinder(okAction: @escaping () -> Void) -> AlertBinder {
+        universalErrorMessage.alertBinder(okAction: okAction)
     }
 }

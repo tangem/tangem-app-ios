@@ -8,10 +8,6 @@
 
 import TangemFoundation
 
-public enum VisaAccessCodeValidationError: Int, TangemError {
-    case accessCodeIsTooShort = 1
-
-    public var subsystemCode: Int {
-        VisaSubsystem.accessCodeValidation.rawValue
-    }
+public enum VisaAccessCodeValidationError {
+    case accessCodeIsTooShort
 }

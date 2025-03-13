@@ -1,6 +1,6 @@
 //
-//  AppSubsystem.swift
-//  Tangem
+//  TangemError.swift
+//  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -8,6 +8,6 @@
 
 import Foundation
 
-enum AppSubsystem: Int {
-    case onboarding = 1
+public protocol TangemError: LocalizedError {
+    var errorCode: Int { get }
 }
