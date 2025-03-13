@@ -68,6 +68,7 @@ extension Analytics {
         case programName = "Program Name"
         case dAppName = "DApp Name"
         case dAppUrl = "DApp Url"
+        case networks = "Networks"
         case methodName = "Method Name"
         case groupType = "Group"
         case sortType = "Sort"
