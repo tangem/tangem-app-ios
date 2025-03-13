@@ -12,27 +12,27 @@ import Combine
 class SingleTokenRoutableMock: SingleTokenRoutable {
     var errorAlertPublisher: AnyPublisher<AlertBinder?, Never> { .just(output: nil) }
 
-    func openReceive(walletModel: WalletModel) {}
+    func openReceive(walletModel: any WalletModel) {}
 
-    func openBuy(walletModel: WalletModel) {}
+    func openBuy(walletModel: any WalletModel) {}
 
-    func openSend(walletModel: WalletModel) {}
+    func openSend(walletModel: any WalletModel) {}
 
-    func openExchange(walletModel: WalletModel) {}
+    func openExchange(walletModel: any WalletModel) {}
 
-    func openStaking(walletModel: WalletModel) {}
+    func openStaking(walletModel: any WalletModel) {}
 
-    func openSell(for walletModel: WalletModel) {}
+    func openSell(for walletModel: any WalletModel) {}
 
-    func openSendToSell(with request: SellCryptoRequest, for walletModel: WalletModel) {}
+    func openSendToSell(with request: SellCryptoRequest, for walletModel: any WalletModel) {}
 
-    func openExplorer(at url: URL, for walletModel: WalletModel) {}
+    func openExplorer(at url: URL, for walletModel: any WalletModel) {}
 
     func openMarketsTokenDetails(for tokenItem: TokenItem) {}
 
     func openInSafari(url: URL) {}
 
-    func openOnramp(walletModel: WalletModel) {}
+    func openOnramp(walletModel: any WalletModel) {}
 
     func openPendingExpressTransactionDetails(pendingTransaction: PendingTransaction, tokenItem: TokenItem, pendingTransactionsManager: any PendingExpressTransactionsManager) {}
 }
