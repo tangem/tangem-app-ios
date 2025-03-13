@@ -372,7 +372,7 @@ extension VisaOnboardingViewModel: VisaOnboardingAccessCodeSetupDelegate {
     func showContactSupportAlert(for error: Error) async {
         let alert = AlertBuilder.makeAlert(
             title: Localization.commonError,
-            message: error.makeUniversalErrorMessage(for: .visa),
+            message: error.universalErrorMessage,
             primaryButton: .default(
                 Text(Localization.detailsRowTitleContactToSupport),
                 action: { [weak self] in
@@ -529,9 +529,9 @@ private extension VisaOnboardingViewModel {
     }
 }
 
-private extension VisaOnboardingViewModel {
-    enum OnboardingError: Int, TangemError {
-        case missingTargetApproveAddress = 1
+extension VisaOnboardingViewModel {
+    enum OnboardingError {
+        case missingTargetApproveAddress
         case wrongRemoteState
 
         var localizedDescription: String {
@@ -541,10 +541,6 @@ private extension VisaOnboardingViewModel {
             case .wrongRemoteState:
                 return "Wrong activation state. Please contact support"
             }
-        }
-
-        var subsystemCode: Int {
-            AppSubsystem.onboarding.rawValue
         }
     }
 }
