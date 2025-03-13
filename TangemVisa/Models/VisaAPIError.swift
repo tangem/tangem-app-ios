@@ -26,13 +26,3 @@ struct VisaAPIError: Decodable {
         """
     }
 }
-
-extension VisaAPIError: TangemError {
-    var subsystemCode: Int {
-        VisaSubsystem.api.rawValue
-    }
-
-    var errorCode: Int {
-        1
-    }
-}
