@@ -110,15 +110,13 @@ extension PaymentologyPINCodeProcessor: PINCodeProcessor {
 }
 
 extension PaymentologyPINCodeProcessor {
-    enum PaymentologyError: Int, TangemError {
-        case invalidSessionKeyFormat = 1
+    enum PaymentologyError {
+        case invalidSessionKeyFormat
         case invalidRSAKeyFormat
         case failedToCreateRSAKey
         case failedToCreateSessionIdData
         case failedToCreateSessionId
         case invalidMessageFormat
-
-        var subsystemCode: Int { VisaSubsystem.paymentology.rawValue }
     }
 }
 
