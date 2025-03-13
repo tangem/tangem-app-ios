@@ -9,13 +9,4 @@
 public enum VisaError {
     case failedToCreateDerivation
     case failedToCreateAddress(Error)
-
-    public var errorDescription: String? {
-        switch self {
-        case .failedToCreateDerivation:
-            return "Derivation error. Please contact support"
-        case .failedToCreateAddress:
-            return "Address creation error. Please contact support"
-        }
-    }
 }
