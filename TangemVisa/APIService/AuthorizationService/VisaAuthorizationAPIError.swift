@@ -6,9 +6,7 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import TangemFoundation
-
-public struct VisaAuthorizationAPIError: Decodable, LocalizedError {
+public struct VisaAuthorizationAPIError: Decodable {
     public let error: String
     public let errorDescription: String?
 }
