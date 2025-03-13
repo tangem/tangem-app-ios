@@ -8,14 +8,12 @@
 
 import TangemFoundation
 
-public enum VisaAuthorizationTokensHandlerError: Int, TangemError {
-    case authorizationTokensNotFound = 1
+public enum VisaAuthorizationTokensHandlerError {
+    case authorizationTokensNotFound
     case refreshTokenExpired
     case missingMandatoryInfoInAccessToken
     case missingAccessToken
     case missingRefreshToken
     case accessTokenExpired
     case failedToUpdateAccessToken
-
-    public var subsystemCode: Int { VisaSubsystem.authorizationTokensHandler.rawValue }
 }
