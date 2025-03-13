@@ -301,6 +301,12 @@ extension Wallet2Config: UserWalletConfig {
         // Sun Drop
         case "AF990003", "AF990005":
             return cardsCount == 2 ? Assets.Cards.sunDropDouble : Assets.Cards.sunDropTriple
+        // Chiliz
+        case "BB000016":
+            return cardsCount == 2 ? Assets.Cards.chilizDouble : Assets.Cards.chilizTriple
+        // Ramen Cat
+        case "AF990006", "AF990007", "AF990008":
+            return cardsCount == 2 ? Assets.Cards.ramenCatDouble : Assets.Cards.ramenCatTriple
         // Tangem Wallet 2.0
         default:
 
@@ -402,6 +408,8 @@ extension Wallet2Config: UserWalletConfig {
         case .accessCodeRecoverySettings:
             return .available
         case .promotion:
+            return .available
+        case .nft:
             return .available
         }
     }

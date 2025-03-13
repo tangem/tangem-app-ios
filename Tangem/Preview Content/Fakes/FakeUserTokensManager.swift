@@ -66,7 +66,7 @@ class FakeUserTokensManager: UserTokensManager {
 // MARK: - UserTokensReordering protocol conformance
 
 extension FakeUserTokensManager: UserTokensReordering {
-    var orderedWalletModelIds: AnyPublisher<[WalletModel.ID], Never> { .just(output: []) }
+    var orderedWalletModelIds: AnyPublisher<[WalletModelId.ID], Never> { .just(output: []) }
 
     var groupingOption: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> { .just(output: .none) }
 
