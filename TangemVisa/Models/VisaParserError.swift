@@ -8,8 +8,8 @@
 
 import TangemFoundation
 
-public enum VisaParserError: Int, TangemError {
-    case addressResponseDoesntContainAddress = 1
+public enum VisaParserError {
+    case addressResponseDoesntContainAddress
     case addressesResponseHasWrongLength
     case noValidAddress
     case limitsResponseWrongLength
@@ -17,8 +17,4 @@ public enum VisaParserError: Int, TangemError {
     case limitWrongSingleLimitItemsCount
     case limitWrongSingleLimitAmountsCount
     case notEnoughOTPData
-
-    public var subsystemCode: Int {
-        VisaSubsystem.paymentAccountResponseParser.rawValue
-    }
 }
