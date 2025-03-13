@@ -11,7 +11,7 @@ import WalletConnectUtils
 import BlockchainSdk
 import WalletConnectSign
 
-struct WalletConnectV2Utils {
+struct OldWalletConnectV2Utils {
     /// Validates that all blockchains are supported by BlockchainSdk. Currently (24 Jan 2023) we support only EVM blockchains
     /// All other blockchains such as Solana, Tron, Polkadot using different methods, not `eth_sign`, `eth_sendTransaction` etc.
     /// - Returns:
@@ -90,6 +90,7 @@ struct WalletConnectV2Utils {
         walletModelProvider: WalletConnectWalletModelProvider
     ) throws -> [String: SessionNamespace] {
         var missingBlockchains: [String] = []
+        var missingOptionalBlockchains: [String] = []
         var unsupportedEVMBlockchains: [String] = []
 
         let chains = Set(proposal.namespaceChains)
@@ -108,8 +109,13 @@ struct WalletConnectV2Utils {
 
             let filteredWallets = walletModelProvider.getModels(with: blockchain.id)
 
-            if filteredWallets.isEmpty, proposal.namespaceRequiredChains.contains(wcBlockchain) {
-                missingBlockchains.append(blockchain.displayName)
+            if filteredWallets.isEmpty {
+                if proposal.namespaceRequiredChains.contains(wcBlockchain) {
+                    missingBlockchains.append(blockchain.displayName)
+                } else {
+                    missingOptionalBlockchains.append(blockchain.displayName)
+                }
+
                 return nil
             }
 
@@ -118,23 +124,31 @@ struct WalletConnectV2Utils {
             }
         }
 
-        let sessionNamespaces = try AutoNamespaces.build(
-            sessionProposal: proposal,
-            chains: Array(supportedChains),
-            methods: proposal.namespaceMethods,
-            events: proposal.namespaceEvents,
-            accounts: accounts.reduce([], +)
-        )
+        guard missingBlockchains.isEmpty else {
+            throw WalletConnectV2Error.missingBlockchains(missingBlockchains)
+        }
 
         guard unsupportedEVMBlockchains.isEmpty else {
             throw WalletConnectV2Error.unsupportedBlockchains(unsupportedEVMBlockchains)
         }
 
-        guard missingBlockchains.isEmpty else {
-            throw WalletConnectV2Error.missingBlockchains(missingBlockchains)
-        }
+        do {
+            let sessionNamespaces = try AutoNamespaces.build(
+                sessionProposal: proposal,
+                chains: Array(supportedChains),
+                methods: proposal.namespaceMethods,
+                events: proposal.namespaceEvents,
+                accounts: accounts.reduce([], +)
+            )
 
-        return sessionNamespaces
+            return sessionNamespaces
+        } catch let error as AutoNamespacesError {
+            if missingOptionalBlockchains.isNotEmpty, error == .emptySessionNamespacesForbidden {
+                throw WalletConnectV2Error.missingOptionalBlockchains(missingOptionalBlockchains)
+            }
+
+            throw error
+        }
     }
 
     /// Method for creating internal session structure for storing on disk. Used for finding information about wallet using session topic.
@@ -205,7 +219,7 @@ struct WalletConnectV2Utils {
 
 // MARK: - Supported Namespaces
 
-extension WalletConnectV2Utils {
+extension OldWalletConnectV2Utils {
     enum WalletConnectSupportedNamespaces: String, CaseIterable {
         case eip155
         case solana
