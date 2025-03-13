@@ -52,8 +52,8 @@ final class ActionButtonsBuyCoordinator: CoordinatorObject {
 // MARK: - ActionButtonsBuyRoutable
 
 extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
-    func openOnramp(walletModel: WalletModel, userWalletModel: UserWalletModel) {
-        let dismissAction: Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] _ in
+    func openOnramp(walletModel: any WalletModel, userWalletModel: UserWalletModel) {
+        let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?> = { [weak self] _ in
             self?.dismiss()
         }
 

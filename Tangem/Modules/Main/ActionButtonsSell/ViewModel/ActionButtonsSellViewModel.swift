@@ -126,13 +126,13 @@ final class ActionButtonsSellViewModel: ObservableObject {
 private extension ActionButtonsSellViewModel {
     func makeSendToSellModel(
         from response: String,
-        and walletModel: WalletModel
+        and walletModel: any WalletModel
     ) -> ActionButtonsSendToSellModel? {
         let exchangeUtility = makeExchangeCryptoUtility(for: walletModel)
 
         guard
             let sellCryptoRequest = exchangeUtility.extractSellCryptoRequest(from: response),
-            var amountToSend = walletModel.wallet.amounts[walletModel.amountType]
+            var amountToSend = walletModel.wallet.amounts[walletModel.tokenItem.amountType]
         else {
             return nil
         }
@@ -150,19 +150,18 @@ private extension ActionButtonsSellViewModel {
     func makeSellUrl(from token: ActionButtonsTokenSelectorItem) -> URL? {
         let sellUrl = exchangeService.getSellUrl(
             currencySymbol: token.infoProvider.tokenItem.currencySymbol,
-            amountType: token.walletModel.amountType,
-            blockchain: token.walletModel.blockchainNetwork.blockchain,
+            amountType: token.walletModel.tokenItem.amountType,
+            blockchain: token.walletModel.tokenItem.blockchain,
             walletAddress: token.walletModel.defaultAddress
         )
 
         return sellUrl
     }
 
-    func makeExchangeCryptoUtility(for walletModel: WalletModel) -> ExchangeCryptoUtility {
+    func makeExchangeCryptoUtility(for walletModel: any WalletModel) -> ExchangeCryptoUtility {
         return ExchangeCryptoUtility(
-            blockchain: walletModel.blockchainNetwork.blockchain,
-            address: walletModel.defaultAddress,
-            amountType: walletModel.amountType
+            tokenItem: walletModel.tokenItem,
+            address: walletModel.defaultAddress
         )
     }
 }

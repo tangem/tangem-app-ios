@@ -7,24 +7,29 @@
 //
 
 import Foundation
+import TangemSdk
 
 struct CommonExpressRefcodeProvider: RefcodeProvider {
-    private let userId: String
-    private let batchId: String
+    private let cardInfo: CardInfo
 
     // MARK: - Init
 
-    init(userId: String, batchId: String) {
-        self.userId = userId
-        self.batchId = batchId
+    init(cardInfo: CardInfo) {
+        self.cardInfo = cardInfo
     }
 
     // MARK: - ExpressRefcodeProvider
 
     func getRefcode() -> Refcode? {
-        if isRingUserWallet(by: userId) {
-            return .ring
-        } else if let refcode = defineBatchRefcode() {
+        if let refcode = tryGetByUserWalletId() {
+            return refcode
+        }
+
+        if let refcode = tryGetByBatchId() {
+            return refcode
+        }
+
+        if let refcode = tryGetByCardId() {
             return refcode
         }
 
@@ -33,11 +38,42 @@ struct CommonExpressRefcodeProvider: RefcodeProvider {
 
     // MARK: - Private Implementation
 
-    private func isRingUserWallet(by userId: String) -> Bool {
-        AppSettings.shared.userWalletIdsWithRing.contains(userId)
+    private func tryGetByUserWalletId() -> Refcode? {
+        let config = UserWalletConfigFactory(cardInfo).makeConfig()
+        guard let seed = config.userWalletIdSeed else {
+            return nil
+        }
+
+        let userWalletId = UserWalletId(with: seed).stringValue
+
+        // User wallet with ring
+        if AppSettings.shared.userWalletIdsWithRing.contains(userWalletId) {
+            return .ring
+        }
+
+        return nil
     }
 
-    private func defineBatchRefcode() -> Refcode? {
-        Refcode.allCases.first(where: { $0.batchId == batchId })
+    private func tryGetByBatchId() -> Refcode? {
+        switch cardInfo.card.batchId {
+        case "AF990015":
+            return .partner
+        case "BB000013":
+            return .changeNow
+        default:
+            return nil
+        }
+    }
+
+    private func tryGetByCardId() -> Refcode? {
+        let cardId = cardInfo.card.cardId
+
+        // ChangeNow stealth
+        if let changeNowStealthRange = CardIdRange(start: "AF99001800554008", end: "AF99001800559994"),
+           changeNowStealthRange.contains(cardId) {
+            return .changeNow
+        }
+
+        return nil
     }
 }

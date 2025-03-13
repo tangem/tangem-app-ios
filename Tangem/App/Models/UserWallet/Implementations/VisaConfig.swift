@@ -104,7 +104,7 @@ extension VisaConfig: UserWalletConfig {
         case .twinning:
             return .hidden
         case .exchange:
-            return .hidden
+            return .available
         case .walletConnect:
             return .hidden
         case .multiCurrency:
@@ -136,6 +136,8 @@ extension VisaConfig: UserWalletConfig {
         case .accessCodeRecoverySettings:
             return .hidden
         case .promotion:
+            return .hidden
+        case .nft:
             return .hidden
         }
     }
