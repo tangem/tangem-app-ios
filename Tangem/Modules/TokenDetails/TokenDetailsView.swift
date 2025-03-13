@@ -139,7 +139,7 @@ private extension TokenDetailsView {
 
 #Preview {
     let userWalletModel = FakeUserWalletModel.wallet3Cards
-    let walletModel = userWalletModel.walletModelsManager.walletModels.first ?? .mockETH
+    let walletModel = userWalletModel.walletModelsManager.walletModels.first ?? CommonWalletModel.mockETH
 
     let notifManager = SingleTokenNotificationManager(
         walletModel: walletModel,
@@ -166,7 +166,7 @@ private extension TokenDetailsView {
 
     let bannerNotificationManager = BannerNotificationManager(userWalletId: UserWalletId(value: Data()), placement: .tokenDetails(walletModel.tokenItem), contextDataProvider: nil)
 
-    return TokenDetailsView(viewModel: .init(
+    TokenDetailsView(viewModel: .init(
         userWalletModel: userWalletModel,
         walletModel: walletModel,
         notificationManager: notifManager,
