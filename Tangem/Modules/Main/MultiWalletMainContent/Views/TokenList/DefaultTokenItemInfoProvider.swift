@@ -10,13 +10,13 @@ import Foundation
 import Combine
 
 class DefaultTokenItemInfoProvider {
-    private let walletModel: WalletModel
+    private let walletModel: any WalletModel
 
     private let stakingBalanceProvider: TokenBalanceProvider
     private let balanceProvider: TokenBalanceProvider
     private let fiatBalanceProvider: TokenBalanceProvider
 
-    init(walletModel: WalletModel) {
+    init(walletModel: any WalletModel) {
         self.walletModel = walletModel
 
         stakingBalanceProvider = walletModel.stakingBalanceProvider
@@ -26,11 +26,11 @@ class DefaultTokenItemInfoProvider {
 }
 
 extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
-    var id: WalletModel.ID { walletModel.id }
+    var id: WalletModelId.ID { walletModel.id.id }
 
     var tokenItem: TokenItem { walletModel.tokenItem }
 
-    var quote: WalletModel.Rate {
+    var quote: WalletModelRate {
         walletModel.rate
     }
 
@@ -46,7 +46,7 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
         fiatBalanceProvider.formattedBalanceType
     }
 
-    var quotePublisher: AnyPublisher<WalletModel.Rate, Never> {
+    var quotePublisher: AnyPublisher<WalletModelRate, Never> {
         walletModel.ratePublisher.eraseToAnyPublisher()
     }
 
