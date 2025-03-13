@@ -14,8 +14,8 @@ class CommonExpressModulesFactory {
     @Injected(\.expressPendingTransactionsRepository) private var pendingTransactionRepository: ExpressPendingTransactionRepository
 
     private let userWalletModel: UserWalletModel
-    private let initialWalletModel: WalletModel
-    private let destinationWalletModel: WalletModel?
+    private let initialWalletModel: any WalletModel
+    private let destinationWalletModel: (any WalletModel)?
     private let expressAPIProviderFactory = ExpressAPIProviderFactory()
 
     // MARK: - Internal
@@ -246,13 +246,13 @@ private extension CommonExpressModulesFactory {
 extension CommonExpressModulesFactory {
     struct InputModel {
         let userWalletModel: UserWalletModel
-        let initialWalletModel: WalletModel
-        let destinationWalletModel: WalletModel?
+        let initialWalletModel: any WalletModel
+        let destinationWalletModel: (any WalletModel)?
 
         init(
             userWalletModel: UserWalletModel,
-            initialWalletModel: WalletModel,
-            destinationWalletModel: WalletModel? = nil
+            initialWalletModel: any WalletModel,
+            destinationWalletModel: (any WalletModel)? = nil
         ) {
             self.userWalletModel = userWalletModel
             self.initialWalletModel = initialWalletModel
