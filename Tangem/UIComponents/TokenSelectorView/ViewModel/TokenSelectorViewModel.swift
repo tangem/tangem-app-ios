@@ -31,8 +31,8 @@ final class TokenSelectorViewModel<
 
     let strings: TokenSelectorLocalizable
 
-    private var availableWalletModels: [WalletModel] = []
-    private var unavailableWalletModels: [WalletModel] = []
+    private var availableWalletModels: [any WalletModel] = []
+    private var unavailableWalletModels: [any WalletModel] = []
     private var bag: Set<AnyCancellable> = []
 
     private let tokenSelectorItemBuilder: Builder
@@ -77,7 +77,7 @@ final class TokenSelectorViewModel<
             .store(in: &bag)
     }
 
-    private func updateView(availableModels: [WalletModel], unavailableModels: [WalletModel]) {
+    private func updateView(availableModels: [any WalletModel], unavailableModels: [any WalletModel]) {
         let availableTokenItems = availableModels.map { tokenSelectorItemBuilder.map(from: $0, isDisabled: false) }
         let unavailableTokenItems = unavailableModels.map { tokenSelectorItemBuilder.map(from: $0, isDisabled: true) }
 
