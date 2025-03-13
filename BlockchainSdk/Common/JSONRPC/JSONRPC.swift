@@ -9,7 +9,7 @@
 import Foundation
 
 enum JSONRPC {
-    // https://www.jsonrpc.org/specification#request_object
+    /// https://www.jsonrpc.org/specification#request_object
     struct Request<Parameter>: Encodable where Parameter: Encodable {
         let jsonrpc: Version?
         let id: Int
@@ -24,7 +24,7 @@ enum JSONRPC {
         }
     }
 
-    // https://www.jsonrpc.org/specification#response_object
+    /// https://www.jsonrpc.org/specification#response_object
     struct Response<Output, Failure> where Output: Decodable, Failure: Decodable, Failure: Swift.Error {
         let jsonrpc: String
         let id: Int
