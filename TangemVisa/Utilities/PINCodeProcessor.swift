@@ -9,7 +9,6 @@
 import Foundation
 import CryptoKit
 import CryptoSwift
-import TangemFoundation
 
 protocol PINCodeProcessor {
     func processSelectedPINCode(_ pinCode: String) async throws -> ProcessedPIN
