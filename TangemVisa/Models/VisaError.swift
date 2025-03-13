@@ -8,7 +8,7 @@
 
 import TangemFoundation
 
-public enum VisaError: TangemError {
+public enum VisaError {
     case failedToCreateDerivation
     case failedToCreateAddress(Error)
 
@@ -18,19 +18,6 @@ public enum VisaError: TangemError {
             return "Derivation error. Please contact support"
         case .failedToCreateAddress:
             return "Address creation error. Please contact support"
-        }
-    }
-
-    public var subsystemCode: Int {
-        VisaSubsystem.common.rawValue
-    }
-
-    public var errorCode: Int {
-        switch self {
-        case .failedToCreateDerivation:
-            return 1
-        case .failedToCreateAddress:
-            return 2
         }
     }
 }
