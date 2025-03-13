@@ -128,8 +128,7 @@ extension ExpressNotificationEvent: NotificationEvent {
              .tooSmallAmountToSwap,
              .tooBigAmountToSwap,
              .noDestinationTokens,
-             .feeWillBeSubtractFromSendingAmount,
-             .longTimeAverageDuration:
+             .feeWillBeSubtractFromSendingAmount:
             return .secondary
         case .notEnoughFeeForTokenTx,
              .refreshRequired,
@@ -142,6 +141,8 @@ extension ExpressNotificationEvent: NotificationEvent {
             return event.colorScheme
         case .validationErrorEvent(let event, _):
             return event.colorScheme
+        case .longTimeAverageDuration:
+            return .primary
         }
     }
 

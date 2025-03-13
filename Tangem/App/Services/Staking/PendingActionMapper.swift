@@ -20,7 +20,16 @@ struct PendingActionMapper {
 
     func getAction() throws -> PendingActionMapper.Action {
         switch balance.balanceType {
-        case .warmup, .unbonding, .pending:
+        case .warmup:
+            let withdraws = balance.actions.filter { $0.type == .withdraw }.map { $0.passthrough }
+
+            guard !withdraws.isEmpty else {
+                throw PendingActionMapperError.notSupported
+            }
+
+            let withdrawType: StakingAction.PendingActionType = .withdraw(passthroughs: withdraws.toSet())
+            return .single(stakingAction(type: .pending(withdrawType)))
+        case .unbonding, .pending:
             throw PendingActionMapperError.notSupported
         case .active:
             let unstake = stakingAction(type: .unstake)
