@@ -15,11 +15,9 @@ class CommonExpressAvailabilityProvider {
     fileprivate typealias Availability = [ExpressCurrency: AvailabilityState]
     fileprivate typealias CurrenciesSet = Set<ExpressCurrency>
 
-    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-
+    private let storage = CachesDirectoryStorage(file: .cachedExpressAvailability)
     private let _state: CurrentValueSubject<ExpressAvailabilityUpdateState, Never> = .init(.updating)
-    private let _cache: CurrentValueSubject<Availability, Never> = .init([:])
+    private lazy var _cache: CurrentValueSubject<Availability, Never> = .init(loadFromDiskStorage())
 
     private var loadingQueue = PassthroughSubject<QueueItem, Never>()
     private let lock = Lock(isRecursive: false)
@@ -87,6 +85,12 @@ private extension CommonExpressAvailabilityProvider {
 
                 provider.loadAndSave(currencies: allCurrencies)
             })
+            .store(in: &bag)
+
+        // Cached on disk
+        _cache
+            .withWeakCaptureOf(self)
+            .sink { $0.saveToDiskStorage(availability: $1) }
             .store(in: &bag)
     }
 
@@ -170,8 +174,37 @@ private extension CommonExpressAvailabilityProvider {
     }
 }
 
+// MARK: - Private
+
 private extension CommonExpressAvailabilityProvider {
-    struct AvailabilityState: Hashable {
+    func saveToDiskStorage(availability: Availability) {
+        let models = availability
+            .map { StorageModel(currency: $0, availability: $1) }
+            .unique(by: \.currency)
+
+        do {
+            try storage.store(value: models)
+        } catch {
+            ExpressLogger.error("Failed", error: error)
+        }
+    }
+
+    func loadFromDiskStorage() -> Availability {
+        do {
+            let models: [StorageModel] = try storage.value()
+            ExpressLogger.info("Success with values count: \(models.count)")
+            return models.reduce(into: [:]) {
+                $0[$1.currency] = $1.availability
+            }
+        } catch {
+            ExpressLogger.error("Failed", error: error)
+            return [:]
+        }
+    }
+}
+
+private extension CommonExpressAvailabilityProvider {
+    struct AvailabilityState: Hashable, Codable {
         let swap: TokenItemExpressState
         let onramp: TokenItemExpressState
     }
@@ -186,5 +219,12 @@ private extension CommonExpressAvailabilityProvider {
 private extension CommonExpressAvailabilityProvider {
     enum Error: Swift.Error {
         case providerNotCreated
+    }
+}
+
+private extension CommonExpressAvailabilityProvider {
+    struct StorageModel: Codable {
+        let currency: ExpressCurrency
+        let availability: AvailabilityState
     }
 }
