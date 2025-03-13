@@ -12,13 +12,13 @@ import ReownWalletKit
 import BlockchainSdk
 import TangemFoundation
 
-protocol WalletConnectUserWalletInfoProvider: AnyObject {
+protocol OldWalletConnectUserWalletInfoProvider: AnyObject {
     var userWalletId: UserWalletId { get }
     var signer: TangemSigner { get }
     var wcWalletModelProvider: WalletConnectWalletModelProvider { get }
 }
 
-final class WalletConnectV2Service {
+final class OldWalletConnectV2Service {
     @Injected(\.walletConnectSessionsStorage) private var sessionsStorage: WalletConnectSessionsStorage
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.keysManager) private var keysManager: KeysManager
@@ -43,7 +43,7 @@ final class WalletConnectV2Service {
         }
     }
 
-    private weak var infoProvider: WalletConnectUserWalletInfoProvider?
+    private weak var infoProvider: OldWalletConnectUserWalletInfoProvider?
 
     init(
         uiDelegate: WalletConnectUIDelegate,
@@ -88,7 +88,7 @@ final class WalletConnectV2Service {
         WalletKit.configure(metadata: metadata, crypto: WalletConnectCryptoProvider())
     }
 
-    func initialize(with infoProvider: WalletConnectUserWalletInfoProvider) {
+    func initialize(with infoProvider: OldWalletConnectUserWalletInfoProvider) {
         self.infoProvider = infoProvider
         runTask { [weak self] in
             await self?.sessionsStorage.loadSessions()
@@ -209,7 +209,7 @@ final class WalletConnectV2Service {
 
                 WCLogger.info("Session established: \(session)")
 
-                let savedSession = WalletConnectV2Utils().createSavedSession(
+                let savedSession = OldWalletConnectV2Utils().createSavedSession(
                     from: session,
                     with: infoProvider?.userWalletId.stringValue ?? ""
                 )
@@ -279,7 +279,7 @@ final class WalletConnectV2Service {
     }
 
     private func validateProposal(_ proposal: Session.Proposal) {
-        let utils = WalletConnectV2Utils()
+        let utils = OldWalletConnectV2Utils()
         WCLogger.info("Attemping to approve session proposal: \(proposal)")
 
         guard let infoProvider else {
@@ -327,7 +327,7 @@ final class WalletConnectV2Service {
             return
         }
 
-        let blockchains = WalletConnectV2Utils().getBlockchainNamesFromNamespaces(namespaces, walletModelProvider: infoProvider.wcWalletModelProvider)
+        let blockchains = OldWalletConnectV2Utils().getBlockchainNamesFromNamespaces(namespaces, walletModelProvider: infoProvider.wcWalletModelProvider)
         let message = messageComposer.makeMessage(for: proposal, targetBlockchains: blockchains)
         uiDelegate.showScreen(with: WalletConnectUIRequest(
             event: .establishSession,
@@ -406,7 +406,7 @@ final class WalletConnectV2Service {
         }
 
         let logSuffix = " for request: \(request.id)"
-        let utils = WalletConnectV2Utils()
+        let utils = OldWalletConnectV2Utils()
 
         guard let targetBlockchain = utils.createBlockchain(for: request.chainId) else {
             WCLogger.warning("Failed to create blockchain \(logSuffix)")
