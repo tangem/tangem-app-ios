@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum TokenItemExpressState: Hashable {
+enum TokenItemExpressState: Hashable, Codable {
     case available
     case unavailable
     case notLoaded
