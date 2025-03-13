@@ -23,6 +23,7 @@ import TangemFoundation
 /// `007` - Payment account responses processing
 /// `008` - Card Authorization Processor
 /// `009` - Common Visa
+/// `010` - Payment account token Info loader
 extension VisaAPIError: TangemError {
     public var errorCode: Int { 104001001 }
 }
@@ -138,6 +139,20 @@ extension VisaError: TangemError {
             }
 
             return 104009002
+        }
+    }
+}
+
+extension VisaTokenInfoLoader.LoaderError: TangemError {
+    public var errorCode: Int {
+        switch self {
+        case .failedToLoadInfo(let method):
+            switch method {
+            case .contractAddress: return 104010001
+            case .name: return 104010002
+            case .symbol: return 104010003
+            case .decimals: return 104010004
+            }
         }
     }
 }
