@@ -48,7 +48,7 @@ final class RateAppService {
         migrateFromLegacyRateAppIfNeeded()
     }
 
-    func registerBalances(of walletModels: [WalletModel]) {
+    func registerBalances(of walletModels: [any WalletModel]) {
         guard
             positiveBalanceAppearanceDate == nil,
             walletModels.contains(where: { !$0.wallet.isEmpty }) // Check if at least one wallet has a non-empty (non-zero) balance
