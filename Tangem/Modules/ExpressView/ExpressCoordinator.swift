@@ -12,7 +12,7 @@ import TangemExpress
 import UIKit
 
 final class ExpressCoordinator: CoordinatorObject {
-    let dismissAction: Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?>
+    let dismissAction: Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?>
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Root view model
@@ -36,7 +36,7 @@ final class ExpressCoordinator: CoordinatorObject {
 
     required init(
         factory: ExpressModulesFactory,
-        dismissAction: @escaping Action<(walletModel: WalletModel, userWalletModel: UserWalletModel)?>,
+        dismissAction: @escaping Action<(walletModel: any WalletModel, userWalletModel: UserWalletModel)?>,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) {
         self.factory = factory
@@ -99,7 +99,7 @@ extension ExpressCoordinator: ExpressRoutable {
         expressProvidersSelectorViewModel = factory.makeExpressProvidersSelectorViewModel(coordinator: self)
     }
 
-    func presentFeeCurrency(for walletModel: WalletModel, userWalletModel: UserWalletModel) {
+    func presentFeeCurrency(for walletModel: any WalletModel, userWalletModel: UserWalletModel) {
         dismiss(with: (walletModel, userWalletModel))
     }
 
