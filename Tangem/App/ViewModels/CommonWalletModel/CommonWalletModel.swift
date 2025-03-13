@@ -294,10 +294,6 @@ extension CommonWalletModel: WalletModel {
 
     var publicKey: Wallet.PublicKey { wallet.publicKey }
 
-    var availableMainCoinBalance: Decimal {
-        wallet.amounts[.coin]?.value ?? 0
-    }
-
     var shouldShowFeeSelector: Bool { walletManager.allowsFeeSelection }
 
     var defaultAddressString: String { wallet.defaultAddress.value }
@@ -772,6 +768,15 @@ extension CommonWalletModel: FeeResourceInfoProvider {
         switch tokenItem.blockchain {
         case .koinos:
             return wallet.amounts[.feeResource(.mana)]?.value
+        default:
+            return nil
+        }
+    }
+
+    var maxResourceBalance: Decimal? {
+        switch tokenItem.blockchain {
+        case .koinos:
+            return wallet.amounts[.coin]?.value
         default:
             return nil
         }
