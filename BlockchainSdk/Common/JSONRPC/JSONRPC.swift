@@ -9,6 +9,7 @@
 import Foundation
 
 enum JSONRPC {
+    // https://www.jsonrpc.org/specification#request_object
     struct Request<Parameter>: Encodable where Parameter: Encodable {
         let jsonrpc: Version?
         let id: Int
@@ -23,6 +24,7 @@ enum JSONRPC {
         }
     }
 
+    // https://www.jsonrpc.org/specification#response_object
     struct Response<Output, Failure> where Output: Decodable, Failure: Decodable, Failure: Swift.Error {
         let jsonrpc: String
         let id: Int
@@ -69,10 +71,12 @@ extension JSONRPC.Response: Decodable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let result: Result<Output, Failure>
 
-        if let success = try container.decodeIfPresent(Output.self, forKey: .result) {
-            result = .success(success)
-        } else if let failure = try container.decodeIfPresent(Failure.self, forKey: .error) {
-            result = .failure(failure)
+        if container.contains(.result) {
+            // We can't use `decodeIfPresent` here because in this case
+            // When `result` is absent or `{ result: null }` the same
+            result = try .success(container.decode(forKey: .result))
+        } else if container.contains(.error) {
+            result = try .failure(container.decode(forKey: .error))
         } else {
             let context = DecodingError.Context(
                 codingPath: container.codingPath,
