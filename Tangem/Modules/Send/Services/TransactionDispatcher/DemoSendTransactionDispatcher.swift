@@ -11,11 +11,11 @@ import Combine
 import BlockchainSdk
 
 class DemoSendTransactionDispatcher {
-    private let walletModel: WalletModel
+    private let walletModel: any WalletModel
     private let transactionSigner: TransactionSigner
 
     init(
-        walletModel: WalletModel,
+        walletModel: any WalletModel,
         transactionSigner: TransactionSigner
     ) {
         self.walletModel = walletModel
