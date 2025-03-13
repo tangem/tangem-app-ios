@@ -87,7 +87,7 @@ extension OrganizeTokensOptionsManager: OrganizeTokensOptionsEditing {
         editedSortingOption.send(sortingOption)
     }
 
-    func save(reorderedWalletModelIds: [WalletModel.ID], source: UserTokensReorderingSource) -> AnyPublisher<Void, Never> {
+    func save(reorderedWalletModelIds: [WalletModelId.ID], source: UserTokensReorderingSource) -> AnyPublisher<Void, Never> {
         return .just
             .withLatestFrom(userTokensReorderer.orderedWalletModelIds, groupingOptionToSave, sortingOptionToSave)
             .withWeakCaptureOf(self)

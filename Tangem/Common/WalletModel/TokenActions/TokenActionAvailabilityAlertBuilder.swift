@@ -28,7 +28,7 @@ struct TokenActionAvailabilityAlertBuilder {
                 title: "",
                 message: Localization.tokenButtonUnavailabilityReasonEmptyBalanceSend
             )
-        case .blockchainUnreachable:
+        case .blockchainUnreachable, .blockchainLoading:
             return tryAgainLaterAlert
         case .oldCard:
             return oldCardAlert
@@ -39,7 +39,7 @@ struct TokenActionAvailabilityAlertBuilder {
         switch status {
         case .available:
             return nil
-        case .blockchainUnreachable:
+        case .blockchainUnreachable, .blockchainLoading:
             return tryAgainLaterAlert
         case .cantSignLongTransactions:
             return cantSignLongTransactionAlert
@@ -105,7 +105,7 @@ struct TokenActionAvailabilityAlertBuilder {
                 title: "",
                 message: Localization.tokenButtonUnavailabilityReasonPendingTransactionSell(blockchainDisplayName)
             )
-        case .blockchainUnreachable:
+        case .blockchainUnreachable, .blockchainLoading:
             return tryAgainLaterAlert
         case .oldCard:
             return oldCardAlert
@@ -120,8 +120,6 @@ struct TokenActionAvailabilityAlertBuilder {
         switch status {
         case .available:
             return nil
-        case .noAddress:
-            return tryAgainLaterAlert
         case .assetRequirement(let blockchain):
             switch blockchain {
             case .hedera:
