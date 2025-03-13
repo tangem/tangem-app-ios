@@ -24,35 +24,24 @@ class PolkadotNetworkService: MultiNetworkProvider {
     }
 
     func getInfo(for address: String) -> AnyPublisher<BigUInt, Error> {
-        providerPublisher { provider in
-            Just(())
-                .tryMap { [weak self] _ -> Data in
-                    guard let self = self else {
-                        throw WalletError.empty
-                    }
-                    return try storageKey(forAddress: address)
+        providerPublisher { [weak self] provider in
+            guard let self else {
+                return .emptyFail
+            }
+
+            return Result { try self.storageKey(forAddress: address) }
+                .publisher
+                .flatMap { key -> AnyPublisher<String?, Error> in
+                    provider.storage(key: key.hexString.addHexPrefix())
                 }
-                .flatMap { key -> AnyPublisher<String, Error> in
-                    return provider.storage(key: key.hexString.addHexPrefix())
-                }
-                .tryMap { [weak self] storage -> PolkadotAccountInfo in
-                    guard let self = self else {
-                        throw WalletError.empty
-                    }
-                    return try codec.decode(PolkadotAccountInfo.self, from: Data(hexString: storage))
-                }
-                .map(\.data.free)
-                .tryCatch { error -> AnyPublisher<BigUInt, Error> in
-                    if let walletError = error as? WalletError {
-                        switch walletError {
-                        case .empty:
-                            return .justWithError(output: 0)
-                        default:
-                            break
-                        }
+                .withWeakCaptureOf(self)
+                .tryMap { service, storage in
+                    if let storage {
+                        let info = try service.codec.decode(PolkadotAccountInfo.self, from: Data(hexString: storage))
+                        return info.data.free
                     }
 
-                    throw error
+                    return 0
                 }
                 .eraseToAnyPublisher()
         }
