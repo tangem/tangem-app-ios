@@ -39,10 +39,10 @@ extension OldCommonWalletConnectService: OldWalletConnectService {
         incomingActionManager.resignFirstResponder(self)
     }
 
-    func openSession(with uri: WalletConnectRequestURI) {
+    func openSession(with uri: WalletConnectRequestURI, source: Analytics.WalletConnectSessionSource) {
         switch uri {
         case .v2(let v2URI):
-            v2Service.openSession(with: v2URI)
+            v2Service.openSession(with: v2URI, source: source)
         }
     }
 
@@ -63,7 +63,7 @@ extension OldCommonWalletConnectService: IncomingActionResponder {
             return false
         }
 
-        openSession(with: uri)
+        openSession(with: uri, source: .deeplink)
         return true
     }
 }
