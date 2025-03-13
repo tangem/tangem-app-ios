@@ -12,6 +12,7 @@ enum WalletConnectV2Error: LocalizedError {
     case unsupportedBlockchains([String])
     case sessionForTopicNotFound
     case missingBlockchains([String])
+    case missingOptionalBlockchains([String])
     case unsupportedWCMethod(String)
     case dataInWrongFormat(String)
     case notEnoughDataInRequest(String)
@@ -58,6 +59,7 @@ enum WalletConnectV2Error: LocalizedError {
         case .symmetricKeyForTopicNotFound: return 8020
         case .socketConnectionTimeout: return 8022
         case .unsupportedWCVersion: return 8023
+        case .missingOptionalBlockchains: return 8024
         case .unknown: return 8999
         }
     }
@@ -74,6 +76,10 @@ enum WalletConnectV2Error: LocalizedError {
             message += blockchainNames.joined(separator: ", ")
 
             return message
+        case .missingOptionalBlockchains(let blockchainNames):
+            return Localization.walletConnectErrorMissingOptionalBlockchains(
+                blockchainNames.joined(separator: ", ")
+            )
         case .wrongCardSelected:
             return Localization.walletConnectErrorWrongCardSelected
         case .unknown(let errorMessage):
