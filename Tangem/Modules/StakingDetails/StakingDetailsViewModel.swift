@@ -10,6 +10,8 @@ import Foundation
 import Combine
 import SwiftUI
 import TangemStaking
+import TangemFoundation
+import BlockchainSdk
 
 final class StakingDetailsViewModel: ObservableObject {
     // MARK: - ViewState
@@ -35,7 +37,10 @@ final class StakingDetailsViewModel: ObservableObject {
     private let tokenItem: TokenItem
     private let tokenBalanceProvider: TokenBalanceProvider
     private let stakingManager: StakingManager
+    private let accountInitializedStateProvider: StakingAccountInitializationStateProvider?
     private weak var coordinator: StakingDetailsRoutable?
+
+    private var isAccountInitialized = true
 
     private lazy var balanceFormatter = BalanceFormatter()
     private lazy var percentFormatter = PercentFormatter()
@@ -48,19 +53,33 @@ final class StakingDetailsViewModel: ObservableObject {
         tokenItem: TokenItem,
         tokenBalanceProvider: TokenBalanceProvider,
         stakingManager: StakingManager,
-        coordinator: StakingDetailsRoutable
+        coordinator: StakingDetailsRoutable,
+        accountInitializedStateProvider: StakingAccountInitializationStateProvider?
     ) {
         self.tokenItem = tokenItem
         self.tokenBalanceProvider = tokenBalanceProvider
         self.stakingManager = stakingManager
         self.coordinator = coordinator
+        self.accountInitializedStateProvider = accountInitializedStateProvider
 
         bind()
     }
 
     func refresh(completion: @escaping () -> Void = {}) {
-        Task {
-            await stakingManager.updateState(loadActions: true)
+        TangemFoundation.runTask(in: self) { viewModel in
+            async let updateState: Void = viewModel.stakingManager.updateState(loadActions: true)
+
+            guard let accountInitializedStateProvider = viewModel.accountInitializedStateProvider else {
+                await updateState
+                completion()
+                return
+            }
+
+            async let isAccountInitialized = try? await accountInitializedStateProvider.isAccountInitialized()
+            let result = await (isAccountInitialized, updateState)
+
+            viewModel.isAccountInitialized = result.0 ?? true
+
             completion()
         }
     }
@@ -70,8 +89,19 @@ final class StakingDetailsViewModel: ObservableObject {
     }
 
     func userDidTapActionButton() {
-        guard stakingManager.state.yieldInfo?.preferredValidators.isEmpty == false else {
-            alert = .init(title: Localization.commonWarning, message: Localization.stakingNoValidatorsErrorMessage)
+        if case .ton = tokenItem.blockchain, !isAccountInitialized {
+            alert = .init(
+                title: Localization.commonAttention,
+                message: Localization.stakingNotificationTonActivateAccount
+            )
+            return
+        }
+
+        guard stakingManager.state.yieldInfo?.preferredValidators.allSatisfy({ $0.status == .full }) == false else {
+            alert = .init(
+                title: Localization.stakingErrorNoValidatorsTitle,
+                message: Localization.stakingNoValidatorsErrorMessage
+            )
             return
         }
 
