@@ -27,8 +27,8 @@ final class TokenSectionsAdapter {
     private let optionsProviding: OrganizeTokensOptionsProviding
 
     private let preservesLastSortedOrderOnSwitchToDragAndDrop: Bool
-    private var cachedOrderedWalletModelIdsForPlainSections: [WalletModel.ID] = []
-    private var cachedOrderedWalletModelIdsForGroupedSections: [WalletModel.ID] = []
+    private var cachedOrderedWalletModelIdsForPlainSections: [WalletModelId.ID] = []
+    private var cachedOrderedWalletModelIdsForGroupedSections: [WalletModelId.ID] = []
 
     init(
         userTokenListManager: UserTokenListManager,
@@ -64,7 +64,7 @@ final class TokenSectionsAdapter {
     }
 
     private func makeSections(
-        walletModels: [WalletModel],
+        walletModels: [any WalletModel],
         userTokens: [UserToken],
         groupingOption: GroupingOption,
         sortingOption: SortingOption
@@ -118,14 +118,14 @@ final class TokenSectionsAdapter {
     }
 
     private func makeSectionItems(
-        walletModels: [WalletModel],
+        walletModels: [any WalletModel],
         userTokens: [UserToken],
         groupingOption: GroupingOption,
         sortingOption: SortingOption
     ) -> [SectionItem] {
         let walletModelsKeyedByIds = walletModels.keyedFirst(by: \.id)
         let blockchainNetworksFromWalletModels = walletModels
-            .map(\.blockchainNetwork)
+            .map(\.tokenItem.blockchainNetwork)
             .toSet()
 
         let sectionItems: [SectionItem] = userTokens.compactMap { userToken in
@@ -145,7 +145,7 @@ final class TokenSectionsAdapter {
             return sectionItems
         }
 
-        let cachedOrderedWalletModelIds: [WalletModel.ID]
+        let cachedOrderedWalletModelIds: [WalletModelId.ID]
         switch groupingOption {
         case .none:
             cachedOrderedWalletModelIds = cachedOrderedWalletModelIdsForPlainSections
@@ -158,7 +158,7 @@ final class TokenSectionsAdapter {
 
     private func reorderedSectionItems(
         from sectionItems: [SectionItem],
-        cachedOrderedWalletModelIds: [WalletModel.ID]
+        cachedOrderedWalletModelIds: [WalletModelId.ID]
     ) -> [SectionItem] {
         guard !cachedOrderedWalletModelIds.isEmpty else {
             return sectionItems
@@ -241,7 +241,7 @@ final class TokenSectionsAdapter {
         }
     }
 
-    private func compareWalletModels(_ lhs: WalletModel, _ rhs: WalletModel) -> Bool {
+    private func compareWalletModels(_ lhs: any WalletModel, _ rhs: any WalletModel) -> Bool {
         // Fiat balances that aren't loaded (e.g. due to network failures) fallback to zero
         let lFiatValue = lhs.fiatTotalTokenBalanceProvider.balanceType.value ?? .zero
         let rFiatValue = rhs.fiatTotalTokenBalanceProvider.balanceType.value ?? .zero
@@ -274,7 +274,7 @@ final class TokenSectionsAdapter {
 // MARK: - Convenience extensions
 
 extension TokenSectionsAdapter.SectionItem {
-    var walletModel: WalletModel? {
+    var walletModel: (any WalletModel)? {
         switch self {
         case .default(let walletModel):
             return walletModel
@@ -283,12 +283,12 @@ extension TokenSectionsAdapter.SectionItem {
         }
     }
 
-    var walletModelId: WalletModel.ID {
+    var walletModelId: WalletModelId.ID {
         switch self {
         case .default(let walletModel):
-            return walletModel.id
+            return walletModel.id.id
         case .withoutDerivation(let userToken):
-            return userToken.walletModelId
+            return userToken.walletModelId.id
         }
     }
 }
@@ -297,7 +297,7 @@ private extension TokenSectionsAdapter.SectionItem {
     var blockchainNetwork: BlockchainNetwork {
         switch self {
         case .default(let walletModel):
-            return walletModel.blockchainNetwork
+            return walletModel.tokenItem.blockchainNetwork
         case .withoutDerivation(let userToken):
             return userToken.blockchainNetwork
         }
@@ -318,7 +318,7 @@ private extension TokenSectionsAdapter.Section {
         }
     }
 
-    var walletModelIds: [WalletModel.ID] {
+    var walletModelIds: [WalletModelId.ID] {
         return items.map(\.walletModelId)
     }
 }
