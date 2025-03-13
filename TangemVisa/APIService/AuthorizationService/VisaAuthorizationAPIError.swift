@@ -12,13 +12,3 @@ public struct VisaAuthorizationAPIError: Decodable, LocalizedError {
     public let error: String
     public let errorDescription: String?
 }
-
-extension VisaAuthorizationAPIError: TangemError {
-    public var subsystemCode: Int {
-        VisaSubsystem.authorizationAPI.rawValue
-    }
-
-    public var errorCode: Int {
-        1
-    }
-}
