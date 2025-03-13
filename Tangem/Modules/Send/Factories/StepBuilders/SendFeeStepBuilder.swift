@@ -12,7 +12,7 @@ struct SendFeeStepBuilder {
     typealias IO = (input: SendFeeInput, output: SendFeeOutput)
     typealias ReturnValue = (step: SendFeeStep, interactor: SendFeeInteractor, compact: SendFeeCompactViewModel)
 
-    let walletModel: WalletModel
+    let walletModel: any WalletModel
     let builder: SendDependenciesBuilder
 
     func makeFeeSendStep(io: IO, notificationManager: NotificationManager, router: SendFeeRoutable) -> ReturnValue {
