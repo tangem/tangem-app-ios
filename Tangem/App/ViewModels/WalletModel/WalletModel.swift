@@ -141,7 +141,7 @@ class WalletModel {
     var actionsUpdatePublisher: AnyPublisher<Void, Never> {
         Publishers.Merge(
             expressAvailabilityProvider.availabilityDidChangePublisher,
-            stakingManagerStatePublisher.mapToVoid()
+            totalTokenBalanceProvider.balanceTypePublisher.mapToVoid()
         )
         .eraseToAnyPublisher()
     }
