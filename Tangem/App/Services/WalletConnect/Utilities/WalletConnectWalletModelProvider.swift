@@ -37,7 +37,7 @@ struct CommonWalletConnectWalletModelProvider: WalletConnectWalletModelProvider 
         guard
             let model = mainWalletModels.first(where: {
                 $0.tokenItem.blockchain.networkId == blockchainId
-                    && $0.defaultAddress.caseInsensitiveCompare(address) == .orderedSame
+                    && $0.defaultAddressString.caseInsensitiveCompare(address) == .orderedSame
             })
         else {
             throw WalletConnectV2Error.walletModelNotFound(blockchainId)
