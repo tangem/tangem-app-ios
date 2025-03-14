@@ -224,7 +224,7 @@ extension Wallet2Config: UserWalletConfig {
         case "AF73":
             return cardsCount == 2 ? Assets.Cards.kaspaMint2 : Assets.Cards.kaspaMint3
         // BTC Gold
-        case "AF71":
+        case "AF71", "AF990016", "AF990009":
             return cardsCount == 2 ? Assets.Cards.btcNew2 : Assets.Cards.btcNew3
         // Stealth wallet
         case "AF60", "AF74", "AF88":
