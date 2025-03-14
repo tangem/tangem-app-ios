@@ -13,7 +13,7 @@ struct VisaBalancesLimitsBottomSheetView: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            Text("Balances & Limits")
+            Text(Localization.visaMainBalancesAndLimits)
                 .style(Fonts.Bold.headline, color: Colors.Text.primary1)
                 .padding(.vertical, 10)
                 .padding(.horizontal, 16)
@@ -33,29 +33,29 @@ struct VisaBalancesLimitsBottomSheetView: View {
 
     private var balancesView: some View {
         VStack(spacing: 0) {
-            sectionHeaderLine(leadingText: "Balance", infoAction: viewModel.openBalancesInfo)
+            sectionHeaderLine(leadingText: Localization.commonBalanceTitle, infoAction: viewModel.openBalancesInfo)
 
-            recordLine(with: "Total", amount: viewModel.totalAmount)
+            recordLine(with: Localization.visaBalanceLimitsDetailsTotal, amount: viewModel.totalAmount)
 
-            recordLine(with: "AML verified", amount: viewModel.amlVerifiedAmount)
+            recordLine(with: Localization.visaBalanceLimitsDetailsAmlVerified, amount: viewModel.amlVerifiedAmount)
 
-            recordLine(with: "Available", amount: viewModel.availableAmount)
+            recordLine(with: Localization.visaBalanceLimitsDetailsAvailable, amount: viewModel.availableAmount)
 
-            recordLine(with: "Blocked", amount: viewModel.blockedAmount)
+            recordLine(with: Localization.visaBalanceLimitsDetailsBlocked, amount: viewModel.blockedAmount)
 
-            recordLine(with: "Debt", amount: viewModel.debtAmount)
+            recordLine(with: Localization.visaBalanceLimitsDetailsDebt, amount: viewModel.debtAmount)
         }
     }
 
     private var limitsView: some View {
         VStack(spacing: 0) {
-            sectionHeaderLine(leadingText: "Limits", trailingText: viewModel.availabilityDescription, infoAction: viewModel.openLimitsInfo)
+            sectionHeaderLine(leadingText: Localization.visaBalanceLimitsDetailsLimits, trailingText: viewModel.availabilityDescription, infoAction: viewModel.openLimitsInfo)
 
-            recordLine(with: "Total", amount: viewModel.remainingOTPAmount)
+            recordLine(with: Localization.visaBalanceLimitsDetailsTotal, amount: viewModel.remainingOTPAmount)
 
-            recordLine(with: "Other (no-otp)", amount: viewModel.remainingNoOtpAmount)
+            recordLine(with: Localization.visaBalanceLimitsDetailsNoOtpLimit, amount: viewModel.remainingNoOtpAmount)
 
-            recordLine(with: "Single transaction", amount: viewModel.singleTransactionAmount)
+            recordLine(with: Localization.visaBalanceLimitsDetailsSingleTransaction, amount: viewModel.singleTransactionAmount)
         }
     }
 
