@@ -135,14 +135,13 @@ extension ExpressNotificationEvent: NotificationEvent {
              .verificationRequired,
              .cexOperationFailed,
              .notEnoughReceivedAmountForReserve,
-             .refunded:
+             .refunded,
+             .longTimeAverageDuration:
             return .action
         case .withdrawalNotificationEvent(let event):
             return event.colorScheme
         case .validationErrorEvent(let event, _):
             return event.colorScheme
-        case .longTimeAverageDuration:
-            return .primary
         }
     }
 
