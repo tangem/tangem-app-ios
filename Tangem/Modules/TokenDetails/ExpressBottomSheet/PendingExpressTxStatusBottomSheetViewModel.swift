@@ -245,6 +245,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         let (list, currentIndex) = converter.convertToStatusRowDataList(for: pendingTransaction)
 
         updateUI(
+            providerType: pendingTransaction.provider.type,
             statusesList: list,
             currentIndex: currentIndex,
             currentStatus: pendingTransaction.transactionStatus,
@@ -255,6 +256,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     }
 
     private func updateUI(
+        providerType: ExpressPendingTransactionRecord.ProviderType,
         statusesList: [PendingExpressTxStatusRow.StatusRowData],
         currentIndex: Int,
         currentStatus: PendingExpressTransactionStatus,
@@ -299,6 +301,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         }
 
         enrichNotificationsWithLongTimeExchangeNotificationIfNeeded(
+            providerType: providerType,
             for: currentStatus,
             inputs: &inputs,
             notificationFactory: notificationFactory
@@ -333,11 +336,13 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
 
     /// Show long time exchange notification if needed for active exchange state
     private func enrichNotificationsWithLongTimeExchangeNotificationIfNeeded(
+        providerType: ExpressPendingTransactionRecord.ProviderType,
         for currentStatus: PendingExpressTransactionStatus,
         inputs: inout [NotificationViewInput],
         notificationFactory: NotificationsFactory
     ) {
         guard
+            providerType == .cex,
             currentStatus.isProcessingExchange,
             let averageDuration = pendingTransaction.averageDuration,
             let createdAt = pendingTransaction.createdAt
