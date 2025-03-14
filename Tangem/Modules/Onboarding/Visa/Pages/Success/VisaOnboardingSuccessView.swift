@@ -20,13 +20,13 @@ struct VisaOnboardingSuccessView: View {
                 Text(Localization.commonSuccess)
                     .style(Fonts.Bold.title1, color: Colors.Text.primary1)
 
-                Text("You're good to go!")
+                Text(Localization.visaOnboardingSuccessScreenDescription)
                     .style(Fonts.Regular.callout, color: Colors.Text.secondary)
             }
 
             Spacer()
 
-            MainButton(title: "Finish", action: finishAction)
+            MainButton(title: Localization.commonFinish, action: finishAction)
         }
         .padding(EdgeInsets(top: 120, leading: 16, bottom: 10, trailing: 16))
         .onAppear(perform: {
