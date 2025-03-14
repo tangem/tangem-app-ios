@@ -34,90 +34,6 @@ class CommonWalletModel {
     lazy var fiatStakingBalanceProvider = makeFiatStakingBalanceProvider()
     lazy var fiatTotalTokenBalanceProvider = makeFiatTotalTokenBalanceProvider()
 
-    var name: String {
-        switch amountType {
-        case .coin, .reserve, .feeResource:
-            return wallet.blockchain.displayName
-        case .token(let token):
-            return token.name
-        }
-    }
-
-    var wallet: Wallet { walletManager.wallet }
-
-    var addresses: [String] { wallet.addresses.map { $0.value } }
-
-    var addressNames: [String] { wallet.addresses.map { $0.localizedName } }
-
-    var isMainToken: Bool {
-        switch amountType {
-        case .coin, .reserve, .feeResource:
-            return true
-        case .token:
-            return false
-        }
-    }
-
-    var feeTokenItem: TokenItem {
-        switch blockchainNetwork.blockchain.feePaidCurrency {
-        case .coin:
-            return .blockchain(blockchainNetwork)
-        case .token(let value):
-            return .token(value, blockchainNetwork)
-        case .sameCurrency:
-            return tokenItem
-        case .feeResource(let type):
-            // We use this when displaying the fee currency on the 'Send' screen.
-            // This is because when sending KOIN, we use MANA as the fee.
-            return .token(
-                Token(
-                    name: type.rawValue,
-                    symbol: type.rawValue,
-                    contractAddress: "",
-                    decimalCount: 0
-                ),
-                blockchainNetwork
-            )
-        }
-    }
-
-    /// Quotes can't be fetched for custom tokens.
-    var canUseQuotes: Bool { tokenItem.currencyId != nil }
-
-    var quote: TokenQuote? { quotesRepository.quote(for: tokenItem) }
-
-    var shouldShowFeeSelector: Bool { walletManager.allowsFeeSelection }
-
-    var defaultAddress: String { wallet.defaultAddress.value }
-
-    var qrReceiveMessage: String {
-        // [REDACTED_TODO_COMMENT]
-        let symbol = wallet.amounts[amountType]?.currencySymbol ?? wallet.blockchain.currencySymbol
-
-        let currencyName: String
-        if case .token(let token) = amountType {
-            currencyName = token.name
-        } else {
-            currencyName = wallet.blockchain.displayName
-        }
-
-        return Localization.addressQrCodeMessageFormat(currencyName, symbol, wallet.blockchain.displayName)
-    }
-
-    var actionsUpdatePublisher: AnyPublisher<Void, Never> {
-        Publishers.Merge(
-            expressAvailabilityProvider.availabilityDidChangePublisher,
-            stakingManagerStatePublisher.mapToVoid()
-        )
-        .eraseToAnyPublisher()
-    }
-
-    var sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions? {
-        sendAvailabilityProvider.sendingRestrictions(walletModel: self)
-    }
-
-    var isDemo: Bool { demoBalance != nil }
-
     /// Simple flag to check exactly BSDK balance
     var balanceState: WalletModelBalanceState? {
         switch wallet.amounts[tokenItem.amountType]?.value {
@@ -320,6 +236,96 @@ extension CommonWalletModel: Equatable {
 // MARK: - WalletModel
 
 extension CommonWalletModel: WalletModel {
+    var name: String {
+        switch amountType {
+        case .coin, .reserve, .feeResource:
+            return wallet.blockchain.displayName
+        case .token(let token):
+            return token.name
+        }
+    }
+
+    var wallet: Wallet { walletManager.wallet }
+
+    var addresses: [Address] { wallet.addresses }
+
+    var defaultAddress: any Address { wallet.defaultAddress }
+
+    var addressNames: [String] { wallet.addresses.map { $0.localizedName } }
+
+    var isMainToken: Bool {
+        switch amountType {
+        case .coin, .reserve, .feeResource:
+            return true
+        case .token:
+            return false
+        }
+    }
+
+    var feeTokenItem: TokenItem {
+        switch blockchainNetwork.blockchain.feePaidCurrency {
+        case .coin:
+            return .blockchain(blockchainNetwork)
+        case .token(let value):
+            return .token(value, blockchainNetwork)
+        case .sameCurrency:
+            return tokenItem
+        case .feeResource(let type):
+            // We use this when displaying the fee currency on the 'Send' screen.
+            // This is because when sending KOIN, we use MANA as the fee.
+            return .token(
+                Token(
+                    name: type.rawValue,
+                    symbol: type.rawValue,
+                    contractAddress: "",
+                    decimalCount: 0
+                ),
+                blockchainNetwork
+            )
+        }
+    }
+
+    /// Quotes can't be fetched for custom tokens.
+    var canUseQuotes: Bool { tokenItem.currencyId != nil }
+
+    var quote: TokenQuote? { quotesRepository.quote(for: tokenItem) }
+
+    var isEmpty: Bool { wallet.isEmpty }
+
+    var publicKey: Wallet.PublicKey { wallet.publicKey }
+
+    var shouldShowFeeSelector: Bool { walletManager.allowsFeeSelection }
+
+    var defaultAddressString: String { wallet.defaultAddress.value }
+
+    var qrReceiveMessage: String {
+        // [REDACTED_TODO_COMMENT]
+        let symbol = wallet.amounts[amountType]?.currencySymbol ?? wallet.blockchain.currencySymbol
+
+        let currencyName: String
+        if case .token(let token) = amountType {
+            currencyName = token.name
+        } else {
+            currencyName = wallet.blockchain.displayName
+        }
+
+        return Localization.addressQrCodeMessageFormat(currencyName, symbol, wallet.blockchain.displayName)
+    }
+
+    var actionsUpdatePublisher: AnyPublisher<Void, Never> {
+        Publishers.Merge(
+            expressAvailabilityProvider.availabilityDidChangePublisher,
+            stakingManagerStatePublisher.mapToVoid()
+        )
+        .eraseToAnyPublisher()
+    }
+
+    var sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions? {
+        sendAvailabilityProvider.sendingRestrictions(walletModel: self)
+    }
+
+    var isDemo: Bool { demoBalance != nil }
+
     var stakingManager: StakingManager? {
         _stakingManager
     }
@@ -758,6 +764,26 @@ extension CommonWalletModel: FiatTokenBalanceProviderInput {
 
     var ratePublisher: AnyPublisher<WalletModelRate, Never> {
         _rate.eraseToAnyPublisher()
+    }
+}
+
+extension CommonWalletModel: FeeResourceInfoProvider {
+    var feeResourceBalance: Decimal? {
+        switch tokenItem.blockchain {
+        case .koinos:
+            return wallet.amounts[.feeResource(.mana)]?.value
+        default:
+            return nil
+        }
+    }
+
+    var maxResourceBalance: Decimal? {
+        switch tokenItem.blockchain {
+        case .koinos:
+            return wallet.amounts[.coin]?.value
+        default:
+            return nil
+        }
     }
 }
 
