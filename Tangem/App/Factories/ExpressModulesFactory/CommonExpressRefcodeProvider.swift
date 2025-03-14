@@ -94,12 +94,12 @@ private extension CommonExpressRefcodeProvider {
             self.end = endCardID
         }
 
-         func contains(_ cardId: String) -> Bool {
+        func contains(_ cardId: String) -> Bool {
             guard let value = UInt64(cardId, radix: 16) else {
                 return false
             }
 
-            let range = start...end
+            let range = start ... end
             return range.contains(value)
         }
     }
