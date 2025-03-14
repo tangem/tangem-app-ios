@@ -123,11 +123,6 @@ extension StakeKitTarget: TargetTypeLogConvertible {
     }
 
     var shouldLogResponseBody: Bool {
-        switch target {
-        case .getYield:
-            return false
-        default:
-            return true
-        }
+        true
     }
 }
