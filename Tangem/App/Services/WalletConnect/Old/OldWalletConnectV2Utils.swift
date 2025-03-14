@@ -97,7 +97,7 @@ struct OldWalletConnectV2Utils {
 
         var supportedChains = Set<WalletConnectUtils.Blockchain>()
 
-        let accounts: [[Account]] = chains.compactMap { wcBlockchain in
+        let accounts: [[Account]] = chains.compactMap { wcBlockchain -> [Account]? in
             guard let blockchain = createBlockchain(for: wcBlockchain) else {
                 if proposal.namespaceRequiredChains.contains(wcBlockchain) {
                     unsupportedEVMBlockchains.append(wcBlockchain.reference)
@@ -119,7 +119,9 @@ struct OldWalletConnectV2Utils {
                 return nil
             }
 
-            return filteredWallets.compactMap { Account("\(wcBlockchain.absoluteString):\($0.wallet.address)") }
+            return filteredWallets.compactMap { walletModel in
+                Account("\(wcBlockchain.absoluteString):\(walletModel.defaultAddressString)")
+            }
         }
 
         guard missingBlockchains.isEmpty else {
