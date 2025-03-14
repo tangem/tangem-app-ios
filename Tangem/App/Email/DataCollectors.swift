@@ -88,13 +88,13 @@ struct SendScreenDataCollector: EmailDataCollector {
             data.append(EmailCollectedData(type: .error, data: errorDescription))
         }
 
-        let derivationPath = walletModel.wallet.publicKey.derivationPath
+        let derivationPath = walletModel.publicKey.derivationPath
         data.append(EmailCollectedData(type: .wallet(.derivationPath), data: derivationPath?.rawPath ?? "[default]"))
 
         data.append(.separator(.dashes))
 
         data.append(contentsOf: [
-            EmailCollectedData(type: .send(.sourceAddress), data: walletModel.defaultAddress),
+            EmailCollectedData(type: .send(.sourceAddress), data: walletModel.defaultAddressString),
             EmailCollectedData(type: .send(.destinationAddress), data: destination),
             EmailCollectedData(type: .send(.amount), data: amount.description),
             EmailCollectedData(type: .send(.fee), data: fee.description),
@@ -220,7 +220,7 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
                 dataToFormat.append(.separator(.dashes))
                 dataToFormat.append(EmailCollectedData(type: .card(.blockchain), data: walletModel.tokenItem.blockchain.displayName))
 
-                let derivationPath = walletModel.wallet.publicKey.derivationPath
+                let derivationPath = walletModel.publicKey.derivationPath
                 dataToFormat.append(EmailCollectedData(type: .wallet(.derivationPath), data: derivationPath?.rawPath ?? "[default]"))
 
                 if let outputsDescription = walletModel.blockchainDataProvider.outputsCount?.description {
