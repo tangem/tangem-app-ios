@@ -380,7 +380,7 @@ extension VisaOnboardingViewModel: VisaOnboardingAccessCodeSetupDelegate {
                 }
             ),
             secondaryButton: .destructive(
-                Text("Cancel Activation"),
+                Text(Localization.visaOnboardingCancelActivation),
                 action: { [weak self] in
                     self?.closeOnboarding()
                 }
@@ -505,7 +505,10 @@ extension VisaOnboardingViewModel: OnboardingPinSelectionDelegate {
 
 private extension VisaOnboardingViewModel {
     func showCloseOnboardingAlert() {
-        alert = AlertBuilder.makeExitAlert(okAction: weakify(self, forFunction: VisaOnboardingViewModel.closeOnboarding))
+        alert = AlertBuilder.makeExitAlert(
+            message: Localization.visaOnboardingCloseAlertMessage,
+            okAction: weakify(self, forFunction: VisaOnboardingViewModel.closeOnboarding)
+        )
     }
 }
 
@@ -533,15 +536,6 @@ extension VisaOnboardingViewModel {
     enum OnboardingError {
         case missingTargetApproveAddress
         case wrongRemoteState
-
-        var localizedDescription: String {
-            switch self {
-            case .missingTargetApproveAddress:
-                return "Failed to find approve address. Please contact support"
-            case .wrongRemoteState:
-                return "Wrong activation state. Please contact support"
-            }
-        }
     }
 }
 
