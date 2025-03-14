@@ -28,11 +28,29 @@ import TangemFoundation
 ///
 /// `Subsystems`:
 /// `001` - Onboarding
+/// `002` - Visa user wallet model
 extension VisaOnboardingViewModel.OnboardingError: TangemError {
     var errorCode: Int {
         switch self {
         case .missingTargetApproveAddress: return 100001001
         case .wrongRemoteState: return 100001001
+        }
+    }
+}
+
+extension VisaUserWalletModel.ModelError: TangemError {
+    var errorCode: Int {
+        switch self {
+        case .missingRequiredBlockchain: return 100002001
+        case .invalidBlockchain: return 100002002
+        case .noPaymentAccount: return 100002003
+        case .missingPublicKey: return 100002004
+        case .failedToGenerateAddress: return 100002005
+        case .authorizationError: return 100002006
+        case .missingValidRefreshToken: return 100002007
+        case .missingCardId: return 100002008
+        case .invalidConfig: return 100002009
+        case .invalidActivationState: return 100002010
         }
     }
 }
