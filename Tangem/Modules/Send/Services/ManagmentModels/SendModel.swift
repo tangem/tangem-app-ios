@@ -358,7 +358,9 @@ extension SendModel: NotificationTapDelegate {
         case .openFeeCurrency:
             router?.openNetworkCurrency()
         case .leaveAmount(let amount, _):
-            balanceProvider.balanceType.value.flatMap { reduceAmountBy(amount, source: $0) }
+            balanceProvider.balanceType.value.flatMap {
+                leaveMinimalAmountOnBalance(amountToLeave: amount, balance: $0)
+            }
         case .reduceAmountBy(let amount, _):
             _amount.value?.crypto.flatMap { reduceAmountBy(amount, source: $0) }
         case .reduceAmountTo(let amount, _):
@@ -385,6 +387,18 @@ extension SendModel: NotificationTapDelegate {
              .unlock:
             assertionFailure("Notification tap not handled")
         }
+    }
+
+    private func leaveMinimalAmountOnBalance(amountToLeave amount: Decimal, balance: Decimal) {
+        var newAmount = balance - amount
+
+        if let fee = selectedFee.value.value?.amount, tokenItem.amountType == fee.type {
+            // In case when fee can be more that amount
+            newAmount = max(0, newAmount - fee.value)
+        }
+
+        // Amount will be changed automatically via SendAmountOutput
+        sendAmountInteractor.externalUpdate(amount: newAmount)
     }
 
     private func reduceAmountBy(_ amount: Decimal, source: Decimal) {
