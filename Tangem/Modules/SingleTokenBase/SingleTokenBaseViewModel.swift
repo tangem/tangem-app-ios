@@ -70,7 +70,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         walletModel.tokenItem.id != nil
     }
 
-    lazy var transactionHistoryMapper = TransactionHistoryMapper(currencySymbol: currencySymbol, walletAddresses: walletModel.wallet.addresses.map { $0.value }, showSign: true)
+    lazy var transactionHistoryMapper = TransactionHistoryMapper(currencySymbol: currencySymbol, walletAddresses: walletModel.addresses.map { $0.value }, showSign: true)
     lazy var pendingTransactionRecordMapper = PendingTransactionRecordMapper(formatter: BalanceFormatter())
     lazy var miniChartsProvider = MarketsListChartsHistoryProvider()
 
@@ -101,7 +101,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     }
 
     func openExplorer() {
-        let addresses = walletModel.wallet.addresses
+        let addresses = walletModel.addresses
 
         if addresses.count == 1 {
             openAddressExplorer(at: 0)
@@ -177,7 +177,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     }
 
     func copyDefaultAddress() {
-        UIPasteboard.general.string = walletModel.defaultAddress
+        UIPasteboard.general.string = walletModel.defaultAddressString
         let heavyImpactGenerator = UIImpactFeedbackGenerator(style: .heavy)
         heavyImpactGenerator.impactOccurred()
     }
