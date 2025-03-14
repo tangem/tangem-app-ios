@@ -96,27 +96,27 @@ extension VisaOnboardingWelcomeViewModel {
         var activationButtonTitle: String {
             switch self {
             case .newActivation:
-                return "Start Activation"
+                return Localization.visaOnboardingWelcomeButtonTitle
             case .continueActivation:
-                return "Continue Activation"
+                return Localization.visaOnboardingWelcomeBackButtonTitle
             }
         }
 
         var activationDescriptionText: String {
             switch self {
             case .newActivation:
-                return "Start your activation process by filling some information"
+                return Localization.visaOnboardingWelcomeDescription
             case .continueActivation:
-                return "Welcome back, lets continue your activation process by filling some information, signing some contracts and so on"
+                return Localization.visaOnboardingWelcomeBackDescription
             }
         }
 
         var greetingsText: String {
             switch self {
             case .newActivation:
-                return "Hello"
+                return Localization.visaOnboardingWelcomeTitle
             case .continueActivation:
-                return "Welcome back"
+                return Localization.visaOnboardingWelcomeBackTitle
             }
         }
     }
