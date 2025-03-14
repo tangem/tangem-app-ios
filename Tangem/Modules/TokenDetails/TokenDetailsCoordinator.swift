@@ -77,7 +77,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
         let factory = XPUBGeneratorFactory(cardInteractor: options.userWalletModel.keysDerivingInteractor)
         let xpubGenerator = factory.makeXPUBGenerator(
             for: options.walletModel.tokenItem.blockchain,
-            publicKey: options.walletModel.wallet.publicKey
+            publicKey: options.walletModel.publicKey
         )
 
         tokenDetailsViewModel = .init(
@@ -194,7 +194,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         sendCoordinator = coordinator
     }
 
-    func openSendToSell(amountToSend: Amount, destination: String, tag: String?, userWalletModel: UserWalletModel, walletModel: any WalletModel) {
+    func openSendToSell(amountToSend: Decimal, destination: String, tag: String?, userWalletModel: UserWalletModel, walletModel: any WalletModel) {
         guard SendFeatureProvider.shared.isAvailable else {
             return
         }
@@ -213,7 +213,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         let options = SendCoordinator.Options(
             walletModel: walletModel,
             userWalletModel: userWalletModel,
-            type: .sell(parameters: .init(amount: amountToSend.value, destination: destination, tag: tag)),
+            type: .sell(parameters: .init(amount: amountToSend, destination: destination, tag: tag)),
             source: .tokenDetails
         )
         coordinator.start(with: options)
