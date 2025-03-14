@@ -76,17 +76,22 @@ final class SingleTokenNotificationManager {
             events.append(.existentialDepositWarning(message: existentialWarning))
         }
 
-        let amounts = walletModel.wallet.amounts
-        if case .koinos = walletModel.tokenItem.blockchain,
-           let currentMana = amounts[.feeResource(.mana)]?.value,
-           let maxMana = amounts[.coin]?.value {
+        if let feeResourceInfoProvider = walletModel as? FeeResourceInfoProvider,
+           let currentResource = feeResourceInfoProvider.feeResourceBalance,
+           let maxResource = feeResourceInfoProvider.maxResourceBalance {
             let formatter = BalanceFormatter()
-            events.append(
-                .manaLevel(
-                    currentMana: formatter.formatDecimal(currentMana, formattingOptions: .defaultFiatFormattingOptions),
-                    maxMana: formatter.formatDecimal(maxMana, formattingOptions: .defaultFiatFormattingOptions)
+
+            switch walletModel.tokenItem.blockchain {
+            case .koinos:
+                events.append(
+                    .manaLevel(
+                        currentMana: formatter.formatDecimal(currentResource, formattingOptions: .defaultFiatFormattingOptions),
+                        maxMana: formatter.formatDecimal(maxResource, formattingOptions: .defaultFiatFormattingOptions)
+                    )
                 )
-            )
+            default:
+                break
+            }
         }
 
         // We can't use `Blockchain.polygon(testnet: false).currencySymbol` here
