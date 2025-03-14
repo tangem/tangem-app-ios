@@ -43,7 +43,7 @@ final class SingleTokenRouter: SingleTokenRoutable {
     }
 
     func openReceive(walletModel: any WalletModel) {
-        let infos = walletModel.wallet.addresses.map { address in
+        let infos = walletModel.addresses.map { address in
             ReceiveAddressInfo(
                 address: address.value,
                 type: address.type,
@@ -118,14 +118,8 @@ final class SingleTokenRouter: SingleTokenRoutable {
     }
 
     func openSendToSell(with request: SellCryptoRequest, for walletModel: any WalletModel) {
-        // [REDACTED_TODO_COMMENT]
-        guard var amountToSend = walletModel.wallet.amounts[walletModel.tokenItem.amountType] else {
-            return
-        }
-
-        amountToSend.value = request.amount
         coordinator?.openSendToSell(
-            amountToSend: amountToSend,
+            amountToSend: request.amount,
             destination: request.targetAddress,
             tag: request.tag,
             userWalletModel: userWalletModel,
@@ -190,7 +184,7 @@ extension SingleTokenRouter {
     private func buildExchangeCryptoUtility(for walletModel: any WalletModel) -> ExchangeCryptoUtility {
         return ExchangeCryptoUtility(
             blockchain: walletModel.tokenItem.blockchain,
-            address: walletModel.defaultAddress,
+            address: walletModel.defaultAddressString,
             amountType: walletModel.tokenItem.amountType
         )
     }
