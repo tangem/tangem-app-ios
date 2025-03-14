@@ -7,28 +7,42 @@
 //
 
 import Foundation
+import TangemFoundation
 
-enum VisaNotificationEvent: Hashable {
-    case missingRequiredBlockchain
-    case notValidBlockchain
-    case failedToLoadPaymentAccount
-    case missingPublicKey
-    case failedToGenerateAddress
+enum VisaNotificationEvent {
+    case error(TangemError)
     case onboardingAccountActivationInfo
-    case authorizationError
     case missingValidRefreshToken
-    case missingCardId
-    case invalidConfig
-    case invalidActivationState
+}
+
+extension VisaNotificationEvent {
+    static func == (lhs: VisaNotificationEvent, rhs: VisaNotificationEvent) -> Bool {
+        switch (lhs, rhs) {
+        case (.onboardingAccountActivationInfo, .onboardingAccountActivationInfo): return true
+        case (.missingValidRefreshToken, .missingValidRefreshToken): return true
+        case (.error(let lhsError), .error(let rhsError)): return lhsError.errorCode == rhsError.errorCode
+        default: return false
+        }
+    }
 }
 
 extension VisaNotificationEvent: NotificationEvent {
+    var id: NotificationViewId {
+        if case .error(let tangemError) = self {
+            return tangemError.errorCode
+        }
+
+        var hasher = Hasher()
+        hasher.combine(String(describing: self))
+        return hasher.finalize()
+    }
+
     var title: NotificationView.Title? {
         switch self {
-        case .missingRequiredBlockchain, .notValidBlockchain, .failedToLoadPaymentAccount, .missingPublicKey, .failedToGenerateAddress, .authorizationError, .missingCardId, .invalidConfig, .invalidActivationState:
-            return .string("Error")
+        case .error:
+            return .string(Localization.commonError)
         case .missingValidRefreshToken:
-            return .string("Needed unlock")
+            return .string(Localization.visaUnlockNotificationTitle)
         case .onboardingAccountActivationInfo:
             return nil
         }
@@ -36,28 +50,12 @@ extension VisaNotificationEvent: NotificationEvent {
 
     var description: String? {
         switch self {
-        case .missingRequiredBlockchain:
-            return "Failed to find required WalletManager"
-        case .notValidBlockchain:
-            return "WalletManager doesn't supported Smart Contract interaction"
-        case .failedToLoadPaymentAccount:
-            return "Failed to find Payment Account address in bridge"
-        case .missingPublicKey:
-            return "Failed to find Public key in keys repository"
-        case .failedToGenerateAddress:
-            return "Failed to generate address with provided Public key"
+        case .error(let error):
+            return error.universalErrorMessage
         case .onboardingAccountActivationInfo:
-            return "Please choose the wallet you started the registration process with to sign the transaction for creating your account on the Blockchain"
-        case .authorizationError:
-            return "Failed to authorize, please contact support"
+            return Localization.visaOnboardingApproveWalletSelectorNotificationMessage
         case .missingValidRefreshToken:
-            return "Scan your card to unlock access"
-        case .missingCardId:
-            return "Failed to identify card, please contact support"
-        case .invalidConfig:
-            return "Failed to identify card configuration, please contact support"
-        case .invalidActivationState:
-            return "This card is not available for use, please contact support"
+            return Localization.visaUnlockNotificationSubtitle
         }
     }
 
@@ -72,7 +70,7 @@ extension VisaNotificationEvent: NotificationEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .missingRequiredBlockchain, .notValidBlockchain, .failedToLoadPaymentAccount, .missingPublicKey, .failedToGenerateAddress, .authorizationError, .missingCardId, .invalidConfig, .invalidActivationState:
+        case .error:
             return .init(iconType: .image(Assets.redCircleWarning.image))
         case .missingValidRefreshToken:
             return .init(iconType: .image(Assets.lock.image))
