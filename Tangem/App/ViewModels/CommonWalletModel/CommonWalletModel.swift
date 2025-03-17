@@ -19,7 +19,7 @@ class CommonWalletModel {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
     @Injected(\.accountHealthChecker) private var accountHealthChecker: AccountHealthChecker
 
-    private(set) lazy var id: WalletModelId = .init(tokenItem: tokenItem)
+    let id: WalletModelId
     let tokenItem: TokenItem
     let isCustom: Bool
     var demoBalance: Decimal?
@@ -87,12 +87,15 @@ class CommonWalletModel {
             derivationPath: walletManager.wallet.publicKey.derivationPath
         )
 
-        switch amountType {
+        let tokenItem = switch amountType {
         case .coin, .reserve, .feeResource:
-            tokenItem = .blockchain(blockchainNetwork)
+            TokenItem.blockchain(blockchainNetwork)
         case .token(let token):
-            tokenItem = .token(token, blockchainNetwork)
+            TokenItem.token(token, blockchainNetwork)
         }
+
+        self.tokenItem = tokenItem
+        id = WalletModelId(tokenItem: tokenItem)
 
         bind()
         performHealthCheckIfNeeded(shouldPerform: shouldPerformHealthCheck)
