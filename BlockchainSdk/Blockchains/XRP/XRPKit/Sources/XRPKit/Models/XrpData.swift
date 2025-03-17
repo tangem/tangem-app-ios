@@ -27,6 +27,7 @@ struct XrpResponse: Codable {
 
 struct XrpResult: Codable {
     let account_data: XrpAccountData?
+    let account_flags: XRPAccountFlags?
     let validated: Bool?
     let drops: XrpFeeDrops?
     let engine_result_code: Int?
@@ -66,4 +67,8 @@ struct XRPValidatedLedger: Codable {
 
 struct XrpTxJson: Codable {
     let hash: String
+}
+
+struct XRPAccountFlags: Codable {
+    let requireDestinationTag: Bool
 }
