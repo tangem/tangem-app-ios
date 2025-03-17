@@ -31,16 +31,11 @@ extension Fact0rnAddressService: AddressValidator {
 }
 
 extension Fact0rnAddressService {
-    static func addressToScript(address: String) throws -> Script {
-        let converter = SegWitBech32AddressConverter(prefix: Fact0rnMainNetworkParams().bech32PrefixPattern, scriptConverter: ScriptConverter())
-        let seg = try converter.convert(address: address)
-
-        return try ScriptBuilder.createOutputScript(for: seg)
-    }
-
     static func addressToScriptHash(address: String) throws -> String {
-        let p2pkhScript = try addressToScript(address: address)
-        let sha256Hash = p2pkhScript.scriptData.getSha256()
+        let params = Fact0rnMainNetworkParams()
+        let converter = SegWitBech32AddressConverter(prefix: params.bech32PrefixPattern, scriptConverter: ScriptConverter())
+        let address = try converter.convert(address: address)
+        let sha256Hash = address.lockingScript.getSha256()
         return Data(sha256Hash.reversed()).hexString
     }
 }
