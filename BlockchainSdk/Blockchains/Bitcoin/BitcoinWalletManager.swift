@@ -39,34 +39,22 @@ class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
     }
 
     override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        let publishers = wallet.addresses
-            .compactMap { $0 as? LockingScriptAddress }
-            .map { address in
-                networkService.getInfo(address: address.value)
-                    .map { UpdatingResponse(address: address, response: $0) }
-            }
-
-        if publishers.isEmpty {
-            completion(.failure(WalletError.addressesIsEmpty))
-            return
-        }
-
-        cancellable = Publishers.MergeMany(publishers).collect()
+        cancellable = networkService.getInfo(addresses: wallet.addresses)
             .receive(on: DispatchQueue.global())
-            .sink(receiveCompletion: { [weak self] completionSubscription in
+            .sink { [weak self] completionSubscription in
                 if case .failure(let error) = completionSubscription {
                     self?.wallet.clearAmounts()
                     completion(.failure(error))
                 }
-            }, receiveValue: { [weak self] response in
+            } receiveValue: { [weak self] response in
                 self?.updateWallet(with: response)
                 completion(.success(()))
-            })
+            }
     }
 
-    func updateWallet(with responses: [UpdatingResponse]) {
+    func updateWallet(with responses: [UTXONetworkProviderUpdatingResponse]) {
         responses.forEach { response in
-            unspentOutputManager.update(outputs: response.response.outputs, for: response.address)
+            unspentOutputManager.update(outputs: response.response.outputs, for: response.address.value)
         }
         txBuilder.fillBitcoinManager()
 
@@ -177,12 +165,5 @@ extension BitcoinWalletManager: TransactionSender {
             }
             .eraseSendError()
             .eraseToAnyPublisher()
-    }
-}
-
-extension BitcoinWalletManager {
-    struct UpdatingResponse {
-        let address: LockingScriptAddress
-        let response: UTXOResponse
     }
 }
