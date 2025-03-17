@@ -31,15 +31,12 @@ struct TangemLoggerConfigurator: Initializable {
 struct TangemLoggerConfiguration: Logger.Configuration {
     /// Write to console
     func isLoggable() -> Bool {
-        AppEnvironment.current.isDebug
+        true
     }
 
     /// Write to file
     func isWritable() -> Bool {
-        switch AppEnvironment.current {
-        case .alpha, .beta: return true
-        case .production: return false
-        }
+        true
     }
 }
 
