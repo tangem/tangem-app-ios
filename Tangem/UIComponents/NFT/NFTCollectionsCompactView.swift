@@ -376,7 +376,7 @@ extension NFTCollectionsCompactView {
                         URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!,
                         URL(string: "https://arweave.net/ggUMUDPTxiAq25rxo_PlwGjl947sIn2ypczI7ZefsF4")!,
                         URL(string: "https://s3.us-east-1.amazonaws.com/brma/sd0SOIeVaqGagko1B4w3")!,
-                        URL(string: "https://image.nftscan.com/sol/logo/6351b964b3e6b39f3522028ebf82ff1e.png")!
+                        URL(string: "https://image.nftscan.com/sol/logo/6351b964b3e6b39f3522028ebf82ff1e.png")!,
                     ])
                 )
             )
