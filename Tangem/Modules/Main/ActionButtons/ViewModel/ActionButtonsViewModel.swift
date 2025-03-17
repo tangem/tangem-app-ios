@@ -42,7 +42,6 @@ final class ActionButtonsViewModel: ObservableObject {
     private var bag = Set<AnyCancellable>()
     private let lastButtonTapped = PassthroughSubject<ActionButtonModel, Never>()
 
-    private var lastExpressUpdatingState: ExpressAvailabilityUpdateState?
     private var lastSellInitializeState: ExchangeServiceState?
     private var lastBuyInitializeState: ExchangeServiceState?
 
@@ -133,12 +132,11 @@ private extension ActionButtonsViewModel {
 
     @MainActor
     private func restoreButtonsState() {
-        if let lastExpressUpdatingState {
-            updateSwapButtonState(lastExpressUpdatingState)
+        let lastExpressUpdatingState = expressAvailabilityProvider.expressAvailabilityUpdateStateValue
+        updateSwapButtonState(lastExpressUpdatingState)
 
-            if FeatureProvider.isAvailable(.onramp) {
-                updateBuyButtonStateWithExpress(lastExpressUpdatingState)
-            }
+        if FeatureProvider.isAvailable(.onramp) {
+            updateBuyButtonStateWithExpress(lastExpressUpdatingState)
         }
 
         if let lastSellInitializeState {
@@ -192,8 +190,6 @@ private extension ActionButtonsViewModel {
 
     func updateBuyButtonStateWithExpress(_ expressUpdateState: ExpressAvailabilityUpdateState) {
         TangemFoundation.runTask(in: self) { @MainActor viewModel in
-            viewModel.lastExpressUpdatingState = expressUpdateState
-
             switch expressUpdateState {
             case .updating: viewModel.handleBuyUpdatingState()
             case .updated: viewModel.handleBuyUpdatedState()
@@ -250,8 +246,6 @@ private extension ActionButtonsViewModel {
 
     func updateSwapButtonState(_ expressUpdateState: ExpressAvailabilityUpdateState) {
         TangemFoundation.runTask(in: self) { @MainActor viewModel in
-            viewModel.lastExpressUpdatingState = expressUpdateState
-
             switch expressUpdateState {
             case .updating: viewModel.handleUpdatingExpressState()
             case .updated: viewModel.handleUpdatedSwapState()
