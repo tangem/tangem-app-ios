@@ -7,6 +7,7 @@
 //
 
 import XCTest
+import Testing
 
 extension XCTestCase {
     func assert<T, E: Error & Equatable>(
@@ -16,7 +17,6 @@ extension XCTestCase {
         line: UInt = #line
     ) {
         var thrownError: Error?
-
         XCTAssertThrowsError(
             try expression(),
             file: file,
