@@ -86,13 +86,13 @@ extension BuyActionButtonViewModel {
         isOpeningRequired = false
 
         if FeatureProvider.isAvailable(.onramp) {
-            handleExpressProviderState()
+            handleExpressProviderStateTap()
         } else {
             handleExchangeServiceState()
         }
     }
 
-    private func handleExpressProviderState() {
+    private func handleExpressProviderStateTap() {
         let expressAvailabilityUpdateState = expressAvailabilityProvider.expressAvailabilityUpdateStateValue
         let hasCache = expressAvailabilityProvider.hasCache
 
