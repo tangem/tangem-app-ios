@@ -252,7 +252,8 @@ extension ExpressNotificationEvent {
         case .refreshRequired(_, _, .exchangeNotPossibleError, _):
             .swapNoticeExpressError
         case .longTimeAverageDuration:
-            .tokenNoticeLongTimeTransaction
+            // Sending from in place PendingExpressTxStatusBottomSheetViewModel.swift
+            nil
         default:
             nil
         }
