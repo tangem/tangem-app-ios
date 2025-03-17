@@ -9,12 +9,22 @@
 import TangemFoundation
 
 class CommonUnspentOutputManager {
+    private let scriptBuilder: LockingScriptBuilder
     private var outputs: ThreadSafeContainer<[Data: [UnspentOutput]]> = [:]
+
+    init(scriptBuilder: LockingScriptBuilder) {
+        self.scriptBuilder = scriptBuilder
+    }
 }
 
 extension CommonUnspentOutputManager: UnspentOutputManager {
-    func update(outputs: [UnspentOutput], for script: Data) {
-        self.outputs.mutate { $0[script] = outputs }
+    func update(outputs: [UnspentOutput], for address: String) {
+        do {
+            let script = try scriptBuilder.lockingScript(for: address)
+            self.outputs.mutate { $0[script] = outputs }
+        } catch {
+            BSDKLogger.error("lockingScript build error", error: error)
+        }
     }
 
     func outputs(for amount: UInt64, script: Data) throws -> [UnspentOutput] {
