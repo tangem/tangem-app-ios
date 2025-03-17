@@ -12,6 +12,8 @@ import Combine
 public protocol TransactionValidator: WalletProvider {
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws
     func validate(amount: Amount, fee: Fee) throws
+
+    func validate(transaction: Transaction) async throws
 }
 
 public enum DestinationType: Hashable {
@@ -188,13 +190,17 @@ extension TransactionValidator where Self: DustRestrictable, Self: CardanoTransf
 extension TransactionValidator where Self: ReserveAmountRestrictable {
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
         try validateAmounts(amount: amount, fee: fee.amount)
+        try await validateReserveAmount(amount: amount, destination: destination)
+    }
+}
 
-        switch destination {
-        case .generate:
-            try await validateReserveAmount(amount: amount, addressType: .notCreated)
-        case .address(let string):
-            try await validateReserveAmount(amount: amount, addressType: .address(string))
-        }
+// MARK: - RequiredMemoRestrictable & ReserveAmountRestrictable e.g. XRPWalletManager
+
+extension TransactionValidator where Self: RequiredMemoRestrictable, Self: ReserveAmountRestrictable {
+    func validate(transaction: Transaction) async throws {
+        try validateAmounts(amount: transaction.amount, fee: transaction.fee.amount)
+        try await validateReserveAmount(amount: transaction.amount, destination: .address(transaction.destinationAddress))
+        try await validateRequiredMemo(destination: transaction.destinationAddress, transactionParams: transaction.params)
     }
 }
 
