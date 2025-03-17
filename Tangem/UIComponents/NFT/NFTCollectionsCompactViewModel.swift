@@ -11,6 +11,8 @@ import Foundation
 
 final class NFTCollectionsCompactViewModel: ObservableObject {
     @Published private(set) var state: ViewState
+    private var collectionsCount = 0
+    private var totalNFTs = 0
 
     init(initialState: ViewState = .loading) {
         state = initialState
@@ -25,11 +27,11 @@ final class NFTCollectionsCompactViewModel: ObservableObject {
     }
 
     var title: String {
-        "NFT Collections" // [REDACTED_TODO_COMMENT]
+        Localization.nftWalletTitle
     }
 
     var subtitle: String {
-        "125 NFTs in 4 collections" // [REDACTED_TODO_COMMENT]
+        Localization.nftWalletCount(totalNFTs, collectionsCount)
     }
 }
 
