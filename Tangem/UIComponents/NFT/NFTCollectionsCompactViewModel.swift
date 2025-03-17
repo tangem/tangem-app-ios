@@ -25,11 +25,11 @@ final class NFTCollectionsCompactViewModel: ObservableObject {
     }
 
     var title: String {
-        "NFT Collections"
+        "NFT Collections" // [REDACTED_TODO_COMMENT]
     }
 
     var subtitle: String {
-        "125 NFTs in 4 collections"
+        "125 NFTs in 4 collections" // [REDACTED_TODO_COMMENT]
     }
 }
 
