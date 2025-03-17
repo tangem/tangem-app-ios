@@ -190,10 +190,17 @@ private extension ActionButtonsViewModel {
 
     func updateBuyButtonStateWithExpress(_ expressUpdateState: ExpressAvailabilityUpdateState) {
         TangemFoundation.runTask(in: self) { @MainActor viewModel in
-            switch expressUpdateState {
-            case .updating: viewModel.handleBuyUpdatingState()
-            case .updated: viewModel.handleBuyUpdatedState()
-            case .failed: viewModel.buyActionButtonViewModel?.updateState(
+            let hasCache = viewModel.expressAvailabilityProvider.hasCache
+
+            switch (expressUpdateState, hasCache) {
+            case (_, true):
+                viewModel.handleBuyUpdatedState()
+            case (.updating, false):
+                viewModel.handleBuyUpdatingState()
+            case (.updated, false):
+                viewModel.handleBuyUpdatedState()
+            case (.failed(let error), false):
+                viewModel.buyActionButtonViewModel?.updateState(
                     to: .restricted(reason: Localization.actionButtonsSomethingWrongAlertMessage)
                 )
             }
@@ -246,10 +253,17 @@ private extension ActionButtonsViewModel {
 
     func updateSwapButtonState(_ expressUpdateState: ExpressAvailabilityUpdateState) {
         TangemFoundation.runTask(in: self) { @MainActor viewModel in
-            switch expressUpdateState {
-            case .updating: viewModel.handleUpdatingExpressState()
-            case .updated: viewModel.handleUpdatedSwapState()
-            case .failed: viewModel.swapActionButtonViewModel.updateState(
+            let hasCache = viewModel.expressAvailabilityProvider.hasCache
+
+            switch (expressUpdateState, hasCache) {
+            case (_, true):
+                viewModel.handleUpdatedSwapState()
+            case (.updating, false):
+                viewModel.handleUpdatingSwapState()
+            case (.updated, false):
+                viewModel.handleUpdatedSwapState()
+            case (.failed, false):
+                viewModel.swapActionButtonViewModel.updateState(
                     to: .restricted(reason: Localization.actionButtonsSomethingWrongAlertMessage)
                 )
             }
@@ -257,7 +271,7 @@ private extension ActionButtonsViewModel {
     }
 
     @MainActor
-    func handleUpdatingExpressState() {
+    func handleUpdatingSwapState() {
         switch swapActionButtonViewModel.viewState {
         case .idle:
             swapActionButtonViewModel.updateState(to: .initial)
