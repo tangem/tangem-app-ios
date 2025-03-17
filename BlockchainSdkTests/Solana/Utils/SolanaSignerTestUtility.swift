@@ -6,7 +6,7 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import XCTest
+import Testing
 import Combine
 @testable import BlockchainSdk
 @testable import SolanaSwift
@@ -42,9 +42,9 @@ enum SolanaSignerTestUtility {
         }
 
         func sign(hash: Data, walletPublicKey: BlockchainSdk.Wallet.PublicKey) -> AnyPublisher<Data, Error> {
-            XCTAssertTrue(sizeTester.isValidForCos4_52AndAbove(hash))
-            XCTAssertFalse(sizeTester.isValidForCosBelow4_52(hash))
-            XCTAssertFalse(sizeTester.isValidForiPhone7(hash))
+            #expect(sizeTester.isValidForCos4_52AndAbove(hash))
+            #expect(!sizeTester.isValidForCosBelow4_52(hash))
+            #expect(!sizeTester.isValidForiPhone7(hash))
             return Fail(error: raisedError)
                 .eraseToAnyPublisher()
         }
