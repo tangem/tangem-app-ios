@@ -98,8 +98,8 @@ struct IconView<Placeholder: View>: View {
             .fade(duration: 0.3)
             .cacheOriginalImage()
             .resizable()
-            .scaledToFit()
             .frame(size: size)
+            .scaledToFit()
             .cornerRadiusContinuous(cornerRadius)
     }
 
