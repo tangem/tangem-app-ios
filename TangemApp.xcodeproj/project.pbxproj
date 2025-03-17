@@ -257,6 +257,7 @@
 		2DC5DAAD29B782420039154A /* TonCenterApiKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC5DAAC29B782420039154A /* TonCenterApiKeys.swift */; };
 		2DCAEE4B2B13E4F800C87E09 /* GetBlockAccessTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCAEE4A2B13E4F800C87E09 /* GetBlockAccessTokens.swift */; };
 		2DD3672B2D774EE900BB8DCF /* PendingExpressTransactionParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD3672A2D774EE900BB8DCF /* PendingExpressTransactionParams.swift */; };
+		2DD367342D7F374900BB8DCF /* RequiredMemoRestrictable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD367332D7F374900BB8DCF /* RequiredMemoRestrictable.swift */; };
 		2DD5C39A2C4EA6570000658D /* MarketsListPrefetchDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD5C3982C4EA6570000658D /* MarketsListPrefetchDataSource.swift */; };
 		2DD5C39B2C4EA6570000658D /* MarketsListDataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD5C3992C4EA6570000658D /* MarketsListDataController.swift */; };
 		2DD754D72AE1660D0009CA64 /* GenerateAddressesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD754D62AE1660D0009CA64 /* GenerateAddressesViewModel.swift */; };
@@ -3652,6 +3653,7 @@
 		2DC5DAAC29B782420039154A /* TonCenterApiKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TonCenterApiKeys.swift; sourceTree = "<group>"; };
 		2DCAEE4A2B13E4F800C87E09 /* GetBlockAccessTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetBlockAccessTokens.swift; sourceTree = "<group>"; };
 		2DD3672A2D774EE900BB8DCF /* PendingExpressTransactionParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingExpressTransactionParams.swift; sourceTree = "<group>"; };
+		2DD367332D7F374900BB8DCF /* RequiredMemoRestrictable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequiredMemoRestrictable.swift; sourceTree = "<group>"; };
 		2DD5C3982C4EA6570000658D /* MarketsListPrefetchDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsListPrefetchDataSource.swift; sourceTree = "<group>"; };
 		2DD5C3992C4EA6570000658D /* MarketsListDataController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsListDataController.swift; sourceTree = "<group>"; };
 		2DD754D62AE1660D0009CA64 /* GenerateAddressesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateAddressesViewModel.swift; sourceTree = "<group>"; };
@@ -11933,11 +11935,12 @@
 			children = (
 				B62D3F042CBC79D900C2460E /* CardanoTransferRestrictable.swift */,
 				B62D3F052CBC79D900C2460E /* DustRestrictable.swift */,
-				0A94FAAA2CF9D25900FD6C2F /* RentExtemptionRestrictable.swift */,
 				B62D3F062CBC79D900C2460E /* FeeResourceRestrictable.swift */,
 				B62D3F072CBC79D900C2460E /* MaximumAmountRestrictable.swift */,
 				2DAB6B6E2CE28E8500B4A10C /* MinimumAmountRestrictable.swift */,
 				B62D3F082CBC79D900C2460E /* MinimumBalanceRestrictable.swift */,
+				0A94FAAA2CF9D25900FD6C2F /* RentExtemptionRestrictable.swift */,
+				2DD367332D7F374900BB8DCF /* RequiredMemoRestrictable.swift */,
 				B62D3F092CBC79D900C2460E /* ReserveAmountRestrictable.swift */,
 				B62D3F0A2CBC79D900C2460E /* TransactionValidator.swift */,
 				B62D3F0B2CBC79D900C2460E /* ValidationError.swift */,
@@ -20349,6 +20352,7 @@
 				2D665C2D2CDCA3FC00C9BA85 /* CSPRDeployHeader.swift in Sources */,
 				2D665C2E2CDCA3FC00C9BA85 /* DeployExecutionResults.swift in Sources */,
 				2D665C2F2CDCA3FC00C9BA85 /* CLTypeSerializeHelper.swift in Sources */,
+				2DD367342D7F374900BB8DCF /* RequiredMemoRestrictable.swift in Sources */,
 				2D665C302CDCA3FC00C9BA85 /* URef.swift in Sources */,
 				2D665C312CDCA3FC00C9BA85 /* CLValueWrapperToJsonString.swift in Sources */,
 				2D665C322CDCA3FC00C9BA85 /* CLValue.swift in Sources */,
