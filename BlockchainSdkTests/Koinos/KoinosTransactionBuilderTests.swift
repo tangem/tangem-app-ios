@@ -8,10 +8,10 @@
 
 import TangemSdk
 import WalletCore
-import XCTest
 @testable import BlockchainSdk
+import Testing
 
-final class KoinosTransactionBuilderTests: XCTestCase {
+struct KoinosTransactionBuilderTests {
     private let transactionBuilder = KoinosTransactionBuilder(koinosNetworkParams: KoinosNetworkParams(isTestnet: false))
     private let transactionBuilderTestnet = KoinosTransactionBuilder(koinosNetworkParams: KoinosNetworkParams(isTestnet: true))
 
@@ -96,27 +96,30 @@ final class KoinosTransactionBuilderTests: XCTestCase {
 // MARK: Tests
 
 extension KoinosTransactionBuilderTests {
-    func testBuildForSign() throws {
+    @Test
+    func buildForSign() throws {
         let (transaction, hash) = try transactionBuilder.buildForSign(
             transaction: makeTransaction(isTestnet: false),
             currentNonce: KoinosAccountNonce(nonce: 10)
         )
 
-        XCTAssertEqual(hash, expectedHash)
-        XCTAssertEqual(transaction, expectedTransaction)
+        #expect(hash == expectedHash)
+        #expect(transaction == expectedTransaction)
     }
 
-    func testBuildForSignTestnet() throws {
+    @Test
+    func buildForSignTestnet() throws {
         let (transaction, hash) = try transactionBuilderTestnet.buildForSign(
             transaction: makeTransaction(isTestnet: true),
             currentNonce: KoinosAccountNonce(nonce: 10)
         )
 
-        XCTAssertEqual(hash, expectedHashTestnet)
-        XCTAssertEqual(transaction, expectedTransactionTestnet)
+        #expect(hash == expectedHashTestnet)
+        #expect(transaction == expectedTransactionTestnet)
     }
 
-    func testBuildForSend() throws {
+    @Test
+    func buildForSend() throws {
         let signature = "17A1EB1CECA3ADB16B17AEB56DF40512720B79AEFCE184C1626DD67E5EF1482373409F8F673157363B263C60B291AED8DABD30B6EBF1CD3E958EB814AC23FE94"
         let publicKey = "0350413909F40AAE7DD6A084A32017E5A45089FB29E91BBE47D41E29C32355BFCD"
         let hash = "E5E8126605ECCD2B1AAC084E8D7A6D7C708C9CE9E63AF4D1371EE7E2C2BFB339"
@@ -124,13 +127,13 @@ extension KoinosTransactionBuilderTests {
         let signedTransaction = try transactionBuilder.buildForSend(
             transaction: expectedTransaction,
             signature: SignatureInfo(
-                signature: XCTUnwrap(signature.data(using: .hexadecimal)),
-                publicKey: XCTUnwrap(publicKey.data(using: .hexadecimal)),
-                hash: XCTUnwrap(hash.data(using: .hexadecimal))
+                signature: #require(signature.data(using: .hexadecimal)),
+                publicKey: #require(publicKey.data(using: .hexadecimal)),
+                hash: #require(hash.data(using: .hexadecimal))
             )
         )
 
-        XCTAssertEqual(signedTransaction.signatures.count, 1)
-        XCTAssertEqual(signedTransaction.signatures[0], expectedSignature)
+        #expect(signedTransaction.signatures.count == 1)
+        #expect(signedTransaction.signatures[0] == expectedSignature)
     }
 }
