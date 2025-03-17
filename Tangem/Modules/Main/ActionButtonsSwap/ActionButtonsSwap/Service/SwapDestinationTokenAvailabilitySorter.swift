@@ -11,9 +11,6 @@ import TangemExpress
 struct SwapDestinationTokenAvailabilitySorter {
     // MARK: - Dependencies
 
-    @Injected(\.expressAvailabilityProvider)
-    private var expressAvailabilityProvider: ExpressAvailabilityProvider
-
     // MARK: - Private property
 
     private let sourceTokenWalletModel: WalletModel
