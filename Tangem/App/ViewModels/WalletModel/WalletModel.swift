@@ -18,8 +18,6 @@ class WalletModel {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
     @Injected(\.accountHealthChecker) private var accountHealthChecker: AccountHealthChecker
 
-    private(set) lazy var walletModelId: WalletModel.Id = .init(tokenItem: tokenItem)
-
     /// Listen tx history changes
     var transactionHistoryPublisher: AnyPublisher<TransactionHistoryState, Never> {
         transactionHistoryState()
@@ -31,15 +29,6 @@ class WalletModel {
 
     var shouldShowFeeSelector: Bool {
         walletManager.allowsFeeSelection
-    }
-
-    var tokenItem: TokenItem {
-        switch amountType {
-        case .coin, .reserve, .feeResource:
-            return .blockchain(blockchainNetwork)
-        case .token(let token):
-            return .token(token, blockchainNetwork)
-        }
     }
 
     var feeTokenItem: TokenItem {
@@ -112,14 +101,6 @@ class WalletModel {
         wallet.blockchain.isTestnet
     }
 
-    var blockchainNetwork: BlockchainNetwork {
-        if wallet.publicKey.derivationPath == nil { // cards without hd wallet
-            return BlockchainNetwork(wallet.blockchain, derivationPath: nil)
-        }
-
-        return .init(wallet.blockchain, derivationPath: wallet.publicKey.derivationPath)
-    }
-
     var qrReceiveMessage: String {
         // [REDACTED_TODO_COMMENT]
         let symbol = wallet.amounts[amountType]?.currencySymbol ?? wallet.blockchain.currencySymbol
@@ -151,6 +132,9 @@ class WalletModel {
 
     let amountType: Amount.AmountType
     let isCustom: Bool
+    let tokenItem: TokenItem
+    let blockchainNetwork: BlockchainNetwork
+    let walletModelId: WalletModel.Id
 
     private let sendAvailabilityProvider: TransactionSendAvailabilityProvider
     private let tokenBalancesRepository: TokenBalancesRepository
@@ -200,6 +184,22 @@ class WalletModel {
         self.isCustom = isCustom
         self.sendAvailabilityProvider = sendAvailabilityProvider
         self.tokenBalancesRepository = tokenBalancesRepository
+
+        let blockchainNetwork = BlockchainNetwork(
+            walletManager.wallet.blockchain,
+            derivationPath: walletManager.wallet.publicKey.derivationPath
+        )
+
+        let tokenItem = switch amountType {
+        case .coin, .reserve, .feeResource:
+            TokenItem.blockchain(blockchainNetwork)
+        case .token(let token):
+            TokenItem.token(token, blockchainNetwork)
+        }
+
+        self.blockchainNetwork = blockchainNetwork
+        self.tokenItem = tokenItem
+        walletModelId = .init(tokenItem: tokenItem)
 
         bind()
         performHealthCheckIfNeeded(shouldPerform: shouldPerformHealthCheck)
