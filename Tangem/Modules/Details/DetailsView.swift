@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLogger
 
 struct DetailsView: View {
     @ObservedObject private var viewModel: DetailsViewModel
@@ -26,6 +27,8 @@ struct DetailsView: View {
             appSettingsSection
 
             supportSection
+
+            shareLogsView
 
             environmentSetupSection
 
@@ -103,6 +106,17 @@ struct DetailsView: View {
         .frame(maxWidth: .infinity)
         .padding(.top, 24)
         .padding(.bottom, 8)
+    }
+
+    private var shareLogsView: some View {
+        Button(action: {
+            let url = OSLogFileParser.logFile
+            AppPresenter.shared.show(
+                UIActivityViewController(activityItems: [url], applicationActivities: nil)
+            )
+        }, label: {
+            Text("Share logs")
+        })
     }
 
     private var environmentSetupSection: some View {
