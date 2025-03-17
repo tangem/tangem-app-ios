@@ -2890,6 +2890,7 @@
 		EF7C4B3D2C93419F005F9360 /* StakingBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7C4B3C2C93419F005F9360 /* StakingBalance.swift */; };
 		EF7C4B3F2C9341EB005F9360 /* StakingPendingActionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7C4B3E2C9341E8005F9360 /* StakingPendingActionType.swift */; };
 		EF7C4B412C936200005F9360 /* StakingValidatorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7C4B402C936200005F9360 /* StakingValidatorType.swift */; };
+		EF7E5F2B2D88A0170074AFCA /* LockingScriptBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7E5F2A2D88A0170074AFCA /* LockingScriptBuilder.swift */; };
 		EF808445293F6B76000D91EA /* TokenURLIconSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808444293F6B76000D91EA /* TokenURLIconSize.swift */; };
 		EF842DEA2AFA58C5006E472E /* ExpressTokensListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF842DE52AFA58C5006E472E /* ExpressTokensListView.swift */; };
 		EF842DEB2AFA58C5006E472E /* ExpressTokensListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF842DE62AFA58C5006E472E /* ExpressTokensListViewModel.swift */; };
@@ -6265,6 +6266,7 @@
 		EF7C4B3C2C93419F005F9360 /* StakingBalance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBalance.swift; sourceTree = "<group>"; };
 		EF7C4B3E2C9341E8005F9360 /* StakingPendingActionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPendingActionType.swift; sourceTree = "<group>"; };
 		EF7C4B402C936200005F9360 /* StakingValidatorType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingValidatorType.swift; sourceTree = "<group>"; };
+		EF7E5F2A2D88A0170074AFCA /* LockingScriptBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockingScriptBuilder.swift; sourceTree = "<group>"; };
 		EF808444293F6B76000D91EA /* TokenURLIconSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenURLIconSize.swift; sourceTree = "<group>"; };
 		EF842DE52AFA58C5006E472E /* ExpressTokensListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTokensListView.swift; sourceTree = "<group>"; };
 		EF842DE62AFA58C5006E472E /* ExpressTokensListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTokensListViewModel.swift; sourceTree = "<group>"; };
@@ -16063,6 +16065,7 @@
 		EF798FE52D6F8D3000B9B4A1 /* UnspentOutputManager */ = {
 			isa = PBXGroup;
 			children = (
+				EF7E5F2A2D88A0170074AFCA /* LockingScriptBuilder.swift */,
 				EF798FE22D6F8D3000B9B4A1 /* CommonUnspentOutputManager.swift */,
 				EF798FE32D6F8D3000B9B4A1 /* UnspentOutput.swift */,
 				EF798FE42D6F8D3000B9B4A1 /* UnspentOutputManager.swift */,
@@ -20530,6 +20533,7 @@
 				B62D40B62CBC79DA00C2460E /* MoonriverExternalLinkProvider.swift in Sources */,
 				B62D42012CBC79DB00C2460E /* XDCExternalLinkProvider.swift in Sources */,
 				B62D41742CBC79DA00C2460E /* RadiantTransactionBuilder.swift in Sources */,
+				EF7E5F2B2D88A0170074AFCA /* LockingScriptBuilder.swift in Sources */,
 				B62D410A2CBC79DA00C2460E /* KaspaWalletAssembly.swift in Sources */,
 				B62D414B2CBC79DA00C2460E /* NEARWalletManager.swift in Sources */,
 				B62D42862CBC79DB00C2460E /* PolygonTransactionHistoryTarget.swift in Sources */,

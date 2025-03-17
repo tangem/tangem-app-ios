@@ -21,7 +21,7 @@ struct CloreWalletAssembly: WalletManagerAssembly {
             bip: .bip44
         )
 
-        let unspentOutputManager = CommonUnspentOutputManager()
+        let unspentOutputManager = CommonUnspentOutputManager(scriptBuilder: .ravencoin)
         let txBuilder = BitcoinTransactionBuilder(
             bitcoinManager: bitcoinManager,
             unspentOutputManager: unspentOutputManager,
