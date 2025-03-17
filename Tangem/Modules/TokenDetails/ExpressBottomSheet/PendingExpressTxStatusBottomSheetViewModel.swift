@@ -58,6 +58,8 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         pendingTransaction.externalTxURL.flatMap { URL(string: $0) }
     }
 
+    private var alreadyTrackedTokenNoticeLongTimeTransactionEvent: Bool = false
+
     init(
         pendingTransaction: PendingTransaction,
         currentTokenItem: TokenItem,
@@ -245,7 +247,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         let (list, currentIndex) = converter.convertToStatusRowDataList(for: pendingTransaction)
 
         updateUI(
-            providerType: pendingTransaction.provider.type,
+            provider: pendingTransaction.provider,
             statusesList: list,
             currentIndex: currentIndex,
             currentStatus: pendingTransaction.transactionStatus,
@@ -256,7 +258,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     }
 
     private func updateUI(
-        providerType: ExpressPendingTransactionRecord.ProviderType,
+        provider: ExpressPendingTransactionRecord.Provider,
         statusesList: [PendingExpressTxStatusRow.StatusRowData],
         currentIndex: Int,
         currentStatus: PendingExpressTransactionStatus,
@@ -301,7 +303,8 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         }
 
         enrichNotificationsWithLongTimeExchangeNotificationIfNeeded(
-            providerType: providerType,
+            providerType: provider.type,
+            providerName: provider.name,
             for: currentStatus,
             inputs: &inputs,
             notificationFactory: notificationFactory
@@ -337,6 +340,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     /// Show long time exchange notification if needed for active exchange state
     private func enrichNotificationsWithLongTimeExchangeNotificationIfNeeded(
         providerType: ExpressPendingTransactionRecord.ProviderType,
+        providerName: String,
         for currentStatus: PendingExpressTransactionStatus,
         inputs: inout [NotificationViewInput],
         notificationFactory: NotificationsFactory
@@ -357,6 +361,17 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
                 buttonAction: weakify(self, forFunction: PendingExpressTxStatusBottomSheetViewModel.didTapNotification(with:action:))
             )
 
+            if !alreadyTrackedTokenNoticeLongTimeTransactionEvent {
+                let analyticsParams: [Analytics.ParameterKey: String] = [
+                    .token: currentTokenItem.currencySymbol,
+                    .provider: providerName,
+                ]
+
+                Analytics.log(event: .tokenNoticeLongTimeTransaction, params: analyticsParams)
+
+                alreadyTrackedTokenNoticeLongTimeTransactionEvent = true
+            }
+
             inputs.append(input)
         }
     }
@@ -370,12 +385,23 @@ extension PendingExpressTxStatusBottomSheetViewModel {
         }
 
         switch event {
-        case .verificationRequired, .longTimeAverageDuration:
+        case .verificationRequired:
             Analytics.log(
                 event: .tokenButtonGoToProvider,
                 params: [
                     .token: currentTokenItem.currencySymbol,
                     .place: Analytics.ParameterValue.kyc.rawValue,
+                ]
+            )
+
+            openProvider()
+
+        case .longTimeAverageDuration:
+            Analytics.log(
+                event: .tokenButtonGoToProvider,
+                params: [
+                    .token: currentTokenItem.currencySymbol,
+                    .place: Analytics.ParameterValue.longTime.rawValue,
                 ]
             )
 
