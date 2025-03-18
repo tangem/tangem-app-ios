@@ -8,6 +8,7 @@
 
 enum OSLogConstants {
     static let fileName = "oslog.csv"
+    static let zipFileName = "log.zip"
     static let separator = ","
     static let cedilla = "¸"
     static let enter = "↵"
