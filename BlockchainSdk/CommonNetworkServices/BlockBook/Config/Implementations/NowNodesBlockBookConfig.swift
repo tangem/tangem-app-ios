@@ -51,7 +51,7 @@ extension NowNodesBlockBookConfig {
         case .bsc:
             return BlockBookNode(
                 rpcNode: "https://bsc.\(host)",
-                restNode: "https://bsc-blockbook.\(host)"
+                restNode: "https://tangem-bsc-bb.\(host)"
             )
         case .arbitrum:
             // L2 blockchains use `currencySymbol` from their L1s, so we can't just

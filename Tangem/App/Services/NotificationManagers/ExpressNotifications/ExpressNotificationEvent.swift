@@ -135,14 +135,13 @@ extension ExpressNotificationEvent: NotificationEvent {
              .verificationRequired,
              .cexOperationFailed,
              .notEnoughReceivedAmountForReserve,
-             .refunded:
+             .refunded,
+             .longTimeAverageDuration:
             return .action
         case .withdrawalNotificationEvent(let event):
             return event.colorScheme
         case .validationErrorEvent(let event, _):
             return event.colorScheme
-        case .longTimeAverageDuration:
-            return .primary
         }
     }
 
@@ -253,7 +252,8 @@ extension ExpressNotificationEvent {
         case .refreshRequired(_, _, .exchangeNotPossibleError, _):
             .swapNoticeExpressError
         case .longTimeAverageDuration:
-            .tokenNoticeLongTimeTransaction
+            // Sending from in place PendingExpressTxStatusBottomSheetViewModel.swift
+            nil
         default:
             nil
         }

@@ -63,6 +63,7 @@ extension CachesDirectoryStorage {
     enum File: String {
         case cachedBalances
         case cachedQuotes
+        case cachedExpressAvailability
 
         var name: String {
             switch self {
@@ -70,6 +71,8 @@ extension CachesDirectoryStorage {
                 return "cached_balances"
             case .cachedQuotes:
                 return "cached_quotes"
+            case .cachedExpressAvailability:
+                return "cached_express_availability"
             }
         }
     }

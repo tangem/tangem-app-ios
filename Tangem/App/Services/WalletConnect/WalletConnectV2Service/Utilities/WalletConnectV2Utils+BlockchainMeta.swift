@@ -8,7 +8,7 @@
 
 import BlockchainSdk
 
-extension WalletConnectV2Utils {
+extension OldWalletConnectV2Utils {
     struct BlockchainMeta {
         let id: String
         let currencySymbol: String
@@ -16,7 +16,7 @@ extension WalletConnectV2Utils {
     }
 }
 
-extension WalletConnectV2Utils.BlockchainMeta {
+extension OldWalletConnectV2Utils.BlockchainMeta {
     init?(from blockchain: BlockchainSdk.Blockchain?) {
         if let blockchain {
             id = blockchain.networkId

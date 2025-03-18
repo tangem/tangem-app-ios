@@ -131,16 +131,13 @@ private extension ActionButtonsSellViewModel {
         let exchangeUtility = makeExchangeCryptoUtility(for: walletModel)
 
         guard
-            let sellCryptoRequest = exchangeUtility.extractSellCryptoRequest(from: response),
-            var amountToSend = walletModel.wallet.amounts[walletModel.tokenItem.amountType]
+            let sellCryptoRequest = exchangeUtility.extractSellCryptoRequest(from: response)
         else {
             return nil
         }
 
-        amountToSend.value = sellCryptoRequest.amount
-
         return .init(
-            amountToSend: amountToSend,
+            amountToSend: sellCryptoRequest.amount,
             destination: sellCryptoRequest.targetAddress,
             tag: sellCryptoRequest.tag,
             walletModel: walletModel
@@ -152,7 +149,7 @@ private extension ActionButtonsSellViewModel {
             currencySymbol: token.infoProvider.tokenItem.currencySymbol,
             amountType: token.walletModel.tokenItem.amountType,
             blockchain: token.walletModel.tokenItem.blockchain,
-            walletAddress: token.walletModel.defaultAddress
+            walletAddress: token.walletModel.defaultAddressString
         )
 
         return sellUrl
@@ -161,7 +158,7 @@ private extension ActionButtonsSellViewModel {
     func makeExchangeCryptoUtility(for walletModel: any WalletModel) -> ExchangeCryptoUtility {
         return ExchangeCryptoUtility(
             tokenItem: walletModel.tokenItem,
-            address: walletModel.defaultAddress
+            address: walletModel.defaultAddressString
         )
     }
 }
