@@ -87,10 +87,13 @@ enum AlertBuilder {
         ))
     }
 
-    static func makeExitAlert(okAction: @escaping (() -> Void) = {}) -> AlertBinder {
+    static func makeExitAlert(
+        message: String? = nil,
+        okAction: @escaping (() -> Void) = {}
+    ) -> AlertBinder {
         .init(alert: Alert(
             title: Text(Localization.onboardingExitAlertTitle),
-            message: Text(Localization.onboardingExitAlertMessage),
+            message: Text(message ?? Localization.onboardingExitAlertMessage),
             primaryButton: .default(Text(Localization.commonNo), action: {}),
             secondaryButton: .destructive(Text(Localization.commonYes), action: okAction)
         ))
