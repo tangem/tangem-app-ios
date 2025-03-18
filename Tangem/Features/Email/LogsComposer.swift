@@ -23,7 +23,7 @@ class LogsComposer {
     /*
      func getZipLogsData() -> (data: Data, file: URL)? {
          do {
-             let file = try OSLogZipFileParser.zipFile()
+             let file = try OSLogZipFileBuilder.zipFile()
              let data = try Data(contentsOf: file)
 
              return (data: data, file: file)
