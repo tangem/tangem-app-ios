@@ -68,12 +68,11 @@ class VisaOnboardingPinViewModel: ObservableObject {
     }
 
     private func validatePinCode(_ pin: String) throws(PinValidationError) {
-        guard pin.count == pinCodeLength else {
+        guard
+            pin.count == pinCodeLength,
+            pin.allSatisfy(\.isNumber)
+        else {
             throw .invalidLength
-        }
-
-        guard pin.allSatisfy(\.isNumber) else {
-            throw .nonNumericCharacters
         }
 
         let digits = pin.map { $0.wholeNumberValue! }
@@ -82,10 +81,14 @@ class VisaOnboardingPinViewModel: ObservableObject {
             throw .repeatedDigits
         }
 
+        let banList: Set<String> = [
+            "0987",
+        ]
+
         let isAscending = zip(digits, digits.dropFirst()).allSatisfy { $1 == $0 + 1 }
         let isDescending = zip(digits, digits.dropFirst()).allSatisfy { $1 == $0 - 1 }
 
-        if isAscending || isDescending {
+        if isAscending || isDescending || banList.contains(pin) {
             throw .sequentialDigits
         }
     }
@@ -94,14 +97,13 @@ class VisaOnboardingPinViewModel: ObservableObject {
 extension VisaOnboardingPinViewModel {
     enum PinValidationError: Error {
         case invalidLength
-        case nonNumericCharacters
         case repeatedDigits
         case sequentialDigits
 
         var errorMessage: String? {
             switch self {
             case .invalidLength: return nil
-            case .nonNumericCharacters, .repeatedDigits, .sequentialDigits:
+            case .repeatedDigits, .sequentialDigits:
                 return Localization.visaOnboardingPinValidationErrorMessage
             }
         }
