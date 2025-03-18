@@ -10,15 +10,4 @@ public enum VisaCardAuthorizationProcessorError {
     case authorizationChallengeNotFound
     case invalidCardInput
     case networkError(Error)
-
-    public var description: String {
-        switch self {
-        case .authorizationChallengeNotFound:
-            return "Authorization challenge request not found"
-        case .invalidCardInput:
-            return "Invalid card input"
-        case .networkError(let error):
-            return "Underlying network error: \(error)"
-        }
-    }
 }
