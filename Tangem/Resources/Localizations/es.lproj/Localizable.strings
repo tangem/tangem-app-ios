@@ -480,6 +480,10 @@
 "markets_token_details_volume" = "Volumen";
 "markets_tooltip_message" = "Tire hacia arriba o toque la barra de búsqueda para agregar tokens directamente desde el mercado";
 "markets_tooltip_title" = "Agregar tokens";
+"nft_wallet_count" = "%1$li NFTs in %2$li collection";
+"nft_wallet_receive_nft" = "Tap here to receive first NFT";
+"nft_wallet_title" = "NFT collections";
+"nft_wallet_unable_to_load" = "Unable to load the data";
 "onboarding_access_code_feature_1_description" = "Deba configurar un único código de acceso para proteger todss sus dispositivos.";
 "onboarding_access_code_feature_1_title" = "Proteger";
 "onboarding_access_code_feature_2_description" = "Puede configurar un código de acceso individual en cada tarjeta más adelante";
@@ -998,7 +1002,6 @@
 "visa_onboarding_cancel_activation" = "Cancel Activation";
 "visa_onboarding_close_alert_message" = "Are you sure you want to exit? You can continue later from where you left off.";
 "visa_onboarding_in_progress_description" = "This won't take long. We're setting up your account.";
-"visa_onboarding_in_progress_issuer_description" = "This won’t take long. We’re completing the activation";
 "visa_onboarding_in_progress_issuer_description" = "This won’t take long. We’re completing the activation.";
 "visa_onboarding_in_progress_title" = "Getting everything ready!";
 "visa_onboarding_other_wallet" = "Other wallet";
@@ -1013,10 +1016,8 @@
 "visa_onboarding_wallet_connection_navigation_title" = "Wallet connection";
 "visa_onboarding_wallet_list_header" = "Choose wallet";
 "visa_onboarding_welcome_back_button_title" = "Continue Activation";
-"visa_onboarding_welcome_back_button_title" = "Continue Activation";
 "visa_onboarding_welcome_back_description" = "Let's continue setting up your account.";
 "visa_onboarding_welcome_back_title" = "Welcome back!";
-"visa_onboarding_welcome_button_title" = "Start Activation";
 "visa_onboarding_welcome_button_title" = "Start Activation";
 "visa_onboarding_welcome_description" = "Follow the steps to set up your account.";
 "visa_onboarding_welcome_title" = "Welcome!";
