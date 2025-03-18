@@ -11,7 +11,6 @@ import TangemLogger
 
 protocol LogFileProvider {
     var logData: Data? { get }
-    func prepareLogFile() -> URL
 }
 
 enum LogFilesNames {
