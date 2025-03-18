@@ -78,7 +78,7 @@ private extension BitcoreNetworkProvider {
 private extension BitcoreNetworkProvider {
     func mapToUnspentOutputs(outputs: [BitcoreDTO.UTXO.Response]) -> [UnspentOutput] {
         outputs.map {
-            UnspentOutput(blockId: $0.mintHeight ?? 0, hash: Data(hex: $0.mintTxid), index: $0.mintIndex, amount: $0.value)
+            UnspentOutput(blockId: $0.mintHeight ?? 0, hash: Data(hexString: $0.mintTxid), index: $0.mintIndex, amount: $0.value)
         }
     }
 
