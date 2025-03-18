@@ -20,11 +20,11 @@ struct VisaOnboardingTangemWalletDeployApproveView: View {
             Spacer()
 
             VStack(spacing: 14) {
-                Text("Prepare Tangem Wallet")
+                Text(Localization.visaOnboardingTangemApproveTitle)
                     .multilineTextAlignment(.center)
                     .style(Fonts.Bold.title1, color: Colors.Text.primary1)
 
-                Text("Prepare the Tangem card and tap to approve.")
+                Text(Localization.visaOnboardingTangemApproveDescription)
                     .multilineTextAlignment(.center)
                     .style(Fonts.Regular.callout, color: Colors.Text.secondary)
                     .padding(.horizontal, 22)
@@ -35,7 +35,7 @@ struct VisaOnboardingTangemWalletDeployApproveView: View {
             Spacer()
 
             MainButton(
-                title: "Approve",
+                title: Localization.commonApprove,
                 icon: .trailing(Assets.tangemIcon),
                 isLoading: viewModel.isLoading,
                 action: viewModel.approveAction
