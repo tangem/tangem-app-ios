@@ -147,7 +147,7 @@ private extension BlockBookUTXOProvider {
     func mapToUnspentOutput(outputs: [BlockBookUnspentTxResponse]) -> [UnspentOutput] {
         outputs.compactMap { output in
             Decimal(stringValue: output.value).map { value in
-                .init(blockId: output.height ?? 0, hash: Data(hex: output.txid), index: output.vout, amount: value.uint64Value)
+                .init(blockId: output.height ?? 0, hash: Data(hexString: output.txid), index: output.vout, amount: value.uint64Value)
             }
         }
     }

@@ -117,9 +117,9 @@ class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
 // MARK: - BitcoinTransactionFeeCalculator
 
 extension BitcoinWalletManager: BitcoinTransactionFeeCalculator {
-    func calculateFee(satoshiPerByte: Int, amount: Amount, destination: String) -> Fee {
+    func calculateFee(satoshiPerByte: Int, amount: Decimal, destination: String) -> Fee {
         let fee = txBuilder.bitcoinManager.fee(
-            for: amount.value,
+            for: amount,
             address: destination,
             feeRate: satoshiPerByte,
             senderPay: false,

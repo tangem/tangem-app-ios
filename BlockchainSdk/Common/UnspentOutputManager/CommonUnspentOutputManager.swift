@@ -27,15 +27,26 @@ extension CommonUnspentOutputManager: UnspentOutputManager {
         }
     }
 
-    func outputs(for amount: UInt64, script: Data) throws -> [UnspentOutput] {
-        guard let outputs = outputs[script] else {
-            BSDKLogger.error(error: "No outputs for \(script)")
-            throw Errors.noOutputs
-        }
+    func preImage(amount: UInt64, fee: UInt64) throws -> UTXOPreImageTransactionBuilder.PreImageTransaction {
+        try UTXOPreImageTransactionBuilder(
+            outputs: allOutputs(),
+            amount: amount,
+            fee: .exactly(fee: fee),
+            changeScript: .p2wpkh,
+            destinationScript: .p2wpkh,
+            dustThreshold: 10_000
+        ).preImage()
+    }
 
-        // [REDACTED_TODO_COMMENT]
-        // [REDACTED_INFO]
-        return outputs
+    func preImage(amount: UInt64, feeRate: UInt64) throws -> UTXOPreImageTransactionBuilder.PreImageTransaction {
+        try UTXOPreImageTransactionBuilder(
+            outputs: allOutputs(),
+            amount: amount,
+            fee: .calculate(feeRate: feeRate),
+            changeScript: .p2wpkh,
+            destinationScript: .p2wpkh,
+            dustThreshold: 10_000
+        ).preImage()
     }
 
     func allOutputs() -> [ScriptUnspentOutput] {
