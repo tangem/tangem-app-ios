@@ -40,7 +40,7 @@ class LogsViewModel: ObservableObject {
 
     private func share() {
         do {
-            let url = try OSLogZipFileParser.zipFile()
+            let url = try OSLogZipFileBuilder.zipFile()
             AppPresenter.shared.show(
                 UIActivityViewController(activityItems: [url], applicationActivities: nil)
             )
@@ -55,7 +55,7 @@ class LogsViewModel: ObservableObject {
             message: "Do you want to delete `\(OSLogFileParser.logFile.absoluteString)` file?",
             with: .withPrimaryCancelButton(secondaryTitle: "Yes", secondaryAction: { [weak self] in
                 try? OSLogFileParser.removeFile()
-                try? OSLogZipFileParser.removeFile()
+                try? OSLogZipFileBuilder.removeFile()
 
                 self?.selectedCategoryIndex = .zero
                 self?.load()
