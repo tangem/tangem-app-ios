@@ -24,11 +24,11 @@ import TangemFoundation
 /// `008` - Card Authorization Processor
 /// `009` - Common Visa
 /// `010` - Payment account token Info loader
-extension VisaAPIError: TangemError {
+extension VisaAPIError: UniversalError {
     public var errorCode: Int { 104001001 }
 }
 
-extension VisaAuthorizationTokensHandlerError: TangemError {
+extension VisaAuthorizationTokensHandlerError: UniversalError {
     public var errorCode: Int {
         switch self {
         case .authorizationTokensNotFound: return 104002001
@@ -42,7 +42,7 @@ extension VisaAuthorizationTokensHandlerError: TangemError {
     }
 }
 
-extension VisaActivationError: TangemError {
+extension VisaActivationError: UniversalError {
     public var errorCode: Int {
         switch self {
         case .notImplemented: return 104003001
@@ -65,7 +65,7 @@ extension VisaActivationError: TangemError {
         case .missingWalletAddressInInput: return 104003018
         case .missingActivationInput: return 104003019
         case .underlyingError(let error):
-            if let tangemError = error as? TangemError {
+            if let tangemError = error as? UniversalError {
                 return tangemError.errorCode
             }
 
@@ -74,7 +74,7 @@ extension VisaActivationError: TangemError {
     }
 }
 
-extension VisaAccessCodeValidationError: TangemError {
+extension VisaAccessCodeValidationError: UniversalError {
     public var errorCode: Int {
         switch self {
         case .accessCodeIsTooShort: return 104004001
@@ -82,11 +82,11 @@ extension VisaAccessCodeValidationError: TangemError {
     }
 }
 
-extension VisaAuthorizationAPIError: TangemError {
+extension VisaAuthorizationAPIError: UniversalError {
     public var errorCode: Int { 104005001 }
 }
 
-extension PaymentologyPINCodeProcessor.PaymentologyError: TangemError {
+extension PaymentologyPINCodeProcessor.PaymentologyError: UniversalError {
     public var errorCode: Int {
         switch self {
         case .invalidSessionKeyFormat: return 104006001
@@ -99,7 +99,7 @@ extension PaymentologyPINCodeProcessor.PaymentologyError: TangemError {
     }
 }
 
-extension VisaParserError: TangemError {
+extension VisaParserError: UniversalError {
     public var errorCode: Int {
         switch self {
         case .addressResponseDoesntContainAddress: return 104007001
@@ -114,13 +114,13 @@ extension VisaParserError: TangemError {
     }
 }
 
-extension VisaCardAuthorizationProcessorError: TangemError {
+extension VisaCardAuthorizationProcessorError: UniversalError {
     public var errorCode: Int {
         switch self {
         case .authorizationChallengeNotFound: return 104008001
         case .invalidCardInput: return 104008001
         case .networkError(let error):
-            if let tangemError = error as? TangemError {
+            if let tangemError = error as? UniversalError {
                 return tangemError.errorCode
             }
 
@@ -129,12 +129,12 @@ extension VisaCardAuthorizationProcessorError: TangemError {
     }
 }
 
-extension VisaError: TangemError {
+extension VisaError: UniversalError {
     public var errorCode: Int {
         switch self {
         case .failedToCreateDerivation: return 104009001
         case .failedToCreateAddress(let error):
-            if let tangemError = error as? TangemError {
+            if let tangemError = error as? UniversalError {
                 return tangemError.errorCode
             }
 
@@ -143,7 +143,7 @@ extension VisaError: TangemError {
     }
 }
 
-extension VisaTokenInfoLoader.LoaderError: TangemError {
+extension VisaTokenInfoLoader.LoaderError: UniversalError {
     public var errorCode: Int {
         switch self {
         case .failedToLoadInfo(let method):
