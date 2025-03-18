@@ -6,9 +6,7 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Foundation
-
-public enum VisaActivationError: LocalizedError {
+public enum VisaActivationError {
     case notImplemented
     case missingAccessCode
     case missingAccessToken
@@ -55,8 +53,4 @@ public enum VisaActivationError: LocalizedError {
             return "Underlying Visa Activation Error: \(error.localizedDescription)"
         }
     }
-}
-
-public enum VisaAccessCodeValidationError: String, Error {
-    case accessCodeIsTooShort
 }
