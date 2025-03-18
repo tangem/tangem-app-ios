@@ -92,7 +92,7 @@ private extension RavencoinNetworkProvider {
 private extension RavencoinNetworkProvider {
     func mapToUnspentOutputs(outputs: [RavencoinDTO.UTXO.Response]) -> [UnspentOutput] {
         outputs.map {
-            UnspentOutput(blockId: $0.height ?? 0, hash: Data(hex: $0.txid), index: $0.vout, amount: $0.satoshis)
+            UnspentOutput(blockId: $0.height ?? 0, hash: Data(hexString: $0.txid), index: $0.vout, amount: $0.satoshis)
         }
     }
 

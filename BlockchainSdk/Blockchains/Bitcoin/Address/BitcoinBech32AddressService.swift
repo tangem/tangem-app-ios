@@ -9,6 +9,7 @@
 import Foundation
 import BitcoinCore
 import TangemSdk
+import WalletCore
 
 @available(iOS 13.0, *)
 class BitcoinBech32AddressService {
@@ -25,6 +26,10 @@ class BitcoinBech32AddressService {
             prefix: networkParams.bech32PrefixPattern,
             scriptConverter: scriptConverter
         )
+
+        let decoded = WalletCore.Bech32.decode(string: "abcdef1qpzry9x8gf2tvdw0s3jn54khce6mua7lmqqqxw")
+        let keyhash = WalletCore.BitcoinAddress(string: "abcdef1qpzry9x8gf2tvdw0s3jn54khce6mua7lmqqqxw")!.keyhash.hexString
+        print("keyhash", keyhash)
     }
 }
 
