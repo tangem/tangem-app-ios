@@ -32,7 +32,7 @@ struct UserWalletFinder {
             guard let walletModel = walletModels.first(where: {
                 $0.isMainToken &&
                     $0.tokenItem.blockchain == blockchain &&
-                    $0.defaultAddress == address
+                    $0.defaultAddressString == address
             }) else {
                 continue
             }
