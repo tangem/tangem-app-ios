@@ -176,7 +176,8 @@ class ExpressNotificationManager {
              .notEnoughMana,
              .manaLimit,
              .remainingAmountIsLessThanRentExemption,
-             .koinosInsufficientBalanceToSendKoin:
+             .koinosInsufficientBalanceToSendKoin,
+             .destinationMemoRequired:
             event = .validationErrorEvent(event: validationErrorEvent, context: context)
         }
 
