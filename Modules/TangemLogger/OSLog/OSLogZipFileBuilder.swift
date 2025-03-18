@@ -1,5 +1,5 @@
 //
-//  OSLogZipFileParser.swift
+//  OSLogZipFileBuilder.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,20 +9,18 @@
 import Foundation
 import ZIPFoundation
 
-public class OSLogZipFileParser {
+public enum OSLogZipFileBuilder {
     private static let fileManager: FileManager = .default
     private static let logZipFileURL: URL = OSLogFileWriter.shared.logFile
         .deletingLastPathComponent()
         .appendingPathComponent(OSLogConstants.zipFileName)
 
-    private init() {}
-
     public static func zipFile() throws -> URL {
-        let fileManager = OSLogZipFileParser.fileManager
-        let zipFile = OSLogZipFileParser.logZipFileURL
+        let fileManager = OSLogZipFileBuilder.fileManager
+        let zipFile = OSLogZipFileBuilder.logZipFileURL
 
         if fileManager.fileExists(atPath: zipFile.path) {
-            try OSLogZipFileParser.removeFile()
+            try OSLogZipFileBuilder.removeFile()
         }
 
         try fileManager.zipItem(at: OSLogFileWriter.shared.logFile, to: zipFile)
@@ -30,6 +28,6 @@ public class OSLogZipFileParser {
     }
 
     public static func removeFile() throws {
-        try OSLogZipFileParser.fileManager.removeItem(at: OSLogZipFileParser.logZipFileURL)
+        try OSLogZipFileBuilder.fileManager.removeItem(at: OSLogZipFileBuilder.logZipFileURL)
     }
 }
