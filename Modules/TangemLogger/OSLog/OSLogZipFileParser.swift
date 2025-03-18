@@ -10,21 +10,26 @@ import Foundation
 import ZIPFoundation
 
 public class OSLogZipFileParser {
-    private static let shared = OSLogZipFileParser()
-
-    private lazy var fileManager: FileManager = .default
-    private lazy var logZipFileURL: URL = OSLogFileWriter.shared.logFile
+    private static let fileManager: FileManager = .default
+    private static let logZipFileURL: URL = OSLogFileWriter.shared.logFile
         .deletingLastPathComponent()
         .appendingPathComponent(OSLogConstants.zipFileName)
 
     private init() {}
 
     public static func zipFile() throws -> URL {
-        try OSLogZipFileParser.shared.fileManager.zipItem(at: OSLogFileWriter.shared.logFile, to: OSLogZipFileParser.shared.logZipFileURL)
-        return OSLogZipFileParser.shared.logZipFileURL
+        let fileManager = OSLogZipFileParser.fileManager
+        let zipFile = OSLogZipFileParser.logZipFileURL
+
+        if fileManager.fileExists(atPath: zipFile.path) {
+            try OSLogZipFileParser.removeFile()
+        }
+
+        try fileManager.zipItem(at: OSLogFileWriter.shared.logFile, to: zipFile)
+        return zipFile
     }
 
     public static func removeFile() throws {
-        try OSLogZipFileParser.shared.fileManager.removeItem(at: OSLogZipFileParser.shared.logZipFileURL)
+        try OSLogZipFileParser.fileManager.removeItem(at: OSLogZipFileParser.logZipFileURL)
     }
 }
