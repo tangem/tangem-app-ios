@@ -15,7 +15,7 @@ protocol SingleTokenBaseRoutable: AnyObject {
     func openBuyCrypto(at url: URL, action: @escaping () -> Void)
     func openSellCrypto(at url: URL, action: @escaping (String) -> Void)
     func openSend(userWalletModel: UserWalletModel, walletModel: any WalletModel)
-    func openSendToSell(amountToSend: Amount, destination: String, tag: String?, userWalletModel: UserWalletModel, walletModel: any WalletModel)
+    func openSendToSell(amountToSend: Decimal, destination: String, tag: String?, userWalletModel: UserWalletModel, walletModel: any WalletModel)
     func openExpress(input: CommonExpressModulesFactory.InputModel)
     func openStaking(options: StakingDetailsCoordinator.Options)
     func openInSafari(url: URL)

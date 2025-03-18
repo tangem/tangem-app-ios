@@ -480,6 +480,10 @@
 "markets_token_details_volume" = "Volume";
 "markets_tooltip_message" = "Pull this up or tap the search bar to add tokens directly from the market";
 "markets_tooltip_title" = "Add tokens";
+"nft_wallet_count" = "%1$li NFTs in %2$li collection";
+"nft_wallet_receive_nft" = "Tap here to receive first NFT";
+"nft_wallet_title" = "NFT collections";
+"nft_wallet_unable_to_load" = "Unable to load the data";
 "onboarding_access_code_feature_1_description" = "Set up a single access code to protect all your devices.";
 "onboarding_access_code_feature_1_title" = "保護";
 "onboarding_access_code_feature_2_description" = "您可以稍後在每張卡上設置單獨的訪問密碼";
@@ -998,7 +1002,6 @@
 "visa_onboarding_cancel_activation" = "Cancel Activation";
 "visa_onboarding_close_alert_message" = "Are you sure you want to exit? You can continue later from where you left off.";
 "visa_onboarding_in_progress_description" = "This won't take long. We're setting up your account.";
-"visa_onboarding_in_progress_issuer_description" = "This won’t take long. We’re completing the activation";
 "visa_onboarding_in_progress_issuer_description" = "This won’t take long. We’re completing the activation.";
 "visa_onboarding_in_progress_title" = "Getting everything ready!";
 "visa_onboarding_other_wallet" = "Other wallet";
@@ -1013,10 +1016,8 @@
 "visa_onboarding_wallet_connection_navigation_title" = "Wallet connection";
 "visa_onboarding_wallet_list_header" = "Choose wallet";
 "visa_onboarding_welcome_back_button_title" = "Continue Activation";
-"visa_onboarding_welcome_back_button_title" = "Continue Activation";
 "visa_onboarding_welcome_back_description" = "Let's continue setting up your account.";
 "visa_onboarding_welcome_back_title" = "Welcome back!";
-"visa_onboarding_welcome_button_title" = "Start Activation";
 "visa_onboarding_welcome_button_title" = "Start Activation";
 "visa_onboarding_welcome_description" = "Follow the steps to set up your account.";
 "visa_onboarding_welcome_title" = "Welcome!";
