@@ -39,7 +39,7 @@ final class BitcoinTransactionTests {
         let manager = BitcoinManager(networkParams: networkParams, walletPublicKey: pubkey, compressedWalletPublicKey: compressedPubkey)
         let converter = SegWitBech32AddressConverter(prefix: networkParams.bech32PrefixPattern, scriptConverter: ScriptConverter())
         let seg: SegWitAddress = try converter.convert(address: segwit.value) as! SegWitAddress
-        XCTAssertEqual(seg.stringValue, segwit.value)
+        #expect(seg.stringValue == segwit.value)
         let unspentOutputManager = try prepareFilledUnspentOutputManager(address: seg)
         let txBuilder = BitcoinTransactionBuilder(bitcoinManager: manager, unspentOutputManager: unspentOutputManager, addresses: addresses)
         txBuilder.fillBitcoinManager()
@@ -75,10 +75,10 @@ final class BitcoinTransactionTests {
 
     private func prepareFilledUnspentOutputManager(address: BitcoinCore.Address) throws -> UnspentOutputManager {
         let utxo1Script = try ScriptBuilder.createOutputScriptData(for: address)
-        #expect(utxo1Script.isEmpty)
+        #expect(!utxo1Script.isEmpty)
         #expect("0014309a0c6efa0da7966d5c42dc5a928f6baf0e47ef" == utxo1Script.hexString.lowercased())
         let utxo2Script = try ScriptBuilder.createOutputScriptData(for: address)
-        XCTAssertFalse(utxo2Script.isEmpty)
+        #expect(!utxo2Script.isEmpty)
         #expect("0014309a0c6efa0da7966d5c42dc5a928f6baf0e47ef" == utxo2Script.hexString.lowercased())
 
         let unspentOutputManager = CommonUnspentOutputManager()

@@ -54,7 +54,7 @@ class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
 
     func updateWallet(with responses: [UTXONetworkProviderUpdatingResponse]) {
         responses.forEach { response in
-            unspentOutputManager.update(outputs: response.response.outputs, for: response.address.value)
+            unspentOutputManager.update(outputs: response.response.outputs, for: response.address)
         }
         txBuilder.fillBitcoinManager()
 
