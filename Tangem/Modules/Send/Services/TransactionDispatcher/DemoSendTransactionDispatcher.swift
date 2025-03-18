@@ -35,7 +35,7 @@ extension DemoSendTransactionDispatcher: TransactionDispatcher {
 
         do {
             _ = try await transactionSigner
-                .sign(hash: hash, walletPublicKey: walletModel.wallet.publicKey)
+                .sign(hash: hash, walletPublicKey: walletModel.publicKey)
                 .mapSendError(tx: hash.hexString)
                 .async()
         } catch {
