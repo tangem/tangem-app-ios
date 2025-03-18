@@ -6,9 +6,7 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Foundation
-
-public enum VisaAuthorizationTokensHandlerError: String, LocalizedError {
+public enum VisaAuthorizationTokensHandlerError {
     case authorizationTokensNotFound
     case refreshTokenExpired
     case missingMandatoryInfoInAccessToken
