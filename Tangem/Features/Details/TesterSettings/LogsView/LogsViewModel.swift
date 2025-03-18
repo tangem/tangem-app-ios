@@ -39,10 +39,14 @@ class LogsViewModel: ObservableObject {
     }
 
     private func share() {
-        let url = OSLogFileParser.logFile
-        AppPresenter.shared.show(
-            UIActivityViewController(activityItems: [url], applicationActivities: nil)
-        )
+        do {
+            let url = try OSLogZipFileParser.zipFile()
+            AppPresenter.shared.show(
+                UIActivityViewController(activityItems: [url], applicationActivities: nil)
+            )
+        } catch {
+            alert = error.alertBinder
+        }
     }
 
     private func clear() {
@@ -51,6 +55,8 @@ class LogsViewModel: ObservableObject {
             message: "Do you want to delete `\(OSLogFileParser.logFile.absoluteString)` file?",
             with: .withPrimaryCancelButton(secondaryTitle: "Yes", secondaryAction: { [weak self] in
                 try? OSLogFileParser.removeFile()
+                try? OSLogZipFileParser.removeFile()
+
                 self?.selectedCategoryIndex = .zero
                 self?.load()
             })
