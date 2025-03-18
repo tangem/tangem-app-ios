@@ -13,7 +13,7 @@ import TangemFoundation
 /// yyy - Subsystem code
 /// zzz - Specific error code
 /// If you need to add new feature add it to list below incrementing last code same for `Subsystems`.
-/// If your feature is in separate target, place file with `FeatureErrorsList` and add all errors with `TangemError` conformance
+/// If your feature is in separate target, place file with `FeatureErrorsList` and add all errors with `UniversalError` conformance
 /// in this separate file. See `VisaErrorsList.swift` for implementation details
 ///
 /// Features:
@@ -28,7 +28,7 @@ import TangemFoundation
 ///
 /// `Subsystems`:
 /// `001` - Onboarding
-extension VisaOnboardingViewModel.OnboardingError: TangemError {
+extension VisaOnboardingViewModel.OnboardingError: UniversalError {
     var errorCode: Int {
         switch self {
         case .missingTargetApproveAddress: return 100001001
