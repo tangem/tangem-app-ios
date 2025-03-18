@@ -36,3 +36,14 @@ extension VisaOnboardingViewModel.OnboardingError: UniversalError {
         }
     }
 }
+
+extension VisaOnboardingPinViewModel.PinValidationError: UniversalError {
+    var errorCode: Int {
+        switch self {
+        case .invalidLength: return 100003001
+        case .nonNumericCharacters: return 100003002
+        case .repeatedDigits: return 100003003
+        case .sequentialDigits: return 100003004
+        }
+    }
+}
