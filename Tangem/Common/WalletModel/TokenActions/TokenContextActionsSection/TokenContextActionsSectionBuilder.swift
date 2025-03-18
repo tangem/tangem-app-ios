@@ -9,8 +9,6 @@
 import Foundation
 
 struct TokenContextActionsSectionBuilder {
-    @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
-
     func buildContextActionsSections(
         tokenItem: TokenItem,
         walletModelId: WalletModelId,
@@ -18,9 +16,17 @@ struct TokenContextActionsSectionBuilder {
         canNavigateToMarketsDetails: Bool,
         canHideToken: Bool
     ) -> [TokenContextActionsSection] {
-        // Impossible case
+        let hideTokenSection = TokenContextActionsSection(items: [.hide])
+
+        // We don't have walletModel for token without derivation
         guard let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == walletModelId }) else {
-            return []
+            var sections: [TokenContextActionsSection] = []
+
+            if canHideToken {
+                sections.append(hideTokenSection)
+            }
+
+            return sections
         }
 
         var sections: [TokenContextActionsSection] = []
@@ -41,7 +47,6 @@ struct TokenContextActionsSectionBuilder {
         }
 
         if canHideToken {
-            let hideTokenSection = TokenContextActionsSection(items: [.hide])
             sections.append(hideTokenSection)
         }
 
