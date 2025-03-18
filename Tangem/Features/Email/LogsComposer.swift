@@ -7,28 +7,30 @@
 //
 
 import Foundation
+import TangemLogger
 
 class LogsComposer {
-    private let providers: [LogFileProvider]
-
-    init(providers: [LogFileProvider]) {
-        self.providers = providers
+    private let infoProvider: LogFileProvider
+    init(infoProvider: LogFileProvider) {
+        self.infoProvider = infoProvider
     }
 
-    convenience init(infoProvider: LogFileProvider) {
-        let providers = [infoProvider /* OSLogFileProvider() */ ]
-        self.init(providers: providers)
+    /// Tokens list info
+    func getInfoData() -> Data? {
+        infoProvider.logData
     }
 
-    func getLogFiles() -> [URL] {
-        return providers.map { $0.prepareLogFile() }
-    }
+    /*
+     func getZipLogsData() -> (data: Data, file: URL)? {
+         do {
+             let file = try OSLogZipFileParser.zipFile()
+             let data = try Data(contentsOf: file)
 
-    func getLogsData() -> [String: Data] {
-        return providers.reduce(into: [:]) { result, provider in
-            if let logData = provider.logData {
-                result[provider.fileName] = logData
-            }
-        }
-    }
+             return (data: data, file: file)
+         } catch {
+             AppLogger.error("LogsComposer zip file preparing", error: error)
+             return nil
+         }
+     }
+     */
 }
