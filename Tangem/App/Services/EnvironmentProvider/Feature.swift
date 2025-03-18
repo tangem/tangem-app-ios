@@ -14,6 +14,7 @@ enum Feature: String, Hashable, CaseIterable {
     case onramp
     case visa // [REDACTED_TODO_COMMENT]
     case nft
+    case walletConnectUI
 
     var name: String {
         switch self {
@@ -22,6 +23,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .onramp: return "Onramp"
         case .visa: return "Visa"
         case .nft: return "NFT"
+        case .walletConnectUI: return "WalletConnect UI"
         }
     }
 
@@ -32,6 +34,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .onramp: return .unspecified
         case .visa: return .unspecified
         case .nft: return .unspecified
+        case .walletConnectUI: return .unspecified
         }
     }
 }

@@ -284,7 +284,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         sendCoordinator = coordinator
     }
 
-    func openSendToSell(amountToSend: Amount, destination: String, tag: String?, userWalletModel: UserWalletModel, walletModel: any WalletModel) {
+    func openSendToSell(amountToSend: Decimal, destination: String, tag: String?, userWalletModel: UserWalletModel, walletModel: any WalletModel) {
         guard SendFeatureProvider.shared.isAvailable else {
             return
         }
@@ -303,7 +303,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
         let options = SendCoordinator.Options(
             walletModel: walletModel,
             userWalletModel: userWalletModel,
-            type: .sell(parameters: .init(amount: amountToSend.value, destination: destination, tag: tag)),
+            type: .sell(parameters: .init(amount: amountToSend, destination: destination, tag: tag)),
             source: .main
         )
         coordinator.start(with: options)
