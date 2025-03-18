@@ -272,7 +272,7 @@ private extension VisaOnboardingViewModel {
 // MARK: - In progress logic&navigation
 
 extension VisaOnboardingViewModel: VisaOnboardingInProgressDelegate {
-    func canProceedOnboarding() async throws -> Bool {
+    func canProceedOnboarding() async throws(VisaActivationError) -> Bool {
         let currentState = visaActivationManager.activationRemoteState
         let newLoadedState = try await visaActivationManager.refreshActivationRemoteState()
 
@@ -372,7 +372,7 @@ extension VisaOnboardingViewModel: VisaOnboardingAccessCodeSetupDelegate {
     func showContactSupportAlert(for error: Error) async {
         let alert = AlertBuilder.makeAlert(
             title: Localization.commonError,
-            message: "Failed to during activation process. Error: \(error.localizedDescription)",
+            message: error.universalErrorMessage,
             primaryButton: .default(
                 Text(Localization.detailsRowTitleContactToSupport),
                 action: { [weak self] in
@@ -529,8 +529,8 @@ private extension VisaOnboardingViewModel {
     }
 }
 
-private extension VisaOnboardingViewModel {
-    enum OnboardingError: String, LocalizedError {
+extension VisaOnboardingViewModel {
+    enum OnboardingError {
         case missingTargetApproveAddress
         case wrongRemoteState
 
