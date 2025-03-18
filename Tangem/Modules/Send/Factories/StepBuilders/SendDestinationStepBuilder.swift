@@ -99,9 +99,9 @@ private extension SendDestinationStepBuilder {
     }
 
     func makeSendDestinationValidator() -> SendDestinationValidator {
-        let addressService = AddressServiceFactory(blockchain: walletModel.wallet.blockchain).makeAddressService()
+        let addressService = AddressServiceFactory(blockchain: walletModel.tokenItem.blockchain).makeAddressService()
         let validator = CommonSendDestinationValidator(
-            walletAddresses: walletModel.addresses,
+            walletAddresses: walletModel.addresses.map { $0.value },
             addressService: addressService,
             supportsCompound: walletModel.tokenItem.blockchain.supportsCompound
         )
@@ -116,7 +116,7 @@ private extension SendDestinationStepBuilder {
     func makeTransactionHistoryMapper() -> TransactionHistoryMapper {
         TransactionHistoryMapper(
             currencySymbol: walletModel.tokenItem.currencySymbol,
-            walletAddresses: walletModel.addresses,
+            walletAddresses: walletModel.addresses.map { $0.value },
             showSign: false
         )
     }
@@ -126,16 +126,16 @@ private extension SendDestinationStepBuilder {
             let walletModels = userWalletModel.walletModelsManager.walletModels
             return result + walletModels
                 .filter { walletModel in
-                    let ignoredAddresses = self.walletModel.wallet.addresses.map { $0.value }
+                    let ignoredAddresses = self.walletModel.addresses.map { $0.value }
 
-                    let shouldBeIncluded = walletModel.wallet.blockchain.supportsCompound || !ignoredAddresses.contains(walletModel.defaultAddress)
+                    let shouldBeIncluded = walletModel.tokenItem.blockchain.supportsCompound || !ignoredAddresses.contains(walletModel.defaultAddressString)
 
                     return walletModel.tokenItem.blockchain.networkId == self.walletModel.tokenItem.blockchain.networkId
                         && walletModel.isMainToken
                         && shouldBeIncluded
                 }
                 .map { walletModel in
-                    (name: userWalletModel.name, address: walletModel.defaultAddress)
+                    (name: userWalletModel.name, address: walletModel.defaultAddressString)
                 }
         }
     }
