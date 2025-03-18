@@ -110,7 +110,7 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
 
 extension MarketsTokenDetailsCoordinator {
     func openReceive(walletModel: any WalletModel) {
-        let infos = walletModel.wallet.addresses.map { address in
+        let infos = walletModel.addresses.map { address in
             ReceiveAddressInfo(
                 address: address.value,
                 type: address.type,
