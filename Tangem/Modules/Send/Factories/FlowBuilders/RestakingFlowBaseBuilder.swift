@@ -35,12 +35,16 @@ struct RestakingFlowBaseBuilder {
             stakingValidatorsInput: restakingModel
         )
 
-        let validators = stakingValidatorsStepBuilder.makeStakingValidatorsStep(
+        let validators = stakingValidatorsStepBuilder.makeRestakingValidatorsStep(
             io: (input: restakingModel, output: restakingModel),
             manager: manager,
             currentValidator: action.validatorInfo,
             actionType: actionType,
             sendFeeLoader: restakingModel
+        )
+
+        let validatorsCompact = stakingValidatorsStepBuilder.makeStakingValidatorsCompactViewModel(
+            io: (input: restakingModel, output: restakingModel)
         )
 
         let sendAmountCompactViewModel = sendAmountStepBuilder.makeSendAmountCompactViewModel(input: restakingModel)
@@ -53,7 +57,7 @@ struct RestakingFlowBaseBuilder {
             editableType: .noEditable,
             sendDestinationCompactViewModel: .none,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
-            stakingValidatorsCompactViewModel: validators.compact,
+            stakingValidatorsCompactViewModel: validatorsCompact,
             sendFeeCompactViewModel: sendFeeCompactViewModel
         )
 
@@ -63,13 +67,13 @@ struct RestakingFlowBaseBuilder {
             sendDestinationCompactViewModel: .none,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             onrampAmountCompactViewModel: .none,
-            stakingValidatorsCompactViewModel: validators.compact,
+            stakingValidatorsCompactViewModel: validatorsCompact,
             sendFeeCompactViewModel: sendFeeCompactViewModel,
             onrampStatusCompactViewModel: .none
         )
 
         let stepsManager = CommonRestakingStepsManager(
-            validatorsStep: validators.step,
+            validatorsStep: validators,
             summaryStep: summary.step,
             finishStep: finish,
             actionType: actionType
