@@ -78,7 +78,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         let requestId: String = UUID().uuidString
         let request = ExpressDTO.Swap.ExchangeData.Request(
             requestId: requestId,
-            fromAddress: item.source.defaultAddress,
+            fromAddress: item.source.defaultAddressString,
             fromContractAddress: item.source.expressCurrency.contractAddress,
             fromNetwork: item.source.expressCurrency.network,
             toContractAddress: item.destination.expressCurrency.contractAddress,
@@ -88,8 +88,8 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             fromDecimals: item.source.decimalCount,
             providerId: item.providerInfo.id,
             rateType: .float,
-            toAddress: item.destination.defaultAddress,
-            refundAddress: item.source.defaultAddress,
+            toAddress: item.destination.defaultAddressString,
+            refundAddress: item.source.defaultAddressString,
             refundExtraId: nil // There is no memo on the client side
         )
 
@@ -110,7 +110,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             txHash: result.hash,
             txId: result.data.expressTransactionId,
             fromNetwork: result.source.expressCurrency.network,
-            fromAddress: result.source.defaultAddress,
+            fromAddress: result.source.defaultAddressString,
             payinAddress: result.data.destinationAddress,
             payinExtraId: result.data.extraDestinationId
         )
@@ -182,7 +182,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             fromPrecision: item.quotesItem.pairItem.fiatCurrency.precision,
             toDecimals: item.quotesItem.pairItem.destination.decimalCount,
             providerId: item.quotesItem.providerInfo.id,
-            toAddress: item.quotesItem.pairItem.destination.defaultAddress,
+            toAddress: item.quotesItem.pairItem.destination.defaultAddressString,
             toExtraId: nil, // There is no memo on the client side
             redirectUrl: item.redirectSettings.successURL,
             language: item.redirectSettings.language,
