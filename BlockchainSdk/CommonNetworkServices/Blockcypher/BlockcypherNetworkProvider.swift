@@ -128,7 +128,7 @@ private extension BlockcypherNetworkProvider {
         return outputs.map {
             // From docs:
             // Height of the block that contains this transaction input/output. If it's unconfirmed, this will equal -1.
-            UnspentOutput(blockId: $0.blockHeight ?? -1, hash: Data(hex: $0.txHash), index: $0.txOutputN, amount: $0.value)
+            UnspentOutput(blockId: $0.blockHeight ?? -1, hash: Data(hexString: $0.txHash), index: $0.txOutputN, amount: $0.value)
         }
     }
 
