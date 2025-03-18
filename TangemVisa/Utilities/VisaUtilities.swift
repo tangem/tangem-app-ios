@@ -24,6 +24,7 @@ public struct VisaUtilities {
     public var visaBatches: [String] {
         [
             "AE05",
+            "FFFC",
         ]
     }
 
