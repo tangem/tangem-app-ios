@@ -63,7 +63,7 @@ class VisaOnboardingViewModel: ObservableObject {
         activationRemoteState: visaActivationManager.activationRemoteState,
         delegate: self
     )
-    lazy var pinSelectionViewModel: OnboardingPinViewModel = .init(delegate: self)
+    lazy var pinSelectionViewModel: VisaOnboardingPinViewModel = .init(delegate: self)
 
     // MARK: - Computed properties
 
@@ -494,7 +494,7 @@ extension VisaOnboardingViewModel: VisaOnboardingTangemWalletApproveDataProvider
 
 // MARK: - PinSelectionDelegate
 
-extension VisaOnboardingViewModel: OnboardingPinSelectionDelegate {
+extension VisaOnboardingViewModel: VisaOnboardingPinSelectionDelegate {
     func useSelectedPin(pinCode: String) async throws {
         try await visaActivationManager.setPINCode(pinCode)
         await proceedFromCurrentRemoteState()
