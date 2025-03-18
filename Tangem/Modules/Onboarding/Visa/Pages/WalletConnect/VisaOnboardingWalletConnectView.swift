@@ -18,11 +18,11 @@ struct VisaOnboardingWalletConnectView: View {
             Assets.Onboarding.tangemPayWc.image
 
             VStack(spacing: 12) {
-                Text("Go to Website")
+                Text(Localization.visaOnboardingWalletConnectTitle)
                     .multilineTextAlignment(.center)
                     .style(Fonts.Bold.title3, color: Colors.Text.primary1)
 
-                Text("You will be able to complete your connection\non the third-party web-site\nand back to the Tangem app")
+                Text(Localization.visaOnboardingWalletConnectDescription)
                     .multilineTextAlignment(.center)
                     .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
             }
@@ -31,9 +31,9 @@ struct VisaOnboardingWalletConnectView: View {
             Spacer()
 
             VStack(spacing: 10) {
-                MainButton(title: "Open in Browser", action: viewModel.openBrowser)
+                MainButton(title: Localization.commonOpenInBrowser, action: viewModel.openBrowser)
 
-                MainButton(title: "Share Link", style: .secondary, action: viewModel.openShareSheet)
+                MainButton(title: Localization.commonShareLink, style: .secondary, action: viewModel.openShareSheet)
             }
             .padding(.horizontal, 16)
         }
