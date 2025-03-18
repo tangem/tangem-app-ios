@@ -19,7 +19,12 @@ protocol UnspentOutputManager {
 }
 
 extension UnspentOutputManager {
-    func update(outputs: [UnspentOutput], for address: LockingScriptAddress) {
+    func update(outputs: [UnspentOutput], for address: any Address) {
+        guard let address = address as? LockingScriptAddress else {
+            assertionFailure("The address is not a LockingScriptAddress")
+            return
+        }
+
         update(outputs: outputs, for: address.scriptPubKey)
     }
 }
