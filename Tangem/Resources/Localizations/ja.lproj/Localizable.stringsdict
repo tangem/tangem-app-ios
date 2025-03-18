@@ -138,10 +138,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>available for %li day</string>
         <key>other</key>
-        <string>available for %li days</string>
+        <string>%li日間利用可能</string>
       </dict>
     </dict>
     <key>warning_missing_derivation_message</key>

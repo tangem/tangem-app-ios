@@ -10,7 +10,7 @@ import Foundation
 import TangemFoundation
 
 enum VisaNotificationEvent {
-    case error(TangemError)
+    case error(UniversalError)
     case onboardingAccountActivationInfo
     case missingValidRefreshToken
 }
@@ -21,7 +21,8 @@ extension VisaNotificationEvent {
         case (.onboardingAccountActivationInfo, .onboardingAccountActivationInfo): return true
         case (.missingValidRefreshToken, .missingValidRefreshToken): return true
         case (.error(let lhsError), .error(let rhsError)): return lhsError.errorCode == rhsError.errorCode
-        default: return false
+        case (.onboardingAccountActivationInfo, _), (.missingValidRefreshToken, _), (.error, _):
+            return false
         }
     }
 }
