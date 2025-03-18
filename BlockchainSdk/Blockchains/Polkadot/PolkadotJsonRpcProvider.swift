@@ -22,7 +22,7 @@ class PolkadotJsonRpcProvider: HostProvider {
         provider = NetworkProvider<PolkadotTarget>(configuration: configuration)
     }
 
-    func storage(key: String) -> AnyPublisher<String, Error> {
+    func storage(key: String) -> AnyPublisher<String?, Error> {
         requestPublisher(for: .storage(key: key))
     }
 
