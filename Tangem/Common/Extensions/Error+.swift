@@ -93,7 +93,7 @@ extension Error {
         switch self {
         case let tangemSdkError as TangemSdkError:
             errorCode = getTangemSdkErrorCode(from: tangemSdkError)
-        case let tangemError as TangemError:
+        case let tangemError as UniversalError:
             errorCode = tangemError.errorCode
         default:
             errorCode = -1
@@ -112,7 +112,7 @@ extension Error {
 
     private func getTangemSdkErrorCode(from error: TangemSdkError) -> Int {
         if case .underlying(let underlyingError) = error,
-           let tangemError = underlyingError as? TangemError {
+           let tangemError = underlyingError as? UniversalError {
             return tangemError.errorCode
         }
 
