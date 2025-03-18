@@ -46,7 +46,7 @@ struct VisaTokenInfoLoader {
             return contractAddress
         } catch {
             VisaLogger.error("Failed to load token contract address", error: error)
-            throw Errors.failedToLoadInfo(method: .contractAddress)
+            throw LoaderError.failedToLoadInfo(method: .contractAddress)
         }
     }
 
@@ -55,7 +55,7 @@ struct VisaTokenInfoLoader {
         let response = try await evmSmartContractInteractor.ethCall(request: request).async()
 
         guard let decimals = EthereumUtils.parseEthereumDecimal(response, decimalsCount: 0) else {
-            throw Errors.failedToLoadInfo(method: .decimals)
+            throw LoaderError.failedToLoadInfo(method: .decimals)
         }
 
         return decimals.decimalNumber.intValue
@@ -67,7 +67,7 @@ struct VisaTokenInfoLoader {
         let textData = Data(hexString: response)
 
         guard let text = String(data: textData, encoding: .utf8) else {
-            throw Errors.failedToLoadInfo(method: requestType)
+            throw LoaderError.failedToLoadInfo(method: requestType)
         }
 
         return trimSpacesAndNullCharacter(text)
@@ -81,14 +81,7 @@ struct VisaTokenInfoLoader {
 }
 
 extension VisaTokenInfoLoader {
-    enum Errors: LocalizedError {
+    enum LoaderError {
         case failedToLoadInfo(method: GetTokenInfoMethod.InfoType)
-
-        var errorDescription: String? {
-            switch self {
-            case .failedToLoadInfo(let method):
-                return "Failed method: \(method)"
-            }
-        }
     }
 }
