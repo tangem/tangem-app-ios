@@ -10,7 +10,7 @@ import Foundation
 
 public protocol ExpressWallet {
     var expressCurrency: ExpressCurrency { get }
-    var defaultAddress: String { get }
+    var defaultAddressString: String { get }
     var decimalCount: Int { get }
 
     var feeCurrencyDecimalCount: Int { get }

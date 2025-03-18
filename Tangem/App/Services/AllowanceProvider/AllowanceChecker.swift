@@ -21,7 +21,7 @@ struct AllowanceChecker {
             throw AllowanceCheckerError.contractAddressNotFound
         }
 
-        var allowance = try await getAllowance(owner: walletModel.defaultAddress, to: spender, contract: contract)
+        var allowance = try await getAllowance(owner: walletModel.defaultAddressString, to: spender, contract: contract)
         allowance /= walletModel.tokenItem.decimalValue
         AppLogger.info("\(walletModel.tokenItem.name) allowance - \(allowance)")
 

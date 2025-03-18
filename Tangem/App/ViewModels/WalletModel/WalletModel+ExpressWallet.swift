@@ -11,6 +11,10 @@ import TangemExpress
 import BlockchainSdk
 
 extension WalletModel {
+    var defaultAddressString: String {
+        defaultAddress.value
+    }
+
     var expressCurrency: TangemExpress.ExpressCurrency {
         tokenItem.expressCurrency
     }

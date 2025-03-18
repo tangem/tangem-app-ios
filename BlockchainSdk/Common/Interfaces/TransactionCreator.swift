@@ -15,7 +15,8 @@ public protocol TransactionCreator: TransactionValidator {
         sourceAddress: String?,
         destinationAddress: String,
         changeAddress: String?,
-        contractAddress: String?
+        contractAddress: String?,
+        params: TransactionParams?
     ) throws -> Transaction
 
     func createTransaction(
@@ -24,7 +25,8 @@ public protocol TransactionCreator: TransactionValidator {
         sourceAddress: String?,
         destinationAddress: String,
         changeAddress: String?,
-        contractAddress: String?
+        contractAddress: String?,
+        params: TransactionParams?
     ) async throws -> Transaction
 }
 
@@ -37,7 +39,8 @@ public extension TransactionCreator {
         sourceAddress: String? = nil,
         destinationAddress: String,
         changeAddress: String? = nil,
-        contractAddress: String? = nil
+        contractAddress: String? = nil,
+        params: TransactionParams? = nil
     ) throws -> Transaction {
         try validate(amount: amount, fee: fee)
 
@@ -47,7 +50,8 @@ public extension TransactionCreator {
             sourceAddress: sourceAddress ?? defaultSourceAddress,
             destinationAddress: destinationAddress,
             changeAddress: changeAddress ?? defaultChangeAddress,
-            contractAddress: contractAddress ?? amount.type.token?.contractAddress
+            contractAddress: contractAddress ?? amount.type.token?.contractAddress,
+            params: params
         )
     }
 
@@ -57,7 +61,8 @@ public extension TransactionCreator {
         sourceAddress: String? = nil,
         destinationAddress: String,
         changeAddress: String? = nil,
-        contractAddress: String? = nil
+        contractAddress: String? = nil,
+        params: TransactionParams? = nil
     ) async throws -> Transaction {
         let transaction = Transaction(
             amount: amount,
@@ -65,7 +70,8 @@ public extension TransactionCreator {
             sourceAddress: defaultSourceAddress,
             destinationAddress: destinationAddress,
             changeAddress: changeAddress ?? defaultChangeAddress,
-            contractAddress: contractAddress ?? amount.type.token?.contractAddress
+            contractAddress: contractAddress ?? amount.type.token?.contractAddress,
+            params: params
         )
 
         try await validate(transaction: transaction)
