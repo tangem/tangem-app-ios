@@ -1,5 +1,5 @@
 //
-//  OnboardingPinView.swift
+//  VisaOnboardingPinView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-struct OnboardingPinView: View {
-    @ObservedObject var viewModel: OnboardingPinViewModel
+struct VisaOnboardingPinView: View {
+    @ObservedObject var viewModel: VisaOnboardingPinViewModel
 
     var body: some View {
         VStack(spacing: 40) {
@@ -25,11 +25,19 @@ struct OnboardingPinView: View {
             }
             .padding(.horizontal, 40)
 
-            OnboardingPinStackView(
-                maxDigits: viewModel.pinCodeLength,
-                isDisabled: viewModel.isLoading,
-                pinText: $viewModel.pinCode
-            )
+            VStack(spacing: 4) {
+                OnboardingPinStackView(
+                    maxDigits: viewModel.pinCodeLength,
+                    isDisabled: viewModel.isLoading,
+                    pinText: $viewModel.pinCode
+                )
+
+                Text(viewModel.errorMessage ?? " ")
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.warning)
+                    .hidden(viewModel.errorMessage == nil)
+            }
 
             Spacer()
 
@@ -46,5 +54,5 @@ struct OnboardingPinView: View {
 }
 
 #Preview {
-    OnboardingPinView(viewModel: .init(delegate: nil))
+    VisaOnboardingPinView(viewModel: .init(delegate: nil))
 }
