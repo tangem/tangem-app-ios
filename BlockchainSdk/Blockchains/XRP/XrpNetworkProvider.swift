@@ -142,6 +142,15 @@ class XRPNetworkProvider: XRPNetworkServiceType, HostProvider {
             .eraseError()
     }
 
+    func checkAccountDestinationTag(account: String) -> AnyPublisher<Bool, Error> {
+        return request(.accountInfo(account: account))
+            .map { xrpResponse -> Bool in
+                xrpResponse.result?.account_flags?.requireDestinationTag ?? false
+            }
+            .eraseToAnyPublisher()
+            .eraseError()
+    }
+
     private func request(_ target: XRPTarget.XRPTargetType) -> AnyPublisher<XrpResponse, MoyaError> {
         provider
             .requestPublisher(XRPTarget(node: node, target: target))
