@@ -14,7 +14,7 @@ struct MarketsTokenDetailsPortfolioCoordinatorFactory {
     private func buildExchangeCryptoUtility(for walletModel: any WalletModel) -> ExchangeCryptoUtility {
         return ExchangeCryptoUtility(
             blockchain: walletModel.tokenItem.blockchain,
-            address: walletModel.defaultAddress,
+            address: walletModel.defaultAddressString,
             amountType: walletModel.tokenItem.amountType
         )
     }

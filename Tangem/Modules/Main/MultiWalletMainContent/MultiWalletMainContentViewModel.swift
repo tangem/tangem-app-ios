@@ -492,7 +492,7 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
         case .sell:
             openSell(for: walletModel)
         case .copyAddress:
-            UIPasteboard.general.string = walletModel.defaultAddress
+            UIPasteboard.general.string = walletModel.defaultAddressString
             delegate?.displayAddressCopiedToast()
         case .exchange:
             tokenRouter.openExchange(walletModel: walletModel)

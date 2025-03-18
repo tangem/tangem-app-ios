@@ -68,6 +68,8 @@ struct BlockchainSDKNotificationMapper {
             return .minimumRestrictAmount(restrictAmountFormatted: restrictAmount.string())
         case .remainingAmountIsLessThanRentExemption(let amount):
             return .remainingAmountIsLessThanRentExemption(amount: amount.description)
+        case .destinationMemoRequired:
+            return .destinationMemoRequired
         }
     }
 
