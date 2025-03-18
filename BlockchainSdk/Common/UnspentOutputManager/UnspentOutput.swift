@@ -20,17 +20,5 @@ struct UnspentOutput {
     let amount: UInt64
 
     var isConfirmed: Bool { blockId > 0 }
-    var txId: String { hash.hexString.removeHexPrefix() }
-}
-
-struct ScriptUnspentOutput {
-    let output: UnspentOutput
-
-    /// LockedScript, ScriptPubKey, ScriptPubKey.hex
-    let script: Data
-
-    var blockId: Int { output.blockId }
-    var hash: Data { output.hash }
-    var index: Int { output.index }
-    var amount: UInt64 { output.amount }
+    var txId: String { hash.hexString.lowercased().removeHexPrefix() }
 }
