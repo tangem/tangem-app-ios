@@ -1,5 +1,5 @@
 //
-//  TangemError.swift
+//  UniversalError.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,6 +8,6 @@
 
 import Foundation
 
-public protocol TangemError: LocalizedError {
+public protocol UniversalError: LocalizedError {
     var errorCode: Int { get }
 }
