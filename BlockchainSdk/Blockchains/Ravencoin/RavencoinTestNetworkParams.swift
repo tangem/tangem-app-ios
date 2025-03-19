@@ -70,3 +70,9 @@ class RavencoinTestNetworkParams: INetwork {
 
     init() {}
 }
+
+extension RavencoinTestNetworkParams: UTXONetworkParams {
+    var p2pkh: UInt8 { pubKeyHash }
+    var p2sh: UInt8 { scriptHash }
+    var bech32: String { bech32PrefixPattern }
+}
