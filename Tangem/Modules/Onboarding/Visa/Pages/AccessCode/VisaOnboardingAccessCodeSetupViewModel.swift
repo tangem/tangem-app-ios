@@ -172,7 +172,7 @@ private extension VisaOnboardingAccessCodeSetupViewModel {
                 }
             ),
             secondaryButton: .destructive(
-                Text("Cancel Activation"),
+                Text(Localization.visaOnboardingCancelActivation),
                 action: { [weak self] in
                     self?.delegate?.closeOnboarding()
                 }
@@ -222,7 +222,7 @@ extension VisaOnboardingAccessCodeSetupViewModel {
         var buttonTitle: String {
             switch self {
             case .accessCode: return Localization.commonContinue
-            case .repeatAccessCode: return "Start activation"
+            case .repeatAccessCode: return Localization.visaOnboardingWelcomeButtonTitle
             }
         }
 
