@@ -307,6 +307,9 @@ extension Wallet2Config: UserWalletConfig {
         // Ramen Cat
         case "AF990006", "AF990007", "AF990008":
             return cardsCount == 2 ? Assets.Cards.ramenCatDouble : Assets.Cards.ramenCatTriple
+        // Sakura
+        case "AF990029", "AF990030", "AF990031":
+            return cardsCount == 2 ? Assets.Cards.sakuraDouble : Assets.Cards.sakuraTriple
         // Tangem Wallet 2.0
         default:
 
