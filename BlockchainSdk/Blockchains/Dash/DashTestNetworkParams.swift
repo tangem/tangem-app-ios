@@ -37,3 +37,9 @@ class DashTestNetworkParams: INetwork {
     /// https://github.com/dashpay/dash/blob/master/src/policy/policy.h#L36
     let dustRelayTxFee = 1000
 }
+
+extension DashTestNetworkParams: UTXONetworkParams {
+    var p2pkh: UInt8 { pubKeyHash }
+    var p2sh: UInt8 { scriptHash }
+    var bech32: String { bech32PrefixPattern }
+}
