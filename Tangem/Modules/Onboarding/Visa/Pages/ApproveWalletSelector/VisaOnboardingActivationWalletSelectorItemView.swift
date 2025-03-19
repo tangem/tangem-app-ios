@@ -58,9 +58,9 @@ extension VisaOnboardingApproveWalletSelectorItemView {
         var title: String {
             switch self {
             case .tangemWallet:
-                return "Tangem Wallet"
+                return Localization.commonTangemWallet
             case .otherWallet:
-                return "Other wallet"
+                return Localization.visaOnboardingOtherWallet
             }
         }
 
