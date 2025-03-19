@@ -310,6 +310,9 @@ extension Wallet2Config: UserWalletConfig {
         // Sakura
         case "AF990029", "AF990030", "AF990031":
             return cardsCount == 2 ? Assets.Cards.sakuraDouble : Assets.Cards.sakuraTriple
+        // Bitcoin Pizza
+        case "AF990019":
+            return cardsCount == 2 ? Assets.Cards.bitcoinPizzaDouble : Assets.Cards.bitcoinPizzaTriple
         // Tangem Wallet 2.0
         default:
 
