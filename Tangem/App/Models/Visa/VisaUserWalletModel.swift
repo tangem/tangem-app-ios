@@ -466,7 +466,7 @@ extension VisaUserWalletModel {
         case idle
     }
 
-    enum ModelError: Error, Hashable {
+    enum ModelError: Hashable {
         case missingRequiredBlockchain
         case invalidBlockchain
         case noPaymentAccount
@@ -480,16 +480,8 @@ extension VisaUserWalletModel {
 
         var notificationEvent: VisaNotificationEvent {
             switch self {
-            case .missingRequiredBlockchain: return .missingRequiredBlockchain
-            case .invalidBlockchain: return .notValidBlockchain
-            case .noPaymentAccount: return .failedToLoadPaymentAccount
-            case .missingPublicKey: return .missingPublicKey
-            case .failedToGenerateAddress: return .failedToGenerateAddress
-            case .authorizationError: return .authorizationError
             case .missingValidRefreshToken: return .missingValidRefreshToken
-            case .missingCardId: return .missingCardId
-            case .invalidConfig: return .invalidConfig
-            case .invalidActivationState: return .invalidActivationState
+            default: return .error(self)
             }
         }
     }
