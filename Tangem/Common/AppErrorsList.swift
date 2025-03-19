@@ -37,6 +37,23 @@ extension VisaOnboardingViewModel.OnboardingError: UniversalError {
     }
 }
 
+extension VisaUserWalletModel.ModelError: UniversalError {
+    var errorCode: Int {
+        switch self {
+        case .missingRequiredBlockchain: return 100002001
+        case .invalidBlockchain: return 100002002
+        case .noPaymentAccount: return 100002003
+        case .missingPublicKey: return 100002004
+        case .failedToGenerateAddress: return 100002005
+        case .authorizationError: return 100002006
+        case .missingValidRefreshToken: return 100002007
+        case .missingCardId: return 100002008
+        case .invalidConfig: return 100002009
+        case .invalidActivationState: return 100002010
+        }
+    }
+}
+
 extension VisaOnboardingPinViewModel.PinValidationError: UniversalError {
     var errorCode: Int {
         switch self {
