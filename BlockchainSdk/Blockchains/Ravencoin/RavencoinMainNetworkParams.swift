@@ -70,3 +70,9 @@ class RavencoinMainNetworkParams: INetwork {
     let dustRelayTxFee = 3000
     init() {}
 }
+
+extension RavencoinMainNetworkParams: UTXONetworkParams {
+    var p2pkh: UInt8 { pubKeyHash }
+    var p2sh: UInt8 { scriptHash }
+    var bech32: String { bech32PrefixPattern }
+}
