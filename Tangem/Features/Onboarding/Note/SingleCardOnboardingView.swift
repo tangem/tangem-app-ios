@@ -178,14 +178,14 @@ struct SingleCardOnboardingView: View {
     }
 }
 
-struct OnboardingView_Previews: PreviewProvider {
-    static var previews: some View {
-        SingleCardOnboardingView(viewModel: .init(
-            input: PreviewData.previewNoteCardOnboardingInput,
-            coordinator: OnboardingCoordinator()
-        ))
-    }
+#if DEBUG
+#Preview {
+    SingleCardOnboardingView(viewModel: .init(
+        input: PreviewData.previewNoteCardOnboardingInput,
+        coordinator: OnboardingCoordinator()
+    ))
 }
+#endif
 
 struct CardOnboardingBackgroundCircle: View {
     let scale: CGFloat
