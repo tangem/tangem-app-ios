@@ -6,87 +6,66 @@
 //  Copyright © 2019 Tangem AG. All rights reserved.
 //
 
-import BitcoinCore
-import TangemSdk
-@testable import BlockchainSdk
+import Combine
 import Testing
+@testable import BlockchainSdk
 
 struct ValidatorTests {
+    class BaseTransactionValidator: TransactionValidator {
+        var wallet: Wallet
+        var walletPublisher: AnyPublisher<Wallet, Never> { Just(wallet).eraseToAnyPublisher() }
+        var statePublisher: AnyPublisher<WalletManagerState, Never> { Just(.initial).eraseToAnyPublisher() }
+
+        init(wallet: Wallet) {
+            self.wallet = wallet
+        }
+    }
+
     @Test
     func txValidation() {
-        let wallet = Wallet(
-            blockchain: .bitcoin(testnet: false),
-            addresses: [.default: PlainAddress(
-                value: "adfjbajhfaldfh",
-                publicKey: .init(seedKey: Data(), derivationType: .none),
-                type: .default
-            )]
-        )
-
-        let walletManager: TransactionValidator = BaseManager(wallet: wallet)
-        walletManager.wallet.add(coinValue: 10)
+        let transactionValidator = BaseTransactionValidator(wallet: Wallet(blockchain: .bitcoin(testnet: false), addresses: [:]))
+        transactionValidator.wallet.add(coinValue: 10)
 
         #expect(throws: Never.self) {
-            try walletManager.validate(
-                amount: Amount(with: walletManager.wallet.amounts[.coin]!, value: 3),
-                fee: Fee(Amount(with: walletManager.wallet.amounts[.coin]!, value: 3))
+            try transactionValidator.validate(
+                amount: Amount(with: transactionValidator.wallet.amounts[.coin]!, value: 3),
+                fee: Fee(Amount(with: transactionValidator.wallet.amounts[.coin]!, value: 3))
             )
         }
 
-        assert(
-            try walletManager.validate(
-                amount: Amount(with: walletManager.wallet.amounts[.coin]!, value: -1),
-                fee: Fee(Amount(with: walletManager.wallet.amounts[.coin]!, value: 3))
-            ),
-            throws: ValidationError.invalidAmount
-        )
+        #expect(throws: ValidationError.invalidAmount) {
+            try transactionValidator.validate(
+                amount: Amount(with: transactionValidator.wallet.amounts[.coin]!, value: -1),
+                fee: Fee(Amount(with: transactionValidator.wallet.amounts[.coin]!, value: 3))
+            )
+        }
 
-        assert(
-            try walletManager.validate(
-                amount: Amount(with: walletManager.wallet.amounts[.coin]!, value: 1),
-                fee: Fee(Amount(with: walletManager.wallet.amounts[.coin]!, value: -1))
-            ),
-            throws: ValidationError.invalidFee
-        )
+        #expect(throws: ValidationError.invalidFee) {
+            try transactionValidator.validate(
+                amount: Amount(with: transactionValidator.wallet.amounts[.coin]!, value: 1),
+                fee: Fee(Amount(with: transactionValidator.wallet.amounts[.coin]!, value: -1))
+            )
+        }
 
-        assert(
-            try walletManager.validate(
-                amount: Amount(with: walletManager.wallet.amounts[.coin]!, value: 11),
-                fee: Fee(Amount(with: walletManager.wallet.amounts[.coin]!, value: 1))
-            ),
-            throws: ValidationError.amountExceedsBalance
-        )
+        #expect(throws: ValidationError.amountExceedsBalance) {
+            try transactionValidator.validate(
+                amount: Amount(with: transactionValidator.wallet.amounts[.coin]!, value: 11),
+                fee: Fee(Amount(with: transactionValidator.wallet.amounts[.coin]!, value: 1))
+            )
+        }
 
-        assert(
-            try walletManager.validate(
-                amount: Amount(with: walletManager.wallet.amounts[.coin]!, value: 1),
-                fee: Fee(Amount(with: walletManager.wallet.amounts[.coin]!, value: 11))
-            ),
-            throws: ValidationError.feeExceedsBalance
-        )
+        #expect(throws: ValidationError.feeExceedsBalance) {
+            try transactionValidator.validate(
+                amount: Amount(with: transactionValidator.wallet.amounts[.coin]!, value: 1),
+                fee: Fee(Amount(with: transactionValidator.wallet.amounts[.coin]!, value: 11))
+            )
+        }
 
-        assert(
-            try walletManager.validate(
-                amount: Amount(with: walletManager.wallet.amounts[.coin]!, value: 3),
-                fee: Fee(Amount(with: walletManager.wallet.amounts[.coin]!, value: 8))
-            ),
-            throws: ValidationError.totalExceedsBalance
-        )
-    }
-
-    private func assert(
-        _ expression: @autoclosure () throws -> Void,
-        throws error: ValidationError
-    ) {
-        var thrownError: Error?
-
-        #expect(
-            performing: { try expression() },
-            throws: { error in
-                thrownError = error
-                return true
-            }
-        )
-        #expect(thrownError as? ValidationError == error)
+        #expect(throws: ValidationError.totalExceedsBalance) {
+            try transactionValidator.validate(
+                amount: Amount(with: transactionValidator.wallet.amounts[.coin]!, value: 3),
+                fee: Fee(Amount(with: transactionValidator.wallet.amounts[.coin]!, value: 8))
+            )
+        }
     }
 }
