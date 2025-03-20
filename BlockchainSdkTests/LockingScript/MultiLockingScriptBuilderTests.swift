@@ -11,21 +11,6 @@ import Testing
 
 class MultiLockingScriptBuilderTests {
     @Test
-    func testBitcoin() throws {
-        // given
-        let builder = MultiLockingScriptBuilder.bitcoin(isTestnet: false)
-
-        try MultiLockingScriptBuilderTests.bitcoin.forEach { data in
-            // when
-            let script = try builder.lockingScript(for: data.address)
-
-            // then
-            #expect(script.data == Data(hexString: data.script))
-            #expect(script.type == data.type)
-        }
-    }
-
-    @Test
     func p2pkh() throws {
         // given
         let builder = MultiLockingScriptBuilder.bitcoin(isTestnet: false)
@@ -89,65 +74,4 @@ class MultiLockingScriptBuilderTests {
         #expect(script.data == Data(hexString: "5120339ce7e165e67d93adb3fef88a6d4beed33f01fa876f05a225242b82a631abc0"))
         #expect(script.type == .p2tr)
     }
-}
-
-extension MultiLockingScriptBuilderTests {
-    struct LockingScriptBuilderTestData {
-        let address: String
-        let type: UTXOScriptType
-        let script: String
-    }
-
-    static let bitcoin: [LockingScriptBuilderTestData] = [
-        LockingScriptBuilderTestData(
-            address: "12higDjoCCNXSA95xZMWUdPvXNmkAduhWv",
-            type: .p2pkh,
-            script: "76a91412ab8dc588ca9d5787dde7eb29569da63c3a238c88ac"
-        ),
-        LockingScriptBuilderTestData(
-            address: "342ftSRCvFHfCeFFBuz4xwbeqnDw6BGUey",
-            type: .p2sh,
-            script: "a91419a7d869032368fd1f1e26e5e73a4ad0e474960e87"
-        ),
-        LockingScriptBuilderTestData(
-            address: "bc1q34aq5drpuwy3wgl9lhup9892qp6svr8ldzyy7c",
-            type: .p2wpkh,
-            script: "00148d7a0a3461e3891723e5fdf8129caa0075060cff"
-        ),
-        LockingScriptBuilderTestData(
-            address: "bc1qeklep85ntjz4605drds6aww9u0qr46qzrv5xswd35uhjuj8ahfcqgf6hak",
-            type: .p2wsh,
-            script: "0020cdbf909e935c855d3e8d1b61aeb9c5e3c03ae8021b286839b1a72f2e48fdba70"
-        ),
-        LockingScriptBuilderTestData(
-            address: "bc1pxwww0ct9ue7e8tdnlmug5m2tamfn7q06sahstg39ys4c9f3340qqxrdu9k",
-            type: .p2tr,
-            script: "5120339ce7e165e67d93adb3fef88a6d4beed33f01fa876f05a225242b82a631abc0"
-        ),
-    ]
-
-    static let litecoin: [LockingScriptBuilderTestData] = [
-        // Legacy addresses
-        LockingScriptBuilderTestData(
-            address: "LbTjMGN7gELw4KbeyQf6cTCq859hT18uy",
-            type: .p2pkh,
-            script: "76a91412ab8dc588ca9d5787dde7eb29569da63c3a238c88ac"
-        ),
-        LockingScriptBuilderTestData(
-            address: "MQMcJhpWHYVeQArcZR3sBgyPZxxRtnH441",
-            type: .p2sh,
-            script: "a914f54a5851e9372b87810a8e60cdd2e7cfd80b6e31e87"
-        ),
-        // Native SegWit addresses
-        LockingScriptBuilderTestData(
-            address: "ltc1qeklep85ntjz4605drds6aww9u0qr46qzrv5xswd35uhjuj8ahfcqgf6hak",
-            type: .p2wsh,
-            script: "0020f54a5851e9372b87810a8e60cdd2e7cfd80b6e31e87"
-        ),
-        LockingScriptBuilderTestData(
-            address: "ltc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4",
-            type: .p2wpkh,
-            script: "0014751e76e8199196d454941c45d1b3a323f1433bd6"
-        ),
-    ]
 }
