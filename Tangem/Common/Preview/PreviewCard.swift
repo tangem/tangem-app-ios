@@ -11,6 +11,7 @@ import TangemSdk
 import Combine
 import BlockchainSdk
 
+/// Should be wrapped in DEBUG
 enum PreviewCard {
     case withoutWallet
     case twin

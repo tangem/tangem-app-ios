@@ -12,14 +12,25 @@ struct LegacyFileLogger {
     // Remove the legacy log file
     func remove() {
         do {
-            let fileName = "scanLogs.txt"
             let fileManager = FileManager.default
-            let logFileURL = fileManager
-                .urls(for: .cachesDirectory, in: .userDomainMask)[0]
-                .appendingPathComponent(fileName)
+            let temporaryFiles = try fileManager.contentsOfDirectory(
+                at: fileManager.temporaryDirectory,
+                includingPropertiesForKeys: nil
+            )
+            let cachesFiles = try fileManager.contentsOfDirectory(
+                at: fileManager.urls(for: .cachesDirectory, in: .userDomainMask)[0],
+                includingPropertiesForKeys: nil
+            )
 
-            if fileManager.fileExists(atPath: logFileURL.path) {
-                try fileManager.removeItem(at: logFileURL)
+            let files = (temporaryFiles + cachesFiles)
+            for file in files {
+                if file.pathExtension == "txt" {
+                    try fileManager.removeItem(at: file)
+                }
+
+                if file.pathExtension == "zip" {
+                    try fileManager.removeItem(at: file)
+                }
             }
         } catch {
             AppLogger.error(error: error)
