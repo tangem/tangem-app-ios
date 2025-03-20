@@ -29,7 +29,9 @@ class RadiantTransactionBuilder {
     // MARK: - Implementation
 
     func buildForSign(transaction: Transaction) throws -> [Data] {
-        let unspents = unspentOutputManager.allOutputs()
+        let unspents = unspentOutputManager.allOutputs().map {
+            SignedUnspentOutput(output: $0.output, signedLockingScript: $0.hash)
+        }
 
         let txForPreimage = UnspentTransaction(
             decimalValue: decimalValue,
@@ -184,8 +186,8 @@ class RadiantTransactionBuilder {
             txBody.append(contentsOf: input.index.bytes4LE)
 
             if (index == nil) || (inputIndex == index) {
-                txBody.append(input.script.count.byte)
-                txBody.append(contentsOf: input.script)
+                txBody.append(input.signedLockingScript.count.byte)
+                txBody.append(contentsOf: input.signedLockingScript)
             } else {
                 txBody.append(UInt8(0x00))
             }
@@ -223,12 +225,12 @@ class RadiantTransactionBuilder {
         return txBody
     }
 
-    private func buildUnspents(signedOutputScripts: [Data]) -> [ScriptUnspentOutput] {
+    private func buildUnspents(signedOutputScripts: [Data]) -> [SignedUnspentOutput] {
         assert(unspentOutputManager.allOutputs().count == signedOutputScripts.count)
 
         return zip(unspentOutputManager.allOutputs(), signedOutputScripts)
             .map { output, signedOutputScript in
-                ScriptUnspentOutput(output: output.output, script: signedOutputScript)
+                SignedUnspentOutput(output: output.output, signedLockingScript: signedOutputScript)
             }
     }
 }
@@ -240,7 +242,7 @@ extension RadiantTransactionBuilder {
         let decimalValue: Decimal
         let amount: Amount
         let fee: Fee
-        let unspents: [ScriptUnspentOutput]
+        let unspents: [SignedUnspentOutput]
 
         var amountSatoshiDecimalValue: Decimal {
             let decimalValue = amount.value * decimalValue
@@ -257,11 +259,11 @@ extension RadiantTransactionBuilder {
         }
 
         private func calculateChange(
-            unspents: [ScriptUnspentOutput],
+            unspents: [SignedUnspentOutput],
             amountSatoshi: Decimal,
             feeSatoshi: Decimal
         ) -> Decimal {
-            let fullAmountSatoshi = Decimal(unspents.reduce(0) { $0 + $1.amount })
+            let fullAmountSatoshi = Decimal(unspents.sum(by: \.output.amount))
             return fullAmountSatoshi - amountSatoshi - feeSatoshi
         }
     }
