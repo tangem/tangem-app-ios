@@ -29,6 +29,8 @@ enum ValidationErrorEvent: Hashable {
 
     case minimumRestrictAmount(restrictAmountFormatted: String)
     case remainingAmountIsLessThanRentExemption(amount: String)
+
+    case destinationMemoRequired
 }
 
 extension ValidationErrorEvent: NotificationEvent {
@@ -48,6 +50,7 @@ extension ValidationErrorEvent: NotificationEvent {
         case .koinosInsufficientBalanceToSendKoin: "koinosInsufficientBalanceToSendKoin".hashValue
         case .minimumRestrictAmount: "minimumRestrictAmount".hashValue
         case .remainingAmountIsLessThanRentExemption: "remainingAmountIsLessThanRentExemption".hashValue
+        case .destinationMemoRequired: "destinationMemoRequired".hashValue
         }
     }
 
@@ -79,6 +82,8 @@ extension ValidationErrorEvent: NotificationEvent {
             return .string(Localization.koinosInsufficientBalanceToSendKoinTitle)
         case .minimumRestrictAmount:
             return .string(Localization.sendNotificationInvalidAmountTitle)
+        case .destinationMemoRequired:
+            return .string(Localization.sendValidationDestinationTagRequiredTitle)
         }
     }
 
@@ -118,6 +123,8 @@ extension ValidationErrorEvent: NotificationEvent {
             return Localization.transferNotificationInvalidMinimumTransactionAmountText(restrictAmountFormatted)
         case .remainingAmountIsLessThanRentExemption(let amount):
             return Localization.sendNotificationInvalidAmountRentFee(amount)
+        case .destinationMemoRequired:
+            return Localization.sendValidationDestinationTagRequiredDescription
         }
     }
 
@@ -146,7 +153,8 @@ extension ValidationErrorEvent: NotificationEvent {
              .manaLimit,
              .koinosInsufficientBalanceToSendKoin,
              .remainingAmountIsLessThanRentExemption,
-             .minimumRestrictAmount:
+             .minimumRestrictAmount,
+             .destinationMemoRequired:
             return .init(iconType: .image(Assets.redCircleWarning.image))
         }
     }
@@ -166,7 +174,8 @@ extension ValidationErrorEvent: NotificationEvent {
              .manaLimit,
              .koinosInsufficientBalanceToSendKoin,
              .remainingAmountIsLessThanRentExemption,
-             .minimumRestrictAmount:
+             .minimumRestrictAmount,
+             .destinationMemoRequired:
             return .critical
         }
     }
@@ -198,7 +207,8 @@ extension ValidationErrorEvent {
              .notEnoughMana,
              .koinosInsufficientBalanceToSendKoin,
              .remainingAmountIsLessThanRentExemption,
-             .minimumRestrictAmount:
+             .minimumRestrictAmount,
+             .destinationMemoRequired:
             return nil
         }
     }
