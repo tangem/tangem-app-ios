@@ -36,7 +36,6 @@ final class BuyActionButtonViewModel: ActionButtonViewModel {
 
     private weak var coordinator: ActionButtonsBuyFlowRoutable?
     private var bag: Set<AnyCancellable> = []
-    private var expressProviderState: ExpressAvailabilityUpdateState = .updating
     private var exchangeServiceState: ExchangeServiceState = .initializing
 
     private let lastButtonTapped: PassthroughSubject<ActionButtonModel, Never>
@@ -87,17 +86,25 @@ extension BuyActionButtonViewModel {
         isOpeningRequired = false
 
         if FeatureProvider.isAvailable(.onramp) {
-            handleExpressProviderState()
+            handleExpressProviderStateTap()
         } else {
             handleExchangeServiceState()
         }
     }
 
-    private func handleExpressProviderState() {
-        switch expressProviderState {
-        case .updating: handleUpdatingStateTap()
-        case .updated: handleUpdatedStateTap()
-        case .failed(let error): handleFailedStateTap(reason: error.localizedDescription)
+    private func handleExpressProviderStateTap() {
+        let expressAvailabilityUpdateState = expressAvailabilityProvider.expressAvailabilityUpdateStateValue
+        let hasCache = expressAvailabilityProvider.hasCache
+
+        switch (expressAvailabilityUpdateState, hasCache) {
+        case (_, true):
+            handleUpdatedStateTap()
+        case (.updating, false):
+            handleUpdatingStateTap()
+        case (.updated, false):
+            handleUpdatedStateTap()
+        case (.failed(let error), false):
+            handleFailedStateTap(reason: error.localizedDescription)
         }
     }
 
@@ -120,16 +127,6 @@ extension BuyActionButtonViewModel {
             .sink { viewModel, model in
                 if model != viewModel.model, viewModel.isOpeningRequired {
                     viewModel.isOpeningRequired = false
-                }
-            }
-            .store(in: &bag)
-
-        expressAvailabilityProvider
-            .expressAvailabilityUpdateState
-            .withWeakCaptureOf(self)
-            .sink { viewModel, state in
-                if FeatureProvider.isAvailable(.onramp) {
-                    viewModel.expressProviderState = state
                 }
             }
             .store(in: &bag)
