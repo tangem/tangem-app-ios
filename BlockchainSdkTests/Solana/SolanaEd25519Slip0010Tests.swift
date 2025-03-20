@@ -6,13 +6,13 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import XCTest
 import Combine
 @testable import BlockchainSdk
 @testable import SolanaSwift
+import Testing
 
-final class SolanaEd25519Slip0010Tests: XCTestCase {
-    private var manager: SolanaWalletManager!
+struct SolanaEd25519Slip0010Tests {
+    private let manager: SolanaWalletManager
 
     private let walletPubKey = Data(hex: "B148CC30B144E8F214AE5754C753C40A9BF2A3359DB4246E03C6A2F61A82C282")
     private let address = "Cw3YcfqzRSa7xT7ecpR5E4FKDQU6aaxz5cWje366CZbf"
@@ -20,8 +20,7 @@ final class SolanaEd25519Slip0010Tests: XCTestCase {
     private let feeParameters = SolanaFeeParameters(computeUnitLimit: nil, computeUnitPrice: nil, accountCreationFee: 0)
 
     private let coinSigner = SolanaSignerTestUtility.CoinSigner()
-    override func setUp() {
-        super.setUp()
+    init() {
         let networkingRouter = SolanaDummyNetworkRouter(
             endpoints: [.devnetSolana],
             apiLogger: nil
@@ -43,7 +42,8 @@ final class SolanaEd25519Slip0010Tests: XCTestCase {
         )
     }
 
-    func testCoinTransactionSize() async throws {
+    @Test
+    func coinTransactionSize() async throws {
         let transaction = Transaction(
             amount: .zeroCoin(for: blockchain),
             fee: Fee(.zeroCoin(for: blockchain), parameters: feeParameters),
@@ -54,19 +54,20 @@ final class SolanaEd25519Slip0010Tests: XCTestCase {
         )
 
         do {
-            try await manager.send(transaction, signer: coinSigner).async()
+            _ = try await manager.send(transaction, signer: coinSigner).async()
         } catch let sendTxError as SendTxError {
             guard let castedError = sendTxError.error as? SolanaError else {
                 throw Error.invalid
             }
 
-            XCTAssertEqual(castedError.errorDescription, SolanaError.nullValue.errorDescription)
+            #expect(castedError.errorDescription == SolanaError.nullValue.errorDescription)
         } catch {
             throw error
         }
     }
 
-    func testTokenTransactionSize() async throws {
+    @Test
+    func tokenTransactionSize() async throws {
         let type: Amount.AmountType = .token(
             value: .init(
                 name: "My Token",
@@ -84,13 +85,13 @@ final class SolanaEd25519Slip0010Tests: XCTestCase {
         )
 
         do {
-            try await manager.send(transaction, signer: coinSigner).async()
+            _ = try await manager.send(transaction, signer: coinSigner).async()
         } catch let sendTxError as SendTxError {
             guard let castedError = sendTxError.error as? SolanaError else {
                 throw Error.invalid
             }
 
-            XCTAssertEqual(castedError.errorDescription, SolanaError.nullValue.errorDescription)
+            #expect(castedError.errorDescription == SolanaError.nullValue.errorDescription)
         } catch {
             throw error
         }

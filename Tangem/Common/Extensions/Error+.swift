@@ -10,6 +10,7 @@ import Foundation
 import Moya
 import SwiftUI
 import TangemSdk
+import TangemFoundation
 import TangemVisa
 
 extension Error {
@@ -85,5 +86,37 @@ extension Error {
         default:
             return false
         }
+    }
+
+    var universalErrorMessage: String {
+        let errorCode: Int
+        switch self {
+        case let tangemSdkError as TangemSdkError:
+            errorCode = getTangemSdkErrorCode(from: tangemSdkError)
+        case let tangemError as UniversalError:
+            errorCode = tangemError.errorCode
+        default:
+            errorCode = -1
+        }
+
+        return Localization.universalError(errorCode)
+    }
+
+    var universalErrorAlertBinder: AlertBinder {
+        universalErrorMessage.alertBinder
+    }
+
+    func makeUniversalErrorAlertBinder(okAction: @escaping () -> Void) -> AlertBinder {
+        universalErrorMessage.alertBinder(okAction: okAction)
+    }
+
+    private func getTangemSdkErrorCode(from error: TangemSdkError) -> Int {
+        if case .underlying(let underlyingError) = error,
+           let tangemError = underlyingError as? UniversalError {
+            return tangemError.errorCode
+        }
+
+        let baseErrorCode = 101000000
+        return baseErrorCode + error.code
     }
 }
