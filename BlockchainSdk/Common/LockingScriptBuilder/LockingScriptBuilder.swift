@@ -64,15 +64,15 @@ extension LockingScriptBuilder where Self == Base58Decoder {
         return Base58Decoder(network: KaspaNetworkParams())
     }
 
-    static func fact0rn() -> Self {
-        return Base58Decoder(network: Fact0rnMainNetworkParams())
+    static func radiant() -> Self {
+        return Base58Decoder(network: BitcoinCashNetworkParams())
     }
 }
 
 // MARK: - Decoders
 
-extension LockingScriptBuilder where Self == CashAddrDecoder {
-    static func radiant() -> Self {
-        return CashAddrDecoder(network: BitcoinCashNetworkParams())
+extension LockingScriptBuilder where Self == SegWitDecoder {
+    static func fact0rn() -> Self {
+        return SegWitDecoder(network: Fact0rnMainNetworkParams())
     }
 }
