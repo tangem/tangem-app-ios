@@ -9,6 +9,8 @@
 import Foundation
 
 public enum UTXOScriptType: String, Hashable {
+    /// Currently used only for `Kaspa`
+    case p2pk
     case p2pkh
     case p2sh
     case p2wpkh
@@ -17,6 +19,9 @@ public enum UTXOScriptType: String, Hashable {
 
     var inputSize: Int {
         switch self {
+        case .p2pk:
+            // signature (71-73 bytes) + script bytes (DER encoding + sighash) ≈ 114 bytes
+            return 114
         case .p2pkh:
             // signature (71-73 bytes) + pubkey (33 bytes) + script overhead ≈ 148 bytes
             return 148
@@ -37,6 +42,9 @@ public enum UTXOScriptType: String, Hashable {
 
     var outputSize: Int {
         switch self {
+        case .p2pk:
+            // Public key (33 bytes) + OP_CHECKSIG + script overhead = 44 bytes
+            return 44
         case .p2pkh:
             // OP_DUP + OP_HASH160 + push(20) + pubKeyHash(20) + OP_EQUALVERIFY + OP_CHECKSIG = 25 bytes
             return 25
