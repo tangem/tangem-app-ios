@@ -19,7 +19,7 @@ struct DogecoinWalletAssembly: WalletManagerAssembly {
             bip: .bip44
         )
 
-        let unspentOutputManager = CommonUnspentOutputManager(scriptBuilder: .dogecoin)
+        let unspentOutputManager = CommonUnspentOutputManager(scriptBuilder: .dogecoin())
         let txBuilder = BitcoinTransactionBuilder(
             bitcoinManager: bitcoinManager,
             unspentOutputManager: unspentOutputManager,

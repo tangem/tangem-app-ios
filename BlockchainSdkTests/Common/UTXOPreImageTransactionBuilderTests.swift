@@ -7,11 +7,10 @@
 //
 
 import Testing
-import XCTest
 @testable import BlockchainSdk
 
 class UTXOPreImageTransactionBuilderTests {
-    private let script: ScriptUnspentOutput.Script = .init(data: Data(hexString: ""), type: .p2wpkh)
+    private let script: UTXOLockingScript = .init(data: Data(hexString: ""), type: .p2wpkh)
     private lazy var outputs: [ScriptUnspentOutput] = [
         ScriptUnspentOutput(
             output: UnspentOutput(blockId: 0, hash: Data(), index: 0, amount: 100_000), // 0.0001 BTC
