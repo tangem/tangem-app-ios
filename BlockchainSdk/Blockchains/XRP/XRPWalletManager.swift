@@ -167,3 +167,18 @@ extension XRPWalletManager: ReserveAmountRestrictable {
         }
     }
 }
+
+extension XRPWalletManager: RequiredMemoRestrictable {
+    func validateRequiredMemo(destination: String, transactionParams: TransactionParams?) async throws {
+        if let transactionParams = transactionParams as? XRPTransactionParams, transactionParams.destinationTag != nil {
+            return
+        }
+
+        let isMemoRequired = try await networkService.checkAccountDestinationTag(account: destination).async()
+
+        // Skip verify destinationTag if memo not requiured
+        if isMemoRequired {
+            throw ValidationError.destinationMemoRequired
+        }
+    }
+}
