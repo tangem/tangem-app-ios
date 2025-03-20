@@ -25,7 +25,7 @@ struct VisaTransactionDetailsView: View {
                 .padding(.top, 20)
                 .padding(.bottom, 40)
             }
-            .navigationTitle(Text("Transaction details"))
+            .navigationTitle(Text(Localization.visaTransactionDetailsHeader))
             .navigationBarTitleDisplayMode(.inline)
             .background(Colors.Background.tertiary.ignoresSafeArea())
         }
@@ -34,7 +34,7 @@ struct VisaTransactionDetailsView: View {
     private var fiatTransactionContent: some View {
         VStack(spacing: 12) {
             HStack {
-                Text("Transaction")
+                Text(Localization.visaTransactionDetailsTitle)
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
                 Spacer()
@@ -50,17 +50,17 @@ struct VisaTransactionDetailsView: View {
 
     private var merchantInfo: some View {
         VStack(spacing: 0) {
-            recordLine(title: "Merchant name", value: viewModel.merchantName)
-            recordLine(title: "Merchant city", value: viewModel.merchantCity)
-            recordLine(title: "Merchant country code", value: viewModel.merchantCountryCode)
-            recordLine(title: "Merchant category code", value: viewModel.merchantCategoryCode)
+            recordLine(title: Localization.visaTransactionDetailsMerchantName, value: viewModel.merchantName)
+            recordLine(title: Localization.visaTransactionDetailsMerchantCity, value: viewModel.merchantCity)
+            recordLine(title: Localization.visaTransactionDetailsMerchantCountryCode, value: viewModel.merchantCountryCode)
+            recordLine(title: Localization.visaTransactionDetailsMerchantCategoryCode, value: viewModel.merchantCategoryCode)
         }
     }
 
     private func cryptoRequestView(_ info: CryptoRequestInfo) -> some View {
         VStack(spacing: 12) {
             HStack {
-                Text("Transaction request")
+                Text(Localization.visaTransactionDetailsTransactionRequest)
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
                 Spacer()
@@ -81,9 +81,9 @@ struct VisaTransactionDetailsView: View {
             VStack(spacing: 0) {
                 commonTransactionInfoView(info.commonTransactionInfo)
 
-                recordLine(title: "Error code", value: info.errorCode)
-                recordLine(title: "Tx hash", value: info.hash)
-                recordLine(title: "Tx status", value: info.status)
+                recordLine(title: Localization.visaTransactionDetailsErrorCode, value: info.errorCode)
+                recordLine(title: Localization.visaTransactionDetailsTransactionHash, value: info.hash)
+                recordLine(title: Localization.visaTransactionDetailsTransactionStatus, value: info.status)
             }
         }
         .defaultRoundedBackground(with: Colors.Background.action)
@@ -91,13 +91,13 @@ struct VisaTransactionDetailsView: View {
 
     private func commonTransactionInfoView(_ info: CommonTransactionInfo) -> some View {
         VStack(spacing: 0) {
-            recordLine(title: info.idTitle.rawValue, value: info.transactionId)
-            recordLine(title: "Date", value: info.date)
-            recordLine(title: "Type", value: info.type)
-            recordLine(title: "Status", value: info.status)
-            recordLine(title: "Blockchain amount", value: info.blockchainAmount)
-            recordLine(title: "Transaction Amount", value: info.transactionAmount)
-            recordLine(title: "Currency code", value: info.currencyCode)
+            recordLine(title: info.idTitle.description, value: info.transactionId)
+            recordLine(title: Localization.visaTransactionDetailsDate, value: info.date)
+            recordLine(title: Localization.visaTransactionDetailsType, value: info.type)
+            recordLine(title: Localization.visaTransactionDetailsStatus, value: info.status)
+            recordLine(title: Localization.visaTransactionDetailsBlockchainAmount, value: info.blockchainAmount)
+            recordLine(title: Localization.visaTransactionDetailsTransactionAmount, value: info.transactionAmount)
+            recordLine(title: Localization.visaTransactionDetailsCurrencyCode, value: info.currencyCode)
         }
     }
 
@@ -128,9 +128,16 @@ extension VisaTransactionDetailsView {
         let transactionAmount: String
         let currencyCode: String
 
-        enum IDTitle: String {
-            case id = "ID"
-            case requestId = "Request ID"
+        enum IDTitle {
+            case id
+            case requestId
+
+            var description: String {
+                switch self {
+                case .id: return "ID"
+                case .requestId: return Localization.visaTransactionDetailsRequestId
+                }
+            }
         }
     }
 
