@@ -19,7 +19,7 @@ struct LitecoinWalletAssembly: WalletManagerAssembly {
             bip: .bip84
         )
 
-        let unspentOutputManager = CommonUnspentOutputManager(scriptBuilder: .litecoin)
+        let unspentOutputManager = CommonUnspentOutputManager(scriptBuilder: .litecoin())
         let txBuilder = BitcoinTransactionBuilder(
             bitcoinManager: bitcoinManager,
             unspentOutputManager: unspentOutputManager,

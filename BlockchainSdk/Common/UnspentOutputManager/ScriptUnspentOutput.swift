@@ -9,7 +9,7 @@
 struct ScriptUnspentOutput {
     let output: UnspentOutput
     /// Can be named as `LockedScript, ScriptPubKey, ScriptPubKey.hex`
-    let script: Script
+    let script: UTXOLockingScript
 
     var blockId: Int { output.blockId }
     var hash: Data { output.hash }
@@ -18,9 +18,13 @@ struct ScriptUnspentOutput {
     var txId: String { output.txId }
 }
 
-extension ScriptUnspentOutput {
-    struct Script: Hashable {
-        let data: Data
-        let type: UTXOScriptType
-    }
+struct SignedUnspentOutput {
+    let output: UnspentOutput
+    let signedLockingScript: Data
+
+    var blockId: Int { output.blockId }
+    var hash: Data { output.hash }
+    var index: Int { output.index }
+    var amount: UInt64 { output.amount }
+    var txId: String { output.txId }
 }
