@@ -27,6 +27,11 @@ extension RadiantAddressService: AddressValidator {
 extension RadiantAddressService: AddressProvider {
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
         let address = try addressAdapter.makeAddress(for: publicKey, by: .p2pkh)
-        return LockingScriptAddress(value: address.description, publicKey: publicKey, type: addressType, scriptPubKey: address.keyhash)
+        return LockingScriptAddress(
+            value: address.description,
+            publicKey: publicKey,
+            type: addressType,
+            lockingScript: .init(data: address.keyhash, type: .p2pkh)
+        )
     }
 }

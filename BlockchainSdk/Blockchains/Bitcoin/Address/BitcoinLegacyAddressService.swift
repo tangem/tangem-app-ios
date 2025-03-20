@@ -55,6 +55,11 @@ extension BitcoinLegacyAddressService: AddressProvider {
         )
 
         let address = try converter.convert(publicKey: bitcoinCorePublicKey, type: .p2pkh)
-        return LockingScriptAddress(value: address.stringValue, publicKey: publicKey, type: addressType, scriptPubKey: address.lockingScript)
+        return LockingScriptAddress(
+            value: address.stringValue,
+            publicKey: publicKey,
+            type: addressType,
+            lockingScript: .init(data: address.lockingScript, type: .p2pkh)
+        )
     }
 }
