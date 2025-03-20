@@ -9090,7 +9090,6 @@
 		B0958BA529F6B698007CD76D /* UIComponents */ = {
 			isa = PBXGroup;
 			children = (
-				30EC30F42D7F286400F166FB /* NFT */,
 				C244C5682D5E6C9D006DF666 /* MainWindow.swift */,
 				C2E3ADB62D5F5D310042ADDA /* Stories */,
 				DC2891772CD9107E00F57F59 /* CloseToolbarButton */,
@@ -14443,6 +14442,7 @@
 				DA91770F2A25F14A006CD67B /* Promotion */,
 				B6FB04E32B1FEED9000BB59E /* StatusBarConfiguration */,
 				B6CD68982C33A041004A9D70 /* PushNotifications */,
+				30EC30F42D7F286400F166FB /* NFT */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
