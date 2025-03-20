@@ -11,6 +11,7 @@ import SwiftUI
 import Combine
 import BlockchainSdk
 import TangemFoundation
+import TangemLogger
 
 class DetailsViewModel: ObservableObject {
     // MARK: - Injected
@@ -79,6 +80,29 @@ class DetailsViewModel: ObservableObject {
 
         bind()
         setupView()
+    }
+
+    func shareLogs() {
+        DispatchQueue.global().async {
+            let url = try? OSLogZipFileBuilder.zipFile()
+            DispatchQueue.main.async {
+                if let url {
+                    AppPresenter.shared.show(
+                        UIActivityViewController(activityItems: [url], applicationActivities: nil)
+                    )
+                }
+            }
+        }
+    }
+
+    func deleteLogs() {
+        do {
+            try OSLogFileParser.removeFile()
+            try OSLogZipFileBuilder.removeFile()
+            alert = AlertBuilder.makeSuccessAlert(message: "Logs was deleted")
+        } catch {
+            alert = error.alertBinder
+        }
     }
 }
 
