@@ -109,14 +109,16 @@ struct DetailsView: View {
     }
 
     private var shareLogsView: some View {
-        Button(action: {
-            let url = OSLogFileParser.logFile
-            AppPresenter.shared.show(
-                UIActivityViewController(activityItems: [url], applicationActivities: nil)
-            )
-        }, label: {
-            Text("Share logs")
-        })
+        GroupedSection([
+            DefaultRowViewModel(title: "Share logs", action: {
+                viewModel.shareLogs()
+            }),
+            DefaultRowViewModel(title: "Delete logs", action: {
+                viewModel.deleteLogs()
+            }),
+        ]) {
+            DefaultRowView(viewModel: $0)
+        }
     }
 
     private var environmentSetupSection: some View {
