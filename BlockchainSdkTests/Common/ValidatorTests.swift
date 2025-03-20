@@ -6,6 +6,7 @@
 //  Copyright © 2019 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Testing
 @testable import BlockchainSdk
 
