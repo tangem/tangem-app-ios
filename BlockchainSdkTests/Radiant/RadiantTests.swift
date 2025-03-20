@@ -96,8 +96,8 @@ final class RadiantTests: XCTestCase {
                 amount: 10000000
             ),
         ]
-        let unspentOutputManager = CommonUnspentOutputManager()
-        unspentOutputManager.update(outputs: utxo, for: address.keyhash)
+        let unspentOutputManager = CommonUnspentOutputManager(scriptBuilder: .ravencoin(isTestnet: false))
+        unspentOutputManager.update(outputs: utxo, for: .init(data: address.keyhash, type: .p2pkh))
         let txBuilder = try RadiantTransactionBuilder(
             walletPublicKey: publicKey.data,
             unspentOutputManager: unspentOutputManager,

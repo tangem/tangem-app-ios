@@ -37,7 +37,7 @@ class BitcoinTransactionBuilder {
                 hash: Data($0.output.hash.reversed()),
                 index: $0.output.index,
                 value: Int($0.output.amount),
-                script: $0.script
+                script: $0.script.data
             )
         }
 

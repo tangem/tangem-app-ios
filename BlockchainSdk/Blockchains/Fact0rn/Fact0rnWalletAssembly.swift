@@ -21,7 +21,7 @@ struct Fact0rnWalletAssembly: WalletManagerAssembly {
             bip: .bip84
         )
 
-        let unspentOutputManager = CommonUnspentOutputManager(scriptBuilder: .fact0rn)
+        let unspentOutputManager = CommonUnspentOutputManager(scriptBuilder: .fact0rn())
         let txBuilder = BitcoinTransactionBuilder(
             bitcoinManager: bitcoinManager,
             unspentOutputManager: unspentOutputManager,
