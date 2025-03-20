@@ -6,7 +6,6 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import XCTest
 import CryptoKit
 import TangemSdk
 import WalletCore
