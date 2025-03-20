@@ -33,5 +33,4 @@ class LegacyLockingScriptBuilderTests {
     // Ducatus
     // Clore
     // Radiant
-
 }
