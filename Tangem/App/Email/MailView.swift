@@ -72,11 +72,9 @@ struct MailView: UIViewControllerRepresentable {
 
         vc.setMessageBody(messageBody, isHTML: false)
 
-        /*
-         if let (data, file) = viewModel.logsComposer.getZipLogsData() {
-             vc.addAttachmentData(data, mimeType: "application/zip", fileName: file.lastPathComponent)
-         }
-         */
+        if let (data, file) = viewModel.logsComposer.getZipLogsData() {
+            vc.addAttachmentData(data, mimeType: "application/zip", fileName: file.lastPathComponent)
+        }
 
         return vc
     }
