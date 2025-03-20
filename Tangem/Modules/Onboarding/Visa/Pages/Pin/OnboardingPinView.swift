@@ -14,12 +14,12 @@ struct OnboardingPinView: View {
     var body: some View {
         VStack(spacing: 40) {
             VStack(spacing: 10) {
-                Text("Create PIN Code")
+                Text(Localization.visaOnboardingPinCodeTitle)
                     .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                     .multilineTextAlignment(.center)
                     .padding(.top, 32)
 
-                Text("Set up a 4-digit code.\nIt will be used for payments.")
+                Text(Localization.visaOnboardingPinCodeDescription)
                     .style(Fonts.Regular.callout, color: Colors.Text.secondary)
                     .multilineTextAlignment(.center)
             }
@@ -34,7 +34,7 @@ struct OnboardingPinView: View {
             Spacer()
 
             MainButton(
-                title: "Submit",
+                title: Localization.commonSubmit,
                 isLoading: viewModel.isLoading,
                 isDisabled: !viewModel.isPinCodeValid,
                 action: viewModel.submitPinCodeAction

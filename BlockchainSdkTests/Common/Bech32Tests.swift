@@ -7,15 +7,16 @@
 //
 
 import Foundation
-import XCTest
+import Testing
 import TangemSdk
 import BitcoinCore
 import Sodium
 @testable import BlockchainSdk
 
-final class Bech32Tests: XCTestCase {
+struct Bech32Tests {
     /// https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#user-content-Test_vectors
-    func testBech32() throws {
+    @Test
+    func bech32() throws {
         let bech32 = Bech32()
         let validStrings = [
             "A12UEL5L",
@@ -35,7 +36,9 @@ final class Bech32Tests: XCTestCase {
         ]
 
         for validString in validStrings {
-            XCTAssertNoThrow(try bech32.decode(validString))
+            #expect(throws: Never.self) {
+                try bech32.decode(validString)
+            }
         }
 
         let invalidStrings = [
@@ -54,11 +57,14 @@ final class Bech32Tests: XCTestCase {
         ]
 
         for invalidString in invalidStrings {
-            XCTAssertThrowsError(try bech32.decode(invalidString))
+            #expect(throws: (any Error).self) {
+                try bech32.decode(invalidString)
+            }
         }
     }
 
     /// https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki#user-content-Test_vectors
+    @Test
     func testBech32Mtests() {
         let bech32 = Bech32(variant: .bech32m)
 
@@ -73,7 +79,9 @@ final class Bech32Tests: XCTestCase {
         ]
 
         for validString in validStrings {
-            XCTAssertNoThrow(try bech32.decode(validString))
+            #expect(throws: Never.self) {
+                try bech32.decode(validString)
+            }
         }
 
         let invalidStrings = [
@@ -94,12 +102,15 @@ final class Bech32Tests: XCTestCase {
         ]
 
         for invalidString in invalidStrings {
-            XCTAssertThrowsError(try bech32.decode(invalidString))
+            #expect(throws: (any Error).self) {
+                try bech32.decode(invalidString)
+            }
         }
     }
 
     /// https://github.com/bitcoincashorg/bitcoincash.org/blob/master/spec/cashaddr.md
-    func testCashaddrBech32() throws {
+    @Test
+    func cashaddrBech32() throws {
         let valid = [
             "bitcoincash:qpm2qsznhks23z7629mms6s4cwef74vcwvy22gdx6a",
             "bitcoincash:qr95sy3j9xwd2ap32xkykttr4cvcu7as4y0qverfuy",
@@ -110,9 +121,9 @@ final class Bech32Tests: XCTestCase {
         ]
 
         for item in valid {
-            let decoded = try XCTUnwrap(CashAddrBech32.decode(item))
+            let decoded = try #require(CashAddrBech32.decode(item))
             let encoded = CashAddrBech32.encode(decoded.data, prefix: decoded.prefix)
-            XCTAssertEqual(encoded, item)
+            #expect(encoded == item)
         }
 
         let pairs = [
@@ -151,9 +162,9 @@ final class Bech32Tests: XCTestCase {
         ]
 
         for pair in pairs {
-            let decoded = try XCTUnwrap(CashAddrBech32.decode(pair.key))
-            XCTAssertEqual(decoded.data.dropFirst().hexString, pair.value)
-            XCTAssertEqual(CashAddrBech32.encode(decoded.data, prefix: decoded.prefix), pair.key)
+            let decoded = try #require(CashAddrBech32.decode(pair.key))
+            #expect(decoded.data.dropFirst().hexString == pair.value)
+            #expect(CashAddrBech32.encode(decoded.data, prefix: decoded.prefix) == pair.key)
         }
     }
 }
