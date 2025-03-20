@@ -15,6 +15,7 @@ enum ExpressAvailabilityUpdateState {
 }
 
 protocol ExpressAvailabilityProvider {
+    var hasCache: Bool { get }
     var availabilityDidChangePublisher: AnyPublisher<Void, Never> { get }
 
     var expressAvailabilityUpdateStateValue: ExpressAvailabilityUpdateState { get }
