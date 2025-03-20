@@ -135,7 +135,7 @@ class BitcoinTests: XCTestCase {
         XCTAssertFalse(utxo2Script.isEmpty)
         XCTAssertEqual("0014309a0c6efa0da7966d5c42dc5a928f6baf0e47ef", utxo2Script.hexString.lowercased())
 
-        let unspentOutputManager = CommonUnspentOutputManager()
+        let unspentOutputManager = CommonUnspentOutputManager(scriptBuilder: .bitcoin(isTestnet: false))
         unspentOutputManager.update(
             outputs: [
                 .init(
@@ -151,7 +151,7 @@ class BitcoinTests: XCTestCase {
                     amount: 12210000
                 ),
             ],
-            for: utxo1Script
+            for: UTXOLockingScript(data: utxo1Script, type: .p2pkh)
         )
 
         return unspentOutputManager
