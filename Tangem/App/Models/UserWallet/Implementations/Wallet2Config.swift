@@ -224,7 +224,7 @@ extension Wallet2Config: UserWalletConfig {
         case "AF73":
             return cardsCount == 2 ? Assets.Cards.kaspaMint2 : Assets.Cards.kaspaMint3
         // BTC Gold
-        case "AF71":
+        case "AF71", "AF990016", "AF990009":
             return cardsCount == 2 ? Assets.Cards.btcNew2 : Assets.Cards.btcNew3
         // Stealth wallet
         case "AF60", "AF74", "AF88":
@@ -307,6 +307,12 @@ extension Wallet2Config: UserWalletConfig {
         // Ramen Cat
         case "AF990006", "AF990007", "AF990008":
             return cardsCount == 2 ? Assets.Cards.ramenCatDouble : Assets.Cards.ramenCatTriple
+        // Sakura
+        case "AF990029", "AF990030", "AF990031":
+            return cardsCount == 2 ? Assets.Cards.sakuraDouble : Assets.Cards.sakuraTriple
+        // Bitcoin Pizza
+        case "AF990019":
+            return cardsCount == 2 ? Assets.Cards.bitcoinPizzaDouble : Assets.Cards.bitcoinPizzaTriple
         // Tangem Wallet 2.0
         default:
 

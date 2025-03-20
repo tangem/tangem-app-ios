@@ -66,9 +66,7 @@ class VisaOnboardingInProgressViewModel: ObservableObject {
             if !error.isCancellationError {
                 scheduler.cancel()
                 await delegate?.showAlertAsync(
-                    error.alertBinder(
-                        okAction: weakify(self, forFunction: VisaOnboardingInProgressViewModel.setupRefresh)
-                    )
+                    error.makeUniversalErrorAlertBinder(okAction: weakify(self, forFunction: VisaOnboardingInProgressViewModel.setupRefresh))
                 )
             }
         }
@@ -81,21 +79,15 @@ extension VisaOnboardingInProgressViewModel {
         case issuerProcessing
 
         var title: String {
-            switch self {
-            case .accountDeployment:
-                return "Getting Everything Ready!"
-            case .issuerProcessing:
-                return "Almost done!"
-            }
+            Localization.visaOnboardingInProgressTitle
         }
 
-        /// Temp texts
         var description: String {
             switch self {
             case .accountDeployment:
-                return "We're working on creating your Blockchain account. Please hang tight!"
+                return Localization.visaOnboardingInProgressDescription
             case .issuerProcessing:
-                return "Issuer is processing your information. Soon everything will be working as expected."
+                return Localization.visaOnboardingInProgressIssuerDescription
             }
         }
     }
