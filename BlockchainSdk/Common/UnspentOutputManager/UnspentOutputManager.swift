@@ -9,7 +9,9 @@
 import Foundation
 
 protocol UnspentOutputManager {
-    func update(outputs: [UnspentOutput], for script: ScriptUnspentOutput.Script)
+    func update(outputs: [UnspentOutput], for address: String)
+    func update(outputs: [UnspentOutput], for script: UTXOLockingScript)
+
     func preImage(amount: UInt64, fee: UInt64) throws -> UTXOPreImageTransactionBuilder.PreImageTransaction
     func preImage(amount: UInt64, feeRate: UInt64) throws -> UTXOPreImageTransactionBuilder.PreImageTransaction
 
@@ -20,7 +22,12 @@ protocol UnspentOutputManager {
 }
 
 extension UnspentOutputManager {
-    func update(outputs: [UnspentOutput], for address: LockingScriptAddress) {
-        update(outputs: outputs, for: address.scriptPubKey)
+    func update(outputs: [UnspentOutput], for address: any Address) {
+        guard let address = address as? LockingScriptAddress else {
+            BSDKLogger.error(error: "The address for UnspentOutputManager is not LockingScriptAddress")
+            return
+        }
+
+        update(outputs: outputs, for: address.lockingScript)
     }
 }
