@@ -32,6 +32,8 @@ public enum ValidationError: Hashable, LocalizedError {
     case feeExceedsMaxFeeResource
     case remainingAmountIsLessThanRentExemption(amount: Amount)
 
+    case destinationMemoRequired
+
     public var errorDescription: String? {
         switch self {
         case .balanceNotFound, .cardanoInsufficientBalanceToSendToken, .cardanoHasTokens:
@@ -62,7 +64,7 @@ public enum ValidationError: Hashable, LocalizedError {
             return Localization.koinosInsufficientManaToSendKoinDescription(current, max)
         case .minimumRestrictAmount:
             return Localization.sendValidationInvalidAmount
-        case .remainingAmountIsLessThanRentExemption:
+        case .remainingAmountIsLessThanRentExemption, .destinationMemoRequired:
             return .none // displayed as notification
         }
     }
