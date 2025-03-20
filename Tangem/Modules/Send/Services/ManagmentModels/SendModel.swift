@@ -115,15 +115,18 @@ private extension SendModel {
             amount = makeAmount(decimal: amount.value - fee.amount.value)
         }
 
-        var transaction = try await transactionCreator.createTransaction(
-            amount: amount,
-            fee: fee,
-            destinationAddress: destination
-        )
+        var transactionsParams: TransactionParams?
 
         if case .filled(_, _, let params) = _destinationAdditionalField.value {
-            transaction.params = params
+            transactionsParams = params
         }
+
+        let transaction = try await transactionCreator.createTransaction(
+            amount: amount,
+            fee: fee,
+            destinationAddress: destination,
+            params: transactionsParams
+        )
 
         return transaction
     }
