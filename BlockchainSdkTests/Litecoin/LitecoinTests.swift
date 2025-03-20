@@ -53,7 +53,7 @@ class LitecoinTests: XCTestCase {
         XCTAssertNotNil(address)
 
         let bitcoinCoreManager = BitcoinManager(networkParams: networkParams, walletPublicKey: walletPubkey, compressedWalletPublicKey: compressedPubkey, bip: .bip44)
-        let unspentOutputManager = CommonUnspentOutputManager()
+        let unspentOutputManager = CommonUnspentOutputManager(scriptBuilder: .litecoin())
         unspentOutputManager.update(
             outputs: [
                 .init(
@@ -70,7 +70,7 @@ class LitecoinTests: XCTestCase {
                 ),
 
             ],
-            for: Data(hexString: "76a914ccd4649cdb4c9f8fdb54869cff112a4e75fda2bb88ac")
+            for: .init(data: Data(hexString: "76a914ccd4649cdb4c9f8fdb54869cff112a4e75fda2bb88ac"), type: .p2pkh)
         )
         let txBuilder = BitcoinTransactionBuilder(bitcoinManager: bitcoinCoreManager, unspentOutputManager: unspentOutputManager, addresses: addresses)
         txBuilder.fillBitcoinManager()
