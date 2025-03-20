@@ -22,9 +22,3 @@ extension KaspaAddressComponents {
         case P2SH = 8
     }
 }
-
-struct KaspaNetworkParams: UTXONetworkParams {
-    var p2pkh: UInt8 { 0x00 }
-    var p2sh: UInt8 { 0x08 }
-    var bech32: String { "kaspa" }
-}
