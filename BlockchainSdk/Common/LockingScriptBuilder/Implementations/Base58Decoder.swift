@@ -9,11 +9,12 @@
 import struct BitcoinCore.Base58
 
 struct Base58Decoder {
-    private let checksumLength: Int = 4
-    private let network: UTXONetworkParams
+    private let p2pkhPrefix: UInt8
+    private let p2shPrefix: UInt8
 
     init(network: UTXONetworkParams) {
-        self.network = network
+        p2pkhPrefix = network.p2pkh
+        p2shPrefix = network.p2sh
     }
 
     func decode(address: String) throws -> (version: UInt8, script: UTXOLockingScript) {
@@ -24,12 +25,12 @@ struct Base58Decoder {
 
         let version = decoded[0]
         // drop version and drop checksum
-        let keyHash = decoded.dropFirst().dropLast(checksumLength)
+        let keyHash = decoded.dropFirst().dropLast(Constants.checksumLength)
         switch version {
-        case network.p2pkh:
+        case p2pkhPrefix:
             let lockingStript = OpCodeUtils.p2pkh(data: keyHash)
             return (version: version, script: .init(data: lockingStript, type: .p2pkh))
-        case network.p2sh:
+        case p2shPrefix:
             let lockingStript = OpCodeUtils.p2sh(data: keyHash)
             return (version: version, script: .init(data: lockingStript, type: .p2sh))
         default:
@@ -43,5 +44,13 @@ struct Base58Decoder {
 extension Base58Decoder: LockingScriptBuilder {
     func lockingScript(for address: String) throws -> UTXOLockingScript {
         try decode(address: address).script
+    }
+}
+
+// MARK: - LockingScriptBuilder
+
+extension Base58Decoder {
+    private enum Constants {
+        static let checksumLength: Int = 4
     }
 }
