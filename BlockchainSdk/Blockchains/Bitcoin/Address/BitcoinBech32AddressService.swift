@@ -26,10 +26,6 @@ class BitcoinBech32AddressService {
             prefix: networkParams.bech32PrefixPattern,
             scriptConverter: scriptConverter
         )
-
-        let decoded = WalletCore.Bech32.decode(string: "abcdef1qpzry9x8gf2tvdw0s3jn54khce6mua7lmqqqxw")
-        let keyhash = WalletCore.BitcoinAddress(string: "abcdef1qpzry9x8gf2tvdw0s3jn54khce6mua7lmqqqxw")!.keyhash.hexString
-        print("keyhash", keyhash)
     }
 }
 
@@ -67,6 +63,11 @@ extension BitcoinBech32AddressService: AddressProvider {
         )
 
         let address = try segWitConverter.convert(publicKey: bitcoinCorePublicKey, type: .p2wpkh)
-        return LockingScriptAddress(value: address.stringValue, publicKey: publicKey, type: addressType, scriptPubKey: address.lockingScript)
+        return LockingScriptAddress(
+            value: address.stringValue,
+            publicKey: publicKey,
+            type: addressType,
+            lockingScript: .init(data: address.lockingScript, type: .p2wpkh)
+        )
     }
 }
