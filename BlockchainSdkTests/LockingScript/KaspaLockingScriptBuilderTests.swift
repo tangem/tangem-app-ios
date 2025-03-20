@@ -13,7 +13,7 @@ class KaspaLockingScriptBuilderTests {
     @Test
     func p2pkh() throws {
         // given
-        let builder = KaspaAddressDecoder(bech32Prefix: KaspaNetworkParams().bech32)
+        let builder = KaspaAddressDecoder.kaspa()
 
         // when
         let p2pkSchnorr = try builder.lockingScript(for: "kaspa:qq85gcpx9zhytqamzhc0mv25fn0d40slrs4cj6hmh0lyelf67mwawuwt6c98l")

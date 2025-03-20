@@ -12,8 +12,8 @@ import class BitcoinCore.CashAddrBech32
 struct KaspaAddressDecoder {
     private let bech32Prefix: String
 
-    init(bech32Prefix: String) {
-        self.bech32Prefix = bech32Prefix
+    init(network: UTXONetworkParams) {
+        bech32Prefix = network.bech32
     }
 
     func decode(address: String) throws -> (version: UInt8, script: UTXOLockingScript) {
