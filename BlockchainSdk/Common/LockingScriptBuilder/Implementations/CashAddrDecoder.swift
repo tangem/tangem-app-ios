@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import BitcoinCore
+import class BitcoinCore.CashAddrBech32
 
 struct CashAddrDecoder {
     private let network: UTXONetworkParams
