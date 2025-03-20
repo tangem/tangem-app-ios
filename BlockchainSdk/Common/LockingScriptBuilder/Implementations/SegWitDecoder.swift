@@ -11,8 +11,8 @@ import Foundation
 struct SegWitDecoder {
     private let bech32Prefix: String
 
-    init(bech32Prefix: String) {
-        self.bech32Prefix = bech32Prefix
+    init(network: UTXONetworkParams) {
+        bech32Prefix = network.bech32
     }
 
     func decode(address: String) throws -> (version: UInt8, script: UTXOLockingScript) {
@@ -20,7 +20,7 @@ struct SegWitDecoder {
         let version = checksum[0]
 
         guard hrp == bech32Prefix else {
-            throw LockingScriptBuilderError.bech32Prefix
+            throw LockingScriptBuilderError.wrongBech32Prefix
         }
 
         let bech32Variant: Bech32.Variant = switch version {
