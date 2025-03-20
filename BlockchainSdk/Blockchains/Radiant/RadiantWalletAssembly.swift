@@ -20,7 +20,7 @@ struct RadiantWalletAssembly: WalletManagerAssembly {
         }
         let publicKey = try Secp256k1Key(with: input.wallet.publicKey.blockchainKey).compress()
 
-        let unspentOutputManager = CommonUnspentOutputManager(scriptBuilder: .bitcoinCash)
+        let unspentOutputManager = CommonUnspentOutputManager(scriptBuilder: .bitcoinCash(isTestnet: input.blockchain.isTestnet))
         let transactionBuilder = try RadiantTransactionBuilder(
             walletPublicKey: publicKey,
             unspentOutputManager: unspentOutputManager,
