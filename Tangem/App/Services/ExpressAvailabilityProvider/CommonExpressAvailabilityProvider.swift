@@ -32,6 +32,10 @@ class CommonExpressAvailabilityProvider {
 // MARK: - ExpressAvailabilityProvider
 
 extension CommonExpressAvailabilityProvider: ExpressAvailabilityProvider {
+    var hasCache: Bool {
+        _cache.value.isNotEmpty
+    }
+
     var expressAvailabilityUpdateStateValue: ExpressAvailabilityUpdateState {
         _state.value
     }
@@ -89,6 +93,7 @@ private extension CommonExpressAvailabilityProvider {
 
         // Cached on disk
         _cache
+            .dropFirst()
             .withWeakCaptureOf(self)
             .sink { $0.saveToDiskStorage(availability: $1) }
             .store(in: &bag)
