@@ -10,15 +10,19 @@ import Foundation
 import class BitcoinCore.CashAddrBech32
 
 struct CashAddrDecoder {
-    private let network: UTXONetworkParams
+    private let bech32Prefix: String
 
     init(network: UTXONetworkParams) {
-        self.network = network
+        bech32Prefix = network.bech32
     }
 
     func decode(address: String) throws -> (version: UInt8, script: UTXOLockingScript) {
-        guard let (_, data) = CashAddrBech32.decode(address) else {
+        guard let (prefix, data) = CashAddrBech32.decode(address) else {
             throw LockingScriptBuilderError.wrongAddress
+        }
+
+        guard prefix == bech32Prefix else {
+            throw LockingScriptBuilderError.wrongBech32Prefix
         }
 
         let version = data[0]
