@@ -10,7 +10,7 @@ import TangemFoundation
 
 class CommonUnspentOutputManager {
     private let scriptBuilder: LockingScriptBuilder
-    private var outputs: ThreadSafeContainer<[Data: [UnspentOutput]]> = [:]
+    private var outputs: ThreadSafeContainer<[UTXOLockingScript: [UnspentOutput]]> = [:]
 
     init(scriptBuilder: LockingScriptBuilder) {
         self.scriptBuilder = scriptBuilder
@@ -25,6 +25,10 @@ extension CommonUnspentOutputManager: UnspentOutputManager {
         } catch {
             BSDKLogger.error("lockingScript build error", error: error)
         }
+    }
+
+    func update(outputs: [UnspentOutput], for script: UTXOLockingScript) {
+        self.outputs.mutate { $0[script] = outputs }
     }
 
     func preImage(amount: UInt64, fee: UInt64) throws -> UTXOPreImageTransactionBuilder.PreImageTransaction {
