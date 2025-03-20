@@ -22,6 +22,8 @@ let package = Package(
         .package(url: "https://github.com/Moya/Moya.git", .upToNextMajor(from: "15.0.0")),
         .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.0.0")),
         .package(url: "https://github.com/onevcat/Kingfisher.git", .upToNextMajor(from: "7.11.0")),
+        .package(url: "https://github.com/Flight-School/AnyCodable.git", .upToNextMajor(from: "0.6.7")),
+        .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.18")),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
 )
@@ -40,6 +42,9 @@ var serviceModules: [PackageDescription.Target] {
         ),
         .tangemTarget(
             name: "TangemLogger",
+            dependencies: [
+                "ZIPFoundation",
+            ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
                 .swiftLanguageMode(.v5),
