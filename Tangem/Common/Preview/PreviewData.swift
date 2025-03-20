@@ -10,7 +10,8 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 
-struct PreviewData {
+/// Should be wrapped in DEBUG
+enum PreviewData {
     static var previewNoteCardOnboardingInput: OnboardingInput {
         OnboardingInput(
             backupService: .init(sdk: .init()),
