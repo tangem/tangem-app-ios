@@ -22,7 +22,7 @@ struct BitcoinCashWalletAssembly: WalletManagerAssembly {
             bip: .bip44
         )
 
-        let unspentOutputManager = CommonUnspentOutputManager(scriptBuilder: .bitcoinCash)
+        let unspentOutputManager = CommonUnspentOutputManager(scriptBuilder: .bitcoinCash(isTestnet: input.blockchain.isTestnet))
         let txBuilder = BitcoinTransactionBuilder(
             bitcoinManager: bitcoinManager,
             unspentOutputManager: unspentOutputManager,

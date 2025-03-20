@@ -21,7 +21,7 @@ struct DashWalletAssembly: WalletManagerAssembly {
             bip: .bip44
         )
 
-        let unspentOutputManager = CommonUnspentOutputManager(scriptBuilder: .dash)
+        let unspentOutputManager = CommonUnspentOutputManager(scriptBuilder: .dash(isTestnet: input.blockchain.isTestnet))
         let txBuilder = BitcoinTransactionBuilder(
             bitcoinManager: bitcoinManager,
             unspentOutputManager: unspentOutputManager,
