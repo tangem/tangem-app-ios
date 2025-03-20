@@ -2971,7 +2971,6 @@
 		EF8DBD472C073134009072CF /* AverageRewardingViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8DBD462C073134009072CF /* AverageRewardingViewData.swift */; };
 		EF8DBD4A2C07317B009072CF /* RewardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8DBD492C07317B009072CF /* RewardView.swift */; };
 		EF8DBD4C2C07318F009072CF /* RewardViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8DBD4B2C07318F009072CF /* RewardViewData.swift */; };
-		EF8DBE502D7DFBDB0050DBFB /* TransactionValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8DBE4F2D7DFBDB0050DBFB /* TransactionValidatorTests.swift */; };
 		EF8EF52F2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8EF52E2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift */; };
 		EF914D4C2A603F2F001F00B2 /* Quote.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF914D4B2A603F2F001F00B2 /* Quote.swift */; };
 		EF914D4E2A604615001F00B2 /* QuotesDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF914D4D2A604615001F00B2 /* QuotesDTO.swift */; };
@@ -21170,7 +21169,6 @@
 				B62D435B2CBC79E400C2460E /* BitcoinTransactionTests.swift in Sources */,
 				B62D43382CBC79E400C2460E /* StellarTransactionTests.swift in Sources */,
 				B62D43702CBC79E400C2460E /* FilecoinTransactionTests.swift in Sources */,
-				EF8DBE502D7DFBDB0050DBFB /* TransactionValidatorTests.swift in Sources */,
 				B62D435B2CBC79E400C2460E /* BitcoinTransactionTests.swift in Sources */,
 				EFBAC3202D8B15A500024E38 /* CashAddrDecoderTests.swift in Sources */,
 				B62D43662CBC79E400C2460E /* TWPublicKeyType+.swift in Sources */,
