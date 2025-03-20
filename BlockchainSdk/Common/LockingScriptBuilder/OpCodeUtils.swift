@@ -9,6 +9,21 @@
 import Foundation
 
 enum OpCodeUtils {
+    static func p2pk(data: Data) -> Data {
+        var script = Data()
+        script.append(OpCode.push(data))
+        script.append(OpCode.OP_CHECKSIG.value)
+        return script
+    }
+
+    /// Kaspa specific
+    static func p2pkECDSA(data: Data) -> Data {
+        var script = Data()
+        script.append(OpCode.push(data))
+        script.append(OpCode.OP_CODESEPARATOR.value)
+        return script
+    }
+
     static func p2pkh(data: Data) -> Data {
         var script = Data()
         script.append(OpCode.OP_DUP.value)
@@ -22,6 +37,15 @@ enum OpCodeUtils {
     static func p2sh(data: Data) -> Data {
         var script = Data()
         script.append(OpCode.OP_HASH160.value)
+        script.append(OpCode.push(data))
+        script.append(OpCode.OP_EQUAL.value)
+        return script
+    }
+
+    /// Kaspa specific
+    static func p2sh256(data: Data) -> Data {
+        var script = Data()
+        script.append(OpCode.OP_HASH256.value)
         script.append(OpCode.push(data))
         script.append(OpCode.OP_EQUAL.value)
         return script
