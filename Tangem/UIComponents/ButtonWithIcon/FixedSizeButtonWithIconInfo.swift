@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemAssets
 
 struct FixedSizeButtonWithIconInfo {
     typealias ButtonAction = () -> Void
