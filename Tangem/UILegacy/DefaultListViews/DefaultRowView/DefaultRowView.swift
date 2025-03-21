@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct DefaultRowView: View {
     @ObservedObject private var viewModel: DefaultRowViewModel

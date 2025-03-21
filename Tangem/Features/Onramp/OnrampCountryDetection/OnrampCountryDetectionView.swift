@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct OnrampCountryDetectionView: View {
     @ObservedObject private var viewModel: OnrampCountryDetectionViewModel

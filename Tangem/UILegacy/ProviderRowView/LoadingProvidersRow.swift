@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct LoadingProvidersRow: View {
     var body: some View {

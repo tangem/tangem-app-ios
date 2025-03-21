@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 private struct AccessCodeFeature: Identifiable, Hashable {
     let id = UUID()

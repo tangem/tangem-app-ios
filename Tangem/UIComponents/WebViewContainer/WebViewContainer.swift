@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct WebViewContainer: View {
     let viewModel: WebViewContainerViewModel

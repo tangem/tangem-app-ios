@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct DefaultWarningRow: View {
     private let viewModel: DefaultWarningRowViewModel

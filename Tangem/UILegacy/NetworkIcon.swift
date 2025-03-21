@@ -6,18 +6,18 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
+import TangemAssets
 
 struct NetworkIcon: View {
-    let imageName: String
+    let imageAsset: ImageType
     let isActive: Bool
     var isDisabled: Bool = false
     let isMainIndicatorVisible: Bool
     var size: CGSize = .init(width: 20, height: 20)
 
     var body: some View {
-        Image(imageName)
+        imageAsset.image
             .resizable()
             .frame(width: size.width, height: size.height)
             .overlay(indicatorOverlay)
@@ -66,12 +66,17 @@ private struct MainNetworkIndicator: View {
 }
 
 struct NetworkIcon_Previews: PreviewProvider {
-    static let blockchainIconNames = "solana.fill"
     static var previews: some View {
         VStack {
-            NetworkIcon(imageName: blockchainIconNames, isActive: true, isMainIndicatorVisible: true)
+            NetworkIcon(imageAsset: Tokens.solanaFill, isActive: true, isMainIndicatorVisible: true)
 
-            NetworkIcon(imageName: blockchainIconNames, isActive: true, isDisabled: false, isMainIndicatorVisible: true, size: CGSize(bothDimensions: 36))
+            NetworkIcon(
+                imageAsset: Tokens.solanaFill,
+                isActive: true,
+                isDisabled: false,
+                isMainIndicatorVisible: true,
+                size: CGSize(bothDimensions: 36)
+            )
         }
         .padding()
         .previewLayout(.sizeThatFits)
