@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct AddressIconView: View {
     let viewModel: AddressIconViewModel

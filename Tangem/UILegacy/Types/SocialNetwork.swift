@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemAssets
 
 enum SocialNetwork: Hashable, CaseIterable, Identifiable {
     var id: Int { hashValue }
