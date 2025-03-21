@@ -6,9 +6,9 @@
 //  Copyright © 2020 Tangem AG. All rights reserved.
 //
 
-import Foundation
-import SwiftUI
 import Combine
+import SwiftUI
+import TangemAssets
 
 struct CurrencySelectView: View {
     @ObservedObject var viewModel: CurrencySelectViewModel

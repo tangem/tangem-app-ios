@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct SendAmountView: View {
     @ObservedObject var viewModel: SendAmountViewModel
