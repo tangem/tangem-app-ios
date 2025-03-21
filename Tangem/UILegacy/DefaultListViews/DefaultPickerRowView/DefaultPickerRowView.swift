@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct DefaultPickerRowView: View {
     private let viewModel: DefaultPickerRowViewModel
