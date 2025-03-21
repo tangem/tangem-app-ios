@@ -532,7 +532,7 @@ private extension CommonStakingManager {
     func getTronResource() -> String? {
         switch wallet.item.network {
         case .tron:
-            return StakeKitDTO.Actions.ActionArgs.TronResource.energy.rawValue
+            return StakeKitDTO.Actions.ActionArgs.TronResource.bandwidth.rawValue
         default:
             return nil
         }
