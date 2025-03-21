@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct DefaultSelectableRowView<ID: Hashable>: View {
     private let data: DefaultSelectableRowViewModel<ID>
