@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct ReferralView: View {
     @Environment(\.colorScheme) var colorScheme
