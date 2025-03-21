@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemAssets
 
 enum FeeOption: String, Hashable, Equatable {
     case slow

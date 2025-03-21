@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 enum ChangeSignType: Int, Hashable {
     case positive

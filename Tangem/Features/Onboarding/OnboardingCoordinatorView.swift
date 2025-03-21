@@ -6,8 +6,8 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
+import TangemAssets
 
 struct OnboardingCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: OnboardingCoordinator
