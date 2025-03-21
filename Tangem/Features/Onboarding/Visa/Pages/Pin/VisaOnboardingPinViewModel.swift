@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import UIKit
 import TangemFoundation
+import TangemVisa
 
 protocol VisaOnboardingPinSelectionDelegate: VisaOnboardingAlertPresenter {
     func useSelectedPin(pinCode: String) async throws
@@ -21,8 +22,11 @@ class VisaOnboardingPinViewModel: ObservableObject {
     @Published var isPinCodeValid: Bool = false
     @Published var errorMessage: String? = nil
 
-    let pinCodeLength = 4
+    var pinCodeLength: Int {
+        pinValidator.pinCodeLength
+    }
 
+    private let pinValidator = VisaPinValidator()
     private weak var delegate: VisaOnboardingPinSelectionDelegate?
     private var bag = Set<AnyCancellable>()
 
@@ -56,8 +60,8 @@ class VisaOnboardingPinViewModel: ObservableObject {
             .sink(receiveValue: { [weak self] pin in
                 guard let self else { return }
 
-                do throws(PinValidationError) {
-                    try validatePinCode(pin)
+                do throws(VisaPinValidator.PinValidationError) {
+                    try pinValidator.validatePinCode(pin)
                     isPinCodeValid = true
                 } catch {
                     errorMessage = error.errorMessage
@@ -66,46 +70,14 @@ class VisaOnboardingPinViewModel: ObservableObject {
             })
             .store(in: &bag)
     }
-
-    private func validatePinCode(_ pin: String) throws(PinValidationError) {
-        guard
-            pin.count == pinCodeLength,
-            pin.allSatisfy(\.isNumber)
-        else {
-            throw .invalidLength
-        }
-
-        let digits = pin.map { $0.wholeNumberValue! }
-
-        if Set(digits).count == 1 {
-            throw .repeatedDigits
-        }
-
-        let banList: Set<String> = [
-            "0987",
-        ]
-
-        let isAscending = zip(digits, digits.dropFirst()).allSatisfy { $1 == $0 + 1 }
-        let isDescending = zip(digits, digits.dropFirst()).allSatisfy { $1 == $0 - 1 }
-
-        if isAscending || isDescending || banList.contains(pin) {
-            throw .sequentialDigits
-        }
-    }
 }
 
-extension VisaOnboardingPinViewModel {
-    enum PinValidationError: Error {
-        case invalidLength
-        case repeatedDigits
-        case sequentialDigits
-
-        var errorMessage: String? {
-            switch self {
-            case .invalidLength: return nil
-            case .repeatedDigits, .sequentialDigits:
-                return Localization.visaOnboardingPinValidationErrorMessage
-            }
+extension VisaPinValidator.PinValidationError {
+    var errorMessage: String? {
+        switch self {
+        case .invalidLength: return nil
+        case .repeatedDigits, .sequentialDigits:
+            return Localization.visaOnboardingPinValidationErrorMessage
         }
     }
 }
