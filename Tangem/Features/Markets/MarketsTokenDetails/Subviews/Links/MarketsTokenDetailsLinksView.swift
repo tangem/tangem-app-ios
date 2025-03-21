@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct MarketsTokenDetailsLinksView: View {
     let viewWidth: CGFloat

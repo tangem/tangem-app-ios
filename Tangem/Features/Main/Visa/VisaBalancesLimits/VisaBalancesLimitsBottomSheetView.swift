@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct VisaBalancesLimitsBottomSheetView: View {
     @ObservedObject var viewModel: VisaBalancesLimitsBottomSheetViewModel
