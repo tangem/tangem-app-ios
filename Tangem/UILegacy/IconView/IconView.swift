@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Kingfisher
+import TangemAssets
 import TangemUI
 
 struct IconView<Placeholder: View>: View {
