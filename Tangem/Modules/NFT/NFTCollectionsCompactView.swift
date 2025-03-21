@@ -12,13 +12,13 @@ struct NFTCollectionsCompactView: View {
     @ObservedObject var viewModel: NFTCollectionsCompactViewModel
 
     var body: some View {
-        Button(action: {}) {
+        Button(action: viewModel.openCollections) {
             HStack(spacing: Constants.iconTextsHSpacing) {
                 imageContainer
                 textsView
                 Spacer()
                 chevron
-                    .opacity(viewModel.isLoading ? 0 : 1)
+                    .hidden(viewModel.isLoading)
             }
             .padding(Constants.padding)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -42,9 +42,9 @@ struct NFTCollectionsCompactView: View {
         switch viewModel.state {
         case .loading:
             Color.clear
-        case .failed:
+        case .failedToLoad:
             imageForFailedState
-        case .success(let collectionsState):
+        case .loaded(let collectionsState):
             imageForSuccess(collectionsState: collectionsState)
         }
     }
@@ -62,7 +62,7 @@ struct NFTCollectionsCompactView: View {
 
     @ViewBuilder
     private func imageForSuccess(
-        collectionsState: NFTCollectionsCompactViewModel.ViewState.CollectionsViewState
+        collectionsState: NFTCollectionsCompactViewModel.CollectionsViewState
     ) -> some View {
         switch collectionsState {
         case .noCollections:
@@ -201,9 +201,9 @@ struct NFTCollectionsCompactView: View {
         switch viewModel.state {
         case .loading:
             .clear
-        case .failed:
+        case .failedToLoad:
             Colors.Text.tertiary
-        case .success:
+        case .loaded:
             Colors.Text.primary1
         }
     }
@@ -270,10 +270,11 @@ extension NFTCollectionsCompactView {
     }
 }
 
+#if DEBUG
 #Preview("Loading") {
     ZStack {
         Colors.Field.primary
-        NFTCollectionsCompactView(viewModel: NFTCollectionsCompactViewModel())
+        NFTCollectionsCompactView(viewModel: NFTCollectionsCompactViewModel(coordinator: NFTEntrypointCoordintor()))
             .padding(.horizontal, 16)
     }
 }
@@ -281,7 +282,12 @@ extension NFTCollectionsCompactView {
 #Preview("Failed") {
     ZStack {
         Colors.Field.primary
-        NFTCollectionsCompactView(viewModel: NFTCollectionsCompactViewModel(initialState: .failed))
+        NFTCollectionsCompactView(
+            viewModel: NFTCollectionsCompactViewModel(
+                initialState: .failedToLoad(error: NSError()),
+                coordinator: NFTEntrypointCoordintor()
+            )
+        )
             .padding(.horizontal, 16)
     }
 }
@@ -289,7 +295,12 @@ extension NFTCollectionsCompactView {
 #Preview("No collections") {
     ZStack {
         Colors.Field.primary
-        NFTCollectionsCompactView(viewModel: NFTCollectionsCompactViewModel(initialState: .success(.noCollections)))
+        NFTCollectionsCompactView(
+            viewModel: NFTCollectionsCompactViewModel(
+                initialState: .loaded(.noCollections),
+                coordinator: NFTEntrypointCoordintor()
+            )
+        )
             .padding(.horizontal, 16)
     }
 }
@@ -299,13 +310,14 @@ extension NFTCollectionsCompactView {
         Colors.Field.primary
         NFTCollectionsCompactView(
             viewModel: NFTCollectionsCompactViewModel(
-                initialState: .success(
+                initialState: .loaded(
                     .oneCollection(
                         imageURL: URL(
                             string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png"
                         )!
                     )
-                )
+                ),
+                coordinator: NFTEntrypointCoordintor()
             )
         )
         .padding(.horizontal, 16)
@@ -317,12 +329,13 @@ extension NFTCollectionsCompactView {
         Colors.Field.primary
         NFTCollectionsCompactView(
             viewModel: NFTCollectionsCompactViewModel(
-                initialState: .success(
+                initialState: .loaded(
                     .twoCollections(
                         firstCollectionImageURL: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!,
                         secondCollectionImageURL: URL(string: "https://arweave.net/ggUMUDPTxiAq25rxo_PlwGjl947sIn2ypczI7ZefsF4")!
                     )
-                )
+                ),
+                coordinator: NFTEntrypointCoordintor()
             )
         )
         .padding(.horizontal, 16)
@@ -334,13 +347,14 @@ extension NFTCollectionsCompactView {
         Colors.Field.primary
         NFTCollectionsCompactView(
             viewModel: NFTCollectionsCompactViewModel(
-                initialState: .success(
+                initialState: .loaded(
                     .threeCollections(
                         firstCollectionImageURL: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!,
                         secondCollectionImageURL: URL(string: "https://arweave.net/ggUMUDPTxiAq25rxo_PlwGjl947sIn2ypczI7ZefsF4")!,
                         thirdCollectionImageURL: URL(string: "https://s3.us-east-1.amazonaws.com/brma/sd0SOIeVaqGagko1B4w3")!
                     )
-                )
+                ),
+                coordinator: NFTEntrypointCoordintor()
             )
         )
         .padding(.horizontal, 16)
@@ -352,14 +366,15 @@ extension NFTCollectionsCompactView {
         Colors.Field.primary
         NFTCollectionsCompactView(
             viewModel: NFTCollectionsCompactViewModel(
-                initialState: .success(
+                initialState: .loaded(
                     .fourCollections(
                         firstCollectionImageURL: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!,
                         secondCollectionImageURL: URL(string: "https://arweave.net/ggUMUDPTxiAq25rxo_PlwGjl947sIn2ypczI7ZefsF4")!,
                         thirdCollectionImageURL: URL(string: "https://s3.us-east-1.amazonaws.com/brma/sd0SOIeVaqGagko1B4w3")!,
                         fourthCollectionImageURL: URL(string: "https://image.nftscan.com/sol/logo/6351b964b3e6b39f3522028ebf82ff1e.png")!
                     )
-                )
+                ),
+                coordinator: NFTEntrypointCoordintor()
             )
         )
         .padding(.horizontal, 16)
@@ -371,16 +386,18 @@ extension NFTCollectionsCompactView {
         Colors.Field.primary
         NFTCollectionsCompactView(
             viewModel: NFTCollectionsCompactViewModel(
-                initialState: .success(
+                initialState: .loaded(
                     .multipleCollections(collectionsURLs: [
                         URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!,
                         URL(string: "https://arweave.net/ggUMUDPTxiAq25rxo_PlwGjl947sIn2ypczI7ZefsF4")!,
                         URL(string: "https://s3.us-east-1.amazonaws.com/brma/sd0SOIeVaqGagko1B4w3")!,
                         URL(string: "https://image.nftscan.com/sol/logo/6351b964b3e6b39f3522028ebf82ff1e.png")!,
                     ])
-                )
+                ),
+                coordinator: NFTEntrypointCoordintor()
             )
         )
         .padding(.horizontal, 16)
     }
 }
+#endif
