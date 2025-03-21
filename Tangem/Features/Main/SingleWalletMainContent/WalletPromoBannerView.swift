@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct WalletPromoBannerView: View {
     @ObservedObject var viewModel: WalletPromoBannerViewModel
