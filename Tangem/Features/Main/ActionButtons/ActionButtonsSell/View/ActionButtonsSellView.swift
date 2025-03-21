@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct ActionButtonsSellView: View {
     @ObservedObject var viewModel: ActionButtonsSellViewModel

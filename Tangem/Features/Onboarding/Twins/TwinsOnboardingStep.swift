@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 protocol SuccessStep {
     var successTitle: String { get }
