@@ -6,9 +6,9 @@
 //  Copyright © 2021 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
 import BlockchainSdk
+import TangemAssets
 
 extension Token {
     var isCustom: Bool { id == nil }
