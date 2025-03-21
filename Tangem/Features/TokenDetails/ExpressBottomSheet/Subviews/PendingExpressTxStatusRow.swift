@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct PendingExpressTxStatusRow: View {
     let isFirstRow: Bool

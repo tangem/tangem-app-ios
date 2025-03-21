@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct CheckIconView: View {
     let isSelected: Bool
