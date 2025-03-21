@@ -6,9 +6,8 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Foundation
-import UIKit
 import SwiftUI
+import TangemAssets
 import TangemUI
 
 // MARK: - SwiftUI view
