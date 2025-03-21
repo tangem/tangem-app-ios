@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct IconWithBackground: View {
     private let icon: ImageType
