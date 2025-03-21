@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct MarketsGeneratedAddressView: View {
     var body: some View {
