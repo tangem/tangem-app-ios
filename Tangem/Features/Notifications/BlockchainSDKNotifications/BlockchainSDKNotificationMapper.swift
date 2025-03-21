@@ -6,11 +6,11 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
 import enum BlockchainSdk.ValidationError
 import enum BlockchainSdk.WithdrawalNotification
 import enum BlockchainSdk.FeeResourceType
+import TangemAssets
 
 struct BlockchainSDKNotificationMapper {
     private let tokenItem: TokenItem
@@ -40,7 +40,7 @@ struct BlockchainSDKNotificationMapper {
                     transactionAmountTypeName: tokenItem.name,
                     feeAmountTypeName: feeTokenItem.name,
                     feeAmountTypeCurrencySymbol: feeTokenItem.currencySymbol,
-                    feeAmountTypeIconName: feeTokenItem.blockchain.iconNameFilled,
+                    feeAmountTypeIconAsset: feeTokenItem.blockchain.iconAssetFilled,
                     networkName: tokenItem.networkName,
                     currencyButtonTitle: nil
                 )

@@ -9,6 +9,7 @@
 import Foundation
 import TangemSdk
 import BlockchainSdk
+import TangemAssets
 
 struct Start2CoinConfig: CardContainer {
     let card: CardDTO

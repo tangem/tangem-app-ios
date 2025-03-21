@@ -8,6 +8,7 @@
 
 import Foundation
 import class UIKit.UIColor
+import TangemAssets
 import TangemSdk
 
 struct TangemSdkConfigFactory {
