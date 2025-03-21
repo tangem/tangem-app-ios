@@ -31,7 +31,7 @@ struct TangemLoggerConfigurator: Initializable {
 struct TangemLoggerConfiguration: Logger.Configuration {
     /// Write to console
     func isLoggable() -> Bool {
-        AppEnvironment.current.isDebug
+        false
     }
 
     /// Write to file
