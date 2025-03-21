@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import SwiftUI
+import TangemAssets
 import TangemStories
 
 final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
@@ -27,7 +28,7 @@ final class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
 
     var name: String { tokenIcon.name }
     var imageURL: URL? { tokenIcon.imageURL }
-    var blockchainIconName: String? { tokenIcon.blockchainIconName }
+    var blockchainIconAsset: ImageType? { tokenIcon.blockchainIconAsset }
     var hasMonochromeIcon: Bool { networkUnreachable || missingDerivation }
     var isCustom: Bool { tokenIcon.isCustom }
     var customTokenColor: Color? { tokenIcon.customTokenColor }
