@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct ActionButtonsChooseTokenView: View {
     @StateObject private var viewModel: ActionButtonsChooseTokenViewModel
@@ -101,7 +102,7 @@ struct ActionButtonsChooseTokenView: View {
                             isDisabled: false,
                             tokenIconInfo: .init(
                                 name: "",
-                                blockchainIconName: "",
+                                blockchainIconAsset: nil,
                                 imageURL: nil,
                                 isCustom: false,
                                 customTokenColor: .black

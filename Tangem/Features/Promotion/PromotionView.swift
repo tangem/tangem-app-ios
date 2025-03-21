@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct PromotionView: View {
     @ObservedObject private var viewModel: PromotionViewModel
