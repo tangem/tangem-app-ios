@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct CircledCheckmarkView: View {
     var borderColor: Color = .white
