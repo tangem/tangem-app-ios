@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct PendingExpressTransactionView: View {
     var info: Info

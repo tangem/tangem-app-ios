@@ -6,9 +6,9 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import Combine
 import SwiftUI
+import TangemAssets
 import TangemStaking
 import TangemFoundation
 import BlockchainSdk
