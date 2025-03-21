@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct VisaOnboardingInProgressView: View {
     @ObservedObject var viewModel: VisaOnboardingInProgressViewModel

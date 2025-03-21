@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct EnvironmentSetupView: View {
     @ObservedObject private var viewModel: EnvironmentSetupViewModel
