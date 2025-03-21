@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct OnrampProvidersCompactProviderView: View {
     let data: OnrampProvidersCompactProviderViewData
