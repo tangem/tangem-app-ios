@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 public struct SkeletonView: View {
     @State var isAppeared = false
