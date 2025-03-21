@@ -10,12 +10,15 @@ import Combine
 import Foundation
 
 final class NFTCollectionsCompactViewModel: ObservableObject {
-    @Published private(set) var state: ViewState
+    @Published private(set) var state: LoadingValue<CollectionsViewState>
     private var collectionsCount = 0
     private var totalNFTs = 0
 
-    init(initialState: ViewState = .loading) {
+    private weak var coordinator: NFTEntrypointRoutable?
+
+    init(initialState: LoadingValue<CollectionsViewState> = .loading, coordinator: NFTEntrypointRoutable) {
         state = initialState
+        self.coordinator = coordinator
     }
 
     var isLoading: Bool {
@@ -33,17 +36,13 @@ final class NFTCollectionsCompactViewModel: ObservableObject {
     var subtitle: String {
         Localization.nftWalletCount(totalNFTs, collectionsCount)
     }
-}
 
-extension NFTCollectionsCompactViewModel {
-    enum ViewState {
-        case loading
-        case failed
-        case success(CollectionsViewState)
+    func openCollections() {
+        coordinator?.openCollections()
     }
 }
 
-extension NFTCollectionsCompactViewModel.ViewState {
+extension NFTCollectionsCompactViewModel {
     enum CollectionsViewState {
         case noCollections
 
