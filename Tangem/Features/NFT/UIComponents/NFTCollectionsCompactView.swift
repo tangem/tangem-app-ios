@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct NFTCollectionsCompactView: View {
     @ObservedObject var viewModel: NFTCollectionsCompactViewModel
@@ -66,7 +67,7 @@ struct NFTCollectionsCompactView: View {
     ) -> some View {
         switch collectionsState {
         case .noCollections:
-            Assets.Nft.CompactCollectionsView.noNFT.image
+            Assets.Nft.noNft.image
 
         case .oneCollection(let imageURL):
             makeImage(url: imageURL, size: Constants.ImageContainer.size)
