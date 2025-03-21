@@ -6,12 +6,12 @@
 //  Copyright © 2020 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
+import TangemAssets
 
 struct TangemButton: View {
     let title: String
-    var image: String = ""
+    var image: ImageType?
     var systemImage: String = ""
     var iconPosition: IconPosition = .leading
     var iconPadding: CGFloat = 8
@@ -19,8 +19,8 @@ struct TangemButton: View {
 
     @ViewBuilder
     private var icon: some View {
-        if !image.isEmpty {
-            Image(image)
+        if let image {
+            image.image
         } else if !systemImage.isEmpty {
             Image(systemName: systemImage)
         } else {
@@ -29,7 +29,7 @@ struct TangemButton: View {
     }
 
     private var hasImage: Bool {
-        !image.isEmpty || !systemImage.isEmpty
+        image != nil || !systemImage.isEmpty
     }
 
     @ViewBuilder
@@ -69,7 +69,7 @@ extension TangemButton {
 
     static func vertical(
         title: String,
-        image: String = "",
+        image: ImageType? = nil,
         systemImage: String = "",
         action: @escaping () -> Void
     ) -> TangemButton {
@@ -87,10 +87,10 @@ extension TangemButton {
 struct TangemButton_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
-            TangemButton(title: "Recharge de portefeuille", image: "scan") {}
+            TangemButton(title: "Recharge de portefeuille", image: Assets.scan) {}
                 .buttonStyle(TangemButtonStyle(colorStyle: .black))
 
-            TangemButton(title: "Scan", image: "scan") {}
+            TangemButton(title: "Scan", image: Assets.scan) {}
                 .buttonStyle(TangemButtonStyle(
                     colorStyle: .black,
                     layout: .big
@@ -109,7 +109,7 @@ struct TangemButton_Previews: PreviewProvider {
             HStack {
                 TangemButton(
                     title: Localization.commonSend,
-                    image: "scan"
+                    image: Assets.scan
                 ) {}
                     .buttonStyle(TangemButtonStyle(
                         layout: .smallVertical,

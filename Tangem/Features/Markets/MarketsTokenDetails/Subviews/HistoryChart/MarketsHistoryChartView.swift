@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct MarketsHistoryChartView: View {
     @ObservedObject var viewModel: MarketsHistoryChartViewModel
