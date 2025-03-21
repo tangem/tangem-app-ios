@@ -6,12 +6,10 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import UIKit
+import TangemAssets
 
 struct MarketsTokenDetailsLinksMapper {
-    private let defaultIcon = Assets.arrowRightUp
-
     let openLinkAction: (MarketsTokenDetailsLinks.LinkInfo) -> Void
 
     func mapToSections(_ links: MarketsTokenDetailsLinks?) -> [MarketsTokenDetailsLinkSection] {
@@ -41,11 +39,7 @@ struct MarketsTokenDetailsLinksMapper {
     }
 
     private func mapLinkToChips(_ linkInfo: MarketsTokenDetailsLinks.LinkInfo) -> MarketsTokenDetailsLinkChipsData? {
-        let icon: ImageType = if let id = linkInfo.id {
-            .init(name: id)
-        } else {
-            defaultIcon
-        }
+        let icon = Self.mapLinkInfoToKnownSocialNetworkAsset(linkInfo)
 
         let title = if let url = URL(string: linkInfo.title), let hostTitle = url.host {
             hostTitle
@@ -77,6 +71,33 @@ struct MarketsTokenDetailsLinksMapper {
                 )
             }
         )
+    }
+
+    private static func mapLinkInfoToKnownSocialNetworkAsset(_ linkInfo: MarketsTokenDetailsLinks.LinkInfo) -> ImageType {
+        switch linkInfo.id {
+        case "discord":
+            Assets.SocialNetwork.discord
+        case "facebook":
+            Assets.SocialNetwork.facebook
+        case "github":
+            Assets.SocialNetwork.github
+        case "instagram":
+            Assets.SocialNetwork.instagram
+        case "linkedin":
+            Assets.SocialNetwork.linkedin
+        case "reddit":
+            Assets.SocialNetwork.reddit
+        case "telegram":
+            Assets.SocialNetwork.telegram
+        case "twitter":
+            Assets.SocialNetwork.twitter
+        case "youtube":
+            Assets.SocialNetwork.youtube
+        case "whitepaper":
+            Assets.whitepaper
+        default:
+            Assets.arrowRightUp
+        }
     }
 }
 

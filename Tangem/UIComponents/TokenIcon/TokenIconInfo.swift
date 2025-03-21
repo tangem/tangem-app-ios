@@ -6,13 +6,13 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
+import TangemAssets
 
 // [REDACTED_TODO_COMMENT]
 struct TokenIconInfo: Hashable {
     let name: String
-    let blockchainIconName: String?
+    let blockchainIconAsset: ImageType?
     let imageURL: URL?
     let isCustom: Bool
     let customTokenColor: Color?
@@ -20,14 +20,14 @@ struct TokenIconInfo: Hashable {
 
     init(
         name: String,
-        blockchainIconName: String?,
+        blockchainIconAsset: ImageType?,
         imageURL: URL?,
         isCustom: Bool,
         customTokenColor: Color?,
         networkBorderColor: Color = Colors.Background.primary
     ) {
         self.name = name
-        self.blockchainIconName = blockchainIconName
+        self.blockchainIconAsset = blockchainIconAsset
         self.imageURL = imageURL
         self.isCustom = isCustom
         self.customTokenColor = customTokenColor
