@@ -6,9 +6,9 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Foundation
-import TangemStaking
 import SwiftUI
+import TangemAssets
+import TangemStaking
 
 struct StakingDetailsStakeViewData: Identifiable {
     var id: Int { hashValue }

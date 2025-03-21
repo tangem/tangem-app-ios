@@ -9,6 +9,7 @@
 import Combine
 import SwiftUI
 import BlockchainSdk
+import TangemAssets
 import TangemFoundation
 
 protocol TokenItemContextActionsProvider: AnyObject {
@@ -37,7 +38,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
 
     var name: String { tokenIcon.name }
     var imageURL: URL? { tokenIcon.imageURL }
-    var blockchainIconName: String? { tokenIcon.blockchainIconName }
+    var blockchainIconAsset: ImageType? { tokenIcon.blockchainIconAsset }
     var hasMonochromeIcon: Bool { networkUnreachable || missingDerivation || tokenItem.blockchain.isTestnet }
     var isCustom: Bool { tokenIcon.isCustom }
     var customTokenColor: Color? { tokenIcon.customTokenColor }

@@ -6,8 +6,8 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
+import TangemAssets
 
 struct BottomSheetHeaderView<Leading: View, Trailing: View>: View {
     private let title: String
