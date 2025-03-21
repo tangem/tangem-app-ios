@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct VisaOnboardingApproveWalletSelectorItemView: View {
     let item: Option

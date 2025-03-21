@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct Web3StoryPage: View {
     var progress: Double
@@ -15,7 +16,14 @@ struct Web3StoryPage: View {
     let orderCard: () -> Void
 
     private let numberOfRows = 6
-    private let numberOfRowImages = 6
+    private let rowImages = [
+        Assets.Stories.dapps0,
+        Assets.Stories.dapps1,
+        Assets.Stories.dapps2,
+        Assets.Stories.dapps3,
+        Assets.Stories.dapps4,
+        Assets.Stories.dapps5,
+    ]
 
     var body: some View {
         VStack {
@@ -42,10 +50,7 @@ struct Web3StoryPage: View {
                     VStack {
                         Group {
                             ForEach(0 ..< numberOfRows, id: \.self) { index in
-                                let odd = (index % 2 == 0)
-                                Image("dapps-\(index % numberOfRowImages)")
-                                    .offset(x: odd ? 50 : 0)
-                                    .offset(x: -75 * Double(numberOfRows - index) / Double(numberOfRows) * progress, y: 0)
+                                rowView(forIndex: index)
                             }
                         }
                         .frame(height: 63)
@@ -77,6 +82,16 @@ struct Web3StoryPage: View {
         }
         .background(Colors.Old.tangemStoryBackground.edgesIgnoringSafeArea(.all))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func rowView(forIndex index: Int) -> some View {
+        let isOdd = (index % 2 == 0)
+        let assetIndex = index % rowImages.count
+        let asset = rowImages[assetIndex]
+
+        return asset.image
+            .offset(x: isOdd ? 50 : 0)
+            .offset(x: -75 * Double(numberOfRows - index) / Double(numberOfRows) * progress)
     }
 }
 

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct VisaOnboardingWalletConnectView: View {
     @ObservedObject var viewModel: VisaOnboardingWalletConnectViewModel
