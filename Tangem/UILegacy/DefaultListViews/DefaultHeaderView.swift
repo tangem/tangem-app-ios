@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct DefaultHeaderView: View {
     private let title: String

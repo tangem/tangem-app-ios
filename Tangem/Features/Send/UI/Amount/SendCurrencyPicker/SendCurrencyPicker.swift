@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct SendCurrencyPickerData {
     let cryptoIconURL: URL?

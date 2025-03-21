@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct CurrenciesStoryPage: View {
     var progress: Double
@@ -16,7 +17,13 @@ struct CurrenciesStoryPage: View {
     let searchTokens: () -> Void
 
     private let numberOfRows = 6
-    private let numberOfRowImages = 5
+    private let rowImages = [
+        Assets.Stories.currency0,
+        Assets.Stories.currency1,
+        Assets.Stories.currency2,
+        Assets.Stories.currency3,
+        Assets.Stories.currency4,
+    ]
 
     var body: some View {
         VStack {
@@ -44,10 +51,7 @@ struct CurrenciesStoryPage: View {
                         VStack {
                             Group {
                                 ForEach(0 ..< numberOfRows, id: \.self) { index in
-                                    let odd = (index % 2 == 0)
-                                    Image("currency-\(index % numberOfRowImages)")
-                                        .offset(x: odd ? 50 : 0, y: 0)
-                                        .offset(x: -75 * Double(numberOfRows - index) / Double(numberOfRows) * progress, y: 0)
+                                    rowView(forIndex: index)
                                 }
                             }
                             .frame(height: 80)
@@ -89,6 +93,16 @@ struct CurrenciesStoryPage: View {
         }
         .background(Colors.Old.tangemStoryBackground.edgesIgnoringSafeArea(.all))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func rowView(forIndex index: Int) -> some View {
+        let isOdd = (index % 2 == 0)
+        let assetIndex = index % rowImages.count
+        let asset = rowImages[assetIndex]
+
+        return asset.image
+            .offset(x: isOdd ? 50 : 0)
+            .offset(x: -75 * Double(numberOfRows - index) / Double(numberOfRows) * progress)
     }
 }
 

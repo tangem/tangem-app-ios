@@ -9,6 +9,7 @@
 import Combine
 import TangemExpress
 import UIKit
+import TangemAssets
 import TangemFoundation
 import enum TangemSdk.TangemSdkError
 import struct BlockchainSdk.Fee

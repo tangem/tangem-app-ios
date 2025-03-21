@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct MarketsNavigationBarTitle: View {
     struct State: Equatable {

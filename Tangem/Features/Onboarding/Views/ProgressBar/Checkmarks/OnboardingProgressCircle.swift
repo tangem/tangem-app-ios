@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct OnboardingProgressCircle: View {
     enum CircleState {
