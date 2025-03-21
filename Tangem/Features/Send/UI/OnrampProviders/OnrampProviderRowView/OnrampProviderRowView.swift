@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct OnrampProviderRowView: View {
     let data: OnrampProviderRowViewData
