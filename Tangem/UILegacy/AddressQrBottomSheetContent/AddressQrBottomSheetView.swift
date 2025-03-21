@@ -6,8 +6,9 @@
 //  Copyright © 2021 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
 import Combine
+import SwiftUI
+import TangemAssets
 
 struct AddressQrBottomSheetContentViewModel: Identifiable {
     let id: UUID = .init()
