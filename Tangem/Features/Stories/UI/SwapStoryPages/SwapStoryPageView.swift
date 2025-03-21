@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Kingfisher
+import TangemAssets
 import TangemStories
 
 struct SwapStoryPageView: View {

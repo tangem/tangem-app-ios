@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct DefaultToggleRowView: View {
     private let viewModel: DefaultToggleRowViewModel
