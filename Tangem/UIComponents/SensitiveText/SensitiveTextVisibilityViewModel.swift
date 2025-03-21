@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 import Combine
 import CoreMotion
+import TangemAssets
 
 class SensitiveTextVisibilityViewModel: ObservableObject {
     static let shared = SensitiveTextVisibilityViewModel()

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct OnrampProvidersCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: OnrampProvidersCoordinator

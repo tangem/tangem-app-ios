@@ -6,8 +6,8 @@
 //  Copyright © 2021 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
+import TangemAssets
 
 struct TransactionViewModel: Hashable, Identifiable {
     var id: ViewModelId { ViewModelId(hash: hash, index: index) }
