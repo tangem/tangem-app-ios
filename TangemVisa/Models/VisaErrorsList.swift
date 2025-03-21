@@ -24,6 +24,7 @@ import TangemFoundation
 /// `008` - Card Authorization Processor
 /// `009` - Common Visa
 /// `010` - Payment account token Info loader
+/// `011` - PIN validator
 extension VisaAPIError: UniversalError {
     public var errorCode: Int { 104001001 }
 }
@@ -153,6 +154,16 @@ extension VisaTokenInfoLoader.LoaderError: UniversalError {
             case .symbol: return 104010003
             case .decimals: return 104010004
             }
+        }
+    }
+}
+
+extension VisaPinValidator.PinValidationError: UniversalError {
+    public var errorCode: Int {
+        switch self {
+        case .invalidLength: return 104011001
+        case .repeatedDigits: return 104011002
+        case .sequentialDigits: return 104011003
         }
     }
 }
