@@ -8,6 +8,7 @@
 
 import Combine
 import SwiftUI
+import TangemAssets
 
 final class ActionButtonsTokenSelectItemViewModel: ObservableObject {
     private let model: ActionButtonsTokenSelectorItem

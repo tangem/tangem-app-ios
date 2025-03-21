@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import TangemAssets
 
 struct TransactionSendAvailabilityProvider {
     private let isSendingSupportedByCard: Bool
@@ -50,7 +51,7 @@ struct TransactionSendAvailabilityProvider {
                     transactionAmountTypeName: walletModel.tokenItem.name,
                     feeAmountTypeName: walletModel.feeTokenItem.name,
                     feeAmountTypeCurrencySymbol: walletModel.feeTokenItem.currencySymbol,
-                    feeAmountTypeIconName: walletModel.feeTokenItem.blockchain.iconNameFilled,
+                    feeAmountTypeIconAsset: walletModel.feeTokenItem.blockchain.iconAssetFilled,
                     networkName: walletModel.tokenItem.networkName,
                     currencyButtonTitle: walletModel.tokenItem.blockchain.feeDisplayName
                 )
@@ -76,7 +77,7 @@ extension TransactionSendAvailabilityProvider {
             let transactionAmountTypeName: String
             let feeAmountTypeName: String
             let feeAmountTypeCurrencySymbol: String
-            let feeAmountTypeIconName: String
+            let feeAmountTypeIconAsset: ImageType
             let networkName: String
             let currencyButtonTitle: String?
         }
