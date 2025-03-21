@@ -53,13 +53,3 @@ extension VisaUserWalletModel.ModelError: UniversalError {
         }
     }
 }
-
-extension VisaOnboardingPinViewModel.PinValidationError: UniversalError {
-    var errorCode: Int {
-        switch self {
-        case .invalidLength: return 100003001
-        case .repeatedDigits: return 100003002
-        case .sequentialDigits: return 100003003
-        }
-    }
-}
