@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftUI
+import TangemAssets
 
 enum TokenNotificationEvent: Hashable {
     case networkUnreachable(currencySymbol: String)
@@ -161,7 +162,7 @@ extension TokenNotificationEvent: NotificationEvent {
         case .rentFee, .noAccount, .existentialDepositWarning, .manaLevel:
             return .init(iconType: .image(Assets.blueCircleWarning.image))
         case .notEnoughFeeForTransaction(let configuration):
-            return .init(iconType: .image(Image(configuration.eventConfiguration.feeAmountTypeIconName)))
+            return .init(iconType: .image(configuration.eventConfiguration.feeAmountTypeIconAsset.image))
         case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation):
             return .init(iconType: .image(Tokens.hederaFill.image))
         case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction):

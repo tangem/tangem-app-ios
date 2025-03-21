@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct ReceiveCurrencyView: View {
     @ObservedObject private var viewModel: ReceiveCurrencyViewModel

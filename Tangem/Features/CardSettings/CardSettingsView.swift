@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct CardSettingsView: View {
     @ObservedObject var viewModel: CardSettingsViewModel
