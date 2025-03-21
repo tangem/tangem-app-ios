@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct NavigationBusyButton: View {
     var isBusy: Bool
