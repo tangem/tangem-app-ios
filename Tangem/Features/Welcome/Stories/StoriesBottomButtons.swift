@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct StoriesBottomButtons: View {
     let scanColorStyle: MainButton.Style

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct TransactionView: View {
     let viewModel: TransactionViewModel

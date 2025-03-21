@@ -7,7 +7,7 @@
 //
 
 import SwiftUI
-import UIKit
+import TangemAssets
 
 struct GroupedScrollView<Content: View>: View {
     private let alignment: HorizontalAlignment
