@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct VisaOnboardingSuccessView: View {
     let fireConfetti: Binding<Bool>

@@ -34,6 +34,11 @@ let package = Package(
 var serviceModules: [PackageDescription.Target] {
     [
         .tangemTarget(
+            name: "TangemAssets",
+            exclude: ["Templates"],
+            resources: [.process("Assets")]
+        ),
+        .tangemTarget(
             name: "TangemFoundation",
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -71,6 +76,7 @@ var serviceModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemUI",
             dependencies: [
+                "TangemAssets",
                 "TangemFoundation",
             ],
             swiftSettings: [

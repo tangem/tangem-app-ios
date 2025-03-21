@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct StoriesTangemLogo: View {
     var body: some View {

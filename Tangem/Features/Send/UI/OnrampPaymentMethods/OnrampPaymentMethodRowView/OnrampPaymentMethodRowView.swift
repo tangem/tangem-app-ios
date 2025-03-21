@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct OnrampPaymentMethodRowView: View {
     let data: OnrampPaymentMethodRowViewData

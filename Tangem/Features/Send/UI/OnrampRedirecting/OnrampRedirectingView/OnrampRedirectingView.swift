@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct OnrampRedirectingView: View {
     @ObservedObject var viewModel: OnrampRedirectingViewModel

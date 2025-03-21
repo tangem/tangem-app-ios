@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct ForegroundBlinkAnimationModifier: ViewModifier {
     let publisher: Published<Change>.Publisher
