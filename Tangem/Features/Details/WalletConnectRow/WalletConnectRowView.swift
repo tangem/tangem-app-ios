@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct WalletConnectRowView: View {
     private let viewModel: WalletConnectRowViewModel

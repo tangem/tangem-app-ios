@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct ExpressApproveView: View {
     @ObservedObject private var viewModel: ExpressApproveViewModel

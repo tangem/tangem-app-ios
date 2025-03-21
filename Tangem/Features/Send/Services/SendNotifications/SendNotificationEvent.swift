@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftUI
+import TangemAssets
 
 enum SendNotificationEvent {
     // The send flow specific notifications
