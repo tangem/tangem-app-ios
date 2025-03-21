@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct AddCustomTokenCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: AddCustomTokenCoordinator
