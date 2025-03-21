@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct RoundedBackgroundModifier: ViewModifier {
     let verticalPadding: CGFloat

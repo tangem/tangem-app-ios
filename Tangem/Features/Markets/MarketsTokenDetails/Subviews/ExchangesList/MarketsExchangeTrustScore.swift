@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 enum MarketsExchangeTrustScore: Int, Decodable {
     case risky = 0

@@ -6,9 +6,9 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import Foundation
-import SwiftUI
 import Combine
+import SwiftUI
+import TangemAssets
 
 class MarketsTokensNetworkSelectorItemViewModel: Identifiable, ObservableObject {
     @Published var isSelected: Bool = false
@@ -47,19 +47,19 @@ class MarketsTokensNetworkSelectorItemViewModel: Identifiable, ObservableObject 
         return isSelected ? Assets.Checked.on.image : Assets.Checked.off.image
     }
 
-    var iconImageName: String {
+    var iconImageAsset: ImageType {
         guard !isReadonly else {
-            return imageName
+            return imageAsset
         }
 
-        return isSelected ? imageNameSelected : imageName
+        return isSelected ? imageAssetSelected : imageAsset
     }
 
     private var isSelectedBinding: Binding<Bool>
     private var bag = Set<AnyCancellable>()
 
-    private let imageName: String
-    private let imageNameSelected: String
+    private let imageAsset: ImageType
+    private let imageAssetSelected: ImageType
 
     // MARK: - Init
 
@@ -69,8 +69,8 @@ class MarketsTokensNetworkSelectorItemViewModel: Identifiable, ObservableObject 
         isSelectedBinding = isSelected
         self.position = position
         isMain = tokenItem.isBlockchain
-        imageName = tokenItem.blockchain.iconName
-        imageNameSelected = tokenItem.blockchain.iconNameFilled
+        imageAsset = tokenItem.blockchain.iconAsset
+        imageAssetSelected = tokenItem.blockchain.iconAssetFilled
         networkName = tokenItem.blockchain.displayName
         contractName = tokenItem.contractName
 
