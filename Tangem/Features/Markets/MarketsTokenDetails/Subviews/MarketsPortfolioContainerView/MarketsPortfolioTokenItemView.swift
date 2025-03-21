@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 import TangemUI
 
 struct MarketsPortfolioTokenItemView: View {
@@ -31,7 +32,7 @@ struct MarketsPortfolioTokenItemView: View {
                 name: viewModel.name,
                 imageURL: viewModel.imageURL,
                 customTokenColor: viewModel.customTokenColor,
-                blockchainIconName: viewModel.blockchainIconName,
+                blockchainIconAsset: viewModel.blockchainIconAsset,
                 hasMonochromeIcon: viewModel.hasMonochromeIcon,
                 isCustom: viewModel.isCustom,
                 networkBorderColor: Colors.Background.action
