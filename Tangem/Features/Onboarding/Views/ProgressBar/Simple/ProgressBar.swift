@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct ProgressBar: View {
     let height: CGFloat
