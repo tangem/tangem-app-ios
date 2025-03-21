@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct ProviderRowView: View {
     let viewModel: ProviderRowViewModel
