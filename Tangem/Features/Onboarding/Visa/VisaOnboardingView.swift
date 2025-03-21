@@ -100,7 +100,7 @@ struct VisaOnboardingView: View {
                 VisaOnboardingInProgressView(viewModel: viewModel)
             }
         case .pinSelection:
-            OnboardingPinView(viewModel: viewModel.pinSelectionViewModel)
+            VisaOnboardingPinView(viewModel: viewModel.pinSelectionViewModel)
         case .saveUserWallet:
             UserWalletStorageAgreementView(
                 viewModel: viewModel.userWalletStorageAgreementViewModel,
