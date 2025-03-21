@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemAssets
 import TangemStaking
 
 enum StakingNotificationEvent {
