@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct OrganizeTokensListSectionView: View {
     let title: String
