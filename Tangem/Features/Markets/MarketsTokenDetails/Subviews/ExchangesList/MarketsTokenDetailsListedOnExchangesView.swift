@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct MarketsTokenDetailsListedOnExchangesView: View {
     let exchangesCount: Int
