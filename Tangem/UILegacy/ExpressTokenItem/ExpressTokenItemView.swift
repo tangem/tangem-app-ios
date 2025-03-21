@@ -6,8 +6,8 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
+import TangemAssets
 
 struct ExpressTokenItemView: View {
     private let viewModel: ExpressTokenItemViewModel
@@ -74,7 +74,7 @@ struct ExpressTokenItemView_Previews: PreviewProvider {
             id: "Bitcoin",
             tokenIconInfo: TokenIconInfo(
                 name: "",
-                blockchainIconName: "bitcoin",
+                blockchainIconAsset: Tokens.bitcoin,
                 imageURL: IconURLBuilder().tokenIconURL(id: "", size: .large),
                 isCustom: false,
                 customTokenColor: Color.red
@@ -89,7 +89,7 @@ struct ExpressTokenItemView_Previews: PreviewProvider {
             id: "Ethereum",
             tokenIconInfo: TokenIconInfo(
                 name: "",
-                blockchainIconName: "ethereum",
+                blockchainIconAsset: Tokens.ethereum,
                 imageURL: IconURLBuilder().tokenIconURL(id: "tether", size: .large),
                 isCustom: false,
                 customTokenColor: Color.red
@@ -104,7 +104,7 @@ struct ExpressTokenItemView_Previews: PreviewProvider {
             id: "Tether",
             tokenIconInfo: TokenIconInfo(
                 name: "",
-                blockchainIconName: "ethereum",
+                blockchainIconAsset: Tokens.ethereum,
                 imageURL: IconURLBuilder().tokenIconURL(id: "dai", size: .large),
                 isCustom: false,
                 customTokenColor: Color.red

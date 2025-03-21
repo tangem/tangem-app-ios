@@ -1,69 +1,68 @@
 //
 //  Color+.swift
-//  Tangem
+//  TangemAssets
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2020 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
 
-extension UIColor {
+public extension UIColor {
     /// DO NOT remove this
     /// This is a UIColor from the new palette, used in UITextField's accessory view
     /// There's no good way to convert SwiftUI dynamic Color to UIColor and retain the dark/light appearance
     /// 👇👇👇 ------------------------------------ 👇👇👇
     @nonobjc static var backgroundPrimary: UIColor {
-        return UIColor(named: "BackgroundPrimary")!
+        return UIColor(named: "BackgroundPrimary", in: .module, compatibleWith: nil)!
     }
 
     @nonobjc static var backgroundSecondary: UIColor {
-        return UIColor(named: "BackgroundSecondary")!
+        return UIColor(named: "BackgroundSecondary", in: .module, compatibleWith: nil)!
     }
 
     @nonobjc static var backgroundPlain: UIColor {
-        return UIColor(named: "BackgroundPlain")!
+        return UIColor(named: "BackgroundPlain", in: .module, compatibleWith: nil)!
     }
 
     @nonobjc static var inputAccessoryViewTintColor: UIColor {
-        return UIColor(named: "ButtonPrimary")!
+        return UIColor(named: "ButtonPrimary", in: .module, compatibleWith: nil)!
     }
 
     @nonobjc static var textWarningColor: UIColor {
-        return UIColor(named: "TextWarning")!
+        return UIColor(named: "TextWarning", in: .module, compatibleWith: nil)!
     }
 
     @nonobjc static var textAccent: UIColor {
-        return UIColor(named: "TextAccent")!
+        return UIColor(named: "TextAccent", in: .module, compatibleWith: nil)!
     }
 
     @nonobjc static var textPrimary1: UIColor {
-        return UIColor(named: "TextPrimary1")!
+        return UIColor(named: "TextPrimary1", in: .module, compatibleWith: nil)!
     }
 
     @nonobjc static var textDisabled: UIColor {
-        return UIColor(named: "TextDisabled")!
+        return UIColor(named: "TextDisabled", in: .module, compatibleWith: nil)!
     }
 
     @nonobjc static var iconInformative: UIColor {
-        return UIColor(named: "IconInformative")!
+        return UIColor(named: "IconInformative", in: .module, compatibleWith: nil)!
     }
 
     @nonobjc static var iconAccent: UIColor {
-        UIColor(named: "IconAccent")!
+        UIColor(named: "IconAccent", in: .module, compatibleWith: nil)!
     }
 
     @nonobjc static var iconInactive: UIColor {
-        UIColor(named: "IconInactive")!
+        UIColor(named: "IconInactive", in: .module, compatibleWith: nil)!
     }
 
     @nonobjc static var iconWarning: UIColor {
-        UIColor(named: "IconWarning")!
+        UIColor(named: "IconWarning", in: .module, compatibleWith: nil)!
     }
 
     @nonobjc static var textTertiary: UIColor {
-        UIColor(named: "TextTertiary")!
+        UIColor(named: "TextTertiary", in: .module, compatibleWith: nil)!
     }
 
     // ☝️☝️☝️ End of UIColors from the new palette ☝️☝️☝️
@@ -71,23 +70,23 @@ extension UIColor {
     // MARK: Background
 
     @nonobjc static var tangemBg: UIColor {
-        return UIColor(named: "tangem_bg")!
+        return UIColor(named: "tangem_bg", in: .module, compatibleWith: nil)!
     }
 
     @nonobjc static var tangemGrayDark4: UIColor {
-        return UIColor(named: "tangem_gray_dark4")!
+        return UIColor(named: "tangem_gray_dark4", in: .module, compatibleWith: nil)!
     }
 
     @nonobjc static var tangemGrayDark6: UIColor {
-        return UIColor(named: "tangem_gray_dark6")!
+        return UIColor(named: "tangem_gray_dark6", in: .module, compatibleWith: nil)!
     }
 
     @nonobjc static var tangemBlue: UIColor {
-        return UIColor(named: "tangem_blue")!
+        return UIColor(named: "tangem_blue", in: .module, compatibleWith: nil)!
     }
 
     @nonobjc static var tangemGrayDark: UIColor {
-        return UIColor(named: "tangem_gray_dark")!
+        return UIColor(named: "tangem_gray_dark", in: .module, compatibleWith: nil)!
     }
 }
 
@@ -95,7 +94,7 @@ public extension Color {
     init?(hex: String) {
         let r, g, b, a: Double
 
-        var hexColor = hex.remove("#")
+        var hexColor = hex.replacingOccurrences(of: "#", with: "")
         if hexColor.count == 6 {
             hexColor += "FF"
         }
@@ -117,10 +116,10 @@ public extension Color {
     }
 }
 
-extension UIColor {
+public extension UIColor {
     @available(iOS, deprecated: 18.0, message: "Replace with native 'Color.mix(with:by:in:)' if you are using this helper in SwiftUI only")
     func mix(with otherColor: UIColor, by fraction: CGFloat) -> UIColor {
-        let clampedFraction = clamp(fraction, min: 0.0, max: 1.0)
+        let clampedFraction = min(max(fraction, 0.0), 1.0)
         let invertedFraction = 1.0 - clampedFraction
 
         var components = (red: CGFloat(0.0), green: CGFloat(0.0), blue: CGFloat(0.0), alpha: CGFloat(0.0))
@@ -149,7 +148,7 @@ extension UIColor {
     }
 }
 
-extension UIColor {
+public extension UIColor {
     var forcedLight: UIColor {
         resolvedColor(with: .dummyLight)
     }
