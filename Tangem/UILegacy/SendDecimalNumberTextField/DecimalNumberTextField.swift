@@ -6,8 +6,9 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
 import Combine
+import SwiftUI
+import TangemAssets
 
 struct DecimalNumberTextField: View {
     @ObservedObject private var viewModel: ViewModel
