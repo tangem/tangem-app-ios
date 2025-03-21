@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemFoundation
+import TangemAssets
 
 enum VisaNotificationEvent {
     case error(UniversalError)

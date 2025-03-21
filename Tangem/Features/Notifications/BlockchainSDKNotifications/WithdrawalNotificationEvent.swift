@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftUI
+import TangemAssets
 
 /// Warning/Information Notifications
 enum WithdrawalNotificationEvent: Hashable {
