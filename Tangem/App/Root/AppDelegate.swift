@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import TangemAssets
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

@@ -7,20 +7,21 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 enum BiometryLogoImage {
-    static var image: ImageType {
+    static var image: Image {
         switch BiometricAuthorizationUtils.biometryType {
         case .faceID:
-            return Assets.Biometry.faceId
+            return Assets.Biometry.faceId.image
         case .touchID:
-            return Assets.Biometry.touchId
+            return Assets.Biometry.touchId.image
         case .opticID:
-            return ImageType(name: "opticid") // Built-in from SF Symbols
+            return Image(systemName: "opticid")
         case .none:
-            return ImageType(name: "")
+            return Image("")
         @unknown default:
-            return ImageType(name: "")
+            return Image("")
         }
     }
 }

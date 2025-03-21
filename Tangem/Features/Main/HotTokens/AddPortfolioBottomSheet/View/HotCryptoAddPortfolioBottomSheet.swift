@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct HotCryptoAddToPortfolioBottomSheet: View {
     let info: HotCryptoAddToPortfolioModel
