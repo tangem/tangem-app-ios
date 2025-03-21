@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemAssets
 
 class FakeBalanceWithButtonsInfoProvider {
     @Published var models: [BalanceWithButtonsViewModel] = []
