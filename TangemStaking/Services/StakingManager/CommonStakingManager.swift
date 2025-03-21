@@ -63,7 +63,7 @@ extension CommonStakingManager: StakingManager {
     }
 
     func updateState(loadActions: Bool) async {
-        updateState(.loading)
+        await updateState(.loading)
         do {
             async let balances = provider.balances(wallet: wallet)
             async let yield = provider.yield(integrationId: integrationId)
@@ -72,7 +72,7 @@ extension CommonStakingManager: StakingManager {
         } catch {
             analyticsLogger.logError(error, currencySymbol: wallet.item.symbol)
             StakingLogger.error(self, error: error)
-            updateState(.loadingError(error.localizedDescription))
+            await updateState(.loadingError(error.localizedDescription))
         }
     }
 
@@ -141,6 +141,7 @@ extension CommonStakingManager: StakingManager {
 // MARK: - Private
 
 private extension CommonStakingManager {
+    @MainActor
     func updateState(_ state: StakingManagerState) {
         StakingLogger.info(self, "Update state to \(state)")
         _state.send(state)
