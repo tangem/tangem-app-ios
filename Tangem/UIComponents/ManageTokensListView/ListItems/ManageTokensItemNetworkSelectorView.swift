@@ -8,6 +8,7 @@
 
 import SwiftUI
 import BlockchainSdk
+import TangemAssets
 import TangemUI
 
 struct ManageTokensItemNetworkSelectorView: View {
@@ -66,7 +67,7 @@ struct ManageTokensItemNetworkSelectorView: View {
 
     var icon: some View {
         NetworkIcon(
-            imageName: viewModel.isSelected ? viewModel.imageNameSelected : viewModel.imageName,
+            imageAsset: viewModel.isSelected ? viewModel.imageAssetSelected : viewModel.imageAsset,
             isActive: viewModel.isSelected,
             isMainIndicatorVisible: viewModel.isMain,
             size: .init(bothDimensions: 22)

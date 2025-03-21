@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct ActiveStakingViewData {
     let balance: BalanceState

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct WalletConnectSessionItemView: View {
     var dAppName: String

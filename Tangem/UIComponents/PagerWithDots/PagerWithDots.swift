@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Combine
+import TangemAssets
 
 /// Pager will take height needed for its content
 struct PagerWithDots<Data, Content>: View
