@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftUI
+import TangemAssets
 
 enum ValidationErrorEvent: Hashable {
     // Amount/Fee notifications
@@ -140,7 +141,7 @@ extension ValidationErrorEvent: NotificationEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .insufficientBalanceForFee(let configuration):
-            return .init(iconType: .image(Image(configuration.feeAmountTypeIconName)))
+            return .init(iconType: .image(configuration.feeAmountTypeIconAsset.image))
         case .invalidNumber,
              .insufficientBalance,
              .dustRestriction,

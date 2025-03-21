@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct MarketsListOrderBottomSheetView: View {
     @ObservedObject var viewModel: MarketsListOrderBottomSheetViewModel

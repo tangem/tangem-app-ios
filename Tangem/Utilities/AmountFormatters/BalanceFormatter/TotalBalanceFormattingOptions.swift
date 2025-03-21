@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct TotalBalanceFormattingOptions {
     let integerPartFont: Font

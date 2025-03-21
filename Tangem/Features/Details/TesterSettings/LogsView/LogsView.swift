@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct LogsView: View {
     @ObservedObject var viewModel: LogsViewModel
