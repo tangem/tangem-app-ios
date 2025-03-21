@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct MainBottomSheetOverlayView: View {
     let viewModel: MainBottomSheetOverlayViewModel
