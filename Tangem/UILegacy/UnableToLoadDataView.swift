@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct UnableToLoadDataView: View {
     let isButtonBusy: Bool
