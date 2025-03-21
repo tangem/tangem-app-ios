@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct VisaOnboardingTangemWalletDeployApproveView: View {
     @ObservedObject var viewModel: VisaOnboardingTangemWalletDeployApproveViewModel

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemAssets
 
 enum GeneralNotificationEvent: Equatable, Hashable {
     case numberOfSignedHashesIncorrect
