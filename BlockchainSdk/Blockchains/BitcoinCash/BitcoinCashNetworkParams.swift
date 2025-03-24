@@ -37,9 +37,9 @@ class BitcoinCashNetworkParams: INetwork {
 }
 
 extension BitcoinCashNetworkParams: UTXONetworkParams {
-    var p2pkh: UInt8 { pubKeyHash }
-    var p2sh: UInt8 { scriptHash }
-    var bech32: String { bech32PrefixPattern }
+    var p2pkhPrefix: UInt8 { pubKeyHash }
+    var p2shPrefix: UInt8 { scriptHash }
+    var bech32Prefix: String { bech32PrefixPattern }
 }
 
 class BitcoinCashTestNetworkParams: INetwork {
@@ -67,7 +67,7 @@ class BitcoinCashTestNetworkParams: INetwork {
 }
 
 extension BitcoinCashTestNetworkParams: UTXONetworkParams {
-    var p2pkh: UInt8 { pubKeyHash }
-    var p2sh: UInt8 { scriptHash }
-    var bech32: String { bech32PrefixPattern }
+    var p2pkhPrefix: UInt8 { pubKeyHash }
+    var p2shPrefix: UInt8 { scriptHash }
+    var bech32Prefix: String { bech32PrefixPattern }
 }
