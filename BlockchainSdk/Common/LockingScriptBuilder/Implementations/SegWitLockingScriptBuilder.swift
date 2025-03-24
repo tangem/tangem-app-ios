@@ -1,5 +1,5 @@
 //
-//  SegWitDecoder.swift
+//  SegWitLockingScriptBuilder.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct SegWitDecoder {
+struct SegWitLockingScriptBuilder {
     private let bech32Prefix: String
 
     init(network: UTXONetworkParams) {
@@ -51,7 +51,7 @@ struct SegWitDecoder {
 
 // MARK: - LockingScriptBuilder
 
-extension SegWitDecoder: LockingScriptBuilder {
+extension SegWitLockingScriptBuilder: LockingScriptBuilder {
     func lockingScript(for address: String) throws -> UTXOLockingScript {
         try decode(address: address).script
     }
