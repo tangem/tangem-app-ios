@@ -2925,7 +2925,7 @@
 		EF7594352CFF665B00009DCE /* StakingFinishAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7594342CFF665B00009DCE /* StakingFinishAnalyticsLogger.swift */; };
 		EF75A3CF2B06416F0023A60A /* TokenItem+ExpressCurrency.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF75A3CE2B06416F0023A60A /* TokenItem+ExpressCurrency.swift */; };
 		EF7673402B0FD6840027D8E0 /* SentExpressTransactionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF76733F2B0FD6840027D8E0 /* SentExpressTransactionData.swift */; };
-		EF790ECF2D8C5879000AF87B /* KaspaAddressDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF790ECE2D8C5879000AF87B /* KaspaAddressDecoder.swift */; };
+		EF790ECF2D8C5879000AF87B /* KaspaAddressLockingScriptBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF790ECE2D8C5879000AF87B /* KaspaAddressLockingScriptBuilder.swift */; };
 		EF790ED12D8C5BDF000AF87B /* KaspaNetworkParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF790ED02D8C5BD6000AF87B /* KaspaNetworkParams.swift */; };
 		EF790ED32D8C5D73000AF87B /* KaspaLockingScriptBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF790ED22D8C5D73000AF87B /* KaspaLockingScriptBuilderTests.swift */; };
 		EF798DBC2CEBB0E0003AE6CA /* ProviderItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF798DBB2CEBB0E0003AE6CA /* ProviderItem.swift */; };
@@ -3141,10 +3141,10 @@
 		EFBAC3092D89B28400024E38 /* UTXOLockingScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBAC3082D89B28400024E38 /* UTXOLockingScript.swift */; };
 		EFBAC30D2D89CAFF00024E38 /* BitcoinNetworkParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBAC30C2D89CAFF00024E38 /* BitcoinNetworkParams.swift */; };
 		EFBAC3122D89EAA000024E38 /* SegWitBech32.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBAC3112D89EAA000024E38 /* SegWitBech32.swift */; };
-		EFBAC3172D8AF8F800024E38 /* CashAddrDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBAC3162D8AF8F800024E38 /* CashAddrDecoder.swift */; };
+		EFBAC3172D8AF8F800024E38 /* CashAddrLockingScriptBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBAC3162D8AF8F800024E38 /* CashAddrLockingScriptBuilder.swift */; };
 		EFBAC3192D8AF90900024E38 /* OpCodeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBAC3182D8AF90900024E38 /* OpCodeUtils.swift */; };
-		EFBAC31B2D8B14DD00024E38 /* Base58Decoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBAC31A2D8B14DD00024E38 /* Base58Decoder.swift */; };
-		EFBAC31D2D8B14E600024E38 /* SegWitDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBAC31C2D8B14E600024E38 /* SegWitDecoder.swift */; };
+		EFBAC31B2D8B14DD00024E38 /* Base58LockingScriptBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBAC31A2D8B14DD00024E38 /* Base58LockingScriptBuilder.swift */; };
+		EFBAC31D2D8B14E600024E38 /* SegWitLockingScriptBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBAC31C2D8B14E600024E38 /* SegWitLockingScriptBuilder.swift */; };
 		EFBAC3222D8B1A4F00024E38 /* MultiLockingScriptBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBAC3212D8B1A4F00024E38 /* MultiLockingScriptBuilder.swift */; };
 		EFBAC3282D8B33A200024E38 /* UTXONetworkParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBAC3272D8B33A200024E38 /* UTXONetworkParams.swift */; };
 		EFBB77B22CCBE925002D4A10 /* OnrampSummaryRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBB77B12CCBE924002D4A10 /* OnrampSummaryRoutable.swift */; };
@@ -6364,7 +6364,7 @@
 		EF7594342CFF665B00009DCE /* StakingFinishAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingFinishAnalyticsLogger.swift; sourceTree = "<group>"; };
 		EF75A3CE2B06416F0023A60A /* TokenItem+ExpressCurrency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TokenItem+ExpressCurrency.swift"; sourceTree = "<group>"; };
 		EF76733F2B0FD6840027D8E0 /* SentExpressTransactionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentExpressTransactionData.swift; sourceTree = "<group>"; };
-		EF790ECE2D8C5879000AF87B /* KaspaAddressDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaAddressDecoder.swift; sourceTree = "<group>"; };
+		EF790ECE2D8C5879000AF87B /* KaspaAddressLockingScriptBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaAddressLockingScriptBuilder.swift; sourceTree = "<group>"; };
 		EF790ED02D8C5BD6000AF87B /* KaspaNetworkParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaNetworkParams.swift; sourceTree = "<group>"; };
 		EF790ED22D8C5D73000AF87B /* KaspaLockingScriptBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaLockingScriptBuilderTests.swift; sourceTree = "<group>"; };
 		EF798DBB2CEBB0E0003AE6CA /* ProviderItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderItem.swift; sourceTree = "<group>"; };
@@ -6578,10 +6578,10 @@
 		EFBAC3082D89B28400024E38 /* UTXOLockingScript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTXOLockingScript.swift; sourceTree = "<group>"; };
 		EFBAC30C2D89CAFF00024E38 /* BitcoinNetworkParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinNetworkParams.swift; sourceTree = "<group>"; };
 		EFBAC3112D89EAA000024E38 /* SegWitBech32.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegWitBech32.swift; sourceTree = "<group>"; };
-		EFBAC3162D8AF8F800024E38 /* CashAddrDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CashAddrDecoder.swift; sourceTree = "<group>"; };
+		EFBAC3162D8AF8F800024E38 /* CashAddrLockingScriptBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CashAddrLockingScriptBuilder.swift; sourceTree = "<group>"; };
 		EFBAC3182D8AF90900024E38 /* OpCodeUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpCodeUtils.swift; sourceTree = "<group>"; };
-		EFBAC31A2D8B14DD00024E38 /* Base58Decoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Base58Decoder.swift; sourceTree = "<group>"; };
-		EFBAC31C2D8B14E600024E38 /* SegWitDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegWitDecoder.swift; sourceTree = "<group>"; };
+		EFBAC31A2D8B14DD00024E38 /* Base58LockingScriptBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Base58LockingScriptBuilder.swift; sourceTree = "<group>"; };
+		EFBAC31C2D8B14E600024E38 /* SegWitLockingScriptBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegWitLockingScriptBuilder.swift; sourceTree = "<group>"; };
 		EFBAC3212D8B1A4F00024E38 /* MultiLockingScriptBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiLockingScriptBuilder.swift; sourceTree = "<group>"; };
 		EFBAC3272D8B33A200024E38 /* UTXONetworkParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTXONetworkParams.swift; sourceTree = "<group>"; };
 		EFBB77B12CCBE924002D4A10 /* OnrampSummaryRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampSummaryRoutable.swift; sourceTree = "<group>"; };
@@ -16071,10 +16071,10 @@
 			isa = PBXGroup;
 			children = (
 				EFBAC3212D8B1A4F00024E38 /* MultiLockingScriptBuilder.swift */,
-				EFBAC3162D8AF8F800024E38 /* CashAddrDecoder.swift */,
-				EFBAC31A2D8B14DD00024E38 /* Base58Decoder.swift */,
-				EFBAC31C2D8B14E600024E38 /* SegWitDecoder.swift */,
-				EF790ECE2D8C5879000AF87B /* KaspaAddressDecoder.swift */,
+				EFBAC3162D8AF8F800024E38 /* CashAddrLockingScriptBuilder.swift */,
+				EFBAC31A2D8B14DD00024E38 /* Base58LockingScriptBuilder.swift */,
+				EFBAC31C2D8B14E600024E38 /* SegWitLockingScriptBuilder.swift */,
+				EF790ECE2D8C5879000AF87B /* KaspaAddressLockingScriptBuilder.swift */,
 			);
 			path = Implementations;
 			sourceTree = "<group>";
@@ -20567,10 +20567,10 @@
 				2DB1D6DE2D56978D00AD43A3 /* ALPH+LockupScriptSerde.swift in Sources */,
 				2DB1D6DF2D56978D00AD43A3 /* ALPH+UnlockScriptSerde.swift in Sources */,
 				2DB1D6E02D56978D00AD43A3 /* ALPH+TxOutputInfo.swift in Sources */,
-				EF790ECF2D8C5879000AF87B /* KaspaAddressDecoder.swift in Sources */,
+				EF790ECF2D8C5879000AF87B /* KaspaAddressLockingScriptBuilder.swift in Sources */,
 				2DB1D6E12D56978D00AD43A3 /* ALPH+TimeStamp.swift in Sources */,
 				2DB1D6E22D56978D00AD43A3 /* ALPH+SameAsPrevious.swift in Sources */,
-				EFBAC31D2D8B14E600024E38 /* SegWitDecoder.swift in Sources */,
+				EFBAC31D2D8B14E600024E38 /* SegWitLockingScriptBuilder.swift in Sources */,
 				2DB1D6E32D56978D00AD43A3 /* ALPH+Duration.swift in Sources */,
 				2DB1D6E42D56978D00AD43A3 /* AlephiumExternalLinkProvider.swift in Sources */,
 				2DB1D6E52D56978D00AD43A3 /* AlephiumAddressService.swift in Sources */,
@@ -20590,7 +20590,7 @@
 				2DB1D6F32D56978D00AD43A3 /* ALPH+TxInputInfo.swift in Sources */,
 				2DB1D6F42D56978D00AD43A3 /* ALPH+AssetOutput.swift in Sources */,
 				2DB1D6F52D56978D00AD43A3 /* ALPH+CheckTxUtils.swift in Sources */,
-				EFBAC3172D8AF8F800024E38 /* CashAddrDecoder.swift in Sources */,
+				EFBAC3172D8AF8F800024E38 /* CashAddrLockingScriptBuilder.swift in Sources */,
 				2DB1D6F62D56978D00AD43A3 /* ALPH+GasPrice.swift in Sources */,
 				2DB1D6F72D56978D00AD43A3 /* ALPH+Tuples.swift in Sources */,
 				2DB1D6F82D56978D00AD43A3 /* ALPH+CompactInteger+Signed.swift in Sources */,
@@ -20610,7 +20610,7 @@
 				2DB1D7062D56978D00AD43A3 /* ALPH+ScriptHint.swift in Sources */,
 				EF3805142D709B9B00273B1B /* BlockchairTransactionRecordMapper.swift in Sources */,
 				2DB1D7072D56978D00AD43A3 /* ALPH+Deserializer.swift in Sources */,
-				EFBAC31B2D8B14DD00024E38 /* Base58Decoder.swift in Sources */,
+				EFBAC31B2D8B14DD00024E38 /* Base58LockingScriptBuilder.swift in Sources */,
 				2DB1D7082D56978D00AD43A3 /* ALPH+GroupIndex.swift in Sources */,
 				2DB1D7092D56978D00AD43A3 /* ALPH+GasBox.swift in Sources */,
 				2DB1D70A2D56978D00AD43A3 /* ALPH+UnsignedTransactionSerde.swift in Sources */,

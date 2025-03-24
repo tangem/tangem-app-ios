@@ -13,7 +13,7 @@ class SegWitLockingScriptBuilderTests {
     @Test
     func fact0rn() throws {
         // given
-        let builder = SegWitDecoder.fact0rn()
+        let builder = SegWitLockingScriptBuilder.fact0rn()
 
         // when
         let script = try builder.lockingScript(for: "fact1qhycckrkypu7ujkanlsrhjxq7avn6l7gumyv9n7")
