@@ -13,8 +13,8 @@ struct Base58LockingScriptBuilder {
     private let p2shPrefix: UInt8
 
     init(network: UTXONetworkParams) {
-        p2pkhPrefix = network.p2pkh
-        p2shPrefix = network.p2sh
+        p2pkhPrefix = network.p2pkhPrefix
+        p2shPrefix = network.p2shPrefix
     }
 
     func decode(address: String) throws -> (version: UInt8, script: UTXOLockingScript) {
