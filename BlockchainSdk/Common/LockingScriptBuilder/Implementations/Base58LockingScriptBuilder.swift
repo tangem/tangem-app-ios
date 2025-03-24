@@ -1,5 +1,5 @@
 //
-//  Base58Decoder.swift
+//  Base58LockingScriptBuilder.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import struct BitcoinCore.Base58
 
-struct Base58Decoder {
+struct Base58LockingScriptBuilder {
     private let p2pkhPrefix: UInt8
     private let p2shPrefix: UInt8
 
@@ -41,7 +41,7 @@ struct Base58Decoder {
 
 // MARK: - LockingScriptBuilder
 
-extension Base58Decoder: LockingScriptBuilder {
+extension Base58LockingScriptBuilder: LockingScriptBuilder {
     func lockingScript(for address: String) throws -> UTXOLockingScript {
         try decode(address: address).script
     }
@@ -49,7 +49,7 @@ extension Base58Decoder: LockingScriptBuilder {
 
 // MARK: - LockingScriptBuilder
 
-extension Base58Decoder {
+extension Base58LockingScriptBuilder {
     private enum Constants {
         static let checksumLength: Int = 4
     }
