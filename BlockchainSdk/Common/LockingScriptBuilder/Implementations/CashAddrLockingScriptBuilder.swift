@@ -1,5 +1,5 @@
 //
-//  CashAddrDecoder.swift
+//  CashAddrLockingScriptBuilder.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import class BitcoinCore.CashAddrBech32
 
-struct CashAddrDecoder {
+struct CashAddrLockingScriptBuilder {
     private let bech32Prefix: String
 
     init(network: UTXONetworkParams) {
@@ -42,13 +42,13 @@ struct CashAddrDecoder {
 
 // MARK: - LockingScriptBuilder
 
-extension CashAddrDecoder: LockingScriptBuilder {
+extension CashAddrLockingScriptBuilder: LockingScriptBuilder {
     func lockingScript(for address: String) throws -> UTXOLockingScript {
         try decode(address: address).script
     }
 }
 
-extension CashAddrDecoder {
+extension CashAddrLockingScriptBuilder {
     enum AddressType: UInt8 {
         case p2pkh = 0x00
         case p2sh = 0x08
