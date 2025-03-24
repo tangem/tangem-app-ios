@@ -13,7 +13,7 @@ struct KaspaAddressLockingScriptBuilder {
     private let bech32Prefix: String
 
     init(network: UTXONetworkParams) {
-        bech32Prefix = network.bech32
+        bech32Prefix = network.bech32Prefix
     }
 
     func decode(address: String) throws -> (version: UInt8, script: UTXOLockingScript) {
