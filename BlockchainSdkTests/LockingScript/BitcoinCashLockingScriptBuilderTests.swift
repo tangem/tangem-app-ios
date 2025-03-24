@@ -1,5 +1,5 @@
 //
-//  BitcoinCashLockingScriptBuilderTests.swift
+//  CashAddrLockingScriptBuilderTests.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Testing
 @testable import BlockchainSdk
 
-class BitcoinCashLockingScriptBuilderTests {
+class CashAddrLockingScriptBuilderTests {
     @Test
     func p2pkh() throws {
         // given
