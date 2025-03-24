@@ -3106,7 +3106,7 @@
 		EFAECCF12C1B702D0051710F /* SendAmountValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAECCF02C1B702D0051710F /* SendAmountValidator.swift */; };
 		EFAF63E92927CA63004B3227 /* Setupable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAF63E82927CA63004B3227 /* Setupable.swift */; };
 		EFAF7E3C2D8C20890000C5FE /* MultiLockingScriptBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAF7E3B2D8C20890000C5FE /* MultiLockingScriptBuilderTests.swift */; };
-		EFAF7E3F2D8C266D0000C5FE /* BitcoinCashLockingScriptBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAF7E3E2D8C266D0000C5FE /* BitcoinCashLockingScriptBuilderTests.swift */; };
+		EFAF7E3F2D8C266D0000C5FE /* CashAddrLockingScriptBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAF7E3E2D8C266D0000C5FE /* CashAddrLockingScriptBuilderTests.swift */; };
 		EFAF7E412D8C2A070000C5FE /* LegacyLockingScriptBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAF7E402D8C2A070000C5FE /* LegacyLockingScriptBuilderTests.swift */; };
 		EFAF7E432D8C42B60000C5FE /* SegWitLockingScriptBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAF7E422D8C42B60000C5FE /* SegWitLockingScriptBuilderTests.swift */; };
 		EFB0193F2C4160D7009EE857 /* StakeKitDTO+Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB0193E2C4160D7009EE857 /* StakeKitDTO+Transaction.swift */; };
@@ -6543,7 +6543,7 @@
 		EFAECCF02C1B702D0051710F /* SendAmountValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAmountValidator.swift; sourceTree = "<group>"; };
 		EFAF63E82927CA63004B3227 /* Setupable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Setupable.swift; sourceTree = "<group>"; };
 		EFAF7E3B2D8C20890000C5FE /* MultiLockingScriptBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiLockingScriptBuilderTests.swift; sourceTree = "<group>"; };
-		EFAF7E3E2D8C266D0000C5FE /* BitcoinCashLockingScriptBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinCashLockingScriptBuilderTests.swift; sourceTree = "<group>"; };
+		EFAF7E3E2D8C266D0000C5FE /* CashAddrLockingScriptBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CashAddrLockingScriptBuilderTests.swift; sourceTree = "<group>"; };
 		EFAF7E402D8C2A070000C5FE /* LegacyLockingScriptBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyLockingScriptBuilderTests.swift; sourceTree = "<group>"; };
 		EFAF7E422D8C42B60000C5FE /* SegWitLockingScriptBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegWitLockingScriptBuilderTests.swift; sourceTree = "<group>"; };
 		EFB0193E2C4160D7009EE857 /* StakeKitDTO+Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StakeKitDTO+Transaction.swift"; sourceTree = "<group>"; };
@@ -16996,7 +16996,7 @@
 			isa = PBXGroup;
 			children = (
 				EFAF7E3B2D8C20890000C5FE /* MultiLockingScriptBuilderTests.swift */,
-				EFAF7E3E2D8C266D0000C5FE /* BitcoinCashLockingScriptBuilderTests.swift */,
+				EFAF7E3E2D8C266D0000C5FE /* CashAddrLockingScriptBuilderTests.swift */,
 				EFAF7E402D8C2A070000C5FE /* LegacyLockingScriptBuilderTests.swift */,
 				EFAF7E422D8C42B60000C5FE /* SegWitLockingScriptBuilderTests.swift */,
 				EF790ED22D8C5D73000AF87B /* KaspaLockingScriptBuilderTests.swift */,
@@ -21128,7 +21128,7 @@
 				30440D762D79A12C00460D15 /* PolygonAddressTests.swift in Sources */,
 				30B24A282D78A42F003721AB /* BlockchainCodingKeyTests.swift in Sources */,
 				305B223F2D78A097009BCC73 /* DashAddressTests.swift in Sources */,
-				EFAF7E3F2D8C266D0000C5FE /* BitcoinCashLockingScriptBuilderTests.swift in Sources */,
+				EFAF7E3F2D8C266D0000C5FE /* CashAddrLockingScriptBuilderTests.swift in Sources */,
 				30C470222D7628C3003DFBFD /* Fact0rnAddressTests.swift in Sources */,
 				309939022D786F3200DA3667 /* TONAddressTests.swift in Sources */,
 				B62D43632CBC79E400C2460E /* NSError+.swift in Sources */,
