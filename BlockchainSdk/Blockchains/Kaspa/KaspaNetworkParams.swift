@@ -7,7 +7,7 @@
 //
 
 struct KaspaNetworkParams: UTXONetworkParams {
-    var p2sh: UInt8 { 0x00 }
-    var p2pkh: UInt8 { 0x08 }
-    var bech32: String { "kaspa" }
+    var p2shPrefix: UInt8 { 0x00 }
+    var p2pkhPrefix: UInt8 { 0x08 }
+    var bech32Prefix: String { "kaspa" }
 }

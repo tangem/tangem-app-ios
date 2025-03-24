@@ -9,13 +9,13 @@
 import BitcoinCore
 
 struct BitcoinNetworkParams: UTXONetworkParams {
-    let p2pkh: UInt8 = 0x00
-    let p2sh: UInt8 = 0x05
-    let bech32: String = "bc"
+    let p2pkhPrefix: UInt8 = 0x00
+    let p2shPrefix: UInt8 = 0x05
+    let bech32Prefix: String = "bc"
 }
 
 struct BitcoinTestnetNetworkParams: UTXONetworkParams {
-    let p2pkh: UInt8 = 0x6f
-    let p2sh: UInt8 = 0xc4
-    let bech32: String = "tb"
+    let p2pkhPrefix: UInt8 = 0x6f
+    let p2shPrefix: UInt8 = 0xc4
+    let bech32Prefix: String = "tb"
 }
