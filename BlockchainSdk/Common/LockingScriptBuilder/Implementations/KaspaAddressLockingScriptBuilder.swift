@@ -1,5 +1,5 @@
 //
-//  KaspaAddressDecoder.swift
+//  KaspaAddressLockingScriptBuilder.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import class BitcoinCore.CashAddrBech32
 
-struct KaspaAddressDecoder {
+struct KaspaAddressLockingScriptBuilder {
     private let bech32Prefix: String
 
     init(network: UTXONetworkParams) {
@@ -45,13 +45,13 @@ struct KaspaAddressDecoder {
 
 // MARK: - LockingScriptBuilder
 
-extension KaspaAddressDecoder: LockingScriptBuilder {
+extension KaspaAddressLockingScriptBuilder: LockingScriptBuilder {
     func lockingScript(for address: String) throws -> UTXOLockingScript {
         try decode(address: address).script
     }
 }
 
-extension KaspaAddressDecoder {
+extension KaspaAddressLockingScriptBuilder {
     enum AddressType: UInt8 {
         case p2pkhSchnorr = 0x00
         case p2pkhECDSA = 0x01
