@@ -111,7 +111,7 @@ class Bech32 {
     }
 
     /// Decode Bech32 string
-    func decode(_ str: String, withChecksumValidation: Bool = true) throws -> (hrp: String, checksum: Data) {
+    func decode(_ str: String) throws -> (hrp: String, checksum: Data) {
         guard let strBytes = str.data(using: .utf8) else {
             throw DecodingError.nonUTF8String
         }
@@ -158,7 +158,7 @@ class Bech32 {
             values[i] = UInt8(decInt)
         }
         let hrp = String(str[..<pos]).lowercased()
-        if withChecksumValidation, !verifyChecksum(hrp: hrp, checksum: values) {
+        guard verifyChecksum(hrp: hrp, checksum: values) else {
             throw DecodingError.checksumMismatch
         }
         return (hrp, Data(values[..<(vSize - 6)]))

@@ -2951,6 +2951,7 @@
 		EF7C4B3F2C9341EB005F9360 /* StakingPendingActionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7C4B3E2C9341E8005F9360 /* StakingPendingActionType.swift */; };
 		EF7C4B412C936200005F9360 /* StakingValidatorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7C4B402C936200005F9360 /* StakingValidatorType.swift */; };
 		EF808445293F6B76000D91EA /* TokenURLIconSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808444293F6B76000D91EA /* TokenURLIconSize.swift */; };
+		EF8425392D91AC0A00F5F1DE /* TaprootLockingScriptBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8425382D91AC0A00F5F1DE /* TaprootLockingScriptBuilder.swift */; };
 		EF842DEA2AFA58C5006E472E /* ExpressTokensListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF842DE52AFA58C5006E472E /* ExpressTokensListView.swift */; };
 		EF842DEB2AFA58C5006E472E /* ExpressTokensListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF842DE62AFA58C5006E472E /* ExpressTokensListViewModel.swift */; };
 		EF842DEC2AFA58C5006E472E /* ExpressTokensListRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF842DE72AFA58C5006E472E /* ExpressTokensListRoutable.swift */; };
@@ -6391,6 +6392,7 @@
 		EF7C4B3E2C9341E8005F9360 /* StakingPendingActionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPendingActionType.swift; sourceTree = "<group>"; };
 		EF7C4B402C936200005F9360 /* StakingValidatorType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingValidatorType.swift; sourceTree = "<group>"; };
 		EF808444293F6B76000D91EA /* TokenURLIconSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenURLIconSize.swift; sourceTree = "<group>"; };
+		EF8425382D91AC0A00F5F1DE /* TaprootLockingScriptBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaprootLockingScriptBuilder.swift; sourceTree = "<group>"; };
 		EF842DE52AFA58C5006E472E /* ExpressTokensListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTokensListView.swift; sourceTree = "<group>"; };
 		EF842DE62AFA58C5006E472E /* ExpressTokensListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTokensListViewModel.swift; sourceTree = "<group>"; };
 		EF842DE72AFA58C5006E472E /* ExpressTokensListRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTokensListRoutable.swift; sourceTree = "<group>"; };
@@ -7760,7 +7762,6 @@
 				B62D43792CBC7EC700C2460E /* BlockchainSdkExample */,
 				5D3F77C324BF56D800E8695B /* Products */,
 				2E5061A84512B23CCB5F2E17 /* Frameworks */,
-				301B3F212D8D493F00B5E07B /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -16074,6 +16075,7 @@
 				EFBAC3162D8AF8F800024E38 /* CashAddrLockingScriptBuilder.swift */,
 				EFBAC31A2D8B14DD00024E38 /* Base58LockingScriptBuilder.swift */,
 				EFBAC31C2D8B14E600024E38 /* SegWitLockingScriptBuilder.swift */,
+				EF8425382D91AC0A00F5F1DE /* TaprootLockingScriptBuilder.swift */,
 				EF790ECE2D8C5879000AF87B /* KaspaAddressLockingScriptBuilder.swift */,
 			);
 			path = Implementations;
@@ -20371,6 +20373,7 @@
 				B62D414C2CBC79DA00C2460E /* PolkadotAccountHealthInfo.swift in Sources */,
 				B62D40CB2CBC79DA00C2460E /* EthereumOptimisticRollupSmartContract.swift in Sources */,
 				B62D42A12CBC79DB00C2460E /* BlockBookProviderType.swift in Sources */,
+				EF8425392D91AC0A00F5F1DE /* TaprootLockingScriptBuilder.swift in Sources */,
 				B62D42032CBC79DB00C2460E /* XRPAccountInfo.swift in Sources */,
 				B62D41002CBC79DA00C2460E /* KaspaAddressService.swift in Sources */,
 				B62D41182CBC79DA00C2460E /* options.pb.swift in Sources */,

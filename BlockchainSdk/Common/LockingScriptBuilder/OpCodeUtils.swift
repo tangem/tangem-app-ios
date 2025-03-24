@@ -58,6 +58,10 @@ enum OpCodeUtils {
     static func p2wsh(version: UInt8, data: Data) -> Data {
         OpCode.push(version) + OpCode.push(data)
     }
+
+    static func p2tr(version: UInt8, data: Data) -> Data {
+        OpCode.push(version) + OpCode.push(data)
+    }
 }
 
 private extension OpCode {
