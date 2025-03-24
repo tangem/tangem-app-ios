@@ -13,7 +13,7 @@ class BitcoinCashLockingScriptBuilderTests {
     @Test
     func p2pkh() throws {
         // given
-        let builder = CashAddrDecoder(network: BitcoinCashNetworkParams())
+        let builder = CashAddrLockingScriptBuilder(network: BitcoinCashNetworkParams())
 
         // when
         let p2pkh = try builder.lockingScript(for: "bitcoincash:qrarm7ydhnluysgcjjka8uc9jmw8ujz605f4uwhl8d")

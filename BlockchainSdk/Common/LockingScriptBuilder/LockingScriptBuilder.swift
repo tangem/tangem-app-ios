@@ -20,67 +20,65 @@ enum LockingScriptBuilderError: LocalizedError {
     case lockingScriptNotFound
 }
 
-// MARK: - Decoders
-
 // MARK: - MultiLockingScriptBuilder
 
 extension LockingScriptBuilder where Self == MultiLockingScriptBuilder {
     static func bitcoin(isTestnet: Bool) -> Self {
         let network: UTXONetworkParams = isTestnet ? BitcoinTestnetNetworkParams() : BitcoinNetworkParams()
-        return MultiLockingScriptBuilder(decoders: [SegWitDecoder(network: network), Base58Decoder(network: network)])
+        return MultiLockingScriptBuilder(decoders: [SegWitLockingScriptBuilder(network: network), Base58LockingScriptBuilder(network: network)])
     }
 
     static func litecoin() -> Self {
         let network: UTXONetworkParams = LitecoinNetworkParams()
-        return MultiLockingScriptBuilder(decoders: [SegWitDecoder(network: network), Base58Decoder(network: network)])
+        return MultiLockingScriptBuilder(decoders: [SegWitLockingScriptBuilder(network: network), Base58LockingScriptBuilder(network: network)])
     }
 
     static func bitcoinCash(isTestnet: Bool) -> Self {
         let network: UTXONetworkParams = isTestnet ? BitcoinCashTestNetworkParams() : BitcoinCashNetworkParams()
-        return MultiLockingScriptBuilder(decoders: [CashAddrDecoder(network: network), Base58Decoder(network: network)])
+        return MultiLockingScriptBuilder(decoders: [CashAddrLockingScriptBuilder(network: network), Base58LockingScriptBuilder(network: network)])
     }
 }
 
-// MARK: - Base58Decoder
+// MARK: - Base58LockingScriptBuilder
 
-extension LockingScriptBuilder where Self == Base58Decoder {
+extension LockingScriptBuilder where Self == Base58LockingScriptBuilder {
     static func dogecoin() -> Self {
-        return Base58Decoder(network: DogecoinNetworkParams())
+        return Base58LockingScriptBuilder(network: DogecoinNetworkParams())
     }
 
     static func dash(isTestnet: Bool) -> Self {
-        return Base58Decoder(network: isTestnet ? DashTestNetworkParams() : DashMainNetworkParams())
+        return Base58LockingScriptBuilder(network: isTestnet ? DashTestNetworkParams() : DashMainNetworkParams())
     }
 
     static func ravencoin(isTestnet: Bool) -> Self {
-        return Base58Decoder(network: isTestnet ? RavencoinTestNetworkParams() : RavencoinMainNetworkParams())
+        return Base58LockingScriptBuilder(network: isTestnet ? RavencoinTestNetworkParams() : RavencoinMainNetworkParams())
     }
 
     static func ducatus() -> Self {
-        return Base58Decoder(network: DucatusNetworkParams())
+        return Base58LockingScriptBuilder(network: DucatusNetworkParams())
     }
 
     static func clore() -> Self {
-        return Base58Decoder(network: CloreMainNetworkParams())
+        return Base58LockingScriptBuilder(network: CloreMainNetworkParams())
     }
 
     static func radiant() -> Self {
-        return Base58Decoder(network: BitcoinCashNetworkParams())
+        return Base58LockingScriptBuilder(network: BitcoinCashNetworkParams())
     }
 }
 
-// MARK: - KaspaAddressDecoder
+// MARK: - KaspaAddressLockingScriptBuilder
 
-extension LockingScriptBuilder where Self == KaspaAddressDecoder {
+extension LockingScriptBuilder where Self == KaspaAddressLockingScriptBuilder {
     static func kaspa() -> Self {
-        return KaspaAddressDecoder(network: KaspaNetworkParams())
+        return KaspaAddressLockingScriptBuilder(network: KaspaNetworkParams())
     }
 }
 
-// MARK: - SegWitDecoder
+// MARK: - SegWitLockingScriptBuilder
 
-extension LockingScriptBuilder where Self == SegWitDecoder {
+extension LockingScriptBuilder where Self == SegWitLockingScriptBuilder {
     static func fact0rn() -> Self {
-        return SegWitDecoder(network: Fact0rnMainNetworkParams())
+        return SegWitLockingScriptBuilder(network: Fact0rnMainNetworkParams())
     }
 }
