@@ -7,7 +7,7 @@
 //
 
 protocol UTXONetworkParams {
-    var p2pkh: UInt8 { get }
-    var p2sh: UInt8 { get }
-    var bech32: String { get }
+    var p2pkhPrefix: UInt8 { get }
+    var p2shPrefix: UInt8 { get }
+    var bech32Prefix: String { get }
 }
