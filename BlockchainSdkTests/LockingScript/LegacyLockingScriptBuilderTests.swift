@@ -13,7 +13,7 @@ class LegacyLockingScriptBuilderTests {
     @Test
     func dogecoin() throws {
         // given
-        let builder = Base58Decoder.dogecoin()
+        let builder = Base58LockingScriptBuilder.dogecoin()
 
         // when
         let p2pkh = try builder.lockingScript(for: "D6UCu5YJ2PvokfvgnBZP1kG1Cb43m7yhyp")
@@ -26,7 +26,7 @@ class LegacyLockingScriptBuilderTests {
     @Test
     func dash() throws {
         // given
-        let builder = Base58Decoder.dash(isTestnet: false)
+        let builder = Base58LockingScriptBuilder.dash(isTestnet: false)
 
         // when
         let p2pkh = try builder.lockingScript(for: "XdspNeStZQb3SmCtH97nbqypxZYVPTaYgm")
@@ -39,7 +39,7 @@ class LegacyLockingScriptBuilderTests {
     @Test
     func ravencoin() throws {
         // given
-        let builder = Base58Decoder.ravencoin(isTestnet: false)
+        let builder = Base58LockingScriptBuilder.ravencoin(isTestnet: false)
 
         // when
         let p2pkh = try builder.lockingScript(for: "RMcnB1FZdmrvo2yTFnuaHWbAWZhdw4acxq")
@@ -52,7 +52,7 @@ class LegacyLockingScriptBuilderTests {
     @Test
     func clore() throws {
         // given
-        let builder = Base58Decoder.clore()
+        let builder = Base58LockingScriptBuilder.clore()
 
         // when
         let p2pkh = try builder.lockingScript(for: "APdoRDNw2abAWGgaFdMep6LSUFjQ3jhRUd")
@@ -65,7 +65,7 @@ class LegacyLockingScriptBuilderTests {
     @Test
     func radiant() throws {
         // given
-        let builder = Base58Decoder.radiant()
+        let builder = Base58LockingScriptBuilder.radiant()
 
         // when
         let p2pkh = try builder.lockingScript(for: "16v8fwe1XmuMnMr7ZBKy3EN2mDWiMJBxXU")
