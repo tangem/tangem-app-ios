@@ -25,7 +25,11 @@ enum LockingScriptBuilderError: LocalizedError {
 extension LockingScriptBuilder where Self == MultiLockingScriptBuilder {
     static func bitcoin(isTestnet: Bool) -> Self {
         let network: UTXONetworkParams = isTestnet ? BitcoinTestnetNetworkParams() : BitcoinNetworkParams()
-        return MultiLockingScriptBuilder(decoders: [SegWitLockingScriptBuilder(network: network), Base58LockingScriptBuilder(network: network)])
+        return MultiLockingScriptBuilder(decoders: [
+            TaprootLockingScriptBuilder(network: network),
+            SegWitLockingScriptBuilder(network: network),
+            Base58LockingScriptBuilder(network: network),
+        ])
     }
 
     static func litecoin() -> Self {
