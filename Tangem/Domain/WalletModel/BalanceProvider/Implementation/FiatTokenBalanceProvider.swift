@@ -16,17 +16,23 @@ protocol FiatTokenBalanceProviderInput: AnyObject {
 }
 
 struct FiatTokenBalanceProvider {
-    private weak var input: FiatTokenBalanceProviderInput?
-    private let cryptoBalanceProvider: TokenBalanceProvider
+    private weak var innerInput: FiatTokenBalanceProviderInput?
+    private weak var input: FiatTokenBalanceProviderInput? {
+        get { lock { innerInput }}
+        set { lock { innerInput = newValue }}
+    }
 
+    private let cryptoBalanceProvider: TokenBalanceProvider
     private let balanceFormatter = BalanceFormatter()
+
+    private let lock = Lock(isRecursive: false)
 
     init(
         input: FiatTokenBalanceProviderInput?,
         cryptoBalanceProvider: TokenBalanceProvider
     ) {
-        self.input = input
         self.cryptoBalanceProvider = cryptoBalanceProvider
+        self.input = input
     }
 }
 
@@ -34,25 +40,25 @@ struct FiatTokenBalanceProvider {
 
 extension FiatTokenBalanceProvider: TokenBalanceProvider {
     var balanceType: TokenBalanceType {
-        guard let input else {
+        guard let strongInput = input else {
             assertionFailure("FiatTokenBalanceProviderInput not found")
             return .empty(.noData)
         }
 
         return mapToTokenBalance(
-            rate: input.rate,
+            rate: strongInput.rate,
             balanceType: cryptoBalanceProvider.balanceType
         )
     }
 
     var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> {
-        guard let input else {
+        guard let strongInput = input else {
             assertionFailure("FiatTokenBalanceProviderInput not found")
             return Empty().eraseToAnyPublisher()
         }
 
         return Publishers.CombineLatest(
-            input.ratePublisher.removeDuplicates(),
+            strongInput.ratePublisher.removeDuplicates(),
             cryptoBalanceProvider.balanceTypePublisher.removeDuplicates()
         )
         .map { self.mapToTokenBalance(rate: $0, balanceType: $1) }
