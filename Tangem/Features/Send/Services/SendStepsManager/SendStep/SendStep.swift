@@ -23,6 +23,7 @@ protocol SendStep {
 
     func canBeClosed(continueAction: @escaping () -> Void) -> Bool
 
+    func initialAppear()
     func willAppear(previous step: any SendStep)
     func willDisappear(next step: any SendStep)
 }
@@ -36,6 +37,7 @@ extension SendStep {
         return true
     }
 
+    func initialAppear() {}
     func willAppear(previous step: any SendStep) {}
     func willDisappear(next step: any SendStep) {}
 }
