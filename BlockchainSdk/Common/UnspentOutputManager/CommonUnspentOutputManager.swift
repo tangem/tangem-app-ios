@@ -9,11 +9,20 @@
 import TangemFoundation
 
 class CommonUnspentOutputManager {
-    private var outputs: ThreadSafeContainer<[Data: [UnspentOutput]]> = [:]
+    private var outputs: ThreadSafeContainer<[UTXOLockingScript: [UnspentOutput]]> = [:]
+    private let preImageTransactionBuilder: UTXOPreImageTransactionBuilder
+    private let lockingScriptBuilder: LockingScriptBuilder
+
+    init(preImageTransactionBuilder: UTXOPreImageTransactionBuilder, lockingScriptBuilder: LockingScriptBuilder) {
+        self.preImageTransactionBuilder = preImageTransactionBuilder
+        self.lockingScriptBuilder = lockingScriptBuilder
+    }
 }
 
+// MARK: - UnspentOutputManager
+
 extension CommonUnspentOutputManager: UnspentOutputManager {
-    func update(outputs: [UnspentOutput], for script: Data) {
+    func update(outputs: [UnspentOutput], for script: UTXOLockingScript) {
         self.outputs.mutate { $0[script] = outputs }
     }
 
@@ -23,27 +32,27 @@ extension CommonUnspentOutputManager: UnspentOutputManager {
         }
     }
 
-    func outputs(for amount: UInt64, script: Data) throws -> [UnspentOutput] {
-        guard let outputs = outputs[script] else {
-            BSDKLogger.error(error: "No outputs for \(script)")
-            throw Errors.noOutputs
-        }
+    func preImage(amount: UInt64, fee: UInt64, destination: String) throws -> UTXOPreImageTransactionBuilderTransaction {
+        let destinationScript = try lockingScriptBuilder.lockingScript(for: destination)
+        let preImage = try preImageTransactionBuilder.preImage(
+            outputs: allOutputs(),
+            amount: amount,
+            fee: .exactly(fee: fee),
+            destinationScript: destinationScript.type
+        )
 
-        // [REDACTED_TODO_COMMENT]
-        // [REDACTED_INFO]
-        return outputs
+        return preImage
     }
-}
 
-extension CommonUnspentOutputManager {
-    enum Errors: LocalizedError {
-        case noOutputs
+    func preImage(amount: UInt64, feeRate: UInt64, destination: String) throws -> UTXOPreImageTransactionBuilderTransaction {
+        let destinationScript = try lockingScriptBuilder.lockingScript(for: destination)
+        let preImage = try preImageTransactionBuilder.preImage(
+            outputs: allOutputs(),
+            amount: amount,
+            fee: .calculate(feeRate: feeRate),
+            destinationScript: destinationScript.type
+        )
 
-        var errorDescription: String? {
-            switch self {
-            case .noOutputs:
-                return "No outputs"
-            }
-        }
+        return preImage
     }
 }
