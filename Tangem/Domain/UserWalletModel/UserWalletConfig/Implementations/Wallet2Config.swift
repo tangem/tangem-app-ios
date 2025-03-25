@@ -314,6 +314,9 @@ extension Wallet2Config: UserWalletConfig {
         // Bitcoin Pizza
         case "AF990019":
             return cardsCount == 2 ? Assets.Cards.bitcoinPizzaDouble : Assets.Cards.bitcoinPizzaTriple
+        // Keiro
+        case "BB000017":
+            return cardsCount == 2 ? Assets.Cards.keiroDouble : Assets.Cards.keiroTriple
         // Tangem Wallet 2.0
         default:
 
