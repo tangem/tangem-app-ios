@@ -52,11 +52,13 @@ extension SendDestinationStep: SendStep {
         interactor.allFieldsIsValid.eraseToAnyPublisher()
     }
 
+    func initialAppear() {
+        Analytics.log(.sendAddressScreenOpened)
+    }
+
     func willAppear(previous step: any SendStep) {
         if step.type.isSummary {
             Analytics.log(.sendScreenReopened, params: [.source: .address])
-        } else {
-            Analytics.log(.sendAddressScreenOpened)
         }
     }
 
