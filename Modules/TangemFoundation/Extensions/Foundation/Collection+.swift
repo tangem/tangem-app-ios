@@ -51,4 +51,8 @@ public extension Swift.Collection {
             lhs[keyPath: keyPath] < rhs[keyPath: keyPath]
         }
     }
+
+    func sum<T: AdditiveArithmetic>(by keyPath: KeyPath<Element, T>) -> T {
+        reduce(T.zero) { $0 + $1[keyPath: keyPath] }
+    }
 }
