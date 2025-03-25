@@ -42,12 +42,19 @@ extension SendAmountStep: SendStep {
         interactor.isValidPublisher.eraseToAnyPublisher()
     }
 
+    func initialAppear() {
+        if case .staking = source {
+            Analytics.log(.stakingAmountScreenOpened)
+        }
+    }
+
     func willAppear(previous step: any SendStep) {
         switch (source, step.type.isSummary) {
         case (.staking, false):
-            Analytics.log(.stakingScreenReopened, params: [.source: .amount])
+            // Workaround initalAppear
+            break
         case (.staking, true):
-            Analytics.log(.stakingAmountScreenOpened)
+            Analytics.log(.stakingScreenReopened, params: [.source: .amount])
         case (_, true):
             Analytics.log(.sendScreenReopened, params: [.source: .amount])
         case (_, false):
