@@ -36,6 +36,12 @@ class BitcoinCashNetworkParams: INetwork {
     let dustRelayTxFee = 3000 //  https://github.com/bitcoin/bitcoin/blob/master/src/policy/policy.h#L52
 }
 
+extension BitcoinCashNetworkParams: UTXONetworkParams {
+    var p2pkhPrefix: UInt8 { pubKeyHash }
+    var p2shPrefix: UInt8 { scriptHash }
+    var bech32Prefix: String { bech32PrefixPattern }
+}
+
 class BitcoinCashTestNetworkParams: INetwork {
     let bundleName = "BitcoinCashKit"
 
@@ -58,4 +64,10 @@ class BitcoinCashTestNetworkParams: INetwork {
     ]
 
     let dustRelayTxFee = 1000 // https://github.com/Bitcoin-ABC/bitcoin-abc/blob/master/src/policy/policy.h#L78
+}
+
+extension BitcoinCashTestNetworkParams: UTXONetworkParams {
+    var p2pkhPrefix: UInt8 { pubKeyHash }
+    var p2shPrefix: UInt8 { scriptHash }
+    var bech32Prefix: String { bech32PrefixPattern }
 }
