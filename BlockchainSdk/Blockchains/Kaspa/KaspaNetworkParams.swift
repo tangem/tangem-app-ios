@@ -1,0 +1,13 @@
+//
+//  KaspaNetworkParams.swift
+//  TangemApp
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2025 Tangem AG. All rights reserved.
+//
+
+struct KaspaNetworkParams: UTXONetworkParams {
+    var p2shPrefix: UInt8 { 0x00 }
+    var p2pkhPrefix: UInt8 { 0x08 }
+    var bech32Prefix: String { "kaspa" }
+}
