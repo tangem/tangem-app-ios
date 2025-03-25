@@ -91,6 +91,8 @@ final class SendViewModel: ObservableObject {
 
         bind()
         bind(step: stepsManager.initialState.step)
+
+        stepsManager.initialState.step.initialAppear()
     }
 
     func onAppear() {
