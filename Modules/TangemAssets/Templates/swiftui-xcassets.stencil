@@ -28,13 +28,13 @@ import SwiftUI
 {% macro casesBlock assets folderName %}
     {% for asset in assets %}
     {% if asset.type == "color" %}
-    {% if removeFolderName == "true" %}
+    {% if removeFolderName == "true" and asset.name|hasPrefix:folderName %}
     {{accessModifier}} static let {{asset.name|replace:folderName,""|swiftIdentifier:"pretty"|lowerFirstWord|escapeReservedKeywords}} = {{colorType}}(name: "{{asset.value}}")
     {% else %}
     {{accessModifier}} static let {{asset.name|swiftIdentifier:"pretty"|lowerFirstWord|escapeReservedKeywords}} = {{colorType}}(name: "{{asset.value}}")
     {% endif %}
     {% elif asset.type == "image" %}
-    {% if removeFolderName == "true" %}
+    {% if removeFolderName == "true" and asset.name|hasPrefix:folderName %}
     {{accessModifier}} static let {{asset.name|replace:folderName,""|swiftIdentifier:"pretty"|lowerFirstWord|escapeReservedKeywords}} = {{imageType}}(name: "{{asset.value}}")
     {% else %}
     {{accessModifier}} static let {{asset.name|swiftIdentifier:"pretty"|lowerFirstWord|escapeReservedKeywords}} = {{imageType}}(name: "{{asset.value}}")
