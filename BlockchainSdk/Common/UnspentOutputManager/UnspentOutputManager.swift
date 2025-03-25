@@ -9,8 +9,10 @@
 import Foundation
 
 protocol UnspentOutputManager {
-    func update(outputs: [UnspentOutput], for script: Data)
-    func outputs(for amount: UInt64, script: Data) throws -> [UnspentOutput]
+    func update(outputs: [UnspentOutput], for script: UTXOLockingScript)
+
+    func preImage(amount: UInt64, fee: UInt64, destination: String) throws -> UTXOPreImageTransactionBuilderTransaction
+    func preImage(amount: UInt64, feeRate: UInt64, destination: String) throws -> UTXOPreImageTransactionBuilderTransaction
 
     func allOutputs() -> [ScriptUnspentOutput]
 }
