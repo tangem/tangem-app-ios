@@ -10,7 +10,7 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 
-/// Should be wrapped in DEBUG 
+/// Should be wrapped in DEBUG
 enum PreviewData {
     static var previewNoteCardOnboardingInput: OnboardingInput {
         OnboardingInput(
