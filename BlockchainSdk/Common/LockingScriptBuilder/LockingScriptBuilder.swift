@@ -1,0 +1,88 @@
+//
+//  LockingScriptBuilder.swift
+//  TangemApp
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2025 Tangem AG. All rights reserved.
+//
+
+import WalletCore
+import BitcoinCore
+
+protocol LockingScriptBuilder {
+    func lockingScript(for address: String) throws -> UTXOLockingScript
+}
+
+enum LockingScriptBuilderError: LocalizedError {
+    case wrongAddress
+    case wrongBech32Prefix
+    case unsupportedVersion
+    case lockingScriptNotFound
+}
+
+// MARK: - MultiLockingScriptBuilder
+
+extension LockingScriptBuilder where Self == MultiLockingScriptBuilder {
+    static func bitcoin(isTestnet: Bool) -> Self {
+        let network: UTXONetworkParams = isTestnet ? BitcoinTestnetNetworkParams() : BitcoinNetworkParams()
+        return MultiLockingScriptBuilder(decoders: [
+            TaprootLockingScriptBuilder(network: network),
+            SegWitLockingScriptBuilder(network: network),
+            Base58LockingScriptBuilder(network: network),
+        ])
+    }
+
+    static func litecoin() -> Self {
+        let network: UTXONetworkParams = LitecoinNetworkParams()
+        return MultiLockingScriptBuilder(decoders: [SegWitLockingScriptBuilder(network: network), Base58LockingScriptBuilder(network: network)])
+    }
+
+    static func bitcoinCash(isTestnet: Bool) -> Self {
+        let network: UTXONetworkParams = isTestnet ? BitcoinCashTestNetworkParams() : BitcoinCashNetworkParams()
+        return MultiLockingScriptBuilder(decoders: [CashAddrLockingScriptBuilder(network: network), Base58LockingScriptBuilder(network: network)])
+    }
+}
+
+// MARK: - Base58LockingScriptBuilder
+
+extension LockingScriptBuilder where Self == Base58LockingScriptBuilder {
+    static func dogecoin() -> Self {
+        return Base58LockingScriptBuilder(network: DogecoinNetworkParams())
+    }
+
+    static func dash(isTestnet: Bool) -> Self {
+        return Base58LockingScriptBuilder(network: isTestnet ? DashTestNetworkParams() : DashMainNetworkParams())
+    }
+
+    static func ravencoin(isTestnet: Bool) -> Self {
+        return Base58LockingScriptBuilder(network: isTestnet ? RavencoinTestNetworkParams() : RavencoinMainNetworkParams())
+    }
+
+    static func ducatus() -> Self {
+        return Base58LockingScriptBuilder(network: DucatusNetworkParams())
+    }
+
+    static func clore() -> Self {
+        return Base58LockingScriptBuilder(network: CloreMainNetworkParams())
+    }
+
+    static func radiant() -> Self {
+        return Base58LockingScriptBuilder(network: BitcoinCashNetworkParams())
+    }
+}
+
+// MARK: - KaspaAddressLockingScriptBuilder
+
+extension LockingScriptBuilder where Self == KaspaAddressLockingScriptBuilder {
+    static func kaspa() -> Self {
+        return KaspaAddressLockingScriptBuilder(network: KaspaNetworkParams())
+    }
+}
+
+// MARK: - SegWitLockingScriptBuilder
+
+extension LockingScriptBuilder where Self == SegWitLockingScriptBuilder {
+    static func fact0rn() -> Self {
+        return SegWitLockingScriptBuilder(network: Fact0rnMainNetworkParams())
+    }
+}
