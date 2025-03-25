@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 protocol AvailableTokenBalanceProviderInput: AnyObject {
     var state: WalletModelState { get }
@@ -16,11 +17,18 @@ protocol AvailableTokenBalanceProviderInput: AnyObject {
 
 /// Just simple available to use (e.g. send) balance
 struct AvailableTokenBalanceProvider {
-    private weak var input: AvailableTokenBalanceProviderInput?
+    private weak var innerInput: AvailableTokenBalanceProviderInput?
+    private weak var input: AvailableTokenBalanceProviderInput? {
+        get { lock { innerInput }}
+        set { lock { innerInput = newValue }}
+    }
+
     private let walletModelId: WalletModelId
     private let tokenItem: TokenItem
     private let tokenBalancesRepository: TokenBalancesRepository
     private let balanceFormatter = BalanceFormatter()
+
+    private let lock = Lock(isRecursive: false)
 
     init(
         input: AvailableTokenBalanceProviderInput,
@@ -28,10 +36,10 @@ struct AvailableTokenBalanceProvider {
         tokenItem: TokenItem,
         tokenBalancesRepository: TokenBalancesRepository
     ) {
-        self.input = input
         self.walletModelId = walletModelId
         self.tokenItem = tokenItem
         self.tokenBalancesRepository = tokenBalancesRepository
+        self.input = input
     }
 }
 
@@ -39,21 +47,21 @@ struct AvailableTokenBalanceProvider {
 
 extension AvailableTokenBalanceProvider: TokenBalanceProvider {
     var balanceType: TokenBalanceType {
-        guard let input else {
+        guard let strongInput = input else {
             assertionFailure("StakingTokenBalanceProviderInput not found")
             return .empty(.noData)
         }
 
-        return mapToTokenBalance(state: input.state)
+        return mapToTokenBalance(state: strongInput.state)
     }
 
     var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> {
-        guard let input else {
+        guard let strongInput = input else {
             assertionFailure("StakingTokenBalanceProviderInput not found")
             return Empty().eraseToAnyPublisher()
         }
 
-        return input.statePublisher
+        return strongInput.statePublisher
             .map { self.mapToTokenBalance(state: $0) }
             .eraseToAnyPublisher()
     }
