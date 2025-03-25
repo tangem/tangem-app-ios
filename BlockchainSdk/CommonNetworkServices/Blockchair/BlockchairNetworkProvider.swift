@@ -297,7 +297,7 @@ extension BlockchairNetworkProvider: UTXONetworkProvider {
 private extension BlockchairNetworkProvider {
     func mapToUnspentOutputs(outputs: [BlockchairDTO.Address.Response.AddressInfo.Utxo]) -> [UnspentOutput] {
         outputs.map {
-            UnspentOutput(blockId: $0.blockId, hash: $0.transactionHash, index: $0.index, amount: $0.value)
+            UnspentOutput(blockId: $0.blockId, hash: Data(hexString: $0.transactionHash), index: $0.index, amount: $0.value)
         }
     }
 
