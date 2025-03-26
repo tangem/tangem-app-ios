@@ -20,7 +20,7 @@ final class BitcoinTransactionTests {
     @Test
     func correctCoinTransaction() throws {
         let pubkey = Data(hex: "046DB397495FA03FE263EE4021B77C49496E5C7DB8266E6E33A03D5B3A370C3D6D744A863B14DE2457D82BEE322416523E336530760C4533AEE980F4A4CDB9A98D")
-        let compressedPubkey = try! Secp256k1Key(with: pubkey).compress()
+        let compressedPubkey = try Secp256k1Key(with: pubkey).compress()
         #expect(compressedPubkey != nil)
 
         let signature1 = Data(hex: "00325BF907137BB6ED0A84D78C12F9680DD57AE374F45D43CDC7068ABF56F5B93C08BC1F9CD1E91E7A496DA2ECD54597B11AE0DDA4F6672235853C0CEF6BF8B4")
@@ -37,13 +37,12 @@ final class BitcoinTransactionTests {
 
         let segwit = addresses.first(where: { $0.type == .default })!
         let manager = BitcoinManager(networkParams: networkParams, walletPublicKey: pubkey, compressedWalletPublicKey: compressedPubkey)
-        let txBuilder = BitcoinTransactionBuilder(bitcoinManager: manager, addresses: addresses)
         let converter = SegWitBech32AddressConverter(prefix: networkParams.bech32PrefixPattern, scriptConverter: ScriptConverter())
-        let seg: SegWitAddress = try! converter.convert(address: segwit.value) as! SegWitAddress
+        let seg: SegWitAddress = try converter.convert(address: segwit.value) as! SegWitAddress
         #expect(seg.stringValue == segwit.value)
-        let outputs = prepareTwoUnspentOutputs(for: [seg])
-        txBuilder.unspentOutputs = outputs
-
+        let unspentOutputManager = try prepareFilledUnspentOutputManager(address: seg, changeAddress: segwit)
+        let txBuilder = BitcoinTransactionBuilder(bitcoinManager: manager, unspentOutputManager: unspentOutputManager, addresses: addresses)
+        txBuilder.fillBitcoinManager()
         let amountToSend = Amount(with: blockchain, type: .coin, value: sendValue)
         let feeAmount = Amount(with: blockchain, type: .coin, value: feeValue)
         let fee = Fee(feeAmount, parameters: BitcoinFeeParameters(rate: 21))
@@ -74,28 +73,35 @@ final class BitcoinTransactionTests {
         )
     }
 
-    private func prepareTwoUnspentOutputs(for addresses: [BitcoinCore.Address]) -> [BitcoinUnspentOutput] {
-        #expect(!addresses.isEmpty)
-        let utxo1Script = try? ScriptBuilder.createOutputScriptData(for: addresses[0])
-        #expect(utxo1Script != nil)
-        #expect("0014309a0c6efa0da7966d5c42dc5a928f6baf0e47ef" == utxo1Script?.hexString.lowercased())
-        let utxo2Script = try? ScriptBuilder.createOutputScriptData(for: addresses.count > 1 ? addresses[1] : addresses[0])
-        #expect(utxo2Script != nil)
-        #expect("0014309a0c6efa0da7966d5c42dc5a928f6baf0e47ef" == utxo2Script?.hexString.lowercased())
+    private func prepareFilledUnspentOutputManager(address: BitcoinCore.Address, changeAddress: any BlockchainSdk.Address) throws -> UnspentOutputManager {
+        let utxo1Script = try ScriptBuilder.createOutputScriptData(for: address)
 
-        let utxo1 = BitcoinUnspentOutput(
-            transactionHash: "8b907ad6ee8c6b1d25375ce9696089fec400851ca46260927d04892ec88807ef",
-            outputIndex: 0,
-            amount: 39920000,
-            outputScript: utxo1Script!.hexString
+        #expect(!utxo1Script.isEmpty)
+        #expect("0014309a0c6efa0da7966d5c42dc5a928f6baf0e47ef" == utxo1Script.hexString.lowercased())
+        let utxo2Script = try ScriptBuilder.createOutputScriptData(for: address)
+        #expect(!utxo2Script.isEmpty)
+        #expect("0014309a0c6efa0da7966d5c42dc5a928f6baf0e47ef" == utxo2Script.hexString.lowercased())
+
+        let unspentOutputManager = CommonUnspentOutputManager(address: changeAddress, lockingScriptBuilder: .bitcoin(isTestnet: false))
+        unspentOutputManager.update(
+            outputs: [
+                .init(
+                    blockId: .random(in: 1 ... 100_000),
+                    txId: "8b907ad6ee8c6b1d25375ce9696089fec400851ca46260927d04892ec88807ef",
+                    index: 0,
+                    amount: 39920000
+                ),
+                .init(
+                    blockId: .random(in: 1 ... 100_000),
+                    txId: "cffea3f46c73d61c6ed1296494b3c85e9f498629a32d67367a0d9e1bafdd05df",
+                    index: 1,
+                    amount: 12210000
+                ),
+            ],
+            for: .init(data: utxo1Script, type: .p2wpkh)
         )
-        let utxo2 = BitcoinUnspentOutput(
-            transactionHash: "cffea3f46c73d61c6ed1296494b3c85e9f498629a32d67367a0d9e1bafdd05df",
-            outputIndex: 1,
-            amount: 12210000,
-            outputScript: utxo2Script!.hexString
-        )
-        return [utxo2, utxo1]
+
+        return unspentOutputManager
     }
 
     private func testTransaction(
