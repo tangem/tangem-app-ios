@@ -65,28 +65,28 @@ final class TokenSelectorViewModel<
                 await self.tokenSorter.sortModels(walletModels: walletModels)
             }
             .withWeakCaptureOf(self)
+            .receive(on: DispatchQueue.main)
             .sink { viewModel, sortedWalletModels in
                 viewModel.availableWalletModels = sortedWalletModels.availableModels
                 viewModel.unavailableWalletModels = sortedWalletModels.unavailableModels
 
-                viewModel.updateView(
-                    availableModels: sortedWalletModels.availableModels,
-                    unavailableModels: sortedWalletModels.unavailableModels
-                )
+                viewModel.updateView()
             }
             .store(in: &bag)
     }
 
-    private func updateView(availableModels: [any WalletModel], unavailableModels: [any WalletModel]) {
-        let availableTokenItems = availableModels.map { tokenSelectorItemBuilder.map(from: $0, isDisabled: false) }
-        let unavailableTokenItems = unavailableModels.map { tokenSelectorItemBuilder.map(from: $0, isDisabled: true) }
+    private func updateView() {
+        let availableTokenItems = availableWalletModels.map {
+            tokenSelectorItemBuilder.map(from: $0, isDisabled: false)
+        }
+        let unavailableTokenItems = unavailableWalletModels.map {
+            tokenSelectorItemBuilder.map(from: $0, isDisabled: true)
+        }
 
-        Task { @MainActor [weak self] in
-            if availableTokenItems.isNotEmpty || unavailableTokenItems.isNotEmpty {
-                self?.viewState = .data(availableTokens: availableTokenItems, unavailableTokens: unavailableTokenItems)
-            } else {
-                self?.viewState = .empty
-            }
+        if availableTokenItems.isNotEmpty || unavailableTokenItems.isNotEmpty {
+            viewState = .data(availableTokens: availableTokenItems, unavailableTokens: unavailableTokenItems)
+        } else {
+            viewState = .empty
         }
     }
 }
