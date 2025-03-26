@@ -9,6 +9,8 @@
 import Foundation
 
 enum JSONRPC {
+    typealias DefaultResponse<Output: Decodable> = Response<Output, APIError>
+
     /// https://www.jsonrpc.org/specification#request_object
     struct Request<Parameter>: Encodable where Parameter: Encodable {
         let jsonrpc: Version?
