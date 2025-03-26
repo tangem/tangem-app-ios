@@ -13,6 +13,17 @@ protocol LockingScriptBuilder {
     func lockingScript(for address: String) throws -> UTXOLockingScript
 }
 
+extension LockingScriptBuilder {
+    func lockingScript(for address: any Address) throws -> UTXOLockingScript {
+        switch address {
+        case let address as LockingScriptAddress:
+            return address.lockingScript
+        case let address:
+            return try lockingScript(for: address.value)
+        }
+    }
+}
+
 enum LockingScriptBuilderError: LocalizedError {
     case wrongAddress
     case wrongBech32Prefix
