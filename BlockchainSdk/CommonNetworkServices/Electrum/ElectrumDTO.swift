@@ -61,10 +61,12 @@ enum ElectrumDTO {
         }
 
         struct Vin: Decodable {
-            let scriptSig: ScriptSig
-            let sequence: UInt64
-            let txid: String
-            let vout: Int
+            // Can be coinbase
+            // {"coinbase":"03157402","txinwitness":["..."],"sequence":0}
+            let scriptSig: ScriptSig?
+            let sequence: UInt64?
+            let txid: String?
+            let vout: Int?
         }
 
         struct Vout: Decodable {
@@ -79,7 +81,8 @@ enum ElectrumDTO {
         }
 
         struct ScriptPubKey: Decodable {
-            let addresses: [String]
+            let addresses: [String]?
+            let address: String?
             let asm: String
             let hex: String
             let reqSigs: Int?
