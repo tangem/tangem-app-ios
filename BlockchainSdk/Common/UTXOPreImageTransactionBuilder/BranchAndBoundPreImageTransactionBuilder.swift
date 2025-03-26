@@ -21,15 +21,12 @@ struct BranchAndBoundPreImageTransactionBuilder {
     private typealias FeeValueCalculation = (_ inputs: [Input], _ outputs: [Output]) -> (size: Int, fee: UInt64)
 
     private let dustThreshold: UInt64
-    private let changeScript: UTXOScriptType
     private let calculator: UTXOTransactionSizeCalculator
 
     init(
-        changeScript: UTXOScriptType,
         dustThreshold: UInt64 = 10_000,
         calculator: UTXOTransactionSizeCalculator = .common
     ) {
-        self.changeScript = changeScript
         self.dustThreshold = dustThreshold
         self.calculator = calculator
     }
@@ -38,8 +35,8 @@ struct BranchAndBoundPreImageTransactionBuilder {
 // MARK: - UTXOPreImageTransactionBuilder
 
 extension BranchAndBoundPreImageTransactionBuilder: UTXOPreImageTransactionBuilder {
-    func preImage(outputs: [ScriptUnspentOutput], amount: UInt64, fee: UTXOPreImageTransactionBuilderFee, destinationScript: UTXOScriptType) throws -> UTXOPreImageTransactionBuilderTransaction {
-        guard amount > 0 else {
+    func preImage(outputs: [ScriptUnspentOutput], changeScript: UTXOScriptType, destination: UTXOPreImageDestination, fee: UTXOPreImageTransactionBuilderFee) throws -> UTXOPreImageTransaction {
+        guard destination.amount > 0 else {
             throw Error.wrongAmount
         }
 
@@ -48,12 +45,12 @@ extension BranchAndBoundPreImageTransactionBuilder: UTXOPreImageTransactionBuild
         }
 
         let total = outputs.sum(by: \.amount)
-        if total < amount {
+        if total < destination.amount {
             throw Error.insufficientFunds
         }
 
         let sorted = outputs.sorted { $0.amount > $1.amount }
-        let feeValueCalculation: FeeValueCalculation = { inputs, outputs in
+        let context = Context(changeScript: changeScript, destination: destination) { inputs, outputs in
             let size = calculator.transactionSize(inputs: inputs, outputs: outputs)
             switch fee {
             case .exactly(let fee):
@@ -63,20 +60,15 @@ extension BranchAndBoundPreImageTransactionBuilder: UTXOPreImageTransactionBuild
             }
         }
 
-        return try select(sorted: sorted, targetValue: amount, feeValueCalculation: feeValueCalculation, destinationScript: destinationScript)
+        return try select(in: context, sorted: sorted)
     }
 }
 
 // MARK: - Private
 
-private extension BranchAndBoundPreImageTransactionBuilder {
-    private func select(sorted: [ScriptUnspentOutput], targetValue: UInt64, feeValueCalculation: FeeValueCalculation, destinationScript: UTXOScriptType) throws -> UTXOPreImageTransactionBuilderTransaction {
-        let maxAmount = sorted.sum(by: \.amount)
-
-        var bestSelection: [Input] = []
-        var bestTransactionSize: Int = feeValueCalculation(sorted, [changeScript, destinationScript]).size // Destination and change
-        var bestFee: UInt64 = maxAmount
-        var bestChange: UInt64 = maxAmount
+extension BranchAndBoundPreImageTransactionBuilder {
+    private func select(in context: Context, sorted: [Input]) throws -> UTXOPreImageTransaction {
+        var bestVariant: UTXOPreImageTransaction?
         var tries = 0
 
         func search(selected: [Input], index: Int, currentValue: UInt64, remainingValue: UInt64) {
@@ -84,35 +76,40 @@ private extension BranchAndBoundPreImageTransactionBuilder {
             if tries > Constants.maxTries { return }
 
             // Estimate size with 2 outputs (Destination and change)
-            let calculation = feeValueCalculation(selected, [changeScript, destinationScript])
-            var currentSize = calculation.size
-            var currentFee = calculation.fee
-            let requiredValue = targetValue + currentFee
+            let (size, fee) = context.feeValueCalculation(selected, [context.changeScript, context.destination.script])
+            let requiredValue = context.destination.amount + fee
 
             // If we selected enough outputs to cover target amount + fee
             if currentValue >= requiredValue {
-                var currentChange = currentValue - requiredValue
+                let change = currentValue - requiredValue
+                assert(change >= 0)
 
-                assert(currentChange >= 0)
+                var currentVariant = UTXOPreImageTransaction(
+                    outputs: selected,
+                    destination: context.destination.amount,
+                    change: change,
+                    fee: fee,
+                    size: size
+                )
 
-                // If change less then dust just include it into fee
-                // and reduce the change output
-                if currentChange < dustThreshold {
+                // If change less then dust just include it into destination value
+                // and get rid of the change output
+                if change < dustThreshold {
                     // Only destination without change
-                    let calculation = feeValueCalculation(selected, [destinationScript])
-                    currentSize = calculation.size
-                    currentFee = calculation.fee
-                    currentChange = 0
+                    let (size, fee) = context.feeValueCalculation(selected, [context.destination.script])
+                    let change = currentValue - context.destination.amount - fee
+                    currentVariant = UTXOPreImageTransaction(
+                        outputs: selected,
+                        destination: context.destination.amount + change,
+                        change: 0,
+                        fee: fee,
+                        size: size
+                    )
                 }
 
-                // Try to find a set with minimal fee / size
-                let feeIsBetter = currentFee < bestFee
-
-                if bestSelection.isEmpty || feeIsBetter {
-                    bestSelection = selected
-                    bestTransactionSize = currentSize
-                    bestFee = currentFee
-                    bestChange = currentChange
+                // If currentVariant is better just use it as the best
+                if bestVariant == nil || bestVariant?.better(than: currentVariant) == false {
+                    bestVariant = currentVariant
                 }
 
                 return
@@ -132,21 +129,31 @@ private extension BranchAndBoundPreImageTransactionBuilder {
             search(selected: selected, index: index + 1, currentValue: currentValue, remainingValue: remainingValue)
         }
 
-        search(selected: [], index: 0, currentValue: 0, remainingValue: maxAmount)
+        search(selected: [], index: 0, currentValue: 0, remainingValue: sorted.sum(by: \.amount))
 
-        if maxAmount < targetValue + bestFee {
-            throw Error.insufficientFundsForFee
-        }
-
-        if bestSelection.isEmpty {
+        guard let bestVariant, !bestVariant.outputs.isEmpty else {
             throw Error.unableToFindSuitableUTXOs
         }
 
-        return .init(outputs: bestSelection, transactionSize: bestTransactionSize, change: bestChange, fee: bestFee)
+        return bestVariant
+    }
+}
+
+private extension UTXOPreImageTransaction {
+    func better(than transaction: UTXOPreImageTransaction) -> Bool {
+        let feeIsBetter = fee < transaction.fee
+
+        return feeIsBetter
     }
 }
 
 extension BranchAndBoundPreImageTransactionBuilder {
+    private struct Context {
+        let changeScript: UTXOScriptType
+        let destination: UTXOPreImageDestination
+        let feeValueCalculation: FeeValueCalculation
+    }
+
     private enum Constants {
         static let maxTries: Int = 100_000
     }
