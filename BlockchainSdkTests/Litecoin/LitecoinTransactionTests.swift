@@ -38,17 +38,32 @@ struct LitecoinTransactionTests {
             try addressService.makeAddress(from: walletPubkey, type: .default),
             try addressService.makeAddress(from: walletPubkey, type: .legacy),
         ]
+        let defaultAddress = addresses[0]
         let address = addresses[1].value
         #expect(address != nil)
 
         let bitcoinCoreManager = BitcoinManager(networkParams: networkParams, walletPublicKey: walletPubkey, compressedWalletPublicKey: compressedPubkey, bip: .bip44)
-        let txBuilder = BitcoinTransactionBuilder(bitcoinManager: bitcoinCoreManager, addresses: addresses)
-        txBuilder.unspentOutputs =
-            [
-                BitcoinUnspentOutput(transactionHash: "bcacfe1bc1323e8e421486e4b334b91163925d7edd87133673c3efbd4e3fedae", outputIndex: 0, amount: 10000, outputScript: "76a914ccd4649cdb4c9f8fdb54869cff112a4e75fda2bb88ac"),
-                BitcoinUnspentOutput(transactionHash: "fa16fbd7f8a150dc723091fd2305eaa07189e869f9133bf3d429efc5ef3f86ff", outputIndex: 0, amount: 10000, outputScript: "76a914ccd4649cdb4c9f8fdb54869cff112a4e75fda2bb88ac"),
-            ]
+        let unspentOutputManager = CommonUnspentOutputManager(address: defaultAddress, lockingScriptBuilder: .litecoin())
+        unspentOutputManager.update(
+            outputs: [
+                .init(
+                    blockId: .random(in: 1 ... 100_000),
+                    txId: "bcacfe1bc1323e8e421486e4b334b91163925d7edd87133673c3efbd4e3fedae",
+                    index: 0,
+                    amount: 10000
+                ),
+                .init(
+                    blockId: .random(in: 1 ... 100_000),
+                    txId: "fa16fbd7f8a150dc723091fd2305eaa07189e869f9133bf3d429efc5ef3f86ff",
+                    index: 0,
+                    amount: 10000
+                ),
 
+            ],
+            for: .init(data: Data(hexString: "76a914ccd4649cdb4c9f8fdb54869cff112a4e75fda2bb88ac"), type: .p2pkh)
+        )
+        let txBuilder = BitcoinTransactionBuilder(bitcoinManager: bitcoinCoreManager, unspentOutputManager: unspentOutputManager, addresses: addresses)
+        txBuilder.fillBitcoinManager()
         let amountToSend = Amount(with: blockchain, type: .coin, value: sendValue)
         let feeAmount = Amount(with: blockchain, type: .coin, value: feeValue)
         let fee = Fee(feeAmount, parameters: BitcoinFeeParameters(rate: feeRate))
