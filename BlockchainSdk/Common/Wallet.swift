@@ -118,6 +118,10 @@ public struct Wallet {
 // MARK: - Pending Transaction
 
 extension Wallet {
+    mutating func updatePendingTransaction(_ transactions: [PendingTransactionRecord]) {
+        pendingTransactions = transactions
+    }
+
     mutating func addPendingTransaction(_ transaction: PendingTransactionRecord) {
         if pendingTransactions.contains(where: { $0.hash == transaction.hash }) {
             return
