@@ -20,6 +20,24 @@ enum RavencoinDTO {
         }
     }
 
+    enum AddressInfo {
+        struct Request: Encodable {
+            let address: String
+            /// Counting from zero
+            let pageNum: Int
+
+            init(address: String, pageNum: Int = 0) {
+                self.address = address
+                self.pageNum = pageNum
+            }
+        }
+
+        struct Response: Decodable {
+            let pagesTotal: Int
+            let txs: [TransactionInfo.Response]
+        }
+    }
+
     enum TransactionInfo {
         /// https://github.com/RavenDevKit/insight-api/blob/master/docs/example_responses/tx_with_assets.md
         struct Response: Decodable {
