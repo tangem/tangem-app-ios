@@ -50,8 +50,8 @@ extension AppEnvironment {
 
     var apiBaseUrl: URL {
         FeatureStorage.instance.useDevApi ?
-            URL(string: "https://devapi.tangem-tech.com/v1")! :
-            URL(string: "https://api.tangem-tech.com/v1")!
+            URL(string: "https://api.tests-d.com/v1")! :
+            URL(string: "https://api.tangem.org/v1")!
     }
 
     var iconBaseUrl: URL {
