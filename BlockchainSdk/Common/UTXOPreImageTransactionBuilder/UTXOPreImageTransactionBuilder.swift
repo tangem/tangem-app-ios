@@ -9,17 +9,18 @@
 import Foundation
 import TangemFoundation
 
-extension UTXOPreImageTransactionBuilder where Self == BranchAndBoundPreImageTransactionBuilder {
-    static var bitcoin: Self { .init(changeScript: .p2wpkh, dustThreshold: 10_000, calculator: .common) }
-}
-
 protocol UTXOPreImageTransactionBuilder {
     func preImage(
         outputs: [ScriptUnspentOutput],
-        amount: UInt64,
-        fee: UTXOPreImageTransactionBuilderFee,
-        destinationScript: UTXOScriptType
-    ) throws -> UTXOPreImageTransactionBuilderTransaction
+        changeScript: UTXOScriptType,
+        destination: UTXOPreImageDestination,
+        fee: UTXOPreImageTransactionBuilderFee
+    ) throws -> UTXOPreImageTransaction
+}
+
+struct UTXOPreImageDestination {
+    let amount: UInt64
+    let script: UTXOScriptType
 }
 
 enum UTXOPreImageTransactionBuilderFee {
@@ -27,17 +28,17 @@ enum UTXOPreImageTransactionBuilderFee {
     case calculate(feeRate: UInt64)
 }
 
-struct UTXOPreImageTransactionBuilderTransaction {
+struct UTXOPreImageTransaction {
     let outputs: [ScriptUnspentOutput]
-    let transactionSize: Int
+    let destination: UInt64
     let change: UInt64
     let fee: UInt64
+    let size: Int
 }
 
 enum UTXOPreImageTransactionBuilderError: LocalizedError {
     case noOutputs
     case wrongAmount
     case insufficientFunds
-    case insufficientFundsForFee
     case unableToFindSuitableUTXOs
 }
