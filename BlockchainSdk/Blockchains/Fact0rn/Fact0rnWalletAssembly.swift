@@ -21,20 +21,26 @@ struct Fact0rnWalletAssembly: WalletManagerAssembly {
             bip: .bip84
         )
 
+        let unspentOutputManager = CommonUnspentOutputManager(
+            address: input.wallet.defaultAddress,
+            lockingScriptBuilder: .fact0rn()
+        )
+
         let txBuilder = BitcoinTransactionBuilder(
             bitcoinManager: bitcoinManager,
+            unspentOutputManager: unspentOutputManager,
             addresses: input.wallet.addresses
         )
 
-        let providers: [AnyBitcoinNetworkProvider] = APIResolver(blockchain: input.blockchain, config: input.blockchainSdkConfig)
+        let providers: [UTXONetworkProvider] = APIResolver(blockchain: input.blockchain, config: input.blockchainSdkConfig)
             .resolveProviders(apiInfos: input.apiInfo, factory: { nodeInfo, _ in
                 let electrumWebSocketProvider = ElectrumWebSocketProvider(url: nodeInfo.url)
                 let provider = Fact0rnNetworkProvider(provider: electrumWebSocketProvider)
 
-                return AnyBitcoinNetworkProvider(provider)
+                return provider
             })
 
-        let networkService = BitcoinNetworkService(providers: providers)
-        return Fact0rnWalletManager(wallet: input.wallet, txBuilder: txBuilder, networkService: networkService)
+        let networkService = MultiUTXONetworkProvider(providers: providers)
+        return Fact0rnWalletManager(wallet: input.wallet, txBuilder: txBuilder, unspentOutputManager: unspentOutputManager, networkService: networkService)
     }
 }
