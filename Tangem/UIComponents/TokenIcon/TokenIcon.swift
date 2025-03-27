@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Kingfisher
+import TangemAssets
 
 struct TokenIcon: View {
     let tokenIconInfo: TokenIconInfo
@@ -17,7 +18,7 @@ struct TokenIcon: View {
 
     private var imageURL: URL? { tokenIconInfo.imageURL }
     private var customTokenColor: Color? { tokenIconInfo.customTokenColor }
-    private var blockchainIconName: String? { tokenIconInfo.blockchainIconName }
+    private var blockchainIconAsset: ImageType? { tokenIconInfo.blockchainIconAsset }
     private var isCustom: Bool { tokenIconInfo.isCustom }
     private var networkBorderColor: Color { tokenIconInfo.networkBorderColor }
 
@@ -47,9 +48,9 @@ struct TokenIcon: View {
 
     @ViewBuilder
     private var networkIcon: some View {
-        if let iconName = blockchainIconName, isWithOverlays {
+        if let iconAsset = blockchainIconAsset, isWithOverlays {
             NetworkIcon(
-                imageName: iconName,
+                imageAsset: iconAsset,
                 isActive: true,
                 isMainIndicatorVisible: false,
                 size: networkIconSize
@@ -97,18 +98,18 @@ struct TokenIcon: View {
 
 struct TokenIcon_Preview: PreviewProvider {
     static let coins = [
-        (id: "bitcoin", iconName: "bitcoin"),
-        (id: "ethereum", iconName: nil),
-        (id: "tether", iconName: "ethereum"),
-        (id: "usd-coin", iconName: "ethereum"),
-        (id: "matic-network", iconName: "ethereum"),
-        (id: "binance-usd", iconName: "ethereum"),
-        (id: "shiba-inu", iconName: "ethereum"),
-        (id: "tron", iconName: nil),
-        (id: "avalanche-2", iconName: nil),
-        (id: "dai", iconName: "avalanche"),
-        (id: "wrapped-bitcoin", iconName: "avalanche"),
-        (id: "uniswap", iconName: "avalanche"),
+        (id: "bitcoin", iconAsset: Tokens.bitcoin),
+        (id: "ethereum", iconAsset: nil),
+        (id: "tether", iconAsset: Tokens.ethereum),
+        (id: "usd-coin", iconAsset: Tokens.ethereum),
+        (id: "matic-network", iconAsset: Tokens.ethereum),
+        (id: "binance-usd", iconAsset: Tokens.ethereum),
+        (id: "shiba-inu", iconAsset: Tokens.ethereum),
+        (id: "tron", iconAsset: nil),
+        (id: "avalanche-2", iconAsset: nil),
+        (id: "dai", iconAsset: Tokens.avalanche),
+        (id: "wrapped-bitcoin", iconAsset: Tokens.avalanche),
+        (id: "uniswap", iconAsset: Tokens.avalanche),
     ]
 
     static var previews: some View {
@@ -118,7 +119,7 @@ struct TokenIcon_Preview: PreviewProvider {
                     TokenIcon(
                         tokenIconInfo: .init(
                             name: "",
-                            blockchainIconName: coin.iconName,
+                            blockchainIconAsset: coin.iconAsset,
                             imageURL: IconURLBuilder().tokenIconURL(id: coin.id, size: .large),
                             isCustom: true,
                             customTokenColor: nil

@@ -164,7 +164,7 @@ private extension VisaOnboardingAccessCodeSetupViewModel {
     func showRetryAlert(for error: Error) async {
         let alert = Alert(
             title: Text(Localization.commonError),
-            message: Text("Failed to activate card. Error: \(error.localizedDescription)"),
+            message: Text(error.universalErrorMessage),
             primaryButton: .default(
                 Text(Localization.alertButtonTryAgain),
                 action: { [weak self] in
@@ -172,7 +172,7 @@ private extension VisaOnboardingAccessCodeSetupViewModel {
                 }
             ),
             secondaryButton: .destructive(
-                Text("Cancel Activation"),
+                Text(Localization.visaOnboardingCancelActivation),
                 action: { [weak self] in
                     self?.delegate?.closeOnboarding()
                 }
@@ -222,7 +222,7 @@ extension VisaOnboardingAccessCodeSetupViewModel {
         var buttonTitle: String {
             switch self {
             case .accessCode: return Localization.commonContinue
-            case .repeatAccessCode: return "Start activation"
+            case .repeatAccessCode: return Localization.visaOnboardingWelcomeButtonTitle
             }
         }
 
