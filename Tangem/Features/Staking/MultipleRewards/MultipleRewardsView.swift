@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct MultipleRewardsView: View {
     @ObservedObject var viewModel: MultipleRewardsViewModel
