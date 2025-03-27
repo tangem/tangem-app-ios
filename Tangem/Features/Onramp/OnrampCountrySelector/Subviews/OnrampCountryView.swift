@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct OnrampCountryView: View {
     let data: OnrampCountryViewData
