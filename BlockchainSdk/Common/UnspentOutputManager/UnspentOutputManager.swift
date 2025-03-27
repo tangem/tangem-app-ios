@@ -12,6 +12,9 @@ protocol UnspentOutputManager {
     func update(outputs: [UnspentOutput], for address: String) throws
     func update(outputs: [UnspentOutput], for script: UTXOLockingScript)
 
+    func preImage(amount: UInt64, fee: UInt64, destination: String) throws -> PreImageTransaction
+    func preImage(amount: UInt64, feeRate: UInt64, destination: String) throws -> PreImageTransaction
+
     func allOutputs() -> [ScriptUnspentOutput]
 
     func confirmedBalance() -> UInt64
