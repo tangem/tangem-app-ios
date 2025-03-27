@@ -6,8 +6,9 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
 import Combine
+import SwiftUI
+import TangemAssets
 
 struct VisaOnboardingWelcomeView: View {
     @ObservedObject var viewModel: VisaOnboardingWelcomeViewModel

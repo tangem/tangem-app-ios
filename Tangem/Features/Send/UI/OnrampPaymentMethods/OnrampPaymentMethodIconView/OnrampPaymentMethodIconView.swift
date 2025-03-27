@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct OnrampPaymentMethodIconView: View {
     let url: URL?
