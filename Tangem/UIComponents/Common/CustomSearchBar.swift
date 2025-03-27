@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 import TangemUIUtils
 
 struct CustomSearchBar: View {

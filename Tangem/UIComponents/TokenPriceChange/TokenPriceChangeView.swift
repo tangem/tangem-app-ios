@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct TokenPriceChangeView: View {
     let state: State

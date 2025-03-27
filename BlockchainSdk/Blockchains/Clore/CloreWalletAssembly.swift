@@ -21,17 +21,27 @@ struct CloreWalletAssembly: WalletManagerAssembly {
             bip: .bip44
         )
 
+        let unspentOutputManager = CommonUnspentOutputManager(
+            address: input.wallet.defaultAddress,
+            lockingScriptBuilder: .clore()
+        )
         let txBuilder = BitcoinTransactionBuilder(
             bitcoinManager: bitcoinManager,
+            unspentOutputManager: unspentOutputManager,
             addresses: input.wallet.addresses
         )
 
-        let providers: [AnyBitcoinNetworkProvider] = APIResolver(blockchain: input.blockchain, config: input.blockchainSdkConfig)
+        let providers: [UTXONetworkProvider] = APIResolver(blockchain: input.blockchain, config: input.blockchainSdkConfig)
             .resolveProviders(apiInfos: input.apiInfo) { nodeInfo, _ in
-                networkProviderAssembly.makeBlockBookUTXOProvider(with: input, for: .clore(nodeInfo.url)).eraseToAnyBitcoinNetworkProvider()
+                networkProviderAssembly.makeBlockBookUTXOProvider(with: input, for: .clore(nodeInfo.url))
             }
 
-        let networkService = BitcoinNetworkService(providers: providers)
-        return RavencoinWalletManager(wallet: input.wallet, txBuilder: txBuilder, networkService: networkService)
+        let networkService = MultiUTXONetworkProvider(providers: providers)
+        return RavencoinWalletManager(
+            wallet: input.wallet,
+            txBuilder: txBuilder,
+            unspentOutputManager: unspentOutputManager,
+            networkService: networkService
+        )
     }
 }
