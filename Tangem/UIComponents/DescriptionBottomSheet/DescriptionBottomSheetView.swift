@@ -8,6 +8,7 @@
 
 import SwiftUI
 import MarkdownUI
+import TangemAssets
 
 struct DescriptionBottomSheetInfo: Identifiable, Equatable {
     let id: UUID = .init()
