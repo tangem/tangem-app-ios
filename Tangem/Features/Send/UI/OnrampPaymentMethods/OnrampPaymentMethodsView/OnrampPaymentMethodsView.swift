@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct OnrampPaymentMethodsView: View {
     @ObservedObject var viewModel: OnrampPaymentMethodsViewModel
