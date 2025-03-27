@@ -2777,6 +2777,8 @@
 		EF42D78A2D1D65D90065AFD1 /* BalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF42D7802D1D65D90065AFD1 /* BalanceProvider.swift */; };
 		EF42D78B2D1D65D90065AFD1 /* FormattedTokenBalanceType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF42D7812D1D65D90065AFD1 /* FormattedTokenBalanceType.swift */; };
 		EF42D78C2D1D65D90065AFD1 /* FormattedTokenBalanceTypeBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF42D7822D1D65D90065AFD1 /* FormattedTokenBalanceTypeBuilder.swift */; };
+		EF42FC6C2D95643B009CBB22 /* UnspentOutputManager+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF42FC6B2D95643B009CBB22 /* UnspentOutputManager+.swift */; };
+		EF42FC6E2D956456009CBB22 /* UTXOPreImageTransactionBuilder+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF42FC6D2D956456009CBB22 /* UTXOPreImageTransactionBuilder+.swift */; };
 		EF435A052C2B124A00B627EB /* SendDestinationInputOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF435A042C2B124A00B627EB /* SendDestinationInputOutput.swift */; };
 		EF435A072C2B1F2300B627EB /* SendDestinationTransactionHistoryProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF435A062C2B1F2300B627EB /* SendDestinationTransactionHistoryProvider.swift */; };
 		EF4535372976C1D80030639A /* FixedSpacer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4535362976C1D80030639A /* FixedSpacer.swift */; };
@@ -6193,6 +6195,8 @@
 		EF42D7812D1D65D90065AFD1 /* FormattedTokenBalanceType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormattedTokenBalanceType.swift; sourceTree = "<group>"; };
 		EF42D7822D1D65D90065AFD1 /* FormattedTokenBalanceTypeBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormattedTokenBalanceTypeBuilder.swift; sourceTree = "<group>"; };
 		EF42D7832D1D65D90065AFD1 /* TokenBalanceType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenBalanceType.swift; sourceTree = "<group>"; };
+		EF42FC6B2D95643B009CBB22 /* UnspentOutputManager+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UnspentOutputManager+.swift"; sourceTree = "<group>"; };
+		EF42FC6D2D956456009CBB22 /* UTXOPreImageTransactionBuilder+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UTXOPreImageTransactionBuilder+.swift"; sourceTree = "<group>"; };
 		EF435A042C2B124A00B627EB /* SendDestinationInputOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationInputOutput.swift; sourceTree = "<group>"; };
 		EF435A062C2B1F2300B627EB /* SendDestinationTransactionHistoryProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationTransactionHistoryProvider.swift; sourceTree = "<group>"; };
 		EF4535362976C1D80030639A /* FixedSpacer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FixedSpacer.swift; sourceTree = "<group>"; };
@@ -15295,6 +15299,7 @@
 		EF197B032D8C8C410004B575 /* UTXOPreImageTransactionBuilder */ = {
 			isa = PBXGroup;
 			children = (
+				EF42FC6D2D956456009CBB22 /* UTXOPreImageTransactionBuilder+.swift */,
 				EF197B022D8C8C410004B575 /* UTXOPreImageTransactionBuilder.swift */,
 				EF197B0C2D8C91ED0004B575 /* BranchAndBoundPreImageTransactionBuilder.swift */,
 			);
@@ -16265,6 +16270,7 @@
 		EF798FE52D6F8D3000B9B4A1 /* UnspentOutputManager */ = {
 			isa = PBXGroup;
 			children = (
+				EF42FC6B2D95643B009CBB22 /* UnspentOutputManager+.swift */,
 				EF798FE42D6F8D3000B9B4A1 /* UnspentOutputManager.swift */,
 				EF798FE22D6F8D3000B9B4A1 /* CommonUnspentOutputManager.swift */,
 				EF798FE32D6F8D3000B9B4A1 /* UnspentOutput.swift */,
@@ -20570,6 +20576,7 @@
 				2DB1D7032D56978D00AD43A3 /* ALPH+Tuple2Serde.swift in Sources */,
 				2DB1D7042D56978D00AD43A3 /* ALPH+TxUtils.swift in Sources */,
 				2DB1D7052D56978D00AD43A3 /* ALPH+OutputType.swift in Sources */,
+				EF42FC6E2D956456009CBB22 /* UTXOPreImageTransactionBuilder+.swift in Sources */,
 				2DB1D7062D56978D00AD43A3 /* ALPH+ScriptHint.swift in Sources */,
 				EF3805142D709B9B00273B1B /* BlockchairTransactionRecordMapper.swift in Sources */,
 				2DB1D7072D56978D00AD43A3 /* ALPH+Deserializer.swift in Sources */,
@@ -20850,6 +20857,7 @@
 				B62D3FAE2CBC79DA00C2460E /* AptosTransactionInfo.swift in Sources */,
 				B62D40952CBC79DA00C2460E /* EthereumNetworkProvider.swift in Sources */,
 				B62D42822CBC79DB00C2460E /* EthereumTransactionHistoryMapper.swift in Sources */,
+				EF42FC6C2D95643B009CBB22 /* UnspentOutputManager+.swift in Sources */,
 				B62D41CA2CBC79DB00C2460E /* exchange_contract.pb.swift in Sources */,
 				B62D413B2CBC79DA00C2460E /* NEARNetworkResult.GasPrice.swift in Sources */,
 				B62D41F72CBC79DB00C2460E /* VeChainTarget.swift in Sources */,
