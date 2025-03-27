@@ -52,11 +52,14 @@ class FakeWalletManager: WalletManager {
 
     func update() {}
 
-    func updatePublisher() -> AnyPublisher<WalletManagerState, Never> {
+    func updatePublisher() -> AnyPublisher<Void, Never> {
         AppLogger.debug("Receive update request")
 
-        return .just(output: nextState())
+        return .just(output: ())
             .delay(for: 5, scheduler: DispatchQueue.main)
+            .handleEvents(receiveOutput: { [weak self] _ in
+                self?.state = self?.nextState() ?? .initial
+            })
             .eraseToAnyPublisher()
     }
 
