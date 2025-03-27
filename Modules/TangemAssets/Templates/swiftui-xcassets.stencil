@@ -1,0 +1,120 @@
+// swiftlint:disable all
+// Generated using SwiftGen — https://github.com/SwiftGen/SwiftGen
+// Based on: https://github.com/SwiftGen/SwiftGen/blob/stable/Documentation/templates/xcassets/swift5.md
+
+{% if catalogs %}
+{% set enumName %}{{param.enumName|default:"Asset"}}{% endset %}
+{% set colorType %}{{param.colorTypeName|default:"Color"}}{% endset %}
+{% set imageType %}{{param.imageTypeName|default:"ImageType"}}{% endset %}
+{% set forceNamespaces %}{{param.forceProvidesNamespaces|default:"false"}}{% endset %}
+{% set accessModifier %}{% if param.publicAccess %}public{% else %}internal{% endif %}{% endset %}
+{% set removeFolderName %}{{param.removeFolderName|default:"false"}}{% endset %}
+import SwiftUI
+
+// MARK: - Asset Catalogs
+
+{% macro enumBlock assets %}
+    {% call casesBlock assets "" %}
+    {% if param.allValues %}
+
+    {{accessModifier}} static let allColors: [{{colorType}}] = [
+        {% filter indent:2 %}{% call allValuesBlock assets "color" "" %}{% endfilter %}
+    ]
+    {{accessModifier}} static let allImages: [{{imageType}}] = [
+        {% filter indent:2 %}{% call allValuesBlock assets "image" "" %}{% endfilter %}
+    ]
+    {% endif %}
+{% endmacro %}
+{% macro casesBlock assets folderName %}
+    {% for asset in assets %}
+    {% if asset.type == "color" %}
+    {% if removeFolderName == "true" and asset.name|hasPrefix:folderName %}
+    {{accessModifier}} static let {{asset.name|replace:folderName,""|swiftIdentifier:"pretty"|lowerFirstWord|escapeReservedKeywords}} = {{colorType}}(name: "{{asset.value}}")
+    {% else %}
+    {{accessModifier}} static let {{asset.name|swiftIdentifier:"pretty"|lowerFirstWord|escapeReservedKeywords}} = {{colorType}}(name: "{{asset.value}}")
+    {% endif %}
+    {% elif asset.type == "image" %}
+    {% if removeFolderName == "true" and asset.name|hasPrefix:folderName %}
+    {{accessModifier}} static let {{asset.name|replace:folderName,""|swiftIdentifier:"pretty"|lowerFirstWord|escapeReservedKeywords}} = {{imageType}}(name: "{{asset.value}}")
+    {% else %}
+    {{accessModifier}} static let {{asset.name|swiftIdentifier:"pretty"|lowerFirstWord|escapeReservedKeywords}} = {{imageType}}(name: "{{asset.value}}")
+    {% endif %}
+    {% elif asset.items and ( forceNamespaces == "true" or asset.isNamespaced == "true" ) %}
+    {{accessModifier}} enum {{asset.name|swiftIdentifier:"pretty"|escapeReservedKeywords}} {
+        {% filter indent:2 %}{% call casesBlock asset.items asset.name %}{% endfilter %}
+    }
+    {% elif asset.items %}
+    {% call casesBlock asset.items "" %}
+    {% endif %}
+    {% endfor %}
+{% endmacro %}
+{% macro allValuesBlock assets filter prefix %}
+    {% for asset in assets %}
+    {% if asset.type == filter %}
+    {{prefix}}{{asset.name|swiftIdentifier:"pretty"|lowerFirstWord|escapeReservedKeywords}},
+    {% elif asset.items and ( forceNamespaces == "true" or asset.isNamespaced == "true" ) %}
+    {% set prefix2 %}{{prefix}}{{asset.name|swiftIdentifier:"pretty"|escapeReservedKeywords}}.{% endset %}
+    {% call allValuesBlock asset.items filter prefix2 %}
+    {% elif asset.items %}
+    {% call allValuesBlock asset.items filter prefix %}
+    {% endif %}
+    {% endfor %}
+{% endmacro %}
+{% if catalogs.count > 1 %}
+{% for catalog in catalogs %}
+{{accessModifier}} enum {{catalog.name|swiftIdentifier:"pretty"|escapeReservedKeywords}} {
+    {% filter indent:2 %}{% call enumBlock catalog.assets %}{% endfilter %}
+}
+{% endfor %}
+{% else %}
+{% call enumBlock catalogs.first.assets %}
+{% endif %}
+
+// MARK: - Implementation Details
+
+fileprivate extension Color {
+    /// Creates a named color.
+    /// - Parameter name: the color resource to lookup.
+    init(name: String) {
+        self.init(name, bundle: .module)
+    }
+}
+
+fileprivate extension Image {
+    /// Creates a named image.
+    /// - Parameter name: the image resource to lookup.
+    init(name: String) {
+        self.init(name, bundle: .module)
+    }
+}
+
+fileprivate extension UIImage {
+    /// Creates a named image.
+    /// - Parameter name: the image resource to lookup.
+    convenience init!(name: String) {
+        self.init(named: name, in: .module, compatibleWith: nil)
+    }
+}
+
+#if canImport(SwiftUI)
+import SwiftUI
+
+{{accessModifier}} extension ImageType {
+    var image: Image {
+        Image(name: name)
+    }
+}
+#endif
+
+#if canImport(UIKit)
+import UIKit
+
+{{accessModifier}} extension ImageType {
+    var uiImage: UIImage {
+        UIImage(name: name)
+    }
+}
+#endif
+{% else %}
+// No assets found
+{% endif %}

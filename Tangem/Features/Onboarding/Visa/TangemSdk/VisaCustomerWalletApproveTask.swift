@@ -35,7 +35,7 @@ class VisaCustomerWalletApproveTask: CardSessionRunnable {
             let card = session.environment.card,
             !visaUtilities.isVisaCard(card)
         else {
-            completion(.failure(.underlying(error: "Can't use Visa card for approve")))
+            completion(.failure(.underlying(error: VisaActivationError.wrongCard)))
             return
         }
 
@@ -58,7 +58,7 @@ private extension VisaCustomerWalletApproveTask {
         }
 
         guard let derivationPath = visaUtilities.visaDerivationPath(style: derivationStyle) else {
-            completion(.failure(.underlying(error: "Failed to generate derivation path with provided derivation style")))
+            completion(.failure(.underlying(error: VisaActivationError.missingDerivationPath)))
             return
         }
 
