@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct MarketsTokenDetailsExchangeItemView: View {
     let info: MarketsTokenDetailsExchangeItemInfo
