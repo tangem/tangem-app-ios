@@ -20,11 +20,8 @@ struct RavencoinWalletAssembly: WalletManagerAssembly {
             compressedWalletPublicKey: compressedKey,
             bip: .bip44
         )
+        let unspentOutputManager: UnspentOutputManager = .ravencoin(address: input.wallet.defaultAddress, isTestnet: input.blockchain.isTestnet)
 
-        let unspentOutputManager = CommonUnspentOutputManager(
-            address: input.wallet.defaultAddress,
-            lockingScriptBuilder: .ravencoin(isTestnet: input.blockchain.isTestnet)
-        )
         let txBuilder = BitcoinTransactionBuilder(
             bitcoinManager: bitcoinManager,
             unspentOutputManager: unspentOutputManager,
