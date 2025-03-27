@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Kingfisher
+import TangemAssets
 import TangemUI
 
 struct IconView<Placeholder: View>: View {
@@ -98,8 +99,8 @@ struct IconView<Placeholder: View>: View {
             .fade(duration: 0.3)
             .cacheOriginalImage()
             .resizable()
-            .scaledToFit()
             .frame(size: size)
+            .scaledToFit()
             .cornerRadiusContinuous(cornerRadius)
     }
 

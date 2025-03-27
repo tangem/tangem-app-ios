@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct TOSView: View {
     @ObservedObject var viewModel: TOSViewModel

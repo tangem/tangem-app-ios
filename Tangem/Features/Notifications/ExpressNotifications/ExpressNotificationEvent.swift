@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import TangemExpress
+import TangemAssets
 
 enum ExpressNotificationEvent: Hashable {
     // Express specific notifications
@@ -21,7 +22,7 @@ enum ExpressNotificationEvent: Hashable {
     )
     case hasPendingTransaction(symbol: String)
     case hasPendingApproveTransaction
-    case notEnoughFeeForTokenTx(mainTokenName: String, mainTokenSymbol: String, blockchainIconName: String)
+    case notEnoughFeeForTokenTx(mainTokenName: String, mainTokenSymbol: String, blockchainIconAsset: ImageType)
     case tooSmallAmountToSwap(minimumAmountText: String)
     case tooBigAmountToSwap(maximumAmountText: String)
     case noDestinationTokens(sourceTokenName: String)
@@ -158,8 +159,8 @@ extension ExpressNotificationEvent: NotificationEvent {
         case .hasPendingApproveTransaction,
              .hasPendingTransaction:
             return .init(iconType: .progressView)
-        case .notEnoughFeeForTokenTx(_, _, let blockchainIconName):
-            return .init(iconType: .image(Image(blockchainIconName)))
+        case .notEnoughFeeForTokenTx(_, _, let blockchainIconAsset):
+            return .init(iconType: .image(blockchainIconAsset.image))
         case .tooSmallAmountToSwap,
              .tooBigAmountToSwap,
              .cexOperationFailed,

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct MarketsTokenDetailsChipsContainer: View {
     let chipsData: [MarketsTokenDetailsLinkChipsData]
