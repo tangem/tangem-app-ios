@@ -65,9 +65,7 @@ struct MailView: UIViewControllerRepresentable {
         var messageBody = "\n" + viewModel.emailType.emailPreface
         messageBody.append("\n\n")
 
-        let logData = viewModel.logsComposer.getLogsData()
-
-        if let log = logData[LogFilesNames.infoLogs],
+        if let log = viewModel.logsComposer.getInfoData(),
            let messageLog = String(data: log, encoding: .utf8) {
             messageBody.append(messageLog)
         }
@@ -75,18 +73,8 @@ struct MailView: UIViewControllerRepresentable {
         vc.setMessageBody(messageBody, isHTML: false)
 
         /*
-         let logFiles = viewModel.logsComposer.getLogFiles()
-
-         logFiles.forEach { originalURL in
-             guard originalURL.lastPathComponent != LogFilesNames.infoLogs else {
-                 attachCSVData(at: originalURL, to: vc)
-                 return
-             }
-             do {
-                 try MailZipFileManager.shared.attachZipData(at: originalURL, to: vc)
-             } catch {
-                 attachCSVData(at: originalURL, to: vc)
-             }
+         if let (data, file) = viewModel.logsComposer.getZipLogsData() {
+             vc.addAttachmentData(data, mimeType: "application/zip", fileName: file.lastPathComponent)
          }
          */
 
@@ -97,14 +85,6 @@ struct MailView: UIViewControllerRepresentable {
         _ uiViewController: UIViewController,
         context: UIViewControllerRepresentableContext<MailView>
     ) {}
-
-    /*
-     private func attachCSVData(at url: URL, to viewController: MFMailComposeViewController) {
-         if let data = try? Data(contentsOf: url) {
-             viewController.addAttachmentData(data, mimeType: "text/csv", fileName: url.lastPathComponent)
-         }
-     }
-     */
 }
 
 private struct MailViewPlaceholder: View {
