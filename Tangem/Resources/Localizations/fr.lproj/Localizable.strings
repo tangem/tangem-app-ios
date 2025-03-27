@@ -480,6 +480,12 @@
 "markets_token_details_volume" = "Volume";
 "markets_tooltip_message" = "Tirez vers le haut ou appuyez sur la barre de recherche pour ajouter des jetons directement depuis le marché";
 "markets_tooltip_title" = "Ajouter des jetons";
+"nft_collections_empty_description" = "NFTs sent to your wallet address will show up here.";
+"nft_collections_empty_title" = "No collections, yet";
+"nft_collections_receive" = "Receive NFT";
+"nft_collections_title" = "NFT collections";
+"nft_collections_warning_subtitle" = "Some data may not load";
+"nft_collections_warning_title" = "Temporary loading problems";
 "nft_wallet_count" = "%1$li NFTs in %2$li collection";
 "nft_wallet_receive_nft" = "Tap here to receive first NFT";
 "nft_wallet_title" = "NFT collections";
@@ -562,6 +568,7 @@
 "onboarding_top_up_body_no_account_error" = "Pour commencer, rechargez simplement le portefeuille avec plus de %1$@ %2$@";
 "onboarding_top_up_button_but_crypto" = "Acheter des crypto-monnaies";
 "onboarding_top_up_button_show_wallet_address" = "Afficher l'adresse du portefeuille";
+"onboarding_top_up_min_create_account_amount" = "Pour commencer, rechargez simplement le portefeuille avec plus de %1$@";
 "onboarding_topup_title" = "Activer un portefeuille";
 "onboarding_twin_exit_warning" = "Le processus de jumelage est partiellement terminé. Vous ne pouvez pas le quitter maintenant.";
 "onboarding_twins_interrupt_warning" = "Si le processus de création du portefeuille est interrompu de quelque manière que ce soit, vous devrez recommencer";
@@ -798,7 +805,7 @@
 "staking_notification_low_staked_balance_title" = "Solde de staking faible";
 "staking_notification_minimum_balance_error_text" = "Un minimum de %1$@ %2$@ est requis pour le re-staking. Veuillez recharger votre solde.";
 "staking_notification_minimum_balance_error_title" = "Pas assez de %@";
-"staking_notification_minimum_balance_title" = " Insufficient Balance for Staking";
+"staking_notification_minimum_balance_title" = "Insufficient Balance for Staking";
 "staking_notification_minimum_restake_ada_text" = "A minimum of 3 ADA is required for restaking. Please top up your balance.";
 "staking_notification_minimum_restake_ada_title" = "Not enough ADA";
 "staking_notification_minimum_stake_ada_text" = "The minimum amount required for staking must exceed 5 ADA. Please top up your balance to start staking.";
@@ -997,6 +1004,7 @@
 "visa_main_button_alert_still_loading" = "Information is still loading, please wait";
 "visa_main_limits_alert_description_message" = "Limits are needed to control costs, improve security, manage risk. You can spend %1$@ during the period for card payments in shops and %2$@ for other transactions, e.g. subscriptions or debts.";
 "visa_onboarding_access_code_description" = "The access code will be used manage your payment account and protect it from unauthorized access";
+"visa_onboarding_access_code_navigation_title" = "Access Code";
 "visa_onboarding_account_activation_navigation_title" = "Account activation";
 "visa_onboarding_approve_wallet_selector_notification_message" = "Please choose the wallet you started the registration process with to sign the transaction for creating your account on the Blockchain";
 "visa_onboarding_cancel_activation" = "Cancel Activation";
@@ -1095,7 +1103,7 @@
 "warning_beacon_chain_retirement_title" = "BNB Beacon Chain va s'arrêter de fonctionner";
 "warning_blocked_funds_for_fee_message" = "Veuillez déposer environ %1$@ pour couvrir les frais de réseau";
 "warning_blocked_funds_for_fee_title" = "Fonds insuffisants pour couvrir les frais de réseau";
-"warning_button_could_be_better" = "Pas terrible";
+"warning_button_could_be_better" = "Peut mieux faire";
 "warning_button_ok" = "Ok, compris!";
 "warning_button_really_cool" = "Vraiment cool !";
 "warning_button_refresh" = "Rafraîchir";
@@ -1173,6 +1181,13 @@
 "warning_system_update_title" = "Mise à jour du système disponible";
 "warning_testnet_card_message" = "Il s'agit d'une carte Testnet. Elle ne peut pas traiter les transactions et ne doit être utilisée qu'à des fins de test et de développement.";
 "warning_testnet_card_title" = "À des fins de test uniquement";
+"wc_connections" = "Connections";
+"wc_disconnect_all" = "Disconnect all";
+"wc_disconnect_all_alert_desc" = "Text about discnected all dApps";
+"wc_disconnect_all_alert_title" = "Disconect All dApps";
+"wc_new_connection" = "New connection";
+"wc_no_sessions_desc" = "Connect your wallet to a different dApps";
+"wc_no_sessions_title" = "No sessions";
 "welcome_interrupted_backup_alert_discard" = "Ignorer";
 "welcome_interrupted_backup_alert_message" = "Vous avez une sauvegarde interrompue. Voulez-vous la reprendre ?";
 "welcome_interrupted_backup_alert_resume" = "Oui, reprendre";
