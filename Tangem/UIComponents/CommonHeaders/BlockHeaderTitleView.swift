@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 /// This is a common component of the system design - a common header + button.
 /// Required due to specific dimensions
