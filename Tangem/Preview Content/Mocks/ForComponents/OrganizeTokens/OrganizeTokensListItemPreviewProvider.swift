@@ -97,7 +97,7 @@ struct OrganizeTokensListItemPreviewProvider {
                         id: .random(),
                         tokenIcon: .init(
                             name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
-                            blockchainIconName: nil,
+                            blockchainIconAsset: nil,
                             imageURL: nil,
                             isCustom: true,
                             customTokenColor: nil
@@ -490,7 +490,7 @@ struct OrganizeTokensListItemPreviewProvider {
                         id: .random(),
                         tokenIcon: .init(
                             name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
-                            blockchainIconName: nil,
+                            blockchainIconAsset: nil,
                             imageURL: nil,
                             isCustom: false,
                             customTokenColor: nil
@@ -544,7 +544,7 @@ struct OrganizeTokensListItemPreviewProvider {
                         id: .random(),
                         tokenIcon: .init(
                             name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
-                            blockchainIconName: nil,
+                            blockchainIconAsset: nil,
                             imageURL: nil,
                             isCustom: true,
                             customTokenColor: nil
@@ -598,7 +598,7 @@ struct OrganizeTokensListItemPreviewProvider {
                         id: .random(),
                         tokenIcon: .init(
                             name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
-                            blockchainIconName: nil,
+                            blockchainIconAsset: nil,
                             imageURL: nil,
                             isCustom: false,
                             customTokenColor: nil
@@ -652,7 +652,7 @@ struct OrganizeTokensListItemPreviewProvider {
                         id: .random(),
                         tokenIcon: .init(
                             name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
-                            blockchainIconName: nil,
+                            blockchainIconAsset: nil,
                             imageURL: nil,
                             isCustom: true,
                             customTokenColor: nil
@@ -706,7 +706,7 @@ struct OrganizeTokensListItemPreviewProvider {
                         id: .random(),
                         tokenIcon: .init(
                             name: "ExtraLongTokenName_ExtraLongTokenName_ExtraLongTokenName",
-                            blockchainIconName: nil,
+                            blockchainIconAsset: nil,
                             imageURL: nil,
                             isCustom: false,
                             customTokenColor: nil

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct ExpressFeeSelectorView: View {
     @ObservedObject private var viewModel: ExpressFeeSelectorViewModel

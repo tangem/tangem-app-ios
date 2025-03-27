@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 // [REDACTED_TODO_COMMENT]
 struct StoryView: View {

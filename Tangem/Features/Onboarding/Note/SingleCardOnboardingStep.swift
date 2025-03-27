@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 enum SingleCardOnboardingStep: Equatable {
     case pushNotifications
