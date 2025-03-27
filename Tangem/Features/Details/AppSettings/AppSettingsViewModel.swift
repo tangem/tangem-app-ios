@@ -8,6 +8,7 @@
 
 import Combine
 import SwiftUI
+import TangemAssets
 import TangemSdk
 
 class AppSettingsViewModel: ObservableObject {
