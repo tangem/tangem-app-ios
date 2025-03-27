@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 import TangemExpress
 
 struct OnrampCurrencySelectorView: View {

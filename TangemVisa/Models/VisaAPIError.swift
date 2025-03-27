@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct VisaAPIError: Decodable, LocalizedError {
+struct VisaAPIError: Decodable {
     let status: Int
     let message: String
     let timestamp: String
