@@ -82,6 +82,22 @@
         <string>Bewertungen, basierend auf %li</string>
       </dict>
     </dict>
+    <key>nft_collections_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li Stück</string>
+        <key>other</key>
+        <string>%li Stücke</string>
+      </dict>
+    </dict>
     <key>onboarding_seed_generate_message_words_count</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -157,9 +173,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>available for %li day</string>
+        <string>Verfügbar für %li Tag</string>
         <key>other</key>
-        <string>available for %li days</string>
+        <string>Verfügbar für %li Tage</string>
       </dict>
     </dict>
     <key>warning_missing_derivation_message</key>
