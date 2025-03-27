@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct ManageTokensView: View {
     @ObservedObject var viewModel: ManageTokensViewModel

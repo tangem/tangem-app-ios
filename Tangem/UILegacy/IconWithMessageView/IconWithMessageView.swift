@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct IconWithMessageView: View {
     private let icon: ImageType
