@@ -9,6 +9,27 @@
 import Foundation
 
 struct CommonUTXOTransactionSizeCalculator: UTXOTransactionSizeCalculator {
+    private let network: UTXONetworkParams
+
+    init(network: UTXONetworkParams) {
+        self.network = network
+    }
+
+    /// Calculates the dust threshold for this script type
+    /// Based on Bitcoin Core's GetDustThreshold implementation
+    /// https://github.com/bitcoin/bitcoin/blob/dfb7d58108daf3728f69292b9e6dba437bb79cc7/src/policy/policy.cpp#L26
+    /// - Parameter dustRelayFee: Fee rate in satoshis per kilobyte
+    /// - Returns: Dust threshold in satoshis
+    func dust(type: UTXOScriptType) -> Int {
+        let threshold = type.outputSize * network.dustRelayTxFee / 1000
+
+        if type.isWitness {
+            return max(threshold, 294)
+        }
+
+        return max(threshold, 546)
+    }
+
     func transactionSize(inputs: [ScriptUnspentOutput], outputs: [UTXOScriptType]) -> Int {
         let inputsSize = inputs.sum(by: \.script.type.inputSize)
         let outputsSize = outputs.sum(by: \.outputSize)
