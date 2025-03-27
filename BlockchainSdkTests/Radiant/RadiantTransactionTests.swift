@@ -98,7 +98,7 @@ final class RadiantTests {
                 amount: 10000000
             ),
         ]
-        let unspentOutputManager = CommonUnspentOutputManager(address: address, lockingScriptBuilder: .radiant())
+        let unspentOutputManager: UnspentOutputManager = .radiant(address: address)
         unspentOutputManager.update(outputs: utxo, for: address)
         let txBuilder = try RadiantTransactionBuilder(
             walletPublicKey: publicKey.data,
