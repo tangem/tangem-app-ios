@@ -7,10 +7,11 @@
 //
 
 import Combine
-import TangemExpress
-import TangemFoundation
 import SwiftUI
 import struct BlockchainSdk.SendTxError
+import TangemAssets
+import TangemExpress
+import TangemFoundation
 
 protocol SendViewAlertPresenter: AnyObject {
     func showAlert(_ alert: AlertBinder)

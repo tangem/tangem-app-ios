@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct UserWalletStorageAgreementView: View {
     @ObservedObject private var viewModel: UserWalletStorageAgreementViewModel
@@ -21,7 +22,7 @@ struct UserWalletStorageAgreementView: View {
 
             Group {
                 VStack(spacing: 0.0) {
-                    BiometryLogoImage.image.image
+                    BiometryLogoImage.image
                         .renderingMode(.template)
                         .foregroundColor(iconColor)
 
@@ -38,7 +39,7 @@ struct UserWalletStorageAgreementView: View {
 
                 VStack(spacing: 0.0) {
                     OnboardingFeatureDescriptionView(
-                        icon: BiometryLogoImage.image,
+                        iconImage: BiometryLogoImage.image,
                         title: Localization.saveUserWalletAgreementAccessTitle,
                         description: Localization.saveUserWalletAgreementAccessDescription
                     )
@@ -46,7 +47,7 @@ struct UserWalletStorageAgreementView: View {
                     FixedSpacer(height: 28.0)
 
                     OnboardingFeatureDescriptionView(
-                        icon: Assets.lock,
+                        iconImage: Assets.lock.image,
                         title: Localization.saveUserWalletAgreementCodeTitle,
                         description: Localization.saveUserWalletAgreementCodeDescription(BiometricAuthorizationUtils.biometryType.name)
                     )
