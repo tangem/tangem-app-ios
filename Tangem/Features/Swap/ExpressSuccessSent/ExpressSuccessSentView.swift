@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct ExpressSuccessSentView: View {
     @ObservedObject private var viewModel: ExpressSuccessSentViewModel

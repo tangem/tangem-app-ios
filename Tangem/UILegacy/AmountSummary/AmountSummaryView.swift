@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct AmountSummaryView: View {
     let data: AmountSummaryViewData
@@ -84,7 +85,7 @@ extension AmountSummaryView: Setupable {
                     amountFiat: "99.98$",
                     tokenIconInfo: .init(
                         name: "tether",
-                        blockchainIconName: "ethereum.fill",
+                        blockchainIconAsset: Tokens.ethereumFill,
                         imageURL: IconURLBuilder().tokenIconURL(id: "tether"),
                         isCustom: false,
                         customTokenColor: nil
@@ -103,7 +104,7 @@ extension AmountSummaryView: Setupable {
                 amountFiat: "999 999 999 999 999 999 999 999 999 999 999 999 999.98$",
                 tokenIconInfo: .init(
                     name: "optimism",
-                    blockchainIconName: nil,
+                    blockchainIconAsset: nil,
                     imageURL: IconURLBuilder().tokenIconURL(id: "solana"),
                     isCustom: false,
                     customTokenColor: nil

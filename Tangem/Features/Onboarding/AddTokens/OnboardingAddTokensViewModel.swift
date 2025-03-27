@@ -10,6 +10,7 @@ import Foundation
 import SwiftUI
 import Combine
 import CombineExt
+import TangemAssets
 
 class OnboardingAddTokensViewModel: ObservableObject {
     var manageTokensListViewModel: ManageTokensListViewModel!
