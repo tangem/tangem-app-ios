@@ -480,6 +480,12 @@
 "markets_token_details_volume" = "Volume";
 "markets_tooltip_message" = "Pull this up or tap the search bar to add tokens directly from the market";
 "markets_tooltip_title" = "Add tokens";
+"nft_collections_empty_description" = "NFTs sent to your wallet address will show up here.";
+"nft_collections_empty_title" = "No collections, yet";
+"nft_collections_receive" = "Receive NFT";
+"nft_collections_title" = "NFT collections";
+"nft_collections_warning_subtitle" = "Some data may not load";
+"nft_collections_warning_title" = "Temporary loading problems";
 "nft_wallet_count" = "%1$li NFTs in %2$li collection";
 "nft_wallet_receive_nft" = "Tap here to receive first NFT";
 "nft_wallet_title" = "NFT collections";
@@ -562,6 +568,7 @@
 "onboarding_top_up_body_no_account_error" = "To get started, simply top up the wallet with more than %1$@ %2$@";
 "onboarding_top_up_button_but_crypto" = "Buy crypto";
 "onboarding_top_up_button_show_wallet_address" = "Show the wallet's address";
+"onboarding_top_up_min_create_account_amount" = "To get started, simply top up the wallet with more than %1$@";
 "onboarding_topup_title" = "Activate a wallet";
 "onboarding_twin_exit_warning" = "The twinning process is partly complete. You can't exit it now.";
 "onboarding_twins_interrupt_warning" = "If the process of creating the wallet gets interrupted in any way, you'll have to start over";
@@ -798,7 +805,7 @@
 "staking_notification_low_staked_balance_title" = "Low staked balance";
 "staking_notification_minimum_balance_error_text" = "A minimum of %1$@ %2$@ is required for restaking. Please top up your balance.";
 "staking_notification_minimum_balance_error_title" = "Not enough %@";
-"staking_notification_minimum_balance_title" = " Insufficient Balance for Staking";
+"staking_notification_minimum_balance_title" = "Insufficient Balance for Staking";
 "staking_notification_minimum_restake_ada_text" = "A minimum of 3 ADA is required for restaking. Please top up your balance.";
 "staking_notification_minimum_restake_ada_title" = "Not enough ADA";
 "staking_notification_minimum_stake_ada_text" = "The minimum amount required for staking must exceed 5 ADA. Please top up your balance to start staking.";
@@ -997,6 +1004,7 @@
 "visa_main_button_alert_still_loading" = "Information is still loading, please wait";
 "visa_main_limits_alert_description_message" = "Limits are needed to control costs, improve security, manage risk. You can spend %1$@ during the period for card payments in shops and %2$@ for other transactions, e.g. subscriptions or debts.";
 "visa_onboarding_access_code_description" = "The access code will be used manage your payment account and protect it from unauthorized access";
+"visa_onboarding_access_code_navigation_title" = "Access Code";
 "visa_onboarding_account_activation_navigation_title" = "Account activation";
 "visa_onboarding_approve_wallet_selector_notification_message" = "Please choose the wallet you started the registration process with to sign the transaction for creating your account on the Blockchain";
 "visa_onboarding_cancel_activation" = "Cancel Activation";
@@ -1173,6 +1181,13 @@
 "warning_system_update_title" = "System update available";
 "warning_testnet_card_message" = "This is a Testnet card. It cannot process transactions and should only be used for testing and development purposes.";
 "warning_testnet_card_title" = "For testing purposes only";
+"wc_connections" = "Connections";
+"wc_disconnect_all" = "Disconnect all";
+"wc_disconnect_all_alert_desc" = "Text about discnected all dApps";
+"wc_disconnect_all_alert_title" = "Disconect All dApps";
+"wc_new_connection" = "New connection";
+"wc_no_sessions_desc" = "Connect your wallet to a different dApps";
+"wc_no_sessions_title" = "No sessions";
 "welcome_interrupted_backup_alert_discard" = "Discard";
 "welcome_interrupted_backup_alert_message" = "You have an interrupted backup. Do you want to resume?";
 "welcome_interrupted_backup_alert_resume" = "Yes, resume";
