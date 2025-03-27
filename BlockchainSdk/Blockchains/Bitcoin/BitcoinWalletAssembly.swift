@@ -13,21 +13,25 @@ struct BitcoinWalletAssembly: WalletManagerAssembly {
             bip: input.pairPublicKey == nil ? .bip84 : .bip141
         )
 
-        let txBuilder = BitcoinTransactionBuilder(bitcoinManager: bitcoinManager, addresses: input.wallet.addresses)
-        let providers: [AnyBitcoinNetworkProvider] = input.apiInfo.reduce(into: []) { partialResult, providerType in
+        let unspentOutputManager = CommonUnspentOutputManager(
+            address: input.wallet.defaultAddress,
+            lockingScriptBuilder: .bitcoin(isTestnet: input.blockchain.isTestnet)
+        )
+        let txBuilder = BitcoinTransactionBuilder(
+            bitcoinManager: bitcoinManager,
+            unspentOutputManager: unspentOutputManager,
+            addresses: input.wallet.addresses
+        )
+        let providers: [UTXONetworkProvider] = input.apiInfo.reduce(into: []) { partialResult, providerType in
             switch providerType {
             case .nowNodes:
-                partialResult.append(networkProviderAssembly
-                    .makeBlockBookUTXOProvider(with: input, for: .nowNodes)
-                    .eraseToAnyBitcoinNetworkProvider())
-            case .getBlock:
-                if input.blockchain.isTestnet {
-                    break
-                }
-
-                partialResult.append(networkProviderAssembly
-                    .makeBlockBookUTXOProvider(with: input, for: .getBlock)
-                    .eraseToAnyBitcoinNetworkProvider())
+                partialResult.append(
+                    networkProviderAssembly.makeBlockBookUTXOProvider(with: input, for: .nowNodes)
+                )
+            case .getBlock where !input.blockchain.isTestnet:
+                partialResult.append(
+                    networkProviderAssembly.makeBlockBookUTXOProvider(with: input, for: .getBlock)
+                )
             case .blockchair:
                 partialResult.append(
                     contentsOf: networkProviderAssembly.makeBlockchairNetworkProviders(
@@ -40,15 +44,19 @@ struct BitcoinWalletAssembly: WalletManagerAssembly {
                     networkProviderAssembly.makeBlockcypherNetworkProvider(
                         endpoint: .bitcoin(testnet: input.blockchain.isTestnet),
                         with: input
-                    ).eraseToAnyBitcoinNetworkProvider()
+                    )
                 )
             default:
                 break
             }
         }
 
-        let networkService = BitcoinNetworkService(providers: providers)
-
-        return BitcoinWalletManager(wallet: input.wallet, txBuilder: txBuilder, networkService: networkService)
+        let networkService = MultiUTXONetworkProvider(providers: providers)
+        return BitcoinWalletManager(
+            wallet: input.wallet,
+            txBuilder: txBuilder,
+            unspentOutputManager: unspentOutputManager,
+            networkService: networkService
+        )
     }
 }

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct CloseButton: View {
     let dismiss: () -> Void

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 enum OnboardingSteps {
     case singleWallet([SingleCardOnboardingStep])

@@ -6,11 +6,11 @@
 //  Copyright © 2020 Tangem AG. All rights reserved.
 //
 
-import Foundation
-import TangemSdk
-import BlockchainSdk
 import Combine
 import SwiftUI
+import BlockchainSdk
+import TangemAssets
+import TangemSdk
 
 class CommonUserWalletModel {
     // MARK: Services

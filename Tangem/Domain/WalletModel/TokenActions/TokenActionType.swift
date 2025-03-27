@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemAssets
 
 enum TokenActionType: String {
     case buy

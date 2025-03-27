@@ -6,9 +6,9 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Foundation
-import SwiftUI
 import Combine
+import SwiftUI
+import TangemAssets
 
 class ManageTokensItemNetworkSelectorViewModel: Identifiable, ObservableObject {
     @Published var isSelected: Bool
@@ -19,8 +19,8 @@ class ManageTokensItemNetworkSelectorViewModel: Identifiable, ObservableObject {
     let position: ItemPosition
     let isCopied: Binding<Bool>
     let isMain: Bool
-    let imageName: String
-    let imageNameSelected: String
+    let imageAsset: ImageType
+    let imageAssetSelected: ImageType
     let networkName: String
     let contractName: String?
     let hasContextMenu: Bool
@@ -38,8 +38,8 @@ class ManageTokensItemNetworkSelectorViewModel: Identifiable, ObservableObject {
         self.isCopied = isCopied
         self.position = position
         isMain = tokenItem.isBlockchain
-        imageName = tokenItem.blockchain.iconName
-        imageNameSelected = tokenItem.blockchain.iconNameFilled
+        imageAsset = tokenItem.blockchain.iconAsset
+        imageAssetSelected = tokenItem.blockchain.iconAssetFilled
         networkName = tokenItem.blockchain.displayName
         contractName = tokenItem.contractName
         hasContextMenu = tokenItem.isToken
