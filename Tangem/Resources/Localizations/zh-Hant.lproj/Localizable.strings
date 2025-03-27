@@ -480,6 +480,12 @@
 "markets_token_details_volume" = "Volume";
 "markets_tooltip_message" = "Pull this up or tap the search bar to add tokens directly from the market";
 "markets_tooltip_title" = "Add tokens";
+"nft_collections_empty_description" = "NFTs sent to your wallet address will show up here.";
+"nft_collections_empty_title" = "No collections, yet";
+"nft_collections_receive" = "Receive NFT";
+"nft_collections_title" = "NFT collections";
+"nft_collections_warning_subtitle" = "Some data may not load";
+"nft_collections_warning_title" = "Temporary loading problems";
 "nft_wallet_count" = "%1$li NFTs in %2$li collection";
 "nft_wallet_receive_nft" = "Tap here to receive first NFT";
 "nft_wallet_title" = "NFT collections";
@@ -562,6 +568,7 @@
 "onboarding_top_up_body_no_account_error" = "要開始，只需為錢包充值超過 %1$@ %2$@";
 "onboarding_top_up_button_but_crypto" = "購買加密貨幣";
 "onboarding_top_up_button_show_wallet_address" = "顯示錢包地址";
+"onboarding_top_up_min_create_account_amount" = "要開始，只需為錢包充值超過 %1$@";
 "onboarding_topup_title" = "啟動錢包";
 "onboarding_twin_exit_warning" = "結對過程已部分完成。你現在不能退出";
 "onboarding_twins_interrupt_warning" = "如果創建錢包的過程以任何方式中斷，您將得重新開始";
@@ -798,7 +805,7 @@
 "staking_notification_low_staked_balance_title" = "Low staked balance";
 "staking_notification_minimum_balance_error_text" = "A minimum of %1$@ %2$@ is required for restaking. Please top up your balance.";
 "staking_notification_minimum_balance_error_title" = "Not enough %@";
-"staking_notification_minimum_balance_title" = " Insufficient Balance for Staking";
+"staking_notification_minimum_balance_title" = "Insufficient Balance for Staking";
 "staking_notification_minimum_restake_ada_text" = "A minimum of 3 ADA is required for restaking. Please top up your balance.";
 "staking_notification_minimum_restake_ada_title" = "Not enough ADA";
 "staking_notification_minimum_stake_ada_text" = "The minimum amount required for staking must exceed 5 ADA. Please top up your balance to start staking.";
@@ -997,6 +1004,7 @@
 "visa_main_button_alert_still_loading" = "Information is still loading, please wait";
 "visa_main_limits_alert_description_message" = "Limits are needed to control costs, improve security, manage risk. You can spend %1$@ during the period for card payments in shops and %2$@ for other transactions, e.g. subscriptions or debts.";
 "visa_onboarding_access_code_description" = "The access code will be used manage your payment account and protect it from unauthorized access";
+"visa_onboarding_access_code_navigation_title" = "Access Code";
 "visa_onboarding_account_activation_navigation_title" = "Account activation";
 "visa_onboarding_approve_wallet_selector_notification_message" = "Please choose the wallet you started the registration process with to sign the transaction for creating your account on the Blockchain";
 "visa_onboarding_cancel_activation" = "Cancel Activation";
@@ -1008,6 +1016,7 @@
 "visa_onboarding_pin_code_description" = "Set up a 4-digit code. It will be used for payments.";
 "visa_onboarding_pin_code_navigation_title" = "PIN code";
 "visa_onboarding_pin_code_title" = "Create PIN Code";
+"visa_onboarding_pin_validation_error_message" = "Invalid PIN: avoid sequences or repeats";
 "visa_onboarding_success_screen_description" = "You're good to go!";
 "visa_onboarding_tangem_approve_description" = "Prepare the Tangem card and tap to approve";
 "visa_onboarding_tangem_approve_title" = "Prepare Tangem Wallet";
@@ -1172,6 +1181,13 @@
 "warning_system_update_title" = "系統更新可用";
 "warning_testnet_card_message" = "This is a Testnet card. It cannot process transactions and should only be used for testing and development purposes.";
 "warning_testnet_card_title" = "For testing purposes only";
+"wc_connections" = "Connections";
+"wc_disconnect_all" = "Disconnect all";
+"wc_disconnect_all_alert_desc" = "Text about discnected all dApps";
+"wc_disconnect_all_alert_title" = "Disconect All dApps";
+"wc_new_connection" = "New connection";
+"wc_no_sessions_desc" = "Connect your wallet to a different dApps";
+"wc_no_sessions_title" = "No sessions";
 "welcome_interrupted_backup_alert_discard" = "捨棄";
 "welcome_interrupted_backup_alert_message" = "您有一個備份中斷了，您想繼續嗎？";
 "welcome_interrupted_backup_alert_resume" = "是的，恢復";
