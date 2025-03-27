@@ -52,13 +52,13 @@ extension CommonCardAuthorizationProcessor: CardAuthorizationProcessor {
         cardInput: VisaCardActivationInput
     ) async throws -> VisaAuthorizationTokens {
         guard let authorizationChallengeInput else {
-            let error = CardAuthorizationProcessorError.authorizationChallengeNotFound
+            let error = VisaCardAuthorizationProcessorError.authorizationChallengeNotFound
             VisaLogger.error("Failed to find saved authorization challenge input and session", error: error)
             throw error
         }
 
         guard authorizationChallengeInput.cardInput == cardInput else {
-            let error = CardAuthorizationProcessorError.invalidCardInput
+            let error = VisaCardAuthorizationProcessorError.invalidCardInput
             VisaLogger.error("Card input in authorization challenge input didn't match with input provided", error: error)
             throw error
         }
@@ -73,7 +73,7 @@ extension CommonCardAuthorizationProcessor: CardAuthorizationProcessor {
             return accessTokens
         } catch {
             VisaLogger.error("Failed to get access tokens for card authorization", error: error)
-            throw CardAuthorizationProcessorError.networkError(error)
+            throw VisaCardAuthorizationProcessorError.networkError(error)
         }
     }
 }
