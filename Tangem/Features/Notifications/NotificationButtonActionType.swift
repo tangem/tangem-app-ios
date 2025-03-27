@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemAssets
 
 struct NotificationButtonAction {
     let type: NotificationButtonActionType
@@ -103,7 +104,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
         case .seedSupport2No:
             return Localization.seedWarningNo
         case .unlock:
-            return "Unlock"
+            return Localization.visaUnlockNotificationButton
         }
     }
 

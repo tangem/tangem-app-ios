@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct MarketsPickerView: View {
     @Binding var marketPriceIntervalType: MarketsPriceIntervalType

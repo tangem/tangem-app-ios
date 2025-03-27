@@ -6,6 +6,8 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import TangemAssets
+
 enum ActionButtonsNotificationEvent: Hashable {
     case refreshRequired(title: String, message: String)
     case noAvailablePairs
