@@ -6,9 +6,9 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Foundation
-import TangemStaking
 import SwiftUI
+import TangemAssets
+import TangemStaking
 
 struct StakingDetailsStakeViewData: Identifiable {
     var id: Int { hashValue }
@@ -36,8 +36,8 @@ struct StakingDetailsStakeViewData: Identifiable {
             return string(Localization.stakingDetailsApr, accent: apr)
         case .unbondingPeriod(let period):
             return string(Localization.stakingDetailsUnbondingPeriod, accent: period)
-        case .unbonding(let unlitDate):
-            let (text, accent) = preparedUntil(unlitDate)
+        case .unbonding(let untilDate):
+            let (text, accent) = preparedUntil(untilDate)
             return string(text, accent: accent)
         case .withdraw:
             return string(Localization.stakingReadyToWithdraw)

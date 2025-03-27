@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct OnrampProvidersCompactView: View {
     @ObservedObject var viewModel: OnrampProvidersCompactViewModel

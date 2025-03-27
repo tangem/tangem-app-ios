@@ -7,18 +7,10 @@
 //
 
 import Foundation
-import Moya
 import Combine
-import TangemSdk
 
-class BitcoinCashNetworkService: BitcoinNetworkService {
-    override func getInfo(addresses: [String]) -> AnyPublisher<[BitcoinResponse], Error> {
-        super.getInfo(address: addresses[0].removeBchPrefix())
-            .map { [$0] }
-            .eraseToAnyPublisher()
-    }
-
-    override func getInfo(address: String) -> AnyPublisher<BitcoinResponse, Error> {
-        super.getInfo(address: address.removeBchPrefix())
+class BitcoinCashNetworkService: MultiUTXONetworkProvider {
+    override func getUnspentOutputs(address: String) -> AnyPublisher<[UnspentOutput], any Error> {
+        super.getUnspentOutputs(address: address.removeBchPrefix())
     }
 }

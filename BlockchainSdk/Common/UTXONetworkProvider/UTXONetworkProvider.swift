@@ -19,13 +19,27 @@ protocol UTXONetworkProvider: AnyObject, HostProvider {
 }
 
 extension UTXONetworkProvider {
+    /// Convenient method for multi-addresses wallet
+    func getInfo(addresses: [Address]) -> AnyPublisher<[UTXONetworkProviderUpdatingResponse], any Error> {
+        if addresses.isEmpty {
+            return .anyFail(error: WalletError.addressesIsEmpty)
+        }
+
+        let publishers = addresses.map { address in
+            getInfo(address: address.value)
+                .map { UTXONetworkProviderUpdatingResponse(address: address, response: $0) }
+        }
+
+        return Publishers.MergeMany(publishers).collect().eraseToAnyPublisher()
+    }
+
     /// Default implementation
     func getInfo(address: String) -> AnyPublisher<UTXOResponse, any Error> {
         getUnspentOutputs(address: address)
             .withWeakCaptureOf(self)
             .flatMap { provider, outputs in
                 let pending = outputs.filter { !$0.isConfirmed }.map {
-                    provider.getTransactionInfo(hash: $0.hash, address: address)
+                    provider.getTransactionInfo(hash: $0.txId, address: address)
                 }
 
                 return Publishers.MergeMany(pending).collect()
@@ -33,4 +47,9 @@ extension UTXONetworkProvider {
             }
             .eraseToAnyPublisher()
     }
+}
+
+struct UTXONetworkProviderUpdatingResponse {
+    let address: Address
+    let response: UTXOResponse
 }

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemAssets
 import TangemSdk
 import BlockchainSdk
 import TangemVisa

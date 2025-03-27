@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 import TangemUI
 
 struct MarketsTokensNetworkSelectorItemView: View {
@@ -64,7 +65,7 @@ struct MarketsTokensNetworkSelectorItemView: View {
 
     private var icon: some View {
         NetworkIcon(
-            imageName: viewModel.iconImageName,
+            imageAsset: viewModel.iconImageAsset,
             isActive: viewModel.isSelected && !viewModel.isReadonly,
             isDisabled: viewModel.isReadonly,
             isMainIndicatorVisible: viewModel.isMain,
