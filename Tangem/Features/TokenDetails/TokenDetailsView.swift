@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct TokenDetailsView: View {
     @ObservedObject var viewModel: TokenDetailsViewModel
@@ -95,7 +96,7 @@ struct TokenDetailsView: View {
                 TokenIcon(
                     tokenIconInfo: .init(
                         name: "",
-                        blockchainIconName: nil,
+                        blockchainIconAsset: nil,
                         imageURL: viewModel.iconUrl,
                         isCustom: false,
                         customTokenColor: viewModel.customTokenColor
