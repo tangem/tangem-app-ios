@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct PendingExpressTxStatusView: View {
     let title: String
