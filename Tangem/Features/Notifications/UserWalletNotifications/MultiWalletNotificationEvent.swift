@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemAssets
 
 enum MultiWalletNotificationEvent: Hashable {
     case someTokenBalancesNotUpdated
