@@ -82,7 +82,7 @@ final class BitcoinTransactionTests {
         #expect(!utxo2Script.isEmpty)
         #expect("0014309a0c6efa0da7966d5c42dc5a928f6baf0e47ef" == utxo2Script.hexString.lowercased())
 
-        let unspentOutputManager = CommonUnspentOutputManager(address: changeAddress, lockingScriptBuilder: .bitcoin(isTestnet: false))
+        let unspentOutputManager: UnspentOutputManager = .bitcoin(address: changeAddress, isTestnet: false)
         unspentOutputManager.update(
             outputs: [
                 .init(
