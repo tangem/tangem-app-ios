@@ -6,8 +6,8 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
+import TangemAssets
 
 struct AverageRewardingView: View {
     let data: AverageRewardingViewData

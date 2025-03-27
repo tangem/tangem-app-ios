@@ -47,3 +47,9 @@ final class Fact0rnMainNetworkParams: INetwork {
     /// Assuming the standard "ALL" for SigHash type
     let sigHash: BitcoinCore.SigHashType = .bitcoinAll
 }
+
+extension Fact0rnMainNetworkParams: UTXONetworkParams {
+    var p2pkhPrefix: UInt8 { pubKeyHash }
+    var p2shPrefix: UInt8 { scriptHash }
+    var bech32Prefix: String { bech32PrefixPattern }
+}
