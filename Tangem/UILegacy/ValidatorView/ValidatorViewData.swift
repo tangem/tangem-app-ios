@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemAssets
 
 struct ValidatorViewData: Hashable, Identifiable {
     var id: Int { hashValue }

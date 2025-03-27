@@ -130,6 +130,11 @@ extension SendCoordinator: SendRoutable {
     }
 
     func openQRScanner(with codeBinding: Binding<String>, networkName: String) {
+        guard qrScanViewCoordinator == nil else {
+            AppLogger.error(error: "Attempt to present multiple QR scan view coordinators")
+            return
+        }
+
         Analytics.log(.sendButtonQRCode)
 
         let qrScanViewCoordinator = QRScanViewCoordinator { [weak self] in
