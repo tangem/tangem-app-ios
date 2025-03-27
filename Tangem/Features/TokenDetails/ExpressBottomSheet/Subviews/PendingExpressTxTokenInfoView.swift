@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct PendingExpressTxTokenInfoView: View {
     let tokenIconInfo: TokenIconInfo
