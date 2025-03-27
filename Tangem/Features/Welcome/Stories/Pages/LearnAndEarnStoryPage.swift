@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct LearnAndEarnStoryPage: View {
     let learn: () -> Void
