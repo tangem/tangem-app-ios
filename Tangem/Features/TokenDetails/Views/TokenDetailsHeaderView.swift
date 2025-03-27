@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct TokenDetailsHeaderView: View {
     let viewModel: TokenDetailsHeaderViewModel
@@ -24,8 +25,8 @@ struct TokenDetailsHeaderView: View {
                     Text(viewModel.networkPrefix)
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
 
-                    if let networkIconName = viewModel.networkIconName {
-                        Image(networkIconName)
+                    if let networkIconAsset = viewModel.networkIconAsset {
+                        networkIconAsset.image
                             .resizable()
                             .frame(size: .init(bothDimensions: 18))
                     }
@@ -42,7 +43,7 @@ struct TokenDetailsHeaderView: View {
             TokenIcon(
                 tokenIconInfo: .init(
                     name: "",
-                    blockchainIconName: nil,
+                    blockchainIconAsset: nil,
                     imageURL: viewModel.imageURL,
                     isCustom: false,
                     customTokenColor: viewModel.customTokenColor

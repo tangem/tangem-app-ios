@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct ScanCardWarningView: View {
     let action: () -> Void

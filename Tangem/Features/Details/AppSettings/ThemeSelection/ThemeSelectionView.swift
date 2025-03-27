@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct ThemeSelectionView: View {
     @ObservedObject var viewModel: ThemeSelectionViewModel

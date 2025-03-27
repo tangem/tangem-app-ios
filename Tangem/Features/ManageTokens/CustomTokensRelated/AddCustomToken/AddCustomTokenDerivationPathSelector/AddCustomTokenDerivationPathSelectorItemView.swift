@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct AddCustomTokenDerivationPathSelectorItemView: View {
     @ObservedObject var viewModel: AddCustomTokenDerivationPathSelectorItemViewModel

@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import TangemAssets
 import TangemFoundation
 import struct TangemExpress.ExpressAPIError
 
@@ -236,7 +237,7 @@ class ExpressNotificationManager {
         return .notEnoughFeeForTokenTx(
             mainTokenName: sender.feeTokenItem.blockchain.displayName,
             mainTokenSymbol: sender.feeTokenItem.currencySymbol,
-            blockchainIconName: sender.feeTokenItem.blockchain.iconNameFilled
+            blockchainIconAsset: sender.feeTokenItem.blockchain.iconAssetFilled
         )
     }
 

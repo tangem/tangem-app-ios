@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 import TangemUI
 
 struct MainHeaderView: View {
@@ -62,7 +63,8 @@ struct MainHeaderView: View {
                 //
                 // Do not replace nil coalescing operator here with any kind of operators
                 // that breaks the view's structural identity (`if`, `switch`, etc)
-                Image(viewModel.cardImage?.name ?? Assets.clearColor1px.name)
+                (viewModel.cardImage ?? Assets.clearColor1px)
+                    .image
                     .frame(size: imageSize)
             }
             .hidden(!contentSettings.shouldShowTrailingContent)

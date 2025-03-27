@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct PushNotificationsPermissionRequestView: View {
     @ObservedObject private var viewModel: PushNotificationsPermissionRequestViewModel
@@ -38,14 +39,14 @@ struct PushNotificationsPermissionRequestView: View {
 
                 VStack(spacing: 0.0) {
                     OnboardingFeatureDescriptionView(
-                        icon: Assets.notificationBulletItemOne,
+                        iconImage: Assets.notificationBulletItemOne.image,
                         description: Localization.userPushNotificationAgreementArgumentOne
                     )
 
                     FixedSpacer(height: 28.0)
 
                     OnboardingFeatureDescriptionView(
-                        icon: Assets.notificationBulletItemTwo,
+                        iconImage: Assets.notificationBulletItemTwo.image,
                         description: Localization.userPushNotificationAgreementArgumentTwo
                     )
                 }

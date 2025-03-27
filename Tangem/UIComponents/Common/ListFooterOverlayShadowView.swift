@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct ListFooterOverlayShadowView: View {
     var body: some View {

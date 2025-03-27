@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct AppSettingsView: View {
     @ObservedObject private var viewModel: AppSettingsViewModel

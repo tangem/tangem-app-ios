@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct OnboardingBottomButtonsSettings {
     let main: MainButton.Settings?

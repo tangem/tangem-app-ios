@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct ExpressProvidersSelectorView: View {
     @ObservedObject private var viewModel: ExpressProvidersSelectorViewModel

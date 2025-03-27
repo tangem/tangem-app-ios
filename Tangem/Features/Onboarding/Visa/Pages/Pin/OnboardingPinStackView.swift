@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct OnboardingPinStackView: View {
     let maxDigits: Int

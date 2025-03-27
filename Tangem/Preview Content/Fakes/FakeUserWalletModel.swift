@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemSdk
 import BlockchainSdk
+import TangemAssets
 
 class FakeUserWalletModel: UserWalletModel, ObservableObject {
     var hasImportedWallets: Bool { false }

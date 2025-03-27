@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct ExpressTokensListView: View {
     @ObservedObject var viewModel: ExpressTokensListViewModel

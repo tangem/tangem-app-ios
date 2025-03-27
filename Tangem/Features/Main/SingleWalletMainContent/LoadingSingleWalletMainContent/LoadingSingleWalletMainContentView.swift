@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct LoadingSingleWalletMainContentView: View {
     private let viewModel = LoadingSingleWalletMainContentViewModel()

@@ -7,26 +7,27 @@
 //
 
 import Foundation
+import TangemAssets
 
 class AddCustomTokenNetworksListItemViewModel: ObservableObject {
     @Published var isSelected: Bool
 
     let networkId: String
-    let iconName: String
+    let iconAsset: ImageType
     let networkName: String
     let currencySymbol: String
     let didTapWallet: () -> Void
 
     init(
         networkId: String,
-        iconName: String,
+        iconAsset: ImageType,
         networkName: String,
         currencySymbol: String,
         isSelected: Bool,
         didTapWallet: @escaping () -> Void
     ) {
         self.networkId = networkId
-        self.iconName = iconName
+        self.iconAsset = iconAsset
         self.networkName = networkName
         self.currencySymbol = currencySymbol
         self.isSelected = isSelected

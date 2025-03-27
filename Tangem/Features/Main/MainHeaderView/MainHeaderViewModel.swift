@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemAssets
 
 final class MainHeaderViewModel: ObservableObject {
     let isUserWalletLocked: Bool

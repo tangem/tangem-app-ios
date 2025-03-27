@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct MarketsRatingHeaderView: View {
     @ObservedObject var viewModel: MarketsRatingHeaderViewModel

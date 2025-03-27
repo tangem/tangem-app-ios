@@ -9,11 +9,29 @@
 import TangemFoundation
 
 class CommonUnspentOutputManager {
-    private var outputs: ThreadSafeContainer<[Data: [UnspentOutput]]> = [:]
+    private var outputs: ThreadSafeContainer<[UTXOLockingScript: [UnspentOutput]]> = [:]
+
+    private let address: any Address
+    private let lockingScriptBuilder: LockingScriptBuilder
+
+    init(
+        address: any Address,
+        lockingScriptBuilder: LockingScriptBuilder
+    ) {
+        self.address = address
+        self.lockingScriptBuilder = lockingScriptBuilder
+    }
 }
 
+// MARK: - UnspentOutputManager
+
 extension CommonUnspentOutputManager: UnspentOutputManager {
-    func update(outputs: [UnspentOutput], for script: Data) {
+    func update(outputs: [UnspentOutput], for address: String) throws {
+        let script = try lockingScriptBuilder.lockingScript(for: address)
+        self.outputs.mutate { $0[script] = outputs }
+    }
+
+    func update(outputs: [UnspentOutput], for script: UTXOLockingScript) {
         self.outputs.mutate { $0[script] = outputs }
     }
 
@@ -23,27 +41,11 @@ extension CommonUnspentOutputManager: UnspentOutputManager {
         }
     }
 
-    func outputs(for amount: UInt64, script: Data) throws -> [UnspentOutput] {
-        guard let outputs = outputs[script] else {
-            BSDKLogger.error(error: "No outputs for \(script)")
-            throw Errors.noOutputs
-        }
-
-        // [REDACTED_TODO_COMMENT]
-        // [REDACTED_INFO]
-        return outputs
+    func confirmedBalance() -> UInt64 {
+        outputs.read().flatMap { $0.value }.filter { $0.isConfirmed }.reduce(0) { $0 + $1.amount }
     }
-}
 
-extension CommonUnspentOutputManager {
-    enum Errors: LocalizedError {
-        case noOutputs
-
-        var errorDescription: String? {
-            switch self {
-            case .noOutputs:
-                return "No outputs"
-            }
-        }
+    func unconfirmedBalance() -> UInt64 {
+        outputs.read().flatMap { $0.value }.filter { !$0.isConfirmed }.reduce(0) { $0 + $1.amount }
     }
 }

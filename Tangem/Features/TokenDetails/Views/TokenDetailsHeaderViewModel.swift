@@ -6,15 +6,15 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
+import TangemAssets
 
 class TokenDetailsHeaderViewModel {
     let tokenName: String
     let imageURL: URL?
     let customTokenColor: Color?
     var networkPrefix: String = ""
-    var networkIconName: String?
+    var networkIconAsset: ImageType?
     var networkSuffix: String?
 
     private let tokenItem: TokenItem
@@ -43,7 +43,7 @@ class TokenDetailsHeaderViewModel {
 
     private func prepareCoinComponents() {
         networkPrefix = Localization.commonMainNetwork
-        networkIconName = nil
+        networkIconAsset = nil
         networkSuffix = nil
     }
 
@@ -67,6 +67,6 @@ class TokenDetailsHeaderViewModel {
             networkSuffix = nil
         }
 
-        networkIconName = tokenItem.blockchain.iconNameFilled
+        networkIconAsset = tokenItem.blockchain.iconAssetFilled
     }
 }

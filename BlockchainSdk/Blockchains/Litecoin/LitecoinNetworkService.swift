@@ -9,13 +9,15 @@
 import Foundation
 import Combine
 
-class LitecoinNetworkService: BitcoinNetworkService {
-    override func getFee() -> AnyPublisher<BitcoinFee, Error> {
-        providerPublisher { provider in
-            provider.getFee()
-                .retry(2)
-                .map { BitcoinFee(minimalSatoshiPerByte: 1, normalSatoshiPerByte: $0.normalSatoshiPerByte, prioritySatoshiPerByte: $0.prioritySatoshiPerByte) }
-                .eraseToAnyPublisher()
+class LitecoinNetworkService: MultiUTXONetworkProvider {
+    override func getFee() -> AnyPublisher<UTXOFee, any Error> {
+        super.getFee().map {
+            UTXOFee(
+                slowSatoshiPerByte: 1,
+                marketSatoshiPerByte: $0.marketSatoshiPerByte,
+                prioritySatoshiPerByte: $0.prioritySatoshiPerByte
+            )
         }
+        .eraseToAnyPublisher()
     }
 }

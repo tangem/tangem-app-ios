@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct VisaWalletMainContentView: View {
     @ObservedObject var viewModel: VisaWalletMainContentViewModel
@@ -52,7 +53,7 @@ struct VisaWalletMainContentView: View {
             Button(action: viewModel.openBalancesAndLimits, label: {
                 HStack {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Balances & Limits")
+                        Text(Localization.visaMainBalancesAndLimits)
                             .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
                         HStack(alignment: .firstTextBaseline, spacing: 4) {

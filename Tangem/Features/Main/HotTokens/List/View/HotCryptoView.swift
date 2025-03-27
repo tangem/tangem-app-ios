@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct HotCryptoView: View {
     private let priceUtility = HotCryptoPriceUtility()

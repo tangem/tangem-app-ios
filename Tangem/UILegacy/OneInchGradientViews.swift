@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 private struct OneInchGradientView: View {
     let startColor: Color
