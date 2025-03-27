@@ -9,6 +9,7 @@
 import Combine
 import SwiftUI
 import BlockchainSdk
+import TangemAssets
 
 final class AddCustomTokenNetworksListViewModel: ObservableObject {
     // MARK: - ViewState
@@ -23,7 +24,7 @@ final class AddCustomTokenNetworksListViewModel: ObservableObject {
         itemViewModels = blockchains.map { blockchain in
             AddCustomTokenNetworksListItemViewModel(
                 networkId: blockchain.networkId,
-                iconName: blockchain.iconNameFilled,
+                iconAsset: blockchain.iconAssetFilled,
                 networkName: blockchain.displayName,
                 currencySymbol: blockchain.currencySymbol,
                 isSelected: blockchain.networkId == selectedBlockchainNetworkId

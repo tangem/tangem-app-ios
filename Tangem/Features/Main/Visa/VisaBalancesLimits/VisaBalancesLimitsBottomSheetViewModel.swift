@@ -43,16 +43,22 @@ class VisaBalancesLimitsBottomSheetViewModel: ObservableObject, Identifiable {
 
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "dd.MM.YYYY"
-        availabilityDescription = "Available till \(dateFormatter.string(from: limit.actualExpirationDate))"
+        availabilityDescription = Localization.visaMainAvailableTillDate(dateFormatter.string(from: limit.actualExpirationDate))
         remainingOTPAmount = formatter.formatCryptoBalance(limit.remainingOTPAmount, currencyCode: currencySymbol, formattingOptions: balanceFormattingOptions)
         remainingNoOtpAmount = formatter.formatCryptoBalance(limit.remainingNoOTPAmount, currencyCode: currencySymbol, formattingOptions: balanceFormattingOptions)
     }
 
     func openBalancesInfo() {
-        alert = AlertBinder(title: "", message: "Available balance is actual funds available, considering pending transactions, blocked amounts, and debit balance to prevent overdrafts.")
+        alert = AlertBinder(title: "", message: Localization.visaMainAvailableBalanceAlertMessage)
     }
 
     func openLimitsInfo() {
-        alert = AlertBinder(title: "", message: "Limits are needed to control costs, improve security, manage risk. You can spend \(remainingOTPAmount) during the period for card payments in shops and \(remainingNoOtpAmount) for other transactions, e.g. subscriptions or debts.")
+        alert = AlertBinder(
+            title: "",
+            message: Localization.visaMainLimitsAlertDescriptionMessage(
+                remainingOTPAmount,
+                remainingNoOtpAmount
+            )
+        )
     }
 }
