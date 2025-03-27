@@ -19,11 +19,7 @@ struct DogecoinWalletAssembly: WalletManagerAssembly {
             bip: .bip44
         )
 
-        let unspentOutputManager = CommonUnspentOutputManager(
-            address: input.wallet.defaultAddress,
-            lockingScriptBuilder: .dogecoin()
-        )
-
+        let unspentOutputManager: UnspentOutputManager = .dogecoin(address: input.wallet.defaultAddress)
         let txBuilder = BitcoinTransactionBuilder(
             bitcoinManager: bitcoinManager,
             unspentOutputManager: unspentOutputManager,

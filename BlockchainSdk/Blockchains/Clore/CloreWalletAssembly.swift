@@ -21,10 +21,7 @@ struct CloreWalletAssembly: WalletManagerAssembly {
             bip: .bip44
         )
 
-        let unspentOutputManager = CommonUnspentOutputManager(
-            address: input.wallet.defaultAddress,
-            lockingScriptBuilder: .clore()
-        )
+        let unspentOutputManager: UnspentOutputManager = .clore(address: input.wallet.defaultAddress)
         let txBuilder = BitcoinTransactionBuilder(
             bitcoinManager: bitcoinManager,
             unspentOutputManager: unspentOutputManager,
