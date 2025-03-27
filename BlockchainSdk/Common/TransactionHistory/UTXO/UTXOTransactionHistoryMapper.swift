@@ -43,7 +43,7 @@ extension UTXOTransactionHistoryMapper: TransactionHistoryMapper {
             throw TransactionHistoryMapperError.notFound("Transaction.fees")
         }
 
-        let isOutgoing = transaction.compat.vin.contains(where: { $0.addresses.contains(walletAddress) })
+        let isOutgoing = transaction.compat.vin.contains(where: { $0.addresses?.contains(walletAddress) == true })
         let status: TransactionRecord.TransactionStatus = transaction.confirmations > 0 ? .confirmed : .unconfirmed
         let fee = feeSatoshi / decimalValue
 
@@ -64,7 +64,7 @@ extension UTXOTransactionHistoryMapper: TransactionHistoryMapper {
         let spenders: [TransactionRecord.Source] = vin.reduce([]) { result, input in
             guard let value = input.value,
                   let amountSatoshi = Decimal(stringValue: value),
-                  let address = input.addresses.first else {
+                  let address = input.addresses?.first else {
                 return result
             }
 
@@ -82,7 +82,7 @@ extension UTXOTransactionHistoryMapper: TransactionHistoryMapper {
     func destinationType(vout: [BlockBookAddressResponse.Vout]) -> TransactionRecord.DestinationType {
         let destinations: [TransactionRecord.Destination] = vout.reduce([]) { result, output in
             guard let amountSatoshi = Decimal(stringValue: output.value),
-                  let address = output.addresses.first else {
+                  let address = output.addresses?.first else {
                 return result
             }
 
