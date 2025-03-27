@@ -480,6 +480,12 @@
 "markets_token_details_volume" = "取引量";
 "markets_tooltip_message" = "これをドラッグするか、検索窓をタップして、マーケットから直接トークンを追加します";
 "markets_tooltip_title" = "トークンを追加";
+"nft_collections_empty_description" = "ウォレットに送信されたNFTがここに表示されます。";
+"nft_collections_empty_title" = "コレクションはまだありません";
+"nft_collections_receive" = "NFTを受け取る";
+"nft_collections_title" = "NFTコレクション";
+"nft_collections_warning_subtitle" = "一部のデータが読み込まれない場合があります";
+"nft_collections_warning_title" = "一時的な読み込みの問題";
 "nft_wallet_count" = "%1$liコレクションの%2$liNFT";
 "nft_wallet_receive_nft" = "ここをタップして最初のNFTを受け取ります";
 "nft_wallet_title" = "NFTコレクション";
@@ -562,6 +568,7 @@
 "onboarding_top_up_body_no_account_error" = "始めるには、ウォレットに%1$@ %2$@以上入金するだけです";
 "onboarding_top_up_button_but_crypto" = "暗号資産を購入する";
 "onboarding_top_up_button_show_wallet_address" = "ウォレットのアドレスを表示する";
+"onboarding_top_up_min_create_account_amount" = "始めるには、ウォレットに%1$@ 以上入金するだけです";
 "onboarding_topup_title" = "ウォレットを有効化する";
 "onboarding_twin_exit_warning" = "ツイン化プロセスは部分的に完了しています。現在終了することはできません。";
 "onboarding_twins_interrupt_warning" = "ウォレットの作成プロセスが何らかの理由で中断された場合は、最初からやり直す必要があります。";
@@ -997,6 +1004,7 @@
 "visa_main_button_alert_still_loading" = "Information is still loading, please wait";
 "visa_main_limits_alert_description_message" = "Limits are needed to control costs, improve security, manage risk. You can spend %1$@ during the period for card payments in shops and %2$@ for other transactions, e.g. subscriptions or debts.";
 "visa_onboarding_access_code_description" = "The access code will be used manage your payment account and protect it from unauthorized access";
+"visa_onboarding_access_code_navigation_title" = "アクセスコード";
 "visa_onboarding_account_activation_navigation_title" = "Account activation";
 "visa_onboarding_approve_wallet_selector_notification_message" = "Please choose the wallet you started the registration process with to sign the transaction for creating your account on the Blockchain";
 "visa_onboarding_cancel_activation" = "Cancel Activation";
@@ -1008,6 +1016,7 @@
 "visa_onboarding_pin_code_description" = "Set up a 4-digit code. It will be used for payments.";
 "visa_onboarding_pin_code_navigation_title" = "PIN code";
 "visa_onboarding_pin_code_title" = "Create PIN Code";
+"visa_onboarding_pin_validation_error_message" = "無効な暗証番号：連続や繰り返しを避けてください";
 "visa_onboarding_success_screen_description" = "You're good to go!";
 "visa_onboarding_tangem_approve_description" = "Prepare the Tangem card and tap to approve";
 "visa_onboarding_tangem_approve_title" = "Prepare Tangem Wallet";
@@ -1172,6 +1181,13 @@
 "warning_system_update_title" = "システムアップデートが可能です";
 "warning_testnet_card_message" = "これはテストネットカードです。取引処理はできませんので、テストおよび開発目的でのみご利用ください。";
 "warning_testnet_card_title" = "テスト目的のみ";
+"wc_connections" = "接続";
+"wc_disconnect_all" = "すべての接続を解除する";
+"wc_disconnect_all_alert_desc" = "すべてのdAppsの接続解除に関するテキスト";
+"wc_disconnect_all_alert_title" = "すべてのdAppを接続解除する";
+"wc_new_connection" = "新しい接続";
+"wc_no_sessions_desc" = "ウォレットを別のdAppに接続する";
+"wc_no_sessions_title" = "セッションなし";
 "welcome_interrupted_backup_alert_discard" = "破棄";
 "welcome_interrupted_backup_alert_message" = "バックアップが中断されました。再開しますか?";
 "welcome_interrupted_backup_alert_resume" = "はい、再開します";
