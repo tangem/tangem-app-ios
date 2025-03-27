@@ -106,14 +106,6 @@ class CommonWalletModel {
     }
 
     private func bind() {
-        walletManager.statePublisher
-            .filter { !$0.isInitialState }
-            .receive(on: updateQueue)
-            .sink { [weak self] newState in
-                self?.walletManagerDidUpdate(newState)
-            }
-            .store(in: &bag)
-
         quotesRepository
             .quotesPublisher
             .dropFirst() // we need to drop first value because it's an empty dictionary
@@ -367,7 +359,6 @@ extension CommonWalletModel: WalletModelUpdater {
     }
 
     /// Do not use with flatMap.
-    @discardableResult
     func update(silent: Bool) -> AnyPublisher<WalletModelState, Never> {
         // If updating already in process return updating Publisher
         if let updatePublisher = updatePublisher {
@@ -388,14 +379,16 @@ extension CommonWalletModel: WalletModelUpdater {
 
         updateWalletModelSubscription = walletManager
             .updatePublisher()
-            .combineLatest(loadQuotes(), updateStakingManagerState()) { state, _, _ in state }
+            .combineLatest(loadQuotes(), updateStakingManagerState())
+            .combineLatest(walletManager.statePublisher) { $1 }
             .receive(on: updateQueue)
-            .sink { [weak self] newState in
-                guard let self else { return }
+            .withWeakCaptureOf(self)
+            .sink { walletModel, newState in
+                walletModel.walletManagerDidUpdate(newState)
 
-                updatePublisher?.send(mapState(newState))
-                updatePublisher?.send(completion: .finished)
-                updatePublisher = nil
+                walletModel.updatePublisher?.send(walletModel.mapState(newState))
+                walletModel.updatePublisher?.send(completion: .finished)
+                walletModel.updatePublisher = nil
             }
 
         return newUpdatePublisher.eraseToAnyPublisher()

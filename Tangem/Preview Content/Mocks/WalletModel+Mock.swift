@@ -28,7 +28,7 @@ class EthereumWalletManagerMock: WalletManager {
 
     func update() {}
 
-    func updatePublisher() -> AnyPublisher<BlockchainSdk.WalletManagerState, Never> {
+    func updatePublisher() -> AnyPublisher<Void, Never> {
         Empty().eraseToAnyPublisher()
     }
 
@@ -37,8 +37,6 @@ class EthereumWalletManagerMock: WalletManager {
     func removeToken(_ token: BlockchainSdk.Token) {}
 
     func addToken(_ token: BlockchainSdk.Token) {}
-
-    func addTokens(_ tokens: [BlockchainSdk.Token]) {}
 
     var wallet: BlockchainSdk.Wallet = .init(
         blockchain: .ethereum(testnet: false),
