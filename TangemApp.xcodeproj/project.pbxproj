@@ -17869,6 +17869,7 @@
 				B6DDDE7F2CF39C69008DEA94 /* XCRemoteSwiftPackageReference "analytics-connector-ios" */,
 				B62C24852CF48327003377F1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				B69FC9072CF67D9300A5C51D /* XCRemoteSwiftPackageReference "GDPerformanceView-Swift" */,
+				B6DF8E182D94AEB000A2E379 /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
 			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
@@ -27468,6 +27469,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 1.0.0;
+			};
+		};
+		B6DF8E182D94AEB000A2E379 /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/weichsel/ZIPFoundation.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.9.18;
 			};
 		};
 		B6F525902B6C05210079ADD1 /* XCRemoteSwiftPackageReference "wallet-core-binaries-ios" */ = {
