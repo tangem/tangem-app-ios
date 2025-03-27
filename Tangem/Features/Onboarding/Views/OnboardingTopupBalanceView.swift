@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct OnboardingTopupBalanceUpdater: View {
     let balance: String

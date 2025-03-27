@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct InformationHiddenBalancesView: View {
     @ObservedObject private var viewModel: InformationHiddenBalancesViewModel

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct ActionButtonsBuyCoordinatorView: View {
     @ObservedObject var coordinator: ActionButtonsBuyCoordinator
