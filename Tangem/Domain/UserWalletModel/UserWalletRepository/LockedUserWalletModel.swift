@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemAssets
 import TangemSdk
 
 class LockedUserWalletModel: UserWalletModel {

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct LoadableTokenBalanceView: View {
     let state: State

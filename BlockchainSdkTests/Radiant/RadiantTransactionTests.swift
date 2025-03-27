@@ -58,53 +58,53 @@ final class RadiantTests {
      */
     @Test
     func signRawTransaction() throws {
-        let addressAdapter = BitcoinWalletCoreAddressAdapter(coin: .bitcoinCash)
+        let addressAdapter = BitcoinLegacyAddressService(networkParams: BitcoinCashNetworkParams())
         let address = try addressAdapter.makeAddress(
             for: Wallet.PublicKey(seedKey: publicKey.data, derivationType: .none),
-            by: .p2pkh
+            with: .default
         )
 
-        #expect("166w5AGDyvMkJqfDAtLbTJeoQh6FqYCfLQ" == address.description)
-
-        let txBuilder = try RadiantTransactionBuilder(
-            walletPublicKey: publicKey.data,
-            decimalValue: blockchain.decimalValue
-        )
+        #expect("166w5AGDyvMkJqfDAtLbTJeoQh6FqYCfLQ" == address.value)
 
         let utxo = [
-            ElectrumUTXO(
-                position: 1,
-                hash: "4594c0fb5c5a8b4b2de2249fe704458e0e6e91e259258ca92d7c4e1067421e37",
-                value: 68791375,
-                height: 203208
+            UnspentOutput(
+                blockId: 203208,
+                txId: "4594c0fb5c5a8b4b2de2249fe704458e0e6e91e259258ca92d7c4e1067421e37",
+                index: 1,
+                amount: 68791375
             ),
-            ElectrumUTXO(
-                position: 0,
-                hash: "2ae842e688ce5e74390de3e9a4754d3f7438266ab0526ff880b9188bb4ea0c28",
-                value: 100000000,
-                height: 203238
+            UnspentOutput(
+                blockId: 203238,
+                txId: "2ae842e688ce5e74390de3e9a4754d3f7438266ab0526ff880b9188bb4ea0c28",
+                index: 0,
+                amount: 100000000
             ),
-            ElectrumUTXO(
-                position: 0,
-                hash: "e2ea7fc29ca0dc4924f51f77918c8aff0c00fbb373a25509e928f78bf088cfcf",
-                value: 10000000,
-                height: 203428
+            UnspentOutput(
+                blockId: 203428,
+                txId: "e2ea7fc29ca0dc4924f51f77918c8aff0c00fbb373a25509e928f78bf088cfcf",
+                index: 0,
+                amount: 10000000
             ),
-            ElectrumUTXO(
-                position: 0,
-                hash: "aba3aefb04a43dc026adc35972e4a20f8bdacd48074c143372f1b99cfb6bf8bc",
-                value: 10000000,
-                height: 203439
+            UnspentOutput(
+                blockId: 203439,
+                txId: "aba3aefb04a43dc026adc35972e4a20f8bdacd48074c143372f1b99cfb6bf8bc",
+                index: 0,
+                amount: 10000000
             ),
-            ElectrumUTXO(
-                position: 0,
-                hash: "ffaae960d8107cf4043dc32980c9634c9ff78fc69b2c6eb9b9c69a04a52ed179",
-                value: 10000000,
-                height: 203500
+            UnspentOutput(
+                blockId: 203500,
+                txId: "ffaae960d8107cf4043dc32980c9634c9ff78fc69b2c6eb9b9c69a04a52ed179",
+                index: 0,
+                amount: 10000000
             ),
         ]
-
-        txBuilder.update(utxo: utxo)
+        let unspentOutputManager = CommonUnspentOutputManager(address: address, lockingScriptBuilder: .radiant())
+        unspentOutputManager.update(outputs: utxo, for: address)
+        let txBuilder = try RadiantTransactionBuilder(
+            walletPublicKey: publicKey.data,
+            unspentOutputManager: unspentOutputManager,
+            decimalValue: blockchain.decimalValue
+        )
 
         let amounValueDecimal = Decimal(1000) / blockchain.decimalValue
 
@@ -114,9 +114,9 @@ final class RadiantTests {
         let transaction = Transaction(
             amount: amountValue,
             fee: Fee(feeValue),
-            sourceAddress: address.description,
+            sourceAddress: address.value,
             destinationAddress: "1vr9gJkNzTHv8DEQb4QBxAnQCxgzkFkbf",
-            changeAddress: address.description
+            changeAddress: address.value
         )
 
         let hashesForSign = try txBuilder.buildForSign(transaction: transaction)
