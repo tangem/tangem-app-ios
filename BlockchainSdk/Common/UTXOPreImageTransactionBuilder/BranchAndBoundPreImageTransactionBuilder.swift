@@ -20,14 +20,9 @@ struct BranchAndBoundPreImageTransactionBuilder {
     private typealias Error = UTXOPreImageTransactionBuilderError
     private typealias FeeValueCalculation = (_ inputs: [Input], _ outputs: [Output]) -> (size: Int, fee: UInt64)
 
-    private let dustThreshold: UInt64
     private let calculator: UTXOTransactionSizeCalculator
 
-    init(
-        dustThreshold: UInt64 = 10_000,
-        calculator: UTXOTransactionSizeCalculator = .common
-    ) {
-        self.dustThreshold = dustThreshold
+    init(calculator: UTXOTransactionSizeCalculator) {
         self.calculator = calculator
     }
 }
@@ -38,6 +33,11 @@ extension BranchAndBoundPreImageTransactionBuilder: UTXOPreImageTransactionBuild
     func preImage(outputs: [ScriptUnspentOutput], changeScript: UTXOScriptType, destination: UTXOPreImageDestination, fee: UTXOPreImageTransactionBuilderFee) throws -> UTXOPreImageTransaction {
         guard destination.amount > 0 else {
             throw Error.wrongAmount
+        }
+
+        let dustThreshold = calculator.dust(type: destination.script)
+        guard destination.amount > dustThreshold else {
+            throw Error.dustAmount
         }
 
         guard !outputs.isEmpty else {
@@ -94,6 +94,7 @@ extension BranchAndBoundPreImageTransactionBuilder {
 
                 // If change less then dust just include it into destination value
                 // and get rid of the change output
+                let dustThreshold = calculator.dust(type: context.changeScript)
                 if change < dustThreshold {
                     // Only destination without change
                     let (size, fee) = context.feeValueCalculation(selected, [context.destination.script])
