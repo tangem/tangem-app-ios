@@ -9,9 +9,6 @@
 import Foundation
 
 protocol UTXOTransactionSizeCalculator {
+    func dust(type: UTXOScriptType) -> Int
     func transactionSize(inputs: [ScriptUnspentOutput], outputs: [UTXOScriptType]) -> Int
-}
-
-extension UTXOTransactionSizeCalculator where Self == CommonUTXOTransactionSizeCalculator {
-    static var common: Self { .init() }
 }
