@@ -27,13 +27,14 @@ class CommonTokenBalancesStorage {
     private typealias Balances = [String: [String: [String: CachedBalance]]]
 
     private let storage = CachesDirectoryStorage(file: .cachedBalances)
-    private let queue = DispatchQueue(label: "com.tangem.TokenBalancesStorage", attributes: .concurrent)
-    private let balances: CurrentValueSubject<Balances, Never> = .init([:])
+    private let balances: CurrentValueSubject<Balances, Never>
     private var bag: Set<AnyCancellable> = []
 
     init() {
+        let cachedBalances: Balances? = try? storage.value()
+        balances = .init(cachedBalances ?? [:])
+
         bind()
-        loadBalances()
     }
 }
 
@@ -41,19 +42,15 @@ class CommonTokenBalancesStorage {
 
 extension CommonTokenBalancesStorage: TokenBalancesStorage {
     func store(balance: CachedBalance, type: CachedBalanceType, id: WalletModelId, userWalletId: UserWalletId) {
-        queue.async(flags: .barrier) {
-            var balancesForUserWallet = self.balances.value[userWalletId.stringValue, default: [:]]
-            var balancesForWalletModel = balancesForUserWallet[id.id, default: [:]]
-            balancesForWalletModel.updateValue(balance, forKey: type.rawValue)
-            balancesForUserWallet.updateValue(balancesForWalletModel, forKey: id.id)
-            self.balances.value.updateValue(balancesForUserWallet, forKey: userWalletId.stringValue)
-        }
+        var balancesForUserWallet = balances.value[userWalletId.stringValue, default: [:]]
+        var balancesForWalletModel = balancesForUserWallet[id.id, default: [:]]
+        balancesForWalletModel.updateValue(balance, forKey: type.rawValue)
+        balancesForUserWallet.updateValue(balancesForWalletModel, forKey: id.id)
+        balances.value.updateValue(balancesForUserWallet, forKey: userWalletId.stringValue)
     }
 
     func balance(for id: WalletModelId, userWalletId: UserWalletId, type: CachedBalanceType) -> CachedBalance? {
-        queue.sync {
-            balances.value[userWalletId.stringValue]?[id.id]?[type.rawValue]
-        }
+        balances.value[userWalletId.stringValue]?[id.id]?[type.rawValue]
     }
 }
 
@@ -69,15 +66,6 @@ private extension CommonTokenBalancesStorage {
             .withWeakCaptureOf(self)
             .receiveValue { $0.save(balances: $1) }
             .store(in: &bag)
-    }
-
-    func loadBalances() {
-        do {
-            try balances.send(storage.value())
-            AppLogger.info(self, "Load successfully")
-        } catch {
-            AppLogger.error(self, "Load error", error: error)
-        }
     }
 
     private func save(balances: Balances) {
