@@ -7,6 +7,7 @@
 //
 
 import Combine
+import TangemAssets
 
 protocol MainHeaderSupplementInfoProvider: AnyObject {
     var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> { get }

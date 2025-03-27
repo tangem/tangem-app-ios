@@ -6,6 +6,8 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import TangemAssets
+
 enum OnrampNotificationEvent: Hashable {
     case refreshRequired(title: String, message: String)
 }

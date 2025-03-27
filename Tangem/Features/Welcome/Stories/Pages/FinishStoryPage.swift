@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct FinishStoryPage: View {
     var progress: Double

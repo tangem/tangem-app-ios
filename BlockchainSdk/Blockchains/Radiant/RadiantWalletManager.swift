@@ -14,12 +14,19 @@ final class RadiantWalletManager: BaseManager {
     // MARK: - Private Properties
 
     private let transactionBuilder: RadiantTransactionBuilder
-    private let networkService: RadiantNetworkService
+    private let unspentOutputManager: UnspentOutputManager
+    private let networkService: UTXONetworkProvider
 
     // MARK: - Init
 
-    init(wallet: Wallet, transactionBuilder: RadiantTransactionBuilder, networkService: RadiantNetworkService) throws {
+    init(
+        wallet: Wallet,
+        transactionBuilder: RadiantTransactionBuilder,
+        unspentOutputManager: UnspentOutputManager,
+        networkService: UTXONetworkProvider
+    ) {
         self.transactionBuilder = transactionBuilder
+        self.unspentOutputManager = unspentOutputManager
         self.networkService = networkService
         super.init(wallet: wallet)
     }
@@ -27,10 +34,7 @@ final class RadiantWalletManager: BaseManager {
     // MARK: - Implementation
 
     override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        let accountInfoPublisher = networkService
-            .getInfo(address: wallet.address)
-
-        cancellable = accountInfoPublisher
+        cancellable = networkService.getInfo(address: wallet.address)
             .withWeakCaptureOf(self)
             .sink(receiveCompletion: { [weak self] result in
                 switch result {
@@ -49,16 +53,25 @@ final class RadiantWalletManager: BaseManager {
 // MARK: - Private Implementation
 
 private extension RadiantWalletManager {
-    func updateWallet(with addressInfo: RadiantAddressInfo) {
-        let coinBalanceValue = addressInfo.balance / wallet.blockchain.decimalValue
-
-        // Reset pending transaction
-        if coinBalanceValue != wallet.amounts[.coin]?.value {
-            wallet.clearPendingTransaction()
+    func updateWallet(with response: UTXOResponse) {
+        guard let address = wallet.defaultAddress as? LockingScriptAddress else {
+            assertionFailure("Radiant have to use LockingScriptAddress as address")
+            return
         }
 
+        unspentOutputManager.update(outputs: response.outputs, for: address)
+        let coinBalanceValue = Decimal(unspentOutputManager.confirmedBalance()) / wallet.blockchain.decimalValue
         wallet.add(coinValue: coinBalanceValue)
-        transactionBuilder.update(utxo: addressInfo.outputs)
+
+        let pending = response.pending.map {
+            PendingTransactionRecordMapper().mapToPendingTransactionRecord(
+                record: $0,
+                blockchain: wallet.blockchain,
+                address: address.value
+            )
+        }
+
+        wallet.updatePendingTransaction(pending)
     }
 
     func sendViaCompileTransaction(
@@ -77,21 +90,20 @@ private extension RadiantWalletManager {
             .sign(hashes: hashesForSign, walletPublicKey: wallet.publicKey)
             .withWeakCaptureOf(self)
             .tryMap { walletManager, signatures in
-                try walletManager.transactionBuilder.buildForSend(transaction: transaction, signatures: signatures)
+                try walletManager.transactionBuilder.buildForSend(transaction: transaction, signatures: signatures).hexString
             }
             .withWeakCaptureOf(self)
-            .flatMap { walletManager, rawTransactionData -> AnyPublisher<String, Error> in
-                return walletManager.networkService
-                    .sendTransaction(data: rawTransactionData)
-                    .mapSendError(tx: rawTransactionData.hexString.lowercased())
-                    .eraseToAnyPublisher()
+            .flatMap { walletManager, rawTransactionHex in
+                walletManager.networkService
+                    .send(transaction: rawTransactionHex)
+                    .mapSendError(tx: rawTransactionHex.lowercased())
             }
             .withWeakCaptureOf(self)
-            .map { walletManager, txId -> TransactionSendResult in
+            .map { walletManager, result -> TransactionSendResult in
                 let mapper = PendingTransactionRecordMapper()
-                let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: txId)
+                let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: result.hash)
                 walletManager.wallet.addPendingTransaction(record)
-                return TransactionSendResult(hash: txId)
+                return result
             }
             .eraseSendError()
             .eraseToAnyPublisher()
@@ -125,11 +137,11 @@ extension RadiantWalletManager: WalletManager {
 
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
         return networkService
-            .estimatedFee()
+            .getFee()
             .withWeakCaptureOf(self)
-            .tryMap { walletManager, estimatedFeeDecimalValue -> [Fee] in
+            .tryMap { walletManager, fee -> [Fee] in
                 let dummyTransactionFee: Fee = .init(
-                    .init(with: walletManager.wallet.blockchain, value: estimatedFeeDecimalValue.minimalSatoshiPerByte)
+                    .init(with: walletManager.wallet.blockchain, value: fee.slowSatoshiPerByte)
                 )
 
                 let dummyTransaction = Transaction(
@@ -142,9 +154,9 @@ extension RadiantWalletManager: WalletManager {
 
                 let estimatedSize = try walletManager.transactionBuilder.estimateTransactionSize(transaction: dummyTransaction)
 
-                let minimalFee = walletManager.calculateFee(for: estimatedFeeDecimalValue.minimalSatoshiPerByte, for: estimatedSize)
-                let normalFee = walletManager.calculateFee(for: estimatedFeeDecimalValue.normalSatoshiPerByte, for: estimatedSize)
-                let priorityFee = walletManager.calculateFee(for: estimatedFeeDecimalValue.prioritySatoshiPerByte, for: estimatedSize)
+                let minimalFee = walletManager.calculateFee(for: fee.slowSatoshiPerByte, for: estimatedSize)
+                let normalFee = walletManager.calculateFee(for: fee.marketSatoshiPerByte, for: estimatedSize)
+                let priorityFee = walletManager.calculateFee(for: fee.prioritySatoshiPerByte, for: estimatedSize)
 
                 return [
                     minimalFee,

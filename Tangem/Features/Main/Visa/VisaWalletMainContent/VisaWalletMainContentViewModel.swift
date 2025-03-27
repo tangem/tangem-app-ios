@@ -208,7 +208,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
 
         let remainingTimeSeconds = Date().distance(to: currentLimit.actualExpirationDate)
         let remainingDays = Int(remainingTimeSeconds / 3600 / 24)
-        numberOfDaysLimitText = "available for \(remainingDays) day(s)"
+        numberOfDaysLimitText = Localization.visaLimitsAvailableForDaysTitle(remainingDays)
     }
 
     private func copyPaymentAccountAddress() {
@@ -386,11 +386,11 @@ private extension VisaWalletMainContentViewModel {
         var errorDescription: String? {
             switch self {
             case .infoIsLoading:
-                return "Information is still loading, please wait"
+                return Localization.visaMainButtonAlertStillLoading
             case .missingTokenInfo:
-                return "Unable to load information about"
+                return Localization.visaMainButtonAlertMissingTokenInfo
             case .missingPaymentAccountInfo:
-                return "Missing Payment account information. Please contact support"
+                return Localization.visaMainButtonAlertMissingPaymentAccountInfoMessage
             }
         }
     }
