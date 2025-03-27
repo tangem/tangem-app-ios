@@ -109,12 +109,12 @@ private extension EthereumTransactionHistoryMapper {
         from transaction: BlockBookAddressResponse.Transaction,
         walletAddress: String
     ) -> TransactionInfo? {
-        guard let vin = transaction.compat.vin.first, let sourceAddress = vin.addresses.first else {
+        guard let vin = transaction.compat.vin.first, let sourceAddress = vin.addresses?.first else {
             BSDKLogger.error(error: "Source information in transaction \(transaction) not found")
             return nil
         }
 
-        guard let vout = transaction.compat.vout.first, let destinationAddress = vout.addresses.first else {
+        guard let vout = transaction.compat.vout.first, let destinationAddress = vout.addresses?.first else {
             BSDKLogger.error(error: "Destination information in transaction \(transaction) not found")
             return nil
         }
