@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct SeedPhraseSuggestionsView: View {
     let suggestions: [String]

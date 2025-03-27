@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct VisaOnboardingApproveWalletSelectorView: View {
     @ObservedObject var viewModel: VisaOnboardingApproveWalletSelectorViewModel
@@ -20,7 +21,7 @@ struct VisaOnboardingApproveWalletSelectorView: View {
 
             Spacer()
 
-            MainButton(title: "Continue", action: viewModel.continueAction)
+            MainButton(title: Localization.commonContinue, action: viewModel.continueAction)
                 .padding(.horizontal, 16)
         }
         .padding(.top, 12)
@@ -29,7 +30,7 @@ struct VisaOnboardingApproveWalletSelectorView: View {
 
     private var walletList: some View {
         VStack(spacing: 10) {
-            Text("Choose wallet")
+            Text(Localization.visaOnboardingWalletListHeader)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
             ForEach(VisaOnboardingApproveWalletSelectorItemView.Option.allCases) { option in

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct MarketsSkeletonItemView: View {
     private let iconSize = CGSize(bothDimensions: 36)

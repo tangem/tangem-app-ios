@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct AddCustomTokenView: View {
     @ObservedObject var viewModel: AddCustomTokenViewModel

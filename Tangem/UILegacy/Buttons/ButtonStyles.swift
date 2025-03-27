@@ -6,8 +6,8 @@
 //  Copyright © 2020 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
+import TangemAssets
 
 enum ButtonLayout {
     case small
