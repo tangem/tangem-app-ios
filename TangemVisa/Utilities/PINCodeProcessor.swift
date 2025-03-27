@@ -109,7 +109,7 @@ extension PaymentologyPINCodeProcessor: PINCodeProcessor {
 }
 
 extension PaymentologyPINCodeProcessor {
-    enum PaymentologyError: String, LocalizedError {
+    enum PaymentologyError {
         case invalidSessionKeyFormat
         case invalidRSAKeyFormat
         case failedToCreateRSAKey
