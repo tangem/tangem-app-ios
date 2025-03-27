@@ -12,10 +12,12 @@ struct BitcoinNetworkParams: UTXONetworkParams {
     let p2pkhPrefix: UInt8 = 0x00
     let p2shPrefix: UInt8 = 0x05
     let bech32Prefix: String = "bc"
+    let dustRelayTxFee = 3000 //  https://github.com/bitcoin/bitcoin/blob/master/src/policy/policy.h#L52
 }
 
 struct BitcoinTestnetNetworkParams: UTXONetworkParams {
     let p2pkhPrefix: UInt8 = 0x6f
     let p2shPrefix: UInt8 = 0xc4
     let bech32Prefix: String = "tb"
+    let dustRelayTxFee = 3000 //  https://github.com/bitcoin/bitcoin/blob/master/src/policy/policy.h#L52
 }

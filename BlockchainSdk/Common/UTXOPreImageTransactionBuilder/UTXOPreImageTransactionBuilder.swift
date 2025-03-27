@@ -39,6 +39,7 @@ struct UTXOPreImageTransaction {
 enum UTXOPreImageTransactionBuilderError: LocalizedError {
     case noOutputs
     case wrongAmount
+    case dustAmount
     case insufficientFunds
     case unableToFindSuitableUTXOs
 }
