@@ -105,8 +105,6 @@ struct OldWalletConnectV2Utils {
                 return nil
             }
 
-            supportedChains.insert(wcBlockchain)
-
             let filteredWallets = walletModelProvider.getModels(with: blockchain.id)
 
             if filteredWallets.isEmpty {
@@ -118,6 +116,8 @@ struct OldWalletConnectV2Utils {
 
                 return nil
             }
+
+            supportedChains.insert(wcBlockchain)
 
             return filteredWallets.compactMap { walletModel in
                 Account("\(wcBlockchain.absoluteString):\(walletModel.defaultAddressString)")
