@@ -19,7 +19,7 @@ extension RavencoinTarget: TargetType {
         case wallet(address: String)
         case utxo(address: String)
         case fees(request: RavencoinDTO.Fee.Request)
-        case transactions(request: RavencoinTransactionHistory.Request)
+        case transactions(request: RavencoinDTO.AddressInfo.Request)
         case transaction(id: String)
         case send(transaction: RavencoinDTO.Send.Request)
     }

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct SegmentedPicker<Option: Hashable & Identifiable>: View {
     @Binding var selectedOption: Option
