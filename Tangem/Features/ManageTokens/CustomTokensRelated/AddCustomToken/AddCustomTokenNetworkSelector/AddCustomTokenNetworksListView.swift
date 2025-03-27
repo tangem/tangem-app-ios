@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct AddCustomTokenNetworksListView: View {
     @ObservedObject var viewModel: AddCustomTokenNetworksListViewModel

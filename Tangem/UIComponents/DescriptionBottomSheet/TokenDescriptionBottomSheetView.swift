@@ -8,6 +8,7 @@
 
 import SwiftUI
 import MarkdownUI
+import TangemAssets
 import TangemUIUtils
 
 struct TokenDescriptionBottomSheetView: View {

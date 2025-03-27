@@ -6,8 +6,8 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
+import TangemAssets
 
 struct OrganizeTokensListItemViewModel: Hashable, Identifiable {
     let id: Identifier
@@ -16,7 +16,7 @@ struct OrganizeTokensListItemViewModel: Hashable, Identifiable {
 
     var imageURL: URL? { tokenIcon.imageURL }
     var customTokenColor: Color? { tokenIcon.customTokenColor }
-    var blockchainIconName: String? { tokenIcon.blockchainIconName }
+    var blockchainIconAsset: ImageType? { tokenIcon.blockchainIconAsset }
     var hasMonochromeIcon: Bool { isNetworkUnreachable || !hasDerivation || isTestnet }
     var isCustom: Bool { tokenIcon.isCustom }
 

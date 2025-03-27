@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct AuthView: View {
     @ObservedObject private var viewModel: AuthViewModel
