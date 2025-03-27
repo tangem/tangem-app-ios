@@ -19,10 +19,7 @@ struct DucatusWalletAssembly: WalletManagerAssembly {
             bip: .bip44
         )
 
-        let unspentOutputManager = CommonUnspentOutputManager(
-            address: input.wallet.defaultAddress,
-            lockingScriptBuilder: .ducatus()
-        )
+        let unspentOutputManager: UnspentOutputManager = .ducatus(address: input.wallet.defaultAddress)
         let txBuilder = BitcoinTransactionBuilder(
             bitcoinManager: bitcoinManager,
             unspentOutputManager: unspentOutputManager,
