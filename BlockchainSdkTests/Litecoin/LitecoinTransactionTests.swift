@@ -43,7 +43,7 @@ struct LitecoinTransactionTests {
         #expect(address != nil)
 
         let bitcoinCoreManager = BitcoinManager(networkParams: networkParams, walletPublicKey: walletPubkey, compressedWalletPublicKey: compressedPubkey, bip: .bip44)
-        let unspentOutputManager = CommonUnspentOutputManager(address: defaultAddress, lockingScriptBuilder: .litecoin())
+        let unspentOutputManager: UnspentOutputManager = .litecoin(address: defaultAddress)
         unspentOutputManager.update(
             outputs: [
                 .init(
