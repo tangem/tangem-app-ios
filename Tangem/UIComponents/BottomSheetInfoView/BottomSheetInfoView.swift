@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct BottomSheetInfoView: View {
     // MARK: - Properties

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct TwinIntroBackgroundView: View {
     let size: CGSize

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct OrganizeTokensListItemView: View {
     let viewModel: OrganizeTokensListItemViewModel
@@ -17,7 +18,7 @@ struct OrganizeTokensListItemView: View {
                 name: viewModel.name,
                 imageURL: viewModel.imageURL,
                 customTokenColor: viewModel.customTokenColor,
-                blockchainIconName: viewModel.blockchainIconName,
+                blockchainIconAsset: viewModel.blockchainIconAsset,
                 hasMonochromeIcon: viewModel.hasMonochromeIcon,
                 isCustom: viewModel.isCustom
             )

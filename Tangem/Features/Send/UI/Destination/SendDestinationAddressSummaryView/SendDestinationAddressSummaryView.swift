@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct SendDestinationAddressSummaryView: View {
     @ObservedObject var addressTextViewHeightModel: AddressTextViewHeightModel

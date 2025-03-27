@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct FeeRowView: View {
     let viewModel: FeeRowViewModel
