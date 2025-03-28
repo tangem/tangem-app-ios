@@ -233,11 +233,12 @@ class ExpressNotificationManager {
         guard !sender.isFeeCurrency else {
             return nil
         }
+        let blockchainIconProvider = NetworkImageProvider()
 
         return .notEnoughFeeForTokenTx(
             mainTokenName: sender.feeTokenItem.blockchain.displayName,
             mainTokenSymbol: sender.feeTokenItem.currencySymbol,
-            blockchainIconAsset: sender.feeTokenItem.blockchain.iconAssetFilled
+            blockchainIconAsset: blockchainIconProvider.provide(by: sender.feeTokenItem.blockchain, filled: true)
         )
     }
 
