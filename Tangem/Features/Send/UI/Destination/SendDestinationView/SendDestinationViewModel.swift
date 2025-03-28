@@ -92,7 +92,6 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
             self?.interactor.update(destination: address, source: .textField)
         } didPasteDestination: { [weak self] address in
             self?._destinationText.send(address)
-            // FIX ME: Call this method with source: .pasteButton to force the step changed
             self?.interactor.update(destination: address, source: .pasteButton)
         }
 
@@ -139,6 +138,7 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
             .receive(on: DispatchQueue.main)
             .sink { viewModel, address in
                 viewModel._destinationText.send(address)
+                viewModel.interactor.update(destination: address, source: .qrCode)
             }
             .store(in: &bag)
 
