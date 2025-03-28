@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import UIKit
+import TangemFoundation
 
 class WalletSelectorItemViewModel: ObservableObject, Identifiable {
     @Published var name: String = ""

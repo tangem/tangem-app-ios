@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct MarketsItemView: View {
     @ObservedObject var viewModel: MarketsItemViewModel

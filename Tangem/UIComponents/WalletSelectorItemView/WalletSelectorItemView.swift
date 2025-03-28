@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct WalletSelectorItemView: View {
     @ObservedObject var viewModel: WalletSelectorItemViewModel
