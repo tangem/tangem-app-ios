@@ -16,7 +16,7 @@ public struct NFTCollection: Hashable, Identifiable {
     public let logoURL: URL?
     public let assets: [NFTAsset]
 
-    init(
+    public init(
         collectionIdentifier: String,
         chain: NFTChain,
         derivationPath: NFTDerivationPath?,
