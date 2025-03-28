@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct TokenListItemLoadingPlaceholderView: View {
     enum Style {
