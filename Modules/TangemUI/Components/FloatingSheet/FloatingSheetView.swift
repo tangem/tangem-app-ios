@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUIUtils
 
 public struct FloatingSheetView<HostContent: View, SheetContent: View>: View {
     @Binding var isPresented: Bool
@@ -36,7 +37,7 @@ public struct FloatingSheetView<HostContent: View, SheetContent: View>: View {
                 sheetContent(proxy)
                     .animation(.floatingSheet, value: isPresented)
             }
-            .modifier(if: configuration.isBackgroundAndSheetSwipeEnabled) {
+            .if(configuration.isBackgroundAndSheetSwipeEnabled) {
                 $0.gesture(verticalSwipeGesture)
             }
         }
@@ -72,7 +73,7 @@ public struct FloatingSheetView<HostContent: View, SheetContent: View>: View {
                 guard configuration.backgroundInteractionBehavior == .tapToDismiss, !isDragging else { return }
                 isPresented = false
             }
-            .modifier(if: configuration.isBackgroundSwipeEnabled) {
+            .if(configuration.isBackgroundSwipeEnabled) {
                 $0.gesture(verticalSwipeGesture)
             }
     }
@@ -97,7 +98,7 @@ public struct FloatingSheetView<HostContent: View, SheetContent: View>: View {
                     .offset(y: verticalDragAmount)
                     .animation(.floatingSheet, value: verticalDragAmount)
                     .animation(.keyboard, value: keyboardHeight)
-                    .modifier(if: configuration.isSheetSwipeEnabled) {
+                    .if(configuration.isSheetSwipeEnabled) {
                         $0.gesture(verticalSwipeGesture)
                     }
             }
