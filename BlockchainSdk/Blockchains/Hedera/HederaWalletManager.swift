@@ -412,29 +412,43 @@ final class HederaWalletManager: BaseManager {
 
     private func getFee(amount: Amount, doesAccountExistPublisher: some Publisher<Bool, Error>) -> AnyPublisher<[Fee], Error> {
         let transferFeeBase: Decimal
+        var tokenCustomFeesPublisher: AnyPublisher<HederaTokenCustomFeesInfo?, Error> = .justWithError(output: nil)
         switch amount.type {
         case .coin:
             transferFeeBase = Constants.cryptoTransferServiceCostInUSD
-        case .token:
+        case .token(let token):
             transferFeeBase = Constants.tokenTransferServiceCostInUSD
+            tokenCustomFeesPublisher = networkService.getTokensCustomFeesInfo(tokenAddress: token.contractAddress)
+                .map(Optional.init)
+                .eraseToAnyPublisher()
         case .reserve, .feeResource:
             return .anyFail(error: WalletError.failedToGetFee)
         }
 
-        return Publishers.CombineLatest(
+        return Publishers.CombineLatest3(
             networkService.getExchangeRate(),
-            doesAccountExistPublisher
+            doesAccountExistPublisher,
+            tokenCustomFeesPublisher
         )
         .withWeakCaptureOf(self)
         .tryMap { walletManager, input in
-            let (exchangeRate, doesAccountExist) = input
-            let feeBase = doesAccountExist ? transferFeeBase : Constants.cryptoCreateServiceCostInUSD
-            let feeValue = exchangeRate.nextHBARPerUSD * feeBase * Constants.maxFeeMultiplier
+            let (exchangeRate, doesAccountExist, tokenCustomFeesInfo) = input
+
+            var feeBase = doesAccountExist ? transferFeeBase : Constants.cryptoCreateServiceCostInUSD
+
+            if tokenCustomFeesInfo?.hasTokenCustomFees == true {
+                feeBase += Constants.customFeeTokenTransferServiceCostInUSD
+            }
+
+            // this goes on UI only, will be deducted later, see transactionBuilder -> buildTransferTransactionForSign
+            let additionalHBARFee = tokenCustomFeesInfo?.additionalHBARFee ?? .zero
+
+            let feeValue = exchangeRate.nextHBARPerUSD * feeBase * Constants.maxFeeMultiplier + additionalHBARFee
             // Hedera fee calculation involves conversion from USD to HBar units, which ultimately results in a loss of precision.
             // Therefore, the fee value is always approximate and rounding of the fee value is mandatory.
             let feeRoundedValue = feeValue.rounded(blockchain: walletManager.wallet.blockchain, roundingMode: .up)
             let feeAmount = Amount(with: walletManager.wallet.blockchain, value: feeRoundedValue)
-            let fee = Fee(feeAmount)
+            let fee = Fee(feeAmount, parameters: HederaFeeParams(additionalHBARFee: additionalHBARFee))
 
             return [fee]
         }
@@ -604,6 +618,7 @@ private extension HederaWalletManager {
         /// https://docs.hedera.com/hedera/networks/mainnet/fees
         static let cryptoTransferServiceCostInUSD = Decimal(stringValue: "0.0001")!
         static let tokenTransferServiceCostInUSD = Decimal(stringValue: "0.001")!
+        static let customFeeTokenTransferServiceCostInUSD = Decimal(stringValue: "0.001")!
         static let cryptoCreateServiceCostInUSD = Decimal(stringValue: "0.05")!
         static let tokenAssociateServiceCostInUSD = Decimal(stringValue: "0.05")!
         /// Hedera fees are low, allow 10% safety margin to allow usage of not precise fee estimate.
