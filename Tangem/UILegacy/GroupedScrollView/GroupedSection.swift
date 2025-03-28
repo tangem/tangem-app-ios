@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUIUtils
 
 /**
  Layout:
@@ -143,8 +144,8 @@ extension GroupedSection {
         var contentAlignment: HorizontalAlignment = .leading
         var innerHeaderPadding: CGFloat = GroupedSectionConstants.headerSpacing
 
-        var backgroundGeometryEffect: GeometryEffect?
-        var separatorGeometryEffect: (Model) -> GeometryEffect? = { _ in nil }
+        var backgroundGeometryEffect: GeometryEffectPropertiesModel?
+        var separatorGeometryEffect: (Model) -> GeometryEffectPropertiesModel? = { _ in nil }
     }
 }
 
@@ -194,7 +195,7 @@ extension GroupedSection: Setupable {
         settings(\.contentAlignment, alignment)
     }
 
-    func geometryEffect(_ geometryEffect: GeometryEffect?) -> Self {
+    func geometryEffect(_ geometryEffect: GeometryEffectPropertiesModel?) -> Self {
         settings(\.backgroundGeometryEffect, geometryEffect)
     }
 }
