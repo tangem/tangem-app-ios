@@ -9,7 +9,7 @@
 import Combine
 import Foundation
 
-final class NFTCollectionsCompactViewModel: ObservableObject {
+final class NFTEntrypointViewModel: ObservableObject {
     @Published private(set) var state: LoadingValue<CollectionsViewState>
     private var collectionsCount = 0
     private var totalNFTs = 0
@@ -34,7 +34,7 @@ final class NFTCollectionsCompactViewModel: ObservableObject {
     }
 }
 
-extension NFTCollectionsCompactViewModel {
+extension NFTEntrypointViewModel {
     enum CollectionsViewState {
         case noCollections
 
