@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct OnrampCountryDetectionView: View {
     @ObservedObject private var viewModel: OnrampCountryDetectionViewModel

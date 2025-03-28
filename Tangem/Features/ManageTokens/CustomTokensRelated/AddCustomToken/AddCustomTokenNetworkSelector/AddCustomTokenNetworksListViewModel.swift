@@ -20,11 +20,15 @@ final class AddCustomTokenNetworksListViewModel: ObservableObject {
 
     weak var delegate: AddCustomTokenNetworkSelectorDelegate?
 
-    init(selectedBlockchainNetworkId: String?, blockchains: [Blockchain]) {
+    init(
+        selectedBlockchainNetworkId: String?,
+        blockchains: [Blockchain],
+        blockchainIconProvider: NetworkImageProvider = NetworkImageProvider()
+    ) {
         itemViewModels = blockchains.map { blockchain in
             AddCustomTokenNetworksListItemViewModel(
                 networkId: blockchain.networkId,
-                iconAsset: blockchain.iconAssetFilled,
+                iconAsset: blockchainIconProvider.provide(by: blockchain, filled: true),
                 networkName: blockchain.displayName,
                 currencySymbol: blockchain.currencySymbol,
                 isSelected: blockchain.networkId == selectedBlockchainNetworkId

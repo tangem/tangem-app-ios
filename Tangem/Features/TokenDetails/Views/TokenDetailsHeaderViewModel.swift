@@ -50,6 +50,7 @@ class TokenDetailsHeaderViewModel {
     private func prepareTokenComponents() {
         let tokenTypePrefix = tokenItem.blockchain.tokenTypeName ?? ""
         let networkNameSuffix = tokenItem.blockchain.displayName
+        let blockchainIconProvider = NetworkImageProvider()
 
         let localizedString = Localization.tokenDetailsTokenTypeSubtitle(tokenTypePrefix, networkNameSuffix)
         do {
@@ -67,6 +68,6 @@ class TokenDetailsHeaderViewModel {
             networkSuffix = nil
         }
 
-        networkIconAsset = tokenItem.blockchain.iconAssetFilled
+        networkIconAsset = blockchainIconProvider.provide(by: tokenItem.blockchain, filled: true)
     }
 }

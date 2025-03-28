@@ -8,6 +8,7 @@
 
 import Foundation
 import struct BlockchainSdk.Fee
+import TangemFoundation
 
 struct SendFee: Hashable {
     let option: FeeOption
