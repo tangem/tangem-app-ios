@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 class MarketsTokenDetailsExchangesListViewModel: MarketsBaseViewModel {
     @Published var exchangesList: LoadingValue<[MarketsTokenDetailsExchangeItemInfo]> = .loading
