@@ -8,7 +8,7 @@
 
 import SwiftUI
 import TangemAssets
-import TangemUI
+import TangemUIUtils
 
 struct StakingDetailsView: View {
     @ObservedObject var viewModel: StakingDetailsViewModel

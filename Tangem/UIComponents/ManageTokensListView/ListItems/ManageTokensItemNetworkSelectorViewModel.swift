@@ -31,15 +31,22 @@ class ManageTokensItemNetworkSelectorViewModel: Identifiable, ObservableObject {
     private var isSelectedBinding: Binding<Bool>
     private var bag = Set<AnyCancellable>()
 
-    init(tokenItem: TokenItem, isReadonly: Bool, isSelected: Binding<Bool>, isCopied: Binding<Bool> = .constant(false), position: ItemPosition = .middle) {
+    init(
+        tokenItem: TokenItem,
+        isReadonly: Bool,
+        isSelected: Binding<Bool>,
+        isCopied: Binding<Bool> = .constant(false),
+        position: ItemPosition = .middle,
+        blockchainIconProvider: NetworkImageProvider = NetworkImageProvider()
+    ) {
         self.tokenItem = tokenItem
         self.isReadonly = isReadonly
         isSelectedBinding = isSelected
         self.isCopied = isCopied
         self.position = position
         isMain = tokenItem.isBlockchain
-        imageAsset = tokenItem.blockchain.iconAsset
-        imageAssetSelected = tokenItem.blockchain.iconAssetFilled
+        imageAsset = blockchainIconProvider.provide(by: tokenItem.blockchain, filled: false)
+        imageAssetSelected = blockchainIconProvider.provide(by: tokenItem.blockchain, filled: true)
         networkName = tokenItem.blockchain.displayName
         contractName = tokenItem.contractName
         hasContextMenu = tokenItem.isToken

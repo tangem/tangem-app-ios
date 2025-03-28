@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct ValidatorCompactViewData: Identifiable, Hashable {
     var id: Int { hashValue }

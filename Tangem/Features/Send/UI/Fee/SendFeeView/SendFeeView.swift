@@ -39,7 +39,7 @@ struct SendFeeView: View {
                             transitionService.selectedFeeContentOffset = value
                         }
                     }
-                    .modifier(if: isSelected) {
+                    .if(isSelected) {
                         $0.overlay(alignment: .topLeading) {
                             DefaultHeaderView(Localization.commonNetworkFeeTitle)
                                 .matchedGeometryEffect(id: namespace.names.feeTitle, in: namespace.id)
