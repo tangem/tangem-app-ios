@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemExpress
+import TangemUI
 
 struct OnrampSettingsView: View {
     @ObservedObject var viewModel: OnrampSettingsViewModel
