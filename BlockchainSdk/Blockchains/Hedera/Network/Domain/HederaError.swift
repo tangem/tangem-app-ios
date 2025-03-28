@@ -23,6 +23,8 @@ enum HederaError: LocalizedError {
             return "Failed to create a Hedera network account with the given public key"
         case .unsupportedCurve(let curveName):
             return "Hedera supports either ED25519 or ECDSA (secp256k1) curves. Curve '\(curveName)' is not supported"
+        case .fixedFeeInAnotherToken:
+            return "Fixed fee in another token"
         }
     }
 
@@ -32,4 +34,5 @@ enum HederaError: LocalizedError {
     case multipleAccountsFound
     case failedToCreateAccount
     case unsupportedCurve(curveName: String)
+    case fixedFeeInAnotherToken
 }
