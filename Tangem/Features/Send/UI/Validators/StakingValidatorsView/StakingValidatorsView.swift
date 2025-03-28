@@ -29,7 +29,7 @@ struct StakingValidatorsView: View {
                             transitionService.selectedValidatorContentOffset = value
                         }
                     }
-                    .modifier(if: isSelected) {
+                    .if(isSelected) {
                         $0.overlay(alignment: .topLeading) {
                             DefaultHeaderView(Localization.stakingValidator)
                                 .matchedGeometryEffect(id: namespace.names.validatorSectionHeaderTitle, in: namespace.id)

@@ -60,6 +60,7 @@ var serviceModules: [PackageDescription.Target] {
             dependencies: [
                 "Moya",
                 "Alamofire",
+                "TangemFoundation",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -68,6 +69,10 @@ var serviceModules: [PackageDescription.Target] {
         ),
         .tangemTarget(
             name: "TangemUIUtils",
+            dependencies: [
+                "Kingfisher",
+                "TangemAssets"
+            ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
                 .swiftLanguageMode(.v5),
@@ -77,6 +82,7 @@ var serviceModules: [PackageDescription.Target] {
             name: "TangemUI",
             dependencies: [
                 "TangemAssets",
+                "TangemUIUtils",
                 "TangemFoundation",
             ],
             swiftSettings: [
@@ -109,6 +115,9 @@ var featureModules: [PackageDescription.Target] {
                 "TangemNetworkUtils",
                 "Moya",
                 "AnyCodable",
+                "TangemAssets",
+                "TangemUI",
+                "TangemFoundation",
             ]
         ),
     ]
