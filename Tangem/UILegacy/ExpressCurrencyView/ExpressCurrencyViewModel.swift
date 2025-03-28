@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemExpress
+import TangemFoundation
 
 final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
     // Header view
