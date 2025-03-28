@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 struct OnrampCurrencySkeletonView: View {
     var body: some View {

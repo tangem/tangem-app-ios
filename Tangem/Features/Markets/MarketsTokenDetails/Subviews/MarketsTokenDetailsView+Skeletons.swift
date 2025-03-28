@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 extension MarketsTokenDetailsView {
     struct DescriptionBlockSkeletons: View {
