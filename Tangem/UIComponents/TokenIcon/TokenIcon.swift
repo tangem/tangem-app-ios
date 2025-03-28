@@ -9,6 +9,8 @@
 import SwiftUI
 import Kingfisher
 import TangemAssets
+import TangemFoundation
+import TangemUI
 
 struct TokenIcon: View {
     let tokenIconInfo: TokenIconInfo

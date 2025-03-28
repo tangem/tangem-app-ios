@@ -8,6 +8,7 @@
 
 import Combine
 import SwiftUI
+import TangemFoundation
 
 final class ScanCardSettingsViewModel: ObservableObject, Identifiable {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
