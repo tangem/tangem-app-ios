@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct SettingsUserWalletRowView: View {
     @ObservedObject var viewModel: SettingsUserWalletRowViewModel
