@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
     @Published var name: String = ""
