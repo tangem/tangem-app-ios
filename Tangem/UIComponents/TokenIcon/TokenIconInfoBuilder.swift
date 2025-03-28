@@ -12,7 +12,12 @@ import BlockchainSdk
 import TangemAssets
 
 struct TokenIconInfoBuilder {
-    func build(for type: Amount.AmountType, in blockchain: Blockchain, isCustom: Bool) -> TokenIconInfo {
+    func build(
+        for type: Amount.AmountType,
+        in blockchain: Blockchain,
+        isCustom: Bool,
+        blockchainIconProvider: NetworkImageProvider = NetworkImageProvider()
+    ) -> TokenIconInfo {
         let id: String?
         let name: String
         var blockchainIconAsset: ImageType?
@@ -26,7 +31,7 @@ struct TokenIconInfoBuilder {
         case .token(let token):
             id = token.id
             name = token.name
-            blockchainIconAsset = blockchain.iconAssetFilled
+            blockchainIconAsset = blockchainIconProvider.provide(by: blockchain, filled: true)
             customTokenColor = token.customTokenColor
         }
 
