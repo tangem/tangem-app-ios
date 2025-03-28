@@ -24,7 +24,10 @@ struct BlockchainSDKNotificationMapper {
         self.feeTokenItem = feeTokenItem
     }
 
-    func mapToValidationErrorEvent(_ validationError: ValidationError) -> ValidationErrorEvent {
+    func mapToValidationErrorEvent(
+        _ validationError: ValidationError,
+        blockchainIconProvider: NetworkImageProvider = NetworkImageProvider()
+    ) -> ValidationErrorEvent {
         switch validationError {
         case .balanceNotFound, .invalidAmount, .invalidFee:
             return .invalidNumber
@@ -40,7 +43,7 @@ struct BlockchainSDKNotificationMapper {
                     transactionAmountTypeName: tokenItem.name,
                     feeAmountTypeName: feeTokenItem.name,
                     feeAmountTypeCurrencySymbol: feeTokenItem.currencySymbol,
-                    feeAmountTypeIconAsset: feeTokenItem.blockchain.iconAssetFilled,
+                    feeAmountTypeIconAsset: blockchainIconProvider.provide(by: feeTokenItem.blockchain, filled: true),
                     networkName: tokenItem.networkName,
                     currencyButtonTitle: nil
                 )

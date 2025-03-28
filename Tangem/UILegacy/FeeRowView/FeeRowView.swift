@@ -8,12 +8,14 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUIUtils
+import TangemUI
 
 struct FeeRowView: View {
     let viewModel: FeeRowViewModel
 
-    private var optionGeometryEffect: GeometryEffect?
-    private var amountGeometryEffect: GeometryEffect?
+    private var optionGeometryEffect: GeometryEffectPropertiesModel?
+    private var amountGeometryEffect: GeometryEffectPropertiesModel?
 
     init(viewModel: FeeRowViewModel) {
         self.viewModel = viewModel
@@ -113,11 +115,11 @@ struct FeeRowView: View {
 // MARK: - Setupable
 
 extension FeeRowView: Setupable {
-    func optionGeometryEffect(_ effect: GeometryEffect?) -> Self {
+    func optionGeometryEffect(_ effect: GeometryEffectPropertiesModel?) -> Self {
         map { $0.optionGeometryEffect = effect }
     }
 
-    func amountGeometryEffect(_ effect: GeometryEffect?) -> Self {
+    func amountGeometryEffect(_ effect: GeometryEffectPropertiesModel?) -> Self {
         map { $0.amountGeometryEffect = effect }
     }
 }
