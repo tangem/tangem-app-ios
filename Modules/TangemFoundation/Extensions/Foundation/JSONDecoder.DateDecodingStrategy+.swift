@@ -15,7 +15,7 @@ public extension JSONDecoder.DateDecodingStrategy {
         let dateFormatter = DateFormatter(dateFormat: "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
         dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
         dateFormatter.locale = .posixEnUS
-
+        
         return .formatted(dateFormatter)
     }()
 }
