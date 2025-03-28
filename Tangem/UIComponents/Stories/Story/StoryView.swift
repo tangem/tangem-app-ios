@@ -26,7 +26,7 @@ struct StoryView: View {
                 pageViews[viewModel.visiblePageIndex]
                 overlayElements
             }
-            .modifier(if: Self.iOS18Available) { content in
+            .if(Self.iOS18Available) { content in
                 content
                     .gesture(longTapGesture)
                     .gesture(shortTapGesture(proxy))

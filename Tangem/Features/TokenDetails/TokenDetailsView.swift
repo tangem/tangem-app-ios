@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct TokenDetailsView: View {
     @ObservedObject var viewModel: TokenDetailsViewModel

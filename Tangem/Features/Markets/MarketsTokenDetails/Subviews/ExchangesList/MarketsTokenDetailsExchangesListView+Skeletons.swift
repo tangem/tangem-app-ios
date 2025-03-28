@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 extension MarketsTokenDetailsExchangesListView {
     struct ExchangeLoaderView: View {

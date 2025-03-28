@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 struct TransactionViewPlaceholder: View {
     var body: some View {
