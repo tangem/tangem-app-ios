@@ -10,6 +10,7 @@ import Foundation
 import TangemStaking
 import Combine
 import BlockchainSdk
+import TangemFoundation
 
 protocol RestakingModelStateProvider {
     var stakingAction: RestakingModel.Action { get }

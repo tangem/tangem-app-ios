@@ -10,6 +10,7 @@ import Foundation
 import SwiftUI
 import Combine
 import struct BlockchainSdk.Fee
+import TangemFoundation
 
 class SendFeeViewModel: ObservableObject, Identifiable {
     @Published private(set) var selectedFeeOption: FeeOption?

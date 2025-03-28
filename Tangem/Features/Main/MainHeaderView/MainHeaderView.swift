@@ -103,7 +103,7 @@ struct MainHeaderView: View {
             color: viewModel.subtitleInfo.formattingOption.textColor
         )
         .truncationMode(.middle)
-        .modifier(if: !viewModel.isUserWalletLocked) {
+        .if(!viewModel.isUserWalletLocked) {
             $0.skeletonable(isShown: viewModel.isLoadingSubtitle, size: .init(width: 52, height: 12), radius: 3)
         }
     }
