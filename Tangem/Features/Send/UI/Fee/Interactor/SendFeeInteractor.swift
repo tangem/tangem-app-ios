@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import TangemFoundation
 
 protocol SendFeeLoader {
     func updateFees()
