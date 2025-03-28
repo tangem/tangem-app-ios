@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemExpress
+import TangemUI
 
 struct ActionButtonsSwapView: View {
     @ObservedObject var viewModel: ActionButtonsSwapViewModel
