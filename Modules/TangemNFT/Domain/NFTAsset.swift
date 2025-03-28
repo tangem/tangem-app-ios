@@ -18,7 +18,7 @@ public struct NFTAsset: Hashable, Identifiable {
     public let rarity: Rarity?
     public let traits: [Trait]
 
-    init(
+    public init(
         assetIdentifier: String,
         collectionIdentifier: String,
         chain: NFTChain,

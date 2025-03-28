@@ -9,8 +9,8 @@
 import SwiftUI
 import TangemAssets
 
-struct NFTCollectionsCompactView: View {
-    @ObservedObject var viewModel: NFTCollectionsCompactViewModel
+struct NFTEntrypointView: View {
+    @ObservedObject var viewModel: NFTEntrypointViewModel
 
     var body: some View {
         Button(action: viewModel.openCollections) {
@@ -63,7 +63,7 @@ struct NFTCollectionsCompactView: View {
 
     @ViewBuilder
     private func imageForSuccess(
-        collectionsState: NFTCollectionsCompactViewModel.CollectionsViewState
+        collectionsState: NFTEntrypointViewModel.CollectionsViewState
     ) -> some View {
         switch collectionsState {
         case .noCollections:
@@ -216,7 +216,7 @@ struct NFTCollectionsCompactView: View {
     }
 }
 
-extension NFTCollectionsCompactView {
+extension NFTEntrypointView {
     enum Constants {
         enum ImageContainer {
             static let size: CGSize = .init(bothDimensions: 36)
@@ -275,7 +275,7 @@ extension NFTCollectionsCompactView {
 #Preview("Loading") {
     ZStack {
         Colors.Field.primary
-        NFTCollectionsCompactView(viewModel: NFTCollectionsCompactViewModel(coordinator: NFTEntrypointCoordintor()))
+        NFTEntrypointView(viewModel: NFTEntrypointViewModel(coordinator: NFTEntrypointCoordintor()))
             .padding(.horizontal, 16)
     }
 }
@@ -283,8 +283,8 @@ extension NFTCollectionsCompactView {
 #Preview("Failed") {
     ZStack {
         Colors.Field.primary
-        NFTCollectionsCompactView(
-            viewModel: NFTCollectionsCompactViewModel(
+        NFTEntrypointView(
+            viewModel: NFTEntrypointViewModel(
                 initialState: .failedToLoad(error: NSError()),
                 coordinator: NFTEntrypointCoordintor()
             )
@@ -296,8 +296,8 @@ extension NFTCollectionsCompactView {
 #Preview("No collections") {
     ZStack {
         Colors.Field.primary
-        NFTCollectionsCompactView(
-            viewModel: NFTCollectionsCompactViewModel(
+        NFTEntrypointView(
+            viewModel: NFTEntrypointViewModel(
                 initialState: .loaded(.noCollections),
                 coordinator: NFTEntrypointCoordintor()
             )
@@ -309,8 +309,8 @@ extension NFTCollectionsCompactView {
 #Preview("One collection") {
     ZStack {
         Colors.Field.primary
-        NFTCollectionsCompactView(
-            viewModel: NFTCollectionsCompactViewModel(
+        NFTEntrypointView(
+            viewModel: NFTEntrypointViewModel(
                 initialState: .loaded(
                     .oneCollection(
                         imageURL: URL(
@@ -328,8 +328,8 @@ extension NFTCollectionsCompactView {
 #Preview("Two collections") {
     ZStack {
         Colors.Field.primary
-        NFTCollectionsCompactView(
-            viewModel: NFTCollectionsCompactViewModel(
+        NFTEntrypointView(
+            viewModel: NFTEntrypointViewModel(
                 initialState: .loaded(
                     .twoCollections(
                         firstCollectionImageURL: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!,
@@ -346,8 +346,8 @@ extension NFTCollectionsCompactView {
 #Preview("Three collections") {
     ZStack {
         Colors.Field.primary
-        NFTCollectionsCompactView(
-            viewModel: NFTCollectionsCompactViewModel(
+        NFTEntrypointView(
+            viewModel: NFTEntrypointViewModel(
                 initialState: .loaded(
                     .threeCollections(
                         firstCollectionImageURL: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!,
@@ -365,8 +365,8 @@ extension NFTCollectionsCompactView {
 #Preview("Four collections") {
     ZStack {
         Colors.Field.primary
-        NFTCollectionsCompactView(
-            viewModel: NFTCollectionsCompactViewModel(
+        NFTEntrypointView(
+            viewModel: NFTEntrypointViewModel(
                 initialState: .loaded(
                     .fourCollections(
                         firstCollectionImageURL: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!,
@@ -385,8 +385,8 @@ extension NFTCollectionsCompactView {
 #Preview("Multiple collections") {
     ZStack {
         Colors.Field.primary
-        NFTCollectionsCompactView(
-            viewModel: NFTCollectionsCompactViewModel(
+        NFTEntrypointView(
+            viewModel: NFTEntrypointViewModel(
                 initialState: .loaded(
                     .multipleCollections(collectionsURLs: [
                         URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!,
