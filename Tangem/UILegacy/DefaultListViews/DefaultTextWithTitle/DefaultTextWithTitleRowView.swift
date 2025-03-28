@@ -8,12 +8,13 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUIUtils
 
 struct DefaultTextWithTitleRowView: View {
     let data: DefaultTextWithTitleRowViewData
 
-    private var titleGeometryEffect: GeometryEffect?
-    private var textGeometryEffect: GeometryEffect?
+    private var titleGeometryEffect: GeometryEffectPropertiesModel?
+    private var textGeometryEffect: GeometryEffectPropertiesModel?
 
     init(data: DefaultTextWithTitleRowViewData) {
         self.data = data
@@ -37,11 +38,11 @@ struct DefaultTextWithTitleRowView: View {
 }
 
 extension DefaultTextWithTitleRowView: Setupable {
-    func titleGeometryEffect(_ effect: GeometryEffect?) -> Self {
+    func titleGeometryEffect(_ effect: GeometryEffectPropertiesModel?) -> Self {
         map { $0.titleGeometryEffect = effect }
     }
 
-    func textGeometryEffect(_ effect: GeometryEffect?) -> Self {
+    func textGeometryEffect(_ effect: GeometryEffectPropertiesModel?) -> Self {
         map { $0.textGeometryEffect = effect }
     }
 }
