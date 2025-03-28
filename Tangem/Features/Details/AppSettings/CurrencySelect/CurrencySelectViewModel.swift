@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 class CurrencySelectViewModel: ObservableObject {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
