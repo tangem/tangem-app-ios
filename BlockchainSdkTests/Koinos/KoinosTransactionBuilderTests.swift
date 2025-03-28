@@ -100,7 +100,8 @@ extension KoinosTransactionBuilderTests {
     func buildForSign() throws {
         let (transaction, hash) = try transactionBuilder.buildForSign(
             transaction: makeTransaction(isTestnet: false),
-            currentNonce: KoinosAccountNonce(nonce: 10)
+            currentNonce: KoinosAccountNonce(nonce: 10),
+            koinContractId: "15DJN4a8SgrbGhhGksSBASiSYjGnMU8dGL"
         )
 
         #expect(hash == expectedHash)
@@ -111,11 +112,23 @@ extension KoinosTransactionBuilderTests {
     func buildForSignTestnet() throws {
         let (transaction, hash) = try transactionBuilderTestnet.buildForSign(
             transaction: makeTransaction(isTestnet: true),
-            currentNonce: KoinosAccountNonce(nonce: 10)
+            currentNonce: KoinosAccountNonce(nonce: 10),
+            koinContractId: "1FaSvLjQJsCJKq5ybmGsMMQs8RQYyVv8ju"
         )
 
         #expect(hash == expectedHashTestnet)
         #expect(transaction == expectedTransactionTestnet)
+    }
+
+    @Test
+    func buildForSignThrowsWhenNoContractId() throws {
+        #expect(throws: KoinosTransactionBuilderError.contractIDIsMissing, performing: {
+            try transactionBuilder.buildForSign(
+                transaction: makeTransaction(isTestnet: false),
+                currentNonce: KoinosAccountNonce(nonce: 10),
+                koinContractId: nil
+            )
+        })
     }
 
     @Test
