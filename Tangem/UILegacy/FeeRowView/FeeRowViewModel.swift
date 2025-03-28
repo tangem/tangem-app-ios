@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 struct FeeRowViewModel: Identifiable, Hashable {
     var id: Int { hashValue }
