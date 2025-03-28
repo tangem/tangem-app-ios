@@ -12,9 +12,11 @@ import TangemAssets
 
 struct TransactionSendAvailabilityProvider {
     private let isSendingSupportedByCard: Bool
+    private let networkIconProvider: NetworkImageProvider
 
-    init(isSendingSupportedByCard: Bool) {
+    init(isSendingSupportedByCard: Bool, networkIconProvider: NetworkImageProvider = NetworkImageProvider()) {
         self.isSendingSupportedByCard = isSendingSupportedByCard
+        self.networkIconProvider = networkIconProvider
     }
 
     func sendingRestrictions(walletModel: any WalletModel) -> SendingRestrictions? {
@@ -46,12 +48,13 @@ struct TransactionSendAvailabilityProvider {
 
         // no fee
         if !walletModel.hasFeeCurrency(amountType: walletModel.tokenItem.amountType) {
+            let feeAmountTypeIconAsset = networkIconProvider.provide(by: walletModel.feeTokenItem.blockchain, filled: true)
             return .zeroFeeCurrencyBalance(
                 configuration: .init(
                     transactionAmountTypeName: walletModel.tokenItem.name,
                     feeAmountTypeName: walletModel.feeTokenItem.name,
                     feeAmountTypeCurrencySymbol: walletModel.feeTokenItem.currencySymbol,
-                    feeAmountTypeIconAsset: walletModel.feeTokenItem.blockchain.iconAssetFilled,
+                    feeAmountTypeIconAsset: feeAmountTypeIconAsset,
                     networkName: walletModel.tokenItem.networkName,
                     currencyButtonTitle: walletModel.tokenItem.blockchain.feeDisplayName
                 )
