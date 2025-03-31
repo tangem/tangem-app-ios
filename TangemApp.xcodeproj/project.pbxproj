@@ -14,6 +14,10 @@
 		0A0E01772C64AA79009E01F2 /* StakingSendAmountValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0E01762C64AA79009E01F2 /* StakingSendAmountValidator.swift */; };
 		0A1396EB2D7AF67500CA6A31 /* ValidatorInfoStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1396EA2D7AF67500CA6A31 /* ValidatorInfoStatus.swift */; };
 		0A1992A62B5FBDF800344312 /* CurrencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1992A52B5FBDF800344312 /* CurrencyTests.swift */; };
+		0A2261882D9AC634004DC848 /* BlockaidAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2261872D9AC634004DC848 /* BlockaidAPIService.swift */; };
+		0A22618B2D9AC699004DC848 /* Scan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A22618A2D9AC699004DC848 /* Scan.swift */; };
+		0A22618D2D9AC79B004DC848 /* BlockaidDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A22618C2D9AC79B004DC848 /* BlockaidDTO.swift */; };
+		0A22618F2D9AC8A9004DC848 /* BlockaidTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A22618E2D9AC8A9004DC848 /* BlockaidTarget.swift */; };
 		0A2A04DB2C91B167007EAE64 /* TronSendTransactionSummaryDescriptionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2A04DA2C91B167007EAE64 /* TronSendTransactionSummaryDescriptionBuilder.swift */; };
 		0A3BF9692C6CDAD900163492 /* AdditionalAddresses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3BF9682C6CDAD900163492 /* AdditionalAddresses.swift */; };
 		0A3BF96B2C6CE96B00163492 /* StakingAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3BF96A2C6CE96B00163492 /* StakingAction.swift */; };
@@ -3431,6 +3435,10 @@
 		0A0E01762C64AA79009E01F2 /* StakingSendAmountValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingSendAmountValidator.swift; sourceTree = "<group>"; };
 		0A1396EA2D7AF67500CA6A31 /* ValidatorInfoStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoStatus.swift; sourceTree = "<group>"; };
 		0A1992A52B5FBDF800344312 /* CurrencyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrencyTests.swift; sourceTree = "<group>"; };
+		0A2261872D9AC634004DC848 /* BlockaidAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidAPIService.swift; sourceTree = "<group>"; };
+		0A22618A2D9AC699004DC848 /* Scan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan.swift; sourceTree = "<group>"; };
+		0A22618C2D9AC79B004DC848 /* BlockaidDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidDTO.swift; sourceTree = "<group>"; };
+		0A22618E2D9AC8A9004DC848 /* BlockaidTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidTarget.swift; sourceTree = "<group>"; };
 		0A2A04DA2C91B167007EAE64 /* TronSendTransactionSummaryDescriptionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TronSendTransactionSummaryDescriptionBuilder.swift; sourceTree = "<group>"; };
 		0A3BF9682C6CDAD900163492 /* AdditionalAddresses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdditionalAddresses.swift; sourceTree = "<group>"; };
 		0A3BF96A2C6CE96B00163492 /* StakingAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAction.swift; sourceTree = "<group>"; };
@@ -6829,6 +6837,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0A2261862D9AC61F004DC848 /* Blockaid */ = {
+			isa = PBXGroup;
+			children = (
+				0A2261892D9AC66F004DC848 /* DTOs */,
+				0A2261872D9AC634004DC848 /* BlockaidAPIService.swift */,
+				0A22618E2D9AC8A9004DC848 /* BlockaidTarget.swift */,
+			);
+			path = Blockaid;
+			sourceTree = "<group>";
+		};
+		0A2261892D9AC66F004DC848 /* DTOs */ = {
+			isa = PBXGroup;
+			children = (
+				0A22618A2D9AC699004DC848 /* Scan.swift */,
+				0A22618C2D9AC79B004DC848 /* BlockaidDTO.swift */,
+			);
+			path = DTOs;
+			sourceTree = "<group>";
+		};
 		0A7FF63B2C888D180072C2E8 /* StakingAnalytics */ = {
 			isa = PBXGroup;
 			children = (
@@ -7948,6 +7975,7 @@
 		5DDE22F32609020E008657C6 /* WalletConnect */ = {
 			isa = PBXGroup;
 			children = (
+				0A2261862D9AC61F004DC848 /* Blockaid */,
 				DC0A5848282C07750031BECC /* OldServices */,
 				DC981CDD2D802E2C00C3D2AA /* Old */,
 				B03AEEAE29596D9100212267 /* WebSocket */,
@@ -19110,6 +19138,7 @@
 				C2E3ADD92D5F5D410042ADDA /* TangemStoriesPresenter.swift in Sources */,
 				B05919042A0BCD1100EB8005 /* MainHeaderViewModel.swift in Sources */,
 				B0406BB62A402462006452C2 /* PagerWithDots.swift in Sources */,
+				0A22618D2D9AC79B004DC848 /* BlockaidDTO.swift in Sources */,
 				EFD68F372CC2F58900693C97 /* OnrampIdentityMock.swift in Sources */,
 				DAF59CC82ACC4E37004FCA86 /* AlertFieldValidator.swift in Sources */,
 				B0A1B4802A42C78300376FCC /* TokenDetailsHeaderViewModel.swift in Sources */,
@@ -19289,6 +19318,7 @@
 				5DDFC2022812B716005976FE /* CurrenciesResponse.swift in Sources */,
 				DC742C2F2BC85E5E00BECF09 /* CardInitializer.swift in Sources */,
 				EF9241362934E25900C28551 /* IconURLBuilder.swift in Sources */,
+				0A2261882D9AC634004DC848 /* BlockaidAPIService.swift in Sources */,
 				5D51036F27C535D10025EA55 /* ABIValue.swift in Sources */,
 				2D42AA592C6379DC006A2FD4 /* Analytics+Markets.swift in Sources */,
 				EFE5EC552AEC2AF400C5ADC3 /* Toast.swift in Sources */,
@@ -19525,6 +19555,7 @@
 				B0A1BC172C296B7800DECCFD /* MarketsTokenDetailsCoordinatorView.swift in Sources */,
 				EF5903A829092BC600C527C9 /* FeatureProvider.swift in Sources */,
 				B0D18AC52D37A2D7009357AD /* VisaOnboardingWalletConnectViewModel.swift in Sources */,
+				0A22618F2D9AC8A9004DC848 /* BlockaidTarget.swift in Sources */,
 				EF57693E2A8BAF6700901571 /* TransactionHistoryService.swift in Sources */,
 				3074E1D62D943C28008235E6 /* OptionalProtocol.swift in Sources */,
 				B0CAE5AB2AAB275C00670C2B /* MultiWalletMainContentDelegate.swift in Sources */,
@@ -19768,6 +19799,7 @@
 				B6FB04EB2B1FF022000BB59E /* StatusBarStyleConfigurator+Environment.swift in Sources */,
 				B6E8BBFB2A2F209B0012E7D3 /* InfinityFrameModifier.swift in Sources */,
 				B06C08502A73FB4E00D982BC /* MainRoutable.swift in Sources */,
+				0A22618B2D9AC699004DC848 /* Scan.swift in Sources */,
 				B01149412B56B66E00695FCD /* VisaNotificationEvent.swift in Sources */,
 				B036625F2B6384AE0064E073 /* VisaTransactionDetailsViewModel.swift in Sources */,
 				B68EF4822A9C22B800E2AC5B /* LockedWalletMainContentViewModel.swift in Sources */,
