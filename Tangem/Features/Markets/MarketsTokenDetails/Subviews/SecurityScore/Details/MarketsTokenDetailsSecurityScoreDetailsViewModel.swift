@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 import TangemFoundation
 
 final class MarketsTokenDetailsSecurityScoreDetailsViewModel: Identifiable {

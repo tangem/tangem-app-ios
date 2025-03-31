@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 import MessageUI
 
 struct MailView: UIViewControllerRepresentable {
