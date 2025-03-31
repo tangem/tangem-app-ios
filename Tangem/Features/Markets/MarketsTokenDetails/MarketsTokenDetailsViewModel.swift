@@ -150,7 +150,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
         let tokenQuoteHelper = MarketsTokenQuoteHelper()
         loadedTokenDetailsPriceChangeInfo = tokenQuoteHelper.makePriceChangeIntervalsDictionary(
             from: quotesRepository.quote(for: tokenInfo.id)
-        ) ?? tokenInfo.priceChangePercentage
+        ) ?? tokenInfo.priceChangePercentage.compactMapValues { $0 }
 
         bind()
         loadDetailedInfo()
@@ -275,7 +275,7 @@ private extension MarketsTokenDetailsViewModel {
 
     @MainActor
     func setupUI(using model: MarketsTokenDetailsModel) {
-        loadedTokenDetailsPriceChangeInfo = model.priceChangePercentage
+        loadedTokenDetailsPriceChangeInfo = model.priceChangePercentage.compactMapValues { $0 }
         loadedInfo = model
 
         state = .loaded(model: model)
