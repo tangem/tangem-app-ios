@@ -34,9 +34,9 @@ struct CommonMarketsQuotesUpdateHelper: MarketsQuotesUpdateHelper {
             return TokenQuote(
                 currencyId: $0.id,
                 price: price,
-                priceChange24h: $0.priceChangePercentage[MarketsPriceIntervalType.day.marketsListId],
-                priceChange7d: $0.priceChangePercentage[MarketsPriceIntervalType.week.marketsListId],
-                priceChange30d: $0.priceChangePercentage[MarketsPriceIntervalType.month.marketsListId],
+                priceChange24h: $0.priceChangePercentage[MarketsPriceIntervalType.day.marketsListId] ?? nil,
+                priceChange7d: $0.priceChangePercentage[MarketsPriceIntervalType.week.marketsListId] ?? nil,
+                priceChange30d: $0.priceChangePercentage[MarketsPriceIntervalType.month.marketsListId] ?? nil,
                 currencyCode: baseCurrencyCode
             )
         }
@@ -48,9 +48,9 @@ struct CommonMarketsQuotesUpdateHelper: MarketsQuotesUpdateHelper {
         let quote = TokenQuote(
             currencyId: marketToken.id,
             price: marketToken.currentPrice,
-            priceChange24h: marketToken.priceChangePercentage[MarketsPriceIntervalType.day.rawValue],
-            priceChange7d: marketToken.priceChangePercentage[MarketsPriceIntervalType.week.rawValue],
-            priceChange30d: marketToken.priceChangePercentage[MarketsPriceIntervalType.month.rawValue],
+            priceChange24h: marketToken.priceChangePercentage[MarketsPriceIntervalType.day.rawValue] ?? nil,
+            priceChange7d: marketToken.priceChangePercentage[MarketsPriceIntervalType.week.rawValue] ?? nil,
+            priceChange30d: marketToken.priceChangePercentage[MarketsPriceIntervalType.month.rawValue] ?? nil,
             currencyCode: baseCurrencyCode
         )
 
