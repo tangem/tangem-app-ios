@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 import TangemAssets
 
 enum FeeOption: String, Hashable, Equatable {
