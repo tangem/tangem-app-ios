@@ -12,8 +12,10 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
+        <key>one</key>
+        <string>%li device</string>
         <key>other</key>
-        <string>%li デバイス</string>
+        <string>%li devices</string>
       </dict>
     </dict>
     <key>common_days_no_param</key>
@@ -26,22 +28,26 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
+        <key>one</key>
+        <string>day</string>
         <key>other</key>
-        <string>日</string>
+        <string>days</string>
       </dict>
     </dict>
     <key>manage_tokens_number_of_wallets_ios</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%li / %#@total_wallets@</string>
+      <string>%li of %#@total_wallets@</string>
       <key>total_wallets</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
+        <key>one</key>
+        <string>%li wallet</string>
         <key>other</key>
-        <string>%li ウォレット\n%li ウォレット</string>
+        <string>%li wallets</string>
       </dict>
     </dict>
     <key>markets_token_details_amount_exchanges</key>
@@ -54,8 +60,10 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
+        <key>one</key>
+        <string>%li exchange</string>
         <key>other</key>
-        <string>%li取引所</string>
+        <string>%li exchanges</string>
       </dict>
     </dict>
     <key>markets_token_details_based_on_ratings</key>
@@ -68,8 +76,10 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
+        <key>one</key>
+        <string>Based on %li rating</string>
         <key>other</key>
-        <string>%li のレーティングに基づいて</string>
+        <string>Based on %li ratings</string>
       </dict>
     </dict>
     <key>nft_collections_count</key>
@@ -82,8 +92,10 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
+        <key>one</key>
+        <string>%li item</string>
         <key>other</key>
-        <string>アイテム</string>
+        <string>%li items</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_message_words_count</key>
@@ -96,8 +108,10 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
+        <key>one</key>
+        <string></string>
         <key>other</key>
-        <string>これらの %li 単語を以下の順番通りに書き留め、安全かつ秘密の場所に保管してください。</string>
+        <string>Write these %li words down in the order given below and store them in a safe and secret place.</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_words_count</key>
@@ -110,8 +124,10 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
+        <key>one</key>
+        <string></string>
         <key>other</key>
-        <string>%li 単語</string>
+        <string>%li words</string>
       </dict>
     </dict>
     <key>referral_number_of_wallets</key>
@@ -124,8 +140,10 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
+        <key>one</key>
+        <string>for %li wallet</string>
         <key>other</key>
-        <string>%liのウォレット</string>
+        <string>for %li wallets</string>
       </dict>
     </dict>
     <key>referral_wallets_purchased_count</key>
@@ -138,8 +156,10 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
+        <key>one</key>
+        <string>%li wallet</string>
         <key>other</key>
-        <string>%li ウォレット</string>
+        <string>%li wallets</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>
@@ -152,8 +172,10 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
+        <key>one</key>
+        <string>available for %li day</string>
         <key>other</key>
-        <string>%li日間利用可能</string>
+        <string>available for %li days</string>
       </dict>
     </dict>
     <key>warning_missing_derivation_message</key>
@@ -166,8 +188,10 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
+        <key>one</key>
+        <string>Use your card or ring to get an address for %li network</string>
         <key>other</key>
-        <string>%li ネットワークのアドレスを取得するために、カードまたはリングを利用してください</string>
+        <string>Use your card or ring to get an addresses for %li networks</string>
       </dict>
     </dict>
   </dict>

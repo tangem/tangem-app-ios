@@ -7,6 +7,7 @@
 //
 
 import TangemAssets
+import TangemLocalization
 import TangemExpress
 
 extension ExpressProvider {
