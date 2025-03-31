@@ -9,21 +9,20 @@
 import SwiftUI
 import TangemUIUtils
 
-public struct FloatingSheetView<HostContent: View, SheetContent: View>: View {
-    @Binding var isPresented: Bool
-    let hostContent: HostContent
-    let sheetContent: SheetContent
-
-    @Environment(\.floatingSheetConfiguration) private var configuration: FloatingSheetConfiguration
+public struct FloatingSheetView<HostContent: View>: View {
+    private let hostContent: HostContent
+    @Binding private var viewModel: (any FloatingSheetContentViewModel)?
 
     @State private var keyboardHeight: CGFloat = 0
     @State private var verticalDragAmount: CGFloat = 0
     @GestureState private var isDragging = false
 
-    init(isPresented: Binding<Bool>, hostContent: HostContent, @ViewBuilder sheetContent: () -> SheetContent) {
-        _isPresented = isPresented
+    @Environment(\.floatingSheetRegistry) private var registry: FloatingSheetRegistry
+    @Environment(\.floatingSheetConfiguration) private var configuration: FloatingSheetConfiguration
+
+    public init(hostContent: HostContent, viewModel: Binding<(any FloatingSheetContentViewModel)?>) {
         self.hostContent = hostContent
-        self.sheetContent = sheetContent()
+        _viewModel = viewModel
     }
 
     public var body: some View {
@@ -32,16 +31,13 @@ public struct FloatingSheetView<HostContent: View, SheetContent: View>: View {
                 hostContent
 
                 backgroundView
-                    .animation(.dimmedBackground, value: isPresented)
 
                 sheetContent(proxy)
-                    .animation(.floatingSheet, value: isPresented)
             }
             .if(configuration.isBackgroundAndSheetSwipeEnabled) {
                 $0.gesture(verticalSwipeGesture)
             }
         }
-        .ignoresSafeArea()
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
             guard
                 configuration.keyboardHandlingEnabled,
@@ -64,46 +60,53 @@ public struct FloatingSheetView<HostContent: View, SheetContent: View>: View {
         }
     }
 
-    @ViewBuilder
     private var backgroundView: some View {
         // [REDACTED_TODO_COMMENT]
-        Color(white: .zero, opacity: isPresented ? 0.7 : .zero)
+        Color(white: .zero, opacity: viewModel == nil ? .zero : 0.7)
+            .ignoresSafeArea()
             .allowsHitTesting(configuration.backgroundInteractionBehavior != .passTouchesThrough)
             .onTapGesture {
                 guard configuration.backgroundInteractionBehavior == .tapToDismiss, !isDragging else { return }
-                isPresented = false
+                viewModel = nil
             }
             .if(configuration.isBackgroundSwipeEnabled) {
                 $0.gesture(verticalSwipeGesture)
             }
+            .animation(.dimmedBackground, value: viewModel == nil)
     }
 
     @ViewBuilder
     private func sheetContent(_ proxy: GeometryProxy) -> some View {
-        if isPresented {
-            ZStack {
-                sheetContent
-                    .frame(minHeight: proxy.size.height * configuration.minHeightFraction, alignment: .bottom)
-                    .background(configuration.sheetBackgroundColor)
-                    .clipShape(roundedRectangle)
-                    .frame(
-                        maxHeight: proxy.size.height * configuration.maxHeightFraction,
-                        alignment: .bottom
-                    )
-                    .clipShape(roundedRectangle)
-                    .contentShape(roundedRectangle)
-                    .padding(.horizontal, 8)
-                    .padding(.bottom, 34)
-                    .padding(.bottom, keyboardHeight)
-                    .offset(y: verticalDragAmount)
-                    .animation(.floatingSheet, value: verticalDragAmount)
-                    .animation(.keyboard, value: keyboardHeight)
-                    .if(configuration.isSheetSwipeEnabled) {
-                        $0.gesture(verticalSwipeGesture)
-                    }
+        ZStack {
+            if let viewModel, let sheetContent = registry.view(for: viewModel) {
+                ZStack {
+                    sheetContent
+                        .frame(minHeight: proxy.size.height * configuration.minHeightFraction, alignment: .bottom)
+                        .background(configuration.sheetBackgroundColor)
+                        .clipShape(roundedRectangle)
+                        .contentShape(roundedRectangle)
+                        .frame(
+                            maxHeight: proxy.size.height * configuration.maxHeightFraction,
+                            alignment: .bottom
+                        )
+                        .clipShape(roundedRectangle)
+                        .padding(.horizontal, 8)
+                        .padding(.bottom, bottomSheetPadding)
+                        .padding(.bottom, keyboardHeight)
+                        .offset(y: verticalDragAmount)
+                        .animation(.floatingSheet, value: verticalDragAmount)
+                        .animation(.keyboard, value: keyboardHeight)
+                        .if(configuration.isSheetSwipeEnabled) {
+                            $0.gesture(verticalSwipeGesture)
+                        }
+                        .id(viewModel.id)
+                        .transition(.slideFromBottom)
+                }
+                .animation(.floatingSheet, value: viewModel.id)
+                .transition(.slideFromBottom)
             }
-            .transition(.move(edge: .bottom))
         }
+        .animation(.floatingSheet, value: viewModel == nil)
     }
 
     private var verticalSwipeGesture: some Gesture {
@@ -116,7 +119,7 @@ public struct FloatingSheetView<HostContent: View, SheetContent: View>: View {
             }
             .onEnded { dragGestureValue in
                 if let threshold = configuration.verticalSwipeBehavior?.threshold, dragGestureValue.translation.height > threshold {
-                    isPresented = false
+                    viewModel = nil
                 }
 
                 verticalDragAmount = .zero
@@ -126,9 +129,23 @@ public struct FloatingSheetView<HostContent: View, SheetContent: View>: View {
     private var roundedRectangle: some Shape {
         RoundedRectangle(cornerRadius: 28, style: .continuous)
     }
+
+    private var bottomSheetPadding: CGFloat {
+        let bottomSafeArea = UIApplication.safeAreaInsets.bottom
+        let bottomPaddingForDevicesWithHomeButton: CGFloat = 32
+        let deviceHasHomeButton = bottomSafeArea == .zero
+
+        return deviceHasHomeButton
+            ? bottomPaddingForDevicesWithHomeButton
+            : .zero
+    }
 }
 
 private extension Animation {
     static let dimmedBackground = Animation.timingCurve(0.65, 0, 0.35, 1, duration: 0.2)
     static let floatingSheet = Animation.timingCurve(0.28, 0.02, 0.35, 1, duration: 0.3)
+}
+
+private extension AnyTransition {
+    static let slideFromBottom = AnyTransition.move(edge: .bottom)
 }
