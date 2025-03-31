@@ -7,6 +7,7 @@
 //
 
 import JSONRPC
+import TangemLocalization
 import Foundation
 import Commons
 
