@@ -17,7 +17,7 @@ struct MarketsTokenDetailsModel: Identifiable {
     let shortDescription: String?
     let fullDescription: String?
     let numberOfExchangesListedOn: Int?
-    let priceChangePercentage: [String: Decimal]
+    let priceChangePercentage: [String: Decimal?]
     let insights: MarketsTokenDetailsInsights?
     let metrics: MarketsTokenDetailsMetrics?
     let securityScore: MarketsTokenDetailsSecurityScore?
