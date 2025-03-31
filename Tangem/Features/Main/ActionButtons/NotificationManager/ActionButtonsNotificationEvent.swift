@@ -7,6 +7,7 @@
 //
 
 import TangemAssets
+import TangemLocalization
 
 enum ActionButtonsNotificationEvent: Hashable {
     case refreshRequired(title: String, message: String)
