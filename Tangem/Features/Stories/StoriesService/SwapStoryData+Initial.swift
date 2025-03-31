@@ -7,6 +7,7 @@
 //
 
 import enum TangemStories.TangemStory
+import TangemLocalization
 
 // [REDACTED_TODO_COMMENT]
 extension TangemStory.SwapStoryData {

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 final class PushNotificationsPermissionRequestViewModel: ObservableObject, Identifiable {
     @Published private(set) var allowButtonTitle: String

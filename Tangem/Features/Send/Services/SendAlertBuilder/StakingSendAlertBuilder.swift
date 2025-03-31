@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 
 struct StakingSendAlertBuilder: SendAlertBuilder {
     func makeDismissAlert(dismissAction: @escaping () -> Void) -> AlertBinder {

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 enum WalletConnectServiceError: LocalizedError {
     case signFailed
