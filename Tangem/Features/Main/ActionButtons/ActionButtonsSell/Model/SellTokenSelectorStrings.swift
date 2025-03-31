@@ -6,6 +6,8 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import TangemLocalization
+
 struct SellTokenSelectorStrings: TokenSelectorLocalizable {
     let availableTokensListTitle = Localization.tokensListAvailableToSellHeader
     let unavailableTokensListTitle = Localization.tokensListUnavailableToSellHeader
