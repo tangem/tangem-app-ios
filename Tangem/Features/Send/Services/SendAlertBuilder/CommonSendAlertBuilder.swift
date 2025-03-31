@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 
 struct CommonSendAlertBuilder: SendAlertBuilder {
     func makeDismissAlert(dismissAction: @escaping () -> Void) -> AlertBinder {
