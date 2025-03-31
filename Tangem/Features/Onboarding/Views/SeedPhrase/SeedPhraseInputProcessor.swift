@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import TangemLocalization
 import Combine
 import TangemAssets
 import TangemSdk
