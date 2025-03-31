@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 
 struct ScanTroubleshootingView: View {
     @Binding var isPresented: Bool
