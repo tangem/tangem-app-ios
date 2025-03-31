@@ -82,6 +82,7 @@
 		2D54FED02CDBD696004FC466 /* CasperNetworkRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D54FEC12CDBD696004FC466 /* CasperNetworkRequest.swift */; };
 		2D54FED12CDBD696004FC466 /* CasperBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D54FEBF2CDBD696004FC466 /* CasperBalance.swift */; };
 		2D54FED22CDBD696004FC466 /* CasperNetworkResponse.Balance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D54FEC42CDBD696004FC466 /* CasperNetworkResponse.Balance.swift */; };
+		2D56D4F92D93F56C001FCDDC /* TangemNetwokAnalyticsPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D56D4F82D93F56C001FCDDC /* TangemNetwokAnalyticsPlugin.swift */; };
 		2D57CA862C3D0B0D0070D477 /* MarketsWalletDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D57CA852C3D0B0D0070D477 /* MarketsWalletDataSource.swift */; };
 		2D57CA882C3D0BA30070D477 /* MarketsGeneratedAddressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D57CA872C3D0BA30070D477 /* MarketsGeneratedAddressView.swift */; };
 		2D5DCA392BEA8584002D26AC /* WalletConnectCryptoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5DCA382BEA8584002D26AC /* WalletConnectCryptoProvider.swift */; };
@@ -3495,6 +3496,7 @@
 		2D54FEC62CDBD696004FC466 /* CasperNetworkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasperNetworkProvider.swift; sourceTree = "<group>"; };
 		2D54FEC72CDBD696004FC466 /* CasperNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasperNetworkService.swift; sourceTree = "<group>"; };
 		2D54FEC82CDBD696004FC466 /* CasperTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasperTarget.swift; sourceTree = "<group>"; };
+		2D56D4F82D93F56C001FCDDC /* TangemNetwokAnalyticsPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemNetwokAnalyticsPlugin.swift; sourceTree = "<group>"; };
 		2D57CA852C3D0B0D0070D477 /* MarketsWalletDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsWalletDataSource.swift; sourceTree = "<group>"; };
 		2D57CA872C3D0BA30070D477 /* MarketsGeneratedAddressView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsGeneratedAddressView.swift; sourceTree = "<group>"; };
 		2D5DCA382BEA8584002D26AC /* WalletConnectCryptoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectCryptoProvider.swift; sourceTree = "<group>"; };
@@ -14407,6 +14409,7 @@
 				DCE5C66D28898BB6000C7F67 /* CommonTangemApiService.swift */,
 				DCE5C66B28898B7F000C7F67 /* TangemApiService.swift */,
 				DA5970EB27FC1C1B0050387C /* TangemApiTarget.swift */,
+				2D56D4F82D93F56C001FCDDC /* TangemNetwokAnalyticsPlugin.swift */,
 				EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */,
 			);
 			path = TangemAPI;
@@ -18305,6 +18308,7 @@
 				B05449CE2CCF8B4F00983C78 /* VisaOnboardingView.swift in Sources */,
 				EF5A5AD528D86094002544AC /* CardImageProvider.swift in Sources */,
 				DC99D0DF2C982B23006AE8FA /* AdaptiveSizeSheetViewModel.swift in Sources */,
+				2D56D4F92D93F56C001FCDDC /* TangemNetwokAnalyticsPlugin.swift in Sources */,
 				B65108B32CAC2A8100690C22 /* ShapeStyle+.swift in Sources */,
 				DC10A7C6295DED4E00367574 /* BindableError.swift in Sources */,
 				EF9E2A552B56A6E800418559 /* UserWalletModelMock.swift in Sources */,
