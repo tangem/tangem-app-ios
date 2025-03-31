@@ -47,6 +47,7 @@ class OSLogFileWriter {
 extension OSLogFileWriter {
     var logFile: URL { logFileURL }
 
+    #if ALPHA || BETA || DEBUG
     func write(_ message: String, category: OSLog.Category, level: OSLog.Level, date: Date = .now) throws {
         var message = message.trimmingCharacters(in: .whitespacesAndNewlines)
 
@@ -72,6 +73,7 @@ extension OSLogFileWriter {
         let row = "\n\(entry.encoded(separator: OSLogConstants.separator))"
         try write(row: row)
     }
+    #endif
 
     func clear() throws {
         try fileManager.removeItem(at: logFileURL)
