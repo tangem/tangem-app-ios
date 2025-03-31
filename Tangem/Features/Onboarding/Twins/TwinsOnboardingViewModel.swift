@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 import Combine
 
 class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, OnboardingCoordinator>, ObservableObject {
