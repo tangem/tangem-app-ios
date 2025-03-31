@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 class SecurityModeCoordinator: CoordinatorObject {
     var dismissAction: Action<Void>
