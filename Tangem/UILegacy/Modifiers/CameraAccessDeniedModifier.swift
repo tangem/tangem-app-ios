@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 
 struct CameraAccessDeniedModifier: ViewModifier {
     @Binding var isDisplayed: Bool
