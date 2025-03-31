@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 import UIKit
 import Combine
 import CombineExt

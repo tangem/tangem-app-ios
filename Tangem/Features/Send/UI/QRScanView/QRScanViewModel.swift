@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 import AVFoundation
 import PhotosUI
 

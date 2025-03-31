@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 
 struct OnrampStatusCompactView: View {
     @ObservedObject var viewModel: OnrampStatusCompactViewModel
