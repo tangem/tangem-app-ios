@@ -12,10 +12,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li device</string>
         <key>other</key>
-        <string>%li devices</string>
+        <string>%li 卡片</string>
       </dict>
     </dict>
     <key>common_days_no_param</key>
@@ -108,10 +106,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string></string>
         <key>other</key>
-        <string>Write these %li words down in the order given below and store them in a safe and secret place.</string>
+        <string>按照下面給出的順序寫下這 %li 個單詞，並將它們存放在安全秘密的地方。</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_words_count</key>
@@ -156,10 +152,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li wallet</string>
         <key>other</key>
-        <string>%li wallets</string>
+        <string>%li 錢包</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>
