@@ -6,20 +6,21 @@ import PackageDescription
 
 // MARK: - Package
 
+let libraryTargets = serviceModules + featureModules + [modulesWrapperLibrary]
+let allTargets = libraryTargets + unitTestsModules
+
 let package = Package(
     name: modulesWrapperLibraryName,
     defaultLocalization: "en",
     platforms: [
         .iOS(.v15),
     ],
-    products: [
+    products: libraryTargets.map {
         .library(
-            name: modulesWrapperLibraryName,
-            targets: [
-                modulesWrapperLibraryName,
-            ]
-        ),
-    ],
+            name: $0.name,
+            targets: [$0.name]
+        )
+    },
     dependencies: [
         .package(url: "https://github.com/Moya/Moya.git", .upToNextMajor(from: "15.0.0")),
         .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.0.0")),
@@ -27,7 +28,7 @@ let package = Package(
         .package(url: "https://github.com/Flight-School/AnyCodable.git", .upToNextMajor(from: "0.6.7")),
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.18")),
     ],
-    targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
+    targets: allTargets
 )
 
 // MARK: - Service Modules
