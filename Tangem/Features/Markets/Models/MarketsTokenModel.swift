@@ -13,7 +13,7 @@ struct MarketsTokenModel: Identifiable, Decodable, Equatable {
     let name: String
     let symbol: String
     let currentPrice: Decimal?
-    let priceChangePercentage: [String: Decimal]
+    let priceChangePercentage: [String: Decimal?]
     let marketRating: Int?
     let marketCap: Decimal?
     let isUnderMarketCapLimit: Bool?
