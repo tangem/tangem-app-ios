@@ -71,7 +71,7 @@ var serviceModules: [PackageDescription.Target] {
             name: "TangemUIUtils",
             dependencies: [
                 "Kingfisher",
-                "TangemAssets"
+                "TangemAssets",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
