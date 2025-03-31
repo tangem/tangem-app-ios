@@ -6,19 +6,20 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-protocol UIEnvironment {
-    var overlayContentAdapter: OverlayContentContainerViewControllerAdapter { get }
-    var viewHierarchySnapshottingAdapter: ViewHierarchySnapshottingContainerViewControllerAdapter { get }
+private final class UIEnvironment {
+    let overlayContentAdapter = OverlayContentContainerViewControllerAdapter()
+    let viewHierarchySnapshottingAdapter = ViewHierarchySnapshottingContainerViewControllerAdapter()
+    let floatingSheetViewModel = FloatingSheetViewModel()
 }
 
-private struct UIEnvironmenteKey: InjectionKey {
-    static var currentValue: UIEnvironment = CommonUIEnvironment()
+private struct UIEnvironmentKey: InjectionKey {
+    static var currentValue = UIEnvironment()
 }
 
 extension InjectedValues {
     private var environment: UIEnvironment {
-        get { Self[UIEnvironmenteKey.self] }
-        set { Self[UIEnvironmenteKey.self] = newValue }
+        get { Self[UIEnvironmentKey.self] }
+        set { Self[UIEnvironmentKey.self] = newValue }
     }
 }
 
@@ -51,5 +52,17 @@ extension InjectedValues {
 
     var viewHierarchySnapshotterInitializer: ViewHierarchySnapshottingInitializable {
         environment.viewHierarchySnapshottingAdapter
+    }
+}
+
+// MARK: - Floating sheet
+
+extension InjectedValues {
+    var floatingSheetViewModel: FloatingSheetViewModel {
+        environment.floatingSheetViewModel
+    }
+
+    var floatingSheetPresenter: any FloatingSheetPresenter {
+        environment.floatingSheetViewModel
     }
 }
