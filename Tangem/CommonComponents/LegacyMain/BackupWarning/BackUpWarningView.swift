@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 
 struct BackUpWarningButton: View {
     let tapAction: () -> Void

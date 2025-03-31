@@ -7,6 +7,7 @@ import PackageDescription
 
 let package = Package(
     name: modulesWrapperLibraryName,
+    defaultLocalization: "en",
     platforms: [
         .iOS(.v15),
     ],
@@ -37,6 +38,11 @@ var serviceModules: [PackageDescription.Target] {
             name: "TangemAssets",
             exclude: ["Templates"],
             resources: [.process("Assets")]
+        ),
+        .tangemTarget(
+            name: "TangemLocalization",
+            exclude: ["Templates"],
+            resources: [.process("Localizations")]
         ),
         .tangemTarget(
             name: "TangemFoundation",
