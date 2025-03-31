@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 struct MarketsTokenDetailsLinkSection: Identifiable {
     let section: Section
