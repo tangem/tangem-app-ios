@@ -71,7 +71,7 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
 
         setupPriceInfo(input: formatViewUpdateInput(
             forPrice: tokenModel.currentPrice,
-            priceChange: tokenModel.priceChangePercentage[filterProvider.currentFilterValue.interval.rawValue]
+            priceChange: tokenModel.priceChangePercentage[filterProvider.currentFilterValue.interval.rawValue] ?? nil
         ))
         findAndAssignChartsValue(from: chartsProvider.items, with: filterProvider.currentFilterValue.interval)
 
