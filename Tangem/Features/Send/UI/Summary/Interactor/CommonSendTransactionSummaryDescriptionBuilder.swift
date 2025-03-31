@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 struct CommonSendTransactionSummaryDescriptionBuilder {
     private let tokenItem: TokenItem

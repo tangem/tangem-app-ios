@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 struct MarketsTokenDetailsDateHelper {
     private let initialDate: Date

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 import Combine
 
 class CardSettingsViewModel: ObservableObject {

@@ -7,6 +7,7 @@
 //
 
 import LocalAuthentication
+import TangemLocalization
 import SwiftUI
 
 enum BiometricAuthorizationUtils {

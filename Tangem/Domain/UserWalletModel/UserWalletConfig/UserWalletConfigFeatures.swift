@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 enum UserWalletFeature: Int, CaseIterable { // [REDACTED_TODO_COMMENT]
     case accessCode

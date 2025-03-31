@@ -6,6 +6,8 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import TangemLocalization
+
 enum VisaOnboardingStep: Equatable {
     case welcome
     case welcomeBack(isAccessCodeSet: Bool)

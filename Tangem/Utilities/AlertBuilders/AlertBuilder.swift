@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 
 enum AlertBuilder {
     static var successTitle: String {
