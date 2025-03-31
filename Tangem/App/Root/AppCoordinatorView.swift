@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct AppCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: AppCoordinator
@@ -15,6 +16,10 @@ struct AppCoordinatorView: CoordinatorView {
 
     @Injected(\.overlayContentContainer) private var overlayContentContainer: OverlayContentContainer
     @Injected(\.viewHierarchySnapshotterInitializer) private var viewHierarchySnapshotterInitializer: ViewHierarchySnapshottingInitializable
+
+    @State private var sheetRegistry = FloatingSheetRegistry()
+    @Injected(\.floatingSheetViewModel) private var floatingSheetViewModel: FloatingSheetViewModel
+    @State private var sheetViewModel: (any FloatingSheetContentViewModel)?
 
     @Environment(\.mainWindowSize) var mainWindowSize: CGSize
     @Namespace private var namespace
@@ -46,6 +51,20 @@ struct AppCoordinatorView: CoordinatorView {
             ) {
                 InformationHiddenBalancesView(viewModel: $0)
             }
+            .floatingSheet(
+                viewModel: Binding(
+                    get: { sheetViewModel },
+                    set: { sheetViewModel in
+                        if sheetViewModel == nil {
+                            floatingSheetViewModel.removeActiveSheet()
+                        }
+                    }
+                )
+            )
+            .onReceive(floatingSheetViewModel.$activeSheet) { sheetViewModel in
+                self.sheetViewModel = sheetViewModel
+            }
+            .environment(\.floatingSheetRegistry, sheetRegistry)
     }
 
     @ViewBuilder
