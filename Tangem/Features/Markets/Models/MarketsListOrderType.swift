@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 enum MarketsListOrderType: String, CaseIterable, Encodable, CustomStringConvertible, Identifiable {
     case rating
