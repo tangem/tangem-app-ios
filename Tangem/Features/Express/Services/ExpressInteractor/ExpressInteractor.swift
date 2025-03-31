@@ -34,6 +34,7 @@ class ExpressInteractor {
     private let expressRepository: ExpressRepository
     private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
     private let expressDestinationService: ExpressDestinationService
+    private let expressAnalyticsLogger: ExpressAnalyticsLogger
     private let expressTransactionBuilder: ExpressTransactionBuilder
     private let expressAPIProvider: ExpressAPIProvider
     private let signer: TangemSigner
@@ -55,6 +56,7 @@ class ExpressInteractor {
         expressRepository: ExpressRepository,
         expressPendingTransactionRepository: ExpressPendingTransactionRepository,
         expressDestinationService: ExpressDestinationService,
+        expressAnalyticsLogger: ExpressAnalyticsLogger,
         expressTransactionBuilder: ExpressTransactionBuilder,
         expressAPIProvider: ExpressAPIProvider,
         signer: TangemSigner
@@ -68,6 +70,7 @@ class ExpressInteractor {
         self.expressRepository = expressRepository
         self.expressPendingTransactionRepository = expressPendingTransactionRepository
         self.expressDestinationService = expressDestinationService
+        self.expressAnalyticsLogger = expressAnalyticsLogger
         self.expressTransactionBuilder = expressTransactionBuilder
         self.expressAPIProvider = expressAPIProvider
         self.signer = signer
@@ -641,30 +644,20 @@ private extension ExpressInteractor {
 
 private extension ExpressInteractor {
     func logSwapTransactionAnalyticsEvent() {
-        var parameters: [Analytics.ParameterKey: String] = [.sendToken: getSender().tokenItem.currencySymbol]
-
-        if let destination = getDestination() {
-            parameters[.receiveToken] = destination.tokenItem.currencySymbol
-        }
-
-        Analytics.log(event: .swapButtonSwap, params: parameters)
+        expressAnalyticsLogger.logSwapTransactionAnalyticsEvent(destination: getDestination()?.tokenItem.currencySymbol)
     }
 
     func logApproveTransactionAnalyticsEvent(policy: ExpressApprovePolicy) {
-        var parameters: [Analytics.ParameterKey: String] = [.sendToken: getSender().tokenItem.currencySymbol]
+        expressAnalyticsLogger.logApproveTransactionAnalyticsEvent(policy: policy, destination: getDestination()?.tokenItem.currencySymbol)
+    }
 
-        switch policy {
-        case .specified:
-            parameters[.type] = Analytics.ParameterValue.oneTransactionApprove.rawValue
-        case .unlimited:
-            parameters[.type] = Analytics.ParameterValue.unlimitedApprove.rawValue
-        }
+    func logApproveTransactionSentAnalyticsEvent(policy: ExpressApprovePolicy, signerType: String) {
+        expressAnalyticsLogger.logApproveTransactionSentAnalyticsEvent(policy: policy, signerType: signerType)
+    }
 
-        if let destination = getDestination() {
-            parameters[.receiveToken] = destination.tokenItem.currencySymbol
-        }
-
-        Analytics.log(event: .swapButtonPermissionApprove, params: parameters)
+    func logExpressError(_ error: ExpressAPIError) async {
+        let selectedProvider = await getSelectedProvider()
+        expressAnalyticsLogger.logExpressError(error, provider: selectedProvider?.provider)
     }
 
     func logTransactionSentAnalyticsEvent(data: SentExpressTransactionData, signerType: String) {
@@ -683,39 +676,6 @@ private extension ExpressInteractor {
             .feeType: analyticsFeeType.rawValue,
             .walletForm: signerType,
         ])
-    }
-
-    func logApproveTransactionSentAnalyticsEvent(policy: ExpressApprovePolicy, signerType: String) {
-        let permissionType: Analytics.ParameterValue = {
-            switch policy {
-            case .specified:
-                return .oneTransactionApprove
-            case .unlimited:
-                return .unlimitedApprove
-            }
-        }()
-
-        Analytics.log(event: .transactionSent, params: [
-            .source: Analytics.ParameterValue.transactionSourceApprove.rawValue,
-            .feeType: Analytics.ParameterValue.transactionFeeMax.rawValue,
-            .token: getSender().tokenItem.currencySymbol,
-            .blockchain: getSender().tokenItem.blockchain.displayName,
-            .permissionType: permissionType.rawValue,
-            .walletForm: signerType,
-        ])
-    }
-
-    func logExpressError(_ error: ExpressAPIError) async {
-        var parameters: [Analytics.ParameterKey: String] = [
-            .token: initialWallet.tokenItem.currencySymbol,
-            .errorCode: error.errorCode.localizedDescription,
-        ]
-
-        if let provider = await getSelectedProvider() {
-            parameters[.provider] = provider.provider.name
-        }
-
-        Analytics.log(event: .swapNoticeExpressError, params: parameters)
     }
 }
 
