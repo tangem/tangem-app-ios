@@ -7,6 +7,7 @@
 //
 
 import TangemAssets
+import TangemLocalization
 
 struct ReceiveNotificationEvent {
     let currencySymbol: String
