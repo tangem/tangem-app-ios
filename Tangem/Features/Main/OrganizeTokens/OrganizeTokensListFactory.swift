@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 import struct BlockchainSdk.Token
 
 struct OrganizeTokensListFactory {
