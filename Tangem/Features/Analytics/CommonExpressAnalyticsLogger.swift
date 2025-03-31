@@ -50,4 +50,57 @@ struct CommonExpressAnalyticsLogger: ExpressAnalyticsLogger {
             ]
         )
     }
+
+    func logExpressError(_ error: ExpressAPIError, provider: ExpressProvider?) {
+        var parameters: [Analytics.ParameterKey: String] = [
+            .token: tokenItem.currencySymbol,
+            .errorCode: error.errorCode.localizedDescription,
+        ]
+
+        parameters[.provider] = provider?.name
+
+        Analytics.log(event: .swapNoticeExpressError, params: parameters)
+    }
+
+    func logSwapTransactionAnalyticsEvent(destination: String?) {
+        var parameters: [Analytics.ParameterKey: String] = [.sendToken: tokenItem.currencySymbol]
+        parameters[.receiveToken] = destination
+
+        Analytics.log(event: .swapButtonSwap, params: parameters)
+    }
+
+    func logApproveTransactionAnalyticsEvent(policy: ExpressApprovePolicy, destination: String?) {
+        var parameters: [Analytics.ParameterKey: String] = [.sendToken: tokenItem.currencySymbol]
+
+        switch policy {
+        case .specified:
+            parameters[.type] = Analytics.ParameterValue.oneTransactionApprove.rawValue
+        case .unlimited:
+            parameters[.type] = Analytics.ParameterValue.unlimitedApprove.rawValue
+        }
+
+        parameters[.receiveToken] = destination
+
+        Analytics.log(event: .swapButtonPermissionApprove, params: parameters)
+    }
+
+    func logApproveTransactionSentAnalyticsEvent(policy: ExpressApprovePolicy, signerType: String) {
+        let permissionType: Analytics.ParameterValue = {
+            switch policy {
+            case .specified:
+                return .oneTransactionApprove
+            case .unlimited:
+                return .unlimitedApprove
+            }
+        }()
+
+        Analytics.log(event: .transactionSent, params: [
+            .source: Analytics.ParameterValue.transactionSourceApprove.rawValue,
+            .feeType: Analytics.ParameterValue.transactionFeeMax.rawValue,
+            .token: tokenItem.currencySymbol,
+            .blockchain: tokenItem.blockchain.displayName,
+            .permissionType: permissionType.rawValue,
+            .walletForm: signerType,
+        ])
+    }
 }
