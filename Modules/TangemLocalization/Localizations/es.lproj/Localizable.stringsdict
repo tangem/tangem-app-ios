@@ -12,8 +12,10 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
+        <key>one</key>
+        <string>%li tarjeta</string>
         <key>other</key>
-        <string>%li 卡片</string>
+        <string>%li tarjetas</string>
       </dict>
     </dict>
     <key>common_days_no_param</key>
@@ -27,15 +29,15 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>day</string>
+        <string>día</string>
         <key>other</key>
-        <string>days</string>
+        <string>días</string>
       </dict>
     </dict>
     <key>manage_tokens_number_of_wallets_ios</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%li of %#@total_wallets@</string>
+      <string>%li %#@total_wallets@</string>
       <key>total_wallets</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -43,9 +45,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li wallet</string>
+        <string>%li billetera</string>
         <key>other</key>
-        <string>%li wallets</string>
+        <string>%li billeteras</string>
       </dict>
     </dict>
     <key>markets_token_details_amount_exchanges</key>
@@ -59,9 +61,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li exchange</string>
+        <string>%li intercambio</string>
         <key>other</key>
-        <string>%li exchanges</string>
+        <string>%li intercambios</string>
       </dict>
     </dict>
     <key>markets_token_details_based_on_ratings</key>
@@ -75,9 +77,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Based on %li rating</string>
+        <string>Basado en %li evaluación </string>
         <key>other</key>
-        <string>Based on %li ratings</string>
+        <string>Basado en %li evaluaciónes</string>
       </dict>
     </dict>
     <key>nft_collections_count</key>
@@ -106,8 +108,10 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
+        <key>one</key>
+        <string></string>
         <key>other</key>
-        <string>按照下面給出的順序寫下這 %li 個單詞，並將它們存放在安全秘密的地方。</string>
+        <string>Escriba estas %li palabras en el orden que se indica a continuación y guárdelas en un lugar seguro y secreto.</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_words_count</key>
@@ -123,7 +127,7 @@
         <key>one</key>
         <string></string>
         <key>other</key>
-        <string>%li words</string>
+        <string>%li palabras</string>
       </dict>
     </dict>
     <key>referral_number_of_wallets</key>
@@ -137,9 +141,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>for %li wallet</string>
+        <string>para %li billetera </string>
         <key>other</key>
-        <string>for %li wallets</string>
+        <string>para %li billeteras</string>
       </dict>
     </dict>
     <key>referral_wallets_purchased_count</key>
@@ -152,8 +156,10 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
+        <key>one</key>
+        <string>%li billetera</string>
         <key>other</key>
-        <string>%li 錢包</string>
+        <string>%li billeteras</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>
@@ -183,9 +189,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Use your card or ring to get an address for %li network</string>
+        <string>Use su tarjeta o anillo para obtener una dirección para la red</string>
         <key>other</key>
-        <string>Use your card or ring to get an addresses for %li networks</string>
+        <string>Use su tarjeta o anillo para obtener direcciónes para la red</string>
       </dict>
     </dict>
   </dict>
