@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 final class ActionButtonsChooseTokenViewModel: ObservableObject {
     var title: String {

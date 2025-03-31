@@ -7,6 +7,7 @@
 //
 
 import TangemExpress
+import TangemLocalization
 
 extension ExpressAPIError {
     var localizedTitle: String {
