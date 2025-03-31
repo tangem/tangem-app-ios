@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 
 struct HideTokenAlertBuilder {
     func hideTokenAlert(tokenItem: TokenItem, hideAction: @escaping () -> Void, cancelAction: @escaping () -> Void = {}) -> AlertBinder {
