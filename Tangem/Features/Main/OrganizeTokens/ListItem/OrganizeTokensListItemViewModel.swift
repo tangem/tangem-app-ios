@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 import TangemAssets
 
 struct OrganizeTokensListItemViewModel: Hashable, Identifiable {
