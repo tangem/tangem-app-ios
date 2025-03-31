@@ -1,3 +1,5 @@
+import TangemLocalization
+
 //
 //  BuyTokenSelectorLocalizable.swift
 //  TangemApp

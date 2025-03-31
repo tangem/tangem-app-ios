@@ -7,6 +7,7 @@
 //
 
 import Combine
+import TangemLocalization
 import SwiftUI
 import struct BlockchainSdk.SendTxError
 import TangemAssets

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 import CryptoSwift
 import enum BlockchainSdk.Blockchain
 import struct Commons.AnyCodable

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 struct LoadableTokenBalanceViewStateBuilder {
     func build(type: FormattedTokenBalanceType, icon: LoadableTokenBalanceView.State.Icon? = nil) -> LoadableTokenBalanceView.State {
