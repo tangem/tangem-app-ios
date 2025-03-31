@@ -7,6 +7,7 @@
 //
 
 import Combine
+import TangemLocalization
 import SwiftUI
 
 final class UserWalletSettingsViewModel: ObservableObject {
