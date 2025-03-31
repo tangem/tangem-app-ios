@@ -189,11 +189,17 @@ final class SendViewModel: ObservableObject {
             ])
         }
 
-        if shouldShowDismissAlert {
+        // We perform the continue action
+        // When user'd like to return back step
+        // For destination, amount, fee do not close modal and open the summary
+        switch mainButtonType {
+        case .continue:
+            stepsManager.performContinue()
+        case _ where shouldShowDismissAlert:
             alert = alertBuilder.makeDismissAlert { [weak self] in
                 self?.coordinator?.dismiss()
             }
-        } else {
+        case _:
             coordinator?.dismiss()
         }
     }
