@@ -156,6 +156,9 @@ public struct AddressServiceFactory {
             return Fact0rnAddressService()
         case .alephium:
             return AlephiumAddressService()
+        case .pepecoin:
+            let networkParams: INetwork = isTestnet ? PepecoinTestnetNetworkParams() : PepecoinMainnetNetworkParams()
+            return BitcoinLegacyAddressService(networkParams: networkParams)
         }
     }
 }
