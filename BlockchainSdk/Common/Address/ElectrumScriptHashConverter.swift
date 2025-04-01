@@ -1,15 +1,15 @@
 //
-//  RadiantUtils.swift
+//  ElectrumScriptHashConverter.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
 import Foundation
 import WalletCore
 
-struct RadiantAddressUtils {
+struct ElectrumScriptHashConverter {
     /**
      Specify electrum api network
 

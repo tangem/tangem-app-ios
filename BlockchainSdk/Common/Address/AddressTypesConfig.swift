@@ -101,7 +101,8 @@ struct AddressTypesConfig {
              .sonic,
              .alephium,
              .vanar,
-             .zkLinkNova:
+             .zkLinkNova,
+             .pepecoin:
             return [.default]
         }
     }
