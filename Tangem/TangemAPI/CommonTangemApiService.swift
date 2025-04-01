@@ -20,6 +20,7 @@ class CommonTangemApiService {
         TimeoutIntervalPlugin(),
         DeviceInfoPlugin(),
         TangemNetworkLoggerPlugin(logOptions: .verbose),
+        TangemNetworkAnalyticsPlugin(),
     ])
 
     private var authData: TangemApiTarget.AuthData?
@@ -40,7 +41,14 @@ class CommonTangemApiService {
 
     private func request<D: Decodable>(for type: TangemApiTarget.TargetType, decoder: JSONDecoder = .init()) async throws -> D {
         let target = TangemApiTarget(type: type, authData: authData)
-        return try await provider.asyncRequest(target).mapAPIResponse(decoder: decoder)
+        let response = try await provider.asyncRequest(target)
+
+        do {
+            return try response.mapAPIResponse(decoder: decoder)
+        } catch {
+            log(error: error, exceptionHost: target.requestDescription)
+            throw error
+        }
     }
 
     private func requestRawData(for type: TangemApiTarget.TargetType) async throws -> Data {
@@ -314,6 +322,8 @@ extension CommonTangemApiService: TangemApiService {
     }
 }
 
+// MARK: - Decode
+
 private extension Response {
     func mapAPIResponse<D: Decodable>(decoder: JSONDecoder = .init()) throws -> D {
         let filteredResponse = try filterSuccessfulStatusCodes()
@@ -323,5 +333,19 @@ private extension Response {
         }
 
         return try filteredResponse.map(D.self, using: decoder)
+    }
+}
+
+// MARK: - Analytics
+
+private extension CommonTangemApiService {
+    func log(error: Error, exceptionHost: String) {
+        Analytics.log(
+            event: .tangemAPIException,
+            params: [
+                .exceptionHost: exceptionHost,
+                .errorDescription: error.localizedDescription,
+            ]
+        )
     }
 }
