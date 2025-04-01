@@ -14,7 +14,7 @@ struct WCUtils {
             guard let blockchains = namespace.value.chains else { return partialResult }
 
             let unsupportedBlockchains = blockchains.compactMap { blockchain in
-                let blockChainsMeta = WCUtils.makeBlockchain(from: blockchain)
+                let blockсhainsMeta = WCUtils.makeBlockchain(from: blockchain)
 
                 if WCSupportedNamespaces(rawValue: namespace.key) != nil {
                     return blockChainsMeta == nil ? blockchain.absoluteString : nil
