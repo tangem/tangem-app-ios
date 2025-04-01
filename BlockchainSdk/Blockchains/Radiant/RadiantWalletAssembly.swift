@@ -15,9 +15,11 @@ struct RadiantWalletAssembly: WalletManagerAssembly {
             .resolveProviders(apiInfos: input.apiInfo, factory: { nodeInfo, _ in
                 ElectrumWebSocketProvider(url: nodeInfo.url)
             })
-        let providers: [RadiantNetworkProvider] = socketManagers.map {
-            RadiantNetworkProvider(provider: $0, isTestnet: input.blockchain.isTestnet)
+
+        let providers: [ElectrumUTXONetworkProvider] = socketManagers.map {
+            ElectrumUTXONetworkProvider(blockchain: input.blockchain, provider: $0, settings: Constants.electrumSettings)
         }
+
         let publicKey = try Secp256k1Key(with: input.wallet.publicKey.blockchainKey).compress()
 
         let unspentOutputManager: UnspentOutputManager = .radiant(address: input.wallet.defaultAddress)
@@ -32,6 +34,24 @@ struct RadiantWalletAssembly: WalletManagerAssembly {
             transactionBuilder: transactionBuilder,
             unspentOutputManager: unspentOutputManager,
             networkService: MultiUTXONetworkProvider(providers: providers)
+        )
+    }
+}
+
+// MARK: - Constants
+
+extension RadiantWalletAssembly {
+    enum Constants {
+        /*
+         This minimal rate fee for successful transaction from constant
+         -  Relying on answers from blockchain developers and costs from the official application (Electron-Radiant).
+         - 10000 satoshi per byte or 0.1 RXD per KB.
+         */
+
+        static let electrumSettings: ElectrumUTXONetworkProvider.Settings = .init(
+            recommendedFeePer1000Bytes: .init(stringValue: "0.1")!,
+            normalFeeMultiplier: .init(stringValue: "1.5")!,
+            priorityFeeMultiplier: .init(stringValue: "2")!
         )
     }
 }
