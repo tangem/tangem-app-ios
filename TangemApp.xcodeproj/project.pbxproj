@@ -73,6 +73,13 @@
 		2D535E702A0CB4D20081EB76 /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D535E6B2A0CB4D20081EB76 /* NotificationView.swift */; };
 		2D535E722A0CB4D20081EB76 /* BottomSheetInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D535E6E2A0CB4D20081EB76 /* BottomSheetInfoView.swift */; };
 		2D535E732A0CB4D20081EB76 /* BottomSheetInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D535E6F2A0CB4D20081EB76 /* BottomSheetInfoViewModel.swift */; };
+		2D53D2442D95796D00865200 /* PepecoinWalletAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D53D2412D95796D00865200 /* PepecoinWalletAssembly.swift */; };
+		2D53D2462D95796D00865200 /* PepecoinExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D53D23E2D95796D00865200 /* PepecoinExternalLinkProvider.swift */; };
+		2D53D2472D95796D00865200 /* PepecoinTestnetNetworkParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D53D2402D95796D00865200 /* PepecoinTestnetNetworkParams.swift */; };
+		2D53D2482D95796D00865200 /* PepecoinWalletManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D53D2422D95796D00865200 /* PepecoinWalletManager.swift */; };
+		2D53D24A2D95796D00865200 /* PepecoinMainnetNetworkParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D53D23F2D95796D00865200 /* PepecoinMainnetNetworkParams.swift */; };
+		2D53D24C2D957A4E00865200 /* ElectrumScriptHashConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D53D24B2D957A4E00865200 /* ElectrumScriptHashConverter.swift */; };
+		2D53D24E2D957A5C00865200 /* ElectrumUTXONetworkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D53D24D2D957A5C00865200 /* ElectrumUTXONetworkProvider.swift */; };
 		2D54FECA2CDBD696004FC466 /* CasperConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D54FEBD2CDBD696004FC466 /* CasperConstants.swift */; };
 		2D54FECB2CDBD696004FC466 /* CasperTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D54FEC82CDBD696004FC466 /* CasperTarget.swift */; };
 		2D54FECC2CDBD696004FC466 /* CasperNetworkResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D54FEC32CDBD696004FC466 /* CasperNetworkResponse.swift */; };
@@ -1442,7 +1449,6 @@
 		B62D416B2CBC79DA00C2460E /* SubstrateRuntimeVersionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3DCE2CBC79D900C2460E /* SubstrateRuntimeVersionProvider.swift */; };
 		B62D416C2CBC79DA00C2460E /* SubstrateWalletAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3DCF2CBC79D900C2460E /* SubstrateWalletAssembly.swift */; };
 		B62D41712CBC79DA00C2460E /* RadiantAddressService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3DD72CBC79D900C2460E /* RadiantAddressService.swift */; };
-		B62D41722CBC79DA00C2460E /* RadiantAddressUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3DD82CBC79D900C2460E /* RadiantAddressUtils.swift */; };
 		B62D41732CBC79DA00C2460E /* RadiantExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3DD92CBC79D900C2460E /* RadiantExternalLinkProvider.swift */; };
 		B62D41742CBC79DA00C2460E /* RadiantTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3DDA2CBC79D900C2460E /* RadiantTransactionBuilder.swift */; };
 		B62D41752CBC79DA00C2460E /* RadiantTransactionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3DDB2CBC79D900C2460E /* RadiantTransactionUtils.swift */; };
@@ -2729,7 +2735,6 @@
 		EF339E562C22DADC00B5CDC9 /* DestinationAdditionalFieldType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF339E552C22DADC00B5CDC9 /* DestinationAdditionalFieldType.swift */; };
 		EF339E752C24820B00B5CDC9 /* SendAmountInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF339E742C24820B00B5CDC9 /* SendAmountInteractor.swift */; };
 		EF38050E2D6F938100273B1B /* BlockBookTransactionTransactionRecordMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF38050D2D6F938100273B1B /* BlockBookTransactionTransactionRecordMapper.swift */; };
-		EF3805102D706A1700273B1B /* RadiantNetworkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF38050F2D706A1700273B1B /* RadiantNetworkProvider.swift */; };
 		EF3805122D70917B00273B1B /* ElectrumTransactionRecordMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3805112D70917B00273B1B /* ElectrumTransactionRecordMapper.swift */; };
 		EF3805142D709B9B00273B1B /* BlockchairTransactionRecordMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3805132D709B9B00273B1B /* BlockchairTransactionRecordMapper.swift */; };
 		EF3805162D70B30A00273B1B /* BlockcypherTransactionRecordMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3805152D70B30A00273B1B /* BlockcypherTransactionRecordMapper.swift */; };
@@ -3487,6 +3492,13 @@
 		2D535E6B2A0CB4D20081EB76 /* NotificationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationView.swift; sourceTree = "<group>"; };
 		2D535E6E2A0CB4D20081EB76 /* BottomSheetInfoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BottomSheetInfoView.swift; sourceTree = "<group>"; };
 		2D535E6F2A0CB4D20081EB76 /* BottomSheetInfoViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BottomSheetInfoViewModel.swift; sourceTree = "<group>"; };
+		2D53D23E2D95796D00865200 /* PepecoinExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PepecoinExternalLinkProvider.swift; sourceTree = "<group>"; };
+		2D53D23F2D95796D00865200 /* PepecoinMainnetNetworkParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PepecoinMainnetNetworkParams.swift; sourceTree = "<group>"; };
+		2D53D2402D95796D00865200 /* PepecoinTestnetNetworkParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PepecoinTestnetNetworkParams.swift; sourceTree = "<group>"; };
+		2D53D2412D95796D00865200 /* PepecoinWalletAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PepecoinWalletAssembly.swift; sourceTree = "<group>"; };
+		2D53D2422D95796D00865200 /* PepecoinWalletManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PepecoinWalletManager.swift; sourceTree = "<group>"; };
+		2D53D24B2D957A4E00865200 /* ElectrumScriptHashConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElectrumScriptHashConverter.swift; sourceTree = "<group>"; };
+		2D53D24D2D957A5C00865200 /* ElectrumUTXONetworkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElectrumUTXONetworkProvider.swift; sourceTree = "<group>"; };
 		2D54FEBD2CDBD696004FC466 /* CasperConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasperConstants.swift; sourceTree = "<group>"; };
 		2D54FEBF2CDBD696004FC466 /* CasperBalance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasperBalance.swift; sourceTree = "<group>"; };
 		2D54FEC12CDBD696004FC466 /* CasperNetworkRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasperNetworkRequest.swift; sourceTree = "<group>"; };
@@ -4864,7 +4876,6 @@
 		B62D3DCE2CBC79D900C2460E /* SubstrateRuntimeVersionProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubstrateRuntimeVersionProvider.swift; sourceTree = "<group>"; };
 		B62D3DCF2CBC79D900C2460E /* SubstrateWalletAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubstrateWalletAssembly.swift; sourceTree = "<group>"; };
 		B62D3DD72CBC79D900C2460E /* RadiantAddressService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadiantAddressService.swift; sourceTree = "<group>"; };
-		B62D3DD82CBC79D900C2460E /* RadiantAddressUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadiantAddressUtils.swift; sourceTree = "<group>"; };
 		B62D3DD92CBC79D900C2460E /* RadiantExternalLinkProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadiantExternalLinkProvider.swift; sourceTree = "<group>"; };
 		B62D3DDA2CBC79D900C2460E /* RadiantTransactionBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadiantTransactionBuilder.swift; sourceTree = "<group>"; };
 		B62D3DDB2CBC79D900C2460E /* RadiantTransactionUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadiantTransactionUtils.swift; sourceTree = "<group>"; };
@@ -6119,7 +6130,6 @@
 		EF339E552C22DADC00B5CDC9 /* DestinationAdditionalFieldType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestinationAdditionalFieldType.swift; sourceTree = "<group>"; };
 		EF339E742C24820B00B5CDC9 /* SendAmountInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAmountInteractor.swift; sourceTree = "<group>"; };
 		EF38050D2D6F938100273B1B /* BlockBookTransactionTransactionRecordMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockBookTransactionTransactionRecordMapper.swift; sourceTree = "<group>"; };
-		EF38050F2D706A1700273B1B /* RadiantNetworkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadiantNetworkProvider.swift; sourceTree = "<group>"; };
 		EF3805112D70917B00273B1B /* ElectrumTransactionRecordMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElectrumTransactionRecordMapper.swift; sourceTree = "<group>"; };
 		EF3805132D709B9B00273B1B /* BlockchairTransactionRecordMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchairTransactionRecordMapper.swift; sourceTree = "<group>"; };
 		EF3805152D70B30A00273B1B /* BlockcypherTransactionRecordMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockcypherTransactionRecordMapper.swift; sourceTree = "<group>"; };
@@ -6936,6 +6946,18 @@
 				2D535E6F2A0CB4D20081EB76 /* BottomSheetInfoViewModel.swift */,
 			);
 			path = BottomSheetInfoView;
+			sourceTree = "<group>";
+		};
+		2D53D2432D95796D00865200 /* Pepecoin */ = {
+			isa = PBXGroup;
+			children = (
+				2D53D23E2D95796D00865200 /* PepecoinExternalLinkProvider.swift */,
+				2D53D23F2D95796D00865200 /* PepecoinMainnetNetworkParams.swift */,
+				2D53D2402D95796D00865200 /* PepecoinTestnetNetworkParams.swift */,
+				2D53D2412D95796D00865200 /* PepecoinWalletAssembly.swift */,
+				2D53D2422D95796D00865200 /* PepecoinWalletManager.swift */,
+			);
+			path = Pepecoin;
 			sourceTree = "<group>";
 		};
 		2D54FEBE2CDBD696004FC466 /* Common */ = {
@@ -11201,20 +11223,10 @@
 			path = Polkadot;
 			sourceTree = "<group>";
 		};
-		B62D3DD62CBC79D900C2460E /* Network */ = {
-			isa = PBXGroup;
-			children = (
-				EF38050F2D706A1700273B1B /* RadiantNetworkProvider.swift */,
-			);
-			path = Network;
-			sourceTree = "<group>";
-		};
 		B62D3DDE2CBC79D900C2460E /* Radiant */ = {
 			isa = PBXGroup;
 			children = (
-				B62D3DD62CBC79D900C2460E /* Network */,
 				B62D3DD72CBC79D900C2460E /* RadiantAddressService.swift */,
-				B62D3DD82CBC79D900C2460E /* RadiantAddressUtils.swift */,
 				B62D3DD92CBC79D900C2460E /* RadiantExternalLinkProvider.swift */,
 				B62D3DDA2CBC79D900C2460E /* RadiantTransactionBuilder.swift */,
 				B62D3DDB2CBC79D900C2460E /* RadiantTransactionUtils.swift */,
@@ -11644,6 +11656,7 @@
 				B62D3D7D2CBC79D900C2460E /* Litecoin */,
 				B62D3D812CBC79D900C2460E /* Mantle */,
 				B62D3DA72CBC79D900C2460E /* NEAR */,
+				2D53D2432D95796D00865200 /* Pepecoin */,
 				B62D3DD02CBC79D900C2460E /* Polkadot */,
 				B62D3DDE2CBC79D900C2460E /* Radiant */,
 				B62D3DED2CBC79D900C2460E /* Ravencoin */,
@@ -11727,6 +11740,7 @@
 			isa = PBXGroup;
 			children = (
 				B62D3EC32CBC79D900C2460E /* ElectrumDTO.swift */,
+				2D53D24D2D957A5C00865200 /* ElectrumUTXONetworkProvider.swift */,
 				B62D3EC52CBC79D900C2460E /* ElectrumWebSocketProvider.swift */,
 			);
 			path = Electrum;
@@ -11760,8 +11774,9 @@
 				B62D3ECC2CBC79D900C2460E /* AddressService.swift */,
 				B62D3ECD2CBC79D900C2460E /* AddressType.swift */,
 				B62D3ECE2CBC79D900C2460E /* AddressTypesConfig.swift */,
-				B62D3ECF2CBC79D900C2460E /* PlainAddress.swift */,
+				2D53D24B2D957A4E00865200 /* ElectrumScriptHashConverter.swift */,
 				EF669B102D8C183200F2E078 /* LockingScriptAddress.swift */,
+				B62D3ECF2CBC79D900C2460E /* PlainAddress.swift */,
 			);
 			path = Address;
 			sourceTree = "<group>";
@@ -19910,7 +19925,7 @@
 				B62D42552CBC79DB00C2460E /* DerivationConfigV1.swift in Sources */,
 				B62D41AC2CBC79DA00C2460E /* TezosAddress.swift in Sources */,
 				B62D3FD52CBC79DA00C2460E /* OP_LSHIFT.swift in Sources */,
-				EF3805102D706A1700273B1B /* RadiantNetworkProvider.swift in Sources */,
+				2D53D24C2D957A4E00865200 /* ElectrumScriptHashConverter.swift in Sources */,
 				B62D40462CBC79DA00C2460E /* CardanoAddressService.swift in Sources */,
 				B62D40222CBC79DA00C2460E /* BitcoinScript.swift in Sources */,
 				B62D403D2CBC79DA00C2460E /* AdaliteUnspentOutputResponseDTO.swift in Sources */,
@@ -20113,6 +20128,7 @@
 				B62D42842CBC79DB00C2460E /* PolygonScanAPIError.swift in Sources */,
 				B62D40012CBC79DA00C2460E /* OP_PUBKEY.swift in Sources */,
 				B62D42332CBC79DB00C2460E /* BlockcypherNetworkProvider.swift in Sources */,
+				2D53D24E2D957A5C00865200 /* ElectrumUTXONetworkProvider.swift in Sources */,
 				B62D409F2CBC79DA00C2460E /* EthereumTarget.swift in Sources */,
 				B62D414E2CBC79DA00C2460E /* PolkadotTransactionDetails.swift in Sources */,
 				B62D41992CBC79DA00C2460E /* StellarTransactionBuilder.swift in Sources */,
@@ -20382,6 +20398,11 @@
 				B62D42DB2CBC79DB00C2460E /* TWCoin+.swift in Sources */,
 				B62D40C92CBC79DA00C2460E /* EthereumWalletAssembly.swift in Sources */,
 				B62D41342CBC79DA00C2460E /* NEARNetworkParams.swift in Sources */,
+				2D53D2442D95796D00865200 /* PepecoinWalletAssembly.swift in Sources */,
+				2D53D2462D95796D00865200 /* PepecoinExternalLinkProvider.swift in Sources */,
+				2D53D2472D95796D00865200 /* PepecoinTestnetNetworkParams.swift in Sources */,
+				2D53D2482D95796D00865200 /* PepecoinWalletManager.swift in Sources */,
+				2D53D24A2D95796D00865200 /* PepecoinMainnetNetworkParams.swift in Sources */,
 				B62D42092CBC79DB00C2460E /* XRPKeypair.swift in Sources */,
 				EF3805162D70B30A00273B1B /* BlockcypherTransactionRecordMapper.swift in Sources */,
 				2DB1D6BE2D56978D00AD43A3 /* ALPH+AssetOutputRef.swift in Sources */,
@@ -20872,7 +20893,6 @@
 				B62D3FCF2CBC79DA00C2460E /* OP_BOOLOR.swift in Sources */,
 				B62D426F2CBC79DB00C2460E /* TransactionValidator.swift in Sources */,
 				B62D42732CBC79DB00C2460E /* TransactionCreator.swift in Sources */,
-				B62D41722CBC79DA00C2460E /* RadiantAddressUtils.swift in Sources */,
 				B62D41252CBC79DA00C2460E /* KoinosWalletAssembly.swift in Sources */,
 				EF38051F2D71F41100273B1B /* BitcoreNetworkProvider.swift in Sources */,
 				B62D40E22CBC79DA00C2460E /* HederaNetworkResult.AccountTokensBalance.swift in Sources */,
