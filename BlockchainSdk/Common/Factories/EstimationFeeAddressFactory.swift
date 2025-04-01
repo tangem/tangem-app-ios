@@ -116,6 +116,8 @@ struct EstimationFeeAddressFactory {
             return "fact1q69h3nzh7rl2uv09zp5pw26vw58wdcl2j4lyag0"
         case .alephium:
             return "16tfjvsTi34r5bhifdBtY793n3fmrM7EtvvtE8XUN1Hv1"
+        case .pepecoin:
+            return "PgbtQfZaNzLtwQ3hXBrj1KWhxBgaUEM7G6"
         }
     }
 }

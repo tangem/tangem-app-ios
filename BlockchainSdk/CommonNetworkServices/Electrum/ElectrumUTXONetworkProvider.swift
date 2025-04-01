@@ -1,32 +1,34 @@
 //
-//  RadiantNetworkProvider.swift
-//  TangemApp
+//  ElectrumUTXONetworkProvider.swift
+//  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import Combine
 
-final class RadiantNetworkProvider {
-    let provider: ElectrumWebSocketProvider
+final class ElectrumUTXONetworkProvider {
     let blockchain: Blockchain
+    let provider: ElectrumWebSocketProvider
+    let settings: Settings
 
-    init(provider: ElectrumWebSocketProvider, isTestnet: Bool) {
+    init(blockchain: Blockchain, provider: ElectrumWebSocketProvider, settings: Settings) {
+        self.blockchain = blockchain
         self.provider = provider
-
-        blockchain = .radiant(testnet: isTestnet)
+        self.settings = settings
     }
 }
 
 // MARK: - UTXONetworkProvider
 
-extension RadiantNetworkProvider: UTXONetworkProvider {
+extension ElectrumUTXONetworkProvider: UTXONetworkProvider {
     var host: String { provider.host }
 
     func getUnspentOutputs(address: String) -> AnyPublisher<[UnspentOutput], any Error> {
         Future.async {
-            let scriptHash = try RadiantAddressUtils().prepareScriptHash(address: address)
+            let scriptHash = try ElectrumScriptHashConverter().prepareScriptHash(address: address)
             let outputs = try await self.provider.getUnspents(identifier: .scriptHash(scriptHash))
             return self.mapToUnspentOutputs(outputs: outputs)
         }
@@ -54,11 +56,11 @@ extension RadiantNetworkProvider: UTXONetworkProvider {
     func getFee() -> AnyPublisher<UTXOFee, any Error> {
         Future.async {
             let sourceFee = try await self.provider.estimateFee(block: 10)
-            let targetFee = max(sourceFee, Constants.recommendedFeePer1000Bytes)
+            let targetFee = max(sourceFee, self.settings.recommendedFeePer1000Bytes)
 
             let minimal = targetFee
-            let normal = targetFee * Constants.normalFeeMultiplier
-            let priority = targetFee * Constants.priorityFeeMultiplier
+            let normal = targetFee * self.settings.normalFeeMultiplier
+            let priority = targetFee * self.settings.priorityFeeMultiplier
 
             return UTXOFee(slowSatoshiPerByte: minimal, marketSatoshiPerByte: normal, prioritySatoshiPerByte: priority)
         }
@@ -76,7 +78,7 @@ extension RadiantNetworkProvider: UTXONetworkProvider {
 
 // MARK: - Private
 
-private extension RadiantNetworkProvider {
+private extension ElectrumUTXONetworkProvider {
     func mapToUnspentOutputs(outputs: [ElectrumDTO.Response.ListUnspent]) -> [UnspentOutput] {
         outputs.map {
             UnspentOutput(blockId: $0.height.intValue(), txId: $0.txHash, index: $0.txPos, amount: $0.value.uint64Value)
@@ -95,16 +97,10 @@ private extension RadiantNetworkProvider {
 
 // MARK: - Constants
 
-extension RadiantNetworkProvider {
-    enum Constants {
-        /*
-         This minimal rate fee for successful transaction from constant
-         -  Relying on answers from blockchain developers and costs from the official application (Electron-Radiant).
-         - 10000 satoshi per byte or 0.1 RXD per KB.
-         */
-
-        static let recommendedFeePer1000Bytes: Decimal = .init(stringValue: "0.1")!
-        static let normalFeeMultiplier: Decimal = .init(stringValue: "1.5")!
-        static let priorityFeeMultiplier: Decimal = .init(stringValue: "2")!
+extension ElectrumUTXONetworkProvider {
+    struct Settings {
+        let recommendedFeePer1000Bytes: Decimal
+        let normalFeeMultiplier: Decimal
+        let priorityFeeMultiplier: Decimal
     }
 }
