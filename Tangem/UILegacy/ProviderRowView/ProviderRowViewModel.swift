@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import TangemLocalization
 import TangemAssets
 
 struct ProviderRowViewModel: Identifiable {

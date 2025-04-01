@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 import TangemExpress
 import BlockchainSdk
 
@@ -219,6 +220,7 @@ private extension CommonExpressModulesFactory {
             expressRepository: expressRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
             expressDestinationService: expressDestinationService,
+            expressAnalyticsLogger: analyticsLogger,
             expressTransactionBuilder: expressTransactionBuilder,
             expressAPIProvider: expressAPIProvider,
             signer: signer

@@ -13,9 +13,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li tarjeta</string>
+        <string>%li Gerät</string>
         <key>other</key>
-        <string>%li tarjetas</string>
+        <string>%li Geräte</string>
       </dict>
     </dict>
     <key>common_days_no_param</key>
@@ -29,15 +29,15 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>día</string>
+        <string>Tag</string>
         <key>other</key>
-        <string>días</string>
+        <string>Tage</string>
       </dict>
     </dict>
     <key>manage_tokens_number_of_wallets_ios</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%li %#@total_wallets@</string>
+      <string>%li von %#@total_wallets@</string>
       <key>total_wallets</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -45,9 +45,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li billetera</string>
+        <string>%li Wallet</string>
         <key>other</key>
-        <string>%li billeteras</string>
+        <string>%li Wallets</string>
       </dict>
     </dict>
     <key>markets_token_details_amount_exchanges</key>
@@ -61,9 +61,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li intercambio</string>
+        <string>%li börse</string>
         <key>other</key>
-        <string>%li intercambios</string>
+        <string>%li börsen</string>
       </dict>
     </dict>
     <key>markets_token_details_based_on_ratings</key>
@@ -77,9 +77,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Basado en %li evaluación </string>
+        <string>Bewertung, basierend auf %li</string>
         <key>other</key>
-        <string>Basado en %li evaluaciónes</string>
+        <string>Bewertungen, basierend auf %li</string>
       </dict>
     </dict>
     <key>nft_collections_count</key>
@@ -93,9 +93,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li item</string>
+        <string>%li Stück</string>
         <key>other</key>
-        <string>%li items</string>
+        <string>%li Stücke</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_message_words_count</key>
@@ -111,7 +111,7 @@
         <key>one</key>
         <string></string>
         <key>other</key>
-        <string>Escriba estas %li palabras en el orden que se indica a continuación y guárdelas en un lugar seguro y secreto.</string>
+        <string>Schreibe diese %li-Wörter in der unten angegebenen Reihenfolge auf und bewahre sie an einem sicheren und geheimen Ort auf.</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_words_count</key>
@@ -127,7 +127,7 @@
         <key>one</key>
         <string></string>
         <key>other</key>
-        <string>%li palabras</string>
+        <string>%li Wörter</string>
       </dict>
     </dict>
     <key>referral_number_of_wallets</key>
@@ -141,9 +141,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>para %li billetera </string>
+        <string>für %li Wallet</string>
         <key>other</key>
-        <string>para %li billeteras</string>
+        <string>für %li Wallets</string>
       </dict>
     </dict>
     <key>referral_wallets_purchased_count</key>
@@ -157,9 +157,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li billetera</string>
+        <string>%li Wallet</string>
         <key>other</key>
-        <string>%li billeteras</string>
+        <string>%li Wallets</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>
@@ -173,9 +173,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>available for %li day</string>
+        <string>Verfügbar für %li Tag</string>
         <key>other</key>
-        <string>available for %li days</string>
+        <string>Verfügbar für %li Tage</string>
       </dict>
     </dict>
     <key>warning_missing_derivation_message</key>
@@ -189,9 +189,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Use su tarjeta o anillo para obtener una dirección para la red</string>
+        <string>Verwende deine Karte oder Ring, um eine Adresse für das %li-Netz zu erhalten</string>
         <key>other</key>
-        <string>Use su tarjeta o anillo para obtener direcciónes para la red</string>
+        <string>Verwende deine Karte oder Ring, um mehrere Adressen für die %li-Netzwerke zu erhalten</string>
       </dict>
     </dict>
   </dict>
