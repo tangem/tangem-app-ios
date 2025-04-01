@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 enum MarketsPriceIntervalType: String, CaseIterable, Codable, Identifiable, Equatable {
     case day = "24h"

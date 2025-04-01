@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 import TangemUI
 
 struct OrganizeTokensListFooter: View {
