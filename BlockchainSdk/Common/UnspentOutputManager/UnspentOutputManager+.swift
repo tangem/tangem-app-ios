@@ -94,4 +94,12 @@ extension UnspentOutputManager where Self == CommonUnspentOutputManager {
             lockingScriptBuilder: .fact0rn()
         )
     }
+
+    static func pepecoin(address: any Address, isTestnet: Bool) -> Self {
+        CommonUnspentOutputManager(
+            address: address,
+            preImageTransactionBuilder: .pepecoin(isTestnet: isTestnet),
+            lockingScriptBuilder: .pepecoin(isTestnet: isTestnet)
+        )
+    }
 }
