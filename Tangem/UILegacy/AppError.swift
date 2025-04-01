@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 enum AppError: Error, LocalizedError {
     case serverUnavailable

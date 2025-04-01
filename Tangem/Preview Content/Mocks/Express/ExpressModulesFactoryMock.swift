@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 import TangemExpress
 import BlockchainSdk
 
@@ -171,12 +172,14 @@ private extension ExpressModulesFactoryMock {
     }
 
     func makeExpressInteractor() -> ExpressInteractor {
+        let analyticsLogger = ExpressAnalyticsLoggerMock()
+
         let expressManager = TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
             allowanceProvider: allowanceProvider,
             feeProvider: expressFeeProvider,
             expressRepository: expressRepository,
-            analyticsLogger: ExpressAnalyticsLoggerMock()
+            analyticsLogger: analyticsLogger
         )
 
         let interactor = ExpressInteractor(
@@ -189,6 +192,7 @@ private extension ExpressModulesFactoryMock {
             expressRepository: expressRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
             expressDestinationService: expressDestinationService,
+            expressAnalyticsLogger: analyticsLogger,
             expressTransactionBuilder: expressTransactionBuilder,
             expressAPIProvider: expressAPIProvider,
             signer: signer
