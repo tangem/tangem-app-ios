@@ -74,4 +74,10 @@ extension UTXOPreImageTransactionBuilder where Self == BranchAndBoundPreImageTra
             calculator: CommonUTXOTransactionSizeCalculator(network: Fact0rnMainNetworkParams())
         )
     }
+
+    static func pepecoin(isTestnet: Bool) -> Self {
+        BranchAndBoundPreImageTransactionBuilder(
+            calculator: CommonUTXOTransactionSizeCalculator(network: isTestnet ? PepecoinTestnetNetworkParams() : PepecoinMainnetNetworkParams())
+        )
+    }
 }
