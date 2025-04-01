@@ -7,6 +7,7 @@
 //
 
 import Combine
+import TangemLocalization
 import TangemExpress
 
 final class OnrampCountryDetectionViewModel: ObservableObject, Identifiable {

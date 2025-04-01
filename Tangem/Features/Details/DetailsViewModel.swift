@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 import SwiftUI
 import Combine
 import BlockchainSdk

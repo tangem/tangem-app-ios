@@ -7,6 +7,7 @@
 //
 
 import TangemAssets
+import TangemLocalization
 
 enum SendMainButtonType {
     case next

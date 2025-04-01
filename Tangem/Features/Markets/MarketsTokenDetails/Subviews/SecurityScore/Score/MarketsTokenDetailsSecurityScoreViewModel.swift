@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 final class MarketsTokenDetailsSecurityScoreViewModel {
     var title: String { Localization.marketsTokenDetailsSecurityScore }
