@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 
 struct OnboardingAddTokensView: View {
     @ObservedObject var viewModel: OnboardingAddTokensViewModel

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 struct MultiWalletTokenItemsSectionFactory {
     func makeSectionViewModel(

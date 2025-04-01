@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 import class UIKit.UIApplication
 import Combine
 import BlockchainSdk
