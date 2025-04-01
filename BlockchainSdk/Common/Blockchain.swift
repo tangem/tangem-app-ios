@@ -104,6 +104,7 @@ public indirect enum Blockchain: Equatable, Hashable {
     case alephium(testnet: Bool)
     case vanar(testnet: Bool)
     case zkLinkNova(testnet: Bool)
+    case pepecoin(testnet: Bool)
 
     public var isTestnet: Bool {
         switch self {
@@ -155,7 +156,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .sonic(let testnet),
              .alephium(let testnet),
              .vanar(let testnet),
-             .zkLinkNova(let testnet):
+             .zkLinkNova(let testnet),
+             .pepecoin(let testnet):
             return testnet
         case .litecoin,
              .ducatus,
@@ -240,7 +242,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .ravencoin,
              .ducatus,
              .fact0rn,
-             .sui:
+             .sui,
+             .pepecoin:
             return true
         default:
             return false
@@ -265,7 +268,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .ducatus,
              .radiant,
              .fact0rn,
-             .sui:
+             .sui,
+             .pepecoin:
             return true
         default:
             return false
@@ -289,7 +293,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .koinos,
              .aptos,
              .clore,
-             .fact0rn:
+             .fact0rn,
+             .pepecoin:
             return 8
         case .ethereum,
              .ethereumClassic,
@@ -533,6 +538,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "ALPH"
         case .vanar:
             return isTestnet ? "VG" : "VANRY"
+        case .pepecoin:
+            return "PEP"
         }
     }
 
@@ -1122,6 +1129,7 @@ extension Blockchain: Codable {
         case .alephium: return "alephium"
         case .vanar: return "vanar-chain"
         case .zkLinkNova: return "zklink"
+        case .pepecoin: return "pepecoin"
         }
     }
 
@@ -1231,6 +1239,7 @@ extension Blockchain: Codable {
         case "alephium": self = .alephium(testnet: isTestnet)
         case "vanar-chain": self = .vanar(testnet: isTestnet)
         case "zklink": self = .zkLinkNova(testnet: isTestnet)
+        case "pepecoin": self = .pepecoin(testnet: isTestnet)
         default:
             throw BlockchainSdkError.decodingFailed
         }
@@ -1504,6 +1513,11 @@ private extension Blockchain {
             return "vanar-chain"
         case .zkLinkNova:
             return "zklink"
+        case .pepecoin:
+            switch type {
+            case .network: return "pepecoin"
+            case .coin: return "pepecoin-network"
+            }
         }
     }
 
@@ -1635,6 +1649,8 @@ extension Blockchain {
             return Fact0rnWalletAssembly()
         case .alephium:
             return AlephiumWalletAssembly()
+        case .pepecoin:
+            return PepecoinWalletAssembly()
         }
     }
 }
