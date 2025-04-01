@@ -7,6 +7,7 @@
 //
 
 import Combine
+import TangemLocalization
 import Foundation
 import TangemFoundation
 import TangemStories
