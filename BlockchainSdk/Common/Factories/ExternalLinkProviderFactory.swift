@@ -187,6 +187,8 @@ public struct ExternalLinkProviderFactory {
             return VanarExternalLinkProvider(isTestnet: isTestnet)
         case .zkLinkNova:
             return ZKLinkNovaExternalLinkProvider(isTestnet: isTestnet)
+        case .pepecoin:
+            return PepecoinExternalLinkProvider(isTestnet: isTestnet)
         }
     }
 }
