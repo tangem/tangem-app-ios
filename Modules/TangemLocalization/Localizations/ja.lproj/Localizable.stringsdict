@@ -12,14 +12,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li пристрій</string>
-        <key>few</key>
-        <string>%li пристрої</string>
-        <key>many</key>
-        <string>%li пристроїв</string>
         <key>other</key>
-        <string>%li пристроїв</string>
+        <string>%li デバイス</string>
       </dict>
     </dict>
     <key>common_days_no_param</key>
@@ -32,34 +26,22 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>день</string>
-        <key>few</key>
-        <string>дні</string>
-        <key>many</key>
-        <string>днів</string>
         <key>other</key>
-        <string>днів</string>
+        <string>日</string>
       </dict>
     </dict>
     <key>manage_tokens_number_of_wallets_ios</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%li із %#@total_wallets@</string>
+      <string>%li / %#@total_wallets@</string>
       <key>total_wallets</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li гаманця</string>
-        <key>few</key>
-        <string>%li гаманців</string>
-        <key>many</key>
-        <string>%li гаманців</string>
         <key>other</key>
-        <string>%li гаманців</string>
+        <string>%li ウォレット\n%li ウォレット</string>
       </dict>
     </dict>
     <key>markets_token_details_amount_exchanges</key>
@@ -72,14 +54,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li біржа</string>
-        <key>few</key>
-        <string>%li біржі</string>
-        <key>many</key>
-        <string>%li бірж</string>
         <key>other</key>
-        <string>%li бірж</string>
+        <string>%li取引所</string>
       </dict>
     </dict>
     <key>markets_token_details_based_on_ratings</key>
@@ -92,14 +68,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>На основі %li оцінки</string>
-        <key>few</key>
-        <string>На основі %li оцінок</string>
-        <key>many</key>
-        <string>На основі %li оцінок</string>
         <key>other</key>
-        <string>На основі %li оцінок</string>
+        <string>%li のレーティングに基づいて</string>
       </dict>
     </dict>
     <key>nft_collections_count</key>
@@ -112,10 +82,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li item</string>
         <key>other</key>
-        <string>%li items</string>
+        <string>アイテム</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_message_words_count</key>
@@ -128,14 +96,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string></string>
-        <key>few</key>
-        <string>Запишіть ці %li слова у порядку, вказаному нижче, та збережіть їх у надійному місці.</string>
-        <key>many</key>
-        <string>Запишіть ці %li слів у порядку, вказаному нижче, та збережіть їх у надійному місці.</string>
         <key>other</key>
-        <string>Запишіть ці %li слів у порядку, вказаному нижче, та збережіть їх у надійному місці.</string>
+        <string>これらの %li 単語を以下の順番通りに書き留め、安全かつ秘密の場所に保管してください。</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_words_count</key>
@@ -148,14 +110,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string></string>
-        <key>few</key>
-        <string>%li слова</string>
-        <key>many</key>
-        <string>%li слів</string>
         <key>other</key>
-        <string>%li слів</string>
+        <string>%li 単語</string>
       </dict>
     </dict>
     <key>referral_number_of_wallets</key>
@@ -168,14 +124,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>за %li гаманець</string>
-        <key>few</key>
-        <string>за %li гаманця</string>
-        <key>many</key>
-        <string>за %li гаманців</string>
         <key>other</key>
-        <string>за %li гаманців</string>
+        <string>%liのウォレット</string>
       </dict>
     </dict>
     <key>referral_wallets_purchased_count</key>
@@ -188,14 +138,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li гаманець</string>
-        <key>few</key>
-        <string>%li гаманця</string>
-        <key>many</key>
-        <string>%li гаманців</string>
         <key>other</key>
-        <string>%li гаманців</string>
+        <string>%li ウォレット</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>
@@ -208,10 +152,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>available for %li day</string>
         <key>other</key>
-        <string>available for %li days</string>
+        <string>%li日間利用可能</string>
       </dict>
     </dict>
     <key>warning_missing_derivation_message</key>
@@ -224,14 +166,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>Використовуйте вашу картку або кільце, щоб отримати адресу для %li мережі</string>
-        <key>few</key>
-        <string>Використовуйте вашу картку або кільце, щоб отримати адреси для %li мереж</string>
-        <key>many</key>
-        <string>Використовуйте вашу картку або кільце, щоб отримати адреси для %li мереж</string>
         <key>other</key>
-        <string>Використовуйте вашу картку або кільце, щоб отримати адреси для %li мереж</string>
+        <string>%li ネットワークのアドレスを取得するために、カードまたはリングを利用してください</string>
       </dict>
     </dict>
   </dict>

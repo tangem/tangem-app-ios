@@ -408,5 +408,9 @@ extension Analytics {
 
         case storiesSwapShown = "[Stories] Swap Stories"
         case storiesError = "[Stories] Error"
+
+        // MARK: - Tangem API Service
+
+        case tangemAPIException = "[Tangem API Service] Exception"
     }
 }

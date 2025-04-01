@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 struct BannerNotificationFactory {
     func buildBannerNotificationInput(
