@@ -273,6 +273,10 @@ struct TestnetAPINodeInfoProvider {
             return [
                 .init(url: URL(string: "https://sepolia.rpc.zklink.io")!),
             ]
+        case .pepecoin:
+            return [
+                .init(url: URL(string: " https://testnet.pepeblocks.com")!),
+            ]
         // [REDACTED_TODO_COMMENT]
         case .bitcoin, .litecoin, .disChain, .rsk, .bitcoinCash, .binance, .cardano,
              .xrp, .ducatus, .tezos, .dogecoin, .solana, .kusama, .dash, .gnosis,

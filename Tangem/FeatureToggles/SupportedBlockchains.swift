@@ -66,6 +66,7 @@ struct SupportedBlockchains {
         [
             .vanar(testnet: false),
             .zkLinkNova(testnet: false),
+            .pepecoin(testnet: false),
         ]
     }
 
@@ -217,6 +218,7 @@ struct SupportedBlockchains {
             .sonic(testnet: true),
             .vanar(testnet: true),
             .zkLinkNova(testnet: true),
+            .pepecoin(testnet: true),
         ]
     }
 
