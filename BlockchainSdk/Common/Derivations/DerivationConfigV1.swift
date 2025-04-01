@@ -163,6 +163,8 @@ struct DerivationConfigV1: DerivationConfig {
             return "m/44'/10007'/0'/0/0"
         case .alephium:
             return "m/44'/1234'/0'/0/0"
+        case .pepecoin:
+            return "m/44'/3434'/0'/0/0"
         }
     }
 }
