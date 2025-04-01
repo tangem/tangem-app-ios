@@ -32,7 +32,8 @@ extension PublicKeyType {
              .casper,
              .clore,
              .fact0rn,
-             .alephium:
+             .alephium,
+             .pepecoin:
             self = PublicKeyType.secp256k1
         case .ethereum,
              .bsc,
