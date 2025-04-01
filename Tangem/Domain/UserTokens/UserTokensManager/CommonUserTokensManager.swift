@@ -7,6 +7,7 @@
 //
 
 import BlockchainSdk
+import TangemLocalization
 import Combine
 import Foundation
 import TangemFoundation

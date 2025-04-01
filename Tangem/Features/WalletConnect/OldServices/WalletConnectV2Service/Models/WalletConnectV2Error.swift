@@ -7,6 +7,7 @@
 //
 
 import BlockchainSdk
+import TangemLocalization
 
 enum WalletConnectV2Error: LocalizedError {
     case unsupportedBlockchains([String])

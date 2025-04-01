@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 import class UIKit.UIAlertController
 import class UIKit.UIAlertAction
 import Combine

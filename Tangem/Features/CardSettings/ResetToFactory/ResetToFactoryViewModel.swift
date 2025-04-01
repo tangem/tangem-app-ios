@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 
 class ResetToFactoryViewModel: ObservableObject {
     @Published var warnings: [Warning] = []

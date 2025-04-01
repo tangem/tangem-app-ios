@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 enum EmailType {
     case negativeRateAppFeedback

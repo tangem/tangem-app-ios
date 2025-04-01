@@ -6,6 +6,8 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import TangemLocalization
+
 struct SwapTokenSelectorStrings: TokenSelectorLocalizable {
     let availableTokensListTitle = Localization.tokensListAvailableToSwapHeader
     var unavailableTokensListTitle: String {
