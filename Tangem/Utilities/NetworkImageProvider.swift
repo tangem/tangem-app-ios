@@ -185,6 +185,8 @@ struct NetworkImageProvider: NFTChainIconProvider {
             filled ? Tokens.vanarFill : Tokens.vanar
         case .zkLinkNova:
             filled ? Tokens.zklinknovaFill : Tokens.zklinknova
+        case .pepecoin:
+            filled ? Tokens.pepecoinFill : Tokens.pepecoin
         }
     }
 
