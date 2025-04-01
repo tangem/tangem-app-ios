@@ -7,6 +7,7 @@
 //
 
 import BlockchainSdk
+import TangemLocalization
 import ReownWalletKit
 
 protocol WalletConnectV2MessageComposable {

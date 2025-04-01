@@ -7,6 +7,7 @@
 //
 
 import AVFoundation
+import TangemLocalization
 import SwiftUI
 import TangemAssets
 

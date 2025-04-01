@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 import TangemAssets
 
 private struct AccessCodeFeature: Identifiable, Hashable {

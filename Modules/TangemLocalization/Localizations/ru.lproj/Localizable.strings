@@ -130,7 +130,7 @@
 "common_fee_selector_option_market" = "По рынку";
 "common_fee_selector_option_slow" = "Медленно";
 "common_fee_selector_title" = "Скорость и комиссия";
-"common_finish" = "Finish";
+"common_finish" = "Завершить";
 "common_generate_addresses" = "Синхронизировать адреса";
 "common_go_to_provider" = "К провайдеру";
 "common_go_to_token" = "Перейти в токен";
@@ -151,7 +151,7 @@
 "common_no_address" = "Нет адреса";
 "common_now" = "Сейчас";
 "common_ok" = "OK";
-"common_open_in_browser" = "Open in Browser";
+"common_open_in_browser" = "Открыть в браузере";
 "common_origin_card" = "Основная карта";
 "common_origin_ring" = "Основное кольцо";
 "common_passphrase" = "Парольная фраза";
@@ -176,7 +176,7 @@
 "common_send" = "Отправить";
 "common_server_unavailable" = "Сервер недоступен, повторите попытку позднее";
 "common_share" = "Поделиться";
-"common_share_link" = "Share Link";
+"common_share_link" = "Поделиться ссылкой";
 "common_sign" = "Подписать";
 "common_sign_and_send" = "Подписать и отправить";
 "common_stake" = "Застейкать";
@@ -741,7 +741,7 @@
 "send_summary_transaction_description_suffix_including" = "включая комиссию сети в размере %1$@";
 "send_transaction_success" = "Транзакция успешно подписана и отправлена в блокчейн. Баланс будет обновлен через некоторое время";
 "send_tron_account_activation_error" = "%1$@ — это монета в сети Tron. Чтобы рассчитать комиссию и совершить транзакцию, вам необходимо внести немного Tron (TRX) на свой адрес.";
-"send_validation_destination_tag_required_description" = "A destination tag (memo) is required to complete this transaction for the specified address.";
+"send_validation_destination_tag_required_description" = "Для завершения транзакции на указанный адрес необходим тег назначения (мемо).";
 "send_validation_destination_tag_required_title" = "Destination Tag Required";
 "sent_transaction_sent_title" = "Транзакция отправлена";
 "settings_card_settings_footer" = "Подготовьтесь к сканированию кольца или карты, которую вы хотите настроить.";
@@ -822,7 +822,7 @@
 "staking_notifications_revote_tron_text" = "Стейкинг в сети Tron с новым валидатором автоматически переведет ваши текущие застейканные средства на него.";
 "staking_preparing" = "Подготовка";
 "staking_ready_to_withdraw" = "Доступно для вывода";
-"staking_rebond" = "Rebond";
+"staking_rebond" = "Повторно застейкать";
 "staking_restake" = "Сменить валидатора";
 "staking_restake_rewards" = "Застейкать вознаграждения";
 "staking_revoke" = "Отозвать";
@@ -844,7 +844,7 @@
 "staking_rewards" = "Вознаграждения";
 "staking_stake_locked" = "Стейкинг закрыт";
 "staking_stake_more" = "Застейкать еще";
-"staking_stake_more_button_unavailability_reason" = "When staking %1$@, your entire %2$@ balance is staked. Any additional %2$@ you deposit to your Tangem Wallet will also be automatically staked.";
+"staking_stake_more_button_unavailability_reason" = "При стейкинге %1$@ используется весь ваш баланс в %2$@. Любой дополнительный %2$@ депозит будет автоматически застейкан.";
 "staking_staked_amount" = "Застейканная сумма";
 "staking_summary_description_text" = "Вы стейкаете %1$@ и будете получать награду %2$@";
 "staking_tap_to_unlock" = "Нажмите для разблокировки";
