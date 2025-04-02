@@ -17,6 +17,7 @@ struct BlockaidTarget: Moya.TargetType {
     enum Target {
         case scanSite(request: BlockaidDTO.SiteScan.Request)
         case scanEvm(request: BlockaidDTO.EvmScan.Request)
+        case scanSolana(
     }
 
     var baseURL: URL {
