@@ -32,6 +32,7 @@ enum WalletConnectV2Error: LocalizedError {
     case symmetricKeyForTopicNotFound
     case socketConnectionTimeout
     case unsupportedWCVersion
+    case unsupportedNetwork
 
     case unknown(String)
 
@@ -60,6 +61,7 @@ enum WalletConnectV2Error: LocalizedError {
         case .socketConnectionTimeout: return 8022
         case .unsupportedWCVersion: return 8023
         case .missingOptionalBlockchains: return 8024
+        case .unsupportedNetwork: return 8025
         case .unknown: return 8999
         }
     }
@@ -92,6 +94,8 @@ enum WalletConnectV2Error: LocalizedError {
             return Localization.walletConnectPairingError(errorMessage)
         case .unsupportedWCVersion:
             return Localization.unsupportedWcVersion
+        case .unsupportedNetwork:
+            return Localization.walletConnectScannerErrorUnsupportedNetwork
         default:
             return Localization.walletConnectGenericErrorWithCode(code)
         }
