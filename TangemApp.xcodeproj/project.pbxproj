@@ -15,10 +15,13 @@
 		0A1396EB2D7AF67500CA6A31 /* ValidatorInfoStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1396EA2D7AF67500CA6A31 /* ValidatorInfoStatus.swift */; };
 		0A1992A62B5FBDF800344312 /* CurrencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1992A52B5FBDF800344312 /* CurrencyTests.swift */; };
 		0A2261882D9AC634004DC848 /* BlockaidAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2261872D9AC634004DC848 /* BlockaidAPIService.swift */; };
-		0A22618B2D9AC699004DC848 /* Scan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A22618A2D9AC699004DC848 /* Scan.swift */; };
+		0A22618B2D9AC699004DC848 /* SiteScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A22618A2D9AC699004DC848 /* SiteScan.swift */; };
 		0A22618D2D9AC79B004DC848 /* BlockaidDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A22618C2D9AC79B004DC848 /* BlockaidDTO.swift */; };
 		0A22618F2D9AC8A9004DC848 /* BlockaidTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A22618E2D9AC8A9004DC848 /* BlockaidTarget.swift */; };
 		0A2A04DB2C91B167007EAE64 /* TronSendTransactionSummaryDescriptionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2A04DA2C91B167007EAE64 /* TronSendTransactionSummaryDescriptionBuilder.swift */; };
+		0A3A53C62D9C128800E263E7 /* EvmScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53C52D9C128800E263E7 /* EvmScan.swift */; };
+		0A3A53C82D9C47B400E263E7 /* Chain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53C72D9C47B400E263E7 /* Chain.swift */; };
+		0A3A53CA2D9D276B00E263E7 /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53C92D9D276B00E263E7 /* Common.swift */; };
 		0A3BF9692C6CDAD900163492 /* AdditionalAddresses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3BF9682C6CDAD900163492 /* AdditionalAddresses.swift */; };
 		0A3BF96B2C6CE96B00163492 /* StakingAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3BF96A2C6CE96B00163492 /* StakingAction.swift */; };
 		0A3C78752D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3C78742D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift */; };
@@ -3434,10 +3437,13 @@
 		0A1396EA2D7AF67500CA6A31 /* ValidatorInfoStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoStatus.swift; sourceTree = "<group>"; };
 		0A1992A52B5FBDF800344312 /* CurrencyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrencyTests.swift; sourceTree = "<group>"; };
 		0A2261872D9AC634004DC848 /* BlockaidAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidAPIService.swift; sourceTree = "<group>"; };
-		0A22618A2D9AC699004DC848 /* Scan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scan.swift; sourceTree = "<group>"; };
+		0A22618A2D9AC699004DC848 /* SiteScan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteScan.swift; sourceTree = "<group>"; };
 		0A22618C2D9AC79B004DC848 /* BlockaidDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidDTO.swift; sourceTree = "<group>"; };
 		0A22618E2D9AC8A9004DC848 /* BlockaidTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidTarget.swift; sourceTree = "<group>"; };
 		0A2A04DA2C91B167007EAE64 /* TronSendTransactionSummaryDescriptionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TronSendTransactionSummaryDescriptionBuilder.swift; sourceTree = "<group>"; };
+		0A3A53C52D9C128800E263E7 /* EvmScan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvmScan.swift; sourceTree = "<group>"; };
+		0A3A53C72D9C47B400E263E7 /* Chain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chain.swift; sourceTree = "<group>"; };
+		0A3A53C92D9D276B00E263E7 /* Common.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Common.swift; sourceTree = "<group>"; };
 		0A3BF9682C6CDAD900163492 /* AdditionalAddresses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdditionalAddresses.swift; sourceTree = "<group>"; };
 		0A3BF96A2C6CE96B00163492 /* StakingAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAction.swift; sourceTree = "<group>"; };
 		0A3C78742D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HederaNetworkResult.TokensCustomFees.swift; sourceTree = "<group>"; };
@@ -6830,8 +6836,11 @@
 		0A2261892D9AC66F004DC848 /* DTOs */ = {
 			isa = PBXGroup;
 			children = (
-				0A22618A2D9AC699004DC848 /* Scan.swift */,
+				0A3A53C72D9C47B400E263E7 /* Chain.swift */,
+				0A22618A2D9AC699004DC848 /* SiteScan.swift */,
+				0A3A53C52D9C128800E263E7 /* EvmScan.swift */,
 				0A22618C2D9AC79B004DC848 /* BlockaidDTO.swift */,
+				0A3A53C92D9D276B00E263E7 /* Common.swift */,
 			);
 			path = DTOs;
 			sourceTree = "<group>";
@@ -18224,6 +18233,7 @@
 				B600F4D92C50F73E008E53FE /* MarketsHistoryChartXAxisValueFormatter.swift in Sources */,
 				DCE2F7E02CE3532300BDE145 /* ActionButtonsSellRoutable.swift in Sources */,
 				B08394E12B2998580025176F /* VisaConfig.swift in Sources */,
+				0A3A53CA2D9D276B00E263E7 /* Common.swift in Sources */,
 				EF666C282A2DFA1C0044986F /* View+BottomSheet.swift in Sources */,
 				B0E1CED62B19B682006DDF98 /* PendingExpressTxStatusBottomSheetViewModel.swift in Sources */,
 				B600F4E22C50F7D8008E53FE /* LineChartViewConfigurator.swift in Sources */,
@@ -18246,6 +18256,7 @@
 				DC7127AB2897EC6B00F60F71 /* Start2CoinConfig.swift in Sources */,
 				EFC98FFD2CD3A3F80098B7C8 /* OnrampPaymentMethodRowView.swift in Sources */,
 				EFC98FFE2CD3A3F80098B7C8 /* OnrampPaymentMethodsView.swift in Sources */,
+				0A3A53C82D9C47B400E263E7 /* Chain.swift in Sources */,
 				EFC98FFF2CD3A3F80098B7C8 /* OnrampPaymentMethodsViewModel.swift in Sources */,
 				EFC990002CD3A3F80098B7C8 /* OnrampPaymentMethodsRoutable.swift in Sources */,
 				EFC990012CD3A3F80098B7C8 /* OnrampPaymentMethodRowViewData.swift in Sources */,
@@ -19433,6 +19444,7 @@
 				EF031A652C0A32C3001535C9 /* SendGeometryEffectNames.swift in Sources */,
 				B669136C2C417C9A0016B0EE /* OverlayContentContainerViewModifier.swift in Sources */,
 				DCBE4CEE2CC8C8E800855904 /* ActionButtonsView.swift in Sources */,
+				0A3A53C62D9C128800E263E7 /* EvmScan.swift in Sources */,
 				B6805B722A32F8C90015EC96 /* OrganizeTokensListItemPreviewProvider.swift in Sources */,
 				5DE2038E24EE8A510044EF46 /* ActivityIndicatorView.swift in Sources */,
 				B05A13AE29FBED3000FB511A /* ScrollableButtonsView.swift in Sources */,
@@ -19759,7 +19771,7 @@
 				B6FB04EB2B1FF022000BB59E /* StatusBarStyleConfigurator+Environment.swift in Sources */,
 				B6E8BBFB2A2F209B0012E7D3 /* InfinityFrameModifier.swift in Sources */,
 				B06C08502A73FB4E00D982BC /* MainRoutable.swift in Sources */,
-				0A22618B2D9AC699004DC848 /* Scan.swift in Sources */,
+				0A22618B2D9AC699004DC848 /* SiteScan.swift in Sources */,
 				B01149412B56B66E00695FCD /* VisaNotificationEvent.swift in Sources */,
 				B036625F2B6384AE0064E073 /* VisaTransactionDetailsViewModel.swift in Sources */,
 				B68EF4822A9C22B800E2AC5B /* LockedWalletMainContentViewModel.swift in Sources */,
