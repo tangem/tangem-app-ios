@@ -22,6 +22,7 @@ protocol KeysManager {
     var expressKeys: ExpressKeys { get }
     var devExpressKeys: ExpressKeys? { get }
     var stakeKitKey: String { get }
+    var blockaidKey: String { get }
 }
 
 private struct KeysManagerKey: InjectionKey {
