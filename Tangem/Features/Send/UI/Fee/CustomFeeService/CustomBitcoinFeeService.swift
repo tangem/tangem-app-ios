@@ -97,13 +97,18 @@ class CustomBitcoinFeeService {
         }
 
         let amount = Amount(with: tokenItem.blockchain, type: tokenItem.amountType, value: amount)
-        let newFee = bitcoinTransactionFeeCalculator.calculateFee(
-            satoshiPerByte: satoshiPerByte,
-            amount: amount,
-            destination: destination
-        )
+        do {
+            let newFee = try bitcoinTransactionFeeCalculator.calculateFee(
+                satoshiPerByte: satoshiPerByte,
+                amount: amount,
+                destination: destination
+            )
 
-        return newFee
+            return newFee
+        } catch {
+            AppLogger.error(error: error)
+            return zeroFee
+        }
     }
 
     private func onCustomFeeChanged(_ focused: Bool) {
