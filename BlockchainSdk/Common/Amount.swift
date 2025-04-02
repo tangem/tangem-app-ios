@@ -197,3 +197,11 @@ public extension Amount {
         .init(with: blockchain, type: .coin, value: Decimal.greatestFiniteMagnitude)
     }
 }
+
+public extension Amount {
+    func asSmallest() -> Amount {
+        let decimalValue = pow(10, decimals)
+        let value = value * decimalValue
+        return Amount(with: self, value: value)
+    }
+}
