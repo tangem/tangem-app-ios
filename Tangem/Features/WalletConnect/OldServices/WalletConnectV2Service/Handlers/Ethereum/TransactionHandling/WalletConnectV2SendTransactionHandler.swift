@@ -19,6 +19,7 @@ class WalletConnectV2SendTransactionHandler {
     private let messageComposer: WalletConnectV2MessageComposable
     private let uiDelegate: WalletConnectUIDelegate
     private let transactionDispatcher: TransactionDispatcher
+    private let blockaidAPIService: BlockaidAPIService
 
     private var transactionToSend: Transaction?
 
@@ -29,7 +30,8 @@ class WalletConnectV2SendTransactionHandler {
         messageComposer: WalletConnectV2MessageComposable,
         signer: TangemSigner,
         walletModelProvider: WalletConnectWalletModelProvider,
-        uiDelegate: WalletConnectUIDelegate
+        uiDelegate: WalletConnectUIDelegate,
+        blockaidAPIService: BlockaidAPIService
     ) throws {
         do {
             let params = try requestParams.get([WalletConnectEthTransaction].self)
@@ -48,6 +50,7 @@ class WalletConnectV2SendTransactionHandler {
         self.messageComposer = messageComposer
         self.transactionBuilder = transactionBuilder
         self.uiDelegate = uiDelegate
+        self.blockaidAPIService = blockaidAPIService
         transactionDispatcher = SendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
     }
 }
@@ -67,6 +70,8 @@ extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler {
         guard let transaction = transactionToSend else {
             throw WalletConnectV2Error.missingTransaction
         }
+        
+        let result = blockaidAPIService.scanEvm(address: transaction.to, blockchain: .ethereum, method: "eth_sendTransaction", transaction: nil, domain: nil)
 
         let result = try await transactionDispatcher.send(transaction: .transfer(transaction))
 
