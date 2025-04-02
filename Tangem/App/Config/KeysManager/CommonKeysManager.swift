@@ -94,6 +94,10 @@ extension CommonKeysManager: KeysManager {
     var stakeKitKey: String {
         keys.stakeKitApiKey
     }
+    
+    var blockaidKey: String {
+        keys.stakeKitApiKey
+    }
 }
 
 extension CommonKeysManager {
@@ -129,5 +133,6 @@ extension CommonKeysManager {
         let bittensorDwellirKey: String
         let bittensorOnfinalityKey: String
         let alephiumTangemApiKey: String
+        let blockaidApiKey: String
     }
 }
