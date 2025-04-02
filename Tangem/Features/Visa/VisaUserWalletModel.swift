@@ -92,8 +92,8 @@ class VisaUserWalletModel {
         return tokens.authTokens
     }
 
-    private var cardWalletAddress: String?
     private let userWalletModel: UserWalletModel
+    private var cardWalletAddress: String?
     private var cardInfo: CardInfo
     private var authorizationTokensHandler: VisaAuthorizationTokensHandler?
     private var transactionHistoryService: VisaTransactionHistoryService?
