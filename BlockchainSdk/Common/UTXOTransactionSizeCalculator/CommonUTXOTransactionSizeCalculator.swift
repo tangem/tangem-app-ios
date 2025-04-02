@@ -31,11 +31,27 @@ struct CommonUTXOTransactionSizeCalculator: UTXOTransactionSizeCalculator {
     }
 
     func transactionSize(inputs: [ScriptUnspentOutput], outputs: [UTXOScriptType]) -> Int {
+        let headerSize = Constants.transactionHeaderSize
         let inputsSize = inputs.sum(by: \.script.type.inputSize)
         let outputsSize = outputs.sum(by: \.outputSize)
-        let isWitness = inputs.contains(where: { $0.script.type.isWitness }) || outputs.contains { $0.isWitness }
-        let headerSize = isWitness ? Constants.witnessTransactionHeaderSize : Constants.transactionHeaderSize
-        return headerSize + inputsSize + outputsSize
+
+        let baseData = headerSize + inputsSize + outputsSize
+
+        var witnessData = 0
+        if inputs.contains(where: { $0.script.type.isWitness }) || outputs.contains(where: { $0.isWitness }) {
+            inputs.forEach { _ in
+                witnessData += Constants.witnessData
+            }
+            witnessData += Constants.witnessHeaderMarkerSize
+        }
+
+        let weight = baseData * 4 + witnessData
+        let bytes = toBytes(vBytes: weight)
+        return bytes
+    }
+
+    private func toBytes(vBytes: Int) -> Int {
+        vBytes / 4 + (vBytes % 4 == 0 ? 0 : 1)
     }
 }
 
@@ -52,14 +68,15 @@ extension CommonUTXOTransactionSizeCalculator {
 
         /**
          Witness transaction header components:
-         - Version: 4 bytes
          - Marker: 1 byte (0x00)
          - Flag: 1 byte (0x01)
-         - Input count (var_int): 1-9 bytes (typically 1 byte)
-         - Output count (var_int): 1-9 bytes (typically 1 byte)
-         - Locktime: 4 bytes
           */
-        static let witnessTransactionHeaderSize = 12
+        static let witnessHeaderMarkerSize = 2
+
+        /// StackItem(1) + pushSignature(73) + pushPubKey(33)
+        /// [REDACTED_TODO_COMMENT]
+        /// Because `108` size is not possible
+        static let witnessData = 108
     }
 }
 
@@ -73,46 +90,45 @@ extension UTXOScriptType {
     var inputSize: Int {
         switch self {
         case .p2pk:
-            // signature (71-73 bytes) + script bytes (DER encoding + sighash) ≈ 114 bytes
+            // PreviousOutputHex(32) + InputIndex(4) + sigLength(1) + signature(72) + pushByte(1) + sequence(4)
             return 114
         case .p2pkh:
-            // signature (71-73 bytes) + pubkey (33 bytes) + script overhead ≈ 148 bytes
+            // PreviousOutputHex(32) + InputIndex(4) + sigLength(1) + signature(72) + pushByte(1) + PubKey(33) + pushByte(1) + sequence(4)
             return 148
         case .p2sh:
             // Typical multisig redeem script + signatures + script overhead ≈ 297 bytes
             return 297
-        case .p2wpkh:
-            // Segregated witness format: signature + pubkey in witness data ≈ 69 bytes
-            return 69
-        case .p2wsh:
-            // Witness program hash (32 bytes) + script version (1 byte) + overhead ≈ 41 bytes
+        case .p2wpkh, .p2wsh, .p2tr:
+            // PreviousOutputHex(32) + InputIndex(4) + sigLength(1) + sequence(4)
             return 41
+        }
+    }
+
+    var lockingScriptSize: Int {
+        switch self {
+        case .p2pk:
+            // keyLength(1) + PublicKey (33 bytes) + OP_CHECKSIG(1)
+            return 35
+        case .p2pkh:
+            // OP_DUP(1) + OP_HASH160(1) + pushKeyHash(1 + 20) + OP_EQUALVERIFY(1) + OP_CHECKSIG(1)
+            return 25
+        case .p2sh:
+            // OP_HASH160(1) + pushKeyHash(1 + 20) + OP_EQUAL(1)
+            return 23
+        case .p2wpkh:
+            // Version(1) + pushKeyHash(1 + 20)
+            return 22
+        case .p2wsh:
+            // Version(1) + pushKeyHash(1 + 32)
+            return 34
         case .p2tr:
-            // P2TR: 1 byte version + 32 bytes key + 33 bytes signature
-            return 66
+            // Version(1) + pushKeyHash(1 + 32)
+            return 34
         }
     }
 
     var outputSize: Int {
-        switch self {
-        case .p2pk:
-            // Public key (33 bytes) + OP_CHECKSIG + script overhead = 44 bytes
-            return 44
-        case .p2pkh:
-            // OP_DUP + OP_HASH160 + push(20) + pubKeyHash(20) + OP_EQUALVERIFY + OP_CHECKSIG = 25 bytes
-            return 25
-        case .p2sh:
-            // OP_HASH160 + push(20) + scriptHash(20) + OP_EQUAL = 23 bytes
-            return 23
-        case .p2wpkh:
-            // Version(1) + push(20) + witness program(20) + script overhead = 22 bytes
-            return 22
-        case .p2wsh:
-            // Version(1) + push(32) + witness program(32) + script overhead = 43 bytes
-            return 43
-        case .p2tr:
-            // P2TR: 1 byte version + 32 bytes key
-            return 34
-        }
+        // SpentValue(8) + scriptLength(1) + LockingScriptSize
+        return 8 + 1 + lockingScriptSize
     }
 }
