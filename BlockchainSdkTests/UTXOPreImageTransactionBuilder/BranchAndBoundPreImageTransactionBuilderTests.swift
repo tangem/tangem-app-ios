@@ -29,8 +29,8 @@ class BranchAndBoundPreImageTransactionBuilderTests {
     @Test
     func testCalculationFee() throws {
         // given
-        let size: UInt64 = 5_000
-        let feeRate: UInt64 = 10
+        let size = 5_000
+        let feeRate = 10
         let expectedFee = size * feeRate
         let calculator = TestCalculator(size: size)
         let selector = BranchAndBoundPreImageTransactionBuilder(calculator: calculator)
@@ -40,7 +40,7 @@ class BranchAndBoundPreImageTransactionBuilderTests {
 
         // then
         #expect(selected.outputs.count == 1) // 500_000
-        #expect(selected.fee == expectedFee) // some estimated fee
+        #expect(selected.fee == expectedFee)
         #expect(selected.destination == 300_000)
         #expect(selected.change == 500_000 - 300_000 - expectedFee) // output - amount - fee
     }
@@ -64,7 +64,7 @@ class BranchAndBoundPreImageTransactionBuilderTests {
     @Test
     func testExactlyNoChangeFee() throws {
         // given
-        let dust: UInt64 = 100_000 // Big dust
+        let dust = 100_000 // Big dust
         let calculator = TestCalculator(dust: dust)
         let selector = BranchAndBoundPreImageTransactionBuilder(calculator: calculator)
 
@@ -81,9 +81,9 @@ class BranchAndBoundPreImageTransactionBuilderTests {
     @Test
     func testCalculationNoChangeFee() throws {
         // given
-        let size: UInt64 = 5_000
-        let dust: UInt64 = 100_000 // Big dust
-        let feeRate: UInt64 = 10
+        let size = 5_000
+        let dust = 100_000 // Big dust
+        let feeRate = 10
         let expectedFee = size * feeRate
         let calculator = TestCalculator(dust: dust, size: size)
         let selector = BranchAndBoundPreImageTransactionBuilder(calculator: calculator)
@@ -92,19 +92,19 @@ class BranchAndBoundPreImageTransactionBuilderTests {
         let selected = try selector.preImage(outputs: outputs, changeScript: .p2wpkh, destination: .init(amount: 400_000, script: .p2wpkh), fee: .calculate(feeRate: feeRate))
 
         // then
-        #expect(selected.outputs.count == 1) // 500_000
+        #expect(selected.outputs.count == 2) // 500_000 + 100_000
 
         // estimated fee == dust if change < dust.
         // We will not add change and spend full utxo like `estimated fee = (some fee + change))`
         #expect(selected.fee == expectedFee)
-        #expect(selected.destination == 500_000 - expectedFee) // 500_000(full unspent) - fee
-        #expect(selected.change == 0) // 500_000 - 400_000 - 100_000 (output - amount - fee)
+        #expect(selected.destination == 400_000) // 500_000(full unspent) - fee
+        #expect(selected.change == 150_000) // 500_000 - 400_000 - 100_000 (output - amount - fee)
     }
 
     @Test
     func testThrowsInsufficientFunds() throws {
         // given
-        let dust: UInt64 = 100_000 // Big dust
+        let dust = 100_000 // Big dust
         let calculator = TestCalculator(dust: dust)
         let selector = BranchAndBoundPreImageTransactionBuilder(calculator: calculator)
 
@@ -117,15 +117,15 @@ class BranchAndBoundPreImageTransactionBuilderTests {
 
 extension BranchAndBoundPreImageTransactionBuilderTests {
     struct TestCalculator: UTXOTransactionSizeCalculator {
-        private let dust: UInt64
-        private let size: UInt64
+        private let dust: Int
+        private let size: Int
 
-        init(dust: UInt64 = 10_000, size: UInt64 = 10_000) {
+        init(dust: Int = 10_000, size: Int = 10_000) {
             self.dust = dust
             self.size = size
         }
 
-        func dust(type: UTXOScriptType) -> Int { Int(dust) }
-        func transactionSize(inputs: [ScriptUnspentOutput], outputs: [UTXOScriptType]) -> Int { Int(size) }
+        func dust(type: UTXOScriptType) -> Int { dust }
+        func transactionSize(inputs: [ScriptUnspentOutput], outputs: [UTXOScriptType]) -> Int { size }
     }
 }
