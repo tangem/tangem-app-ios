@@ -19,7 +19,14 @@ protocol BlockaidAPIService {
         method: String,
         transaction: WalletConnectEthTransaction,
         domain: URL
-    ) async throws -> BlockaidDTO.EvmScan.Response
+    ) async throws -> BlockaidDTO.ScanBlockchainResponse
+    
+    func scanSolana(
+        address: String,
+        method: String,
+        transaction: WalletConnectSolanaSignMessageDTO.Body,
+        domain: URL
+    ) async throws -> BlockaidDTO.ScanBlockchainResponse
 }
 
 final class CommonBlockaidAPIService: BlockaidAPIService {
@@ -49,7 +56,7 @@ final class CommonBlockaidAPIService: BlockaidAPIService {
         method: String,
         transaction: WalletConnectEthTransaction,
         domain: URL
-    ) async throws -> BlockaidDTO.EvmScan.Response {
+    ) async throws -> BlockaidDTO.ScanBlockchainResponse {
         guard let blockchain = BlockaidDTO.Chain(blockchain: blockchain) else { fatalError() }
 
         let params = BlockaidDTO.EvmScan.Request.Params(
@@ -60,14 +67,28 @@ final class CommonBlockaidAPIService: BlockaidAPIService {
         )
 
         let scanRequest = BlockaidDTO.EvmScan.Request(
-            chain: blockchain,
             accountAddress: address,
-            data: .init(params: [params], method: method),
             metadata: .init(domain: domain.absoluteString),
+            chain: blockchain,
+            data: .init(params: [params], method: method),
             block: nil
         )
 
         return try await request(target: .scanEvm(request: scanRequest))
+    }
+    
+    func scanSolana(
+        address: String,
+        method: String,
+        transaction: WalletConnectSolanaSignMessageDTO.Body,
+        domain: URL
+    ) async throws -> BlockaidDTO.ScanBlockchainResponse {
+        let scanRequest = BlockaidDTO.SolanaScan.Request(
+            accountAddress: address,
+            metadata: .init(domain: domain.absoluteString),
+            method: method,
+            transactions: [transaction.signature]
+        )
     }
 }
 
