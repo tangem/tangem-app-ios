@@ -19,20 +19,27 @@ protocol UTXOPreImageTransactionBuilder {
 }
 
 struct UTXOPreImageDestination {
-    let amount: UInt64
+    let amount: Int
     let script: UTXOScriptType
 }
 
 enum UTXOPreImageTransactionBuilderFee {
-    case exactly(fee: UInt64)
-    case calculate(feeRate: UInt64)
+    case exactly(fee: Int)
+    case calculate(feeRate: Int)
+
+    var isCalculation: Bool {
+        switch self {
+        case .calculate: true
+        case .exactly: false
+        }
+    }
 }
 
 struct UTXOPreImageTransaction {
     let outputs: [ScriptUnspentOutput]
-    let destination: UInt64
-    let change: UInt64
-    let fee: UInt64
+    let destination: Int
+    let change: Int
+    let fee: Int
     let size: Int
 }
 
