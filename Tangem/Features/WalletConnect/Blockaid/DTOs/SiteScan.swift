@@ -1,5 +1,5 @@
 //
-//  Scan.swift
+//  SiteScan.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,18 +9,19 @@
 import Foundation
 
 extension BlockaidDTO {
-    enum Scan {
+    enum SiteScan {
         struct Request: Encodable {
             let url: String
         }
-        
+
         struct Response: Decodable {
             let status: Status
             let url: String
             let isMalicious: Bool
-            
+
             enum Status: String, Decodable {
-                case hit, miss
+                case hit
+                case miss
             }
         }
     }
