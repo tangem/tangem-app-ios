@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct ScriptUnspentOutput {
+struct ScriptUnspentOutput: Hashable {
     let output: UnspentOutput
     let script: UTXOLockingScript
 
