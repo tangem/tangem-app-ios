@@ -92,6 +92,7 @@ struct OldWalletConnectV2Utils {
         var missingBlockchains: [String] = []
         var missingOptionalBlockchains: [String] = []
         var unsupportedEVMBlockchains: [String] = []
+        var unsupportedChainIds: [String] = []
 
         let chains = Set(proposal.namespaceChains)
 
@@ -101,7 +102,10 @@ struct OldWalletConnectV2Utils {
             guard let blockchain = createBlockchain(for: wcBlockchain) else {
                 if proposal.namespaceRequiredChains.contains(wcBlockchain) {
                     unsupportedEVMBlockchains.append(wcBlockchain.reference)
+                } else {
+                    unsupportedChainIds.append(wcBlockchain.absoluteString)
                 }
+
                 return nil
             }
 
@@ -130,6 +134,10 @@ struct OldWalletConnectV2Utils {
 
         guard unsupportedEVMBlockchains.isEmpty else {
             throw WalletConnectV2Error.unsupportedBlockchains(unsupportedEVMBlockchains)
+        }
+
+        guard accounts.isNotEmpty else {
+            throw WalletConnectV2Error.unsupportedNetwork
         }
 
         do {
