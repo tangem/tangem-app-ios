@@ -19,9 +19,14 @@
 		0A22618D2D9AC79B004DC848 /* BlockaidDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A22618C2D9AC79B004DC848 /* BlockaidDTO.swift */; };
 		0A22618F2D9AC8A9004DC848 /* BlockaidTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A22618E2D9AC8A9004DC848 /* BlockaidTarget.swift */; };
 		0A2A04DB2C91B167007EAE64 /* TronSendTransactionSummaryDescriptionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2A04DA2C91B167007EAE64 /* TronSendTransactionSummaryDescriptionBuilder.swift */; };
-		0A3A53C62D9C128800E263E7 /* EvmScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53C52D9C128800E263E7 /* EvmScan.swift */; };
+		0A3A53C62D9C128800E263E7 /* BlockchainScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53C52D9C128800E263E7 /* BlockchainScan.swift */; };
 		0A3A53C82D9C47B400E263E7 /* Chain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53C72D9C47B400E263E7 /* Chain.swift */; };
 		0A3A53CA2D9D276B00E263E7 /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53C92D9D276B00E263E7 /* Common.swift */; };
+		0A3A53CC2D9D294C00E263E7 /* Simulation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53CB2D9D294C00E263E7 /* Simulation.swift */; };
+		0A3A53CE2D9D29F200E263E7 /* Validation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53CD2D9D29F200E263E7 /* Validation.swift */; };
+		0A3A53D02D9D36D600E263E7 /* EvmScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53CF2D9D36D600E263E7 /* EvmScan.swift */; };
+		0A3A53D22D9D399C00E263E7 /* SolanaScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53D12D9D399C00E263E7 /* SolanaScan.swift */; };
+		0A3A53D42D9D41B300E263E7 /* BlockaidFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53D32D9D41B300E263E7 /* BlockaidFactory.swift */; };
 		0A3BF9692C6CDAD900163492 /* AdditionalAddresses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3BF9682C6CDAD900163492 /* AdditionalAddresses.swift */; };
 		0A3BF96B2C6CE96B00163492 /* StakingAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3BF96A2C6CE96B00163492 /* StakingAction.swift */; };
 		0A3C78752D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3C78742D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift */; };
@@ -3441,9 +3446,14 @@
 		0A22618C2D9AC79B004DC848 /* BlockaidDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidDTO.swift; sourceTree = "<group>"; };
 		0A22618E2D9AC8A9004DC848 /* BlockaidTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidTarget.swift; sourceTree = "<group>"; };
 		0A2A04DA2C91B167007EAE64 /* TronSendTransactionSummaryDescriptionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TronSendTransactionSummaryDescriptionBuilder.swift; sourceTree = "<group>"; };
-		0A3A53C52D9C128800E263E7 /* EvmScan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvmScan.swift; sourceTree = "<group>"; };
+		0A3A53C52D9C128800E263E7 /* BlockchainScan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainScan.swift; sourceTree = "<group>"; };
 		0A3A53C72D9C47B400E263E7 /* Chain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chain.swift; sourceTree = "<group>"; };
 		0A3A53C92D9D276B00E263E7 /* Common.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Common.swift; sourceTree = "<group>"; };
+		0A3A53CB2D9D294C00E263E7 /* Simulation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Simulation.swift; sourceTree = "<group>"; };
+		0A3A53CD2D9D29F200E263E7 /* Validation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Validation.swift; sourceTree = "<group>"; };
+		0A3A53CF2D9D36D600E263E7 /* EvmScan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvmScan.swift; sourceTree = "<group>"; };
+		0A3A53D12D9D399C00E263E7 /* SolanaScan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaScan.swift; sourceTree = "<group>"; };
+		0A3A53D32D9D41B300E263E7 /* BlockaidFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidFactory.swift; sourceTree = "<group>"; };
 		0A3BF9682C6CDAD900163492 /* AdditionalAddresses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdditionalAddresses.swift; sourceTree = "<group>"; };
 		0A3BF96A2C6CE96B00163492 /* StakingAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAction.swift; sourceTree = "<group>"; };
 		0A3C78742D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HederaNetworkResult.TokensCustomFees.swift; sourceTree = "<group>"; };
@@ -6829,6 +6839,7 @@
 				0A2261892D9AC66F004DC848 /* DTOs */,
 				0A2261872D9AC634004DC848 /* BlockaidAPIService.swift */,
 				0A22618E2D9AC8A9004DC848 /* BlockaidTarget.swift */,
+				0A3A53D32D9D41B300E263E7 /* BlockaidFactory.swift */,
 			);
 			path = Blockaid;
 			sourceTree = "<group>";
@@ -6838,9 +6849,13 @@
 			children = (
 				0A3A53C72D9C47B400E263E7 /* Chain.swift */,
 				0A22618A2D9AC699004DC848 /* SiteScan.swift */,
-				0A3A53C52D9C128800E263E7 /* EvmScan.swift */,
+				0A3A53C52D9C128800E263E7 /* BlockchainScan.swift */,
+				0A3A53CF2D9D36D600E263E7 /* EvmScan.swift */,
+				0A3A53D12D9D399C00E263E7 /* SolanaScan.swift */,
 				0A22618C2D9AC79B004DC848 /* BlockaidDTO.swift */,
 				0A3A53C92D9D276B00E263E7 /* Common.swift */,
+				0A3A53CB2D9D294C00E263E7 /* Simulation.swift */,
+				0A3A53CD2D9D29F200E263E7 /* Validation.swift */,
 			);
 			path = DTOs;
 			sourceTree = "<group>";
@@ -18537,6 +18552,7 @@
 				EF0B63F42C54116000365A50 /* UnstakingFlowBaseBuilder.swift in Sources */,
 				B05A3DE62D004E7900595A1E /* VisaOnboardingTangemWalletDeployApproveViewModel.swift in Sources */,
 				B0C616642AFBA56E00ABADF0 /* ThemeSelectionViewModel.swift in Sources */,
+				0A3A53D22D9D399C00E263E7 /* SolanaScan.swift in Sources */,
 				B05919022A0BCD0800EB8005 /* MainHeaderView.swift in Sources */,
 				EFE7D5792AA201CB0047D93A /* PercentFormatter.swift in Sources */,
 				B6FB04E72B1FEF13000BB59E /* StatusBarStyleConfigurator.swift in Sources */,
@@ -18582,6 +18598,7 @@
 				EFFE2CE928B8E0B300B9F279 /* UserWalletModel.swift in Sources */,
 				B079DB722AEB937D00D2D0D5 /* Analytics+DebugEvent.swift in Sources */,
 				B085154D26D7797400E1A836 /* TwinsOnboardingView.swift in Sources */,
+				0A3A53D42D9D41B300E263E7 /* BlockaidFactory.swift in Sources */,
 				B008E13E2980264D006E0E31 /* WebSocketEvent.swift in Sources */,
 				EF914D4E2A604615001F00B2 /* QuotesDTO.swift in Sources */,
 				B0CCA7222568FD0F009325E3 /* TwinsCreateWalletTask.swift in Sources */,
@@ -18612,6 +18629,7 @@
 				EF8DBCE02C060CCE009072CF /* StakingDependenciesFactory.swift in Sources */,
 				B0A948FF2ACD999C00C80B0A /* WeakifyFunction.swift in Sources */,
 				EFEE22BF2BFCF3450099917E /* BlockchainSDKNotificationMapper.swift in Sources */,
+				0A3A53D02D9D36D600E263E7 /* EvmScan.swift in Sources */,
 				DC70C0002B924DA6002205BA /* SecurityOptionChangingMock.swift in Sources */,
 				DAFD691627CDEB7F00B36C71 /* CombinedExchangeService.swift in Sources */,
 				B6DF90572CA2FA0F0099FED5 /* UINavigationController+.swift in Sources */,
@@ -19341,6 +19359,7 @@
 				B0DC10D42927564000BBE854 /* CardMock.swift in Sources */,
 				EF339E752C24820B00B5CDC9 /* SendAmountInteractor.swift in Sources */,
 				DC0DE2722B60392900E7247F /* SafariManager.swift in Sources */,
+				0A3A53CE2D9D29F200E263E7 /* Validation.swift in Sources */,
 				B6B1CCCA2C460BB9006C1B44 /* UIPanGestureRecognizer+.swift in Sources */,
 				EF5E5AA92B725F9A00D19BBB /* BannerPromotionService.swift in Sources */,
 				EFBAABAF2927CCBA0065C6D4 /* DecimalNumberFormatter.swift in Sources */,
@@ -19444,7 +19463,7 @@
 				EF031A652C0A32C3001535C9 /* SendGeometryEffectNames.swift in Sources */,
 				B669136C2C417C9A0016B0EE /* OverlayContentContainerViewModifier.swift in Sources */,
 				DCBE4CEE2CC8C8E800855904 /* ActionButtonsView.swift in Sources */,
-				0A3A53C62D9C128800E263E7 /* EvmScan.swift in Sources */,
+				0A3A53C62D9C128800E263E7 /* BlockchainScan.swift in Sources */,
 				B6805B722A32F8C90015EC96 /* OrganizeTokensListItemPreviewProvider.swift in Sources */,
 				5DE2038E24EE8A510044EF46 /* ActivityIndicatorView.swift in Sources */,
 				B05A13AE29FBED3000FB511A /* ScrollableButtonsView.swift in Sources */,
@@ -19603,6 +19622,7 @@
 				B06243082AA9B77C00F7B9B2 /* SingleTokenRouter.swift in Sources */,
 				DCE317BB2CC4F8860069C641 /* WalletConnectSolanaSignTransactionHandler.swift in Sources */,
 				B6B7D4E22CED637000567C4B /* SingleTokenNotificationManagerInteractionDelegate.swift in Sources */,
+				0A3A53CC2D9D294C00E263E7 /* Simulation.swift in Sources */,
 				B0431B3F291951C200F84DEF /* IconWithMessageView.swift in Sources */,
 				B04BA23626F083C30036784C /* OnboardingTopupBalanceView.swift in Sources */,
 				DC8B13C82BA8B51700B3DB53 /* PendingBackupManager.swift in Sources */,
