@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct UnspentOutput {
+struct UnspentOutput: Hashable {
     /// a.k.a `height`. The block which included the output. For unconfirmed `0`
     let blockId: Int
     /// The hash/id of transaction where the output was received
