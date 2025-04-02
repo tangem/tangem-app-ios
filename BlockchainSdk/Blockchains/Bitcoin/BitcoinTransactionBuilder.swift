@@ -11,16 +11,105 @@ import TangemSdk
 import BitcoinCore
 
 class BitcoinTransactionBuilder {
-    let bitcoinManager: BitcoinManager
+    private let bitcoinManager: BitcoinManager
     private let unspentOutputManager: UnspentOutputManager
 
-    private(set) var changeScript: Data?
-    private let walletScripts: [BitcoinScript]
+    /// Need only for double public key (Twin cards)
+    private let multisigParameters: MultisigParameters?
 
     init(bitcoinManager: BitcoinManager, unspentOutputManager: UnspentOutputManager, addresses: [Address]) {
         self.bitcoinManager = bitcoinManager
         self.unspentOutputManager = unspentOutputManager
 
+        multisigParameters = .init(addresses: addresses)
+    }
+
+    func fee(amount: Amount, address: String, feeRate: Int) throws -> Int {
+        let satoshi = amount.asSmallest().value.intValue()
+        let preImage = try unspentOutputManager.preImage(amount: satoshi, feeRate: feeRate, destination: address)
+        return preImage.fee
+    }
+
+    func buildForSign(transaction: Transaction, sequence: Int?, sortType: TransactionDataSortType = .bip69) throws -> [Data] {
+        guard let parameters = transaction.fee.parameters as? BitcoinFeeParameters else {
+            throw Error.noBitcoinFeeParameters
+        }
+
+        let preImage = try unspentOutputManager.preImage(transaction: transaction)
+        fillBitcoinManager(outputs: preImage.inputs)
+
+        let hashes = try bitcoinManager.buildForSign(
+            target: transaction.destinationAddress,
+            amount: transaction.amount.value,
+            feeRate: parameters.rate,
+            sortType: sortType,
+            changeScript: multisigParameters?.changeScript,
+            sequence: sequence
+        )
+
+        return hashes
+    }
+
+    func buildForSend(transaction: Transaction, signatures: [Data], sequence: Int?, sortType: TransactionDataSortType = .bip69) throws -> Data {
+        guard let parameters = transaction.fee.parameters as? BitcoinFeeParameters else {
+            throw Error.noBitcoinFeeParameters
+        }
+
+        let preImage = try unspentOutputManager.preImage(transaction: transaction)
+        fillBitcoinManager(outputs: preImage.inputs)
+
+        let signatures = try convertToDER(signatures)
+        return try bitcoinManager.buildForSend(
+            target: transaction.destinationAddress,
+            amount: transaction.amount.value,
+            feeRate: parameters.rate,
+            sortType: sortType,
+            derSignatures: signatures,
+            changeScript: multisigParameters?.changeScript,
+            sequence: sequence
+        )
+    }
+
+    private func mapToUtxoDTO(output: ScriptUnspentOutput) -> UtxoDTO {
+        UtxoDTO(
+            hash: Data(output.hash.reversed()),
+            index: output.index,
+            value: Int(output.amount),
+            script: output.script.data
+        )
+    }
+
+    private func fillBitcoinManager(outputs: [ScriptUnspentOutput]) {
+        let utxos = outputs.map { mapToUtxoDTO(output: $0) }
+        let spendingScripts: [Script]? = multisigParameters?.walletScripts.compactMap { script in
+            let chunks = script.chunks.enumerated().map { index, chunk in
+                Chunk(scriptData: script.data, index: index, payloadRange: chunk.range)
+            }
+            return Script(with: script.data, chunks: chunks)
+        }
+
+        bitcoinManager.fillBlockchainData(unspentOutputs: utxos, spendingScripts: spendingScripts ?? [])
+    }
+
+    private func convertToDER(_ signatures: [Data]) throws -> [Data] {
+        let utils = Secp256k1Utils()
+        return try signatures.compactMap {
+            try utils.serializeDer($0)
+        }
+    }
+}
+
+extension BitcoinTransactionBuilder {
+    enum Error: LocalizedError {
+        case noBitcoinFeeParameters
+    }
+}
+
+struct MultisigParameters {
+    let walletScripts: [BitcoinScript]
+    let changeScript: Data?
+
+    init(addresses: [Address]) {
         let scriptAddresses = addresses.compactMap { $0 as? BitcoinScriptAddress }
         let scripts = scriptAddresses.map { $0.script }
         let defaultScriptData = scriptAddresses
@@ -29,81 +118,5 @@ class BitcoinTransactionBuilder {
 
         walletScripts = scripts
         changeScript = defaultScriptData?.sha256()
-    }
-
-    func fillBitcoinManager() {
-        let utxos = unspentOutputManager.allOutputs().map {
-            UtxoDTO(
-                hash: Data($0.output.hash.reversed()),
-                index: $0.output.index,
-                value: Int($0.output.amount),
-                script: $0.script.data
-            )
-        }
-
-        let spendingScripts: [Script] = walletScripts.compactMap { script in
-            let chunks = script.chunks.enumerated().map { index, chunk in
-                Chunk(scriptData: script.data, index: index, payloadRange: chunk.range)
-            }
-            return Script(with: script.data, chunks: chunks)
-        }
-
-        bitcoinManager.fillBlockchainData(unspentOutputs: utxos, spendingScripts: spendingScripts)
-    }
-
-    func buildForSign(transaction: Transaction, sequence: Int?, sortType: TransactionDataSortType = .bip69) -> [Data]? {
-        do {
-            guard let parameters = transaction.fee.parameters as? BitcoinFeeParameters else { return nil }
-
-            let hashes = try bitcoinManager.buildForSign(
-                target: transaction.destinationAddress,
-                amount: transaction.amount.value,
-                feeRate: parameters.rate,
-                sortType: sortType,
-                changeScript: changeScript,
-                sequence: sequence
-            )
-            return hashes
-        } catch {
-            BSDKLogger.error(error: error)
-            return nil
-        }
-    }
-
-    func buildForSend(transaction: Transaction, signatures: [Data], sequence: Int?, sortType: TransactionDataSortType = .bip69) -> Data? {
-        guard let signatures = convertToDER(signatures),
-              let parameters = transaction.fee.parameters as? BitcoinFeeParameters else {
-            return nil
-        }
-
-        do {
-            return try bitcoinManager.buildForSend(
-                target: transaction.destinationAddress,
-                amount: transaction.amount.value,
-                feeRate: parameters.rate,
-                sortType: sortType,
-                derSignatures: signatures,
-                changeScript: changeScript,
-                sequence: sequence
-            )
-        } catch {
-            BSDKLogger.error(error: error)
-            return nil
-        }
-    }
-
-    private func convertToDER(_ signatures: [Data]) -> [Data]? {
-        var derSigs = [Data]()
-
-        let utils = Secp256k1Utils()
-        for signature in signatures {
-            guard let signDer = try? utils.serializeDer(signature) else {
-                return nil
-            }
-
-            derSigs.append(signDer)
-        }
-
-        return derSigs
     }
 }
