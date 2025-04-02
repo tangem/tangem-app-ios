@@ -16,6 +16,14 @@ protocol StakingTokenBalanceProviderInput: AnyObject {
     var stakingManagerStatePublisher: AnyPublisher<StakingManagerState, Never> { get }
 }
 
+struct NotSupportedStakingTokenBalanceProvider: TokenBalanceProvider {
+    var balanceType: TokenBalanceType { .loaded(0) }
+    var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> { .just(output: balanceType) }
+    var formattedBalanceType: FormattedTokenBalanceType { .loaded("0") }
+
+    var formattedBalanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { .just(output: formattedBalanceType) }
+}
+
 struct StakingTokenBalanceProvider {
     private weak var innerInput: StakingTokenBalanceProviderInput?
     private weak var input: StakingTokenBalanceProviderInput? {
