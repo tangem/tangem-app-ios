@@ -22,7 +22,7 @@ struct CardImageProvider {
     private let supportsOnlineImage: Bool
     private let defaultImage = Assets.Onboarding.darkCard.uiImage
 
-    private let cardVerifier: OnlineCardVerifier
+    private let cardVerifier: OnlineAttestationService
     private let kingfisherCache = KingfisherManager.shared.cache
 
     init(supportsOnlineImage: Bool = true) {
@@ -32,7 +32,7 @@ struct CardImageProvider {
         configuration.timeoutIntervalForRequest = 20
         configuration.timeoutIntervalForResource = 30
         let networkService = NetworkService(configuration: configuration)
-        cardVerifier = OnlineCardVerifier(with: networkService)
+        cardVerifier = OnlineAttestationService(networkService: networkService)
     }
 
     func cardArtwork(for cardId: String) -> CardArtwork? {
@@ -113,7 +113,7 @@ private extension CardImageProvider {
     }
 
     func loadArtworkInfo(cardId: String, cardPublicKey: Data) -> AnyPublisher<CardArtwork, Never> {
-        cardVerifier.getCardInfo(cardId: cardId, cardPublicKey: cardPublicKey)
+        cardVerifier.getAttestationDataLegacy(cardId: cardId, cardPublicKey: cardPublicKey)
             .map { info in
                 if let artwork = info.artwork {
                     return CardArtwork.artwork(artwork)
