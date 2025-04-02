@@ -13,31 +13,35 @@ import TangemNetworkUtils
 struct BlockaidTarget: Moya.TargetType {
     let apiKey: String
     let target: Target
-    
+
     enum Target {
-        case scan(request: BlockaidDTO.Scan.Request)
+        case scanSite(request: BlockaidDTO.SiteScan.Request)
+        case scanEvm(request: BlockaidDTO.EvmScan.Request)
     }
-    
+
     var baseURL: URL {
         URL(string: "https://api.blockaid.io/v0/")!
     }
-    
+
     var path: String {
         switch target {
-        case .scan(let url):
+        case .scanSite:
             return "site/scan"
+        case .scanEvm:
+            return "json-rpc/scan"
         }
     }
 
     var method: Moya.Method {
         switch target {
-        case .scan: .post
+        case .scanSite, .scanEvm: .post
         }
     }
 
     var task: Moya.Task {
         switch target {
-        case .scan(let request): .requestJSONEncodable(request)
+        case .scanSite(let request): .requestJSONEncodable(request)
+        case .scanEvm(let request): .requestJSONEncodable(request)
         }
     }
 
@@ -55,4 +59,3 @@ extension BlockaidTarget: TargetTypeLogConvertible {
         true
     }
 }
-
