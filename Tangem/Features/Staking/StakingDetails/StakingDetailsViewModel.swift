@@ -26,7 +26,7 @@ final class StakingDetailsViewModel: ObservableObject {
     @Published var stakes: [StakingDetailsStakeViewData] = []
     @Published var descriptionBottomSheetInfo: DescriptionBottomSheetInfo?
     @Published var actionButtonLoading: Bool = false
-    @Published var actionButtonDisabled: Bool = false
+    @Published var actionButtonState: ActionButtonState = .enabled
     @Published var actionButtonType: ActionButtonType?
     @Published var actionSheet: ActionSheetBinder?
     @Published var alert: AlertBinder?
@@ -106,6 +106,16 @@ final class StakingDetailsViewModel: ObservableObject {
             return
         }
 
+        if case .disabled(let reason) = actionButtonState {
+            showStakeMoreWarningIfNeeded()
+            return
+        }
+
+        guard stakingManager.state.yieldInfo?.preferredValidators.isEmpty == false else {
+            alert = .init(title: Localization.commonWarning, message: Localization.stakingNoValidatorsErrorMessage)
+            return
+        }
+
         coordinator?.openStakingFlow()
     }
 
@@ -149,9 +159,9 @@ private extension StakingDetailsViewModel {
             break
         // Only with positive balance
         case .loaded(let balance) where balance > 0:
-            actionButtonDisabled = false
+            actionButtonState = .enabled
         case .failure, .loaded:
-            actionButtonDisabled = true
+            actionButtonState = .disabled(reason: .insufficientFunds)
         }
     }
 
@@ -174,7 +184,8 @@ private extension StakingDetailsViewModel {
             setupView(yield: staked.yieldInfo, balances: staked.balances)
 
             actionButtonLoading = false
-            actionButtonType = staked.canStakeMore ? .stakeMore : .none
+            actionButtonState = staked.canStakeMore ? .enabled : .disabled(reason: .cantStakeMore)
+            actionButtonType = .stakeMore
         }
     }
 
@@ -303,13 +314,14 @@ private extension StakingDetailsViewModel {
                     fiatFormatted: rewardsFiatFormatted,
                     cryptoFormatted: rewardsCryptoFormatted
                 ) { [weak self] in
-                    if rewards.count == 1, let balance = rewards.first {
-                        self?.openFlow(balance: balance, validators: yield.validators)
-
-                        let name = balance.validatorType.validator?.name
-                        Analytics.log(event: .stakingButtonRewards, params: [.validator: name ?? ""])
+                    if rewardsClaimable {
+                        self?.openRewardsFlow(rewardsBalances: rewards, yield: yield)
                     } else {
-                        self?.coordinator?.openMultipleRewards()
+                        self?.showRewardsClaimableWarningIfNeeded(
+                            balances: balances,
+                            yield: yield,
+                            rewardsValue: rewardsValue
+                        )
                     }
                 }
             )
@@ -348,7 +360,7 @@ private extension StakingDetailsViewModel {
                 openFlow(for: action)
             case .multiple(let actions):
                 var buttons: [Alert.Button] = actions.map { action in
-                    .default(Text(action.type.title)) { [weak self] in
+                    .default(Text(action.displayType.title)) { [weak self] in
                         self?.openFlow(for: action)
                     }
                 }
@@ -361,15 +373,71 @@ private extension StakingDetailsViewModel {
         }
     }
 
+    private func openRewardsFlow(rewardsBalances: [StakingBalance], yield: YieldInfo) {
+        if rewardsBalances.count == 1, let rewardsBalance = rewardsBalances.first {
+            openFlow(balance: rewardsBalance, validators: yield.validators)
+
+            let name = rewardsBalance.validatorType.validator?.name
+            Analytics.log(event: .stakingButtonRewards, params: [.validator: name ?? ""])
+        } else {
+            coordinator?.openMultipleRewards()
+        }
+    }
+
+    func showRewardsClaimableWarningIfNeeded(
+        balances: [StakingBalance],
+        yield: YieldInfo,
+        rewardsValue: Decimal
+    ) {
+        let constraint = balances
+            .compactMap(\.actionConstraints)
+            .flatMap(\.self)
+            .first(where: { $0.type == .claimRewards })
+
+        let minAmount: Decimal? = switch constraint?.amount.minimum {
+        // StakeKit didn't implement constraints for polygon yet, this code will be removed once done
+        case .none where yield.item.network == .polygon: 1
+        case .none: .none
+        case .some(let amount): amount
+        }
+
+        guard let minAmount, minAmount > rewardsValue else { return }
+
+        let minAmountString = balanceFormatter.formatCryptoBalance(
+            minAmount,
+            currencyCode: tokenItem.currencySymbol
+        )
+
+        alert = AlertBuilder.makeAlert(
+            title: Localization.stakingDetailsMinRewardsNotification(yield.item.name, minAmountString),
+            message: "",
+            primaryButton: .default(Text(Localization.warningButtonOk), action: {})
+        )
+    }
+
+    func showStakeMoreWarningIfNeeded() {
+        if case .disabled(let reason) = actionButtonState, case .cantStakeMore = reason {
+            alert = .init(
+                title: Localization.commonAttention,
+                message: Localization.stakingStakeMoreButtonUnavailabilityReason(
+                    tokenItem.blockchain.displayName,
+                    tokenItem.blockchain.currencySymbol
+                )
+            )
+        }
+    }
+
     private func openFlow(for action: StakingAction) {
+        let stakingParams = StakingBlockchainParams(blockchain: tokenItem.blockchain)
         switch action.type {
-        case .stake:
+        case .stake,
+             .pending(.stake) where stakingParams.isStakingAmountEditable:
             coordinator?.openStakingFlow()
         case .pending(.voteLocked):
             coordinator?.openRestakingFlow(action: action)
         case .unstake:
             coordinator?.openUnstakingFlow(action: action)
-        case .pending(.restake):
+        case .pending(.restake), .pending(.stake):
             coordinator?.openRestakingFlow(action: action)
         case .pending:
             coordinator?.openStakingSingleActionFlow(action: action)
@@ -378,7 +446,7 @@ private extension StakingDetailsViewModel {
 
     func shouldShowMinimumRequirement() -> Bool {
         switch tokenItem.blockchain {
-        case .polkadot, .binance: true
+        case .polkadot, .binance, .cardano, .polygon: true
         default: false
         }
     }
@@ -421,6 +489,16 @@ extension StakingDetailsViewModel {
             case .stakeMore: Localization.stakingStakeMore
             }
         }
+    }
+
+    enum DisableReason: Hashable {
+        case cantStakeMore
+        case insufficientFunds
+    }
+
+    enum ActionButtonState: Hashable {
+        case enabled
+        case disabled(reason: DisableReason)
     }
 }
 
@@ -475,7 +553,7 @@ private extension RewardRateValues {
 extension StakingAction.ActionType {
     var title: String {
         switch self {
-        case .stake: Localization.commonStake
+        case .stake, .pending(.stake): Localization.commonStake
         case .unstake: Localization.commonUnstake
         case .pending(.withdraw): Localization.stakingWithdraw
         case .pending(.claimRewards): Localization.commonClaimRewards

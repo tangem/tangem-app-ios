@@ -32,6 +32,11 @@ class StakingFeatureProvider {
             return nil
         }
 
+        // cardano staking require extended key
+        if case .cardano(let extended) = tokenItem.blockchain, !extended {
+            return nil
+        }
+
         guard let stakingTokenItem = tokenItem.stakingTokenItem else {
             return nil
         }
@@ -71,6 +76,7 @@ extension StakingFeatureProvider {
     static var testableBlockchainItems: Set<StakingItem> {
         [
             StakingItem(network: .ton, contractAddress: nil),
+            StakingItem(network: .cardano, contractAddress: nil),
         ]
     }
 
@@ -88,6 +94,8 @@ extension StakingFeatureProvider {
             return "bsc-bnb-native-staking"
         case (.ton, .none):
             return "ton-ton-chorus-one-pools-staking"
+        case (.cardano, .none):
+            return "cardano-ada-native-staking"
         default:
             return nil
         }

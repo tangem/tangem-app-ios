@@ -67,3 +67,7 @@ extension FakeTokenBalanceProvider: BalanceWithButtonsViewModelBalanceProvider {
         }
     }
 }
+
+extension FakeTokenBalanceProvider: BalanceTypeSelectorProvider {
+    var shouldShowBalanceSelector: Bool { false }
+}
