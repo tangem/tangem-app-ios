@@ -1,11 +1,12 @@
 //
-//  WalletConnectUtils.swift
+//  WCUtils.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import BlockchainSdk
 import ReownWalletKit
 
 struct WCUtils {
@@ -42,27 +43,30 @@ struct WCUtils {
     }
 }
 
-// MARK: - Create sessions
+// MARK: - Create session namespaces
 
 extension WCUtils {
-    func createSessionNamespaces(
+    func createNewSessionModel(
         proposal: Session.Proposal,
-        selectedWalletModelProvider: WalletConnectWalletModelProvider
-    ) throws -> [String: SessionNamespace] {
+        selectedWalletModelProvider: WalletConnectWalletModelProvider,
+        selectedUserWalletModelId: String,
+        selectedOptionalNetworks: [BlockchainNetwork] = []
+    ) throws -> WCConnectionRequestModel {
         let builder = WCSessionNamespacesBuilder()
         let chains = Set(proposal.namespaceChains)
 
-        let accounts: [[Account]] = chains.compactMap { wcBlockchain -> [Account]? in
-            builder.makeAccounts(
+        let requestData: [WCConnectionRequestData] = chains.compactMap { wcBlockchain -> WCConnectionRequestData? in
+            builder.makeConnectionRequestData(
                 from: wcBlockchain,
                 and: proposal,
+                selectedOptionalBlockchains: selectedOptionalNetworks,
                 selectedWalletModelProvider: selectedWalletModelProvider
             )
         }
 
         try checkMissingBlockchains(builder.missingBlockchains)
 
-        try checkUnsupportedEVMBlockchains(builder.missingOptionalBlockchains)
+        try checkUnsupportedEVMBlockchains(builder.unsupportedEVMBlockchains)
 
         do {
             let sessionNamespaces = try AutoNamespaces.build(
@@ -70,10 +74,15 @@ extension WCUtils {
                 chains: Array(builder.supportedChains),
                 methods: proposal.namespaceMethods,
                 events: proposal.namespaceEvents,
-                accounts: accounts.reduce([], +)
+                accounts: requestData.compactMap(\.accounts).reduce([], +)
             )
 
-            return sessionNamespaces
+            return WCConnectionRequestModel(
+                selectedNetworks: requestData.compactMap(\.selectedBlockchain),
+                availableToSelectNetworks: requestData.compactMap(\.availableToSelectBlockchain),
+                notAddedNetworks: requestData.compactMap(\.notAddedBlockchain),
+                sessionNamespaces: sessionNamespaces
+            )
         } catch {
             throw handleAutoNamespaceError(error, missingOptionalBlockchains: builder.missingOptionalBlockchains)
         }
@@ -105,7 +114,7 @@ extension WCUtils {
 // MARK: - Create Tangem blockchain
 
 extension WCUtils {
-    static func makeBlockchain(from wcBlockchain: WalletConnectUtils.Blockchain) -> BlockchainMeta? {
+    static func makeBlockchainMeta(from wcBlockchain: WalletConnectUtils.Blockchain) -> BlockchainMeta? {
         guard WCUtils.WCSupportedNamespaces(rawValue: wcBlockchain.namespace) != nil else {
             return nil
         }
@@ -115,6 +124,18 @@ extension WCUtils {
         let blockchain = blockchains.first { $0.wcChainID?.contains(wcChainId) ?? false }
 
         return .init(from: blockchain)
+    }
+
+    static func makeBlockchain(from wcBlockchain: WalletConnectUtils.Blockchain) -> BlockchainSdk.Blockchain? {
+        guard WCUtils.WCSupportedNamespaces(rawValue: wcBlockchain.namespace) != nil else {
+            return nil
+        }
+
+        let blockchains = SupportedBlockchains.all
+        let wcChainId = wcBlockchain.reference
+        let blockchain = blockchains.first { $0.wcChainID?.contains(wcChainId) ?? false }
+
+        return blockchain
     }
 }
 
@@ -128,6 +149,22 @@ extension WCUtils {
         mapBlockchainNetworks(from: namespaces, walletModelProvider: walletModelProvider).map(\.blockchain.displayName)
     }
 
+    func createBlockchainNetwork(
+        from wcBlockchain: WalletConnectUtils.Blockchain,
+        with address: String,
+        walletModelProvider: WalletConnectWalletModelProvider
+    ) -> BlockchainNetwork? {
+        guard
+            WCSupportedNamespaces(rawValue: wcBlockchain.namespace) != nil,
+            let blockchain = WCUtils.makeBlockchainMeta(from: wcBlockchain),
+            let walletModel = try? walletModelProvider.getModel(with: address, blockchainId: blockchain.id)
+        else {
+            return nil
+        }
+
+        return walletModel.tokenItem.blockchainNetwork
+    }
+
     private func mapBlockchainNetworks(from namespaces: [String: SessionNamespace], walletModelProvider: WalletConnectWalletModelProvider) -> [BlockchainNetwork] {
         return namespaces.values.flatMap {
             let wcBlockchains = $0.accounts.compactMap { ($0.blockchain, $0.address) }
@@ -137,21 +174,5 @@ extension WCUtils {
             }
             return tangemBlockchains
         }
-    }
-
-    private func createBlockchainNetwork(
-        from wcBlockchain: WalletConnectUtils.Blockchain,
-        with address: String,
-        walletModelProvider: WalletConnectWalletModelProvider
-    ) -> BlockchainNetwork? {
-        guard
-            WCSupportedNamespaces(rawValue: wcBlockchain.namespace) != nil,
-            let blockchain = WCUtils.makeBlockchain(from: wcBlockchain),
-            let walletModel = try? walletModelProvider.getModel(with: address, blockchainId: blockchain.id)
-        else {
-            return nil
-        }
-
-        return walletModel.tokenItem.blockchainNetwork
     }
 }

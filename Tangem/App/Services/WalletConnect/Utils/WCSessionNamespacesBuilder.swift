@@ -8,43 +8,72 @@
 
 import ReownWalletKit
 
+struct WCConnectionRequestData {
+    let accounts: [Account]?
+    let selectedBlockchain: Blockchain?
+    let availableToSelectBlockchain: Blockchain?
+    let notAddedBlockchain: Blockchain?
+
+    init(
+        accounts: [Account]? = nil,
+        selectedBlockchain: Blockchain? = nil,
+        availableToSelectBlockchain: Blockchain? = nil,
+        notAddedBlockchain: Blockchain? = nil
+    ) {
+        self.accounts = accounts
+        self.selectedBlockchain = selectedBlockchain
+        self.availableToSelectBlockchain = availableToSelectBlockchain
+        self.notAddedBlockchain = notAddedBlockchain
+    }
+}
+
 final class WCSessionNamespacesBuilder {
     private(set) var missingBlockchains: [String] = []
     private(set) var missingOptionalBlockchains: [String] = []
     private(set) var unsupportedEVMBlockchains: [String] = []
+    private(set) var supportedChains = Set<WalletConnectUtils.Blockchain>()
 
-    var supportedChains = Set<WalletConnectUtils.Blockchain>()
-
-    func makeAccounts(
+    func makeConnectionRequestData(
         from wcBlockchain: WalletConnectUtils.Blockchain,
         and proposal: Session.Proposal,
+        selectedOptionalBlockchains: [BlockchainNetwork],
         selectedWalletModelProvider: WalletConnectWalletModelProvider
-    ) -> [Account]? {
+    ) -> WCConnectionRequestData? {
         guard
-            let blockchain = WCUtils.makeBlockchain(from: wcBlockchain)
+            let blockchain = WCUtils.makeBlockchainMeta(from: wcBlockchain)
         else {
             if proposal.namespaceRequiredChains.contains(wcBlockchain) {
                 unsupportedEVMBlockchains.append(wcBlockchain.reference)
             }
+
             return nil
         }
 
         supportedChains.insert(wcBlockchain)
 
         guard
-            let filteredWallets = filterWalletModels(
+            let filteredWalletModels = filterWalletModels(
                 by: blockchain,
                 proposal: proposal,
                 wcBlockchain: wcBlockchain,
                 selectedWalletModelProvider: selectedWalletModelProvider
             )
         else {
-            return nil
+            return .init(notAddedBlockchain: wcBlockchain)
         }
 
-        return filteredWallets.compactMap { walletModel in
+        let isOptionalBlockchain = proposal.nameSpaceOptionalChains.contains(wcBlockchain)
+        let isSelectedBlockchain = selectedOptionalBlockchains.contains { $0.blockchain.networkId == blockchain.id }
+
+        if isOptionalBlockchain, !isSelectedBlockchain {
+            return .init(availableToSelectBlockchain: wcBlockchain)
+        }
+
+        let accounts = filteredWalletModels.compactMap { walletModel in
             Account("\(wcBlockchain.absoluteString):\(walletModel.defaultAddressString)")
         }
+
+        return .init(accounts: accounts, selectedBlockchain: wcBlockchain)
     }
 
     private func filterWalletModels(
@@ -60,8 +89,6 @@ final class WCSessionNamespacesBuilder {
         } else {
             if proposal.namespaceRequiredChains.contains(wcBlockchain) {
                 missingBlockchains.append(blockchainMeta.displayName)
-            } else {
-                missingOptionalBlockchains.append(blockchainMeta.displayName)
             }
         }
 
