@@ -116,7 +116,7 @@ extension KaspaTransactionHistoryMapper: TransactionHistoryMapper {
             ) else { return nil }
 
             return TransactionRecord(
-                hash: transaction.hash,
+                hash: transaction.transactionId,
                 index: 0,
                 source: source,
                 destination: destination,
