@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemStaking
+import BlockchainSdk
 
 struct StakingFlowBaseBuilder {
     let userWalletModel: UserWalletModel
