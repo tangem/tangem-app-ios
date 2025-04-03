@@ -25,7 +25,7 @@ struct UnstakingFlowBaseBuilder {
         notificationManager.setup(provider: unstakingModel, input: unstakingModel)
         notificationManager.setupManager(with: unstakingModel)
 
-        let actionType = builder.sendFlowActionType(actionType: action.type)
+        let actionType = builder.sendFlowActionType(actionType: action.displayType)
         let sendFinishAnalyticsLogger = builder.makeStakingFinishAnalyticsLogger(
             actionType: actionType,
             stakingValidatorsInput: unstakingModel
