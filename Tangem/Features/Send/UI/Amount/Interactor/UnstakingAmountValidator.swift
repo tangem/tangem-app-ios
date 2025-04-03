@@ -1,5 +1,5 @@
 //
-//  UnstakingSendAmountValidator.swift
+//  UnstakingAmountValidator.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,7 +12,7 @@ import BlockchainSdk
 import Combine
 import TangemStaking
 
-class UnstakingSendAmountValidator {
+class UnstakingAmountValidator {
     private let tokenItem: TokenItem
     private var minimumAmount: Decimal?
     private var stakedAmount: Decimal
@@ -49,7 +49,7 @@ class UnstakingSendAmountValidator {
     }
 }
 
-extension UnstakingSendAmountValidator: SendAmountValidator {
+extension UnstakingAmountValidator: SendAmountValidator {
     func validate(amount: Decimal) throws {
         if let minAmount = minimumAmount, amount < minAmount {
             throw UnstakingValidationError.amountRequirementError(minAmount: minAmount)
