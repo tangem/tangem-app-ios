@@ -35,7 +35,7 @@ final class PushNotificationsService: NSObject {
 
     private var respondedNotificationIds: Set<String> = []
 
-    private var userNotificationCenter: UNUserNotificationCenter { .current() }
+    private let userNotificationCenter = UNUserNotificationCenter.current()
     private let application: UIApplication
 
     init(application: UIApplication) {
@@ -76,6 +76,10 @@ final class PushNotificationsService: NSObject {
 // MARK: - UNUserNotificationCenterDelegate protocol conformance
 
 extension PushNotificationsService: UNUserNotificationCenterDelegate {
+    // Without `@MainActor` provoke crash on iOS 18.2
+    // With exception:
+    // *** Terminating app due to uncaught exception 'NSInternalInconsistencyException', reason: 'Call must be made on main thread'
+    @MainActor
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
         let identifier = response.notification.request.identifier
 
