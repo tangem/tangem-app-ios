@@ -21,15 +21,18 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
 
     private let buttonsPublisher: AnyPublisher<[FixedSizeButtonWithIconInfo], Never>
     private let balanceProvider: BalanceWithButtonsViewModelBalanceProvider
+    private let balanceTypeSelectorProvider: BalanceTypeSelectorProvider
 
     private var bag = Set<AnyCancellable>()
 
     init(
         buttonsPublisher: AnyPublisher<[FixedSizeButtonWithIconInfo], Never>,
-        balanceProvider: BalanceWithButtonsViewModelBalanceProvider
+        balanceProvider: BalanceWithButtonsViewModelBalanceProvider,
+        balanceTypeSelectorProvider: BalanceTypeSelectorProvider
     ) {
         self.buttonsPublisher = buttonsPublisher
         self.balanceProvider = balanceProvider
+        self.balanceTypeSelectorProvider = balanceTypeSelectorProvider
 
         bind()
     }
@@ -72,7 +75,7 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
         available: FormattedTokenBalanceType,
         type: BalanceType
     ) {
-        balanceTypeValues = all == available ? nil : BalanceType.allCases
+        balanceTypeValues = balanceTypeSelectorProvider.shouldShowBalanceSelector ? BalanceType.allCases : nil
 
         switch cryptoBalance {
         case .loaded where all.isLoading || available.isLoading:

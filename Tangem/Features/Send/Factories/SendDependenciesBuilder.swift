@@ -23,7 +23,7 @@ struct SendDependenciesBuilder {
 
     func sendFlowActionType(actionType: StakingAction.ActionType) -> SendFlowActionType {
         switch actionType {
-        case .stake: .stake
+        case .stake, .pending(.stake): .stake
         case .unstake: .unstake
         case .pending(.claimRewards): .claimRewards
         case .pending(.withdraw): .withdraw
@@ -75,6 +75,14 @@ struct SendDependenciesBuilder {
         case .unstake: amount?.crypto ?? 0
         default: walletModel.availableBalanceProvider.balanceType.value ?? 0
         }
+    }
+
+    func makeStakeAction() -> StakingAction {
+        StakingAction(
+            amount: (try? walletModel.getBalance()) ?? 0,
+            validatorType: .empty,
+            type: .stake
+        )
     }
 
     func formattedBalance(for amount: SendAmount?, actionType: SendFlowActionType) -> String {
@@ -303,13 +311,17 @@ struct SendDependenciesBuilder {
             stakingManager: stakingManager,
             transactionDispatcher: makeStakingTransactionDispatcher(stakingManger: stakingManager),
             transactionValidator: walletModel.transactionValidator,
+            sendAmountValidator: makeRestakingSendAmountValidator(stakingManager: stakingManager, action: action.type),
             action: action,
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem
         )
     }
 
-    func makeStakingSingleActionModel(stakingManager: some StakingManager, action: UnstakingModel.Action) -> StakingSingleActionModel {
+    func makeStakingSingleActionModel(
+        stakingManager: some StakingManager,
+        action: UnstakingModel.Action
+    ) -> StakingSingleActionModel {
         StakingSingleActionModel(
             stakingManager: stakingManager,
             transactionDispatcher: makeStakingTransactionDispatcher(stakingManger: stakingManager),
@@ -324,10 +336,23 @@ struct SendDependenciesBuilder {
         CommonStakingNotificationManager(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem)
     }
 
-    func makeStakingSendAmountValidator(stakingManager: some StakingManager) -> SendAmountValidator {
-        StakingSendAmountValidator(
+    func makeStakingSendAmountValidator(
+        stakingManager: some StakingManager
+    ) -> SendAmountValidator {
+        StakingAmountValidator(
             tokenItem: walletModel.tokenItem,
             validator: walletModel.transactionValidator,
+            stakingManagerStatePublisher: stakingManager.statePublisher
+        )
+    }
+
+    func makeRestakingSendAmountValidator(
+        stakingManager: some StakingManager,
+        action: StakingAction.ActionType
+    ) -> SendAmountValidator {
+        RestakingAmountValidator(
+            tokenItem: walletModel.tokenItem,
+            action: action,
             stakingManagerStatePublisher: stakingManager.statePublisher
         )
     }
@@ -336,7 +361,7 @@ struct SendDependenciesBuilder {
         stakingManager: some StakingManager,
         stakedAmount: Decimal
     ) -> SendAmountValidator {
-        UnstakingSendAmountValidator(
+        UnstakingAmountValidator(
             tokenItem: walletModel.tokenItem,
             stakedAmount: stakedAmount,
             stakingManagerStatePublisher: stakingManager.statePublisher

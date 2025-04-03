@@ -15,6 +15,7 @@ public struct StakingBalanceInfo: Hashable {
     public let balanceType: StakingBalanceType
     public let validatorAddress: String?
     public let actions: [StakingPendingActionInfo]
+    public let actionConstraints: [StakingPendingActionConstraint]?
 
     public init(
         item: StakingTokenItem,
@@ -22,7 +23,8 @@ public struct StakingBalanceInfo: Hashable {
         accountAddress: String? = nil,
         balanceType: StakingBalanceType,
         validatorAddress: String?,
-        actions: [StakingPendingActionInfo]
+        actions: [StakingPendingActionInfo],
+        actionConstraints: [StakingPendingActionConstraint]? = nil
     ) {
         self.item = item
         self.amount = amount
@@ -30,5 +32,6 @@ public struct StakingBalanceInfo: Hashable {
         self.balanceType = balanceType
         self.validatorAddress = validatorAddress
         self.actions = actions
+        self.actionConstraints = actionConstraints
     }
 }

@@ -17,6 +17,7 @@ struct MainButton: View {
     private let size: Size
     private let isDisabled: Bool
     private let action: () -> Void
+    private let handleActionWhenDisabled: Bool
 
     private var isLoading: Bool
 
@@ -28,6 +29,7 @@ struct MainButton: View {
         size: Size = .default,
         isLoading: Bool = false,
         isDisabled: Bool = false,
+        handleActionWhenDisabled: Bool = false,
         action: @escaping (() -> Void)
     ) {
         self.title = title
@@ -37,6 +39,7 @@ struct MainButton: View {
         self.size = size
         self.isLoading = isLoading
         self.isDisabled = isDisabled
+        self.handleActionWhenDisabled = handleActionWhenDisabled
         self.action = action
     }
 
@@ -67,7 +70,12 @@ struct MainButton: View {
             Colors.Background.primary
                 .cornerRadiusContinuous(style.cornerRadius(for: size))
         )
-        .disabled(isDisabled || isLoading)
+        .disabled(isInternalButtonDisabled)
+    }
+
+    var isInternalButtonDisabled: Bool {
+        guard !isLoading else { return true }
+        return isDisabled && !handleActionWhenDisabled
     }
 
     @ViewBuilder
