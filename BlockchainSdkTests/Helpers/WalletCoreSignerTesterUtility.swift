@@ -56,4 +56,11 @@ extension WalletCoreSignerTesterUtility: TransactionSigner {
             }
             .eraseToAnyPublisher()
     }
+
+    public func sign(
+        dataToSign: [BlockchainSdk.SignData],
+        seedKey: Data
+    ) -> AnyPublisher<[(signature: Data, publicKey: Data)], Error> {
+        fatalError("Unimplemented")
+    }
 }
