@@ -54,6 +54,24 @@ struct TangemSigner: TransactionSigner {
         .eraseToAnyPublisher()
     }
 
+    func sign(
+        dataToSign: [SignData],
+        seedKey: Data
+    ) -> AnyPublisher<[(signature: Data, publicKey: Data)], Error> {
+        let signCommand = MultipleSignTask(dataToSign: dataToSign, seedKey: seedKey)
+        return sdk.startSessionPublisher(with: signCommand, filter: filter, initialMessage: initialMessage)
+            .mapError { $0 }
+            .handleEvents(receiveOutput: { response in
+                if let lastResponse = response.last {
+                    latestSigner.send(lastResponse.card)
+                }
+            })
+            .map { response in
+                return response.map { ($0.signature, $0.publicKey) }
+            }
+            .eraseToAnyPublisher()
+    }
+
     func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<Data, Error> {
         sign(hashes: [hash], walletPublicKey: walletPublicKey)
             .map { $0[0] }
