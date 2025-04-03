@@ -47,7 +47,7 @@ extension StakeKitDTO {
             let signatureVerification: Required?
 
             struct Amount: Decodable {
-                let required: Bool
+                let required: Bool?
                 let minimum: Decimal
                 let maximum: Decimal?
             }
