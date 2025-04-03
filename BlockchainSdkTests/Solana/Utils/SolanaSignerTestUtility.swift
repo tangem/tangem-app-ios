@@ -28,6 +28,17 @@ enum SolanaSignerTestUtility {
             return Fail(error: raisedError)
                 .eraseToAnyPublisher()
         }
+
+        public func sign(
+            dataToSign: [BlockchainSdk.SignData],
+            seedKey: Data
+        ) -> AnyPublisher<[(signature: Data, publicKey: Data)], Error> {
+            dataToSign.forEach { data in
+                sizeTester.testTxSize(data.hash)
+            }
+            return Fail(error: raisedError)
+                .eraseToAnyPublisher()
+        }
     }
 
     class TokenSigner: TransactionSigner {
@@ -45,6 +56,17 @@ enum SolanaSignerTestUtility {
             #expect(sizeTester.isValidForCos4_52AndAbove(hash))
             #expect(!sizeTester.isValidForCosBelow4_52(hash))
             #expect(!sizeTester.isValidForiPhone7(hash))
+            return Fail(error: raisedError)
+                .eraseToAnyPublisher()
+        }
+
+        public func sign(
+            dataToSign: [BlockchainSdk.SignData],
+            seedKey: Data
+        ) -> AnyPublisher<[(signature: Data, publicKey: Data)], Error> {
+            dataToSign.forEach { data in
+                sizeTester.testTxSize(data.hash)
+            }
             return Fail(error: raisedError)
                 .eraseToAnyPublisher()
         }
