@@ -15,3 +15,7 @@ protocol BalanceWithButtonsViewModelBalanceProvider {
     var availableCryptoBalancePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { get }
     var availableFiatBalancePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { get }
 }
+
+protocol BalanceTypeSelectorProvider {
+    var shouldShowBalanceSelector: Bool { get }
+}
