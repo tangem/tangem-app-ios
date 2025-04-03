@@ -19,7 +19,8 @@ public struct TransactionHistoryProviderFactory {
         self.apiList = apiList
     }
 
-    public func makeProvider(for blockchain: Blockchain) -> TransactionHistoryProvider? {
+    // [REDACTED_TODO_COMMENT]
+    public func makeProvider(for blockchain: Blockchain, isToken: Bool) -> TransactionHistoryProvider? {
         // Transaction history is only supported on the mainnet
         guard !blockchain.isTestnet else {
             return nil
@@ -90,7 +91,7 @@ public struct TransactionHistoryProviderFactory {
                 networkConfig: input.networkConfig,
                 mapper: AlgorandTransactionHistoryMapper(blockchain: input.blockchain)
             )
-        case .kaspa:
+        case .kaspa where !isToken:
             return KaspaTransactionHistoryProvider(
                 networkConfiguration: input.networkConfig,
                 mapper: KaspaTransactionHistoryMapper(blockchain: input.blockchain)
