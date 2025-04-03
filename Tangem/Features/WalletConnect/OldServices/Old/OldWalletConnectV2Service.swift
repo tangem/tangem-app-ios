@@ -117,6 +117,14 @@ final class OldWalletConnectV2Service {
             WCLogger.info("Attempt to disconnect session with topic: \(session.topic)")
             try await WalletKit.instance.disconnect(topic: session.topic)
 
+            Analytics.log(
+                event: .walletConnectDAppDisconnected,
+                params: [
+                    .dAppName: session.sessionInfo.dAppInfo.name,
+                    .dAppUrl: session.sessionInfo.dAppInfo.url,
+                ]
+            )
+
             WCLogger.info("Session with topic: \(session.topic) was disconnected from SignAPI. Removing from storage")
             await sessionsStorage.remove(session)
         } catch {
@@ -210,12 +218,6 @@ final class OldWalletConnectV2Service {
                     from: session,
                     with: infoProvider?.userWalletId.stringValue ?? ""
                 )
-
-                let blockChainReferences = session.accounts.compactMap { account in
-                    Blockchain.allMainnetCases.first { blockChain in
-                        blockChain.wcChainID?.contains(account.reference) == true
-                    }?.currencySymbol
-                }.toSet().sorted()
 
                 canEstablishNewSessionSubject.send(true)
 
@@ -322,7 +324,7 @@ final class OldWalletConnectV2Service {
             event: .establishSession,
             message: message,
             approveAction: { [weak self] in
-                self?.sessionAccepted(with: proposal.id, namespaces: namespaces)
+                self?.sessionAccepted(with: proposal, namespaces: namespaces, blockchainNames: blockchains)
             },
             rejectAction: { [weak self] in
                 self?.sessionRejected(with: proposal)
@@ -341,20 +343,20 @@ final class OldWalletConnectV2Service {
 
     // MARK: - Session manipulation
 
-    private func sessionAccepted(with id: String, namespaces: [String: SessionNamespace]) {
+    private func sessionAccepted(with proposal: Session.Proposal, namespaces: [String: SessionNamespace], blockchainNames: [String]) {
         TangemFoundation.runTask(in: self) { strongSelf in
             do {
                 WCLogger.info("Namespaces to approve for session connection: \(namespaces)")
-                _ = try await WalletKit.instance.approve(proposalId: id, namespaces: namespaces)
-                await strongSelf.logDAppConnected(sessionId: id, namespaces: namespaces)
+                _ = try await WalletKit.instance.approve(proposalId: proposal.id, namespaces: namespaces)
+                Self.logDAppConnected(proposal: proposal, blockchainNames: blockchainNames)
             } catch let error as WalletConnectV2Error {
                 strongSelf.displayErrorUI(error)
-                await strongSelf.logDAppConnectionFailed(sessionId: id, namespaces: namespaces)
+                Self.logDAppConnectionFailed(proposal: proposal, blockchainNames: blockchainNames)
             } catch {
                 let mappedError = WalletConnectV2ErrorMappingUtils().mapWCv2Error(error)
                 strongSelf.displayErrorUI(mappedError)
                 WCLogger.error("Failed to approve Session", error: error)
-                await strongSelf.logDAppConnectionFailed(sessionId: id, namespaces: namespaces)
+                Self.logDAppConnectionFailed(proposal: proposal, blockchainNames: blockchainNames)
             }
         }
     }
@@ -445,12 +447,19 @@ final class OldWalletConnectV2Service {
             WCLogger.info("Receive result from user \(result) for \(logSuffix)")
             try await WalletKit.instance.respond(topic: session.topic, requestId: request.id, response: result)
 
-            logSignatureRequestEvent(
-                .walletConnectSignatureRequestHandled,
-                request: request,
-                session: session,
-                error: nil
-            )
+            let event: Analytics.Event
+            let signatureHandlingError: WalletConnectV2Error?
+
+            switch result {
+            case .response:
+                event = Analytics.Event.walletConnectSignatureRequestHandled
+                signatureHandlingError = nil
+            case .error(let error):
+                event = Analytics.Event.walletConnectSignatureRequestFailed
+                signatureHandlingError = WalletConnectV2Error.unknown(error.localizedDescription)
+            }
+
+            logSignatureRequestEvent(event, request: request, session: session, error: signatureHandlingError)
 
         } catch let error as WalletConnectV2Error {
             if case .unsupportedWCMethod = error {} else {
@@ -520,30 +529,19 @@ extension OldWalletConnectV2Service {
         Analytics.log(event: event, params: params)
     }
 
-    private func logDAppConnected(sessionId: String, namespaces: [String: SessionNamespace]) async {
-        await logDAppConnectionStatusEvent(.walletConnectDAppConnected, sessionId: sessionId, namespaces: namespaces)
+    private static func logDAppConnected(proposal: Session.Proposal, blockchainNames: [String]) {
+        logDAppConnectionStatusEvent(.walletConnectDAppConnected, proposal: proposal, blockchainNames: blockchainNames)
     }
 
-    private func logDAppConnectionFailed(sessionId: String, namespaces: [String: SessionNamespace]) async {
-        await logDAppConnectionStatusEvent(.walletConnectDAppConnectionFailed, sessionId: sessionId, namespaces: namespaces)
+    private static func logDAppConnectionFailed(proposal: Session.Proposal, blockchainNames: [String]) {
+        logDAppConnectionStatusEvent(.walletConnectDAppConnectionFailed, proposal: proposal, blockchainNames: blockchainNames)
     }
 
-    private func logDAppConnectionStatusEvent(
-        _ event: Analytics.Event,
-        sessionId: String,
-        namespaces: [String: SessionNamespace]
-    ) async {
-        guard let infoProvider else { return }
-        guard let session = await sessionsStorage.session(with: sessionId) else { return }
-
-        let blockchainNames = OldWalletConnectV2Utils()
-            .getBlockchainNamesFromNamespaces(namespaces, walletModelProvider: infoProvider.wcWalletModelProvider)
-            .joined(separator: ",")
-
+    private static func logDAppConnectionStatusEvent(_ event: Analytics.Event, proposal: Session.Proposal, blockchainNames: [String]) {
         let params: [Analytics.ParameterKey: String] = [
-            .dAppName: session.sessionInfo.dAppInfo.name,
-            .dAppUrl: session.sessionInfo.dAppInfo.url,
-            .blockchain: blockchainNames,
+            .dAppName: proposal.proposer.name,
+            .dAppUrl: proposal.proposer.url,
+            .blockchain: blockchainNames.joined(separator: ","),
         ]
 
         Analytics.log(event: event, params: params)
