@@ -101,6 +101,7 @@ public protocol TransactionSender {
 public protocol TransactionSigner {
     func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[Data], Error>
     func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<Data, Error>
+    func sign(dataToSign: [SignData], seedKey: Data) -> AnyPublisher<[(signature: Data, publicKey: Data)], Error>
 }
 
 extension TransactionSigner {
@@ -117,6 +118,17 @@ extension TransactionSigner {
             .map { signatures in
                 zip(hashes, signatures).map { hash, signature in
                     SignatureInfo(signature: signature, publicKey: walletPublicKey.blockchainKey, hash: hash)
+                }
+            }
+            .eraseToAnyPublisher()
+    }
+
+    func sign(dataToSign: [SignData], seedKey: Data) -> AnyPublisher<[SignatureInfo], Error> {
+        sign(dataToSign: dataToSign, seedKey: seedKey)
+            .map { signatures in
+                signatures.compactMap { signature -> SignatureInfo? in
+                    guard let hash = dataToSign.first(where: { $0.publicKey == signature.1 })?.hash else { return nil }
+                    return SignatureInfo(signature: signature.signature, publicKey: signature.publicKey, hash: hash)
                 }
             }
             .eraseToAnyPublisher()
