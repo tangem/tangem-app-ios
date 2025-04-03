@@ -51,7 +51,6 @@ struct RewardView: View {
                     }
                 }
             }
-            .disabled(!claimable)
         }
     }
 }
