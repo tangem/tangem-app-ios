@@ -33,7 +33,7 @@ struct CommonWalletModelsFactory {
         if addresses.count == 1, let address = addresses.first {
             let factory = TransactionHistoryFactoryProvider().factory
 
-            guard let provider = factory.makeProvider(for: tokenItem.blockchain) else {
+            guard let provider = factory.makeProvider(for: tokenItem.blockchain, isToken: tokenItem.isToken) else {
                 return nil
             }
 
@@ -46,7 +46,7 @@ struct CommonWalletModelsFactory {
 
         let multiAddressProviders: [String: TransactionHistoryProvider] = addresses.reduce(into: [:]) { result, address in
             let factory = TransactionHistoryFactoryProvider().factory
-            if let provider = factory.makeProvider(for: tokenItem.blockchain) {
+            if let provider = factory.makeProvider(for: tokenItem.blockchain, isToken: tokenItem.isToken) {
                 result[address] = provider
             }
         }
