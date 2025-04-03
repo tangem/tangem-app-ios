@@ -14,8 +14,13 @@ import Testing
 struct CardanoTransactionTests {
     private let transactionBuilder: CardanoTransactionBuilder
     private let blockchain = Blockchain.cardano(extended: false)
+
+    private let sizeTester = TransactionSizeTesterUtility()
+
+    private let ownAddress = "addr1q8043m5heeaydnvtmmkyuhe6qv5havvhsf0d26q3jygsspxlyfpyk6yqkw0yhtyvtr0flekj84u64az82cufmqn65zdsylzk23"
+
     init() {
-        transactionBuilder = CardanoTransactionBuilder()
+        transactionBuilder = CardanoTransactionBuilder(address: ownAddress)
     }
 
     /// Successful transaction
@@ -114,6 +119,7 @@ struct CardanoTransactionTests {
 
         // when
         let dataForSign = try transactionBuilder.buildForSign(transaction: transaction)
+
         let signature = Data(hex: "d0cd5a183e63dce8f0d5bc6d617bbc2f3aa982fd24ece4e29eb10abb69c00bc8dd9d353f35084c5bcc9f81d4599e9c67980ebce32e3462951116ee39da1da406")
 
         let publicKey = Data(hex: "de60f41ab5045ce1b9b37e386570ed63499a53ee93ca3073e54a80065678384d")
@@ -126,6 +132,8 @@ struct CardanoTransactionTests {
             encoded.hexString.lowercased() ==
                 "83a40082825820db2306d819d848f67f70ab898028d9827e5d1fccc7033531534fdd39e93a796e01825820848c0861a3dc02a806d71cb35de83ffbc2a8553d161e2449c37572d7c2de44a700018282582b82d818582183581c4fab3a1dbcaec5ed582dc34219b0147b972c35f201b73a446105719ea0001aa351d8aa1a0013d62082581d6127a5b0988b7a6f9dce66d48ff48a3f9a9ef8d24376a937f179ed02171a001b67f5021a0002d278031a0b532b80a20081825820de60f41ab5045ce1b9b37e386570ed63499a53ee93ca3073e54a80065678384d5840d0cd5a183e63dce8f0d5bc6d617bbc2f3aa982fd24ece4e29eb10abb69c00bc8dd9d353f35084c5bcc9f81d4599e9c67980ebce32e3462951116ee39da1da4060281845820de60f41ab5045ce1b9b37e386570ed63499a53ee93ca3073e54a80065678384d5840d0cd5a183e63dce8f0d5bc6d617bbc2f3aa982fd24ece4e29eb10abb69c00bc8dd9d353f35084c5bcc9f81d4599e9c67980ebce32e3462951116ee39da1da4065820000000000000000000000000000000000000000000000000000000000000000041a0f6"
         )
+
+        sizeTester.testTxSize(dataForSign)
     }
 
     /// Successful transaction
@@ -213,6 +221,7 @@ struct CardanoTransactionTests {
             encoded.hexString.lowercased() ==
                 "83a40084825820d5958a70c20fdc7aa3537bf830730b1cef3dd5b2d12dc0360be130a18df71cd90182582003946fe122634d05e93219fde628ce55a5e0d06f23afa456864897357c5dade801825820482d88eb2d3b40b8a4e6bb8545cef842a5703e8f9eab9e3caca5c2edd1f31a7f00825820967e971cb5bcb1723ef24140c6d6689eb6453548ee47478996dcc6677ce7f62f00018282583901a9426fe0cee6d01d1fe32af650e1e7b5d52c35d8a53218f3d0861531621c2b1ebdf4f11f96da67fdcb0e1d97a7e778566166be55f193c30f821a00160a5ba1581cf43a62fdc3965df486de8a0d32fe800963589c41b38946602a0dc535a144414749581a03dfd24082581d6127a5b0988b7a6f9dce66d48ff48a3f9a9ef8d24376a937f179ed0217821a005e6b9da1581cf43a62fdc3965df486de8a0d32fe800963589c41b38946602a0dc535a144414749581a019d0e30021a0002af32031a0b532b80a10081825820de60f41ab5045ce1b9b37e386570ed63499a53ee93ca3073e54a80065678384d5840a3c14e049b3192c64af175ff3650f9c0a6f833d168634b3ec73f2f5609bce107d2e39a1387c844bbe521bf3d11a63c4927f62a7c06dc40a8c28da74cb072d70df6"
         )
+        sizeTester.testTxSize(dataForSign)
     }
 
     @Test
@@ -267,5 +276,112 @@ struct CardanoTransactionTests {
             encoded.hexString.lowercased() ==
                 "83a40082825820554f2fd942a23d06835d26bbd78f0106fa94c8a551114a0bef81927f66467af000825820f074134aabbfb13b8aec7cf5465b1e5a862bde5cb88532cc7e64619179b3e76701018282583901558dd902616f5cd01edcc62870cb4748c45403f1228218bee5b628b526f0ca9e7a2c04d548fbd6ce86f358be139fe680652536437d1d6fd51a006acfc082583901df58ee97ce7a46cd8bdeec4e5f3a03297eb197825ed5681191110804df22424b6880b39e4bac8c58de9fe6d23d79aaf44756389d827aa09b1a000ca96c021a000298d4031a0b532b80a100818258206d8a0b425bd2ec9692af39b1c0cf0e51caa07a603550e22f54091e872c7df2905840f0a916cf55df99f595b49b3ead2052a17fdf3357b2e04c97c0144b1ee7a88f9a33883d9483e9c9c54cf7d496ac8c7aa31b4eb23a8a2c277fab8e406ba7af2c05f6"
         )
+        sizeTester.testTxSize(dataForSign)
+    }
+
+    @Test
+    func testSignStakingRegisterAndDelegate() throws {
+        let body = CardanoTransactionBody(
+            inputs: [],
+            outputs: [],
+            fee: .zero,
+            certificates: [
+                .stakeDelegation(
+                    .init(
+                        credential: .init(keyHash: Data()),
+                        poolKeyHash: Data(hex: "7d7ac07a2f2a25b7a4db868a40720621c4939cf6aefbb9a11464f1a6")
+                    )
+                ),
+                .stakeRegistrationLegacy(.init(credential: .init(keyHash: Data()))),
+            ]
+        )
+        let cardanoTransaction = CardanoTransaction(body: body, witnessSet: nil, isValid: true, auxiliaryData: nil)
+
+        transactionBuilder.update(outputs: [
+            CardanoUnspentOutput(
+                address: ownAddress,
+                amount: 4000000,
+                outputIndex: 0,
+                transactionHash: "9b06de86b253549b99f6a050b61217d8824085ca5ed4eb107a5e7cce4f93802e",
+                assets: []
+            ),
+            CardanoUnspentOutput(
+                address: ownAddress,
+                amount: 26651312,
+                outputIndex: 1,
+                transactionHash: "9b06de86b253549b99f6a050b61217d8824085ca5ed4eb107a5e7cce4f93802e",
+                assets: []
+            ),
+        ])
+
+        let privateKeyData = Data(hexString: "089b68e458861be0c44bf9f7967f05cc91e51ede86dc679448a3566990b7785bd48c330875b1e0d03caaed0e67cecc42075dce1c7a13b1c49240508848ac82f603391c68824881ae3fc23a56a1a75ada3b96382db502e37564e84a5413cfaf1290dbd508e5ec71afaea98da2df1533c22ef02a26bb87b31907d0b2738fb7785b38d53aa68fc01230784c9209b2b2a2faf28491b3b1f1d221e63e704bbd0403c4154425dfbb01a2c5c042da411703603f89af89e57faae2946e2a5c18b1c5ca0e")
+
+        let privateKey = PrivateKey(data: privateKeyData)!
+        let publicKey = privateKey.getPublicKeyByType(pubkeyType: .ed25519Cardano)
+
+        var bytes = Data(
+            privateKeyData.bytes[privateKeyData.bytes.count / 2 ..< privateKeyData.bytes.count]
+        ).trailingZeroPadding(toLength: 192)
+
+        let stakingPrivateKeyData = Data(bytes)
+        let stakingPrivateKey = PrivateKey(data: stakingPrivateKeyData)!
+        let stakingPublicKey = stakingPrivateKey.getPublicKeyByType(pubkeyType: .ed25519Cardano)
+
+        let stakingSignature = Data(hex: "1fa21bdc62b85ca217bf08cbacdeba2fadaf33dc09ee3af9cc25b40f24822a1a42cfbc03585cc31a370ef75aaec4d25db6edcf329e40a4e725ec8718c94f220a")
+        let signature = Data(hex: "677c901704be027d9a1734e8aa06f0700009476fa252baaae0de280331746a320a61456d842d948ea5c0e204fc36f3bd04c88ca7ee3d657d5a38014243c37c07")
+
+        let signatureInfo1 = SignatureInfo(signature: signature, publicKey: publicKey.data, hash: Data())
+        let signatureInfo2 = SignatureInfo(signature: stakingSignature, publicKey: stakingPublicKey.data, hash: Data())
+
+        let output = try transactionBuilder.buildCompiledForSend(
+            transaction: cardanoTransaction,
+            signatures: [signatureInfo1, signatureInfo2],
+            ttl: 69885081
+        )
+
+        let expectedHex = "83a500828258209b06de86b253549b99f6a050b61217d8824085ca5ed4eb107a5e7cce4f93802e008258209b06de86b253549b99f6a050b61217d8824085ca5ed4eb107a5e7cce4f93802e01018182583901df58ee97ce7a46cd8bdeec4e5f3a03297eb197825ed5681191110804df22424b6880b39e4bac8c58de9fe6d23d79aaf44756389d827aa09b1a01b27ef5021a0002b03b031a042a5c99048282008200581cdf22424b6880b39e4bac8c58de9fe6d23d79aaf44756389d827aa09b83028200581cdf22424b6880b39e4bac8c58de9fe6d23d79aaf44756389d827aa09b581c7d7ac07a2f2a25b7a4db868a40720621c4939cf6aefbb9a11464f1a6a100828258206d8a0b425bd2ec9692af39b1c0cf0e51caa07a603550e22f54091e872c7df2905840677c901704be027d9a1734e8aa06f0700009476fa252baaae0de280331746a320a61456d842d948ea5c0e204fc36f3bd04c88ca7ee3d657d5a38014243c37c07825820e554163344aafc2bbefe778a6953ddce0583c2f8e0a0686929c020ca33e0693258401fa21bdc62b85ca217bf08cbacdeba2fadaf33dc09ee3af9cc25b40f24822a1a42cfbc03585cc31a370ef75aaec4d25db6edcf329e40a4e725ec8718c94f220af6".uppercased()
+
+        let encoded = output
+        #expect(encoded.hexString == expectedHex)
+    }
+
+    @Test
+    func testStakingTransactionSize() throws {
+        let body = CardanoTransactionBody(
+            inputs: [],
+            outputs: [],
+            fee: .zero,
+            certificates: [
+                .stakeDelegation(
+                    .init(
+                        credential: .init(keyHash: Data()),
+                        poolKeyHash: Data(hex: "7d7ac07a2f2a25b7a4db868a40720621c4939cf6aefbb9a11464f1a6")
+                    )
+                ),
+                .stakeRegistrationLegacy(.init(credential: .init(keyHash: Data()))),
+            ]
+        )
+        let cardanoTransaction = CardanoTransaction(body: body, witnessSet: nil, isValid: true, auxiliaryData: nil)
+
+        transactionBuilder.update(outputs: [
+            CardanoUnspentOutput(
+                address: ownAddress,
+                amount: 4000000,
+                outputIndex: 0,
+                transactionHash: "9b06de86b253549b99f6a050b61217d8824085ca5ed4eb107a5e7cce4f93802e",
+                assets: []
+            ),
+            CardanoUnspentOutput(
+                address: ownAddress,
+                amount: 26651312,
+                outputIndex: 1,
+                transactionHash: "9b06de86b253549b99f6a050b61217d8824085ca5ed4eb107a5e7cce4f93802e",
+                assets: []
+            ),
+        ])
+
+        let dataForSign = try transactionBuilder.buildCompiledForSign(transaction: cardanoTransaction)
+
+        sizeTester.testTxSize(dataForSign)
     }
 }

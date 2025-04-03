@@ -65,6 +65,7 @@ struct StakeKitMapper {
         case .unlockLocked: .unlockLocked
         case .restake: .restake
         case .claimUnstaked: .claimUnstaked
+        case .stake: .stake
         }
     }
 
@@ -227,7 +228,8 @@ struct StakeKitMapper {
                 accountAddress: balance.accountAddress,
                 balanceType: mapToBalanceType(from: balance),
                 validatorAddress: balance.validatorAddress ?? balance.validatorAddresses?.first,
-                actions: mapToStakingBalanceInfoPendingAction(from: balance)
+                actions: mapToStakingBalanceInfoPendingAction(from: balance),
+                actionConstraints: mapToBalanceConstraints(from: balance.pendingActionConstraints)
             )
         }
     }
@@ -279,6 +281,17 @@ struct StakeKitMapper {
             return .unstaked
         case .rewards:
             return .rewards
+        }
+    }
+
+    func mapToBalanceConstraints(
+        from balanceConstraints: [StakeKitDTO.Balances.Response.Balance.PendingActionConstant]?
+    ) throws -> [StakingPendingActionConstraint]? {
+        try balanceConstraints?.map {
+            StakingPendingActionConstraint(
+                type: try mapToActionType(from: $0.type),
+                amount: .init(minimum: $0.amount.minimum, maximum: $0.amount.maximum)
+            )
         }
     }
 
