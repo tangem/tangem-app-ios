@@ -12,3 +12,10 @@ struct KaspaNetworkParams: UTXONetworkParams {
     var bech32Prefix: String { "kaspa" }
     var dustRelayTxFee: Int { 3000 }
 }
+
+struct KaspaTestNetworkParams: UTXONetworkParams {
+    var p2shPrefix: UInt8 { 0x00 }
+    var p2pkhPrefix: UInt8 { 0x08 }
+    var bech32Prefix: String { "kaspatest" }
+    var dustRelayTxFee: Int { 3000 }
+}
