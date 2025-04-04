@@ -173,9 +173,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>available for %li day</string>
+        <string>disponible pour %li jour</string>
         <key>other</key>
-        <string>available for %li days</string>
+        <string>disponible pour %li jours</string>
       </dict>
     </dict>
     <key>warning_missing_derivation_message</key>
