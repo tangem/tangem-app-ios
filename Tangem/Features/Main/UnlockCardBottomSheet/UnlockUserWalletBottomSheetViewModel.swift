@@ -62,6 +62,7 @@ class UnlockUserWalletBottomSheetViewModel: ObservableObject, Identifiable {
                     }
 
                     Analytics.tryLogCardVerificationError(error, source: .signIn)
+                    Analytics.logVisaCardScanErrorIfNeeded(error, source: .signIn)
                     self?.error = error.alertBinder
                 case .troubleshooting:
                     Analytics.log(.cantScanTheCard, params: [.source: .main])
