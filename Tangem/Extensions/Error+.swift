@@ -89,7 +89,7 @@ extension Error {
         }
     }
 
-    var universalErrorMessage: String {
+    var universalErrorCode: Int {
         let errorCode: Int
         switch self {
         case let tangemSdkError as TangemSdkError:
@@ -100,7 +100,11 @@ extension Error {
             errorCode = -1
         }
 
-        return Localization.universalError(errorCode)
+        return errorCode
+    }
+
+    var universalErrorMessage: String {
+        Localization.universalError(universalErrorCode)
     }
 
     var universalErrorAlertBinder: AlertBinder {
