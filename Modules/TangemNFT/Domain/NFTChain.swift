@@ -9,7 +9,7 @@
 import Foundation
 
 /// An aggregated list of supported chains from https://docs.moralis.com/supported-web3data-apis and https://docs.nftscan.com/
-public enum NFTChain: Hashable {
+public enum NFTChain: Hashable, Sendable {
     case ethereum(isTestnet: Bool)
 
     case polygon(isTestnet: Bool)
@@ -37,9 +37,6 @@ public enum NFTChain: Hashable {
     case moonriver
 
     case solana
-
-    // [REDACTED_TODO_COMMENT]
-    case pulsechain
 
     @available(*, unavailable, message: "The network is not supported yet by the app")
     case linea(isTestnet: Bool)
