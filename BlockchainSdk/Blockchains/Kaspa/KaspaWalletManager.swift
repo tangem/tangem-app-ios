@@ -15,9 +15,10 @@ final class KaspaWalletManager: BaseManager, WalletManager {
         [KaspaIncompleteTokenTransactionStorageID: KaspaKRC20.IncompleteTokenTransactionParams]
     >
 
-    private let txBuilder: KaspaTransactionBuilder
     private let networkService: KaspaNetworkService
     private let networkServiceKRC20: KaspaNetworkServiceKRC20
+    private let txBuilder: KaspaTransactionBuilder
+    private let unspentOutputManager: UnspentOutputManager
     private let dataStorage: BlockchainDataStorage
     private var incompleteTokenTransactionsInMemoryStorage: IncompleteTokenTransactionsInMemoryStorage = [:]
     private var lastLoadedCardTokens: [Token] = []
@@ -33,31 +34,29 @@ final class KaspaWalletManager: BaseManager, WalletManager {
         networkService: KaspaNetworkService,
         networkServiceKRC20: KaspaNetworkServiceKRC20,
         txBuilder: KaspaTransactionBuilder,
+        unspentOutputManager: UnspentOutputManager,
         dataStorage: BlockchainDataStorage
     ) {
         self.networkService = networkService
         self.networkServiceKRC20 = networkServiceKRC20
         self.txBuilder = txBuilder
+        self.unspentOutputManager = unspentOutputManager
         self.dataStorage = dataStorage
+
         super.init(wallet: wallet)
     }
 
     override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        let unconfirmedTransactionHashes = wallet.pendingTransactions.map { $0.hash }
-
         cancellable = loadCachedIncompleteTokenTransactionsIfNeeded()
             .withWeakCaptureOf(self)
             .flatMap { manager, _ in
-                Publishers.Zip(
-                    manager.networkService.getInfo(
-                        address: manager.wallet.address,
-                        unconfirmedTransactionHashes: unconfirmedTransactionHashes
-                    ),
-                    manager.networkServiceKRC20.balance(
-                        address: manager.wallet.address,
-                        tokens: manager.cardTokens
-                    )
+                let coinResponse = manager.networkService.getInfo(address: manager.wallet.address)
+                let tokenResponse = manager.networkServiceKRC20.balance(
+                    address: manager.wallet.address,
+                    tokens: manager.cardTokens
                 )
+
+                return Publishers.Zip(coinResponse, tokenResponse)
             }
             .sink(receiveCompletion: { [weak self] result in
                 switch result {
@@ -141,7 +140,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
 
                 return manager
                     .networkService
-                    .send(transaction: KaspaTransactionRequest(transaction: tx))
+                    .send(transaction: KaspaDTO.Send.Request(transaction: tx))
                     .mapSendError(tx: encodedRawTransactionData?.hexString.lowercased())
             }
             .withWeakCaptureOf(self)
@@ -195,7 +194,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
                 let encodedRawTransactionData = try? JSONEncoder().encode(commitTx)
 
                 return manager.networkService
-                    .send(transaction: KaspaTransactionRequest(transaction: commitTx))
+                    .send(transaction: KaspaDTO.Send.Request(transaction: commitTx))
                     .mapSendError(tx: encodedRawTransactionData?.hexString.lowercased())
                     .mapToValue(revealTx)
             }
@@ -213,7 +212,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
 
                 return manager
                     .networkService
-                    .send(transaction: KaspaTransactionRequest(transaction: revealTx))
+                    .send(transaction: KaspaDTO.Send.Request(transaction: revealTx))
                     .handleEvents(receiveFailure: { [weak manager] _ in
                         // A failed reveal tx should trigger `wallet` update so the SDK consumer
                         // can observe and handle it (e.g. display a notification)
@@ -324,7 +323,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
 
                 return manager
                     .networkService
-                    .send(transaction: KaspaTransactionRequest(transaction: tx))
+                    .send(transaction: KaspaDTO.Send.Request(transaction: tx))
                     .handleEvents(receiveFailure: { [weak manager] _ in
                         // A failed reveal tx should trigger `wallet` update so the SDK consumer
                         // can observe and handle it (e.g. display a notification)
@@ -401,29 +400,30 @@ final class KaspaWalletManager: BaseManager, WalletManager {
         }
     }
 
-    private func updateWallet(_ info: KaspaAddressInfo, tokensInfo: [Token: Result<KaspaBalanceResponseKRC20, Error>]) {
-        wallet.add(amount: Amount(with: wallet.blockchain, value: info.balance))
-        txBuilder.setUnspentOutputs(info.unspentOutputs)
-        var confirmedTransactionHashes = info.confirmedTransactionHashes.toSet()
+    private func updateWallet(_ response: UTXOResponse, tokensInfo: [Token: Result<KaspaBalanceResponseKRC20, Error>]) {
+        unspentOutputManager.update(outputs: response.outputs, for: wallet.defaultAddress)
+        let balance = Decimal(unspentOutputManager.confirmedBalance()) / wallet.blockchain.decimalValue
+        wallet.add(coinValue: balance)
 
         for (token, value) in tokensInfo {
             switch value {
             case .success(let tokenBalance):
                 let decimalTokenBalance = (Decimal(stringValue: tokenBalance.result.first?.balance) ?? 0) / token.decimalValue
-                // Currently, KRC20 doesn't provide an API endpoint to fetch the status of the transaction;
-                // therefore, we manage pending transactions using this ugly and fragile approach
-                if wallet.amounts[.token(value: token)]?.value != decimalTokenBalance, let pending = pendingTokenTransactionHashes[token] {
-                    confirmedTransactionHashes.formUnion(pending)
-                }
                 wallet.add(tokenValue: decimalTokenBalance, for: token)
             case .failure:
                 wallet.clearAmount(for: token)
             }
         }
 
-        wallet.removePendingTransaction { hash in
-            confirmedTransactionHashes.contains(hash)
+        let pendingTransactions = response.pending.map {
+            PendingTransactionRecordMapper().mapToPendingTransactionRecord(
+                record: $0,
+                blockchain: wallet.blockchain,
+                address: wallet.address
+            )
         }
+
+        wallet.updatePendingTransaction(pendingTransactions)
     }
 
     /// A workaround for a badly designed Kaspa transaction builder, which has a stateful implementation
@@ -434,7 +434,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
             .getUnspentOutputs(address: wallet.address)
             .withWeakCaptureOf(self)
             .handleEvents(receiveOutput: { walletManager, unspentOutputs in
-                walletManager.txBuilder.setUnspentOutputs(unspentOutputs)
+                walletManager.unspentOutputManager.update(outputs: unspentOutputs, for: walletManager.wallet.defaultAddress)
             })
             .mapToVoid()
             .eraseToAnyPublisher()
@@ -546,7 +546,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
     private func handleSuccessfulRevealTokenTransaction(
         _ transaction: Transaction,
         token: Token,
-        response: KaspaTransactionResponse
+        response: KaspaDTO.Send.Response
     ) {
         let hash = response.transactionId
         let mapper = PendingTransactionRecordMapper()
