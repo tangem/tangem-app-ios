@@ -38,8 +38,6 @@ extension NFTCollectionsList {
 }
 
 #if DEBUG
-import TangemNFT
-
 #Preview {
     ZStack {
         Colors.Background.secondary
@@ -54,21 +52,21 @@ import TangemNFT
                         name: "My awesome collection",
                         description: "",
                         logoURL: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!,
-                        assets: [
+                        assets: (0 ... 3).map {
                             NFTAsset(
-                                assetIdentifier: "some11",
-                                collectionIdentifier: "some",
+                                assetIdentifier: "some-\($0)",
+                                collectionIdentifier: "some1",
                                 chain: .solana,
                                 derivationPath: nil,
-                                contractType: .erc1155,
+                                contractType: .splToken2022,
                                 ownerAddress: "",
-                                name: "Name1",
-                                description: nil,
-                                media: nil,
+                                name: "My asset",
+                                description: "",
+                                media: NFTAsset.Media(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
                                 rarity: nil,
                                 traits: []
-                            ),
-                        ]
+                            )
+                        }
                     )
                 },
                 nftChainIconProvider: DummyProvider()
