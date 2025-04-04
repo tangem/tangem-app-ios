@@ -89,8 +89,8 @@ var serviceModules: [PackageDescription.Target] {
             name: "TangemUI",
             dependencies: [
                 "TangemAssets",
-                "TangemUIUtils",
                 "TangemFoundation",
+                "TangemUIUtils",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -125,6 +125,7 @@ var featureModules: [PackageDescription.Target] {
                 "TangemAssets",
                 "TangemUI",
                 "TangemFoundation",
+                "TangemLocalization"
             ]
         ),
     ]
