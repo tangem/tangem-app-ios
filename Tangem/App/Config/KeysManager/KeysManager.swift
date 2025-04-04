@@ -22,6 +22,8 @@ protocol KeysManager {
     var expressKeys: ExpressKeys { get }
     var devExpressKeys: ExpressKeys? { get }
     var stakeKitKey: String { get }
+    var moralisAPIKey: String { get }
+    var nftScanAPIKey: String { get }
 }
 
 private struct KeysManagerKey: InjectionKey {
