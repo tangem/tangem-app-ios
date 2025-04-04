@@ -1,5 +1,5 @@
 //
-//  Walletmanager.swift
+//  WalletManager.swift
 //  blockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
