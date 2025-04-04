@@ -1,0 +1,69 @@
+//
+//  NFTNetworkServiceFactory.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2025 Tangem AG. All rights reserved.
+//
+
+import Foundation
+import BlockchainSdk
+import TangemNFT
+import TangemNetworkUtils
+
+struct NFTNetworkServiceFactory {
+    @Injected(\.keysManager) private var keysManager: KeysManager
+
+    func makeNetworkService(for tokenItem: TokenItem) -> NFTNetworkService? {
+        guard let nftChain = NFTChainConverter.convert(tokenItem.blockchain) else {
+            return nil
+        }
+
+        switch nftChain {
+        case .ethereum,
+             .polygon,
+             .bsc,
+             .avalanche,
+             .fantom,
+             .cronos,
+             .arbitrum,
+             .gnosis,
+             .chiliz,
+             .base,
+             .optimism,
+             .moonbeam,
+             .moonriver:
+            return MoralisNFTNetworkService(
+                networkConfiguration: makeNetworkProviderConfiguration(),
+                headers: [
+                    Constants.xAPIKeyHeaderName: keysManager.moralisAPIKey,
+                ],
+                chain: nftChain
+            )
+        case .solana:
+            return NFTScanNFTNetworkService(
+                networkConfiguration: makeNetworkProviderConfiguration(),
+                headers: [
+                    Constants.xAPIKeyHeaderName: keysManager.nftScanAPIKey,
+                ],
+                chain: nftChain
+            )
+        }
+    }
+
+    private func makeNetworkProviderConfiguration() -> NetworkProviderConfiguration {
+        // `Ephemeral` configuration is used to prevent possible leaks of API keys
+        return NetworkProviderConfiguration(
+            logOptions: .verbose,
+            urlSessionConfiguration: .ephemeralConfiguration
+        )
+    }
+}
+
+// MARK: - Constants
+
+private extension NFTNetworkServiceFactory {
+    enum Constants {
+        static let xAPIKeyHeaderName = "X-API-KEY"
+    }
+}
