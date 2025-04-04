@@ -61,6 +61,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
     }
 
     func openBalancesAndLimits() {
+        Analytics.log(.visaMainBalancesLimits)
         guard
             let balances = visaWalletModel.balances,
             let limit = visaWalletModel.limits?.currentLimit,
@@ -77,6 +78,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
             return
         }
 
+        Analytics.log(.mainButtonExplore)
         coordinator?.openInSafari(url: url)
     }
 
@@ -137,7 +139,11 @@ class VisaWalletMainContentViewModel: ObservableObject {
                     return
                 case .idle:
                     self.updateLimits()
-                case .failedToInitialize(let error):
+                case .failedToLoad(let error):
+                    Analytics.log(event: .visaErrors, params: [
+                        .errorCode: "\(error.universalErrorCode)",
+                        .source: Analytics.ParameterValue.main.rawValue,
+                    ])
                     self.setupNotifications(error)
                 }
             }
@@ -292,7 +298,7 @@ private extension VisaWalletMainContentViewModel {
         switch visaWalletModel.currentModelState {
         case .notInitialized, .loading:
             throw .infoIsLoading
-        case .failedToInitialize, .idle:
+        case .failedToLoad, .idle:
             break
         }
 
@@ -331,7 +337,10 @@ private extension VisaWalletMainContentViewModel {
             return
         }
 
-        Analytics.log(event: .buttonReceive, params: [.token: info.tokenItem.currencySymbol])
+        Analytics.log(event: .buttonReceive, params: [
+            .token: info.tokenItem.currencySymbol,
+            .type: Analytics.ParameterValue.visa.rawValue,
+        ])
 
         let addressType = AddressType.default
         let addressInfo = ReceiveAddressInfo(
@@ -347,6 +356,7 @@ private extension VisaWalletMainContentViewModel {
     }
 
     func openBuyCrypto() {
+        Analytics.log(.actionButtonsBuyButton, params: [.type: .visa])
         let info: TokenActionInfo
         do {
             info = try makeTokenActionInfo()
