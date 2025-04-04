@@ -125,7 +125,7 @@ var featureModules: [PackageDescription.Target] {
                 "TangemAssets",
                 "TangemUI",
                 "TangemFoundation",
-                "TangemLocalization"
+                "TangemLocalization",
             ]
         ),
     ]

@@ -94,6 +94,14 @@ extension CommonKeysManager: KeysManager {
     var stakeKitKey: String {
         keys.stakeKitApiKey
     }
+
+    var moralisAPIKey: String {
+        keys.moralisApiKey
+    }
+
+    var nftScanAPIKey: String {
+        keys.nftScanApiKey
+    }
 }
 
 extension CommonKeysManager {
@@ -129,5 +137,7 @@ extension CommonKeysManager {
         let bittensorDwellirKey: String
         let bittensorOnfinalityKey: String
         let alephiumTangemApiKey: String
+        let moralisApiKey: String
+        let nftScanApiKey: String
     }
 }
