@@ -24,13 +24,11 @@ final class NFTEntrypointViewModel: ObservableObject {
     }
 
     var title: String {
-        // [REDACTED_TODO_COMMENT]
-        "NFT Assets"
+        Localization.nftWalletTitle
     }
 
     var subtitle: String {
-        // [REDACTED_TODO_COMMENT]
-        "\(totalNFTs) assets in \(collectionsCount) collections"
+        Localization.nftWalletCount(totalNFTs, collectionsCount)
     }
 
     func openCollections() {

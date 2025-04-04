@@ -23,15 +23,23 @@ struct NFTCollectionDisclosureGroupView: View {
     private var discslosureGroup: some View {
         CustomDisclosureGroup(
             isExpanded: isOpened,
-            transition: .opacity.combined(with: .move(edge: .top)),
-            actionOnClick: { withAnimation { isOpened.toggle() }},
+            transition: .opacity,
+            actionOnClick: {
+                withAnimation {
+                    isOpened.toggle()
+                }
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            },
+            alignment: .leading,
             prompt: { label },
             expandedView: {
-                Text("Todo next")
-                    .foregroundStyle(Color.red)
+                NFTAssetsGridView(viewModel: viewModel.assetsGridViewModel)
+                    .padding(.top, Constants.gridViewTopPadding)
+                    .padding(.bottom, Constants.gridViewBottomPadding)
             }
         )
         .buttonStyle(.defaultScaled)
+        .frame(maxWidth: .infinity)
     }
 
     private var label: some View {
@@ -42,6 +50,13 @@ struct NFTCollectionDisclosureGroupView: View {
             subtitle: "\(viewModel.numberOfItems) items", // [REDACTED_TODO_COMMENT]
             isExpanded: isOpened
         )
+    }
+}
+
+extension NFTCollectionDisclosureGroupView {
+    enum Constants {
+        static let gridViewTopPadding: CGFloat = 26
+        static let gridViewBottomPadding: CGFloat = 12
     }
 }
 
@@ -63,7 +78,21 @@ struct DummyProvider: NFTChainIconProvider {
                 name: "My awesome collection",
                 description: "",
                 logoURL: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!,
-                assets: []
+                assets: (0 ... 10).map {
+                    NFTAsset(
+                        assetIdentifier: "some-\($0)",
+                        collectionIdentifier: "some1",
+                        chain: .solana,
+                        derivationPath: nil,
+                        contractType: .splToken2022,
+                        ownerAddress: "",
+                        name: "My asset",
+                        description: "",
+                        media: NFTAsset.Media(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
+                        rarity: nil,
+                        traits: []
+                    )
+                }
             ),
             nftChainIconProvider: DummyProvider()
         )
