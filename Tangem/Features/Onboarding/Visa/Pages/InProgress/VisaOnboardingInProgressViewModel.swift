@@ -65,6 +65,10 @@ class VisaOnboardingInProgressViewModel: ObservableObject {
             }
         } catch {
             if !error.isCancellationError {
+                Analytics.log(event: .visaErrors, params: [
+                    .errorCode: "\(error.universalErrorCode)",
+                    .source: Analytics.ParameterValue.onboarding.rawValue,
+                ])
                 scheduler.cancel()
                 await delegate?.showAlertAsync(
                     error.makeUniversalErrorAlertBinder(okAction: weakify(self, forFunction: VisaOnboardingInProgressViewModel.setupRefresh))
