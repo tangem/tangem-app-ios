@@ -79,6 +79,11 @@ extension Analytics {
         case buttonAddTokenTrustline = "[Token] Button - Token Trustline"
         case stakingClicked = "[Token] Staking Clicked"
 
+        // MARK: - Main screen
+
+        case mainButtonReceive = "[Main Screen] Button - Receive"
+        case mainButtonExplore = "[Main Screen] Button - Explore"
+
         // MARK: - Send
 
         case buttonPaste = "[Token / Send] Button - Paste"
@@ -412,5 +417,36 @@ extension Analytics {
         // MARK: - Tangem API Service
 
         case tangemAPIException = "[Tangem API Service] Exception"
+
+        // MARK: - Visa
+
+        // Onboarding events
+
+        case visaOnboardingActivationScreenOpened = "[Onboarding / Visa] Activation Screen Opened"
+        case visaOnboardingSetAccessCodeScreenOpened = "[Onboarding / Visa] Setting Access Code Started"
+        case visaOnboardingReEnterAccessCodeScreenOpened = "[Onboarding / Visa] Access Code Re-enter Screen"
+        case visaOnboardingChooseWalletScreenOpened = "[Onboarding / Visa] Choose Wallet Screen"
+        case visaOnboardingTangemWalletPrepareScreenOpened = "[Onboarding / Visa] Wallet Prepare"
+        case visaOnboardingDAppScreenOpened = "[Onboarding / Visa] Go To Website Opened"
+        case visaOnboardingActivationInProgressScreenOpened = "[Onboarding / Visa] Activation In Progress Screen"
+        case visaOnboardingPinCodeScreenOpened = "[Onboarding / Visa] PIN Code Screen Opened"
+        case visaOnboardingBiometricScreenOpened = "[Onboarding / Visa] Biometric Screen Opened"
+        case visaOnboardingSuccessScreenOpened = "[Onboarding / Visa] Success Screen Opened"
+        case visaOnboardingButtonActivate = "[Onboarding / Visa] Button - Activate"
+        case visaOnboardingButtonAccessCodeContinue = "[Onboarding / Visa] Access Code Entered"
+        case visaOnboardingButtonStartActivation = "[Onboarding / Visa] Access Code Re-entered"
+        case visaOnboardingButtonApprove = "[Onboarding / Visa] Button - Approve"
+        case visaOnboardingButtonBrowser = "[Onboarding / Visa] Button - Browser"
+        case visaOnboardingButtonShareLink = "[Onboarding / Visa] Button - Share Link"
+        case visaOnboardingButtonSubmitPin = "[Onboarding / Visa] PIN Entered"
+
+        case visaErrors = "[Visa] Errors"
+        case visaOnboardingErrorPinValidation = "[Onboarding / Visa] Error - Pin Validation"
+
+        // Main screen events
+
+        case visaMainBalancesLimits = "[Main Screen] Limits Clicked"
+        case visaMainNoticeBalancesInfo = "[Main Screen] Notice - Balances Info"
+        case visaMainNoticeLimitsInfo = "[Main Screen] Notice - Limits Info"
     }
 }
