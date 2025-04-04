@@ -73,17 +73,17 @@ struct DummyProvider: NFTChainIconProvider {
             nftCollection: NFTCollection(
                 collectionIdentifier: "some",
                 chain: .solana,
-                derivationPath: nil,
                 contractType: .erc1155,
+                ownerAddress: "0x79D21ca8eE06E149d296a32295A2D8A97E52af52",
                 name: "My awesome collection",
                 description: "",
                 logoURL: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!,
+                assetsCount: nil,
                 assets: (0 ... 10).map {
                     NFTAsset(
                         assetIdentifier: "some-\($0)",
                         collectionIdentifier: "some1",
                         chain: .solana,
-                        derivationPath: nil,
                         contractType: .splToken2022,
                         ownerAddress: "",
                         name: "My asset",
