@@ -9,6 +9,7 @@
 import Combine
 import SwiftUI
 import TangemSdk
+import TangemFoundation
 
 class WelcomeViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
@@ -99,6 +100,7 @@ class WelcomeViewModel: ObservableObject {
                 }
 
                 Analytics.tryLogCardVerificationError(error, source: .signIn)
+                Analytics.logVisaCardScanErrorIfNeeded(error, source: .signIn)
                 self.error = error.alertBinder
             case .success(let model), .partial(let model, _): // partial unlock is impossible in this case
                 openMain(with: model)
