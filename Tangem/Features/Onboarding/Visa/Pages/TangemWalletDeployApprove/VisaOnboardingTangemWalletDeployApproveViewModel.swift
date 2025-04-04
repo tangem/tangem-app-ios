@@ -52,6 +52,7 @@ final class VisaOnboardingTangemWalletDeployApproveViewModel: ObservableObject {
             return
         }
 
+        Analytics.log(.visaOnboardingButtonApprove)
         isLoading = true
         approveCancellableTask = Task { [weak self] in
             guard let self else {
@@ -90,6 +91,10 @@ final class VisaOnboardingTangemWalletDeployApproveViewModel: ObservableObject {
             // Right now we don't have any specific UI updates for successful scenario
             break
         case .failure(let error):
+            Analytics.log(event: .visaErrors, params: [
+                .errorCode: "\(error.universalErrorCode)",
+                .source: Analytics.ParameterValue.onboarding.rawValue,
+            ])
             VisaLogger.error("Failed to sign approve data", error: error)
             if !error.isCancellationError {
                 await delegate?.showAlertAsync(error.universalErrorAlertBinder)
