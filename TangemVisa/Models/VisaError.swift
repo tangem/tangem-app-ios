@@ -6,7 +6,6 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-public enum VisaError {
-    case failedToCreateDerivation
-    case failedToCreateAddress(Error)
-}
+import TangemFoundation
+
+public protocol VisaError: UniversalError {}

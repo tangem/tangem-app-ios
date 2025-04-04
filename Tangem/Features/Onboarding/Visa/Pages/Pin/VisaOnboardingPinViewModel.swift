@@ -38,6 +38,7 @@ class VisaOnboardingPinViewModel: ObservableObject {
     }
 
     func submitPinCodeAction() {
+        Analytics.log(.visaOnboardingButtonSubmitPin)
         isLoading = true
         UIApplication.shared.endEditing()
         let selectedPinCode = pinCode
@@ -46,6 +47,10 @@ class VisaOnboardingPinViewModel: ObservableObject {
                 try await viewModel.delegate?.useSelectedPin(pinCode: selectedPinCode)
             } catch {
                 if !error.isCancellationError {
+                    Analytics.log(event: .visaErrors, params: [
+                        .errorCode: "\(error.universalErrorCode)",
+                        .source: Analytics.ParameterValue.onboarding.rawValue,
+                    ])
                     await viewModel.delegate?.showAlertAsync(error.universalErrorAlertBinder)
                 }
             }
@@ -66,6 +71,9 @@ class VisaOnboardingPinViewModel: ObservableObject {
                     isPinCodeValid = true
                 } catch {
                     errorMessage = error.errorMessage
+                    if error.shouldSendAnalyticsEvent {
+                        Analytics.log(.visaOnboardingErrorPinValidation)
+                    }
                     isPinCodeValid = false
                 }
             })
@@ -73,12 +81,20 @@ class VisaOnboardingPinViewModel: ObservableObject {
     }
 }
 
-extension VisaPinValidator.PinValidationError {
+private extension VisaPinValidator.PinValidationError {
     var errorMessage: String? {
         switch self {
         case .invalidLength: return nil
         case .repeatedDigits, .sequentialDigits:
             return Localization.visaOnboardingPinValidationErrorMessage
+        }
+    }
+
+    var shouldSendAnalyticsEvent: Bool {
+        switch self {
+        case .invalidLength: return false
+        case .repeatedDigits, .sequentialDigits:
+            return true
         }
     }
 }
