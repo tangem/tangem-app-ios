@@ -19,4 +19,6 @@ public enum NFTContractType: Hashable {
     case splToken2022
     /// https://tonresear.ch/t/tep-62-establishing-a-unified-nft-standard-in-the-ton-ecosystem
     case tep62
+    /// Unknown NFT type
+    case unknown
 }
