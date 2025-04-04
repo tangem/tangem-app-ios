@@ -29,23 +29,26 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
 
     private var currentIndex = 0
     private var indexUpdateSubscription: AnyCancellable?
+    private let flow: Flow
 
-    var warningMessageFull: String {
-        Localization.receiveBottomSheetWarningMessageFull(tokenItem.currencySymbol)
-    }
-
-    var currencySymbol: String {
-        tokenItem.currencySymbol
+    var assetSymbol: String {
+        switch flow {
+        case .nft:
+            Localization.detailsNftTitle
+        case .crypto:
+            tokenItem.currencySymbol
+        }
     }
 
     var networkName: String {
         tokenItem.networkName
     }
 
-    init(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo], hasMemo: Bool) {
+    init(flow: Flow = .crypto, tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo], hasMemo: Bool) {
         self.tokenItem = tokenItem
         iconURL = tokenItem.id != nil ? IconURLBuilder().tokenIconURL(id: tokenItem.id!) : nil
         self.addressInfos = addressInfos
+        self.flow = flow
 
         memoWarningMessage = hasMemo ? Localization.receiveBottomSheetNoMemoRequiredMessage : nil
 
@@ -63,7 +66,13 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
         } else {
             name = tokenItem.name
         }
-        return Localization.receiveBottomSheetWarningMessage(name, tokenItem.currencySymbol, tokenItem.networkName)
+
+        return switch flow {
+        case .nft:
+            Localization.receiveBottomSheetWarningMessageCompact(Localization.detailsNftTitle, tokenItem.networkName)
+        case .crypto:
+            Localization.receiveBottomSheetWarningMessage(name, tokenItem.currencySymbol, tokenItem.networkName)
+        }
     }
 
     func stringForAddress(_ address: String) -> NSAttributedString {
@@ -105,5 +114,12 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
     private func bind() {
         indexUpdateSubscription = addressIndexUpdateNotifier
             .assign(to: \.currentIndex, on: self, ownership: .weak)
+    }
+}
+
+extension ReceiveBottomSheetViewModel {
+    enum Flow {
+        case nft
+        case crypto
     }
 }
