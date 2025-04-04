@@ -63,7 +63,7 @@ struct ReceiveBottomSheetView: View {
                             severity: .info,
                             settings: .init(
                                 event: ReceiveNotificationEvent(
-                                    currencySymbol: viewModel.currencySymbol,
+                                    assetSymbol: viewModel.assetSymbol,
                                     networkName: viewModel.networkName
                                 ),
                                 dismissAction: nil
