@@ -10,8 +10,8 @@ import Foundation
 import Sodium
 
 struct KaspaTransaction {
-    let inputs: [BitcoinUnspentOutput]
-    let outputs: [KaspaOutput]
+    let inputs: [Input]
+    let outputs: [Output]
 
     private let blake2bDigestKey = "TransactionSigningHash".data(using: .utf8)?.bytes ?? []
 
@@ -23,13 +23,23 @@ struct KaspaTransaction {
         return hashTransaction(.TransactionID)
     }
 
+    func hashesForSignatureWitness() -> [Data] {
+        inputs.enumerated().map { index, unspentOutput in
+            hashForSignatureWitness(
+                inputIndex: index,
+                connectedScript: unspentOutput.script,
+                prevValue: unspentOutput.amount
+            )
+        }
+    }
+
     func hashForSignatureWitness(inputIndex: Int, connectedScript: Data, prevValue: UInt64) -> Data {
         var data = Data()
         data.append(UInt16(0).data) // version
         data.append(hashPrevouts())
         data.append(hashSequence())
         data.append(hashSigOpCounts())
-        data.append(Data(hexString: inputs[inputIndex].transactionHash))
+        data.append(inputs[inputIndex].transactionHash)
         data.append(UInt32(inputs[inputIndex].outputIndex).data)
         data.append(UInt16(0).data) // script version
         data.append(UInt64(connectedScript.count).data)
@@ -56,7 +66,7 @@ struct KaspaTransaction {
     private func hashPrevouts() -> Data {
         var data = Data()
         for input in inputs {
-            data.append(Data(hexString: input.transactionHash))
+            data.append(input.transactionHash)
             data.append(UInt32(input.outputIndex).data)
         }
         return blake2bDigest(for: data)
@@ -81,7 +91,7 @@ struct KaspaTransaction {
             data.append(output.amount.data)
             data.append(UInt16(output.scriptPublicKey.version).data)
 
-            let scriptPublicKeyBytes = Data(hexString: output.scriptPublicKey.scriptPublicKey)
+            let scriptPublicKeyBytes = output.scriptPublicKey.script
             data.append(UInt64(scriptPublicKeyBytes.count).data)
             data.append(scriptPublicKeyBytes)
         }
@@ -96,13 +106,13 @@ struct KaspaTransaction {
     }
 
     private func hashTransaction(_ hashType: KaspaUtils.KaspaHashType) -> Data? {
-        func encodedInputsSigScript(for input: BitcoinUnspentOutput, type: KaspaUtils.KaspaHashType) -> Data {
+        func encodedInputsSigScript(for input: Input, type: KaspaUtils.KaspaHashType) -> Data {
             switch type {
             case .TransactionID:
                 return UInt64(0).data
 
             case .TransactionHash:
-                let script = Data(hex: input.outputScript)
+                let script = input.script
                 return UInt64(script.count).data + script + UInt8(0x01).data
 
             default:
@@ -112,7 +122,7 @@ struct KaspaTransaction {
 
         let encodedInputs: [Data] = inputs.map {
             [
-                Data(hex: $0.transactionHash),
+                $0.transactionHash,
                 UInt32($0.outputIndex).data,
                 encodedInputsSigScript(for: $0, type: hashType),
                 UInt64(0).data, // Sequence
@@ -120,7 +130,7 @@ struct KaspaTransaction {
         }
 
         let encodedOutputs: [Data] = outputs.map {
-            let scriptPublicKeyData = Data(hex: $0.scriptPublicKey.scriptPublicKey)
+            let scriptPublicKeyData = $0.scriptPublicKey.script
 
             return [
                 $0.amount.data,
@@ -143,5 +153,29 @@ struct KaspaTransaction {
         ]
 
         return data.reduce(Data(), +).hashBlake2b(key: hashType.data, outputLength: 32)
+    }
+}
+
+extension KaspaTransaction {
+    struct Input {
+        let transactionHash: Data
+        let outputIndex: Int
+        let amount: UInt64
+        let script: Data
+    }
+
+    struct Output: Encodable {
+        let amount: UInt64
+        let scriptPublicKey: ScriptPublicKey
+
+        struct ScriptPublicKey: Encodable {
+            let script: Data
+            let version: Int
+
+            init(script: Data, version: Int = 0) {
+                self.script = script
+                self.version = version
+            }
+        }
     }
 }
