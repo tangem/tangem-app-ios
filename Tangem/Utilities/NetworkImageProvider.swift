@@ -112,7 +112,7 @@ struct NetworkImageProvider: NFTChainIconProvider {
         case .playa3ullGames:
             filled ? Tokens.playa3ullgamesFill : Tokens.playa3ullgames
         case .pulsechain:
-            pulsechain(filled: filled)
+            filled ? Tokens.pulsechainFill : Tokens.pulsechain
         case .aurora:
             filled ? Tokens.auroraFill : Tokens.aurora
         case .manta:
@@ -220,8 +220,6 @@ struct NetworkImageProvider: NFTChainIconProvider {
             moonriver()
         case .solana:
             solana()
-        case .pulsechain:
-            pulsechain()
         }
     }
 
@@ -279,9 +277,5 @@ struct NetworkImageProvider: NFTChainIconProvider {
 
     private func solana(filled: Bool = true) -> ImageType {
         filled ? Tokens.solanaFill : Tokens.solana
-    }
-
-    private func pulsechain(filled: Bool = true) -> ImageType {
-        filled ? Tokens.pulsechainFill : Tokens.pulsechain
     }
 }
