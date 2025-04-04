@@ -15,26 +15,6 @@ public protocol VisaCardActivationStatusService {
         cardId: String,
         cardPublicKey: String
     ) async throws -> VisaCardActivationStatus
-
-    func getCardActivationRemoteState(
-        authorizationTokens: VisaAuthorizationTokens,
-        cardId: String,
-        cardPublicKey: String
-    ) async throws -> VisaCardActivationRemoteState
-}
-
-public extension VisaCardActivationStatusService {
-    func getCardActivationRemoteState(
-        authorizationTokens: VisaAuthorizationTokens,
-        cardId: String,
-        cardPublicKey: String
-    ) async throws -> VisaCardActivationRemoteState {
-        return try await getCardActivationStatus(
-            authorizationTokens: authorizationTokens,
-            cardId: cardId,
-            cardPublicKey: cardPublicKey
-        ).activationRemoteState
-    }
 }
 
 struct CommonCardActivationStatusService {
