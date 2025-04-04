@@ -11,18 +11,16 @@ import Foundation
 public struct NFTAsset: Hashable, Identifiable {
     public let id: NFTAssetId
     public let contractType: NFTContractType
-    public let ownerAddress: String
     public let name: String
     public let description: String?
     public let media: Media?
     public let rarity: Rarity?
     public let traits: [Trait]
 
-    public init(
+    init(
         assetIdentifier: String,
         collectionIdentifier: String,
         chain: NFTChain,
-        derivationPath: NFTDerivationPath?,
         contractType: NFTContractType,
         ownerAddress: String,
         name: String,
@@ -34,12 +32,11 @@ public struct NFTAsset: Hashable, Identifiable {
         id = .init(
             assetIdentifier: assetIdentifier,
             collectionIdentifier: collectionIdentifier,
-            chain: chain,
-            derivationPath: derivationPath
+            ownerAddress: ownerAddress,
+            chain: chain
         )
 
         self.contractType = contractType
-        self.ownerAddress = ownerAddress
         self.name = name
         self.description = description
         self.media = media
@@ -56,8 +53,10 @@ public extension NFTAsset {
         public let assetIdentifier: String
         /// Collection's address.
         public let collectionIdentifier: String
+        /// The owner's address is intentionally a part of the asset identity
+        /// to distinguish between identical assets but with different derivations.
+        public let ownerAddress: String
         public let chain: NFTChain
-        public let derivationPath: NFTDerivationPath?
     }
 
     struct Media: Hashable {
