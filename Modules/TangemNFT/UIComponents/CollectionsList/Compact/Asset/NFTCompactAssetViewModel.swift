@@ -8,7 +8,7 @@
 
 import Foundation
 
-final class NFTCompactAssetViewModel {
+final class NFTCompactAssetViewModel: Identifiable {
     private let nftAsset: NFTAsset
 
     init(nftAsset: NFTAsset) {
@@ -23,7 +23,15 @@ final class NFTCompactAssetViewModel {
         nftAsset.media?.url
     }
 
-    var name: String {
+    var title: String {
         nftAsset.name
+    }
+
+    var subtitle: String {
+        "0.15 ETH" // Price should be taken from somewhere
+    }
+
+    func didClick() {
+        // [REDACTED_TODO_COMMENT]
     }
 }
