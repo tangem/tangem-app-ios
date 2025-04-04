@@ -339,7 +339,6 @@
 		30C470222D7628C3003DFBFD /* Fact0rnAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30C470212D7628B3003DFBFD /* Fact0rnAddressTests.swift */; };
 		30C470242D762C47003DFBFD /* HederaAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30C470232D762C42003DFBFD /* HederaAddressTests.swift */; };
 		30E0388B2D6DD7D600D9AD18 /* BinanceTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30E0388A2D6DD7D200D9AD18 /* BinanceTransactionTests.swift */; };
-		30F9D1B52D8DBBC1003834C5 /* ChainConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30F9D1B42D8DBB75003834C5 /* ChainConverter.swift */; };
 		5D00FCD1261738C5004626DE /* WalletConnectEthTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D00FCD0261738C5004626DE /* WalletConnectEthTransaction.swift */; };
 		5D06E040250A5D54004218D0 /* NSRegularExpression+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D06E03F250A5D54004218D0 /* NSRegularExpression+.swift */; };
 		5D09383225E7A9820049B8F0 /* Wallet+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D09383125E7A9820049B8F0 /* Wallet+.swift */; };
@@ -3772,7 +3771,6 @@
 		30C470212D7628B3003DFBFD /* Fact0rnAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fact0rnAddressTests.swift; sourceTree = "<group>"; };
 		30C470232D762C42003DFBFD /* HederaAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HederaAddressTests.swift; sourceTree = "<group>"; };
 		30E0388A2D6DD7D200D9AD18 /* BinanceTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinanceTransactionTests.swift; sourceTree = "<group>"; };
-		30F9D1B42D8DBB75003834C5 /* ChainConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainConverter.swift; sourceTree = "<group>"; };
 		5D00FCD0261738C5004626DE /* WalletConnectEthTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectEthTransaction.swift; sourceTree = "<group>"; };
 		5D06E03F250A5D54004218D0 /* NSRegularExpression+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSRegularExpression+.swift"; sourceTree = "<group>"; };
 		5D09383125E7A9820049B8F0 /* Wallet+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Wallet+.swift"; sourceTree = "<group>"; };
@@ -7673,14 +7671,6 @@
 			path = Binance;
 			sourceTree = "<group>";
 		};
-		30F9D1B32D8DBB6C003834C5 /* Utility */ = {
-			isa = PBXGroup;
-			children = (
-				30F9D1B42D8DBB75003834C5 /* ChainConverter.swift */,
-			);
-			path = Utility;
-			sourceTree = "<group>";
-		};
 		5D011A222530776A00758010 /* TOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -10118,7 +10108,6 @@
 			children = (
 				B68BE0B72D761CD900779F84 /* Availability */,
 				B68BE0B62D761CC700779F84 /* DataSource */,
-				30F9D1B32D8DBB6C003834C5 /* Utility */,
 			);
 			path = NFT;
 			sourceTree = "<group>";
@@ -19339,7 +19328,6 @@
 				B0CF5A572C2D420300B197D4 /* MarketsDTO+Coin.swift in Sources */,
 				EFD68F302CC2D02500693C97 /* OnrampCountryDetectionView.swift in Sources */,
 				EF0DC11B2A0CE29E007E3DA7 /* ExpressApproveView.swift in Sources */,
-				30F9D1B52D8DBBC1003834C5 /* ChainConverter.swift in Sources */,
 				B6A89DB82BB1AE2B007A1619 /* BackgroundTaskWrapper.swift in Sources */,
 				5D225CB92524B721001564A3 /* Analytics.swift in Sources */,
 				EFA4E3752C3EE6ED008815AD /* StakingValidatorsInteractor.swift in Sources */,
