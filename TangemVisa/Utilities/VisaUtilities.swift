@@ -76,9 +76,9 @@ public struct VisaUtilities {
             && (batchId.starts(with: visaBatchPrefix) || visaAdditionalBatches.contains(batchId))
     }
 
-    public func makeAddress(seedKey: Data, extendedKey: ExtendedPublicKey) throws(VisaError) -> Address {
+    public func makeAddress(seedKey: Data, extendedKey: ExtendedPublicKey) throws(VisaUtilitiesError) -> Address {
         guard let visaDefaultDerivationPath else {
-            throw VisaError.failedToCreateDerivation
+            throw VisaUtilitiesError.failedToCreateDerivation
         }
 
         do {

@@ -58,6 +58,7 @@ class VisaOnboardingWelcomeViewModel: ObservableObject {
     }
 
     func mainButtonAction() {
+        Analytics.log(.visaOnboardingButtonActivate)
         switch activationState {
         case .newActivation:
             delegate?.openAccessCodeScreen()
@@ -77,6 +78,10 @@ class VisaOnboardingWelcomeViewModel: ObservableObject {
                 try await viewModel.delegate?.continueActivation()
             } catch {
                 if !error.isCancellationError {
+                    Analytics.log(event: .visaErrors, params: [
+                        .errorCode: "\(error.universalErrorCode)",
+                        .source: Analytics.ParameterValue.onboarding.rawValue,
+                    ])
                     await viewModel.delegate?.showAlertAsync(error.universalErrorAlertBinder)
                 }
             }

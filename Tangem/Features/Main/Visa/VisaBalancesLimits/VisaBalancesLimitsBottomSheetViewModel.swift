@@ -50,10 +50,12 @@ class VisaBalancesLimitsBottomSheetViewModel: ObservableObject, Identifiable {
     }
 
     func openBalancesInfo() {
+        Analytics.log(.visaMainNoticeBalancesInfo)
         alert = AlertBinder(title: "", message: Localization.visaMainAvailableBalanceAlertMessage)
     }
 
     func openLimitsInfo() {
+        Analytics.log(.visaMainNoticeLimitsInfo)
         alert = AlertBinder(
             title: "",
             message: Localization.visaMainLimitsAlertDescriptionMessage(

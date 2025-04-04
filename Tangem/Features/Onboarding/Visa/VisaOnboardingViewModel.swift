@@ -30,7 +30,7 @@ class VisaOnboardingViewModel: ObservableObject {
     @Published var shouldFireConfetti = false
     @Published var currentProgress: CGFloat = 0
     @Published var steps: [VisaOnboardingStep] = []
-    @Published var currentStep: VisaOnboardingStep = .welcome
+    @Published var currentStep: VisaOnboardingStep
     @Published var alert: AlertBinder?
     @Published var cardImage: Image?
 
@@ -100,6 +100,7 @@ class VisaOnboardingViewModel: ObservableObject {
     private let visaActivationManager: VisaActivationManager
     private var userWalletModel: UserWalletModel?
     private weak var coordinator: VisaOnboardingRoutable?
+    private var bag = Set<AnyCancellable>()
 
     init(
         input: OnboardingInput,
@@ -113,6 +114,8 @@ class VisaOnboardingViewModel: ObservableObject {
         if case .visa(let visaSteps) = input.steps {
             steps = visaSteps
             currentStep = visaSteps.first ?? .welcome
+        } else {
+            currentStep = .welcome
         }
 
         if case .userWalletModel(let userWalletModel) = input.cardInput {
@@ -124,6 +127,8 @@ class VisaOnboardingViewModel: ObservableObject {
         }
 
         loadImage(input.cardInput.imageLoadInput)
+
+        bindAnalytics()
     }
 
     func backButtonAction() {
@@ -200,6 +205,37 @@ class VisaOnboardingViewModel: ObservableObject {
         )
         let userWalletModel = CommonUserWalletModelFactory().makeModel(cardInfo: cardInfo)
         self.userWalletModel = userWalletModel
+    }
+
+    private func bindAnalytics() {
+        $currentStep
+            .removeDuplicates()
+            .delay(for: 0.1, scheduler: DispatchQueue.main)
+            .receiveValue { step in
+                switch step {
+                case .welcome, .welcomeBack:
+                    Analytics.log(.visaOnboardingActivationScreenOpened)
+                case .accessCode:
+                    Analytics.log(.visaOnboardingSetAccessCodeScreenOpened)
+                case .selectWalletForApprove:
+                    Analytics.log(.visaOnboardingChooseWalletScreenOpened)
+                case .approveUsingTangemWallet:
+                    Analytics.log(.visaOnboardingTangemWalletPrepareScreenOpened)
+                case .approveUsingWalletConnect:
+                    Analytics.log(.visaOnboardingDAppScreenOpened)
+                case .paymentAccountDeployInProgress, .issuerProcessingInProgress:
+                    Analytics.log(.visaOnboardingActivationInProgressScreenOpened)
+                case .pinSelection:
+                    Analytics.log(.visaOnboardingPinCodeScreenOpened)
+                case .saveUserWallet:
+                    Analytics.log(.visaOnboardingBiometricScreenOpened)
+                case .pushNotifications:
+                    Analytics.log(.pushNotificationOpened)
+                case .success:
+                    Analytics.log(.visaOnboardingSuccessScreenOpened)
+                }
+            }
+            .store(in: &bag)
     }
 }
 

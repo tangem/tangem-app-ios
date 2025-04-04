@@ -55,7 +55,7 @@ class VisaWalletMainHeaderSubtitleProvider {
                 isLoadingSubject.send(false)
 
                 switch newState {
-                case .failedToInitialize:
+                case .failedToLoad:
                     formatErrorMessage()
                 case .idle:
                     formatBalanceMessage()

@@ -198,7 +198,7 @@ class VisaUserWalletModel {
                 showRefreshTokenExpiredNotification()
                 return
             }
-            stateSubject.send(.failedToInitialize(modelError))
+            stateSubject.send(.failedToLoad(modelError))
             return
         } catch {
             VisaLogger.error("Failed to setup authorization tokens handler. Proceeding to payment account interactor setup.", error: error)
@@ -220,12 +220,12 @@ class VisaUserWalletModel {
             smartContractInteractor = try factory.makeInteractor(for: blockchain, apiInfo: apiList[blockchain.networkId] ?? [])
         } catch {
             VisaLogger.error("Failed to setup bridge", error: error)
-            stateSubject.send(.failedToInitialize(.invalidBlockchain))
+            stateSubject.send(.failedToLoad(.invalidBlockchain))
             return
         }
 
         guard let cardWalletAddress else {
-            stateSubject.send(.failedToInitialize(.failedToGenerateAddress))
+            stateSubject.send(.failedToLoad(.failedToGenerateAddress))
             return
         }
 
@@ -262,16 +262,16 @@ class VisaUserWalletModel {
                 showRefreshTokenExpiredNotification()
             } else {
                 VisaLogger.error("Authorization error", error: error)
-                stateSubject.send(.failedToInitialize(.authorizationError))
+                stateSubject.send(.failedToLoad(.authorizationError))
             }
         } catch {
             VisaLogger.error("Failed to create address from provided public key", error: error)
-            stateSubject.send(.failedToInitialize(.failedToGenerateAddress))
+            stateSubject.send(.failedToLoad(.failedToGenerateAddress))
         }
     }
 
     private func showRefreshTokenExpiredNotification() {
-        stateSubject.send(.failedToInitialize(.missingValidRefreshToken))
+        stateSubject.send(.failedToLoad(.missingValidRefreshToken))
     }
 
     private func loadBalancesAndLimits() async {
@@ -444,7 +444,7 @@ extension VisaUserWalletModel: MainHeaderBalanceProvider {
         switch state {
         case .notInitialized, .loading:
             return .loading()
-        case .failedToInitialize:
+        case .failedToLoad:
             return .failed(cached: .string(BalanceFormatter.defaultEmptyBalanceString))
         case .idle:
             if let balances, let tokenItem {
@@ -463,7 +463,7 @@ extension VisaUserWalletModel {
     enum State: Hashable {
         case notInitialized
         case loading
-        case failedToInitialize(ModelError)
+        case failedToLoad(ModelError)
         case idle
     }
 
