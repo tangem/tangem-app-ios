@@ -24,6 +24,7 @@ class VisaOnboardingWalletConnectViewModel: ObservableObject {
     }
 
     func openBrowser() {
+        Analytics.log(.visaOnboardingButtonBrowser)
         let visaURL = VisaUtilities().walletConnectURL
         delegate?.openBrowser(at: visaURL, onSuccess: { [weak self] successURL in
             self?.proceedOnboardingIfPossible()
@@ -32,6 +33,7 @@ class VisaOnboardingWalletConnectViewModel: ObservableObject {
     }
 
     func openShareSheet() {
+        Analytics.log(.visaOnboardingButtonShareLink)
         let visaURL = VisaUtilities().walletConnectURL
         // [REDACTED_TODO_COMMENT]
         let av = UIActivityViewController(activityItems: [visaURL], applicationActivities: nil)
@@ -54,6 +56,7 @@ class VisaOnboardingWalletConnectViewModel: ObservableObject {
             } catch {
                 VisaLogger.error("Failed to check if onboarding can proceed", error: error)
                 self?.scheduler.cancel()
+                self?.sendErrorToAnalytics(error)
                 await self?.delegate?.showContactSupportAlert(for: error)
             }
         }
@@ -69,6 +72,7 @@ class VisaOnboardingWalletConnectViewModel: ObservableObject {
                 }
             } catch {
                 VisaLogger.error("Failed to check if onboarding can proceed", error: error)
+                viewModel.sendErrorToAnalytics(error)
                 await viewModel.delegate?.showContactSupportAlert(for: error)
             }
         }
@@ -78,5 +82,12 @@ class VisaOnboardingWalletConnectViewModel: ObservableObject {
     private func proceedOnboarding() async {
         cancelStatusUpdates()
         await delegate?.proceedFromCurrentRemoteState()
+    }
+
+    private func sendErrorToAnalytics(_ error: Error) {
+        Analytics.log(event: .visaErrors, params: [
+            .errorCode: "\(error.universalErrorCode)",
+            .source: Analytics.ParameterValue.onboarding.rawValue,
+        ])
     }
 }

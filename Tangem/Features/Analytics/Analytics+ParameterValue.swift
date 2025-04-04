@@ -37,6 +37,7 @@ extension Analytics {
 
         case card = "Card"
         case ring = "Ring"
+        case visa = "Visa"
 
         case main = "Main"
         case token = "Token"
@@ -160,7 +161,7 @@ extension Analytics {
         case addbackup = "add_backup"
         case proceedBackup = "proceed_backup"
 
-        // MARK: - Promotion banners        case ring = "Ring"
+        // MARK: - Promotion banners case ring = "Ring"
 
         case clicked = "Clicked"
         case closed = "Closed"
