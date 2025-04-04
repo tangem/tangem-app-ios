@@ -15,17 +15,17 @@ struct KaspaFeeMapper {
         blockchain = .kaspa(testnet: isTestnet)
     }
 
-    private func buckets(from feeEstimate: KaspaFeeEstimateResponse) -> [KaspaFee] {
+    private func buckets(from feeEstimate: KaspaDTO.EstimateFee.Response) -> [KaspaDTO.EstimateFee.Response.Fee] {
         return (
             feeEstimate.lowBuckets
                 + feeEstimate.normalBuckets
                 + [feeEstimate.priorityBucket]
         )
-        .sorted() // just in case, because it's not described in the documentation.
+        .sorted { $0.feerate > $1.feerate } // just in case, because it's not described in the documentation.
         .suffix(3) // select the 3 largest baskets
     }
 
-    func mapFee(mass: KaspaMassResponse, feeEstimate: KaspaFeeEstimateResponse) -> [Fee] {
+    func mapFee(mass: KaspaDTO.Mass.Response, feeEstimate: KaspaDTO.EstimateFee.Response) -> [Fee] {
         let buckets = buckets(from: feeEstimate)
 
         let mass = Decimal(mass.mass)
@@ -39,7 +39,7 @@ struct KaspaFeeMapper {
         return fees
     }
 
-    func mapTokenFee(mass: Decimal, feeEstimate: KaspaFeeEstimateResponse) -> [Fee] {
+    func mapTokenFee(mass: Decimal, feeEstimate: KaspaDTO.EstimateFee.Response) -> [Fee] {
         let buckets = buckets(from: feeEstimate)
 
         return buckets.map { bucket in
