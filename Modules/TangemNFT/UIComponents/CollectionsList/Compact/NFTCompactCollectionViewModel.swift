@@ -13,15 +13,16 @@ final class NFTCompactCollectionViewModel {
     private let nftCollection: NFTCollection
     private let nftChainIconProvider: NFTChainIconProvider
 
-    let assetsViewModels: [NFTCompactAssetViewModel]
+    let assetsGridViewModel: NFTAssetsGridViewModel
 
     init(nftCollection: NFTCollection, nftChainIconProvider: NFTChainIconProvider) {
         self.nftCollection = nftCollection
         self.nftChainIconProvider = nftChainIconProvider
 
-        assetsViewModels = nftCollection.assets.map {
+        let assetsViewModels = nftCollection.assets.map {
             NFTCompactAssetViewModel(nftAsset: $0)
         }
+        assetsGridViewModel = NFTAssetsGridViewModel(assetsViewModels: assetsViewModels)
     }
 
     var id: String {
