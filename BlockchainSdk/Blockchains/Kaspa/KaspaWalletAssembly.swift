@@ -17,6 +17,7 @@ struct KaspaWalletAssembly: WalletManagerAssembly {
             .resolveProviders(apiInfos: input.apiInfo) { nodeInfo, _ in
                 KaspaNetworkProvider(
                     url: nodeInfo.url,
+                    isTestnet: blockchain.isTestnet,
                     networkConfiguration: input.networkConfig
                 )
             }
@@ -29,11 +30,19 @@ struct KaspaWalletAssembly: WalletManagerAssembly {
             ),
         ]
 
+        let unspentOutputManager: UnspentOutputManager = .kaspa(address: input.wallet.defaultAddress)
+        let txBuilder = KaspaTransactionBuilder(
+            walletPublicKey: input.wallet.publicKey,
+            unspentOutputManager: unspentOutputManager,
+            isTestnet: blockchain.isTestnet
+        )
+
         return KaspaWalletManager(
             wallet: input.wallet,
-            networkService: KaspaNetworkService(providers: providers, blockchain: blockchain),
+            networkService: KaspaNetworkService(providers: providers),
             networkServiceKRC20: KaspaNetworkServiceKRC20(providers: providersKRC20),
-            txBuilder: KaspaTransactionBuilder(walletPublicKey: input.wallet.publicKey, blockchain: blockchain),
+            txBuilder: txBuilder,
+            unspentOutputManager: unspentOutputManager,
             dataStorage: input.blockchainSdkDependencies.dataStorage
         )
     }
