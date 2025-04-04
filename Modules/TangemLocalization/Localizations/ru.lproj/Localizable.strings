@@ -486,6 +486,9 @@
 "nft_collections_title" = "NFT collections";
 "nft_collections_warning_subtitle" = "Some data may not load";
 "nft_collections_warning_title" = "Temporary loading problems";
+"nft_empty_search" = "No results. Please try another request.";
+"nft_receive_subtitle" = "To My wallet";
+"nft_receive_title" = "Receive NFT";
 "nft_wallet_count" = "%1$li NFTs in %2$li collection";
 "nft_wallet_receive_nft" = "Tap here to receive first NFT";
 "nft_wallet_title" = "NFT collections";
@@ -614,6 +617,7 @@
 "qr_scanner_camera_denied_title" = "Доступ к камере запрещен";
 "receive_bottom_sheet_no_memo_required_message" = "Memo не требуется";
 "receive_bottom_sheet_warning_message" = "%1$@ (%2$@) в сети %3$@";
+"receive_bottom_sheet_warning_message_compact" = "%1$@ on %2$@ network";
 "receive_bottom_sheet_warning_message_description" = "Использование другой сети может привести к утрате средств.";
 "receive_bottom_sheet_warning_message_full" = "Отправляйте только %@ на этот адрес. Использование другой сети может привести к утрате средств.";
 "receive_bottom_sheet_warning_message_title" = "Отправляйте только %@ на этот адрес";
