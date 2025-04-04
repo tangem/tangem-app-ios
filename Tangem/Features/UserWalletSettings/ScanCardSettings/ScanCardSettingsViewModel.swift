@@ -73,6 +73,7 @@ extension ScanCardSettingsViewModel {
                 }
 
                 Analytics.tryLogCardVerificationError(error, source: .settings)
+                Analytics.logVisaCardScanErrorIfNeeded(error, source: .settings)
                 completion(.failure(error))
             case .success(let response):
                 completion(.success(response.getCardInfo()))
