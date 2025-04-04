@@ -40,7 +40,6 @@ extension NFTAssetsGridView {
                 assetIdentifier: "some-\($0)",
                 collectionIdentifier: "some1",
                 chain: .solana,
-                derivationPath: nil,
                 contractType: .splToken2022,
                 ownerAddress: "",
                 name: "My asset",
