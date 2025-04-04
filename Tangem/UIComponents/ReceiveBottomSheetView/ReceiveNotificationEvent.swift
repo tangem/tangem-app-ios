@@ -10,17 +10,17 @@ import TangemAssets
 import TangemLocalization
 
 struct ReceiveNotificationEvent {
-    let currencySymbol: String
+    let assetSymbol: String
     let networkName: String
 }
 
 extension ReceiveNotificationEvent: NotificationEvent {
     var id: NotificationViewId {
-        currencySymbol.hashValue
+        assetSymbol.hashValue
     }
 
     var title: NotificationView.Title? {
-        .string(Localization.receiveBottomSheetWarningTitle(currencySymbol, networkName))
+        .string(Localization.receiveBottomSheetWarningTitle(assetSymbol, networkName))
     }
 
     var description: String? {
