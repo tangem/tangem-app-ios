@@ -69,7 +69,6 @@ extension NFTCompactAssetView {
                 assetIdentifier: "some",
                 collectionIdentifier: "some1",
                 chain: .solana,
-                derivationPath: nil,
                 contractType: .splToken2022,
                 ownerAddress: "",
                 name: "My asset",
