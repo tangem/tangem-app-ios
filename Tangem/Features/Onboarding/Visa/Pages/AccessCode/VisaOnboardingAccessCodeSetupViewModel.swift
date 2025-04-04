@@ -46,8 +46,10 @@ class VisaOnboardingAccessCodeSetupViewModel: ObservableObject {
     func mainButtonAction() {
         switch viewState {
         case .accessCode:
+            Analytics.log(.visaOnboardingButtonAccessCodeContinue)
             goToRepeatAccessCode()
         case .repeatAccessCode:
+            Analytics.log(.visaOnboardingButtonStartActivation)
             finishAccessCodeSetup()
         }
     }
@@ -131,6 +133,7 @@ private extension VisaOnboardingAccessCodeSetupViewModel {
             viewState = .repeatAccessCode
             accessCode = ""
         }
+        Analytics.log(.visaOnboardingReEnterAccessCodeScreenOpened)
     }
 
     func finishAccessCodeSetup() {
@@ -149,6 +152,10 @@ private extension VisaOnboardingAccessCodeSetupViewModel {
                 try await viewModel.delegate?.useSelectedCode(accessCode: viewModel.selectedAccessCode)
             } catch {
                 if !error.isCancellationError {
+                    Analytics.log(event: .visaErrors, params: [
+                        .errorCode: "\(error.universalErrorCode)",
+                        .source: Analytics.ParameterValue.onboarding.rawValue,
+                    ])
                     VisaLogger.error("Failed to use selected access code", error: error)
                     await viewModel.showRetryAlert(for: error)
                 }
@@ -217,7 +224,7 @@ extension VisaOnboardingAccessCodeSetupViewModel {
         }
 
         var description: String {
-            "The access code will be used manage your payment account and protect it from unauthorized access"
+            Localization.visaOnboardingAccessCodeDescription
         }
 
         var buttonTitle: String {
