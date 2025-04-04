@@ -854,19 +854,19 @@ class AddressesTests: XCTestCase {
         XCTAssertFalse(addressService.validate("kaspa:qyp5ez9p4q6xnh0jp5xq0ewy58nmsde5uus7vrty9w222v3zc37xwrgeqhkq7v4"))
 
         let ecdsaAddress = "kaspa:qyp4scvsxvkrjxyq98gd4xedhgrqtmf78l7wl8p8p4j0mjuvpwjg5cqhy97n472"
-        let ecdsaAddressComponents = addressService.parse(ecdsaAddress)!
+        let ecdsaAddressComponents = try addressService.parse(ecdsaAddress)
         XCTAssertTrue(addressService.validate(ecdsaAddress))
         XCTAssertEqual(ecdsaAddressComponents.hash, Data(hex: "03586190332c39188029d0da9b2dba0605ed3e3ffcef9c270d64fdcb8c0ba48a60"))
         XCTAssertEqual(ecdsaAddressComponents.type, .P2PK_ECDSA)
 
         let schnorrAddress = "kaspa:qpsqw2aamda868dlgqczeczd28d5nc3rlrj3t87vu9q58l2tugpjs2psdm4fv"
-        let schnorrAddressComponents = addressService.parse(schnorrAddress)!
+        let schnorrAddressComponents = try addressService.parse(schnorrAddress)
         XCTAssertTrue(addressService.validate(schnorrAddress))
         XCTAssertEqual(schnorrAddressComponents.hash, Data(hex: "60072BBDDB7A7D1DBF40302CE04D51DB49E223F8E5159FCCE14143FD4BE20328"))
         XCTAssertEqual(schnorrAddressComponents.type, .P2PK_Schnorr)
 
         let p2shAddress = "kaspa:pqurku73qluhxrmvyj799yeyptpmsflpnc8pha80z6zjh6efwg3v2rrepjm5r"
-        let p2shAddressComponents = addressService.parse(p2shAddress)!
+        let p2shAddressComponents = try addressService.parse(p2shAddress)
         XCTAssertTrue(addressService.validate(p2shAddress))
         XCTAssertEqual(p2shAddressComponents.hash, Data(hex: "383b73d107f9730f6c24bc5293240ac3b827e19e0e1bf4ef16852beb297222c5"))
         XCTAssertEqual(p2shAddressComponents.type, .P2SH)
