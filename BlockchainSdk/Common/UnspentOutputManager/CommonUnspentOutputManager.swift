@@ -24,6 +24,13 @@ class CommonUnspentOutputManager {
         self.preImageTransactionBuilder = preImageTransactionBuilder
         self.lockingScriptBuilder = lockingScriptBuilder
     }
+
+    /// Will be overridden in KaspaUnspentOutputManager
+    func allOutputs() -> [ScriptUnspentOutput] {
+        outputs.read().flatMap { key, value in
+            value.map { ScriptUnspentOutput(output: $0, script: key) }
+        }
+    }
 }
 
 // MARK: - UnspentOutputManager
@@ -50,18 +57,12 @@ extension CommonUnspentOutputManager: UnspentOutputManager {
         return try preImage(amount: amount, fee: .calculate(feeRate: feeRate), destination: destination)
     }
 
-    func allOutputs() -> [ScriptUnspentOutput] {
-        outputs.read().flatMap { key, value in
-            value.map { ScriptUnspentOutput(output: $0, script: key) }
-        }
-    }
-
     func confirmedBalance() -> UInt64 {
-        outputs.read().flatMap { $0.value }.filter { $0.isConfirmed }.reduce(0) { $0 + $1.amount }
+        outputs.read().flatMap { $0.value }.filter { $0.isConfirmed }.sum(by: \.amount)
     }
 
     func unconfirmedBalance() -> UInt64 {
-        outputs.read().flatMap { $0.value }.filter { !$0.isConfirmed }.reduce(0) { $0 + $1.amount }
+        outputs.read().flatMap { $0.value }.filter { !$0.isConfirmed }.sum(by: \.amount)
     }
 }
 
