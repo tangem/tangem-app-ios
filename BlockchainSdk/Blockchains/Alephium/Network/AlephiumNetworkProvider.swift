@@ -22,16 +22,16 @@ struct AlephiumNetworkProvider: HostProvider {
     // MARK: - Properties
 
     /// Network provider of blockchain
-    private let network: NetworkProvider<AlephiumProviderTarget>
+    private let provider: TangemProvider<AlephiumProviderTarget>
 
     // MARK: - Init
 
     init(
         node: NodeInfo,
-        networkConfig: NetworkProviderConfiguration
+        networkConfig: TangemProviderConfiguration
     ) {
         self.node = node
-        network = .init(configuration: networkConfig)
+        provider = .init(configuration: networkConfig)
     }
 
     // MARK: - Implementation
@@ -64,7 +64,7 @@ struct AlephiumNetworkProvider: HostProvider {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
 
-        return network.requestPublisher(target)
+        return provider.requestPublisher(target)
             .filterSuccessfulStatusAndRedirectCodes()
             .map(T.self, using: decoder)
             .mapError { _ in WalletError.empty }

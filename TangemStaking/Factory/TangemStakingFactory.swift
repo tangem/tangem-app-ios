@@ -8,6 +8,7 @@
 
 import Foundation
 import Moya
+import TangemNetworkUtils
 
 public struct TangemStakingFactory {
     public init() {}
@@ -31,7 +32,7 @@ public struct TangemStakingFactory {
         configuration: URLSessionConfiguration,
         plugins: [PluginType]
     ) -> StakingAPIProvider {
-        let provider = MoyaProvider<StakeKitTarget>(session: Session(configuration: configuration), plugins: plugins)
+        let provider = TangemProvider<StakeKitTarget>(plugins: plugins, sessionConfiguration: configuration)
         let service = StakeKitStakingAPIService(provider: provider, credential: credential)
         let mapper = StakeKitMapper()
         return CommonStakingAPIProvider(service: service, mapper: mapper)
