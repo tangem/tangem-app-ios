@@ -1,5 +1,5 @@
 //
-//  BlockchainSdkConfig.swift
+//  BlockchainSdkKeysConfig.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import TangemNetworkUtils
 
-public struct BlockchainSdkConfig {
+public struct BlockchainSdkKeysConfig {
     let blockchairApiKeys: [String]
     let blockcypherTokens: [String]
     let infuraProjectId: String
@@ -25,8 +25,6 @@ public struct BlockchainSdkConfig {
     let chiaTangemApiKeys: ChiaTangemApiKeys
     let quickNodeSolanaCredentials: QuickNodeCredentials
     let quickNodeBscCredentials: QuickNodeCredentials
-    let defaultNetworkProviderConfiguration: NetworkProviderConfiguration
-    let networkProviderConfigurations: [Blockchain: NetworkProviderConfiguration]
     let bittensorDwellirKey: String
     let bittensorOnfinalityKey: String
     let tangemAlephiumApiKey: String
@@ -47,8 +45,6 @@ public struct BlockchainSdkConfig {
         chiaTangemApiKeys: ChiaTangemApiKeys,
         quickNodeSolanaCredentials: QuickNodeCredentials,
         quickNodeBscCredentials: QuickNodeCredentials,
-        defaultNetworkProviderConfiguration: NetworkProviderConfiguration = .init(),
-        networkProviderConfigurations: [Blockchain: NetworkProviderConfiguration] = [:],
         bittensorDwellirKey: String,
         bittensorOnfinalityKey: String,
         tangemAlephiumApiKey: String
@@ -68,19 +64,13 @@ public struct BlockchainSdkConfig {
         self.chiaTangemApiKeys = chiaTangemApiKeys
         self.quickNodeSolanaCredentials = quickNodeSolanaCredentials
         self.quickNodeBscCredentials = quickNodeBscCredentials
-        self.defaultNetworkProviderConfiguration = defaultNetworkProviderConfiguration
-        self.networkProviderConfigurations = networkProviderConfigurations
         self.bittensorDwellirKey = bittensorDwellirKey
         self.bittensorOnfinalityKey = bittensorOnfinalityKey
         self.tangemAlephiumApiKey = tangemAlephiumApiKey
     }
-
-    func networkProviderConfiguration(for blockchain: Blockchain) -> NetworkProviderConfiguration {
-        networkProviderConfigurations[blockchain] ?? defaultNetworkProviderConfiguration
-    }
 }
 
-public extension BlockchainSdkConfig {
+public extension BlockchainSdkKeysConfig {
     struct QuickNodeCredentials {
         let apiKey: String
         let subdomain: String
@@ -136,7 +126,7 @@ public extension BlockchainSdkConfig {
     }
 }
 
-public extension BlockchainSdkConfig.GetBlockCredentials {
+public extension BlockchainSdkKeysConfig.GetBlockCredentials {
     struct Credential {
         let blockchain: Blockchain
         let type: TypeValue
@@ -157,7 +147,7 @@ public extension BlockchainSdkConfig.GetBlockCredentials {
     }
 }
 
-extension BlockchainSdkConfig.GetBlockCredentials {
+extension BlockchainSdkKeysConfig.GetBlockCredentials {
     func credential(for blockchain: Blockchain, type: TypeValue) -> String {
         let credential = credentials.first { $0.blockchain.codingKey == blockchain.codingKey && $0.type == type }
         return credential?.value ?? ""

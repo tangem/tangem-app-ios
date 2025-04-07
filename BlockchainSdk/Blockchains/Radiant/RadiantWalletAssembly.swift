@@ -11,14 +11,14 @@ import TangemSdk
 
 struct RadiantWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        let socketManagers: [ElectrumWebSocketProvider] = APIResolver(blockchain: input.blockchain, config: input.blockchainSdkConfig)
-            .resolveProviders(apiInfos: input.apiInfo, factory: { nodeInfo, _ in
+        let socketManagers: [ElectrumWebSocketProvider] = APIResolver(blockchain: input.wallet.blockchain, keysConfig: input.networkInput.keysConfig)
+            .resolveProviders(apiInfos: input.networkInput.apiInfo, factory: { nodeInfo, _ in
                 ElectrumWebSocketProvider(url: nodeInfo.url)
             })
 
         let providers: [ElectrumUTXONetworkProvider] = socketManagers.map {
             ElectrumUTXONetworkProvider(
-                blockchain: input.blockchain,
+                blockchain: input.wallet.blockchain,
                 provider: $0,
                 converter: .init(lockingScriptBuilder: .radiant()),
                 settings: Constants.electrumSettings
@@ -31,7 +31,7 @@ struct RadiantWalletAssembly: WalletManagerAssembly {
         let transactionBuilder = try RadiantTransactionBuilder(
             walletPublicKey: publicKey,
             unspentOutputManager: unspentOutputManager,
-            decimalValue: input.blockchain.decimalValue
+            decimalValue: input.wallet.blockchain.decimalValue
         )
 
         return RadiantWalletManager(
