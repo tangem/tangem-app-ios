@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import TangemNetworkUtils
 
 struct ConfigUtils {
     private let providersFileName = "providers_order"
@@ -22,21 +23,21 @@ struct ConfigUtils {
         }
     }
 
-    func parseKeysJson() -> BlockchainSdkConfig {
+    func parseKeysJson() -> BlockchainSdkKeysConfig {
         do {
             let keys = try readBundleFile(with: configFileName, type: Keys.self)
-            var credentials: [BlockchainSdkConfig.GetBlockCredentials.Credential] = []
+            var credentials: [BlockchainSdkKeysConfig.GetBlockCredentials.Credential] = []
 
             Blockchain.allMainnetCases.forEach { blockchain in
                 if let accessTokens = keys.getBlockAccessTokens[blockchain.codingKey] {
-                    BlockchainSdkConfig.GetBlockCredentials.TypeValue.allCases.forEach { type in
+                    BlockchainSdkKeysConfig.GetBlockCredentials.TypeValue.allCases.forEach { type in
                         if let token = accessTokens[type.rawValue] {
                             credentials.append(.init(blockchain: blockchain, type: type, key: token))
                         }
                     }
                 }
             }
-            return BlockchainSdkConfig(
+            return BlockchainSdkKeysConfig(
                 blockchairApiKeys: keys.blockchairApiKeys,
                 blockcypherTokens: keys.blockcypherTokens,
                 infuraProjectId: keys.infuraProjectId,
@@ -52,8 +53,6 @@ struct ConfigUtils {
                 chiaTangemApiKeys: .init(mainnetApiKey: keys.chiaTangemApiKey),
                 quickNodeSolanaCredentials: .init(apiKey: keys.quiknodeApiKey, subdomain: keys.quiknodeSubdomain),
                 quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
-                defaultNetworkProviderConfiguration: .init(logOptions: .verbose, urlSessionConfiguration: .defaultConfiguration),
-                networkProviderConfigurations: [:],
                 bittensorDwellirKey: keys.bittensorDwellirKey,
                 bittensorOnfinalityKey: keys.bittensorOnfinalityKey,
                 tangemAlephiumApiKey: keys.alephiumTangemApiKey
@@ -75,7 +74,6 @@ struct ConfigUtils {
                 chiaTangemApiKeys: .init(mainnetApiKey: ""),
                 quickNodeSolanaCredentials: .init(apiKey: "", subdomain: ""),
                 quickNodeBscCredentials: .init(apiKey: "", subdomain: ""),
-                defaultNetworkProviderConfiguration: .init(logOptions: .verbose, urlSessionConfiguration: .defaultConfiguration),
                 bittensorDwellirKey: "",
                 bittensorOnfinalityKey: "",
                 tangemAlephiumApiKey: ""
