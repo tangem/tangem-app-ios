@@ -25,13 +25,13 @@ struct ChiaNetworkProvider: HostProvider {
     // MARK: - Properties
 
     /// Network provider of blockchain
-    private let network: NetworkProvider<ChiaProviderTarget>
+    private let network: TangemProvider<ChiaProviderTarget>
 
     // MARK: - Init
 
     init(
         node: NodeInfo,
-        networkConfig: NetworkProviderConfiguration
+        networkConfig: TangemProviderConfiguration
     ) {
         self.node = node
         network = .init(configuration: networkConfig)

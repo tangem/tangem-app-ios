@@ -10,14 +10,14 @@ import Foundation
 
 struct TestnetAPINodeInfoProvider {
     let blockchain: Blockchain
-    let config: BlockchainSdkConfig
+    let keysConfig: BlockchainSdkKeysConfig
 
     func urls() -> [NodeInfo]? {
         guard blockchain.isTestnet else {
             return nil
         }
 
-        let keysInfoProvider = APIKeysInfoProvider(blockchain: blockchain, config: config)
+        let keysInfoProvider = APIKeysInfoProvider(blockchain: blockchain, keysConfig: keysConfig)
         switch blockchain {
         case .cosmos:
             return [
@@ -76,8 +76,8 @@ struct TestnetAPINodeInfoProvider {
             ]
         case .ethereum:
             return [
-                .init(url: URL(string: "https://eth-goerli.nownodes.io/\(config.nowNodesApiKey)")!),
-                .init(url: URL(string: "https://goerli.infura.io/v3/\(config.infuraProjectId)")!),
+                .init(url: URL(string: "https://eth-goerli.nownodes.io/\(keysConfig.nowNodesApiKey)")!),
+                .init(url: URL(string: "https://goerli.infura.io/v3/\(keysConfig.infuraProjectId)")!),
             ]
         case .ethereumClassic:
             return [
