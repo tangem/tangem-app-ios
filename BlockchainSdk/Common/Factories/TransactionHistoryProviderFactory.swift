@@ -7,15 +7,22 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 
 public struct TransactionHistoryProviderFactory {
-    private let config: BlockchainSdkConfig
+    private let keysConfig: BlockchainSdkKeysConfig
     private let apiList: APIList
+    private let tangemProviderConfig: TangemProviderConfiguration
 
     // MARK: - Init
 
-    public init(config: BlockchainSdkConfig, apiList: APIList) {
-        self.config = config
+    public init(
+        keysConfig: BlockchainSdkKeysConfig,
+        tangemProviderConfig: TangemProviderConfiguration,
+        apiList: APIList
+    ) {
+        self.keysConfig = keysConfig
+        self.tangemProviderConfig = tangemProviderConfig
         self.apiList = apiList
     }
 
@@ -28,9 +35,10 @@ public struct TransactionHistoryProviderFactory {
 
         let networkAssembly = NetworkProviderAssembly()
         let input = NetworkProviderAssembly.Input(
-            blockchainSdkConfig: config,
             blockchain: blockchain,
-            apiInfo: apiList[blockchain.networkId] ?? []
+            keysConfig: keysConfig,
+            apiInfo: apiList[blockchain.networkId] ?? [],
+            tangemProviderConfig: tangemProviderConfig
         )
 
         switch blockchain {
@@ -71,15 +79,15 @@ public struct TransactionHistoryProviderFactory {
         case .polygon:
             return PolygonTransactionHistoryProvider(
                 mapper: PolygonTransactionHistoryMapper(blockchain: blockchain),
-                networkConfiguration: input.networkConfig,
-                targetConfiguration: .polygonScan(isTestnet: blockchain.isTestnet, apiKey: config.polygonScanApiKey)
+                networkConfiguration: input.tangemProviderConfig,
+                targetConfiguration: .polygonScan(isTestnet: blockchain.isTestnet, apiKey: keysConfig.polygonScanApiKey)
             )
         case .algorand(_, let isTestnet):
             let node: NodeInfo
             if isTestnet {
                 node = .init(url: AlgorandIndexProviderTarget.Provider.fullNode(isTestnet: isTestnet).url)
             } else {
-                let keyInfoProvider = APIKeysInfoProvider(blockchain: blockchain, config: config)
+                let keyInfoProvider = APIKeysInfoProvider(blockchain: blockchain, keysConfig: keysConfig)
                 node = .init(
                     url: AlgorandIndexProviderTarget.Provider.nowNodes.url,
                     keyInfo: keyInfoProvider.apiKeys(for: .nowNodes)
@@ -88,12 +96,12 @@ public struct TransactionHistoryProviderFactory {
 
             return AlgorandTransactionHistoryProvider(
                 node: node,
-                networkConfig: input.networkConfig,
+                networkConfig: input.tangemProviderConfig,
                 mapper: AlgorandTransactionHistoryMapper(blockchain: input.blockchain)
             )
         case .kaspa where !isToken:
             return KaspaTransactionHistoryProvider(
-                networkConfiguration: input.networkConfig,
+                networkConfiguration: input.tangemProviderConfig,
                 mapper: KaspaTransactionHistoryMapper(blockchain: input.blockchain)
             )
         default:
