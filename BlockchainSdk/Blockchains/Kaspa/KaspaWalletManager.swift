@@ -113,7 +113,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
         case .reserve,
              .feeResource:
             // Not supported
-            return .anyFail(error: SendTxError(error: WalletError.failedToBuildTx))
+            return .anyFail(error: SendTxError(error: BlockchainSdkError.notImplemented))
         }
     }
 
@@ -122,7 +122,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
         let hashes: [Data]
 
         do {
-            let result = try txBuilder.buildForSign(transaction)
+            let result = try txBuilder.buildForSign(transaction: transaction)
             kaspaTransaction = result.0
             hashes = result.1
         } catch {
@@ -132,7 +132,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
         return signer.sign(hashes: hashes, walletPublicKey: wallet.publicKey)
             .withWeakCaptureOf(self)
             .tryMap { manager, signatures in
-                return manager.txBuilder.buildForSend(transaction: kaspaTransaction, signatures: signatures)
+                return manager.txBuilder.mapToTransaction(transaction: kaspaTransaction, signatures: signatures)
             }
             .withWeakCaptureOf(self)
             .flatMap { manager, tx in
@@ -161,27 +161,30 @@ final class KaspaWalletManager: BaseManager, WalletManager {
         let meta: KaspaKRC20.TransactionMeta
 
         do {
-            let result = try txBuilder.buildForSignKRC20(transaction: transaction, token: token)
+            let result = try txBuilder.buildForSignKRC20(transaction: transaction)
             txgroup = result.0
             meta = result.1
         } catch {
             return .sendTxFail(error: error)
         }
 
-        return signer.sign(hashes: txgroup.hashesCommit + txgroup.hashesReveal, walletPublicKey: wallet.publicKey)
+        let hashes = txgroup.hashesCommit + txgroup.hashesReveal
+        return signer
+            .sign(hashes: hashes, walletPublicKey: wallet.publicKey)
             .withWeakCaptureOf(self)
-            .map { manager, signatures in
+            .tryMap { manager, signatures in
                 // Build Commit & Reveal
                 let commitSignatures = Array(signatures[..<txgroup.hashesCommit.count])
                 let revealSignatures = Array(signatures[txgroup.hashesCommit.count...])
 
-                let commitTx = manager.txBuilder.buildForSend(
+                let commitTx = manager.txBuilder.mapToTransaction(
                     transaction: txgroup.kaspaCommitTransaction,
                     signatures: commitSignatures
                 )
-                let revealTx = manager.txBuilder.buildForSendReveal(
+
+                let revealTx = manager.txBuilder.mapToRevealTransaction(
                     transaction: txgroup.kaspaRevealTransaction,
-                    commitRedeemScript: meta.redeemScriptCommit,
+                    commitRedeemScript: meta.redeemScriptCommit.data,
                     signatures: revealSignatures
                 )
 
@@ -250,22 +253,16 @@ final class KaspaWalletManager: BaseManager, WalletManager {
         return Just(asset)
             .withWeakCaptureOf(self)
             .tryMap { manager, asset in
-                guard
-                    let token = asset.token,
-                    let incompleteTokenTransaction = manager.getIncompleteTokenTransaction(for: asset)
-                else {
+                guard let token = asset.token,
+                      let incompleteTokenTransaction = manager.getIncompleteTokenTransaction(for: asset) else {
                     throw KaspaKRC20.Error.unableToFindIncompleteTokenTransaction
                 }
 
-                guard
-                    isIncompleteTokenTransactionValid(incompleteTokenTransaction)
-                else {
+                guard isIncompleteTokenTransactionValid(incompleteTokenTransaction) else {
                     throw KaspaKRC20.Error.invalidIncompleteTokenTransaction
                 }
 
-                guard
-                    let tokenTransaction = manager.makeTransaction(from: incompleteTokenTransaction, for: token)
-                else {
+                guard let tokenTransaction = manager.makeTransaction(from: incompleteTokenTransaction, for: token) else {
                     throw KaspaKRC20.Error.unableToBuildRevealTransaction
                 }
 
@@ -311,9 +308,9 @@ final class KaspaWalletManager: BaseManager, WalletManager {
         return signer.sign(hashes: hashes, walletPublicKey: wallet.publicKey)
             .withWeakCaptureOf(self)
             .tryMap { manager, signatures in
-                return manager.txBuilder.buildForSendReveal(
+                return manager.txBuilder.mapToRevealTransaction(
                     transaction: kaspaTransaction,
-                    commitRedeemScript: commitRedeemScript,
+                    commitRedeemScript: commitRedeemScript.data,
                     signatures: signatures
                 )
             }
@@ -354,49 +351,60 @@ final class KaspaWalletManager: BaseManager, WalletManager {
     }
 
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
-        let blockchain = wallet.blockchain
-        let isTestnet = blockchain.isTestnet
+        let isTestnet = wallet.blockchain.isTestnet
         let source = wallet.address
 
-        let transaction = Transaction(
-            amount: amount,
-            fee: Fee(Amount.zeroCoin(for: blockchain)),
-            sourceAddress: source,
-            destinationAddress: destination,
-            changeAddress: source
-        )
-
         switch amount.type {
-        case .token(let token):
-            return Result {
-                try txBuilder.buildForMassCalculationKRC20(transaction: transaction, token: token)
-            }
-            .publisher
-            .withWeakCaptureOf(networkService)
-            .flatMap { networkService, transactionData in
-                networkService.mass(data: transactionData)
-                    .zip(networkService.feeEstimate())
-            }
-            .map { mass, feeEstimate in
-                let feeMapper = KaspaFeeMapper(isTestnet: isTestnet)
-                return feeMapper.mapTokenFee(mass: Decimal(mass.mass), feeEstimate: feeEstimate)
-            }
-            .eraseToAnyPublisher()
+        case .token:
+            return networkService
+                .feeEstimate()
+                .withWeakCaptureOf(self)
+                .tryMap { manager, feeEstimate in
+                    let transactionData = try manager.txBuilder.buildForMassCalculationKRC20(
+                        amount: amount,
+                        feeRate: Int(feeEstimate.priorityBucket.feerate),
+                        sourceAddress: source,
+                        destination: destination
+                    )
+                    return (transactionData, feeEstimate: feeEstimate)
+                }
+                .withWeakCaptureOf(self)
+                .flatMap { manager, args in
+                    let (transactionData, feeEstimate) = args
+                    return manager.networkService
+                        .mass(data: transactionData)
+                        .map { mass in
+                            let feeMapper = KaspaFeeMapper(isTestnet: isTestnet)
+                            return feeMapper.mapTokenFee(mass: Decimal(mass.mass), feeEstimate: feeEstimate)
+                        }
+                }
+                .eraseToAnyPublisher()
+        case .coin:
+            return networkService
+                .feeEstimate()
+                .withWeakCaptureOf(self)
+                .tryMap { manager, feeEstimate in
+                    let transactionData = try manager.txBuilder.buildForMassCalculation(
+                        amount: amount,
+                        feeRate: Int(feeEstimate.priorityBucket.feerate),
+                        sourceAddress: source,
+                        destination: destination
+                    )
+                    return (transactionData, feeEstimate: feeEstimate)
+                }
+                .withWeakCaptureOf(self)
+                .flatMap { manager, args in
+                    let (transactionData, feeEstimate) = args
+                    return manager.networkService
+                        .mass(data: transactionData)
+                        .map { mass in
+                            let feeMapper = KaspaFeeMapper(isTestnet: manager.wallet.blockchain.isTestnet)
+                            return feeMapper.mapFee(mass: mass, feeEstimate: feeEstimate)
+                        }
+                }
+                .eraseToAnyPublisher()
         default:
-            return Result {
-                try txBuilder.buildForMassCalculation(transaction: transaction)
-            }
-            .publisher
-            .withWeakCaptureOf(networkService)
-            .flatMap { networkService, transactionData in
-                networkService.mass(data: transactionData)
-                    .zip(networkService.feeEstimate())
-            }
-            .map { mass, feeEstimate in
-                let feeMapper = KaspaFeeMapper(isTestnet: isTestnet)
-                return feeMapper.mapFee(mass: mass, feeEstimate: feeEstimate)
-            }
-            .eraseToAnyPublisher()
+            return .anyFail(error: BlockchainSdkError.notImplemented)
         }
     }
 
@@ -613,7 +621,7 @@ extension KaspaWalletManager: WithdrawalNotificationProvider {
         return WithdrawalWarning(
             warningMessage: Localization.commonUtxoValidateWithdrawalMessageWarning(
                 wallet.blockchain.displayName,
-                txBuilder.maxInputCount,
+                KaspaUnspentOutputManager.maxOutputsCount,
                 amountAvailableToSend.description
             ),
             reduceMessage: Localization.commonOk,
@@ -643,7 +651,7 @@ extension KaspaWalletManager: MaximumAmountRestrictable {
             throw ValidationError.maximumUTXO(
                 blockchainName: wallet.blockchain.displayName,
                 newAmount: amountAvailableToSend,
-                maxUtxo: txBuilder.maxInputCount
+                maxUtxo: KaspaUnspentOutputManager.maxOutputsCount
             )
 
         default:
@@ -656,7 +664,7 @@ extension KaspaWalletManager: MaximumAmountRestrictable {
             throw ValidationError.maximumUTXO(
                 blockchainName: wallet.blockchain.displayName,
                 newAmount: amountAvailableToSend,
-                maxUtxo: txBuilder.maxInputCount
+                maxUtxo: KaspaUnspentOutputManager.maxOutputsCount
             )
         }
     }
