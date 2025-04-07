@@ -12,11 +12,13 @@ import Combine
 final class ElectrumUTXONetworkProvider {
     let blockchain: Blockchain
     let provider: ElectrumWebSocketProvider
+    let converter: ElectrumScriptHashConverter
     let settings: Settings
 
-    init(blockchain: Blockchain, provider: ElectrumWebSocketProvider, settings: Settings) {
+    init(blockchain: Blockchain, provider: ElectrumWebSocketProvider, converter: ElectrumScriptHashConverter, settings: Settings) {
         self.blockchain = blockchain
         self.provider = provider
+        self.converter = converter
         self.settings = settings
     }
 }
@@ -28,7 +30,7 @@ extension ElectrumUTXONetworkProvider: UTXONetworkProvider {
 
     func getUnspentOutputs(address: String) -> AnyPublisher<[UnspentOutput], any Error> {
         Future.async {
-            let scriptHash = try ElectrumScriptHashConverter().prepareScriptHash(address: address)
+            let scriptHash = try self.converter.prepareScriptHash(address: address)
             let outputs = try await self.provider.getUnspents(identifier: .scriptHash(scriptHash))
             return self.mapToUnspentOutputs(outputs: outputs)
         }
