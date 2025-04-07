@@ -13,18 +13,18 @@ struct CasperWalletAssembly: WalletManagerAssembly {
         CasperWalletManager(
             wallet: input.wallet,
             networkService: CasperNetworkService(
-                providers: APIResolver(blockchain: input.blockchain, config: input.blockchainSdkConfig)
-                    .resolveProviders(apiInfos: input.apiInfo) { nodeInfo, _ in
+                providers: APIResolver(blockchain: input.wallet.blockchain, keysConfig: input.networkInput.keysConfig)
+                    .resolveProviders(apiInfos: input.networkInput.apiInfo) { nodeInfo, _ in
                         CasperNetworkProvider(
                             node: nodeInfo,
-                            configuration: input.networkConfig
+                            configuration: input.networkInput.tangemProviderConfig
                         )
                     },
-                blockchainDecimalValue: input.blockchain.decimalValue
+                blockchainDecimalValue: input.wallet.blockchain.decimalValue
             ),
             transactionBuilder: CasperTransactionBuilder(
-                curve: input.blockchain.curve,
-                blockchainDecimalValue: input.blockchain.decimalValue
+                curve: input.wallet.blockchain.curve,
+                blockchainDecimalValue: input.wallet.blockchain.decimalValue
             )
         )
     }
