@@ -14,7 +14,7 @@ import BitcoinCore
 struct BitcoinCashWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
         let compressed = try Secp256k1Key(with: input.wallet.publicKey.blockchainKey).compress()
-        let networkParams: INetwork = input.blockchain.isTestnet ? BitcoinCashTestNetworkParams() : BitcoinCashNetworkParams()
+        let networkParams: INetwork = input.wallet.blockchain.isTestnet ? BitcoinCashTestNetworkParams() : BitcoinCashNetworkParams()
         let bitcoinManager = BitcoinManager(
             networkParams: networkParams,
             walletPublicKey: compressed,
@@ -24,7 +24,7 @@ struct BitcoinCashWalletAssembly: WalletManagerAssembly {
 
         let unspentOutputManager: UnspentOutputManager = .bitcoinCash(
             address: input.wallet.defaultAddress,
-            isTestnet: input.blockchain.isTestnet
+            isTestnet: input.wallet.blockchain.isTestnet
         )
         let txBuilder = BitcoinTransactionBuilder(
             bitcoinManager: bitcoinManager,
@@ -34,12 +34,12 @@ struct BitcoinCashWalletAssembly: WalletManagerAssembly {
 
         // [REDACTED_TODO_COMMENT]
         // Maybe https://developers.cryptoapis.io/technical-documentation/general-information/what-we-support
-        let providers: [UTXONetworkProvider] = input.apiInfo.reduce(into: []) { partialResult, providerType in
+        let providers: [UTXONetworkProvider] = input.networkInput.apiInfo.reduce(into: []) { partialResult, providerType in
             switch providerType {
             case .nowNodes:
                 partialResult.append(
                     networkProviderAssembly.makeBitcoinCashBlockBookUTXOProvider(
-                        with: input,
+                        with: input.networkInput,
                         for: .nowNodes,
                         bitcoinCashAddressService: BitcoinCashAddressService(networkParams: networkParams)
                     )
@@ -47,7 +47,7 @@ struct BitcoinCashWalletAssembly: WalletManagerAssembly {
             case .getBlock:
                 partialResult.append(
                     networkProviderAssembly.makeBitcoinCashBlockBookUTXOProvider(
-                        with: input,
+                        with: input.networkInput,
                         for: .getBlock,
                         bitcoinCashAddressService: BitcoinCashAddressService(networkParams: networkParams)
                     )
@@ -56,7 +56,7 @@ struct BitcoinCashWalletAssembly: WalletManagerAssembly {
                 partialResult.append(
                     contentsOf: networkProviderAssembly.makeBlockchairNetworkProviders(
                         endpoint: .bitcoinCash,
-                        with: input
+                        with: input.networkInput
                     )
                 )
             default:

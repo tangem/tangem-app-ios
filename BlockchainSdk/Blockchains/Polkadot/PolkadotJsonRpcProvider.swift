@@ -15,11 +15,11 @@ class PolkadotJsonRpcProvider: HostProvider {
     var host: String { node.url.hostOrUnknown }
 
     private let node: NodeInfo
-    private let provider: NetworkProvider<PolkadotTarget>
+    private let provider: TangemProvider<PolkadotTarget>
 
-    init(node: NodeInfo, configuration: NetworkProviderConfiguration) {
+    init(node: NodeInfo, configuration: TangemProviderConfiguration) {
         self.node = node
-        provider = NetworkProvider<PolkadotTarget>(configuration: configuration)
+        provider = TangemProvider<PolkadotTarget>(configuration: configuration)
     }
 
     func storage(key: String) -> AnyPublisher<String?, Error> {

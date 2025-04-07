@@ -1,6 +1,6 @@
 //
-//  NetworkProviderConfiguration.swift
-//  TangemModules
+//  TangemProviderConfiguration.swift
+//  TangemNetworkUtils
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -8,7 +8,7 @@
 import Foundation
 import Moya
 
-public struct NetworkProviderConfiguration {
+public struct TangemProviderConfiguration {
     public let logOptions: TangemNetworkLoggerPlugin.LogOptions?
     public let urlSessionConfiguration: URLSessionConfiguration
     public let credentials: Credentials?
@@ -23,7 +23,7 @@ public struct NetworkProviderConfiguration {
         self.credentials = credentials
     }
 
-    public var plugins: [PluginType] {
+    var plugins: [PluginType] {
         var plugins: [PluginType] = []
 
         if let logOptions = logOptions {
@@ -44,7 +44,7 @@ public struct NetworkProviderConfiguration {
     }
 }
 
-public extension NetworkProviderConfiguration {
+public extension TangemProviderConfiguration {
     struct Credentials: Decodable {
         let user: String
         let password: String
@@ -54,4 +54,11 @@ public extension NetworkProviderConfiguration {
             self.password = password
         }
     }
+}
+
+public extension TangemProviderConfiguration {
+    static let ephemeralConfiguration = TangemProviderConfiguration(
+        logOptions: .default,
+        urlSessionConfiguration: .ephemeralConfiguration
+    )
 }
