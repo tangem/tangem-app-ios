@@ -15,7 +15,7 @@ struct DashWalletAssembly: WalletManagerAssembly {
         let compressed = try Secp256k1Key(with: input.wallet.publicKey.blockchainKey).compress()
 
         let bitcoinManager = BitcoinManager(
-            networkParams: input.blockchain.isTestnet ? DashTestNetworkParams() : DashMainNetworkParams(),
+            networkParams: input.wallet.blockchain.isTestnet ? DashTestNetworkParams() : DashMainNetworkParams(),
             walletPublicKey: input.wallet.publicKey.blockchainKey,
             compressedWalletPublicKey: compressed,
             bip: .bip44
@@ -23,7 +23,7 @@ struct DashWalletAssembly: WalletManagerAssembly {
 
         let unspentOutputManager: UnspentOutputManager = .dash(
             address: input.wallet.defaultAddress,
-            isTestnet: input.blockchain.isTestnet
+            isTestnet: input.wallet.blockchain.isTestnet
         )
         let txBuilder = BitcoinTransactionBuilder(
             bitcoinManager: bitcoinManager,
@@ -31,12 +31,12 @@ struct DashWalletAssembly: WalletManagerAssembly {
             addresses: input.wallet.addresses
         )
 
-        let providers: [UTXONetworkProvider] = input.apiInfo.reduce(into: []) { partialResult, providerType in
+        let providers: [UTXONetworkProvider] = input.networkInput.apiInfo.reduce(into: []) { partialResult, providerType in
             switch providerType {
             case .nowNodes:
                 partialResult.append(
                     networkProviderAssembly.makeBlockBookUTXOProvider(
-                        with: input,
+                        with: input.networkInput,
                         for: .nowNodes
                     )
                 )
@@ -44,20 +44,20 @@ struct DashWalletAssembly: WalletManagerAssembly {
                 partialResult.append(
                     contentsOf: networkProviderAssembly.makeBlockchairNetworkProviders(
                         endpoint: .dash,
-                        with: input
+                        with: input.networkInput
                     )
                 )
             case .blockcypher:
                 partialResult.append(
                     networkProviderAssembly.makeBlockcypherNetworkProvider(
                         endpoint: .dash,
-                        with: input
+                        with: input.networkInput
                     )
                 )
             case .getBlock:
                 partialResult.append(
                     networkProviderAssembly.makeBlockBookUTXOProvider(
-                        with: input,
+                        with: input.networkInput,
                         for: .getBlock
                     )
                 )
