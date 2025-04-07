@@ -12,9 +12,9 @@ struct GetBlockBlockBookConfig: BlockBookConfig {
     var apiKeyHeaderName: String?
     var apiKeyHeaderValue: String?
 
-    private let credentialsConfig: BlockchainSdkConfig.GetBlockCredentials
+    private let credentialsConfig: BlockchainSdkKeysConfig.GetBlockCredentials
 
-    init(_ credentialsConfig: BlockchainSdkConfig.GetBlockCredentials) {
+    init(_ credentialsConfig: BlockchainSdkKeysConfig.GetBlockCredentials) {
         self.credentialsConfig = credentialsConfig
     }
 }

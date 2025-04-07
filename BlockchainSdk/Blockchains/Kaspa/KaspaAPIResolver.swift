@@ -9,12 +9,12 @@
 import Foundation
 
 struct KaspaAPIResolver {
-    let config: BlockchainSdkConfig
+    let keysConfig: BlockchainSdkKeysConfig
 
     func resolve(blockchain: Blockchain) -> NodeInfo? {
         guard
             case .kaspa = blockchain,
-            let link = config.kaspaSecondaryApiUrl,
+            let link = keysConfig.kaspaSecondaryApiUrl,
             let url = URL(string: link)
         else {
             return nil

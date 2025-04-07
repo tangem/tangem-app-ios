@@ -34,8 +34,8 @@ extension CommonKeysManager: KeysManager {
         keys.mercuryoSecret
     }
 
-    var blockchainConfig: BlockchainSdkConfig {
-        BlockchainSdkConfig(
+    var blockchainSdkKeysConfig: BlockchainSdkKeysConfig {
+        BlockchainSdkKeysConfig(
             blockchairApiKeys: keys.blockchairApiKeys,
             blockcypherTokens: keys.blockcypherTokens,
             infuraProjectId: keys.infuraProjectId,
@@ -52,11 +52,6 @@ extension CommonKeysManager: KeysManager {
             // [REDACTED_TODO_COMMENT]
             quickNodeSolanaCredentials: .init(apiKey: keys.quiknodeApiKey, subdomain: keys.quiknodeSubdomain),
             quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
-            defaultNetworkProviderConfiguration: .init(
-                logOptions: .verbose,
-                urlSessionConfiguration: .ephemeralConfiguration
-            ),
-            networkProviderConfigurations: [:],
             bittensorDwellirKey: keys.bittensorDwellirKey,
             bittensorOnfinalityKey: keys.bittensorOnfinalityKey,
             tangemAlephiumApiKey: keys.alephiumTangemApiKey

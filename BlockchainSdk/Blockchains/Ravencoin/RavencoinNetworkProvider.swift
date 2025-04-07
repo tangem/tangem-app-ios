@@ -10,18 +10,19 @@ import Foundation
 import Moya
 import Combine
 import TangemFoundation
+import TangemNetworkUtils
 
 /// Documentations:
 /// https://github.com/RavenDevKit/insight-api
 /// https://github.com/RavenProject/Ravencoin/blob/master/doc/REST-interface.md
 class RavencoinNetworkProvider: HostProvider {
     let host: String
-    let provider: NetworkProvider<RavencoinTarget>
+    let provider: TangemProvider<RavencoinTarget>
 
     private let blockchain = Blockchain.ravencoin(testnet: false)
     private var decimalValue: Decimal { blockchain.decimalValue }
 
-    init(host: String, provider: NetworkProvider<RavencoinTarget>) {
+    init(host: String, provider: TangemProvider<RavencoinTarget>) {
         self.host = host
         self.provider = provider
     }
