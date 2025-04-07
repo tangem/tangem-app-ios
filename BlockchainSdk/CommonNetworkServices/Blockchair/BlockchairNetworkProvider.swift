@@ -11,7 +11,7 @@ import Combine
 import TangemNetworkUtils
 
 class BlockchairNetworkProvider {
-    private let provider: NetworkProvider<BlockchairTarget>
+    private let provider: TangemProvider<BlockchairTarget>
     private let endpoint: BlockchairEndpoint
     private let mapper: BlockchairTransactionRecordMapper
     private let apiKey: String?
@@ -25,12 +25,12 @@ class BlockchairNetworkProvider {
         return decoder
     }()
 
-    init(endpoint: BlockchairEndpoint, apiKey: String?, blockchain: Blockchain, configuration: NetworkProviderConfiguration) {
+    init(endpoint: BlockchairEndpoint, apiKey: String?, blockchain: Blockchain, configuration: TangemProviderConfiguration) {
         self.endpoint = endpoint
         self.apiKey = apiKey
 
         mapper = BlockchairTransactionRecordMapper(blockchain: blockchain)
-        provider = NetworkProvider<BlockchairTarget>(configuration: configuration)
+        provider = TangemProvider<BlockchairTarget>(configuration: configuration)
     }
 }
 

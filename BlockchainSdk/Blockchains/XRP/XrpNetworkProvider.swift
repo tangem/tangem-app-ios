@@ -18,11 +18,11 @@ class XRPNetworkProvider: XRPNetworkServiceType, HostProvider {
     }
 
     private let node: NodeInfo
-    private let provider: NetworkProvider<XRPTarget>
+    private let provider: TangemProvider<XRPTarget>
 
-    init(node: NodeInfo, configuration: NetworkProviderConfiguration) {
+    init(node: NodeInfo, configuration: TangemProviderConfiguration) {
         self.node = node
-        provider = NetworkProvider<XRPTarget>(configuration: configuration)
+        provider = TangemProvider<XRPTarget>(configuration: configuration)
     }
 
     func getFee() -> AnyPublisher<XRPFeeResponse, Error> {
