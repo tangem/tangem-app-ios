@@ -13,11 +13,11 @@ struct AlephiumWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
         let compressedKey = try Secp256k1Key(with: input.wallet.publicKey.blockchainKey).compress()
 
-        let providers: [AlephiumNetworkProvider] = APIResolver(blockchain: input.blockchain, config: input.blockchainSdkConfig)
-            .resolveProviders(apiInfos: input.apiInfo) { nodeInfo, _ in
+        let providers: [AlephiumNetworkProvider] = APIResolver(blockchain: input.wallet.blockchain, keysConfig: input.networkInput.keysConfig)
+            .resolveProviders(apiInfos: input.networkInput.apiInfo) { nodeInfo, _ in
                 AlephiumNetworkProvider(
                     node: nodeInfo,
-                    networkConfig: input.networkConfig
+                    networkConfig: input.networkInput.tangemProviderConfig
                 )
             }
 
@@ -25,9 +25,9 @@ struct AlephiumWalletAssembly: WalletManagerAssembly {
             wallet: input.wallet,
             networkService: AlephiumNetworkService(providers: providers),
             transactionBuilder: AlephiumTransactionBuilder(
-                isTestnet: input.blockchain.isTestnet,
+                isTestnet: input.wallet.blockchain.isTestnet,
                 walletPublicKey: compressedKey,
-                decimalValue: input.blockchain.decimalValue
+                decimalValue: input.wallet.blockchain.decimalValue
             )
         )
     }

@@ -11,7 +11,7 @@ import Combine
 import TangemNetworkUtils
 
 final class KaspaTransactionHistoryProvider: TransactionHistoryProvider {
-    private let networkProvider: NetworkProvider<KaspaTransactionHistoryTarget>
+    private let networkProvider: TangemProvider<KaspaTransactionHistoryTarget>
     private let mapper: KaspaTransactionHistoryMapper
 
     private var page: TransactionHistoryIndexPage?
@@ -25,7 +25,7 @@ final class KaspaTransactionHistoryProvider: TransactionHistoryProvider {
     }()
 
     init(
-        networkConfiguration: NetworkProviderConfiguration,
+        networkConfiguration: TangemProviderConfiguration,
         mapper: KaspaTransactionHistoryMapper
     ) {
         networkProvider = .init(configuration: networkConfiguration)
