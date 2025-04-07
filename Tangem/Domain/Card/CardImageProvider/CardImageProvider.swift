@@ -31,7 +31,8 @@ struct CardImageProvider {
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = 20
         configuration.timeoutIntervalForResource = 30
-        let networkService = NetworkService(configuration: configuration)
+        let session = URLSession(configuration: configuration)
+        let networkService = NetworkService(session: session)
         cardVerifier = OnlineAttestationService(networkService: networkService)
     }
 
