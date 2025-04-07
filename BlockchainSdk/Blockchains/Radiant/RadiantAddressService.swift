@@ -11,14 +11,26 @@ import TangemSdk
 import BitcoinCore
 
 class RadiantAddressService {
-    let addressAdapter = BitcoinWalletCoreAddressAdapter(coin: .bitcoinCash)
+    let addressService: BitcoinLegacyAddressService
+    let converter: Base58AddressConverter
+
+    init(network: INetwork = RadiantNetworkParams()) {
+        addressService = .init(networkParams: network)
+        converter = .init(addressVersion: network.pubKeyHash, addressScriptVersion: network.scriptHash)
+    }
 }
 
 // MARK: - AddressValidator
 
 extension RadiantAddressService: AddressValidator {
     func validate(_ address: String) -> Bool {
-        addressAdapter.validateSpecify(prefix: .p2pkh, for: address)
+        do {
+            let address = try converter.convert(address: address)
+            // Radiant supports only p2pkh addresses
+            return address.scriptType == .p2pkh
+        } catch {
+            return false
+        }
     }
 }
 
@@ -26,12 +38,7 @@ extension RadiantAddressService: AddressValidator {
 
 extension RadiantAddressService: AddressProvider {
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
-        let address = try addressAdapter.makeAddress(for: publicKey, by: .p2pkh)
-        return LockingScriptAddress(
-            value: address.description,
-            publicKey: publicKey,
-            type: addressType,
-            lockingScript: .init(data: address.keyhash, type: .p2pkh)
-        )
+        let compressedKey = try Secp256k1Key(with: publicKey.blockchainKey).compress()
+        return try addressService.makeAddress(from: compressedKey)
     }
 }
