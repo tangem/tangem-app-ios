@@ -80,7 +80,7 @@ extension UnspentOutputManager where Self == CommonUnspentOutputManager {
     }
 
     static func kaspa(address: any Address) -> Self {
-        CommonUnspentOutputManager(
+        KaspaUnspentOutputManager(
             address: address,
             preImageTransactionBuilder: .kaspa(),
             lockingScriptBuilder: .kaspa()
