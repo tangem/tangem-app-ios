@@ -10,7 +10,7 @@ import Testing
 @testable import BlockchainSdk
 
 class BranchAndBoundPreImageTransactionBuilderTests {
-    private let script: UTXOLockingScript = .init(data: Data(hexString: ""), type: .p2wpkh)
+    private let script: UTXOLockingScript = .init(data: Data(), type: .p2wpkh)
     private lazy var outputs: [ScriptUnspentOutput] = [
         ScriptUnspentOutput(
             output: UnspentOutput(blockId: 0, txId: "", index: 0, amount: 100_000), // 0.0001 BTC
@@ -27,6 +27,33 @@ class BranchAndBoundPreImageTransactionBuilderTests {
     ]
 
     @Test
+    func testManyOutputs() throws {
+        // given
+        let outputs: [ScriptUnspentOutput] = (1 ... 1000).map { i in
+            .init(output: UnspentOutput(blockId: i, txId: "", index: 0, amount: UInt64(i) * 1_000), script: script)
+        }
+
+        let feeRate = 10
+        let expectedFee = 1410
+        let calculator = CommonUTXOTransactionSizeCalculator(network: BitcoinNetworkParams())
+        let selector = BranchAndBoundPreImageTransactionBuilder(calculator: calculator)
+
+        // when
+        let selected = try selector.preImage(
+            outputs: outputs,
+            changeScript: .p2wpkh,
+            destination: .init(amount: 300_000, script: .p2wpkh),
+            fee: .calculate(feeRate: feeRate)
+        )
+
+        // then
+        #expect(selected.outputs.count == 1)
+        #expect(selected.fee == expectedFee)
+        #expect(selected.destination == 300_000)
+        #expect(selected.change == 590)
+    }
+
+    @Test
     func testCalculationFee() throws {
         // given
         let size = 5_000
@@ -36,7 +63,12 @@ class BranchAndBoundPreImageTransactionBuilderTests {
         let selector = BranchAndBoundPreImageTransactionBuilder(calculator: calculator)
 
         // when
-        let selected = try selector.preImage(outputs: outputs, changeScript: .p2wpkh, destination: .init(amount: 300_000, script: .p2wpkh), fee: .calculate(feeRate: feeRate))
+        let selected = try selector.preImage(
+            outputs: outputs,
+            changeScript: .p2wpkh,
+            destination: .init(amount: 300_000, script: .p2wpkh),
+            fee: .calculate(feeRate: feeRate)
+        )
 
         // then
         #expect(selected.outputs.count == 1) // 500_000
@@ -52,7 +84,12 @@ class BranchAndBoundPreImageTransactionBuilderTests {
         let selector = BranchAndBoundPreImageTransactionBuilder(calculator: calculator)
 
         // when
-        let selected = try selector.preImage(outputs: outputs, changeScript: .p2wpkh, destination: .init(amount: 300_000, script: .p2wpkh), fee: .exactly(fee: 100_000))
+        let selected = try selector.preImage(
+            outputs: outputs,
+            changeScript: .p2wpkh,
+            destination: .init(amount: 300_000, script: .p2wpkh),
+            fee: .exactly(fee: 100_000)
+        )
 
         // then
         #expect(selected.outputs.count == 1) // 0.0005
@@ -69,7 +106,12 @@ class BranchAndBoundPreImageTransactionBuilderTests {
         let selector = BranchAndBoundPreImageTransactionBuilder(calculator: calculator)
 
         // when
-        let selected = try selector.preImage(outputs: outputs, changeScript: .p2wpkh, destination: .init(amount: 400_000, script: .p2wpkh), fee: .exactly(fee: 100_000))
+        let selected = try selector.preImage(
+            outputs: outputs,
+            changeScript: .p2wpkh,
+            destination: .init(amount: 400_000, script: .p2wpkh),
+            fee: .exactly(fee: 100_000)
+        )
 
         // then
         #expect(selected.outputs.count == 1) // 500_000
@@ -89,7 +131,12 @@ class BranchAndBoundPreImageTransactionBuilderTests {
         let selector = BranchAndBoundPreImageTransactionBuilder(calculator: calculator)
 
         // when
-        let selected = try selector.preImage(outputs: outputs, changeScript: .p2wpkh, destination: .init(amount: 400_000, script: .p2wpkh), fee: .calculate(feeRate: feeRate))
+        let selected = try selector.preImage(
+            outputs: outputs,
+            changeScript: .p2wpkh,
+            destination: .init(amount: 400_000, script: .p2wpkh),
+            fee: .calculate(feeRate: feeRate)
+        )
 
         // then
         #expect(selected.outputs.count == 2) // 500_000 + 100_000
@@ -110,7 +157,12 @@ class BranchAndBoundPreImageTransactionBuilderTests {
 
         // then
         #expect(throws: UTXOPreImageTransactionBuilderError.insufficientFunds) {
-            try selector.preImage(outputs: outputs, changeScript: .p2wpkh, destination: .init(amount: 900_000, script: .p2wpkh), fee: .calculate(feeRate: 10))
+            try selector.preImage(
+                outputs: outputs,
+                changeScript: .p2wpkh,
+                destination: .init(amount: 900_000, script: .p2wpkh),
+                fee: .calculate(feeRate: 10)
+            )
         }
     }
 }
