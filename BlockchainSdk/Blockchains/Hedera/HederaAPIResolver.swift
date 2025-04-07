@@ -9,14 +9,14 @@
 import Foundation
 
 struct HederaAPIResolver {
-    let config: BlockchainSdkConfig
+    let keysConfig: BlockchainSdkKeysConfig
 
     func resolve(providerType: NetworkProviderType, blockchain: Blockchain) -> NodeInfo? {
         guard case .hedera = blockchain else {
             return nil
         }
 
-        let keyInfo = APIKeysInfoProvider(blockchain: blockchain, config: config).apiKeys(for: providerType)
+        let keyInfo = APIKeysInfoProvider(blockchain: blockchain, keysConfig: keysConfig).apiKeys(for: providerType)
         return .init(
             url: URL(string: "https://pool.arkhia.io/hedera/mainnet/api/v1")!,
             keyInfo: keyInfo
