@@ -25,23 +25,23 @@ struct LitecoinWalletAssembly: WalletManagerAssembly {
             unspentOutputManager: unspentOutputManager,
             addresses: input.wallet.addresses
         )
-        let providers: [UTXONetworkProvider] = input.apiInfo.reduce(into: []) { partialResult, providerType in
+        let providers: [UTXONetworkProvider] = input.networkInput.apiInfo.reduce(into: []) { partialResult, providerType in
             switch providerType {
             case .nowNodes:
                 partialResult.append(
-                    networkProviderAssembly.makeBlockBookUTXOProvider(with: input, for: .nowNodes)
+                    networkProviderAssembly.makeBlockBookUTXOProvider(with: input.networkInput, for: .nowNodes)
                 )
             case .getBlock:
                 partialResult.append(
-                    networkProviderAssembly.makeBlockBookUTXOProvider(with: input, for: .getBlock)
+                    networkProviderAssembly.makeBlockBookUTXOProvider(with: input.networkInput, for: .getBlock)
                 )
             case .blockchair:
                 partialResult.append(
-                    contentsOf: networkProviderAssembly.makeBlockchairNetworkProviders(endpoint: .litecoin, with: input)
+                    contentsOf: networkProviderAssembly.makeBlockchairNetworkProviders(endpoint: .litecoin, with: input.networkInput)
                 )
             case .blockcypher:
                 partialResult.append(
-                    networkProviderAssembly.makeBlockcypherNetworkProvider(endpoint: .litecoin, with: input)
+                    networkProviderAssembly.makeBlockcypherNetworkProvider(endpoint: .litecoin, with: input.networkInput)
                 )
             default:
                 return

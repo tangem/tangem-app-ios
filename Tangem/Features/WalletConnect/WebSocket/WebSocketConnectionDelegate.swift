@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 
 extension WebSocket {
     class WebSocketConnectionDelegate: NSObject, URLSessionWebSocketDelegate, URLSessionTaskDelegate {
@@ -62,6 +63,15 @@ extension WebSocket {
                     task.cancel()
                 }
             }
+        }
+
+        func urlSession(
+            _ session: URLSession,
+            didReceive challenge: URLAuthenticationChallenge,
+            completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+        ) {
+            let result = ForcedCTServerTrustEvaluator.evaluate(challenge: challenge)
+            completionHandler(result, nil)
         }
     }
 }

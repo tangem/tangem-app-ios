@@ -12,13 +12,13 @@ import TangemSdk
 struct XRPWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
         return try XRPWalletManager(wallet: input.wallet).then {
-            $0.txBuilder = try XRPTransactionBuilder(walletPublicKey: input.wallet.publicKey.blockchainKey, curve: input.blockchain.curve)
+            $0.txBuilder = try XRPTransactionBuilder(walletPublicKey: input.wallet.publicKey.blockchainKey, curve: input.wallet.blockchain.curve)
 
-            let blockchain = input.blockchain
-            let config = input.blockchainSdkConfig
-            let providers: [XRPNetworkProvider] = APIResolver(blockchain: blockchain, config: config)
-                .resolveProviders(apiInfos: input.apiInfo) { nodeInfo, _ in
-                    XRPNetworkProvider(node: nodeInfo, configuration: input.networkConfig)
+            let blockchain = input.wallet.blockchain
+            let config = input.networkInput.keysConfig
+            let providers: [XRPNetworkProvider] = APIResolver(blockchain: blockchain, keysConfig: config)
+                .resolveProviders(apiInfos: input.networkInput.apiInfo) { nodeInfo, _ in
+                    XRPNetworkProvider(node: nodeInfo, configuration: input.networkInput.tangemProviderConfig)
                 }
 
             $0.networkService = XRPNetworkService(providers: providers)

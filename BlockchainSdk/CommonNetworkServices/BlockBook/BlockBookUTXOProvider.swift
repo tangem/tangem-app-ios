@@ -21,7 +21,7 @@ class BlockBookUTXOProvider {
 
     private let blockchain: Blockchain
     private let config: BlockBookConfig
-    private let provider: NetworkProvider<BlockBookTarget>
+    private let provider: TangemProvider<BlockBookTarget>
 
     var decimalValue: Decimal {
         blockchain.decimalValue
@@ -30,11 +30,11 @@ class BlockBookUTXOProvider {
     init(
         blockchain: Blockchain,
         blockBookConfig: BlockBookConfig,
-        networkConfiguration: NetworkProviderConfiguration
+        networkConfiguration: TangemProviderConfiguration
     ) {
         self.blockchain = blockchain
         config = blockBookConfig
-        provider = NetworkProvider<BlockBookTarget>(configuration: networkConfiguration)
+        provider = TangemProvider<BlockBookTarget>(configuration: networkConfiguration)
     }
 
     func addressData(

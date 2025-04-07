@@ -14,7 +14,7 @@ protocol KeysManager {
     var moonPayKeys: MoonPayKeys { get }
     var mercuryoWidgetId: String { get }
     var mercuryoSecret: String { get }
-    var blockchainConfig: BlockchainSdkConfig { get }
+    var blockchainSdkKeysConfig: BlockchainSdkKeysConfig { get }
     var tangemComAuthorization: String? { get }
     var infuraProjectId: String { get }
     var utorgSID: String { get }
