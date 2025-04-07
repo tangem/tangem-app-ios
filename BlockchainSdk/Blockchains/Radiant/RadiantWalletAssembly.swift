@@ -17,7 +17,12 @@ struct RadiantWalletAssembly: WalletManagerAssembly {
             })
 
         let providers: [ElectrumUTXONetworkProvider] = socketManagers.map {
-            ElectrumUTXONetworkProvider(blockchain: input.blockchain, provider: $0, settings: Constants.electrumSettings)
+            ElectrumUTXONetworkProvider(
+                blockchain: input.blockchain,
+                provider: $0,
+                converter: .init(lockingScriptBuilder: .radiant()),
+                settings: Constants.electrumSettings
+            )
         }
 
         let publicKey = try Secp256k1Key(with: input.wallet.publicKey.blockchainKey).compress()
