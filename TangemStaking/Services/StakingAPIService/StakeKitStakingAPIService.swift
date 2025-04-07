@@ -11,7 +11,7 @@ import Moya
 import TangemNetworkUtils
 
 class StakeKitStakingAPIService: StakingAPIService {
-    private let provider: MoyaProvider<StakeKitTarget>
+    private let provider: TangemProvider<StakeKitTarget>
     private let credential: StakingAPICredential
 
     private let decoder: JSONDecoder = {
@@ -20,7 +20,7 @@ class StakeKitStakingAPIService: StakingAPIService {
         return decoder
     }()
 
-    init(provider: MoyaProvider<StakeKitTarget>, credential: StakingAPICredential) {
+    init(provider: TangemProvider<StakeKitTarget>, credential: StakingAPICredential) {
         self.provider = provider
         self.credential = credential
     }

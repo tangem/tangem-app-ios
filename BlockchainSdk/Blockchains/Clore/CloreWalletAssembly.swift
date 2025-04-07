@@ -28,9 +28,9 @@ struct CloreWalletAssembly: WalletManagerAssembly {
             addresses: input.wallet.addresses
         )
 
-        let providers: [UTXONetworkProvider] = APIResolver(blockchain: input.blockchain, config: input.blockchainSdkConfig)
-            .resolveProviders(apiInfos: input.apiInfo) { nodeInfo, _ in
-                networkProviderAssembly.makeBlockBookUTXOProvider(with: input, for: .clore(nodeInfo.url))
+        let providers: [UTXONetworkProvider] = APIResolver(blockchain: input.wallet.blockchain, keysConfig: input.networkInput.keysConfig)
+            .resolveProviders(apiInfos: input.networkInput.apiInfo) { nodeInfo, _ in
+                networkProviderAssembly.makeBlockBookUTXOProvider(with: input.networkInput, for: .clore(nodeInfo.url))
             }
 
         let networkService = MultiUTXONetworkProvider(providers: providers)

@@ -212,7 +212,7 @@ class VisaUserWalletModel {
 
         let visaUtilities = VisaUtilities()
         let blockchain = visaUtilities.visaBlockchain
-        let factory = EVMSmartContractInteractorFactory(config: keysManager.blockchainConfig)
+        let factory = EVMSmartContractInteractorFactory(blockchainSdkKeysConfig: keysManager.blockchainSdkKeysConfig, tangemProviderConfig: .ephemeralConfiguration)
 
         let smartContractInteractor: EVMSmartContractInteractor
         do {

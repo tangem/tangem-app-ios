@@ -16,10 +16,9 @@ struct CardanoWalletAssembly: WalletManagerAssembly {
                 address: input.wallet.address
             )
             let cardanoResponseMapper = CardanoResponseMapper()
-            let networkConfig = input.networkConfig
 
-            let linkResolver = APINodeInfoResolver(blockchain: input.blockchain, config: input.blockchainSdkConfig)
-            let providers: [AnyCardanoNetworkProvider] = input.apiInfo.compactMap {
+            let linkResolver = APINodeInfoResolver(blockchain: input.wallet.blockchain, keysConfig: input.networkInput.keysConfig)
+            let providers: [AnyCardanoNetworkProvider] = input.networkInput.apiInfo.compactMap {
                 guard let nodeInfo = linkResolver.resolve(for: $0) else {
                     return nil
                 }
@@ -28,14 +27,14 @@ struct CardanoWalletAssembly: WalletManagerAssembly {
                 case .getBlock, .tangemRosetta, .nowNodes:
                     return RosettaNetworkProvider(
                         url: nodeInfo.url,
-                        configuration: networkConfig,
+                        configuration: input.networkInput.tangemProviderConfig,
                         cardanoResponseMapper: cardanoResponseMapper
                     )
                     .eraseToAnyCardanoNetworkProvider()
                 case .adalite:
                     return AdaliteNetworkProvider(
                         url: nodeInfo.url,
-                        configuration: networkConfig,
+                        configuration: input.networkInput.tangemProviderConfig,
                         cardanoResponseMapper: cardanoResponseMapper
                     ).eraseToAnyCardanoNetworkProvider()
                 default:
