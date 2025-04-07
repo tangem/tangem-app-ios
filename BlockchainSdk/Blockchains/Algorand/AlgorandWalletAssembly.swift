@@ -13,22 +13,20 @@ struct AlgorandWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
         var providers: [AlgorandNetworkProvider] = []
 
-        let blockchain = input.blockchain
-        let config = input.blockchainSdkConfig
-        let networkConfig = input.networkConfig
+        let blockchain = input.wallet.blockchain
 
-        let apiResolver = APIResolver(blockchain: blockchain, config: config)
-        providers = apiResolver.resolveProviders(apiInfos: input.apiInfo, factory: { nodeInfo, apiInfo in
+        let apiResolver = APIResolver(blockchain: blockchain, keysConfig: input.networkInput.keysConfig)
+        providers = apiResolver.resolveProviders(apiInfos: input.networkInput.apiInfo, factory: { nodeInfo, apiInfo in
             AlgorandNetworkProvider(
                 node: nodeInfo,
-                networkConfig: networkConfig
+                networkConfig: input.networkInput.tangemProviderConfig
             )
         })
 
         let transactionBuilder = AlgorandTransactionBuilder(
             publicKey: input.wallet.publicKey.blockchainKey,
             curve: input.wallet.blockchain.curve,
-            isTestnet: input.blockchain.isTestnet
+            isTestnet: input.wallet.blockchain.isTestnet
         )
 
         return try AlgorandWalletManager(
