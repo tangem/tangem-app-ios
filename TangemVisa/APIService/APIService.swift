@@ -8,13 +8,14 @@
 
 import Foundation
 import Moya
+import TangemNetworkUtils
 
 struct APIService<Target: TargetType, ErrorType: Error & Decodable> {
-    private let provider: MoyaProvider<Target>
+    private let provider: TangemProvider<Target>
     private var decoder: JSONDecoder
 
     init(
-        provider: MoyaProvider<Target>,
+        provider: TangemProvider<Target>,
         decoder: JSONDecoder
     ) {
         self.provider = provider

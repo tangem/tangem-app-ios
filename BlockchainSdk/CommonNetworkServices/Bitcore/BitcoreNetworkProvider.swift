@@ -12,10 +12,10 @@ import TangemNetworkUtils
 /// https://github.com/bitpay/bitcore/blob/master/packages/bitcore-node/docs/api-documentation.md
 class BitcoreNetworkProvider {
     private let blockchain: Blockchain = .ducatus
-    private let provider: NetworkProvider<BitcoreTarget>
+    private let provider: TangemProvider<BitcoreTarget>
 
-    init(configuration: NetworkProviderConfiguration) {
-        provider = NetworkProvider<BitcoreTarget>(configuration: configuration)
+    init(configuration: TangemProviderConfiguration) {
+        provider = TangemProvider<BitcoreTarget>(configuration: configuration)
     }
 }
 

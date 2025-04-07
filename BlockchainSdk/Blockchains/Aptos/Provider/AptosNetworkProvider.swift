@@ -24,13 +24,13 @@ struct AptosNetworkProvider: HostProvider {
     // MARK: - Properties
 
     /// Network provider of blockchain
-    private let network: NetworkProvider<AptosProviderTarget>
+    private let network: TangemProvider<AptosProviderTarget>
 
     // MARK: - Init
 
     init(
         node: NodeInfo,
-        networkConfig: NetworkProviderConfiguration
+        networkConfig: TangemProviderConfiguration
     ) {
         self.node = node
         network = .init(configuration: networkConfig)
