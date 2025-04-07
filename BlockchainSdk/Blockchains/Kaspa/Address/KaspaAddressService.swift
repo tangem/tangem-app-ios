@@ -13,7 +13,6 @@ import BitcoinCore
 class KaspaAddressService {
     private let network: UTXONetworkParams
     private let lockingScriptBuilder: LockingScriptBuilder
-    private let version: KaspaAddressComponents.KaspaAddressType = .P2PK_ECDSA
 
     init(isTestnet: Bool) {
         network = isTestnet ? KaspaTestNetworkParams() : KaspaNetworkParams()
@@ -31,7 +30,7 @@ class KaspaAddressService {
 extension KaspaAddressService: AddressProvider {
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
         let compressedKey = try Secp256k1Key(with: publicKey.blockchainKey).compress()
-        let address = CashAddrBech32.encode(version.rawValue.data + compressedKey, prefix: network.bech32Prefix)
+        let address = CashAddrBech32.encode(network.p2pkhPrefix.data + compressedKey, prefix: network.bech32Prefix)
         let lockingScript = try lockingScriptBuilder.lockingScript(for: address)
         return LockingScriptAddress(value: address, publicKey: publicKey, type: addressType, lockingScript: lockingScript)
     }

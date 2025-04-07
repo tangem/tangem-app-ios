@@ -64,7 +64,7 @@ enum OpCodeUtils {
     }
 }
 
-private extension OpCode {
+extension OpCode {
     static func push(_ value: UInt8) -> Data {
         guard value > 0 else {
             return Data([0])
