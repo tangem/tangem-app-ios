@@ -9,7 +9,7 @@
 import Foundation
 
 struct GetBlockAPIResolver {
-    let credentials: BlockchainSdkConfig.GetBlockCredentials
+    let credentials: BlockchainSdkKeysConfig.GetBlockCredentials
 
     func resolve(for blockchain: Blockchain) -> NodeInfo? {
         guard let url = generateURL(for: blockchain) else {
