@@ -40,9 +40,10 @@ final class WCSolanaSignAllTransactionsHandler {
         self.signer = signer
     }
 
-    /// Remove signature placeholder from raw transaction
+    /// Remove signatures placeholder from raw transaction
     func prepareTransactionToSign(hash: String) throws -> Data {
-        try Data(hash.base64Decoded()).dropFirst(Constants.signaturePlaceholderPrefixLength)
+        let data = try Data(hash.base64Decoded())
+        return try SolanaTransactionHelper().removeSignaturesPlaceholders(from: data)
     }
 }
 
@@ -67,8 +68,4 @@ extension WCSolanaSignAllTransactionsHandler: WalletConnectMessageHandler {
 
         return .response(AnyCodable(WCSolanaSignAllTransactionsDTO.Body(transactions: preparedToSendHashes)))
     }
-}
-
-private enum Constants {
-    static let signaturePlaceholderPrefixLength = 65
 }
