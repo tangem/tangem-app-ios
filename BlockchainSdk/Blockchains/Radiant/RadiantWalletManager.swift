@@ -54,12 +54,7 @@ final class RadiantWalletManager: BaseManager {
 
 private extension RadiantWalletManager {
     func updateWallet(with response: UTXOResponse) {
-        guard let address = wallet.defaultAddress as? LockingScriptAddress else {
-            assertionFailure("Radiant have to use LockingScriptAddress as address")
-            return
-        }
-
-        unspentOutputManager.update(outputs: response.outputs, for: address)
+        unspentOutputManager.update(outputs: response.outputs, for: wallet.defaultAddress)
         let coinBalanceValue = Decimal(unspentOutputManager.confirmedBalance()) / wallet.blockchain.decimalValue
         wallet.add(coinValue: coinBalanceValue)
 
@@ -67,7 +62,7 @@ private extension RadiantWalletManager {
             PendingTransactionRecordMapper().mapToPendingTransactionRecord(
                 record: $0,
                 blockchain: wallet.blockchain,
-                address: address.value
+                address: wallet.address
             )
         }
 
@@ -78,35 +73,34 @@ private extension RadiantWalletManager {
         _ transaction: Transaction,
         signer: TransactionSigner
     ) -> AnyPublisher<TransactionSendResult, SendTxError> {
-        let hashesForSign: [Data]
-
-        do {
-            hashesForSign = try transactionBuilder.buildForSign(transaction: transaction)
-        } catch {
-            return .sendTxFail(error: error)
+        return Result {
+            try transactionBuilder.buildForSign(transaction: transaction)
         }
-
-        return signer
-            .sign(hashes: hashesForSign, walletPublicKey: wallet.publicKey)
-            .withWeakCaptureOf(self)
-            .tryMap { walletManager, signatures in
-                try walletManager.transactionBuilder.buildForSend(transaction: transaction, signatures: signatures).hexString
-            }
-            .withWeakCaptureOf(self)
-            .flatMap { walletManager, rawTransactionHex in
-                walletManager.networkService
-                    .send(transaction: rawTransactionHex)
-                    .mapSendError(tx: rawTransactionHex.lowercased())
-            }
-            .withWeakCaptureOf(self)
-            .map { walletManager, result -> TransactionSendResult in
-                let mapper = PendingTransactionRecordMapper()
-                let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: result.hash)
-                walletManager.wallet.addPendingTransaction(record)
-                return result
-            }
-            .eraseSendError()
-            .eraseToAnyPublisher()
+        .publisher
+        .withWeakCaptureOf(self)
+        .flatMap { walletManager, hashesForSign in
+            signer
+                .sign(hashes: hashesForSign, walletPublicKey: walletManager.wallet.publicKey)
+        }
+        .withWeakCaptureOf(self)
+        .tryMap { walletManager, signatures in
+            try walletManager.transactionBuilder.buildForSend(transaction: transaction, signatures: signatures).hexString
+        }
+        .withWeakCaptureOf(self)
+        .flatMap { walletManager, rawTransactionHex in
+            walletManager.networkService
+                .send(transaction: rawTransactionHex)
+                .mapSendError(tx: rawTransactionHex.lowercased())
+        }
+        .withWeakCaptureOf(self)
+        .map { walletManager, result -> TransactionSendResult in
+            let mapper = PendingTransactionRecordMapper()
+            let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: result.hash)
+            walletManager.wallet.addPendingTransaction(record)
+            return result
+        }
+        .eraseSendError()
+        .eraseToAnyPublisher()
     }
 
     func calculateFee(for estimatedFeePerKb: Decimal, for estimateSize: Int) -> Fee {
@@ -140,29 +134,14 @@ extension RadiantWalletManager: WalletManager {
             .getFee()
             .withWeakCaptureOf(self)
             .tryMap { walletManager, fee -> [Fee] in
-                let dummyTransactionFee: Fee = .init(
-                    .init(with: walletManager.wallet.blockchain, value: fee.slowSatoshiPerByte)
-                )
-
-                let dummyTransaction = Transaction(
-                    amount: amount,
-                    fee: dummyTransactionFee,
-                    sourceAddress: walletManager.wallet.address,
-                    destinationAddress: destination,
-                    changeAddress: walletManager.wallet.address
-                )
-
-                let estimatedSize = try walletManager.transactionBuilder.estimateTransactionSize(transaction: dummyTransaction)
-
-                let minimalFee = walletManager.calculateFee(for: fee.slowSatoshiPerByte, for: estimatedSize)
-                let normalFee = walletManager.calculateFee(for: fee.marketSatoshiPerByte, for: estimatedSize)
-                let priorityFee = walletManager.calculateFee(for: fee.prioritySatoshiPerByte, for: estimatedSize)
-
-                return [
-                    minimalFee,
-                    normalFee,
-                    priorityFee,
-                ]
+                try [fee.slowSatoshiPerByte, fee.marketSatoshiPerByte, fee.prioritySatoshiPerByte].map { estimatedFeePerKb in
+                    let estimatedFeePerByte = estimatedFeePerKb / Constants.perKbRate
+                    let decimalValue = walletManager.wallet.blockchain.decimalValue
+                    let perByte = estimatedFeePerByte * decimalValue
+                    let fee = try walletManager.transactionBuilder.estimateFee(amount: amount, destination: destination, feeRate: perByte.intValue())
+                    let value = Decimal(fee) / decimalValue
+                    return Fee(.init(with: walletManager.wallet.blockchain, value: value))
+                }
             }
             .eraseToAnyPublisher()
     }
