@@ -19,6 +19,7 @@ struct KaspaTransactionTests {
         // given
         let address = try KaspaAddressService(isTestnet: false).makeAddress(from: walletPublicKey)
         let unspentOutputManager: UnspentOutputManager = .kaspa(address: address)
+        // Will select deb88e7dd734437c6232a636085ef917d1d13cc549fe14749765508b2782f2fb
         let outputs: [UnspentOutput] = [
             UnspentOutput(blockId: 0, txId: "deb88e7dd734437c6232a636085ef917d1d13cc549fe14749765508b2782f2fb", index: 0, amount: 10000000),
             UnspentOutput(blockId: 1, txId: "304db39069dc409acedf544443dcd4a4f02bfad4aeb67116f8bf087822c456af", index: 0, amount: 10000000),
@@ -32,7 +33,7 @@ struct KaspaTransactionTests {
         )
 
         let txBuilder = KaspaTransactionBuilder(
-            walletPublicKey: .init(seedKey: Data(), derivationType: .none),
+            walletPublicKey: .empty,
             unspentOutputManager: unspentOutputManager,
             isTestnet: false
         )
@@ -53,41 +54,23 @@ struct KaspaTransactionTests {
         ]
 
         // when
-        let (kaspaTransaction, hashes) = try txBuilder.buildForSign(transaction)
-        let builtTransaction = txBuilder.buildForSend(transaction: kaspaTransaction, signatures: signatures)
+        let (kaspaTransaction, hashes) = try txBuilder.buildForSign(transaction: transaction)
+        let builtTransaction = txBuilder.mapToTransaction(transaction: kaspaTransaction, signatures: signatures)
 
         // then
 
         let expectedHashes = [
-            Data(hex: "F5080102132C6DAB382DE67A427F1DF560BA7F5F0D7FA4DFA535C474761423C2"),
-            Data(hex: "90767E75D102556256E4B3C76F341292FDDBEF1683C49E3C03AC16A83FD1FB83"),
-            Data(hex: "F9738FE93426667581DB4BA1AE4F432F384C393D0F098D3A9AA6087C4F62C4A4"),
+            Data(hex: "90b94d04bd7ebf0edada8230a3181176bddf017fd730020d2dfb7a2f8dbf03f3"),
         ]
-
-        #expect(hashes == expectedHashes)
 
         let expectedTransaction = KaspaDTO.Send.Request.Transaction(
             inputs: [
                 .init(
                     previousOutpoint: .init(
-                        transactionId: "ae96e819429e9da538e84cb213f62fbc8ad32e932d7c7f1fb9bd2fedf8fd7b4a",
-                        index: 0
-                    ),
-                    signatureScript: "41e2747d4e00c55d69fa0b8adfafd07f41144f888e322d377878e83f25fd2e258b2e918ef79e151337d7f3bd0798d66fdce04b07c30984424b13344f0a7cc4016501"
-                ),
-                .init(
-                    previousOutpoint: .init(
                         transactionId: "deb88e7dd734437c6232a636085ef917d1d13cc549fe14749765508b2782f2fb",
                         index: 0
                     ),
-                    signatureScript: "414bf71c43df96fc6b46766cae30e97bd9018e9b98bb2c3645744a696ad26ecc780157ea9d44dc41d0bcb420175a5d3f543079f4263aa2dbde0ee2d33a877fc58301"
-                ),
-                .init(
-                    previousOutpoint: .init(
-                        transactionId: "304db39069dc409acedf544443dcd4a4f02bfad4aeb67116f8bf087822c456af",
-                        index: 0
-                    ),
-                    signatureScript: "41e2747d4e00c55d69fa0b8adfafd07f41144f888e322d377878e83f25fd2e258b2e918ef79e151337d7f3bd0798d66fdce04b07c30984424b13344f0a7cc4016801"
+                    signatureScript: "41e2747d4e00c55d69fa0b8adfafd07f41144f888e322d377878e83f25fd2e258b2e918ef79e151337d7f3bd0798d66fdce04b07c30984424b13344f0a7cc4016501"
                 ),
             ],
             outputs: [
@@ -98,7 +81,7 @@ struct KaspaTransactionTests {
                     )
                 ),
                 .init(
-                    amount: 519870000,
+                    amount: 9870000,
                     scriptPublicKey: .init(
                         scriptPublicKey: "2103eb30400ce9d1deed12b84d4161a1fa922ef4185a155ef3ec208078b3807b126fab"
                     )
@@ -110,6 +93,8 @@ struct KaspaTransactionTests {
         encoder.outputFormatting = .sortedKeys
         let encodedBuiltTransaction = try encoder.encode(builtTransaction)
         let encodedExpectedTransaction = try encoder.encode(expectedTransaction)
+
+        #expect(hashes == expectedHashes)
         #expect(encodedBuiltTransaction == encodedExpectedTransaction)
     }
 
@@ -129,7 +114,7 @@ struct KaspaTransactionTests {
         )
 
         let txBuilder = KaspaTransactionBuilder(
-            walletPublicKey: .init(seedKey: Data(), derivationType: .none),
+            walletPublicKey: .empty,
             unspentOutputManager: unspentOutputManager,
             isTestnet: false
         )
@@ -148,15 +133,14 @@ struct KaspaTransactionTests {
         ]
 
         // when
-        let (kaspaTransaction, hashes) = try txBuilder.buildForSign(transaction)
-        let builtTransaction = txBuilder.buildForSend(transaction: kaspaTransaction, signatures: signatures)
+        let (kaspaTransaction, hashes) = try txBuilder.buildForSign(transaction: transaction)
+        let builtTransaction = txBuilder.mapToTransaction(transaction: kaspaTransaction, signatures: signatures)
 
         // then
         let expectedHashes = [
             Data(hex: "C550515D34A091D7F3D2827286E7AEF685ECE9C0BBCCB4B08BC65F6EBD83E8F2"),
         ]
 
-        #expect(hashes == expectedHashes)
         let expectedTransaction = KaspaDTO.Send.Request.Transaction(
             inputs: [
                 .init(
@@ -187,7 +171,227 @@ struct KaspaTransactionTests {
         encoder.outputFormatting = .sortedKeys
         let encodedBuiltTransaction = try encoder.encode(builtTransaction)
         let encodedExpectedTransaction = try encoder.encode(expectedTransaction)
+
+        #expect(hashes == expectedHashes)
         #expect(encodedBuiltTransaction == encodedExpectedTransaction)
+    }
+
+    /// https://explorer.kaspa.org/txs/d36868e768d472a5ac2fc6f922c844bdbdda2bd0ef4626dd5e31d5f83e6c9223
+    @Test
+    func coinTransaction() throws {
+        // given
+        let address = PlainAddress(value: "kaspa:qyp5qxu7n45c8zx6pqhndy43p4qt02zxchc4723fuclpraty00gpm6c8edeys5s", publicKey: .empty, type: .default)
+        let unspentOutputManager: UnspentOutputManager = .kaspa(address: address)
+        let outputs: [UnspentOutput] = [
+            UnspentOutput(blockId: 0, txId: "414f096361040f27e3ebfd02965c27d1492a69880dbf1544bf213e7159709134", index: 0, amount: 20000000),
+            UnspentOutput(blockId: 0, txId: "5a2e80c8a279e52b87c6fe1503947e6bb0c081333f465f913d4a0245426109c7", index: 0, amount: 20000000),
+            UnspentOutput(blockId: 1, txId: "c0414400517ec124d9e25531bf52cda241592ec4f89ff3e348f64c62900c461d", index: 1, amount: 39819474),
+        ]
+
+        unspentOutputManager.update(outputs: outputs, for: address)
+        let txBuilder = KaspaTransactionBuilder(
+            walletPublicKey: .init(seedKey: Data(hexString: "03401b9e9d698388da082f3692b10d40b7a846c5f15f2a29e63e11f5647bd01deb"), derivationType: .none),
+            unspentOutputManager: unspentOutputManager,
+            isTestnet: false
+        )
+
+        let destination = "kaspa:qypwtfhx630ujfau72akxgypfscdset2xe4v32j7xyyxw658glunexq9v4mmqhq"
+        let transaction = Transaction(
+            amount: Amount(with: blockchain, value: Decimal(stringValue: "0.2")!),
+            fee: Fee(Amount(with: blockchain, value: Decimal(stringValue: "0.00075342")!)),
+            sourceAddress: address.value,
+            destinationAddress: destination,
+            changeAddress: address.value
+        )
+
+        let signatures = [
+            Data(hexString: "b9e8176f4a914b6ade39994e548af271d8d04bd1c864e97cad9fd41f9757fcb1005ad38d0622cb7937e54da4d7a28fb2b45f2096e37ee37cf89e620287dccb07"),
+        ]
+
+        // when
+        let (kaspaTransaction, hashes) = try txBuilder.buildForSign(transaction: transaction)
+        let builtTransaction = txBuilder.mapToTransaction(transaction: kaspaTransaction, signatures: signatures)
+
+        // then
+
+        let expectedHashes = [
+            Data(hex: "43ffd3b7abd1344e7e8a757c65e48e3639a93c4099a3f4e05daa6526061a7bcf"),
+        ]
+
+        let expectedTransaction = KaspaDTO.Send.Request.Transaction(
+            inputs: [
+                .init(
+                    previousOutpoint: .init(
+                        transactionId: "c0414400517ec124d9e25531bf52cda241592ec4f89ff3e348f64c62900c461d",
+                        index: 1
+                    ),
+                    signatureScript: "41b9e8176f4a914b6ade39994e548af271d8d04bd1c864e97cad9fd41f9757fcb1005ad38d0622cb7937e54da4d7a28fb2b45f2096e37ee37cf89e620287dccb0701"
+                ),
+            ],
+            outputs: [
+                .init(
+                    amount: 20000000,
+                    scriptPublicKey: .init(
+                        scriptPublicKey: "2102e5a6e6d45fc927bcf2bb6320814c30d8656a366ac8aa5e3108676a8747f93c98ab",
+                        version: 0
+                    )
+                ),
+                // Change
+                .init(
+                    amount: 19744132,
+                    scriptPublicKey: .init(
+                        scriptPublicKey: "2103401b9e9d698388da082f3692b10d40b7a846c5f15f2a29e63e11f5647bd01debab",
+                        version: 0
+                    )
+                ),
+            ]
+        )
+
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
+        let encodedBuiltTransaction = try encoder.encode(builtTransaction)
+        let encodedExpectedTransaction = try encoder.encode(expectedTransaction)
+
+        #expect(hashes == expectedHashes)
+        #expect(encodedBuiltTransaction == encodedExpectedTransaction)
+    }
+
+    /// https://explorer.kaspa.org/txs/c97e84228b68aa37a0c51c5a93f0005eb9543a353b6cf59c33052eab33f16e0b
+    @Test
+    func krc20TokenTransaction() throws {
+        // given
+        let address = PlainAddress(value: "kaspa:qyp5qxu7n45c8zx6pqhndy43p4qt02zxchc4723fuclpraty00gpm6c8edeys5s", publicKey: .empty, type: .default)
+        let unspentOutputManager: UnspentOutputManager = .kaspa(address: address)
+        let outputs: [UnspentOutput] = [
+            UnspentOutput(blockId: 0, txId: "5a2e80c8a279e52b87c6fe1503947e6bb0c081333f465f913d4a0245426109c7", index: 0, amount: 20000000),
+            UnspentOutput(blockId: 1, txId: "414f096361040f27e3ebfd02965c27d1492a69880dbf1544bf213e7159709134", index: 0, amount: 20000000),
+            UnspentOutput(blockId: 2, txId: "d36868e768d472a5ac2fc6f922c844bdbdda2bd0ef4626dd5e31d5f83e6c9223", index: 1, amount: 19744132),
+        ]
+
+        unspentOutputManager.update(outputs: outputs, for: address)
+        let txBuilder = KaspaTransactionBuilder(
+            walletPublicKey: .init(seedKey: Data(hexString: "03401b9e9d698388da082f3692b10d40b7a846c5f15f2a29e63e11f5647bd01deb"), derivationType: .none),
+            unspentOutputManager: unspentOutputManager,
+            isTestnet: false
+        )
+
+        let token = Token(name: "GGMF", symbol: "GGMF", contractAddress: "GGMF", decimalCount: 8)
+        let destination = "kaspa:qypwtfhx630ujfau72akxgypfscdset2xe4v32j7xyyxw658glunexq9v4mmqhq"
+        let feeParams = KaspaKRC20.TokenTransactionFeeParams(
+            commitFee: Amount(with: blockchain, value: Decimal(stringValue: "0.00003178")!),
+            revealFee: Amount(with: blockchain, value: Decimal(stringValue: "0.000041")!)
+        )
+
+        let fee = Fee(
+            Amount(with: blockchain, value: Decimal(stringValue: "0.00007278")!),
+            parameters: feeParams
+        )
+
+        let transaction = Transaction(
+            amount: Amount(with: blockchain, type: .token(value: token), value: Decimal(stringValue: "1")!),
+            fee: fee,
+            sourceAddress: address.value,
+            destinationAddress: destination,
+            changeAddress: address.value
+        )
+
+        let signatures = [
+            Data(hexString: "c4af7290f10524058ca3e294700555f261f779555400eaa77faf5932d4376fb231cb92ea0b06a7b3bdbc65806366fbaca70e48de908f1d7aa5dc65a89ceea5bc"),
+            Data(hexString: "415ac1b76db22f4a7265ddaa239954bb574373192d05943fe83a19c4bc7ea3684a0596eca3bc2b54affdd2ca83b2cecfe62c2debfb287be0e77ce88b237405a9"),
+        ]
+
+        let revealSignatures = [
+            Data(hexString: "f6d895c542c586c952a16c46df41f2bbd1056e84a52ac18ecb809500b51c9db92b29a824999bcbbf800a262f472bb28db13c258e8ca09afd5cd8ec1ab1377f98"),
+        ]
+
+        let commitRedeemScript = Data(hexString: "2103401b9e9d698388da082f3692b10d40b7a846c5f15f2a29e63e11f5647bd01debab0063076b6173706c65785100004c8b7b22616d74223a22313030303030303030222c226f70223a227472616e73666572222c2270223a226b72632d3230222c227469636b223a2247474d46222c22746f223a226b617370613a7179707774666878363330756a6661753732616b7867797066736364736574327865347633326a377879797877363538676c756e6578713976346d6d716871227d68")
+
+        // when
+        let (txgroup, meta) = try txBuilder.buildForSignKRC20(transaction: transaction)
+        let hashes = txgroup.hashesCommit + txgroup.hashesReveal
+        let builtTransaction = txBuilder.mapToTransaction(transaction: txgroup.kaspaCommitTransaction, signatures: signatures)
+        let builtRevealTransaction = txBuilder.mapToRevealTransaction(
+            transaction: txgroup.kaspaRevealTransaction,
+            commitRedeemScript: commitRedeemScript,
+            signatures: revealSignatures
+        )
+
+        // then
+
+        let expectedHashes = [
+            Data(hex: "aae07366c0de5258af7b5a1b9b5fd5cfc8d07d1934945dc6205da1dc63d961f7"),
+            Data(hex: "a19910d935a92efbfb0a99fcb98982c2dfd5d7a90998eed033d9fe62d2abf357"),
+            Data(hex: "06ecad0c1d8efd05e62a0fa1fafc08c72d10495bf04cc6c13984b1102f2dfec7"),
+        ]
+
+        let expectedTransaction = KaspaDTO.Send.Request.Transaction(
+            inputs: [
+                .init(
+                    previousOutpoint: .init(
+                        transactionId: "5a2e80c8a279e52b87c6fe1503947e6bb0c081333f465f913d4a0245426109c7",
+                        index: 0
+                    ),
+                    signatureScript: "41c4af7290f10524058ca3e294700555f261f779555400eaa77faf5932d4376fb231cb92ea0b06a7b3bdbc65806366fbaca70e48de908f1d7aa5dc65a89ceea5bc01"
+                ),
+                .init(
+                    previousOutpoint: .init(
+                        transactionId: "d36868e768d472a5ac2fc6f922c844bdbdda2bd0ef4626dd5e31d5f83e6c9223",
+                        index: 1
+                    ),
+                    signatureScript: "41415ac1b76db22f4a7265ddaa239954bb574373192d05943fe83a19c4bc7ea3684a0596eca3bc2b54affdd2ca83b2cecfe62c2debfb287be0e77ce88b237405a901"
+                ),
+            ],
+            outputs: [
+                // Dust(0.2 KAS) + feeEstimationRevealTransactionValue(0.000041)
+                .init(
+                    amount: 20004100,
+                    scriptPublicKey: .init(
+                        scriptPublicKey: "aa20338345d892f8fb9066018754ac1d75cd8550ced29b55b4c9005d89a88f3e542a87",
+                        version: 0
+                    )
+                ),
+                // Change
+                .init(
+                    amount: 19736854,
+                    scriptPublicKey: .init(
+                        scriptPublicKey: "2103401b9e9d698388da082f3692b10d40b7a846c5f15f2a29e63e11f5647bd01debab",
+                        version: 0
+                    )
+                ),
+            ]
+        )
+
+        let expectedRevealTransaction = KaspaDTO.Send.Request.Transaction(
+            inputs: [
+                .init(
+                    previousOutpoint: .init(
+                        transactionId: "5f7deb4c490de237e0dcc9dae4216f80247a671ca30eaab411d2963c6e070113",
+                        index: 0
+                    ),
+                    signatureScript: "41f6d895c542c586c952a16c46df41f2bbd1056e84a52ac18ecb809500b51c9db92b29a824999bcbbf800a262f472bb28db13c258e8ca09afd5cd8ec1ab1377f98014cbe2103401b9e9d698388da082f3692b10d40b7a846c5f15f2a29e63e11f5647bd01debab0063076b6173706c65785100004c8b7b22616d74223a22313030303030303030222c226f70223a227472616e73666572222c2270223a226b72632d3230222c227469636b223a2247474d46222c22746f223a226b617370613a7179707774666878363330756a6661753732616b7867797066736364736574327865347633326a377879797877363538676c756e6578713976346d6d716871227d68"
+                ),
+            ],
+            outputs: [
+                .init(
+                    amount: 20000000,
+                    scriptPublicKey: .init(
+                        scriptPublicKey: "2103401b9e9d698388da082f3692b10d40b7a846c5f15f2a29e63e11f5647bd01debab",
+                        version: 0
+                    )
+                ),
+            ]
+        )
+
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
+        let encodedBuiltTransaction = try encoder.encode(builtTransaction)
+        let encodedExpectedTransaction = try encoder.encode(expectedTransaction)
+        let encodedBuiltRevealTransaction = try encoder.encode(builtRevealTransaction)
+        let encodedExpectedRevealTransaction = try encoder.encode(expectedRevealTransaction)
+
+        #expect(hashes == expectedHashes)
+        #expect(encodedBuiltTransaction == encodedExpectedTransaction)
+        #expect(encodedBuiltRevealTransaction == encodedExpectedRevealTransaction)
     }
 
     @Test
