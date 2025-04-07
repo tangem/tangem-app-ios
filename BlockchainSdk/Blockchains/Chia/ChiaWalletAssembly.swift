@@ -10,21 +10,19 @@ import Foundation
 
 struct ChiaWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        let networkConfig = input.networkConfig
-
-        let resolver = APIResolver(blockchain: input.blockchain, config: input.blockchainSdkConfig)
-        let providers: [ChiaNetworkProvider] = resolver.resolveProviders(apiInfos: input.apiInfo, factory: { nodeInfo, _ in
-            ChiaNetworkProvider(node: nodeInfo, networkConfig: networkConfig)
+        let resolver = APIResolver(blockchain: input.wallet.blockchain, keysConfig: input.networkInput.keysConfig)
+        let providers: [ChiaNetworkProvider] = resolver.resolveProviders(apiInfos: input.networkInput.apiInfo, factory: { nodeInfo, _ in
+            ChiaNetworkProvider(node: nodeInfo, networkConfig: input.networkInput.tangemProviderConfig)
         })
 
         return try ChiaWalletManager(
             wallet: input.wallet,
             networkService: .init(
                 providers: providers,
-                blockchain: input.blockchain
+                blockchain: input.wallet.blockchain
             ),
             txBuilder: .init(
-                isTestnet: input.blockchain.isTestnet,
+                isTestnet: input.wallet.blockchain.isTestnet,
                 walletPublicKey: input.wallet.publicKey.blockchainKey
             )
         )

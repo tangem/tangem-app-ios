@@ -215,6 +215,8 @@ extension HorizonRequestError {
             return message
         case .timeout(let message, _):
             return message
+        case .payloadTooLarge(let message, _):
+            return message
         }
     }
 
