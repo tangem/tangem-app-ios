@@ -34,7 +34,7 @@ struct NFTNetworkServiceFactory {
              .moonbeam,
              .moonriver:
             return MoralisNFTNetworkService(
-                networkConfiguration: makeNetworkProviderConfiguration(),
+                networkConfiguration: TangemProviderConfiguration.ephemeralConfiguration,
                 headers: [
                     Constants.xAPIKeyHeaderName: keysManager.moralisAPIKey,
                 ],
@@ -42,21 +42,13 @@ struct NFTNetworkServiceFactory {
             )
         case .solana:
             return NFTScanNFTNetworkService(
-                networkConfiguration: makeNetworkProviderConfiguration(),
+                networkConfiguration: TangemProviderConfiguration.ephemeralConfiguration,
                 headers: [
                     Constants.xAPIKeyHeaderName: keysManager.nftScanAPIKey,
                 ],
                 chain: nftChain
             )
         }
-    }
-
-    private func makeNetworkProviderConfiguration() -> NetworkProviderConfiguration {
-        // `Ephemeral` configuration is used to prevent possible leaks of API keys
-        return NetworkProviderConfiguration(
-            logOptions: .verbose,
-            urlSessionConfiguration: .ephemeralConfiguration
-        )
     }
 }
 

@@ -12,13 +12,13 @@ import TangemNetworkUtils
 
 final class SuiNetworkProvider: HostProvider {
     private let node: NodeInfo
-    private let provider: NetworkProvider<SuiTarget>
+    private let provider: TangemProvider<SuiTarget>
 
     let host: String
 
-    init(node: NodeInfo, networkConfiguration: NetworkProviderConfiguration) {
+    init(node: NodeInfo, networkConfiguration: TangemProviderConfiguration) {
         self.node = node
-        provider = NetworkProvider<SuiTarget>(configuration: networkConfiguration)
+        provider = TangemProvider<SuiTarget>(configuration: networkConfiguration)
         host = node.url.hostOrUnknown
     }
 
