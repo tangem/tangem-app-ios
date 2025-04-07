@@ -18,12 +18,12 @@ class KaspaNetworkProvider: HostProvider {
 
     private let url: URL
     private let isTestnet: Bool
-    private let provider: NetworkProvider<KaspaTarget>
+    private let provider: TangemProvider<KaspaTarget>
 
-    init(url: URL, isTestnet: Bool, networkConfiguration: NetworkProviderConfiguration) {
+    init(url: URL, isTestnet: Bool, networkConfiguration: TangemProviderConfiguration) {
         self.url = url
         self.isTestnet = isTestnet
-        provider = NetworkProvider<KaspaTarget>(configuration: networkConfiguration)
+        provider = TangemProvider<KaspaTarget>(configuration: networkConfiguration)
     }
 
     func send(transaction: KaspaDTO.Send.Request) -> AnyPublisher<KaspaDTO.Send.Response, Error> {
