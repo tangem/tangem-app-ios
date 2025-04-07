@@ -20,7 +20,8 @@ class CardImageLoader {
         sessionConfiguration.timeoutIntervalForRequest = 10
         sessionConfiguration.timeoutIntervalForResource = 30
         sessionConfiguration.requestCachePolicy = .returnCacheDataElseLoad
-        networkService = .init(configuration: sessionConfiguration)
+        let session = URLSession(configuration: sessionConfiguration)
+        networkService = .init(session: session)
     }
 
     deinit {
