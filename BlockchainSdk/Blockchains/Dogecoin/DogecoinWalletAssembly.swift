@@ -26,19 +26,19 @@ struct DogecoinWalletAssembly: WalletManagerAssembly {
             addresses: input.wallet.addresses
         )
 
-        let providers: [UTXONetworkProvider] = input.apiInfo.reduce(into: []) { partialResult, providerType in
+        let providers: [UTXONetworkProvider] = input.networkInput.apiInfo.reduce(into: []) { partialResult, providerType in
             switch providerType {
             case .nowNodes:
                 partialResult.append(
                     networkProviderAssembly.makeBlockBookUTXOProvider(
-                        with: input,
+                        with: input.networkInput,
                         for: .nowNodes
                     )
                 )
             case .getBlock:
                 partialResult.append(
                     networkProviderAssembly.makeBlockBookUTXOProvider(
-                        with: input,
+                        with: input.networkInput,
                         for: .getBlock
                     )
                 )
@@ -46,14 +46,14 @@ struct DogecoinWalletAssembly: WalletManagerAssembly {
                 partialResult.append(
                     contentsOf: networkProviderAssembly.makeBlockchairNetworkProviders(
                         endpoint: .dogecoin,
-                        with: input
+                        with: input.networkInput
                     )
                 )
             case .blockcypher:
                 partialResult.append(
                     networkProviderAssembly.makeBlockcypherNetworkProvider(
                         endpoint: .dogecoin,
-                        with: input
+                        with: input.networkInput
                     )
                 )
             default:

@@ -12,14 +12,13 @@ import TangemSdk
 
 struct ICPWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> any WalletManager {
-        let blockchain = input.blockchain
-        let config = input.blockchainSdkConfig
+        let blockchain = input.wallet.blockchain
 
-        let providers: [ICPNetworkProvider] = APIResolver(blockchain: blockchain, config: config)
-            .resolveProviders(apiInfos: input.apiInfo) { nodeInfo, _ in
+        let providers: [ICPNetworkProvider] = APIResolver(blockchain: blockchain, keysConfig: input.networkInput.keysConfig)
+            .resolveProviders(apiInfos: input.networkInput.apiInfo) { nodeInfo, _ in
                 ICPNetworkProvider(
                     node: nodeInfo,
-                    networkConfig: input.networkConfig,
+                    networkConfig: input.networkInput.tangemProviderConfig,
                     responseParser: ICPResponseParser()
                 )
             }
@@ -35,7 +34,7 @@ struct ICPWalletAssembly: WalletManagerAssembly {
             transactionBuilder: transactionBuilder,
             networkService: ICPNetworkService(
                 providers: providers,
-                blockchain: input.blockchain
+                blockchain: input.wallet.blockchain
             )
         )
     }

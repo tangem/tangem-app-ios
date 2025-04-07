@@ -11,12 +11,12 @@ import TangemNetworkUtils
 
 // [REDACTED_TODO_COMMENT]
 public final class MoralisNFTNetworkService {
-    private let networkConfiguration: NetworkProviderConfiguration
+    private let networkConfiguration: TangemProviderConfiguration
     private let headers: NetworkHeaders
     private let chain: NFTChain
 
     public init(
-        networkConfiguration: NetworkProviderConfiguration,
+        networkConfiguration: TangemProviderConfiguration,
         headers: NetworkHeaders,
         chain: NFTChain
     ) {
