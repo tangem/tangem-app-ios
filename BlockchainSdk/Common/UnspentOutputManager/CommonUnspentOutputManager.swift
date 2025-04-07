@@ -39,11 +39,15 @@ extension CommonUnspentOutputManager: UnspentOutputManager {
     }
 
     func preImage(amount: Int, fee: Int, destination: String) throws -> PreImageTransaction {
-        try preImage(amount: amount, fee: .exactly(fee: fee), destination: destination)
+        assert(fee > 0, "Fee can't be zero")
+
+        return try preImage(amount: amount, fee: .exactly(fee: fee), destination: destination)
     }
 
     func preImage(amount: Int, feeRate: Int, destination: String) throws -> PreImageTransaction {
-        try preImage(amount: amount, fee: .calculate(feeRate: feeRate), destination: destination)
+        assert(feeRate > 0, "FeeRate can't be zero")
+
+        return try preImage(amount: amount, fee: .calculate(feeRate: feeRate), destination: destination)
     }
 
     func allOutputs() -> [ScriptUnspentOutput] {
