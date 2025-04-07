@@ -12,9 +12,10 @@ import BitcoinCore
 
 struct PepecoinWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
+        let blockchain = input.wallet.blockchain
         let compressedKey = try Secp256k1Key(with: input.wallet.publicKey.blockchainKey).compress()
 
-        let networkParams: INetwork = input.blockchain.isTestnet ? PepecoinTestnetNetworkParams() : PepecoinMainnetNetworkParams()
+        let networkParams: INetwork = blockchain.isTestnet ? PepecoinTestnetNetworkParams() : PepecoinMainnetNetworkParams()
 
         let bitcoinManager = BitcoinManager(
             networkParams: networkParams,
@@ -25,7 +26,7 @@ struct PepecoinWalletAssembly: WalletManagerAssembly {
 
         let unspentOutputManager: UnspentOutputManager = .pepecoin(
             address: input.wallet.defaultAddress,
-            isTestnet: input.blockchain.isTestnet
+            isTestnet: input.wallet.blockchain.isTestnet
         )
 
         let txBuilder = BitcoinTransactionBuilder(
@@ -34,16 +35,16 @@ struct PepecoinWalletAssembly: WalletManagerAssembly {
             addresses: input.wallet.addresses
         )
 
-        let socketManagers: [ElectrumWebSocketProvider] = APIResolver(blockchain: input.blockchain, config: input.blockchainSdkConfig)
-            .resolveProviders(apiInfos: input.apiInfo, factory: { nodeInfo, _ in
+        let socketManagers: [ElectrumWebSocketProvider] = APIResolver(blockchain: blockchain, keysConfig: input.networkInput.keysConfig)
+            .resolveProviders(apiInfos: input.networkInput.apiInfo, factory: { nodeInfo, _ in
                 ElectrumWebSocketProvider(url: nodeInfo.url)
             })
 
         let providers: [ElectrumUTXONetworkProvider] = socketManagers.map {
             ElectrumUTXONetworkProvider(
-                blockchain: input.blockchain,
+                blockchain: input.wallet.blockchain,
                 provider: $0,
-                converter: .init(lockingScriptBuilder: .pepecoin(isTestnet: input.blockchain.isTestnet)),
+                converter: .init(lockingScriptBuilder: .pepecoin(isTestnet: input.wallet.blockchain.isTestnet)),
                 settings: Constants.electrumSettings
             )
         }

@@ -11,6 +11,7 @@ import class UIKit.UITraitCollection
 import Combine
 import BlockchainSdk
 import TangemSdk
+import TangemNetworkUtils
 
 private enum QueryKey: String {
     case widget_id
@@ -143,7 +144,9 @@ extension MercuryoService: ExchangeService {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
 
-        URLSession(configuration: config).dataTaskPublisher(for: request)
+        let session = TangemURLSessionBuilder.makeSession(configuration: config)
+
+        session.dataTaskPublisher(for: request)
             .map(\.data)
             .decode(type: MercuryoCurrencyResponse.self, decoder: decoder)
             .withWeakCaptureOf(self)
