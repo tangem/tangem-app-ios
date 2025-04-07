@@ -78,7 +78,7 @@ extension LockingScriptBuilder where Self == Base58LockingScriptBuilder {
     }
 
     static func radiant() -> Self {
-        return Base58LockingScriptBuilder(network: BitcoinCashNetworkParams())
+        return Base58LockingScriptBuilder(network: RadiantNetworkParams())
     }
 
     static func pepecoin(isTestnet: Bool) -> Self {
