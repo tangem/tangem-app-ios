@@ -11,6 +11,7 @@ import CryptoKit
 import Combine
 import BlockchainSdk
 import class UIKit.UITraitCollection
+import TangemNetworkUtils
 
 // MARK: - Models
 
@@ -241,7 +242,7 @@ extension MoonPayService: ExchangeService {
         config.requestCachePolicy = .reloadIgnoringLocalCacheData
         config.urlCache = nil
 
-        let session = URLSession(configuration: config)
+        let session = TangemURLSessionBuilder.makeSession(configuration: config)
 
         Publishers.Zip(
             session.dataTaskPublisher(for: URL(string: "https://api.moonpay.com/v4/ip_address?" + QueryKey.apiKey.rawValue + "=" + keys.apiKey)!),
