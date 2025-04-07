@@ -13,14 +13,14 @@ import TangemNetworkUtils
 /// Provider for Hedera Mirror Nodes (REST) https://docs.hedera.com/hedera/sdks-and-apis/rest-api
 struct HederaRESTNetworkProvider {
     private let targetConfiguration: NodeInfo
-    private let provider: NetworkProvider<HederaTarget>
+    private let provider: TangemProvider<HederaTarget>
 
     init(
         targetConfiguration: NodeInfo,
-        providerConfiguration: NetworkProviderConfiguration
+        providerConfiguration: TangemProviderConfiguration
     ) {
         self.targetConfiguration = targetConfiguration
-        provider = NetworkProvider<HederaTarget>(configuration: providerConfiguration)
+        provider = TangemProvider<HederaTarget>(configuration: providerConfiguration)
     }
 
     func getAccounts(publicKey: String) -> some Publisher<HederaNetworkResult.AccountsInfo, Error> {
