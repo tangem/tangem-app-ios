@@ -16,6 +16,7 @@ class RadiantTransactionBuilder {
     private let unspentOutputManager: UnspentOutputManager
     private let decimalValue: Decimal
 
+    private let lockingScriptBuilder: LockingScriptBuilder = .radiant()
     private let scriptUtils = RadiantScriptUtils()
 
     // MARK: - Init
@@ -29,22 +30,14 @@ class RadiantTransactionBuilder {
     // MARK: - Implementation
 
     func buildForSign(transaction: Transaction) throws -> [Data] {
-        let unspents = unspentOutputManager.allOutputs().map {
-            RadiantTransactionBuilder.UnspentOutput(hash: $0.hash, index: $0.index, amount: $0.amount, script: $0.script.data)
-        }
+        let sourceLockingScript = try lockingScriptBuilder.lockingScript(for: transaction.sourceAddress)
+        let (unspents, outputs) = try buildPreImageData(transaction: transaction)
 
-        let txForPreimage = UnspentTransaction(
-            decimalValue: decimalValue,
-            amount: transaction.amount,
-            fee: transaction.fee,
-            unspents: unspents
-        )
-
-        let hashes = try unspents.enumerated().map { index, _ in
-            let preImageHash = try buildPreImageHashes(
-                with: txForPreimage,
-                targetAddress: transaction.destinationAddress,
-                sourceAddress: transaction.sourceAddress,
+        let hashes = unspents.enumerated().map { index, _ in
+            let preImageHash = buildPreImageHashes(
+                sourceScript: sourceLockingScript,
+                unspents: unspents,
+                outputs: outputs,
                 index: index
             )
 
@@ -55,37 +48,35 @@ class RadiantTransactionBuilder {
     }
 
     func buildForSend(transaction: Transaction, signatures: [Data]) throws -> Data {
-        let outputScripts = try scriptUtils.buildSignedScripts(
-            signatures: signatures,
-            publicKey: walletPublicKey,
-            isDer: false
-        )
+        let signedOutputScripts = try scriptUtils.buildSignedScripts(signatures: signatures, publicKey: walletPublicKey)
+        let (unspents, outputs) = try buildPreImageData(transaction: transaction)
 
-        let unspents = buildUnspents(signedOutputScripts: outputScripts)
+        let inputs = zip(unspents, signedOutputScripts).map { output, signedOutputScript in
+            TransactionInput(previousOutputHash: output.hash, previousOutputIndex: output.index, amount: output.amount, signedScript: signedOutputScript)
+        }
 
-        let txForSigned = UnspentTransaction(
-            decimalValue: decimalValue,
-            amount: transaction.amount,
-            fee: transaction.fee,
-            unspents: unspents
-        )
-
-        let rawTransaction = try buildRawTransaction(
-            with: txForSigned,
-            targetAddress: transaction.destinationAddress,
-            changeAddress: transaction.changeAddress,
-            index: nil
-        )
-
+        let rawTransaction = buildRawTransaction(inputs: inputs, outputs: outputs)
         return rawTransaction
     }
 
-    func estimateTransactionSize(transaction: Transaction) throws -> Int {
-        let hashesForSign = try buildForSign(transaction: transaction)
-        let signaturesForSend = hashesForSign.map { _ in Data([UInt8](repeating: UInt8(0x01), count: 64)) }
-        let rawTransaction = try buildForSend(transaction: transaction, signatures: signaturesForSend)
+    func estimateFee(amount: Amount, destination: String, feeRate: Int) throws -> Int {
+        let amount = amount.asSmallest().value.intValue()
+        let preImage = try unspentOutputManager.preImage(amount: amount, feeRate: feeRate, destination: destination)
+        return preImage.fee
+    }
 
-        return rawTransaction.count
+    private func buildPreImageData(transaction: Transaction) throws -> (unspents: [UnspentOutput], outputs: [TransactionOutput]) {
+        let preImage = try unspentOutputManager.preImage(transaction: transaction)
+
+        let unspents = preImage.inputs.map {
+            UnspentOutput(hash: $0.hash, index: $0.index, amount: $0.amount, script: $0.script.data)
+        }
+
+        let outputs = preImage.outputs.map {
+            TransactionOutput(amount: UInt64($0.value), lockingScript: $0.script)
+        }
+
+        return (unspents: unspents, outputs: outputs)
     }
 
     // MARK: - Build Transaction Data
@@ -98,32 +89,29 @@ class RadiantTransactionBuilder {
     ///   - index: position image for output
     /// - Returns: Hash of one preimage
     private func buildPreImageHashes(
-        with tx: UnspentTransaction,
-        targetAddress: String,
-        sourceAddress: String,
+        sourceScript: UTXOLockingScript,
+        unspents: [UnspentOutput],
+        outputs: [TransactionOutput],
         index: Int
-    ) throws -> Data {
+    ) -> Data {
         var txToSign = Data()
 
         // version
         txToSign.append(contentsOf: [UInt8(0x01), UInt8(0x00), UInt8(0x00), UInt8(0x00)])
 
         // hashPrevouts
-        scriptUtils.writePrevoutHash(tx.unspents, into: &txToSign)
+        scriptUtils.writePrevoutHash(unspents, into: &txToSign)
 
         // hashSequence
-        scriptUtils.writeSequenceHash(tx.unspents, into: &txToSign)
+        scriptUtils.writeSequenceHash(unspents, into: &txToSign)
 
         // outpoint
-        let currentOutput = tx.unspents[index]
+        let currentOutput = unspents[index]
         txToSign.append(contentsOf: currentOutput.hash.reversed())
         txToSign.append(contentsOf: currentOutput.index.bytes4LE)
 
-        // scriptCode of the input (serialized as scripts inside CTxOuts)
-        let scriptCode = scriptUtils.buildOutputScript(address: sourceAddress)
-
-        txToSign.append(scriptCode.count.byte)
-        txToSign.append(contentsOf: scriptCode)
+        txToSign.append(sourceScript.data.count.byte)
+        txToSign.append(contentsOf: sourceScript.data)
 
         // value of the output spent by this input (8-byte little endian)
         txToSign.append(contentsOf: currentOutput.amount.bytes8LE)
@@ -132,22 +120,10 @@ class RadiantTransactionBuilder {
         txToSign.append(contentsOf: [UInt8(0xff), UInt8(0xff), UInt8(0xff), UInt8(0xff)])
 
         // hashOutputHashes (32-byte hash)
-        try scriptUtils.writeHashOutputHashes(
-            amount: tx.amountSatoshiDecimalValue,
-            sourceAddress: sourceAddress,
-            targetAddress: targetAddress,
-            change: tx.changeSatoshiDecimalValue,
-            into: &txToSign
-        )
+        scriptUtils.writeHashOutputHashes(outputs: outputs, into: &txToSign)
 
         // hashOutputs (32-byte hash)
-        try scriptUtils.writeHashOutput(
-            amount: tx.amountSatoshiDecimalValue,
-            sourceAddress: sourceAddress,
-            targetAddress: targetAddress,
-            change: tx.changeSatoshiDecimalValue,
-            into: &txToSign
-        )
+        scriptUtils.writeHashOutput(outputs: outputs, into: &txToSign)
 
         // nLocktime of the transaction (4-byte little endian)
         txToSign.append(contentsOf: [UInt8(0x00), UInt8(0x00), UInt8(0x00), UInt8(0x00)])
@@ -166,112 +142,64 @@ class RadiantTransactionBuilder {
     ///   - index: index of input transaction (specify nil value)
     /// - Returns: Raw transaction data
     private func buildRawTransaction(
-        with tx: UnspentTransaction,
-        targetAddress: String,
-        changeAddress: String,
-        index: Int?
-    ) throws -> Data {
+        inputs: [TransactionInput],
+        outputs: [TransactionOutput]
+    ) -> Data {
         var txBody = Data()
 
         // version
         txBody.append(contentsOf: [UInt8(0x01), UInt8(0x00), UInt8(0x00), UInt8(0x00)])
 
         // 01
-        txBody.append(tx.unspents.count.byte)
+        txBody.append(inputs.count.byte)
 
         // hex str hash prev btc
-        for (inputIndex, input) in tx.unspents.enumerated() {
-            let hashKey: [UInt8] = input.hash.reversed()
+        inputs.forEach { input in
+            let hashKey: [UInt8] = input.previousOutputHash.reversed()
             txBody.append(contentsOf: hashKey)
-            txBody.append(contentsOf: input.index.bytes4LE)
-
-            if (index == nil) || (inputIndex == index) {
-                txBody.append(input.script.count.byte)
-                txBody.append(contentsOf: input.script)
-            } else {
-                txBody.append(UInt8(0x00))
-            }
+            txBody.append(contentsOf: input.previousOutputIndex.bytes4LE)
+            txBody.append(input.signedScript.count.byte)
+            txBody.append(contentsOf: input.signedScript)
 
             // ffffffff
             txBody.append(contentsOf: [UInt8(0xff), UInt8(0xff), UInt8(0xff), UInt8(0xff)]) // sequence
         }
 
         // 02
-        let outputCount = tx.changeSatoshiDecimalValue == 0 ? 1 : 2
-        txBody.append(outputCount.byte)
+        txBody.append(outputs.count.byte)
 
-        // 8 bytes
-        txBody.append(contentsOf: tx.amountSatoshiDecimalValue.bytes8LE)
-
-        let outputScriptBytes = scriptUtils.buildOutputScript(address: targetAddress)
-
-        // hex str 1976a914....88ac
-        txBody.append(outputScriptBytes.count.byte)
-        txBody.append(contentsOf: outputScriptBytes)
-
-        if tx.changeSatoshiDecimalValue != 0 {
-            // 8 bytes of change satoshi value
-            txBody.append(contentsOf: tx.changeSatoshiDecimalValue.bytes8LE)
-
-            let outputScriptChangeBytes = scriptUtils.buildOutputScript(address: changeAddress)
-
-            txBody.append(outputScriptChangeBytes.count.byte)
-            txBody.append(contentsOf: outputScriptChangeBytes)
+        outputs.forEach { output in
+            // 8 bytes
+            txBody.append(output.amount.bytes8LE)
+            txBody.append(output.lockingScript.data.count.byte)
+            txBody.append(output.lockingScript.data)
         }
 
         // 00000000
         txBody.append(contentsOf: [UInt8(0x00), UInt8(0x00), UInt8(0x00), UInt8(0x00)])
-
         return txBody
-    }
-
-    private func buildUnspents(signedOutputScripts: [Data]) -> [UnspentOutput] {
-        assert(unspentOutputManager.allOutputs().count == signedOutputScripts.count)
-
-        return zip(unspentOutputManager.allOutputs(), signedOutputScripts)
-            .map { output, signedOutputScript in
-                UnspentOutput(hash: output.hash, index: output.index, amount: output.amount, script: signedOutputScript)
-            }
     }
 }
 
 // MARK: - UnspentTransaction
 
 extension RadiantTransactionBuilder {
-    struct UnspentTransaction {
-        let decimalValue: Decimal
-        let amount: Amount
-        let fee: Fee
-        let unspents: [UnspentOutput]
-
-        var amountSatoshiDecimalValue: Decimal {
-            let decimalValue = amount.value * decimalValue
-            return decimalValue.rounded(roundingMode: .down)
-        }
-
-        var feeSatoshiDecimalValue: Decimal {
-            let decimalValue = fee.amount.value * decimalValue
-            return decimalValue.rounded(roundingMode: .up)
-        }
-
-        var changeSatoshiDecimalValue: Decimal {
-            calculateChange(unspents: unspents, amountSatoshi: amountSatoshiDecimalValue, feeSatoshi: feeSatoshiDecimalValue)
-        }
-
-        private func calculateChange(
-            unspents: [UnspentOutput],
-            amountSatoshi: Decimal,
-            feeSatoshi: Decimal
-        ) -> Decimal {
-            let fullAmountSatoshi = Decimal(unspents.reduce(0) { $0 + $1.amount })
-            return fullAmountSatoshi - amountSatoshi - feeSatoshi
-        }
-    }
-
     struct UnspentOutput {
         let hash: Data
         let index: Int
         let amount: UInt64
         let script: Data
+    }
+
+    struct TransactionInput {
+        let previousOutputHash: Data
+        let previousOutputIndex: Int
+        let amount: UInt64
+        let signedScript: Data
+    }
+
+    struct TransactionOutput {
+        let amount: UInt64
+        let lockingScript: UTXOLockingScript
     }
 }
