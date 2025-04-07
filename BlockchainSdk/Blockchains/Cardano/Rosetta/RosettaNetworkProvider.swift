@@ -18,7 +18,7 @@ class RosettaNetworkProvider: CardanoNetworkProvider {
         url.hostOrUnknown
     }
 
-    private let provider: NetworkProvider<RosettaTarget>
+    private let provider: TangemProvider<RosettaTarget>
     private let url: URL
     private let cardanoResponseMapper: CardanoResponseMapper
 
@@ -30,11 +30,11 @@ class RosettaNetworkProvider: CardanoNetworkProvider {
 
     init(
         url: URL,
-        configuration: NetworkProviderConfiguration,
+        configuration: TangemProviderConfiguration,
         cardanoResponseMapper: CardanoResponseMapper
     ) {
         self.url = url
-        provider = NetworkProvider<RosettaTarget>(configuration: configuration)
+        provider = TangemProvider<RosettaTarget>(configuration: configuration)
         self.cardanoResponseMapper = cardanoResponseMapper
     }
 

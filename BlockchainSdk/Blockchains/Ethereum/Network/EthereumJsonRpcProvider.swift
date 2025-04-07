@@ -14,15 +14,15 @@ import TangemNetworkUtils
 
 final class EthereumJsonRpcProvider: HostProvider {
     private let node: NodeInfo
-    private let provider: NetworkProvider<EthereumTarget>
+    private let provider: TangemProvider<EthereumTarget>
 
     var host: String {
         node.url.hostOrUnknown
     }
 
-    init(node: NodeInfo, configuration: NetworkProviderConfiguration) {
+    init(node: NodeInfo, configuration: TangemProviderConfiguration) {
         self.node = node
-        provider = NetworkProvider<EthereumTarget>(configuration: configuration)
+        provider = TangemProvider<EthereumTarget>(configuration: configuration)
     }
 
     func call(contractAddress: String, encodedData: String) -> AnyPublisher<String, Error> {

@@ -16,16 +16,16 @@ class KoinosNetworkProvider: HostProvider {
     }
 
     private let node: NodeInfo
-    private let provider: NetworkProvider<KoinosTarget>
+    private let provider: TangemProvider<KoinosTarget>
     private let koinosNetworkParams: KoinosNetworkParams
 
     init(
         node: NodeInfo,
         koinosNetworkParams: KoinosNetworkParams,
-        configuration: NetworkProviderConfiguration
+        configuration: TangemProviderConfiguration
     ) {
         self.node = node
-        provider = NetworkProvider<KoinosTarget>(configuration: configuration)
+        provider = TangemProvider<KoinosTarget>(configuration: configuration)
         self.koinosNetworkParams = koinosNetworkParams
     }
 
