@@ -7,9 +7,14 @@
 //
 
 import Foundation
-import WalletCore
 
 struct ElectrumScriptHashConverter {
+    let lockingScriptBuilder: LockingScriptBuilder
+
+    init(lockingScriptBuilder: LockingScriptBuilder) {
+        self.lockingScriptBuilder = lockingScriptBuilder
+    }
+
     /**
      Specify electrum api network
 
@@ -18,11 +23,7 @@ struct ElectrumScriptHashConverter {
      More: https://electrumx.readthedocs.io/en/latest/protocol-basics.html#script-hashes
      */
     func prepareScriptHash(address: String) throws -> String {
-        guard let addressKeyHash = WalletCore.BitcoinAddress(string: address)?.keyhash else {
-            throw WalletError.empty
-        }
-
-        let scriptHashData = WalletCore.BitcoinScript.buildPayToPublicKeyHash(hash: addressKeyHash).data
+        let scriptHashData = try lockingScriptBuilder.lockingScript(for: address).data
 
         return Data(scriptHashData.sha256().reversed()).hexString
     }
