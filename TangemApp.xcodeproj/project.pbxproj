@@ -1354,7 +1354,6 @@
 		B62D40FC2CBC79DA00C2460E /* ICPTransactionParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3D462CBC79D900C2460E /* ICPTransactionParams.swift */; };
 		B62D40FD2CBC79DA00C2460E /* ICPWalletAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3D472CBC79D900C2460E /* ICPWalletAssembly.swift */; };
 		B62D40FE2CBC79DA00C2460E /* ICPWalletManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3D482CBC79D900C2460E /* ICPWalletManager.swift */; };
-		B62D40FF2CBC79DA00C2460E /* KaspaAddressComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3D4A2CBC79D900C2460E /* KaspaAddressComponents.swift */; };
 		B62D41002CBC79DA00C2460E /* KaspaAddressService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3D4B2CBC79D900C2460E /* KaspaAddressService.swift */; };
 		B62D41022CBC79DA00C2460E /* KaspaNetworkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3D4E2CBC79D900C2460E /* KaspaNetworkProvider.swift */; };
 		B62D41032CBC79DA00C2460E /* KaspaNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3D4F2CBC79D900C2460E /* KaspaNetworkService.swift */; };
@@ -2943,6 +2942,7 @@
 		EF7C4B3D2C93419F005F9360 /* StakingBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7C4B3C2C93419F005F9360 /* StakingBalance.swift */; };
 		EF7C4B3F2C9341EB005F9360 /* StakingPendingActionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7C4B3E2C9341E8005F9360 /* StakingPendingActionType.swift */; };
 		EF7C4B412C936200005F9360 /* StakingValidatorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7C4B402C936200005F9360 /* StakingValidatorType.swift */; };
+		EF7E9CA52D9D39E6003A4AA9 /* KaspaUnspentOutputManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7E9CA42D9D39E5003A4AA9 /* KaspaUnspentOutputManager.swift */; };
 		EF808445293F6B76000D91EA /* TokenURLIconSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808444293F6B76000D91EA /* TokenURLIconSize.swift */; };
 		EF8425392D91AC0A00F5F1DE /* TaprootLockingScriptBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8425382D91AC0A00F5F1DE /* TaprootLockingScriptBuilder.swift */; };
 		EF842DEA2AFA58C5006E472E /* ExpressTokensListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF842DE52AFA58C5006E472E /* ExpressTokensListView.swift */; };
@@ -2966,6 +2966,8 @@
 		EF8DBD472C073134009072CF /* AverageRewardingViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8DBD462C073134009072CF /* AverageRewardingViewData.swift */; };
 		EF8DBD4A2C07317B009072CF /* RewardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8DBD492C07317B009072CF /* RewardView.swift */; };
 		EF8DBD4C2C07318F009072CF /* RewardViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8DBD4B2C07318F009072CF /* RewardViewData.swift */; };
+		EF8DBE4E2D7B10A80050DBFB /* KaspaDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8DBE4D2D7B10A80050DBFB /* KaspaDTO.swift */; };
+		EF8DBE582D8095890050DBFB /* CloreBlockBookUTXOProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8DBE572D8095890050DBFB /* CloreBlockBookUTXOProvider.swift */; };
 		EF8DBE4E2D7B10A80050DBFB /* KaspaDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8DBE4D2D7B10A80050DBFB /* KaspaDTO.swift */; };
 		EF8DBE582D8095890050DBFB /* CloreBlockBookUTXOProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8DBE572D8095890050DBFB /* CloreBlockBookUTXOProvider.swift */; };
 		EF8EF52F2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8EF52E2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift */; };
@@ -3151,7 +3153,6 @@
 		EFBC5C8E2C00B8A000B662E0 /* StakeKitDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBC5C8D2C00B8A000B662E0 /* StakeKitDTO.swift */; };
 		EFBC5C902C00B8B800B662E0 /* StakeKitDTO+Yield.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBC5C8F2C00B8B800B662E0 /* StakeKitDTO+Yield.swift */; };
 		EFC1AB732D79E618005F1C95 /* UTXONetworkAddressInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC1AB722D79E618005F1C95 /* UTXONetworkAddressInfoProvider.swift */; };
-		EFC1AB742D7A1369005F1C95 /* BitcoinUnspentOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3C542CBC79D900C2460E /* BitcoinUnspentOutput.swift */; };
 		EFC46F01292669A0003928E3 /* ReceiveCurrencyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC46F00292669A0003928E3 /* ReceiveCurrencyViewModel.swift */; };
 		EFC597BD2AA0B1B7001F6945 /* CommonTokenQuotesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC597BC2AA0B1B7001F6945 /* CommonTokenQuotesRepository.swift */; };
 		EFC6846D2A0FA3C600660690 /* BindingValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC6846C2A0FA3C600660690 /* BindingValue.swift */; };
@@ -4592,7 +4593,6 @@
 		B62D3C4C2CBC79D900C2460E /* ScriptChunkHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScriptChunkHelper.swift; sourceTree = "<group>"; };
 		B62D3C522CBC79D900C2460E /* BitcoinExternalLinkProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BitcoinExternalLinkProvider.swift; sourceTree = "<group>"; };
 		B62D3C532CBC79D900C2460E /* BitcoinFeeParameters.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BitcoinFeeParameters.swift; sourceTree = "<group>"; };
-		B62D3C542CBC79D900C2460E /* BitcoinUnspentOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BitcoinUnspentOutput.swift; sourceTree = "<group>"; };
 		B62D3C552CBC79D900C2460E /* BitcoinTransactionBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BitcoinTransactionBuilder.swift; sourceTree = "<group>"; };
 		B62D3C572CBC79D900C2460E /* BitcoinWalletAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BitcoinWalletAssembly.swift; sourceTree = "<group>"; };
 		B62D3C582CBC79D900C2460E /* BitcoinWalletManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BitcoinWalletManager.swift; sourceTree = "<group>"; };
@@ -4796,7 +4796,6 @@
 		B62D3D462CBC79D900C2460E /* ICPTransactionParams.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ICPTransactionParams.swift; sourceTree = "<group>"; };
 		B62D3D472CBC79D900C2460E /* ICPWalletAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ICPWalletAssembly.swift; sourceTree = "<group>"; };
 		B62D3D482CBC79D900C2460E /* ICPWalletManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ICPWalletManager.swift; sourceTree = "<group>"; };
-		B62D3D4A2CBC79D900C2460E /* KaspaAddressComponents.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KaspaAddressComponents.swift; sourceTree = "<group>"; };
 		B62D3D4B2CBC79D900C2460E /* KaspaAddressService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KaspaAddressService.swift; sourceTree = "<group>"; };
 		B62D3D4E2CBC79D900C2460E /* KaspaNetworkProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KaspaNetworkProvider.swift; sourceTree = "<group>"; };
 		B62D3D4F2CBC79D900C2460E /* KaspaNetworkService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KaspaNetworkService.swift; sourceTree = "<group>"; };
@@ -6365,6 +6364,7 @@
 		EF7C4B3C2C93419F005F9360 /* StakingBalance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBalance.swift; sourceTree = "<group>"; };
 		EF7C4B3E2C9341E8005F9360 /* StakingPendingActionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPendingActionType.swift; sourceTree = "<group>"; };
 		EF7C4B402C936200005F9360 /* StakingValidatorType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingValidatorType.swift; sourceTree = "<group>"; };
+		EF7E9CA42D9D39E5003A4AA9 /* KaspaUnspentOutputManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaUnspentOutputManager.swift; sourceTree = "<group>"; };
 		EF808444293F6B76000D91EA /* TokenURLIconSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenURLIconSize.swift; sourceTree = "<group>"; };
 		EF8425382D91AC0A00F5F1DE /* TaprootLockingScriptBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaprootLockingScriptBuilder.swift; sourceTree = "<group>"; };
 		EF842DE52AFA58C5006E472E /* ExpressTokensListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTokensListView.swift; sourceTree = "<group>"; };
@@ -6388,6 +6388,8 @@
 		EF8DBD462C073134009072CF /* AverageRewardingViewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AverageRewardingViewData.swift; sourceTree = "<group>"; };
 		EF8DBD492C07317B009072CF /* RewardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardView.swift; sourceTree = "<group>"; };
 		EF8DBD4B2C07318F009072CF /* RewardViewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardViewData.swift; sourceTree = "<group>"; };
+		EF8DBE4D2D7B10A80050DBFB /* KaspaDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaDTO.swift; sourceTree = "<group>"; };
+		EF8DBE572D8095890050DBFB /* CloreBlockBookUTXOProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreBlockBookUTXOProvider.swift; sourceTree = "<group>"; };
 		EF8DBE4D2D7B10A80050DBFB /* KaspaDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaDTO.swift; sourceTree = "<group>"; };
 		EF8DBE572D8095890050DBFB /* CloreBlockBookUTXOProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreBlockBookUTXOProvider.swift; sourceTree = "<group>"; };
 		EF8EF52E2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingApproveRoutableMock.swift; sourceTree = "<group>"; };
@@ -10498,7 +10500,6 @@
 				B62D3C4D2CBC79D900C2460E /* BitcoinScript */,
 				B62D3C522CBC79D900C2460E /* BitcoinExternalLinkProvider.swift */,
 				B62D3C532CBC79D900C2460E /* BitcoinFeeParameters.swift */,
-				B62D3C542CBC79D900C2460E /* BitcoinUnspentOutput.swift */,
 				B62D3C552CBC79D900C2460E /* BitcoinTransactionBuilder.swift */,
 				B62D3C572CBC79D900C2460E /* BitcoinWalletAssembly.swift */,
 				B62D3C582CBC79D900C2460E /* BitcoinWalletManager.swift */,
@@ -10980,7 +10981,6 @@
 		B62D3D4C2CBC79D900C2460E /* Address */ = {
 			isa = PBXGroup;
 			children = (
-				B62D3D4A2CBC79D900C2460E /* KaspaAddressComponents.swift */,
 				B62D3D4B2CBC79D900C2460E /* KaspaAddressService.swift */,
 			);
 			path = Address;
@@ -16303,6 +16303,7 @@
 				EF42FC6B2D95643B009CBB22 /* UnspentOutputManager+.swift */,
 				EF798FE42D6F8D3000B9B4A1 /* UnspentOutputManager.swift */,
 				EF798FE22D6F8D3000B9B4A1 /* CommonUnspentOutputManager.swift */,
+				EF7E9CA42D9D39E5003A4AA9 /* KaspaUnspentOutputManager.swift */,
 				EF798FE32D6F8D3000B9B4A1 /* UnspentOutput.swift */,
 				EF197B0A2D8C8D390004B575 /* ScriptUnspentOutput.swift */,
 			);
@@ -20167,7 +20168,6 @@
 				B62D3FA82CBC79DA00C2460E /* AlgorandWalletAssembly.swift in Sources */,
 				B62D423E2CBC79DB00C2460E /* AddressType.swift in Sources */,
 				B62D426B2CBC79DB00C2460E /* FeeResourceRestrictable.swift in Sources */,
-				B62D40FF2CBC79DA00C2460E /* KaspaAddressComponents.swift in Sources */,
 				B62D40522CBC79DA00C2460E /* CardanoWalletAssembly.swift in Sources */,
 				0A2261832D958ADA004DC848 /* CardanoTransaction.swift in Sources */,
 				B62D3FC72CBC79DA00C2460E /* OP_0NOTEQUAL.swift in Sources */,
@@ -20393,6 +20393,7 @@
 				B62D3FC02CBC79DA00C2460E /* BitcoinAddressService.swift in Sources */,
 				B62D3FFC2CBC79DA00C2460E /* OP_VERIFY.swift in Sources */,
 				B62D40CC2CBC79DA00C2460E /* EthereumOptimisticRollupWalletAssembly.swift in Sources */,
+				EF7E9CA52D9D39E6003A4AA9 /* KaspaUnspentOutputManager.swift in Sources */,
 				B62D42222CBC79DB00C2460E /* XRPTransactionParams.swift in Sources */,
 				0A0412B72D772656000D3A63 /* KaspaTransactionHistoryResponse.swift in Sources */,
 				B62D3FA62CBC79DA00C2460E /* AlgorandNetworkService.swift in Sources */,
@@ -20756,7 +20757,6 @@
 				B62D429A2CBC79DB00C2460E /* URLSessionWebSocketTask.CloseCode+CustomStringConvertible.swift in Sources */,
 				F99007092CD3E1C700DFE2D3 /* KaspaTargetKRC20.swift in Sources */,
 				B62D40992CBC79DA00C2460E /* EthereumModels.swift in Sources */,
-				EFC1AB742D7A1369005F1C95 /* BitcoinUnspentOutput.swift in Sources */,
 				B62D40272CBC79DA00C2460E /* OpCodeProtocol.swift in Sources */,
 				B62D3FE72CBC79DA00C2460E /* OP_RESERVED1.swift in Sources */,
 				B62D40562CBC79DA00C2460E /* ChiaModels.swift in Sources */,
