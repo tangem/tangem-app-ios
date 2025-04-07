@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 
 class URLSessionWebSocketDelegateWrapper: NSObject, URLSessionWebSocketDelegate {
     private let webSocketTaskDidOpen: (URLSessionWebSocketTask) -> Void?
@@ -40,7 +41,21 @@ class URLSessionWebSocketDelegateWrapper: NSObject, URLSessionWebSocketDelegate 
         webSocketTaskDidClose(webSocketTask, closeCode)
     }
 
-    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+    func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        didCompleteWithError error: Error?
+    ) {
         webSocketTaskDidCompleteWithError(task, error)
+    }
+
+    func urlSession(
+        _ session: URLSession,
+        didReceive challenge:
+        URLAuthenticationChallenge,
+        completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+    ) {
+        let result = ForcedCTServerTrustEvaluator.evaluate(challenge: challenge)
+        completionHandler(result, nil)
     }
 }
