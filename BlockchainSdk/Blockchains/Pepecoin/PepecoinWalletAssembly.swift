@@ -40,7 +40,12 @@ struct PepecoinWalletAssembly: WalletManagerAssembly {
             })
 
         let providers: [ElectrumUTXONetworkProvider] = socketManagers.map {
-            ElectrumUTXONetworkProvider(blockchain: input.blockchain, provider: $0, settings: Constants.electrumSettings)
+            ElectrumUTXONetworkProvider(
+                blockchain: input.blockchain,
+                provider: $0,
+                converter: .init(lockingScriptBuilder: .pepecoin(isTestnet: input.blockchain.isTestnet)),
+                settings: Constants.electrumSettings
+            )
         }
 
         let networkService = MultiUTXONetworkProvider(providers: providers)
