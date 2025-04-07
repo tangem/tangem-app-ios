@@ -30,7 +30,7 @@ enum PreviewCard {
         let vm = CommonUserWalletModelFactory().makeModel(cardInfo: ci)!
         if let blockchain = blockchain {
             let factory = WalletManagerFactory(
-                config: .init(
+                blockchainSdkKeysConfig: BlockchainSdkKeysConfig(
                     blockchairApiKeys: [],
                     blockcypherTokens: [],
                     infuraProjectId: "",

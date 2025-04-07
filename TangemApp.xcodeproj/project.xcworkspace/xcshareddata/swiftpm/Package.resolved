@@ -1,5 +1,5 @@
 {
-  "originHash" : "80c96396b1a42553308c1d29cd47bea9154a1289fdd370a2cc7db060b24ca784",
+  "originHash" : "8f45521d9fda95d5b10b197aa81bb7f53a6b96e9c7d4e87ccbd373d49fc4804a",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -391,10 +391,10 @@
     {
       "identity" : "stellar-ios-mac-sdk",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Soneso/stellar-ios-mac-sdk.git",
+      "location" : "git@github.com:tangem-developments/stellar-ios-mac-sdk.git",
       "state" : {
-        "revision" : "86c0926364d7a81fbc451b9b71df33dfb1bd28be",
-        "version" : "3.0.0"
+        "revision" : "281ae43d415ab5460c84cd6e7b5734397afb09c3",
+        "version" : "3.0.7-tangem1"
       }
     },
     {
@@ -600,8 +600,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
-        "revision" : "b24092e8685873b67e8615860bd983f80da16e16",
-        "version" : "3.13.6"
+        "revision" : "b37cd9a940a6491dcd0936129b8e2ca60d1bd8d3",
+        "version" : "3.13.7"
       }
     },
     {

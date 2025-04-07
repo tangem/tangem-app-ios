@@ -11,12 +11,12 @@ import Moya
 import TangemNetworkUtils
 
 struct MoyaProviderBuilder {
-    func buildProvider<T: TargetType>(configuration: URLSessionConfiguration) -> MoyaProvider<T> {
+    func buildProvider<T: TargetType>(configuration: URLSessionConfiguration) -> TangemProvider<T> {
         let plugins: [PluginType] = [
             DeviceInfoPlugin(),
             TangemNetworkLoggerPlugin(logOptions: .verbose),
         ]
 
-        return MoyaProvider<T>(session: Session(configuration: configuration), plugins: plugins)
+        return TangemProvider<T>(plugins: plugins, sessionConfiguration: configuration)
     }
 }

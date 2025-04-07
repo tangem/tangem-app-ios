@@ -9,17 +9,10 @@
 import Foundation
 import TangemNetworkUtils
 
-protocol NetworkProviderAssemblyInput {
-    var blockchain: Blockchain { get }
-    var blockchainSdkConfig: BlockchainSdkConfig { get }
-    var networkConfig: NetworkProviderConfiguration { get }
-    var apiInfo: [NetworkProviderType] { get }
-}
-
 struct NetworkProviderAssembly {
     // [REDACTED_TODO_COMMENT]
     func makeBlockBookUTXOProvider(
-        with input: NetworkProviderAssemblyInput,
+        with input: Input,
         for type: BlockBookProviderType
     ) -> BlockBookUTXOProvider {
         switch type {
@@ -28,28 +21,28 @@ struct NetworkProviderAssembly {
                 blockchain: input.blockchain,
                 blockBookConfig: NowNodesBlockBookConfig(
                     apiKeyHeaderName: Constants.nowNodesApiKeyHeaderName,
-                    apiKeyHeaderValue: input.blockchainSdkConfig.nowNodesApiKey
+                    apiKeyHeaderValue: input.keysConfig.nowNodesApiKey
                 ),
-                networkConfiguration: input.networkConfig
+                networkConfiguration: input.tangemProviderConfig
             )
         case .getBlock:
             return BlockBookUTXOProvider(
                 blockchain: input.blockchain,
-                blockBookConfig: GetBlockBlockBookConfig(input.blockchainSdkConfig.getBlockCredentials),
-                networkConfiguration: input.networkConfig
+                blockBookConfig: GetBlockBlockBookConfig(input.keysConfig.getBlockCredentials),
+                networkConfiguration: input.tangemProviderConfig
             )
         case .clore(let url):
             return CloreBlockBookUTXOProvider(
                 blockchain: input.blockchain,
                 blockBookConfig: CloreBlockBookConfig(urlNode: url),
-                networkConfiguration: input.networkConfig
+                networkConfiguration: input.tangemProviderConfig
             )
         }
     }
 
     // [REDACTED_TODO_COMMENT]
     func makeBitcoinCashBlockBookUTXOProvider(
-        with input: NetworkProviderAssemblyInput,
+        with input: Input,
         for type: BlockBookProviderType,
         bitcoinCashAddressService: BitcoinCashAddressService
     ) -> UTXONetworkProvider {
@@ -60,40 +53,37 @@ struct NetworkProviderAssembly {
     }
 
     // [REDACTED_TODO_COMMENT]
-    func makeBlockcypherNetworkProvider(endpoint: BlockcypherEndpoint, with input: NetworkProviderAssemblyInput) -> BlockcypherNetworkProvider {
+    func makeBlockcypherNetworkProvider(endpoint: BlockcypherEndpoint, with input: Input) -> BlockcypherNetworkProvider {
         BlockcypherNetworkProvider(
             endpoint: endpoint,
-            tokens: input.blockchainSdkConfig.blockcypherTokens,
+            tokens: input.keysConfig.blockcypherTokens,
             blockchain: input.blockchain,
-            configuration: input.networkConfig
+            configuration: input.tangemProviderConfig
         )
     }
 
     // [REDACTED_TODO_COMMENT]
-    func makeBlockchairNetworkProviders(endpoint: BlockchairEndpoint, with input: NetworkProviderAssemblyInput) -> [UTXONetworkProvider] {
-        let apiKeys: [String?] = [nil] + input.blockchainSdkConfig.blockchairApiKeys
+    func makeBlockchairNetworkProviders(endpoint: BlockchairEndpoint, with input: Input) -> [UTXONetworkProvider] {
+        let apiKeys: [String?] = [nil] + input.keysConfig.blockchairApiKeys
 
         return apiKeys.map {
-            BlockchairNetworkProvider(endpoint: endpoint, apiKey: $0, blockchain: input.blockchain, configuration: input.networkConfig)
+            BlockchairNetworkProvider(endpoint: endpoint, apiKey: $0, blockchain: input.blockchain, configuration: input.tangemProviderConfig)
         }
     }
 
-    func makeEthereumJsonRpcProviders(with input: NetworkProviderAssemblyInput) -> [EthereumJsonRpcProvider] {
-        return APIResolver(blockchain: input.blockchain, config: input.blockchainSdkConfig)
+    func makeEthereumJsonRpcProviders(with input: Input) -> [EthereumJsonRpcProvider] {
+        return APIResolver(blockchain: input.blockchain, keysConfig: input.keysConfig)
             .resolveProviders(apiInfos: input.apiInfo) { nodeInfo, _ in
-                EthereumJsonRpcProvider(node: nodeInfo, configuration: input.networkConfig)
+                EthereumJsonRpcProvider(node: nodeInfo, configuration: input.tangemProviderConfig)
             }
     }
 }
 
 extension NetworkProviderAssembly {
-    struct Input: NetworkProviderAssemblyInput {
-        let blockchainSdkConfig: BlockchainSdkConfig
+    struct Input {
         let blockchain: Blockchain
+        let keysConfig: BlockchainSdkKeysConfig
         let apiInfo: [NetworkProviderType]
-
-        var networkConfig: NetworkProviderConfiguration {
-            blockchainSdkConfig.networkProviderConfiguration(for: blockchain)
-        }
+        let tangemProviderConfig: TangemProviderConfiguration
     }
 }

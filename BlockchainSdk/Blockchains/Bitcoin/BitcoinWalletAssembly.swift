@@ -5,7 +5,7 @@ import BitcoinCore
 
 struct BitcoinWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        let network: BitcoinNetwork = input.blockchain.isTestnet ? .testnet : .mainnet
+        let network: BitcoinNetwork = input.wallet.blockchain.isTestnet ? .testnet : .mainnet
         let bitcoinManager = BitcoinManager(
             networkParams: network.networkParams,
             walletPublicKey: input.wallet.publicKey.blockchainKey,
@@ -15,35 +15,35 @@ struct BitcoinWalletAssembly: WalletManagerAssembly {
 
         let unspentOutputManager: UnspentOutputManager = .bitcoin(
             address: input.wallet.defaultAddress,
-            isTestnet: input.blockchain.isTestnet
+            isTestnet: input.wallet.blockchain.isTestnet
         )
         let txBuilder = BitcoinTransactionBuilder(
             bitcoinManager: bitcoinManager,
             unspentOutputManager: unspentOutputManager,
             addresses: input.wallet.addresses
         )
-        let providers: [UTXONetworkProvider] = input.apiInfo.reduce(into: []) { partialResult, providerType in
+        let providers: [UTXONetworkProvider] = input.networkInput.apiInfo.reduce(into: []) { partialResult, providerType in
             switch providerType {
             case .nowNodes:
                 partialResult.append(
-                    networkProviderAssembly.makeBlockBookUTXOProvider(with: input, for: .nowNodes)
+                    networkProviderAssembly.makeBlockBookUTXOProvider(with: input.networkInput, for: .nowNodes)
                 )
-            case .getBlock where !input.blockchain.isTestnet:
+            case .getBlock where !input.wallet.blockchain.isTestnet:
                 partialResult.append(
-                    networkProviderAssembly.makeBlockBookUTXOProvider(with: input, for: .getBlock)
+                    networkProviderAssembly.makeBlockBookUTXOProvider(with: input.networkInput, for: .getBlock)
                 )
             case .blockchair:
                 partialResult.append(
                     contentsOf: networkProviderAssembly.makeBlockchairNetworkProviders(
-                        endpoint: .bitcoin(testnet: input.blockchain.isTestnet),
-                        with: input
+                        endpoint: .bitcoin(testnet: input.wallet.blockchain.isTestnet),
+                        with: input.networkInput
                     )
                 )
             case .blockcypher:
                 partialResult.append(
                     networkProviderAssembly.makeBlockcypherNetworkProvider(
-                        endpoint: .bitcoin(testnet: input.blockchain.isTestnet),
-                        with: input
+                        endpoint: .bitcoin(testnet: input.wallet.blockchain.isTestnet),
+                        with: input.networkInput
                     )
                 )
             default:
