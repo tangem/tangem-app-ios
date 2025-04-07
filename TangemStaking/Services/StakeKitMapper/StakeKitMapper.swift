@@ -438,6 +438,7 @@ struct StakeKitMapper {
         case .tron: .daily
         case .binance: .daily
         case .ethereum where item.contractAddress == StakingConstants.polygonContractAddress: .daily
+        case .ton: .days(min: 1, max: 2)
         default: .generic(type.rawValue)
         }
     }
