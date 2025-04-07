@@ -18,7 +18,7 @@ class BlockcypherNetworkProvider {
         BlockcypherTarget(endpoint: endpoint, token: token, targetType: .fee).baseURL.absoluteString
     }
 
-    private let provider: NetworkProvider<BlockcypherTarget>
+    private let provider: TangemProvider<BlockcypherTarget>
     private let endpoint: BlockcypherEndpoint
     private let mapper: BlockcypherTransactionRecordMapper
     private var token: String?
@@ -31,12 +31,12 @@ class BlockcypherNetworkProvider {
         return decoder
     }()
 
-    init(endpoint: BlockcypherEndpoint, tokens: [String], blockchain: Blockchain, configuration: NetworkProviderConfiguration) {
+    init(endpoint: BlockcypherEndpoint, tokens: [String], blockchain: Blockchain, configuration: TangemProviderConfiguration) {
         self.endpoint = endpoint
         self.tokens = tokens
 
         mapper = BlockcypherTransactionRecordMapper(blockchain: blockchain)
-        provider = NetworkProvider<BlockcypherTarget>(configuration: configuration)
+        provider = TangemProvider<BlockcypherTarget>(configuration: configuration)
     }
 }
 
