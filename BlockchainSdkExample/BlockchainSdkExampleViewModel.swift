@@ -66,7 +66,7 @@ class BlockchainSdkExampleViewModel: ObservableObject {
         let utils = ConfigUtils()
         let apiList = utils.parseProvidersJson()
         return WalletManagerFactory(
-            config: utils.parseKeysJson(),
+            blockchainSdkKeysConfig: utils.parseKeysJson(),
             dependencies: .init(
                 accountCreator: SimpleAccountCreator { [weak self] in self?.card },
                 dataStorage: InMemoryBlockchainDataStorage { return nil }
