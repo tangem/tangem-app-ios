@@ -9,9 +9,10 @@
 import Foundation
 import Moya
 import TangemFoundation
+import TangemNetworkUtils
 
 class CommonExpressAPIService {
-    private let provider: MoyaProvider<ExpressAPITarget>
+    private let provider: TangemProvider<ExpressAPITarget>
     private let expressAPIType: ExpressAPIType
 
     private let decoder: JSONDecoder = {
@@ -20,7 +21,7 @@ class CommonExpressAPIService {
         return decoder
     }()
 
-    init(provider: MoyaProvider<ExpressAPITarget>, expressAPIType: ExpressAPIType) {
+    init(provider: TangemProvider<ExpressAPITarget>, expressAPIType: ExpressAPIType) {
         assert(
             provider.plugins.contains(where: { $0 is ExpressAuthorizationPlugin }),
             "Should contains ExpressHeaderMoyaPlugin"
