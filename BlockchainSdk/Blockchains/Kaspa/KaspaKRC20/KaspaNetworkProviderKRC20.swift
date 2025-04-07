@@ -16,11 +16,11 @@ class KaspaNetworkProviderKRC20: HostProvider {
     }
 
     private let url: URL
-    private let provider: NetworkProvider<KaspaTargetKRC20>
+    private let provider: TangemProvider<KaspaTargetKRC20>
 
-    init(url: URL, networkConfiguration: NetworkProviderConfiguration) {
+    init(url: URL, networkConfiguration: TangemProviderConfiguration) {
         self.url = url
-        provider = NetworkProvider<KaspaTargetKRC20>(configuration: networkConfiguration)
+        provider = TangemProvider<KaspaTargetKRC20>(configuration: networkConfiguration)
     }
 
     func balance(address: String, token: String) -> AnyPublisher<KaspaBalanceResponseKRC20, Error> {

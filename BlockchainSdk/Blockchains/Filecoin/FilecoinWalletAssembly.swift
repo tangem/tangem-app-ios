@@ -13,11 +13,11 @@ struct FilecoinWalletAssembly: WalletManagerAssembly {
         FilecoinWalletManager(
             wallet: input.wallet,
             networkService: FilecoinNetworkService(
-                providers: APIResolver(blockchain: input.blockchain, config: input.blockchainSdkConfig)
-                    .resolveProviders(apiInfos: input.apiInfo) { nodeInfo, _ in
+                providers: APIResolver(blockchain: input.wallet.blockchain, keysConfig: input.networkInput.keysConfig)
+                    .resolveProviders(apiInfos: input.networkInput.apiInfo) { nodeInfo, _ in
                         FilecoinNetworkProvider(
                             node: nodeInfo,
-                            configuration: input.networkConfig
+                            configuration: input.networkInput.tangemProviderConfig
                         )
                     }
             ),
