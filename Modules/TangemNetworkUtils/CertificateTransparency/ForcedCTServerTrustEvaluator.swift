@@ -15,6 +15,27 @@ public enum ForcedCTServerTrustEvaluator {
     #endif // ALPHA || BETA || DEBUG
 
     public static func evaluate(trust: SecTrust) throws {
+        let logger = Logger(category: .init(name: "TEST"))
+
+        var flags: [String] = []
+        #if ALPHA
+        flags.append("alpha")
+        #endif
+
+        #if BETA
+        flags.append("beta")
+        #endif
+
+        #if DEBUG
+        flags.append("debug")
+        #endif
+
+        if shouldForceCT {
+            flags.append("shouldForceCT")
+        }
+
+        logger.info("FLAGS: \(flags.joined(separator: ","))")
+
         guard shouldForceCT else {
             return
         }
