@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemUI
 
 struct VisaOnboardingPinView: View {
     @ObservedObject var viewModel: VisaOnboardingPinViewModel
