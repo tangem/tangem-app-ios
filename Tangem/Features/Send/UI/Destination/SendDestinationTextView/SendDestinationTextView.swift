@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemUIUtils
 
 struct SendDestinationTextView: View {
     @ObservedObject var viewModel: SendDestinationTextViewModel
