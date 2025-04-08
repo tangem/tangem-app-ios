@@ -13,6 +13,7 @@ import CombineExt
 import TangemSdk
 import BlockchainSdk
 import TangemFoundation
+import TangemUI
 
 class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, OnboardingCoordinator>, ObservableObject {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
