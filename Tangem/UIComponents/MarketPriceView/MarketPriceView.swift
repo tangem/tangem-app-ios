@@ -7,6 +7,10 @@
 //
 
 import SwiftUI
+import TangemLocalization
+import TangemAssets
+import TangemUI
+import TangemFoundation
 
 struct MarketPriceView: View {
     let currencySymbol: String

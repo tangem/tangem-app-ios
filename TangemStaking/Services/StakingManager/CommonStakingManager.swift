@@ -63,7 +63,7 @@ extension CommonStakingManager: StakingManager {
     }
 
     func updateState(loadActions: Bool) async {
-        updateState(.loading)
+        await updateState(.loading)
         do {
             async let balances = provider.balances(wallet: wallet)
             async let yield = provider.yield(integrationId: integrationId)
@@ -72,7 +72,7 @@ extension CommonStakingManager: StakingManager {
         } catch {
             analyticsLogger.logError(error, currencySymbol: wallet.item.symbol)
             StakingLogger.error(self, error: error)
-            updateState(.loadingError(error.localizedDescription))
+            await updateState(.loadingError(error.localizedDescription))
         }
     }
 
@@ -141,6 +141,7 @@ extension CommonStakingManager: StakingManager {
 // MARK: - Private
 
 private extension CommonStakingManager {
+    @MainActor
     func updateState(_ state: StakingManagerState) {
         StakingLogger.info(self, "Update state to \(state)")
         _state.send(state)
@@ -347,7 +348,8 @@ private extension CommonStakingManager {
              .restakeRewards(let passthrough),
              .voteLocked(let passthrough),
              .unlockLocked(let passthrough),
-             .restake(let passthrough):
+             .restake(let passthrough),
+             .stake(let passthrough):
             let request = PendingActionRequest(request: request, passthrough: passthrough, type: type)
             let action = try await getPendingTransactionAction(request: request)
             return action
@@ -400,7 +402,8 @@ private extension CommonStakingManager {
              .restakeRewards(let passthrough),
              .voteLocked(let passthrough),
              .unlockLocked(let passthrough),
-             .restake(let passthrough):
+             .restake(let passthrough),
+             .stake(let passthrough):
             let request = PendingActionRequest(request: request, passthrough: passthrough, type: type)
             return try await execute(try await provider.estimatePendingFee(request: request))
         case .withdraw(let passthroughs), .claimUnstaked(let passthroughs):
@@ -468,7 +471,8 @@ private extension CommonStakingManager {
             balanceType: balance.balanceType,
             validatorType: validatorType,
             inProgress: false,
-            actions: balance.actions
+            actions: balance.actions,
+            actionConstraints: balance.actionConstraints
         )
     }
 

@@ -12,228 +12,104 @@ import TangemSdk
 import TangemFoundation
 
 class KaspaTransactionBuilder {
-    let maxInputCount = 84
-
     private let blockchain: Blockchain
     private let walletPublicKey: Wallet.PublicKey
-    private var unspentOutputs: [BitcoinUnspentOutput] = []
+    private let unspentOutputManager: UnspentOutputManager
     private let addressService: KaspaAddressService
 
-    init(walletPublicKey: Wallet.PublicKey, blockchain: Blockchain) {
-        self.blockchain = blockchain
+    init(walletPublicKey: Wallet.PublicKey, unspentOutputManager: UnspentOutputManager, isTestnet: Bool) {
         self.walletPublicKey = walletPublicKey
-        addressService = KaspaAddressService(isTestnet: blockchain.isTestnet)
+        self.unspentOutputManager = unspentOutputManager
+
+        blockchain = .kaspa(testnet: isTestnet)
+        addressService = KaspaAddressService(isTestnet: isTestnet)
     }
 
     func availableAmount() -> Amount {
-        let inputs = unspentOutputs
-        let availableAmountInSatoshi = inputs.reduce(0) { $0 + $1.amount }
+        let availableAmountInSatoshi = unspentOutputManager.allOutputs().sum(by: \.amount)
         return Amount(with: blockchain, value: Decimal(availableAmountInSatoshi) / blockchain.decimalValue)
-    }
-
-    func setUnspentOutputs(_ unspentOutputs: [BitcoinUnspentOutput]) {
-        let sortedOutputs = unspentOutputs.sorted {
-            $0.amount > $1.amount
-        }
-
-        self.unspentOutputs = Array(sortedOutputs.prefix(maxInputCount))
-    }
-
-    func buildForSign(_ transaction: Transaction) throws -> (KaspaTransaction, [Data]) {
-        switch transaction.amount.type {
-        case .token(let token):
-            let commitTx = try buildCommitTransactionKRC20(transaction: transaction, token: token)
-            return (commitTx.transaction, commitTx.hashes)
-        default:
-            break
-        }
-
-        let availableInputValue = availableAmount()
-
-        guard transaction.amount.type == availableInputValue.type,
-              transaction.amount <= availableInputValue else {
-            throw WalletError.failedToBuildTx
-        }
-
-        let destinationAddressScript = try scriptPublicKey(address: transaction.destinationAddress).hexString.lowercased()
-
-        var outputs: [KaspaOutput] = [
-            KaspaOutput(
-                amount: amount(from: transaction),
-                scriptPublicKey: KaspaScriptPublicKey(scriptPublicKey: destinationAddressScript)
-            ),
-        ]
-
-        if let change = try change(transaction, unspentOutputs: unspentOutputs) {
-            let sourceAddressScript = try scriptPublicKey(address: transaction.sourceAddress).hexString.lowercased()
-
-            outputs.append(
-                KaspaOutput(
-                    amount: change,
-                    scriptPublicKey: KaspaScriptPublicKey(scriptPublicKey: sourceAddressScript)
-                )
-            )
-        }
-
-        let kaspaTransaction = KaspaTransaction(inputs: unspentOutputs, outputs: outputs)
-
-        let hashes = unspentOutputs.enumerated().map { index, unspentOutput in
-            let value = unspentOutput.amount
-            return kaspaTransaction.hashForSignatureWitness(
-                inputIndex: index,
-                connectedScript: Data(hexString: unspentOutput.outputScript),
-                prevValue: value
-            )
-        }
-
-        return (kaspaTransaction, hashes)
-    }
-
-    func buildForSend(transaction builtTransaction: KaspaTransaction, signatures: [Data]) -> KaspaTransactionData {
-        let inputs = builtTransaction.inputs.enumerated().map { index, input in
-            let sigHashAll: UInt8 = 1
-            let script = signatures[index] + sigHashAll.data
-            let size = UInt8(script.count)
-
-            let signatureScript = (size.data + script).hexadecimal
-            let outpoint = KaspaPreviousOutpoint(transactionId: input.transactionHash, index: input.outputIndex)
-            return KaspaInput(previousOutpoint: outpoint, signatureScript: signatureScript)
-        }
-
-        return KaspaTransactionData(inputs: inputs, outputs: builtTransaction.outputs)
-    }
-
-    func buildForSendReveal(transaction builtTransaction: KaspaTransaction, commitRedeemScript: KaspaKRC20.RedeemScript, signatures: [Data]) -> KaspaTransactionData {
-        let inputs = builtTransaction.inputs.enumerated().map { index, input in
-            let sigHashAll: UInt8 = 1
-            let script = signatures[index] + sigHashAll.data
-            let size = UInt8(script.count)
-
-            let outpoint = KaspaPreviousOutpoint(transactionId: input.transactionHash, index: input.outputIndex)
-
-            switch index {
-            case 0:
-                let commitRedeemScriptData = commitRedeemScript.data
-                let commitRedeemScriptDataCount = commitRedeemScriptData.count
-                var commitRedeemScriptOpCodeData: Data
-
-                switch commitRedeemScriptDataCount {
-                case 0 ... 255:
-                    commitRedeemScriptOpCodeData = OpCode.OP_PUSHDATA1.value.data + UInt8(commitRedeemScriptDataCount & 0xff).data
-                case 255 ... 65535:
-                    commitRedeemScriptOpCodeData = OpCode.OP_PUSHDATA2.value.data + UInt16(commitRedeemScriptDataCount & 0xffff).data
-                default:
-                    commitRedeemScriptOpCodeData = OpCode.OP_PUSHDATA4.value.data + UInt32(commitRedeemScriptDataCount & 0xffffffff).data
-                }
-
-                let signatureScript = (size.data + script + commitRedeemScriptOpCodeData + commitRedeemScript.data).hexadecimal
-                return KaspaInput(previousOutpoint: outpoint, signatureScript: signatureScript)
-
-            default:
-                let signatureScript = (size.data + script).hexadecimal
-                return KaspaInput(previousOutpoint: outpoint, signatureScript: signatureScript)
-            }
-        }
-
-        return KaspaTransactionData(inputs: inputs, outputs: builtTransaction.outputs)
-    }
-
-    func buildForMassCalculation(transaction: Transaction) throws -> KaspaTransactionData {
-        let amountValue = min(transaction.amount.value, availableAmount().value)
-        let amount = Amount(with: blockchain, value: amountValue)
-
-        let transaction = transaction.withAmount(amount)
-
-        let builtTransaction = try buildForSign(transaction).0
-        let dummySignature = Data(repeating: 1, count: 65)
-        return buildForSend(
-            transaction: builtTransaction,
-            signatures: Array(
-                repeating: dummySignature,
-                count: builtTransaction.inputs.count
-            )
-        )
-    }
-
-    private func amount(from transaction: Transaction) -> UInt64 {
-        return ((transaction.amount.value * blockchain.decimalValue) as NSDecimalNumber).uint64Value
-    }
-
-    private func change(_ transaction: Transaction, unspentOutputs: [BitcoinUnspentOutput]) throws -> UInt64? {
-        let fullAmount = unspentOutputs.map { $0.amount }.reduce(0, +)
-        let transactionAmount = ((transaction.amount.value * blockchain.decimalValue).rounded() as NSDecimalNumber).uint64Value
-        let feeAmount = ((transaction.fee.amount.value * blockchain.decimalValue).rounded() as NSDecimalNumber).uint64Value
-
-        let amountCharged = transactionAmount + feeAmount
-        if fullAmount > amountCharged {
-            return fullAmount - amountCharged
-        } else if fullAmount == amountCharged {
-            return nil
-        } else {
-            throw WalletError.failedToBuildTx
-        }
-    }
-
-    private func scriptPublicKey(address: String) throws -> Data {
-        guard let components = addressService.parse(address) else {
-            throw WalletError.failedToBuildTx
-        }
-
-        let startOpCode: OpCode?
-        let endOpCode: OpCode
-
-        switch components.type {
-        case .P2PK_Schnorr:
-            startOpCode = nil
-            endOpCode = OpCode.OP_CHECKSIG
-        case .P2PK_ECDSA:
-            startOpCode = nil
-            endOpCode = OpCode.OP_CODESEPARATOR
-        case .P2SH:
-            startOpCode = OpCode.OP_HASH256
-            endOpCode = OpCode.OP_EQUAL
-        }
-
-        let startOpCodeData: Data
-        if let startOpCode {
-            startOpCodeData = startOpCode.value.data
-        } else {
-            startOpCodeData = Data()
-        }
-        let endOpCodeData = endOpCode.value.data
-        let size = UInt8(components.hash.count)
-
-        return startOpCodeData + size.data + components.hash + endOpCodeData
     }
 }
 
-extension KaspaTransactionBuilder {
-    func buildForMassCalculationKRC20(transaction: Transaction, token: Token) throws -> KaspaTransactionData {
-        let dummySignature = Data(repeating: 1, count: 65)
-        let commitTx = try buildCommitTransactionKRC20(transaction: transaction, token: token, includeFee: false)
+// MARK: - Coin
 
-        return buildForSend(
-            transaction: commitTx.transaction,
-            signatures: Array(
-                repeating: dummySignature,
-                count: commitTx.transaction.inputs.count
-            )
+extension KaspaTransactionBuilder {
+    func buildForSign(transaction: Transaction) throws -> (KaspaTransaction, [Data]) {
+        try buildForSign(amount: transaction.amount, feeType: .exactly(transaction.fee), destination: transaction.destinationAddress)
+    }
+
+    func buildForMassCalculation(amount: Amount, feeRate: Int, sourceAddress: String, destination: String) throws -> KaspaDTO.Send.Request.Transaction {
+        let amountValue = min(amount.value, availableAmount().value)
+        let amount = Amount(with: blockchain, value: amountValue)
+
+        let (builtTransaction, _) = try buildForSign(
+            amount: amount,
+            feeType: .calculation(feeRate: feeRate),
+            destination: destination
+        )
+
+        let dummySignature = Data(repeating: 1, count: 65)
+
+        return mapToTransaction(
+            transaction: builtTransaction,
+            signatures: Array(repeating: dummySignature, count: builtTransaction.inputs.count)
         )
     }
 
-    func buildForSignKRC20(transaction: Transaction, token: Token) throws -> (KaspaKRC20.TransactionGroup, KaspaKRC20.TransactionMeta) {
-        // Commit
-        let resultCommit = try buildCommitTransactionKRC20(transaction: transaction, token: token)
-
-        // Reveal
-        guard let feeParams = transaction.fee.parameters as? KaspaKRC20.TokenTransactionFeeParams else {
-            throw WalletError.failedToBuildTx
+    private func buildForSign(amount: Amount, feeType: FeeType, destination: String) throws -> (KaspaTransaction, [Data]) {
+        guard case .coin = amount.type else {
+            throw BlockchainSdkError.notImplemented
         }
 
+        try validateAvailableAmount(amount: amount)
+        let amount = amount.asSmallest().value.intValue()
+
+        let preImage: PreImageTransaction = try {
+            switch feeType {
+            case .exactly(let fee):
+                let fee = fee.amount.asSmallest().value.intValue()
+                return try unspentOutputManager.preImage(amount: amount, fee: fee, destination: destination)
+            case .calculation(let feeRate):
+                return try unspentOutputManager.preImage(amount: amount, feeRate: feeRate, destination: destination)
+            }
+        }()
+
+        let inputs: [KaspaTransaction.Input] = preImage.inputs.map {
+            .init(transactionHash: $0.hash, outputIndex: $0.index, amount: $0.amount, script: $0.script.data)
+        }
+
+        let outputs: [KaspaTransaction.Output] = preImage.outputs.map { output in
+            switch output {
+            case .destination(let script, let value):
+                return .init(amount: UInt64(value), scriptPublicKey: .init(script: script.data))
+            case .change(let script, let value):
+                return .init(amount: UInt64(value), scriptPublicKey: .init(script: script.data))
+            }
+        }
+
+        let kaspaTransaction = KaspaTransaction(inputs: inputs, outputs: outputs)
+        let hashes = kaspaTransaction.hashesForSignatureWitness()
+        return (kaspaTransaction, hashes)
+    }
+}
+
+// MARK: - Tokens
+
+extension KaspaTransactionBuilder {
+    func buildForSignKRC20(transaction: Transaction) throws -> (KaspaKRC20.TransactionGroup, KaspaKRC20.TransactionMeta) {
+        // Commit
+        let resultCommit = try buildCommitTransactionKRC20(
+            amount: transaction.amount,
+            feeType: .exactly(transaction.fee),
+            sourceAddress: transaction.sourceAddress,
+            destination: transaction.destinationAddress
+        )
+
+        // Reveal
         let resultReveal = try buildRevealTransactionKRC20(
             sourceAddress: transaction.sourceAddress,
             params: resultCommit.params,
-            fee: .init(feeParams.revealFee)
+            fee: transaction.fee
         )
 
         return (
@@ -259,50 +135,51 @@ extension KaspaTransactionBuilder {
         return try buildRevealTransactionKRC20(sourceAddress: sourceAddress, params: params, fee: fee)
     }
 
-    private func buildCommitTransactionKRC20(transaction: Transaction, token: Token, includeFee: Bool = true) throws -> KaspaKRC20.CommitTransaction {
-        let availableInputValue = availableAmount()
+    func buildForMassCalculationKRC20(amount: Amount, feeRate: Int, sourceAddress: String, destination: String) throws -> KaspaDTO.Send.Request.Transaction {
+        let dummySignature = Data(repeating: 1, count: 65)
+        let commitTx = try buildCommitTransactionKRC20(
+            amount: amount,
+            feeType: .calculation(feeRate: feeRate),
+            sourceAddress: sourceAddress,
+            destination: destination
+        )
 
-        // We check there are enough funds to cover the commission,
-        // the token transfer amount is not included in the verification
-        guard transaction.fee.amount.type == availableInputValue.type,
-              transaction.fee.amount <= availableInputValue else {
+        return mapToTransaction(
+            transaction: commitTx.transaction,
+            signatures: Array(repeating: dummySignature, count: commitTx.transaction.inputs.count)
+        )
+    }
+
+    private func buildCommitTransactionKRC20(amount: Amount, feeType: FeeType, sourceAddress: String, destination: String) throws -> KaspaKRC20.CommitTransaction {
+        guard case .token(let token) = amount.type else {
             throw WalletError.failedToBuildTx
         }
 
-        // Get the decimals value for the token to create an envelope
-        guard let tokenDecimalValue = transaction.amount.type.token?.decimalValue else {
-            throw WalletError.failedToBuildTx
-        }
+        func preImage() throws -> (preImage: PreImageTransaction, targetOutputAmount: Int) {
+            let dust = (Decimal(0.2) * blockchain.decimalValue).intValue()
 
-        let commitFeeAmount: Amount
-        let revealFeeAmount: Amount?
+            switch feeType {
+            case .exactly(let fee):
+                try validateAvailableAmount(amount: fee.amount)
 
-        // The includeFee flag determines whether we already know the commission value
-        // or the method is called for preliminary calculation mass
-        if includeFee {
-            // if the commission is included,
-            // but the additional fee parameter KaspaKRC20.RevealTransactionFeeParameter is missing - it is impossible to build a transaction
-            guard let feeParams = transaction.fee.parameters as? KaspaKRC20.TokenTransactionFeeParams else {
-                throw WalletError.failedToBuildTx
+                guard let feeParams = fee.parameters as? KaspaKRC20.TokenTransactionFeeParams else {
+                    throw WalletError.failedToBuildTx
+                }
+
+                let targetOutputAmount = dust + feeParams.revealFee.asSmallest().value.intValue()
+                let fee = feeParams.commitFee.asSmallest().value.intValue()
+                let preImage = try unspentOutputManager.preImage(amount: targetOutputAmount, fee: fee, destination: destination)
+                return (preImage: preImage, targetOutputAmount: targetOutputAmount)
+            case .calculation(let feeRate):
+                let preImage = try unspentOutputManager.preImage(amount: dust, feeRate: feeRate, destination: destination)
+                return (preImage: preImage, targetOutputAmount: dust)
             }
-
-            commitFeeAmount = feeParams.commitFee
-            revealFeeAmount = feeParams.revealFee
-        } else {
-            commitFeeAmount = transaction.fee.amount
-            revealFeeAmount = nil
         }
-
-        // if we don't know the commission, commission for reveal transaction will be set to zero
-        let feeEstimationRevealTransactionValue = ((revealFeeAmount?.value ?? 0) * blockchain.decimalValue).rounded()
-        let dust = (Decimal(0.2) * blockchain.decimalValue).rounded()
-
-        let tokenAmount = transaction.amount.value * tokenDecimalValue
 
         // The envelope will be used to create the RedeemScript and saved for use when building the Reveal transaction
         let envelope = KaspaKRC20.Envelope(
-            amount: tokenAmount,
-            recipient: transaction.destinationAddress,
+            amount: amount.asSmallest().value,
+            recipient: destination,
             ticker: token.contractAddress
         )
 
@@ -311,41 +188,28 @@ extension KaspaTransactionBuilder {
 
         // Create a RedeemScript for the 1st output of the Commit transaction, this is part of the KRC20 protocol
         let redeemScript = KaspaKRC20.RedeemScript(publicKey: publicKey, envelope: envelope)
-        let targetOutputAmount = dust.uint64Value + feeEstimationRevealTransactionValue.uint64Value
 
-        // 1st output of the Commit transaction
-        var outputs = [
-            KaspaOutput(
-                amount: targetOutputAmount,
-                scriptPublicKey: .init(scriptPublicKey: redeemScript.redeemScriptHash.hexadecimal)
-            ),
-        ]
+        // Build preImage transaction
+        let (preImage, targetOutputAmount) = try preImage()
 
-        let sourceAddressScript = try scriptPublicKey(address: transaction.sourceAddress).hexString.lowercased()
+        let inputs: [KaspaTransaction.Input] = preImage.inputs.map {
+            .init(transactionHash: $0.hash, outputIndex: $0.index, amount: $0.amount, script: $0.script.data)
+        }
 
-        // 2nd output of the Commit transaction, create it if we still have funds that need to be returned to the source address.
-        // Change = all available funds - (dust + estimated reveal transaction fee + estimated commit transaction fee)
-        if let change = try change(amount: dust + feeEstimationRevealTransactionValue, fee: (commitFeeAmount.value * blockchain.decimalValue).rounded(), unspentOutputs: unspentOutputs) {
-            outputs.append(
-                KaspaOutput(
-                    amount: change,
-                    scriptPublicKey: KaspaScriptPublicKey(scriptPublicKey: sourceAddressScript)
-                )
-            )
+        let outputs: [KaspaTransaction.Output] = preImage.outputs.map { output in
+            switch output {
+            case .destination(_, let value):
+                return .init(amount: UInt64(value), scriptPublicKey: .init(script: redeemScript.redeemScriptHash))
+            case .change(let script, let value):
+                return .init(amount: UInt64(value), scriptPublicKey: .init(script: script.data))
+            }
         }
 
         // Build Commit transaction
-        let commitTransaction = KaspaTransaction(inputs: unspentOutputs, outputs: outputs)
+        let commitTransaction = KaspaTransaction(inputs: inputs, outputs: outputs)
 
         // Prepare hashes for signing
-        let commitHashes = unspentOutputs.enumerated().map { index, unspentOutput in
-            let value = unspentOutput.amount
-            return commitTransaction.hashForSignatureWitness(
-                inputIndex: index,
-                connectedScript: Data(hexString: unspentOutput.outputScript),
-                prevValue: value
-            )
-        }
+        let commitHashes = commitTransaction.hashesForSignatureWitness()
 
         // Get transactionId of the Commit transaction for use when creating utxo for Reveal transaction
         guard let txid = commitTransaction.transactionId else {
@@ -357,11 +221,11 @@ extension KaspaTransactionBuilder {
             transaction: commitTransaction,
             hashes: commitHashes,
             redeemScript: redeemScript,
-            sourceAddress: transaction.sourceAddress,
+            sourceAddress: sourceAddress,
             params: .init(
                 transactionId: txid.hexadecimal,
-                amount: transaction.amount.value,
-                targetOutputAmount: targetOutputAmount,
+                amount: amount.value,
+                targetOutputAmount: UInt64(targetOutputAmount),
                 envelope: envelope
             )
         )
@@ -375,46 +239,120 @@ extension KaspaTransactionBuilder {
         // Some older cards use uncompressed secp256k1 public keys, while Kaspa only works with compressed ones
         let publicKey = try Secp256k1Key(with: walletPublicKey.blockchainKey).compress()
         let redeemScript = KaspaKRC20.RedeemScript(publicKey: publicKey, envelope: params.envelope)
-        let sourceAddressScript = try scriptPublicKey(address: sourceAddress).hexString.lowercased()
+        let sourceAddressScript = try addressService.scriptPublicKey(address: sourceAddress)
 
-        let utxo = [
-            BitcoinUnspentOutput(
-                transactionHash: params.transactionId,
+        guard let feeParams = fee.parameters as? KaspaKRC20.TokenTransactionFeeParams else {
+            throw WalletError.failedToBuildTx
+        }
+
+        let inputs: [KaspaTransaction.Input] = [
+            .init(
+                transactionHash: Data(hexString: params.transactionId),
                 outputIndex: 0,
                 amount: params.targetOutputAmount,
-                outputScript: redeemScript.redeemScriptHash.hexadecimal
+                script: redeemScript.redeemScriptHash
             ),
         ]
 
-        let change = try change(amount: 0, fee: (fee.amount.value * blockchain.decimalValue).rounded(), unspentOutputs: utxo)!
+        let fullAmount = inputs.sum(by: \.amount)
+        let fee = feeParams.revealFee.asSmallest().value.rounded().uint64Value
+        let change = fullAmount - fee
 
-        let outputs = [
-            KaspaOutput(amount: change, scriptPublicKey: KaspaScriptPublicKey(scriptPublicKey: sourceAddressScript)),
+        let outputs: [KaspaTransaction.Output] = [
+            .init(amount: change, scriptPublicKey: .init(script: sourceAddressScript)),
         ]
 
-        let transaction = KaspaTransaction(inputs: utxo, outputs: outputs)
-        let hashes = utxo.enumerated().map { index, unspentOutput in
-            let value = unspentOutput.amount
-            return transaction.hashForSignatureWitness(
-                inputIndex: index,
-                connectedScript: Data(hexString: unspentOutput.outputScript),
-                prevValue: value
-            )
-        }
+        let transaction = KaspaTransaction(inputs: inputs, outputs: outputs)
+        let hashes = transaction.hashesForSignatureWitness()
 
         return KaspaKRC20.RevealTransaction(transaction: transaction, hashes: hashes, redeemScript: redeemScript)
     }
+}
 
-    private func change(amount: Decimal, fee: Decimal, unspentOutputs: [BitcoinUnspentOutput]) throws -> UInt64? {
-        let fullAmount = unspentOutputs.map { $0.amount }.reduce(0, +)
-        let transactionAmount = (amount as NSDecimalNumber).uint64Value
-        let feeAmount = (fee as NSDecimalNumber).uint64Value
+// MARK: - Mapping
 
-        let amountCharged = transactionAmount + feeAmount
-        if fullAmount > amountCharged {
-            return fullAmount - amountCharged
+extension KaspaTransactionBuilder {
+    /// Build the transaction DTO model which will be send to API
+    func mapToTransaction(transaction: KaspaTransaction, signatures: [Data]) -> KaspaDTO.Send.Request.Transaction {
+        let inputs: [KaspaDTO.Send.Request.Transaction.Input] = transaction.inputs.enumerated().map { index, input in
+            let sigHashAll: UInt8 = 1
+            let script = signatures[index] + sigHashAll.data
+            let signatureScript = OpCode.push(script).hexString.lowercased()
+
+            let outpoint = KaspaDTO.Send.Request.Transaction.Input.PreviousOutpoint(
+                transactionId: input.transactionHash.hexString.lowercased(),
+                index: input.outputIndex
+            )
+
+            return .init(previousOutpoint: outpoint, signatureScript: signatureScript)
         }
 
-        return nil
+        let outputs: [KaspaDTO.Send.Request.Transaction.Output] = transaction.outputs.map {
+            .init(
+                amount: $0.amount,
+                scriptPublicKey: .init(
+                    scriptPublicKey: $0.scriptPublicKey.script.hexString.lowercased(),
+                    version: $0.scriptPublicKey.version
+                )
+            )
+        }
+
+        return KaspaDTO.Send.Request.Transaction(inputs: inputs, outputs: outputs)
+    }
+
+    func mapToRevealTransaction(transaction builtTransaction: KaspaTransaction, commitRedeemScript: Data, signatures: [Data]) -> KaspaDTO.Send.Request.Transaction {
+        let inputs: [KaspaDTO.Send.Request.Transaction.Input] = builtTransaction.inputs.enumerated().map { index, input in
+            let sigHashAll: UInt8 = 1
+            let script = signatures[index] + sigHashAll.data
+
+            let outpoint = KaspaDTO.Send.Request.Transaction.Input.PreviousOutpoint(
+                transactionId: input.transactionHash.hexString.lowercased(),
+                index: input.outputIndex
+            )
+
+            switch index {
+            case 0:
+                let signatureScript = (OpCode.push(script) + OpCode.push(commitRedeemScript)).hexString.lowercased()
+                return .init(previousOutpoint: outpoint, signatureScript: signatureScript)
+
+            default:
+                let signatureScript = OpCode.push(script).hexString.lowercased()
+                return .init(previousOutpoint: outpoint, signatureScript: signatureScript)
+            }
+        }
+
+        let outputs: [KaspaDTO.Send.Request.Transaction.Output] = builtTransaction.outputs.map {
+            .init(
+                amount: $0.amount,
+                scriptPublicKey: .init(
+                    scriptPublicKey: $0.scriptPublicKey.script.hexString.lowercased(),
+                    version: $0.scriptPublicKey.version
+                )
+            )
+        }
+
+        return .init(inputs: inputs, outputs: outputs)
+    }
+}
+
+// MARK: - Validation
+
+private extension KaspaTransactionBuilder {
+    func validateAvailableAmount(amount: Amount) throws {
+        let availableInputValue = availableAmount()
+
+        guard amount.type == availableInputValue.type,
+              amount <= availableInputValue else {
+            throw WalletError.failedToBuildTx
+        }
+
+        // All good
+    }
+}
+
+extension KaspaTransactionBuilder {
+    enum FeeType {
+        case exactly(Fee)
+        case calculation(feeRate: Int)
     }
 }

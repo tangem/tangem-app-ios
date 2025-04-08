@@ -9,14 +9,14 @@
 import Foundation
 
 struct AlephiumAPIResolver {
-    let config: BlockchainSdkConfig
+    let keysConfig: BlockchainSdkKeysConfig
 
     func resolve(providerType: NetworkProviderType, blockchain: Blockchain) -> NodeInfo? {
         guard case .alephium = blockchain else {
             return nil
         }
 
-        let keysInfo = APIKeysInfoProvider(blockchain: blockchain, config: config).apiKeys(for: providerType)
+        let keysInfo = APIKeysInfoProvider(blockchain: blockchain, keysConfig: keysConfig).apiKeys(for: providerType)
         switch providerType {
         case .tangemAlephium:
             return .init(url: URL(string: "https://alephium-tangem-7c3be5.alephium.org/")!, keyInfo: keysInfo)

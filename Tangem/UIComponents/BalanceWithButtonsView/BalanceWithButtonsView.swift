@@ -6,8 +6,10 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
 import Combine
+import TangemLocalization
+import SwiftUI
+import TangemAssets
 
 struct BalanceWithButtonsView: View {
     @ObservedObject var viewModel: BalanceWithButtonsViewModel

@@ -19,25 +19,29 @@ struct LitecoinWalletAssembly: WalletManagerAssembly {
             bip: .bip84
         )
 
-        let txBuilder = BitcoinTransactionBuilder(bitcoinManager: bitcoinManager, addresses: input.wallet.addresses)
-
-        let providers: [AnyBitcoinNetworkProvider] = input.apiInfo.reduce(into: []) { partialResult, providerType in
+        let unspentOutputManager: UnspentOutputManager = .litecoin(address: input.wallet.defaultAddress)
+        let txBuilder = BitcoinTransactionBuilder(
+            bitcoinManager: bitcoinManager,
+            unspentOutputManager: unspentOutputManager,
+            addresses: input.wallet.addresses
+        )
+        let providers: [UTXONetworkProvider] = input.networkInput.apiInfo.reduce(into: []) { partialResult, providerType in
             switch providerType {
             case .nowNodes:
                 partialResult.append(
-                    networkProviderAssembly.makeBlockBookUTXOProvider(with: input, for: .nowNodes).eraseToAnyBitcoinNetworkProvider()
+                    networkProviderAssembly.makeBlockBookUTXOProvider(with: input.networkInput, for: .nowNodes)
                 )
             case .getBlock:
                 partialResult.append(
-                    networkProviderAssembly.makeBlockBookUTXOProvider(with: input, for: .getBlock).eraseToAnyBitcoinNetworkProvider()
+                    networkProviderAssembly.makeBlockBookUTXOProvider(with: input.networkInput, for: .getBlock)
                 )
             case .blockchair:
                 partialResult.append(
-                    contentsOf: networkProviderAssembly.makeBlockchairNetworkProviders(endpoint: .litecoin, with: input)
+                    contentsOf: networkProviderAssembly.makeBlockchairNetworkProviders(endpoint: .litecoin, with: input.networkInput)
                 )
             case .blockcypher:
                 partialResult.append(
-                    networkProviderAssembly.makeBlockcypherNetworkProvider(endpoint: .litecoin, with: input).eraseToAnyBitcoinNetworkProvider()
+                    networkProviderAssembly.makeBlockcypherNetworkProvider(endpoint: .litecoin, with: input.networkInput)
                 )
             default:
                 return
@@ -45,6 +49,6 @@ struct LitecoinWalletAssembly: WalletManagerAssembly {
         }
 
         let networkService = LitecoinNetworkService(providers: providers)
-        return BitcoinWalletManager(wallet: input.wallet, txBuilder: txBuilder, networkService: networkService)
+        return BitcoinWalletManager(wallet: input.wallet, txBuilder: txBuilder, unspentOutputManager: unspentOutputManager, networkService: networkService)
     }
 }

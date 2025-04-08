@@ -6,8 +6,9 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
+import TangemAssets
+import TangemUI
 
 struct SettingsUserWalletRowView: View {
     @ObservedObject var viewModel: SettingsUserWalletRowViewModel

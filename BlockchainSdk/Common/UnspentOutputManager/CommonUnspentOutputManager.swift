@@ -9,41 +9,91 @@
 import TangemFoundation
 
 class CommonUnspentOutputManager {
-    private var outputs: ThreadSafeContainer<[Data: [UnspentOutput]]> = [:]
-}
+    private var outputs: ThreadSafeContainer<[UTXOLockingScript: [UnspentOutput]]> = [:]
 
-extension CommonUnspentOutputManager: UnspentOutputManager {
-    func update(outputs: [UnspentOutput], for script: Data) {
-        self.outputs.mutate { $0[script] = outputs }
+    private let address: any Address
+    private let preImageTransactionBuilder: UTXOPreImageTransactionBuilder
+    private let lockingScriptBuilder: LockingScriptBuilder
+
+    init(
+        address: any Address,
+        preImageTransactionBuilder: UTXOPreImageTransactionBuilder,
+        lockingScriptBuilder: LockingScriptBuilder
+    ) {
+        self.address = address
+        self.preImageTransactionBuilder = preImageTransactionBuilder
+        self.lockingScriptBuilder = lockingScriptBuilder
     }
 
+    /// Will be overridden in KaspaUnspentOutputManager
     func allOutputs() -> [ScriptUnspentOutput] {
         outputs.read().flatMap { key, value in
             value.map { ScriptUnspentOutput(output: $0, script: key) }
         }
     }
+}
 
-    func outputs(for amount: UInt64, script: Data) throws -> [UnspentOutput] {
-        guard let outputs = outputs[script] else {
-            BSDKLogger.error(error: "No outputs for \(script)")
-            throw Errors.noOutputs
-        }
+// MARK: - UnspentOutputManager
 
-        // [REDACTED_TODO_COMMENT]
-        // [REDACTED_INFO]
-        return outputs
+extension CommonUnspentOutputManager: UnspentOutputManager {
+    func update(outputs: [UnspentOutput], for address: String) throws {
+        let script = try lockingScriptBuilder.lockingScript(for: address)
+        self.outputs.mutate { $0[script] = outputs }
+    }
+
+    func update(outputs: [UnspentOutput], for script: UTXOLockingScript) {
+        self.outputs.mutate { $0[script] = outputs }
+    }
+
+    func preImage(amount: Int, fee: Int, destination: String) throws -> PreImageTransaction {
+        assert(fee > 0, "Fee can't be zero")
+
+        return try preImage(amount: amount, fee: .exactly(fee: fee), destination: destination)
+    }
+
+    func preImage(amount: Int, feeRate: Int, destination: String) throws -> PreImageTransaction {
+        assert(feeRate > 0, "FeeRate can't be zero")
+
+        return try preImage(amount: amount, fee: .calculate(feeRate: feeRate), destination: destination)
+    }
+
+    func confirmedBalance() -> UInt64 {
+        outputs.read().flatMap { $0.value }.filter { $0.isConfirmed }.sum(by: \.amount)
+    }
+
+    func unconfirmedBalance() -> UInt64 {
+        outputs.read().flatMap { $0.value }.filter { !$0.isConfirmed }.sum(by: \.amount)
     }
 }
 
-extension CommonUnspentOutputManager {
-    enum Errors: LocalizedError {
-        case noOutputs
+// MARK: - Private
 
-        var errorDescription: String? {
-            switch self {
-            case .noOutputs:
-                return "No outputs"
-            }
+private extension CommonUnspentOutputManager {
+    func preImage(amount: Int, fee: UTXOPreImageTransactionBuilderFee, destination: String) throws -> PreImageTransaction {
+        let changeScript = try lockingScriptBuilder.lockingScript(for: address)
+        let destinationScript = try lockingScriptBuilder.lockingScript(for: destination)
+
+        let preImage = try preImageTransactionBuilder.preImage(
+            outputs: allOutputs(),
+            changeScript: changeScript.type,
+            destination: .init(amount: amount, script: destinationScript.type),
+            fee: fee
+        )
+
+        // Check fee rate to exclude too big fee
+        var outputs: [PreImageTransaction.OutputType] = [
+            .destination(destinationScript, value: preImage.destination),
+        ]
+
+        if preImage.change > .zero {
+            outputs.append(.change(changeScript, value: preImage.change))
         }
+
+        let preImageTransaction = PreImageTransaction(inputs: preImage.outputs, outputs: outputs, fee: preImage.fee)
+
+        assert(!preImageTransaction.inputs.isEmpty, "Inputs has to have at least one UTXO")
+        assert(!preImageTransaction.outputs.isEmpty, "Outputs has to have at least destination output")
+
+        return preImageTransaction
     }
 }

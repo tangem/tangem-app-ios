@@ -19,44 +19,54 @@ struct DogecoinWalletAssembly: WalletManagerAssembly {
             bip: .bip44
         )
 
-        let txBuilder = BitcoinTransactionBuilder(bitcoinManager: bitcoinManager, addresses: input.wallet.addresses)
+        let unspentOutputManager: UnspentOutputManager = .dogecoin(address: input.wallet.defaultAddress)
+        let txBuilder = BitcoinTransactionBuilder(
+            bitcoinManager: bitcoinManager,
+            unspentOutputManager: unspentOutputManager,
+            addresses: input.wallet.addresses
+        )
 
-        let providers: [AnyBitcoinNetworkProvider] = input.apiInfo.reduce(into: []) { partialResult, providerType in
+        let providers: [UTXONetworkProvider] = input.networkInput.apiInfo.reduce(into: []) { partialResult, providerType in
             switch providerType {
             case .nowNodes:
                 partialResult.append(
                     networkProviderAssembly.makeBlockBookUTXOProvider(
-                        with: input,
+                        with: input.networkInput,
                         for: .nowNodes
-                    ).eraseToAnyBitcoinNetworkProvider()
+                    )
                 )
             case .getBlock:
                 partialResult.append(
                     networkProviderAssembly.makeBlockBookUTXOProvider(
-                        with: input,
+                        with: input.networkInput,
                         for: .getBlock
-                    ).eraseToAnyBitcoinNetworkProvider()
+                    )
                 )
             case .blockchair:
                 partialResult.append(
                     contentsOf: networkProviderAssembly.makeBlockchairNetworkProviders(
                         endpoint: .dogecoin,
-                        with: input
+                        with: input.networkInput
                     )
                 )
             case .blockcypher:
                 partialResult.append(
                     networkProviderAssembly.makeBlockcypherNetworkProvider(
                         endpoint: .dogecoin,
-                        with: input
-                    ).eraseToAnyBitcoinNetworkProvider()
+                        with: input.networkInput
+                    )
                 )
             default:
                 return
             }
         }
 
-        let networkService = BitcoinNetworkService(providers: providers)
-        return DogecoinWalletManager(wallet: input.wallet, txBuilder: txBuilder, networkService: networkService)
+        let networkService = MultiUTXONetworkProvider(providers: providers)
+        return DogecoinWalletManager(
+            wallet: input.wallet,
+            txBuilder: txBuilder,
+            unspentOutputManager: unspentOutputManager,
+            networkService: networkService
+        )
     }
 }
