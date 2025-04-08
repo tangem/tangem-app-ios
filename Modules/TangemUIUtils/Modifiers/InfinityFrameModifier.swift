@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-extension View {
+public extension View {
     func infinityFrame(
         axis: Axis.Set = [.horizontal, .vertical],
         alignment: Alignment = .center
