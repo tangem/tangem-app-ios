@@ -9,17 +9,23 @@
 import SwiftUI
 import Kingfisher
 import TangemAssets
-import TangemStories
+import TangemUI
 
-struct SwapStoryPageView: View {
+public struct SwapStoryPageView: View {
     private static let iOS18Available: Bool = if #available(iOS 18.0, *) { true } else { false }
-    @Injected(\.storyKingfisherImageCache) private var storyKingfisherImageCache: ImageCache
+
     @State private var startPoint = UnitPoint(x: -1, y: -1)
     @State private var endPoint = UnitPoint(x: 0.0, y: 0.0)
 
-    let page: TangemStory.SwapStoryData.Page
+    private let page: TangemStory.SwapStoryData.Page
+    private let kingfisherImageCache: ImageCache
 
-    var body: some View {
+    public init(page: TangemStory.SwapStoryData.Page, kingfisherImageCache: ImageCache) {
+        self.page = page
+        self.kingfisherImageCache = kingfisherImageCache
+    }
+
+    public var body: some View {
         GeometryReader { proxy in
             VStack(spacing: .zero) {
                 Spacer()
@@ -61,7 +67,7 @@ struct SwapStoryPageView: View {
 
             if let imageURL = page.image?.url {
                 KFImage(imageURL)
-                    .targetCache(storyKingfisherImageCache)
+                    .targetCache(kingfisherImageCache)
                     .cancelOnDisappear(true)
                     .resizable()
                     .scaledToFill()
@@ -104,7 +110,8 @@ struct SwapStoryPageView: View {
             page: .init(
                 title: "Impenetrable Defense",
                 subtitle: "No fumbles, no turnovers, no blind spots—your transaction is always protected"
-            )
+            ),
+            kingfisherImageCache: .default
         )
 
         var body: some View {
