@@ -11,7 +11,10 @@ import protocol TangemUI.FloatingSheetContentViewModel
 @MainActor
 protocol FloatingSheetPresenter {
     func enqueue(sheet: some FloatingSheetContentViewModel)
+
     func removeActiveSheet()
+    func removeAllSheets()
+
     func pauseSheetsDisplaying()
     func resumeSheetsDisplaying()
 }

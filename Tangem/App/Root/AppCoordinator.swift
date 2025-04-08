@@ -31,6 +31,7 @@ class AppCoordinator: CoordinatorObject {
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
     @Injected(\.appLockController) private var appLockController: AppLockController
     @Injected(\.overlayContentContainer) private var overlayContentContainer: OverlayContentContainer
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
     // MARK: - Child coordinators
 
@@ -182,11 +183,53 @@ class AppCoordinator: CoordinatorObject {
                 coordinator.overlayContentContainer.setOverlayHidden(!isShown)
             }
             .store(in: &bag)
+
+        $viewState
+            .dropFirst()
+            .combineLatest(userWalletRepository.eventProvider, AppSettings.shared.$marketsTooltipWasShown)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] viewState, walletRepositoryEvent, marketsTooltipWasShown in
+                MainActor.assumeIsolated {
+                    self?.updateFloatingSheetPresenterState(viewState, walletRepositoryEvent, marketsTooltipWasShown)
+                }
+            }
+            .store(in: &bag)
     }
 
     private func setState(_ newViewState: AppCoordinator.ViewState) {
         DispatchQueue.main.async {
             self.viewState = newViewState
+        }
+    }
+
+    @MainActor
+    private func updateFloatingSheetPresenterState(
+        _ viewState: ViewState?,
+        _ userWalletRepositoryEvent: UserWalletRepositoryEvent,
+        _ marketsTooltipWasShown: Bool
+    ) {
+        guard marketsTooltipWasShown else {
+            floatingSheetPresenter.pauseSheetsDisplaying()
+            return
+        }
+
+        guard case .main = viewState else {
+            floatingSheetPresenter.pauseSheetsDisplaying()
+            return
+        }
+
+        switch userWalletRepositoryEvent {
+        case .locked:
+            floatingSheetPresenter.removeAllSheets()
+            floatingSheetPresenter.pauseSheetsDisplaying()
+
+        case .scan(let isScanning):
+            isScanning
+                ? floatingSheetPresenter.pauseSheetsDisplaying()
+                : floatingSheetPresenter.resumeSheetsDisplaying()
+
+        case .biometryUnlocked, .inserted, .updated, .deleted, .selected, .replaced:
+            floatingSheetPresenter.resumeSheetsDisplaying()
         }
     }
 }
