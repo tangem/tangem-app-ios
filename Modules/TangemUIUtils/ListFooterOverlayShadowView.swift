@@ -9,8 +9,10 @@
 import SwiftUI
 import TangemAssets
 
-struct ListFooterOverlayShadowView: View {
-    var body: some View {
+public struct ListFooterOverlayShadowView: View {
+    public init() {}
+
+    public var body: some View {
         LinearGradient(
             colors: [
                 Colors.Background.primary.opacity(0.0),
