@@ -7,9 +7,10 @@
 //
 
 import SwiftUI
+import TangemUIUtils
 import TangemAssets
 
-struct MainButton: View {
+public struct MainButton: View {
     private let title: String
     private let subtitle: String?
     private let icon: Icon?
@@ -21,7 +22,7 @@ struct MainButton: View {
 
     private var isLoading: Bool
 
-    init(
+    public init(
         title: String,
         subtitle: String? = nil,
         icon: Icon? = nil,
@@ -43,7 +44,7 @@ struct MainButton: View {
         self.action = action
     }
 
-    init(settings: Settings) {
+    public init(settings: Settings) {
         self.init(
             title: settings.title,
             subtitle: settings.subtitle,
@@ -56,7 +57,7 @@ struct MainButton: View {
         )
     }
 
-    var body: some View {
+    public var body: some View {
         Button(action: action) {
             content
                 .frame(maxWidth: .infinity, minHeight: size.height, maxHeight: size.height, alignment: .center)
@@ -147,7 +148,7 @@ struct MainButton: View {
     }
 }
 
-extension MainButton {
+public extension MainButton {
     enum Icon: Hashable {
         case leading(_ icon: ImageType)
         case trailing(_ icon: ImageType)
@@ -205,7 +206,7 @@ extension MainButton {
             }
         }
 
-        func background(isDisabled: Bool) -> Color {
+        public func background(isDisabled: Bool) -> Color {
             if isDisabled {
                 return Colors.Button.disabled
             }
@@ -226,7 +227,7 @@ extension MainButton {
             return Colors.Stroke.primary
         }
 
-        func cornerRadius(for size: MainButton.Size) -> Double {
+        public func cornerRadius(for size: MainButton.Size) -> Double {
             switch size {
             case .default:
                 return 14
@@ -242,7 +243,7 @@ extension MainButton {
         /// Height: 40
         case notification
 
-        var height: CGFloat {
+        public var height: CGFloat {
             switch self {
             case .default: return 46
             case .notification: return 40
@@ -251,18 +252,18 @@ extension MainButton {
     }
 
     struct Settings: Identifiable, Hashable {
-        let title: String
-        let subtitle: String?
-        let icon: Icon?
-        let style: Style
-        let size: Size
-        let isLoading: Bool
-        var isDisabled: Bool
-        let action: () -> Void
+        public let title: String
+        public let subtitle: String?
+        public let icon: Icon?
+        public let style: Style
+        public let size: Size
+        public let isLoading: Bool
+        public var isDisabled: Bool
+        public let action: () -> Void
 
-        var id: Int { hashValue }
+        public var id: Int { hashValue }
 
-        init(
+        public init(
             title: String,
             subtitle: String? = nil,
             icon: Icon? = nil,
@@ -282,11 +283,11 @@ extension MainButton {
             self.action = action
         }
 
-        static func == (lhs: MainButton.Settings, rhs: MainButton.Settings) -> Bool {
+        public static func == (lhs: MainButton.Settings, rhs: MainButton.Settings) -> Bool {
             lhs.hashValue == rhs.hashValue
         }
 
-        func hash(into hasher: inout Hasher) {
+        public func hash(into hasher: inout Hasher) {
             hasher.combine(title)
             hasher.combine(subtitle)
             hasher.combine(icon)
@@ -299,70 +300,18 @@ extension MainButton {
 }
 
 extension MainButton: Setupable {
-    func setIsLoading(to isLoading: Bool) -> Self {
+    public func setIsLoading(to isLoading: Bool) -> Self {
         map { $0.isLoading = isLoading }
     }
 }
 
 // MARK: - Previews
 
-struct MainButton_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            ForEach(MainButton.Style.allCases, id: \.hashValue) { style in
-                buttons(style: style)
-                    .previewDisplayName(style.rawValue)
-            }
-        }
-        .previewLayout(.sizeThatFits)
-    }
-
-    @ViewBuilder
-    static func buttons(style: MainButton.Style) -> some View {
-        VStack(spacing: 16) {
-            MainButton(
-                title: "Order card",
-                icon: .leading(Assets.tangemIcon),
-                style: style
-            ) {}
-
-            MainButton(
-                title: "Order card",
-                icon: .leading(Assets.tangemIcon),
-                style: style,
-                size: .notification,
-                isDisabled: true
-            ) {}
-
-            MainButton(
-                title: "Order card",
-                icon: .trailing(Assets.tangemIcon),
-                style: style
-            ) {}
-
-            MainButton(
-                title: "Order card",
-                icon: .trailing(Assets.tangemIcon),
-                style: style,
-                isDisabled: true
-            ) {}
-
-            MainButton(
-                title: "Order card",
-                icon: .trailing(Assets.tangemIcon),
-                style: style,
-                size: .notification,
-                isLoading: true
-            ) {}
-
-            MainButton(
-                title: "A long long long long long long long long long long text",
-                icon: .trailing(Assets.tangemIcon),
-                style: style,
-                isLoading: false
-            ) {}
-
-            HStack {
+#if DEBUG
+#Preview {
+    Group {
+        ForEach(MainButton.Style.allCases, id: \.hashValue) { style in
+            VStack(spacing: 16) {
                 MainButton(
                     title: "Order card",
                     icon: .leading(Assets.tangemIcon),
@@ -373,38 +322,85 @@ struct MainButton_Previews: PreviewProvider {
                     title: "Order card",
                     icon: .leading(Assets.tangemIcon),
                     style: style,
-                    size: .notification
-                ) {}
-            }
-
-            Group {
-                MainButton(
-                    title: "Do something",
-                    style: style
-                ) {}
-
-                MainButton(
-                    title: "Do something else",
-                    subtitle: "Or don't do it at all",
-                    style: style
+                    size: .notification,
+                    isDisabled: true
                 ) {}
 
                 MainButton(
                     title: "Order card",
-                    subtitle: "Blahblah",
-                    icon: .leading(Assets.tangemIcon),
-                    style: style
-                ) {}
-
-                MainButton(
-                    title: "Order card",
-                    subtitle: "Blahblah blahblah blahblah blahblah blahblah blahblah blahblah blahblah blahblah blahblah",
                     icon: .trailing(Assets.tangemIcon),
                     style: style
                 ) {}
+
+                MainButton(
+                    title: "Order card",
+                    icon: .trailing(Assets.tangemIcon),
+                    style: style,
+                    isDisabled: true
+                ) {}
+
+                MainButton(
+                    title: "Order card",
+                    icon: .trailing(Assets.tangemIcon),
+                    style: style,
+                    size: .notification,
+                    isLoading: true
+                ) {}
+
+                MainButton(
+                    title: "A long long long long long long long long long long text",
+                    icon: .trailing(Assets.tangemIcon),
+                    style: style,
+                    isLoading: false
+                ) {}
+
+                HStack {
+                    MainButton(
+                        title: "Order card",
+                        icon: .leading(Assets.tangemIcon),
+                        style: style
+                    ) {}
+
+                    MainButton(
+                        title: "Order card",
+                        icon: .leading(Assets.tangemIcon),
+                        style: style,
+                        size: .notification
+                    ) {}
+                }
+
+                Group {
+                    MainButton(
+                        title: "Do something",
+                        style: style
+                    ) {}
+
+                    MainButton(
+                        title: "Do something else",
+                        subtitle: "Or don't do it at all",
+                        style: style
+                    ) {}
+
+                    MainButton(
+                        title: "Order card",
+                        subtitle: "Blahblah",
+                        icon: .leading(Assets.tangemIcon),
+                        style: style
+                    ) {}
+
+                    MainButton(
+                        title: "Order card",
+                        subtitle: "Blahblah blahblah blahblah blahblah blahblah blahblah blahblah blahblah blahblah blahblah",
+                        icon: .trailing(Assets.tangemIcon),
+                        style: style
+                    ) {}
+                }
             }
+            .padding(.horizontal, 16)
+            .background(Colors.Background.secondary)
+            .previewDisplayName(style.rawValue)
         }
-        .padding(.horizontal, 16)
-        .background(Colors.Background.secondary)
     }
+    .previewLayout(.sizeThatFits)
 }
+#endif
