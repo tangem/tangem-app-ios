@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUIUtils
 
 struct SendCustomFeeInputField: View {
     @ObservedObject var viewModel: SendCustomFeeInputFieldModel

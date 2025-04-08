@@ -69,7 +69,7 @@ struct NFTEntrypointView: View {
     ) -> some View {
         switch collectionsState {
         case .noCollections:
-            Assets.Nft.no.image
+            Assets.Nft.noNFT.image
 
         case .oneCollection(let imageURL):
             makeImage(url: imageURL, size: Constants.ImageContainer.size)
