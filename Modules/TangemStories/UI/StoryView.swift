@@ -1,6 +1,6 @@
 //
 //  StoryView.swift
-//  TangemApp
+//  TangemStories
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -8,18 +8,18 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
-// [REDACTED_TODO_COMMENT]
-struct StoryView: View {
-    @ObservedObject var viewModel: StoryViewModel
-    let pageViews: [StoryPageView]
+public struct StoryView: View {
+    @ObservedObject private var viewModel: StoryViewModel
+    private let pageViews: [StoryPageView]
 
-    init(viewModel: StoryViewModel, pageViews: [StoryPageView]) {
+    public init(viewModel: StoryViewModel, pageViews: [StoryPageView]) {
         self.viewModel = viewModel
         self.pageViews = pageViews
     }
 
-    var body: some View {
+    public var body: some View {
         GeometryReader { proxy in
             ZStack(alignment: .top) {
                 preiOS18Gestures(proxy)
@@ -29,7 +29,7 @@ struct StoryView: View {
             .if(Self.iOS18Available) { content in
                 content
                     .gesture(longTapGesture)
-                    .gesture(shortTapGesture(proxy))
+                    .highPriorityGesture(shortTapGesture(proxy))
             }
             .readGeometry(inCoordinateSpace: .global) { geometryInfo in
                 let leftAnchor = geometryInfo.frame.minX / geometryInfo.size.width
