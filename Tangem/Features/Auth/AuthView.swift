@@ -9,6 +9,8 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemUIUtils
+import TangemUI
 
 struct AuthView: View {
     @ObservedObject private var viewModel: AuthViewModel
