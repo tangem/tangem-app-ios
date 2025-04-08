@@ -1,6 +1,6 @@
 //
 //  StoriesHostViewModel.swift
-//  TangemApp
+//  TangemStories
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -11,17 +11,17 @@ import Foundation
 import class UIKit.UIApplication
 import TangemFoundation
 
-// [REDACTED_TODO_COMMENT]
 @MainActor
-final class StoriesHostViewModel: ObservableObject {
+public final class StoriesHostViewModel: ObservableObject {
     private let onStoriesFinished: () -> Void
     private var cancellables = Set<AnyCancellable>()
 
-    let storyViewModels: [StoryViewModel]
     @Published var visibleStoryIndex: Int
     @Published private(set) var allowsHitTesting = true
 
-    init(
+    public let storyViewModels: [StoryViewModel]
+
+    public init(
         storyViewModels: [StoryViewModel],
         visibleStoryIndex: Int = 0,
         onStoriesFinished: @escaping () -> Void
