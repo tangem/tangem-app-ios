@@ -8,13 +8,11 @@
 import Foundation
 
 public enum ForcedCTServerTrustEvaluator {
-    public static var shouldForceCT: Bool {
-        #if ALPHA || BETA || DEBUG
-        return false
-        #else
-        return true
-        #endif
-    }
+    #if ALPHA || BETA || DEBUG
+    public static var shouldForceCT: Bool = false
+    #else
+    public static var shouldForceCT: Bool = true
+    #endif // ALPHA || BETA || DEBUG
 
     public static func evaluate(trust: SecTrust) throws {
         guard shouldForceCT else {
