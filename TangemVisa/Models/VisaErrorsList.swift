@@ -24,11 +24,12 @@ import TangemFoundation
 /// `008` - Card Authorization Processor
 /// `009` - Common Visa
 /// `010` - Payment account token Info loader
-extension VisaAPIError: UniversalError {
+/// `011` - PIN validator
+extension VisaAPIError: VisaError {
     public var errorCode: Int { 104001001 }
 }
 
-extension VisaAuthorizationTokensHandlerError: UniversalError {
+extension VisaAuthorizationTokensHandlerError: VisaError {
     public var errorCode: Int {
         switch self {
         case .authorizationTokensNotFound: return 104002001
@@ -42,7 +43,7 @@ extension VisaAuthorizationTokensHandlerError: UniversalError {
     }
 }
 
-extension VisaActivationError: UniversalError {
+extension VisaActivationError: VisaError {
     public var errorCode: Int {
         switch self {
         case .notImplemented: return 104003001
@@ -74,7 +75,7 @@ extension VisaActivationError: UniversalError {
     }
 }
 
-extension VisaAccessCodeValidationError: UniversalError {
+extension VisaAccessCodeValidationError: VisaError {
     public var errorCode: Int {
         switch self {
         case .accessCodeIsTooShort: return 104004001
@@ -82,11 +83,11 @@ extension VisaAccessCodeValidationError: UniversalError {
     }
 }
 
-extension VisaAuthorizationAPIError: UniversalError {
+extension VisaAuthorizationAPIError: VisaError {
     public var errorCode: Int { 104005001 }
 }
 
-extension PaymentologyPINCodeProcessor.PaymentologyError: UniversalError {
+extension PaymentologyPINCodeProcessor.PaymentologyError: VisaError {
     public var errorCode: Int {
         switch self {
         case .invalidSessionKeyFormat: return 104006001
@@ -99,7 +100,7 @@ extension PaymentologyPINCodeProcessor.PaymentologyError: UniversalError {
     }
 }
 
-extension VisaParserError: UniversalError {
+extension VisaParserError: VisaError {
     public var errorCode: Int {
         switch self {
         case .addressResponseDoesntContainAddress: return 104007001
@@ -114,7 +115,7 @@ extension VisaParserError: UniversalError {
     }
 }
 
-extension VisaCardAuthorizationProcessorError: UniversalError {
+extension VisaCardAuthorizationProcessorError: VisaError {
     public var errorCode: Int {
         switch self {
         case .authorizationChallengeNotFound: return 104008001
@@ -129,7 +130,7 @@ extension VisaCardAuthorizationProcessorError: UniversalError {
     }
 }
 
-extension VisaError: UniversalError {
+extension VisaUtilitiesError: VisaError {
     public var errorCode: Int {
         switch self {
         case .failedToCreateDerivation: return 104009001
@@ -143,7 +144,7 @@ extension VisaError: UniversalError {
     }
 }
 
-extension VisaTokenInfoLoader.LoaderError: UniversalError {
+extension VisaTokenInfoLoader.LoaderError: VisaError {
     public var errorCode: Int {
         switch self {
         case .failedToLoadInfo(let method):
@@ -153,6 +154,16 @@ extension VisaTokenInfoLoader.LoaderError: UniversalError {
             case .symbol: return 104010003
             case .decimals: return 104010004
             }
+        }
+    }
+}
+
+extension VisaPinValidator.PinValidationError: VisaError {
+    public var errorCode: Int {
+        switch self {
+        case .invalidLength: return 104011001
+        case .repeatedDigits: return 104011002
+        case .sequentialDigits: return 104011003
         }
     }
 }

@@ -56,7 +56,7 @@ final class HederaTests {
 
         let feeValue = try #require(Decimal(string: "1.0"))
         let feeAmount = Amount(with: blockchain, value: feeValue)
-        let fee = Fee(feeAmount)
+        let fee = Fee(feeAmount, parameters: HederaFeeParams(additionalHBARFee: .zero))
 
         let validStartDate = UnixTimestamp(seconds: 1708443033, nanoseconds: 758181256)
         let params = HederaTransactionParams(memo: "reference ECDSA tx")
@@ -143,7 +143,7 @@ final class HederaTests {
 
         let feeValue = try #require(Decimal(string: "1.0"))
         let feeAmount = Amount(with: blockchain, value: feeValue)
-        let fee = Fee(feeAmount)
+        let fee = Fee(feeAmount, parameters: HederaFeeParams(additionalHBARFee: .zero))
 
         let validStartDate = UnixTimestamp(seconds: 1708438431, nanoseconds: 140337611)
         let params = HederaTransactionParams(memo: "reference EdDSA tx")
@@ -380,7 +380,7 @@ final class HederaTests {
 
         let feeValue = try #require(Decimal(string: "1.0"))
         let feeAmount = Amount(with: blockchain, value: feeValue)
-        let fee = Fee(feeAmount)
+        let fee = Fee(feeAmount, parameters: HederaFeeParams(additionalHBARFee: .zero))
 
         let validStartDate = UnixTimestamp(seconds: 1714012118, nanoseconds: 578760253)
         let params = HederaTransactionParams(memo: "SAUCE token reference ECDSA tx")
@@ -468,7 +468,7 @@ final class HederaTests {
 
         let feeValue = try #require(Decimal(string: "1.0"))
         let feeAmount = Amount(with: blockchain, value: feeValue)
-        let fee = Fee(feeAmount)
+        let fee = Fee(feeAmount, parameters: HederaFeeParams(additionalHBARFee: .zero))
 
         let validStartDate = UnixTimestamp(seconds: 1714034135, nanoseconds: 463758056)
         let params = HederaTransactionParams(memo: "SAUCE token reference EdDSA tx")

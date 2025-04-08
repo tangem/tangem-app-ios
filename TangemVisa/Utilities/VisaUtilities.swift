@@ -21,13 +21,6 @@ public struct VisaUtilities {
         self.isTestnet = isTestnet
     }
 
-    public var visaBatches: [String] {
-        [
-            "AE05",
-            "FFFC",
-        ]
-    }
-
     public var mandatoryCurve: EllipticCurve {
         .secp256k1
     }
@@ -62,6 +55,14 @@ public struct VisaUtilities {
         AddressServiceFactory(blockchain: visaBlockchain).makeAddressService()
     }
 
+    var visaBatchPrefix: String { "AE" }
+
+    var visaAdditionalBatches: [String] {
+        [
+            "FFFC",
+        ]
+    }
+
     public func visaDerivationPath(style: DerivationStyle) -> DerivationPath? {
         visaBlockchain.derivationPath(for: style)
     }
@@ -72,12 +73,12 @@ public struct VisaUtilities {
 
     public func isVisaCard(firmwareVersion: FirmwareVersion, batchId: String) -> Bool {
         return FirmwareVersion.visaRange.contains(firmwareVersion.doubleValue)
-            && visaBatches.contains(batchId)
+            && (batchId.starts(with: visaBatchPrefix) || visaAdditionalBatches.contains(batchId))
     }
 
-    public func makeAddress(seedKey: Data, extendedKey: ExtendedPublicKey) throws(VisaError) -> Address {
+    public func makeAddress(seedKey: Data, extendedKey: ExtendedPublicKey) throws(VisaUtilitiesError) -> Address {
         guard let visaDefaultDerivationPath else {
-            throw VisaError.failedToCreateDerivation
+            throw VisaUtilitiesError.failedToCreateDerivation
         }
 
         do {

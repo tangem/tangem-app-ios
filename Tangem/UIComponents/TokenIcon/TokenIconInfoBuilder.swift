@@ -9,12 +9,18 @@
 import Foundation
 import SwiftUI
 import BlockchainSdk
+import TangemAssets
 
 struct TokenIconInfoBuilder {
-    func build(for type: Amount.AmountType, in blockchain: Blockchain, isCustom: Bool) -> TokenIconInfo {
+    func build(
+        for type: Amount.AmountType,
+        in blockchain: Blockchain,
+        isCustom: Bool,
+        blockchainIconProvider: NetworkImageProvider = NetworkImageProvider()
+    ) -> TokenIconInfo {
         let id: String?
         let name: String
-        var blockchainIconName: String?
+        var blockchainIconAsset: ImageType?
         var imageURL: URL?
         var customTokenColor: Color?
 
@@ -25,7 +31,7 @@ struct TokenIconInfoBuilder {
         case .token(let token):
             id = token.id
             name = token.name
-            blockchainIconName = blockchain.iconNameFilled
+            blockchainIconAsset = blockchainIconProvider.provide(by: blockchain, filled: true)
             customTokenColor = token.customTokenColor
         }
 
@@ -34,7 +40,7 @@ struct TokenIconInfoBuilder {
                 .tokenIconURL(id: id, size: .large)
         }
 
-        return .init(name: name, blockchainIconName: blockchainIconName, imageURL: imageURL, isCustom: isCustom, customTokenColor: customTokenColor)
+        return .init(name: name, blockchainIconAsset: blockchainIconAsset, imageURL: imageURL, isCustom: isCustom, customTokenColor: customTokenColor)
     }
 
     func build(from tokenItem: TokenItem, isCustom: Bool) -> TokenIconInfo {
@@ -44,7 +50,7 @@ struct TokenIconInfoBuilder {
     func build(from currencyCode: String) -> TokenIconInfo {
         TokenIconInfo(
             name: "",
-            blockchainIconName: nil,
+            blockchainIconAsset: nil,
             imageURL: IconURLBuilder().fiatIconURL(currencyCode: currencyCode),
             isCustom: false,
             customTokenColor: nil

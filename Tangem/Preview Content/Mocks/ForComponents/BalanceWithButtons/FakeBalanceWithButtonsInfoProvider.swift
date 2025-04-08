@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemAssets
 
 class FakeBalanceWithButtonsInfoProvider {
     @Published var models: [BalanceWithButtonsViewModel] = []
@@ -60,7 +61,8 @@ class FakeBalanceWithButtonsInfoProvider {
     func map(_ provider: FakeTokenBalanceProvider) -> BalanceWithButtonsViewModel {
         BalanceWithButtonsViewModel(
             buttonsPublisher: provider.buttonsPublisher,
-            balanceProvider: provider
+            balanceProvider: provider,
+            balanceTypeSelectorProvider: provider
         )
     }
 }

@@ -1,5 +1,5 @@
 //
-//  Walletmanager.swift
+//  WalletManager.swift
 //  blockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,18 +10,15 @@ import Foundation
 import TangemSdk
 import Combine
 
-@available(iOS 13.0, *)
-public protocol WalletManager: WalletProvider, BlockchainDataProvider, TransactionSender, TransactionCreator, TransactionFeeProvider, TransactionValidator {
-    var cardTokens: [Token] { get }
-    func update()
-    func updatePublisher() -> AnyPublisher<WalletManagerState, Never>
-    func setNeedsUpdate()
-    func removeToken(_ token: Token)
-    func addToken(_ token: Token)
-    func addTokens(_ tokens: [Token])
-}
+public protocol WalletManager: WalletProvider,
+    TokensWalletProvider,
+    WalletUpdater,
+    BlockchainDataProvider,
+    TransactionSender,
+    TransactionCreator,
+    TransactionFeeProvider,
+    TransactionValidator {}
 
-@available(iOS 13.0, *)
 public enum WalletManagerState {
     case initial
     case loading
@@ -47,7 +44,8 @@ public enum WalletManagerState {
     }
 }
 
-@available(iOS 13.0, *)
+// MARK: - WalletProvider
+
 public protocol WalletProvider: AnyObject {
     var wallet: Wallet { get set }
     var walletPublisher: AnyPublisher<Wallet, Never> { get }
@@ -59,6 +57,30 @@ extension WalletProvider {
     var defaultChangeAddress: String { wallet.address }
 }
 
+// MARK: - WalletUpdater
+
+public protocol WalletUpdater: AnyObject {
+    func setNeedsUpdate()
+    func updatePublisher() -> AnyPublisher<Void, Never>
+}
+
+// MARK: - TokensWalletProvider
+
+public protocol TokensWalletProvider {
+    var cardTokens: [Token] { get }
+
+    func removeToken(_ token: Token)
+    func addToken(_ token: Token)
+}
+
+public extension TokensWalletProvider {
+    func addTokens(_ tokens: [Token]) {
+        tokens.forEach { addToken($0) }
+    }
+}
+
+// MARK: - BlockchainDataProvider
+
 public protocol BlockchainDataProvider {
     var currentHost: String { get }
     var outputsCount: Int? { get }
@@ -68,14 +90,18 @@ extension BlockchainDataProvider {
     var outputsCount: Int? { return nil }
 }
 
-@available(iOS 13.0, *)
+// MARK: - TransactionSender
+
 public protocol TransactionSender {
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError>
 }
 
+// MARK: - TransactionSigner
+
 public protocol TransactionSigner {
     func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[Data], Error>
     func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<Data, Error>
+    func sign(dataToSign: [SignData], seedKey: Data) -> AnyPublisher<[(signature: Data, publicKey: Data)], Error>
 }
 
 extension TransactionSigner {
@@ -96,12 +122,27 @@ extension TransactionSigner {
             }
             .eraseToAnyPublisher()
     }
+
+    func sign(dataToSign: [SignData], seedKey: Data) -> AnyPublisher<[SignatureInfo], Error> {
+        sign(dataToSign: dataToSign, seedKey: seedKey)
+            .map { signatures in
+                signatures.compactMap { signature -> SignatureInfo? in
+                    guard let hash = dataToSign.first(where: { $0.publicKey == signature.1 })?.hash else { return nil }
+                    return SignatureInfo(signature: signature.signature, publicKey: signature.publicKey, hash: hash)
+                }
+            }
+            .eraseToAnyPublisher()
+    }
 }
+
+// MARK: - AddressResolver
 
 @available(iOS 13.0, *)
 public protocol AddressResolver {
     func resolve(_ address: String) async throws -> String
 }
+
+// MARK: - AssetRequirementsManager
 
 /// Responsible for the token association creation (Hedera) and trust line setup (XRP, Stellar, Aptos, Algorand and other).
 @available(iOS 13.0, *)
