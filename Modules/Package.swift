@@ -108,8 +108,9 @@ var featureModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemStories",
             dependencies: [
-                "TangemUI",
                 "Kingfisher",
+                "TangemLocalization",
+                "TangemUI",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
