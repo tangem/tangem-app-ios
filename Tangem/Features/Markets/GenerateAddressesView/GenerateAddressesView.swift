@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUIUtils
+import TangemUI
 
 struct GenerateAddressesView: View {
     let viewModel: GenerateAddressesViewModel
