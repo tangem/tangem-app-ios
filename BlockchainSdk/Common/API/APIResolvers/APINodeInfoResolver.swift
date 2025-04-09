@@ -53,7 +53,7 @@ struct APINodeInfoResolver {
         case .dwellir:
             return DwellirAPIResolver(keysConfig: keysConfig)
                 .resolve()
-        case .koinos:
+        case .koinosPro:
             return KoinosAPIResolver(keysConfig: keysConfig)
                 .resolve(blockchain: blockchain)
         case .tangemAlephium:
