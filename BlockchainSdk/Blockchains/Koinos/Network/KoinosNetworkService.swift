@@ -17,19 +17,34 @@ class KoinosNetworkService: MultiNetworkProvider {
         self.providers = providers
     }
 
-    func getInfo(address: String) -> AnyPublisher<KoinosAccountInfo, Error> {
+    func getInfo(address: String, koinContractId: String?) -> AnyPublisher<KoinosAccountInfo, Error> {
         providerPublisher { provider in
-            Publishers.Zip(
-                provider.getKoinBalance(address: address).tryMap(KoinosDTOMapper.convertKoinBalance),
-                provider.getRC(address: address).map(KoinosDTOMapper.convertAccountRC)
-            )
-            .map { balance, mana in
-                KoinosAccountInfo(
-                    koinBalance: balance,
-                    mana: mana
-                )
+            // skip reloading if cached
+            let koinContractIdPublisher: AnyPublisher<String, Never> = if let koinContractId {
+                Just(koinContractId).eraseToAnyPublisher()
+            } else {
+                provider.getKoinContractId()
+                    .map(\.contractId)
+                    .replaceError(with: provider.koinosNetworkParams.contractID) // fallback to hardcoded
+                    .eraseToAnyPublisher()
             }
-            .eraseToAnyPublisher()
+
+            return koinContractIdPublisher
+                .flatMap { contractId in
+                    Publishers.Zip(
+                        provider.getKoinBalance(address: address, koinContractId: contractId)
+                            .tryMap(KoinosDTOMapper.convertKoinBalance),
+                        provider.getRC(address: address).map(KoinosDTOMapper.convertAccountRC)
+                    )
+                    .map { balance, mana in
+                        KoinosAccountInfo(
+                            koinContractId: contractId,
+                            koinBalance: balance,
+                            mana: mana
+                        )
+                    }
+                }
+                .eraseToAnyPublisher()
         }
     }
 
