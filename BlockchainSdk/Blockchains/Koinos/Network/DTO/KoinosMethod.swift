@@ -82,3 +82,11 @@ extension KoinosMethod {
         }
     }
 }
+
+extension KoinosMethod {
+    enum GetContractId {
+        struct Response: Decodable {
+            let contractId: String
+        }
+    }
+}
