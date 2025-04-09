@@ -26,6 +26,8 @@ class KoinosWalletManager: BaseManager, WalletManager, FeeResourceRestrictable {
     private let networkService: KoinosNetworkService
     private let transactionBuilder: KoinosTransactionBuilder
 
+    private var koinContractId: String?
+
     init(
         wallet: Wallet,
         networkService: KoinosNetworkService,
@@ -51,7 +53,7 @@ class KoinosWalletManager: BaseManager, WalletManager, FeeResourceRestrictable {
             }
 
         cancellable = Publishers.CombineLatest(
-            networkService.getInfo(address: wallet.address),
+            networkService.getInfo(address: wallet.address, koinContractId: koinContractId),
             existingTransactionIDs
         )
         .sink { [weak self] in
@@ -65,6 +67,7 @@ class KoinosWalletManager: BaseManager, WalletManager, FeeResourceRestrictable {
         } receiveValue: { [weak self] accountInfo, existingTransactionIDs in
             guard let self else { return }
 
+            koinContractId = accountInfo.koinContractId
             let atomicUnitMultiplier = wallet.blockchain.decimalValue
             let koinBalance = Decimal(accountInfo.koinBalance) / atomicUnitMultiplier
             let mana = Decimal(accountInfo.mana) / atomicUnitMultiplier
@@ -95,10 +98,11 @@ class KoinosWalletManager: BaseManager, WalletManager, FeeResourceRestrictable {
         }
 
         return networkService.getCurrentNonce(address: wallet.address)
-            .tryMap { [transactionBuilder] nonce in
+            .tryMap { [transactionBuilder, koinContractId] nonce in
                 try transactionBuilder.buildForSign(
                     transaction: transactionDataWithMana,
-                    currentNonce: nonce
+                    currentNonce: nonce,
+                    koinContractId: koinContractId
                 )
             }
             .flatMap { [wallet, transactionBuilder, networkService] transaction, hashToSign in
