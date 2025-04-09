@@ -348,6 +348,11 @@ extension VisaOnboardingViewModel: VisaOnboardingInProgressDelegate {
     func openBrowser(at url: URL, onSuccess: @escaping (URL) -> Void) {
         coordinator?.openBrowser(at: url, onSuccess: onSuccess)
     }
+
+    func navigateToPINCode(withError error: VisaActivationError) async {
+        pinSelectionViewModel.setupInvalidPinState()
+        goToStep(.pinSelection)
+    }
 }
 
 // MARK: - Biometry delegate
