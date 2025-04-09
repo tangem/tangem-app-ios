@@ -1,15 +1,13 @@
 //
-//  WalletConnectV2Factory.swift
-//  Tangem
+//  WCFactory.swift
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2023 Tangem AG. All rights reserved.
+//  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import Foundation
-
-struct OldWalletConnectFactory {
-    func createWCService() -> OldWalletConnectV2Service {
+struct WCFactory {
+    func createWCService() -> WCServiceV2 {
         let uiDelegate = WalletConnectAlertUIDelegate()
         let messageComposer = WalletConnectV2MessageComposer()
         let ethTransactionBuilder = CommonWalletConnectEthTransactionBuilder()
@@ -23,11 +21,7 @@ struct OldWalletConnectFactory {
             uiDelegate: uiDelegate,
             handlersCreator: handlersFactory
         )
-        let v2Service = OldWalletConnectV2Service(
-            uiDelegate: uiDelegate,
-            messageComposer: messageComposer,
-            wcHandlersService: wcHandlersService
-        )
+        let v2Service = WCServiceV2(wcHandlersService: wcHandlersService)
 
         return v2Service
     }
