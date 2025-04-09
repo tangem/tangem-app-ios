@@ -109,6 +109,8 @@
 "common_claim" = "Réclamer";
 "common_close" = "Fermer";
 "common_confirm" = "Confirmez";
+"common_contact_tangem_support" = "Contact Tangem Support";
+"common_contact_visa_support" = "Contact Visa Support";
 "common_continue" = "Continuer";
 "common_copy_address" = "Copier l'adresse";
 "common_copy" = "Copier";
@@ -1051,6 +1053,7 @@
 "visa_transaction_details_transaction_request" = "Transaction request";
 "visa_transaction_details_transaction_status" = "Transaction status";
 "visa_transaction_details_type" = "Type";
+"visa_tx_dispute_button" = "Dispute this transaction";
 "visa_unlock_notification_button" = "Déverrouiller";
 "visa_unlock_notification_subtitle" = "Scannez votre carte pour déverrouiller l'accès";
 "visa_unlock_notification_title" = "Déverrouillage nécessaire";
