@@ -176,7 +176,7 @@ enum APIProvider: String {
         case .tangemChia3: return .tangemChia3
         case .solana: return .solana
         case .kaspa: return .kaspa
-        case .koinos: return .koinos
+        case .koinos: return .koinosPro
         }
     }
 }
