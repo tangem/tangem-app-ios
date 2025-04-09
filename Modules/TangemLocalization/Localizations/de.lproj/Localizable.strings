@@ -1022,6 +1022,7 @@
 "visa_onboarding_pin_code_description" = "Set up a 4-digit code. It will be used for payments.";
 "visa_onboarding_pin_code_navigation_title" = "PIN code";
 "visa_onboarding_pin_code_title" = "Create PIN Code";
+"visa_onboarding_pin_not_accepted" = "PIN was not accepted. Try again or use a different code.";
 "visa_onboarding_pin_validation_error_message" = "Ungültige PIN: Sequenzen oder Wiederholungen vermeiden";
 "visa_onboarding_success_screen_description" = "Schon kann es losgehen!";
 "visa_onboarding_tangem_approve_description" = "Prepare the Tangem card and tap to approve";
