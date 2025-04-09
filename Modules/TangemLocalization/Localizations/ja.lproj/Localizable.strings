@@ -109,6 +109,8 @@
 "common_claim" = "請求";
 "common_close" = "閉じる";
 "common_confirm" = "確認";
+"common_contact_tangem_support" = "Contact Tangem Support";
+"common_contact_visa_support" = "Contact Visa Support";
 "common_continue" = "続ける";
 "common_copy_address" = "アドレスをコピー";
 "common_copy" = "コピー";
@@ -1051,6 +1053,7 @@
 "visa_transaction_details_transaction_request" = "Transaction request";
 "visa_transaction_details_transaction_status" = "Transaction status";
 "visa_transaction_details_type" = "Type";
+"visa_tx_dispute_button" = "Dispute this transaction";
 "visa_unlock_notification_button" = "ロック解除";
 "visa_unlock_notification_subtitle" = "カードをスキャンしてアクセスロックを解除する";
 "visa_unlock_notification_title" = "ロック解除が必要";
