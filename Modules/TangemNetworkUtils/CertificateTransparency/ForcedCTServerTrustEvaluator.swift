@@ -9,7 +9,6 @@ import Foundation
 import TangemLogger
 
 public enum ForcedCTServerTrustEvaluator {
-    
     #if ALPHA || BETA || DEBUG
     public static var shouldForceCT: Bool = false
     #else
@@ -17,7 +16,6 @@ public enum ForcedCTServerTrustEvaluator {
     #endif // ALPHA || BETA || DEBUG
 
     public static func evaluate(trust: SecTrust) throws {
-
         var flags: [String] = []
         #if ALPHA
         flags.append("alpha")
