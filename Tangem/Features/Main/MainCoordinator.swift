@@ -428,13 +428,15 @@ extension MainCoordinator: OrganizeTokensRoutable {
     }
 }
 
-// MARK: - VisaWalletRoutable
+// MARK: - Visa
 
 extension MainCoordinator: VisaWalletRoutable {
-    func openTransactionDetails(tokenItem: TokenItem, for record: VisaTransactionRecord) {
-        visaTransactionDetailsViewModel = .init(tokenItem: tokenItem, transaction: record)
+    func openTransactionDetails(tokenItem: TokenItem, for record: VisaTransactionRecord, emailConfig: EmailConfig) {
+        visaTransactionDetailsViewModel = .init(tokenItem: tokenItem, transaction: record, emailConfig: emailConfig, router: self)
     }
 }
+
+extension MainCoordinator: VisaTransactionDetailsRouter {}
 
 // MARK: - RateAppRoutable protocol conformance
 
