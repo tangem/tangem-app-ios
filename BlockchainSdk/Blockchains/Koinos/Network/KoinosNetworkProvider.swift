@@ -15,9 +15,10 @@ class KoinosNetworkProvider: HostProvider {
         node.url.absoluteString
     }
 
+    let koinosNetworkParams: KoinosNetworkParams
+
     private let node: NodeInfo
     private let provider: TangemProvider<KoinosTarget>
-    private let koinosNetworkParams: KoinosNetworkParams
 
     init(
         node: NodeInfo,
