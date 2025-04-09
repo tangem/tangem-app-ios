@@ -702,6 +702,7 @@
 		B08E26AF29D5580E00346C43 /* SeedPhraseSuggestionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08E26AE29D5580E00346C43 /* SeedPhraseSuggestionsView.swift */; };
 		B08E995A2D9E709E008F367F /* Analytics+Visa.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08E99592D9E709D008F367F /* Analytics+Visa.swift */; };
 		B08E995C2D9E7BE0008F367F /* VisaError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08E995B2D9E7BE0008F367F /* VisaError.swift */; };
+		B08E995F2D9FD168008F367F /* EmailConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08E995E2D9FD168008F367F /* EmailConfig.swift */; };
 		B08EE5172BFDE0C400E8A07C /* WelcomeSearchTokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08EE5162BFDE0C400E8A07C /* WelcomeSearchTokensView.swift */; };
 		B08EE5192BFDE12800E8A07C /* WelcomeSearchTokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08EE5182BFDE12800E8A07C /* WelcomeSearchTokensViewModel.swift */; };
 		B08F05F42C36D99A0066E833 /* MarketsTokenDetailsLinksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08F05F32C36D9990066E833 /* MarketsTokenDetailsLinksView.swift */; };
@@ -4152,6 +4153,7 @@
 		B08E26AE29D5580E00346C43 /* SeedPhraseSuggestionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedPhraseSuggestionsView.swift; sourceTree = "<group>"; };
 		B08E99592D9E709D008F367F /* Analytics+Visa.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+Visa.swift"; sourceTree = "<group>"; };
 		B08E995B2D9E7BE0008F367F /* VisaError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaError.swift; sourceTree = "<group>"; };
+		B08E995E2D9FD168008F367F /* EmailConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailConfig.swift; sourceTree = "<group>"; };
 		B08EE5162BFDE0C400E8A07C /* WelcomeSearchTokensView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeSearchTokensView.swift; sourceTree = "<group>"; };
 		B08EE5182BFDE12800E8A07C /* WelcomeSearchTokensViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeSearchTokensViewModel.swift; sourceTree = "<group>"; };
 		B08F05F32C36D9990066E833 /* MarketsTokenDetailsLinksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenDetailsLinksView.swift; sourceTree = "<group>"; };
@@ -9097,6 +9099,14 @@
 				B08DB6122D3A6A4A00A8B63F /* VisaAPIMocks.swift */,
 			);
 			path = Mocks;
+			sourceTree = "<group>";
+		};
+		B08E995D2D9FD159008F367F /* EmailConfig */ = {
+			isa = PBXGroup;
+			children = (
+				B08E995E2D9FD168008F367F /* EmailConfig.swift */,
+			);
+			path = EmailConfig;
 			sourceTree = "<group>";
 		};
 		B08EE5152BFDE0A600E8A07C /* SearchTokens */ = {
@@ -14056,6 +14066,7 @@
 		DC3B49F22893E4F300C207EA /* UserWalletConfig */ = {
 			isa = PBXGroup;
 			children = (
+				B08E995D2D9FD159008F367F /* EmailConfig */,
 				DC7127A92897EC5300F60F71 /* Implementations */,
 				DC3B49F32893E50700C207EA /* StoredUserWallet.swift */,
 				DC3B49F52893E51B00C207EA /* UserWalletConfig.swift */,
@@ -19173,6 +19184,7 @@
 				C2E3ADD62D5F5D410042ADDA /* StoryMapper.swift in Sources */,
 				C2E3ADD82D5F5D410042ADDA /* TangemStoriesEnvironment.swift in Sources */,
 				B05919042A0BCD1100EB8005 /* MainHeaderViewModel.swift in Sources */,
+				B08E995F2D9FD168008F367F /* EmailConfig.swift in Sources */,
 				B0406BB62A402462006452C2 /* PagerWithDots.swift in Sources */,
 				EFD68F372CC2F58900693C97 /* OnrampIdentityMock.swift in Sources */,
 				DAF59CC82ACC4E37004FCA86 /* AlertFieldValidator.swift in Sources */,
