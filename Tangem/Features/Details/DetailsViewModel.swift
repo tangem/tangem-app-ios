@@ -36,6 +36,7 @@ class DetailsViewModel: ObservableObject {
     @Published var supportSectionModels: [DefaultRowViewModel] = []
     @Published var environmentSetupViewModel: [DefaultRowViewModel] = []
     @Published var alert: AlertBinder?
+    @Published var actionSheet: ActionSheetBinder?
     @Published var showTroubleshootingView: Bool = false
 
     @Published private var userWalletsViewModels: [SettingsUserWalletRowViewModel] = []
@@ -81,6 +82,42 @@ class DetailsViewModel: ObservableObject {
         bind()
         setupView()
     }
+
+    func selectSupport() {
+        Analytics.log(.requestSupport, params: [.source: .settings])
+        var visaUserWalletModels = [UserWalletModel]()
+        var tangemUserWalletModels = [UserWalletModel]()
+        userWalletRepository.models.forEach {
+            if $0.config.productType == .visa {
+                visaUserWalletModels.append($0)
+            } else {
+                tangemUserWalletModels.append($0)
+            }
+        }
+        let hasVisaCards = !visaUserWalletModels.isEmpty
+        let hasTangemCards = !tangemUserWalletModels.isEmpty
+        switch (hasVisaCards, hasTangemCards) {
+        case (true, true):
+            let sheet = ActionSheet(
+                title: Text(Localization.commonChooseAction),
+                buttons: [
+                    .default(Text(Localization.commonContactTangemSupport), action: { [weak self] in
+                        self?.openTangemSupport(models: tangemUserWalletModels)
+                    }),
+                    .default(Text(Localization.commonContactVisaSupport), action: { [weak self] in
+                        self?.openVisaSupport(models: visaUserWalletModels)
+                    }),
+                    .cancel(Text(Localization.commonCancel)),
+                ]
+            )
+
+            actionSheet = ActionSheetBinder(sheet: sheet)
+        case (true, false):
+            openVisaSupport(models: visaUserWalletModels)
+        case (false, true), (false, false):
+            openTangemSupport(models: tangemUserWalletModels)
+        }
+    }
 }
 
 // MARK: - Navigation
@@ -95,14 +132,8 @@ extension DetailsViewModel {
         coordinator?.openOnboardingModal(with: input)
     }
 
-    func openMail() {
-        Analytics.log(.requestSupport, params: [.source: .settings])
-        guard let selectedUserWalletModel,
-              let emailConfig = selectedUserWalletModel.config.emailConfig else {
-            return
-        }
-
-        let data = userWalletRepository.models.map {
+    func openMail(emailConfig: EmailConfig, emailType: EmailType, models: [any UserWalletModel]) {
+        let data = models.map {
             DetailsFeedbackData(
                 userWalletEmailData: $0.emailData,
                 walletModels: $0.walletModelsManager.walletModels
@@ -116,7 +147,7 @@ extension DetailsViewModel {
         coordinator?.openMail(
             with: dataCollector,
             recipient: emailConfig.recipient,
-            emailType: .appFeedback(subject: emailConfig.subject)
+            emailType: emailType
         )
     }
 
@@ -276,7 +307,7 @@ private extension DetailsViewModel {
         supportSectionModels = [
             DefaultRowViewModel(
                 title: Localization.detailsRowTitleContactToSupport,
-                action: weakify(self, forFunction: DetailsViewModel.openMail)
+                action: weakify(self, forFunction: DetailsViewModel.selectSupport)
             ),
             DefaultRowViewModel(
                 title: Localization.disclaimerTitle,
@@ -328,6 +359,45 @@ private extension DetailsViewModel {
                 coordinator?.dismiss()
             }
         }
+    }
+}
+
+// MARK: - Support
+
+private extension DetailsViewModel {
+    func openVisaSupport(models: [UserWalletModel]) {
+        guard
+            let selectedModel = getModelToSendEmail(models: models),
+            let emailConfig = selectedModel.emailConfig
+        else {
+            return
+        }
+
+        openMail(emailConfig: emailConfig, emailType: .visaFeedback(subject: .default), models: models)
+    }
+
+    func openTangemSupport(models: [UserWalletModel]) {
+        guard
+            let selectedModel = getModelToSendEmail(models: models),
+            let emailConfig = selectedModel.emailConfig
+        else {
+            return
+        }
+
+        openMail(emailConfig: emailConfig, emailType: .appFeedback(subject: emailConfig.subject), models: models)
+    }
+
+    func getModelToSendEmail(models: [UserWalletModel]) -> UserWalletModel? {
+        let selectedUserWalletModel: UserWalletModel?
+
+        if let selectedModel = self.selectedUserWalletModel,
+           models.contains(where: { $0.userWalletId == selectedModel.userWalletId }) {
+            selectedUserWalletModel = selectedModel
+        } else {
+            selectedUserWalletModel = models.first
+        }
+
+        return selectedUserWalletModel
     }
 }
 
