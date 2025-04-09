@@ -13,28 +13,36 @@ import TangemNetworkUtils
 struct KoinosTarget: TargetType {
     let node: NodeInfo
     let type: KoinosTargetType
-    let koinosNetworkParams: KoinosNetworkParams
 
     var baseURL: URL {
         node.url
     }
 
     var path: String {
-        ""
+        switch type {
+        case .getKoinContractID: "v1/contract/koin/abi"
+        default: ""
+        }
     }
 
     var method: Moya.Method {
-        .post
+        switch type {
+        case .getKoinContractID: .get
+        default: .post
+        }
     }
 
     var task: Task {
         switch type {
-        case .getKoinBalance(let args):
+        case .getKoinContractID:
+            return .requestPlain
+
+        case .getKoinBalance(let args, let koinContractID):
             return .requestJSONRPC(
                 id: Constants.jsonRPCMethodId,
                 method: type.method,
                 params: KoinosMethod.ReadContract.RequestParams(
-                    contractId: koinosNetworkParams.contractID,
+                    contractId: koinContractID,
                     entryPoint: KoinosNetworkParams.BalanceOf.entryPoint,
                     args: args
                 ),
@@ -80,16 +88,16 @@ struct KoinosTarget: TargetType {
 
     var headers: [String: String]?
 
-    init(node: NodeInfo, koinosNetworkParams: KoinosNetworkParams, _ type: KoinosTargetType) {
+    init(node: NodeInfo, _ type: KoinosTargetType) {
         self.node = node
-        self.koinosNetworkParams = koinosNetworkParams
         self.type = type
     }
 }
 
 extension KoinosTarget {
     enum KoinosTargetType {
-        case getKoinBalance(args: String)
+        case getKoinContractID
+        case getKoinBalance(args: String, koinContractId: String)
         case getRc(address: String)
         case getNonce(address: String)
         case getResourceLimits
@@ -98,6 +106,8 @@ extension KoinosTarget {
 
         var method: String {
             switch self {
+            case .getKoinContractID:
+                ""
             case .getKoinBalance:
                 "chain.read_contract"
             case .getRc:
