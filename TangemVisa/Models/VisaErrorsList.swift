@@ -65,12 +65,13 @@ extension VisaActivationError: VisaError {
         case .missingActivationStatusInfo: return 104003017
         case .missingWalletAddressInInput: return 104003018
         case .missingActivationInput: return 104003019
+        case .paymentologyPinError: return 104003020
         case .underlyingError(let error):
             if let tangemError = error as? UniversalError {
                 return tangemError.errorCode
             }
 
-            return 104003020
+            return 104003999
         }
     }
 }
