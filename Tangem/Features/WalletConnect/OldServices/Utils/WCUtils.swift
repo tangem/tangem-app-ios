@@ -15,12 +15,12 @@ struct WCUtils {
             guard let blockchains = namespace.value.chains else { return partialResult }
 
             let unsupportedBlockchains = blockchains.compactMap { blockchain in
-                let blockсhainsMeta = WCUtils.makeBlockchain(from: blockchain)
+                let blockсhainMeta = WCUtils.makeBlockchain(from: blockchain)
 
                 if WCSupportedNamespaces(rawValue: namespace.key) != nil {
-                    return blockChainsMeta == nil ? blockchain.absoluteString : nil
+                    return blockсhainMeta == nil ? blockchain.absoluteString : nil
                 } else {
-                    return blockChainsMeta?.displayName ?? namespace.key.capitalizingFirstLetter()
+                    return blockсhainMeta?.displayName ?? namespace.key.capitalizingFirstLetter()
                 }
             }
 

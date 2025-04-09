@@ -11,6 +11,7 @@ import Combine
 import BlockchainSdk
 import TangemFoundation
 import ReownWalletKit
+import TangemLocalization
 
 final class WCServiceV2 {
     // MARK: - Dependencies
