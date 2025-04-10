@@ -18,7 +18,7 @@ struct KoinosAPIResolver {
 
         return .init(
             url: URL(string: "https://api.koinos.pro/jsonrpc")!,
-            keyInfo: APIKeysInfoProvider(blockchain: blockchain, keysConfig: keysConfig).apiKeys(for: .koinos)
+            keyInfo: APIKeysInfoProvider(blockchain: blockchain, keysConfig: keysConfig).apiKeys(for: .koinosPro)
         )
     }
 }
