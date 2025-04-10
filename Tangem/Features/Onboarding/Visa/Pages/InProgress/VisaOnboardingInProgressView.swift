@@ -8,15 +8,17 @@
 
 import SwiftUI
 import TangemAssets
+import Lottie
 
 struct VisaOnboardingInProgressView: View {
     @ObservedObject var viewModel: VisaOnboardingInProgressViewModel
 
     var body: some View {
         VStack(spacing: 26) {
-            Assets.Onboarding.inProgress64.image
-                .renderingMode(.template)
-                .foregroundStyle(Colors.Icon.informative)
+            LottieView(animation: LottieFile.visaOnboardingInProgress)
+                .playing(loopMode: .loop)
+                .backgroundBehavior(.pauseAndRestore)
+                .frame(size: .init(bothDimensions: 64))
                 .padding(.top, 126)
 
             VStack(spacing: 14) {
