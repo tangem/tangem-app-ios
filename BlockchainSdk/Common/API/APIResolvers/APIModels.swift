@@ -29,7 +29,7 @@ public enum NetworkProviderType {
     case kaspa
     case dwellir
     case onfinality
-    case koinos
+    case koinosPro
     case tangemAlephium
 }
 
