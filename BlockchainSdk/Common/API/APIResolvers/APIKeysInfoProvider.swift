@@ -52,7 +52,7 @@ struct APIKeysInfoProvider {
                 headerName: Constants.onfinalityApiKeyHeaderName,
                 headerValue: keysConfig.bittensorOnfinalityKey
             )
-        case .koinos:
+        case .koinosPro:
             return .init(
                 headerName: "apikey",
                 headerValue: keysConfig.koinosProApiKey
