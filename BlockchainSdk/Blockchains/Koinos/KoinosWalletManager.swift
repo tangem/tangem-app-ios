@@ -53,7 +53,7 @@ class KoinosWalletManager: BaseManager, WalletManager, FeeResourceRestrictable {
             }
 
         cancellable = Publishers.CombineLatest(
-            networkService.getInfo(address: wallet.address),
+            networkService.getInfo(address: wallet.address, koinContractId: koinContractId),
             existingTransactionIDs
         )
         .sink { [weak self] in
