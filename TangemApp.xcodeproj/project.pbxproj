@@ -666,6 +666,7 @@
 		B074AF872B06778800E9CEA3 /* AnalyticsContextDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B074AF862B06778800E9CEA3 /* AnalyticsContextDataProvider.swift */; };
 		B0751ED92C69E3F5009066C8 /* DefaultAmountNotationFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0751ED82C69E3F5009066C8 /* DefaultAmountNotationFormatterTests.swift */; };
 		B0764E482CEB7CBE00361E90 /* VisaOnboardingAccessCodeSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0764E472CEB7CBE00361E90 /* VisaOnboardingAccessCodeSetupView.swift */; };
+		B0776C372DA69090004A8765 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = B0776C362DA69090004A8765 /* Lottie */; };
 		B078FA322D685759007AC301 /* TransactionHistoryAPITarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B078FA312D685759007AC301 /* TransactionHistoryAPITarget.swift */; };
 		B079DB722AEB937D00D2D0D5 /* Analytics+DebugEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B079DB712AEB937D00D2D0D5 /* Analytics+DebugEvent.swift */; };
 		B07A13822C416B0A00A429C3 /* MarketsTokenDetailsChipsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07A13812C416B0A00A429C3 /* MarketsTokenDetailsChipsContainer.swift */; };
@@ -6702,6 +6703,7 @@
 				B68E1F782CBC44060043E598 /* BlockchainSdk.framework in Frameworks */,
 				B6DDDE7E2CF39729008DEA94 /* AmplitudeSwift in Frameworks */,
 				EF9E29A82B4F0C9900418559 /* TangemExpress.framework in Frameworks */,
+				B0776C372DA69090004A8765 /* Lottie in Frameworks */,
 				EFEE239D2BFF62D60099917E /* TangemStaking.framework in Frameworks */,
 				B620FCAE2C5D337900AD0FD1 /* DGCharts in Frameworks */,
 				B62C16812CBE0BA000522683 /* Alamofire in Frameworks */,
@@ -17540,6 +17542,7 @@
 				B62C248A2CF48327003377F1 /* FirebaseMessaging */,
 				B69FC9082CF67D9300A5C51D /* GDPerformanceView-Swift */,
 				B64404402D3FE77300195004 /* FirebasePerformance */,
+				B0776C362DA69090004A8765 /* Lottie */,
 			);
 			productName = "Tangem Tap";
 			productReference = 5D3F77C224BF56D800E8695B /* Tangem.app */;
@@ -17912,6 +17915,7 @@
 				B62C24852CF48327003377F1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				B69FC9072CF67D9300A5C51D /* XCRemoteSwiftPackageReference "GDPerformanceView-Swift" */,
 				B6DF8E182D94AEB000A2E379 /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
+				B0776C352DA69090004A8765 /* XCRemoteSwiftPackageReference "lottie-spm" */,
 			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
 			projectDirPath = "";
@@ -27261,6 +27265,14 @@
 				minimumVersion = 1.1.0;
 			};
 		};
+		B0776C352DA69090004A8765 /* XCRemoteSwiftPackageReference "lottie-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-spm.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.1;
+			};
+		};
 		B09FF1882CE24DF5004881F6 /* XCRemoteSwiftPackageReference "JWTDecode" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/auth0/JWTDecode.swift";
@@ -27516,6 +27528,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 0ABC61132C410AFD00065EBA /* XCRemoteSwiftPackageReference "tweetnacl-swiftwrap" */;
 			productName = TweetNacl;
+		};
+		B0776C362DA69090004A8765 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B0776C352DA69090004A8765 /* XCRemoteSwiftPackageReference "lottie-spm" */;
+			productName = Lottie;
 		};
 		B0B11A072C787FE70018A2A6 /* MarkdownUI */ = {
 			isa = XCSwiftPackageProductDependency;
