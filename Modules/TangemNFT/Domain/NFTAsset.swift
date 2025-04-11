@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct NFTAsset: Hashable, Identifiable {
+public struct NFTAsset: Hashable, Identifiable, Sendable {
     public let id: NFTAssetId
     public let contractType: NFTContractType
     public let name: String
@@ -48,7 +48,7 @@ public struct NFTAsset: Hashable, Identifiable {
 // MARK: - Auxiliary types
 
 public extension NFTAsset {
-    struct NFTAssetId: Hashable {
+    struct NFTAssetId: Hashable, Sendable {
         /// NFT's unique token id within collection.
         public let assetIdentifier: String
         /// Collection's address.
@@ -59,8 +59,8 @@ public extension NFTAsset {
         public let chain: NFTChain
     }
 
-    struct Media: Hashable {
-        public enum Kind {
+    struct Media: Hashable, Sendable {
+        public enum Kind: Sendable {
             case image
             case animation
             case video
@@ -71,13 +71,13 @@ public extension NFTAsset {
         public let url: URL
     }
 
-    struct Rarity: Hashable {
+    struct Rarity: Hashable, Sendable {
         public let label: String
         public let percentage: Double?
         public let rank: Int?
     }
 
-    struct Trait: Hashable {
+    struct Trait: Hashable, Sendable {
         public let name: String
         public let value: String
     }
