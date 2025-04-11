@@ -186,7 +186,7 @@ extension CommonUserTokensManager: UserTokensManager {
     }
 
     func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {
-        if tokenItem.hasLongHashes, !longHashesSupported {
+        if AppUtils().hasLongHashesForSend(tokenItem), !longHashesSupported {
             throw Error.failedSupportedLongHashesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
 
