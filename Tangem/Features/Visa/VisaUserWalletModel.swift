@@ -504,6 +504,8 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var userTokenListManager: any UserTokenListManager { userWalletModel.userTokenListManager }
 
+    var nftManager: any NFTManager { NotSupportedNFTManager() }
+
     var keysRepository: any KeysRepository { userWalletModel.keysRepository }
 
     var signer: TangemSigner { userWalletModel.signer }

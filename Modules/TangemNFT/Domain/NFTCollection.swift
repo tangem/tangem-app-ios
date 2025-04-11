@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct NFTCollection: Hashable, Identifiable {
+public struct NFTCollection: Hashable, Identifiable, Sendable {
     public let id: NFTCollectionId
     public let contractType: NFTContractType
     public let name: String
@@ -49,7 +49,7 @@ public struct NFTCollection: Hashable, Identifiable {
 // MARK: - Auxiliary types
 
 public extension NFTCollection {
-    struct NFTCollectionId: Hashable {
+    struct NFTCollectionId: Hashable, Sendable {
         /// Collection's address.
         public let collectionIdentifier: String
         /// The owner's address is intentionally a part of the collection identity
