@@ -8,7 +8,6 @@
 import Foundation
 
 public enum ForcedCTServerTrustEvaluator {
-    
     #if ALPHA || BETA || DEBUG
     public static var shouldForceCT: Bool = false
     #else
