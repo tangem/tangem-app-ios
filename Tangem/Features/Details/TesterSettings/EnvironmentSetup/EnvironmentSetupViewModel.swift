@@ -143,6 +143,9 @@ final class EnvironmentSetupViewModel: ObservableObject {
             DefaultRowViewModel(title: "Staking Blockchains", action: { [weak self] in
                 self?.coordinator?.openStakingBlockchainsPreferences()
             }),
+            DefaultRowViewModel(title: "NFT-enabled Blockchains", action: { [weak self] in
+                self?.coordinator?.openNFTBlockchainsPreferences()
+            }),
         ]
 
         updateCurrentPromoCode()
