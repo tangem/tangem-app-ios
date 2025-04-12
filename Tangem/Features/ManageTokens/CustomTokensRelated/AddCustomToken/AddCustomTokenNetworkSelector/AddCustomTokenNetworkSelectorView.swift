@@ -18,6 +18,8 @@ struct AddCustomTokenNetworkSelectorView: View {
     }
 }
 
+#if DEBUG
+
 struct AddCustomTokenNetworkSelectorView_Preview: PreviewProvider {
     static let blockchains: Array = SupportedBlockchains.all.filter(\.isTestnet)
 
@@ -30,3 +32,5 @@ struct AddCustomTokenNetworkSelectorView_Preview: PreviewProvider {
         AddCustomTokenNetworkSelectorView(viewModel: viewModel)
     }
 }
+
+#endif // DEBUG
