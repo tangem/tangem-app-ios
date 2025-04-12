@@ -18,6 +18,12 @@ class AddCustomTokenNetworksListItemViewModel: ObservableObject {
     let currencySymbol: String
     let didTapWallet: () -> Void
 
+    private(set) lazy var searchTexts: Set<String> = [
+        networkId.lowercased(),
+        networkName.lowercased(),
+        currencySymbol.lowercased(),
+    ]
+
     init(
         networkId: String,
         iconAsset: ImageType,
