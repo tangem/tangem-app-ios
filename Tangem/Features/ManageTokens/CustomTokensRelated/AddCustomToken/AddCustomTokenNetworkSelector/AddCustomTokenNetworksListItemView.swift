@@ -18,7 +18,7 @@ struct AddCustomTokenNetworksListItemView: View {
                 imageAsset: viewModel.iconAsset,
                 isActive: false,
                 isMainIndicatorVisible: false,
-                size: CGSize(bothDimensions: 36)
+                size: CGSize(bothDimensions: 24.0)
             )
 
             HStack(alignment: .firstTextBaseline, spacing: 4) {
@@ -40,13 +40,15 @@ struct AddCustomTokenNetworksListItemView: View {
                     .foregroundColor(Colors.Icon.accent)
             }
         }
-        .padding(16)
+        .padding(14)
         .contentShape(Rectangle())
         .onTapGesture {
             viewModel.didTapWallet()
         }
     }
 }
+
+#if DEBUG
 
 struct AddCustomTokenNetworkSelectorView_Previews: PreviewProvider {
     static var previews: some View {
@@ -87,3 +89,5 @@ struct AddCustomTokenNetworkSelectorView_Previews: PreviewProvider {
         .previewLayout(.fixed(width: 400, height: 300))
     }
 }
+
+#endif // DEBUG
