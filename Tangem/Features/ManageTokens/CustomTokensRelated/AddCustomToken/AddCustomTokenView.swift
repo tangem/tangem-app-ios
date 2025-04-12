@@ -243,6 +243,8 @@ private struct TextInputWithTitle: View {
 
 // MARK: - Preview
 
+#if DEBUG
+
 #Preview {
     let userWalletModel = FakeUserWalletModel.wallet3Cards
     let coordinator = AddCustomTokenCoordinator()
@@ -250,3 +252,5 @@ private struct TextInputWithTitle: View {
 
     return AddCustomTokenCoordinatorView(coordinator: coordinator)
 }
+
+#endif // DEBUG
