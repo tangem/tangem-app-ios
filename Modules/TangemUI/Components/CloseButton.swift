@@ -1,6 +1,6 @@
 //
 //  CloseButton.swift
-//  TangemApp
+//  TangemUI
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2024 Tangem AG. All rights reserved.
@@ -10,10 +10,14 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 
-struct CloseButton: View {
-    let dismiss: () -> Void
+public struct CloseButton: View {
+    private let dismiss: () -> Void
 
-    var body: some View {
+    public init(dismiss: @escaping () -> Void) {
+        self.dismiss = dismiss
+    }
+
+    public var body: some View {
         Button(
             action: dismiss,
             label: {
