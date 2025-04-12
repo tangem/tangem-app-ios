@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 import TangemLocalization
 import TangemAssets
 
