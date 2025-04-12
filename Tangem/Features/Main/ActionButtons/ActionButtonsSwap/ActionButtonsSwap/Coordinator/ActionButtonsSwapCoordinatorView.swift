@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 import TangemLocalization
 
 struct ActionButtonsSwapCoordinatorView: View {
