@@ -25,6 +25,8 @@ struct AddCustomTokenNetworksListView: View {
             .cornerRadiusContinuous(14)
             .padding(.horizontal, isWithPadding ? 16 : 0)
         }
+        .onAppear(perform: viewModel.onViewAppear)
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
+        .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer)
     }
 }
