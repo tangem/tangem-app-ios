@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 import TangemLocalization
 import TangemAssets
 
@@ -21,13 +22,8 @@ struct PromotionView: View {
         NavigationView {
             WebView(url: viewModel.url, headers: viewModel.headers, urlActions: viewModel.urlActions)
                 .ignoresSafeArea()
-                .navigationBarItems(leading: closeButton)
+                .navigationBarItems(leading: CloseButton(dismiss: viewModel.close))
         }
-    }
-
-    private var closeButton: some View {
-        Button(Localization.commonClose, action: viewModel.close)
-            .foregroundColor(Colors.Button.primary)
     }
 }
 
