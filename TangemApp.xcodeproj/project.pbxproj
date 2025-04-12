@@ -2390,7 +2390,6 @@
 		DC28916D2CD4B3E900F57F59 /* TokenSelectorItemBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC28916C2CD4B3E800F57F59 /* TokenSelectorItemBuilder.swift */; };
 		DC2891702CD4B42900F57F59 /* ActionButtonsTokenSelectorItemBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC28916F2CD4B42800F57F59 /* ActionButtonsTokenSelectorItemBuilder.swift */; };
 		DC2891752CD4BE1900F57F59 /* ActionButtonsTokenSelectItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC2891742CD4BE0300F57F59 /* ActionButtonsTokenSelectItemView.swift */; };
-		DC2891792CD9108F00F57F59 /* CloseButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC2891782CD9108900F57F59 /* CloseButton.swift */; };
 		DC28917B2CD9124700F57F59 /* TokenSelectorLocalizable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC28917A2CD9123900F57F59 /* TokenSelectorLocalizable.swift */; };
 		DC28917D2CD920FB00F57F59 /* BuyTokenSelectorStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC28917C2CD920F900F57F59 /* BuyTokenSelectorStrings.swift */; };
 		DC2891802CD92CE900F57F59 /* ActionButtonsTokenSelectorItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC28917F2CD92CDE00F57F59 /* ActionButtonsTokenSelectorItem.swift */; };
@@ -5803,7 +5802,6 @@
 		DC28916C2CD4B3E800F57F59 /* TokenSelectorItemBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenSelectorItemBuilder.swift; sourceTree = "<group>"; };
 		DC28916F2CD4B42800F57F59 /* ActionButtonsTokenSelectorItemBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonsTokenSelectorItemBuilder.swift; sourceTree = "<group>"; };
 		DC2891742CD4BE0300F57F59 /* ActionButtonsTokenSelectItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonsTokenSelectItemView.swift; sourceTree = "<group>"; };
-		DC2891782CD9108900F57F59 /* CloseButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloseButton.swift; sourceTree = "<group>"; };
 		DC28917A2CD9123900F57F59 /* TokenSelectorLocalizable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenSelectorLocalizable.swift; sourceTree = "<group>"; };
 		DC28917C2CD920F900F57F59 /* BuyTokenSelectorStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuyTokenSelectorStrings.swift; sourceTree = "<group>"; };
 		DC28917F2CD92CDE00F57F59 /* ActionButtonsTokenSelectorItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonsTokenSelectorItem.swift; sourceTree = "<group>"; };
@@ -9169,7 +9167,6 @@
 			isa = PBXGroup;
 			children = (
 				C22564002D9154CE003063DA /* FloatingSheet */,
-				DC2891772CD9107E00F57F59 /* CloseToolbarButton */,
 				DCC05A5E2CD17DE6004CE6A4 /* TokenSelectorView */,
 				EF0E1DAE2CE3A2A5003D47AA /* ProgressDots */,
 				B0340B9C2C50C7B2008FF6FC /* AnimationModifiers */,
@@ -14013,14 +14010,6 @@
 				DC2891662CD4AB8E00F57F59 /* ActionButtonsBuyCoordinator.swift */,
 			);
 			path = Coordinator;
-			sourceTree = "<group>";
-		};
-		DC2891772CD9107E00F57F59 /* CloseToolbarButton */ = {
-			isa = PBXGroup;
-			children = (
-				DC2891782CD9108900F57F59 /* CloseButton.swift */,
-			);
-			path = CloseToolbarButton;
 			sourceTree = "<group>";
 		};
 		DC28917E2CD92CD800F57F59 /* Models */ = {
@@ -19472,7 +19461,6 @@
 				EF59039A29091CFB00C527C9 /* EnvironmentSetupView.swift in Sources */,
 				B67E4C172CE04F2D00983EA1 /* MarketsTokenDetailsSecurityScoreDetailsRoutable.swift in Sources */,
 				B63B63BA2A44012D00A7CECF /* OrganizeTokensListHeader.swift in Sources */,
-				DC2891792CD9108F00F57F59 /* CloseButton.swift in Sources */,
 				B0DC10D42927564000BBE854 /* CardMock.swift in Sources */,
 				EF339E752C24820B00B5CDC9 /* SendAmountInteractor.swift in Sources */,
 				DC0DE2722B60392900E7247F /* SafariManager.swift in Sources */,
