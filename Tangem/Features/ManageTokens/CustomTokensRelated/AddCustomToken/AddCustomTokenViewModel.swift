@@ -175,6 +175,10 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         }
     }
 
+    func onCloseButtonTap() {
+        coordinator?.dismiss()
+    }
+
     // MARK: - Private Implementation
 
     private func bind() {

@@ -22,12 +22,6 @@ struct AddCustomTokenView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
-                Text(Localization.customTokenSubtitle)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 38)
-                    .padding(.bottom, 22)
-
                 if viewModel.selectedBlockchainNetworkId == nil {
                     networkSelectorContent
                 } else {
@@ -41,6 +35,7 @@ struct AddCustomTokenView: View {
         .onAppear(perform: viewModel.onAppear)
         .alert(item: $viewModel.alert, content: { $0.alert })
         .navigationBarTitle(Text(Localization.addCustomTokenTitle), displayMode: .inline)
+        .navigationBarItems(leading: CloseButton(dismiss: viewModel.onCloseButtonTap))
         .animation(.default, value: viewModel.selectedBlockchainNetworkId)
     }
 
