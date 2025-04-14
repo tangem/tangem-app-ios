@@ -134,6 +134,10 @@ var featureModules: [PackageDescription.Target] {
                 "TangemUI",
                 "TangemFoundation",
                 "TangemLocalization",
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
             ]
         ),
     ]
