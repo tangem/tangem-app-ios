@@ -113,6 +113,8 @@ extension BaseManager: WalletProvider {
         set { _wallet.value = newValue }
     }
 
+    var state: WalletManagerState { _state.value }
+
     var walletPublisher: AnyPublisher<Wallet, Never> { _wallet.eraseToAnyPublisher() }
     var statePublisher: AnyPublisher<WalletManagerState, Never> { _state.eraseToAnyPublisher() }
 }
