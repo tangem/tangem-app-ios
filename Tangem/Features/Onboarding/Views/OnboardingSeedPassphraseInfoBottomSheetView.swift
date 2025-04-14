@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemUI
 
 struct OnboardingSeedPassphraseInfoBottomSheetModel: Identifiable {
     let id = UUID()
