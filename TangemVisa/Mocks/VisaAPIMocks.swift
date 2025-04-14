@@ -19,11 +19,24 @@ public class VisaMocksManager {
 
     private(set) var activationRemoteState: VisaCardActivationRemoteState = .cardWalletSignatureRequired
     private(set) var customerWalletAddress: String = "0x3e24897ab2a19ca51536839fda818f8ea99cf96b"
-    var activationOrder: VisaCardActivationOrder {
+    lazy var activationOrder: VisaCardActivationOrder = validActivationOrder
+    var validActivationOrder: VisaCardActivationOrder {
         .init(
             id: "f30bee47-21b6-4d07-9492-a5f2e0542875",
             customerId: "f89a0b9e-e5ae-4c34-b0cd-f335f5c2a9f3",
-            customerWalletAddress: customerWalletAddress
+            customerWalletAddress: customerWalletAddress,
+            updatedAt: nil,
+            stepChangeCode: nil
+        )
+    }
+
+    var invalidPinActivationOrder: VisaCardActivationOrder {
+        .init(
+            id: "invalid-pin-order",
+            customerId: "f89a0b9e-e5ae-4c34-b0cd-f335f5c2a9f3",
+            customerWalletAddress: customerWalletAddress,
+            updatedAt: Date(),
+            stepChangeCode: 1000
         )
     }
 
@@ -59,6 +72,15 @@ public class VisaMocksManager {
                     self.changeCustomerWalletAddress(presenter)
                 }
             },
+            UIAlertAction(
+                title: "Change activation order",
+                style: .default,
+                handler: { _ in
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        self.changeActivationOrder(presenter)
+                    }
+                }
+            ),
             UIAlertAction(
                 title: "Open Support",
                 style: .default,
@@ -138,6 +160,27 @@ public class VisaMocksManager {
         alertController.addAction(cancelAction)
 
         presenter.modalFromTop(alertController)
+    }
+
+    func changeActivationOrder(_ presenter: VisaMockMenuPresenter) {
+        let actions: [UIAlertAction] = [
+            .init(title: "Default activation order", style: .default, handler: { _ in
+                self.activationOrder = self.validActivationOrder
+            }),
+            .init(title: "Invalid pin activation order", style: .default, handler: { _ in
+                self.activationOrder = self.invalidPinActivationOrder
+            }),
+        ]
+
+        let currentOrderName = activationOrder.id == invalidPinActivationOrder.id ? "Invalid PIN order" :
+            activationOrder.id == validActivationOrder.id ? "Default Activation Order" :
+            "Unknown Activation order"
+        let actionSheet = buildActionSheet(
+            title: "Change activation order",
+            message: "When Invalid PIN activation order is selected app will navigate from in progress screen to enter PIN code screen with error. Select invalid PIN order when you need to check PIN validation on the external service side. Current order: \(currentOrderName)",
+            actions: actions
+        )
+        presenter.modalFromTop(actionSheet)
     }
 
     func changeActivationRemoteState(to newState: VisaCardActivationRemoteState) {
