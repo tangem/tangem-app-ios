@@ -53,8 +53,6 @@ class CommonWalletModel {
     private var updateTimer: AnyCancellable?
     private var updateWalletModelSubscription: AnyCancellable?
     private var updatePublisher: PassthroughSubject<WalletModelState, Never>?
-    private var updateQueue = DispatchQueue(label: "walletModel_update_queue")
-
     private var bag = Set<AnyCancellable>()
 
     private let amountType: Amount.AmountType
@@ -381,10 +379,9 @@ extension CommonWalletModel: WalletModelUpdater {
         updateWalletModelSubscription = walletManager
             .updatePublisher()
             .combineLatest(loadQuotes(), updateStakingManagerState())
-            .combineLatest(walletManager.statePublisher) { $1 }
-            .receive(on: updateQueue)
             .withWeakCaptureOf(self)
             .sink { walletModel, newState in
+                let newState = walletModel.walletManager.state
                 walletModel.walletManagerDidUpdate(newState)
 
                 walletModel.updatePublisher?.send(walletModel.mapState(newState))
