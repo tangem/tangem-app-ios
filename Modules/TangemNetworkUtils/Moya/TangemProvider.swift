@@ -21,7 +21,13 @@ public class TangemProvider<Target: TargetType>: MoyaProvider<Target> {
         super.init(stubClosure: stubClosure, session: session, plugins: plugins)
     }
 
-    public convenience init(configuration: TangemProviderConfiguration) {
-        self.init(plugins: configuration.plugins, sessionConfiguration: configuration.urlSessionConfiguration)
+    public convenience init(
+        configuration: TangemProviderConfiguration,
+        additionalPlugins: [PluginType] = []
+    ) {
+        self.init(
+            plugins: configuration.plugins + additionalPlugins,
+            sessionConfiguration: configuration.urlSessionConfiguration
+        )
     }
 }
