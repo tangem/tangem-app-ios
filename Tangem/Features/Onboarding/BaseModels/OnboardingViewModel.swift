@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import Combine
 import TangemSdk
+import TangemUI
 
 class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable> {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
