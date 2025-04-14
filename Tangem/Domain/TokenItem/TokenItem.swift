@@ -129,26 +129,6 @@ enum TokenItem: Hashable, Codable {
     var decimalValue: Decimal {
         pow(10, decimalCount)
     }
-
-    /// We can't sign hashes on firmware prior 4.52
-    var hasLongHashes: Bool {
-        switch blockchain {
-        case .solana:
-            return isToken ? true : false
-        default:
-            return false
-        }
-    }
-
-    /// We can't sign hashes on firmware prior 4.52
-    var hasLongHashesForStaking: Bool {
-        switch blockchain {
-        case .solana:
-            return true
-        default:
-            return false
-        }
-    }
 }
 
 // MARK: - CustomStringConvertible
