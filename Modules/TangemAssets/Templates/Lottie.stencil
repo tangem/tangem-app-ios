@@ -1,0 +1,27 @@
+// swiftlint:disable all
+// Generated using SwiftGen — https://github.com/SwiftGen/SwiftGen
+// Based on: https://github.com/SwiftGen/SwiftGen/issues/627#issuecomment-715259788
+
+{% if files %}
+{% set accessModifier %}{% if param.publicAccess %}public{% else %}internal{% endif %}{% endset %}
+{% set enumName %}{{param.enumName|default:"LottieFile"}}{% endset %}
+import Foundation
+import Lottie
+
+// MARK: - Lottie Files Enum
+
+{{accessModifier}} enum {{enumName}} {
+  {% for file in files %}
+  {{accessModifier}} static let {{file.name|swiftIdentifier:"pretty"|lowerFirstWord|escapeReservedKeywords}} = LottieAnimation.namedFromBundle("{{file.name}}")
+  {% endfor %}
+}
+
+fileprivate extension LottieAnimation {
+    static func namedFromBundle(_ name: String) -> LottieAnimation {
+        LottieAnimation.named(name, bundle: .module)!
+    }
+}
+
+{% else %}
+// No files found
+{% endif %}
