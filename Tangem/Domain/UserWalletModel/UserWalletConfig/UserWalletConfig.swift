@@ -105,18 +105,6 @@ extension UserWalletConfig {
     }
 }
 
-struct EmailConfig {
-    let recipient: String
-    let subject: String
-
-    static var `default`: EmailConfig {
-        .init(
-            recipient: "support@tangem.com",
-            subject: Localization.feedbackSubjectSupportTangem
-        )
-    }
-}
-
 struct TOU {
     let id: String
     let url: URL
