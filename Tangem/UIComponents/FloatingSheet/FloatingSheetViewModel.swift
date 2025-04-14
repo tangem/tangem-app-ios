@@ -18,7 +18,7 @@ final class FloatingSheetViewModel: FloatingSheetPresenter, ObservableObject {
     nonisolated init() {}
 
     func enqueue(sheet: some FloatingSheetContentViewModel) {
-        if activeSheet == nil {
+        if activeSheet == nil, !isPaused {
             activeSheet = sheet
         } else {
             sheetsQueue.append(sheet)
@@ -29,6 +29,11 @@ final class FloatingSheetViewModel: FloatingSheetPresenter, ObservableObject {
         activeSheet = sheetsQueue.isEmpty
             ? nil
             : sheetsQueue.removeFirst()
+    }
+
+    func removeAllSheets() {
+        activeSheet = nil
+        sheetsQueue.removeAll()
     }
 
     func pauseSheetsDisplaying() {
