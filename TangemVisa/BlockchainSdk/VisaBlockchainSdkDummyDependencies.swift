@@ -19,17 +19,19 @@ public struct VisaDummyBlockchainDataProvider: BlockchainDataProvider {
 
 public class VisaDummyTransactionDependencies: TransactionCreator, TransactionSender {
     public var wallet: Wallet
+    public var state: WalletManagerState
 
     public var walletPublisher: AnyPublisher<Wallet, Never> {
         Just(wallet).eraseToAnyPublisher()
     }
 
     public var statePublisher: AnyPublisher<WalletManagerState, Never> {
-        Just(.loaded).eraseToAnyPublisher()
+        Just(state).eraseToAnyPublisher()
     }
 
     public init(isTestnet: Bool) {
         wallet = .init(blockchain: VisaUtilities(isTestnet: isTestnet).visaBlockchain, addresses: [:])
+        state = .loaded
     }
 
     public func send(_ transaction: Transaction, signer: any TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
