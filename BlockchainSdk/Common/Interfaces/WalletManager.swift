@@ -48,6 +48,8 @@ public enum WalletManagerState {
 
 public protocol WalletProvider: AnyObject {
     var wallet: Wallet { get set }
+    var state: WalletManagerState { get }
+
     var walletPublisher: AnyPublisher<Wallet, Never> { get }
     var statePublisher: AnyPublisher<WalletManagerState, Never> { get }
 }
