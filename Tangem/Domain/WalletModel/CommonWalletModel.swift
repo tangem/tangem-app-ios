@@ -49,6 +49,7 @@ class CommonWalletModel {
     private let walletManager: WalletManager
     private let _stakingManager: StakingManager?
     private let _transactionHistoryService: TransactionHistoryService?
+    private let featureManager: WalletModelFeaturesManager
 
     private var updateTimer: AnyCancellable?
     private var updateWalletModelSubscription: AnyCancellable?
@@ -63,17 +64,21 @@ class CommonWalletModel {
     private let _localPendingTransactionSubject: PassthroughSubject<Void, Never> = .init()
     private lazy var formatter = BalanceFormatter()
 
+    private var bag = Set<AnyCancellable>()
+
     init(
         walletManager: WalletManager,
         stakingManager: StakingManager?,
+        featureManager: WalletModelFeaturesManager,
         transactionHistoryService: TransactionHistoryService?,
+        sendAvailabilityProvider: TransactionSendAvailabilityProvider,
+        tokenBalancesRepository: TokenBalancesRepository,
         amountType: Amount.AmountType,
         shouldPerformHealthCheck: Bool,
-        isCustom: Bool,
-        sendAvailabilityProvider: TransactionSendAvailabilityProvider,
-        tokenBalancesRepository: TokenBalancesRepository
+        isCustom: Bool
     ) {
         self.walletManager = walletManager
+        self.featureManager = featureManager
         _stakingManager = stakingManager
         _transactionHistoryService = transactionHistoryService
         self.amountType = amountType
@@ -81,7 +86,7 @@ class CommonWalletModel {
         self.sendAvailabilityProvider = sendAvailabilityProvider
         self.tokenBalancesRepository = tokenBalancesRepository
 
-        blockchainNetwork = .init(
+        blockchainNetwork = BlockchainNetwork(
             walletManager.wallet.blockchain,
             derivationPath: walletManager.wallet.publicKey.derivationPath
         )
@@ -230,6 +235,8 @@ extension CommonWalletModel: Equatable {
 // MARK: - WalletModel
 
 extension CommonWalletModel: WalletModel {
+    var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { featureManager.featuresPublisher }
+
     var name: String {
         switch amountType {
         case .coin, .reserve, .feeResource:
