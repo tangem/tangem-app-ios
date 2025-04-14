@@ -54,7 +54,6 @@ class CommonWalletModel {
     private var updateTimer: AnyCancellable?
     private var updateWalletModelSubscription: AnyCancellable?
     private var updatePublisher: PassthroughSubject<WalletModelState, Never>?
-    private var bag = Set<AnyCancellable>()
 
     private let amountType: Amount.AmountType
     private let blockchainNetwork: BlockchainNetwork
