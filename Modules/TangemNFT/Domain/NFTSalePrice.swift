@@ -11,8 +11,8 @@ import Foundation
 // [REDACTED_TODO_COMMENT]
 public struct NFTSalePrice: Sendable {
     public let last: Price
-    public let lowest: Price
-    public let highest: Price
+    public let lowest: Price?
+    public let highest: Price?
 }
 
 // MARK: - Auxiliary types
