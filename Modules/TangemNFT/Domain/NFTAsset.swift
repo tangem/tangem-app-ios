@@ -65,6 +65,7 @@ public extension NFTAsset {
             case animation
             case video
             case audio
+            case unknown
         }
 
         public let kind: Kind
@@ -73,7 +74,7 @@ public extension NFTAsset {
 
     struct Rarity: Hashable, Sendable {
         public let label: String
-        public let percentage: Double?
+        public let percentage: Decimal?
         public let rank: Int?
     }
 
