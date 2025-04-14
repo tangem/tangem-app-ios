@@ -31,6 +31,9 @@ class FeatureStorage {
     @AppStorageCompat(FeatureStorageKeys.stakingBlockchainsIds)
     var stakingBlockchainsIds: [String] = []
 
+    @AppStorageCompat(FeatureStorageKeys.testableNFTChainsIds)
+    var testableNFTChainsIds: [String] = []
+
     @AppStorageCompat(FeatureStorageKeys.performanceMonitorEnabled)
     var isPerformanceMonitorEnabled = false
 
@@ -55,6 +58,7 @@ private enum FeatureStorageKeys: String {
     case apiExpress = "api_express"
     case supportedBlockchainsIds
     case stakingBlockchainsIds
+    case testableNFTChainsIds = "testable_nft_chains_ids"
     case performanceMonitorEnabled = "performance_monitor_enabled"
     case mockedCardScannerEnabled = "mocked_card_scanner_enabled"
     case useVisaTestnet = "use_visa_testnet"

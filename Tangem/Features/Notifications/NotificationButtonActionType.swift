@@ -9,6 +9,7 @@
 import Foundation
 import TangemLocalization
 import TangemAssets
+import TangemUI
 
 struct NotificationButtonAction {
     let type: NotificationButtonActionType
