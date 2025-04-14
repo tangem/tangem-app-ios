@@ -12,16 +12,14 @@ import TangemNetworkUtils
 // [REDACTED_TODO_COMMENT]
 public final class NFTScanNFTNetworkService {
     private let networkConfiguration: TangemProviderConfiguration
-    private let headers: NetworkHeaders
     private let chain: NFTChain
 
     public init(
         networkConfiguration: TangemProviderConfiguration,
-        headers: NetworkHeaders,
+        headers: [APIHeaderKeyInfo],
         chain: NFTChain
     ) {
         self.networkConfiguration = networkConfiguration
-        self.headers = headers
         self.chain = chain
     }
 }
@@ -41,7 +39,7 @@ extension NFTScanNFTNetworkService: NFTNetworkService {
         fatalError("\(#function) not implemented")
     }
 
-    public func getSalePrice(assetIdentifier: NFTAsset.ID, collectionIdentifier: NFTCollection.ID?) async throws -> NFTSalePrice? {
+    public func getSalePrice(assetIdentifier: NFTAsset.ID) async throws -> NFTSalePrice? {
         fatalError("\(#function) not implemented")
     }
 }
