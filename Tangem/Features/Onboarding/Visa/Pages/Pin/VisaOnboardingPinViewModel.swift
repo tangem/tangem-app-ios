@@ -31,6 +31,8 @@ class VisaOnboardingPinViewModel: ObservableObject {
     private weak var delegate: VisaOnboardingPinSelectionDelegate?
     private var bag = Set<AnyCancellable>()
 
+    private var shouldSkipValidation = false
+
     init(delegate: VisaOnboardingPinSelectionDelegate?) {
         self.delegate = delegate
 
@@ -61,10 +63,22 @@ class VisaOnboardingPinViewModel: ObservableObject {
         }
     }
 
+    func setupInvalidPinState() {
+        shouldSkipValidation = true
+        pinCode = ""
+        errorMessage = Localization.visaOnboardingPinNotAccepted
+        isPinCodeValid = false
+    }
+
     private func bind() {
         $pinCode
             .sink(receiveValue: { [weak self] pin in
                 guard let self else { return }
+
+                if shouldSkipValidation {
+                    shouldSkipValidation = false
+                    return
+                }
 
                 do throws(VisaPinValidator.PinValidationError) {
                     try pinValidator.validatePinCode(pin)
