@@ -58,20 +58,16 @@ class VisaUserWalletModel {
     }
 
     var transactionHistoryStatePublisher: AnyPublisher<TransactionHistoryServiceState, Never> {
-        transactionHistoryService?.statePublisher ?? Just(.failedToLoad(ModelError.authorizationError)).eraseToAnyPublisher()
+        transactionHistoryService.statePublisher
     }
 
     var transactionHistoryItems: [TransactionListItem] {
-        guard let transactionHistoryService else {
-            return []
-        }
-
         let historyMapper = VisaTransactionHistoryMapper(currencySymbol: currencySymbol)
         return historyMapper.mapTransactionListItem(from: transactionHistoryService.items)
     }
 
     var canFetchMoreTransactionHistory: Bool {
-        transactionHistoryService?.canFetchMoreHistory ?? false
+        transactionHistoryService.canFetchMoreHistory
     }
 
     var currencySymbol: String {
@@ -95,8 +91,8 @@ class VisaUserWalletModel {
     private let userWalletModel: UserWalletModel
     private var cardWalletAddress: String?
     private var cardInfo: CardInfo
+    private let transactionHistoryService: VisaTransactionHistoryService
     private var authorizationTokensHandler: VisaAuthorizationTokensHandler?
-    private var transactionHistoryService: VisaTransactionHistoryService?
     private var visaPaymentAccountInteractor: VisaPaymentAccountInteractor?
 
     private let balancesSubject = CurrentValueSubject<AppVisaBalances?, Never>(nil)
@@ -110,6 +106,7 @@ class VisaUserWalletModel {
     init(userWalletModel: UserWalletModel, cardInfo: CardInfo) {
         self.userWalletModel = userWalletModel
         self.cardInfo = cardInfo
+        transactionHistoryService = .init()
 
         let appUtilities = VisaAppUtilities()
         if let walletPublicKey = appUtilities.makeBlockchainKey(using: userWalletModel.keysRepository.keys) {
@@ -132,7 +129,7 @@ class VisaUserWalletModel {
     }
 
     func transaction(with id: UInt64) -> VisaTransactionRecord? {
-        transactionHistoryService?.items.first(where: { $0.id == id })
+        transactionHistoryService.items.first(where: { $0.id == id })
     }
 
     func generalUpdateAsync() async {
@@ -179,7 +176,7 @@ class VisaUserWalletModel {
         }
 
         historyReloadTask = Task { [weak self] in
-            await self?.transactionHistoryService?.loadNextPage()
+            await self?.transactionHistoryService.loadNextPage()
             self?.historyReloadTask = nil
         }
     }
@@ -247,6 +244,7 @@ class VisaUserWalletModel {
             )
             customerCardInfoSubject.send(customerCardInfo)
 
+            await reloadHistoryAsync()
             let builder = await VisaPaymentAccountInteractorBuilder(
                 isTestnet: blockchain.isTestnet,
                 evmSmartContractInteractor: smartContractInteractor,
@@ -311,7 +309,7 @@ class VisaUserWalletModel {
     }
 
     private func reloadHistoryAsync() async {
-        await transactionHistoryService?.reloadHistory()
+        await transactionHistoryService.reloadHistory()
     }
 }
 
@@ -395,7 +393,7 @@ extension VisaUserWalletModel {
             isTestnet: FeatureStorage.instance.isVisaTestnet,
             urlSessionConfiguration: .defaultConfiguration
         )
-        transactionHistoryService = VisaTransactionHistoryService(apiService: apiService)
+        transactionHistoryService.setupApiService(apiService)
     }
 }
 
@@ -505,6 +503,8 @@ extension VisaUserWalletModel: UserWalletModel {
     var userTokensManager: any UserTokensManager { userWalletModel.userTokensManager }
 
     var userTokenListManager: any UserTokenListManager { userWalletModel.userTokenListManager }
+
+    var nftManager: any NFTManager { NotSupportedNFTManager() }
 
     var keysRepository: any KeysRepository { userWalletModel.keysRepository }
 
