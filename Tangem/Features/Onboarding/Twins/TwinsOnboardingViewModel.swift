@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import Combine
+import TangemUI
 
 class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, OnboardingCoordinator>, ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
