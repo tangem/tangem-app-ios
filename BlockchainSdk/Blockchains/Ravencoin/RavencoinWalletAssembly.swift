@@ -9,6 +9,7 @@
 import Foundation
 import TangemSdk
 import BitcoinCore
+import TangemNetworkUtils
 
 struct RavencoinWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
