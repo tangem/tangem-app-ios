@@ -8,9 +8,6 @@
 
 import Foundation
 import Testing
-import TangemSdk
-import BitcoinCore
-import Sodium
 @testable import BlockchainSdk
 
 struct Bech32Tests {
