@@ -67,7 +67,7 @@ class TronTransactionBuilder {
         let addressData = try utils.convertAddressToBytesPadded(destinationAddress)
         let amountData = try utils.convertAmountPadded(amount)
 
-        let data = (addressData + amountData).hexString.lowercased()
+        let data = (addressData + amountData).hex()
         return data
     }
 
@@ -83,7 +83,7 @@ class TronTransactionBuilder {
     func buildForAllowance(owner: String, spender: String) throws -> String {
         let ownerAddress = try TronUtils().convertAddressToBytesPadded(owner)
         let spenderAddress = try TronUtils().convertAddressToBytesPadded(spender)
-        return (ownerAddress + spenderAddress).hexString.lowercased()
+        return (ownerAddress + spenderAddress).hex()
     }
 
     // MARK: - Private
