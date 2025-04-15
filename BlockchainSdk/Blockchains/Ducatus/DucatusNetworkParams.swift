@@ -1,5 +1,5 @@
 //
-//  DucatusAddressService.swift
+//  DucatusNetworkParams.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
