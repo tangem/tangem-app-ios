@@ -153,12 +153,11 @@ struct MoralisNetworkMapper {
             return nil
         }
 
-        let percentage = rarityPercentage.map { Decimal($0) }
         let rank = rarityRank.map { Int($0) }
 
         return NFTAsset.Rarity(
             label: rarityLabel,
-            percentage: percentage,
+            percentage: rarityPercentage,
             rank: rank
         )
     }
