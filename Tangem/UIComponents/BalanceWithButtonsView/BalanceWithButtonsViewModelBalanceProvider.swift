@@ -8,7 +8,7 @@
 
 import Combine
 
-protocol BalanceWithButtonsViewModelBalanceProvider {
+protocol BalanceWithButtonsViewModelBalanceProvider: AnyObject {
     var totalCryptoBalancePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { get }
     var totalFiatBalancePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { get }
 
@@ -16,6 +16,6 @@ protocol BalanceWithButtonsViewModelBalanceProvider {
     var availableFiatBalancePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { get }
 }
 
-protocol BalanceTypeSelectorProvider {
+protocol BalanceTypeSelectorProvider: AnyObject {
     var shouldShowBalanceSelector: Bool { get }
 }
