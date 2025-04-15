@@ -27,13 +27,13 @@ final class HederaWalletManager: BaseManager {
             .publicKey
             .blockchainKey
             .getSha256()
-            .hexString
+            .hex()
     }
 
     /// Public key as a masked string (only the last four characters are revealed), suitable for use in logs
     private lazy var maskedPublicKey: String = {
         let length = 4
-        let publicKey = wallet.publicKey.blockchainKey.hexString
+        let publicKey = wallet.publicKey.blockchainKey.hex()
 
         return publicKey
             .dropLast(length)
@@ -503,7 +503,7 @@ final class HederaWalletManager: BaseManager {
             return walletManager
                 .networkService
                 .send(transaction: compiledTransaction)
-                .mapSendError(tx: transactionRawData?.hexString)
+                .mapSendError(tx: transactionRawData?.hex())
                 .eraseToAnyPublisher()
         }
     }
