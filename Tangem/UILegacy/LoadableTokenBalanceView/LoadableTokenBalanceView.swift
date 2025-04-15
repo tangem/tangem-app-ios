@@ -29,6 +29,7 @@ struct LoadableTokenBalanceView: View {
             RoundedRectangle(cornerRadius: loader.cornerRadius, style: .continuous)
                 .fill(Colors.Control.shimmer)
                 .frame(size: loader.size)
+                .padding(loader.padding)
                 .modifier(Shimmer())
         case .failed(let text, .none):
             textView(text)
@@ -89,10 +90,12 @@ extension LoadableTokenBalanceView {
 
     struct LoaderStyle {
         let size: CGSize
+        let padding: EdgeInsets
         let cornerRadius: CGFloat
 
-        init(size: CGSize, cornerRadius: CGFloat = 3) {
+        init(size: CGSize, padding: EdgeInsets = .init(), cornerRadius: CGFloat = 3) {
             self.size = size
+            self.padding = padding
             self.cornerRadius = cornerRadius
         }
     }
