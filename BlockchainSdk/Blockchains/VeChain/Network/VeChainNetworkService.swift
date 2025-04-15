@@ -154,7 +154,7 @@ final class VeChainNetworkService: MultiNetworkProvider {
     }
 
     func send(transaction: Data) -> AnyPublisher<TransactionSendResult, Error> {
-        let rawTransaction = transaction.hexString.lowercased().addHexPrefix()
+        let rawTransaction = transaction.hex().addHexPrefix()
 
         return providerPublisher { provider in
             return provider
