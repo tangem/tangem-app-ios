@@ -52,10 +52,10 @@ extension BinanceAddressService: AddressProvider {
         let keyHash = compressedKey.sha256Ripemd160
 
         if testnet {
-            let address = Bech32().encode("tbnb", values: keyHash)
+            let address = try Bech32().encode("tbnb", values: keyHash)
             return PlainAddress(value: address, publicKey: publicKey, type: addressType)
         } else {
-            let address = Bech32().encode("bnb", values: keyHash)
+            let address = try Bech32().encode("bnb", values: keyHash)
             return PlainAddress(value: address, publicKey: publicKey, type: addressType)
         }
     }
