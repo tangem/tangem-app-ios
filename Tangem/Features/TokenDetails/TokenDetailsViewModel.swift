@@ -357,9 +357,11 @@ extension TokenDetailsViewModel: BalanceWithButtonsViewModelBalanceProvider {
 
 extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
     var shouldShowBalanceSelector: Bool {
-        guard let activeStakingViewData,
-              case .balance = activeStakingViewData.balance else { return false }
-
-        return true
+        switch walletModel.stakingBalanceProvider.balanceType {
+        case .empty:
+            return false
+        case .failure, .loading, .loaded:
+            return true
+        }
     }
 }
