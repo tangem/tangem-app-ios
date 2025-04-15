@@ -6,7 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import BitcoinCore
+import Foundation
 
 struct BitcoinNetworkParams: UTXONetworkParams {
     let p2pkhPrefix: UInt8 = 0x00
