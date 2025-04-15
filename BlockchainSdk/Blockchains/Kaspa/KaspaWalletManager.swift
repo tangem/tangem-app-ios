@@ -141,7 +141,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
                 return manager
                     .networkService
                     .send(transaction: KaspaDTO.Send.Request(transaction: tx))
-                    .mapSendError(tx: encodedRawTransactionData?.hexString.lowercased())
+                    .mapSendError(tx: encodedRawTransactionData?.hex())
             }
             .withWeakCaptureOf(self)
             .handleEvents(receiveOutput: { manager, response in
@@ -198,7 +198,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
 
                 return manager.networkService
                     .send(transaction: KaspaDTO.Send.Request(transaction: commitTx))
-                    .mapSendError(tx: encodedRawTransactionData?.hexString.lowercased())
+                    .mapSendError(tx: encodedRawTransactionData?.hex())
                     .mapToValue(revealTx)
             }
             .withWeakCaptureOf(self)
@@ -230,7 +230,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
                         // therefore `wire` operator is used here
                         return manager.updateUnspentOutputs()
                     }
-                    .mapSendError(tx: encodedRawTransactionData?.hexString.lowercased())
+                    .mapSendError(tx: encodedRawTransactionData?.hex())
             }
             .withWeakCaptureOf(self)
             .handleEvents(receiveOutput: { manager, response in
@@ -335,7 +335,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
                         // therefore `wire` operator is used here
                         return manager.updateUnspentOutputs()
                     }
-                    .mapSendError(tx: encodedRawTransactionData?.hexString.lowercased())
+                    .mapSendError(tx: encodedRawTransactionData?.hex())
             }
             .withWeakCaptureOf(self)
             .handleEvents(receiveOutput: { manager, response in
