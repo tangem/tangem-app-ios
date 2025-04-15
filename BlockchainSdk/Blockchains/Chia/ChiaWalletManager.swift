@@ -28,7 +28,7 @@ final class ChiaWalletManager: BaseManager, WalletManager {
     init(wallet: Wallet, networkService: ChiaNetworkService, txBuilder: ChiaTransactionBuilder) throws {
         self.networkService = networkService
         self.txBuilder = txBuilder
-        puzzleHash = try ChiaPuzzleUtils().getPuzzleHash(from: wallet.address).hexString.lowercased()
+        puzzleHash = try ChiaPuzzleUtils().getPuzzleHash(from: wallet.address).hex()
         super.init(wallet: wallet)
     }
 
@@ -73,7 +73,7 @@ final class ChiaWalletManager: BaseManager, WalletManager {
 
                 return networkService
                     .send(spendBundle: spendBundle)
-                    .mapSendError(tx: encodedTransactionData?.hexString.lowercased())
+                    .mapSendError(tx: encodedTransactionData?.hex())
                     .eraseToAnyPublisher()
             }
             .map { [weak self] hash in
