@@ -29,7 +29,7 @@ struct KaspaTransactionTests {
         unspentOutputManager.update(
             outputs: outputs,
             // NOTE: Be careful that lockingScript is not same that we have for source address
-            for: UTXOLockingScript(data: Data(hexString: "21034c88a1a83469ddf20d0c07e5c4a1e7b83734e721e60d642b94a53222c47c670dab"), type: .p2pk)
+            for: UTXOLockingScript(keyHash: Data(), data: Data(hexString: "21034c88a1a83469ddf20d0c07e5c4a1e7b83734e721e60d642b94a53222c47c670dab"), type: .p2pk)
         )
 
         let txBuilder = KaspaTransactionBuilder(
@@ -110,7 +110,7 @@ struct KaspaTransactionTests {
         unspentOutputManager.update(
             outputs: outputs,
             // NOTE: Be careful that lockingScript is not same that we have for source address
-            for: UTXOLockingScript(data: Data(hexString: "21034c88a1a83469ddf20d0c07e5c4a1e7b83734e721e60d642b94a53222c47c670dab"), type: .p2pk)
+            for: UTXOLockingScript(keyHash: Data(), data: Data(hexString: "21034c88a1a83469ddf20d0c07e5c4a1e7b83734e721e60d642b94a53222c47c670dab"), type: .p2pk)
         )
 
         let txBuilder = KaspaTransactionBuilder(
