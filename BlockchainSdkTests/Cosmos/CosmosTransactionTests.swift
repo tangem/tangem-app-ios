@@ -50,8 +50,8 @@ struct CosmosTransactionTests {
 
         // then
         expectJSONEqual(transactionString, expectedOutput)
-        #expect(signature.hexString.lowercased() == "f9e1f4001657a42009c4eb6859625d2e41e961fc72efd2842909c898e439fc1f549916e4ecac676ee353c7d54c5ae30a29b4210b8bff0ebfdcb375e105002f4701")
-        #expect(dataForSign.hexString.lowercased() == "8a6e6f74625fd39707843360120874853cc0c1d730b087f3939f4b187c75b907")
+        #expect(signature.hex() == "f9e1f4001657a42009c4eb6859625d2e41e961fc72efd2842909c898e439fc1f549916e4ecac676ee353c7d54c5ae30a29b4210b8bff0ebfdcb375e105002f4701")
+        #expect(dataForSign.hex() == "8a6e6f74625fd39707843360120874853cc0c1d730b087f3939f4b187c75b907")
     }
 
     @Test
@@ -92,8 +92,8 @@ struct CosmosTransactionTests {
 
         // then
         expectJSONEqual(transactionString, expectedOutput)
-        #expect(dataForSign.hexString.lowercased() == "8f5d74ec7f6fcbe71fc97b8926e3aca92b454913df8cbcbc5f41878333687ed5")
-        #expect(signature.hexString.lowercased() == "b0d8dd24b5bbd4a438f6d82e467ce4d984da98e8cd8652f475012e63134491316a548b1589576236b181bcc21945984907bfeeb8a30c39e0883184a8b640988500")
+        #expect(dataForSign.hex() == "8f5d74ec7f6fcbe71fc97b8926e3aca92b454913df8cbcbc5f41878333687ed5")
+        #expect(signature.hex() == "b0d8dd24b5bbd4a438f6d82e467ce4d984da98e8cd8652f475012e63134491316a548b1589576236b181bcc21945984907bfeeb8a30c39e0883184a8b640988500")
     }
 
     @Test
@@ -135,8 +135,8 @@ struct CosmosTransactionTests {
 
         // then
         expectJSONEqual(transactionString, expectedOutput)
-        #expect(dataForSign.hexString.lowercased() == "c8ba915f54f148a2e0feaa4d5d0ee2af558ab73ad115621b7148cb2850cbc00d")
-        #expect(signature.hexString.lowercased() == "271779f928eb7cfc63f6a1ed256492886529a78c0cbb043a4da18df984fe704f5b1612dcd5559560c4f15fb1d79f25be499c5251709b562fa4e77bf0c2379c2200")
+        #expect(dataForSign.hex() == "c8ba915f54f148a2e0feaa4d5d0ee2af558ab73ad115621b7148cb2850cbc00d")
+        #expect(signature.hex() == "271779f928eb7cfc63f6a1ed256492886529a78c0cbb043a4da18df984fe704f5b1612dcd5559560c4f15fb1d79f25be499c5251709b562fa4e77bf0c2379c2200")
     }
 
     /// From TrustWallet
@@ -181,7 +181,7 @@ struct CosmosTransactionTests {
 
         // then
         expectJSONEqual(transactionString, expectedOutput)
-        #expect(dataForSign.hexString.lowercased() == "c5ba086438f7d37f765058c586fe3c3d8d7742682b72b1f2fe0b357f736660d3")
-        #expect(signature.hexString.lowercased() == "f8740b7ae3cdd8b12148b23f1dc5956031cdb2882cd01c49155e427693975bec2390c47d86b6a1895404bab28a570c09c53f89a24b85ec77d0da366a4d199f5400")
+        #expect(dataForSign.hex() == "c5ba086438f7d37f765058c586fe3c3d8d7742682b72b1f2fe0b357f736660d3")
+        #expect(signature.hex() == "f8740b7ae3cdd8b12148b23f1dc5956031cdb2882cd01c49155e427693975bec2390c47d86b6a1895404bab28a570c09c53f89a24b85ec77d0da366a4d199f5400")
     }
 }
