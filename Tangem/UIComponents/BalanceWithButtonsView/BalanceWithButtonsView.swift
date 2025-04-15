@@ -28,13 +28,20 @@ struct BalanceWithButtonsView: View {
                 LoadableTokenBalanceView(
                     state: viewModel.fiatBalance,
                     style: .init(font: Fonts.Regular.title1, textColor: Colors.Text.primary1),
-                    loader: .init(size: .init(width: 102, height: 24), cornerRadius: 6)
+                    loader: .init(
+                        size: .init(width: 102, height: 24),
+                        padding: .init(top: 5, leading: 0, bottom: 5, trailing: 0),
+                        cornerRadius: 6
+                    )
                 )
 
                 LoadableTokenBalanceView(
                     state: viewModel.cryptoBalance,
                     style: .init(font: Fonts.Regular.footnote, textColor: Colors.Text.tertiary),
-                    loader: .init(size: .init(width: 70, height: 12))
+                    loader: .init(
+                        size: .init(width: 70, height: 12),
+                        padding: .init(top: 2, leading: 0, bottom: 2, trailing: 0)
+                    )
                 )
             }
 

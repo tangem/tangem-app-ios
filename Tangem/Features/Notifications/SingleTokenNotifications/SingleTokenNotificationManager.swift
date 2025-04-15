@@ -41,26 +41,28 @@ final class SingleTokenNotificationManager {
     private func bind() {
         bag = []
 
-        walletModel.totalTokenBalanceProvider
-            .balanceTypePublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] state in
-                self?.notificationsUpdateTask?.cancel()
+        Publishers.CombineLatest(
+            walletModel.availableBalanceProvider.balanceTypePublisher,
+            walletModel.totalTokenBalanceProvider.balanceTypePublisher
+        )
+        .receive(on: DispatchQueue.main)
+        .sink { [weak self] availableState, totalState in
+            self?.notificationsUpdateTask?.cancel()
 
-                switch state {
-                case .failure(.none):
-                    self?.setupNetworkUnreachable()
-                case .failure(.some(let cached)):
-                    self?.setupNetworkNotUpdated(lastUpdatedDate: cached.date)
-                case .empty(.noAccount(let message)):
-                    self?.setupNoAccountNotification(with: message)
-                case .loaded:
-                    self?.setupLoadedStateNotifications()
-                case .loading, .empty:
-                    break
-                }
+            switch (availableState, totalState) {
+            case (.failure(.none), _):
+                self?.setupNetworkUnreachable()
+            case (_, .failure(.some(let cached))):
+                self?.setupNetworkNotUpdated(lastUpdatedDate: cached.date)
+            case (_, .empty(.noAccount(let message))):
+                self?.setupNoAccountNotification(with: message)
+            case (_, .loaded):
+                self?.setupLoadedStateNotifications()
+            default:
+                break
             }
-            .store(in: &bag)
+        }
+        .store(in: &bag)
     }
 
     private func setupLoadedStateNotifications() {
