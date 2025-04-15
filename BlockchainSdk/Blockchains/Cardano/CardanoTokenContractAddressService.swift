@@ -43,7 +43,7 @@ public struct CardanoTokenContractAddressService {
     private func getAddressData(from address: String, symbol: String?, addressType: ContractAddressType) -> Data {
         guard let symbol,
               addressType == .policyID,
-              let suffix = symbol.data(using: .utf8)?.hexString else {
+              let suffix = symbol.data(using: .utf8)?.hex() else {
             return Data(hexString: address)
         }
 
