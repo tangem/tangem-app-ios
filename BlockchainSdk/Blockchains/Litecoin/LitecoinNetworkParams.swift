@@ -20,7 +20,7 @@ class LitecoinNetworkParams: INetwork {
     let xPrivKey: UInt32 = 0x0488ADE4 // bip32HeaderP2PKHpriv
     let magic: UInt32 = 0xfbc0b6db // packetMagic
     let port: UInt32 = 9333 // port
-    let coinType: UInt32 = 0
+    let coinType: UInt32 = 2
     let sigHash: SigHashType = .bitcoinAll
     var syncableFromApi: Bool = true
 
