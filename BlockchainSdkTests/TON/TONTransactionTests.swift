@@ -52,7 +52,7 @@ struct TONTransactionTests {
 
         let buildForSign = try txBuilder.buildForSign(buildInput: buildInput)
 
-        #expect("2980e02f4d5e84dc9017abd504d9ac79189f821b525e890fe8034ad32edfc3c7".lowercased() == buildForSign.hexString.lowercased())
+        #expect("2980e02f4d5e84dc9017abd504d9ac79189f821b525e890fe8034ad32edfc3c7".lowercased() == buildForSign.hex())
 
         // Validate hash size
         TransactionSizeTesterUtility().testTxSizes([buildForSign ?? Data()])
@@ -92,7 +92,7 @@ struct TONTransactionTests {
 
         let buildForSign = try txBuilder.buildForSign(buildInput: buildInput)
 
-        #expect("876b5fe635e5d538edef9e16746b7de19c1384c46a41302a15f7243d38285f9c".lowercased() == buildForSign.hexString.lowercased())
+        #expect("876b5fe635e5d538edef9e16746b7de19c1384c46a41302a15f7243d38285f9c".lowercased() == buildForSign.hex())
 
         // Validate hash size
         TransactionSizeTesterUtility().testTxSizes([buildForSign ?? Data()])

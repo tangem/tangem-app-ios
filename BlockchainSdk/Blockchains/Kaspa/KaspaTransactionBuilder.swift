@@ -223,7 +223,7 @@ extension KaspaTransactionBuilder {
             redeemScript: redeemScript,
             sourceAddress: sourceAddress,
             params: .init(
-                transactionId: txid.hexadecimal,
+                transactionId: txid.hex(),
                 amount: amount.value,
                 targetOutputAmount: UInt64(targetOutputAmount),
                 envelope: envelope
@@ -277,10 +277,10 @@ extension KaspaTransactionBuilder {
         let inputs: [KaspaDTO.Send.Request.Transaction.Input] = transaction.inputs.enumerated().map { index, input in
             let sigHashAll: UInt8 = 1
             let script = signatures[index] + sigHashAll.data
-            let signatureScript = OpCode.push(script).hexString.lowercased()
+            let signatureScript = OpCode.push(script).hex()
 
             let outpoint = KaspaDTO.Send.Request.Transaction.Input.PreviousOutpoint(
-                transactionId: input.transactionHash.hexString.lowercased(),
+                transactionId: input.transactionHash.hex(),
                 index: input.outputIndex
             )
 
@@ -291,7 +291,7 @@ extension KaspaTransactionBuilder {
             .init(
                 amount: $0.amount,
                 scriptPublicKey: .init(
-                    scriptPublicKey: $0.scriptPublicKey.script.hexString.lowercased(),
+                    scriptPublicKey: $0.scriptPublicKey.script.hex(),
                     version: $0.scriptPublicKey.version
                 )
             )
@@ -306,17 +306,17 @@ extension KaspaTransactionBuilder {
             let script = signatures[index] + sigHashAll.data
 
             let outpoint = KaspaDTO.Send.Request.Transaction.Input.PreviousOutpoint(
-                transactionId: input.transactionHash.hexString.lowercased(),
+                transactionId: input.transactionHash.hex(),
                 index: input.outputIndex
             )
 
             switch index {
             case 0:
-                let signatureScript = (OpCode.push(script) + OpCode.push(commitRedeemScript)).hexString.lowercased()
+                let signatureScript = (OpCode.push(script) + OpCode.push(commitRedeemScript)).hex()
                 return .init(previousOutpoint: outpoint, signatureScript: signatureScript)
 
             default:
-                let signatureScript = OpCode.push(script).hexString.lowercased()
+                let signatureScript = OpCode.push(script).hex()
                 return .init(previousOutpoint: outpoint, signatureScript: signatureScript)
             }
         }
@@ -325,7 +325,7 @@ extension KaspaTransactionBuilder {
             .init(
                 amount: $0.amount,
                 scriptPublicKey: .init(
-                    scriptPublicKey: $0.scriptPublicKey.script.hexString.lowercased(),
+                    scriptPublicKey: $0.scriptPublicKey.script.hex(),
                     version: $0.scriptPublicKey.version
                 )
             )
