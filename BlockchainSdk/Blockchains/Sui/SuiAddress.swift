@@ -19,7 +19,7 @@ struct SuiAddress {
             throw WalletCoreAddressService.TWError.makeAddressFailed
         }
 
-        let string = hashed.hexString.addHexPrefix()
+        let string = hashed.hex().addHexPrefix()
 
         formattedString = string
         self.curveID = curveID
