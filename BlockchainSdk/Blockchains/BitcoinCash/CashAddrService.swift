@@ -7,15 +7,14 @@
 //
 
 import Foundation
-import BitcoinCore
 import TangemSdk
 
 @available(iOS 13.0, *)
 class CashAddrService {
     private let addressPrefix: String
 
-    init(networkParams: INetwork) {
-        addressPrefix = networkParams.bech32PrefixPattern
+    init(networkParams: UTXONetworkParams) {
+        addressPrefix = networkParams.bech32Prefix
     }
 
     func makeAddress(from walletPublicKey: Data) throws -> String {
