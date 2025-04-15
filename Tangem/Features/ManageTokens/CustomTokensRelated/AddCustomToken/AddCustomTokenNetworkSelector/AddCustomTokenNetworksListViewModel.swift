@@ -77,13 +77,13 @@ final class AddCustomTokenNetworksListViewModel: ObservableObject {
     }
 
     private func filterItemViewModels(searchText: String? = nil) {
-        guard let searchText = searchText?.nilIfEmpty?.lowercased() else {
+        guard let searchText = searchText?.nilIfEmpty else {
             itemViewModels = allItemViewModels
             return
         }
 
         itemViewModels = allItemViewModels.filter { itemViewModel in
-            return itemViewModel.searchTexts.contains { $0.contains(searchText) }
+            return itemViewModel.searchTexts.contains { $0.localizedStandardContains(searchText) }
         }
     }
 }
