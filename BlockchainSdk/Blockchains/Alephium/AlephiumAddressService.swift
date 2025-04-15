@@ -28,7 +28,7 @@ extension AlephiumAddressService: AddressProvider, AddressValidator {
     }
 
     func validate(_ address: String) -> Bool {
-        let hexDataString = address.base58DecodedData.hexString
+        let hexDataString = address.base58DecodedData.hex()
         let withoutHexString = hexDataString.removeHexPrefix()
         return withoutHexString.hasPrefix(Constants.prefixAddressValue) && withoutHexString.count == 66
     }
