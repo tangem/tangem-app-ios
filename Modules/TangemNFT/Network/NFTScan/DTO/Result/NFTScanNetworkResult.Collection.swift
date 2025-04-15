@@ -9,7 +9,7 @@
 import Foundation
 
 extension NFTScanNetworkResult {
-    struct SolanaNFTCollection: Decodable {
+    struct Collection: Decodable {
         let collection: String?
         let logoUrl: String?
         let ownsTotal: Int
