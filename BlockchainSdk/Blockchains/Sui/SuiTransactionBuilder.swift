@@ -216,8 +216,8 @@ final class SuiTransactionBuilder {
     ) throws -> WalletCore.SuiSigningInput {
         guard let coinGas else { throw WalletError.failedToBuildTx }
 
-        let coinsToUse = getCoins(for: amount, coinType: token.contractAddress)
         let decimalAmount = amount * token.decimalValue
+        let coinsToUse = getCoins(for: decimalAmount, coinType: token.contractAddress)
 
         return WalletCore.SuiSigningInput.with { input in
             let inputCoins = coinsToUse.map { coin in
