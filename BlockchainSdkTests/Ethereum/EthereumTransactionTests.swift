@@ -110,7 +110,7 @@ struct EthereumTransactionTests {
 
         let signatureInfo = SignatureInfo(signature: signature, publicKey: walletPublicKey, hash: hashToSign)
         let signedTransaction = try transactionBuilder.buildForSend(transaction: transaction, signatureInfo: signatureInfo)
-        #expect(signedTransaction.hexString == expectedSignedTransaction.hexString)
+        #expect(signedTransaction.hex() == expectedSignedTransaction.hex())
     }
 
     /// https://polygonscan.com/tx/0x8f7c7ffddfc9f45370cc5fbeb49df65bdf8976ba606d20705eea965ba96a1e8d
@@ -155,7 +155,7 @@ struct EthereumTransactionTests {
 
         let signatureInfo = SignatureInfo(signature: signature, publicKey: walletPublicKey, hash: hashToSign)
         let signedTransaction = try transactionBuilder.buildForSend(transaction: transaction, signatureInfo: signatureInfo)
-        #expect(signedTransaction.hexString == expectedSignedTransaction.hexString)
+        #expect(signedTransaction.hex() == expectedSignedTransaction.hex())
     }
 
     /// https://polygonscan.com/tx/0x2cb6831f4c1cb7b888707489cd60c42ff222b5b3230d74f25434d936c2ba7419
@@ -198,7 +198,7 @@ struct EthereumTransactionTests {
 
         let signatureInfo = SignatureInfo(signature: signature, publicKey: walletPublicKey, hash: hashToSign)
         let signedTransaction = try transactionBuilder.buildForSend(transaction: transaction, signatureInfo: signatureInfo)
-        #expect(signedTransaction.hexString == expectedSignedTransaction.hexString)
+        #expect(signedTransaction.hex() == expectedSignedTransaction.hex())
     }
 
     /// https://basescan.org/tx/0xb0df52cacd4a8d283e7f5ffe7b3f6d867fc5cb496f679b69b0b09a59651eb0e5
@@ -244,11 +244,11 @@ struct EthereumTransactionTests {
 
         let hashToSign = try transactionBuilder.buildForSign(transaction: transaction)
         sizeTester.testTxSize(hashToSign)
-        #expect(hashToSign.hexString == expectedHashToSign.hexString)
+        #expect(hashToSign.hex() == expectedHashToSign.hex())
 
         let signatureInfo = SignatureInfo(signature: signature, publicKey: walletPublicKey, hash: hashToSign)
         let signedTransaction = try transactionBuilder.buildForSend(transaction: transaction, signatureInfo: signatureInfo)
-        #expect(signedTransaction.hexString == expectedSignedTransaction.hexString)
+        #expect(signedTransaction.hex() == expectedSignedTransaction.hex())
     }
 
     /// https://basescan.org/tx/0x4648aee1b8498245eb425c94efcc7e4df8c1524be977fc43862b6a67038dcefb
@@ -293,11 +293,11 @@ struct EthereumTransactionTests {
 
         let hashToSign = try transactionBuilder.buildForSign(transaction: transaction)
         sizeTester.testTxSize(hashToSign)
-        #expect(hashToSign.hexString == expectedHashToSign.hexString)
+        #expect(hashToSign.hex() == expectedHashToSign.hex())
 
         let signatureInfo = SignatureInfo(signature: signature, publicKey: walletPublicKey, hash: hashToSign)
         let signedTransaction = try transactionBuilder.buildForSend(transaction: transaction, signatureInfo: signatureInfo)
-        #expect(signedTransaction.hexString == expectedSignedTransaction.hexString)
+        #expect(signedTransaction.hex() == expectedSignedTransaction.hex())
     }
 
     @Test
@@ -318,13 +318,13 @@ struct EthereumTransactionTests {
         // when
         let l1Data = try transactionBuilder.buildDummyTransactionForL1(
             destination: destinationAddress,
-            value: sendValue.hexString,
+            value: sendValue.hex(),
             data: nil,
             fee: fee
         )
 
         // then
-        #expect(l1Data.hexString == "02F2010185076D635F00860412ACBB20518252089490E4D59C8583E37426B37D1D7394B6008A987C67880DE0B6B3A764000080C0")
+        #expect(l1Data.hex(.uppercase) == "02F2010185076D635F00860412ACBB20518252089490E4D59C8583E37426B37D1D7394B6008A987C67880DE0B6B3A764000080C0")
     }
 
     @Test
@@ -357,7 +357,7 @@ struct EthereumTransactionTests {
 
         // https://optimistic.etherscan.io/tx/0x97141f7a1b450739bcf097fe41ca76c83897c0cc618e43b08fa0267865451c2b
         #expect(
-            payload.hexString.addHexPrefix().lowercased() ==
+            payload.hex().addHexPrefix() ==
                 "0x095ea7b3000000000000000000000000111111125421ca6dc452d289314280a0f8842a650000000000000000000000000000000000000000000000000000000000117d81"
         )
     }
@@ -385,7 +385,7 @@ struct EthereumTransactionTests {
 
         // https://optimistic.etherscan.io/tx/0x89a6b62628d326902df50f543996e9403df9a5d2ae5be415f7cdaa1a98464fd4
         #expect(
-            payload.hexString.addHexPrefix().lowercased() ==
+            payload.hex().addHexPrefix() ==
                 "0xa9059cbb00000000000000000000000075739a5bd4b781cf38c59b9492ef9639e46688bf00000000000000000000000000000000000000000000000000000000000003e8"
         )
     }
