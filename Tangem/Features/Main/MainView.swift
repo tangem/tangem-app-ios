@@ -69,6 +69,9 @@ struct MainView: View {
         ) { model in
             UnlockUserWalletBottomSheetView(viewModel: model)
         }
+        .floatingSheetContent(for: WCConnectionSheetViewModel.self) { viewModel in
+            WCConnectRequestModalView(viewModel: viewModel)
+        }
     }
 
     var detailsNavigationButton: some View {

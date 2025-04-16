@@ -15,7 +15,8 @@ import TangemSdk
 
 class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-    @Injected(\.walletConnectService) private var walletConnectService: OldWalletConnectService
+//    [REDACTED_USERNAME](\.walletConnectService) private var walletConnectService: OldWalletConnectService
+    @Injected(\.wConnectService) private var wcService: WCService
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
     @Injected(\.analyticsContext) var analyticsContext: AnalyticsContext
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
@@ -317,7 +318,8 @@ class CommonUserWalletRepository: UserWalletRepository {
             setSelectedUserWalletId(newModel.userWalletId, reason: .deleted)
         }
 
-        walletConnectService.disconnectAllSessionsForUserWallet(with: userWalletId.stringValue)
+//        walletConnectService.disconnectAllSessionsForUserWallet(with: userWalletId.stringValue)
+        wcService.disconnectAllSessionsForUserWallet(with: userWalletId.stringValue)
         sendEvent(.deleted(userWalletIds: [userWalletId]))
 
         if !models.contains(where: { !$0.isUserWalletLocked }) {
@@ -355,7 +357,8 @@ class CommonUserWalletRepository: UserWalletRepository {
     func initializeServices(for userWalletModel: UserWalletModel) {
         analyticsContext.setupContext(with: userWalletModel.analyticsContextData)
         tangemApiService.setAuthData(userWalletModel.tangemApiAuthData)
-        walletConnectService.initialize(with: userWalletModel)
+//        walletConnectService.initialize(with: userWalletModel)
+        wcService.initialize()
     }
 
     /// we can initialize it right after scan for more accurate analytics
@@ -400,7 +403,8 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     // [REDACTED_TODO_COMMENT]
     private func resetServices() {
-        walletConnectService.reset()
+//        walletConnectService.reset()
+        wcService.reset()
         analyticsContext.clearContext()
     }
 

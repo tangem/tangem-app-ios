@@ -2323,6 +2323,8 @@
 		DC10BFDD2DA6703E00B089DA /* WCServiceV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC10BFD22DA6703E00B089DA /* WCServiceV2.swift */; };
 		DC10BFDE2DA6703E00B089DA /* WCServiceV2+LoggerStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC10BFD72DA6703E00B089DA /* WCServiceV2+LoggerStrings.swift */; };
 		DC10BFDF2DA6703E00B089DA /* WCFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC10BFCF2DA6703E00B089DA /* WCFactory.swift */; };
+		DC10BFE22DA6773C00B089DA /* WCConnectionSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC10BFE12DA6772D00B089DA /* WCConnectionSheetViewModel.swift */; };
+		DC10BFE82DAE54AB00B089DA /* WCConnectRequestModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC10BFE72DAE54AB00B089DA /* WCConnectRequestModalView.swift */; };
 		DC13D03929DEC1230003895C /* CardDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC13D03829DEC1230003895C /* CardDTO.swift */; };
 		DC13D03E29DF28140003895C /* OnboardingStepsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC13D03D29DF28140003895C /* OnboardingStepsBuilder.swift */; };
 		DC13D04029DF2D470003895C /* BackupServiceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC13D03F29DF2D470003895C /* BackupServiceFactory.swift */; };
@@ -5725,6 +5727,8 @@
 		DC10BFD52DA6703E00B089DA /* NewWCSessionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewWCSessionModel.swift; sourceTree = "<group>"; };
 		DC10BFD62DA6703E00B089DA /* WCService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCService.swift; sourceTree = "<group>"; };
 		DC10BFD72DA6703E00B089DA /* WCServiceV2+LoggerStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WCServiceV2+LoggerStrings.swift"; sourceTree = "<group>"; };
+		DC10BFE12DA6772D00B089DA /* WCConnectionSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCConnectionSheetViewModel.swift; sourceTree = "<group>"; };
+		DC10BFE72DAE54AB00B089DA /* WCConnectRequestModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCConnectRequestModalView.swift; sourceTree = "<group>"; };
 		DC13D03829DEC1230003895C /* CardDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardDTO.swift; sourceTree = "<group>"; };
 		DC13D03D29DF28140003895C /* OnboardingStepsBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingStepsBuilder.swift; sourceTree = "<group>"; };
 		DC13D03F29DF2D470003895C /* BackupServiceFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupServiceFactory.swift; sourceTree = "<group>"; };
@@ -7972,6 +7976,7 @@
 		5DDE22F32609020E008657C6 /* WalletConnect */ = {
 			isa = PBXGroup;
 			children = (
+				DC10BFE02DA6753700B089DA /* ConnectionScreen */,
 				DC0A5848282C07750031BECC /* OldServices */,
 				DC981CDD2D802E2C00C3D2AA /* Old */,
 				B03AEEAE29596D9100212267 /* WebSocket */,
@@ -13754,6 +13759,31 @@
 			path = WCServiceV2;
 			sourceTree = "<group>";
 		};
+		DC10BFE02DA6753700B089DA /* ConnectionScreen */ = {
+			isa = PBXGroup;
+			children = (
+				DC10BFEA2DAFABC200B089DA /* ViewModel */,
+				DC10BFE92DAFABBB00B089DA /* View */,
+			);
+			path = ConnectionScreen;
+			sourceTree = "<group>";
+		};
+		DC10BFE92DAFABBB00B089DA /* View */ = {
+			isa = PBXGroup;
+			children = (
+				DC10BFE72DAE54AB00B089DA /* WCConnectRequestModalView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		DC10BFEA2DAFABC200B089DA /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				DC10BFE12DA6772D00B089DA /* WCConnectionSheetViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
 		DC13D03729DEC0F30003895C /* CardDTO */ = {
 			isa = PBXGroup;
 			children = (
@@ -18333,6 +18363,7 @@
 				B6ACD0102AD69B50005A6CA3 /* OrganizeTokensDragAndDropMarkView.swift in Sources */,
 				EF48E6E02B02408500FE0072 /* ExpressRoutable.swift in Sources */,
 				B6B1BC292C6CCE88003EDB47 /* IntrospectResponderChainViewModifier.swift in Sources */,
+				DC10BFE82DAE54AB00B089DA /* WCConnectRequestModalView.swift in Sources */,
 				EF914D522A612E49001F00B2 /* Wallet2Config.swift in Sources */,
 				DC2891862CDA4B2D00F57F59 /* ActionButtonsBuyCoordinatorView.swift in Sources */,
 				B6421A8D2C9272800053DD8B /* MainBottomSheetHeaderViewModelDelegate.swift in Sources */,
@@ -19366,6 +19397,7 @@
 				B0BDF9BA2B4D3BB300EEBE4F /* MainHeaderUserWalletStateInfoProvider.swift in Sources */,
 				B6DF90592CA302280099FED5 /* MainCoordinatorNavigationAssertion.swift in Sources */,
 				B09BB85F259A075600B92000 /* TangemButton.swift in Sources */,
+				DC10BFE22DA6773C00B089DA /* WCConnectionSheetViewModel.swift in Sources */,
 				B0DB73FC2A8CA28800F6376E /* UnlockUserWalletBottomSheetViewModel.swift in Sources */,
 				0AEA96BB2CEF8D9700395617 /* ReceiveNotificationEvent.swift in Sources */,
 				B03FF89E2B5E4FC000202EC0 /* AppVisaBalances.swift in Sources */,

@@ -29,7 +29,6 @@ struct WCConnectionRequestData {
 
 final class WCSessionNamespacesBuilder {
     private(set) var missingBlockchains: [String] = []
-    private(set) var missingOptionalBlockchains: [String] = []
     private(set) var unsupportedEVMBlockchains: [String] = []
     private(set) var supportedChains = Set<WalletConnectUtils.Blockchain>()
 
@@ -62,7 +61,7 @@ final class WCSessionNamespacesBuilder {
             return .init(notAddedBlockchain: wcBlockchain)
         }
 
-        let isOptionalBlockchain = proposal.nameSpaceOptionalChains.contains(wcBlockchain)
+        let isOptionalBlockchain = !proposal.namespaceRequiredChains.contains(wcBlockchain)
         let isSelectedBlockchain = selectedOptionalBlockchains.contains { $0.blockchain.networkId == blockchain.id }
 
         if isOptionalBlockchain, !isSelectedBlockchain {

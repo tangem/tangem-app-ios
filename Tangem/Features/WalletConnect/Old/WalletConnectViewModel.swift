@@ -12,7 +12,7 @@ import SwiftUI
 import AVFoundation
 
 class OldWalletConnectViewModel: ObservableObject {
-    @Injected(\.walletConnectService) private var walletConnectService: OldWalletConnectService
+    @Injected(\.wConnectService) private var walletConnectService: WCService
 
     @Published var isActionSheetVisible: Bool = false
     @Published var showCameraDeniedAlert: Bool = false

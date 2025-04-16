@@ -12,6 +12,7 @@ import BlockchainSdk
 import TangemFoundation
 import ReownWalletKit
 import TangemLocalization
+import TangemUI
 
 final class WCServiceV2 {
     // MARK: - Dependencies
@@ -19,6 +20,7 @@ final class WCServiceV2 {
     @Injected(\.walletConnectSessionsStorage) private var sessionsStorage: WalletConnectSessionsStorage
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.keysManager) private var keysManager: KeysManager
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
     // MARK: - Public properties
 
@@ -43,6 +45,7 @@ final class WCServiceV2 {
     private let canEstablishNewSessionSubject: CurrentValueSubject<Bool, Never> = .init(true)
     private let selectedWalletIdSubject: PassthroughSubject<String, Never> = .init()
     private let selectedNetworksToConnectSubject: PassthroughSubject<[BlockchainNetwork], Never> = .init()
+    private let connectionRequestSubject: CurrentValueSubject<WCConnectionRequestModel?, Never> = .init(nil)
     private var bag = Set<AnyCancellable>()
 
     private let utils = WCUtils()
@@ -114,7 +117,8 @@ private extension WCServiceV2 {
                 WCLogger.info(LoggerStrings.sessionProposal(sessionProposal, context))
                 Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.receiveSessionProposal(name: sessionProposal.proposer.name, dAppURL: sessionProposal.proposer.url))
 
-                guard let selectedWCModelProvider = self?.userWalletRepository.selectedModel?.wcWalletModelProvider else { return }
+                guard let selectedWCModelProvider = self?.userWalletRepository.models.first(where: { $0.userWalletId.stringValue == self?.selectedWalletId }
+                )?.wcWalletModelProvider else { return }
 
                 self?.validateProposal(sessionProposal, with: selectedWCModelProvider)
                 self?.currentConnectionProposal = sessionProposal
@@ -171,6 +175,7 @@ private extension WCServiceV2 {
 
     func subscribeToSelectedNetwork() {
         selectedNetworksToConnectSubject
+            .dropFirst()
             .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { wcService, selectedNetworks in
@@ -185,7 +190,8 @@ private extension WCServiceV2 {
                 wcService.validateProposal(
                     currentConnectionProposal,
                     with: wcModelProvider,
-                    selectedNetworks: selectedNetworks
+                    selectedNetworks: selectedNetworks,
+                    isUpdating: true
                 )
             }
             .store(in: &bag)
@@ -193,6 +199,7 @@ private extension WCServiceV2 {
 
     func subscribeToSelectedWalletId() {
         selectedWalletIdSubject
+            .dropFirst()
             .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { wcService, updatedId in
@@ -203,7 +210,7 @@ private extension WCServiceV2 {
                     return
                 }
                 wcService.selectedWalletId = updatedId
-                wcService.validateProposal(currentConnectionProposal, with: wcModelProvider)
+                wcService.validateProposal(currentConnectionProposal, with: wcModelProvider, isUpdating: true)
             }
             .store(in: &bag)
     }
@@ -215,7 +222,8 @@ private extension WCServiceV2 {
     func validateProposal(
         _ proposal: Session.Proposal,
         with wcModelProvider: some WalletConnectWalletModelProvider,
-        selectedNetworks: [BlockchainNetwork] = []
+        selectedNetworks: [BlockchainNetwork] = [],
+        isUpdating: Bool = false
     ) {
         WCLogger.info(LoggerStrings.attemptingToApproveSession(proposal))
 
@@ -235,12 +243,35 @@ private extension WCServiceV2 {
         }
 
         do {
-            let newSessionsModel = try utils.createNewSessionModel(
+            let (sessionsNamespaces, requestData) = try utils.createSessionRequest(
                 proposal: proposal,
                 selectedWalletModelProvider: wcModelProvider,
                 selectedUserWalletModelId: selectedWalletId,
                 selectedOptionalNetworks: selectedNetworks
             )
+            
+            connectionRequestSubject.send(
+                .init(
+                    userWalletModelId: selectedWalletId,
+                    requestData: requestData,
+                    sessionNamespaces: sessionsNamespaces,
+                    connect: { self.accept(with: proposal.id, namespaces: sessionsNamespaces) },
+                    cancel: { self.reject(with: proposal) }
+                )
+            )
+
+            if !isUpdating {
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
+
+                    floatingSheetPresenter.enqueue(
+                        sheet: WCConnectionSheetViewModel(
+                            requestPublisher: connectionRequestSubject.eraseToAnyPublisher(),
+                            proposal: proposal
+                        )
+                    )
+                }
+            }
             //            floatingMessageService.send(newSessionsModel)
             //            log request
         } catch let error as WalletConnectV2Error {
@@ -287,6 +318,7 @@ extension WCServiceV2 {
                         type: .temporary()
                     )
             }
+            selectedWalletId = userWalletRepository.selectedUserWalletId?.stringValue
         } catch {
             //            floatingMessageService.send(
             //                WalletConnectV2Error.pairClientError(error.localizedDescription)
@@ -365,11 +397,11 @@ extension WCServiceV2 {
 // MARK: - Session Actions
 
 private extension WCServiceV2 {
-    func accept(with id: String, namespaces: [String: SessionNamespace]) {
+    func accept(with proposalId: String, namespaces: [String: SessionNamespace]) {
         TangemFoundation.runTask(in: self) { strongSelf in
             do {
                 WCLogger.info(LoggerStrings.namespacesToApprove(namespaces))
-                _ = try await WalletKit.instance.approve(proposalId: id, namespaces: namespaces)
+                _ = try await WalletKit.instance.approve(proposalId: proposalId, namespaces: namespaces)
                 // log
             } catch let error as WalletConnectV2Error {
                 //                strongSelf.floatingMessageService.send(error)
