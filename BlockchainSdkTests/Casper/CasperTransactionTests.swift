@@ -46,7 +46,7 @@ final class CasperTransactionTests {
 
         // then
         sizeUtility.testTxSize(hashForSign)
-        #expect(hashForSign.hexString.lowercased() == "951f30645f15e5955750d7aa3b50cadd8ca4044f46aa49cfe389d90825f8122f")
+        #expect(hashForSign.hex() == "951f30645f15e5955750d7aa3b50cadd8ca4044f46aa49cfe389d90825f8122f")
         // then
         /*
          If the transaction is correctly assembled, the json object must not be empty

@@ -152,9 +152,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
                 AppLogger.info(self, "♻️ loading state changed")
                 isReloadingTransactionHistory = false
                 updateSubscription = nil
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    completionHandler()
-                }
+                completionHandler()
             })
     }
 

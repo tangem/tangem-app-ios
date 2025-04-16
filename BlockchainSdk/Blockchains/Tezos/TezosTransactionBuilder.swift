@@ -39,7 +39,7 @@ class TezosTransactionBuilder {
     }
 
     func buildToSend(signature: Data, forgedContents: String) -> String {
-        return forgedContents + signature.hexString
+        return forgedContents + signature.hex(.uppercase)
     }
 
     func buildContents(transaction: Transaction) -> [TezosOperationContent]? {
@@ -87,7 +87,7 @@ class TezosTransactionBuilder {
     func forgeContents(headerHash: String, contents: [TezosOperationContent]) throws -> String {
         var forged = ""
 
-        guard let branchHex = headerHash.base58CheckDecodedData?.hexString
+        guard let branchHex = headerHash.base58CheckDecodedData?.hex(.uppercase)
             .dropFirst(TezosPrefix.branch.count) else {
             throw TezosError.headerHashDecodeFailed
         }
@@ -170,7 +170,7 @@ private extension String {
     }
 
     func encodeAddress() throws -> String {
-        guard let addressHex = base58CheckDecodedData?.hexString else {
+        guard let addressHex = base58CheckDecodedData?.hex(.uppercase) else {
             throw TezosError.encodeAddressFailed
         }
 
@@ -190,7 +190,7 @@ private extension String {
     }
 
     func encodePublicKey() throws -> String {
-        guard let keyHex = base58CheckDecodedData?.hexString else {
+        guard let keyHex = base58CheckDecodedData?.hex(.uppercase) else {
             throw TezosError.encodePublicKeyFailed
         }
 
@@ -204,7 +204,7 @@ private extension String {
     }
 
     func encodePublicKeyHash() throws -> String {
-        guard let addressHex = base58CheckDecodedData?.hexString else {
+        guard let addressHex = base58CheckDecodedData?.hex(.uppercase) else {
             throw TezosError.encodePublicKeyHashFailed
         }
 

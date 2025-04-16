@@ -27,6 +27,6 @@ class KaspaLockingScriptBuilderTests {
 
         #expect(p2pkSchnorr.type == .p2pk)
         #expect(p2pkECDSA.type == .p2pk)
-        #expect(p2sh.type == .p2sh)
+        #expect(p2sh.type == .p2sh(redeemScript: nil))
     }
 }

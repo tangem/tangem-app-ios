@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 
 struct KoinosAPIResolver {
     let keysConfig: BlockchainSdkKeysConfig
