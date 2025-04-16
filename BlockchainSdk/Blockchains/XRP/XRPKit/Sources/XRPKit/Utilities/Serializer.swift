@@ -329,7 +329,7 @@ class Serializer {
         /*
          Serializes a string of hex as binary data with a length prefix.
          */
-        return vlEncode(contents: hexBlob.hexadecimal!)
+        return vlEncode(contents: Data(hexString: hexBlob))
     }
 
     private func currencyCodeToBytes(code: String) -> Data {
@@ -362,7 +362,7 @@ class Serializer {
     }
 
     private func hashToBytes(hexString: String) -> Data {
-        return hexString.hexadecimal!
+        return Data(hexString: hexString)
     }
 
     private func objectToBytes(wrapper: TypeWrapper) -> Data {

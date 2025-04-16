@@ -32,7 +32,7 @@ class PolkadotNetworkService: MultiNetworkProvider {
             return Result { try self.storageKey(forAddress: address) }
                 .publisher
                 .flatMap { key -> AnyPublisher<String?, Error> in
-                    provider.storage(key: key.hexString.addHexPrefix())
+                    provider.storage(key: key.hex().addHexPrefix())
                 }
                 .withWeakCaptureOf(self)
                 .tryMap { service, storage in
@@ -93,7 +93,7 @@ class PolkadotNetworkService: MultiNetworkProvider {
             // https://forum.polkadot.network/t/new-json-rpc-api-mega-q-a/3048/2#how-do-i-get-the-metadata-the-account-nonce-or-the-payment-fees-with-the-new-api-6
             let payload = extrinsic + extrinsic.count.bytes4LE
             return provider
-                .queryInfo(payload.hexString.addHexPrefix())
+                .queryInfo(payload.hex().addHexPrefix())
                 .withWeakCaptureOf(self)
                 .tryMap { networkService, output in
                     try networkService.codec.decode(PolkadotQueriedInfo.self, from: Data(hexString: output))
@@ -104,7 +104,7 @@ class PolkadotNetworkService: MultiNetworkProvider {
 
     func submitExtrinsic(data: Data) -> AnyPublisher<String, Error> {
         providerPublisher { provider in
-            provider.submitExtrinsic(data.hexString.addHexPrefix())
+            provider.submitExtrinsic(data.hex().addHexPrefix())
         }
     }
 

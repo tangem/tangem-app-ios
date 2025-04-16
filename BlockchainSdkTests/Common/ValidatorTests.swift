@@ -13,11 +13,13 @@ import Testing
 struct ValidatorTests {
     class BaseTransactionValidator: TransactionValidator {
         var wallet: Wallet
+        var state: WalletManagerState
         var walletPublisher: AnyPublisher<Wallet, Never> { Just(wallet).eraseToAnyPublisher() }
-        var statePublisher: AnyPublisher<WalletManagerState, Never> { Just(.initial).eraseToAnyPublisher() }
+        var statePublisher: AnyPublisher<WalletManagerState, Never> { Just(state).eraseToAnyPublisher() }
 
-        init(wallet: Wallet) {
+        init(wallet: Wallet, state: WalletManagerState = .initial) {
             self.wallet = wallet
+            self.state = state
         }
     }
 

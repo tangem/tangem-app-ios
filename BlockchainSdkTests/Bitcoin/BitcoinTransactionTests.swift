@@ -13,7 +13,7 @@ import Testing
 
 final class BitcoinTransactionTests {
     private let blockchain = Blockchain.bitcoin(testnet: false)
-    private let networkParams = BitcoinNetwork.mainnet.networkParams
+    private let networkParams = BitcoinNetworkParams()
     private let walletPublicKey = Data(
         hexString: "046DB397495FA03FE263EE4021B77C49496E5C7DB8266E6E33A03D5B3A370C3D6D744A863B14DE2457D82BEE322416523E336530760C4533AEE980F4A4CDB9A98D"
     )
@@ -21,7 +21,7 @@ final class BitcoinTransactionTests {
     private lazy var addressService = BitcoinAddressService(networkParams: networkParams)
     private lazy var bitcoinManager: BitcoinManager = {
         let compressedWalletPublicKey = try! Secp256k1Key(with: walletPublicKey).compress()
-        return .init(networkParams: networkParams, walletPublicKey: walletPublicKey, compressedWalletPublicKey: compressedWalletPublicKey)
+        return .init(networkParams: BitcoinNetwork.mainnet.networkParams, walletPublicKey: walletPublicKey, compressedWalletPublicKey: compressedWalletPublicKey)
     }()
 
     @Test

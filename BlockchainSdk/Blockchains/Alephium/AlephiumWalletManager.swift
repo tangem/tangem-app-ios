@@ -63,7 +63,7 @@ class AlephiumWalletManager: BaseManager, WalletManager {
         }
 
         return networkService.getFee(
-            from: transactionBuilder.walletPublicKey.hexString,
+            from: transactionBuilder.walletPublicKey.hex(),
             destination: destination,
             amount: amountBigIntValue
         )
@@ -99,7 +99,7 @@ class AlephiumWalletManager: BaseManager, WalletManager {
                         let (unsignedTx, signature) = buildForSend
 
                         return walletManager.networkService
-                            .submitTx(unsignedTx: unsignedTx.hexString, signature: signature.hexString)
+                            .submitTx(unsignedTx: unsignedTx.hex(), signature: signature.hex())
                     }
                     .withWeakCaptureOf(self)
                     .map { walletManager, transactionHash in

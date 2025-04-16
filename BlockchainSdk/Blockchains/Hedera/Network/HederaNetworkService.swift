@@ -27,7 +27,7 @@ final class HederaNetworkService {
     func getAccountInfo(publicKey: Data) -> some Publisher<HederaAccountInfo, Error> {
         return providerPublisher { provider in
             return provider
-                .getAccounts(publicKey: publicKey.hexString)
+                .getAccounts(publicKey: publicKey.hex())
                 .eraseToAnyPublisher()
         }
         .tryMap { accounts in
