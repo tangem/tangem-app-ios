@@ -7,11 +7,12 @@
 //
 
 import SwiftUI
+import TangemFoundation
 import TangemLocalization
 import TangemAssets
 import TangemUIUtils
 
-struct CustomSearchBar: View {
+public struct CustomSearchBar: View {
     @Binding var searchText: String
     private let placeholder: String
     private let keyboardType: UIKeyboardType
@@ -23,7 +24,7 @@ struct CustomSearchBar: View {
 
     @FocusState private var isFocused: Bool
 
-    init(
+    public init(
         searchText: Binding<String>,
         placeholder: String,
         keyboardType: UIKeyboardType = .default,
@@ -37,7 +38,7 @@ struct CustomSearchBar: View {
         self.clearButtonAction = clearButtonAction
     }
 
-    var body: some View {
+    public var body: some View {
         HStack(spacing: 10) {
             searchBar
 
@@ -137,14 +138,14 @@ struct CustomSearchBar: View {
 // MARK: - Setupable protocol conformance
 
 extension CustomSearchBar: Setupable {
-    func onEditingChanged(_ closure: ((_ isEditing: Bool) -> Void)?) -> Self {
+    public func onEditingChanged(_ closure: ((_ isEditing: Bool) -> Void)?) -> Self {
         map { $0.onEditingChanged = closure }
     }
 }
 
 // MARK: - Auxiliary types
 
-extension CustomSearchBar {
+public extension CustomSearchBar {
     enum InputResult {
         case text(String)
         case clear
@@ -159,33 +160,31 @@ extension CustomSearchBar {
 
 // MARK: - Previews
 
-struct CustomSearchBar_Previews: PreviewProvider {
-    @State private static var text: String = ""
-
-    static var previews: some View {
-        StatefulPreviewWrapper(text) { text in
-            CustomSearchBar(
-                searchText: text,
-                placeholder: Localization.commonSearch,
-                clearButtonAction: {}
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 20)
-            .padding(.bottom, max(UIApplication.safeAreaInsets.bottom, 20))
-            .background(Colors.Background.primary)
-        }
-        .previewLayout(.sizeThatFits)
-        .preferredColorScheme(.light)
-
-        StatefulPreviewWrapper(text) { text in
-            CustomSearchBar(
-                searchText: text,
-                placeholder: Localization.commonSearch,
-                clearButtonAction: {}
-            )
-            .padding(.horizontal, 16)
-        }
-        .previewLayout(.sizeThatFits)
-        .preferredColorScheme(.dark)
+#Preview("Light appearance") {
+    @State var text = ""
+    StatefulPreviewWrapper(text) { text in
+        CustomSearchBar(
+            searchText: text,
+            placeholder: Localization.commonSearch,
+            clearButtonAction: {}
+        )
+        .padding(.horizontal, 16)
+        .padding(.top, 20)
+        .padding(.bottom, max(UIApplication.safeAreaInsets.bottom, 20))
+        .background(Colors.Background.primary)
     }
+}
+
+#Preview("Dark appearance") {
+    @State var text = ""
+    StatefulPreviewWrapper(text) { text in
+        CustomSearchBar(
+            searchText: text,
+            placeholder: Localization.commonSearch,
+            clearButtonAction: {}
+        )
+        .padding(.horizontal, 16)
+    }
+    .previewLayout(.sizeThatFits)
+    .preferredColorScheme(.dark)
 }
