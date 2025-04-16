@@ -21,9 +21,9 @@ struct KaspaTransactionTests {
         let unspentOutputManager: UnspentOutputManager = .kaspa(address: address)
         // Will select deb88e7dd734437c6232a636085ef917d1d13cc549fe14749765508b2782f2fb
         let outputs: [UnspentOutput] = [
-            UnspentOutput(blockId: 0, txId: "deb88e7dd734437c6232a636085ef917d1d13cc549fe14749765508b2782f2fb", index: 0, amount: 10000000),
-            UnspentOutput(blockId: 1, txId: "304db39069dc409acedf544443dcd4a4f02bfad4aeb67116f8bf087822c456af", index: 0, amount: 10000000),
-            UnspentOutput(blockId: 2, txId: "ae96e819429e9da538e84cb213f62fbc8ad32e932d7c7f1fb9bd2fedf8fd7b4a", index: 0, amount: 500000000),
+            UnspentOutput(blockId: 1, txId: "deb88e7dd734437c6232a636085ef917d1d13cc549fe14749765508b2782f2fb", index: 0, amount: 10000000),
+            UnspentOutput(blockId: 2, txId: "304db39069dc409acedf544443dcd4a4f02bfad4aeb67116f8bf087822c456af", index: 0, amount: 10000000),
+            UnspentOutput(blockId: 3, txId: "ae96e819429e9da538e84cb213f62fbc8ad32e932d7c7f1fb9bd2fedf8fd7b4a", index: 0, amount: 500000000),
         ]
 
         unspentOutputManager.update(
@@ -183,9 +183,9 @@ struct KaspaTransactionTests {
         let address = PlainAddress(value: "kaspa:qyp5qxu7n45c8zx6pqhndy43p4qt02zxchc4723fuclpraty00gpm6c8edeys5s", publicKey: .empty, type: .default)
         let unspentOutputManager: UnspentOutputManager = .kaspa(address: address)
         let outputs: [UnspentOutput] = [
-            UnspentOutput(blockId: 0, txId: "414f096361040f27e3ebfd02965c27d1492a69880dbf1544bf213e7159709134", index: 0, amount: 20000000),
-            UnspentOutput(blockId: 0, txId: "5a2e80c8a279e52b87c6fe1503947e6bb0c081333f465f913d4a0245426109c7", index: 0, amount: 20000000),
-            UnspentOutput(blockId: 1, txId: "c0414400517ec124d9e25531bf52cda241592ec4f89ff3e348f64c62900c461d", index: 1, amount: 39819474),
+            UnspentOutput(blockId: 1, txId: "414f096361040f27e3ebfd02965c27d1492a69880dbf1544bf213e7159709134", index: 0, amount: 20000000),
+            UnspentOutput(blockId: 2, txId: "5a2e80c8a279e52b87c6fe1503947e6bb0c081333f465f913d4a0245426109c7", index: 0, amount: 20000000),
+            UnspentOutput(blockId: 3, txId: "c0414400517ec124d9e25531bf52cda241592ec4f89ff3e348f64c62900c461d", index: 1, amount: 39819474),
         ]
 
         unspentOutputManager.update(outputs: outputs, for: address)
@@ -263,9 +263,9 @@ struct KaspaTransactionTests {
         let address = PlainAddress(value: "kaspa:qyp5qxu7n45c8zx6pqhndy43p4qt02zxchc4723fuclpraty00gpm6c8edeys5s", publicKey: .empty, type: .default)
         let unspentOutputManager: UnspentOutputManager = .kaspa(address: address)
         let outputs: [UnspentOutput] = [
-            UnspentOutput(blockId: 0, txId: "5a2e80c8a279e52b87c6fe1503947e6bb0c081333f465f913d4a0245426109c7", index: 0, amount: 20000000),
-            UnspentOutput(blockId: 1, txId: "414f096361040f27e3ebfd02965c27d1492a69880dbf1544bf213e7159709134", index: 0, amount: 20000000),
-            UnspentOutput(blockId: 2, txId: "d36868e768d472a5ac2fc6f922c844bdbdda2bd0ef4626dd5e31d5f83e6c9223", index: 1, amount: 19744132),
+            UnspentOutput(blockId: 1, txId: "5a2e80c8a279e52b87c6fe1503947e6bb0c081333f465f913d4a0245426109c7", index: 0, amount: 20000000),
+            UnspentOutput(blockId: 2, txId: "414f096361040f27e3ebfd02965c27d1492a69880dbf1544bf213e7159709134", index: 0, amount: 20000000),
+            UnspentOutput(blockId: 3, txId: "d36868e768d472a5ac2fc6f922c844bdbdda2bd0ef4626dd5e31d5f83e6c9223", index: 1, amount: 19744132),
         ]
 
         unspentOutputManager.update(outputs: outputs, for: address)
