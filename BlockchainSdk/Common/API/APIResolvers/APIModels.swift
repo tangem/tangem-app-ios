@@ -6,6 +6,7 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 
 import Foundation
+import TangemNetworkUtils
 
 public typealias APIList = [String: [NetworkProviderType]]
 
@@ -29,7 +30,7 @@ public enum NetworkProviderType {
     case kaspa
     case dwellir
     case onfinality
-    case koinos
+    case koinosPro
     case tangemAlephium
 }
 
@@ -45,9 +46,4 @@ struct NodeInfo: HostProvider {
         self.url = url
         headers = keyInfo
     }
-}
-
-struct APIHeaderKeyInfo {
-    let headerName: String
-    let headerValue: String
 }

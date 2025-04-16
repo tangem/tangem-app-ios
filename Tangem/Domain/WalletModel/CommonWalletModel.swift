@@ -49,13 +49,11 @@ class CommonWalletModel {
     private let walletManager: WalletManager
     private let _stakingManager: StakingManager?
     private let _transactionHistoryService: TransactionHistoryService?
+    private let featureManager: WalletModelFeaturesManager
 
     private var updateTimer: AnyCancellable?
     private var updateWalletModelSubscription: AnyCancellable?
     private var updatePublisher: PassthroughSubject<WalletModelState, Never>?
-    private var updateQueue = DispatchQueue(label: "walletModel_update_queue")
-
-    private var bag = Set<AnyCancellable>()
 
     private let amountType: Amount.AmountType
     private let blockchainNetwork: BlockchainNetwork
@@ -65,17 +63,21 @@ class CommonWalletModel {
     private let _localPendingTransactionSubject: PassthroughSubject<Void, Never> = .init()
     private lazy var formatter = BalanceFormatter()
 
+    private var bag = Set<AnyCancellable>()
+
     init(
         walletManager: WalletManager,
         stakingManager: StakingManager?,
+        featureManager: WalletModelFeaturesManager,
         transactionHistoryService: TransactionHistoryService?,
+        sendAvailabilityProvider: TransactionSendAvailabilityProvider,
+        tokenBalancesRepository: TokenBalancesRepository,
         amountType: Amount.AmountType,
         shouldPerformHealthCheck: Bool,
-        isCustom: Bool,
-        sendAvailabilityProvider: TransactionSendAvailabilityProvider,
-        tokenBalancesRepository: TokenBalancesRepository
+        isCustom: Bool
     ) {
         self.walletManager = walletManager
+        self.featureManager = featureManager
         _stakingManager = stakingManager
         _transactionHistoryService = transactionHistoryService
         self.amountType = amountType
@@ -83,7 +85,7 @@ class CommonWalletModel {
         self.sendAvailabilityProvider = sendAvailabilityProvider
         self.tokenBalancesRepository = tokenBalancesRepository
 
-        blockchainNetwork = .init(
+        blockchainNetwork = BlockchainNetwork(
             walletManager.wallet.blockchain,
             derivationPath: walletManager.wallet.publicKey.derivationPath
         )
@@ -232,6 +234,8 @@ extension CommonWalletModel: Equatable {
 // MARK: - WalletModel
 
 extension CommonWalletModel: WalletModel {
+    var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { featureManager.featuresPublisher }
+
     var name: String {
         switch amountType {
         case .coin, .reserve, .feeResource:
@@ -381,10 +385,9 @@ extension CommonWalletModel: WalletModelUpdater {
         updateWalletModelSubscription = walletManager
             .updatePublisher()
             .combineLatest(loadQuotes(), updateStakingManagerState())
-            .combineLatest(walletManager.statePublisher) { $1 }
-            .receive(on: updateQueue)
             .withWeakCaptureOf(self)
             .sink { walletModel, newState in
+                let newState = walletModel.walletManager.state
                 walletModel.walletManagerDidUpdate(newState)
 
                 walletModel.updatePublisher?.send(walletModel.mapState(newState))

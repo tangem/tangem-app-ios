@@ -15,8 +15,8 @@ import TangemSdk
 
 class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-//    [REDACTED_USERNAME](\.walletConnectService) private var walletConnectService: OldWalletConnectService
-    @Injected(\.wConnectService) private var wcService: WCService
+    @Injected(\.walletConnectService) private var walletConnectService: OldWalletConnectService
+//    [REDACTED_USERNAME](\.wConnectService) private var wcService: WCService
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
     @Injected(\.analyticsContext) var analyticsContext: AnalyticsContext
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor

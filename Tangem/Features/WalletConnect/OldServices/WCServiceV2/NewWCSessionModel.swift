@@ -28,9 +28,9 @@ extension WCConnectionRequestModel {
         cancel: @escaping () -> Void
     ) {
         self.userWalletModelId = userWalletModelId
-        self.selectedNetworks = requestData.compactMap(\.selectedBlockchain).compactMap { WCUtils.makeBlockchain(from: $0) }
-        self.availableToSelectNetworks = requestData.compactMap(\.availableToSelectBlockchain).compactMap { WCUtils.makeBlockchain(from: $0) }
-        self.notAddedNetworks = requestData.compactMap(\.notAddedBlockchain).compactMap { WCUtils.makeBlockchain(from: $0) }
+        selectedNetworks = requestData.compactMap(\.selectedBlockchain).compactMap { WCUtils.makeBlockchain(from: $0) }
+        availableToSelectNetworks = requestData.compactMap(\.availableToSelectBlockchain).compactMap { WCUtils.makeBlockchain(from: $0) }
+        notAddedNetworks = requestData.compactMap(\.notAddedBlockchain).compactMap { WCUtils.makeBlockchain(from: $0) }
         self.sessionNamespaces = sessionNamespaces
         self.connect = connect
         self.cancel = cancel

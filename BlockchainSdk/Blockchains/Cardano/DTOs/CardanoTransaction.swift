@@ -301,7 +301,7 @@ extension CardanoTransactionBody.Input {
             return nil
         }
 
-        transactionID = Data(bytes).hexString
+        transactionID = Data(bytes).hex()
         index = uInt64
     }
 }

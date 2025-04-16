@@ -40,7 +40,7 @@ final class PepecoinTestnetNetworkParams: INetwork {
 
     let dustRelayTxFee: Int = 1_000_000 // 0.01 PEPE
 
-    let coinType: UInt32 = 0
+    let coinType: UInt32 = 1
 
     /// Assuming the standard "ALL" for SigHash type
     let sigHash: SigHashType = .bitcoinAll

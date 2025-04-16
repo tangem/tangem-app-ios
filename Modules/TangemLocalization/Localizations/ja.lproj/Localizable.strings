@@ -109,6 +109,8 @@
 "common_claim" = "請求";
 "common_close" = "閉じる";
 "common_confirm" = "確認";
+"common_contact_tangem_support" = "Contact Tangem Support";
+"common_contact_visa_support" = "Contact Visa Support";
 "common_continue" = "続ける";
 "common_copy_address" = "アドレスをコピー";
 "common_copy" = "コピー";
@@ -1020,6 +1022,7 @@
 "visa_onboarding_pin_code_description" = "Set up a 4-digit code. It will be used for payments.";
 "visa_onboarding_pin_code_navigation_title" = "PIN code";
 "visa_onboarding_pin_code_title" = "Create PIN Code";
+"visa_onboarding_pin_not_accepted" = "PIN was not accepted. Try again or use a different code.";
 "visa_onboarding_pin_validation_error_message" = "無効な暗証番号：連続や繰り返しを避けてください";
 "visa_onboarding_success_screen_description" = "You're good to go!";
 "visa_onboarding_tangem_approve_description" = "Prepare the Tangem card and tap to approve";
@@ -1051,6 +1054,7 @@
 "visa_transaction_details_transaction_request" = "Transaction request";
 "visa_transaction_details_transaction_status" = "Transaction status";
 "visa_transaction_details_type" = "Type";
+"visa_tx_dispute_button" = "Dispute this transaction";
 "visa_unlock_notification_button" = "ロック解除";
 "visa_unlock_notification_subtitle" = "カードをスキャンしてアクセスロックを解除する";
 "visa_unlock_notification_title" = "ロック解除が必要";

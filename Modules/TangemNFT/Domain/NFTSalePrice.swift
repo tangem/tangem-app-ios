@@ -9,17 +9,17 @@
 import Foundation
 
 // [REDACTED_TODO_COMMENT]
-public struct NFTSalePrice {
-    public let last: Price
-    public let lowest: Price
-    public let highest: Price
+public struct NFTSalePrice: Sendable {
+    let last: Price
+    let lowest: Price?
+    let highest: Price?
 }
 
 // MARK: - Auxiliary types
 
 public extension NFTSalePrice {
-    struct Price {
+    struct Price: Sendable {
         // [REDACTED_TODO_COMMENT]
-        public let value: /* Amount */ Decimal
+        let value: /* Amount */ Decimal
     }
 }

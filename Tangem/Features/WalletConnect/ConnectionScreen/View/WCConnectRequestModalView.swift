@@ -12,38 +12,42 @@ import TangemAssets
 
 struct WCConnectRequestModalView: View {
     @ObservedObject var viewModel: WCConnectionSheetViewModel
-    
-    private let requestDescriptionTransition: AnyTransition = {
-        .asymmetric(
-            insertion:
-                    .move(edge: .bottom)
-                    .animation(.default)
-                    .combined(with:
-                            .opacity.animation(.default.delay(0.05))
-                    ),
-            removal:
-                    .move(edge: .bottom)
-                    .animation(.easeOut(duration: 0.5))
-                    .combined(with:
-                            .opacity.animation(.easeOut(duration: 0.2))
-                    )
-        )
-    }()
+
+    private let requestDescriptionTransition: AnyTransition = .asymmetric(
+        insertion:
+        .move(edge: .bottom)
+            .animation(.default)
+            .combined(with:
+                .opacity.animation(.default.delay(0.05))
+            ),
+        removal:
+        .move(edge: .bottom)
+            .animation(.easeOut(duration: 0.5))
+            .combined(with:
+                .opacity.animation(.easeOut(duration: 0.2))
+            )
+    )
 
     var body: some View {
         VStack(spacing: 0) {
             header
                 .padding(.init(top: 12, leading: 16, bottom: 20, trailing: 16))
-            
+
             dappInfoSection
                 .padding(.init(top: 0, leading: 16, bottom: 14, trailing: 16))
-            
+
             connectionParametersSection
                 .padding(.init(top: 0, leading: 16, bottom: 24, trailing: 16))
-            
+
             HStack(spacing: 8) {
                 MainButton(settings: .init(title: "Cancel", style: .secondary, action: { viewModel.handleViewAction(.cancel) }))
-                MainButton(settings: .init(title: "Connect", action: { viewModel.handleViewAction(.connect) }))
+                MainButton(
+                    settings: .init(
+                        title: "Connect",
+                        isLoading: viewModel.isConnectionLoadingIndicatorVisible,
+                        action: { viewModel.handleViewAction(.connect) }
+                    )
+                )
             }
             .padding(.init(top: 0, leading: 16, bottom: 16, trailing: 16))
         }
@@ -63,11 +67,11 @@ private extension WCConnectRequestModalView {
                 Divider()
 
                 connectionRequestHeader
-                .padding(.horizontal, 16)
-                .onTapGesture {
-                    viewModel.handleViewAction(.showConnectionDescription)
-                }
-                .padding(.bottom, 8)
+                    .padding(.horizontal, 16)
+                    .onTapGesture {
+                        viewModel.handleViewAction(.showConnectionDescription)
+                    }
+                    .padding(.bottom, 8)
 
                 connectionRequestDescription
             }
@@ -76,15 +80,15 @@ private extension WCConnectRequestModalView {
         .background(Colors.Background.action)
         .cornerRadius(14, corners: .allCorners)
     }
-    
+
     var connectionParametersSection: some View {
         VStack(alignment: .leading, spacing: 0) {
             selectedWallet
                 .padding(.init(top: 12, leading: 16, bottom: 0, trailing: 16))
-            
+
             Divider()
                 .padding(.init(top: 10, leading: 46, bottom: 10, trailing: 16))
-            
+
             selectedNetworks
                 .padding(.init(top: 0, leading: 16, bottom: 12, trailing: 16))
         }
@@ -112,7 +116,7 @@ private extension WCConnectRequestModalView {
                 }
         }
     }
-    
+
     var dappTitle: some View {
         HStack(spacing: 16) {
             if let urlString = viewModel.proposal.proposer.icons.last, let iconURL = URL(string: urlString) {
@@ -129,7 +133,7 @@ private extension WCConnectRequestModalView {
             .multilineTextAlignment(.leading)
         }
     }
-    
+
     var connectionRequestHeader: some View {
         HStack(alignment: .center, spacing: 8) {
             Assets.connectNew.image
@@ -151,33 +155,33 @@ private extension WCConnectRequestModalView {
 private extension WCConnectRequestModalView {
     @ViewBuilder
     func connectionRequestRow(type: ActionPermission, text: String) -> some View {
-        let foregroundStyle: Color = {
-            switch type {
-            case .allowed: Colors.Icon.accent.opacity(0.1)
-            case .denied: Colors.Icon.warning.opacity(0.1)
-            }
-        }()
-        
-        let image: Image = {
-            switch type {
+        let foregroundStyle: Color = switch type {
+        case .allowed: Colors.Icon.accent
+        case .denied: Colors.Icon.warning
+        }
+
+        let image: some View = {
+            return switch type {
             case .allowed: Assets.WalletConnect.miniCheck.image
             case .denied: Assets.cross.image
             }
         }()
-        
+
         HStack(spacing: 12) {
             ZStack {
                 Circle()
-                    .foregroundStyle(foregroundStyle)
+                    .foregroundStyle(foregroundStyle.opacity(0.1))
                     .frame(size: .init(bothDimensions: 24))
                 image
+                    .renderingMode(.template)
+                    .foregroundStyle(foregroundStyle)
             }
-            
+
             Text(text)
                 .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
         }
     }
-    
+
     @ViewBuilder
     var connectionRequestDescription: some View {
         if viewModel.isConnectionRequestDescriptionVisible {
@@ -185,19 +189,19 @@ private extension WCConnectRequestModalView {
                 Text("Would like to")
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                     .padding(.bottom, 8)
-                
+
                 connectionRequestRow(type: .allowed, text: "View your wallet balance and activity")
                     .padding(.bottom, 12)
-                
+
                 connectionRequestRow(type: .allowed, text: "Request approval for transactions")
-                
+
                 Divider()
                     .padding(.vertical, 12)
-                
+
                 Text("Will not be able to")
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                     .padding(.bottom, 8)
-                
+
                 connectionRequestRow(type: .denied, text: "Sign transactions without your notice")
             }
             .padding(.horizontal, 16)
@@ -234,7 +238,7 @@ private extension WCConnectRequestModalView {
                 .style(Fonts.Regular.body, color: Colors.Text.primary1)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.trailing, 8)
-            if let icon = viewModel.tokenIcons.first {
+            if let icon = viewModel.makeTokenIconsInfo().first {
                 TokenIcon(tokenIconInfo: icon, size: .init(bothDimensions: 20))
             }
             Assets.WalletConnect.selectIcon.image

@@ -1,6 +1,6 @@
 //
-//  NetworkHeaders.swift
-//  TangemNetworkUtils
+//  NFTManagerStub.swift
+//  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -8,4 +8,4 @@
 
 import Foundation
 
-public typealias NetworkHeaders = KeyValuePairs<String, String>
+typealias NFTManagerStub = NotSupportedNFTManager

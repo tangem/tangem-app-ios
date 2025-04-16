@@ -25,8 +25,11 @@ final class WCServiceV2 {
     // MARK: - Public properties
 
     var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> {
-        canEstablishNewSessionSubject
-            .eraseToAnyPublisher()
+        canEstablishNewSessionSubject.eraseToAnyPublisher()
+    }
+    
+    var connectionInProgressPublisher: AnyPublisher<Bool, Never> {
+        connectionInProgressSubject.eraseToAnyPublisher()
     }
 
     var newSessions: AsyncStream<[WalletConnectSavedSession]> {
@@ -43,6 +46,7 @@ final class WCServiceV2 {
     // MARK: - Subjects
 
     private let canEstablishNewSessionSubject: CurrentValueSubject<Bool, Never> = .init(true)
+    private let connectionInProgressSubject: CurrentValueSubject<Bool, Never> = .init(false)
     private let selectedWalletIdSubject: PassthroughSubject<String, Never> = .init()
     private let selectedNetworksToConnectSubject: PassthroughSubject<[BlockchainNetwork], Never> = .init()
     private let connectionRequestSubject: CurrentValueSubject<WCConnectionRequestModel?, Never> = .init(nil)
@@ -249,7 +253,7 @@ private extension WCServiceV2 {
                 selectedUserWalletModelId: selectedWalletId,
                 selectedOptionalNetworks: selectedNetworks
             )
-            
+
             connectionRequestSubject.send(
                 .init(
                     userWalletModelId: selectedWalletId,
@@ -267,6 +271,7 @@ private extension WCServiceV2 {
                     floatingSheetPresenter.enqueue(
                         sheet: WCConnectionSheetViewModel(
                             requestPublisher: connectionRequestSubject.eraseToAnyPublisher(),
+                            connectionInProgressPublisher: connectionInProgressPublisher.eraseToAnyPublisher(),
                             proposal: proposal
                         )
                     )
@@ -318,6 +323,7 @@ extension WCServiceV2 {
                         type: .temporary()
                     )
             }
+
             selectedWalletId = userWalletRepository.selectedUserWalletId?.stringValue
         } catch {
             //            floatingMessageService.send(
@@ -400,16 +406,20 @@ private extension WCServiceV2 {
     func accept(with proposalId: String, namespaces: [String: SessionNamespace]) {
         TangemFoundation.runTask(in: self) { strongSelf in
             do {
+                strongSelf.connectionInProgressSubject.send(true)
                 WCLogger.info(LoggerStrings.namespacesToApprove(namespaces))
                 _ = try await WalletKit.instance.approve(proposalId: proposalId, namespaces: namespaces)
+                strongSelf.connectionInProgressSubject.send(false)
                 // log
             } catch let error as WalletConnectV2Error {
+                strongSelf.connectionInProgressSubject.send(false)
                 //                strongSelf.floatingMessageService.send(error)
                 // log
             } catch {
                 let mappedError = WalletConnectV2ErrorMappingUtils().mapWCv2Error(error)
                 //                strongSelf.floatingMessageService.send(error)
                 WCLogger.error(LoggerStrings.failedToApproveSession, error: error)
+                strongSelf.connectionInProgressSubject.send(false)
                 // log
             }
         }

@@ -15,20 +15,41 @@ import ReownWalletKit
 
 @MainActor
 final class WCConnectionSheetViewModel: FloatingSheetContentViewModel, ObservableObject {
+    // MARK: Dependencies
+
     @Injected(\.floatingSheetPresenter)
     private var floatingSheetPresenter: FloatingSheetPresenter
 
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
 
+    // MARK: Private properties
+
     @Published
     private(set) var isConnectionRequestDescriptionVisible = false
+    
+    @Published
+    private(set) var isConnectionLoadingIndicatorVisible = false
 
     @Published
     private(set) var request: WCConnectionRequestModel?
 
+    private let tokenIconInfoBuilder = TokenIconInfoBuilder()
     private let requestPublisher: AnyPublisher<WCConnectionRequestModel?, Never>
-    private var requestBag: AnyCancellable?
+    private let connectionInProgressPublisher: AnyPublisher<Bool, Never>
+
+    private var bag = Set<AnyCancellable>()
+    private var tokenItemMapper: TokenItemMapper? {
+        guard
+            let selectedUserWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == request?.userWalletModelId })
+        else {
+            return nil
+        }
+
+        return TokenItemMapper(supportedBlockchains: selectedUserWalletModel.config.supportedBlockchains)
+    }
+
+    // MARK: Public properties
 
     let id = UUID().uuidString
     let proposal: Session.Proposal
@@ -36,50 +57,40 @@ final class WCConnectionSheetViewModel: FloatingSheetContentViewModel, Observabl
     var selectedWalletName: String {
         userWalletRepository.models.first { $0.userWalletId.stringValue == request?.userWalletModelId }?.name ?? ""
     }
-    
-    var tokenIcons: [TokenIconInfo] {
-        guard let supportedBlockchains = userWalletRepository.selectedModel?.config.supportedBlockchains else { return [] }
-        
-        let tokenIconInfoBuilder = TokenIconInfoBuilder()
-        let tokenItemMapper = TokenItemMapper(supportedBlockchains: supportedBlockchains)
-
-        return request?.selectedNetworks.compactMap { blockchain -> TokenIconInfo? in
-            guard
-            let tokenItem = tokenItemMapper.mapToTokenItem(
-                id: blockchain.coinId,
-                name: blockchain.coinDisplayName,
-                symbol: blockchain.currencySymbol,
-                network: .init(
-                    networkId: blockchain.networkId,
-                    contractAddress: nil,
-                    decimalCount: blockchain.decimalCount
-                )
-            )
-            else {
-                return nil
-            }
-            
-            return tokenIconInfoBuilder.build(from: tokenItem, isCustom: false)
-        } ?? []
-    }
 
     init(
         requestPublisher: AnyPublisher<WCConnectionRequestModel?, Never>,
+        connectionInProgressPublisher: AnyPublisher<Bool, Never>,
         proposal: Session.Proposal
     ) {
         self.requestPublisher = requestPublisher
+        self.connectionInProgressPublisher = connectionInProgressPublisher
         self.proposal = proposal
-        
+
         bind()
     }
 
     func bind() {
-        requestBag = requestPublisher
+        requestPublisher
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { viewModel, requestValue in
                 viewModel.request = requestValue
             }
+            .store(in: &bag)
+        
+        connectionInProgressPublisher
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, inProgress in
+                viewModel.isConnectionLoadingIndicatorVisible = inProgress
+                
+                if !inProgress {
+                    viewModel.floatingSheetPresenter.removeActiveSheet()
+                }
+            }
+            .store(in: &bag)
     }
 
     func handleViewAction(_ action: ViewAction) {
@@ -93,6 +104,27 @@ final class WCConnectionSheetViewModel: FloatingSheetContentViewModel, Observabl
         case .cancel:
             request?.cancel()
         }
+    }
+
+    func makeTokenIconsInfo() -> [TokenIconInfo] {
+        request?.selectedNetworks.compactMap { blockchain -> TokenIconInfo? in
+            guard
+                let tokenItem = tokenItemMapper?.mapToTokenItem(
+                    id: blockchain.coinId,
+                    name: blockchain.coinDisplayName,
+                    symbol: blockchain.currencySymbol,
+                    network: .init(
+                        networkId: blockchain.networkId,
+                        contractAddress: nil,
+                        decimalCount: blockchain.decimalCount
+                    )
+                )
+            else {
+                return nil
+            }
+
+            return tokenIconInfoBuilder.build(from: tokenItem, isCustom: false)
+        } ?? []
     }
 }
 
