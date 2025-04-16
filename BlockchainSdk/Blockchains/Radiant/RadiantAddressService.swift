@@ -8,15 +8,12 @@
 
 import Foundation
 import TangemSdk
-import BitcoinCore
 
 class RadiantAddressService {
-    let addressService: BitcoinLegacyAddressService
-    let converter: Base58AddressConverter
+    private let builder: Base58LockingScriptBuilder
 
-    init(network: INetwork = RadiantNetworkParams()) {
-        addressService = .init(networkParams: network)
-        converter = .init(addressVersion: network.pubKeyHash, addressScriptVersion: network.scriptHash)
+    init(network: UTXONetworkParams = RadiantNetworkParams()) {
+        builder = .init(network: network)
     }
 }
 
@@ -25,9 +22,9 @@ class RadiantAddressService {
 extension RadiantAddressService: AddressValidator {
     func validate(_ address: String) -> Bool {
         do {
-            let address = try converter.convert(address: address)
+            let (_, script) = try builder.decode(address: address)
             // Radiant supports only p2pkh addresses
-            return address.scriptType == .p2pkh
+            return script.type == .p2pkh
         } catch {
             return false
         }
@@ -38,7 +35,14 @@ extension RadiantAddressService: AddressValidator {
 
 extension RadiantAddressService: AddressProvider {
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
-        let compressedKey = try Secp256k1Key(with: publicKey.blockchainKey).compress()
-        return try addressService.makeAddress(from: compressedKey)
+        let compressed = try Secp256k1Key(with: publicKey.blockchainKey).compress()
+        let (address, script) = try builder.encode(publicKey: compressed, type: .p2pkh)
+
+        return LockingScriptAddress(
+            value: address,
+            publicKey: publicKey,
+            type: addressType,
+            lockingScript: script
+        )
     }
 }
