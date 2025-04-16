@@ -19,17 +19,14 @@ class BranchAndBoundPreImageTransactionBuilder {
     typealias Output = UTXOScriptType
     typealias Fee = UTXOPreImageTransactionBuilderFee
     typealias Error = UTXOPreImageTransactionBuilderError
+
     private let calculator: UTXOTransactionSizeCalculator
     private let variantBuilders: [TransactionVariantBuilder]
-
-    private let serialQueue: DispatchQueue
-    private var bestVariant: UTXOPreImageTransaction?
-    private var tries = 0
+    private let logger = BSDKLogger.tag("PreImageTxBuilder")
 
     init(calculator: UTXOTransactionSizeCalculator) {
         self.calculator = calculator
 
-        serialQueue = .init(label: "com.tangem.BranchAndBoundPreImageTransactionBuilder", qos: .userInitiated)
         variantBuilders = [
             TwoOutputTransactionVariantBuilder(calculator: calculator),
             SingleOutputTransactionVariantBuilder(calculator: calculator),
@@ -41,92 +38,123 @@ class BranchAndBoundPreImageTransactionBuilder {
 
 extension BranchAndBoundPreImageTransactionBuilder: UTXOPreImageTransactionBuilder {
     func preImage(outputs: [ScriptUnspentOutput], changeScript: UTXOScriptType, destination: UTXOPreImageDestination, fee: Fee) throws -> UTXOPreImageTransaction {
-        try serialQueue.sync {
-            // Clear state
-            bestVariant = nil
-            tries = 0
-
-            guard destination.amount > 0 else {
-                throw Error.wrongAmount
-            }
-
-            guard destination.amount > calculator.dust(type: destination.script) else {
-                throw Error.dustAmount
-            }
-
-            guard !outputs.isEmpty else {
-                throw Error.noOutputs
-            }
-
-            let total = try outputs.sumReportingOverflow(by: \.amount)
-            guard destination.amount <= total else {
-                throw Error.insufficientFunds
-            }
-
-            let sorted = outputs.sorted { $0.amount > $1.amount }
-            let context = Context(changeScript: changeScript, destination: destination, fee: fee, allOutputsCount: outputs.count)
-            try select(in: context, sorted: sorted)
-
-            guard let bestVariant, !bestVariant.outputs.isEmpty else {
-                throw Error.unableToFindSuitableUTXOs
-            }
-
-            return bestVariant
+        if Thread.isMainThread {
+            BSDKLogger.warning("Don't call this method from the main thread")
         }
+
+        guard destination.amount > 0 else {
+            throw Error.wrongAmount
+        }
+
+        guard destination.amount > calculator.dust(type: destination.script) else {
+            throw Error.dustAmount
+        }
+
+        guard !outputs.isEmpty else {
+            throw Error.noOutputs
+        }
+
+        let total = try outputs.sumReportingOverflow(by: \.amount)
+        guard destination.amount <= total else {
+            throw Error.insufficientFunds
+        }
+
+        let sorted = outputs.sorted { $0.amount > $1.amount }
+        let context = Context(changeScript: changeScript, destination: destination, fee: fee, allOutputsCount: outputs.count)
+
+        let startDate = Date()
+        logger.debug("Start selection")
+        let bestVariant = try select(in: context, sorted: sorted)
+        logger.debug("End selection done with: \(Date.now.timeIntervalSince(startDate)) sec")
+
+        guard let bestVariant, !bestVariant.outputs.isEmpty else {
+            throw Error.unableToFindSuitableUTXOs
+        }
+
+        return bestVariant
     }
 }
 
 // MARK: - Private
 
 private extension BranchAndBoundPreImageTransactionBuilder {
-    func select(in context: Context, sorted inputs: [Input]) throws {
-        // Use a stack to store and use an iterative approach
-        struct State {
-            let selected: [Input]
-            let index: Int
-        }
-
-        var stack: [State] = [State(selected: [], index: 0)]
+    func select(in context: Context, sorted inputs: [Input]) throws -> UTXOPreImageTransaction? {
+        var bestVariant: UTXOPreImageTransaction?
+        var tries = 0
+        let total = try inputs.sumReportingOverflow(by: \.amount)
+        var stack: [State] = [State(selected: [], index: 0, remaining: Int(total), currentValue: 0)]
 
         while !stack.isEmpty {
             let state = stack.removeLast()
             tries += 1
 
             // Stop if we reach tries limit
-            if tries > Constants.maxTries {
+            if tries >= Constants.maxTries {
                 break
             }
 
-            let currentValue = try Int(state.selected.sumReportingOverflow(by: \.amount))
             let variants = variantBuilders
-                .compactMap { try? $0.variant(in: context, selected: state.selected, currentValue: currentValue) }
+                .compactMap { try? $0.variant(in: context, selected: state.selected, currentValue: state.currentValue) }
                 .sorted(by: { $0.better(than: $1) })
-
-            BSDKLogger
-                .tag("PreImageTxBuilder")
-                .debug("Try \(tries) has \(state.selected.count) selected count with \(currentValue) and variants \(variants.count)")
 
             if let variant = variants.first {
                 // If variant is better then use it as the best
                 if bestVariant == nil || variant.better(than: bestVariant!) {
                     bestVariant = variant
-                    BSDKLogger.tag("PreImageTxBuilder").debug("The best variant was updated to \(variant)")
+                    logger.debug("The best variant was updated to \(variant)")
                 }
 
                 // Skip further processing for this branch
                 continue
             }
 
-            // Stop if we reach last element
+            // If we reach last element, cut the branch
             if state.index >= inputs.count {
                 continue
             }
 
+            // If we can't possibly reach destination amount, cut the branch
+            if state.currentValue + state.remaining < context.destination.amount {
+                continue
+            }
+
             // Branch 1: Exclude current UTXO (push first to process include branch first)
-            stack.append(State(selected: state.selected, index: state.index + 1))
+
+            stack.append(state.excludeCurrent(inputs: inputs))
 
             // Branch 2: Include current UTXO
-            stack.append(State(selected: state.selected + [inputs[state.index]], index: state.index + 1))
+            stack.append(state.includeCurrent(inputs: inputs))
+        }
+
+        return bestVariant
+    }
+
+    /// Use a stack to store and use an iterative approach
+    struct State {
+        let selected: [Input]
+        let index: Int
+        let remaining: Int
+        let currentValue: Int
+
+        func excludeCurrent(inputs: [Input]) -> State {
+            let remaining = remaining - Int(inputs[index].amount)
+
+            return State(
+                selected: selected,
+                index: index + 1,
+                remaining: remaining,
+                currentValue: currentValue
+            )
+        }
+
+        func includeCurrent(inputs: [Input]) -> State {
+            let currentInput = inputs[index]
+            return State(
+                selected: selected + [currentInput],
+                index: index + 1,
+                remaining: remaining,
+                currentValue: currentValue + Int(currentInput.amount)
+            )
         }
     }
 }

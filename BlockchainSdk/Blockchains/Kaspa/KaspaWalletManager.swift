@@ -358,6 +358,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
         case .token:
             return networkService
                 .feeEstimate()
+                .receive(on: DispatchQueue.global())
                 .withWeakCaptureOf(self)
                 .tryMap { manager, feeEstimate in
                     let transactionData = try manager.txBuilder.buildForMassCalculationKRC20(
@@ -382,6 +383,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
         case .coin:
             return networkService
                 .feeEstimate()
+                .receive(on: DispatchQueue.global())
                 .withWeakCaptureOf(self)
                 .tryMap { manager, feeEstimate in
                     let transactionData = try manager.txBuilder.buildForMassCalculation(
