@@ -29,7 +29,7 @@ struct KaspaTransactionTests {
         unspentOutputManager.update(
             outputs: outputs,
             // NOTE: Be careful that lockingScript is not same that we have for source address
-            for: UTXOLockingScript(data: Data(hexString: "21034c88a1a83469ddf20d0c07e5c4a1e7b83734e721e60d642b94a53222c47c670dab"), type: .p2pk)
+            for: UTXOLockingScript(keyHash: Data(), data: Data(hexString: "21034c88a1a83469ddf20d0c07e5c4a1e7b83734e721e60d642b94a53222c47c670dab"), type: .p2pk)
         )
 
         let txBuilder = KaspaTransactionBuilder(
@@ -110,7 +110,7 @@ struct KaspaTransactionTests {
         unspentOutputManager.update(
             outputs: outputs,
             // NOTE: Be careful that lockingScript is not same that we have for source address
-            for: UTXOLockingScript(data: Data(hexString: "21034c88a1a83469ddf20d0c07e5c4a1e7b83734e721e60d642b94a53222c47c670dab"), type: .p2pk)
+            for: UTXOLockingScript(keyHash: Data(), data: Data(hexString: "21034c88a1a83469ddf20d0c07e5c4a1e7b83734e721e60d642b94a53222c47c670dab"), type: .p2pk)
         )
 
         let txBuilder = KaspaTransactionBuilder(
@@ -467,9 +467,9 @@ struct KaspaTransactionTests {
             ]
         )
 
-        #expect(tx1.transactionId?.hexadecimal == "c2cb9d865f5085cd6f7f23365545c68d1eaca7e3cde9d231a64812be2c989a30")
-        #expect(tx1.transactionHash?.hexadecimal == "06661f542544b166259af2e5dd01fc873a8893bf1aa4fada36fb92dfce64b4b0")
-        #expect(tx2.transactionId?.hexadecimal == "d9cd38d294de5cce401330a91c97807b5433a377e043e99b66363fe5274477c9")
-        #expect(tx2.transactionHash?.hexadecimal == "b5b1f2be9ec7dd34ee0da90addcae9bb7bbba145b1460ad639017059f9e41829")
+        #expect(tx1.transactionId?.hex() == "c2cb9d865f5085cd6f7f23365545c68d1eaca7e3cde9d231a64812be2c989a30")
+        #expect(tx1.transactionHash?.hex() == "06661f542544b166259af2e5dd01fc873a8893bf1aa4fada36fb92dfce64b4b0")
+        #expect(tx2.transactionId?.hex() == "d9cd38d294de5cce401330a91c97807b5433a377e043e99b66363fe5274477c9")
+        #expect(tx2.transactionHash?.hex() == "b5b1f2be9ec7dd34ee0da90addcae9bb7bbba145b1460ad639017059f9e41829")
     }
 }
