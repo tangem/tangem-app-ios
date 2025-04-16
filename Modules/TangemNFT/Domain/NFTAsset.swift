@@ -10,12 +10,12 @@ import Foundation
 
 public struct NFTAsset: Hashable, Identifiable, Sendable {
     public let id: NFTAssetId
-    public let contractType: NFTContractType
-    public let name: String
-    public let description: String?
-    public let media: Media?
-    public let rarity: Rarity?
-    public let traits: [Trait]
+    let contractType: NFTContractType
+    let name: String
+    let description: String?
+    let media: Media?
+    let rarity: Rarity?
+    let traits: [Trait]
 
     init(
         assetIdentifier: String,
@@ -50,7 +50,7 @@ public struct NFTAsset: Hashable, Identifiable, Sendable {
 public extension NFTAsset {
     struct NFTAssetId: Hashable, Sendable {
         /// NFT's unique token id within collection.
-        public let assetIdentifier: String
+        let assetIdentifier: String
         /// Collection's address.
         public let collectionIdentifier: String
         /// The owner's address is intentionally a part of the asset identity
@@ -65,20 +65,21 @@ public extension NFTAsset {
             case animation
             case video
             case audio
+            case unknown
         }
 
-        public let kind: Kind
-        public let url: URL
+        let kind: Kind
+        let url: URL
     }
 
     struct Rarity: Hashable, Sendable {
-        public let label: String
-        public let percentage: Double?
-        public let rank: Int?
+        let label: String
+        let percentage: Double?
+        let rank: Int?
     }
 
     struct Trait: Hashable, Sendable {
-        public let name: String
-        public let value: String
+        let name: String
+        let value: String
     }
 }

@@ -31,5 +31,6 @@ extension NFTScanNetworkResult {
         let latestTradeToken: String?
         let latestTradeTimestamp: Int?
         let latestTradeTransactionHash: String?
+        let attributes: [Attribute]?
     }
 }

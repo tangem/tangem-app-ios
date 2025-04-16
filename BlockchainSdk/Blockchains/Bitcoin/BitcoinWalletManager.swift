@@ -140,7 +140,7 @@ extension BitcoinWalletManager: TransactionSender {
             .withWeakCaptureOf(self)
             .tryMap { manager, signatures -> String in
                 let tx = try manager.txBuilder.buildForSend(transaction: transaction, signatures: signatures, sequence: sequence)
-                return tx.hexString.lowercased()
+                return tx.hex()
             }
             .withWeakCaptureOf(self)
             .flatMap { manager, transaction in
