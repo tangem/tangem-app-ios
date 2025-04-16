@@ -26,7 +26,7 @@ class KaspaTransactionBuilder {
     }
 
     func availableAmount() -> Amount {
-        let availableAmountInSatoshi = unspentOutputManager.allOutputs().sum(by: \.amount)
+        let availableAmountInSatoshi = unspentOutputManager.availableOutputs().sum(by: \.amount)
         return Amount(with: blockchain, value: Decimal(availableAmountInSatoshi) / blockchain.decimalValue)
     }
 }
