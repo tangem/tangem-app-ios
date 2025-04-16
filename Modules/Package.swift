@@ -75,6 +75,7 @@ var serviceModules: [PackageDescription.Target] {
                 "Moya",
                 "Alamofire",
                 "TangemFoundation",
+                "TangemLogger",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
