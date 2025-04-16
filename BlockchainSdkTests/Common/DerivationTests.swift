@@ -6,10 +6,8 @@
 //  Copyright © 2019 Tangem AG. All rights reserved.
 //
 
-import BitcoinCore
-import TangemSdk
-@testable import BlockchainSdk
 import Testing
+@testable import BlockchainSdk
 
 struct DerivationTests {
     @Test

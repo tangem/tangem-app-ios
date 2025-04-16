@@ -10,7 +10,7 @@ import Testing
 @testable import BlockchainSdk
 
 class BranchAndBoundPreImageTransactionBuilderTests {
-    private let script: UTXOLockingScript = .init(data: Data(), type: .p2wpkh)
+    private let script: UTXOLockingScript = .init(keyHash: Data(), data: Data(), type: .p2wpkh)
     private lazy var outputs: [ScriptUnspentOutput] = [
         ScriptUnspentOutput(
             output: UnspentOutput(blockId: 0, txId: "", index: 0, amount: 100_000), // 0.0001 BTC

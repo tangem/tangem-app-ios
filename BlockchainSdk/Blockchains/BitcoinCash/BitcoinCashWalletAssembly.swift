@@ -14,9 +14,9 @@ import BitcoinCore
 struct BitcoinCashWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
         let compressed = try Secp256k1Key(with: input.wallet.publicKey.blockchainKey).compress()
-        let networkParams: INetwork = input.wallet.blockchain.isTestnet ? BitcoinCashTestNetworkParams() : BitcoinCashNetworkParams()
+        let networkParams: UTXONetworkParams = input.wallet.blockchain.isTestnet ? BitcoinCashTestNetworkParams() : BitcoinCashNetworkParams()
         let bitcoinManager = BitcoinManager(
-            networkParams: networkParams,
+            networkParams: input.wallet.blockchain.isTestnet ? BitcoinCashTestNetworkParams() : BitcoinCashNetworkParams(),
             walletPublicKey: compressed,
             compressedWalletPublicKey: compressed,
             bip: .bip44

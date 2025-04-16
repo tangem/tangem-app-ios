@@ -14,14 +14,9 @@ class BitcoinTransactionBuilder {
     private let bitcoinManager: BitcoinManager
     private let unspentOutputManager: UnspentOutputManager
 
-    /// Need only for double public key (Twin cards)
-    private let multisigParameters: MultisigParameters?
-
     init(bitcoinManager: BitcoinManager, unspentOutputManager: UnspentOutputManager, addresses: [Address]) {
         self.bitcoinManager = bitcoinManager
         self.unspentOutputManager = unspentOutputManager
-
-        multisigParameters = .init(addresses: addresses)
     }
 
     func fee(amount: Amount, address: String, feeRate: Int) throws -> Int {
@@ -43,7 +38,7 @@ class BitcoinTransactionBuilder {
             amount: transaction.amount.value,
             feeRate: parameters.rate,
             sortType: sortType,
-            changeScript: multisigParameters?.changeScript,
+            changeScript: nil,
             sequence: sequence
         )
 
@@ -65,7 +60,7 @@ class BitcoinTransactionBuilder {
             feeRate: parameters.rate,
             sortType: sortType,
             derSignatures: signatures,
-            changeScript: multisigParameters?.changeScript,
+            changeScript: nil,
             sequence: sequence
         )
     }
@@ -81,14 +76,7 @@ class BitcoinTransactionBuilder {
 
     private func fillBitcoinManager(outputs: [ScriptUnspentOutput]) {
         let utxos = outputs.map { mapToUtxoDTO(output: $0) }
-        let spendingScripts: [Script]? = multisigParameters?.walletScripts.compactMap { script in
-            let chunks = script.chunks.enumerated().map { index, chunk in
-                Chunk(scriptData: script.data, index: index, payloadRange: chunk.range)
-            }
-            return Script(with: script.data, chunks: chunks)
-        }
-
-        bitcoinManager.fillBlockchainData(unspentOutputs: utxos, spendingScripts: spendingScripts ?? [])
+        bitcoinManager.fillBlockchainData(unspentOutputs: utxos, spendingScripts: [])
     }
 
     private func convertToDER(_ signatures: [Data]) throws -> [Data] {
@@ -102,21 +90,5 @@ class BitcoinTransactionBuilder {
 extension BitcoinTransactionBuilder {
     enum Error: LocalizedError {
         case noBitcoinFeeParameters
-    }
-}
-
-struct MultisigParameters {
-    let walletScripts: [BitcoinScript]
-    let changeScript: Data?
-
-    init(addresses: [Address]) {
-        let scriptAddresses = addresses.compactMap { $0 as? BitcoinScriptAddress }
-        let scripts = scriptAddresses.map { $0.script }
-        let defaultScriptData = scriptAddresses
-            .first(where: { $0.type == .default })
-            .map { $0.script.data }
-
-        walletScripts = scripts
-        changeScript = defaultScriptData?.sha256()
     }
 }
