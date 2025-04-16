@@ -28,8 +28,8 @@ enum JSONRPC {
 
     /// https://www.jsonrpc.org/specification#response_object
     struct Response<Output, Failure> where Output: Decodable, Failure: Decodable, Failure: Swift.Error {
-        let jsonrpc: String
-        let id: Int
+        let jsonrpc: String?
+        let id: Int?
         let result: Swift.Result<Output, Failure>
     }
 
@@ -88,8 +88,8 @@ extension JSONRPC.Response: Decodable {
         }
 
         self.init(
-            jsonrpc: try container.decode(forKey: .jsonrpc),
-            id: try container.decode(forKey: .id),
+            jsonrpc: try container.decodeIfPresent(forKey: .jsonrpc),
+            id: try container.decodeIfPresent(forKey: .id),
             result: result
         )
     }
