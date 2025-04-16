@@ -15,7 +15,8 @@ protocol UnspentOutputManager {
     func preImage(amount: Int, fee: Int, destination: String) throws -> PreImageTransaction
     func preImage(amount: Int, feeRate: Int, destination: String) throws -> PreImageTransaction
 
-    func allOutputs() -> [ScriptUnspentOutput]
+    /// Outputs which possible to spent
+    func availableOutputs() -> [ScriptUnspentOutput]
 
     func confirmedBalance() -> UInt64
     func unconfirmedBalance() -> UInt64
@@ -42,6 +43,11 @@ extension UnspentOutputManager {
         let amount = transaction.amount.asSmallest().value.intValue()
         let fee = transaction.fee.amount.asSmallest().value.intValue()
         return try preImage(amount: amount, fee: fee, destination: transaction.destinationAddress)
+    }
+
+    func balance(blockchain: Blockchain) -> Decimal {
+        let balance = confirmedBalance() + unconfirmedBalance()
+        return Decimal(balance) / blockchain.decimalValue
     }
 }
 
