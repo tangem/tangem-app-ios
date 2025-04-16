@@ -13,15 +13,15 @@ class BranchAndBoundPreImageTransactionBuilderTests {
     private let script: UTXOLockingScript = .init(data: Data(), type: .p2wpkh)
     private lazy var outputs: [ScriptUnspentOutput] = [
         ScriptUnspentOutput(
-            output: UnspentOutput(blockId: 0, txId: "", index: 0, amount: 100_000), // 0.0001 BTC
+            output: UnspentOutput(blockId: 1, txId: "", index: 0, amount: 100_000), // 0.0001 BTC
             script: script
         ),
         ScriptUnspentOutput(
-            output: UnspentOutput(blockId: 1, txId: "", index: 0, amount: 200_000), // 0.0002 BTC
+            output: UnspentOutput(blockId: 2, txId: "", index: 0, amount: 200_000), // 0.0002 BTC
             script: script
         ),
         ScriptUnspentOutput(
-            output: UnspentOutput(blockId: 2, txId: "", index: 0, amount: 500_000), // 0.0005 BTC
+            output: UnspentOutput(blockId: 3, txId: "", index: 0, amount: 500_000), // 0.0005 BTC
             script: script
         ),
     ]
