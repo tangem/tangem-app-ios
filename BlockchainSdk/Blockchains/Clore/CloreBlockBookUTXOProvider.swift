@@ -10,7 +10,7 @@ import Combine
 
 class CloreBlockBookUTXOProvider: BlockBookUTXOProvider {
     override func getFeeRatePerByte(for confirmationBlocks: Int) -> AnyPublisher<Decimal, any Error> {
-        executeRequest(.getFees(confirmationBlocks: confirmationBlocks), responseType: JSONRPC.Response<String, JSONRPC.APIError>.self)
+        executeRequest(.getFees(confirmationBlocks: confirmationBlocks), responseType: JSONRPC.DefaultResponse<String>.self)
             .withWeakCaptureOf(self)
             .tryMap { provider, response in
                 let result = try response.result.get()
