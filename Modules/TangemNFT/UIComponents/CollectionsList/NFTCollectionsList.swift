@@ -12,19 +12,30 @@ import TangemUIUtils
 import TangemUI
 import TangemLocalization
 
-struct NFTCollectionsList: View {
+public struct NFTCollectionsList: View {
     @ObservedObject var viewModel: NFTCollectionsListViewModel
+    @State private var hasBeenScrolledUp = false
 
-    var body: some View {
+    public init(viewModel: NFTCollectionsListViewModel) {
+        self.viewModel = viewModel
+    }
+
+    public var body: some View {
+        contentView
+    }
+
+    @ViewBuilder
+    private var contentView: some View {
         switch viewModel.state {
-        case .empty:
-            emptyView
-        case .nonEmpty(let collections):
+        case .noCollections:
+            noCollectionsView
+        case .collectionsAvailale(let collections):
             nonEmptyContentView(collections: collections)
+                .nftListSearchable(text: $viewModel.searchEntry, isAutomatic: hasBeenScrolledUp)
         }
     }
 
-    private var emptyView: some View {
+    private var noCollectionsView: some View {
         VStack(spacing: 0) {
             Assets.Nft.Collections.noCollections.image
                 .resizable()
@@ -52,9 +63,19 @@ struct NFTCollectionsList: View {
 
     private func nonEmptyContentView(collections: [NFTCompactCollectionViewModel]) -> some View {
         ZStack {
-            collectionsContent(from: collections)
+            if collections.isNotEmpty {
+                collectionsContent(from: collections)
+            } else {
+                emptySearchView
+            }
+
             receiveButtonContainer
         }
+    }
+
+    private var emptySearchView: some View {
+        Text(Localization.nftEmptySearch)
+            .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
     }
 
     private func collectionsContent(from collections: [NFTCompactCollectionViewModel]) -> some View {
@@ -64,13 +85,18 @@ struct NFTCollectionsList: View {
                     NFTCollectionDisclosureGroupView(viewModel: collectionViewModel)
                 }
             }
+            .roundedBackground(
+                with: Colors.Background.primary,
+                padding: Constants.padding,
+                radius: Constants.cornerRadius
+            )
         }
-        .roundedBackground(
-            with: Colors.Background.primary,
-            padding: Constants.padding,
-            radius: Constants.cornerRadius
+        .simultaneousGesture(
+            DragGesture()
+                .onChanged {
+                    hasBeenScrolledUp = $0.translation.height < 0
+                }
         )
-        .ignoresSafeArea(.container, edges: .bottom)
     }
 
     private var receiveButtonContainer: some View {
@@ -78,6 +104,7 @@ struct NFTCollectionsList: View {
             Spacer()
             receiveButton(souldAddShadow: true)
         }
+        .ignoresSafeArea(.keyboard)
     }
 
     private func receiveButton(souldAddShadow: Bool) -> some View {
@@ -87,6 +114,16 @@ struct NFTCollectionsList: View {
                     ListFooterOverlayShadowView()
                 )
             }
+    }
+}
+
+private extension View {
+    func nftListSearchable(text: Binding<String>, isAutomatic: Bool) -> some View {
+        searchable(
+            text: text,
+            placement: .navigationBarDrawer(displayMode: isAutomatic ? .automatic : .always)
+        )
+        .ignoresSafeArea(.container, edges: .bottom)
     }
 }
 
@@ -106,45 +143,50 @@ extension NFTCollectionsList {
         static let interitemSpacing: CGFloat = 30
         static let cornerRadius: CGFloat = 14
         static let receiveButtonYOffset: CGFloat = -6
+        static let searchBarCollectionsSpacing: CGFloat = 12
     }
 }
 
 #if DEBUG
 #Preview("Multiple collections") {
-    ZStack {
-        Colors.Background.secondary
-        NFTCollectionsList(
-            viewModel: .init(
-                collections: (0 ... 20).map {
-                    NFTCollection(
-                        collectionIdentifier: "some-\($0)",
-                        chain: .solana,
-                        contractType: .erc1155,
-                        ownerAddress: "0x79D21ca8eE06E149d296a32295A2D8A97E52af52",
-                        name: "My awesome collection",
-                        description: "",
-                        logoURL: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!,
-                        assetsCount: nil,
-                        assets: (0 ... 3).map {
-                            NFTAsset(
-                                assetIdentifier: "some-\($0)",
-                                collectionIdentifier: "some1",
-                                chain: .solana,
-                                contractType: .splToken2022,
-                                ownerAddress: "",
-                                name: "My asset",
-                                description: "",
-                                media: NFTAsset.Media(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
-                                rarity: nil,
-                                traits: []
-                            )
-                        }
-                    )
-                },
-                nftChainIconProvider: DummyProvider()
+    NavigationView {
+        ZStack {
+            Colors.Background.secondary
+            NFTCollectionsList(
+                viewModel: .init(
+                    collections: (0 ... 20).map {
+                        NFTCollection(
+                            collectionIdentifier: "some-\($0)",
+                            chain: .solana,
+                            contractType: .erc1155,
+                            ownerAddress: "",
+                            name: "My awesome collection",
+                            description: "",
+                            logoURL: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!,
+                            assetsCount: 12,
+                            assets: (0 ... 3).map {
+                                NFTAsset(
+                                    assetIdentifier: "some-\($0)",
+                                    collectionIdentifier: "some1",
+                                    chain: .solana,
+                                    contractType: .splToken2022,
+                                    ownerAddress: "",
+                                    name: "My asset",
+                                    description: "",
+                                    media: NFTAsset.Media(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
+                                    rarity: nil,
+                                    traits: []
+                                )
+                            }
+                        )
+                    },
+                    nftChainIconProvider: DummyProvider()
+                )
             )
-        )
-        .padding(.horizontal, 16)
+            .padding(.horizontal, 16)
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("NFT collections")
+        }
     }
 }
 
