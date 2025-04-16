@@ -56,7 +56,7 @@ class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
         responses.forEach { response in
             unspentOutputManager.update(outputs: response.response.outputs, for: response.address)
         }
-        let balance = Decimal(unspentOutputManager.confirmedBalance()) / wallet.blockchain.decimalValue
+        let balance = unspentOutputManager.balance(blockchain: wallet.blockchain)
         wallet.add(coinValue: balance)
 
         let mapper = PendingTransactionRecordMapper()
