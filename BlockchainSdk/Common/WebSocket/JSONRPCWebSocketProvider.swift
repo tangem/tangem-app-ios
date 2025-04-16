@@ -50,8 +50,8 @@ actor JSONRPCWebSocketProvider {
         assert(request.id == response.id, "The response contains wrong id")
 
         switch response.result {
-        case .success: BSDKLogger.info(self, "Return success for id \(response.id)")
-        case .failure: BSDKLogger.info(self, "Return failure for id \(response.id)")
+        case .success: BSDKLogger.info(self, "Return success for id \(response.id as Any)")
+        case .failure: BSDKLogger.info(self, "Return failure for id \(response.id as Any)")
         }
 
         return try response.result.get()
