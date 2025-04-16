@@ -9,6 +9,8 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemUI
+import TangemUIUtils
 
 struct BottomSheetSearchableHeaderView: View {
     private let title: String
