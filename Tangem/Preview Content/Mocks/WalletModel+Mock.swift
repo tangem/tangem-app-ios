@@ -47,8 +47,9 @@ class EthereumWalletManagerMock: WalletManager {
             type: .default
         )]
     )
+    var state: WalletManagerState { .initial }
     var walletPublisher: AnyPublisher<BlockchainSdk.Wallet, Never> { .just(output: wallet) }
-    var statePublisher: AnyPublisher<BlockchainSdk.WalletManagerState, Never> { .just(output: .initial) }
+    var statePublisher: AnyPublisher<BlockchainSdk.WalletManagerState, Never> { .just(output: state) }
     var currentHost: String { "" }
     var outputsCount: Int? { nil }
 
