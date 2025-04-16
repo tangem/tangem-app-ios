@@ -24,6 +24,6 @@ class BitcoinCashLockingScriptBuilderTests {
         #expect(p2sh.data == Data(hexString: "a9149869070a58ad8a56ee82396d6e66b50aafc50d1587"))
 
         #expect(p2pkh.type == .p2pkh)
-        #expect(p2sh.type == .p2sh)
+        #expect(p2sh.type == .p2sh(redeemScript: nil))
     }
 }
