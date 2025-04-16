@@ -410,7 +410,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
 
     private func updateWallet(_ response: UTXOResponse, tokensInfo: [Token: Result<KaspaBalanceResponseKRC20, Error>]) {
         unspentOutputManager.update(outputs: response.outputs, for: wallet.defaultAddress)
-        let balance = Decimal(unspentOutputManager.confirmedBalance()) / wallet.blockchain.decimalValue
+        let balance = unspentOutputManager.balance(blockchain: wallet.blockchain)
         wallet.add(coinValue: balance)
 
         for (token, value) in tokensInfo {

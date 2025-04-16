@@ -55,8 +55,8 @@ final class RadiantWalletManager: BaseManager {
 private extension RadiantWalletManager {
     func updateWallet(with response: UTXOResponse) {
         unspentOutputManager.update(outputs: response.outputs, for: wallet.defaultAddress)
-        let coinBalanceValue = Decimal(unspentOutputManager.confirmedBalance()) / wallet.blockchain.decimalValue
-        wallet.add(coinValue: coinBalanceValue)
+        let balance = unspentOutputManager.balance(blockchain: wallet.blockchain)
+        wallet.add(coinValue: balance)
 
         let pending = response.pending.map {
             PendingTransactionRecordMapper().mapToPendingTransactionRecord(
