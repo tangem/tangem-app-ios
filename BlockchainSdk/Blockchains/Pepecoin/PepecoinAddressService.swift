@@ -36,7 +36,6 @@ extension PepecoinAddressService: AddressValidator {
 
 extension PepecoinAddressService: AddressProvider {
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
-        try publicKey.blockchainKey.validateAsSecp256k1Key()
         let compressed = try Secp256k1Key(with: publicKey.blockchainKey).compress()
 
         let (address, lockingScript) = try builder.encode(publicKey: compressed, type: .p2pkh)
