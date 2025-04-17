@@ -20,7 +20,6 @@ class PepecoinWalletManager: DogecoinWalletManager {
     override var dustValue: Amount {
         // Use soft dust value from documentation
         let dustValue = Decimal(stringValue: "0.01")!
-        let value = dustValue / wallet.blockchain.decimalValue
-        return Amount(with: wallet.blockchain, value: value)
+        return Amount(with: wallet.blockchain, value: dustValue)
     }
 }
