@@ -18,15 +18,6 @@ class PepecoinAddressService {
     }
 }
 
-// MARK: - BitcoinScriptAddressProvider
-
-extension PepecoinAddressService: BitcoinScriptAddressProvider {
-    func makeScriptAddress(redeemScript: Data) throws -> (address: String, script: UTXOLockingScript) {
-        let scriptHash = redeemScript.sha256Ripemd160
-        let (address, script) = try builder.encode(keyHash: scriptHash, type: .p2sh(redeemScript: redeemScript))
-        return (address, script)
-    }
-}
 
 // MARK: - AddressValidator
 
