@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum NFTContractType: Hashable {
+public enum NFTContractType: Hashable, Sendable {
     /// https://eips.ethereum.org/EIPS/eip-721
     case erc721
     /// https://eips.ethereum.org/EIPS/eip-1155
