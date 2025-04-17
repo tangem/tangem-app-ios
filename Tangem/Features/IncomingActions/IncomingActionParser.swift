@@ -11,8 +11,6 @@ import UIKit
 import TangemFoundation
 
 public class IncomingActionParser {
-    @Injected(\.walletConnectService) private var walletConnectService: OldWalletConnectService
-
     private var incomingActionURLParsers: [IncomingActionURLParser] = [
         NDEFURLParser(),
         DismissSafariActionURLHelper(),
