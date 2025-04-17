@@ -6,6 +6,7 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 
 import Foundation
+import TangemNetworkUtils
 
 public typealias APIList = [String: [NetworkProviderType]]
 
@@ -45,9 +46,4 @@ struct NodeInfo: HostProvider {
         self.url = url
         headers = keyInfo
     }
-}
-
-struct APIHeaderKeyInfo {
-    let headerName: String
-    let headerValue: String
 }
