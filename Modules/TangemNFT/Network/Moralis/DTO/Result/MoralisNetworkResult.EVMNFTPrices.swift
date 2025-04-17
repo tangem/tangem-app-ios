@@ -43,8 +43,8 @@ extension MoralisNetworkResult.EVMNFTPrices {
     struct PaymentToken: Decodable {
         let tokenName: String?
         let tokenSymbol: String?
-        let tokenLogo: URL?
-        let tokenDecimals: Int?
+        let tokenLogo: String?
+        let tokenDecimals: String?
         let tokenAddress: String?
     }
 }
