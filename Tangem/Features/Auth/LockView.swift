@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUIUtils
 
 struct LockView: View {
     private let usesNamespace: Bool
