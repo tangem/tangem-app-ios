@@ -18,9 +18,17 @@ class CloreBlockBookUTXOProvider: BlockBookUTXOProvider {
                 guard let decimalFeeResult = Decimal(stringValue: result) else {
                     throw WalletError.failedToGetFee
                 }
+                
+                let recommendedDecimalFeeResult = decimalFeeResult * Constants.recommendedRateMultiplyFeeResult
 
-                return try provider.convertFeeRate(decimalFeeResult)
+                return try provider.convertFeeRate(recommendedDecimalFeeResult)
             }
             .eraseToAnyPublisher()
+    }
+}
+
+extension CloreBlockBookUTXOProvider {
+    enum Constants {
+        static let recommendedRateMultiplyFeeResult: Decimal = .init(stringValue: "1.5")!
     }
 }
