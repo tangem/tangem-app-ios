@@ -46,7 +46,7 @@ extension BranchAndBoundPreImageTransactionBuilder: UTXOPreImageTransactionBuild
             throw Error.wrongAmount
         }
 
-        guard destination.amount > calculator.dust(type: destination.script) else {
+        guard fee.isCalculation || destination.amount > calculator.dust(type: destination.script) else {
             throw Error.dustAmount
         }
 
