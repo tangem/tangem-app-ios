@@ -25,6 +25,6 @@ struct ElectrumScriptHashConverter {
     func prepareScriptHash(address: String) throws -> String {
         let scriptHashData = try lockingScriptBuilder.lockingScript(for: address).data
 
-        return Data(scriptHashData.sha256().reversed()).hexString
+        return Data(scriptHashData.sha256().reversed()).hex(.uppercase)
     }
 }
