@@ -294,7 +294,7 @@ struct CardsInfoPagerView<
                     .id(expandedHeaderScrollTargetIdentifier)
 
                 makeHeader(with: geometryProxy)
-                    .simultaneousGesture(
+                    .highPriorityGesture(
                         makeDragGesture(with: geometryProxy),
                         including: isHorizontalScrollDisabled ? .subviews : .all
                     )
