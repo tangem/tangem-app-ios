@@ -21,7 +21,7 @@ final class RadiantTests {
         let lockScript = try builder.lockingScript(for: "1vr9gJkNzTHv8DEQb4QBxAnQCxgzkFkbf")
 
         // then
-        #expect(lockScript.data.hexString.lowercased() == "76a9140a2f12f228cbc244c745f33a23f7e924cbf3b6ad88ac".lowercased())
+        #expect(lockScript.data.hex() == "76a9140a2f12f228cbc244c745f33a23f7e924cbf3b6ad88ac".lowercased())
     }
 
     @Test
