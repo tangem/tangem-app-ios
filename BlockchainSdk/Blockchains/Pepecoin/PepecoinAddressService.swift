@@ -11,30 +11,30 @@ import TangemSdk
 import BitcoinCore
 
 class PepecoinAddressService {
-    private let converter: IAddressConverter
+    private let builder: Base58LockingScriptBuilder
 
     init(isTestnet: Bool) {
-        let networkParams: INetwork = isTestnet ? PepecoinTestnetNetworkParams() : PepecoinMainnetNetworkParams()
-        converter = Base58AddressConverter(addressVersion: networkParams.pubKeyHash, addressScriptVersion: networkParams.scriptHash)
+        let networkParams: UTXONetworkParams = isTestnet ? PepecoinTestnetNetworkParams() : PepecoinMainnetNetworkParams()
+        builder = .init(network: networkParams)
     }
 }
 
 // MARK: - BitcoinScriptAddressProvider
 
-@available(iOS 13.0, *)
 extension PepecoinAddressService: BitcoinScriptAddressProvider {
-    func makeScriptAddress(from scriptHash: Data) throws -> String {
-        return try converter.convert(keyHash: scriptHash, type: .p2sh).stringValue
+    func makeScriptAddress(redeemScript: Data) throws -> (address: String, script: UTXOLockingScript) {
+        let scriptHash = redeemScript.sha256Ripemd160
+        let (address, script) = try builder.encode(keyHash: scriptHash, type: .p2sh(redeemScript: redeemScript))
+        return (address, script)
     }
 }
 
 // MARK: - AddressValidator
 
-@available(iOS 13.0, *)
 extension PepecoinAddressService: AddressValidator {
     func validate(_ address: String) -> Bool {
         do {
-            _ = try converter.convert(address: address)
+            _ = try builder.decode(address: address)
             return true
         } catch {
             return false
@@ -44,27 +44,12 @@ extension PepecoinAddressService: AddressValidator {
 
 // MARK: - AddressProvider
 
-@available(iOS 13.0, *)
 extension PepecoinAddressService: AddressProvider {
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
         try publicKey.blockchainKey.validateAsSecp256k1Key()
+        let compressed = try Secp256k1Key(with: publicKey.blockchainKey).compress()
 
-        // Workaround for similar address legacy cards
-        let compressedPublicKey = try Secp256k1Key(with: publicKey.blockchainKey).compress()
-
-        let bitcoinCorePublicKey = PublicKey(
-            withAccount: 0,
-            index: 0,
-            external: true,
-            hdPublicKeyData: compressedPublicKey
-        )
-
-        let address = try converter.convert(publicKey: bitcoinCorePublicKey, type: .p2pkh)
-        return LockingScriptAddress(
-            value: address.stringValue,
-            publicKey: publicKey,
-            type: addressType,
-            lockingScript: .init(data: address.lockingScript, type: .p2pkh)
-        )
+        let (address, lockingScript) = try builder.encode(publicKey: compressed, type: .p2pkh)
+        return LockingScriptAddress(value: address, publicKey: publicKey, type: addressType, lockingScript: lockingScript)
     }
 }
