@@ -42,7 +42,7 @@ struct KoinosTransactionBuilderTests {
     }
 
     private var expectedHash: Data {
-        "1042AEEE64FCC89921D0B5F9BDD6C9BFF3E9C089D3579C74882FE0F018ACD608".data(using: .hexadecimal)!
+        Data(hex: "1042AEEE64FCC89921D0B5F9BDD6C9BFF3E9C089D3579C74882FE0F018ACD608")
     }
 
     private var expectedSignature: String {
@@ -76,7 +76,7 @@ struct KoinosTransactionBuilderTests {
     }
 
     private var expectedHashTestnet: Data {
-        "F90AB33FCD0FA5896BB56352875EB49AC984CFD347467A50FE7A28686B11BB45".data(using: .hexadecimal)!
+        Data(hex: "F90AB33FCD0FA5896BB56352875EB49AC984CFD347467A50FE7A28686B11BB45")
     }
 
     // MARK: Factory
@@ -140,9 +140,9 @@ extension KoinosTransactionBuilderTests {
         let signedTransaction = try transactionBuilder.buildForSend(
             transaction: expectedTransaction,
             signature: SignatureInfo(
-                signature: #require(signature.data(using: .hexadecimal)),
-                publicKey: #require(publicKey.data(using: .hexadecimal)),
-                hash: #require(hash.data(using: .hexadecimal))
+                signature: Data(hex: signature),
+                publicKey: Data(hex: publicKey),
+                hash: Data(hex: hash)
             )
         )
 

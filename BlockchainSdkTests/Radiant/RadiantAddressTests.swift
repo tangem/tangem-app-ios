@@ -6,8 +6,6 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import BitcoinCore
-import CryptoKit
 @testable import BlockchainSdk
 import Testing
 
