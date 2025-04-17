@@ -29,13 +29,3 @@ extension Fact0rnAddressService: AddressValidator {
         bitcoinAddressService.validate(address)
     }
 }
-
-extension Fact0rnAddressService {
-    static func addressToScriptHash(address: String) throws -> String {
-        let params = Fact0rnMainNetworkParams()
-        let converter = SegWitBech32AddressConverter(prefix: params.bech32PrefixPattern, scriptConverter: ScriptConverter())
-        let address = try converter.convert(address: address)
-        let sha256Hash = address.lockingScript.getSha256()
-        return Data(sha256Hash.reversed()).hexString
-    }
-}
