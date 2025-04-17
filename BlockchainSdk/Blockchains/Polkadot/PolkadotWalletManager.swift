@@ -84,7 +84,7 @@ extension PolkadotWalletManager: TransactionSender {
             }
             return networkService
                 .submitExtrinsic(data: image)
-                .mapSendError(tx: image.hexString)
+                .mapSendError(tx: image.hex())
                 .eraseToAnyPublisher()
         }
         .tryMap { [weak self] hash in
