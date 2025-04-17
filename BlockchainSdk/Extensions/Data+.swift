@@ -9,8 +9,8 @@
 import Foundation
 import CryptoKit
 import TangemSdk
-import class WalletCore.DataVector
 import Sodium
+import class WalletCore.DataVector
 
 extension Data {
     var bytes: [UInt8] {
@@ -71,5 +71,27 @@ extension Data {
         base64EncodedString()
             .replacingOccurrences(of: "+", with: "-")
             .replacingOccurrences(of: "/", with: "_")
+    }
+}
+
+// MARK: Data + Hexadecimal
+
+extension Data {
+    init(hex: String) {
+        // Use TangemSDK implementation
+        self.init(hexString: hex)
+    }
+
+    func hex(_ case: Case = .lowercase) -> String {
+        let format = switch `case` {
+        case .lowercase: "%02x"
+        case .uppercase: "%02X"
+        }
+        return map { String(format: format, $0) }.joined()
+    }
+
+    enum Case {
+        case lowercase
+        case uppercase
     }
 }
