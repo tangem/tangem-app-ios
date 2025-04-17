@@ -62,8 +62,6 @@ class MainCoordinator: CoordinatorObject {
     private var safariHandle: SafariHandle?
     private var pushNotificationsViewModelSubscription: AnyCancellable?
 
-    private let tooltipStorageProvider = TooltipStorageProvider()
-
     required init(
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions>
@@ -92,7 +90,7 @@ class MainCoordinator: CoordinatorObject {
     }
 
     func hideMarketsTooltip() {
-        tooltipStorageProvider.marketsTooltipWasShown = true
+        AppSettings.shared.marketsTooltipWasShown = true
 
         withAnimation(.easeInOut(duration: Constants.tooltipAnimationDuration)) {
             isMarketsTooltipVisible = false
@@ -129,7 +127,7 @@ class MainCoordinator: CoordinatorObject {
             }
 
             withAnimation(.easeInOut(duration: Constants.tooltipAnimationDuration)) {
-                self.isMarketsTooltipVisible = !self.tooltipStorageProvider.marketsTooltipWasShown
+                self.isMarketsTooltipVisible = !AppSettings.shared.marketsTooltipWasShown
             }
         }
     }
@@ -430,13 +428,15 @@ extension MainCoordinator: OrganizeTokensRoutable {
     }
 }
 
-// MARK: - VisaWalletRoutable
+// MARK: - Visa
 
 extension MainCoordinator: VisaWalletRoutable {
-    func openTransactionDetails(tokenItem: TokenItem, for record: VisaTransactionRecord) {
-        visaTransactionDetailsViewModel = .init(tokenItem: tokenItem, transaction: record)
+    func openTransactionDetails(tokenItem: TokenItem, for record: VisaTransactionRecord, emailConfig: EmailConfig) {
+        visaTransactionDetailsViewModel = .init(tokenItem: tokenItem, transaction: record, emailConfig: emailConfig, router: self)
     }
 }
+
+extension MainCoordinator: VisaTransactionDetailsRouter {}
 
 // MARK: - RateAppRoutable protocol conformance
 
