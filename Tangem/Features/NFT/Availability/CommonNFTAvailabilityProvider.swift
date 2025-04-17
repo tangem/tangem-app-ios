@@ -33,14 +33,14 @@ extension CommonNFTAvailabilityProvider: NFTAvailabilityProvider {
             .eraseToAnyPublisher()
     }
 
-    func isNFTAvailable(for userWalletModel: any UserWalletModel) -> Bool {
+    func isNFTAvailable(for userWalletConfig: UserWalletConfig) -> Bool {
         ensureOnMainQueue()
 
         guard isFeatureToggleEnabled else {
             return false
         }
 
-        return userWalletModel.config.hasFeature(.nft)
+        return userWalletConfig.hasFeature(.nft)
     }
 
     func isNFTEnabled(forUserWalletWithId userWalletId: UserWalletId) -> Bool {
