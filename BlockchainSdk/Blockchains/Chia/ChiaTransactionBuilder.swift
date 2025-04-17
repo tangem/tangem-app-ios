@@ -87,7 +87,7 @@ final class ChiaTransactionBuilder {
     }
 
     func buildToSend(signatures: [Data]) throws -> ChiaSpendBundle {
-        let aggregatedSignature = try BLSUtils().aggregate(signatures: signatures.map { $0.hexString })
+        let aggregatedSignature = try BLSUtils().aggregate(signatures: signatures.map { $0.hex() })
 
         return ChiaSpendBundle(
             aggregatedSignature: aggregatedSignature.addHexPrefix(),
@@ -122,7 +122,7 @@ final class ChiaTransactionBuilder {
         let coinSpends = unspentCoins.map {
             ChiaCoinSpend(
                 coin: $0,
-                puzzleReveal: ChiaPuzzleUtils().getPuzzleHash(from: walletPublicKey).hexString.addHexPrefix().lowercased(),
+                puzzleReveal: ChiaPuzzleUtils().getPuzzleHash(from: walletPublicKey).hex().addHexPrefix().lowercased(),
                 solution: ""
             )
         }
@@ -132,10 +132,10 @@ final class ChiaTransactionBuilder {
         let changeCondition = try change != 0 ? createCoinCondition(for: source, with: change) : nil
 
         let solution: [ChiaCondition] = [sendCondition, changeCondition].compactMap { $0 }
-        coinSpends[0].solution = try solution.toSolution().hexString.addHexPrefix().lowercased()
+        coinSpends[0].solution = try solution.toSolution().hex().addHexPrefix().lowercased()
 
         for coinSpend in coinSpends.dropFirst(1) {
-            coinSpend.solution = try [RemarkCondition()].toSolution().hexString.addHexPrefix().lowercased()
+            coinSpend.solution = try [RemarkCondition()].toSolution().hex().addHexPrefix().lowercased()
         }
 
         return coinSpends
@@ -181,6 +181,6 @@ private extension Array where Element == ChiaCondition {
 
 private extension Data {
     func hashAugScheme(with publicKey: Data) throws -> Data {
-        try Data(hex: BLSUtils().augSchemeMplG2Map(publicKey: publicKey.hexString.lowercased(), message: hexString.lowercased()))
+        try Data(hex: BLSUtils().augSchemeMplG2Map(publicKey: publicKey.hex(), message: hexString.lowercased()))
     }
 }

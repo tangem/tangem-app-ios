@@ -6,10 +6,9 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import BitcoinCore
 import CryptoKit
-@testable import BlockchainSdk
 import Testing
+@testable import BlockchainSdk
 
 struct NEARAddressTests {
     @Test(arguments: [Blockchain.near(curve: .ed25519, testnet: false), .near(curve: .ed25519_slip0010, testnet: false)])
