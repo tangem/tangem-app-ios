@@ -84,13 +84,13 @@ private extension RadiantWalletManager {
         }
         .withWeakCaptureOf(self)
         .tryMap { walletManager, signatures in
-            try walletManager.transactionBuilder.buildForSend(transaction: transaction, signatures: signatures).hexString
+            try walletManager.transactionBuilder.buildForSend(transaction: transaction, signatures: signatures).hex()
         }
         .withWeakCaptureOf(self)
         .flatMap { walletManager, rawTransactionHex in
             walletManager.networkService
                 .send(transaction: rawTransactionHex)
-                .mapSendError(tx: rawTransactionHex.lowercased())
+                .mapSendError(tx: rawTransactionHex)
         }
         .withWeakCaptureOf(self)
         .map { walletManager, result -> TransactionSendResult in
