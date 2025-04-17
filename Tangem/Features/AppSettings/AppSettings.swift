@@ -90,6 +90,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.userWalletIdsWithNFTEnabled)
     var userWalletIdsWithNFTEnabled: [String] = []
 
+    @AppStorageCompat(StorageType.marketsTooltipWasShown)
+    var marketsTooltipWasShown: Bool = false
+
     static let shared: AppSettings = .init()
 
     private init() {}

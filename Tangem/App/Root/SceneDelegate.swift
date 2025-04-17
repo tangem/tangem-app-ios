@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemSdk
+import class TangemUI.FloatingSheetRegistry
 import BlockchainSdk
 
 final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
@@ -19,7 +20,8 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var lockWindow: UIWindow?
 
     private lazy var servicesManager = KeychainSensitiveServicesManager()
-    private lazy var tangemStoriesHostManager = TangemStoriesHostManager()
+    private lazy var sheetRegistry = FloatingSheetRegistry()
+    private lazy var appOverlaysManager = AppOverlaysManager(sheetRegistry: sheetRegistry)
 
     private var appCoordinator: AppCoordinator?
     private var isSceneStarted = false
@@ -34,7 +36,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         servicesManager.initialize()
         startApp(scene: scene, appCoordinatorOptions: .default)
-        tangemStoriesHostManager.setup(with: scene)
+        appOverlaysManager.setup(with: scene)
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
@@ -52,7 +54,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         if appLockController.isLocked {
             mainBottomSheetUIManager.hide(shouldUpdateFooterSnapshot: false)
-            tangemStoriesHostManager.forceDismiss()
+            appOverlaysManager.forceDismiss()
             startApp(scene: scene, appCoordinatorOptions: .locked)
             hideLockView()
         } else {
@@ -93,7 +95,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         let window = MainWindow(windowScene: windowScene)
         let appCoordinator = AppCoordinator()
-        let appCoordinatorView = AppCoordinatorView(coordinator: appCoordinator)
+        let appCoordinatorView = AppCoordinatorView(coordinator: appCoordinator).environment(\.floatingSheetRegistry, sheetRegistry)
         let factory = RootViewControllerFactory()
         let rootViewController = factory.makeRootViewController(
             for: appCoordinatorView,
@@ -104,7 +106,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         appCoordinator.start(with: appCoordinatorOptions)
         self.appCoordinator = appCoordinator
         self.window = window
-        tangemStoriesHostManager.mainWindow = window
+        appOverlaysManager.setMainWindow(window)
         window.overrideUserInterfaceStyle = AppSettings.shared.appTheme.interfaceStyle
         window.makeKeyAndVisible()
     }
