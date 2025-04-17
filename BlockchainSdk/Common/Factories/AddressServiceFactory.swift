@@ -153,8 +153,7 @@ public struct AddressServiceFactory {
         case .alephium:
             return AlephiumAddressService()
         case .pepecoin:
-            let networkParams: UTXONetworkParams = isTestnet ? PepecoinTestnetNetworkParams() : PepecoinMainnetNetworkParams()
-            return BitcoinLegacyAddressService(networkParams: networkParams)
+            return PepecoinAddressService(isTestnet: isTestnet)
         }
     }
 }
