@@ -97,7 +97,7 @@ class XRPSeedWallet: XRPWallet {
     }
 
     static func getSeedTypeFrom(publicKey: String) -> SeedType {
-        let data = [UInt8](publicKey.hexadecimal!)
+        let data = Data(hexString: publicKey)
         // [REDACTED_TODO_COMMENT]
         return data.count == 33 && data[0] == 0xED ? .ed25519 : .secp256k1
     }
