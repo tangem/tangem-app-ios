@@ -94,7 +94,9 @@ extension UTXOScriptType {
             return 114
         case .p2pkh:
             // PreviousOutputHex(32) + InputIndex(4) + sigLength(1) + signature(72) + pushByte(1) + PubKey(33) + pushByte(1) + sequence(4)
-            return 148
+            // [REDACTED_TODO_COMMENT]
+            // Because decide on pub key size
+            return 180
         case .p2sh:
             // Typical multisig redeem script + signatures + script overhead ≈ 297 bytes
             return 297
