@@ -8,7 +8,6 @@
 
 import Foundation
 import TangemSdk
-import BitcoinCore
 
 class PepecoinAddressService {
     private let builder: Base58LockingScriptBuilder
