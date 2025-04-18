@@ -19,7 +19,19 @@
 		0A2261802D9588F3004DC848 /* CardanoUnspentOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A22617F2D9588F3004DC848 /* CardanoUnspentOutput.swift */; };
 		0A2261832D958ADA004DC848 /* CardanoTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2261822D958ADA004DC848 /* CardanoTransaction.swift */; };
 		0A2261852D95A8DC004DC848 /* StakingBlockchainParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2261842D95A8DC004DC848 /* StakingBlockchainParams.swift */; };
+		0A2261882D9AC634004DC848 /* BlockaidAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2261872D9AC634004DC848 /* BlockaidAPIService.swift */; };
+		0A22618B2D9AC699004DC848 /* SiteScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A22618A2D9AC699004DC848 /* SiteScan.swift */; };
+		0A22618D2D9AC79B004DC848 /* BlockaidDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A22618C2D9AC79B004DC848 /* BlockaidDTO.swift */; };
+		0A22618F2D9AC8A9004DC848 /* BlockaidTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A22618E2D9AC8A9004DC848 /* BlockaidTarget.swift */; };
 		0A2A04DB2C91B167007EAE64 /* TronSendTransactionSummaryDescriptionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2A04DA2C91B167007EAE64 /* TronSendTransactionSummaryDescriptionBuilder.swift */; };
+		0A3A53C82D9C47B400E263E7 /* Chain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53C72D9C47B400E263E7 /* Chain.swift */; };
+		0A3A53CA2D9D276B00E263E7 /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53C92D9D276B00E263E7 /* Common.swift */; };
+		0A3A53D02D9D36D600E263E7 /* EvmScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53CF2D9D36D600E263E7 /* EvmScan.swift */; };
+		0A3A53D22D9D399C00E263E7 /* SolanaScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53D12D9D399C00E263E7 /* SolanaScan.swift */; };
+		0A3A53D42D9D41B300E263E7 /* BlockaidFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53D32D9D41B300E263E7 /* BlockaidFactory.swift */; };
+		0A3A53D72D9D8AE600E263E7 /* BlockaidChainScanResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53D62D9D8AE600E263E7 /* BlockaidChainScanResult.swift */; };
+		0A3A53D92D9E743500E263E7 /* BlockaidMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53D82D9E743500E263E7 /* BlockaidMapper.swift */; };
+		0A3A53DB2D9EB31E00E263E7 /* BlockaidSiteScanResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A53DA2D9EB31E00E263E7 /* BlockaidSiteScanResult.swift */; };
 		0A3BF9692C6CDAD900163492 /* AdditionalAddresses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3BF9682C6CDAD900163492 /* AdditionalAddresses.swift */; };
 		0A3BF96B2C6CE96B00163492 /* StakingAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3BF96A2C6CE96B00163492 /* StakingAction.swift */; };
 		0A3C78752D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3C78742D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift */; };
@@ -39,6 +51,7 @@
 		0A9AB2912D76EC1B00DB203C /* KaspaTransactionHistoryTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9AB2902D76EC1B00DB203C /* KaspaTransactionHistoryTarget.swift */; };
 		0AB5A4732C5267CB00491764 /* SegmentedPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB5A4722C5267CB00491764 /* SegmentedPicker.swift */; };
 		0ABC61152C410AFD00065EBA /* TweetNacl in Frameworks */ = {isa = PBXBuildFile; productRef = 0ABC61142C410AFD00065EBA /* TweetNacl */; };
+		0AC6307A2DACE616006A7DEC /* CommonBlockaidAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC630792DACE616006A7DEC /* CommonBlockaidAPIService.swift */; };
 		0AC9EFF52CAE8515005F868F /* StakingSingleActionFlowBaseBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC9EFF42CAE8515005F868F /* StakingSingleActionFlowBaseBuilder.swift */; };
 		0AC9EFF72CAE857C005F868F /* StakingSingleActionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC9EFF62CAE857C005F868F /* StakingSingleActionModel.swift */; };
 		0AC9EFF92CAE9B2C005F868F /* CommonStakingSingleActionStepsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC9EFF82CAE9B2C005F868F /* CommonStakingSingleActionStepsManager.swift */; };
@@ -3468,7 +3481,19 @@
 		0A22617F2D9588F3004DC848 /* CardanoUnspentOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoUnspentOutput.swift; sourceTree = "<group>"; };
 		0A2261822D958ADA004DC848 /* CardanoTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoTransaction.swift; sourceTree = "<group>"; };
 		0A2261842D95A8DC004DC848 /* StakingBlockchainParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBlockchainParams.swift; sourceTree = "<group>"; };
+		0A2261872D9AC634004DC848 /* BlockaidAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidAPIService.swift; sourceTree = "<group>"; };
+		0A22618A2D9AC699004DC848 /* SiteScan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteScan.swift; sourceTree = "<group>"; };
+		0A22618C2D9AC79B004DC848 /* BlockaidDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidDTO.swift; sourceTree = "<group>"; };
+		0A22618E2D9AC8A9004DC848 /* BlockaidTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidTarget.swift; sourceTree = "<group>"; };
 		0A2A04DA2C91B167007EAE64 /* TronSendTransactionSummaryDescriptionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TronSendTransactionSummaryDescriptionBuilder.swift; sourceTree = "<group>"; };
+		0A3A53C72D9C47B400E263E7 /* Chain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chain.swift; sourceTree = "<group>"; };
+		0A3A53C92D9D276B00E263E7 /* Common.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Common.swift; sourceTree = "<group>"; };
+		0A3A53CF2D9D36D600E263E7 /* EvmScan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvmScan.swift; sourceTree = "<group>"; };
+		0A3A53D12D9D399C00E263E7 /* SolanaScan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaScan.swift; sourceTree = "<group>"; };
+		0A3A53D32D9D41B300E263E7 /* BlockaidFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidFactory.swift; sourceTree = "<group>"; };
+		0A3A53D62D9D8AE600E263E7 /* BlockaidChainScanResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidChainScanResult.swift; sourceTree = "<group>"; };
+		0A3A53D82D9E743500E263E7 /* BlockaidMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidMapper.swift; sourceTree = "<group>"; };
+		0A3A53DA2D9EB31E00E263E7 /* BlockaidSiteScanResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockaidSiteScanResult.swift; sourceTree = "<group>"; };
 		0A3BF9682C6CDAD900163492 /* AdditionalAddresses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdditionalAddresses.swift; sourceTree = "<group>"; };
 		0A3BF96A2C6CE96B00163492 /* StakingAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAction.swift; sourceTree = "<group>"; };
 		0A3C78742D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HederaNetworkResult.TokensCustomFees.swift; sourceTree = "<group>"; };
@@ -3486,6 +3511,7 @@
 		0A9AB28E2D76E91B00DB203C /* KaspaTransactionHistoryProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaTransactionHistoryProvider.swift; sourceTree = "<group>"; };
 		0A9AB2902D76EC1B00DB203C /* KaspaTransactionHistoryTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaTransactionHistoryTarget.swift; sourceTree = "<group>"; };
 		0AB5A4722C5267CB00491764 /* SegmentedPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentedPicker.swift; sourceTree = "<group>"; };
+		0AC630792DACE616006A7DEC /* CommonBlockaidAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonBlockaidAPIService.swift; sourceTree = "<group>"; };
 		0AC9EFF42CAE8515005F868F /* StakingSingleActionFlowBaseBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingSingleActionFlowBaseBuilder.swift; sourceTree = "<group>"; };
 		0AC9EFF62CAE857C005F868F /* StakingSingleActionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingSingleActionModel.swift; sourceTree = "<group>"; };
 		0AC9EFF82CAE9B2C005F868F /* CommonStakingSingleActionStepsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStakingSingleActionStepsManager.swift; sourceTree = "<group>"; };
@@ -6894,6 +6920,42 @@
 			path = DTOs;
 			sourceTree = "<group>";
 		};
+		0A2261862D9AC61F004DC848 /* Blockaid */ = {
+			isa = PBXGroup;
+			children = (
+				0A3A53D52D9D88BA00E263E7 /* Domain */,
+				0A2261892D9AC66F004DC848 /* DTOs */,
+				0A2261872D9AC634004DC848 /* BlockaidAPIService.swift */,
+				0AC630792DACE616006A7DEC /* CommonBlockaidAPIService.swift */,
+				0A22618E2D9AC8A9004DC848 /* BlockaidTarget.swift */,
+				0A3A53D32D9D41B300E263E7 /* BlockaidFactory.swift */,
+				0A3A53D82D9E743500E263E7 /* BlockaidMapper.swift */,
+			);
+			path = Blockaid;
+			sourceTree = "<group>";
+		};
+		0A2261892D9AC66F004DC848 /* DTOs */ = {
+			isa = PBXGroup;
+			children = (
+				0A22618C2D9AC79B004DC848 /* BlockaidDTO.swift */,
+				0A3A53C72D9C47B400E263E7 /* Chain.swift */,
+				0A22618A2D9AC699004DC848 /* SiteScan.swift */,
+				0A3A53CF2D9D36D600E263E7 /* EvmScan.swift */,
+				0A3A53D12D9D399C00E263E7 /* SolanaScan.swift */,
+				0A3A53C92D9D276B00E263E7 /* Common.swift */,
+			);
+			path = DTOs;
+			sourceTree = "<group>";
+		};
+		0A3A53D52D9D88BA00E263E7 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				0A3A53D62D9D8AE600E263E7 /* BlockaidChainScanResult.swift */,
+				0A3A53DA2D9EB31E00E263E7 /* BlockaidSiteScanResult.swift */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
 		0A7FF63B2C888D180072C2E8 /* StakingAnalytics */ = {
 			isa = PBXGroup;
 			children = (
@@ -8000,6 +8062,7 @@
 		5DDE22F32609020E008657C6 /* WalletConnect */ = {
 			isa = PBXGroup;
 			children = (
+				0A2261862D9AC61F004DC848 /* Blockaid */,
 				DC0A5848282C07750031BECC /* OldServices */,
 				DC981CDD2D802E2C00C3D2AA /* Old */,
 				B03AEEAE29596D9100212267 /* WebSocket */,
@@ -18373,6 +18436,7 @@
 				B600F4D92C50F73E008E53FE /* MarketsHistoryChartXAxisValueFormatter.swift in Sources */,
 				DCE2F7E02CE3532300BDE145 /* ActionButtonsSellRoutable.swift in Sources */,
 				B08394E12B2998580025176F /* VisaConfig.swift in Sources */,
+				0A3A53CA2D9D276B00E263E7 /* Common.swift in Sources */,
 				EF666C282A2DFA1C0044986F /* View+BottomSheet.swift in Sources */,
 				B0E1CED62B19B682006DDF98 /* PendingExpressTxStatusBottomSheetViewModel.swift in Sources */,
 				B600F4E22C50F7D8008E53FE /* LineChartViewConfigurator.swift in Sources */,
@@ -18395,6 +18459,7 @@
 				DC7127AB2897EC6B00F60F71 /* Start2CoinConfig.swift in Sources */,
 				EFC98FFD2CD3A3F80098B7C8 /* OnrampPaymentMethodRowView.swift in Sources */,
 				EFC98FFE2CD3A3F80098B7C8 /* OnrampPaymentMethodsView.swift in Sources */,
+				0A3A53C82D9C47B400E263E7 /* Chain.swift in Sources */,
 				EFC98FFF2CD3A3F80098B7C8 /* OnrampPaymentMethodsViewModel.swift in Sources */,
 				EFC990002CD3A3F80098B7C8 /* OnrampPaymentMethodsRoutable.swift in Sources */,
 				EFC990012CD3A3F80098B7C8 /* OnrampPaymentMethodRowViewData.swift in Sources */,
@@ -18678,6 +18743,7 @@
 				EF0B63F42C54116000365A50 /* UnstakingFlowBaseBuilder.swift in Sources */,
 				B05A3DE62D004E7900595A1E /* VisaOnboardingTangemWalletDeployApproveViewModel.swift in Sources */,
 				B0C616642AFBA56E00ABADF0 /* ThemeSelectionViewModel.swift in Sources */,
+				0A3A53D22D9D399C00E263E7 /* SolanaScan.swift in Sources */,
 				B05919022A0BCD0800EB8005 /* MainHeaderView.swift in Sources */,
 				EFE7D5792AA201CB0047D93A /* PercentFormatter.swift in Sources */,
 				B6FB04E72B1FEF13000BB59E /* StatusBarStyleConfigurator.swift in Sources */,
@@ -18718,11 +18784,13 @@
 				B0B9E0B62629779500408726 /* AlertBinder.swift in Sources */,
 				B0958BA429F6A796007CD76D /* TokenItemView.swift in Sources */,
 				B6ACD0122AD6A888005A6CA3 /* OrganizeTokensDragAndDropGestureContextProvider.swift in Sources */,
+				0A3A53D92D9E743500E263E7 /* BlockaidMapper.swift in Sources */,
 				B04CD34029122C6E001EA84A /* ReferralCoordinator.swift in Sources */,
 				2D93C4EB2D7043E8002BCCE2 /* CommonExpressRefcodeProvider.swift in Sources */,
 				EFFE2CE928B8E0B300B9F279 /* UserWalletModel.swift in Sources */,
 				B079DB722AEB937D00D2D0D5 /* Analytics+DebugEvent.swift in Sources */,
 				B085154D26D7797400E1A836 /* TwinsOnboardingView.swift in Sources */,
+				0A3A53D42D9D41B300E263E7 /* BlockaidFactory.swift in Sources */,
 				B008E13E2980264D006E0E31 /* WebSocketEvent.swift in Sources */,
 				EF914D4E2A604615001F00B2 /* QuotesDTO.swift in Sources */,
 				B0CCA7222568FD0F009325E3 /* TwinsCreateWalletTask.swift in Sources */,
@@ -18752,6 +18820,7 @@
 				EF8DBCE02C060CCE009072CF /* StakingDependenciesFactory.swift in Sources */,
 				B0A948FF2ACD999C00C80B0A /* WeakifyFunction.swift in Sources */,
 				EFEE22BF2BFCF3450099917E /* BlockchainSDKNotificationMapper.swift in Sources */,
+				0A3A53D02D9D36D600E263E7 /* EvmScan.swift in Sources */,
 				DC70C0002B924DA6002205BA /* SecurityOptionChangingMock.swift in Sources */,
 				DAFD691627CDEB7F00B36C71 /* CombinedExchangeService.swift in Sources */,
 				B6DF90572CA2FA0F0099FED5 /* UINavigationController+.swift in Sources */,
@@ -19256,6 +19325,7 @@
 				B05919042A0BCD1100EB8005 /* MainHeaderViewModel.swift in Sources */,
 				B08E995F2D9FD168008F367F /* EmailConfig.swift in Sources */,
 				B0406BB62A402462006452C2 /* PagerWithDots.swift in Sources */,
+				0A22618D2D9AC79B004DC848 /* BlockaidDTO.swift in Sources */,
 				EFD68F372CC2F58900693C97 /* OnrampIdentityMock.swift in Sources */,
 				DAF59CC82ACC4E37004FCA86 /* AlertFieldValidator.swift in Sources */,
 				B0A1B4802A42C78300376FCC /* TokenDetailsHeaderViewModel.swift in Sources */,
@@ -19437,6 +19507,7 @@
 				5DDFC2022812B716005976FE /* CurrenciesResponse.swift in Sources */,
 				DC742C2F2BC85E5E00BECF09 /* CardInitializer.swift in Sources */,
 				EF9241362934E25900C28551 /* IconURLBuilder.swift in Sources */,
+				0A2261882D9AC634004DC848 /* BlockaidAPIService.swift in Sources */,
 				5D51036F27C535D10025EA55 /* ABIValue.swift in Sources */,
 				2D42AA592C6379DC006A2FD4 /* Analytics+Markets.swift in Sources */,
 				EFE5EC552AEC2AF400C5ADC3 /* Toast.swift in Sources */,
@@ -19655,6 +19726,7 @@
 				B091D7482AA0DBA000ACB6E2 /* AppUtils.swift in Sources */,
 				EF661E3228C0ACD1005769E5 /* ScanCardWarningView.swift in Sources */,
 				2D5DCC2E2C3309F1000EE379 /* MarketsTokensNetworkSelectorItemView.swift in Sources */,
+				0A3A53D72D9D8AE600E263E7 /* BlockaidChainScanResult.swift in Sources */,
 				B63127D82A2F83DF007C124C /* OrganizeTokensListItemViewModel.swift in Sources */,
 				DC2891692CD4ADD400F57F59 /* CommonBuyTokenAvailabilitySorter.swift in Sources */,
 				DC51185F28609F67004FB954 /* CardOperationViewModel.swift in Sources */,
@@ -19675,6 +19747,7 @@
 				B0A1BC172C296B7800DECCFD /* MarketsTokenDetailsCoordinatorView.swift in Sources */,
 				EF5903A829092BC600C527C9 /* FeatureProvider.swift in Sources */,
 				B0D18AC52D37A2D7009357AD /* VisaOnboardingWalletConnectViewModel.swift in Sources */,
+				0A22618F2D9AC8A9004DC848 /* BlockaidTarget.swift in Sources */,
 				EF57693E2A8BAF6700901571 /* TransactionHistoryService.swift in Sources */,
 				3074E1D62D943C28008235E6 /* OptionalProtocol.swift in Sources */,
 				B0CAE5AB2AAB275C00670C2B /* MultiWalletMainContentDelegate.swift in Sources */,
@@ -19708,6 +19781,7 @@
 				B0B4556925E0E63000D7572F /* FailedCardScanTracker.swift in Sources */,
 				EFEBCE2B29265CF300B0C886 /* TokenIconInfo.swift in Sources */,
 				EFD68F342CC2D29C00693C97 /* OnrampCountryDetectionRoutable.swift in Sources */,
+				0A3A53DB2D9EB31E00E263E7 /* BlockaidSiteScanResult.swift in Sources */,
 				DC66BBF5285A14CB00CDF765 /* WelcomeViewLifecycleListener.swift in Sources */,
 				EFA6B04729533C860090A92F /* ResetToFactoryViewRoutable.swift in Sources */,
 				EF339E512C21FCCC00B5CDC9 /* SendFeeProvider.swift in Sources */,
@@ -19918,6 +19992,7 @@
 				DA10101D2CDA4D7F00EE0D05 /* OnrampCountryView.swift in Sources */,
 				B6FB04EB2B1FF022000BB59E /* StatusBarStyleConfigurator+Environment.swift in Sources */,
 				B06C08502A73FB4E00D982BC /* MainRoutable.swift in Sources */,
+				0A22618B2D9AC699004DC848 /* SiteScan.swift in Sources */,
 				B01149412B56B66E00695FCD /* VisaNotificationEvent.swift in Sources */,
 				B036625F2B6384AE0064E073 /* VisaTransactionDetailsViewModel.swift in Sources */,
 				B68EF4822A9C22B800E2AC5B /* LockedWalletMainContentViewModel.swift in Sources */,
@@ -19931,6 +20006,7 @@
 				EF9E2A472B5532A600418559 /* ExpressCurrencyViewModel.swift in Sources */,
 				DA559C4A2B02622600F59584 /* SendRoutableMock.swift in Sources */,
 				DC1DA9312D555422003638ED /* UIEnvironment.swift in Sources */,
+				0AC6307A2DACE616006A7DEC /* CommonBlockaidAPIService.swift in Sources */,
 				DA7D86F22C584B6600D85866 /* CustomKaspaFeeService.swift in Sources */,
 				DC9632662C51434C009B250A /* CommonTokenFinder.swift in Sources */,
 				B08E995A2D9E709E008F367F /* Analytics+Visa.swift in Sources */,
