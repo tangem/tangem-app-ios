@@ -23,7 +23,14 @@ struct StoryView: View {
         GeometryReader { proxy in
             ZStack(alignment: .top) {
                 preiOS18Gestures(proxy)
+
                 pageViews[viewModel.visiblePageIndex]
+                    .if(Self.iOS18Available) { content in
+                        content
+                            .gesture(longTapGesture)
+                            .highPriorityGesture(shortTapGesture(proxy))
+                    }
+
                 overlayElements
             }
             .if(Self.iOS18Available) { content in
@@ -113,8 +120,6 @@ struct StoryView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        // [REDACTED_USERNAME], this is a fix for iOS 18 gesture interference with ScrollView that is used under the hood in host view.
-        .gesture(DragGesture(minimumDistance: 0))
     }
 
     private static var iOS18Available: Bool {
