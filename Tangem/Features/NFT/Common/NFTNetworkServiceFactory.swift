@@ -36,7 +36,10 @@ struct NFTNetworkServiceFactory {
             return MoralisNFTNetworkService(
                 networkConfiguration: TangemProviderConfiguration.ephemeralConfiguration,
                 headers: [
-                    Constants.xAPIKeyHeaderName: keysManager.moralisAPIKey,
+                    APIHeaderKeyInfo(
+                        headerName: Constants.xAPIKeyHeaderName,
+                        headerValue: keysManager.moralisAPIKey
+                    ),
                 ],
                 chain: nftChain
             )
@@ -44,7 +47,10 @@ struct NFTNetworkServiceFactory {
             return NFTScanNFTNetworkService(
                 networkConfiguration: TangemProviderConfiguration.ephemeralConfiguration,
                 headers: [
-                    Constants.xAPIKeyHeaderName: keysManager.nftScanAPIKey,
+                    APIHeaderKeyInfo(
+                        headerName: Constants.xAPIKeyHeaderName,
+                        headerValue: keysManager.nftScanAPIKey
+                    ),
                 ],
                 chain: nftChain
             )

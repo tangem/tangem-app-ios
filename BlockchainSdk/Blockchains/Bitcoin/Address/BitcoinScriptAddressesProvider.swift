@@ -9,5 +9,5 @@
 import Foundation
 
 protocol BitcoinScriptAddressesProvider {
-    func makeAddresses(publicKey: Wallet.PublicKey, pairPublicKey: Data) throws -> [BitcoinScriptAddress]
+    func makeAddresses(publicKey: Wallet.PublicKey, pairPublicKey: Data) throws -> [LockingScriptAddress]
 }
