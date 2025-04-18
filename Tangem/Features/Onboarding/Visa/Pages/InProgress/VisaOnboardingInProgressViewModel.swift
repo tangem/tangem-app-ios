@@ -10,12 +10,15 @@ import Foundation
 import TangemLocalization
 import Combine
 import TangemFoundation
+import TangemVisa
 
 protocol VisaOnboardingInProgressDelegate: VisaOnboardingAlertPresenter {
     func canProceedOnboarding() async throws -> Bool
     @MainActor
     func proceedFromCurrentRemoteState() async
     func openBrowser(at url: URL, onSuccess: @escaping (URL) -> Void)
+    @MainActor
+    func navigateToPINCode(withError error: VisaActivationError) async
 }
 
 class VisaOnboardingInProgressViewModel: ObservableObject {
@@ -63,18 +66,26 @@ class VisaOnboardingInProgressViewModel: ObservableObject {
                 scheduler.cancel()
                 await delegate?.proceedFromCurrentRemoteState()
             }
+        } catch let error as VisaActivationError {
+            sendErrorToAnalytics(error)
+            scheduler.cancel()
+            await delegate?.navigateToPINCode(withError: error)
         } catch {
             if !error.isCancellationError {
-                Analytics.log(event: .visaErrors, params: [
-                    .errorCode: "\(error.universalErrorCode)",
-                    .source: Analytics.ParameterValue.onboarding.rawValue,
-                ])
+                sendErrorToAnalytics(error)
                 scheduler.cancel()
                 await delegate?.showAlertAsync(
                     error.makeUniversalErrorAlertBinder(okAction: weakify(self, forFunction: VisaOnboardingInProgressViewModel.setupRefresh))
                 )
             }
         }
+    }
+
+    private func sendErrorToAnalytics(_ error: Error) {
+        Analytics.log(event: .visaErrors, params: [
+            .errorCode: "\(error.universalErrorCode)",
+            .source: Analytics.ParameterValue.onboarding.rawValue,
+        ])
     }
 }
 
