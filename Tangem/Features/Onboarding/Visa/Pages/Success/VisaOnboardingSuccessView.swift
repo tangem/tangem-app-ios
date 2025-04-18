@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemUI
 
 struct VisaOnboardingSuccessView: View {
     let fireConfetti: Binding<Bool>
