@@ -89,4 +89,10 @@ public struct VisaCardActivationOrder: Codable {
     public let id: String
     public let customerId: String
     public let customerWalletAddress: String
+    public let updatedAt: Date?
+    public let stepChangeCode: Int?
+}
+
+enum CardActivationOrderStepChangeCode: Int {
+    case pinValidation = 1000
 }
