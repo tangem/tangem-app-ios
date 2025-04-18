@@ -6,12 +6,11 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import BitcoinCore
-@testable import BlockchainSdk
 import Testing
+@testable import BlockchainSdk
 
 struct KoinosAddressTests {
-    private let addressService = KoinosAddressService(networkParams: BitcoinNetwork.mainnet.networkParams)
+    private let addressService = KoinosAddressService(networkParams: BitcoinNetworkParams())
 
     @Test(arguments: [
         ("03B2D98CF41E82D9B99842A1D05860A1B06532015138F9067239706E06EE38E621", "1AYz8RCnoafLnifMjJbgNb2aeW5CbZj8Tp"),

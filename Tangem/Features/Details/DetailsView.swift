@@ -44,6 +44,7 @@ struct DetailsView: View {
             )
         )
         .alert(item: $viewModel.alert) { $0.alert }
+        .actionSheet(item: $viewModel.actionSheet, content: { $0.sheet })
         .navigationTitle(Localization.detailsTitle)
         .navigationBarTitleDisplayMode(.inline)
         .onAppear(perform: viewModel.onAppear)
