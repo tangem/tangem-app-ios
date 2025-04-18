@@ -186,13 +186,12 @@ class VisaOnboardingViewModel: ObservableObject {
             ]
         )
 
-        // [REDACTED_TODO_COMMENT]
-        let emailConfig = input.cardInput.config?.emailConfig ?? .default
+        let emailConfig = input.cardInput.config?.emailConfig ?? .visaDefault()
 
         coordinator?.openMail(
             with: dataCollector,
             recipient: emailConfig.recipient,
-            emailType: .appFeedback(subject: emailConfig.subject)
+            emailType: .visaFeedback(subject: .activation)
         )
     }
 
@@ -348,6 +347,11 @@ extension VisaOnboardingViewModel: VisaOnboardingInProgressDelegate {
 
     func openBrowser(at url: URL, onSuccess: @escaping (URL) -> Void) {
         coordinator?.openBrowser(at: url, onSuccess: onSuccess)
+    }
+
+    func navigateToPINCode(withError error: VisaActivationError) async {
+        pinSelectionViewModel.setupInvalidPinState()
+        goToStep(.pinSelection)
     }
 }
 
