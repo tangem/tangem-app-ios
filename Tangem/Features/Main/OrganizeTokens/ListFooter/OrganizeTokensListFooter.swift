@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 
 struct OrganizeTokensListFooter: View {
     let viewModel: OrganizeTokensViewModel
