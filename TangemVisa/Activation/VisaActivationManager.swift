@@ -59,6 +59,7 @@ final class CommonVisaActivationManager {
     }
 
     private var selectedAccessCode: String?
+    private var lastLoadedActivationStatus: VisaCardActivationStatus?
 
     private let authorizationTokensHandler: VisaAuthorizationTokensHandler
     private let tangemSdk: TangemSdk
@@ -187,19 +188,34 @@ extension CommonVisaActivationManager: VisaActivationManager {
         }
 
         let loadedState = loadedStatus.activationRemoteState
+
         guard loadedState != activationRemoteState else {
             return loadedState
         }
 
-        if case .activated = loadedState {
-            try await saveActivatedCardRefreshToken()
+        // Check if new status is not related to PIN validation
+        var pinStatusError: VisaActivationError?
+        do {
+            try checkPinStatus(newStatus: loadedStatus)
+        } catch {
+            pinStatusError = error
         }
+
+        lastLoadedActivationStatus = loadedStatus
 
         updateActivationStatus(
             toState: loadedState,
             using: activationInput,
             authorizationTokens: authorizationTokens
         )
+
+        if let pinStatusError {
+            throw pinStatusError
+        }
+
+        if case .activated = loadedState {
+            try await saveActivatedCardRefreshToken()
+        }
 
         return loadedState
     }
@@ -496,6 +512,45 @@ private extension CommonVisaActivationManager {
         } catch {
             VisaLogger.error("Failed to retreive activated card refresh token", error: error)
             throw .underlyingError(error)
+        }
+    }
+}
+
+// MARK: - Activation status handling
+
+private extension CommonVisaActivationManager {
+    func checkPinStatus(newStatus: VisaCardActivationStatus) throws(VisaActivationError) {
+        // If BFF returns stepChangeCode for waitingPinCode state it means that external service
+        // mark selected PIN code as invalid and we need to show user an error of invalid PIN
+        let invalidPinStepChangeCode = CardActivationOrderStepChangeCode.pinValidation.rawValue
+        guard
+            newStatus.activationOrder.stepChangeCode == invalidPinStepChangeCode,
+            newStatus.activationRemoteState == .waitingPinCode
+        else {
+            return
+        }
+
+        guard let lastLoadedActivationStatus else {
+            // If after first update of status we receive stepChangeCode we already know
+            // that PIN validation was failed on extenral service
+            throw .paymentologyPinError
+        }
+
+        switch lastLoadedActivationStatus.activationRemoteState {
+        case .waitingPinCode, .waitingForActivationFinishing:
+            // If previous stored activation state is related to PIN we need to check if dates are the same
+            break
+        default:
+            // If previous stored activation state not related to PIN code we continue state validation
+            return
+        }
+
+        guard lastLoadedActivationStatus.activationOrder.updatedAt == newStatus.activationOrder.updatedAt else {
+            throw .paymentologyPinError
+        }
+
+        if newStatus.activationRemoteState == .waitingPinCode {
+            throw .paymentologyPinError
         }
     }
 }

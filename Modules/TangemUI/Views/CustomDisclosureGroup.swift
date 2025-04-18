@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import TangemUI
 
 public struct CustomDisclosureGroup<Prompt: View, ExpandedView: View>: View {
     private let actionOnClick: () -> Void
