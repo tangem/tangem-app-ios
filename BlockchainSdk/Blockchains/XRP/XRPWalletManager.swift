@@ -176,7 +176,7 @@ extension XRPWalletManager: RequiredMemoRestrictable {
 
         let isMemoRequired = try await networkService.checkAccountDestinationTag(account: destination).async()
 
-        // Skip verify destinationTag if memo not requiured
+        // This error will work if the destination parameters are not received, and the recipient's account requires the tag after verification.
         if isMemoRequired {
             throw ValidationError.destinationMemoRequired
         }
