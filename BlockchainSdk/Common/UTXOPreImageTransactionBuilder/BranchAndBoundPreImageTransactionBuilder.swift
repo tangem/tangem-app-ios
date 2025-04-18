@@ -275,19 +275,20 @@ private extension BranchAndBoundPreImageTransactionBuilder {
             case .exactly(let fee): fee
             }
 
-            // Calculation fee with spending all outputs -> skip validation
-            // Use exactly fee -> Validate
-            // Calculation fee with using not all outputs -> Validate(to skip case when outputs is not enough for fee)
-
             // Skip validation it's isCalculation and
             // We spend all outputs and fee calculation
             if context.fee.isCalculation, inputs.count == context.allOutputsCount {
-                // Do nothing
-            } else if change >= fee {
-                throw VariantError.notEnoughForFee
-            } else {
+                // The change may be negative value
                 change -= fee
+
+                return UTXOPreImageTransaction(outputs: inputs, destination: recipientValue, change: change, fee: fee, size: size)
             }
+
+            guard change <= fee else {
+                throw VariantError.notEnoughForFee
+            }
+
+            change -= fee
 
             // Remaining change should be 0
             guard change == 0 else {
