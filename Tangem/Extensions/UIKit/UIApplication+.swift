@@ -31,7 +31,7 @@ extension UIApplication {
 
         if top.isBeingDismissed || top.isBeingPresented {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                modalFromTop(vc)
+                modalFromTop(vc, completion: completion)
             }
         } else {
             top.present(vc, animated: animated, completion: completion)
