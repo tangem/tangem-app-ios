@@ -31,14 +31,14 @@ struct ChiaTransactionTests {
 
         // when
         let solution1 = try "ffffff33ffa0" +
-            ChiaPuzzleUtils().getPuzzleHash(from: address).hexString.lowercased() + "ff8" + String(encodedAmount.count) + encodedAmount.hexString.lowercased() + "808080"
+            ChiaPuzzleUtils().getPuzzleHash(from: address).hex() + "ff8" + String(encodedAmount.count) + encodedAmount.hex() + "808080"
 
         let condition = try CreateCoinCondition(
             destinationPuzzleHash: ChiaPuzzleUtils().getPuzzleHash(from: address),
             amount: amount
         ).toProgram()
 
-        let solution2 = try ClvmProgram.from(list: [ClvmProgram.from(list: [condition])]).serialize().hexString.lowercased()
+        let solution2 = try ClvmProgram.from(list: [ClvmProgram.from(list: [condition])]).serialize().hex()
 
         // then
         #expect(solution1.lowercased() == solution2.lowercased())
@@ -100,8 +100,8 @@ struct ChiaTransactionTests {
 
         // then
         #expect(buildToSignResult == [expectedHashToSign1])
-        let signedTransactionEncoded = try jsonEncoder.encode(signedTransaction).hexString
-        let expectedTransactionEncoded = try jsonEncoder.encode(expectedSignedTransaction).hexString
+        let signedTransactionEncoded = try jsonEncoder.encode(signedTransaction).hex()
+        let expectedTransactionEncoded = try jsonEncoder.encode(expectedSignedTransaction).hex()
         #expect(signedTransactionEncoded == expectedTransactionEncoded)
     }
 
@@ -187,8 +187,8 @@ struct ChiaTransactionTests {
 
         // then
         #expect(buildToSignResult == hashesToSign)
-        let signedTransactionEncoded = try jsonEncoder.encode(signedTransaction).hexString
-        let expectedTransactionEncoded = try jsonEncoder.encode(expectedSignedTransaction).hexString
+        let signedTransactionEncoded = try jsonEncoder.encode(signedTransaction).hex()
+        let expectedTransactionEncoded = try jsonEncoder.encode(expectedSignedTransaction).hex()
         #expect(signedTransactionEncoded == expectedTransactionEncoded)
     }
 
@@ -197,7 +197,7 @@ struct ChiaTransactionTests {
         let amountValue: Int64 = 10000000
         let encodedValue = amountValue.chiaEncoded
 
-        #expect(encodedValue.hexString == "00989680")
+        #expect(encodedValue.hex(.uppercase) == "00989680")
     }
 
     @Test
@@ -205,6 +205,6 @@ struct ChiaTransactionTests {
         let amountValue: Int64 = 235834596465
         let encodedValue = amountValue.chiaEncoded
 
-        #expect(encodedValue.hexString == "36E8D65C71")
+        #expect(encodedValue.hex(.uppercase) == "36E8D65C71")
     }
 }

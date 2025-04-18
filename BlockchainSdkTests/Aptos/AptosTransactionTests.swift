@@ -118,7 +118,7 @@ struct AptosTransactionTests {
         // Validate hash size
         TransactionSizeTesterUtility().testTxSizes([signature ?? Data()])
         #expect(rawSignatureHex == expectedSignatureHex)
-        #expect(buildForSign.hexString.lowercased() == expectedBuildForSign)
+        #expect(buildForSign.hex() == expectedBuildForSign)
         #expect(signature != nil)
     }
 }

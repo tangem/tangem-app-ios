@@ -14,7 +14,7 @@ struct RskAddressService {
     private func toChecksumAddress(_ address: String) -> String? {
         let lowercasedAddress = address.lowercased()
         let addressToHash = "30\(lowercasedAddress)"
-        guard let hash = addressToHash.data(using: .utf8)?.sha3(.keccak256).hexString.lowercased().removeHexPrefix() else {
+        guard let hash = addressToHash.data(using: .utf8)?.sha3(.keccak256).hex().removeHexPrefix() else {
             return nil
         }
 
@@ -45,7 +45,7 @@ extension RskAddressService: AddressProvider {
         // Skip secp256k1 prefix
         let keccak = walletPublicKey[1...].sha3(.keccak256)
         let addressBytes = keccak[12...]
-        let address = addressBytes.hexString.addHexPrefix()
+        let address = addressBytes.hex().addHexPrefix()
 
         guard let checksumAddress = toChecksumAddress(address) else {
             throw Error.failedToGetChecksumAddress

@@ -28,7 +28,7 @@ struct DecimalAddressConverter: EthereumAddressConverter {
 
         let addressBytes = Data(hexString: address)
 
-        return bech32.encode(Constants.addressPrefix, values: addressBytes)
+        return try bech32.encode(Constants.addressPrefix, values: addressBytes)
     }
 
     func convertToETHAddress(_ address: String) throws -> String {
