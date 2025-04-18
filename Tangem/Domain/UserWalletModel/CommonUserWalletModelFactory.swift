@@ -75,6 +75,8 @@ struct CommonUserWalletModelFactory {
             longHashesSupported: config.hasFeature(.longHashes)
         )
 
+        let nftManager = CommonNFTManager(walletModelsManager: walletModelsManager)
+
         let model = CommonUserWalletModel(
             cardInfo: cardInfo,
             config: config,
@@ -84,6 +86,7 @@ struct CommonUserWalletModelFactory {
             walletModelsManager: walletModelsManager,
             userTokensManager: userTokensManager,
             userTokenListManager: userTokenListManager,
+            nftManager: nftManager,
             keysRepository: keysRepository,
             derivationManager: derivationManager,
             totalBalanceProvider: totalBalanceProvider

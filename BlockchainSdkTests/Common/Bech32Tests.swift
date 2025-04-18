@@ -8,9 +8,6 @@
 
 import Foundation
 import Testing
-import TangemSdk
-import BitcoinCore
-import Sodium
 @testable import BlockchainSdk
 
 struct Bech32Tests {
@@ -163,7 +160,7 @@ struct Bech32Tests {
 
         for pair in pairs {
             let decoded = try #require(CashAddrBech32.decode(pair.key))
-            #expect(decoded.data.dropFirst().hexString == pair.value)
+            #expect(decoded.data.dropFirst().hex(.uppercase) == pair.value)
             #expect(CashAddrBech32.encode(decoded.data, prefix: decoded.prefix) == pair.key)
         }
     }
