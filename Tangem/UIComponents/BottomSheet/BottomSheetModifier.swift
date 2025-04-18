@@ -46,7 +46,7 @@ struct BottomSheetModifier<Item: Identifiable, ContentView: View>: ViewModifier 
             .onChange(of: item?.id) { _ in update(item: item) }
     }
 
-    func update(item: Item?) {
+    private func update(item: Item?) {
         if let item = item {
             let controller = updateUIController(item: item)
             showController(controller)
@@ -77,13 +77,13 @@ struct BottomSheetModifier<Item: Identifiable, ContentView: View>: ViewModifier 
         return controller
     }
 
-    func showController(_ controller: UIViewController) {
+    private func showController(_ controller: UIViewController) {
         UIApplication.modalFromTop(controller, animated: false) {
             sheet?.showView()
         }
     }
 
-    func hideController() {
+    private func hideController() {
         // If we have a first responder
         // Will be better to dismiss the UIViewController with animation
         // Because it provides a good animation for opening the keyboard
