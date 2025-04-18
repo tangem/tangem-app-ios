@@ -12,10 +12,18 @@ import TangemExpress
 
 struct CommonExpressTransactionBuilder: ExpressTransactionBuilder {
     func makeTransaction(wallet: any WalletModel, data: ExpressTransactionData, fee: Fee) async throws -> BlockchainSdk.Transaction {
+        var transactionParams: TransactionParams?
+
+        if let extraDestinationId = data.extraDestinationId, !extraDestinationId.isEmpty {
+            // If we received a extraId then try to map it to specific TransactionParams
+            let builder = TransactionParamsBuilder(blockchain: wallet.tokenItem.blockchain)
+            transactionParams = try builder.transactionParameters(value: extraDestinationId)
+        }
+
         let destination: TransactionCreatorDestination = try {
             switch data.transactionType {
             case .send:
-                return .send(destination: data.destinationAddress)
+                return .send(destination: data.destinationAddress, transactionParams: transactionParams)
             case .swap:
                 if let txData = data.txData {
                     return .contractCall(contract: data.destinationAddress, data: Data(hexString: txData))
@@ -25,18 +33,12 @@ struct CommonExpressTransactionBuilder: ExpressTransactionBuilder {
             }
         }()
 
-        var transaction = try await buildTransaction(
+        let transaction = try await buildTransaction(
             wallet: wallet,
             amount: data.txValue,
             fee: fee,
             destination: destination
         )
-
-        if let extraDestinationId = data.extraDestinationId, !extraDestinationId.isEmpty {
-            // If we received a extraId then try to map it to specific TransactionParams
-            let builder = TransactionParamsBuilder(blockchain: wallet.tokenItem.blockchain)
-            transaction.params = try builder.transactionParameters(value: extraDestinationId)
-        }
 
         return transaction
     }
