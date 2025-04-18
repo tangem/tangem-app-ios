@@ -53,7 +53,7 @@ class TronWalletManager: BaseManager, WalletManager {
         .flatMap { manager, data in
             manager.networkService
                 .broadcastHex(data)
-                .mapSendError(tx: data.hexString)
+                .mapSendError(tx: data.hex())
         }
         .withWeakCaptureOf(self)
         .tryMap { manager, broadcastResponse -> TransactionSendResult in
