@@ -21,6 +21,7 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     let backupInput: OnboardingInput? = nil
     let walletModelsManager: WalletModelsManager
     let userTokenListManager: UserTokenListManager
+    var nftManager: NFTManager { NFTManagerStub() }
     let userTokensManager: UserTokensManager
     let totalBalanceProvider: TotalBalanceProviding
     let signer: TangemSigner = .init(filter: .cardId(""), sdk: .init(), twinKey: nil)
