@@ -7,8 +7,8 @@
 "common_send_tx_error" = "取引の送信に失敗しました";
 "common_utxo_validate_withdrawal_message_warning" = "%1$@の制限により、1つのトランザクションに収まるUTXOは%2$li個のみです。つまり、 %3$@以下しか送信できません。量を減らす必要があります。";
 "eth_gas_required_exceeds_allowance" = "取引に必要な資金が不足しています。アカウントに入金してください。";
-"generic_error" = "エラーが発生しました";
 "generic_error_code" = "エラーが発生しました。コード: %@ 。";
+"generic_error" = "エラーが発生しました";
 "koinos_insufficient_mana_to_send_koin_description" = "この取引に必要なManaが足りません。Manaが補充されるまでお待ちください。Manaの残高は%1$@ / %2$@です。";
 "no_account_generic" = "%1$@ネットワークを使用するには、アカウント準備金 ( %2$@ %3$@ ) を支払う必要があります。これにより、その金額はロックされ、無期限に非表示になります。";
 "no_account_polkadot" = "送信先アカウントが有効ではありません。%@ 以上を送信してアカウントを有効にしてください。";

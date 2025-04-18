@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 import Foundation
+import TangemLogger
 
 public enum ForcedCTServerTrustEvaluator {
     #if ALPHA || BETA || DEBUG
@@ -15,6 +16,26 @@ public enum ForcedCTServerTrustEvaluator {
     #endif // ALPHA || BETA || DEBUG
 
     public static func evaluate(trust: SecTrust) throws {
+        var flags: [String] = []
+        #if ALPHA
+        flags.append("alpha")
+        #endif
+
+        #if BETA
+        flags.append("beta")
+        #endif
+
+        #if DEBUG
+        flags.append("debug")
+        #endif
+
+        if shouldForceCT {
+            flags.append("shouldForceCT")
+        }
+
+        let logger = Logger(category: .init(name: "TEST"))
+        logger.info("FLAGS: \(flags.joined(separator: ","))")
+
         guard shouldForceCT else {
             return
         }
