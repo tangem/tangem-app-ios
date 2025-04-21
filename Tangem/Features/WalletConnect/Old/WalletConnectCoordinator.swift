@@ -6,16 +6,22 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
 
-class WalletConnectCoordinator: CoordinatorObject {
-    var dismissAction: Action<Void>
-    var popToRootAction: Action<PopToRootOptions>
+final class WalletConnectCoordinator: CoordinatorObject {
+    @Injected(\.walletConnectService) private var walletConnectService: any OldWalletConnectService
+    @Injected(\.userWalletRepository) private var userWalletRepository: any UserWalletRepository
+
+    let dismissAction: Action<Void>
+    let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Main view model
 
-    @Published private(set) var walletConnectViewModel: OldWalletConnectViewModel? = nil
+    @MainActor
+    @Published private(set) var legacyViewModel: OldWalletConnectViewModel?
+
+    @MainActor
+    @Published private(set) var viewModel: WalletConnectViewModel?
 
     // MARK: - Child coordinators
 
@@ -27,7 +33,24 @@ class WalletConnectCoordinator: CoordinatorObject {
     }
 
     func start(with options: WalletConnectCoordinator.Options) {
-        walletConnectViewModel = OldWalletConnectViewModel(disabledLocalizedReason: options.disabledLocalizedReason, coordinator: self)
+        Task { @MainActor in
+            if FeatureProvider.isAvailable(.walletConnectUI) {
+                let establishDAppConnectionUseCase = WalletConnectEstablishDAppConnectionUseCase(
+                    userWalletRepository: userWalletRepository,
+                    uriProvider: UIPasteBoardWalletConnectURIProvider(pasteboard: .general, parser: .init()),
+                    cameraAccessProvider: AVWalletConnectCameraAccessProvider(),
+                    openSystemSettingsAction: UIApplication.openSystemSettings
+                )
+
+                viewModel = WalletConnectViewModel(
+                    walletConnectService: walletConnectService,
+                    userWalletRepository: userWalletRepository,
+                    establishDAppConnectionUseCase: establishDAppConnectionUseCase
+                )
+            } else {
+                legacyViewModel = OldWalletConnectViewModel(disabledLocalizedReason: options.disabledLocalizedReason, coordinator: self)
+            }
+        }
     }
 }
 
