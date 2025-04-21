@@ -1,6 +1,6 @@
 //
 //  Separator.swift
-//  Tangem
+//  TangemUI
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2021 Tangem AG. All rights reserved.
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct Separator: View {
+public struct Separator: View {
     @Environment(\.displayScale) private var displayScale
 
     private let height: Height
@@ -24,7 +24,7 @@ struct Separator: View {
         }
     }
 
-    var body: some View {
+    public var body: some View {
         switch axis {
         case .horizontal:
             color
@@ -35,14 +35,14 @@ struct Separator: View {
         }
     }
 
-    init(height: Height = .exact(1), color: Color, axis: Axis = .horizontal) {
+    public init(height: Height = .exact(1), color: Color, axis: Axis = .horizontal) {
         self.height = height
         self.color = color
         self.axis = axis
     }
 }
 
-extension Separator {
+public extension Separator {
     enum Height {
         case exact(Double)
         case minimal

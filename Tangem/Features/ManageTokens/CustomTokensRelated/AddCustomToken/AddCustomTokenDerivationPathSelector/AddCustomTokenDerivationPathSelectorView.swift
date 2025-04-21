@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemUI
 import TangemSdk
 
 struct AddCustomTokenDerivationPathSelectorView: View {
