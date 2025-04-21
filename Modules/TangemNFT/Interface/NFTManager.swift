@@ -1,16 +1,17 @@
 //
 //  NFTManager.swift
-//  Tangem
+//  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import Combine
-import TangemNFT
+import TangemFoundation
 
-protocol NFTManager {
+public typealias NFTManagerState = LoadingValue<[NFTCollection]>
+
+public protocol NFTManager {
     var collections: [NFTCollection] { get }
     var collectionsPublisher: AnyPublisher<[NFTCollection], Never> { get }
     var statePublisher: AnyPublisher<NFTManagerState, Never> { get }

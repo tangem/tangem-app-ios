@@ -9,6 +9,7 @@
 import BlockchainSdk
 import Combine
 import TangemSdk
+import TangemNFT
 
 protocol UserWalletModel:
     MainHeaderSupplementInfoProvider,

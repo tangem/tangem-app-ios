@@ -149,44 +149,50 @@ extension NFTCollectionsList {
 
 #if DEBUG
 #Preview("Multiple collections") {
-    NavigationView {
-        ZStack {
-            Colors.Background.secondary
-            NFTCollectionsList(
-                viewModel: .init(
-                    collections: (0 ... 20).map {
-                        NFTCollection(
-                            collectionIdentifier: "some-\($0)",
-                            chain: .solana,
-                            contractType: .erc1155,
-                            ownerAddress: "",
-                            name: "My awesome collection",
-                            description: "",
-                            logoURL: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!,
-                            assetsCount: 12,
-                            assets: (0 ... 3).map {
-                                NFTAsset(
-                                    assetIdentifier: "some-\($0)",
-                                    collectionIdentifier: "some1",
-                                    chain: .solana,
-                                    contractType: .splToken2022,
-                                    ownerAddress: "",
-                                    name: "My asset",
-                                    description: "",
-                                    media: NFTAsset.Media(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
-                                    rarity: nil,
-                                    traits: []
-                                )
-                            }
-                        )
-                    },
-                    nftChainIconProvider: DummyProvider()
+    ZStack {
+        Colors.Background.secondary
+        NFTCollectionsList(
+            viewModel: .init(
+                nftManager: NFTManagerMock(
+                    state: .loaded(
+                        (0 ... 20).map {
+                            NFTCollection(
+                                collectionIdentifier: "some-\($0)",
+                                chain: .solana,
+                                contractType: .erc1155,
+                                ownerAddress: "0x79D21ca8eE06E149d296a32295A2D8A97E52af52",
+                                name: "My awesome collection",
+                                description: "",
+                                logoURL: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!,
+                                assetsCount: nil,
+                                assets: (0 ... 3).map {
+                                    NFTAsset(
+                                        assetIdentifier: "some-\($0)",
+                                        collectionIdentifier: "some1",
+                                        chain: .solana,
+                                        contractType: .splToken2022,
+                                        ownerAddress: "",
+                                        name: "My asset",
+                                        description: "",
+                                        media: NFTAsset.Media(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
+                                        rarity: nil,
+                                        traits: []
+                                    )
+                                }
+                            )
+                        }
+                    )
+                ),
+                chainIconProvider: DummyProvider(),
+                coordinator: NFTCollectionsCoordinator(
+                    nftManager: NFTManagerMock(state: .loaded([])),
+                    chainIconProvider: DummyProvider()
                 )
             )
-            .padding(.horizontal, 16)
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationTitle("NFT collections")
-        }
+        )
+        .padding(.horizontal, 16)
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle("NFT collections")
     }
 }
 
@@ -195,8 +201,12 @@ extension NFTCollectionsList {
         Colors.Background.secondary
         NFTCollectionsList(
             viewModel: .init(
-                collections: [],
-                nftChainIconProvider: DummyProvider()
+                nftManager: NFTManagerMock(state: .loaded([])),
+                chainIconProvider: DummyProvider(),
+                coordinator: NFTCollectionsCoordinator(
+                    nftManager: NFTManagerMock(state: .loaded([])),
+                    chainIconProvider: DummyProvider()
+                )
             )
         )
         .padding(.horizontal, 16)
