@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import struct TangemUI.TokenIconInfo
 
 typealias TokenItemInfoProviderItem = (id: WalletModelId, provider: TokenItemInfoProvider, tokenItem: TokenItem, tokenIconInfo: TokenIconInfo)
 
