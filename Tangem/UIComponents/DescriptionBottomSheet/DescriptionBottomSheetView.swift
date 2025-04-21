@@ -84,6 +84,7 @@ private extension DescriptionBottomSheetView {
         }
     }
 
+    /// - Note: Can't be replaced with `TangemUI.CloseButton` due to use of custom paddings.
     var closeButton: some View {
         Button(action: {
             dismissSheetAction()
