@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 import TangemFoundation
 
 final class KaspaWalletManager: BaseManager, WalletManager {

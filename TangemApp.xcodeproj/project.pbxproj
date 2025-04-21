@@ -303,6 +303,7 @@
 		2DFC27942C78E833009B247E /* TokenItemType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC27902C78E833009B247E /* TokenItemType.swift */; };
 		2DFC27962C78E881009B247E /* MarketsPortfolioTokenItemFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC27952C78E881009B247E /* MarketsPortfolioTokenItemFactory.swift */; };
 		30005CD82D5CC9BD00CB41AE /* VanarExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30005CD72D5CC9B100CB41AE /* VanarExternalLinkProvider.swift */; };
+		300C26342DAFA29600C7E0B0 /* CombineExt in Frameworks */ = {isa = PBXBuildFile; productRef = 300C26332DAFA29600C7E0B0 /* CombineExt */; };
 		300E06BD2D7734F8006317EC /* ICPAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300E06BC2D7734ED006317EC /* ICPAddressTests.swift */; };
 		300E06BF2D7736EC006317EC /* KaspaAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300E06BE2D7736E2006317EC /* KaspaAddressTests.swift */; };
 		300E06C12D773D25006317EC /* LitecoinAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300E06C02D773D1D006317EC /* LitecoinAddressTests.swift */; };
@@ -1962,7 +1963,7 @@
 		B68728712B7D48F10090C24F /* BlockchainAccountCreateResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68728702B7D48F10090C24F /* BlockchainAccountCreateResult.swift */; };
 		B687E9492A2D881C00BFF604 /* View+ReadContentOffset.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687E9482A2D881C00BFF604 /* View+ReadContentOffset.swift */; };
 		B68B356B2A4B0FAB0069129F /* UIAppearanceBoundaryContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68B356A2A4B0FAB0069129F /* UIAppearanceBoundaryContainerView.swift */; };
-		B68BE0B92D761D0000779F84 /* NFTDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68BE0B82D761D0000779F84 /* NFTDataProvider.swift */; };
+		B68BE0B92D761D0000779F84 /* NFTFeatureLifecycleHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68BE0B82D761D0000779F84 /* NFTFeatureLifecycleHandler.swift */; };
 		B68E1F6D2CBC44060043E598 /* BlockchainSdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B68E1F652CBC44050043E598 /* BlockchainSdk.framework */; };
 		B68E1F752CBC44060043E598 /* BlockchainSdk.h in Headers */ = {isa = PBXBuildFile; fileRef = B68E1F672CBC44060043E598 /* BlockchainSdk.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B68E1F782CBC44060043E598 /* BlockchainSdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B68E1F652CBC44050043E598 /* BlockchainSdk.framework */; };
@@ -2045,8 +2046,6 @@
 		B6CA91352BB55F4400752999 /* PolkadotAccountHealthBackgroundTaskManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6CA91342BB55F4300752999 /* PolkadotAccountHealthBackgroundTaskManager.swift */; };
 		B6CA91372BB5616C00752999 /* AccountHealthCheckBackgroundTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6CA91362BB5616C00752999 /* AccountHealthCheckBackgroundTask.swift */; };
 		B6CAC1CC2CC336220001A427 /* SolanaSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B6CAC1CB2CC336220001A427 /* SolanaSwift */; };
-		B6D1139A2D91756800B2F17C /* NFTManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D113982D91756800B2F17C /* NFTManager.swift */; };
-		B6D1139B2D91756800B2F17C /* NFTManagerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D113992D91756800B2F17C /* NFTManagerState.swift */; };
 		B6D1139C2D91756800B2F17C /* CommonNFTManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D113972D91756800B2F17C /* CommonNFTManager.swift */; };
 		B6D274E82C38318900FEFCDC /* OnboardingLayoutConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D274E72C38318900FEFCDC /* OnboardingLayoutConstants.swift */; };
 		B6D274EB2C38384400FEFCDC /* PushNotificationsBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D274EA2C38384400FEFCDC /* PushNotificationsBottomSheetView.swift */; };
@@ -5428,7 +5427,7 @@
 		B68728702B7D48F10090C24F /* BlockchainAccountCreateResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainAccountCreateResult.swift; sourceTree = "<group>"; };
 		B687E9482A2D881C00BFF604 /* View+ReadContentOffset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+ReadContentOffset.swift"; sourceTree = "<group>"; };
 		B68B356A2A4B0FAB0069129F /* UIAppearanceBoundaryContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIAppearanceBoundaryContainerView.swift; sourceTree = "<group>"; };
-		B68BE0B82D761D0000779F84 /* NFTDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTDataProvider.swift; sourceTree = "<group>"; };
+		B68BE0B82D761D0000779F84 /* NFTFeatureLifecycleHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTFeatureLifecycleHandler.swift; sourceTree = "<group>"; };
 		B68E1F652CBC44050043E598 /* BlockchainSdk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = BlockchainSdk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B68E1F672CBC44060043E598 /* BlockchainSdk.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BlockchainSdk.h; sourceTree = "<group>"; };
 		B68E1F6C2CBC44060043E598 /* BlockchainSdkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BlockchainSdkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -5495,8 +5494,6 @@
 		B6CA91342BB55F4300752999 /* PolkadotAccountHealthBackgroundTaskManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkadotAccountHealthBackgroundTaskManager.swift; sourceTree = "<group>"; };
 		B6CA91362BB5616C00752999 /* AccountHealthCheckBackgroundTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountHealthCheckBackgroundTask.swift; sourceTree = "<group>"; };
 		B6D113972D91756800B2F17C /* CommonNFTManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonNFTManager.swift; sourceTree = "<group>"; };
-		B6D113982D91756800B2F17C /* NFTManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTManager.swift; sourceTree = "<group>"; };
-		B6D113992D91756800B2F17C /* NFTManagerState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTManagerState.swift; sourceTree = "<group>"; };
 		B6D274E72C38318900FEFCDC /* OnboardingLayoutConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingLayoutConstants.swift; sourceTree = "<group>"; };
 		B6D274EA2C38384400FEFCDC /* PushNotificationsBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsBottomSheetView.swift; sourceTree = "<group>"; };
 		B6DA215D2C52BC790047B1A0 /* FakeMarketsHistoryChartViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeMarketsHistoryChartViewModelFactory.swift; sourceTree = "<group>"; };
@@ -6855,6 +6852,7 @@
 				B6FFC31F2CC70E1D00F4400E /* BitcoinCore in Frameworks */,
 				B68E1F962CBC451D0043E598 /* ScaleCodec in Frameworks */,
 				B63DFC4A2CD4DBED00720D9F /* TangemModules in Frameworks */,
+				300C26342DAFA29600C7E0B0 /* CombineExt in Frameworks */,
 				B67E38B92CC7147600D660EB /* TangemSdk in Frameworks */,
 				B6CAC1CC2CC336220001A427 /* SolanaSwift in Frameworks */,
 				B62D34502CBC67D500C2460E /* AnyCodable in Frameworks */,
@@ -12854,7 +12852,7 @@
 		B68BE0B62D761CC700779F84 /* DataSource */ = {
 			isa = PBXGroup;
 			children = (
-				B68BE0B82D761D0000779F84 /* NFTDataProvider.swift */,
+				B68BE0B82D761D0000779F84 /* NFTFeatureLifecycleHandler.swift */,
 			);
 			path = DataSource;
 			sourceTree = "<group>";
@@ -13117,8 +13115,6 @@
 		B6D113962D91752500B2F17C /* Manager */ = {
 			isa = PBXGroup;
 			children = (
-				B6D113992D91756800B2F17C /* NFTManagerState.swift */,
-				B6D113982D91756800B2F17C /* NFTManager.swift */,
 				B6D113972D91756800B2F17C /* CommonNFTManager.swift */,
 				B67EA5882D9A250A00441EA8 /* NotSupportedNFTManager.swift */,
 			);
@@ -17874,6 +17870,7 @@
 				B6FFC31E2CC70E1D00F4400E /* BitcoinCore */,
 				B67E38B82CC7147600D660EB /* TangemSdk */,
 				B63DFC492CD4DBED00720D9F /* TangemModules */,
+				300C26332DAFA29600C7E0B0 /* CombineExt */,
 			);
 			productName = BlockchainSdk;
 			productReference = B68E1F652CBC44050043E598 /* BlockchainSdk.framework */;
@@ -18535,8 +18532,6 @@
 				EF914D522A612E49001F00B2 /* Wallet2Config.swift in Sources */,
 				DC2891862CDA4B2D00F57F59 /* ActionButtonsBuyCoordinatorView.swift in Sources */,
 				B6421A8D2C9272800053DD8B /* MainBottomSheetHeaderViewModelDelegate.swift in Sources */,
-				B6D1139A2D91756800B2F17C /* NFTManager.swift in Sources */,
-				B6D1139B2D91756800B2F17C /* NFTManagerState.swift in Sources */,
 				B6D1139C2D91756800B2F17C /* CommonNFTManager.swift in Sources */,
 				DA1010272CDA58E100EE0D05 /* OnrampCurrencyViewData.swift in Sources */,
 				B00FC6A92949A6460007ACCA /* CardImageResult.swift in Sources */,
@@ -18731,7 +18726,7 @@
 				2D6167222C763505006FCEA6 /* MarketsTokenNetworkSelectorCoordinatorView.swift in Sources */,
 				EFD143852CC5517E00B5BA57 /* CommonSendBaseDataBuilder.swift in Sources */,
 				B6AA13662A2A372500B53937 /* CardsInfoPagerPreviewProvider.swift in Sources */,
-				B68BE0B92D761D0000779F84 /* NFTDataProvider.swift in Sources */,
+				B68BE0B92D761D0000779F84 /* NFTFeatureLifecycleHandler.swift in Sources */,
 				EFC84B2A2C37FBB300546882 /* SendDestinationStep.swift in Sources */,
 				B62C65D12C38D06B00189AD4 /* PushNotificationsAvailabilityProvider.swift in Sources */,
 				EFE5EC532AEC1BB100C5ADC3 /* UndoToastView.swift in Sources */,
@@ -21889,7 +21884,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEPLOYMENT_POSTPROCESSING = NO;
-				DEVELOPMENT_ASSET_PATHS = "\"Tangem/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Tangem/Preview Content\" \"Modules/TangemNFT/Preview Content\"";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -21957,7 +21952,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEPLOYMENT_POSTPROCESSING = YES;
-				DEVELOPMENT_ASSET_PATHS = "\"Tangem/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Tangem/Preview Content\" \"Modules/TangemNFT/Preview Content\"";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -24696,7 +24691,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEPLOYMENT_POSTPROCESSING = NO;
-				DEVELOPMENT_ASSET_PATHS = "\"Tangem/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Tangem/Preview Content\" \"Modules/TangemNFT/Preview Content\"";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -24875,7 +24870,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEPLOYMENT_POSTPROCESSING = YES;
-				DEVELOPMENT_ASSET_PATHS = "\"Tangem/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Tangem/Preview Content\" \"Modules/TangemNFT/Preview Content\"";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -27005,7 +27000,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEPLOYMENT_POSTPROCESSING = NO;
-				DEVELOPMENT_ASSET_PATHS = "\"Tangem/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Tangem/Preview Content\" \"Modules/TangemNFT/Preview Content\"";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -27184,7 +27179,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEPLOYMENT_POSTPROCESSING = YES;
-				DEVELOPMENT_ASSET_PATHS = "\"Tangem/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Tangem/Preview Content\" \"Modules/TangemNFT/Preview Content\"";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -27744,6 +27739,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 0ABC61132C410AFD00065EBA /* XCRemoteSwiftPackageReference "tweetnacl-swiftwrap" */;
 			productName = TweetNacl;
+		};
+		300C26332DAFA29600C7E0B0 /* CombineExt */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B6DDDE762CF39157008DEA94 /* XCRemoteSwiftPackageReference "CombineExt" */;
+			productName = CombineExt;
 		};
 		B0776C362DA69090004A8765 /* Lottie */ = {
 			isa = XCSwiftPackageProductDependency;
