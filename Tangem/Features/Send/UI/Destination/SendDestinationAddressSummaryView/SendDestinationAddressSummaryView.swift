@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUIUtils
+import TangemUI
 
 struct SendDestinationAddressSummaryView: View {
     @ObservedObject var addressTextViewHeightModel: AddressTextViewHeightModel
