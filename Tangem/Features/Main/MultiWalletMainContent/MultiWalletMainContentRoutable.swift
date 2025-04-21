@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemNFT
 
 protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
     func openTokenDetails(for model: any WalletModel, userWalletModel: UserWalletModel)
