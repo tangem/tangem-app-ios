@@ -12,6 +12,7 @@ import BlockchainSdk
 import TangemAssets
 import TangemVisa
 import TangemFoundation
+import TangemNFT
 
 class VisaUserWalletModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
