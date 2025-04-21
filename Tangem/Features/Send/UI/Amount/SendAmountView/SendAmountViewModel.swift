@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import struct TangemUI.TokenIconInfo
 
 class SendAmountViewModel: ObservableObject {
     // MARK: - ViewState

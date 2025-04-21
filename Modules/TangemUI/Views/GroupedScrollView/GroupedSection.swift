@@ -1,6 +1,6 @@
 //
 //  GroupedSection.swift
-//  Tangem
+//  TangemUI
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2022 Tangem AG. All rights reserved.
@@ -24,7 +24,7 @@ import TangemUIUtils
  `- footerSpacing`
  `Footer`
  */
-struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: View, EmptyContent: View>: View {
+public struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: View, EmptyContent: View>: View {
     private let models: [Model]
     private let content: (Model) -> Content
     private let header: () -> Header
@@ -37,7 +37,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
         EmptyContent.self != EmptyView.self
     }
 
-    init(
+    public init(
         _ models: [Model],
         @ViewBuilder content: @escaping (Model) -> Content,
         @ViewBuilder header: @escaping () -> Header = { EmptyView() },
@@ -51,7 +51,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
         self.emptyContent = emptyContent
     }
 
-    init(
+    public init(
         _ model: Model?,
         @ViewBuilder content: @escaping (Model) -> Content,
         @ViewBuilder header: @escaping () -> Header = { EmptyView() },
@@ -65,7 +65,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
         self.emptyContent = emptyContent
     }
 
-    var body: some View {
+    public var body: some View {
         if models.isNotEmpty || isEmptyContentRequired {
             groupedContent
         }
@@ -109,7 +109,8 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
         }
     }
 
-    @ViewBuilder private var separator: some View {
+    @ViewBuilder
+    private var separator: some View {
         switch settings.separatorStyle {
         case .none:
             EmptyView()
@@ -125,7 +126,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
     }
 }
 
-extension GroupedSection {
+public extension GroupedSection {
     enum SeparatorStyle: Int, Hashable {
         case none
         case single
@@ -133,69 +134,69 @@ extension GroupedSection {
     }
 
     struct Settings {
-        var horizontalPadding: CGFloat = GroupedSectionConstants.defaultHorizontalPadding
-        var separatorStyle: SeparatorStyle = .minimum
-        var interItemSpacing: CGFloat = 0
-        var innerContentPadding: CGFloat = 0
+        public var horizontalPadding: CGFloat = GroupedSectionConstants.defaultHorizontalPadding
+        public var separatorStyle: SeparatorStyle = .minimum
+        public var interItemSpacing: CGFloat = 0
+        public var innerContentPadding: CGFloat = 0
 
         // Use "Colors.Background.primary" as default with "Colors.Background.secondary" background
         // Use "Colors.Background.action" on sheets with "Colors.Background.tertiary" background
-        var backgroundColor: Color = Colors.Background.primary
-        var contentAlignment: HorizontalAlignment = .leading
-        var innerHeaderPadding: CGFloat = GroupedSectionConstants.headerSpacing
+        public var backgroundColor: Color = Colors.Background.primary
+        public var contentAlignment: HorizontalAlignment = .leading
+        public var innerHeaderPadding: CGFloat = GroupedSectionConstants.headerSpacing
 
-        var backgroundGeometryEffect: GeometryEffectPropertiesModel?
-        var separatorGeometryEffect: (Model) -> GeometryEffectPropertiesModel? = { _ in nil }
+        public var backgroundGeometryEffect: GeometryEffectPropertiesModel?
+        public var separatorGeometryEffect: (Model) -> GeometryEffectPropertiesModel? = { _ in nil }
     }
 }
 
-enum GroupedSectionConstants {
-    static let defaultHorizontalPadding: CGFloat = 14
-    static let defaultCornerRadius: CGFloat = 14
-    static let headerSpacing: CGFloat = 12
-    static let footerSpacing: CGFloat = 8
+public enum GroupedSectionConstants {
+    public static let defaultHorizontalPadding: CGFloat = 14
+    public static let defaultCornerRadius: CGFloat = 14
+    public static let headerSpacing: CGFloat = 12
+    public static let footerSpacing: CGFloat = 8
 }
 
 // MARK: - Setupable
 
 extension GroupedSection: Setupable {
-    func settings(_ settings: Settings) -> Self {
+    public func settings(_ settings: Settings) -> Self {
         map { $0.settings = settings }
     }
 
-    func settings<V>(_ keyPath: WritableKeyPath<Settings, V>, _ value: V) -> Self {
+    public func settings<V>(_ keyPath: WritableKeyPath<Settings, V>, _ value: V) -> Self {
         map { $0.settings[keyPath: keyPath] = value }
     }
 
-    func horizontalPadding(_ padding: CGFloat) -> Self {
+    public func horizontalPadding(_ padding: CGFloat) -> Self {
         settings(\.horizontalPadding, padding)
     }
 
-    func separatorStyle(_ style: SeparatorStyle) -> Self {
+    public func separatorStyle(_ style: SeparatorStyle) -> Self {
         settings(\.separatorStyle, style)
     }
 
-    func interItemSpacing(_ spacing: CGFloat) -> Self {
+    public func interItemSpacing(_ spacing: CGFloat) -> Self {
         settings(\.interItemSpacing, spacing)
     }
 
-    func innerContentPadding(_ padding: CGFloat) -> Self {
+    public func innerContentPadding(_ padding: CGFloat) -> Self {
         settings(\.innerContentPadding, padding)
     }
 
-    func innerHeaderPadding(_ padding: CGFloat) -> Self {
+    public func innerHeaderPadding(_ padding: CGFloat) -> Self {
         settings(\.innerHeaderPadding, padding)
     }
 
-    func backgroundColor(_ color: Color) -> Self {
+    public func backgroundColor(_ color: Color) -> Self {
         settings(\.backgroundColor, color)
     }
 
-    func contentAlignment(_ alignment: HorizontalAlignment) -> Self {
+    public func contentAlignment(_ alignment: HorizontalAlignment) -> Self {
         settings(\.contentAlignment, alignment)
     }
 
-    func geometryEffect(_ geometryEffect: GeometryEffectPropertiesModel?) -> Self {
+    public func geometryEffect(_ geometryEffect: GeometryEffectPropertiesModel?) -> Self {
         settings(\.backgroundGeometryEffect, geometryEffect)
     }
 }
