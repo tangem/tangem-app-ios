@@ -1,6 +1,6 @@
 //
 //  TokenIcon.swift
-//  Tangem
+//  TangemUI
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2023 Tangem AG. All rights reserved.
@@ -10,13 +10,12 @@ import SwiftUI
 import Kingfisher
 import TangemAssets
 import TangemFoundation
-import TangemUI
 
-struct TokenIcon: View {
-    let tokenIconInfo: TokenIconInfo
-    let size: CGSize
-    var isWithOverlays: Bool = true
-    var forceKingfisher: Bool = true
+public struct TokenIcon: View {
+    private let tokenIconInfo: TokenIconInfo
+    private let size: CGSize
+    private var isWithOverlays: Bool
+    private var forceKingfisher: Bool
 
     private var imageURL: URL? { tokenIconInfo.imageURL }
     private var customTokenColor: Color? { tokenIconInfo.customTokenColor }
@@ -34,7 +33,7 @@ struct TokenIcon: View {
         customTokenIndicatorSize + CGSize(width: 2 * customTokenIndicatorBorderWidth, height: 2 * customTokenIndicatorBorderWidth)
     }
 
-    var body: some View {
+    public var body: some View {
         if let customTokenColor {
             customTokenIcon(background: customTokenColor)
         } else {
@@ -81,6 +80,18 @@ struct TokenIcon: View {
         }
     }
 
+    public init(
+        tokenIconInfo: TokenIconInfo,
+        size: CGSize,
+        isWithOverlays: Bool = true,
+        forceKingfisher: Bool = true
+    ) {
+        self.tokenIconInfo = tokenIconInfo
+        self.size = size
+        self.isWithOverlays = isWithOverlays
+        self.forceKingfisher = forceKingfisher
+    }
+
     private func customTokenIcon(background: Color) -> some View {
         customTokenColor
             .clipShape(Circle())
@@ -98,6 +109,9 @@ struct TokenIcon: View {
     }
 }
 
+// MARK: - Previews
+
+#if DEBUG
 struct TokenIcon_Preview: PreviewProvider {
     static let coins = [
         (id: "bitcoin", iconAsset: Tokens.bitcoin),
@@ -122,7 +136,7 @@ struct TokenIcon_Preview: PreviewProvider {
                         tokenIconInfo: .init(
                             name: "",
                             blockchainIconAsset: coin.iconAsset,
-                            imageURL: IconURLBuilder().tokenIconURL(id: coin.id, size: .large),
+                            imageURL: nil,
                             isCustom: true,
                             customTokenColor: nil
                         ),
@@ -134,3 +148,4 @@ struct TokenIcon_Preview: PreviewProvider {
         }
     }
 }
+#endif // DEBUG

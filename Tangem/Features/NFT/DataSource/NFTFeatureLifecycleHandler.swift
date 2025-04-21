@@ -23,7 +23,7 @@ final class NFTFeatureLifecycleHandler: NFTFeatureLifecycleHandling {
     private var userWallets: [UserWalletModel] = []
 
     init() {
-        self.userWallets = userWalletRepository.models
+        userWallets = userWalletRepository.models
     }
 
     func startObserving() {
