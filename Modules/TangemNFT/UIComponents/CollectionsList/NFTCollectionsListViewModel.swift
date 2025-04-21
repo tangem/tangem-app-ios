@@ -9,7 +9,6 @@
 import Combine
 import TangemFoundation
 import TangemAssets
-import TangemFoundation
 import CombineExt
 
 public final class NFTCollectionsListViewModel: ObservableObject {
