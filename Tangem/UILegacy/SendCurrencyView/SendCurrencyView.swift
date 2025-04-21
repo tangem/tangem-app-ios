@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUIUtils
+import TangemUI
 
 struct SendCurrencyView: View {
     @ObservedObject private var viewModel: SendCurrencyViewModel
