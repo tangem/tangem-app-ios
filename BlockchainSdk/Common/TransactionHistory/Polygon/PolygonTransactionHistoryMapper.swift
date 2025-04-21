@@ -157,10 +157,19 @@ extension PolygonTransactionHistoryMapper: TransactionHistoryMapper {
                 amount: transactionAmount
             )
 
-            let destination = TransactionRecord.Destination(
-                address: transaction.isContractInteraction ? .contract(destinationAddress) : .user(destinationAddress),
-                amount: transactionAmount
-            )
+            let destinationAddressType: TransactionRecord.Destination.Address = {
+                if let contract = transaction.contractAddress?.nilIfEmpty {
+                    return .contract(contract)
+                }
+
+                if transaction.functionName?.nilIfEmpty != nil {
+                    return .contract(destinationAddress)
+                }
+
+                return .user(destinationAddress)
+            }()
+
+            let destination: TransactionRecord.Destination = .init(address: destinationAddressType, amount: transactionAmount)
 
             guard let timeStamp = TimeInterval(transaction.timeStamp) else {
                 BSDKLogger.error(error: "Transaction with invalid timeStamp \(transaction) received")
