@@ -11,6 +11,7 @@ import UIKit
 import Combine
 import CombineExt
 import SwiftUI
+import TangemFoundation
 
 class AppCoordinator: CoordinatorObject {
     // MARK: - Dependencies

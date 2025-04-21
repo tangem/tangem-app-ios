@@ -27,6 +27,7 @@ let package = Package(
         .package(url: "https://github.com/Flight-School/AnyCodable.git", .upToNextMajor(from: "0.6.7")),
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.18")),
         .package(url: "https://github.com/airbnb/lottie-spm.git", .upToNextMajor(from: "4.5.1")),
+        .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.8.1")),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
 )
@@ -135,6 +136,7 @@ var featureModules: [PackageDescription.Target] {
                 "TangemUI",
                 "TangemFoundation",
                 "TangemLocalization",
+                "CombineExt",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
