@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemAssets
 import TangemSdk
+import TangemNFT
 
 class LockedUserWalletModel: UserWalletModel {
     let walletModelsManager: WalletModelsManager = LockedWalletModelsManager()
