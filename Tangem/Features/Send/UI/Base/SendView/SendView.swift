@@ -182,7 +182,7 @@ struct SendView: View {
                 HStack(spacing: 8) {
                     MainButton(
                         title: Localization.commonExplore,
-                        icon: .leading(Assets.globe),
+                        icon: .leading(Assets.Glyphs.explore),
                         style: .secondary,
                         action: { viewModel.explore(url: url) }
                     )
