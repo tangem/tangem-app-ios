@@ -9,28 +9,44 @@
 import Combine
 import TangemFoundation
 import TangemAssets
+import TangemFoundation
+import CombineExt
 
 public final class NFTCollectionsListViewModel: ObservableObject {
     @Published private(set) var state: ViewState
     @Published var searchEntry: String = ""
 
-    private let collections: [NFTCompactCollectionViewModel]
+    private let coordinator: NFTCollectionsListRoutable
+    private let nftManager: NFTManager
+    private let chainIconProvider: NFTChainIconProvider
+
+    private var collectionsViewModels: [NFTCompactCollectionViewModel] = []
     private var bag = Set<AnyCancellable>()
 
-    public init(collections: [NFTCollection], nftChainIconProvider: NFTChainIconProvider) {
-        let collectionsViewModels = collections.map {
-            NFTCompactCollectionViewModel(
-                nftCollection: $0,
-                nftChainIconProvider: nftChainIconProvider
-            )
-        }
+    init(nftManager: NFTManager, chainIconProvider: NFTChainIconProvider, coordinator: NFTCollectionsListRoutable) {
+        self.nftManager = nftManager
+        self.coordinator = coordinator
+        self.chainIconProvider = chainIconProvider
+        state = .noCollections
 
-        state = collectionsViewModels.isEmpty ? .noCollections : .collectionsAvailale(collectionsViewModels)
-        self.collections = collectionsViewModels
-        bindSearchEntry()
+        bind()
     }
 
-    func bindSearchEntry() {
+    private func bind() {
+        nftManager.collectionsPublisher
+            .withWeakCaptureOf(self)
+            .map { viewModel, collections in
+                let collectionsViewModels = collections.map {
+                    NFTCompactCollectionViewModel(nftCollection: $0, nftChainIconProvider: viewModel.chainIconProvider)
+                }
+
+                self.collectionsViewModels = collectionsViewModels
+                return collectionsViewModels.isEmpty ? ViewState.noCollections : .collectionsAvailale(collectionsViewModels)
+            }
+            .receiveOnMain()
+            .assign(to: \.state, on: self, ownership: .weak)
+            .store(in: &bag)
+
         $searchEntry
             .sink { [weak self] entry in
                 guard let self else { return }
@@ -43,10 +59,10 @@ public final class NFTCollectionsListViewModel: ObservableObject {
 
     private func filteredCollections(entry: String) -> [NFTCompactCollectionViewModel] {
         guard entry.isNotEmpty else {
-            return collections
+            return collectionsViewModels
         }
 
-        let filteredCollections = collections.filter { collection in
+        let filteredCollections = collectionsViewModels.filter { collection in
             let collectionNameMatches = collection.name.localizedStandardContains(entry)
             var someAssetsNamesMatch: Bool {
                 collection.assetsGridViewModel.assetsViewModels.contains {
