@@ -1,6 +1,6 @@
 //
 //  TokenIcon.swift
-//  Tangem
+//  TangemUI
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2022 Tangem AG. All rights reserved.
@@ -10,15 +10,16 @@ import SwiftUI
 import TangemAssets
 
 // [REDACTED_TODO_COMMENT]
-struct TokenIconInfo: Hashable {
-    let name: String
-    let blockchainIconAsset: ImageType?
-    let imageURL: URL?
-    let isCustom: Bool
-    let customTokenColor: Color?
-    let networkBorderColor: Color
+// TODO: What the heck does the [REDACTED_TODO_COMMENT]
+public struct TokenIconInfo: Hashable {
+    public let name: String
+    public let blockchainIconAsset: ImageType?
+    public let imageURL: URL?
+    public let isCustom: Bool
+    public let customTokenColor: Color?
+    public let networkBorderColor: Color
 
-    init(
+    public init(
         name: String,
         blockchainIconAsset: ImageType?,
         imageURL: URL?,
