@@ -1,6 +1,6 @@
 //
 //  NetworkIcon.swift
-//  Tangem
+//  TangemUI
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2022 Tangem AG. All rights reserved.
@@ -9,14 +9,14 @@
 import SwiftUI
 import TangemAssets
 
-struct NetworkIcon: View {
-    let imageAsset: ImageType
-    let isActive: Bool
-    var isDisabled: Bool = false
-    let isMainIndicatorVisible: Bool
-    var size: CGSize = .init(width: 20, height: 20)
+public struct NetworkIcon: View {
+    private let imageAsset: ImageType
+    private let isActive: Bool
+    private var isDisabled: Bool
+    private let isMainIndicatorVisible: Bool
+    private var size: CGSize
 
-    var body: some View {
+    public var body: some View {
         imageAsset.image
             .resizable()
             .frame(width: size.width, height: size.height)
@@ -52,6 +52,20 @@ struct NetworkIcon: View {
             EmptyView()
         }
     }
+
+    public init(
+        imageAsset: ImageType,
+        isActive: Bool,
+        isDisabled: Bool = false,
+        isMainIndicatorVisible: Bool,
+        size: CGSize = .init(width: 20, height: 20)
+    ) {
+        self.imageAsset = imageAsset
+        self.isActive = isActive
+        self.isDisabled = isDisabled
+        self.isMainIndicatorVisible = isMainIndicatorVisible
+        self.size = size
+    }
 }
 
 private struct MainNetworkIndicator: View {
@@ -65,6 +79,9 @@ private struct MainNetworkIndicator: View {
     }
 }
 
+// MARK: - Previews
+
+#if DEBUG
 struct NetworkIcon_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
@@ -82,3 +99,4 @@ struct NetworkIcon_Previews: PreviewProvider {
         .previewLayout(.sizeThatFits)
     }
 }
+#endif // DEBUG
