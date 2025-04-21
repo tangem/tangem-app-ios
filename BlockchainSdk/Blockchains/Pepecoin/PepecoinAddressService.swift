@@ -18,7 +18,6 @@ class PepecoinAddressService {
     }
 }
 
-
 // MARK: - AddressValidator
 
 extension PepecoinAddressService: AddressValidator {
