@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct AddCustomTokenNetworksListItemView: View {
     @ObservedObject var viewModel: AddCustomTokenNetworksListItemViewModel
