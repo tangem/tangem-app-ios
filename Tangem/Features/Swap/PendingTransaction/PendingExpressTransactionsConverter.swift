@@ -9,6 +9,7 @@
 import Foundation
 import TangemLocalization
 import TangemExpress
+import struct TangemUI.TokenIconInfo
 
 struct PendingExpressTransactionsConverter {
     func convertToTokenDetailsPendingTxInfo(_ records: [PendingTransaction], tapAction: @escaping (String) -> Void) -> [PendingExpressTransactionView.Info] {
