@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemAssets
 import TangemSdk
+import TangemNFT
 
 class UserWalletModelMock: UserWalletModel {
     var hasImportedWallets: Bool { false }

@@ -12,6 +12,7 @@ import CombineExt
 import BlockchainSdk
 import TangemVisa
 import SwiftUI
+import TangemNFT
 
 class MainCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
@@ -34,6 +35,7 @@ class MainCoordinator: CoordinatorObject {
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator?
     @Published var marketsTokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
     @Published var stakingDetailsCoordinator: StakingDetailsCoordinator?
+    @Published var nftCollectionsCoordinator: NFTCollectionsCoordinator?
 
     // MARK: - Child coordinators (Other)
 
@@ -569,5 +571,15 @@ extension MainCoordinator {
     enum Constants {
         static let tooltipAnimationDuration: Double = 0.3
         static let tooltipAnimationDelay: Double = 1.5
+    }
+}
+
+// MARK: - NFTEntrypointRoutable
+
+extension MainCoordinator: NFTEntrypointRoutable {
+    func openCollections(_ nftManager: NFTManager) {
+        mainBottomSheetUIManager.hide()
+        nftCollectionsCoordinator = NFTCollectionsCoordinator(nftManager: nftManager, chainIconProvider: NetworkImageProvider())
+        nftCollectionsCoordinator?.start()
     }
 }
