@@ -467,7 +467,8 @@ extension PendingExpressTxStatusBottomSheetViewModel {
              .done,
              .verificationRequired,
              .failed,
-             .txFailed:
+             .txFailed,
+             .refunding:
             isHideButtonShowed = false
         }
     }
