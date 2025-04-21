@@ -129,14 +129,15 @@ var featureModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemNFT",
             dependencies: [
-                "TangemNetworkUtils",
                 "Moya",
                 "AnyCodable",
+                "CombineExt",
                 "TangemAssets",
                 "TangemUI",
                 "TangemFoundation",
                 "TangemLocalization",
-                "CombineExt",
+                "TangemLogger",
+                "TangemNetworkUtils",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
