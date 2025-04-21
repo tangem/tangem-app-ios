@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftUI
+import struct TangemUI.TokenIconInfo
 
 struct AmountSummaryViewData: Identifiable {
     let id = UUID()
