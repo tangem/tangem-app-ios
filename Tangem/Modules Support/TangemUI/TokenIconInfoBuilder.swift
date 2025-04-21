@@ -10,7 +10,9 @@ import Foundation
 import SwiftUI
 import BlockchainSdk
 import TangemAssets
+import TangemUI
 
+/// Builds domain models for `TokenIcon` view.
 struct TokenIconInfoBuilder {
     func build(
         for type: Amount.AmountType,
