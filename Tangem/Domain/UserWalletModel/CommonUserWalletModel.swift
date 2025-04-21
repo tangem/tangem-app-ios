@@ -11,6 +11,7 @@ import SwiftUI
 import BlockchainSdk
 import TangemAssets
 import TangemSdk
+import TangemNFT
 
 class CommonUserWalletModel {
     // MARK: Services
