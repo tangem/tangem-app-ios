@@ -76,18 +76,18 @@ struct TransactionHistoryMapper {
     }
 
     func mapSuggestedRecord(_ record: TransactionRecord) -> SendSuggestedDestinationTransactionRecord? {
-        guard
-            record.isOutgoing,
-            transactionType(from: record) == .transfer
-        else {
+        // Suggest address which we've already send the transaction
+        guard record.isOutgoing else {
             return nil
         }
 
-        let address: String
-        switch interactionAddress(from: record) {
-        case .user(let value), .contract(let value):
-            address = value
-        default:
+        // Only simple transfer
+        guard transactionType(from: record) == .transfer else {
+            return nil
+        }
+
+        // Only for user's address
+        guard case .user(let address) = interactionAddress(from: record) else {
             return nil
         }
 
