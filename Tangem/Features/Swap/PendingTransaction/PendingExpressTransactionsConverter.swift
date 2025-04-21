@@ -40,7 +40,7 @@ struct PendingExpressTransactionsConverter {
 
             let state: PendingExpressTransactionView.State
             switch record.transactionStatus {
-            case .created, .awaitingDeposit, .confirming, .exchanging, .buying, .sendingToUser, .done, .refunded:
+            case .created, .awaitingDeposit, .confirming, .exchanging, .buying, .sendingToUser, .done, .refunding, .refunded:
                 state = .inProgress
             case .failed, .canceled, .unknown, .paused, .txFailed:
                 state = .error
@@ -125,7 +125,9 @@ struct PendingExpressTransactionsConverter {
             return .init(title: status.passedStatusTitle, state: .checkmark)
         case .sendingToUser where currentStatus == .done:
             return .init(title: status.passedStatusTitle, state: .checkmark)
-        case .created, .awaitingDeposit, .confirming, .exchanging, .buying, .sendingToUser, .done, .canceled:
+        case .buying where currentStatus == .done:
+            return .init(title: status.passedStatusTitle, state: .checkmark)
+        case .created, .awaitingDeposit, .confirming, .exchanging, .buying, .refunding, .sendingToUser, .done, .canceled:
             break
         }
 
