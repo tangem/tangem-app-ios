@@ -10,6 +10,7 @@ import Foundation
 import TangemLocalization
 import SwiftUI
 import TangemAssets
+import struct TangemUI.TokenIconInfo
 
 enum TokenNotificationEvent: Hashable {
     case networkUnreachable(currencySymbol: String)
