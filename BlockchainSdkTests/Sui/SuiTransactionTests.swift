@@ -241,7 +241,7 @@ extension SuiTransactionTests {
 
     private static func makeSuiCoin(balance: Decimal) -> SuiCoinObject {
         SuiCoinObject(
-            coinType: "0x2::sui::SUI",
+            coinType: .init(contract: "0x2", lowerID: "sui", upperID: "SUI"),
             coinObjectId: "0x0ddca1f7dfebcc35b8a1238660dacd5062111614c118ccd6cd1ba0958ba5cff3",
             version: 333786167,
             digest: "127TTe3fyhURjzUxAhByCVxb5TkQbkBiLmk8xnpiuy2b",
@@ -251,7 +251,7 @@ extension SuiTransactionTests {
 
     private static func makeUSDCCoin(balance: Decimal) -> SuiCoinObject {
         SuiCoinObject(
-            coinType: "0xa1ec7fc00a6f40db9693ad1415d0c193ad3906494428cf252621037bd7117e29::usdc::USDC",
+            coinType: .init(contract: "0xa1ec7fc00a6f40db9693ad1415d0c193ad3906494428cf252621037bd7117e29", lowerID: "usdc", upperID: "USDC"),
             coinObjectId: "0x41e0b65de639472f712cd7be903dc85a15f8221438911a61b754ded408e3e826",
             version: 349163870,
             digest: "EUycXN2FyHc9zqJBQMfyxSndHxE32BZfvRhTC5wWJqUd",
