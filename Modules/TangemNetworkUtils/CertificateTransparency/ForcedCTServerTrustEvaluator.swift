@@ -15,6 +15,8 @@ public enum ForcedCTServerTrustEvaluator {
     #endif // ALPHA || BETA || DEBUG
 
     public static func evaluate(trust: SecTrust) throws {
+        logCT()
+        
         guard shouldForceCT else {
             return
         }
@@ -39,6 +41,29 @@ public enum ForcedCTServerTrustEvaluator {
         }
 
         return .performDefaultHandling
+    }
+
+    private static func logCT() {
+        var flags: [String] = []
+
+        #if ALPHA
+        flags.append("ALPHA")
+        #endif // ALPHA
+
+        #if BETA
+        flags.append("BETA")
+        #endif // BETA
+
+        #if DEBUG
+        flags.append("DEBUG")
+        #endif // DEBUG
+
+        if shouldForceCT {
+            flags.append("shouldForceCT")
+        }
+
+        let message = "🔐 Forced CT evaluation flags: \(flags.joined(separator: ", "))"
+        NetworkLogger.info(message)
     }
 }
 
