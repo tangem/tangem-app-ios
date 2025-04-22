@@ -13,7 +13,7 @@ import Moya
 public struct VisaActivationManagerFactory {
     private let apiType: VisaAPIType
     private let isMockedAPIEnabled: Bool
-    
+
     public init(apiType: VisaAPIType, isMockedAPIEnabled: Bool) {
         self.apiType = apiType
         self.isMockedAPIEnabled = isMockedAPIEnabled
