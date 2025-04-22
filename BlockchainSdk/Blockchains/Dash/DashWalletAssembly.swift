@@ -7,28 +7,17 @@
 //
 
 import Foundation
-import TangemSdk
-import BitcoinCore
 
 struct DashWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        let compressed = try Secp256k1Key(with: input.wallet.publicKey.blockchainKey).compress()
-
-        let bitcoinManager = BitcoinManager(
-            networkParams: input.wallet.blockchain.isTestnet ? DashTestNetworkParams() : DashMainNetworkParams(),
-            walletPublicKey: input.wallet.publicKey.blockchainKey,
-            compressedWalletPublicKey: compressed,
-            bip: .bip44
-        )
-
         let unspentOutputManager: UnspentOutputManager = .dash(
             address: input.wallet.defaultAddress,
-            isTestnet: input.wallet.blockchain.isTestnet
+            isTestnet: input.isTestnet
         )
+
         let txBuilder = BitcoinTransactionBuilder(
-            bitcoinManager: bitcoinManager,
-            unspentOutputManager: unspentOutputManager,
-            addresses: input.wallet.addresses
+            network: input.isTestnet ? DashTestNetworkParams() : DashMainNetworkParams(),
+            unspentOutputManager: unspentOutputManager
         )
 
         let providers: [UTXONetworkProvider] = input.networkInput.apiInfo.reduce(into: []) { partialResult, providerType in
