@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 extension NotificationView {
     typealias NotificationAction = (NotificationViewId) -> Void

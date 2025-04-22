@@ -6,120 +6,61 @@
 //  Copyright © 2021 Tangem AG. All rights reserved.
 //
 
-import BitcoinCore
-import TangemSdk
 import Testing
 @testable import BlockchainSdk
 
 final class LitecoinTransactionTests {
-    private let blockchain = Blockchain.litecoin
-    private let networkParams = LitecoinNetworkParams()
-    private let walletPublicKey = Data(
-        hexString: "04AC17063C443E9DC00C090733A0A76FF18A322D8484495FDF65BE5922EA6C1F5EDC0A802D505BFF664E32E9082DC934D60A4B4E83572A0818F1D73F8FB4D100EA"
-    )
-
-    private lazy var addressService = BitcoinAddressService(networkParams: networkParams)
-    private lazy var bitcoinManager: BitcoinManager = {
-        let compressedWalletPublicKey = try! Secp256k1Key(with: walletPublicKey).compress()
-        return .init(networkParams: networkParams, walletPublicKey: walletPublicKey, compressedWalletPublicKey: compressedWalletPublicKey, bip: .bip44)
-    }()
-
+    /// https://blockchair.com/litecoin/transaction/e137c6b47d2553104897a2bb769c638a019c838f84d69d729b879f7568ab0fd5
     @Test
-    func unsortedOutputsTransaction() throws {
+    func legacyAndDefaultAddressTransaction() async throws {
         // given
-        let address = try addressService.makeAddress(from: walletPublicKey, type: .legacy)
-        let unspentOutputManager = try prepareFilledUnspentOutputManager(address: address)
-        let txBuilder = BitcoinTransactionBuilder(bitcoinManager: bitcoinManager, unspentOutputManager: unspentOutputManager, addresses: [])
-        let amountToSend = Amount(with: blockchain, type: .coin, value: 0.00015)
-        let fee = Fee(Amount(with: blockchain, type: .coin, value: 0.00001752), parameters: BitcoinFeeParameters(rate: 4))
-        let destination = "LWjJD6H1QrMmCQ5QhBKMqvPqMzwYpJPv2M"
+        let networkParams = LitecoinNetworkParams()
+        let pubKey = Data(hexString: "0252b019a84e128ea96413179ee5185a07d5eeb7b4755a29416c1b9b8d92fae3aa")
+        let addressService = BitcoinAddressService(networkParams: networkParams)
+        let defaultAddress = try addressService.makeAddress(from: pubKey, type: .default)
+        let legacyAddress = try addressService.makeAddress(from: pubKey, type: .legacy)
 
-        let signatures = [
-            Data(hex: "F4E41BBE57B306529EBE797ABCE8CBA399F391B0804B8CD52C329F398E815FB4E7C314437399CB915AA9580458DDC2440EA3E6121CC2D6B5F5C67232B5B60C54"),
-            Data(hex: "B6DC3A0163FADB5B4FF70F1BD8165C03CC7D474C45942B81B841BE2E747CE30105AF501D55D1BA6E433745F3AD04243EEF53435AD32AA2E523DC413F1F5D7BCC"),
-        ]
-
-        let transaction = Transaction(
-            amount: amountToSend,
-            fee: fee,
-            sourceAddress: address.value,
-            destinationAddress: destination,
-            changeAddress: address.value
+        let unspentOutputManager: UnspentOutputManager = .litecoin(address: defaultAddress)
+        unspentOutputManager.update(
+            outputs: [.init(blockId: 2876580, txId: "b530464567f64eea2566fcda6d5953f567474c05cae13dd3dbba9dcf8d990310", index: 3, amount: 5000000)],
+            for: defaultAddress
         )
 
-        // when
-        let hashes = try txBuilder.buildForSign(transaction: transaction, sequence: 4294967290, sortType: .none)
-        let signedTx = try txBuilder.buildForSend(transaction: transaction, signatures: signatures, sequence: 4294967290, sortType: .none)
-
-        // then
-        let expectedHashes = [
-            Data(hex: "4E17896956F9B8AFCCD0B2BBF5AC50462508C0AC1485EB6580AF7CC9300E837E"),
-            Data(hex: "E84A90E9E9DAE1EACAA2F12B79FF8824F868EA77C35272ADE0DFF8D2DAA8391E"),
-        ]
-
-        let expectedSignedTransaction = Data(hex: "0100000002AEED3F4EBDEFC373361387DD7E5D926311B934B3E48614428E3E32C11BFEACBC000000008B483045022100F4E41BBE57B306529EBE797ABCE8CBA399F391B0804B8CD52C329F398E815FB40220183CEBBC8C66346EA556A7FBA7223DBAAC0AF6D49285C985CA0BEC5A1A8034ED014104AC17063C443E9DC00C090733A0A76FF18A322D8484495FDF65BE5922EA6C1F5EDC0A802D505BFF664E32E9082DC934D60A4B4E83572A0818F1D73F8FB4D100EAFAFFFFFFFF863FEFC5EF29D4F33B13F969E88971A0EA0523FD913072DC50A1F8D7FB16FA000000008B483045022100B6DC3A0163FADB5B4FF70F1BD8165C03CC7D474C45942B81B841BE2E747CE301022005AF501D55D1BA6E433745F3AD04243EEF53435AD32AA2E523DC413F1F5D7BCC014104AC17063C443E9DC00C090733A0A76FF18A322D8484495FDF65BE5922EA6C1F5EDC0A802D505BFF664E32E9082DC934D60A4B4E83572A0818F1D73F8FB4D100EAFAFFFFFF02983A0000000000001976A9147E3618C4A80997D5F836FA17A10FCC17B4A9245188ACB00C0000000000001976A914CCD4649CDB4C9F8FDB54869CFF112A4E75FDA2BB88AC00000000")
-
-        #expect(hashes == expectedHashes)
-        #expect(signedTx == expectedSignedTransaction)
-    }
-
-    @Test
-    func sortedOutputsTransaction() throws {
-        // given
-        let address = try addressService.makeAddress(from: walletPublicKey, type: .legacy)
-        let unspentOutputManager = try prepareFilledUnspentOutputManager(address: address)
-        let txBuilder = BitcoinTransactionBuilder(bitcoinManager: bitcoinManager, unspentOutputManager: unspentOutputManager, addresses: [])
-        let amountToSend = Amount(with: blockchain, type: .coin, value: 0.00015)
-        let fee = Fee(Amount(with: blockchain, type: .coin, value: 0.00001752), parameters: BitcoinFeeParameters(rate: 4))
-        let destination = "LWjJD6H1QrMmCQ5QhBKMqvPqMzwYpJPv2M"
-
-        let signatures = [
-            Data(hex: "F4E41BBE57B306529EBE797ABCE8CBA399F391B0804B8CD52C329F398E815FB4E7C314437399CB915AA9580458DDC2440EA3E6121CC2D6B5F5C67232B5B60C54"),
-            Data(hex: "B6DC3A0163FADB5B4FF70F1BD8165C03CC7D474C45942B81B841BE2E747CE30105AF501D55D1BA6E433745F3AD04243EEF53435AD32AA2E523DC413F1F5D7BCC"),
-        ]
-
-        let transaction = Transaction(
-            amount: amountToSend,
-            fee: fee,
-            sourceAddress: address.value,
-            destinationAddress: destination,
-            changeAddress: address.value
+        unspentOutputManager.update(
+            outputs: [.init(blockId: 2876582, txId: "f22e5c969d41f967d983974c27b1c1c63021a041d0529a5c2d88caa3659ed2f6", index: 3, amount: 8909297)],
+            for: legacyAddress
         )
 
-        // when
-        let hashes = try txBuilder.buildForSign(transaction: transaction, sequence: 4294967290, sortType: .bip69)
-        let signedTx = try txBuilder.buildForSend(transaction: transaction, signatures: signatures, sequence: 4294967290, sortType: .bip69)
+        let builder = BitcoinTransactionBuilder(network: networkParams, unspentOutputManager: unspentOutputManager)
+        let transaction = Transaction(
+            amount: Amount(with: .litecoin, value: 0.1),
+            fee: Fee(.init(with: .litecoin, value: 0.00000289), parameters: BitcoinFeeParameters(rate: 1)),
+            sourceAddress: defaultAddress.value,
+            destinationAddress: "ltc1qcadgn7d9ytzusq2lxzx8fdf8tqqd9sppggya8t",
+            changeAddress: defaultAddress.value
+        )
 
-        // then
-        let expectedHashes = [
-            Data(hex: "0eb63431fbe70eb30d8ef8d788c5a7971d1bbd319b54dd8252578f3f84311e2f"),
-            Data(hex: "eb7b158f86c6fc825f199d7addcb0003e7c5474abe515f466cbd8c54daf4e123"),
-        ]
-
-        let expectedSignedTransaction = Data(hex: "0100000002AEED3F4EBDEFC373361387DD7E5D926311B934B3E48614428E3E32C11BFEACBC000000008B483045022100F4E41BBE57B306529EBE797ABCE8CBA399F391B0804B8CD52C329F398E815FB40220183CEBBC8C66346EA556A7FBA7223DBAAC0AF6D49285C985CA0BEC5A1A8034ED014104AC17063C443E9DC00C090733A0A76FF18A322D8484495FDF65BE5922EA6C1F5EDC0A802D505BFF664E32E9082DC934D60A4B4E83572A0818F1D73F8FB4D100EAFAFFFFFFFF863FEFC5EF29D4F33B13F969E88971A0EA0523FD913072DC50A1F8D7FB16FA000000008B483045022100B6DC3A0163FADB5B4FF70F1BD8165C03CC7D474C45942B81B841BE2E747CE301022005AF501D55D1BA6E433745F3AD04243EEF53435AD32AA2E523DC413F1F5D7BCC014104AC17063C443E9DC00C090733A0A76FF18A322D8484495FDF65BE5922EA6C1F5EDC0A802D505BFF664E32E9082DC934D60A4B4E83572A0818F1D73F8FB4D100EAFAFFFFFF02B00C0000000000001976A914CCD4649CDB4C9F8FDB54869CFF112A4E75FDA2BB88AC983A0000000000001976A9147E3618C4A80997D5F836FA17A10FCC17B4A9245188AC00000000")
-
-        #expect(hashes == expectedHashes)
-        #expect(signedTx == expectedSignedTransaction)
-    }
-
-    private func prepareFilledUnspentOutputManager(address: any BlockchainSdk.Address) throws -> UnspentOutputManager {
-        let unspentOutputManager: UnspentOutputManager = .litecoin(address: address)
-        let outputs = [
-            UnspentOutput(
-                blockId: .random(in: 1 ... 100_000),
-                txId: "bcacfe1bc1323e8e421486e4b334b91163925d7edd87133673c3efbd4e3fedae",
-                index: 0,
-                amount: 10000
+        let signatures = [
+            SignatureInfo(
+                signature: Data(hexString: "dd70ea19dba2dae8e975d96d9451f3b1902e3cd84dd5729ade62ff29b16112af1148330585572d6b2e44ea4b9b2c694d6c9153d6ab1552f9f19092f13ac1fa59"),
+                publicKey: pubKey,
+                hash: Data(hexString: "32a83e7331df0f42203d1d29db0f7ae912a34a57ed5694f9b6f5ae5ad40b73cc")
             ),
-            UnspentOutput(
-                blockId: .random(in: 1 ... 100_000),
-                txId: "fa16fbd7f8a150dc723091fd2305eaa07189e869f9133bf3d429efc5ef3f86ff",
-                index: 0,
-                amount: 10000
+            SignatureInfo(
+                signature: Data(hexString: "5e280d8344f5b7ea98bf95349cdb9a5eaed409ea746ab91084db5b0894012b3875d68fc21717f266b9369ff3c81f3a84d13c1c368aedb5c08d1f26516ff37d70"),
+                publicKey: pubKey,
+                hash: Data(hexString: "f1382347457c9627ac9f01e03ae3bfbcdc418535ed8a5a704624128f43ccdc76")
             ),
         ]
 
-        unspentOutputManager.update(outputs: outputs, for: address)
-        return unspentOutputManager
+        // when
+        let hashes = try await builder.buildForSign(transaction: transaction)
+        let encoded = try await builder.buildForSend(transaction: transaction, signatures: signatures)
+
+        // then
+        #expect(defaultAddress.value == "ltc1qxj6zrp9ea8kvlcq58qzw09a74rxlsecgu29nu0")
+        #expect(legacyAddress.value == "LQ2dBuRmPSgNJXBd9Vgqn2chzeGoeQMAnA")
+        #expect(hashes == signatures.map(\.hash))
+        #expect(encoded == Data(hexString: "010000000001021003998dcf9dbadbd33de1ca054c4767f553596ddafc6625ea4ef667454630b50300000000fffffffff6d29e65a3ca882d5c9a52d041a02130c6c1b1274c9783d967f9419d965c2ef2030000006a47304402205e280d8344f5b7ea98bf95349cdb9a5eaed409ea746ab91084db5b0894012b38022075d68fc21717f266b9369ff3c81f3a84d13c1c368aedb5c08d1f26516ff37d7001210252b019a84e128ea96413179ee5185a07d5eeb7b4755a29416c1b9b8d92fae3aaffffffff028096980000000000160014c75a89f9a522c5c8015f308c74b5275800d2c02190a53b000000000016001434b42184b9e9eccfe0143804e797bea8cdf8670802483045022100dd70ea19dba2dae8e975d96d9451f3b1902e3cd84dd5729ade62ff29b16112af02201148330585572d6b2e44ea4b9b2c694d6c9153d6ab1552f9f19092f13ac1fa5901210252b019a84e128ea96413179ee5185a07d5eeb7b4755a29416c1b9b8d92fae3aa0000000000"))
     }
 }
