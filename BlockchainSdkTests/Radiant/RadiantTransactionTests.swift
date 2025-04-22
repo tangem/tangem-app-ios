@@ -21,7 +21,7 @@ final class RadiantTests {
         let lockScript = try builder.lockingScript(for: "1vr9gJkNzTHv8DEQb4QBxAnQCxgzkFkbf")
 
         // then
-        #expect(lockScript.data.hexString.lowercased() == "76a9140a2f12f228cbc244c745f33a23f7e924cbf3b6ad88ac".lowercased())
+        #expect(lockScript.data.hex() == "76a9140a2f12f228cbc244c745f33a23f7e924cbf3b6ad88ac".lowercased())
     }
 
     @Test
@@ -42,7 +42,7 @@ final class RadiantTests {
      https://radiantexplorer.com/tx/d9561e19c8e703e6a5bdd3319fa26fd3ccaf268a9532a90bcb92b8fe70d14428
      */
     @Test
-    func signRawTransaction() throws {
+    func signRawTransaction() async throws {
         // given
         let blockchain = Blockchain.radiant(testnet: false)
         let address = PlainAddress(value: "1NJWsdLAZcEknx7QQzSTMD9ibVPmevyQL4", publicKey: .empty, type: .default)
@@ -80,8 +80,8 @@ final class RadiantTests {
         ]
 
         // when
-        let hashesForSign = try txBuilder.buildForSign(transaction: transaction)
-        let rawTransaction = try txBuilder.buildForSend(transaction: transaction, signatures: signatures)
+        let hashesForSign = try await txBuilder.buildForSign(transaction: transaction)
+        let rawTransaction = try await txBuilder.buildForSend(transaction: transaction, signatures: signatures)
 
         // then
         let expectedHashesForSign = [

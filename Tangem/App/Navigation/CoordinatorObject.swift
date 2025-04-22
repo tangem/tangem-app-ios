@@ -13,7 +13,7 @@ typealias Action<Params> = (Params) -> Void
 struct PopToRootOptions {
     var newScan: Bool = false
 
-    static var `default`: PopToRootOptions = .init()
+    static let `default`: PopToRootOptions = .init()
 }
 
 protocol CoordinatorObject: ObservableObject, Identifiable {
