@@ -14,7 +14,14 @@ import TangemVisa
 import TangemFoundation
 import TangemNFT
 
-class VisaUserWalletModel {
+/// Model responsible for interacting with payment account and BFF
+/// Main setup logic is in `setupPaymentAccountInteractorAsync` . It setups payment account interactor which is responsible with blockchain requests
+/// It can't be setup on initialization, because we need to get authorization tokens to be able to request address from BFF
+/// After receiving tokens we can request customer information and get payment account address and start loading balances and limits info
+/// At first iteration we didn't store payment account information in the app, this might change later.
+/// Transaction history also requested from BFF, so it can be loaded while authorization tokens didn't retrieved
+/// If refresh token for this Visa card is staled we need to request a new one through signing authorization request using card wallet.
+final class VisaUserWalletModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
     @Injected(\.keysManager) private var keysManager: KeysManager
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
@@ -359,7 +366,15 @@ extension VisaUserWalletModel {
 
     func authorizeCard(completion: @escaping () -> Void) {
         let tangemSdk = TangemSdkDefaultFactory().makeTangemSdk()
-        let handler = VisaCardScanHandler()
+        let featureStorage = FeatureStorage.instance
+        let handler = VisaCardScanHandlerBuilder(
+            apiType: featureStorage.visaAPIType,
+            isMockedAPIEnabled: featureStorage.isVisaAPIMocksEnabled
+        ).build(
+            isTestnet: featureStorage.isVisaTestnet,
+            urlSessionConfiguration: .defaultConfiguration,
+            refreshTokenRepository: visaRefreshTokenRepository
+        )
 
         tangemSdk.startSession(with: handler, cardId: cardId) { [weak self] result in
             guard let self else { return }
@@ -419,7 +434,7 @@ extension VisaUserWalletModel: VisaWalletMainHeaderSubtitleDataSource {
     }
 
     var blockchainName: String {
-        "Polygon PoS"
+        VisaUtilities().visaBlockchain.displayName
     }
 
     private var fiatValue: Decimal? {
