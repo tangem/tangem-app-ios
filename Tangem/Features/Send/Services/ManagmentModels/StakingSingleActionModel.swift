@@ -100,7 +100,7 @@ private extension StakingSingleActionModel {
             return error
         }
 
-        return .ready(fee: estimateFee)
+        return .ready(fee: estimateFee, stakesCount: stakingManager.state.stakesCount)
     }
 
     func validate(amount: Decimal, fee: Decimal) -> StakingSingleActionModel.State? {
@@ -132,7 +132,7 @@ private extension StakingSingleActionModel {
             return SendFee(option: .market, value: .loading)
         case .networkError(let error):
             return SendFee(option: .market, value: .failedToLoad(error: error))
-        case .validationError(_, let fee), .ready(let fee):
+        case .validationError(_, let fee), .ready(let fee, _):
             return SendFee(option: .market, value: .loaded(makeFee(value: fee)))
         }
     }
