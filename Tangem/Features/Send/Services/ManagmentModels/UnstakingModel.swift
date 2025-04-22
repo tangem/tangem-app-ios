@@ -117,7 +117,7 @@ private extension UnstakingModel {
             return error
         }
 
-        return .ready(fee: estimateFee)
+        return .ready(fee: estimateFee, stakesCount: stakingManager.state.stakesCount)
     }
 
     func validate(amount: Decimal, fee: Decimal) -> UnstakingModel.State? {
@@ -149,7 +149,7 @@ private extension UnstakingModel {
             return SendFee(option: .market, value: .loading)
         case .networkError(let error):
             return SendFee(option: .market, value: .failedToLoad(error: error))
-        case .validationError(_, let fee), .ready(let fee):
+        case .validationError(_, let fee), .ready(let fee, _):
             return SendFee(option: .market, value: .loaded(makeFee(value: fee)))
         }
     }
@@ -380,7 +380,7 @@ extension UnstakingModel {
 
     enum State {
         case loading
-        case ready(fee: Decimal)
+        case ready(fee: Decimal, stakesCount: Int?)
         case validationError(ValidationError, fee: Decimal)
         case networkError(Error)
     }
