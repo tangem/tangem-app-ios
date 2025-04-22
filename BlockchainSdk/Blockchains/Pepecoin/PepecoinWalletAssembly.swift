@@ -7,32 +7,18 @@
 //
 
 import Foundation
-import TangemSdk
-import BitcoinCore
 
 struct PepecoinWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
         let blockchain = input.wallet.blockchain
-        let compressedKey = try Secp256k1Key(with: input.wallet.publicKey.blockchainKey).compress()
-
-        let networkParams: INetwork = blockchain.isTestnet ? PepecoinTestnetNetworkParams() : PepecoinMainnetNetworkParams()
-
-        let bitcoinManager = BitcoinManager(
-            networkParams: networkParams,
-            walletPublicKey: input.wallet.publicKey.blockchainKey,
-            compressedWalletPublicKey: compressedKey,
-            bip: .bip44
-        )
-
         let unspentOutputManager: UnspentOutputManager = .pepecoin(
             address: input.wallet.defaultAddress,
             isTestnet: input.wallet.blockchain.isTestnet
         )
 
         let txBuilder = BitcoinTransactionBuilder(
-            bitcoinManager: bitcoinManager,
-            unspentOutputManager: unspentOutputManager,
-            addresses: input.wallet.addresses
+            network: blockchain.isTestnet ? PepecoinTestnetNetworkParams() : PepecoinMainnetNetworkParams(),
+            unspentOutputManager: unspentOutputManager
         )
 
         let socketManagers: [ElectrumWebSocketProvider] = APIResolver(blockchain: blockchain, keysConfig: input.networkInput.keysConfig)

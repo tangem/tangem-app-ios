@@ -1,5 +1,5 @@
 {
-  "originHash" : "d288aa579fa8bcf599a74e2021e66eb2202c1a4bc351d1693d3eb19f9f0d5f2a",
+  "originHash" : "47d6acd715d7e290b9bb571d4073927bf59912f34265bdb9ec01758adbf988ba",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -80,15 +80,6 @@
       "state" : {
         "revision" : "0ed110f7555c34ff468e72e1686e59721f2b0da6",
         "version" : "5.3.0"
-      }
-    },
-    {
-      "identity" : "bitcoincore",
-      "kind" : "remoteSourceControl",
-      "location" : "git@github.com:tangem-developments/bitcoincore.git",
-      "state" : {
-        "revision" : "4ec53e5e223885a4c0884d80985cf43677434eb0",
-        "version" : "0.0.23"
       }
     },
     {
@@ -260,6 +251,15 @@
       "state" : {
         "revision" : "a0bc79961d7be727d258d33d5a6b2f1023270ba1",
         "version" : "1.22.5"
+      }
+    },
+    {
+      "identity" : "lottie-spm",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/airbnb/lottie-spm.git",
+      "state" : {
+        "revision" : "8c6edf4f0fa84fe9c058600a4295eb0c01661c69",
+        "version" : "4.5.1"
       }
     },
     {
