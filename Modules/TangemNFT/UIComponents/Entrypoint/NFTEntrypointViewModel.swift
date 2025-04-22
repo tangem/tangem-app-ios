@@ -1,6 +1,6 @@
 //
-//  NFTCollectionsCompactViewModel.swift
-//  TangemApp
+//  NFTEntrypointViewModel.swift
+//  TangemNFT
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -16,12 +16,12 @@ public final class NFTEntrypointViewModel: ObservableObject {
     private var collections: [NFTCollection] = []
     private let nftManager: NFTManager
     private var bag: Set<AnyCancellable> = []
-    private let coordinator: NFTEntrypointRoutable
+    private weak var coordinator: NFTEntrypointRoutable?
 
     public init(
         initialState: LoadingValue<CollectionsViewState> = .loading,
-        coordinator: NFTEntrypointRoutable,
-        nftManager: NFTManager
+        nftManager: NFTManager,
+        coordinator: NFTEntrypointRoutable?
     ) {
         state = initialState
         self.nftManager = nftManager
@@ -122,7 +122,7 @@ public final class NFTEntrypointViewModel: ObservableObject {
     }
 
     func openCollections() {
-        coordinator.openCollections(nftManager)
+        coordinator?.openCollections(nftManager)
     }
 }
 

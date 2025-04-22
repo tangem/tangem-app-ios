@@ -16,7 +16,7 @@ final class TangemNetworkAnalyticsPlugin: PluginType {
     func didReceive(_ result: Result<Response, MoyaError>, target: any TargetType) {
         switch result {
         case .success:
-            // Do nothig
+            // Do nothing
             break
         case .failure(let error):
             let exceptionHost = (error as? TargetTypeLogConvertible)?.requestDescription ?? ""
