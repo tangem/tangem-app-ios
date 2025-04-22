@@ -11,9 +11,9 @@ import Foundation
 extension MoralisNetworkResult {
     /// Generic paginated response for `api/{version}/{address}/nft/collections` and `api/{version}/{address}/nft`.
     struct EVMNFTResponse<T: Decodable>: Decodable {
-        let status: Status
-        let page: Int
-        let pageSize: Int
+        let status: Status?
+        let page: Int?
+        let pageSize: Int?
         let cursor: String?
         let result: T
     }

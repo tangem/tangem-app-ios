@@ -16,12 +16,16 @@ struct SignatureInfo: CustomStringConvertible {
     let hash: Data
 
     var description: String {
-        "signature: \(signature.hexString)\npublicKey: \(publicKey.hexString)\nhash: \(hash)"
+        "signature: \(signature.hex())\npublicKey: \(publicKey.hex())\nhash: \(hash)"
     }
 }
 
 extension SignatureInfo {
     func unmarshal() throws -> Data {
         try Secp256k1Signature(with: signature).unmarshal(with: publicKey, hash: hash).data
+    }
+
+    func der() throws -> Data {
+        try Secp256k1Utils().serializeDer(signature)
     }
 }
