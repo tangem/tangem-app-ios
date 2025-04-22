@@ -152,7 +152,7 @@ class TronNetworkService: MultiNetworkProvider {
 
     private func tokenBalances(address: String, tokens: [Token]) -> AnyPublisher<[Token: Decimal], Error> {
         Result {
-            try TronUtils().convertAddressToBytesPadded(address).hexString.lowercased()
+            try TronUtils().convertAddressToBytesPadded(address).hex()
         }
         .publisher
         .flatMap { encodedAddressData in
