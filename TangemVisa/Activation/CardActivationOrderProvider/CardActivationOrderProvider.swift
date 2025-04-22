@@ -46,7 +46,7 @@ extension CommonCardActivationOrderProvider: CardActivationOrderProvider {
             VisaLogger.error("Missing access token, can't load activation order data", error: VisaActivationError.missingAccessToken)
             throw VisaActivationError.missingAccessToken
         }
-        
+
         guard let cardWalletAddress = activationInput.walletAddress else {
             throw VisaActivationError.missingWalletAddressInInput
         }
