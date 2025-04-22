@@ -29,12 +29,12 @@ struct CardanoAddressService {
         return walletAddress
     }
 
-    private func makeShelleyAddress(from walletPublicKey: Data) -> String {
+    private func makeShelleyAddress(from walletPublicKey: Data) throws -> String {
         // [REDACTED_TODO_COMMENT]
         let publicKeyHash = Sodium().genericHash.hash(message: walletPublicKey.toBytes, outputLength: 28)!
         let addressBytes = addressHeaderByte + publicKeyHash
         let bech32 = Bech32()
-        let walletAddress = bech32.encode(CardanoAddressUtils.bech32Hrp, values: Data(addressBytes))
+        let walletAddress = try bech32.encode(CardanoAddressUtils.bech32Hrp, values: Data(addressBytes))
         return walletAddress
     }
 }
@@ -87,7 +87,7 @@ extension CardanoAddressService: AddressProvider {
 
         switch addressType {
         case .default:
-            let shelley = makeShelleyAddress(from: publicKey.blockchainKey)
+            let shelley = try makeShelleyAddress(from: publicKey.blockchainKey)
             return PlainAddress(value: shelley, publicKey: publicKey, type: addressType)
         case .legacy:
             let byron = makeByronAddress(from: publicKey.blockchainKey)

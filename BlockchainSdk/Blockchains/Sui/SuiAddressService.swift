@@ -15,6 +15,12 @@ final class SuiAddressService: AddressService {
     }
 
     func validate(_ address: String) -> Bool {
-        WalletCoreAddressService(coin: .sui).validate(address)
+        // Check the token contract address
+        let coinType = try? SuiCoinObject.CoinType(string: address)
+
+        // Check the user address
+        let addressValid = WalletCoreAddressService(coin: .sui).validate(address)
+
+        return coinType != nil || addressValid
     }
 }
