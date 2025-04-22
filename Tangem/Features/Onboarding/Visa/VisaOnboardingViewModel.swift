@@ -616,7 +616,7 @@ extension VisaOnboardingViewModel {
 
         return .init(
             input: cardInput,
-            visaActivationManager: VisaActivationManagerFactory(isMockedAPIEnabled: true).make(
+            visaActivationManager: VisaActivationManagerFactory(apiType: .dev, isMockedAPIEnabled: true).make(
                 cardId: cardInput.primaryCardId,
                 initialActivationStatus: activationStatus,
                 tangemSdk: TangemSdkDefaultFactory().makeTangemSdk(),
