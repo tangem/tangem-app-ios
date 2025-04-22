@@ -136,8 +136,15 @@ class CommonVisaAuthorizationTokensHandler {
             VisaLogger.info("Refresh token expired, cant refresh")
             throw VisaAuthorizationTokensHandlerError.refreshTokenExpired
         }
+        
+        guard let authorizationType = await authorizationTokensHolder.authorizationTokens?.authorizationType else {
+            throw VisaAuthorizationTokensHandlerError.refreshTokenExpired
+        }
 
-        let visaTokens = try await tokenRefreshService.refreshAccessToken(refreshToken: refreshJWTToken.string)
+        let visaTokens = try await tokenRefreshService.refreshAccessToken(
+            refreshToken: refreshJWTToken.string,
+            authorizationType: authorizationType
+        )
         let newJWTTokens = try AuthorizationTokensUtility().decodeAuthTokens(visaTokens)
 
         guard let accessToken = newJWTTokens.accessToken else {
