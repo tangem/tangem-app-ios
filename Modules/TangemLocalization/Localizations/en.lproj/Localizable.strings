@@ -848,6 +848,7 @@
 "staking_notification_ton_extra_fee_is_required" = "0.2 TON more is required to proceed with this operation, in addition to the network fee. Top up your balance.";
 "staking_notification_ton_extra_fee_title" = "Staking fee";
 "staking_notification_ton_have_to_unstake_all" = "This action will close other positions or switch them to withdrawal status, according to network rules.";
+"staking_notification_ton_have_to_unstake_all_title" = "Positions status";
 "staking_notification_unlock_text" = "Unlock your money to withdraw it from staking process. Unlocking takes %@.";
 "staking_notification_unstake_cosmos_text" = "Your funds will be available for use after the 21-day unbonding period. Reward will be withdrawn along with your unstaking funds.";
 "staking_notification_unstake_text" = "Your funds will be available for use after the %@ unbonding period.";
