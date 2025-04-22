@@ -34,7 +34,7 @@ class TronTransactionBuilder {
         let refBlockHash = blockHash[8 ..< 16]
 
         let number = blockHeader.number
-        let numberData = Data(Data(from: number).reversed())
+        let numberData = Data(number.data.reversed())
         let refBlockBytes = numberData[6 ..< 8]
 
         let tenHours: Int64 = 10 * 60 * 60 * 1000 // same as WalletCore
