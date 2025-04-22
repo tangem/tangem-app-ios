@@ -12,7 +12,7 @@ import Testing
 struct RavencoinTransactionTests {
     /// https://blockbook.ravencoin.org/tx/c6103bc13fb76814f1a2d34a0e61ca51666bc750db8bba03c04ffc188739dce7
     @Test
-    func transaction() throws {
+    func transaction() async throws {
         // given
         let pubKey = Data(hexString: "02677dd71d01665229de974005670618568b83f6b1e0809aabb99b1646bdc660bb")
         let addressService = BitcoinLegacyAddressService(networkParams: RavencoinMainNetworkParams())
@@ -38,8 +38,8 @@ struct RavencoinTransactionTests {
         ]
 
         // when
-        let hashes = try builder.buildForSign(transaction: transaction)
-        let encoded = try builder.buildForSend(transaction: transaction, signatures: signatures)
+        let hashes = try await builder.buildForSign(transaction: transaction)
+        let encoded = try await builder.buildForSend(transaction: transaction, signatures: signatures)
 
         // then
         #expect(address.value == "RLAppkUmJsgdQ7Khb7ZfL8JG14kaWzjFhK")
