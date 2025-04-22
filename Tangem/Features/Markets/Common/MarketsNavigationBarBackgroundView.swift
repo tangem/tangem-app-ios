@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct MarketsNavigationBarBackgroundView<Overlay>: View where Overlay: View {
     let backdropViewColor: Color
