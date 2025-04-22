@@ -7,6 +7,7 @@
 //
 
 import TangemFoundation
+import TangemSdk
 
 /// Each error code must follow this format: xxxyyyzzz where
 /// xxx - Feature code
@@ -25,10 +26,7 @@ import TangemFoundation
 /// `009` - Common Visa
 /// `010` - Payment account token Info loader
 /// `011` - PIN validator
-extension VisaAPIError: VisaError {
-    public var errorCode: Int { 104001001 }
-}
-
+/// `100` - BFF API
 extension VisaAuthorizationTokensHandlerError: VisaError {
     public var errorCode: Int {
         switch self {
@@ -69,6 +67,13 @@ extension VisaActivationError: VisaError {
         case .underlyingError(let error):
             if let tangemError = error as? UniversalError {
                 return tangemError.errorCode
+            }
+            
+            /// During activation task might be inside tangem sdk error, while TangemSdkError
+            /// doesn't conform `UniversalError` protocol we need to manually unwrap it
+            if let tangemSdkError = error as? TangemSdkError,
+               let errorCode = tangemSdkError.visaErrorCode {
+                return errorCode
             }
 
             return 104003999
@@ -166,5 +171,29 @@ extension VisaPinValidator.PinValidationError: VisaError {
         case .repeatedDigits: return 104011002
         case .sequentialDigits: return 104011003
         }
+    }
+}
+
+extension VisaAPIError: VisaError {
+    public var errorCode: Int {
+        guard (100_000..<1_000_000).contains(code) else {
+            /// Default error code in api doc: 100300
+            return 104100300
+        }
+        
+        return 104_000_000 + code
+    }
+}
+
+fileprivate extension TangemSdkError {
+    var visaErrorCode: Int? {
+        guard
+            case let .underlying(error) = self,
+            let visaError = error as? VisaError
+        else {
+            return nil
+        }
+
+        return visaError.errorCode
     }
 }
