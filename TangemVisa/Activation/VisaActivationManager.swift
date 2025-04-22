@@ -221,7 +221,7 @@ extension CommonVisaActivationManager: VisaActivationManager {
     }
 
     func getCustomerWalletApproveHash() async throws(VisaActivationError) -> Data {
-        guard let activationOrderId = activationStatus?.activationOrder.id else {
+        guard let activationStatus else {
             throw .missingActivationStatusInfo
         }
 
@@ -232,7 +232,8 @@ extension CommonVisaActivationManager: VisaActivationManager {
         VisaLogger.info("Attempting to get challenge to approve by customer wallet")
         do {
             let customerWalletApproveResponse = try await productActivationService.getCustomerWalletDeployAcceptance(
-                activationOrderId: activationOrderId,
+                activationOrderId: activationStatus.activationOrder.id,
+                customerWalletAddress: activationStatus.activationOrder.customerWalletAddress,
                 cardWalletAddress: walletAddress
             )
             return Data(hexString: customerWalletApproveResponse)
