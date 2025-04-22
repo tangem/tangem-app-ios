@@ -6,12 +6,11 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import BitcoinCore
 import CryptoKit
 import TangemSdk
-@testable import BlockchainSdk
 import Testing
 import enum WalletCore.CoinType
+@testable import BlockchainSdk
 
 struct PolkadotAddressTests {
     private let curves = [EllipticCurve.ed25519, .ed25519_slip0010]
