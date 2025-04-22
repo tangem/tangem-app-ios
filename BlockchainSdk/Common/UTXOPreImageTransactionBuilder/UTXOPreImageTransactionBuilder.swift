@@ -15,7 +15,7 @@ protocol UTXOPreImageTransactionBuilder {
         changeScript: UTXOScriptType,
         destination: UTXOPreImageDestination,
         fee: UTXOPreImageTransactionBuilderFee
-    ) throws -> UTXOPreImageTransaction
+    ) async throws -> UTXOPreImageTransaction
 }
 
 struct UTXOPreImageDestination {

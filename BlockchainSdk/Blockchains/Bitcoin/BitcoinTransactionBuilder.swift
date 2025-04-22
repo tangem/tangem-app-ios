@@ -20,14 +20,14 @@ class BitcoinTransactionBuilder {
         self.unspentOutputManager = unspentOutputManager
     }
 
-    func fee(amount: Amount, address: String, feeRate: Int) throws -> Int {
+    func fee(amount: Amount, address: String, feeRate: Int) async throws -> Int {
         let satoshi = amount.asSmallest().value.intValue()
-        let preImage = try unspentOutputManager.preImage(amount: satoshi, feeRate: feeRate, destination: address)
+        let preImage = try await unspentOutputManager.preImage(amount: satoshi, feeRate: feeRate, destination: address)
         return preImage.fee
     }
 
-    func buildForSign(transaction: Transaction) throws -> [Data] {
-        let input = try buildSigningInputInput(transaction: transaction)
+    func buildForSign(transaction: Transaction) async throws -> [Data] {
+        let input = try await buildSigningInputInput(transaction: transaction)
         let txInputData = try input.serializedData()
 
         let preImageHashes = TransactionCompiler.preImageHashes(coinType: coinType, txInputData: txInputData)
@@ -42,8 +42,8 @@ class BitcoinTransactionBuilder {
         return hashes
     }
 
-    func buildForSend(transaction: Transaction, signatures: [SignatureInfo]) throws -> Data {
-        let input = try buildSigningInputInput(transaction: transaction)
+    func buildForSend(transaction: Transaction, signatures: [SignatureInfo]) async throws -> Data {
+        let input = try await buildSigningInputInput(transaction: transaction)
         let txInputData = try input.serializedData()
 
         let signaturesVector = DataVector()
@@ -80,12 +80,12 @@ class BitcoinTransactionBuilder {
 // MARK: - Private
 
 private extension BitcoinTransactionBuilder {
-    func buildSigningInputInput(transaction: Transaction) throws -> BitcoinSigningInput {
+    func buildSigningInputInput(transaction: Transaction) async throws -> BitcoinSigningInput {
         guard let parameters = transaction.fee.parameters as? BitcoinFeeParameters else {
             throw Error.noBitcoinFeeParameters
         }
 
-        let preImage = try unspentOutputManager.preImage(transaction: transaction)
+        let preImage = try await unspentOutputManager.preImage(transaction: transaction)
 
         guard let destination = preImage.outputs.first(where: { $0.isDestination }) else {
             throw Error.noDestinationAmount
