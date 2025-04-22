@@ -20,7 +20,7 @@ struct VisaAPIError: Error, Decodable {
     let code: Int
     let name: String
     let message: String
-    
+
     var errorDescription: String? {
         return """
         Name: \(name)
@@ -29,4 +29,3 @@ struct VisaAPIError: Error, Decodable {
         """
     }
 }
-
