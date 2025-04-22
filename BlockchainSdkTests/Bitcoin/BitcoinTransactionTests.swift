@@ -21,7 +21,7 @@ struct BitcoinTransactionTests {
 
     /// https://www.blockchair.com/bitcoin/transaction/1df3c8aa649e1c1b3760685a0fc1ac7b3dd9be7e0ab35f7accf8195737e6caac
     @Test
-    func legacyAndDefaultAddressTransaction() throws {
+    func legacyAndDefaultAddressTransaction() async throws {
         // given
         let networkParams = BitcoinNetworkParams()
         let pubKey = Data(hexString: "0256e4711ea6bf3309e039ee30b203b18783a8c7c78c68ff2e36acec3c6f51c884")
@@ -63,8 +63,8 @@ struct BitcoinTransactionTests {
         ]
 
         // when
-        let hashes = try builder.buildForSign(transaction: transaction)
-        let encoded = try builder.buildForSend(transaction: transaction, signatures: signatures)
+        let hashes = try await builder.buildForSign(transaction: transaction)
+        let encoded = try await builder.buildForSend(transaction: transaction, signatures: signatures)
 
         // then
         #expect(defaultAddress.value == "bc1qx427ycxzg7cak7zxelv25lts9n2tvhcgjff54z")

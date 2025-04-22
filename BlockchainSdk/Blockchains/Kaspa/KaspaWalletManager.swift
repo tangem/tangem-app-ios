@@ -119,131 +119,128 @@ final class KaspaWalletManager: BaseManager, WalletManager {
     }
 
     private func sendKaspaCoinTransaction(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
-        let kaspaTransaction: KaspaTransaction
-        let hashes: [Data]
-
-        do {
-            let result = try txBuilder.buildForSign(transaction: transaction)
-            kaspaTransaction = result.0
-            hashes = result.1
-        } catch {
-            return .sendTxFail(error: error)
+        Future.async {
+            try await self.txBuilder.buildForSign(transaction: transaction)
         }
+        .withWeakCaptureOf(self)
+        .flatMap { manager, input in
+            signer.sign(hashes: input.hashes, walletPublicKey: manager.wallet.publicKey)
+                .map { ($0, input) }
+        }
+        .withWeakCaptureOf(self)
+        .tryMap { manager, input in
+            let (signatures, result) = input
+            return manager.txBuilder.mapToTransaction(transaction: result.transaction, signatures: signatures)
+        }
+        .withWeakCaptureOf(self)
+        .flatMap { manager, tx in
+            let encodedRawTransactionData = try? JSONEncoder().encode(tx)
 
-        return signer.sign(hashes: hashes, walletPublicKey: wallet.publicKey)
-            .withWeakCaptureOf(self)
-            .tryMap { manager, signatures in
-                return manager.txBuilder.mapToTransaction(transaction: kaspaTransaction, signatures: signatures)
-            }
-            .withWeakCaptureOf(self)
-            .flatMap { manager, tx in
-                let encodedRawTransactionData = try? JSONEncoder().encode(tx)
-
-                return manager
-                    .networkService
-                    .send(transaction: KaspaDTO.Send.Request(transaction: tx))
-                    .mapSendError(tx: encodedRawTransactionData?.hex())
-            }
-            .withWeakCaptureOf(self)
-            .handleEvents(receiveOutput: { manager, response in
-                let mapper = PendingTransactionRecordMapper()
-                let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: response.transactionId)
-                manager.wallet.addPendingTransaction(record)
-            })
-            .map { _, response in
-                return TransactionSendResult(hash: response.transactionId)
-            }
-            .eraseSendError()
-            .eraseToAnyPublisher()
+            return manager
+                .networkService
+                .send(transaction: KaspaDTO.Send.Request(transaction: tx))
+                .mapSendError(tx: encodedRawTransactionData?.hexString.lowercased())
+        }
+        .withWeakCaptureOf(self)
+        .handleEvents(receiveOutput: { manager, response in
+            let mapper = PendingTransactionRecordMapper()
+            let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: response.transactionId)
+            manager.wallet.addPendingTransaction(record)
+        })
+        .map { _, response in
+            return TransactionSendResult(hash: response.transactionId)
+        }
+        .eraseSendError()
+        .eraseToAnyPublisher()
     }
 
     private func sendKaspaTokenTransaction(_ transaction: Transaction, token: Token, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
-        let txgroup: KaspaKRC20.TransactionGroup
-        let meta: KaspaKRC20.TransactionMeta
-
-        do {
-            let result = try txBuilder.buildForSignKRC20(transaction: transaction)
-            txgroup = result.0
-            meta = result.1
-        } catch {
-            return .sendTxFail(error: error)
+        return Future.async {
+            try await self.txBuilder.buildForSignKRC20(transaction: transaction)
         }
+        .withWeakCaptureOf(self)
+        .flatMap { manager, input in
+            let (txgroup, _) = input
+            let hashes = txgroup.hashesCommit + txgroup.hashesReveal
+            return signer
+                .sign(hashes: hashes, walletPublicKey: manager.wallet.publicKey)
+                .map { ($0, input) }
+        }
+        .withWeakCaptureOf(self)
+        .tryMap { manager, input in
+            let (signatures, result) = input
 
-        let hashes = txgroup.hashesCommit + txgroup.hashesReveal
-        return signer
-            .sign(hashes: hashes, walletPublicKey: wallet.publicKey)
-            .withWeakCaptureOf(self)
-            .tryMap { manager, signatures in
-                // Build Commit & Reveal
-                let commitSignatures = Array(signatures[..<txgroup.hashesCommit.count])
-                let revealSignatures = Array(signatures[txgroup.hashesCommit.count...])
+            // Build Commit & Reveal
+            let commitSignatures = Array(signatures[..<result.txgroup.hashesCommit.count])
+            let revealSignatures = Array(signatures[result.txgroup.hashesCommit.count...])
 
-                let commitTx = manager.txBuilder.mapToTransaction(
-                    transaction: txgroup.kaspaCommitTransaction,
-                    signatures: commitSignatures
-                )
+            let commitTx = manager.txBuilder.mapToTransaction(
+                transaction: result.txgroup.kaspaCommitTransaction,
+                signatures: commitSignatures
+            )
 
-                let revealTx = manager.txBuilder.mapToRevealTransaction(
-                    transaction: txgroup.kaspaRevealTransaction,
-                    commitRedeemScript: meta.redeemScriptCommit.data,
-                    signatures: revealSignatures
-                )
+            let revealTx = manager.txBuilder.mapToRevealTransaction(
+                transaction: result.txgroup.kaspaRevealTransaction,
+                commitRedeemScript: result.meta.redeemScriptCommit.data,
+                signatures: revealSignatures
+            )
 
-                return (commitTx, revealTx)
-            }
-            .withWeakCaptureOf(self)
-            .flatMap { manager, input in
-                // Send Commit
-                let (commitTx, revealTx) = input
-                let encodedRawTransactionData = try? JSONEncoder().encode(commitTx)
+            return (commitTx, revealTx, result)
+        }
+        .withWeakCaptureOf(self)
+        .flatMap { manager, input in
+            // Send Commit
+            let (commitTx, revealTx, result) = input
+            let encodedRawTransactionData = try? JSONEncoder().encode(commitTx)
 
-                return manager.networkService
-                    .send(transaction: KaspaDTO.Send.Request(transaction: commitTx))
-                    .mapSendError(tx: encodedRawTransactionData?.hex())
-                    .mapToValue(revealTx)
-            }
-            .withWeakCaptureOf(self)
-            .asyncMap { manager, revealTx in
-                // Store Commit
-                await manager.store(incompleteTokenTransaction: meta.incompleteTransactionParams, for: token)
-                return revealTx
-            }
-            .delay(for: .seconds(KaspaKRC20.Constants.revealTransactionSendDelay), scheduler: DispatchQueue.main)
-            .withWeakCaptureOf(self)
-            .flatMap { manager, revealTx in
-                // Send Reveal
-                let encodedRawTransactionData = try? JSONEncoder().encode(revealTx)
+            return manager.networkService
+                .send(transaction: KaspaDTO.Send.Request(transaction: commitTx))
+                .mapSendError(tx: encodedRawTransactionData?.hexString.lowercased())
+                .mapToValue((revealTx, result))
+        }
+        .withWeakCaptureOf(self)
+        .asyncMap { manager, input in
+            let (revealTx, result) = input
+            // Store Commit
+            await manager.store(incompleteTokenTransaction: result.meta.incompleteTransactionParams, for: token)
+            return revealTx
+        }
+        .delay(for: .seconds(KaspaKRC20.Constants.revealTransactionSendDelay), scheduler: DispatchQueue.main)
+        .withWeakCaptureOf(self)
+        .flatMap { manager, revealTx in
+            // Send Reveal
+            let encodedRawTransactionData = try? JSONEncoder().encode(revealTx)
 
-                return manager
-                    .networkService
-                    .send(transaction: KaspaDTO.Send.Request(transaction: revealTx))
-                    .handleEvents(receiveFailure: { [weak manager] _ in
-                        // A failed reveal tx should trigger `wallet` update so the SDK consumer
-                        // can observe and handle it (e.g. display a notification)
-                        manager?.wallet.setAssetRequirements()
-                    })
-                    .wire { [weak manager] () -> AnyPublisher<Void, Error> in
-                        guard let manager else {
-                            return .anyFail(error: WalletError.empty)
-                        }
-
-                        // Both failed and successful reveal txs should trigger the update of the UTXOs state in tx builder,
-                        // therefore `wire` operator is used here
-                        return manager.updateUnspentOutputs()
+            return manager
+                .networkService
+                .send(transaction: KaspaDTO.Send.Request(transaction: revealTx))
+                .handleEvents(receiveFailure: { [weak manager] _ in
+                    // A failed reveal tx should trigger `wallet` update so the SDK consumer
+                    // can observe and handle it (e.g. display a notification)
+                    manager?.wallet.setAssetRequirements()
+                })
+                .wire { [weak manager] () -> AnyPublisher<Void, Error> in
+                    guard let manager else {
+                        return .anyFail(error: WalletError.empty)
                     }
-                    .mapSendError(tx: encodedRawTransactionData?.hex())
-            }
-            .withWeakCaptureOf(self)
-            .handleEvents(receiveOutput: { manager, response in
-                manager.handleSuccessfulRevealTokenTransaction(transaction, token: token, response: response)
-            })
-            .asyncMap { manager, response in
-                // Delete Commit
-                await manager.removeIncompleteTokenTransaction(for: token)
-                return TransactionSendResult(hash: response.transactionId)
-            }
-            .eraseSendError()
-            .eraseToAnyPublisher()
+
+                    // Both failed and successful reveal txs should trigger the update of the UTXOs state in tx builder,
+                    // therefore `wire` operator is used here
+                    return manager.updateUnspentOutputs()
+                }
+                .mapSendError(tx: encodedRawTransactionData?.hexString.lowercased())
+        }
+        .withWeakCaptureOf(self)
+        .handleEvents(receiveOutput: { manager, response in
+            manager.handleSuccessfulRevealTokenTransaction(transaction, token: token, response: response)
+        })
+        .asyncMap { manager, response in
+            // Delete Commit
+            await manager.removeIncompleteTokenTransaction(for: token)
+            return TransactionSendResult(hash: response.transactionId)
+        }
+        .eraseSendError()
+        .eraseToAnyPublisher()
     }
 
     private func sendIncompleteKaspaTokenTransactionIfPossible(
@@ -361,8 +358,8 @@ final class KaspaWalletManager: BaseManager, WalletManager {
                 .feeEstimate()
                 .receive(on: DispatchQueue.global())
                 .withWeakCaptureOf(self)
-                .tryMap { manager, feeEstimate in
-                    let transactionData = try manager.txBuilder.buildForMassCalculationKRC20(
+                .tryAsyncMap { manager, feeEstimate in
+                    let transactionData = try await manager.txBuilder.buildForMassCalculationKRC20(
                         amount: amount,
                         feeRate: Int(feeEstimate.priorityBucket.feerate),
                         sourceAddress: source,
@@ -386,8 +383,8 @@ final class KaspaWalletManager: BaseManager, WalletManager {
                 .feeEstimate()
                 .receive(on: DispatchQueue.global())
                 .withWeakCaptureOf(self)
-                .tryMap { manager, feeEstimate in
-                    let transactionData = try manager.txBuilder.buildForMassCalculation(
+                .tryAsyncMap { manager, feeEstimate in
+                    let transactionData = try await manager.txBuilder.buildForMassCalculation(
                         amount: amount,
                         feeRate: Int(feeEstimate.priorityBucket.feerate),
                         sourceAddress: source,
