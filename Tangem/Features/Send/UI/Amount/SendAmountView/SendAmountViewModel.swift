@@ -39,7 +39,7 @@ class SendAmountViewModel: ObservableObject {
             set: { $0.amountType = $1 ? .fiat : .crypto }
         )
     }
-    
+
     var tokenCurrencySymbol: String {
         tokenItem.currencySymbol
     }
