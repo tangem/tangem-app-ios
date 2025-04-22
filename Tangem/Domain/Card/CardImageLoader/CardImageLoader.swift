@@ -10,6 +10,7 @@ import Foundation
 import class UIKit.UIImage
 import Combine
 import TangemSdk
+import TangemNetworkUtils
 
 class CardImageLoader {
     private let networkService: NetworkService
@@ -20,7 +21,7 @@ class CardImageLoader {
         sessionConfiguration.timeoutIntervalForRequest = 10
         sessionConfiguration.timeoutIntervalForResource = 30
         sessionConfiguration.requestCachePolicy = .returnCacheDataElseLoad
-        let session = URLSession(configuration: sessionConfiguration)
+        let session = TangemURLSessionBuilder.makeSession(configuration: sessionConfiguration)
         networkService = .init(session: session)
     }
 
