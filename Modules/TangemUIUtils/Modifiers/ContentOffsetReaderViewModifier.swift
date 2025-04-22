@@ -1,6 +1,6 @@
 //
 //  View+ReadContentOffset.swift
-//  Tangem
+//  TangemUIUtils
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2023 Tangem AG. All rights reserved.
@@ -9,7 +9,7 @@
 import SwiftUI
 import TangemUIUtils
 
-extension View {
+public extension View {
     /// 1. Assign stable coordinate space to the scroll view itself.
     /// 2. Use this modifier on the container view (e.g. `VStack` or `HStack`) that is used inside the scroll view.
     ///
