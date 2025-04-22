@@ -11,29 +11,6 @@ import LocalAuthentication
 import TangemSdk
 import TangemVisa
 
-protocol VisaRefreshTokenRepository: VisaRefreshTokenSaver {
-    func save(refreshToken: String, cardId: String) throws
-    func deleteToken(cardId: String) throws
-    /// - Parameters:
-    ///  - cardIdTokenToKeep: this token will be saved after clearing secure and biometrics storages, but it will only persist in memory, not in storages
-    func clear(cardIdTokenToKeep: String?)
-    func fetch(using context: LAContext)
-    func getToken(forCardId cardId: String) -> String?
-    func lock()
-}
-
-extension VisaRefreshTokenRepository {
-    func clear() {
-        clear(cardIdTokenToKeep: nil)
-    }
-}
-
-extension VisaRefreshTokenRepository {
-    func saveRefreshTokenToStorage(refreshToken: String, cardId: String) throws {
-        try save(refreshToken: refreshToken, cardId: cardId)
-    }
-}
-
 private struct VisaRefreshTokenRepositoryKey: InjectionKey {
     static var currentValue: VisaRefreshTokenRepository = CommonVisaRefreshTokenRepository()
 }

@@ -56,12 +56,12 @@ extension SendAmountStep: SendStep {
             break
         case (.staking, true):
             let tokenCurrencySymbol = viewModel.tokenCurrencySymbol
-            
+
             Analytics.log(
                 event: .stakingScreenReopened,
                 params: [
                     .source: Analytics.ParameterValue.amount.rawValue,
-                    .token: tokenCurrencySymbol
+                    .token: tokenCurrencySymbol,
                 ]
             )
         case (_, true):

@@ -27,7 +27,8 @@ struct CardActivationOrderProviderBuilder {
         }
 
         let cardActivationStatusService = cardActivationStatusService ?? VisaCardActivationStatusServiceBuilder(
-            apiType: apiType, isMockedAPIEnabled: isMockedAPIEnabled).build(urlSessionConfiguration: urlSessionConfiguration)
+            apiType: apiType, isMockedAPIEnabled: isMockedAPIEnabled
+        ).build(urlSessionConfiguration: urlSessionConfiguration)
 
         let productActivationService = CommonProductActivationService(
             apiType: apiType,

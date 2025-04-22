@@ -56,4 +56,3 @@ struct APIService<Target: TargetType> {
         )
     }
 }
-
