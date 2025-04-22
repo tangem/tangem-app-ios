@@ -23,7 +23,7 @@ struct ChiaAddressService: AddressService {
         let puzzle = ChiaPuzzleUtils().getPuzzleHash(from: publicKey.blockchainKey)
         let puzzleHash = try ClvmProgram.Decoder(programBytes: puzzle.bytes).deserialize().hash()
         let hrp = HRP.part(isTestnet: isTestnet)
-        let encodeValue = Bech32(variant: .bech32m).encode(hrp, values: puzzleHash)
+        let encodeValue = try Bech32(variant: .bech32m).encode(hrp, values: puzzleHash)
 
         return PlainAddress(value: encodeValue, publicKey: publicKey, type: addressType)
     }
