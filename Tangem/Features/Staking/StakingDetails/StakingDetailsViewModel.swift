@@ -331,9 +331,14 @@ private extension StakingDetailsViewModel {
     func setupStakes(yield: YieldInfo, staking: [StakingBalance]) {
         let staking = staking.map { balance in
             stakesBuilder.mapToStakingDetailsStakeViewData(yield: yield, balance: balance) { [weak self] in
+                let tokenCurrencySymbol = self?.tokenItem.currencySymbol ?? ""
+                
                 Analytics.log(
                     event: .stakingButtonValidator,
-                    params: [.source: Analytics.ParameterValue.stakeSourceStakeInfo.rawValue]
+                    params: [
+                        .source: Analytics.ParameterValue.stakeSourceStakeInfo.rawValue,
+                        .token: tokenCurrencySymbol
+                    ]
                 )
                 self?.openFlow(balance: balance, validators: yield.validators)
             }
@@ -378,7 +383,13 @@ private extension StakingDetailsViewModel {
             openFlow(balance: rewardsBalance, validators: yield.validators)
 
             let name = rewardsBalance.validatorType.validator?.name
-            Analytics.log(event: .stakingButtonRewards, params: [.validator: name ?? ""])
+            Analytics.log(
+                event: .stakingButtonRewards,
+                params: [
+                    .validator: name ?? "",
+                    .token: tokenItem.currencySymbol
+                ]
+            )
         } else {
             coordinator?.openMultipleRewards()
         }
