@@ -29,7 +29,7 @@ extension ProductActivationAPITarget {
         case cardWallet = "card_wallet"
         case customerWallet = "customer_wallet"
     }
-    
+
     struct GetAcceptanceMessageRequest: Encodable {
         let type: AcceptanceMessageType
         let customerWalletAddress: String
