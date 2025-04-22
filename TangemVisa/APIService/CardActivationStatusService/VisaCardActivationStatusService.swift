@@ -18,10 +18,13 @@ public protocol VisaCardActivationStatusService {
 }
 
 struct CommonCardActivationStatusService {
-    typealias ActivationStatusService = APIService<ProductActivationAPITarget, VisaAPIError>
+    typealias ActivationStatusService = APIService<ProductActivationAPITarget>
     private let apiService: ActivationStatusService
+    
+    private let apiType: VisaAPIType
 
-    init(apiService: ActivationStatusService) {
+    init(apiType: VisaAPIType, apiService: ActivationStatusService) {
+        self.apiType = apiType
         self.apiService = apiService
     }
 }
@@ -32,24 +35,17 @@ extension CommonCardActivationStatusService: VisaCardActivationStatusService {
         cardId: String,
         cardPublicKey: String
     ) async throws -> VisaCardActivationStatus {
-        let tokensUtility = AuthorizationTokensUtility()
-
-        guard let accessToken = authorizationTokens.accessToken else {
-            throw VisaAuthorizationTokensHandlerError.missingAccessToken
-        }
-
-        let ids = try VisaBFFUtility().getEssentialBFFIds(from: accessToken)
-
         let request = ProductActivationAPITarget.ActivationStatusRequest(
-            customerId: ids.customerId,
-            productInstanceId: ids.productInstanceId,
             cardId: cardId,
             cardPublicKey: cardPublicKey
         )
+
+        let tokensUtility = AuthorizationTokensUtility()
         let authorizationToken = try tokensUtility.getAuthorizationHeader(from: authorizationTokens)
         return try await apiService.request(.init(
             target: .activationStatus(request: request),
-            authorizationToken: authorizationToken
+            authorizationToken: authorizationToken,
+            apiType: apiType
         ))
     }
 }

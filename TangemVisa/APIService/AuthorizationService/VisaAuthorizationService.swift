@@ -21,14 +21,17 @@ public protocol VisaAuthorizationService {
 }
 
 public protocol VisaAuthorizationTokenRefreshService {
-    func refreshAccessToken(refreshToken: String) async throws -> VisaAuthorizationTokens
+    func refreshAccessToken(refreshToken: String, authorizationType: VisaAuthorizationType) async throws -> VisaAuthorizationTokens
 }
 
 struct CommonVisaAuthorizationService {
-    typealias AuthorizationAPIService = APIService<AuthorizationAPITarget, VisaAuthorizationAPIError>
+    typealias AuthorizationAPIService = APIService<AuthorizationAPITarget>
     private let apiService: AuthorizationAPIService
+    
+    private let apiType: VisaAPIType
 
-    init(apiService: AuthorizationAPIService) {
+    init(apiType: VisaAPIType, apiService: AuthorizationAPIService) {
+        self.apiType = apiType
         self.apiService = apiService
     }
 }
@@ -36,13 +39,25 @@ struct CommonVisaAuthorizationService {
 extension CommonVisaAuthorizationService: VisaAuthorizationService {
     func getCardAuthorizationChallenge(cardId: String, cardPublicKey: String) async throws -> VisaAuthChallengeResponse {
         try await apiService.request(.init(
-            target: .generateNonceByCID(cid: cardId, cardPublicKey: cardPublicKey)
+            target: .generateNonce(request: .init(
+                cardId: cardId,
+                cardPublicKey: cardPublicKey,
+                cardWalletAddress: nil,
+                authType: .cardId
+            )),
+            apiType: apiType
         ))
     }
 
     func getWalletAuthorizationChallenge(cardId: String, walletAddress: String) async throws -> VisaAuthChallengeResponse {
         try await apiService.request(.init(
-            target: .generateNonceForWallet(cid: cardId, walletAddress: walletAddress)
+            target: .generateNonce(request: .init(
+                cardId: cardId,
+                cardPublicKey: nil,
+                cardWalletAddress: walletAddress,
+                authType: .cardWallet
+            )),
+            apiType: apiType
         ))
     }
 
@@ -51,22 +66,42 @@ extension CommonVisaAuthorizationService: VisaAuthorizationService {
         salt: String,
         sessionId: String
     ) async throws -> VisaAuthorizationTokens {
-        try await apiService.request(.init(
-            target: .getAccessTokenForCardAuth(signature: signedChallenge, salt: salt, sessionId: sessionId)
+        let dto: AuthorizationTokenDTO = try await apiService.request(.init(
+            target: .getAuthorizationTokens(request: .init(
+                signature: signedChallenge,
+                salt: salt,
+                sessionId: sessionId,
+                authType: .cardId
+            )),
+            apiType: apiType
         ))
+        
+        return .init(dto: dto, authorizationType: .cardId)
     }
 
     func getAccessTokensForWalletAuth(signedChallenge: String, sessionId: String) async throws -> VisaAuthorizationTokens? {
-        try await apiService.request(.init(
-            target: .getAccessTokenForWalletAuth(signature: signedChallenge, sessionId: sessionId)
+        let dto: AuthorizationTokenDTO = try await apiService.request(.init(
+            target: .getAuthorizationTokens(request: .init(
+                signature: signedChallenge,
+                salt: nil,
+                sessionId: sessionId,
+                authType: .cardWallet
+            )),
+            apiType: apiType
         ))
+        
+        return .init(dto: dto, authorizationType: .cardWallet)
     }
 }
 
 extension CommonVisaAuthorizationService: VisaAuthorizationTokenRefreshService {
-    func refreshAccessToken(refreshToken: String) async throws -> VisaAuthorizationTokens {
+    func refreshAccessToken(refreshToken: String, authorizationType: VisaAuthorizationType) async throws -> VisaAuthorizationTokens {
         try await apiService.request(.init(
-            target: .refreshAccessToken(refreshToken: refreshToken)
+            target: .refreshAuthorizationTokens(request: .init(
+                refreshToken: refreshToken,
+                authType: authorizationType
+            )),
+            apiType: apiType
         ))
     }
 }
