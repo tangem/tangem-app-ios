@@ -38,10 +38,9 @@ class DogecoinWalletManager: BitcoinWalletManager {
             prioritySatoshiPerByte: maxRate
         )
 
-        return Just(())
-            .receive(on: DispatchQueue.global())
-            .withWeakCaptureOf(self)
-            .tryMap { try $0.0.processFee(ratesModel, amount: amount, destination: destination) }
-            .eraseToAnyPublisher()
+        return Future.async {
+            try await self.processFee(ratesModel, amount: amount, destination: destination)
+        }
+        .eraseToAnyPublisher()
     }
 }

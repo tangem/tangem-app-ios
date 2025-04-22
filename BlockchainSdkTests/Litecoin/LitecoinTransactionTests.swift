@@ -12,7 +12,7 @@ import Testing
 final class LitecoinTransactionTests {
     /// https://blockchair.com/litecoin/transaction/e137c6b47d2553104897a2bb769c638a019c838f84d69d729b879f7568ab0fd5
     @Test
-    func legacyAndDefaultAddressTransaction() throws {
+    func legacyAndDefaultAddressTransaction() async throws {
         // given
         let networkParams = LitecoinNetworkParams()
         let pubKey = Data(hexString: "0252b019a84e128ea96413179ee5185a07d5eeb7b4755a29416c1b9b8d92fae3aa")
@@ -54,8 +54,8 @@ final class LitecoinTransactionTests {
         ]
 
         // when
-        let hashes = try builder.buildForSign(transaction: transaction)
-        let encoded = try builder.buildForSend(transaction: transaction, signatures: signatures)
+        let hashes = try await builder.buildForSign(transaction: transaction)
+        let encoded = try await builder.buildForSend(transaction: transaction, signatures: signatures)
 
         // then
         #expect(defaultAddress.value == "ltc1qxj6zrp9ea8kvlcq58qzw09a74rxlsecgu29nu0")
