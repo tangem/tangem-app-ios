@@ -229,6 +229,7 @@ class VisaUserWalletModel {
 
         do {
             let customerCardInfoProviderBuilder = VisaCustomerCardInfoProviderBuilder(
+                apiType: await FeatureStorage.instance.visaAPIType,
                 isMockedAPIEnabled: await FeatureStorage.instance.isVisaAPIMocksEnabled,
                 isTestnet: blockchain.isTestnet,
                 cardId: cardId
@@ -324,7 +325,7 @@ extension VisaUserWalletModel {
 
         let authorizationTokens: VisaAuthorizationTokens
         if let savedRefreshToken = visaRefreshTokenRepository.getToken(forCardId: cardId), savedRefreshToken != cardInfoAuthorizationTokens.refreshToken {
-            authorizationTokens = .init(accessToken: nil, refreshToken: savedRefreshToken)
+            authorizationTokens = .init(accessToken: nil, refreshToken: savedRefreshToken, authorizationType: .cardWallet)
         } else {
             authorizationTokens = cardInfoAuthorizationTokens
         }
@@ -333,7 +334,10 @@ extension VisaUserWalletModel {
     }
 
     private func setupTokensHandler(with tokens: VisaAuthorizationTokens) async throws {
-        let authorizationTokensHandlerBuilder = await VisaAuthorizationTokensHandlerBuilder(isMockedAPIEnabled: FeatureStorage.instance.isVisaAPIMocksEnabled)
+        let authorizationTokensHandlerBuilder = await VisaAuthorizationTokensHandlerBuilder(
+            apiType: FeatureStorage.instance.visaAPIType,
+            isMockedAPIEnabled: FeatureStorage.instance.isVisaAPIMocksEnabled
+        )
         let authorizationTokensHandler = authorizationTokensHandlerBuilder.build(
             cardId: cardId,
             cardActivationStatus: .activated(authTokens: tokens),
@@ -389,11 +393,16 @@ extension VisaUserWalletModel {
     }
 
     private func setupTransactionHistoryService(with authorizationTokensHandler: VisaAuthorizationTokensHandler) {
-        let apiService = VisaAPIServiceBuilder().buildTransactionHistoryService(
+        let apiService = VisaAPIServiceBuilder(
+            apiType: FeatureStorage.instance.visaAPIType,
+            isMockedAPIEnabled: FeatureStorage.instance.isVisaAPIMocksEnabled
+        )
+        .buildTransactionHistoryService(
             authorizationTokensHandler: authorizationTokensHandler,
             isTestnet: FeatureStorage.instance.isVisaTestnet,
             urlSessionConfiguration: .defaultConfiguration
         )
+
         transactionHistoryService.setupApiService(apiService)
     }
 }

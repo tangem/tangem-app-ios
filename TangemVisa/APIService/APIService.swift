@@ -10,7 +10,7 @@ import Foundation
 import Moya
 import TangemNetworkUtils
 
-struct APIService<Target: TargetType, ErrorType: Error & Decodable> {
+struct APIService<Target: TargetType> {
     private let provider: TangemProvider<Target>
     private var decoder: JSONDecoder
 
@@ -35,29 +35,18 @@ struct APIService<Target: TargetType, ErrorType: Error & Decodable> {
             response = try response.filterSuccessfulStatusAndRedirectCodes()
             log(target: request, response: response, error: nil)
         } catch {
-            if let apiError = tryMapError(target: request, response: response) {
-                throw apiError
-            }
+            let errorResponse = try decoder.decode(VisaAPIErrorResponse.self, from: response.data)
 
-            throw error
+            log(target: request, response: response, error: errorResponse.error)
+            throw errorResponse.error
         }
 
         do {
-            return try decoder.decode(T.self, from: response.data)
+            let apiResponse = try decoder.decode(VisaAPIResponse<T>.self, from: response.data)
+            return apiResponse.result
         } catch {
             log(target: request, response: response, error: error)
             throw error
-        }
-    }
-
-    func tryMapError(target: Target, response: Response) -> ErrorType? {
-        do {
-            let error = try JSONDecoder().decode(ErrorType.self, from: response.data)
-            log(target: target, response: response, error: error)
-            return error
-        } catch {
-            log(target: target, response: response, error: error)
-            return nil
         }
     }
 
@@ -67,3 +56,4 @@ struct APIService<Target: TargetType, ErrorType: Error & Decodable> {
         )
     }
 }
+
