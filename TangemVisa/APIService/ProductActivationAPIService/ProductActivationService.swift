@@ -11,7 +11,8 @@ import Foundation
 protocol ProductActivationService {
     func getVisaCardDeployAcceptance(
         activationOrderId: String,
-        customerWalletAddress: String
+        customerWalletAddress: String,
+        cardWalletAddress: String
     ) async throws -> String
     func sendSignedVisaCardDeployAcceptance(
         activationOrderId: String,
@@ -23,6 +24,7 @@ protocol ProductActivationService {
 
     func getCustomerWalletDeployAcceptance(
         activationOrderId: String,
+        customerWalletAddress: String,
         cardWalletAddress: String
     ) async throws -> String
     func sendSignedCustomerWalletDeployAcceptance(
@@ -40,48 +42,47 @@ protocol ProductActivationService {
 }
 
 struct CommonProductActivationService {
-    typealias ActivationAPIService = APIService<ProductActivationAPITarget, VisaAPIError>
+    typealias ActivationAPIService = APIService<ProductActivationAPITarget>
     private let authorizationTokensHandler: VisaAuthorizationTokensHandler
     private let apiService: ActivationAPIService
+    
+    private let apiType: VisaAPIType
 
     init(
+        apiType: VisaAPIType,
         authorizationTokensHandler: VisaAuthorizationTokensHandler,
         apiService: ActivationAPIService
     ) {
+        self.apiType = apiType
         self.authorizationTokensHandler = authorizationTokensHandler
         self.apiService = apiService
-    }
-
-    private func getEssentialActivationIds() async throws -> (customerId: String, productInstanceId: String) {
-        guard let accessToken = await authorizationTokensHandler.accessToken else {
-            throw VisaActivationError.missingAccessToken
-        }
-
-        return try VisaBFFUtility().getEssentialBFFIds(from: accessToken)
     }
 
     private func sendRequest<T: Decodable>(target: ProductActivationAPITarget.Target) async throws -> T {
         let authorizationToken = try await authorizationTokensHandler.authorizationHeader
 
-        return try await apiService.request(.init(target: target, authorizationToken: authorizationToken))
+        return try await apiService.request(.init(
+            target: target,
+            authorizationToken: authorizationToken,
+            apiType: apiType
+        ))
     }
 }
 
 extension CommonProductActivationService: ProductActivationService {
     func getVisaCardDeployAcceptance(
         activationOrderId: String,
-        customerWalletAddress: String
+        customerWalletAddress: String,
+        cardWalletAddress: String
     ) async throws -> String {
-        let ids = try await getEssentialActivationIds()
-        let response: ProductActivationAPITarget.DataToSignByVisaCardResponse = try await sendRequest(
-            target: .getDataToSignByVisaCard(request: .init(
-                customerId: ids.customerId,
-                productInstanceId: ids.productInstanceId,
-                activationOrderId: activationOrderId,
-                customerWalletAddress: customerWalletAddress
+        let response: ProductActivationAPITarget.GetAcceptanceMessageResponse = try await sendRequest(
+            target: .getAcceptanceMessage(request: .init(
+                type: .cardWallet,
+                customerWalletAddress: customerWalletAddress,
+                cardWalletAddress: cardWalletAddress
             ))
         )
-        return response.dataForCardWallet.hash
+        return response.data.hash
     }
 
     func sendSignedVisaCardDeployAcceptance(
@@ -91,48 +92,38 @@ extension CommonProductActivationService: ProductActivationService {
         rootOtp: String,
         rootOtpCounter: Int
     ) async throws {
-        let ids = try await getEssentialActivationIds()
         let defaultEmptyValue = "N/A"
-        let data: ProductActivationAPITarget.VisaCardDeployAcceptanceRequest.DeployAcceptanceDataContainer = .init(
-            cardWallet: .init(
-                address: cardWalletAddress,
-                deployAcceptanceSignature: signedAcceptance,
-                cardWalletConfirmation: .init(
-                    challenge: defaultEmptyValue,
-                    walletSignature: defaultEmptyValue,
-                    cardSalt: defaultEmptyValue,
-                    cardSignature: defaultEmptyValue
-                )
-            ),
-            otp: .init(
-                rootOtp: rootOtp,
-                counter: rootOtpCounter
-            )
-        )
+        let data: ProductActivationAPITarget.VisaCardDeployAcceptanceRequest.DeployAcceptanceData = .init(
+            address: cardWalletAddress,
+            cardWalletConfirmation: .init(
+                challenge: defaultEmptyValue,
+                walletSignature: defaultEmptyValue,
+                cardSalt: defaultEmptyValue,
+                cardSignature: defaultEmptyValue
+            ))
         let _: ProductActivationAPITarget.ProductActivationEmptyResponse = try await sendRequest(
             target: .approveDeployByVisaCard(request: .init(
-                customerId: ids.customerId,
-                productInstanceId: ids.productInstanceId,
-                activationOrderId: activationOrderId,
-                data: data
+                orderId: activationOrderId,
+                cardWallet: data,
+                otp: .init(rootOtp: rootOtp, counter: rootOtpCounter),
+                deployAcceptanceSignature: signedAcceptance
             ))
         )
     }
 
     func getCustomerWalletDeployAcceptance(
         activationOrderId: String,
+        customerWalletAddress: String,
         cardWalletAddress: String
     ) async throws -> String {
-        let ids = try await getEssentialActivationIds()
-        let response: ProductActivationAPITarget.DataToSignByCustomerWalletReponse = try await sendRequest(
-            target: .getDataToSignByCustomerWallet(request: .init(
-                customerId: ids.customerId,
-                productInstanceId: ids.productInstanceId,
-                activationOrderId: activationOrderId,
+        let response: ProductActivationAPITarget.GetAcceptanceMessageResponse = try await sendRequest(
+            target: .getAcceptanceMessage(request: .init(
+                type: .customerWallet,
+                customerWalletAddress: customerWalletAddress,
                 cardWalletAddress: cardWalletAddress
             ))
         )
-        return response.dataForCustomerWallet.hash
+        return response.data.hash
     }
 
     func sendSignedCustomerWalletDeployAcceptance(
@@ -140,19 +131,10 @@ extension CommonProductActivationService: ProductActivationService {
         customerWalletAddress: String,
         deployAcceptanceSignature: String
     ) async throws {
-        let ids = try await getEssentialActivationIds()
-        let data: ProductActivationAPITarget.CustomerWalletDeployAcceptanceRequest.AcceptanceData = .init(
-            address: customerWalletAddress,
-            deployAcceptanceSignature: deployAcceptanceSignature
-        )
         let _: ProductActivationAPITarget.ProductActivationEmptyResponse = try await sendRequest(
             target: .approveDeployByCustomerWallet(request: .init(
-                customerId: ids.customerId,
-                productInstanceId: ids.productInstanceId,
-                activationOrderId: activationOrderId,
-                data: .init(
-                    customerWallet: data
-                )
+                orderId: activationOrderId,
+                customerWallet: .init(deployAcceptanceSignature: deployAcceptanceSignature)
             ))
         )
     }
@@ -163,17 +145,12 @@ extension CommonProductActivationService: ProductActivationService {
         iv: String,
         encryptedPin: String
     ) async throws {
-        let ids = try await getEssentialActivationIds()
         let _: ProductActivationAPITarget.ProductActivationEmptyResponse = try await sendRequest(
-            target: .issuerActivation(request: .init(
-                customerId: ids.customerId,
-                productInstanceId: ids.productInstanceId,
-                activationOrderId: activationOrderId,
-                data: .init(
-                    sessionKey: sessionKey,
-                    iv: iv,
-                    encryptedPin: encryptedPin
-                )
+            target: .setupPIN(request: .init(
+                orderId: activationOrderId,
+                sessionId: sessionKey,
+                iv: iv,
+                pin: encryptedPin
             ))
         )
     }
