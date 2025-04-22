@@ -166,8 +166,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                 }
 
                 return NFTEntrypointViewModel(
-                    coordinator: coordinator,
-                    nftManager: userWalletModel.nftManager
+                    nftManager: userWalletModel.nftManager,
+                    coordinator: coordinator
                 )
             }
             .receiveOnMain()
