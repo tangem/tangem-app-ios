@@ -17,7 +17,7 @@ class CommonCustomerInfoManagementService {
     typealias CIMAPIService = APIService<CustomerInfoManagementAPITarget>
     private let authorizationTokenHandler: VisaAuthorizationTokensHandler
     private let apiService: CIMAPIService
-    
+
     private let apiType: VisaAPIType
 
     init(

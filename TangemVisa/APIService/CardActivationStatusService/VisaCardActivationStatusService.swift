@@ -20,7 +20,7 @@ public protocol VisaCardActivationStatusService {
 struct CommonCardActivationStatusService {
     typealias ActivationStatusService = APIService<ProductActivationAPITarget>
     private let apiService: ActivationStatusService
-    
+
     private let apiType: VisaAPIType
 
     init(apiType: VisaAPIType, apiService: ActivationStatusService) {

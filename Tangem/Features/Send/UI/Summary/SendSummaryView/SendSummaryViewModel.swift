@@ -106,7 +106,7 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
                 params: [
                     .validator: stakingValidatorsCompactViewModel?.selectedValidator?.address ?? "",
                     .action: actionType.stakingAnalyticsAction?.rawValue ?? "",
-                    .token: tokenItem.currencySymbol
+                    .token: tokenItem.currencySymbol,
                 ]
             )
         }
@@ -153,7 +153,7 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
             event: .stakingButtonValidator,
             params: [
                 .source: Analytics.ParameterValue.stakeSourceConfirmation.rawValue,
-                .token: tokenItem.currencySymbol
+                .token: tokenItem.currencySymbol,
             ]
         )
 

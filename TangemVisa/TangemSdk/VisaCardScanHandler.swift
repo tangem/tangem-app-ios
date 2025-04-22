@@ -1,47 +1,48 @@
 //
 //  VisaCardScanHandler.swift
-//  Tangem
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import TangemFoundation
 import TangemSdk
-import TangemVisa
 
-class VisaCardScanHandler: CardSessionRunnable {
-    typealias Response = VisaCardActivationLocalState
-    @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
+/// Task for first tap of Visa card. This scan handler decides what to do with scanned Visa card. There are several options:
+///  - 1. Empty card - no wallet. This means that card didn't started activation at all and must go through all activation process. No need to other checks
+///  - 2. Card with created wallet. Card already started activation and second tap was executed. Here we have two possibilities:
+///      - 2.1. Card fully finished activation process. To check this - we need to load authorization challenge for card wallet and sign it
+///           If BFF returns authorization tokens for this signature we can finish scan process and return this tokens with `activated` state
+///      - 2.2. Card didn't finish activation process. If BFF didn't returned authorization tokens during 2.1, we need to reqeust authorization challenge
+///           sign it with card key and request authorization tokens. After receiving activation authorization tokens, handler will request state of activation
+///           process from BFF and navigate user to target step to continue activation process.
+public final class VisaCardScanHandler: CardSessionRunnable {
+    public typealias Response = VisaCardActivationLocalState
+    public typealias CompletionHandler = CompletionResult<VisaCardActivationLocalState>
 
-    typealias CompletionHandler = CompletionResult<VisaCardActivationLocalState>
+    private let visaUtilities: VisaUtilities
     private let authorizationService: VisaAuthorizationService
     private let cardActivationStateProvider: VisaCardActivationStatusService
-    private let visaUtilities = VisaUtilities()
+    private let visaRefreshTokenRepository: VisaRefreshTokenRepository
 
-    init() {
-        let featureStorage = FeatureStorage.instance
-        let apiType = featureStorage.visaAPIType
-        let isMockedAPI = featureStorage.isVisaAPIMocksEnabled
-        authorizationService = VisaAPIServiceBuilder(
-            apiType: apiType,
-            isMockedAPIEnabled: isMockedAPI
-        )
-        .buildAuthorizationService(urlSessionConfiguration: .defaultConfiguration)
-
-        cardActivationStateProvider = VisaCardActivationStatusServiceBuilder(
-            apiType: apiType,
-            isMockedAPIEnabled: isMockedAPI
-        )
-        .build(urlSessionConfiguration: .defaultConfiguration)
+    init(
+        isTestnet: Bool,
+        authorizationService: VisaAuthorizationService,
+        cardActivationStateProvider: VisaCardActivationStatusService,
+        refreshTokenRepository: VisaRefreshTokenRepository
+    ) {
+        visaUtilities = .init(isTestnet: isTestnet)
+        self.authorizationService = authorizationService
+        self.cardActivationStateProvider = cardActivationStateProvider
+        visaRefreshTokenRepository = refreshTokenRepository
     }
 
     deinit {
         VisaLogger.info("Scan handler deinitialized")
     }
 
-    func run(in session: CardSession, completion: @escaping CompletionHandler) {
+    public func run(in session: CardSession, completion: @escaping CompletionHandler) {
         VisaLogger.info("Attempting to handle Visa card scan")
         guard let card = session.environment.card else {
             completion(.failure(.missingPreflightRead))
@@ -50,12 +51,14 @@ class VisaCardScanHandler: CardSessionRunnable {
 
         let mandatoryCurve = visaUtilities.mandatoryCurve
         guard let wallet = card.wallets.first(where: { $0.curve == mandatoryCurve }) else {
+            // 1 flow
             let activationInput = VisaCardActivationInput(cardId: card.cardId, cardPublicKey: card.cardPublicKey, isAccessCodeSet: card.isAccessCodeSet)
             let activationStatus = VisaCardActivationLocalState.notStartedActivation(activationInput: activationInput)
             completion(.success(activationStatus))
             return
         }
 
+        // Start of 2 flow
         deriveKey(wallet: wallet, in: session, completion: completion)
     }
 
@@ -141,10 +144,12 @@ class VisaCardScanHandler: CardSessionRunnable {
             )
 
             if let authorizationTokensResponse {
+                // 2.1 Flow
                 VisaLogger.info("Authorized using Wallet public key successfully")
                 try visaRefreshTokenRepository.save(refreshToken: authorizationTokensResponse.refreshToken, cardId: card.cardId)
                 completion(.success(.activated(authTokens: authorizationTokensResponse)))
             } else {
+                // 2.2 Flow
                 VisaLogger.info("Failed to get Access token for Wallet public key authoziation. Authorizing using Card Pub key")
                 await handleCardAuthorization(
                     walletAddress: walletAddress.value,
@@ -261,16 +266,16 @@ class VisaCardScanHandler: CardSessionRunnable {
 }
 
 extension VisaCardScanHandler: CustomStringConvertible {
-    var description: String { "VisaCardScanHandler" }
+    public var description: String { "VisaCardScanHandler" }
 }
 
-extension VisaCardScanHandler {
+public extension VisaCardScanHandler {
     enum HandlerError: Error, LocalizedError {
         case failedToCreateDerivationPath
         case failedToFindWallet
         case failedToFindDerivedWalletKey
 
-        var errorDescription: String? {
+        public var errorDescription: String? {
             switch self {
             case .failedToCreateDerivationPath, .failedToFindWallet, .failedToFindDerivedWalletKey:
                 return "Error occurred. Please contact support"

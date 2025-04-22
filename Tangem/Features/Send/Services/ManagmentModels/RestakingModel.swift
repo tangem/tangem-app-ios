@@ -193,7 +193,7 @@ private extension RestakingModel {
                 event: analyticsEvent,
                 params: [
                     .validator: action.validatorInfo?.name ?? "",
-                    .token: tokenItem.currencySymbol
+                    .token: tokenItem.currencySymbol,
                 ]
             )
         }
