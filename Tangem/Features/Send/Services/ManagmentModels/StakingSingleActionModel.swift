@@ -147,7 +147,7 @@ private extension StakingSingleActionModel {
                 event: analyticsEvent,
                 params: [
                     .validator: action.validatorInfo?.name ?? "",
-                    .token: tokenItem.currencySymbol
+                    .token: tokenItem.currencySymbol,
                 ]
             )
         }
@@ -370,7 +370,7 @@ private extension StakingSingleActionModel {
                 event: .stakingRewardScreenOpened,
                 params: [
                     .validator: action.validatorInfo?.address ?? "",
-                    .token: tokenItem.currencySymbol
+                    .token: tokenItem.currencySymbol,
                 ]
             )
         default:

@@ -124,7 +124,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     get: { $0.visaAPIType.rawValue },
                     set: { $0.visaAPIType = VisaAPIType(rawValue: $1) ?? .prod }
                 )
-            )
+            ),
         ]
 
         featureStateViewModels = Feature.allCases.reversed().map { feature in

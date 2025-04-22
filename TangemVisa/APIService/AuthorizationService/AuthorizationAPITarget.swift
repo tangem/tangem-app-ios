@@ -31,8 +31,8 @@ struct AuthorizationAPITarget: TargetType {
     var method: Moya.Method {
         switch target {
         case .generateNonce,
-                .getAuthorizationTokens,
-                .refreshAuthorizationTokens:
+             .getAuthorizationTokens,
+             .refreshAuthorizationTokens:
             return .post
         }
     }
@@ -64,14 +64,14 @@ extension AuthorizationAPITarget {
         let cardWalletAddress: String?
         let authType: VisaAuthorizationType
     }
-    
+
     struct GetAuthorizationTokensRequestDTO: Encodable {
         let signature: String
         let salt: String?
         let sessionId: String
         let authType: VisaAuthorizationType
     }
-    
+
     struct RefreshAuthoriationTokensRequestDTO: Encodable {
         let refreshToken: String
         let authType: VisaAuthorizationType
@@ -92,5 +92,4 @@ extension AuthorizationAPITarget {
         /// Refresh staled access token
         case refreshAuthorizationTokens(request: RefreshAuthoriationTokensRequestDTO)
     }
-    
 }
