@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemVisa
 
 // MARK: - Provider
 
@@ -45,6 +46,9 @@ class FeatureStorage {
 
     @AppStorageCompat(FeatureStorageKeys.useVisaAPIMocks)
     var isVisaAPIMocksEnabled = false
+    
+    @AppStorageCompat(FeatureStorageKeys.visaAPIType)
+    var visaAPIType = VisaAPIType.prod
 
     private init() {}
 }
@@ -63,4 +67,5 @@ private enum FeatureStorageKeys: String {
     case mockedCardScannerEnabled = "mocked_card_scanner_enabled"
     case useVisaTestnet = "use_visa_testnet"
     case useVisaAPIMocks = "use_visa_api_mocks"
+    case visaAPIType = "visa_api_type"
 }
