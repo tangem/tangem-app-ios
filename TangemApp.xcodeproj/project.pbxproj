@@ -3245,6 +3245,7 @@
 		EFE54CD22D09DD1C00D803EB /* FakePendingExpressTransactionsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE54CD12D09DD1A00D803EB /* FakePendingExpressTransactionsManager.swift */; };
 		EFE54CDC2D0AF12900D803EB /* ExpressAnalyticsLoggerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE54CDB2D0AF12700D803EB /* ExpressAnalyticsLoggerMock.swift */; };
 		EFE54CDE2D0B118900D803EB /* ExpressProvider+LegalText.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE54CDD2D0B118500D803EB /* ExpressProvider+LegalText.swift */; };
+		EFE5844E2DB7B53300FC9A12 /* UTXOTransactionInputsSorter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE5844D2DB7B53300FC9A12 /* UTXOTransactionInputsSorter.swift */; };
 		EFE5AD422C64B0CD00A2C1BB /* ApproveViewModelInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE5AD412C64B0CD00A2C1BB /* ApproveViewModelInput.swift */; };
 		EFE5EC532AEC1BB100C5ADC3 /* UndoToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE5EC522AEC1BB100C5ADC3 /* UndoToastView.swift */; };
 		EFE5EC552AEC2AF400C5ADC3 /* Toast.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE5EC542AEC2AF400C5ADC3 /* Toast.swift */; };
@@ -6689,6 +6690,7 @@
 		EFE54CD12D09DD1A00D803EB /* FakePendingExpressTransactionsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakePendingExpressTransactionsManager.swift; sourceTree = "<group>"; };
 		EFE54CDB2D0AF12700D803EB /* ExpressAnalyticsLoggerMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAnalyticsLoggerMock.swift; sourceTree = "<group>"; };
 		EFE54CDD2D0B118500D803EB /* ExpressProvider+LegalText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ExpressProvider+LegalText.swift"; sourceTree = "<group>"; };
+		EFE5844D2DB7B53300FC9A12 /* UTXOTransactionInputsSorter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTXOTransactionInputsSorter.swift; sourceTree = "<group>"; };
 		EFE5AD412C64B0CD00A2C1BB /* ApproveViewModelInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApproveViewModelInput.swift; sourceTree = "<group>"; };
 		EFE5EC522AEC1BB100C5ADC3 /* UndoToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UndoToastView.swift; sourceTree = "<group>"; };
 		EFE5EC542AEC2AF400C5ADC3 /* Toast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toast.swift; sourceTree = "<group>"; };
@@ -15508,6 +15510,7 @@
 				EF42FC6D2D956456009CBB22 /* UTXOPreImageTransactionBuilder+.swift */,
 				EF197B022D8C8C410004B575 /* UTXOPreImageTransactionBuilder.swift */,
 				EF197B0C2D8C91ED0004B575 /* BranchAndBoundPreImageTransactionBuilder.swift */,
+				EFE5844D2DB7B53300FC9A12 /* UTXOTransactionInputsSorter.swift */,
 			);
 			path = UTXOPreImageTransactionBuilder;
 			sourceTree = "<group>";
@@ -21175,6 +21178,7 @@
 				B62D41852CBC79DA00C2460E /* RskAddressService.swift in Sources */,
 				B62D401F2CBC79DA00C2460E /* OP_TOTALSTACK.swift in Sources */,
 				B62D421E2CBC79DB00C2460E /* XRPNetworkService.swift in Sources */,
+				EFE5844E2DB7B53300FC9A12 /* UTXOTransactionInputsSorter.swift in Sources */,
 				B62D40B82CBC79DA00C2460E /* OptimismExternalLinkProvider.swift in Sources */,
 				B62984A22D0702E6006A9D40 /* KaspaKRC20FeeParametersEnricher.swift in Sources */,
 				B62D407D2CBC79DA00C2460E /* DogecoinNetworkParams.swift in Sources */,
