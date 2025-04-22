@@ -42,7 +42,7 @@ final class RadiantTests {
      https://radiantexplorer.com/tx/d9561e19c8e703e6a5bdd3319fa26fd3ccaf268a9532a90bcb92b8fe70d14428
      */
     @Test
-    func signRawTransaction() throws {
+    func signRawTransaction() async throws {
         // given
         let blockchain = Blockchain.radiant(testnet: false)
         let address = PlainAddress(value: "1NJWsdLAZcEknx7QQzSTMD9ibVPmevyQL4", publicKey: .empty, type: .default)
@@ -80,8 +80,8 @@ final class RadiantTests {
         ]
 
         // when
-        let hashesForSign = try txBuilder.buildForSign(transaction: transaction)
-        let rawTransaction = try txBuilder.buildForSend(transaction: transaction, signatures: signatures)
+        let hashesForSign = try await txBuilder.buildForSign(transaction: transaction)
+        let rawTransaction = try await txBuilder.buildForSend(transaction: transaction, signatures: signatures)
 
         // then
         let expectedHashesForSign = [
