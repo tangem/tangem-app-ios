@@ -16,7 +16,7 @@ struct CommonTransactionHistoryService {
     typealias TxHistoryAPIService = APIService<TransactionHistoryAPITarget>
     private let authorizationTokensHandler: VisaAuthorizationTokensHandler
     private let apiService: TxHistoryAPIService
-    
+
     private let apiType: VisaAPIType
 
     init(
