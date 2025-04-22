@@ -12,4 +12,6 @@ struct RadiantNetworkParams: UTXONetworkParams {
     let p2shPrefix: UInt8 = 0x05
     let bech32Prefix: String = "radaddr"
     let dustRelayTxFee = 3000
+    let coinType: UInt32 = 512
+    let signHashType: UTXONetworkParamsSignHashType = .bitcoinAll
 }
