@@ -185,7 +185,7 @@ extension UTXOPreImageTransaction: CustomStringConvertible {
             "destination": destination.description,
             "change": change.description,
             "fee": fee.description,
-        ].description
+        ].sorted(by: { $0.key > $1.key }).description
     }
 }
 
