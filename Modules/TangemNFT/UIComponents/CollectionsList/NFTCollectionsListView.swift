@@ -14,24 +14,34 @@ import TangemLocalization
 
 public struct NFTCollectionsListView: View {
     @ObservedObject var viewModel: NFTCollectionsListViewModel
-    @State private var hasBeenScrolledUp = false
+
+    @State private var hasBeenScrolledDown: Bool = false
+
+    @State private var buttonHeight: CGFloat = 0
+    @State private var shouldShowShadow: Bool = true
+
+    @State private var buttonMinY: CGFloat = 0
+    @State private var contentMaxY: CGFloat = 0
 
     public init(viewModel: NFTCollectionsListViewModel) {
         self.viewModel = viewModel
     }
 
     public var body: some View {
-        contentView
+        content
+            .navigationTitle(Localization.nftWalletTitle)
+            .padding(.horizontal, Constants.horizontalPadding)
+            .background(Colors.Background.secondary)
     }
 
     @ViewBuilder
-    private var contentView: some View {
+    private var content: some View {
         switch viewModel.state {
         case .noCollections:
             noCollectionsView
         case .collectionsAvailable(let collections):
             nonEmptyContentView(collections: collections)
-                .nftListSearchable(text: $viewModel.searchEntry, isAutomatic: hasBeenScrolledUp)
+                .nftListSearchable(text: $viewModel.searchEntry, isAutomatic: hasBeenScrolledDown)
         }
     }
 
@@ -80,21 +90,32 @@ public struct NFTCollectionsListView: View {
 
     private func collectionsContent(from collections: [NFTCompactCollectionViewModel]) -> some View {
         ScrollView(showsIndicators: false) {
-            LazyVStack(spacing: Constants.interitemSpacing) {
-                ForEach(collections, id: \.id) { collectionViewModel in
-                    NFTCollectionDisclosureGroupView(viewModel: collectionViewModel)
+            VStack(spacing: 0) {
+                LazyVStack(spacing: Constants.interitemSpacing) {
+                    ForEach(collections, id: \.id) { collectionViewModel in
+                        NFTCollectionDisclosureGroupView(viewModel: collectionViewModel)
+                    }
                 }
+                .roundedBackground(
+                    with: Colors.Background.primary,
+                    padding: Constants.backgroundPadding,
+                    radius: Constants.cornerRadius
+                )
+
+                Spacer()
+                    .frame(height: buttonHeight + Constants.contentButtonSpacing)
             }
-            .roundedBackground(
-                with: Colors.Background.primary,
-                padding: Constants.padding,
-                radius: Constants.cornerRadius
-            )
+            .readGeometry(\.frame.maxY, inCoordinateSpace: .global, bindTo: $contentMaxY)
+            .readContentOffset(inCoordinateSpace: .global) { point in
+                shouldShowShadow = contentMaxY > buttonMinY
+            }
         }
         .simultaneousGesture(
             DragGesture()
                 .onChanged {
-                    hasBeenScrolledUp = $0.translation.height < 0
+                    if !hasBeenScrolledDown {
+                        hasBeenScrolledDown = $0.translation.height < 0
+                    }
                 }
         )
     }
@@ -102,7 +123,7 @@ public struct NFTCollectionsListView: View {
     private var receiveButtonContainer: some View {
         VStack(spacing: 0) {
             Spacer()
-            receiveButton(shouldAddShadow: true)
+            receiveButton(shouldAddShadow: shouldShowShadow)
         }
         .ignoresSafeArea(.keyboard)
     }
@@ -114,6 +135,10 @@ public struct NFTCollectionsListView: View {
                     ListFooterOverlayShadowView()
                 )
             }
+            .readGeometry(\.frame, inCoordinateSpace: .global) { frame in
+                buttonHeight = frame.height
+                buttonMinY = frame.minY
+            }
     }
 }
 
@@ -123,7 +148,6 @@ private extension View {
             text: text,
             placement: .navigationBarDrawer(displayMode: isAutomatic ? .automatic : .always)
         )
-        .ignoresSafeArea(.container, edges: .bottom)
     }
 }
 
@@ -135,14 +159,16 @@ extension NFTCollectionsListView {
             static let textsButtonSpacing: CGFloat = 56
             static let imageSize: CGSize = .init(bothDimensions: 76)
 
-            static let horizontalPadding: CGFloat = 32
+            static let horizontalPadding: CGFloat = 16
             static let buttonHPaddingInsideContainer: CGFloat = 40
         }
 
-        static let padding: CGFloat = 14
+        static let horizontalPadding: CGFloat = 16
+        static let backgroundPadding: CGFloat = 14
         static let interitemSpacing: CGFloat = 30
         static let cornerRadius: CGFloat = 14
-        static let receiveButtonYOffset: CGFloat = -6
+
+        static let contentButtonSpacing: CGFloat = 16
         static let searchBarCollectionsSpacing: CGFloat = 12
     }
 }

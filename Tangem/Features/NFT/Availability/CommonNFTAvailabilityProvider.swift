@@ -24,7 +24,7 @@ final class CommonNFTAvailabilityProvider {
 
 extension CommonNFTAvailabilityProvider: NFTAvailabilityProvider {
     var didChangeNFTAvailabilityPublisher: AnyPublisher<Void, Never> {
-        return appSettings
+        appSettings
             .$userWalletIdsWithNFTEnabled
             .map { $0.toSet() }
             .combineLatest(userWalletIdsWithNFTEnabled) { $0.union($1) }
