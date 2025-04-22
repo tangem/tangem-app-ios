@@ -7,25 +7,14 @@
 //
 
 import Foundation
-import TangemSdk
-import BitcoinCore
 
 struct RavencoinWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        let compressedKey = try Secp256k1Key(with: input.wallet.publicKey.blockchainKey).compress()
-
-        let bitcoinManager = BitcoinManager(
-            networkParams: input.wallet.blockchain.isTestnet ? RavencoinTestNetworkParams() : RavencoinMainNetworkParams(),
-            walletPublicKey: input.wallet.publicKey.blockchainKey,
-            compressedWalletPublicKey: compressedKey,
-            bip: .bip44
-        )
         let unspentOutputManager: UnspentOutputManager = .ravencoin(address: input.wallet.defaultAddress, isTestnet: input.wallet.blockchain.isTestnet)
 
         let txBuilder = BitcoinTransactionBuilder(
-            bitcoinManager: bitcoinManager,
-            unspentOutputManager: unspentOutputManager,
-            addresses: input.wallet.addresses
+            network: input.wallet.blockchain.isTestnet ? RavencoinTestNetworkParams() : RavencoinMainNetworkParams(),
+            unspentOutputManager: unspentOutputManager
         )
 
         let providers: [UTXONetworkProvider] = APIResolver(blockchain: input.wallet.blockchain, keysConfig: input.networkInput.keysConfig)
@@ -45,6 +34,6 @@ struct RavencoinWalletAssembly: WalletManagerAssembly {
             }
 
         let networkService = MultiUTXONetworkProvider(providers: providers)
-        return RavencoinWalletManager(wallet: input.wallet, txBuilder: txBuilder, unspentOutputManager: unspentOutputManager, networkService: networkService)
+        return BitcoinWalletManager(wallet: input.wallet, txBuilder: txBuilder, unspentOutputManager: unspentOutputManager, networkService: networkService)
     }
 }
