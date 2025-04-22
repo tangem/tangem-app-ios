@@ -1483,7 +1483,6 @@
 		B62D41812CBC79DA00C2460E /* RavencoinTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3DE92CBC79D900C2460E /* RavencoinTarget.swift */; };
 		B62D41822CBC79DA00C2460E /* RavencoinTestNetworkParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3DEA2CBC79D900C2460E /* RavencoinTestNetworkParams.swift */; };
 		B62D41832CBC79DA00C2460E /* RavencoinWalletAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3DEB2CBC79D900C2460E /* RavencoinWalletAssembly.swift */; };
-		B62D41842CBC79DA00C2460E /* RavencoinWalletManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3DEC2CBC79D900C2460E /* RavencoinWalletManager.swift */; };
 		B62D41852CBC79DA00C2460E /* RskAddressService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3DEE2CBC79D900C2460E /* RskAddressService.swift */; };
 		B62D41862CBC79DA00C2460E /* RSKExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3DEF2CBC79D900C2460E /* RSKExternalLinkProvider.swift */; };
 		B62D41872CBC79DA00C2460E /* SolanaAddressService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3DF12CBC79D900C2460E /* SolanaAddressService.swift */; };
@@ -2102,7 +2101,6 @@
 		B6FECF512C4032930030A8A9 /* PushNotificationsAvailabilityProviderStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FECF4E2C4032930030A8A9 /* PushNotificationsAvailabilityProviderStub.swift */; };
 		B6FFADEA2C5D67E900B43A56 /* DGCharts.ChartViewBase+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FFADE92C5D67E900B43A56 /* DGCharts.ChartViewBase+.swift */; };
 		B6FFADEC2C5D6DAE00B43A56 /* LineChartViewUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FFADEB2C5D6DAE00B43A56 /* LineChartViewUtility.swift */; };
-		B6FFC31F2CC70E1D00F4400E /* BitcoinCore in Frameworks */ = {isa = PBXBuildFile; productRef = B6FFC31E2CC70E1D00F4400E /* BitcoinCore */; };
 		C20EB74D2DAD442700E0F15D /* NFTManagerStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67EA58C2D9A26B000441EA8 /* NFTManagerStub.swift */; };
 		C21707172D395292000AC361 /* BitrockExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C21707162D395290000AC361 /* BitrockExternalLinkProvider.swift */; };
 		C22564022D9154DD003063DA /* FloatingSheetPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C22564012D9154DD003063DA /* FloatingSheetPresenter.swift */; };
@@ -2741,6 +2739,7 @@
 		EF1399792CBD0B3700AC9E2B /* CommonOnrampRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1399782CBD0B3600AC9E2B /* CommonOnrampRepository.swift */; };
 		EF1528E22D75F52200AE9C40 /* BlockcypherDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1528E12D75F52200AE9C40 /* BlockcypherDTO.swift */; };
 		EF1528E42D75F57A00AE9C40 /* BlockchairDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1528E32D75F57A00AE9C40 /* BlockchairDTO.swift */; };
+		EF154CC42DA67E4F004134C0 /* RavencoinTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF154CC32DA67E4F004134C0 /* RavencoinTransactionTests.swift */; };
 		EF197B072D8C8C420004B575 /* CommonUTXOTransactionSizeCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF197B042D8C8C410004B575 /* CommonUTXOTransactionSizeCalculator.swift */; };
 		EF197B082D8C8C420004B575 /* UTXOTransactionSizeCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF197B052D8C8C410004B575 /* UTXOTransactionSizeCalculator.swift */; };
 		EF197B092D8C8C420004B575 /* UTXOPreImageTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF197B022D8C8C410004B575 /* UTXOPreImageTransactionBuilder.swift */; };
@@ -4954,7 +4953,6 @@
 		B62D3DE92CBC79D900C2460E /* RavencoinTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RavencoinTarget.swift; sourceTree = "<group>"; };
 		B62D3DEA2CBC79D900C2460E /* RavencoinTestNetworkParams.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RavencoinTestNetworkParams.swift; sourceTree = "<group>"; };
 		B62D3DEB2CBC79D900C2460E /* RavencoinWalletAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RavencoinWalletAssembly.swift; sourceTree = "<group>"; };
-		B62D3DEC2CBC79D900C2460E /* RavencoinWalletManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RavencoinWalletManager.swift; sourceTree = "<group>"; };
 		B62D3DEE2CBC79D900C2460E /* RskAddressService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RskAddressService.swift; sourceTree = "<group>"; };
 		B62D3DEF2CBC79D900C2460E /* RSKExternalLinkProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RSKExternalLinkProvider.swift; sourceTree = "<group>"; };
 		B62D3DF12CBC79D900C2460E /* SolanaAddressService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SolanaAddressService.swift; sourceTree = "<group>"; };
@@ -6178,6 +6176,7 @@
 		EF1399782CBD0B3600AC9E2B /* CommonOnrampRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonOnrampRepository.swift; sourceTree = "<group>"; };
 		EF1528E12D75F52200AE9C40 /* BlockcypherDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockcypherDTO.swift; sourceTree = "<group>"; };
 		EF1528E32D75F57A00AE9C40 /* BlockchairDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchairDTO.swift; sourceTree = "<group>"; };
+		EF154CC32DA67E4F004134C0 /* RavencoinTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RavencoinTransactionTests.swift; sourceTree = "<group>"; };
 		EF197B022D8C8C410004B575 /* UTXOPreImageTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTXOPreImageTransactionBuilder.swift; sourceTree = "<group>"; };
 		EF197B042D8C8C410004B575 /* CommonUTXOTransactionSizeCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonUTXOTransactionSizeCalculator.swift; sourceTree = "<group>"; };
 		EF197B052D8C8C410004B575 /* UTXOTransactionSizeCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTXOTransactionSizeCalculator.swift; sourceTree = "<group>"; };
@@ -6843,7 +6842,6 @@
 				B62D34472CBC51D400C2460E /* SwiftCBOR in Frameworks */,
 				B6C0D3F92CBDC5A3001113ED /* SwiftyJSON in Frameworks */,
 				B6C0D3F62CBDC552001113ED /* BinanceChain in Frameworks */,
-				B6FFC31F2CC70E1D00F4400E /* BitcoinCore in Frameworks */,
 				B68E1F962CBC451D0043E598 /* ScaleCodec in Frameworks */,
 				B63DFC4A2CD4DBED00720D9F /* TangemModules in Frameworks */,
 				300C26342DAFA29600C7E0B0 /* CombineExt in Frameworks */,
@@ -7731,6 +7729,7 @@
 		305B22402D78A1E4009BCC73 /* Ravencoin */ = {
 			isa = PBXGroup;
 			children = (
+				EF154CC32DA67E4F004134C0 /* RavencoinTransactionTests.swift */,
 				305B22412D78A1ED009BCC73 /* RavencoinAddressTests.swift */,
 			);
 			path = Ravencoin;
@@ -11416,7 +11415,6 @@
 				B62D3DE92CBC79D900C2460E /* RavencoinTarget.swift */,
 				B62D3DEA2CBC79D900C2460E /* RavencoinTestNetworkParams.swift */,
 				B62D3DEB2CBC79D900C2460E /* RavencoinWalletAssembly.swift */,
-				B62D3DEC2CBC79D900C2460E /* RavencoinWalletManager.swift */,
 			);
 			path = Ravencoin;
 			sourceTree = "<group>";
@@ -17850,7 +17848,6 @@
 				B6C0D3F82CBDC5A3001113ED /* SwiftyJSON */,
 				B6E352722CC0B06B002636BC /* TangemWalletCoreBinariesWrapper */,
 				B6CAC1CB2CC336220001A427 /* SolanaSwift */,
-				B6FFC31E2CC70E1D00F4400E /* BitcoinCore */,
 				B67E38B82CC7147600D660EB /* TangemSdk */,
 				B63DFC492CD4DBED00720D9F /* TangemModules */,
 				300C26332DAFA29600C7E0B0 /* CombineExt */,
@@ -18065,7 +18062,6 @@
 				B6C0D3F72CBDC5A3001113ED /* XCRemoteSwiftPackageReference "SwiftyJSON" */,
 				B62C16772CBE095A00522683 /* XCRemoteSwiftPackageReference "Alamofire" */,
 				B6CAC1C82CC3352D0001A427 /* XCRemoteSwiftPackageReference "Solana.Swift" */,
-				B6FFC31D2CC70E1D00F4400E /* XCRemoteSwiftPackageReference "bitcoincore" */,
 				B67E38B72CC7147600D660EB /* XCRemoteSwiftPackageReference "tangem-sdk-ios" */,
 				B09FF1882CE24DF5004881F6 /* XCRemoteSwiftPackageReference "JWTDecode" */,
 				F92DB9C52CD4C24800C16530 /* XCLocalSwiftPackageReference "Modules" */,
@@ -21082,7 +21078,6 @@
 				B62D420A2CBC79DB00C2460E /* XRPLResponse.swift in Sources */,
 				B62D40EE2CBC79DA00C2460E /* HederaAPIResolver.swift in Sources */,
 				B62D40962CBC79DA00C2460E /* EthereumTransactionDataBuilder.swift in Sources */,
-				B62D41842CBC79DA00C2460E /* RavencoinWalletManager.swift in Sources */,
 				B62D3FD72CBC79DA00C2460E /* OP_MIN.swift in Sources */,
 				EF38050E2D6F938100273B1B /* BlockBookTransactionTransactionRecordMapper.swift in Sources */,
 				B62D401E2CBC79DA00C2460E /* OP_SWAP.swift in Sources */,
@@ -21246,6 +21241,7 @@
 				2D92E6542D0C1E9D008FDECF /* SolanaSignerTestUtility.swift in Sources */,
 				B62D436F2CBC79E400C2460E /* FilecoinAddressTests.swift in Sources */,
 				EFAF7E412D8C2A070000C5FE /* LegacyLockingScriptBuilderTests.swift in Sources */,
+				EF154CC42DA67E4F004134C0 /* RavencoinTransactionTests.swift in Sources */,
 				B62D436A2CBC79E400C2460E /* CardanoTokenContractAddressServiceTests.swift in Sources */,
 				B62D434D2CBC79E400C2460E /* AlgorandTransactionTests.swift in Sources */,
 				305B223C2D789F65009BCC73 /* JoystreamAddressTests.swift in Sources */,
@@ -27696,14 +27692,6 @@
 				version = "5.1.0-tangem3";
 			};
 		};
-		B6FFC31D2CC70E1D00F4400E /* XCRemoteSwiftPackageReference "bitcoincore" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:tangem-developments/bitcoincore.git";
-			requirement = {
-				kind = exactVersion;
-				version = 0.0.23;
-			};
-		};
 		DCB616E32CB39A8100BE4481 /* XCRemoteSwiftPackageReference "reown-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/reown-com/reown-swift.git";
@@ -28006,11 +27994,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B6F6252E2C85E1A600DEF098 /* XCRemoteSwiftPackageReference "DGCharts" */;
 			productName = DGCharts;
-		};
-		B6FFC31E2CC70E1D00F4400E /* BitcoinCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B6FFC31D2CC70E1D00F4400E /* XCRemoteSwiftPackageReference "bitcoincore" */;
-			productName = BitcoinCore;
 		};
 		DCB616E42CB39AE100BE4481 /* WalletConnect */ = {
 			isa = XCSwiftPackageProductDependency;
