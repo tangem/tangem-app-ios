@@ -79,7 +79,7 @@ extension BinanceWalletManager: TransactionSender {
                     latestTxDate = Date()
                     return TransactionSendResult(hash: hash)
                 }
-                .mapSendError(tx: tx.encodeForSignature().hexString.lowercased())
+                .mapSendError(tx: tx.encodeForSignature().hex())
                 .eraseToAnyPublisher() ?? .emptyFail
             }
             .eraseSendError()
