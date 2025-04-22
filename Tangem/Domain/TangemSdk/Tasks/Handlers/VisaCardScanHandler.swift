@@ -21,11 +21,20 @@ class VisaCardScanHandler: CardSessionRunnable {
     private let visaUtilities = VisaUtilities()
 
     init() {
-        authorizationService = VisaAPIServiceBuilder(mockedAPI: FeatureStorage.instance.isVisaAPIMocksEnabled)
-            .buildAuthorizationService(urlSessionConfiguration: .defaultConfiguration)
+        let featureStorage = FeatureStorage.instance
+        let apiType = featureStorage.visaAPIType
+        let isMockedAPI = featureStorage.isVisaAPIMocksEnabled
+        authorizationService = VisaAPIServiceBuilder(
+            apiType: apiType,
+            isMockedAPIEnabled: isMockedAPI
+        )
+        .buildAuthorizationService(urlSessionConfiguration: .defaultConfiguration)
 
-        cardActivationStateProvider = VisaCardActivationStatusServiceBuilder(isMockedAPIEnabled: FeatureStorage.instance.isVisaAPIMocksEnabled)
-            .build(urlSessionConfiguration: .defaultConfiguration)
+        cardActivationStateProvider = VisaCardActivationStatusServiceBuilder(
+            apiType: apiType,
+            isMockedAPIEnabled: isMockedAPI
+        )
+        .build(urlSessionConfiguration: .defaultConfiguration)
     }
 
     deinit {
