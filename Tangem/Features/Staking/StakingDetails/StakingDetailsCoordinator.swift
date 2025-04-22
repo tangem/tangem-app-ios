@@ -113,7 +113,7 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
             event: .stakingButtonStake,
             params: [
                 .source: Analytics.ParameterValue.stakeSourceStakeInfo.rawValue,
-                .token: options.walletModel.tokenItem.currencySymbol
+                .token: options.walletModel.tokenItem.currencySymbol,
             ]
         )
     }
