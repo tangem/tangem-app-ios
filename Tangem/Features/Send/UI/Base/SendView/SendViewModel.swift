@@ -212,7 +212,7 @@ final class SendViewModel: ObservableObject {
             Analytics.log(
                 event: .stakingButtonShare,
                 params: [
-                    .token: tokenItem.currencySymbol
+                    .token: tokenItem.currencySymbol,
                 ]
             )
         }
