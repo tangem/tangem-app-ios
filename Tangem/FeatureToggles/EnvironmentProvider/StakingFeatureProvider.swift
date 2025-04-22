@@ -24,11 +24,13 @@ class StakingFeatureProvider {
             return nil
         }
 
-        if tokenItem.hasLongHashesForStaking, !longHashesSupported {
+        let appUtils = AppUtils()
+
+        if appUtils.hasLongHashesForContractInteractions(tokenItem), !longHashesSupported {
             return nil
         }
 
-        guard AppUtils().canStake(for: tokenItem) else {
+        guard appUtils.canPerformContractInteractions(with: tokenItem) else {
             return nil
         }
 

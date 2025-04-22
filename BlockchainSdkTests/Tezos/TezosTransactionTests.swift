@@ -27,7 +27,7 @@ struct TezosTests {
         let messageToSend = txBuilder.buildToSend(signature: config.signature, forgedContents: forged)
 
         // then
-        #expect(messageToSign?.hexString == config.expectedPlainMessage)
+        #expect(messageToSign?.hex(.uppercase) == config.expectedPlainMessage)
         #expect(messageToSend == config.expectedSignedMessage)
     }
 
