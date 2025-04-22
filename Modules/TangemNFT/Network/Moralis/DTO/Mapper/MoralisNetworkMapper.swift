@@ -13,7 +13,7 @@ struct MoralisNetworkMapper {
     let chain: NFTChain
 
     func map(collections: [MoralisNetworkResult.EVMNFTCollection], ownerAddress: String) -> [NFTCollection] {
-        return collections.compactMap { collection in
+        collections.compactMap { collection in
             guard
                 let collectionIdentifier = collection.tokenAddress,
                 let name = collection.name,
@@ -41,7 +41,7 @@ struct MoralisNetworkMapper {
                 description: nil, // Moralis doesn't provide descriptions for NFT collections
                 logoURL: collection.collectionLogo?.nilIfEmpty.flatMap(URL.init(string:)),
                 assetsCount: assetsCount,
-                assets: [] // Moralis doesn't return the list of assets
+                assets: [] // Moralis doesnt send assets
             )
         }
     }
