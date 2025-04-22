@@ -68,9 +68,9 @@ extension VisaActivationError: VisaError {
             if let tangemError = error as? UniversalError {
                 return tangemError.errorCode
             }
-            
-            /// During activation task might be inside tangem sdk error, while TangemSdkError
-            /// doesn't conform `UniversalError` protocol we need to manually unwrap it
+
+            // During activation task might be inside tangem sdk error, while TangemSdkError
+            // doesn't conform `UniversalError` protocol we need to manually unwrap it
             if let tangemSdkError = error as? TangemSdkError,
                let errorCode = tangemSdkError.visaErrorCode {
                 return errorCode
@@ -176,19 +176,19 @@ extension VisaPinValidator.PinValidationError: VisaError {
 
 extension VisaAPIError: VisaError {
     public var errorCode: Int {
-        guard (100_000..<1_000_000).contains(code) else {
-            /// Default error code in api doc: 100300
+        guard (100_000 ..< 1_000_000).contains(code) else {
+            // Default error code in api doc: 100300
             return 104100300
         }
-        
+
         return 104_000_000 + code
     }
 }
 
-fileprivate extension TangemSdkError {
+private extension TangemSdkError {
     var visaErrorCode: Int? {
         guard
-            case let .underlying(error) = self,
+            case .underlying(let error) = self,
             let visaError = error as? VisaError
         else {
             return nil
