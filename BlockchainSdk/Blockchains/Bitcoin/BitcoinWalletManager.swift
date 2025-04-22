@@ -9,7 +9,6 @@
 import Foundation
 import TangemSdk
 import Combine
-import BitcoinCore
 import TangemFoundation
 
 class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
@@ -129,9 +128,7 @@ extension BitcoinWalletManager: BitcoinTransactionFeeCalculator {
 
 extension BitcoinWalletManager: TransactionSender {
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
-        let sequence: Int = SequenceValues.default.rawValue
-
-        return Result { try txBuilder.buildForSign(transaction: transaction, sequence: sequence) }
+        return Result { try txBuilder.buildForSign(transaction: transaction) }
             .publisher
             .withWeakCaptureOf(self)
             .flatMap { manager, hashes in
@@ -140,7 +137,7 @@ extension BitcoinWalletManager: TransactionSender {
             }
             .withWeakCaptureOf(self)
             .tryMap { manager, signatures -> String in
-                let tx = try manager.txBuilder.buildForSend(transaction: transaction, signatures: signatures, sequence: sequence)
+                let tx = try manager.txBuilder.buildForSend(transaction: transaction, signatures: signatures)
                 return tx.hex()
             }
             .withWeakCaptureOf(self)
