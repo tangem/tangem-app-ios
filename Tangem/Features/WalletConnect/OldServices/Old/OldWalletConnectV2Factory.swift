@@ -19,7 +19,7 @@ struct OldWalletConnectFactory {
             uiDelegate: uiDelegate,
             ethTransactionBuilder: ethTransactionBuilder
         )
-        let wcHandlersService = WalletConnectV2HandlersService(
+        let wcHandlersService = OldWalletConnectV2HandlersService(
             uiDelegate: uiDelegate,
             handlersCreator: handlersFactory
         )

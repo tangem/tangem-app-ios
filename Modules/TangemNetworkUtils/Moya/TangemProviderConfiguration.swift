@@ -12,15 +12,18 @@ public struct TangemProviderConfiguration {
     public let logOptions: TangemNetworkLoggerPlugin.LogOptions?
     public let urlSessionConfiguration: URLSessionConfiguration
     public let credentials: Credentials?
+    public let headerValues: [APIHeaderKeyInfo]
 
     public init(
         logOptions: TangemNetworkLoggerPlugin.LogOptions? = .default,
         urlSessionConfiguration: URLSessionConfiguration = .defaultConfiguration,
-        credentials: Credentials? = nil
+        credentials: Credentials? = nil,
+        headerValues: [APIHeaderKeyInfo] = []
     ) {
         self.logOptions = logOptions
         self.urlSessionConfiguration = urlSessionConfiguration
         self.credentials = credentials
+        self.headerValues = headerValues
     }
 
     var plugins: [PluginType] {
@@ -39,6 +42,8 @@ public struct TangemProviderConfiguration {
                 )
             })
         }
+
+        plugins.append(NetworkHeadersPlugin(networkHeaders: headerValues))
 
         return plugins
     }

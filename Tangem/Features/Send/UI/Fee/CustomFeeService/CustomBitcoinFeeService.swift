@@ -49,9 +49,9 @@ class CustomBitcoinFeeService {
         // Skip the initial values
         .dropFirst()
         .withWeakCaptureOf(self)
-        .compactMap { service, args in
+        .asyncMap { service, args in
             let (satoshiPerByte, amount, destination) = args
-            return service.recalculateCustomFee(
+            return await service.recalculateCustomFee(
                 satoshiPerByte: satoshiPerByte,
                 amount: amount,
                 destination: destination
@@ -91,14 +91,14 @@ class CustomBitcoinFeeService {
         return BalanceFormatter().formatFiatBalance(fiat)
     }
 
-    private func recalculateCustomFee(satoshiPerByte: Int?, amount: Decimal, destination: String) -> Fee {
+    private func recalculateCustomFee(satoshiPerByte: Int?, amount: Decimal, destination: String) async -> Fee {
         guard let satoshiPerByte else {
             return zeroFee
         }
 
         let amount = Amount(with: tokenItem.blockchain, type: tokenItem.amountType, value: amount)
         do {
-            let newFee = try bitcoinTransactionFeeCalculator.calculateFee(
+            let newFee = try await bitcoinTransactionFeeCalculator.calculateFee(
                 satoshiPerByte: satoshiPerByte,
                 amount: amount,
                 destination: destination

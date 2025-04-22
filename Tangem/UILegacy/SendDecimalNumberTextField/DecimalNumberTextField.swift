@@ -9,6 +9,7 @@
 import Combine
 import SwiftUI
 import TangemAssets
+import TangemUIUtils
 
 struct DecimalNumberTextField: View {
     @ObservedObject private var viewModel: ViewModel
