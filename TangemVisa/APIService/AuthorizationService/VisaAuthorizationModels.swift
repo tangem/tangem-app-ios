@@ -28,7 +28,7 @@ public struct VisaAuthorizationTokens: Codable {
         self.refreshToken = refreshToken
         self.authorizationType = authorizationType
     }
-    
+
     init(dto: AuthorizationTokenDTO, authorizationType: VisaAuthorizationType) {
         self.init(
             accessToken: dto.accessToken,
@@ -37,7 +37,7 @@ public struct VisaAuthorizationTokens: Codable {
         )
     }
 }
- 
+
 struct AuthorizationTokenDTO: Codable {
     let accessToken: String?
     let refreshToken: String

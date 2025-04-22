@@ -12,7 +12,7 @@ public enum VisaAPIType: String, CaseIterable, Codable {
     case prod
     case stage
     case dev
-    
+
     var baseURL: URL {
         switch self {
         case .dev:

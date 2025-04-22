@@ -27,7 +27,7 @@ public protocol VisaAuthorizationTokenRefreshService {
 struct CommonVisaAuthorizationService {
     typealias AuthorizationAPIService = APIService<AuthorizationAPITarget>
     private let apiService: AuthorizationAPIService
-    
+
     private let apiType: VisaAPIType
 
     init(apiType: VisaAPIType, apiService: AuthorizationAPIService) {
@@ -75,7 +75,7 @@ extension CommonVisaAuthorizationService: VisaAuthorizationService {
             )),
             apiType: apiType
         ))
-        
+
         return .init(dto: dto, authorizationType: .cardId)
     }
 
@@ -89,7 +89,7 @@ extension CommonVisaAuthorizationService: VisaAuthorizationService {
             )),
             apiType: apiType
         ))
-        
+
         return .init(dto: dto, authorizationType: .cardWallet)
     }
 }
