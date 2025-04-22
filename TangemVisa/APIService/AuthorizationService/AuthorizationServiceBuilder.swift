@@ -14,7 +14,7 @@ struct AuthorizationServiceBuilder {
     init(apiType: VisaAPIType) {
         self.apiType = apiType
     }
-    
+
     func build(urlSessionConfiguration: URLSessionConfiguration) -> CommonVisaAuthorizationService {
         CommonVisaAuthorizationService(
             apiType: apiType,
