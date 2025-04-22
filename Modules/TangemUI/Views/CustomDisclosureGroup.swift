@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import TangemUI
 
 public struct CustomDisclosureGroup<Prompt: View, ExpandedView: View>: View {
     private let actionOnClick: () -> Void
@@ -40,6 +39,7 @@ public struct CustomDisclosureGroup<Prompt: View, ExpandedView: View>: View {
         VStack(alignment: alignment, spacing: 0) {
             Button(action: { actionOnClick() }, label: {
                 prompt
+                    .contentShape(Rectangle())
             })
 
             if isExpanded {
@@ -50,7 +50,6 @@ public struct CustomDisclosureGroup<Prompt: View, ExpandedView: View>: View {
             }
         }
         .clipped()
-        .contentShape(Rectangle())
         .drawingGroup()
     }
 }
