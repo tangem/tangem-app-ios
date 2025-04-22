@@ -74,6 +74,7 @@ private extension CommonSendNotificationManager {
             .store(in: &bag)
 
         input.transactionCreationError
+            .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { manager, error in
                 manager.updateNotification(error: error)
@@ -290,13 +291,25 @@ private extension CommonSendNotificationManager {
 
 private extension CommonSendNotificationManager {
     func show(notification event: SendNotificationEvent) {
-        let input = NotificationsFactory().buildNotificationInput(for: event) { [weak self] id, actionType in
-            self?.delegate?.didTapNotification(with: id, action: actionType)
-        } dismissAction: { [weak self] id in
+        var buttonAction: NotificationView.NotificationButtonTapAction?
+
+        if event.buttonAction != nil {
+            buttonAction = { [weak self] id, actionType in
+                self?.delegate?.didTapNotification(with: id, action: actionType)
+            }
+        }
+
+        let dismissAction: NotificationView.NotificationAction = { [weak self] id in
             self?.notificationInputsSubject.value.removeAll {
                 $0.settings.id == id
             }
         }
+
+        let input = NotificationsFactory().buildNotificationInput(
+            for: event,
+            buttonAction: buttonAction,
+            dismissAction: dismissAction
+        )
 
         if let index = notificationInputsSubject.value.firstIndex(where: { $0.id == input.id }) {
             notificationInputsSubject.value[index] = input
