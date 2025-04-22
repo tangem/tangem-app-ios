@@ -9,10 +9,19 @@
 import Moya
 
 struct AuthorizationServiceBuilder {
+    private let apiType: VisaAPIType
+
+    init(apiType: VisaAPIType) {
+        self.apiType = apiType
+    }
+    
     func build(urlSessionConfiguration: URLSessionConfiguration) -> CommonVisaAuthorizationService {
-        CommonVisaAuthorizationService(apiService: .init(
-            provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
-            decoder: JSONDecoderFactory().makePayAPIDecoder()
-        ))
+        CommonVisaAuthorizationService(
+            apiType: apiType,
+            apiService: .init(
+                provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
+                decoder: JSONDecoderFactory().makePayAPIDecoder()
+            )
+        )
     }
 }
