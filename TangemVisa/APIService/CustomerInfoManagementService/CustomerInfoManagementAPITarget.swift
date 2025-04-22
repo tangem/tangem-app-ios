@@ -12,15 +12,16 @@ import Moya
 struct CustomerInfoManagementAPITarget: TargetType {
     let authorizationToken: String
     let target: Target
+    let apiType: VisaAPIType
 
     var baseURL: URL {
-        URL(string: "https://api-s.tangem.org/")!
+        apiType.baseURL
     }
 
     var path: String {
         switch target {
         case .getCustomerInfo(let customerId):
-            return "cim/api/v1/customers/\(customerId)"
+            return "customer/\(customerId)"
         }
     }
 
@@ -38,15 +39,17 @@ struct CustomerInfoManagementAPITarget: TargetType {
     }
 
     var headers: [String: String]? {
-        [
-            VisaConstants.authorizationHeaderKey: authorizationToken,
-            "Content-Type": "application/json",
-        ]
+        var defaultHeaders = VisaConstants.defaultHeaderParams
+        defaultHeaders[VisaConstants.authorizationHeaderKey] = authorizationToken
+        
+        return defaultHeaders
     }
 }
 
 extension CustomerInfoManagementAPITarget {
     enum Target {
+        /// Load all available customer info. Can be used for loading data about payment account address
+        /// Will be updated later, not fully implemented on BFF
         case getCustomerInfo(customerId: String)
     }
 }
