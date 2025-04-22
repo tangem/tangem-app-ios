@@ -14,14 +14,17 @@ class CommonUnspentOutputManager {
     private let address: any Address
     private let preImageTransactionBuilder: UTXOPreImageTransactionBuilder
     private let lockingScriptBuilder: LockingScriptBuilder
+    private let sorter: UTXOTransactionInputsSorter
 
     init(
         address: any Address,
         preImageTransactionBuilder: UTXOPreImageTransactionBuilder,
+        sorter: UTXOTransactionInputsSorter,
         lockingScriptBuilder: LockingScriptBuilder
     ) {
         self.address = address
         self.preImageTransactionBuilder = preImageTransactionBuilder
+        self.sorter = sorter
         self.lockingScriptBuilder = lockingScriptBuilder
     }
 
@@ -80,6 +83,8 @@ private extension CommonUnspentOutputManager {
             fee: fee
         )
 
+        let inputs = sorter.sort(inputs: preImage.outputs)
+
         // Check fee rate to exclude too big fee
         var outputs: [PreImageTransaction.OutputType] = [
             .destination(destinationScript, value: preImage.destination),
@@ -89,7 +94,7 @@ private extension CommonUnspentOutputManager {
             outputs.append(.change(changeScript, value: preImage.change))
         }
 
-        let preImageTransaction = PreImageTransaction(inputs: preImage.outputs, outputs: outputs, fee: preImage.fee)
+        let preImageTransaction = PreImageTransaction(inputs: inputs, outputs: outputs, fee: preImage.fee)
 
         assert(!preImageTransaction.inputs.isEmpty, "Inputs has to have at least one UTXO")
         assert(!preImageTransaction.outputs.isEmpty, "Outputs has to have at least destination output")
