@@ -10,6 +10,15 @@ import Testing
 @testable import BlockchainSdk
 
 struct BitcoinTransactionTests {
+    struct TestUTXOTransactionInputsSorter: UTXOTransactionInputsSorter {
+        func sort(inputs: [ScriptUnspentOutput]) -> [ScriptUnspentOutput] {
+            // Crutch to sort in the order which was used in the tx below
+            inputs.sorted(by: {
+                !$0.txId.lexicographicallyPrecedes($1.txId)
+            })
+        }
+    }
+
     /// https://www.blockchair.com/bitcoin/transaction/1df3c8aa649e1c1b3760685a0fc1ac7b3dd9be7e0ab35f7accf8195737e6caac
     @Test
     func legacyAndDefaultAddressTransaction() throws {
@@ -20,7 +29,7 @@ struct BitcoinTransactionTests {
         let defaultAddress = try addressService.makeAddress(from: pubKey, type: .default)
         let legacyAddress = try addressService.makeAddress(from: pubKey, type: .legacy)
 
-        let unspentOutputManager: UnspentOutputManager = .bitcoin(address: defaultAddress, isTestnet: false)
+        let unspentOutputManager: UnspentOutputManager = .bitcoin(address: defaultAddress, sorter: TestUTXOTransactionInputsSorter(), isTestnet: false)
         unspentOutputManager.update(
             outputs: [.init(blockId: 891646, txId: "ea8412e1d07d97c14be929c265691b6088cda91f518584c62345d52fb3779b13", index: 0, amount: 1000)],
             for: defaultAddress
