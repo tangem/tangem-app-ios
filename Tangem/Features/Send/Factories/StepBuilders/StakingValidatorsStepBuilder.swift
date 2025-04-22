@@ -34,7 +34,7 @@ struct StakingValidatorsStepBuilder {
         let viewModel = makeStakingValidatorsViewModel(interactor: interactor)
         var step: StakingValidatorsStep?
 
-        if let validatorInfos = manager.state.yieldInfo?.validators, !validatorInfos.isEmpty {
+        if let validatorInfos = manager.state.yieldInfo?.preferredValidators, validatorInfos.count > 1 {
             step = StakingValidatorsStep(viewModel: viewModel, interactor: interactor, sendFeeLoader: sendFeeLoader)
         }
 
