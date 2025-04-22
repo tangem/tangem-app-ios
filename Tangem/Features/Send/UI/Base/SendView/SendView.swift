@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemUI
 
 struct SendView: View {
     @ObservedObject var viewModel: SendViewModel
@@ -181,7 +182,7 @@ struct SendView: View {
                 HStack(spacing: 8) {
                     MainButton(
                         title: Localization.commonExplore,
-                        icon: .leading(Assets.globe),
+                        icon: .leading(Assets.Glyphs.explore),
                         style: .secondary,
                         action: { viewModel.explore(url: url) }
                     )
