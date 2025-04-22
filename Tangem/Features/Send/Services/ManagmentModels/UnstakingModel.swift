@@ -160,7 +160,13 @@ private extension UnstakingModel {
 private extension UnstakingModel {
     private func send() async throws -> TransactionDispatcherResult {
         if let analyticsEvent = initialAction.type.analyticsEvent {
-            Analytics.log(event: analyticsEvent, params: [.validator: initialAction.validatorInfo?.name ?? ""])
+            Analytics.log(
+                event: analyticsEvent,
+                params: [
+                    .validator: initialAction.validatorInfo?.name ?? "",
+                    .token: tokenItem.currencySymbol
+                ]
+            )
         }
 
         guard amount?.crypto != nil else {
@@ -388,7 +394,10 @@ private extension UnstakingModel {
         case .pending(.claimRewards), .pending(.restakeRewards):
             Analytics.log(
                 event: .stakingRewardScreenOpened,
-                params: [.validator: initialAction.validatorInfo?.address ?? ""]
+                params: [
+                    .validator: initialAction.validatorInfo?.address ?? "",
+                    .token: tokenItem.currencySymbol
+                ]
             )
         default:
             break
