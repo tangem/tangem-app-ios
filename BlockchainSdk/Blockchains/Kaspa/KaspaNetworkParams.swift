@@ -9,15 +9,19 @@
 struct KaspaNetworkParams: UTXONetworkParams {
     /// Version(0) - Schnorr
     /// Version(1) - ECDSA
-    var p2pkhPrefix: UInt8 { 0x01 }
-    var p2shPrefix: UInt8 { 0x08 }
-    var bech32Prefix: String { "kaspa" }
-    var dustRelayTxFee: Int { 3000 }
+    let p2pkhPrefix: UInt8 = 0x01
+    let p2shPrefix: UInt8 = 0x08
+    let bech32Prefix: String = "kaspa"
+    let dustRelayTxFee: Int = 3000
+    let coinType: UInt32 = 111111
+    let signHashType: UTXONetworkParamsSignHashType = .bitcoinAll
 }
 
 struct KaspaTestNetworkParams: UTXONetworkParams {
-    var p2pkhPrefix: UInt8 { 0x01 }
-    var p2shPrefix: UInt8 { 0x08 }
-    var bech32Prefix: String { "kaspatest" }
-    var dustRelayTxFee: Int { 3000 }
+    let p2pkhPrefix: UInt8 = 0x01
+    let p2shPrefix: UInt8 = 0x08
+    let bech32Prefix: String = "kaspatest"
+    let dustRelayTxFee: Int = 3000
+    let coinType: UInt32 = 111111
+    let signHashType: UTXONetworkParamsSignHashType = .bitcoinAll
 }

@@ -1,5 +1,5 @@
 {
-  "originHash" : "a12d25e495f9a82b0585772e55be933e78977e43a4b2146a2b7a96655903f378",
+  "originHash" : "ed22ea065c67d5257cfdc4532d4d5be0b8b211cd35ec3ac2673c6a3074e85a9a",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -80,15 +80,6 @@
       "state" : {
         "revision" : "0ed110f7555c34ff468e72e1686e59721f2b0da6",
         "version" : "5.3.0"
-      }
-    },
-    {
-      "identity" : "bitcoincore",
-      "kind" : "remoteSourceControl",
-      "location" : "git@github.com:tangem-developments/bitcoincore.git",
-      "state" : {
-        "revision" : "4ec53e5e223885a4c0884d80985cf43677434eb0",
-        "version" : "0.0.23"
       }
     },
     {
