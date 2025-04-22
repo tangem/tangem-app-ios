@@ -137,6 +137,7 @@ var featureModules: [PackageDescription.Target] {
                 "TangemFoundation",
                 "TangemLocalization",
                 "TangemLogger",
+                "CombineExt",
                 "TangemNetworkUtils",
             ],
             swiftSettings: [
