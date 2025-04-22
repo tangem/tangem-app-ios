@@ -45,7 +45,7 @@ struct CommonProductActivationService {
     typealias ActivationAPIService = APIService<ProductActivationAPITarget>
     private let authorizationTokensHandler: VisaAuthorizationTokensHandler
     private let apiService: ActivationAPIService
-    
+
     private let apiType: VisaAPIType
 
     init(
@@ -100,7 +100,8 @@ extension CommonProductActivationService: ProductActivationService {
                 walletSignature: defaultEmptyValue,
                 cardSalt: defaultEmptyValue,
                 cardSignature: defaultEmptyValue
-            ))
+            )
+        )
         let _: ProductActivationAPITarget.ProductActivationEmptyResponse = try await sendRequest(
             target: .approveDeployByVisaCard(request: .init(
                 orderId: activationOrderId,
