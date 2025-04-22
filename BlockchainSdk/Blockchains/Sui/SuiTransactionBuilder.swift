@@ -19,7 +19,7 @@ final class SuiTransactionBuilder {
 
     private var coinGas: SuiCoinObject? {
         coins
-            .filter { $0.coinType == SUIUtils.CoinType.sui.string }
+            .filter { $0.coinType == SuiCoinObject.CoinType.sui }
             .max { $0.balance < $1.balance }
     }
 
@@ -134,7 +134,7 @@ final class SuiTransactionBuilder {
 
     private func buildForInspectCoinTransaction(amount: Amount, destination: String, referenceGasPrice: Decimal) throws -> String {
         let totalAmount = coins
-            .filter { $0.coinType == SUIUtils.CoinType.sui.string }
+            .filter { $0.coinType == SuiCoinObject.CoinType.sui }
             .reduce(into: Decimal.zero) { partialResult, coin in
                 partialResult += coin.balance
             }
@@ -185,7 +185,7 @@ final class SuiTransactionBuilder {
 
     private func makeCoinSigningInput(amount: Decimal, destination: String, fee: SuiFeeParameters) -> WalletCore.SuiSigningInput {
         let decimalAmount = amount * decimalValue
-        let coinToUse = getCoins(for: decimalAmount + fee.gasBudget, coinType: SUIUtils.CoinType.sui.string)
+        let coinToUse = getCoins(for: decimalAmount + fee.gasBudget, coinType: SuiCoinObject.CoinType.sui)
 
         return WalletCore.SuiSigningInput.with { input in
             let inputCoins = coinToUse.map { coin in
@@ -217,7 +217,8 @@ final class SuiTransactionBuilder {
         guard let coinGas else { throw WalletError.failedToBuildTx }
 
         let decimalAmount = amount * token.decimalValue
-        let coinsToUse = getCoins(for: decimalAmount, coinType: token.contractAddress)
+        let coinType = try SuiCoinObject.CoinType(string: token.contractAddress)
+        let coinsToUse = getCoins(for: decimalAmount, coinType: coinType)
 
         return WalletCore.SuiSigningInput.with { input in
             let inputCoins = coinsToUse.map { coin in
@@ -245,7 +246,7 @@ final class SuiTransactionBuilder {
         }
     }
 
-    private func getCoins(for amount: Decimal, coinType: String) -> [SuiCoinObject] {
+    private func getCoins(for amount: Decimal, coinType: SuiCoinObject.CoinType) -> [SuiCoinObject] {
         var suitableCoins = [SuiCoinObject]()
         var total = Decimal.zero
 
