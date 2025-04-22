@@ -28,6 +28,7 @@ enum StakingNotificationEvent {
     case maxAmountStaking
     case cardanoAdditionalDeposit
     case amountRequirementError(minAmount: String, currency: String)
+    case tonUnstaking
 }
 
 extension StakingNotificationEvent: NotificationEvent {
@@ -50,6 +51,7 @@ extension StakingNotificationEvent: NotificationEvent {
         case .cardanoAdditionalDeposit: "cardanoAdditionalDeposit".hashValue
         case .amountRequirementError(let minAmount, let currency):
             "amountRequirementError\(minAmount)\(currency)".hashValue
+        case .tonUnstaking: "tonUnstaking".hashValue
         }
     }
 
@@ -72,6 +74,7 @@ extension StakingNotificationEvent: NotificationEvent {
         case .cardanoAdditionalDeposit: .string(Localization.stakingNotificationAdditionalAdaDepositTitle)
         case .amountRequirementError(_, let currency):
             .string(Localization.stakingNotificationMinimumBalanceErrorTitle(currency))
+        case .tonUnstaking: .string(Localization.stakingNotificationTonHaveToUnstakeAllTitle)
         }
     }
 
@@ -110,6 +113,8 @@ extension StakingNotificationEvent: NotificationEvent {
             Localization.stakingNotificationAdditionalAdaDepositText
         case .amountRequirementError(let minAmount, let currency):
             Localization.stakingNotificationMinimumBalanceErrorText(minAmount, currency)
+        case .tonUnstaking:
+            Localization.stakingNotificationTonHaveToUnstakeAll
         }
     }
 
@@ -119,7 +124,8 @@ extension StakingNotificationEvent: NotificationEvent {
              .stakesWillMoveToNewValidator, .lowStakedBalance, .amountRequirementError:
             .secondary
         case .unstake, .networkUnreachable, .withdraw, .claimRewards,
-             .restakeRewards, .restake, .unlock, .revote, .maxAmountStaking, .cardanoAdditionalDeposit:
+             .restakeRewards, .restake, .unlock, .revote, .maxAmountStaking,
+             .cardanoAdditionalDeposit, .tonUnstaking:
             .action
         case .validationErrorEvent(let event): event.colorScheme
         }
@@ -132,7 +138,8 @@ extension StakingNotificationEvent: NotificationEvent {
         case .approveTransactionInProgress:
             .init(iconType: .progressView)
         case .unstake, .withdraw, .claimRewards, .restakeRewards, .restake,
-             .unlock, .stakesWillMoveToNewValidator, .revote, .maxAmountStaking, .cardanoAdditionalDeposit:
+             .unlock, .stakesWillMoveToNewValidator, .revote,
+             .maxAmountStaking, .cardanoAdditionalDeposit, .tonUnstaking:
             .init(iconType: .image(Assets.blueCircleWarning.image))
         case .amountRequirementError:
             .init(iconType: .image(Assets.redCircleWarning.image))
@@ -157,6 +164,7 @@ extension StakingNotificationEvent: NotificationEvent {
              .lowStakedBalance,
              .maxAmountStaking,
              .cardanoAdditionalDeposit,
+             .tonUnstaking,
              .stakesWillMoveToNewValidator:
             return .info
         case .validationErrorEvent(let event):
@@ -183,6 +191,7 @@ extension StakingNotificationEvent: NotificationEvent {
              .maxAmountStaking,
              .cardanoAdditionalDeposit,
              .amountRequirementError,
+             .tonUnstaking,
              .stakesWillMoveToNewValidator:
             return nil
         }
