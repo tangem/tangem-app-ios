@@ -17,10 +17,10 @@ struct NFTCollectionDisclosureGroupView: View {
     private var isOpened = false
 
     var body: some View {
-        discslosureGroup
+        disclosureGroup
     }
 
-    private var discslosureGroup: some View {
+    private var disclosureGroup: some View {
         CustomDisclosureGroup(
             isExpanded: isOpened,
             transition: .opacity,
