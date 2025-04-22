@@ -84,7 +84,10 @@ extension CommonUTXOTransactionSizeCalculator {
 
 extension UTXOScriptType {
     var isWitness: Bool {
-        self == .p2wsh || self == .p2wpkh || self == .p2tr
+        switch self {
+        case .p2wsh, .p2wpkh, .p2tr: true
+        case .p2pk, .p2pkh, .p2sh: false
+        }
     }
 
     var inputSize: Int {

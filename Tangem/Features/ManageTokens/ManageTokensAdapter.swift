@@ -138,7 +138,7 @@ private extension ManageTokensAdapter {
 
     func onSelect(_ selected: Bool, _ tokenItem: TokenItem) {
         if selected {
-            if tokenItem.hasLongHashes, !longHashesSupported {
+            if AppUtils().hasLongHashesForSend(tokenItem), !longHashesSupported {
                 displayAlertAndUpdateSelection(
                     for: tokenItem,
                     title: Localization.commonAttention,
