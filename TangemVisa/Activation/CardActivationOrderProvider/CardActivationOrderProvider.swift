@@ -46,6 +46,10 @@ extension CommonCardActivationOrderProvider: CardActivationOrderProvider {
             VisaLogger.error("Missing access token, can't load activation order data", error: VisaActivationError.missingAccessToken)
             throw VisaActivationError.missingAccessToken
         }
+        
+        guard let cardWalletAddress = activationInput.walletAddress else {
+            throw VisaActivationError.missingWalletAddressInInput
+        }
 
         let activationStatus = try await activationStatusService.getCardActivationStatus(
             authorizationTokens: authorizationTokens,
@@ -55,7 +59,8 @@ extension CommonCardActivationOrderProvider: CardActivationOrderProvider {
 
         let hashToSign = try await productActivationService.getVisaCardDeployAcceptance(
             activationOrderId: activationStatus.activationOrder.id,
-            customerWalletAddress: activationStatus.activationOrder.customerWalletAddress
+            customerWalletAddress: activationStatus.activationOrder.customerWalletAddress,
+            cardWalletAddress: cardWalletAddress
         )
 
         VisaLogger.info("Order loaded and can be processed by card")
