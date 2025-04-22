@@ -332,12 +332,12 @@ private extension StakingDetailsViewModel {
         let staking = staking.map { balance in
             stakesBuilder.mapToStakingDetailsStakeViewData(yield: yield, balance: balance) { [weak self] in
                 let tokenCurrencySymbol = self?.tokenItem.currencySymbol ?? ""
-                
+
                 Analytics.log(
                     event: .stakingButtonValidator,
                     params: [
                         .source: Analytics.ParameterValue.stakeSourceStakeInfo.rawValue,
-                        .token: tokenCurrencySymbol
+                        .token: tokenCurrencySymbol,
                     ]
                 )
                 self?.openFlow(balance: balance, validators: yield.validators)
@@ -387,7 +387,7 @@ private extension StakingDetailsViewModel {
                 event: .stakingButtonRewards,
                 params: [
                     .validator: name ?? "",
-                    .token: tokenItem.currencySymbol
+                    .token: tokenItem.currencySymbol,
                 ]
             )
         } else {
