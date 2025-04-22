@@ -164,7 +164,7 @@ private extension UnstakingModel {
                 event: analyticsEvent,
                 params: [
                     .validator: initialAction.validatorInfo?.name ?? "",
-                    .token: tokenItem.currencySymbol
+                    .token: tokenItem.currencySymbol,
                 ]
             )
         }
@@ -396,7 +396,7 @@ private extension UnstakingModel {
                 event: .stakingRewardScreenOpened,
                 params: [
                     .validator: initialAction.validatorInfo?.address ?? "",
-                    .token: tokenItem.currencySymbol
+                    .token: tokenItem.currencySymbol,
                 ]
             )
         default:

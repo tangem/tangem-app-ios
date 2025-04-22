@@ -41,7 +41,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
     var headers: [String: String]? {
         var defaultHeaders = VisaConstants.defaultHeaderParams
         defaultHeaders[VisaConstants.authorizationHeaderKey] = authorizationToken
-        
+
         return defaultHeaders
     }
 }
