@@ -43,8 +43,8 @@ struct AlephiumTransactionTests {
         let hashForSign = try txBuilder.buildForSign(transaction: transaction)
         let hashForSend = try txBuilder.buildForSend(transaction: transaction)
 
-        #expect(hashForSign.hexString.lowercased() == "3a939f591a551830c19ca88ffc63a51d5f2328aee994d5e6013406aea2831b65")
-        #expect(hashForSend.hexString.lowercased() == "00000080004e20c1174876e80001dd87281f230eee251390aa683af312574ee647b01f6712e6cd78a2623a37da7706b347b700039bbd8c96ada3d42648fbe52fb40f3dae106e7552efe42a3f51583300ad5e74ab02c40de0b6b3a7640000009e36f9f01acfb951753061c56a24bc4ca2cf5de7a9ad3066fb983ea1fc3f88c800000000000000000000c40dd99bb65dd7000000727e8c40bfd803e3e0036835f584d7397729ce4e47db11e1dc72eb7ea32eeb5500000000000000000000")
+        #expect(hashForSign.hex() == "3a939f591a551830c19ca88ffc63a51d5f2328aee994d5e6013406aea2831b65")
+        #expect(hashForSend.hex() == "00000080004e20c1174876e80001dd87281f230eee251390aa683af312574ee647b01f6712e6cd78a2623a37da7706b347b700039bbd8c96ada3d42648fbe52fb40f3dae106e7552efe42a3f51583300ad5e74ab02c40de0b6b3a7640000009e36f9f01acfb951753061c56a24bc4ca2cf5de7a9ad3066fb983ea1fc3f88c800000000000000000000c40dd99bb65dd7000000727e8c40bfd803e3e0036835f584d7397729ce4e47db11e1dc72eb7ea32eeb5500000000000000000000")
     }
 
     private func transactionData() -> Transaction {

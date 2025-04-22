@@ -6,9 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import BitcoinCore
-@testable import BlockchainSdk
 import Testing
+@testable import BlockchainSdk
 
 struct LitecoinAddressTests {
     private let addressesUtility = AddressServiceManagerUtility()
