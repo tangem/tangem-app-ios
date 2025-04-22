@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import class BitcoinCore.CashAddrBech32
 
 struct CashAddrLockingScriptBuilder {
     private let bech32Prefix: String
@@ -29,11 +28,12 @@ struct CashAddrLockingScriptBuilder {
         let keyHash = data.dropFirst()
         switch version {
         case AddressType.p2pkh.rawValue:
-            let lockingStript = OpCodeUtils.p2pkh(data: keyHash)
-            return (version: version, script: .init(data: lockingStript, type: .p2pkh))
+            let lockingScript = OpCodeUtils.p2pkh(data: keyHash)
+            return (version: version, script: .init(keyHash: keyHash, data: lockingScript, type: .p2pkh))
         case AddressType.p2sh.rawValue:
-            let lockingStript = OpCodeUtils.p2sh(data: keyHash)
-            return (version: version, script: .init(data: lockingStript, type: .p2sh))
+            let lockingScript = OpCodeUtils.p2sh(data: keyHash)
+            // We don't have redeemScript from address. Only from PublicKey
+            return (version: version, script: .init(keyHash: keyHash, data: lockingScript, type: .p2sh(redeemScript: nil)))
         default:
             throw LockingScriptBuilderError.unsupportedVersion
         }
