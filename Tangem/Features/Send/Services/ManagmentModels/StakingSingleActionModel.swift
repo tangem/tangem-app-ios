@@ -143,7 +143,13 @@ private extension StakingSingleActionModel {
 private extension StakingSingleActionModel {
     private func send() async throws -> TransactionDispatcherResult {
         if let analyticsEvent = action.type.analyticsEvent {
-            Analytics.log(event: analyticsEvent, params: [.validator: action.validatorInfo?.name ?? ""])
+            Analytics.log(
+                event: analyticsEvent,
+                params: [
+                    .validator: action.validatorInfo?.name ?? "",
+                    .token: tokenItem.currencySymbol
+                ]
+            )
         }
 
         do {
@@ -362,7 +368,10 @@ private extension StakingSingleActionModel {
         case .pending(.claimRewards), .pending(.restakeRewards):
             Analytics.log(
                 event: .stakingRewardScreenOpened,
-                params: [.validator: action.validatorInfo?.address ?? ""]
+                params: [
+                    .validator: action.validatorInfo?.address ?? "",
+                    .token: tokenItem.currencySymbol
+                ]
             )
         default:
             break
