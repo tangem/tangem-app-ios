@@ -10,11 +10,13 @@ import Foundation
 import BlockchainSdk
 
 public struct VisaCustomerCardInfoProviderBuilder {
+    private let apiType: VisaAPIType
     private let isMockedAPIEnabled: Bool
     private let isTestnet: Bool
     private let cardId: String
 
-    public init(isMockedAPIEnabled: Bool, isTestnet: Bool, cardId: String) {
+    public init(apiType: VisaAPIType, isMockedAPIEnabled: Bool, isTestnet: Bool, cardId: String) {
+        self.apiType = apiType
         self.isMockedAPIEnabled = isMockedAPIEnabled
         self.isTestnet = isTestnet
         self.cardId = cardId
@@ -26,7 +28,7 @@ public struct VisaCustomerCardInfoProviderBuilder {
         evmSmartContractInteractor: EVMSmartContractInteractor,
         urlSessionConfiguration: URLSessionConfiguration
     ) -> VisaCustomerCardInfoProvider {
-        let authorizationTokensHandler = VisaAuthorizationTokensHandlerBuilder(isMockedAPIEnabled: isMockedAPIEnabled)
+        let authorizationTokensHandler = VisaAuthorizationTokensHandlerBuilder(apiType: apiType, isMockedAPIEnabled: isMockedAPIEnabled)
             .build(
                 cardId: cardId,
                 cardActivationStatus: cardActivationState,
@@ -49,6 +51,7 @@ public struct VisaCustomerCardInfoProviderBuilder {
         var customerInfoManagementService: CustomerInfoManagementService?
         if let authorizationTokensHandler {
             customerInfoManagementService = CommonCustomerInfoManagementService(
+                apiType: apiType,
                 authorizationTokenHandler: authorizationTokensHandler,
                 apiService: .init(
                     provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
