@@ -257,7 +257,7 @@ private extension StakingModel {
             event: .stakingButtonStake,
             params: [
                 .source: Analytics.ParameterValue.stakeSourceConfirmation.rawValue,
-                .token: tokenItem.currencySymbol
+                .token: tokenItem.currencySymbol,
             ]
         )
 
@@ -584,7 +584,7 @@ private extension StakingModel {
                 event: .stakingSelectedCurrency,
                 params: [
                     .commonType: Analytics.ParameterValue.token.rawValue,
-                    .token: tokenItem.currencySymbol
+                    .token: tokenItem.currencySymbol,
                 ]
             )
 
@@ -593,7 +593,7 @@ private extension StakingModel {
                 event: .stakingSelectedCurrency,
                 params: [
                     .commonType: Analytics.ParameterValue.selectedCurrencyApp.rawValue,
-                    .token: tokenItem.currencySymbol
+                    .token: tokenItem.currencySymbol,
                 ]
             )
         }
