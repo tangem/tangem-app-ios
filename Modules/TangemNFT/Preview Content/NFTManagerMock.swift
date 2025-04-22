@@ -12,7 +12,12 @@ final class NFTManagerMock: NFTManager {
     var collections: [NFTCollection] = []
 
     var collectionsPublisher: AnyPublisher<[NFTCollection], Never> {
-        Just([]).eraseToAnyPublisher()
+        collections = switch state {
+        case .failedToLoad, .loading: []
+        case .loaded(let collections): collections
+        }
+
+        return Just(collections).eraseToAnyPublisher()
     }
 
     private var state: NFTManagerState
