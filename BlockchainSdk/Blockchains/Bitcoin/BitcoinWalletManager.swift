@@ -71,43 +71,46 @@ class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
         networkService.getFee()
             .withWeakCaptureOf(self)
-            .receive(on: DispatchQueue.global())
-            .tryMap { try $0.processFee($1, amount: amount, destination: destination) }
+            .tryAsyncMap { try await $0.processFee($1, amount: amount, destination: destination) }
             .eraseToAnyPublisher()
     }
 
-    func processFee(_ response: UTXOFee, amount: Amount, destination: String) throws -> [Fee] {
+    func processFee(_ response: UTXOFee, amount: Amount, destination: String) async throws -> [Fee] {
+        typealias FeeWithFeeRate = (_ fee: Int, _ rate: Int)
+
+        async let minFee: FeeWithFeeRate = {
+            let rate = max(response.slowSatoshiPerByte, minimalFeePerByte).intValue(roundingMode: .up)
+            let fee = try await txBuilder.fee(amount: amount, address: destination, feeRate: rate)
+            return (fee: fee, rate: rate)
+        }()
+
+        async let normalFee: FeeWithFeeRate = {
+            let rate = max(response.marketSatoshiPerByte, minimalFeePerByte).intValue(roundingMode: .up)
+            let fee = try await txBuilder.fee(amount: amount, address: destination, feeRate: rate)
+            return (fee: fee, rate: rate)
+        }()
+
+        async let maxFee: FeeWithFeeRate = {
+            let rate = max(response.prioritySatoshiPerByte, minimalFeePerByte).intValue(roundingMode: .up)
+            let fee = try await txBuilder.fee(amount: amount, address: destination, feeRate: rate)
+            return (fee: fee, rate: rate)
+        }()
+
         let decimalValue = wallet.blockchain.decimalValue
-        let minimalFeeRate = minimalFeePerByte.intValue(roundingMode: .up)
 
-        var minRate = max(response.slowSatoshiPerByte, minimalFeePerByte).intValue(roundingMode: .up)
-        var normalRate = max(response.marketSatoshiPerByte, minimalFeePerByte).intValue(roundingMode: .up)
-        var maxRate = max(response.prioritySatoshiPerByte, minimalFeePerByte).intValue(roundingMode: .up)
-
-        var minFee = try Decimal(txBuilder.fee(amount: amount, address: destination, feeRate: minRate)) / decimalValue
-        var normalFee = try Decimal(txBuilder.fee(amount: amount, address: destination, feeRate: normalRate)) / decimalValue
-        var maxFee = try Decimal(txBuilder.fee(amount: amount, address: destination, feeRate: maxRate)) / decimalValue
-        let minimalFee = try Decimal(txBuilder.fee(amount: amount, address: destination, feeRate: minimalFeeRate)) / decimalValue
-
-        if minFee < minimalFee {
-            minRate = minimalFeeRate
-            minFee = minimalFee
-        }
-
-        if normalFee < minimalFee {
-            normalRate = minimalFeeRate
-            normalFee = minimalFee
-        }
-
-        if maxFee < minimalFee {
-            maxRate = minimalFeeRate
-            maxFee = minimalFee
-        }
-
-        return [
-            Fee(Amount(with: wallet.blockchain, value: minFee), parameters: BitcoinFeeParameters(rate: minRate)),
-            Fee(Amount(with: wallet.blockchain, value: normalFee), parameters: BitcoinFeeParameters(rate: normalRate)),
-            Fee(Amount(with: wallet.blockchain, value: maxFee), parameters: BitcoinFeeParameters(rate: maxRate)),
+        return try await [
+            Fee(
+                Amount(with: wallet.blockchain, value: Decimal(minFee.fee) / decimalValue),
+                parameters: BitcoinFeeParameters(rate: minFee.rate)
+            ),
+            Fee(
+                Amount(with: wallet.blockchain, value: Decimal(normalFee.fee) / decimalValue),
+                parameters: BitcoinFeeParameters(rate: normalFee.rate)
+            ),
+            Fee(
+                Amount(with: wallet.blockchain, value: Decimal(maxFee.fee) / decimalValue),
+                parameters: BitcoinFeeParameters(rate: maxFee.rate)
+            ),
         ]
     }
 }
@@ -115,9 +118,9 @@ class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
 // MARK: - BitcoinTransactionFeeCalculator
 
 extension BitcoinWalletManager: BitcoinTransactionFeeCalculator {
-    func calculateFee(satoshiPerByte: Int, amount: Amount, destination: String) throws -> Fee {
+    func calculateFee(satoshiPerByte: Int, amount: Amount, destination: String) async throws -> Fee {
         let decimalValue = wallet.blockchain.decimalValue
-        let fee = try txBuilder.fee(amount: amount, address: destination, feeRate: satoshiPerByte)
+        let fee = try await txBuilder.fee(amount: amount, address: destination, feeRate: satoshiPerByte)
         let amount = Amount(with: wallet.blockchain, value: Decimal(fee) / decimalValue)
 
         return Fee(amount, parameters: BitcoinFeeParameters(rate: satoshiPerByte))
@@ -128,32 +131,33 @@ extension BitcoinWalletManager: BitcoinTransactionFeeCalculator {
 
 extension BitcoinWalletManager: TransactionSender {
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
-        return Result { try txBuilder.buildForSign(transaction: transaction) }
-            .publisher
-            .withWeakCaptureOf(self)
-            .flatMap { manager, hashes in
-                signer
-                    .sign(hashes: hashes, walletPublicKey: manager.wallet.publicKey)
-            }
-            .withWeakCaptureOf(self)
-            .tryMap { manager, signatures -> String in
-                let tx = try manager.txBuilder.buildForSend(transaction: transaction, signatures: signatures)
-                return tx.hex()
-            }
-            .withWeakCaptureOf(self)
-            .flatMap { manager, transaction in
-                manager.networkService
-                    .send(transaction: transaction)
-                    .mapSendError(tx: transaction)
-            }
-            .withWeakCaptureOf(self)
-            .map { manager, result in
-                let mapper = PendingTransactionRecordMapper()
-                let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: result.hash)
-                manager.wallet.addPendingTransaction(record)
-                return result
-            }
-            .eraseSendError()
-            .eraseToAnyPublisher()
+        return Future.async {
+            try await self.txBuilder.buildForSign(transaction: transaction)
+        }
+        .withWeakCaptureOf(self)
+        .flatMap { manager, hashes in
+            signer
+                .sign(hashes: hashes, walletPublicKey: manager.wallet.publicKey)
+        }
+        .withWeakCaptureOf(self)
+        .tryAsyncMap { manager, signatures -> String in
+            let tx = try await manager.txBuilder.buildForSend(transaction: transaction, signatures: signatures)
+            return tx.hex()
+        }
+        .withWeakCaptureOf(self)
+        .flatMap { manager, transaction in
+            manager.networkService
+                .send(transaction: transaction)
+                .mapSendError(tx: transaction)
+        }
+        .withWeakCaptureOf(self)
+        .map { manager, result in
+            let mapper = PendingTransactionRecordMapper()
+            let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: result.hash)
+            manager.wallet.addPendingTransaction(record)
+            return result
+        }
+        .eraseSendError()
+        .eraseToAnyPublisher()
     }
 }
