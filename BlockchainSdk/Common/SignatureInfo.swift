@@ -24,4 +24,8 @@ extension SignatureInfo {
     func unmarshal() throws -> Data {
         try Secp256k1Signature(with: signature).unmarshal(with: publicKey, hash: hash).data
     }
+
+    func der() throws -> Data {
+        try Secp256k1Utils().serializeDer(signature)
+    }
 }
