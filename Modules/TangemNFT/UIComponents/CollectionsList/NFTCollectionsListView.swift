@@ -1,6 +1,6 @@
 //
-//  NFTCollectionsExpandableList.swift
-//  Tangem
+//  NFTCollectionsListView.swift
+//  TangemNFT
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -12,7 +12,7 @@ import TangemUIUtils
 import TangemUI
 import TangemLocalization
 
-public struct NFTCollectionsList: View {
+public struct NFTCollectionsListView: View {
     @ObservedObject var viewModel: NFTCollectionsListViewModel
     @State private var hasBeenScrolledUp = false
 
@@ -29,7 +29,7 @@ public struct NFTCollectionsList: View {
         switch viewModel.state {
         case .noCollections:
             noCollectionsView
-        case .collectionsAvailale(let collections):
+        case .collectionsAvailable(let collections):
             nonEmptyContentView(collections: collections)
                 .nftListSearchable(text: $viewModel.searchEntry, isAutomatic: hasBeenScrolledUp)
         }
@@ -45,7 +45,7 @@ public struct NFTCollectionsList: View {
             noCollectionsTexts
                 .padding(.bottom, Constants.EmptyView.textsButtonSpacing)
 
-            receiveButton(souldAddShadow: false)
+            receiveButton(shouldAddShadow: false)
                 .padding(.horizontal, Constants.EmptyView.buttonHPaddingInsideContainer)
         }
         .padding(.horizontal, Constants.EmptyView.horizontalPadding)
@@ -102,14 +102,14 @@ public struct NFTCollectionsList: View {
     private var receiveButtonContainer: some View {
         VStack(spacing: 0) {
             Spacer()
-            receiveButton(souldAddShadow: true)
+            receiveButton(shouldAddShadow: true)
         }
         .ignoresSafeArea(.keyboard)
     }
 
-    private func receiveButton(souldAddShadow: Bool) -> some View {
+    private func receiveButton(shouldAddShadow: Bool) -> some View {
         MainButton(title: Localization.nftCollectionsReceive, action: {})
-            .if(souldAddShadow) { view in
+            .if(shouldAddShadow) { view in
                 view.background(
                     ListFooterOverlayShadowView()
                 )
@@ -127,7 +127,7 @@ private extension View {
     }
 }
 
-extension NFTCollectionsList {
+extension NFTCollectionsListView {
     enum Constants {
         enum EmptyView {
             static let imageTextsSpacing: CGFloat = 24
@@ -151,7 +151,7 @@ extension NFTCollectionsList {
 #Preview("Multiple collections") {
     ZStack {
         Colors.Background.secondary
-        NFTCollectionsList(
+        NFTCollectionsListView(
             viewModel: .init(
                 nftManager: NFTManagerMock(
                     state: .loaded(
@@ -184,10 +184,7 @@ extension NFTCollectionsList {
                     )
                 ),
                 chainIconProvider: DummyProvider(),
-                coordinator: NFTCollectionsCoordinator(
-                    nftManager: NFTManagerMock(state: .loaded([])),
-                    chainIconProvider: DummyProvider()
-                )
+                coordinator: nil
             )
         )
         .padding(.horizontal, 16)
@@ -199,14 +196,11 @@ extension NFTCollectionsList {
 #Preview("No Collections") {
     ZStack {
         Colors.Background.secondary
-        NFTCollectionsList(
+        NFTCollectionsListView(
             viewModel: .init(
                 nftManager: NFTManagerMock(state: .loaded([])),
                 chainIconProvider: DummyProvider(),
-                coordinator: NFTCollectionsCoordinator(
-                    nftManager: NFTManagerMock(state: .loaded([])),
-                    chainIconProvider: DummyProvider()
-                )
+                coordinator: nil
             )
         )
         .padding(.horizontal, 16)
