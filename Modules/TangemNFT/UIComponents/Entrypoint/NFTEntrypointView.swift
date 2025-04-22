@@ -1,6 +1,6 @@
 //
-//  NFTCollectionsCompactView.swift
-//  Tangem
+//  NFTEntrypointView.swift
+//  TangemNFT
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -285,10 +285,10 @@ extension NFTEntrypointView {
         Colors.Field.primary
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
-                coordinator: EntrypointRoutableMock(),
                 nftManager: NFTManagerMock(
                     state: .loading
-                )
+                ),
+                coordinator: nil
             )
         )
         .padding(.horizontal, 16)
@@ -300,8 +300,7 @@ extension NFTEntrypointView {
         Colors.Field.primary
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
-                coordinator: EntrypointRoutableMock(),
-                nftManager: NFTManagerMock(state: .failedToLoad(error: NSError()))
+                nftManager: NFTManagerMock(state: .failedToLoad(error: NSError())), coordinator: nil
             )
         )
         .padding(.horizontal, 16)
@@ -313,8 +312,7 @@ extension NFTEntrypointView {
         Colors.Field.primary
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
-                coordinator: EntrypointRoutableMock(),
-                nftManager: NFTManagerMock(state: .loaded([]))
+                nftManager: NFTManagerMock(state: .loaded([])), coordinator: nil
             )
         )
         .padding(.horizontal, 16)
@@ -326,7 +324,6 @@ extension NFTEntrypointView {
         Colors.Field.primary
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
-                coordinator: EntrypointRoutableMock(),
                 nftManager: NFTManagerMock(
                     state: .loaded(
                         [.init(
@@ -343,7 +340,8 @@ extension NFTEntrypointView {
                             assets: []
                         )]
                     )
-                )
+                ),
+                coordinator: nil
             )
         )
         .padding(.horizontal, 16)
@@ -355,7 +353,6 @@ extension NFTEntrypointView {
         Colors.Field.primary
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
-                coordinator: EntrypointRoutableMock(),
                 nftManager: NFTManagerMock(
                     state: .loaded(
                         (0 ... 1).map {
@@ -374,7 +371,8 @@ extension NFTEntrypointView {
                             )
                         }
                     )
-                )
+                ),
+                coordinator: nil
             )
         )
         .padding(.horizontal, 16)
@@ -386,7 +384,6 @@ extension NFTEntrypointView {
         Colors.Field.primary
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
-                coordinator: EntrypointRoutableMock(),
                 nftManager: NFTManagerMock(
                     state: .loaded(
                         (0 ... 3).map {
@@ -405,7 +402,8 @@ extension NFTEntrypointView {
                             )
                         }
                     )
-                )
+                ),
+                coordinator: nil
             )
         )
         .padding(.horizontal, 16)
@@ -417,7 +415,6 @@ extension NFTEntrypointView {
         Colors.Field.primary
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
-                coordinator: EntrypointRoutableMock(),
                 nftManager: NFTManagerMock(
                     state: .loaded(
                         (0 ... 3).map {
@@ -436,7 +433,8 @@ extension NFTEntrypointView {
                             )
                         }
                     )
-                )
+                ),
+                coordinator: nil
             )
         )
         .padding(.horizontal, 16)
@@ -448,7 +446,6 @@ extension NFTEntrypointView {
         Colors.Field.primary
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
-                coordinator: EntrypointRoutableMock(),
                 nftManager: NFTManagerMock(
                     state: .loaded(
                         (0 ... 5).map {
@@ -467,7 +464,8 @@ extension NFTEntrypointView {
                             )
                         }
                     )
-                )
+                ),
+                coordinator: nil
             )
         )
         .padding(.horizontal, 16)

@@ -579,7 +579,16 @@ extension MainCoordinator {
 extension MainCoordinator: NFTEntrypointRoutable {
     func openCollections(_ nftManager: NFTManager) {
         mainBottomSheetUIManager.hide()
-        nftCollectionsCoordinator = NFTCollectionsCoordinator(nftManager: nftManager, chainIconProvider: NetworkImageProvider())
-        nftCollectionsCoordinator?.start()
+        let coordinator = NFTCollectionsCoordinator(
+            dismissAction: { [weak self] in
+                self?.nftCollectionsCoordinator = nil
+            },
+            popToRootAction: { [weak self] options in
+                self?.nftCollectionsCoordinator = nil
+                self?.popToRoot(with: options)
+            }
+        )
+        nftCollectionsCoordinator = coordinator
+        coordinator.start(with: .init(nftManager: nftManager, chainIconProvider: NetworkImageProvider()))
     }
 }
