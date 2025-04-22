@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 
 class KaspaNetworkServiceKRC20: MultiNetworkProvider {
     let providers: [KaspaNetworkProviderKRC20]
