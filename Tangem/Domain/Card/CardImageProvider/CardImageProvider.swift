@@ -13,6 +13,7 @@ import TangemSdk
 import Kingfisher
 import TangemFoundation
 import TangemAssets
+import TangemNetworkUtils
 
 struct CardImageProvider {
     private static let cardArtworkCache: ThreadSafeContainer<[String: CardArtwork]> = [:]
@@ -31,7 +32,7 @@ struct CardImageProvider {
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = 20
         configuration.timeoutIntervalForResource = 30
-        let session = URLSession(configuration: configuration)
+        let session = TangemURLSessionBuilder.makeSession(configuration: configuration)
         let networkService = NetworkService(session: session)
         cardVerifier = OnlineAttestationService(networkService: networkService)
     }
