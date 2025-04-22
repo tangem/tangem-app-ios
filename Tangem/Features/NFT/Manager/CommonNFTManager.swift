@@ -58,9 +58,9 @@ final class CommonNFTManager: NFTManager {
 
         return walletModelsPublisher
             .flatMapLatest { walletModels in
-                return walletModels
+                walletModels
                     .map { walletModel in
-                        return walletModel
+                        walletModel
                             .featuresPublisher
                             .map { (walletModel, $0) }
                     }
@@ -71,7 +71,6 @@ final class CommonNFTManager: NFTManager {
             .map { features -> [(any WalletModel, NFTNetworkService)] in
                 return features.reduce(into: []) { result, element in
                     let (walletModel, features) = element
-
                     for feature in features {
                         if let nftNetworkService = feature.nftNetworkService {
                             result.append((walletModel, nftNetworkService))
