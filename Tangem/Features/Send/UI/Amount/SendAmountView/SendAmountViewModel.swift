@@ -39,6 +39,10 @@ class SendAmountViewModel: ObservableObject {
             set: { $0.amountType = $1 ? .fiat : .crypto }
         )
     }
+    
+    var tokenCurrencySymbol: String {
+        tokenItem.currencySymbol
+    }
 
     // MARK: - Dependencies
 
@@ -81,7 +85,7 @@ class SendAmountViewModel: ObservableObject {
         case .send:
             Analytics.log(.sendMaxAmountTapped)
         case .stake:
-            Analytics.log(.stakingButtonMax)
+            Analytics.log(event: .stakingButtonMax, params: [.token: tokenItem.currencySymbol])
         default: break
         }
         let amount = interactor.updateToMaxAmount()
