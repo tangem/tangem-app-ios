@@ -71,7 +71,7 @@ extension RskAddressService: AddressValidator {
            checksummed == address {
             return true
         } else {
-            let cleanHex = address.stripHexPrefix()
+            let cleanHex = address.removeHexPrefix()
             if cleanHex.lowercased() != cleanHex, cleanHex.uppercased() != cleanHex {
                 return false
             }
