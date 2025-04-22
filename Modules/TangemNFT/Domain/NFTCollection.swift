@@ -8,17 +8,17 @@
 
 import Foundation
 
-public struct NFTCollection: Hashable, Identifiable {
+public struct NFTCollection: Hashable, Identifiable, Sendable {
     public let id: NFTCollectionId
-    public let contractType: NFTContractType
-    public let name: String
-    public let description: String?
-    public let logoURL: URL?
+    let contractType: NFTContractType
+    let name: String
+    let description: String?
+    let logoURL: URL?
     /// - Note: Some NFT providers (Moralis for example) do not return assets in collections;
     /// therefore this property should always be used if you need to determine the number of assets.
     /// Do not use `assets.count` for this purpose.
-    public let assetsCount: Int
-    public let assets: [NFTAsset]
+    let assetsCount: Int
+    let assets: [NFTAsset]
 
     init(
         collectionIdentifier: String,
@@ -49,12 +49,12 @@ public struct NFTCollection: Hashable, Identifiable {
 // MARK: - Auxiliary types
 
 public extension NFTCollection {
-    struct NFTCollectionId: Hashable {
+    struct NFTCollectionId: Hashable, Sendable {
         /// Collection's address.
-        public let collectionIdentifier: String
+        let collectionIdentifier: String
         /// The owner's address is intentionally a part of the collection identity
         /// to distinguish between identical collections but with different derivations.
-        public let ownerAddress: String
-        public let chain: NFTChain
+        let ownerAddress: String
+        let chain: NFTChain
     }
 }
