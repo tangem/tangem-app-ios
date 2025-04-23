@@ -844,10 +844,11 @@
 "staking_notification_restake_text" = "再ステーキングを使うと、ステーキングを解除することなく、あるバリデータから別のバリデータに資金を移動できます。";
 "staking_notification_stake_entire_balance_text" = "残高のすべてをステーキングしようとしています。ステーキング解除や報酬請求にかかるネットワーク手数料をカバーするために、少額を残しておくことをお勧めします。";
 "staking_notification_ton_activate_account" = "TONでステーキングを開始するには、まず任意の金額の送金を行ってください。これにより、ウォレットがアクティブになります。";
-"staking_notification_ton_extra_fee_info" = "TONをステーキングまたは出金する場合、入金と出金の両方でステーキング額から0.2 TONの手数料が差し引かれます。";
-"staking_notification_ton_extra_fee_is_required" = "この操作を続行するには、ネットワーク手数料に加えて0.2 TONが必要です。残高を補充してください。";
-"staking_notification_ton_extra_fee_title" = "Staking fee";
-"staking_notification_ton_have_to_unstake_all" = "このアクションは、ネットワークのルールに従って、他のポジションをクローズするか、引き出しステータスに切り替えます。";
+"staking_notification_ton_extra_reserve_is_required" = "この操作を続行するには、ネットワーク手数料に加えて0.2 TONが必要です。残高を補充してください。";
+"staking_notification_ton_extra_reserve_info" = "TONをステーキングまたは出金する場合、入金と出金の両方でステーキング額から0.2 TONの手数料が差し引かれます。";
+"staking_notification_ton_extra_reserve_title" = "ステーキング手数料";
+"staking_notification_ton_have_to_unstake_all_text" = "このアクションは、ネットワークのルールに従って、他のポジションをクローズするか、引き出しステータスに切り替えます。";
+"staking_notification_ton_have_to_unstake_all_title" = "ポジション状況";
 "staking_notification_unlock_text" = "資金をステーキングから引き出すには、ロックを解除してください。ロック解除には%@かかります。";
 "staking_notification_unstake_cosmos_text" = "資金は、21日間のロック解除期間後に使用可能になります。報酬は、ロック解除後の資金とともに引き出されます。";
 "staking_notification_unstake_text" = "%@のステーキング解除期間後、資金はすぐ利用可能となります。";
