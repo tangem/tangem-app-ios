@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUIUtils
 
 public struct CustomDisclosureGroup<Prompt: View, ExpandedView: View>: View {
     private let actionOnClick: () -> Void
@@ -44,7 +45,7 @@ public struct CustomDisclosureGroup<Prompt: View, ExpandedView: View>: View {
 
             if isExpanded {
                 expandedView
-                    .modifier(ifLet: transition) { view, transition in
+                    .ifLet(transition) { view, transition in
                         view.transition(transition)
                     }
             }
