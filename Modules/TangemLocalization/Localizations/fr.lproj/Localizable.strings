@@ -844,10 +844,10 @@
 "staking_notification_restake_text" = "L'option de restaker vous permet de déplacer vos fonds d'un validateur à un autre sans avoir besoin de les déstaker.";
 "staking_notification_stake_entire_balance_text" = "Vous êtes sur le point de staker l'intégralité de votre solde. Nous vous recommandons de laisser un petit montant pour couvrir les frais de réseau pour unstaking ou la réclamation des récompenses.";
 "staking_notification_ton_activate_account" = "Pour commencer à staker TON, effectuez d'abord une transaction sortante de n'importe quel montant — cela activera votre portefeuille.";
-"staking_notification_ton_extra_fee_info" = "When staking or withdrawing TON, a fee of 0.2 is deducted from the staked amount for both deposits and withdrawals.";
-"staking_notification_ton_extra_fee_is_required" = "0.2 TON more is required to proceed with this operation, in addition to the network fee. Top up your balance.";
-"staking_notification_ton_extra_fee_title" = "Staking fee";
-"staking_notification_ton_have_to_unstake_all" = "This action will close other positions or switch them to withdrawal status, according to network rules.";
+"staking_notification_ton_extra_reserve_is_required" = "0.2 TON is required to proceed with this operation, in addition to the network fee. Please top up your balance.";
+"staking_notification_ton_extra_reserve_info" = "In addition to the network fee, up to 0.2 TON is needed to complete all steps of the transaction. Unused amount will be returned after it's finished.";
+"staking_notification_ton_extra_reserve_title" = "0.2 Ton Reserved";
+"staking_notification_ton_have_to_unstake_all_text" = "This action will close other positions or switch them to withdrawal status, according to network rules.";
 "staking_notification_unlock_text" = "Débloquez votre argent pour le retirer du processus de staking. Le déverrouillage prend %@.";
 "staking_notification_unstake_cosmos_text" = "Vos fonds seront disponibles à l'utilisation après la période de déblocage de 21 jours. La récompense sera retirée en même temps que vos fonds de déblocage.";
 "staking_notification_unstake_text" = "Vos fonds seront disponibles pour utilisation après la période de désengagement %@.";

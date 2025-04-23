@@ -446,13 +446,33 @@ private extension StakingDetailsViewModel {
             coordinator?.openStakingFlow()
         case .pending(.voteLocked):
             coordinator?.openRestakingFlow(action: action)
+        case .unstake where stakingParams.reservedFee > 0:
+            if checkIfTokenBalanceIsSufficient(for: stakingParams.reservedFee) {
+                fallthrough
+            }
         case .unstake:
             coordinator?.openUnstakingFlow(action: action)
         case .pending(.restake), .pending(.stake):
             coordinator?.openRestakingFlow(action: action)
+        case .pending(.withdraw) where stakingParams.reservedFee > 0:
+            if checkIfTokenBalanceIsSufficient(for: stakingParams.reservedFee) {
+                fallthrough
+            }
         case .pending:
             coordinator?.openStakingSingleActionFlow(action: action)
         }
+    }
+
+    private func checkIfTokenBalanceIsSufficient(for reservedFee: Decimal) -> Bool {
+        guard let balance = tokenBalanceProvider.balanceType.value,
+              balance < reservedFee else {
+            return true
+        }
+        alert = .init(
+            title: Localization.stakingNotificationTonExtraReserveTitle,
+            message: Localization.stakingNotificationTonExtraReserveIsRequired
+        )
+        return false
     }
 
     func shouldShowMinimumRequirement() -> Bool {
