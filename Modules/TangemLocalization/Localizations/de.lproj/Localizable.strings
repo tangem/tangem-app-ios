@@ -845,9 +845,9 @@
 "staking_notification_stake_entire_balance_text" = "Du bist dabei, Dein gesamtes Guthaben zu staken. Wir empfehlen, einen kleinen Betrag übrig zu lassen, um die Netzwerkgebühren für die Aufhebung des Stakes oder das Einfordern von Prämien abzudecken.";
 "staking_notification_ton_activate_account" = "Um mit dem Staking bei TON zu beginnen, führe zunächst eine ausgehende Transaktion in beliebiger Höhe durch – dadurch wird Deine Wallet aktiviert.";
 "staking_notification_ton_extra_fee_info" = "When staking or withdrawing TON, a fee of 0.2 is deducted from the staked amount for both deposits and withdrawals.";
-"staking_notification_ton_extra_fee_is_required" = "0.2 TON more is required to proceed with this operation, in addition to the network fee. Top up your balance.";
-"staking_notification_ton_extra_fee_title" = "Staking fee";
-"staking_notification_ton_have_to_unstake_all" = "This action will close other positions or switch them to withdrawal status, according to network rules.";
+"staking_notification_ton_extra_reserve_info" = "In addition to the network fee, up to 0.2 TON is needed to complete all steps of the transaction. Unused amount will be returned after it's finished.";
+"staking_notification_ton_extra_reserve_title" = "0.2 Ton Reserved";;
+"staking_notification_ton_have_to_unstake_all_text" = "This action will close other positions or switch them to withdrawal status, according to network rules.";
 "staking_notification_unlock_text" = "Entsperre dein Geld, um es aus dem Staking-Prozess abzuheben. Das Freischalten nimmt %@.";
 "staking_notification_unstake_cosmos_text" = "Nach Ablauf der 21-tägigen Bindungsfrist kannst Du über Dein Guthaben verfügen. Die Prämie wird zusammen mit dem ungestaketen Guthaben abgehoben.";
 "staking_notification_unstake_text" = "Deine Assets stehen Dir nach Ablauf der Frist für die Aufhebung der Bindung %@ zur Verfügung.";
