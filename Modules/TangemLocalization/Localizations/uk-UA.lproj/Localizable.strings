@@ -844,10 +844,10 @@
 "staking_notification_restake_text" = "Рестейк дозволяє вам перемістити ваші кошти від одного валідатора до іншого без необхідності виводити кошти зі стейкінгу";
 "staking_notification_stake_entire_balance_text" = "Ви збираєтеся застейкати весь свій баланс. Ми рекомендуємо залишити невелику суму, щоб покрити комісію мережі за зняття коштів або отримання винагороди.";
 "staking_notification_ton_activate_account" = "Щоб почати стейкінг в TON, спочатку здійсніть вихідну транзакцію на будь-яку суму — це активує ваш гаманець.";
-"staking_notification_ton_extra_fee_info" = "When staking or withdrawing TON, a fee of 0.2 is deducted from the staked amount for both deposits and withdrawals.";
-"staking_notification_ton_extra_fee_is_required" = "0.2 TON more is required to proceed with this operation, in addition to the network fee. Top up your balance.";
-"staking_notification_ton_extra_fee_title" = "Staking fee";
-"staking_notification_ton_have_to_unstake_all" = "This action will close other positions or switch them to withdrawal status, according to network rules.";
+"staking_notification_ton_extra_reserve_is_required" = "0.2 TON is required to proceed with this operation, in addition to the network fee. Please top up your balance.";
+"staking_notification_ton_extra_reserve_info" = "In addition to the network fee, up to 0.2 TON is needed to complete all steps of the transaction. Unused amount will be returned after it's finished.";
+"staking_notification_ton_extra_reserve_title" = "0.2 Ton Reserved";
+"staking_notification_ton_have_to_unstake_all_text" = "This action will close other positions or switch them to withdrawal status, according to network rules.";
 "staking_notification_unlock_text" = "Розблокуйте свої кошти, щоб вивести їх зі стейкінгу. Розблокування займе %@.";
 "staking_notification_unstake_cosmos_text" = "Ваші кошти будуть доступні для використання після закінчення 21-денного періоду розблокування. Винагорода буде отримана разом з вашими незастейканими коштами.";
 "staking_notification_unstake_text" = "Ваші кошти будуть доступні після %@ періоду розблокування.";
