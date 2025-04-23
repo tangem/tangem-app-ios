@@ -13,9 +13,10 @@ import Combine
 extension Publisher where Failure == MoyaError {
     func mapTangemAPIError() -> Publishers.MapError<Self, TangemAPIError> {
         mapError { error in
-            guard let body = error.response?.data else {
+            guard let response = error.response else {
                 return TangemAPIError(code: .unknown, message: error.localizedDescription)
             }
+            let body = response.data
 
             let decoder = JSONDecoder()
 
@@ -25,6 +26,10 @@ extension Publisher where Failure == MoyaError {
 
             if let error = try? mapInputAPIError(from: body, using: decoder) {
                 return error
+            }
+
+            if response.statusCode == TangemAPIError.ErrorCode.notFound.rawValue {
+                return TangemAPIError(code: .notFound)
             }
 
             return TangemAPIError(code: .decode)
