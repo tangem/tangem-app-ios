@@ -25,12 +25,12 @@ public extension View {
     ///   - content: The modifier to apply to the view in optionalValue is inwrapped.
     /// - Returns: The modified view.
     @ViewBuilder
-    func modifier<Content: View, Value>(
-        ifLet optionalValue: Value?,
-        @ViewBuilder then content: (Self, Value) -> Content
+    func ifLet<Content: View, Value>(
+        _ optionalValue: Value?,
+        transform: (Self, Value) -> Content
     ) -> some View {
-        if let optionalValue = optionalValue {
-            content(self, optionalValue)
+        if let optionalValue {
+            transform(self, optionalValue)
         } else {
             self
         }
