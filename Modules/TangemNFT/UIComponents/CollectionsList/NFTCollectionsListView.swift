@@ -13,7 +13,7 @@ import TangemUI
 import TangemLocalization
 
 public struct NFTCollectionsListView: View {
-    @ObservedObject var viewModel: NFTCollectionsListViewModel
+    @ObservedObject private var viewModel: NFTCollectionsListViewModel
 
     @State private var hasBeenScrolledDown: Bool = false
 
@@ -30,6 +30,7 @@ public struct NFTCollectionsListView: View {
     public var body: some View {
         content
             .navigationTitle(Localization.nftWalletTitle)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.horizontal, Constants.horizontalPadding)
             .background(Colors.Background.secondary)
     }
@@ -125,7 +126,6 @@ public struct NFTCollectionsListView: View {
             Spacer()
             receiveButton(shouldAddShadow: shouldShowShadow)
         }
-        .ignoresSafeArea(.keyboard)
     }
 
     private func receiveButton(shouldAddShadow: Bool) -> some View {
@@ -214,8 +214,6 @@ extension NFTCollectionsListView {
             )
         )
         .padding(.horizontal, 16)
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationTitle("NFT collections")
     }
 }
 
