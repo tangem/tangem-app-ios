@@ -83,6 +83,10 @@ private extension CommonStakingNotificationManager {
                 events.append(.stakesWillMoveToNewValidator(blockchain: tokenItem.blockchain.displayName))
             }
 
+            if case .ton = tokenItem.blockchain {
+                events.append(.tonExtraReserveInfo)
+            }
+
             show(events: events)
             hideErrorNotifications()
         case .validationError(let validationError, _):
@@ -103,7 +107,11 @@ private extension CommonStakingNotificationManager {
         switch (state, action.type) {
         case (.loading, .pending(.withdraw)), (.ready, .pending(.withdraw)),
              (.loading, .pending(.claimUnstaked)), (.ready, .pending(.claimUnstaked)):
-            show(notification: .withdraw)
+            var events: [StakingNotificationEvent] = [.withdraw]
+            if case .ton = tokenItem.blockchain {
+                events.append(.tonExtraReserveInfo)
+            }
+            show(events: events)
             hideErrorNotifications()
         case (.loading, .pending(.claimRewards)), (.ready, .pending(.claimRewards)):
             show(notification: .claimRewards)
@@ -204,6 +212,10 @@ private extension CommonStakingNotificationManager {
                 notifications.append(.tonUnstaking)
             default: break
             }
+        }
+
+        if case .ton = tokenItem.blockchain, case .unstake = action.type {
+            notifications.append(.tonExtraReserveInfo)
         }
 
         show(events: notifications)
