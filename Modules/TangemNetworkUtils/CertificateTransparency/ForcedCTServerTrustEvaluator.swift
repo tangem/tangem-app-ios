@@ -16,7 +16,7 @@ public enum ForcedCTServerTrustEvaluator {
 
     public static func evaluate(trust: SecTrust) throws {
         logCT()
-        
+
         guard shouldForceCT else {
             return
         }
