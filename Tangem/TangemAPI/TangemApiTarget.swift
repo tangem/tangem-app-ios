@@ -8,6 +8,7 @@
 
 import Foundation
 import Moya
+import TangemFoundation
 import TangemNetworkUtils
 
 struct TangemApiTarget: TargetType {
