@@ -21,7 +21,7 @@ struct PepecoinWalletAssembly: WalletManagerAssembly {
             networkParams: networkParams,
             walletPublicKey: input.wallet.publicKey.blockchainKey,
             compressedWalletPublicKey: compressedKey,
-            bip: .bip44
+            bip: .bip84
         )
 
         let unspentOutputManager: UnspentOutputManager = .pepecoin(
