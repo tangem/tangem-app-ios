@@ -7,6 +7,7 @@
 //
 
 import TangemExpress
+import TangemFoundation
 
 struct ExpressAPIProviderFactory {
     // MARK: - Injected
