@@ -9,18 +9,21 @@
 import Foundation
 
 struct ProductActivationServiceBuilder {
-    private let isMockAPIEnabled: Bool
+    private let isMockedAPIEnabled: Bool
+    private let apiType: VisaAPIType
 
-    init(isMockAPIEnabled: Bool) {
-        self.isMockAPIEnabled = isMockAPIEnabled
+    init(apiType: VisaAPIType, isMockedAPIEnabled: Bool) {
+        self.apiType = apiType
+        self.isMockedAPIEnabled = isMockedAPIEnabled
     }
 
     func build(urlSessionConfiguration: URLSessionConfiguration, authorizationTokensHandler: VisaAuthorizationTokensHandler) -> ProductActivationService {
-        if isMockAPIEnabled {
+        if isMockedAPIEnabled {
             return ProductActivationServiceMock()
         }
 
         return CommonProductActivationService(
+            apiType: apiType,
             authorizationTokensHandler: authorizationTokensHandler,
             apiService: .init(
                 provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
