@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import CombineExt
+import struct TangemUIUtils.ActionSheetBinder
 
 final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, ObservableObject {
     // MARK: - ViewState
