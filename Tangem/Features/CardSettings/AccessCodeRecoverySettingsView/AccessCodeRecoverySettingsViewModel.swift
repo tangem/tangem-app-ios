@@ -7,9 +7,10 @@
 //
 
 import Foundation
-import TangemLocalization
 import Combine
 import TangemSdk
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 class AccessCodeRecoverySettingsViewModel: ObservableObject {
     @Published var isLoading = false
