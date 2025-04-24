@@ -106,6 +106,7 @@ struct ReceiveBottomSheetView: View {
 struct ReceiveBottomSheet_Previews: PreviewProvider {
     static var btcAddressBottomSheet: ReceiveBottomSheetViewModel {
         ReceiveBottomSheetViewModel(
+            flow: .crypto,
             tokenItem: .blockchain(.init(.bitcoin(testnet: false), derivationPath: nil)),
             addressInfos: [
                 .init(
@@ -120,13 +121,13 @@ struct ReceiveBottomSheet_Previews: PreviewProvider {
                     localizedName: "legacy",
                     addressQRImage: QrCodeGenerator.generateQRCode(from: "18VEbRSEASi1npnXnoJ6pVVBrhT5zE6qRz")
                 ),
-            ],
-            hasMemo: false
+            ]
         )
     }
 
     static var singleAddressBottomSheet: ReceiveBottomSheetViewModel {
         ReceiveBottomSheetViewModel(
+            flow: .nft,
             tokenItem: .token(.tetherMock, .init(.polygon(testnet: false), derivationPath: nil)),
             addressInfos: [
                 .init(
@@ -135,8 +136,7 @@ struct ReceiveBottomSheet_Previews: PreviewProvider {
                     localizedName: "default",
                     addressQRImage: QrCodeGenerator.generateQRCode(from: "0xEF08EA3531D219EDE813FB521e6D89220198bcB1")
                 ),
-            ],
-            hasMemo: false
+            ]
         )
     }
 
