@@ -110,6 +110,19 @@ final class UserWalletNotificationManager {
             )
         }
 
+        if AppSettings.shared.showReferralProgramOnMain {
+            inputs.append(
+                factory.buildNotificationInput(
+                    for: .referralProgram,
+                    action: { [weak self] id in
+                        self?.delegate?.didTapNotification(with: id, action: .openReferralProgram)
+                    },
+                    buttonAction: buttonAction,
+                    dismissAction: dismissAction
+                )
+            )
+        }
+
         notificationInputsSubject.send(inputs)
 
         showAppRateNotificationIfNeeded()
@@ -258,6 +271,8 @@ extension UserWalletNotificationManager: NotificationManager {
                 recordUserWalletHashesCountValidation()
             case .rateApp:
                 rateAppController.dismissAppRate()
+            case .referralProgram:
+                AppSettings.shared.showReferralProgramOnMain = false
             default:
                 break
             }
