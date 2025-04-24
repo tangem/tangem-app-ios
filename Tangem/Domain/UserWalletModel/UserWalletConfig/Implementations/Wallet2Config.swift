@@ -9,6 +9,7 @@
 import Foundation
 import TangemLocalization
 import TangemAssets
+import TangemFoundation
 import TangemSdk
 import BlockchainSdk
 

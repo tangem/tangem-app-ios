@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import TangemFoundation
 
 private struct UtorgResponse<SuccessResult: Decodable>: Decodable {
     let success: Bool
