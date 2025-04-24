@@ -8,6 +8,7 @@
 
 import Combine
 import SwiftUI
+import TangemFoundation
 
 final class PromotionViewModel: ObservableObject {
     @Injected(\.keysManager) var keysManager: KeysManager
