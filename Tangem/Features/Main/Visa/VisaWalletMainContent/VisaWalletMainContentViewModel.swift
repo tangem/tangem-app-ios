@@ -7,11 +7,12 @@
 //
 
 import Foundation
-import TangemLocalization
 import Combine
+import UIKit
 import BlockchainSdk
 import TangemVisa
-import UIKit
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 protocol VisaWalletRoutable: AnyObject {
     func openReceiveScreen(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo])
@@ -343,16 +344,17 @@ private extension VisaWalletMainContentViewModel {
             .type: Analytics.ParameterValue.visa.rawValue,
         ])
 
-        let addressType = AddressType.default
-        let addressInfo = ReceiveAddressInfo(
-            address: info.accountAddress,
-            type: addressType,
-            localizedName: addressType.defaultLocalizedName,
-            addressQRImage: QrCodeGenerator.generateQRCode(from: info.accountAddress)
+        // Dummy address to use with `ReceiveBottomSheetUtils`
+        let visaAddress = PlainAddress(
+            value: info.accountAddress,
+            publicKey: .init(seedKey: Data(), derivationType: nil),
+            type: .default
         )
+        let addressInfos = ReceiveBottomSheetUtils(flow: .crypto).makeAddressInfos(from: [visaAddress])
+
         coordinator?.openReceiveScreen(
             tokenItem: info.tokenItem,
-            addressInfos: [addressInfo]
+            addressInfos: addressInfos
         )
     }
 
