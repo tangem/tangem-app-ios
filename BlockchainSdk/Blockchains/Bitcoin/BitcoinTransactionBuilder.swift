@@ -107,8 +107,11 @@ private extension BitcoinTransactionBuilder {
         }
 
         let scripts: [String: Data] = preImage.inputs.reduce(into: [:]) { result, input in
-            input.script.redeemScript.map { redeemScript in
-                result[input.script.keyHash.hexString.lowercased()] = redeemScript
+            switch input.script.type {
+            case .p2sh(.some(let redeemScript)), .p2wsh(.some(let redeemScript)):
+                result[redeemScript.sha256Ripemd160.hex()] = redeemScript
+            default:
+                break
             }
         }
 
