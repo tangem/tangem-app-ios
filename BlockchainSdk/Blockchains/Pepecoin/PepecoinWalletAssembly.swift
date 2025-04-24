@@ -19,9 +19,9 @@ struct PepecoinWalletAssembly: WalletManagerAssembly {
 
         let bitcoinManager = BitcoinManager(
             networkParams: networkParams,
-            walletPublicKey: input.wallet.publicKey.blockchainKey,
+            walletPublicKey: compressedKey,
             compressedWalletPublicKey: compressedKey,
-            bip: .bip84
+            bip: .bip44
         )
 
         let unspentOutputManager: UnspentOutputManager = .pepecoin(
