@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import struct TangemUIUtils.AlertBinder
 
 protocol UnlockUserWalletBottomSheetDelegate: AnyObject {
     func unlockedWithBiometry()
