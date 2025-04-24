@@ -11,6 +11,7 @@ import SwiftUI
 import TangemExpress
 import FirebaseMessaging
 import TangemVisa
+import struct TangemUIUtils.AlertBinder
 
 final class EnvironmentSetupViewModel: ObservableObject {
     @Injected(\.promotionService) var promotionService: PromotionServiceProtocol

@@ -7,12 +7,13 @@
 //
 
 import Foundation
-import TangemLocalization
 import SwiftUI
 import Combine
 import CombineExt
 import TangemSdk
 import BlockchainSdk
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 class ManageTokensAdapter {
     private let longHashesSupported: Bool

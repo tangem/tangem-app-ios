@@ -1,33 +1,25 @@
 //
 //  AlertBinder.swift
-//  Tangem
+//  TangemUIUtils
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2021 Tangem AG. All rights reserved.
 //
 
 import Foundation
-import TangemLocalization
 import SwiftUI
+import TangemLocalization
 
-struct ActionSheetBinder: Identifiable {
-    let id = UUID()
-    let sheet: ActionSheet
+public struct AlertBinder: Identifiable {
+    public let id = UUID()
 
-    init(sheet: ActionSheet) {
-        self.sheet = sheet
-    }
-}
+    public let alert: Alert
 
-struct AlertBinder: Identifiable {
-    let id = UUID()
-    let alert: Alert
-
-    init(alert: Alert) {
+    public init(alert: Alert) {
         self.alert = alert
     }
 
-    init(title: String, message: String) {
+    public init(title: String, message: String) {
         alert = Alert(
             title: Text(title),
             message: Text(message),
