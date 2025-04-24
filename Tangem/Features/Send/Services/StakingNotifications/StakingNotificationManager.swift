@@ -83,6 +83,10 @@ private extension CommonStakingNotificationManager {
                 events.append(.stakesWillMoveToNewValidator(blockchain: tokenItem.blockchain.displayName))
             }
 
+            if case .ton = tokenItem.blockchain {
+                events.append(.tonExtraReserveInfo)
+            }
+
             show(events: events)
             hideErrorNotifications()
         case .validationError(let validationError, _):
@@ -103,7 +107,11 @@ private extension CommonStakingNotificationManager {
         switch (state, action.type) {
         case (.loading, .pending(.withdraw)), (.ready, .pending(.withdraw)),
              (.loading, .pending(.claimUnstaked)), (.ready, .pending(.claimUnstaked)):
-            show(notification: .withdraw)
+            var events: [StakingNotificationEvent] = [.withdraw]
+            if case .ton = tokenItem.blockchain {
+                events.append(.tonExtraReserveInfo)
+            }
+            show(events: events)
             hideErrorNotifications()
         case (.loading, .pending(.claimRewards)), (.ready, .pending(.claimRewards)):
             show(notification: .claimRewards)
@@ -116,25 +124,16 @@ private extension CommonStakingNotificationManager {
                 periodFormatted: yield.unbondingPeriod.formatted(formatter: daysFormatter)
             ))
             hideErrorNotifications()
-        case (.loading, _), (.ready, _):
-            let description: String = {
-                switch tokenItem.blockchain {
-                case .cosmos:
-                    return Localization.stakingNotificationUnstakeCosmosText
-                default:
-                    return Localization.stakingNotificationUnstakeText(
-                        yield.unbondingPeriod.formatted(formatter: daysFormatter)
-                    )
-                }
-            }()
-            let unstakeNotificationEvent: StakingNotificationEvent = .unstake(description: description)
-
-            let remainingAmount = stakedBalance - action.amount
-            if remainingAmount > 0, remainingAmount < yield.exitMinimumRequirement {
-                show(events: [unstakeNotificationEvent, .lowStakedBalance])
-            } else {
-                show(notification: unstakeNotificationEvent)
-            }
+        case (.ready(_, let stakesCount), _):
+            showCommonUnstakingNotifications(
+                for: yield,
+                action: action,
+                stakedBalance: stakedBalance,
+                stakesCount: stakesCount
+            )
+            hideErrorNotifications()
+        case (.loading, _):
+            showCommonUnstakingNotifications(for: yield, action: action, stakedBalance: stakedBalance)
             hideErrorNotifications()
         case (.validationError(let validationError, _), _):
             let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem, feeTokenItem: feeTokenItem)
@@ -178,6 +177,48 @@ private extension CommonStakingNotificationManager {
             }
             show(error: .amountRequirementError(minAmount: minAmount.stringValue, currency: tokenItem.currencySymbol))
         }
+    }
+}
+
+private extension CommonStakingNotificationManager {
+    func showCommonUnstakingNotifications(
+        for yield: YieldInfo,
+        action: StakingAction,
+        stakedBalance: Decimal,
+        stakesCount: Int? = nil
+    ) {
+        let description: String = {
+            switch tokenItem.blockchain {
+            case .cosmos:
+                return Localization.stakingNotificationUnstakeCosmosText
+            default:
+                return Localization.stakingNotificationUnstakeText(
+                    yield.unbondingPeriod.formatted(formatter: daysFormatter)
+                )
+            }
+        }()
+
+        var notifications: [StakingNotificationEvent] = [.unstake(description: description)]
+
+        let remainingAmount = stakedBalance - action.amount
+        if remainingAmount > 0, remainingAmount < yield.exitMinimumRequirement {
+            notifications.append(.lowStakedBalance)
+        }
+
+        // unstaking / withdrawing ton affects all the stakes
+        if let stakesCount, stakesCount > 1, case .ton = tokenItem.blockchain {
+            switch action.type {
+            case .unstake, .pending(.withdraw):
+                notifications.append(.tonUnstaking)
+            default: break
+            }
+        }
+
+        if case .ton = tokenItem.blockchain, case .unstake = action.type {
+            notifications.append(.tonExtraReserveInfo)
+        }
+
+        show(events: notifications)
     }
 }
 
@@ -286,7 +327,12 @@ extension CommonStakingNotificationManager: StakingNotificationManager {
         )
         .withWeakCaptureOf(self)
         .sink { manager, state in
-            manager.update(state: state.0, yield: state.1, action: provider.stakingAction, stakedBalance: provider.stakingAction.amount)
+            manager.update(
+                state: state.0,
+                yield: state.1,
+                action: provider.stakingAction,
+                stakedBalance: provider.stakingAction.amount
+            )
         }
     }
 
