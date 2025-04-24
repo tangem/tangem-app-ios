@@ -17,6 +17,7 @@ final class MainViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
+    @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
     // MARK: - ViewState
 
@@ -116,6 +117,8 @@ final class MainViewModel: ObservableObject {
         addPendingUserWalletModelsIfNeeded { [weak self] in
             self?.swipeDiscoveryHelper.scheduleSwipeDiscoveryIfNeeded()
         }
+
+        incomingActionManager.becomeFirstResponder(self)
 
         openPushNotificationsAuthorizationIfNeeded()
     }
@@ -515,6 +518,26 @@ extension MainViewModel: WalletSwipeDiscoveryHelperDelegate {
 
     func helperDidTriggerSwipeDiscoveryAnimation(_ discoveryHelper: WalletSwipeDiscoveryHelper) {
         swipeDiscoveryAnimationTrigger.triggerDiscoveryAnimation()
+    }
+}
+
+extension MainViewModel: IncomingActionResponder {
+    func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
+        guard case .referralProgram = action else {
+            return false
+        }
+
+        let userWalletModel = userWalletRepository.models[selectedCardIndex]
+
+        let input = ReferralInputModel(
+            userWalletId: userWalletModel.userWalletId.value,
+            supportedBlockchains: userWalletModel.config.supportedBlockchains,
+            userTokensManager: userWalletModel.userTokensManager
+        )
+
+        coordinator?.openReferral(input: input)
+
+        return true
     }
 }
 
