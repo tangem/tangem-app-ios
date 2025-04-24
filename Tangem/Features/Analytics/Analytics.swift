@@ -12,6 +12,7 @@ import FirebaseCrashlytics
 import BlockchainSdk
 import AmplitudeSwift
 import TangemSdk
+import TangemFoundation
 
 class Analytics {
     @Injected(\.analyticsContext) private static var analyticsContext: AnalyticsContext
