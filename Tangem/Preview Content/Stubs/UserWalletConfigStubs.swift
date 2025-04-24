@@ -34,6 +34,6 @@ enum UserWalletConfigStubs {
 
     static var visaStub: UserWalletConfig = VisaConfig(
         card: .init(card: CardMock.visa.card),
-        activationLocalState: .activated(authTokens: .init(accessToken: "", refreshToken: ""))
+        activationLocalState: .activated(authTokens: .init(accessToken: "", refreshToken: "", authorizationType: .cardId))
     )
 }

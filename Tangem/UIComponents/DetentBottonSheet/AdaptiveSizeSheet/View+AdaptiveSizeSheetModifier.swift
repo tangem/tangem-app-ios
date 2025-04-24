@@ -74,17 +74,6 @@ private extension View {
     }
 }
 
-private extension View {
-    @ViewBuilder
-    func scrollDisabledBackport(_ isDisabled: Bool) -> some View {
-        if #available(iOS 16.0, *) {
-            scrollDisabled(isDisabled)
-        } else {
-            self
-        }
-    }
-}
-
 extension View {
     @ViewBuilder
     func adaptivePresentationDetents() -> some View {
