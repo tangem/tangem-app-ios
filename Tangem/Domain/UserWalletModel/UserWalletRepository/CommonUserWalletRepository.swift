@@ -12,6 +12,7 @@ import Combine
 import CryptoKit
 import LocalAuthentication
 import TangemSdk
+import TangemVisa
 
 class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService

@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemUI
 
 struct VisaOnboardingPinView: View {
     @ObservedObject var viewModel: VisaOnboardingPinViewModel
@@ -35,10 +36,11 @@ struct VisaOnboardingPinView: View {
                 )
 
                 Text(viewModel.errorMessage ?? " ")
-                    .multilineTextAlignment(.center)
                     .lineLimit(2)
+                    .multilineTextAlignment(.center)
                     .style(Fonts.Regular.footnote, color: Colors.Text.warning)
                     .hidden(viewModel.errorMessage == nil)
+                    .padding(.horizontal, 16)
             }
 
             Spacer()

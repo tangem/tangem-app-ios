@@ -310,6 +310,10 @@ extension VisaWalletModel: WalletModel {
         transactionSendAvailabilityProvider.sendingRestrictions(walletModel: self)
     }
 
+    var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> {
+        .just(output: [])
+    }
+
     var stakingManager: (any StakingManager)? { nil }
 
     var stakeKitTransactionSender: (any StakeKitTransactionSender)? { nil }
