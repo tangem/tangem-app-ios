@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import UserNotifications
+import TangemFoundation
 
 final class PushNotificationsService: NSObject {
     /// - Note: Checks only explicit authorization (`UNAuthorizationStatus.authorized`) and ignores implicit
