@@ -177,14 +177,15 @@ extension PolkadotWalletManager: ThenProcessable {}
 private class Ed25519DummyTransactionSigner: TransactionSigner {
     private let privateKey = Data(repeating: 0, count: 32)
 
-    func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[Data], Error> {
-        Fail(error: WalletError.failedToGetFee).eraseToAnyPublisher()
+    func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], any Error> {
+        Fail(error: WalletError.empty).eraseToAnyPublisher()
     }
 
-    func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<Data, Error> {
+    func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<SignatureInfo, any Error> {
         Just<Data>(hash)
             .tryMap { hash in
-                try Curve25519.Signing.PrivateKey(rawRepresentation: privateKey).signature(for: hash)
+                let signature = try Curve25519.Signing.PrivateKey(rawRepresentation: privateKey).signature(for: hash)
+                return SignatureInfo(signature: signature, publicKey: walletPublicKey.blockchainKey, hash: hash)
             }
             .eraseToAnyPublisher()
     }
