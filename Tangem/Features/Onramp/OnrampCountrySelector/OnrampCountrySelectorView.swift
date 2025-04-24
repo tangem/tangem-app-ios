@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemExpress
+import TangemUI
 
 struct OnrampCountrySelectorView: View {
     @ObservedObject var viewModel: OnrampCountrySelectorViewModel
