@@ -8,6 +8,7 @@
 
 import Foundation
 import OSLog
+import TangemFoundation
 
 extension OSLogCategory {
     static let logFileWriter = OSLogCategory(name: "LogFileWriter")
@@ -47,8 +48,11 @@ class OSLogFileWriter {
 extension OSLogFileWriter {
     var logFile: URL { logFileURL }
 
-    #if ALPHA || BETA || DEBUG
     func write(_ message: String, category: OSLog.Category, level: OSLog.Level, date: Date = .now) throws {
+        guard !AppEnvironment.current.isProduction else {
+            return
+        }
+
         var message = message.trimmingCharacters(in: .whitespacesAndNewlines)
 
         if message.isEmpty {
@@ -73,7 +77,6 @@ extension OSLogFileWriter {
         let row = "\n\(entry.encoded(separator: OSLogConstants.separator))"
         try write(row: row)
     }
-    #endif
 
     func clear() throws {
         try fileManager.removeItem(at: logFileURL)
