@@ -12,6 +12,8 @@ import TangemExpress
 struct PendingOnrampTransactionFactory {
     private let defaultStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .confirming, .buying, .sendingToUser]
     private let failedStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .failed, .buying, .sendingToUser]
+    private let refundingStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .refunding, .buying, .sendingToUser]
+    private let refundedStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .refunded, .buying, .sendingToUser]
     private let verifyingStatusesList: [PendingExpressTransactionStatus] = [.awaitingDeposit, .confirming, .verificationRequired, .sendingToUser]
     private let canceledStatusesList: [PendingExpressTransactionStatus] = [.canceled]
     private let awaitingHashStatusesList: [PendingExpressTransactionStatus] = [.awaitingHash]
@@ -31,15 +33,21 @@ struct PendingOnrampTransactionFactory {
             currentStatus = .created
         case .waitingForPayment:
             currentStatus = .awaitingDeposit
-        case .paymentProcessing, .paid:
+        case .paymentProcessing:
             currentStatus = .confirming
-        case .sending:
-            currentStatus = .sendingToUser
+        case .sending, .paid:
+            currentStatus = .buying
         case .finished:
             currentStatus = .done
         case .failed:
             currentStatus = .failed
             statusesList = failedStatusesList
+        case .refunding:
+            currentStatus = .refunding
+            statusesList = refundingStatusesList
+        case .refunded:
+            currentStatus = .refunded
+            statusesList = refundedStatusesList
         case .verifying:
             currentStatus = .verificationRequired
             statusesList = verifyingStatusesList
@@ -72,8 +80,10 @@ struct PendingOnrampTransactionFactory {
                 return defaultStatusesList
             case .canceled:
                 return canceledStatusesList
-            case .failed, .refunded, .txFailed:
+            case .failed, .txFailed:
                 return failedStatusesList
+            case .refunding, .refunded:
+                return refundedStatusesList
             case .paused:
                 return pausedStatusesList
             case .awaitingHash:

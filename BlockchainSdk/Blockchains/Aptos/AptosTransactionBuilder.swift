@@ -99,7 +99,7 @@ final class AptosTransactionBuilder {
     ) throws -> AptosTransactionInfo {
         AptosTransactionInfo(
             sequenceNumber: sequenceNumber,
-            publicKey: publicKey.hexString,
+            publicKey: publicKey.hex(),
             sourceAddress: walletAddress,
             destinationAddress: destination,
             amount: (amount.value * decimalValue).roundedDecimalNumber.uint64Value,
