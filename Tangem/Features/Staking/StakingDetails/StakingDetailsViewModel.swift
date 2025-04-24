@@ -7,12 +7,14 @@
 //
 
 import Combine
-import TangemLocalization
 import SwiftUI
+import BlockchainSdk
 import TangemAssets
 import TangemStaking
 import TangemFoundation
-import BlockchainSdk
+import TangemLocalization
+import struct TangemUIUtils.ActionSheetBinder
+import struct TangemUIUtils.AlertBinder
 
 final class StakingDetailsViewModel: ObservableObject {
     // MARK: - ViewState
@@ -106,7 +108,7 @@ final class StakingDetailsViewModel: ObservableObject {
             return
         }
 
-        if case .disabled(let reason) = actionButtonState {
+        if case .disabled = actionButtonState {
             showStakeMoreWarningIfNeeded()
             return
         }
