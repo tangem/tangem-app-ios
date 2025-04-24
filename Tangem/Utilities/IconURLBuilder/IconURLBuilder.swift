@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 struct IconURLBuilder {
     private let baseURL: URL
