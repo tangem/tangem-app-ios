@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import TangemFoundation
 
 protocol AccountHealthChecker: Initializable {
     func performAccountCheckIfNeeded(_ account: String)
