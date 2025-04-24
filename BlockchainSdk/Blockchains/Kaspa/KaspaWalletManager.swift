@@ -164,7 +164,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
             let hashes = txgroup.hashesCommit + txgroup.hashesReveal
             return signer
                 .sign(hashes: hashes, walletPublicKey: manager.wallet.publicKey)
-                .map { ($0, input) }
+                .map { ($0.map(\.signature), input) }
         }
         .withWeakCaptureOf(self)
         .tryMap { manager, input in
