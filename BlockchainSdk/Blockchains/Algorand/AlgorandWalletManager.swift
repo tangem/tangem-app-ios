@@ -145,7 +145,7 @@ extension AlgorandWalletManager {
                 let dataForSend = try walletManager.transactionBuilder.buildForSend(
                     transaction: transaction,
                     with: buildParams,
-                    signature: signature
+                    signature: signature.signature
                 )
 
                 return dataForSend
