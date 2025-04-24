@@ -9,6 +9,7 @@
 import Foundation
 import TangemSdk
 import TangemNFT
+import TangemFoundation
 import BlockchainSdk
 
 /// NFT feature availability for a particular blockchain.
