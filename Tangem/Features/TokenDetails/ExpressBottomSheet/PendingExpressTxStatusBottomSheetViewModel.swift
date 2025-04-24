@@ -7,10 +7,11 @@
 //
 
 import Foundation
-import TangemLocalization
+import UIKit
 import Combine
 import TangemExpress
-import UIKit
+import TangemLocalization
+import struct TangemUI.TokenIconInfo
 
 class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable {
     var transactionID: String? {
@@ -466,7 +467,8 @@ extension PendingExpressTxStatusBottomSheetViewModel {
              .done,
              .verificationRequired,
              .failed,
-             .txFailed:
+             .txFailed,
+             .refunding:
             isHideButtonShowed = false
         }
     }
