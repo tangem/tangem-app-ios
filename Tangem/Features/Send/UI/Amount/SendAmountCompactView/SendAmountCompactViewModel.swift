@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import struct TangemUI.TokenIconInfo
 
 class SendAmountCompactViewModel: ObservableObject, Identifiable {
     // Use the estimated size as initial value

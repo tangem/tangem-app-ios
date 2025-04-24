@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct ExpressCurrencyView<Content: View>: View {
     @ObservedObject private var viewModel: ExpressCurrencyViewModel

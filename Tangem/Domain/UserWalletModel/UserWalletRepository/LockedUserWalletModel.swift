@@ -10,11 +10,13 @@ import Foundation
 import Combine
 import TangemAssets
 import TangemSdk
+import TangemNFT
 
 class LockedUserWalletModel: UserWalletModel {
     let walletModelsManager: WalletModelsManager = LockedWalletModelsManager()
-    let userTokenListManager: UserTokenListManager = LockedUserTokenListManager()
     let userTokensManager: UserTokensManager = LockedUserTokensManager()
+    let userTokenListManager: UserTokenListManager = LockedUserTokenListManager()
+    let nftManager: NFTManager = NotSupportedNFTManager()
     let config: UserWalletConfig
     var signer: TangemSigner
 
