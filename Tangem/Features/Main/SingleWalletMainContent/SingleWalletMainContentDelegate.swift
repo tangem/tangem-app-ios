@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import struct TangemUIUtils.ActionSheetBinder
 
 protocol SingleWalletMainContentDelegate: AnyObject {
     func present(actionSheet: ActionSheetBinder)
