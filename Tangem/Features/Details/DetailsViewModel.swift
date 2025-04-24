@@ -7,11 +7,13 @@
 //
 
 import Foundation
-import TangemLocalization
 import SwiftUI
 import Combine
 import BlockchainSdk
 import TangemFoundation
+import TangemLocalization
+import struct TangemUIUtils.ActionSheetBinder
+import struct TangemUIUtils.AlertBinder
 
 class DetailsViewModel: ObservableObject {
     // MARK: - Injected
