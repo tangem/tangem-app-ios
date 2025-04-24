@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import TangemFoundation
 
 class WalletManagerFactoryProvider {
     @Injected(\.keysManager) private var keysManager: KeysManager
