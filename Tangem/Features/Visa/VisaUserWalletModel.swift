@@ -13,6 +13,7 @@ import TangemAssets
 import TangemVisa
 import TangemFoundation
 import TangemNFT
+import struct TangemUIUtils.AlertBinder
 
 /// Model responsible for interacting with payment account and BFF
 /// Main setup logic is in `setupPaymentAccountInteractorAsync` . It setups payment account interactor which is responsible with blockchain requests
