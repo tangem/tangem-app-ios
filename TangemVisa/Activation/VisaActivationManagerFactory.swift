@@ -52,7 +52,7 @@ public struct VisaActivationManagerFactory {
                 urlSessionConfiguration: urlSessionConfiguration,
                 authorizationTokensHandler: authorizationTokensHandler
             )
-        let key = (try? VisaConfigProvider.shared().getRSAPublicKey()) ?? ""
+        let key = (try? VisaConfigProvider.shared().getRSAPublicKey(apiType: apiType)) ?? ""
         let pinCodeProcessor = PaymentologyPINCodeProcessor(rsaPublicKey: key)
 
         return CommonVisaActivationManager(
