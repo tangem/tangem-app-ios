@@ -30,6 +30,7 @@ enum GeneralNotificationEvent: Equatable, Hashable {
     case backupErrors
     case seedSupport
     case seedSupport2
+    case referralProgram
 }
 
 /// For Notifications
@@ -78,6 +79,8 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .string(Localization.warningSeedphraseIssueTitle)
         case .seedSupport2:
             return .string(Localization.warningSeedphraseActionRequiredTitle)
+        case .referralProgram:
+            return .string("Referral program")
         }
     }
 
@@ -122,6 +125,8 @@ extension GeneralNotificationEvent: NotificationEvent {
             return Localization.warningSeedphraseIssueMessage
         case .seedSupport2:
             return Localization.warningSeedphraseContactedSupport
+        case .referralProgram:
+            return "Long text about benefits of the referral program"
         }
     }
 
@@ -152,7 +157,7 @@ extension GeneralNotificationEvent: NotificationEvent {
              .missingBackup,
              .supportedOnlySingleCurrencyWallet:
             return .init(iconType: .image(Assets.attention.image))
-        case .demoCard, .legacyDerivation, .systemDeprecationTemporary, .missingDerivation:
+        case .demoCard, .legacyDerivation, .systemDeprecationTemporary, .missingDerivation, .referralProgram:
             return .init(iconType: .image(Assets.blueCircleWarning.image))
         case .rateApp:
             return .init(iconType: .image(Assets.star.image))
@@ -174,6 +179,7 @@ extension GeneralNotificationEvent: NotificationEvent {
              .legacyDerivation,
              .systemDeprecationTemporary,
              .missingDerivation,
+             .referralProgram,
              .rateApp:
             return .info
         case .numberOfSignedHashesIncorrect,
@@ -209,6 +215,7 @@ extension GeneralNotificationEvent: NotificationEvent {
             return false
         case .numberOfSignedHashesIncorrect,
              .systemDeprecationTemporary,
+             .referralProgram,
              .rateApp:
             return true
         }
@@ -263,6 +270,11 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .withButtons([
                 .init(action: buttonAction, actionType: .support, isWithLoader: false),
             ])
+        case .referralProgram:
+            guard let tapAction else {
+                break
+            }
+            return .tappable(action: tapAction)
         default: break
         }
         return .plain
@@ -293,6 +305,7 @@ extension GeneralNotificationEvent {
         case .backupErrors: return .mainNoticeBackupErrors
         case .seedSupport: return .mainNoticeSeedSupport
         case .seedSupport2: return .mainNoticeSeedSupport2
+        case .referralProgram: return .mainNoticeSeedSupport2 // [REDACTED_TODO_COMMENT]
         }
     }
 
