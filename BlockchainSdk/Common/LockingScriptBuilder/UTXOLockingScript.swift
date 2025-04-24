@@ -17,20 +17,4 @@ public struct UTXOLockingScript: Hashable {
 
     /// The type which impact on `redeemScript` and `lockingScript`
     public let type: UTXOScriptType
-
-    public var redeemScript: Data? {
-        switch type {
-        case .p2pk, .p2pkh:
-            return nil
-        case .p2sh(let redeemScript):
-            return redeemScript
-        case .p2wpkh:
-            return OpCodeUtils.p2pkh(data: keyHash)
-        case .p2wsh(let redeemScript):
-            return redeemScript
-        case .p2tr:
-            // Don't use it for build a transaction
-            return nil
-        }
-    }
 }
