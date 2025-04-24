@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemUI
 
 struct CustomTokenItemView: View {
     let info: CustomTokenItemViewInfo
