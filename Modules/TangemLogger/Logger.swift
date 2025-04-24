@@ -8,6 +8,7 @@
 
 import Foundation
 import OSLog
+import TangemFoundation
 
 public struct Logger {
     public typealias Category = OSLogCategory
@@ -108,27 +109,28 @@ private extension Logger {
             return String(describing: message())
         }()
 
-        #if DEBUG
         writeToConsole(level, message: message)
-        #endif // DEBUG
 
-        #if ALPHA || BETA || DEBUG
         writeToFile(level, message: message)
-        #endif // ALPHA || BETA || DEBUG
     }
 
-    #if DEBUG
     func writeToConsole(_ level: OSLog.Level, message: @autoclosure () -> String) {
+        guard !AppEnvironment.current.isProduction else {
+            return
+        }
+
         guard Logger.configuration.isLoggable() else {
             return
         }
 
         OSLog.logger(for: category).log(level: level, message: message())
     }
-    #endif // DEBUG
 
-    #if ALPHA || BETA || DEBUG
     func writeToFile(_ level: OSLog.Level, message: @autoclosure () -> String) {
+        guard !AppEnvironment.current.isProduction else {
+            return
+        }
+
         guard Logger.configuration.isWritable() else {
             return
         }
@@ -139,18 +141,13 @@ private extension Logger {
             OSLog.logger(for: .logFileWriter).fault("\(error.localizedDescription)")
         }
     }
-    #endif // ALPHA || BETA || DEBUG
 
     func checkIfConsoleLogAllowed() -> Bool {
         guard category == .console else {
             return true
         }
 
-        #if DEBUG
-        return true
-        #else
-        return false
-        #endif
+        return AppEnvironment.current.isDebug
     }
 }
 
