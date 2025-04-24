@@ -10,6 +10,7 @@ import Foundation
 import TangemAssets
 import TangemSdk
 import BlockchainSdk
+import TangemFoundation
 
 /// V3 Config
 struct LegacyConfig: CardContainer {
