@@ -12,6 +12,7 @@ import FirebaseCore
 import BlockchainSdk
 import TangemStaking
 import TangemStories
+import TangemFoundation
 
 class ServicesManager {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
