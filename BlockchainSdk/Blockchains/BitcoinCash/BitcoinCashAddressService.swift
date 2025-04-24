@@ -8,14 +8,13 @@
 
 import Foundation
 import TangemSdk
-import BitcoinCore
 
 @available(iOS 13.0, *)
 class BitcoinCashAddressService {
     private let legacyService: BitcoinLegacyAddressService
     private let cashAddrService: CashAddrService
 
-    init(networkParams: INetwork) {
+    init(networkParams: UTXONetworkParams) {
         legacyService = .init(networkParams: networkParams)
         cashAddrService = .init(networkParams: networkParams)
     }
