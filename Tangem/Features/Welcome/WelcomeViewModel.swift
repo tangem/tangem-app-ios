@@ -10,6 +10,7 @@ import Combine
 import SwiftUI
 import TangemSdk
 import TangemFoundation
+import struct TangemUIUtils.AlertBinder
 
 class WelcomeViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
