@@ -36,7 +36,7 @@ public extension AppEnvironment {
     }
 
     var isAlphaOrBetaOrDebug: Bool {
-        isDebug || (!isProduction)
+        isDebug || !isProduction
     }
 
     var isProduction: Bool {
