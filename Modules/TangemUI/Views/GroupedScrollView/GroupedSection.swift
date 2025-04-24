@@ -9,7 +9,6 @@
 import SwiftUI
 import TangemAssets
 import TangemUIUtils
-import TangemUI
 
 /**
  Layout:
