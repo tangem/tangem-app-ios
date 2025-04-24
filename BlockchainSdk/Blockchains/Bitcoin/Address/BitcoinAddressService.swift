@@ -8,16 +8,17 @@
 
 import Foundation
 import TangemSdk
-import BitcoinCore
 
 @available(iOS 13.0, *)
 struct BitcoinAddressService {
     let legacy: BitcoinLegacyAddressService
     let bech32: BitcoinBech32AddressService
+    let taproot: BitcoinTaprootAddressService
 
-    init(networkParams: INetwork) {
+    init(networkParams: UTXONetworkParams) {
         legacy = BitcoinLegacyAddressService(networkParams: networkParams)
         bech32 = BitcoinBech32AddressService(networkParams: networkParams)
+        taproot = BitcoinTaprootAddressService(networkParams: networkParams)
     }
 }
 
@@ -26,7 +27,7 @@ struct BitcoinAddressService {
 @available(iOS 13.0, *)
 extension BitcoinAddressService: AddressValidator {
     func validate(_ address: String) -> Bool {
-        legacy.validate(address) || bech32.validate(address)
+        legacy.validate(address) || bech32.validate(address) || taproot.validate(address)
     }
 }
 
@@ -48,19 +49,18 @@ extension BitcoinAddressService: AddressProvider {
 
 @available(iOS 13.0, *)
 extension BitcoinAddressService: BitcoinScriptAddressesProvider {
-    func makeAddresses(publicKey: Wallet.PublicKey, pairPublicKey: Data) throws -> [BitcoinScriptAddress] {
+    func makeAddresses(publicKey: Wallet.PublicKey, pairPublicKey: Data) throws -> [LockingScriptAddress] {
         let compressedKeys = try [publicKey.blockchainKey, pairPublicKey].map {
-            let key = try Secp256k1Key(with: $0)
-            return try key.compress()
+            try Secp256k1Key(with: $0).compress()
         }
 
-        let script = try BitcoinScriptBuilder().makeMultisig(publicKeys: compressedKeys, signaturesRequired: 1)
-        let legacyAddressString = try legacy.makeScriptAddress(from: script.data.sha256Ripemd160)
-        let scriptAddress = BitcoinScriptAddress(script: script, value: legacyAddressString, publicKey: publicKey, type: .legacy)
+        let redeemScript = try BitcoinScriptBuilder().makeMultisig(publicKeys: compressedKeys, signaturesRequired: 1)
+        let (legacyAddressValue, legacyScript) = try legacy.makeScriptAddress(redeemScript: redeemScript.data)
+        let legacyAddress = LockingScriptAddress(value: legacyAddressValue, publicKey: publicKey, type: .legacy, lockingScript: legacyScript)
 
-        let bech32AddressString = try bech32.makeScriptAddress(from: script.data.sha256())
-        let bech32Address = BitcoinScriptAddress(script: script, value: bech32AddressString, publicKey: publicKey, type: .default)
+        let (bech32AddressValue, bech32Script) = try bech32.makeScriptAddress(redeemScript: redeemScript.data)
+        let bech32Address = LockingScriptAddress(value: bech32AddressValue, publicKey: publicKey, type: .default, lockingScript: bech32Script)
 
-        return [bech32Address, scriptAddress]
+        return [bech32Address, legacyAddress]
     }
 }
