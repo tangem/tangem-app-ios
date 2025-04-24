@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemSdk
+import TangemFoundation
 
 class CardScannerFactory {
     private var isMocked: Bool {
