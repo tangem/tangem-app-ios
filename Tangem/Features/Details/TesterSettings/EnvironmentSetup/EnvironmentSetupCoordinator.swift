@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 import TangemNFT
 
 class EnvironmentSetupCoordinator: CoordinatorObject {
