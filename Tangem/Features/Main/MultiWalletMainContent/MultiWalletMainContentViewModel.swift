@@ -375,6 +375,16 @@ extension MultiWalletMainContentViewModel {
 
         tokenRouter.openSell(for: walletModel)
     }
+
+    private func openReferralProgram() {
+        let input = ReferralInputModel(
+            userWalletId: userWalletModel.userWalletId.value,
+            supportedBlockchains: userWalletModel.config.supportedBlockchains,
+            userTokensManager: userWalletModel.userTokensManager
+        )
+
+        coordinator?.openReferral(input: input)
+    }
 }
 
 // MARK: - Notification tap delegate
@@ -417,6 +427,8 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             }
         case .seedSupport2No:
             userWalletNotificationManager.dismissNotification(with: id)
+        case .openReferralProgram:
+            openReferralProgram()
         default:
             break
         }
