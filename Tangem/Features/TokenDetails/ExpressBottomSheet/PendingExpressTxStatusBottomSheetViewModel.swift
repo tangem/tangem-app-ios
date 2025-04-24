@@ -12,6 +12,7 @@ import Combine
 import TangemExpress
 import TangemLocalization
 import struct TangemUI.TokenIconInfo
+import struct TangemUIUtils.AlertBinder
 
 class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable {
     var transactionID: String? {
