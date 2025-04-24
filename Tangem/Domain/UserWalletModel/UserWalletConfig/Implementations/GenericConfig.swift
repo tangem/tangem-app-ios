@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemSdk
 import BlockchainSdk
+import TangemFoundation
 
 struct GenericConfig {
     let card: CardDTO
