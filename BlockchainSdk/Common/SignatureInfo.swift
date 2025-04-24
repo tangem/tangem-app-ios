@@ -9,18 +9,24 @@
 import Foundation
 import TangemSdk
 
-struct SignatureInfo: CustomStringConvertible {
-    let signature: Data
-    let publicKey: Data
+public struct SignatureInfo: CustomStringConvertible {
+    public let signature: Data
+    public let publicKey: Data
     /// The data which was signed
-    let hash: Data
+    public let hash: Data
 
-    var description: String {
-        "signature: \(signature.hex())\npublicKey: \(publicKey.hex())\nhash: \(hash)"
+    public var description: String {
+        ["signature": signature.hex(), "publicKey": publicKey.hex(), "hash": hash.hex()].description
+    }
+
+    public init(signature: Data, publicKey: Data, hash: Data) {
+        self.signature = signature
+        self.publicKey = publicKey
+        self.hash = hash
     }
 }
 
-extension SignatureInfo {
+public extension SignatureInfo {
     func unmarshal() throws -> Data {
         try Secp256k1Signature(with: signature).unmarshal(with: publicKey, hash: hash).data
     }
