@@ -90,7 +90,7 @@ class CasperWalletManager: BaseManager, WalletManager {
             .flatMap { walletManager, rawTransactionData in
                 walletManager.networkService
                     .putDeploy(rawData: rawTransactionData)
-                    .mapSendError(tx: rawTransactionData.hexString)
+                    .mapSendError(tx: rawTransactionData.hex())
             }
             .withWeakCaptureOf(self)
             .map { walletManager, transactionHash in

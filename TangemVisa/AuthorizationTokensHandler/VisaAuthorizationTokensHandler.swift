@@ -7,14 +7,45 @@
 //
 
 import Foundation
+import LocalAuthentication
 import Combine
 import TangemFoundation
 import JWTDecode
 
+/// A protocol defining an interface to persist a Visa refresh token to storage.
+/// Used to save the refresh token locally in a secure  manner.
 public protocol VisaRefreshTokenSaver: AnyObject {
     func saveRefreshTokenToStorage(refreshToken: String, cardId: String) throws
 }
 
+/// A protocol that extends `VisaRefreshTokenSaver` with full CRUD operations for Visa refresh tokens.
+/// Also handles secure and biometric storage and memory persistence.
+public protocol VisaRefreshTokenRepository: VisaRefreshTokenSaver {
+    func save(refreshToken: String, cardId: String) throws
+    func deleteToken(cardId: String) throws
+    /// - Parameters:
+    ///  - cardIdTokenToKeep: this token will be saved after clearing secure and biometrics storages, but it will only persist in memory, not in storages
+    func clear(cardIdTokenToKeep: String?)
+    func fetch(using context: LAContext)
+    func getToken(forCardId cardId: String) -> String?
+    func lock()
+}
+
+public extension VisaRefreshTokenRepository {
+    func clear() {
+        clear(cardIdTokenToKeep: nil)
+    }
+}
+
+public extension VisaRefreshTokenRepository {
+    func saveRefreshTokenToStorage(refreshToken: String, cardId: String) throws {
+        try save(refreshToken: refreshToken, cardId: cardId)
+    }
+}
+
+/// A protocol for managing Visa access and refresh tokens, including automatic refresh,
+/// persistence, and exposure of authorization headers.
+/// Implementations must ensure safe token lifecycle handling and validity checking.
 public protocol VisaAuthorizationTokensHandler {
     var accessToken: JWT? { get async }
     var accessTokenExpired: Bool { get async }
@@ -27,7 +58,16 @@ public protocol VisaAuthorizationTokensHandler {
     func setupRefreshTokenSaver(_ refreshTokenSaver: VisaRefreshTokenSaver)
 }
 
-class CommonVisaAuthorizationTokensHandler {
+/// Handles the lifecycle of Visa authorization tokens including auto-refresh, validation,
+/// and integration with secure token saving mechanisms.
+///
+/// This class uses a background scheduler to refresh access tokens before expiration
+/// and exposes access to current authorization headers and tokens.
+///
+/// - Uses `AuthorizationTokensHolder` actor to store and retrieve tokens.
+/// - Uses `VisaAuthorizationTokenRefreshService` to refresh access tokens from a backend.
+/// - Optionally uses a `VisaRefreshTokenSaver` to persist the refresh token.
+final class CommonVisaAuthorizationTokensHandler {
     private let tokenRefreshService: VisaAuthorizationTokenRefreshService
     private weak var refreshTokenSaver: VisaRefreshTokenSaver?
 
@@ -137,7 +177,14 @@ class CommonVisaAuthorizationTokensHandler {
             throw VisaAuthorizationTokensHandlerError.refreshTokenExpired
         }
 
-        let visaTokens = try await tokenRefreshService.refreshAccessToken(refreshToken: refreshJWTToken.string)
+        guard let authorizationType = await authorizationTokensHolder.authorizationTokens?.authorizationType else {
+            throw VisaAuthorizationTokensHandlerError.refreshTokenExpired
+        }
+
+        let visaTokens = try await tokenRefreshService.refreshAccessToken(
+            refreshToken: refreshJWTToken.string,
+            authorizationType: authorizationType
+        )
         let newJWTTokens = try AuthorizationTokensUtility().decodeAuthTokens(visaTokens)
 
         guard let accessToken = newJWTTokens.accessToken else {
