@@ -1821,7 +1821,6 @@
 		B62D43432CBC79E400C2460E /* CommonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D42F22CBC79E100C2460E /* CommonTests.swift */; };
 		B62D43462CBC79E400C2460E /* SS58Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D42F52CBC79E100C2460E /* SS58Tests.swift */; };
 		B62D43482CBC79E400C2460E /* TransactionSizeTesterUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D42F72CBC79E100C2460E /* TransactionSizeTesterUtility.swift */; };
-		B62D43492CBC79E400C2460E /* WalletCoreSignerTesterUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D42F82CBC79E100C2460E /* WalletCoreSignerTesterUtility.swift */; };
 		B62D434D2CBC79E400C2460E /* AlgorandTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D42FE2CBC79E100C2460E /* AlgorandTransactionTests.swift */; };
 		B62D434E2CBC79E400C2460E /* LitecoinTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D43002CBC79E200C2460E /* LitecoinTransactionTests.swift */; };
 		B62D434F2CBC79E400C2460E /* SuiTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D43022CBC79E200C2460E /* SuiTransactionTests.swift */; };
@@ -5295,7 +5294,6 @@
 		B62D42F22CBC79E100C2460E /* CommonTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonTests.swift; sourceTree = "<group>"; };
 		B62D42F52CBC79E100C2460E /* SS58Tests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SS58Tests.swift; sourceTree = "<group>"; };
 		B62D42F72CBC79E100C2460E /* TransactionSizeTesterUtility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionSizeTesterUtility.swift; sourceTree = "<group>"; };
-		B62D42F82CBC79E100C2460E /* WalletCoreSignerTesterUtility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletCoreSignerTesterUtility.swift; sourceTree = "<group>"; };
 		B62D42FE2CBC79E100C2460E /* AlgorandTransactionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlgorandTransactionTests.swift; sourceTree = "<group>"; };
 		B62D43002CBC79E200C2460E /* LitecoinTransactionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LitecoinTransactionTests.swift; sourceTree = "<group>"; };
 		B62D43022CBC79E200C2460E /* SuiTransactionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuiTransactionTests.swift; sourceTree = "<group>"; };
@@ -7664,7 +7662,6 @@
 			isa = PBXGroup;
 			children = (
 				B62D42F72CBC79E100C2460E /* TransactionSizeTesterUtility.swift */,
-				B62D42F82CBC79E100C2460E /* WalletCoreSignerTesterUtility.swift */,
 				30188F682D75CF9900217353 /* Keys.swift */,
 				30C4701B2D761DD5003DFBFD /* Expect+.swift */,
 				B62D43222CBC79E300C2460E /* NSError+.swift */,
@@ -21305,7 +21302,6 @@
 				B62D43542CBC79E400C2460E /* SolanaEd25519Tests.swift in Sources */,
 				B62D43532CBC79E400C2460E /* SolanaEd25519Slip0010Tests.swift in Sources */,
 				B62D43652CBC79E400C2460E /* TWCurve+.swift in Sources */,
-				B62D43492CBC79E400C2460E /* WalletCoreSignerTesterUtility.swift in Sources */,
 				B62D433A2CBC79E400C2460E /* SeiTransactionTests.swift in Sources */,
 				B62D43692CBC79E400C2460E /* CardanoTransactionTests.swift in Sources */,
 				30E0388B2D6DD7D600D9AD18 /* BinanceTransactionTests.swift in Sources */,

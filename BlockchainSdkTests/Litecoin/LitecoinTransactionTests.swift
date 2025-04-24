@@ -33,8 +33,8 @@ final class LitecoinTransactionTests {
 
         let builder = BitcoinTransactionBuilder(network: networkParams, unspentOutputManager: unspentOutputManager)
         let transaction = Transaction(
-            amount: Amount(with: .litecoin, value: 0.1),
-            fee: Fee(.init(with: .litecoin, value: 0.00000289), parameters: BitcoinFeeParameters(rate: 1)),
+            amount: Amount(with: .litecoin, value: .init(stringValue: "0.1")!),
+            fee: Fee(.init(with: .litecoin, value: .init(stringValue: "0.00000289")!), parameters: BitcoinFeeParameters(rate: 1)),
             sourceAddress: defaultAddress.value,
             destinationAddress: "ltc1qcadgn7d9ytzusq2lxzx8fdf8tqqd9sppggya8t",
             changeAddress: defaultAddress.value
