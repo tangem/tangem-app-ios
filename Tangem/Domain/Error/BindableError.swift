@@ -7,10 +7,11 @@
 //
 
 import Foundation
-import TangemLocalization
 import UIKit
 import SwiftUI
 import TangemSdk
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 protocol BindableError {
     var binder: AlertBinder { get }
