@@ -75,7 +75,7 @@ class KoinosTransactionBuilder {
         }
 
         let hashToSign = try header.serializedData().getSha256()
-        let transactionId = "\(KoinosNetworkParams.Transfer.transactionIDPrefix)\(hashToSign.hexString.lowercased())"
+        let transactionId = "\(KoinosNetworkParams.Transfer.transactionIDPrefix)\(hashToSign.hex())"
 
         let transactionToSign = KoinosProtocol.Transaction(
             header: KoinosProtocol.TransactionHeader(
