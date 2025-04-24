@@ -82,6 +82,11 @@ extension Data {
         self.init(hexString: hex)
     }
 
+    init(hexStr hex: String) {
+        // Use TangemSDK implementation
+        self.init(hexString: hex)
+    }
+
     func hex(_ case: Case = .lowercase) -> String {
         let format = switch `case` {
         case .lowercase: "%02x"
