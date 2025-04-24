@@ -101,27 +101,21 @@ public protocol TransactionSender {
 // MARK: - TransactionSigner
 
 public protocol TransactionSigner {
-    func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[Data], Error>
-    func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<Data, Error>
+    func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], Error>
+    func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<SignatureInfo, Error>
     func sign(dataToSign: [SignData], seedKey: Data) -> AnyPublisher<[(signature: Data, publicKey: Data)], Error>
 }
 
-extension TransactionSigner {
-    func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<SignatureInfo, Error> {
+public extension TransactionSigner {
+    func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<Data, Error> {
         sign(hash: hash, walletPublicKey: walletPublicKey)
-            .map { signature in
-                SignatureInfo(signature: signature, publicKey: walletPublicKey.blockchainKey, hash: hash)
-            }
+            .map { $0.signature }
             .eraseToAnyPublisher()
     }
 
-    func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], Error> {
+    func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[Data], Error> {
         sign(hashes: hashes, walletPublicKey: walletPublicKey)
-            .map { signatures in
-                zip(hashes, signatures).map { hash, signature in
-                    SignatureInfo(signature: signature, publicKey: walletPublicKey.blockchainKey, hash: hash)
-                }
-            }
+            .map { $0.map { $0.signature } }
             .eraseToAnyPublisher()
     }
 

@@ -44,7 +44,7 @@ class SignAndReadTask: CardSessionRunnable {
         signCommand!.run(in: session) { signResult in
             switch signResult {
             case .success(let signResponse):
-                completion(.success(SignAndReadTaskResponse(signatures: signResponse.signatures, card: session.environment.card!)))
+                completion(.success(SignAndReadTaskResponse(publicKey: key, signatures: signResponse.signatures, card: session.environment.card!)))
             case .failure(let error):
                 completion(.failure(error))
             }
@@ -54,6 +54,7 @@ class SignAndReadTask: CardSessionRunnable {
 
 extension SignAndReadTask {
     struct SignAndReadTaskResponse {
+        let publicKey: Data
         let signatures: [Data]
         let card: Card
     }

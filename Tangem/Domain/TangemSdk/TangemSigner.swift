@@ -30,8 +30,8 @@ struct TangemSigner: TransactionSigner {
         self.sdk = sdk
     }
 
-    func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[Data], Error> {
-        Future<[Data], Error> { promise in
+    func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], any Error> {
+        Future<[SignatureInfo], Error> { promise in
             let signCommand = SignAndReadTask(
                 hashes: hashes,
                 walletPublicKey: walletPublicKey.seedKey,
@@ -43,7 +43,10 @@ struct TangemSigner: TransactionSigner {
                 switch signResult {
                 case .success(let response):
                     latestSigner.send(response.card)
-                    promise(.success(response.signatures))
+                    let signatures = zip(hashes, response.signatures).map { hash, signature in
+                        SignatureInfo(signature: signature, publicKey: walletPublicKey.blockchainKey, hash: hash)
+                    }
+                    promise(.success(signatures))
                 case .failure(let error):
                     promise(.failure(error))
                 }
@@ -72,7 +75,7 @@ struct TangemSigner: TransactionSigner {
             .eraseToAnyPublisher()
     }
 
-    func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<Data, Error> {
+    func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<SignatureInfo, Error> {
         sign(hashes: [hash], walletPublicKey: walletPublicKey)
             .map { $0[0] }
             .eraseToAnyPublisher()
