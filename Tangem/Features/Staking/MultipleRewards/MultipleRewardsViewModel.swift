@@ -7,9 +7,11 @@
 //
 
 import Combine
+import SwiftUI
 import TangemLocalization
 import TangemStaking
-import SwiftUI
+import struct TangemUIUtils.ActionSheetBinder
+import struct TangemUIUtils.AlertBinder
 
 final class MultipleRewardsViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
