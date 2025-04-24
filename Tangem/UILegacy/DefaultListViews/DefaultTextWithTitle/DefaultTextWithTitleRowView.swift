@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUIUtils
+import TangemUI
 
 struct DefaultTextWithTitleRowView: View {
     let data: DefaultTextWithTitleRowViewData
