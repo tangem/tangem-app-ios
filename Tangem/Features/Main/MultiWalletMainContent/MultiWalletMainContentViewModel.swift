@@ -7,12 +7,13 @@
 //
 
 import Foundation
-import TangemLocalization
 import SwiftUI
 import Combine
 import CombineExt
 import TangemStaking
 import TangemNFT
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 final class MultiWalletMainContentViewModel: ObservableObject {
     // MARK: - ViewState
