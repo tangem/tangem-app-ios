@@ -7,8 +7,9 @@
 //
 
 import Foundation
-import TangemLocalization
 import TangemSdk
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 final class AuthViewModel: ObservableObject {
     // MARK: - ViewState

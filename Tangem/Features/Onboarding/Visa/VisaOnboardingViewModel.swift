@@ -7,11 +7,12 @@
 //
 
 import SwiftUI
-import TangemLocalization
 import Combine
 import TangemSdk
 import TangemFoundation
+import TangemLocalization
 import TangemVisa
+import struct TangemUIUtils.AlertBinder
 
 protocol VisaOnboardingAlertPresenter: AnyObject {
     @MainActor
