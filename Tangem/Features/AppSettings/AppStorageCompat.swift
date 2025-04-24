@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import TangemFoundation
 
 /// Drop with IOS 14 minimum deployment target
 /// A property wrapper type that reflects a value from `UserDefaults` and

@@ -10,6 +10,7 @@ import SwiftUI
 import TangemSdk
 import class TangemUI.FloatingSheetRegistry
 import BlockchainSdk
+import TangemFoundation
 
 final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     @Injected(\.incomingActionHandler) private var incomingActionHandler: IncomingActionHandler
