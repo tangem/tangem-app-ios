@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemSdk
+import TangemFoundation
 import BlockchainSdk
 import Moya
 
