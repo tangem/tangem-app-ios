@@ -9,6 +9,7 @@
 import Combine
 import SwiftUI
 import TangemFoundation
+import struct TangemUIUtils.AlertBinder
 
 final class ScanCardSettingsViewModel: ObservableObject, Identifiable {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
