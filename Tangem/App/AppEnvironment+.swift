@@ -1,5 +1,5 @@
 //
-//  AppEnvironment.swift
+//  AppEnvironment+.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,27 +9,7 @@
 import Foundation
 import TangemFoundation
 
-enum AppEnvironment: String {
-    case beta = "Beta"
-    case production = "Production"
-    case alpha = "Alpha"
-}
-
 extension AppEnvironment {
-    static var current: AppEnvironment {
-        guard let environmentName: String = InfoDictionaryUtils.environmentName.value() else {
-            assertionFailure("ENVIRONMENT_NAME not found")
-            return .production
-        }
-
-        guard let environment = AppEnvironment(rawValue: environmentName) else {
-            assertionFailure("ENVIRONMENT_NAME not correct")
-            return .production
-        }
-
-        return environment
-    }
-
     var suiteName: String {
         guard let identifier: String = InfoDictionaryUtils.suiteName.value() else {
             assertionFailure("SUITE_NAME not found")
@@ -70,18 +50,6 @@ extension AppEnvironment {
 
     var isTestnet: Bool {
         FeatureStorage.instance.isTestnet
-    }
-
-    var isDebug: Bool {
-        #if DEBUG
-        return true
-        #else
-        return false
-        #endif
-    }
-
-    var isProduction: Bool {
-        self == .production
     }
 
     var isXcodePreview: Bool {
