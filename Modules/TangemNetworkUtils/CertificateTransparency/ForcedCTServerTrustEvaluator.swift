@@ -8,6 +8,7 @@
 import Foundation
 import TangemFoundation
 
+
 public enum ForcedCTServerTrustEvaluator {
     public static var shouldForceCT: Bool {
         AppEnvironment.current.isProduction
