@@ -88,6 +88,7 @@ var serviceModules: [PackageDescription.Target] {
             dependencies: [
                 "Kingfisher",
                 "TangemAssets",
+                "TangemLocalization",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]

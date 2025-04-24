@@ -7,11 +7,12 @@
 //
 
 import Combine
-import TangemLocalization
 import TangemExpress
 import UIKit
+import TangemLocalization
 import TangemFoundation
 import struct BlockchainSdk.Fee
+import struct TangemUIUtils.AlertBinder
 
 final class ExpressApproveViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState

@@ -7,9 +7,10 @@
 //
 
 import Foundation
-import TangemLocalization
 import Combine
 import SwiftUI
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 class SendFeeStep {
     private let viewModel: SendFeeViewModel
