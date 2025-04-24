@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import SwiftUI
 import AVFoundation
+import struct TangemUIUtils.AlertBinder
 
 class OldWalletConnectViewModel: ObservableObject {
     @Injected(\.walletConnectService) private var walletConnectService: OldWalletConnectService
