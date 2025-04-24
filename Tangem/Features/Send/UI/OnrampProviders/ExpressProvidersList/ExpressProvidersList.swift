@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct ExpressProvidersList: View {
     let providersViewData: [OnrampProviderRowViewData]
