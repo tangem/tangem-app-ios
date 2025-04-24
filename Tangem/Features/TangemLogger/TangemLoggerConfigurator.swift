@@ -7,6 +7,7 @@
 //
 
 import TangemLogger
+import TangemFoundation
 import class TangemSdk.Log
 import protocol TangemSdk.TangemSdkLogger
 
