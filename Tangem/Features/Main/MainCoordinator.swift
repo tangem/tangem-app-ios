@@ -227,6 +227,19 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             optionsEditing: optionsManager
         )
     }
+
+    func openReferral(input: ReferralInputModel) {
+        mainBottomSheetUIManager.hide()
+
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.referralCoordinator = nil
+        }
+
+        let coordinator = ReferralCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: .init(input: input))
+        referralCoordinator = coordinator
+        Analytics.log(.referralScreenOpened)
+    }
 }
 
 // MARK: - SingleTokenBaseRoutable
