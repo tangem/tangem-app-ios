@@ -495,7 +495,7 @@ final class HederaWalletManager: BaseManager {
             let (signatures, compiledTransaction) = input
             return try walletManager
                 .transactionBuilder
-                .buildForSend(transaction: compiledTransaction, signatures: signatures)
+                .buildForSend(transaction: compiledTransaction, signatures: signatures.map(\.signature))
         }
         .withWeakCaptureOf(self)
         .flatMap { walletManager, compiledTransaction in
