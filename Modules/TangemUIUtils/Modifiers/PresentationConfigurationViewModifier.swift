@@ -1,6 +1,6 @@
 //
 //  PresentationConfigurationViewModifier.swift
-//  Tangem
+//  TangemUIUtils
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2023 Tangem AG. All rights reserved.
@@ -12,7 +12,7 @@ import SwiftUI
 
 // MARK: - Convenience extensions
 
-extension View {
+public extension View {
     typealias PresentationConfiguration = (_ controller: UISheetPresentationController) -> Void
 
     func presentationConfiguration(
