@@ -9,6 +9,7 @@
 import Foundation
 import BlockchainSdk
 import TangemSdk
+import TangemFoundation
 
 typealias SupportedBlockchainsSet = Set<Blockchain>
 

@@ -6,16 +6,15 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 import Foundation
+import TangemFoundation
 
 public enum ForcedCTServerTrustEvaluator {
-    #if ALPHA || BETA || DEBUG
-    public static var shouldForceCT: Bool = false
-    #else
-    public static var shouldForceCT: Bool = true
-    #endif // ALPHA || BETA || DEBUG
+    public static var shouldForceCT: Bool {
+        AppEnvironment.current.isProduction
+    }
 
     public static func evaluate(trust: SecTrust) throws {
-        logCT()
+        NetworkLogger.info("🔐 Forced CT status: \(shouldForceCT)")
 
         guard shouldForceCT else {
             return
@@ -41,29 +40,6 @@ public enum ForcedCTServerTrustEvaluator {
         }
 
         return .performDefaultHandling
-    }
-
-    private static func logCT() {
-        var flags: [String] = []
-
-        #if ALPHA
-        flags.append("ALPHA")
-        #endif // ALPHA
-
-        #if BETA
-        flags.append("BETA")
-        #endif // BETA
-
-        #if DEBUG
-        flags.append("DEBUG")
-        #endif // DEBUG
-
-        if shouldForceCT {
-            flags.append("shouldForceCT")
-        }
-
-        let message = "🔐 Forced CT evaluation flags: \(flags.joined(separator: ", "))"
-        NetworkLogger.info(message)
     }
 }
 
