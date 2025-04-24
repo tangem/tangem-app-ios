@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemNFT
 
 struct MultiWalletMainContentView: View {
     @ObservedObject var viewModel: MultiWalletMainContentViewModel
@@ -34,6 +35,10 @@ struct MultiWalletMainContentView: View {
             }
 
             tokensContent
+
+            if let nftEntrypointViewModel = viewModel.nftEntrypointViewModel {
+                NFTEntrypointView(viewModel: nftEntrypointViewModel)
+            }
 
             if viewModel.isOrganizeTokensVisible {
                 FixedSizeButtonWithLeadingIcon(
@@ -141,6 +146,7 @@ struct MultiWalletContentView_Preview: PreviewProvider {
             optionsProviding: optionsManager,
             preservesLastSortedOrderOnSwitchToDragAndDrop: false
         )
+        let nftFeatureLifecycleHandler = NFTFeatureLifecycleHandler()
 
         return MultiWalletMainContentViewModel(
             userWalletModel: userWalletModel,
@@ -151,6 +157,7 @@ struct MultiWalletContentView_Preview: PreviewProvider {
             tokenSectionsAdapter: tokenSectionsAdapter,
             tokenRouter: SingleTokenRoutableMock(),
             optionsEditing: optionsManager,
+            nftFeatureLifecycleHandler: nftFeatureLifecycleHandler,
             coordinator: mainCoordinator
         )
     }()
