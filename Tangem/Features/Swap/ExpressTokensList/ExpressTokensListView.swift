@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemUI
 
 struct ExpressTokensListView: View {
     @ObservedObject var viewModel: ExpressTokensListViewModel

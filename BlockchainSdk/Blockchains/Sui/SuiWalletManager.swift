@@ -40,11 +40,11 @@ final class SuiWalletManager: BaseManager, WalletManager {
 
     func updateWallet(coins: [SuiGetCoins.Coin]) {
         let objects = coins.compactMap {
-            SuiCoinObject.from($0)
+            try? SuiCoinObject.from($0)
         }
 
         let totalBalance = objects
-            .filter { $0.coinType == SUIUtils.CoinType.sui.string }
+            .filter { $0.coinType == SuiCoinObject.CoinType.sui }
             .reduce(into: Decimal.zero) { partialResult, coin in
                 partialResult += coin.balance
             }
@@ -57,7 +57,7 @@ final class SuiWalletManager: BaseManager, WalletManager {
 
         for token in cardTokens {
             let tokenBalance = objects
-                .filter { $0.coinType == token.contractAddress }
+                .filter { $0.coinType.string == token.contractAddress }
                 .reduce(into: Decimal.zero) { partialResult, coin in
                     partialResult += coin.balance
                 }
