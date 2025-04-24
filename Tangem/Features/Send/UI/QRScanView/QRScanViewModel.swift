@@ -7,9 +7,10 @@
 //
 
 import SwiftUI
-import TangemLocalization
 import AVFoundation
 import PhotosUI
+import TangemLocalization
+import struct TangemUIUtils.ActionSheetBinder
 
 class QRScanViewModel: ObservableObject, Identifiable {
     @Published var isFlashActive = false
