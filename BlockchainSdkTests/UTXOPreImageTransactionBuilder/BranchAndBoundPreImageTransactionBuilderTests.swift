@@ -10,7 +10,7 @@ import Testing
 @testable import BlockchainSdk
 
 class BranchAndBoundPreImageTransactionBuilderTests {
-    private let script: UTXOLockingScript = .init(data: Data(), type: .p2wpkh)
+    private let script: UTXOLockingScript = .init(keyHash: Data(), data: Data(), type: .p2wpkh)
     private lazy var outputs: [ScriptUnspentOutput] = [
         ScriptUnspentOutput(
             output: UnspentOutput(blockId: 1, txId: "", index: 0, amount: 100_000), // 0.0001 BTC
@@ -27,7 +27,28 @@ class BranchAndBoundPreImageTransactionBuilderTests {
     ]
 
     @Test
-    func testManyOutputs() throws {
+    func testTaskCancel() async throws {
+        let calculator = CommonUTXOTransactionSizeCalculator(network: BitcoinNetworkParams())
+        let selector = BranchAndBoundPreImageTransactionBuilder(calculator: calculator)
+
+        let task = Task {
+            await #expect(throws: CancellationError.self) {
+                _ = try await selector.preImage(
+                    outputs: self.outputs,
+                    changeScript: .p2pkh,
+                    destination: .init(amount: 100_000, script: .p2pkh),
+                    fee: .calculate(feeRate: 1)
+                )
+            }
+        }
+
+        task.cancel()
+        // Wait the task async context
+        _ = await task.value
+    }
+
+    @Test
+    func testManyOutputs() async throws {
         // given
         let outputs: [ScriptUnspentOutput] = (1 ... 1000).map { i in
             .init(output: UnspentOutput(blockId: i, txId: "", index: 0, amount: UInt64(i) * 1_000), script: script)
@@ -39,7 +60,7 @@ class BranchAndBoundPreImageTransactionBuilderTests {
         let selector = BranchAndBoundPreImageTransactionBuilder(calculator: calculator)
 
         // when
-        let selected = try selector.preImage(
+        let selected = try await selector.preImage(
             outputs: outputs,
             changeScript: .p2wpkh,
             destination: .init(amount: 300_000, script: .p2wpkh),
@@ -54,7 +75,7 @@ class BranchAndBoundPreImageTransactionBuilderTests {
     }
 
     @Test
-    func testCalculationFee() throws {
+    func testCalculationFee() async throws {
         // given
         let size = 5_000
         let feeRate = 10
@@ -63,7 +84,7 @@ class BranchAndBoundPreImageTransactionBuilderTests {
         let selector = BranchAndBoundPreImageTransactionBuilder(calculator: calculator)
 
         // when
-        let selected = try selector.preImage(
+        let selected = try await selector.preImage(
             outputs: outputs,
             changeScript: .p2wpkh,
             destination: .init(amount: 300_000, script: .p2wpkh),
@@ -78,13 +99,13 @@ class BranchAndBoundPreImageTransactionBuilderTests {
     }
 
     @Test
-    func testExactlyFee() throws {
+    func testExactlyFee() async throws {
         // given
         let calculator = TestCalculator()
         let selector = BranchAndBoundPreImageTransactionBuilder(calculator: calculator)
 
         // when
-        let selected = try selector.preImage(
+        let selected = try await selector.preImage(
             outputs: outputs,
             changeScript: .p2wpkh,
             destination: .init(amount: 300_000, script: .p2wpkh),
@@ -99,14 +120,14 @@ class BranchAndBoundPreImageTransactionBuilderTests {
     }
 
     @Test
-    func testExactlyNoChangeFee() throws {
+    func testExactlyNoChangeFee() async throws {
         // given
         let dust = 100_000 // Big dust
         let calculator = TestCalculator(dust: dust)
         let selector = BranchAndBoundPreImageTransactionBuilder(calculator: calculator)
 
         // when
-        let selected = try selector.preImage(
+        let selected = try await selector.preImage(
             outputs: outputs,
             changeScript: .p2wpkh,
             destination: .init(amount: 400_000, script: .p2wpkh),
@@ -121,7 +142,7 @@ class BranchAndBoundPreImageTransactionBuilderTests {
     }
 
     @Test
-    func testCalculationNoChangeFee() throws {
+    func testCalculationNoChangeFee() async throws {
         // given
         let size = 5_000
         let dust = 100_000 // Big dust
@@ -131,7 +152,7 @@ class BranchAndBoundPreImageTransactionBuilderTests {
         let selector = BranchAndBoundPreImageTransactionBuilder(calculator: calculator)
 
         // when
-        let selected = try selector.preImage(
+        let selected = try await selector.preImage(
             outputs: outputs,
             changeScript: .p2wpkh,
             destination: .init(amount: 400_000, script: .p2wpkh),
@@ -149,15 +170,15 @@ class BranchAndBoundPreImageTransactionBuilderTests {
     }
 
     @Test
-    func testThrowsInsufficientFunds() throws {
+    func testThrowsInsufficientFunds() async throws {
         // given
         let dust = 100_000 // Big dust
         let calculator = TestCalculator(dust: dust)
         let selector = BranchAndBoundPreImageTransactionBuilder(calculator: calculator)
 
         // then
-        #expect(throws: UTXOPreImageTransactionBuilderError.insufficientFunds) {
-            try selector.preImage(
+        await #expect(throws: UTXOPreImageTransactionBuilderError.insufficientFunds) {
+            try await selector.preImage(
                 outputs: outputs,
                 changeScript: .p2wpkh,
                 destination: .init(amount: 900_000, script: .p2wpkh),
