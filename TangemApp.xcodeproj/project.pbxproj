@@ -302,7 +302,6 @@
 		2DFC27942C78E833009B247E /* TokenItemType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC27902C78E833009B247E /* TokenItemType.swift */; };
 		2DFC27962C78E881009B247E /* MarketsPortfolioTokenItemFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC27952C78E881009B247E /* MarketsPortfolioTokenItemFactory.swift */; };
 		30005CD82D5CC9BD00CB41AE /* VanarExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30005CD72D5CC9B100CB41AE /* VanarExternalLinkProvider.swift */; };
-		3000F3902DB66D00006A1EF2 /* NFTFeatureLifecycleHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3000F38F2DB66D00006A1EF2 /* NFTFeatureLifecycleHandler.swift */; };
 		300C26342DAFA29600C7E0B0 /* CombineExt in Frameworks */ = {isa = PBXBuildFile; productRef = 300C26332DAFA29600C7E0B0 /* CombineExt */; };
 		300E06BD2D7734F8006317EC /* ICPAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300E06BC2D7734ED006317EC /* ICPAddressTests.swift */; };
 		300E06BF2D7736EC006317EC /* KaspaAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300E06BE2D7736E2006317EC /* KaspaAddressTests.swift */; };
@@ -312,6 +311,7 @@
 		30188F692D75CF9900217353 /* Keys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30188F682D75CF9900217353 /* Keys.swift */; };
 		303D556F2D7873B300FA859D /* VeChainAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303D556E2D7873AD00FA859D /* VeChainAddressTests.swift */; };
 		303D55712D78754000FA859D /* XRPAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303D55702D78753900FA859D /* XRPAddressTests.swift */; };
+		304017442DB672C4007F5D69 /* NFTFeatureLifecycleHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 304017432DB672C4007F5D69 /* NFTFeatureLifecycleHandler.swift */; };
 		30410B3F2D7740270044C703 /* NEARAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30410B3E2D7740200044C703 /* NEARAddressTests.swift */; };
 		30410B412D7743FF0044C703 /* PolkadotAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30410B402D7743F80044C703 /* PolkadotAddressTests.swift */; };
 		30410B432D7745B00044C703 /* RadiantAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30410B422D7745A50044C703 /* RadiantAddressTests.swift */; };
@@ -424,7 +424,6 @@
 		5DBBAB0824D850EA00E78F1C /* CircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0724D850EA00E78F1C /* CircleView.swift */; };
 		5DD4CB5424FAEE8B008F23CC /* AppCardIdFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD4CB5324FAEE8B008F23CC /* AppCardIdFormatter.swift */; };
 		5DD95B8C24FA959C00E6B9D0 /* VerticalAlignment+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD95B8B24FA959C00E6B9D0 /* VerticalAlignment+.swift */; };
-		5DDE22EF2608EFDB008657C6 /* UIViewController+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DDE22EE2608EFDB008657C6 /* UIViewController+.swift */; };
 		5DDE22F52609022D008657C6 /* OldWalletConnectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DDE22F42609022D008657C6 /* OldWalletConnectView.swift */; };
 		5DDE22FA2609023B008657C6 /* OldWalletConnectViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DDE22F92609023B008657C6 /* OldWalletConnectViewModel.swift */; };
 		5DDFC2022812B716005976FE /* CurrenciesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DDFC2012812B716005976FE /* CurrenciesResponse.swift */; };
@@ -1907,13 +1906,11 @@
 		B660157D2C7F3A3A0013D92D /* MarketsHistoryChartYAxisValueFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B660157C2C7F3A3A0013D92D /* MarketsHistoryChartYAxisValueFormatter.swift */; };
 		B6654ACC2B5EB73200249008 /* CommonRateAppController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6654ACB2B5EB73200249008 /* CommonRateAppController.swift */; };
 		B66655712C6EC901001E2C68 /* UIView.AnimationCurve+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B66655702C6EC901001E2C68 /* UIView.AnimationCurve+.swift */; };
-		B668D2582A685DD800D9A12A /* BinaryFloatingPoint+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B668D2572A685DD800D9A12A /* BinaryFloatingPoint+.swift */; };
 		B66913642C4179400016B0EE /* OverlayContentContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B66913632C4179400016B0EE /* OverlayContentContainer.swift */; };
 		B669136C2C417C9A0016B0EE /* OverlayContentContainerViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B669136B2C417C9A0016B0EE /* OverlayContentContainerViewModifier.swift */; };
 		B66913702C41958D0016B0EE /* OverlayContentContainerViewControllerAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B669136F2C41958D0016B0EE /* OverlayContentContainerViewControllerAdapter.swift */; };
 		B66AB8B52BBC682A00C8F3E7 /* UserTokensReorderingSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = B66AB8B42BBC682A00C8F3E7 /* UserTokensReorderingSource.swift */; };
 		B66AB8B72BBC7AF200C8F3E7 /* UserTokensReorderingLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B66AB8B62BBC7AF200C8F3E7 /* UserTokensReorderingLogger.swift */; };
-		B66BDAE92C7438310047FD67 /* GrabberViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B66BDAE82C7438310047FD67 /* GrabberViewFactory.swift */; };
 		B66BDAEC2C743F5A0047FD67 /* OverlayContentState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B66BDAEB2C743F5A0047FD67 /* OverlayContentState.swift */; };
 		B66C259E2A801CAB002ADFBD /* FakeOrganizeTokensOptionsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B66C259D2A801CAB002ADFBD /* FakeOrganizeTokensOptionsManager.swift */; };
 		B66C8CC12D42F0F600A91763 /* PerformanceTracker+Metric.swift in Sources */ = {isa = PBXBuildFile; fileRef = B66C8CC02D42F0F600A91763 /* PerformanceTracker+Metric.swift */; };
@@ -1976,7 +1973,6 @@
 		B6996CF42CDC466B00F8D582 /* MarketsTokenDetailsSecurityScoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6996CF32CDC466B00F8D582 /* MarketsTokenDetailsSecurityScoreView.swift */; };
 		B69A48672C47BA2A003497E1 /* OverlayContentStateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69A48662C47BA2A003497E1 /* OverlayContentStateController.swift */; };
 		B69A592E2CE2F66E00989063 /* MarketsTokenDetailsSecurityScoreDetailsFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69A592D2CE2F66E00989063 /* MarketsTokenDetailsSecurityScoreDetailsFactory.swift */; };
-		B69C9D3A2A7027F100ECD35F /* DragGesture.Value+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69C9D392A7027F100ECD35F /* DragGesture.Value+.swift */; };
 		B69D0E802A3AEE8000A8B44D /* TokenListLoadingPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69D0E7F2A3AEE7F00A8B44D /* TokenListLoadingPlaceholderView.swift */; };
 		B69D5EEB2A3252A800B494A9 /* OrganizeTokensListCornerRadiusParametersProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69D5EEA2A3252A800B494A9 /* OrganizeTokensListCornerRadiusParametersProvider.swift */; };
 		B69E78762A6978E2007E358A /* CardInfoPagePreviewContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69E78752A6978E2007E358A /* CardInfoPagePreviewContainerView.swift */; };
@@ -2097,7 +2093,6 @@
 		C225642F2D974968003063DA /* TangemStoriesPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C225642E2D974968003063DA /* TangemStoriesPresenter.swift */; };
 		C2300ED32D66152D00EBEA64 /* StoryAnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2300ED22D66152400EBEA64 /* StoryAnalyticsService.swift */; };
 		C2300ED52D67894700EBEA64 /* Analytics+Stories.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2300ED42D67893500EBEA64 /* Analytics+Stories.swift */; };
-		C244C5692D5E6C9D006DF666 /* MainWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C244C5682D5E6C9D006DF666 /* MainWindow.swift */; };
 		C259BBCD2D79FF64000DAFD1 /* Analytics+WalletConnectSessionSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C259BBCB2D786FFB000DAFD1 /* Analytics+WalletConnectSessionSource.swift */; };
 		C27A0EEE2D3648D400AC2336 /* OdysseyChainExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C27A0EED2D3648D100AC2336 /* OdysseyChainExternalLinkProvider.swift */; };
 		C287C61D2D410D640068B899 /* ApeChainExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C287C61C2D410D620068B899 /* ApeChainExternalLinkProvider.swift */; };
@@ -2410,7 +2405,6 @@
 		DC2911B62C623DE300DF53CC /* DemoSendTransactionDispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC2911B52C623DE300DF53CC /* DemoSendTransactionDispatcher.swift */; };
 		DC2911B82C6258E200DF53CC /* TransactionDispatcherResultMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC2911B72C6258E200DF53CC /* TransactionDispatcherResultMapper.swift */; };
 		DC2911BA2C625B4500DF53CC /* TransactionDispatcherFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC2911B92C625B4500DF53CC /* TransactionDispatcherFactory.swift */; };
-		DC295B3A28615D03006CB7B6 /* NavHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B3928615D03006CB7B6 /* NavHolder.swift */; };
 		DC295B482861C4BE006CB7B6 /* DetailsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B472861C4BE006CB7B6 /* DetailsCoordinator.swift */; };
 		DC295B4A2861C4CB006CB7B6 /* DetailsCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B492861C4CB006CB7B6 /* DetailsCoordinatorView.swift */; };
 		DC295B4C2861D7CF006CB7B6 /* WalletConnectCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B4B2861D7CF006CB7B6 /* WalletConnectCoordinator.swift */; };
@@ -2660,12 +2654,10 @@
 		EF032C502955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C4E2955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift */; };
 		EF032C512955C59E006C1FF3 /* DefaultSelectableRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C4F2955C59E006C1FF3 /* DefaultSelectableRowView.swift */; };
 		EF032C532955C725006C1FF3 /* CheckIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C522955C725006C1FF3 /* CheckIconView.swift */; };
-		EF033B182B8631C700A71600 /* UIResponder+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF033B172B8631C700A71600 /* UIResponder+.swift */; };
 		EF07082C2A16474F0072AA0E /* FeeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF07082B2A16474F0072AA0E /* FeeFormatter.swift */; };
 		EF07082F2A16476F0072AA0E /* CommonFeeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF07082E2A16476F0072AA0E /* CommonFeeFormatter.swift */; };
 		EF08A0EF283D1914008BD923 /* Moya+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0EE283D1914008BD923 /* Moya+.swift */; };
 		EF08A0F1283D2382008BD923 /* CoinsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0F0283D2382008BD923 /* CoinsList.swift */; };
-		EF09A309297A9B3F00B869A1 /* BottomSheetContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF09A308297A9B3F00B869A1 /* BottomSheetContainer.swift */; };
 		EF0AC19C2D20706600233B81 /* MultiWalletNotificationEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0AC19B2D20706600233B81 /* MultiWalletNotificationEvent.swift */; };
 		EF0B553B2C38346F007BDE83 /* SendSummaryInputOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0B553A2C38346F007BDE83 /* SendSummaryInputOutput.swift */; };
 		EF0B63F42C54116000365A50 /* UnstakingFlowBaseBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0B63F32C54116000365A50 /* UnstakingFlowBaseBuilder.swift */; };
@@ -2883,8 +2875,6 @@
 		EF661E2F28BF41D6005769E5 /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = EF661E2928BF41D6005769E5 /* Intents.intentdefinition */; };
 		EF661E3228C0ACD1005769E5 /* ScanCardWarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF661E3128C0ACD0005769E5 /* ScanCardWarningView.swift */; };
 		EF661E3528C0ADC6005769E5 /* CommonError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF661E3428C0ADC6005769E5 /* CommonError.swift */; };
-		EF666C262A2DF9EF0044986F /* BottomSheetModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF666C252A2DF9EF0044986F /* BottomSheetModifier.swift */; };
-		EF666C282A2DFA1C0044986F /* View+BottomSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF666C272A2DFA1C0044986F /* View+BottomSheet.swift */; };
 		EF669B0D2D8C17C600F2E078 /* UTXOScriptType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF669B0C2D8C17C600F2E078 /* UTXOScriptType.swift */; };
 		EF669B0E2D8C17C600F2E078 /* LockingScriptBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF669B0B2D8C17C600F2E078 /* LockingScriptBuilder.swift */; };
 		EF669B112D8C183200F2E078 /* LockingScriptAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF669B102D8C183200F2E078 /* LockingScriptAddress.swift */; };
@@ -3756,7 +3746,6 @@
 		2DFC27902C78E833009B247E /* TokenItemType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemType.swift; sourceTree = "<group>"; };
 		2DFC27952C78E881009B247E /* MarketsPortfolioTokenItemFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsPortfolioTokenItemFactory.swift; sourceTree = "<group>"; };
 		30005CD72D5CC9B100CB41AE /* VanarExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VanarExternalLinkProvider.swift; sourceTree = "<group>"; };
-		3000F38F2DB66D00006A1EF2 /* NFTFeatureLifecycleHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTFeatureLifecycleHandler.swift; sourceTree = "<group>"; };
 		300E06BC2D7734ED006317EC /* ICPAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICPAddressTests.swift; sourceTree = "<group>"; };
 		300E06BE2D7736E2006317EC /* KaspaAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaAddressTests.swift; sourceTree = "<group>"; };
 		300E06C02D773D1D006317EC /* LitecoinAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LitecoinAddressTests.swift; sourceTree = "<group>"; };
@@ -3766,6 +3755,7 @@
 		30188F6E2D75D41900217353 /* BinanceAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinanceAddressTests.swift; sourceTree = "<group>"; };
 		303D556E2D7873AD00FA859D /* VeChainAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VeChainAddressTests.swift; sourceTree = "<group>"; };
 		303D55702D78753900FA859D /* XRPAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPAddressTests.swift; sourceTree = "<group>"; };
+		304017432DB672C4007F5D69 /* NFTFeatureLifecycleHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTFeatureLifecycleHandler.swift; sourceTree = "<group>"; };
 		30410B3E2D7740200044C703 /* NEARAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NEARAddressTests.swift; sourceTree = "<group>"; };
 		30410B402D7743F80044C703 /* PolkadotAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkadotAddressTests.swift; sourceTree = "<group>"; };
 		30410B422D7745A50044C703 /* RadiantAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadiantAddressTests.swift; sourceTree = "<group>"; };
@@ -3888,7 +3878,6 @@
 		5DBFEA4D24DD642C0080D3DC /* Tangem.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Tangem.entitlements; sourceTree = "<group>"; };
 		5DD4CB5324FAEE8B008F23CC /* AppCardIdFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCardIdFormatter.swift; sourceTree = "<group>"; };
 		5DD95B8B24FA959C00E6B9D0 /* VerticalAlignment+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VerticalAlignment+.swift"; sourceTree = "<group>"; };
-		5DDE22EE2608EFDB008657C6 /* UIViewController+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+.swift"; sourceTree = "<group>"; };
 		5DDE22F42609022D008657C6 /* OldWalletConnectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldWalletConnectView.swift; sourceTree = "<group>"; };
 		5DDE22F92609023B008657C6 /* OldWalletConnectViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldWalletConnectViewModel.swift; sourceTree = "<group>"; };
 		5DDFC2012812B716005976FE /* CurrenciesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrenciesResponse.swift; sourceTree = "<group>"; };
@@ -5361,13 +5350,11 @@
 		B660157C2C7F3A3A0013D92D /* MarketsHistoryChartYAxisValueFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsHistoryChartYAxisValueFormatter.swift; sourceTree = "<group>"; };
 		B6654ACB2B5EB73200249008 /* CommonRateAppController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonRateAppController.swift; sourceTree = "<group>"; };
 		B66655702C6EC901001E2C68 /* UIView.AnimationCurve+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView.AnimationCurve+.swift"; sourceTree = "<group>"; };
-		B668D2572A685DD800D9A12A /* BinaryFloatingPoint+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BinaryFloatingPoint+.swift"; sourceTree = "<group>"; };
 		B66913632C4179400016B0EE /* OverlayContentContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayContentContainer.swift; sourceTree = "<group>"; };
 		B669136B2C417C9A0016B0EE /* OverlayContentContainerViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayContentContainerViewModifier.swift; sourceTree = "<group>"; };
 		B669136F2C41958D0016B0EE /* OverlayContentContainerViewControllerAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayContentContainerViewControllerAdapter.swift; sourceTree = "<group>"; };
 		B66AB8B42BBC682A00C8F3E7 /* UserTokensReorderingSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokensReorderingSource.swift; sourceTree = "<group>"; };
 		B66AB8B62BBC7AF200C8F3E7 /* UserTokensReorderingLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokensReorderingLogger.swift; sourceTree = "<group>"; };
-		B66BDAE82C7438310047FD67 /* GrabberViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrabberViewFactory.swift; sourceTree = "<group>"; };
 		B66BDAEB2C743F5A0047FD67 /* OverlayContentState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayContentState.swift; sourceTree = "<group>"; };
 		B66C259D2A801CAB002ADFBD /* FakeOrganizeTokensOptionsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeOrganizeTokensOptionsManager.swift; sourceTree = "<group>"; };
 		B66C8CC02D42F0F600A91763 /* PerformanceTracker+Metric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PerformanceTracker+Metric.swift"; sourceTree = "<group>"; };
@@ -5418,7 +5405,6 @@
 		B6996CF32CDC466B00F8D582 /* MarketsTokenDetailsSecurityScoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenDetailsSecurityScoreView.swift; sourceTree = "<group>"; };
 		B69A48662C47BA2A003497E1 /* OverlayContentStateController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OverlayContentStateController.swift; sourceTree = "<group>"; };
 		B69A592D2CE2F66E00989063 /* MarketsTokenDetailsSecurityScoreDetailsFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenDetailsSecurityScoreDetailsFactory.swift; sourceTree = "<group>"; };
-		B69C9D392A7027F100ECD35F /* DragGesture.Value+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DragGesture.Value+.swift"; sourceTree = "<group>"; };
 		B69D0E7F2A3AEE7F00A8B44D /* TokenListLoadingPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListLoadingPlaceholderView.swift; sourceTree = "<group>"; };
 		B69D5EEA2A3252A800B494A9 /* OrganizeTokensListCornerRadiusParametersProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListCornerRadiusParametersProvider.swift; sourceTree = "<group>"; };
 		B69E78752A6978E2007E358A /* CardInfoPagePreviewContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardInfoPagePreviewContainerView.swift; sourceTree = "<group>"; };
@@ -5518,7 +5504,6 @@
 		C225642E2D974968003063DA /* TangemStoriesPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemStoriesPresenter.swift; sourceTree = "<group>"; };
 		C2300ED22D66152400EBEA64 /* StoryAnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryAnalyticsService.swift; sourceTree = "<group>"; };
 		C2300ED42D67893500EBEA64 /* Analytics+Stories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+Stories.swift"; sourceTree = "<group>"; };
-		C244C5682D5E6C9D006DF666 /* MainWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindow.swift; sourceTree = "<group>"; };
 		C259BBCB2D786FFB000DAFD1 /* Analytics+WalletConnectSessionSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+WalletConnectSessionSource.swift"; sourceTree = "<group>"; };
 		C27A0EED2D3648D100AC2336 /* OdysseyChainExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdysseyChainExternalLinkProvider.swift; sourceTree = "<group>"; };
 		C287C61C2D410D620068B899 /* ApeChainExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApeChainExternalLinkProvider.swift; sourceTree = "<group>"; };
@@ -5831,7 +5816,6 @@
 		DC2911B52C623DE300DF53CC /* DemoSendTransactionDispatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoSendTransactionDispatcher.swift; sourceTree = "<group>"; };
 		DC2911B72C6258E200DF53CC /* TransactionDispatcherResultMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionDispatcherResultMapper.swift; sourceTree = "<group>"; };
 		DC2911B92C625B4500DF53CC /* TransactionDispatcherFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionDispatcherFactory.swift; sourceTree = "<group>"; };
-		DC295B3928615D03006CB7B6 /* NavHolder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavHolder.swift; sourceTree = "<group>"; };
 		DC295B472861C4BE006CB7B6 /* DetailsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsCoordinator.swift; sourceTree = "<group>"; };
 		DC295B492861C4CB006CB7B6 /* DetailsCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsCoordinatorView.swift; sourceTree = "<group>"; };
 		DC295B4B2861D7CF006CB7B6 /* WalletConnectCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectCoordinator.swift; sourceTree = "<group>"; };
@@ -6085,12 +6069,10 @@
 		EF032C4E2955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultSelectableRowViewModel.swift; sourceTree = "<group>"; };
 		EF032C4F2955C59E006C1FF3 /* DefaultSelectableRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultSelectableRowView.swift; sourceTree = "<group>"; };
 		EF032C522955C725006C1FF3 /* CheckIconView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckIconView.swift; sourceTree = "<group>"; };
-		EF033B172B8631C700A71600 /* UIResponder+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIResponder+.swift"; sourceTree = "<group>"; };
 		EF07082B2A16474F0072AA0E /* FeeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeFormatter.swift; sourceTree = "<group>"; };
 		EF07082E2A16476F0072AA0E /* CommonFeeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonFeeFormatter.swift; sourceTree = "<group>"; };
 		EF08A0EE283D1914008BD923 /* Moya+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Moya+.swift"; sourceTree = "<group>"; };
 		EF08A0F0283D2382008BD923 /* CoinsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinsList.swift; sourceTree = "<group>"; };
-		EF09A308297A9B3F00B869A1 /* BottomSheetContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetContainer.swift; sourceTree = "<group>"; };
 		EF0AC19B2D20706600233B81 /* MultiWalletNotificationEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiWalletNotificationEvent.swift; sourceTree = "<group>"; };
 		EF0B553A2C38346F007BDE83 /* SendSummaryInputOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendSummaryInputOutput.swift; sourceTree = "<group>"; };
 		EF0B63F32C54116000365A50 /* UnstakingFlowBaseBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnstakingFlowBaseBuilder.swift; sourceTree = "<group>"; };
@@ -6316,8 +6298,6 @@
 		EF661E2C28BF41D6005769E5 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Intents.strings; sourceTree = "<group>"; };
 		EF661E3128C0ACD0005769E5 /* ScanCardWarningView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScanCardWarningView.swift; sourceTree = "<group>"; };
 		EF661E3428C0ADC6005769E5 /* CommonError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonError.swift; sourceTree = "<group>"; };
-		EF666C252A2DF9EF0044986F /* BottomSheetModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetModifier.swift; sourceTree = "<group>"; };
-		EF666C272A2DFA1C0044986F /* View+BottomSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+BottomSheet.swift"; sourceTree = "<group>"; };
 		EF669B0B2D8C17C600F2E078 /* LockingScriptBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockingScriptBuilder.swift; sourceTree = "<group>"; };
 		EF669B0C2D8C17C600F2E078 /* UTXOScriptType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTXOScriptType.swift; sourceTree = "<group>"; };
 		EF669B102D8C183200F2E078 /* LockingScriptAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockingScriptAddress.swift; sourceTree = "<group>"; };
@@ -7966,7 +7946,6 @@
 				B0BA7BC426C4F96B00D7066F /* NonDismissableModalView.swift */,
 				5D4B8BB827EDB327002CE87C /* ArrowView.swift */,
 				DAE6F76C2800011400411F45 /* AppError.swift */,
-				DC295B3928615D03006CB7B6 /* NavHolder.swift */,
 				EF4535362976C1D80030639A /* FixedSpacer.swift */,
 				DA91770D2A25DD3F006CD67B /* OneInchGradientViews.swift */,
 				B68B356A2A4B0FAB0069129F /* UIAppearanceBoundaryContainerView.swift */,
@@ -8020,7 +7999,6 @@
 				B0C8A0D32562C86A00DEEAC7 /* View+PreviewDevice.swift */,
 				B65108B22CAC2A8100690C22 /* ShapeStyle+.swift */,
 				B61837092A8398BE00F07C17 /* Transaction+.swift */,
-				B69C9D392A7027F100ECD35F /* DragGesture.Value+.swift */,
 				5D09383125E7A9820049B8F0 /* Wallet+.swift */,
 				5D6784D825EBA1D800149995 /* TokenItems+Array.swift */,
 				5D6784E325EBC94B00149995 /* Blockchain+.swift */,
@@ -8031,7 +8009,6 @@
 				B674D6D82A96AC8800172491 /* Sequence+.swift */,
 				B69E7FC72B220C3300B78D9A /* Dictionary+.swift */,
 				DA28D57C290AAE2000F0C335 /* ScrollView+.swift */,
-				B668D2572A685DD800D9A12A /* BinaryFloatingPoint+.swift */,
 				B0DC10CC2927505300BBE854 /* SwiftConcurrency+.swift */,
 				DADD18F72AA7516B0044AA66 /* UITraitCollection+.swift */,
 				B0A948FE2ACD999C00C80B0A /* WeakifyFunction.swift */,
@@ -9038,11 +9015,9 @@
 				B6DF90562CA2FA0F0099FED5 /* UINavigationController+.swift */,
 				B6B1CCC92C460BB9006C1B44 /* UIPanGestureRecognizer+.swift */,
 				B60976AC2C738AE100778E71 /* UIRectCorner+.swift */,
-				EF033B172B8631C700A71600 /* UIResponder+.swift */,
 				5DF2522C24F95E390015B429 /* UIScreen+.swift */,
 				B6FCEE702C40E14300CA9252 /* UIScrollView+.swift */,
 				B66655702C6EC901001E2C68 /* UIView.AnimationCurve+.swift */,
-				5DDE22EE2608EFDB008657C6 /* UIViewController+.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -9220,7 +9195,6 @@
 				EFE7D57C2AA20D480047D93A /* TokenPriceChange */,
 				EFE7D5822AA224C50047D93A /* Types */,
 				B0A4C49E2A270F490060E039 /* BalanceWithButtonsView */,
-				EF666C242A2DF9D60044986F /* BottomSheet */,
 				2D535E6D2A0CB4D20081EB76 /* BottomSheetInfoView */,
 				2DBE29BE2B3C4A8100109D5E /* DetentBottonSheet */,
 				B05A13AF29FBF16300FB511A /* ButtonWithIcon */,
@@ -9519,7 +9493,6 @@
 				B05A13A229FB975400FB511A /* LoadableTextView.swift */,
 				B05A13AD29FBED3000FB511A /* ScrollableButtonsView.swift */,
 				B09409922A3B7E9800787432 /* NavbarDotsImage.swift */,
-				B66BDAE82C7438310047FD67 /* GrabberViewFactory.swift */,
 				DAC208B22CDE4CBB0031001B /* AnyTransition+opacityLinear.swift */,
 			);
 			path = Common;
@@ -12801,7 +12774,7 @@
 		B68BE0B62D761CC700779F84 /* FeatureLifecycle */ = {
 			isa = PBXGroup;
 			children = (
-				3000F38F2DB66D00006A1EF2 /* NFTFeatureLifecycleHandler.swift */,
+				304017432DB672C4007F5D69 /* NFTFeatureLifecycleHandler.swift */,
 			);
 			path = FeatureLifecycle;
 			sourceTree = "<group>";
@@ -14542,7 +14515,6 @@
 				DC0A5855282E3E220031BECC /* ServicesManager.swift */,
 				B64959822C414E8900B71164 /* RootViewControllerFactory.swift */,
 				DC5118792860B704004FB954 /* AppCoordinator.swift */,
-				C244C5682D5E6C9D006DF666 /* MainWindow.swift */,
 				5D3F77C524BF56D800E8695B /* AppDelegate.swift */,
 				DC51187B2860B728004FB954 /* AppCoordinatorView.swift */,
 				B046EE172578D38E00EA38A5 /* SceneDelegate.swift */,
@@ -16183,16 +16155,6 @@
 				EF0FBB842C53CA2D0095A6BD /* SendCompactViewEditableType.swift */,
 			);
 			path = UITypes;
-			sourceTree = "<group>";
-		};
-		EF666C242A2DF9D60044986F /* BottomSheet */ = {
-			isa = PBXGroup;
-			children = (
-				EF666C252A2DF9EF0044986F /* BottomSheetModifier.swift */,
-				EF09A308297A9B3F00B869A1 /* BottomSheetContainer.swift */,
-				EF666C272A2DFA1C0044986F /* View+BottomSheet.swift */,
-			);
-			path = BottomSheet;
 			sourceTree = "<group>";
 		};
 		EF669B0F2D8C17DE00F2E078 /* Implementations */ = {
@@ -18365,8 +18327,6 @@
 				B09933A22B554E9F00240CDB /* CommonMainHeaderProviderFactory.swift in Sources */,
 				EF6183802B4F04F10064B7CD /* SwappingSuccessCoordinatorView.swift in Sources */,
 				DA90396D2C520E0E002C1E6E /* KoinosSendTransactionSummaryDescriptionBuilder.swift in Sources */,
-				3000F3902DB66D00006A1EF2 /* NFTFeatureLifecycleHandler.swift in Sources */,
-				C244C5692D5E6C9D006DF666 /* MainWindow.swift in Sources */,
 				5D96BD2827F60AC5000AA797 /* BlockchainNetwork.swift in Sources */,
 				EF0B553B2C38346F007BDE83 /* SendSummaryInputOutput.swift in Sources */,
 				EF6961672CEE0BE5001EC00A /* OnrampNotificationManager.swift in Sources */,
@@ -18403,7 +18363,6 @@
 				DC72548C2A02B97A0003FE1B /* ResetToFactoryViewModelInput.swift in Sources */,
 				B03156A82A86369B001D9646 /* DefaultTokenItemInfoProvider.swift in Sources */,
 				DC22535528A4F5730094F30C /* NoteDemoConfig.swift in Sources */,
-				B69C9D3A2A7027F100ECD35F /* DragGesture.Value+.swift in Sources */,
 				DCE2F7E42CE354D900BDE145 /* ActionButtonsSellCoordinator.swift in Sources */,
 				DAC53CFD27BE63830027147D /* BackupStoryPage.swift in Sources */,
 				DC8B8D642D75FF5600F4D66E /* Analytics+TokenActionAvailabilityAnalyticsMapper.swift in Sources */,
@@ -18413,7 +18372,6 @@
 				DCE2F7E02CE3532300BDE145 /* ActionButtonsSellRoutable.swift in Sources */,
 				B08394E12B2998580025176F /* VisaConfig.swift in Sources */,
 				0A3A53CA2D9D276B00E263E7 /* Common.swift in Sources */,
-				EF666C282A2DFA1C0044986F /* View+BottomSheet.swift in Sources */,
 				B0E1CED62B19B682006DDF98 /* PendingExpressTxStatusBottomSheetViewModel.swift in Sources */,
 				B600F4E22C50F7D8008E53FE /* LineChartViewConfigurator.swift in Sources */,
 				B05A859729937E2400E87C6E /* TransactionView.swift in Sources */,
@@ -18796,7 +18754,6 @@
 				DC70C0002B924DA6002205BA /* SecurityOptionChangingMock.swift in Sources */,
 				DAFD691627CDEB7F00B36C71 /* CombinedExchangeService.swift in Sources */,
 				B6DF90572CA2FA0F0099FED5 /* UINavigationController+.swift in Sources */,
-				DC295B3A28615D03006CB7B6 /* NavHolder.swift in Sources */,
 				DCFE143E294B31C00053106B /* AppPresenter.swift in Sources */,
 				2D3E1DF52C9ACE80006AF975 /* CardsInfoPagerBottomOverlayFactoryParams.swift in Sources */,
 				B6ED082C2A7D9DCD0090E51F /* UserTokensReorderingOptions.swift in Sources */,
@@ -18912,7 +18869,6 @@
 				DA5EE9FE2AF3F3E8004B455C /* AddressIconView.swift in Sources */,
 				B674D6DF2A9762D400172491 /* UserTokenListConverter.swift in Sources */,
 				B06015E529730C3D00D0F809 /* WalletConnectUIDelegate.swift in Sources */,
-				EF666C262A2DF9EF0044986F /* BottomSheetModifier.swift in Sources */,
 				EF842DEB2AFA58C5006E472E /* ExpressTokensListViewModel.swift in Sources */,
 				DA1D3B712B56C7E900247393 /* QRScanViewCoordinator.swift in Sources */,
 				B0C4F77326F08CB50086D815 /* OnboardingCardFrameCalculator.swift in Sources */,
@@ -19002,6 +18958,7 @@
 				2DC5677D2B0E047700B0244F /* MainBottomSheetHeaderView.swift in Sources */,
 				DC66BC10285C405C00CDF765 /* CoordinatorObject.swift in Sources */,
 				DC77F2552CD50917001B2929 /* SUILabel.swift in Sources */,
+				304017442DB672C4007F5D69 /* NFTFeatureLifecycleHandler.swift in Sources */,
 				EF1D1ADE2C270DDE000CB941 /* SendFeeInputOutput.swift in Sources */,
 				B0120A962A0E0FB900F485F1 /* Text+NSAttributedString.swift in Sources */,
 				EF914D4C2A603F2F001F00B2 /* Quote.swift in Sources */,
@@ -19161,7 +19118,6 @@
 				EF4B70C02B5FBF4E00B18BF4 /* BottomSheetSearchableHeaderView.swift in Sources */,
 				5DBAFD1E27E2471D0008B882 /* CoinModel.swift in Sources */,
 				2D1BB3A22C08AC3A008392F7 /* DummyMarketTokenModelFactory.swift in Sources */,
-				5DDE22EF2608EFDB008657C6 /* UIViewController+.swift in Sources */,
 				EFC84B2C2C37FBB300546882 /* SendFinishStep.swift in Sources */,
 				5D00FCD1261738C5004626DE /* WalletConnectEthTransaction.swift in Sources */,
 				B600F4E02C50F7D8008E53FE /* LineChartViewData.swift in Sources */,
@@ -19334,7 +19290,6 @@
 				B69A48672C47BA2A003497E1 /* OverlayContentStateController.swift in Sources */,
 				DC70C0152B95EE20002205BA /* KeysDeriving.swift in Sources */,
 				B0C8A0D42562C86A00DEEAC7 /* View+PreviewDevice.swift in Sources */,
-				B668D2582A685DD800D9A12A /* BinaryFloatingPoint+.swift in Sources */,
 				EFD143872CC5524000B5BA57 /* CommonStakingBaseDataBuilder.swift in Sources */,
 				DA60DD7D2B34572300AC1B79 /* QRScannerView.swift in Sources */,
 				DC66BBFC285A389000CDF765 /* PopoverModifier.swift in Sources */,
@@ -19446,7 +19401,6 @@
 				2DF1D92A2C2C519C00B1CEE7 /* MarketsChartModel.swift in Sources */,
 				EFC84B0B2C37FAB500546882 /* SendDestinationStepBuilder.swift in Sources */,
 				B612AFD42B2884B80058A13A /* RateAppRequest.swift in Sources */,
-				B66BDAE92C7438310047FD67 /* GrabberViewFactory.swift in Sources */,
 				DC1D4C452C38616500B2A422 /* CommonExpressAnalyticsLogger.swift in Sources */,
 				DA71FCA62A20D08500C8D1F7 /* LearnAndEarnStoryPage.swift in Sources */,
 				B018FE662B0CE55E00D8D31E /* ExpressNotificationEvent.swift in Sources */,
@@ -19608,7 +19562,6 @@
 				EF9C52B3287C77A10015D540 /* CardSettingsRoutable.swift in Sources */,
 				B0A884A12A6A5D6300210321 /* WalletConnectWalletModelProvider.swift in Sources */,
 				EF0F99AD289028F8008B01DF /* AppSettingsView.swift in Sources */,
-				EF09A309297A9B3F00B869A1 /* BottomSheetContainer.swift in Sources */,
 				DA10102D2CDA9DC300EE0D05 /* UnableToLoadDataView.swift in Sources */,
 				B053759126CA3EFA0090FCFC /* CheckmarkSwitch.swift in Sources */,
 				DCDBDA062A27C16C0000EBA2 /* LockedUserWalletModel.swift in Sources */,
@@ -19938,7 +19891,6 @@
 				B66655712C6EC901001E2C68 /* UIView.AnimationCurve+.swift in Sources */,
 				EF9E2A4E2B56A54400418559 /* ExpressModulesFactoryMock.swift in Sources */,
 				EF56B3D22A03AFDB002CCE27 /* DefaultMenuRowView.swift in Sources */,
-				EF033B182B8631C700A71600 /* UIResponder+.swift in Sources */,
 				EF95442D2C3C52A400041FCD /* SendStepsManagerInputOutput.swift in Sources */,
 				EF9156152D3E8CA40037521D /* GeoDefiner.swift in Sources */,
 				B04718FF2B4E7C3B00444734 /* VisaBalancesLimitsBottomSheetView.swift in Sources */,
