@@ -20,4 +20,5 @@ struct DashTestNetworkParams: UTXONetworkParams {
 
     /// https://github.com/dashpay/dash/blob/master/src/policy/policy.h#L36
     let dustRelayTxFee = 1000
+    var publicKeyType: UTXONetworkParamsPublicKeyType = .asIs
 }
