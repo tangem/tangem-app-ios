@@ -7,8 +7,9 @@
 //
 
 import Foundation
-import TangemLocalization
 import Combine
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 class CardOperationViewModel: ObservableObject {
     @Published var error: AlertBinder? = nil

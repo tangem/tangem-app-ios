@@ -122,7 +122,7 @@ extension AptosWalletManager: WalletManager {
                 return walletManager
                     .networkService
                     .submitTransaction(data: rawTransactionData)
-                    .mapSendError(tx: rawTransactionData.hexString.lowercased())
+                    .mapSendError(tx: rawTransactionData.hex())
                     .eraseToAnyPublisher()
             }
             .withWeakCaptureOf(self)
