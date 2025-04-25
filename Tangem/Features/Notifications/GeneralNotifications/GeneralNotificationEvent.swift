@@ -309,7 +309,7 @@ extension GeneralNotificationEvent {
         case .backupErrors: return .mainNoticeBackupErrors
         case .seedSupport: return .mainNoticeSeedSupport
         case .seedSupport2: return .mainNoticeSeedSupport2
-        case .referralProgram: return .mainNoticeReferralProgram
+        case .referralProgram: return .mainReferralProgram
         }
     }
 
