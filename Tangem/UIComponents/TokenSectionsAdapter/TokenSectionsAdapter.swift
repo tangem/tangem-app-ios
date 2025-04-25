@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import CombineExt
+import TangemUI
 
 /// Placed in a separate module because it is used by both 'Main' and 'Organize Tokens' modules
 final class TokenSectionsAdapter {
