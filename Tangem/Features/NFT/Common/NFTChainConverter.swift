@@ -7,13 +7,43 @@
 //
 
 import Foundation
+import TangemSdk
 import TangemNFT
 import BlockchainSdk
 
 // [REDACTED_TODO_COMMENT]
 enum NFTChainConverter {
-    static func convert(_ nftChain: NFTChain) -> Blockchain {
-        fatalError("\(#function) not implemented yet!")
+    static func convert(_ nftChain: NFTChain, version: SupportedBlockchains.Version) -> Blockchain {
+        switch nftChain {
+        case .ethereum(let isTestnet):
+            return .ethereum(testnet: isTestnet)
+        case .polygon(let isTestnet):
+            return .polygon(testnet: isTestnet)
+        case .bsc(let isTestnet):
+            return .bsc(testnet: isTestnet)
+        case .avalanche:
+            return .avalanche(testnet: false)
+        case .fantom:
+            return .fantom(testnet: false)
+        case .cronos:
+            return .cronos
+        case .arbitrum:
+            return .arbitrum(testnet: false)
+        case .gnosis:
+            return .gnosis
+        case .chiliz(let isTestnet):
+            return .chiliz(testnet: isTestnet)
+        case .base(let isTestnet):
+            return .base(testnet: isTestnet)
+        case .optimism:
+            return .optimism(testnet: false)
+        case .moonbeam(let isTestnet):
+            return .moonbeam(testnet: isTestnet)
+        case .moonriver:
+            return .moonriver(testnet: false)
+        case .solana:
+            return .solana(curve: ed25519Curve(for: version), testnet: false)
+        }
     }
 
     static func convert(_ blockchain: Blockchain) -> NFTChain? {
@@ -126,6 +156,15 @@ enum NFTChainConverter {
              .zkLinkNova,
              .pepecoin:
             return nil
+        }
+    }
+
+    private static func ed25519Curve(for version: SupportedBlockchains.Version) -> EllipticCurve {
+        switch version {
+        case .v1:
+            return .ed25519
+        case .v2:
+            return .ed25519_slip0010
         }
     }
 }
