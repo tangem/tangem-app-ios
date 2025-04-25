@@ -7,25 +7,14 @@
 //
 
 import Foundation
-import TangemSdk
-import BitcoinCore
 
 struct DucatusWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        let bitcoinManager = BitcoinManager(
-            networkParams: DucatusNetworkParams(),
-            walletPublicKey: input.wallet.publicKey.blockchainKey,
-            compressedWalletPublicKey: try Secp256k1Key(with: input.wallet.publicKey.blockchainKey).compress(),
-            bip: .bip44
-        )
-
         let unspentOutputManager: UnspentOutputManager = .ducatus(address: input.wallet.defaultAddress)
         let txBuilder = BitcoinTransactionBuilder(
-            bitcoinManager: bitcoinManager,
-            unspentOutputManager: unspentOutputManager,
-            addresses: input.wallet.addresses
+            network: DucatusNetworkParams(),
+            unspentOutputManager: unspentOutputManager
         )
-
         let networkService = BitcoreNetworkProvider(configuration: input.networkInput.tangemProviderConfig)
         return DucatusWalletManager(wallet: input.wallet, txBuilder: txBuilder, unspentOutputManager: unspentOutputManager, networkService: networkService)
     }
