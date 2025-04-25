@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemUI
 
 private struct AccessCodeFeature: Identifiable, Hashable {
     let id = UUID()
