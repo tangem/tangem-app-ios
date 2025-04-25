@@ -73,18 +73,12 @@ private extension CommonReferralNotificationController {
 
             return try await tangemApiService.loadReferralProgramInfo(
                 for: userWalletModel.userWalletId.stringValue,
-                expectedAwardsLimit: Constants.expectedAwardsLimit
+                expectedAwardsLimit: ReferralConstants.expectedAwardsFetchLimit
             )
         }
 
         loadReferralTask = task
 
         return try await task.value
-    }
-}
-
-private extension CommonReferralNotificationController {
-    enum Constants {
-        static let expectedAwardsLimit = 30
     }
 }
