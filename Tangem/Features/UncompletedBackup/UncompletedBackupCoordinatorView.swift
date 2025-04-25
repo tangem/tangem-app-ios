@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 struct UncompletedBackupCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: UncompletedBackupCoordinator
