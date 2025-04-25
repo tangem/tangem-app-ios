@@ -252,13 +252,13 @@ extension NEARWalletManager: WalletManager {
                 let (signature, transactionParams) = input
                 let transaction = transaction.then { $0.params = transactionParams }
 
-                return try walletManager.transactionBuilder.buildForSend(transaction: transaction, signature: signature)
+                return try walletManager.transactionBuilder.buildForSend(transaction: transaction, signature: signature.signature)
             }
             .withWeakCaptureOf(self)
             .flatMap { walletManager, rawTransactionData in
                 return walletManager.networkService
                     .send(transaction: rawTransactionData)
-                    .mapSendError(tx: rawTransactionData.hexString.lowercased())
+                    .mapSendError(tx: rawTransactionData.hex())
             }
             .eraseSendError()
             .handleEvents(
