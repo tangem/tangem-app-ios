@@ -34,6 +34,7 @@ class MainCoordinator: CoordinatorObject {
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator?
     @Published var marketsTokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
     @Published var stakingDetailsCoordinator: StakingDetailsCoordinator?
+    @Published var referralCoordinator: ReferralCoordinator?
 
     // MARK: - Child coordinators (Other)
 
