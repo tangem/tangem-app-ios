@@ -7,9 +7,10 @@
 //
 
 import Foundation
-import TangemLocalization
 import SwiftUI
 import enum BlockchainSdk.AssetRequirementsCondition
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 struct AssetRequirementsAlertBuilder {
     func fulfillAssetRequirementsAlert(
