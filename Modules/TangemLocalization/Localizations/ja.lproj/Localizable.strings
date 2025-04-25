@@ -632,6 +632,9 @@
 "referral_less" = "少ない";
 "referral_more" = "多い";
 "referral_no_expected_awards" = "お支払いの予定はありません";
+"referral_notification_button" = "Join Now";
+"referral_notification_text" = "Share your code - earn %1$@ USDT per sale. Your friend gets %2$@ OFF.";
+"referral_notification_title" = "Get REWARDS for every friend!";
 "referral_point_currencies_description" = "あなたの%2$@ネットワークアドレス%3$@で友達が購入したウォレットごとに、^^30日後 ^^^^ %1$@ ^^ をゲットできます ";
 "referral_point_currencies_title" = "あなた";
 "referral_point_discount_description_prefix" = "以下を取得します。";
