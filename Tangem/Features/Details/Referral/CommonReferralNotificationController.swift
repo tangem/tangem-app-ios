@@ -42,7 +42,7 @@ extension CommonReferralNotificationController: ReferralNotificationController {
         TangemFoundation.runTask(in: self) { controller in
             do {
                 let programInfo = try await controller.loadReferralProgram()
-                controller.showReferralNotificationSubject.send(false) // [REDACTED_TODO_COMMENT]
+                controller.showReferralNotificationSubject.send(true) // [REDACTED_TODO_COMMENT]
             } catch {
                 controller.showReferralNotificationSubject.send(true)
             }
@@ -50,6 +50,7 @@ extension CommonReferralNotificationController: ReferralNotificationController {
     }
 
     func dismissReferralNotification() {
+        Analytics.log(.mainReferralProgramButtonDismiss)
         AppSettings.shared.showReferralProgramOnMain = false
     }
 }
