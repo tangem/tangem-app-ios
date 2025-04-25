@@ -9,8 +9,10 @@
 import Foundation
 import SwiftUI
 
-struct NavHolder: View {
-    var body: some View {
+public struct NavHolder: View {
+    public init() {}
+
+    public var body: some View {
         Color.clear
     }
 }
