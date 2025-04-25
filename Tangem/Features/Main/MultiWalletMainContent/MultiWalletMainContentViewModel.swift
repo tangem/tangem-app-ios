@@ -377,6 +377,8 @@ extension MultiWalletMainContentViewModel {
     }
 
     private func openReferralProgram() {
+        Analytics.log(.mainReferralProgramButtonParticipate)
+
         let input = ReferralInputModel(
             userWalletId: userWalletModel.userWalletId.value,
             supportedBlockchains: userWalletModel.config.supportedBlockchains,
