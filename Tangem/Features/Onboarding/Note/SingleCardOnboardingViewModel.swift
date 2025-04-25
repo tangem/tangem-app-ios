@@ -12,6 +12,7 @@ import SwiftUI
 import TangemSdk
 import Combine
 import BlockchainSdk
+import TangemUI
 
 class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardingStep, OnboardingCoordinator>, ObservableObject {
     @Published var isCardScanned: Bool = true

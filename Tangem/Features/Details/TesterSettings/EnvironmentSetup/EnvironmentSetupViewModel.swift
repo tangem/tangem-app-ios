@@ -10,6 +10,8 @@ import Combine
 import SwiftUI
 import TangemExpress
 import FirebaseMessaging
+import TangemVisa
+import struct TangemUIUtils.AlertBinder
 
 final class EnvironmentSetupViewModel: ObservableObject {
     @Injected(\.promotionService) var promotionService: PromotionServiceProtocol
@@ -114,6 +116,16 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     set: { $0.apiExpress = $1 }
                 )
             ),
+            DefaultPickerRowViewModel(
+                title: "Visa API type",
+                options: VisaAPIType.allCases.map { $0.rawValue },
+                selection: BindingValue<String>(
+                    root: featureStorage,
+                    default: VisaAPIType.prod.rawValue,
+                    get: { $0.visaAPIType.rawValue },
+                    set: { $0.visaAPIType = VisaAPIType(rawValue: $1) ?? .prod }
+                )
+            ),
         ]
 
         featureStateViewModels = Feature.allCases.reversed().map { feature in
@@ -142,6 +154,9 @@ final class EnvironmentSetupViewModel: ObservableObject {
             }),
             DefaultRowViewModel(title: "Staking Blockchains", action: { [weak self] in
                 self?.coordinator?.openStakingBlockchainsPreferences()
+            }),
+            DefaultRowViewModel(title: "NFT-enabled Blockchains", action: { [weak self] in
+                self?.coordinator?.openNFTBlockchainsPreferences()
             }),
         ]
 
