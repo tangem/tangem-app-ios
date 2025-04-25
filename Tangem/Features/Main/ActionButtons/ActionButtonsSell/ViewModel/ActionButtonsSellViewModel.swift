@@ -8,6 +8,7 @@
 
 import Combine
 import Foundation
+import struct TangemUIUtils.AlertBinder
 
 final class ActionButtonsSellViewModel: ObservableObject {
     // MARK: - Dependencies
