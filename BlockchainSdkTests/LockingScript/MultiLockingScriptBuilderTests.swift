@@ -34,9 +34,9 @@ class MultiLockingScriptBuilderTests {
         #expect(p2tr.data == Data(hexString: "5120339ce7e165e67d93adb3fef88a6d4beed33f01fa876f05a225242b82a631abc0"))
 
         #expect(p2pkh.type == .p2pkh)
-        #expect(p2sh.type == .p2sh(redeemScript: nil))
+        #expect(p2sh.type == .p2sh)
         #expect(p2wpkh.type == .p2wpkh)
-        #expect(p2wsh.type == .p2wsh(redeemScript: nil))
+        #expect(p2wsh.type == .p2wsh)
         #expect(p2tr.type == .p2tr)
     }
 
@@ -59,8 +59,8 @@ class MultiLockingScriptBuilderTests {
         #expect(p2wsh.data == Data(hexString: "002022d2ad0ddf9387f702691858097ade0c5066a1603211bfe6ab16246648f1752f"))
 
         #expect(p2pkh.type == .p2pkh)
-        #expect(p2sh.type == .p2sh(redeemScript: nil))
+        #expect(p2sh.type == .p2sh)
         #expect(p2wpkh.type == .p2wpkh)
-        #expect(p2wsh.type == .p2wsh(redeemScript: nil))
+        #expect(p2wsh.type == .p2wsh)
     }
 }

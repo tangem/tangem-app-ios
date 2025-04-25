@@ -15,4 +15,5 @@ struct LitecoinNetworkParams: UTXONetworkParams {
     let coinType: UInt32 = 2
     let signHashType: UTXONetworkParamsSignHashType = .bitcoinAll
     let dustRelayTxFee = 3000 //  https://github.com/bitcoin/bitcoin/blob/master/src/policy/policy.h#L52
+    let publicKeyType: UTXONetworkParamsPublicKeyType = .compressed
 }
