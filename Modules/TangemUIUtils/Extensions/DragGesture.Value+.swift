@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-extension DragGesture.Value {
+public extension DragGesture.Value {
     /// - Warning: Simple and naive, may not cover all edge cases (e.g. when `xDiff` == `yDiff`).
     var isMovingInHorizontalDirection: Bool {
         let xDiff = abs(startLocation.x - location.x)
