@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension BinaryFloatingPoint {
+public extension BinaryFloatingPoint {
     /// An Apple-like rubberbanding transformation for an arbitrary value of binary floating-point type.
     /// Rubberbanding effect occurs when a view (for example, a scroll view) resists further movement.
     ///
