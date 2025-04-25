@@ -19,6 +19,8 @@
 "add_custom_token_title" = "Додати токен";
 "add_tokens_title" = "Токени";
 "address_qr_code_message_format" = "Надсилайте тільки %1$@ (%2$@) в мережі %3$@ на цю адресу. Використання іншої мережі може призвести до втрати коштів.";
+"address_type_default" = "За замовчуванням";
+"address_type_legacy" = "Застарілий";
 "alert_app_feedback_sent_message" = "Дякуємо за ваш відгук";
 "alert_app_feedback_sent_title" = "Надіслано успішно";
 "alert_button_how_to_scan" = "Як сканувати";
@@ -97,6 +99,7 @@
 "common_back" = "Назад";
 "common_balance_title" = "Баланс";
 "common_balance" = "Баланс: %@";
+"common_build_tx_error" = "Не вдалося створити транзакцію";
 "common_buy_currency" = "Перейдіть до %1$@";
 "common_buy" = "Купити";
 "common_camera_alert_button_settings" = "Налаштування";
@@ -127,6 +130,7 @@
 "common_explore_transaction_history" = "Переглянути історію транзакцій";
 "common_explore" = "Оглядач";
 "common_explorer" = "Оглядач";
+"common_fee_error" = "Не вдалося отримати комісію";
 "common_fee_selector_footer" = "Мережеві комісії – це збори, які користувачі сплачують за обробку та підтвердження транзакцій. На розмір комісії може впливати перевантаження мережі, розмір транзакції та пріоритет виконання. %@";
 "common_fee_selector_option_fast" = "Швидко";
 "common_fee_selector_option_market" = "За ринком";
@@ -177,6 +181,7 @@
 "common_seed_phrase" = "Seed-фраза";
 "common_select_action" = "Оберіть дію";
 "common_sell" = "Продати";
+"common_send_tx_error" = "Не вдалося надіслати транзакцію";
 "common_send" = "Надіслати";
 "common_server_unavailable" = "Сервер недоступний, спробуйте пізніше";
 "common_share_link" = "Поділитися посиланням";
@@ -202,6 +207,7 @@
 "common_unknown_error" = "Виникла помилка. Будь ласка, спробуйте ще раз.";
 "common_unreachable" = "Недоступно";
 "common_unstake" = "Скасувати стейкінг";
+"common_utxo_validate_withdrawal_message_warning" = "Через обмеження %1$@ в одну транзакцію може поміститися тільки %2$li UTXO. Це означає, що ви можете відправити тільки %3$@ або менше. Вам потрібно зменшити суму.";
 "common_warning" = "Увага";
 "common_week" = "тиждень";
 "common_with" = "з";
@@ -261,6 +267,7 @@
 "details_title" = "Деталі";
 "disclaimer_title" = "Умови використання";
 "error_wrong_wallet_tapped" = "Ви використали картку або кільце від іншого гаманця. Прикладіть картку або кільце, пов'язану з цим гаманцем.";
+"eth_gas_required_exceeds_allowance" = "Недостатньо коштів для здійснення транзакції. Будь ласка, поповніть свій акаунт.";
 "exchange_tokens_available_tokens_header" = "Мої токени";
 "exchange_tokens_empty_tokens" = "У вас немає доданих токенів. Додайте токени для обміну";
 "exchange_tokens_unavailable_tokens_header" = "Недоступний для обміну з %@";
@@ -269,7 +276,6 @@
 "express_cex_status_button_title" = "Статус";
 "express_choose_providers_subtitle" = "Tangem пропонує обмін токенів через сторонніх провайдерів відповідно до умов кожного провайдера";
 "express_choose_providers_title" = "Провайдер";
-"express_error_code" = "Виникла помилка. Код: %@";
 "express_error_provider_amount_roundup" = "Помилка %1$@. Обраний провайдер не може обробити зазначену транзакцію. Округліть значення до %2$@ або змініть його.";
 "express_error_swap_pair_unavailable" = "Наразі обраний провайдер недоступний для обміну. Спробуй пізніше. (Код: %@)";
 "express_error_swap_unavailable" = "Наразі обмін неможливий. Спробуй пізніше. (Код: %@)";
@@ -340,6 +346,9 @@
 "feedback_subject_tx_failed" = "Не вдається відправити транзакцію";
 "feedback_subject_tx_push_failed" = "Не можу проштовхнути транзакцію";
 "feedback_token_description_error" = "Помилка в описі монети";
+"generic_error_code" = "Виникла помилка. Код: %@.";
+"generic_error" = "Виникла помилка";
+"generic_requires_memo_error" = "Вимагається memo";
 "give_permission_current_transaction" = "Транзакція";
 "give_permission_policy_type_footer" = "Вкажіть ліміт доступу для обраного токена";
 "give_permission_rows_amount" = "Кількість %@";
@@ -363,7 +372,7 @@
 "key_invalidated_warning_description" = "Ви оновили дані біометрії, відскануйте свою картку або кільце для входу";
 "koinos_insufficient_balance_to_send_koin_description" = "Ваш баланс повинен перевищувати суму комісії для здійснення переказу";
 "koinos_insufficient_balance_to_send_koin_title" = "Недостатньо балансу";
-"koinos_insufficient_mana_to_send_koin_description" = "У вас недостатньо Mana для цієї транзакції. Будь ласка, зачекайте, поки Mana буде поповнена. Ваш баланс Mana становить %1$@/%2$@";
+"koinos_insufficient_mana_to_send_koin_description" = "У вас недостатньо Мани для цієї транзакції. Будь ласка, зачекайте, поки Мана поповниться. Ваш баланс мани дорівнює %1$@/%2$@";
 "koinos_insufficient_mana_to_send_koin_title" = "Недостатньо Mana";
 "koinos_mana_exceeds_koin_balance_description" = "Ви можете переказати тільки %@ через обмеження Mana, встановлене мережею Koinos";
 "koinos_mana_exceeds_koin_balance_title" = "Ліміт Mana";
@@ -507,7 +516,6 @@
 "nft_no_collection" = "No collection";
 "nft_receive_available_section_title" = "Available";
 "nft_receive_choose_network" = "Choose network";
-"nft_receive_subtitle" = "To My wallet";
 "nft_receive_title" = "Receive NFT";
 "nft_receive_unavailable_asset_warning_message" = "You haven't added this network yet. To start receiving NFTs, add it to the main screen!";
 "nft_receive_unavailable_asset_warning_title" = "Network not added";
@@ -518,6 +526,10 @@
 "nft_wallet_receive_nft" = "Tap here to receive first NFT";
 "nft_wallet_title" = "NFT collections";
 "nft_wallet_unable_to_load" = "Unable to load the data";
+"no_account_generic" = "Щоб користуватися мережею %1$@, ви маєте оплатити резерв акаунта (%2$@ %3$@), який блокується і не використовується у вашому балансі";
+"no_account_polkadot" = "Обліковий запис одержувача не активовано. Надішліть %@ або більше, щоб активувати обліковий запис.";
+"no_account_send_to_create" = "Для створення акаунту надішліть кошти на цю адресу";
+"no_trustline_xlm_asset" = "Акаунт одержувача не містить трастлайну для активу, що надсилається.";
 "onboarding_access_code_feature_1_description" = "Налаштуйте єдиний код доступу для захисту всіх ваших карток або кілець";
 "onboarding_access_code_feature_1_title" = "Захист";
 "onboarding_access_code_feature_2_description" = "Встановіть індивідуальний код доступу для кожної картки або кільця пізніше.";
@@ -714,6 +726,9 @@
 "send_dismiss_message" = "Ви дійсно хочете закрити екран надсилання транзакції?";
 "send_enter_address_field" = "Введіть адресу";
 "send_error_address_same_as_wallet" = "Адреса збігається з адресою гаманця";
+"send_error_dust_change" = "Решта занадто мала";
+"send_error_no_target_account" = "Обліковий запис одержувача не створено. Сума для переказу повинна бути %@ + комісія або більше";
+"send_error_unknown" = "Невідома помилка";
 "send_extras_hint_memo" = "Memo";
 "send_fee_unreachable_error_text" = "Перевірте підключення до мережі";
 "send_fee_unreachable_error_title" = "Інформація щодо комісії в мережі недоступна";
@@ -844,10 +859,11 @@
 "staking_notification_restake_text" = "Рестейк дозволяє вам перемістити ваші кошти від одного валідатора до іншого без необхідності виводити кошти зі стейкінгу";
 "staking_notification_stake_entire_balance_text" = "Ви збираєтеся застейкати весь свій баланс. Ми рекомендуємо залишити невелику суму, щоб покрити комісію мережі за зняття коштів або отримання винагороди.";
 "staking_notification_ton_activate_account" = "Щоб почати стейкінг в TON, спочатку здійсніть вихідну транзакцію на будь-яку суму — це активує ваш гаманець.";
-"staking_notification_ton_extra_reserve_is_required" = "0.2 TON is required to proceed with this operation, in addition to the network fee. Please top up your balance.";
 "staking_notification_ton_extra_reserve_info" = "In addition to the network fee, up to 0.2 TON is needed to complete all steps of the transaction. Unused amount will be returned after it's finished.";
+"staking_notification_ton_extra_reserve_is_required" = "0.2 TON is required to proceed with this operation, in addition to the network fee. Please top up your balance.";
 "staking_notification_ton_extra_reserve_title" = "0.2 Ton Reserved";
 "staking_notification_ton_have_to_unstake_all_text" = "This action will close other positions or switch them to withdrawal status, according to network rules.";
+"staking_notification_ton_have_to_unstake_all_title" = "Positions status";
 "staking_notification_unlock_text" = "Розблокуйте свої кошти, щоб вивести їх зі стейкінгу. Розблокування займе %@.";
 "staking_notification_unstake_cosmos_text" = "Ваші кошти будуть доступні для використання після закінчення 21-денного періоду розблокування. Винагорода буде отримана разом з вашими незастейканими коштами.";
 "staking_notification_unstake_text" = "Ваші кошти будуть доступні після %@ періоду розблокування.";
@@ -1262,3 +1278,6 @@
 "welcome_unlock_description" = "Використовуйте %@ або відскануйте картку або кільце для входу у додаток";
 "welcome_unlock_title" = "З поверненням!";
 "welcome_unlock" = "Увійдіть за допомогою %@";
+"xtz_withdrawal_message_ignore" = "Ні, відправити все";
+"xtz_withdrawal_message_reduce" = "Зменшити на %@ XTZ";
+"xtz_withdrawal_message_warning" = "Щоб не платити підвищену комісію при наступному поповненні гаманця, зменште суму на %@ XTZ";
