@@ -632,6 +632,9 @@
 "referral_less" = "Менше";
 "referral_more" = "Більше";
 "referral_no_expected_awards" = "Немає майбутніх виплат";
+"referral_notification_button" = "Join Now";
+"referral_notification_text" = "Share your code - earn %1$@ USDT per sale. Your friend gets %2$@ OFF.";
+"referral_notification_title" = "Get REWARDS for every friend!";
 "referral_point_currencies_description" = "Отримаєте ^^%1$@^^ на вашу адресу в мережі %2$@ %3$@ ^^через 30 днів^^ за кожен гаманець, який придбає ваш друг";
 "referral_point_currencies_title" = "Ви";
 "referral_point_discount_description_prefix" = "Отримає";
