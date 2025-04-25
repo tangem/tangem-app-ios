@@ -30,7 +30,7 @@ enum GeneralNotificationEvent: Equatable, Hashable {
     case backupErrors
     case seedSupport
     case seedSupport2
-    case referralProgram
+    case referralProgram(amountPerSale: Int, percentOff: String)
 }
 
 /// For Notifications
@@ -80,7 +80,7 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .seedSupport2:
             return .string(Localization.warningSeedphraseActionRequiredTitle)
         case .referralProgram:
-            return .string("Referral program")
+            return .string(Localization.referralNotificationTitle)
         }
     }
 
@@ -125,8 +125,8 @@ extension GeneralNotificationEvent: NotificationEvent {
             return Localization.warningSeedphraseIssueMessage
         case .seedSupport2:
             return Localization.warningSeedphraseContactedSupport
-        case .referralProgram:
-            return "Long text about benefits of the referral program"
+        case .referralProgram(let amountPerSale, let percentOff):
+            return Localization.referralNotificationText(amountPerSale, percentOff)
         }
     }
 
@@ -157,12 +157,14 @@ extension GeneralNotificationEvent: NotificationEvent {
              .missingBackup,
              .supportedOnlySingleCurrencyWallet:
             return .init(iconType: .image(Assets.attention.image))
-        case .demoCard, .legacyDerivation, .systemDeprecationTemporary, .missingDerivation, .referralProgram:
+        case .demoCard, .legacyDerivation, .systemDeprecationTemporary, .missingDerivation:
             return .init(iconType: .image(Assets.blueCircleWarning.image))
         case .rateApp:
             return .init(iconType: .image(Assets.star.image))
         case .walletLocked:
             return .init(iconType: .image(Assets.lock.image), color: Colors.Icon.primary1)
+        case .referralProgram:
+            return .init(iconType: .image(Assets.dollar.image), size: CGSize(width: 54, height: 54))
         }
     }
 
@@ -271,10 +273,12 @@ extension GeneralNotificationEvent: NotificationEvent {
                 .init(action: buttonAction, actionType: .support, isWithLoader: false),
             ])
         case .referralProgram:
-            guard let tapAction else {
+            guard let buttonAction else {
                 break
             }
-            return .tappable(action: tapAction)
+            return .withButtons([
+                .init(action: buttonAction, actionType: .openReferralProgram, isWithLoader: false),
+            ])
         default: break
         }
         return .plain
@@ -305,7 +309,7 @@ extension GeneralNotificationEvent {
         case .backupErrors: return .mainNoticeBackupErrors
         case .seedSupport: return .mainNoticeSeedSupport
         case .seedSupport2: return .mainNoticeSeedSupport2
-        case .referralProgram: return .mainNoticeSeedSupport2 // [REDACTED_TODO_COMMENT]
+        case .referralProgram: return .mainNoticeReferralProgram
         }
     }
 
