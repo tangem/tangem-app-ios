@@ -9,10 +9,9 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
-import TangemUI
-import TangemUIUtils
+import TangemFoundation
 
-struct BottomSheetContainer<ContentView: View>: View {
+public struct BottomSheetContainer<ContentView: View>: View {
     @ObservedObject private var stateObject: StateObject
     private let settings: Settings
     private let content: () -> ContentView
@@ -46,7 +45,7 @@ struct BottomSheetContainer<ContentView: View>: View {
         .easeOut(duration: settings.animationDuration)
     }
 
-    init(
+    public init(
         stateObject: StateObject,
         settings: Settings,
         content: @escaping () -> ContentView
@@ -56,7 +55,7 @@ struct BottomSheetContainer<ContentView: View>: View {
         self.content = content
     }
 
-    var body: some View {
+    public var body: some View {
         ZStack(alignment: .bottom) {
             Color.black.opacity(opacity)
                 .edgesIgnoringSafeArea(.all)
@@ -210,7 +209,7 @@ struct BottomSheetContainer<ContentView: View>: View {
 
 // MARK: - Settings
 
-extension BottomSheetContainer {
+public extension BottomSheetContainer {
     struct Settings {
         let cornerRadius: CGFloat
         let backgroundColor: Color
@@ -222,12 +221,12 @@ extension BottomSheetContainer {
         /// contains a horizontal scroll. Disabled by default.
         let contentScrollsHorizontally: Bool
 
-        enum HidingOption {
+        public enum HidingOption {
             case distance(CGFloat = UIScreen.main.bounds.height * 0.1)
             case nonHideable
         }
 
-        init(
+        public init(
             cornerRadius: CGFloat = 24,
             backgroundColor: Color,
             backgroundOpacity: CGFloat = 0.4,
@@ -249,11 +248,13 @@ extension BottomSheetContainer {
 
 // MARK: - StateObject
 
-extension BottomSheetContainer {
+public extension BottomSheetContainer {
     class StateObject: ObservableObject {
         @Published var contentHeight: CGFloat = UIScreen.main.bounds.height / 2
         @Published var isDragging: Bool = false
         @Published var offset: CGFloat = UIScreen.main.bounds.height
+
+        public init() {}
 
         public var dragPercentage: CGFloat {
             let visibleHeight = contentHeight - offset
@@ -347,9 +348,19 @@ struct BottomSheetContainer_Previews: PreviewProvider {
                 }
 
                 VStack {
-                    MainButton(title: Localization.commonCancel, style: .primary, action: viewModel.close)
+                    Button(action: viewModel.close) {
+                        Text(Localization.commonCancel)
+                            .frame(maxWidth: .infinity)
+                            .background(Color.red)
+                            .padding(.horizontal, 16)
+                    }
 
-                    MainButton(title: Localization.commonClose, style: .secondary, action: viewModel.close)
+                    Button(action: viewModel.close) {
+                        Text(Localization.commonClose)
+                            .frame(maxWidth: .infinity)
+                            .background(Color.red)
+                            .padding(.horizontal, 16)
+                    }
                 }
             }
             .padding(.horizontal)
