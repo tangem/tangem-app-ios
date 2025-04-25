@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-extension View {
+public extension View {
     /// - Parameters:
     ///   - item: It'ill be used for create the content
     ///   - settings: You can setup the sheet's appearance

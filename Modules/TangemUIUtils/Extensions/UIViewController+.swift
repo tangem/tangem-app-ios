@@ -9,18 +9,12 @@
 import Foundation
 import UIKit
 
-extension UIViewController {
+public extension UIViewController {
     @objc var topViewController: UIViewController? { return presentedViewController?.topViewController ?? self }
 }
 
-extension UITabBarController {
+public extension UITabBarController {
     override var topViewController: UIViewController? {
         return selectedViewController?.topViewController
-    }
-}
-
-extension UIWindow {
-    var topViewController: UIViewController? {
-        return rootViewController?.topViewController
     }
 }
