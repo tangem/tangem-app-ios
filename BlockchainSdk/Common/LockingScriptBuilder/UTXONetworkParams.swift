@@ -11,10 +11,9 @@ protocol UTXONetworkParams {
     var p2shPrefix: UInt8 { get }
     var bech32Prefix: String { get }
     var dustRelayTxFee: Int { get }
-
-    // Used for forks
     var coinType: UInt32 { get }
     var signHashType: UTXONetworkParamsSignHashType { get }
+    var publicKeyType: UTXONetworkParamsPublicKeyType { get }
 }
 
 enum UTXONetworkParamsSignHashType: Hashable {
@@ -27,4 +26,10 @@ enum UTXONetworkParamsSignHashType: Hashable {
         case .bitcoinCashAll: 0x41
         }
     }
+}
+
+/// Have to be equal to `PublicKey` type which used for a address created
+enum UTXONetworkParamsPublicKeyType: Hashable {
+    case compressed
+    case asIs
 }
