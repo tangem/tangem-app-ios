@@ -632,6 +632,9 @@
 "referral_less" = "Weniger";
 "referral_more" = "Mehr";
 "referral_no_expected_awards" = "Keine anstehenden Zahlungen";
+"referral_notification_button" = "Join Now";
+"referral_notification_text" = "Share your code - earn %1$@ USDT per sale. Your friend gets %2$@ OFF.";
+"referral_notification_title" = "Get REWARDS for every friend!";
 "referral_point_currencies_description" = "Du bekommst ^^%1$@^^ für jede von einem Freund gekaufte Wallet auf deine %2$@ Netzwerkadresse %3$@ ^^30 Tage nach^^ dem";
 "referral_point_currencies_title" = "Du";
 "referral_point_discount_description_prefix" = "Bekommt eine";
