@@ -145,7 +145,7 @@ extension AlgorandWalletManager {
                 let dataForSend = try walletManager.transactionBuilder.buildForSend(
                     transaction: transaction,
                     with: buildParams,
-                    signature: signature
+                    signature: signature.signature
                 )
 
                 return dataForSend
@@ -154,7 +154,7 @@ extension AlgorandWalletManager {
             .flatMap { walletManager, transactionData -> AnyPublisher<String, Error> in
                 return walletManager.networkService
                     .sendTransaction(data: transactionData)
-                    .mapSendError(tx: transactionData.hexString.lowercased())
+                    .mapSendError(tx: transactionData.hex())
                     .eraseToAnyPublisher()
             }
             .withWeakCaptureOf(self)
