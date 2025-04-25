@@ -632,6 +632,9 @@
 "referral_less" = "Moins";
 "referral_more" = "Plus";
 "referral_no_expected_awards" = "Aucun paiement à venir";
+"referral_notification_button" = "Join Now";
+"referral_notification_text" = "Share your code - earn %1$@ USDT per sale. Your friend gets %2$@ OFF.";
+"referral_notification_title" = "Get REWARDS for every friend!";
 "referral_point_currencies_description" = "Obtiendrez ^^%1$@^^ pour chaque portefeuille acheté par votre ami sur votre adresse de réseau %2$@ %3$@ ^^30 jours après^^";
 "referral_point_currencies_title" = "Vous";
 "referral_point_discount_description_prefix" = "Obtiendra";
