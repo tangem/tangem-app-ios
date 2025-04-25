@@ -67,7 +67,7 @@ struct TronTarget: TargetType {
         case .getNowBlock:
             return .requestPlain
         case .broadcastHex(let data):
-            let request = TronBroadcastRequest(transaction: data.hexString.lowercased())
+            let request = TronBroadcastRequest(transaction: data.hex())
             return .requestJSONEncodable(request)
         case .tokenBalance(let address, let contractAddress, let parameter):
             let request = TronTriggerSmartContractRequest(
