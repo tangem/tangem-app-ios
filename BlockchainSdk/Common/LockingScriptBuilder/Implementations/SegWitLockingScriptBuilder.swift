@@ -28,8 +28,7 @@ struct SegWitLockingScriptBuilder {
 
         let type: UTXOScriptType = switch (version, keyHash.count) {
         case (Constants.version, 20): .p2wpkh
-        // We don't have redeemScript from address. Only from PublicKey
-        case (Constants.version, 32): .p2wsh(redeemScript: nil)
+        case (Constants.version, 32): .p2wsh
         default: throw LockingScriptBuilderError.wrongAddress
         }
 
@@ -39,16 +38,20 @@ struct SegWitLockingScriptBuilder {
         default: throw LockingScriptBuilderError.unsupportedScriptType
         }
 
-        return (version: version, script: .init(keyHash: keyHash, data: lockingScript, type: type))
+        return (version: version, script: .init(data: lockingScript, type: type, spendable: .none))
     }
 
     func encode(publicKey: Data, type: UTXOScriptType) throws -> (address: String, script: UTXOLockingScript) {
         let keyHash = publicKey.sha256Ripemd160
-        let (address, script) = try encode(keyHash: keyHash, type: type)
-        return (address, script)
+        return try encode(spendable: .publicKey(publicKey), keyHash: keyHash, type: type)
     }
 
-    func encode(keyHash: Data, type: UTXOScriptType) throws -> (address: String, script: UTXOLockingScript) {
+    func encode(redeemScript: Data, type: UTXOScriptType) throws -> (address: String, script: UTXOLockingScript) {
+        let scriptHash = redeemScript.sha256()
+        return try encode(spendable: .redeemScript(redeemScript), keyHash: scriptHash, type: type)
+    }
+
+    private func encode(spendable: UTXOLockingScript.SpendableType, keyHash: Data, type: UTXOScriptType) throws -> (address: String, script: UTXOLockingScript) {
         let lockingScript = switch type {
         case .p2wpkh:
             OpCodeUtils.p2wpkh(version: Constants.version, data: keyHash)
@@ -61,7 +64,7 @@ struct SegWitLockingScriptBuilder {
         let encoder = SegWitBech32(bech32: .init(variant: .bech32))
         let bech32StringValue = try encoder.encode(hrp: bech32Prefix, version: Constants.version, program: keyHash)
 
-        let script = UTXOLockingScript(keyHash: keyHash, data: lockingScript, type: type)
+        let script = UTXOLockingScript(data: lockingScript, type: type, spendable: spendable)
         return (address: bech32StringValue, script: script)
     }
 }

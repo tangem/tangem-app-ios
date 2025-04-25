@@ -32,4 +32,6 @@ struct RavencoinMainNetworkParams: UTXONetworkParams {
     /// https://github.com/dashpay/dash/blob/master/src/policy/policy.h#L44
     /// static const unsigned int DUST_RELAY_TX_FEE = 3000;
     let dustRelayTxFee = 3000
+
+    let publicKeyType: UTXONetworkParamsPublicKeyType = .asIs
 }
