@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import CombineExt
 import TangemFoundation
+import TangemLocalization
 
 final class KaspaWalletManager: BaseManager, WalletManager {
     private typealias IncompleteTokenTransactionsInMemoryStorage = ThreadSafeContainer<
