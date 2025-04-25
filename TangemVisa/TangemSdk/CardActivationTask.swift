@@ -24,6 +24,15 @@ protocol CardActivationTaskOrderProvider: AnyObject {
     func getActivationOrder(completion: @escaping (Result<VisaCardAcceptanceOrderInfo, Error>) -> Void)
 }
 
+/// Task for second tap during activation process. During this task app must:
+///  - 1 (optional). Sign loaded authorization challenge, resulting signature will be used to load authorization tokens.
+///             This step is skipped for cases when authorization tokens already acquired during first scan
+///  - 2. Create Wallet on secp256k1 curve
+///  - 3. Create OTP
+///  - 4. Sign acceptance message with created wallet
+///  During 2 and 3 steps executes request to BFF for loading acceptance message
+///  Each step of interaction with card can be skipped if card already executed it.
+///  OTP must be stored locally, so if user start activation process from the begining OTP must be generated again
 final class CardActivationTask: CardSessionRunnable {
     typealias CompletionHandler = CompletionResult<CardActivationResponse>
 
