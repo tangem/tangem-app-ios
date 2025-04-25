@@ -21,8 +21,7 @@ class BitcoinBech32AddressService {
 
 extension BitcoinBech32AddressService: BitcoinScriptAddressProvider {
     func makeScriptAddress(redeemScript: Data) throws -> (address: String, script: UTXOLockingScript) {
-        let scriptHash = redeemScript.sha256()
-        let (address, script) = try segWitBuilder.encode(keyHash: scriptHash, type: .p2wsh(redeemScript: redeemScript))
+        let (address, script) = try segWitBuilder.encode(redeemScript: redeemScript, type: .p2wsh)
         return (address, script)
     }
 }
