@@ -78,6 +78,9 @@ struct MainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.referralCoordinator) {
                 ReferralCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.referralCoordinator) {
+                ReferralCoordinatorView(coordinator: $0)
+            }
     }
 
     @ViewBuilder
