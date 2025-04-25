@@ -19,6 +19,8 @@
 "add_custom_token_title" = "Add custom token";
 "add_tokens_title" = "Manage tokens";
 "address_qr_code_message_format" = "Send only %1$@ (%2$@) from %3$@ network to this address. Using other tokens and networks may result in loss of funds.";
+"address_type_default" = "Default";
+"address_type_legacy" = "Legacy";
 "alert_app_feedback_sent_message" = "Thank you for your feedback";
 "alert_app_feedback_sent_title" = "Sent successfully";
 "alert_button_how_to_scan" = "How to scan";
@@ -97,6 +99,7 @@
 "common_back" = "Back";
 "common_balance_title" = "Balance";
 "common_balance" = "Balance: %@";
+"common_build_tx_error" = "Failed to build transaction";
 "common_buy_currency" = "Go to %1$@";
 "common_buy" = "Buy";
 "common_camera_alert_button_settings" = "Settings";
@@ -127,6 +130,7 @@
 "common_explore_transaction_history" = "Explore transaction history";
 "common_explore" = "Explore";
 "common_explorer" = "Explorer";
+"common_fee_error" = "Failed to get fee";
 "common_fee_selector_footer" = "Network fees are charges users pay to process and confirm transactions. The fee amount can be affected by network congestion, transaction size, and execution priority. %@";
 "common_fee_selector_option_fast" = "Fast";
 "common_fee_selector_option_market" = "Market";
@@ -177,6 +181,7 @@
 "common_seed_phrase" = "Seed phrase";
 "common_select_action" = "Select action";
 "common_sell" = "Sell";
+"common_send_tx_error" = "Failed to send transaction";
 "common_send" = "Send";
 "common_server_unavailable" = "The server is not available, please try again later";
 "common_share_link" = "Share Link";
@@ -202,6 +207,7 @@
 "common_unknown_error" = "There was an error. Please try again.";
 "common_unreachable" = "Unreachable";
 "common_unstake" = "Unstake";
+"common_utxo_validate_withdrawal_message_warning" = "Due to %1$@ limitations only %2$li UTXOs can fit in a single transaction. This means you can only send %3$@ or less. You need to reduce the amount.";
 "common_warning" = "Warning";
 "common_week" = "week";
 "common_with" = "with";
@@ -261,6 +267,7 @@
 "details_title" = "Details";
 "disclaimer_title" = "Terms of service";
 "error_wrong_wallet_tapped" = "You have used a card or ring from another wallet. Tap the card or ring associated with this wallet";
+"eth_gas_required_exceeds_allowance" = "Not enough funds for the transaction. Please top up your account.";
 "exchange_tokens_available_tokens_header" = "My tokens";
 "exchange_tokens_empty_tokens" = "You haven't added any tokens yet. Add tokens via Market to swap";
 "exchange_tokens_unavailable_tokens_header" = "Cannot be swapped for %@";
@@ -269,7 +276,6 @@
 "express_cex_status_button_title" = "Status";
 "express_choose_providers_subtitle" = "Tangem offers token swaps via 3rd-party providers according to each provider's terms";
 "express_choose_providers_title" = "Provider";
-"express_error_code" = "An error occurred. Code: %@";
 "express_error_provider_amount_roundup" = "Error %1$@. The selected provider cannot process the specified transaction. Please round the value up to %2$@ or change it";
 "express_error_swap_pair_unavailable" = "Selected provider is unavailable at the moment. Please try again later. (Code: %@)";
 "express_error_swap_unavailable" = "Swaps are unavailable at the moment. Please try again later. (Code: %@)";
@@ -340,6 +346,9 @@
 "feedback_subject_tx_failed" = "Can't send a transaction";
 "feedback_subject_tx_push_failed" = "Can't push a transaction";
 "feedback_token_description_error" = "Coin description error";
+"generic_error_code" = "An error occurred. Code: %@.";
+"generic_error" = "An error occurred";
+"generic_requires_memo_error" = "Requires memo";
 "give_permission_current_transaction" = "Transaction";
 "give_permission_policy_type_footer" = "Specify the approve limit for the selected token";
 "give_permission_rows_amount" = "Amount %@";
@@ -507,7 +516,6 @@
 "nft_no_collection" = "No collection";
 "nft_receive_available_section_title" = "Available";
 "nft_receive_choose_network" = "Choose network";
-"nft_receive_subtitle" = "To My wallet";
 "nft_receive_title" = "Receive NFT";
 "nft_receive_unavailable_asset_warning_message" = "You haven't added this network yet. To start receiving NFTs, add it to the main screen!";
 "nft_receive_unavailable_asset_warning_title" = "Network not added";
@@ -518,6 +526,10 @@
 "nft_wallet_receive_nft" = "Tap here to receive first NFT";
 "nft_wallet_title" = "NFT collections";
 "nft_wallet_unable_to_load" = "Unable to load the data";
+"no_account_generic" = "To use the %1$@ network, you must pay the account reserve (%2$@ %3$@), which locks up and hides that amount indefinitely";
+"no_account_polkadot" = "Destination account is not active. Send %@ or more to activate the account.";
+"no_account_send_to_create" = "To create account send funds to this address";
+"no_trustline_xlm_asset" = "The destination account does not have a trustline for the asset being sent.";
 "onboarding_access_code_feature_1_description" = "Set up a single access code to protect all your devices.";
 "onboarding_access_code_feature_1_title" = "Protect";
 "onboarding_access_code_feature_2_description" = "Set an individual access code for each card or ring later.";
@@ -714,6 +726,9 @@
 "send_dismiss_message" = "Are you sure you want to close the send screen?";
 "send_enter_address_field" = "Enter address";
 "send_error_address_same_as_wallet" = "Address is the same as wallet address";
+"send_error_dust_change" = "Change is too small";
+"send_error_no_target_account" = "Target account is not created. Amount to send should be %@ + fee or more";
+"send_error_unknown" = "Unknown error";
 "send_extras_hint_memo" = "Memo";
 "send_fee_unreachable_error_text" = "Check your network connection";
 "send_fee_unreachable_error_title" = "Network fee info unreachable";
@@ -844,8 +859,8 @@
 "staking_notification_restake_text" = "Restake lets you move your funds from one validator to another without the need to unstake";
 "staking_notification_stake_entire_balance_text" = "You’re about to stake your entire balance. We recommend leaving a small amount to cover network fees for unstaking or claiming rewards.";
 "staking_notification_ton_activate_account" = "To start staking in TON, first make an outgoing transaction of any amount — this will activate your wallet.";
-"staking_notification_ton_extra_reserve_is_required" = "0.2 TON is required to proceed with this operation, in addition to the network fee. Please top up your balance.";
 "staking_notification_ton_extra_reserve_info" = "In addition to the network fee, up to 0.2 TON is needed to complete all steps of the transaction. Unused amount will be returned after it's finished.";
+"staking_notification_ton_extra_reserve_is_required" = "0.2 TON is required to proceed with this operation, in addition to the network fee. Please top up your balance.";
 "staking_notification_ton_extra_reserve_title" = "0.2 Ton Reserved";
 "staking_notification_ton_have_to_unstake_all_text" = "This action will close other positions or switch them to withdrawal status, according to network rules.";
 "staking_notification_ton_have_to_unstake_all_title" = "Positions status";
@@ -1047,8 +1062,7 @@
 "visa_onboarding_in_progress_issuer_description" = "This won’t take long. We’re completing the activation.";
 "visa_onboarding_in_progress_title" = "Getting everything ready!";
 "visa_onboarding_other_wallet" = "Other wallet";
-"visa_onboarding_pin_code_description" = "Set up a 4-digit code. 
-It will be used for payments.";
+"visa_onboarding_pin_code_description" = "Set up a 4-digit code.  It will be used for payments.";
 "visa_onboarding_pin_code_navigation_title" = "PIN code";
 "visa_onboarding_pin_code_title" = "Create PIN Code";
 "visa_onboarding_pin_not_accepted" = "PIN was not accepted. Try again or use a different code.";
@@ -1264,3 +1278,6 @@ It will be used for payments.";
 "welcome_unlock_description" = "Use %@ or scan a card or ring to access the app";
 "welcome_unlock_title" = "Welcome back!";
 "welcome_unlock" = "Log in with %@";
+"xtz_withdrawal_message_ignore" = "No, send all";
+"xtz_withdrawal_message_reduce" = "Reduce by %@ XTZ";
+"xtz_withdrawal_message_warning" = "To avoid paying an increased commission the next time you top up your wallet, reduce the amount by %@ XTZ";
