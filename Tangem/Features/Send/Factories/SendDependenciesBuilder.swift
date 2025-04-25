@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemStaking
 import BlockchainSdk
 import TangemExpress
+import struct TangemUI.TokenIconInfo
 
 struct SendDependenciesBuilder {
     private let walletModel: any WalletModel

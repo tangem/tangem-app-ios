@@ -22,6 +22,7 @@ enum PendingExpressTransactionStatus: String, Equatable, Codable {
     case failed
     case unknown
     case refunded
+    case refunding
     case verificationRequired
     case canceled
     case paused
@@ -38,6 +39,7 @@ enum PendingExpressTransactionStatus: String, Equatable, Codable {
         case .done: Localization.commonDone
         case .failed, .unknown, .txFailed: Localization.expressExchangeStatusFailed
         case .refunded: Localization.expressExchangeStatusRefunded
+        case .refunding: Localization.expressExchangeStatusRefunding
         case .verificationRequired: Localization.expressExchangeStatusVerifying
         case .canceled: Localization.expressExchangeStatusCanceled
         case .paused: Localization.expressExchangeStatusPaused
@@ -55,6 +57,7 @@ enum PendingExpressTransactionStatus: String, Equatable, Codable {
         case .done: Localization.commonDone
         case .failed, .unknown, .txFailed: Localization.expressExchangeStatusFailed
         case .refunded: Localization.expressExchangeStatusRefunded
+        case .refunding: Localization.expressExchangeStatusRefunding
         case .verificationRequired: Localization.expressExchangeStatusVerifying
         case .canceled: Localization.expressExchangeStatusCanceled
         case .paused: Localization.expressExchangeStatusPaused
@@ -72,6 +75,7 @@ enum PendingExpressTransactionStatus: String, Equatable, Codable {
         case .done: Localization.commonDone
         case .failed, .unknown, .txFailed: Localization.expressExchangeStatusFailed
         case .refunded: Localization.expressExchangeStatusRefunded
+        case .refunding: Localization.expressExchangeStatusRefunding
         case .verificationRequired: Localization.expressExchangeStatusVerifying
         case .canceled: Localization.expressExchangeStatusCanceled
         case .paused: Localization.expressExchangeStatusPaused
@@ -97,7 +101,8 @@ enum PendingExpressTransactionStatus: String, Equatable, Codable {
              .awaitingHash,
              .unknown,
              .paused,
-             .txFailed:
+             .txFailed,
+             .refunding:
             return false
         }
     }
@@ -124,7 +129,8 @@ enum PendingExpressTransactionStatus: String, Equatable, Codable {
              .unknown,
              .paused,
              .refunded,
-             .canceled:
+             .canceled,
+             .refunding:
             false
         }
     }
@@ -145,6 +151,7 @@ enum PendingExpressTransactionStatus: String, Equatable, Codable {
              .awaitingHash,
              .unknown,
              .paused,
+             .refunding,
              .refunded,
              .canceled:
             return false

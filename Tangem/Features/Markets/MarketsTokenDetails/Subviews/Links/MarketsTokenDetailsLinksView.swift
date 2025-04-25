@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemUI
 
 struct MarketsTokenDetailsLinksView: View {
     let viewWidth: CGFloat
