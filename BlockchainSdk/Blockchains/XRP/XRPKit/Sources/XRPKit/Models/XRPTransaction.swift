@@ -105,16 +105,16 @@ class XRPTransaction {
 
         // create another transaction instance and add the signature to the fields
         let signedTransaction = XRPTransaction(fields: fields)
-        signedTransaction.fields["TxnSignature"] = Data(signature).hexString.uppercased() as Any
+        signedTransaction.fields["TxnSignature"] = Data(signature).hex(.uppercase) as Any
         return signedTransaction
     }
 
     func getBlob() -> String {
-        return Serializer().serializeTx(tx: fields, forSigning: false).hexString.uppercased()
+        return Serializer().serializeTx(tx: fields, forSigning: false).hex(.uppercase)
     }
 
     func submit(completion: @escaping ((Result<NSDictionary, Error>) -> Void)) {
-        let tx = Serializer().serializeTx(tx: fields, forSigning: false).hexString.uppercased()
+        let tx = Serializer().serializeTx(tx: fields, forSigning: false).hex(.uppercase)
         return XRPLedger.submit(txBlob: tx) { result in
             switch result {
             case .success(let tx):
