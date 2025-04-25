@@ -21,7 +21,7 @@ class BitcoinLegacyAddressService {
 extension BitcoinLegacyAddressService: BitcoinScriptAddressProvider {
     func makeScriptAddress(redeemScript: Data) throws -> (address: String, script: UTXOLockingScript) {
         let scriptHash = redeemScript.sha256Ripemd160
-        let (address, script) = try builder.encode(keyHash: scriptHash, type: .p2sh(redeemScript: redeemScript))
+        let (address, script) = try builder.encode(redeemScript: redeemScript, type: .p2sh)
         return (address, script)
     }
 }
