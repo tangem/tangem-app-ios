@@ -11,9 +11,7 @@ import Foundation
 // MARK: - Activation status
 
 extension ProductActivationAPITarget {
-    struct ActivationStatusRequest {
-        let customerId: String
-        let productInstanceId: String
+    struct ActivationStatusRequest: Encodable {
         let cardId: String
         let cardPublicKey: String
     }
@@ -27,27 +25,27 @@ extension ProductActivationAPITarget {
 
 extension ProductActivationAPITarget {
     /// Requests
-    struct DataToSignByVisaCardRequest {
-        let customerId: String
-        let productInstanceId: String
-        let activationOrderId: String
+    enum AcceptanceMessageType: String, Encodable {
+        case cardWallet = "card_wallet"
+        case customerWallet = "customer_wallet"
+    }
+
+    struct GetAcceptanceMessageRequest: Encodable {
+        let type: AcceptanceMessageType
         let customerWalletAddress: String
+        let cardWalletAddress: String
     }
 
     struct VisaCardDeployAcceptanceRequest: Encodable {
-        let customerId: String
-        let productInstanceId: String
-        let activationOrderId: String
-        let data: DeployAcceptanceDataContainer
+        let orderId: String
+        let cardWallet: DeployAcceptanceData
+        let otp: OTPData
+        let deployAcceptanceSignature: String
     }
 
     /// Responses
-    struct DataToSignByVisaCardResponse: Decodable {
-        let dataForCardWallet: DataToSignByCardResponseData
-    }
-
-    struct DataToSignByCustomerWalletReponse: Decodable {
-        let dataForCustomerWallet: DataToSignByCardResponseData
+    struct GetAcceptanceMessageResponse: Decodable {
+        let data: DataToSignByCardResponseData
     }
 
     struct DataToSignByCardResponseData: Decodable {
@@ -57,14 +55,8 @@ extension ProductActivationAPITarget {
 
 extension ProductActivationAPITarget.VisaCardDeployAcceptanceRequest {
     /// Related data
-    struct DeployAcceptanceDataContainer: Encodable {
-        let cardWallet: DeployAcceptanceData
-        let otp: OTPData
-    }
-
     struct DeployAcceptanceData: Encodable {
         let address: String
-        let deployAcceptanceSignature: String
         let cardWalletConfirmation: SignatureData?
     }
 
@@ -84,28 +76,14 @@ extension ProductActivationAPITarget.VisaCardDeployAcceptanceRequest {
 // MARK: - Customer wallet deploy acceptance requests - 3 tap related
 
 extension ProductActivationAPITarget {
-    struct DataToSignByCustomerWalletRequest {
-        let customerId: String
-        let productInstanceId: String
-        let activationOrderId: String
-        let cardWalletAddress: String
-    }
-
     struct CustomerWalletDeployAcceptanceRequest: Encodable {
-        let customerId: String
-        let productInstanceId: String
-        let activationOrderId: String
-        let data: DeployAcceptanceDataContainer
+        let orderId: String
+        let customerWallet: AcceptanceData
     }
 }
 
 extension ProductActivationAPITarget.CustomerWalletDeployAcceptanceRequest {
-    struct DeployAcceptanceDataContainer: Encodable {
-        let customerWallet: AcceptanceData
-    }
-
     struct AcceptanceData: Encodable {
-        let address: String
         let deployAcceptanceSignature: String
     }
 }
@@ -113,18 +91,10 @@ extension ProductActivationAPITarget.CustomerWalletDeployAcceptanceRequest {
 // MARK: - PIN code related
 
 extension ProductActivationAPITarget {
-    struct IssuerActivationRequest: Encodable {
-        let customerId: String
-        let productInstanceId: String
-        let activationOrderId: String
-        let data: IssuerActivationData
-    }
-}
-
-extension ProductActivationAPITarget.IssuerActivationRequest {
-    struct IssuerActivationData: Encodable {
-        let sessionKey: String
+    struct SetupPINRequest: Encodable {
+        let orderId: String
+        let sessionId: String
         let iv: String
-        let encryptedPin: String
+        let pin: String
     }
 }
