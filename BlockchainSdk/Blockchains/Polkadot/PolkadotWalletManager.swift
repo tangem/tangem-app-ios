@@ -12,6 +12,7 @@ import CryptoKit
 import TangemSdk
 import BigInt
 import TangemFoundation
+import TangemLocalization
 
 class PolkadotWalletManager: BaseManager, WalletManager {
     private let network: PolkadotNetwork
