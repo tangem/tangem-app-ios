@@ -51,7 +51,14 @@ class BitcoinTransactionBuilder {
 
         try signatures.forEach { signature in
             try signaturesVector.add(data: signature.der())
-            try publicKeysVector.add(data: Secp256k1Key(with: signature.publicKey).compress())
+
+            switch network.publicKeyType {
+            case .compressed:
+                let publicKey = try Secp256k1Key(with: signature.publicKey).compress()
+                publicKeysVector.add(data: publicKey)
+            case .asIs:
+                publicKeysVector.add(data: signature.publicKey)
+            }
         }
 
         let compileWithSignatures = TransactionCompiler.compileWithSignatures(
@@ -107,11 +114,8 @@ private extension BitcoinTransactionBuilder {
         }
 
         let scripts: [String: Data] = preImage.inputs.reduce(into: [:]) { result, input in
-            switch input.script.type {
-            case .p2sh(.some(let redeemScript)), .p2wsh(.some(let redeemScript)):
+            if case .redeemScript(let redeemScript) = input.script.spendable {
                 result[redeemScript.sha256Ripemd160.hex()] = redeemScript
-            default:
-                break
             }
         }
 
