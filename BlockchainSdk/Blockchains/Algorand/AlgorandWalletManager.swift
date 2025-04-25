@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemLocalization
 
 final class AlgorandWalletManager: BaseManager {
     // MARK: - Private Properties
