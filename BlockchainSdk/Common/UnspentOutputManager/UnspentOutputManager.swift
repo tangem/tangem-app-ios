@@ -12,8 +12,8 @@ protocol UnspentOutputManager {
     func update(outputs: [UnspentOutput], for address: String) throws
     func update(outputs: [UnspentOutput], for script: UTXOLockingScript)
 
-    func preImage(amount: Int, fee: Int, destination: String) throws -> PreImageTransaction
-    func preImage(amount: Int, feeRate: Int, destination: String) throws -> PreImageTransaction
+    func preImage(amount: Int, fee: Int, destination: String) async throws -> PreImageTransaction
+    func preImage(amount: Int, feeRate: Int, destination: String) async throws -> PreImageTransaction
 
     /// Outputs which possible to spent
     func availableOutputs() -> [ScriptUnspentOutput]
@@ -37,12 +37,12 @@ extension UnspentOutputManager {
         }
     }
 
-    func preImage(transaction: Transaction) throws -> PreImageTransaction {
+    func preImage(transaction: Transaction) async throws -> PreImageTransaction {
         assert(!transaction.fee.amount.isZero, "Use preImage(amount:, feeRate:, destination:) for calculating fee")
 
         let amount = transaction.amount.asSmallest().value.intValue()
         let fee = transaction.fee.amount.asSmallest().value.intValue()
-        return try preImage(amount: amount, fee: fee, destination: transaction.destinationAddress)
+        return try await preImage(amount: amount, fee: fee, destination: transaction.destinationAddress)
     }
 
     func balance(blockchain: Blockchain) -> Decimal {
