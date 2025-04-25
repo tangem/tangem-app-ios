@@ -632,6 +632,9 @@
 "referral_less" = "Меньше";
 "referral_more" = "Больше";
 "referral_no_expected_awards" = "Нет грядущих выплат";
+"referral_notification_button" = "Join Now";
+"referral_notification_text" = "Share your code - earn %1$@ USDT per sale. Your friend gets %2$@ OFF.";
+"referral_notification_title" = "Get REWARDS for every friend!";
 "referral_point_currencies_description" = "Получите ^^%1$@^^ на ваш адрес в сети %2$@ %3$@ ^^спустя 30 дней^^ за каждый кошелек, который купит ваш друг";
 "referral_point_currencies_title" = "Вы";
 "referral_point_discount_description_prefix" = "Получит";
