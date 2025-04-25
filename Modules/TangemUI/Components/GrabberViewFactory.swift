@@ -9,8 +9,10 @@
 import SwiftUI
 import TangemAssets
 
-struct GrabberViewFactory {
-    func makeUIKitView() -> UIView {
+public struct GrabberViewFactory {
+    public init() {}
+
+    public func makeUIKitView() -> UIView {
         let grabberView = UIView()
         grabberView.translatesAutoresizingMaskIntoConstraints = false
         grabberView.backgroundColor = .iconInactive
@@ -38,7 +40,7 @@ struct GrabberViewFactory {
     }
 
     @ViewBuilder
-    func makeSwiftUIView() -> some View {
+    public func makeSwiftUIView() -> some View {
         Capsule(style: .continuous)
             .fill(Colors.Icon.inactive)
             .frame(size: Constants.grabberSize)
