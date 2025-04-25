@@ -7,12 +7,13 @@
 //
 
 import Foundation
-import TangemLocalization
 import SwiftUI
 import Combine
 import CombineExt
 import TangemSdk
 import BlockchainSdk
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 class ManageTokensAdapter {
     private let longHashesSupported: Bool
@@ -138,7 +139,7 @@ private extension ManageTokensAdapter {
 
     func onSelect(_ selected: Bool, _ tokenItem: TokenItem) {
         if selected {
-            if tokenItem.hasLongHashes, !longHashesSupported {
+            if AppUtils().hasLongHashesForSend(tokenItem), !longHashesSupported {
                 displayAlertAndUpdateSelection(
                     for: tokenItem,
                     title: Localization.commonAttention,

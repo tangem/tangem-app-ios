@@ -102,26 +102,6 @@ public extension Publisher where Failure == Never {
 }
 
 extension Publisher {
-    func withWeakCaptureOf<Object>(
-        _ object: Object
-    ) -> Publishers.CompactMap<Self, (Object, Self.Output)> where Object: AnyObject {
-        return compactMap { [weak object] output in
-            guard let object = object else { return nil }
-
-            return (object, output)
-        }
-    }
-
-    func withUnownedCaptureOf<Object>(
-        _ object: Object
-    ) -> Publishers.Map<Self, (Object, Self.Output)> where Object: AnyObject {
-        return map { [unowned object] output in
-            return (object, output)
-        }
-    }
-}
-
-extension Publisher {
     /// Includes the current element as well as the previous element from the upstream publisher in a tuple where the previous element is optional.
     /// The first time the upstream publisher emits an element, the previous element will be `nil`.
     ///

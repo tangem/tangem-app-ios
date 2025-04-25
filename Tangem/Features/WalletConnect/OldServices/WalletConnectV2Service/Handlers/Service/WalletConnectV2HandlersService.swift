@@ -21,7 +21,7 @@ protocol WalletConnectV2HandlersServicing {
     ) async throws -> RPCResult
 }
 
-struct WalletConnectV2HandlersService {
+struct OldWalletConnectV2HandlersService {
     private let uiDelegate: WalletConnectAlertUIDelegate
     private let handlersCreator: WalletConnectHandlersCreator
 
@@ -45,7 +45,7 @@ struct WalletConnectV2HandlersService {
     }
 }
 
-extension WalletConnectV2HandlersService: WalletConnectV2HandlersServicing {
+extension OldWalletConnectV2HandlersService: WalletConnectV2HandlersServicing {
     func handle(
         _ request: Request,
         from dApp: WalletConnectSavedSession.DAppInfo,
