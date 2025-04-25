@@ -7,32 +7,12 @@
 //
 
 import Foundation
-import BitcoinCore
 
-class DogecoinNetworkParams: INetwork {
-    let pubKeyHash: UInt8 = 0x1E // addressHeader
-    let privateKey: UInt8 = 0x9E // dumpedPrivateKeyHeader
-    let scriptHash: UInt8 = 0x16 // p2shHeader
-    let bech32PrefixPattern: String = "D" // segwitAddressHrp
-    let xPubKey: UInt32 = 0x02FACAFD // bip32HeaderP2PKHpub
-    let xPrivKey: UInt32 = 0x02FAC398 // bip32HeaderP2PKHpriv
-    let magic: UInt32 = 0xC0C0C0C0 // packetMagic
-    let port: UInt32 = 22556 // port
-    let coinType: UInt32 = 0
-    let sigHash: SigHashType = .bitcoinAll
-    var syncableFromApi: Bool = true
-
-    let dnsSeeds = [
-        "seed.multidoge.org",
-        "seed2.multidoge.org",
-        "seed.doger.dogecoin.com",
-    ]
-
+struct DogecoinNetworkParams: UTXONetworkParams {
+    let p2pkhPrefix: UInt8 = 0x1E
+    let p2shPrefix: UInt8 = 0x16
+    let bech32Prefix: String = "D"
+    let coinType: UInt32 = 3
+    let signHashType: UTXONetworkParamsSignHashType = .bitcoinAll
     let dustRelayTxFee: Int = 1_000_000 // 0.01 DOGE
-}
-
-extension DogecoinNetworkParams: UTXONetworkParams {
-    var p2pkhPrefix: UInt8 { pubKeyHash }
-    var p2shPrefix: UInt8 { scriptHash }
-    var bech32Prefix: String { bech32PrefixPattern }
 }
