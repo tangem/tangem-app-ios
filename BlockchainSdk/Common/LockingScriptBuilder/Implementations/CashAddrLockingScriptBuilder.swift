@@ -29,11 +29,11 @@ struct CashAddrLockingScriptBuilder {
         switch version {
         case AddressType.p2pkh.rawValue:
             let lockingScript = OpCodeUtils.p2pkh(data: keyHash)
-            return (version: version, script: .init(keyHash: keyHash, data: lockingScript, type: .p2pkh))
+            return (version: version, script: .init(data: lockingScript, type: .p2pkh, spendable: .none))
         case AddressType.p2sh.rawValue:
             let lockingScript = OpCodeUtils.p2sh(data: keyHash)
             // We don't have redeemScript from address. Only from PublicKey
-            return (version: version, script: .init(keyHash: keyHash, data: lockingScript, type: .p2sh(redeemScript: nil)))
+            return (version: version, script: .init(data: lockingScript, type: .p2sh, spendable: .none))
         default:
             throw LockingScriptBuilderError.unsupportedVersion
         }

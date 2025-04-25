@@ -18,4 +18,6 @@ struct Fact0rnMainNetworkParams: UTXONetworkParams {
 
     /// https://github.com/FACT0RN/FACT0RN/blob/d02b33f3d5ce8a4be57fdb8c8b0bc3cb51760116/src/policy/policy.h#L54
     let dustRelayTxFee: Int = 3000
+
+    let publicKeyType: UTXONetworkParamsPublicKeyType = .compressed
 }
