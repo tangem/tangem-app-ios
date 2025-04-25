@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 struct ReferralCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: ReferralCoordinator
