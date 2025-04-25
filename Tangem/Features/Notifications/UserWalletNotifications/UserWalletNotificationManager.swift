@@ -118,10 +118,11 @@ final class UserWalletNotificationManager {
         if showReferralNotification == true {
             inputs.append(
                 factory.buildNotificationInput(
-                    for: .referralProgram,
-                    action: { [weak self] id in
-                        self?.delegate?.didTapNotification(with: id, action: .openReferralProgram)
-                    },
+                    for: .referralProgram(
+                        amountPerSale: ReferralConstants.amountPerSale,
+                        percentOff: ReferralConstants.percentOff
+                    ),
+                    action: action,
                     buttonAction: buttonAction,
                     dismissAction: dismissAction
                 )
