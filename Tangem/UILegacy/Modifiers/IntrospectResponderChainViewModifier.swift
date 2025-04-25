@@ -37,7 +37,7 @@ private struct IntrospectResponderChainViewModifier<IntrospectedType>: ViewModif
                 .frame(size: .zero)
                 .allowsHitTesting(false)
                 .accessibility(hidden: true)
-                .modifier(ifLet: updateOnChangeOf) { view, id in
+                .ifLet(updateOnChangeOf) { view, id in
                     view.id(id)
                 }
         }

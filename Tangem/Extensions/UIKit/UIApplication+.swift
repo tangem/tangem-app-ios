@@ -10,12 +10,6 @@ import Foundation
 import UIKit
 
 extension UIApplication {
-    func endEditing() {
-        windows.first { $0.isKeyWindow }?.endEditing(true)
-    }
-}
-
-extension UIApplication {
     static var keyWindow: UIWindow? {
         return UIApplication.shared.windows.first { $0.isKeyWindow }
     }

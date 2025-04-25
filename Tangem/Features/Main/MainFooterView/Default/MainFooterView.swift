@@ -7,6 +7,8 @@
 //
 
 import SwiftUI
+import TangemUIUtils
+import TangemUI
 
 struct MainFooterView: View {
     let viewModel: MainFooterViewModel
