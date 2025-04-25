@@ -15,20 +15,38 @@ struct VisaTransactionDetailsView: View {
 
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 14) {
-                    fiatTransactionContent
+            VStack(spacing: 14) {
+                ScrollView {
+                    VStack(spacing: 14) {
+                        fiatTransactionContent
 
-                    ForEach(viewModel.cryptoRequests, id: \.commonTransactionInfo.transactionId) { requestInfo in
-                        cryptoRequestView(requestInfo)
+                        ForEach(viewModel.cryptoRequests, id: \.commonTransactionInfo.transactionId) { requestInfo in
+                            cryptoRequestView(requestInfo)
+                        }
                     }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 20)
+                    .padding(.bottom, 40)
+                }
+
+                Button(action: viewModel.openDispute) {
+                    HStack(spacing: 4) {
+                        Assets.attention20.image
+
+                        Text(Localization.visaTxDisputeButton)
+                            .style(Fonts.Bold.subheadline.weight(.medium), color: Colors.Text.primary1)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 40, maxHeight: 40, alignment: .center)
+                    .background(
+                        Colors.Background.action
+                            .cornerRadiusContinuous(10)
+                    )
                 }
                 .padding(.horizontal, 16)
-                .padding(.top, 20)
-                .padding(.bottom, 40)
             }
             .navigationTitle(Text(Localization.visaTransactionDetailsHeader))
             .navigationBarTitleDisplayMode(.inline)
+            .padding(.bottom, 10)
             .background(Colors.Background.tertiary.ignoresSafeArea())
         }
     }
