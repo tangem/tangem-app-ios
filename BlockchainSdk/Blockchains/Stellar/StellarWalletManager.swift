@@ -11,6 +11,7 @@ import stellarsdk
 import SwiftyJSON
 import Combine
 import TangemSdk
+import TangemLocalization
 
 enum StellarError: Int, Error, LocalizedError {
     // WARNING: Make sure to preserve the error codes when removing or inserting errors
@@ -26,16 +27,17 @@ enum StellarError: Int, Error, LocalizedError {
     // WARNING: Make sure to preserve the error codes when removing or inserting errors
 
     var errorDescription: String? {
-        let networkName = Blockchain.stellar(curve: .ed25519, testnet: false).displayName
+        let blockchain = Blockchain.stellar(curve: .ed25519, testnet: false)
+        let networkName = blockchain.displayName
+        let symbol = blockchain.currencySymbol
+
         switch self {
         case .requiresMemo:
-            return Localization.xlmRequiresMemoError
-        case .xlmCreateAccount:
-            return Localization.noAccountGeneric(networkName, "\(StellarWalletManager.Constants.minAmountToCreateCoinAccount)", "XLM")
-        case .assetCreateAccount:
-            return Localization.noAccountGeneric(networkName, "\(StellarWalletManager.Constants.minAmountToCreateAssetAccount)", "XLM")
+            return Localization.genericRequiresMemoError
+        case .xlmCreateAccount, .assetCreateAccount:
+            return Localization.noAccountGeneric(networkName, "\(StellarWalletManager.Constants.minAmountToCreateCoinAccount)", "\(symbol)")
         case .assetNoAccountOnDestination:
-            return Localization.sendErrorNoTargetAccount("\(StellarWalletManager.Constants.minAmountToCreateCoinAccount) XLM")
+            return Localization.sendErrorNoTargetAccount("\(StellarWalletManager.Constants.minAmountToCreateCoinAccount) \(symbol)")
         case .assetNoTrustline:
             return Localization.noTrustlineXlmAsset
         default:
