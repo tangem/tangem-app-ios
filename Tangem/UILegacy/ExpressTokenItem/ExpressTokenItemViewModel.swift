@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import struct TangemUI.TokenIconInfo
 
 struct ExpressTokenItemViewModel: Identifiable {
     let id: String
