@@ -15,6 +15,7 @@ struct KaspaNetworkParams: UTXONetworkParams {
     let dustRelayTxFee: Int = 3000
     let coinType: UInt32 = 111111
     let signHashType: UTXONetworkParamsSignHashType = .bitcoinAll
+    let publicKeyType: UTXONetworkParamsPublicKeyType = .compressed
 }
 
 struct KaspaTestNetworkParams: UTXONetworkParams {
@@ -24,4 +25,5 @@ struct KaspaTestNetworkParams: UTXONetworkParams {
     let dustRelayTxFee: Int = 3000
     let coinType: UInt32 = 111111
     let signHashType: UTXONetworkParamsSignHashType = .bitcoinAll
+    let publicKeyType: UTXONetworkParamsPublicKeyType = .compressed
 }

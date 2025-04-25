@@ -15,4 +15,5 @@ struct DucatusNetworkParams: UTXONetworkParams {
     let signHashType: UTXONetworkParamsSignHashType = .bitcoinAll
     let coinType: UInt32 = 0
     let dustRelayTxFee = 3000 // https://github.com/bitcoin/bitcoin/blob/master/src/policy/policy.h#L52
+    var publicKeyType: UTXONetworkParamsPublicKeyType = .asIs
 }
