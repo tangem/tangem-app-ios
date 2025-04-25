@@ -12,9 +12,10 @@ import Moya
 struct TransactionHistoryAPITarget: TargetType {
     let authorizationHeader: String
     let target: Target
+    let apiType: VisaAPIType
 
     var baseURL: URL {
-        return VisaConstants.bffBaseURL.appendingPathComponent("product_instance/")
+        apiType.baseURL.appendingPathComponent("product_instance/")
     }
 
     var path: String {
@@ -53,6 +54,7 @@ struct TransactionHistoryAPITarget: TargetType {
 
 extension TransactionHistoryAPITarget {
     enum Target {
+        /// Will be updated later, not implemented on BFF
         case txHistoryPage(request: VisaTransactionHistoryDTO.APIRequest)
     }
 }
