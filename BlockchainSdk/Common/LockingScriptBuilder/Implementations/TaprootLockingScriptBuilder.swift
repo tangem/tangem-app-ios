@@ -32,15 +32,11 @@ struct TaprootLockingScriptBuilder {
         }
 
         let lockingScript = OpCodeUtils.p2tr(version: version, data: keyHash)
-        return (version: version, script: .init(keyHash: keyHash, data: lockingScript, type: type))
+        return (version: version, script: .init(data: lockingScript, type: type, spendable: .none))
     }
 
     func encode(publicKey: Data, type: UTXOScriptType) throws -> (address: String, script: UTXOLockingScript) {
         let keyHash = publicKey.sha256Ripemd160
-        return try encode(keyHash: keyHash, type: type)
-    }
-
-    func encode(keyHash: Data, type: UTXOScriptType) throws -> (address: String, script: UTXOLockingScript) {
         let lockingScript = switch type {
         case .p2tr:
             OpCodeUtils.p2tr(version: Constants.version, data: keyHash)
@@ -51,7 +47,7 @@ struct TaprootLockingScriptBuilder {
         let encoder = SegWitBech32(bech32: .init(variant: .bech32))
         let bech32StringValue = try encoder.encode(hrp: bech32Prefix, version: Constants.version, program: keyHash)
 
-        let script = UTXOLockingScript(keyHash: keyHash, data: lockingScript, type: type)
+        let script = UTXOLockingScript(data: lockingScript, type: type, spendable: .publicKey(publicKey))
         return (address: bech32StringValue, script: script)
     }
 }
