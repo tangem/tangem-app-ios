@@ -108,7 +108,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
         case .unlock:
             return Localization.visaUnlockNotificationButton
         case .openReferralProgram:
-            return "Open referral program"
+            return Localization.referralButtonParticipate
         }
     }
 
