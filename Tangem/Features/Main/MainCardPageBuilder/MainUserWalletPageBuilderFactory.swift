@@ -8,32 +8,41 @@
 
 import Foundation
 import BlockchainSdk
+import TangemNFT
 
 protocol MainUserWalletPageBuilderFactory {
     func createPage(
         for model: UserWalletModel,
         lockedUserWalletDelegate: MainLockedUserWalletDelegate,
         singleWalletContentDelegate: SingleWalletMainContentDelegate,
-        multiWalletContentDelegate: MultiWalletMainContentDelegate?
+        multiWalletContentDelegate: MultiWalletMainContentDelegate?,
+        nftLifecycleHandler: NFTFeatureLifecycleHandling
     ) -> MainUserWalletPageBuilder
 
     func createPages(
         from models: [UserWalletModel],
         lockedUserWalletDelegate: MainLockedUserWalletDelegate,
         singleWalletContentDelegate: SingleWalletMainContentDelegate,
-        multiWalletContentDelegate: MultiWalletMainContentDelegate?
+        multiWalletContentDelegate: MultiWalletMainContentDelegate?,
+        nftLifecycleHandler: NFTFeatureLifecycleHandling
     ) -> [MainUserWalletPageBuilder]
 }
 
 struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory {
-    typealias MainContentRoutable = MultiWalletMainContentRoutable & VisaWalletRoutable & RateAppRoutable & ActionButtonsRoutable
+    typealias MainContentRoutable = MultiWalletMainContentRoutable &
+        VisaWalletRoutable &
+        RateAppRoutable &
+        ActionButtonsRoutable &
+        NFTEntrypointRoutable
+
     weak var coordinator: MainContentRoutable?
 
     func createPage(
         for model: UserWalletModel,
         lockedUserWalletDelegate: MainLockedUserWalletDelegate,
         singleWalletContentDelegate: SingleWalletMainContentDelegate,
-        multiWalletContentDelegate: MultiWalletMainContentDelegate?
+        multiWalletContentDelegate: MultiWalletMainContentDelegate?,
+        nftLifecycleHandler: NFTFeatureLifecycleHandling
     ) -> MainUserWalletPageBuilder {
         if let visaUserWalletModel = model as? VisaUserWalletModel {
             return createVisaPage(visaUserWalletModel: visaUserWalletModel, lockedUserWalletDelegate: lockedUserWalletDelegate)
@@ -107,6 +116,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 tokenSectionsAdapter: sectionsAdapter,
                 tokenRouter: tokenRouter,
                 optionsEditing: optionsManager,
+                nftFeatureLifecycleHandler: nftLifecycleHandler,
                 coordinator: coordinator
             )
             viewModel.delegate = multiWalletContentDelegate
@@ -159,14 +169,16 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         from models: [UserWalletModel],
         lockedUserWalletDelegate: MainLockedUserWalletDelegate,
         singleWalletContentDelegate: SingleWalletMainContentDelegate,
-        multiWalletContentDelegate: MultiWalletMainContentDelegate?
+        multiWalletContentDelegate: MultiWalletMainContentDelegate?,
+        nftLifecycleHandler: NFTFeatureLifecycleHandling
     ) -> [MainUserWalletPageBuilder] {
         return models.compactMap {
             createPage(
                 for: $0,
                 lockedUserWalletDelegate: lockedUserWalletDelegate,
                 singleWalletContentDelegate: singleWalletContentDelegate,
-                multiWalletContentDelegate: multiWalletContentDelegate
+                multiWalletContentDelegate: multiWalletContentDelegate,
+                nftLifecycleHandler: nftLifecycleHandler
             )
         }
     }
