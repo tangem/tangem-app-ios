@@ -98,6 +98,10 @@ extension CommonKeysManager: KeysManager {
     var nftScanAPIKey: String {
         keys.nftScanApiKey
     }
+
+    var blockaidAPIKey: String {
+        keys.blockaidApiKey
+    }
 }
 
 extension CommonKeysManager {
@@ -135,5 +139,6 @@ extension CommonKeysManager {
         let alephiumTangemApiKey: String
         let moralisApiKey: String
         let nftScanApiKey: String
+        let blockaidApiKey: String
     }
 }
