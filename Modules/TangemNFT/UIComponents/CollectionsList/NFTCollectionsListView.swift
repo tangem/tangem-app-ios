@@ -33,6 +33,10 @@ public struct NFTCollectionsListView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.horizontal, Constants.horizontalPadding)
             .background(Colors.Background.secondary)
+            .sheet(isPresented: .constant(true)) {
+                Text("Hello")
+                    .background(Colors.Background.secondary)
+            }
     }
 
     @ViewBuilder
