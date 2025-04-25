@@ -53,7 +53,7 @@ class TronWalletManager: BaseManager, WalletManager {
         .flatMap { manager, data in
             manager.networkService
                 .broadcastHex(data)
-                .mapSendError(tx: data.hexString)
+                .mapSendError(tx: data.hex())
         }
         .withWeakCaptureOf(self)
         .tryMap { manager, broadcastResponse -> TransactionSendResult in
@@ -239,10 +239,10 @@ private class DummySigner: TransactionSigner {
         privateKey = keyPair.privateKey
     }
 
-    func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<Data, Error> {
+    func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<SignatureInfo, any Error> {
         do {
             let signature = try Secp256k1Utils().sign(hash, with: privateKey)
-            return Just(signature)
+            return Just(.init(signature: signature, publicKey: walletPublicKey.blockchainKey, hash: hash))
                 .setFailureType(to: Error.self)
                 .eraseToAnyPublisher()
         } catch {
@@ -250,7 +250,7 @@ private class DummySigner: TransactionSigner {
         }
     }
 
-    func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[Data], Error> {
+    func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], any Error> {
         fatalError()
     }
 
