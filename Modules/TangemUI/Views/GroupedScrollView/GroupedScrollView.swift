@@ -44,29 +44,27 @@ extension GroupedScrollView: Setupable {
     }
 }
 
-// MARK: - Previews
-
 #if DEBUG
-struct GroupedScrollView_Previews: PreviewProvider {
+#Preview {
     struct ViewModel: Identifiable {
         let id = UUID()
-        let title: String
+        let text: String
     }
 
-    static var previews: some View {
-        GroupedScrollView {
-            let viewModels = [
-                ViewModel(title: Localization.detailsChat),
-                ViewModel(title: Localization.detailsRowTitleContactToSupport),
-            ]
+    return GroupedScrollView {
+        let models = [
+            ViewModel(text: "Text1"),
+            ViewModel(text: "Text2"),
+        ]
 
-            GroupedSection(viewModels) { viewModel in
-                Text(viewModel.title)
-            } footer: {
-                Text("Colors.Background.secondary.edgesIgnoringSafeArea(.all)")
-            }
+        GroupedSection(models) {
+            Text($0.text)
+        } footer: {
+            Text("I am footer")
+                .frame(maxWidth: .infinity)
+                .background(Colors.Background.action)
         }
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
     }
+    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 }
-#endif // DEBUG
+#endif
