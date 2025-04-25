@@ -33,10 +33,10 @@ struct SeiTransactionTests {
         let transaction = try makeSeiTransaction(txBuilder: txBuilder)
         let dataForSign = try txBuilder.buildForSign(transaction: transaction)
 
-        #expect(dataForSign.hexString.lowercased() == "9a2af4a0e1519d73a5f44ee99e9e9b11077f1779b4486bb4bf7949d65516e3ad")
+        #expect(dataForSign.hex() == "9a2af4a0e1519d73a5f44ee99e9e9b11077f1779b4486bb4bf7949d65516e3ad")
 
         let signature = try #require(privateKey.sign(digest: dataForSign, curve: cosmosChain.coin.curve))
-        #expect(signature.hexString.lowercased() == "07e4d05edf18cb3ab8f41f03337f5177587a65ac1b4a555e129f276752afcf14230d53ed9c970edec3ec843414a7695566eb31e7fae89065c67386d7c32afe6a00")
+        #expect(signature.hex() == "07e4d05edf18cb3ab8f41f03337f5177587a65ac1b4a555e129f276752afcf14230d53ed9c970edec3ec843414a7695566eb31e7fae89065c67386d7c32afe6a00")
 
         let transactionData = try txBuilder.buildForSend(transaction: transaction, signature: signature)
 
