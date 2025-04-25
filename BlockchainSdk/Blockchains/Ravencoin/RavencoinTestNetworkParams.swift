@@ -34,4 +34,6 @@ struct RavencoinTestNetworkParams: UTXONetworkParams {
     /// https://github.com/RavenProject/Ravencoin/blob/master/src/policy/policy.h#L48
     /// static const unsigned int DUST_RELAY_TX_FEE = 3000;
     let dustRelayTxFee = 3000
+
+    let publicKeyType: UTXONetworkParamsPublicKeyType = .asIs
 }

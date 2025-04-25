@@ -29,7 +29,11 @@ struct KaspaTransactionTests {
         unspentOutputManager.update(
             outputs: outputs,
             // NOTE: Be careful that lockingScript is not same that we have for source address
-            for: UTXOLockingScript(keyHash: Data(), data: Data(hexString: "21034c88a1a83469ddf20d0c07e5c4a1e7b83734e721e60d642b94a53222c47c670dab"), type: .p2pk)
+            for: UTXOLockingScript(
+                data: Data(hexString: "21034c88a1a83469ddf20d0c07e5c4a1e7b83734e721e60d642b94a53222c47c670dab"),
+                type: .p2pk,
+                spendable: .publicKey(walletPublicKey)
+            )
         )
 
         let txBuilder = KaspaTransactionBuilder(
@@ -110,7 +114,11 @@ struct KaspaTransactionTests {
         unspentOutputManager.update(
             outputs: outputs,
             // NOTE: Be careful that lockingScript is not same that we have for source address
-            for: UTXOLockingScript(keyHash: Data(), data: Data(hexString: "21034c88a1a83469ddf20d0c07e5c4a1e7b83734e721e60d642b94a53222c47c670dab"), type: .p2pk)
+            for: UTXOLockingScript(
+                data: Data(hexString: "21034c88a1a83469ddf20d0c07e5c4a1e7b83734e721e60d642b94a53222c47c670dab"),
+                type: .p2pk,
+                spendable: .publicKey(walletPublicKey)
+            )
         )
 
         let txBuilder = KaspaTransactionBuilder(
@@ -180,7 +188,7 @@ struct KaspaTransactionTests {
     @Test
     func coinTransaction() async throws {
         // given
-        let address = PlainAddress(value: "kaspa:qyp5qxu7n45c8zx6pqhndy43p4qt02zxchc4723fuclpraty00gpm6c8edeys5s", publicKey: .empty, type: .default)
+        let address = try KaspaAddressService(isTestnet: false).makeAddress(from: Data(hexString: "03401b9e9d698388da082f3692b10d40b7a846c5f15f2a29e63e11f5647bd01deb"))
         let unspentOutputManager: UnspentOutputManager = .kaspa(address: address)
         let outputs: [UnspentOutput] = [
             UnspentOutput(blockId: 1, txId: "414f096361040f27e3ebfd02965c27d1492a69880dbf1544bf213e7159709134", index: 0, amount: 20000000),
@@ -252,6 +260,7 @@ struct KaspaTransactionTests {
         let encodedBuiltTransaction = try encoder.encode(builtTransaction)
         let encodedExpectedTransaction = try encoder.encode(expectedTransaction)
 
+        #expect(address.value == "kaspa:qyp5qxu7n45c8zx6pqhndy43p4qt02zxchc4723fuclpraty00gpm6c8edeys5s")
         #expect(hashes == expectedHashes)
         #expect(encodedBuiltTransaction == encodedExpectedTransaction)
     }
@@ -260,7 +269,7 @@ struct KaspaTransactionTests {
     @Test
     func krc20TokenTransaction() async throws {
         // given
-        let address = PlainAddress(value: "kaspa:qyp5qxu7n45c8zx6pqhndy43p4qt02zxchc4723fuclpraty00gpm6c8edeys5s", publicKey: .empty, type: .default)
+        let address = try KaspaAddressService(isTestnet: false).makeAddress(from: Data(hexString: "03401b9e9d698388da082f3692b10d40b7a846c5f15f2a29e63e11f5647bd01deb"))
         let unspentOutputManager: UnspentOutputManager = .kaspa(address: address)
         let outputs: [UnspentOutput] = [
             UnspentOutput(blockId: 1, txId: "5a2e80c8a279e52b87c6fe1503947e6bb0c081333f465f913d4a0245426109c7", index: 0, amount: 20000000),
@@ -389,6 +398,7 @@ struct KaspaTransactionTests {
         let encodedBuiltRevealTransaction = try encoder.encode(builtRevealTransaction)
         let encodedExpectedRevealTransaction = try encoder.encode(expectedRevealTransaction)
 
+        #expect(address.value == "kaspa:qyp5qxu7n45c8zx6pqhndy43p4qt02zxchc4723fuclpraty00gpm6c8edeys5s")
         #expect(hashes == expectedHashes)
         #expect(encodedBuiltTransaction == encodedExpectedTransaction)
         #expect(encodedBuiltRevealTransaction == encodedExpectedRevealTransaction)
