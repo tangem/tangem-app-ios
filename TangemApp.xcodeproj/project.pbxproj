@@ -47,6 +47,8 @@
 		0ACB000D2D5F0E4500C86172 /* StakeKitTransactionDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACB000C2D5F0E4500C86172 /* StakeKitTransactionDataProvider.swift */; };
 		0ACB000F2D5F0E4E00C86172 /* StakeKitTransactionStatusProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACB000E2D5F0E4E00C86172 /* StakeKitTransactionStatusProvider.swift */; };
 		0ACB00902D63590900C86172 /* StakeKitTransactionDataBroadcaster.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACB008F2D63590900C86172 /* StakeKitTransactionDataBroadcaster.swift */; };
+		0ACBC5A12DBA97B600272646 /* ReferralNotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACBC5A02DBA97B600272646 /* ReferralNotificationController.swift */; };
+		0ACBC5A32DBA980300272646 /* CommonReferralNotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACBC5A22DBA980300272646 /* CommonReferralNotificationController.swift */; };
 		0AD13F952C8AD76800C2EE16 /* CommonStakingAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD13F942C8AD76800C2EE16 /* CommonStakingAnalyticsLogger.swift */; };
 		0AD1D1592D3A7BB700D39F0E /* MultipleSignTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD1D1582D3A7BB700D39F0E /* MultipleSignTask.swift */; };
 		0AE3EE0B2D018CAE003BC687 /* ScrollViewOffsetHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE3EE0A2D018CAE003BC687 /* ScrollViewOffsetHandler.swift */; };
@@ -3483,6 +3485,8 @@
 		0ACB000C2D5F0E4500C86172 /* StakeKitTransactionDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakeKitTransactionDataProvider.swift; sourceTree = "<group>"; };
 		0ACB000E2D5F0E4E00C86172 /* StakeKitTransactionStatusProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakeKitTransactionStatusProvider.swift; sourceTree = "<group>"; };
 		0ACB008F2D63590900C86172 /* StakeKitTransactionDataBroadcaster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakeKitTransactionDataBroadcaster.swift; sourceTree = "<group>"; };
+		0ACBC5A02DBA97B600272646 /* ReferralNotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralNotificationController.swift; sourceTree = "<group>"; };
+		0ACBC5A22DBA980300272646 /* CommonReferralNotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonReferralNotificationController.swift; sourceTree = "<group>"; };
 		0AD13F942C8AD76800C2EE16 /* CommonStakingAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStakingAnalyticsLogger.swift; sourceTree = "<group>"; };
 		0AD1D1582D3A7BB700D39F0E /* MultipleSignTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipleSignTask.swift; sourceTree = "<group>"; };
 		0AD9EF0E2CC2A9B600466191 /* UnstakingAmountValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnstakingAmountValidator.swift; sourceTree = "<group>"; };
@@ -8525,6 +8529,8 @@
 				B04CD34329122C8D001EA84A /* ReferralCoordinatorView.swift */,
 				B0D7F895295EDCBE00497139 /* ReferralErrors.swift */,
 				DC6DACFE2A98DF1F00AEBB8C /* ReferralInputModel.swift */,
+				0ACBC5A02DBA97B600272646 /* ReferralNotificationController.swift */,
+				0ACBC5A22DBA980300272646 /* CommonReferralNotificationController.swift */,
 			);
 			path = Referral;
 			sourceTree = "<group>";
@@ -18164,6 +18170,7 @@
 				DC7127B32897ECEE00F60F71 /* GenericConfig.swift in Sources */,
 				B06917E0270444CE0000E6C1 /* OnboardingWalletInfoPager.swift in Sources */,
 				B0BB972A2B18653B00053954 /* ExpressInteractor.swift in Sources */,
+				0ACBC5A12DBA97B600272646 /* ReferralNotificationController.swift in Sources */,
 				2DB648842C35877000DA100D /* MarketsWalletSelectorViewModel.swift in Sources */,
 				B0ADFD40298A70FF00EF2869 /* WalletConnectV2SignTransactionHandler.swift in Sources */,
 				B036881E2C74B79300D418FB /* MarketsListDataFetcher.swift in Sources */,
@@ -18410,6 +18417,7 @@
 				EF842DEA2AFA58C5006E472E /* ExpressTokensListView.swift in Sources */,
 				B0F16D7126EF5ED800687C47 /* ProgressBar.swift in Sources */,
 				EF5E5A822B70FF3700D19BBB /* CommonBannerPromotionService.swift in Sources */,
+				0ACBC5A32DBA980300272646 /* CommonReferralNotificationController.swift in Sources */,
 				DC295B542861F104006CB7B6 /* OnboardingRoutable.swift in Sources */,
 				EF3CC86C2CE4BF2E006A9FBD /* OnrampAmountCompactView.swift in Sources */,
 				DC2CD3442B0FE3D600C0D677 /* SendCurrencyView.swift in Sources */,
