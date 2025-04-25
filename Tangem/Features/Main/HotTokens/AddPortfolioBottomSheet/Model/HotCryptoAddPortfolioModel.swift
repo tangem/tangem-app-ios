@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import struct TangemUI.TokenIconInfo
 
 struct HotCryptoAddToPortfolioModel: Identifiable {
     let id = UUID()

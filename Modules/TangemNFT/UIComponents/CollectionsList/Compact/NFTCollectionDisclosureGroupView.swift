@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemLocalization
 
 struct NFTCollectionDisclosureGroupView: View {
     let viewModel: NFTCompactCollectionViewModel
@@ -17,10 +18,10 @@ struct NFTCollectionDisclosureGroupView: View {
     private var isOpened = false
 
     var body: some View {
-        discslosureGroup
+        disclosureGroup
     }
 
-    private var discslosureGroup: some View {
+    private var disclosureGroup: some View {
         CustomDisclosureGroup(
             isExpanded: isOpened,
             transition: .opacity,
@@ -47,7 +48,7 @@ struct NFTCollectionDisclosureGroupView: View {
             iconURL: viewModel.logoURL,
             iconOverlayImage: viewModel.blockchainImage,
             title: viewModel.name,
-            subtitle: "\(viewModel.numberOfItems) items", // [REDACTED_TODO_COMMENT]
+            subtitle: Localization.nftCollectionsCount(viewModel.numberOfItems),
             isExpanded: isOpened
         )
     }
@@ -79,7 +80,7 @@ struct DummyProvider: NFTChainIconProvider {
                 description: "",
                 logoURL: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!,
                 assetsCount: nil,
-                assets: (0 ... 10).map {
+                assets: (0 ... 2).map {
                     NFTAsset(
                         assetIdentifier: "some-\($0)",
                         collectionIdentifier: "some1",

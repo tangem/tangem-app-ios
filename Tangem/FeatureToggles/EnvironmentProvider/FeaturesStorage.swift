@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemVisa
 
 // MARK: - Provider
 
@@ -31,6 +32,9 @@ class FeatureStorage {
     @AppStorageCompat(FeatureStorageKeys.stakingBlockchainsIds)
     var stakingBlockchainsIds: [String] = []
 
+    @AppStorageCompat(FeatureStorageKeys.testableNFTChainsIds)
+    var testableNFTChainsIds: [String] = []
+
     @AppStorageCompat(FeatureStorageKeys.performanceMonitorEnabled)
     var isPerformanceMonitorEnabled = false
 
@@ -42,6 +46,9 @@ class FeatureStorage {
 
     @AppStorageCompat(FeatureStorageKeys.useVisaAPIMocks)
     var isVisaAPIMocksEnabled = false
+
+    @AppStorageCompat(FeatureStorageKeys.visaAPIType)
+    var visaAPIType = VisaAPIType.prod
 
     private init() {}
 }
@@ -55,8 +62,10 @@ private enum FeatureStorageKeys: String {
     case apiExpress = "api_express"
     case supportedBlockchainsIds
     case stakingBlockchainsIds
+    case testableNFTChainsIds = "testable_nft_chains_ids"
     case performanceMonitorEnabled = "performance_monitor_enabled"
     case mockedCardScannerEnabled = "mocked_card_scanner_enabled"
     case useVisaTestnet = "use_visa_testnet"
     case useVisaAPIMocks = "use_visa_api_mocks"
+    case visaAPIType = "visa_api_type"
 }
