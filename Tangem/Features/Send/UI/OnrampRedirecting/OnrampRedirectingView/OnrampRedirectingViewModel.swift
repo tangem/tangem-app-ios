@@ -7,9 +7,10 @@
 //
 
 import Combine
-import TangemLocalization
 import SwiftUI
 import TangemExpress
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 final class OnrampRedirectingViewModel: ObservableObject {
     // MARK: - ViewState
