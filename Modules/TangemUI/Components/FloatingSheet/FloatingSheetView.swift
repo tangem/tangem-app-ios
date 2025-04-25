@@ -7,11 +7,12 @@
 //
 
 import SwiftUI
-import TangemUIUtils
+import TangemAssets
 
 public struct FloatingSheetView<HostContent: View>: View {
     private let hostContent: HostContent
-    @Binding private var viewModel: (any FloatingSheetContentViewModel)?
+    private let viewModel: (any FloatingSheetContentViewModel)?
+    private let dismissSheetAction: () -> Void
 
     @State private var keyboardHeight: CGFloat = 0
     @State private var verticalDragAmount: CGFloat = 0
@@ -20,9 +21,10 @@ public struct FloatingSheetView<HostContent: View>: View {
     @Environment(\.floatingSheetRegistry) private var registry: FloatingSheetRegistry
     @Environment(\.floatingSheetConfiguration) private var configuration: FloatingSheetConfiguration
 
-    public init(hostContent: HostContent, viewModel: Binding<(any FloatingSheetContentViewModel)?>) {
+    public init(hostContent: HostContent, viewModel: (any FloatingSheetContentViewModel)?, dismissSheetAction: @escaping () -> Void) {
         self.hostContent = hostContent
-        _viewModel = viewModel
+        self.viewModel = viewModel
+        self.dismissSheetAction = dismissSheetAction
     }
 
     public var body: some View {
@@ -38,6 +40,7 @@ public struct FloatingSheetView<HostContent: View>: View {
                 $0.gesture(verticalSwipeGesture)
             }
         }
+        .ignoresSafeArea()
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
             guard
                 configuration.keyboardHandlingEnabled,
@@ -61,13 +64,12 @@ public struct FloatingSheetView<HostContent: View>: View {
     }
 
     private var backgroundView: some View {
-        // [REDACTED_TODO_COMMENT]
-        Color(white: .zero, opacity: viewModel == nil ? .zero : 0.7)
-            .ignoresSafeArea()
+        Colors.Overlays.overlaySecondary
+            .opacity(viewModel == nil ? .zero : 1)
             .allowsHitTesting(configuration.backgroundInteractionBehavior != .passTouchesThrough)
             .onTapGesture {
                 guard configuration.backgroundInteractionBehavior == .tapToDismiss, !isDragging else { return }
-                viewModel = nil
+                dismissSheetAction()
             }
             .if(configuration.isBackgroundSwipeEnabled) {
                 $0.gesture(verticalSwipeGesture)
@@ -92,10 +94,8 @@ public struct FloatingSheetView<HostContent: View>: View {
                         .clipShape(roundedRectangle)
                         .padding(.horizontal, 8)
                         .padding(.bottom, bottomSheetPadding)
-                        .padding(.bottom, keyboardHeight)
                         .offset(y: verticalDragAmount)
                         .animation(.floatingSheet, value: verticalDragAmount)
-                        .animation(.keyboard, value: keyboardHeight)
                         .if(configuration.isSheetSwipeEnabled) {
                             $0.gesture(verticalSwipeGesture)
                         }
@@ -106,6 +106,8 @@ public struct FloatingSheetView<HostContent: View>: View {
                 .transition(.slideFromBottom)
             }
         }
+        .offset(y: -keyboardHeight)
+        .animation(.keyboard, value: keyboardHeight)
         .animation(.floatingSheet, value: viewModel == nil)
     }
 
@@ -119,7 +121,7 @@ public struct FloatingSheetView<HostContent: View>: View {
             }
             .onEnded { dragGestureValue in
                 if let threshold = configuration.verticalSwipeBehavior?.threshold, dragGestureValue.translation.height > threshold {
-                    viewModel = nil
+                    dismissSheetAction()
                 }
 
                 verticalDragAmount = .zero
@@ -131,13 +133,10 @@ public struct FloatingSheetView<HostContent: View>: View {
     }
 
     private var bottomSheetPadding: CGFloat {
-        let bottomSafeArea = UIApplication.safeAreaInsets.bottom
-        let bottomPaddingForDevicesWithHomeButton: CGFloat = 32
-        let deviceHasHomeButton = bottomSafeArea == .zero
-
-        return deviceHasHomeButton
-            ? bottomPaddingForDevicesWithHomeButton
-            : .zero
+        let keyboardIsVisible = keyboardHeight > 0
+        return keyboardIsVisible
+            ? 12
+            : 32
     }
 }
 
