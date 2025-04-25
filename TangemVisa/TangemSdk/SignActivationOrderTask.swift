@@ -15,7 +15,8 @@ public struct SignedActivationOrder {
     public let signedOrderByWallet: Data
 }
 
-class SignActivationOrderTask: CardSessionRunnable {
+/// Task for signing activation order using derived key
+final class SignActivationOrderTask: CardSessionRunnable {
     typealias CompletionHandler = CompletionResult<SignedActivationOrder>
 
     private let orderToSign: VisaCardAcceptanceOrderInfo

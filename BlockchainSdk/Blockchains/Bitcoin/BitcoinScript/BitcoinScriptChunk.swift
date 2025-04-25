@@ -129,7 +129,7 @@ struct DataChunk: BitcoinScriptChunk {
             // Wrap in single quotes. Why not double? Because they are already used in JSON and we don't want to multiply the mess.
             string = "'" + string + "'"
         } else {
-            string = data.hexString.lowercased()
+            string = data.hex()
 
             // Shorter than 128-bit chunks are wrapped in square brackets to avoid ambiguity with big all-decimal numbers.
             if data.count < 16 {

@@ -11,6 +11,7 @@ import SwiftUI
 import Combine
 import CombineExt
 import Kingfisher
+import struct TangemUIUtils.AlertBinder
 
 final class MarketsViewModel: MarketsBaseViewModel {
     private typealias SearchInput = MainBottomSheetHeaderViewModel.SearchInput

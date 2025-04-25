@@ -7,13 +7,15 @@
 //
 
 import SwiftUI
-import TangemLocalization
 import Combine
 import TangemSdk
 import BlockchainSdk
 import TangemExpress
 import TangemStaking
 import TangemFoundation
+import TangemLocalization
+import struct TangemUIUtils.ActionSheetBinder
+import struct TangemUIUtils.ActionSheetBinder
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published var actionSheet: ActionSheetBinder?
