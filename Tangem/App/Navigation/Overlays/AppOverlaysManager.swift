@@ -10,6 +10,7 @@ import Combine
 import SwiftUI
 import class Kingfisher.ImageCache
 import TangemStories
+import TangemUIUtils
 import TangemUI
 
 @MainActor
