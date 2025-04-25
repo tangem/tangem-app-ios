@@ -20,4 +20,5 @@ struct PepecoinMainnetNetworkParams: UTXONetworkParams {
     let signHashType: UTXONetworkParamsSignHashType = .bitcoinAll
     let coinType: UInt32 = 3434
     let dustRelayTxFee: Int = 1_000_000 // 0.01 PEPE
+    let publicKeyType: UTXONetworkParamsPublicKeyType = .compressed
 }
