@@ -8,115 +8,145 @@
 
 import Foundation
 import TangemSdk
-import BitcoinCore
+import WalletCore
 
 class BitcoinTransactionBuilder {
-    private let bitcoinManager: BitcoinManager
+    private let network: UTXONetworkParams
     private let unspentOutputManager: UnspentOutputManager
+    private let coinType: CoinType = .bitcoin
 
-    /// Need only for double public key (Twin cards)
-    private let multisigParameters: MultisigParameters?
-
-    init(bitcoinManager: BitcoinManager, unspentOutputManager: UnspentOutputManager, addresses: [Address]) {
-        self.bitcoinManager = bitcoinManager
+    init(network: UTXONetworkParams, unspentOutputManager: UnspentOutputManager) {
+        self.network = network
         self.unspentOutputManager = unspentOutputManager
-
-        multisigParameters = .init(addresses: addresses)
     }
 
-    func fee(amount: Amount, address: String, feeRate: Int) throws -> Int {
+    func fee(amount: Amount, address: String, feeRate: Int) async throws -> Int {
         let satoshi = amount.asSmallest().value.intValue()
-        let preImage = try unspentOutputManager.preImage(amount: satoshi, feeRate: feeRate, destination: address)
+        let preImage = try await unspentOutputManager.preImage(amount: satoshi, feeRate: feeRate, destination: address)
         return preImage.fee
     }
 
-    func buildForSign(transaction: Transaction, sequence: Int?, sortType: TransactionDataSortType = .bip69) throws -> [Data] {
-        guard let parameters = transaction.fee.parameters as? BitcoinFeeParameters else {
-            throw Error.noBitcoinFeeParameters
+    func buildForSign(transaction: Transaction) async throws -> [Data] {
+        let input = try await buildSigningInputInput(transaction: transaction)
+        let txInputData = try input.serializedData()
+
+        let preImageHashes = TransactionCompiler.preImageHashes(coinType: coinType, txInputData: txInputData)
+        let preSigningOutput: BitcoinPreSigningOutput = try BitcoinPreSigningOutput(serializedData: preImageHashes)
+
+        if preSigningOutput.error != .ok {
+            BSDKLogger.error("BitcoinPreSigningOutput has a error", error: preSigningOutput.errorMessage)
+            throw Error.walletCoreError(preSigningOutput.errorMessage)
         }
 
-        let preImage = try unspentOutputManager.preImage(transaction: transaction)
-        fillBitcoinManager(outputs: preImage.inputs)
-
-        let hashes = try bitcoinManager.buildForSign(
-            target: transaction.destinationAddress,
-            amount: transaction.amount.value,
-            feeRate: parameters.rate,
-            sortType: sortType,
-            changeScript: multisigParameters?.changeScript,
-            sequence: sequence
-        )
-
+        let hashes = preSigningOutput.hashPublicKeys.map { $0.dataHash }
         return hashes
     }
 
-    func buildForSend(transaction: Transaction, signatures: [Data], sequence: Int?, sortType: TransactionDataSortType = .bip69) throws -> Data {
+    func buildForSend(transaction: Transaction, signatures: [SignatureInfo]) async throws -> Data {
+        let input = try await buildSigningInputInput(transaction: transaction)
+        let txInputData = try input.serializedData()
+
+        let signaturesVector = DataVector()
+        let publicKeysVector = DataVector()
+
+        try signatures.forEach { signature in
+            try signaturesVector.add(data: signature.der())
+            try publicKeysVector.add(data: Secp256k1Key(with: signature.publicKey).compress())
+        }
+
+        let compileWithSignatures = TransactionCompiler.compileWithSignatures(
+            coinType: .bitcoin,
+            txInputData: txInputData,
+            signatures: signaturesVector,
+            publicKeys: publicKeysVector
+        )
+
+        let output = try BitcoinSigningOutput(serializedData: compileWithSignatures)
+
+        if output.error != .ok {
+            BSDKLogger.error("BitcoinSigningOutput has a error", error: output.errorMessage)
+            throw Error.walletCoreError("\(output.error)")
+        }
+
+        if output.encoded.isEmpty {
+            throw Error.walletCoreError("Encoded is empty")
+        }
+
+        let encoded = output.encoded
+        return encoded
+    }
+}
+
+// MARK: - Private
+
+private extension BitcoinTransactionBuilder {
+    func buildSigningInputInput(transaction: Transaction) async throws -> BitcoinSigningInput {
         guard let parameters = transaction.fee.parameters as? BitcoinFeeParameters else {
             throw Error.noBitcoinFeeParameters
         }
 
-        let preImage = try unspentOutputManager.preImage(transaction: transaction)
-        fillBitcoinManager(outputs: preImage.inputs)
+        let preImage = try await unspentOutputManager.preImage(transaction: transaction)
 
-        let signatures = try convertToDER(signatures)
-        return try bitcoinManager.buildForSend(
-            target: transaction.destinationAddress,
-            amount: transaction.amount.value,
-            feeRate: parameters.rate,
-            sortType: sortType,
-            derSignatures: signatures,
-            changeScript: multisigParameters?.changeScript,
-            sequence: sequence
-        )
-    }
+        guard let destination = preImage.outputs.first(where: { $0.isDestination }) else {
+            throw Error.noDestinationAmount
+        }
 
-    private func mapToUtxoDTO(output: ScriptUnspentOutput) -> UtxoDTO {
-        UtxoDTO(
-            hash: Data(output.hash.reversed()),
-            index: output.index,
-            value: Int(output.amount),
-            script: output.script.data
-        )
-    }
+        let change = preImage.outputs.first(where: { $0.isChange })
 
-    private func fillBitcoinManager(outputs: [ScriptUnspentOutput]) {
-        let utxos = outputs.map { mapToUtxoDTO(output: $0) }
-        let spendingScripts: [Script]? = multisigParameters?.walletScripts.compactMap { script in
-            let chunks = script.chunks.enumerated().map { index, chunk in
-                Chunk(scriptData: script.data, index: index, payloadRange: chunk.range)
+        let utxo = preImage.inputs.map { input in
+            BitcoinUnspentTransaction.with {
+                $0.outPoint = .with {
+                    $0.hash = Data(input.hash.reversed())
+                    $0.index = UInt32(input.index)
+                    $0.sequence = .max
+                }
+
+                $0.amount = Int64(input.amount)
+                $0.script = input.script.data
             }
-            return Script(with: script.data, chunks: chunks)
         }
 
-        bitcoinManager.fillBlockchainData(unspentOutputs: utxos, spendingScripts: spendingScripts ?? [])
-    }
-
-    private func convertToDER(_ signatures: [Data]) throws -> [Data] {
-        let utils = Secp256k1Utils()
-        return try signatures.compactMap {
-            try utils.serializeDer($0)
+        let scripts: [String: Data] = preImage.inputs.reduce(into: [:]) { result, input in
+            switch input.script.type {
+            case .p2sh(.some(let redeemScript)), .p2wsh(.some(let redeemScript)):
+                result[redeemScript.sha256Ripemd160.hex()] = redeemScript
+            default:
+                break
+            }
         }
+
+        var input = BitcoinSigningInput.with {
+            $0.coinType = network.coinType
+            $0.hashType = network.signHashType.value
+            $0.utxo = utxo
+            $0.scripts = scripts
+
+            $0.toAddress = transaction.destinationAddress
+            $0.amount = Int64(destination.value)
+
+            $0.changeAddress = transaction.changeAddress
+            $0.useMaxAmount = change == nil
+
+            $0.byteFee = Int64(parameters.rate)
+        }
+
+        input.plan = AnySigner.plan(input: input, coin: coinType)
+        if input.plan.error != .ok {
+            BSDKLogger.error("BitcoinSigningInput has a error", error: "\(input.plan.error)")
+            throw Error.walletCoreError("\(input.plan.error)")
+        }
+
+        return input
     }
 }
 
 extension BitcoinTransactionBuilder {
     enum Error: LocalizedError {
+        case unsupportedBlockchain(String)
+        case unsupportedAddresses
+        case wrongType
         case noBitcoinFeeParameters
-    }
-}
-
-struct MultisigParameters {
-    let walletScripts: [BitcoinScript]
-    let changeScript: Data?
-
-    init(addresses: [Address]) {
-        let scriptAddresses = addresses.compactMap { $0 as? BitcoinScriptAddress }
-        let scripts = scriptAddresses.map { $0.script }
-        let defaultScriptData = scriptAddresses
-            .first(where: { $0.type == .default })
-            .map { $0.script.data }
-
-        walletScripts = scripts
-        changeScript = defaultScriptData?.sha256()
+        case noDestinationAmount
+        case walletCoreError(String)
     }
 }

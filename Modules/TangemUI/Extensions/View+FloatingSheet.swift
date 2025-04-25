@@ -9,8 +9,8 @@
 import SwiftUI
 
 public extension View {
-    func floatingSheet(viewModel: Binding<(any FloatingSheetContentViewModel)?>) -> some View {
-        FloatingSheetView(hostContent: self, viewModel: viewModel)
+    func floatingSheet(viewModel: (any FloatingSheetContentViewModel)?, dismissSheetAction: @escaping () -> Void) -> some View {
+        FloatingSheetView(hostContent: self, viewModel: viewModel, dismissSheetAction: dismissSheetAction)
     }
 
     func floatingSheetContent<SheetContentViewModel: FloatingSheetContentViewModel>(
