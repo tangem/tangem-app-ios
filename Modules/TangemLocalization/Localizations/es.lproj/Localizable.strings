@@ -19,6 +19,8 @@
 "add_custom_token_title" = "Agregue un token personalizado";
 "add_tokens_title" = "Gestionar tokens";
 "address_qr_code_message_format" = "Envíe solo %1$@ (%2$@) desde redes como %3$@ a esta dirección. Usar otros tokens y redes puede resultar en la pérdida de fondos.";
+"address_type_default" = "Por defecto";
+"address_type_legacy" = "Legado";
 "alert_app_feedback_sent_message" = "Gracias por sus comentarios";
 "alert_app_feedback_sent_title" = "Enviado con éxito";
 "alert_button_how_to_scan" = "Cómo escanear";
@@ -97,6 +99,7 @@
 "common_back" = "Atrás";
 "common_balance_title" = "Saldo";
 "common_balance" = "Saldo: %@";
+"common_build_tx_error" = "No se pudo crear la transacción";
 "common_buy_currency" = "Ir a %1$@";
 "common_buy" = "Comprar";
 "common_camera_alert_button_settings" = "Ajustes";
@@ -127,6 +130,7 @@
 "common_explore_transaction_history" = "Explore historial de transacciones";
 "common_explore" = "Explore";
 "common_explorer" = "Explorador(a)";
+"common_fee_error" = "No se pudo obtener la tarifa";
 "common_fee_selector_footer" = "Las tarifas de red son cargos que los usuarios pagan para procesar y confirmar transacciones. El importe de la tarifa puede verse afectado por la congestión de la red, el tamaño de la transacción y la prioridad de ejecución. %@";
 "common_fee_selector_option_fast" = "Rápido";
 "common_fee_selector_option_market" = "Mercado";
@@ -177,6 +181,7 @@
 "common_seed_phrase" = "Seed phrase";
 "common_select_action" = "Seleccione una acción";
 "common_sell" = "Vender";
+"common_send_tx_error" = "Error al enviar la transacción";
 "common_send" = "Enviar";
 "common_server_unavailable" = "El servidor no está disponible, por favor inténtelo de nuevo más tarde";
 "common_share_link" = "Compartir enlace";
@@ -202,6 +207,7 @@
 "common_unknown_error" = "Hubo un error. Por favor inténtelo de nuevo.";
 "common_unreachable" = "Inaccesible";
 "common_unstake" = "Termine el staking";
+"common_utxo_validate_withdrawal_message_warning" = "Debido a limitaciónes sobre %1$@, solos %2$li UTXO pueden caber en una sola transacción. Esto significa que solo puedes enviar %3$@ o menos. Debe reducir la cantidad.";
 "common_warning" = "Alerta";
 "common_week" = "semana";
 "common_with" = "con";
@@ -261,6 +267,7 @@
 "details_title" = "Detalles";
 "disclaimer_title" = "Condiciones de uso";
 "error_wrong_wallet_tapped" = "Ha usado una tarjeta de otra billetera. Toque la tarjeta asociada con esta billetera";
+"eth_gas_required_exceeds_allowance" = "No hay fondos suficientes para la transacción. Por favor, recargue su cuenta.";
 "exchange_tokens_available_tokens_header" = "Mis tokens";
 "exchange_tokens_empty_tokens" = "Aún no ha añadido ningún token. Agregue tokens a través de Market para hacer swap";
 "exchange_tokens_unavailable_tokens_header" = "No se puede intercambiar por %@";
@@ -269,7 +276,6 @@
 "express_cex_status_button_title" = "Estado";
 "express_choose_providers_subtitle" = "Tangem ofrece swaps de tokens a través de proveedores externos según los términos de cada proveedor";
 "express_choose_providers_title" = "Elija proveedor";
-"express_error_code" = "Ha ocurrido un error. Código: %@";
 "express_error_provider_amount_roundup" = "Error %1$@. El proveedor seleccionado no puede procesar la transacción especificada. Por favor, redondee el valor a %2$@ o cámbielo";
 "express_error_swap_pair_unavailable" = "El proveedor seleccionado no está disponible actualmente. Inténtelo de nuevo más tarde. (Código: %@)";
 "express_error_swap_unavailable" = "Los cambios no están disponibles en este momento. Inténtelo de nuevo más tarde. (Código: %@)";
@@ -340,6 +346,9 @@
 "feedback_subject_tx_failed" = "No se puede completar una transacción";
 "feedback_subject_tx_push_failed" = "No se puede enviar una transacción";
 "feedback_token_description_error" = "Error de descripción de moneda";
+"generic_error_code" = "Ocurrió un error. Código: %@";
+"generic_error" = "Ocurrió un error";
+"generic_requires_memo_error" = "Requiere memo";
 "give_permission_current_transaction" = "Esta transacción";
 "give_permission_policy_type_footer" = "Especifique el límite aprobado para el token seleccionado.";
 "give_permission_rows_amount" = "Montante %@";
@@ -363,7 +372,7 @@
 "key_invalidated_warning_description" = "Ha actualizado la biometría, escanee su tarjeta o anillo para entrar";
 "koinos_insufficient_balance_to_send_koin_description" = "Su saldo debe ser mayor que el valor de la tarifa para hacer una transferencia";
 "koinos_insufficient_balance_to_send_koin_title" = "Saldo insuficiente";
-"koinos_insufficient_mana_to_send_koin_description" = "No tiene suficiente Mana para esta transacción. Por favor, espere hasta que el Mana se recargue. Su saldo de Mana es %1$@/%2$@";
+"koinos_insufficient_mana_to_send_koin_description" = "No tiene suficiente Mana para esta transacción. Espere hasta que se reponga el maná. Su saldo de maná es %1$@/%2$@";
 "koinos_insufficient_mana_to_send_koin_title" = "Mana insuficiente";
 "koinos_mana_exceeds_koin_balance_description" = "Solo puede transferir %@ debido al límite de Mana impuesto por la red Koinos";
 "koinos_mana_exceeds_koin_balance_title" = "Límite de Mana";
@@ -507,7 +516,6 @@
 "nft_no_collection" = "No collection";
 "nft_receive_available_section_title" = "Available";
 "nft_receive_choose_network" = "Choose network";
-"nft_receive_subtitle" = "To My wallet";
 "nft_receive_title" = "Receive NFT";
 "nft_receive_unavailable_asset_warning_message" = "You haven't added this network yet. To start receiving NFTs, add it to the main screen!";
 "nft_receive_unavailable_asset_warning_title" = "Network not added";
@@ -518,6 +526,10 @@
 "nft_wallet_receive_nft" = "Tap here to receive first NFT";
 "nft_wallet_title" = "NFT collections";
 "nft_wallet_unable_to_load" = "Unable to load the data";
+"no_account_generic" = "Para utilizar la red %1$@, debe pagar la reserva de cuenta (%2$@%3$@), que bloquea y oculta ese monto indefinidamente";
+"no_account_polkadot" = "La cuenta de destino no está activa. Envíe %@ o más para activar la cuenta.";
+"no_account_send_to_create" = "Para crear una cuenta, envíe fondos a esta dirección";
+"no_trustline_xlm_asset" = "La cuenta de destino no tiene una Trustline para el activo que se envía.";
 "onboarding_access_code_feature_1_description" = "Deba configurar un único código de acceso para proteger todss sus dispositivos.";
 "onboarding_access_code_feature_1_title" = "Proteger";
 "onboarding_access_code_feature_2_description" = "Puede configurar un código de acceso individual en cada tarjeta más adelante";
@@ -714,6 +726,9 @@
 "send_dismiss_message" = "¿Está seguro (a) de que quiere cerrar la pantalla de envío?";
 "send_enter_address_field" = "Introduce la dirección";
 "send_error_address_same_as_wallet" = "La dirección es la misma que su billetera.";
+"send_error_dust_change" = "La cantidad es demasiado baja";
+"send_error_no_target_account" = "No se ha creado la cuenta de destino. El monto a enviar debe ser %@ + comisiones o más";
+"send_error_unknown" = "Error desconocido";
 "send_extras_hint_memo" = "Memo";
 "send_fee_unreachable_error_text" = "Compruebe su conexión de red";
 "send_fee_unreachable_error_title" = "Información de tarifa de red no accesible";
@@ -844,10 +859,11 @@
 "staking_notification_restake_text" = "La opción de volver a staking le permite mover sus fondos de un validador a otro sin necesidad de retirarlos.";
 "staking_notification_stake_entire_balance_text" = "Está a punto de hacer staking con todo su saldo. Recomendamos dejar una cantidad para cubrir las tarifas de la red por unstaking o reclamo de recompensas.";
 "staking_notification_ton_activate_account" = "Para empezar a hacer staking en TON, realice primero una transacción de salida de cualquier importe - esto activará su billetera.";
-"staking_notification_ton_extra_reserve_is_required" = "0.2 TON is required to proceed with this operation, in addition to the network fee. Please top up your balance.";
 "staking_notification_ton_extra_reserve_info" = "In addition to the network fee, up to 0.2 TON is needed to complete all steps of the transaction. Unused amount will be returned after it's finished.";
+"staking_notification_ton_extra_reserve_is_required" = "0.2 TON is required to proceed with this operation, in addition to the network fee. Please top up your balance.";
 "staking_notification_ton_extra_reserve_title" = "0.2 Ton Reserved";
 "staking_notification_ton_have_to_unstake_all_text" = "This action will close other positions or switch them to withdrawal status, according to network rules.";
+"staking_notification_ton_have_to_unstake_all_title" = "Positions status";
 "staking_notification_unlock_text" = "Desbloquee su dinero para retirarlo del proceso de staking. El desbloqueo demora %@ minuto.";
 "staking_notification_unstake_cosmos_text" = "Sus fondos estarán disponibles para su uso después del período de desvinculación de 21 días. La recompensa se retirará junto con los fondos de desvinculación.";
 "staking_notification_unstake_text" = "Sus fondos estarán disponibles para su uso después del período de desvinculación de %@.";
@@ -1262,3 +1278,6 @@
 "welcome_unlock_description" = "Use %@ o escanee una tarjeta/anillo para acceder a la app";
 "welcome_unlock_title" = "¡Bienvenido de nuevo!";
 "welcome_unlock" = "Iniciar sesión con %@";
+"xtz_withdrawal_message_ignore" = "No, enviar todo";
+"xtz_withdrawal_message_reduce" = "Réduire de %@ XTZ";
+"xtz_withdrawal_message_warning" = "Para evitar pagar una comisión mayor la próxima vez que recargue su billetera, reduzca el monto en %@";
