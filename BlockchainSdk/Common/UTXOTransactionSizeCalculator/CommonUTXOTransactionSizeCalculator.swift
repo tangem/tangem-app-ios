@@ -73,9 +73,7 @@ extension CommonUTXOTransactionSizeCalculator {
           */
         static let witnessHeaderMarkerSize = 2
 
-        /// StackItem(1) + pushSignature(73) + pushPubKey(33)
-        /// [REDACTED_TODO_COMMENT]
-        /// Because `108` size is not possible
+        /// StackItem(1) + pushSignature(73) + pushPubKey(34)
         static let witnessData = 108
     }
 }
@@ -84,7 +82,10 @@ extension CommonUTXOTransactionSizeCalculator {
 
 extension UTXOScriptType {
     var isWitness: Bool {
-        self == .p2wsh || self == .p2wpkh || self == .p2tr
+        switch self {
+        case .p2wsh, .p2wpkh, .p2tr: true
+        case .p2pk, .p2pkh, .p2sh: false
+        }
     }
 
     var inputSize: Int {
@@ -93,13 +94,11 @@ extension UTXOScriptType {
             // PreviousOutputHex(32) + InputIndex(4) + sigLength(1) + signature(72) + pushByte(1) + sequence(4)
             return 114
         case .p2pkh:
-            // PreviousOutputHex(32) + InputIndex(4) + sigLength(1) + signature(72) + pushByte(1) + PubKey(33) + pushByte(1) + sequence(4)
-            // [REDACTED_TODO_COMMENT]
-            // Because decide on pub key size
+            // PreviousOutputHex(32) + InputIndex(4) + sigLength(1) + signature(72) + pushByte(1) + PubKey(65) + pushByte(1) + sequence(4)
             return 180
         case .p2sh:
-            // Typical multisig redeem script + signatures + script overhead ≈ 297 bytes
-            return 297
+            // OP_0(1) + RedeemScript(71) + sigLength(1) + signature(72)
+            return 146
         case .p2wpkh, .p2wsh, .p2tr:
             // PreviousOutputHex(32) + InputIndex(4) + sigLength(1) + sequence(4)
             return 41
