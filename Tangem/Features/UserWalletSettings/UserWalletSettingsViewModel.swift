@@ -7,8 +7,10 @@
 //
 
 import Combine
-import TangemLocalization
 import SwiftUI
+import TangemLocalization
+import struct TangemUIUtils.ActionSheetBinder
+import struct TangemUIUtils.AlertBinder
 
 final class UserWalletSettingsViewModel: ObservableObject {
     // MARK: - Injected
