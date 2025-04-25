@@ -7,23 +7,13 @@
 //
 
 import Foundation
-import TangemSdk
-import BitcoinCore
 
 struct DogecoinWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        let bitcoinManager = BitcoinManager(
-            networkParams: DogecoinNetworkParams(),
-            walletPublicKey: input.wallet.publicKey.blockchainKey,
-            compressedWalletPublicKey: try Secp256k1Key(with: input.wallet.publicKey.blockchainKey).compress(),
-            bip: .bip44
-        )
-
         let unspentOutputManager: UnspentOutputManager = .dogecoin(address: input.wallet.defaultAddress)
         let txBuilder = BitcoinTransactionBuilder(
-            bitcoinManager: bitcoinManager,
-            unspentOutputManager: unspentOutputManager,
-            addresses: input.wallet.addresses
+            network: DogecoinNetworkParams(),
+            unspentOutputManager: unspentOutputManager
         )
 
         let providers: [UTXONetworkProvider] = input.networkInput.apiInfo.reduce(into: []) { partialResult, providerType in
