@@ -7,32 +7,31 @@
 //
 
 import Foundation
-import BitcoinCore
 
 class BitcoinLegacyAddressService {
-    private let converter: IAddressConverter
+    private let builder: Base58LockingScriptBuilder
 
-    init(networkParams: INetwork) {
-        converter = Base58AddressConverter(addressVersion: networkParams.pubKeyHash, addressScriptVersion: networkParams.scriptHash)
+    init(networkParams: UTXONetworkParams) {
+        builder = .init(network: networkParams)
     }
 }
 
 // MARK: - BitcoinScriptAddressProvider
 
-@available(iOS 13.0, *)
 extension BitcoinLegacyAddressService: BitcoinScriptAddressProvider {
-    func makeScriptAddress(from scriptHash: Data) throws -> String {
-        return try converter.convert(keyHash: scriptHash, type: .p2sh).stringValue
+    func makeScriptAddress(redeemScript: Data) throws -> (address: String, script: UTXOLockingScript) {
+        let scriptHash = redeemScript.sha256Ripemd160
+        let (address, script) = try builder.encode(keyHash: scriptHash, type: .p2sh(redeemScript: redeemScript))
+        return (address, script)
     }
 }
 
 // MARK: - AddressValidator
 
-@available(iOS 13.0, *)
 extension BitcoinLegacyAddressService: AddressValidator {
     func validate(_ address: String) -> Bool {
         do {
-            _ = try converter.convert(address: address)
+            _ = try builder.decode(address: address)
             return true
         } catch {
             return false
@@ -42,24 +41,11 @@ extension BitcoinLegacyAddressService: AddressValidator {
 
 // MARK: - AddressProvider
 
-@available(iOS 13.0, *)
 extension BitcoinLegacyAddressService: AddressProvider {
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
         try publicKey.blockchainKey.validateAsSecp256k1Key()
 
-        let bitcoinCorePublicKey = PublicKey(
-            withAccount: 0,
-            index: 0,
-            external: true,
-            hdPublicKeyData: publicKey.blockchainKey
-        )
-
-        let address = try converter.convert(publicKey: bitcoinCorePublicKey, type: .p2pkh)
-        return LockingScriptAddress(
-            value: address.stringValue,
-            publicKey: publicKey,
-            type: addressType,
-            lockingScript: .init(data: address.lockingScript, type: .p2pkh)
-        )
+        let (address, lockingScript) = try builder.encode(publicKey: publicKey.blockchainKey, type: .p2pkh)
+        return LockingScriptAddress(value: address, publicKey: publicKey, type: addressType, lockingScript: lockingScript)
     }
 }
