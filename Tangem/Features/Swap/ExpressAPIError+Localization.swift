@@ -30,7 +30,7 @@ extension ExpressAPIError {
         case .exchangeRoundUpError:
             return Localization.expressErrorProviderAmountRoundup(errorCode.rawValue, value?.roundUpAmount ?? "")
         default:
-            return Localization.expressErrorCode(errorCode.localizedDescription)
+            return Localization.genericErrorCode(errorCode.localizedDescription)
         }
     }
 }

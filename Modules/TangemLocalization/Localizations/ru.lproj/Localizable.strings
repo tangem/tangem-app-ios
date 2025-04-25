@@ -19,6 +19,8 @@
 "add_custom_token_title" = "Добавить токен";
 "add_tokens_title" = "Валюты";
 "address_qr_code_message_format" = "Отправляйте только %1$@ (%2$@) в сети %3$@ на этот адрес. Использование другой сети может привести к утрате средств.";
+"address_type_default" = "По умолчанию";
+"address_type_legacy" = "Устаревший";
 "alert_app_feedback_sent_message" = "Спасибо за ваш отзыв";
 "alert_app_feedback_sent_title" = "Отправлено успешно";
 "alert_button_how_to_scan" = "Как сканировать";
@@ -97,6 +99,7 @@
 "common_back" = "Назад";
 "common_balance_title" = "Баланс";
 "common_balance" = "Баланс: %@";
+"common_build_tx_error" = "Не удалось создать транзакцию";
 "common_buy_currency" = "Перейти на %1$@";
 "common_buy" = "Купить";
 "common_camera_alert_button_settings" = "Настройки";
@@ -127,6 +130,7 @@
 "common_explore_transaction_history" = "Посмотреть историю транзакций";
 "common_explore" = "Обозреватель";
 "common_explorer" = "Обозреватель";
+"common_fee_error" = "Не удалось получить комиссию";
 "common_fee_selector_footer" = "Сетевые комиссии – это плата пользователя за обработку и подтверждение транзакций. Размер комиссии зависит от нагрузки на сеть, объема транзакции и приоритета исполнения. %@";
 "common_fee_selector_option_fast" = "Быстро";
 "common_fee_selector_option_market" = "По рынку";
@@ -177,6 +181,7 @@
 "common_seed_phrase" = "Seed-фраза";
 "common_select_action" = "Выберите действие";
 "common_sell" = "Продать";
+"common_send_tx_error" = "Не удалось отправить транзакцию";
 "common_send" = "Отправить";
 "common_server_unavailable" = "Сервер недоступен, повторите попытку позднее";
 "common_share_link" = "Поделиться ссылкой";
@@ -202,6 +207,7 @@
 "common_unknown_error" = "Произошла ошибка. Пожалуйста, попробуйте снова.";
 "common_unreachable" = "Недоступно";
 "common_unstake" = "Завершить стейкинг";
+"common_utxo_validate_withdrawal_message_warning" = "Из-за ограничений %1$@ в одну транзакцию может поместиться только %2$li UTXO. Это означает, что вы можете отправить только %3$@ или меньше. Вам нужно уменьшить сумму.";
 "common_warning" = "Предупреждение";
 "common_week" = "неделю";
 "common_with" = "с";
@@ -261,6 +267,7 @@
 "details_title" = "Подробности";
 "disclaimer_title" = "Условия использования";
 "error_wrong_wallet_tapped" = "Вы использовали карту или кольцо от другого кошелька. Приложите карту или кольцо, связанную с этим кошельком.";
+"eth_gas_required_exceeds_allowance" = "Недостаточно средств для совершения транзакции. Пожалуйста, пополните свой аккаунт.";
 "exchange_tokens_available_tokens_header" = "Мои токены";
 "exchange_tokens_empty_tokens" = "У вас нет добавленных токенов. Добавьте токены для обмена";
 "exchange_tokens_unavailable_tokens_header" = "Недоступен для обмена с %@";
@@ -269,7 +276,6 @@
 "express_cex_status_button_title" = "Статус";
 "express_choose_providers_subtitle" = "Tangem предоставляет доступ к обмену через сторонних поставщиков в соответствии с их правилами";
 "express_choose_providers_title" = "Провайдер";
-"express_error_code" = "Произошла ошибка. Код: %@";
 "express_error_provider_amount_roundup" = "Ошибка %1$@. Выбранный провайдер не может обработать указанную транзакцию. Округлите значение до %2$@ или измените его.";
 "express_error_swap_pair_unavailable" = "Выбранный провайдер недоступен для обмена. Попробуйте позже. (Код: %@)";
 "express_error_swap_unavailable" = "В данный момент обмен невозможен. Попробуйте позже. (Код: %@)";
@@ -340,6 +346,9 @@
 "feedback_subject_tx_failed" = "Не могу отправить транзакцию";
 "feedback_subject_tx_push_failed" = "Не могу протолкнуть транзакцию";
 "feedback_token_description_error" = "Ошибка в описании монеты";
+"generic_error_code" = "Произошла ошибка. Код: %@.";
+"generic_error" = "Произошла ошибка";
+"generic_requires_memo_error" = "Требуется memo";
 "give_permission_current_transaction" = "Транзакция";
 "give_permission_policy_type_footer" = "Укажите лимит доступа к выбранному токену";
 "give_permission_rows_amount" = "Количество %@";
@@ -507,7 +516,6 @@
 "nft_no_collection" = "No collection";
 "nft_receive_available_section_title" = "Available";
 "nft_receive_choose_network" = "Choose network";
-"nft_receive_subtitle" = "To My wallet";
 "nft_receive_title" = "Receive NFT";
 "nft_receive_unavailable_asset_warning_message" = "You haven't added this network yet. To start receiving NFTs, add it to the main screen!";
 "nft_receive_unavailable_asset_warning_title" = "Network not added";
@@ -518,6 +526,10 @@
 "nft_wallet_receive_nft" = "Tap here to receive first NFT";
 "nft_wallet_title" = "NFT collections";
 "nft_wallet_unable_to_load" = "Unable to load the data";
+"no_account_generic" = "Чтобы использовать сеть %1$@, вы должны оплатить резерв аккаунта (%2$@ %3$@), который блокируется и не используется в вашем балансе";
+"no_account_polkadot" = "Аккаунт получателя не активирован. Отправьте %@ или более для активации аккаунта.";
+"no_account_send_to_create" = "Для создания аккаунта отправьте средства на этот адрес";
+"no_trustline_xlm_asset" = "Аккаунт получателя не содержит трастлайна для отправляемого актива.";
 "onboarding_access_code_feature_1_description" = "Установите единый код доступа для защиты всех ваших карт или колец";
 "onboarding_access_code_feature_1_title" = "Защита";
 "onboarding_access_code_feature_2_description" = "Установите индивидуальный код доступа для каждой карты или кольца позже.";
@@ -714,6 +726,9 @@
 "send_dismiss_message" = "Вы действительно хотите закрыть экран отправки транзакции?";
 "send_enter_address_field" = "Введите адрес";
 "send_error_address_same_as_wallet" = "Адрес совпадает с адресом кошелька";
+"send_error_dust_change" = "Сдача слишком мала";
+"send_error_no_target_account" = "Аккаунт получателя не создан. Сумма для отправки должна быть %@ + комиссия или больше";
+"send_error_unknown" = "Неизвестная ошибка";
 "send_extras_hint_memo" = "Memo";
 "send_fee_unreachable_error_text" = "Проверьте своё интернет соединение";
 "send_fee_unreachable_error_title" = "Информация о комиссии сети недоступна";
@@ -844,10 +859,11 @@
 "staking_notification_restake_text" = "Рестейк позволяет вам переместить средства из одного валидатора в другого без необходимости выхода из стейкинга.";
 "staking_notification_stake_entire_balance_text" = "Вы собираетесь застейкать весь баланс, рекомендуем оставить небольшую сумму для оплаты комиссии сети при выходе из стейкинга или получении награды.";
 "staking_notification_ton_activate_account" = "Чтобы начать стейкинг в TON, сначала осуществите исходящую транзакцию на любую сумму — это активирует ваш кошелек.";
-"staking_notification_ton_extra_reserve_is_required" = "Для выполнения операции требуется дополнительно 0.2 TON, помимо сетевой комиссии. Пожалуйста, пополните баланс.";
 "staking_notification_ton_extra_reserve_info" = "В дополнение к сетевой комиссии может потребоваться до 0.2 TON для завершения всех этапов транзакции. Неиспользованная часть будет возвращена после выполнения.";
+"staking_notification_ton_extra_reserve_is_required" = "Для выполнения операции требуется дополнительно 0.2 TON, помимо сетевой комиссии. Пожалуйста, пополните баланс.";
 "staking_notification_ton_extra_reserve_title" = "Зарезервировано 0.2 TON";
 "staking_notification_ton_have_to_unstake_all_text" = "This action will close other positions or switch them to withdrawal status, according to network rules.";
+"staking_notification_ton_have_to_unstake_all_title" = "Positions status";
 "staking_notification_unlock_text" = "Разблокируйте свои средства, чтобы вывести их из стейкинга. Разблокировка займёт %@.";
 "staking_notification_unstake_cosmos_text" = "Ваши средства будут доступны для использования после 21-дневного периода отзыва. Награда будет выведена вместе с вашими выводими средствами.";
 "staking_notification_unstake_text" = "Ваши средства будут доступны после %@ периода отзыва.";
@@ -1262,3 +1278,6 @@
 "welcome_unlock_description" = "Используйте %@ или отсканируйте карту либо кольцо для входа в приложение";
 "welcome_unlock_title" = "C возвращением!";
 "welcome_unlock" = "Войти с %@";
+"xtz_withdrawal_message_ignore" = "Нет, отправить все";
+"xtz_withdrawal_message_reduce" = "Уменьшить на %@ XTZ";
+"xtz_withdrawal_message_warning" = "Чтобы не платить повышенную комиссию при следующем пополнении кошелька, уменьшите сумму на %@ XTZ";

@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemSdk
 import WalletCore
+import TangemLocalization
 
 final class ChiaWalletManager: BaseManager, WalletManager {
     // MARK: - Properties
