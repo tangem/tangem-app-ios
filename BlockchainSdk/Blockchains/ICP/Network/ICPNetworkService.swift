@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import IcpKit
 import TangemSdk
+import CombineExt
 
 final class ICPNetworkService: MultiNetworkProvider {
     // MARK: - Protperties
