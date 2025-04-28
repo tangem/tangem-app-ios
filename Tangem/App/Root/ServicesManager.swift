@@ -21,6 +21,7 @@ class ServicesManager {
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
     @Injected(\.hotCryptoService) private var hotCryptoService: HotCryptoService
+    @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
     private let storyDataPrefetchService: StoryDataPrefetchService
@@ -54,6 +55,7 @@ class ServicesManager {
         stakingPendingHashesSender?.sendHashesIfNeeded()
         hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
         storyDataPrefetchService.prefetchStoryIfNeeded(.swap(.initialWithoutImages))
+        ukGeoDefiner.initialize()
     }
 
     private func configureFirebase() {
