@@ -16,6 +16,9 @@ final class WalletConnectViewModel: ObservableObject {
     private let walletConnectService: any OldWalletConnectService
     private let userWalletRepository: any UserWalletRepository
     private let establishDAppConnectionUseCase: WalletConnectEstablishDAppConnectionUseCase
+
+    private weak var coordinator: (any WalletConnectRoutable)?
+
     private let logger: Logger
 
     private var newSessionsTask: Task<Void, Never>?
@@ -28,12 +31,14 @@ final class WalletConnectViewModel: ObservableObject {
         state: WalletConnectViewState = .initial,
         walletConnectService: some OldWalletConnectService,
         userWalletRepository: some UserWalletRepository,
-        establishDAppConnectionUseCase: WalletConnectEstablishDAppConnectionUseCase
+        establishDAppConnectionUseCase: WalletConnectEstablishDAppConnectionUseCase,
+        coordinator: some WalletConnectRoutable
     ) {
         self.state = state
         self.walletConnectService = walletConnectService
         self.userWalletRepository = userWalletRepository
         self.establishDAppConnectionUseCase = establishDAppConnectionUseCase
+        self.coordinator = coordinator
 
         logger = WCLogger
         cancellables = []
@@ -137,9 +142,22 @@ extension WalletConnectViewModel {
                     )
                 )
 
-            case .canOpenQRScanner:
-                // [REDACTED_TODO_COMMENT]
-                break
+            case .canOpenQRScanner(let clipboardURI):
+                coordinator?.openQRScanner(clipboardURI: clipboardURI) { [walletConnectService] result in
+                    let source: Analytics.WalletConnectSessionSource
+                    let sessionURI: WalletConnectRequestURI
+
+                    switch result {
+                    case .fromClipboard(let uri):
+                        source = .clipboard
+                        sessionURI = uri
+                    case .fromQRCode(let uri):
+                        source = .qrCode
+                        sessionURI = uri
+                    }
+
+                    walletConnectService.openSession(with: sessionURI, source: source)
+                }
             }
         } catch {
             let disabledReason: String
