@@ -437,7 +437,7 @@ private extension MarketsTokenDetailsViewModel {
             )
         }
 
-        if let securityScore = model.securityScore {
+        if let securityScore = model.securityScore, !ukGeoDefiner.isUK {
             securityScoreViewModel = .init(
                 securityScoreValue: securityScore.securityScore,
                 providers: securityScore.providers,
