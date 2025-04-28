@@ -12,6 +12,8 @@ import TangemExpress
 import TangemFoundation
 
 class OnrampProvidersCompactViewModel: ObservableObject {
+    @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
+
     @Published private(set) var paymentState: PaymentState?
 
     weak var router: OnrampSummaryRoutable?
@@ -47,11 +49,17 @@ class OnrampProvidersCompactViewModel: ObservableObject {
     }
 
     private func makeOnrampProvidersCompactProviderViewData(provider: OnrampProvider) -> OnrampProvidersCompactProviderViewData {
-        OnrampProvidersCompactProviderViewData(
+        let badge: OnrampProvidersCompactProviderViewData.Badge? = switch provider.attractiveType {
+        case .none, .loss: .none
+        case .best where ukGeoDefiner.isUK: .none
+        case .best: .bestRate
+        }
+
+        return OnrampProvidersCompactProviderViewData(
             iconURL: provider.paymentMethod.image,
             paymentMethodName: provider.paymentMethod.name,
             providerName: provider.provider.name,
-            badge: provider.attractiveType == .best ? .bestRate : .none
+            badge: badge
         ) { [weak self] in
             self?.router?.onrampStepRequestEditProvider()
         }
