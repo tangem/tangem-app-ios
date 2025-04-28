@@ -8,6 +8,7 @@
 
 import Foundation
 import Moya
+import TangemLocalization
 
 public enum WalletError: Error, LocalizedError {
     case noAccount(message: String, amountToCreate: Decimal)
