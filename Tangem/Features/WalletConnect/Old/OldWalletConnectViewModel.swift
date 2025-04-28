@@ -165,7 +165,9 @@ extension OldWalletConnectViewModel {
                 }
             )
 
-            coordinator?.openQRScanner(with: binding)
+            Task { @MainActor in
+                coordinator?.legacyOpenQRScanner(with: binding)
+            }
         }
     }
 }
