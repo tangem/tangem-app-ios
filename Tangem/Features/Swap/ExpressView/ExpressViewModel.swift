@@ -18,6 +18,8 @@ import enum TangemSdk.TangemSdkError
 import struct BlockchainSdk.Fee
 
 final class ExpressViewModel: ObservableObject {
+    @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
+
     // MARK: - ViewState
 
     // Main bubbles
@@ -649,6 +651,10 @@ private extension ExpressViewModel {
 
             if selectedProvider.provider.recommended == true {
                 return .recommended
+            }
+
+            if ukGeoDefiner.isUK {
+                return .none
             }
 
             return selectedProvider.isBest ? .bestRate : .none
