@@ -8,6 +8,8 @@
 
 import SwiftUI
 import TangemLocalization
+import struct TangemUIUtils.ActionSheetBinder
+import struct TangemUIUtils.AlertBinder
 
 class ResetToFactoryViewModel: ObservableObject {
     @Published var warnings: [Warning] = []
