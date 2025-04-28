@@ -42,6 +42,6 @@ final class NFTCompactCollectionViewModel: Identifiable {
     }
 
     var numberOfItems: Int {
-        nftCollection.assets.count
+        nftCollection.assetsCount
     }
 }
