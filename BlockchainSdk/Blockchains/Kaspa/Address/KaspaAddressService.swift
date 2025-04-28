@@ -8,15 +8,13 @@
 
 import Foundation
 import TangemSdk
-import BitcoinCore
 
 class KaspaAddressService {
-    private let network: UTXONetworkParams
-    private let lockingScriptBuilder: LockingScriptBuilder
+    private let lockingScriptBuilder: KaspaAddressLockingScriptBuilder
 
     init(isTestnet: Bool) {
-        network = isTestnet ? KaspaTestNetworkParams() : KaspaNetworkParams()
-        lockingScriptBuilder = .kaspa()
+        let network: UTXONetworkParams = isTestnet ? KaspaTestNetworkParams() : KaspaNetworkParams()
+        lockingScriptBuilder = KaspaAddressLockingScriptBuilder(network: network)
     }
 
     func scriptPublicKey(address: String) throws -> Data {
@@ -30,8 +28,7 @@ class KaspaAddressService {
 extension KaspaAddressService: AddressProvider {
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
         let compressedKey = try Secp256k1Key(with: publicKey.blockchainKey).compress()
-        let address = CashAddrBech32.encode(network.p2pkhPrefix.data + compressedKey, prefix: network.bech32Prefix)
-        let lockingScript = try lockingScriptBuilder.lockingScript(for: address)
+        let (address, lockingScript) = try lockingScriptBuilder.encode(publicKey: compressedKey, type: .p2pk)
         return LockingScriptAddress(value: address, publicKey: publicKey, type: addressType, lockingScript: lockingScript)
     }
 }
