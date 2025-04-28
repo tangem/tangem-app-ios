@@ -313,7 +313,7 @@
 "express_exchange_status_title" = "Exchange status";
 "express_exchange_status_verifying" = "Verification required";
 "express_exchange_status_waiting_tx_hash" = "Awaiting transaction hash";
-"express_fetch_best_rates" = "Fetching best rates...";
+"express_fetch_best_rates" = "Fetching current rates...";
 "express_floating_rate" = "Floating rate";
 "express_legal_one_placeholder" = "By using swap functionality, you agree with provider’s %@";
 "express_legal_two_placeholders" = "By using swap functionality, you agree with provider’s %1$@ and %2$@";
@@ -407,6 +407,7 @@
 "markets_add_to_my_portfolio_unavailable_description" = "This asset is currently not supported in the wallet";
 "markets_add_to_my_portfolio_unavailable_for_wallet_description" = "This asset is not available for this wallet";
 "markets_add_token" = "Add";
+"markets_apy_placeholder" = "APY %@";
 "markets_available networks" = "Available networks";
 "markets_common_my_portfolio" = "My portfolio";
 "markets_common_title" = "Market";
@@ -431,7 +432,7 @@
 "markets_selector_interval_7d_title" = "7d";
 "markets_selector_interval_all_title" = "All";
 "markets_sort_by_experienced_buyers_title" = "Experienced buyers";
-"markets_sort_by_rating_title" = "Rating";
+"markets_sort_by_rating_title" = "Capitalization";
 "markets_sort_by_title" = "Sort By";
 "markets_sort_by_top_gainers_title" = "Top Gainers";
 "markets_sort_by_top_losers_title" = "Top Losers";
@@ -505,6 +506,13 @@
 "nft_details_base_information" = "Base information";
 "nft_details_chain" = "Chain";
 "nft_details_contract_address" = "Contract Address";
+"nft_details_info_chain" = "";
+"nft_details_info_contract_address" = "";
+"nft_details_info_rarity_label" = "";
+"nft_details_info_rarity_rank" = "";
+"nft_details_info_token_address" = "";
+"nft_details_info_token_id" = "";
+"nft_details_info_token_standard" = "";
 "nft_details_last_sale_price" = "Last sale price";
 "nft_details_rarity_label" = "Rarity label";
 "nft_details_rarity_rank" = "Rarity rank";
@@ -530,6 +538,9 @@
 "no_account_polkadot" = "Destination account is not active. Send %@ or more to activate the account.";
 "no_account_send_to_create" = "Per creare un account, invia fondi a questo indirizzo";
 "no_trustline_xlm_asset" = "The destination account does not have a trustline for the asset being sent.";
+"notification_referral_promo_button" = "Join Now";
+"notification_referral_promo_text" = "Share your code - earn 5 USDT per sale. Your friend gets 10% OFF.";
+"notification_referral_promo_title" = "Get REWARDS for every friend!";
 "onboarding_access_code_feature_1_description" = "Set up a single access code to protect all your devices.";
 "onboarding_access_code_feature_1_title" = "Protect";
 "onboarding_access_code_feature_2_description" = "Set an individual access code for each card or ring later.";
@@ -806,7 +817,7 @@
 "staking_details_auto_claiming_rewards_daily_text" = "Rewards automatically accumulate in your staking balance daily.";
 "staking_details_available" = "Available";
 "staking_details_average_reward_rate" = "Average Reward Rate";
-"staking_details_banner_text" = "What is Staking?";
+"staking_details_banner_text" = "How Staking Works?";
 "staking_details_estimated_profit" = "%@ est. profit";
 "staking_details_market_rating" = "Market rating";
 "staking_details_metrics_block_header" = "Metrics";
@@ -1251,6 +1262,7 @@
 "wc_common_network" = "Network";
 "wc_common_networks" = "Networks";
 "wc_common_wallet" = "Wallet";
+"wc_connected_networks" = "Connected networks";
 "wc_connection_reqeust_can_view_balance" = "View your wallet balance and activity";
 "wc_connection_reqeust_cant_sign" = "Sign transactions without your notice";
 "wc_connection_reqeust_request_approval" = "Request approval for transactions";
@@ -1266,6 +1278,8 @@
 "wc_new_connection" = "New connection";
 "wc_no_sessions_desc" = "Connect your wallet to a different dApps";
 "wc_no_sessions_title" = "No sessions";
+"wc_notification_security_risk_subtitle" = "This domain is flagged as unsafe by multiple security providers. Leave immediately to protect your assets";
+"wc_notification_security_risk_title" = "Known security risk";
 "wc_wallet_connect" = "Wallet connect";
 "welcome_interrupted_backup_alert_discard" = "Discard";
 "welcome_interrupted_backup_alert_message" = "You have an interrupted backup. Do you want to resume?";
