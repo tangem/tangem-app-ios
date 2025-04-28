@@ -64,7 +64,7 @@ var serviceModules: [PackageDescription.Target] {
             name: "TangemLogger",
             dependencies: [
                 "ZIPFoundation",
-                "TangemFoundation"
+                "TangemFoundation",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
