@@ -6,7 +6,6 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
 
 struct WalletConnectCoordinatorView: CoordinatorView {
@@ -15,7 +14,7 @@ struct WalletConnectCoordinatorView: CoordinatorView {
     var body: some View {
         if let legacyViewModel = coordinator.legacyViewModel {
             OldWalletConnectView(viewModel: legacyViewModel)
-                .sheet(item: $coordinator.qrScanViewCoordinator) {
+                .sheet(item: $coordinator.legacyQRScanViewCoordinator) {
                     QRScanViewCoordinatorView(coordinator: $0)
                         .edgesIgnoringSafeArea(.all)
                 }
@@ -23,6 +22,7 @@ struct WalletConnectCoordinatorView: CoordinatorView {
 
         if let viewModel = coordinator.viewModel {
             WalletConnectView(viewModel: viewModel)
+                .fullScreenCover(item: $coordinator.qrScanCoordinator, content: WalletConnectQRScanCoordinatorView.init)
         }
     }
 }
