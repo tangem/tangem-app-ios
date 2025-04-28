@@ -27,10 +27,6 @@ final class WCServiceV2 {
     var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> {
         canEstablishNewSessionSubject.eraseToAnyPublisher()
     }
-    
-    var connectionInProgressPublisher: AnyPublisher<Bool, Never> {
-        connectionInProgressSubject.eraseToAnyPublisher()
-    }
 
     var newSessions: AsyncStream<[WalletConnectSavedSession]> {
         get async {
@@ -46,7 +42,8 @@ final class WCServiceV2 {
     // MARK: - Subjects
 
     private let canEstablishNewSessionSubject: CurrentValueSubject<Bool, Never> = .init(true)
-    private let connectionInProgressSubject: CurrentValueSubject<Bool, Never> = .init(false)
+    private let dappInfoLoadingSubject: CurrentValueSubject<Bool, Never> = .init(false)
+    private let proposalSubject: CurrentValueSubject<Session.Proposal?, Never> = .init(nil)
     private let selectedWalletIdSubject: PassthroughSubject<String, Never> = .init()
     private let selectedNetworksToConnectSubject: PassthroughSubject<[BlockchainNetwork], Never> = .init()
     private let connectionRequestSubject: CurrentValueSubject<WCConnectionRequestModel?, Never> = .init(nil)
@@ -254,29 +251,18 @@ private extension WCServiceV2 {
                 selectedOptionalNetworks: selectedNetworks
             )
 
+            proposalSubject.send(proposal)
+
             connectionRequestSubject.send(
                 .init(
                     userWalletModelId: selectedWalletId,
                     requestData: requestData,
                     sessionNamespaces: sessionsNamespaces,
-                    connect: { self.accept(with: proposal.id, namespaces: sessionsNamespaces) },
+                    connect: { try await self.accept(with: proposal.id, namespaces: sessionsNamespaces) },
                     cancel: { self.reject(with: proposal) }
                 )
             )
 
-            if !isUpdating {
-                Task { @MainActor [weak self] in
-                    guard let self else { return }
-
-                    floatingSheetPresenter.enqueue(
-                        sheet: WCConnectionSheetViewModel(
-                            requestPublisher: connectionRequestSubject.eraseToAnyPublisher(),
-                            connectionInProgressPublisher: connectionInProgressPublisher.eraseToAnyPublisher(),
-                            proposal: proposal
-                        )
-                    )
-                }
-            }
             //            floatingMessageService.send(newSessionsModel)
             //            log request
         } catch let error as WalletConnectV2Error {
@@ -286,6 +272,7 @@ private extension WCServiceV2 {
             //            floatingMessageService.send(.unknown(error.localizedDescription))
         }
         canEstablishNewSessionSubject.send(true)
+        dappInfoLoadingSubject.send(false)
     }
 }
 
@@ -296,11 +283,24 @@ extension WCServiceV2 {
         // [REDACTED_TODO_COMMENT]
 
         canEstablishNewSessionSubject.send(false)
+        dappInfoLoadingSubject.send(true)
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(
+                sheet: WCConnectionSheetViewModel(
+                    requestPublisher: connectionRequestSubject.eraseToAnyPublisher(),
+                    dappInfoLoadingPublisher: dappInfoLoadingSubject.eraseToAnyPublisher(),
+                    proposalPublisher: proposalSubject.eraseToAnyPublisher()
+                )
+            )
+        }
+
         runTask(withTimeout: 20) { [weak self] in
             await self?.pairClient(with: uri, source: source)
         } onTimeout: { [weak self] in
             // floatingMessageService.send(WalletConnectV2Error.sessionConnetionTimeout)
             self?.canEstablishNewSessionSubject.send(true)
+            self?.dappInfoLoadingSubject.send(false)
         }
     }
 
@@ -315,15 +315,6 @@ extension WCServiceV2 {
 
             WCLogger.info(LoggerStrings.establishedPair(url))
 
-            // [REDACTED_TODO_COMMENT]
-            DispatchQueue.main.async {
-                Toast(view: SuccessToast(text: Localization.walletConnectToastAwaitingSessionProposal))
-                    .present(
-                        layout: .top(padding: 20),
-                        type: .temporary()
-                    )
-            }
-
             selectedWalletId = userWalletRepository.selectedUserWalletId?.stringValue
         } catch {
             //            floatingMessageService.send(
@@ -334,6 +325,7 @@ extension WCServiceV2 {
 
             // Hack to delete the topic from the user default storage inside the WC 2.0 SDK
             await disconnect(topic: url.topic)
+            dappInfoLoadingSubject.send(false)
         }
         canEstablishNewSessionSubject.send(true)
     }
@@ -403,26 +395,9 @@ extension WCServiceV2 {
 // MARK: - Session Actions
 
 private extension WCServiceV2 {
-    func accept(with proposalId: String, namespaces: [String: SessionNamespace]) {
-        TangemFoundation.runTask(in: self) { strongSelf in
-            do {
-                strongSelf.connectionInProgressSubject.send(true)
-                WCLogger.info(LoggerStrings.namespacesToApprove(namespaces))
-                _ = try await WalletKit.instance.approve(proposalId: proposalId, namespaces: namespaces)
-                strongSelf.connectionInProgressSubject.send(false)
-                // log
-            } catch let error as WalletConnectV2Error {
-                strongSelf.connectionInProgressSubject.send(false)
-                //                strongSelf.floatingMessageService.send(error)
-                // log
-            } catch {
-                let mappedError = WalletConnectV2ErrorMappingUtils().mapWCv2Error(error)
-                //                strongSelf.floatingMessageService.send(error)
-                WCLogger.error(LoggerStrings.failedToApproveSession, error: error)
-                strongSelf.connectionInProgressSubject.send(false)
-                // log
-            }
-        }
+    func accept(with proposalId: String, namespaces: [String: SessionNamespace]) async throws {
+        WCLogger.info(LoggerStrings.namespacesToApprove(namespaces))
+        _ = try await WalletKit.instance.approve(proposalId: proposalId, namespaces: namespaces)
     }
 
     func reject(with proposal: Session.Proposal) {

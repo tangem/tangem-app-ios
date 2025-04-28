@@ -2328,7 +2328,7 @@
 		DC10A7C6295DED4E00367574 /* BindableError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC10A7C5295DED4E00367574 /* BindableError.swift */; };
 		DC10BFD92DA6703E00B089DA /* WCService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC10BFD62DA6703E00B089DA /* WCService.swift */; };
 		DC10BFDA2DA6703E00B089DA /* Session+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC10BFCC2DA6703E00B089DA /* Session+Extensions.swift */; };
-		DC10BFDB2DA6703E00B089DA /* NewWCSessionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC10BFD52DA6703E00B089DA /* NewWCSessionModel.swift */; };
+		DC10BFDB2DA6703E00B089DA /* WCConnectionRequestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC10BFD52DA6703E00B089DA /* WCConnectionRequestModel.swift */; };
 		DC10BFDC2DA6703E00B089DA /* CommonWCService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC10BFD42DA6703E00B089DA /* CommonWCService.swift */; };
 		DC10BFDD2DA6703E00B089DA /* WCServiceV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC10BFD22DA6703E00B089DA /* WCServiceV2.swift */; };
 		DC10BFDE2DA6703E00B089DA /* WCServiceV2+LoggerStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC10BFD72DA6703E00B089DA /* WCServiceV2+LoggerStrings.swift */; };
@@ -2564,6 +2564,8 @@
 		DCA2B9162D5A216300F9D358 /* WCSolanaSignAllTransactionsDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA2B9152D5A216300F9D358 /* WCSolanaSignAllTransactionsDTO.swift */; };
 		DCA2B9182D5A22AC00F9D358 /* WCSolanaSignAllTransactionsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA2B9172D5A22AC00F9D358 /* WCSolanaSignAllTransactionsHandler.swift */; };
 		DCA54D8F2C05E0BA00FBF99F /* PriceChangeFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA54D8E2C05E0BA00FBF99F /* PriceChangeFormatterTests.swift */; };
+		DCB1D58A2DB0FCE9004E7DAB /* WarningToast.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB1D5892DB0FCE8004E7DAB /* WarningToast.swift */; };
+		DCB1D58C2DBA44D4004E7DAB /* WCConnectionNetworksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB1D58B2DBA44CE004E7DAB /* WCConnectionNetworksView.swift */; };
 		DCB385182D240AE100105DD4 /* SeedNotifyDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB385172D240ADB00105DD4 /* SeedNotifyDTO.swift */; };
 		DCB616E52CB39AE100BE4481 /* WalletConnect in Frameworks */ = {isa = PBXBuildFile; productRef = DCB616E42CB39AE100BE4481 /* WalletConnect */; };
 		DCB616E72CB3A63800BE4481 /* ReownWalletKit in Frameworks */ = {isa = PBXBuildFile; productRef = DCB616E62CB3A63800BE4481 /* ReownWalletKit */; };
@@ -5748,7 +5750,7 @@
 		DC10BFCF2DA6703E00B089DA /* WCFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCFactory.swift; sourceTree = "<group>"; };
 		DC10BFD22DA6703E00B089DA /* WCServiceV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCServiceV2.swift; sourceTree = "<group>"; };
 		DC10BFD42DA6703E00B089DA /* CommonWCService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonWCService.swift; sourceTree = "<group>"; };
-		DC10BFD52DA6703E00B089DA /* NewWCSessionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewWCSessionModel.swift; sourceTree = "<group>"; };
+		DC10BFD52DA6703E00B089DA /* WCConnectionRequestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCConnectionRequestModel.swift; sourceTree = "<group>"; };
 		DC10BFD62DA6703E00B089DA /* WCService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCService.swift; sourceTree = "<group>"; };
 		DC10BFD72DA6703E00B089DA /* WCServiceV2+LoggerStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WCServiceV2+LoggerStrings.swift"; sourceTree = "<group>"; };
 		DC10BFE12DA6772D00B089DA /* WCConnectionSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCConnectionSheetViewModel.swift; sourceTree = "<group>"; };
@@ -5981,6 +5983,8 @@
 		DCA2B9152D5A216300F9D358 /* WCSolanaSignAllTransactionsDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCSolanaSignAllTransactionsDTO.swift; sourceTree = "<group>"; };
 		DCA2B9172D5A22AC00F9D358 /* WCSolanaSignAllTransactionsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCSolanaSignAllTransactionsHandler.swift; sourceTree = "<group>"; };
 		DCA54D8E2C05E0BA00FBF99F /* PriceChangeFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceChangeFormatterTests.swift; sourceTree = "<group>"; };
+		DCB1D5892DB0FCE8004E7DAB /* WarningToast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningToast.swift; sourceTree = "<group>"; };
+		DCB1D58B2DBA44CE004E7DAB /* WCConnectionNetworksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCConnectionNetworksView.swift; sourceTree = "<group>"; };
 		DCB385172D240ADB00105DD4 /* SeedNotifyDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedNotifyDTO.swift; sourceTree = "<group>"; };
 		DCBAF6A02A4C4F650029480A /* DerivationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DerivationManager.swift; sourceTree = "<group>"; };
 		DCBC944A2993F3420050BC35 /* AnalyticsStorageKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsStorageKey.swift; sourceTree = "<group>"; };
@@ -7463,6 +7467,7 @@
 		2DBE29BA2B3AE07200109D5E /* Tosts */ = {
 			isa = PBXGroup;
 			children = (
+				DCB1D5892DB0FCE8004E7DAB /* WarningToast.swift */,
 				DA78444B2B3080AF002281B8 /* SuccessToast.swift */,
 			);
 			path = Tosts;
@@ -13799,6 +13804,7 @@
 		DC10BFD12DA6703E00B089DA /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				DC10BFD52DA6703E00B089DA /* WCConnectionRequestModel.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -13818,7 +13824,6 @@
 				DC10BFD12DA6703E00B089DA /* Model */,
 				DC10BFD32DA6703E00B089DA /* Reown */,
 				DC10BFD42DA6703E00B089DA /* CommonWCService.swift */,
-				DC10BFD52DA6703E00B089DA /* NewWCSessionModel.swift */,
 				DC10BFD62DA6703E00B089DA /* WCService.swift */,
 				DC10BFD72DA6703E00B089DA /* WCServiceV2+LoggerStrings.swift */,
 			);
@@ -13837,6 +13842,7 @@
 		DC10BFE92DAFABBB00B089DA /* View */ = {
 			isa = PBXGroup;
 			children = (
+				DCB1D58B2DBA44CE004E7DAB /* WCConnectionNetworksView.swift */,
 				DC10BFE72DAE54AB00B089DA /* WCConnectRequestModalView.swift */,
 			);
 			path = View;
@@ -19022,7 +19028,7 @@
 				EF2FE4992C6B80560015940A /* AllowanceChecker.swift in Sources */,
 				DC10BFD92DA6703E00B089DA /* WCService.swift in Sources */,
 				DC10BFDA2DA6703E00B089DA /* Session+Extensions.swift in Sources */,
-				DC10BFDB2DA6703E00B089DA /* NewWCSessionModel.swift in Sources */,
+				DC10BFDB2DA6703E00B089DA /* WCConnectionRequestModel.swift in Sources */,
 				DC10BFDC2DA6703E00B089DA /* CommonWCService.swift in Sources */,
 				DC10BFDD2DA6703E00B089DA /* WCServiceV2.swift in Sources */,
 				DC10BFDE2DA6703E00B089DA /* WCServiceV2+LoggerStrings.swift in Sources */,
@@ -19110,6 +19116,7 @@
 				B69D0E802A3AEE8000A8B44D /* TokenListLoadingPlaceholderView.swift in Sources */,
 				EFF9A2FC2BD6B45E007C63D2 /* UserWalletSettingsView.swift in Sources */,
 				EF41A3CA2D38006D00FA7020 /* TokenBalancesRepositoryMock.swift in Sources */,
+				DCB1D58C2DBA44D4004E7DAB /* WCConnectionNetworksView.swift in Sources */,
 				B07A13862C416C0700A429C3 /* MarketsTokenDetailsLinkModels.swift in Sources */,
 				B06C086B2A73FD4100D982BC /* MainUserWalletPageBuilderFactory.swift in Sources */,
 				5D09383225E7A9820049B8F0 /* Wallet+.swift in Sources */,
@@ -19907,6 +19914,7 @@
 				B69E7FC82B220C3400B78D9A /* Dictionary+.swift in Sources */,
 				EF42D7852D1D65D90065AFD1 /* TotalTokenBalanceProvider.swift in Sources */,
 				EF42D7862D1D65D90065AFD1 /* FiatTokenBalanceProvider.swift in Sources */,
+				DCB1D58A2DB0FCE9004E7DAB /* WarningToast.swift in Sources */,
 				EF42D7872D1D65D90065AFD1 /* TokenBalanceType.swift in Sources */,
 				EF42D7882D1D65D90065AFD1 /* StakingTokenBalanceProvider.swift in Sources */,
 				EF42D7892D1D65D90065AFD1 /* AvailableTokenBalanceProvider.swift in Sources */,

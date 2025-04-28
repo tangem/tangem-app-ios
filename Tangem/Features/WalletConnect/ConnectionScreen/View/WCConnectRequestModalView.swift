@@ -12,39 +12,28 @@ import TangemAssets
 
 struct WCConnectRequestModalView: View {
     @ObservedObject var viewModel: WCConnectionSheetViewModel
-
-    private let requestDescriptionTransition: AnyTransition = .asymmetric(
-        insertion:
-        .move(edge: .bottom)
-            .animation(.default)
-            .combined(with:
-                .opacity.animation(.default.delay(0.05))
-            ),
-        removal:
-        .move(edge: .bottom)
-            .animation(.easeOut(duration: 0.5))
-            .combined(with:
-                .opacity.animation(.easeOut(duration: 0.2))
-            )
-    )
-
+    
+    @State private var connectingRotationAngle: Angle = .degrees(0)
+    @State private var connectionRequestChevronAngle: Angle = .degrees(0)
+    
     var body: some View {
         VStack(spacing: 0) {
             header
                 .padding(.init(top: 12, leading: 16, bottom: 20, trailing: 16))
-
+            
             dappInfoSection
                 .padding(.init(top: 0, leading: 16, bottom: 14, trailing: 16))
-
+            
             connectionParametersSection
                 .padding(.init(top: 0, leading: 16, bottom: 24, trailing: 16))
-
+            
             HStack(spacing: 8) {
                 MainButton(settings: .init(title: "Cancel", style: .secondary, action: { viewModel.handleViewAction(.cancel) }))
                 MainButton(
                     settings: .init(
                         title: "Connect",
-                        isLoading: viewModel.isConnectionLoadingIndicatorVisible,
+                        isLoading: viewModel.isConnecting,
+                        isDisabled: viewModel.isConnectionButtonDisabled,
                         action: { viewModel.handleViewAction(.connect) }
                     )
                 )
@@ -63,32 +52,35 @@ private extension WCConnectRequestModalView {
             VStack(alignment: .leading, spacing: 16) {
                 dappTitle
                     .padding(.horizontal, 16)
-
+                
                 Divider()
-
+                
                 connectionRequestHeader
+                    .clipShape(Rectangle())
                     .padding(.horizontal, 16)
                     .onTapGesture {
                         viewModel.handleViewAction(.showConnectionDescription)
+                        connectionRequestChevronAngle = .degrees(viewModel.isConnectionRequestDescriptionVisible ? -90 : 0)
                     }
                     .padding(.bottom, 8)
-
+                    .animation(makeDefaultAnimationCurve(duration: 0.4), value: viewModel.isDappInfoLoading)
+                
                 connectionRequestDescription
             }
-            .padding(.vertical, 16)
+            .padding(.init(top: 16, leading: 0, bottom: 12, trailing: 0))
         }
         .background(Colors.Background.action)
         .cornerRadius(14, corners: .allCorners)
     }
-
+    
     var connectionParametersSection: some View {
         VStack(alignment: .leading, spacing: 0) {
             selectedWallet
                 .padding(.init(top: 12, leading: 16, bottom: 0, trailing: 16))
-
+            
             Divider()
                 .padding(.init(top: 10, leading: 46, bottom: 10, trailing: 16))
-
+            
             selectedNetworks
                 .padding(.init(top: 0, leading: 16, bottom: 12, trailing: 16))
         }
@@ -96,6 +88,8 @@ private extension WCConnectRequestModalView {
         .cornerRadius(14, corners: .allCorners)
     }
 }
+
+// MARK: - Subviews
 
 private extension WCConnectRequestModalView {
     var header: some View {
@@ -116,36 +110,55 @@ private extension WCConnectRequestModalView {
                 }
         }
     }
-
+    
+    @ViewBuilder
     var dappTitle: some View {
-        HStack(spacing: 16) {
-            if let urlString = viewModel.proposal.proposer.icons.last, let iconURL = URL(string: urlString) {
-                IconView(url: iconURL, size: .init(bothDimensions: 56))
+        if viewModel.isDappInfoLoading {
+            dappTitleStub
+                .transition(.opacity.animation(makeDefaultAnimationCurve(duration: 0.4)))
+        } else {
+            HStack(spacing: 16) {
+                if let urlString = viewModel.proposal?.proposer.icons.last, let iconURL = URL(string: urlString) {
+                    IconView(url: iconURL, size: .init(bothDimensions: 56))
+                }
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    if let dappName = viewModel.proposal?.proposer.name, !dappName.isEmpty {
+                        Text(viewModel.proposal?.proposer.name ?? "")
+                            .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                    }
+                    
+                    if let dappUrl = viewModel.proposal?.proposer.url, !dappUrl.isEmpty {
+                        Text(dappUrl)
+                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    }
+                }
+                .multilineTextAlignment(.leading)
             }
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(viewModel.proposal.proposer.name)
-                    .style(Fonts.Bold.title3, color: Colors.Text.primary1)
-
-                Text(viewModel.proposal.proposer.url)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-            }
-            .multilineTextAlignment(.leading)
+            .transition(.opacity.animation(makeDefaultAnimationCurve(duration: 0.4)))
         }
     }
-
+    
+    @ViewBuilder
     var connectionRequestHeader: some View {
-        HStack(alignment: .center, spacing: 8) {
-            Assets.connectNew.image
-
-            Text("Connection request")
-                .style(Fonts.Regular.body, color: Colors.Text.primary1)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .clipShape(Rectangle())
-
-            Assets.chevronRight.image
-                .rotationEffect(Angle(degrees: viewModel.isConnectionRequestDescriptionVisible ? -90 : 0))
-                .animation(.easeInOut, value: viewModel.isConnectionRequestDescriptionVisible)
+        if case .dappInfoLoading = viewModel.presentationState {
+            connectionRequestHeaderStub
+        } else {
+            HStack(alignment: .center, spacing: 8) {
+                Assets.connectNew.image
+                    .renderingMode(.template)
+                    .foregroundStyle(Colors.Icon.accent)
+                
+                Text("Connection request")
+                    .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                Assets.WalletConnect.chevronRight.image
+                    .renderingMode(.template)
+                    .foregroundStyle(Colors.Icon.informative)
+                    .rotationEffect(connectionRequestChevronAngle)
+                    .animation(makeDefaultAnimationCurve(duration: 0.3), value: connectionRequestChevronAngle)
+            }
         }
     }
 }
@@ -153,21 +166,23 @@ private extension WCConnectRequestModalView {
 // MARK: Connection request details
 
 private extension WCConnectRequestModalView {
-    @ViewBuilder
+    enum ActionPermission {
+        case allowed
+        case denied
+    }
+    
     func connectionRequestRow(type: ActionPermission, text: String) -> some View {
         let foregroundStyle: Color = switch type {
         case .allowed: Colors.Icon.accent
         case .denied: Colors.Icon.warning
         }
-
-        let image: some View = {
-            return switch type {
-            case .allowed: Assets.WalletConnect.miniCheck.image
-            case .denied: Assets.cross.image
-            }
-        }()
-
-        HStack(spacing: 12) {
+        
+        let image: Image = switch type {
+        case .allowed: Assets.WalletConnect.miniCheck.image
+        case .denied: Assets.cross.image
+        }
+        
+        return HStack(spacing: 12) {
             ZStack {
                 Circle()
                     .foregroundStyle(foregroundStyle.opacity(0.1))
@@ -176,12 +191,12 @@ private extension WCConnectRequestModalView {
                     .renderingMode(.template)
                     .foregroundStyle(foregroundStyle)
             }
-
+            
             Text(text)
                 .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
         }
     }
-
+    
     @ViewBuilder
     var connectionRequestDescription: some View {
         if viewModel.isConnectionRequestDescriptionVisible {
@@ -189,19 +204,19 @@ private extension WCConnectRequestModalView {
                 Text("Would like to")
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                     .padding(.bottom, 8)
-
+                
                 connectionRequestRow(type: .allowed, text: "View your wallet balance and activity")
                     .padding(.bottom, 12)
-
+                
                 connectionRequestRow(type: .allowed, text: "Request approval for transactions")
-
+                
                 Divider()
                     .padding(.vertical, 12)
-
+                
                 Text("Will not be able to")
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                     .padding(.bottom, 8)
-
+                
                 connectionRequestRow(type: .denied, text: "Sign transactions without your notice")
             }
             .padding(.horizontal, 16)
@@ -225,28 +240,122 @@ private extension WCConnectRequestModalView {
             Text(viewModel.selectedWalletName)
                 .style(Fonts.Regular.body, color: Colors.Text.tertiary)
                 .padding(.trailing, 2)
+            
             Assets.WalletConnect.selectIcon.image
         }
     }
-
+    
     var selectedNetworks: some View {
         // [REDACTED_TODO_COMMENT]
-        HStack(spacing: 0) {
+        return HStack(spacing: 0) {
             Assets.WalletConnect.networkNew.image
                 .padding(.trailing, 8)
             Text("Networks")
                 .style(Fonts.Regular.body, color: Colors.Text.primary1)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.trailing, 8)
-            if let icon = viewModel.makeTokenIconsInfo().first {
-                TokenIcon(tokenIconInfo: icon, size: .init(bothDimensions: 20))
+            
+            ZStack(alignment: .trailing) {
+                if viewModel.isDappInfoLoading {
+                    connectionNetworksStub
+                } else {
+                    WCConnectionNetworksView(tokenIconsInfo: viewModel.makeTokenIconsInfo())
+                        .transition(.opacity.animation(makeDefaultAnimationCurve(duration: 0.4)))
+                }
             }
-            Assets.WalletConnect.selectIcon.image
+            
+            if viewModel.presentationState == .content {
+                Assets.WalletConnect.selectIcon.image
+                    .transition(.opacity.animation(makeDefaultAnimationCurve(duration: 0.3)))
+            }
         }
     }
 }
 
-private enum ActionPermission {
-    case allowed
-    case denied
+// MARK: Stub views
+
+private extension WCConnectRequestModalView {
+    var connectionNetworksStub: some View {
+        Rectangle()
+            .foregroundStyle(.clear)
+            .frame(width: 94, height: 24)
+            .skeletonable(isShown: true, radius: 8)
+            .transition(.opacity.animation(makeDefaultAnimationCurve(duration: 0.4)))
+    }
+    
+    var connectionRequestHeaderStub: some View {
+        HStack(alignment: .center, spacing: 8) {
+            Assets.WalletConnect.load.image
+                .renderingMode(.template)
+                .resizable()
+                .frame(size: .init(bothDimensions: 24))
+                .foregroundStyle(Colors.Icon.accent)
+                .rotationEffect(connectingRotationAngle)
+                .animation(connectingAnimationCurve, value: connectingRotationAngle)
+                .onAppear {
+                    connectingRotationAngle = .degrees(360)
+                }
+            
+            Text("Connecting")
+                .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+    
+    var dappTitleStub: some View {
+        HStack(spacing: 16) {
+            Rectangle()
+                .foregroundStyle(.clear)
+                .frame(size: .init(bothDimensions: 56))
+                .skeletonable(isShown: true, radius: 12)
+            VStack(alignment: .leading, spacing: 4) {
+                Rectangle()
+                    .foregroundStyle(.clear)
+                    .frame(width: 119, height: 25)
+                    .skeletonable(isShown: true, radius: 8)
+                
+                Rectangle()
+                    .foregroundStyle(.clear)
+                    .frame(width: 168, height: 18)
+                    .skeletonable(isShown: true, radius: 8)
+            }
+        }
+    }
+}
+
+// MARK: - Helpers
+
+private extension WCConnectRequestModalView {
+    var connectingAnimationCurve: Animation {
+        .timingCurve(0.45, 0.19, 0.67, 0.86, duration: 1).repeatForever(autoreverses: false)
+    }
+    
+    var requestDescriptionTransition: AnyTransition {
+        .asymmetric(
+            insertion:
+                    .move(edge: .bottom)
+                    .animation(.timingCurve(0.76, 0, 0.24, 1, duration: 0.5))
+                    .combined(
+                        with: .opacity.animation(makeDefaultAnimationCurve(duration: 0.3).delay(0.2))
+                    ),
+            removal:
+                    .move(edge: .bottom)
+                    .animation(makeDefaultAnimationCurve(duration: 0.5))
+                    .combined(
+                        with:.opacity.animation(makeDefaultAnimationCurve(duration: 0.3))
+                    )
+        )
+    }
+    
+    var connectionRequestChevronAnimation: Animation {
+        if viewModel.isConnectionRequestDescriptionVisible {
+            .timingCurve(0.76, 0, 0.24, 1, duration: 0.5)
+        } else {
+            makeDefaultAnimationCurve(duration: 0.3)
+        }
+    }
+    
+    func makeDefaultAnimationCurve(duration: TimeInterval) -> Animation {
+        .timingCurve(0.65, 0, 0.35, 1, duration: duration)
+    }
 }
