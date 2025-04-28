@@ -83,7 +83,7 @@ struct ReceiveBottomSheetView: View {
             HStack(spacing: 12) {
                 MainButton(
                     title: Localization.commonCopy,
-                    icon: .leading(Assets.copy),
+                    icon: .leading(Assets.Glyphs.copy),
                     style: .secondary,
                     action: viewModel.copyToClipboard
                 )
