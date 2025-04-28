@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct MarketsTokenDetailsView: View {
     @ObservedObject var viewModel: MarketsTokenDetailsViewModel
