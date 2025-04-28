@@ -13,12 +13,16 @@ struct WalletConnectCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: WalletConnectCoordinator
 
     var body: some View {
-        if let model = coordinator.walletConnectViewModel {
-            OldWalletConnectView(viewModel: model)
+        if let legacyViewModel = coordinator.legacyViewModel {
+            OldWalletConnectView(viewModel: legacyViewModel)
                 .sheet(item: $coordinator.qrScanViewCoordinator) {
                     QRScanViewCoordinatorView(coordinator: $0)
                         .edgesIgnoringSafeArea(.all)
                 }
+        }
+
+        if let viewModel = coordinator.viewModel {
+            WalletConnectView(viewModel: viewModel)
         }
     }
 }
