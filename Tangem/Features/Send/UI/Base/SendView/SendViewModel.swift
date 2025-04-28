@@ -7,12 +7,13 @@
 //
 
 import Combine
-import TangemLocalization
 import SwiftUI
 import struct BlockchainSdk.SendTxError
 import TangemAssets
 import TangemExpress
 import TangemFoundation
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 protocol SendViewAlertPresenter: AnyObject {
     func showAlert(_ alert: AlertBinder)
@@ -115,7 +116,7 @@ final class SendViewModel: ObservableObject {
         case .next:
             stepsManager.performNext()
             if flowActionType == .stake {
-                Analytics.log(.stakingButtonNext)
+                Analytics.log(event: .stakingButtonNext, params: [.token: tokenItem.currencySymbol])
             }
         case .continue:
             stepsManager.performContinue()
@@ -209,7 +210,12 @@ final class SendViewModel: ObservableObject {
         if flowActionType == .send {
             Analytics.log(.sendButtonShare)
         } else {
-            Analytics.log(.stakingButtonShare)
+            Analytics.log(
+                event: .stakingButtonShare,
+                params: [
+                    .token: tokenItem.currencySymbol,
+                ]
+            )
         }
         coordinator?.openShareSheet(url: url)
     }
@@ -218,7 +224,10 @@ final class SendViewModel: ObservableObject {
         if flowActionType == .send {
             Analytics.log(.sendButtonExplore)
         } else {
-            Analytics.log(.stakingButtonExplore)
+            Analytics.log(
+                event: .stakingButtonExplore,
+                params: [.token: tokenItem.currencySymbol]
+            )
         }
         coordinator?.openExplorer(url: url)
     }
