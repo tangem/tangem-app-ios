@@ -10,6 +10,10 @@ import Foundation
 import BlockchainSdk
 import TangemVisa
 
+protocol VisaTransactionDetailsRouter: AnyObject {
+    func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String)
+}
+
 class VisaTransactionDetailsViewModel: ObservableObject, Identifiable {
     typealias TransactionHash = String
 
@@ -57,11 +61,28 @@ class VisaTransactionDetailsViewModel: ObservableObject, Identifiable {
     private let transactionHistoryMapper: VisaTransactionHistoryMapper
     private let tokenItem: TokenItem
     private let transaction: VisaTransactionRecord
+    private let emailConfig: EmailConfig
+    private weak var router: VisaTransactionDetailsRouter?
 
-    init(tokenItem: TokenItem, transaction: VisaTransactionRecord) {
+    init(
+        tokenItem: TokenItem,
+        transaction: VisaTransactionRecord,
+        emailConfig: EmailConfig,
+        router: VisaTransactionDetailsRouter?
+    ) {
         self.tokenItem = tokenItem
         self.transaction = transaction
+        self.emailConfig = emailConfig
+        self.router = router
         transactionHistoryMapper = VisaTransactionHistoryMapper(currencySymbol: tokenItem.currencySymbol)
+    }
+
+    func openDispute() {
+        router?.openMail(
+            with: VisaDisputeTransactionDataCollector(transaction: transaction),
+            emailType: .visaFeedback(subject: .dispute),
+            recipient: emailConfig.recipient
+        )
     }
 
     private func exploreTransactionRequest(with hash: TransactionHash) {
