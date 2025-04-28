@@ -15,6 +15,10 @@ class CommonUKGeoDefiner: UKGeoDefiner {
         geoDefiner.initialize()
     }
 
+    func waitForGeoIpRegion() async {
+        _ = try? await geoDefiner.fetchGeoIpRegionCode()
+    }
+
     var isUK: Bool {
         let ipInUK = geoDefiner.geoIpRegionCode?.contains(Constants.ukRegionCode) ?? false
         let phoneCodeInUK = geoDefiner.phoneRegionCode?.contains(Constants.ukRegionCode) ?? false
