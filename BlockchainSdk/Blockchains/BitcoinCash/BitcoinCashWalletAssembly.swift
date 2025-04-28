@@ -7,29 +7,19 @@
 //
 
 import Foundation
-import TangemSdk
-import stellarsdk
-import BitcoinCore
 
 struct BitcoinCashWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        let compressed = try Secp256k1Key(with: input.wallet.publicKey.blockchainKey).compress()
-        let networkParams: INetwork = input.wallet.blockchain.isTestnet ? BitcoinCashTestNetworkParams() : BitcoinCashNetworkParams()
-        let bitcoinManager = BitcoinManager(
-            networkParams: networkParams,
-            walletPublicKey: compressed,
-            compressedWalletPublicKey: compressed,
-            bip: .bip44
-        )
+        let networkParams: UTXONetworkParams = input.isTestnet ? BitcoinCashTestNetworkParams() : BitcoinCashNetworkParams()
 
         let unspentOutputManager: UnspentOutputManager = .bitcoinCash(
             address: input.wallet.defaultAddress,
-            isTestnet: input.wallet.blockchain.isTestnet
+            isTestnet: input.isTestnet
         )
+
         let txBuilder = BitcoinTransactionBuilder(
-            bitcoinManager: bitcoinManager,
-            unspentOutputManager: unspentOutputManager,
-            addresses: input.wallet.addresses
+            network: networkParams,
+            unspentOutputManager: unspentOutputManager
         )
 
         // [REDACTED_TODO_COMMENT]

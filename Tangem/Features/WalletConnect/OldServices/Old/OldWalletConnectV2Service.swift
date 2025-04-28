@@ -214,10 +214,7 @@ final class OldWalletConnectV2Service {
 
                 WCLogger.info("Session established: \(session)")
 
-                let savedSession = OldWalletConnectV2Utils().createSavedSession(
-                    from: session,
-                    with: infoProvider?.userWalletId.stringValue ?? ""
-                )
+                let savedSession = session.mapToWCSavedSession(with: infoProvider?.userWalletId.stringValue ?? "")
 
                 canEstablishNewSessionSubject.send(true)
 
