@@ -8,6 +8,8 @@
 
 import Foundation
 import Combine
+import TangemFoundation
+import TangemNFT
 
 class EnvironmentSetupCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
@@ -20,7 +22,6 @@ class EnvironmentSetupCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var supportedBlockchainsPreferencesViewModel: SupportedBlockchainsPreferencesViewModel?
-    @Published var stakingBlockchainsPreferencesViewModel: SupportedBlockchainsPreferencesViewModel?
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -52,9 +53,19 @@ extension EnvironmentSetupCoordinator: EnvironmentSetupRoutable {
     }
 
     func openStakingBlockchainsPreferences() {
-        stakingBlockchainsPreferencesViewModel = SupportedBlockchainsPreferencesViewModel(
+        supportedBlockchainsPreferencesViewModel = SupportedBlockchainsPreferencesViewModel(
             blockchainIds: StakingFeatureProvider.testableBlockchainItems.map { .init(name: $0.name, id: $0.id) }.toSet(),
             featureStorageKeyPath: \.stakingBlockchainsIds
+        )
+    }
+
+    func openNFTBlockchainsPreferences() {
+        let isTestnet = AppEnvironment.current.isTestnet
+        let allNFTChains = NFTChain.allCases(isTestnet: isTestnet)
+
+        supportedBlockchainsPreferencesViewModel = SupportedBlockchainsPreferencesViewModel(
+            blockchainIds: allNFTChains.map { .init(name: $0.id, id: $0.id) }.toSet(),
+            featureStorageKeyPath: \.testableNFTChainsIds
         )
     }
 }
