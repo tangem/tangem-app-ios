@@ -69,13 +69,13 @@ class StoriesViewModel: ObservableObject {
     func checkPromotion() async {
         let isNewCard = true
         let userWalletId: String? = nil
-        
+
         async let promotionResultCheck: Void = promotionService.checkPromotion(
             isNewCard: isNewCard,
             userWalletId: userWalletId,
             timeout: promotionCheckTimeout
         )
-        async let geoIpRegionCheck: Void = ukGeoDefiner.waitForGeoIpRegion()
+        async let geoIpRegionCheck: Void = ukGeoDefiner.waitForGeoIpRegionIfNeeded()
 
         let _ = await (promotionResultCheck, geoIpRegionCheck)
         await didFinishCheckingPromotion()
