@@ -7,5 +7,6 @@
 //
 
 protocol WalletConnectCameraAccessProvider {
-    func checkIfCameraAccessDenied() -> Bool
+    func checkCameraAccess() -> WalletConnectCameraAccess
+    func requestCameraAccess() async -> Bool
 }
