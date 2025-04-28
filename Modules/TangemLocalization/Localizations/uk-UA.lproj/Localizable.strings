@@ -407,6 +407,7 @@
 "markets_add_to_my_portfolio_unavailable_description" = "Цей актив наразі не підтримується в гаманці";
 "markets_add_to_my_portfolio_unavailable_for_wallet_description" = "Цей токен недоступний для цього гаманця";
 "markets_add_token" = "Додати";
+"markets_apy_placeholder" = "APY %@";
 "markets_available networks" = "Доступні мережі";
 "markets_common_my_portfolio" = "Моє портфоліо";
 "markets_common_title" = "Маркет";
@@ -505,6 +506,13 @@
 "nft_details_base_information" = "Base information";
 "nft_details_chain" = "Chain";
 "nft_details_contract_address" = "Contract Address";
+"nft_details_info_chain" = "";
+"nft_details_info_contract_address" = "";
+"nft_details_info_rarity_label" = "";
+"nft_details_info_rarity_rank" = "";
+"nft_details_info_token_address" = "";
+"nft_details_info_token_id" = "";
+"nft_details_info_token_standard" = "";
 "nft_details_last_sale_price" = "Last sale price";
 "nft_details_rarity_label" = "Rarity label";
 "nft_details_rarity_rank" = "Rarity rank";
@@ -530,6 +538,9 @@
 "no_account_polkadot" = "Обліковий запис одержувача не активовано. Надішліть %@ або більше, щоб активувати обліковий запис.";
 "no_account_send_to_create" = "Для створення акаунту надішліть кошти на цю адресу";
 "no_trustline_xlm_asset" = "Акаунт одержувача не містить трастлайну для активу, що надсилається.";
+"notification_referral_promo_button" = "Join Now";
+"notification_referral_promo_text" = "Share your code - earn 5 USDT per sale. Your friend gets 10% OFF.";
+"notification_referral_promo_title" = "Get REWARDS for every friend!";
 "onboarding_access_code_feature_1_description" = "Налаштуйте єдиний код доступу для захисту всіх ваших карток або кілець";
 "onboarding_access_code_feature_1_title" = "Захист";
 "onboarding_access_code_feature_2_description" = "Встановіть індивідуальний код доступу для кожної картки або кільця пізніше.";
@@ -1251,6 +1262,7 @@
 "wc_common_network" = "Network";
 "wc_common_networks" = "Networks";
 "wc_common_wallet" = "Wallet";
+"wc_connected_networks" = "Connected networks";
 "wc_connection_reqeust_can_view_balance" = "View your wallet balance and activity";
 "wc_connection_reqeust_cant_sign" = "Sign transactions without your notice";
 "wc_connection_reqeust_request_approval" = "Request approval for transactions";
@@ -1266,6 +1278,8 @@
 "wc_new_connection" = "New connection";
 "wc_no_sessions_desc" = "Connect your wallet to a different dApps";
 "wc_no_sessions_title" = "No sessions";
+"wc_notification_security_risk_subtitle" = "This domain is flagged as unsafe by multiple security providers. Leave immediately to protect your assets";
+"wc_notification_security_risk_title" = "Known security risk";
 "wc_wallet_connect" = "Wallet connect";
 "welcome_interrupted_backup_alert_discard" = "Відмовитися";
 "welcome_interrupted_backup_alert_message" = "Ви не завершили резервне копіювання. Бажаєте продовжити?";
