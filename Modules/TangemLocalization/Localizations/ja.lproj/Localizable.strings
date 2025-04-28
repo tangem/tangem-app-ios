@@ -407,6 +407,7 @@
 "markets_add_to_my_portfolio_unavailable_description" = "このアセットは現在ウォレットで利用できません";
 "markets_add_to_my_portfolio_unavailable_for_wallet_description" = "このアセットはこのウォレットでは使用できません。";
 "markets_add_token" = "追加";
+"markets_apy_placeholder" = "APY %@";
 "markets_available networks" = "利用可能なネットワーク";
 "markets_common_my_portfolio" = "私のポートフォリオ";
 "markets_common_title" = "マーケット";
@@ -505,6 +506,13 @@
 "nft_details_base_information" = "基本情報";
 "nft_details_chain" = "チェーン";
 "nft_details_contract_address" = "コントラクトアドレス";
+"nft_details_info_chain" = "";
+"nft_details_info_contract_address" = "";
+"nft_details_info_rarity_label" = "";
+"nft_details_info_rarity_rank" = "";
+"nft_details_info_token_address" = "";
+"nft_details_info_token_id" = "";
+"nft_details_info_token_standard" = "";
 "nft_details_last_sale_price" = "最終販売価格";
 "nft_details_rarity_label" = "レアリティ・ラベル";
 "nft_details_rarity_rank" = "レアリティ・ランク";
@@ -530,6 +538,9 @@
 "no_account_polkadot" = "送信先アカウントが有効ではありません。%@ 以上を送信してアカウントを有効にしてください。";
 "no_account_send_to_create" = "アカウントを作成するには、このアドレスに資金を送金してください";
 "no_trustline_xlm_asset" = "送信先アカウントには、送金されるアセットのトラストラインがありません。";
+"notification_referral_promo_button" = "今すぐ参加";
+"notification_referral_promo_text" = "コードを共有すると、販売ごとに5 USDTを獲得できます。お友達は10%割引になります。";
+"notification_referral_promo_title" = "友達への紹介で報酬を獲得しよう！";
 "onboarding_access_code_feature_1_description" = "すべてのデバイスを保護するには、単一のアクセスコードを設定してください。";
 "onboarding_access_code_feature_1_title" = "保護する";
 "onboarding_access_code_feature_2_description" = "後で各カードおよびリングに個別のアクセスコードを設定できます。";
@@ -1251,6 +1262,7 @@
 "wc_common_network" = "ネットワーク";
 "wc_common_networks" = "ネットワーク";
 "wc_common_wallet" = "ウォレット";
+"wc_connected_networks" = "接続されたネットワーク";
 "wc_connection_reqeust_can_view_balance" = "ウォレットの残高とアクティビティを表示する";
 "wc_connection_reqeust_cant_sign" = "通知なしに取引に署名する";
 "wc_connection_reqeust_request_approval" = "取引の承認をリクエストする";
@@ -1266,6 +1278,8 @@
 "wc_new_connection" = "新しい接続";
 "wc_no_sessions_desc" = "ウォレットを別のdAppに接続する";
 "wc_no_sessions_title" = "セッションなし";
+"wc_notification_security_risk_subtitle" = "このドメインは複数のセキュリティプロバイダーから安全でないとの警告を受けています。あなたの資産を守るため、直ちにアクセスを中止してください。";
+"wc_notification_security_risk_title" = "既知のセキュリティリスク";
 "wc_wallet_connect" = "ウォレットコネクト";
 "welcome_interrupted_backup_alert_discard" = "破棄";
 "welcome_interrupted_backup_alert_message" = "バックアップが中断されました。再開しますか?";
