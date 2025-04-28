@@ -14,12 +14,13 @@ extension CommonWalletModel {
     static let mockETH = CommonWalletModel(
         walletManager: EthereumWalletManagerMock(),
         stakingManager: StakingManagerMock(),
+        featureManager: WalletModelFeaturesManagerMock(),
         transactionHistoryService: nil,
+        sendAvailabilityProvider: TransactionSendAvailabilityProvider(isSendingSupportedByCard: true),
+        tokenBalancesRepository: TokenBalancesRepositoryMock(),
         amountType: .coin,
         shouldPerformHealthCheck: false,
-        isCustom: false,
-        sendAvailabilityProvider: TransactionSendAvailabilityProvider(isSendingSupportedByCard: true),
-        tokenBalancesRepository: TokenBalancesRepositoryMock()
+        isCustom: false
     )
 }
 
