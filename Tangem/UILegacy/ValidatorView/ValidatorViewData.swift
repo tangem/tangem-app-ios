@@ -25,9 +25,9 @@ struct ValidatorViewData: Hashable, Identifiable {
         case .none:
             return nil
         case .selection(let apr):
-            return string(Localization.stakingDetailsAnnualPercentageRate, accent: apr)
+            return string(Localization.stakingDetailsAnnualPercentageRate + " " + apr)
         case .active(let apr):
-            return string(Localization.stakingDetailsApr, accent: apr)
+            return string(Localization.stakingDetailsApr + " " + apr)
         }
     }
 
