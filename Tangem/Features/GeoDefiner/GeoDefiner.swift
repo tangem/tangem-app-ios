@@ -8,23 +8,21 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 class GeoDefiner: Initializable {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    private var _geoIpRegionCode: String?
-    private var loadingBag: AnyCancellable?
-
-    public var geoIpRegionCode: String? {
-        _geoIpRegionCode ?? Locale.current.regionCode?.lowercased()
+    public var geoIpRegionCode: String?
+    public var phoneRegionCode: String? {
+        Locale.current.regionCode?.lowercased()
     }
 
+    private var ipRegionCodeTask: Task<Void, Error>?
+
     func initialize() {
-        loadingBag = tangemApiService
-            .loadGeo()
-            .subscribe(on: DispatchQueue.global())
-            .receiveValue { [weak self] code in
-                self?._geoIpRegionCode = code
-            }
+        ipRegionCodeTask = TangemFoundation.runTask(in: self) {
+            $0.geoIpRegionCode = try await $0.tangemApiService.loadGeo().async()
+        }
     }
 }
