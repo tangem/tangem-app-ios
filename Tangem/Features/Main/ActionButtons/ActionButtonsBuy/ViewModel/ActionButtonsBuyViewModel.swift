@@ -9,6 +9,7 @@
 import Combine
 import Foundation
 import BlockchainSdk
+import struct TangemUIUtils.AlertBinder
 
 final class ActionButtonsBuyViewModel: ObservableObject {
     // MARK: - Dependencies
