@@ -200,7 +200,7 @@ private extension ActionButtonsViewModel {
                 viewModel.handleBuyUpdatingState()
             case (.updated, false):
                 viewModel.handleBuyUpdatedState()
-            case (.failed(let error), false):
+            case (.failed, false):
                 viewModel.buyActionButtonViewModel?.updateState(
                     to: .restricted(reason: Localization.actionButtonsSomethingWrongAlertMessage)
                 )
