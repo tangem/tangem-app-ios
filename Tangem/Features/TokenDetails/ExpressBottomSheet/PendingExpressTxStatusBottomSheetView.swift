@@ -109,9 +109,8 @@ struct PendingExpressTxStatusBottomSheetView: View {
                 if let transactionID = viewModel.transactionID {
                     Button(action: viewModel.copyTransactionID) {
                         HStack(spacing: 4) {
-                            Assets.copy.image
+                            Assets.Glyphs.copy.image
                                 .resizable()
-                                .renderingMode(.template)
                                 .frame(width: 16, height: 16)
                                 .foregroundColor(Colors.Icon.informative)
 
