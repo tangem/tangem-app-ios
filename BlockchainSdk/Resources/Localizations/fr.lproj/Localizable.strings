@@ -7,8 +7,8 @@
 "common_send_tx_error" = "Échec d'envoi de la transaction";
 "common_utxo_validate_withdrawal_message_warning" = "En raison d'une limitations sur les %1$@, seuls les %2$li UTXO peuvent s'intégrer dans une seule transaction. Ce qui signifie vous ne pouvez envoyer que %3$@ ou moins. Réduisez le montant.";
 "eth_gas_required_exceeds_allowance" = "Pas assez de fonds pour la transaction. Veuillez recharger votre compte.";
-"generic_error_code" = "Une erreur s'est produite. Code:%@";
 "generic_error" = "Une erreur s'est produite";
+"generic_error_code" = "Une erreur s'est produite. Code:%@";
 "koinos_insufficient_mana_to_send_koin_description" = "Vous n'avez pas assez de mana pour cette transaction. Veuillez patienter jusqu'à ce que le mana soit réapprovisionné. Votre solde de mana est %1$@/%2$@";
 "no_account_generic" = "Pour utiliser le réseau %1$@, vous devez payer la réserve de compte (%2$@%3$@), qui bloque et cache ce montant indéfiniment";
 "no_account_polkadot" = "Le compte de destination est inactif. Envoyez %@ ou plus pour activer le compte.";
