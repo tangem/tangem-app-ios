@@ -407,6 +407,7 @@
 "markets_add_to_my_portfolio_unavailable_description" = "Cet actif n'est pas pris en charge dans le portefeuille";
 "markets_add_to_my_portfolio_unavailable_for_wallet_description" = "Cet actif n'est pas disponible pour ce portefeuille";
 "markets_add_token" = "Ajoutez un jeton";
+"markets_apy_placeholder" = "APY %@";
 "markets_available networks" = "Réseaux disponibles";
 "markets_common_my_portfolio" = "Mon portfolio";
 "markets_common_title" = "Marché";
@@ -505,6 +506,13 @@
 "nft_details_base_information" = "Base information";
 "nft_details_chain" = "Chain";
 "nft_details_contract_address" = "Contract Address";
+"nft_details_info_chain" = "";
+"nft_details_info_contract_address" = "";
+"nft_details_info_rarity_label" = "";
+"nft_details_info_rarity_rank" = "";
+"nft_details_info_token_address" = "";
+"nft_details_info_token_id" = "";
+"nft_details_info_token_standard" = "";
 "nft_details_last_sale_price" = "Last sale price";
 "nft_details_rarity_label" = "Rarity label";
 "nft_details_rarity_rank" = "Rarity rank";
@@ -530,6 +538,9 @@
 "no_account_polkadot" = "Le compte de destination est inactif. Envoyez %@ ou plus pour activer le compte.";
 "no_account_send_to_create" = "Pour créer un compte, envoyez des fonds à cette adresse";
 "no_trustline_xlm_asset" = "Le compte destinataire n'a pas de Trustline pour l'actif envoyé qu'il tente d'envoyer.";
+"notification_referral_promo_button" = "Rejoignez maintenant";
+"notification_referral_promo_text" = "Partagez votre code et gagnez 5 USDT par vente. Votre ami bénéficie de 10 % de réduction.";
+"notification_referral_promo_title" = "Recevez des RÉCOMPENSES pour chaque ami !";
 "onboarding_access_code_feature_1_description" = "Vous devez définir un seul code d'accès pour protéger tous vos appareils.";
 "onboarding_access_code_feature_1_title" = "Protéger";
 "onboarding_access_code_feature_2_description" = "Vous pourrez définir un code d'accès individuel sur chaque carte plus tard";
@@ -1251,6 +1262,7 @@
 "wc_common_network" = "Network";
 "wc_common_networks" = "Networks";
 "wc_common_wallet" = "Wallet";
+"wc_connected_networks" = "Connected networks";
 "wc_connection_reqeust_can_view_balance" = "View your wallet balance and activity";
 "wc_connection_reqeust_cant_sign" = "Sign transactions without your notice";
 "wc_connection_reqeust_request_approval" = "Request approval for transactions";
@@ -1266,6 +1278,8 @@
 "wc_new_connection" = "Nouvelle connexion";
 "wc_no_sessions_desc" = "Connectez votre portefeuille à différentes dApps";
 "wc_no_sessions_title" = "Aucune séance";
+"wc_notification_security_risk_subtitle" = "This domain is flagged as unsafe by multiple security providers. Leave immediately to protect your assets";
+"wc_notification_security_risk_title" = "Known security risk";
 "wc_wallet_connect" = "Wallet connect";
 "welcome_interrupted_backup_alert_discard" = "Ignorer";
 "welcome_interrupted_backup_alert_message" = "Vous avez une sauvegarde interrompue. Voulez-vous la reprendre ?";
