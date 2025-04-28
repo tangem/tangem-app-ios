@@ -43,17 +43,11 @@ final class SingleTokenRouter: SingleTokenRoutable {
     }
 
     func openReceive(walletModel: any WalletModel) {
-        let infos = walletModel.addresses.map { address in
-            ReceiveAddressInfo(
-                address: address.value,
-                type: address.type,
-                localizedName: address.localizedName,
-                addressQRImage: QrCodeGenerator.generateQRCode(from: address.value)
-            )
-        }
+        let addressInfos = ReceiveBottomSheetUtils(flow: .crypto).makeAddressInfos(from: walletModel.addresses)
+
         coordinator?.openReceiveScreen(
             tokenItem: walletModel.tokenItem,
-            addressInfos: infos
+            addressInfos: addressInfos
         )
     }
 

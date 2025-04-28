@@ -11,6 +11,7 @@ import Combine
 import TonSwift
 import BigInt
 import TangemFoundation
+import CombineExt
 
 /// Abstract layer for multi provide TON blockchain
 class TONNetworkService: MultiNetworkProvider {

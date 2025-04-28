@@ -66,7 +66,7 @@ class CosmosWalletManager: BaseManager, WalletManager {
         .flatMap { manager, transaction in
             manager.networkService
                 .send(transaction: transaction)
-                .mapSendError(tx: transaction.hexString.lowercased())
+                .mapSendError(tx: transaction.hex())
         }
         .handleEvents(receiveOutput: { [weak self] hash in
             let mapper = PendingTransactionRecordMapper()
