@@ -15,15 +15,27 @@ class CommonUKGeoDefiner: UKGeoDefiner {
         geoDefiner.initialize()
     }
 
-    func waitForGeoIpRegion() async {
-        _ = try? await geoDefiner.fetchGeoIpRegionCode()
+    func waitForGeoIpRegionIfNeeded() async {
+        guard !isPhoneRegionCodeUK else {
+            return
+        }
+
+        // add timeout to avoid app launch delay
+        try? await runTask(withTimeout: 3) { [geoDefiner] in
+            _ = try? await geoDefiner.fetchGeoIpRegionCode()
+        }
     }
 
     var isUK: Bool {
-        let ipInUK = geoDefiner.geoIpRegionCode?.contains(Constants.ukRegionCode) ?? false
-        let phoneCodeInUK = geoDefiner.phoneRegionCode?.contains(Constants.ukRegionCode) ?? false
+        guard !isPhoneRegionCodeUK else {
+            return true
+        }
 
-        return ipInUK || phoneCodeInUK
+        return geoDefiner.geoIpRegionCode?.contains(Constants.ukRegionCode) ?? false
+    }
+
+    private var isPhoneRegionCodeUK: Bool {
+        geoDefiner.phoneRegionCode?.contains(Constants.ukRegionCode) ?? false
     }
 }
 
