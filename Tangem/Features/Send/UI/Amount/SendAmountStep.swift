@@ -45,7 +45,7 @@ extension SendAmountStep: SendStep {
 
     func initialAppear() {
         if case .staking = source {
-            Analytics.log(.stakingAmountScreenOpened)
+            Analytics.log(event: .stakingAmountScreenOpened, params: [.token: viewModel.tokenCurrencySymbol])
         }
     }
 
@@ -55,7 +55,15 @@ extension SendAmountStep: SendStep {
             // Workaround initalAppear
             break
         case (.staking, true):
-            Analytics.log(.stakingScreenReopened, params: [.source: .amount])
+            let tokenCurrencySymbol = viewModel.tokenCurrencySymbol
+
+            Analytics.log(
+                event: .stakingScreenReopened,
+                params: [
+                    .source: Analytics.ParameterValue.amount.rawValue,
+                    .token: tokenCurrencySymbol,
+                ]
+            )
         case (_, true):
             Analytics.log(.sendScreenReopened, params: [.source: .amount])
         case (_, false):
