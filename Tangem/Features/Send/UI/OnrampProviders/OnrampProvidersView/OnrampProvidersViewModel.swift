@@ -12,6 +12,8 @@ import SwiftUI
 import TangemExpress
 
 final class OnrampProvidersViewModel: ObservableObject {
+    @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
+
     // MARK: - ViewState
 
     @Published var paymentViewData: OnrampProvidersPaymentViewData?
@@ -108,6 +110,8 @@ private extension OnrampProvidersViewModel {
     func badge(provider: OnrampProvider) -> OnrampProviderRowViewData.Badge? {
         switch provider.attractiveType {
         case .none:
+            return .none
+        case .best where ukGeoDefiner.isUK:
             return .none
         case .best:
             return .bestRate
