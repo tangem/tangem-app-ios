@@ -7,10 +7,11 @@
 //
 
 import Combine
-import TangemLocalization
 import SwiftUI
-import TangemAssets
 import TangemSdk
+import TangemAssets
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 class AppSettingsViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
