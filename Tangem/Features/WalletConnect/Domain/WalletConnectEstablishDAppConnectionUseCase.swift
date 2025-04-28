@@ -28,7 +28,7 @@ final class WalletConnectEstablishDAppConnectionUseCase {
         try validateFeatureAvailability()
 
         let clipboardURI = try? uriProvider.tryExtractClipboardURI()
-        let cameraAccessDenied = cameraAccessProvider.checkIfCameraAccessDenied()
+        let cameraAccessDenied = cameraAccessProvider.checkCameraAccess() == .denied
 
         return cameraAccessDenied
             ? .cameraAccessDenied(clipboardURI: clipboardURI, openSystemSettingsAction: openSystemSettingsAction)
