@@ -242,8 +242,10 @@ struct MarketsTokenDetailsView: View {
     @ViewBuilder
     private var content: some View {
         VStack(spacing: 14) {
-            description
-                .frame(maxWidth: .infinity, alignment: .leading)
+            if viewModel.descriptionCanBeShowed {
+                description
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
 
             portfolioView
 
