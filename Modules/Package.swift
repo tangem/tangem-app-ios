@@ -26,6 +26,8 @@ let package = Package(
         .package(url: "https://github.com/onevcat/Kingfisher.git", .upToNextMajor(from: "7.11.0")),
         .package(url: "https://github.com/Flight-School/AnyCodable.git", .upToNextMajor(from: "0.6.7")),
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.18")),
+        .package(url: "https://github.com/airbnb/lottie-spm.git", .upToNextMajor(from: "4.5.1")),
+        .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.8.1")),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
 )
@@ -37,8 +39,14 @@ var serviceModules: [PackageDescription.Target] {
     [
         .tangemTarget(
             name: "TangemAssets",
+            dependencies: [
+                .product(name: "Lottie", package: "lottie-spm"),
+            ],
             exclude: ["Templates"],
-            resources: [.process("Assets")]
+            resources: [
+                .process("Assets"),
+                .process("LottieAnimations"),
+            ]
         ),
         .tangemTarget(
             name: "TangemLocalization",
@@ -56,6 +64,7 @@ var serviceModules: [PackageDescription.Target] {
             name: "TangemLogger",
             dependencies: [
                 "ZIPFoundation",
+                "TangemFoundation"
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -68,6 +77,7 @@ var serviceModules: [PackageDescription.Target] {
                 "Moya",
                 "Alamofire",
                 "TangemFoundation",
+                "TangemLogger",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -79,6 +89,7 @@ var serviceModules: [PackageDescription.Target] {
             dependencies: [
                 "Kingfisher",
                 "TangemAssets",
+                "TangemLocalization",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -108,8 +119,9 @@ var featureModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemStories",
             dependencies: [
-                "TangemUI",
                 "Kingfisher",
+                "TangemLocalization",
+                "TangemUI",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -119,13 +131,20 @@ var featureModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemNFT",
             dependencies: [
-                "TangemNetworkUtils",
                 "Moya",
                 "AnyCodable",
+                "CombineExt",
                 "TangemAssets",
                 "TangemUI",
+                "TangemUIUtils",
                 "TangemFoundation",
                 "TangemLocalization",
+                "TangemLogger",
+                "TangemNetworkUtils",
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
             ]
         ),
     ]
