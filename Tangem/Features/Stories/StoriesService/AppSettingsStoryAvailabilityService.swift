@@ -15,6 +15,8 @@ final class AppSettingsStoryAvailabilityService: StoryAvailabilityService {
     private let unavailableForCurrentSessionStoryIdsSubject: CurrentValueSubject<Set<TangemStory.ID>, Never>
     private let queue: DispatchQueue
 
+    @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
+
     let availableStoriesPublisher: AnyPublisher<Set<TangemStory.ID>, Never>
 
     init(appSettings: AppSettings) {
@@ -38,6 +40,10 @@ final class AppSettingsStoryAvailabilityService: StoryAvailabilityService {
     }
 
     func checkStoryAvailability(storyId: TangemStory.ID) -> Bool {
+        guard !ukGeoDefiner.isUK else {
+            return false
+        }
+
         let storyWasShown = appSettings.shownStoryIds.contains(storyId.rawValue)
         let storyIsUnavailableForCurrentSession = queue.sync { [unavailableForCurrentSessionStoryIdsSubject] in
             unavailableForCurrentSessionStoryIdsSubject.value.contains(storyId)
