@@ -8,7 +8,6 @@
 
 import Foundation
 import stellarsdk
-import SwiftyJSON
 import Combine
 import TangemSdk
 import TangemLocalization

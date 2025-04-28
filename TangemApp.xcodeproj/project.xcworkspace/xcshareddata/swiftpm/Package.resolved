@@ -1,5 +1,5 @@
 {
-  "originHash" : "73f0af42d8e06cca119e6816908be324d32b1b8b0568a0fea1927714fd24a731",
+  "originHash" : "a401dd9c9db53ddaf7db5b48f2be4e26ff63ade0ccf4a274235ff497fdb96f24",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -555,8 +555,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/SwiftBinanceChain.git",
       "state" : {
-        "revision" : "5fd14e1f0a95e77ea92a382a50615272ab104cb6",
-        "version" : "0.0.14"
+        "revision" : "56d7ddaac3f0a3650324faaf3f7dfe53ec3441a3",
+        "version" : "0.0.15"
       }
     },
     {
@@ -589,10 +589,10 @@
     {
       "identity" : "swiftyjson",
       "kind" : "remoteSourceControl",
-      "location" : "git@github.com:tangem-developments/SwiftyJSON.git",
+      "location" : "https://github.com/SwiftyJSON/SwiftyJSON.git",
       "state" : {
-        "revision" : "acff55ab1a8b138a49477ff523287b18833fc1a0",
-        "version" : "5.0.1-tangem1"
+        "revision" : "b3dcd7dbd0d488e1a7077cb33b00f2083e382f07",
+        "version" : "5.0.1"
       }
     },
     {
