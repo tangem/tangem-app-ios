@@ -11,6 +11,7 @@ import SwiftUI
 
 class StoriesViewModel: ObservableObject {
     @Injected(\.promotionService) var promotionService: PromotionServiceProtocol
+    @Injected(\.ukGeoDefiner) var ukGeoDefiner: UKGeoDefiner
 
     @Published var currentPage: WelcomeStoryPage = .meetTangem
     @Published var currentProgress = 0.0
@@ -68,7 +69,15 @@ class StoriesViewModel: ObservableObject {
     func checkPromotion() async {
         let isNewCard = true
         let userWalletId: String? = nil
-        await promotionService.checkPromotion(isNewCard: isNewCard, userWalletId: userWalletId, timeout: promotionCheckTimeout)
+        
+        async let promotionResultCheck: Void = promotionService.checkPromotion(
+            isNewCard: isNewCard,
+            userWalletId: userWalletId,
+            timeout: promotionCheckTimeout
+        )
+        async let geoIpRegionCheck: Void = ukGeoDefiner.waitForGeoIpRegion()
+
+        let _ = await (promotionResultCheck, geoIpRegionCheck)
         await didFinishCheckingPromotion()
     }
 
@@ -149,6 +158,10 @@ class StoriesViewModel: ObservableObject {
         if !showLearnPage,
            let learnIndex = pages.firstIndex(of: .learn) {
             pages.remove(at: learnIndex)
+        }
+
+        if ukGeoDefiner.isUK, let currenciesIndex = pages.firstIndex(of: .currencies) {
+            pages.remove(at: currenciesIndex)
         }
 
         self.pages = pages
