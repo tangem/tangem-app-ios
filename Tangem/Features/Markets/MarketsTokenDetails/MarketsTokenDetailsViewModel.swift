@@ -14,6 +14,7 @@ import TangemFoundation
 
 class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
+    @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
 
     @Published private(set) var priceChangeAnimation: ForegroundBlinkAnimationModifier.Change = .neutral
     @Published private(set) var isLoading = true
@@ -60,6 +61,8 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     var priceChangeState: TokenPriceChangeView.State? { priceInfo?.priceChangeState }
 
     var isMarketsSheetStyle: Bool { presentationStyle == .marketsSheet }
+
+    var descriptionCanBeShowed: Bool { !ukGeoDefiner.isUK }
 
     private var priceInfo: MarketsTokenDetailsPriceInfoHelper.PriceInfo? {
         guard let currentPrice = priceFromQuoteRepository else {
@@ -480,7 +483,7 @@ private extension MarketsTokenDetailsViewModel {
             tokenInsights = insights
         }
 
-        guard let insights else {
+        guard let insights, !ukGeoDefiner.isUK else {
             insightsViewModel = nil
             return
         }
