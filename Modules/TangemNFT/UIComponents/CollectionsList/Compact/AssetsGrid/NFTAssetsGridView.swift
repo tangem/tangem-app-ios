@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import TangemNFT
 
 struct NFTAssetsGridView: View {
     var viewModel: NFTAssetsGridViewModel

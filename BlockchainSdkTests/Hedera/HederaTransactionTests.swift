@@ -98,7 +98,7 @@ final class HederaTests {
 
         // MARK: - Validating results
 
-        let encodedTransaction = try signedTransaction.toBytes().hexString
+        let encodedTransaction = try signedTransaction.toBytes().hex(.uppercase)
 
         // Hedera coin transfer transaction (testnet):
         // https://hashscan.io/testnet/transaction/1708443042.503872003
@@ -184,7 +184,7 @@ final class HederaTests {
 
         // MARK: - Validating results
 
-        let encodedTransaction = try signedTransaction.toBytes().hexString
+        let encodedTransaction = try signedTransaction.toBytes().hex(.uppercase)
 
         // Hedera coin transfer transaction (testnet):
         // https://hashscan.io/testnet/transaction/1708438449.753341411
@@ -260,7 +260,7 @@ final class HederaTests {
 
         // MARK: - Validating results
 
-        let encodedTransaction = try signedTransaction.toBytes().hexString
+        let encodedTransaction = try signedTransaction.toBytes().hex(.uppercase)
 
         // Hedera SAUCE token association transaction (testnet):
         // https://hashscan.io/testnet/transaction/1714072348.910968367
@@ -333,7 +333,7 @@ final class HederaTests {
 
         // MARK: - Validating results
 
-        let encodedTransaction = try signedTransaction.toBytes().hexString
+        let encodedTransaction = try signedTransaction.toBytes().hex(.uppercase)
 
         // Hedera SAUCE token association transaction (testnet):
         // https://hashscan.io/testnet/transaction/1714073814.800989411
@@ -422,7 +422,7 @@ final class HederaTests {
 
         // MARK: - Validating results
 
-        let encodedTransaction = try signedTransaction.toBytes().hexString
+        let encodedTransaction = try signedTransaction.toBytes().hex(.uppercase)
 
         // Hedera SAUCE token transfer transaction (testnet):
         // https://hashscan.io/testnet/transaction/1714012120.446674433
@@ -509,7 +509,7 @@ final class HederaTests {
 
         // MARK: - Validating results
 
-        let encodedTransaction = try signedTransaction.toBytes().hexString
+        let encodedTransaction = try signedTransaction.toBytes().hex(.uppercase)
 
         // Hedera SAUCE token transfer transaction (testnet):
         // https://hashscan.io/testnet/transaction/1714034136.316923003
