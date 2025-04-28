@@ -7,6 +7,7 @@
 //
 
 protocol UKGeoDefiner: Initializable {
+    func waitForGeoIpRegion() async
     var isUK: Bool { get }
 }
 
