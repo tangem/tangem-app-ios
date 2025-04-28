@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct OnboardingSeedPhraseImportView: View {
     @ObservedObject var viewModel: OnboardingSeedPhraseImportViewModel

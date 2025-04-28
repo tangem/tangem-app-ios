@@ -7,8 +7,9 @@
 //
 
 import Foundation
-import TangemLocalization
 import SwiftUI
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 struct TokenActionAvailabilityAlertBuilder {
     func alert(for status: TokenActionAvailabilityProvider.SendActionAvailabilityStatus) -> AlertBinder? {

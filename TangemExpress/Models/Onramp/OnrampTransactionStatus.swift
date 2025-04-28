@@ -15,6 +15,8 @@ public enum OnrampTransactionStatus: String, Codable {
     case failed
     case paid
     case sending
+    case refunding = "refund-in-progress"
+    case refunded
     case finished
     case paused
 }

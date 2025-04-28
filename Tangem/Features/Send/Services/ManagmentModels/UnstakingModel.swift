@@ -117,7 +117,7 @@ private extension UnstakingModel {
             return error
         }
 
-        return .ready(fee: estimateFee)
+        return .ready(fee: estimateFee, stakesCount: stakingManager.state.stakesCount)
     }
 
     func validate(amount: Decimal, fee: Decimal) -> UnstakingModel.State? {
@@ -149,7 +149,7 @@ private extension UnstakingModel {
             return SendFee(option: .market, value: .loading)
         case .networkError(let error):
             return SendFee(option: .market, value: .failedToLoad(error: error))
-        case .validationError(_, let fee), .ready(let fee):
+        case .validationError(_, let fee), .ready(let fee, _):
             return SendFee(option: .market, value: .loaded(makeFee(value: fee)))
         }
     }
@@ -160,7 +160,13 @@ private extension UnstakingModel {
 private extension UnstakingModel {
     private func send() async throws -> TransactionDispatcherResult {
         if let analyticsEvent = initialAction.type.analyticsEvent {
-            Analytics.log(event: analyticsEvent, params: [.validator: initialAction.validatorInfo?.name ?? ""])
+            Analytics.log(
+                event: analyticsEvent,
+                params: [
+                    .validator: initialAction.validatorInfo?.name ?? "",
+                    .token: tokenItem.currencySymbol,
+                ]
+            )
         }
 
         guard amount?.crypto != nil else {
@@ -374,7 +380,7 @@ extension UnstakingModel {
 
     enum State {
         case loading
-        case ready(fee: Decimal)
+        case ready(fee: Decimal, stakesCount: Int?)
         case validationError(ValidationError, fee: Decimal)
         case networkError(Error)
     }
@@ -388,7 +394,10 @@ private extension UnstakingModel {
         case .pending(.claimRewards), .pending(.restakeRewards):
             Analytics.log(
                 event: .stakingRewardScreenOpened,
-                params: [.validator: initialAction.validatorInfo?.address ?? ""]
+                params: [
+                    .validator: initialAction.validatorInfo?.address ?? "",
+                    .token: tokenItem.currencySymbol,
+                ]
             )
         default:
             break

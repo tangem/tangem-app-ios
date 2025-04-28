@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemUI
 
 struct ExpressSuccessSentView: View {
     @ObservedObject private var viewModel: ExpressSuccessSentViewModel
