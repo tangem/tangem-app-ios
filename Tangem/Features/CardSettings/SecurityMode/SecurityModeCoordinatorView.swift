@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftUI
+import TangemUI
 
 struct SecurityModeCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: SecurityModeCoordinator
