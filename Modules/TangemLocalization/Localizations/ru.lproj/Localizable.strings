@@ -407,6 +407,7 @@
 "markets_add_to_my_portfolio_unavailable_description" = "Этот актив в настоящее время не поддерживается в кошельке";
 "markets_add_to_my_portfolio_unavailable_for_wallet_description" = "Этот токен не доступен для данного кошелька";
 "markets_add_token" = "Добавить";
+"markets_apy_placeholder" = "APY %@";
 "markets_available networks" = "Доступные сети";
 "markets_common_my_portfolio" = "Мой портфель";
 "markets_common_title" = "Рынок";
@@ -431,7 +432,7 @@
 "markets_selector_interval_7d_title" = "7д";
 "markets_selector_interval_all_title" = "Все";
 "markets_sort_by_experienced_buyers_title" = "Опытные трейдеры";
-"markets_sort_by_rating_title" = "Рейтинг";
+"markets_sort_by_rating_title" = "Капитализация";
 "markets_sort_by_title" = "Сортировать по";
 "markets_sort_by_top_gainers_title" = "Лидеры роста";
 "markets_sort_by_top_losers_title" = "Лидеры падения";
@@ -505,6 +506,13 @@
 "nft_details_base_information" = "Base information";
 "nft_details_chain" = "Chain";
 "nft_details_contract_address" = "Contract Address";
+"nft_details_info_chain" = "";
+"nft_details_info_contract_address" = "";
+"nft_details_info_rarity_label" = "";
+"nft_details_info_rarity_rank" = "";
+"nft_details_info_token_address" = "";
+"nft_details_info_token_id" = "";
+"nft_details_info_token_standard" = "";
 "nft_details_last_sale_price" = "Last sale price";
 "nft_details_rarity_label" = "Rarity label";
 "nft_details_rarity_rank" = "Rarity rank";
@@ -530,6 +538,9 @@
 "no_account_polkadot" = "Аккаунт получателя не активирован. Отправьте %@ или более для активации аккаунта.";
 "no_account_send_to_create" = "Для создания аккаунта отправьте средства на этот адрес";
 "no_trustline_xlm_asset" = "Аккаунт получателя не содержит трастлайна для отправляемого актива.";
+"notification_referral_promo_button" = "Присоединиться";
+"notification_referral_promo_text" = "Поделись промокодом — заработай 5 USDT с каждой покупки. Твои друзья получат скидку 10% на карту Tangem!";
+"notification_referral_promo_title" = "Получай бонусы за каждого друга!";
 "onboarding_access_code_feature_1_description" = "Установите единый код доступа для защиты всех ваших карт или колец";
 "onboarding_access_code_feature_1_title" = "Защита";
 "onboarding_access_code_feature_2_description" = "Установите индивидуальный код доступа для каждой карты или кольца позже.";
@@ -1251,6 +1262,7 @@
 "wc_common_network" = "Network";
 "wc_common_networks" = "Networks";
 "wc_common_wallet" = "Wallet";
+"wc_connected_networks" = "Connected networks";
 "wc_connection_reqeust_can_view_balance" = "View your wallet balance and activity";
 "wc_connection_reqeust_cant_sign" = "Sign transactions without your notice";
 "wc_connection_reqeust_request_approval" = "Request approval for transactions";
@@ -1266,6 +1278,8 @@
 "wc_new_connection" = "New connection";
 "wc_no_sessions_desc" = "Connect your wallet to a different dApps";
 "wc_no_sessions_title" = "No sessions";
+"wc_notification_security_risk_subtitle" = "This domain is flagged as unsafe by multiple security providers. Leave immediately to protect your assets";
+"wc_notification_security_risk_title" = "Known security risk";
 "wc_wallet_connect" = "Wallet connect";
 "welcome_interrupted_backup_alert_discard" = "Отказаться";
 "welcome_interrupted_backup_alert_message" = "Вы не закончили резервное копирование. Хотите продолжить?";
