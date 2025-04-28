@@ -37,7 +37,7 @@ struct ValidatorCompactView: View {
                     Spacer()
 
                     Text(aprFormatted)
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.accent)
+                        .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
                         .matchedGeometryEffect(id: namespace.names.validatorDetailsView(id: data.address), in: namespace.id)
                         .animation(nil, value: aprFormatted)
                 }
