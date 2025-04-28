@@ -12,9 +12,9 @@ import Testing
 class UnspentOutputManagerTests {
     /// https://www.blockchain.com/explorer/transactions/btc/3841e727416897dbce40ddf2e5eec1cfb255058c1ad1ce5cb7cee0ca2140706b
     @Test
-    func spendingSomeAmount() throws {
+    func spendingSomeAmount() async throws {
         // given
-        let address = PlainAddress(value: "bc1qx427ycxzg7cak7zxelv25lts9n2tvhcgjff54z", publicKey: .empty, type: .default)
+        let address = try BitcoinAddressService(networkParams: BitcoinNetworkParams()).makeAddress(from: Keys.Secp256k1.publicKey)
         let outputs = [
             UnspentOutput(blockId: 1, txId: "f1d306a65784348f831a38caf028323aab4ea01d40c80d31f4b5fa2eca8969bb", index: 0, amount: 3000),
             UnspentOutput(blockId: 2, txId: "5509df5c6e2631dcb093d5bc09065b156039f400a7b1642caa5c7ec88a260b61", index: 0, amount: 1000),
@@ -24,8 +24,8 @@ class UnspentOutputManagerTests {
         manager.update(outputs: outputs, for: address)
 
         // when
-        let preImage = try manager.preImage(amount: 2000, feeRate: 3, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh")
-        let preImageExactlyFee = try manager.preImage(amount: 2000, fee: 423, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh")
+        let preImage = try await manager.preImage(amount: 2000, feeRate: 3, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh")
+        let preImageExactlyFee = try await manager.preImage(amount: 2000, fee: 423, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh")
 
         // then
         #expect(preImage.inputs.count == 1, "Selected only one input")
@@ -51,9 +51,9 @@ class UnspentOutputManagerTests {
 
     /// https://www.blockchain.com/explorer/transactions/btc/7bf63b83a858838ceab579bf9334866af72722f68be5a04a82d9b478f5ea6246
     @Test
-    func spendingFullAmountFeeCalculation() throws {
+    func spendingFullAmountFeeCalculation() async throws {
         // given
-        let address = PlainAddress(value: "bc1qx427ycxzg7cak7zxelv25lts9n2tvhcgjff54z", publicKey: .empty, type: .default)
+        let address = try BitcoinAddressService(networkParams: BitcoinNetworkParams()).makeAddress(from: Keys.Secp256k1.publicKey)
         let outputs = [
             UnspentOutput(blockId: 1, txId: "3841e727416897dbce40ddf2e5eec1cfb255058c1ad1ce5cb7cee0ca2140706b", index: 0, amount: 577),
             UnspentOutput(blockId: 2, txId: "5509df5c6e2631dcb093d5bc09065b156039f400a7b1642caa5c7ec88a260b61", index: 0, amount: 1000),
@@ -63,7 +63,7 @@ class UnspentOutputManagerTests {
         manager.update(outputs: outputs, for: address)
 
         // when
-        let preImage = try manager.preImage(amount: 1577, feeRate: 2, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh")
+        let preImage = try await manager.preImage(amount: 1577, feeRate: 2, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh")
 
         // then
         #expect(preImage.inputs.count == 2)
@@ -75,9 +75,9 @@ class UnspentOutputManagerTests {
 
     /// https://www.blockchain.com/explorer/transactions/btc/7bf63b83a858838ceab579bf9334866af72722f68be5a04a82d9b478f5ea6246
     @Test
-    func spendingFullAmountWithReducedAmountOnFee() throws {
+    func spendingFullAmountWithReducedAmountOnFee() async throws {
         // given
-        let address = PlainAddress(value: "bc1qx427ycxzg7cak7zxelv25lts9n2tvhcgjff54z", publicKey: .empty, type: .default)
+        let address = try BitcoinAddressService(networkParams: BitcoinNetworkParams()).makeAddress(from: Keys.Secp256k1.publicKey)
         let outputs = [
             UnspentOutput(blockId: 1, txId: "3841e727416897dbce40ddf2e5eec1cfb255058c1ad1ce5cb7cee0ca2140706b", index: 0, amount: 577),
             UnspentOutput(blockId: 2, txId: "5509df5c6e2631dcb093d5bc09065b156039f400a7b1642caa5c7ec88a260b61", index: 0, amount: 1000),
@@ -87,7 +87,7 @@ class UnspentOutputManagerTests {
         manager.update(outputs: outputs, for: address)
 
         // when
-        let preImage = try manager.preImage(amount: 1221, fee: 356, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh")
+        let preImage = try await manager.preImage(amount: 1221, fee: 356, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh")
 
         // then
         #expect(preImage.inputs.count == 2)

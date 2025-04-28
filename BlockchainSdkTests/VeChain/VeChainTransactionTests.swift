@@ -96,7 +96,7 @@ struct VeChainTransactionTests {
             signature: transactionSignature
         )
 
-        let encodedTransaction = signedTransaction.hexString
+        let encodedTransaction = signedTransaction.hex(.uppercase)
 
         let expectedEncodedTransaction = """
         F87B27880109263B18B36F3C81B4E0DF94207F32EB8D9E6F5178336F86C2EBC3E1A4F872118810A741A462780000807F825\
@@ -167,7 +167,7 @@ struct VeChainTransactionTests {
             signature: transactionSignature
         )
 
-        let encodedTransaction = signedTransaction.hexString
+        let encodedTransaction = signedTransaction.hex(.uppercase)
 
         let expectedEncodedTransaction = """
         F8BB278801092BDF0FAF64B081B4F85EF85C940000000000000000000000000000456E6572677980B844A9059CBB0000000\
