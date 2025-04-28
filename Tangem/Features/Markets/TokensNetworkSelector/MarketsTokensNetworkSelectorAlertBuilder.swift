@@ -7,8 +7,9 @@
 //
 
 import Foundation
-import TangemLocalization
 import SwiftUI
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 struct MarketsTokensNetworkSelectorAlertBuilder {
     func successCanRemoveAlertDeleteTokenIfNeeded(
