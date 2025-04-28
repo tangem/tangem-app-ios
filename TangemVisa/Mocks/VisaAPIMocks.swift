@@ -19,11 +19,24 @@ public class VisaMocksManager {
 
     private(set) var activationRemoteState: VisaCardActivationRemoteState = .cardWalletSignatureRequired
     private(set) var customerWalletAddress: String = "0x3e24897ab2a19ca51536839fda818f8ea99cf96b"
-    var activationOrder: VisaCardActivationOrder {
+    lazy var activationOrder: VisaCardActivationOrder = validActivationOrder
+    var validActivationOrder: VisaCardActivationOrder {
         .init(
             id: "f30bee47-21b6-4d07-9492-a5f2e0542875",
             customerId: "f89a0b9e-e5ae-4c34-b0cd-f335f5c2a9f3",
-            customerWalletAddress: customerWalletAddress
+            customerWalletAddress: customerWalletAddress,
+            updatedAt: nil,
+            stepChangeCode: nil
+        )
+    }
+
+    var invalidPinActivationOrder: VisaCardActivationOrder {
+        .init(
+            id: "invalid-pin-order",
+            customerId: "f89a0b9e-e5ae-4c34-b0cd-f335f5c2a9f3",
+            customerWalletAddress: customerWalletAddress,
+            updatedAt: Date(),
+            stepChangeCode: 1000
         )
     }
 
@@ -59,6 +72,15 @@ public class VisaMocksManager {
                     self.changeCustomerWalletAddress(presenter)
                 }
             },
+            UIAlertAction(
+                title: "Change activation order",
+                style: .default,
+                handler: { _ in
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        self.changeActivationOrder(presenter)
+                    }
+                }
+            ),
             UIAlertAction(
                 title: "Open Support",
                 style: .default,
@@ -140,6 +162,27 @@ public class VisaMocksManager {
         presenter.modalFromTop(alertController)
     }
 
+    func changeActivationOrder(_ presenter: VisaMockMenuPresenter) {
+        let actions: [UIAlertAction] = [
+            .init(title: "Default activation order", style: .default, handler: { _ in
+                self.activationOrder = self.validActivationOrder
+            }),
+            .init(title: "Invalid pin activation order", style: .default, handler: { _ in
+                self.activationOrder = self.invalidPinActivationOrder
+            }),
+        ]
+
+        let currentOrderName = activationOrder.id == invalidPinActivationOrder.id ? "Invalid PIN order" :
+            activationOrder.id == validActivationOrder.id ? "Default Activation Order" :
+            "Unknown Activation order"
+        let actionSheet = buildActionSheet(
+            title: "Change activation order",
+            message: "When Invalid PIN activation order is selected app will navigate from in progress screen to enter PIN code screen with error. Select invalid PIN order when you need to check PIN validation on the external service side. Current order: \(currentOrderName)",
+            actions: actions
+        )
+        presenter.modalFromTop(actionSheet)
+    }
+
     func changeActivationRemoteState(to newState: VisaCardActivationRemoteState) {
         activationRemoteState = newState
     }
@@ -161,7 +204,8 @@ public class VisaMocksManager {
 struct AuthorizationServiceMock: VisaAuthorizationService, VisaAuthorizationTokenRefreshService {
     let authorizationTokens = VisaAuthorizationTokens(
         accessToken: "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCIsImtpZCI6IjY1MDIyMGEzLWUyYWItNDUwMS04MTA4LWY3ZDUyNDAzNWQ1MSJ9.eyJleHAiOjE3ODM2Njk0MzEsImlhdCI6MTcyNjY2NjgxMSwianRpIjoiY2JkNGVkMzQtZjY0OS00ZmY5LThhYzAtYjllYWFhZDVlYjY0IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy90ZXN0IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy90ZXN0Iiwic3ViIjoiZjo0MzNjNDRkYS0wYThlLTQ5NjktYmM0Yi1iMDgxZThiNDViN2Y6ZjdkNmZmNzQtMjk2MS00YmQ0LThlZTItOTczZjE2ZTlkNGM0IiwidHlwIjoiUmVmcmVzaCIsImF6cCI6InRlc3QiLCJzaWQiOiIzYmI4NjUxMy0xYTNiLTRmZmMtOTJmOC02ODU5ZjhhMDQyMDEiLCJzY29wZSI6ImJhc2ljIHJvbGVzIGFjciB3ZWItb3JpZ2lucyIsInByb2R1Y3QtaW5zdGFuY2UtaWQiOiI0MzQzZmVta2ZscmV3Z2lydnctM2V4MjMiLCJjdXN0b21lci1pZCI6IjQzMnJodXJmaGcyOTU0dGg0ODkifQ.6iOH-4eNL9bs6wwId-nQNqIC7rUAgmD47N8oUPz2Wz2Ajz3YiZOa6PBsyqlcwB_xPHTvdYQs6OsY-p9Ahaq6Tg",
-        refreshToken: "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCIsImtpZCI6IjY1MDIyMGEzLWUyYWItNDUwMS04MTA4LWY3ZDUyNDAzNWQ1MSJ9.eyJleHAiOjE3ODM2Njk0MzEsImlhdCI6MTcyNjY2NjgxMSwianRpIjoiY2JkNGVkMzQtZjY0OS00ZmY5LThhYzAtYjllYWFhZDVlYjY0IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy90ZXN0IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy90ZXN0Iiwic3ViIjoiZjo0MzNjNDRkYS0wYThlLTQ5NjktYmM0Yi1iMDgxZThiNDViN2Y6ZjdkNmZmNzQtMjk2MS00YmQ0LThlZTItOTczZjE2ZTlkNGM0IiwidHlwIjoiUmVmcmVzaCIsImF6cCI6InRlc3QiLCJzaWQiOiIzYmI4NjUxMy0xYTNiLTRmZmMtOTJmOC02ODU5ZjhhMDQyMDEiLCJzY29wZSI6ImJhc2ljIHJvbGVzIGFjciB3ZWItb3JpZ2lucyIsInByb2R1Y3QtaW5zdGFuY2UtaWQiOiI0MzQzZmVta2ZscmV3Z2lydnctM2V4MjMiLCJjdXN0b21lci1pZCI6IjQzMnJodXJmaGcyOTU0dGg0ODkifQ.6iOH-4eNL9bs6wwId-nQNqIC7rUAgmD47N8oUPz2Wz2Ajz3YiZOa6PBsyqlcwB_xPHTvdYQs6OsY-p9Ahaq6Tg"
+        refreshToken: "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCIsImtpZCI6IjY1MDIyMGEzLWUyYWItNDUwMS04MTA4LWY3ZDUyNDAzNWQ1MSJ9.eyJleHAiOjE3ODM2Njk0MzEsImlhdCI6MTcyNjY2NjgxMSwianRpIjoiY2JkNGVkMzQtZjY0OS00ZmY5LThhYzAtYjllYWFhZDVlYjY0IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy90ZXN0IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy90ZXN0Iiwic3ViIjoiZjo0MzNjNDRkYS0wYThlLTQ5NjktYmM0Yi1iMDgxZThiNDViN2Y6ZjdkNmZmNzQtMjk2MS00YmQ0LThlZTItOTczZjE2ZTlkNGM0IiwidHlwIjoiUmVmcmVzaCIsImF6cCI6InRlc3QiLCJzaWQiOiIzYmI4NjUxMy0xYTNiLTRmZmMtOTJmOC02ODU5ZjhhMDQyMDEiLCJzY29wZSI6ImJhc2ljIHJvbGVzIGFjciB3ZWItb3JpZ2lucyIsInByb2R1Y3QtaW5zdGFuY2UtaWQiOiI0MzQzZmVta2ZscmV3Z2lydnctM2V4MjMiLCJjdXN0b21lci1pZCI6IjQzMnJodXJmaGcyOTU0dGg0ODkifQ.6iOH-4eNL9bs6wwId-nQNqIC7rUAgmD47N8oUPz2Wz2Ajz3YiZOa6PBsyqlcwB_xPHTvdYQs6OsY-p9Ahaq6Tg",
+        authorizationType: .cardId
     )
 
     func getCardAuthorizationChallenge(cardId: String, cardPublicKey: String) async throws -> VisaAuthChallengeResponse {
@@ -190,7 +234,7 @@ struct AuthorizationServiceMock: VisaAuthorizationService, VisaAuthorizationToke
         return authorizationTokens
     }
 
-    func refreshAccessToken(refreshToken: String) async throws -> VisaAuthorizationTokens {
+    func refreshAccessToken(refreshToken: String, authorizationType authType: VisaAuthorizationType) async throws -> VisaAuthorizationTokens {
         return try await getAccessTokensForCardAuth(signedChallenge: "", salt: "", sessionId: "")
     }
 }
@@ -219,7 +263,7 @@ struct CardActivationTaskOrderProviderMock: CardActivationOrderProvider {
 // MARK: - ProductActivationService
 
 struct ProductActivationServiceMock: ProductActivationService {
-    func getVisaCardDeployAcceptance(activationOrderId: String, customerWalletAddress: String) async throws -> String {
+    func getVisaCardDeployAcceptance(activationOrderId: String, customerWalletAddress: String, cardWalletAddress: String) async throws -> String {
         let generator = RandomBytesGenerator()
         return generator.generateBytes(length: 32).hexString
     }
@@ -228,7 +272,7 @@ struct ProductActivationServiceMock: ProductActivationService {
         VisaMocksManager.instance.changeActivationRemoteState(to: .customerWalletSignatureRequired)
     }
 
-    func getCustomerWalletDeployAcceptance(activationOrderId: String, cardWalletAddress: String) async throws -> String {
+    func getCustomerWalletDeployAcceptance(activationOrderId: String, customerWalletAddress: String, cardWalletAddress: String) async throws -> String {
         let generator = RandomBytesGenerator()
         return generator.generateBytes(length: 32).hexString
     }
