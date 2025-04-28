@@ -7,11 +7,13 @@
 //
 
 import Combine
+import UIKit
 import TangemLocalization
 import TangemExpress
-import UIKit
 import TangemAssets
 import TangemFoundation
+import TangemUI
+import struct TangemUIUtils.AlertBinder
 import enum TangemSdk.TangemSdkError
 import struct BlockchainSdk.Fee
 
