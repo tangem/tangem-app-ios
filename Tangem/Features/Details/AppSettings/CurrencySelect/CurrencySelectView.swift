@@ -10,6 +10,7 @@ import Combine
 import TangemLocalization
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct CurrencySelectView: View {
     @ObservedObject var viewModel: CurrencySelectViewModel
