@@ -9,7 +9,6 @@
 import Foundation
 import stellarsdk
 import Combine
-import SwiftyJSON
 
 extension AccountService {
     func getAccountDetails(accountId: String) -> AnyPublisher<AccountResponse, Error> {
@@ -221,12 +220,31 @@ extension HorizonRequestError {
     }
 
     func parseError() -> Error {
-        let hotizonMessage = message
-        let json = JSON(parseJSON: hotizonMessage)
-        let detailMessage = json["detail"].stringValue
-        let extras = json["extras"]
-        let codes = extras["result_codes"].rawString() ?? ""
-        let errorMessage: String = (!detailMessage.isEmpty && !codes.isEmpty) ? "\(detailMessage). Codes: \(codes)" : hotizonMessage
-        return errorMessage
+        do {
+            guard let data = message.data(using: .utf8) else {
+                return "No data to decode"
+            }
+            let stellarError = try JSONDecoder.withSnakeCaseStrategy.decode(StellarMessageError.self, from: data)
+            let detail = stellarError.detail
+            let codes = stellarError.extras.resultCodes
+            if !detail.isEmpty, !codes.isEmpty {
+                return "\(detail). Codes: \(codes)"
+            }
+
+            return message
+        } catch {
+            return error
+        }
+    }
+}
+
+extension HorizonRequestError {
+    struct StellarMessageError: Decodable {
+        let detail: String
+        let extras: Extras
+
+        struct Extras: Decodable {
+            let resultCodes: String
+        }
     }
 }
