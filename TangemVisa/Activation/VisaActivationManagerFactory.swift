@@ -11,8 +11,11 @@ import TangemSdk
 import Moya
 
 public struct VisaActivationManagerFactory {
+    private let apiType: VisaAPIType
     private let isMockedAPIEnabled: Bool
-    public init(isMockedAPIEnabled: Bool = false) {
+
+    public init(apiType: VisaAPIType, isMockedAPIEnabled: Bool) {
+        self.apiType = apiType
         self.isMockedAPIEnabled = isMockedAPIEnabled
     }
 
@@ -22,7 +25,7 @@ public struct VisaActivationManagerFactory {
         tangemSdk: TangemSdk,
         urlSessionConfiguration: URLSessionConfiguration
     ) -> VisaActivationManager {
-        let authorizationTokensHandler = VisaAuthorizationTokensHandlerBuilder(isMockedAPIEnabled: isMockedAPIEnabled)
+        let authorizationTokensHandler = VisaAuthorizationTokensHandlerBuilder(apiType: apiType, isMockedAPIEnabled: isMockedAPIEnabled)
             .build(
                 cardId: cardId,
                 cardActivationStatus: initialActivationStatus,
@@ -30,26 +33,26 @@ public struct VisaActivationManagerFactory {
                 urlSessionConfiguration: urlSessionConfiguration
             )
 
-        let authorizationService = VisaAPIServiceBuilder(mockedAPI: isMockedAPIEnabled)
+        let authorizationService = VisaAPIServiceBuilder(apiType: apiType, isMockedAPIEnabled: isMockedAPIEnabled)
             .buildAuthorizationService(urlSessionConfiguration: urlSessionConfiguration)
 
         let authorizationProcessor = CommonCardAuthorizationProcessor(authorizationService: authorizationService)
 
-        let cardActivationStatusService = VisaCardActivationStatusServiceBuilder(isMockedAPIEnabled: isMockedAPIEnabled)
+        let cardActivationStatusService = VisaCardActivationStatusServiceBuilder(apiType: apiType, isMockedAPIEnabled: isMockedAPIEnabled)
             .build(urlSessionConfiguration: urlSessionConfiguration)
 
-        let activationOrderProvider = CardActivationOrderProviderBuilder(isMockedAPIEnabled: isMockedAPIEnabled)
+        let activationOrderProvider = CardActivationOrderProviderBuilder(apiType: apiType, isMockedAPIEnabled: isMockedAPIEnabled)
             .build(
                 urlSessionConfiguration: urlSessionConfiguration,
                 tokensHandler: authorizationTokensHandler,
                 cardActivationStatusService: cardActivationStatusService
             )
-        let productActivationService = ProductActivationServiceBuilder(isMockAPIEnabled: isMockedAPIEnabled)
+        let productActivationService = ProductActivationServiceBuilder(apiType: apiType, isMockedAPIEnabled: isMockedAPIEnabled)
             .build(
                 urlSessionConfiguration: urlSessionConfiguration,
                 authorizationTokensHandler: authorizationTokensHandler
             )
-        let key = (try? VisaConfigProvider.shared().getRSAPublicKey()) ?? ""
+        let key = (try? VisaConfigProvider.shared().getRSAPublicKey(apiType: apiType)) ?? ""
         let pinCodeProcessor = PaymentologyPINCodeProcessor(rsaPublicKey: key)
 
         return CommonVisaActivationManager(
