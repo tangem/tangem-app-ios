@@ -28,7 +28,7 @@ class CommonSigner {
 // MARK: - TransactionSigner protocol conformance
 
 extension CommonSigner: TransactionSigner {
-    func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[Data], Error> {
+    func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], Error> {
         Deferred {
             Future { [weak self] promise in
                 guard let self = self else {
@@ -45,7 +45,10 @@ extension CommonSigner: TransactionSigner {
                 ) { signResult in
                     switch signResult {
                     case .success(let response):
-                        promise(.success(response.signatures))
+                        let signatures = zip(hashes, response.signatures).map { hash, signature in
+                            SignatureInfo(signature: signature, publicKey: walletPublicKey.blockchainKey, hash: hash)
+                        }
+                        promise(.success(signatures))
                     case .failure(let error):
                         promise(.failure(error))
                     }
@@ -55,9 +58,9 @@ extension CommonSigner: TransactionSigner {
         .eraseToAnyPublisher()
     }
 
-    func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<Data, Error> {
+    func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<SignatureInfo, Error> {
         sign(hashes: [hash], walletPublicKey: walletPublicKey)
-            .map { $0.first ?? Data() }
+            .map { $0[0] }
             .eraseToAnyPublisher()
     }
 
