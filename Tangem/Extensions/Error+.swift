@@ -7,12 +7,13 @@
 //
 
 import Foundation
-import TangemLocalization
 import Moya
 import SwiftUI
 import TangemSdk
 import TangemFoundation
 import TangemVisa
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 extension Error {
     var detailedError: Error {

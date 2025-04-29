@@ -8,6 +8,8 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUIUtils
+import TangemUI
 
 struct NotificationView: View {
     let settings: Settings
