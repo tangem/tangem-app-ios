@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct SendCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: SendCoordinator

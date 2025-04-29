@@ -37,11 +37,7 @@ class BranchAndBoundPreImageTransactionBuilder {
 // MARK: - UTXOPreImageTransactionBuilder
 
 extension BranchAndBoundPreImageTransactionBuilder: UTXOPreImageTransactionBuilder {
-    func preImage(outputs: [ScriptUnspentOutput], changeScript: UTXOScriptType, destination: UTXOPreImageDestination, fee: Fee) throws -> UTXOPreImageTransaction {
-        if Thread.isMainThread {
-            BSDKLogger.warning("Don't call this method from the main thread")
-        }
-
+    func preImage(outputs: [ScriptUnspentOutput], changeScript: UTXOScriptType, destination: UTXOPreImageDestination, fee: Fee) async throws -> UTXOPreImageTransaction {
         guard destination.amount > 0 else {
             throw Error.wrongAmount
         }
@@ -63,9 +59,9 @@ extension BranchAndBoundPreImageTransactionBuilder: UTXOPreImageTransactionBuild
         let context = Context(changeScript: changeScript, destination: destination, fee: fee, allOutputsCount: outputs.count)
 
         let startDate = Date()
-        logger.debug("Start selection")
+        logger.debug(self, "Start selection")
         let bestVariant = try select(in: context, sorted: sorted)
-        logger.debug("End selection done with: \(Date.now.timeIntervalSince(startDate)) sec")
+        logger.debug(self, "End selection done with: \(Date.now.timeIntervalSince(startDate)) sec")
 
         guard let bestVariant, !bestVariant.outputs.isEmpty else {
             throw Error.unableToFindSuitableUTXOs
@@ -85,6 +81,9 @@ private extension BranchAndBoundPreImageTransactionBuilder {
         var stack: [State] = [State(selected: [], index: 0, remaining: Int(total), currentValue: 0)]
 
         while !stack.isEmpty {
+            // Check cancellation every cycle
+            try Task.checkCancellation()
+
             let state = stack.removeLast()
             tries += 1
 
@@ -101,7 +100,7 @@ private extension BranchAndBoundPreImageTransactionBuilder {
                 // If variant is better then use it as the best
                 if bestVariant == nil || variant.better(than: bestVariant!) {
                     bestVariant = variant
-                    logger.debug("The best variant was updated to \(variant)")
+                    logger.debug(self, "The best variant was updated to \(variant)")
                 }
 
                 // Skip further processing for this branch
@@ -159,6 +158,14 @@ private extension BranchAndBoundPreImageTransactionBuilder {
     }
 }
 
+// MARK: - CustomStringConvertible
+
+extension BranchAndBoundPreImageTransactionBuilder: CustomStringConvertible {
+    var description: String {
+        TangemFoundation.objectDescription(self)
+    }
+}
+
 private extension UTXOPreImageTransaction {
     func better(than transaction: UTXOPreImageTransaction) -> Bool {
         // Main priority to reduce the fee
@@ -185,7 +192,7 @@ extension UTXOPreImageTransaction: CustomStringConvertible {
             "destination": destination.description,
             "change": change.description,
             "fee": fee.description,
-        ].description
+        ].sorted(by: { $0.key > $1.key }).description
     }
 }
 
@@ -232,7 +239,7 @@ private extension BranchAndBoundPreImageTransactionBuilder {
             let outputs: [UTXOScriptType] = [context.changeScript, context.destination.script]
 
             // 2. Proceed fee
-            let size = calculator.transactionSize(inputs: inputs, outputs: outputs)
+            let size = try calculator.transactionSize(inputs: inputs, outputs: outputs)
             let fee = switch context.fee {
             case .calculate(let feeRate): size * feeRate
             case .exactly(let fee): fee
@@ -269,7 +276,7 @@ private extension BranchAndBoundPreImageTransactionBuilder {
             var change = currentValue - recipientValue
             let outputs: [UTXOScriptType] = [context.destination.script]
 
-            let size = calculator.transactionSize(inputs: inputs, outputs: outputs)
+            let size = try calculator.transactionSize(inputs: inputs, outputs: outputs)
             let fee = switch context.fee {
             case .calculate(let feeRate): size * feeRate
             case .exactly(let fee): fee

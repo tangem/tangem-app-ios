@@ -7,11 +7,12 @@
 //
 
 import Foundation
-import TangemLocalization
 import UIKit
 import SwiftUI
 import Combine
 import CombineExt
+import TangemLocalization
+import struct TangemUIUtils.ActionSheetBinder
 
 final class MainViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
@@ -38,12 +39,10 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Internal state
 
-    // swiftformat:disable:next unusedPrivateDeclarations
-    private let nftDataProvider = NFTDataProvider()
-
     private var pendingUserWalletIdsToUpdate: Set<UserWalletId> = []
     private var pendingUserWalletModelsToAdd: [UserWalletModel] = []
     private var shouldRecreatePagesAfterAddingPendingWalletModels = false
+    private let nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling
 
     private var shouldDelayBottomSheetVisibility = true
     private var isLoggingOut = false
@@ -62,12 +61,14 @@ final class MainViewModel: ObservableObject {
         self.swipeDiscoveryHelper = swipeDiscoveryHelper
         self.mainUserWalletPageBuilderFactory = mainUserWalletPageBuilderFactory
         self.pushNotificationsAvailabilityProvider = pushNotificationsAvailabilityProvider
+        nftFeatureLifecycleHandler = NFTFeatureLifecycleHandler()
 
         pages = mainUserWalletPageBuilderFactory.createPages(
             from: userWalletRepository.models,
             lockedUserWalletDelegate: self,
             singleWalletContentDelegate: self,
-            multiWalletContentDelegate: self
+            multiWalletContentDelegate: self,
+            nftLifecycleHandler: nftFeatureLifecycleHandler
         )
 
         assert(pages.count == userWalletRepository.models.count, "Number of pages must be equal to number of UserWalletModels")
@@ -283,7 +284,8 @@ final class MainViewModel: ObservableObject {
             for: userWalletModel,
             lockedUserWalletDelegate: self,
             singleWalletContentDelegate: self,
-            multiWalletContentDelegate: self
+            multiWalletContentDelegate: self,
+            nftLifecycleHandler: nftFeatureLifecycleHandler
         )
 
         let newPageIndex = pages.count
@@ -319,7 +321,8 @@ final class MainViewModel: ObservableObject {
             from: userWalletRepository.models,
             lockedUserWalletDelegate: self,
             singleWalletContentDelegate: self,
-            multiWalletContentDelegate: self
+            multiWalletContentDelegate: self,
+            nftLifecycleHandler: nftFeatureLifecycleHandler
         )
     }
 
@@ -417,7 +420,8 @@ final class MainViewModel: ObservableObject {
                             for: userWalletModel,
                             lockedUserWalletDelegate: viewModel,
                             singleWalletContentDelegate: viewModel,
-                            multiWalletContentDelegate: viewModel
+                            multiWalletContentDelegate: viewModel,
+                            nftLifecycleHandler: viewModel.nftFeatureLifecycleHandler
                         )
 
                         if updatedPage.missingBodyModel {
@@ -468,7 +472,8 @@ extension MainViewModel: UnlockUserWalletBottomSheetDelegate {
             for: userWalletModel,
             lockedUserWalletDelegate: self,
             singleWalletContentDelegate: self,
-            multiWalletContentDelegate: self
+            multiWalletContentDelegate: self,
+            nftLifecycleHandler: nftFeatureLifecycleHandler
         )
         pages[index] = page
         unlockWalletBottomSheetViewModel = nil

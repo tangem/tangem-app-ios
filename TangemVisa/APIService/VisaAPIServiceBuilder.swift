@@ -10,10 +10,12 @@ import Foundation
 import Moya
 
 public struct VisaAPIServiceBuilder {
-    private let mockedAPI: Bool
+    private let isMockedAPIEnabled: Bool
+    private let apiType: VisaAPIType
 
-    public init(mockedAPI: Bool = false) {
-        self.mockedAPI = mockedAPI
+    public init(apiType: VisaAPIType, isMockedAPIEnabled: Bool) {
+        self.apiType = apiType
+        self.isMockedAPIEnabled = isMockedAPIEnabled
     }
 
     public func buildTransactionHistoryService(
@@ -22,6 +24,7 @@ public struct VisaAPIServiceBuilder {
         urlSessionConfiguration: URLSessionConfiguration
     ) -> VisaTransactionHistoryAPIService {
         return CommonTransactionHistoryService(
+            apiType: apiType,
             authorizationTokensHandler: authorizationTokensHandler,
             apiService: .init(
                 provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
@@ -32,18 +35,18 @@ public struct VisaAPIServiceBuilder {
 
     /// Requirements are changed so this function will be also changed, but for now it is used for testing purposes
     public func buildAuthorizationService(urlSessionConfiguration: URLSessionConfiguration) -> VisaAuthorizationService {
-        if mockedAPI {
+        if isMockedAPIEnabled {
             return AuthorizationServiceMock()
         }
 
-        return AuthorizationServiceBuilder().build(urlSessionConfiguration: urlSessionConfiguration)
+        return AuthorizationServiceBuilder(apiType: apiType).build(urlSessionConfiguration: urlSessionConfiguration)
     }
 
     public func buildAuthorizationTokenRefreshService(urlSessionConfiguration: URLSessionConfiguration) -> VisaAuthorizationTokenRefreshService {
-        if mockedAPI {
+        if isMockedAPIEnabled {
             return AuthorizationServiceMock()
         }
 
-        return AuthorizationServiceBuilder().build(urlSessionConfiguration: urlSessionConfiguration)
+        return AuthorizationServiceBuilder(apiType: apiType).build(urlSessionConfiguration: urlSessionConfiguration)
     }
 }
