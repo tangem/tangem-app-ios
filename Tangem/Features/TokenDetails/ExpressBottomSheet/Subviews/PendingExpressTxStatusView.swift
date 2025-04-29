@@ -13,8 +13,7 @@ import TangemAssets
 struct PendingExpressTxStatusView: View {
     let title: String
     let statusesList: [PendingExpressTxStatusRow.StatusRowData]
-    let showGoToProviderHeaderButton: Bool
-    let openProviderAction: () -> Void
+    let topTrailingAction: TopTrailingAction?
 
     var body: some View {
         VStack(spacing: 14) {
@@ -31,10 +30,14 @@ struct PendingExpressTxStatusView: View {
 
             Spacer()
 
-            Button(action: openProviderAction) {
-                openProviderButtonLabel
+            switch topTrailingAction {
+            case .goToProvider(let action):
+                Button(action: action) { openProviderButtonLabel }
+            case .copyTxId(let id):
+                PendingExpressTxIdCopyButtonView(viewModel: .init(transactionID: id))
+            case .none:
+                EmptyView()
             }
-            .opacity(showGoToProviderHeaderButton ? 1.0 : 0.0)
         }
     }
 
@@ -57,5 +60,12 @@ struct PendingExpressTxStatusView: View {
                 PendingExpressTxStatusRow(isFirstRow: index == 0, info: status)
             }
         }
+    }
+}
+
+extension PendingExpressTxStatusView {
+    enum TopTrailingAction {
+        case goToProvider(action: () -> Void)
+        case copyTxId(id: String)
     }
 }
