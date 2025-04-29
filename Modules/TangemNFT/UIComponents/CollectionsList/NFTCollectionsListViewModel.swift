@@ -14,6 +14,9 @@ import CombineExt
 public final class NFTCollectionsListViewModel: ObservableObject {
     @Published private(set) var state: ViewState
     @Published var searchEntry: String = ""
+    @Published private(set) var rowExpanded = false
+
+    // MARK: Dependencies
 
     private weak var coordinator: NFTCollectionsListRoutable?
     private let nftManager: NFTManager
@@ -44,7 +47,16 @@ public final class NFTCollectionsListViewModel: ObservableObject {
             .withWeakCaptureOf(self)
             .map { viewModel, collections in
                 let collectionsViewModels = collections.map {
-                    NFTCompactCollectionViewModel(nftCollection: $0, nftChainIconProvider: viewModel.chainIconProvider)
+                    NFTCompactCollectionViewModel(
+                        nftCollection: $0,
+                        nftChainIconProvider: viewModel.chainIconProvider,
+                        openAssetDetailsAction: { [weak self] in
+                            self?.openAssetDetails($0)
+                        },
+                        onTapAction: { [weak self] in
+                            self?.rowExpanded.toggle()
+                        }
+                    )
                 }
 
                 viewModel.collectionsViewModels = collectionsViewModels
@@ -80,6 +92,10 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         }
 
         return filteredCollections
+    }
+
+    private func openAssetDetails(_ asset: NFTAsset) {
+        coordinator?.openAssetDetails(asset: asset)
     }
 }
 
