@@ -107,18 +107,7 @@ struct PendingExpressTxStatusBottomSheetView: View {
                 Spacer()
 
                 if let transactionID = viewModel.transactionID {
-                    Button(action: viewModel.copyTransactionID) {
-                        HStack(spacing: 4) {
-                            Assets.Glyphs.copy.image
-                                .resizable()
-                                .frame(width: 16, height: 16)
-                                .foregroundColor(Colors.Icon.informative)
-
-                            Text(Localization.expressTransactionId(transactionID))
-                                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                        }
-                        .lineLimit(1)
-                    }
+                    PendingExpressTxIdCopyButtonView(viewModel: .init(transactionID: transactionID))
                 }
             }
 
@@ -131,8 +120,7 @@ struct PendingExpressTxStatusBottomSheetView: View {
         PendingExpressTxStatusView(
             title: viewModel.statusViewTitle,
             statusesList: viewModel.statusesList,
-            showGoToProviderHeaderButton: viewModel.showGoToProviderHeaderButton,
-            openProviderAction: viewModel.openProviderFromStatusHeader
+            topTrailingAction: .goToProvider(action: viewModel.openProviderFromStatusHeader)
         )
         // This prevents notification to appear and disappear on top of the statuses list
         .zIndex(5)
