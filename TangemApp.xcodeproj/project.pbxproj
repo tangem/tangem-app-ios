@@ -2870,6 +2870,8 @@
 		EF5D83DF2B0BC4C400516B5F /* ExpressProviderFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5D83DE2B0BC4C400516B5F /* ExpressProviderFormatter.swift */; };
 		EF5D83E42B0CADEE00516B5F /* ExpressTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5D83E32B0CADEE00516B5F /* ExpressTransactionBuilder.swift */; };
 		EF5D83E62B0CAEB100516B5F /* CommonExpressTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5D83E52B0CAEB100516B5F /* CommonExpressTransactionBuilder.swift */; };
+		EF5E08372DBBB0F700B553CC /* OnrampIncomingActionURLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5E08362DBBB0F700B553CC /* OnrampIncomingActionURLParser.swift */; };
+		EF5E08392DBBB5D200B553CC /* PendingExpressTxIdCopyButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5E08382DBBB5D200B553CC /* PendingExpressTxIdCopyButtonView.swift */; };
 		EF5E5A822B70FF3700D19BBB /* CommonBannerPromotionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5E5A812B70FF3700D19BBB /* CommonBannerPromotionService.swift */; };
 		EF5E5A852B7100D700D19BBB /* ExpressPromotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5E5A842B7100D700D19BBB /* ExpressPromotion.swift */; };
 		EF5E5AA92B725F9A00D19BBB /* BannerPromotionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5E5AA82B725F9A00D19BBB /* BannerPromotionService.swift */; };
@@ -6305,6 +6307,8 @@
 		EF5D83DE2B0BC4C400516B5F /* ExpressProviderFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProviderFormatter.swift; sourceTree = "<group>"; };
 		EF5D83E32B0CADEE00516B5F /* ExpressTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTransactionBuilder.swift; sourceTree = "<group>"; };
 		EF5D83E52B0CAEB100516B5F /* CommonExpressTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonExpressTransactionBuilder.swift; sourceTree = "<group>"; };
+		EF5E08362DBBB0F700B553CC /* OnrampIncomingActionURLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampIncomingActionURLParser.swift; sourceTree = "<group>"; };
+		EF5E08382DBBB5D200B553CC /* PendingExpressTxIdCopyButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingExpressTxIdCopyButtonView.swift; sourceTree = "<group>"; };
 		EF5E5A812B70FF3700D19BBB /* CommonBannerPromotionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonBannerPromotionService.swift; sourceTree = "<group>"; };
 		EF5E5A842B7100D700D19BBB /* ExpressPromotion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressPromotion.swift; sourceTree = "<group>"; };
 		EF5E5AA82B725F9A00D19BBB /* BannerPromotionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerPromotionService.swift; sourceTree = "<group>"; };
@@ -13507,6 +13511,7 @@
 				DA89AC092CE6B18000AFB755 /* PendingExpressTxTokenInfoView.swift */,
 				DAAD05392CE21B1600E53EF3 /* PendingExpressTxStatusView.swift */,
 				B03574C72B1F876300118786 /* PendingExpressTxStatusRow.swift */,
+				EF5E08382DBBB5D200B553CC /* PendingExpressTxIdCopyButtonView.swift */,
 			);
 			path = Subviews;
 			sourceTree = "<group>";
@@ -16301,6 +16306,7 @@
 				DC0469392B8E6BE400C785D1 /* SellActionURLHelper.swift */,
 				DC6D99FD2BAA2481001F620A /* NDEFURLParser.swift */,
 				0A81B3722BB2D24A0008F21C /* BlockchainURLSchemesParser.swift */,
+				EF5E08362DBBB0F700B553CC /* OnrampIncomingActionURLParser.swift */,
 			);
 			path = IncomingActions;
 			sourceTree = "<group>";
@@ -18808,6 +18814,7 @@
 				EF6961652CEE0BDD001EC00A /* OnrampNotificationEvent.swift in Sources */,
 				DC3B49FA2893EEA600C207EA /* UserWalletConfigFeatures.swift in Sources */,
 				EF8DBCE02C060CCE009072CF /* StakingDependenciesFactory.swift in Sources */,
+				EF5E08372DBBB0F700B553CC /* OnrampIncomingActionURLParser.swift in Sources */,
 				B0A948FF2ACD999C00C80B0A /* WeakifyFunction.swift in Sources */,
 				EFEE22BF2BFCF3450099917E /* BlockchainSDKNotificationMapper.swift in Sources */,
 				0A3A53D02D9D36D600E263E7 /* EvmScan.swift in Sources */,
@@ -19178,6 +19185,7 @@
 				0A0E01772C64AA79009E01F2 /* StakingAmountValidator.swift in Sources */,
 				DCE2F7DA2CE351B500BDE145 /* ActionButtonsSellViewModel.swift in Sources */,
 				B0453672264D4B730005B23E /* AppConstants.swift in Sources */,
+				EF5E08392DBBB5D200B553CC /* PendingExpressTxIdCopyButtonView.swift in Sources */,
 				EF4B70C02B5FBF4E00B18BF4 /* BottomSheetSearchableHeaderView.swift in Sources */,
 				5DBAFD1E27E2471D0008B882 /* CoinModel.swift in Sources */,
 				2D1BB3A22C08AC3A008392F7 /* DummyMarketTokenModelFactory.swift in Sources */,
