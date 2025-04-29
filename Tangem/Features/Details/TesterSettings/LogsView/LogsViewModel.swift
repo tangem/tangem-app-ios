@@ -6,12 +6,14 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import Combine
 import UIKit
-import Foundation
+import SwiftUI
 import TangemFoundation
 import TangemLogger
-import SwiftUI
+import struct TangemUIUtils.ActionSheetBinder
+import struct TangemUIUtils.AlertBinder
 
 class LogsViewModel: ObservableObject {
     var selectedCategory: String { categories[selectedCategoryIndex] }

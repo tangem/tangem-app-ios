@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemAssets
 import TangemSdk
+import TangemNFT
 
 class UserWalletModelMock: UserWalletModel {
     var hasImportedWallets: Bool { false }
@@ -29,6 +30,8 @@ class UserWalletModelMock: UserWalletModel {
     var userTokensManager: UserTokensManager { UserTokensManagerMock() }
 
     var userTokenListManager: UserTokenListManager { UserTokenListManagerMock() }
+
+    var nftManager: NFTManager { NFTManagerStub() }
 
     var signer: TangemSigner { fatalError("TangemSignerMock doesn't exist") }
 

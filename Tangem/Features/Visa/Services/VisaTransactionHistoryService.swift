@@ -12,8 +12,8 @@ import TangemVisa
 import TangemFoundation
 
 class VisaTransactionHistoryService {
-    private let apiService: VisaTransactionHistoryAPIService
     private let storage: ThreadSafeContainer<[VisaTransactionRecord]> = []
+    private var apiService: VisaTransactionHistoryAPIService?
 
     private let numberOfItemsOnPage: Int = 20
     private var currentOffset = 0
@@ -21,7 +21,11 @@ class VisaTransactionHistoryService {
 
     private let stateSubject = CurrentValueSubject<TransactionHistoryServiceState, Never>(.initial)
 
-    init(apiService: VisaTransactionHistoryAPIService) {
+    init(apiService: VisaTransactionHistoryAPIService? = nil) {
+        self.apiService = apiService
+    }
+
+    func setupApiService(_ apiService: VisaTransactionHistoryAPIService) {
         self.apiService = apiService
     }
 }
@@ -104,6 +108,10 @@ extension VisaTransactionHistoryService {
 
 private extension VisaTransactionHistoryService {
     func loadRecordsPage(offset: Int) async throws -> [VisaTransactionRecord] {
+        guard let apiService else {
+            throw "Not initialized"
+        }
+
         VisaLogger.info("Attempting to load history page with request, offset: \(offset), numberOfItemsOnPage: \(numberOfItemsOnPage)")
         let response = try await apiService.loadHistoryPage(offset: offset, numberOfItemsPerPage: numberOfItemsOnPage)
         return response.transactions

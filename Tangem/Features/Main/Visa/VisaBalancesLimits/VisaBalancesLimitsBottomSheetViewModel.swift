@@ -9,6 +9,7 @@
 import Foundation
 import TangemLocalization
 import TangemVisa
+import struct TangemUIUtils.AlertBinder
 
 class VisaBalancesLimitsBottomSheetViewModel: ObservableObject, Identifiable {
     @Published var alert: AlertBinder? = nil

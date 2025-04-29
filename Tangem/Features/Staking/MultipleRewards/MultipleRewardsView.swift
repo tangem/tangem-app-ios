@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 import TangemLocalization
 import TangemAssets
 
@@ -30,8 +31,7 @@ struct MultipleRewardsView: View {
             .background(Colors.Background.tertiary)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button(Localization.commonClose, action: viewModel.dismiss)
-                        .foregroundColor(Colors.Text.primary1)
+                    CloseButton(dismiss: viewModel.dismiss)
                 }
             }
         }

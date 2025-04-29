@@ -9,7 +9,7 @@
 import Foundation
 import TangemAssets
 
-final class NFTCompactCollectionViewModel {
+final class NFTCompactCollectionViewModel: Identifiable {
     private let nftCollection: NFTCollection
     private let nftChainIconProvider: NFTChainIconProvider
 
@@ -25,8 +25,8 @@ final class NFTCompactCollectionViewModel {
         assetsGridViewModel = NFTAssetsGridViewModel(assetsViewModels: assetsViewModels)
     }
 
-    var id: String {
-        nftCollection.id.collectionIdentifier
+    var id: NFTCollection.ID {
+        nftCollection.id
     }
 
     var logoURL: URL? {
@@ -42,6 +42,6 @@ final class NFTCompactCollectionViewModel {
     }
 
     var numberOfItems: Int {
-        nftCollection.assets.count
+        nftCollection.assetsCount
     }
 }

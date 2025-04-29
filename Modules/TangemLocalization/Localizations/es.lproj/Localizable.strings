@@ -437,9 +437,6 @@
 "markets_sort_by_top_gainers_title" = "Top Ganadores";
 "markets_sort_by_top_losers_title" = "Top Perdedores";
 "markets_sort_by_trending_title" = "Tendencias";
-"markets_staking_banner_description_placeholder" = "Staking is the easiest way to receive rewards on your crypto. %@";
-"markets_staking_banner_description_show_more" = "Show more";
-"markets_staking_banner_title" = "Earn up to %@ APY";
 "markets_token_details_about_token_title" = "Acerca de %@";
 "markets_token_details_blockchain_site" = "Sitio web";
 "markets_token_details_buy_pressure_description" = "La diferencia entre el volumen de compradores y el volumen de vendedores";
@@ -944,7 +941,7 @@
 "story_learn_description" = "Tome tres lecciones, obtén un descuento en su Tangem Wallet y recibe tokens 1INCH en su billetera";
 "story_learn_learn" = "Aprender";
 "story_meet_title" = "Descubra Tangem";
-"story_web3_description" = "Más de 100 integraciones de servicios descentralizados están disponibles";
+"story_web3_description" = "Intercambie, compre NFT, haga préstamos y depósitos en más de 100 servicios descentralizados diferentes";
 "story_web3_title" = "Compatible con Web 3.0";
 "sui_not_enough_coin_for_fee_description" = "Se requiere una transacción entrante de al menos %1$@ para proceder";
 "sui_not_enough_coin_for_fee_title" = "Fondos insuficientes";
@@ -1002,7 +999,7 @@
 "token_details_hide_alert_title" = "Ocultar %@";
 "token_details_hide_token" = "Ocultar el token";
 "token_details_staking_block_subtitle" = "El staking le permite ganar %1$@ y obtener recompensas cada %2$@ días";
-"token_details_staking_block_title" = "Servicio de Staking";
+"token_details_staking_block_title" = "Gane hasta %@ recompensa del staking por año";
 "token_details_token_type_subtitle_no_standard" = "Token en la %%image%% red %1$@";
 "token_details_token_type_subtitle" = "Token de %1$@ en la red %%image%% %2$@";
 "token_details_unable_hide_alert_message" = "El token %1$@ (%2$@) es la moneda principal en la red %3$@ y no se puede ocultar mientras tengas otros tokens de esta red en la lista";
