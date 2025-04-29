@@ -111,6 +111,8 @@ struct OldWalletConnectV2Utils {
 
             let filteredWallets = walletModelProvider.getModels(with: blockchain.id)
 
+            supportedChains.insert(wcBlockchain)
+
             if filteredWallets.isEmpty {
                 if proposal.namespaceRequiredChains.contains(wcBlockchain) {
                     missingBlockchains.append(blockchain.displayName)
@@ -120,8 +122,6 @@ struct OldWalletConnectV2Utils {
 
                 return nil
             }
-
-            supportedChains.insert(wcBlockchain)
 
             return filteredWallets.compactMap { walletModel in
                 Account("\(wcBlockchain.absoluteString):\(walletModel.defaultAddressString)")
@@ -136,8 +136,10 @@ struct OldWalletConnectV2Utils {
             throw WalletConnectV2Error.unsupportedBlockchains(unsupportedEVMBlockchains)
         }
 
-        guard accounts.isNotEmpty else {
-            throw WalletConnectV2Error.unsupportedNetwork
+        switch (accounts.isEmpty, missingOptionalBlockchains.isEmpty) {
+        case (true, true): throw WalletConnectV2Error.unsupportedNetwork
+        case (true, false): throw WalletConnectV2Error.missingOptionalBlockchains(missingOptionalBlockchains)
+        default: break
         }
 
         do {
