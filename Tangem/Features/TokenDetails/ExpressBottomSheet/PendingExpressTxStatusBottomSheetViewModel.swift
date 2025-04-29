@@ -56,7 +56,6 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     private var subscription: AnyCancellable?
     private var notificationUpdateWorkItem: DispatchWorkItem?
     private weak var router: PendingExpressTxStatusRoutable?
-    private var successToast: Toast<SuccessToast>?
     private var externalProviderTxURL: URL? {
         pendingTransaction.externalTxURL.flatMap { URL(string: $0) }
     }
@@ -151,14 +150,6 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         }
 
         openProvider()
-    }
-
-    func copyTransactionID() {
-        UIPasteboard.general.string = transactionID
-
-        let toastView = SuccessToast(text: Localization.expressTransactionIdCopied)
-        successToast = Toast(view: toastView)
-        successToast?.present(layout: .top(padding: 14), type: .temporary())
     }
 
     private func openProvider() {
