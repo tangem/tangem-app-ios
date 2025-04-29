@@ -9,6 +9,8 @@
 import Foundation
 import BlockchainSdk
 
+/// Handles interaction with a Visa payment account on the blockchain.
+/// This includes loading balances and card settings via smart contract calls.
 struct CommonPaymentAccountInteractor {
     let visaToken: Token
 
@@ -31,9 +33,16 @@ struct CommonPaymentAccountInteractor {
 }
 
 extension CommonPaymentAccountInteractor: VisaPaymentAccountInteractor {
+    /// The blockchain address of the payment account.
     var accountAddress: String { customerCardInfo.paymentAccount }
+
+    /// The address of the card wallet.
     var cardWalletAddress: String { customerCardInfo.cardWalletAddress }
 
+    /// Loads all types of balances (total, verified, available, blocked, debt) from the payment account.
+    /// All balances requested as separated calls to payment account functions
+    /// - Returns: A `VisaBalances` instance containing all the retrieved balances.
+    /// - Throws: An error if balance retrieval fails.
     func loadBalances() async throws -> VisaBalances {
         VisaLogger.info("Attempting to load all balances from balances")
         let loadedBalances: VisaBalances
@@ -66,6 +75,11 @@ extension CommonPaymentAccountInteractor: VisaPaymentAccountInteractor {
         }
     }
 
+    /// Loads the card settings stored inside payment account for linked card.
+    /// Card settings returned from payment account as an object
+    /// Validates wallet association before attempting to load settings.
+    /// - Returns: A `VisaPaymentAccountCardSettings` instance with current card configuration.
+    /// - Throws: An error if wallet is not associated or retrieval fails.
     func loadCardSettings() async throws -> VisaPaymentAccountCardSettings {
         VisaLogger.info("Attempting to load card settings from payment account")
         do {
@@ -80,6 +94,8 @@ extension CommonPaymentAccountInteractor: VisaPaymentAccountInteractor {
         }
     }
 
+    /// Validates that selected Visa card is linked to payment account
+    /// - Throws: An error if card wallet address is not registered in payment account
     private func checkWalletAddressAssociation() async throws {
         let method = GetCardsListMethod()
         let paymentAccountAddressesResponse = try await evmSmartContractInteractor.ethCall(
@@ -123,114 +139,4 @@ private extension CommonPaymentAccountInteractor {
         let decimal = EthereumUtils.parseEthereumDecimal(value, decimalsCount: visaToken.decimalCount)
         return decimal
     }
-}
-
-struct PaymentAccountCardSettingsParser {
-    private let decimalCount: Int
-
-    private let parsingItemsLength: [Int] = [3, 5, 15]
-    private let parser = EthereumDataParser()
-    private let limitsParser = LimitsResponseParser()
-
-    init(decimalCount: Int) {
-        self.decimalCount = decimalCount
-    }
-
-    func parse(response: String) throws -> VisaPaymentAccountCardSettings {
-        let chunkedResponse = parser.split(string: response.removeHexPrefix())
-        var chunks = splitArray(chunkedResponse, withLengths: parsingItemsLength)
-
-        var supplementData = chunks.removeFirst()
-        let initialized = parser.getBool(string: supplementData.removeFirst())
-        let isOwner = parser.getBool(string: supplementData.removeFirst())
-        let disabledDate = parser.getDateSince1970(string: supplementData.removeFirst())
-
-        let otpParser = OTPSettingsParser()
-        let otpSettings = try otpParser.parseOTP(responseChunks: chunks.removeFirst())
-
-        let limitsParser = LimitsResponseParser()
-        let limitsSettings = try limitsParser.parseResponse(chunks: chunks.removeFirst(), decimalCount: decimalCount)
-
-        return .init(
-            initialized: initialized,
-            isOwner: isOwner,
-            disableDate: disabledDate,
-            otpState: otpSettings,
-            limits: limitsSettings
-        )
-    }
-
-    private func splitArray(_ array: [String], withLengths lengths: [Int]) -> [[String]] {
-        var result: [[String]] = []
-        var index = 0
-
-        for length in lengths {
-            let end = min(index + length, array.count)
-            result.append(Array(array[index ..< end]))
-            index += length
-            if index >= array.count { break }
-        }
-
-        return result
-    }
-}
-
-struct OTPSettingsParser {
-    private let numberOfOTPFields = 2
-    private let parser = EthereumDataParser()
-
-    func parseOTP(responseChunks: [String]) throws -> VisaOTPStateSettings {
-        var chunks = responseChunks
-
-        let changeDate = parser.getDateSince1970(string: chunks.removeLast())
-        guard chunks.count == numberOfOTPFields * 2 else {
-            throw VisaParserError.notEnoughOTPData
-        }
-
-        let oldOTPState = try parseSingleOTP(chunks: Array(chunks[0 ... 1]))
-        let newOTPState = try parseSingleOTP(chunks: Array(chunks[2 ... 3]))
-        return .init(
-            oldValue: oldOTPState,
-            newValue: newOTPState,
-            changeDate: changeDate
-        )
-    }
-
-    private func parseSingleOTP(chunks: [String]) throws -> VisaOTPState {
-        guard chunks.count == numberOfOTPFields else {
-            throw VisaParserError.notEnoughOTPData
-        }
-
-        let otpData = parser.getData(string: chunks[0])
-        let counter = parser.getDecimal(string: chunks[1], decimalsCount: 0).intValue()
-
-        return .init(
-            otp: otpData,
-            counter: counter
-        )
-    }
-}
-
-public struct VisaPaymentAccountCardSettings {
-    public let initialized: Bool
-    public let isOwner: Bool
-    public let disableDate: Date
-    public let otpState: VisaOTPStateSettings
-    public let limits: VisaLimits
-}
-
-public struct VisaOTPStateSettings {
-    public let oldValue: VisaOTPState
-    public let newValue: VisaOTPState
-    public let changeDate: Date
-}
-
-public struct VisaOTPState {
-    public let otp: Data
-    public let counter: Int
-}
-
-public enum VisaPaymentAccountError: String, LocalizedError {
-    case cardNotRegisteredToAccount
-    case cardIsNotActivated
 }
