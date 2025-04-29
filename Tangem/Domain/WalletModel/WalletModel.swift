@@ -41,6 +41,8 @@ protocol WalletModel:
 
     var sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions? { get }
 
+    var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { get }
+
     // Staking
     var stakingManager: StakingManager? { get }
     var stakeKitTransactionSender: StakeKitTransactionSender? { get }
