@@ -437,6 +437,9 @@
 "markets_sort_by_top_gainers_title" = "Meilleurs Gagnants";
 "markets_sort_by_top_losers_title" = "Top Perdants";
 "markets_sort_by_trending_title" = "Tendances";
+"markets_staking_banner_description_placeholder" = "Staking is the easiest way to receive rewards on your crypto. %@";
+"markets_staking_banner_description_show_more" = "Show more";
+"markets_staking_banner_title" = "Earn up to %@ APY";
 "markets_token_details_about_token_title" = "À propos de %@";
 "markets_token_details_blockchain_site" = "Site web";
 "markets_token_details_buy_pressure_description" = "La différence entre le volume des acheteurs et le volume des vendeurs";
@@ -941,7 +944,7 @@
 "story_learn_description" = "Suivez trois leçons, obtenez une réduction sur votre Portefeuille Tangem et recevez des jetons 1INCH dans votre portefeuille";
 "story_learn_learn" = "Apprendre";
 "story_meet_title" = "Découvrez Tangem";
-"story_web3_description" = "Échangez, achetez des NFT, faites des prêts et des dépôts dans plus de 100 services décentralisés différents";
+"story_web3_description" = "Plus de 100 intégrations de services décentralisés sont disponibles";
 "story_web3_title" = "Compatible avec Web 3.0";
 "sui_not_enough_coin_for_fee_description" = "Une transaction entrante d'au moins de %1$@ est requise pour continuer";
 "sui_not_enough_coin_for_fee_title" = "Fonds insuffisants";
@@ -999,6 +1002,7 @@
 "token_details_hide_alert_title" = "Masquer %@";
 "token_details_hide_token" = "Masquer le jeton";
 "token_details_staking_block_subtitle" = "Le Staking vous permet d'en gagner %1$@ et d'obtenir des récompenses tous les %2$@ jours";
+"token_details_staking_block_title" = "Service de Staking";
 "token_details_token_type_subtitle_no_standard" = "Jeton dans le %%image%% %1$@ réseau";
 "token_details_token_type_subtitle" = "%1$@ jeton dans %%image%% %2$@ le réseau";
 "token_details_unable_hide_alert_message" = "Le jeton %1$@ (%2$@) est la principale devise du réseau %3$@ et ne peut pas être masqué tant que vous avez d'autres jetons de ce réseau dans la liste";
