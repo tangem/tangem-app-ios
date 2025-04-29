@@ -7,11 +7,12 @@
 //
 
 import Foundation
-import TangemLocalization
 import SwiftUI
 import Combine
 import TangemFoundation
+import TangemLocalization
 import TangemVisa
+import struct TangemUIUtils.AlertBinder
 
 protocol VisaOnboardingAccessCodeSetupDelegate: VisaOnboardingAlertPresenter {
     func useSelectedCode(accessCode: String) async throws
