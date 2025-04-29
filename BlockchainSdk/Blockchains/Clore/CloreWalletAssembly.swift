@@ -7,25 +7,13 @@
 //
 
 import Foundation
-import TangemSdk
-import BitcoinCore
 
 struct CloreWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        let compressedKey = try Secp256k1Key(with: input.wallet.publicKey.blockchainKey).compress()
-
-        let bitcoinManager = BitcoinManager(
-            networkParams: CloreMainNetworkParams(),
-            walletPublicKey: input.wallet.publicKey.blockchainKey,
-            compressedWalletPublicKey: compressedKey,
-            bip: .bip44
-        )
-
         let unspentOutputManager: UnspentOutputManager = .clore(address: input.wallet.defaultAddress)
         let txBuilder = BitcoinTransactionBuilder(
-            bitcoinManager: bitcoinManager,
-            unspentOutputManager: unspentOutputManager,
-            addresses: input.wallet.addresses
+            network: CloreMainNetworkParams(),
+            unspentOutputManager: unspentOutputManager
         )
 
         let providers: [UTXONetworkProvider] = APIResolver(blockchain: input.wallet.blockchain, keysConfig: input.networkInput.keysConfig)
@@ -34,7 +22,7 @@ struct CloreWalletAssembly: WalletManagerAssembly {
             }
 
         let networkService = MultiUTXONetworkProvider(providers: providers)
-        return RavencoinWalletManager(
+        return BitcoinWalletManager(
             wallet: input.wallet,
             txBuilder: txBuilder,
             unspentOutputManager: unspentOutputManager,
