@@ -8,32 +8,7 @@
 
 import Foundation
 import Combine
-
-@available(iOS 13.0, *)
-extension Publisher {
-    func withWeakCaptureOf<Object>(
-        _ object: Object
-    ) -> Publishers.CompactMap<Self, (Object, Self.Output)> where Object: AnyObject {
-        return compactMap { [weak object] output in
-            guard let object = object else { return nil }
-
-            return (object, output)
-        }
-    }
-
-    func mapToValue<Value>(_ value: Value) -> Publishers.Map<Self, Value> {
-        map { _ in value }
-    }
-
-    func mapToVoid() -> Publishers.Map<Self, Void> {
-        map { _ in () }
-    }
-
-    func mapToResult() -> some Publisher<Result<Self.Output, Self.Failure>, Never> {
-        return map(Result.success)
-            .catch { Just(Result.failure($0)) }
-    }
-}
+import CombineExt
 
 extension Publisher where Failure == Swift.Error {
     func asyncMap<T>(

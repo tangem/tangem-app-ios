@@ -27,6 +27,10 @@ struct VisaConfig: CardContainer {
 }
 
 extension VisaConfig: UserWalletConfig {
+    var emailConfig: EmailConfig? {
+        .visaDefault()
+    }
+
     var cardSetLabel: String? {
         nil
     }
