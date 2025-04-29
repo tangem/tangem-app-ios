@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 /// Same as `DecimalNumberTextField` with  support
 /// - `InitialFocusBehavior`
