@@ -7,10 +7,11 @@
 //
 
 import Foundation
-import TangemLocalization
 import Combine
 import CombineExt
 import TangemFoundation
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
