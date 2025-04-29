@@ -29,7 +29,7 @@ struct SquaredOrRectangleImageView: View {
     }
 
     private var background: some View {
-        Colors.Field.primary
+        Colors.Field.focused
             .frame(size: containerSize)
             .cornerRadiusContinuous(14)
     }
