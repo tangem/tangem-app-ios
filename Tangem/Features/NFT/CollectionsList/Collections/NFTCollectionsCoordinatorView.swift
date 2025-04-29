@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemNFT
+import TangemUI
 
 struct NFTCollectionsCoordinatorView: View {
     @ObservedObject var coordinator: NFTCollectionsCoordinator
@@ -30,6 +31,9 @@ struct NFTCollectionsCoordinatorView: View {
 
     @ViewBuilder
     private var sheets: some View {
-        EmptyView()
+        NavHolder()
+            .sheet(item: $coordinator.assetDetailsCoordinator) {
+                NFTAssetDetailsCoordinatorView(coordinator: $0)
+            }
     }
 }
