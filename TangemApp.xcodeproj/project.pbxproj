@@ -317,6 +317,7 @@
 		30410B432D7745B00044C703 /* RadiantAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30410B422D7745A50044C703 /* RadiantAddressTests.swift */; };
 		30410B452D7748740044C703 /* SolanaAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30410B442D77486F0044C703 /* SolanaAddressTests.swift */; };
 		30440D762D79A12C00460D15 /* PolygonAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30440D752D79A12500460D15 /* PolygonAddressTests.swift */; };
+		304B815A2DB8E00800D5F6C7 /* NFTAssetDetailsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 304B81592DB8E00800D5F6C7 /* NFTAssetDetailsCoordinator.swift */; };
 		304D34CD2D5F4AA7003CCAE5 /* local_tos.html in Resources */ = {isa = PBXBuildFile; fileRef = 304D34CC2D5F4A9C003CCAE5 /* local_tos.html */; };
 		304D34CF2D5F4ADD003CCAE5 /* WebViewTimeoutSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 304D34CE2D5F4AD6003CCAE5 /* WebViewTimeoutSettings.swift */; };
 		305B22302D789B86009BCC73 /* TerraAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 305B222F2D789B7B009BCC73 /* TerraAddressTests.swift */; };
@@ -340,6 +341,7 @@
 		30B457582D943444002B8BD0 /* PropertyListObjectRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30B457572D943444002B8BD0 /* PropertyListObjectRepresentable.swift */; };
 		30B457592D943444002B8BD0 /* AppStorageCompat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30B457562D943444002B8BD0 /* AppStorageCompat.swift */; };
 		30B4575D2D9434A4002B8BD0 /* FeaturesStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30B4575B2D9434A4002B8BD0 /* FeaturesStorage.swift */; };
+		30B64C7E2DB8E1E3002FAE12 /* NFTAssetDetailsCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30B64C7D2DB8E1D5002FAE12 /* NFTAssetDetailsCoordinatorView.swift */; };
 		30BA4FE72D7085FB00C2B108 /* TezosTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30BA4FE62D7085F500C2B108 /* TezosTransactionTests.swift */; };
 		30C470102D760568003DFBFD /* AlgorandAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30C4700F2D76055D003DFBFD /* AlgorandAddressTests.swift */; };
 		30C470122D760AE0003DFBFD /* AptosAddressTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30C470112D760ADA003DFBFD /* AptosAddressTest.swift */; };
@@ -3774,6 +3776,7 @@
 		30410B422D7745A50044C703 /* RadiantAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadiantAddressTests.swift; sourceTree = "<group>"; };
 		30410B442D77486F0044C703 /* SolanaAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaAddressTests.swift; sourceTree = "<group>"; };
 		30440D752D79A12500460D15 /* PolygonAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolygonAddressTests.swift; sourceTree = "<group>"; };
+		304B81592DB8E00800D5F6C7 /* NFTAssetDetailsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTAssetDetailsCoordinator.swift; sourceTree = "<group>"; };
 		304D34CC2D5F4A9C003CCAE5 /* local_tos.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = local_tos.html; sourceTree = "<group>"; };
 		304D34CE2D5F4AD6003CCAE5 /* WebViewTimeoutSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewTimeoutSettings.swift; sourceTree = "<group>"; };
 		305B222F2D789B7B009BCC73 /* TerraAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerraAddressTests.swift; sourceTree = "<group>"; };
@@ -3797,6 +3800,7 @@
 		30B457562D943444002B8BD0 /* AppStorageCompat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStorageCompat.swift; sourceTree = "<group>"; };
 		30B457572D943444002B8BD0 /* PropertyListObjectRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyListObjectRepresentable.swift; sourceTree = "<group>"; };
 		30B4575B2D9434A4002B8BD0 /* FeaturesStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturesStorage.swift; sourceTree = "<group>"; };
+		30B64C7D2DB8E1D5002FAE12 /* NFTAssetDetailsCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTAssetDetailsCoordinatorView.swift; sourceTree = "<group>"; };
 		30BA4FE62D7085F500C2B108 /* TezosTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TezosTransactionTests.swift; sourceTree = "<group>"; };
 		30C4700F2D76055D003DFBFD /* AlgorandAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlgorandAddressTests.swift; sourceTree = "<group>"; };
 		30C470112D760ADA003DFBFD /* AptosAddressTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AptosAddressTest.swift; sourceTree = "<group>"; };
@@ -7661,6 +7665,24 @@
 			path = Polygon;
 			sourceTree = "<group>";
 		};
+		304B81552DB8DEE700D5F6C7 /* Collections */ = {
+			isa = PBXGroup;
+			children = (
+				B60E64B12DB6B3A4009D7EBA /* NFTCollectionsCoordinatorView.swift */,
+				B60E64B02DB6B3A4009D7EBA /* NFTCollectionsCoordinator.swift */,
+			);
+			path = Collections;
+			sourceTree = "<group>";
+		};
+		304B81562DB8DEF100D5F6C7 /* AssetDetails */ = {
+			isa = PBXGroup;
+			children = (
+				30B64C7D2DB8E1D5002FAE12 /* NFTAssetDetailsCoordinatorView.swift */,
+				304B81592DB8E00800D5F6C7 /* NFTAssetDetailsCoordinator.swift */,
+			);
+			path = AssetDetails;
+			sourceTree = "<group>";
+		};
 		305B222E2D789B60009BCC73 /* Terra */ = {
 			isa = PBXGroup;
 			children = (
@@ -10161,8 +10183,8 @@
 		B60E64AF2DB6B35A009D7EBA /* CollectionsList */ = {
 			isa = PBXGroup;
 			children = (
-				B60E64B02DB6B3A4009D7EBA /* NFTCollectionsCoordinator.swift */,
-				B60E64B12DB6B3A4009D7EBA /* NFTCollectionsCoordinatorView.swift */,
+				304B81562DB8DEF100D5F6C7 /* AssetDetails */,
+				304B81552DB8DEE700D5F6C7 /* Collections */,
 			);
 			path = CollectionsList;
 			sourceTree = "<group>";
@@ -18765,6 +18787,7 @@
 				EFD68F212CC2986D00693C97 /* OnrampStepBuilder.swift in Sources */,
 				B06C085E2A73FCB700D982BC /* MainUserWalletPageBuilder.swift in Sources */,
 				B04EADEA2A80D62E009B5768 /* SingleTokenBaseRoutable.swift in Sources */,
+				30B64C7E2DB8E1E3002FAE12 /* NFTAssetDetailsCoordinatorView.swift in Sources */,
 				DAAEC38D2BF31A8800184D7C /* SendFeatureProvider.swift in Sources */,
 				DA5970EC27FC1C1B0050387C /* TangemApiTarget.swift in Sources */,
 				B65D3FCD2A6712BB00FEEFE8 /* CardsInfoPagerContentSwitchingAnimationModifier.swift in Sources */,
@@ -19296,6 +19319,7 @@
 				B0BB97302B18654300053954 /* ExpressPendingTransactionRepository.swift in Sources */,
 				EFE54CDC2D0AF12900D803EB /* ExpressAnalyticsLoggerMock.swift in Sources */,
 				B0F318FD2A739432009F131E /* UserWalletConfigStubs.swift in Sources */,
+				304B815A2DB8E00800D5F6C7 /* NFTAssetDetailsCoordinator.swift in Sources */,
 				DC22535928A4FD9C0094F30C /* UserWalletConfigFactory.swift in Sources */,
 				B0606E122684A946004004ED /* BlinkingModifier.swift in Sources */,
 				DCBC945D299404510050BC35 /* CommonAnalyticsContext.swift in Sources */,

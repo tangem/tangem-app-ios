@@ -44,19 +44,18 @@ struct NFTDescriptionView: View {
         Button(action: readMoreAction) {
             Text(readMoreOffsettedText)
                 .style(Fonts.Regular.footnote, color: Colors.Text.accent)
-                .background(
-                    LinearGradient(
-                        stops: [
-                            Gradient.Stop(color: backgroundColor.opacity(0.5), location: 0),
-                            Gradient.Stop(color: backgroundColor.opacity(0.7), location: 0.1),
-                            Gradient.Stop(color: backgroundColor, location: 0.2),
-                        ],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
         }
-        .buttonStyle(.defaultScaled)
+        .background(
+            LinearGradient(
+                stops: [
+                    Gradient.Stop(color: backgroundColor.opacity(0.5), location: 0),
+                    Gradient.Stop(color: backgroundColor.opacity(0.7), location: 0.1),
+                    Gradient.Stop(color: backgroundColor, location: 0.2),
+                ],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        )
     }
 
     private var readMoreOffsettedText: String {

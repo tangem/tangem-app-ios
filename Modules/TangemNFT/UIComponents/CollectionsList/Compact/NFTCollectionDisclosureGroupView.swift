@@ -12,10 +12,7 @@ import TangemAssets
 import TangemLocalization
 
 struct NFTCollectionDisclosureGroupView: View {
-    let viewModel: NFTCompactCollectionViewModel
-
-    @State
-    private var isOpened = false
+    @ObservedObject var viewModel: NFTCompactCollectionViewModel
 
     var body: some View {
         disclosureGroup
@@ -23,11 +20,11 @@ struct NFTCollectionDisclosureGroupView: View {
 
     private var disclosureGroup: some View {
         CustomDisclosureGroup(
-            isExpanded: isOpened,
+            isExpanded: viewModel.isExpanded,
             transition: .opacity,
             actionOnClick: {
                 withAnimation {
-                    isOpened.toggle()
+                    viewModel.onTap()
                 }
                 UIImpactFeedbackGenerator(style: .medium).impactOccurred()
             },
@@ -49,7 +46,7 @@ struct NFTCollectionDisclosureGroupView: View {
             iconOverlayImage: viewModel.blockchainImage,
             title: viewModel.name,
             subtitle: Localization.nftCollectionsCount(viewModel.numberOfItems),
-            isExpanded: isOpened
+            isExpanded: viewModel.isExpanded
         )
     }
 }
@@ -85,7 +82,7 @@ struct DummyProvider: NFTChainIconProvider {
                         assetIdentifier: "some-\($0)",
                         collectionIdentifier: "some1",
                         chain: .solana,
-                        contractType: .splToken2022,
+                        contractType: .unknown,
                         ownerAddress: "",
                         name: "My asset",
                         description: "",
@@ -95,7 +92,9 @@ struct DummyProvider: NFTChainIconProvider {
                     )
                 }
             ),
-            nftChainIconProvider: DummyProvider()
+            nftChainIconProvider: DummyProvider(),
+            openAssetDetailsAction: { _ in },
+            onTapAction: {}
         )
     )
 }
