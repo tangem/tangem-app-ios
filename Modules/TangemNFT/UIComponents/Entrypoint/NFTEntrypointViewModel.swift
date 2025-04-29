@@ -121,6 +121,7 @@ public final class NFTEntrypointViewModel: ObservableObject {
         }
     }
 
+    @MainActor
     func openCollections() {
         coordinator?.openCollections(nftManager)
     }
