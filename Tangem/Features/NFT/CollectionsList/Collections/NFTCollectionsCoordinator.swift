@@ -19,6 +19,8 @@ class NFTCollectionsCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
+    @Published var assetDetailsCoordinator: NFTAssetDetailsCoordinator?
+
     // MARK: - Child view models
 
     required init(
@@ -52,5 +54,18 @@ extension NFTCollectionsCoordinator {
 extension NFTCollectionsCoordinator: NFTCollectionsListRoutable {
     func openReceive() {
         // [REDACTED_TODO_COMMENT]
+    }
+
+    func openAssetDetails(asset: NFTAsset) {
+        assetDetailsCoordinator = NFTAssetDetailsCoordinator(
+            dismissAction: { [weak self] in
+                self?.assetDetailsCoordinator = nil
+            },
+            popToRootAction: { [weak self] options in
+                self?.assetDetailsCoordinator = nil
+                self?.popToRoot(with: options)
+            }
+        )
+        assetDetailsCoordinator?.start(with: NFTAssetDetailsCoordinator.Options(asset: asset))
     }
 }
