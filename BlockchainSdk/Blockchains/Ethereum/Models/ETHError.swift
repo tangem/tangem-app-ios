@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 public enum ETHError: Error, LocalizedError, DetailedError {
     case failedToParseTxCount

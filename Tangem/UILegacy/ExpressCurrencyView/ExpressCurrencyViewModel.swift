@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemExpress
 import TangemFoundation
+import struct TangemUI.TokenIconInfo
 
 final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
     // Header view
