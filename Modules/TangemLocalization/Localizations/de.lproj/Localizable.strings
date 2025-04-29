@@ -1002,7 +1002,6 @@
 "token_details_hide_alert_title" = "Blende %@ aus";
 "token_details_hide_token" = "Token ausblenden";
 "token_details_staking_block_subtitle" = "Durch das Staking kannst du alle %2$@ Tage %1$@ verdienen und Belohnungen erhalten";
-"token_details_staking_block_title" = "Verdiene bis zu %@ Stakingprämie pro Jahr";
 "token_details_token_type_subtitle_no_standard" = "Token in %%image%% %1$@ Netzwerk";
 "token_details_token_type_subtitle" = "%1$@ Token in %%image%% %2$@ Netzwerk";
 "token_details_unable_hide_alert_message" = "Der %1$@ (%2$@) Token ist die Hauptwährung im %3$@ Netzwerk und kann nicht versteckt werden, solange du andere Token dieses Netzwerks in der Liste aktiv hast.";
