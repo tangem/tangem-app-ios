@@ -7,9 +7,10 @@
 //
 
 import Foundation
-import TangemLocalization
 import SwiftUI
 import Combine
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 class SecurityModeViewModel: ObservableObject {
     // MARK: ViewState
