@@ -999,7 +999,6 @@
 "token_details_hide_alert_title" = "Приховати %@";
 "token_details_hide_token" = "Приховати токен";
 "token_details_staking_block_subtitle" = "Стейкінг дозволяє заробляти %1$@ і отримувати винагороду кожні %2$@ днів";
-"token_details_staking_block_title" = "Заробляйте до %@ винагород за стейкінг щороку";
 "token_details_token_type_subtitle_no_standard" = "Токен у мережі %%image%% %1$@";
 "token_details_token_type_subtitle" = "%1$@ токен в мережі %%image%% %2$@";
 "token_details_unable_hide_alert_message" = "Токен %1$@ (%2$@) є основною валютою в мережі %3$@ і не може бути прихований до тих пір, поки у вас в списку є інші токени цієї мережі";
