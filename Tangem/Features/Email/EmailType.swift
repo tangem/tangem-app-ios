@@ -17,6 +17,7 @@ enum EmailType {
     case appFeedback(subject: String)
     case activatedCard
     case attestationFailed
+    case visaFeedback(subject: VisaEmailSubject)
 
     var emailSubject: String {
         switch self {
@@ -28,6 +29,8 @@ enum EmailType {
         case .failedToPushTx: return Localization.feedbackSubjectTxPushFailed
         case .activatedCard: return Localization.feedbackSubjectPreActivatedWallet
         case .attestationFailed: return "Card attestation failed"
+        case .visaFeedback(let subject):
+            return "\(subject.prefix) \(Localization.feedbackSubjectSupport)"
         }
     }
 
@@ -36,7 +39,7 @@ enum EmailType {
         case .negativeRateAppFeedback: return Localization.feedbackPrefaceRateNegative
         case .failedToScanCard: return Localization.feedbackPrefaceScanFailed
         case .failedToSendTx: return Localization.feedbackPrefaceTxFailed
-        case .appFeedback, .activatedCard, .attestationFailed: return Localization.feedbackPrefaceSupport
+        case .appFeedback, .activatedCard, .attestationFailed, .visaFeedback: return Localization.feedbackPrefaceSupport
         case .failedToPushTx: return Localization.feedbackPrefaceTxFailed
         }
     }
@@ -82,6 +85,7 @@ enum EmailCollectedDataType {
     case error
     case separator(SeparatorType)
     case token(TokenData)
+    case visaDisputeTransaction(VisaDisputeTransactionData)
 
     enum CardData: String {
         case cardId = "Card ID"
@@ -135,6 +139,27 @@ enum EmailCollectedDataType {
         case newLine = "\n"
     }
 
+    enum VisaDisputeTransactionData: String {
+        case id = "ID"
+        case type = "Type"
+        case status = "Status"
+        case blockchainAmount = "Blockchain amount"
+        case blockchainCoinName = "Blockchain coin name"
+        case transactionAmount = "Transaction amount"
+        case currencyCode = "Currency code"
+        case billingAmount = "Billing amount"
+        case billingCurrencyCode = "Billing currency code"
+        case merchantName = "Merchant name"
+        case merchantCity = "Merchant city"
+        case merchantCountryCode = "Merchant country code"
+        case merchantCategoryCode = "Merchant category code"
+        case errorCode = "Error code"
+        case date = "Date"
+        case transactionHash = "Transaction hash"
+        case transactionStatus = "Transaction status"
+        case requests = "Blockchain requests"
+    }
+
     var title: String {
         switch self {
         case .logs: return "Logs: "
@@ -145,6 +170,7 @@ enum EmailCollectedDataType {
         case .token(let data): return data.rawValue + ": "
         case .error: return "Error: "
         case .separator(let type): return type.rawValue
+        case .visaDisputeTransaction(let data): return data.rawValue + ": "
         }
     }
 }

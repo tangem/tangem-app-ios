@@ -11,7 +11,7 @@ import TangemNetworkUtils
 import Moya
 
 struct NFTScanAPITarget {
-    let chain: NFTScanNetworkParams.NFTChain
+    let chain: NFTChain
     let target: Target
 
     private let encoding = URLEncoding(destination: .queryString, boolEncoding: .literal)
@@ -29,7 +29,13 @@ extension NFTScanAPITarget {
 
 extension NFTScanAPITarget: TargetType {
     var baseURL: URL {
-        chain.apiBasePath
+        switch chain {
+        case .solana:
+            return URL(string: "https://solanaapi.nftscan.com/api/sol/")!
+        default:
+            assertionFailure("Unsupported chain for NFTScan")
+            return URL(string: "https://dummy.com")!
+        }
     }
 
     var path: String {
@@ -63,5 +69,7 @@ extension NFTScanAPITarget: TargetType {
         }
     }
 
-    var headers: [String: String]? { nil }
+    var headers: [String: String]? {
+        nil
+    }
 }
