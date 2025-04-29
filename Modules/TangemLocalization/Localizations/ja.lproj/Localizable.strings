@@ -999,7 +999,6 @@
 "token_details_hide_alert_title" = "%@を非表示";
 "token_details_hide_token" = "トークンを非表示";
 "token_details_staking_block_subtitle" = "ステーキングにより、 %1$@を獲得し、 %2$@日ごとに報酬を受け取ることができます。";
-"token_details_staking_block_title" = "年間最大%@のステーキング報酬を獲得";
 "token_details_token_type_subtitle_no_standard" = "%%image%% %1$@ネットワーク上のトークン";
 "token_details_token_type_subtitle" = "%%image%% %2$@ ネットワークの %1$@ トークン";
 "token_details_unable_hide_alert_message" = "%1$@ ( %2$@ ) トークンは%3$@ネットワークの主要通貨であり、このネットワーク上の他のトークンがリストにある限り、非表示にすることはできません。";
