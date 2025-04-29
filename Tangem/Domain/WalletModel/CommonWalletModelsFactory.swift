@@ -102,6 +102,11 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                 tokenItem: tokenItem,
                 addresses: walletManager.wallet.addresses.map { $0.value }
             )
+            let featureManager = CommonWalletModelFeaturesManager(
+                userWalletId: userWalletId,
+                userWalletConfig: config,
+                tokenItem: tokenItem
+            )
             let shouldPerformHealthCheck = shouldPerformHealthCheck(blockchain: currentBlockchain, amountType: .coin)
             let mainCoinModel = CommonWalletModel(
                 walletManager: walletManager,
@@ -110,12 +115,13 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                     tokenItem: tokenItem,
                     address: walletManager.wallet.address
                 ),
+                featureManager: featureManager,
                 transactionHistoryService: transactionHistoryService,
+                sendAvailabilityProvider: sendAvailabilityProvider,
+                tokenBalancesRepository: tokenBalancesRepository,
                 amountType: .coin,
                 shouldPerformHealthCheck: shouldPerformHealthCheck,
-                isCustom: isMainCoinCustom,
-                sendAvailabilityProvider: sendAvailabilityProvider,
-                tokenBalancesRepository: tokenBalancesRepository
+                isCustom: isMainCoinCustom
             )
             models.append(mainCoinModel)
         }
@@ -129,6 +135,11 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                     tokenItem: tokenItem,
                     addresses: walletManager.wallet.addresses.map { $0.value }
                 )
+                let featureManager = CommonWalletModelFeaturesManager(
+                    userWalletId: userWalletId,
+                    userWalletConfig: config,
+                    tokenItem: tokenItem
+                )
                 let shouldPerformHealthCheck = shouldPerformHealthCheck(blockchain: currentBlockchain, amountType: amountType)
                 let tokenModel = CommonWalletModel(
                     walletManager: walletManager,
@@ -137,12 +148,13 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                         tokenItem: tokenItem,
                         address: walletManager.wallet.address
                     ),
+                    featureManager: featureManager,
                     transactionHistoryService: transactionHistoryService,
+                    sendAvailabilityProvider: sendAvailabilityProvider,
+                    tokenBalancesRepository: tokenBalancesRepository,
                     amountType: amountType,
                     shouldPerformHealthCheck: shouldPerformHealthCheck,
-                    isCustom: isTokenCustom,
-                    sendAvailabilityProvider: sendAvailabilityProvider,
-                    tokenBalancesRepository: tokenBalancesRepository
+                    isCustom: isTokenCustom
                 )
                 models.append(tokenModel)
             }
