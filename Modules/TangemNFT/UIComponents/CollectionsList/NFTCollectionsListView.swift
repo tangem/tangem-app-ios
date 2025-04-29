@@ -17,11 +17,14 @@ public struct NFTCollectionsListView: View {
 
     @State private var hasBeenScrolledDown: Bool = false
 
+    @State private var contentHeight: CGFloat = 0
     @State private var buttonHeight: CGFloat = 0
     @State private var shouldShowShadow: Bool = true
 
     @State private var buttonMinY: CGFloat = 0
     @State private var contentMaxY: CGFloat = 0
+
+    private let coordinateSpaceName = "NFTCollectionsListViewCoordinateSpace"
 
     public init(viewModel: NFTCollectionsListViewModel) {
         self.viewModel = viewModel
@@ -32,11 +35,7 @@ public struct NFTCollectionsListView: View {
             .navigationTitle(Localization.nftWalletTitle)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.horizontal, Constants.horizontalPadding)
-            .background(Colors.Background.secondary)
-            .sheet(isPresented: .constant(true)) {
-                Text("Hello")
-                    .background(Colors.Background.secondary)
-            }
+            .background(Colors.Background.tertiary)
     }
 
     @ViewBuilder
@@ -86,6 +85,7 @@ public struct NFTCollectionsListView: View {
 
             receiveButtonContainer
         }
+        .coordinateSpace(name: coordinateSpaceName)
     }
 
     private var emptySearchView: some View {
@@ -106,13 +106,28 @@ public struct NFTCollectionsListView: View {
                     padding: Constants.backgroundPadding,
                     radius: Constants.cornerRadius
                 )
+                .readGeometry(\.frame, inCoordinateSpace: coordinateSpace) {
+                    contentHeight = $0.height
+                    contentMaxY = $0.maxY
+                }
+                // We need this code to track view's heigh when row expands
+                // .readGeometry only tracks it before list expands
+                .background(
+                    GeometryReader { proxy in
+                        Color.clear
+                            .onChange(of: viewModel.rowExpanded) { _ in
+                                let rect = proxy.frame(in: coordinateSpace)
+                                let offset = -rect.origin.y
+                                shouldShowShadow = rect.height - offset > buttonMinY
+                            }
+                    }
+                )
 
                 Spacer()
                     .frame(height: buttonHeight + Constants.contentButtonSpacing)
             }
-            .readGeometry(\.frame.maxY, inCoordinateSpace: .global, bindTo: $contentMaxY)
-            .readContentOffset(inCoordinateSpace: .global) { point in
-                shouldShowShadow = contentMaxY > buttonMinY
+            .readContentOffset(inCoordinateSpace: coordinateSpace) { point in
+                shouldShowShadow = contentHeight - point.y > buttonMinY
             }
         }
         .simultaneousGesture(
@@ -139,10 +154,14 @@ public struct NFTCollectionsListView: View {
                     ListFooterOverlayShadowView()
                 )
             }
-            .readGeometry(\.frame, inCoordinateSpace: .global) { frame in
+            .readGeometry(\.frame, inCoordinateSpace: coordinateSpace) { frame in
                 buttonHeight = frame.height
                 buttonMinY = frame.minY
             }
+    }
+
+    private var coordinateSpace: CoordinateSpace {
+        .named(coordinateSpaceName)
     }
 }
 
@@ -200,7 +219,7 @@ extension NFTCollectionsListView {
                                         assetIdentifier: "some-\($0)",
                                         collectionIdentifier: "some1",
                                         chain: .solana,
-                                        contractType: .splToken2022,
+                                        contractType: .unknown,
                                         ownerAddress: "",
                                         name: "My asset",
                                         description: "",
