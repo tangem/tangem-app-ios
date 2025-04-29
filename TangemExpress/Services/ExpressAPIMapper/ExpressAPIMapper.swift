@@ -222,6 +222,7 @@ struct ExpressAPIMapper {
         return OnrampRedirectData(
             txId: response.txId,
             widgetUrl: codedData.widgetUrl,
+            redirectUrl: codedData.redirectUrl,
             fromAmount: fromAmount,
             fromCurrencyCode: codedData.fromCurrencyCode,
             externalTxId: codedData.externalTxId

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 struct UserWalletSettingsCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: UserWalletSettingsCoordinator
