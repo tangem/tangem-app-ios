@@ -244,8 +244,8 @@ private extension ActionButtonsViewModel {
             .availableStoriesPublisher
             .combineLatest(swapActionButtonViewModel.$viewState)
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] availableStoryIds, swapButtonViewState in
-                let swapStoryAvailable = availableStoryIds.contains(.swap)
+            .sink { [weak self, storyAvailabilityService] _, swapButtonViewState in
+                let swapStoryAvailable = storyAvailabilityService.checkStoryAvailability(storyId: .swap)
                 let buttonStateIsValid = swapButtonViewState == .idle || swapButtonViewState == .initial
                 self?.shouldShowSwapUnreadNotificationBadge = buttonStateIsValid && swapStoryAvailable
             }
