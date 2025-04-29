@@ -437,6 +437,9 @@
 "markets_sort_by_top_gainers_title" = "Top-Gewinner";
 "markets_sort_by_top_losers_title" = "Top-Verlierer";
 "markets_sort_by_trending_title" = "Beliebt";
+"markets_staking_banner_description_placeholder" = "Staking is the easiest way to receive rewards on your crypto. %@";
+"markets_staking_banner_description_show_more" = "Show more";
+"markets_staking_banner_title" = "Earn up to %@ APY";
 "markets_token_details_about_token_title" = "Über %@";
 "markets_token_details_blockchain_site" = "Webseite";
 "markets_token_details_buy_pressure_description" = "Die Differenz zwischen Käufer- und Verkäufervolumen";
@@ -941,7 +944,7 @@
 "story_learn_description" = "Nimm an drei Kursen teil, erhalten einen Rabatt auf deine Tangem-Wallet und erhalten zusätzlich 1INCH-Token für deine Wallet";
 "story_learn_learn" = "Lernen";
 "story_meet_title" = "Lerne Tangem kennen";
-"story_web3_description" = "Tausche, kaufen Sie NFTs, vergebe Kredite und tätige Einlagen bei mehr als 100 verschiedenen dezentralen Diensten";
+"story_web3_description" = "Mehr als 100 Integrationen dezentraler Dienste sind verfügbar";
 "story_web3_title" = "Web 3.0-kompatibel";
 "sui_not_enough_coin_for_fee_description" = "Zum Fortfahren ist eine eingehende Transaktion von mindestens %1$@ erforderlich";
 "sui_not_enough_coin_for_fee_title" = "Unzureichende Mittel";
@@ -999,7 +1002,7 @@
 "token_details_hide_alert_title" = "Blende %@ aus";
 "token_details_hide_token" = "Token ausblenden";
 "token_details_staking_block_subtitle" = "Durch das Staking kannst du alle %2$@ Tage %1$@ verdienen und Belohnungen erhalten";
-"token_details_staking_block_title" = "Verdiene bis zu %@ Stakingprämie pro Jahr";
+"token_details_staking_block_title" = "Staking-Dienst";
 "token_details_token_type_subtitle_no_standard" = "Token in %%image%% %1$@ Netzwerk";
 "token_details_token_type_subtitle" = "%1$@ Token in %%image%% %2$@ Netzwerk";
 "token_details_unable_hide_alert_message" = "Der %1$@ (%2$@) Token ist die Hauptwährung im %3$@ Netzwerk und kann nicht versteckt werden, solange du andere Token dieses Netzwerks in der Liste aktiv hast.";
