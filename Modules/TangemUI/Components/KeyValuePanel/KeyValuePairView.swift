@@ -54,7 +54,8 @@ struct KeyValuePairView: View {
         HStack(spacing: 4) {
             Text(pair.value.text)
                 .lineLimit(1)
-                .minimumScaleFactor(0.6)
+                .truncationMode(.middle)
+                .minimumScaleFactor(1)
                 .style(Fonts.Regular.callout, color: Colors.Text.primary1)
 
             if let imageType = pair.value.icon {
