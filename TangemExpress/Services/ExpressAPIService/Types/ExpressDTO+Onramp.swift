@@ -129,7 +129,7 @@ extension ExpressDTO {
                 let language: String?
                 let theme: String?
                 let requestId: String
-                let externalTxId: String
+                let externalTxId: String?
                 let widgetUrl: URL
             }
         }
