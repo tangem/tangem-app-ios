@@ -12,65 +12,44 @@ import Moya
 struct ProductActivationAPITarget: TargetType {
     let target: Target
     let authorizationToken: String
+    let apiType: VisaAPIType
 
     var baseURL: URL {
-        return VisaConstants.bffBaseURL.appendingPathComponent("product_instance/")
+        apiType.baseURL.appendingPathComponent("activation")
     }
 
     var path: String {
         switch target {
         case .activationStatus:
-            return "activation_status"
-        case .getDataToSignByVisaCard:
-            return "card_wallet_acceptance"
-        case .approveDeployByVisaCard:
-            return "activation_by_card_wallet"
-        case .getDataToSignByCustomerWallet:
-            return "customer_wallet_acceptance"
-        case .approveDeployByCustomerWallet:
-            return "activation"
-        case .issuerActivation:
-            return "issuer_activation"
+            return "status"
+        case .getAcceptanceMessage:
+            return "acceptance/message"
+        case .approveDeployByVisaCard, .approveDeployByCustomerWallet:
+            return "data"
+        case .setupPIN:
+            return "pin"
         }
     }
 
     var method: Moya.Method {
-        switch target {
-        case .activationStatus, .getDataToSignByVisaCard, .getDataToSignByCustomerWallet:
-            return .get
-        case .approveDeployByVisaCard, .approveDeployByCustomerWallet, .issuerActivation:
-            return .post
-        }
+        .post
     }
 
     var task: Task {
-        var params = [ParameterKey: Any]()
-
+        let jsonEncoder = JSONEncoder()
+        jsonEncoder.keyEncodingStrategy = .convertToSnakeCase
         switch target {
         case .activationStatus(let request):
-            params[.customerId] = request.customerId
-            params[.productInstanceId] = request.productInstanceId
-            params[.cardId] = request.cardId
-            params[.cardPublicKey] = request.cardPublicKey
-        case .getDataToSignByVisaCard(let request):
-            params[.customerId] = request.customerId
-            params[.productInstanceId] = request.productInstanceId
-            params[.activationOrderId] = request.activationOrderId
-            params[.customerWalletAddress] = request.customerWalletAddress
-        case .getDataToSignByCustomerWallet(let request):
-            params[.customerId] = request.customerId
-            params[.productInstanceId] = request.productInstanceId
-            params[.activationOrderId] = request.activationOrderId
-            params[.cardWalletAddress] = request.cardWalletAddress
+            return .requestCustomJSONEncodable(request, encoder: jsonEncoder)
+        case .getAcceptanceMessage(let request):
+            return .requestCustomJSONEncodable(request, encoder: jsonEncoder)
         case .approveDeployByVisaCard(let request):
-            return .requestJSONEncodable(request)
+            return .requestCustomJSONEncodable(request, encoder: jsonEncoder)
         case .approveDeployByCustomerWallet(let request):
-            return .requestJSONEncodable(request)
-        case .issuerActivation(let request):
-            return .requestJSONEncodable(request)
+            return .requestCustomJSONEncodable(request, encoder: jsonEncoder)
+        case .setupPIN(let request):
+            return .requestCustomJSONEncodable(request, encoder: jsonEncoder)
         }
-
-        return .requestParameters(parameters: params.dictionaryParams, encoding: URLEncoding.default)
     }
 
     var headers: [String: String]? {
@@ -82,34 +61,19 @@ struct ProductActivationAPITarget: TargetType {
 
 extension ProductActivationAPITarget {
     enum Target {
+        /// Load remote activation status to identify current activation state and decide where to navigate user while onboarding
         case activationStatus(request: ActivationStatusRequest)
-
-        case getDataToSignByVisaCard(request: DataToSignByVisaCardRequest)
+        /// There are two types of acceptance messages:
+        /// 1. Acceptance message that must be signed by Visa card
+        /// 2. Acceptance message that must be signed by other wallet - it can be Tangem card or external wallet that was used to buy Visa card
+        /// Each of this messages must be signed during onboarding to initiate payment account deployment proccess
+        case getAcceptanceMessage(request: GetAcceptanceMessageRequest)
+        /// Send to backend signed acceptance message by visa card
         case approveDeployByVisaCard(request: VisaCardDeployAcceptanceRequest)
-
-        case getDataToSignByCustomerWallet(request: DataToSignByCustomerWalletRequest)
+        /// Send to backend signed acceptance message by Tangem card. If Visa card was ordered by external wallet - it will approve payment
+        /// account deployment through dApp
         case approveDeployByCustomerWallet(request: CustomerWalletDeployAcceptanceRequest)
-
-        case issuerActivation(request: IssuerActivationRequest)
-    }
-}
-
-private extension ProductActivationAPITarget {
-    enum ParameterKey: String {
-        case customerId = "customer_id"
-        case productInstanceId = "product_instance_id"
-        case cardId = "card_id"
-        case cardPublicKey = "card_public_key"
-        case activationOrderId = "activation_order_id"
-        case customerWalletAddress = "customer_wallet_address"
-        case cardWalletAddress = "card_wallet_address"
-    }
-}
-
-private extension Dictionary where Key == ProductActivationAPITarget.ParameterKey, Value == Any {
-    var dictionaryParams: [String: Any] {
-        var convertedParams = [String: Any]()
-        forEach { convertedParams[$0.key.rawValue] = $0.value }
-        return convertedParams
+        /// Send selected PIN to external service for validation and setup. This is the final step of Visa card activation process
+        case setupPIN(request: SetupPINRequest)
     }
 }
