@@ -75,7 +75,7 @@ class StoriesViewModel: ObservableObject {
             userWalletId: userWalletId,
             timeout: promotionCheckTimeout
         )
-        async let geoIpRegionCheck: Void = ukGeoDefiner.waitForGeoIpRegion()
+        async let geoIpRegionCheck: Void = ukGeoDefiner.waitForGeoIpRegionIfNeeded()
 
         let _ = await (promotionResultCheck, geoIpRegionCheck)
         await didFinishCheckingPromotion()
