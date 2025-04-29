@@ -9,6 +9,7 @@
 import Combine
 import CombineExt
 import SwiftUI
+import TangemUI
 
 final class OrganizeTokensViewModel: ObservableObject, Identifiable {
     /// Sentinel value for `item` of `IndexPath` representing a section.
