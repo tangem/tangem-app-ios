@@ -31,7 +31,7 @@ final class NFTScanNetworkMapper {
         return NFTCollection(
             collectionIdentifier: collectionID,
             chain: chain,
-            contractType: .splToken2022, // [REDACTED_TODO_COMMENT]
+            contractType: .unknown,
             ownerAddress: ownerAddress,
             name: name,
             description: collection.description,
@@ -73,7 +73,7 @@ final class NFTScanNetworkMapper {
             assetIdentifier: asset.tokenUri,
             collectionIdentifier: collectionID,
             chain: chain,
-            contractType: .splToken2022, // [REDACTED_TODO_COMMENT]
+            contractType: .unknown,
             ownerAddress: asset.owner,
             name: asset.name,
             description: assetMetadata?[Constants.assetDescriptionKey] as? String,
