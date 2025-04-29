@@ -16,7 +16,7 @@ class ActivatedVisaCardDummyManager: VisaActivationManager {
     var isAccessCodeSet: Bool { true }
     var isContinuingActivation: Bool { true }
     var activationLocalState: TangemVisa.VisaCardActivationLocalState {
-        .activated(authTokens: .init(accessToken: "", refreshToken: ""))
+        .activated(authTokens: .init(accessToken: "", refreshToken: "", authorizationType: .cardWallet))
     }
 
     var activationRemoteState: VisaCardActivationRemoteState {

@@ -242,7 +242,7 @@ private extension EthereumTransactionHistoryMapper {
         let methodIdLength = 8
 
         guard
-            let methodId = rawData?.stripHexPrefix().prefix(methodIdLength),
+            let methodId = rawData?.removeHexPrefix().prefix(methodIdLength),
             methodId.count == methodIdLength
         else {
             return nil
