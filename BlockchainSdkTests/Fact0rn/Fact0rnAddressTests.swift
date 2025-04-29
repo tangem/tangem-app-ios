@@ -27,10 +27,15 @@ struct Fact0rnAddressTests {
 
     @Test
     func makeScriptHashFromAddress() throws {
-        let expectedAddress = "fact1qg2qvzvrgukkp5gct2n8dvuxz99ddxwecmx9sey"
-        let expectedScriptHash = "808171256649754B402099695833B95E4507019B3E494A7DBC6F62058F09050E"
+        // given
+        let converter = ElectrumScriptHashConverter(lockingScriptBuilder: .fact0rn())
+        let address = "fact1qg2qvzvrgukkp5gct2n8dvuxz99ddxwecmx9sey"
 
-        let scriptHash = try Fact0rnAddressService.addressToScriptHash(address: expectedAddress)
+        // when
+        let scriptHash = try converter.prepareScriptHash(address: address)
+
+        // then
+        let expectedScriptHash = "808171256649754B402099695833B95E4507019B3E494A7DBC6F62058F09050E"
         #expect(scriptHash == expectedScriptHash)
     }
 
