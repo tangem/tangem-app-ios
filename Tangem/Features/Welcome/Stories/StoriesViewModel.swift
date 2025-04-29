@@ -69,7 +69,7 @@ class StoriesViewModel: ObservableObject {
     func checkPromotion() async {
         let isNewCard = true
         let userWalletId: String? = nil
-        
+
         async let promotionResultCheck: Void = promotionService.checkPromotion(
             isNewCard: isNewCard,
             userWalletId: userWalletId,
