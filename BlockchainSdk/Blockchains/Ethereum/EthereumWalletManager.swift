@@ -104,8 +104,7 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
                         transaction: convertedTransaction,
                         signatureInfo: signatureInfo
                     )
-                    .hexString
-                    .lowercased()
+                    .hex()
                     .addHexPrefix()
             }
         }
@@ -213,7 +212,7 @@ private extension EthereumWalletManager {
             to: destination,
             from: from,
             value: value,
-            data: data?.hexString.addHexPrefix()
+            data: data?.hex().addHexPrefix()
         )
         .withWeakCaptureOf(self)
         .map { walletManager, ethereumFeeResponse in
@@ -256,7 +255,7 @@ private extension EthereumWalletManager {
             to: destination,
             from: from,
             value: value,
-            data: data?.hexString.addHexPrefix()
+            data: data?.hex().addHexPrefix()
         )
         .withWeakCaptureOf(self)
         .map { walletManager, ethereumFeeResponse in
@@ -402,8 +401,7 @@ extension EthereumWalletManager: StakeKitTransactionsBuilder, StakeKitTransactio
     func prepareDataForSend(transaction: StakeKitTransaction, signature: SignatureInfo) throws -> RawTransaction {
         try EthereumStakeKitTransactionHelper(transactionBuilder: txBuilder)
             .prepareForSend(stakingTransaction: transaction, signatureInfo: signature)
-            .hexString
-            .lowercased()
+            .hex()
             .addHexPrefix()
     }
 }
