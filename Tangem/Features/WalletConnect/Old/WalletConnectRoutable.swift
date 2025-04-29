@@ -6,9 +6,11 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import Foundation
-import SwiftUI
+import struct SwiftUI.Binding
 
+@MainActor
 protocol WalletConnectRoutable: AnyObject {
-    func openQRScanner(with codeBinding: Binding<String>)
+    func openQRScanner(clipboardURI: WalletConnectRequestURI?, completion: @escaping (WalletConnectQRScanResult) -> Void)
+
+    func legacyOpenQRScanner(with codeBinding: Binding<String>)
 }
