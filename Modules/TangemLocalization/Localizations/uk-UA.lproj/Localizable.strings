@@ -437,6 +437,9 @@
 "markets_sort_by_top_gainers_title" = "Лідери росту";
 "markets_sort_by_top_losers_title" = "Лідери падіння";
 "markets_sort_by_trending_title" = "В тренді";
+"markets_staking_banner_description_placeholder" = "Staking is the easiest way to receive rewards on your crypto. %@";
+"markets_staking_banner_description_show_more" = "Show more";
+"markets_staking_banner_title" = "Earn up to %@ APY";
 "markets_token_details_about_token_title" = "Про %@";
 "markets_token_details_blockchain_site" = "Веб-сайт";
 "markets_token_details_buy_pressure_description" = "Різниця між обсягом покупців та обсягом продавців";
@@ -941,7 +944,7 @@
 "story_learn_description" = "Пройдіть 3 уроки, отримайте знижку на покупку Tangem Wallet і 1INCH токени";
 "story_learn_learn" = "Пройти навчання";
 "story_meet_title" = "Зустрічайте Tangem";
-"story_web3_description" = "Обмінюйте, купуйте NFT, отримуйте позики та робіть депозити у понад 100 різних децентралізованих сервісах";
+"story_web3_description" = "Доступно понад 100 інтеграцій з децентралізованими сервісами";
 "story_web3_title" = "Web 3.0 сумісність";
 "sui_not_enough_coin_for_fee_description" = "Для відправки потрібна вхідна транзакція на суму не менше %1$@";
 "sui_not_enough_coin_for_fee_title" = "Недостатньо коштів";
@@ -999,6 +1002,7 @@
 "token_details_hide_alert_title" = "Приховати %@";
 "token_details_hide_token" = "Приховати токен";
 "token_details_staking_block_subtitle" = "Стейкінг дозволяє заробляти %1$@ і отримувати винагороду кожні %2$@ днів";
+"token_details_staking_block_title" = "Сервіс стейкінгу";
 "token_details_token_type_subtitle_no_standard" = "Токен у мережі %%image%% %1$@";
 "token_details_token_type_subtitle" = "%1$@ токен в мережі %%image%% %2$@";
 "token_details_unable_hide_alert_message" = "Токен %1$@ (%2$@) є основною валютою в мережі %3$@ і не може бути прихований до тих пір, поки у вас в списку є інші токени цієї мережі";
