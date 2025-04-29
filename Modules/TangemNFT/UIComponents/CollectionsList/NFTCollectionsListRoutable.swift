@@ -8,4 +8,5 @@
 
 public protocol NFTCollectionsListRoutable: AnyObject {
     func openReceive()
+    func openAssetDetails(asset: NFTAsset)
 }
