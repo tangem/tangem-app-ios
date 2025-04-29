@@ -7,26 +7,13 @@
 //
 
 import Foundation
-import TangemSdk
-import BitcoinCore
 
 struct Fact0rnWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        let compressedKey = try Secp256k1Key(with: input.wallet.publicKey.blockchainKey).compress()
-
-        let bitcoinManager = BitcoinManager(
-            networkParams: Fact0rnMainNetworkParams(),
-            walletPublicKey: input.wallet.publicKey.blockchainKey,
-            compressedWalletPublicKey: compressedKey,
-            bip: .bip84
-        )
-
         let unspentOutputManager: UnspentOutputManager = .fact0rn(address: input.wallet.defaultAddress)
-
         let txBuilder = BitcoinTransactionBuilder(
-            bitcoinManager: bitcoinManager,
-            unspentOutputManager: unspentOutputManager,
-            addresses: input.wallet.addresses
+            network: Fact0rnMainNetworkParams(),
+            unspentOutputManager: unspentOutputManager
         )
 
         let providers: [UTXONetworkProvider] = APIResolver(blockchain: input.wallet.blockchain, keysConfig: input.networkInput.keysConfig)
