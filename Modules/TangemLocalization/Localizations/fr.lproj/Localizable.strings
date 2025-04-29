@@ -999,7 +999,6 @@
 "token_details_hide_alert_title" = "Masquer %@";
 "token_details_hide_token" = "Masquer le jeton";
 "token_details_staking_block_subtitle" = "Le Staking vous permet d'en gagner %1$@ et d'obtenir des récompenses tous les %2$@ jours";
-"token_details_staking_block_title" = "Gagnez jusqu'à %@ récompense de mise par an";
 "token_details_token_type_subtitle_no_standard" = "Jeton dans le %%image%% %1$@ réseau";
 "token_details_token_type_subtitle" = "%1$@ jeton dans %%image%% %2$@ le réseau";
 "token_details_unable_hide_alert_message" = "Le jeton %1$@ (%2$@) est la principale devise du réseau %3$@ et ne peut pas être masqué tant que vous avez d'autres jetons de ce réseau dans la liste";
