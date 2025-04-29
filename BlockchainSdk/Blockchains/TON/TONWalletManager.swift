@@ -78,7 +78,7 @@ final class TONWalletManager: BaseManager, WalletManager {
                 let (buildInput, hash) = input
 
                 return signer.sign(hash: hash, walletPublicKey: manager.wallet.publicKey)
-                    .map { ($0, buildInput) }
+                    .map { ($0.signature, buildInput) }
             }
             .withWeakCaptureOf(self)
             .tryMap { walletManager, input -> String in
