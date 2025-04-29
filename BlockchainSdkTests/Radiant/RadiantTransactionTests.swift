@@ -21,7 +21,7 @@ final class RadiantTests {
         let lockScript = try builder.lockingScript(for: "1vr9gJkNzTHv8DEQb4QBxAnQCxgzkFkbf")
 
         // then
-        #expect(lockScript.data.hexString.lowercased() == "76a9140a2f12f228cbc244c745f33a23f7e924cbf3b6ad88ac".lowercased())
+        #expect(lockScript.data.hex() == "76a9140a2f12f228cbc244c745f33a23f7e924cbf3b6ad88ac".lowercased())
     }
 
     @Test
@@ -42,11 +42,12 @@ final class RadiantTests {
      https://radiantexplorer.com/tx/d9561e19c8e703e6a5bdd3319fa26fd3ccaf268a9532a90bcb92b8fe70d14428
      */
     @Test
-    func signRawTransaction() throws {
+    func signRawTransaction() async throws {
         // given
         let blockchain = Blockchain.radiant(testnet: false)
-        let address = PlainAddress(value: "1NJWsdLAZcEknx7QQzSTMD9ibVPmevyQL4", publicKey: .empty, type: .default)
         let publicKey = Data(hexString: "03a6c01a3c551b37488e8dc134ec27197054cbb9d9612b3a5546da7094ba9d36b6")
+        let address = try RadiantAddressService().makeAddress(from: publicKey)
+
         let utxo = [
             UnspentOutput(
                 blockId: 313625,
@@ -80,8 +81,8 @@ final class RadiantTests {
         ]
 
         // when
-        let hashesForSign = try txBuilder.buildForSign(transaction: transaction)
-        let rawTransaction = try txBuilder.buildForSend(transaction: transaction, signatures: signatures)
+        let hashesForSign = try await txBuilder.buildForSign(transaction: transaction)
+        let rawTransaction = try await txBuilder.buildForSend(transaction: transaction, signatures: signatures)
 
         // then
         let expectedHashesForSign = [
@@ -90,6 +91,7 @@ final class RadiantTests {
 
         let expectedRawTransaction = Data(hexString: "0100000001AD6FC0D386DB5E69A375CD18A8F6D0ECD446104E09D868CEADA68709900A55F7000000006A47304402200E25F1476683699D47AAB5ADDAC87BDAA81B402A0EF55083A3EC39B6E886CBE50220222319881663D2A0DB1C60FAA157112DF5CE874EAA9E2A55F57AE99393980B2C412103A6C01A3C551B37488E8DC134EC27197054CBB9D9612B3A5546DA7094BA9D36B6FFFFFFFF02404B4C00000000001976A914E6E5603A812FD06875A5870A4EF3CE87F3D5403888AC10911800000000001976A914E9AAA640B3A21300D50F332747F7A7F80F13778A88AC00000000")
 
+        #expect(address.value == "1NJWsdLAZcEknx7QQzSTMD9ibVPmevyQL4")
         #expect(hashesForSign == expectedHashesForSign)
         #expect(rawTransaction == expectedRawTransaction)
     }
