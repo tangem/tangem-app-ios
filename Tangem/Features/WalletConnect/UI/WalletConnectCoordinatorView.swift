@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 struct WalletConnectCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: WalletConnectCoordinator
@@ -23,6 +24,9 @@ struct WalletConnectCoordinatorView: CoordinatorView {
         if let viewModel = coordinator.viewModel {
             WalletConnectView(viewModel: viewModel)
                 .fullScreenCover(item: $coordinator.qrScanCoordinator, content: WalletConnectQRScanCoordinatorView.init)
+                .floatingSheetContent(for: WalletConnectConnectedDAppDetailsViewModel.self) { viewModel in
+                    WalletConnectConnectedDAppDetailsView(viewModel: viewModel)
+                }
         }
     }
 }
