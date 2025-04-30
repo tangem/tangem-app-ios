@@ -166,8 +166,15 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                     return nil
                 }
 
+                let navigationContext = NFTReceiveInput(
+                    userWalletName: userWalletModel.name,
+                    userWalletConfig: userWalletModel.config,
+                    walletModelsManager: userWalletModel.walletModelsManager
+                )
+
                 return NFTEntrypointViewModel(
                     nftManager: userWalletModel.nftManager,
+                    navigationContext: navigationContext,
                     coordinator: coordinator
                 )
             }

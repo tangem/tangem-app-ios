@@ -148,7 +148,7 @@ public struct NFTCollectionsListView: View {
     }
 
     private func receiveButton(shouldAddShadow: Bool) -> some View {
-        MainButton(title: Localization.nftCollectionsReceive, action: {})
+        MainButton(title: Localization.nftCollectionsReceive, action: viewModel.onReceiveButtonTap)
             .if(shouldAddShadow) { view in
                 view.background(
                     ListFooterOverlayShadowView()
@@ -233,6 +233,7 @@ extension NFTCollectionsListView {
                     )
                 ),
                 chainIconProvider: DummyProvider(),
+                navigationContext: NFTEntrypointNavigationContextMock(),
                 coordinator: nil
             )
         )
@@ -247,6 +248,7 @@ extension NFTCollectionsListView {
             viewModel: .init(
                 nftManager: NFTManagerMock(state: .loaded([])),
                 chainIconProvider: DummyProvider(),
+                navigationContext: NFTEntrypointNavigationContextMock(),
                 coordinator: nil
             )
         )

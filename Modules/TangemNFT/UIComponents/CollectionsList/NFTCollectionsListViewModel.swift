@@ -6,9 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import Combine
-import TangemFoundation
-import TangemAssets
 import CombineExt
 
 public final class NFTCollectionsListViewModel: ObservableObject {
@@ -18,9 +17,10 @@ public final class NFTCollectionsListViewModel: ObservableObject {
 
     // MARK: Dependencies
 
-    private weak var coordinator: NFTCollectionsListRoutable?
     private let nftManager: NFTManager
     private let chainIconProvider: NFTChainIconProvider
+    private let navigationContext: NFTEntrypointNavigationContext
+    private weak var coordinator: NFTCollectionsListRoutable?
 
     private var collectionsViewModels: [NFTCompactCollectionViewModel] = []
     private var bag = Set<AnyCancellable>()
@@ -28,18 +28,20 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     public init(
         nftManager: NFTManager,
         chainIconProvider: NFTChainIconProvider,
+        navigationContext: NFTEntrypointNavigationContext,
         coordinator: NFTCollectionsListRoutable?
     ) {
         self.nftManager = nftManager
         self.coordinator = coordinator
         self.chainIconProvider = chainIconProvider
+        self.navigationContext = navigationContext
         state = .noCollections
 
         bind()
     }
 
     func onReceiveButtonTap() {
-        // [REDACTED_TODO_COMMENT]
+        coordinator?.openReceive(navigationContext: navigationContext)
     }
 
     private func bind() {
