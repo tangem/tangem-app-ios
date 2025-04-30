@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUIUtils
 import TangemNFT
 import TangemUI
 
@@ -17,7 +18,6 @@ struct NFTCollectionsCoordinatorView: View {
         ZStack {
             if let rootViewModel = coordinator.rootViewModel {
                 NFTCollectionsListView(viewModel: rootViewModel)
-                    .navigationLinks(links)
             }
 
             sheets
@@ -25,13 +25,12 @@ struct NFTCollectionsCoordinatorView: View {
     }
 
     @ViewBuilder
-    private var links: some View {
-        EmptyView()
-    }
-
-    @ViewBuilder
     private var sheets: some View {
         NavHolder()
+            .sheet(item: $coordinator.receiveCoordinator) { coordinator in
+                NFTReceiveCoordinatorView(coordinator: coordinator)
+                    .presentationCornerRadiusBackport(24.0)
+            }
             .sheet(item: $coordinator.assetDetailsCoordinator) {
                 NFTAssetDetailsCoordinatorView(coordinator: $0)
             }
