@@ -90,6 +90,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.userWalletIdsWithNFTEnabled)
     var userWalletIdsWithNFTEnabled: [String] = []
 
+    @AppStorageCompat(StorageType.showReferralProgramOnMain)
+    var showReferralProgramOnMain: Bool = true
+
     static let shared: AppSettings = .init()
 
     private init() {}
