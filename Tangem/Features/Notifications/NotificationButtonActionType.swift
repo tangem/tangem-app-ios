@@ -51,6 +51,7 @@ enum NotificationButtonActionType: Identifiable, Hashable {
     case seedSupport2Yes
     case seedSupport2No
     case unlock
+    case openReferralProgram
 
     var id: Int { hashValue }
 
@@ -106,6 +107,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
             return Localization.seedWarningNo
         case .unlock:
             return Localization.visaUnlockNotificationButton
+        case .openReferralProgram:
+            return Localization.referralButtonParticipate
         }
     }
 
@@ -137,7 +140,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .seedSupportYes,
              .seedSupportNo,
              .seedSupport2Yes,
-             .seedSupport2No:
+             .seedSupport2No,
+             .openReferralProgram:
             return nil
         }
     }
@@ -169,7 +173,8 @@ enum NotificationButtonActionType: Identifiable, Hashable {
              .seedSupportNo,
              .seedSupportYes,
              .seedSupport2Yes,
-             .seedSupport2No:
+             .seedSupport2No,
+             .openReferralProgram:
             return .secondary
         }
     }
