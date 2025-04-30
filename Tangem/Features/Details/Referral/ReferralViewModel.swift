@@ -27,9 +27,6 @@ class ReferralViewModel: ObservableObject {
     private let userWalletId: Data
     private let supportedBlockchains: Set<Blockchain>
 
-    private let expectedAwardsFetchLimit = 30
-    private let expectedAwardsShortListLimit = 3
-
     private var shareLink: String {
         guard let referralInfo = referralProgramInfo?.referral else {
             return ""
@@ -120,7 +117,10 @@ class ReferralViewModel: ObservableObject {
             let referralProgramInfo: ReferralProgramInfo? = try await runInTask { [weak self] in
                 guard let self else { return nil }
 
-                return try await tangemApiService.loadReferralProgramInfo(for: userWalletId.hexString, expectedAwardsLimit: expectedAwardsFetchLimit)
+                return try await tangemApiService.loadReferralProgramInfo(
+                    for: userWalletId.hexString,
+                    expectedAwardsLimit: ReferralConstants.expectedAwardsFetchLimit
+                )
             }
             self.referralProgramInfo = referralProgramInfo
         } catch {
@@ -216,13 +216,15 @@ extension ReferralViewModel {
             return ExpectedAward(date: formattedDate, amount: amount)
         }
 
-        let awardsToShow = expectedAwardsExpanded ? expectedAwardsFetchLimit : expectedAwardsShortListLimit
+        let awardsToShow = expectedAwardsExpanded
+            ? ReferralConstants.expectedAwardsFetchLimit
+            : ReferralConstants.expectedAwardsShortListLimit
         return Array(awards.prefix(awardsToShow))
     }
 
     var canExpandExpectedAwards: Bool {
         let list = referralProgramInfo?.expectedAwards?.list ?? []
-        return list.count > expectedAwardsShortListLimit
+        return list.count > ReferralConstants.expectedAwardsShortListLimit
     }
 
     var expandButtonText: String {
