@@ -12,6 +12,8 @@ import UserNotifications
 import TangemFoundation
 
 final class PushNotificationsService: NSObject {
+    @Injected(\.incomingActionHandler) private var incomingActionHandler: IncomingActionHandler
+
     /// - Note: Checks only explicit authorization (`UNAuthorizationStatus.authorized`) and ignores implicit
     /// authorization statuses such as `UNAuthorizationStatus.provisional` or `UNAuthorizationStatus.ephemeral`.
     @MainActor
@@ -72,6 +74,14 @@ final class PushNotificationsService: NSObject {
             application.registerForRemoteNotifications()
         }
     }
+
+    @MainActor
+    private func handleDeeplinkIfNeeded(response: UNNotificationResponse) {
+        guard let deeplinkURL = response.notification.request.content.userInfo[Constants.deeplinkKey] as? String,
+              let url = URL(string: deeplinkURL) else { return }
+
+        _ = incomingActionHandler.handleDeeplink(url)
+    }
 }
 
 // MARK: - UNUserNotificationCenterDelegate protocol conformance
@@ -84,6 +94,8 @@ extension PushNotificationsService: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
         let identifier = response.notification.request.identifier
 
+        handleDeeplinkIfNeeded(response: response)
+
         guard
             response.actionIdentifier == UNNotificationDefaultActionIdentifier,
             !respondedNotificationIds.contains(identifier)
@@ -93,5 +105,11 @@ extension PushNotificationsService: UNUserNotificationCenterDelegate {
 
         respondedNotificationIds.insert(identifier)
         Analytics.log(.pushNotificationOpened)
+    }
+}
+
+private extension PushNotificationsService {
+    enum Constants {
+        static let deeplinkKey = "deeplink"
     }
 }
