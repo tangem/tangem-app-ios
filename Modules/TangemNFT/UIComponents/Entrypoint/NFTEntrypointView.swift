@@ -288,6 +288,7 @@ extension NFTEntrypointView {
                 nftManager: NFTManagerMock(
                     state: .loading
                 ),
+                navigationContext: NFTEntrypointNavigationContextMock(),
                 coordinator: nil
             )
         )
@@ -300,7 +301,9 @@ extension NFTEntrypointView {
         Colors.Field.primary
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
-                nftManager: NFTManagerMock(state: .failedToLoad(error: NSError())), coordinator: nil
+                nftManager: NFTManagerMock(state: .failedToLoad(error: NSError())),
+                navigationContext: NFTEntrypointNavigationContextMock(),
+                coordinator: nil
             )
         )
         .padding(.horizontal, 16)
@@ -312,7 +315,9 @@ extension NFTEntrypointView {
         Colors.Field.primary
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
-                nftManager: NFTManagerMock(state: .loaded([])), coordinator: nil
+                nftManager: NFTManagerMock(state: .loaded([])),
+                navigationContext: NFTEntrypointNavigationContextMock(),
+                coordinator: nil
             )
         )
         .padding(.horizontal, 16)
@@ -341,6 +346,7 @@ extension NFTEntrypointView {
                         )]
                     )
                 ),
+                navigationContext: NFTEntrypointNavigationContextMock(),
                 coordinator: nil
             )
         )
@@ -372,6 +378,7 @@ extension NFTEntrypointView {
                         }
                     )
                 ),
+                navigationContext: NFTEntrypointNavigationContextMock(),
                 coordinator: nil
             )
         )
@@ -403,6 +410,7 @@ extension NFTEntrypointView {
                         }
                     )
                 ),
+                navigationContext: NFTEntrypointNavigationContextMock(),
                 coordinator: nil
             )
         )
@@ -434,6 +442,7 @@ extension NFTEntrypointView {
                         }
                     )
                 ),
+                navigationContext: NFTEntrypointNavigationContextMock(),
                 coordinator: nil
             )
         )
@@ -465,6 +474,7 @@ extension NFTEntrypointView {
                         }
                     )
                 ),
+                navigationContext: NFTEntrypointNavigationContextMock(),
                 coordinator: nil
             )
         )
