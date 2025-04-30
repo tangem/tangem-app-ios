@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import struct Foundation.Date
 import ReownWalletKit
 
 extension Session.Proposal {
@@ -52,8 +53,15 @@ extension Session {
             dAppInfo: dAppInfo
         )
 
+        let connectedBlockchains = namespaces
+            .values
+            .flatMap { $0.chains ?? [] }
+            .compactMap(WCUtils.makeBlockchain)
+
         return WalletConnectSavedSession(
             userWalletId: userWalletId,
+            connectionDate: Date.now,
+            connectedBlockchains: connectedBlockchains,
             topic: topic,
             sessionInfo: sessionInfo
         )
