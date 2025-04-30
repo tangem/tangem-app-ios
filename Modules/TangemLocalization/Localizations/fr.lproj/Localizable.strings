@@ -542,7 +542,7 @@
 "no_account_send_to_create" = "Pour créer un compte, envoyez des fonds à cette adresse";
 "no_trustline_xlm_asset" = "Le compte destinataire n'a pas de Trustline pour l'actif envoyé qu'il tente d'envoyer.";
 "notification_referral_promo_button" = "Rejoignez maintenant";
-"notification_referral_promo_text" = "Partagez votre code et gagnez 5 USDT par vente. Votre ami bénéficie de 10 % de réduction.";
+"notification_referral_promo_text" = "Partagez votre code et gagnez 5 USDT par vente. Votre ami bénéficie de 10%% de réduction.";
 "notification_referral_promo_title" = "Recevez des RÉCOMPENSES pour chaque ami !";
 "onboarding_access_code_feature_1_description" = "Vous devez définir un seul code d'accès pour protéger tous vos appareils.";
 "onboarding_access_code_feature_1_title" = "Protéger";
@@ -1078,7 +1078,8 @@
 "visa_onboarding_in_progress_issuer_description" = "Cela ne prendra pas longtemps. Nous terminons l'activation.";
 "visa_onboarding_in_progress_title" = "Tout est en cours de préparation !";
 "visa_onboarding_other_wallet" = "Other wallet";
-"visa_onboarding_pin_code_description" = "Set up a 4-digit code.  It will be used for payments.";
+"visa_onboarding_pin_code_description" = "Set up a 4-digit code. 
+It will be used for payments.";
 "visa_onboarding_pin_code_navigation_title" = "PIN code";
 "visa_onboarding_pin_code_title" = "Create PIN Code";
 "visa_onboarding_pin_not_accepted" = "PIN was not accepted. Try again or use a different code.";

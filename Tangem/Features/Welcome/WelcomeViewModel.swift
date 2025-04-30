@@ -154,10 +154,6 @@ extension WelcomeViewModel: StoriesDelegate {
 
 extension WelcomeViewModel: IncomingActionResponder {
     func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            self.scanCard()
-        }
-
         switch action {
         case .start:
             return true
