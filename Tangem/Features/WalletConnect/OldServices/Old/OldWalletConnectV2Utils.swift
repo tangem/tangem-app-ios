@@ -176,8 +176,15 @@ struct OldWalletConnectV2Utils {
             dAppInfo: dAppInfo
         )
 
+        let connectedBlockchains = session.namespaces
+            .values
+            .flatMap { $0.chains ?? [] }
+            .compactMap(WCUtils.makeBlockchain)
+
         return WalletConnectSavedSession(
             userWalletId: userWalletId,
+            connectionDate: Date.now,
+            connectedBlockchains: connectedBlockchains,
             topic: session.topic,
             sessionInfo: sessionInfo
         )
