@@ -13,7 +13,7 @@ import TangemLogger
 
 @MainActor
 final class WalletConnectViewModel: ObservableObject {
-    private let walletConnectService: any OldWalletConnectService
+    private let walletConnectService: any WCService
     private let userWalletRepository: any UserWalletRepository
     private let establishDAppConnectionUseCase: WalletConnectEstablishDAppConnectionUseCase
 
@@ -29,7 +29,7 @@ final class WalletConnectViewModel: ObservableObject {
 
     init(
         state: WalletConnectViewState = .initial,
-        walletConnectService: some OldWalletConnectService,
+        walletConnectService: some WCService,
         userWalletRepository: some UserWalletRepository,
         establishDAppConnectionUseCase: WalletConnectEstablishDAppConnectionUseCase,
         coordinator: some WalletConnectRoutable
@@ -182,7 +182,7 @@ extension WalletConnectViewModel {
     }
 
     private func handleDAppButtonTapped(_ dApp: WalletConnectSavedSession) {
-        // [REDACTED_TODO_COMMENT]
+        coordinator?.openConnectedDAppDetails(dApp)
     }
 
     private func handleCanConnectNewDAppStateChanged(_ canConnectNewDApp: Bool) {
