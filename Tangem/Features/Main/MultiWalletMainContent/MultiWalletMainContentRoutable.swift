@@ -13,4 +13,5 @@ protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
     func openOrganizeTokens(for userWalletModel: UserWalletModel)
     func openOnboardingModal(with input: OnboardingInput)
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String)
+    func openReferral(input: ReferralInputModel)
 }
