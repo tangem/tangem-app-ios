@@ -28,10 +28,12 @@ public final class NFTScanNFTNetworkService {
         chain: NFTChain
     ) {
         self.networkConfiguration = networkConfiguration
-        let networkHeadersPlugin = NetworkHeadersPlugin(networkHeaders: headers)
+        let additionalPlugins: [PluginType] = [
+            NetworkHeadersPlugin(networkHeaders: headers),
+        ]
         provider = TangemProvider(
             configuration: networkConfiguration,
-            additionalPlugins: [networkHeadersPlugin]
+            additionalPlugins: additionalPlugins
         )
         self.chain = chain
         mapper = NFTScanNetworkMapper()
