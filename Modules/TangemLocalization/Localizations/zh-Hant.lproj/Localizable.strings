@@ -542,7 +542,7 @@
 "no_account_send_to_create" = "要創建帳戶，請將資金發送到此地址";
 "no_trustline_xlm_asset" = "目標帳戶沒有用於發送資產的 trustline";
 "notification_referral_promo_button" = "Join Now";
-"notification_referral_promo_text" = "Share your code - earn 5 USDT per sale. Your friend gets 10% OFF.";
+"notification_referral_promo_text" = "Share your code - earn 5 USDT per sale. Your friend gets 10%% OFF.";
 "notification_referral_promo_title" = "Get REWARDS for every friend!";
 "onboarding_access_code_feature_1_description" = "Set up a single access code to protect all your devices.";
 "onboarding_access_code_feature_1_title" = "保護";
@@ -1078,7 +1078,8 @@
 "visa_onboarding_in_progress_issuer_description" = "This won’t take long. We’re completing the activation.";
 "visa_onboarding_in_progress_title" = "Getting everything ready!";
 "visa_onboarding_other_wallet" = "Other wallet";
-"visa_onboarding_pin_code_description" = "Set up a 4-digit code.  It will be used for payments.";
+"visa_onboarding_pin_code_description" = "Set up a 4-digit code. 
+It will be used for payments.";
 "visa_onboarding_pin_code_navigation_title" = "PIN code";
 "visa_onboarding_pin_code_title" = "Create PIN Code";
 "visa_onboarding_pin_not_accepted" = "PIN was not accepted. Try again or use a different code.";
