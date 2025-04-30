@@ -29,8 +29,10 @@ public final class MoralisNFTNetworkService {
         self.networkConfiguration = networkConfiguration
         self.chain = chain
 
-        let plugin = NetworkHeadersPlugin(networkHeaders: headers)
-        networkProvider = TangemProvider(configuration: networkConfiguration, additionalPlugins: [plugin])
+        let additionalPlugins: [PluginType] = [
+            NetworkHeadersPlugin(networkHeaders: headers),
+        ]
+        networkProvider = TangemProvider(configuration: networkConfiguration, additionalPlugins: additionalPlugins)
     }
 
     private func makeMoralisNFTChain(from nftChain: NFTChain) throws -> MoralisNetworkParams.NFTChain {
