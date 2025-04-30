@@ -7,11 +7,11 @@
 //
 
 import Foundation
+import SwiftUI
 import Combine
 import CombineExt
 import BlockchainSdk
 import TangemVisa
-import SwiftUI
 import TangemNFT
 
 class MainCoordinator: CoordinatorObject {
@@ -218,7 +218,6 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             optionsProviding: optionsManager,
             preservesLastSortedOrderOnSwitchToDragAndDrop: true
         )
-
         organizeTokensViewModel = OrganizeTokensViewModel(
             coordinator: self,
             userWalletModel: userWalletModel,
@@ -577,8 +576,9 @@ extension MainCoordinator {
 // MARK: - NFTEntrypointRoutable
 
 extension MainCoordinator: NFTEntrypointRoutable {
-    func openCollections(_ nftManager: NFTManager) {
+    func openCollections(nftManager: NFTManager, navigationContext: NFTEntrypointNavigationContext) {
         mainBottomSheetUIManager.hide()
+
         let coordinator = NFTCollectionsCoordinator(
             dismissAction: { [weak self] in
                 self?.nftCollectionsCoordinator = nil
@@ -588,7 +588,14 @@ extension MainCoordinator: NFTEntrypointRoutable {
                 self?.popToRoot(with: options)
             }
         )
+
         nftCollectionsCoordinator = coordinator
-        coordinator.start(with: .init(nftManager: nftManager, chainIconProvider: NetworkImageProvider()))
+        coordinator.start(
+            with: .init(
+                nftManager: nftManager,
+                chainIconProvider: NetworkImageProvider(),
+                navigationContext: navigationContext
+            )
+        )
     }
 }
