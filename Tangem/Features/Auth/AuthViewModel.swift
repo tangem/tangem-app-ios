@@ -141,12 +141,6 @@ extension AuthViewModel {
 
 extension AuthViewModel: IncomingActionResponder {
     func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
-        if !unlockOnAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                self.unlockWithBiometry()
-            }
-        }
-
         switch action {
         case .start:
             return true
