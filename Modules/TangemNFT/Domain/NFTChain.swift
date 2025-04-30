@@ -102,6 +102,40 @@ extension NFTChain: Identifiable {
 public extension NFTChain {
     /// Poor man's `CaseIterable`.
     static func allCases(isTestnet: Bool) -> Set<NFTChain> {
+        switch NFTChain.ethereum(isTestnet: false) {
+        case .ethereum:
+            break
+        case .polygon:
+            break
+        case .bsc:
+            break
+        case .avalanche:
+            break
+        case .fantom:
+            break
+        case .cronos:
+            break
+        case .arbitrum:
+            break
+        case .gnosis:
+            break
+        case .chiliz:
+            break
+        case .base:
+            break
+        case .optimism:
+            break
+        case .moonbeam:
+            break
+        case .moonriver:
+            break
+        case .solana:
+            break
+        }
+        // READ BELOW:
+        //
+        // Did you get a compilation error here? If so, add your new chain to the array below
+
         return [
             .ethereum(isTestnet: isTestnet),
             .polygon(isTestnet: isTestnet),
