@@ -6,26 +6,30 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import Combine
 import TangemLocalization
-import Foundation
 import TangemFoundation
 
 public final class NFTEntrypointViewModel: ObservableObject {
     @Published private(set) var state: LoadingValue<CollectionsViewState>
+
     private var collections: [NFTCollection] = []
     private let nftManager: NFTManager
+    private let navigationContext: NFTEntrypointNavigationContext
     private var bag: Set<AnyCancellable> = []
     private weak var coordinator: NFTEntrypointRoutable?
 
     public init(
-        initialState: LoadingValue<CollectionsViewState> = .loading,
         nftManager: NFTManager,
+        navigationContext: NFTEntrypointNavigationContext,
         coordinator: NFTEntrypointRoutable?
     ) {
-        state = initialState
         self.nftManager = nftManager
+        self.navigationContext = navigationContext
         self.coordinator = coordinator
+        state = .loading
+
         bind()
     }
 
@@ -39,8 +43,8 @@ public final class NFTEntrypointViewModel: ObservableObject {
             return ""
 
         case .loaded:
-            let totaNFTs = collections.map(\.assetsCount).reduce(0, +)
-            return Localization.nftWalletCount(totaNFTs, collections.count)
+            let totalNFTs = collections.map(\.assetsCount).reduce(0, +)
+            return Localization.nftWalletCount(totalNFTs, collections.count)
 
         case .failedToLoad:
             return Localization.nftWalletUnableToLoad
@@ -123,7 +127,7 @@ public final class NFTEntrypointViewModel: ObservableObject {
 
     @MainActor
     func openCollections() {
-        coordinator?.openCollections(nftManager)
+        coordinator?.openCollections(nftManager: nftManager, navigationContext: navigationContext)
     }
 }
 
