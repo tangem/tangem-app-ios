@@ -1,5 +1,5 @@
 //
-//  AppOverlayViewModel.swift
+//  FloatingSheetViewModel.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
