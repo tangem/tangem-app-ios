@@ -9,24 +9,29 @@
 import Foundation
 import TangemAssets
 
-final class NFTCompactCollectionViewModel {
+final class NFTCompactCollectionViewModel: Identifiable, ObservableObject {
+    @Published private(set) var isExpanded: Bool = false
+
     private let nftCollection: NFTCollection
     private let nftChainIconProvider: NFTChainIconProvider
+    private let onTapAction: () -> Void
 
     let assetsGridViewModel: NFTAssetsGridViewModel
 
-    init(nftCollection: NFTCollection, nftChainIconProvider: NFTChainIconProvider) {
+    init(
+        nftCollection: NFTCollection,
+        nftChainIconProvider: NFTChainIconProvider,
+        openAssetDetailsAction: @escaping (NFTAsset) -> Void,
+        onTapAction: @escaping () -> Void
+    ) {
         self.nftCollection = nftCollection
         self.nftChainIconProvider = nftChainIconProvider
+        self.onTapAction = onTapAction
 
         let assetsViewModels = nftCollection.assets.map {
-            NFTCompactAssetViewModel(nftAsset: $0)
+            NFTCompactAssetViewModel(nftAsset: $0, openAssetDetailsAction: openAssetDetailsAction)
         }
         assetsGridViewModel = NFTAssetsGridViewModel(assetsViewModels: assetsViewModels)
-    }
-
-    var id: String {
-        nftCollection.id.collectionIdentifier
     }
 
     var logoURL: URL? {
@@ -42,6 +47,11 @@ final class NFTCompactCollectionViewModel {
     }
 
     var numberOfItems: Int {
-        nftCollection.assets.count
+        nftCollection.assetsCount
+    }
+
+    func onTap() {
+        isExpanded.toggle()
+        onTapAction()
     }
 }

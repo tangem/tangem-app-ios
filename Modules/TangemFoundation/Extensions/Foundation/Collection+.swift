@@ -68,3 +68,9 @@ public extension Swift.Collection {
         }
     }
 }
+
+public extension Swift.Collection where Element: Swift.Collection {
+    func flattened() -> [Element.Element] {
+        return flatMap { $0 }
+    }
+}
