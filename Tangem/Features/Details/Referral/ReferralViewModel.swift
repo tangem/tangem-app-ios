@@ -7,11 +7,12 @@
 //
 
 import Foundation
-import TangemLocalization
 import Combine
 import UIKit
 import SwiftUI
 import BlockchainSdk
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 class ReferralViewModel: ObservableObject {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
