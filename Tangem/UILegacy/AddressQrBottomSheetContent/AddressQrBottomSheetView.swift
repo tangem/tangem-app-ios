@@ -9,6 +9,7 @@
 import Combine
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct AddressQrBottomSheetContentViewModel: Identifiable {
     let id: UUID = .init()
