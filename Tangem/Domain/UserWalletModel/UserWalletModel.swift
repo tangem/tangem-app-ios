@@ -9,8 +9,18 @@
 import BlockchainSdk
 import Combine
 import TangemSdk
+import TangemNFT
 
-protocol UserWalletModel: MainHeaderSupplementInfoProvider, TotalBalanceProviding, MultiWalletMainHeaderSubtitleDataSource, AnalyticsContextDataProvider, MainHeaderUserWalletStateInfoProvider, EmailDataProvider, OldWalletConnectUserWalletInfoProvider, KeysDerivingProvider, AnyObject {
+protocol UserWalletModel:
+    MainHeaderSupplementInfoProvider,
+    TotalBalanceProviding,
+    MultiWalletMainHeaderSubtitleDataSource,
+    AnalyticsContextDataProvider,
+    MainHeaderUserWalletStateInfoProvider,
+    EmailDataProvider,
+    OldWalletConnectUserWalletInfoProvider,
+    KeysDerivingProvider,
+    AnyObject {
     var hasBackupCards: Bool { get }
     var config: UserWalletConfig { get }
     var userWalletId: UserWalletId { get }
@@ -18,6 +28,7 @@ protocol UserWalletModel: MainHeaderSupplementInfoProvider, TotalBalanceProvidin
     var walletModelsManager: WalletModelsManager { get }
     var userTokensManager: UserTokensManager { get }
     var userTokenListManager: UserTokenListManager { get }
+    var nftManager: NFTManager { get }
     var keysRepository: KeysRepository { get }
     var refcodeProvider: RefcodeProvider? { get }
     var signer: TangemSigner { get }
@@ -26,6 +37,7 @@ protocol UserWalletModel: MainHeaderSupplementInfoProvider, TotalBalanceProvidin
     var cardImagePublisher: AnyPublisher<CardImageResult, Never> { get }
     var totalSignedHashes: Int { get }
     var name: String { get }
+
     func validate() -> Bool
     func onBackupUpdate(type: BackupUpdateType)
     func updateWalletName(_ name: String)
