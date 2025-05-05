@@ -20,6 +20,7 @@ public class IncomingActionParser {
         WalletConnectURLParser(),
         BlockchainURLSchemesParser(),
         ReferralProgramURLParser(),
+        OnrampIncomingActionURLParser(),
     ]
 
     public init() {}
