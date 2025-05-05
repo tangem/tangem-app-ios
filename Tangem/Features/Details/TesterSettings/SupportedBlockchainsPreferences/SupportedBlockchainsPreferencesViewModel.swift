@@ -18,6 +18,7 @@ class SupportedBlockchainsPreferencesViewModel: ObservableObject {
         featureStorageKeyPath: ReferenceWritableKeyPath<FeatureStorage, [String]>
     ) {
         blockchainViewModels = blockchainIds
+            .sorted(by: \.name)
             .map { coinId in
                 DefaultToggleRowViewModel(
                     title: coinId.name,

@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemUI
 
 struct AccessCodeRecoverySettingsView: View {
     @ObservedObject var viewModel: AccessCodeRecoverySettingsViewModel
