@@ -10,13 +10,20 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
-struct ArrowBack: View {
-    let action: () -> Void
-    let height: CGFloat
-    var color: Color = Colors.Old.tangemGrayDark6
+public struct ArrowBack: View {
+    private let action: () -> Void
+    private let height: CGFloat
+    private let color: Color
 
-    var body: some View {
+    public init(action: @escaping () -> Void, height: CGFloat, color: Color = Colors.Old.tangemGrayDark6) {
+        self.action = action
+        self.height = height
+        self.color = color
+    }
+
+    public var body: some View {
         Button(action: action, label: {
             Image(systemName: "chevron.left")
                 .frame(width: height, height: height)
@@ -27,31 +34,57 @@ struct ArrowBack: View {
     }
 }
 
-private enum DefaultNavigationBarSettings {
-    static let color = Colors.Old.tangemGrayDark6
-    static let padding = 16.0
+public enum DefaultNavigationBarSettings {
+    public static let color = Colors.Old.tangemGrayDark6
+    public static let padding = 16.0
 }
 
-struct OnboardingCloseButton: View {
-    let height: CGFloat
-    var hPadding: CGFloat = DefaultNavigationBarSettings.padding
-    let action: () -> Void
+public struct OnboardingCloseButton: View {
+    private let height: CGFloat
+    private let hPadding: CGFloat
+    private let action: () -> Void
 
-    var body: some View {
+    public init(
+        height: CGFloat,
+        hPadding: CGFloat = DefaultNavigationBarSettings.padding,
+        action: @escaping () -> Void
+    ) {
+        self.height = height
+        self.hPadding = hPadding
+        self.action = action
+    }
+
+    public var body: some View {
         CloseButton(dismiss: action)
             .padding(.horizontal, hPadding)
     }
 }
 
-struct BackButton: View {
+public struct BackButton: View {
     let height: CGFloat
     let isVisible: Bool
     let isEnabled: Bool
-    var color: Color = DefaultNavigationBarSettings.color
-    var hPadding: CGFloat = DefaultNavigationBarSettings.padding
+    let color: Color
+    let hPadding: CGFloat
     let action: () -> Void
 
-    var body: some View {
+    public init(
+        height: CGFloat,
+        isVisible: Bool,
+        isEnabled: Bool,
+        color: Color = DefaultNavigationBarSettings.color,
+        hPadding: CGFloat = DefaultNavigationBarSettings.padding,
+        action: @escaping () -> Void
+    ) {
+        self.height = height
+        self.isVisible = isVisible
+        self.isEnabled = isEnabled
+        self.color = color
+        self.hPadding = hPadding
+        self.action = action
+    }
+
+    public var body: some View {
         Button(action: action, label: {
             HStack(spacing: 5) {
                 Image(systemName: "chevron.left")
@@ -68,15 +101,31 @@ struct BackButton: View {
     }
 }
 
-struct SupportButton: View {
+public struct SupportButton: View {
     let height: CGFloat
     let isVisible: Bool
     let isEnabled: Bool
-    var color: Color = Colors.Old.tangemGrayDark6
-    var hPadding: CGFloat = 16
+    let color: Color
+    let hPadding: CGFloat
     let action: () -> Void
 
-    var body: some View {
+    public init(
+        height: CGFloat,
+        isVisible: Bool,
+        isEnabled: Bool,
+        color: Color = Colors.Old.tangemGrayDark6,
+        hPadding: CGFloat = 16,
+        action: @escaping () -> Void
+    ) {
+        self.height = height
+        self.isVisible = isVisible
+        self.isEnabled = isEnabled
+        self.color = color
+        self.hPadding = hPadding
+        self.action = action
+    }
+
+    public var body: some View {
         Button(action: action, label: {
             Text(Localization.commonSupport)
                 .font(.system(size: 17, weight: .regular))
@@ -89,14 +138,14 @@ struct SupportButton: View {
     }
 }
 
-struct DefaultNavigationBarTitle: View {
-    struct Settings {
+public struct DefaultNavigationBarTitle: View {
+    public struct Settings {
         let font: Font
         let color: Color
         let lineLimit: Int?
         let minimumScaleFactor: CGFloat
 
-        init(
+        public init(
             font: Font = .system(size: 17, weight: .medium),
             color: Color = Colors.Old.tangemGrayDark6,
             lineLimit: Int? = nil, // Default system value
@@ -108,18 +157,18 @@ struct DefaultNavigationBarTitle: View {
             self.minimumScaleFactor = minimumScaleFactor
         }
 
-        static var `default` = Settings()
+        public static var `default` = Settings()
     }
 
-    let title: String
-    let settings: Settings
+    private let title: String
+    private let settings: Settings
 
-    init(_ title: String, settings: Settings = .default) {
+    public init(_ title: String, settings: Settings = .default) {
         self.title = title
         self.settings = settings
     }
 
-    var body: some View {
+    public var body: some View {
         Text(title)
             .style(settings.font, color: settings.color)
             .lineLimit(settings.lineLimit)
@@ -128,15 +177,15 @@ struct DefaultNavigationBarTitle: View {
     }
 }
 
-struct NavigationBar<Title: View, LeftButtons: View, RightButtons: View>: View {
-    struct Settings {
+public struct NavigationBar<Title: View, LeftButtons: View, RightButtons: View>: View {
+    public struct Settings {
         let title: DefaultNavigationBarTitle.Settings
         let backgroundColor: Color
         let horizontalPadding: CGFloat
         let height: CGFloat
         let alignment: Alignment
 
-        init(
+        public init(
             title: DefaultNavigationBarTitle.Settings = .default,
             backgroundColor: Color = Colors.Old.tangemBgGray,
             horizontalPadding: CGFloat = 0,
@@ -159,7 +208,7 @@ struct NavigationBar<Title: View, LeftButtons: View, RightButtons: View>: View {
 
     @State private var titleHorizontalPadding: CGFloat = 0.0
 
-    init(
+    public init(
         settings: Settings = .init(),
         @ViewBuilder titleView: @escaping () -> Title,
         @ViewBuilder leftButtons: @escaping () -> LeftButtons,
@@ -171,7 +220,7 @@ struct NavigationBar<Title: View, LeftButtons: View, RightButtons: View>: View {
         self.rightButtons = rightButtons
     }
 
-    var body: some View {
+    public var body: some View {
         ZStack {
             HStack(spacing: 0.0) {
                 leftButtons()
@@ -207,7 +256,7 @@ struct NavigationBar<Title: View, LeftButtons: View, RightButtons: View>: View {
     }
 }
 
-extension NavigationBar where Title == DefaultNavigationBarTitle {
+public extension NavigationBar where Title == DefaultNavigationBarTitle {
     init(
         title: String,
         settings: Settings = .init(),
@@ -226,7 +275,7 @@ extension NavigationBar where Title == DefaultNavigationBarTitle {
     }
 }
 
-extension NavigationBar where LeftButtons == EmptyView {
+public extension NavigationBar where LeftButtons == EmptyView {
     init(
         settings: Settings = .init(),
         @ViewBuilder titleView: @escaping () -> Title,
@@ -241,7 +290,7 @@ extension NavigationBar where LeftButtons == EmptyView {
     }
 }
 
-extension NavigationBar where RightButtons == EmptyView {
+public extension NavigationBar where RightButtons == EmptyView {
     init(
         settings: Settings = .init(),
         @ViewBuilder titleView: @escaping () -> Title,
@@ -256,7 +305,7 @@ extension NavigationBar where RightButtons == EmptyView {
     }
 }
 
-extension NavigationBar where Title == DefaultNavigationBarTitle, LeftButtons == EmptyView {
+public extension NavigationBar where Title == DefaultNavigationBarTitle, LeftButtons == EmptyView {
     init(
         title: String,
         settings: Settings = .init(),
@@ -271,7 +320,7 @@ extension NavigationBar where Title == DefaultNavigationBarTitle, LeftButtons ==
     }
 }
 
-extension NavigationBar where Title == DefaultNavigationBarTitle, RightButtons == EmptyView {
+public extension NavigationBar where Title == DefaultNavigationBarTitle, RightButtons == EmptyView {
     init(
         title: String,
         settings: Settings = .init(),
@@ -286,7 +335,7 @@ extension NavigationBar where Title == DefaultNavigationBarTitle, RightButtons =
     }
 }
 
-extension NavigationBar where Title == DefaultNavigationBarTitle, LeftButtons == EmptyView, RightButtons == EmptyView {
+public extension NavigationBar where Title == DefaultNavigationBarTitle, LeftButtons == EmptyView, RightButtons == EmptyView {
     init(
         title: String,
         settings: Settings = .init()
@@ -300,7 +349,7 @@ extension NavigationBar where Title == DefaultNavigationBarTitle, LeftButtons ==
     }
 }
 
-extension NavigationBar where LeftButtons == ArrowBack, RightButtons == EmptyView, Title == DefaultNavigationBarTitle {
+public extension NavigationBar where LeftButtons == ArrowBack, RightButtons == EmptyView, Title == DefaultNavigationBarTitle {
     init(
         title: String,
         settings: Settings = .init(),
@@ -322,23 +371,23 @@ extension NavigationBar where LeftButtons == ArrowBack, RightButtons == EmptyVie
     }
 }
 
-struct NavigationBar_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            VStack {
-                NavigationBar(title: "Hello, World!", backAction: {})
-                Spacer()
-            }.deviceForPreview(.iPhone11Pro)
+#if DEBUG
+#Preview {
+    Group {
+        VStack {
+            NavigationBar(title: "Hello, World!", backAction: {})
+            Spacer()
+        }.deviceForPreview(.iPhone11Pro)
 
-            VStack {
-                NavigationBar(title: "Hello, World!")
-                Spacer()
-            }.deviceForPreview(.iPhone11ProMax)
+        VStack {
+            NavigationBar(title: "Hello, World!")
+            Spacer()
+        }.deviceForPreview(.iPhone11ProMax)
 
-            HStack {
-                BackButton(height: 44, isVisible: true, isEnabled: true) {}
-                Spacer()
-            }.deviceForPreview(.iPhone11ProMax)
-        }
+        HStack {
+            BackButton(height: 44, isVisible: true, isEnabled: true) {}
+            Spacer()
+        }.deviceForPreview(.iPhone11ProMax)
     }
 }
+#endif
