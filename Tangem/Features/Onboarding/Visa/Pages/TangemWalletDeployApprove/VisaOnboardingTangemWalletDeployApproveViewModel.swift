@@ -68,15 +68,21 @@ final class VisaOnboardingTangemWalletDeployApproveViewModel: ObservableObject {
                 try Task.checkCancellation()
 
                 VisaLogger.info("Attempt to sign loaded data: \(dataToSign.hexString)")
-                let signHashResponse: SignHashResponse
+                let signedApproveResponse: VisaSignedApproveResponse
                 if let approvePair {
-                    signHashResponse = try await signDataWithTargetPair(approvePair, dataToSign: dataToSign)
+                    signedApproveResponse = try await signDataWithTargetPair(approvePair, dataToSign: dataToSign)
                 } else {
-                    signHashResponse = try await signData(dataToSign)
+                    signedApproveResponse = try await signData(dataToSign)
                 }
 
+                let processor = VisaAcceptanceSignatureProcessor()
+                let signature = try processor.processAcceptanceSignature(
+                    signature: signedApproveResponse.signature,
+                    walletPublicKey: signedApproveResponse.keySignedApprove,
+                    originHash: signedApproveResponse.originHash
+                )
                 VisaLogger.info("Receive sign hash response. Sending data to delegate")
-                try await delegate?.processSignedData(signHashResponse.signature)
+                try await delegate?.processSignedData(signature)
                 await processApproveActionResult(.success(()))
             } catch {
                 await processApproveActionResult(.failure(error))
@@ -106,11 +112,11 @@ final class VisaOnboardingTangemWalletDeployApproveViewModel: ObservableObject {
 }
 
 private extension VisaOnboardingTangemWalletDeployApproveViewModel {
-    func signData(_ dataToSign: Data) async throws -> SignHashResponse {
+    func signData(_ dataToSign: Data) async throws -> VisaSignedApproveResponse {
         VisaLogger.info("Attempt to sign data with unknown wallet pair. Creating VisaCustomerWalletApproveTask")
         let task = VisaCustomerWalletApproveTask(targetAddress: targetWalletAddress, approveData: dataToSign)
         let tangemSdk = TangemSdkDefaultFactory().makeTangemSdk()
-        let signResponse: SignHashResponse = try await withCheckedThrowingContinuation { continuation in
+        let signResponse: VisaSignedApproveResponse = try await withCheckedThrowingContinuation { continuation in
             tangemSdk.startSession(with: task) { result in
                 switch result {
                 case .success(let hashResponse):
@@ -125,9 +131,9 @@ private extension VisaOnboardingTangemWalletDeployApproveViewModel {
         return signResponse
     }
 
-    func signDataWithTargetPair(_ approvePair: ApprovePair, dataToSign: Data) async throws -> SignHashResponse {
+    func signDataWithTargetPair(_ approvePair: ApprovePair, dataToSign: Data) async throws -> VisaSignedApproveResponse {
         VisaLogger.info("Attempt to sign data with saved in repository wallet pair. Creating plain SignHashCommand")
-        let signHashTask = SignHashCommand(hash: dataToSign, walletPublicKey: approvePair.publicKey, derivationPath: approvePair.derivationPath)
+        let signHashTask = SignHashCommand(hash: dataToSign, walletPublicKey: approvePair.seedPublicKey, derivationPath: approvePair.derivationPath)
         let signResponse: SignHashResponse = try await withCheckedThrowingContinuation { continuation in
             approvePair.tangemSdk.startSession(with: signHashTask, filter: approvePair.sessionFilter) { result in
                 switch result {
@@ -140,15 +146,26 @@ private extension VisaOnboardingTangemWalletDeployApproveViewModel {
         }
 
         VisaLogger.info("Sign approve data with known approve pair successfully finished")
-        return signResponse
+        return .init(
+            keySignedApprove: approvePair.derivedPublicKey,
+            originHash: dataToSign,
+            signature: signResponse.signature
+        )
     }
 }
 
 extension VisaOnboardingTangemWalletDeployApproveViewModel {
     struct ApprovePair {
         let sessionFilter: SessionFilter
-        let publicKey: Data
+        let seedPublicKey: Data
+        let derivedPublicKey: Data
         let derivationPath: DerivationPath?
         let tangemSdk: TangemSdk
     }
+}
+
+struct VisaSignedApproveResponse {
+    let keySignedApprove: Data
+    let originHash: Data
+    let signature: Data
 }
