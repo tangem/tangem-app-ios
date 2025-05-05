@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUIUtils
 
 struct SingleWalletMainContentView: View {
     @ObservedObject var viewModel: SingleWalletMainContentViewModel
