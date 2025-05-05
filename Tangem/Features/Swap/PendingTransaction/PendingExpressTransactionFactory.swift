@@ -80,7 +80,7 @@ struct PendingExpressTransactionFactory {
                 return defaultStatusesList
             case .canceled:
                 return canceledStatusesList
-            case .failed, .refunded:
+            case .failed, .refunded, .refunding:
                 return failedStatusesList
             case .txFailed:
                 return txFailedStatusesList

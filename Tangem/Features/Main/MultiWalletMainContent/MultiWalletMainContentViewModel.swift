@@ -7,11 +7,13 @@
 //
 
 import Foundation
-import TangemLocalization
 import SwiftUI
 import Combine
 import CombineExt
 import TangemStaking
+import TangemNFT
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 final class MultiWalletMainContentViewModel: ObservableObject {
     // MARK: - ViewState
@@ -24,6 +26,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     @Published var isScannerBusy = false
     @Published var error: AlertBinder? = nil
+    @Published var nftEntrypointViewModel: NFTEntrypointViewModel?
 
     weak var delegate: MultiWalletMainContentDelegate?
 
@@ -48,6 +51,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
+    private let nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling
     private let userWalletModel: UserWalletModel
     private let userWalletNotificationManager: NotificationManager
     private let tokensNotificationManager: NotificationManager
@@ -56,7 +60,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let tokenRouter: SingleTokenRoutable
     private let optionsEditing: OrganizeTokensOptionsEditing
     private let rateAppController: RateAppInteractionController
-    private weak var coordinator: (MultiWalletMainContentRoutable & ActionButtonsRoutable)?
+    private weak var coordinator: (MultiWalletMainContentRoutable & ActionButtonsRoutable & NFTEntrypointRoutable)?
 
     private var canManageTokens: Bool { userWalletModel.config.hasFeature(.multiCurrency) }
 
@@ -81,7 +85,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         tokenSectionsAdapter: TokenSectionsAdapter,
         tokenRouter: SingleTokenRoutable,
         optionsEditing: OrganizeTokensOptionsEditing,
-        coordinator: (MultiWalletMainContentRoutable & ActionButtonsRoutable)?
+        nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling,
+        coordinator: (MultiWalletMainContentRoutable & ActionButtonsRoutable & NFTEntrypointRoutable)?
     ) {
         self.userWalletModel = userWalletModel
         self.userWalletNotificationManager = userWalletNotificationManager
@@ -92,9 +97,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.tokenRouter = tokenRouter
         self.optionsEditing = optionsEditing
         self.coordinator = coordinator
-
+        self.nftFeatureLifecycleHandler = nftFeatureLifecycleHandler
         bind()
 
+        nftFeatureLifecycleHandler.startObserving()
         actionButtonsViewModel = makeActionButtonsViewModel()
     }
 
@@ -150,12 +156,38 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .organizedSections(from: tokenSectionsSourcePublisher, on: mappingQueue)
             .share(replay: 1)
 
+        nftFeatureLifecycleHandler.walletsWithNFTEnabledPublisher
+            .map { [weak self] in
+                guard
+                    let self,
+                    let coordinator,
+                    $0.contains(userWalletModel.userWalletId)
+                else {
+                    return nil
+                }
+
+                let navigationContext = NFTReceiveInput(
+                    userWalletName: userWalletModel.name,
+                    userWalletConfig: userWalletModel.config,
+                    walletModelsManager: userWalletModel.walletModelsManager
+                )
+
+                return NFTEntrypointViewModel(
+                    nftManager: userWalletModel.nftManager,
+                    navigationContext: navigationContext,
+                    coordinator: coordinator
+                )
+            }
+            .receiveOnMain()
+            .assign(to: \.nftEntrypointViewModel, on: self, ownership: .weak)
+            .store(in: &bag)
+
         let sectionsPublisher = organizedTokensSectionsPublisher
             .withWeakCaptureOf(self)
             .map { viewModel, sections in
                 return viewModel.convertToSections(sections)
             }
-            .receive(on: DispatchQueue.main)
+            .receiveOnMain()
             .share(replay: 1)
 
         sectionsPublisher
@@ -208,6 +240,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         )
 
         subscribeToTokenListSync(with: sectionsPublisher)
+        nftFeatureLifecycleHandler.startObserving()
     }
 
     private func convertToSections(

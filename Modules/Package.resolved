@@ -1,5 +1,5 @@
 {
-  "originHash" : "7780a5e224c1212e9f01e70c3931bad00a8a2911d6133f56d244670bf3087fa0",
+  "originHash" : "e923050040b80694d86f8ff3ab89ec9c3cca38a58e9bafad2e1a52495688dd33",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -20,12 +20,30 @@
       }
     },
     {
+      "identity" : "combineext",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/CombineCommunity/CombineExt.git",
+      "state" : {
+        "revision" : "d7b896fa9ca8b47fa7bcde6b43ef9b70bf8c1f56",
+        "version" : "1.8.1"
+      }
+    },
+    {
       "identity" : "kingfisher",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/onevcat/Kingfisher.git",
       "state" : {
         "revision" : "2ef543ee21d63734e1c004ad6c870255e8716c50",
         "version" : "7.12.0"
+      }
+    },
+    {
+      "identity" : "lottie-spm",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/airbnb/lottie-spm.git",
+      "state" : {
+        "revision" : "8c6edf4f0fa84fe9c058600a4295eb0c01661c69",
+        "version" : "4.5.1"
       }
     },
     {
