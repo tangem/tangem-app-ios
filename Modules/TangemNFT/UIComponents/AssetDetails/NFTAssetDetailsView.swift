@@ -132,7 +132,8 @@ private extension NFTAssetDetailsView {
                         NFTAsset.Trait(name: "Sneakers", value: "Boots"),
                     ]
                 ),
-                coordinator: nil
+                coordinator: nil,
+                nftChainNameProviding: NFTChainNameProviderMock()
             )
         )
         .navigationTitle("My awesome asset")
