@@ -17,7 +17,11 @@ public protocol VisaAuthorizationService {
         salt: String,
         sessionId: String
     ) async throws -> VisaAuthorizationTokens
-    func getAccessTokensForWalletAuth(signedChallenge: String, sessionId: String) async throws -> VisaAuthorizationTokens?
+    func getAccessTokensForWalletAuth(
+        signedChallenge: String,
+        salt: String,
+        sessionId: String
+    ) async throws -> VisaAuthorizationTokens?
 }
 
 public protocol VisaAuthorizationTokenRefreshService {
@@ -79,11 +83,15 @@ extension CommonVisaAuthorizationService: VisaAuthorizationService {
         return .init(dto: dto, authorizationType: .cardId)
     }
 
-    func getAccessTokensForWalletAuth(signedChallenge: String, sessionId: String) async throws -> VisaAuthorizationTokens? {
+    func getAccessTokensForWalletAuth(
+        signedChallenge: String,
+        salt: String,
+        sessionId: String
+    ) async throws -> VisaAuthorizationTokens? {
         let dto: AuthorizationTokenDTO = try await apiService.request(.init(
             target: .getAuthorizationTokens(request: .init(
                 signature: signedChallenge,
-                salt: nil,
+                salt: salt,
                 sessionId: sessionId,
                 authType: .cardWallet
             )),
@@ -96,12 +104,14 @@ extension CommonVisaAuthorizationService: VisaAuthorizationService {
 
 extension CommonVisaAuthorizationService: VisaAuthorizationTokenRefreshService {
     func refreshAccessToken(refreshToken: String, authorizationType: VisaAuthorizationType) async throws -> VisaAuthorizationTokens {
-        try await apiService.request(.init(
+        let dto: AuthorizationTokenDTO = try await apiService.request(.init(
             target: .refreshAuthorizationTokens(request: .init(
                 refreshToken: refreshToken,
                 authType: authorizationType
             )),
             apiType: apiType
         ))
+
+        return .init(dto: dto, authorizationType: authorizationType)
     }
 }

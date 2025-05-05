@@ -120,12 +120,20 @@ public final class VisaCardScanHandler: CardSessionRunnable {
             return
         }
 
+        let walletAddress: String
         do {
             VisaLogger.info("Requesting challenge for wallet authorization")
-            let walletAddress = try visaUtilities.makeAddress(seedKey: wallet.publicKey, extendedKey: extendedPublicKey)
+            walletAddress = try visaUtilities.makeAddress(seedKey: wallet.publicKey, extendedKey: extendedPublicKey).value
+        } catch {
+            VisaLogger.info("Error during Wallet address generation process. Error: \(error)")
+            completion(.failure(.underlying(error: error)))
+            return
+        }
+
+        do {
             let challengeResponse = try await authorizationService.getWalletAuthorizationChallenge(
                 cardId: card.cardId,
-                walletAddress: walletAddress.value
+                walletAddress: walletAddress
             )
 
             let signedChallengeResponse = try await signChallengeWithWallet(
@@ -139,7 +147,8 @@ public final class VisaCardScanHandler: CardSessionRunnable {
             VisaLogger.info("Challenge signed with Wallet public key")
 
             let authorizationTokensResponse = try await authorizationService.getAccessTokensForWalletAuth(
-                signedChallenge: signedChallengeResponse.signature.hexString,
+                signedChallenge: signedChallengeResponse.walletSignature.hexString,
+                salt: signedChallengeResponse.salt.hexString,
                 sessionId: challengeResponse.sessionId
             )
 
@@ -152,7 +161,7 @@ public final class VisaCardScanHandler: CardSessionRunnable {
                 // 2.2 Flow
                 VisaLogger.info("Failed to get Access token for Wallet public key authoziation. Authorizing using Card Pub key")
                 await handleCardAuthorization(
-                    walletAddress: walletAddress.value,
+                    walletAddress: walletAddress,
                     session: session,
                     completion: completion
                 )
@@ -160,6 +169,16 @@ public final class VisaCardScanHandler: CardSessionRunnable {
         } catch let error as TangemSdkError {
             VisaLogger.info("Error during Wallet authorization process. Tangem Sdk Error: \(error)")
             completion(.failure(error))
+        } catch let error as VisaAPIError {
+            // [REDACTED_TODO_COMMENT]
+            VisaLogger.error("API error during wallet authorization process", error: error)
+            if error.code == 110200 {
+                await handleCardAuthorization(
+                    walletAddress: walletAddress,
+                    session: session,
+                    completion: completion
+                )
+            }
         } catch {
             VisaLogger.info("Error during Wallet authorization process. Error: \(error)")
             completion(.failure(.underlying(error: error)))
@@ -235,9 +254,9 @@ public final class VisaCardScanHandler: CardSessionRunnable {
         derivationPath: DerivationPath,
         challenge: Data,
         in session: CardSession
-    ) async throws -> SignHashResponse {
+    ) async throws -> AttestWalletKeyResponse {
         try await withCheckedThrowingContinuation { [session] continuation in
-            let signHashCommand = SignHashCommand(hash: challenge, walletPublicKey: walletPublicKey, derivationPath: derivationPath)
+            let signHashCommand = AttestWalletKeyCommand(publicKey: walletPublicKey, challenge: challenge, confirmationMode: .dynamic)
             signHashCommand.run(in: session) { result in
                 switch result {
                 case .success(let signHashResponse):
