@@ -9,6 +9,8 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemNFT
+import TangemUI
 
 struct MainCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: MainCoordinator
@@ -77,6 +79,9 @@ struct MainCoordinatorView: CoordinatorView {
             }
             .navigation(item: $coordinator.referralCoordinator) {
                 ReferralCoordinatorView(coordinator: $0)
+            }
+            .navigation(item: $coordinator.nftCollectionsCoordinator) {
+                NFTCollectionsCoordinatorView(coordinator: $0)
             }
     }
 
