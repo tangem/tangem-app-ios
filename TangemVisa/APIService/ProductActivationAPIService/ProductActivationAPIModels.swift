@@ -45,10 +45,6 @@ extension ProductActivationAPITarget {
 
     /// Responses
     struct GetAcceptanceMessageResponse: Decodable {
-        let data: DataToSignByCardResponseData
-    }
-
-    struct DataToSignByCardResponseData: Decodable {
         let hash: String
     }
 }
@@ -85,6 +81,7 @@ extension ProductActivationAPITarget {
 extension ProductActivationAPITarget.CustomerWalletDeployAcceptanceRequest {
     struct AcceptanceData: Encodable {
         let deployAcceptanceSignature: String
+        let address: String
     }
 }
 
