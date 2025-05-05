@@ -17,10 +17,14 @@
 import Combine
 import TangemNFT
 import TangemUI
+import Foundation
+import BlockchainSdk
 
 class NFTAssetDetailsCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
+
+    @Injected(\.safariManager) private var safariManager: SafariManager
 
     // MARK: - Root view model
 
@@ -28,7 +32,10 @@ class NFTAssetDetailsCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
-    // MARK: - Child view models
+    // MARK: - Childs
+
+    @Published var traitsViewData: KeyValuePanelViewData?
+    @Published var extendedInfoViewData: NFTAssetExtendedInfoViewData?
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -44,6 +51,14 @@ class NFTAssetDetailsCoordinator: CoordinatorObject {
             coordinator: self,
             nftChainNameProviding: options.nftChainNameProviding
         )
+    }
+
+    func closeTraits() {
+        traitsViewData = nil
+    }
+
+    func closeInfo() {
+        extendedInfoViewData = nil
     }
 }
 
@@ -63,11 +78,20 @@ extension NFTAssetDetailsCoordinator: NFTAssetDetailsRoutable {
         // [REDACTED_TODO_COMMENT]
     }
 
-    func openInfo(with text: String) {
-        // [REDACTED_TODO_COMMENT]
+    func openInfo(with viewData: NFTAssetExtendedInfoViewData) {
+        extendedInfoViewData = viewData
     }
 
-    func openTraits(with data: KeyValuePanelConfig) {
-        // [REDACTED_TODO_COMMENT]
+    func openTraits(with data: KeyValuePanelViewData) {
+        traitsViewData = data
+    }
+
+    func openExplorer(for asset: NFTAsset) {
+        guard let exploreURL = NFTExplorerLinkProvider().provide(for: asset) else {
+            assertionFailure("NFT Explorer link for \(asset.id.assetIdentifier) on \(asset.id.chain) cannot be built")
+            return
+        }
+
+        safariManager.openURL(exploreURL)
     }
 }
