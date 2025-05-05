@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftUI
+import TangemUI
 
 struct AppSettingsCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: AppSettingsCoordinator

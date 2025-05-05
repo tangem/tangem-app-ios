@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import struct TangemUI.TokenIconInfo
 
 struct OrganizeTokensListItemViewModel: Hashable, Identifiable {
     let id: Identifier

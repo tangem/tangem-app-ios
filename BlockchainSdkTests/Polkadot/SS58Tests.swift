@@ -133,7 +133,7 @@ struct SS58Tests {
         let polkadotAddress = "13upfxwAepTxvfEEkSp567AXypn9ym5NGxsWmhdyxHXw5ocz"
 
         let bytes = ss58.bytes(string: polkadotAddress, raw: false)
-        #expect(bytes.hexString == "0080C1B49CA830D61FCC69256C26BB5EF6A3F0E198A7A981365F038BBA42266ED7")
+        #expect(bytes.hex(.uppercase) == "0080C1B49CA830D61FCC69256C26BB5EF6A3F0E198A7A981365F038BBA42266ED7")
     }
 
     @Test
@@ -141,6 +141,6 @@ struct SS58Tests {
         let polkadotAddress = "13upfxwAepTxvfEEkSp567AXypn9ym5NGxsWmhdyxHXw5ocz"
 
         let bytes = ss58.bytes(string: polkadotAddress, raw: true)
-        #expect(bytes.hexString == "80C1B49CA830D61FCC69256C26BB5EF6A3F0E198A7A981365F038BBA42266ED7")
+        #expect(bytes.hex(.uppercase) == "80C1B49CA830D61FCC69256C26BB5EF6A3F0E198A7A981365F038BBA42266ED7")
     }
 }
