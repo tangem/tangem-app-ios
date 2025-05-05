@@ -9,12 +9,22 @@
 import SwiftUI
 
 /// A spacer with fixed dimensions.
-struct FixedSpacer: View {
-    var width: CGFloat? = nil
-    var height: CGFloat? = nil
-    var length: CGFloat? = nil
+public struct FixedSpacer: View {
+    let width: CGFloat?
+    let height: CGFloat?
+    let length: CGFloat?
 
-    var body: some View {
+    public init(
+        width: CGFloat? = nil,
+        height: CGFloat? = nil,
+        length: CGFloat? = nil
+    ) {
+        self.width = width
+        self.height = height
+        self.length = length
+    }
+
+    public var body: some View {
         Spacer(minLength: length)
             .frame(width: width, height: height)
     }
@@ -22,7 +32,7 @@ struct FixedSpacer: View {
 
 // MARK: - Convenience extensions
 
-extension FixedSpacer {
+public extension FixedSpacer {
     static func horizontal(_ length: CGFloat) -> Self {
         FixedSpacer(width: length, length: length)
     }
