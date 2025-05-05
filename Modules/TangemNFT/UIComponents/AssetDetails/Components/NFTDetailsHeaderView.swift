@@ -97,7 +97,7 @@ struct NFTDetailsHeaderView: View {
 
     private func makeRarityKeyValueView(keyValues: [KeyValuePairViewData]) -> some View {
         KeyValuePanelView(
-            config: KeyValuePanelConfig(
+            viewData: KeyValuePanelViewData(
                 header: nil,
                 keyValues: keyValues,
                 backgroundColor: nil
