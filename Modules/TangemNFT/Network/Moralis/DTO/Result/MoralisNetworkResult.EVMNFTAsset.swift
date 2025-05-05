@@ -26,7 +26,7 @@ extension MoralisNetworkResult {
         let name: String?
         let symbol: String?
         let tokenHash: String?
-        let tokenUri: URL?
+        let tokenUri: String?
         let minterAddress: String?
         let rarityRank: Double?
         let rarityPercentage: Double?
@@ -34,8 +34,8 @@ extension MoralisNetworkResult {
         let verifiedCollection: Bool?
         let possibleSpam: Bool?
         let media: Media?
-        let collectionLogo: URL?
-        let collectionBannerImage: URL?
+        let collectionLogo: String?
+        let collectionBannerImage: String?
         let floorPrice: String?
         let floorPriceUsd: String?
         let floorPriceCurrency: String?
@@ -48,9 +48,9 @@ extension MoralisNetworkResult.EVMNFTAsset {
     struct NormalizedMetadata: Decodable {
         let name: String?
         let description: String?
-        let animationUrl: URL?
-        let externalLink: URL?
-        let image: URL?
+        let animationUrl: String?
+        let externalLink: String?
+        let image: String?
         let attributes: [Attribute]?
     }
 
@@ -72,7 +72,7 @@ extension MoralisNetworkResult.EVMNFTAsset {
         let mimetype: String?
         let parentHash: String?
         let mediaCollection: MediaCollection?
-        let originalMediaUrl: URL?
+        let originalMediaUrl: String?
     }
 
     struct MediaCollection: Decodable {
@@ -84,6 +84,6 @@ extension MoralisNetworkResult.EVMNFTAsset {
     struct MediaDetail: Decodable {
         let height: Int?
         let width: Int?
-        let url: URL?
+        let url: String?
     }
 }

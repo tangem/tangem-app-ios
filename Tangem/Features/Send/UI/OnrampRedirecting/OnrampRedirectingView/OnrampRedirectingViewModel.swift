@@ -7,9 +7,10 @@
 //
 
 import Combine
-import TangemLocalization
 import SwiftUI
 import TangemExpress
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 final class OnrampRedirectingViewModel: ObservableObject {
     // MARK: - ViewState
@@ -51,8 +52,14 @@ final class OnrampRedirectingViewModel: ObservableObject {
     }
 
     func loadRedirectData() async {
+        let theme: OnrampRedirectSettings.Theme = switch colorScheme {
+        case .light: .light
+        case .dark: .dark
+        @unknown default: .light
+        }
+
         do {
-            try await interactor.loadRedirectData(redirectSettings: makeOnrampRedirectSettings())
+            try await interactor.loadRedirectData(theme: theme)
         } catch {
             await runOnMain {
                 alert = AlertBuilder.makeOkErrorAlert(message: error.localizedDescription) { [weak self] in
@@ -70,26 +77,6 @@ final class OnrampRedirectingViewModel: ObservableObject {
 // MARK: - Private
 
 private extension OnrampRedirectingViewModel {
-    func makeOnrampRedirectSettings() -> OnrampRedirectSettings {
-        let theme: OnrampRedirectSettings.Theme = {
-            switch colorScheme {
-            case .light: .light
-            case .dark: .dark
-            @unknown default: .light
-            }
-        }()
-
-        // We don't use `Locale.current.languageCode`
-        // Because it gives us the phone language not app
-        let appLanguageCode = Bundle.main.preferredLocalizations[0]
-
-        return OnrampRedirectSettings(
-            successURL: IncomingActionConstants.externalSuccessURL,
-            theme: theme,
-            language: appLanguageCode
-        )
-    }
-
     func logOpening() {
         guard let provider = interactor.onrampProvider,
               let request = try? provider.makeOnrampQuotesRequestItem() else {

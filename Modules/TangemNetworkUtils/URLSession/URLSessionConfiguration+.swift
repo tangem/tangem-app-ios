@@ -29,4 +29,11 @@ public extension URLSessionConfiguration {
         configuration.timeoutIntervalForResource = 30
         return configuration
     }()
+
+    static let visaConfiguration: URLSessionConfiguration = {
+        let configuration = URLSessionConfiguration.default
+        configuration.timeoutIntervalForRequest = 30
+        configuration.timeoutIntervalForResource = 30
+        return configuration
+    }()
 }

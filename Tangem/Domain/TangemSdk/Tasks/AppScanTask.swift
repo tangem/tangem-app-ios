@@ -48,6 +48,8 @@ struct AppScanTaskResponse {
 }
 
 final class AppScanTask: CardSessionRunnable {
+    @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
+
     let shouldAskForAccessCode: Bool
 
     private let performDerivations: Bool
@@ -233,7 +235,15 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func readVisaCard(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        let handler = VisaCardScanHandler()
+        let featureStorage = FeatureStorage.instance
+        let handler = VisaCardScanHandlerBuilder(
+            apiType: featureStorage.visaAPIType,
+            isMockedAPIEnabled: featureStorage.isVisaAPIMocksEnabled
+        ).build(
+            isTestnet: featureStorage.isVisaTestnet,
+            urlSessionConfiguration: .visaConfiguration,
+            refreshTokenRepository: visaRefreshTokenRepository
+        )
         handler.run(in: session) { result in
             switch result {
             case .success(let success):
