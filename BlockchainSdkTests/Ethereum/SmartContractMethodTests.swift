@@ -27,7 +27,7 @@ struct SmartContractMethodTests {
             "00000000000000000000000000000000000000000000000000000000000f4240",
         ]
 
-        #expect(data.hexString.lowercased() == expectedData.joined().lowercased())
+        #expect(data.hex() == expectedData.joined().lowercased())
     }
 
     @Test
@@ -46,7 +46,7 @@ struct SmartContractMethodTests {
             "00000000000000000000000000000000000000000000000000000000000f4240",
         ]
 
-        #expect(data.hexString.lowercased() == expectedData.joined().lowercased())
+        #expect(data.hex() == expectedData.joined().lowercased())
     }
 
     @Test
@@ -65,7 +65,7 @@ struct SmartContractMethodTests {
             "0000000000000000000000001111111254EEB25477B68fb85Ed929f73A960582",
         ]
 
-        #expect(data.hexString.lowercased() == expectedData.joined().lowercased())
+        #expect(data.hex() == expectedData.joined().lowercased())
     }
 
     @Test
@@ -82,6 +82,6 @@ struct SmartContractMethodTests {
             "00000000000000000000000090e4d59c8583e37426b37d1d7394b6008a987c67",
         ]
 
-        #expect(data.hexString.lowercased() == expectedData.joined().lowercased())
+        #expect(data.hex() == expectedData.joined().lowercased())
     }
 }
