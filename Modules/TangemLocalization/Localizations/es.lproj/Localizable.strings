@@ -542,7 +542,7 @@
 "no_account_send_to_create" = "Para crear una cuenta, envíe fondos a esta dirección";
 "no_trustline_xlm_asset" = "La cuenta de destino no tiene una Trustline para el activo que se envía.";
 "notification_referral_promo_button" = "Únete ahora";
-"notification_referral_promo_text" = "Comparte tu código y gana 5 USDT por venta. Tu amigo obtiene un 10% de descuento.";
+"notification_referral_promo_text" = "Comparte tu código y gana 5 USDT por venta. Tu amigo obtiene un 10%% de descuento.";
 "notification_referral_promo_title" = "¡Obtén RECOMPENSAS por cada amigo!";
 "onboarding_access_code_feature_1_description" = "Deba configurar un único código de acceso para proteger todss sus dispositivos.";
 "onboarding_access_code_feature_1_title" = "Proteger";
