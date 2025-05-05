@@ -7,9 +7,10 @@
 //
 
 import Combine
-@testable import BlockchainSdk
-@testable import SolanaSwift
 import Testing
+@testable import BlockchainSdk
+import class SolanaSwift.Solana
+import enum SolanaSwift.SolanaError
 
 struct SolanaEd25519Slip0010Tests {
     private let manager: SolanaWalletManager
