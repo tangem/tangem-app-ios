@@ -15,11 +15,17 @@ import TangemAssets
 public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
     private let asset: NFTAsset
 
+    private let nftChainNameProviding: NFTChainNameProviding
     private weak var coordinator: NFTAssetDetailsRoutable?
 
-    public init(asset: NFTAsset, coordinator: NFTAssetDetailsRoutable?) {
+    public init(
+        asset: NFTAsset,
+        coordinator: NFTAssetDetailsRoutable?,
+        nftChainNameProviding: NFTChainNameProviding
+    ) {
         self.asset = asset
         self.coordinator = coordinator
+        self.nftChainNameProviding = nftChainNameProviding
     }
 
     var name: String {
@@ -145,7 +151,7 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
 
         let chain = makeKeyValuePairViewDataIfPossible(
             key: Localization.nftDetailsChain,
-            value: "Ethereum", // [REDACTED_TODO_COMMENT]
+            value: nftChainNameProviding.provide(for: asset.id.chain),
             action: { [weak self] in self?.opentChainDetails() }
         )
 
