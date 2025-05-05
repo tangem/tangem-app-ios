@@ -6,8 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import WalletCore
-import BitcoinCore
+import Foundation
 
 protocol LockingScriptBuilder {
     func lockingScript(for address: String) throws -> UTXOLockingScript
@@ -27,7 +26,9 @@ extension LockingScriptBuilder {
 enum LockingScriptBuilderError: LocalizedError {
     case wrongAddress
     case wrongBech32Prefix
+    case wrongChecksum
     case unsupportedVersion
+    case unsupportedScriptType
     case lockingScriptNotFound
 }
 
