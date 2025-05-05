@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemNFT
 import TangemUI
+import TangemAssets
 
 struct NFTAssetDetailsCoordinatorView: View {
     @ObservedObject var coordinator: NFTAssetDetailsCoordinator
@@ -17,22 +18,14 @@ struct NFTAssetDetailsCoordinatorView: View {
         ZStack {
             if let rootViewModel = coordinator.rootViewModel {
                 NavigationView {
-                    makeRootView(with: rootViewModel)
+                    NFTAssetDetailsView(viewModel: rootViewModel)
+                        .withCloseButton(action: coordinator.dismiss)
                         .navigationLinks(links)
                 }
             }
 
             sheets
         }
-    }
-
-    private func makeRootView(with rootViewModel: NFTAssetDetailsViewModel) -> some View {
-        NFTAssetDetailsView(viewModel: rootViewModel)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    CloseButton(dismiss: coordinator.dismiss)
-                }
-            }
     }
 
     @ViewBuilder
@@ -42,6 +35,23 @@ struct NFTAssetDetailsCoordinatorView: View {
 
     @ViewBuilder
     private var sheets: some View {
-        EmptyView()
+        NavHolder()
+            .sheet(item: $coordinator.traitsViewData) { viewData in
+                NavigationView {
+                    NFTAssetExtendedTraitsView(viewData: viewData)
+                        .withCloseButton(action: coordinator.closeTraits)
+                }
+            }
+
+        NavHolder()
+            .bottomSheet(
+                item: $coordinator.extendedInfoViewData,
+                settings: .init(backgroundColor: Colors.Background.action)
+            ) {
+                NFTAssetExtendedInfoView(
+                    viewData: $0,
+                    dismissAction: coordinator.closeInfo
+                )
+            }
     }
 }
