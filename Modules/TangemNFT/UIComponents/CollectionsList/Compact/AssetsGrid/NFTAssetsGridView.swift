@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import TangemNFT
 
 struct NFTAssetsGridView: View {
     var viewModel: NFTAssetsGridViewModel
@@ -40,14 +39,14 @@ extension NFTAssetsGridView {
                 assetIdentifier: "some-\($0)",
                 collectionIdentifier: "some1",
                 chain: .solana,
-                contractType: .splToken2022,
+                contractType: .unknown,
                 ownerAddress: "",
                 name: "My asset",
                 description: "",
                 media: NFTAsset.Media(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
                 rarity: nil,
                 traits: []
-            ))
+            ), openAssetDetailsAction: { _ in })
         }))
         .padding(16)
     }

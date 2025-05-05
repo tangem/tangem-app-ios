@@ -43,7 +43,7 @@ enum TokenActionType: String {
         case .exchange: return Assets.exchangeMini
         case .stake: return Assets.stakingIcon
         case .sell: return Assets.dollarMini
-        case .copyAddress: return Assets.copy
+        case .copyAddress: return Assets.Glyphs.copy
         case .marketsDetails: return Assets.chartMini20
         case .hide: return Assets.minusCircle
         }
