@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import struct TangemUIUtils.AlertBinder
 
 class SingleTokenRoutableMock: SingleTokenRoutable {
     var errorAlertPublisher: AnyPublisher<AlertBinder?, Never> { .just(output: nil) }

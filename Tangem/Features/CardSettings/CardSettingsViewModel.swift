@@ -7,8 +7,9 @@
 //
 
 import SwiftUI
-import TangemLocalization
 import Combine
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 class CardSettingsViewModel: ObservableObject {
     // MARK: ViewState

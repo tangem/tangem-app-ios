@@ -7,18 +7,14 @@
 //
 
 import Foundation
+import TangemLocalization
 
 enum CardanoError: String, Error, LocalizedError {
     case noUnspents
     case lowAda
 
     var errorDescription: String? {
-        switch self {
-        case .noUnspents:
-            return Localization.genericErrorCode(errorCodeDescription)
-        case .lowAda:
-            return Localization.cardanoLowAda
-        }
+        Localization.genericErrorCode(errorCodeDescription)
     }
 
     private var errorCodeDescription: String {

@@ -14,14 +14,18 @@ protocol CustomerInfoManagementService {
 }
 
 class CommonCustomerInfoManagementService {
-    typealias CIMAPIService = APIService<CustomerInfoManagementAPITarget, VisaAPIError>
+    typealias CIMAPIService = APIService<CustomerInfoManagementAPITarget>
     private let authorizationTokenHandler: VisaAuthorizationTokensHandler
     private let apiService: CIMAPIService
 
+    private let apiType: VisaAPIType
+
     init(
+        apiType: VisaAPIType,
         authorizationTokenHandler: VisaAuthorizationTokensHandler,
         apiService: CIMAPIService
     ) {
+        self.apiType = apiType
         self.authorizationTokenHandler = authorizationTokenHandler
         self.apiService = apiService
     }
@@ -31,7 +35,8 @@ class CommonCustomerInfoManagementService {
 
         return .init(
             authorizationToken: authorizationToken,
-            target: target
+            target: target,
+            apiType: apiType
         )
     }
 }
