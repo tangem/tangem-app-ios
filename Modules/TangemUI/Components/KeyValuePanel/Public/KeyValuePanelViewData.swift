@@ -9,7 +9,9 @@
 import TangemAssets
 import SwiftUI
 
-public struct KeyValuePanelConfig {
+public struct KeyValuePanelViewData: Identifiable {
+    public let id = UUID()
+
     let header: Header?
     let keyValues: [KeyValuePairViewData]
     let backgroundColor: Color?
@@ -25,7 +27,7 @@ public struct KeyValuePanelConfig {
     }
 }
 
-public extension KeyValuePanelConfig {
+public extension KeyValuePanelViewData {
     struct Header {
         let title: String
         let actionConfig: ActionConfig?
@@ -37,7 +39,7 @@ public extension KeyValuePanelConfig {
     }
 }
 
-public extension KeyValuePanelConfig.Header {
+public extension KeyValuePanelViewData.Header {
     struct ActionConfig {
         let buttonTitle: String
         let image: ImageType?
