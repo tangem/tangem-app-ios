@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemNFT
 
 protocol MainRoutable: AnyObject {
     func openDetails(for userWalletModel: UserWalletModel)
