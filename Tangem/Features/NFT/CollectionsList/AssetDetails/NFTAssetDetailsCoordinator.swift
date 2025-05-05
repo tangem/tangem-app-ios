@@ -41,7 +41,8 @@ class NFTAssetDetailsCoordinator: CoordinatorObject {
     func start(with options: Options) {
         rootViewModel = NFTAssetDetailsViewModel(
             asset: options.asset,
-            coordinator: self
+            coordinator: self,
+            nftChainNameProviding: options.nftChainNameProviding
         )
     }
 }
@@ -51,6 +52,7 @@ class NFTAssetDetailsCoordinator: CoordinatorObject {
 extension NFTAssetDetailsCoordinator {
     struct Options {
         let asset: NFTAsset
+        let nftChainNameProviding: NFTChainNameProviding
     }
 }
 
