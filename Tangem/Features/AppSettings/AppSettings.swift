@@ -93,6 +93,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.showReferralProgramOnMain)
     var showReferralProgramOnMain: Bool = true
 
+    @AppStorageCompat(StorageType.marketsTooltipWasShown)
+    var marketsTooltipWasShown: Bool = false
+
     static let shared: AppSettings = .init()
 
     private init() {}

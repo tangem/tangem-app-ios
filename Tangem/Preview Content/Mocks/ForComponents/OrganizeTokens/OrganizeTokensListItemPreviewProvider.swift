@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemUI
 
 struct OrganizeTokensListItemPreviewProvider {
     func singleSmallHeaderlessSection() -> [OrganizeTokensListSection] {
