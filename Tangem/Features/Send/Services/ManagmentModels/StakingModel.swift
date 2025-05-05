@@ -253,7 +253,13 @@ private extension StakingModel {
             throw StakingModelError.validatorNotFound
         }
 
-        Analytics.log(.stakingButtonStake, params: [.source: .stakeSourceConfirmation])
+        Analytics.log(
+            event: .stakingButtonStake,
+            params: [
+                .source: Analytics.ParameterValue.stakeSourceConfirmation.rawValue,
+                .token: tokenItem.currencySymbol,
+            ]
+        )
 
         do {
             let action = StakingAction(
@@ -574,10 +580,22 @@ private extension StakingModel {
             break
 
         case .typical:
-            Analytics.log(.stakingSelectedCurrency, params: [.commonType: .token])
+            Analytics.log(
+                event: .stakingSelectedCurrency,
+                params: [
+                    .commonType: Analytics.ParameterValue.token.rawValue,
+                    .token: tokenItem.currencySymbol,
+                ]
+            )
 
         case .alternative:
-            Analytics.log(.stakingSelectedCurrency, params: [.commonType: .selectedCurrencyApp])
+            Analytics.log(
+                event: .stakingSelectedCurrency,
+                params: [
+                    .commonType: Analytics.ParameterValue.selectedCurrencyApp.rawValue,
+                    .token: tokenItem.currencySymbol,
+                ]
+            )
         }
     }
 }
