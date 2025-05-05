@@ -23,7 +23,7 @@ final class SignActivationOrderTask: CardSessionRunnable {
     private let isTestnet: Bool
     private let visaUtilities: VisaUtilities
 
-    init(orderToSign: VisaCardAcceptanceOrderInfo, isTestnet: Bool = false) {
+    init(orderToSign: VisaCardAcceptanceOrderInfo, isTestnet: Bool) {
         self.orderToSign = orderToSign
         self.isTestnet = isTestnet
         visaUtilities = VisaUtilities(isTestnet: isTestnet)
@@ -43,6 +43,11 @@ final class SignActivationOrderTask: CardSessionRunnable {
 
         guard let derivationPath = visaUtilities.visaDefaultDerivationPath else {
             completion(.failure(.underlying(error: VisaActivationError.missingDerivationPath)))
+            return
+        }
+
+        guard wallet.derivedKeys[derivationPath] == nil else {
+            signOrderWithWallet(in: session, completion: completion)
             return
         }
 
@@ -73,7 +78,7 @@ final class SignActivationOrderTask: CardSessionRunnable {
 
         guard
             let wallet = card.wallets.first(where: { $0.curve == visaUtilities.mandatoryCurve }),
-            wallet.derivedKeys[derivationPath] != nil
+            let derivedKey = wallet.derivedKeys[derivationPath]
         else {
             completion(.failure(.underlying(error: VisaActivationError.missingWallet)))
             return
@@ -87,11 +92,22 @@ final class SignActivationOrderTask: CardSessionRunnable {
         signHashCommand.run(in: session) { result in
             switch result {
             case .success(let signResponse):
-                completion(.success(SignedActivationOrder(
-                    cardSignedOrder: card,
-                    order: self.orderToSign,
-                    signedOrderByWallet: signResponse.signature
-                )))
+                do {
+                    let processor = VisaAcceptanceSignatureProcessor()
+                    let processedSignature = try processor.processAcceptanceSignature(
+                        signature: signResponse.signature,
+                        walletPublicKey: derivedKey.publicKey,
+                        originHash: self.orderToSign.hashToSignByWallet
+                    )
+
+                    completion(.success(SignedActivationOrder(
+                        cardSignedOrder: card,
+                        order: self.orderToSign,
+                        signedOrderByWallet: processedSignature
+                    )))
+                } catch {
+                    completion(.failure(.underlying(error: error)))
+                }
             case .failure(let error):
                 completion(.failure(error))
             }
