@@ -387,6 +387,7 @@ extension SendModel: NotificationTapDelegate {
              .seedSupportNo,
              .seedSupport2Yes,
              .seedSupport2No,
+             .openReferralProgram,
              .unlock:
             assertionFailure("Notification tap not handled")
         }
