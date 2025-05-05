@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import struct TangemUIUtils.AlertBinder
 
 class SendFinishViewModel: ObservableObject, Identifiable {
     @Published var showHeader = false
