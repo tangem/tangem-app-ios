@@ -10,7 +10,6 @@ import Foundation
 import Combine
 import BlockchainSdk
 import TangemFoundation
-import Moya
 
 protocol NotificationTapDelegate: AnyObject {
     func didTapNotification(with id: NotificationViewId, action: NotificationButtonActionType)
@@ -20,7 +19,6 @@ protocol NotificationTapDelegate: AnyObject {
 /// Don't forget to setup manager with delegate for proper notification handling
 final class UserWalletNotificationManager {
     @Injected(\.deprecationService) private var deprecationService: DeprecationServicing
-    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     private let analyticsService: NotificationsAnalyticsService = .init()
     private let userWalletModel: UserWalletModel
@@ -29,6 +27,11 @@ final class UserWalletNotificationManager {
 
     private weak var delegate: NotificationTapDelegate?
     private var bag = Set<AnyCancellable>()
+
+    private var showReferralNotification: Bool?
+
+    private let referralNotificationController: ReferralNotificationController
+
     private var numberOfPendingDerivations: Int = 0
 
     private var showAppRateNotification = false
@@ -39,10 +42,12 @@ final class UserWalletNotificationManager {
     init(
         userWalletModel: UserWalletModel,
         rateAppController: RateAppNotificationController,
-        contextDataProvider: AnalyticsContextDataProvider?
+        contextDataProvider: AnalyticsContextDataProvider?,
+        referralNotificationController: ReferralNotificationController
     ) {
         self.userWalletModel = userWalletModel
         self.rateAppController = rateAppController
+        self.referralNotificationController = referralNotificationController
 
         analyticsService.setup(with: self, contextDataProvider: contextDataProvider)
     }
@@ -103,6 +108,17 @@ final class UserWalletNotificationManager {
             inputs.append(
                 factory.buildNotificationInput(
                     for: .missingBackup,
+                    action: action,
+                    buttonAction: buttonAction,
+                    dismissAction: dismissAction
+                )
+            )
+        }
+
+        if showReferralNotification == true {
+            inputs.append(
+                factory.buildNotificationInput(
+                    for: .referralProgram,
                     action: action,
                     buttonAction: buttonAction,
                     dismissAction: dismissAction
@@ -201,6 +217,16 @@ final class UserWalletNotificationManager {
                 manager.showAppRateNotificationIfNeeded()
             })
             .store(in: &bag)
+
+        referralNotificationController
+            .showReferralNotificationPublisher
+            .sink(receiveValue: { [weak self] value in
+                guard let self else { return }
+
+                showReferralNotification = value
+                createNotifications()
+            })
+            .store(in: &bag)
     }
 
     private func addMissingDerivationWarningIfNeeded(pendingDerivationsCount: Int) {
@@ -243,6 +269,8 @@ extension UserWalletNotificationManager: NotificationManager {
 
         createNotifications()
         bind()
+
+        referralNotificationController.checkReferralStatus()
     }
 
     func dismissNotification(with id: NotificationViewId) {
@@ -258,6 +286,8 @@ extension UserWalletNotificationManager: NotificationManager {
                 recordUserWalletHashesCountValidation()
             case .rateApp:
                 rateAppController.dismissAppRate()
+            case .referralProgram:
+                referralNotificationController.dismissReferralNotification()
             default:
                 break
             }
