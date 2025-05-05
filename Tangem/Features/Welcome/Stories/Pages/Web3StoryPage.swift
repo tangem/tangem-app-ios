@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemUIUtils
 
 struct Web3StoryPage: View {
     var progress: Double
