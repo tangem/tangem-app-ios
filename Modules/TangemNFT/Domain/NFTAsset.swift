@@ -19,7 +19,7 @@ public struct NFTAsset: Hashable, Identifiable, Sendable {
 
     init(
         assetIdentifier: String,
-        collectionIdentifier: String,
+        collectionIdentifier: String?,
         chain: NFTChain,
         contractType: NFTContractType,
         ownerAddress: String,
@@ -52,7 +52,7 @@ public extension NFTAsset {
         /// NFT's unique token id within collection.
         let assetIdentifier: String
         /// Collection's address.
-        public let collectionIdentifier: String
+        public let collectionIdentifier: String?
         /// The owner's address is intentionally a part of the asset identity
         /// to distinguish between identical assets but with different derivations.
         public let ownerAddress: String
@@ -73,7 +73,7 @@ public extension NFTAsset {
     }
 
     struct Rarity: Hashable, Sendable {
-        let label: String
+        let label: String?
         let percentage: Double?
         let rank: Int?
     }
