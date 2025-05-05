@@ -542,7 +542,7 @@
 "no_account_send_to_create" = "Senden Sie Geld an diese Andresse um ein Konto zu erstellen";
 "no_trustline_xlm_asset" = "Das Zielkonto verfügt nicht über eine Vertrauensstellung für das gesendete Asset.";
 "notification_referral_promo_button" = "Jetzt beitreten";
-"notification_referral_promo_text" = "Teile Deinen Code – verdiene 5 USDT pro Verkauf. Deine Freunde erhalten 10 % Rabatt.";
+"notification_referral_promo_text" = "Teile Deinen Code – verdiene 5 USDT pro Verkauf. Deine Freunde erhalten 10 %% Rabatt.";
 "notification_referral_promo_title" = "Erhalte BELOHNUNGEN für jeden Freund!";
 "onboarding_access_code_feature_1_description" = "Du musst einen einzigen Zugangscode einrichten, um alle deine Geräte zu schützen";
 "onboarding_access_code_feature_1_title" = "Schützen";
