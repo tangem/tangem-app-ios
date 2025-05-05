@@ -39,4 +39,5 @@ enum StorageType: String {
     case supportSeedNotificationShownDate = "support_seed_notification_shown_date"
     case userWalletIdsWithNFTEnabled = "user_wallet_ids_with_nft_enabled"
     case showReferralProgramOnMain = "tangem_show_referral_program_on_main"
+    case marketsTooltipWasShown = "tangem_markets_tooltip_was_shown"
 }
