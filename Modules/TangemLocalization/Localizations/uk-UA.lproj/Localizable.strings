@@ -542,7 +542,7 @@
 "no_account_send_to_create" = "Для створення акаунту надішліть кошти на цю адресу";
 "no_trustline_xlm_asset" = "Акаунт одержувача не містить трастлайну для активу, що надсилається.";
 "notification_referral_promo_button" = "Приєднатися";
-"notification_referral_promo_text" = "Поділіться промокодом — заробіть 5 USDT з кожної покупки. Ваші друзі отримають знижку 10% на картку Tangem!";
+"notification_referral_promo_text" = "Поділіться промокодом — заробіть 5 USDT з кожної покупки. Ваші друзі отримають знижку 10%% на картку Tangem!";
 "notification_referral_promo_title" = "Отримуй бонуси за кожного друга!";
 "onboarding_access_code_feature_1_description" = "Налаштуйте єдиний код доступу для захисту всіх ваших карток або кілець";
 "onboarding_access_code_feature_1_title" = "Захист";
