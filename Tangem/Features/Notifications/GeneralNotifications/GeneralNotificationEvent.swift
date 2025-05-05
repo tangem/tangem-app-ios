@@ -30,6 +30,7 @@ enum GeneralNotificationEvent: Equatable, Hashable {
     case backupErrors
     case seedSupport
     case seedSupport2
+    case referralProgram
 }
 
 /// For Notifications
@@ -78,6 +79,8 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .string(Localization.warningSeedphraseIssueTitle)
         case .seedSupport2:
             return .string(Localization.warningSeedphraseActionRequiredTitle)
+        case .referralProgram:
+            return .string(Localization.notificationReferralPromoTitle)
         }
     }
 
@@ -122,6 +125,8 @@ extension GeneralNotificationEvent: NotificationEvent {
             return Localization.warningSeedphraseIssueMessage
         case .seedSupport2:
             return Localization.warningSeedphraseContactedSupport
+        case .referralProgram:
+            return Localization.notificationReferralPromoText
         }
     }
 
@@ -132,6 +137,7 @@ extension GeneralNotificationEvent: NotificationEvent {
              .missingBackup,
              .seedSupport,
              .seedSupport2,
+             .referralProgram,
              .backupErrors:
             return .primary
         default:
@@ -158,6 +164,8 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.star.image))
         case .walletLocked:
             return .init(iconType: .image(Assets.lock.image), color: Colors.Icon.primary1)
+        case .referralProgram:
+            return .init(iconType: .image(Assets.dollar.image), size: CGSize(width: 54, height: 54))
         }
     }
 
@@ -174,6 +182,7 @@ extension GeneralNotificationEvent: NotificationEvent {
              .legacyDerivation,
              .systemDeprecationTemporary,
              .missingDerivation,
+             .referralProgram,
              .rateApp:
             return .info
         case .numberOfSignedHashesIncorrect,
@@ -209,6 +218,7 @@ extension GeneralNotificationEvent: NotificationEvent {
             return false
         case .numberOfSignedHashesIncorrect,
              .systemDeprecationTemporary,
+             .referralProgram,
              .rateApp:
             return true
         }
@@ -263,6 +273,13 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .withButtons([
                 .init(action: buttonAction, actionType: .support, isWithLoader: false),
             ])
+        case .referralProgram:
+            guard let buttonAction else {
+                break
+            }
+            return .withButtons([
+                .init(action: buttonAction, actionType: .openReferralProgram, isWithLoader: false),
+            ])
         default: break
         }
         return .plain
@@ -293,6 +310,7 @@ extension GeneralNotificationEvent {
         case .backupErrors: return .mainNoticeBackupErrors
         case .seedSupport: return .mainNoticeSeedSupport
         case .seedSupport2: return .mainNoticeSeedSupport2
+        case .referralProgram: return .mainReferralProgram
         }
     }
 

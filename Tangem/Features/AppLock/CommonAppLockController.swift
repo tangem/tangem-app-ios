@@ -45,9 +45,10 @@ extension CommonAppLockController: AppLockController {
             return
         }
 
-        userWalletRepository.unlock(with: .biometry) { result in
+        userWalletRepository.unlock(with: .biometry) { [weak self] result in
             switch result {
             case .success(let model), .partial(let model, _):
+                self?.minimizedAppTimer.stop()
                 completion(.openMain(model))
             default:
                 completion(.openAuth)
