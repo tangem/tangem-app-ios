@@ -542,7 +542,7 @@
 "no_account_send_to_create" = "アカウントを作成するには、このアドレスに資金を送金してください";
 "no_trustline_xlm_asset" = "送信先アカウントには、送金されるアセットのトラストラインがありません。";
 "notification_referral_promo_button" = "今すぐ参加";
-"notification_referral_promo_text" = "コードを共有すると、販売ごとに5 USDTを獲得できます。お友達は10%割引になります。";
+"notification_referral_promo_text" = "コードを共有すると、販売ごとに5 USDTを獲得できます。お友達は10%%割引になります。";
 "notification_referral_promo_title" = "友達への紹介で報酬を獲得しよう！";
 "onboarding_access_code_feature_1_description" = "すべてのデバイスを保護するには、単一のアクセスコードを設定してください。";
 "onboarding_access_code_feature_1_title" = "保護する";
