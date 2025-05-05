@@ -18,6 +18,7 @@ final class MainViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
+    @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
     // MARK: - ViewState
 
@@ -123,6 +124,7 @@ final class MainViewModel: ObservableObject {
 
     /// Handles `SwiftUI.View.onDisappear(perform:)`.
     func onViewDisappear() {
+        incomingActionManager.resignFirstResponder(self)
         swipeDiscoveryHelper.cancelScheduledSwipeDiscovery()
     }
 
@@ -131,6 +133,17 @@ final class MainViewModel: ObservableObject {
         // The application is already in a locked state, so no attempts to show bottom sheet should be made
         guard !isLoggingOut else {
             return
+        }
+
+        if isReferralProgramSupported() {
+            let hasReferralNavigationAction = incomingActionManager.hasReferralNavigationAction()
+
+            incomingActionManager.becomeFirstResponder(self)
+
+            // skip bottom sheet display in case of referral navigation
+            guard !hasReferralNavigationAction else {
+                return
+            }
         }
 
         let uiManager = mainBottomSheetUIManager
@@ -444,6 +457,15 @@ final class MainViewModel: ObservableObject {
             }
         }
     }
+
+    private func isReferralProgramSupported() -> Bool {
+        guard let userWalletModel = userWalletRepository.selectedModel,
+              !userWalletModel.config.getFeatureAvailability(.referralProgram).isHidden else {
+            return false
+        }
+
+        return true
+    }
 }
 
 // MARK: - Navigation
@@ -520,6 +542,29 @@ extension MainViewModel: WalletSwipeDiscoveryHelperDelegate {
 
     func helperDidTriggerSwipeDiscoveryAnimation(_ discoveryHelper: WalletSwipeDiscoveryHelper) {
         swipeDiscoveryAnimationTrigger.triggerDiscoveryAnimation()
+    }
+}
+
+extension MainViewModel: IncomingActionResponder {
+    func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
+        guard case .referralProgram = action, let userWalletModel = userWalletRepository.selectedModel else {
+            return false
+        }
+
+        guard isReferralProgramSupported() else {
+            incomingActionManager.discardIncomingAction()
+            return false
+        }
+
+        let input = ReferralInputModel(
+            userWalletId: userWalletModel.userWalletId.value,
+            supportedBlockchains: userWalletModel.config.supportedBlockchains,
+            userTokensManager: userWalletModel.userTokensManager
+        )
+
+        coordinator?.openReferral(input: input)
+
+        return true
     }
 }
 
