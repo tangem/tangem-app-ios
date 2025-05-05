@@ -347,6 +347,7 @@
 		30B4575D2D9434A4002B8BD0 /* FeaturesStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30B4575B2D9434A4002B8BD0 /* FeaturesStorage.swift */; };
 		30B64C7E2DB8E1E3002FAE12 /* NFTAssetDetailsCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30B64C7D2DB8E1D5002FAE12 /* NFTAssetDetailsCoordinatorView.swift */; };
 		30BA4FE72D7085FB00C2B108 /* TezosTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30BA4FE62D7085F500C2B108 /* TezosTransactionTests.swift */; };
+		30BD35622DBFC6F800866D51 /* NFTChainNameProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30BD35612DBFC6EE00866D51 /* NFTChainNameProvider.swift */; };
 		30C470102D760568003DFBFD /* AlgorandAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30C4700F2D76055D003DFBFD /* AlgorandAddressTests.swift */; };
 		30C470122D760AE0003DFBFD /* AptosAddressTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30C470112D760ADA003DFBFD /* AptosAddressTest.swift */; };
 		30C470142D760E16003DFBFD /* BitcoinAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30C470132D760E10003DFBFD /* BitcoinAddressTests.swift */; };
@@ -3821,6 +3822,7 @@
 		30B4575B2D9434A4002B8BD0 /* FeaturesStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturesStorage.swift; sourceTree = "<group>"; };
 		30B64C7D2DB8E1D5002FAE12 /* NFTAssetDetailsCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTAssetDetailsCoordinatorView.swift; sourceTree = "<group>"; };
 		30BA4FE62D7085F500C2B108 /* TezosTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TezosTransactionTests.swift; sourceTree = "<group>"; };
+		30BD35612DBFC6EE00866D51 /* NFTChainNameProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTChainNameProvider.swift; sourceTree = "<group>"; };
 		30C4700F2D76055D003DFBFD /* AlgorandAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlgorandAddressTests.swift; sourceTree = "<group>"; };
 		30C470112D760ADA003DFBFD /* AptosAddressTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AptosAddressTest.swift; sourceTree = "<group>"; };
 		30C470132D760E10003DFBFD /* BitcoinAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinAddressTests.swift; sourceTree = "<group>"; };
@@ -12695,6 +12697,7 @@
 		B63A5F032D95D7B9001A61C1 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				30BD35612DBFC6EE00866D51 /* NFTChainNameProvider.swift */,
 				B63A5F052D95D849001A61C1 /* NFTChainConverter.swift */,
 				B63A5F022D95D7B9001A61C1 /* NFTNetworkServiceFactory.swift */,
 				B6BEF9D92DB9C6D500B186C6 /* CommonNFTTokenIconInfoProvider.swift */,
@@ -19227,6 +19230,7 @@
 				2D1400CE2C44090400B75A42 /* MarketsPortfolioContainerRoutable.swift in Sources */,
 				B084643C2A78D207004F0C4F /* FakeWalletModelsManager.swift in Sources */,
 				2DB4EADB2C41938E00F9E860 /* MarketsPortfolioTokenItemView.swift in Sources */,
+				30BD35622DBFC6F800866D51 /* NFTChainNameProvider.swift in Sources */,
 				C20EB7A42DAE6E5F00E0F15D /* WalletConnectQRScanRoutable.swift in Sources */,
 				B07E07B22CD8E6F2007DEDA6 /* VisaOnboardingWelcomeViewModel.swift in Sources */,
 				0AE3EE0D2D018D23003BC687 /* MarketsNavigationBarTitle.swift in Sources */,
