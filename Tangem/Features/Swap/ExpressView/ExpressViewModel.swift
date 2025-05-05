@@ -767,7 +767,8 @@ extension ExpressViewModel: NotificationTapDelegate {
              .seedSupportYes,
              .seedSupport2No,
              .seedSupport2Yes,
-             .unlock:
+             .unlock,
+             .openReferralProgram:
             return
         }
     }
