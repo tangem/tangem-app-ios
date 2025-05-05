@@ -257,6 +257,9 @@ extension Analytics {
         case mainNoticeSeedSupport2 = "[Main Screen] Notice - Seed Phrase Support2"
         case mainNoticeSeedSupportButtonUsed = "[Main Screen] Button - Support Used"
         case mainNoticeSeedSupportButtonDeclined = "[Main Screen] Button - Support Declined"
+        case mainReferralProgram = "[Main Screen] Referral Banner"
+        case mainReferralProgramButtonParticipate = "[Main Screen] Button - Referral Participate"
+        case mainReferralProgramButtonDismiss = "[Main Screen] Button - Referral Dismiss"
 
         // MARK: - BlockchainSdk exceptions
 
