@@ -18,6 +18,12 @@ struct WalletManagerAssemblyInput {
     let networkInput: NetworkProviderAssembly.Input
 }
 
+extension WalletManagerAssemblyInput {
+    var isTestnet: Bool {
+        wallet.blockchain.isTestnet
+    }
+}
+
 /// Main assembly wallet manager interface
 protocol WalletManagerAssembly {
     /// Assembly to access any providers

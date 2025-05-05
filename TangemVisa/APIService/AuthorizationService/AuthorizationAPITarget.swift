@@ -11,93 +11,85 @@ import Moya
 
 struct AuthorizationAPITarget: TargetType {
     let target: Target
+    let apiType: VisaAPIType
 
     var baseURL: URL {
-        return VisaConstants.bffBaseURL.appendingPathComponent("auth/")
+        apiType.baseURL.appendingPathComponent("auth")
     }
 
     var path: String {
         switch target {
-        case .generateNonceByCID:
-            return "card_id"
-        case .generateNonceForWallet:
-            return "card_wallet"
-        case .getAccessTokenForCardAuth, .getAccessTokenForWalletAuth:
-            return "get_token"
-        case .refreshAccessToken:
-            return "refresh_token"
+        case .generateNonce:
+            return "challenge"
+        case .getAuthorizationTokens:
+            return "token"
+        case .refreshAuthorizationTokens:
+            return "token/refresh"
         }
     }
 
     var method: Moya.Method {
         switch target {
-        case .generateNonceByCID,
-             .generateNonceForWallet,
-             .refreshAccessToken,
-             .getAccessTokenForCardAuth,
-             .getAccessTokenForWalletAuth:
+        case .generateNonce,
+             .getAuthorizationTokens,
+             .refreshAuthorizationTokens:
             return .post
         }
     }
 
     var task: Moya.Task {
-        var params = [ParameterKey: Any]()
-
+        let jsonEncoder = JSONEncoder()
+        jsonEncoder.keyEncodingStrategy = .convertToSnakeCase
+        let encodable: Encodable
         switch target {
-        case .generateNonceByCID(let cid, let cardPublicKey):
-            params[.cardId] = cid
-            params[.cardPublicKey] = cardPublicKey
-        case .generateNonceForWallet(let cid, let walletAddress):
-            params[.cardId] = cid
-            params[.cardWalletAddress] = walletAddress
-        case .getAccessTokenForCardAuth(let signature, let salt, let sessionId):
-            params[.sessionId] = sessionId
-            params[.signature] = signature
-            params[.salt] = salt
-        case .getAccessTokenForWalletAuth(let signature, let sessionId):
-            params[.sessionId] = sessionId
-            params[.signature] = signature
-        case .refreshAccessToken(let refreshToken):
-            params[.refreshToken] = refreshToken
+        case .generateNonce(let request):
+            encodable = request
+        case .getAuthorizationTokens(let request):
+            encodable = request
+        case .refreshAuthorizationTokens(let request):
+            encodable = request
         }
-
-        return .requestParameters(parameters: params.dictionaryParams, encoding: URLEncoding.default)
+        return .requestCustomJSONEncodable(encodable, encoder: jsonEncoder)
     }
 
     var headers: [String: String]? {
-        var params = VisaConstants.defaultHeaderParams
-        params["Content-Type"] = "application/x-www-form-urlencoded"
-        return params
+        VisaConstants.defaultHeaderParams
+    }
+}
+
+extension AuthorizationAPITarget {
+    struct GenerateNonceRequestDTO: Encodable {
+        let cardId: String
+        let cardPublicKey: String?
+        let cardWalletAddress: String?
+        let authType: VisaAuthorizationType
+    }
+
+    struct GetAuthorizationTokensRequestDTO: Encodable {
+        let signature: String
+        let salt: String
+        let sessionId: String
+        let authType: VisaAuthorizationType
+    }
+
+    struct RefreshAuthoriationTokensRequestDTO: Encodable {
+        let refreshToken: String
+        let authType: VisaAuthorizationType
     }
 }
 
 extension AuthorizationAPITarget {
     enum Target {
-        case generateNonceByCID(cid: String, cardPublicKey: String)
-        case generateNonceForWallet(cid: String, walletAddress: String)
-        case getAccessTokenForCardAuth(signature: String, salt: String, sessionId: String)
-        case getAccessTokenForWalletAuth(signature: String, sessionId: String)
-        case refreshAccessToken(refreshToken: String)
-    }
-}
-
-private extension AuthorizationAPITarget {
-    enum ParameterKey: String {
-        case cardId = "card_id"
-        case cardPublicKey = "card_public_key"
-        case cardWalletAddress = "card_wallet_address"
-        case refreshToken = "refresh_token"
-        case sessionId = "session_id"
-
-        case signature
-        case salt
-    }
-}
-
-private extension Dictionary where Key == AuthorizationAPITarget.ParameterKey, Value == Any {
-    var dictionaryParams: [String: Any] {
-        var convertedParams = [String: Any]()
-        forEach { convertedParams[$0.key.rawValue] = $0.value }
-        return convertedParams
+        /// Two types of nonce can be requested:
+        /// 1. `card_id` - nonce for card that didn't finish activation process
+        /// 2. `card_wallet` - nonce for activated card
+        /// Signed nonce used for retreiving authorization tokens
+        case generateNonce(request: GenerateNonceRequestDTO)
+        /// Two types of tokens can be retreived:
+        /// 1. `card_id` - this access token can be using for activation process
+        /// 2. `card_wallet` - this access token provides access to transaction history and some customer info
+        case getAuthorizationTokens(request: GetAuthorizationTokensRequestDTO)
+        /// Refresh staled access token
+        case refreshAuthorizationTokens(request: RefreshAuthoriationTokensRequestDTO)
     }
 }

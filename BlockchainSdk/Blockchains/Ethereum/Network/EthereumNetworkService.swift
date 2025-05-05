@@ -9,6 +9,7 @@
 import Foundation
 import Moya
 import Combine
+import CombineExt
 import BigInt
 import TangemFoundation
 
