@@ -16,6 +16,6 @@ public protocol SmartContractMethod {
 public extension SmartContractMethod {
     /// The hex data with the `0x` prefix. Use it for send as `data` in the `eth_call`
     var encodedData: String {
-        data.hexString.addHexPrefix()
+        data.hex().addHexPrefix()
     }
 }

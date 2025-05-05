@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 struct StakingDetailsCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: StakingDetailsCoordinator

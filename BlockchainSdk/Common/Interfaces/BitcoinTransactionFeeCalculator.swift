@@ -9,5 +9,5 @@
 import Foundation
 
 public protocol BitcoinTransactionFeeCalculator {
-    func calculateFee(satoshiPerByte: Int, amount: Amount, destination: String) throws -> Fee
+    func calculateFee(satoshiPerByte: Int, amount: Amount, destination: String) async throws -> Fee
 }
