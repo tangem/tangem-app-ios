@@ -9,11 +9,13 @@
 import Combine
 import TangemNFT
 
-final class NFTCollectionsCoordinator: CoordinatorObject {
+class NFTCollectionsCoordinator: CoordinatorObject {
     // MARK: - Navigation actions
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
+
+    private var options: Options?
 
     // MARK: - Root view model
 
@@ -35,6 +37,7 @@ final class NFTCollectionsCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        self.options = options
         rootViewModel = NFTCollectionsListViewModel(
             nftManager: options.nftManager,
             chainIconProvider: options.chainIconProvider,
@@ -50,6 +53,7 @@ extension NFTCollectionsCoordinator {
     struct Options {
         let nftManager: NFTManager
         let chainIconProvider: NFTChainIconProvider
+        let nftChainNameProviding: NFTChainNameProviding
         let navigationContext: NFTEntrypointNavigationContext
     }
 }
@@ -77,7 +81,7 @@ extension NFTCollectionsCoordinator: NFTCollectionsListRoutable {
     }
 
     func openAssetDetails(asset: NFTAsset) {
-        assetDetailsCoordinator = NFTAssetDetailsCoordinator(
+        let assetDetailsCoordinator = NFTAssetDetailsCoordinator(
             dismissAction: { [weak self] in
                 self?.assetDetailsCoordinator = nil
             },
@@ -86,6 +90,16 @@ extension NFTCollectionsCoordinator: NFTCollectionsListRoutable {
                 self?.popToRoot(with: options)
             }
         )
-        assetDetailsCoordinator?.start(with: NFTAssetDetailsCoordinator.Options(asset: asset))
+
+        guard let options else { return }
+
+        assetDetailsCoordinator.start(
+            with: NFTAssetDetailsCoordinator.Options(
+                asset: asset,
+                nftChainNameProviding: options.nftChainNameProviding
+            )
+        )
+
+        self.assetDetailsCoordinator = assetDetailsCoordinator
     }
 }
