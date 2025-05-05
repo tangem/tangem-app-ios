@@ -7,11 +7,12 @@
 //
 
 import SwiftUI
-import TangemLocalization
 import Combine
 import TangemSdk
 import TangemFoundation
+import TangemLocalization
 import TangemVisa
+import struct TangemUIUtils.AlertBinder
 
 protocol VisaOnboardingAlertPresenter: AnyObject {
     @MainActor
@@ -186,17 +187,17 @@ class VisaOnboardingViewModel: ObservableObject {
             ]
         )
 
-        // [REDACTED_TODO_COMMENT]
-        let emailConfig = input.cardInput.config?.emailConfig ?? .default
+        let emailConfig = input.cardInput.config?.emailConfig ?? .visaDefault()
 
         coordinator?.openMail(
             with: dataCollector,
             recipient: emailConfig.recipient,
-            emailType: .appFeedback(subject: emailConfig.subject)
+            emailType: .visaFeedback(subject: .activation)
         )
     }
 
-    private func updateUserWalletModel(with card: CardDTO) {
+    @MainActor
+    private func updateUserWalletModel(with card: CardDTO) async {
         let activationStatus = visaActivationManager.activationLocalState
         let cardInfo = CardInfo(
             card: card,
@@ -349,6 +350,11 @@ extension VisaOnboardingViewModel: VisaOnboardingInProgressDelegate {
     func openBrowser(at url: URL, onSuccess: @escaping (URL) -> Void) {
         coordinator?.openBrowser(at: url, onSuccess: onSuccess)
     }
+
+    func navigateToPINCode(withError error: VisaActivationError) async {
+        pinSelectionViewModel.setupInvalidPinState()
+        goToStep(.pinSelection)
+    }
 }
 
 // MARK: - Biometry delegate
@@ -430,7 +436,7 @@ extension VisaOnboardingViewModel: VisaOnboardingAccessCodeSetupDelegate {
     func useSelectedCode(accessCode: String) async throws {
         try visaActivationManager.saveAccessCode(accessCode: accessCode)
         let activationResponse = try await visaActivationManager.startActivation()
-        updateUserWalletModel(with: .init(card: activationResponse.signedActivationOrder.cardSignedOrder))
+        await updateUserWalletModel(with: .init(card: activationResponse.signedActivationOrder.cardSignedOrder))
         proceedToApproveWalletSelection()
     }
 
@@ -449,7 +455,7 @@ extension VisaOnboardingViewModel: VisaOnboardingWelcomeDelegate {
 
     func continueActivation() async throws {
         let activationResponse = try await visaActivationManager.startActivation()
-        updateUserWalletModel(with: .init(card: activationResponse.signedActivationOrder.cardSignedOrder))
+        await updateUserWalletModel(with: .init(card: activationResponse.signedActivationOrder.cardSignedOrder))
         proceedToApproveWalletSelection()
     }
 }
@@ -612,7 +618,7 @@ extension VisaOnboardingViewModel {
 
         return .init(
             input: cardInput,
-            visaActivationManager: VisaActivationManagerFactory(isMockedAPIEnabled: true).make(
+            visaActivationManager: VisaActivationManagerFactory(apiType: .dev, isTestnet: false, isMockedAPIEnabled: true).make(
                 cardId: cardInput.primaryCardId,
                 initialActivationStatus: activationStatus,
                 tangemSdk: TangemSdkDefaultFactory().makeTangemSdk(),
