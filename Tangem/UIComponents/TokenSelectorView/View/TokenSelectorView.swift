@@ -10,6 +10,7 @@ import Combine
 import TangemLocalization
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct TokenSelectorView<
     Builder: TokenSelectorItemBuilder,
