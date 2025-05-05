@@ -7,8 +7,10 @@
 //
 
 import SwiftUI
-import TangemLocalization
 import TangemSdk
+import TangemLocalization
+import struct TangemUIUtils.ActionSheetBinder
+import struct TangemUIUtils.AlertBinder
 
 final class UncompletedBackupViewModel: ObservableObject {
     // MARK: - ViewState

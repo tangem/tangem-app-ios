@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct SendDestinationView: View {
     @ObservedObject var viewModel: SendDestinationViewModel
