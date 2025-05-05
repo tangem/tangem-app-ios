@@ -55,7 +55,7 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
         return .rarity(rarityKeyValuePairs)
     }
 
-    var traits: KeyValuePanelConfig? {
+    var traits: KeyValuePanelViewData? {
         guard asset.traits.isNotEmpty else {
             return nil
         }
@@ -63,35 +63,35 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
         let maximumTraits = asset.traits.prefix(Constants.maximumTraits)
 
         let header = if asset.traits.count > Constants.maximumTraits {
-            KeyValuePanelConfig.Header(
+            KeyValuePanelViewData.Header(
                 title: Localization.nftDetailsTraits,
-                actionConfig: KeyValuePanelConfig.Header.ActionConfig(
+                actionConfig: KeyValuePanelViewData.Header.ActionConfig(
                     buttonTitle: Localization.commonSeeAll,
                     image: nil,
                     action: { [weak self] in self?.openAllTraits() }
                 )
             )
         } else {
-            KeyValuePanelConfig.Header(title: Localization.nftDetailsTraits, actionConfig: nil)
+            KeyValuePanelViewData.Header(title: Localization.nftDetailsTraits, actionConfig: nil)
         }
 
-        return KeyValuePanelConfig(
+        return KeyValuePanelViewData(
             header: header,
             keyValues: makeTraits(from: Array(maximumTraits))
         )
     }
 
-    var baseInformation: KeyValuePanelConfig? {
-        let header = KeyValuePanelConfig.Header(
+    var baseInformation: KeyValuePanelViewData? {
+        let header = KeyValuePanelViewData.Header(
             title: Localization.nftDetailsBaseInformation,
-            actionConfig: KeyValuePanelConfig.Header.ActionConfig(
+            actionConfig: KeyValuePanelViewData.Header.ActionConfig(
                 buttonTitle: Localization.commonExplore,
                 image: Assets.compassExplore,
                 action: { [weak self] in self?.explore() }
             )
         )
 
-        return KeyValuePanelConfig(header: header, keyValues: makeInfoKeyPairs())
+        return KeyValuePanelViewData(header: header, keyValues: makeInfoKeyPairs())
     }
 
     private func makeRarity(from rarity: NFTAsset.Rarity?) -> [KeyValuePairViewData] {
@@ -187,10 +187,12 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
 
     private func openAllTraits() {
         let traitsKeyValuePairs = makeTraits(from: asset.traits)
-        coordinator?.openTraits(with: KeyValuePanelConfig(header: nil, keyValues: traitsKeyValuePairs))
+        coordinator?.openTraits(with: KeyValuePanelViewData(header: nil, keyValues: traitsKeyValuePairs))
     }
 
-    private func explore() {}
+    private func explore() {
+        coordinator?.openExplorer(for: asset)
+    }
 
     private func opentTokenStandardDetails() {}
 
@@ -200,7 +202,16 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
 
     private func opentTokenIDDetails() {}
 
-    private func openDescription() {}
+    private func openDescription() {
+        guard let description = asset.description else { return }
+
+        coordinator?.openInfo(
+            with: NFTAssetExtendedInfoViewData(
+                title: Localization.nftAboutTitle,
+                text: description
+            )
+        )
+    }
 
     private func openRarityLabelDetails() {}
 
