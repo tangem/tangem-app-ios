@@ -542,7 +542,7 @@
 "no_account_send_to_create" = "Per creare un account, invia fondi a questo indirizzo";
 "no_trustline_xlm_asset" = "The destination account does not have a trustline for the asset being sent.";
 "notification_referral_promo_button" = "Join Now";
-"notification_referral_promo_text" = "Share your code - earn 5 USDT per sale. Your friend gets 10% OFF.";
+"notification_referral_promo_text" = "Share your code - earn 5 USDT per sale. Your friend gets 10%% OFF.";
 "notification_referral_promo_title" = "Get REWARDS for every friend!";
 "onboarding_access_code_feature_1_description" = "Set up a single access code to protect all your devices.";
 "onboarding_access_code_feature_1_title" = "Protect";
