@@ -50,7 +50,7 @@ public struct NFTAsset: Hashable, Identifiable, Sendable {
 public extension NFTAsset {
     struct NFTAssetId: Hashable, Sendable {
         /// NFT's unique token id within collection.
-        let assetIdentifier: String
+        public let assetIdentifier: String
         /// Collection's address.
         public let collectionIdentifier: String?
         /// The owner's address is intentionally a part of the asset identity
