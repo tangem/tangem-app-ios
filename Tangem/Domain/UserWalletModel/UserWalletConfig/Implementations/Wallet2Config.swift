@@ -319,6 +319,9 @@ extension Wallet2Config: UserWalletConfig {
         // Keiro
         case "BB000017":
             return cardsCount == 2 ? Assets.Cards.keiroDouble : Assets.Cards.keiroTriple
+        // Ubit
+        case "BB000019":
+            return cardsCount == 2 ? Assets.Cards.ubitDouble : Assets.Cards.ubitTriple
         // Tangem Wallet 2.0
         default:
 
