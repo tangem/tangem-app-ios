@@ -551,7 +551,6 @@ private struct DApps {
     private let unsupportedList: [String] = [
         "dydx.exchange",
         "pro.apex.exchange",
-        "services.dfx.swiss",
         "sandbox.game",
         "app.paradex.trade",
     ]
