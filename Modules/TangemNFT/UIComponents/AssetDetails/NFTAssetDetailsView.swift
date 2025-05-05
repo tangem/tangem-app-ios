@@ -56,11 +56,11 @@ public struct NFTAssetDetailsView: View {
                 }
 
                 if let traits = viewModel.traits {
-                    KeyValuePanelView(config: traits)
+                    KeyValuePanelView(viewData: traits)
                 }
 
                 if let baseInfo = viewModel.baseInformation {
-                    KeyValuePanelView(config: baseInfo)
+                    KeyValuePanelView(viewData: baseInfo)
                 }
 
                 Spacer()
