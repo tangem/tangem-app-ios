@@ -342,6 +342,11 @@ extension VisaUserWalletModel {
     }
 
     private func setupTokensHandler(with tokens: VisaAuthorizationTokens) async throws {
+        guard tokens.authorizationType == .cardWallet else {
+            VisaLogger.info("Saved authorization tokens in VisaUserWalletModel is not for activated card. Skip tokens handler setup")
+            return
+        }
+
         let authorizationTokensHandlerBuilder = await VisaAuthorizationTokensHandlerBuilder(
             apiType: FeatureStorage.instance.visaAPIType,
             isMockedAPIEnabled: FeatureStorage.instance.isVisaAPIMocksEnabled
@@ -373,7 +378,7 @@ extension VisaUserWalletModel {
             isMockedAPIEnabled: featureStorage.isVisaAPIMocksEnabled
         ).build(
             isTestnet: featureStorage.isVisaTestnet,
-            urlSessionConfiguration: .defaultConfiguration,
+            urlSessionConfiguration: .visaConfiguration,
             refreshTokenRepository: visaRefreshTokenRepository
         )
 
