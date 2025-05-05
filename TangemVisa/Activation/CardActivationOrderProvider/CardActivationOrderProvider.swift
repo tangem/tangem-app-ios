@@ -15,7 +15,7 @@ public struct VisaCardAcceptanceOrderInfo {
 }
 
 protocol CardActivationOrderProvider {
-    func provideActivationOrderForSign(activationInput: VisaCardActivationInput) async throws -> VisaCardAcceptanceOrderInfo
+    func provideActivationOrderForSign(walletAddress: String, activationInput: VisaCardActivationInput) async throws -> VisaCardAcceptanceOrderInfo
 }
 
 final class CommonCardActivationOrderProvider {
@@ -37,7 +37,7 @@ final class CommonCardActivationOrderProvider {
 }
 
 extension CommonCardActivationOrderProvider: CardActivationOrderProvider {
-    func provideActivationOrderForSign(activationInput: VisaCardActivationInput) async throws -> VisaCardAcceptanceOrderInfo {
+    func provideActivationOrderForSign(walletAddress: String, activationInput: VisaCardActivationInput) async throws -> VisaCardAcceptanceOrderInfo {
         if let loadedOrder {
             return loadedOrder
         }
@@ -55,7 +55,8 @@ extension CommonCardActivationOrderProvider: CardActivationOrderProvider {
 
         let hashToSign = try await productActivationService.getVisaCardDeployAcceptance(
             activationOrderId: activationStatus.activationOrder.id,
-            customerWalletAddress: activationStatus.activationOrder.customerWalletAddress
+            customerWalletAddress: activationStatus.activationOrder.customerWalletAddress,
+            cardWalletAddress: walletAddress
         )
 
         VisaLogger.info("Order loaded and can be processed by card")
