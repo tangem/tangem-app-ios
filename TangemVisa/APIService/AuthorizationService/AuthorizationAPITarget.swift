@@ -24,7 +24,7 @@ struct AuthorizationAPITarget: TargetType {
         case .getAuthorizationTokens:
             return "token"
         case .refreshAuthorizationTokens:
-            return "refresh_token"
+            return "token/refresh"
         }
     }
 
@@ -67,7 +67,7 @@ extension AuthorizationAPITarget {
 
     struct GetAuthorizationTokensRequestDTO: Encodable {
         let signature: String
-        let salt: String?
+        let salt: String
         let sessionId: String
         let authType: VisaAuthorizationType
     }

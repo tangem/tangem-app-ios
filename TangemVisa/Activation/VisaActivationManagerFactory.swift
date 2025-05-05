@@ -12,10 +12,12 @@ import Moya
 
 public struct VisaActivationManagerFactory {
     private let apiType: VisaAPIType
+    private let isTestnet: Bool
     private let isMockedAPIEnabled: Bool
 
-    public init(apiType: VisaAPIType, isMockedAPIEnabled: Bool) {
+    public init(apiType: VisaAPIType, isTestnet: Bool, isMockedAPIEnabled: Bool) {
         self.apiType = apiType
+        self.isTestnet = isTestnet
         self.isMockedAPIEnabled = isMockedAPIEnabled
     }
 
@@ -56,6 +58,7 @@ public struct VisaActivationManagerFactory {
         let pinCodeProcessor = PaymentologyPINCodeProcessor(rsaPublicKey: key)
 
         return CommonVisaActivationManager(
+            isTestnet: isTestnet,
             initialActivationStatus: initialActivationStatus,
             authorizationTokensHandler: authorizationTokensHandler,
             tangemSdk: tangemSdk,

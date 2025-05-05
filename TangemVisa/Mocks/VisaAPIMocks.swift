@@ -25,6 +25,7 @@ public class VisaMocksManager {
             id: "f30bee47-21b6-4d07-9492-a5f2e0542875",
             customerId: "f89a0b9e-e5ae-4c34-b0cd-f335f5c2a9f3",
             customerWalletAddress: customerWalletAddress,
+            cardWalletAddress: "",
             updatedAt: nil,
             stepChangeCode: nil
         )
@@ -35,6 +36,7 @@ public class VisaMocksManager {
             id: "invalid-pin-order",
             customerId: "f89a0b9e-e5ae-4c34-b0cd-f335f5c2a9f3",
             customerWalletAddress: customerWalletAddress,
+            cardWalletAddress: "",
             updatedAt: Date(),
             stepChangeCode: 1000
         )
@@ -226,7 +228,7 @@ struct AuthorizationServiceMock: VisaAuthorizationService, VisaAuthorizationToke
         return authorizationTokens
     }
 
-    func getAccessTokensForWalletAuth(signedChallenge: String, sessionId: String) async throws -> VisaAuthorizationTokens? {
+    func getAccessTokensForWalletAuth(signedChallenge: String, salt: String, sessionId: String) async throws -> VisaAuthorizationTokens? {
         guard VisaMocksManager.instance.isWalletAuthorizationTokenEnabled else {
             return nil
         }
@@ -251,7 +253,7 @@ struct CardActivationStatusServiceMock: VisaCardActivationStatusService {
 }
 
 struct CardActivationTaskOrderProviderMock: CardActivationOrderProvider {
-    func provideActivationOrderForSign(activationInput: VisaCardActivationInput) async throws -> VisaCardAcceptanceOrderInfo {
+    func provideActivationOrderForSign(walletAddress: String, activationInput: VisaCardActivationInput) async throws -> VisaCardAcceptanceOrderInfo {
         let generator = RandomBytesGenerator()
         return VisaCardAcceptanceOrderInfo(
             activationOrder: VisaMocksManager.instance.activationOrder,
