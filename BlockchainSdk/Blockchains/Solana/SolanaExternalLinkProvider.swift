@@ -10,8 +10,10 @@ import Foundation
 
 struct SolanaExternalLinkProvider {
     private let isTestnet: Bool
+    private let baseURL: String
 
     init(isTestnet: Bool) {
+        baseURL = "https://explorer.solana.com/address/"
         self.isTestnet = isTestnet
     }
 }
@@ -30,15 +32,17 @@ extension SolanaExternalLinkProvider: ExternalLinkProvider {
     }
 
     func url(address: String, contractAddress: String?) -> URL? {
-        let baseUrl = "https://explorer.solana.com/address/"
         let cluster = isTestnet ? "?cluster=devnet" : ""
-
-        var exploreLink = baseUrl + address + cluster
+        var exploreLink = baseURL + address + cluster
 
         if contractAddress != nil {
             exploreLink += "/tokens"
         }
 
         return URL(string: exploreLink)
+    }
+
+    func nftURL(tokenAddress: String, tokenID: String) -> URL? {
+        URL(string: baseURL + tokenAddress)
     }
 }
