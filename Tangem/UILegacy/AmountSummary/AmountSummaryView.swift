@@ -9,6 +9,8 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemUIUtils
+import TangemUI
 
 struct AmountSummaryView: View {
     let data: AmountSummaryViewData
