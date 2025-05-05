@@ -196,7 +196,8 @@ class VisaOnboardingViewModel: ObservableObject {
         )
     }
 
-    private func updateUserWalletModel(with card: CardDTO) {
+    @MainActor
+    private func updateUserWalletModel(with card: CardDTO) async {
         let activationStatus = visaActivationManager.activationLocalState
         let cardInfo = CardInfo(
             card: card,
@@ -435,7 +436,7 @@ extension VisaOnboardingViewModel: VisaOnboardingAccessCodeSetupDelegate {
     func useSelectedCode(accessCode: String) async throws {
         try visaActivationManager.saveAccessCode(accessCode: accessCode)
         let activationResponse = try await visaActivationManager.startActivation()
-        updateUserWalletModel(with: .init(card: activationResponse.signedActivationOrder.cardSignedOrder))
+        await updateUserWalletModel(with: .init(card: activationResponse.signedActivationOrder.cardSignedOrder))
         proceedToApproveWalletSelection()
     }
 
@@ -454,7 +455,7 @@ extension VisaOnboardingViewModel: VisaOnboardingWelcomeDelegate {
 
     func continueActivation() async throws {
         let activationResponse = try await visaActivationManager.startActivation()
-        updateUserWalletModel(with: .init(card: activationResponse.signedActivationOrder.cardSignedOrder))
+        await updateUserWalletModel(with: .init(card: activationResponse.signedActivationOrder.cardSignedOrder))
         proceedToApproveWalletSelection()
     }
 }
@@ -617,7 +618,7 @@ extension VisaOnboardingViewModel {
 
         return .init(
             input: cardInput,
-            visaActivationManager: VisaActivationManagerFactory(apiType: .dev, isMockedAPIEnabled: true).make(
+            visaActivationManager: VisaActivationManagerFactory(apiType: .dev, isTestnet: false, isMockedAPIEnabled: true).make(
                 cardId: cardInput.primaryCardId,
                 initialActivationStatus: activationStatus,
                 tangemSdk: TangemSdkDefaultFactory().makeTangemSdk(),
