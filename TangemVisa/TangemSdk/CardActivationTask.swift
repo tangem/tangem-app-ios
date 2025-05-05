@@ -16,39 +16,56 @@ public struct CardActivationResponse {
     public let rootOTPCounter: Int
 }
 
-protocol CardActivationTaskOrderProvider: AnyObject {
-    func getOrderForSignedAuthorizationChallenge(
+protocol CardActivationTaskDelegate: AnyObject {
+    func processAuthorizationChallenge(
         signedAuthorizationChallenge: AttestCardKeyResponse,
-        completion: @escaping (Result<VisaCardAcceptanceOrderInfo, Error>) -> Void
+        completion: @escaping (Result<Void, Error>) -> Void
     )
-    func getActivationOrder(completion: @escaping (Result<VisaCardAcceptanceOrderInfo, Error>) -> Void)
+    func getActivationOrder(walletAddress: String, completion: @escaping (Result<VisaCardAcceptanceOrderInfo, Error>) -> Void)
 }
 
+/// Task for second tap during activation process. During this task app must:
+///  - 1 (optional). Sign loaded authorization challenge, resulting signature will be used to load authorization tokens.
+///             This step is skipped for cases when authorization tokens already acquired during first scan
+///  - 2. Create Wallet on secp256k1 curve
+///  - 3. Create OTP
+///  - 4. Sign acceptance message with created wallet
+///  During 2 and 3 steps executes request to BFF for loading acceptance message
+///  Each step of interaction with card can be skipped if card already executed it.
+///  OTP must be stored locally, so if user start activation process from the begining OTP must be generated again
 final class CardActivationTask: CardSessionRunnable {
     typealias CompletionHandler = CompletionResult<CardActivationResponse>
 
-    private weak var orderProvider: CardActivationTaskOrderProvider?
+    private weak var orderProvider: CardActivationTaskDelegate?
     private var otpRepository: VisaOTPRepository
 
-    private let selectedAccessCode: String
+    private let accessCodeSetupType: AccessCodeSetupType
     private let activationInput: VisaCardActivationInput
-    private let challengeToSign: String?
+    private let isTestnet: Bool
+    private let authorizationChallengeToSign: String?
+    private let visaUtilities: VisaUtilities
 
     private var taskCancellationError: TangemSdkError?
 
     private var orderPublisher = CurrentValueSubject<VisaCardAcceptanceOrderInfo?, Error>(nil)
+    private var isAuthorizedInBFFPublisher: CurrentValueSubject<Bool, Error>
     private var orderSubscription: AnyCancellable?
+    private var bffAuthorizationSubscription: AnyCancellable?
 
     init(
-        selectedAccessCode: String,
+        accessCodeSetupType: AccessCodeSetupType,
         activationInput: VisaCardActivationInput,
-        challengeToSign: String?,
-        delegate: CardActivationTaskOrderProvider,
+        isTestnet: Bool,
+        authorizationChallengeToSign: String?,
+        delegate: CardActivationTaskDelegate,
         otpRepository: VisaOTPRepository
     ) {
-        self.selectedAccessCode = selectedAccessCode
+        self.accessCodeSetupType = accessCodeSetupType
         self.activationInput = activationInput
-        self.challengeToSign = challengeToSign
+        self.isTestnet = isTestnet
+        self.authorizationChallengeToSign = authorizationChallengeToSign
+        visaUtilities = .init(isTestnet: isTestnet)
+        isAuthorizedInBFFPublisher = .init(authorizationChallengeToSign == nil)
         orderPublisher.send(nil)
 
         orderProvider = delegate
@@ -66,18 +83,18 @@ final class CardActivationTask: CardSessionRunnable {
             return
         }
 
-        if let challengeToSign {
-            let challengeDataToSign = Data(hexString: challengeToSign)
+        if let authorizationChallengeToSign {
+            let challengeDataToSign = Data(hexString: authorizationChallengeToSign)
             VisaLogger.info("Contains challenge to sign. Start authorization flow")
             signAuthorizationChallenge(challengeToSign: challengeDataToSign, in: session, completion: completion)
         } else {
             VisaLogger.info("No authorization challenge, attempting to load activation order")
-            getActivationOrder(in: session, completion: completion)
+            createWallet(in: session, completion: completion)
         }
     }
 }
 
-// MARK: - Card Activation Flow
+// MARK: - Card interactions
 
 private extension CardActivationTask {
     func signAuthorizationChallenge(challengeToSign: Data, in session: CardSession, completion: @escaping CompletionHandler) {
@@ -103,19 +120,47 @@ private extension CardActivationTask {
             return
         }
 
-        let utils = VisaUtilities(isTestnet: false)
-        if card.wallets.contains(where: { $0.curve == utils.mandatoryCurve }) {
+        if card.wallets.contains(where: { $0.curve == visaUtilities.mandatoryCurve }) {
             VisaLogger.info("Wallet already created. Moving to OTP creation")
-            createOTP(in: session, completion: completion)
+            deriveKey(in: session, completion: completion)
             return
         }
 
         VisaLogger.info("Wallet not created. Creating wallet")
-        let createWallet = CreateWalletTask(curve: utils.mandatoryCurve)
+        let createWallet = CreateWalletTask(curve: visaUtilities.mandatoryCurve)
         createWallet.run(in: session) { result in
             switch result {
             case .success:
-                self.createOTP(in: session, completion: completion)
+                self.deriveKey(in: session, completion: completion)
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    func deriveKey(in session: CardSession, completion: @escaping CompletionHandler) {
+        guard
+            let wallet = session.environment.card?.wallets.first(where: { $0.curve == visaUtilities.mandatoryCurve })
+        else {
+            completion(.failure(.underlying(error: VisaActivationError.missingWallet)))
+            return
+        }
+
+        guard let derivationPath = visaUtilities.visaDefaultDerivationPath else {
+            completion(.failure(.underlying(error: VisaActivationError.missingDerivationPath)))
+            return
+        }
+
+        if let derivedKey = wallet.derivedKeys[derivationPath] {
+            processDerivedKey(wallet: wallet, derivedKey: derivedKey, in: session, completion: completion)
+            return
+        }
+
+        let derivationTask = DeriveWalletPublicKeyTask(walletPublicKey: wallet.publicKey, derivationPath: derivationPath)
+        derivationTask.run(in: session) { result in
+            switch result {
+            case .success(let derivedKey):
+                self.processDerivedKey(wallet: wallet, derivedKey: derivedKey, in: session, completion: completion)
             case .failure(let error):
                 completion(.failure(error))
             }
@@ -152,37 +197,91 @@ private extension CardActivationTask {
         }
     }
 
-    func waitForOrder(rootOTP: GenerateOTPResponse, in session: CardSession, completion: @escaping CompletionHandler) {
-        if let taskCancellationError {
-            completion(.failure(taskCancellationError))
+    // MARK: Setup Access code
+
+    func setupAccessCode(
+        signResponse: CardActivationResponse,
+        in session: CardSession,
+        completion: @escaping CompletionHandler
+    ) {
+        guard let card = session.environment.card else {
+            completion(.failure(.missingPreflightRead))
             return
         }
 
-        orderSubscription = orderPublisher
-            .compactMap { $0 }
-            .sink(receiveCompletion: { [weak self] orderPublisherCompletion in
-                if case .failure(let error) = orderPublisherCompletion {
-                    completion(.failure(.underlying(error: error)))
+        switch accessCodeSetupType {
+        case .newAccessCode(let accessCode):
+            VisaLogger.info("Access code not set. Starting commnand")
+            let setAccessCodeCommand = SetUserCodeCommand(accessCode: accessCode)
+            setAccessCodeCommand.run(in: session) { result in
+                switch result {
+                case .success:
+                    VisaLogger.info("Access code setup finished")
+                    completion(.success(signResponse))
+                case .failure(let error):
+                    completion(.failure(error))
                 }
+            }
+        case .alreadySet:
+            guard card.isAccessCodeSet else {
+                VisaLogger.error("Access code setup must be set, but on card it didn't", error: VisaActivationError.missingAccessCode)
+                completion(.failure(.underlying(error: VisaActivationError.missingAccessCode)))
+                return
+            }
 
-                self?.orderSubscription = nil
-            }, receiveValue: { activationOrder in
-                VisaLogger.info("Activation order received. Continue with order signing")
-                self.signOrder(
-                    orderToSign: activationOrder,
-                    in: session,
-                    completion: completion
-                )
-                self.orderSubscription = nil
-            })
+            VisaLogger.info("Access code already set. Finishing activation task")
+            completion(.success(signResponse))
+        }
     }
 }
 
-// MARK: - Order signing
+// MARK: - Authorization
+
+private extension CardActivationTask {
+    func processSignedAuthorizationChallenge(
+        signResponse: AttestCardKeyResponse,
+        in session: CardSession,
+        completion: @escaping CompletionHandler
+    ) {
+        guard let orderProvider else {
+            let missingDelegateError = VisaActivationError.taskMissingDelegate
+            taskCancellationError = .underlying(error: missingDelegateError)
+            completion(.failure(.underlying(error: missingDelegateError)))
+            return
+        }
+
+        orderProvider.processAuthorizationChallenge(signedAuthorizationChallenge: signResponse) { [weak self] result in
+            switch result {
+            case .success:
+                self?.isAuthorizedInBFFPublisher.send(true)
+            case .failure(let error):
+                self?.taskCancellationError = .underlying(error: error)
+                self?.isAuthorizedInBFFPublisher.send(completion: .failure(error))
+            }
+        }
+
+        VisaLogger.info("Processing signed authorization challenge finished. Starting create wallet process")
+        createWallet(in: session, completion: completion)
+    }
+
+    func awaitBFFAuthorization(walletAddress: String) {
+        bffAuthorizationSubscription = isAuthorizedInBFFPublisher
+            .filter { $0 }
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.taskCancellationError = .underlying(error: error)
+                }
+            } receiveValue: { [weak self] _ in
+                self?.getActivationOrder(walletAddress: walletAddress)
+            }
+    }
+}
+
+// MARK: - Order related
 
 private extension CardActivationTask {
     func signOrder(orderToSign: VisaCardAcceptanceOrderInfo, in session: CardSession, completion: @escaping CompletionHandler) {
-        let signOrderTask = SignActivationOrderTask(orderToSign: orderToSign)
+        let signOrderTask = SignActivationOrderTask(orderToSign: orderToSign, isTestnet: isTestnet)
 
         VisaLogger.info("Starting activation order sign task")
         signOrderTask.run(in: session, completion: { result in
@@ -220,81 +319,77 @@ private extension CardActivationTask {
         )
         setupAccessCode(signResponse: cardActivationResponse, in: session, completion: completion)
     }
-
-    func setupAccessCode(
-        signResponse: CardActivationResponse,
-        in session: CardSession,
-        completion: @escaping CompletionHandler
-    ) {
-        guard let card = session.environment.card else {
-            completion(.failure(.missingPreflightRead))
-            return
-        }
-
-        if card.isAccessCodeSet {
-            VisaLogger.info("Access code already set. Finishing activation task")
-            completion(.success(signResponse))
-            return
-        }
-
-        VisaLogger.info("Access code not set. Starting commnand")
-        let setAccessCodeCommand = SetUserCodeCommand(accessCode: selectedAccessCode)
-        setAccessCodeCommand.run(in: session) { result in
-            switch result {
-            case .success:
-                VisaLogger.info("Access code setup finished")
-                completion(.success(signResponse))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
-    }
 }
 
 // MARK: - Order loading related
 
 private extension CardActivationTask {
-    func processSignedAuthorizationChallenge(
-        signResponse: AttestCardKeyResponse,
+    func processDerivedKey(
+        wallet: Card.Wallet,
+        derivedKey: ExtendedPublicKey,
         in session: CardSession,
         completion: @escaping CompletionHandler
     ) {
-        guard let orderProvider else {
-            let missingDelegateError = VisaActivationError.taskMissingDelegate
-            taskCancellationError = .underlying(error: missingDelegateError)
-            completion(.failure(.underlying(error: missingDelegateError)))
+        do {
+            let address = try visaUtilities.makeAddress(seedKey: wallet.publicKey, extendedKey: derivedKey)
+            awaitBFFAuthorization(walletAddress: address.value)
+            createOTP(in: session, completion: completion)
+        } catch {
+            completion(.failure(.underlying(error: error)))
+            return
+        }
+    }
+
+    func waitForOrder(rootOTP: GenerateOTPResponse, in session: CardSession, completion: @escaping CompletionHandler) {
+        if let taskCancellationError {
+            completion(.failure(taskCancellationError))
             return
         }
 
-        orderProvider.getOrderForSignedAuthorizationChallenge(signedAuthorizationChallenge: signResponse) { [weak self] result in
-            self?.processActivationOrder(result)
-        }
-        VisaLogger.info("Processing signed authorization challenge finished. Starting create wallet process")
-        createWallet(in: session, completion: completion)
+        orderSubscription = orderPublisher
+            .compactMap { $0 }
+            .sink(receiveCompletion: { [weak self] orderPublisherCompletion in
+                if case .failure(let error) = orderPublisherCompletion {
+                    completion(.failure(.underlying(error: error)))
+                }
+
+                self?.orderSubscription = nil
+            }, receiveValue: { activationOrder in
+                VisaLogger.info("Activation order received. Continue with order signing")
+                self.signOrder(
+                    orderToSign: activationOrder,
+                    in: session,
+                    completion: completion
+                )
+                self.orderSubscription = nil
+            })
     }
 
-    func getActivationOrder(in session: CardSession, completion: @escaping CompletionHandler) {
-        guard let orderProvider else {
+    func getActivationOrder(walletAddress: String) {
+        guard
+            taskCancellationError == nil,
+            let orderProvider
+        else {
             let missingDelegateError = VisaActivationError.taskMissingDelegate
             taskCancellationError = .underlying(error: missingDelegateError)
-            completion(.failure(.underlying(error: missingDelegateError)))
             return
         }
 
-        orderProvider.getActivationOrder { [weak self] result in
-            self?.processActivationOrder(result)
+        orderProvider.getActivationOrder(walletAddress: walletAddress) { [weak self] result in
+            switch result {
+            case .success(let activationOrder):
+                self?.orderPublisher.send(activationOrder)
+            case .failure(let error):
+                self?.taskCancellationError = .underlying(error: error)
+                self?.orderPublisher.send(completion: .failure(error))
+            }
         }
-        VisaLogger.info("Loading activation order started. Creating wallet")
-        createWallet(in: session, completion: completion)
     }
+}
 
-    func processActivationOrder(_ result: Result<VisaCardAcceptanceOrderInfo, Error>) {
-        switch result {
-        case .success(let activationOrder):
-            orderPublisher.send(activationOrder)
-        case .failure(let error):
-            taskCancellationError = .underlying(error: error)
-            orderPublisher.send(completion: .failure(error))
-        }
+extension CardActivationTask {
+    enum AccessCodeSetupType {
+        case newAccessCode(accessCode: String)
+        case alreadySet
     }
 }
