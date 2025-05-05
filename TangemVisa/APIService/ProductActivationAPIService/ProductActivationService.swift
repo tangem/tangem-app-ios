@@ -82,7 +82,7 @@ extension CommonProductActivationService: ProductActivationService {
                 cardWalletAddress: cardWalletAddress
             ))
         )
-        return response.data.hash
+        return response.hash
     }
 
     func sendSignedVisaCardDeployAcceptance(
@@ -92,7 +92,7 @@ extension CommonProductActivationService: ProductActivationService {
         rootOtp: String,
         rootOtpCounter: Int
     ) async throws {
-        let defaultEmptyValue = "N/A"
+        let defaultEmptyValue = ""
         let data: ProductActivationAPITarget.VisaCardDeployAcceptanceRequest.DeployAcceptanceData = .init(
             address: cardWalletAddress,
             cardWalletConfirmation: .init(
@@ -124,7 +124,7 @@ extension CommonProductActivationService: ProductActivationService {
                 cardWalletAddress: cardWalletAddress
             ))
         )
-        return response.data.hash
+        return response.hash
     }
 
     func sendSignedCustomerWalletDeployAcceptance(
@@ -135,7 +135,7 @@ extension CommonProductActivationService: ProductActivationService {
         let _: ProductActivationAPITarget.ProductActivationEmptyResponse = try await sendRequest(
             target: .approveDeployByCustomerWallet(request: .init(
                 orderId: activationOrderId,
-                customerWallet: .init(deployAcceptanceSignature: deployAcceptanceSignature)
+                customerWallet: .init(deployAcceptanceSignature: deployAcceptanceSignature, address: customerWalletAddress)
             ))
         )
     }
