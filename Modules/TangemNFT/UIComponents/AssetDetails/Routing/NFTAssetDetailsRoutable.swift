@@ -10,6 +10,7 @@ import TangemUI
 
 public protocol NFTAssetDetailsRoutable: AnyObject {
     func openSend()
-    func openInfo(with text: String)
-    func openTraits(with data: KeyValuePanelConfig)
+    func openInfo(with viewData: NFTAssetExtendedInfoViewData)
+    func openTraits(with data: KeyValuePanelViewData)
+    func openExplorer(for asset: NFTAsset)
 }
