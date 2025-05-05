@@ -497,7 +497,6 @@ private enum DApps {
     private static let unsupportedList: [String] = [
         "dydx.exchange",
         "pro.apex.exchange",
-        "services.dfx.swiss",
         "sandbox.game",
         "app.paradex.trade",
     ]
