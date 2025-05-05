@@ -12,6 +12,10 @@ import BlockchainSdk
 
 struct NFTExplorerLinkProvider {
     func provide(for asset: NFTAsset) -> URL? {
+        guard let tokenAddress = asset.id.collectionIdentifier else {
+            return nil
+        }
+
         let blockchain = NFTChainConverter.convert(asset.id.chain, version: .v2)
 
         let provider = ExternalLinkProviderFactory().makeProvider(
@@ -19,7 +23,7 @@ struct NFTExplorerLinkProvider {
         )
 
         let exploreURL = provider.nftURL(
-            tokenAddress: asset.id.collectionIdentifier,
+            tokenAddress: tokenAddress,
             tokenID: asset.id.assetIdentifier
         )
 
