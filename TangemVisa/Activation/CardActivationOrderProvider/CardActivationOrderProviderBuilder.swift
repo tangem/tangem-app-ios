@@ -35,7 +35,7 @@ struct CardActivationOrderProviderBuilder {
             authorizationTokensHandler: tokensHandler,
             apiService: .init(
                 provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
-                decoder: JSONDecoder()
+                decoder: JSONDecoderFactory().makePayAPIDecoder()
             )
         )
 

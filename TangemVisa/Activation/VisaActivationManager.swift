@@ -108,6 +108,7 @@ final class CommonVisaActivationManager {
         }
     }
 
+    private let isTestnet: Bool
     private var selectedAccessCode: String?
     private var lastLoadedActivationStatus: VisaCardActivationStatus?
 
@@ -136,6 +137,7 @@ final class CommonVisaActivationManager {
     }
 
     init(
+        isTestnet: Bool,
         initialActivationStatus: VisaCardActivationLocalState,
         authorizationTokensHandler: VisaAuthorizationTokensHandler,
         tangemSdk: TangemSdk,
@@ -146,6 +148,7 @@ final class CommonVisaActivationManager {
         otpRepository: VisaOTPRepository,
         pinCodeProcessor: PINCodeProcessor
     ) {
+        self.isTestnet = isTestnet
         activationLocalState = initialActivationStatus
 
         self.authorizationTokensHandler = authorizationTokensHandler
@@ -212,7 +215,7 @@ extension CommonVisaActivationManager: VisaActivationManager {
                 throw .missingAccessCode
             }
 
-            return try await startFullActivationFlow(activationInput: activationInput, withAccessCode: selectedAccessCode)
+            return try await startFullActivationFlow(activationInput: activationInput, accessCodeSetupType: .newAccessCode(accessCode: selectedAccessCode))
         case .blocked:
             throw .blockedForActivation
         }
@@ -368,14 +371,14 @@ extension CommonVisaActivationManager: VisaActivationManager {
 
 // MARK: - Task implementation
 
-extension CommonVisaActivationManager: CardActivationTaskOrderProvider {
-    /// Loads access token and retrieves the activation order for accept payment account deployment using Visa card
+extension CommonVisaActivationManager: CardActivationTaskDelegate {
+    /// Send signed authorization challenge to BFF to acquire authorization tokens. Loaded tokens will be stored in tokens handler
     /// - Parameters:
     ///   - signedAuthorizationChallenge: The signed authorization challenge used to load access token that will be used to access BFF.
-    ///   - completion: Completion handler returning the activation order or an error.
-    func getOrderForSignedAuthorizationChallenge(
+    ///   - completion: Completion handler returning Void if authorization was successfull and error otherwise
+    func processAuthorizationChallenge(
         signedAuthorizationChallenge: AttestCardKeyResponse,
-        completion: @escaping (Result<VisaCardAcceptanceOrderInfo, any Error>) -> Void
+        completion: @escaping (Result<Void, Error>) -> Void
     ) {
         runTask(in: self, isDetached: false) { manager in
             do {
@@ -389,25 +392,24 @@ extension CommonVisaActivationManager: CardActivationTaskOrderProvider {
                     cardInput: cardInput
                 )
                 try await manager.authorizationTokensHandler.setupTokens(tokens)
-                let activationOrderResponse = try await manager.cardActivationOrderProvider.provideActivationOrderForSign(activationInput: cardInput)
-                completion(.success(activationOrderResponse))
+                completion(.success(()))
             } catch {
-                VisaLogger.error("Failed to load authorization tokens", error: error)
+                VisaLogger.error("Failed to get authorization tokens", error: error)
                 completion(.failure(error))
             }
         }
     }
 
-    /// Requests an activation order from the BFF
+    /// Requests an activation order from the BFF for taget wallet address
     /// - Parameter completion: Completion handler returning the activation order or an error.
-    func getActivationOrder(completion: @escaping (Result<VisaCardAcceptanceOrderInfo, any Error>) -> Void) {
+    func getActivationOrder(walletAddress: String, completion: @escaping (Result<VisaCardAcceptanceOrderInfo, any Error>) -> Void) {
         runTask(in: self, isDetached: false) { manager in
             do {
                 guard let cardInput = manager.activationInput else {
                     throw VisaActivationError.alreadyActivated
                 }
 
-                let activationOrder = try await manager.cardActivationOrderProvider.provideActivationOrderForSign(activationInput: cardInput)
+                let activationOrder = try await manager.cardActivationOrderProvider.provideActivationOrderForSign(walletAddress: walletAddress, activationInput: cardInput)
                 completion(.success(activationOrder))
             } catch {
                 VisaLogger.error("Failed to load activation order", error: error)
@@ -426,7 +428,7 @@ private extension CommonVisaActivationManager {
     /// - Throws: `VisaActivationError` if any step of the flow fails.
     func startFullActivationFlow(
         activationInput: VisaCardActivationInput,
-        withAccessCode accessCode: String
+        accessCodeSetupType: CardActivationTask.AccessCodeSetupType
     ) async throws(VisaActivationError) -> CardActivationResponse {
         do {
             var authorizationChallenge: String?
@@ -435,9 +437,10 @@ private extension CommonVisaActivationManager {
             }
 
             let task = CardActivationTask(
-                selectedAccessCode: accessCode,
+                accessCodeSetupType: accessCodeSetupType,
                 activationInput: activationInput,
-                challengeToSign: authorizationChallenge,
+                isTestnet: isTestnet,
+                authorizationChallengeToSign: authorizationChallenge,
                 delegate: self,
                 otpRepository: otpRepository
             )
@@ -460,7 +463,8 @@ private extension CommonVisaActivationManager {
 
             let newInput = try VisaCardActivationInput(
                 cardInput: activationInput,
-                cardActivationResponse: activationResponse
+                cardActivationResponse: activationResponse,
+                isTestnet: isTestnet
             )
 
             guard let tokens = await authorizationTokensHandler.authorizationTokens else {
@@ -495,13 +499,17 @@ private extension CommonVisaActivationManager {
     ) async throws(VisaActivationError) -> CardActivationResponse {
         do {
             if activationInput.isAccessCodeSet {
+                guard otpRepository.hasSavedOTP(cardId: activationInput.cardId) else {
+                    return try await startFullActivationFlow(activationInput: activationInput, accessCodeSetupType: .alreadySet)
+                }
+
                 return try await signActivationOrder(activationInput: activationInput)
             } else {
                 guard let selectedAccessCode else {
                     throw VisaActivationError.missingAccessCode
                 }
 
-                return try await startFullActivationFlow(activationInput: activationInput, withAccessCode: selectedAccessCode)
+                return try await startFullActivationFlow(activationInput: activationInput, accessCodeSetupType: .newAccessCode(accessCode: selectedAccessCode))
             }
         } catch let activationError as VisaActivationError {
             throw activationError
@@ -517,9 +525,13 @@ private extension CommonVisaActivationManager {
     /// - Returns: A completed `CardActivationResponse`.
     /// - Throws: An error if signing fails or session cannot be started.
     func signActivationOrder(activationInput: VisaCardActivationInput) async throws -> CardActivationResponse {
-        let activationOrder = try await cardActivationOrderProvider.provideActivationOrderForSign(activationInput: activationInput)
+        guard let walletAddress = activationInput.walletAddress else {
+            throw VisaActivationError.missingWalletAddressInInput
+        }
 
-        let signTask = SignActivationOrderTask(orderToSign: activationOrder)
+        let activationOrder = try await cardActivationOrderProvider.provideActivationOrderForSign(walletAddress: walletAddress, activationInput: activationInput)
+
+        let signTask = SignActivationOrderTask(orderToSign: activationOrder, isTestnet: isTestnet)
         let signedActivationOrder: SignedActivationOrder = try await withCheckedThrowingContinuation { [weak self] continuation in
             guard let self else {
                 continuation.resume(throwing: "Deinitialized")
@@ -536,25 +548,19 @@ private extension CommonVisaActivationManager {
             }
         }
 
-        let otp: Data
-        let otpCounter: Int
-        if let storedOTP = otpRepository.getOTP(cardId: activationInput.cardId) {
-            otp = storedOTP.rootOTP
-            otpCounter = storedOTP.rootOTPCounter
-        } else {
-            VisaLogger.info("Failed to find stored OTP in repository. Continuing activation without OTP.")
-            otp = Data()
-            otpCounter = 0
+        guard let storedOTP = otpRepository.getOTP(cardId: activationInput.cardId) else {
+            throw VisaActivationError.missingRootOTP
         }
 
         let activationResponse = CardActivationResponse(
             signedActivationOrder: signedActivationOrder,
-            rootOTP: otp,
-            rootOTPCounter: otpCounter
+            rootOTP: storedOTP.rootOTP,
+            rootOTPCounter: storedOTP.rootOTPCounter
         )
         let newActivationInput = try VisaCardActivationInput(
             cardInput: activationInput,
-            cardActivationResponse: activationResponse
+            cardActivationResponse: activationResponse,
+            isTestnet: isTestnet
         )
         try await handleCardActivation(using: activationResponse, activationInput: newActivationInput)
         return activationResponse
