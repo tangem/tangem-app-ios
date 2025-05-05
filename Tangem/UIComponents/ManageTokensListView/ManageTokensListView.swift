@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUIUtils
 
 struct ManageTokensListView<Header, Footer>: View where Header: View, Footer: View {
     typealias HeaderFactory = () -> Header?
