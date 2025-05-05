@@ -7,6 +7,8 @@
 //
 
 import SwiftUI
+import TangemUI
+import TangemUIUtils
 
 struct AuthCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: AuthCoordinator
