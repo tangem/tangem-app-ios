@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct PendingExpressTxTokenInfoView: View {
     let tokenIconInfo: TokenIconInfo
