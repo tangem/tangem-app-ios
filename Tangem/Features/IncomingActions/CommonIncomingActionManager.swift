@@ -10,6 +10,8 @@ import Foundation
 import Combine
 
 public class CommonIncomingActionManager {
+    @Injected(\.appLockController) private var appLockController: AppLockController
+
     public private(set) var pendingAction: IncomingAction?
     private var responders = OrderedWeakObjectsCollection<IncomingActionResponder>()
     private lazy var parser = IncomingActionParser()
@@ -20,6 +22,10 @@ public class CommonIncomingActionManager {
 // MARK: - IncomingActionManaging
 
 extension CommonIncomingActionManager: IncomingActionManaging {
+    public func hasReferralNavigationAction() -> Bool {
+        pendingAction == .referralProgram
+    }
+
     public func becomeFirstResponder(_ responder: IncomingActionResponder) {
         if !responders.contains(responder) {
             responders.add(responder)
@@ -38,6 +44,11 @@ extension CommonIncomingActionManager: IncomingActionManaging {
 
     private func tryHandleLastAction() {
         guard let pendingAction else { return }
+
+        switch pendingAction {
+        case .referralProgram where appLockController.isLocked: return
+        default: break
+        }
 
         for responder in responders.allDelegates.reversed() {
             if responder.didReceiveIncomingAction(pendingAction) {
