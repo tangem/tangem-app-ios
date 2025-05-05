@@ -9,6 +9,8 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemUIUtils
+import TangemUI
 
 struct ManageTokensView: View {
     @ObservedObject var viewModel: ManageTokensViewModel
