@@ -77,6 +77,9 @@ struct MainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.marketsTokenDetailsCoordinator) {
                 MarketsTokenDetailsCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.referralCoordinator) {
+                ReferralCoordinatorView(coordinator: $0)
+            }
             .navigation(item: $coordinator.nftCollectionsCoordinator) {
                 NFTCollectionsCoordinatorView(coordinator: $0)
             }
