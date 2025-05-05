@@ -7,10 +7,9 @@
 //
 
 import Foundation
-import TangemSdk
-@testable import BlockchainSdk
 import Testing
 import enum WalletCore.CoinType
+@testable import BlockchainSdk
 
 struct RavencoinAddressTests {
     @Test

@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct VisaOnboardingView: View {
     @ObservedObject var viewModel: VisaOnboardingViewModel

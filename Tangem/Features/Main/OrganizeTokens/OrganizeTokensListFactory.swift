@@ -9,6 +9,7 @@
 import Foundation
 import TangemLocalization
 import struct BlockchainSdk.Token
+import TangemUI
 
 struct OrganizeTokensListFactory {
     private let tokenIconInfoBuilder: TokenIconInfoBuilder
