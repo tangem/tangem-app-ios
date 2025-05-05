@@ -26,7 +26,7 @@ public struct VisaCardActivationStatusServiceBuilder {
             apiType: apiType,
             apiService: .init(
                 provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
-                decoder: JSONDecoder()
+                decoder: JSONDecoderFactory().makePayAPIDecoder()
             )
         )
     }
