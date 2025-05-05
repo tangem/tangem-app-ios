@@ -12,7 +12,7 @@ import TangemExpress
 protocol OnrampRedirectingInteractor {
     var onrampProvider: OnrampProvider? { get }
 
-    func loadRedirectData(redirectSettings: OnrampRedirectSettings) async throws
+    func loadRedirectData(theme: OnrampRedirectSettings.Theme) async throws
 }
 
 class CommonOnrampRedirectingInteractor {
@@ -39,12 +39,26 @@ extension CommonOnrampRedirectingInteractor: OnrampRedirectingInteractor {
         input?.selectedOnrampProvider
     }
 
-    func loadRedirectData(redirectSettings: OnrampRedirectSettings) async throws {
+    func loadRedirectData(theme: OnrampRedirectSettings.Theme) async throws {
         guard let provider = input?.selectedOnrampProvider else {
             throw CommonError.noData
         }
 
+        // We don't use `Locale.current.languageCode`
+        // Because it gives us the phone language not app
+        let appLanguageCode = Bundle.main.preferredLocalizations[0]
+        var redirectURL = URL(string: Constants.redirectURL)!
+        redirectURL.appendPathComponent(provider.provider.id)
+
+        let redirectSettings = OnrampRedirectSettings(redirectURL: redirectURL.absoluteString, theme: theme, language: appLanguageCode)
         let redirectData = try await onrampManager.loadRedirectData(provider: provider, redirectSettings: redirectSettings)
+
         output?.redirectDataDidLoad(data: redirectData)
+    }
+}
+
+extension CommonOnrampRedirectingInteractor {
+    enum Constants {
+        static let redirectURL = "\(IncomingActionConstants.tangemDomain)/onramp"
     }
 }

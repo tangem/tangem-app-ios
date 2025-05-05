@@ -7,6 +7,7 @@
 //
 
 import BlockchainSdk
+import struct TangemUI.TokenIconInfo
 
 struct ActionButtonsTokenSelectorItem: Identifiable {
     let id: String
