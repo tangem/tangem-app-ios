@@ -130,6 +130,7 @@ extension ExpressDTO {
                 let theme: String?
                 let requestId: String
                 let externalTxId: String?
+                let externalTxUrl: String?
                 let widgetUrl: URL
             }
         }
@@ -147,7 +148,7 @@ extension ExpressDTO {
                 let payoutAddress: String // Address to which the coins are sent
                 let status: OnrampTransactionStatus // Status of the transaction
                 let failReason: String? // Optional field for failure reason
-                let externalTxId: String // External transaction ID
+                let externalTxId: String? // External transaction ID
                 let externalTxUrl: String? // Optional URL to track the external transaction
                 let payoutHash: String? // Optional payout hash
                 let createdAt: String // ISO date for when the transaction was created
