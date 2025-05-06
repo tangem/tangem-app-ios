@@ -124,6 +124,9 @@ struct MainCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.actionButtonsSwapCoordinator) {
                 ActionButtonsSwapCoordinatorView(coordinator: $0)
             }
+            .floatingSheetContent(for: WCConnectionSheetViewModel.self) {
+                WCConnectRequestModalView(viewModel: $0)
+            }
 
         NavHolder()
             .bottomSheet(
