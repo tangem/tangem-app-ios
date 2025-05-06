@@ -319,6 +319,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
 
         walletConnectService.disconnectAllSessionsForUserWallet(with: userWalletId.stringValue)
+
         sendEvent(.deleted(userWalletIds: [userWalletId]))
 
         if !models.contains(where: { !$0.isUserWalletLocked }) {
@@ -356,6 +357,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     func initializeServices(for userWalletModel: UserWalletModel) {
         analyticsContext.setupContext(with: userWalletModel.analyticsContextData)
         tangemApiService.setAuthData(userWalletModel.tangemApiAuthData)
+
         walletConnectService.initialize(with: userWalletModel)
     }
 
