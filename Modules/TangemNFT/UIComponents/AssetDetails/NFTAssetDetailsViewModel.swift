@@ -40,7 +40,7 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
     var headerState: NFTDetailsHeaderState? {
         let rarityKeyValuePairs = makeRarity(from: asset.rarity)
 
-        if let description = asset.description {
+        if let description = asset.description, description.isNotEmpty {
             return .full(
                 .description(
                     NFTDetailsHeaderState.DescriptionConfig(
@@ -52,7 +52,11 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
             )
         }
 
-        return .rarity(rarityKeyValuePairs)
+        if rarityKeyValuePairs.isNotEmpty {
+            return .rarity(rarityKeyValuePairs)
+        }
+
+        return nil
     }
 
     var traits: KeyValuePanelViewData? {
