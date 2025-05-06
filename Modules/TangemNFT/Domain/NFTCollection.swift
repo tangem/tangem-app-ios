@@ -46,6 +46,26 @@ public struct NFTCollection: Hashable, Identifiable, Sendable {
     }
 }
 
+// MARK: - Convenience extensions
+
+public extension NFTCollection {
+    /// - Note: Some NFT providers (Moralis for example) do not return assets in collections;
+    /// therefore, this helper can be used to enrich existing domain models of NFT collection with NFT assets fetched separately.
+    func enriched(with assets: [NFTAsset]) -> Self {
+        return .init(
+            collectionIdentifier: id.collectionIdentifier,
+            chain: id.chain,
+            contractType: contractType,
+            ownerAddress: id.ownerAddress,
+            name: name,
+            description: description,
+            media: media,
+            assetsCount: assets.count,
+            assets: assets
+        )
+    }
+}
+
 // MARK: - Auxiliary types
 
 public extension NFTCollection {
@@ -54,7 +74,13 @@ public extension NFTCollection {
         let collectionIdentifier: String
         /// The owner's address is intentionally a part of the collection identity
         /// to distinguish between identical collections but with different derivations.
-        let ownerAddress: String
-        let chain: NFTChain
+        public let ownerAddress: String
+        public let chain: NFTChain
+
+        public static let dummy = Self(
+            collectionIdentifier: UUID().uuidString,
+            ownerAddress: UUID().uuidString,
+            chain: .arbitrum
+        )
     }
 }
