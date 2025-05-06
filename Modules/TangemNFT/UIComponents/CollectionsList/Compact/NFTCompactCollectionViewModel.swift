@@ -51,7 +51,7 @@ struct NFTCompactCollectionViewModel: Identifiable {
         viewState = assetsState.mapValue { _ in
             let assetsViewModels = nftCollection
                 .assets
-                .map { NFTCompactAssetViewModel(nftAsset: $0, openAssetDetailsAction: openAssetDetailsAction) }
+                .map { NFTCompactAssetViewModel(state: .loaded($0), openAssetDetailsAction: openAssetDetailsAction) }
 
             return NFTAssetsGridViewModel(assetsViewModels: assetsViewModels)
         }

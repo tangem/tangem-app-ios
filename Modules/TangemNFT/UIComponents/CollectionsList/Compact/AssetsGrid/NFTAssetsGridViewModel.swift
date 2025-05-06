@@ -12,4 +12,10 @@ struct NFTAssetsGridViewModel {
     init(assetsViewModels: [NFTCompactAssetViewModel]) {
         self.assetsViewModels = assetsViewModels
     }
+
+    init(assetsCount: Int) {
+        assetsViewModels = (0 ..< assetsCount).map {
+            NFTCompactAssetViewModel(state: .loading(id: "\($0)"), openAssetDetailsAction: { _ in })
+        }
+    }
 }
