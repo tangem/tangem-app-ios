@@ -95,7 +95,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
                 let assetsViewModels = collection.viewState.value?.assetsViewModels ?? []
 
                 return assetsViewModels.contains {
-                    $0.title.localizedStandardContains(entry)
+                    $0.state.asset?.name.localizedStandardContains(entry) ?? false
                 }
             }
 
