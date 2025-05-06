@@ -1,5 +1,5 @@
 //
-//  NFTReceiveWalletModelFetcher.swift
+//  NFTReceiveWalletModelFinder.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import TangemNFT
 
-final class NFTReceiveWalletModelFetcher {
+final class NFTReceiveWalletModelFinder {
     private let walletModelsManager: WalletModelsManager
 
     init(
@@ -18,7 +18,7 @@ final class NFTReceiveWalletModelFetcher {
         self.walletModelsManager = walletModelsManager
     }
 
-    func fetch(for nftChainItem: NFTChainItem) -> (any WalletModel)? {
+    func findWalletModel(for nftChainItem: NFTChainItem) -> (any WalletModel)? {
         return walletModelsManager
             .walletModels
             .first { AnyHashable($0.id.id) == nftChainItem.underlyingIdentifier }
