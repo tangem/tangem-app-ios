@@ -6,9 +6,10 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import TangemNFT
 import Foundation
 import BlockchainSdk
+import TangemNFT
+import TangemFoundation
 
 struct NFTExplorerLinkProvider {
     func provide(for asset: NFTAsset) -> URL? {
@@ -16,10 +17,14 @@ struct NFTExplorerLinkProvider {
             return nil
         }
 
+        // [REDACTED_TODO_COMMENT]
+        // The dummy hardcoded `version` is used here since it has no effect on the external URL generation
         let blockchain = NFTChainConverter.convert(asset.id.chain, version: .v2)
 
+        let isTestnet = AppEnvironment.current.isTestnet
+
         let provider = ExternalLinkProviderFactory().makeProvider(
-            for: blockchain.isEvm ? .ethereum(testnet: false) : blockchain
+            for: blockchain.isEvm ? .ethereum(testnet: isTestnet) : blockchain
         )
 
         let exploreURL = provider.nftURL(
