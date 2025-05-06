@@ -11,7 +11,7 @@ import class UIKit.UIApplication
 
 @MainActor
 final class WalletConnectModuleFactory {
-    @Injected(\.wConnectService) private var walletConnectService: any WCService
+    @Injected(\.wcService) private var walletConnectService: any WCService
     @Injected(\.userWalletRepository) private var userWalletRepository: any UserWalletRepository
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
