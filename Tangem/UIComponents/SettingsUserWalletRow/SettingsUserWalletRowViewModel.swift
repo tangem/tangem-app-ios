@@ -15,6 +15,7 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
     @Published var name: String = ""
     @Published var icon: LoadingValue<CardImageResult> = .loading
     @Published var cardsCount: String
+    @Published var tokensCount: Int
     @Published var balanceState: LoadableTokenBalanceView.State = .loading()
     let tapAction: () -> Void
 
@@ -27,6 +28,7 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
     convenience init(userWallet: UserWalletModel, tapAction: @escaping () -> Void) {
         self.init(
             cardsCount: userWallet.cardsCount,
+            tokensCount: userWallet.userTokenListManager.userTokens.count,
             isUserWalletLocked: userWallet.isUserWalletLocked,
             userWalletNamePublisher: userWallet.userWalletNamePublisher,
             totalBalancePublisher: userWallet.totalBalancePublisher,
@@ -37,6 +39,7 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
 
     init(
         cardsCount: Int,
+        tokensCount: Int = 0,
         isUserWalletLocked: Bool,
         userWalletNamePublisher: AnyPublisher<String, Never>,
         totalBalancePublisher: AnyPublisher<TotalBalanceState, Never>,
@@ -44,6 +47,7 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
         tapAction: @escaping () -> Void
     ) {
         self.cardsCount = Localization.cardLabelCardCount(cardsCount)
+        self.tokensCount = tokensCount
         self.isUserWalletLocked = isUserWalletLocked
         self.userWalletNamePublisher = userWalletNamePublisher
         self.totalBalancePublisher = totalBalancePublisher
