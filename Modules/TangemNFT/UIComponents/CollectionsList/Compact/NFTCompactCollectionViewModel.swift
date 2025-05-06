@@ -8,31 +8,10 @@
 
 import Foundation
 import TangemAssets
+import TangemFoundation
 
-final class NFTCompactCollectionViewModel: Identifiable, ObservableObject {
-    @Published private(set) var isExpanded: Bool = false
-
-    private let nftCollection: NFTCollection
-    private let nftChainIconProvider: NFTChainIconProvider
-    private let onTapAction: () -> Void
-
-    let assetsGridViewModel: NFTAssetsGridViewModel
-
-    init(
-        nftCollection: NFTCollection,
-        nftChainIconProvider: NFTChainIconProvider,
-        openAssetDetailsAction: @escaping (NFTAsset) -> Void,
-        onTapAction: @escaping () -> Void
-    ) {
-        self.nftCollection = nftCollection
-        self.nftChainIconProvider = nftChainIconProvider
-        self.onTapAction = onTapAction
-
-        let assetsViewModels = nftCollection.assets.map {
-            NFTCompactAssetViewModel(nftAsset: $0, openAssetDetailsAction: openAssetDetailsAction)
-        }
-        assetsGridViewModel = NFTAssetsGridViewModel(assetsViewModels: assetsViewModels)
-    }
+struct NFTCompactCollectionViewModel: Identifiable {
+    let viewState: ViewState
 
     var media: NFTMedia? {
         nftCollection.media
@@ -50,8 +29,43 @@ final class NFTCompactCollectionViewModel: Identifiable, ObservableObject {
         nftCollection.assetsCount
     }
 
-    func onTap() {
-        isExpanded.toggle()
-        onTapAction()
+    var id: AnyHashable {
+        nftCollection.id
     }
+
+    private let nftCollection: NFTCollection
+    private let nftChainIconProvider: NFTChainIconProvider
+    private let onCollectionTap: (_ collection: NFTCollection, _ isExpanded: Bool) -> Void
+
+    init(
+        nftCollection: NFTCollection,
+        assetsState: AssetsState,
+        nftChainIconProvider: NFTChainIconProvider,
+        openAssetDetailsAction: @escaping (_ asset: NFTAsset) -> Void,
+        onCollectionTap: @escaping (_ collection: NFTCollection, _ isExpanded: Bool) -> Void
+    ) {
+        self.nftCollection = nftCollection
+        self.nftChainIconProvider = nftChainIconProvider
+        self.onCollectionTap = onCollectionTap
+
+        viewState = assetsState.mapValue { _ in
+            let assetsViewModels = nftCollection
+                .assets
+                .map { NFTCompactAssetViewModel(nftAsset: $0, openAssetDetailsAction: openAssetDetailsAction) }
+
+            return NFTAssetsGridViewModel(assetsViewModels: assetsViewModels)
+        }
+    }
+
+    func onTap(isExpanded: Bool) {
+        onCollectionTap(nftCollection, isExpanded)
+    }
+}
+
+extension NFTCompactCollectionViewModel {
+    /// Input state.
+    typealias AssetsState = LoadingValue<Void>
+
+    /// Output state.
+    typealias ViewState = LoadingValue<NFTAssetsGridViewModel>
 }
