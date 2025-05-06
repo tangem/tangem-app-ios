@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import CombineExt
+import TangemAssets
 
 public final class NFTCollectionsListViewModel: ObservableObject {
     @Published private(set) var state: ViewState
@@ -20,10 +21,11 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     private let nftManager: NFTManager
     private let chainIconProvider: NFTChainIconProvider
     private let navigationContext: NFTEntrypointNavigationContext
-    private weak var coordinator: NFTCollectionsListRoutable?
 
     private var collectionsViewModels: [NFTCompactCollectionViewModel] = []
     private var bag = Set<AnyCancellable>()
+
+    private weak var coordinator: NFTCollectionsListRoutable?
 
     public init(
         nftManager: NFTManager,
@@ -45,22 +47,11 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     }
 
     private func bind() {
-        nftManager.collectionsPublisher
+        nftManager
+            .collectionsPublisher
             .withWeakCaptureOf(self)
             .map { viewModel, collections in
-                let collectionsViewModels = collections.map {
-                    NFTCompactCollectionViewModel(
-                        nftCollection: $0,
-                        nftChainIconProvider: viewModel.chainIconProvider,
-                        openAssetDetailsAction: { [weak self] in
-                            self?.openAssetDetails($0)
-                        },
-                        onTapAction: { [weak self] in
-                            self?.rowExpanded.toggle()
-                        }
-                    )
-                }
-
+                let collectionsViewModels = viewModel.buildCollections(from: collections)
                 viewModel.collectionsViewModels = collectionsViewModels
                 return collectionsViewModels.isEmpty ? .noCollections : .collectionsAvailable(collectionsViewModels)
             }
@@ -77,6 +68,22 @@ public final class NFTCollectionsListViewModel: ObservableObject {
             .store(in: &bag)
     }
 
+    private func buildCollections(from collections: [NFTCollection]) -> [NFTCompactCollectionViewModel] {
+        return collections.map { collection in
+            NFTCompactCollectionViewModel(
+                nftCollection: collection,
+                assetsState: collection.assets.isEmpty ? .loading : .loaded(()),
+                nftChainIconProvider: chainIconProvider,
+                openAssetDetailsAction: { [weak self] asset in
+                    self?.openAssetDetails(asset)
+                },
+                onCollectionTap: { [weak self] collection, isExpanded in
+                    self?.onCollectionTap(collection: collection, isExpanded: isExpanded)
+                }
+            )
+        }
+    }
+
     private func filteredCollections(entry: String) -> [NFTCompactCollectionViewModel] {
         guard entry.isNotEmpty else {
             return collectionsViewModels
@@ -85,7 +92,9 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         let filteredCollections = collectionsViewModels.filter { collection in
             let collectionNameMatches = collection.name.localizedStandardContains(entry)
             var someAssetsNamesMatch: Bool {
-                collection.assetsGridViewModel.assetsViewModels.contains {
+                let assetsViewModels = collection.viewState.value?.assetsViewModels ?? []
+
+                return assetsViewModels.contains {
                     $0.title.localizedStandardContains(entry)
                 }
             }
@@ -98,6 +107,14 @@ public final class NFTCollectionsListViewModel: ObservableObject {
 
     private func openAssetDetails(_ asset: NFTAsset) {
         coordinator?.openAssetDetails(asset: asset)
+    }
+
+    private func onCollectionTap(collection: NFTCollection, isExpanded: Bool) {
+        rowExpanded.toggle()
+
+        if isExpanded {
+            nftManager.updateAssets(inCollectionWithIdentifier: collection.id)
+        }
     }
 }
 
