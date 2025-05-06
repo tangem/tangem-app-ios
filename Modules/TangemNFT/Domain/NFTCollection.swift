@@ -13,7 +13,7 @@ public struct NFTCollection: Hashable, Identifiable, Sendable {
     let contractType: NFTContractType
     let name: String
     let description: String?
-    let logoURL: URL?
+    let media: NFTMedia?
     /// - Note: Some NFT providers (Moralis for example) do not return assets in collections;
     /// therefore this property should always be used if you need to determine the number of assets.
     /// Do not use `assets.count` for this purpose.
@@ -27,7 +27,7 @@ public struct NFTCollection: Hashable, Identifiable, Sendable {
         ownerAddress: String,
         name: String,
         description: String?,
-        logoURL: URL?,
+        media: NFTMedia?,
         assetsCount: Int?,
         assets: [NFTAsset]
     ) {
@@ -40,7 +40,7 @@ public struct NFTCollection: Hashable, Identifiable, Sendable {
         self.contractType = contractType
         self.name = name
         self.description = description
-        self.logoURL = logoURL
+        self.media = media
         self.assetsCount = assetsCount ?? assets.count
         self.assets = assets
     }
