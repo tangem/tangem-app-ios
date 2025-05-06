@@ -20,7 +20,7 @@ public struct NFTAssetDetailsView: View {
     @State private var shouldShowShadow: Bool = true
 
     @State private var buttonMinY: CGFloat = 0
-    @State private var contentMaxY: CGFloat = 0
+    @State private var contentHeight: CGFloat = 0
 
     private let coordinateSpaceName = "NFTAssetDetailsViewCoordinateSpace"
 
@@ -41,36 +41,35 @@ public struct NFTAssetDetailsView: View {
             scrollView
             sendButtonContainer
         }
-        .coordinateSpace(name: coordinateSpace)
+        .coordinateSpace(name: coordinateSpaceName)
     }
 
     private var scrollView: some View {
         ScrollView(.vertical, showsIndicators: false) {
-            LazyVStack(spacing: 14) {
-                SquaredOrRectangleImageView(
-                    media: viewModel.media,
-                    containerSide: UIScreen.main.bounds.width - Constants.horizontalPadding * 2
-                )
+            VStack(spacing: 0) {
+                LazyVStack(spacing: 14) {
+                    SquaredOrRectangleImageView(media: viewModel.media)
 
-                if let header = viewModel.headerState {
-                    NFTDetailsHeaderView(state: header)
-                }
+                    if let header = viewModel.headerState {
+                        NFTDetailsHeaderView(state: header)
+                    }
 
-                if let traits = viewModel.traits {
-                    KeyValuePanelView(viewData: traits)
-                }
+                    if let traits = viewModel.traits {
+                        KeyValuePanelView(viewData: traits)
+                    }
 
-                if let baseInfo = viewModel.baseInformation {
-                    KeyValuePanelView(viewData: baseInfo)
+                    if let baseInfo = viewModel.baseInformation {
+                        KeyValuePanelView(viewData: baseInfo)
+                    }
                 }
+                .readGeometry(\.frame.height, inCoordinateSpace: coordinateSpace, bindTo: $contentHeight)
 
                 Spacer()
-                    .frame(height: buttonHeight)
+                    .frame(height: buttonHeight + 28)
             }
-            .readGeometry(\.frame.maxY, inCoordinateSpace: .named(coordinateSpace), bindTo: $contentMaxY)
-            .readContentOffset(inCoordinateSpace: .named(coordinateSpace)) { point in
-                let contentMaxYDynamic = contentMaxY - point.y + buttonHeight
-                shouldShowShadow = contentMaxYDynamic > buttonMinY
+            .readContentOffset(inCoordinateSpace: coordinateSpace) { point in
+                let contentOffset = contentHeight - point.y - buttonHeight + Constants.mainButtonBottomPadding
+                shouldShowShadow = contentOffset > buttonMinY
             }
         }
     }
@@ -84,12 +83,13 @@ public struct NFTAssetDetailsView: View {
 
     private func sendButton(souldAddShadow: Bool) -> some View {
         MainButton(title: Localization.commonSend, action: {})
+            .padding(.bottom, Constants.mainButtonBottomPadding)
             .if(souldAddShadow) { view in
                 view.background(
                     ListFooterOverlayShadowView()
                 )
             }
-            .readGeometry(inCoordinateSpace: .named(coordinateSpace)) { value in
+            .readGeometry(inCoordinateSpace: coordinateSpace) { value in
                 buttonHeight = value.frame.height
                 buttonMinY = value.frame.minY
             }
@@ -103,6 +103,7 @@ public struct NFTAssetDetailsView: View {
 private extension NFTAssetDetailsView {
     enum Constants {
         static let horizontalPadding: CGFloat = 16
+        static let mainButtonBottomPadding: CGFloat = 6
     }
 }
 

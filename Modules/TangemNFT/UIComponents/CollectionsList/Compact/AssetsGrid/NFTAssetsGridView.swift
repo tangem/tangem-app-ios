@@ -7,16 +7,17 @@
 //
 
 import SwiftUI
+import TangemUIUtils
 
 struct NFTAssetsGridView: View {
-    var viewModel: NFTAssetsGridViewModel
-
-    private let columns = [
-        GridItem(.adaptive(minimum: NFTCompactAssetView.Constants.imageSize.width), spacing: Constants.interitemSpacing),
+    private let gridItems = [
+        GridItem(.flexible()),
+        GridItem(.flexible()),
     ]
+    let viewModel: NFTAssetsGridViewModel
 
     var body: some View {
-        LazyVGrid(columns: columns, alignment: .leading, spacing: Constants.rowsSpacing) {
+        LazyVGrid(columns: gridItems, alignment: .leading, spacing: Constants.rowsSpacing) {
             ForEach(viewModel.assetsViewModels, id: \.id) { viewModel in
                 NFTCompactAssetView(viewModel: viewModel)
             }
