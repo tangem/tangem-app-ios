@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 final class EthereumTransactionHistoryMapper {
     private let blockchain: Blockchain
