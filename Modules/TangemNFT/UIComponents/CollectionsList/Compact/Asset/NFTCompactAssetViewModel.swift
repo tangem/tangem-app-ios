@@ -8,7 +8,7 @@
 
 import Foundation
 
-final class NFTCompactAssetViewModel: Identifiable {
+struct NFTCompactAssetViewModel: Identifiable {
     private let nftAsset: NFTAsset
     private let openAssetDetailsAction: (NFTAsset) -> Void
 
@@ -17,8 +17,8 @@ final class NFTCompactAssetViewModel: Identifiable {
         self.openAssetDetailsAction = openAssetDetailsAction
     }
 
-    var id: String {
-        nftAsset.id.assetIdentifier
+    var id: AnyHashable {
+        nftAsset.id
     }
 
     var media: NFTMedia? {
