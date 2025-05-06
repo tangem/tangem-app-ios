@@ -26,7 +26,7 @@ public final class MoralisSolanaNetworkService {
                 NetworkHeadersPlugin(networkHeaders: headers),
             ]
         )
-        mapper = MoralisSolanaNetworkMapper(mediaMapper: NFTMediaKindMapper())
+        mapper = MoralisSolanaNetworkMapper()
     }
 }
 
