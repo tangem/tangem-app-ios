@@ -26,7 +26,7 @@ public struct NFTEntrypointView: View {
                 textsView
                 Spacer()
                 chevron
-                    .hidden(viewModel.state.isLoading)
+                    .hidden(viewModel.disabled)
             }
             .padding(Constants.padding)
             .frame(maxWidth: .infinity, alignment: .leading)
