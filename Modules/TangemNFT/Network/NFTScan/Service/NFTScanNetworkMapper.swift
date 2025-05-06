@@ -19,12 +19,6 @@ final class NFTScanNetworkMapper {
             return nil
         }
 
-        let logoURL: URL? = if let stringURL = collection.logoUrl {
-            URL(string: stringURL)
-        } else {
-            nil
-        }
-
         let assets = collection.assets.compactMap { mapAsset($0, chain: chain) }
         let ownerAddress = assets.first?.id.ownerAddress ?? ownerAddress
 
@@ -35,7 +29,7 @@ final class NFTScanNetworkMapper {
             ownerAddress: ownerAddress,
             name: name,
             description: collection.description,
-            logoURL: logoURL,
+            media: map(collection.logoUrl),
             assetsCount: collection.ownsTotal,
             assets: assets
         )
@@ -54,8 +48,9 @@ final class NFTScanNetworkMapper {
             NFTAsset.Trait(name: attribute.attributeName, value: attribute.attributeValue)
         } ?? []
 
-        let url: NFTAsset.Media? = if let stringUri = asset.imageUri, let url = URL(string: stringUri) {
-            NFTAsset.Media(kind: .image, url: url) // [REDACTED_TODO_COMMENT]
+        let mediaKind = NFTMediaKindMapper.map(mimetype: asset.contentType)
+        let media: NFTMedia? = if let stringUri = asset.imageUri, let url = URL(string: stringUri) {
+            NFTMedia(kind: mediaKind, url: url)
         } else {
             nil
         }
@@ -77,7 +72,7 @@ final class NFTScanNetworkMapper {
             ownerAddress: asset.owner,
             name: asset.name,
             description: assetMetadata?[Constants.assetDescriptionKey] as? String,
-            media: url,
+            media: media,
             rarity: rarity,
             traits: traits
         )
@@ -98,6 +93,17 @@ final class NFTScanNetworkMapper {
             label: attribute.attributeName,
             percentage: percentage,
             rank: Int(attribute.attributeValue)
+        )
+    }
+
+    private func map(_ urlString: String?) -> NFTMedia? {
+        guard let urlString, let url = URL(string: urlString) else {
+            return nil
+        }
+
+        return NFTMedia(
+            kind: NFTMediaKindMapper.map(url),
+            url: url
         )
     }
 }
