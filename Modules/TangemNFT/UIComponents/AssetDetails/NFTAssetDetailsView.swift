@@ -48,9 +48,10 @@ public struct NFTAssetDetailsView: View {
         ScrollView(.vertical, showsIndicators: false) {
             LazyVStack(spacing: 14) {
                 SquaredOrRectangleImageView(
-                    url: viewModel.imageURL,
+                    media: viewModel.media,
                     containerSide: UIScreen.main.bounds.width - Constants.horizontalPadding * 2
                 )
+
                 if let header = viewModel.headerState {
                     NFTDetailsHeaderView(state: header)
                 }
@@ -118,7 +119,7 @@ private extension NFTAssetDetailsView {
                     ownerAddress: "0x79D21ca8eE06E149d296a32295A2D8A97E52af52",
                     name: "My awesone asset",
                     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ac dictum ligula. Vestibulum placerat imperdiet feugiat. Fusce vestibulum sagittis convallis. Quisque in ante et ipsum auctor mattis eu in velit. Duis at consequat elit. Nam posuere turpis in dolor finibus, a fringilla tortor dictum. Duis at congue risus, ac rhoncus ligula. Vestibulum tincidunt malesuada maximus. Fusce rutrum porta mi ac lobortis.",
-                    media: NFTAsset.Media(kind: .image, url: URL(
+                    media: NFTMedia(kind: .image, url: URL(
                         string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png"
                     )!),
                     rarity: NFTAsset.Rarity(label: "Top 1% rarity", percentage: nil, rank: 115),

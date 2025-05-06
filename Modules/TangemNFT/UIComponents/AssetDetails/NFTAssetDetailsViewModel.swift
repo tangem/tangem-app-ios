@@ -32,8 +32,8 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
         asset.name
     }
 
-    var imageURL: URL? {
-        asset.media?.url
+    var media: NFTMedia? {
+        asset.media
     }
 
     // [REDACTED_TODO_COMMENT]
