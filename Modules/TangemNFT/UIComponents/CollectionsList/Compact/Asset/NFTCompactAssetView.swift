@@ -25,11 +25,11 @@ struct NFTCompactAssetView: View {
             icon
             texts
         }
-        .frame(width: Constants.imageSize.width)
+        .frame(maxWidth: .infinity)
     }
 
     private var icon: some View {
-        SquaredOrRectangleImageView(media: viewModel.media, containerSide: Constants.imageSize.width)
+        SquaredOrRectangleImageView(media: viewModel.media)
     }
 
     private var texts: some View {
@@ -44,7 +44,6 @@ struct NFTCompactAssetView: View {
 
 extension NFTCompactAssetView {
     enum Constants {
-        static let imageSize: CGSize = .init(bothDimensions: 152)
         static let cornerRadius: CGFloat = 14
         static let iconTextsSpacing: CGFloat = 12
         static let textsSpacing: CGFloat = 2
