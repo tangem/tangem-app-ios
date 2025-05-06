@@ -212,7 +212,10 @@ extension NFTCollectionsListView {
                                 ownerAddress: "0x79D21ca8eE06E149d296a32295A2D8A97E52af52",
                                 name: "My awesome collection",
                                 description: "",
-                                logoURL: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!,
+                                media: .init(
+                                    kind: .image,
+                                    url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
+                                ),
                                 assetsCount: nil,
                                 assets: (0 ... 3).map {
                                     NFTAsset(
@@ -223,7 +226,7 @@ extension NFTCollectionsListView {
                                         ownerAddress: "",
                                         name: "My asset",
                                         description: "",
-                                        media: NFTAsset.Media(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
+                                        media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
                                         rarity: nil,
                                         traits: []
                                     )
