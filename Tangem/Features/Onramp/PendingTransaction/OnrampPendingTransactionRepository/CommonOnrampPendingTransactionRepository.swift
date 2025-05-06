@@ -71,7 +71,7 @@ extension CommonOnrampPendingTransactionRepository: OnrampPendingTransactionRepo
             provider: .init(provider: txData.provider),
             date: txData.date,
             externalTxId: txData.externalTxId,
-            externalTxURL: nil,
+            externalTxURL: txData.externalTxUrl,
             isHidden: false,
             transactionStatus: .awaitingDeposit
         )
