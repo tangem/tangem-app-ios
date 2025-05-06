@@ -27,7 +27,7 @@ struct NFTCollectionDisclosureGroupView: View {
             actionOnClick: onTap,
             alignment: .leading,
             prompt: { label },
-            expandedView: { gridView }
+            expandedView: { content }
         )
         .buttonStyle(.defaultScaled)
         .frame(maxWidth: .infinity)
@@ -44,25 +44,34 @@ struct NFTCollectionDisclosureGroupView: View {
     }
 
     @ViewBuilder
-    private var gridView: some View {
+    private var content: some View {
         switch viewModel.viewState {
         case .loading:
-            // [REDACTED_TODO_COMMENT]
-            Color
-                .clear
-                .frame(height: 250)
-                .overlay { Text("Loading") }
+            buildGridView(with: .init(assetsCount: viewModel.numberOfItems))
+
         case .loaded(let viewModel):
-            NFTAssetsGridView(viewModel: viewModel)
-                .padding(.top, Constants.gridViewTopPadding)
-                .padding(.bottom, Constants.gridViewBottomPadding)
-        case .failedToLoad(let error):
-            // [REDACTED_TODO_COMMENT]
-            Color
-                .clear
-                .frame(height: 250)
-                .overlay { Text("Error: \(error.localizedDescription)") }
+            buildGridView(with: viewModel)
+
+        case .failedToLoad:
+            errorView
         }
+    }
+
+    private func buildGridView(with viewModel: NFTAssetsGridViewModel) -> some View {
+        NFTAssetsGridView(viewModel: viewModel)
+            .padding(.top, Constants.gridViewTopPadding)
+            .padding(.bottom, Constants.gridViewBottomPadding)
+    }
+
+    private var errorView: some View {
+        UnableToLoadDataView(
+            isButtonBusy: false,
+            retryButtonAction: {
+                viewModel.onTap(isExpanded: true)
+            }
+        )
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.vertical, 56)
     }
 
     private func onTap() {
