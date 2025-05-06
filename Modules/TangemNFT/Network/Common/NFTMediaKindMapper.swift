@@ -10,37 +10,47 @@ import Foundation
 import UniformTypeIdentifiers
 
 /// - Note: Shared between `Moralis`, `NFTScan` and other providers.
-struct NFTMediaKindMapper {
-    func map(mimetype: String?) -> NFTAsset.Media.Kind {
-        let mimeType = mimetype.flatMap(UTType.init)
+enum NFTMediaKindMapper {
+    // MARK: Private
 
-        switch mimeType {
-        case .png,
-             .jpeg,
-             .heic,
-             .webP,
-             .tiff,
-             .bmp,
-             .svg,
-             .image:
-            return .image
-        case .gif:
-            return .animation
-        case .quickTimeMovie,
-             .mpeg,
-             .mpeg2Video,
-             .mpeg4Movie,
-             .avi,
-             .video,
-             .movie:
-            return .video
-        case .mp3,
-             .wav,
-             .aiff,
-             .audio:
-            return .audio
-        default:
+    private static let imageTypes: Set<UTType> = .init(
+        [.png, .jpeg, .heic, .webP, .tiff, .bmp, .svg, .image]
+    )
+
+    private static let gifTypes: Set<UTType> = .init(
+        [.gif]
+    )
+
+    private static let videoTypes: Set<UTType> = .init(
+        [.quickTimeMovie, .mpeg, .mpeg2Video, .mpeg4Movie, .avi, .video, .movie]
+    )
+
+    private static let audioTypes: Set<UTType> = .init(
+        [.mp3, .wav, .aiff, .audio]
+    )
+
+    private static let mimeTypeGroups: [(types: Set<UTType>, mediaKind: NFTMedia.Kind)] = [
+        (imageTypes, .image),
+        (gifTypes, .animation),
+        (videoTypes, .video),
+        (audioTypes, .audio),
+    ]
+
+    // MARK: Implementation
+
+    static func map(mimetype: String?) -> NFTMedia.Kind {
+        guard let mimeType = mimetype.flatMap(UTType.init) else {
             return .unknown
         }
+
+        return mimeTypeGroups.first { types, _ in
+            types.contains(mimeType)
+        }?.mediaKind ?? .unknown
+    }
+
+    static func map(_ url: URL) -> NFTMedia.Kind {
+        mimeTypeGroups.first { types, _ in
+            types.map(\.preferredFilenameExtension).contains(url.pathExtension)
+        }?.mediaKind ?? .unknown
     }
 }

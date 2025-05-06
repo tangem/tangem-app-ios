@@ -29,7 +29,7 @@ struct NFTCompactAssetView: View {
     }
 
     private var icon: some View {
-        SquaredOrRectangleImageView(url: viewModel.mediaURL, containerSide: Constants.imageSize.width)
+        SquaredOrRectangleImageView(media: viewModel.media, containerSide: Constants.imageSize.width)
     }
 
     private var texts: some View {
@@ -63,7 +63,7 @@ extension NFTCompactAssetView {
                 ownerAddress: "",
                 name: "My asset",
                 description: "",
-                media: NFTAsset.Media(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
+                media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
                 rarity: nil,
                 traits: []
             ),

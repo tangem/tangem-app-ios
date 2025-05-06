@@ -21,8 +21,8 @@ final class NFTCompactAssetViewModel: Identifiable {
         nftAsset.id.assetIdentifier
     }
 
-    var mediaURL: URL? {
-        nftAsset.media?.url
+    var media: NFTMedia? {
+        nftAsset.media
     }
 
     var title: String {
