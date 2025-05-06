@@ -43,7 +43,7 @@ extension NFTAssetsGridView {
                 ownerAddress: "",
                 name: "My asset",
                 description: "",
-                media: NFTAsset.Media(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
+                media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
                 rarity: nil,
                 traits: []
             ), openAssetDetailsAction: { _ in })
