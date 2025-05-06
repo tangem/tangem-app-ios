@@ -97,31 +97,31 @@ public final class NFTEntrypointViewModel: ObservableObject {
             .noCollections
 
         case 1:
-            .oneCollection(imageURL: collections[0].logoURL)
+            .oneCollection(imageURL: collections[0].media)
 
         case 2:
             .twoCollections(
-                firstCollectionImageURL: collections[0].logoURL,
-                secondCollectionImageURL: collections[1].logoURL
+                firstCollectionImageURL: collections[0].media,
+                secondCollectionImageURL: collections[1].media
             )
 
         case 3:
             .threeCollections(
-                firstCollectionImageURL: collections[0].logoURL,
-                secondCollectionImageURL: collections[1].logoURL,
-                thirdCollectionImageURL: collections[2].logoURL
+                firstCollectionImageURL: collections[0].media,
+                secondCollectionImageURL: collections[1].media,
+                thirdCollectionImageURL: collections[2].media
             )
 
         case 4:
             .fourCollections(
-                firstCollectionImageURL: collections[0].logoURL,
-                secondCollectionImageURL: collections[1].logoURL,
-                thirdCollectionImageURL: collections[2].logoURL,
-                fourthCollectionImageURL: collections[3].logoURL
+                firstCollectionImageURL: collections[0].media,
+                secondCollectionImageURL: collections[1].media,
+                thirdCollectionImageURL: collections[2].media,
+                fourthCollectionImageURL: collections[3].media
             )
 
         default:
-            .multipleCollections(collectionsURLs: collections.map(\.logoURL))
+            .multipleCollections(collectionsURLs: collections.map(\.media))
         }
     }
 
@@ -131,26 +131,26 @@ public final class NFTEntrypointViewModel: ObservableObject {
     }
 }
 
-public extension NFTEntrypointViewModel {
+extension NFTEntrypointViewModel {
     enum CollectionsViewState {
         case noCollections
 
-        case oneCollection(imageURL: URL?)
+        case oneCollection(imageURL: NFTMedia?)
         case twoCollections(
-            firstCollectionImageURL: URL?,
-            secondCollectionImageURL: URL?
+            firstCollectionImageURL: NFTMedia?,
+            secondCollectionImageURL: NFTMedia?
         )
         case threeCollections(
-            firstCollectionImageURL: URL?,
-            secondCollectionImageURL: URL?,
-            thirdCollectionImageURL: URL?
+            firstCollectionImageURL: NFTMedia?,
+            secondCollectionImageURL: NFTMedia?,
+            thirdCollectionImageURL: NFTMedia?
         )
         case fourCollections(
-            firstCollectionImageURL: URL?,
-            secondCollectionImageURL: URL?,
-            thirdCollectionImageURL: URL?,
-            fourthCollectionImageURL: URL?
+            firstCollectionImageURL: NFTMedia?,
+            secondCollectionImageURL: NFTMedia?,
+            thirdCollectionImageURL: NFTMedia?,
+            fourthCollectionImageURL: NFTMedia?
         )
-        case multipleCollections(collectionsURLs: [URL?])
+        case multipleCollections(collectionsURLs: [NFTMedia?])
     }
 }
