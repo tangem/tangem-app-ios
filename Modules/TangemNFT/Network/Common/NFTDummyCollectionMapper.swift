@@ -23,7 +23,7 @@ enum NFTDummyCollectionMapper {
             ownerAddress: ownerAdddress,
             name: Localization.nftNoCollection,
             description: nil,
-            logoURL: nil,
+            media: nil,
             assetsCount: assetsCount,
             assets: assets
         )
