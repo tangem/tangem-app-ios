@@ -62,7 +62,10 @@ extension NFTCollectionsCoordinator {
 
 extension NFTCollectionsCoordinator: NFTCollectionsListRoutable {
     func openReceive(navigationContext: NFTEntrypointNavigationContext) {
-        guard let receiveInput = navigationContext as? NFTReceiveInput else {
+        guard
+            let receiveInput = navigationContext as? NFTReceiveInput,
+            let options
+        else {
             return
         }
 
@@ -77,7 +80,7 @@ extension NFTCollectionsCoordinator: NFTCollectionsListRoutable {
         )
 
         receiveCoordinator = coordinator
-        coordinator.start(with: .init(input: receiveInput))
+        coordinator.start(with: .init(input: receiveInput, nftChainNameProviding: options.nftChainNameProviding))
     }
 
     func openAssetDetails(asset: NFTAsset) {
