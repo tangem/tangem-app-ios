@@ -36,18 +36,23 @@ extension NFTAssetsGridView {
 #Preview {
     ScrollView {
         NFTAssetsGridView(viewModel: NFTAssetsGridViewModel(assetsViewModels: (0 ... 10).map {
-            NFTCompactAssetViewModel(nftAsset: NFTAsset(
-                assetIdentifier: "some-\($0)",
-                collectionIdentifier: "some1",
-                chain: .solana,
-                contractType: .unknown,
-                ownerAddress: "",
-                name: "My asset",
-                description: "",
-                media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
-                rarity: nil,
-                traits: []
-            ), openAssetDetailsAction: { _ in })
+            NFTCompactAssetViewModel(
+                state: .loaded(
+                    NFTAsset(
+                        assetIdentifier: "some-\($0)",
+                        collectionIdentifier: "some1",
+                        chain: .solana,
+                        contractType: .unknown,
+                        ownerAddress: "",
+                        name: "My asset",
+                        description: "",
+                        media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
+                        rarity: nil,
+                        traits: []
+                    )
+                ),
+                openAssetDetailsAction: { _ in }
+            )
         }))
         .padding(16)
     }
