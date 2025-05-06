@@ -14,20 +14,22 @@ import TangemAssets
 
 struct SquaredOrRectangleImageView: View {
     private let media: NFTMedia?
-    private let containerSize: CGSize
 
+    @State private var containerSize: CGSize = .zero
     @State private var originalSize: CGSize = .zero
     @State private var loadingFailed = false
 
-    init(media: NFTMedia?, containerSide: CGFloat) {
+    init(media: NFTMedia?) {
         self.media = media
-        containerSize = .init(bothDimensions: containerSide)
     }
 
     var body: some View {
-        background.overlay(
-            image.scaledToFit()
-        )
+        background
+            .overlay(image.scaledToFit())
+            .frame(maxWidth: .infinity)
+            .readGeometry(\.frame.width) {
+                containerSize = .init(bothDimensions: $0)
+            }
     }
 
     private var background: some View {
@@ -101,8 +103,7 @@ private enum Constants {
         media: .init(
             kind: .animation,
             url: URL(string: "https://arweave.net/tEidIncXyo5lQ4GYl4uyDYx_qW7g3t4vetp042votww")!
-        ),
-        containerSide: 200
+        )
     )
 }
 
@@ -111,8 +112,7 @@ private enum Constants {
         media: .init(
             kind: .animation,
             url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
-        ),
-        containerSide: 200
+        )
     )
 }
 #endif
