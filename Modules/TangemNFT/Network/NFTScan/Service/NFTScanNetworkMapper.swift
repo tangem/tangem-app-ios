@@ -22,6 +22,12 @@ final class NFTScanNetworkMapper {
         let assets = collection.assets.compactMap { mapAsset($0, chain: chain) }
         let ownerAddress = assets.first?.id.ownerAddress ?? ownerAddress
 
+        let logoURL = collection
+            .logoUrl?
+            .nilIfEmpty
+            .flatMap(URL.init(string:))
+            .map(NFTIPFSURLConverter.convert(_:))
+
         return NFTCollection(
             collectionIdentifier: collectionID,
             chain: chain,
@@ -49,11 +55,13 @@ final class NFTScanNetworkMapper {
         } ?? []
 
         let mediaKind = NFTMediaKindMapper.map(mimetype: asset.contentType)
-        let media: NFTMedia? = if let stringUri = asset.imageUri, let url = URL(string: stringUri) {
-            NFTMedia(kind: mediaKind, url: url)
-        } else {
-            nil
-        }
+
+        let media = asset
+            .imageUri?
+            .nilIfEmpty
+            .flatMap(URL.init(string:))
+            .map(NFTIPFSURLConverter.convert(_:))
+            .map { NFTMedia(kind: mediaKind, url: $0) }
 
         let assetMetadata = try? asset.metadataJson?.asDictionary()
 
@@ -97,7 +105,12 @@ final class NFTScanNetworkMapper {
     }
 
     private func map(_ urlString: String?) -> NFTMedia? {
-        guard let urlString, let url = URL(string: urlString) else {
+        guard
+            let url = urlString?
+            .nilIfEmpty
+            .flatMap(URL.init(string:))
+            .map(NFTIPFSURLConverter.convert(_:))
+        else {
             return nil
         }
 

@@ -1,6 +1,6 @@
 //
-//  String+.swift
-//  TangemModules
+//  StringProtocol+.swift
+//  TangemFoundation
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2024 Tangem AG. All rights reserved.
@@ -15,5 +15,9 @@ public extension StringProtocol {
 
     func caseInsensitiveHasPrefix(_ prefix: String) -> Bool {
         return range(of: prefix, options: [.anchored, .caseInsensitive]) != nil
+    }
+
+    func caseInsensitiveEquals(to other: some StringProtocol) -> Bool {
+        return caseInsensitiveCompare(other) == .orderedSame
     }
 }
