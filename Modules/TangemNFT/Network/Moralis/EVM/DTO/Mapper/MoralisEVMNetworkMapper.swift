@@ -39,7 +39,7 @@ struct MoralisEVMNetworkMapper {
                 ownerAddress: ownerAddress,
                 name: name,
                 description: nil, // Moralis doesn't provide descriptions for NFT collections
-                logoURL: collection.collectionLogo?.nilIfEmpty.flatMap(URL.init(string:)),
+                media: map(collection.collectionLogo?.nilIfEmpty),
                 assetsCount: assetsCount,
                 assets: [] // Moralis doesnt send assets
             )
@@ -119,7 +119,7 @@ struct MoralisEVMNetworkMapper {
 
     // MARK: - Private implementation
 
-    private func map(media: MoralisEVMNetworkResult.EVMNFTAsset.Media?) -> NFTAsset.Media? {
+    private func map(media: MoralisEVMNetworkResult.EVMNFTAsset.Media?) -> NFTMedia? {
         guard
             let media,
             let url = media.originalMediaUrl?.nilIfEmpty.flatMap(URL.init(string:))
@@ -134,10 +134,21 @@ struct MoralisEVMNetworkMapper {
             return nil
         }
 
-        let mediaKind = NFTMediaKindMapper().map(mimetype: media.mimetype)
+        let mediaKind = NFTMediaKindMapper.map(mimetype: media.mimetype)
 
-        return NFTAsset.Media(
+        return NFTMedia(
             kind: mediaKind,
+            url: url
+        )
+    }
+
+    private func map(_ urlString: String?) -> NFTMedia? {
+        guard let urlString, let url = URL(string: urlString) else {
+            return nil
+        }
+
+        return NFTMedia(
+            kind: NFTMediaKindMapper.map(url),
             url: url
         )
     }
