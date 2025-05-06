@@ -110,7 +110,7 @@ public struct NFTCollectionsListView: View {
                     contentHeight = $0.height
                     contentMaxY = $0.maxY
                 }
-                // We need this code to track view's heigh when row expands
+                // We need this code to track view's height when row expands
                 // .readGeometry only tracks it before list expands
                 .background(
                     GeometryReader { proxy in
