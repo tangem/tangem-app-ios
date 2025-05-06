@@ -12,7 +12,9 @@ import TangemAssets
 import TangemLocalization
 
 struct NFTCollectionDisclosureGroupView: View {
-    @ObservedObject var viewModel: NFTCompactCollectionViewModel
+    let viewModel: NFTCompactCollectionViewModel
+
+    @State private var isExpanded: Bool = false
 
     var body: some View {
         disclosureGroup
@@ -20,21 +22,12 @@ struct NFTCollectionDisclosureGroupView: View {
 
     private var disclosureGroup: some View {
         CustomDisclosureGroup(
-            isExpanded: viewModel.isExpanded,
+            isExpanded: isExpanded,
             transition: .opacity,
-            actionOnClick: {
-                withAnimation {
-                    viewModel.onTap()
-                }
-                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-            },
+            actionOnClick: onTap,
             alignment: .leading,
             prompt: { label },
-            expandedView: {
-                NFTAssetsGridView(viewModel: viewModel.assetsGridViewModel)
-                    .padding(.top, Constants.gridViewTopPadding)
-                    .padding(.bottom, Constants.gridViewBottomPadding)
-            }
+            expandedView: { gridView }
         )
         .buttonStyle(.defaultScaled)
         .frame(maxWidth: .infinity)
@@ -46,8 +39,39 @@ struct NFTCollectionDisclosureGroupView: View {
             iconOverlayImage: viewModel.blockchainImage,
             title: viewModel.name,
             subtitle: Localization.nftCollectionsCount(viewModel.numberOfItems),
-            isExpanded: viewModel.isExpanded
+            isExpanded: isExpanded
         )
+    }
+
+    @ViewBuilder
+    private var gridView: some View {
+        switch viewModel.viewState {
+        case .loading:
+            // [REDACTED_TODO_COMMENT]
+            Color
+                .clear
+                .frame(height: 250)
+                .overlay { Text("Loading") }
+        case .loaded(let viewModel):
+            NFTAssetsGridView(viewModel: viewModel)
+                .padding(.top, Constants.gridViewTopPadding)
+                .padding(.bottom, Constants.gridViewBottomPadding)
+        case .failedToLoad(let error):
+            // [REDACTED_TODO_COMMENT]
+            Color
+                .clear
+                .frame(height: 250)
+                .overlay { Text("Error: \(error.localizedDescription)") }
+        }
+    }
+
+    private func onTap() {
+        viewModel.onTap(isExpanded: !isExpanded)
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+
+        withAnimation {
+            isExpanded.toggle()
+        }
     }
 }
 
@@ -95,9 +119,10 @@ struct DummyProvider: NFTChainIconProvider {
                     )
                 }
             ),
+            assetsState: .loading,
             nftChainIconProvider: DummyProvider(),
             openAssetDetailsAction: { _ in },
-            onTapAction: {}
+            onCollectionTap: { _, _ in }
         )
     )
 }

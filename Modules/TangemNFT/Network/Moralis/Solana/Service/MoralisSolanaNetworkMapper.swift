@@ -40,7 +40,7 @@ struct MoralisSolanaNetworkMapper {
             ownerAddress: ownerAddress,
             name: collectionId,
             description: collection.description,
-            // Moralis doesnt send collection URL, so we assigning first asset's image as discussed
+            // Moralis doesn't send collection URL, so we assigning first asset's image as discussed
             // [REDACTED_INFO]
             media: domainAssets.first?.media,
             assetsCount: domainAssets.count,
@@ -78,7 +78,7 @@ struct MoralisSolanaNetworkMapper {
             contractType: .unknown,
             ownerAddress: ownerAddress,
             name: name,
-            description: nil, // Moralis doesnt send description for Solana
+            description: nil, // Moralis doesn't send description for Solana
             media: media,
             rarity: rarity,
             traits: traits
@@ -103,13 +103,16 @@ struct MoralisSolanaNetworkMapper {
     private func mapToMedia(properties: MoralisSolanaNetworkResult.Properties?) -> NFTMedia? {
         guard
             let firstFile = properties?.files?.first,
-            let uri = firstFile.uri,
+            let uri = firstFile.uri?.nilIfEmpty,
             let url = URL(string: uri)
         else {
             return nil
         }
 
-        return NFTMedia(kind: NFTMediaKindMapper.map(mimetype: firstFile.type), url: url)
+        return NFTMedia(
+            kind: NFTMediaKindMapper.map(mimetype: firstFile.type),
+            url: NFTIPFSURLConverter.convert(url)
+        )
     }
 
     private func mapToTraits(attributes: [MoralisSolanaNetworkResult.Attribute]?) -> [NFTAsset.Trait] {
