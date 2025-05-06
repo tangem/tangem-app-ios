@@ -9,8 +9,6 @@
 import Foundation
 
 struct MoralisSolanaNetworkMapper {
-    let mediaMapper: NFTMediaKindMapper
-
     func map(
         collection: MoralisSolanaNetworkResult.Collection?,
         assets: [MoralisSolanaNetworkResult.Asset],
@@ -44,7 +42,7 @@ struct MoralisSolanaNetworkMapper {
             description: collection.description,
             // Moralis doesnt send collection URL, so we assigning first asset's image as discussed
             // [REDACTED_INFO]
-            logoURL: domainAssets.first?.media?.url,
+            media: domainAssets.first?.media,
             assetsCount: domainAssets.count,
             assets: domainAssets
         )
@@ -102,7 +100,7 @@ struct MoralisSolanaNetworkMapper {
         )
     }
 
-    private func mapToMedia(properties: MoralisSolanaNetworkResult.Properties?) -> NFTAsset.Media? {
+    private func mapToMedia(properties: MoralisSolanaNetworkResult.Properties?) -> NFTMedia? {
         guard
             let firstFile = properties?.files?.first,
             let uri = firstFile.uri,
@@ -111,7 +109,7 @@ struct MoralisSolanaNetworkMapper {
             return nil
         }
 
-        return NFTAsset.Media(kind: mediaMapper.map(mimetype: firstFile.type), url: url)
+        return NFTMedia(kind: NFTMediaKindMapper.map(mimetype: firstFile.type), url: url)
     }
 
     private func mapToTraits(attributes: [MoralisSolanaNetworkResult.Attribute]?) -> [NFTAsset.Trait] {
