@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemNetworkUtils
+import TangemFoundation
 
 class BlockchairNetworkProvider {
     private let provider: TangemProvider<BlockchairTarget>
