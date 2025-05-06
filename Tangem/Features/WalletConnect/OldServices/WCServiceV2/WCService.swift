@@ -26,7 +26,7 @@ private struct WCServiceKey: InjectionKey {
 }
 
 extension InjectedValues {
-    var wConnectService: WCService {
+    var wcService: WCService {
         get { Self[WCServiceKey.self] }
         set { Self[WCServiceKey.self] = newValue }
     }
