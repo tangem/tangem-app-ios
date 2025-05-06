@@ -97,6 +97,12 @@ private enum Constants {
     static let cornerRadius: CGFloat = 14
 }
 
+extension SquaredOrRectangleImageView {
+    enum Constants {
+        static let cornerRadius: CGFloat = 14
+    }
+}
+
 #if DEBUG
 #Preview("Gif") {
     SquaredOrRectangleImageView(
