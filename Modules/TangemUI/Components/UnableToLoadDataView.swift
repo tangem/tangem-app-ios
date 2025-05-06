@@ -10,11 +10,16 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 
-struct UnableToLoadDataView: View {
-    let isButtonBusy: Bool
-    let retryButtonAction: () -> Void
+public struct UnableToLoadDataView: View {
+    private let isButtonBusy: Bool
+    private let retryButtonAction: () -> Void
 
-    var body: some View {
+    public init(isButtonBusy: Bool, retryButtonAction: @escaping () -> Void) {
+        self.isButtonBusy = isButtonBusy
+        self.retryButtonAction = retryButtonAction
+    }
+
+    public var body: some View {
         VStack(spacing: 12) {
             Text(Localization.marketsLoadingErrorTitle)
                 .style(Fonts.Bold.caption1.weight(.medium), color: Colors.Text.tertiary)
