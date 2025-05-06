@@ -34,8 +34,8 @@ final class NFTCompactCollectionViewModel: Identifiable, ObservableObject {
         assetsGridViewModel = NFTAssetsGridViewModel(assetsViewModels: assetsViewModels)
     }
 
-    var logoURL: URL? {
-        nftCollection.logoURL
+    var media: NFTMedia? {
+        nftCollection.media
     }
 
     var blockchainImage: ImageType {
