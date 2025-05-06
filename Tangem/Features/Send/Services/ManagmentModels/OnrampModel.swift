@@ -482,7 +482,8 @@ extension OnrampModel: OnrampRedirectingOutput {
             date: Date(),
             fromAmount: data.fromAmount,
             fromCurrencyCode: data.fromCurrencyCode,
-            externalTxId: data.externalTxId
+            externalTxId: data.externalTxId,
+            externalTxUrl: data.externalTxUrl
         )
 
         onrampPendingTransactionsRepository
