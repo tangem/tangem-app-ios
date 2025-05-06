@@ -13,7 +13,7 @@ public struct NFTAsset: Hashable, Identifiable, Sendable {
     let contractType: NFTContractType
     let name: String
     let description: String?
-    let media: Media?
+    let media: NFTMedia?
     let rarity: Rarity?
     let traits: [Trait]
 
@@ -25,7 +25,7 @@ public struct NFTAsset: Hashable, Identifiable, Sendable {
         ownerAddress: String,
         name: String,
         description: String?,
-        media: NFTAsset.Media?,
+        media: NFTMedia?,
         rarity: NFTAsset.Rarity?,
         traits: [NFTAsset.Trait]
     ) {
@@ -57,19 +57,6 @@ public extension NFTAsset {
         /// to distinguish between identical assets but with different derivations.
         public let ownerAddress: String
         public let chain: NFTChain
-    }
-
-    struct Media: Hashable, Sendable {
-        public enum Kind: Sendable {
-            case image
-            case animation
-            case video
-            case audio
-            case unknown
-        }
-
-        let kind: Kind
-        let url: URL
     }
 
     struct Rarity: Hashable, Sendable {
