@@ -16,7 +16,7 @@ struct OnrampPendingTransactionRecord: Codable, Equatable {
     var destinationTokenTxInfo: ExpressPendingTransactionRecord.TokenTxInfo
     let provider: ExpressPendingTransactionRecord.Provider
     let date: Date
-    let externalTxId: String?
+    var externalTxId: String?
     var externalTxURL: String?
 
     // Flag for hide transaction from UI. But keep saving in the storage
