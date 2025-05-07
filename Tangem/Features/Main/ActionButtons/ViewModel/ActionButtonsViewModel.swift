@@ -359,6 +359,6 @@ private extension ActionButtonsViewModel {
 
 extension ActionButtonsViewModel: CustomStringConvertible {
     var description: String {
-        TangemFoundation.objectDescription(self)
+        objectDescription(self)
     }
 }
