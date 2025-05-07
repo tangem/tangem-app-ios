@@ -85,7 +85,7 @@ class CommonAPIListProvider {
 
 extension CommonAPIListProvider: CustomStringConvertible {
     var description: String {
-        TangemFoundation.objectDescription(self)
+        objectDescription(self)
     }
 }
 
