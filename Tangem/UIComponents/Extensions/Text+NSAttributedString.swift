@@ -10,7 +10,7 @@ import SwiftUI
 
 extension Text {
     /// Taken from https://swiftui-lab.com/attributed-strings-with-swiftui/
-    @available(*, deprecated, message: "Use AttributedString instead of NSAttributedString")
+    @available(iOS, deprecated: 100000.0, message: "Use AttributedString instead of NSAttributedString")
     init(_ attributedString: NSAttributedString) {
         self.init("")
 
