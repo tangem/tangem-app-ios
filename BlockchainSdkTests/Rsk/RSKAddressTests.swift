@@ -25,5 +25,10 @@ struct RSKAddressTests {
 
         #expect(rskAddressService.validate(correctAddress))
         #expect(rskAddressService.validate(correctAddressWithChecksum))
+
+        let incorrectAddress = "0Xc63763572d45171e4c25ca0818b44e5dd7f5c15b"
+        let incorrectAddressWithChecksum = "0Xc63763572D45171E4C25cA0818B44e5DD7f5c15b"
+        #expect(!rskAddressService.validate(incorrectAddress))
+        #expect(!rskAddressService.validate(incorrectAddressWithChecksum))
     }
 }
