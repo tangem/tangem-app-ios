@@ -1753,7 +1753,6 @@
 		B62D42A32CBC79DB00C2460E /* BlockchainSdkKeysConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3F552CBC79D900C2460E /* BlockchainSdkKeysConfig.swift */; };
 		B62D42A42CBC79DB00C2460E /* BlockchainSdkError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3F562CBC79D900C2460E /* BlockchainSdkError.swift */; };
 		B62D42A62CBC79DB00C2460E /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3F582CBC79D900C2460E /* Constants.swift */; };
-		B62D42A82CBC79DB00C2460E /* DetailedError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3F5A2CBC79D900C2460E /* DetailedError.swift */; };
 		B62D42A92CBC79DB00C2460E /* ErrorCodeProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3F5B2CBC79D900C2460E /* ErrorCodeProviding.swift */; };
 		B62D42AB2CBC79DB00C2460E /* ExceptionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3F5D2CBC79D900C2460E /* ExceptionHandler.swift */; };
 		B62D42AC2CBC79DB00C2460E /* ExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62D3F5E2CBC79D900C2460E /* ExternalLinkProvider.swift */; };
@@ -5204,7 +5203,6 @@
 		B62D3F552CBC79D900C2460E /* BlockchainSdkKeysConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockchainSdkKeysConfig.swift; sourceTree = "<group>"; };
 		B62D3F562CBC79D900C2460E /* BlockchainSdkError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockchainSdkError.swift; sourceTree = "<group>"; };
 		B62D3F582CBC79D900C2460E /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
-		B62D3F5A2CBC79D900C2460E /* DetailedError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailedError.swift; sourceTree = "<group>"; };
 		B62D3F5B2CBC79D900C2460E /* ErrorCodeProviding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorCodeProviding.swift; sourceTree = "<group>"; };
 		B62D3F5D2CBC79D900C2460E /* ExceptionHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExceptionHandler.swift; sourceTree = "<group>"; };
 		B62D3F5E2CBC79D900C2460E /* ExternalLinkProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExternalLinkProvider.swift; sourceTree = "<group>"; };
@@ -12173,7 +12171,6 @@
 				B62D3F552CBC79D900C2460E /* BlockchainSdkKeysConfig.swift */,
 				B62D3F562CBC79D900C2460E /* BlockchainSdkError.swift */,
 				B62D3F582CBC79D900C2460E /* Constants.swift */,
-				B62D3F5A2CBC79D900C2460E /* DetailedError.swift */,
 				B62D3F5B2CBC79D900C2460E /* ErrorCodeProviding.swift */,
 				B62D3F5D2CBC79D900C2460E /* ExceptionHandler.swift */,
 				B62D3F5E2CBC79D900C2460E /* ExternalLinkProvider.swift */,
@@ -20849,7 +20846,6 @@
 				B62D41A12CBC79DA00C2460E /* SuiTarget.swift in Sources */,
 				B62D41EC2CBC79DB00C2460E /* VeChainNetworkParams.swift in Sources */,
 				B62D41B52CBC79DB00C2460E /* TezosWalletAssembly.swift in Sources */,
-				B62D42A82CBC79DB00C2460E /* DetailedError.swift in Sources */,
 				B62D42392CBC79DB00C2460E /* ElectrumWebSocketProvider.swift in Sources */,
 				B62D429F2CBC79DB00C2460E /* AssetRequirementsCondition.swift in Sources */,
 				B62D3FD82CBC79DA00C2460E /* OP_MOD.swift in Sources */,
