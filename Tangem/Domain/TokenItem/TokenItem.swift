@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import TangemFoundation
 import struct TangemSdk.DerivationPath
 
 typealias TokenItemId = String
@@ -135,8 +136,8 @@ enum TokenItem: Hashable, Codable {
 
 extension TokenItem: CustomStringConvertible {
     var description: String {
-        ObjectDescriptionFormatter.format(
-            objectDescription: "TokenItem",
+        return objectDescription(
+            "TokenItem",
             userInfo: [
                 "name": name,
                 "derivation": blockchainNetwork.derivationPath?.rawPath ?? "nil",
