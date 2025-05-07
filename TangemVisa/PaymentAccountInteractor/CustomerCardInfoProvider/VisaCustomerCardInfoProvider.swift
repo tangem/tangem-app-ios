@@ -54,7 +54,7 @@ extension CommonCustomerCardInfoProvider: VisaCustomerCardInfoProvider {
         )
     }
 
-    private func getCustomerId() async throws -> String {
+    private func getProductInstanceId() async throws -> String {
         guard let authorizationTokensHandler else {
             throw VisaPaymentAccountAddressProviderError.bffIsNotAvailable
         }
@@ -67,11 +67,11 @@ extension CommonCustomerCardInfoProvider: VisaCustomerCardInfoProvider {
             throw VisaAuthorizationTokensHandlerError.missingAccessToken
         }
 
-        guard let customerId = JWTTokenHelper().getCustomerID(from: accessToken) else {
+        guard let productInstanceId = JWTTokenHelper().getProductInstanceID(from: accessToken) else {
             throw VisaAuthorizationTokensHandlerError.missingMandatoryInfoInAccessToken
         }
 
-        return customerId
+        return productInstanceId
     }
 
     private func loadPaymentAccountFromCIM(cardId: String, cardWalletAddress: String) async throws -> VisaCustomerCardInfo {
@@ -79,24 +79,14 @@ extension CommonCustomerCardInfoProvider: VisaCustomerCardInfoProvider {
             throw VisaPaymentAccountAddressProviderError.bffIsNotAvailable
         }
 
-        let customerId = try await getCustomerId()
-        let customerInfo = try await customerInfoManagementService.loadCustomerInfo(customerId: customerId)
-
-        guard let productInstance = customerInfo.productInstances?.first(where: { $0.cid == cardId }) else {
-            throw VisaPaymentAccountAddressProviderError.missingProductInstanceForCardId
-        }
-
-        guard
-            let paymentAccount = customerInfo.paymentAccounts?.first(where: { $0.id == productInstance.paymentAccountId })
-        else {
-            throw VisaPaymentAccountAddressProviderError.missingPaymentAccountForCard
-        }
+        let productInstanceId = try await getProductInstanceId()
+        let paymentAccountInfo = try await customerInfoManagementService.loadCustomerInfo(productInstanceId: productInstanceId)
 
         return VisaCustomerCardInfo(
-            paymentAccount: paymentAccount.paymentAccountAddress,
+            paymentAccount: paymentAccountInfo.address,
             cardId: cardId,
             cardWalletAddress: cardWalletAddress,
-            customerInfo: customerInfo
+            customerInfo: nil
         )
     }
 
