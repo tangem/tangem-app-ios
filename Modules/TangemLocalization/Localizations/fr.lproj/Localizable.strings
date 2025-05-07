@@ -1078,8 +1078,7 @@
 "visa_onboarding_in_progress_issuer_description" = "Cela ne prendra pas longtemps. Nous terminons l'activation.";
 "visa_onboarding_in_progress_title" = "Tout est en cours de préparation !";
 "visa_onboarding_other_wallet" = "Other wallet";
-"visa_onboarding_pin_code_description" = "Set up a 4-digit code. 
-It will be used for payments.";
+"visa_onboarding_pin_code_description" = "Set up a 4-digit code.\nIt will be used for payments.";
 "visa_onboarding_pin_code_navigation_title" = "PIN code";
 "visa_onboarding_pin_code_title" = "Create PIN Code";
 "visa_onboarding_pin_not_accepted" = "PIN was not accepted. Try again or use a different code.";
