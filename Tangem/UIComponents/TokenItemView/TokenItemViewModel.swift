@@ -200,6 +200,6 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
 
 extension TokenItemViewModel: CustomStringConvertible {
     var description: String {
-        TangemFoundation.objectDescription(self, userInfo: ["id": id])
+        objectDescription(self, userInfo: ["id": id])
     }
 }
