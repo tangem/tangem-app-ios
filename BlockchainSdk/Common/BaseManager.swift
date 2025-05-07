@@ -129,7 +129,7 @@ extension BaseManager: TokensWalletProvider {
 
 extension BaseManager: CustomStringConvertible {
     var description: String {
-        TangemFoundation.objectDescription(self)
+        objectDescription(self)
     }
 }
 
