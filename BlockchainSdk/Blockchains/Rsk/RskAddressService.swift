@@ -61,7 +61,7 @@ extension RskAddressService: AddressProvider {
 extension RskAddressService: AddressValidator {
     func validate(_ address: String) -> Bool {
         guard !address.isEmpty,
-              address.hasHexPrefix(),
+              address.hasHexPrefixStrictCheck(),
               address.count == 42
         else {
             return false
