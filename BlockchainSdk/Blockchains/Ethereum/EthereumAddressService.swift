@@ -61,7 +61,7 @@ extension EthereumAddressService: AddressProvider {
 @available(iOS 13.0, *)
 extension EthereumAddressService: AddressValidator {
     func validate(_ address: String) -> Bool {
-        guard !address.isEmpty, address.hasHexPrefix(), address.count == 42 else {
+        guard !address.isEmpty, address.hasHexPrefixStrictCheck(), address.count == 42 else {
             return false
         }
 
