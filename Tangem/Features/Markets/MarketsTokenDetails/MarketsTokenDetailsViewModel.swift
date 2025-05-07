@@ -257,8 +257,8 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 private extension MarketsTokenDetailsViewModel {
     func handleLoadDetailedInfo(_ result: Result<MarketsTokenDetailsModel, Error>) async {
         defer {
-            DispatchQueue.main.async {
-                self.isLoading = false
+            runTask(in: self) { viewModel in
+                await viewModel.stopLoadingAsync()
             }
         }
 
@@ -296,6 +296,11 @@ private extension MarketsTokenDetailsViewModel {
         } else if state != .failedToLoadAllData {
             state = .failedToLoadDetails
         }
+    }
+
+    @MainActor
+    func stopLoadingAsync() {
+        isLoading = false
     }
 }
 
