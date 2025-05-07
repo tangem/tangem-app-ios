@@ -232,7 +232,7 @@ private extension BranchAndBoundPreImageTransactionBuilder {
             let outputs: [UTXOScriptType] = [context.changeScript, context.destination.script]
 
             // 2. Proceed fee
-            let size = calculator.transactionSize(inputs: inputs, outputs: outputs)
+            let size = try calculator.transactionSize(inputs: inputs, outputs: outputs)
             let fee = switch context.fee {
             case .calculate(let feeRate): size * feeRate
             case .exactly(let fee): fee
@@ -269,7 +269,7 @@ private extension BranchAndBoundPreImageTransactionBuilder {
             var change = currentValue - recipientValue
             let outputs: [UTXOScriptType] = [context.destination.script]
 
-            let size = calculator.transactionSize(inputs: inputs, outputs: outputs)
+            let size = try calculator.transactionSize(inputs: inputs, outputs: outputs)
             let fee = switch context.fee {
             case .calculate(let feeRate): size * feeRate
             case .exactly(let fee): fee
