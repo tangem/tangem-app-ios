@@ -95,11 +95,11 @@ private extension BranchAndBoundPreImageTransactionBuilder {
 
             let variants = variantBuilders
                 .compactMap { try? $0.variant(in: context, selected: state.selected, currentValue: state.currentValue) }
-                .sorted(by: { $0.better(than: $1) })
+                .sorted(by: { compare(in: context, transaction: $0, with: $1) })
 
             if let variant = variants.first {
                 // If variant is better then use it as the best
-                if bestVariant == nil || variant.better(than: bestVariant!) {
+                if bestVariant == nil || compare(in: context, transaction: variant, with: bestVariant!) {
                     bestVariant = variant
                     logger.debug("The best variant was updated to \(variant)")
                 }
@@ -129,6 +129,25 @@ private extension BranchAndBoundPreImageTransactionBuilder {
         return bestVariant
     }
 
+    func compare(in context: Context, transaction: UTXOPreImageTransaction, with other: UTXOPreImageTransaction) -> Bool {
+        // Main priority to reduce the fee
+        switch transaction.fee {
+        // If fee is less then return true
+        case ..<other.fee:
+            return true
+
+        // If fee is same then compare change
+        // If we use the exactly fee we will not compare the change
+        // as this may affect the transaction and lead to the "not enough fee" error
+        case other.fee where context.fee.isCalculation:
+            // Select with less change
+            return transaction.change < other.change
+
+        default:
+            return false
+        }
+    }
+
     /// Use a stack to store and use an iterative approach
     struct State {
         let selected: [Input]
@@ -155,25 +174,6 @@ private extension BranchAndBoundPreImageTransactionBuilder {
                 remaining: remaining,
                 currentValue: currentValue + Int(currentInput.amount)
             )
-        }
-    }
-}
-
-private extension UTXOPreImageTransaction {
-    func better(than transaction: UTXOPreImageTransaction) -> Bool {
-        // Main priority to reduce the fee
-        switch fee {
-        // If fee is less then return true
-        case ..<transaction.fee:
-            return true
-
-        // If fee is same then compare change
-        case transaction.fee:
-            // Select with less change
-            return change < transaction.change
-
-        default:
-            return false
         }
     }
 }
