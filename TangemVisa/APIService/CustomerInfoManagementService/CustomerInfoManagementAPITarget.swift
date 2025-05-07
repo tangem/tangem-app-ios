@@ -20,8 +20,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
 
     var path: String {
         switch target {
-        case .getCustomerInfo(let customerId):
-            return "customer/\(customerId)"
+        case .getCustomerInfo:
+            return "customer/payment_account"
         }
     }
 
@@ -33,8 +33,11 @@ struct CustomerInfoManagementAPITarget: TargetType {
 
     var task: Moya.Task {
         switch target {
-        case .getCustomerInfo:
-            return .requestPlain
+        case .getCustomerInfo(let productInstanceId):
+            let params = [
+                "product_instance_id": productInstanceId,
+            ]
+            return .requestParameters(parameters: params, encoding: URLEncoding())
         }
     }
 
@@ -50,6 +53,6 @@ extension CustomerInfoManagementAPITarget {
     enum Target {
         /// Load all available customer info. Can be used for loading data about payment account address
         /// Will be updated later, not fully implemented on BFF
-        case getCustomerInfo(customerId: String)
+        case getCustomerInfo(productInstanceId: String)
     }
 }
