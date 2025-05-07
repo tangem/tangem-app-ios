@@ -23,7 +23,7 @@ struct AddressParser {
 
     func parseAddressResponse(_ response: String) throws(VisaParserError) -> String {
         guard
-            response.hasHexPrefix(),
+            response.hasHexPrefixStrictCheck(),
             response.count >= addressLength
         else {
             throw .addressResponseDoesntContainAddress
