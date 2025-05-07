@@ -16,12 +16,15 @@ import TangemLocalization
 import struct TangemUIUtils.AlertBinder
 
 extension Error {
-    var detailedError: Error {
-        if case .underlying(let uError, _) = self as? MoyaError,
-           case .sessionTaskFailed(let sessionError) = uError.asAFError {
-            return sessionError
+    var detailedLocalizedDescription: String {
+        if let moyaError = self as? MoyaError {
+            if let response = moyaError.response,
+               let responseString = String(data: response.data, encoding: .utf8) {
+                return "\(localizedDescription) \(responseString)"
+            }
         }
-        return self
+
+        return localizedDescription
     }
 
     var alertBinder: AlertBinder {
