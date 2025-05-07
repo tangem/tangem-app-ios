@@ -3101,6 +3101,7 @@
 		EFA1547E2CD24B7C00A0642C /* OnrampAmountInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA1547D2CD24B7700A0642C /* OnrampAmountInteractor.swift */; };
 		EFA154802CD24B8700A0642C /* OnrampAmountInputOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA1547F2CD24B8000A0642C /* OnrampAmountInputOutput.swift */; };
 		EFA154822CD2542700A0642C /* OnrampAmountBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA154812CD2542100A0642C /* OnrampAmountBuilder.swift */; };
+		EFA1FD892DCB94FA00AC4B1E /* KaspaUTXOTransactionSizeCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA1FD882DCB94FA00AC4B1E /* KaspaUTXOTransactionSizeCalculator.swift */; };
 		EFA3B2212AC43C350037C48D /* MultipleAddressTransactionHistoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA3B2202AC43C350037C48D /* MultipleAddressTransactionHistoryService.swift */; };
 		EFA4E3752C3EE6ED008815AD /* StakingValidatorsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA4E3742C3EE6ED008815AD /* StakingValidatorsInteractor.swift */; };
 		EFA4E3772C3EE785008815AD /* FakeStakingValidatorsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA4E3762C3EE785008815AD /* FakeStakingValidatorsInteractor.swift */; };
@@ -6555,6 +6556,7 @@
 		EFA1547D2CD24B7700A0642C /* OnrampAmountInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampAmountInteractor.swift; sourceTree = "<group>"; };
 		EFA1547F2CD24B8000A0642C /* OnrampAmountInputOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampAmountInputOutput.swift; sourceTree = "<group>"; };
 		EFA154812CD2542100A0642C /* OnrampAmountBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampAmountBuilder.swift; sourceTree = "<group>"; };
+		EFA1FD882DCB94FA00AC4B1E /* KaspaUTXOTransactionSizeCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaUTXOTransactionSizeCalculator.swift; sourceTree = "<group>"; };
 		EFA3B2202AC43C350037C48D /* MultipleAddressTransactionHistoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipleAddressTransactionHistoryService.swift; sourceTree = "<group>"; };
 		EFA4E3742C3EE6ED008815AD /* StakingValidatorsInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingValidatorsInteractor.swift; sourceTree = "<group>"; };
 		EFA4E3762C3EE785008815AD /* FakeStakingValidatorsInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeStakingValidatorsInteractor.swift; sourceTree = "<group>"; };
@@ -15596,6 +15598,7 @@
 			children = (
 				EF197B052D8C8C410004B575 /* UTXOTransactionSizeCalculator.swift */,
 				EF197B042D8C8C410004B575 /* CommonUTXOTransactionSizeCalculator.swift */,
+				EFA1FD882DCB94FA00AC4B1E /* KaspaUTXOTransactionSizeCalculator.swift */,
 			);
 			path = UTXOTransactionSizeCalculator;
 			sourceTree = "<group>";
@@ -20955,6 +20958,7 @@
 				B62D42BA2CBC79DB00C2460E /* TransactionSendResult.swift in Sources */,
 				B62D41EE2CBC79DB00C2460E /* VeChainNetworkParams.TransactionStatus.swift in Sources */,
 				B62D3FE82CBC79DA00C2460E /* OP_RESERVED2.swift in Sources */,
+				EFA1FD892DCB94FA00AC4B1E /* KaspaUTXOTransactionSizeCalculator.swift in Sources */,
 				B62D41DE2CBC79DB00C2460E /* TronStakeKitTransactionHelper.swift in Sources */,
 				B62D41372CBC79DA00C2460E /* NEARNetworkParams.ViewAccount.swift in Sources */,
 				B62D40882CBC79DA00C2460E /* EnergyWebXExternalLinkProvider.swift in Sources */,
