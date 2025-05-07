@@ -84,7 +84,7 @@ struct SendScreenDataCollector: EmailDataCollector {
             data.append(EmailCollectedData(type: .wallet(.outputsCount), data: outputsDescription))
         }
 
-        if let errorDescription = lastError?.localizedDescription {
+        if let errorDescription = lastError?.error.detailedLocalizedDescription {
             data.append(EmailCollectedData(type: .error, data: errorDescription))
         }
 
@@ -171,7 +171,7 @@ struct PushScreenDataCollector: EmailDataCollector {
 
         data.append(contentsOf: [
             EmailCollectedData(type: .wallet(.walletManagerHost), data: walletModel.blockchainDataProvider.currentHost),
-            EmailCollectedData(type: .error, data: lastError?.localizedDescription ?? "Unknown error"),
+            EmailCollectedData(type: .error, data: lastError?.detailedLocalizedDescription ?? "Unknown error"),
             .separator(.dashes),
             EmailCollectedData(type: .send(.pushingTxHash), data: pushingTxHash),
             EmailCollectedData(type: .send(.pushingFee), data: pushingFee?.description ?? "[unknown]"),
