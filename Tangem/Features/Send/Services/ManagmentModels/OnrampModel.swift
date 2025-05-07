@@ -631,7 +631,7 @@ extension OnrampModel: NotificationTapDelegate {
 
 extension OnrampModel: CustomStringConvertible {
     var description: String {
-        TangemFoundation.objectDescription(self)
+        objectDescription(self)
     }
 }
 

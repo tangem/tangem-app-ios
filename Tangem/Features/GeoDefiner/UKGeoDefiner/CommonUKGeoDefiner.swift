@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 class CommonUKGeoDefiner: UKGeoDefiner {
     private let geoDefiner: GeoDefiner = .init()
