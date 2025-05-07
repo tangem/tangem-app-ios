@@ -1078,8 +1078,7 @@
 "visa_onboarding_in_progress_issuer_description" = "長くはかかりません。アクティベーションを完了しています。";
 "visa_onboarding_in_progress_title" = "準備完了です！";
 "visa_onboarding_other_wallet" = "Other wallet";
-"visa_onboarding_pin_code_description" = "Set up a 4-digit code. 
-It will be used for payments.";
+"visa_onboarding_pin_code_description" = "Set up a 4-digit code.\nIt will be used for payments.";
 "visa_onboarding_pin_code_navigation_title" = "PIN code";
 "visa_onboarding_pin_code_title" = "Create PIN Code";
 "visa_onboarding_pin_not_accepted" = "PINの認証に失敗しました。もう一度お試しいただくか、別のコードを使用してください。";
