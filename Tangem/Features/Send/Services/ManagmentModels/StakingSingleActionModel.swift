@@ -7,9 +7,10 @@
 //
 
 import Foundation
-import TangemStaking
 import Combine
 import BlockchainSdk
+import TangemFoundation
+import TangemStaking
 
 protocol StakingSingleActionModelStateProvider {
     var stakingAction: StakingSingleActionModel.Action { get }
