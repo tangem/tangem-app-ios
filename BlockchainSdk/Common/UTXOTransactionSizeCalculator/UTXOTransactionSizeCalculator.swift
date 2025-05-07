@@ -10,5 +10,15 @@ import Foundation
 
 protocol UTXOTransactionSizeCalculator {
     func dust(type: UTXOScriptType) -> Int
-    func transactionSize(inputs: [ScriptUnspentOutput], outputs: [UTXOScriptType]) -> Int
+    func transactionSize(inputs: [ScriptUnspentOutput], outputs: [UTXOScriptType]) throws -> Int
+}
+
+enum UTXOTransactionSizeCalculatorError: LocalizedError {
+    case unableToSpend
+
+    var errorDescription: String? {
+        switch self {
+        case .unableToSpend: "Unable to spend"
+        }
+    }
 }
