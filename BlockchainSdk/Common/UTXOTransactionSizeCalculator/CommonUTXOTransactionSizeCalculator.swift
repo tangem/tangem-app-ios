@@ -30,7 +30,7 @@ struct CommonUTXOTransactionSizeCalculator: UTXOTransactionSizeCalculator {
         return max(threshold, 546)
     }
 
-    func transactionSize(inputs: [ScriptUnspentOutput], outputs: [UTXOScriptType]) -> Int {
+    func transactionSize(inputs: [ScriptUnspentOutput], outputs: [UTXOScriptType]) throws -> Int {
         let headerSize = Constants.transactionHeaderSize
         let inputsSize = inputs.sum(by: \.script.type.inputSize)
         let outputsSize = outputs.sum(by: \.outputSize)
