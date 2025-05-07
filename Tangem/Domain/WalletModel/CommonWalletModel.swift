@@ -152,7 +152,7 @@ class CommonWalletModel {
         case .failed(WalletError.noAccount(let message, let amountToCreate)):
             return .noAccount(message: message, amountToCreate: amountToCreate)
         case .failed(let error):
-            return .failed(error: error.detailedError.localizedDescription)
+            return .failed(error: error.detailedLocalizedDescription)
         case .loading:
             return .loading
         case .initial:
