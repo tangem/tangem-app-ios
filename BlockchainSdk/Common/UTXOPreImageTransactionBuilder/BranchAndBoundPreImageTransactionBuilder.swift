@@ -94,11 +94,11 @@ private extension BranchAndBoundPreImageTransactionBuilder {
 
             let variants = variantBuilders
                 .compactMap { try? $0.variant(in: context, selected: state.selected, currentValue: state.currentValue) }
-                .sorted(by: { compare(in: context, transaction: $0, with: $1) })
+                .sorted(by: { $0.better(than: $1) })
 
             if let variant = variants.first {
                 // If variant is better then use it as the best
-                if bestVariant == nil || compare(in: context, transaction: variant, with: bestVariant!) {
+                if bestVariant == nil || variant.better(than: bestVariant!) {
                     bestVariant = variant
                     logger.debug(self, "The best variant was updated to \(variant)")
                 }
@@ -118,7 +118,6 @@ private extension BranchAndBoundPreImageTransactionBuilder {
             }
 
             // Branch 1: Exclude current UTXO (push first to process include branch first)
-
             stack.append(state.excludeCurrent(inputs: inputs))
 
             // Branch 2: Include current UTXO
@@ -126,25 +125,6 @@ private extension BranchAndBoundPreImageTransactionBuilder {
         }
 
         return bestVariant
-    }
-
-    func compare(in context: Context, transaction: UTXOPreImageTransaction, with other: UTXOPreImageTransaction) -> Bool {
-        // Main priority to reduce the fee
-        switch transaction.fee {
-        // If fee is less then return true
-        case ..<other.fee:
-            return true
-
-        // If fee is same then compare change
-        // If we use the exactly fee we will not compare the change
-        // as this may affect the transaction and lead to the "not enough fee" error
-        case other.fee where context.fee.isCalculation:
-            // Select with less change
-            return transaction.change < other.change
-
-        default:
-            return false
-        }
     }
 
     /// Use a stack to store and use an iterative approach
@@ -173,6 +153,31 @@ private extension BranchAndBoundPreImageTransactionBuilder {
                 remaining: remaining,
                 currentValue: currentValue + Int(currentInput.amount)
             )
+        }
+    }
+}
+
+// MARK: - CustomStringConvertible
+
+extension BranchAndBoundPreImageTransactionBuilder: CustomStringConvertible {
+    var description: String {
+        TangemFoundation.objectDescription(self)
+    }
+}
+
+private extension UTXOPreImageTransaction {
+    func better(than transaction: UTXOPreImageTransaction) -> Bool {
+        switch size {
+        // Main priority to reduce the size
+        case ..<transaction.size: return true
+
+        // If size is same then compare change
+        // Select with less change
+        case transaction.size:
+            return change < transaction.change
+
+        default:
+            return false
         }
     }
 }
