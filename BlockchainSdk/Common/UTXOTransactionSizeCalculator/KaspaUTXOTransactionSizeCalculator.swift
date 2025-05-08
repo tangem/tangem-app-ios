@@ -30,8 +30,8 @@ struct KaspaUTXOTransactionSizeCalculator: UTXOTransactionSizeCalculator {
         let txMass = size * Constants.massPerTxByte
 
         // outputs scripts size
-        let scriptsMass = outputs.reduce(0) { result, output in
-            let scriptSize = 2 + output.lockingScriptSize // version + script size
+        let scriptsMass = outputs.reduce(0) { result, scriptType in
+            let scriptSize = 2 + lockingScriptSize(scriptType: scriptType) // version + script size
             let scriptMass = scriptSize * Constants.massPerScriptPubKeyByte
             return result + scriptMass
         }
@@ -80,8 +80,27 @@ struct KaspaUTXOTransactionSizeCalculator: UTXOTransactionSizeCalculator {
         size += 8 // value (UInt64)
         size += 2 // version (UInt16)
         size += 8 // length of script public key (UInt64)
-        size += scriptType.lockingScriptSize // script public key
+        size += lockingScriptSize(scriptType: scriptType) // script public key
         return size
+    }
+
+    private func lockingScriptSize(scriptType: UTXOScriptType) -> Int {
+        switch scriptType {
+        // keyLength(1) + PublicKey (33 bytes) + OP_CHECKSIG(1)
+        case .p2pk: 35
+
+        // OP_DUP(1) + OP_HASH160(1) + pushKeyHash(1 + 20) + OP_EQUALVERIFY(1) + OP_CHECKSIG(1)
+        case .p2pkh: 25
+
+        // OP_HASH160(1) + pushKeyHash(1 + 20) + OP_EQUAL(1)
+        case .p2sh: 23
+
+        // Version(1) + pushKeyHash(1 + 20)
+        case .p2wpkh: 22
+
+        // Version(1) + pushKeyHash(1 + 32)
+        case .p2wsh, .p2tr: 34
+        }
     }
 }
 
