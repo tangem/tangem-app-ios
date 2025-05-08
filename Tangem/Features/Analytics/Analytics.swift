@@ -145,16 +145,6 @@ class Analytics {
             )
             Crashlytics.crashlytics().record(error: nsError)
 
-        case let error as DetailedError:
-            let detailedDescription = error.detailedDescription
-            params[.errorDescription] = detailedDescription
-            let nsError = NSError(
-                domain: "DetailedError",
-                code: 1,
-                userInfo: params.dictionaryParams
-            )
-            Crashlytics.crashlytics().record(error: nsError)
-
         default:
             Crashlytics.crashlytics().record(error: error)
         }
