@@ -9,7 +9,9 @@
 public struct OnrampRedirectData: Codable, Equatable {
     public let txId: String
     public let widgetUrl: URL
+    public let redirectUrl: URL
     public let fromAmount: Decimal
     public let fromCurrencyCode: String
-    public let externalTxId: String
+    public let externalTxId: String?
+    public let externalTxUrl: String?
 }
