@@ -10,8 +10,10 @@ import Foundation
 
 public struct VisaCardActivationStatusServiceBuilder {
     private let isMockedAPIEnabled: Bool
+    private let apiType: VisaAPIType
 
-    public init(isMockedAPIEnabled: Bool) {
+    public init(apiType: VisaAPIType, isMockedAPIEnabled: Bool) {
+        self.apiType = apiType
         self.isMockedAPIEnabled = isMockedAPIEnabled
     }
 
@@ -21,9 +23,11 @@ public struct VisaCardActivationStatusServiceBuilder {
         }
 
         return CommonCardActivationStatusService(
+            apiType: apiType,
             apiService: .init(
                 provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
-                decoder: JSONDecoder()
-            ))
+                decoder: JSONDecoderFactory().makePayAPIDecoder()
+            )
+        )
     }
 }
