@@ -40,10 +40,11 @@ struct VisaApprovePairSearchUtility {
                     derivationPath = path
                 }
 
-                let publicKey = try findPublicKey(for: targetAddress, derivationPath: derivationPath, in: wallet)
+                let publicKeys = try findPublicKey(for: targetAddress, derivationPath: derivationPath, in: wallet)
                 return .init(
                     sessionFilter: sessionFilter,
-                    publicKey: publicKey,
+                    seedPublicKey: publicKeys.seedKey,
+                    derivedPublicKey: publicKeys.derivedKey,
                     derivationPath: derivationPath,
                     tangemSdk: config.makeTangemSdk()
                 )
@@ -55,9 +56,10 @@ struct VisaApprovePairSearchUtility {
         return nil
     }
 
-    private func findPublicKey(for targetAddress: String, derivationPath: DerivationPath?, in wallet: CardDTO.Wallet) throws(VisaWalletPublicKeyUtility.SearchError) -> Data {
+    private func findPublicKey(for targetAddress: String, derivationPath: DerivationPath?, in wallet: CardDTO.Wallet) throws(VisaWalletPublicKeyUtility.SearchError) -> (seedKey: Data, derivedKey: Data) {
         guard let derivationPath else {
-            return try findPublicKey(for: targetAddress, in: wallet)
+            let legacyKey = try findLegacyPublicKey(for: targetAddress, in: wallet)
+            return (legacyKey, legacyKey)
         }
 
         guard let extendedPublicKey = wallet.derivedKeys[derivationPath] else {
@@ -66,10 +68,10 @@ struct VisaApprovePairSearchUtility {
 
         try visaWalletPublicKeyUtility.validateExtendedPublicKey(targetAddress: targetAddress, extendedPublicKey: extendedPublicKey, derivationPath: derivationPath)
 
-        return wallet.publicKey
+        return (wallet.publicKey, extendedPublicKey.publicKey)
     }
 
-    private func findPublicKey(for targetAddress: String, in wallet: CardDTO.Wallet) throws(VisaWalletPublicKeyUtility.SearchError) -> Data {
+    private func findLegacyPublicKey(for targetAddress: String, in wallet: CardDTO.Wallet) throws(VisaWalletPublicKeyUtility.SearchError) -> Data {
         let publicKey = wallet.publicKey
 
         try visaWalletPublicKeyUtility.validatePublicKey(targetAddress: targetAddress, publicKey: publicKey)

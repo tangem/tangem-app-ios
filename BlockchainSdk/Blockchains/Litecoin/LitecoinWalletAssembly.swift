@@ -7,23 +7,13 @@
 //
 
 import Foundation
-import TangemSdk
-import BitcoinCore
 
 struct LitecoinWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        let bitcoinManager = BitcoinManager(
-            networkParams: LitecoinNetworkParams(),
-            walletPublicKey: input.wallet.publicKey.blockchainKey,
-            compressedWalletPublicKey: try Secp256k1Key(with: input.wallet.publicKey.blockchainKey).compress(),
-            bip: .bip84
-        )
-
         let unspentOutputManager: UnspentOutputManager = .litecoin(address: input.wallet.defaultAddress)
         let txBuilder = BitcoinTransactionBuilder(
-            bitcoinManager: bitcoinManager,
-            unspentOutputManager: unspentOutputManager,
-            addresses: input.wallet.addresses
+            network: LitecoinNetworkParams(),
+            unspentOutputManager: unspentOutputManager
         )
         let providers: [UTXONetworkProvider] = input.networkInput.apiInfo.reduce(into: []) { partialResult, providerType in
             switch providerType {
