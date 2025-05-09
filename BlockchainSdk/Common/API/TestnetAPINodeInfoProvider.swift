@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 
 struct TestnetAPINodeInfoProvider {
     let blockchain: Blockchain

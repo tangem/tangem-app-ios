@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 struct OnrampCountryDetectionCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: OnrampCountryDetectionCoordinator
