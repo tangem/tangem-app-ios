@@ -60,7 +60,7 @@ public struct Amount: CustomStringConvertible, Hashable, Comparable {
             return "0x0"
         }
 
-        return encoded?.hexString.stripLeadingZeroes().addHexPrefix()
+        return encoded?.hex().stripLeadingZeroes().addHexPrefix()
     }
 
     public var isZero: Bool {
