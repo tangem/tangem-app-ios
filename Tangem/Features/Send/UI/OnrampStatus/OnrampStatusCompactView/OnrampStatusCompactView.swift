@@ -25,8 +25,7 @@ struct OnrampStatusCompactView: View {
         PendingExpressTxStatusView(
             title: Localization.commonTransactionStatus,
             statusesList: viewModel.statusesList,
-            showGoToProviderHeaderButton: false,
-            openProviderAction: {}
+            topTrailingAction: viewModel.externalTxId.map { .copyTxId(id: $0) }
         )
     }
 }

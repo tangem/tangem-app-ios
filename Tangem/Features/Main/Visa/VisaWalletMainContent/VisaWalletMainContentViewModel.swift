@@ -7,17 +7,18 @@
 //
 
 import Foundation
-import TangemLocalization
 import Combine
+import UIKit
 import BlockchainSdk
 import TangemVisa
-import UIKit
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 protocol VisaWalletRoutable: AnyObject {
     func openReceiveScreen(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo])
     func openInSafari(url: URL)
     func openBuyCrypto(at url: URL, action: @escaping () -> Void)
-    func openTransactionDetails(tokenItem: TokenItem, for record: VisaTransactionRecord)
+    func openTransactionDetails(tokenItem: TokenItem, for record: VisaTransactionRecord, emailConfig: EmailConfig)
 }
 
 class VisaWalletMainContentViewModel: ObservableObject {
@@ -86,12 +87,13 @@ class VisaWalletMainContentViewModel: ObservableObject {
         guard
             let transactionId = UInt64(id),
             let transactionRecord = visaWalletModel.transaction(with: transactionId),
-            let tokenItem = visaWalletModel.tokenItem
+            let tokenItem = visaWalletModel.tokenItem,
+            let emailConfig = visaWalletModel.emailConfig
         else {
             return
         }
 
-        coordinator?.openTransactionDetails(tokenItem: tokenItem, for: transactionRecord)
+        coordinator?.openTransactionDetails(tokenItem: tokenItem, for: transactionRecord, emailConfig: emailConfig)
     }
 
     func reloadTransactionHistory() {
@@ -342,16 +344,17 @@ private extension VisaWalletMainContentViewModel {
             .type: Analytics.ParameterValue.visa.rawValue,
         ])
 
-        let addressType = AddressType.default
-        let addressInfo = ReceiveAddressInfo(
-            address: info.accountAddress,
-            type: addressType,
-            localizedName: addressType.defaultLocalizedName,
-            addressQRImage: QrCodeGenerator.generateQRCode(from: info.accountAddress)
+        // Dummy address to use with `ReceiveBottomSheetUtils`
+        let visaAddress = PlainAddress(
+            value: info.accountAddress,
+            publicKey: .init(seedKey: Data(), derivationType: nil),
+            type: .default
         )
+        let addressInfos = ReceiveBottomSheetUtils(flow: .crypto).makeAddressInfos(from: [visaAddress])
+
         coordinator?.openReceiveScreen(
             tokenItem: info.tokenItem,
-            addressInfos: [addressInfo]
+            addressInfos: addressInfos
         )
     }
 

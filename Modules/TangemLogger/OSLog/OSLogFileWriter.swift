@@ -49,7 +49,7 @@ extension OSLogFileWriter {
     var logFile: URL { logFileURL }
 
     func write(_ message: String, category: OSLog.Category, level: OSLog.Level, date: Date = .now) throws {
-        guard !AppEnvironment.current.isProduction else {
+        guard AppEnvironment.current.isAlphaOrBetaOrDebug else {
             return
         }
 
