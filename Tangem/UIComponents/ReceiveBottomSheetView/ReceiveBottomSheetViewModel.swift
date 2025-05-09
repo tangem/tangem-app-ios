@@ -44,13 +44,12 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
         tokenItem.networkName
     }
 
-    init(flow: Flow = .crypto, tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo], hasMemo: Bool) {
+    init(flow: Flow, tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo]) {
         self.tokenItem = tokenItem
         iconURL = tokenItem.id != nil ? IconURLBuilder().tokenIconURL(id: tokenItem.id!) : nil
         self.addressInfos = addressInfos
         self.flow = flow
-
-        memoWarningMessage = hasMemo ? Localization.receiveBottomSheetNoMemoRequiredMessage : nil
+        memoWarningMessage = tokenItem.blockchain.hasMemo ? Localization.receiveBottomSheetNoMemoRequiredMessage : nil
 
         bind()
     }

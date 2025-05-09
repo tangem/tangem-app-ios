@@ -7,12 +7,13 @@
 //
 
 import Foundation
-import TangemLocalization
 import SwiftUI
 import UIKit
 import Combine
 import BlockchainSdk
 import TangemSdk
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 final class MarketsTokensNetworkSelectorViewModel: Identifiable, ObservableObject {
     // MARK: - Published Properties

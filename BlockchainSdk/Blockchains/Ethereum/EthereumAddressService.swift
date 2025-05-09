@@ -17,7 +17,7 @@ struct EthereumAddressService {
             return nil
         }
 
-        let hash = hashData.sha3(.keccak256).hexString.lowercased().removeHexPrefix()
+        let hash = hashData.sha3(.keccak256).hex().removeHexPrefix()
 
         var ret = "0x"
         let hashChars = Array(hash)
@@ -46,7 +46,7 @@ extension EthereumAddressService: AddressProvider {
         // Skip secp256k1 prefix
         let keccak = walletPublicKey[1...].sha3(.keccak256)
         let addressBytes = keccak[12...]
-        let address = addressBytes.hexString.addHexPrefix()
+        let address = addressBytes.hex().addHexPrefix()
 
         guard let checksumAddress = toChecksumAddress(address) else {
             throw EthereumAddressServiceError.failedToGetChecksumAddress
@@ -68,7 +68,7 @@ extension EthereumAddressService: AddressValidator {
         if let checksummed = toChecksumAddress(address), checksummed == address {
             return true
         } else {
-            let cleanHex = address.stripHexPrefix()
+            let cleanHex = address.removeHexPrefix()
             if cleanHex.lowercased() != cleanHex, cleanHex.uppercased() != cleanHex {
                 return false
             }
