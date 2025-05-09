@@ -9,9 +9,11 @@
 import Foundation
 
 public struct VisaAuthorizationTokensHandlerBuilder {
+    private let apiType: VisaAPIType
     private let isMockedAPIEnabled: Bool
 
-    public init(isMockedAPIEnabled: Bool) {
+    public init(apiType: VisaAPIType, isMockedAPIEnabled: Bool) {
+        self.apiType = apiType
         self.isMockedAPIEnabled = isMockedAPIEnabled
     }
 
@@ -28,8 +30,11 @@ public struct VisaAuthorizationTokensHandlerBuilder {
             authorizationTokensHolder = .init()
         }
 
-        let authorizationTokenRefreshService = VisaAPIServiceBuilder(mockedAPI: isMockedAPIEnabled)
-            .buildAuthorizationTokenRefreshService(urlSessionConfiguration: urlSessionConfiguration)
+        let authorizationTokenRefreshService = VisaAPIServiceBuilder(
+            apiType: apiType,
+            isMockedAPIEnabled: isMockedAPIEnabled
+        )
+        .buildAuthorizationTokenRefreshService(urlSessionConfiguration: urlSessionConfiguration)
 
         let authorizationTokensHandler = CommonVisaAuthorizationTokensHandler(
             cardId: cardId,

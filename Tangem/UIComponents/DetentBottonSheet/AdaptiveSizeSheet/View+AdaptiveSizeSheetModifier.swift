@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemUIUtils
 
 struct AdaptiveSizeSheetModifier: ViewModifier {
     @StateObject private var viewModel = AdaptiveSizeSheetViewModel()
@@ -54,31 +55,6 @@ private extension View {
                 .presentationDetents([.height(contentHeight)])
                 .presentationDragIndicator(.hidden)
                 .presentationCornerRadiusBackport(cornerRadius)
-        } else {
-            self
-        }
-    }
-}
-
-@available(iOS 16.0, *)
-private extension View {
-    @ViewBuilder
-    func presentationCornerRadiusBackport(_ cornerRadius: CGFloat) -> some View {
-        if #available(iOS 16.4, *) {
-            presentationCornerRadius(cornerRadius)
-        } else {
-            presentationConfiguration { controller in
-                controller.preferredCornerRadius = cornerRadius
-            }
-        }
-    }
-}
-
-private extension View {
-    @ViewBuilder
-    func scrollDisabledBackport(_ isDisabled: Bool) -> some View {
-        if #available(iOS 16.0, *) {
-            scrollDisabled(isDisabled)
         } else {
             self
         }
