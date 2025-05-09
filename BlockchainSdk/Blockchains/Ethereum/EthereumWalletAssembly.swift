@@ -7,9 +7,6 @@
 //
 
 import Foundation
-import TangemSdk
-import stellarsdk
-import BitcoinCore
 
 struct EthereumWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {

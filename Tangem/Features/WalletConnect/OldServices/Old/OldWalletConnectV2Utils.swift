@@ -111,6 +111,8 @@ struct OldWalletConnectV2Utils {
 
             let filteredWallets = walletModelProvider.getModels(with: blockchain.id)
 
+            supportedChains.insert(wcBlockchain)
+
             if filteredWallets.isEmpty {
                 if proposal.namespaceRequiredChains.contains(wcBlockchain) {
                     missingBlockchains.append(blockchain.displayName)
@@ -120,8 +122,6 @@ struct OldWalletConnectV2Utils {
 
                 return nil
             }
-
-            supportedChains.insert(wcBlockchain)
 
             return filteredWallets.compactMap { walletModel in
                 Account("\(wcBlockchain.absoluteString):\(walletModel.defaultAddressString)")
@@ -136,8 +136,10 @@ struct OldWalletConnectV2Utils {
             throw WalletConnectV2Error.unsupportedBlockchains(unsupportedEVMBlockchains)
         }
 
-        guard accounts.isNotEmpty else {
-            throw WalletConnectV2Error.unsupportedNetwork
+        switch (accounts.isEmpty, missingOptionalBlockchains.isEmpty) {
+        case (true, true): throw WalletConnectV2Error.unsupportedNetwork
+        case (true, false): throw WalletConnectV2Error.missingOptionalBlockchains(missingOptionalBlockchains)
+        default: break
         }
 
         do {
@@ -174,8 +176,15 @@ struct OldWalletConnectV2Utils {
             dAppInfo: dAppInfo
         )
 
+        let connectedBlockchains = session.namespaces
+            .values
+            .flatMap { $0.chains ?? [] }
+            .compactMap(WCUtils.makeBlockchain)
+
         return WalletConnectSavedSession(
             userWalletId: userWalletId,
+            connectionDate: Date.now,
+            connectedBlockchains: connectedBlockchains,
             topic: session.topic,
             sessionInfo: sessionInfo
         )
@@ -239,34 +248,5 @@ extension OldWalletConnectV2Utils {
             default: return nil
             }
         }
-    }
-}
-
-// MARK: - Session proposal helper properties for AutoNamespacesBuilder
-
-private extension Session.Proposal {
-    var namespaceRequiredChains: Set<WalletConnectUtils.Blockchain> {
-        Set(requiredNamespaces.values.compactMap(\.chains).flatMap { $0 })
-    }
-
-    var namespaceChains: [WalletConnectUtils.Blockchain] {
-        let requiredChains = requiredNamespaces.values.compactMap(\.chains).flatMap { $0.asArray }
-        let optionalChains = optionalNamespaces?.values.compactMap(\.chains).flatMap { $0.asArray } ?? []
-
-        return requiredChains + optionalChains
-    }
-
-    var namespaceMethods: [String] {
-        let requiredMethods = requiredNamespaces.values.flatMap { $0.methods.asArray }
-        let optionalMethods = optionalNamespaces?.values.flatMap { $0.methods.asArray } ?? []
-
-        return requiredMethods + optionalMethods
-    }
-
-    var namespaceEvents: [String] {
-        let requiredEvents = requiredNamespaces.values.flatMap { $0.events.asArray }
-        let optionalEvents = optionalNamespaces?.values.flatMap { $0.events.asArray } ?? []
-
-        return requiredEvents + optionalEvents
     }
 }
