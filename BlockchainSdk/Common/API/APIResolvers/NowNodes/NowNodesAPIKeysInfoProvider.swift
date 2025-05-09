@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 
 struct NowNodesAPIKeysInfoProvider {
     let apiKey: String

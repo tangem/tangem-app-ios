@@ -7,10 +7,12 @@
 //
 
 import Foundation
-import TangemLocalization
+import UIKit
 import Combine
 import TangemExpress
-import UIKit
+import TangemLocalization
+import struct TangemUI.TokenIconInfo
+import struct TangemUIUtils.AlertBinder
 
 class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable {
     var transactionID: String? {
@@ -54,7 +56,6 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     private var subscription: AnyCancellable?
     private var notificationUpdateWorkItem: DispatchWorkItem?
     private weak var router: PendingExpressTxStatusRoutable?
-    private var successToast: Toast<SuccessToast>?
     private var externalProviderTxURL: URL? {
         pendingTransaction.externalTxURL.flatMap { URL(string: $0) }
     }
@@ -149,14 +150,6 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         }
 
         openProvider()
-    }
-
-    func copyTransactionID() {
-        UIPasteboard.general.string = transactionID
-
-        let toastView = SuccessToast(text: Localization.expressTransactionIdCopied)
-        successToast = Toast(view: toastView)
-        successToast?.present(layout: .top(padding: 14), type: .temporary())
     }
 
     private func openProvider() {
@@ -466,7 +459,8 @@ extension PendingExpressTxStatusBottomSheetViewModel {
              .done,
              .verificationRequired,
              .failed,
-             .txFailed:
+             .txFailed,
+             .refunding:
             isHideButtonShowed = false
         }
     }

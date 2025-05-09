@@ -10,44 +10,62 @@ import SwiftUI
 import TangemAssets
 
 struct ProgressDots: View {
-    let style: Style
-    @State private var loading = false
+    private let style: Style
+
+    @State private var animation1: Bool = false
+    @State private var animation2: Bool = false
+    @State private var animation3: Bool = false
+
+    init(style: Style) {
+        self.style = style
+    }
 
     var body: some View {
         HStack(spacing: style.spacing) {
-            ForEach(0 ..< 3) { index in
-                Circle()
-                    .fill(Colors.Icon.accent)
-                    .frame(width: style.size, height: style.size)
-                    .scaleEffect(loading ? 0.75 : 1)
-                    .opacity(loading ? 0.25 : 1)
-                    .animation(animation(index: index), value: loading)
-            }
+            circle(animated: animation1)
+
+            circle(animated: animation2)
+
+            circle(animated: animation3)
         }
+        .fixedSize()
         .onAppear {
-            if !loading {
-                loading = true
+            withAnimation(Constants.animation) {
+                animation1 = true
+            }
+
+            withAnimation(Constants.animation.delay(Constants.interval)) {
+                animation2 = true
+            }
+
+            withAnimation(Constants.animation.delay(Constants.interval * 2)) {
+                animation3 = true
             }
         }
         .onDisappear {
-            if loading {
-                loading = false
+            withAnimation(.none) {
+                animation1 = false
+                animation2 = false
+                animation3 = false
             }
         }
     }
 
-    func animation(index: Int) -> Animation {
-        .easeInOut(duration: 0.8)
-            .repeatForever(autoreverses: true)
-            // Start animation with delay depends of index
-            // Index(0) -> delay(0)
-            // Index(1) -> delay(0.3)
-            // Index(2) -> delay(0.6)
-            .delay(CGFloat(index) * 0.3)
+    private func circle(animated: Bool) -> some View {
+        Circle()
+            .fill(Colors.Icon.accent)
+            .frame(width: style.size, height: style.size)
+            .scaleEffect(animated ? 0.75 : 1)
+            .opacity(animated ? 0.25 : 1)
     }
 }
 
 extension ProgressDots {
+    private enum Constants {
+        static let animation: Animation = .linear(duration: interval * 3).repeatForever(autoreverses: true)
+        static let interval: TimeInterval = 0.2
+    }
+
     enum Style: Hashable {
         case small
         case large
