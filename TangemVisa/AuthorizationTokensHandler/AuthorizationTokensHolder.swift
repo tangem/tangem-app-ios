@@ -8,36 +8,38 @@
 
 import Foundation
 
-actor AuthorizationTokensHolder {
-    private var jwtTokens: DecodedAuthorizationJWTTokens?
-    private var authTokens: VisaAuthorizationTokens?
+struct InternalAuthorizationTokens {
+    let bffTokens: VisaAuthorizationTokens
+    let jwtTokens: DecodedAuthorizationJWTTokens
 
-    var tokens: DecodedAuthorizationJWTTokens? {
-        get async {
-            jwtTokens
-        }
+    init(bffTokens: VisaAuthorizationTokens) throws {
+        let decodedJWTTokens = try AuthorizationTokensUtility().decodeAuthTokens(bffTokens)
+        self.bffTokens = bffTokens
+        jwtTokens = decodedJWTTokens
     }
+}
 
-    var authorizationTokens: VisaAuthorizationTokens? {
+actor AuthorizationTokensHolder {
+    private var authTokensInfo: InternalAuthorizationTokens?
+
+    var tokensInfo: InternalAuthorizationTokens? {
         get async {
-            authTokens
+            authTokensInfo
         }
     }
 
     init(authorizationTokens: VisaAuthorizationTokens? = nil) {
-        if let authorizationTokens,
-           let decodedTokens = try? AuthorizationTokensUtility().decodeAuthTokens(authorizationTokens) {
-            jwtTokens = decodedTokens
+        guard
+            let authorizationTokens,
+            let tokensInfo = try? InternalAuthorizationTokens(bffTokens: authorizationTokens)
+        else {
+            return
         }
-        authTokens = authorizationTokens
+
+        authTokensInfo = tokensInfo
     }
 
-    func setTokens(_ tokens: DecodedAuthorizationJWTTokens) async {
-        jwtTokens = tokens
-    }
-
-    func setTokens(authorizationTokens: VisaAuthorizationTokens) async throws {
-        authTokens = authorizationTokens
-        try await setTokens(AuthorizationTokensUtility().decodeAuthTokens(authorizationTokens))
+    func setTokens(authorizationTokens: InternalAuthorizationTokens) async throws {
+        authTokensInfo = authorizationTokens
     }
 }

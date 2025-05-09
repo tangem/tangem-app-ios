@@ -11,6 +11,7 @@ import Foundation
 
 class OnrampStatusCompactViewModel: ObservableObject {
     @Published var statusesList: [PendingExpressTxStatusRow.StatusRowData] = []
+    @Published var externalTxId: String?
 
     private let pendingTransactionsManager: PendingExpressTransactionsManager
     private var bag: Set<AnyCancellable> = []
@@ -45,6 +46,7 @@ private extension OnrampStatusCompactViewModel {
     func updateUI(pendingTransaction: PendingTransaction) {
         let converter = PendingExpressTransactionsConverter()
         let (list, _) = converter.convertToStatusRowDataList(for: pendingTransaction)
+        externalTxId = pendingTransaction.externalTxId
         statusesList = list
     }
 

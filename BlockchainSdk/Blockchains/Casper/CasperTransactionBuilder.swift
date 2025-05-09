@@ -26,11 +26,7 @@ final class CasperTransactionBuilder {
 
     func buildForSign(transaction: Transaction, timestamp: String) throws -> Data {
         let deploy = try build(transaction: transaction, with: timestamp)
-
-        guard let dataHash = deploy.hash.hexadecimal else {
-            throw CasperTransactionBuilderError.undefinedDeployHash
-        }
-
+        let dataHash = Data(hexString: deploy.hash)
         return dataHash
     }
 
@@ -39,7 +35,7 @@ final class CasperTransactionBuilder {
 
         let dai1 = CSPRDeployApprovalItem()
         dai1.signer = deploy.header.account
-        dai1.signature = try signatureByCurveWithPrefix(signature: signature, for: curve).hexString.lowercased()
+        dai1.signature = try signatureByCurveWithPrefix(signature: signature, for: curve).hex()
 
         deploy.approvals = [dai1]
 
