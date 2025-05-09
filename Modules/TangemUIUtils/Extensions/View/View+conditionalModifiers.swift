@@ -21,36 +21,16 @@ public extension View {
     /// Applies a modifier to a view conditionally.
     ///
     /// - Parameters:
-    ///   - condition: The condition to determine the content to be applied.
-    ///   - trueContent: The modifier to apply to the view if the condition passes.
-    ///   - falseContent: The modifier to apply to the view if the condition fails.
-    /// - Returns: The modified view.
-    @ViewBuilder
-    func modifier<TrueContent: View, FalseContent: View>(
-        if condition: @autoclosure () -> Bool,
-        @ViewBuilder then trueContent: (Self) -> TrueContent,
-        @ViewBuilder else falseContent: (Self) -> FalseContent
-    ) -> some View {
-        if condition() {
-            trueContent(self)
-        } else {
-            falseContent(self)
-        }
-    }
-
-    /// Applies a modifier to a view conditionally.
-    ///
-    /// - Parameters:
     ///   - ifLet: The optional value.
     ///   - content: The modifier to apply to the view in optionalValue is inwrapped.
     /// - Returns: The modified view.
     @ViewBuilder
-    func modifier<Content: View, Value>(
-        ifLet optionalValue: Value?,
-        @ViewBuilder then content: (Self, Value) -> Content
+    func ifLet<Content: View, Value>(
+        _ optionalValue: Value?,
+        transform: (Self, Value) -> Content
     ) -> some View {
-        if let optionalValue = optionalValue {
-            content(self, optionalValue)
+        if let optionalValue {
+            transform(self, optionalValue)
         } else {
             self
         }
@@ -68,6 +48,26 @@ public extension View {
             transform(self)
         } else {
             self
+        }
+    }
+
+    /// Applies a modifier to a view conditionally.
+    ///
+    /// - Parameters:
+    ///   - condition: The condition to determine the content to be applied.
+    ///   - trueContent: The modifier to apply to the view if the condition passes.
+    ///   - falseContent: The modifier to apply to the view if the condition fails.
+    /// - Returns: The modified view.
+    @ViewBuilder
+    func `if`<TrueContent: View, FalseContent: View>(
+        _ condition: Bool,
+        then: (Self) -> TrueContent,
+        else: (Self) -> FalseContent
+    ) -> some View {
+        if condition {
+            then(self)
+        } else {
+            `else`(self)
         }
     }
 }
