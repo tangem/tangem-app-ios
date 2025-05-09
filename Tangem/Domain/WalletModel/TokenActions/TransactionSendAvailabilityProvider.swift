@@ -24,7 +24,7 @@ struct TransactionSendAvailabilityProvider {
             return .oldCard
         }
 
-        if !AppUtils().canSignTransaction(for: walletModel.tokenItem) {
+        if !AppUtils().canSend(walletModel.tokenItem) {
             return .cantSignLongTransactions
         }
 
