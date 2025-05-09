@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemSdk
+import TangemLocalization
 
 enum XRPError: Int, Error, LocalizedError {
     // WARNING: Make sure to preserve the error codes when removing or inserting errors
@@ -87,7 +88,7 @@ extension XRPWalletManager: TransactionSender {
                 }
 
                 if !isAccountCreated, transaction.amount.value < walletReserve.value {
-                    throw WalletError.noAccount(message: Localization.sendErrorNoTargetAccount(walletReserve.value), amountToCreate: walletReserve.value)
+                    throw WalletError.noAccount(message: Localization.sendErrorNoTargetAccount(walletReserve.value.stringValue), amountToCreate: walletReserve.value)
                 }
 
                 return buldResponse
