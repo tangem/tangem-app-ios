@@ -13,7 +13,7 @@ import CombineExt
 /// A factory that creates a so-called `source publisher` for use with `TokenSectionsAdapter.organizedSections(from:on:)`
 /// method as the source of truth for creating token sections.
 struct TokenSectionsSourcePublisherFactory {
-    func makeSourcePublisherForMainScreen(for userWalletModel: UserWalletModel) -> some Publisher<[WalletModel], Never> {
+    func makeSourcePublisherForMainScreen(for userWalletModel: UserWalletModel) -> some Publisher<[any WalletModel], Never> {
         let walletModelsPublisher = walletModelsPublisher(for: userWalletModel).eraseToAnyPublisher()
 
         // Fiat balance changes for the coins and tokens for the user wallet
@@ -30,12 +30,12 @@ struct TokenSectionsSourcePublisherFactory {
     }
 
     /// Fix [REDACTED_INFO]
-    func makeSourcePublisher(for userWalletModel: UserWalletModel) -> some Publisher<[WalletModel], Never> {
+    func makeSourcePublisher(for userWalletModel: UserWalletModel) -> some Publisher<[any WalletModel], Never> {
         return walletModelsPublisher(for: userWalletModel)
     }
 
     /// The contents of the coins and tokens collection for the user wallet
-    private func walletModelsPublisher(for userWalletModel: UserWalletModel) -> some Publisher<[WalletModel], Never> {
+    private func walletModelsPublisher(for userWalletModel: UserWalletModel) -> some Publisher<[any WalletModel], Never> {
         userWalletModel
             .walletModelsManager
             .walletModelsPublisher

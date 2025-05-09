@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 struct MultipleRewardsCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: MultipleRewardsCoordinator
