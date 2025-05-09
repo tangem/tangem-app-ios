@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemNetworkUtils
+import TangemLocalization
 
 struct AptosNetworkProvider: HostProvider {
     // MARK: - HostProvider

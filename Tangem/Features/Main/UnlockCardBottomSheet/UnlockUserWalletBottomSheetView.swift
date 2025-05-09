@@ -9,6 +9,8 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemUI
+import TangemUIUtils
 
 struct UnlockUserWalletBottomSheetView: View {
     @ObservedObject var viewModel: UnlockUserWalletBottomSheetViewModel

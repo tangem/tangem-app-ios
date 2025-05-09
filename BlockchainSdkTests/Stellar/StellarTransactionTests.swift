@@ -109,7 +109,7 @@ final class StellarTransactionTests {
                         #expect(Bool(false), Comment(rawValue: "Failed to build tx. Reason: \(error.localizedDescription)"))
                     }
                 }, receiveValue: { hash, txData in
-                    #expect(hash.hexString == "D6EF2200869C35741B61C890481F81C7DCCF3AEC3756C074D35EDE7C789BED31")
+                    #expect(hash.hex(.uppercase) == "D6EF2200869C35741B61C890481F81C7DCCF3AEC3756C074D35EDE7C789BED31")
 
                     let dummySignature = Data(repeating: 0, count: 64)
                     let messageForSend = txBuilder.buildForSend(signature: dummySignature, transaction: txData)

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import struct TangemUI.TokenIconInfo
 
 struct HotCryptoToken: Identifiable {
     let id = UUID()

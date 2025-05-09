@@ -30,4 +30,11 @@ public struct StakingBlockchainParams {
     public var stakingDepositAmount: UInt64 {
         stakingDeposit * blockchain.decimalValue.uint64Value
     }
+
+    public var reservedFee: Decimal {
+        switch blockchain {
+        case .ton: Decimal(stringValue: "0.2")!
+        default: .zero
+        }
+    }
 }

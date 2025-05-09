@@ -80,7 +80,7 @@ public struct VisaWalletPublicKeyUtility {
     }
 
     private func validateCreatedAddress(targetAddress: String, createdAddress: any Address) throws(SearchError) {
-        guard createdAddress.value == targetAddress else {
+        guard createdAddress.value.caseInsensitiveCompare(targetAddress) == .orderedSame else {
             throw .addressesNotMatch
         }
     }

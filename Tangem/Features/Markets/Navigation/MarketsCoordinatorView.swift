@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct MarketsCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: MarketsCoordinator

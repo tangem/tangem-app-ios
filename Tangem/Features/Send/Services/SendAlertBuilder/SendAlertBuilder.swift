@@ -7,9 +7,10 @@
 //
 
 import Foundation
-import TangemLocalization
 import SwiftUI
 import BlockchainSdk
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 protocol SendAlertBuilder {
     func makeTransactionFailedAlert(sendTxError: SendTxError, openMailAction: @escaping () -> Void) -> AlertBinder

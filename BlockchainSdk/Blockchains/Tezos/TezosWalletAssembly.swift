@@ -7,8 +7,6 @@
 //
 
 import Foundation
-import TangemSdk
-import BitcoinCore
 import TangemNetworkUtils
 
 struct TezosWalletAssembly: WalletManagerAssembly {

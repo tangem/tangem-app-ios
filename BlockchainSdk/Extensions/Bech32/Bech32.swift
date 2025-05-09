@@ -91,13 +91,13 @@ class Bech32 {
     }
 
     /// Encode Bech32 string
-    func encode(_ hrp: String, values: Data) -> String {
-        guard let convertedValues = try? convertBits(data: values.bytes, fromBits: 8, toBits: 5, pad: true) else {
-            assertionFailure()
-            return ""
-        }
+    func encode(_ hrp: String, values: Data) throws -> String {
+        let converted = try convertBits(data: values.bytes, fromBits: 8, toBits: 5, pad: true)
+        return encode(hrp, converted: Data(converted))
+    }
 
-        var combined = Data(convertedValues)
+    func encode(_ hrp: String, converted: Data) -> String {
+        var combined = converted
         let checksum = createChecksum(hrp: hrp, values: combined)
         combined.append(checksum)
         guard let hrpBytes = hrp.data(using: .utf8) else { return "" }

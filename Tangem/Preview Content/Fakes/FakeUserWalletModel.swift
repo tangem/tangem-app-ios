@@ -11,6 +11,7 @@ import Combine
 import TangemSdk
 import BlockchainSdk
 import TangemAssets
+import TangemNFT
 
 class FakeUserWalletModel: UserWalletModel, ObservableObject {
     var hasImportedWallets: Bool { false }
@@ -21,6 +22,7 @@ class FakeUserWalletModel: UserWalletModel, ObservableObject {
     let backupInput: OnboardingInput? = nil
     let walletModelsManager: WalletModelsManager
     let userTokenListManager: UserTokenListManager
+    var nftManager: NFTManager { NFTManagerStub() }
     let userTokensManager: UserTokensManager
     let totalBalanceProvider: TotalBalanceProviding
     let signer: TangemSigner = .init(filter: .cardId(""), sdk: .init(), twinKey: nil)

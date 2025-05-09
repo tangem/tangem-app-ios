@@ -12,6 +12,7 @@ import SwiftUI
 import BlockchainSdk
 import TangemAssets
 import TangemFoundation
+import struct TangemUI.TokenIconInfo
 
 protocol TokenItemContextActionsProvider: AnyObject {
     func buildContextActions(for tokenItemViewModel: TokenItemViewModel) -> [TokenContextActionsSection]

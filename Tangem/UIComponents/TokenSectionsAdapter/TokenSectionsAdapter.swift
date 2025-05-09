@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import CombineExt
+import TangemUI
 
 /// Placed in a separate module because it is used by both 'Main' and 'Organize Tokens' modules
 final class TokenSectionsAdapter {
@@ -41,7 +42,7 @@ final class TokenSectionsAdapter {
     }
 
     func organizedSections(
-        from walletModels: some Publisher<[WalletModel], Never>,
+        from walletModels: some Publisher<[any WalletModel], Never>,
         on workingQueue: DispatchQueue
     ) -> some Publisher<[Section], Never> {
         return walletModels

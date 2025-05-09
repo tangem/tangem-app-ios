@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemSdk
 import stellarsdk
+import TangemLocalization
 
 class TezosWalletManager: BaseManager, WalletManager {
     var txBuilder: TezosTransactionBuilder!

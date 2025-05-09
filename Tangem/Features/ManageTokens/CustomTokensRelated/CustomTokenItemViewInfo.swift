@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import struct TangemUI.TokenIconInfo
 
 struct CustomTokenItemViewInfo: Hashable, Identifiable {
     var id: Int { hashValue }

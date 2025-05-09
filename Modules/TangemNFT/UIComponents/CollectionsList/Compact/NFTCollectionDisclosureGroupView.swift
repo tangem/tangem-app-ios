@@ -9,24 +9,22 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemLocalization
 
 struct NFTCollectionDisclosureGroupView: View {
-    let viewModel: NFTCompactCollectionViewModel
-
-    @State
-    private var isOpened = false
+    @ObservedObject var viewModel: NFTCompactCollectionViewModel
 
     var body: some View {
-        discslosureGroup
+        disclosureGroup
     }
 
-    private var discslosureGroup: some View {
+    private var disclosureGroup: some View {
         CustomDisclosureGroup(
-            isExpanded: isOpened,
+            isExpanded: viewModel.isExpanded,
             transition: .opacity,
             actionOnClick: {
                 withAnimation {
-                    isOpened.toggle()
+                    viewModel.onTap()
                 }
                 UIImpactFeedbackGenerator(style: .medium).impactOccurred()
             },
@@ -47,8 +45,8 @@ struct NFTCollectionDisclosureGroupView: View {
             iconURL: viewModel.logoURL,
             iconOverlayImage: viewModel.blockchainImage,
             title: viewModel.name,
-            subtitle: "\(viewModel.numberOfItems) items", // [REDACTED_TODO_COMMENT]
-            isExpanded: isOpened
+            subtitle: Localization.nftCollectionsCount(viewModel.numberOfItems),
+            isExpanded: viewModel.isExpanded
         )
     }
 }
@@ -79,12 +77,12 @@ struct DummyProvider: NFTChainIconProvider {
                 description: "",
                 logoURL: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!,
                 assetsCount: nil,
-                assets: (0 ... 10).map {
+                assets: (0 ... 2).map {
                     NFTAsset(
                         assetIdentifier: "some-\($0)",
                         collectionIdentifier: "some1",
                         chain: .solana,
-                        contractType: .splToken2022,
+                        contractType: .unknown,
                         ownerAddress: "",
                         name: "My asset",
                         description: "",
@@ -94,7 +92,9 @@ struct DummyProvider: NFTChainIconProvider {
                     )
                 }
             ),
-            nftChainIconProvider: DummyProvider()
+            nftChainIconProvider: DummyProvider(),
+            openAssetDetailsAction: { _ in },
+            onTapAction: {}
         )
     )
 }

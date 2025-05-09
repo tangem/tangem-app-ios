@@ -10,9 +10,11 @@ import Foundation
 
 final class NFTCompactAssetViewModel: Identifiable {
     private let nftAsset: NFTAsset
+    private let openAssetDetailsAction: (NFTAsset) -> Void
 
-    init(nftAsset: NFTAsset) {
+    init(nftAsset: NFTAsset, openAssetDetailsAction: @escaping (NFTAsset) -> Void) {
         self.nftAsset = nftAsset
+        self.openAssetDetailsAction = openAssetDetailsAction
     }
 
     var id: String {
@@ -32,6 +34,6 @@ final class NFTCompactAssetViewModel: Identifiable {
     }
 
     func didClick() {
-        // [REDACTED_TODO_COMMENT]
+        openAssetDetailsAction(nftAsset)
     }
 }
