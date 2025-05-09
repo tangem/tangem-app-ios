@@ -29,9 +29,9 @@ class RadiantTransactionBuilder {
 
     // MARK: - Implementation
 
-    func buildForSign(transaction: Transaction) throws -> [Data] {
+    func buildForSign(transaction: Transaction) async throws -> [Data] {
         let sourceLockingScript = try lockingScriptBuilder.lockingScript(for: transaction.sourceAddress)
-        let (unspents, outputs) = try buildPreImageData(transaction: transaction)
+        let (unspents, outputs) = try await buildPreImageData(transaction: transaction)
 
         let hashes = unspents.enumerated().map { index, _ in
             let preImageHash = buildPreImageHashes(
@@ -47,9 +47,9 @@ class RadiantTransactionBuilder {
         return hashes
     }
 
-    func buildForSend(transaction: Transaction, signatures: [Data]) throws -> Data {
+    func buildForSend(transaction: Transaction, signatures: [Data]) async throws -> Data {
         let signedOutputScripts = try scriptUtils.buildSignedScripts(signatures: signatures, publicKey: walletPublicKey)
-        let (unspents, outputs) = try buildPreImageData(transaction: transaction)
+        let (unspents, outputs) = try await buildPreImageData(transaction: transaction)
 
         let inputs = zip(unspents, signedOutputScripts).map { output, signedOutputScript in
             TransactionInput(previousOutputHash: output.hash, previousOutputIndex: output.index, amount: output.amount, signedScript: signedOutputScript)
@@ -59,14 +59,14 @@ class RadiantTransactionBuilder {
         return rawTransaction
     }
 
-    func estimateFee(amount: Amount, destination: String, feeRate: Int) throws -> Int {
+    func estimateFee(amount: Amount, destination: String, feeRate: Int) async throws -> Int {
         let amount = amount.asSmallest().value.intValue()
-        let preImage = try unspentOutputManager.preImage(amount: amount, feeRate: feeRate, destination: destination)
+        let preImage = try await unspentOutputManager.preImage(amount: amount, feeRate: feeRate, destination: destination)
         return preImage.fee
     }
 
-    private func buildPreImageData(transaction: Transaction) throws -> (unspents: [UnspentOutput], outputs: [TransactionOutput]) {
-        let preImage = try unspentOutputManager.preImage(transaction: transaction)
+    private func buildPreImageData(transaction: Transaction) async throws -> (unspents: [UnspentOutput], outputs: [TransactionOutput]) {
+        let preImage = try await unspentOutputManager.preImage(transaction: transaction)
 
         let unspents = preImage.inputs.map {
             UnspentOutput(hash: $0.hash, index: $0.index, amount: $0.amount, script: $0.script.data)
