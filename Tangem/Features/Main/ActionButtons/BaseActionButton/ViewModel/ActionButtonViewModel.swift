@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import struct TangemUIUtils.AlertBinder
 
 protocol ActionButtonViewModel: ObservableObject, Identifiable {
     var viewState: ActionButtonState { get }

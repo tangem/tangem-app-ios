@@ -31,6 +31,9 @@ struct NFTCollectionRow: View {
                 .animation(Constants.rotationAnimation, value: isExpanded)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(
+            height: Constants.Icon.size.height + abs(Constants.Icon.Overlay.offset.height)
+        )
     }
 
     private var textsView: some View {
