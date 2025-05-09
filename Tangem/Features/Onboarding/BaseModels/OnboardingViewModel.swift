@@ -7,9 +7,11 @@
 //
 
 import SwiftUI
-import TangemLocalization
 import Combine
 import TangemSdk
+import TangemUI
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable> {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
