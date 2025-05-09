@@ -11,6 +11,7 @@ import SwiftUI
 import BlockchainSdk
 import TangemAssets
 import TangemSdk
+import TangemNFT
 
 class CommonUserWalletModel {
     // MARK: Services
@@ -22,6 +23,7 @@ class CommonUserWalletModel {
     let walletModelsManager: WalletModelsManager
     let userTokensManager: UserTokensManager
     let userTokenListManager: UserTokenListManager
+    let nftManager: NFTManager
     let keysRepository: KeysRepository
     let derivationManager: DerivationManager?
     let totalBalanceProvider: TotalBalanceProviding
@@ -72,8 +74,9 @@ class CommonUserWalletModel {
         associatedCardIds: Set<String>,
         walletManagersRepository: WalletManagersRepository,
         walletModelsManager: WalletModelsManager,
-        userTokensManager: CommonUserTokensManager,
+        userTokensManager: UserTokensManager,
         userTokenListManager: UserTokenListManager,
+        nftManager: NFTManager,
         keysRepository: KeysRepository,
         derivationManager: DerivationManager?,
         totalBalanceProvider: TotalBalanceProviding
@@ -90,6 +93,7 @@ class CommonUserWalletModel {
         self.walletModelsManager = walletModelsManager
         self.userTokensManager = userTokensManager
         self.userTokenListManager = userTokenListManager
+        self.nftManager = nftManager
         self.keysRepository = keysRepository
         self.derivationManager = derivationManager
         self.totalBalanceProvider = totalBalanceProvider
@@ -101,6 +105,7 @@ class CommonUserWalletModel {
         bind()
 
         userTokensManager.sync {}
+        nftManager.update()
     }
 
     deinit {

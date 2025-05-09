@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 public enum BlockchainSdkError: Int, LocalizedError {
     // WARNING: Make sure to preserve the error codes when removing or inserting errors
