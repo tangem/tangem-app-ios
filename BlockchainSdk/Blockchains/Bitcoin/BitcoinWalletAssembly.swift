@@ -1,27 +1,25 @@
+//
+//  BitcoinWalletAssembly.swift
+//  BlockchainSdk
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2023 Tangem AG. All rights reserved.
+//
+
 import Foundation
-import TangemSdk
-import stellarsdk
-import BitcoinCore
 
 struct BitcoinWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
-        let network: BitcoinNetwork = input.wallet.blockchain.isTestnet ? .testnet : .mainnet
-        let bitcoinManager = BitcoinManager(
-            networkParams: network.networkParams,
-            walletPublicKey: input.wallet.publicKey.blockchainKey,
-            compressedWalletPublicKey: try Secp256k1Key(with: input.wallet.publicKey.blockchainKey).compress(),
-            bip: input.pairPublicKey == nil ? .bip84 : .bip141
-        )
-
         let unspentOutputManager: UnspentOutputManager = .bitcoin(
             address: input.wallet.defaultAddress,
             isTestnet: input.wallet.blockchain.isTestnet
         )
+
         let txBuilder = BitcoinTransactionBuilder(
-            bitcoinManager: bitcoinManager,
-            unspentOutputManager: unspentOutputManager,
-            addresses: input.wallet.addresses
+            network: input.wallet.blockchain.isTestnet ? BitcoinCashTestNetworkParams() : BitcoinNetworkParams(),
+            unspentOutputManager: unspentOutputManager
         )
+
         let providers: [UTXONetworkProvider] = input.networkInput.apiInfo.reduce(into: []) { partialResult, providerType in
             switch providerType {
             case .nowNodes:

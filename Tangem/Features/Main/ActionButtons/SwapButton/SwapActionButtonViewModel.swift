@@ -8,6 +8,7 @@
 
 import Combine
 import Foundation
+import struct TangemUIUtils.AlertBinder
 
 final class SwapActionButtonViewModel: ActionButtonViewModel {
     // MARK: Dependencies

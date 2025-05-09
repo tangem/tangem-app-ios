@@ -14,11 +14,13 @@ final class Fact0rnNetworkProvider {
 
     private let provider: ElectrumWebSocketProvider
     private let blockchain: Blockchain = .fact0rn
+    private let converter: ElectrumScriptHashConverter
 
     // MARK: - Init
 
     init(provider: ElectrumWebSocketProvider) {
         self.provider = provider
+        converter = .init(lockingScriptBuilder: .fact0rn())
     }
 }
 
@@ -29,7 +31,7 @@ extension Fact0rnNetworkProvider: UTXONetworkProvider {
 
     func getUnspentOutputs(address: String) -> AnyPublisher<[UnspentOutput], any Error> {
         Future.async {
-            let scriptHash = try Fact0rnAddressService.addressToScriptHash(address: address)
+            let scriptHash = try self.converter.prepareScriptHash(address: address)
             let outputs = try await self.provider.getUnspents(identifier: .scriptHash(scriptHash))
             return self.mapToUnspentOutputs(outputs: outputs)
         }
