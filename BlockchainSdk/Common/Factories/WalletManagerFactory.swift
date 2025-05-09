@@ -8,9 +8,6 @@
 
 import Foundation
 import TangemSdk
-import stellarsdk
-import BitcoinCore
-import SolanaSwift
 import TangemNetworkUtils
 
 @available(iOS 13.0, *)
