@@ -12,6 +12,7 @@ import class UIKit.UIApplication
 import Combine
 import BlockchainSdk
 import struct TangemSdk.DerivationPath
+import struct TangemUIUtils.AlertBinder
 
 final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
