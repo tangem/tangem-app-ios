@@ -14,6 +14,13 @@ struct NFTCompactAssetView: View {
     var viewModel: NFTCompactAssetViewModel
 
     var body: some View {
+        Button(action: viewModel.didClick) {
+            content
+        }
+        .buttonStyle(.defaultScaled)
+    }
+
+    private var content: some View {
         VStack(alignment: .leading, spacing: Constants.iconTextsSpacing) {
             icon
             texts
@@ -22,13 +29,7 @@ struct NFTCompactAssetView: View {
     }
 
     private var icon: some View {
-        IconView(
-            url: viewModel.mediaURL,
-            size: Constants.imageSize,
-            cornerRadius: Constants.cornerRadius,
-            forceKingfisher: true,
-            placeholder: { placeholder }
-        )
+        SquaredOrRectangleImageView(url: viewModel.mediaURL, containerSide: Constants.imageSize.width)
     }
 
     private var texts: some View {
@@ -38,17 +39,6 @@ struct NFTCompactAssetView: View {
             Text(viewModel.subtitle)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.tertiary)
         }
-    }
-
-    private var placeholder: some View {
-        Color.clear
-            .frame(size: Constants.imageSize)
-            .skeletonable(
-                isShown: true,
-                width: Constants.imageSize.width,
-                height: Constants.imageSize.height,
-                radius: Constants.cornerRadius
-            )
     }
 }
 
@@ -69,14 +59,15 @@ extension NFTCompactAssetView {
                 assetIdentifier: "some",
                 collectionIdentifier: "some1",
                 chain: .solana,
-                contractType: .splToken2022,
+                contractType: .unknown,
                 ownerAddress: "",
                 name: "My asset",
                 description: "",
                 media: NFTAsset.Media(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
                 rarity: nil,
                 traits: []
-            )
+            ),
+            openAssetDetailsAction: { _ in }
         )
     )
 }

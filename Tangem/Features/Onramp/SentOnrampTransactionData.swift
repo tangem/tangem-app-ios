@@ -15,5 +15,6 @@ struct SentOnrampTransactionData {
     let date: Date
     let fromAmount: Decimal
     let fromCurrencyCode: String
-    let externalTxId: String
+    let externalTxId: String?
+    let externalTxUrl: String?
 }
