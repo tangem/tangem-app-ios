@@ -6,10 +6,11 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Combine
-import TangemLocalization
-import CombineExt
 import SwiftUI
+import Combine
+import CombineExt
+import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 class ManageTokensViewModel: ObservableObject {
     var manageTokensListViewModel: ManageTokensListViewModel!
