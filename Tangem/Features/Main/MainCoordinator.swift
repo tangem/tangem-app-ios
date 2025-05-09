@@ -7,11 +7,12 @@
 //
 
 import Foundation
+import SwiftUI
 import Combine
 import CombineExt
 import BlockchainSdk
 import TangemVisa
-import SwiftUI
+import TangemNFT
 
 class MainCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
@@ -35,6 +36,7 @@ class MainCoordinator: CoordinatorObject {
     @Published var marketsTokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
     @Published var stakingDetailsCoordinator: StakingDetailsCoordinator?
     @Published var referralCoordinator: ReferralCoordinator?
+    @Published var nftCollectionsCoordinator: NFTCollectionsCoordinator?
 
     // MARK: - Child coordinators (Other)
 
@@ -62,8 +64,6 @@ class MainCoordinator: CoordinatorObject {
 
     private var safariHandle: SafariHandle?
     private var pushNotificationsViewModelSubscription: AnyCancellable?
-
-    private let tooltipStorageProvider = TooltipStorageProvider()
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -93,7 +93,7 @@ class MainCoordinator: CoordinatorObject {
     }
 
     func hideMarketsTooltip() {
-        tooltipStorageProvider.marketsTooltipWasShown = true
+        AppSettings.shared.marketsTooltipWasShown = true
 
         withAnimation(.easeInOut(duration: Constants.tooltipAnimationDuration)) {
             isMarketsTooltipVisible = false
@@ -130,7 +130,7 @@ class MainCoordinator: CoordinatorObject {
             }
 
             withAnimation(.easeInOut(duration: Constants.tooltipAnimationDuration)) {
-                self.isMarketsTooltipVisible = !self.tooltipStorageProvider.marketsTooltipWasShown
+                self.isMarketsTooltipVisible = !AppSettings.shared.marketsTooltipWasShown
             }
         }
     }
@@ -219,7 +219,6 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             optionsProviding: optionsManager,
             preservesLastSortedOrderOnSwitchToDragAndDrop: true
         )
-
         organizeTokensViewModel = OrganizeTokensViewModel(
             coordinator: self,
             userWalletModel: userWalletModel,
@@ -248,9 +247,9 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 extension MainCoordinator: SingleTokenBaseRoutable {
     func openReceiveScreen(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo]) {
         receiveBottomSheetViewModel = .init(
+            flow: .crypto,
             tokenItem: tokenItem,
-            addressInfos: addressInfos,
-            hasMemo: tokenItem.blockchain.hasMemo
+            addressInfos: addressInfos
         )
     }
 
@@ -444,13 +443,15 @@ extension MainCoordinator: OrganizeTokensRoutable {
     }
 }
 
-// MARK: - VisaWalletRoutable
+// MARK: - Visa
 
 extension MainCoordinator: VisaWalletRoutable {
-    func openTransactionDetails(tokenItem: TokenItem, for record: VisaTransactionRecord) {
-        visaTransactionDetailsViewModel = .init(tokenItem: tokenItem, transaction: record)
+    func openTransactionDetails(tokenItem: TokenItem, for record: VisaTransactionRecord, emailConfig: EmailConfig) {
+        visaTransactionDetailsViewModel = .init(tokenItem: tokenItem, transaction: record, emailConfig: emailConfig, router: self)
     }
 }
+
+extension MainCoordinator: VisaTransactionDetailsRouter {}
 
 // MARK: - RateAppRoutable protocol conformance
 
@@ -583,5 +584,32 @@ extension MainCoordinator {
     enum Constants {
         static let tooltipAnimationDuration: Double = 0.3
         static let tooltipAnimationDelay: Double = 1.5
+    }
+}
+
+// MARK: - NFTEntrypointRoutable
+
+extension MainCoordinator: NFTEntrypointRoutable {
+    func openCollections(nftManager: NFTManager, navigationContext: NFTEntrypointNavigationContext) {
+        mainBottomSheetUIManager.hide()
+
+        let coordinator = NFTCollectionsCoordinator(
+            dismissAction: { [weak self] in
+                self?.nftCollectionsCoordinator = nil
+            },
+            popToRootAction: { [weak self] options in
+                self?.nftCollectionsCoordinator = nil
+                self?.popToRoot(with: options)
+            }
+        )
+
+        nftCollectionsCoordinator = coordinator
+        coordinator.start(
+            with: .init(
+                nftManager: nftManager,
+                chainIconProvider: NetworkImageProvider(),
+                navigationContext: navigationContext
+            )
+        )
     }
 }
