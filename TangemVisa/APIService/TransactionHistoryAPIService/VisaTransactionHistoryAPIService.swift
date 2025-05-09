@@ -13,14 +13,18 @@ public protocol VisaTransactionHistoryAPIService {
 }
 
 struct CommonTransactionHistoryService {
-    typealias TxHistoryAPIService = APIService<TransactionHistoryAPITarget, VisaAPIError>
+    typealias TxHistoryAPIService = APIService<TransactionHistoryAPITarget>
     private let authorizationTokensHandler: VisaAuthorizationTokensHandler
     private let apiService: TxHistoryAPIService
 
+    private let apiType: VisaAPIType
+
     init(
+        apiType: VisaAPIType,
         authorizationTokensHandler: VisaAuthorizationTokensHandler,
         apiService: TxHistoryAPIService
     ) {
+        self.apiType = apiType
         self.authorizationTokensHandler = authorizationTokensHandler
         self.apiService = apiService
     }
@@ -41,7 +45,8 @@ extension CommonTransactionHistoryService: VisaTransactionHistoryAPIService {
                     productInstanceId: essentialBFFIds.productInstanceId,
                     offset: offset,
                     numberOfItems: numberOfItemsPerPage
-                ))
+                )),
+                apiType: apiType
             )
         )
     }

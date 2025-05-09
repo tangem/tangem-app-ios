@@ -11,7 +11,7 @@ import TangemSdk
 import TangemVisa
 
 class VisaCustomerWalletApproveTask: CardSessionRunnable {
-    typealias TaskResult = CompletionResult<SignHashResponse>
+    typealias TaskResult = CompletionResult<VisaSignedApproveResponse>
     private let targetAddress: String
     private let approveData: Data
 
@@ -100,8 +100,11 @@ private extension VisaCustomerWalletApproveTask {
             )
 
             signApproveData(
-                targetWalletPublicKey: wallet.publicKey,
-                derivationPath: derivationPath,
+                keyInfo: .init(
+                    seedKey: wallet.publicKey,
+                    keyToSignApprove: extendedPublicKey.publicKey,
+                    derivationPath: derivationPath
+                ),
                 in: session,
                 completion: completion
             )
@@ -113,44 +116,64 @@ private extension VisaCustomerWalletApproveTask {
     func proceedApproveWithLegacyCard(card: Card, in session: CardSession, completion: @escaping TaskResult) {
         do {
             let publicKey = try pubKeySearchUtility.findKeyWithoutDerivation(targetAddress: targetAddress, on: card)
-            signApproveData(targetWalletPublicKey: publicKey, derivationPath: nil, in: session, completion: completion)
+            signApproveData(
+                keyInfo: .init(
+                    seedKey: publicKey,
+                    keyToSignApprove: publicKey,
+                    derivationPath: nil
+                ),
+                in: session,
+                completion: completion
+            )
         } catch {
             completion(.failure(.underlying(error: error)))
         }
     }
 
     func signApproveData(
-        targetWalletPublicKey: Data,
-        derivationPath: DerivationPath?,
+        keyInfo: ApproveKeyInfo,
         in session: CardSession,
         completion: @escaping TaskResult
     ) {
         let signTask = SignHashCommand(
             hash: approveData,
-            walletPublicKey: targetWalletPublicKey,
-            derivationPath: derivationPath
+            walletPublicKey: keyInfo.seedKey,
+            derivationPath: keyInfo.derivationPath
         )
 
         signTask.run(in: session) { result in
             switch result {
             case .success(let hashResponse):
-                self.scanCard(hashResponse: hashResponse, in: session, completion: completion)
+                let signedResponse = VisaSignedApproveResponse(
+                    keySignedApprove: keyInfo.keyToSignApprove,
+                    originHash: self.approveData,
+                    signature: hashResponse.signature
+                )
+                self.scanCard(signedResponse: signedResponse, in: session, completion: completion)
             case .failure(let sdkError):
                 completion(.failure(sdkError))
             }
         }
     }
 
-    func scanCard(hashResponse: SignHashResponse, in session: CardSession, completion: @escaping TaskResult) {
+    func scanCard(signedResponse: VisaSignedApproveResponse, in session: CardSession, completion: @escaping TaskResult) {
         let scanTask = ScanTask()
 
         scanTask.run(in: session) { result in
             switch result {
             case .success:
-                completion(.success(hashResponse))
+                completion(.success(signedResponse))
             case .failure(let error):
                 completion(.failure(error))
             }
         }
+    }
+}
+
+private extension VisaCustomerWalletApproveTask {
+    struct ApproveKeyInfo {
+        let seedKey: Data
+        let keyToSignApprove: Data
+        let derivationPath: DerivationPath?
     }
 }

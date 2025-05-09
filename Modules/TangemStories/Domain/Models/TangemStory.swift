@@ -8,6 +8,7 @@
 
 import struct Foundation.Data
 import struct Foundation.URL
+import enum TangemLocalization.Localization
 
 public enum TangemStory: Identifiable {
     case swap(SwapStoryData)
@@ -52,13 +53,13 @@ public extension TangemStory {
         public var fourthPage: Page
         public var fifthPage: Page
 
-        public init(firstPage: Page, secondPage: Page, thirdPage: Page, fourthPage: Page, fifthPage: Page) {
-            self.firstPage = firstPage
-            self.secondPage = secondPage
-            self.thirdPage = thirdPage
-            self.fourthPage = fourthPage
-            self.fifthPage = fifthPage
-        }
+        public static let initialWithoutImages = SwapStoryData(
+            firstPage: Page(title: Localization.swapStoryFirstTitle, subtitle: Localization.swapStoryFirstSubtitle),
+            secondPage: Page(title: Localization.swapStorySecondTitle, subtitle: Localization.swapStorySecondSubtitle),
+            thirdPage: Page(title: Localization.swapStoryThirdTitle, subtitle: Localization.swapStoryThirdSubtitle),
+            fourthPage: Page(title: Localization.swapStoryForthTitle, subtitle: Localization.swapStoryForthSubtitle),
+            fifthPage: Page(title: Localization.swapStoryFifthTitle, subtitle: Localization.swapStoryFifthSubtitle)
+        )
     }
 }
 
@@ -67,12 +68,6 @@ public extension TangemStory.SwapStoryData {
         public let title: String
         public let subtitle: String
         public var image: TangemStory.Image?
-
-        public init(title: String, subtitle: String, image: TangemStory.Image? = nil) {
-            self.title = title
-            self.subtitle = subtitle
-            self.image = image
-        }
     }
 
     enum Property: CaseIterable {

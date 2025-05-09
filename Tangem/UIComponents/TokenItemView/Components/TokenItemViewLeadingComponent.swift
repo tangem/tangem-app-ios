@@ -9,6 +9,7 @@
 import SwiftUI
 import BlockchainSdk
 import TangemAssets
+import TangemUI
 
 struct TokenItemViewLeadingComponent: View {
     let name: String

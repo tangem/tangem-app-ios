@@ -68,6 +68,13 @@ public enum StakingManagerState: Hashable, CustomStringConvertible {
         }
     }
 
+    public var stakesCount: Int? {
+        switch self {
+        case .staked(let staked): staked.balances.count
+        default: nil
+        }
+    }
+
     public var description: String {
         switch self {
         case .loading: "loading"

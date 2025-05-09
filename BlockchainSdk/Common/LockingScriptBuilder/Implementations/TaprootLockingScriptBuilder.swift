@@ -24,15 +24,31 @@ struct TaprootLockingScriptBuilder {
         }
 
         let decoder = SegWitBech32(bech32: bech32)
-        let (version, keyhash) = try decoder.decode(hrp: bech32Prefix, addr: address)
+        let (version, keyHash) = try decoder.decode(hrp: bech32Prefix, addr: address)
 
-        let type: UTXOScriptType = switch (version, keyhash.count) {
-        case (1, 32): .p2tr
+        let type: UTXOScriptType = switch (version, keyHash.count) {
+        case (Constants.version, 32): .p2tr
         default: throw LockingScriptBuilderError.wrongAddress
         }
 
-        let lockingScript = OpCodeUtils.p2tr(version: version, data: keyhash)
-        return (version: version, script: .init(data: lockingScript, type: type))
+        let lockingScript = OpCodeUtils.p2tr(version: version, data: keyHash)
+        return (version: version, script: .init(data: lockingScript, type: type, spendable: .none))
+    }
+
+    func encode(publicKey: Data, type: UTXOScriptType) throws -> (address: String, script: UTXOLockingScript) {
+        let keyHash = publicKey.sha256Ripemd160
+        let lockingScript = switch type {
+        case .p2tr:
+            OpCodeUtils.p2tr(version: Constants.version, data: keyHash)
+        default:
+            throw LockingScriptBuilderError.unsupportedScriptType
+        }
+
+        let encoder = SegWitBech32(bech32: .init(variant: .bech32))
+        let bech32StringValue = try encoder.encode(hrp: bech32Prefix, version: Constants.version, program: keyHash)
+
+        let script = UTXOLockingScript(data: lockingScript, type: type, spendable: .publicKey(publicKey))
+        return (address: bech32StringValue, script: script)
     }
 }
 
@@ -41,5 +57,11 @@ struct TaprootLockingScriptBuilder {
 extension TaprootLockingScriptBuilder: LockingScriptBuilder {
     func lockingScript(for address: String) throws -> UTXOLockingScript {
         try decode(address: address).script
+    }
+}
+
+extension TaprootLockingScriptBuilder {
+    private enum Constants {
+        static let version: UInt8 = 1
     }
 }

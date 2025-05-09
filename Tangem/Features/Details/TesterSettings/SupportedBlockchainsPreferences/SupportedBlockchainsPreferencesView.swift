@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct SupportedBlockchainsPreferencesView: View {
     @ObservedObject var viewModel: SupportedBlockchainsPreferencesViewModel

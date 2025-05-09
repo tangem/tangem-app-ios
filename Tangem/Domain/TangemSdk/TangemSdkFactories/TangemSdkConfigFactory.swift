@@ -31,13 +31,14 @@ struct TangemSdkConfigFactory {
         if !FeatureProvider.isAvailable(.disableFirmwareVersionLimit) {
             config.filter.maxFirmwareVersion = FirmwareVersion(major: 6, minor: 33)
         }
-        config.allowUntrustedCards = true
+
         config.biometricsLocalizedReason = Localization.biometryTouchIdReason
         config.style.colors.tint = Colors.Text.accent
         config.style.colors.tintUIColor = UIColor.textAccent
         config.style.colors.buttonColors.backgroundColor = Colors.Button.positive
         Config.useDevApi = FeatureStorage.instance.useDevApi
         Config.forcedCT = ForcedCTServerTrustEvaluator.shouldForceCT
+        config.newAttestaionService = FeatureProvider.isAvailable(.newAttestation)
         return config
     }
 }
