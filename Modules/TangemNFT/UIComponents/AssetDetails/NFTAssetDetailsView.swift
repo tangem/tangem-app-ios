@@ -33,7 +33,7 @@ public struct NFTAssetDetailsView: View {
             .padding(.horizontal, Constants.horizontalPadding)
             .navigationTitle(viewModel.name)
             .navigationBarTitleDisplayMode(.inline)
-            .background(Colors.Background.secondary)
+            .background(Colors.Background.tertiary)
     }
 
     private var content: some View {
