@@ -57,6 +57,11 @@ struct NFTCompactCollectionViewModel: Identifiable {
         }
     }
 
+    var containsGIFs: Bool {
+        nftCollection.media?.kind == .animation ||
+            nftCollection.assets.contains { $0.media?.kind == .animation }
+    }
+
     func onTap(isExpanded: Bool) {
         onCollectionTap(nftCollection, isExpanded)
     }

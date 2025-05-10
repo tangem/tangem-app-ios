@@ -25,7 +25,7 @@ public struct NFTAssetExtendedInfoView: View {
             NavigationBar(settings: .init(backgroundColor: .clear)) {
                 Text(viewData.title)
                     .style(Fonts.Bold.body, color: Colors.Text.primary1)
-            } leftButtons: {
+            } rightButtons: {
                 CloseButton(dismiss: dismissAction)
             }
 
