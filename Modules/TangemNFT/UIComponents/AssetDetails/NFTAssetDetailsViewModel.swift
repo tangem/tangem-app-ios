@@ -115,7 +115,7 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
         let rankValue = rarity.rank
         let rank = makeKeyValuePairViewDataIfPossible(
             key: Localization.nftDetailsRarityRank,
-            value: rankValue != nil ? "\(rankValue)" : nil,
+            value: rankValue?.description ?? nil,
             action: { [weak self] in
                 self?.openAssetExtendedInfo(
                     title: Localization.nftDetailsRarityRank,
