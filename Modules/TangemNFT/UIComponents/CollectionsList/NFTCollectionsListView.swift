@@ -33,7 +33,7 @@ public struct NFTCollectionsListView: View {
             .navigationTitle(Localization.nftWalletTitle)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.horizontal, Constants.horizontalPadding)
-            .background(Colors.Background.tertiary)
+            .background(Colors.Background.secondary)
     }
 
     @ViewBuilder
