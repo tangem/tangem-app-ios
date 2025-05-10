@@ -139,7 +139,7 @@ struct MoralisEVMNetworkMapper {
         }
 
         return NFTMedia(
-            kind: NFTMediaKindMapper.map(mimetype: media.mimetype),
+            kind: NFTMediaKindMapper.map(mimetype: media.mimetype, defaultKind: .image),
             url: url
         )
     }
@@ -155,7 +155,7 @@ struct MoralisEVMNetworkMapper {
         }
 
         return NFTMedia(
-            kind: NFTMediaKindMapper.map(url),
+            kind: NFTMediaKindMapper.map(url, defaultKind: .image),
             url: url
         )
     }
