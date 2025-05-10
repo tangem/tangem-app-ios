@@ -38,19 +38,21 @@ enum NFTMediaKindMapper {
 
     // MARK: Implementation
 
-    static func map(mimetype: String?) -> NFTMedia.Kind {
+    // Sometimes mimetype is not available, although some media is
+    // So let's at least try to convert unknows to some other kind (image, for instance, as the most common format)
+    static func map(mimetype: String?, defaultKind: NFTMedia.Kind = .unknown) -> NFTMedia.Kind {
         guard let mimeType = mimetype.flatMap(UTType.init) else {
-            return .unknown
+            return defaultKind
         }
 
         return mimeTypeGroups.first { types, _ in
             types.contains(mimeType)
-        }?.mediaKind ?? .unknown
+        }?.mediaKind ?? defaultKind
     }
 
-    static func map(_ url: URL) -> NFTMedia.Kind {
+    static func map(_ url: URL, defaultKind: NFTMedia.Kind = .unknown) -> NFTMedia.Kind {
         mimeTypeGroups.first { types, _ in
             types.map(\.preferredFilenameExtension).contains(url.pathExtension)
-        }?.mediaKind ?? .unknown
+        }?.mediaKind ?? defaultKind
     }
 }
