@@ -110,7 +110,7 @@ struct MoralisSolanaNetworkMapper {
         }
 
         return NFTMedia(
-            kind: NFTMediaKindMapper.map(mimetype: firstFile.type),
+            kind: NFTMediaKindMapper.map(mimetype: firstFile.type, defaultKind: .image),
             url: NFTIPFSURLConverter.convert(url)
         )
     }
