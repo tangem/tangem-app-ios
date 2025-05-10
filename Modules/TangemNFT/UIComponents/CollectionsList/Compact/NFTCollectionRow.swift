@@ -81,6 +81,7 @@ struct NFTCollectionRow: View {
 
         case .animation:
             GIFImage(url: media.url, placeholder: placeholder)
+                .frame(size: Constants.Icon.size)
 
         case .video, .audio, .unknown:
             placeholder
@@ -118,9 +119,9 @@ extension NFTCollectionRow {
 #Preview {
     NFTCollectionRow(
         media: .init(
-            kind: .image,
+            kind: .animation,
             url: URL(
-                string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png"
+                string: "https://i.seadn.io/gcs/files/e31424bc14dd91a653cb01857cac52a4.gif?w=500&auto=format"
             )!
         ),
         iconOverlayImage: Tokens.ethereumFill,
