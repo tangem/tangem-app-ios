@@ -482,7 +482,8 @@ extension OnrampModel: OnrampRedirectingOutput {
             date: Date(),
             fromAmount: data.fromAmount,
             fromCurrencyCode: data.fromCurrencyCode,
-            externalTxId: data.externalTxId
+            externalTxId: data.externalTxId,
+            externalTxUrl: data.externalTxUrl
         )
 
         onrampPendingTransactionsRepository
@@ -630,7 +631,7 @@ extension OnrampModel: NotificationTapDelegate {
 
 extension OnrampModel: CustomStringConvertible {
     var description: String {
-        TangemFoundation.objectDescription(self)
+        objectDescription(self)
     }
 }
 
