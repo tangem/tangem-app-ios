@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import struct BlockchainSdk.Token
 
 class CommonTokenItemsRepository {

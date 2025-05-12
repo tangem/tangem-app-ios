@@ -10,7 +10,7 @@ import Foundation
 import TangemNetworkUtils
 
 extension WebSocket {
-    class WebSocketConnectionDelegate: NSObject, URLSessionWebSocketDelegate, URLSessionTaskDelegate {
+    final class WebSocketConnectionDelegate: NSObject, URLSessionWebSocketDelegate {
         private let eventHandler: (WebSocketEvent) -> Void
         private var connectivityCheckTimer: Timer?
 
@@ -39,7 +39,7 @@ extension WebSocket {
         func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
             if let error {
                 Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.webSocketConnectionError(source: .webSocketConnectionDelegate, error: error))
-                eventHandler(.connnectionError(error))
+                eventHandler(.connectionError(error))
             } else {
                 // Possibly not really necessary since connection closure would likely have been reported
                 // by the other delegate method, but just to be safe. We have checks in place to prevent
@@ -68,7 +68,7 @@ extension WebSocket {
         func urlSession(
             _ session: URLSession,
             didReceive challenge: URLAuthenticationChallenge,
-            completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+            completionHandler: @escaping @Sendable (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
         ) {
             let result = ForcedCTServerTrustEvaluator.evaluate(challenge: challenge)
             completionHandler(result, nil)

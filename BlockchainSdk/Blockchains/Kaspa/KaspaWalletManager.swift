@@ -609,27 +609,6 @@ extension KaspaWalletManager: DustRestrictable {
 // MARK: - WithdrawalNotificationProvider
 
 extension KaspaWalletManager: WithdrawalNotificationProvider {
-    /// Chia, kaspa have the same logic
-    @available(*, deprecated, message: "Use MaximumAmountRestrictable")
-    func validateWithdrawalWarning(amount: Amount, fee: Amount) -> WithdrawalWarning? {
-        let amountAvailableToSend = txBuilder.availableAmount() - fee
-        if amount <= amountAvailableToSend {
-            return nil
-        }
-
-        let amountToReduceBy = amount - amountAvailableToSend
-
-        return WithdrawalWarning(
-            warningMessage: Localization.commonUtxoValidateWithdrawalMessageWarning(
-                wallet.blockchain.displayName,
-                KaspaUnspentOutputManager.maxOutputsCount,
-                amountAvailableToSend.description
-            ),
-            reduceMessage: Localization.commonOk,
-            suggestedReduceAmount: amountToReduceBy
-        )
-    }
-
     func withdrawalNotification(amount: Amount, fee: Fee) -> WithdrawalNotification? {
         // The 'Mandatory amount change' withdrawal suggestion has been superseded by a validation performed in
         // the 'MaximumAmountRestrictable.validateMaximumAmount(amount:fee:)' method below

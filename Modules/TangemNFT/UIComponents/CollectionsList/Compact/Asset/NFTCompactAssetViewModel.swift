@@ -8,32 +8,41 @@
 
 import Foundation
 
-final class NFTCompactAssetViewModel: Identifiable {
-    private let nftAsset: NFTAsset
+struct NFTCompactAssetViewModel: Identifiable {
+    let state: State
     private let openAssetDetailsAction: (NFTAsset) -> Void
 
-    init(nftAsset: NFTAsset, openAssetDetailsAction: @escaping (NFTAsset) -> Void) {
-        self.nftAsset = nftAsset
+    init(state: State, openAssetDetailsAction: @escaping (NFTAsset) -> Void) {
+        self.state = state
         self.openAssetDetailsAction = openAssetDetailsAction
     }
 
-    var id: String {
-        nftAsset.id.assetIdentifier
-    }
+    var id: AnyHashable {
+        switch state {
+        case .loading(let id):
+            id
 
-    var mediaURL: URL? {
-        nftAsset.media?.url
-    }
-
-    var title: String {
-        nftAsset.name
-    }
-
-    var subtitle: String {
-        "0.15 ETH" // Price should be taken from somewhere
+        case .loaded(let asset):
+            asset.id
+        }
     }
 
     func didClick() {
-        openAssetDetailsAction(nftAsset)
+        guard let asset = state.asset else { return }
+        openAssetDetailsAction(asset)
+    }
+}
+
+extension NFTCompactAssetViewModel {
+    enum State {
+        case loading(id: String)
+        case loaded(NFTAsset)
+
+        var asset: NFTAsset? {
+            switch self {
+            case .loading: nil
+            case .loaded(let nftAsset): nftAsset
+            }
+        }
     }
 }
