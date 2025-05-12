@@ -683,7 +683,7 @@ private extension ExpressInteractor {
 
 extension ExpressInteractor: CustomStringConvertible {
     var description: String {
-        TangemFoundation.objectDescription(self)
+        objectDescription(self)
     }
 }
 
