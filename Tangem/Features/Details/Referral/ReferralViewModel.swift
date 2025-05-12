@@ -11,6 +11,7 @@ import Combine
 import UIKit
 import SwiftUI
 import BlockchainSdk
+import TangemFoundation
 import TangemLocalization
 import struct TangemUIUtils.AlertBinder
 
