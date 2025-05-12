@@ -16,6 +16,7 @@ enum Feature: String, Hashable, CaseIterable {
     case nft
     case walletConnectUI
     case newAttestation
+    case logs
 
     var name: String {
         switch self {
@@ -26,6 +27,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .nft: return "NFT"
         case .walletConnectUI: return "WalletConnect UI"
         case .newAttestation: return "New Attestation"
+        case .logs: return "Logs"
         }
     }
 
@@ -38,6 +40,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .nft: return .unspecified
         case .walletConnectUI: return .unspecified
         case .newAttestation: return .unspecified
+        case .logs: return .unspecified
         }
     }
 }
