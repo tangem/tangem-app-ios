@@ -20,6 +20,10 @@
 		0A2261832D958ADA004DC848 /* CardanoTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2261822D958ADA004DC848 /* CardanoTransaction.swift */; };
 		0A2261852D95A8DC004DC848 /* StakingBlockchainParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2261842D95A8DC004DC848 /* StakingBlockchainParams.swift */; };
 		0A2A04DB2C91B167007EAE64 /* TronSendTransactionSummaryDescriptionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2A04DA2C91B167007EAE64 /* TronSendTransactionSummaryDescriptionBuilder.swift */; };
+		0A2D94512DCB5832008AEC67 /* StakingPendingActionsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2D94502DCB5832008AEC67 /* StakingPendingActionsHandler.swift */; };
+		0A2D94532DCB6CA7008AEC67 /* StakingPendingActionsHandlerProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2D94522DCB6CA7008AEC67 /* StakingPendingActionsHandlerProvider.swift */; };
+		0A2D94552DCB6CDD008AEC67 /* CommonStakingPendingActionsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2D94542DCB6CDD008AEC67 /* CommonStakingPendingActionsHandler.swift */; };
+		0A2D94582DCB6D1A008AEC67 /* TonStakingPendingActionsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2D94572DCB6D1A008AEC67 /* TonStakingPendingActionsHandler.swift */; };
 		0A3BF9692C6CDAD900163492 /* AdditionalAddresses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3BF9682C6CDAD900163492 /* AdditionalAddresses.swift */; };
 		0A3BF96B2C6CE96B00163492 /* StakingAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3BF96A2C6CE96B00163492 /* StakingAction.swift */; };
 		0A3C78752D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3C78742D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift */; };
@@ -3496,6 +3500,10 @@
 		0A2261822D958ADA004DC848 /* CardanoTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoTransaction.swift; sourceTree = "<group>"; };
 		0A2261842D95A8DC004DC848 /* StakingBlockchainParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBlockchainParams.swift; sourceTree = "<group>"; };
 		0A2A04DA2C91B167007EAE64 /* TronSendTransactionSummaryDescriptionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TronSendTransactionSummaryDescriptionBuilder.swift; sourceTree = "<group>"; };
+		0A2D94502DCB5832008AEC67 /* StakingPendingActionsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPendingActionsHandler.swift; sourceTree = "<group>"; };
+		0A2D94522DCB6CA7008AEC67 /* StakingPendingActionsHandlerProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPendingActionsHandlerProvider.swift; sourceTree = "<group>"; };
+		0A2D94542DCB6CDD008AEC67 /* CommonStakingPendingActionsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStakingPendingActionsHandler.swift; sourceTree = "<group>"; };
+		0A2D94572DCB6D1A008AEC67 /* TonStakingPendingActionsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonStakingPendingActionsHandler.swift; sourceTree = "<group>"; };
 		0A3BF9682C6CDAD900163492 /* AdditionalAddresses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdditionalAddresses.swift; sourceTree = "<group>"; };
 		0A3BF96A2C6CE96B00163492 /* StakingAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAction.swift; sourceTree = "<group>"; };
 		0A3C78742D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HederaNetworkResult.TokensCustomFees.swift; sourceTree = "<group>"; };
@@ -6946,6 +6954,17 @@
 				0A2261822D958ADA004DC848 /* CardanoTransaction.swift */,
 			);
 			path = DTOs;
+			sourceTree = "<group>";
+		};
+		0A2D94562DCB6CE8008AEC67 /* StakingPendingActions */ = {
+			isa = PBXGroup;
+			children = (
+				0A2D94522DCB6CA7008AEC67 /* StakingPendingActionsHandlerProvider.swift */,
+				0A2D94502DCB5832008AEC67 /* StakingPendingActionsHandler.swift */,
+				0A2D94542DCB6CDD008AEC67 /* CommonStakingPendingActionsHandler.swift */,
+				0A2D94572DCB6D1A008AEC67 /* TonStakingPendingActionsHandler.swift */,
+			);
+			path = StakingPendingActions;
 			sourceTree = "<group>";
 		};
 		0A7FF63B2C888D180072C2E8 /* StakingAnalytics */ = {
@@ -17378,6 +17397,7 @@
 		EFBC5C722C00A74100B662E0 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				0A2D94562DCB6CE8008AEC67 /* StakingPendingActions */,
 				0A7FF63B2C888D180072C2E8 /* StakingAnalytics */,
 				EF8DBCDB2C0609F5009072CF /* StakingManager */,
 				DC592B882C419EA9005AB9A7 /* StakingPendingHashes */,
@@ -21604,6 +21624,7 @@
 				0A3BF9692C6CDAD900163492 /* AdditionalAddresses.swift in Sources */,
 				0A553D662D70BD8B00D65C6A /* StakingPendingActionConstraint.swift in Sources */,
 				EFBC5C752C00A74100B662E0 /* StakingAPIService.swift in Sources */,
+				0A2D94582DCB6D1A008AEC67 /* TonStakingPendingActionsHandler.swift in Sources */,
 				EFBC5C902C00B8B800B662E0 /* StakeKitDTO+Yield.swift in Sources */,
 				EF8DBCEA2C061B0E009072CF /* CommonStakingManager.swift in Sources */,
 				EF7A25F42C9092960089A4A4 /* PendingActionRequest.swift in Sources */,
@@ -21624,6 +21645,7 @@
 				EF031A282C08E65A001535C9 /* StakingCalculator.swift in Sources */,
 				EF8DBCDD2C060A03009072CF /* StakingManager.swift in Sources */,
 				EFBC5C792C00A79E00B662E0 /* StakeKitStakingAPIService.swift in Sources */,
+				0A2D94532DCB6CA7008AEC67 /* StakingPendingActionsHandlerProvider.swift in Sources */,
 				0A3BF96B2C6CE96B00163492 /* StakingAction.swift in Sources */,
 				EF7C4B3B2C93413D005F9360 /* StakingBalanceType.swift in Sources */,
 				EFB019492C4174D1009EE857 /* EnterAction.swift in Sources */,
@@ -21633,6 +21655,7 @@
 				EF19FAF82C6D575B002155F1 /* ActionGenericRequest.swift in Sources */,
 				EF407E352C04AF6F00366733 /* TangemStakingFactory.swift in Sources */,
 				EFB0193F2C4160D7009EE857 /* StakeKitDTO+Transaction.swift in Sources */,
+				0A2D94552DCB6CDD008AEC67 /* CommonStakingPendingActionsHandler.swift in Sources */,
 				EFBC5C742C00A74100B662E0 /* StakingWallet.swift in Sources */,
 				EF0FBB8B2C53FFCD0095A6BD /* ActionStatus.swift in Sources */,
 				DC592B902C41A4BA005AB9A7 /* StakingPendingHash.swift in Sources */,
@@ -21643,6 +21666,7 @@
 				EF19FAF62C6D43BB002155F1 /* PendingAction.swift in Sources */,
 				EF7C4B412C936200005F9360 /* StakingValidatorType.swift in Sources */,
 				EF407E622C04D67400366733 /* StakeKitMapper.swift in Sources */,
+				0A2D94512DCB5832008AEC67 /* StakingPendingActionsHandler.swift in Sources */,
 				EF7C4B3D2C93419F005F9360 /* StakingBalance.swift in Sources */,
 				EF0FBB892C53FFC10095A6BD /* ActionTransaction.swift in Sources */,
 				EF536B822CAFD2CA00FDC3E7 /* StakingConstants.swift in Sources */,
