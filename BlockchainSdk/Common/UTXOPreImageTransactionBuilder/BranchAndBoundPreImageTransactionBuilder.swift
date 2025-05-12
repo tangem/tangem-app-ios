@@ -118,7 +118,6 @@ private extension BranchAndBoundPreImageTransactionBuilder {
             }
 
             // Branch 1: Exclude current UTXO (push first to process include branch first)
-
             stack.append(state.excludeCurrent(inputs: inputs))
 
             // Branch 2: Include current UTXO
@@ -168,15 +167,13 @@ extension BranchAndBoundPreImageTransactionBuilder: CustomStringConvertible {
 
 private extension UTXOPreImageTransaction {
     func better(than transaction: UTXOPreImageTransaction) -> Bool {
-        // Main priority to reduce the fee
-        switch fee {
-        // If fee is less then return true
-        case ..<transaction.fee:
-            return true
+        switch size {
+        // Main priority to reduce the size
+        case ..<transaction.size: return true
 
-        // If fee is same then compare change
-        case transaction.fee:
-            // Select with less change
+        // If size is same then compare change
+        // Select with less change
+        case transaction.size:
             return change < transaction.change
 
         default:
