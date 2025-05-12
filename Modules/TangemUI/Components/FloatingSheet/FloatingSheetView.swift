@@ -83,7 +83,7 @@ public struct FloatingSheetView<HostContent: View>: View {
             if let viewModel, let sheetContent = registry.view(for: viewModel) {
                 ZStack {
                     sheetContent
-                        .frame(minHeight: proxy.size.height * configuration.minHeightFraction, alignment: .bottom)
+                        .frame(minHeight: proxy.size.height * configuration.minHeightFraction, alignment: .top)
                         .background(configuration.sheetBackgroundColor)
                         .clipShape(roundedRectangle)
                         .contentShape(roundedRectangle)

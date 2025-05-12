@@ -25,7 +25,17 @@ public func objectDescription(
     return ObjectDescriptionFormatter.format(objectDescription: objectDescription, userInfo: userInfo)
 }
 
-enum ObjectDescriptionFormatter {
+/// A simplified version of `objectDescription(_:userInfo:)` for use with non-class instances
+public func objectDescription(
+    _ description: String,
+    userInfo: KeyValuePairs<AnyHashable, Any> = [:]
+) -> String {
+    return ObjectDescriptionFormatter.format(objectDescription: description, userInfo: userInfo)
+}
+
+// MARK: - Private implementation
+
+private enum ObjectDescriptionFormatter {
     static func format(objectDescription: String, userInfo: KeyValuePairs<AnyHashable, Any>) -> String {
         let description = userInfo.reduce(into: [objectDescription]) { partialResult, pair in
             partialResult.append(String(describing: pair.key) + " = " + String(describing: pair.value))
