@@ -65,7 +65,7 @@ extension UTXOPreImageTransactionBuilder where Self == BranchAndBoundPreImageTra
 
     static func kaspa() -> Self {
         BranchAndBoundPreImageTransactionBuilder(
-            calculator: CommonUTXOTransactionSizeCalculator(network: KaspaNetworkParams())
+            calculator: KaspaUTXOTransactionSizeCalculator(network: KaspaNetworkParams())
         )
     }
 
