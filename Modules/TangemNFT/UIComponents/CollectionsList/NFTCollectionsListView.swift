@@ -20,9 +20,7 @@ public struct NFTCollectionsListView: View {
     @State private var contentHeight: CGFloat = 0
     @State private var buttonHeight: CGFloat = 0
     @State private var shouldShowShadow: Bool = true
-
     @State private var buttonMinY: CGFloat = 0
-    @State private var contentMaxY: CGFloat = 0
 
     private let coordinateSpaceName = "NFTCollectionsListViewCoordinateSpace"
 
@@ -35,7 +33,7 @@ public struct NFTCollectionsListView: View {
             .navigationTitle(Localization.nftWalletTitle)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.horizontal, Constants.horizontalPadding)
-            .background(Colors.Background.tertiary)
+            .background(Colors.Background.secondary)
     }
 
     @ViewBuilder
@@ -106,10 +104,7 @@ public struct NFTCollectionsListView: View {
                     padding: Constants.backgroundPadding,
                     radius: Constants.cornerRadius
                 )
-                .readGeometry(\.frame, inCoordinateSpace: coordinateSpace) {
-                    contentHeight = $0.height
-                    contentMaxY = $0.maxY
-                }
+                .readGeometry(\.frame.height, inCoordinateSpace: coordinateSpace, bindTo: $contentHeight)
                 // We need this code to track view's heigh when row expands
                 // .readGeometry only tracks it before list expands
                 .background(
@@ -127,7 +122,8 @@ public struct NFTCollectionsListView: View {
                     .frame(height: buttonHeight + Constants.contentButtonSpacing)
             }
             .readContentOffset(inCoordinateSpace: coordinateSpace) { point in
-                shouldShowShadow = contentHeight - point.y > buttonMinY
+                let contentMaxY = contentHeight - point.y - buttonHeight + Constants.contentButtonSpacing
+                shouldShowShadow = contentMaxY > buttonMinY
             }
         }
         .simultaneousGesture(
@@ -149,6 +145,7 @@ public struct NFTCollectionsListView: View {
 
     private func receiveButton(shouldAddShadow: Bool) -> some View {
         MainButton(title: Localization.nftCollectionsReceive, action: viewModel.onReceiveButtonTap)
+            .padding(.bottom, Constants.mainButtonBottomPadding)
             .if(shouldAddShadow) { view in
                 view.background(
                     ListFooterOverlayShadowView()
@@ -193,6 +190,8 @@ extension NFTCollectionsListView {
 
         static let contentButtonSpacing: CGFloat = 16
         static let searchBarCollectionsSpacing: CGFloat = 12
+
+        static let mainButtonBottomPadding: CGFloat = 6
     }
 }
 
@@ -212,7 +211,10 @@ extension NFTCollectionsListView {
                                 ownerAddress: "0x79D21ca8eE06E149d296a32295A2D8A97E52af52",
                                 name: "My awesome collection",
                                 description: "",
-                                logoURL: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!,
+                                media: .init(
+                                    kind: .image,
+                                    url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
+                                ),
                                 assetsCount: nil,
                                 assets: (0 ... 3).map {
                                     NFTAsset(
@@ -223,7 +225,7 @@ extension NFTCollectionsListView {
                                         ownerAddress: "",
                                         name: "My asset",
                                         description: "",
-                                        media: NFTAsset.Media(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
+                                        media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
                                         rarity: nil,
                                         traits: []
                                     )

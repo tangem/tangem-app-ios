@@ -146,7 +146,7 @@ class WebSocket {
             guard let self else { return }
             if let error = error {
                 Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.webSocketConnectionError(source: .send, error: error))
-                handleEvent(.connnectionError(error))
+                handleEvent(.connectionError(error))
             } else {
                 handleEvent(.messageSent(text))
             }
@@ -182,7 +182,7 @@ class WebSocket {
             case .failure(let error):
                 self?.log("Socket receive failure message with error: \(error)")
                 Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.webSocketConnectionError(source: .receive, error: error))
-                self?.handleEvent(.connnectionError(error))
+                self?.handleEvent(.connectionError(error))
             }
         }
     }
@@ -193,7 +193,7 @@ class WebSocket {
         task?.sendPing(pongReceiveHandler: { [weak self] error in
             if let error {
                 Analytics.debugLog(eventInfo: Analytics.WalletConnectDebugEvent.webSocketConnectionError(source: .pingPong, error: error))
-                self?.handleEvent(.connnectionError(error))
+                self?.handleEvent(.connectionError(error))
                 return
             }
 
@@ -247,7 +247,7 @@ class WebSocket {
             log("==> Ping sent")
         case .pongReceived:
             log("<== Pong received")
-        case .connnectionError(let error):
+        case .connectionError(let error):
             // We need to check if task is still running, and if not - recreate it and start observing messages
             // Otherwise WC will stuck with not connected state, and only app restart will fix this problem
             log("Connection error: \(error.localizedDescription)")
@@ -378,5 +378,5 @@ class WebSocket {
 // MARK: - CustomStringConvertible
 
 extension WebSocket: CustomStringConvertible {
-    var description: String { TangemFoundation.objectDescription(self) }
+    var description: String { objectDescription(self) }
 }
