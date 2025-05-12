@@ -115,10 +115,6 @@ private extension Logger {
     }
 
     func writeToConsole(_ level: OSLog.Level, message: @autoclosure () -> String) {
-        guard AppEnvironment.current.isAlphaOrBetaOrDebug else {
-            return
-        }
-
         guard Logger.configuration.isLoggable() else {
             return
         }
@@ -127,10 +123,6 @@ private extension Logger {
     }
 
     func writeToFile(_ level: OSLog.Level, message: @autoclosure () -> String) {
-        guard AppEnvironment.current.isAlphaOrBetaOrDebug else {
-            return
-        }
-
         guard Logger.configuration.isWritable() else {
             return
         }
