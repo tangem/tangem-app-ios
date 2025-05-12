@@ -11,6 +11,7 @@ import Combine
 import TangemSdk
 import BlockchainSdk
 import TangemStaking
+import TangemFoundation
 
 final class SingleTokenNotificationManager {
     weak var interactionDelegate: SingleTokenNotificationManagerInteractionDelegate?

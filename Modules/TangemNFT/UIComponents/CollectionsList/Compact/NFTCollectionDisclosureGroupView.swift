@@ -12,7 +12,9 @@ import TangemAssets
 import TangemLocalization
 
 struct NFTCollectionDisclosureGroupView: View {
-    @ObservedObject var viewModel: NFTCompactCollectionViewModel
+    let viewModel: NFTCompactCollectionViewModel
+
+    @State private var isExpanded: Bool = false
 
     var body: some View {
         disclosureGroup
@@ -20,21 +22,17 @@ struct NFTCollectionDisclosureGroupView: View {
 
     private var disclosureGroup: some View {
         CustomDisclosureGroup(
-            isExpanded: viewModel.isExpanded,
+            isExpanded: isExpanded,
             transition: .opacity,
-            actionOnClick: {
-                withAnimation {
-                    viewModel.onTap()
-                }
-                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-            },
+            actionOnClick: onTap,
             alignment: .leading,
+            // Implemetation details. DrawingGroup ruins display of GIFs due
+            // to flattening subtree of views into single view before rendering it
+            // From the docs:
+            // Views backed by native platform views may not render into the image. Instead, they log a warning and display a placeholder image to highlight the error.
+            useDrawingGroup: !viewModel.containsGIFs,
             prompt: { label },
-            expandedView: {
-                NFTAssetsGridView(viewModel: viewModel.assetsGridViewModel)
-                    .padding(.top, Constants.gridViewTopPadding)
-                    .padding(.bottom, Constants.gridViewBottomPadding)
-            }
+            expandedView: { content }
         )
         .buttonStyle(.defaultScaled)
         .frame(maxWidth: .infinity)
@@ -42,12 +40,52 @@ struct NFTCollectionDisclosureGroupView: View {
 
     private var label: some View {
         NFTCollectionRow(
-            iconURL: viewModel.logoURL,
+            media: viewModel.media,
             iconOverlayImage: viewModel.blockchainImage,
             title: viewModel.name,
             subtitle: Localization.nftCollectionsCount(viewModel.numberOfItems),
-            isExpanded: viewModel.isExpanded
+            isExpanded: isExpanded
         )
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch viewModel.viewState {
+        case .loading:
+            buildGridView(with: .init(assetsCount: viewModel.numberOfItems))
+
+        case .loaded(let viewModel):
+            buildGridView(with: viewModel)
+
+        case .failedToLoad:
+            errorView
+        }
+    }
+
+    private func buildGridView(with viewModel: NFTAssetsGridViewModel) -> some View {
+        NFTAssetsGridView(viewModel: viewModel)
+            .padding(.top, Constants.gridViewTopPadding)
+            .padding(.bottom, Constants.gridViewBottomPadding)
+    }
+
+    private var errorView: some View {
+        UnableToLoadDataView(
+            isButtonBusy: false,
+            retryButtonAction: {
+                viewModel.onTap(isExpanded: true)
+            }
+        )
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.vertical, 56)
+    }
+
+    private func onTap() {
+        viewModel.onTap(isExpanded: !isExpanded)
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+
+        withAnimation {
+            isExpanded.toggle()
+        }
     }
 }
 
@@ -75,7 +113,10 @@ struct DummyProvider: NFTChainIconProvider {
                 ownerAddress: "0x79D21ca8eE06E149d296a32295A2D8A97E52af52",
                 name: "My awesome collection",
                 description: "",
-                logoURL: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!,
+                media: .init(
+                    kind: .image,
+                    url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
+                ),
                 assetsCount: nil,
                 assets: (0 ... 2).map {
                     NFTAsset(
@@ -86,15 +127,16 @@ struct DummyProvider: NFTChainIconProvider {
                         ownerAddress: "",
                         name: "My asset",
                         description: "",
-                        media: NFTAsset.Media(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
+                        media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
                         rarity: nil,
                         traits: []
                     )
                 }
             ),
+            assetsState: .loading,
             nftChainIconProvider: DummyProvider(),
             openAssetDetailsAction: { _ in },
-            onTapAction: {}
+            onCollectionTap: { _, _ in }
         )
     )
 }
