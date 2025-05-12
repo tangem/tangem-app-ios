@@ -24,6 +24,7 @@ class KaspaNetworkProvider: HostProvider {
         self.url = url
         self.isTestnet = isTestnet
         provider = TangemProvider<KaspaTarget>(configuration: networkConfiguration)
+        provider.session.sessionConfiguration.timeoutIntervalForRequest = 30
     }
 
     func send(transaction: KaspaDTO.Send.Request) -> AnyPublisher<KaspaDTO.Send.Response, Error> {
