@@ -225,7 +225,8 @@ struct ExpressAPIMapper {
             redirectUrl: codedData.redirectUrl,
             fromAmount: fromAmount,
             fromCurrencyCode: codedData.fromCurrencyCode,
-            externalTxId: codedData.externalTxId
+            externalTxId: codedData.externalTxId,
+            externalTxUrl: codedData.externalTxUrl
         )
     }
 
@@ -244,7 +245,8 @@ struct ExpressAPIMapper {
             fromAmount: fromAmount,
             toAmount: toAmount,
             status: response.status,
-            externatTxURL: response.externalTxUrl
+            externalTxId: response.externalTxId,
+            externalTxURL: response.externalTxUrl
         )
     }
 }
