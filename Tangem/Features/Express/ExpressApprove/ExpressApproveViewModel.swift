@@ -147,7 +147,7 @@ private extension ExpressApproveViewModel {
     }
 
     func sendApproveTransaction() {
-        TangemFoundation.runTask(in: self) { viewModel in
+        runTask(in: self) { viewModel in
             do {
                 try await viewModel.approveViewModelInput.sendApproveTransaction()
                 await viewModel.didSendApproveTransaction()
