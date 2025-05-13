@@ -322,6 +322,9 @@ extension Wallet2Config: UserWalletConfig {
         // Ubit
         case "BB000019":
             return cardsCount == 2 ? Assets.Cards.ubitDouble : Assets.Cards.ubitTriple
+        // Pepecoin
+        case "BB000015":
+            return cardsCount == 2 ? Assets.Cards.pepeDouble : Assets.Cards.pepeTriple
         // Tangem Wallet 2.0
         default:
 
