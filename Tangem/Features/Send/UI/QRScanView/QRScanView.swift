@@ -32,7 +32,8 @@ struct QRScanView: View {
         }
         .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
         .ignoresSafeArea(edges: .bottom)
-        .onAppear(perform: viewModel.onAppear)
+        // onDidAppear instead of onAppear to fix crash on IOS17 when access to the camera is restricted [REDACTED_INFO]
+        .onDidAppear(perform: viewModel.onAppear)
     }
 
     @ViewBuilder
