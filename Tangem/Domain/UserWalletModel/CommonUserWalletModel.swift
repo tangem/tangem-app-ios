@@ -349,7 +349,7 @@ extension CommonUserWalletModel: UserWalletSerializable {
             name: name,
             card: cardInfo.card,
             associatedCardIds: associatedCardIds,
-            walletData: cardInfo.walletData,
+            walletData: cardInfo.walletData
         )
 
         return newStoredUserWallet
