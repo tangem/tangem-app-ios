@@ -902,15 +902,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
 extension WalletOnboardingViewModel {
     func openReadMoreAboutSeedPhraseScreen() {
-        let websiteLanguageCode: String
-        switch Locale.current.languageCode {
-        case LanguageCode.ru, LanguageCode.by:
-            websiteLanguageCode = LanguageCode.ru
-        default:
-            websiteLanguageCode = LanguageCode.en
-        }
         let baseUrl = AppEnvironment.current.tangemComBaseUrl
-        let url = baseUrl.appendingPathComponent("seed-phrase-\(websiteLanguageCode).html")
+        let url = baseUrl.appendingPathComponent("seed-phrase-\(Locale.webLanguageCode()).html")
         coordinator?.openWebView(with: url)
         Analytics.log(.onboardingSeedButtonReadMore)
     }
