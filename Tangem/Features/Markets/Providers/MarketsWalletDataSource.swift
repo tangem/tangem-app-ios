@@ -118,7 +118,7 @@ extension MarketsWalletDataProvider: WalletSelectorDataSource {
                     isUserWalletLocked: userWalletModel.isUserWalletLocked,
                     userWalletNamePublisher: userWalletModel.userWalletNamePublisher,
                     totalBalancePublisher: userWalletModel.totalBalancePublisher,
-                    cardImagePublisher: userWalletModel.cardImagePublisher,
+                    cardImageProvider: userWalletModel.cardImageProvider,
                     isSelected: userWalletModel.userWalletId == _selectedUserWalletModel.value?.userWalletId
                 ) { [weak self] userWalletId in
                     guard let self = self else { return }
