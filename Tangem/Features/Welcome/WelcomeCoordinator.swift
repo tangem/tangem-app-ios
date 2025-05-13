@@ -126,7 +126,7 @@ extension WelcomeCoordinator: WelcomeRoutable {
 
     func openShop() {
         Analytics.log(.shopScreenOpened)
-        safariManager.openURL(AppConstants.webShopUrl)
+        safariManager.openURL(AppConstants.getWebShopUrl(isExistingUser: false))
     }
 
     func openScanCardManual() {
