@@ -72,7 +72,7 @@ class CommonAPIListProvider {
             apiList = [:]
         }
 
-        TangemFoundation.runTask(in: self) { await $0.updateAPIListSubject(with: apiList) }
+        runTask(in: self) { await $0.updateAPIListSubject(with: apiList) }
     }
 
     @MainActor

@@ -620,7 +620,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
                 if let userWalletModel, userWalletModel.hasImportedWallets {
                     let userWalletId = userWalletModel.userWalletId.stringValue
-                    TangemFoundation.runTask(in: self) { model in
+                    runTask(in: self) { model in
                         try? await model.tangemApiService.setWalletInitialized(userWalletId: userWalletId)
                     }
                 }
@@ -872,7 +872,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     }
 
     private func loadSecondImage(card: Card) {
-        TangemFoundation.runTask(in: self) { model in
+        runTask(in: self) { model in
             let imageProvider = CardImageProvider(card: CardDTO(card: card))
             let imageValue = await imageProvider.loadLargeImage()
 
@@ -885,7 +885,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     }
 
     private func loadThirdImage(card: Card) {
-        TangemFoundation.runTask(in: self) { model in
+        runTask(in: self) { model in
             let imageProvider = CardImageProvider(card: CardDTO(card: card))
             let imageValue = await imageProvider.loadLargeImage()
 
