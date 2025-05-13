@@ -105,10 +105,7 @@ extension MercuryoService: ExchangeService {
         queryItems.append(.init(key: .signature, value: signature(for: walletAddress).addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         queryItems.append(.init(key: .fix_currency, value: "true"))
         queryItems.append(.init(key: .redirect_url, value: successCloseUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)))
-
-        if let languageCode = Locale.current.languageCode {
-            queryItems.append(.init(key: .lang, value: languageCode))
-        }
+        queryItems.append(.init(key: .lang, value: Locale.deviceLanguageCode()))
 
         if useDarkTheme {
             queryItems.append(.init(key: .theme, value: darkThemeName))
