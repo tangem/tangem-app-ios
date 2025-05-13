@@ -96,6 +96,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.marketsTooltipWasShown)
     var marketsTooltipWasShown: Bool = false
 
+    @AppStorageCompat(StorageType.tronWarningWithdrawTokenDisplayed)
+    var tronWarningWithdrawTokenDisplayed: Int = 0
+
     static let shared: AppSettings = .init()
 
     private init() {}
