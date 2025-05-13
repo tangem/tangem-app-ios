@@ -26,7 +26,7 @@ struct OnrampFinishAnalyticsLogger: SendFinishAnalyticsLogger {
             .provider: provider.provider.name,
             .paymentMethod: provider.paymentMethod.name,
             .residence: request.pairItem.country.identity.name,
-            .currency: request.pairItem.fiatCurrency.identity.name,
+            .currency: request.pairItem.fiatCurrency.identity.code,
         ])
     }
 }
