@@ -118,7 +118,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openShop() {
-        safariManager.openURL(AppConstants.webShopUrl)
+        safariManager.openURL(AppConstants.getWebShopUrl(isExistingUser: true))
     }
 
     func openSocialNetwork(url: URL) {
