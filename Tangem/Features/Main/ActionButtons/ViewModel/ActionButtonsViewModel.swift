@@ -113,7 +113,7 @@ private extension ActionButtonsViewModel {
             .walletModelsPublisher
             .withWeakCaptureOf(self)
             .sink { viewModel, walletModels in
-                TangemFoundation.runTask(in: viewModel) { @MainActor viewModel in
+                runTask(in: viewModel) { @MainActor viewModel in
                     if walletModels.isEmpty {
                         viewModel.disabledAllButtons()
                     } else {
@@ -176,7 +176,7 @@ private extension ActionButtonsViewModel {
     }
 
     func updateBuyButtonStateWithMercuryo(_ exchangeServiceState: ExchangeServiceState) {
-        TangemFoundation.runTask(in: self) { @MainActor viewModel in
+        runTask(in: self) { @MainActor viewModel in
             viewModel.lastBuyInitializeState = exchangeServiceState
 
             switch exchangeServiceState {
@@ -190,7 +190,7 @@ private extension ActionButtonsViewModel {
     }
 
     func updateBuyButtonStateWithExpress(_ expressUpdateState: ExpressAvailabilityUpdateState) {
-        TangemFoundation.runTask(in: self) { @MainActor viewModel in
+        runTask(in: self) { @MainActor viewModel in
             let hasCache = viewModel.expressAvailabilityProvider.hasCache
 
             switch (expressUpdateState, hasCache) {
@@ -253,7 +253,7 @@ private extension ActionButtonsViewModel {
     }
 
     func updateSwapButtonState(_ expressUpdateState: ExpressAvailabilityUpdateState) {
-        TangemFoundation.runTask(in: self) { @MainActor viewModel in
+        runTask(in: self) { @MainActor viewModel in
             let hasCache = viewModel.expressAvailabilityProvider.hasCache
 
             switch (expressUpdateState, hasCache) {
@@ -314,7 +314,7 @@ private extension ActionButtonsViewModel {
     }
 
     func updateSellButtonState(_ exchangeServiceState: ExchangeServiceState) {
-        TangemFoundation.runTask(in: self) { @MainActor viewModel in
+        runTask(in: self) { @MainActor viewModel in
             viewModel.lastSellInitializeState = exchangeServiceState
 
             switch exchangeServiceState {
