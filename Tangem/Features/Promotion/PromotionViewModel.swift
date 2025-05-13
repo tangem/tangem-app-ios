@@ -64,16 +64,7 @@ final class PromotionViewModel: ObservableObject {
     }
 
     private var urlPath: String {
-        "\(languageCode)/promotion"
-    }
-
-    private var languageCode: String {
-        switch Locale.current.languageCode {
-        case LanguageCode.ru, LanguageCode.by:
-            return LanguageCode.ru
-        default:
-            return LanguageCode.en
-        }
+        "\(Locale.webLanguageCode())/promotion"
     }
 
     private let options: PromotionCoordinator.Options
