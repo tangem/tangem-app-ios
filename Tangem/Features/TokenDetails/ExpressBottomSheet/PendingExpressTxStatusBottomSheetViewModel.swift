@@ -378,10 +378,12 @@ extension PendingExpressTxStatusBottomSheetViewModel {
             return
         }
 
+        let isOnramp = pendingTransaction.type.branch == .onramp
+
         switch event {
         case .verificationRequired:
             Analytics.log(
-                event: .tokenButtonGoToProvider,
+                event: isOnramp ? .onrampButtonGoToProvider : .tokenButtonGoToProvider,
                 params: [
                     .token: currentTokenItem.currencySymbol,
                     .place: Analytics.ParameterValue.kyc.rawValue,
@@ -392,7 +394,7 @@ extension PendingExpressTxStatusBottomSheetViewModel {
 
         case .longTimeAverageDuration:
             Analytics.log(
-                event: .tokenButtonGoToProvider,
+                event: isOnramp ? .onrampButtonGoToProvider : .tokenButtonGoToProvider,
                 params: [
                     .token: currentTokenItem.currencySymbol,
                     .place: Analytics.ParameterValue.longTime.rawValue,
@@ -403,7 +405,7 @@ extension PendingExpressTxStatusBottomSheetViewModel {
 
         case .cexOperationFailed:
             Analytics.log(
-                event: .tokenButtonGoToProvider,
+                event: isOnramp ? .onrampButtonGoToProvider : .tokenButtonGoToProvider,
                 params: [
                     .token: currentTokenItem.currencySymbol,
                     .place: Analytics.ParameterValue.fail.rawValue,
