@@ -14,7 +14,6 @@ struct CardInfo {
     var card: CardDTO
     var walletData: DefaultWalletData
     var name: String
-    var artwork: CardArtwork = .notLoaded
     var primaryCard: PrimaryCard?
 
     var cardIdFormatted: String {
