@@ -715,17 +715,11 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     }
 
     private func loadImage(for card: Card) {
-        let input = OnboardingInput.ImageLoadInput(
-            supportsOnlineImage: true,
-            cardId: card.cardId,
-            cardPublicKey: card.cardPublicKey
-        )
-
         switch backupService.addedBackupCardsCount {
         case 1:
-            loadSecondImage(imageLoadInput: input)
+            loadSecondImage(card: card)
         case 2:
-            loadThirdImage(imageLoadInput: input)
+            loadThirdImage(card: card)
         default:
             break
         }
@@ -877,32 +871,30 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         }
     }
 
-    private func loadSecondImage(imageLoadInput: OnboardingInput.ImageLoadInput) {
-        loadImage(
-            supportsOnlineImage: imageLoadInput.supportsOnlineImage,
-            cardId: imageLoadInput.cardId,
-            cardPublicKey: imageLoadInput.cardPublicKey
-        )
-        .sink { [weak self] image in
-            withAnimation {
-                self?.secondImage = image
+    private func loadSecondImage(card: Card) {
+        TangemFoundation.runTask(in: self) { model in
+            let imageProvider = CardImageProvider(card: CardDTO(card: card))
+            let imageValue = await imageProvider.loadLargeImage()
+
+            await runOnMain {
+                withAnimation {
+                    model.secondImage = imageValue.image
+                }
             }
         }
-        .store(in: &bag)
     }
 
-    private func loadThirdImage(imageLoadInput: OnboardingInput.ImageLoadInput) {
-        loadImage(
-            supportsOnlineImage: imageLoadInput.supportsOnlineImage,
-            cardId: imageLoadInput.cardId,
-            cardPublicKey: imageLoadInput.cardPublicKey
-        )
-        .sink { [weak self] image in
-            withAnimation {
-                self?.thirdImage = image
+    private func loadThirdImage(card: Card) {
+        TangemFoundation.runTask(in: self) { model in
+            let imageProvider = CardImageProvider(card: CardDTO(card: card))
+            let imageValue = await imageProvider.loadLargeImage()
+
+            await runOnMain {
+                withAnimation {
+                    model.thirdImage = imageValue.image
+                }
             }
         }
-        .store(in: &bag)
     }
 }
 
