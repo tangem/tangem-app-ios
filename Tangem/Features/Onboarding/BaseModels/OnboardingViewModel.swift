@@ -315,7 +315,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     private func loadMainImage(imageProvider: CardImageProviding) {
-        TangemFoundation.runTask(in: self) { model in
+        runTask(in: self) { model in
             let imageValue = await imageProvider.loadLargeImage()
 
             await runOnMain {
