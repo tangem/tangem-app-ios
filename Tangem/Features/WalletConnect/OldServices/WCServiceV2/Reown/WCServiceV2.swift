@@ -73,7 +73,7 @@ final class WCServiceV2 {
     }
 
     func initialize() {
-        TangemFoundation.runTask { [weak self] in
+        runTask { [weak self] in
             await self?.sessionsStorage.loadSessions()
         }
     }
@@ -368,7 +368,7 @@ extension WCServiceV2 {
     }
 
     func disconnectAllSessionsForUserWallet(with userWalletId: String) {
-        TangemFoundation.runTask { [weak self] in
+        runTask { [weak self] in
             guard let self else { return }
 
             let removedSessions = await sessionsStorage.removeSessions(for: userWalletId)
@@ -407,7 +407,7 @@ private extension WCServiceV2 {
     }
 
     func reject(with proposal: Session.Proposal) {
-        TangemFoundation.runTask(in: self) { strongSelf in
+        runTask(in: self) { strongSelf in
             do {
                 try await WalletKit.instance.rejectSession(proposalId: proposal.id, reason: .userRejected)
                 WCLogger.info(LoggerStrings.userRejectWC)
