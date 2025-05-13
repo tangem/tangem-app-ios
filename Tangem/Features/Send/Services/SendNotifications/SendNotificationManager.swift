@@ -231,6 +231,20 @@ private extension CommonSendNotificationManager {
 // MARK: - ValidationError
 
 private extension CommonSendNotificationManager {
+    func shouldShowWithdrawal(notification: WithdrawalNotificationEvent) -> Bool {
+        switch notification {
+        case .cardanoWillBeSendAlongToken, .reduceAmountBecauseFeeIsTooHigh:
+            return true
+        case .tronWillBeSendTokenFeeDescription:
+            if AppSettings.shared.tronWarningWithdrawTokenDisplayed < 3 {
+                AppSettings.shared.tronWarningWithdrawTokenDisplayed += 1
+                return true
+            } else {
+                return false
+            }
+        }
+    }
+
     func updateWithdrawalNotification(notification: WithdrawalNotification?) {
         switch notification {
         case .none:
@@ -244,6 +258,11 @@ private extension CommonSendNotificationManager {
         case .some(let suggestion):
             let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem, feeTokenItem: feeTokenItem)
             let withdrawalNotification = factory.mapToWithdrawalNotificationEvent(suggestion)
+
+            guard shouldShowWithdrawal(notification: withdrawalNotification) else {
+                return
+            }
+
             show(notification: .withdrawalNotificationEvent(withdrawalNotification))
         }
     }
