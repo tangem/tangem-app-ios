@@ -10,16 +10,7 @@ import Foundation
 
 struct TangemBlogUrlBuilder {
     func url(post: Post) -> URL {
-        let currentLanguageCode = Locale.current.languageCode ?? LanguageCode.en
-
-        let languageCode: String
-        switch currentLanguageCode {
-        case LanguageCode.ru:
-            languageCode = currentLanguageCode
-        default:
-            languageCode = LanguageCode.en
-        }
-        return URL(string: "https://tangem.com/\(languageCode)/blog/post/\(post.path)/")!
+        return URL(string: "https://tangem.com/\(Locale.webLanguageCode())/blog/post/\(post.path)/")!
     }
 }
 
