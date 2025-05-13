@@ -31,6 +31,10 @@ class UserWalletModelMock: UserWalletModel {
 
     var userTokenListManager: UserTokenListManager { UserTokenListManagerMock() }
 
+    var cardImageProvider: CardImageProviding {
+        CardImageProviderMock()
+    }
+
     var nftManager: NFTManager { NFTManagerStub() }
 
     var signer: TangemSigner { fatalError("TangemSignerMock doesn't exist") }
@@ -44,8 +48,6 @@ class UserWalletModelMock: UserWalletModel {
     }
 
     var backupInput: OnboardingInput? { nil }
-
-    var cardImagePublisher: AnyPublisher<CardImageResult, Never> { Empty().eraseToAnyPublisher() }
 
     var cardHeaderImagePublisher: AnyPublisher<ImageType?, Never> { Empty().eraseToAnyPublisher() }
 
