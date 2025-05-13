@@ -13,10 +13,10 @@ import TangemFoundation
 
 class MarketsWalletSelectorViewModel: ObservableObject {
     @Published var name: String = ""
-    @Published var icon: LoadingValue<CardImageResult> = .loading
+    @Published var icon: LoadingValue<ImageValue> = .loading
 
     private let userWalletNamePublisher: AnyPublisher<String, Never>
-    private let cardImagePublisher: AnyPublisher<CardImageResult, Never>
+    private let cardImageProvider: CardImageProviding
 
     private var bag: Set<AnyCancellable> = []
 
@@ -24,12 +24,23 @@ class MarketsWalletSelectorViewModel: ObservableObject {
 
     init(
         userWalletNamePublisher: AnyPublisher<String, Never>,
-        cardImagePublisher: AnyPublisher<CardImageResult, Never>
+        cardImageProvider: CardImageProviding
     ) {
         self.userWalletNamePublisher = userWalletNamePublisher
-        self.cardImagePublisher = cardImagePublisher
+        self.cardImageProvider = cardImageProvider
 
         bind()
+        loadImage()
+    }
+
+    func loadImage() {
+        TangemFoundation.runTask(in: self) { viewModel in
+            let image = await viewModel.cardImageProvider.loadSmallImage()
+
+            await runOnMain {
+                viewModel.icon = .loaded(image)
+            }
+        }
     }
 
     func bind() {
@@ -38,14 +49,6 @@ class MarketsWalletSelectorViewModel: ObservableObject {
             .withWeakCaptureOf(self)
             .sink { viewModel, name in
                 viewModel.name = name
-            }
-            .store(in: &bag)
-
-        cardImagePublisher
-            .receive(on: DispatchQueue.main)
-            .withWeakCaptureOf(self)
-            .sink { viewModel, image in
-                viewModel.icon = .loaded(image)
             }
             .store(in: &bag)
     }
