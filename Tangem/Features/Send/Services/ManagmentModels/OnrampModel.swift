@@ -98,7 +98,6 @@ private extension OnrampModel {
         // Only for analytics
         _selectedOnrampProvider
             .compactMap { $0?.value }
-            .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { model, provider in
                 switch provider.state {
