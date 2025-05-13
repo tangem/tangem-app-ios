@@ -559,7 +559,7 @@ private extension VisaOnboardingViewModel {
 
 private extension VisaOnboardingViewModel {
     func loadImage(imageProvider: CardImageProviding) {
-        TangemFoundation.runTask(in: self) { model in
+        runTask(in: self) { model in
             let imageValue = await imageProvider.loadLargeImage()
 
             await runOnMain {

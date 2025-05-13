@@ -33,7 +33,7 @@ final class ScanCardSettingsViewModel: ObservableObject, Identifiable {
     }
 
     func loadImage() {
-        TangemFoundation.runTask(in: self) { viewModel in
+        runTask(in: self) { viewModel in
             let image = await viewModel.cardImageProvider.loadLargeImage()
 
             await runOnMain {
