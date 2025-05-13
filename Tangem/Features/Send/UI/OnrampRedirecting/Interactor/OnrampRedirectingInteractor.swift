@@ -44,9 +44,7 @@ extension CommonOnrampRedirectingInteractor: OnrampRedirectingInteractor {
             throw CommonError.noData
         }
 
-        // We don't use `Locale.current.languageCode`
-        // Because it gives us the phone language not app
-        let appLanguageCode = Bundle.main.preferredLocalizations[0]
+        let appLanguageCode = Locale.appLanguageCode
         var redirectURL = URL(string: Constants.redirectURL)!
         redirectURL.appendPathComponent(provider.provider.id)
 
