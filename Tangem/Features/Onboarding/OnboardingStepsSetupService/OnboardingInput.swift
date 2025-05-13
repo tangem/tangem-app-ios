@@ -72,35 +72,22 @@ extension OnboardingInput {
             }
         }
 
-        var imageLoadInput: ImageLoadInput {
+        var cardImageProvider: CardImageProviding {
             switch self {
             case .cardInfo(let cardInfo):
-                let config = UserWalletConfigFactory(cardInfo).makeConfig()
-                return .init(
-                    supportsOnlineImage: config.hasFeature(.onlineImage),
-                    cardId: cardInfo.card.cardId,
-                    cardPublicKey: cardInfo.card.cardPublicKey
-                )
+                return CardImageProvider(card: cardInfo.card)
             case .userWalletModel(let userWalletModel):
-                return .init(
-                    supportsOnlineImage: userWalletModel.config.hasFeature(.onlineImage),
-                    cardId: userWalletModel.tangemApiAuthData.cardId,
-                    cardPublicKey: userWalletModel.tangemApiAuthData.cardPublicKey
-                )
+                return userWalletModel.cardImageProvider
             case .cardId(let cardId):
-                return .init(
-                    supportsOnlineImage: true,
-                    cardId: cardId,
-                    cardPublicKey: Data()
+                return CardImageProvider(
+                    input: CardImageProvider.Input(
+                        cardId: cardId,
+                        cardPublicKey: Data(),
+                        issuerPublicKey: Data(),
+                        firmwareVersionType: .release
+                    )
                 ) // we assume that cache exists
             }
         }
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    struct ImageLoadInput {
-        let supportsOnlineImage: Bool
-        let cardId: String
-        let cardPublicKey: Data
     }
 }

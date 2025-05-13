@@ -545,7 +545,7 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var backupInput: OnboardingInput? { nil }
 
-    var cardImagePublisher: AnyPublisher<CardImageResult, Never> { userWalletModel.cardImagePublisher }
+    var cardImageProvider: CardImageProviding { userWalletModel.cardImageProvider }
 
     var totalSignedHashes: Int { userWalletModel.totalSignedHashes }
 
@@ -599,8 +599,7 @@ extension VisaUserWalletModel: UserWalletSerializable {
             name: name,
             card: cardInfo.card,
             associatedCardIds: [],
-            walletData: cardInfo.walletData,
-            artwork: cardInfo.artwork.artworkInfo
+            walletData: cardInfo.walletData
         )
     }
 }
