@@ -16,25 +16,16 @@ struct MarketsTokenDetailsDataProvider {
     @Injected(\.tangemApiService) private var tangemAPIService: TangemApiService
 
     private let mapper = MarketsTokenDetailsMapper(supportedBlockchains: SupportedBlockchains.all)
-    private let defaultLanguageCode = "en"
 
     /// Load details for selected token
     /// - Parameters:
     ///   - tokenId: Id of selected token received from backend
     ///   - baseCurrencyCode: Currency selected in App. It can be fiat or crypto currency
     func loadTokenDetails(for tokenId: TokenItemId, baseCurrencyCode: String) async throws -> MarketsTokenDetailsModel {
-        let languageCode: String?
-
-        if #available(iOS 16, *) {
-            languageCode = Locale.current.language.languageCode?.identifier
-        } else {
-            languageCode = Locale.current.languageCode
-        }
-
         let request = MarketsDTO.Coins.Request(
             tokenId: tokenId,
             currency: baseCurrencyCode,
-            language: languageCode ?? defaultLanguageCode
+            language: Locale.deviceLanguageCode()
         )
         let result = try await tangemAPIService.loadTokenMarketsDetails(requestModel: request)
         let model = try mapper.map(response: result)
