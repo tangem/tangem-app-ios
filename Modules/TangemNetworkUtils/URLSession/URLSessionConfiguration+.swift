@@ -36,4 +36,12 @@ public extension URLSessionConfiguration {
         configuration.timeoutIntervalForResource = 30
         return configuration
     }()
+
+    static let imageFetchingConfiguration: URLSessionConfiguration = {
+        let configuration = URLSessionConfiguration.default
+        configuration.timeoutIntervalForRequest = 20
+        configuration.timeoutIntervalForResource = 30
+        configuration.requestCachePolicy = .returnCacheDataElseLoad
+        return configuration
+    }()
 }
