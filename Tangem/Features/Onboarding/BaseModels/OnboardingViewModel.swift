@@ -11,6 +11,7 @@ import Combine
 import TangemSdk
 import TangemUI
 import TangemLocalization
+import TangemFoundation
 import struct TangemUIUtils.AlertBinder
 
 class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable> {
@@ -195,7 +196,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         isFromMain = input.isStandalone
         isNavBarVisible = input.isStandalone
 
-        loadMainImage(imageLoadInput: input.cardInput.imageLoadInput)
+        loadMainImage(imageProvider: input.cardInput.cardImageProvider)
 
         bindAnalytics()
     }
@@ -218,11 +219,10 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         userWalletRepository.add(userWalletModel)
     }
 
-    func loadImage(supportsOnlineImage: Bool, cardId: String, cardPublicKey: Data) -> AnyPublisher<Image, Never> {
-        CardImageProvider(supportsOnlineImage: supportsOnlineImage)
-            .loadImage(cardId: cardId, cardPublicKey: cardPublicKey)
-            .map { $0.image }
-            .eraseToAnyPublisher()
+    func loadImage(imageLoadInput: CardImageProvider.Input) async -> Image {
+        let imageProvider = CardImageProvider(input: imageLoadInput)
+        let imageValue = await imageProvider.loadLargeImage()
+        return imageValue.image
     }
 
     func setupContainer(with size: CGSize) {
@@ -314,18 +314,16 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         OnboardingUtils().processSaveUserWalletRequestResult(agreed: agreed)
     }
 
-    private func loadMainImage(imageLoadInput: OnboardingInput.ImageLoadInput) {
-        loadImage(
-            supportsOnlineImage: imageLoadInput.supportsOnlineImage,
-            cardId: imageLoadInput.cardId,
-            cardPublicKey: imageLoadInput.cardPublicKey
-        )
-        .sink { [weak self] image in
-            withAnimation {
-                self?.mainImage = image
+    private func loadMainImage(imageProvider: CardImageProviding) {
+        TangemFoundation.runTask(in: self) { model in
+            let imageValue = await imageProvider.loadLargeImage()
+
+            await runOnMain {
+                withAnimation {
+                    model.mainImage = imageValue.image
+                }
             }
         }
-        .store(in: &bag)
     }
 
     private func bindAnalytics() {
