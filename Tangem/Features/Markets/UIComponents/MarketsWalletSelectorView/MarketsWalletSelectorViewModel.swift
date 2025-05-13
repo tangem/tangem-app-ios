@@ -34,7 +34,7 @@ class MarketsWalletSelectorViewModel: ObservableObject {
     }
 
     func loadImage() {
-        TangemFoundation.runTask(in: self) { viewModel in
+        runTask(in: self) { viewModel in
             let image = await viewModel.cardImageProvider.loadSmallImage()
 
             await runOnMain {
