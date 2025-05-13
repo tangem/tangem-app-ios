@@ -7,14 +7,13 @@
 //
 
 import Foundation
-import TangemLocalization
 import Combine
-import UIKit
 import TangemFoundation
+import TangemLocalization
 
 class WalletSelectorItemViewModel: ObservableObject, Identifiable {
     @Published var name: String = ""
-    @Published var icon: LoadingValue<CardImageResult> = .loading
+    @Published var icon: LoadingValue<ImageValue> = .loading
     @Published var cardsCount: String
     @Published var balanceState: LoadableTokenBalanceView.State = .loading()
     @Published var isSelected: Bool = false
@@ -24,7 +23,7 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
 
     private let userWalletNamePublisher: AnyPublisher<String, Never>
     private let totalBalancePublisher: AnyPublisher<TotalBalanceState, Never>
-    private let cardImagePublisher: AnyPublisher<CardImageResult, Never>
+    private let cardImageProvider: CardImageProviding
 
     private var onTapWallet: ((UserWalletId) -> Void)?
 
@@ -38,7 +37,7 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
         isUserWalletLocked: Bool,
         userWalletNamePublisher: AnyPublisher<String, Never>,
         totalBalancePublisher: AnyPublisher<TotalBalanceState, Never>,
-        cardImagePublisher: AnyPublisher<CardImageResult, Never>,
+        cardImageProvider: CardImageProviding,
         isSelected: Bool,
         didTapWallet: ((UserWalletId) -> Void)?
     ) {
@@ -47,11 +46,22 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
         self.cardsCount = Localization.cardLabelCardCount(cardsCount)
         self.userWalletNamePublisher = userWalletNamePublisher
         self.totalBalancePublisher = totalBalancePublisher
-        self.cardImagePublisher = cardImagePublisher
+        self.cardImageProvider = cardImageProvider
         self.isSelected = isSelected
         onTapWallet = didTapWallet
 
         bind()
+        loadImage()
+    }
+
+    func loadImage() {
+        TangemFoundation.runTask(in: self) { viewModel in
+            let image = await viewModel.cardImageProvider.loadSmallImage()
+
+            await runOnMain {
+                viewModel.icon = .loaded(image)
+            }
+        }
     }
 
     func bind() {
@@ -60,14 +70,6 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
             .withWeakCaptureOf(self)
             .sink { viewModel, name in
                 viewModel.name = name
-            }
-            .store(in: &bag)
-
-        cardImagePublisher
-            .receive(on: DispatchQueue.main)
-            .withWeakCaptureOf(self)
-            .sink { viewModel, image in
-                viewModel.icon = .loaded(image)
             }
             .store(in: &bag)
 
