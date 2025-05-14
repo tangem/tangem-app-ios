@@ -9,7 +9,7 @@
 import Foundation
 import TangemLocalization
 
-public enum ETHError: Error, LocalizedError, DetailedError {
+public enum ETHError: Error, LocalizedError {
     case failedToParseTxCount
     case failedToParseBalance(value: String, address: String, decimals: Int)
     case failedToParseGasLimit
@@ -20,23 +20,16 @@ public enum ETHError: Error, LocalizedError, DetailedError {
 
     public var errorDescription: String? {
         switch self {
-        case .failedToParseTxCount, .failedToParseBalance, .failedToParseAllowance, .failedToParseFeeHistory:
+        case .failedToParseTxCount, .failedToParseAllowance, .failedToParseFeeHistory:
             return Localization.genericErrorCode(errorCodeDescription)
+        case .failedToParseBalance(let value, let address, let decimals):
+            return "Failed to parse balance: value:\(value), address:\(address), decimals:\(decimals)"
         case .failedToParseGasLimit: // [REDACTED_TODO_COMMENT]
             return Localization.genericErrorCode(errorCodeDescription)
         case .gasRequiredExceedsAllowance:
             return Localization.ethGasRequiredExceedsAllowance
         case .unsupportedFeature:
             return "unsupportedFeature"
-        }
-    }
-
-    public var detailedDescription: String? {
-        switch self {
-        case .failedToParseBalance(let value, let address, let decimals):
-            return "value:\(value), address:\(address), decimals:\(decimals)"
-        default:
-            return nil
         }
     }
 
