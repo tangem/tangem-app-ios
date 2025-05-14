@@ -34,6 +34,10 @@ final class WCServiceV2 {
         }
     }
 
+    var errorsPublisher: AnyPublisher<(error: WalletConnectV2Error, dAppName: String), Never> {
+        errorsSubject.eraseToAnyPublisher()
+    }
+
     // MARK: - Private properties
 
     private var selectedWalletId: String?
@@ -47,6 +51,7 @@ final class WCServiceV2 {
     private let selectedWalletIdSubject: CurrentValueSubject<String?, Never> = .init(nil)
     private let selectedNetworksToConnectSubject: PassthroughSubject<[BlockchainNetwork], Never> = .init()
     private let connectionRequestSubject: CurrentValueSubject<WCConnectionRequestModel?, Never> = .init(nil)
+    private let errorsSubject = PassthroughSubject<(error: WalletConnectV2Error, dAppName: String), Never>()
     private var bag = Set<AnyCancellable>()
 
     private let utils = WCUtils()
@@ -231,14 +236,14 @@ private extension WCServiceV2 {
         guard let selectedWalletId else { return }
 
         guard DApps.isSupported(proposal.proposer.url) else {
-            //            floatingMessageService.send(.unsupportedDApp)
+            errorsSubject.send((.unsupportedDApp, proposal.proposer.name))
             reject(with: proposal)
             return
         }
 
         guard utils.allChainsSupported(in: proposal.requiredNamespaces) else {
-            let unsupportedBlockchains = utils.extractUnsupportedBlockchainNames(from: proposal.requiredNamespaces)
-            //            floatingMessageService.send(.unsupportedBlockchains(unsupportedBlockchains))
+            let unsupportedBlockchainNames = utils.extractUnsupportedBlockchainNames(from: proposal.requiredNamespaces)
+            errorsSubject.send((.unsupportedBlockchains(unsupportedBlockchainNames), proposal.proposer.name))
             reject(with: proposal)
             return
         }
@@ -271,10 +276,10 @@ private extension WCServiceV2 {
 
             //            log request
         } catch let error as WalletConnectV2Error {
-            //            floatingMessageService.send(error)
+            errorsSubject.send((error, proposal.proposer.name))
         } catch {
             WCLogger.error(error: error)
-            //            floatingMessageService.send(.unknown(error.localizedDescription))
+            errorsSubject.send((.unknown(error.localizedDescription), proposal.proposer.name))
         }
         canEstablishNewSessionSubject.send(true)
         dappInfoLoadingSubject.send(false)
@@ -303,7 +308,7 @@ extension WCServiceV2 {
         runTask(withTimeout: 20) { [weak self] in
             await self?.pairClient(with: uri, source: source)
         } onTimeout: { [weak self] in
-            self?.dismissFloatingSheetWithToast(error: WalletConnectV2Error.sessionConnetionTimeout)
+            self?.dismissFloatingSheetWithToast(error: WalletConnectV2Error.sessionConnectionTimeout)
 
             self?.canEstablishNewSessionSubject.send(true)
             self?.dappInfoLoadingSubject.send(false)
@@ -503,12 +508,12 @@ private extension WCServiceV2 {
 
         } catch let error as WalletConnectV2Error {
             if case .unsupportedWCMethod = error {} else {
-//                floatingMessageService.send(error)
+                errorsSubject.send((error, session.sessionInfo.dAppInfo.name))
             }
             await respond(with: error, session: session)
         } catch {
-            let wcError: WalletConnectV2Error = .unknown(error.localizedDescription)
-//            floatingMessageService.send(wcError)
+            let wcError = WalletConnectV2Error.unknown(error.localizedDescription)
+            errorsSubject.send((wcError, session.sessionInfo.dAppInfo.name))
             await respond(with: wcError, session: session)
         }
     }
