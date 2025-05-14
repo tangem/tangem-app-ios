@@ -11,25 +11,6 @@ import Foundation
 import UIKit
 
 enum AppConstants {
-    static var webShopUrl: URL {
-        var urlComponents = URLComponents(string: "https://buy.tangem.com")!
-
-        let queryItemsDict = [
-            "utm_source": "tangem",
-            "utm_medium": "app",
-            "app_instance_id": FirebaseAnalytics.Analytics.appInstanceID(),
-        ]
-
-        urlComponents.queryItems = queryItemsDict
-            .compactMap { key, value in
-                value.map { value in
-                    URLQueryItem(name: key, value: value)
-                }
-            }
-
-        return urlComponents.url!
-    }
-
     static var isSmallScreen: Bool {
         UIScreen.main.bounds.width < 375 || UIScreen.main.bounds.height < 650
     }
@@ -56,4 +37,26 @@ enum AppConstants {
     static let feeExplanationTangemBlogURL = URL(string: "https://tangem.com/en/blog/post/what-is-a-transaction-fee-and-why-do-we-need-it/")!
 
     static let tosURL = URL(string: "https://tangem.com/tangem_tos.html")!
+
+    static func getWebShopUrl(isExistingUser: Bool) -> URL {
+        var urlComponents = URLComponents(string: "https://buy.tangem.com")!
+        let campaignPrefix = isExistingUser ? "users-" : "prospect-"
+
+        let queryItemsDict = [
+            "utm_source": "tangem",
+            "utm_medium": "app",
+            "utm_campaign": campaignPrefix + Locale.appLanguageCode,
+            "utm_content": "devicelang-" + Locale.deviceLanguageCode(),
+            "app_instance_id": FirebaseAnalytics.Analytics.appInstanceID(),
+        ]
+
+        urlComponents.queryItems = queryItemsDict
+            .compactMap { key, value in
+                value.map { value in
+                    URLQueryItem(name: key, value: value)
+                }
+            }
+
+        return urlComponents.url!
+    }
 }
