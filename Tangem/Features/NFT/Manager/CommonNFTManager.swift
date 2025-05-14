@@ -26,6 +26,9 @@ final class CommonNFTManager: NFTManager {
         let aggregatedUpdatePublisher = [
             updatePublisher
                 .eraseToAnyPublisher(),
+            updateAssetsPublisher
+                .mapToVoid()
+                .eraseToAnyPublisher(),
             networkServicesPublisher
                 .mapToVoid()
                 .eraseToAnyPublisher(),
@@ -92,23 +95,94 @@ final class CommonNFTManager: NFTManager {
                 .eraseToAnyPublisher(),
         ].merge()
 
-        return aggregatedNetworkServicesPublisher
-            .setFailureType(to: Error.self)
+        let collectionsPublisher = aggregatedNetworkServicesPublisher
             .withWeakCaptureOf(self)
-            .asyncTryMap { nftManager, input in
+            .flatMapLatest { nftManager, input in
                 let (networkServices, ignoreCache) = input
-                return try await nftManager.updateInternal(networkServices: networkServices, ignoreCache: ignoreCache)
+
+                return Just((nftManager, networkServices, ignoreCache))
+                    .setFailureType(to: Error.self)
+                    .asyncTryMap { nftManager, networkServices, ignoreCache in
+                        return try await nftManager.updateInternal(networkServices: networkServices, ignoreCache: ignoreCache)
+                    }
+                    .materialize()
             }
-            .materialize()
-            .share(replay: 1)
-            .eraseToAnyPublisher()
+
+        var assetsCache: [NFTCollection.ID: [NFTAsset]] = [:]
+
+        let assetsPublisher = updateAssetsPublisher
+            .withLatestFrom(networkServicesPublisher) { ($0, $1) }
+            .compactMap { collectionIdentifier, networkServices -> (NFTCollection.ID, NFTNetworkService)? in
+                let targetNetworkService = networkServices.first { walletModel, networkService in
+                    return NFTWalletModelFinder.isWalletModel(walletModel, equalsTo: collectionIdentifier)
+                }
+
+                guard let networkService = targetNetworkService?.1 else {
+                    return nil
+                }
+
+                return (collectionIdentifier, networkService)
+            }
+            .flatMapLatest { collectionIdentifier, networkService in
+                return Just((collectionIdentifier, networkService))
+                    .setFailureType(to: Error.self)
+                    .asyncTryMap { collectionIdentifier, networkService in
+                        let address = collectionIdentifier.ownerAddress
+                        let assets = try await networkService.getAssets(address: address, collectionIdentifier: collectionIdentifier)
+
+                        return (collectionIdentifier, assets)
+                    }
+                    .materialize()
+            }
+
+        let collectionsValuesPublisher = collectionsPublisher
+            .values()
+            .share()
+
+        let collectionsErrorsPublisher = collectionsPublisher
+            .failures()
+            .mapToMaterializedFailure(outputType: [NFTCollection].self)
+
+        let assetsValuesPublisher = assetsPublisher
+            .values()
+            .prepend((NFTCollection.ID.dummy, []))
+            .share()
+
+        let enrichedCollectionsFromCollectionsPublisher = collectionsValuesPublisher
+            .withLatestFrom(assetsValuesPublisher) { collections, assetsInput in
+                let (collectionIdentifier, assets) = assetsInput
+                assetsCache[collectionIdentifier] = assets
+
+                return Self.enrichedCollections(collections, using: assetsCache)
+            }
+            .mapToMaterializedValue(failureType: Error.self)
+
+        let enrichedCollectionsFromAssetsPublisher = assetsValuesPublisher
+            .withLatestFrom(collectionsValuesPublisher) { assetsInput, collections in
+                let (collectionIdentifier, assets) = assetsInput
+                assetsCache[collectionIdentifier] = assets
+
+                return Self.enrichedCollections(collections, using: assetsCache)
+            }
+            .mapToMaterializedValue(failureType: Error.self)
+
+        return Publishers.Merge3(
+            enrichedCollectionsFromCollectionsPublisher,
+            enrichedCollectionsFromAssetsPublisher,
+            collectionsErrorsPublisher
+        )
+        .share(replay: 1)
     }()
 
     private var updatePublisher: some Publisher<Void, Never> { updateSubject }
     private let updateSubject: some Subject<Void, Never> = PassthroughSubject()
+
+    private var updateAssetsPublisher: some Publisher<NFTCollection.ID, Never> { updateAssetsSubject }
+    private let updateAssetsSubject: some Subject<NFTCollection.ID, Never> = PassthroughSubject()
+
     private let walletModelsManager: WalletModelsManager
     private let updater = Updater()
-    private var bag: Set<AnyCancellable> = []
+    private var collectionsSubscription: AnyCancellable?
 
     init(
         walletModelsManager: WalletModelsManager
@@ -121,13 +195,16 @@ final class CommonNFTManager: NFTManager {
         updateSubject.send()
     }
 
+    func updateAssets(inCollectionWithIdentifier collectionIdentifier: NFTCollection.ID) {
+        updateAssetsSubject.send(collectionIdentifier)
+    }
+
     private func bind() {
         // Not pure, but we still need some state in this manager
-        collectionsPublisherInternal
+        collectionsSubscription = collectionsPublisherInternal
             .values()
             .receive(on: DispatchQueue.main)
             .assign(to: \.collections, on: self, ownership: .weak)
-            .store(in: &bag)
     }
 
     private func updateInternal(
@@ -135,6 +212,19 @@ final class CommonNFTManager: NFTManager {
         ignoreCache: Bool
     ) async throws -> [NFTCollection] {
         return try await updater.update(networkServices: networkServices, ignoreCache: ignoreCache)
+    }
+
+    private static func enrichedCollections(
+        _ collections: [NFTCollection],
+        using assetsCache: [NFTCollection.ID: [NFTAsset]]
+    ) -> [NFTCollection] {
+        return collections.map { collection in
+            guard let assets = assetsCache[collection.id] else {
+                return collection
+            }
+
+            return collection.enriched(with: assets)
+        }
     }
 }
 
@@ -220,5 +310,17 @@ private extension WalletModelFeature {
         }
 
         return nil
+    }
+}
+
+private extension Publisher {
+    func mapToMaterializedValue<Failure>(failureType: Failure.Type) -> Publishers.Map<Self, Event<Self.Output, Failure>> {
+        map { Event<Self.Output, Failure>.value($0) }
+    }
+}
+
+private extension Publisher where Self.Output: Swift.Error {
+    func mapToMaterializedFailure<Output>(outputType: Output.Type) -> Publishers.Map<Self, Event<Output, Self.Output>> {
+        map { Event<Output, Self.Output>.failure($0) }
     }
 }
