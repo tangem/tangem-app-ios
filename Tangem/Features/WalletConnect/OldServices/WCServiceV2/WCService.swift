@@ -11,6 +11,7 @@ import Combine
 protocol WCService {
     var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> { get }
     var newSessions: AsyncStream<[WalletConnectSavedSession]> { get async }
+    var errorsPublisher: AnyPublisher<(error: WalletConnectV2Error, dAppName: String), Never> { get }
 
     func initialize()
     func reset()
@@ -26,7 +27,7 @@ private struct WCServiceKey: InjectionKey {
 }
 
 extension InjectedValues {
-    var wConnectService: WCService {
+    var wcService: WCService {
         get { Self[WCServiceKey.self] }
         set { Self[WCServiceKey.self] = newValue }
     }
