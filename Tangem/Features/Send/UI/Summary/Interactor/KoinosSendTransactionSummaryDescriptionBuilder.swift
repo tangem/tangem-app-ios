@@ -27,7 +27,7 @@ extension KoinosSendTransactionSummaryDescriptionBuilder: SendTransactionSummary
             return nil
         }
 
-        let amountInFiat = tokenItem.id.flatMap { BalanceConverter().convertToFiat(amount, currencyId: $0) }
+        let amountInFiat = tokenItem.currencyId.flatMap { BalanceConverter().convertToFiat(amount, currencyId: $0) }
 
         let formattingOptions = BalanceFormattingOptions(
             minFractionDigits: BalanceFormattingOptions.defaultFiatFormattingOptions.minFractionDigits,
