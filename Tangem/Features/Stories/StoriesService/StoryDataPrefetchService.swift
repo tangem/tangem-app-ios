@@ -18,7 +18,7 @@ final class StoryDataPrefetchService {
             return
         }
 
-        TangemFoundation.runTask(in: self, isDetached: true, priority: .medium) { strongSelf in
+        runTask(in: self, isDetached: true, priority: .medium) { strongSelf in
             _ = await strongSelf.enrichStoryUseCase(story)
         }
     }
