@@ -7,8 +7,9 @@
 //
 
 import Foundation
-import BlockchainSdk
 import Combine
+import BlockchainSdk
+import TangemFoundation
 
 protocol SendDestinationInteractor {
     var transactionHistoryPublisher: AnyPublisher<[SendSuggestedDestinationTransactionRecord], Never> { get }
