@@ -8,25 +8,29 @@
 
 import Foundation
 import class UIKit.UIApplication
+import TangemAssets
+import TangemLocalization
+import TangemFoundation
 
 @MainActor
-final class WalletConnectModuleFactory {
-    @Injected(\.wcService) private var walletConnectService: any WCService
-    @Injected(\.userWalletRepository) private var userWalletRepository: any UserWalletRepository
-    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+enum WalletConnectModuleFactory {
+    @Injected(\.wcService) private static var walletConnectService: any WCService
+    @Injected(\.userWalletRepository) private static var userWalletRepository: any UserWalletRepository
+    @Injected(\.floatingSheetPresenter) private static var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.safariManager) private static var safariManager: SafariManager
 
-    private let openSystemSettingsAction = UIApplication.openSystemSettings
-    private lazy var cameraAccessProvider = AVWalletConnectCameraAccessProvider()
+    private static let openSystemSettingsAction = UIApplication.openSystemSettings
+    private static let cameraAccessProvider = AVWalletConnectCameraAccessProvider()
+    // [REDACTED_TODO_COMMENT]
+    private static let supportURL: URL = AppEnvironment.current.tangemComBaseUrl
 
-    private lazy var dateFormatter: RelativeDateTimeFormatter = {
+    private static let dateFormatter: RelativeDateTimeFormatter = {
         let formatter = RelativeDateTimeFormatter()
         formatter.dateTimeStyle = .numeric
         return formatter
     }()
 
-    nonisolated init() {}
-
-    func makeWalletConnectViewModel(coordinator: some WalletConnectRoutable) -> WalletConnectViewModel {
+    static func makeWalletConnectViewModel(coordinator: some WalletConnectRoutable) -> WalletConnectViewModel {
         let establishDAppConnectionUseCase = WalletConnectEstablishDAppConnectionUseCase(
             userWalletRepository: userWalletRepository,
             uriProvider: UIPasteBoardWalletConnectURIProvider(pasteboard: .general, parser: .init()),
@@ -42,7 +46,7 @@ final class WalletConnectModuleFactory {
         )
     }
 
-    func makeQRScanFlow(
+    static func makeQRScanFlow(
         clipboardURI: WalletConnectRequestURI?,
         dismissAction: @escaping (WalletConnectQRScanResult?) -> Void
     ) -> (WalletConnectQRScanCoordinator, WalletConnectQRScanCoordinator.Options) {
@@ -57,11 +61,11 @@ final class WalletConnectModuleFactory {
         return (coordinator, options)
     }
 
-    func makeConnectedDAppDetailsViewModel(_ dApp: WalletConnectSavedSession) -> WalletConnectConnectedDAppDetailsViewModel {
+    static func makeConnectedDAppDetailsViewModel(_ dApp: WalletConnectSavedSession) -> WalletConnectConnectedDAppDetailsViewModel {
         let userWallet = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == dApp.userWalletId })
 
         let state = WalletConnectConnectedDAppDetailsViewState(
-            navigationBar: WalletConnectConnectedDAppDetailsViewState.NavigationBar(connectedTime: connectedTime(from: dApp)),
+            navigationBar: WalletConnectConnectedDAppDetailsViewState.NavigationBar(connectedTime: Self.connectedTime(from: dApp)),
             dAppDescriptionSection: WalletConnectConnectedDAppDetailsViewState.DAppDescriptionSection(
                 id: dApp.id,
                 iconURL: nil,
@@ -90,9 +94,67 @@ final class WalletConnectModuleFactory {
         )
     }
 
+    static func makeErrorViewModel(for error: WalletConnectV2Error, dAppName: String) -> WalletConnectErrorViewModel? {
+        let state: WalletConnectErrorViewState
+        let openURLAction: (URL) -> Void = { [safariManager] url in
+            safariManager.openURL(url)
+        }
+
+        let closeAction: () -> Void = { [weak floatingSheetPresenter] in
+            floatingSheetPresenter?.removeActiveSheet()
+        }
+
+        switch error {
+        case .unsupportedBlockchains, .unsupportedNetwork:
+            state = WalletConnectErrorViewState(
+                icon: .blockchain,
+                title: Localization.wcAlertUnsupportedNetworksTitle,
+                subtitle: Localization.wcAlertUnsupportedNetworksDescription(dAppName),
+                buttonStyle: .primary
+            )
+
+        case .sessionForTopicNotFound:
+            state = WalletConnectErrorViewState(
+                icon: .walletConnect,
+                title: Localization.wcAlertSessionDisconnectedTitle,
+                subtitle: Localization.wcAlertSessionDisconnectedDescription,
+                buttonStyle: .primary
+            )
+
+        case .sessionConnectionTimeout:
+            state = WalletConnectErrorViewState(
+                icon: .walletConnect,
+                title: Localization.wcAlertConnectionTimeoutTitle,
+                subtitle: Localization.wcAlertConnectionTimeoutDescription,
+                buttonStyle: .primary
+            )
+
+        case .wrongCardSelected:
+            state = WalletConnectErrorViewState(
+                icon: .warning,
+                title: Localization.wcAlertWrongCardTitle,
+                subtitle: Localization.wcAlertWrongCardDescription,
+                buttonStyle: .secondary
+            )
+
+        case .unsupportedWCMethod, .dataInWrongFormat, .notEnoughDataInRequest, .walletModelNotFound:
+            state = WalletConnectErrorViewState(
+                icon: .warning,
+                title: Localization.wcAlertUnknownErrorTitle,
+                subtitle: "Error code: \(error.code). If the problem persists — feel free [to contact our support.](\(Self.supportURL))",
+                buttonStyle: .secondary
+            )
+
+        default:
+            return nil
+        }
+
+        return WalletConnectErrorViewModel(state: state, supportURL: Self.supportURL, openURLAction: openURLAction, closeAction: closeAction)
+    }
+
     // MARK: - Private methods
 
-    private func connectedTime(from dApp: WalletConnectSavedSession) -> String? {
+    private static func connectedTime(from dApp: WalletConnectSavedSession) -> String? {
         // [REDACTED_TODO_COMMENT]
         guard let connectionDate = dApp.connectionDate else { return nil }
         let relativeDateString = dateFormatter.localizedString(for: connectionDate, relativeTo: Date.now)
