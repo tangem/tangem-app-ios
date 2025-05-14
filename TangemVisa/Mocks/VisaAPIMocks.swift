@@ -18,7 +18,7 @@ public class VisaMocksManager {
     public static let instance = VisaMocksManager()
 
     private(set) var activationRemoteState: VisaCardActivationRemoteState = .cardWalletSignatureRequired
-    private(set) var customerWalletAddress: String = "0x3e24897ab2a19ca51536839fda818f8ea99cf96b"
+    private(set) var customerWalletAddress: String = "0x9F65354e595284956599F2892fA4A4a87653D6E6"
     lazy var activationOrder: VisaCardActivationOrder = validActivationOrder
     var validActivationOrder: VisaCardActivationOrder {
         .init(
@@ -219,7 +219,7 @@ struct AuthorizationServiceMock: VisaAuthorizationService, VisaAuthorizationToke
 
     func getWalletAuthorizationChallenge(cardId: String, walletAddress: String) async throws -> VisaAuthChallengeResponse {
         return .init(
-            nonce: RandomBytesGenerator().generateBytes(length: 32).hexString,
+            nonce: RandomBytesGenerator().generateBytes(length: 16).hexString,
             sessionId: "098acd0987ba0af0787ff8abc90dcb12=098acd0987ba0af0787ff8abc90dcb12=="
         )
     }
@@ -285,6 +285,16 @@ struct ProductActivationServiceMock: ProductActivationService {
 
     func sendSelectedPINCodeToIssuer(activationOrderId: String, sessionKey: String, iv: String, encryptedPin: String) async throws {
         VisaMocksManager.instance.changeActivationRemoteState(to: .waitingForActivationFinishing)
+    }
+}
+
+struct CustomerInfoManagementServiceMock: CustomerInfoManagementService {
+    func loadCustomerInfo(productInstanceId: String) async throws -> CustomerInfoManagementPaymentAccountResponse {
+        return .init(
+            id: "",
+            customerWalletAddress: VisaMocksManager.instance.customerWalletAddress,
+            address: "0x938d1dd76bb5d742910b99da36dc69fb652c6c68"
+        )
     }
 }
 
