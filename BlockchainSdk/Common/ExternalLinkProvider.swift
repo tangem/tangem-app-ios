@@ -13,4 +13,9 @@ public protocol ExternalLinkProvider {
 
     func url(address: String, contractAddress: String?) -> URL?
     func url(transaction hash: String) -> URL?
+    func nftURL(tokenAddress: String, tokenID: String) -> URL?
+}
+
+public extension ExternalLinkProvider {
+    func nftURL(tokenAddress: String, tokenID: String) -> URL? { nil }
 }
