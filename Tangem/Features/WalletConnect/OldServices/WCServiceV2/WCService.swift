@@ -11,6 +11,7 @@ import Combine
 protocol WCService {
     var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> { get }
     var newSessions: AsyncStream<[WalletConnectSavedSession]> { get async }
+    var errorsPublisher: AnyPublisher<(error: WalletConnectV2Error, dAppName: String), Never> { get }
 
     func initialize()
     func reset()
