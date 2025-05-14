@@ -30,6 +30,7 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
     let name: String
     let symbol: String
     let marketCap: String
+    private(set) var stakingApy: String?
     let didTapAction: (() -> Void)?
 
     // MARK: - Private Properties
@@ -67,6 +68,14 @@ class MarketsItemViewModel: Identifiable, ObservableObject {
 
         if let marketRating = tokenModel.marketRating {
             self.marketRating = "\(marketRating)"
+        }
+
+        if let stakingOpportunity = tokenModel.stakingOpportunities?.first,
+           let apy = Decimal(stringValue: stakingOpportunity.apy) {
+            let percentFormatter = PercentFormatter()
+            let rewardType = stakingOpportunity.rewardType.uppercased()
+            let apyFormatted = percentFormatter.format(apy, option: .staking)
+            stakingApy = rewardType + " " + apyFormatted
         }
 
         setupPriceInfo(input: formatViewUpdateInput(
