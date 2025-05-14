@@ -31,7 +31,6 @@ enum UserWalletFeature: Int, CaseIterable { // [REDACTED_TODO_COMMENT]
     case resetToFactory
     /// Count signed hashes to display warning for user if card already sign hashes in the past.
     case signedHashesCounter
-    case onlineImage
     /// Is wallet allowed to participate in referral program
     case referralProgram
 

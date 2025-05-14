@@ -262,7 +262,7 @@ private extension SendViewModel {
 
     func performAction() {
         sendTask?.cancel()
-        sendTask = TangemFoundation.runTask(in: self) { viewModel in
+        sendTask = runTask(in: self) { viewModel in
             do {
                 let result = try await viewModel.interactor.action()
                 await viewModel.proceed(result: result)
