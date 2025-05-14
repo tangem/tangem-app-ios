@@ -37,7 +37,7 @@ final class OnrampCountrySelectorViewModel: Identifiable, ObservableObject {
 
     func loadCountries() {
         countries = .loading
-        TangemFoundation.runTask(in: self) { viewModel in
+        runTask(in: self) { viewModel in
             do {
                 let countries = try await viewModel.dataRepository.countries()
                 viewModel.countriesSubject.send(countries)

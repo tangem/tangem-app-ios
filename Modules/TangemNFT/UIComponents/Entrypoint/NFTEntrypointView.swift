@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUIUtils
 import TangemUI
+import Kingfisher
 
 public struct NFTEntrypointView: View {
     @ObservedObject var viewModel: NFTEntrypointViewModel
@@ -25,7 +26,7 @@ public struct NFTEntrypointView: View {
                 textsView
                 Spacer()
                 chevron
-                    .hidden(viewModel.state.isLoading)
+                    .hidden(viewModel.disabled)
             }
             .padding(Constants.padding)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -77,36 +78,36 @@ public struct NFTEntrypointView: View {
         case .noCollections:
             Assets.Nft.noNFT.image
 
-        case .oneCollection(let imageURL):
-            makeImage(url: imageURL, size: Constants.ImageContainer.size)
+        case .oneCollection(let media):
+            makeImage(media: media, size: Constants.ImageContainer.size)
 
-        case .twoCollections(let firstCollectionImageURL, let secondCollectionImageURL):
+        case .twoCollections(let firstCollectionMedia, let secondCollectionMedia):
             let size = Constants.TwoCollections.imageSize
 
             VStack(spacing: .zero) {
-                makeImage(url: firstCollectionImageURL, size: size)
+                makeImage(media: firstCollectionMedia, size: size)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                     .offset(y: Constants.TwoCollections.pictureYOffset)
 
-                makeImage(url: secondCollectionImageURL, size: size, shouldStroke: true)
+                makeImage(media: secondCollectionMedia, size: size, shouldStroke: true)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
                     .offset(y: -Constants.TwoCollections.pictureYOffset)
             }
 
         case .threeCollections(
-            let firstCollectionImageURL,
-            let secondCollectionImageURL,
-            let thirdCollectionImageURL
+            let firstCollectionMedia,
+            let secondCollectionMedia,
+            let thirdCollectionMedia
         ):
             VStack(spacing: Constants.ThreeCollections.firstTwoImagesVSpacing) {
-                makeImage(url: firstCollectionImageURL, size: Constants.ThreeCollections.firstImageSize)
-                makeImage(url: secondCollectionImageURL, size: Constants.ThreeCollections.secondImageSize)
+                makeImage(media: firstCollectionMedia, size: Constants.ThreeCollections.firstImageSize)
+                makeImage(media: secondCollectionMedia, size: Constants.ThreeCollections.secondImageSize)
                     .offset(x: Constants.ThreeCollections.secondImageXOffset)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             .overlay(alignment: .trailing) {
                 makeImage(
-                    url: thirdCollectionImageURL,
+                    media: thirdCollectionMedia,
                     size: Constants.ThreeCollections.thirdImageSize,
                     shouldStroke: true
                 )
@@ -117,38 +118,38 @@ public struct NFTEntrypointView: View {
             }
 
         case .fourCollections(
-            let firstCollectionImageURL,
-            let secondCollectionImageURL,
-            let thirdCollectionImageURL,
-            let fourthCollectionImageURL
+            let firstCollectionMedia,
+            let secondCollectionMedia,
+            let thirdCollectionMedia,
+            let fourthCollectionMedia
         ):
             let size = Constants.FourCollections.imageSize
             let spacing = Constants.FourCollections.spacing
 
             VStack(spacing: spacing) {
                 HStack(spacing: spacing) {
-                    makeImage(url: firstCollectionImageURL, size: size)
-                    makeImage(url: secondCollectionImageURL, size: size)
+                    makeImage(media: firstCollectionMedia, size: size)
+                    makeImage(media: secondCollectionMedia, size: size)
                 }
 
                 HStack(spacing: spacing) {
-                    makeImage(url: thirdCollectionImageURL, size: size)
-                    makeImage(url: fourthCollectionImageURL, size: size)
+                    makeImage(media: thirdCollectionMedia, size: size)
+                    makeImage(media: fourthCollectionMedia, size: size)
                 }
             }
 
-        case .multipleCollections(let collectionsURLs):
+        case .multipleCollections(let collectionsMedias):
             let size = Constants.MultipleCollections.imageSize
             let spacing = Constants.FourCollections.spacing
 
             VStack(spacing: spacing) {
                 HStack(spacing: spacing) {
-                    makeImage(url: collectionsURLs[0], size: size)
-                    makeImage(url: collectionsURLs[1], size: size)
+                    makeImage(media: collectionsMedias[0], size: size)
+                    makeImage(media: collectionsMedias[1], size: size)
                 }
 
                 HStack(spacing: spacing) {
-                    makeImage(url: collectionsURLs[2], size: size)
+                    makeImage(media: collectionsMedias[2], size: size)
                     dotsImage(size: size)
                 }
             }
@@ -176,21 +177,43 @@ public struct NFTEntrypointView: View {
             .foregroundStyle(Colors.Icon.informative)
     }
 
-    private func makeImage(url: URL?, size: CGSize, shouldStroke: Bool = false) -> some View {
-        IconView(
-            url: url,
-            size: size,
-            cornerRadius: Constants.imageCornerRadius,
-            forceKingfisher: true,
-            placeholder: {
-                placeholder(size: size)
-            }
-        )
-        .if(shouldStroke) { icon in
-            icon.overlay(
-                RoundedRectangle(cornerRadius: Constants.imageCornerRadius)
-                    .strokeBorder(Colors.Background.primary, lineWidth: Constants.strokeLineWidth)
+    @ViewBuilder
+    private func makeImage(media: NFTMedia?, size: CGSize, shouldStroke: Bool = false) -> some View {
+        if let media {
+            makeMedia(media, size: size)
+                .if(shouldStroke) { icon in
+                    icon.overlay(
+                        RoundedRectangle(cornerRadius: Constants.imageCornerRadius)
+                            .strokeBorder(Colors.Background.primary, lineWidth: Constants.strokeLineWidth)
+                    )
+                }
+        } else {
+            placeholder(size: size)
+        }
+    }
+
+    @ViewBuilder
+    private func makeMedia(_ media: NFTMedia, size: CGSize) -> some View {
+        switch media.kind {
+        case .image:
+            IconView(
+                url: media.url,
+                size: size,
+                cornerRadius: Constants.imageCornerRadius,
+                forceKingfisher: true,
+                placeholder: {
+                    placeholder(size: size)
+                }
             )
+
+        case .animation:
+            GIFImage(
+                url: media.url,
+                placeholder: placeholder(size: size)
+            )
+
+        case .video, .audio, .unknown:
+            placeholder(size: size)
         }
     }
 
@@ -338,8 +361,9 @@ extension NFTEntrypointView {
                             ownerAddress: "",
                             name: "",
                             description: "",
-                            logoURL: URL(
-                                string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png"
+                            media: .init(
+                                kind: .image,
+                                url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
                             ),
                             assetsCount: 2,
                             assets: []
@@ -369,8 +393,9 @@ extension NFTEntrypointView {
                                 ownerAddress: "",
                                 name: "",
                                 description: "",
-                                logoURL: URL(
-                                    string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png"
+                                media: .init(
+                                    kind: .image,
+                                    url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
                                 ),
                                 assetsCount: 2,
                                 assets: []
@@ -401,8 +426,9 @@ extension NFTEntrypointView {
                                 ownerAddress: "",
                                 name: "",
                                 description: "",
-                                logoURL: URL(
-                                    string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png"
+                                media: .init(
+                                    kind: .image,
+                                    url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
                                 ),
                                 assetsCount: 2,
                                 assets: []
@@ -433,8 +459,9 @@ extension NFTEntrypointView {
                                 ownerAddress: "",
                                 name: "",
                                 description: "",
-                                logoURL: URL(
-                                    string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png"
+                                media: .init(
+                                    kind: .image,
+                                    url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
                                 ),
                                 assetsCount: 2,
                                 assets: []
@@ -465,8 +492,9 @@ extension NFTEntrypointView {
                                 ownerAddress: "",
                                 name: "",
                                 description: "",
-                                logoURL: URL(
-                                    string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png"
+                                media: .init(
+                                    kind: .image,
+                                    url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
                                 ),
                                 assetsCount: 2,
                                 assets: []
