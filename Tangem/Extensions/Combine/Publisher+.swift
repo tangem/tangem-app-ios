@@ -26,7 +26,7 @@ extension Publisher where Output: Equatable {
     }
 }
 
-public extension Publisher {
+extension Publisher {
     /// Subscribes to current publisher without handling events
     func sink() -> AnyCancellable {
         return sink(receiveCompletion: { _ in }, receiveValue: { _ in })
@@ -73,8 +73,8 @@ extension Publisher where Output == Void, Failure == Never {
     }
 }
 
-@available(iOS, deprecated: 15.0, message: "AsyncCompatibilityKit is only useful when targeting iOS versions earlier than 15")
-public extension Publisher where Failure == Never {
+@available(iOS, deprecated: 100000.0, message: "AsyncCompatibilityKit is only useful when targeting iOS versions earlier than 15")
+extension Publisher where Failure == Never {
     /// Convert this publisher into an `AsyncStream` that can
     /// be iterated over asynchronously using `for await`. The
     /// stream will yield each output value produced by the
