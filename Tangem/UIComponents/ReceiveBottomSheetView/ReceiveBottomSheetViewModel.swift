@@ -69,6 +69,8 @@ class ReceiveBottomSheetViewModel: ObservableObject, Identifiable {
         return switch flow {
         case .nft:
             Localization.receiveBottomSheetWarningMessageCompact(Localization.detailsNftTitle, tokenItem.networkName)
+        case .crypto where tokenItem.blockchain.isL2EthereumNetwork:
+            Localization.receiveBottomSheetWarningMessageCompact(name, tokenItem.networkName)
         case .crypto:
             Localization.receiveBottomSheetWarningMessage(name, tokenItem.currencySymbol, tokenItem.networkName)
         }
