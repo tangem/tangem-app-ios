@@ -11,6 +11,7 @@ import UIKit
 import Combine
 import TangemExpress
 import TangemLocalization
+import TangemFoundation
 import struct TangemUI.TokenIconInfo
 import struct TangemUIUtils.AlertBinder
 

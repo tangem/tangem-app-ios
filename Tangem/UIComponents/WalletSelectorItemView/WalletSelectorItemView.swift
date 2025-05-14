@@ -118,7 +118,7 @@ extension WalletSelectorItemView {
             isUserWalletLocked: false,
             userWalletNamePublisher: FakeUserWalletModel.wallet3Cards.userWalletNamePublisher,
             totalBalancePublisher: FakeUserWalletModel.wallet3Cards.totalBalancePublisher,
-            cardImagePublisher: FakeUserWalletModel.wallet3Cards.cardImagePublisher,
+            cardImageProvider: FakeUserWalletModel.wallet3Cards.cardImageProvider,
             isSelected: true,
             didTapWallet: { _ in }
         )
@@ -130,7 +130,7 @@ extension WalletSelectorItemView {
             isUserWalletLocked: false,
             userWalletNamePublisher: FakeUserWalletModel.wallet3Cards.userWalletNamePublisher,
             totalBalancePublisher: FakeUserWalletModel.wallet3Cards.totalBalancePublisher,
-            cardImagePublisher: FakeUserWalletModel.wallet3Cards.cardImagePublisher,
+            cardImageProvider: FakeUserWalletModel.wallet3Cards.cardImageProvider,
             isSelected: false,
             didTapWallet: { _ in }
         )
