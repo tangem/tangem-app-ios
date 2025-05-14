@@ -12,6 +12,7 @@ import Combine
 protocol SendBaseInteractor {
     var actionInProcessing: AnyPublisher<Bool, Never> { get }
 
+    func actualizeInformation()
     func action() async throws -> TransactionDispatcherResult
 }
 
@@ -28,6 +29,10 @@ class CommonSendBaseInteractor {
 extension CommonSendBaseInteractor: SendBaseInteractor {
     var actionInProcessing: AnyPublisher<Bool, Never> {
         input.actionInProcessing
+    }
+
+    func actualizeInformation() {
+        output.actualizeInformation()
     }
 
     func action() async throws -> TransactionDispatcherResult {
