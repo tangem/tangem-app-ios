@@ -20,6 +20,7 @@ final class MarketsListDataProvider {
 
     @Published var items: [MarketsTokenModel] = []
     @Published var lastEvent: Event = .idle
+    @Published private(set) var stakingApy: Decimal?
 
     // MARK: - Public Properties
 
@@ -174,6 +175,7 @@ private extension MarketsListDataProvider {
             AppLogger.tag("Markets").info("Loaded new items for market list. New total tokens count: \(items.count + response.tokens.count)")
 
             items.append(contentsOf: response.tokens)
+            stakingApy = response.summary?.maxApy
             lastEvent = .appendedItems(items: response.tokens, lastPage: currentOffset >= response.total)
         } catch {
             if error.isCancellationError {
