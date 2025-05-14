@@ -67,7 +67,7 @@ public enum VisaCardActivationLocalState: Codable {
 
 public struct VisaCardActivationStatus: Codable {
     public let activationRemoteState: VisaCardActivationRemoteState
-    public let activationOrder: VisaCardActivationOrder
+    public let activationOrder: VisaCardActivationOrder?
 
     private enum CodingKeys: String, CodingKey {
         case activationRemoteState = "status"

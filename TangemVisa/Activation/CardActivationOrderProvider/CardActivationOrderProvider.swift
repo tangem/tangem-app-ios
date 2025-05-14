@@ -53,13 +53,18 @@ extension CommonCardActivationOrderProvider: CardActivationOrderProvider {
             cardPublicKey: activationInput.cardPublicKey.hexString
         )
 
+        guard let activationOrder = activationStatus.activationOrder else {
+            VisaLogger.error("Missing activation order in status response", error: VisaActivationError.missingActivationOrder)
+            throw VisaActivationError.missingActivationOrder
+        }
+
         let hashToSign = try await productActivationService.getVisaCardDeployAcceptance(
-            activationOrderId: activationStatus.activationOrder.id,
-            customerWalletAddress: activationStatus.activationOrder.customerWalletAddress,
+            activationOrderId: activationOrder.id,
+            customerWalletAddress: activationOrder.customerWalletAddress,
             cardWalletAddress: walletAddress
         )
 
         VisaLogger.info("Order loaded and can be processed by card")
-        return .init(activationOrder: activationStatus.activationOrder, hashToSignByWallet: Data(hexString: hashToSign))
+        return .init(activationOrder: activationOrder, hashToSignByWallet: Data(hexString: hashToSign))
     }
 }
