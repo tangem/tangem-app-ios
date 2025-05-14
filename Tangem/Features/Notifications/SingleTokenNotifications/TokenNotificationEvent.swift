@@ -70,7 +70,7 @@ extension TokenNotificationEvent: NotificationEvent {
             return .string(Localization.warningHederaMissingTokenAssociationTitle)
         case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction):
             return .string(Localization.warningKaspaUnfinishedTokenTransactionTitle)
-        case .staking(_, let earnUpToFormatted):
+        case .staking:
             return .string(Localization.tokenDetailsStakingBlockTitle)
         case .manaLevel:
             return .string(Localization.koinosManaLevelTitle)
