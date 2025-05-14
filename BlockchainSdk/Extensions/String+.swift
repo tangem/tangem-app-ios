@@ -19,6 +19,10 @@ extension String {
         return lowercased().hasPrefix(hexPrefix)
     }
 
+    public func hasHexPrefixStrictCheck() -> Bool {
+        return hasPrefix(hexPrefix)
+    }
+
     public func removeHexPrefix() -> String {
         if hasHexPrefix() {
             return String(dropFirst(2))

@@ -171,9 +171,13 @@ private extension CommonStakingManager {
             mapToStakingBalance(balance: balance, yield: yield)
         }
 
-        let mergedBalances = mergeBalancesAndProcessingActions(
-            realBalances: stakingBalances,
-            processingActions: actions,
+        let pendingActionsHandler = StakingPendingActionsHandlerProvider().makeStakingPendingActionsHandler(
+            network: yield.item.network
+        )
+
+        let mergedBalances = pendingActionsHandler.mergeBalancesAndPendingActions(
+            balances: stakingBalances,
+            actions: actions,
             yield: yield
         )
 
@@ -182,114 +186,6 @@ private extension CommonStakingManager {
         }
 
         return .staked(.init(balances: mergedBalances, yieldInfo: yield, canStakeMore: canStakeMore))
-    }
-
-    private func mergeBalancesAndProcessingActions(
-        realBalances: [StakingBalance],
-        processingActions: [PendingAction]?,
-        yield: YieldInfo
-    ) -> [StakingBalance] {
-        guard let processingActions, !processingActions.isEmpty else { return realBalances }
-        var balances = realBalances
-
-        processingActions.forEach { action in
-            switch action.type {
-            case .voteLocked, .vote:
-                if let lockedBalanceIndex = balanceIndexByType(balances: balances, action: action, type: .locked) {
-                    balances.remove(at: lockedBalanceIndex)
-                }
-                fallthrough
-            case .stake:
-                balances.append(mapToStakingBalance(action: action, yield: yield, balanceType: .active))
-            case .withdraw:
-                modifyBalancesByStatus(
-                    balances: &balances,
-                    action: action,
-                    type: .unstaked,
-                    reduceBalanceByActionAmount: false,
-                    makeInProgress: true
-                )
-            case .unlockLocked:
-                modifyBalancesByStatus(
-                    balances: &balances,
-                    action: action,
-                    type: .locked,
-                    reduceBalanceByActionAmount: false,
-                    makeInProgress: true
-                )
-            case .unstake where isFullAmountUnstaking(for: balances, action: action):
-                // make existing staking in progress
-                modifyBalancesByStatus(
-                    balances: &balances,
-                    action: action,
-                    type: .active,
-                    reduceBalanceByActionAmount: false,
-                    makeInProgress: true
-                )
-            case .unstake:
-                // for partial unstake reduce amount of existing staking and append new in progress block
-                modifyBalancesByStatus(
-                    balances: &balances,
-                    action: action,
-                    type: .active,
-                    reduceBalanceByActionAmount: true,
-                    makeInProgress: false
-                )
-                balances.append(mapToStakingBalance(action: action, yield: yield, balanceType: .active))
-            default:
-                break // do nothing
-            }
-        }
-
-        return balances
-    }
-
-    private func isFullAmountUnstaking(for balances: [StakingBalance], action: PendingAction) -> Bool {
-        guard let index = balanceIndexByType(balances: balances, action: action, type: .active) else {
-            StakingLogger.info("Couldn't find corresponding staked balance for unstake action")
-            return false
-        }
-        let balance = balances[index]
-        return balance.amount == action.amount
-    }
-
-    private func balanceIndexByType(
-        balances: [StakingBalance],
-        action: PendingAction,
-        type: StakingBalanceType
-    ) -> Int? {
-        balances.firstIndex(where: {
-            !$0.inProgress
-                && $0.balanceType == type
-                && $0.validatorType.validator?.address == action.validatorAddress
-                && $0.accountAddress.flatMap { action.accountAddresses?.contains($0) } ?? true
-        })
-    }
-
-    private func modifyBalancesByStatus(
-        balances: inout [StakingBalance],
-        action: PendingAction,
-        type: StakingBalanceType,
-        reduceBalanceByActionAmount: Bool,
-        makeInProgress inProgress: Bool
-    ) {
-        guard let index = balanceIndexByType(balances: balances, action: action, type: type) else { return }
-
-        let balance = balances[index]
-
-        let amount = reduceBalanceByActionAmount ? balance.amount - action.amount : balance.amount
-
-        let updatedBalance = StakingBalance(
-            item: balance.item,
-            amount: amount,
-            accountAddress: balance.accountAddress,
-            balanceType: balance.balanceType,
-            validatorType: balance.validatorType,
-            inProgress: inProgress,
-            actions: balance.actions
-        )
-
-        balances[index] = updatedBalance
     }
 
     func getStakeTransactionInfo(request: ActionGenericRequest) async throws -> StakingTransactionAction {
