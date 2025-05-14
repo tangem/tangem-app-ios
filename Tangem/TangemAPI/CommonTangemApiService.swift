@@ -45,8 +45,14 @@ class CommonTangemApiService {
 
         do {
             return try response.mapAPIResponse(decoder: decoder)
+        } catch let error as MoyaError {
+            log(error: error, exceptionHost: target.requestDescription, code: error.errorCode.description)
+            throw error
+        } catch let error as TangemAPIError {
+            log(error: error, exceptionHost: target.requestDescription, code: error.code.description ?? "")
+            throw error
         } catch {
-            log(error: error, exceptionHost: target.requestDescription)
+            log(error: error, exceptionHost: target.requestDescription, code: TangemAPIError.ErrorCode.unknown.description ?? "")
             throw error
         }
     }
@@ -339,13 +345,15 @@ private extension Response {
 // MARK: - Analytics
 
 private extension CommonTangemApiService {
-    func log(error: Error, exceptionHost: String) {
+    func log(error: Error, exceptionHost: String, code: String) {
         Analytics.log(
             event: .tangemAPIException,
             params: [
                 .exceptionHost: exceptionHost,
-                .errorDescription: error.localizedDescription,
-            ]
+                .errorCode: code,
+                .errorMessage: error.localizedDescription,
+            ],
+            analyticsSystems: [.firebase, .crashlytics]
         )
     }
 }
