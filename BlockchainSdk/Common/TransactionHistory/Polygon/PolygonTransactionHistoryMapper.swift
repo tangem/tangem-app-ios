@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 final class PolygonTransactionHistoryMapper {
     private let blockchain: Blockchain

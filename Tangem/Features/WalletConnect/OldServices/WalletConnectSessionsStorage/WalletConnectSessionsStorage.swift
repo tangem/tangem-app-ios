@@ -109,5 +109,5 @@ extension CommonWalletConnectSessionsStorage: WalletConnectSessionsStorage {
 }
 
 extension CommonWalletConnectSessionsStorage: @preconcurrency CustomStringConvertible {
-    var description: String { TangemFoundation.objectDescription(self) }
+    var description: String { objectDescription(self) }
 }
