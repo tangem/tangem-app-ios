@@ -15,4 +15,5 @@ public protocol WithdrawalNotificationProvider {
 public enum WithdrawalNotification: Hashable {
     case feeIsTooHigh(reduceAmountBy: Amount)
     case cardanoWillBeSendAlongToken(amount: Amount)
+    case tronWillBeSendTokenFeeDescription
 }

@@ -122,7 +122,8 @@ struct EthereumAddressTests {
 
     @Test(arguments: [
         "ede8f58dada22a49db60d4f82bad428ab65f89",
-        "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9adb"
+        "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9adb",
+        "0X6ECa00c52AFC728CDbF42E817d712e175bb23C7d",
     ])
     func invalidAddresses(address: String) {
         let addressValidator = AddressServiceFactory(blockchain: blockchain).makeAddressService()

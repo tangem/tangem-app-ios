@@ -98,7 +98,6 @@ private extension OnrampModel {
         // Only for analytics
         _selectedOnrampProvider
             .compactMap { $0?.value }
-            .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { model, provider in
                 switch provider.state {
@@ -249,7 +248,7 @@ private extension OnrampModel {
     // MARK: - Payment method
 
     func updatePaymentMethod(method: OnrampPaymentMethod) {
-        TangemFoundation.runTask(in: self) {
+        runTask(in: self) {
             let provider = try await $0.onrampManager.suggestProvider(in: $0.providersList(), paymentMethod: method)
             $0._selectedOnrampProvider.send(.success(provider))
         }
@@ -261,7 +260,7 @@ private extension OnrampModel {
 private extension OnrampModel {
     func preferenceDidChange(country: OnrampCountry?, currency: OnrampFiatCurrency?) {
         guard let country, let currency else {
-            TangemFoundation.runTask(in: self) {
+            runTask(in: self) {
                 await $0.initiateCountryDefinition()
             }
             return
@@ -339,7 +338,7 @@ private extension OnrampModel {
 
     func mainTask(code: @escaping (OnrampModel) async throws -> Void) {
         task?.cancel()
-        task = TangemFoundation.runTask(in: self) { model in
+        task = runTask(in: self) { model in
             do {
                 try await code(model)
             } catch _ as CancellationError {
