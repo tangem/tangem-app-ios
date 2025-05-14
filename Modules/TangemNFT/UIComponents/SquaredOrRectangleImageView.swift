@@ -13,43 +13,76 @@ import TangemUI
 import TangemAssets
 
 struct SquaredOrRectangleImageView: View {
-    private let url: URL?
-    private let containerSize: CGSize
+    private let media: NFTMedia?
 
+    @State private var containerSize: CGSize = .zero
     @State private var originalSize: CGSize = .zero
     @State private var loadingFailed = false
 
-    init(url: URL?, containerSide: CGFloat) {
-        self.url = url
-        containerSize = .init(bothDimensions: containerSide)
+    init(media: NFTMedia?) {
+        self.media = media
     }
 
     var body: some View {
-        background.overlay(image)
+        background
+            .overlay(image.scaledToFit())
+            .frame(maxWidth: .infinity)
+            .readGeometry(\.frame.width) {
+                containerSize = .init(bothDimensions: $0)
+            }
     }
 
     private var background: some View {
         Colors.Field.focused
             .frame(size: containerSize)
-            .cornerRadiusContinuous(14)
+            .cornerRadiusContinuous(Constants.cornerRadius)
     }
 
     @ViewBuilder
     private var image: some View {
-        if !loadingFailed {
-            kfImage
+        if let media, !loadingFailed {
+            makeMedia(media)
+                .if(isSquare) {
+                    $0.cornerRadius(Constants.cornerRadius, corners: .allCorners)
+                }
         } else {
-            Assets.Nft.assetImagePlaceholder.image
+            downloadFailedPlaceholder
         }
     }
 
-    private var kfImage: some View {
-        KFImage(url)
+    @ViewBuilder
+    private func makeMedia(_ media: NFTMedia) -> some View {
+        switch media.kind {
+        case .animation:
+            buildKFImage(KFAnimatedImage(media.url))
+        case .image:
+            buildKFImage(KFImage(media.url).resizable())
+        case .unknown, .audio, .video:
+            downloadFailedPlaceholder
+        }
+    }
+
+    private var loadingPlaceholder: some View {
+        Color.clear
+            .skeletonable(isShown: true, width: containerSize.width, height: containerSize.height)
+    }
+
+    private var downloadFailedPlaceholder: some View {
+        Assets.Nft.assetImagePlaceholder.image
+            .resizable()
+            .frame(width: containerSize.width / 3, height: containerSize.height / 3)
+    }
+
+    private var isSquare: Bool {
+        originalSize.width == originalSize.height
+    }
+
+    private func buildKFImage<V: KFImageProtocol>(_ image: V) -> some View {
+        image
             .cancelOnDisappear(true)
-            .placeholder { placeholder }
+            .placeholder { loadingPlaceholder }
             .fade(duration: 0.3)
             .cacheOriginalImage()
-            .resizable()
             .onSuccess { r in
                 loadingFailed = false
                 originalSize = r.image.size
@@ -57,48 +90,35 @@ struct SquaredOrRectangleImageView: View {
             .onFailure { _ in
                 loadingFailed = true
             }
-            .if(
-                isSquare,
-                then: { image in
-                    image
-                        .cornerRadiusContinuous(14)
-                        .frame(size: containerSize)
-                },
-                else: { image in
-                    image
-                        .frame(size: sizeForRectangleImage)
-                }
-            )
-            .scaledToFit()
     }
+}
 
-    private var placeholder: some View {
-        Color.clear
-            .skeletonable(isShown: true, width: containerSize.width, height: containerSize.height)
-    }
+private enum Constants {
+    static let cornerRadius: CGFloat = 14
+}
 
-    private var isSquare: Bool {
-        originalSize.width == originalSize.height
-    }
-
-    private var sizeForRectangleImage: CGSize {
-        guard originalSize != .zero else { return .zero }
-
-        let aspectRatio = originalSize.width / originalSize.height
-
-        return if aspectRatio > 1 {
-            CGSize(width: containerSize.width, height: containerSize.height / aspectRatio)
-        } else {
-            CGSize(width: containerSize.width * aspectRatio, height: containerSize.height)
-        }
+extension SquaredOrRectangleImageView {
+    enum Constants {
+        static let cornerRadius: CGFloat = 14
     }
 }
 
 #if DEBUG
-#Preview {
+#Preview("Gif") {
     SquaredOrRectangleImageView(
-        url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!,
-        containerSide: 343
+        media: .init(
+            kind: .animation,
+            url: URL(string: "https://arweave.net/tEidIncXyo5lQ4GYl4uyDYx_qW7g3t4vetp042votww")!
+        )
+    )
+}
+
+#Preview("Image") {
+    SquaredOrRectangleImageView(
+        media: .init(
+            kind: .animation,
+            url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
+        )
     )
 }
 #endif

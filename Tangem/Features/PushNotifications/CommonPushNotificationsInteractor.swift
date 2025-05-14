@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 final class CommonPushNotificationsInteractor {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
