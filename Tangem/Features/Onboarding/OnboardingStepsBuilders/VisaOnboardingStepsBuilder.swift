@@ -76,7 +76,7 @@ struct VisaOnboardingStepsBuilder {
             steps.append(contentsOf: pinSelectionSteps)
         case .waitingForActivationFinishing:
             steps.append(.issuerProcessingInProgress)
-        case .activated, .blockedForActivation:
+        case .activated, .blockedForActivation, .failed:
             // Card shouldn't be able to reach onboarding with this state. Anyway we don't need to add any steps
             return []
         }
