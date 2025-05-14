@@ -19,14 +19,14 @@ final class NFTScanNetworkMapper {
             return nil
         }
 
-        let logoURL: URL? = if let stringURL = collection.logoUrl {
-            URL(string: stringURL)
-        } else {
-            nil
-        }
-
         let assets = collection.assets.compactMap { mapAsset($0, chain: chain) }
         let ownerAddress = assets.first?.id.ownerAddress ?? ownerAddress
+
+        let logoURL = collection
+            .logoUrl?
+            .nilIfEmpty
+            .flatMap(URL.init(string:))
+            .map(NFTIPFSURLConverter.convert(_:))
 
         return NFTCollection(
             collectionIdentifier: collectionID,
@@ -35,7 +35,7 @@ final class NFTScanNetworkMapper {
             ownerAddress: ownerAddress,
             name: name,
             description: collection.description,
-            logoURL: logoURL,
+            media: map(collection.logoUrl),
             assetsCount: collection.ownsTotal,
             assets: assets
         )
@@ -54,11 +54,14 @@ final class NFTScanNetworkMapper {
             NFTAsset.Trait(name: attribute.attributeName, value: attribute.attributeValue)
         } ?? []
 
-        let url: NFTAsset.Media? = if let stringUri = asset.imageUri, let url = URL(string: stringUri) {
-            NFTAsset.Media(kind: .image, url: url) // [REDACTED_TODO_COMMENT]
-        } else {
-            nil
-        }
+        let mediaKind = NFTMediaKindMapper.map(mimetype: asset.contentType)
+
+        let media = asset
+            .imageUri?
+            .nilIfEmpty
+            .flatMap(URL.init(string:))
+            .map(NFTIPFSURLConverter.convert(_:))
+            .map { NFTMedia(kind: mediaKind, url: $0) }
 
         let assetMetadata = try? asset.metadataJson?.asDictionary()
 
@@ -77,7 +80,7 @@ final class NFTScanNetworkMapper {
             ownerAddress: asset.owner,
             name: asset.name,
             description: assetMetadata?[Constants.assetDescriptionKey] as? String,
-            media: url,
+            media: media,
             rarity: rarity,
             traits: traits
         )
@@ -98,6 +101,22 @@ final class NFTScanNetworkMapper {
             label: attribute.attributeName,
             percentage: percentage,
             rank: Int(attribute.attributeValue)
+        )
+    }
+
+    private func map(_ urlString: String?) -> NFTMedia? {
+        guard
+            let url = urlString?
+            .nilIfEmpty
+            .flatMap(URL.init(string:))
+            .map(NFTIPFSURLConverter.convert(_:))
+        else {
+            return nil
+        }
+
+        return NFTMedia(
+            kind: NFTMediaKindMapper.map(url),
+            url: url
         )
     }
 }
