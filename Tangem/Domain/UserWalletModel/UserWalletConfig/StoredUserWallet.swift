@@ -17,7 +17,6 @@ struct StoredUserWallet: Identifiable, Encodable {
     var card: CardDTO
     var associatedCardIds: Set<String>
     let walletData: DefaultWalletData
-    let artwork: ArtworkInfo?
 }
 
 extension StoredUserWallet {
@@ -32,18 +31,10 @@ extension StoredUserWallet {
     }
 
     func cardInfo() -> CardInfo {
-        let cardArtwork: CardArtwork
-        if let artwork = artwork {
-            cardArtwork = .artwork(artwork)
-        } else {
-            cardArtwork = .noArtwork
-        }
-
         return CardInfo(
             card: card,
             walletData: walletData,
             name: name,
-            artwork: cardArtwork,
             primaryCard: nil
         )
     }
@@ -57,7 +48,6 @@ extension StoredUserWallet: Decodable {
         name = try container.decode(String.self, forKey: .name)
         associatedCardIds = try container.decode(Set<String>.self, forKey: .associatedCardIds)
         walletData = try container.decode(DefaultWalletData.self, forKey: .walletData)
-        artwork = try container.decodeIfPresent(ArtworkInfo.self, forKey: .artwork)
 
         if let cardDTOv4 = try? container.decode(CardDTOv4.self, forKey: .card) {
             card = .init(cardDTOv4: cardDTOv4)
