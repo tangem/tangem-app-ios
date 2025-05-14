@@ -45,7 +45,7 @@ final class CommonSupportSeedNotificationManager: SupportSeedNotificationManager
     // MARK: - Public Implementation
 
     func showSupportSeedNotificationIfNeeded() {
-        TangemFoundation.runTask(in: self) { manager in
+        runTask(in: self) { manager in
             do {
                 let firstSeedVersionStatus = try await manager.tangemApiService.getSeedNotifyStatus(
                     userWalletId: manager.userWalletId.stringValue
@@ -102,7 +102,7 @@ final class CommonSupportSeedNotificationManager: SupportSeedNotificationManager
             Analytics.log(.mainNoticeSeedSupportButtonYes)
             notificationTapDelegate?.didTapNotification(with: id, action: action)
 
-            TangemFoundation.runTask(in: self) { manager in
+            runTask(in: self) { manager in
                 try? await manager.tangemApiService.setSeedNotifyStatus(
                     userWalletId: manager.userWalletId.stringValue,
                     status: .confirmed
@@ -118,7 +118,7 @@ final class CommonSupportSeedNotificationManager: SupportSeedNotificationManager
             Analytics.log(.mainNoticeSeedSupportButtonNo)
             notificationTapDelegate?.didTapNotification(with: id, action: action)
 
-            TangemFoundation.runTask(in: self) { manager in
+            runTask(in: self) { manager in
                 try? await manager.tangemApiService.setSeedNotifyStatus(
                     userWalletId: manager.userWalletId.stringValue,
                     status: .declined
@@ -153,7 +153,7 @@ final class CommonSupportSeedNotificationManager: SupportSeedNotificationManager
             Analytics.log(.mainNoticeSeedSupportButtonUsed)
             notificationTapDelegate?.didTapNotification(with: id, action: action)
 
-            TangemFoundation.runTask(in: self) { manager in
+            runTask(in: self) { manager in
                 try? await manager.tangemApiService.setSeedNotifyStatusConfirmed(
                     userWalletId: manager.userWalletId.stringValue,
                     status: .accepted
@@ -167,7 +167,7 @@ final class CommonSupportSeedNotificationManager: SupportSeedNotificationManager
             Analytics.log(.mainNoticeSeedSupportButtonDeclined)
             notificationTapDelegate?.didTapNotification(with: id, action: action)
 
-            TangemFoundation.runTask(in: self) { manager in
+            runTask(in: self) { manager in
                 try? await manager.tangemApiService.setSeedNotifyStatusConfirmed(
                     userWalletId: manager.userWalletId.stringValue,
                     status: .rejected
