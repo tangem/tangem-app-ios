@@ -96,6 +96,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.marketsTooltipWasShown)
     var marketsTooltipWasShown: Bool = false
 
+    @AppStorageCompat(StorageType.startWalletUsageDate)
+    var startWalletUsageDate: Date? = nil
+
     static let shared: AppSettings = .init()
 
     private init() {}
