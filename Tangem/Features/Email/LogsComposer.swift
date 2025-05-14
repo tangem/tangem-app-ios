@@ -20,17 +20,15 @@ class LogsComposer {
         infoProvider.logData
     }
 
-    /*
-     func getZipLogsData() -> (data: Data, file: URL)? {
-         do {
-             let file = try OSLogZipFileBuilder.zipFile()
-             let data = try Data(contentsOf: file)
+    func getZipLogsData() -> (data: Data, file: URL)? {
+        do {
+            let file = try OSLogZipFileBuilder.zipFile()
+            let data = try Data(contentsOf: file)
 
-             return (data: data, file: file)
-         } catch {
-             AppLogger.error("LogsComposer zip file preparing", error: error)
-             return nil
-         }
-     }
-     */
+            return (data: data, file: file)
+        } catch {
+            AppLogger.error("LogsComposer zip file preparing", error: error)
+            return nil
+        }
+    }
 }
