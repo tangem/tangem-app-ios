@@ -323,6 +323,10 @@ extension SendModel: SendBaseInput, SendBaseOutput {
         _isSending.eraseToAnyPublisher()
     }
 
+    func actualizeInformation() {
+        sendFeeInteractor.updateFees()
+    }
+
     func performAction() async throws -> TransactionDispatcherResult {
         _isSending.send(true)
         defer { _isSending.send(false) }
