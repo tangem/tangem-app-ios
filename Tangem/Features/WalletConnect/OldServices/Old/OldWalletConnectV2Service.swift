@@ -101,7 +101,7 @@ final class OldWalletConnectV2Service {
         runTask(withTimeout: 20) { [weak self] in
             await self?.pairClient(with: uri, source: source)
         } onTimeout: { [weak self] in
-            self?.displayErrorUI(WalletConnectV2Error.sessionConnetionTimeout)
+            self?.displayErrorUI(WalletConnectV2Error.sessionConnectionTimeout)
             Analytics.log(.walletConnectSessionFailed)
             self?.canEstablishNewSessionSubject.send(true)
         }
@@ -341,7 +341,7 @@ final class OldWalletConnectV2Service {
     // MARK: - Session manipulation
 
     private func sessionAccepted(with proposal: Session.Proposal, namespaces: [String: SessionNamespace], blockchainNames: [String]) {
-        TangemFoundation.runTask(in: self) { strongSelf in
+        runTask(in: self) { strongSelf in
             do {
                 WCLogger.info("Namespaces to approve for session connection: \(namespaces)")
                 _ = try await WalletKit.instance.approve(proposalId: proposal.id, namespaces: namespaces)
@@ -359,7 +359,7 @@ final class OldWalletConnectV2Service {
     }
 
     private func sessionRejected(with proposal: Session.Proposal) {
-        TangemFoundation.runTask(in: self) { strongSelf in
+        runTask(in: self) { strongSelf in
             do {
                 try await WalletKit.instance.rejectSession(proposalId: proposal.id, reason: .userRejected)
                 WCLogger.info("User reject WC connection")

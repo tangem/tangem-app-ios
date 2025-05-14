@@ -127,7 +127,7 @@ class VisaOnboardingViewModel: ObservableObject {
             proceedToApproveWalletSelection(animated: false)
         }
 
-        loadImage(input.cardInput.imageLoadInput)
+        loadImage(imageProvider: input.cardInput.cardImageProvider)
 
         bindAnalytics()
     }
@@ -558,18 +558,14 @@ private extension VisaOnboardingViewModel {
 // MARK: - Image loading
 
 private extension VisaOnboardingViewModel {
-    func loadImage(_ imageLoadInput: OnboardingInput.ImageLoadInput) {
-        runTask(in: self, isDetached: false) { viewModel in
-            do {
-                let image = try await CardImageProvider(supportsOnlineImage: imageLoadInput.supportsOnlineImage)
-                    .loadImage(cardId: imageLoadInput.cardId, cardPublicKey: imageLoadInput.cardPublicKey)
-                    .map { $0.image }
-                    .async()
-                await runOnMain {
-                    viewModel.cardImage = image
+    func loadImage(imageProvider: CardImageProviding) {
+        runTask(in: self) { model in
+            let imageValue = await imageProvider.loadLargeImage()
+
+            await runOnMain {
+                withAnimation {
+                    model.cardImage = imageValue.image
                 }
-            } catch {
-                VisaLogger.error("Failed to load card image", error: error)
             }
         }
     }
