@@ -326,6 +326,9 @@ extension Analytics {
         case marketsScreenOpened = "[Markets] Markets Screen Opened"
         case marketsTokensSort = "[Markets] Sort By"
         case marketsDataError = "[Markets] Data Error"
+        case marketsNoticeStakingPromo = "[Markets] Notice - Staking Promo"
+        case marketsStakingPromoClosed = "[Markets] Staking Promo Closed"
+        case marketsStakingMoreInfo = "[Markets] Staking More Info"
 
         // MARK: - Markets / Chart
 
