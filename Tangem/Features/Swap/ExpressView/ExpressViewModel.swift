@@ -113,7 +113,7 @@ final class ExpressViewModel: ObservableObject {
     }
 
     func userDidTapPriceChangeInfoButton(isBigLoss: Bool) {
-        TangemFoundation.runTask(in: self) { [weak self] viewModel in
+        runTask(in: self) { [weak self] viewModel in
             guard
                 let selectedProvider = await viewModel.interactor.getSelectedProvider()?.provider,
                 let tokenItemSymbol = viewModel.interactor.getDestination()?.tokenItem.currencySymbol
@@ -230,7 +230,7 @@ private extension ExpressViewModel {
             return
         }
 
-        TangemFoundation.runTask(in: self) { viewModel in
+        runTask(in: self) { viewModel in
             guard let selectedProvider = await viewModel.interactor.getSelectedProvider()?.provider else {
                 return
             }
@@ -504,7 +504,7 @@ private extension ExpressViewModel {
                 providerState = .loading
             }
         default:
-            TangemFoundation.runTask(in: self) { viewModel in
+            runTask(in: self) { viewModel in
                 let providerRowViewModel = await viewModel.mapToProviderRowViewModel()
                 await runOnMain {
                     if let providerRowViewModel {
@@ -612,7 +612,7 @@ private extension ExpressViewModel {
         case .idle, .loading(.full):
             legalText = nil
         case .restriction, .permissionRequired, .previewCEX, .readyToSwap:
-            TangemFoundation.runTask(in: self) { viewModel in
+            runTask(in: self) { viewModel in
                 let text = await viewModel.interactor.getSelectedProvider()?.provider.legalText(branch: .swap)
                 await runOnMain {
                     viewModel.legalText = text
@@ -683,7 +683,7 @@ private extension ExpressViewModel {
 
         stopTimer()
         mainButtonIsLoading = true
-        TangemFoundation.runTask(in: self) { root in
+        runTask(in: self) { root in
             do {
                 let sentTransactionData = try await root.interactor.send()
 

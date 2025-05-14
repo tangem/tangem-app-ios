@@ -27,9 +27,9 @@ class CommonUserWalletModel {
     let keysRepository: KeysRepository
     let derivationManager: DerivationManager?
     let totalBalanceProvider: TotalBalanceProviding
+    let cardImageProvider: CardImageProviding
 
     private let walletManagersRepository: WalletManagersRepository
-    private let cardImageProvider = CardImageProvider()
 
     private var associatedCardIds: Set<String>
 
@@ -42,10 +42,6 @@ class CommonUserWalletModel {
     }
 
     var cardPublicKey: Data { cardInfo.card.cardPublicKey }
-
-    var supportsOnlineImage: Bool {
-        config.hasFeature(.onlineImage)
-    }
 
     var emailConfig: EmailConfig? {
         config.emailConfig
@@ -97,6 +93,7 @@ class CommonUserWalletModel {
         self.keysRepository = keysRepository
         self.derivationManager = derivationManager
         self.totalBalanceProvider = totalBalanceProvider
+        cardImageProvider = CardImageProvider(card: cardInfo.card)
 
         _signer = config.tangemSigner
         _userWalletNamePublisher = .init(cardInfo.name)
@@ -247,22 +244,6 @@ extension CommonUserWalletModel: UserWalletModel {
         _updatePublisher.eraseToAnyPublisher()
     }
 
-    var cardImagePublisher: AnyPublisher<CardImageResult, Never> {
-        let artwork: CardArtwork
-
-        if let artworkInfo = cardImageProvider.cardArtwork(for: cardInfo.card.cardId)?.artworkInfo {
-            artwork = .artwork(artworkInfo)
-        } else {
-            artwork = .notLoaded
-        }
-
-        return cardImageProvider.loadImage(
-            cardId: card.cardId,
-            cardPublicKey: card.cardPublicKey,
-            artwork: artwork
-        )
-    }
-
     func updateWalletName(_ name: String) {
         cardInfo.name = name
         _userWalletNamePublisher.send(name)
@@ -368,8 +349,7 @@ extension CommonUserWalletModel: UserWalletSerializable {
             name: name,
             card: cardInfo.card,
             associatedCardIds: associatedCardIds,
-            walletData: cardInfo.walletData,
-            artwork: cardInfo.artwork.artworkInfo
+            walletData: cardInfo.walletData
         )
 
         return newStoredUserWallet
