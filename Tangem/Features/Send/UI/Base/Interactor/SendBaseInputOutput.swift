@@ -15,5 +15,10 @@ protocol SendBaseInput: AnyObject {
 }
 
 protocol SendBaseOutput: AnyObject {
+    func actualizeInformation()
     func performAction() async throws -> TransactionDispatcherResult
+}
+
+extension SendBaseOutput {
+    func actualizeInformation() {}
 }
