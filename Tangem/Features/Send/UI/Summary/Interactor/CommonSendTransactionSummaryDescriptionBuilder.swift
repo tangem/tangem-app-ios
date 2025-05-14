@@ -27,8 +27,8 @@ extension CommonSendTransactionSummaryDescriptionBuilder: SendTransactionSummary
             return nil
         }
 
-        let amountInFiat = tokenItem.id.flatMap { BalanceConverter().convertToFiat(amount, currencyId: $0) }
-        let feeInFiat = feeTokenItem.id.flatMap { BalanceConverter().convertToFiat(fee.amount.value, currencyId: $0) }
+        let amountInFiat = tokenItem.currencyId.flatMap { BalanceConverter().convertToFiat(amount, currencyId: $0) }
+        let feeInFiat = feeTokenItem.currencyId.flatMap { BalanceConverter().convertToFiat(fee.amount.value, currencyId: $0) }
 
         var totalInFiat: Decimal? = nil
 
