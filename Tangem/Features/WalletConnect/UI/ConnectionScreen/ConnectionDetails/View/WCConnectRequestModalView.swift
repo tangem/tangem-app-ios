@@ -143,8 +143,9 @@ private extension WCConnectRequestModalView {
 private extension WCConnectRequestModalView {
     var selectedWallet: some View {
         HStack(spacing: 0) {
-            Assets.WalletConnect.walletNew.image
-                .renderingMode(.template)
+            Assets.Glyphs.walletNew.image
+                .resizable()
+                .frame(width: 24, height: 24)
                 .foregroundStyle(Colors.Icon.accent)
                 .padding(.trailing, 8)
             Text("Wallet")
@@ -167,8 +168,12 @@ private extension WCConnectRequestModalView {
     var selectedNetworks: some View {
         // [REDACTED_TODO_COMMENT]
         return HStack(spacing: 0) {
-            Assets.WalletConnect.networkNew.image
+            Assets.Glyphs.networkNew.image
+                .resizable()
+                .frame(width: 24, height: 24)
+                .foregroundStyle(Colors.Icon.accent)
                 .padding(.trailing, 8)
+
             Text("Networks")
                 .style(Fonts.Regular.body, color: Colors.Text.primary1)
                 .frame(maxWidth: .infinity, alignment: .leading)
