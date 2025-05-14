@@ -87,12 +87,14 @@ public enum VisaCardActivationRemoteState: String, Codable, Equatable {
     case paymentAccountDeploying = "payment_account_deploying"
     /// 4 step. Payment account already deployed now user must select PIN code that will be used during
     /// payments using card in fiat terminals
-    case waitingPinCode = "waiting_pin_code"
+    case waitingPinCode = "pin_code_required"
     /// 5 step. Issuer accepted PIN code and processing request. This is the last step of activation process
-    case waitingForActivationFinishing = "waiting_for_activation_finishing"
+    case waitingForActivationFinishing = "waiting_for_activation"
     case activated
     /// This can happen due to some regulation issues or might be because of card loss. Anyway user need to contact support
     case blockedForActivation = "blocked_for_activation"
+    /// Something went wrong on BFF or backend side. User need to contact support
+    case failed
 }
 
 public struct VisaCardActivationOrder: Codable {
