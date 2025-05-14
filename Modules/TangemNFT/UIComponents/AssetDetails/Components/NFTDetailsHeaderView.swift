@@ -17,6 +17,7 @@ struct NFTDetailsHeaderView: View {
 
     var body: some View {
         content
+            .frame(maxWidth: .infinity, alignment: .leading)
             .roundedBackground(with: Constants.backgroundColor, padding: 14, radius: 14)
     }
 
@@ -82,7 +83,7 @@ struct NFTDetailsHeaderView: View {
 
     private func makePrices(model: NFTDetailsHeaderState.Price) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Last sale price") // [REDACTED_TODO_COMMENT]
+            Text(Localization.nftDetailsLastSalePrice)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                 .padding(.bottom, 8)
 
@@ -97,7 +98,7 @@ struct NFTDetailsHeaderView: View {
 
     private func makeRarityKeyValueView(keyValues: [KeyValuePairViewData]) -> some View {
         KeyValuePanelView(
-            config: KeyValuePanelConfig(
+            viewData: KeyValuePanelViewData(
                 header: nil,
                 keyValues: keyValues,
                 backgroundColor: nil

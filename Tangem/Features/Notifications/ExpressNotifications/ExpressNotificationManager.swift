@@ -54,7 +54,7 @@ class ExpressNotificationManager {
             }
 
         case .restriction(let restrictions, _):
-            TangemFoundation.runTask(in: self) { manager in
+            runTask(in: self) { manager in
                 await manager.setupNotification(for: restrictions)
             }
 
