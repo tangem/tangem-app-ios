@@ -108,7 +108,7 @@ private extension ExpressTokensListViewModel {
 
     func updateAvailablePairs(walletModels: [any WalletModel]) {
         updateTask?.cancel()
-        updateTask = TangemFoundation.runTask(in: self) { viewModel in
+        updateTask = runTask(in: self) { viewModel in
             let availablePairs = await viewModel.loadAvailablePairs()
             await runOnMain {
                 viewModel.updateWalletModels(
