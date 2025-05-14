@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemUI
 
 struct OldWalletConnectView: View {
     @ObservedObject var viewModel: OldWalletConnectViewModel

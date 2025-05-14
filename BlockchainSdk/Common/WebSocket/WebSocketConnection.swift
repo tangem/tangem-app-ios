@@ -147,7 +147,7 @@ private extension WebSocketConnection {
 
 extension WebSocketConnection: CustomStringConvertible {
     nonisolated var description: String {
-        TangemFoundation.objectDescription(self)
+        objectDescription(self)
     }
 }
 
