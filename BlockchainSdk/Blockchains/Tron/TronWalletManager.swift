@@ -314,3 +314,16 @@ private extension TronWalletManager {
         static let usdtContractAddress = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
     }
 }
+
+// MARK: - WithdrawalNotificationProvider
+
+extension TronWalletManager: WithdrawalNotificationProvider {
+    func withdrawalNotification(amount: Amount, fee: Fee) -> WithdrawalNotification? {
+        // We have to show the notification only when send the token
+        guard amount.type.isToken else {
+            return nil
+        }
+
+        return .tronWillBeSendTokenFeeDescription
+    }
+}
