@@ -20,13 +20,17 @@ final class CommonWCService {
 
 extension CommonWCService: WCService {
     var canEstablishNewSessionPublisher: AnyPublisher<Bool, Never> {
-        v2Service.canEstablishNewSessionPublisher.eraseToAnyPublisher()
+        v2Service.canEstablishNewSessionPublisher
     }
 
     var newSessions: AsyncStream<[WalletConnectSavedSession]> {
         get async {
             await v2Service.newSessions
         }
+    }
+
+    var errorsPublisher: AnyPublisher<(error: WalletConnectV2Error, dAppName: String), Never> {
+        v2Service.errorsPublisher
     }
 
     func initialize() {
