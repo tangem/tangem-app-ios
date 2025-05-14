@@ -693,7 +693,7 @@ private extension CommonVisaActivationManager {
             } else {
                 activationLocalState = .notStartedActivation(activationInput: input)
             }
-        case .blockedForActivation:
+        case .blockedForActivation, .failed:
             activationLocalState = .blocked
         case .activated:
             activationLocalState = .activated(authTokens: authorizationTokens)
