@@ -373,7 +373,8 @@ private extension MarketsTokenDetailsView {
         priceChangePercentage: [:],
         marketRating: 1,
         marketCap: 100_000_000_000,
-        isUnderMarketCapLimit: false
+        isUnderMarketCapLimit: false,
+        stakingOpportunities: nil
     )
 
     return MarketsTokenDetailsView(viewModel: .init(
@@ -381,6 +382,6 @@ private extension MarketsTokenDetailsView {
         presentationStyle: .marketsSheet,
         dataProvider: .init(),
         marketsQuotesUpdateHelper: CommonMarketsQuotesUpdateHelper(),
-        coordinator: nil
+        coordinator: nil,
     ))
 }
