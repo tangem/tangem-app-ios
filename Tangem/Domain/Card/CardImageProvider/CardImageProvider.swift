@@ -7,130 +7,128 @@
 //
 
 import Foundation
-import Combine
 import UIKit
-import TangemSdk
-import Kingfisher
 import TangemFoundation
 import TangemAssets
 import TangemNetworkUtils
+import TangemSdk
 
 struct CardImageProvider {
-    private static let cardArtworkCache: ThreadSafeContainer<[String: CardArtwork]> = [:]
+    private let cardId: String
 
-    @Injected(\.cardImageLoader) private var imageLoader: CardImageLoaderProtocol
-
-    private let supportsOnlineImage: Bool
     private let defaultImage = Assets.Onboarding.darkCard.uiImage
+    private let imageCache = CardImageProviderCache()
+    private let artworksProvider: CardArtworksProvider
 
-    private let cardInfoProvider: CardInfoProvider
-    private let kingfisherCache = KingfisherManager.shared.cache
-
-    init(supportsOnlineImage: Bool = true) {
-        self.supportsOnlineImage = supportsOnlineImage
-
-        let configuration = URLSessionConfiguration.default
-        configuration.timeoutIntervalForRequest = 20
-        configuration.timeoutIntervalForResource = 30
-        let session = TangemURLSessionBuilder.makeSession(configuration: configuration)
-        let networkService = NetworkService(session: session)
-        cardInfoProvider = CardInfoProvider(networkService: networkService)
+    init(card: CardDTO) {
+        self.init(input: Input(
+            cardId: card.cardId,
+            cardPublicKey: card.cardPublicKey,
+            issuerPublicKey: card.issuer.publicKey,
+            firmwareVersionType: card.firmwareVersion.type
+        ))
     }
 
-    func cardArtwork(for cardId: String) -> CardArtwork? {
-        Self.cardArtworkCache[cardId]
+    init(input: Input) {
+        cardId = input.cardId
+
+        let session = TangemURLSessionBuilder.makeSession(configuration: .imageFetchingConfiguration)
+        let networkService = NetworkService(session: session)
+        let factory = CardArtworksProviderFactory(networkService: networkService)
+
+        artworksProvider = factory.makeArtworksProvider(
+            cardId: input.cardId,
+            cardPublicKey: input.cardPublicKey,
+            issuerPublicKey: input.issuerPublicKey,
+            firmwareVersionType: input.firmwareVersionType
+        )
     }
 }
 
 // MARK: - CardImageProviding
 
 extension CardImageProvider: CardImageProviding {
-    func loadImage(cardId: String, cardPublicKey: Data) -> AnyPublisher<CardImageResult, Never> {
-        loadImage(cardId: cardId, cardPublicKey: cardPublicKey, artwork: nil)
+    func loadLargeUIImage() async -> UIImage {
+        let images = await loadImages()
+        return images.large
     }
 
-    func loadImage(cardId: String, cardPublicKey: Data, artwork: CardArtwork?) -> AnyPublisher<CardImageResult, Never> {
-        guard supportsOnlineImage else {
-            return .just(output: .embedded(defaultImage))
-        }
-
-        let cardArtwork = artwork ?? cardArtwork(for: cardId) ?? .notLoaded
-
-        return loadImage(cardId: cardId, cardPublicKey: cardPublicKey, cardArtwork: cardArtwork)
-            .replaceError(with: .embedded(defaultImage))
-            .receive(on: DispatchQueue.main)
-            .eraseToAnyPublisher()
+    func loadSmallUIImage() async -> UIImage {
+        let images = await loadImages()
+        return images.small
     }
+}
 
-    func loadTwinImage(for number: Int) -> AnyPublisher<CardImageResult, Never> {
-        let cacheKey = "twin_\(number)"
+// MARK: - Input {
 
-        if let image = getImageFromCache(for: cacheKey) {
-            return .just(output: .cached(image))
-        }
-
-        return imageLoader.loadTwinImage(for: number)
-            .handleEvents(receiveOutput: { image in
-                cacheImage(image, for: cacheKey)
-            })
-            .map { .downloaded($0) }
-            .replaceError(with: .embedded(defaultImage))
-            .eraseToAnyPublisher()
+extension CardImageProvider {
+    struct Input {
+        let cardId: String
+        let cardPublicKey: Data
+        let issuerPublicKey: Data
+        let firmwareVersionType: FirmwareVersion.FirmwareType
     }
 }
 
 // MARK: - Private
 
 private extension CardImageProvider {
-    func loadImage(cardId: String, cardPublicKey: Data, cardArtwork: CardArtwork) -> AnyPublisher<CardImageResult, Error> {
-        if let number = getTwinNumberFor(for: cardId) {
-            return loadTwinImage(for: number)
-                .setFailureType(to: Error.self)
-                .eraseToAnyPublisher()
+    func loadImages() async -> Images {
+        if let twinNumber = getTwinNumberFor(for: cardId) {
+            let twinImage = await TwinImageProvider().loadTwinImage(cardNumber: twinNumber)
+            return Images(large: twinImage, small: twinImage)
         }
 
-        if let cachedImage = getImageFromCache(for: cardId) {
-            return .justWithError(output: .cached(cachedImage))
+        if let cached = getCachedImages() {
+            return cached
         }
 
-        switch cardArtwork {
-        case .noArtwork:
-            return .justWithError(output: .embedded(defaultImage))
-        case .notLoaded:
-            return loadArtworkInfo(cardId: cardId, cardPublicKey: cardPublicKey)
-                .tryMap {
-                    loadImage(cardId: cardId, cardPublicKey: cardPublicKey, cardArtwork: $0)
-                }
-                .switchToLatest()
-                .eraseToAnyPublisher()
-        case .artwork(let artworkInfo):
-            return imageLoader
-                .loadImage(cid: cardId, cardPublicKey: cardPublicKey, artworkInfoId: artworkInfo.id)
-                .handleEvents(receiveOutput: { image in
-                    cacheImage(image, for: cardId)
-                })
-                .map { .downloaded($0) }
-                .eraseToAnyPublisher()
+        do {
+            let response = try await artworksProvider.loadArtworks()
+            let largeImage = parseLargeImage(response: response)
+            let smallImage = parseSmallImage(response: response) ?? largeImage
+            return Images(large: largeImage, small: smallImage)
+        } catch {
+            return Images(large: defaultImage, small: defaultImage)
         }
     }
 
-    func loadArtworkInfo(cardId: String, cardPublicKey: Data) -> AnyPublisher<CardArtwork, Never> {
-        cardInfoProvider.getCardInfo(cardId: cardId, cardPublicKey: cardPublicKey)
-            .map { info in
-                if let artwork = info.artwork {
-                    return CardArtwork.artwork(artwork)
-                } else {
-                    return .noArtwork
-                }
-            }
-            .handleEvents(receiveOutput: { cardArtwork in
-                CardImageProvider.cardArtworkCache.mutate { value in
-                    value[cardId] = cardArtwork
-                }
-            })
-            .replaceError(with: CardArtwork.noArtwork)
-            .receive(on: DispatchQueue.main)
-            .eraseToAnyPublisher()
+    func getCachedImages() -> Images? {
+        let largeImageCacheKey = CacheKeys.large.getKey(cardId: cardId)
+        let smallImageCacheKey = CacheKeys.small.getKey(cardId: cardId)
+
+        if let largeCached = imageCache.getImageFromCache(for: largeImageCacheKey) {
+            let smallCached = imageCache.getImageFromCache(for: smallImageCacheKey) ?? largeCached
+            return Images(large: largeCached, small: smallCached)
+        }
+
+        return nil
+    }
+
+    func parseSmallImage(response: Artworks) -> UIImage? {
+        let cacheKey = CacheKeys.small.getKey(cardId: cardId)
+
+        guard let imageData = response.small?.nilIfEmpty,
+              let image = UIImage(data: imageData) else {
+            return nil
+        }
+
+        imageCache.cacheImage(image, for: cacheKey)
+
+        return image
+    }
+
+    func parseLargeImage(response: Artworks) -> UIImage {
+        let cacheKey = CacheKeys.large.getKey(cardId: cardId)
+
+        guard let imageData = response.large.nilIfEmpty,
+              let image = UIImage(data: imageData) else {
+            return defaultImage
+        }
+
+        imageCache.cacheImage(image, for: cacheKey)
+
+        return image
     }
 
     func getTwinNumberFor(for cardId: String) -> Int? {
@@ -140,24 +138,27 @@ private extension CardImageProvider {
             prefix.elementsEqual($0.rawValue.uppercased())
         })?.number
     }
+}
 
-    func cacheImage(_ image: UIImage, for key: String) {
-        kingfisherCache.store(image, forKey: key)
+// MARK: - Private
+
+private extension CardImageProvider {
+    struct Images {
+        let large: UIImage
+        let small: UIImage
     }
 
-    func getImageFromCache(for key: String) -> UIImage? {
-        if let cachedImage = kingfisherCache.memoryStorage.value(forKey: key) {
-            return cachedImage
-        }
+    enum CacheKeys {
+        case large
+        case small
 
-        guard
-            let diskImageData = try? kingfisherCache.diskStorage.value(forKey: key),
-            let image = UIImage(data: diskImageData)
-        else {
-            return nil
+        func getKey(cardId: String) -> String {
+            switch self {
+            case .large:
+                return "\(cardId)_large"
+            case .small:
+                return "\(cardId)_small"
+            }
         }
-        kingfisherCache.memoryStorage.store(value: image, forKey: key)
-
-        return image
     }
 }
