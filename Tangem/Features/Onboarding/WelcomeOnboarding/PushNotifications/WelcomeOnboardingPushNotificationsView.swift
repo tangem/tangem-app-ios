@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 struct WelcomeOnboardingPushNotificationsView: View {
     let viewModel: PushNotificationsPermissionRequestViewModel

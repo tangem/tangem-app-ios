@@ -604,6 +604,6 @@ private extension StakingModel {
 
 extension StakingModel: CustomStringConvertible {
     var description: String {
-        TangemFoundation.objectDescription(self)
+        objectDescription(self)
     }
 }
