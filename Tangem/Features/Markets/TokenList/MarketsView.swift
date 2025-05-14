@@ -12,6 +12,7 @@ import Combine
 import BlockchainSdk
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct MarketsView: View {
     @ObservedObject var viewModel: MarketsViewModel
@@ -201,6 +202,18 @@ struct MarketsView: View {
                         .frame(height: overlayHeight)
 
                     LazyVStack(spacing: 0) {
+                        if !showSearchResult, case .visible(let apy) = viewModel.stakingNotificationState {
+                            MarketsStakingNotificationView(
+                                apy: apy,
+                                openAction: { [viewModel] in
+                                    viewModel.openStakingFiter()
+                                },
+                                closeAction: { [viewModel] in
+                                    viewModel.closeStakingNotification()
+                                }
+                            )
+                        }
+
                         ForEach(viewModel.tokenViewModels) {
                             MarketsItemView(viewModel: $0, cellWidth: mainWindowSize.width)
                         }
