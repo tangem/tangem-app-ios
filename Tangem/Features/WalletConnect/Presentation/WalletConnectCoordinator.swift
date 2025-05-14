@@ -11,7 +11,6 @@ import protocol TangemUI.FloatingSheetContentViewModel
 
 final class WalletConnectCoordinator: CoordinatorObject {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
-    private let moduleFactory = WalletConnectModuleFactory()
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
@@ -40,7 +39,7 @@ final class WalletConnectCoordinator: CoordinatorObject {
     func start(with options: WalletConnectCoordinator.Options) {
         Task { @MainActor in
             if FeatureProvider.isAvailable(.walletConnectUI) {
-                viewModel = moduleFactory.makeWalletConnectViewModel(coordinator: self)
+                viewModel = WalletConnectModuleFactory.makeWalletConnectViewModel(coordinator: self)
             } else {
                 legacyViewModel = OldWalletConnectViewModel(disabledLocalizedReason: options.disabledLocalizedReason, coordinator: self)
             }
@@ -55,8 +54,12 @@ extension WalletConnectCoordinator {
 }
 
 extension WalletConnectCoordinator: WalletConnectRoutable {
+    func openConnectedDAppDetails(_ dApp: WalletConnectSavedSession) {
+        floatingSheetPresenter.enqueue(sheet: WalletConnectModuleFactory.makeConnectedDAppDetailsViewModel(dApp))
+    }
+
     func openQRScanner(clipboardURI: WalletConnectRequestURI?, completion: @escaping (WalletConnectQRScanResult) -> Void) {
-        let (coordinator, options) = moduleFactory.makeQRScanFlow(
+        let (coordinator, options) = WalletConnectModuleFactory.makeQRScanFlow(
             clipboardURI: clipboardURI,
             dismissAction: { [weak self] qrScanResult in
                 if let qrScanResult {
@@ -80,12 +83,12 @@ extension WalletConnectCoordinator: WalletConnectRoutable {
         coordinator.start(with: options)
         legacyQRScanViewCoordinator = coordinator
     }
-
-    func openConnectedDAppDetails(_ dApp: WalletConnectSavedSession) {
-        floatingSheetPresenter.enqueue(sheet: moduleFactory.makeConnectedDAppDetailsViewModel(dApp))
-    }
 }
 
 extension WalletConnectConnectedDAppDetailsViewModel: FloatingSheetContentViewModel {
     nonisolated var id: String { "WalletConnectConnectedDAppDetailsViewModel" }
+}
+
+extension WalletConnectErrorViewModel: FloatingSheetContentViewModel {
+    nonisolated var id: String { "WalletConnectErrorViewModel" }
 }
