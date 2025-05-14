@@ -6,10 +6,16 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-final class NFTAssetsGridViewModel {
+struct NFTAssetsGridViewModel {
     let assetsViewModels: [NFTCompactAssetViewModel]
 
     init(assetsViewModels: [NFTCompactAssetViewModel]) {
         self.assetsViewModels = assetsViewModels
+    }
+
+    init(assetsCount: Int) {
+        assetsViewModels = (0 ..< assetsCount).map {
+            NFTCompactAssetViewModel(state: .loading(id: "\($0)"), openAssetDetailsAction: { _ in })
+        }
     }
 }
