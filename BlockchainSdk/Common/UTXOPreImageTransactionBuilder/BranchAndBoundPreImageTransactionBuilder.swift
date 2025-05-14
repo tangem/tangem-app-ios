@@ -161,7 +161,7 @@ private extension BranchAndBoundPreImageTransactionBuilder {
 
 extension BranchAndBoundPreImageTransactionBuilder: CustomStringConvertible {
     var description: String {
-        TangemFoundation.objectDescription(self)
+        objectDescription(self)
     }
 }
 
