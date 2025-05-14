@@ -46,12 +46,12 @@ struct WCUtils {
 // MARK: - Create session namespaces
 
 extension WCUtils {
-    func createNewSessionModel(
+    func createSessionRequest(
         proposal: Session.Proposal,
         selectedWalletModelProvider: WalletConnectWalletModelProvider,
         selectedUserWalletModelId: String,
         selectedOptionalNetworks: [BlockchainNetwork] = []
-    ) throws -> WCConnectionRequestModel {
+    ) throws -> (SessionNamespace: [String: SessionNamespace], requestData: [WCConnectionRequestData]) {
         let builder = WCSessionNamespacesBuilder()
         let chains = Set(proposal.namespaceChains)
 
@@ -63,29 +63,19 @@ extension WCUtils {
                 selectedWalletModelProvider: selectedWalletModelProvider
             )
         }
-
         try checkMissingBlockchains(builder.missingBlockchains)
 
         try checkUnsupportedEVMBlockchains(builder.unsupportedEVMBlockchains)
 
-        do {
-            let sessionNamespaces = try AutoNamespaces.build(
-                sessionProposal: proposal,
-                chains: Array(builder.supportedChains),
-                methods: proposal.namespaceMethods,
-                events: proposal.namespaceEvents,
-                accounts: requestData.compactMap(\.accounts).reduce([], +)
-            )
+        let sessionNamespaces = try AutoNamespaces.build(
+            sessionProposal: proposal,
+            chains: Array(builder.supportedChains),
+            methods: proposal.namespaceMethods,
+            events: proposal.namespaceEvents,
+            accounts: requestData.compactMap(\.accounts).reduce([], +)
+        )
 
-            return WCConnectionRequestModel(
-                selectedNetworks: requestData.compactMap(\.selectedBlockchain),
-                availableToSelectNetworks: requestData.compactMap(\.availableToSelectBlockchain),
-                notAddedNetworks: requestData.compactMap(\.notAddedBlockchain),
-                sessionNamespaces: sessionNamespaces
-            )
-        } catch {
-            throw handleAutoNamespaceError(error, missingOptionalBlockchains: builder.missingOptionalBlockchains)
-        }
+        return (sessionNamespaces, requestData)
     }
 
     private func checkMissingBlockchains(_ blockchains: [String]) throws {
@@ -98,16 +88,6 @@ extension WCUtils {
         guard blockchains.isEmpty else {
             throw WalletConnectV2Error.unsupportedBlockchains(blockchains)
         }
-    }
-
-    private func handleAutoNamespaceError(_ error: Error, missingOptionalBlockchains: [String]) -> Error {
-        guard let error = error as? AutoNamespacesError else { return error }
-
-        if missingOptionalBlockchains.isNotEmpty, error == .emptySessionNamespacesForbidden {
-            return WalletConnectV2Error.missingOptionalBlockchains(missingOptionalBlockchains)
-        }
-
-        return error
     }
 }
 
