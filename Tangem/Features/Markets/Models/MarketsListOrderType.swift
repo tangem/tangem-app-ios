@@ -15,6 +15,7 @@ enum MarketsListOrderType: String, CaseIterable, Encodable, CustomStringConverti
     case buyers
     case gainers
     case losers
+    case staking
 
     var id: String {
         rawValue
@@ -27,6 +28,7 @@ enum MarketsListOrderType: String, CaseIterable, Encodable, CustomStringConverti
         case .buyers: return Localization.marketsSortByExperiencedBuyersTitle
         case .gainers: return Localization.marketsSortByTopGainersTitle
         case .losers: return Localization.marketsSortByTopLosersTitle
+        case .staking: return Localization.commonStaking
         }
     }
 }
