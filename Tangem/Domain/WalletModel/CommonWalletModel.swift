@@ -339,18 +339,6 @@ extension CommonWalletModel: WalletModel {
     }
 }
 
-// MARK: - AvailableTokenBalanceProviderInput
-
-extension CommonWalletModel: AvailableTokenBalanceProviderInput {
-    var state: WalletModelState {
-        _state.value
-    }
-
-    var statePublisher: AnyPublisher<WalletModelState, Never> {
-        _state.eraseToAnyPublisher()
-    }
-}
-
 // MARK: - Updater
 
 extension CommonWalletModel: WalletModelUpdater {
@@ -740,6 +728,18 @@ extension CommonWalletModel: TransactionHistoryFetcher {
 extension CommonWalletModel: ExpressWallet {
     func getFeeCurrencyBalance() -> Decimal {
         wallet.feeCurrencyBalance(amountType: amountType)
+    }
+}
+
+// MARK: - AvailableTokenBalanceProviderInput
+
+extension CommonWalletModel: AvailableTokenBalanceProviderInput {
+    var state: WalletModelState {
+        _state.value
+    }
+
+    var statePublisher: AnyPublisher<WalletModelState, Never> {
+        _state.eraseToAnyPublisher()
     }
 }
 

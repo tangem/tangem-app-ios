@@ -24,19 +24,13 @@ struct NotSupportedStakingTokenBalanceProvider: TokenBalanceProvider {
     var formattedBalanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { .just(output: formattedBalanceType) }
 }
 
-struct StakingTokenBalanceProvider {
-    private weak var innerInput: StakingTokenBalanceProviderInput?
-    private weak var input: StakingTokenBalanceProviderInput? {
-        get { lock { innerInput }}
-        set { lock { innerInput = newValue }}
-    }
+class StakingTokenBalanceProvider {
+    private weak var input: StakingTokenBalanceProviderInput?
 
     private let walletModelId: WalletModelId
     private let tokenItem: TokenItem
     private let tokenBalancesRepository: TokenBalancesRepository
     private let balanceFormatter = BalanceFormatter()
-
-    private let lock = Lock(isRecursive: false)
 
     init(
         input: StakingTokenBalanceProviderInput,
@@ -118,8 +112,9 @@ extension StakingTokenBalanceProvider {
     }
 
     func mapToFormattedTokenBalanceType(type: TokenBalanceType) -> FormattedTokenBalanceType {
-        let builder = FormattedTokenBalanceTypeBuilder(format: { value in
-            balanceFormatter.formatCryptoBalance(value, currencyCode: tokenItem.currencySymbol)
+        let currencyCode = tokenItem.currencySymbol
+        let builder = FormattedTokenBalanceTypeBuilder(format: { [balanceFormatter] value in
+            balanceFormatter.formatCryptoBalance(value, currencyCode: currencyCode)
         })
 
         return builder.mapToFormattedTokenBalanceType(type: type)

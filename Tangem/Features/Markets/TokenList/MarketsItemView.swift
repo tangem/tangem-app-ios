@@ -84,6 +84,16 @@ struct MarketsItemView: View {
 
                 Text(viewModel.marketCap)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+
+                if let stakingApy = viewModel.stakingApy {
+                    Text(stakingApy)
+                        .style(Fonts.Regular.caption2, color: Colors.Text.secondary)
+                        .padding(EdgeInsets(top: 3, leading: 5, bottom: 2, trailing: 5))
+                        .overlay(content: {
+                            RoundedRectangle(cornerRadius: 5, style: .continuous)
+                                .stroke(Colors.Stroke.primary, lineWidth: 1)
+                        })
+                }
             }
             .frame(minWidth: 0.32 * textBlockWidth, maxWidth: .infinity, alignment: .leading)
 

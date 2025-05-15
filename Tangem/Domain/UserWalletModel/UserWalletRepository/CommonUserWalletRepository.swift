@@ -152,6 +152,10 @@ class CommonUserWalletRepository: UserWalletRepository {
             case .success(let model), .partial(let model, _):
                 let walletHasBackup = Analytics.ParameterValue.affirmativeOrNegative(for: model.hasBackupCards)
 
+                if AppSettings.shared.startWalletUsageDate == nil {
+                    AppSettings.shared.startWalletUsageDate = Date()
+                }
+
                 Analytics.log(event: .signedIn, params: [
                     .signInType: method.analyticsValue.rawValue,
                     .walletsCount: "\(models.count)",
@@ -316,6 +320,8 @@ class CommonUserWalletRepository: UserWalletRepository {
         if !models.isEmpty {
             let newModel = models[targetIndex]
             setSelectedUserWalletId(newModel.userWalletId, reason: .deleted)
+        } else {
+            AppSettings.shared.startWalletUsageDate = nil
         }
 
         walletConnectService.disconnectAllSessionsForUserWallet(with: userWalletId.stringValue)
