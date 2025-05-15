@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import BlockchainSdk
 
 protocol SendAmountInteractor {
     var infoTextPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> { get }
@@ -24,6 +25,7 @@ protocol SendAmountInteractor {
 
 class CommonSendAmountInteractor {
     private let tokenItem: TokenItem
+    private let feeTokenItem: TokenItem
     private let maxAmount: Decimal
 
     private weak var input: SendAmountInput?
@@ -44,6 +46,7 @@ class CommonSendAmountInteractor {
         input: SendAmountInput,
         output: SendAmountOutput,
         tokenItem: TokenItem,
+        feeTokenItem: TokenItem,
         maxAmount: Decimal,
         validator: SendAmountValidator,
         amountModifier: SendAmountModifier?,
@@ -52,6 +55,7 @@ class CommonSendAmountInteractor {
         self.input = input
         self.output = output
         self.tokenItem = tokenItem
+        self.feeTokenItem = feeTokenItem
         self.maxAmount = maxAmount
         self.validator = validator
         self.amountModifier = amountModifier
@@ -95,9 +99,20 @@ class CommonSendAmountInteractor {
     }
 
     private func update(amount: SendAmount?, isValid: Bool, error: Error?) {
-        _error.send(error?.localizedDescription)
+        let errorDescription = error.flatMap { getValidationErrorDescription(error: $0) }
+        _error.send(errorDescription)
         _isValid.send(isValid)
         output?.amountDidChanged(amount: amount)
+    }
+
+    private func getValidationErrorDescription(error: Error) -> String? {
+        guard let validationError = error as? ValidationError else {
+            return error.localizedDescription
+        }
+
+        let mapper = BlockchainSDKNotificationMapper(tokenItem: tokenItem, feeTokenItem: feeTokenItem)
+        let description = mapper.mapToValidationErrorEvent(validationError).description
+        return description
     }
 
     private func modifyIfNeeded(amount: SendAmount) -> SendAmount {
