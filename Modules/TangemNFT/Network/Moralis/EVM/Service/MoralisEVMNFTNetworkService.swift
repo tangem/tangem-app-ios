@@ -11,6 +11,10 @@ import Moya
 import TangemNetworkUtils
 
 public final class MoralisEVMNFTNetworkService {
+    typealias EVMCollection = MoralisEVMNetworkResult.EVMNFTCollection
+    typealias EVMAsset = MoralisEVMNetworkResult.EVMNFTAsset
+    typealias EVMResponse = MoralisEVMNetworkResult.EVMNFTResponse
+
     private let networkConfiguration: TangemProviderConfiguration
     private let chain: NFTChain
     private let networkProvider: TangemProvider<MoralisEVMAPITarget>
@@ -77,34 +81,39 @@ public final class MoralisEVMNFTNetworkService {
 
     private func paginableRequest<T>(
         targetFactory: MoralisPaginableResponse.TargetFactory
-    ) async throws -> [T] where T: Decodable, T: MoralisPaginableResponse {
-        func executeRequest(targetFactory: MoralisPaginableResponse.TargetFactory, cursor: String?) async throws -> [T] {
-            let target = targetFactory(cursor)
-            let response = try await networkProvider
-                .asyncRequest(target)
-                .mapAPIResponse(T.self, using: decoder)
+    ) async -> (value: [T], hasErrors: Bool) where T: Decodable, T: MoralisPaginableResponse {
+        var hadError = false
+        var results: [T] = []
+        var cursor: String? = nil
 
-            guard let nextCursor = response.cursor else {
-                return [response]
+        repeat {
+            let target = targetFactory(cursor)
+
+            do {
+                let response = try await networkProvider
+                    .asyncRequest(target)
+                    .mapAPIResponse(T.self, using: decoder)
+
+                results.append(response)
+                cursor = response.cursor
+            } catch {
+                hadError = true
             }
 
-            let nextResponse: [T] = try await executeRequest(targetFactory: targetFactory, cursor: nextCursor)
+        } while cursor != nil
 
-            return [response] + nextResponse
-        }
-
-        return try await executeRequest(targetFactory: targetFactory, cursor: nil)
+        return (results, hasErrors: hadError)
     }
 }
 
 // MARK: - NFTNetworkService protocol conformance
 
 extension MoralisEVMNFTNetworkService: NFTNetworkService {
-    public func getCollections(address: String) async throws -> [NFTCollection] {
+    public func getCollections(address: String) async throws -> NFTPartialResult<[NFTCollection]> {
         let moralisNFTChain = try makeMoralisNFTChain(from: chain)
 
-        let paginatedResponse: [MoralisEVMNetworkResult.EVMNFTResponse<[MoralisEVMNetworkResult.EVMNFTCollection]>] = try await paginableRequest { cursor in
-            return MoralisEVMAPITarget(
+        let loadedResponse: (value: [EVMResponse<[EVMCollection]>], hasErrors: Bool) = await paginableRequest { cursor in
+            MoralisEVMAPITarget(
                 version: Constants.apiVersion,
                 target: .getNFTCollectionsByWallet(
                     address: address,
@@ -119,17 +128,17 @@ extension MoralisEVMNFTNetworkService: NFTNetworkService {
             )
         }
 
-        let response = paginatedResponse.flatMap(\.result)
         let mapper = MoralisEVMNetworkMapper(chain: chain)
+        let nftCollections = mapper.map(collections: loadedResponse.value.flatMap(\.result), ownerAddress: address)
 
-        return mapper.map(collections: response, ownerAddress: address)
+        return NFTPartialResult(value: nftCollections, hasErrors: loadedResponse.hasErrors)
     }
 
-    public func getAssets(address: String, collectionIdentifier: NFTCollection.ID?) async throws -> [NFTAsset] {
+    public func getAssets(address: String, collectionIdentifier: NFTCollection.ID?) async throws -> NFTPartialResult<[NFTAsset]> {
         let moralisNFTChain = try makeMoralisNFTChain(from: chain)
 
-        let paginatedResponse: [MoralisEVMNetworkResult.EVMNFTResponse<[MoralisEVMNetworkResult.EVMNFTAsset]>] = try await paginableRequest { cursor in
-            return MoralisEVMAPITarget(
+        let loadedResponse: (value: [EVMResponse<[EVMAsset]>], hasErrors: Bool) = await paginableRequest { cursor in
+            MoralisEVMAPITarget(
                 version: Constants.apiVersion,
                 target: .getNFTAssetsByWallet(
                     address: address,
@@ -148,7 +157,8 @@ extension MoralisEVMNFTNetworkService: NFTNetworkService {
             )
         }
 
-        let response = paginatedResponse
+        let response = loadedResponse
+            .value
             .flatMap(\.result)
             .filter { asset in
                 guard let collectionIdentifier else {
@@ -158,7 +168,10 @@ extension MoralisEVMNFTNetworkService: NFTNetworkService {
             }
         let mapper = MoralisEVMNetworkMapper(chain: chain)
 
-        return mapper.map(assets: response, ownerAddress: address)
+        return NFTPartialResult(
+            value: mapper.map(assets: response, ownerAddress: address),
+            hasErrors: loadedResponse.hasErrors
+        )
     }
 
     public func getAsset(assetIdentifier: NFTAsset.ID) async throws -> NFTAsset? {
