@@ -289,11 +289,25 @@ struct ProductActivationServiceMock: ProductActivationService {
 }
 
 struct CustomerInfoManagementServiceMock: CustomerInfoManagementService {
-    func loadCustomerInfo(productInstanceId: String) async throws -> CustomerInfoManagementPaymentAccountResponse {
+    func loadCustomerInfo(cardId: String) async throws -> VisaCustomerInfoResponse {
         return .init(
-            id: "",
-            customerWalletAddress: VisaMocksManager.instance.customerWalletAddress,
-            address: "0x938d1dd76bb5d742910b99da36dc69fb652c6c68"
+            id: "89983505-cc0f-47d6-b428-eef3e158c5aa",
+            state: .active,
+            createdAt: Date(),
+            productInstance: .init(
+                id: "0550913f-b5ec-4e84-aada-4dcac86a3e4f",
+                cardWalletAddress: "0xd971a808a08163b197e1e119cdba5d26ea3543bf",
+                cardId: "5c5ad769-9b2d-4b16-952a-6f4e51833cba",
+                cid: "FF05000000098425",
+                status: .active,
+                updatedAt: Date(),
+                paymentAccountId: "5add5bde-04e7-4efd-9191-cb7f21956c00"
+            ),
+            paymentAccount: .init(
+                id: "5add5bde-04e7-4efd-9191-cb7f21956c00",
+                customerWalletAddress: "0xef08ea3531d219ede813fb521e6d89220198bcb1",
+                address: "0xd7d2d8266e79d22be3680a062e19484140e248d1"
+            )
         )
     }
 }
