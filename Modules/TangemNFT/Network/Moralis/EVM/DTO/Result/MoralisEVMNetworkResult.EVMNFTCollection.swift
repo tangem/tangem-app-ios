@@ -9,7 +9,7 @@
 import Foundation
 
 extension MoralisEVMNetworkResult {
-    struct EVMNFTCollection: Decodable {
+    struct EVMNFTCollection: Decodable, Equatable {
         let tokenAddress: String?
         let possibleSpam: Bool?
         let contractType: String?
