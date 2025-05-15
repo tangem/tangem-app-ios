@@ -12,8 +12,8 @@ import TangemNFT
 
 struct NotSupportedNFTManager: NFTManager {
     var collections: [NFTCollection] { [] }
-    var collectionsPublisher: AnyPublisher<[NFTCollection], Never> { .just(output: []) }
-    var statePublisher: AnyPublisher<NFTManagerState, Never> { .just(output: .loaded([])) }
+    var collectionsPublisher: AnyPublisher<NFTPartialResult<[NFTCollection]>, Never> { .just(output: NFTPartialResult(value: [])) }
+    var statePublisher: AnyPublisher<NFTManagerState, Never> { .just(output: .loaded(NFTPartialResult(value: []))) }
 
     func update() {}
     func updateAssets(inCollectionWithIdentifier collectionIdentifier: NFTCollection.ID) {}
