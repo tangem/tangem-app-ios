@@ -9,35 +9,30 @@
 import Foundation
 
 struct FantomExternalLinkProvider {
+    private let baseUrl: String
     private let isTestnet: Bool
 
     init(isTestnet: Bool) {
         self.isTestnet = isTestnet
+        baseUrl = isTestnet ? "https://explorer.testnet.fantom.network/" : "https://oklink.com/fantom/"
     }
 }
 
 extension FantomExternalLinkProvider: ExternalLinkProvider {
     var testnetFaucetURL: URL? {
-        return URL(string: "https://faucet.fantom.network")
+        URL(string: "https://faucet.fantom.network")
     }
 
     func url(transaction hash: String) -> URL? {
-        if isTestnet {
-            return URL(string: "https://testnet.ftmscan.com/tx/\(hash)")
-        }
-
-        return URL(string: "https://ftmscan.com/tx/\(hash)")
+        let txPath = isTestnet ? "transactions/" : "tx/"
+        return URL(string: baseUrl + txPath + "\(hash)")
     }
 
     func url(address: String, contractAddress: String?) -> URL? {
-        let baseUrl = isTestnet ? "https://testnet.ftmscan.com/" : "https://ftmscan.com/"
-
+        var urlString = baseUrl + "address/\(address)"
         if let contractAddress {
-            let url = baseUrl + "token/\(contractAddress)?a=\(address)"
-            return URL(string: url)
+            urlString += "/token-transfer#token-address=\(contractAddress)"
         }
-
-        let url = baseUrl + "address/\(address)"
-        return URL(string: url)
+        return URL(string: urlString)
     }
 }
