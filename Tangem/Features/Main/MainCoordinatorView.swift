@@ -127,6 +127,9 @@ struct MainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: WCConnectionSheetViewModel.self) {
                 WCConnectRequestModalView(viewModel: $0)
             }
+            .floatingSheetContent(for: WalletConnectErrorViewModel.self) {
+                WalletConnectErrorView(viewModel: $0)
+            }
 
         NavHolder()
             .bottomSheet(

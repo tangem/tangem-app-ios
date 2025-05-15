@@ -95,6 +95,7 @@ private extension SendAmountStepBuilder {
             input: io.input,
             output: io.output,
             tokenItem: walletModel.tokenItem,
+            feeTokenItem: walletModel.feeTokenItem,
             maxAmount: builder.maxAmount(for: io.input.amount, actionType: actionType),
             validator: sendAmountValidator,
             amountModifier: amountModifier,
