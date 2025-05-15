@@ -78,16 +78,15 @@ public final class NFTEntrypointViewModel: ObservableObject {
             return .failedToLoad(error: error)
 
         case .loaded(let collections):
-            let collectionsViewState = makeCollectionsViewState(from: collections)
+            let collectionsViewState = makeCollectionsViewState(from: collections.value)
             return .loaded(collectionsViewState)
         }
     }
 
     private func extractCollections(from managerState: NFTManagerState) -> [NFTCollection] {
         switch managerState {
-        case .failedToLoad: []
-        case .loading: []
-        case .loaded(let collections): collections
+        case .failedToLoad, .loading: []
+        case .loaded(let collections): collections.value
         }
     }
 
