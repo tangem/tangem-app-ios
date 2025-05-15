@@ -62,6 +62,8 @@ class SendCoordinator: CoordinatorObject {
         let stakingParams = StakingBlockchainParams(blockchain: options.walletModel.tokenItem.blockchain)
 
         switch options.type {
+        case .send where FeatureProvider.isAvailable(.newSendUI):
+            rootViewModel = factory.makeNewSendViewModel(router: self)
         case .send:
             rootViewModel = factory.makeSendViewModel(router: self)
         case .sell(let parameters):

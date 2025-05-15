@@ -292,7 +292,7 @@ private extension SendViewModel {
             break
         case .informationRelevanceServiceError:
             alert = alertBuilder.makeFeeRetryAlert { [weak self] in
-                self?.performAction()
+                self?.interactor.actualizeInformation()
             }
         case .informationRelevanceServiceFeeWasIncreased:
             alert = AlertBuilder.makeOkGotItAlert(message: Localization.sendNotificationHighFeeTitle)
