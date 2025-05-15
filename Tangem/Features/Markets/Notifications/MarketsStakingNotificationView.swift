@@ -26,7 +26,7 @@ struct MarketsStakingNotificationView: View {
             Button(action: openAction) {
                 messageIconContent
             }
-            
+
             closeButton
         }
         .padding(.vertical, 12)
@@ -80,7 +80,7 @@ struct MarketsStakingNotificationView: View {
     private var closeButton: some View {
         HStack {
             Spacer()
-            
+
             Button(action: closeAction) {
                 Assets.cross.image
                     .foregroundColor(Colors.Icon.informative)
