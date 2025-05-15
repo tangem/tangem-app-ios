@@ -10,39 +10,29 @@ import Foundation
 
 struct SolanaExternalLinkProvider {
     private let isTestnet: Bool
-    private let baseURL: String
+    private let baseUrl = "https://solscan.io/"
+    private let cluster: String
 
     init(isTestnet: Bool) {
-        baseURL = "https://explorer.solana.com/address/"
         self.isTestnet = isTestnet
+        cluster = isTestnet ? "?cluster=testnet" : ""
     }
 }
 
 extension SolanaExternalLinkProvider: ExternalLinkProvider {
     var testnetFaucetURL: URL? {
-        return URL(string: "https://solfaucet.com")
+        URL(string: "https://solfaucet.com")
     }
 
     func url(transaction hash: String) -> URL? {
-        if isTestnet {
-            return URL(string: "https://explorer.solana.com/tx/\(hash)?cluster=devnet")
-        }
-
-        return URL(string: "https://explorer.solana.com/tx/\(hash)")
+        URL(string: baseUrl + "tx/" + hash + cluster)
     }
 
     func url(address: String, contractAddress: String?) -> URL? {
-        let cluster = isTestnet ? "?cluster=devnet" : ""
-        var exploreLink = baseURL + address + cluster
-
-        if contractAddress != nil {
-            exploreLink += "/tokens"
+        var urlString = baseUrl + "account/" + address + cluster
+        if let contractAddress {
+            urlString += "?&token_address=" + contractAddress + "#transfers"
         }
-
-        return URL(string: exploreLink)
-    }
-
-    func nftURL(tokenAddress: String, tokenID: String) -> URL? {
-        URL(string: baseURL + tokenAddress)
+        return URL(string: urlString)
     }
 }
