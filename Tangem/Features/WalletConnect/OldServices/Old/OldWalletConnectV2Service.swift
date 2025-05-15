@@ -101,7 +101,7 @@ final class OldWalletConnectV2Service {
         runTask(withTimeout: 20) { [weak self] in
             await self?.pairClient(with: uri, source: source)
         } onTimeout: { [weak self] in
-            self?.displayErrorUI(WalletConnectV2Error.sessionConnetionTimeout)
+            self?.displayErrorUI(WalletConnectV2Error.sessionConnectionTimeout)
             Analytics.log(.walletConnectSessionFailed)
             self?.canEstablishNewSessionSubject.send(true)
         }

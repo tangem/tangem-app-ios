@@ -210,6 +210,11 @@ extension WalletConnectViewModel {
                 )
             }
 
+        guard !walletsWithDApps.isEmpty else {
+            state.contentState = .empty(.init())
+            return
+        }
+
         state.contentState = .withConnectedDApps(walletsWithDApps)
     }
 
