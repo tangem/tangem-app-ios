@@ -16,7 +16,7 @@ import TangemNFT
 final class CommonNFTManager: NFTManager {
     private(set) var collections: [NFTCollection] = []
 
-    var collectionsPublisher: AnyPublisher<[NFTCollection], Never> {
+    var collectionsPublisher: AnyPublisher<NFTPartialResult<[NFTCollection]>, Never> {
         return collectionsPublisherInternal
             .values()
             .eraseToAnyPublisher()
@@ -84,7 +84,7 @@ final class CommonNFTManager: NFTManager {
             .share(replay: 1)
     }()
 
-    private lazy var collectionsPublisherInternal: some Publisher<Event<[NFTCollection], Error>, Never> = {
+    private lazy var collectionsPublisherInternal: some Publisher<Event<NFTPartialResult<[NFTCollection]>, Error>, Never> = {
         let aggregatedNetworkServicesPublisher = [
             updatePublisher
                 .withLatestFrom(networkServicesPublisher)
@@ -108,7 +108,7 @@ final class CommonNFTManager: NFTManager {
                     .materialize()
             }
 
-        var assetsCache: [NFTCollection.ID: [NFTAsset]] = [:]
+        var assetsCache: [NFTCollection.ID: NFTPartialResult<[NFTAsset]>] = [:]
 
         let assetsPublisher = updateAssetsPublisher
             .withLatestFrom(networkServicesPublisher) { ($0, $1) }
@@ -141,17 +141,17 @@ final class CommonNFTManager: NFTManager {
 
         let collectionsErrorsPublisher = collectionsPublisher
             .failures()
-            .mapToMaterializedFailure(outputType: [NFTCollection].self)
+            .mapToMaterializedFailure(outputType: NFTPartialResult<[NFTCollection]>.self)
 
         let assetsValuesPublisher = assetsPublisher
             .values()
-            .prepend((NFTCollection.ID.dummy, []))
+            .prepend((NFTCollection.ID.dummy, NFTPartialResult(value: [])))
             .share()
 
         let enrichedCollectionsFromCollectionsPublisher = collectionsValuesPublisher
             .withLatestFrom(assetsValuesPublisher) { collections, assetsInput in
-                let (collectionIdentifier, assets) = assetsInput
-                assetsCache[collectionIdentifier] = assets
+                let (collectionIdentifier, assetsLoadedResult) = assetsInput
+                assetsCache[collectionIdentifier] = assetsLoadedResult
 
                 return Self.enrichedCollections(collections, using: assetsCache)
             }
@@ -159,8 +159,8 @@ final class CommonNFTManager: NFTManager {
 
         let enrichedCollectionsFromAssetsPublisher = assetsValuesPublisher
             .withLatestFrom(collectionsValuesPublisher) { assetsInput, collections in
-                let (collectionIdentifier, assets) = assetsInput
-                assetsCache[collectionIdentifier] = assets
+                let (collectionIdentifier, assetsLoadedResult) = assetsInput
+                assetsCache[collectionIdentifier] = assetsLoadedResult
 
                 return Self.enrichedCollections(collections, using: assetsCache)
             }
@@ -203,28 +203,35 @@ final class CommonNFTManager: NFTManager {
         // Not pure, but we still need some state in this manager
         collectionsSubscription = collectionsPublisherInternal
             .values()
-            .receive(on: DispatchQueue.main)
+            .map(\.value)
+            .receiveOnMain()
             .assign(to: \.collections, on: self, ownership: .weak)
     }
 
     private func updateInternal(
         networkServices: [(any WalletModel, NFTNetworkService)],
         ignoreCache: Bool
-    ) async throws -> [NFTCollection] {
+    ) async throws -> NFTPartialResult<[NFTCollection]> {
         return try await updater.update(networkServices: networkServices, ignoreCache: ignoreCache)
     }
 
     private static func enrichedCollections(
-        _ collections: [NFTCollection],
-        using assetsCache: [NFTCollection.ID: [NFTAsset]]
-    ) -> [NFTCollection] {
-        return collections.map { collection in
+        _ collections: NFTPartialResult<[NFTCollection]>,
+        using assetsCache: [NFTCollection.ID: NFTPartialResult<[NFTAsset]>]
+    ) -> NFTPartialResult<[NFTCollection]> {
+        let enrichedCollections = collections.value.map { collection in
             guard let assets = assetsCache[collection.id] else {
                 return collection
             }
 
-            return collection.enriched(with: assets)
+            return collection.enriched(with: assets.value)
         }
+
+        let assetsHadErrors = assetsCache.values.contains(where: { $0.hasErrors })
+        return NFTPartialResult(
+            value: enrichedCollections,
+            hasErrors: collections.hasErrors || assetsHadErrors
+        )
     }
 }
 
@@ -232,11 +239,11 @@ final class CommonNFTManager: NFTManager {
 
 private extension CommonNFTManager {
     actor Updater {
-        typealias Task = _Concurrency.Task<[NFTCollection], Error>
+        typealias Task = _Concurrency.Task<NFTPartialResult<[NFTCollection]>, Error>
 
         enum UpdateTask {
             case inProgress(Task)
-            case loaded([NFTCollection])
+            case loaded(NFTPartialResult<[NFTCollection]>)
         }
 
         private var updateTasks: [WalletModelId: UpdateTask] = [:]
@@ -244,8 +251,8 @@ private extension CommonNFTManager {
         nonisolated func update(
             networkServices: [(any WalletModel, NFTNetworkService)],
             ignoreCache: Bool
-        ) async throws -> [NFTCollection] {
-            return try await withThrowingTaskGroup(of: [NFTCollection].self) { group in
+        ) async throws -> NFTPartialResult<[NFTCollection]> {
+            return try await withThrowingTaskGroup(of: NFTPartialResult<[NFTCollection]>.self) { group in
                 for (walletModel, networkService) in networkServices {
                     for address in walletModel.addresses {
                         group.addTask {
@@ -260,12 +267,18 @@ private extension CommonNFTManager {
                 }
 
                 // Can't use `group.reduce` here due to https://forums.swift.org/t/60271
-                var collections: [NFTCollection] = []
-                for try await nftCollection in group {
-                    collections += nftCollection
+                var mergedCollections: [NFTCollection] = []
+                var mergedHadErrors = false
+
+                for try await result in group {
+                    mergedCollections += result.value
+                    mergedHadErrors = mergedHadErrors || result.hasErrors
                 }
 
-                return collections
+                return NFTPartialResult(
+                    value: mergedCollections,
+                    hasErrors: mergedHadErrors
+                )
             }
         }
 
@@ -274,9 +287,9 @@ private extension CommonNFTManager {
             networkService: NFTNetworkService,
             address: String,
             ignoreCache: Bool
-        ) async throws -> [NFTCollection] {
-            if !ignoreCache, case .loaded(let collections) = updateTasks[walletModelId] {
-                return collections
+        ) async throws -> NFTPartialResult<[NFTCollection]> {
+            if !ignoreCache, case .loaded(let loadedResult) = updateTasks[walletModelId] {
+                return loadedResult
             }
 
             if case .inProgress(let task) = updateTasks[walletModelId] {
