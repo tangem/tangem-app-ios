@@ -22,8 +22,7 @@ struct MoralisSolanaNetworkMapper {
 
         let domainAssets = mapAssets(collectionId: nil)
 
-        // In Solana collection's id is its name
-        guard let collection, let collectionId = collection.name else {
+        guard let collection, let collectionId = collection.collectionAddress else {
             return NFTDummyCollectionMapper.map(
                 chain: .solana,
                 assets: domainAssets,
