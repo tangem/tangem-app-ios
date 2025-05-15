@@ -11,13 +11,14 @@ import Combine
 final class NFTManagerMock: NFTManager {
     var collections: [NFTCollection] = []
 
-    var collectionsPublisher: AnyPublisher<[NFTCollection], Never> {
+    var collectionsPublisher: AnyPublisher<NFTPartialResult<[NFTCollection]>, Never> {
         collections = switch state {
         case .failedToLoad, .loading: []
-        case .loaded(let collections): collections
+        case .loaded(let collections): collections.value
         }
 
-        return Just(collections).eraseToAnyPublisher()
+        return Just(NFTPartialResult(value: collections))
+            .eraseToAnyPublisher()
     }
 
     private var state: NFTManagerState
