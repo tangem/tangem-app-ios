@@ -10,7 +10,7 @@ import Foundation
 import Moya
 
 protocol CustomerInfoManagementService {
-    func loadCustomerInfo(productInstanceId: String) async throws -> CustomerInfoManagementPaymentAccountResponse
+    func loadCustomerInfo(cardId: String) async throws -> VisaCustomerInfoResponse
 }
 
 class CommonCustomerInfoManagementService {
@@ -42,9 +42,9 @@ class CommonCustomerInfoManagementService {
 }
 
 extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
-    func loadCustomerInfo(productInstanceId: String) async throws -> CustomerInfoManagementPaymentAccountResponse {
+    func loadCustomerInfo(cardId: String) async throws -> VisaCustomerInfoResponse {
         return try await apiService.request(
-            makeRequest(for: .getCustomerInfo(productInstanceId: productInstanceId))
+            makeRequest(for: .getCustomerInfo(cardId: cardId))
         )
     }
 }

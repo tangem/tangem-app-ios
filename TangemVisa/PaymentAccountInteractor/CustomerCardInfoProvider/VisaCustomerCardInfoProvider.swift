@@ -54,39 +54,18 @@ extension CommonCustomerCardInfoProvider: VisaCustomerCardInfoProvider {
         )
     }
 
-    private func getProductInstanceId() async throws -> String {
-        guard let authorizationTokensHandler else {
-            throw VisaPaymentAccountAddressProviderError.bffIsNotAvailable
-        }
-
-        if await !authorizationTokensHandler.containsAccessToken {
-            try await authorizationTokensHandler.forceRefreshToken()
-        }
-
-        guard let accessToken = await authorizationTokensHandler.accessToken else {
-            throw VisaAuthorizationTokensHandlerError.missingAccessToken
-        }
-
-        guard let productInstanceId = JWTTokenHelper().getProductInstanceID(from: accessToken) else {
-            throw VisaAuthorizationTokensHandlerError.missingMandatoryInfoInAccessToken
-        }
-
-        return productInstanceId
-    }
-
     private func loadPaymentAccountFromCIM(cardId: String, cardWalletAddress: String) async throws -> VisaCustomerCardInfo {
         guard let customerInfoManagementService else {
             throw VisaPaymentAccountAddressProviderError.bffIsNotAvailable
         }
 
-        let productInstanceId = try await getProductInstanceId()
-        let paymentAccountInfo = try await customerInfoManagementService.loadCustomerInfo(productInstanceId: productInstanceId)
+        let customerInfo = try await customerInfoManagementService.loadCustomerInfo(cardId: cardId)
 
         return VisaCustomerCardInfo(
-            paymentAccount: paymentAccountInfo.address,
+            paymentAccount: customerInfo.paymentAccount.address,
             cardId: cardId,
             cardWalletAddress: cardWalletAddress,
-            customerInfo: nil
+            customerInfo: customerInfo
         )
     }
 
