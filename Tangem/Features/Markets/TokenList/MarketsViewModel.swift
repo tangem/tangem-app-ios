@@ -23,6 +23,7 @@ final class MarketsViewModel: MarketsBaseViewModel {
     @Published private(set) var headerViewModel: MainBottomSheetHeaderViewModel
     @Published private(set) var marketsRatingHeaderViewModel: MarketsRatingHeaderViewModel
     @Published private(set) var tokenListLoadingState: MarketsView.ListLoadingState = .idle
+    @Published private(set) var stakingNotificationState: MarketsStakingNotificationState = .hidden
 
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
     @Injected(\.viewHierarchySnapshotter) private var viewHierarchySnapshotter: ViewHierarchySnapshotting
@@ -55,6 +56,7 @@ final class MarketsViewModel: MarketsBaseViewModel {
     private let chartsHistoryProvider = MarketsListChartsHistoryProvider()
     private let quotesUpdatesScheduler = MarketsQuotesUpdatesScheduler()
     private let imageCache = KingfisherManager.shared.cache
+    private let marketsNotificationsManager: MarketsNotificationsManager
 
     private lazy var listDataController: MarketsListDataController = .init(dataFetcher: self, cellsStateUpdater: self)
 
@@ -78,6 +80,8 @@ final class MarketsViewModel: MarketsBaseViewModel {
         self.quotesRepositoryUpdateHelper = quotesRepositoryUpdateHelper
         self.coordinator = coordinator
 
+        marketsNotificationsManager = MarketsNotificationsManager(dataProvider: dataProvider)
+
         marketCapFormatter = .init(
             divisorsList: AmountNotationSuffixFormatter.Divisor.defaultList,
             baseCurrencyCode: AppSettings.shared.selectedCurrencyCode,
@@ -95,6 +99,7 @@ final class MarketsViewModel: MarketsBaseViewModel {
 
         searchTextBind(publisher: headerViewModel.enteredSearchInputPublisher)
         searchFilterBind(filterPublisher: filterProvider.filterPublisher)
+        stakingNotificationBind(filterProvider.filterPublisher)
 
         bindToCurrencyCodeUpdate()
         dataProviderBind()
@@ -157,6 +162,16 @@ final class MarketsViewModel: MarketsBaseViewModel {
         tokenListLoadingState = .loading
         resetShowItemsBelowCapFlag()
         fetch(with: currentSearchValue, by: filterProvider.currentFilterValue)
+    }
+
+    func openStakingFiter() {
+        Analytics.log(.marketsStakingMoreInfo)
+        filterProvider.didSelectMarketOrder(.staking)
+    }
+
+    func closeStakingNotification() {
+        Analytics.log(.marketsStakingPromoClosed)
+        AppSettings.shared.startWalletUsageDate = .distantFuture
     }
 }
 
@@ -254,6 +269,17 @@ private extension MarketsViewModel {
             .sink { items in
                 let (viewModel, (hotAreaRange, interval)) = items
                 viewModel.requestMiniCharts(forRange: hotAreaRange, interval: interval)
+            }
+            .store(in: &bag)
+    }
+
+    private func stakingNotificationBind(_ filterPublisher: some Publisher<MarketsListDataProvider.Filter, Never>) {
+        marketsNotificationsManager.stakingNotificationState(from: filterPublisher)
+            .sink { [weak self] state in
+                if case .visible = state {
+                    Analytics.log(.marketsNoticeStakingPromo)
+                }
+                self?.stakingNotificationState = state
             }
             .store(in: &bag)
     }
