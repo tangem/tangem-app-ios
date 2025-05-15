@@ -10,11 +10,14 @@ import Foundation
 import Combine
 import CombineExt
 import TangemAssets
+import TangemLocalization
+import TangemFoundation
 
 public final class NFTCollectionsListViewModel: ObservableObject {
     @Published private(set) var state: ViewState
     @Published var searchEntry: String = ""
     @Published private(set) var rowExpanded = false
+    @Published private(set) var loadingTroublesViewData: NFTNotificationViewData?
 
     // MARK: Dependencies
 
@@ -50,13 +53,23 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         nftManager
             .collectionsPublisher
             .withWeakCaptureOf(self)
-            .map { viewModel, collections in
-                let collectionsViewModels = viewModel.buildCollections(from: collections)
+            .map { viewModel, collectionsResponse in
+                let collectionsViewModels = viewModel.buildCollections(from: collectionsResponse.value)
                 viewModel.collectionsViewModels = collectionsViewModels
-                return collectionsViewModels.isEmpty ? .noCollections : .collectionsAvailable(collectionsViewModels)
+                let state = collectionsViewModels.isEmpty ? ViewState.noCollections : .collectionsAvailable(collectionsViewModels)
+
+                let loadingTroublesViewData = collectionsResponse.hasErrors ?
+                    viewModel.makeNotificationViewData()
+                    : nil
+
+                return (state: state, loadingTroublesViewData: loadingTroublesViewData)
             }
             .receiveOnMain()
-            .assign(to: \.state, on: self, ownership: .weak)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, result in
+                viewModel.state = result.state
+                viewModel.loadingTroublesViewData = result.loadingTroublesViewData
+            }
             .store(in: &bag)
 
         $searchEntry
@@ -69,7 +82,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     }
 
     private func buildCollections(from collections: [NFTCollection]) -> [NFTCompactCollectionViewModel] {
-        return collections.map { collection in
+        collections.map { collection in
             NFTCompactCollectionViewModel(
                 nftCollection: collection,
                 assetsState: collection.assets.isEmpty ? .loading : .loaded(()),
@@ -115,6 +128,14 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         if isExpanded {
             nftManager.updateAssets(inCollectionWithIdentifier: collection.id)
         }
+    }
+
+    private func makeNotificationViewData() -> NFTNotificationViewData {
+        NFTNotificationViewData(
+            title: Localization.nftCollectionsWarningTitle,
+            subtitle: Localization.nftCollectionsWarningSubtitle,
+            icon: Assets.warningIcon
+        )
     }
 }
 
