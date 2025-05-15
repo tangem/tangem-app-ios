@@ -44,7 +44,7 @@ final class WCServiceV2 {
     private let canEstablishNewSessionSubject: CurrentValueSubject<Bool, Never> = .init(true)
     private let dappInfoLoadingSubject: CurrentValueSubject<Bool, Never> = .init(false)
     private let proposalSubject: CurrentValueSubject<Session.Proposal?, Never> = .init(nil)
-    private let selectedWalletIdSubject: PassthroughSubject<String, Never> = .init()
+    private let selectedWalletIdSubject: CurrentValueSubject<String?, Never> = .init(nil)
     private let selectedNetworksToConnectSubject: PassthroughSubject<[BlockchainNetwork], Never> = .init()
     private let connectionRequestSubject: CurrentValueSubject<WCConnectionRequestModel?, Never> = .init(nil)
     private var bag = Set<AnyCancellable>()
@@ -95,6 +95,8 @@ final class WCServiceV2 {
 
 extension WCServiceV2 {
     func updateConnectionData(userWalletId: String) {
+        guard userWalletId != selectedWalletId else { return }
+
         selectedWalletIdSubject.send(userWalletId)
     }
 
@@ -191,8 +193,7 @@ private extension WCServiceV2 {
                 wcService.validateProposal(
                     currentConnectionProposal,
                     with: wcModelProvider,
-                    selectedNetworks: selectedNetworks,
-                    isUpdating: true
+                    selectedNetworks: selectedNetworks
                 )
             }
             .store(in: &bag)
@@ -211,7 +212,7 @@ private extension WCServiceV2 {
                     return
                 }
                 wcService.selectedWalletId = updatedId
-                wcService.validateProposal(currentConnectionProposal, with: wcModelProvider, isUpdating: true)
+                wcService.validateProposal(currentConnectionProposal, with: wcModelProvider)
             }
             .store(in: &bag)
     }
@@ -223,8 +224,7 @@ private extension WCServiceV2 {
     func validateProposal(
         _ proposal: Session.Proposal,
         with wcModelProvider: some WalletConnectWalletModelProvider,
-        selectedNetworks: [BlockchainNetwork] = [],
-        isUpdating: Bool = false
+        selectedNetworks: [BlockchainNetwork] = []
     ) {
         WCLogger.info(LoggerStrings.attemptingToApproveSession(proposal))
 
@@ -263,7 +263,6 @@ private extension WCServiceV2 {
                 )
             )
 
-            //            floatingMessageService.send(newSessionsModel)
             //            log request
         } catch let error as WalletConnectV2Error {
             //            floatingMessageService.send(error)

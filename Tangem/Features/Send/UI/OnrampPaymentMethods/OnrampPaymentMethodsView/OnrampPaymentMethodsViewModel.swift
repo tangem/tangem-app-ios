@@ -10,6 +10,7 @@ import Combine
 import SwiftUI
 import TangemExpress
 import TangemFoundation
+import struct TangemUIUtils.AlertBinder
 
 final class OnrampPaymentMethodsViewModel: ObservableObject {
     // MARK: - ViewState

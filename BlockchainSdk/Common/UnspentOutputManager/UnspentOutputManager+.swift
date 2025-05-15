@@ -7,10 +7,11 @@
 //
 
 extension UnspentOutputManager where Self == CommonUnspentOutputManager {
-    static func bitcoin(address: any Address, isTestnet: Bool) -> Self {
+    static func bitcoin(address: any Address, sorter: UTXOTransactionInputsSorter = BIP69UTXOTransactionInputsSorter(), isTestnet: Bool) -> Self {
         CommonUnspentOutputManager(
             address: address,
             preImageTransactionBuilder: .bitcoin(isTestnet: isTestnet),
+            sorter: sorter,
             lockingScriptBuilder: .bitcoin(isTestnet: isTestnet)
         )
     }
@@ -19,6 +20,7 @@ extension UnspentOutputManager where Self == CommonUnspentOutputManager {
         CommonUnspentOutputManager(
             address: address,
             preImageTransactionBuilder: .litecoin(),
+            sorter: BIP69UTXOTransactionInputsSorter(),
             lockingScriptBuilder: .litecoin()
         )
     }
@@ -27,6 +29,7 @@ extension UnspentOutputManager where Self == CommonUnspentOutputManager {
         CommonUnspentOutputManager(
             address: address,
             preImageTransactionBuilder: .bitcoinCash(isTestnet: isTestnet),
+            sorter: BIP69UTXOTransactionInputsSorter(),
             lockingScriptBuilder: .bitcoinCash(isTestnet: isTestnet)
         )
     }
@@ -35,6 +38,7 @@ extension UnspentOutputManager where Self == CommonUnspentOutputManager {
         CommonUnspentOutputManager(
             address: address,
             preImageTransactionBuilder: .dogecoin(),
+            sorter: BIP69UTXOTransactionInputsSorter(),
             lockingScriptBuilder: .dogecoin()
         )
     }
@@ -43,6 +47,7 @@ extension UnspentOutputManager where Self == CommonUnspentOutputManager {
         CommonUnspentOutputManager(
             address: address,
             preImageTransactionBuilder: .dash(isTestnet: isTestnet),
+            sorter: BIP69UTXOTransactionInputsSorter(),
             lockingScriptBuilder: .dash(isTestnet: isTestnet)
         )
     }
@@ -51,6 +56,7 @@ extension UnspentOutputManager where Self == CommonUnspentOutputManager {
         CommonUnspentOutputManager(
             address: address,
             preImageTransactionBuilder: .ravencoin(isTestnet: isTestnet),
+            sorter: BIP69UTXOTransactionInputsSorter(),
             lockingScriptBuilder: .ravencoin(isTestnet: isTestnet)
         )
     }
@@ -59,6 +65,7 @@ extension UnspentOutputManager where Self == CommonUnspentOutputManager {
         CommonUnspentOutputManager(
             address: address,
             preImageTransactionBuilder: .ducatus(),
+            sorter: BIP69UTXOTransactionInputsSorter(),
             lockingScriptBuilder: .ducatus()
         )
     }
@@ -67,6 +74,7 @@ extension UnspentOutputManager where Self == CommonUnspentOutputManager {
         CommonUnspentOutputManager(
             address: address,
             preImageTransactionBuilder: .clore(),
+            sorter: BIP69UTXOTransactionInputsSorter(),
             lockingScriptBuilder: .clore()
         )
     }
@@ -75,6 +83,7 @@ extension UnspentOutputManager where Self == CommonUnspentOutputManager {
         CommonUnspentOutputManager(
             address: address,
             preImageTransactionBuilder: .radiant(),
+            sorter: BIP69UTXOTransactionInputsSorter(),
             lockingScriptBuilder: .radiant()
         )
     }
@@ -83,6 +92,7 @@ extension UnspentOutputManager where Self == CommonUnspentOutputManager {
         KaspaUnspentOutputManager(
             address: address,
             preImageTransactionBuilder: .kaspa(),
+            sorter: BIP69UTXOTransactionInputsSorter(),
             lockingScriptBuilder: .kaspa()
         )
     }
@@ -91,6 +101,7 @@ extension UnspentOutputManager where Self == CommonUnspentOutputManager {
         CommonUnspentOutputManager(
             address: address,
             preImageTransactionBuilder: .fact0rn(),
+            sorter: BIP69UTXOTransactionInputsSorter(),
             lockingScriptBuilder: .fact0rn()
         )
     }
@@ -99,6 +110,7 @@ extension UnspentOutputManager where Self == CommonUnspentOutputManager {
         CommonUnspentOutputManager(
             address: address,
             preImageTransactionBuilder: .pepecoin(isTestnet: isTestnet),
+            sorter: BIP69UTXOTransactionInputsSorter(),
             lockingScriptBuilder: .pepecoin(isTestnet: isTestnet)
         )
     }

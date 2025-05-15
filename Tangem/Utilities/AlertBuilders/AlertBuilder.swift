@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemLocalization
+import struct TangemUIUtils.AlertBinder
 
 enum AlertBuilder {
     static var successTitle: String {

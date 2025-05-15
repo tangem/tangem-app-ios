@@ -63,7 +63,6 @@ extension WCUtils {
                 selectedWalletModelProvider: selectedWalletModelProvider
             )
         }
-
         try checkMissingBlockchains(builder.missingBlockchains)
 
         try checkUnsupportedEVMBlockchains(builder.unsupportedEVMBlockchains)

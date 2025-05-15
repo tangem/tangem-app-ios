@@ -12,8 +12,17 @@ import BlockchainSdk
 import TangemAssets
 import TangemVisa
 import TangemFoundation
+import TangemNFT
+import struct TangemUIUtils.AlertBinder
 
-class VisaUserWalletModel {
+/// Model responsible for interacting with payment account and BFF
+/// Main setup logic is in `setupPaymentAccountInteractorAsync` . It setups payment account interactor which is responsible with blockchain requests
+/// It can't be setup on initialization, because we need to get authorization tokens to be able to request address from BFF
+/// After receiving tokens we can request customer information and get payment account address and start loading balances and limits info
+/// At first iteration we didn't store payment account information in the app, this might change later.
+/// Transaction history also requested from BFF, so it can be loaded while authorization tokens didn't retrieved
+/// If refresh token for this Visa card is staled we need to request a new one through signing authorization request using card wallet.
+final class VisaUserWalletModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
     @Injected(\.keysManager) private var keysManager: KeysManager
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
@@ -228,6 +237,7 @@ class VisaUserWalletModel {
 
         do {
             let customerCardInfoProviderBuilder = VisaCustomerCardInfoProviderBuilder(
+                apiType: await FeatureStorage.instance.visaAPIType,
                 isMockedAPIEnabled: await FeatureStorage.instance.isVisaAPIMocksEnabled,
                 isTestnet: blockchain.isTestnet,
                 cardId: cardId
@@ -323,7 +333,7 @@ extension VisaUserWalletModel {
 
         let authorizationTokens: VisaAuthorizationTokens
         if let savedRefreshToken = visaRefreshTokenRepository.getToken(forCardId: cardId), savedRefreshToken != cardInfoAuthorizationTokens.refreshToken {
-            authorizationTokens = .init(accessToken: nil, refreshToken: savedRefreshToken)
+            authorizationTokens = .init(accessToken: nil, refreshToken: savedRefreshToken, authorizationType: .cardWallet)
         } else {
             authorizationTokens = cardInfoAuthorizationTokens
         }
@@ -332,7 +342,10 @@ extension VisaUserWalletModel {
     }
 
     private func setupTokensHandler(with tokens: VisaAuthorizationTokens) async throws {
-        let authorizationTokensHandlerBuilder = await VisaAuthorizationTokensHandlerBuilder(isMockedAPIEnabled: FeatureStorage.instance.isVisaAPIMocksEnabled)
+        let authorizationTokensHandlerBuilder = await VisaAuthorizationTokensHandlerBuilder(
+            apiType: FeatureStorage.instance.visaAPIType,
+            isMockedAPIEnabled: FeatureStorage.instance.isVisaAPIMocksEnabled
+        )
         let authorizationTokensHandler = authorizationTokensHandlerBuilder.build(
             cardId: cardId,
             cardActivationStatus: .activated(authTokens: tokens),
@@ -354,7 +367,15 @@ extension VisaUserWalletModel {
 
     func authorizeCard(completion: @escaping () -> Void) {
         let tangemSdk = TangemSdkDefaultFactory().makeTangemSdk()
-        let handler = VisaCardScanHandler()
+        let featureStorage = FeatureStorage.instance
+        let handler = VisaCardScanHandlerBuilder(
+            apiType: featureStorage.visaAPIType,
+            isMockedAPIEnabled: featureStorage.isVisaAPIMocksEnabled
+        ).build(
+            isTestnet: featureStorage.isVisaTestnet,
+            urlSessionConfiguration: .defaultConfiguration,
+            refreshTokenRepository: visaRefreshTokenRepository
+        )
 
         tangemSdk.startSession(with: handler, cardId: cardId) { [weak self] result in
             guard let self else { return }
@@ -388,11 +409,16 @@ extension VisaUserWalletModel {
     }
 
     private func setupTransactionHistoryService(with authorizationTokensHandler: VisaAuthorizationTokensHandler) {
-        let apiService = VisaAPIServiceBuilder().buildTransactionHistoryService(
+        let apiService = VisaAPIServiceBuilder(
+            apiType: FeatureStorage.instance.visaAPIType,
+            isMockedAPIEnabled: FeatureStorage.instance.isVisaAPIMocksEnabled
+        )
+        .buildTransactionHistoryService(
             authorizationTokensHandler: authorizationTokensHandler,
             isTestnet: FeatureStorage.instance.isVisaTestnet,
             urlSessionConfiguration: .defaultConfiguration
         )
+
         transactionHistoryService.setupApiService(apiService)
     }
 }
@@ -409,7 +435,7 @@ extension VisaUserWalletModel: VisaWalletMainHeaderSubtitleDataSource {
     }
 
     var blockchainName: String {
-        "Polygon PoS"
+        VisaUtilities().visaBlockchain.displayName
     }
 
     private var fiatValue: Decimal? {

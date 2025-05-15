@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUIUtils
 
 struct ActionButtonView<ViewModel: ActionButtonViewModel>: View {
     @ObservedObject var viewModel: ViewModel

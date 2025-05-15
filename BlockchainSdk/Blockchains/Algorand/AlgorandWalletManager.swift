@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemLocalization
 
 final class AlgorandWalletManager: BaseManager {
     // MARK: - Private Properties
@@ -145,7 +146,7 @@ extension AlgorandWalletManager {
                 let dataForSend = try walletManager.transactionBuilder.buildForSend(
                     transaction: transaction,
                     with: buildParams,
-                    signature: signature
+                    signature: signature.signature
                 )
 
                 return dataForSend

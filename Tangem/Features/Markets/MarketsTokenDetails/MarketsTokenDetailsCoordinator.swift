@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import struct TangemUIUtils.AlertBinder
 
 class MarketsTokenDetailsCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
@@ -110,20 +111,7 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
 
 extension MarketsTokenDetailsCoordinator {
     func openReceive(walletModel: any WalletModel) {
-        let infos = walletModel.addresses.map { address in
-            ReceiveAddressInfo(
-                address: address.value,
-                type: address.type,
-                localizedName: address.localizedName,
-                addressQRImage: QrCodeGenerator.generateQRCode(from: address.value)
-            )
-        }
-
-        receiveBottomSheetViewModel = .init(
-            tokenItem: walletModel.tokenItem,
-            addressInfos: infos,
-            hasMemo: walletModel.tokenItem.blockchain.hasMemo
-        )
+        receiveBottomSheetViewModel = ReceiveBottomSheetUtils(flow: .crypto).makeViewModel(for: walletModel)
     }
 
     func openBuyCryptoIfPossible(for walletModel: any WalletModel, with userWalletModel: UserWalletModel) {

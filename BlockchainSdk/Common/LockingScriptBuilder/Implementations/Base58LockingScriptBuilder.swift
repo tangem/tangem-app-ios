@@ -37,22 +37,26 @@ struct Base58LockingScriptBuilder {
         switch version {
         case p2pkhPrefix:
             let lockingScript = OpCodeUtils.p2pkh(data: keyHash)
-            return (version: version, script: .init(keyHash: keyHash, data: lockingScript, type: .p2pkh))
+            return (version: version, script: .init(data: lockingScript, type: .p2pkh, spendable: .none))
         case p2shPrefix:
             let lockingScript = OpCodeUtils.p2sh(data: keyHash)
-            // We don't have redeemScript from address. Only from PublicKey
-            return (version: version, script: .init(keyHash: keyHash, data: lockingScript, type: .p2sh(redeemScript: nil)))
+            return (version: version, script: .init(data: lockingScript, type: .p2sh, spendable: .none))
         default:
             throw LockingScriptBuilderError.unsupportedVersion
         }
     }
 
-    func encode(publicKey: Data, type: UTXOScriptType) throws -> (address: String, script: UTXOLockingScript) {
-        let keyHash = publicKey.sha256Ripemd160
-        return try encode(keyHash: keyHash, type: type)
+    func encode(redeemScript: Data, type: UTXOScriptType) throws -> (address: String, script: UTXOLockingScript) {
+        let scriptHash = redeemScript.sha256Ripemd160
+        return try encode(keyHash: scriptHash, type: type, spendable: .redeemScript(redeemScript))
     }
 
-    func encode(keyHash: Data, type: UTXOScriptType) throws -> (address: String, script: UTXOLockingScript) {
+    func encode(publicKey: Data, type: UTXOScriptType) throws -> (address: String, script: UTXOLockingScript) {
+        let keyHash = publicKey.sha256Ripemd160
+        return try encode(keyHash: keyHash, type: type, spendable: .publicKey(publicKey))
+    }
+
+    private func encode(keyHash: Data, type: UTXOScriptType, spendable: UTXOLockingScript.SpendableType) throws -> (address: String, script: UTXOLockingScript) {
         let script: UTXOLockingScript
         var bytes = Data()
 
@@ -61,12 +65,12 @@ struct Base58LockingScriptBuilder {
             bytes.append(p2pkhPrefix)
             bytes.append(keyHash)
 
-            script = .init(keyHash: keyHash, data: OpCodeUtils.p2pkh(data: keyHash), type: type)
+            script = .init(data: OpCodeUtils.p2pkh(data: keyHash), type: type, spendable: spendable)
         case .p2sh:
             bytes.append(p2shPrefix)
             bytes.append(keyHash)
 
-            script = .init(keyHash: keyHash, data: OpCodeUtils.p2sh(data: keyHash), type: type)
+            script = .init(data: OpCodeUtils.p2sh(data: keyHash), type: type, spendable: spendable)
         default:
             throw LockingScriptBuilderError.unsupportedScriptType
         }

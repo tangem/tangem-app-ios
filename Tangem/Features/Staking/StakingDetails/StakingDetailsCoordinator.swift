@@ -109,7 +109,13 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
             source: .stakingDetails
         ))
         sendCoordinator = coordinator
-        Analytics.log(.stakingButtonStake, params: [.source: .stakeSourceStakeInfo])
+        Analytics.log(
+            event: .stakingButtonStake,
+            params: [
+                .source: Analytics.ParameterValue.stakeSourceStakeInfo.rawValue,
+                .token: options.walletModel.tokenItem.currencySymbol,
+            ]
+        )
     }
 
     func openMultipleRewards() {
@@ -157,7 +163,8 @@ extension StakingDetailsCoordinator: StakingDetailsRoutable {
     }
 
     func openWhatIsStaking() {
-        Analytics.log(.stakingLinkWhatIsStaking)
+        let tokenSymbol = options?.walletModel.tokenItem.currencySymbol ?? ""
+        Analytics.log(event: .stakingLinkWhatIsStaking, params: [.token: tokenSymbol])
         safariManager.openURL(TangemBlogUrlBuilder().url(post: .whatIsStaking))
     }
 }

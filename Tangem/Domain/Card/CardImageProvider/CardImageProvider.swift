@@ -13,6 +13,7 @@ import TangemSdk
 import Kingfisher
 import TangemFoundation
 import TangemAssets
+import TangemNetworkUtils
 
 struct CardImageProvider {
     private static let cardArtworkCache: ThreadSafeContainer<[String: CardArtwork]> = [:]
@@ -22,7 +23,7 @@ struct CardImageProvider {
     private let supportsOnlineImage: Bool
     private let defaultImage = Assets.Onboarding.darkCard.uiImage
 
-    private let cardVerifier: OnlineAttestationService
+    private let cardInfoProvider: CardInfoProvider
     private let kingfisherCache = KingfisherManager.shared.cache
 
     init(supportsOnlineImage: Bool = true) {
@@ -31,9 +32,9 @@ struct CardImageProvider {
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = 20
         configuration.timeoutIntervalForResource = 30
-        let session = URLSession(configuration: configuration)
+        let session = TangemURLSessionBuilder.makeSession(configuration: configuration)
         let networkService = NetworkService(session: session)
-        cardVerifier = OnlineAttestationService(networkService: networkService)
+        cardInfoProvider = CardInfoProvider(networkService: networkService)
     }
 
     func cardArtwork(for cardId: String) -> CardArtwork? {
@@ -114,7 +115,7 @@ private extension CardImageProvider {
     }
 
     func loadArtworkInfo(cardId: String, cardPublicKey: Data) -> AnyPublisher<CardArtwork, Never> {
-        cardVerifier.getAttestationDataLegacy(cardId: cardId, cardPublicKey: cardPublicKey)
+        cardInfoProvider.getCardInfo(cardId: cardId, cardPublicKey: cardPublicKey)
             .map { info in
                 if let artwork = info.artwork {
                     return CardArtwork.artwork(artwork)

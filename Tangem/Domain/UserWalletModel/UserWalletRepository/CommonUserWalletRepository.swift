@@ -12,10 +12,11 @@ import Combine
 import CryptoKit
 import LocalAuthentication
 import TangemSdk
+import TangemVisa
 
 class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-    @Injected(\.walletConnectService) private var walletConnectService: WCService
+    @Injected(\.walletConnectService) private var walletConnectService: OldWalletConnectService
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
     @Injected(\.analyticsContext) var analyticsContext: AnalyticsContext
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor

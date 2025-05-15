@@ -12,6 +12,7 @@ import CombineExt
 import BlockchainSdk
 import TangemVisa
 import SwiftUI
+import TangemNFT
 
 class MainCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
@@ -34,6 +35,7 @@ class MainCoordinator: CoordinatorObject {
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator?
     @Published var marketsTokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
     @Published var stakingDetailsCoordinator: StakingDetailsCoordinator?
+    @Published var nftCollectionsCoordinator: NFTCollectionsCoordinator?
 
     // MARK: - Child coordinators (Other)
 
@@ -232,9 +234,9 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 extension MainCoordinator: SingleTokenBaseRoutable {
     func openReceiveScreen(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo]) {
         receiveBottomSheetViewModel = .init(
+            flow: .crypto,
             tokenItem: tokenItem,
-            addressInfos: addressInfos,
-            hasMemo: tokenItem.blockchain.hasMemo
+            addressInfos: addressInfos
         )
     }
 
@@ -569,5 +571,24 @@ extension MainCoordinator {
     enum Constants {
         static let tooltipAnimationDuration: Double = 0.3
         static let tooltipAnimationDelay: Double = 1.5
+    }
+}
+
+// MARK: - NFTEntrypointRoutable
+
+extension MainCoordinator: NFTEntrypointRoutable {
+    func openCollections(_ nftManager: NFTManager) {
+        mainBottomSheetUIManager.hide()
+        let coordinator = NFTCollectionsCoordinator(
+            dismissAction: { [weak self] in
+                self?.nftCollectionsCoordinator = nil
+            },
+            popToRootAction: { [weak self] options in
+                self?.nftCollectionsCoordinator = nil
+                self?.popToRoot(with: options)
+            }
+        )
+        nftCollectionsCoordinator = coordinator
+        coordinator.start(with: .init(nftManager: nftManager, chainIconProvider: NetworkImageProvider()))
     }
 }

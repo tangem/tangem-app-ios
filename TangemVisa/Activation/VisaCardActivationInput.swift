@@ -76,12 +76,22 @@ public struct VisaCardActivationStatus: Codable {
 }
 
 public enum VisaCardActivationRemoteState: String, Codable, Equatable {
+    /// 1 step. It means that backend didn't receive
+    /// acceptance from Visa card for payment account deployment.
     case cardWalletSignatureRequired
+    /// 2 step. Backend already have
+    /// acceptance from Visa card and now awaits to customer wallet
+    /// to sign acceptance message. This will validate that user have both wallets
     case customerWalletSignatureRequired
+    /// 3 step. Payment account deployment is in process no need to do anything in activation process
     case paymentAccountDeploying
+    /// 4 step. Payment account already deployed now user must select PIN code that will be used during
+    /// payments using card in fiat terminals
     case waitingPinCode
+    /// 5 step. Issuer accepted PIN code and processing request. This is the last step of activation process
     case waitingForActivationFinishing
     case activated
+    /// This can happen due to some regulation issues or might be because of card loss. Anyway user need to contact support
     case blockedForActivation
 }
 
@@ -93,6 +103,8 @@ public struct VisaCardActivationOrder: Codable {
     public let stepChangeCode: Int?
 }
 
+/// Step change code specifiend on backend, will be extended later
 enum CardActivationOrderStepChangeCode: Int {
+    /// External service returned error during PIN validation. Need to request new PIN from user
     case pinValidation = 1000
 }

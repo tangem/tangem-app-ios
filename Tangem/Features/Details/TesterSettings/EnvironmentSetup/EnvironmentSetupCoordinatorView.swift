@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 struct EnvironmentSetupCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: EnvironmentSetupCoordinator

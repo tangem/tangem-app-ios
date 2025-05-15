@@ -10,7 +10,7 @@ import Combine
 
 class CloreBlockBookUTXOProvider: BlockBookUTXOProvider {
     override func getFeeRatePerByte(for confirmationBlocks: Int) -> AnyPublisher<Decimal, any Error> {
-        executeRequest(.getFees(confirmationBlocks: confirmationBlocks), responseType: JSONRPC.Response<String, JSONRPC.APIError>.self)
+        executeRequest(.getFees(confirmationBlocks: confirmationBlocks), responseType: JSONRPC.DefaultResponse<String>.self)
             .withWeakCaptureOf(self)
             .tryMap { provider, response in
                 let result = try response.result.get()
@@ -19,8 +19,16 @@ class CloreBlockBookUTXOProvider: BlockBookUTXOProvider {
                     throw WalletError.failedToGetFee
                 }
 
-                return try provider.convertFeeRate(decimalFeeResult)
+                let recommendedDecimalFeeResult = decimalFeeResult * Constants.recommendedRateMultiplyFeeResult
+
+                return try provider.convertFeeRate(recommendedDecimalFeeResult)
             }
             .eraseToAnyPublisher()
+    }
+}
+
+extension CloreBlockBookUTXOProvider {
+    enum Constants {
+        static let recommendedRateMultiplyFeeResult: Decimal = .init(stringValue: "1.5")!
     }
 }

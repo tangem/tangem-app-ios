@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemLocalization
 
 final class NEARWalletManager: BaseManager {
     private let networkService: NEARNetworkService
@@ -252,7 +253,7 @@ extension NEARWalletManager: WalletManager {
                 let (signature, transactionParams) = input
                 let transaction = transaction.then { $0.params = transactionParams }
 
-                return try walletManager.transactionBuilder.buildForSend(transaction: transaction, signature: signature)
+                return try walletManager.transactionBuilder.buildForSend(transaction: transaction, signature: signature.signature)
             }
             .withWeakCaptureOf(self)
             .flatMap { walletManager, rawTransactionData in

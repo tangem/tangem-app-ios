@@ -189,7 +189,13 @@ private extension RestakingModel {
 private extension RestakingModel {
     private func send() async throws -> TransactionDispatcherResult {
         if let analyticsEvent = action.type.analyticsEvent {
-            Analytics.log(event: analyticsEvent, params: [.validator: action.validatorInfo?.name ?? ""])
+            Analytics.log(
+                event: analyticsEvent,
+                params: [
+                    .validator: action.validatorInfo?.name ?? "",
+                    .token: tokenItem.currencySymbol,
+                ]
+            )
         }
 
         guard let validator = _selectedValidator.value.value else {

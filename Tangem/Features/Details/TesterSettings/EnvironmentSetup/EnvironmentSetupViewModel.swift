@@ -10,6 +10,8 @@ import Combine
 import SwiftUI
 import TangemExpress
 import FirebaseMessaging
+import TangemVisa
+import struct TangemUIUtils.AlertBinder
 
 final class EnvironmentSetupViewModel: ObservableObject {
     @Injected(\.promotionService) var promotionService: PromotionServiceProtocol
@@ -112,6 +114,16 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     default: ExpressAPIType.production.rawValue,
                     get: { $0.apiExpress },
                     set: { $0.apiExpress = $1 }
+                )
+            ),
+            DefaultPickerRowViewModel(
+                title: "Visa API type",
+                options: VisaAPIType.allCases.map { $0.rawValue },
+                selection: BindingValue<String>(
+                    root: featureStorage,
+                    default: VisaAPIType.prod.rawValue,
+                    get: { $0.visaAPIType.rawValue },
+                    set: { $0.visaAPIType = VisaAPIType(rawValue: $1) ?? .prod }
                 )
             ),
         ]

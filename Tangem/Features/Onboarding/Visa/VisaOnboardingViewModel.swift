@@ -7,11 +7,12 @@
 //
 
 import SwiftUI
-import TangemLocalization
 import Combine
 import TangemSdk
 import TangemFoundation
+import TangemLocalization
 import TangemVisa
+import struct TangemUIUtils.AlertBinder
 
 protocol VisaOnboardingAlertPresenter: AnyObject {
     @MainActor
@@ -616,7 +617,7 @@ extension VisaOnboardingViewModel {
 
         return .init(
             input: cardInput,
-            visaActivationManager: VisaActivationManagerFactory(isMockedAPIEnabled: true).make(
+            visaActivationManager: VisaActivationManagerFactory(apiType: .dev, isMockedAPIEnabled: true).make(
                 cardId: cardInput.primaryCardId,
                 initialActivationStatus: activationStatus,
                 tangemSdk: TangemSdkDefaultFactory().makeTangemSdk(),

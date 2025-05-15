@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import TangemFoundation
 
 class CommonKeysManager {
     private let keys: Keys
@@ -97,6 +98,10 @@ extension CommonKeysManager: KeysManager {
     var nftScanAPIKey: String {
         keys.nftScanApiKey
     }
+
+    var blockaidAPIKey: String {
+        keys.blockaidApiKey
+    }
 }
 
 extension CommonKeysManager {
@@ -134,5 +139,6 @@ extension CommonKeysManager {
         let alephiumTangemApiKey: String
         let moralisApiKey: String
         let nftScanApiKey: String
+        let blockaidApiKey: String
     }
 }

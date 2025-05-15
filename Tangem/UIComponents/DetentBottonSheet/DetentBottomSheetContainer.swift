@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import UIKit
+import TangemUI
 
 struct DetentBottomSheetContainer<ContentView: View>: View {
     private let content: () -> ContentView

@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemSdk
+import TangemLocalization
 
 enum XRPError: Int, Error, LocalizedError {
     // WARNING: Make sure to preserve the error codes when removing or inserting errors
@@ -87,7 +88,7 @@ extension XRPWalletManager: TransactionSender {
                 }
 
                 if !isAccountCreated, transaction.amount.value < walletReserve.value {
-                    throw WalletError.noAccount(message: Localization.sendErrorNoTargetAccount(walletReserve.value), amountToCreate: walletReserve.value)
+                    throw WalletError.noAccount(message: Localization.sendErrorNoTargetAccount(walletReserve.value.stringValue), amountToCreate: walletReserve.value)
                 }
 
                 return buldResponse
@@ -176,7 +177,7 @@ extension XRPWalletManager: RequiredMemoRestrictable {
 
         let isMemoRequired = try await networkService.checkAccountDestinationTag(account: destination).async()
 
-        // Skip verify destinationTag if memo not requiured
+        // This error will work if the destination parameters are not received, and the recipient's account requires the tag after verification.
         if isMemoRequired {
             throw ValidationError.destinationMemoRequired
         }

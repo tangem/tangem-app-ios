@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftUI
+import TangemUI
 
 struct WelcomeCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: WelcomeCoordinator

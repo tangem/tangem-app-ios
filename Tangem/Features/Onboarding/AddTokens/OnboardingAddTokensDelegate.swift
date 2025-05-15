@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import struct TangemUIUtils.AlertBinder
 
 protocol OnboardingAddTokensDelegate: AnyObject {
     func goToNextStep()

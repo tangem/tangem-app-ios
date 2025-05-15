@@ -55,8 +55,8 @@ final class RadiantWalletManager: BaseManager {
 private extension RadiantWalletManager {
     func updateWallet(with response: UTXOResponse) {
         unspentOutputManager.update(outputs: response.outputs, for: wallet.defaultAddress)
-        let coinBalanceValue = Decimal(unspentOutputManager.confirmedBalance()) / wallet.blockchain.decimalValue
-        wallet.add(coinValue: coinBalanceValue)
+        let balance = unspentOutputManager.balance(blockchain: wallet.blockchain)
+        wallet.add(coinValue: balance)
 
         let pending = response.pending.map {
             PendingTransactionRecordMapper().mapToPendingTransactionRecord(
@@ -73,18 +73,17 @@ private extension RadiantWalletManager {
         _ transaction: Transaction,
         signer: TransactionSigner
     ) -> AnyPublisher<TransactionSendResult, SendTxError> {
-        return Result {
-            try transactionBuilder.buildForSign(transaction: transaction)
+        return Future.async {
+            try await self.transactionBuilder.buildForSign(transaction: transaction)
         }
-        .publisher
         .withWeakCaptureOf(self)
         .flatMap { walletManager, hashesForSign in
             signer
                 .sign(hashes: hashesForSign, walletPublicKey: walletManager.wallet.publicKey)
         }
         .withWeakCaptureOf(self)
-        .tryMap { walletManager, signatures in
-            try walletManager.transactionBuilder.buildForSend(transaction: transaction, signatures: signatures).hex()
+        .tryAsyncMap { walletManager, signatures in
+            try await walletManager.transactionBuilder.buildForSend(transaction: transaction, signatures: signatures).hexString
         }
         .withWeakCaptureOf(self)
         .flatMap { walletManager, rawTransactionHex in
@@ -133,12 +132,12 @@ extension RadiantWalletManager: WalletManager {
         return networkService
             .getFee()
             .withWeakCaptureOf(self)
-            .tryMap { walletManager, fee -> [Fee] in
-                try [fee.slowSatoshiPerByte, fee.marketSatoshiPerByte, fee.prioritySatoshiPerByte].map { estimatedFeePerKb in
+            .tryAsyncMap { walletManager, fee in
+                try await [fee.slowSatoshiPerByte, fee.marketSatoshiPerByte, fee.prioritySatoshiPerByte].asyncMap { estimatedFeePerKb in
                     let estimatedFeePerByte = estimatedFeePerKb / Constants.perKbRate
                     let decimalValue = walletManager.wallet.blockchain.decimalValue
                     let perByte = estimatedFeePerByte * decimalValue
-                    let fee = try walletManager.transactionBuilder.estimateFee(amount: amount, destination: destination, feeRate: perByte.intValue())
+                    let fee = try await walletManager.transactionBuilder.estimateFee(amount: amount, destination: destination, feeRate: perByte.intValue())
                     let value = Decimal(fee) / decimalValue
                     return Fee(.init(with: walletManager.wallet.blockchain, value: value))
                 }

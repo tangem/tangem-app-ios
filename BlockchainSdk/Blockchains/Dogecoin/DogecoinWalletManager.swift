@@ -38,8 +38,9 @@ class DogecoinWalletManager: BitcoinWalletManager {
             prioritySatoshiPerByte: maxRate
         )
 
-        return Result { try processFee(ratesModel, amount: amount, destination: destination) }
-            .publisher
-            .eraseToAnyPublisher()
+        return Future.async {
+            try await self.processFee(ratesModel, amount: amount, destination: destination)
+        }
+        .eraseToAnyPublisher()
     }
 }

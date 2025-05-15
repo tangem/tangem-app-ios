@@ -6,8 +6,7 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import TangemSdk
-import BitcoinCore
+import Foundation
 
 struct Fact0rnAddressService {
     private let bitcoinAddressService = BitcoinBech32AddressService(networkParams: Fact0rnMainNetworkParams())

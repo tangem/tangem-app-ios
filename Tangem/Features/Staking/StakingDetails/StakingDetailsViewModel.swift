@@ -7,12 +7,14 @@
 //
 
 import Combine
-import TangemLocalization
 import SwiftUI
+import BlockchainSdk
 import TangemAssets
 import TangemStaking
 import TangemFoundation
-import BlockchainSdk
+import TangemLocalization
+import struct TangemUIUtils.ActionSheetBinder
+import struct TangemUIUtils.AlertBinder
 
 final class StakingDetailsViewModel: ObservableObject {
     // MARK: - ViewState
@@ -106,7 +108,7 @@ final class StakingDetailsViewModel: ObservableObject {
             return
         }
 
-        if case .disabled(let reason) = actionButtonState {
+        if case .disabled = actionButtonState {
             showStakeMoreWarningIfNeeded()
             return
         }
@@ -331,9 +333,14 @@ private extension StakingDetailsViewModel {
     func setupStakes(yield: YieldInfo, staking: [StakingBalance]) {
         let staking = staking.map { balance in
             stakesBuilder.mapToStakingDetailsStakeViewData(yield: yield, balance: balance) { [weak self] in
+                let tokenCurrencySymbol = self?.tokenItem.currencySymbol ?? ""
+
                 Analytics.log(
                     event: .stakingButtonValidator,
-                    params: [.source: Analytics.ParameterValue.stakeSourceStakeInfo.rawValue]
+                    params: [
+                        .source: Analytics.ParameterValue.stakeSourceStakeInfo.rawValue,
+                        .token: tokenCurrencySymbol,
+                    ]
                 )
                 self?.openFlow(balance: balance, validators: yield.validators)
             }
@@ -378,7 +385,13 @@ private extension StakingDetailsViewModel {
             openFlow(balance: rewardsBalance, validators: yield.validators)
 
             let name = rewardsBalance.validatorType.validator?.name
-            Analytics.log(event: .stakingButtonRewards, params: [.validator: name ?? ""])
+            Analytics.log(
+                event: .stakingButtonRewards,
+                params: [
+                    .validator: name ?? "",
+                    .token: tokenItem.currencySymbol,
+                ]
+            )
         } else {
             coordinator?.openMultipleRewards()
         }
@@ -435,13 +448,33 @@ private extension StakingDetailsViewModel {
             coordinator?.openStakingFlow()
         case .pending(.voteLocked):
             coordinator?.openRestakingFlow(action: action)
+        case .unstake where stakingParams.reservedFee > 0:
+            if checkIfTokenBalanceIsSufficient(for: stakingParams.reservedFee) {
+                fallthrough
+            }
         case .unstake:
             coordinator?.openUnstakingFlow(action: action)
         case .pending(.restake), .pending(.stake):
             coordinator?.openRestakingFlow(action: action)
+        case .pending(.withdraw) where stakingParams.reservedFee > 0:
+            if checkIfTokenBalanceIsSufficient(for: stakingParams.reservedFee) {
+                fallthrough
+            }
         case .pending:
             coordinator?.openStakingSingleActionFlow(action: action)
         }
+    }
+
+    private func checkIfTokenBalanceIsSufficient(for reservedFee: Decimal) -> Bool {
+        guard let balance = tokenBalanceProvider.balanceType.value,
+              balance < reservedFee else {
+            return true
+        }
+        alert = .init(
+            title: Localization.stakingNotificationTonExtraReserveTitle,
+            message: Localization.stakingNotificationTonExtraReserveIsRequired
+        )
+        return false
     }
 
     func shouldShowMinimumRequirement() -> Bool {

@@ -9,6 +9,8 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemNFT
+import TangemUI
 
 struct MainCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: MainCoordinator
@@ -75,6 +77,9 @@ struct MainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.marketsTokenDetailsCoordinator) {
                 MarketsTokenDetailsCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.nftCollectionsCoordinator) {
+                NFTCollectionsCoordinatorView(coordinator: $0)
+            }
     }
 
     @ViewBuilder
@@ -115,6 +120,9 @@ struct MainCoordinatorView: CoordinatorView {
             }
             .sheet(item: $coordinator.actionButtonsSwapCoordinator) {
                 ActionButtonsSwapCoordinatorView(coordinator: $0)
+            }
+            .floatingSheetContent(for: WCConnectionSheetViewModel.self) {
+                WCConnectRequestModalView(viewModel: $0)
             }
 
         NavHolder()
