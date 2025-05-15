@@ -32,8 +32,8 @@ public struct NFTCollectionsListView: View {
         content
             .navigationTitle(Localization.nftWalletTitle)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(.horizontal, Constants.horizontalPadding)
-            .background(Colors.Background.secondary)
+            .padding(.horizontal, 16)
+            .background(Colors.Background.tertiary)
     }
 
     @ViewBuilder
@@ -51,11 +51,11 @@ public struct NFTCollectionsListView: View {
         VStack(spacing: 0) {
             Assets.Nft.Collections.noCollections.image
                 .resizable()
-                .frame(size: Constants.EmptyView.imageSize)
-                .padding(.bottom, Constants.EmptyView.imageTextsSpacing)
+                .frame(size: .init(bothDimensions: UIScreen.main.bounds.width / 6))
+                .padding(.bottom, 24)
 
             noCollectionsTexts
-                .padding(.bottom, Constants.EmptyView.textsButtonSpacing)
+                .padding(.bottom, 56)
 
             receiveButton(shouldAddShadow: false)
                 .padding(.horizontal, Constants.EmptyView.buttonHPaddingInsideContainer)
@@ -64,7 +64,7 @@ public struct NFTCollectionsListView: View {
     }
 
     private var noCollectionsTexts: some View {
-        VStack(spacing: Constants.EmptyView.titleSubtitleSpacing) {
+        VStack(spacing: 8) {
             Text(Localization.nftCollectionsEmptyTitle)
                 .style(Fonts.BoldStatic.title3, color: Colors.Text.primary1)
             Text(Localization.nftCollectionsEmptyDescription)
@@ -94,15 +94,20 @@ public struct NFTCollectionsListView: View {
     private func collectionsContent(from collections: [NFTCompactCollectionViewModel]) -> some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
-                LazyVStack(spacing: Constants.interitemSpacing) {
+                if let notificationViewData = viewModel.loadingTroublesViewData {
+                    NFTNotificationView(viewData: notificationViewData)
+                        .padding(.bottom, 12)
+                }
+
+                LazyVStack(spacing: 30) {
                     ForEach(collections, id: \.id) { collectionViewModel in
                         NFTCollectionDisclosureGroupView(viewModel: collectionViewModel)
                     }
                 }
                 .roundedBackground(
                     with: Colors.Background.primary,
-                    padding: Constants.backgroundPadding,
-                    radius: Constants.cornerRadius
+                    padding: 14,
+                    radius: 14
                 )
                 .readGeometry(\.frame.height, inCoordinateSpace: coordinateSpace, bindTo: $contentHeight)
                 // We need this code to track view's heigh when row expands
@@ -111,9 +116,10 @@ public struct NFTCollectionsListView: View {
                     GeometryReader { proxy in
                         Color.clear
                             .onChange(of: viewModel.rowExpanded) { _ in
-                                let rect = proxy.frame(in: coordinateSpace)
-                                let offset = -rect.origin.y
-                                shouldShowShadow = rect.height - offset > buttonMinY
+                                onCollectionHeightChanged(proxy: proxy)
+                            }
+                            .onChange(of: viewModel.loadingTroublesViewData) { _ in
+                                onCollectionHeightChanged(proxy: proxy)
                             }
                     }
                 )
@@ -145,7 +151,7 @@ public struct NFTCollectionsListView: View {
 
     private func receiveButton(shouldAddShadow: Bool) -> some View {
         MainButton(title: Localization.nftCollectionsReceive, action: viewModel.onReceiveButtonTap)
-            .padding(.bottom, Constants.mainButtonBottomPadding)
+            .padding(.bottom, 6)
             .if(shouldAddShadow) { view in
                 view.background(
                     ListFooterOverlayShadowView()
@@ -159,6 +165,12 @@ public struct NFTCollectionsListView: View {
 
     private var coordinateSpace: CoordinateSpace {
         .named(coordinateSpaceName)
+    }
+
+    private func onCollectionHeightChanged(proxy: GeometryProxy) {
+        let rect = proxy.frame(in: coordinateSpace)
+        let offset = -rect.origin.y
+        shouldShowShadow = rect.height - offset > buttonMinY
     }
 }
 
@@ -174,24 +186,13 @@ private extension View {
 extension NFTCollectionsListView {
     enum Constants {
         enum EmptyView {
-            static let imageTextsSpacing: CGFloat = 24
-            static let titleSubtitleSpacing: CGFloat = 8
-            static let textsButtonSpacing: CGFloat = 56
             static let imageSize: CGSize = .init(bothDimensions: 76)
 
             static let horizontalPadding: CGFloat = 16
             static let buttonHPaddingInsideContainer: CGFloat = 40
         }
 
-        static let horizontalPadding: CGFloat = 16
-        static let backgroundPadding: CGFloat = 14
-        static let interitemSpacing: CGFloat = 30
-        static let cornerRadius: CGFloat = 14
-
         static let contentButtonSpacing: CGFloat = 16
-        static let searchBarCollectionsSpacing: CGFloat = 12
-
-        static let mainButtonBottomPadding: CGFloat = 6
     }
 }
 
@@ -203,35 +204,37 @@ extension NFTCollectionsListView {
             viewModel: .init(
                 nftManager: NFTManagerMock(
                     state: .loaded(
-                        (0 ... 20).map {
-                            NFTCollection(
-                                collectionIdentifier: "some-\($0)",
-                                chain: .solana,
-                                contractType: .erc1155,
-                                ownerAddress: "0x79D21ca8eE06E149d296a32295A2D8A97E52af52",
-                                name: "My awesome collection",
-                                description: "",
-                                media: .init(
-                                    kind: .image,
-                                    url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
-                                ),
-                                assetsCount: nil,
-                                assets: (0 ... 3).map {
-                                    NFTAsset(
-                                        assetIdentifier: "some-\($0)",
-                                        collectionIdentifier: "some1",
-                                        chain: .solana,
-                                        contractType: .unknown,
-                                        ownerAddress: "",
-                                        name: "My asset",
-                                        description: "",
-                                        media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
-                                        rarity: nil,
-                                        traits: []
-                                    )
-                                }
-                            )
-                        }
+                        .init(
+                            value: (0 ... 20).map {
+                                NFTCollection(
+                                    collectionIdentifier: "some-\($0)",
+                                    chain: .solana,
+                                    contractType: .erc1155,
+                                    ownerAddress: "0x79D21ca8eE06E149d296a32295A2D8A97E52af52",
+                                    name: "My awesome collection",
+                                    description: "",
+                                    media: .init(
+                                        kind: .image,
+                                        url: URL(string: "https://cusethejuice.s3.amazonaws.com/cuse-box/assets/compressed-collection.png")!
+                                    ),
+                                    assetsCount: nil,
+                                    assets: (0 ... 3).map {
+                                        NFTAsset(
+                                            assetIdentifier: "some-\($0)",
+                                            collectionIdentifier: "some1",
+                                            chain: .solana,
+                                            contractType: .unknown,
+                                            ownerAddress: "",
+                                            name: "My asset",
+                                            description: "",
+                                            media: NFTMedia(kind: .image, url: URL(string: "https://cusethejuice.com/cuse-box/assets-cuse-dalle/80.png")!),
+                                            rarity: nil,
+                                            traits: []
+                                        )
+                                    }
+                                )
+                            }
+                        )
                     )
                 ),
                 chainIconProvider: DummyProvider(),
@@ -248,7 +251,7 @@ extension NFTCollectionsListView {
         Colors.Background.secondary
         NFTCollectionsListView(
             viewModel: .init(
-                nftManager: NFTManagerMock(state: .loaded([])),
+                nftManager: NFTManagerMock(state: .loaded(.init(value: []))),
                 chainIconProvider: DummyProvider(),
                 navigationContext: NFTEntrypointNavigationContextMock(),
                 coordinator: nil
