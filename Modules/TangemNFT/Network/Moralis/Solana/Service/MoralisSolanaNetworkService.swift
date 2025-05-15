@@ -33,7 +33,7 @@ public final class MoralisSolanaNetworkService {
 // MARK: - NFTNetworkService protocol conformance
 
 extension MoralisSolanaNetworkService: NFTNetworkService {
-    public func getCollections(address: String) async throws -> [NFTCollection] {
+    public func getCollections(address: String) async throws -> NFTPartialResult<[NFTCollection]> {
         let apiTarget = MoralisSolanaAPITarget(
             target: .getNFTsByWallet(
                 address: address,
@@ -47,22 +47,27 @@ extension MoralisSolanaNetworkService: NFTNetworkService {
         let groupedAssets = Dictionary(grouping: assets, by: \.collection?.collectionAddress)
         let keys = assets.map(\.collection?.collectionAddress).unique()
 
-        return keys.map { key in
+        let collections = keys.map { key in
             let assets = groupedAssets[key, default: []]
             return mapper.map(collection: assets.first?.collection, assets: assets, ownerAddress: address)
         }
+
+        return NFTPartialResult(value: collections, hasErrors: false)
     }
 
-    public func getAssets(address: String, collectionIdentifier: NFTCollection.ID?) async throws -> [NFTAsset] {
-        let collections = try await getCollections(address: address)
+    public func getAssets(address: String, collectionIdentifier: NFTCollection.ID?) async throws -> NFTPartialResult<[NFTAsset]> {
+        let loadedResponse = try await getCollections(address: address)
 
-        return if let collectionIdentifier {
-            collections
+        let assets = if let collectionIdentifier {
+            loadedResponse
+                .value
                 .first { $0.id == collectionIdentifier }?
                 .assets ?? []
         } else {
-            collections.flatMap(\.assets)
+            loadedResponse.value.flatMap(\.assets)
         }
+
+        return NFTPartialResult(value: assets, hasErrors: false)
     }
 
     public func getAsset(assetIdentifier: NFTAsset.ID) async throws -> NFTAsset? {
