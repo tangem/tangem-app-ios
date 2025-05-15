@@ -18,13 +18,11 @@ enum WalletConnectV2Error: LocalizedError {
     case dataInWrongFormat(String)
     case notEnoughDataInRequest(String)
     case walletModelNotFound(String)
-    case missingWalletModelProviderInHandlersFactory
     case missingGasLoader
     case missingEthTransactionSigner
     case missingTransaction
-    case transactionSentButNotFoundInManager
     case wrongCardSelected
-    case sessionConnetionTimeout
+    case sessionConnectionTimeout
     case unsupportedDApp
     case missingActiveUserWalletModel
     case userWalletRepositoryIsLocked
@@ -46,13 +44,11 @@ enum WalletConnectV2Error: LocalizedError {
         case .dataInWrongFormat: return 8005
         case .notEnoughDataInRequest: return 8006
         case .walletModelNotFound: return 8007
-        case .missingWalletModelProviderInHandlersFactory: return 8008
         case .missingGasLoader: return 8009
         case .missingEthTransactionSigner: return 8010
         case .missingTransaction: return 8011
-        case .transactionSentButNotFoundInManager: return 8012
         case .wrongCardSelected: return 8013
-        case .sessionConnetionTimeout: return 8014
+        case .sessionConnectionTimeout: return 8014
         case .unsupportedDApp: return 8015
         case .missingActiveUserWalletModel: return 8016
         case .userWalletRepositoryIsLocked: return 8017
@@ -87,7 +83,7 @@ enum WalletConnectV2Error: LocalizedError {
             return Localization.walletConnectErrorWrongCardSelected
         case .unknown(let errorMessage):
             return Localization.walletConnectErrorWithFrameworkMessage(errorMessage)
-        case .sessionConnetionTimeout:
+        case .sessionConnectionTimeout:
             return Localization.walletConnectErrorTimeout
         case .unsupportedDApp:
             return Localization.walletConnectErrorUnsupportedDapp
