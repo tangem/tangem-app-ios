@@ -16,19 +16,13 @@ protocol AvailableTokenBalanceProviderInput: AnyObject {
 }
 
 /// Just simple available to use (e.g. send) balance
-struct AvailableTokenBalanceProvider {
-    private weak var innerInput: AvailableTokenBalanceProviderInput?
-    private weak var input: AvailableTokenBalanceProviderInput? {
-        get { lock { innerInput }}
-        set { lock { innerInput = newValue }}
-    }
+class AvailableTokenBalanceProvider {
+    private weak var input: AvailableTokenBalanceProviderInput?
 
     private let walletModelId: WalletModelId
     private let tokenItem: TokenItem
     private let tokenBalancesRepository: TokenBalancesRepository
     private let balanceFormatter = BalanceFormatter()
-
-    private let lock = Lock(isRecursive: false)
 
     init(
         input: AvailableTokenBalanceProviderInput,
@@ -117,8 +111,9 @@ private extension AvailableTokenBalanceProvider {
     }
 
     func mapToFormattedTokenBalanceType(type: TokenBalanceType) -> FormattedTokenBalanceType {
-        let builder = FormattedTokenBalanceTypeBuilder(format: { value in
-            balanceFormatter.formatCryptoBalance(value, currencyCode: tokenItem.currencySymbol)
+        let currencyCode = tokenItem.currencySymbol
+        let builder = FormattedTokenBalanceTypeBuilder(format: { [balanceFormatter] value in
+            balanceFormatter.formatCryptoBalance(value, currencyCode: currencyCode)
         })
 
         return builder.mapToFormattedTokenBalanceType(type: type)
