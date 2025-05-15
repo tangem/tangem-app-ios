@@ -15,17 +15,11 @@ protocol FiatTokenBalanceProviderInput: AnyObject {
     var ratePublisher: AnyPublisher<WalletModelRate, Never> { get }
 }
 
-struct FiatTokenBalanceProvider {
-    private weak var innerInput: FiatTokenBalanceProviderInput?
-    private weak var input: FiatTokenBalanceProviderInput? {
-        get { lock { innerInput }}
-        set { lock { innerInput = newValue }}
-    }
+class FiatTokenBalanceProvider {
+    private weak var input: FiatTokenBalanceProviderInput?
 
     private let cryptoBalanceProvider: TokenBalanceProvider
     private let balanceFormatter = BalanceFormatter()
-
-    private let lock = Lock(isRecursive: false)
 
     init(
         input: FiatTokenBalanceProviderInput?,
@@ -147,7 +141,7 @@ extension FiatTokenBalanceProvider {
     }
 
     func mapToFormattedTokenBalanceType(type: TokenBalanceType) -> FormattedTokenBalanceType {
-        let builder = FormattedTokenBalanceTypeBuilder(format: { value in
+        let builder = FormattedTokenBalanceTypeBuilder(format: { [balanceFormatter] value in
             balanceFormatter.formatFiatBalance(value)
         })
 
