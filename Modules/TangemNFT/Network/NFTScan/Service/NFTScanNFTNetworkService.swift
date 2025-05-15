@@ -43,7 +43,7 @@ public final class NFTScanNFTNetworkService {
 // MARK: - NFTNetworkService protocol conformance
 
 extension NFTScanNFTNetworkService: NFTNetworkService {
-    public func getCollections(address: String) async throws -> [NFTCollection] {
+    public func getCollections(address: String) async throws -> NFTPartialResult<[NFTCollection]> {
         let apiTarget = NFTScanAPITarget(
             chain: chain,
             target: .getNFTCollectionsByAddress(
@@ -54,17 +54,22 @@ extension NFTScanNFTNetworkService: NFTNetworkService {
         let response = try await provider.asyncRequest(apiTarget)
             .map(NFTScanNetworkResult.Response<[NFTScanNetworkResult.Collection]>.self, using: decoder)
 
-        return try response.data?.compactMap {
+        let collections = try response.data?.compactMap {
             try mapper.mapCollection($0, chain: chain, ownerAddress: address)
         } ?? []
+
+        return NFTPartialResult(value: collections, hasErrors: false)
     }
 
-    public func getAssets(address: String, collectionIdentifier: NFTCollection.ID?) async throws -> [NFTAsset] {
-        try await getCollections(address: address)
+    public func getAssets(address: String, collectionIdentifier: NFTCollection.ID?) async throws -> NFTPartialResult<[NFTAsset]> {
+        let assets = try await getCollections(address: address)
+            .value
             .filter {
                 collectionIdentifier != nil ? $0.id.collectionIdentifier == collectionIdentifier?.collectionIdentifier : true
             }
             .flatMap(\.assets)
+
+        return NFTPartialResult(value: assets, hasErrors: false)
     }
 
     public func getAsset(assetIdentifier: NFTAsset.ID) async throws -> NFTAsset? {
